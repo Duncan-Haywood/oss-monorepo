@@ -1,0 +1,102 @@
+# water-leaks step 1: D1 on BattLeDIM; trailing window W=14 d, gap g=7 d, re-anchored after an alarm (min 7 d), CUSUM k=0.5
+# tune on 2018 (leaks starting from 2018-01-15), test on 2019
+# leaks: 33 over both years; 2019 has 4 carried from 2018 (p257, p427, p654, p810) and 19 new
+# matching: an alarm counts for the running, unmatched leak with the latest onset if it is within 30 days of that onset; otherwise it is a false alarm. Detection only (no pipe reported).
+
+variant L h   10: 2018 TP 13/13 FP 10 | 2019 new TP 18/19 FP  7
+variant L h   15: 2018 TP 12/13 FP  9 | 2019 new TP 17/19 FP  5
+variant L h   20: 2018 TP 11/13 FP  6 | 2019 new TP 17/19 FP  4
+variant L h   30: 2018 TP 12/13 FP  4 | 2019 new TP 13/19 FP  5
+variant L h   40: 2018 TP 10/13 FP  2 | 2019 new TP 13/19 FP  3
+variant L h   60: 2018 TP 10/13 FP  2 | 2019 new TP 12/19 FP  3
+variant L h   80: 2018 TP 10/13 FP  2 | 2019 new TP 10/19 FP  3
+variant L h  120: 2018 TP 9/13 FP  1 | 2019 new TP 10/19 FP  2
+variant L h  160: 2018 TP 8/13 FP  1 | 2019 new TP 10/19 FP  1
+variant L h  240: 2018 TP 8/13 FP  0 | 2019 new TP 9/19 FP  1
+variant L h  320: 2018 TP 6/13 FP  0 | 2019 new TP 8/19 FP  0
+variant L h  400: 2018 TP 6/13 FP  0 | 2019 new TP 6/19 FP  0
+variant L h  480: 2018 TP 6/13 FP  0 | 2019 new TP 5/19 FP  0
+variant F h   10: 2018 TP 13/13 FP 11 | 2019 new TP 18/19 FP  7
+variant F h   15: 2018 TP 9/13 FP 12 | 2019 new TP 17/19 FP  9
+variant F h   20: 2018 TP 11/13 FP 10 | 2019 new TP 17/19 FP  6
+variant F h   30: 2018 TP 11/13 FP  9 | 2019 new TP 15/19 FP  7
+variant F h   40: 2018 TP 11/13 FP  7 | 2019 new TP 16/19 FP  5
+variant F h   60: 2018 TP 11/13 FP  5 | 2019 new TP 16/19 FP  4
+variant F h   80: 2018 TP 11/13 FP  5 | 2019 new TP 14/19 FP  4
+variant F h  120: 2018 TP 10/13 FP  4 | 2019 new TP 13/19 FP  4
+variant F h  160: 2018 TP 10/13 FP  3 | 2019 new TP 12/19 FP  4
+variant F h  240: 2018 TP 9/13 FP  1 | 2019 new TP 13/19 FP  2
+variant F h  320: 2018 TP 9/13 FP  2 | 2019 new TP 11/19 FP  1
+variant F h  400: 2018 TP 8/13 FP  0 | 2019 new TP 11/19 FP  0
+variant F h  480: 2018 TP 8/13 FP  0 | 2019 new TP 9/19 FP  0
+
+# selection on 2018 only: most 2018 true positives with at most 2 2018 false alarms (ties: fewer false alarms, then larger h)
+## variant F (hour-of-week + tank level + 3 inlet flows): h = 240
+2018: TP 9/13, FP 1
+2019: TP 13/19 new leaks, FP 2; carried leaks found in 2018: 3/4; on BattLeDIM's 23-leak count: 16/23 detected (no localisation)
+chance level: the same 26 alarms over 2018-19 at random hours (14 d apart, the blind time after an alarm) from random sensors, 1,000 draws; 2019 new leaks:
+  metric          D1   chance median (95% range)   P(chance >= D1)
+  TP              13      11 (8 to 13)              0.105
+  FP               2       2 (0 to 4)              0.778
+  TP<=72h          4       2 (0 to 5)              0.145
+  TP<=300m         5       0 (0 to 2)              0.000
+  TP<=72h&300m     3       0 (0 to 1)              0.000
+   p123 onset 2019-09-15T15:40 peak  9.19 m3/h  detected + 154 h by n114 (  818 m straight,  1113 m along pipes)
+   p142 onset 2019-06-12T19:55 peak 27.04 m3/h  detected +  93 h by n613 (  209 m straight,   281 m along pipes)
+   p193 onset 2019-05-20T21:55 peak 10.36 m3/h  detected + 197 h by n114 ( 2522 m straight,  3321 m along pipes)
+   p277 onset 2019-06-01T19:40 peak  7.36 m3/h  missed
+   p280 onset 2019-02-10T13:05 peak  5.26 m3/h  detected + 104 h by n410 (  573 m straight,  1085 m along pipes)
+   p331 onset 2019-04-20T10:10 peak 10.93 m3/h  detected +  71 h by n410 (  149 m straight,   277 m along pipes)
+   p426 onset 2019-10-25T13:25 peak 13.56 m3/h  detected + 122 h by n429 (  359 m straight,   387 m along pipes)
+   p455 onset 2019-10-05T03:35 peak 11.05 m3/h  detected +  35 h by n752 ( 2411 m straight,  3157 m along pipes)
+   p514 onset 2019-04-02T20:40 peak 15.58 m3/h  detected +  75 h by n644 ( 1325 m straight,  1557 m along pipes)
+   p523 onset 2019-01-15T23:00 peak 28.39 m3/h  detected +  22 h by n506 (   85 m straight,    86 m along pipes)
+   p586 onset 2019-07-27T02:55 peak 20.52 m3/h  missed
+   p653 onset 2019-03-04T08:40 peak 18.28 m3/h  missed
+   p680 onset 2019-07-10T08:45 peak  5.37 m3/h  detected +  11 h by n215 (  207 m straight,   288 m along pipes)
+   p710 onset 2019-03-24T14:15 peak  5.58 m3/h  missed
+   p721 onset 2019-08-03T03:20 peak 13.18 m3/h  missed
+   p762 onset 2019-10-10T09:40 peak 15.71 m3/h  missed
+   p800 onset 2019-08-16T22:05 peak 21.95 m3/h  detected + 105 h by n549 ( 2009 m straight,  2411 m along pipes)
+   p827 onset 2019-01-24T18:30 peak 26.46 m3/h  detected + 146 h by n726 (  229 m straight,   229 m along pipes)
+   p879 onset 2019-11-21T09:15 peak 10.93 m3/h  detected + 341 h by n114 ( 2624 m straight,  3203 m along pipes)
+  false alarm 2019-05-11T08 by n215
+  false alarm 2019-09-07T17 by n296
+  median delay 104 h (range 11 to 341); alarming sensor within 300 m of the leak: 5/13 straight, 5/13 along pipes
+  volume the 2019 new leaks lose after their detection (saved by an instant repair): 285,791 of 444,340 m3 (64.3%)
+
+## variant L (hour-of-week + tank level): h = 80
+2018: TP 10/13, FP 2
+2019: TP 10/19 new leaks, FP 3; carried leaks found in 2018: 3/4; on BattLeDIM's 23-leak count: 13/23 detected (no localisation)
+chance level: the same 26 alarms over 2018-19 at random hours (14 d apart, the blind time after an alarm) from random sensors, 1,000 draws; 2019 new leaks:
+  metric          D1   chance median (95% range)   P(chance >= D1)
+  TP              10      11 (8 to 13)              0.878
+  FP               3       2 (0 to 4)              0.423
+  TP<=72h          2       2 (0 to 5)              0.658
+  TP<=300m         6       0 (0 to 2)              0.000
+  TP<=72h&300m     2       0 (0 to 1)              0.005
+   p123 onset 2019-09-15T15:40 peak  9.19 m3/h  missed
+   p142 onset 2019-06-12T19:55 peak 27.04 m3/h  detected +  58 h by n613 (  209 m straight,   281 m along pipes)
+   p193 onset 2019-05-20T21:55 peak 10.36 m3/h  missed
+   p277 onset 2019-06-01T19:40 peak  7.36 m3/h  missed
+   p280 onset 2019-02-10T13:05 peak  5.26 m3/h  detected + 120 h by  n31 (   73 m straight,    73 m along pipes)
+   p331 onset 2019-04-20T10:10 peak 10.93 m3/h  detected +  77 h by n613 (  816 m straight,  1266 m along pipes)
+   p426 onset 2019-10-25T13:25 peak 13.56 m3/h  detected +  95 h by n342 (  214 m straight,   590 m along pipes)
+   p455 onset 2019-10-05T03:35 peak 11.05 m3/h  missed
+   p514 onset 2019-04-02T20:40 peak 15.58 m3/h  missed
+   p523 onset 2019-01-15T23:00 peak 28.39 m3/h  detected +  15 h by n506 (   85 m straight,    86 m along pipes)
+   p586 onset 2019-07-27T02:55 peak 20.52 m3/h  missed
+   p653 onset 2019-03-04T08:40 peak 18.28 m3/h  detected +  89 h by n215 (  407 m straight,  1404 m along pipes)
+   p680 onset 2019-07-10T08:45 peak  5.37 m3/h  detected + 235 h by n215 (  207 m straight,   288 m along pipes)
+   p710 onset 2019-03-24T14:15 peak  5.58 m3/h  detected + 201 h by n644 (   65 m straight,   141 m along pipes)
+   p721 onset 2019-08-03T03:20 peak 13.18 m3/h  missed
+   p762 onset 2019-10-10T09:40 peak 15.71 m3/h  missed
+   p800 onset 2019-08-16T22:05 peak 21.95 m3/h  detected + 107 h by n549 ( 2009 m straight,  2411 m along pipes)
+   p827 onset 2019-01-24T18:30 peak 26.46 m3/h  detected + 136 h by n726 (  229 m straight,   229 m along pipes)
+   p879 onset 2019-11-21T09:15 peak 10.93 m3/h  missed
+  false alarm 2019-07-04T16 by n215
+  false alarm 2019-09-04T14 by n296
+  false alarm 2019-11-20T03 by n288
+  median delay 101 h (range 15 to 235); alarming sensor within 300 m of the leak: 7/10 straight, 6/10 along pipes
+  volume the 2019 new leaks lose after their detection (saved by an instant repair): 246,430 of 444,340 m3 (55.5%)
+
