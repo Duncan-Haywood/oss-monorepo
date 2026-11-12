@@ -249,15 +249,22 @@ flagships:
       (+0.0007 over 80 cells), better on honest panels and slot clickers
       (up to +0.025), real panels at least standard's in 22 of 25 cells; the
       one cost is whole-session coin flippers at 40-50% of a panel (-0.006 to
-      -0.025), and salience leaks 0.01-0.03 more. Next, most valuable first:
-      (a) the coin-flip cost under staged: a fix that does not tax camps (the
-      agreement note already flags them; try down-weighting answers on pairs
-      the panel finds clear, or a lapse-aware pool), and a heavier-tailed
-      prior for the pairwise intervals; (b) half-time salience (q = 0.5 still
-      leaks +0.12 to +0.29: does pace see them?); (c) check the answer-time
-      model against the first real survey's msToAnswer; (d) position bias
-      that starts mid-session; (e) the switch rule above 120 items (then make
-      staged the default there too); then real pairwise answers.
+      -0.025), and salience leaks 0.01-0.03 more. Coin-flip fix tried
+      2026-11-12 (INFORMATION-GAIN-SELECTOR.md "Self-consistency", not
+      shipped): a person's own cross-validated fit (selfConsistency.ts) is
+      camp-blind but near a coin under staged (AUC 0.60-0.80); as a gate on
+      the agreement drop it halves the camp tax (25% camps -0.001 to -0.010
+      against -0.009 to -0.027) and on real PrefLib panels recovers 40-70% of
+      oracle while real answers are clean, but costs honest real panels up to
+      0.035 if a third of their answers are random; 18-46% of real people sit
+      under the 0.2 agreement line with no careless people at all. Next, most
+      valuable first: (a) a heavier-tailed prior for the pairwise intervals;
+      (b) half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace
+      see them?); (c) the first real survey's answers: msToAnswer against the
+      answer-time model, and how noisy real pairwise answers are, which
+      decides the self-consistency gate (scripts/coin-flip-gate-real.ts
+      --honest-lapse); (d) position bias that starts mid-session; (e) the
+      switch rule above 120 items (then make staged the default there too).
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot

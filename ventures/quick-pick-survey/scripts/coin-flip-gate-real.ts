@@ -19,7 +19,11 @@
  *                selfConsistency z under Z (selfConsistency.ts)
  *   oracle-drop  leave out the coin flippers
  *
- *   npx tsx scripts/coin-flip-gate-real.ts [--seeds 40] [--selector staged|standard] [--careless 0,0.25,0.4,0.5] [--gate-z 0.5,1]
+ * `--honest-lapse e` makes the real people answer at random a share e of the
+ * time too: a replayed ranking answers every pair without noise, which flatters
+ * any check of self-consistency.
+ *
+ *   npx tsx scripts/coin-flip-gate-real.ts [--seeds 40] [--selector staged|standard] [--careless 0,0.25,0.4,0.5] [--gate-z 0.5,1] [--honest-lapse 0]
  */
 import { groupRanking, LOW_AGREEMENT, respondentAgreement, type ParticipantRatingRow } from "../src/lib/groupRanking";
 import { answerWithHistory, meanPositions, mulberry32, parseSoc, type Panel } from "../src/lib/realRankings";
@@ -35,6 +39,8 @@ if (selector !== "staged" && selector !== "shipped" && selector !== "standard") 
 const sel = selector === "staged" ? "staged" : "shipped";
 const shares = opt("--careless", "0,0.25,0.4,0.5").split(",").map(Number);
 const gateZs = opt("--gate-z", "0.5,1").split(",").map(Number);
+/** Share of the real people's own answers given at random: replayed rankings are noise-free, real pairwise answers are not. */
+const honestLapse = arg("--honest-lapse", 0);
 
 type Person = { id: string; rows: ParticipantRatingRow[]; coin: boolean; z: number };
 
@@ -47,7 +53,7 @@ function scoreDraw(panel: Panel, n: number, budget: number, share: number, seed:
   const nCoin = Math.round(share * n);
   const people: Person[] = pick.map((order, i) => {
     const coin = i < nCoin;
-    const { rows, answers } = answerWithHistory(order, budget, sel, rand, coin ? 1 : 0);
+    const { rows, answers } = answerWithHistory(order, budget, sel, rand, coin ? 1 : honestLapse);
     const sc = selfConsistency(ids, answers);
     return { id: `p${i}`, rows: rows.map((r) => ({ ...r, participantId: `p${i}` })), coin, z: sc?.z ?? NaN };
   });
@@ -68,7 +74,7 @@ function scoreDraw(panel: Panel, n: number, budget: number, share: number, seed:
 }
 
 async function main() {
-  console.log(`seeds ${seeds}, selector ${selector}`);
+  console.log(`seeds ${seeds}, selector ${selector}, honest lapse ${honestLapse}`);
   for (const d of DATASETS) {
     const panel = parseSoc(await load(d.path, d.sha256));
     const n = d.key === "breakfast" ? 20 : 10;
@@ -81,7 +87,7 @@ async function main() {
           for (const [k, v] of Object.entries(r)) (acc[k] ??= []).push(v);
         }
         const mean = (v: number[]) => v.reduce((a, b) => a + b, 0) / v.length;
-        const row: Record<string, unknown> = { dataset: d.key, selector, people: n, answers: budget, careless: share, seeds, shipped: Number(mean(acc.shipped).toFixed(4)) };
+        const row: Record<string, unknown> = { dataset: d.key, selector, honestLapse, people: n, answers: budget, careless: share, seeds, shipped: Number(mean(acc.shipped).toFixed(4)) };
         for (const k of Object.keys(acc)) {
           if (k === "shipped" || k.startsWith("honest")) continue;
           const diff = acc[k].map((v, i) => v - acc.shipped[i]);
