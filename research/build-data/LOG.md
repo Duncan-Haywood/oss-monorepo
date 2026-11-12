@@ -1,5 +1,35 @@
 # build-data log
 
+## Session 76, 2026-11-12: naming demolition is what costs cascade2 its i2c q0.9 transfer; folding it into alteration removes two thirds of the cost and keeps the gains (S1 to S4 held)
+
+Why: session 75 found that of cascade2's +3.01-day Seattle i2c 2024 transfer q0.9 cost, demolition rows carry +1.69 (56%, 398 rows), and that demolition is the one class whose source completion tail is longer than Seattle's (q0.9 ratio 1.20). It read this post hoc as: naming a class imports the sources' tail for it. Session 75 suggested dropping source demolition rows. This session tests a cleaner version: `--classes cascade2_nodemo` folds demolition into alteration. The training rows stay the same and only the class feature loses demolition, so any change comes from not naming the class. A second session (this one) independently reran session 75's i2c 2024 and a2i 2023 pairs on a 2026-11-12 pull with the same row counts, and got the same numbers to the printed digit (+3.01 [1.65, 4.39]; -5.56 [-6.46, -4.56]; the same per-class split).
+- New: `transfer.py --classes cascade2_nodemo`. `by_class` groups a folded configuration's rows by their class before the fold, so the demolition rows stay visible (1 test).
+Predictions (written before any run): `python3.13 src/transfer.py DIR --target {i2c,a2i} --seeds 3 --held seattle --test-year 2024 --classes cascade2 cascade2_nodemo type` (paired: nodemo minus cascade2, type minus cascade2).
+- (S1) i2c 2024, transfer q0.9, cascade2_nodemo minus cascade2: 95% interval below zero.
+- (S2) In that difference, the rows cascade2 calls demolition contribute more than half of the total (same sign, negative).
+- (S3) i2c 2024, transfer q0.9, cascade2_nodemo minus type (from the two paired differences): point estimate below +1.5 days, under half of the +3.01 cost.
+- (S4) a2i 2024, transfer q0.9: folding demolition keeps cascade2's gain. cascade2_nodemo minus cascade2 has an interval including zero, or above zero by less than 1 day.
+Each is refuted if its condition fails.
+Outcome. Same 2026-11-12 pull as above (row counts equal session 75's). Both commands ran one after another, about 25 minutes in all (`boosted.fit_predict` uses 4 threads; session 75's parallel-run note holds). Outputs: `results/paired_transfer_seattle_{i2c,a2i}_2024_4city_{cascade2_nodemo,type}_vs_cascade2.json` and `results/transfer_seattle_{i2c,a2i}_2024_4city_cascade2_nodemo.json`. The committed type and cascade2 single-configuration files keep their earlier pulls, as in session 75. The type-minus-cascade2 pairs reproduce session 75 exactly (i2c q0.9 3.01 [1.65, 4.39], sign flipped) and give a2i q0.9 +3.80 [2.75, 4.84] on this pull (session 74: 3.88).
+- Paired differences against cascade2, days of mean pinball loss [95% week-block interval] (share of own baseline loss); negative = the other configuration is better:
+
+| target | b minus cascade2 | model | q0.1 | q0.5 | q0.9 |
+|---|---|---|---|---|---|
+| i2c | nodemo | transfer | -0.02 [-0.09, 0.05] | +0.15 [-0.08, 0.37] | **-1.98 [-2.70, -1.24] (-4.2%)** |
+| i2c | nodemo | own-city boosted | -0.08 [-0.14, -0.03] | -0.44 [-0.81, -0.07] | +0.07 [-0.15, 0.28] |
+| i2c | type | transfer | +0.74 [0.53, 0.96] | +0.91 [0.26, 1.56] | -3.01 [-4.39, -1.65] |
+| a2i | nodemo | transfer | 0.00 [0.00, 0.00] | +0.12 [0.05, 0.19] (+0.3%) | -0.07 [-0.47, 0.35] |
+| a2i | nodemo | own-city boosted | +0.04 [-0.00, 0.08] | -0.05 [-0.13, 0.03] | -0.15 [-0.33, 0.01] |
+| a2i | type | transfer | +0.01 [0.00, 0.01] | +0.52 [0.29, 0.78] | +3.80 [2.75, 4.84] |
+
+- (S1) Held: not naming demolition cuts the i2c transfer q0.9 loss by 1.98 days [1.24, 2.70].
+- (S2) Held: the 398 rows cascade2 calls demolition contribute -1.74 of the -1.98 (88%; mean -18.8 days per row). "Other" adds -0.26 and alteration -0.18; new construction goes the other way (+0.20).
+- (S3) Held: cascade2_nodemo minus type at i2c q0.9 is -1.98 + 3.01 = +1.03 days, a third of cascade2's +3.01 cost. That is a difference of two paired estimates, with no interval of its own.
+- (S4) Held: at a2i q0.9 folding demolition changes nothing (-0.07, interval spans zero), so cascade2_nodemo keeps cascade2's 3.9-day gain over type. Its only cost is a2i transfer q0.5, +0.12 days (0.3% of baseline loss).
+- So the session 75 reading survives a direct test. The class feature lets the transferred model give demolition the sources' longer completion tail (q0.9 665 against Seattle's 552 days), and taking the name away removes most of that. Against type, cascade2_nodemo keeps every i2c lower-quantile gain (q0.1 -0.76, q0.5 -0.76 days) and every a2i gain. For a practitioner borrowing a model across cities: merge any class whose source tail is longer than the target's before transfer, or check per-class tails first (`src/tail_check.py`).
+- Limits: one held-out city, one test year (2024; session 75 found the i2c cost absent in 2023), 3 seeds. The fold was chosen after seeing session 75's split, so this tests that reading, not a rule picked in advance. A general rule (fold every class whose source/target q0.9 ratio interval is above 1) needs another city and year to check.
+Next: the general fold rule on Chicago- and Austin-held-out runs (a2i) and on 2022/2023 i2c; cascade2_nodemo in the paper's transfer table; a second labeller.
+
 ## Session 75, 2026-11-11: where the cascade2 i2c q0.9 penalty sits, and test year 2023 for the paired run (R1, R2 refuted; Q4 held; the i2c q0.9 cost does not repeat in 2023)
 
 Why: session 74 found that cascade2 makes Seattle i2c transfer worse at q0.9 (+2.19 days [0.90, 3.51]) and read it, untested, as the sources (SF, Austin) giving new construction a completion tail Seattle's new-construction permits do not share; and Q4 (test year 2023) was not run. The Socrata hosts answered at 23:08 UTC; fresh four-feed pull started then.

@@ -927,6 +927,34 @@ def read_only_jobs(workflow: dict) -> tuple[set, list[tuple[str, str]]]:
 STALE_BASE_COMMITS = 30
 
 
+# The fetches `changed_paths` tries, in order, when `origin/<branch>` and HEAD
+# share no commit: the refresh the error used to print, then deeper history.
+# Runs kept hitting the error on a fresh shallow clone and typing the first
+# one by hand (friction 2026-11-12: "that step could be automatic").
+FETCH_STEPS = (("--depth=40",), ("--deepen=500",))
+
+
+def _fetch_merge_base(base, git):
+    """Fetch history until `base` and HEAD share a commit, for a remote ref.
+
+    Returns the last `git merge-base` result. A local base (`main`) is left
+    alone: there is nothing to fetch, and the caller's error says why."""
+    remote, _, branch = base.partition("/")
+    nothing = subprocess.CompletedProcess([], 1, "", "")
+    if not branch or git("remote", "get-url", remote).returncode != 0:
+        return nothing
+    found = nothing
+    for step in FETCH_STEPS:
+        print(f"run_workflow_locally: {base} and HEAD share no commit here; "
+              f"git fetch {' '.join(step)} {remote} {branch}", file=sys.stderr)
+        if git("fetch", "-q", *step, remote, branch).returncode != 0:
+            break
+        found = git("merge-base", base, "HEAD")
+        if found.returncode == 0 and found.stdout.strip():
+            break
+    return found
+
+
 def changed_paths(base: str, repo: str = REPO) -> list[str]:
     """Repo-relative paths this branch changed since it left `base`.
 
@@ -940,14 +968,17 @@ def changed_paths(base: str, repo: str = REPO) -> list[str]:
     turned a one-post diff into 4,165 files and dozens of unrelated
     workflows; several 2026-11-11 run records report it). With no merge base, as
     in a shallow clone whose `origin/main` is older than the clone's
-    boundary, the result would mean nothing, so it stops and says how to
-    fetch one.
+    boundary, it first fetches (FETCH_STEPS) for a remote base, and if that
+    still finds none, stops and says how to fetch one, since the diff would
+    mean nothing.
     """
     def git(*args):
         return subprocess.run(["git", *args], cwd=repo,
                               capture_output=True, text=True)
 
     found = git("merge-base", base, "HEAD")
+    if found.returncode != 0 or not found.stdout.strip():
+        found = _fetch_merge_base(base, git)
     if found.returncode != 0 or not found.stdout.strip():
         if git("rev-parse", "--verify", "--quiet", base).returncode != 0:
             raise SystemExit(f"run_workflow_locally: no ref {base!r}; "

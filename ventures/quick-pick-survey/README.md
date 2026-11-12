@@ -174,6 +174,15 @@ It is a data-quality note, never a weight: careless clicking by something other 
 question (a familiar name, a short label) moves the pool and makes it confidently wrong, but a
 group with a genuinely different taste scores just as low, and down-weighting would quiet it
 (docs/INFORMATION-GAIN-SELECTOR.md, "Careless patterns that are not random").
+Answer times break that tie when they can: the response's `pace` field compares each
+respondent's median time per pick (`Trial.msToAnswer`, 10+ timed answers, 5+ respondents)
+with the panel's, counts those under half the typical time, and says how many of the
+out-of-step respondents were among them. Fast and out of step looks like careless clicking;
+out of step at a normal pace looks like a different taste. `?drop=fast` (the builder's "Rank
+without the fast answerers" button) returns the ranking without them for comparison; the
+default ranking still counts them, because dropping fast people cost up to 0.019 Spearman in
+the sweep's widest-spread panels where careless people were no faster than anyone else
+(docs/INFORMATION-GAIN-SELECTOR.md, "Answer times: telling a careless block from a camp").
 Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.
 
 **A person's own results** (`/api/insights`) refit all of that person's answers at once

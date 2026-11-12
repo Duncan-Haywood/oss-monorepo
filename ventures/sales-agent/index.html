@@ -122,7 +122,7 @@
     <textarea id="calls" rows="3" placeholder="email,step,outcome,date"></textarea>
     <label for="holidays">Days off (optional: <code>us</code> for US federal holidays, <code>us-business</code> for the six most offices close, <code>gb-eng</code>, <code>gb-sct</code> or <code>gb-nir</code> for UK bank holidays, <code>ca</code> for Canada's federal holidays, or YYYY-MM-DD dates)</label>
     <input id="holidays" placeholder="us-business or gb-eng, 2026-12-24">
-    <p class="note">A call due today gets three buttons below the queue. Spoke or Voicemail ends the step. No answer brings the call back the next business day, up to three tries, and moves that person's later steps back by the days the call slipped, so a retry never lands on the next email's day. Retries and moved steps skip your days off. Each button adds a line to the calls box; delete the line to undo it. The task list, done list, calls and days off stay in this browser only.</p>
+    <p class="note">A call due today gets three buttons below the queue. Spoke or Voicemail ends the step. No answer brings the call back the next business day, up to three tries, and moves that person's later steps back by the days the call slipped, so a retry never lands on the next email's day. Retries and moved steps skip your days off. A prospect row with a <code>holidays</code>, <code>region</code> or <code>country</code> column (<code>ca-qc</code>, <code>GB-SCT</code>, <code>US</code>) skips theirs too: a call due on their holiday waits for their next working day. Each button adds a line to the calls box; delete the line to undo it. The task list, done list, calls and days off stay in this browser only.</p>
     <button type="button" id="go-daily">Build today's queue</button>
     <p id="daily-status" role="status" class="note"></p>
     <div id="daily-calls" hidden></div>
@@ -383,7 +383,7 @@
       const h = document.createElement("h3"); h.textContent = "Calls due today: mark each one"; box.append(h);
       for (const q of calls) {
         const row = document.createElement("p"), who = document.createElement("span");
-        who.textContent = (q.prospect || q.email) + (q.company ? ", " + q.company : "") + " (step " + q.step + ")" + (q.phone ? " " + q.phone : "") + (q.tries ? " — try " + (q.tries + 1) : "") + " ";
+        who.textContent = (q.prospect || q.email) + (q.company ? ", " + q.company : "") + " (step " + q.step + ")" + (q.phone ? " " + q.phone : "") + (q.tries ? " — try " + (q.tries + 1) : "") + (q.their_day_off ? " — moved from " + q.their_day_off.date + ", their " + q.their_day_off.name : "") + " ";
         row.append(who);
         for (const [outcome, label] of OUTCOME_BUTTONS) {
           const b = document.createElement("button"); b.type = "button"; b.className = "secondary"; b.textContent = label;

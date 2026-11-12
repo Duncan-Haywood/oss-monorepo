@@ -18,7 +18,8 @@
 // 2023 coronation, Scotland's 2026 World Cup day) cannot come from a rule, so the known ones are listed in GB_ONE_OFF; a new one needs adding there.
 //
 // Canada (added 2026-11-12, later): "ca" (or "ca-federal"), the twelve federal holidays; see caFederalHolidays for
-// what is in it and how far it is checked (a second source, not canada.ca).
+// what is in it and how far it is checked (a second source, not canada.ca). Provinces and territories (added the same
+// day, later): "ca-on", "ca-qc", "ca-bc" and the other ten postal codes; see caProvincialHolidays.
 
 const ymd = (y, m, d) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 const dow = (y, m, d) => new Date(Date.UTC(y, m, d)).getUTCDay();
@@ -130,6 +131,65 @@ export function caFederalHolidays(y) {
   return out.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 }
 
+// The Monday nearest day d of month m (Newfoundland and Labrador's rule for its own holidays). A Thursday goes back
+// three days; a Friday goes forward three, except St Patrick's Day, which NL kept on the Monday before in 2023 (Fri 17
+// March -> 13 March), and canada-holidays.ca gives 2028 the same way; `back` marks that.
+function nearestMonday(y, m, d, back = false) {
+  const w = dow(y, m, d), off = w === 1 ? 0 : w === 5 && back ? -4 : w <= 4 && w >= 2 ? 1 - w : (8 - w) % 7;
+  return shift(y, m, d, off);
+}
+
+const PROVINCES = ["ab", "bc", "mb", "nb", "nl", "ns", "nt", "nu", "on", "pe", "qc", "sk", "yt"];
+/** The statutory holidays of a Canadian province or territory in year y (added 2026-11-12, later), as { date, name }.
+ * prov is the postal code (ab, bc, mb, nb, nl, ns, nt, nu, on, pe, qc, sk, yt). These are the general holidays a
+ * province's employment law gives most workers, as canada-holidays.ca lists them; federally regulated employers
+ * (banks, airlines, telecoms) follow "ca" instead. A fixed-date holiday on a weekend moves to the next free weekday,
+ * except National Indigenous Peoples Day (21 June), which the site keeps on the day. holidays.test.mjs checks every
+ * province, 2022-2028, date for date against fixtures/canada-provincial-holidays.json: an open-source site, not the
+ * provinces' own pages (canada.ca refused this host on 2026-11-12). Two things that list carries that a rule cannot
+ * vouch for: Regatta Day (NL) is St. John's own civic holiday, the first Wednesday of August unless the regatta
+ * committee moves it (it was 30 July in 2025, listed below) or the weather does on the morning; and PEI's 2022 Day of
+ * Mourning. Employers in several provinces may swap a holiday (Quebec: Good Friday or Easter Monday), so read these as
+ * "most offices are shut", not as anyone's contract. */
+export function caProvincialHolidays(y, prov) {
+  const p = String(prov || "").toLowerCase();
+  if (!PROVINCES.includes(p)) throw new Error(`caProvincialHolidays: unknown province "${prov}"`);
+  const has = (...list) => list.includes(p);
+  const [em, ed] = easter(y);
+  const out = [{ date: shift(y, em, ed, -2), name: "Good Friday" }, { date: ymd(y, 8, nth(y, 8, 1, 1)), name: "Labour Day" }];
+  const feb = { ab: "Family Day", bc: "Family Day", nb: "Family Day", on: "Family Day", sk: "Family Day", mb: "Louis Riel Day", ns: "Heritage Day", pe: "Islander Day" }[p];
+  if (feb) out.push({ date: ymd(y, 1, nth(y, 1, 1, 3)), name: feb });
+  const victoria = ymd(y, 4, 24 - ((dow(y, 4, 24) + 6) % 7));
+  if (has("ab", "bc", "mb", "nt", "nu", "on", "sk", "yt")) out.push({ date: victoria, name: "Victoria Day" });
+  if (p === "qc") out.push({ date: victoria, name: "National Patriots' Day" });
+  const aug = { bc: "British Columbia Day", nb: "New Brunswick Day", sk: "Saskatchewan Day", nt: "Civic Holiday", nu: "Civic Holiday" }[p];
+  if (aug) out.push({ date: ymd(y, 7, nth(y, 7, 1, 1)), name: aug });
+  if (p === "yt") out.push({ date: ymd(y, 7, nth(y, 7, 1, 3)), name: "Discovery Day" });
+  if (has("ab", "bc", "mb", "nt", "nu", "on", "qc", "sk", "yt")) out.push({ date: ymd(y, 9, nth(y, 9, 1, 2)), name: "Thanksgiving" });
+  if (has("nt", "yt")) out.push({ date: ymd(y, 5, 21), name: "National Indigenous Peoples Day" });
+  if (p === "nl") {
+    out.push({ date: nearestMonday(y, 2, 17, true), name: "Saint Patrick's Day" }, { date: nearestMonday(y, 3, 23), name: "Saint George's Day" },
+      { date: nearestMonday(y, 5, 24), name: "Discovery Day" }, { date: nearestMonday(y, 6, 12), name: "Orangemen's Day" },
+      { date: y === 2025 ? "2025-07-30" : ymd(y, 7, nth(y, 7, 3, 1)), name: "Regatta Day" });
+  }
+  const fixed = [[0, 1, "New Year's Day"], [6, 1, p === "nl" ? "Memorial Day" : "Canada Day"]];
+  if (p === "qc") fixed.push([5, 24, "Saint-Jean-Baptiste Day"]);
+  if (p === "nu") fixed.push([6, 9, "Nunavut Day"]);
+  if (has("bc", "mb", "nt", "pe", "yt")) fixed.push([8, 30, p === "mb" ? "Orange Shirt Day" : "National Day for Truth and Reconciliation"]);
+  if (has("ab", "bc", "nb", "nl", "nt", "nu", "pe", "sk", "yt")) fixed.push([10, 11, "Remembrance Day"]);
+  fixed.push([11, 25, "Christmas Day"]);
+  if (has("nl", "on")) fixed.push([11, 26, "Boxing Day"]);
+  const taken = new Set(out.map((h) => h.date));
+  for (const [m, d, name] of fixed) {
+    let n = 0, date = ymd(y, m, d);
+    while ([0, 6].includes(dow(y, m, d + n)) || taken.has(date)) date = shift(y, m, d, ++n);
+    taken.add(date);
+    out.push({ date, name: n ? `${name} (observed)` : name });
+  }
+  if (y === 2022 && p === "pe") out.push({ date: "2022-09-19", name: "Day of Mourning for Queen Elizabeth II" });
+  return out.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+}
+
 const GB_DIVISIONS = { gb: "eng", uk: "eng", "gb-eng": "eng", "gb-wls": "eng", "gb-sct": "sct", "gb-nir": "nir" };
 
 const BUSINESS = new Set(["New Year's Day", "Memorial Day", "Independence Day", "Labor Day", "Thanksgiving Day", "Christmas Day"]);
@@ -144,7 +204,7 @@ function parseSpec(spec) {
     if (!p) continue;
     if (/^\d{4}-\d{2}-\d{2}$/.test(p)) dates.add(p);
     else if (preset(p)) sets.push(preset(p));
-    else throw new Error(`holidays: "${raw}" is not a date (YYYY-MM-DD), "us", "us-business", "gb-eng", "gb-sct", "gb-nir" or "ca"`);
+    else throw new Error(`holidays: "${raw}" is not a date (YYYY-MM-DD), "us", "us-business", "gb-eng", "gb-sct", "gb-nir", "ca" or a province ("ca-on", "ca-qc", ...)`);
   }
   return { dates, sets };
 }
@@ -154,6 +214,8 @@ function preset(p) {
   if (p === "us" || p === "us-federal") return usFederalHolidays;
   if (p === "us-business") return usBusinessHolidays;
   if (p === "ca" || p === "ca-federal") return caFederalHolidays;
+  const pr = p.match(/^ca-([a-z]{2})$/);
+  if (pr && PROVINCES.includes(pr[1])) return (y) => caProvincialHolidays(y, pr[1]);
   if (GB_DIVISIONS[p]) { const div = GB_DIVISIONS[p]; return (y) => gbBankHolidays(y, div); }
   return null;
 }

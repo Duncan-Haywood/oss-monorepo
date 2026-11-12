@@ -22,7 +22,7 @@ import { readFile } from "node:fs/promises";
 import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
-import { demandShifts, backtestSales } from "./demand.mjs";
+import { demandShifts, backtestSales, parseStandard } from "./demand.mjs";
 import {
   parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
@@ -69,6 +69,9 @@ Options:
                       --max-shift hours (default 4 to 8), inside the hours with sales or --open/--close (0-24). Shift lines on stdout, summary on stderr;
                       --count tickets plans from distinct ticket/order/receipt numbers per hour instead (--splh is then tickets per labor
                       hour; --count rows counts each row); a file with a ticket column and no sales column is counted by ticket.
+                      --standard "1.5/ticket + 0.02/sale + 0.3/item" plans from a labour standard instead: minutes of work per ticket,
+                      per unit of money and per item, blended (any of the three); --splh is then minutes of work per labor hour
+                      (default 60, everyone busy every minute; 45 leaves a quarter of each hour for cleaning and restocking).
                       the average of what you sold, not a forecast. --skip-dates 2026-11-26,2026-12-25 leaves those days out (holiday, storm);
                       --half-life <weeks> weights recent weeks more (a day's weight halves every that many weeks back from the newest date);
                       the default, auto, backtests equal weights, half-lives 8, 4 and 2 and the last 4 weeks only on your file and keeps the best (equal
@@ -141,6 +144,7 @@ export function parseArgs(argv) {
     else if (a === "--score-closed") o.demand = { ...o.demand, scoreClosed: true };
     else if (a === "--score-open-hours") o.demand = { ...o.demand, scoreClosed: false };
     else if (a === "--count") { const v = argv[++i]; if (!["sales", "tickets", "rows"].includes(v)) throw new Error("--count needs sales, tickets or rows"); o.demand = { ...o.demand, count: v }; }
+    else if (a === "--standard") { const v = argv[++i]; parseStandard(v); o.demand = { ...o.demand, standard: v }; }
     else if (a === "--plain-cut") o.demand = { ...o.demand, costCut: false };
     else if (a === "--join") o.demand = { ...o.demand, join: true };
     else if (a === "--warmup") { const v = Number(argv[++i]); if (!Number.isInteger(v) || v < 1) throw new Error("--warmup needs a whole number of weeks, 1 or more"); o.demand = { ...o.demand, warmup: v }; }
@@ -523,6 +527,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);
     }
     if (o.fromSales) {
+      if (!(o.splh > 0) && o.demand?.standard) o.splh = 60;
       if (!(o.splh > 0)) throw new Error("--from-sales needs --splh <sales per labor hour>");
       if (o.backtest) {
         const b = backtestSales(await readFile(o.fromSales, "utf8"), { ...o.demand, splh: o.splh, shifts: true });
@@ -533,7 +538,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.shiftsText) process.exit(1);
       const extra = r.extra >= 0 ? `${r.extra} extra from the shortest-shift rule` : `${-r.extra} fewer: short runs left unstaffed at your short cost`;
-      process.stderr.write(`${r.needed} person-hours needed, ${r.scheduled} scheduled (${extra}); average week ${r.count && r.count !== "sales" ? r.count : "sales"} ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
+      process.stderr.write(`${r.needed} person-hours needed, ${r.scheduled} scheduled (${extra}); average week ${r.count === "minutes" ? "minutes of work" : r.count && r.count !== "sales" ? r.count : "sales"} ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);
     }
     if (o.importStaff) {
