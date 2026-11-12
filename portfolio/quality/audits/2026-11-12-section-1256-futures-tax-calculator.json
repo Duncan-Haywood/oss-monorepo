@@ -263,6 +263,8 @@
       "origin": "implementation"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15117"
+  ],
   "verdict": "Does not meet the bar (correctness 2, claims 2, verification 2; median 2); finished (completeness 3). The gain-year core is exact against sources the author did not write: 1099-B box 11 per account, Form 6781 lines 8/9 at 40/60, the 26.8% top blended rate, and a single-filer 2026 case stacked on Rev. Proc. 2025-32 brackets ($9,300 = $9,300). A trader-return CPA would not sign it off: the loss carryback note and FAQ send the user to Form 6781 Part II (straddles) instead of box D / line 6 and omit the Box D limits, a $10,000 loss year is shown as a -$2,180 'tax' benefit ignoring the $3,000 limit, unquoted '18,250.00' numbers silently become a -$233 net, and the marginal-rate blend can miss stacked tax by over $2,000 on a $100k gain. Four of seven seeded mutations, including removing the tab delimiter behind the advertised 'pasted spreadsheet range', left all 20 tests green."
 }
