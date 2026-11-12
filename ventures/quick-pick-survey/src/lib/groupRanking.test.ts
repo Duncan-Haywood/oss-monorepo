@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FIRST_OPTION_FALLBACK_SHARE, FIRST_OPTION_MIN_DECIDED } from "./pairing";
-import { AGREEMENT_MIN_OPTIONS, agreementSummary, coverage, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, type ParticipantRatingRow } from "./groupRanking";
+import { AGREEMENT_MIN_OPTIONS, agreementSummary, coverage, FAST_PACE, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, type ParticipantRatingRow } from "./groupRanking";
 
 // Small seeded PRNG so the coverage check is reproducible.
 function mulberry(seed: number) {
@@ -230,5 +230,61 @@ describe("slotClickers", () => {
   it("advice names the count and is empty when nobody was left out", () => {
     expect(slotClickerAdvice(0, 12)).toBe("");
     expect(slotClickerAdvice(2, 12)).toMatch(/^2 of 12 respondents .* at least 70% .* left out of this ranking\.$/);
+  });
+});
+
+describe("respondentPace", () => {
+  const timesFor = (id: string, ms: number, n = PACE_MIN_TIMED): AnswerTime[] => Array.from({ length: n }, (_, i) => ({ participantId: id, ms: ms + (i % 3) * 10 }));
+  it("is each person's median over the panel's median of medians, fastest first", () => {
+    const out = respondentPace([...timesFor("a", 3000), ...timesFor("b", 3000), ...timesFor("c", 2800), ...timesFor("d", 3200), ...timesFor("quick", 900)]);
+    expect(out[0].participantId).toBe("quick");
+    expect(out[0].medianMs).toBe(910);
+    expect(out[0].pace).toBeCloseTo(910 / 3010, 6);
+    expect([...fastAnswerers(out)]).toEqual(["quick"]);
+  });
+  it("ignores missing, zero and left-open times, and judges nobody on under PACE_MIN_TIMED answers or a panel under five", () => {
+    const junk: AnswerTime[] = [{ participantId: "a", ms: null }, { participantId: "a", ms: 0 }, { participantId: "a", ms: PACE_MAX_MS }];
+    const few = respondentPace([...timesFor("a", 3000, PACE_MIN_TIMED - 1), ...junk, ...timesFor("b", 3000), ...timesFor("c", 3000), ...timesFor("d", 3000), ...timesFor("e", 3000)]);
+    expect(few.find((p) => p.participantId === "a")).toEqual({ participantId: "a", timed: PACE_MIN_TIMED - 1, medianMs: null, pace: null });
+    // Four judged respondents: no panel pace, so nobody is called fast.
+    expect(few.every((p) => p.pace === null)).toBe(true);
+    expect(fastAnswerers(few).size).toBe(0);
+  });
+  it("calls fast only under FAST_PACE, not at it", () => {
+    const flat = (id: string, ms: number): AnswerTime[] => Array.from({ length: PACE_MIN_TIMED }, () => ({ participantId: id, ms }));
+    const at = respondentPace([...flat("a", 3000), ...flat("b", 3000), ...flat("c", 3000), ...flat("d", 3000), ...flat("half", 3000 * FAST_PACE), ...flat("under", 3000 * FAST_PACE - 1)]);
+    expect(at.find((p) => p.participantId === "half")!.pace).toBe(FAST_PACE);
+    expect([...fastAnswerers(at)]).toEqual(["under"]);
+  });
+});
+
+describe("paceSummary", () => {
+  const pace = (id: string, p: number | null) => ({ participantId: id, timed: 20, medianMs: p === null ? null : 3000 * p, pace: p });
+  const agree = (id: string, rho: number | null) => ({ participantId: id, options: 10, rho });
+  const panel = [pace("a", 1), pace("b", 1.1), pace("c", 0.9), pace("d", 1.2)];
+  it("says nothing on a small panel, or when nobody is fast and everybody agrees", () => {
+    expect(paceSummary([pace("a", 1), pace("q", 0.2)], []).advice).toBe("");
+    expect(paceSummary([...panel, pace("e", 0.8)], [agree("a", 0.9)])).toMatchObject({ checked: 5, fast: 0, advice: "" });
+  });
+  it("reads out-of-step respondents at a normal pace as a likely different taste", () => {
+    const s = paceSummary([...panel, pace("camp", 1)], [agree("camp", 0.05), agree("a", 0.9)]);
+    expect(s).toMatchObject({ fast: 0, lowAgreement: 1, lowAndFast: 0, typicalSeconds: 3 });
+    expect(s.advice).toMatch(/^None of the 5 timed respondents answered unusually fast \(the typical pick took 3 s\)/);
+    expect(s.advice).toMatch(/different taste/);
+  });
+  it("counts the fast ones and how many of the out-of-step were among them", () => {
+    const s = paceSummary([...panel, pace("q1", 0.3), pace("q2", 0.4), pace("camp", 1)], [agree("q1", 0.1), agree("camp", 0.0), agree("q2", 0.8)]);
+    expect(s).toMatchObject({ checked: 7, fast: 2, lowAgreement: 2, lowAndFast: 1 });
+    expect(s.advice).toMatch(/^2 respondents of 7 answered in under half the typical time per pick/);
+    expect(s.advice).toMatch(/Of the 2 respondents whose order barely matches the rest, 1 was among them/);
+    expect(s.advice).toMatch(/counted in this ranking/);
+  });
+});
+
+describe("parseDrop", () => {
+  it("accepts only absent or exactly \"fast\"", () => {
+    expect(parseDrop(null)).toEqual({ ok: true, fast: false });
+    expect(parseDrop("fast")).toEqual({ ok: true, fast: true });
+    for (const bad of ["", "Fast", "slot", "fast,slot"]) expect(parseDrop(bad)).toEqual({ ok: false });
   });
 });
