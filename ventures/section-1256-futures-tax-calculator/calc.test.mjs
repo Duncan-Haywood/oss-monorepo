@@ -88,3 +88,48 @@ test("a zero net result gets neither the loss note nor the saving note", () => {
   const n = evaluate("A,0,0,0").notes.join(" ");
   assert.doesNotMatch(n, /loss|saves/);
 });
+
+// Red-team 2026-11-12 (prompts/runs/2026-11-12-session_01AcxTtLTzXqEGdpixYVUsj4.json).
+test("a minus after the currency sign or code is still a negative", () => {
+  assert.equal(parseRows("A,$-1200,0,0").rows[0].aggregate, -1200);
+  assert.equal(parseRows("A,USD -500,0,0").rows[0].aggregate, -500);
+  assert.equal(parseRows('A,"-$1,200.00",0,0').rows[0].aggregate, -1200);
+  assert.equal(parseRows('A,"($1,200.00)",0,0').rows[0].aggregate, -1200);
+});
+
+test("scientific notation from a spreadsheet export is read as the number it is", () => {
+  assert.equal(parseRows("A,1.5E+04,0,0").rows[0].aggregate, 15000);
+  assert.equal(parseRows("A,1e3,0,0").rows[0].aggregate, 1000);
+});
+
+test("an amount that is not one number is refused, not stitched together", () => {
+  for (const bad of ["12-34", "1.2.3", "--500", "5 6"]) {
+    const p = parseRows(`A,${bad},0,0\nB,100,0,0`);
+    assert.equal(p.rows.length, 1, bad);
+    assert.equal(p.rows[0].label, "B", bad);
+  }
+});
+
+test("a row with only an account and box 8 is read, box 9 and 10 as zero", () => {
+  const p = parseRows("A,1000");
+  assert.equal(p.rows.length, 1);
+  assert.equal(p.rows[0].aggregate, 1000);
+});
+
+test("when no row is readable the first row's reason is the error", () => {
+  assert.match(parseRows("A,abc,0,0").error, /^Row 1 could not be read/);
+  assert.match(evaluate("A,1,2,3,4,5").error, /has 6 fields/);
+});
+
+test("rates outside 0 to 100 are refused rather than giving a negative tax", () => {
+  assert.match(evaluate("A,1000,0,0", { ordinary: -5, longTerm: 15 }).error, /between 0 and 100/);
+  assert.match(evaluate("A,1000,0,0", { ordinary: 32, longTerm: 150 }).error, /between 0 and 100/);
+  assert.equal(evaluate("A,1000,0,0", { ordinary: 0, longTerm: 0 }).summary.as1256, 0);
+});
+
+test("a long-term rate above the ordinary rate says 60/40 costs more, not 'saves about -$'", () => {
+  const n = evaluate("A,1000,0,0", { ordinary: 10, longTerm: 15 }).notes.join(" ");
+  assert.doesNotMatch(n, /saves about -/);
+  assert.match(n, /costs about \$30\.00 more/);
+  assert.match(n, /check the rates/);
+});

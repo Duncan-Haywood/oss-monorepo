@@ -122,3 +122,18 @@ test("a basis column only attaches to sells, and a blank sell basis stays null",
   const noCol = parseTrades(csv("2025-01-02,AAPL,buy,10,100,Taxable", "2025-06-01,AAPL,sell,10,80,Taxable"));
   assert.deepEqual(noCol.trades.map((t) => t.basis), [null, null]);
 });
+
+// Red-team 2026-11-12 (prompts/runs/2026-11-12-session_01AcxTtLTzXqEGdpixYVUsj4.json): the old parser deleted every
+// non-digit, so "1e3" shares read as 13 and "12-34" as 1234.
+test("scientific notation is read as its value, and a field that is not one number is refused", () => {
+  const head = "Date,Action,Symbol,Quantity,Price\n";
+  const ok = parseTrades(head + "2026-01-05,Buy,ABC,1e3,1.5E+01");
+  assert.equal(ok.trades[0].qty, 1000);
+  assert.equal(ok.trades[0].price, 15);
+  for (const bad of ["12-34", "1.2.3", "5 6"]) {
+    const p = parseTrades(head + `2026-01-05,Buy,ABC,${bad},10`);
+    assert.equal(p.trades.length, 0, bad);
+    assert.equal(p.errors.length, 1, bad);
+  }
+  assert.equal(parseTrades(head + '2026-01-05,Sell,ABC,-100,"$1,234.50"').trades[0].price, 1234.5);
+});

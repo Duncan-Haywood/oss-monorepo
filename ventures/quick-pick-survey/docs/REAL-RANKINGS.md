@@ -136,9 +136,10 @@ What it shows:
    different items; staged asked #1 vs #2 8.7 times against 4.0 items. The
    standard selector spreads its answers across the list, which is good for
    the whole ranking but never pins the top. The survey builder's "Question
-   order" menu now says so. Standard stays the server default
-   (`PAIR_SELECTOR` unset): changing it changes every survey that has not
-   chosen, so it is a decision of its own; this is the evidence for it.
+   order" menu now says so. Since 2026-11-12 staged is the server default
+   for lists up to 120 items, after the careless, position-bias and
+   answer-time sweeps were re-run under both selectors
+   (INFORMATION-GAIN-SELECTOR.md, "Staged as the default up to 120 items").
 
 
 ## Summary tables (shipped selector, no lapse)
