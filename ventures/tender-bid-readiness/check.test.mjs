@@ -34,3 +34,18 @@ test('flags a mandatory pre-bid meeting or site visit as its own signal', () => 
   const silent = checkTender('Submit through the portal by Friday.');
   assert.equal(silent.findings.find((item) => item.key === 'site-visit').found, false);
 });
+
+// Quality audit 2026-11-12 (portfolio/quality/audits/2026-11-12-tender-bid-readiness.json).
+test('recognises FAR bid guarantee and bid security wording', () => {
+  for (const t of ['52.228-1 Bid Guarantee. The bid guarantee shall be not less than 20 percent of the bid price.',
+                   'Each bid shall be accompanied by bid security of 5%, by certified check or surety bond.'])
+    assert.ok(checkTender(t).findings.find((f) => f.key === 'bond').found, t);
+});
+
+test('shows the proposal due date, not an earlier question cut-off', () => {
+  const r = checkTender('Questions are due by 2 January 2027.\nProposals are due 20 January 2027 at 3pm.');
+  assert.match(r.findings.find((f) => f.key === 'deadline').evidence, /20 January 2027/);
+  const only = checkTender('Questions are due by 2 January 2027.');
+  assert.match(only.findings.find((f) => f.key === 'deadline').evidence, /2 January 2027/);
+  assert.equal(checkTender('Bidders should complete their due diligence.').findings.find((f) => f.key === 'deadline').found, false);
+});
