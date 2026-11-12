@@ -113,3 +113,19 @@ test("a negative invoice may state a header percentage with its sign; it must st
   const positive = { totals: { net: 100, gross: 110 }, adjustments: [{ kind: "charge", amount: 10, base: 100, percent: -10, reason: "x" }] };
   assert.ok(inspectHeaderAdjustments(positive).some((f) => f.rule === "INV-051"));
 });
+
+// Red team 2026-11-12: the EU-only drops ran only beside the official PINT rules, so the
+// default check (no --schematron, or no rule files in the copy) called OpenPeppol-shaped
+// PINT invoices wrong for EU reasons: INV-022 and INV-035 on Japan, INV-024 on SG and A-NZ.
+test("a PINT file is not judged by EU conventions when the official rules do not run", async () => {
+  const ids = async (xml, opts = {}) => (await preflightDocuments([{ name: "x.xml", source: xml }], opts)).reports[0].errors.map((e) => e.rule);
+  for (const name of ["pint-current-jp-invoice.xml", "pint-current-sg-invoice.xml", "pint-current-aunz-invoice.xml", "pint-sg-invoice.xml"]) {
+    assert.deepEqual(await ids(read(name)), [], name);
+  }
+  // The same Japanese file under an EU profile id draws the EU checks again.
+  const eu = withText(read("pint-current-jp-invoice.xml"), "CustomizationID", "urn:cen.eu:en16931:2017");
+  const euIds = await ids(eu);
+  assert.ok(euIds.includes("INV-022") && euIds.includes("INV-035"), euIds.join(","));
+  // Arithmetic still runs under PINT: the defects example keeps its INV-038s.
+  assert.ok((await ids(read("pint-sg-invoice-with-defects.xml"))).includes("INV-038"));
+});

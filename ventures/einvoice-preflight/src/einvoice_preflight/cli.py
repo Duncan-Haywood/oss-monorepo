@@ -25,6 +25,7 @@ from .facturx import (
     looks_like_pdf,
 )
 from .formats import DocumentError, detect_syntax, parse_cii_invoice
+from .own_profile import matching_profile, own_profile_drops
 from .ubl import parse_ubl_invoice
 
 VERSION = "0.1.0"
@@ -787,7 +788,13 @@ def main(argv: list[str] | None = None) -> int:
         except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError, DocumentError, EmbeddedInvoiceError) as exc:
             read_errors.append({"file": report_path.as_posix(), "error": str(exc)})
             continue
-        reports.append((report_path, check_invoice(invoice)))
+        errors = check_invoice(invoice)
+        own_profile = matching_profile(raw) if is_xml else None
+        if own_profile:
+            # A PINT or ZATCA file is not judged by EU conventions (own_profile.py).
+            drop = own_profile_drops([own_profile], invoice)
+            errors = [error for error in errors if error.get("rule") not in drop]
+        reports.append((report_path, errors))
         invoices.append((report_path, invoice))
         if args.usage_file:
             _record_usage(args.usage_file)

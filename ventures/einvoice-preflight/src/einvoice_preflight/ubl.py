@@ -332,6 +332,12 @@ def _tax_breakdown(root: ElementTree.Element) -> list[dict[str, Any]]:
             row["tax"] = _number(tax)
         if tax_id:
             row["tax_category"] = tax_id
+        # A tax other than VAT/GST (Malaysia's tourism tax, scheme AAL) can be a flat amount
+        # with no percentage; the scheme is kept only then, so EU rows read as before (ubl.mjs).
+        scheme = next(iter(_children(category, "TaxScheme")), None) if category is not None else None
+        scheme_id = _text(scheme, "ID", required=False).strip().upper() if scheme is not None else ""
+        if scheme_id and scheme_id not in {"VAT", "GST"}:
+            row["tax_scheme"] = scheme_id
         if row:
             rows.append(row)
     return rows
