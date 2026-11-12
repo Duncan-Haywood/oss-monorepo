@@ -320,6 +320,14 @@ function documentExemption(root) {
   return extras;
 }
 
+// A line's own VAT amount where PINT states one: Oman's BTOM-016,
+// cac:ItemPriceExtension/cac:TaxTotal/cbc:TaxAmount. "" when absent.
+function lineTaxAmount(line) {
+  const extension = line.children.find((child) => child.name === "ItemPriceExtension");
+  const taxTotal = extension ? extension.children.find((child) => child.name === "TaxTotal") : null;
+  return taxTotal ? textOf(taxTotal, "TaxAmount", false) : "";
+}
+
 function billingReference(root) {
   for (const ref of descendants(root, "BillingReference")) {
     for (const invoiceRef of descendants(ref, "InvoiceDocumentReference")) {
@@ -351,6 +359,7 @@ export function parseUblInvoice(source) {
       // Category O has no Percent element (EN 16931 BR-O-05); leave it empty.
       tax_percent: percent === "" ? "" : asNumber(percent),
       net: asNumber(textOf(line, "LineExtensionAmount")),
+      ...(parseDecimal(lineTaxAmount(line)) !== null ? { tax_amount: parseDecimal(lineTaxAmount(line)) } : {}),
       ...(baseQuantity ? { price_base_quantity: asNumber(baseQuantity) } : {}),
       ...(adjustments.length ? { adjustments } : {}),
       ...taxCategoryFields(category),

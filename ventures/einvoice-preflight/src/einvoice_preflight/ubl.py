@@ -29,6 +29,14 @@ def _number(value: str) -> int | float:
     return int(number) if number == number.to_integral_value() else float(number)
 
 
+def _line_tax_amount(line: ElementTree.Element) -> str:
+    """cac:ItemPriceExtension/cac:TaxTotal/cbc:TaxAmount on a line, or ""."""
+    for extension in (c for c in line if c.tag.rsplit("}", 1)[-1] == "ItemPriceExtension"):
+        for total in (c for c in extension if c.tag.rsplit("}", 1)[-1] == "TaxTotal"):
+            return _text(total, "TaxAmount", required=False)
+    return ""
+
+
 def _nested_text(element: ElementTree.Element, container: str, field: str) -> str:
     """Text of ``<container><field>``, scoped to that container.
 
@@ -150,6 +158,10 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         }
         if base_quantity:
             mapped_line["price_base_quantity"] = _number(base_quantity)
+        # A line's own VAT amount where PINT states one (Oman's BTOM-016).
+        line_tax = _line_tax_amount(line)
+        if parse_decimal(line_tax) is not None:
+            mapped_line["tax_amount"] = _number(line_tax)
         line_adjustments = _line_adjustments(line)
         if line_adjustments:
             mapped_line["adjustments"] = line_adjustments

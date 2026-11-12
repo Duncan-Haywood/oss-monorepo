@@ -1,0 +1,38 @@
+children_per_woman: 301 points (1800 to 2100), watched from point 60. Annotations (row indexes): {"6":[146,177],"8":[146],"12":[145,168],"13":[146,170,180,197],"14":[146,170]}; majority-marked from the start: 145, 168.
+
+persist 1: 8 alerts: row 52 (1852) sent at point 93; row 27 (1827) sent at point 94; row 115 (1915) sent at point 120; row 78 (1878) sent at point 123; row 159 (1959) sent at point 164; row 121 (1921) sent at point 233; row 133 (1933) sent at point 285; row 142 (1942) sent at point 301.
+persist 2: 6 alerts: row 52 (1852) sent at point 94; row 27 (1827) sent at point 95; row 115 (1915) sent at point 133; row 159 (1959) sent at point 176; row 121 (1921) sent at point 234; row 133 (1933) sent at point 286. Pending at the last point: row 142 (waiting for a second check).
+
+Detections at each check where they changed (point: rows):
+  60: -
+  93: 52
+  94: 27,52
+  105: 52
+  106: -
+  120: 115
+  121: -
+  122: 52
+  123: 27,52,78,115
+  124: 52
+  125: 52,115
+  126: 52
+  130: -
+  132: 115
+  163: 78,115
+  164: 115,159
+  165: 78,115
+  166: 115,159
+  167: 115
+  169: 78,115
+  170: 115
+  171: 78,115
+  172: 115
+  175: 115,159
+  206: 115
+  232: -
+  233: 121
+  240: 120
+  248: 115
+  281: -
+  285: 133
+  301: 133,142

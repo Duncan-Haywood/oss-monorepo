@@ -72,7 +72,18 @@ def summed_line_net(line: dict[str, Any], invoice: dict[str, Any]) -> Decimal | 
     is reported once as INV-012; draft JSON sums quantity times price."""
     stated = _number(line.get("net"))
     parsed = isinstance(invoice.get("source_format"), str)
-    return expected_line_net(line) if stated is None or not parsed else round_cents(stated)
+    # Summed at its stated precision; only the sum is rounded (PINT Oman's baisa
+    # lines, 0.047 OMR: ten make 0.47, not 0.50). Mirrors linenet.mjs.
+    return expected_line_net(line) if stated is None or not parsed else stated
+
+
+def stated_line_tax(line: dict[str, Any], net: Decimal | None, percent: Decimal | None) -> Decimal | None:
+    """A line's own VAT amount (PINT Oman BTOM-016) when it agrees with net x rate
+    to within a cent; Oman's category tax is their sum (ALIGNED-IBRP-S-09-OM)."""
+    stated = _number(line.get("tax_amount"))
+    if stated is None or net is None or percent is None:
+        return None
+    return stated if abs(stated - net * percent / Decimal("100")) <= _CENT else None
 
 
 def tax_percent_of(item: dict[str, Any]) -> Decimal | None:
@@ -113,9 +124,13 @@ def tax_groups(invoice: dict[str, Any]) -> tuple[dict[Any, dict[str, Decimal]], 
     groups: dict[Any, dict[str, Decimal]] = {}
     unattributed = False
 
-    def add(key: Any, percent: Decimal, amount: Decimal) -> None:
-        group = groups.setdefault(key, {"taxable": Decimal("0"), "tax": Decimal("0"), "percent": percent})
+    def add(key: Any, percent: Decimal, amount: Decimal, line_tax: Decimal | None = None) -> None:
+        group = groups.setdefault(key, {"taxable": Decimal("0"), "tax": Decimal("0"), "percent": percent, "line_tax": Decimal("0"), "line_tax_all": True})
         group["taxable"] += amount
+        if line_tax is None:
+            group["line_tax_all"] = False
+        else:
+            group["line_tax"] += line_tax
 
     lines = invoice.get("lines") if isinstance(invoice.get("lines"), list) else []
     for line in lines:
@@ -124,7 +139,7 @@ def tax_groups(invoice: dict[str, Any]) -> tuple[dict[Any, dict[str, Decimal]], 
         net, percent = summed_line_net(line, invoice), tax_percent_of(line)
         if net is None or percent is None or percent < 0 or percent > 100:
             continue
-        add(tax_key(line, with_category), percent, net)
+        add(tax_key(line, with_category), percent, net, stated_line_tax(line, net, percent))
     adjustments = invoice.get("adjustments") if isinstance(invoice.get("adjustments"), list) else []
     for row in adjustments:
         delta = _signed_adjustment([row], is_negative_invoice(invoice))
@@ -141,4 +156,5 @@ def tax_groups(invoice: dict[str, Any]) -> tuple[dict[Any, dict[str, Decimal]], 
     for group in groups.values():
         group["taxable"] = round_cents(group["taxable"])
         group["tax"] = round_cents(group["taxable"] * group["percent"] / Decimal("100"))
+        group["line_tax"] = round_cents(group["line_tax"]) if group.pop("line_tax_all") else None
     return groups, unattributed, with_category

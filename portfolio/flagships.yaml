@@ -147,7 +147,7 @@ flagships:
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
       History and every measurement: README and git (TCPD consensus F1 0.702 shipped / 0.711 held out, binseg 0.714/0.727).
-      Next, most valuable first: (w) watch (README "Watching a growing series" and "Round 5": rho cap 0.8 held on 7 held-out series; old-history hold ships): the plain pass reaches 12 of 12 held-out marks at 161 alerts against the default's 9 at 68, and measles alone gives the default 20 alerts with no mark, so next is a per-series eagerness hint from the replay (alerts per 100 checks on the user's own history) or the drift model as the watch for wandering levels (the plain pass's 38-vs-33 lead is there); persist 2 halved flicker alerts but lost a children_per_woman mark (trace why before a retry); a real deployer's repository run on GitHub Actions; (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check: date a documented collection change. One-tick stale feeds (README): next its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
+      Next, most valuable first: (w) watch (README "Watching a growing series" and "Round 5": rho cap 0.8 held on 7 held-out series; old-history hold ships): the plain pass reaches 12 of 12 held-out marks at 161 alerts against the default's 9 at 68, and measles alone gives the default 20 alerts with no mark, so next is a per-series eagerness hint from the replay (alerts per 100 checks on the user's own history) or the drift model as the watch for wandering levels (the plain pass's 38-vs-33 lead is there); persist 2's lost mark was end-of-series censoring (README): pre-register a retry scoring end-pending apart; a real deployer's repository run on GitHub Actions; (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check: date a documented collection change. One-tick stale feeds (README): next its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
       Open: (0) drift model: t-walk increments, biweight on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks: date and test the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
@@ -164,16 +164,12 @@ flagships:
       real correction, advance or settlement file; the rules and a repair
       on a real ERP or Factur-X export; PINT JP/MY/AE/OM loaded 2026-11-12
       (README "PINT Japan, Malaysia, UAE and Oman": OpenPeppol's 123
-      examples 2 to 117 pass); open: OM baisa line nets (3 decimals,
-      4 files) summed at stated precision, AE volume-discount credit
-      note, a real business's PINT file; BT-86 clearing codes,
-      line-level TaxTotal (ZATCA 19/19) and CIUS-RO on its EN 1.3.8 base
-      (UBL-SR-53 off ANAF's files) closed 2026-11-12 (README); UBL repair
-      on ZATCA line TaxTotals, document and line allowances closed
-      2026-11-12 (README, eval/repair-seeded.mjs: seeded faults restored
-      257/258 ZATCA, 270/270 PINT A-NZ); INV-059 (same-currency BT-111
-      = BT-110) closed 2026-11-12 (README; ZATCA seeds flagged 241 to
-      258/258); open: a 1.3.8 base on the Saxon route; RO_CIUS on a real ANAF
+      examples 2 to 117 pass; OM baisa line nets and line VAT closed
+      2026-11-12, OM 49/49, README "Baisa line nets"); open: repair
+      writing 3-decimal line nets and OM line VAT (OM seeded 461/658),
+      AE volume-discount credit note, a real business's PINT file; BT-86, ZATCA line
+      TaxTotal, CIUS-RO 1.3.8 base, ZATCA/A-NZ repair (257/258,
+      270/270) and INV-059 closed 2026-11-12 (README); open: a 1.3.8 base on the Saxon route; RO_CIUS on a real ANAF
       file; NLCIUS on a real Dutch file; India's INV-01 check on a real
       IRP payload; mandate dates read from primary sources where pages
       cite guides (IL, DK, CZ, LV, LU; ato.gov.au 403s from cloud);
