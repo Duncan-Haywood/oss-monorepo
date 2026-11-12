@@ -198,10 +198,10 @@ flagships:
       6 of 6 on both tests; README). 2026-11-12: the closure score is the --backtest and half-life-auto
       default with the window offered (--score-open-hours is the old score), and both are on the page; a
       past-only closure reference kept 77% of the window's gain (eval/hindsight-closure.mjs, pre-registered,
-      6/12/0, -12.5%; README "The closure score is the default"). `--standard` landed 2026-11-12 (README). Next: close the 100-person gaps (tree,
+      6/12/0, -12.5%; README "The closure score is the default"). Next: close the 100-person gaps (tree,
       not pricing); cuts or branching that move the score LP on the 60-person pay week; buildRoster end to
       end on 40-person weeks with exact on; a real Square or Toast item export (columns read 2026-11-12, made-up rows only, README); a real published-schedule export for
-      --import-shifts; whether the priced cut's r = 1 default suits a real manager; fixed work in `--standard` (`10/hour`, `30/open`, `45/close`) landed 2026-11-12 (README "Fixed work"; same total work, a fixed quarter moved 20 person-hours a week into the quiet afternoon on the French bakery); next on it, a manager's real task list to set the minutes, and closing work placed after the last sale hour.
+      --import-shifts; whether the priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes in `--standard` (`/hour`, `/open`, `/close` landed 2026-11-12, README "Fixed work"); closing work placed after the last sale hour.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
