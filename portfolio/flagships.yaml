@@ -118,7 +118,7 @@ flagships:
       (README "Provinces, and the prospect's own days off"); next on that queue: `ca`,
       the provinces and `us` against canada.ca, provincial pages and OPM's calendar (all
       refused this host 2026-11-12: probe first), US state holidays for a `region` like
-      US-TX, and call prep showing the prospect's next day off.
+      US-TX. Call prep showing the prospect's next days off, and the follow-up flagging a next step on one, landed 2026-11-12 last (README "Their days off in call prep and the follow-up").
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading

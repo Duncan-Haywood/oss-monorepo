@@ -240,3 +240,22 @@ export function holidayChecker(spec) {
   // An observed Friday holiday can fall in the year before (New Year's Day on a Saturday), so look at y + 1 as well.
   return (day) => { const d = String(day).slice(0, 10), y = Number(d.slice(0, 4)); return dates.has(d) || (sets.length > 0 && (year(y).has(d) || year(y + 1).has(d))); };
 }
+
+/** A reader for a prospect's own days off: (task row, prospect row) => { spec, isOff } or null. The `holidays` column
+ * wins, then `region`, then `country`; a value that is not a known preset or dates is skipped, never an error, since a
+ * prospect list carries countries we have no calendar for. Checkers are cached per spec. Shared by the daily run
+ * and call prep (moved here from daily.mjs 2026-11-12) so the two read the same columns the same way. */
+export function theirDaysOff() {
+  const cache = new Map();
+  const tryOne = (v) => {
+    const spec = String(v || "").trim().toLowerCase();
+    if (!spec) return null;
+    if (!cache.has(spec)) { let c = null; try { c = { spec, isOff: holidayChecker(spec) }; } catch { c = null; } cache.set(spec, c); }
+    return cache.get(spec);
+  };
+  // A bare country "US" means the six days most businesses close, not the eleven federal ones (Columbus Day and
+  // Veterans Day are working days at most firms); write holidays=us to get the federal list.
+  // A region counts only in the two-part form ("CA-QC", "GB-SCT"): a bare region "CA" in a US list is California.
+  const pick = { holidays: (v) => v, region: (v) => (/^[a-z]{2}-[a-z]{2,3}$/i.test(String(v || "").trim()) ? v : ""), country: (v) => (String(v || "").trim().toLowerCase() === "us" ? "us-business" : v) };
+  return (row, p) => { for (const src of [row, p]) for (const k of ["holidays", "region", "country"]) { const c = src && tryOne(pick[k](src[k])); if (c) return c; } return null; };
+}

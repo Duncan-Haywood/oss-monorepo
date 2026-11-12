@@ -5,6 +5,7 @@
 // bounced or is on your suppression list. Sends nothing.
 import { checkDraft, firstName, footer, findDate, iso, parseCsv } from "./engine.mjs";
 import { runPrep } from "./prep.mjs";
+import { holidayChecker, upcomingHolidays } from "./holidays.mjs";
 
 const lines = (text) => String(text || "").split(/\n+/).map((l) => l.replace(/^\s*[-*•\d.)]+\s+/, "").trim()).filter(Boolean);
 const LEAD = String.raw`(?:(?:i|we)(?:\s+will|'ll|\s+shall|\s+to|\s+need to|\s+should|\s+must)|will|need to|promised to|action for me:?|todo:?)\s+`;
@@ -29,6 +30,10 @@ export function runFollowUp(input) {
   const issues = [];
   if (!pts.length) issues.push("No call notes were given, so there is nothing to follow up on.");
   if (pts.length && !next) issues.push("No dated next step in the notes. Agree one on the call or in this email; the draft asks for it.");
+  // A next step dated on the prospect's own holiday (added 2026-11-12): "Thursday" in notes taken on the Monday of
+  // Thanksgiving week is a day their office is shut, so say so before the recap goes out with that date in it.
+  const offName = next?.date && prep.daysOff && holidayChecker(prep.daysOff.spec)(next.date) ? (upcomingHolidays(prep.daysOff.spec, next.date, 1)[0]?.name || "a day off") : "";
+  if (offName) issues.push(`The next step in your notes falls on ${next.date}, ${offName} for them (${prep.daysOff.spec}): check the date with them before you send.`);
   if (prep.stop) issues.push(`Do not send a cold follow-up: ${prep.stop}.`);
   let draft = null, lint = null;
   if (!prep.stop && pts.length) {
