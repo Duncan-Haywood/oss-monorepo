@@ -27,8 +27,9 @@ test("the current PINT ids pick the current rule sets; the older ids keep theirs
   assert.equal(matchingProfile(read("pint-sg-invoice.xml"), "ubl")[0], "pint-sg");
   assert.equal(matchingProfile(read("pint-aunz-invoice.xml"), "ubl")[0], "pint-aunz");
   assert.equal(matchingProfile(read("pint-current-sg-invoice.xml"), "cii"), null);
-  // Japan, Malaysia and the other PINT jurisdictions are not loaded: no profile, EU base.
-  assert.equal(matchingProfile(withText(read("pint-current-sg-invoice.xml"), "CustomizationID", "urn:peppol:pint:billing-1@jp-1"), "ubl"), null);
+  // Japan, Malaysia, the UAE and Oman load since 2026-11-12 (pint-jp-my-ae-om.test.mjs);
+  // PINT EU and any other jurisdiction is not loaded: no profile, EU base.
+  assert.equal(matchingProfile(withText(read("pint-current-sg-invoice.xml"), "CustomizationID", "urn:peppol:pint:billing-1@eu-1"), "ubl"), null);
 });
 
 test("clean current-release SG and A-NZ invoices pass with no rule skipped", { skip }, async () => {

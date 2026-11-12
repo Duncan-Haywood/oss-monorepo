@@ -41,8 +41,12 @@ function assertsOf(template, file) {
     if (is(child, XSL, "if")) { // a Schematron <report>: fires when the test holds, so the assert is its negation
       const report = elements(child).find((e) => is(e, SVRL, "successful-report"));
       if (!report || elements(child).length !== 1) throw new Error(`${file}: an xsl:if that is not a plain report`);
+      // PINT OM names a report's severity in role="..." with no flag attribute.
       const attr = (name) => elements(report).find((e) => e.localName === "attribute" && e.getAttribute("name") === name)?.textContent.trim();
-      out.push({ test: `not(${child.getAttribute("test")})`, id: attr("id") ?? "", flag: attr("flag") ?? "fatal", text: clean(elements(report).find((e) => is(e, SVRL, "text"))?.textContent ?? "") });
+      // An unconditional information report is a banner (PINT OM 1.0.1's BTOM-META-001 names the
+      // ruleset version on every file), not a finding about the invoice: left out.
+      if (/^\s*true\(\)\s*$/.test(child.getAttribute("test")) && (attr("flag") ?? attr("role")) === "information") continue;
+      out.push({ test: `not(${child.getAttribute("test")})`, id: attr("id") ?? "", flag: attr("flag") ?? attr("role") ?? "fatal", text: clean(elements(report).find((e) => is(e, SVRL, "text"))?.textContent ?? "") });
       continue;
     }
     if (!is(child, XSL, "choose")) throw new Error(`${file}: unsupported <${child.localName}> in a rule`);
@@ -53,7 +57,7 @@ function assertsOf(template, file) {
       throw new Error(`${file}: an xsl:choose that is not a plain assert`);
     }
     const text = elements(failed).find((e) => is(e, SVRL, "text"));
-    out.push({ test: when.getAttribute("test"), id: elements(failed).find((e) => e.localName === "attribute" && e.getAttribute("name") === "id")?.textContent.trim() ?? "", flag: elements(failed).find((e) => e.localName === "attribute" && e.getAttribute("name") === "flag")?.textContent.trim() ?? "fatal", text: clean(text?.textContent ?? "") });
+    out.push({ test: when.getAttribute("test"), id: elements(failed).find((e) => e.localName === "attribute" && e.getAttribute("name") === "id")?.textContent.trim() ?? "", flag: (elements(failed).find((e) => e.localName === "attribute" && e.getAttribute("name") === "flag") ?? elements(failed).find((e) => e.localName === "attribute" && e.getAttribute("name") === "role"))?.textContent.trim() ?? "fatal", text: clean(text?.textContent ?? "") });
   }
   return out;
 }

@@ -149,6 +149,23 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
           // Measured on OpenPeppol's examples, eval/phive-corpus.mjs (2026-11-11).
           const drop = new Set(["INV-024"]);
           if (sets.some((x) => /^pint/.test(x))) ["INV-026", "INV-044", "INV-035"].forEach((r) => drop.add(r));
+          // Japan, Malaysia, the UAE and Oman (OpenPeppol's 113 examples, eval/phive-corpus.mjs,
+          // 2026-11-12): the buyer's tax id (BT-48) is a JP T-number, MY TIN, AE TRN or OM VATIN,
+          // not an EU VAT number (INV-022; SG and A-NZ examples carry none); a debit note is an
+          // Invoice document with code 383, as under ZATCA (INV-034); and the branch id read as
+          // a BIC is a local bank code, so its country is no IBAN's (INV-027, beside INV-026).
+          if (sets.some((x) => /^pint-(jp|my|ae|om)-/.test(x))) ["INV-022", "INV-027", "INV-034"].forEach((r) => drop.add(r));
+          // A seller not registered for Japan's consumption tax states the rate and charges no
+          // tax (JP-NTR, urn:peppol:pint:nontaxinvoice-1@jp-1): its own rules check that.
+          if (sets.includes("pint-jp-ntr-1")) ["INV-018", "INV-038"].forEach((r) => drop.add(r));
+          // The UAE states 5% on a reverse-charge (AE) or margin-scheme (N) row and charges no
+          // tax on it: the buyer accounts for it, or the margin is taxed off the invoice. Six of
+          // OpenPeppol's 32 AE examples do this; PINT AE's own rules check those rows.
+          const zeroAtRate = (row) => ["AE", "N"].includes(String(row?.tax_category || "").toUpperCase()) && Number(row?.tax) === 0 && Number(row?.tax_percent) > 0;
+          if (sets.some((x) => /^pint-ae-/.test(x)) && (invoice?.tax_breakdown || []).some(zeroAtRate)) ["INV-018", "INV-038"].forEach((r) => drop.add(r));
+          // A flat-amount tax with no percentage (Malaysia's tourism tax, 10 MYR a night) cannot
+          // be checked as taxable x rate; PINT MY's rules govern those rows.
+          if ((invoice?.tax_breakdown || []).some((row) => row?.tax_scheme && (row.tax_percent === undefined || row.tax_percent === ""))) ["INV-018", "INV-038"].forEach((r) => drop.add(r));
           // Under ZATCA also (ZATCA's 19 good-case examples, eval/phive-corpus.mjs --good,
           // 2026-11-11): a simplified (B2C) invoice names no buyer (INV-006; BR-KSA
           // rules require one where KSA does); credit and debit notes are Invoice
@@ -200,7 +217,8 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
 // Nor does an official rule flagged "warning": KoSIT, Peppol and phive validators pass a
 // file whose only findings are warnings, and SimplerInvoicing ships its BR-NL warning
 // examples as good cases (eval/phive-corpus.mjs --good, 2026-11-11).
-export const NON_BLOCKING = new Set(["note", "warning"]);
+// An "information" rule (PINT OM marks reports role="information") is the same.
+export const NON_BLOCKING = new Set(["note", "warning", "information"]);
 export const isBlocking = (finding) => !NON_BLOCKING.has(finding.severity);
 export const severityLabel = (finding) => (NON_BLOCKING.has(finding.severity) ? finding.severity : "");
 const blockingCount = (report) => report.errors.filter(isBlocking).length;

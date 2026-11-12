@@ -125,6 +125,100 @@
       "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
       "from": "pint-aunz/1.1.3/xslt/selfbilling/PINT-jurisdiction-aligned-rules.xslt",
       "checks": 74
+    },
+    "pint1-jp-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-jp/1.1.3/xslt/PINT-UBL-validation-preprocessed.xslt",
+      "checks": 170,
+      "sameAs": "pint1-sg-ubl"
+    },
+    "pint1-jp-jur-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-jp/1.1.3/xslt/PINT-jurisdiction-aligned-rules.xslt",
+      "checks": 43
+    },
+    "pint1-jp-ntr-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-jp-ntr/1.1.3/xslt/PINT-UBL-validation-preprocessed.xslt",
+      "checks": 170
+    },
+    "pint1-jp-ntr-jur-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-jp-ntr/1.1.3/xslt/PINT-jurisdiction-aligned-rules.xslt",
+      "checks": 41
+    },
+    "pint1-jp-sb-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-jp-sb/1.1.3/xslt/PINT-UBL-validation-preprocessed.xslt",
+      "checks": 170
+    },
+    "pint1-jp-sb-jur-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-jp-sb/1.1.3/xslt/PINT-jurisdiction-aligned-rules.xslt",
+      "checks": 42
+    },
+    "pint1-my-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-my/1.3.1/xslt/billing/PINT-UBL-validation-preprocessed.xslt",
+      "checks": 170,
+      "sameAs": "pint1-sg-ubl"
+    },
+    "pint1-my-jur-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-my/1.3.1/xslt/billing/PINT-jurisdiction-aligned-rules.xslt",
+      "checks": 28
+    },
+    "pint1-my-sb-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-my/1.3.1/xslt/selfbilling/PINT-UBL-validation-preprocessed.xslt",
+      "checks": 170
+    },
+    "pint1-my-sb-jur-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-my/1.3.1/xslt/selfbilling/PINT-jurisdiction-aligned-rules.xslt",
+      "checks": 28
+    },
+    "pint1-ae-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-ae/2026.5/billing/PINT-UBL-validation-preprocessed.xslt",
+      "checks": 170
+    },
+    "pint1-ae-jur-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-ae/2026.5/billing/PINT-jurisdiction-aligned-rules.xslt",
+      "checks": 132
+    },
+    "pint1-ae-sb-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-ae/2026.5/selfbilling/PINT-UBL-validation-preprocessed.xslt",
+      "checks": 170
+    },
+    "pint1-ae-sb-jur-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-ae/2026.5/selfbilling/PINT-jurisdiction-aligned-rules.xslt",
+      "checks": 132,
+      "sameAs": "pint1-ae-jur-ubl"
+    },
+    "pint1-om-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-om/1.0.1/billing/PINT-UBL-validation-preprocessed.xslt",
+      "checks": 170,
+      "sameAs": "pint1-sg-ubl"
+    },
+    "pint1-om-jur-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-om/1.0.1/billing/PINT-jurisdiction-aligned-rules.xslt",
+      "checks": 154
+    },
+    "pint1-om-sb-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-om/1.0.1/selfbilling/PINT-UBL-validation-preprocessed.xslt",
+      "checks": 170
+    },
+    "pint1-om-sb-jur-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol-pint 4.6.4 on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)",
+      "from": "pint-om/1.0.1/selfbilling/PINT-jurisdiction-aligned-rules.xslt",
+      "checks": 154
     }
   },
   "fontoxpath": "3.34.0"
