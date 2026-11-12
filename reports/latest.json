@@ -1,9 +1,9 @@
 {
- "generated_for": "2026-11-11",
- "data_through": "2026-11-11",
+ "generated_for": "2026-11-12",
+ "data_through": "2026-11-12",
  "latest_day": {
-  "day": "2026-11-11",
-  "page_loads": 5
+  "day": "2026-11-12",
+  "page_loads": 11
  },
  "weeks": [
   {
@@ -42,13 +42,13 @@
   {
    "week": "2026-W46",
    "monday": "2026-11-09",
-   "days": 3,
-   "page_loads": 92,
-   "tool_loads": 89,
-   "tools": 19,
+   "days": 4,
+   "page_loads": 224,
+   "tool_loads": 185,
+   "tools": 32,
    "top_tool": "secret-santa-draw",
    "feedback": 0,
-   "crawler_beacons": 13654
+   "crawler_beacons": 18434
   }
  ]
 }
