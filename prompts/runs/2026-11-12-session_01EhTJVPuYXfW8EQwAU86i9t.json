@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVPuYXfW8EQwAU86i9t",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-1.md)",
+  "input_sha256": "81e5291c5a6f5ce849df079cc13c27fdbb43204449c00ae7b9c6f7742db70807",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T22:01:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector: self-deploy workflow under an emulated runner",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15270",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "Downloading nektos/act to run the workflow in docker was refused by the auto-mode classifier (external binary); built a node emulation of the runner instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The first route drew research; rerouted with --task from the scheduled ventures brief as prompt.md allows.",
+      "did": "route --task",
+      "result": "ventures/1, flagship row 2"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-workflow-file-nobody-tested.md"
+  ],
+  "goal": null,
+  "notes": "watch-workflow.test.mjs: 5/5 pass (~18 s). The push-race test fails against the old watch-metric.yml (git push rejected 'fetch first', state lost) and passes after the rebase-and-retry fix. Full suite and venture-preflight are in the PR description/merge comment.",
+  "corrections": [],
+  "redteam": null
+}
