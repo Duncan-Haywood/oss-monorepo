@@ -1,10 +1,12 @@
-# Information-gain pair selector (measured, opt-in)
+# Information-gain pair selector (the default up to 120 items since 2026-11-12)
 
 `selectNextPairByInformation` in `src/lib/pairing.ts` picks the pair whose one
 answer is expected to shrink the two items' rating variance most under the
 Glicko model (`expectedVarianceReduction`: Fisher information
 `g(phi_opp)^2 p(1-p)` per side). The shipped `selectNextPair` stays the app's
-policy; this one is not wired in.
+policy for lists over 120 items; since 2026-11-12 the staged selector (this
+one from the first answer) is the server default up to 120 items ("Staged as
+the default up to 120 items", the last section).
 
 ## Measurement
 
@@ -84,17 +86,22 @@ toggle).
 ## Switching it on
 
 `PAIR_SELECTOR=staged` in the deployment's environment makes
-`/api/trials/next` use `selectNextPairHybrid`. Unset, the shipped selector runs
-as before. It is a process-wide switch; a per-survey setting (column,
-migration, builder checkbox) is the next step.
+`/api/trials/next` use `selectNextPairHybrid`, and `PAIR_SELECTOR=standard`
+the shipped selector, on every survey that has not chosen. Unset, since
+2026-11-12, a survey of up to 120 items gets staged and a longer one standard
+(`defaultPairSelector`, `resolvePairSelector` in `pairing.ts`); before that,
+unset meant standard everywhere. Any other value is ignored with a warning in
+the log, not read as either.
 
 ## Choosing it per survey
 
 `Survey.pairSelector` (migration `20261021000000_survey_pair_selector`) is
 `null`, `"standard"` or `"staged"`. `POST /api/admin/surveys` accepts it as
 `pairSelector`, and the admin form has a "Question order" menu. `/api/trials/next`
-uses the survey's value when set and otherwise follows the `PAIR_SELECTOR`
-environment variable, so existing surveys behave as before. `staged` helps
+uses the survey's value when set, otherwise the `PAIR_SELECTOR` environment
+variable, otherwise the length default above. A survey that never chose, on a
+deployment with the variable unset, moved to staged on 2026-11-12 if it has
+120 items or fewer; set its menu to Standard to keep the old order. `staged` helps
 long lists answered at length (see above). Since 2026-11-10 it uses the
 information selector from the first answer on lists up to 120 items ("A
 switch point that depends on list length", below); before that it equalled
@@ -2009,3 +2016,76 @@ pools the most recent respondents, so a survey whose audience changes
 follows it with a lag of a quarter of its answers. No real pairwise
 answers yet. Next: the PrefLib panels through the refit and the set, and a
 heavier-tailed prior for the pairwise intervals.
+
+
+## Staged as the default up to 120 items (2026-11-12)
+
+The insights card can name a person's single favourite 35-100% of the time
+under staged and 0.5-5.5% under standard on real people's rankings
+(REAL-RANKINGS.md, "The insights card on real people"), but standard was the
+server default, so every survey that never opened the "Question order" menu
+got the weaker one. The three sweeps that measured careless respondents had
+all run staged only. So before changing the default they were re-run under
+both selectors on the same seeds (`--selector staged|standard`, added to
+`careless-pattern-sweep.ts` and `answer-time-sweep.ts`; the position-bias
+sweep already compares them). Raw rows: `docs/staged-default-2026-11-12.jsonl`
+(284 cells, each tagged with its sweep and selector),
+`docs/staged-default-position-bias-2026-11-12.txt`, and the real-panel replay
+`docs/staged-default-real-rankings-2026-11-12.md`
+(`real-rankings-eval.ts --seeds 40 --selectors shipped,staged`).
+
+**Careless patterns** (15 and 30 items, 4 answers per item, panels of 8 and
+20, careless shares 0/25/40/50%, 40 surveys a cell; pooled Spearman with the
+common truth, standard / staged):
+
+| panel | standard | staged | difference |
+|---|---|---|---|
+| honest only (4 cells) | 0.938-0.966 | 0.940-0.970 | -0.001 to +0.004 |
+| slot clickers, 25-50% (12) | 0.834-0.952 | 0.837-0.960 | -0.007 to +0.025, up in 11 |
+| a favourite item, 25-50% (12) | 0.913-0.965 | 0.916-0.970 | -0.005 to +0.005 |
+| a camp with its own taste, 25-50% (12) | 0.884-0.960 | 0.888-0.963 | -0.010 to +0.012 |
+| pick by salience, 25-50% (12) | 0.616-0.908 | 0.613-0.912 | -0.023 to +0.007 |
+| whole-session coin flips, 25-50% (12) | 0.819-0.950 | 0.794-0.950 | **-0.025 to +0.005**, down in 9 |
+| half-time salience or coin flips (q = 0.5, 8) | 0.891-0.959 | 0.891-0.964 | -0.001 to +0.006, up in 6 |
+
+Across all 80 cells at q = 1 the mean difference is +0.0007 (staged ahead in
+48). Staged calls about 10% more pairs clear (109 against 99 a survey), and
+the share of those that are the wrong way round is 0.61% against 0.51%; in
+the salience cells the pool leans toward salience by 0.01-0.03 more (+0.26 to
++0.68 against +0.26 to +0.66). The one consistent cost is a panel where
+40-50% of people flip a coin on every answer: staged's pool is 0.012-0.025
+lower on 8-person panels and 0.006-0.014 on 20, because its pairs are the
+close ones, and a coin flip on a close pair moves the ratings more. The
+defences are no weaker: oracle-drop recovers more under staged (+0.063 to
++0.105 against +0.047 to +0.087 at 50%), leave-one-out agreement still tells
+coin flippers apart (AUC 0.96-1.00 under both), and the first-option rule
+still catches every slot clicker.
+
+**Position bias behind the slot shuffle** (30 items, 30 seeds, rank accuracy,
+standard / staged at the shipped 0.7 fallback): at bias 0, 0.776 / 0.809 (120
+answers) and 0.890 / 0.921 (300). Staged is ahead in 18 of 20 cells from
+-0.5 to +0.6; behind at 300 answers with bias -0.3 (0.800 / 0.796) and +0.5
+(0.674 / 0.658), where the fallback serves 77% of answers.
+
+**Answer times** (the 2026-11-12 grid, 54 cells): pace tells the careless
+from the honest as well under staged (AUC within 0.03 in every cell; 0.88-0.98
+when the careless are at 0.4-0.6x pace) and still never mistakes a camp for
+them (0.50-0.56 under both). `pace-drop` gains as much or more (+0.035 to
++0.227 against +0.033 to +0.201 for fast salience pickers). The slope signal
+is 0.00-0.06 weaker under staged, and it was not shipped. The coin-flip cost
+shows again (0.873-0.948 against 0.905-0.950 at 25-50%).
+
+**Real panels** (breakfast, 42 people x 15 items; T-shirts, 30 x 11; 40
+seeds): staged's Spearman against the people not asked is at least
+standard's in 22 of 25 cells and at most 0.01 below in the other three; its
+rank ranges hold 93-100% against 95-100%, up to 0.7 places narrower, with -1
+to +5 points of pairs ordered.
+
+**Decision.** Staged is the server default for lists up to 120 items
+(`defaultPairSelector`), lists above 120 keep standard (the 120-answer
+warm-up and the switch rule there are item (e) of the plan, not measured
+here), and a survey's own setting or `PAIR_SELECTOR` still wins. The gain is
+the insights card's clear pick and a slightly better pooled ranking on real
+people; the cost is up to 0.025 of pooled Spearman when half of a small panel
+are whole-session coin flippers, a panel the agreement note already flags.
+

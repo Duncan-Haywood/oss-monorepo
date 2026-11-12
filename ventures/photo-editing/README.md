@@ -1092,9 +1092,21 @@ LibRaw's. Two bodies needed changes:
 
 The other three frames have no pile at the clip, so their white level stays 16,383 (4,095 on
 the 12-bit 350D, whose pile sits at full scale). Rendered against LibRaw with LibRaw's matrix,
-the median difference is 3.0-5.6 8-bit steps on these brighter daylight frames (0.6 on the dim
-5D Mark II), with ShootFlow 3-9% brighter in every channel on every body: the DNG colour model
-against dcraw's, not a reader fault, and left as found. Speed with numpy: read 0.3-0.7 s.
+the median difference first measured 3.0-5.6 8-bit steps, with ShootFlow 3-9% brighter in every
+channel. That gap was the check's own fault (next section). Speed with numpy: read 0.3-0.7 s.
+
+## The CR2 brightness gap was the check (2026-11-12)
+
+`tools/cr2_develop_check.py` passed LibRaw the white level with black included, but LibRaw's
+`user_sat` is black-subtracted, so every LibRaw render was darker by white / (white - black):
+predicted 1.067-1.193 in linear light, measured the same. It also binned the 350D on a 2x2 grid
+one row off LibRaw's, and compared the 70D one pixel out of place. With all three fixed, the
+median difference is 0.07-0.88 steps (was 0.6-5.6). Re-rendered through dcraw's own matrix,
+ShootFlow's data matches LibRaw to 0.05-0.19 steps on all five bodies. The rest is the DNG colour
+model against dcraw's, which grows with the as-shot white's distance from D65 (0.07 on the 7D
+near D65, 0.88 on the 70D at about 4,700 K, tinted green). ShootFlow keeps the DNG model; a
+colour chart under that light would say which is closer. Details:
+`eval/cr2-brightness-gap-2026-11-12.md`.
 
 ## CR2 in the pipeline (2026-11-12)
 
@@ -1309,3 +1321,22 @@ file is read as two-light. Temperature and tint match colour-science's Robertson
 (to 6e-15 and 5e-13), and spectra give colour-science's xy on 20 CIE illuminants within 5e-5
 (`tools/triple_illuminant_check.py`). The weights were not compared value for value with the
 SDK's output, and no real DNG 1.6 profile has been read yet.
+
+## Phone DNGs: the lens shading map, and camera DNGs against LibRaw (2026-11-12)
+
+Android phones write their raw files uncorrected and store the lens shading they measured in
+the DNG's `OpcodeList2` as four `GainMap`s, one per Bayer position. Ignore them and the corners
+come out at about a third of their brightness, tinted. `shootflow develop` now runs `GainMap`
+(`shootflow.dng_opcodes`, the DNG specification's rectangle, pitch and map coordinates, gain
+bilinear between map points, capped at white) on both engines, byte-identical, and names every
+other opcode in the report (`"OpcodeList3: 1 x WarpRectilinear (required) not applied"`).
+`--no-opcodes` turns it off. On a real LG Nexus 5X DNG the gains run 1.00 at the centre to 3.8
+in the corners, different per colour. Picture: `docs/reports/img/photo-editing-2026-11-12-gainmap.jpg`
+in the repository.
+
+The first three camera-written DNGs read against LibRaw (`tools/dng_camera_check.py`, opcodes
+off on both sides, since rawpy's LibRaw does not run them): Nexus 5X, Leica T and Pentax Q-S1
+match to a median 0.105, 0.027 and 0.023 of an 8-bit step through dcraw's colour method, with
+the same black, white and white balance. Correctness of the gain map itself is checked on
+synthetic files, including a linear map whose flat-field answer is known in closed form; it
+has not been compared with an Adobe render. Details: `eval/camera-dngs-2026-11-12.md`.

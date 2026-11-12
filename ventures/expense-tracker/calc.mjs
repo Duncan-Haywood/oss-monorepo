@@ -173,7 +173,13 @@ export function parseCsv(text) {
   return rows;
 }
 
-const find = (head, names) => head.findIndex((h) => names.some((n) => h === n || h.includes(n)));
+// An exact header beats a partial one, and earlier names beat later ones, so a
+// leading "Details" or "Account Name" column never shadows "Description" or "Payee".
+const find = (head, names) => {
+  for (const n of names) { const i = head.indexOf(n); if (i >= 0) return i; }
+  for (const n of names) { const i = head.findIndex((h) => h.includes(n)); if (i >= 0) return i; }
+  return -1;
+};
 
 // Bank or card export -> expense entries. Money out only: negative amounts, or a
 // debit column. Credits and refunds are counted and skipped, never netted silently.
@@ -182,7 +188,7 @@ export function importBankCsv(text) {
   const out = { entries: [], skipped: 0, bad: 0, problem: null };
   if (rows.length < 2) { out.problem = "No rows found. Paste a CSV with a header line."; return out; }
   const head = rows[0].map((h) => h.trim().toLowerCase());
-  const di = find(head, ["date", "posted", "transaction date"]);
+  const di = find(head, ["transaction date", "date", "posted date", "posting date", "posted"]);
   const ni = find(head, ["description", "merchant", "payee", "name", "memo", "details"]);
   const ai = find(head, ["amount"]);
   const dbi = head.findIndex((h) => h === "debit" || h.startsWith("debit") || h === "withdrawal" || h === "money out");

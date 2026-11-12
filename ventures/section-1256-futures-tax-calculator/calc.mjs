@@ -12,11 +12,19 @@ export const NIIT_RATE = 0.038;
 
 export const money = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const r2 = (x) => Math.round(x * 100) / 100;
+// One amount: "$1,200.00", "(1,200)", "-$1,200", "$-1,200", "USD -500", "1200-", "1.5E+04". Anything that is not
+// exactly one number ("12-34", "1.2.3") is NaN, so the row is refused rather than read as a different amount.
 const num = (s) => {
   const t = String(s ?? "").trim();
   if (!t) return 0;
-  const neg = /^\(.*\)$/.test(t) || /^[-\u2212]/.test(t) || /-$/.test(t);
-  const v = parseFloat(t.replace(/[^0-9.]/g, ""));
+  if (/\d\s+[\d.]/.test(t)) return NaN;
+  const paren = /^\(.*\)$/.test(t);
+  let b = (paren ? t.slice(1, -1) : t).replace(/\u2212/g, "-").replace(/\b(?:USD|US\$)/gi, "").replace(/[$\s,]/g, "");
+  let neg = paren;
+  if (/^[-+]/.test(b)) { neg = neg || b[0] === "-"; b = b.slice(1); }
+  else if (/-$/.test(b)) { neg = true; b = b.slice(0, -1); }
+  if (!/^(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(b)) return NaN;
+  const v = Number(b);
   return Number.isFinite(v) ? (neg ? -v : v) : NaN;
 };
 
@@ -63,6 +71,7 @@ export function evaluate(text, rates = {}) {
   if (p.error) return { error: p.error };
   const pct = (x, d) => (Number.isFinite(x) ? x : d) / 100;
   const ordinary = pct(rates.ordinary, 32), longTerm = pct(rates.longTerm, 15), niit = Boolean(rates.niit);
+  if (![ordinary, longTerm].every((x) => x >= 0 && x <= 1)) return { error: "Tax rates must be between 0 and 100 percent." };
   const net = r2(p.rows.reduce((s, r) => s + r.aggregate, 0));
   const lt = r2(net * LONG_TERM_SHARE), st = r2(net - lt);
   const t = taxOn(net, { ordinary, longTerm, niit });
@@ -71,7 +80,8 @@ export function evaluate(text, rates = {}) {
   if (net < 0) { t.as1256 = null; t.asShortTerm = null; t.saving = null; }
   const notes = [];
   if (net < 0) notes.push(`Net 1256 loss of ${money(-net)}. It first offsets your other capital gains, then up to $3,000 ($1,500 if married filing separately) of other income this year. Checking box D on Form 6781 (amount on Part I line 6) elects to carry the rest back three years against earlier net 1256 gains, earliest year first and no more than each year's net 1256 gain; it is claimed with Form 1045 or an amended return, and estates and trusts cannot elect it. Ask a preparer whether it pays for you.`);
-  if (net > 0) notes.push(`Against taxing the same gain as short-term, the 60/40 split saves about ${money(t.saving)} at the rates you entered. Rates are your marginal rates, not a bracket calculation.`);
+  if (net > 0 && t.saving >= 0) notes.push(`Against taxing the same gain as short-term, the 60/40 split saves about ${money(t.saving)} at the rates you entered. Rates are your marginal rates, not a bracket calculation.`);
+  if (net > 0 && t.saving < 0) notes.push(`At the rates you entered the 60/40 split costs about ${money(-t.saving)} more than taxing the gain as short-term, because the long-term rate is above the ordinary rate. Long-term rates are at or below the ordinary rate in every federal bracket, so check the rates.`);
   notes.push("Form 1099-B box 11 should equal realized (box 8) minus prior year-end unrealized (box 9) plus current year-end unrealized (box 10). Compare the total here with box 11 on your form.");
   return { rows: p.rows, errors: p.errors, summary: { net, lt, st, ...t, ordinary, longTerm, niit }, notes };
 }

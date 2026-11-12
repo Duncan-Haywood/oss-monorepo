@@ -1,5 +1,48 @@
 # build-data log
 
+## Session 78, 2026-11-12: on complete labels, folding demolition costs 1.7 to 2.5 days at build-time q0.9 in every year; complete-case scoring flips that sign, and IPCW cannot reach the tail (U1, U3 refuted; U2, U4, U5 held)
+
+Why: session 77 found that every i2c test-year score is a complete-case (CC) mean over the permits finished before the pull, so recent test years lose their long builds. Its "Next" asked for a censoring-aware evaluation and a rerun of the cascade2/type/nodemo comparison under it.
+- New: `src/censored_eval.py`. A test row issued on day s has a window C = pull date minus s and is seen iff y <= C. If build time does not depend on the issue day within the year, P(seen | y) = G(y) = P(C >= y); each seen row is weighted 1/G(y) (inverse probability of censoring weighting, IPCW; Robins & Rotnitzky 1992, Graf et al. 1999 for the Brier score). G comes from the issue days of rows short enough to be seen on any issue day (y <= min C). Weights are floored at G = 0.05; rows longer than the largest window cannot be seen at all. `validate` scores a nearly complete year (2021 against the 2026-11-12 pull, windows >= 1,777 days) on all rows (reference), and CC and IPCW on the rows a pseudo-pull on 2023-11-12 would have seen (windows 681 to 1,045 days, the real 2024 test year's 681 to 1,046), with the same fitted models. `rescore` scores the real test years both ways. `transfer.run` now keeps the issue dates in its per-row output. 6 tests, including an analytic case (y uniform on 0 to 100, windows uniform on 50 to 150: CC mean below 47, IPCW 50).
+Predictions (written before any run): `python3.13 src/censored_eval.py validate DIR --pull-date 2026-11-12 --held seattle --test-year 2021 --pseudo-pull 2023-11-12 --classes cascade2 cascade2_nodemo` and `... rescore DIR --pull-date 2026-11-12 --held seattle --test-year 2024 --classes cascade2 cascade2_nodemo`.
+- (U1) Validation: the IPCW q0.9 of the seen rows is within 10% of the all-rows q0.9, and the CC q0.9 is more than 15% below it.
+- (U2) Validation, q0.9: of the three contrasts cascade2 transfer minus own baseline, cascade2 own-boosted minus own baseline, and transfer nodemo minus cascade2, IPCW's absolute error against the reference is smaller than CC's in at least two.
+- (U3) Real 2024: transfer q0.9, nodemo minus cascade2, scored by IPCW, has a 95% interval that includes zero (CC, session 76: -1.98 [-2.70, -1.24]).
+- (U4) Real 2024: cascade2 transfer minus own baseline at q0.5 keeps a negative point estimate under IPCW (the programme's finding that SF and Austin transfer beats Seattle's own baseline at the i2c median).
+Each is refuted if its condition fails.
+- Added after the 2021 validation and before running it (U5): in test years 2020 (pseudo-pull 2022-11-12) and 2022 (pseudo-pull 2024-11-12) too, the reference (all rows) transfer q0.9 nodemo minus cascade2 has a point estimate >= 0, and the CC estimate on the pseudo-pull rows is below the reference. Refuted if either fails in either year.
+
+Outcome. Fresh pull 2026-11-12 15:09 to 15:45 UTC (`results/manifest.json`): SF and Seattle row counts equal session 77's, Austin has 101 more (2,385,068); Chicago is not used for i2c. Runs one after another, `python3.13`, about 4 minutes per validation year and 4 for the rescore. Outputs: `results/censored_eval_validate_seattle_i2c_{2020,2021,2022}_pp{2022,2023,2024}.json`, `results/censored_eval_rescore_seattle_i2c_2024.json`.
+- The labels. Seattle i2c test cohorts, q0.9 of build time in days: all rows / complete-case (CC) on the pseudo-pull rows / IPCW on the same rows. 2020: 902 / 558 / 608. 2021: 945 / 574 / 626. 2022: 810 / 597 / 682. The pseudo-pull hides 11 to 12% of rows (9% in 2022).
+- Why IPCW does not recover the tail: the weights are right where they can be. By build-time bin, the share of rows seen matches mean G(y) to within 0.1 (2021: 681 to 800 days 0.90 seen vs G 0.88; 800 to 900, 0.55 vs 0.56; 900 to 1,046, 0.16 vs 0.21). But 7.5%, 8.3% and 5.3% of the cohorts take longer than the longest window (about 1,045 days), and no weight can bring back a row nobody can see. The cohort's q0.9 sits inside that region, so a 2024 test year scored from a 2026 pull cannot measure q0.9 by any reweighting.
+- Contrasts, days of mean pinball loss [95% week-block interval]; negative = first term better:
+
+| year | contrast | quantile | reference (all rows) | CC | IPCW |
+|---|---|---|---|---|---|
+| 2020 | transfer nodemo minus cascade2 | q0.9 | **+1.66 [0.20, 3.23]** | -0.89 [-1.85, 0.23] | -0.60 [-1.63, 0.56] |
+| 2021 | transfer nodemo minus cascade2 | q0.9 | **+2.49 [1.38, 3.62]** | -0.75 [-1.46, 0.03] | -0.18 [-1.11, 0.86] |
+| 2022 | transfer nodemo minus cascade2 | q0.9 | **+2.37 [1.56, 3.28]** | +0.94 [0.19, 1.80] | +1.37 [0.45, 2.50] |
+| 2020 | cascade2 transfer minus own baseline | q0.9 | -0.08 [-3.30, 2.99] | -0.98 [-2.58, 0.72] | -0.77 [-3.13, 1.70] |
+| 2021 | cascade2 transfer minus own baseline | q0.9 | +2.75 [-1.41, 7.91] | -0.29 [-1.47, 0.98] | -0.56 [-2.35, 1.12] |
+| 2022 | cascade2 transfer minus own baseline | q0.9 | +3.35 [0.77, 5.95] | +2.72 [0.94, 4.56] | +5.59 [2.44, 9.53] |
+| 2020 | cascade2 own-boosted minus own baseline | q0.9 | -13.03 [-16.08, -10.15] | -3.50 [-4.46, -2.54] | -4.63 [-6.48, -3.04] |
+| 2021 | cascade2 own-boosted minus own baseline | q0.9 | -10.00 [-13.31, -6.10] | -4.07 [-5.32, -2.82] | -6.19 [-9.19, -3.86] |
+| 2022 | cascade2 own-boosted minus own baseline | q0.9 | -6.58 [-8.90, -4.26] | -0.67 [-1.72, 0.27] | -2.08 [-4.21, -0.18] |
+| 2020 / 2021 / 2022 | cascade2 transfer minus own baseline | q0.5 | -8.32 / -5.26 / -5.61 | -6.57 / -3.05 / -3.56 | -7.36 / -4.01 / -3.92 |
+| 2024 (real pull) | transfer nodemo minus cascade2 | q0.9 | not observable | -1.98 [-2.70, -1.24] | -1.52 [-2.44, -0.51] |
+| 2024 (real pull) | cascade2 transfer minus own baseline | q0.9 | not observable | +1.04 [-0.50, 2.55] | +2.48 [0.26, 5.10] |
+| 2024 (real pull) | cascade2 transfer minus own baseline | q0.5 | not observable | -10.13 [-11.96, -8.29] | -10.34 [-12.17, -8.50] |
+
+- (U1) Refuted: the IPCW q0.9 is 33%, 34% and 16% below the all-rows q0.9 (CC: 38%, 39%, 26% below).
+- (U2) Held in 2021 (IPCW nearer the reference in 2 of 3 q0.9 contrasts) and in 2020 (3 of 3) and 2022 (2 of 3): 7 of 9 overall. The gains are small; IPCW closes 10 to 40% of the CC error and never reaches the reference.
+- (U3) Refuted: under IPCW the 2024 fold gain shrinks from -1.98 to -1.52 days and stays below zero. Given the validation, that number is not evidence for the fold: in every year where all labels are seen, the fold costs 1.7 to 2.5 days at q0.9.
+- (U4) Held: the transfer model's median gain over Seattle's own baseline survives IPCW in 2024 (-10.34), and in 2020 to 2022 the reference gain is larger than the CC one. The q0.5 headline was understated, not created, by censoring.
+- (U5) Held: the reference nodemo-minus-cascade2 q0.9 difference is positive with an interval above zero in 2020, 2021 and 2022, and CC is below it in each year (it flips the sign in 2020 and 2021).
+- What this does to sessions 75 to 77. Session 76's finding that folding demolition helps build-time q0.9 transfer is withdrawn: it held only on a right-truncated test year. On complete labels, naming demolition helps at q0.9 in all three years checked, and costs about 1 day at q0.5 (fold minus cascade2 +0.38 to +1.18). The cascade2-versus-type comparison at i2c q0.9 (session 74) needs the same treatment. The own-city boosted model's q0.9 gain over the baseline is 2 to 10 times larger on complete labels than CC shows, so CC also understates how much local history is worth at the tail.
+- Rule for this programme from here: build-time q0.9 is scored only on test years whose shortest window exceeds the cohort's long tail (about 4 years after the test year for Seattle); recent years are reported at q0.1 and q0.5 only, or flagged. IPCW is kept as a partial correction, never as a substitute.
+- Limits: one held-out city (Seattle), one class pair, 3 seeds; the 2022 reference is itself truncated at 1,412 days (2020: 2,142; 2021: 1,777); the pseudo-pull truncates only the test labels, not the training years, which in a real pull are also shorter; IPCW weights are fixed in the bootstrap.
+Next: rerun the cascade2-versus-type i2c q0.9 comparison (session 74) on test years 2020 to 2022 with the reference score; the same check with SF and Austin held out; a censored-quantile model (for example, training on the incomplete permits as censored rows) so that the tail can be learnt as well as scored.
+
 ## Session 77, 2026-11-12: a fold rule chosen from history helps Chicago and hurts Austin, and the demolition tail gap of sessions 75 and 76 is right-censoring of the test year (T1, T4 Austin refuted; T5, T6, T4 Chicago held)
 
 Why: session 76 showed that folding demolition into alteration removes two thirds of cascade2's Seattle i2c 2024 transfer q0.9 cost, but the fold was picked after seeing session 75's per-class split of that very test year. A rule a practitioner can use must decide the fold before the test year exists. Session 76's suggested rule read the ratio interval on the test year; this one does not.

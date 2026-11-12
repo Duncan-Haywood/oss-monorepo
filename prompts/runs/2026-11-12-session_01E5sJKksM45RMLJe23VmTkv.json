@@ -1,0 +1,382 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKksM45RMLJe23VmTkv",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T15:12:09Z",
+  "ended": "2026-11-12T15:12:42Z",
+  "wall_minutes": 4.49,
+  "tokens_in": 3362999,
+  "tokens_out": 19724,
+  "cost_usd": 1.7087,
+  "tool_calls": 41,
+  "task": "redteam: expense-tracker calc.mjs + platform/ci/wait_for.py",
+  "projects": [
+    "expense-tracker",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15167",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 suggests `git log --since=3.days --name-only origin/main` to find recently changed targets, but the clone is shallow (depth 1), so it prints nothing; needs a --deepen first or a different source."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-the-details-column-is-not-the-merchant.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: all 5 open defects are control-plane edits already in open owner-gated PRs (#12928 framerate, #14877/#12926 doc_index+insecure_refs, #14612 rerun red suite, #14698 einvoice CI deps); nothing to add. Campaign 1 expense-tracker/calc.mjs 6/8, campaign 2 platform/ci/wait_for.py 5/8; after fix 16/16. Guard added (4b): invoiceParts-vs-invoice-maker computeTotals parity test over 406 invoices, catches drift of the mirrored arithmetic in either venture, not just the two mutants. Local verification: node --test calc.test.mjs page.test.mjs usage.test.mjs in ventures/expense-tracker (21+14 pass); python3 -m unittest test_wait_for in platform/ci (27 OK); invoice-maker suite unchanged.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/expense-tracker/calc.mjs",
+        "test": "node --test ventures/expense-tracker/**/*.test.mjs  (in .)",
+        "seed": 921183271,
+        "commit": "b411a7ee0",
+        "sites": 355,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/expense-tracker/calc.mjs",
+            "line": 42,
+            "col": 19,
+            "operator": "or-to-and",
+            "before": "return ((cents || 0) / 100).toFixed(2);",
+            "after": "return ((cents && 0) / 100).toFixed(2);",
+            "line_text": "    return ((cents || 0) / 100).toFixed(2);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/expense-tracker/calc.mjs",
+            "line": 57,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "m = s.match(/^(\\d{1,2})[/-](\\d{1,2})[/-](\\d{2}|\\d{4})$/);",
+            "after": "m = s.match(/^(\\d{1,2})[/-](\\d{2,2})[/-](\\d{2}|\\d{4})$/);",
+            "line_text": "  m = s.match(/^(\\d{1,2})[/-](\\d{1,2})[/-](\\d{2}|\\d{4})$/);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/expense-tracker/calc.mjs",
+            "line": 89,
+            "col": 40,
+            "operator": "false-to-true",
+            "before": "if (e.category === \"personal\") return false;",
+            "after": "if (e.category === \"personal\") return true;",
+            "line_text": "  if (e.category === \"personal\") return false;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/expense-tracker/calc.mjs",
+            "line": 108,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "let spent = 0, deductible = 0, missing = 0, missingCents = 0;",
+            "after": "let spent = 1, deductible = 0, missing = 0, missingCents = 0;",
+            "line_text": "  let spent = 0, deductible = 0, missing = 0, missingCents = 0;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/expense-tracker/calc.mjs",
+            "line": 257,
+            "col": 102,
+            "operator": "times-to-div",
+            "before": "const pctOf = (cents, pct) => { const raw = (cents * (Number(pct) || 0)) / 100; return Math.sign(raw) * Math.round(Math.abs(raw) + 1e-9); };",
+            "after": "const pctOf = (cents, pct) => { const raw = (cents * (Number(pct) || 0)) / 100; return Math.sign(raw) / Math.round(Math.abs(raw) + 1e-9); };",
+            "line_text": "const pctOf = (cents, pct) => { const raw = (cents * (Number(pct) || 0)) / 100; return Math.sign(raw) * Math.round(Math.abs(raw) + 1e-9); };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/expense-tracker/calc.mjs",
+            "line": 261,
+            "col": 27,
+            "operator": "or-to-and",
+            "before": "const lines = (inv.lines || []).map((l) => { const q = Number(l.qty), r = dollars(l.rate); return Number.isFinite(q) ? Math.round(q * r + (q * r < 0 ? -1e-9 : 1e-9)) : 0; });",
+            "after": "const lines = (inv.lines && []).map((l) => { const q = Number(l.qty), r = dollars(l.rate); return Number.isFinite(q) ? Math.round(q * r + (q * r < 0 ? -1e-9 : 1e-9)) : 0; });",
+            "line_text": "  const lines = (inv.lines || []).map((l) => { const q = Number(l.qty), r = dollars(l.rate); return Number.isFinite(q) ? Math.round(q * r + (q * r < 0 ? -1e-9 : 1e-9)) : 0; });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/expense-tracker/calc.mjs",
+            "line": 261,
+            "col": 157,
+            "operator": "const-plus-one",
+            "before": "const lines = (inv.lines || []).map((l) => { const q = Number(l.qty), r = dollars(l.rate); return Number.isFinite(q) ? Math.round(q * r + (q * r < 0 ? -1e-9 : 1e-9)) : 0; });",
+            "after": "const lines = (inv.lines || []).map((l) => { const q = Number(l.qty), r = dollars(l.rate); return Number.isFinite(q) ? Math.round(q * r + (q * r < 0 ? -1e-10 : 1e-9)) : 0; });",
+            "line_text": "  const lines = (inv.lines || []).map((l) => { const q = Number(l.qty), r = dollars(l.rate); return Number.isFinite(q) ? Math.round(q * r + (q * r < 0 ? -1e-9 : 1e-9)) : 0; });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Negative half-cent line near 2^20 cents (-0.5 x $20,971.53): float spacing absorbs a 1e-10 nudge, so rounding turns asymmetric. Parity test vs invoice-maker computeTotals covers it."
+          },
+          {
+            "file": "ventures/expense-tracker/calc.mjs",
+            "line": 268,
+            "col": 24,
+            "operator": "gt-to-ge",
+            "before": "const base = subtotal > 0 ? Math.max(0, taxableLines - Math.round((discount * taxableLines) / subtotal)) : 0;",
+            "after": "const base = subtotal >= 0 ? Math.max(0, taxableLines - Math.round((discount * taxableLines) / subtotal)) : 0;",
+            "line_text": "  const base = subtotal > 0 ? Math.max(0, taxableLines - Math.round((discount * taxableLines) / subtotal)) : 0;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "subtotal 0 (a line and its credit) with tax: 0/0 gives NaN tax, total and paid-basis income. Parity test asserts finite totals equal to invoice-maker's."
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/wait_for.py",
+        "test": "/usr/local/bin/python3 -m unittest test_wait_for  (in platform/ci)",
+        "seed": 267635541,
+        "commit": "b411a7ee0",
+        "sites": 51,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 69,
+            "col": 10,
+            "operator": "true-to-false",
+            "before": "while True:",
+            "after": "while False:",
+            "line_text": "    while True:",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 79,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "os.kill(pid, 0)",
+            "after": "os.kill(pid, 1)",
+            "line_text": "        os.kill(pid, 0)",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "os.kill(pid,1) sends SIGHUP to the job being waited on. test_probing_a_job_never_signals_it."
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 88,
+            "col": 15,
+            "operator": "true-to-false",
+            "before": "return True",
+            "after": "return False",
+            "line_text": "        return True",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "except OSError fallback (no /proc, macOS) returned False would call a live job finished. test_a_live_pid_without_proc_counts_as_alive (mocks os.kill and open)."
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 92,
+            "col": 18,
+            "operator": "plus-to-minus",
+            "before": "end = clock() + timeout",
+            "after": "end = clock() - timeout",
+            "line_text": "    end = clock() + timeout",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 115,
+            "col": 24,
+            "operator": "minus-to-plus",
+            "before": "idle = max(0, now() - st.st_mtime)",
+            "after": "idle = max(0, now() + st.st_mtime)",
+            "line_text": "    idle = max(0, now() - st.st_mtime)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 117,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "hint = (\"still being written: call again\" if idle < 60 else",
+            "after": "hint = (\"still being written: call again\" if idle < 61 else",
+            "line_text": "    hint = (\"still being written: call again\" if idle < 60 else",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "60 s silent boundary. test_progress_calls_a_log_silent_from_60s."
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 165,
+            "col": 25,
+            "operator": "or-to-and",
+            "before": "shown = a.marker or \"DONE' or 'EXIT\"",
+            "after": "shown = a.marker and \"DONE' or 'EXIT\"",
+            "line_text": "        shown = a.marker or \"DONE' or 'EXIT\"",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 169,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 0",
+            "after": "return 1",
+            "line_text": "    return 0",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/expense-tracker/calc.mjs",
+        "issue": "importBankCsv column finder took the first header matching any name: a Chase-style checking export (Details,Posting Date,Description,...) imported every vendor as DEBIT; 'Account Name' beat 'Payee'; 'Last Updated' beat 'Transaction Date'. Fixed: exact header match first, then partial, in name priority order; test 'bank import prefers an exact column name over a partial match'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15167"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9e18fa18-6239-5d8d-821a-d385682e2ce0",
+    "transcripts": 1,
+    "first": "2026-11-12T15:12:09Z",
+    "last": "2026-11-12T15:16:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 76,
+        "output": 19724,
+        "thinking": 6802,
+        "cache_read": 3280705,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82218,
+        "api_equivalent_usd": 1.7087,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 76,
+      "output": 19724,
+      "thinking": 6802,
+      "cache_read": 3280705,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82218,
+      "api_equivalent_usd": 1.7087,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.49,
+      "active_minutes": 4.49,
+      "model_minutes": 3.38,
+      "tool_minutes": 1.11,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "mutation triage of 5 escapes, 6 tests, CSV column bug repro and fix, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 175.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

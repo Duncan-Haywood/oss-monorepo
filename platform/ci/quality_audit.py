@@ -132,6 +132,17 @@ def free_seed(date: str, audits: list[dict]) -> str:
 ROUND_RE = re.compile(r"quality-audit-round-(\d+)\.md$")
 
 
+def post_limits() -> str:
+    """The round post's front-matter caps, printed with its name: two quality runs
+    on 2026-11-12 had a first draft refused on all three (run records)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    try:
+        from check_post_frontmatter import limits_line
+    except ImportError:  # a sparse checkout without it
+        return "front matter: see platform/ci/check_post_frontmatter.py --limits"
+    return limits_line()
+
+
 def next_round(posts: Path = ROOT / "docs" / "posts", ref: str = "origin/main") -> int:
     """One more than the highest `*-quality-audit-round-N.md` post here or on `ref`.
 
@@ -387,6 +398,7 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps({"seed": seed, "round": rnd, "subjects": picks}, indent=1))
         else:
             print(f"seed {seed}   round {rnd} (next post: docs/posts/<date>-quality-audit-round-{rnd}.md)")
+            print(f"  post {post_limits()}")
             for p in picks:
                 extra = f" (of {p['population']})" if p.get("population") else ""
                 print(f"  {p['stratum']:<9} {p['subject']}{extra}  last audited: {p['last_audited'] or 'never'}")

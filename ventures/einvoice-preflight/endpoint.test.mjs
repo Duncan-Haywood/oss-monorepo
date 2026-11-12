@@ -79,6 +79,30 @@ test("GLN checksum failure does not echo the number", () => {
   assert.match(findings[0].message, /0088/);
 });
 
+// Red-team run 2026-11-12: three mutants of endpoint.mjs escaped the suite.
+test("a GLN of the wrong length is INV-041 before its check digit is read", () => {
+  for (const id of ["123456789012", "12345678901280", "1"]) {
+    const findings = inspectPartyEndpoint({ endpoint: { scheme: "0088", id } }, "customer");
+    assert.deepEqual(findings.map((item) => item.rule), ["INV-041"], id);
+  }
+});
+
+test("0212 (Finnish business id) takes 8 or 9 characters, digits before the last", () => {
+  for (const id of ["1234567-8", "12345678", "1234567-89"]) {
+    assert.deepEqual(inspectPartyEndpoint({ endpoint: { scheme: "0212", id } }, "supplier"), [], id);
+  }
+  for (const id of ["1234567", "1234567890", "12345A7-8"]) {
+    const findings = inspectPartyEndpoint({ endpoint: { scheme: "0212", id } }, "supplier");
+    assert.deepEqual(findings.map((item) => item.rule), ["INV-041"], id);
+  }
+});
+
+test("a party that is not an object gives no finding and does not throw", () => {
+  for (const party of [null, undefined, "ACME", 42, false]) {
+    assert.deepEqual(inspectPartyEndpoint(party, "customer"), []);
+  }
+});
+
 test("unknown scheme is INV-039", () => {
   const findings = inspectPartyEndpoint({ endpoint: { scheme: "088", id: "1234567890128" } }, "supplier");
   assert.deepEqual(findings.map((item) => item.rule), ["INV-039"]);

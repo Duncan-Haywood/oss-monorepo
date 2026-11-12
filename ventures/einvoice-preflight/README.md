@@ -901,7 +901,8 @@ minus document allowances plus document charges in that category, times the
 rate, rounded half up, the EN 16931 way), the document `TaxAmount`, and the
 line-extension, allowance, charge, tax-exclusive, tax-inclusive and payable
 totals. A net written with more decimals that rounds to the right cent (PINT
-allows them) is kept. It reads the document's tax from the root-level
+allows them) is kept; on a PINT Oman file a recomputed net is written to the
+baisa (three decimals), see "PINT Oman, UAE and Malaysia" below. It reads the document's tax from the root-level
 `TaxTotal` that carries subtotals; a root-level one without subtotals is
 BT-111, set equal to the new tax when it is in the document currency and left
 alone (with a note) when converting it would need an exchange rate. It
@@ -958,6 +959,129 @@ all. The repair fixes it, and since 2026-11-12 the checks flag it too (INV-059,
 "BT-111 in the invoice's own currency" below). Tests:
 `repair-ubl.test.mjs` (20). Not tried on a real ERP export or a Fatoora
 verdict.
+
+**PINT Oman, UAE and Malaysia (2026-11-12, second pass).** Scored the same way on
+OpenPeppol's PINT examples (phive-rules dfa902d), the repair had four faults,
+two of them on correct files, which the repair must never make worse:
+
+- **UAE reverse charge and margin scheme got VAT added.** PINT UAE states the
+  rate on an `AE` (reverse charge) or `N` (margin scheme) subtotal, 5%, with a
+  tax of 0, as its rules require (aligned-ibrp-ae-09-ae, ibr-108-ae). The repair
+  computed 5% anyway: "Supply under Reverse charge mechanism" went from 0 to
+  148.50 of VAT and its amount due from 2,970.00 to 3,118.50. A category `AE`
+  subtotal (any file; EN 16931 BR-AE-08 says the same) and `N` on a PINT UAE
+  file now always come to 0.
+- **More decimals on a PINT subtotal were rounded off.** UAE's examples write
+  a subtotal tax of 532.1645 and a taxable amount of 949.405. On a PINT file
+  (`CustomizationID` `urn:peppol:pint:...`) one that rounds to the right cent is
+  kept, as a line net already was.
+- **LHDN's Malaysian sample was re-netted from 100.00 to 10.00.** It states a
+  price of 10.00 per base quantity of 10, for 10 hours, and nets the line as
+  quantity x price. The checks already accept that reading
+  (`acceptedLineNet`); now the repair does too. A net that matches neither
+  reading still goes to the base-quantity one.
+- **Oman lines to the baisa.** On a PINT Oman file (`...@om-1`) a recomputed line
+  net is rounded to three decimals (0.047, not 0.05). A line VAT (BTOM-016)
+  more than 0.001 off net x rate is rewritten to it, to three decimals
+  (IBR-168-OM's own tolerance). The line amount with VAT (BTOM-017) is
+  rewritten to net + VAT when it is more than 0.01 off (IBR-158-OM), except on
+  a profit margin invoice (BTOM-001 position 10), where it is the item's sale
+  value. A subtotal's tax that is wrong is rewritten to the sum of its lines'
+  corrected VAT where every line states one (ALIGNED-IBRP-S-09-OM), not to rate
+  x taxable.
+
+- **A rate inside an XML comment was read.** LHDN's tourism tax samples keep
+  a commented-out `<cbc:Percent>10</cbc:Percent>` in a per-unit tax subtotal
+  (10.00 a room-night, `PerUnitAmount`). The repair now reads the file with
+  comments blanked out (offsets kept, comments written back untouched), and
+  declines the tax part, with a note, when a subtotal is a per-unit amount.
+  Found reading those samples while checking `--rules`; on them the repair
+  already declined the tax part (their tax groups do not match the subtotals
+  one to one), so no number moves. It matters for a file whose groups do
+  match (tests). With `--rules` on PINT MY, 28 of 342 repaired files draw a
+  rule id the original did not, the same 28 before and after: all are seeded
+  faults in the four TTX samples that the repair declines and leaves in place,
+  not changes it made.
+
+`eval/repair-seeded.mjs` now also seeds the line amounts inside
+`ItemPriceExtension` (Oman's BTOM-016/017, UAE's BTAE-08) under their own
+labels; before, the line VAT ones were counted as "KSA-11". Same seeds before
+and after this change:
+
+| Files | Correct files left unchanged | Seeded faults restored | `ItemPriceExtension` amount (new seeds) |
+| --- | --- | --- | --- |
+| PINT OM 1.0.1, 49 | 49 to 49 | 461 to **657 of 658** | 0 to 120 of 124 |
+| PINT AE 2026.5, 32 | 20 to **32** | 166 to **286 of 346** | 0 of 40 (not touched) |
+| PINT MY 1.3.1, 26 | 22 to **26** | 208 to **244 of 300** | 0 of 42 (not touched) |
+| ZATCA 19, PINT A-NZ 24, SG 16, JP 9 | unchanged, all | 257/258, 270/270, 158/164, 116/121, unchanged | none |
+
+Not restored on Oman: one line `TaxTotal` outside `ItemPriceExtension` on
+Exports-2 (left as written, as outside ZATCA); BTOM-017 on the two profit margin
+files (a fact, deliberately not touched); and two on Summary-Utilities, which
+writes BTOM-017 to the cent (392.18) where the repair writes 373.5 + 18.675 =
+392.175. Both are within IBR-158-OM's 0.01. UAE and Malaysia's
+`ItemPriceExtension` amounts are not recomputed yet, and most of their
+remaining misses are there and in multi-currency and summary files.
+Tests: `repair-pint.test.mjs` (17, made-up invoices built in the test; 10 fail
+on the code before this change). Not done: a real
+business's file for any of the three. UAE's BTAE-08/10 and Malaysia's
+`ItemPriceExtension` are covered in the next section.
+
+### UAE line VAT (BTAE-08) and line amount payable (BTAE-10), 2026-11-12 later
+
+Every PINT UAE line restates its VAT (BTAE-08, `ItemPriceExtension/TaxTotal/TaxAmount`)
+and its amount payable (BTAE-10, `ItemPriceExtension/Amount`). The UAE rule set
+fixes no arithmetic for them: it requires both (ibr-104-ae, ibr-194-ae), wants
+BTAE-08 absent on exempt lines (ibr-163-ae) and 0 on reverse-charge and zero-rated
+ones (ibr-162-ae, ibr-165-ae). Every one of OpenPeppol's 40 example lines reads as
+net x rate and net + VAT, kept to the precision of the arithmetic (999.375 x 5%
+written 49.9688, 1,049.3438 payable). So `repair-ubl.mjs` now:
+
+- rewrites a BTAE-08 more than 0.01 off net x rate (0 in categories AE, Z and the
+  UAE's margin scheme N), and leaves an exempt line's absent one absent;
+- rewrites a BTAE-10 more than 0.01 off net + BTAE-08 (net alone on an exempt line);
+- writes both with the decimals the file used there, 2 to 4 (`fmtAs`), and does
+  the same for a PINT subtotal tax written to more than two decimals (532.1645);
+- groups a zero-tax category (reverse charge AE; the UAE's margin scheme N) by
+  category alone, whatever rate it states. Two UAE examples put a reverse-charge
+  header allowance at AE 0% beside AE 5% lines and an AE 5% subtotal; the 0% and
+  5% rows read as two groups against one subtotal, so the whole tax part was
+  skipped ("groups do not match") and a wrong total stayed wrong.
+
+The 0.01 tolerance is ours, not the UAE's, chosen so a VAT-inclusive price that
+comes out a fils under net x rate is kept.
+
+**Malaysia is left alone on purpose.** LHDN's 26 PINT MY samples write
+`ItemPriceExtension/Amount` as 100.00 on 5,000.00 and 6,000.00 lines and 0.00 on a
+100.00 line, under a comment that it "is not part of Schematron calculations at
+this moment". No reading of the line gives those numbers, so there is nothing to
+recompute it from: the repair keeps it as written, and `eval/repair-seeded.mjs` no
+longer seeds it (the 42 "not restored" in the table above were never restorable).
+
+`eval/repair-seeded.mjs` also now writes each seed with the decimals of the value it
+replaces (at least two). It used to write `toFixed(2)`, so a seeded 532.1645 became
+539.16 and the original precision was gone before the repair saw it.
+
+Measured on phive-rules commit dfa902d, same seeds, code before and after:
+
+| Files | Correct files left unchanged | Seeded faults restored | `ItemPriceExtension` seeds |
+| --- | --- | --- | --- |
+| PINT AE 2026.5, 32 | 32 to 32 | 286 to **380 of 386** | 0 to **76 of 76** |
+| PINT OM 1.0.1, 49; MY 1.3.1, 26; ZATCA 3.4.6, 19; A-NZ 1.1.3, 24; SG 1.4.1, 16; JP 1.1.3, 9 | unchanged, all | 777/782, 244/300, 257/258, 270/270, 158/164, 116/121, identical | OM 244/248, identical |
+
+With `--rules` (the whole preflight with the official PINT AE sets on the plain
+route), the repaired file drew a rule id the original did not in **0 of 386**; before
+the zero-tax grouping fix it was 10, all on the two AE-category allowance files whose
+tax part was skipped. The same run shows the checks' gap: a seeded BTAE-10 drew a
+finding from nothing, ours or the UAE's (**0 of 40**), and a seeded BTAE-08 from
+something in 11 of 36. The repair fixes them when asked; no check says to ask.
+
+Still not restored on UAE (6): the three line `TaxTotal`s outside
+`ItemPriceExtension` on Continuous supplies and the two Exports files (left as
+written, as outside ZATCA), and three seeds on the disclosed-agent invoice (its
+three-decimal line net and its subtotal). Tests: `repair-pint.test.mjs` (11 more,
+28 in all; 7 of the new ones fail on the code before). Not done: a real UAE
+business's file, or an ASP's verdict on a BTAE-08 written to two decimals.
 
 ## BT-111 in the invoice's own currency
 

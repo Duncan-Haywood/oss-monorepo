@@ -35,8 +35,12 @@ const walk = (d) => readdirSync(d).flatMap((f) => { const p = join(d, f); return
 // Offsets of every amount element, labelled by where it sits.
 export function seedSites(xml) {
   const sites = [];
-  const re = /<((?:[\w.-]+:)?(LineExtensionAmount|TaxAmount|RoundingAmount|TaxableAmount|TaxExclusiveAmount|TaxInclusiveAmount|AllowanceTotalAmount|ChargeTotalAmount|PayableAmount))(\s[^>]*)?>([^<]*)<\/\1>/g;
+  const re = /<((?:[\w.-]+:)?(Amount|LineExtensionAmount|TaxAmount|RoundingAmount|TaxableAmount|TaxExclusiveAmount|TaxInclusiveAmount|AllowanceTotalAmount|ChargeTotalAmount|PayableAmount))(\s[^>]*)?>([^<]*)<\/\1>/g;
   const docCur = /<(?:[\w.-]+:)?DocumentCurrencyCode[^>]*>\s*([A-Z]{3})/.exec(xml)?.[1];
+  // PINT Malaysia's ItemPriceExtension amount is a fact, not arithmetic: LHDN's samples
+  // write 100.00 on 5,000.00 and 6,000.00 lines and 0.00 on a 100.00 line, and their
+  // comment says it is "not part of Schematron calculations". Nothing to restore it from.
+  const my = /<(?:[\w.-]+:)?CustomizationID[^>]*>[^<]*@my-1[^<]*</.test(xml);
   for (const m of xml.matchAll(re)) {
     const name = m[2];
     const cur = /currencyID\s*=\s*"([^"]*)"/.exec(m[3] || "")?.[1];
@@ -46,8 +50,14 @@ export function seedSites(xml) {
     const inLine = open("InvoiceLine") || open("CreditNoteLine") || open("DebitNoteLine");
     const inSub = open("TaxSubtotal");
     const inTT = open("TaxTotal");
+    const inExt = open("ItemPriceExtension");
     let label;
-    if (inLine && inSub && name === "TaxAmount") label = "KSA-32 prepayment VAT";
+    // PINT line amounts in ItemPriceExtension: Oman BTOM-016 VAT and BTOM-017 amount with VAT, UAE BTAE-08.
+    if (inLine && inExt && inTT && name === "TaxAmount") label = "line VAT, ItemPriceExtension";
+    else if (inLine && inExt && !inTT && name === "Amount" && my) continue;
+    else if (inLine && inExt && !inTT && name === "Amount") label = "line with VAT, ItemPriceExtension";
+    else if (name === "Amount") continue; // allowance, charge and other amounts are facts
+    else if (inLine && inSub && name === "TaxAmount") label = "KSA-32 prepayment VAT";
     else if (inLine && inSub) continue; // KSA-31 is a fact
     else if (inLine && inTT && name === "TaxAmount") label = "KSA-11 line VAT";
     else if (inLine && inTT && name === "RoundingAmount") label = "KSA-12 line with VAT";
@@ -82,7 +92,10 @@ for (const f of files) {
   for (const s of seedSites(xml)) {
     const v = Number(s.value);
     if (!Number.isFinite(v)) continue;
-    const bad = xml.slice(0, s.start) + (v + delta).toFixed(2) + xml.slice(s.end);
+    // The seed keeps the decimals the file wrote (at least 2): PINT UAE's 532.1645
+    // seeded as 539.16 would lose what the repair has to restore.
+    const dp = Math.max(2, /\.(\d+)/.exec(s.value.trim())?.[1].length ?? 0);
+    const bad = xml.slice(0, s.start) + (v + delta).toFixed(dp) + xml.slice(s.end);
     const r = repairUbl(bad);
     const seed = { label: s.label, restored: r.xml === xml, changes: r.changes.length, sameNumbers: r.changes.length > 0 && numbersOnlyDiffer(r.xml, xml) };
     if (rules) {

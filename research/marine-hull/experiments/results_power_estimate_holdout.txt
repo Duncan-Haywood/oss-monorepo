@@ -1,0 +1,207 @@
+Milestone 6zo: held-out check of 6zn's climatology power estimate and the pack-feedback constant
+pack 10000 Wh, hotel 30 W; target lead 45 days; grid estimator ('L', 'L30', 'K', 'KA') x tau (10, 20, 30, 45, 60, 90) days; B = ('L', 10); selection rule S: most km with excess dark h <= B's
+
+Split T: select on 2015-2019 (climatology from the other 2015-2019 years), score on 2020-2024 (climatology from 2015-2019)
+   selection set (150 point-years): B km 2880257, excess dark h 1340
+     est   tau |   km / B | excess dark h | excess / B
+        L   10 |   1.0000 |          1340 |      1.000
+        L   20 |   1.0192 |          2417 |      1.804
+        L   30 |   1.0300 |          3786 |      2.826
+        L   45 |   1.0409 |          5699 |      4.254
+        L   60 |   1.0491 |          7289 |      5.440
+        L   90 |   1.0600 |          9655 |      7.206
+      L30   10 |   1.0226 |          2454 |      1.831
+      L30   20 |   1.0369 |          4886 |      3.646
+      L30   30 |   1.0454 |          7111 |      5.307
+      L30   45 |   1.0551 |          9889 |      7.381
+      L30   60 |   1.0619 |         12008 |      8.962
+      L30   90 |   1.0706 |         14861 |     11.091
+        K   10 |   1.0213 |           422 |      0.315
+        K   20 |   1.0397 |           937 |      0.699
+        K   30 |   1.0498 |          1577 |      1.177
+        K   45 |   1.0606 |          2802 |      2.092
+        K   60 |   1.0672 |          3990 |      2.978
+        K   90 |   1.0747 |          5902 |      4.405
+       KA   10 |   1.0171 |           608 |      0.454
+       KA   20 |   1.0362 |          1168 |      0.872
+       KA   30 |   1.0472 |          1817 |      1.356
+       KA   45 |   1.0573 |          2929 |      2.186
+       KA   60 |   1.0646 |          4082 |      3.047
+       KA   90 |   1.0739 |          6064 |      4.526
+   picked by rule S: ('K', 20)
+   test set (150 point-years): B km 2950490, excess dark h 1334; (Fh) km 3241208 (1.0985 x B)
+     est   tau |   km / B | excess dark h | excess / B | share B->(Fh)
+        L   10 |   1.0000 |          1334 |      1.000 |         0.000
+        L   20 |   1.0186 |          2382 |      1.786 |         0.189
+        L   30 |   1.0286 |          3668 |      2.750 |         0.291
+        L   45 |   1.0389 |          5516 |      4.136 |         0.395
+        L   60 |   1.0463 |          7090 |      5.316 |         0.470
+        L   90 |   1.0563 |          9453 |      7.088 |         0.571
+      L30   10 |   1.0202 |          2388 |      1.790 |         0.205
+      L30   20 |   1.0339 |          4827 |      3.619 |         0.344
+      L30   30 |   1.0414 |          7188 |      5.390 |         0.420
+      L30   45 |   1.0496 |         10107 |      7.578 |         0.504
+      L30   60 |   1.0556 |         12287 |      9.213 |         0.565
+      L30   90 |   1.0634 |         15189 |     11.389 |         0.643
+        K   10 |   1.0184 |           343 |      0.257 |         0.187
+        K   20 |   1.0349 |           744 |      0.558 |         0.354
+        K   30 |   1.0436 |          1335 |      1.001 |         0.442
+        K   45 |   1.0513 |          2350 |      1.762 |         0.521
+        K   60 |   1.0567 |          3316 |      2.486 |         0.575
+        K   90 |   1.0612 |          4820 |      3.614 |         0.622
+       KA   10 |   1.0162 |           550 |      0.413 |         0.164
+       KA   20 |   1.0343 |          1067 |      0.800 |         0.348
+       KA   30 |   1.0441 |          1678 |      1.258 |         0.448
+       KA   45 |   1.0529 |          2908 |      2.180 |         0.536
+       KA   60 |   1.0591 |          4184 |      3.137 |         0.600
+       KA   90 |   1.0672 |          6279 |      4.708 |         0.682
+   picked on test: km 1.0349 x B, excess dark h 744 against B 1334 (0.558 x), share of B->(Fh) closed 0.354
+   6zn in-sample ('K', 10) on test: km 1.0184 x B, excess 343 (0.257 x), share 0.187
+   6zn in-sample ('K', 30) on test: km 1.0436 x B, excess 1335 (1.001 x), share 0.442
+   6zn in-sample ('K', 60) on test: km 1.0567 x B, excess 3316 (2.486 x), share 0.575
+   test set, picked ('K', 20) and (Fh) against B by |lat| band:
+     |lat|  0-20 ( 55): km / B 1.0262, (Fh) 1.0413; mean excess dark h/yr B 0.0, picked 0.0, (Fh) 0.0
+     |lat| 25-35 ( 25): km / B 1.0316, (Fh) 1.1641; mean excess dark h/yr B 9.4, picked 5.7, (Fh) 0.0
+     |lat| 40-45 ( 25): km / B 1.0445, (Fh) 1.1332; mean excess dark h/yr B 14.0, picked 9.4, (Fh) 0.0
+     |lat| 50-55 ( 25): km / B 1.1080, (Fh) 1.3210; mean excess dark h/yr B 15.3, picked 6.8, (Fh) 0.0
+     |lat| 60-60 ( 20): km / B 1.0790, (Fh) 1.3941; mean excess dark h/yr B 18.4, picked 9.7, (Fh) 0.0
+
+Split S1: select on the Pacific transect, score on the Atlantic transect + corridor (leave-one-year-out climatology, all ten years)
+   selection set (130 point-years): B km 2443609, excess dark h 1186
+     est   tau |   km / B | excess dark h | excess / B
+        L   10 |   1.0000 |          1186 |      1.000
+        L   20 |   1.0218 |          2120 |      1.788
+        L   30 |   1.0340 |          3197 |      2.696
+        L   45 |   1.0462 |          4670 |      3.939
+        L   60 |   1.0551 |          5909 |      4.983
+        L   90 |   1.0668 |          7796 |      6.575
+      L30   10 |   1.0230 |          2122 |      1.789
+      L30   20 |   1.0390 |          4210 |      3.550
+      L30   30 |   1.0486 |          6127 |      5.167
+      L30   45 |   1.0592 |          8497 |      7.166
+      L30   60 |   1.0667 |         10281 |      8.670
+      L30   90 |   1.0764 |         12696 |     10.707
+        K   10 |   1.0247 |           361 |      0.304
+        K   20 |   1.0457 |           845 |      0.712
+        K   30 |   1.0583 |          1500 |      1.265
+        K   45 |   1.0716 |          2660 |      2.243
+        K   60 |   1.0784 |          3742 |      3.156
+        K   90 |   1.0857 |          5457 |      4.602
+       KA   10 |   1.0171 |           448 |      0.378
+       KA   20 |   1.0389 |           942 |      0.794
+       KA   30 |   1.0512 |          1406 |      1.186
+       KA   45 |   1.0623 |          2274 |      1.918
+       KA   60 |   1.0705 |          3162 |      2.666
+       KA   90 |   1.0808 |          4719 |      3.980
+   picked by rule S: ('K', 20)
+   test set (170 point-years): B km 3385463, excess dark h 1495; (Fh) km 3691692 (1.0905 x B)
+     est   tau |   km / B | excess dark h | excess / B | share B->(Fh)
+        L   10 |   1.0000 |          1495 |      1.000 |         0.000
+        L   20 |   1.0171 |          2672 |      1.787 |         0.189
+        L   30 |   1.0262 |          4257 |      2.846 |         0.290
+        L   45 |   1.0357 |          6538 |      4.372 |         0.395
+        L   60 |   1.0427 |          8454 |      5.653 |         0.472
+        L   90 |   1.0523 |         11297 |      7.554 |         0.578
+      L30   10 |   1.0201 |          2705 |      1.809 |         0.222
+      L30   20 |   1.0328 |          5434 |      3.634 |         0.363
+      L30   30 |   1.0398 |          8075 |      5.400 |         0.440
+      L30   45 |   1.0477 |         11424 |      7.639 |         0.527
+      L30   60 |   1.0533 |         13955 |      9.332 |         0.589
+      L30   90 |   1.0606 |         17319 |     11.582 |         0.670
+        K   10 |   1.0195 |           377 |      0.252 |         0.216
+        K   20 |   1.0355 |           806 |      0.539 |         0.393
+        K   30 |   1.0438 |          1423 |      0.952 |         0.484
+        K   45 |   1.0520 |          2845 |      1.903 |         0.575
+        K   60 |   1.0577 |          4300 |      2.876 |         0.637
+        K   90 |   1.0637 |          6672 |      4.462 |         0.704
+       KA   10 |   1.0160 |           596 |      0.399 |         0.176
+       KA   20 |   1.0326 |          1043 |      0.697 |         0.360
+       KA   30 |   1.0416 |          1755 |      1.174 |         0.460
+       KA   45 |   1.0500 |          3058 |      2.045 |         0.552
+       KA   60 |   1.0557 |          4538 |      3.034 |         0.615
+       KA   90 |   1.0632 |          7001 |      4.682 |         0.698
+   picked on test: km 1.0355 x B, excess dark h 806 against B 1495 (0.539 x), share of B->(Fh) closed 0.393
+   6zn in-sample ('K', 10) on test: km 1.0195 x B, excess 377 (0.252 x), share 0.216
+   6zn in-sample ('K', 30) on test: km 1.0438 x B, excess 1423 (0.952 x), share 0.484
+   6zn in-sample ('K', 60) on test: km 1.0577 x B, excess 4300 (2.876 x), share 0.637
+   test set, picked ('K', 20) and (Fh) against B by |lat| band:
+     |lat|  0-20 ( 60): km / B 1.0213, (Fh) 1.0330; mean excess dark h/yr B 0.0, picked 0.0, (Fh) 0.0
+     |lat| 25-35 ( 30): km / B 1.0350, (Fh) 1.1469; mean excess dark h/yr B 6.8, picked 4.7, (Fh) 0.0
+     |lat| 40-45 ( 30): km / B 1.0437, (Fh) 1.1249; mean excess dark h/yr B 15.6, picked 9.4, (Fh) 0.0
+     |lat| 50-55 ( 30): km / B 1.1712, (Fh) 1.3360; mean excess dark h/yr B 15.9, picked 8.8, (Fh) 0.0
+     |lat| 60-60 ( 20): km / B 1.0413, (Fh) 1.3129; mean excess dark h/yr B 17.4, picked 6.0, (Fh) 0.0
+
+Split S2: select on the Atlantic transect, score on the Pacific transect + corridor
+   selection set (120 point-years): B km 2514888, excess dark h 913
+     est   tau |   km / B | excess dark h | excess / B
+        L   10 |   1.0000 |           913 |      1.000
+        L   20 |   1.0152 |          1744 |      1.910
+        L   30 |   1.0238 |          2774 |      3.039
+        L   45 |   1.0330 |          4176 |      4.575
+        L   60 |   1.0396 |          5314 |      5.822
+        L   90 |   1.0486 |          6950 |      7.613
+      L30   10 |   1.0174 |          1681 |      1.841
+      L30   20 |   1.0286 |          3498 |      3.832
+      L30   30 |   1.0351 |          5288 |      5.793
+      L30   45 |   1.0427 |          7567 |      8.290
+      L30   60 |   1.0480 |          9265 |     10.149
+      L30   90 |   1.0552 |         11524 |     12.624
+        K   10 |   1.0196 |           194 |      0.213
+        K   20 |   1.0347 |           478 |      0.524
+        K   30 |   1.0427 |           853 |      0.934
+        K   45 |   1.0512 |          1721 |      1.885
+        K   60 |   1.0574 |          2593 |      2.841
+        K   90 |   1.0636 |          4046 |      4.433
+       KA   10 |   1.0147 |           339 |      0.371
+       KA   20 |   1.0302 |           665 |      0.728
+       KA   30 |   1.0388 |          1127 |      1.235
+       KA   45 |   1.0472 |          1907 |      2.089
+       KA   60 |   1.0529 |          2760 |      3.024
+       KA   90 |   1.0602 |          4171 |      4.570
+   picked by rule S: ('K', 30)
+   test set (180 point-years): B km 3314184, excess dark h 1768; (Fh) km 3674780 (1.1088 x B)
+     est   tau |   km / B | excess dark h | excess / B | share B->(Fh)
+        L   10 |   1.0000 |          1768 |      1.000 |         0.000
+        L   20 |   1.0220 |          3049 |      1.724 |         0.202
+        L   30 |   1.0338 |          4679 |      2.646 |         0.310
+        L   45 |   1.0455 |          7032 |      3.977 |         0.418
+        L   60 |   1.0542 |          9049 |      5.117 |         0.498
+        L   90 |   1.0658 |         12143 |      6.867 |         0.605
+      L30   10 |   1.0242 |          3146 |      1.779 |         0.223
+      L30   20 |   1.0405 |          6146 |      3.476 |         0.372
+      L30   30 |   1.0498 |          8915 |      5.041 |         0.458
+      L30   45 |   1.0600 |         12353 |      6.986 |         0.551
+      L30   60 |   1.0671 |         14971 |      8.466 |         0.617
+      L30   90 |   1.0764 |         18491 |     10.457 |         0.702
+        K   10 |   1.0233 |           543 |      0.307 |         0.215
+        K   20 |   1.0437 |          1172 |      0.663 |         0.401
+        K   30 |   1.0554 |          2070 |      1.171 |         0.509
+        K   45 |   1.0671 |          3784 |      2.140 |         0.617
+        K   60 |   1.0732 |          5449 |      3.082 |         0.673
+        K   90 |   1.0800 |          8082 |      4.571 |         0.735
+       KA   10 |   1.0178 |           705 |      0.399 |         0.163
+       KA   20 |   1.0391 |          1320 |      0.746 |         0.359
+       KA   30 |   1.0509 |          2034 |      1.150 |         0.468
+       KA   45 |   1.0612 |          3425 |      1.937 |         0.563
+       KA   60 |   1.0687 |          4939 |      2.793 |         0.631
+       KA   90 |   1.0785 |          7549 |      4.269 |         0.721
+   picked on test: km 1.0554 x B, excess dark h 2070 against B 1768 (1.171 x), share of B->(Fh) closed 0.509
+   6zn in-sample ('K', 10) on test: km 1.0233 x B, excess 543 (0.307 x), share 0.215
+   6zn in-sample ('K', 30) on test: km 1.0554 x B, excess 2070 (1.171 x), share 0.509
+   6zn in-sample ('K', 60) on test: km 1.0732 x B, excess 5449 (3.082 x), share 0.673
+   test set, picked ('K', 30) and (Fh) against B by |lat| band:
+     |lat|  0-20 ( 60): km / B 1.0356, (Fh) 1.0537; mean excess dark h/yr B 0.0, picked 2.2, (Fh) 0.0
+     |lat| 25-35 ( 30): km / B 1.0401, (Fh) 1.1531; mean excess dark h/yr B 8.9, picked 13.2, (Fh) 0.0
+     |lat| 40-45 ( 30): km / B 1.0859, (Fh) 1.1503; mean excess dark h/yr B 16.3, picked 18.5, (Fh) 0.0
+     |lat| 50-55 ( 30): km / B 1.1645, (Fh) 1.2467; mean excess dark h/yr B 16.0, picked 16.2, (Fh) 0.0
+     |lat| 60-60 ( 30): km / B 1.1772, (Fh) 1.3803; mean excess dark h/yr B 17.7, picked 16.6, (Fh) 0.0
+
+Predictions
+P1 split T: picked km >= 1.02 x B and excess <= 1.25 x B: held (('K', 20): km 1.0349 x, excess 744 against 1334, 0.558 x)
+P2 split T picks (K) or (KA): held (('K', 20))
+P3 split T test, (K, 10) km >= 1.015 x B and excess <= 0.6 x B: held (km 1.0184 x, excess 0.257 x)
+P4 split T test, best-on-selection (KA) ('KA', 20) and (K) ('K', 20) within 0.5% km: held ((KA) / (K) 0.9994; excess (KA) 1067, (K) 744)
+   S1 picked ('K', 20): km 1.0355 x B, excess 806 against B 1495 (0.539 x): both hold
+   S2 picked ('K', 30): km 1.0554 x B, excess 2070 against B 1768 (1.171 x): both hold
+P5 splits S1 and S2: held
+P6 split T: picked closes >= 1/4 of B->(Fh) on test: held (0.354)

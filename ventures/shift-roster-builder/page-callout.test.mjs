@@ -10,6 +10,8 @@ const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8
 test("call-out page's table is what the engine returns for the sample cafe", () => {
   const a = study(SAMPLE());
   assert.deepEqual([a.cases, a.patched, a.covered, Math.min(...a.moves), Math.max(...a.moves)], [27, 0, 15, 2, 15]);
+  // Every one of the 27 rebuilds is proven by the exact check (none "bounded"), so the counts are not search luck.
+  assert.deepEqual(a.unproven, []);
   const html = page("how-to-cover-a-shift-when-someone-calls-out.html");
   for (const t of ["27", "2 to 15", "15 of 27", "No warranty", "not legal, tax or financial advice"]) assert.ok(html.includes(t), t);
   assert.match(page("sitemap.xml"), /how-to-cover-a-shift-when-someone-calls-out\.html/);

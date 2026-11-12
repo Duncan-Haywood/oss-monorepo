@@ -85,6 +85,11 @@ Half size, a `.dcp` built from LibRaw's own matrix for each body, LibRaw's
 | 7D | GBRG / GBRG | 12649 / 13584 | 5.40 | 17.9 | 0.374 0.365 0.342 / 0.345 0.335 0.314 |
 | 5D Mark II | GBRG / GBRG | 16383 / 15600 | 0.61 | 3.9 | 0.068 0.075 0.157 / 0.066 0.072 0.152 |
 
+**Correction (later on 2026-11-12):** the gap below was the check's fault, not ShootFlow's. The
+tool passed LibRaw a white level with black included, where LibRaw expects it black-subtracted, and
+the 350D and 70D were also compared on misaligned grids. Fixed, the medians are 0.07-0.88 steps,
+and 0.05-0.19 through the same colour matrix: `eval/cr2-brightness-gap-2026-11-12.md`.
+
 ShootFlow is 3-9% brighter than LibRaw in every channel on every body, with the same matrix
 and white level. The difference grows with scene brightness: the 5D Mark II frame is dim,
 which is why it showed 0.6 steps. The 7D's median rose from 3.6 to 5.4 steps with the new
@@ -120,7 +125,8 @@ skipped. ruff 0.15.8 and mypy 1.19.1 are clean.
 
 - ColorData8-11 bodies (5D Mark IV, 80D, 90D...): no files reached yet.
 - A frame that is both clipped and neutral-balanced.
-- The 3-9% brightness gap against LibRaw (above).
+- The 3-9% brightness gap against LibRaw (above): resolved, a fault in the check
+  (`eval/cr2-brightness-gap-2026-11-12.md`).
 - The same collection's camera-written DNGs (DJI Phantom 4, LG Nexus 5X, Leica T, Pentax
   QS1) are uncompressed, not lossless JPEG. All four develop half size; none is compared with
   LibRaw yet.

@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyccE6E2WSxBuGN6fR6",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T15:39:03Z",
+  "ended": "2026-11-12T15:43:43Z",
+  "wall_minutes": 4.9,
+  "tokens_in": 3549633,
+  "tokens_out": 22033,
+  "cost_usd": 2.0192,
+  "tool_calls": 38,
+  "task": "marine-hull milestone 6zo: held-out check of 6zn's climatology power estimate and the pack-feedback constant",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15173",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [
+    "efd616485",
+    "79efe765f"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "prints its usage line on every run, so a failing check and a passing one look alike in a tail -1; I first read a seo_title failure as a pass and only caught it from the exit code"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "did not extend the marine-hull summary in _homepage/projects.json: it stops at 6zk and the 6zl to 6zn runs left it there; extending it with a two-line note per milestone is a separate cleanup",
+      "did": "updated README findings and results, LOG, post; summary unchanged",
+      "result": "build.py ok"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-marine-hull-solar-boat-average-sun-holdout.md",
+    "research/marine-hull/LOG.md (6zo entry)"
+  ],
+  "goal": "PhD+ research programme step (marine-hull, solar USV energy management)",
+  "notes": "Security queue empty, IDEAS and website requests empty; route drew research, pick_track drew marine-hull. Predictions committed (efd616485) before the run. Result: split T picks (K, 20): 1.0349x B km, 0.558x excess dark h, 35% of gap to Fh on 2020-2024; S1 (K,20) 1.0355x/0.539x; S2 (K,30) 1.0554x/1.171x; P1-P6 held. Checks run locally: 14 marine-hull unit tests (new + 6zn) OK, research/_homepage/build.py ok, research_live_links 0 updates, check_md_links ok, check_post_frontmatter exit 0, check_post_links 0 broken, post_similarity 0 pairs, programme_check ok. Experiment about 3 min on 4 cores.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6282cfa6-f140-580f-9d7e-f30ae146f525",
+    "transcripts": 1,
+    "first": "2026-11-12T15:39:03Z",
+    "last": "2026-11-12T15:43:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 68,
+        "output": 22033,
+        "thinking": 2593,
+        "cache_read": 3438237,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111328,
+        "api_equivalent_usd": 2.0192,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 68,
+      "output": 22033,
+      "thinking": 2593,
+      "cache_read": 3438237,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111328,
+      "api_equivalent_usd": 2.0192,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 32,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.9,
+      "active_minutes": 4.9,
+      "model_minutes": 3.55,
+      "tool_minutes": 1.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design a pre-registered 24-variant held-out study, code and test it, run, write log/README/post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 297.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

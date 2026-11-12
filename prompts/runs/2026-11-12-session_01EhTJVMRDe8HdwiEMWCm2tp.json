@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVMRDe8HdwiEMWCm2tp",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T15:01:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/aerolog-scaling milestone 11g: graph-partition layer assignment on 24 random eight-operator layouts (mixed radii, speeds, shares), closed form vs hub-distance heuristic",
+  "projects": [
+    "aerolog-scaling"
+  ],
+  "pr": 15161,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "bare python3 lacks pytest but /root/.local/bin/pytest works; pyenv.py not needed for stdlib projects"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-drone-layer-assignment-hub-distance-breaks.md"
+  ],
+  "goal": null,
+  "notes": "pick_track drew track 22 -> aerolog-scaling; took 11f's first Next. Predictions committed and pushed (bd142be5c) before any layout was drawn. Run 66 s on 4 procs: P1-P4, P7, P8 held; P5 (density beats dist) and P6 (Spearman <= -0.4, got -0.32) refuted. Headline: cf within 1.6% of oracle in 24/24; dist >= 5% worse in 19/24, median 1.136x. Local checks: aerolog-scaling pytest 68 passed; research build ok; research_live_links 0 updated; check_md_links ok; cite_check ok; post frontmatter/links/similarity ok; programme_check ok.",
+  "corrections": [],
+  "redteam": null
+}

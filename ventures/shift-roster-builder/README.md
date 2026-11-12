@@ -733,3 +733,26 @@ What the proof changed in what the pages say, not only in the digits:
 Restaurant, retail, salon, daycare and the hiring test were already the same under both. The five open shifts on the proven café week are the weekday 11:00-14:00 lunches (everyone free then is at their weekly limit), so the pages now say which shifts and why.
 
 Not claimed: the call-out and posted-schedule studies' individual rebuilds are not each asserted proven (about 60 builds); the 8-week rotation and the café rows are. The exact check runs under a time budget above 60 copies; every week here is 16-32 shifts and proves in 0.3-2.6 s on one cloud machine, so the figures should not depend on machine speed, but a much slower machine could in principle stop early. The guide page tests now take longer (the `page*.test.mjs` files took 89 s together on one 4-core cloud machine, all 50 passing).
+
+## Open hours come in whole shifts (2026-11-12)
+
+The guide-page section above left one thing unchecked: the call-out and posted-schedule studies' individual rebuilds were not each asserted proven. They now report the exact check's status on every rebuild (`eval/callout-cover-study.mjs` and `eval/callout-churn-bench.mjs` print it), and an independent ILP checks the call-out weeks' open hours (`eval/callout-ilp-export.mjs` dumps the 59 weeks with their hard rules; `eval/callout-ilp-check.py` solves each with HiGHS through scipy: availability with the day off, one person per shift copy, the 10 h rest gap, weekly and daily caps and at most 6 days in a row; no pay terms).
+
+| study | rebuilds | proven (optimal or improved) | open hours against the ILP |
+|---|---|---|---|
+| posted schedule (`page-posted.test.mjs`) | posted week + 4 | 5 of 5 | (not run; all proven) |
+| call-out, sample café (`page-callout.test.mjs`) | 27 | 27 of 27 | equal on 27 |
+| call-out, with a spare part-timer | 32 | **30 of 32** before, see below | equal on 32 |
+
+The two unproven weeks were Cleo off Saturday and Eli off Saturday with the spare part-timer: 3 h open (one weekday lunch), and the ILP proves 3 h is least in 0.1 s. The engine's floor stopped at 2 h, took 39-41 s, and called the week "bounded" with a $99,976 gap, which is one open hour at the 100,000-per-hour coverage weight. The roster was right; the proof was not.
+
+The reason is arithmetic, not search. Open hours are a sum of whole shifts: a shift is held or it is open. The café's shifts are 3, 8 and 10 hours long, so no set of open shifts adds up to 2 h, and a floor of 2 h means at least 3 h. The engine already rounded its floor up to the shared hour grid (whole hours here), which cannot see that. Now `openSumLift` (calc.mjs) rounds every open-hours floor in `exactSearch` up to the least subset sum of the week's shift lengths at or above it: the priced floor, the branch on that price, the branch-and-price floor, and every node bound of the coverage tree and the score tree. A small subset-sum table (quarter-hour units, up to one shift past the incumbent's open hours) makes each lift one lookup. Lengths off the quarter-hour grid leave the floor as it was. `openSums: false` turns it off.
+
+| week (spare part-timer) | before | after |
+|---|---|---|
+| Cleo off Sat | 41.2 s, floor 2 h, coverage not proven, gap $99,976 | 28.0 s, floor 3 h, **coverage proven**, gap $647 (0.21%) |
+| Eli off Sat | 38.6 s, floor 2 h, coverage not proven, gap $99,977 | 27.3 s, floor 3 h, **coverage proven**, gap $549 (0.18%) |
+
+Both still end "bounded" on the whole score: the pay part of the bound is $549-647 short. The whole-score column generation does not see the lifted floor (its master LP lets 3/8 of an 8 h shift stand in for the open lunch), so it reports 204,094 against the exact search's 303,423. Feeding it the floor needs a knapsack row (sum of open hours at least the floor) in `bnp.mjs`, whose simplex assumes 0/1 columns and right-hand sides of 1; that is the next step here. Same rosters, open hours and pay on every one of the 59 weeks before and after (`eval/callout-ilp-check.before.txt`, `eval/callout-ilp-check.out.txt`), and the full venture suite passes unchanged.
+
+Tests: `open-sums.test.mjs` (the lift against a brute-force subset sum on 200 random length sets, never below the floor it is given; the Cleo week proven on coverage with the lift and not without it), `page-callout.test.mjs` (all 27 sample rebuilds proven) and `page-posted.test.mjs` (the posted week and its four rebuilds proven). Not claimed: the spare-part-timer rebuilds are not asserted proven in their test, since two stay bounded on pay; one cloud machine; the lift only bites where the floor falls between two reachable sums, which needs open hours made of few, uneven shifts (a lunch cover, a short close); the 20-60 person benches were not re-measured with it, and with many shifts of 4-12 h most whole hours are reachable sums, so it should matter less there.

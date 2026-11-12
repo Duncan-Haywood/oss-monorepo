@@ -536,6 +536,39 @@ export function hybridSwitchAt(itemCount: number): number {
 }
 
 /**
+ * Which selector `/api/trials/next` runs when nothing names one. Since
+ * 2026-11-12 a survey of up to `INFO_FROM_START_MAX_ITEMS` items gets "staged"
+ * (the information selector from the first answer); longer lists keep
+ * "standard", where staged's 120-answer warm-up and the switch rule above 120
+ * items are not yet measured against it. The careless-pattern, position-bias
+ * and answer-time sweeps were re-run under both selectors before the switch
+ * (docs/INFORMATION-GAIN-SELECTOR.md, "Staged as the default up to 120 items").
+ */
+export function defaultPairSelector(itemCount: number): "standard" | "staged" {
+  return itemCount <= INFO_FROM_START_MAX_ITEMS ? "staged" : "standard";
+}
+
+/**
+ * The survey's own setting wins, then the deployment's `PAIR_SELECTOR`, then
+ * `defaultPairSelector`. Only "standard" and "staged" are read as choices: an
+ * unknown value (a typo in the environment, a stale column) is not coerced to
+ * either, it is ignored and reported in `ignored` so the caller can log it.
+ */
+export function resolvePairSelector(
+  surveySetting: string | null | undefined,
+  envSetting: string | undefined,
+  itemCount: number
+): { selector: "standard" | "staged"; ignored: string[] } {
+  const ignored: string[] = [];
+  for (const v of [surveySetting, envSetting]) {
+    if (v == null || v === "") continue;
+    if (v === "standard" || v === "staged") return { selector: v, ignored };
+    ignored.push(v);
+  }
+  return { selector: defaultPairSelector(itemCount), ignored };
+}
+
+/**
  * A person whose first-option share is at or above this has too many answers
  * that carry no signal for the information selector. Behind the route's slot
  * shuffle, at 300 answers and bias 0.5 (a share near 0.75), the fallback adds

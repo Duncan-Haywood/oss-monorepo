@@ -1,0 +1,319 @@
+{
+ "n_fail": 61,
+ "n_stop": 6,
+ "variants": {
+  "V0": "IDAKLU defaults (rtol 1e-4, atol 1e-6), default mesh: the committed runs",
+  "V1": "IDAKLU rtol 1e-6, atol 1e-8",
+  "V2": "IDAKLU defaults, robust nonlinear solve (max_nonlinear_iterations 200, max_convergence_failures 1000, max_error_test_failures 100)",
+  "V3": "CasadiSolver mode 'safe', rtol 1e-6, atol 1e-8",
+  "V4": "IDAKLU defaults, every mesh dimension doubled"
+ },
+ "groups": {
+  "stop": {
+   "n": 6,
+   "by_set": {
+    "Mohtat2020": 6
+   },
+   "variants": {
+    "V0": {
+     "ran": 6,
+     "ok": 0,
+     "stop": 6,
+     "fail": 0,
+     "median_cycles": 48
+    },
+    "V1": {
+     "ran": 6,
+     "ok": 6,
+     "stop": 0,
+     "fail": 0,
+     "median_cycles": 100
+    },
+    "V2": {
+     "ran": 6,
+     "ok": 0,
+     "stop": 6,
+     "fail": 0,
+     "median_cycles": 48
+    },
+    "V3": {
+     "ran": 6,
+     "ok": 6,
+     "stop": 0,
+     "fail": 0,
+     "median_cycles": 100
+    },
+    "V4": {
+     "ran": 6,
+     "ok": 4,
+     "stop": 2,
+     "fail": 0,
+     "median_cycles": 100
+    }
+   },
+   "rescued_by_any": 6,
+   "rescued": [
+    {
+     "set": "Mohtat2020",
+     "j": 1,
+     "variants": [
+      "V1",
+      "V3",
+      "V4"
+     ],
+     "spme100": 188.70279838497663,
+     "dfn100": 188.73213121272332,
+     "gap": 0.00015542042342341804,
+     "untrusted": false,
+     "r_min": 0.7733343480263231
+    },
+    {
+     "set": "Mohtat2020",
+     "j": 10,
+     "variants": [
+      "V1",
+      "V3",
+      "V4"
+     ],
+     "spme100": 142.74476976807188,
+     "dfn100": 143.0280986350938,
+     "gap": 0.001980931507345212,
+     "untrusted": false,
+     "r_min": 0.8852856049878722
+    },
+    {
+     "set": "Mohtat2020",
+     "j": 17,
+     "variants": [
+      "V1",
+      "V3",
+      "V4"
+     ],
+     "spme100": 190.70459456396748,
+     "dfn100": 190.61424731814128,
+     "gap": -0.00047397950099397354,
+     "untrusted": false,
+     "r_min": 0.8026099701021054
+    },
+    {
+     "set": "Mohtat2020",
+     "j": 19,
+     "variants": [
+      "V1",
+      "V3"
+     ],
+     "spme100": 186.00593785074182,
+     "dfn100": 186.5354470617978,
+     "gap": 0.002838651952733533,
+     "untrusted": false,
+     "r_min": 0.6473688730537567
+    },
+    {
+     "set": "Mohtat2020",
+     "j": 41,
+     "variants": [
+      "V1",
+      "V3"
+     ],
+     "spme100": 167.7750944808879,
+     "dfn100": 167.97251640812556,
+     "gap": 0.0011753227936287896,
+     "untrusted": false,
+     "r_min": 0.7868421975913323
+    },
+    {
+     "set": "Mohtat2020",
+     "j": 55,
+     "variants": [
+      "V1",
+      "V3",
+      "V4"
+     ],
+     "spme100": 185.49461967859642,
+     "dfn100": 185.71747483344845,
+     "gap": 0.0011999686892786145,
+     "untrusted": false,
+     "r_min": 0.7301749899572522
+    }
+   ],
+   "rescued_trusted": 6
+  },
+  "fail": {
+   "n": 61,
+   "by_set": {
+    "OKane2022": 12,
+    "NCA_Kim2011": 49
+   },
+   "variants": {
+    "V0": {
+     "ran": 61,
+     "ok": 0,
+     "stop": 0,
+     "fail": 61,
+     "median_cycles": 0
+    },
+    "V1": {
+     "ran": 61,
+     "ok": 1,
+     "stop": 0,
+     "fail": 60,
+     "median_cycles": 0
+    },
+    "V2": {
+     "ran": 61,
+     "ok": 0,
+     "stop": 0,
+     "fail": 61,
+     "median_cycles": 0
+    },
+    "V3": {
+     "ran": 61,
+     "ok": 4,
+     "stop": 0,
+     "fail": 57,
+     "median_cycles": 0
+    },
+    "V4": {
+     "ran": 61,
+     "ok": 0,
+     "stop": 0,
+     "fail": 61,
+     "median_cycles": 0
+    }
+   },
+   "rescued_by_any": 4,
+   "rescued": [
+    {
+     "set": "NCA_Kim2011",
+     "j": 14,
+     "variants": [
+      "V3"
+     ],
+     "spme100": 4.890924365716535e-11,
+     "dfn100": 62.227621948144694,
+     "gap": 0.9999999999992141,
+     "untrusted": true,
+     "r_min": -0.05336600735083707
+    },
+    {
+     "set": "NCA_Kim2011",
+     "j": 19,
+     "variants": [
+      "V3"
+     ],
+     "spme100": 1.0289878653982637e-07,
+     "dfn100": 61.480434783715125,
+     "gap": 0.9999999983263165,
+     "untrusted": true,
+     "r_min": -0.14824808088486238
+    },
+    {
+     "set": "NCA_Kim2011",
+     "j": 55,
+     "variants": [
+      "V3"
+     ],
+     "spme100": 0.0,
+     "dfn100": 66.92328722213529,
+     "gap": 1.0,
+     "untrusted": true,
+     "r_min": -0.14140005253987897
+    },
+    {
+     "set": "NCA_Kim2011",
+     "j": 62,
+     "variants": [
+      "V1",
+      "V3"
+     ],
+     "spme100": 30.56409584699622,
+     "dfn100": 70.35304596257686,
+     "gap": 0.5655611576042594,
+     "untrusted": true,
+     "r_min": -0.03420993314725216
+    }
+   ],
+   "rescued_trusted": 0
+  }
+ },
+ "diag": {
+  "stop": {
+   "n": 6,
+   "diag_ok": 6,
+   "negative": 0,
+   "charge_empty": 0,
+   "ce1_min": 0.6473673557087395,
+   "ce1_median": 0.786840315579772,
+   "ce1_max": 0.8852835502117228
+  },
+  "fail": {
+   "n": 61,
+   "diag_ok": 61,
+   "negative": 59,
+   "charge_empty": 57,
+   "ce1_min": -0.14827143169654766,
+   "ce1_median": -0.08173507794488673,
+   "ce1_max": 0.15585688821704674
+  }
+ },
+ "controls": {
+  "V1": {
+   "n": 24,
+   "broke": 0,
+   "max_dev": 0.021726137342880314
+  },
+  "V2": {
+   "n": 24,
+   "broke": 0,
+   "max_dev": 3.4509686926975647e-06
+  },
+  "V3": {
+   "n": 24,
+   "broke": 0,
+   "max_dev": 0.02224406629381037
+  },
+  "V4": {
+   "n": 24,
+   "broke": 0,
+   "max_dev": 0.08197706315519993
+  }
+ },
+ "v0_reproduces": {
+  "n": 91,
+  "same": 91
+ },
+ "extra_control_gap_to_dfn": {
+  "Mohtat2020": {
+   "V0": 0.010138040977857865,
+   "V1": 0.004975099768519287,
+   "V2": 0.010138040977857865,
+   "V3": 0.0057062773661397115,
+   "V4": 0.005617960497267704
+  },
+  "NCA_Kim2011": {
+   "V0": 0.010330185349160415,
+   "V1": 0.010779291137954727,
+   "V2": 0.010330185349160415,
+   "V3": 0.01069117180828083,
+   "V4": 0.01003764401654983
+  },
+  "OKane2022": {
+   "V0": 0.054584654712173164,
+   "V1": 0.054343922867047645,
+   "V2": 0.054584654712173164,
+   "V3": 0.05416962972418038,
+   "V4": 0.05572423223998124
+  }
+ },
+ "verdicts": {
+  "H38": "supported",
+  "H39": "supported",
+  "H40": "supported",
+  "H41": "supported",
+  "best_stop_rescue": 6,
+  "best_fail_rescue": 4,
+  "fail_negative_share": 0.9672131147540983,
+  "stop_positive_share": 1.0,
+  "rescued_untrusted": 0
+ }
+}

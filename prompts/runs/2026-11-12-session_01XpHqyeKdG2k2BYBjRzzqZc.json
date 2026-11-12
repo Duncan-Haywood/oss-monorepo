@@ -1,0 +1,295 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyeKdG2k2BYBjRzzqZc",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T14:39:29Z",
+  "ended": "2026-11-12T14:40:37Z",
+  "wall_minutes": 28.43,
+  "tokens_in": 8621343,
+  "tokens_out": 31357,
+  "cost_usd": 3.285,
+  "tool_calls": 86,
+  "task": "redteam: einvoice-preflight endpoint.mjs (changed in #15153) + its Python mirror",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15160",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first campaign took ~22 min, not ~80 s: four caught mutants each hit the 300 s timeout because server.test.mjs hangs on a failure",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Says --test-force-exit can truncate output (2026-10-27); on Node 22.23 einvoice-preflight reports 1580 of 1580 tests either way. The trap advice may be stale."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "A mutant that hangs the suite to the timeout is recorded caught: true with no flag; a timeout-caught mutant should be marked so the hang is investigated (control plane, not changed here)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 5 open defects are control-plane workflow/prompts edits already sitting in open owner-approval PRs (#12928, #14877, #14612, #14698); did not open duplicates",
+      "did": "left them, went to seeding",
+      "result": "no duplicate PRs"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "One campaign, not two or three: it took 22 min because of the hang",
+      "did": "spent the time on the hang and the Python drift instead",
+      "result": "3 real defects, 2 patched"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-redteam-the-python-mirror-nobody-updated.md"
+  ],
+  "goal": null,
+  "notes": "Catch rate endpoint.mjs: 5/8 (0.625) before, 8/8 after (rerun caught_after_fix true on all 3 gaps). Guards added: tests/test_js_parity.py (JS/Python table parity, red on main before the fix); run_venture_tests.py --test-force-exit (a failing test that leaves a handle open now fails in seconds, not SUITE_TIMEOUT). Checks run: einvoice-preflight node --test 1580 tests (1512 pass, 68 skipped, 0 fail), Python unittest 384 OK, platform/ci test_run_venture_tests 27 OK.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/endpoint.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 1048713256,
+        "commit": "8875789d",
+        "sites": 86,
+        "baseline_seconds": 8.8,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/endpoint.mjs",
+            "line": 51,
+            "col": 21,
+            "operator": "neq-flip",
+            "before": "if (compact.length !== 13) return false;",
+            "after": "if (compact.length === 13) return false;",
+            "line_text": "  if (compact.length !== 13) return false;",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": "caught only by the 300 s timeout: server.test.mjs left its server open after a failed assertion (real defect 2); fails in 0.5 s after the fix"
+          },
+          {
+            "file": "ventures/einvoice-preflight/endpoint.mjs",
+            "line": 51,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "if (compact.length !== 13) return false;",
+            "after": "if (compact.length !== 14) return false;",
+            "line_text": "  if (compact.length !== 13) return false;",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": "caught only by the 300 s timeout: server.test.mjs left its server open after a failed assertion (real defect 2); fails in 0.5 s after the fix"
+          },
+          {
+            "file": "ventures/einvoice-preflight/endpoint.mjs",
+            "line": 51,
+            "col": 36,
+            "operator": "false-to-true",
+            "before": "if (compact.length !== 13) return false;",
+            "after": "if (compact.length !== 13) return true;",
+            "line_text": "  if (compact.length !== 13) return false;",
+            "caught": false,
+            "seconds": 8.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test gave 0088 an id of the wrong length; endpoint.test.mjs 'a GLN of the wrong length is INV-041...'"
+          },
+          {
+            "file": "ventures/einvoice-preflight/endpoint.mjs",
+            "line": 54,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "total += Number(compact[index]) * (index % 2 === 0 ? 1 : 3);",
+            "after": "total += Number(compact[index]) * (index % 3 === 0 ? 1 : 3);",
+            "line_text": "    total += Number(compact[index]) * (index % 2 === 0 ? 1 : 3);",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": "caught only by the 300 s timeout: server.test.mjs left its server open after a failed assertion (real defect 2); fails in 0.5 s after the fix"
+          },
+          {
+            "file": "ventures/einvoice-preflight/endpoint.mjs",
+            "line": 78,
+            "col": 27,
+            "operator": "eq-flip",
+            "before": "return (compact.length === 8 || compact.length === 9) && /^\\d+$/.test(compact.slice(0, -1));",
+            "after": "return (compact.length !== 8 || compact.length === 9) && /^\\d+$/.test(compact.slice(0, -1));",
+            "line_text": "    return (compact.length === 8 || compact.length === 9) && /^\\d+$/.test(compact.slice(0, -1));",
+            "caught": false,
+            "seconds": 8.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test gave 0212 an 8-character id; endpoint.test.mjs '0212 (Finnish business id) takes 8 or 9 characters'"
+          },
+          {
+            "file": "ventures/einvoice-preflight/endpoint.mjs",
+            "line": 84,
+            "col": 13,
+            "operator": "or-to-and",
+            "before": "if (!party || typeof party !== \"object\" || !(\"endpoint\" in party)) return [];",
+            "after": "if (!party && typeof party !== \"object\" || !(\"endpoint\" in party)) return [];",
+            "line_text": "  if (!party || typeof party !== \"object\" || !(\"endpoint\" in party)) return [];",
+            "caught": false,
+            "seconds": 8.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: inspectPartyEndpoint is exported and a string party made the mutant throw; endpoint.test.mjs 'a party that is not an object...'"
+          },
+          {
+            "file": "ventures/einvoice-preflight/endpoint.mjs",
+            "line": 86,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if (endpoint === null || endpoint === \"\") return [];",
+            "after": "if (endpoint !== null || endpoint === \"\") return [];",
+            "line_text": "  if (endpoint === null || endpoint === \"\") return [];",
+            "caught": true,
+            "seconds": 8.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/endpoint.mjs",
+            "line": 117,
+            "col": 74,
+            "operator": "and-to-or",
+            "before": "if (scheme !== null && KNOWN_SCHEMES.has(scheme) && identifier !== null && !schemeIdOk(scheme, identifier)) {",
+            "after": "if (scheme !== null && KNOWN_SCHEMES.has(scheme) && identifier !== null || !schemeIdOk(scheme, identifier)) {",
+            "line_text": "  if (scheme !== null && KNOWN_SCHEMES.has(scheme) && identifier !== null && !schemeIdOk(scheme, identifier)) {",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": "caught only by the 300 s timeout: server.test.mjs left its server open after a failed assertion (real defect 2); fails in 0.5 s after the fix"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/src/einvoice_preflight/endpoint.py",
+        "issue": "#15153 added 19 EAS codes (0188 Japan, 0248 Oman, ...) to endpoint.mjs but not endpoint.py, document type 480 to document.mjs but not document.py, and E/Z/AE/K/G missing-percent-as-0 to linenet.mjs but not linenet.py: the Python CLI gave OpenPeppol's PINT JP example two false INV-039s and a 480 draft a false INV-032. Fixed in Python; tests/test_js_parity.py compares the three tables both ways.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15160"
+      },
+      {
+        "file": "ventures/einvoice-preflight/server.test.mjs",
+        "issue": "Each test closes its server as its last line, so a failing assertion leaves it listening and node --test never exits: four caught mutants each hung the suite for 300 s. Fixed with an after() hook closing what is left; and about 40 other venture server suites share the pattern, so run_venture_tests.py now passes --test-force-exit (same 1580 results on einvoice-preflight with and without; regression test test_a_failing_test_that_leaves_a_server_open_fails_fast).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15160"
+      },
+      {
+        "file": "ventures/einvoice-preflight/src/einvoice_preflight/cli.py",
+        "issue": "The Python CLI never reads CustomizationID, so it cannot drop INV-022/INV-035 under PINT profiles as report.mjs does: OpenPeppol's PINT JP example still draws both from Python. Fix needs: read CustomizationID in ubl.py, map it to the profile families report.mjs uses (pint, pint-jp/my/ae/om), and drop the same rule ids in cli.py; test against examples/pint-current-*.xml.",
+        "patched": false
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "da366f90-cb6f-519c-8252-897e933de34b",
+    "transcripts": 1,
+    "first": "2026-11-12T14:39:29Z",
+    "last": "2026-11-12T15:07:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 155,
+        "output": 31357,
+        "thinking": 7042,
+        "cache_read": 8501569,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119619,
+        "api_equivalent_usd": 3.285,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 155,
+      "output": 31357,
+      "thinking": 7042,
+      "cache_read": 8501569,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119619,
+      "api_equivalent_usd": 3.285,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 86,
+    "tools": {
+      "Bash": 74,
+      "Edit": 4,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 28.43,
+      "active_minutes": 17.52,
+      "model_minutes": 5.67,
+      "tool_minutes": 11.85,
+      "waiting_on_human_minutes": 10.92,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "tracing the drift and the hang, three Python fixes, parity test, runner change, 8 tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 152.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

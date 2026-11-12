@@ -1041,7 +1041,13 @@ These already read through the generic column matcher; this slice names them in 
 
 ### US bank layouts pinned (2026-11-04)
 
-`us-banks.test.mjs` pins six layouts that already read with no code change: US Bank (`Transaction, Name, Memo, Amount`), Navy Federal and Truist and TD (`Debit`/`Credit` plus `Balance`, the balance chain holds), Citi card (`Status`, `Debit`/`Credit`) and Bank of America (summary block above the header skipped, `Running Bal.`). Rows are made up and headers are from memory of each layout; no real download was tried. Navy Federal, Truist and TD are named by `sniffBank` since 2026-11-07 (`navy-federal`, `truist`, `td-bank`; headers from memory, informational only, no real download tried).
+`us-banks.test.mjs` pins six layouts that already read with no code change: US Bank (`Transaction, Name, Memo, Amount`), Navy Federal and Truist and TD (`Debit`/`Credit` plus `Balance`, the balance chain holds), Citi card (`Status`, `Debit`/`Credit`) and Bank of America (summary block above the header skipped, `Running Bal.`). Rows are made up and headers are from memory of each layout; no real download was tried. Navy Federal, Truist and TD are named by `sniffBank` since 2026-11-07 (`navy-federal`, `truist`, `td-bank`; headers from memory, informational only, no real download tried). Corrected 2026-11-12: those three remembered headers were all wrong; the real ones are in "Real US bank exports read" above.
+
+### Real US bank exports read (2026-11-12)
+
+`node eval/us-bank-exports.mjs` reads 22 US bank and card exports that people committed to public GitHub repositories: 11 look like a person's own downloads (Citi card x4, TD Bank checking x2, Truist, Bank of America card x2, Capital One x2, Discover x2, Amex), the rest are anonymised rows in the bank's real layout (Navy Federal x3, TD, Truist, Bank of America checking, Chase checking, US Bank). They carry no licence and some hold names and account digits, so the script fetches them from raw.githubusercontent.com at run time and nothing is committed; the tests use rows written here under the same headers (`us-bank-real-layouts.test.mjs`, 6 tests).
+
+Before this slice: 1,498 of 1,499 rows read, every payment and deposit with the right sign, but four faults. (1) The Navy Federal, Truist and TD headers written from memory on 2026-11-04 were all wrong, so `sniffBank` named none of them. Navy Federal writes an unsigned `Amount` beside a `Credit Debit Indicator` column (read right already, by the indicator), Truist a signed amount in parentheses beside a `Daily Posted Balance`, TD its routing and account numbers then `Debit, Credit, Check Number, Account Running Balance`. (2) TD's `Account Running Balance` was not known as a balance, so the balance chain was never checked on 374 TD rows. It now chains on two of the three files. On the third it finds one row whose printed balance repeats an earlier day's, a fault in that file, not the reader. (3) TD leaves a comma inside a description unquoted (`EGOV STRATEGIES, SERVICE`), which pushed the debit into the next column and the row was dropped as "unreadable amount". When a row is wider than its header and its money cells only read once the description is rejoined, the pieces are joined back and the import says so. (4) Line numbers in import problems counted rows, not file lines, so after a blank line (Bank of America leaves one under its summary block) every problem named the line above the real one. `parseCsv` now keeps each row's file line. Truist's `Daily Posted Balance` is filled only on a day's last row, so it is deliberately not read as a running balance. The Bank of America card layout (`Posted Date, Reference Number, Payee, Address, Amount`) is named too. After: 1,499 of 1,499 rows, 22 of 22 files named. Citi's zero-amount `PLAN FEE - CITI FLEX PLAN` rows (29 in one file) are skipped as before. Not tried: Wells Fargo, US Bank or Chase downloads that look real, and any business account (all 22 are personal).
 
 ### PNC CSV (2026-10-22)
 
@@ -1339,7 +1345,7 @@ The CLI used to call tesseract with no mode, so it ran tesseract's own default
 mode every SROIE number above was taken with. The CLI's default command is now
 `tesseract {file} stdout --psm 6` (`RECEIPT_OCR_CMD` still overrides it), so a
 photo read by the CLI goes from 67.5% to 76.5% on its own, 77.9% with
-`--two-pass`. The page's tesseract.js reads one block by default already.
+`--two-pass`. The page's tesseract.js read one block by default (and now reads twice, below).
 
 The box-text scores (merchant 531, date 601, total 609) are unchanged. Either
 reading had the right total on 509 receipts, so a perfect chooser would reach
@@ -1348,8 +1354,143 @@ total line is lost). Reproduce: clone zzzDavid/ICDAR-2019-SROIE (MIT), run
 `eval/sroie-ocr-variants.sh <clone>/data <out> base`, OCR the images again with
 `--psm 4` into `<out>/psm4`, then `node eval/sroie-receipts.mjs <clone>/data --ocr
 <out>/base,<out>/psm4`. Tests: `receipt-crosscheck.test.mjs` (11, receipt text
-made up). Still flat scans, not phone photos; the in-browser OCR on the page
-reads once.
+made up). Still flat scans, not phone photos. The page now reads twice as well
+(next section).
+
+### The page reads each photo twice (2026-11-12)
+
+Flagship item (5), "the page reading twice". The **Receipt photos** control
+(`photoocr.mjs`) now reads each photo in tesseract.js's block mode (`6`, what
+it read before) and then in its column mode (`4`), and settles the two
+readings the way `--two-pass` does. The receipts box holds plain text a person
+can fix, so both readings cannot go in it: `settleReadings` keeps the first
+reading, and where `parseReceiptPasses` takes the other reading's total
+because the receipt's own arithmetic confirms it, swaps that one total line in
+(a plain `Total 37.10` line when the winning total came from cash less change
+with no line printing it), checks the swapped text reads that total, and says
+so on the status line ("total read as 34.00 once and 31.00 once; kept 31.00,
+which the receipt's own arithmetic confirms: check it"). A merchant only the
+second reading found goes on top of the block; a date only it found does not
+(the SROIE finding above).
+
+Measured with the page's own engine for the first time: `eval/sroie-tesseractjs.mjs`
+runs tesseract.js 5.1.1 with the same English model the page loads
+(`@tesseract.js-data/eng@1.0.0`, LSTM) in Node on SROIE's 626 scans, both modes.
+The settling rule was chosen on the tesseract binary's readings, so these are
+fresh readings for it.
+
+| SROIE, 626 scans, 625 with a total, tesseract.js 5.1.1 | Total right | Wrong | Off by 5 cents or less | No total |
+|---|---|---|---|---|
+| block mode (`6`), what the page read before | 490 (78.4%) | 127 | 22 | 8 |
+| column mode (`4`) alone | 447 (71.5%) | 168 | 15 | 10 |
+| both, `parseReceiptPasses` | 499 (79.8%) | 118 | 22 | 8 |
+| both, the text the page puts in the box (`--settled`) | **499 (79.8%)** | 118 | 22 | 8 |
+
+The box text scores the same as `parseReceiptPasses` on every receipt. The
+second reading changed 14 totals: 10 from wrong to right, 1 from right to
+wrong, 3 from one wrong value to another; all 14 carry the status-line note.
+Either reading had the right total on 514, so a perfect chooser would reach
+82.2%. Merchant (316 exact) and date (499 of 611) are unchanged. The page's
+engine does a little better than the tesseract 5.3.4 binary the CLI calls
+(78.4% against 76.2% in the same mode). Reading twice doubles the reading
+time (about 1.5 s a reading per core here).
+
+Found on the way: SROIE scan 427 is 4961 x 7016 pixels (35 megapixels) and
+tesseract.js cannot load it ("Image file /input cannot be read"); seven other
+scans read as empty in one mode or both. Before this change one unreadable photo
+threw out the whole batch, and tesseract.js 5 also threw its rejection
+uncaught; now that photo is listed as skipped with the reason and the rest are
+read. Phone photos (12 megapixels) load; a larger one may not.
+
+Reproduce: `npm install tesseract.js@5.1.1 @tesseract.js-data/eng@1.0.0` in any
+folder, then `node eval/sroie-tesseractjs.mjs <clone>/data <out> <folder>/node_modules`
+(about 40 minutes on four cores) and `node eval/sroie-receipts.mjs <clone>/data
+--ocr <out>/psm6,<out>/psm4 --settled`. Tests: `photoocr.test.mjs` (9, receipt
+text made up); `node eval/photo-ocr-browser.mjs` drives the page with the real
+reader in headless Chromium (6/6). Still scans, not phone photos or crumpled
+paper.
+
+### Receipt photos from a phone (CORD through tesseract.js, 2026-11-12)
+
+Flagship item (5), "next: phone photos". CORD-v2's 200 validation and test
+images are real phone photos of Indonesian shop and restaurant receipts
+(shadows, tilt, table showing at the edges, about 150 to 250 dpi by
+tesseract's estimate). The text in `eval/cord/*.jsonl` is the annotators'
+hand-corrected word boxes, so until now CORD tested the reader on a perfect
+transcription. This time the page's own engine read the photos:
+`eval/cord_images.py` writes the photos out of CORD's parquet files (fetched
+at run time from Hugging Face, revision `7f0115a4`, never copied here), and
+`eval/sroie-tesseractjs.mjs` (which now reads any folder of `.jpg`/`.png`)
+reads each in both modes with tesseract.js 5.1.1 and the page's English
+model. `eval/cord-receipts.mjs --ocr <dir>[,<dir2>] [--settled]` scores the
+OCR text instead of the hand-corrected text, and with `--settled` counts
+whether the page's status line warned about each wrong total.
+
+What it found, before any change (the page as it stood):
+
+| CORD photos through tesseract.js | Hand-corrected text | Block mode | Column mode | Page (both, settled) | Wrong totals with no warning |
+|---|---|---|---|---|---|
+| validation, 98 labelled | 96 (98.0%) | 51 (52.0%) | 22 (22.4%) | 52 (53.1%), wrong 38 | 38 |
+| test, 95 labelled | 90 (94.7%) | 45 (47.4%) | 24 (24.2%) | 45 (47.4%), wrong 40 | 39 |
+
+So on phone photos the reader loses about 45 points to OCR, and the worse
+part is that about 40% of totals came back **wrong and unflagged**. Reading
+the validation misses: 28 of 39 wrong totals had no total line at all (OCR
+lost the word `TOTAL`), and the fallback took the largest amount on the page,
+which is usually the cash handed over; with a total line found, the total was
+right 46 times in 54. Some photos read as noise throughout; nothing in the
+text can recover those.
+
+Three changes, written looking only at validation misses, then scored once on
+test:
+
+- **Split groups joined** (`joinSplitGroups` in `receipts.mjs`): on a
+  whole-unit receipt, OCR prints `25 000`, `308. 000`, `304 ,326`; the
+  reader took `25` or `308`. A number followed by exactly three digits that
+  end it is joined; a lone `Table 12`, `100%` or `2 100,000` is left alone.
+- **Total, cash, change** (`totalCashChange`): with no total line, three
+  amount lines in a row where the second less the third is exactly the first
+  (`45,500 / 50,000 / 4,500`, the words lost) give the first as the total. On
+  a whole-unit slip amounts under 100 are left out: OCR noise (`5`, `2`, `3`)
+  closed the sum by chance 4 times in 7 before that floor.
+- **A guessed total says so** (`guessedTotal` in `photoocr.mjs`, added to
+  `settleReadings`' note): when a photo's text has no total line and the
+  total is only the largest amount, or there is none, the status line says
+  "no total line found in the photo; X is only the largest amount on it: check
+  the total".
+
+| After | Hand-corrected text | Page (both, settled) | Warned on wrong / right | Wrong with no warning |
+|---|---|---|---|---|
+| validation (tuned on) | 96 (98.0%) | 61 (62.2%), wrong 29 | 19 / 11 | 10 |
+| **test (held out)** | **92 (96.8%)** | **48 (50.5%), wrong 37** | 25 / 9 | **12** |
+
+On the held-out photos the page reads 3 more totals right (45 to 48) and, the
+part that matters for books, wrong totals shown with no warning fall from 39
+to 12; the warning also fires on 9 right totals, which a person then confirms.
+The same rules lift the hand-corrected text too (test 90 to 92, train 742 to
+749 of 779, validation tax 45 to 46; `cord-receipts.test.mjs` pins the new
+numbers) and SROIE: hand-corrected 609 to 611 of 625, tesseract.js block mode
+490 to 495, the page's settled reading 499 (79.8%) to **505 (80.8%)**. The
+"before" SROIE figures reproduce the section above exactly.
+
+Tried and not kept: upscaling the photo 2x, greyscale with autocontrast, and
+both, before OCR (Pillow, the same steps a page canvas can do), on
+validation: 46.9%, 52.0% and 52.0% in block mode against 52.0% untouched. The
+loss on these photos is not resolution or contrast that a simple filter fixes.
+
+Limits: one country's receipts (rupiah, Indonesian words), merchant names and
+dates masked in CORD so only totals and tax are scored, tesseract.js's
+English model only, and 100 held-out photos (one receipt is a point). A
+crumpled US thermal receipt photographed in poor light is still untried.
+Reproduce:
+
+```
+python3 -m venv v && v/bin/pip install pyarrow
+curl -LO https://huggingface.co/datasets/naver-clova-ix/cord-v2/resolve/7f0115a4/data/test-00000-of-00001-9c204eb3f4e11791.parquet
+v/bin/python -I eval/cord_images.py test-00000-of-00001-9c204eb3f4e11791.parquet test photos
+node eval/sroie-tesseractjs.mjs photos ocr <folder>/node_modules 4      # about 45 s per 100 photos on 4 cores
+node eval/cord-receipts.mjs eval/cord/test.jsonl --ocr ocr/psm6,ocr/psm4 --settled
+```
 
 ## Budget against actual
 

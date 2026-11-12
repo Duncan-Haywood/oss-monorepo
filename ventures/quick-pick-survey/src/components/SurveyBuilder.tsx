@@ -89,7 +89,7 @@ export function SurveyBuilder() {
         <label className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
           Question order
           <select className={INPUT} value={pairSelector} onChange={(e) => setPairSelector(e.target.value)} aria-label="Question order">
-            <option value="">Server default</option>
+            <option value="">Server default (Sharper up to 120 options, Standard above, unless the server sets one)</option>
             <option value="standard">Standard</option>
             <option value="staged">Sharper: most informative pairs (from the first answer up to 120 options)</option>
           </select>

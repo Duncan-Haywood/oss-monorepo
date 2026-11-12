@@ -143,7 +143,7 @@ It is typed data guarded by a test, so it cannot drift from what is enforced.
 - [docs/QUALITY-BAR.md](docs/QUALITY-BAR.md) — the gates and the definition of done
 - [docs/CONVERGENCE.md](docs/CONVERGENCE.md) — how many answers a usable result actually costs
 - [docs/POOLING.md](docs/POOLING.md) — the largest available precision win, measured, and why it is not taken
-- [docs/REAL-RANKINGS.md](docs/REAL-RANKINGS.md) — the survey replayed on real people's published rankings: people, not answers, are the limit; the rank ranges are honest but wide; the insights card's clear pick and "it's between" list are honest on real people too (wrong 5 of 860, set holds 97-100%), but only the staged question order lets the card name a favourite (2026-11-12)
+- [docs/REAL-RANKINGS.md](docs/REAL-RANKINGS.md) — the survey replayed on real people's published rankings: people, not answers, are the limit; the rank ranges are honest but wide; the insights card's clear pick and "it's between" list are honest on real people too (wrong 5 of 860, set holds 97-100%), but only the staged question order lets the card name a favourite (2026-11-12), so staged is now the default up to 120 options ([docs/INFORMATION-GAIN-SELECTOR.md](docs/INFORMATION-GAIN-SELECTOR.md), "Staged as the default up to 120 items")
 - [docs/TESTING.md](docs/TESTING.md) — what is covered, what is not, how to add
 - [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) — what a test enforces, what was only read in the markup, and what nobody has checked
 - [docs/decisions/](docs/decisions/) — why an obvious simplification was rejected
