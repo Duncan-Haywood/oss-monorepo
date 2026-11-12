@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Water supply pipe sizing: peak gpm, pipe size and pressure</title>
+  <meta name="description" content="Free water supply pipe sizing for a house: list fixtures and pipe runs, get the peak flow by Hunter's 99% rule computed exactly, the smallest copper, PEX or CPVC size within your velocity limit, and the pressure left at every fixture. Runs in your browser.">
+  <meta property="og:title" content="Water supply pipe sizing calculator">
+  <meta property="og:description" content="Fixtures and pipe runs in; peak gpm, pipe sizes and pressure at each fixture out. Hunter's rule computed exactly, in your browser.">
+  <link rel="canonical" href="./water-supply-sizing-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many gallons per minute does a two-bath house need?", "acceptedAnswer": {"@type": "Answer", "text": "In the worked example below (two baths, kitchen, dishwasher, washer and one hose bibb: 11 fixtures) every fixture running at once would draw 27.2 gpm, but under Hunter's rule, with the busy-hour use you type, the flow is at or below 12.2 gpm 99% of the time, so the main is sized for 12.2 gpm. In copper type L that is 8.1 ft/s in 3/4 in pipe, just over an 8 ft/s limit, so the main comes out 1 in. Your own uses per hour change the answer; type them."}}, {"@type": "Question", "name": "Why not add up every fixture's flow?", "acceptedAnswer": {"@type": "Answer", "text": "Fixtures are rarely all open together. Roy Hunter (National Bureau of Standards, 1940) treated each fixture as busy a fraction of the peak hour, p = minutes per use x uses per hour / 60, independently of the others, and sized for the flow not exceeded 99% of the time. This page computes that rule exactly, by convolving one binomial per fixture type, instead of reading it off a fixture-unit table."}}, {"@type": "Question", "name": "Is the normal approximation close enough?", "acceptedAnswer": {"@type": "Answer", "text": "Not for one house. For one bathroom (two sinks at p 0.1, a toilet, a shower) the exact 99% flow is 5 gpm and the normal approximation (mean plus 2.33 standard deviations) gives 4.11 gpm, 18% low. In the worked example the approximation gives 10.76 gpm for the main, which fits 3/4 in copper L under 8 ft/s, while the exact 12.2 gpm needs 1 in. With 64 such bathrooms the two differ by about 1.4%."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+      .row { display:grid; grid-template-columns: repeat(6,1fr) auto; gap: 6px; align-items:end; margin-bottom: 6px; }
+    @media (max-width: 640px) { .row { grid-template-columns: 1fr 1fr; } }
+    button { font: inherit; padding: 6px 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Water supply pipe sizing</h1>
+  <p>How big must each water pipe in a house be? List the kinds of fixture (flow while running, minutes per use, uses in the busiest hour), then the pipe runs as a tree from the meter: each run's length, rise, the equivalent length of its fittings, and the fixtures at its end. For every run you get the design flow (the flow not exceeded 99% of the busy hour, Hunter's rule computed exactly), the smallest pipe within your velocity limit, and the pressure left at its end; runs are made bigger where a fixture would fall below the pressure you need. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="material">Pipe</label><select id="material"><option value="copper-l">Copper type L</option><option value="copper-k">Copper type K</option><option value="copper-m">Copper type M</option><option value="pex">PEX SDR 9</option><option value="cpvc">CPVC SDR 11</option></select></div>
+      <div><label for="staticPsi">Static pressure (psi)</label><input id="staticPsi" type="number" min="1" step="any" value="60"></div>
+      <div><label for="meterLossPsi">Meter and backflow loss (psi)</label><input id="meterLossPsi" type="number" min="0" step="any" value="5"></div>
+      <div><label for="minPsi">Pressure needed at a fixture (psi)</label><input id="minPsi" type="number" min="0" step="any" value="20"></div>
+      <div><label for="vmax">Velocity limit (ft/s)</label><input id="vmax" type="number" min="1" step="any" value="8"></div>
+      <div><label for="quantile">Not exceeded (%)</label><input id="quantile" type="number" min="50" max="99.99" step="any" value="99"></div>
+      <div><label for="tempF">Water temperature (F)</label><input id="tempF" type="number" min="33" max="200" step="any" value="60"></div>
+    </div>
+    <h2>Fixture types</h2>
+    <p>The example numbers are illustrative, not measured; type your own. A fixture's busy fraction is minutes per use x uses per hour / 60.</p>
+    <div id="types"></div>
+    <p><button type="button" id="addType">Add a fixture type</button></p>
+    <h2>Pipe runs</h2>
+    <p>One run has no parent: the run from the meter. Fixtures are typed as type:count, e.g. <code>lav:2, wc:1</code>.</p>
+    <div id="segs"></div>
+    <p><button type="button" id="addSeg">Add a pipe run</button></p>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="plumbing-calculator.html">Then count the pipe, PEX coils, traps and stops for the rough-in</a></p>
+
+  <h2>How it is worked out</h2>
+  <ol>
+    <li><strong>Busy fraction.</strong> Each fixture is open with probability p = minutes per use x uses per peak hour / 60, independently of the others (Hunter, 1940).</li>
+    <li><strong>Design flow.</strong> For each run, the fixtures it feeds are added up downstream. The total flow is a sum of one binomial per fixture type; its distribution is built exactly by convolution on a 0.01 gpm grid, and the design flow is the smallest flow with at least your chosen probability (99% by default). The all-on flow and the normal approximation are shown beside it for comparison.</li>
+    <li><strong>Pipe loss.</strong> Darcy-Weisbach with the Colebrook-White friction factor, water viscosity at your temperature, bores from the tube's outside diameter and wall (copper K, L, M; PEX SDR 9 and CPVC SDR 11 at minimum wall). Height costs 0.433 psi per foot of rise.</li>
+    <li><strong>Size.</strong> Each run starts at the smallest size within the velocity limit. While any fixture would get less than the pressure you need, the run on its path that buys the most pressure per foot of pipe made bigger goes up one size.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How many gallons per minute does a two-bath house need?</h3>
+  <p>In the worked example below (two baths, kitchen, dishwasher, washer and one hose bibb: 11 fixtures) every fixture running at once would draw 27.2 gpm, but under Hunter's rule, with the busy-hour use you type, the flow is at or below 12.2 gpm 99% of the time, so the main is sized for 12.2 gpm. In copper type L that is 8.1 ft/s in 3/4 in pipe, just over an 8 ft/s limit, so the main comes out 1 in. Your own uses per hour change the answer; type them.</p>
+  <h3>Why not add up every fixture's flow?</h3>
+  <p>Fixtures are rarely all open together. Roy Hunter (National Bureau of Standards, 1940) treated each fixture as busy a fraction of the peak hour, p = minutes per use x uses per hour / 60, independently of the others, and sized for the flow not exceeded 99% of the time. This page computes that rule exactly, by convolving one binomial per fixture type, instead of reading it off a fixture-unit table.</p>
+  <h3>Is the normal approximation close enough?</h3>
+  <p>Not for one house. For one bathroom (two sinks at p 0.1, a toilet, a shower) the exact 99% flow is 5 gpm and the normal approximation (mean plus 2.33 standard deviations) gives 4.11 gpm, 18% low. In the worked example the approximation gives 10.76 gpm for the main, which fits 3/4 in copper L under 8 ft/s, while the exact 12.2 gpm needs 1 in. With 64 such bathrooms the two differ by about 1.4%.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="board-foot-calculator.html">Board foot calculator (board feet, cubic feet and cost)</a></li><li><a href="paver-calculator.html">Paver patio calculator (pavers, base, sand, edge restraint)</a></li><li><a href="sheathing-calculator.html">Wall sheathing calculator (sheets, cut-outs, cheapest length)</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator (soffit panels, fascia, J-channel, frieze)</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator (blocks, caps, gravel, fabric, geogrid)</a></li><li><a href="fence-calculator.html">Fence calculator (posts, rails, pickets, concrete)</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, thinset, grout, backer)</a></li><li><a href="dormer-calculator.html">Dormer framing calculator (gable and shed: cheek studs, rafters, valleys, roof opening)</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator (blocks, mortar, grout, rebar)</a></li><li><a href="foundation-calculator.html">Foundation calculator (footing, stem wall and slab concrete, rebar)</a></li><li><a href="floor-calculator.html">Floor joist and subfloor calculator (joists, rim, blocking, sheets)</a></li><li><a href="nail-calculator.html">Framing nail calculator (nails and boxes by connection)</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule (marks, rough openings, headers)</a></li><li><a href="header-calculator.html">Header size checker (windows and doors against your own span table)</a></li><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator (blocks and boards for tall wall cavities)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator (trunk, flex, boots, registers)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="water-supply-sizing-calculator.html">Water supply pipe sizing (peak gpm, pipe size, pressure at each fixture)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="drywall-calculator.html">Drywall calculator (sheets, tape, compound)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Flows, uses per hour, pressures, lengths and fittings are your inputs and are not checked against any span table or code, height limit, property line, utility location or permit rule. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Pipe sizes here come from a probability rule and the physics of flow in a pipe, not from the IPC, UPC or any local plumbing code's fixture-unit tables, which are what an inspector checks; water hammer, thermal expansion, hot-water recirculation, backflow, meter sizing and your maker's real bores are not checked. Have a licensed plumber or engineer size the system you build.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { sizeSupply, supplyText, EXAMPLE } from "./supplysize.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const field = (cls, label, attrs, v) => `<div><label>${label}<input class="${cls}" aria-label="${label}" ${attrs} value="${esc(v ?? "")}"></label></div>`;
+    const remover = (d) => { const b = document.createElement("button"); b.type = "button"; b.textContent = "Remove"; b.setAttribute("aria-label", "Remove this line"); b.onclick = () => { d.remove(); run(); }; d.append(b); };
+    const addType = (id, t = {}) => {
+      const d = document.createElement("div"); d.className = "row";
+      d.innerHTML = field("tid", "Type id", 'type="text" maxlength="40"', id) + field("tname", "Name", 'type="text" maxlength="80"', t.name) + field("gpm", "Flow (gpm)", 'type="number" min="0" step="0.01"', t.gpm) + field("mpu", "Minutes per use", 'type="number" min="0" step="any"', t.minutesPerUse) + field("uph", "Uses in peak hour", 'type="number" min="0" step="any"', t.usesPerPeakHour) + "<div></div>";
+      remover(d); $("types").append(d);
+    };
+    const addSeg = (s = {}) => {
+      const d = document.createElement("div"); d.className = "row";
+      const fx = Object.entries(s.fixtures || {}).map(([k, n]) => `${k}:${n}`).join(", ");
+      d.innerHTML = field("sid", "Run id", 'type="text" maxlength="40"', s.id) + field("par", "From run (blank = meter)", 'type="text" maxlength="40"', s.parent) + field("len", "Length (ft)", 'type="number" min="0" step="any"', s.lengthFt) + field("rise", "Rise (ft)", 'type="number" step="any"', s.riseFt ?? 0) + field("fit", "Fittings (equiv. ft)", 'type="number" min="0" step="any"', s.fittingsFt ?? 0) + field("fx", "Fixtures at end", 'type="text" maxlength="200"', fx);
+      remover(d); $("segs").append(d);
+    };
+    const num = (v) => (v.trim() === "" ? undefined : Number(v));
+    const run = () => {
+      const q = (r, c) => r.querySelector("." + c).value;
+      const fixtureTypes = {};
+      for (const r of $("types").children) { const id = q(r, "tid").trim(); if (!id) continue; fixtureTypes[id] = { name: q(r, "tname").trim() || id, gpm: num(q(r, "gpm")), minutesPerUse: num(q(r, "mpu")), usesPerPeakHour: num(q(r, "uph")) }; }
+      const segments = [...$("segs").children].map((r) => {
+        const fixtures = {};
+        for (const part of q(r, "fx").split(",")) { const m = part.trim().match(/^([^:]+):\s*(\S+)$/); if (m) fixtures[m[1].trim()] = Number(m[2]); else if (part.trim()) fixtures[part.trim()] = 1; }
+        const s = { id: q(r, "sid").trim(), lengthFt: num(q(r, "len")) ?? 0, riseFt: num(q(r, "rise")) ?? 0, fittingsFt: num(q(r, "fit")) ?? 0, fixtures };
+        if (q(r, "par").trim()) s.parent = q(r, "par").trim();
+        return s;
+      });
+      const pct = num($("quantile").value);
+      const plan = { material: $("material").value, staticPsi: num($("staticPsi").value), meterLossPsi: num($("meterLossPsi").value) ?? 0, minPsi: num($("minPsi").value), maxVelocityFps: num($("vmax").value), quantile: pct == null ? undefined : pct / 100, tempF: num($("tempF").value), fixtureTypes, segments };
+      const r = sizeSupply(plan);
+      $("out").textContent = supplyText(r).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    $("addType").onclick = () => { addType("", {}); run(); };
+    $("addSeg").onclick = () => { addSeg({}); run(); };
+    for (const [id, t] of Object.entries(EXAMPLE.fixtureTypes)) addType(id, t);
+    for (const s of EXAMPLE.segments) addSeg(s);
+    run();
+  </script>
+</body>
+</html>
