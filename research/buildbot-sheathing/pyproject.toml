@@ -12,6 +12,7 @@ license = { text = "MIT" }
 
 [project.optional-dependencies]
 figure = ["matplotlib"]
+sim = ["mujoco"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

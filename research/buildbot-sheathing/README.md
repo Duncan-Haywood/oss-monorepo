@@ -52,6 +52,23 @@ for the humanoid and lift experiments of milestone 3.
 
 ![Hang allowed by joint framing and aim, clean sheets against sway of a held sheet, and re-hanging on single 2x joints](experiments/m4_tack_measure/figure.png)
 
+**Milestone 3 (first part) headline: does a ledger board square the sheet? Yes, if the robot
+lets go and presses lightly; then the panel's own squareness is what is left.** In MuJoCo, a
+21.8 kg 4x8 sheet lowered from 0.25–2° off plumb onto a level ledger and released ends parallel
+to the ledger within **0.0001°** for any press up to 100 N and wall friction 0.2–0.7. Press harder
+and wall friction holds the error: the sheet keeps its full tilt above **115–380 N** (μ 0.7 to
+0.2; 189 N at μ 0.4), 0.87–0.99 of the closed form μF_n r̄ = m g W/2. A wrist that keeps its
+rotational stiffness also keeps part of its own error once stiffer than about **7,500 N·m/rad**
+at 1° (gravity moment 130 N·m over the error). With the ledger seated, what is left is the panel
+and the ledger: PS 2 lets a panel be out of square by 0.083° and its bottom edge bow 1/16 in
+(a rock of up to 0.149°), and a laser line rated 1/8 in at 30 ft adds 0.020°. A ledger hang then
+gives **100% clean sheets on doubled joints** across every ledger and panel setting tried, but at
+most **95% on single 2x** joints even with perfect panels and ledger, and **84–86%** with panels
+drawn uniformly up to the PS 2 limits; 95% there needs panels within about a quarter of the limits
+(0.02° out of square).
+
+![Seating against press and friction, a held wrist against the closed form, and clean sheets with a ledger hang](experiments/m3_ledger/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -121,6 +138,39 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 | Plate layout error at each stud end | 0, 0.8, 1.6, 3.2 mm | **not sourced**: swept |
 | Stud read, edge line, tool | 0.5, 0.5, 0.9 mm | as milestone 1 (read and edge swept there; read swept in table E here) |
 
+## Milestone 3 method, first part (`src/buildbot_sheathing/ledger.py`)
+- **Scene (MuJoCo 3).** A rigid sheet, 1.219 x 2.438 x 0.011 m and 21.8 kg (7/16 in OSB,
+  `buildbot-payload`), pressed against a wall box through explicit contact points on its back
+  face (the four corners, or 20 points on four stud lines at 16 in) and lowered onto a level
+  ledger box through two corner feet. Elliptic friction cone, impratio 10, 20 no-slip
+  iterations, stiff contacts (solref 0.002), 0.5 ms step.
+- **Holder.** An in-plane impedance on (y, z, θ) at the sheet's centre, aimed at a pose off plumb
+  by θ0, plus a press F_n into the wall and a weak torque keeping the sheet flat. At first ledger
+  contact the vertical support and translation gains ramp to zero over 0.5 s. *Released*: the
+  rotational stiffness ramps out too. *Held*: it ramps to k (swept 300 to 30,000 N·m/rad) and
+  stays. The tilt is read 2 s after release.
+- **Closed forms** checked against it: the press at which wall friction holds the gravity moment
+  about the landing corner, μ F_n r̄ = m g W/2 with r̄ the mean distance from that corner to the
+  wall contacts (1.596 m for the corners), and a held wrist's residual
+  max(0, θ0 − (m g W/2 − μ F_n r̄)/k).
+- **Panel and ledger** (Monte Carlo through milestone 4's model, 20,000 sheets a cell, seed 5).
+  The tilt of the vertical edges is the ledger's slope (a laser line uniform within 1/8 in at
+  30 ft, plus a Gaussian height error at each of the sheet's bottom corners, swept 0–2 mm) plus the
+  panel's corner angle (uniform within ± a fraction of PS 2's limit) plus the rock of an
+  outward-bowed bottom edge (bow uniform within ± the same fraction of 1/16 in; bowed out, the
+  sheet rests on its middle and a random corner, tilt 2s/W). Translation σx = 3 mm on doubled
+  joints, 0 on single 2x; three reads, edge aim, tacked.
+
+| Input | Value | Source |
+|---|---|---|
+| Sheet | 1.219 x 2.438 x 0.011 m, 21.8 kg | 4x8 7/16 in OSB; mass from `buildbot-payload` (1.5 lb/ft², retail listings) |
+| Squareness | diagonals within 1/64 in per ft of the longest edge (1/8 in, 0.083°) | PS 2-18 §5.2.1.3, opened 2026-11-12 |
+| Edge straightness | within 1/16 in of the corner-to-corner line | PS 2-18 §5.2.1.3 |
+| Laser line | 1/8 in at 30 ft (0.020°) | maker listings (Fluke PLS 180, Stabila LAX 320, DeWalt, Makita), seen in search |
+| Wall friction μ | 0.2–0.7 swept | wood on wood 0.25–0.5 in a secondary table (Engineering Toolbox); Wood Handbook figure not found |
+| Ledger height error | 0–2 mm a corner, swept | not sourced |
+| Press, wrist stiffness, θ0 | swept | robot-dependent; no figure found |
+
 ## Milestone 4 method (`src/buildbot_sheathing/tack.py`)
 - **Hang.** On milestone 2's as-built studs (three reads at 0.5 mm, edge line 0.5 mm, tool
   0.9 mm, gap centred on each joint stud's estimated range), the sheet hangs off by a translation
@@ -143,13 +193,16 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 20 tests; one uses ../buildbot-studfind
+python -m pytest -q tests                                    # 29 tests; one uses ../buildbot-studfind, four need mujoco
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
 python experiments/m2_asbuilt_studs/figure.py
 python experiments/m4_tack_measure/run.py > experiments/m4_tack_measure/results.txt     # ~100 s, seed 4
 python experiments/m4_tack_measure/figure.py
+pip install mujoco                                           # milestone 3; tested with mujoco 3
+python experiments/m3_ledger/run.py > experiments/m3_ledger/results.txt                 # ~95 s, seed 5
+python experiments/m3_ledger/figure.py
 ```
 
 ## Milestone 1 results (`experiments/m1_gap_placement/results.txt`)
@@ -206,6 +259,31 @@ python experiments/m4_tack_measure/figure.py
   refuted** (three reads give 0.80, not ≥ 0.95, on single-2x joints); H9 held (twist costs 1.4
   points, under 3).
 
+## Milestone 3 results, first part (`experiments/m3_ledger/results.txt`)
+- **A. Released seat** (corners, 200 runs). At F_n ≤ 100 N every cell (μ 0.2–0.7, θ0 0.25–2°)
+  ends within 0.0001° of the ledger; above the threshold the sheet keeps 99.6–100% of θ0, with
+  one partial cell (μ 0.3, 250 N: 0.97 of 1°).
+- **B. Press threshold** (least press leaving over half of a 1° error). Corners: 380, 253, 189,
+  143, 115 N at μ 0.2, 0.3, 0.4, 0.5, 0.7, against 408, 272, 204, 163, 117 N predicted (ratio
+  0.87–0.99). Stud-line contacts: 430, 278, 199, 156, 125 N (ratio 0.90–1.00).
+- **C. Held wrist** (μ 0.4). The closed form matches 29 of 30 cells within 0.005° or 10%; the
+  outlier is 0.089° simulated against 0.119° predicted (100 N, 0.5°, 10,000 N·m/rad), where the
+  wrist and friction share the moment and friction is not fully mobilised.
+- **D. Sensitivity.** Descent speed 0.01–0.2 m/s, release over 0.1–2 s, half the time step, stud
+  contacts and the sign of θ0 change the seated tilt by under 0.0001°; a contact five times
+  softer leaves 0.00035°.
+- **E. Bowed bottom edge** (1/16 in out). The sheet rocks onto its middle and the corner on the
+  side it was tilted to: 0.139–0.145°, against 0.149° for a rigid edge (contact compliance
+  under the loaded middle foot). Friction creep with the sheet stuck at 400 N: 4×10⁻⁸ °/s.
+- **F. Clean sheets.** Ledger-hang tilt σ: 0.012° (laser only) to 0.154° (2 mm a corner, full PS 2
+  panels); 0.085° at 0.5 mm with full PS 2 panels. Two 2x, low warp, σx 3 mm: **1.0000** in every
+  cell. Single 2x, straight, σx 0: 0.953 perfect panel and ledger, 0.934 / 0.857 at half / full
+  PS 2 limits; 0.844 at a 0.5 mm ledger with full limits, 0.636 at 2 mm. 95% needs panels within
+  0.244 of the PS 2 limits with a perfect ledger.
+- **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H13 held (0.00003°); H14 held (ratios
+  0.87–0.99); **H15 refuted** narrowly (29 of 30 cells); H16 held (1.0000 against 0.844); H17
+  held (0.857 < 0.90).
+
 ## Milestone 4 results (`experiments/m4_tack_measure/results.txt`)
 - **A. Hang allowed for 95% clean sheets** (tacked, 1σ; translation alone, rotation alone).
   Single 2x, straight studs: nominal aim 0.44 mm / 0.032°, edge aim 0.37 mm / 0.029°; at the
@@ -239,6 +317,13 @@ python experiments/m4_tack_measure/figure.py
   independent translation per nail, with no rotation and no recoil coupling; a re-hang is a
   fresh draw, which understates a robot that corrects from its measurement; the measured edge
   line is taken to have the true slope.
+- **Ledger (milestone 3).** A rigid sheet on point contacts; a real OSB sheet flexes, its back
+  face touches studs and plates unevenly, and the ledger board itself bows between fasteners. The
+  holder is a lumped impedance at the sheet's centre, not a humanoid's arm; the press,
+  wrist stiffness and wall friction are swept, not measured. PS 2 gives limits, not distributions:
+  the uniform shapes are assumptions, and real panels are probably far inside the limits, which
+  is what decides the single-2x case. The bowed edge is modelled at the bottom only; a bowed
+  vertical edge would also bend the measured edge line.
 - **Plate nails** see only the tool scatter: the sheet's vertical placement is not modelled.
 - **Strict pass/fail.** One nail outside its window fails the sheet; the nails missed are
   reported beside it, and real practice may accept a near miss or re-drive it.
@@ -248,9 +333,11 @@ python experiments/m4_tack_measure/figure.py
 ## Next steps
 Milestone 2 left two checks: measured stud profiles (the Adel et al. 2024 data set, or a scan of
 real studs in a wall) in place of means and assumed shapes, and how far sheathing nails pull a
-bowed stud straight. Milestone 3: the sheet pose a G1/H1 co-hold, a lift or a ledger guide leaves
-in MuJoCo, scored against milestone 4's targets: about 0.5° and 10 mm (1σ) on doubled joints,
-0.03° and 0.4 mm on single 2x. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+bowed stud straight. Milestone 3, second part: the Menagerie G1/H1 and a lift setting the sheet on the ledger, to
+see whether a humanoid can release its wrist and press under about 100 N while holding a 22 kg
+sheet (the first part says that is what a ledger needs), and how a free hang without a ledger
+compares with milestone 4's 0.5° target. A measured sample of real panels' squareness and edge
+bow would settle the single-2x case. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps
@@ -258,5 +345,5 @@ None needed. A hardware check needs a framed mock-up wall, a nailer on an arm, a
 grid and a risk assessment.
 
 ## Outside dependencies (vitamins)
-NumPy, Matplotlib (figure), pytest. Reads `../buildbot-studfind` in one test. No group in
+NumPy, Matplotlib (figure), pytest, MuJoCo (Apache-2.0, milestone 3). Reads `../buildbot-studfind` in one test. No group in
 `prompt.md` covers construction, and none is claimed.

@@ -186,7 +186,10 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
 2. **As-built studs** (done 2026-11-12, `experiments/m2_asbuilt_studs/`): bow and twist from
    grading limits and published means; bow closes single-2x joints, wider joint framing reopens them.
    Still open: measured stud profiles in place of means.
-3. Placement in MuJoCo: the sheet pose a G1/H1 co-hold, a lift and a ledger guide leave.
+3. Placement in MuJoCo: the sheet pose a G1/H1 co-hold, a lift and a ledger guide leave. First
+   part done 2026-11-12 (`experiments/m3_ledger/`): a released sheet seats on a ledger to 0.0001°
+   below a press of about 100 N; then panel squareness (PS 2) leaves 100% clean sheets on doubled
+   joints and at most 84–95% on single 2x. Still open: the humanoid and lift doing it.
 4. **Tack-then-measure** (done 2026-11-12, `experiments/m4_tack_measure/`): the hang allowed is
    0.03° and 0.4 mm on single 2x joints and 0.54° and 10 mm on doubled ones; re-hanging cannot
    lift single-2x joints to 95%. Run before milestone 3, to give it a target.
