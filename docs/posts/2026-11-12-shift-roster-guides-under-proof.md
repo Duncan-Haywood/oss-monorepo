@@ -1,9 +1,9 @@
 ---
 title: "We re-ran our scheduling guides with a proof, and some of their lessons changed"
-seo_title: "Rest gaps, time off and shift limits: scheduling guide figures re-derived with an exact solver"
+seo_title: "Scheduling guide figures re-derived with an exact solver"
 date: 2026-11-12
 tags: [shift-roster-builder, product, measurement]
-description: "Fourteen guide pages quoted a quick heuristic. Re-derived with proven-best rosters, a 10-hour rest gap costs a café nothing, two weekend requests are free, and a rotation setting evens tough shifts out exactly."
+description: "Re-derived with proven-best rosters: a 10-hour rest gap costs a café nothing, two weekend requests are free, and tough shifts even out exactly."
 ---
 
 The [shift roster builder](https://marisstella.app/shift-roster-builder/) has fourteen guide pages. Each one runs the builder on an invented week, changes one thing and reports what happened: a rest gap between shifts, a cap on days in a row, weekend time-off requests, teenage workers' hour limits. Tests check every figure against the engine, so the pages can't drift away from it without a test failing.
