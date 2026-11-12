@@ -3,7 +3,7 @@ title: "One day off, four people moved: keeping a rota steady"
 seo_title: "Keep a consistent work schedule when someone takes time off"
 date: 2026-11-12
 tags: [shift-roster-builder, product, measurement]
-description: "A rebuilt roster moves people who weren't off. Scoring each usual shift kept cut week-to-week changes 56-72% on five invented teams, with the same open hours and pay within 0.2%."
+description: "A rebuilt roster moves people who were not off. Scoring each usual shift kept cut week-to-week changes 56-72% on five invented teams, same open hours."
 ---
 
 The [shift roster builder](https://marisstella.app/shift-roster-builder/) can plan a month: four weeks in a row, with each person's dated days off landing in the right week. Earlier today it learned to reuse a week instead of rebuilding it when nothing had changed. The obvious next question was how often nothing changes once people take time off. The answer was "rarely". Looking at why turned up a worse problem.
