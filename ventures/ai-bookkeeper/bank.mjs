@@ -41,7 +41,7 @@ const ALIASES = {
   amount: ["jumlah", "nominal", "item total", "amount(in rs)", "amount (in rs)", "total (inclusive of fees and/or spread)", "buchungsbetrag", "zaúčtovaná částka", "сумма", "insättning/uttag", "insattning/uttag", "upphæð", "uphaed", "จำนวนเงิน", "סכום", "ποσό", "số tiền", "amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "bedrag (eur)", "cad$", "betrag", "betrag (eur)", "betrag (€)", "montant", "importe", "importo", "bedrag", "net", "suma", "összeg", "belopp", "beløb", "belop", "beløp", "valor", "kwota", "määrä", "määrä euroa", "montante", "maara", "tutar", "částka", "castka", "金額", "取引金額", "거래금액", "交易金额", "交易金額", "发生额", "發生額", "transaction amt.", "transaction amt", "trx amt", "trx amt."],
   debit: ["withdrawn", "расход", "uttag", "ถอน", "เงินออก", "ถอนเงิน", "списание", "сумма списания", "חובה", "χρέωση", "ghi nợ", "số tiền ghi nợ", "debit",  "débit en chf", "debit in chf", "debit in eur", "lastschrift in chf", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "withdrawal (-)", "withdrawals (-)", "debit (-)", "money out", "paid out", "amount debit", "debit amount", "debit amount (positive)", "outflow", "debet", "soll", "lastschrift", "lastschrift in chf", "lastschrift in eur", "débit", "debit (eur)", "cargo", "dare", "uscite", "addebiti", "addebito", "ut fra konto", "ut fra", "débito", "debito", "borç", "مدين", "出金金額", "出金", "お支払金額", "お引出し", "支払金額", "引出金額", "출금금액", "출금액", "출금", "찾으신금액", "지급금액", "支出", "支出金额", "支出金額", "借方发生额", "借方發生額", "借方金额", "借方金額", "付款金额"],
   credit: ["приход", "insättning", "insattning", "ฝาก", "เงินเข้า", "ฝากเงิน", "зачисление", "сумма зачисления", "זכות", "πίστωση", "ghi có", "số tiền ghi có", "credit",  "crédit en chf", "credits", "deposit", "deposits", "deposit amt.", "deposit amt", "deposit amount", "deposit (+)", "deposits (+)", "credit (+)", "money in", "paid in", "amount credit", "credit amount", "credit amount (positive)", "inflow", "haben", "gutschrift", "gutschrift in chf", "gutschrift in eur", "crédit", "credito", "crédito", "abono", "avere", "entrate", "accrediti", "accredito", "inn på konto", "inn pa konto", "inn på", "alacak", "kredit", "دائن", "入金金額", "入金", "お預入れ", "預入金額", "お預り金額", "입금금액", "입금액", "입금", "맡기신금액", "수입금액", "收入", "收入金额", "收入金額", "贷方发生额", "貸方發生額", "贷方金额", "貸方金額", "存入金额"],
-  balance: ["остаток", "คงเหลือ", "ยอดคงเหลือ", "staða", "остаток по счёту", "יתרה", "υπόλοιπο", "số dư", "balance", "solde en chf", "running balance", "runningbalance", "running bal.", "ledger balance", "closing balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)", "saldo in chf", "saldo in eur", "saldo na trn", "saldo po operacji", "saldo po transakcji", "saldo após", "saldo apos", "saldo contabilístico", "saldo contabilistico", "bakiye", "الرصيد", "zůstatek", "残高", "差引残高", "現在残高", "잔액", "거래후잔액", "거래 후 잔액", "余额", "餘額", "账户余额", "賬戶餘額", "当前余额"],
+  balance: ["остаток", "คงเหลือ", "ยอดคงเหลือ", "staða", "остаток по счёту", "יתרה", "υπόλοιπο", "số dư", "balance", "solde en chf", "running balance", "account running balance", "runningbalance", "running bal.", "ledger balance", "closing balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)", "saldo in chf", "saldo in eur", "saldo na trn", "saldo po operacji", "saldo po transakcji", "saldo após", "saldo apos", "saldo contabilístico", "saldo contabilistico", "bakiye", "الرصيد", "zůstatek", "残高", "差引残高", "現在残高", "잔액", "거래후잔액", "거래 후 잔액", "余额", "餘額", "账户余额", "賬戶餘額", "当前余额"],
 };
 
 const DAY_FIRST_HEADER = /^(дата операции|расход|приход|остаток|תאריך|תאריך עסקה|חובה|זכות|יתרה|ημερομηνία|ημερομηνία συναλλαγής|χρέωση|πίστωση|υπόλοιπο|ngày giao dịch|ghi nợ|ghi có|số dư|narration|วันที่|วันที่ทำรายการ|ถอน|ฝาก|คงเหลือ|dagsetning|withdrawal amt\.?|deposit amt\.?|value dt|chq\.?\/ref\.?no\.?|cargo|abono|concepto|fecha (operaci[oó]n|valor)|tanggal|keterangan|uraian|kredit|data (mov\.?|movimento|lan[cç]amento|valor|operacji|contabile|operazione|valuta|da opera[cç][aã]o)|descri[cç][aã]o|descrizione|hist[oó]rico|d[eé]bito|dare|avere|kwota|opis operacji|data ksi[eę]gowania|kirjausp[aä]iv[aä]|maksup[aä]iv[aä]|tarih|datum zaú[cč]tov[aá]n[ií]|datum proveden[ií]|saldo po operacji|saldo ap[oó]s)$/;
@@ -74,25 +74,28 @@ export function parseCsv(text, literal = new Set()) {
   const s = String(text ?? "").replace(/^﻿/, "");
   const delim = pickDelimiter(s);
   const rows = [];
-  let row = [], field = "", quoted = false, openAt = -1;
+  // Blank lines are dropped, so each row keeps the file line it starts on (`ln`, not enumerable)
+  // and a problem can name the line a person sees in their editor.
+  let row = [], field = "", quoted = false, openAt = -1, line = 1, rowLine = 1;
+  const keep = () => { if (row.some((f) => f.trim() !== "")) { Object.defineProperty(row, "ln", { value: rowLine }); rows.push(row); } };
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (quoted) {
       if (c === '"' && s[i + 1] === '"') { field += '"'; i++; }
       else if (c === '"') quoted = false;
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && s[i + 1] !== "\n")) line++; }
     } else if (c === '"' && field === "" && !literal.has(i)) { quoted = true; openAt = i; }
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && s[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      keep();
+      row = []; line++; rowLine = line;
     } else field += c;
   }
   if (quoted) return parseCsv(s, new Set(literal).add(openAt));
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  keep();
   const lines = [...literal].sort((a, b) => a - b).map((i) => s.slice(0, i).split(/\r\n|\r|\n/).length);
   Object.defineProperty(rows, "unclosedQuotes", { value: lines });
   return rows;
@@ -473,6 +476,15 @@ export function sniffBank(rows) {
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
     if (/^trans\. date\|post date\|description\|amount\|category/.test(h)) return "discover";
     if (/^status\|date\|description\|debit\|credit/.test(h)) return "citi";
+    // Real layouts read 2026-11-12 (eval/us-bank-exports.mjs): Navy Federal writes an unsigned Amount and a
+    // "Credit Debit Indicator" column (older files start with Booking Date), Truist a signed Amount in
+    // parentheses beside a Daily Posted Balance that is filled on a day's last row only (not a running
+    // balance, so it is not read as one), TD Bank its routing and account numbers then Debit, Credit and
+    // Account Running Balance, and a Bank of America card Posted Date, Reference Number, Payee, Address, Amount.
+    if (/^(posting date\|transaction date|booking date)\|amount\|credit debit indicator\|/.test(h)) return "navy-federal";
+    if (/^posted date\|transaction date\|transaction type\|check\/serial #\|/.test(h)) return "truist";
+    if (/^date\|bank rtn\|account number\|transaction type\|description\|debit\|credit\|/.test(h)) return "td-bank";
+    if (/^posted date\|reference number\|payee\|address\|amount/.test(h)) return "bank-of-america-card";
     // Debit/Credit/Balance layouts, headers from memory (no real export tried): Navy Federal, Truist, TD Bank.
     if (/^transaction date\|posting date\|description\|debit\|credit\|balance/.test(h)) return "navy-federal";
     if (/^date\|description\|check number\|debit\|credit\|balance/.test(h)) return "truist";
@@ -957,6 +969,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // beside completed ones and keeps the fee in its own column.
   if (bank === "lloyds" || bank === "barclays" || bank === "wise" || bank === "monzo" || bank === "starling" || bank === "westpac" || bank === "nab" || bank === "qonto" || bank === "tide") dayFirst = true;
   const hdr = headerAt === -1 ? [] : rows[headerAt].map(norm);
+  const lineOf = (i) => rows[i]?.ln ?? i + 1;
   if (bank === "nab") columns.desc = hdr.indexOf("transaction details");
   const rbc2 = bank === "rbc" ? hdr.indexOf("description 2") : -1;
   // RBC puts a US-dollar movement in its own USD$ column and leaves CAD$ blank.
@@ -1031,6 +1044,19 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       r = [...r.slice(0, columns.desc), r.slice(columns.desc, j + 1).join(","), ...r.slice(j + 1)];
       r = [...r.slice(0, columns.desc + 1), ...Array(Math.max(0, j - columns.desc - 1)).fill(""), ...r.slice(columns.desc + 1)];
     }
+    // TD Bank's checking export leaves a comma inside the description unquoted ("EGOV STRATEGIES, SERVICE"),
+    // so the row has more cells than the header and every money column after the description moves right.
+    // Rejoin the description when the rejoined row has the header's width and its money cells read.
+    if (headerAt !== -1 && columns.desc !== -1 && r.length > hdr.length && hdr.length > 2) {
+      const k = r.length - hdr.length;
+      const money = [columns.amount, columns.debit, columns.credit, columns.balance].filter((c) => c !== -1);
+      if (money.length && money.every((c) => c > columns.desc)) {
+        const j = [...r.slice(0, columns.desc), r.slice(columns.desc, columns.desc + k + 1).join(","), ...r.slice(columns.desc + k + 1)];
+        const reads = (c) => { const v = String(j[c] ?? "").trim(); return v === "" || Number.isFinite(parseCents(v, decimalComma)); };
+        const wasBad = money.some((c) => { const v = String(r[c] ?? "").trim(); return v !== "" && !Number.isFinite(parseCents(v, decimalComma)); });
+        if (wasBad && money.every(reads)) { r = j; problems.push(`Line ${lineOf(i)}: the description held an unquoted comma, so its ${k + 1} pieces were joined back into one.`); }
+      }
+    }
     const acctName = acctCol === -1 ? "" : String(r[acctCol] ?? "").trim();
     if (acctName && String(r[columns.date] ?? "").trim()) accountNames.add(acctName);
     if (onlyAccount !== undefined && acctName !== onlyAccount) continue;
@@ -1044,15 +1070,15 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       // As for Schwab: a buy, sell or dividend reinvestment moves value between cash and securities.
       if (/^(you (bought|sold)|reinvestment)\b/i.test(String(r[actionCol] ?? "").trim())) { tradesSkipped++; continue; }
     }
-    if (stateCol !== -1 && !okState.test(String(r[stateCol] ?? "").trim())) { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
-    if ((columns.minor || columns.skipRefunds) && anyState !== -1 && /^(refunded|partial refund|partially refunded)$/i.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: order ${String(r[anyState]).trim()}; book the refund from the payout, row skipped.`); continue; }
-    if (anyState !== -1 && NOT_BOOKED.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: status ${String(r[anyState]).trim()}, not a booked transaction, skipped.`); continue; }
+    if (stateCol !== -1 && !okState.test(String(r[stateCol] ?? "").trim())) { problems.push(`Line ${lineOf(i)}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
+    if ((columns.minor || columns.skipRefunds) && anyState !== -1 && /^(refunded|partial refund|partially refunded)$/i.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${lineOf(i)}: order ${String(r[anyState]).trim()}; book the refund from the payout, row skipped.`); continue; }
+    if (anyState !== -1 && NOT_BOOKED.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${lineOf(i)}: status ${String(r[anyState]).trim()}, not a booked transaction, skipped.`); continue; }
     // German and Italian "Valuta" is often the value date; only a three-letter code counts as a currency.
     if (curCol !== -1 && /^[a-z]{3}$/i.test(String(r[curCol] ?? "").trim())) currencies.add(r[curCol].trim().toUpperCase());
-    if (/^(likutis (pradžiai|pabaigai)|apyvarta|opening balance|closing balance)$/i.test(String(r[columns.desc] ?? "").trim())) { problems.push(`Line ${i + 1}: a balance row, not a transaction, skipped.`); continue; }
+    if (/^(likutis (pradžiai|pabaigai)|apyvarta|opening balance|closing balance)$/i.test(String(r[columns.desc] ?? "").trim())) { problems.push(`Line ${lineOf(i)}: a balance row, not a transaction, skipped.`); continue; }
     // A one-cell line under the header that is not a date is a note ("Posted Transactions"), not a short row.
     if (headerAt !== -1 && r.length === 1 && !parseDate(r[columns.date], dayFirst)) continue;
-    if (headerAt !== -1 && r.length <= Math.max(columns.amount, columns.debit, columns.credit) && String(r[columns.date] ?? "").trim()) { problems.push(`Line ${i + 1}: the row has ${r.length} columns, fewer than the header, so the amount column is missing; skipped. Check the quoting in the file.`); continue; }
+    if (headerAt !== -1 && r.length <= Math.max(columns.amount, columns.debit, columns.credit) && String(r[columns.date] ?? "").trim()) { problems.push(`Line ${lineOf(i)}: the row has ${r.length} columns, fewer than the header, so the amount column is missing; skipped. Check the quoting in the file.`); continue; }
     const date = parseDate(r[columns.date], dayFirst);
     // A row with no date and no amount is the second line of the row above (OCBC's
     // transaction history puts the card number and merchant on one): add it to that description.
@@ -1061,11 +1087,11 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       // A footer ("Total transactions,,", "Page 1 of 2", "Generated by ...") is not a wrapped description.
       if (more && !FOOTER.test(more)) { out[out.length - 1].desc = `${out[out.length - 1].desc} ${more}`.trim(); continue; }
     }
-    if (!date && /^pending$/i.test(String(r[columns.date] ?? "").trim())) { problems.push(`Line ${i + 1}: pending, not a booked transaction, skipped.`); continue; }
+    if (!date && /^pending$/i.test(String(r[columns.date] ?? "").trim())) { problems.push(`Line ${lineOf(i)}: pending, not a booked transaction, skipped.`); continue; }
     // A row with an amount but no date and no description is a subtotal (the City of Toronto's PCard
     // report puts one under every card line): counted once below, not reported row by row.
     if (!date && !String(r[columns.date] ?? "").trim() && !String(r[columns.desc] ?? "").trim()) { subtotals++; continue; }
-    if (!date) { problems.push(`Line ${i + 1}: unreadable date "${r[columns.date] ?? ""}", skipped.`); continue; }
+    if (!date) { problems.push(`Line ${lineOf(i)}: unreadable date "${r[columns.date] ?? ""}", skipped.`); continue; }
     let cents;
     if (columns.amount !== -1 && String(r[columns.amount] ?? "").trim() !== "") { cents = parseCents(r[columns.amount], decimalComma); if (rbcUsd !== -1) currencies.add("CAD"); }
     else if (rbcUsd !== -1 && String(r[rbcUsd] ?? "").trim() !== "") { cents = parseCents(r[rbcUsd], decimalComma); currencies.add("USD"); }
@@ -1075,7 +1101,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       cents = side(columns.credit) - side(columns.debit);
     }
     if (columns.minor && Number.isFinite(cents)) cents = Math.round(cents / 100);
-    if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
+    if (!Number.isFinite(cents)) { problems.push(`Line ${lineOf(i)}: unreadable amount, skipped.`); continue; }
     if (drcrCol !== -1) {
       const m = String(r[drcrCol] ?? "").trim().toLowerCase();
       if (/^(dr|d|debit|debet|af|soll|s|withdrawal|expense(-recurring)?)$/.test(m)) cents = -Math.abs(cents);
@@ -1086,14 +1112,14 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       const ty = String(r[hdr.indexOf("transaction type")] ?? "").trim().toLowerCase();
       if (/\b(buy|send|withdrawal|pro withdrawal|payment)\b/.test(ty) && !/sell/.test(ty)) cents = -Math.abs(cents);
       else if (/\b(sell|receive|deposit|reward|earn|income|staking|interest|airdrop)\b/.test(ty)) cents = Math.abs(cents);
-      else if (/convert/.test(ty)) { problems.push(`Line ${i + 1}: a Convert between two assets moves no cash, skipped.`); continue; }
-      else { problems.push(`Line ${i + 1}: unknown Coinbase transaction type "${ty}", skipped.`); continue; }
+      else if (/convert/.test(ty)) { problems.push(`Line ${lineOf(i)}: a Convert between two assets moves no cash, skipped.`); continue; }
+      else { problems.push(`Line ${lineOf(i)}: unknown Coinbase transaction type "${ty}", skipped.`); continue; }
     }
     if (feeCol !== -1) { const fee = parseCents(r[feeCol], decimalComma); if (Number.isFinite(fee)) cents -= Math.abs(fee); }
     if (cents === 0) {
       // A zero is harmless, but a row with a description and every amount cell blank may be a lost transaction.
       const blank = [columns.amount, columns.debit, columns.credit, rbcUsd].filter((k) => k !== -1).every((k) => String(r[k] ?? "").trim() === "");
-      if (blank && String(r[columns.desc] ?? "").trim() && !/balance|saldo/i.test(String(r[columns.desc])) && !(columns.balance !== -1 && String(r[columns.balance] ?? "").trim())) problems.push(`Line ${i + 1}: no amount, skipped.`);
+      if (blank && String(r[columns.desc] ?? "").trim() && !/balance|saldo/i.test(String(r[columns.desc])) && !(columns.balance !== -1 && String(r[columns.balance] ?? "").trim())) problems.push(`Line ${lineOf(i)}: no amount, skipped.`);
       continue;
     }
     const balance = columns.balance !== -1 && String(r[columns.balance] ?? "").trim() !== "" ? parseCents(r[columns.balance], decimalComma) : null;
@@ -1144,7 +1170,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     // The bank's or app's own category label (Chase, Capital One, Mint, Maybe): kept as a weak hint for the categorizer.
     const bankCat = catCol === -1 ? "" : String(r[catCol] ?? "").trim().slice(0, 60);
     const mcc = mccCol === -1 ? "" : String(r[mccCol] ?? "").trim().slice(0, 60);
-    out.push({ line: i + 1, date, desc, cents, balance: Number.isFinite(balance) ? balance : null, ...(bankCat ? { bankCat } : {}), ...(mcc ? { mcc } : {}) });
+    out.push({ line: lineOf(i), date, desc, cents, balance: Number.isFinite(balance) ? balance : null, ...(bankCat ? { bankCat } : {}), ...(mcc ? { mcc } : {}) });
   }
   if (tradesSkipped) problems.push(`${tradesSkipped} brokerage buy/sell line${tradesSkipped === 1 ? " was" : "s were"} not booked: they move value between cash and securities. Dividends, interest, fees and transfers in the file are booked.`);
   else if (bank === "schwab-brokerage" && !out.length) problems.push("The file has the Schwab transactions header but no transaction rows (an empty period).");
