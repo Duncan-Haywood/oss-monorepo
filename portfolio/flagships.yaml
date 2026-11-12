@@ -189,16 +189,16 @@ flagships:
       cut, --count tickets; --backtest --score-closed 2026-11-11 (README "Scoring a staffed closure") counts a
       staffed closure as over, shows the break rules save 6-15 person-hours a week (French), and led to a
       one-date edge rule (Bread Basket 12-24 fewer off a week); 2026-11-11 later, half-life auto offers the
-      last 4 weeks under --score-closed only (out of sample: 6 of 18 clearly better, 0 worse, -16%; README "A 4-week window in half-life auto"), and --last-weeks <n>. A fourth file agreed 2026-11-11 (eval/fourth-file.mjs,
+      last 4 weeks under --score-closed only (out of sample: 6 of 18 clearly better, 0 worse, -16%; no gain
+      under the default score; README "A 4-week window in half-life auto"), and --last-weeks <n>. A fourth file agreed 2026-11-11 (eval/fourth-file.mjs,
       UCI Online Retail II, pre-registered: 6 of 6 on both tests; auto with the window beats auto without
       by 5.0-14.5 under the new score). 2026-11-12: the closure score is the --backtest and half-life-auto
       default with the window offered (--score-open-hours is the old score), and both are on the page; a
       past-only closure reference kept 77% of the window's gain (eval/hindsight-closure.mjs, pre-registered,
-      6/12/0, -12.5%; README "The closure score is the default"). Next: close the 100-person gaps (tree,
+      6/12/0, -12.5%; README "The closure score is the default"). `--standard` landed 2026-11-12 (README). Next: close the 100-person gaps (tree,
       not pricing); cuts or branching that move the score LP on the 60-person pay week; buildRoster end to
-      end on 40-person weeks with exact on; a real Square or Toast item export (documented columns read since 2026-11-12, README "Square and Toast item exports"; made-up rows only); a labour standard
-      (minutes per ticket vs per euro) or a blend of the two drivers; a real published-schedule export for
-      --import-shifts; whether the priced cut's r = 1 default suits a real manager.
+      end on 40-person weeks with exact on; a real Square or Toast item export (columns read 2026-11-12, made-up rows only, README); a real published-schedule export for
+      --import-shifts; whether the priced cut's r = 1 default suits a real manager; a fixed per-open-hour term in `--standard`.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -246,10 +246,19 @@ flagships:
       "between X, Y, Z" list holds the true favourite (a top-3 credible set
       from the refit to replace "the three highest"), and the PrefLib panels
       through the refit; (b) half-time salience (q = 0.5 still leaks +0.12 to
-      +0.29, only 5-13% fall under 0.2 agreement); (c) answer times
-      (msToAnswer is stored) to tell a careless block from a camp; (d)
-      position bias that starts mid-session; (e) the switch rule above 120
-      items; then real pairwise answers.
+      +0.29, only 5-13% fall under 0.2 agreement: does pace see them?);
+      (c) check the answer-time model against the first real survey's
+      msToAnswer (honest pace spread, slowing on close pairs, whether
+      out-of-step people are quicker); (d) position bias that starts
+      mid-session; (e) the switch rule above 120 items; then real pairwise
+      answers. Answer times landed 2026-11-12 (scripts/answer-time-sweep.ts,
+      INFORMATION-GAIN-SELECTOR.md "Answer times", simulated timing with its
+      assumptions swept): pace never mistakes a camp for the careless (AUC
+      0.50-0.56) and separates the careless as far as they are quicker
+      (0.83-0.98); the time-vs-closeness slope confuses camps like agreement.
+      Shipped as the ranking's `pace` note plus `?drop=fast` for comparison,
+      not a default (dropping costs up to 0.019 when the careless are no
+      faster).
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
