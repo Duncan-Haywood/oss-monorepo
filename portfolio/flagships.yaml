@@ -206,22 +206,12 @@ flagships:
       settled (README, 2026-11-12 MapTable section). WarpRectilinear2 is PR
       #15290's (another session, 2026-11-12): help land it, don't redo it.
     next: >-
-      History and every measurement: README and eval/ (ingest, catalog,
-      proxies, cull, RAW previews; DNG developer with DNG-spec colour, DCP
-      tables, tone curves, triple-illuminant profiles, default tone curve;
-      numpy engine, native Huffman reader; Canon CR2 directly and in the
-      grade stage; five Canon bodies match LibRaw to 0.05-0.19 8-bit steps,
-      eval/cr2-brightness-gap-2026-11-12.md; camera-written DNGs from a
-      Nexus 5X, Leica T and Pentax Q-S1 match LibRaw to 0.02-0.11 steps and
-      the phone's OpcodeList2 GainMap lens shading runs, eval/camera-dngs-
-      2026-11-12.md; WarpRectilinear matches the Leica T's own preview to
-      0.18 px, eval/warp-rectilinear-2026-11-12.md; FixVignetteRadial/MapPolynomial on
-      synthetic files, eval/vignette-polynomial-2026-11-12.md; OpcodeList1
-      FixBadPixels*; WarpFisheye; MapTable, Delta/ScalePerRow/Column;
-      TrimBounds in OpcodeList2/3, tests/test_dng_trim_bounds.py; every
-      opcode's layout and formula compared with the DNG 1.7.1.0 text, warp and
-      vignette centre now measured between pixels as it defines them,
-      eval/opcode-spec-audit-2026-11-12.md).
+      History and every measurement: README and eval/ (ingest to masters;
+      DNG developer with DNG-spec colour, DCP tables, tone curves; Canon CR2;
+      camera DNGs match LibRaw to 0.02-0.11 steps; eleven DNG opcodes, every
+      layout and formula compared with the DNG 1.7.1.0 text,
+      eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear matches the Leica
+      T's own preview to 0.18 px).
       Next, most valuable first: WarpRectilinear2 (PR #15290); a resampling
       kernel wider than bilinear; a real DNG carrying any opcode
       run only on synthetic files so far, or the SDK to check them;
