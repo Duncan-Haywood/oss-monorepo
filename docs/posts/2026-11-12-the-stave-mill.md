@@ -3,7 +3,7 @@ title: "Why would new oak casks leak? A 2148 story about a drying schedule that 
 seo_title: "Why wide-ringed oak dries slower: a cooperage story"
 date: 2026-11-12
 tags: [fiction, hearth-and-horizon, science-fiction, cognac, oak, forestry, france]
-description: "A new story set in the Cognac country in 2148: a cooperage's casks weep because the forest now grows wider rings, and wide-ringed oak is denser and dries slower."
+description: "A story set in the Cognac country in 2148: a cooperage's casks weep because the forest now grows wider rings, and wide-ringed oak is denser and dries slower."
 ---
 
 [The Stave Mill](../../ventures/hearth-and-horizon/stories/the-stave-mill.md)
