@@ -453,24 +453,52 @@ export function selectNextPairByInformation(
   if (items.length < 2) throw new Error("Need at least 2 items to pair");
   const pool = capPool(activeItems(items, answeredCount, timesShown, admissionPaused(agreement)), timesShown, poolCap);
   const avgShown = pool.reduce((sum, i) => sum + (timesShown.get(i.id) ?? 0), 0) / pool.length;
-  const lag = (i: PairItem) => Math.max(0, avgShown - (timesShown.get(i.id) ?? 0));
+
+  // The pair loop is quadratic in the pool (125k pairs at 500 items), so what
+  // depends on one item is computed once per item here, and a pair's key is
+  // built only when both ids occur in some recent key (a necessary condition
+  // for the key to be in the set). Every score is the same float, from the
+  // same operations in the same order, as `expectedVarianceReduction` and the
+  // per-pair form this replaced; rand() is still drawn once per pair, in the
+  // same order. pairing.test.ts pins the result against that form.
+  const n = pool.length;
+  const ids = pool.map((i) => i.id);
+  const dims = pool.map((i) => i.dimensions?.[0]);
+  const lags = pool.map((i) => Math.max(0, avgShown - (timesShown.get(i.id) ?? 0)));
+  const ratings = pool.map((i) => i.rating);
+  const phis = pool.map((i) => i.rd / GLICKO_SCALE);
+  const phiSq = phis.map((phi) => phi * phi);
+  const invPhiSq = phis.map((phi) => 1 / (phi * phi));
+  const gSq = phis.map((phi) => glickoG(phi) ** 2);
+  const recentKeys = [...recentPairKeys];
+  const inRecent = ids.map((id) => recentKeys.some((k) => k.includes(id)));
 
   let best: [string, string] | null = null;
   let bestScore = -Infinity;
-  for (let i = 0; i < pool.length; i++) {
-    for (let j = i + 1; j < pool.length; j++) {
-      const repeatPenalty = recentPairKeys.has(pairKey(pool[i].id, pool[j].id)) ? 0.05 : 1;
+  for (let i = 0; i < n; i++) {
+    const phiA = phis[i];
+    const ra = ratings[i];
+    const da = dims[i];
+    const recentA = inRecent[i];
+    for (let j = i + 1; j < n; j++) {
+      const repeatPenalty = recentA && inRecent[j] && recentPairKeys.has(pairKey(ids[i], ids[j])) ? 0.05 : 1;
       // A sliver of noise breaks exact ties (all-default start) without
       // reordering pairs whose scores differ.
-      const da = pool[i].dimensions?.[0];
-      const db = pool[j].dimensions?.[0];
+      const db = dims[j];
       const conflict = da && db && da !== db ? conflictBonus : 1;
-      const coverage = 1 + coverageWeight * (lag(pool[i]) + lag(pool[j]));
-      const score =
-        expectedVarianceReduction(pool[i], pool[j]) * repeatPenalty * conflict * coverage * (1 + rand() * 1e-6);
+      const coverage = 1 + coverageWeight * (lags[i] + lags[j]);
+      // expectedVarianceReduction(pool[i], pool[j]), inlined.
+      const phiB = phis[j];
+      const mu = (ra - ratings[j]) / GLICKO_SCALE;
+      const p = 1 / (1 + Math.exp(-glickoG(Math.hypot(phiA, phiB) / Math.SQRT2) * mu));
+      const spread = p * (1 - p);
+      const dropA = phiSq[i] - 1 / (invPhiSq[i] + gSq[j] * spread);
+      const dropB = phiSq[j] - 1 / (invPhiSq[j] + gSq[i] * spread);
+      const evr = (dropA + dropB) * GLICKO_SCALE * GLICKO_SCALE;
+      const score = evr * repeatPenalty * conflict * coverage * (1 + rand() * 1e-6);
       if (score > bestScore) {
         bestScore = score;
-        best = [pool[i].id, pool[j].id];
+        best = [ids[i], ids[j]];
       }
     }
   }
