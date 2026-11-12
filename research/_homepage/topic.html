@@ -84,6 +84,8 @@ footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;
 .find input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .find output{font-size:14px;color:var(--muted)}
 .find[hidden]{display:none}
+.find .none{flex-basis:100%;margin:0;font-size:15px}
+.find .none[hidden]{display:none}
 .sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 </head>
@@ -94,24 +96,30 @@ footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;
   <h1>{{THEME_NAME}}</h1>
   <p class="lede">{{BLURB}}</p>
   <p class="count">{{THEME_COUNT}} projects, each with its own page, code and tests. <a href="../../index.html#{{THEME_ID}}">See them on the full research index</a>.</p>
-  <form class="find" role="search" hidden onsubmit="return false"><label for="find" class="sr">Filter these projects</label><input id="find" type="search" placeholder="Filter {{THEME_COUNT}} projects by word" autocomplete="off"><output for="find" aria-live="polite"></output></form>
+  <form class="find" role="search" hidden onsubmit="return false"><label for="find" class="sr">Filter these projects</label><input id="find" type="search" placeholder="Filter {{THEME_COUNT}} projects by word" autocomplete="off"><output for="find" aria-live="polite"></output><p class="none" hidden>Nothing in this topic matches. <a href="../../index.html">Search all research for it →</a></p></form>
   <div class="projects">
 {{PROJECTS}}
   </div>
   <script>
   (function () {
     var form = document.querySelector('.find'), box = document.getElementById('find'), out = form.querySelector('output');
+    var none = form.querySelector('.none'), everywhere = none.querySelector('a');
     var cards = [].slice.call(document.querySelectorAll('.proj'));
     var hay = cards.map(function (c) { return c.textContent.toLowerCase(); });
     form.hidden = false;
-    box.addEventListener('input', function () {
-      var words = box.value.toLowerCase().split(/\s+/).filter(Boolean), n = 0;
+    function run() {
+      var raw = box.value.trim(), words = raw.toLowerCase().split(/\s+/).filter(Boolean), n = 0;
       cards.forEach(function (c, i) {
         var hit = words.every(function (w) { return hay[i].indexOf(w) >= 0; });
         c.hidden = !hit; if (hit) n++;
       });
       out.textContent = words.length ? n + ' of ' + cards.length : '';
-    });
+      // Nothing here: offer the same words on the index, which searches all 31 topics.
+      none.hidden = n > 0;
+      everywhere.href = '../../index.html' + (raw ? '?q=' + encodeURIComponent(raw) : '');
+    }
+    box.addEventListener('input', run);
+    try { var q0 = new URLSearchParams(location.search).get('q'); if (q0) { box.value = q0; run(); } } catch (e) {}
   })();
   </script>
   <h2>Other research topics</h2>

@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKjcFgS975XxNGYokje",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T14:12:14Z",
+  "ended": "2026-11-12T14:21:33Z",
+  "wall_minutes": 9.46,
+  "tokens_in": 3945894,
+  "tokens_out": 20786,
+  "cost_usd": 1.825,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15151",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/build.mjs",
+      "issue": "Local build used the retired github.io base URL (open PR #14596 fixes it), so a standalone research/_homepage/build.py --base-url https://marisstella.app/ rebuild differs from the build's own output; I re-ran the full build for a clean after measurement (~10 min extra)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`python3 -m unittest platform/ci/test_research_homepage_publish.py` errors (path form); `python3 -m unittest discover -s platform/ci -p <file>` works. Not documented where the test is cited."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "I searched open PRs ('polish' in:title) at start; #15149 was not yet open. Two polish runs reading the same newest report's 'still weakest' list pick the same item; nothing claims an item until a PR opens. A claim (draft PR on first push, as land-your-work says) earlier would have shown it, but I opened mine only after the work."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "PR #15149 landed the same topic-page item while I worked (both picked item 2 of the same report minutes apart).",
+      "did": "Dropped my overlapping change (abstract removal + filter) on merge conflict, rebased on main and shipped only what #15149 left open: empty-filter hand-off to index ?q= search and the LOG.md format test.",
+      "result": "Small but distinct PR; ~45 min of duplicated effort lost."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-topic-filter-hands-off-to-search.md",
+    "docs/reports/polish-2026-11-12-topic-filter-handoff.md"
+  ],
+  "goal": null,
+  "notes": "Rebased onto #15149 (same item). Shipped: topic filter empty-state links to index search with ?q=; index reads ?q=; LogFormatTest. Verified: research build ok; test_research_homepage_publish 10/10; Chromium at 390/1280 (lidar 9/164, yosys 0 -> index 25 cards, ?q=regret 20/164, no page errors); earlier full node --test platform/pages: only failures were my since-fixed post description length, writing tests rerun 54/54 pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c606902b-c3b3-51a0-8940-3086f44aba7b",
+    "transcripts": 1,
+    "first": "2026-11-12T14:12:14Z",
+    "last": "2026-11-12T14:21:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 92,
+        "output": 20786,
+        "thinking": 3137,
+        "cache_read": 3866341,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79461,
+        "api_equivalent_usd": 1.825,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 92,
+      "output": 20786,
+      "thinking": 3137,
+      "cache_read": 3866341,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79461,
+      "api_equivalent_usd": 1.825,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 44,
+      "Read": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.46,
+      "active_minutes": 9.45,
+      "model_minutes": 3.59,
+      "tool_minutes": 5.86,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "front-end dev: measure 31 pages, refactor card, filter script, tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 219.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

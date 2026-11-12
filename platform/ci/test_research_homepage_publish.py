@@ -143,3 +143,23 @@ class ResearchIndexLengthTest(unittest.TestCase):
         self.assertIn(".proj:has(details[open]) .res{display:block", page)
         self.assertIn('<form class="find" role="search" hidden', page)
         self.assertIn(".find[hidden]{display:none}", page)
+
+    def test_empty_topic_filter_hands_its_words_to_the_index_search(self):
+        """A filter that matches nothing in its topic links to the index search with the same words,
+        and the index fills its search box from ?q= (the 2026-11-12 topic-pages report, item 3)."""
+        page = (self.out / "topics" / "twins" / "index.html").read_text()
+        self.assertIn('<p class="none" hidden>', page)
+        self.assertIn("'../../index.html' + (raw ? '?q=' + encodeURIComponent(raw) : '')", page)
+        index = (self.out / "index.html").read_text()
+        self.assertIn("new URLSearchParams(location.search).get('q')", index)
+
+
+class LogFormatTest(unittest.TestCase):
+    """A research LOG.md with no `## <date> · <title>` entry is silently dropped from its project page
+    and from the index (2026-11-12: research/marine-colregs fell out that way)."""
+
+    def test_every_log_has_an_entry(self):
+        empty = [p.parent.name for p in sorted((ROOT / "research").glob("*/LOG.md"))
+                 if not p.parent.name.startswith(("_", "."))
+                 and not any(l.startswith("## ") for l in p.read_text().splitlines())]
+        self.assertEqual(empty, [], "these LOG.md files need `## <date> · <title>` entry headings")

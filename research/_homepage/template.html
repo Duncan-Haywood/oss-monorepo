@@ -262,6 +262,7 @@ footer a{color:var(--muted)}
   }
   q.addEventListener('input',function(){loadAll(filter)});
   [].forEach.call(document.querySelectorAll('[data-showall]'),function(b){b.addEventListener('click',function(){loadAll(filter)})});
+  try{var p0=new URLSearchParams(location.search).get('q');if(p0)q.value=p0}catch(e){}
   if(q.value)loadAll(filter);
   document.addEventListener('keydown',function(e){
     if(e.key==='/'&&document.activeElement!==q){e.preventDefault();q.focus()}
