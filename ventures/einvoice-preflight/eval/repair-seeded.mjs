@@ -35,7 +35,7 @@ const walk = (d) => readdirSync(d).flatMap((f) => { const p = join(d, f); return
 // Offsets of every amount element, labelled by where it sits.
 export function seedSites(xml) {
   const sites = [];
-  const re = /<((?:[\w.-]+:)?(LineExtensionAmount|TaxAmount|RoundingAmount|TaxableAmount|TaxExclusiveAmount|TaxInclusiveAmount|AllowanceTotalAmount|ChargeTotalAmount|PayableAmount))(\s[^>]*)?>([^<]*)<\/\1>/g;
+  const re = /<((?:[\w.-]+:)?(Amount|LineExtensionAmount|TaxAmount|RoundingAmount|TaxableAmount|TaxExclusiveAmount|TaxInclusiveAmount|AllowanceTotalAmount|ChargeTotalAmount|PayableAmount))(\s[^>]*)?>([^<]*)<\/\1>/g;
   const docCur = /<(?:[\w.-]+:)?DocumentCurrencyCode[^>]*>\s*([A-Z]{3})/.exec(xml)?.[1];
   for (const m of xml.matchAll(re)) {
     const name = m[2];
@@ -46,8 +46,13 @@ export function seedSites(xml) {
     const inLine = open("InvoiceLine") || open("CreditNoteLine") || open("DebitNoteLine");
     const inSub = open("TaxSubtotal");
     const inTT = open("TaxTotal");
+    const inExt = open("ItemPriceExtension");
     let label;
-    if (inLine && inSub && name === "TaxAmount") label = "KSA-32 prepayment VAT";
+    // PINT line amounts in ItemPriceExtension: Oman BTOM-016 VAT and BTOM-017 amount with VAT, UAE BTAE-08.
+    if (inLine && inExt && inTT && name === "TaxAmount") label = "line VAT, ItemPriceExtension";
+    else if (inLine && inExt && !inTT && name === "Amount") label = "line with VAT, ItemPriceExtension";
+    else if (name === "Amount") continue; // allowance, charge and other amounts are facts
+    else if (inLine && inSub && name === "TaxAmount") label = "KSA-32 prepayment VAT";
     else if (inLine && inSub) continue; // KSA-31 is a fact
     else if (inLine && inTT && name === "TaxAmount") label = "KSA-11 line VAT";
     else if (inLine && inTT && name === "RoundingAmount") label = "KSA-12 line with VAT";
