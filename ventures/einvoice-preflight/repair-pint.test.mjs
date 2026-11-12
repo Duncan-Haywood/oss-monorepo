@@ -7,7 +7,7 @@
 // Every invoice below is made up and built in the test.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { repairUbl, roundBaisa, fmtBaisa } from "./repair-ubl.mjs";
+import { repairUbl, roundBaisa, fmtBaisa, fmtAs } from "./repair-ubl.mjs";
 
 function invoice({
   customization = "urn:peppol:pint:billing-1@om-1",
@@ -187,4 +187,81 @@ test("a per-unit tax subtotal (PerUnitAmount) stops the tax recompute instead of
   const r = repairUbl(xml.replace(/<cbc:TaxAmount currencyID="MYR">20.00<\/cbc:TaxAmount>\n    <cac:TaxSubtotal>/, '<cbc:TaxAmount currencyID="MYR">27.00</cbc:TaxAmount>\n    <cac:TaxSubtotal>'));
   assert.equal(changed(r)["/totals/tax"], undefined);
   assert.ok(r.skipped.some((s) => /per-unit/.test(s)));
+});
+
+// UAE line VAT (BTAE-08) and line amount payable (BTAE-10), added 2026-11-12 (later).
+// Before, the repair left both as written: 0 of 76 seeded on OpenPeppol's PINT AE examples.
+const AE = "urn:peppol:pint:billing-1@ae-1";
+const ae = (l, rest = {}) => invoice({ customization: AE, currency: "AED", lines: [l], ...rest });
+
+test("written-precision formatter: keeps 2 to 4 decimals the file used", () => {
+  assert.equal(fmtAs(49.96875, "56.9688"), "49.9688");
+  assert.equal(fmtAs(178.125, "185.125"), "178.125");
+  assert.equal(fmtAs(524.3, "531.3"), "524.30");
+  assert.equal(fmtAs(1.23456789, "9.123456"), "1.2346");
+  assert.equal(fmtAs(-0.125, "1.125"), "-0.125");
+});
+
+test("a correct UAE line (999.375 at 5%: 49.9688 VAT, 1049.3438 payable) comes back unchanged", () => {
+  const xml = ae({ qty: "50", price: "19.9875", net: "999.375", vat: "49.9688", amount: "1049.3438" }, { taxable: "999.38", rowTax: "49.97" });
+  assert.deepEqual(repairUbl(xml).changes, []);
+});
+
+test("a wrong UAE line VAT (BTAE-08) is rewritten from net x rate, with the file's decimals", () => {
+  const xml = ae({ qty: "50", price: "19.9875", net: "999.375", vat: "56.9688", amount: "1049.3438" }, { taxable: "999.38", rowTax: "49.97" });
+  const c = changed(repairUbl(xml));
+  assert.equal(c["/lines/0/vat"], "49.9688");
+  assert.equal(c["/lines/0/amount_with_vat"], undefined, "the amount was already net + the right VAT");
+});
+
+test("a wrong UAE line amount payable (BTAE-10) is rewritten as net plus line VAT", () => {
+  const xml = ae({ qty: "10", price: "100", net: "1000", vat: "50", amount: "1057" }, { taxable: "1000", rowTax: "50" });
+  assert.deepEqual(changed(repairUbl(xml)), { "/lines/0/amount_with_vat": "1050.00" });
+});
+
+test("a UAE line VAT within 0.01 of net x rate is kept (a VAT-inclusive price rounds that way)", () => {
+  const xml = ae({ qty: "1", price: "95.24", net: "95.24", vat: "4.76", amount: "100.00" }, { taxable: "95.24", rowTax: "4.76" });
+  assert.deepEqual(repairUbl(xml).changes, []);
+});
+
+test("UAE reverse charge and zero rated lines: a non-zero BTAE-08 goes back to 0 (ibr-162-ae, ibr-165-ae)", () => {
+  const rc = invoice({ customization: AE, currency: "AED", category: "AE", lines: [{ qty: "30", price: "99", net: "2970", vat: "148.5", amount: "3118.5" }], taxable: "2970", rowTax: "0" });
+  assert.deepEqual(changed(repairUbl(rc)), { "/lines/0/vat": "0.00", "/lines/0/amount_with_vat": "2970.00" });
+  const z = invoice({ customization: AE, currency: "AED", category: "Z", percent: "0", lines: [{ qty: "1", price: "100", net: "100", vat: "7", amount: "107" }], taxable: "100", rowTax: "0" });
+  assert.deepEqual(changed(repairUbl(z)), { "/lines/0/vat": "0.00", "/lines/0/amount_with_vat": "100.00" });
+});
+
+test("a UAE exempt line states no BTAE-08, and its BTAE-10 is the net", () => {
+  const xml = invoice({ customization: AE, currency: "AED", category: "E", percent: "0", lines: [{ qty: "1", price: "727.5", net: "727.5" }], taxable: "727.5", rowTax: "0" })
+    .replace("</cac:Price>", "</cac:Price>\n    <cac:ItemPriceExtension><cbc:Amount currencyID=\"AED\">734.5</cbc:Amount></cac:ItemPriceExtension>");
+  assert.deepEqual(changed(repairUbl(xml)), { "/lines/0/amount_with_vat": "727.50" });
+});
+
+test("a wrong UAE subtotal written to four decimals is rewritten with four", () => {
+  const xml = ae({ qty: "1", price: "10643.29", net: "10643.29", vat: "532.1645", amount: "11175.4545" }, { taxable: "10643.29", rowTax: "539.1645", tax: "532.16" });
+  assert.equal(changed(repairUbl(xml))["/tax_breakdown/0/tax"], "532.1645");
+});
+
+test("PINT Malaysia's ItemPriceExtension amount is left as written (LHDN ties it to nothing)", () => {
+  const xml = invoice({ customization: "urn:peppol:pint:billing-1@my-1", currency: "MYR", percent: "10", lines: [{ qty: "100", price: "50.00", net: "5000.00", amount: "100.00" }], taxable: "5000.00", rowTax: "500.00" })
+    .replace("</cac:Price>", "</cac:Price>\n    <cac:ItemPriceExtension><cbc:Amount currencyID=\"MYR\">100.00</cbc:Amount></cac:ItemPriceExtension>");
+  assert.deepEqual(repairUbl(xml).changes, []);
+});
+
+test("outside the UAE and Oman, ItemPriceExtension VAT is not touched", () => {
+  const xml = invoice({ customization: "urn:peppol:pint:billing-1@sg-1", currency: "SGD", percent: "9", lines: [{ qty: "1", price: "100", net: "100", vat: "15", amount: "115" }], taxable: "100", rowTax: "9" });
+  assert.equal(changed(repairUbl(xml))["/lines/0/vat"], undefined);
+});
+
+test("a reverse-charge header allowance at AE 0% beside AE 5% lines still reaches the tax recompute", () => {
+  // PINT UAE's "Doc-level allowance AE category" example: before, the 0% and 5% rows read as two
+  // groups against one subtotal, so a wrong total was left alone with "groups do not match".
+  const xml = invoice({ customization: AE, currency: "AED", category: "AE", lines: [{ qty: "10", price: "100", net: "1000", vat: "0", amount: "1000" }], taxable: "900", rowTax: "0", net: "900", tax: "7", gross: "907" })
+    .replace("<cac:TaxTotal>", `<cac:AllowanceCharge><cbc:ChargeIndicator>false</cbc:ChargeIndicator><cbc:Amount currencyID="AED">100</cbc:Amount><cac:TaxCategory><cbc:ID>AE</cbc:ID><cbc:Percent>0</cbc:Percent><cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme></cac:TaxCategory></cac:AllowanceCharge>\n  <cac:TaxTotal>`)
+    .replace(`<cbc:LineExtensionAmount currencyID="AED">900</cbc:LineExtensionAmount>`, `<cbc:LineExtensionAmount currencyID="AED">1000</cbc:LineExtensionAmount><cbc:AllowanceTotalAmount currencyID="AED">100</cbc:AllowanceTotalAmount>`);
+  const r = repairUbl(xml);
+  assert.ok(!r.skipped.some((s) => /groups do not match/.test(s)), r.skipped.join("; "));
+  const c = changed(r);
+  assert.equal(c["/totals/tax"], "0.00");
+  assert.equal(c["/totals/gross"], "900.00");
 });

@@ -158,8 +158,8 @@ flagships:
       2026-11-12, OM 49/49, README "Baisa line nets"); PINT repair
       closed 2026-11-12 (README "PINT Oman, UAE and Malaysia": OM seeded 657/658,
       AE and MY correct files 32/32 and 26/26, AE reverse charge kept at 0); open:
-      repair of UAE BTAE-08 and MY ItemPriceExtension amounts (0/40, 0/42 seeded),
-      AE volume-discount credit note, a real business's PINT file; BT-86, ZATCA line
+      a check flagging a wrong UAE BTAE-10 (no rule does, 0/40) or BTAE-08 (11/36;
+      repair done, README "UAE line VAT"); AE volume-discount credit note, a real business's PINT file; BT-86, ZATCA line
       TaxTotal, CIUS-RO 1.3.8 base, ZATCA/A-NZ repair (257/258,
       270/270) and INV-059 closed 2026-11-12 (README); open: a 1.3.8 base on the Saxon route; RO_CIUS on a real ANAF
       file; NLCIUS on a real Dutch file; India's INV-01 check on a real
