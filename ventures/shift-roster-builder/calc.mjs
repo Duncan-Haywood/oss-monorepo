@@ -385,7 +385,7 @@ const DEFAULTS = {
   splitPremium: 0, splitGap: 1, // split-shift premium: dollars owed on each day a person's shifts have a gap over splitGap hours (0 = off)
   diffWhen: "", diffPerHour: 0, diffPct: 0, // pay differential: extra $/hour and/or % of wage for hours inside the diffWhen windows ("Sat-Sun; 10pm-6am"; none = off)
   burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
-  exact: "auto", exactNodes: 400000, exactMs: 8000, exactTolerance: 0.5, balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, keep: null, keepValue: 0, seed: 1, restarts: 4, iterations: 0, longPass: true,
+  exact: "auto", exactNodes: 400000, exactMs: 8000, exactTolerance: 0.5, balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, keep: null, keepValue: 0, keepShift: 0, seed: 1, restarts: 4, iterations: 0, longPass: true,
 };
 
 function qualified(person, slot) {
@@ -423,8 +423,11 @@ export function buildContext(staff, slots, options = {}) {
 // a prefer: hour does, so it flows through the search and every exact bound; it is far below BIG, so it never leaves a shift open,
 // and it trades at most keepValue x wage an hour of pay for a steadier rota. Copies of one shift share a key. null when off.
 export const slotKey = (s) => `${s.day}|${s.startMin}|${s.endMin}|${s.role || ""}`;
+// `keepShift` (2026-11-12) is the same bonus counted per shift instead of per hour: keeping a kept shift earns keepShift x the
+// person's wage whatever its length, the shape of a per-change short-notice premium (rebuilding a posted week).
+export const keepOn = (o) => !!o && !!o.keep && (o.keepValue > 0 || o.keepShift > 0);
 function keepSets(o, staff, slots) {
-  if (!o.keep || !(o.keepValue > 0)) return null;
+  if (!keepOn(o)) return null;
   const by = new Map(Object.entries(o.keep).map(([n, keys]) => [n.toLowerCase(), new Set(keys)]));
   const keys = slots.map(slotKey), anyRole = slots.map((s) => slotKey({ ...s, role: "*" }));
   const sets = staff.map((p) => {
@@ -441,7 +444,7 @@ function slotBonus(ctx, p, i) {
   const person = ctx.staff[p];
   let h = 0;
   if (person.prefer) h += (avoidMinutes(person, ctx.slots[i], "prefer") / 60) * ctx.o.preferValue;
-  if (ctx.keep && ctx.keep[p] && ctx.keep[p].has(i)) h += ((ctx.slots[i].end - ctx.slots[i].start) / 60) * ctx.o.keepValue;
+  if (ctx.keep && ctx.keep[p] && ctx.keep[p].has(i)) h += ((ctx.slots[i].end - ctx.slots[i].start) / 60) * (ctx.o.keepValue || 0) + (ctx.o.keepShift || 0);
   return h * Math.max(person.wage, 1);
 }
 
@@ -1991,9 +1994,9 @@ export function optimalityText(opt) {
 // a build without the bonus, and the one with fewer open hours is kept (the kept one on a tie). `keepChecked` says which won.
 export function buildRoster(staff, slots, options = {}) {
   const r = buildRosterOnce(staff, slots, options);
-  if (r.error || !(options.keepValue > 0) || !options.keep || !Object.keys(options.keep).length) return r;
+  if (r.error || !keepOn(options) || !Object.keys(options.keep).length) return r;
   if (["optimal", "improved"].includes(r.optimality?.status)) return r;
-  const plain = buildRosterOnce(staff, slots, { ...options, keepValue: 0 });
+  const plain = buildRosterOnce(staff, slots, { ...options, keepValue: 0, keepShift: 0 });
   if (!plain.error && plain.unfilledHours < r.unfilledHours - 1e-9) return { ...plain, keepChecked: "dropped: it left more hours open" };
   return { ...r, keepChecked: "kept" };
 }
