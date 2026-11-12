@@ -3,7 +3,7 @@ title: "We re-tested our own lucky finding on new battery designs. It held."
 date: 2026-11-12
 tags: [cell-fidelity, batteries, simulation, multi-fidelity, pybamm, replication]
 seo_title: "A 10-cycle SPMe screen beats GP-EI on fresh electrode designs"
-description: Two search tricks for battery electrode design were found after the fact. Registered and re-run on 128 new designs, the short SPMe screen held; the co-kriging one held only for large pools.
+description: Two battery design-search tricks were found after the fact. Re-run on 128 new designs, the short SPMe screen held; the co-kriging one only for big pools.
 ---
 
 The `cell-fidelity` programme asks how a lithium-ion electrode design search should split its compute between cheap battery models and the full DFN model. Its last two steps each ended on a winner nobody had planned for:
