@@ -1410,6 +1410,88 @@ text made up); `node eval/photo-ocr-browser.mjs` drives the page with the real
 reader in headless Chromium (6/6). Still scans, not phone photos or crumpled
 paper.
 
+### Receipt photos from a phone (CORD through tesseract.js, 2026-11-12)
+
+Flagship item (5), "next: phone photos". CORD-v2's 200 validation and test
+images are real phone photos of Indonesian shop and restaurant receipts
+(shadows, tilt, table showing at the edges, about 150 to 250 dpi by
+tesseract's estimate). The text in `eval/cord/*.jsonl` is the annotators'
+hand-corrected word boxes, so until now CORD tested the reader on a perfect
+transcription. This time the page's own engine read the photos:
+`eval/cord_images.py` writes the photos out of CORD's parquet files (fetched
+at run time from Hugging Face, revision `7f0115a4`, never copied here), and
+`eval/sroie-tesseractjs.mjs` (which now reads any folder of `.jpg`/`.png`)
+reads each in both modes with tesseract.js 5.1.1 and the page's English
+model. `eval/cord-receipts.mjs --ocr <dir>[,<dir2>] [--settled]` scores the
+OCR text instead of the hand-corrected text, and with `--settled` counts
+whether the page's status line warned about each wrong total.
+
+What it found, before any change (the page as it stood):
+
+| CORD photos through tesseract.js | Hand-corrected text | Block mode | Column mode | Page (both, settled) | Wrong totals with no warning |
+|---|---|---|---|---|---|
+| validation, 98 labelled | 96 (98.0%) | 51 (52.0%) | 22 (22.4%) | 52 (53.1%), wrong 38 | 38 |
+| test, 95 labelled | 90 (94.7%) | 45 (47.4%) | 24 (24.2%) | 45 (47.4%), wrong 40 | 39 |
+
+So on phone photos the reader loses about 45 points to OCR, and the worse
+part is that about 40% of totals came back **wrong and unflagged**. Reading
+the validation misses: 28 of 39 wrong totals had no total line at all (OCR
+lost the word `TOTAL`), and the fallback took the largest amount on the page,
+which is usually the cash handed over; with a total line found, the total was
+right 46 times in 54. Some photos read as noise throughout; nothing in the
+text can recover those.
+
+Three changes, written looking only at validation misses, then scored once on
+test:
+
+- **Split groups joined** (`joinSplitGroups` in `receipts.mjs`): on a
+  whole-unit receipt, OCR prints `25 000`, `308. 000`, `304 ,326`; the
+  reader took `25` or `308`. A number followed by exactly three digits that
+  end it is joined; a lone `Table 12`, `100%` or `2 100,000` is left alone.
+- **Total, cash, change** (`totalCashChange`): with no total line, three
+  amount lines in a row where the second less the third is exactly the first
+  (`45,500 / 50,000 / 4,500`, the words lost) give the first as the total. On
+  a whole-unit slip amounts under 100 are left out: OCR noise (`5`, `2`, `3`)
+  closed the sum by chance 4 times in 7 before that floor.
+- **A guessed total says so** (`guessedTotal` in `photoocr.mjs`, added to
+  `settleReadings`' note): when a photo's text has no total line and the
+  total is only the largest amount, or there is none, the status line says
+  "no total line found in the photo; X is only the largest amount on it: check
+  the total".
+
+| After | Hand-corrected text | Page (both, settled) | Warned on wrong / right | Wrong with no warning |
+|---|---|---|---|---|
+| validation (tuned on) | 96 (98.0%) | 61 (62.2%), wrong 29 | 19 / 11 | 10 |
+| **test (held out)** | **92 (96.8%)** | **48 (50.5%), wrong 37** | 25 / 9 | **12** |
+
+On the held-out photos the page reads 3 more totals right (45 to 48) and, the
+part that matters for books, wrong totals shown with no warning fall from 39
+to 12; the warning also fires on 9 right totals, which a person then confirms.
+The same rules lift the hand-corrected text too (test 90 to 92, train 742 to
+749 of 779, validation tax 45 to 46; `cord-receipts.test.mjs` pins the new
+numbers) and SROIE: hand-corrected 609 to 611 of 625, tesseract.js block mode
+490 to 495, the page's settled reading 499 (79.8%) to **505 (80.8%)**. The
+"before" SROIE figures reproduce the section above exactly.
+
+Tried and not kept: upscaling the photo 2x, greyscale with autocontrast, and
+both, before OCR (Pillow, the same steps a page canvas can do), on
+validation: 46.9%, 52.0% and 52.0% in block mode against 52.0% untouched. The
+loss on these photos is not resolution or contrast that a simple filter fixes.
+
+Limits: one country's receipts (rupiah, Indonesian words), merchant names and
+dates masked in CORD so only totals and tax are scored, tesseract.js's
+English model only, and 100 held-out photos (one receipt is a point). A
+crumpled US thermal receipt photographed in poor light is still untried.
+Reproduce:
+
+```
+python3 -m venv v && v/bin/pip install pyarrow
+curl -LO https://huggingface.co/datasets/naver-clova-ix/cord-v2/resolve/7f0115a4/data/test-00000-of-00001-9c204eb3f4e11791.parquet
+v/bin/python -I eval/cord_images.py test-00000-of-00001-9c204eb3f4e11791.parquet test photos
+node eval/sroie-tesseractjs.mjs photos ocr <folder>/node_modules 4      # about 45 s per 100 photos on 4 cores
+node eval/cord-receipts.mjs eval/cord/test.jsonl --ocr ocr/psm6,ocr/psm4 --settled
+```
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200
