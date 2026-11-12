@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "buildbot-sheathing"
 version = "0.1.0"
-description = "Research programme: can a robot hang and fasten wall sheathing to code tolerance; milestone 1, panel gap and sheet placement in the joint-nail budget."
+description = "Research programme: can a robot hang and fasten wall sheathing to code tolerance; milestone 1, panel gap and sheet placement in the joint-nail budget; milestone 2, as-built stud bow and twist."
 requires-python = ">=3.9"
 dependencies = ["numpy"]
 license = { text = "MIT" }

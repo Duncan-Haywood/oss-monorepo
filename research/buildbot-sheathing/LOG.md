@@ -1,5 +1,19 @@
 # buildbot-sheathing research log
 
+## 2026-11-12 · Milestone 2 result: a bowed 2x closes the joint whatever the robot sees; a 3x or doubled joint stud with three reads gives 100% clean sheets
+
+`experiments/m2_asbuilt_studs/` (results.txt, results.json, figure.png); 20,000 sheets a cell, seed 3; about 40 s.
+
+- **H6 held.** At the Stud-grade bow limit (3/4 in over 8 ft, 17.7 mm on the stud) no sheet is feasible with the gap centred on the stud's range: the arithmetic limit is 4h = 12.5 mm (0.53 in over 8 ft). Single and two-read policies pass 25% of sheets, but only by putting all the bow on one side, which closes the neighbour's.
+- **H7 held.** At the lower published warp (bow 0.11, twist 0.08 in mean, half-normal) a single mid-height read gives 0.55 clean sheets (1.7 nails missed a sheet).
+- **H8 refuted.** Three reads and a fitted parabola give 0.80, a read at every joint nail 0.83, and perfect stud and edge knowledge 0.87. The ceiling is the window the bow leaves, against 0.9 mm of tool scatter, not the sensing: no policy reaches 95% at any read scatter (table E).
+- **H9 held.** Twist costs 1.4 points under three reads (0.818 bow only, 0.803 both); twist alone 1 point. The band shrinks on the side the nail runs toward: 0.44 mm at 1°, 1.35 mm at 3°.
+- **Unplanned, and the useful result: widen the joint, don't sense harder.** A 3x joint stud (2.5 in face) or two 2x fastened together (3.0 in), which SDPWS 4.3.7.1 names for adjoining panel edges of some shear walls, widens the window by 1/2 or 3/4 in a side; the largest closable bow becomes 37.9 or 50.6 mm, beyond the grade limit, and three or dense reads give 1.0000 clean sheets at both warp levels and both distribution shapes. Even a single read gives 0.85–1.00. Section H was added after C–F showed no sensing policy could reach 95% on single 2x joints.
+- **Culling is the expensive alternative.** On single 2x joints a framer would reject studs bowed over 1/16 in (65% of them at the low warp) to bring dense reads to 0.96 and three reads to 0.94.
+- **Lean adds to bow.** Plate layout error of 1.6 mm at each stud end takes three-read from 0.80 to 0.72.
+- **What it means for the programme.** The robot design question (H-B, H-D) should be asked on doubled or 3x joint framing, where the sheet's pose and the tool scatter set the budget again, or the robot must straighten studs. A panel line that frames its own walls can choose that cheaply; a site robot sheathing someone else's framing cannot.
+- **Inputs not sourced or seen only in snippets:** warp limits and means come from search snippets of USDA and *Wood and Fiber* reports (southern and ponderosa pine), not opened; the distribution shape is assumed (two shown); the 10D penetration is from memory; plate layout error is swept. The model takes the free-piece warp as installed; nailing may pull bowed studs partly straight.
+
 ## 2026-11-12 · Milestone 2 planned: real studs bow, twist and lean, and the sheet edge is straight
 
 Written before any milestone-2 experiment was run.
