@@ -460,6 +460,33 @@ class FeederParamsTest(unittest.TestCase):
         fast = replace(p, az_slew_s=0.25)
         self.assertTrue(any("azimuth stepper needs" in b for b in fast.check_azimuth(0.31)))
 
+    def test_azimuth_hard_stops_sized_and_rules_catch_bad_changes(self):
+        p = Feeder()
+        self.assertEqual(p.check_az_stops(), [])
+        d = p.az_stop_design(0.34)
+        # the stop lies past the working range, past the home click with the bracket slots' whole adjustment, and a
+        # tooth pitch inside the last tooth, so the pinion is in full mesh when it stalls there
+        self.assertGreater(p.az_stop_deg, d["stop_home_min_deg"])
+        self.assertLess(p.az_stop_deg, d["stop_mesh_max_deg"])
+        self.assertLess(p.az_stop_deg, d["pinion_off_deg"])
+        # pad as a linear spring, by hand: E A / t, energy 1/2 J w^2, x = sqrt(2 E / k)
+        k = p.stop_pad_e_mpa * (p.stop_pad_r[1] - p.stop_pad_r[0]) * p.stop_pad_h / p.stop_pad_t
+        self.assertAlmostEqual(d["pad_k_n_mm"], k)
+        self.assertAlmostEqual(d["pad_x_mm"], math.sqrt(2 * d["energy_j"] * 1000 / k), places=6)
+        self.assertLess(d["pad_strain"], p.stop_pad_strain)
+        # the fastest hit the pad takes is where its strain reaches the limit
+        from dataclasses import replace
+        q = replace(p, stop_hit_deg_s=d["fastest_hit_deg_s"])
+        self.assertAlmostEqual(q.az_stop_design(0.34)["pad_strain"], p.stop_pad_strain, places=6)
+        self.assertTrue(any("working range" in b for b in Feeder(az_stop_deg=31.5).check_az_stops()))
+        self.assertTrue(any("home click" in b for b in Feeder(az_stop_deg=33.0).check_az_stops()))
+        # the 8 deg of spare teeth the sector had before the stops leave under a pitch of mesh at 35 deg
+        self.assertTrue(any("mesh" in b for b in Feeder(az_sector_margin_deg=8.0).check_az_stops()))
+        self.assertTrue(any("compresses" in b for b in Feeder(stop_pad_t=3.0).check_az_stops()))
+        self.assertTrue(any("compresses" in b for b in Feeder(stop_hit_deg_s=90.0).check_az_stops()))
+        self.assertTrue(any("insert" in b for b in Feeder(insert_shear_n=80.0).check_az_stops()))
+        self.assertTrue(any("end face" in b for b in Feeder(stop_pad_r=(95.0, 109.0)).check_az_stops()))
+
     def test_azimuth_hose_torque_vanishes_straight_ahead(self):
         # the taut-hose chord lies in the plane through the turntable axis when the head is not turned
         self.assertAlmostEqual(Feeder(az_max=0.0).az_hose_torque_nm(), 0.0, places=9)
@@ -699,8 +726,39 @@ class FeederGeometryTest(unittest.TestCase):
     def test_azimuth_sweep_is_clear_and_can_fail(self):
         from otr_cad.package import azimuth_sweep
         self.assertEqual(azimuth_sweep(self.p), [])
-        # the front posts where they were until 2026-11-10: turned 30 deg nose up, the head's plates cut into them
-        self.assertTrue(any("hopper_post_front" in c for c in azimuth_sweep(Feeder(shelf_post_y=225.0))))
+        # the front posts where they were until 2026-11-12: clear at +-30 deg, but the head's plates cut into them
+        # turned to the hard stops' reach (36.4 deg) nose up 25 deg and more
+        bad = azimuth_sweep(Feeder(shelf_post_y=245.0))
+        self.assertTrue(bad and all("hopper_post_front" in c and "36.4" in c for c in bad), bad)
+
+    def test_hard_stops_meet_the_sector_ends_at_az_stop(self):
+        # the drawn sector against the drawn pads: clear just inside the stop angle, touching just past it, and at the
+        # reach (pad squeezed to its limit) still clear of the block behind the pad
+        from build123d import Axis
+        p = self.p
+        sector = next(x for x in self.parts if x.name == "az_gear_sector").placed()[0]
+        pads = next(x for x in self.parts if x.name == "az_stop_pad").placed()
+        blocks = next(x for x in self.parts if x.name == "az_stop_block").placed()
+        axis = Axis((p.head_x, 0, 0), (0, 0, 1))
+        for side, pad in ((1, pads[0]), (-1, pads[1])):
+            self.assertLess((sector.rotate(axis, side * (p.az_stop_deg - 0.05)) & pad).volume, 1e-6, side)
+            self.assertGreater((sector.rotate(axis, side * (p.az_stop_deg + 0.05)) & pad).volume, 1.0, side)
+            s = sector.rotate(axis, side * p.az_reach_deg)
+            for b in blocks:
+                self.assertLess((s & b).volume, 1e-6, side)
+            self.assertLess((sector.rotate(axis, side * p.az_max) & pad).volume, 1e-6, side)
+        # the blocks' inserts sit over holes in the mast plate
+        mast = next(x for x in self.parts if x.name == "mast_plate")
+        holes = [(e.arc_center.X, e.arc_center.Y) for e in mast.flat.edges()
+                 if e.geom_type == GeomType.CIRCLE and abs(e.radius - 2.2) < 1e-6]
+        for x, y in self.F._stop_holes(p):
+            self.assertTrue(any(math.hypot(x - hx, y - hy) < 0.01 for hx, hy in holes), (x, y))
+        # both ends of the sector are radial faces (until 2026-11-12 the low end's inner corner fell 3.3 deg short)
+        prof = self.F.az_gear_profile(p)
+        lo, hi = p.az_sector_ends_deg()
+        angs = sorted(math.degrees(math.atan2(y, x)) for x, y in prof)
+        self.assertAlmostEqual(angs[0], lo, places=6)
+        self.assertAlmostEqual(angs[-1], hi, places=6)
 
     def test_turning_inertia_from_the_cad(self):
         j0, m0 = self.F.turning_inertia(self.p, 0.0)
@@ -778,7 +836,9 @@ class FeederGeometryTest(unittest.TestCase):
     def test_home_switch_rules_catch_bad_changes(self):
         self.assertEqual(self.p.check_home_switch(), [])
         self.assertTrue(any("working range" in b for b in Feeder(az_home_deg=-30.5).check_home_switch()))
-        self.assertTrue(any("pinion runs off" in b for b in Feeder(az_home_deg=-37.0).check_home_switch()))
+        self.assertTrue(any("pinion runs off" in b for b in Feeder(az_home_deg=-39.0).check_home_switch()))
+        # a home past the hard stop could never be reached
+        self.assertTrue(any("home click" in b for b in Feeder(az_home_deg=-34.5).check_az_stops()))
         self.assertTrue(any("usable travel" in b for b in Feeder(home_sw_overtravel_mm=0.4).check_home_switch()))
         self.assertTrue(any("bearing" in b for b in Feeder(home_sw_lever_mm=8.0).check_home_switch()))
         h = self.p.home_switch_design()
