@@ -1,12 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { newDesign, applyOp } from "./design.mjs";
 import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
 import { economics, quantityBreaks } from "./costing.mjs";
 
 const read = f => readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html", "sunglasses.html", "wardrobe.html", "fit.html", "quotes.html", "labels.html", "prices.html", "preorder.html", "duty.html", "import-duty-on-clothing.html", "clothing-minimum-order-quantity.html", "sunglasses-profit-margin.html", "wholesale.html", "reorder.html", "orderlines.html", "returns.html", "cashflow.html", "tna.html", "salestax.html", "eutax.html", "discount.html", "bundle.html", "spec.html", "timeline.html", "tiers.html", "startup.html", "testing.html", "launch.html", "adspend.html", "colour.html", "artwork.html"];
+// Every page in the folder: a hand-kept list had reached 33 of 52 pages by
+// 2026-11-12, and eight of the unlisted pages had lost the sponsor link or JSON-LD.
+const PAGES = readdirSync(new URL("./", import.meta.url)).filter((f) => f.endsWith(".html")).sort();
 
 test("every page carries the no-warranty clause, a sponsor link and its own title and description", () => {
   for (const f of PAGES) {
@@ -56,7 +58,7 @@ test("llms.txt and sitemap list every page", () => {
   const llms = read("llms.txt");
   const sitemap = read("sitemap.xml");
   assert.match(llms, /\d{4}-\d{2}-\d{2}/);
-  for (const f of PAGES.slice(1)) {
+  for (const f of PAGES.filter((f) => f !== "index.html")) {
     assert.ok(llms.includes(f), f);
     assert.ok(sitemap.includes(f), f);
   }
