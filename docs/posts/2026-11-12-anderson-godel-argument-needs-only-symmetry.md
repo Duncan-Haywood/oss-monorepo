@@ -1,9 +1,9 @@
 ---
 title: "Anderson's ontological argument needs symmetry, not S5"
-seo_title: "Anderson's Gödel argument: the B axiom is the only modal premise it uses"
+seo_title: "Anderson's Gödel argument: the B axiom is its only modal premise"
 date: 2026-11-12
 tags: [research, theism-formal-evidence]
-description: "Checked against the Isabelle AFP proof: Anderson's version of Gödel's argument holds in every symmetric frame and fails in S4, in 96,036 of 136,466 finite models."
+description: "Checked against the Isabelle AFP proof: Anderson's Gödel argument holds in every symmetric frame and fails in S4, in 96,036 of 136,466 models."
 ---
 
 C. Anthony Anderson's 1990 emendation of Gödel's ontological argument is usually stated in S5,
