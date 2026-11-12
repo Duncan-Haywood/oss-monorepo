@@ -1,5 +1,55 @@
 # buildbot-sheathing research log
 
+## 2026-11-12 · Milestone 5 planned: the whole cycle, in seconds per sheet and clean sheets
+
+Written before any milestone-5 experiment was run.
+
+- **Why.** Milestones 1 to 4 each scored one stage (gap and pose, as-built studs, ledger and
+  humanoid, tack-then-measure) on the clean-sheet rate, and `buildbot-mobilebase`,
+  `buildbot-nailseq` and `buildbot-custom` timed the nailing alone. Nobody has put the stages in
+  one cycle and asked what a sheet costs in seconds once placement, sensing, recoil and the rework
+  of missed nails are all charged, and which design choice moves that number.
+- **Pipeline.** Steady state along a row: a lift (or a person) stands the sheet on a laser-set
+  ledger and the robot slides it to its stud line and presses lightly, so it seats (milestone 3);
+  two tacks freeze it; the robot reads each new stud (three a sheet, the left joint stud is shared
+  with the last sheet) and both sheet edges, then nails the 62 nails with edge aim (milestones 1
+  and 4). Clean sheets come from milestone 4's model (`tack.simulate`) with milestone 3's tilt
+  draw (laser rating, 0.5 mm a corner of ledger error, PS 2 panels uniform within the limits) and
+  a translation left after the slide, s_x 1 and 3 mm. A second placement, *lift-tack*, has no
+  ledger: the lift hangs the sheet to σθ 0.25° and σx 5 mm and tacks it.
+- **Choices compared.** Joint framing (single 2x; two 2x fastened, 3.0 in); sensing (single,
+  three, dense reads a stud); recoil (none; fire without waiting at 4 N s, which leaves at most
+  0.37 mm at the next nail in `buildbot-nailseq`, added in quadrature to the 0.9 mm tool scatter
+  as a conservative Gaussian; wait, which costs 2.4 s a sheet on a fast arm and 0 on a slow one).
+  Stud warp: the lower published means (0.11 in bow, 0.08 in twist), the higher (0.21, 0.16) as a
+  check.
+- **Seconds.** Nailing with moves and re-stancing from `buildbot-mobilebase` (54 s fast, 121 s
+  slow, both with a 2 s settle); place and slide 15, 30, 60 s; ledger set-up 0, 10, 20 s a sheet;
+  a read (stud or edge) 1 or 3 s including the move; rework 15, 30, 60 s per missed nail (find
+  it, drive one beside it); the extra joint stud of doubled framing 0, 60, 120 s a sheet, with
+  its break-even reported. **None of these times is sourced except the nailing**, which is itself
+  a model with swept speeds; they are swept and the ranking is what is scored.
+- **H22 (single 2x has no 95% pipeline).** On single-2x joints at the lower warp with a ledger
+  seat, no sensing policy reaches 95% first-pass clean sheets (milestone 2: perfect sensing
+  0.87 with a perfect hang). Refuted if any reaches 0.95.
+- **H23 (doubled joints let the robot read less).** On two 2x at the lower warp with a ledger
+  seat, a single read a stud gives at least 95% clean sheets. Refuted below 0.95.
+- **H24 (sensing choice follows framing).** Ranking by seconds per sheet including rework, a
+  single read is fastest on doubled joints, and three or dense reads are fastest on single 2x
+  once rework costs 30 s or more, each in at least 90% of the swept time cells. Refuted otherwise.
+- **H25 (the extra stud pays).** At rework 30 s, the doubled-joint pipeline's best seconds per
+  sheet beat single 2x's best by at least 20 s before the extra stud is charged, so framing it may
+  take 20 s or more and still win, in every place, read and nailing setting. Refuted if the
+  break-even is under 20 s in any of them.
+- **H26 (recoil stays out of the budget).** Firing without waiting at 4 N s costs under 2 points
+  of clean sheets in every pipeline.
+- **H27 (the nailing dominates).** In the doubled-joint single-read pipeline, nailing (with moves
+  and settles) is the largest share of the sheet's seconds in every swept cell. Refuted if place,
+  sensing or rework is larger in any.
+- **Also reported, not scored:** the time per sheet set beside the 61 s gantry of
+  `buildbot-custom` and the taskbook's 372 s of hand nailing (both nailing only); the share of the
+  cycle by stage; the lift-tack placement; the higher warp.
+
 ## 2026-11-12 · Milestone 3 (second part) result: a stock G1 or H1 can press and let the ledger seat the sheet, but neither can carry it there
 
 `experiments/m3b_humanoid/` (results.txt, results.json, figure.png); deterministic, about 6 min.
