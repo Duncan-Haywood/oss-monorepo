@@ -1,0 +1,32 @@
+cell-fidelity milestone 3 (theory, part 2a): an average-case noise model of screen-then-verify cost
+benchmark: 128 Sobol designs; target DFN@100; tau = 0.01; pools: 30 of 64 (milestone 4's)
+residual e = f - (a s + b), least squares over the 128; G: Gaussian e, sigma = RMS(e) (exact E[R] by quadrature);
+B: e resampled from the cell's own 128 residuals independently of the design (2000 draws a pool)
+
+A. per screen cell, pools of 64: observed mean R against the two independent-noise models
+cell        sigma  sig_q sig_rob rho(e,f)  R obs    R G  G/obs  R G_q R G_rob    R B  B/obs
+SPM@2        7.39   6.78    4.64    +0.50   6.57   3.25   0.50   2.94    1.94   2.93   0.45
+SPM@10       7.13   6.73    5.19    +0.49   3.80   3.12   0.82   2.91    2.17   2.79   0.73
+SPM@30       6.76   6.75    5.59    +0.50   3.87   2.93   0.76   2.92    2.36   2.57   0.67
+SPM@100      6.88   6.74    5.39    +0.48   3.73   2.99   0.80   2.92    2.26   2.67   0.72
+SPMe@2      20.28   5.67   19.70    +0.96   3.23  10.01   3.10   2.39    9.74   9.97   3.08
+SPMe@10     20.39   5.59   20.65    +0.96   1.00  10.06  10.06   2.36   10.19  10.08  10.08
+SPMe@30     20.70   6.32   21.87    +0.96   9.67  10.21   1.06   2.71   10.75  10.37   1.07
+SPMe@100    20.98   7.21   23.25    +0.97  14.03  10.34   0.74   3.16   11.36  10.42   0.74
+DFN@2        7.14   3.43    5.39    +0.41   2.90   3.12   1.08   1.51    2.26   2.88   0.99
+DFN@10       5.62   2.61    4.96    +0.27   1.07   2.37   2.22   1.31    2.08   2.38   2.23
+DFN@30       3.88   2.15    3.47    +0.19   1.00   1.66   1.66   1.22    1.53   1.69   1.69
+
+B. hypotheses
+H15 model G over 11 cells: Spearman(E[R], observed mean R) 0.510, within a factor of 2 on 7 of 11 -> refuted
+    extras (no verdict): Gq Spearman 0.861, within 2x 7 of 11; Grob Spearman 0.410, within 2x 8 of 11; B Spearman 0.510, within 2x 7 of 11
+H17 model B / observed mean R: SPMe@100 0.74; SPM@100 and DFN cells all within 2x: False (SPM@100 0.72, DFN@2 0.99, DFN@10 2.23, DFN@30 1.69) -> refuted
+
+C. H16: predicted median T1 = N c_s + c_h median R (R simulated under G on 2000 pools of N from the 128) against GP-EI's observed median T1
+screen        N=16 pred s/obs s    N=32 pred s/obs s    N=64 pred s/obs s    N=96 pred s/obs s
+SPM@2            30/   54   W/W       60/   96   W/W       70/  168   W/W       81/  240   W/L
+SPM@100          41/   66   W/W       58/   95   W/W      117/  153   W/W      150/  199   W/W
+DFN@2            46/   46   W/W       68/   68   W/W      135/  160   W/W      178/  252   W/L
+DFN@10           82/   82   W/W      139/  139   W/W      253/  253   L/L      392/  368   L/L
+GP-EI observed median T1: N=16 147 s, N=32 196 s, N=64 220 s, N=96 220 s
+H16 calls right: 14 of 16 (against H14's fixed 220.4 s: 14 of 16); median |pred - obs| / obs 0.24 -> supported
