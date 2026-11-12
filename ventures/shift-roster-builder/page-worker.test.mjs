@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { handle } from "./roster-worker.mjs";
+import { handle, handlePlan } from "./roster-worker.mjs";
 import * as calc from "./calc.mjs";
 
 const src = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
@@ -60,4 +60,28 @@ test("the page builds in the worker, falls back to this thread, can stop a build
   const run = html.slice(html.indexOf("async function run()"), html.indexOf("function download("));
   assert.match(run, /\$\("#prove"\)\.value === "0" \? \{ exact: false \}/);
   assert.doesNotMatch(run, /buildRoster\(/, "the main build must go through buildInBackground");
+});
+
+test("the planner in the worker gives the same plan as a direct call, posts one progress message per week, and survives a clone", () => {
+  const opts = { weeks: 3, weekStart: "2026-11-02", toughBalance: 60, exact: false };
+  const direct = calc.planWeeks(calc.sampleStaff(), calc.sampleShifts(), opts);
+  const progress = [];
+  const out = handlePlan({ id: 4, kind: "plan", staffText: calc.sampleStaff(), shiftsText: calc.sampleShifts(), options: opts }, (m) => progress.push(m));
+  assert.equal(out.id, 4);
+  assert.deepEqual(progress, [1, 2, 3].map((done) => ({ id: 4, progress: { done, of: 3 } })));
+  const untimed = (p) => JSON.stringify({ ...p, weeks: p.weeks.map((w) => ({ ...w, roster: { ...w.roster, timings: undefined } })) });
+  const copy = structuredClone(out.plan);
+  assert.equal(untimed(copy), untimed(direct));
+  assert.equal(JSON.stringify(calc.planFairness(copy)), JSON.stringify(calc.planFairness(direct)));
+  assert.equal(calc.planWeeks(calc.sampleStaff(), calc.sampleShifts(), { ...opts, onWeek: "not a function" }).weeks.length, 3);
+  assert.match(handlePlan({ id: 1, staffText: "", shiftsText: "nonsense line" }).plan.error, /./);
+});
+
+test("the page plans weeks in the worker with its own Stop, not on the main thread", () => {
+  const html = src("index.html");
+  assert.match(html, /id="plan-stop"[^>]*hidden/);
+  const click = html.slice(html.indexOf('$("#plan-weeks").addEventListener'), html.indexOf('record("plan_weeks")'));
+  assert.match(click, /await planInBackground\(/);
+  assert.doesNotMatch(click, /planWeeks\(/, "the planner must go through planInBackground");
+  assert.match(html, /kind: "plan", staffText, shiftsText, options/);
 });
