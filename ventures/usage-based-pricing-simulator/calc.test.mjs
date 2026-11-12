@@ -101,3 +101,9 @@ test("sample scenario is valid and CSV has a header and the growth rows", () => 
   assert.match(csv[0], /^metric,"Flat \+ overage"/);
   assert.ok(csv.some((l) => l.startsWith("revenue_at_2x_usage")));
 });
+
+test("thousands commas are one usage figure, not two (red team 2026-11-12)", () => {
+  assert.deepEqual(parseUsageList("1,200 $3,400\n12,500").usage, [1200, 3400, 12500]);
+  assert.deepEqual(parseUsageList("1200,3400").usage, [1200, 3400]);
+  assert.equal(parseUsageList("1,000,2,000").bad, 2);
+});

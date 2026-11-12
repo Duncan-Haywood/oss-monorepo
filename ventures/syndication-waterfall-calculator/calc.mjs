@@ -18,16 +18,29 @@ const r2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 const nn = (n) => (Number.isFinite(Number(n)) ? Number(n) : 0);
 const pos = (n) => Math.max(0, nn(n));
 
-// "120000, 130000, 1800000" or one per line; $ and thousands commas inside a
-// number are not supported on a single line, so commas separate values.
+// "120000, 130000, 1800000", "$120,000 $130,000" or one per line.
+// "1,200" is one amount; "1200,3400" is a list. A comma part that only makes sense as a
+// thousands group ("1,000,2,000" -> "000") is kept as a bad token, not read as zero.
+const GROUPED = /^[$]?\d{1,3}(,\d{3})+(\.\d+)?$/;
+function amountTokens(text) {
+  const out = [];
+  for (const raw of String(text || "").split(/[\s;]+/)) {
+    const tok = raw.replace(/^,+|,+$/g, "");
+    if (!tok) continue;
+    if (GROUPED.test(tok)) { out.push(tok.replace(/,/g, "")); continue; }
+    for (const part of tok.split(",")) out.push(/^[$]?0\d/.test(part) || part === "" ? `${part}?` : part);
+  }
+  return out;
+}
+
 export function parseCashFlows(text) {
   const out = [];
   const bad = [];
-  for (const tok of String(text || "").split(/[\s,;]+/)) {
+  for (const tok of amountTokens(text)) {
     if (!tok) continue;
     const v = Number(tok.replace(/[$_]/g, ""));
     if (Number.isFinite(v) && v >= 0) out.push(v);
-    else bad.push(tok);
+    else bad.push(tok.replace(/\?$/, ""));
   }
   return { flows: out, bad };
 }

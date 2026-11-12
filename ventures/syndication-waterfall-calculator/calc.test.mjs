@@ -75,3 +75,10 @@ test("formatting helpers", () => {
   assert.equal(pct(0.1234), "12.34%");
   assert.equal(pct(null), "n/a");
 });
+
+test("thousands commas are one cash flow, not three (red team 2026-11-12)", () => {
+  assert.deepEqual(parseCashFlows("120,000 130,000\n$1,800,000").flows, [120000, 130000, 1800000]);
+  assert.deepEqual(parseCashFlows("120000,130000, 1800000").flows, [120000, 130000, 1800000]);
+  const p = parseCashFlows("1,000,2,000");
+  assert.deepEqual(p.bad, ["000", "000"]);
+});
