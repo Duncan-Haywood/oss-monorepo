@@ -1,0 +1,405 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKnBVynCZYgaUbQ5ufG",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T17:11:02Z",
+  "ended": "2026-11-12T17:13:34Z",
+  "wall_minutes": 21.52,
+  "tokens_in": 9355004,
+  "tokens_out": 38971,
+  "cost_usd": 3.6553,
+  "tool_calls": 87,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15199",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "node --test over all platform/distribution tests timed out at 300 s (ios.test.mjs alone runs >90 s); timed each file separately instead",
+    "first post description was 218 chars; hub.test.mjs/loadPost rejects >160",
+    "tag spelled red-team; check_post_frontmatter wants redteam"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "The open-list entry for einvoice cli.py framed it as Python-vs-JS parity, but the JS default path had the same false findings; reproducing both paths first changed the fix."
+    },
+    {
+      "file": "platform/distribution/",
+      "issue": "Adding a *-check venture needs ghaction/nixflake/precommit --write and chmod +x; nothing in the venture checklist says so and no PR CI caught it (PR #15201)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 leaves control-plane entries (4 of 6) for their own PRs; I fixed the one non-control-plane entry and opened one new control-plane PR rather than four.",
+      "did": "Fixed einvoice cli.py entry; opened PR #15201 for distribution tests only",
+      "result": "one control-plane PR awaiting owner"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-pint-invoices-judged-by-eu-rules.md"
+  ],
+  "goal": null,
+  "notes": "Targets: platform/ci/check_social_proof.py (6/8 -> 8/8 after two window-boundary tests; NEAR read from the module adapted to the mutant, so the test pins the documented 120), platform/ci/check_input_bounds.py (8/8). Real defects: einvoice PINT drops only beside official rules (JS default path + Python CLI), patched with ownProfileDrops()/own_profile.py and a JS-parity test that runs report.mjs via node; systemd-unit-hardening-check missing from 3 generated distribution files (red on main), patched; 15 unrun distribution test files, PR #15201 (control plane). Guard added: tests/test_own_profile.py JsParityTest compares the profile table and drop list across languages. Local: run_venture_tests einvoice-preflight ok (12.9 s incl. Python); distribution tests each pass individually except ios (slow, >90 s); writing.test, hub tests, check_post_frontmatter ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_social_proof.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_social_proof  (in platform/ci)",
+        "seed": 1001584624,
+        "commit": "6f674216a",
+        "sites": 23,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 39,
+            "col": 53,
+            "operator": "or-to-and",
+            "before": "return any(k in lowered for k in PREFILTER_KEYS) or SLASH5.search(lowered) is not None",
+            "after": "return any(k in lowered for k in PREFILTER_KEYS) and SLASH5.search(lowered) is not None",
+            "line_text": "    return any(k in lowered for k in PREFILTER_KEYS) or SLASH5.search(lowered) is not None",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 48,
+            "col": 7,
+            "operator": "const-plus-one",
+            "before": "NEAR = 120",
+            "after": "NEAR = 121",
+            "line_text": "NEAR = 120",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test_attribution_window_reaches_exactly_near_chars_before / test_attribution_far_before_the_claim_does_not_excuse_it: the window was only tested after the claim"
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 66,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "for i, line in enumerate(text.splitlines(), 1):",
+            "after": "for i, line in enumerate(text.splitlines(), 2):",
+            "line_text": "    for i, line in enumerate(text.splitlines(), 1):",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 70,
+            "col": 44,
+            "operator": "max-to-min",
+            "before": "if m and not ATTRIBUTED.search(line[max(0, m.start() - NEAR):m.end() + NEAR]):",
+            "after": "if m and not ATTRIBUTED.search(line[min(0, m.start() - NEAR):m.end() + NEAR]):",
+            "line_text": "        if m and not ATTRIBUTED.search(line[max(0, m.start() - NEAR):m.end() + NEAR]):",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test_attribution_window_reaches_exactly_near_chars_before / test_attribution_far_before_the_claim_does_not_excuse_it: the window was only tested after the claim"
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 70,
+            "col": 61,
+            "operator": "minus-to-plus",
+            "before": "if m and not ATTRIBUTED.search(line[max(0, m.start() - NEAR):m.end() + NEAR]):",
+            "after": "if m and not ATTRIBUTED.search(line[max(0, m.start() + NEAR):m.end() + NEAR]):",
+            "line_text": "        if m and not ATTRIBUTED.search(line[max(0, m.start() - NEAR):m.end() + NEAR]):",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 71,
+            "col": 32,
+            "operator": "max-to-min",
+            "before": "out.append((i, line[max(0, m.start() - 40):m.end() + 40].strip()))",
+            "after": "out.append((i, line[min(0, m.start() - 40):m.end() + 40].strip()))",
+            "line_text": "            out.append((i, line[max(0, m.start() - 40):m.end() + 40].strip()))",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 71,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "out.append((i, line[max(0, m.start() - 40):m.end() + 40].strip()))",
+            "after": "out.append((i, line[max(0, m.start() - 40):m.end() + 41].strip()))",
+            "line_text": "            out.append((i, line[max(0, m.start() - 40):m.end() + 40].strip()))",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 88,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "n += 1",
+            "after": "n += 2",
+            "line_text": "        n += 1",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/check_input_bounds.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_input_bounds  (in platform/ci)",
+        "seed": 238855024,
+        "commit": "6f674216a",
+        "sites": 23,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 96,
+            "col": 39,
+            "operator": "or-to-and",
+            "before": "name.lower(): double or single or bare",
+            "after": "name.lower(): double or single and bare",
+            "line_text": "        name.lower(): double or single or bare",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 154,
+            "col": 76,
+            "operator": "lt-to-le",
+            "before": "too_low = declared_min <= limit if op == \"<=\" else declared_min < limit",
+            "after": "too_low = declared_min <= limit if op == \"<=\" else declared_min <= limit",
+            "line_text": "            too_low = declared_min <= limit if op == \"<=\" else declared_min < limit",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 182,
+            "col": 31,
+            "operator": "div-to-times",
+            "before": "todo.extend(mod.parent / m for m in IMPORT_RE.findall(text))",
+            "after": "todo.extend(mod.parent * m for m in IMPORT_RE.findall(text))",
+            "line_text": "        todo.extend(mod.parent / m for m in IMPORT_RE.findall(text))",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 210,
+            "col": 25,
+            "operator": "or-to-and",
+            "before": "if not field or field not in bounds:",
+            "after": "if not field and field not in bounds:",
+            "line_text": "            if not field or field not in bounds:",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 214,
+            "col": 43,
+            "operator": "times-to-div",
+            "before": "field_bounds = [(op, limit * 100) for op, limit in field_bounds]",
+            "after": "field_bounds = [(op, limit / 100) for op, limit in field_bounds]",
+            "line_text": "                field_bounds = [(op, limit * 100) for op, limit in field_bounds]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 214,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "field_bounds = [(op, limit * 100) for op, limit in field_bounds]",
+            "after": "field_bounds = [(op, limit * 101) for op, limit in field_bounds]",
+            "line_text": "                field_bounds = [(op, limit * 100) for op, limit in field_bounds]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 229,
+            "col": 38,
+            "operator": "gt-to-ge",
+            "before": "root = Path(argv[1]) if len(argv) > 1 else Path(\"ventures\")",
+            "after": "root = Path(argv[1]) if len(argv) >= 1 else Path(\"ventures\")",
+            "line_text": "    root = Path(argv[1]) if len(argv) > 1 else Path(\"ventures\")",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 251,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 0",
+            "after": "return 1",
+            "line_text": "    return 0",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/report.mjs",
+        "issue": "The EU-only INV-0xx drops for PINT/ZATCA files ran only when the official rules ran, so the default check (no --schematron, or no plain rule files) flagged our PINT JP example with INV-022/INV-035 and SG/A-NZ ones with INV-024. Fixed: ownProfileDrops() applied from matchingProfile() on BT-24 in every path; test in pint-current.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15199"
+      },
+      {
+        "file": "platform/distribution/actions/systemd-unit-hardening-check",
+        "issue": "ventures/systemd-unit-hardening-check landed without its generated GitHub Action, flake.nix package or .pre-commit-hooks.yaml hook, and check.py was not executable: ghaction, nixflake and precommit tests all red on main. Regenerated with ghaction.mjs/nixflake.mjs/precommit.mjs --write and chmod +x.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15199"
+      },
+      {
+        "file": ".github/workflows/distribution-versions-ci.yml",
+        "issue": "15 of 28 platform/distribution/*.test.mjs run in no PR workflow (ghaction, nixflake, precommit, desktop, mcp, vscode, webext, android, attribution, bluesky, citation, devto, hashnode, mastodon, setup, wordpress, ios), which is how three of them went red on main unseen. Fix: add all but ios.test.mjs (its catalogue-wide plan test takes >90 s; give it its own step with a timeout) to the 'Publisher unit tests' step, and add ventures/** paths the generators read. Control plane, own PR, owner approval. Opened as PR #15201.",
+        "patched": false
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "27c22652-00d5-56e8-bc9b-e1610a4b3b5f",
+    "transcripts": 1,
+    "first": "2026-11-12T17:11:02Z",
+    "last": "2026-11-12T17:32:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 160,
+        "output": 38971,
+        "thinking": 8586,
+        "cache_read": 9226089,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128755,
+        "api_equivalent_usd": 3.6553,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 160,
+      "output": 38971,
+      "thinking": 8586,
+      "cache_read": 9226089,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128755,
+      "api_equivalent_usd": 3.6553,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 82,
+      "mcp__github__create_pull_request": 2,
+      "Edit": 1,
+      "Write": 1,
+      "ToolSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.52,
+      "active_minutes": 21.52,
+      "model_minutes": 9.04,
+      "tool_minutes": 12.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: reproduce PINT findings in two languages, port + parity test, find and regenerate 3 stale distribution files, CI PR",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 164.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
