@@ -14,6 +14,7 @@ import { inspectCommercialReferences } from "./reference.mjs";
 import { inspectPaymentRemittance } from "./remittance.mjs";
 import { inspectTaxExemption } from "./tax.mjs";
 import { inspectAccountingCurrencyTax } from "./taxcurrency.mjs";
+import { inspectLineExtension } from "./lineext.mjs";
 import { inspectPaymentTerms } from "./terms.mjs";
 import { inspectPartyVat } from "./vat.mjs";
 import { acceptedLineNet, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
@@ -154,6 +155,9 @@ export function checkInvoice(invoice) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   for (const finding of inspectAccountingCurrencyTax(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectLineExtension(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   // Factur-X / ZUGFeRD MINIMUM and BASIC WL carry totals and no lines, by design.

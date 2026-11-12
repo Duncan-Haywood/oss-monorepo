@@ -42,6 +42,11 @@ test("call-out week with Cleo off Saturday: coverage proven at 3 h open (2 h flo
   assert.equal(on.unfilledHours, 3);
   assert.equal(on.optimality.forcedOpenHours, 3);
   assert.equal(on.optimality.coverageProven, true);
+  // And the pay part (README "The open-hours row in the score LP"): with the 3 h floor as a row of the whole-score LP the roster is
+  // proven, where it ended "bounded", $647 short, before the row.
+  assert.ok(["optimal", "improved"].includes(on.optimality.status), on.optimality.status);
+  assert.equal(on.optimality.openRow?.openFloor, 3);
+  assert.equal(on.optimality.openRow?.proven, true);
   const off = buildRoster(staff, slots, { exactMs: 1500, openSums: false });
   assert.equal(off.unfilledHours, 3);
   assert.equal(off.optimality.coverageProven, false);

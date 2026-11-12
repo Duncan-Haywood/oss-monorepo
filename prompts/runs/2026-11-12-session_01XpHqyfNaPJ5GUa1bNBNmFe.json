@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyfNaPJ5GUa1bNBNmFe",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T17:38:50Z",
+  "ended": "2026-11-12T17:52:39Z",
+  "wall_minutes": 14.3,
+  "tokens_in": 7415920,
+  "tokens_out": 39744,
+  "cost_usd": 3.3408,
+  "tool_calls": 63,
+  "task": "Flagship 6 (shift-roster-builder): the knapsack row (open hours at least the lifted floor) in bnp.mjs's master LP, then re-measure the benches",
+  "projects": [
+    "ventures/shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15205",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First version started the open-hours row with an artificial in the basis; the start was infeasible (1 - total/F < 0) and solveLP stopped at once with a bound of 0. Fixed by starting the surplus column basic.",
+    "First wiring compared the floor against max(cg.floor, exact search root bound), which already exceeded 100,000 x floor, so the row never ran; compared against the column generation's own floor instead.",
+    "Post front matter: description 178 chars and seo_title 73 chars failed check_post_frontmatter.py in venture-preflight; shortened."
+  ],
+  "integrity_issues": [
+    "keep-shifts.test.mjs read b.bound from scoreBoundByColumnGeneration, which returns floor, so its 'bound stays below the brute-force best' assertion never ran (Number.isFinite(undefined) is false). Fixed to read floor; passes."
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to wait with Monitor for conditions, but a foreground until-loop with sleep inside one Bash call worked fine and is simpler; the 'sleep N; cat' form is blocked by a hook, which cost one call."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The flagship's next: said 'then re-measure the 20-60 person benches'. Those weeks are above 60 copies, where the exact search (the source of the proven floor) is skipped, so the row cannot fire there by construction.",
+      "did": "Re-measured the 6-15 person benches and templates (where the row could fire) instead, and recorded the 20-60 item as the next step (a coverage-only floor for big weeks).",
+      "result": "Same rosters and scores on all 19 weeks; the row never ran there because the first pass already proves them. Stated in the README."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-shift-roster-three-eighths-of-a-shift.md",
+    "ventures/shift-roster-builder/README.md (The open-hours row in the score LP)"
+  ],
+  "goal": null,
+  "notes": "solveLP generalised to weighted columns (vals); columnGenerationOpen takes openFloor and adds the scaled knapsack row with a surplus column; exactSearch calls back with its final open-hours floor before its score tree and buildRoster reruns score CG with the row. Cleo/Eli spare-part-timer call-out weeks: bounded ($647/$549 short, ~27 s) -> proven in 19.6 s; call-out study 59/59 proven (was 57/59), same coverage figures (eval/callout-cover-study.out.txt). auto-exact 6-15 person benches + templates: identical scores (eval/auto-exact-open-row.out.txt). Full venture suite: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (215.1 s). open-row.test.mjs: 399 brute-force weeks, bound never above best. venture-preflight: clean (after the post front-matter fix).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "92b5ee7a-c498-5816-be48-c7e0ab1ccf77",
+    "transcripts": 1,
+    "first": "2026-11-12T17:38:50Z",
+    "last": "2026-11-12T17:53:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 117,
+        "output": 39744,
+        "thinking": 13063,
+        "cache_read": 7279606,
+        "cache_write_5m": 0,
+        "cache_write_1h": 136197,
+        "api_equivalent_usd": 3.3408,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 117,
+      "output": 39744,
+      "thinking": 13063,
+      "cache_read": 7279606,
+      "cache_write_5m": 0,
+      "cache_write_1h": 136197,
+      "api_equivalent_usd": 3.3408,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.3,
+      "active_minutes": 14.3,
+      "model_minutes": 6.55,
+      "tool_minutes": 7.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an OR engineer generalising a revised simplex to weighted rows, wiring and brute-force testing it, and re-running two studies",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 179.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

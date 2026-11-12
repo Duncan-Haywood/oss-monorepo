@@ -275,6 +275,26 @@ def test_e17_fitting_matches_prediction():
     assert ex["de_re_fail_A4"]["partition"] == [0, 0]
 
 
+
+def test_e18_afp_fitting_claims_reproduce():
+    """Every AFP FittingProof theorem holds and every Nitpick claim has a countermodel (small sizes)."""
+    e18 = _load("e18_afp_crosscheck")
+    recs, _ = e18.run([(1, 2, False), (2, 1, False), (2, 2, False), (2, 3, False), (3, 1, False)])
+    afp = {n: rep for n, _, _, rep in e18.MODEL_STATEMENTS + e18.GLOBAL_STATEMENTS}
+    for (name, stage, logic, sem), r in recs.items():
+        if sem != "all" or stage == "III-noA4" or name not in afp:
+            continue
+        if afp[name] == "proved":
+            assert r["fail"] == 0, (name, stage, logic)
+    k = lambda n, s, l="K": recs[(n, s, l, "all")]
+    assert k("T3_deDicto", "I")["smallest"][:2] == [2, 2]
+    assert k("modal collapse", "III", "S5")["smallest"][:2] == [2, 1]
+    assert k("T1b", "I")["fail"] > 0
+    # without A4 (B&F 2020 Fig. 6): de re survives in K, de dicto does not; both survive in S5
+    assert k("GodNecExists_v2 (de re)", "III-noA4")["fail"] == 0
+    assert k("GodNecExists_v1 (de dicto)", "III-noA4")["fail"] > 0
+    assert k("GodNecExists_v1 (de dicto)", "III-noA4", "S5")["fail"] == 0
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

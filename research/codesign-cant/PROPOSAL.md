@@ -92,6 +92,10 @@ side-force costs, with intervals, on two simulators and measured component data.
   counter-torque makes the side force oppose the drag (force on/off 0.96×). Refuted, at 1.21×, where the centre of pressure
   flips that sign (post-hoc re-scoring, no retraining). Cant still wins the composite in both cases (4 of 6 and 6 of 6
   seeds). The sign of the centre-of-pressure lever decides H3.
+  Milestone 6b evidence (retrained under a rigid centre-of-pressure offset, which has opposite roll and pitch signs): the side
+  force hurts one horizontal axis (late-window position 1.9–3.4× the other axis) and helps the other, whichever side the centre
+  of pressure is on. Median on/off 1.03× in both geometries; mean 1.14× and 1.26×, carried by one seed per geometry with rare
+  divergences. H3 holds for the typical design and fails on the tail; cant still wins the composite (5 of 6 and 6 of 6).
 - H4. A stronger attitude law (INDI or geometric control) narrows but does not remove the cant
   advantage. Refuted if INDI without cant matches PID with cant.
   Milestone 4 evidence (10 seeds, polytope mixer, 0.3° per 100 W): INDI narrows the advantage from 5.27° to
@@ -132,7 +136,7 @@ hover-held, free collective), side force on or off, κ percentile.
 3. Motor catalogue data (mass, max thrust with the chosen propeller, price) replacing the fits.
 4. INDI and geometric attitude baselines; 10 seeds per arm (done 2026-11-12: H4 supported; `LOG.md`).
 5. RotorPy (or equivalent) with canted rotors; re-score the top designs; H5.
-6. Position hold with the corrected side force and longer wind-step episodes; H3 (done 2026-11-12: depends on the centre-of-pressure sign; `LOG.md`).
+6. Position hold with the corrected side force and longer wind-step episodes; H3 (done 2026-11-12: depends on the centre-of-pressure sign; 6b, same day: a rigid frame is hurt on one axis and helped on the other; `LOG.md`).
 7. Paper draft in `paper/` (RA-L format, 6 to 8 pages) with one command per figure.
 8. Owner steps: print canted motor mounts at 0° and the co-designed angle for one frame; measure
    yaw step response and side force on a load cell.

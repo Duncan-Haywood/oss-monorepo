@@ -19,6 +19,7 @@ from .reference import inspect_commercial_references
 from .remittance import inspect_payment_remittance
 from .tax import inspect_tax_exemption
 from .taxcurrency import inspect_accounting_currency_tax
+from .lineext import inspect_line_extension
 from .terms import inspect_payment_terms
 from .vat import inspect_party_vat
 
@@ -109,6 +110,8 @@ def _check_invoice(invoice: Any) -> list[dict[str, str]]:
     for finding in inspect_tax_exemption(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     for finding in inspect_accounting_currency_tax(invoice):
+        fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+    for finding in inspect_line_extension(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     for finding in inspect_tax_breakdown(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
