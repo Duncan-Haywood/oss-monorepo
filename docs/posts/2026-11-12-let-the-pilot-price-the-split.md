@@ -1,9 +1,9 @@
 ---
 title: "Let the pilot price the split: small LLM-coding audits no longer pay a width penalty"
-seo_title: "LLM coding audit design: a pilot forecast decides when stratifying pays"
+seo_title: "LLM coding audits: a pilot forecast decides when stratifying pays"
 date: 2026-11-12
 tags: [research, llm, statistics, qualitative-coding]
-description: "A forecast from the hand-coded pilot decides whether to split the audit along the model's own codes. Across 27 pre-registered cells the split no longer ran wider than a plain random audit, and it kept all of its gain."
+description: "A pilot-side width forecast decides when to split an LLM-coding audit: no cell ran over 0.3% wider than a plain one, and all of the gain was kept."
 ---
 
 The [llm-coding-inference](../../research/llm-coding-inference/) programme asks how
