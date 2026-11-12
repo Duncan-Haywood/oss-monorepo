@@ -408,7 +408,7 @@ export const HOME_MOTION_SCRIPT = `
           const start = performance.now(), span = 1400;
           const step = (now) => {
             const t = Math.min(1, (now - start) / span), eased = 1 - Math.pow(1 - t, 3);
-            el.textContent = String(Math.round(target * eased));
+            el.textContent = Math.round(target * eased).toLocaleString('en-US');
             if (t < 1) requestAnimationFrame(step);
           };
           requestAnimationFrame(step);

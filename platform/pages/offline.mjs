@@ -28,6 +28,7 @@
 // never mixes files from two builds.
 
 import { renderCard, renderMarkIcon } from './sharecard.mjs';
+import { formatCount } from './count.mjs';
 
 export const THEME_COLOR = '#1f4e8c';
 const BACKGROUND_COLOR = '#eef2f7';
@@ -99,7 +100,7 @@ export function renderManifest(baseUrl, toolCount, hasExternalCallException = fa
       // What a home screen prints under the icon: twelve characters at most.
       short_name: 'Maris Stella',
       description:
-        `${toolCount} free tools for marketplace sellers, trade contractors and small teams, plus open research. ` +
+        `${formatCount(toolCount)} free tools for marketplace sellers, trade contractors and small teams, plus open research. ` +
         (hasExternalCallException
           ? 'Everything runs in your browser, offline included, except one lookup tool that checks a public API — see the About page for which one.'
           : 'Everything runs in your browser, offline included — nothing you type is uploaded.'),
