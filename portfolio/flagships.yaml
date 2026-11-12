@@ -270,8 +270,12 @@ flagships:
       (README "Shift venues carried through the search", eval/field-shift.txt, eval/shift-carry.txt):
       shift starters at the field sizes, 15 teams 195/41 to 195/28, 31 teams 899/245 to 1,189/60;
       capped shift candidates, 11 teams 253 to 237, 13 teams 373 to 335; carried pair hosts through
-      the search's moves: 1 row of 60 changed (negative, off). Next, most valuable first: the 16/32
-      shift starters and capped candidates in the home-and-away search; re-measure the page's
+      the search's moves: 1 row of 60 changed (negative, off). 2026-11-12 later (README "Shift
+      candidates in a home-and-away season, part two", eval/shift-double-capped.txt): capped shift
+      leg ones in the home-and-away search, 11 teams 727 to 701 and 719 to 695, 13 teams 1,083 to
+      1,041 and 1,059 to 1,011, nothing at 9-40 otherwise (on up to 16 slots only); 16/32 shift
+      starters at 15 and 31 teams: no change, time doubled (negative, off). Next, most valuable
+      first: re-measure the page's
       best-of-k picks with all of it; moves that keep the shift pattern for 17-40 teams; a lower
       bound or a timetable below 136 at 12 (SAT, eval/carryover-sat.py: 10 teams proved >= 90, 12
       unanswered at 134 after 70 min; next symmetry breaking or cube-and-conquer); close 24-40
