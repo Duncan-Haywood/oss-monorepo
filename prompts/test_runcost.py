@@ -141,6 +141,16 @@ class PricingTest(unittest.TestCase):
                 self.assertIsInstance(rates[key], (int, float), f"{model}.{key}")
 
 
+    def test_cache_read_multipliers_match_the_pricing_page(self) -> None:
+        # Pricing page footnotes: cache hits are 0.05x base input on Opus 5.5 and Sonnet 5.5,
+        # 0.025x on Fable/Mythos 5.1 and 5.2, 0.1x elsewhere (Sonnet 5.5 was 0.1x here until 2026-11-12).
+        m = PRICING["models"]
+        for model in ("claude-opus-5-5", "claude-sonnet-5-5"):
+            self.assertAlmostEqual(m[model]["cache_read"], 0.05 * m[model]["input"], msg=model)
+        for model in ("claude-fable-5-2", "claude-mythos-5-2", "claude-fable-5-1", "claude-mythos-5-1"):
+            self.assertAlmostEqual(m[model]["cache_read"], 0.025 * m[model]["input"], msg=model)
+
+
 class AttachAndReportTest(unittest.TestCase):
     def test_attach_fills_nulls_validates_and_reports(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
