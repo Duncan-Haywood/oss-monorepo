@@ -18,6 +18,7 @@ import { Imap, parseMessage, replyBlocks, findSentBox } from "./imap.mjs";
 import { headerMap, splitHead } from "../mime.mjs";
 import { sentRecord } from "../mailfile.mjs";
 import { runDaily, csvQueue, csvLeftOut, callMarks as readMarks } from "../daily.mjs";
+import { holidayChecker } from "../holidays.mjs";
 import { parseReplies, parseCsv, csv, iso, toCsv } from "../engine.mjs";
 import { runInboxWithModel } from "../ai.mjs";
 import { configFromEnv } from "../byok.mjs";
@@ -44,6 +45,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
   const getToken = () => (tokenFn ||= tokenProvider(env, { fetchImpl: fetchImpl || fetch, now }))();
   const ca = env.TLS_CA_FILE ? readFileSync(env.TLS_CA_FILE) : undefined; // extra trusted CA (PEM) for a mail server with a private certificate
   const dir = env.DATA_DIR || "./data";
+  holidayChecker(env.HOLIDAYS); // a mistyped HOLIDAYS stops the server at start, not every Today's queue later
   mkdirSync(dir, { recursive: true });
   const stateFile = join(dir, "state.json"), auditFile = join(dir, "audit.jsonl");
   const state = existsSync(stateFile) ? JSON.parse(readFileSync(stateFile, "utf8")) : { lastUid: 0, seen: [], items: [], prospects: [], suppression: [], lastPoll: null, lastError: null };
@@ -140,7 +142,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     const marks = callMarks();
     done = [String(done || ""), ...marks.done].filter(Boolean).join("\n");
     const own = state.items.filter((x) => x.sentAt && x.draft).map((x) => ({ date: x.sentAt.slice(0, 10), to: [String(x.from).toLowerCase()], subject: x.draft.subject || (x.outbound || /^re:/i.test(x.subject) ? x.subject : "Re: " + x.subject) }));
-    const d = runDaily({ tasks: state.tasks, prospects: state.prospects, suppression: state.suppression.map((s) => s.email).join("\n"), done: done || "", sent: [...state.sent, ...own], retry: marks.retry, today: today || iso(now()), ...(Number.isFinite(Number(maxOverdueDays)) && maxOverdueDays !== "" && maxOverdueDays != null ? { maxOverdueDays: Number(maxOverdueDays) } : {}) });
+    const d = runDaily({ tasks: state.tasks, prospects: state.prospects, suppression: state.suppression.map((s) => s.email).join("\n"), done: done || "", sent: [...state.sent, ...own], retry: marks.retry, moved: marks.moved, holidays: env.HOLIDAYS, today: today || iso(now()), ...(Number.isFinite(Number(maxOverdueDays)) && maxOverdueDays !== "" && maxOverdueDays != null ? { maxOverdueDays: Number(maxOverdueDays) } : {}) });
     audit("daily", { due: d.summary.due, alreadySent: d.summary.alreadySent, held: d.summary.held, dropped: d.summary.dropped, sentRead: d.summary.sentRead, sentBox: state.sentBox?.name || null });
     const day = d.today;
     return { ...d, doneToday: state.done.filter((x) => String(x.at || "").startsWith(day)), sentBox: state.sentBox?.name || null, sentError: state.sentError || null, queueCsv: csvQueue(d), leftOutCsv: csvLeftOut(d) };
@@ -184,7 +186,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
 
   /** The kept marks, read for runDaily: a step is done once it has any mark other than "no answer", or MAX_TRIES of them;
    * a call with only no-answers so far comes back the next business day after the last one. */
-  function callMarks() { return readMarks(state.done, MAX_TRIES); }
+  function callMarks() { return readMarks(state.done, MAX_TRIES, { holidays: env.HOLIDAYS }); }
 
   /** Every call outcome marked for one person, oldest first, for call prep. */
   const callsFor = (addr) => state.done.filter((x) => x.email === addr && x.channel === "call").map((x) => ({ date: String(x.at || "").slice(0, 10), step: x.step, outcome: x.outcome || "done" })).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));

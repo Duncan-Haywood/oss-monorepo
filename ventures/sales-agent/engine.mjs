@@ -38,10 +38,19 @@ const safeIso = (ms) => (Number.isFinite(ms) && ms >= 0 && ms <= LAST_DAY ? iso(
 const calDate = (y, m, d) => { const t = Date.UTC(y, m, d), x = new Date(t); return x.getUTCFullYear() === y && x.getUTCMonth() === m && x.getUTCDate() === d ? safeIso(t) : null; };
 const daysIn = (y, m) => new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
 export const toDay = (s) => { const t = Date.parse(String(s).slice(0, 10) + "T00:00:00Z"); return Number.isFinite(t) ? t : NaN; };
-export function addBusinessDays(day, n) {
+// isOff (optional): day => true for a holiday (holidays.mjs holidayChecker); weekends are always skipped.
+export function addBusinessDays(day, n, isOff) {
   let t = toDay(day), left = n;
-  while (left > 0) { t += DAY; const w = new Date(t).getUTCDay(); if (w !== 0 && w !== 6) left--; }
+  for (let guard = 0; left > 0 && guard < 4000; guard++) { t += DAY; const w = new Date(t).getUTCDay(); if (w !== 0 && w !== 6 && !(isOff && isOff(iso(t)))) left--; }
   return iso(t);
+}
+/** Business days from a to b: those after a, up to and including b (0 when b is not after a). */
+export function businessDaysBetween(a, b, isOff) {
+  let t = toDay(a), n = 0;
+  const end = toDay(b);
+  if (!Number.isFinite(t) || !Number.isFinite(end)) return 0;
+  while (t < end) { t += DAY; const w = new Date(t).getUTCDay(); if (w !== 0 && w !== 6 && !(isOff && isOff(iso(t)))) n++; }
+  return n;
 }
 const addDays = (day, n) => safeIso(toDay(day) + n * DAY);
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];

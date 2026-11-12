@@ -104,12 +104,12 @@ flagships:
       through the proxy that day, but probe first, it has refused before); a larger
       local model (14B+, about 11 GB RAM) as the Enron reader with
       `eval/model-reader.mjs`, scored for agreement with the agent readers before its
-      labels count. Without a model host: (6) call outcomes landed
-      2026-11-12 (README "Call outcomes on the Today's queue": spoke, voicemail, no
-      answer re-queued next business day up to 3 tries, fed to prep.mjs); next on that
-      queue, a no-answer that pushes the cadence's later steps back by the same days
-      (today a third try at the step-3 call lands on the step-4 email's day), and a holiday list
-      for the retry day, both tested on the real cadence builder plan.
+      labels count. Without a model host: (6) call outcomes, later-step
+      shift and holiday-aware retries landed 2026-11-12 (README "A late call moves the
+      rest of the cadence"); next on that queue: a HOLIDAYS field on the self-host page and
+      the static page's Today's queue (the page has no call outcomes yet: port the
+      Spoke/Voicemail/No answer buttons to index.html, kept in localStorage), and a
+      per-country holiday preset (CA, GB) checked against each government's own list.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading

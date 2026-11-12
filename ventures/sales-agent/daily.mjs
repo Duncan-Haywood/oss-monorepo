@@ -3,7 +3,8 @@
 // minus anyone who stopped, paused, bounced or is suppressed. Same principle as the inbox agent: it may always drop
 // or hold a touch on its own, and it never sends one. Every touch it leaves out is listed with the reason, so the
 // run doubles as an audit trail.
-import { parseCsv, runInbox, toCsv, iso, toDay, DAY, addBusinessDays } from "./engine.mjs";
+import { parseCsv, runInbox, toCsv, iso, toDay, DAY, addBusinessDays, businessDaysBetween } from "./engine.mjs";
+import { holidayChecker } from "./holidays.mjs";
 import { suppressionIndex } from "./suppression.mjs";
 
 // Statuses the inbox agent sets that end the cadence for good (or, for closed_lost, until its 180-day pause).
@@ -27,6 +28,12 @@ const stepKey = (email, step) => `${String(email || "").toLowerCase()}|${String(
  * retry (added 2026-11-12): calls that rang out, re-dated by the caller: rows { email, step, on (YYYY-MM-DD), tries,
  * last } or lines "email|step|YYYY-MM-DD|tries". A matching task is moved to `on` (it is "later" before then, due that
  * day, overdue after), keeps its plan date as `planned`, and carries `tries` (no-answer calls so far) and `last`.
+ * moved (added 2026-11-12): call steps that ended after one or more no-answers, rows { email, step, on (the day of the
+ * last mark) } (callMarks returns them).
+ * Later steps follow a late call (added 2026-11-12, shiftLater = true): when a call step is retried, or ended late after
+ * misses, the same person's later steps move back by the business days it slipped, so a third try at the day-3 call does
+ * not land on the day-5 email's day. The task keeps its plan date as `planned` and says why in `moved_by`.
+ * holidays: "us", "us-business", dates, or a day => boolean (holidays.mjs); retry and shifted dates skip them.
  * Returns { today, queue, held, dropped, later, stale, sentMatched, summary, brief }.
  */
 export function runDaily(input) {
@@ -38,6 +45,8 @@ export function runDaily(input) {
   const done = new Set((Array.isArray(input.done) ? input.done.join("\n") : String(input.done || "")).split(/\n/).map((l) => l.trim()).filter(Boolean).map((l) => { const [e, ...s] = l.split(/[|,]/); return stepKey(e, s.join(",")); }));
   const retry = new Map((Array.isArray(input.retry) ? input.retry : String(input.retry || "").split(/\n/).map((l) => l.trim()).filter(Boolean).map((l) => { const [email, step, on, tries] = l.split("|"); return { email, step, on, tries }; }))
     .filter((r) => r && r.email && r.step != null && Number.isFinite(toDay(r.on))).map((r) => [stepKey(r.email, r.step), { on: String(r.on).slice(0, 10), tries: Number(r.tries) || 1, last: r.last || "" }]));
+  const isOff = holidayChecker(input.holidays);
+  const shifts = input.shiftLater === false ? new Map() : laterShifts(rows, retry, input.moved, isOff);
   const maxOverdue = input.maxOverdueDays ?? 5, emailCap = input.emailCap ?? 40;
   const queue = [], held = [], dropped = [], stale = [], sentMatched = [];
   let later = 0, alreadyDone = 0;
@@ -53,6 +62,7 @@ export function runDaily(input) {
     const t = { date: r.date, channel: (r.channel || "").toLowerCase(), step: r.step, prospect: r.prospect, company: r.company, email: (r.email || "").toLowerCase(), phone: r.phone, call_window: r.call_window, subject: r.subject, body: r.body, voicemail: r.voicemail, issues: r.issues };
     const rt = retry.get(stepKey(t.email, t.step));
     if (rt) Object.assign(t, { planned: t.date, date: rt.on, tries: rt.tries, last: rt.last });
+    else { const sh = shifts.get(stepKey(t.email, t.step)); if (sh) Object.assign(t, { planned: t.date, date: addBusinessDays(t.date, sh.days, isOff), moved_by: sh }); }
     const day = toDay(t.date);
     if (!Number.isFinite(day)) { held.push({ ...t, reason: "no readable date in the task list" }); continue; }
     if (done.has(stepKey(t.email, t.step))) { alreadyDone++; continue; }
@@ -97,13 +107,34 @@ export function runDaily(input) {
   return { today, queue: final, held, dropped, stale, later, sentMatched, summary, brief: brief(today, final, held, dropped, stale, summary) };
 }
 
+/** For each person, walk their steps in plan order; a retried call (or one ended late after misses) that slipped N
+ * business days pushes every later step back N (the largest slip so far wins). Returns Map stepKey -> { days, step }. */
+function laterShifts(rows, retry, moved, isOff) {
+  const ended = new Map((Array.isArray(moved) ? moved : []).filter((m) => m && m.email && m.step != null && Number.isFinite(toDay(m.on))).map((m) => [stepKey(m.email, m.step), String(m.on).slice(0, 10)]));
+  const out = new Map();
+  if (!retry.size && !ended.size) return out;
+  const people = new Map();
+  rows.forEach((r, i) => { const e = String(r.email || "").toLowerCase(); if (!e || !Number.isFinite(toDay(r.date))) return; if (!people.has(e)) people.set(e, []); people.get(e).push({ r, i }); });
+  const num = (s) => { const n = Number(s); return Number.isFinite(n) ? n : Infinity; };
+  for (const [e, list] of people) {
+    list.sort((a, b) => (a.r.date < b.r.date ? -1 : a.r.date > b.r.date ? 1 : num(a.r.step) - num(b.r.step) || a.i - b.i));
+    let cur = null;
+    for (const { r } of list) {
+      const k = stepKey(e, r.step), anchor = retry.get(k)?.on || ended.get(k);
+      if (anchor) { const days = businessDaysBetween(r.date, anchor, isOff); if (days > 0 && (!cur || days > cur.days)) cur = { days, step: String(r.step).trim() }; continue; }
+      if (cur) out.set(k, cur);
+    }
+  }
+  return out;
+}
+
 function brief(today, queue, held, dropped, stale, s) {
   const out = [`# Sales queue for ${today}`, "", `${s.due} touches due (${s.email} email, ${s.call} call, ${s.linkedin} LinkedIn, ${s.letter} letter)${s.overdue ? `, ${s.overdue} of them overdue` : ""}. ${s.dropped} dropped because the person stopped or is suppressed, ${s.held} held, ${s.stale} too old to send.${s.alreadySent ? ` ${s.alreadySent} email touch${s.alreadySent === 1 ? " is" : "es are"} already in your sent mail and not queued again.` : ""} Nothing has been sent.`, ""];
   for (const ch of ["call", "email", "linkedin", "letter"]) {
     const list = queue.filter((q) => q.channel === ch);
     if (!list.length) continue;
     out.push(`## ${{ call: "Calls", email: "Email", linkedin: "LinkedIn", letter: "Letters" }[ch]} (${list.length})`);
-    for (const q of list) out.push(`- ${q.overdue ? "[overdue " + q.date + "] " : ""}${q.prospect || q.email}${q.company ? ", " + q.company : ""} (${q.step})${ch === "call" && q.call_window ? " " + q.call_window : ""}${q.tries ? ` (try ${q.tries + 1}: no answer ${q.tries === 1 ? "once" : q.tries + " times"}${q.last ? ", last " + q.last : ""})` : ""}`);
+    for (const q of list) out.push(`- ${q.overdue ? "[overdue " + q.date + "] " : ""}${q.prospect || q.email}${q.company ? ", " + q.company : ""} (${q.step})${ch === "call" && q.call_window ? " " + q.call_window : ""}${q.tries ? ` (try ${q.tries + 1}: no answer ${q.tries === 1 ? "once" : q.tries + " times"}${q.last ? ", last " + q.last : ""})` : ""}${q.moved_by ? ` (moved from ${q.planned}: step ${q.moved_by.step}'s call ran ${q.moved_by.days} business day${q.moved_by.days === 1 ? "" : "s"} late)` : ""}`);
     out.push("");
   }
   const section = (title, list) => { if (list.length) { out.push(`## ${title} (${list.length})`); for (const x of list) out.push(`- ${x.prospect || x.email} (${x.step}, ${x.channel}): ${x.reason}`); out.push(""); } };
@@ -119,7 +150,8 @@ function brief(today, queue, held, dropped, stale, s) {
  * "no answer", or maxTries of them; otherwise it is retried the business day after its last miss. Returns { done
  * (lines "email|step"), retry (rows for runDaily's retry input) }.
  */
-export function callMarks(rows, maxTries = 3) {
+export function callMarks(rows, maxTries = 3, { holidays } = {}) {
+  const isOff = holidayChecker(holidays);
   const by = new Map();
   for (const r of Array.isArray(rows) ? rows : parseCsv(rows || "")) {
     const email = String(r.email || "").trim().toLowerCase(), step = String(r.step ?? "").trim();
@@ -128,14 +160,20 @@ export function callMarks(rows, maxTries = 3) {
     if (!by.has(k)) by.set(k, []);
     by.get(k).push({ email, step, outcome: String(r.outcome || "done").trim().toLowerCase().replace(/[\s-]+/g, "_"), date: String(r.at || r.date || "").slice(0, 10) });
   }
-  const done = [], retry = [];
+  const done = [], retry = [], moved = [];
   for (const list of by.values()) {
     const misses = list.filter((x) => x.outcome === "no_answer");
     const last = misses.map((x) => x.date).filter((d) => Number.isFinite(toDay(d))).sort().at(-1);
-    if (misses.length < list.length || misses.length >= maxTries || !last) { done.push(`${list[0].email}|${list[0].step}`); continue; }
-    retry.push({ email: list[0].email, step: list[0].step, on: addBusinessDays(last, 1), tries: misses.length, last });
+    if (misses.length < list.length || misses.length >= maxTries || !last) {
+      done.push(`${list[0].email}|${list[0].step}`);
+      // A step that ended after misses ended late: its last mark's day lets runDaily push the later steps back.
+      const end = list.map((x) => x.date).filter((d) => Number.isFinite(toDay(d))).sort().at(-1);
+      if (misses.length && end) moved.push({ email: list[0].email, step: list[0].step, on: end });
+      continue;
+    }
+    retry.push({ email: list[0].email, step: list[0].step, on: addBusinessDays(last, 1, isOff), tries: misses.length, last });
   }
-  return { done, retry };
+  return { done, retry, moved };
 }
 
 /** One SDR morning: read the replies, update the prospects and suppression, then build today's queue from what is left. */
@@ -146,5 +184,5 @@ export function runMorning(input) {
   return { inbox, daily };
 }
 
-export const csvQueue = (d) => toCsv(d.queue, ["date", "overdue", "channel", "step", "prospect", "company", "email", "phone", "call_window", "subject", "body", "voicemail", "tries"]);
+export const csvQueue = (d) => toCsv(d.queue, ["date", "overdue", "channel", "step", "prospect", "company", "email", "phone", "call_window", "subject", "body", "voicemail", "tries", "planned"]);
 export const csvLeftOut = (d) => toCsv([...(d.sentMatched || []).map((x) => ({ ...x, outcome: "already sent", reason: `in your sent mail on ${x.sent_on} ("${x.sent_subject}")` })), ...d.dropped.map((x) => ({ ...x, outcome: "dropped" })), ...d.held.map((x) => ({ ...x, outcome: "held" })), ...d.stale.map((x) => ({ ...x, outcome: "too old" }))], ["outcome", "date", "channel", "step", "prospect", "company", "email", "reason"]);
