@@ -83,6 +83,7 @@ def model(w):
                 P=P, S=S, D=D, hours=hours, others=others, rows=rows, sl=sl, days=days, tof=tof, posted=posted, types=types)
 
 
+DUMP = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--dump=')), None)  # the least-change rosters, for eval/reissue-ilp-score.mjs
 LIMIT = float(next((a.split('=')[1] for a in sys.argv if a.startswith('--limit=')), 300))
 
 
@@ -106,7 +107,8 @@ def solve(w, limit=LIMIT, also_at=None):
         r = milp(ch_cost, constraints=[A, LinearConstraint(open_cost.reshape(1, -1), -np.inf, cap + 1e-6)], integrality=m['integ'], bounds=Bounds(m['lb'], m['ub']), options={'time_limit': limit})
         if r.x is None: return None
         bound = getattr(r, 'mip_dual_bound', None)
-        return (round(r.fun, 6), round(bound, 6) if bound is not None else None, r.status == 0)
+        owner = [next((p for p in range(m['P']) if r.x[m['X'](p, s)] > 0.5), -1) for s in range(m['S'])]
+        return (round(r.fun, 6), round(bound, 6) if bound is not None else None, r.status == 0, owner)
     at_least = least_changes(best_open)
     at_engine = least_changes(also_at) if also_at is not None and also_at > best_open + 1e-6 else None
     return best_open, at_least, at_engine, 0, time.time() - t0
@@ -152,13 +154,15 @@ if __name__ == '__main__':
     KS = 'keep/shift 1'
     tot = defaultdict(float); n_above = defaultdict(int); mismatch = 0; broken_any = 0; least = 0; unproven_ilp = 0
     engine_open_above = 0; at_engine_least = 0; at_engine_n = 0
+    dumped = []
     by_status = defaultdict(lambda: [0, 0, 0])  # engine keep/shift 1 status -> [weeks, at the least, changes above the least]
     for w in W:
         ks = w['engine'][KS]
         best_open, at_least, at_engine, st, secs = solve(w, also_at=ks['open'])
         if best_open is None:
             print(f'{w["set"]:8} {w["case"]:8} ilp stage 1 status {st} after {secs:.1f}s', flush=True); unproven_ilp += 1; continue
-        best_ch, bound, proven = at_least if at_least else (None, None, False)
+        best_ch, bound, proven = at_least[:3] if at_least else (None, None, False)
+        if DUMP and at_least: dumped.append({'set': w['set'], 'case': w['case'], 'owner': at_least[3], 'changes': best_ch})
         if not proven: unproven_ilp += 1
         cells = []
         for v in variants:
@@ -186,4 +190,5 @@ if __name__ == '__main__':
     print(f'{len(W)} weeks{" (the caller counted too)" if ALL else ""}; least changes in total {tot["ilp"]:g}; ' + '; '.join(f'{v} {tot[v]:g} ({n_above[v]} weeks above the least)' for v in variants))
     print(f'engine change counts differing from the ILP count: {mismatch}; engine rosters breaking an ILP rule: {broken_any}; ILP stages stopped on the time limit: {unproven_ilp}')
     print(f'{KS} at the least open hours on {len(W) - engine_open_above} of {len(W)}, and at the least changes there on {least}; above the least open hours on {engine_open_above} (least changes at its own open hours on {at_engine_least} of {at_engine_n})')
+    if DUMP: json.dump(dumped, open(DUMP, 'w'))
     for k, (n, ok, extra_ch) in by_status.items(): print(f'  engine status {k}: {n} weeks, at the least changes on {ok}, {extra_ch:g} changes above the least in total')

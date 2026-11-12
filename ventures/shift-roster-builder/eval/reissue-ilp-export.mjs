@@ -20,7 +20,7 @@ const staffOf = (text) => { const p = parseStaff(text); if (p.errors.length) thr
 export const ILP_VARIANTS = { rebuild: {}, "keep/shift 1": { keepShift: 1 }, "keep/shift 20": { keepShift: 20 } };
 
 // One call-out: `person` (an index into the parsed staff) off `day`, the change made at 5pm the evening before.
-export function exportCase({ set, text, slots, staff, posted, person, day, variants, base }) {
+export function exportCase({ set, text, shiftsText, slots, staff, posted, person, day, variants, base }) {
   const p = staff[person];
   const postedCsv = rosterCsv(posted);
   const keep = keepFromCsv(postedCsv);
@@ -34,6 +34,7 @@ export function exportCase({ set, text, slots, staff, posted, person, day, varia
     slots: pinned.map((s) => [s.start, s.end, s.day]), started: pinned.map((s) => (s.fixed ? 1 : 0)), elig: ctx.elig,
     maxH: offStaff.map((x) => x.maxHours), maxDaily: offStaff.map((x) => x.maxDaily || 0), rest: ctx.restMin,
     maxConsec: ctx.o.maxConsecDays, posted: posted.owner, engine: {},
+    src: { staff: offText, shifts: shiftsText, changedAt, postedCsv, base }, // for eval/reissue-ilp-score.mjs
   };
   const opt = { changedAt, noticeHours: 336, premiumHours: 1, exempt: [p.name] };
   for (const [name, extra] of Object.entries(variants)) {
@@ -55,7 +56,7 @@ export function exportWeek(set, text, shiftsText, { days = [2, 3, 4, 5, 6], cap 
     const callers = staff.map((p, i) => i).filter((i) => posted.owner.some((o, s) => o === i && slots[s].day === day));
     const step = Math.max(1, Math.ceil(callers.length / cap));
     for (let k = 0; k < callers.length; k += step) {
-      const w = exportCase({ set, text, slots, staff, posted, person: callers[k], day, variants, base });
+      const w = exportCase({ set, text, shiftsText, slots, staff, posted, person: callers[k], day, variants, base });
       out.push(w);
       if (onCase) onCase(w);
     }

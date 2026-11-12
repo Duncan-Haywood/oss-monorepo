@@ -1,0 +1,4 @@
+20x56w0 P5 Wed: engine (improved) 2 changes, score 15105127.17, pay $5273, 151 h open; ILP 1 changes, score 15105191.81, pay $5349, 151 h open; ILP minus engine: score 64.65, pay 76.00
+20x56w0 P7 Thu: engine (improved) 2 changes, score 15105201.69, pay $5287, 151 h open; ILP 1 changes, score 15105211.61, pay $5331, 151 h open; ILP minus engine: score 9.92, pay 44.00
+20x56w0 P19 Thu: engine (improved) 2 changes, score 15105169.69, pay $5251, 151 h open; ILP 1 changes, score 15105218.06, pay $5340, 151 h open; ILP minus engine: score 48.37, pay 89.00
+3 weeks where keep/shift 1 made more changes than the least: the ILP's roster scores lower (better) on 0, higher on 3, the same on 0

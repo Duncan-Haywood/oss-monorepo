@@ -1,0 +1,8 @@
+cafe Gus Wed: engine (improved) 4 changes, score 1503356.95, pay $3690, 15 h open; ILP 3 changes, score 1503374.95, pay $3690, 15 h open; ILP minus engine: score 18.00, pay 0.00
+salon Mia Wed: engine (optimal) 2 changes, score 1819.75, pay $2054, 0 h open; ILP 1 changes, score 1928.66, pay $2038, 0 h open; ILP minus engine: score 108.91, pay -16.00
+salon Orla Wed: engine (optimal) 4 changes, score 1908.02, pay $2116, 0 h open; ILP 1 changes, score 1961.08, pay $2070, 0 h open; ILP minus engine: score 53.06, pay -46.00
+retail Ruth Thu: engine (optimal) 2 changes, score 1953.82, pay $2250, 0 h open; ILP 1 changes, score 1994.34, pay $2238, 0 h open; ILP minus engine: score 40.52, pay -12.00
+retail Sam Thu: engine (optimal) 2 changes, score 1956.64, pay $2247, 0 h open; ILP 1 changes, score 1966.46, pay $2256, 0 h open; ILP minus engine: score 9.82, pay 9.00
+retail Tess Thu: engine (optimal) 2 changes, score 1953.36, pay $2244, 0 h open; ILP 1 changes, score 1970.02, pay $2262, 0 h open; ILP minus engine: score 16.66, pay 18.00
+retail Tess Fri: engine (optimal) 3 changes, score 1980.36, pay $2238, 0 h open; ILP 1 changes, score 1982.02, pay $2274, 0 h open; ILP minus engine: score 1.66, pay 36.00
+7 weeks where keep/shift 1 made more changes than the least: the ILP's roster scores lower (better) on 0, higher on 7, the same on 0

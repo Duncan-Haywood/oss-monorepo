@@ -184,8 +184,11 @@ flagships:
       started shifts and keeps posted ones; a change-count ILP shows it is the least on 41/41 café call-outs when the
       caller's changes count (README "Is 91 the least?"); on the templates and seeded 20-60 person weeks it holds at the
       same open hours, and a kept start took 40-person reissues from 124 changes to 40 and 60-person ones from 973 to 76
-      (README "The reissue on the templates and 20-60 person weeks"). Next: the change-count ILP on the 40-60 person
-      reissues (are their changes needed?) and the unproven ones (4 of 24 at 40 people, 12 of 24 at 60); close the
+      (README "The reissue on the templates and 20-60 person weeks"). The change-count ILP at 20-60 people found a
+      search miss; an eject move in the kept start took 60-person reissues to 26 changes against a least of 24 and
+      40-person ones to 37 against 33, and every reissue still above the least is a score trade, not a miss (README
+      "Are the big-week reissues' changes needed?", eval/reissue-ilp-score.mjs). Next: an eject that gives up two
+      clashing shifts; whether a real manager would set keepShift above 1 (fewer changes for a little pay); close the
       100-person gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person pay week ($1.22
       open); the 60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held); a floor above 60 copies needs something
       stronger than the coverage LP (README "The open-hours row from the first pass"); re-run the keep-usual-shifts
