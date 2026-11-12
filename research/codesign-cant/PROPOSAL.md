@@ -103,6 +103,12 @@ side-force costs, with intervals, on two simulators and measured component data.
   Supported in simulation.
 - H5. The ranking of the top designs survives the move from the stylised rigid-body simulator to
   RotorPy with rotor drag and canted allocation. Refuted if Spearman ρ of the top ten is below 0.5.
+  Milestone 5 evidence (60 milestone-4 designs re-scored, not retuned, in RotorPy 3.0.0 with a canted-rotor wrench, four
+  conditions): refuted as written, top-ten ρ 0.20–0.30. The top ten are tied (stylised J spread 0.064), and the stylised
+  simulator against itself on fresh episodes reaches only 0.26 (post hoc), so the test measures episode noise. Over all 60 designs
+  ρ is 0.80–0.91 against a self-agreement ceiling of 0.95–0.97; the six law × cant arms keep their order (ρ 0.94–1.00); cant
+  wins 10 of 10 seeds for every law under RotorPy aerodynamics. Proposed replacement test (post hoc, to pre-register before the
+  next fidelity step): arm-level rank agreement, and all-design ρ as a share of the simulator's own fresh-episode ceiling.
 
 ## Method
 
@@ -135,7 +141,7 @@ hover-held, free collective), side force on or off, κ percentile.
    and a mixer that prioritises attitude (done 2026-11-12, with a price on hover power; `LOG.md`).
 3. Motor catalogue data (mass, max thrust with the chosen propeller, price) replacing the fits.
 4. INDI and geometric attitude baselines; 10 seeds per arm (done 2026-11-12: H4 supported; `LOG.md`).
-5. RotorPy (or equivalent) with canted rotors; re-score the top designs; H5.
+5. RotorPy (or equivalent) with canted rotors; re-score the top designs; H5 (done 2026-11-12: the ranking of design classes survives, the top-ten test is noise-bound, the stylised model is 1–2° optimistic and most for INDI; `LOG.md`).
 6. Position hold with the corrected side force and longer wind-step episodes; H3 (done 2026-11-12: depends on the centre-of-pressure sign; 6b, same day: a rigid frame is hurt on one axis and helped on the other; `LOG.md`).
 7. Paper draft in `paper/` (RA-L format, 6 to 8 pages) with one command per figure.
 8. Owner steps: print canted motor mounts at 0° and the co-designed angle for one frame; measure
