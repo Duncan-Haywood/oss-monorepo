@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKjttYseAWvZ5KAykoo",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T09:18:32Z",
+  "ended": "2026-11-12T09:43:57Z",
+  "wall_minutes": 30.83,
+  "tokens_in": 8140026,
+  "tokens_out": 42834,
+  "cost_usd": 3.5188,
+  "tool_calls": 72,
+  "task": "perf: whole-site HTML passes in build.mjs; incremental carry-over delta in the league scheduler (measured negative)",
+  "projects": [
+    "platform/pages",
+    "ventures/league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15080",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "First build attempt used /usr/bin/time, which is not installed in the container; reran with date stamps.",
+    "First build.test.mjs run failed 2 tests because the new post's description was 166 chars at the time the suite read it; fixed (check_post_frontmatter) and the rerun passed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/ci-perf-2026-11-12-carry-over-scratch.md",
+      "issue": "Ranked an incremental carry-over delta as the 'biggest lever left' without a measurement; built exactly, it is slower at 8-30 teams because the iteration budget (4e7/N^2) already makes a full recount ~N^2 cheap reads. Cost about a third of this run. Corrected in the new history doc's ranked list."
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Says measure first; a 'Not changed' item from an earlier run is a hypothesis, not a measurement. A line asking the author of a ranked item to state whether it was measured would have saved the detour."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-the-delta-that-lost-and-the-read-that-won.md",
+    "docs/history/pages-build-perf-2026-11-12-html-passes-sync.md"
+  ],
+  "goal": "Shorter Pages builds (every deploy and every build.test.mjs run) with byte-identical output.",
+  "notes": "Metric: wall time of the two whole-site HTML passes in buildSite over a full build's 8,784 pages (scratch script timing each pass on a copy of a finished tree, promise form as on main vs sync, two runs each, this 4-core container). Before: sponsor+noscript 2,988/2,930 ms, offline injection 1,826/2,066 ms. After: 1,686/1,642 ms and 1,003/1,146 ms (~2.2 s per build). Same tree hash 347b35269d2b3d9b both ways. Full build 158 s before, 153 s after (one run each, noisy); diff -rq of the two full builds: only version.json (build time) differs. Tests: noscript-notice.test.mjs + offline.test.mjs exit 0; build.test.mjs exit 0 in 307 s. Negative, not landed: league-schedule-generator incremental carry-over tracker in anneal, same workload hash 1ba26969c8dddf41 but 75.5 s -> 175 s (closure version), typed-array version 4 eight-team tries 1.5 -> 2.7 s; per size 10/14/18/22/30/40 teams 1.12/1.07/1.39/1.47/1.69/3.06 s before vs 1.98/1.73/1.32/1.55/1.76/2.87 s after. Row-major coeOf: 76.7 s mean vs 74.9 s before, same hash; reverted.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "74a672c3-de89-5e12-b859-1f4166a6b0ac",
+    "transcripts": 1,
+    "first": "2026-11-12T09:18:32Z",
+    "last": "2026-11-12T09:49:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 138,
+        "output": 42834,
+        "thinking": 13165,
+        "cache_read": 8007373,
+        "cache_write_5m": 0,
+        "cache_write_1h": 132515,
+        "api_equivalent_usd": 3.5188,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 138,
+      "output": 42834,
+      "thinking": 13165,
+      "cache_read": 8007373,
+      "cache_write_5m": 0,
+      "cache_write_1h": 132515,
+      "api_equivalent_usd": 3.5188,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 30.83,
+      "active_minutes": 30.83,
+      "model_minutes": 8.29,
+      "tool_minutes": 22.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "profiling and building two candidate optimisations, two full site builds and diffs, test runs, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 170.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

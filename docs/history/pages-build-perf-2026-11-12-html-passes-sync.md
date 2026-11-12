@@ -54,8 +54,8 @@ the same (`347b35269d2b3d9b` over every HTML page).
   few seconds, so the pass-level numbers above are the reliable measure:
   about 2.2 s saved per build, every Pages deploy and every test run that
   builds the site).
-- Tests: see the PR's run record `notes` for `noscript-notice.test.mjs`,
-  `offline.test.mjs` and `build.test.mjs`.
+- Tests: `node --test noscript-notice.test.mjs offline.test.mjs` exit 0;
+  `node --test build.test.mjs` exit 0 (307 s wall, this container).
 
 ## 2. Not landed: an incremental carry-over delta in `anneal` (league scheduler)
 
