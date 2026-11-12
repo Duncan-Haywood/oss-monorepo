@@ -151,3 +151,20 @@ def test_cylinder_flow_cap_and_annulus():
     assert cylinder_flow(0.0, 0.5, 0.11, 0.075, 1) == 0.0
     with pytest.raises(ValueError):
         cylinder_flow(0.1, 0.5, 0.07, 0.075, 1)
+
+
+def test_pump_ratio_identity_and_inverse():
+    from heavy_hydraulics.measured import pump_ratio, pump_for_ratio
+    q = [0.0, 10.0, 20.0, 30.0]
+    # pump 15: max(15, q) = 15, 15, 20, 30 -> 80 / 60
+    assert pump_ratio(q, 15.0) == pytest.approx(80 / 60)
+    # matches 5w's slowed time times pump flow over demand volume
+    t, _ = slowed_time([(x, 15.0) for x in q], 1.0)
+    assert 15.0 * t / sum(q) == pytest.approx(pump_ratio(q, 15.0))
+    # scale-free, tends to 1, inverse recovers the pump
+    assert pump_ratio([2 * x for x in q], 30.0) == pytest.approx(pump_ratio(q, 15.0))
+    assert pump_ratio(q, 0.0) == pytest.approx(1.0)
+    assert pump_for_ratio(q, 80 / 60) == pytest.approx(15.0, rel=1e-6)
+    assert pump_for_ratio(q, 2.0) == pytest.approx(30.0)   # above peak: 2 x mean 15
+    with pytest.raises(ValueError):
+        pump_for_ratio(q, 0.9)
