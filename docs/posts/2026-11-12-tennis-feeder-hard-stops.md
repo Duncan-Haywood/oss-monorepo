@@ -1,6 +1,6 @@
 ---
 title: "A hard stop is only a stop if nothing hits first"
-seo_title: "DIY tennis ball machine turntable hard stops: sizing the pad and clearing the frame"
+seo_title: "DIY tennis ball machine turntable hard stops: pad sizing and clearance"
 date: 2026-11-12
 tags: [open-tennis-robots, cad, hardware]
 description: "Adding end stops to the tennis feeder's turntable showed the head would hit the hopper posts 4 degrees before reaching them. Two sets of posts moved out."
