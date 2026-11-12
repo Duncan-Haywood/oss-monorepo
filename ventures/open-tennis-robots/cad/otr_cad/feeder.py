@@ -211,11 +211,75 @@ def mast_plate(p: Feeder) -> Part:
         with Locations((p.head_x, p.az_centre_dist)):
             Circle(AZ_BOSS_D / 2, mode=Mode.SUBTRACT)  # azimuth stepper's boss and shaft
         _holes(_az_motor_holes(p), 3.4)
+        _holes(_home_bracket_holes(p), 3.4)
     face = s.sketch
     return Part("mast_plate", "laser", "aluminium 5052", 1, extrude(face, p.plate_t),
                 [Location((0, 0, p.mast_top_z))], flat=face, thickness=p.plate_t,
                 notes="Bolts to the end-tapped posts (M5) and to the fixed ring of the turntable bearing; the azimuth "
-                      "stepper hangs under it on four M3 screws.")
+                      "stepper hangs under it on four M3 screws; the home switch bracket sits on two M3 screws.")
+
+
+# ---------------------------------------------------------------- azimuth home switch (2026-11-12)
+
+HOME_SCREW_T = 11.0   # bracket M3 screws, tangentially either side of the switch's centre line
+
+
+def _home_frame(p: Feeder, radial: float, tangential: float) -> tuple[float, float]:
+    """World (x, y) of a point `radial` mm out from the turntable axis along the switch's angle and `tangential` mm
+    counter-clockwise of that line."""
+    a = math.radians(p.home_sw_deg)
+    return (p.head_x + radial * math.cos(a) - tangential * math.sin(a), radial * math.sin(a) + tangential * math.cos(a))
+
+
+def _home_bracket_r(p: Feeder) -> float:
+    h = p.home_switch_design()
+    return (h["r_body_in"] + h["r_body_out"]) / 2
+
+
+def _home_bracket_holes(p: Feeder):
+    r = _home_bracket_r(p)
+    return [_home_frame(p, r, s * HOME_SCREW_T) for s in (-1, 1)]
+
+
+def _home_loc(p: Feeder, radial: float, z: float) -> Location:
+    x, y = _home_frame(p, radial, 0.0)
+    return Location((x, y, z), (0, 0, p.home_sw_deg))
+
+
+def home_switch_bracket(p: Feeder) -> Part:
+    """Printed plate under the home switch: radial slots for two M3 screws into the mast plate (set the switch so it
+    clicks in the middle of the cam lobe), two M2 pilots for the switch. Drawn with local x radial, y tangential."""
+    h = p.home_switch_design()
+    tw, rw, _ = p.home_sw_body
+    t = p.home_bracket_t
+    blk = Box(rw, 2 * HOME_SCREW_T + 8.0, t).moved(Location((0, 0, t / 2)))
+    for s in (-1, 1):
+        slot = extrude(SlotOverall(3.4 + 2 * p.home_slot_mm, 3.4).moved(Location((0, s * HOME_SCREW_T, 0))), t)
+        blk = blk - slot
+        blk = blk - Cylinder(0.9, t).moved(Location((0, s * p.home_sw_hole_pitch / 2, t / 2)))
+    return Part("home_switch_bracket", "print", "PETG", 1, blk, [_home_loc(p, _home_bracket_r(p), h["z_floor"])],
+                notes=f"Azimuth home switch bracket on the mast plate, {p.home_sw_deg:g} deg round from the front. Two M3 "
+                      f"screws through its radial slots ({p.home_slot_mm:g} mm either way) into the mast plate; set it so "
+                      f"the switch clicks with the roller in the middle of the gear sector's cam lobe. M2 pilots "
+                      f"{p.home_sw_hole_pitch:g} mm apart for the switch: check against yours. 100% infill.")
+
+
+def home_switch_parts(p: Feeder) -> list[Part]:
+    """The switch body and its roller lever, at the roller's free position (bought-in envelopes)."""
+    h = p.home_switch_design()
+    tw, rw, hz = p.home_sw_body
+    z0 = h["z_floor"] + p.home_bracket_t
+    body = Box(rw, tw, hz).moved(Location((0, 0, hz / 2)))
+    rho = p.home_sw_roller_r
+    arm_l = h["r_roller"] - h["r_body_out"] - rho
+    lever = Box(arm_l, 1.0, 3.0).moved(Location((arm_l / 2, 0, 1.5))) + Cylinder(rho, 3.0).moved(Location((arm_l, 0, 1.5)))
+    return [
+        Part("home_switch", "cots", "", 1, body, [_home_loc(p, (h["r_body_in"] + h["r_body_out"]) / 2, z0)],
+             spec=f"Subminiature roller-lever microswitch (D2F-01L3 class), about {tw:g} x {hz:g} x {rw:g} mm; normally "
+                  f"open, wired to GPIO 22 and GND (firmware AZ_HOME_DEG {p.az_home_deg:g})"),
+        Part("home_switch_lever", "cots", "", 1, lever, [_home_loc(p, h["r_body_out"], z0 + (hz - 3.0) / 2)],
+             spec="the switch's roller lever (free position), part of home_switch"),
+    ]
 
 
 def _az_motor_holes(p: Feeder):
@@ -275,10 +339,28 @@ def az_gear_profile(p: Feeder, pts_per_flank: int = 6) -> list[tuple[float, floa
     pts.sort(key=lambda q: math.atan2(q[1], q[0]))
     a0 = math.atan2(pts[0][1], pts[0][0]) - pitch / 4
     a1 = math.atan2(pts[-1][1], pts[-1][0]) + pitch / 4
-    ri = p.az_gear_inner_r
     end = [(rr * math.cos(a1), rr * math.sin(a1))]
-    inner = [(ri * math.cos(a1 + (a0 - a1) * k / 24), ri * math.sin(a1 + (a0 - a1) * k / 24)) for k in range(25)]
+    inner = [(r * math.cos(a), r * math.sin(a)) for a, r in _sector_inner_edge(p, a0, a1)]
     return [(rr * math.cos(a0), rr * math.sin(a0))] + pts + end + inner
+
+
+def home_cam_radius(p: Feeder, plate_deg: float) -> float:
+    """Inner edge of the gear sector at a plate angle: the plain arc, then the home cam's ramp, then the lobe's face
+    out to the sector's high end (`Feeder.home_switch_design`)."""
+    h = p.home_switch_design()
+    if plate_deg <= h["ramp0_deg"]:
+        return h["r_inner"]
+    if plate_deg >= h["ramp1_deg"]:
+        return h["r_lobe"]
+    f = (plate_deg - h["ramp0_deg"]) / (h["ramp1_deg"] - h["ramp0_deg"])
+    return h["r_inner"] + (h["r_lobe"] - h["r_inner"]) * f
+
+
+def _sector_inner_edge(p: Feeder, a0: float, a1: float) -> list[tuple[float, float]]:
+    """(angle rad, radius) along the sector's inner edge from its high end a1 back to a0, with the cam's corners."""
+    h = p.home_switch_design()
+    angs = {a1 + (a0 - a1) * k / 24 for k in range(25)} | {math.radians(h["ramp0_deg"]), math.radians(h["ramp1_deg"])}
+    return [(a, home_cam_radius(p, math.degrees(a))) for a in sorted((a for a in angs if a0 <= a <= a1), reverse=True)]
 
 
 def base_deck(p: Feeder) -> Part:
@@ -783,7 +865,7 @@ def all_parts(p: Feeder) -> list[Part]:
     return [head_motor_plate(p), head_guard_plate(p), trunnion_cheek(p), trunnion_cheek_elev(p), mast_plate(p), turntable_plate(p),
             base_deck(p), wheel_bracket(p, True), wheel_bracket(p, False),
             cheek_foot(p), az_gear_sector(p), pole_foot(p), pole_elbow(p), camera_clamp(p),
-            feed_floor(p), feed_roof_column(p), feed_shuttle(p), *shuttle_drive_parts(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
+            feed_floor(p), feed_roof_column(p), feed_shuttle(p), *shuttle_drive_parts(p), home_switch_bracket(p), *home_switch_parts(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
             *take_up_parts(p), *extrusions(p), *poles(p), *envelopes(p), *elev_actuator_parts(p)]
 
 
@@ -974,6 +1056,8 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M4 x 12 socket cap screw (motors)", 8, "launcher motors to the motor plate"),
         ("M3 x 8 screw", 12, "gearmotor faces"),
         ("M3 x 10 screw", 4, "azimuth stepper to the mast plate (from above)"),
+        ("M3 x 8 socket cap screw + washer + nut (home switch)", 2, "home switch bracket to the mast plate"),
+        ("M2 x 10 self-tapping screw", 2, "home switch to its bracket"),
         ("M4 x 12 socket cap screw (azimuth)", 3, "turntable plate down into the gear sector"),
         ("M4 heat-set insert, 5.7 mm long (azimuth)", 3, "gear sector"),
         ("608 bearing, 8 x 22 x 7", 2, "idler wheels"),
@@ -1081,6 +1165,17 @@ def azimuth_line(p: Feeder, inertia_kgm2: float, load_n: float) -> str:
             f"{d['backlash_deg']:.3f} deg = {d['backlash_miss_mm']:.0f} mm")
 
 
+def home_switch_line(p: Feeder) -> str:
+    h = p.home_switch_design()
+    return (f"azimuth home: roller-lever switch on the mast plate at {p.home_sw_deg:g} deg, roller {h['r_roller']:.1f} mm "
+            f"from the axis; a cam lobe on the gear sector ({h['depth_mm']:.1f} mm deep, {p.home_cam_ramp_deg:g} deg ramp) "
+            f"first touches it at {h['az_contact']:.2f} deg, clicks at {p.az_home_deg:g} deg and holds it closed down to "
+            f"{h['az_closed_to']:.1f} deg (the pinion leaves the teeth at {h['az_pinion_off']:.1f}), so the firmware backs "
+            f"off when it starts closed; click repeatability {h['repeat_deg']:.3f} deg = {h['repeat_miss_mm']:.0f} mm at "
+            f"{p.aim_range_m:g} m, under one microstep ({h['microstep_deg']:.3f} deg = {h['microstep_miss_mm']:.0f} mm); "
+            f"part-to-part click tolerance {h['tol_deg']:.2f} deg = {h['tol_miss_mm']:.0f} mm: calibrate AZ_HOME_DEG")
+
+
 def elevation_line(p: Feeder, gravity: dict[float, float]) -> str:
     d = p.elevation_drive(gravity)
     g = [gravity[k] for k in sorted(gravity)]
@@ -1129,6 +1224,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     ]
     if turning is not None:
         checks.insert(-3, azimuth_line(p, turning[0], turning[1] * 9.81))
+        checks.insert(-3, home_switch_line(p))
     if gravity is not None:
         checks.insert(-3, elevation_line(p, gravity))
         checks.insert(-3, shuttle_line(p))

@@ -438,6 +438,27 @@ class Feeder:
     stepper_body_mm: float = 48.0     # 42.3 mm square, this long under its flange
     az_torque_factor: float = 2.0     # pull-out (and holding) torque over the needed torque
     aim_range_m: float = 24.0         # net to the far baseline: where an azimuth error is read as a sideways miss
+    # Azimuth home switch (2026-11-12): a subminiature roller-lever switch lies flat on a printed bracket on the mast plate,
+    # inside the gear sector's inner edge, its roller pointing out. A cam lobe on the sector's inner edge, from a ramp to
+    # the sector's end, holds it closed at every angle at or below `az_home_deg`, so the switch also says which side of
+    # home the head is on at power-up (`home_switch_design`). Switch figures are assumptions (a D2F-L3 class part):
+    # read your datasheet, and set the bracket's radial slots so it clicks in the middle of the lobe.
+    az_home_deg: float = -32.0        # the turntable angle where the switch closes, turning negative (firmware AZ_HOME_DEG)
+    home_sw_deg: float = 45.0         # world angle of the switch about the turntable axis, from +x (front, toward +y)
+    home_sw_body: tuple = (12.8, 6.5, 5.8)  # tangential, radial, vertical (mm), lying flat (assumption)
+    home_sw_hole_pitch: float = 6.5   # its two mounting holes (M2 self-tapping into the bracket; assumption)
+    home_sw_lever_mm: float = 5.0     # body front to the roller's outer edge, free (assumption; at least the roller's diameter)
+    home_sw_roller_r: float = 2.4     # roller radius; its axis is vertical, lying flat (assumption)
+    home_sw_pretravel_mm: float = 1.2  # roller travel to the click (assumption)
+    home_sw_overtravel_mm: float = 1.0  # roller travel past the click before the lever bottoms (assumption)
+    home_sw_repeat_mm: float = 0.05   # operating-position repeatability at the roller (assumption)
+    home_sw_op_tol_mm: float = 0.3    # operating-position tolerance part to part, at the roller (assumption)
+    home_sw_free_clear_mm: float = 1.0  # roller's free edge inside the sector's plain inner arc
+    home_cam_ramp_deg: float = 45.0   # lobe lead-in against the roller's travel (roller levers take up to about 45)
+    home_runout_mm: float = 0.3       # bearing radial runout plus the lobe's print error, after the switch is set (assumption)
+    home_bracket_t: float = 2.0       # printed bracket floor under the switch
+    home_slot_mm: float = 1.5         # radial adjustment either way in the bracket's M3 slots
+    az_microsteps: int = 4            # firmware AZ_MICROSTEPS: sets the step the homing creep can resolve
 
     # Elevation drive (2026-11-11): a linear actuator in a plane outboard of the -y (guard-side) cheek pushes a pin on
     # the guard plate. Gravity on the head is measured from the CAD (`feeder.head_moment`); the pin and anchor were
@@ -926,6 +947,7 @@ class Feeder:
         bad += self.check_hopper_frame()
         bad += self.check_launch()
         bad += self.check_azimuth()
+        bad += self.check_home_switch()
         return bad
 
     # ---- azimuth drive (2026-11-10) -------------------------------------------
@@ -1104,6 +1126,97 @@ class Feeder:
             bad.append("azimuth stepper overhangs the mast plate")
         if self.post_dx - 10 < half + 5:
             bad.append("azimuth stepper hits the mast posts")
+        return bad
+
+    # ---- azimuth home switch (2026-11-12) -------------------------------------
+    def az_sector_ends_deg(self) -> tuple[float, float]:
+        """Plate angles (deg from +x) of the gear sector's two ends, as `feeder.az_gear_profile` draws them: the outer
+        teeth's root corners plus a quarter pitch."""
+        pitch = 2 * math.pi / self.az_gear_teeth
+        n = int(math.radians(self.az_sector_half_deg) // pitch)
+        rr = self.az_gear_r - 1.25 * self.az_module
+        e = n * pitch + self.az_tooth_half_angle(rr) + pitch / 4
+        return 90.0 - math.degrees(e), 90.0 + math.degrees(e)
+
+    def home_switch_design(self) -> dict:
+        """Where the home switch and its cam lobe sit, and what the switch can tell the firmware.
+
+        Radii about the turntable axis: the roller's free outer edge sits `home_sw_free_clear_mm` inside the sector's
+        plain inner arc, so the arc never touches it; the lobe's face is pretravel plus half the overtravel further in,
+        so the click lands in the middle of the lever's usable travel. Plate angle under the switch is
+        `home_sw_deg - az` (the turntable turns counter-clockwise for positive az), so a lobe from the trip angle to the
+        sector's high end holds the switch closed for every az at or below `az_home_deg`, down past where the pinion
+        runs off the teeth. On the ramp the roller moves `tan(ramp)` mm in per mm of arc, so a radial error `d` moves the
+        trip by `d / tan(ramp)` of arc: repeatability sets how alike two homings are, the part tolerance only shifts
+        the home (calibrate AZ_HOME_DEG once). A round roller meets the ramp at the ramp's own angle round its rim, so
+        it is touched, and pushed, rho (1/cos(ramp) - 1) / tan(ramp) of arc sooner than its tip would be; the ramp is
+        set that much further along so the click still lands at `az_home_deg`."""
+        ri = self.az_gear_inner_r
+        r_c = ri - self.home_sw_free_clear_mm
+        depth = self.home_sw_pretravel_mm + self.home_sw_overtravel_mm / 2
+        r_lobe = r_c - depth
+        tan = math.tan(math.radians(self.home_cam_ramp_deg))
+        r_mid = (ri + r_lobe) / 2
+        ramp_deg = math.degrees((ri - r_lobe) / tan / r_mid)
+        trip = self.home_sw_deg - self.az_home_deg                       # plate angle under the switch at home
+        to_trip = math.degrees((ri - r_c + self.home_sw_pretravel_mm) / tan / r_mid)
+        cr = math.radians(self.home_cam_ramp_deg)
+        early = math.degrees(self.home_sw_roller_r * (1 / math.cos(cr) - 1) / tan / r_mid)
+        ramp0 = trip - to_trip + early                                   # ramp starts on the plain arc
+        ramp1 = ramp0 + ramp_deg                                         # full depth from here to the end
+        contact = ramp0 + math.degrees((ri - r_c) / tan / r_mid) - early  # roller first touched (on its rim)
+        lo_end, hi_end = self.az_sector_ends_deg()
+        tw, rw, hz = self.home_sw_body
+        r_body_out = r_c - self.home_sw_lever_mm
+        r_body_in = r_body_out - rw
+        rep_deg = math.degrees(self.home_sw_repeat_mm / tan / r_c)
+        tol_deg = math.degrees(self.home_sw_op_tol_mm / tan / r_c)
+        micro_deg = 360 / (self.stepper_steps * self.az_microsteps * self.az_ratio)
+        miss = lambda d: math.tan(math.radians(d)) * self.aim_range_m * 1000  # noqa: E731
+        pinion_off = 90.0 - hi_end            # az where the pinion leaves the teeth turning negative
+        return {
+            "r_inner": ri, "r_roller": r_c, "r_lobe": r_lobe, "depth_mm": depth,
+            "r_body_in": r_body_in, "r_body_out": r_body_out,
+            "z_floor": self.mast_top_z + self.plate_t, "z_body_top": self.mast_top_z + self.plate_t + self.home_bracket_t + hz,
+            "ramp0_deg": ramp0, "ramp1_deg": ramp1, "trip_plate_deg": trip, "sector_ends_deg": (lo_end, hi_end),
+            "az_contact": self.home_sw_deg - contact, "az_closed_to": self.home_sw_deg - hi_end,
+            "az_pinion_off": pinion_off, "az_lo_end_passes": self.home_sw_deg - lo_end,
+            "repeat_deg": rep_deg, "repeat_miss_mm": miss(rep_deg), "tol_deg": tol_deg, "tol_miss_mm": miss(tol_deg),
+            "microstep_deg": micro_deg, "microstep_miss_mm": miss(micro_deg),
+            "travel_window_mm": (self.home_sw_pretravel_mm + self.home_runout_mm,
+                                 self.home_sw_pretravel_mm + self.home_sw_overtravel_mm - self.home_runout_mm),
+            "off_cam_max_deg": self.az_home_deg - pinion_off,
+        }
+
+    def check_home_switch(self) -> list[str]:
+        bad = []
+        h = self.home_switch_design()
+        if not self.az_home_deg < -self.az_max:
+            bad.append(f"azimuth home {self.az_home_deg:g} deg is inside the working range +-{self.az_max:g}")
+        if h["az_contact"] > -self.az_max - 0.5:
+            bad.append(f"home cam touches the switch roller at {h['az_contact']:.2f} deg, within 0.5 deg of the working range")
+        if self.az_home_deg - 1.0 < h["az_pinion_off"]:
+            bad.append("azimuth home is within 1 deg of where the pinion runs off the gear sector")
+        if h["az_closed_to"] > h["az_pinion_off"]:
+            bad.append("home cam ends before the pinion leaves the teeth: a head turned past it reads open")
+        lo, hi = h["travel_window_mm"]
+        if not lo <= h["depth_mm"] <= hi:
+            bad.append(f"home cam depth {h['depth_mm']:.2f} mm is outside the switch's usable travel {lo:.2f}-{hi:.2f} mm")
+        if self.home_sw_lever_mm < 2 * self.home_sw_roller_r + 0.2:
+            bad.append("home switch roller would sit inside the switch body (lever shorter than the roller)")
+        if self.home_sw_free_clear_mm < self.home_runout_mm + 0.2:
+            bad.append("home switch roller could rub the sector's plain inner arc")
+        if not h["ramp0_deg"] > h["sector_ends_deg"][0] + 2 or h["ramp1_deg"] > h["sector_ends_deg"][1] - 2:
+            bad.append("home cam lobe does not fit on the gear sector")
+        corner = math.hypot(h["r_body_out"] + self.home_slot_mm, self.home_sw_body[0] / 2)
+        if corner > h["r_lobe"] - 1.0:
+            bad.append("home switch body (at the slots' outer end) comes within 1 mm of the cam lobe")
+        if h["r_body_in"] - self.home_slot_mm < self.bearing_d / 2 + 1.0:
+            bad.append("home switch bracket runs into the turntable bearing")
+        if h["z_body_top"] > self.mast_top_z + self.plate_t + self.bearing_h - 1.0:
+            bad.append("home switch is taller than the bearing gap")
+        if abs((self.home_sw_deg - 90.0 + 180) % 360 - 180) < 25:
+            bad.append("home switch sits by the pinion")
         return bad
 
     # ---- elevation drive (2026-11-11) -----------------------------------------

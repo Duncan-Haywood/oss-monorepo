@@ -49,6 +49,17 @@ class DrillOnSimulatedFeederTest(unittest.TestCase):
     def test_timed_actuator_homes_first(self):
         self._check_clean_run(controller.ELEV_TIMED)
 
+    def test_head_left_past_home_still_aims(self):
+        # Powered up with the head turned to -35 deg, where the home cam already holds the switch closed. The old
+        # firmware took that as home (-32), so every shot went 3 deg wide; it now backs off the cam and homes on the
+        # closing edge (cad: Feeder.home_switch_design).
+        sim = SimFeeder(az_start_deg=-35.0)
+        shots = drill()
+        res, _ = run(sim, shots)
+        self.assertTrue(res.ok, res.aborted)
+        for shot, (_, _, az, _, _, _) in zip(shots, sim.released):
+            self.assertAlmostEqual(az, shot.azimuth_cdeg / 100, delta=0.05)
+
     def test_estop_mid_drill_aborts_and_no_more_balls(self):
         sim = SimFeeder()
         shots = drill()

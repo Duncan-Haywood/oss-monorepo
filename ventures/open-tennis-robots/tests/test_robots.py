@@ -254,6 +254,16 @@ class FirmwareTest(unittest.TestCase):
     def _axis(self):
         return controller.StepperAxis(200 * 4 * 10 / 360, 60.0, 120.0, -32.0, -30.0, 30.0)
 
+    def _home(self, ax, start_deg=0.0, limit_ms=60000):
+        """Run the axis against a turntable whose cam holds the switch closed at or below -32 deg (cad:
+        Feeder.home_switch_design); return the true angle once homed."""
+        true = start_deg
+        for _ in range(limit_ms // 10):
+            if ax.homed or ax.fault:
+                break
+            true += ax.update(10, true <= -32.0) / ax.k
+        return true
+
     def test_azimuth_stepper_homes_then_moves(self):
         ax = self._axis()
         sent, t = 0, 0
@@ -271,7 +281,7 @@ class FirmwareTest(unittest.TestCase):
 
     def test_azimuth_trapezoid_takes_the_sized_time(self):
         ax = self._axis()
-        ax.update(10, True)                   # at home (-32 deg); the goal is still 0
+        self._home(ax, -32.0)                 # at home (-32 deg); the goal is still 0
         for _ in range(300):
             ax.update(10, False)
         self.assertEqual(ax.pos, 0.0)
@@ -291,24 +301,65 @@ class FirmwareTest(unittest.TestCase):
 
     def test_azimuth_abrupt_stop_rehomes_and_broken_switch_faults(self):
         ax = self._axis()
-        ax.update(10, True)
+        self._home(ax, -32.0)
         ax.target(30.0)
         for _ in range(40):
             ax.update(10, False)
         self.assertGreater(abs(ax.v), 10.0)
         ax.stop()                             # e-stop at speed: steps may be lost
         self.assertFalse(ax.homed)
-        for _ in range(2000):                 # switch never closes: 70 deg at 5 deg/s is 14 s
+        for _ in range(2000):                 # switch never closes: 82 deg at 5 deg/s is 16.4 s
             ax.update(10, False)
         self.assertTrue(ax.fault)
         self.assertEqual(ax.update(10, True), 0)
         slow = self._axis()
-        slow.update(10, True)
+        self._home(slow, -32.0)
         slow.stop()                           # a stop at rest keeps the home
         self.assertTrue(slow.homed)
         self.assertNotIn(protocol.FLAG_AZ_UNHOMED, (protocol.FLAG_ESTOP, protocol.FLAG_WATCHDOG, protocol.FLAG_BUMPER,
                                                      protocol.FLAG_HOPPER_EMPTY, protocol.FLAG_HOPPER_FULL,
                                                      protocol.FLAG_LOW_BATTERY))
+
+    def test_azimuth_homes_from_either_side_of_the_switch(self):
+        # The cam holds the switch closed below home. Before 2026-11-12 a closed switch was taken as home at once, so
+        # a head left at -35 deg (turned by hand, or coasting after a power cut) homed 3 deg off: 1.3 m at 24 m.
+        for start in (25.0, 0.0, -31.9, -32.0, -33.0, -35.0, -37.4):
+            ax = self._axis()
+            true = self._home(ax, start)
+            self.assertTrue(ax.homed, start)
+            # the home is taken on the closing edge, so the true angle is within one microstep below -32
+            self.assertLessEqual(true, -32.0, start)
+            self.assertGreater(true, -32.0 - 1.5 / ax.k, start)
+            for _ in range(600):
+                true += ax.update(10, true <= -32.0) / ax.k
+            self.assertLess(abs(true - ax.pos), 1.5 / ax.k, start)   # it knows where it is
+            self.assertAlmostEqual(ax.pos, 0.0, places=6)
+
+    def test_azimuth_stuck_closed_switch_faults_instead_of_homing(self):
+        ax = self._axis()
+        moved = 0
+        for _ in range(1000):                 # a switch wire shorted to ground reads closed everywhere
+            moved += ax.update(10, True)
+            if ax.fault:
+                break
+        self.assertTrue(ax.fault)
+        self.assertFalse(ax.homed)
+        self.assertGreater(moved, 0)          # it tried to leave the cam toward positive angles
+        self.assertLess(moved / ax.k, 12.5)   # and gave up after off_cam_deg
+
+    def test_azimuth_home_matches_the_cad(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "cad"))
+        from otr_cad.params import Feeder  # pure dataclass, no CAD kernel needed
+        p, ax = Feeder(), self._axis()
+        h = p.home_switch_design()
+        import config  # noqa: E402  (firmware/esp32 is on the path)
+        self.assertEqual(config.AZ_HOME_DEG, p.az_home_deg)
+        self.assertEqual(config.AZ_MICROSTEPS, p.az_microsteps)
+        self.assertEqual(config.AZ_RATIO, p.az_ratio)
+        # backing off from the lowest angle the pinion still drives must not trip the stuck-switch fault
+        self.assertLess(h["off_cam_max_deg"], ax.off_cam)
+        # and a seek from the top of the sector's teeth must not trip the broken-switch fault
+        self.assertLess((p.az_sector_ends_deg()[1] - 90.0) - p.az_home_deg, ax.search)
 
     # ---- elevation actuator (2026-11-11) ----------------------------------------------------------------------
 
@@ -445,7 +496,7 @@ class FirmwareTest(unittest.TestCase):
     def test_azimuth_settled(self):
         ax = self._axis()
         self.assertFalse(ax.settled)
-        ax.update(10, True)                   # homed at -32 deg; the goal is still 0
+        self._home(ax, -32.0)                 # homed at -32 deg; the goal is still 0
         self.assertFalse(ax.settled)
         for _ in range(300):
             ax.update(10, False)
