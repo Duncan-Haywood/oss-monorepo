@@ -2,7 +2,7 @@
 title: "Minutes a ticket, minutes a euro: a labour standard from a till export"
 date: 2026-11-12
 tags: [shift-roster-builder, scheduling, forecasting, small-business]
-description: The roster builder's sales-to-shifts step now plans from a labour standard, the minutes each ticket, unit of money and item takes. On a real French bakery the ticket-heavy plans were steadier week to week.
+description: The roster builder now plans shifts from minutes a ticket, a euro and an item. On a real bakery, ticket-heavy plans were steadier week to week.
 ---
 
 Should a shop plan staff from how much money it takes, or from how many customers come in? Until today the [shift roster builder](https://marisstella.app/shift-roster-builder/shifts-from-sales.html) made you pick one. "Sales per labor hour" plans from money. "Staff to: customers" counts tickets. A bakery's morning baguette rush is many small tickets and its lunch hour fewer, bigger ones, so the two put the hours in different places.
