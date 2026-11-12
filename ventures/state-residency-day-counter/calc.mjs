@@ -530,6 +530,9 @@ export function analyze(spec, _alt = false) {
   if (gapsToDate && !home) notices.push(`${gapsToDate} day(s) up to the as-of date are not in any stay. They are not counted anywhere; add a stay or pick the state you assume you were in. Uncovered: ${gapList}.`);
   if (home && gapRanges.length) notices.push(`Days not in any stay are assumed to be in ${home}: ${gapList}. Add stays for any of these you spent elsewhere.`);
   if (unplanned && !home) notices.push(`${unplanned} day(s) after the as-of date have no plan yet.`);
+  // A typo ("YN" for NY) or a place abroad parses as a two-letter code; its days count toward no state.
+  const foreign = [...new Set(spec.stays.map((s) => s.state))].filter((c) => !STATE_NAMES[c]);
+  if (foreign.length) notices.push(`${foreign.map((c) => { const st = states.find((s) => s.code === c); return `${c} (${st ? st.days : 0} day${st && st.days === 1 ? "" : "s"})`; }).join(", ")} ${foreign.length === 1 ? "is" : "are"} not a US state or DC code, so those days count toward no state. If you meant a state, fix the code; days abroad can stay as they are.`);
 
   // The other counting convention, side by side: auditors often count any part
   // of a day, so show what the choice is worth and flag where it changes a result.
