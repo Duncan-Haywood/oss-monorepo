@@ -76,23 +76,8 @@ def pilot_ceiling(y, f):
     return cell_ceiling(sum(pos) / len(pos), sum(1 - b for b in neg) / len(neg))
 
 
-def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=NEG_GUARD):
-    """One call from a hand-coded pilot to the rest of the audit. f_all: the coder's 0/1 codes on every corpus item;
-    pilot_y: {item index: human 0/1} for a simple random pilot (about PILOT_SHARE * n items); n: total audit budget.
-    Returns {"design", "cells", "to_label"}: design is "pooled" or "cells" (`screen`); cells are lists of item
-    indices (one cell for pooled, coder-negative then coder-positive for cells); to_label is how many more items to
-    draw at random from each cell's unpiloted items, so pilot items count toward n. The coder's codes feed only the
-    design; the pilot must be a random draw or J_hat is biased. The result also carries "ceiling": the best-case
-    half-width ratio of cells over pooled at the pilot's sensitivity and specificity (`pilot_ceiling`), reported for
-    the planner and not used by the rule (an upper bound, not a forecast; see `cell_ceiling`): 7h saw the screen pick cells at J = 0.39 for a gain of 0.6% against a
-    ceiling of 8%."""
-    idx = sorted(pilot_y)
-    y = [pilot_y[i] for i in idx]
-    f = [f_all[i] for i in idx]
-    if screen(y, f, tau, guard, neg_guard) == "pooled":
-        return {"design": "pooled", "cells": [list(range(len(f_all)))], "to_label": [max(0, n - len(idx))],
-                "ceiling": pilot_ceiling(y, f)}
-    cells = [[i for i, c in enumerate(f_all) if c == k] for k in (0, 1)]
+def _cell_s2(f_all, pilot_y, cells):
+    """Pilot variance of y - f in each cell (as `plan_audit` allocates): floored at 1e-4, 0.25 with under two items."""
     s2 = []
     for cell in cells:
         res = [pilot_y[i] - f_all[i] for i in cell if i in pilot_y]
@@ -101,6 +86,62 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=N
             s2.append(max(1e-4, sum((r - m) ** 2 for r in res) / (len(res) - 1)))
         else:
             s2.append(0.25)
+    return s2
+
+
+def predicted_ratio(f_all, pilot_y, n, floor=FLOOR):
+    """Pilot plug-in forecast of the half-width ratio, coder cells over one pooled stratum, for an audit of n items
+    (LOG.md 7ak). Unlike `pilot_ceiling` (asymptotic, Neyman without floor, pooled at lambda 0) it prices what the
+    real audit does: the pooled side uses the control-variate weight lambda fitted on the pilot, the cells side the
+    floored allocation `cell_allocation` would make, and both carry the finite-population correction. Returns
+    sqrt(var_cells / var_pooled) with the variances of `audit_interval`'s estimator at the planned sizes; 1.0 when
+    the pilot leaves the pooled variance at zero."""
+    idx = sorted(pilot_y)
+    y = [pilot_y[i] for i in idx]
+    f = [f_all[i] for i in idx]
+    N, m = len(f_all), len(idx)
+    if m < 3:
+        return 1.0
+    my, mf = sum(y) / m, sum(f) / m
+    vf = sum((b - mf) ** 2 for b in f) / (m - 1)
+    lam = 0.0 if vf == 0 else min(1.0, max(0.0, sum((a - my) * (b - mf) for a, b in zip(y, f)) / (m - 1) / vf))
+    r = [a - lam * b for a, b in zip(y, f)]
+    mr = sum(r) / m
+    var_pool = (1 - n / N) * (sum((x - mr) ** 2 for x in r) / (m - 1)) / n
+    if var_pool <= 0:
+        return 1.0
+    cells = [[i for i, c in enumerate(f_all) if c == k] for k in (0, 1)]
+    sizes = [len(c) for c in cells]
+    if min(sizes) == 0:
+        return 1.0
+    s2 = _cell_s2(f_all, pilot_y, cells)
+    alloc = cell_allocation(n, sizes, s2, floor)
+    var_cells = sum((Nh / N) ** 2 * (1 - a / Nh) * v / a for Nh, a, v in zip(sizes, alloc, s2))
+    return (var_cells / var_pool) ** 0.5
+
+
+def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=NEG_GUARD, width_margin=None):
+    """One call from a hand-coded pilot to the rest of the audit. f_all: the coder's 0/1 codes on every corpus item;
+    pilot_y: {item index: human 0/1} for a simple random pilot (about PILOT_SHARE * n items); n: total audit budget.
+    Returns {"design", "cells", "to_label"}: design is "pooled" or "cells" (`screen`); cells are lists of item
+    indices (one cell for pooled, coder-negative then coder-positive for cells); to_label is how many more items to
+    draw at random from each cell's unpiloted items, so pilot items count toward n. The coder's codes feed only the
+    design; the pilot must be a random draw or J_hat is biased. The result also carries "ceiling": the best-case
+    half-width ratio of cells over pooled at the pilot's sensitivity and specificity (`pilot_ceiling`), reported for
+    the planner and not used by the rule (an upper bound, not a forecast; see `cell_ceiling`): 7h saw the screen pick cells at J = 0.39 for a gain of 0.6% against a
+    ceiling of 8%. width_margin (default None, off): also send the plan to pooled unless `predicted_ratio` is at most
+    1 - width_margin (LOG.md 7ak)."""
+    idx = sorted(pilot_y)
+    y = [pilot_y[i] for i in idx]
+    f = [f_all[i] for i in idx]
+    design = screen(y, f, tau, guard, neg_guard)
+    if design == "cells" and width_margin is not None and predicted_ratio(f_all, pilot_y, n, floor) > 1 - width_margin:
+        design = "pooled"
+    if design == "pooled":
+        return {"design": "pooled", "cells": [list(range(len(f_all)))], "to_label": [max(0, n - len(idx))],
+                "ceiling": pilot_ceiling(y, f)}
+    cells = [[i for i, c in enumerate(f_all) if c == k] for k in (0, 1)]
+    s2 = _cell_s2(f_all, pilot_y, cells)
     alloc = cell_allocation(n, [len(c) for c in cells], s2, floor)
     return {"design": "cells", "cells": cells,
             "to_label": [max(0, a - sum(1 for i in c if i in pilot_y)) for a, c in zip(alloc, cells)],
