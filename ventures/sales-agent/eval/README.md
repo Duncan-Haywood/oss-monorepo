@@ -930,6 +930,12 @@ is the untuned cost. The rules (`triage`) did not change, so the Enron re-score 
 Still open: a larger or hosted model, which may close well enough to act alone (a 14B, when a model host answers); and
 whether the 11-of-25 close accuracy holds on real replies.
 
+## A 14B local model on the same replies (2026-11-12, in progress)
+
+huggingface.co answered on the third run of 2026-11-12, so this run downloads Qwen2.5-14B-Instruct Q4_K_M (Qwen's own
+split GGUF, three files, about 9 GB) and runs it through the same `TRIAGE_SYSTEM` prompt and merge as the 7B above, honest
+pair and trap probes first. Results follow when the run finishes.
+
 ## "We are not interested": a veto narrowed with an Enron re-score (2026-11-12)
 
 A probe found that "We are not interested, thanks." went to a person as `unclear`, while "We're not interested, thanks." and
