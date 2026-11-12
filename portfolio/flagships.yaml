@@ -201,8 +201,8 @@ flagships:
       --shut-min by weekday (README, 2026-11-12 sections). Next: close the 100-person gaps (tree, not pricing);
       cuts or branching that move the score LP on the 60-person pay week ($1.22 open); the 60x168 end-to-end
       week 0 (root LP 275.2 h vs 300 h held); regenerate the 14 guide pages' tables with the exact check on
-      (their tests pin exact: false today); run the page's build in a Web Worker so the check does not block a
-      phone's main thread; a real Square or Toast item export (columns read, made-up rows only); a real
+      (their tests pin exact: false today); the multi-week planner's builds in the worker too (the page's main build
+      moved there 2026-11-12, README "The page builds in a Web Worker"); a real Square or Toast item export (columns read, made-up rows only); a real
       published-schedule export for --import-shifts; whether the priced cut's r = 1 default suits a real
       manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing

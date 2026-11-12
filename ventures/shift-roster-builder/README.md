@@ -648,4 +648,22 @@ Until now the exact check ran by itself only on weeks of up to 14 shift copies; 
 
 Never worse on any of the 40, better on 22, fewer open hours on 10, proven on 38. Every one of these weeks has over 14 copies, so the old default is `exact: false` on all of them (the templates were rerun after the change with `MODES=off,exact`). The built-in café sample (the page's example button and `--example`) now leaves 15 hours open instead of 19 and says it is proven, in the same 2.6 s. So `exact: "auto"` (the default for the page, the CLI and the self-hosted server) now runs the check on every week the parser accepts (`EXACT_AUTO_SLOTS` = the 400-copy cap), and under "auto" the exact cover repair runs too, as it did under `exact: true`, so the default and "on" give the same roster (checked on the templates and the 8 x 22 weeks). The page's selector is now On / Off; `--no-prove` and `exact: false` turn it off.
 
-Not claimed: seeded synthetic weeks and the built-in templates only, one machine; below 60 copies the check costs up to a second more and the page runs it on the main thread, so a slow phone waits longer. Two unproven weeks above 150 copies stop on the 20 s budget either way (the 40 x 112 week 2 took 4.6 s longer with the check on, the bound it reaches is reported). Where a time limit stops the search, the roster can depend on machine speed, as it already could above 150 copies. Test: `calc.test.mjs` ("exact search runs by itself on every week").
+Not claimed: seeded synthetic weeks and the built-in templates only, one machine; below 60 copies the check costs up to a second more and the page ran it on the main thread, so a slow phone waited longer (moved to a Web Worker later the same day, below). Two unproven weeks above 150 copies stop on the 20 s budget either way (the 40 x 112 week 2 took 4.6 s longer with the check on, the bound it reaches is reported). Where a time limit stops the search, the roster can depend on machine speed, as it already could above 150 copies. Test: `calc.test.mjs` ("exact search runs by itself on every week").
+
+## The page builds in a Web Worker (2026-11-12)
+
+With the exact check on by default at every size, the page's build ran column generation and branch-and-price on the browser's main thread. The page froze until it finished: no scrolling, no typing, no way to stop it. The build now runs in a module worker (`roster-worker.mjs`, which only calls `buildRoster` from `calc.mjs`), and a **Stop** button next to "Build the roster" ends it. The worker returns the roster, the staff and the shifts in one message, so structured clone keeps the references between them; the page then uses those copies with the roster. If the browser cannot start a module worker (an old browser, a page opened from `file://`, or the worker file missing from an offline cache), the page builds on the main thread as before.
+
+Same run, a bug fix: the main build never read the "Check against an exact search" select (only the multi-week planner did), so **Off** did nothing. It now passes `exact: false`.
+
+Measured in headless Chromium on the café sample (32 shifts, exact check on, `build-worker.check.mjs`; needs a server and Playwright, see the file header):
+
+| build | time to the report | longest gap between frames |
+|---|---|---|
+| main thread (Worker removed) | 1.9 s | 1,850 ms |
+| worker | 1.9 s | 50 ms |
+| main thread, CPU slowed 4x (DevTools throttling) | 6.0 s | 5,767 ms |
+
+Both builds give the same summary, grid, notices and who-is-critical text. Stop ends a build mid-run and the next build works. With **Off** the report carries no "Checked against an exact search" line. `page-worker.test.mjs` checks, on the sample and the four templates, that the worker's roster equals a direct call, and that every report the page draws (cover, swaps, hand-over chains, trades, absences, cuts, flags, breaks, fairness, CSV, .ics, messages, open-shift post) is the same from the cloned roster as from the original.
+
+Not claimed: one desktop machine and one sample week; DevTools' 4x throttle is a stand-in for a phone and does not slow the worker thread, so there is no throttled worker time in the table. The multi-week planner ("Plan several weeks") still builds on the main thread with a 4 s exact budget per week.
