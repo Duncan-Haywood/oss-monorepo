@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtHxkpZFXcNB6SQTCLG",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T22:07:14Z",
+  "ended": "2026-11-12T22:14:27Z",
+  "wall_minutes": 7.5,
+  "tokens_in": 3630205,
+  "tokens_out": 31167,
+  "cost_usd": 2.1927,
+  "tool_calls": 40,
+  "task": "Programme sensing-selfcal (drawn by pick_track.py): milestone 4c, the jackknife update test's reference distribution (H28-H32), re-tested on milestone 4b's stored solves",
+  "projects": [
+    "research/sensing-selfcal"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15272",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally.py: guessed a --base flag; the base is a positional value of --for-changes"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "says `run_workflow_locally.py --for-changes` without saying the base ref is its optional positional argument; I tried --base first"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "bare python3 lacks numpy; pyenv.py returned /usr/bin/python3.13 at once, as documented, which worked"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The milestone needed no new solves: it re-analyses milestone 4b's stored 8,580 solves with different thresholds, so the step is a reanalysis rather than a fresh experiment.",
+      "did": "Pre-registered H28-H32 in LOG.md and pushed it before computing any number, then ran the analysis.",
+      "result": "Four of five held; the main practical result (f alone vs a borrowed threshold) is reported as unscored and flagged as such."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-camera-test-was-deaf-in-one-ear.md",
+    "research/sensing-selfcal/LOG.md (milestone 4c planned and result)",
+    "research/sensing-selfcal/README.md (Milestone 4c section)"
+  ],
+  "goal": "Advance a PhD-level research programme (sensing-selfcal, target RA-L) by one pre-registered milestone",
+  "notes": "H28 held (F: 0/360 false alarms), H29 held (F keeps 19-22% of chi2's 4% detections), H30 held (borrowed W threshold 0.6-2.8% false alarms), H31 held (oracle W threshold detects 2% focal change in 4.6-10%), H32 refuted (f alone vs chi2_1 3.3-7.9% < W 8.3-11.7%). Unscored: f alone vs the other camera's 99th percentile detects 2% in 28-41% and 4% in 78-85% with 0-5% false alarms. Checks: pytest tests 21 passed (new test_satterthwaite_and_hotelling_reference); research/_homepage/build.py ok; research_live_links ok; check_md_links ok; post frontmatter/links/similarity ok; cite_check: README carries no DOI/arXiv ids.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6f769a1d-da30-598c-96df-b0d719b293d8",
+    "transcripts": 1,
+    "first": "2026-11-12T22:07:14Z",
+    "last": "2026-11-12T22:14:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 73,
+        "output": 31167,
+        "thinking": 6935,
+        "cache_read": 3522046,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108086,
+        "api_equivalent_usd": 2.1927,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 73,
+      "output": 31167,
+      "thinking": 6935,
+      "cache_read": 3522046,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108086,
+      "api_equivalent_usd": 2.1927,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 34,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.5,
+      "active_minutes": 7.5,
+      "model_minutes": 5.87,
+      "tool_minutes": 1.64,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a statistician re-analysing stored calibration solves with four reference distributions, pre-registering, and writing up: about a working day",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 273.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

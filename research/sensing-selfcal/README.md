@@ -83,6 +83,17 @@ the jackknife test **catches the real swap to the other camera unit in 75% of sp
 30%** with the old corners. Harmful adoptions fall to 0.5–1.5% of decisions. All five
 pre-registered predictions held.
 
+**Milestone 4c headline** (no new solve; milestone 4b's 8,580 solves re-tested): **why the
+jackknife test was deaf**. For the three-parameter statistic it is information: even a threshold
+fitted on the scored camera itself (an oracle) detects a 2% focal change in only 5–10% of splits,
+and a small-sample Hotelling reference is far too strict (0 false alarms, but it keeps only a fifth
+of the 4% detections). For the focal length alone the χ² reference is mis-scaled about 3×: testing
+f against the **99th percentile measured on the other camera** detects a **2% focal change in 28–41%
+of splits and 4% in 78–85%** with 6 new views (0–5% false alarms), nearly what the oracle gets.
+Four of five pre-registered predictions held; the f-only power figure was not pre-registered.
+
+![share of splits where the jackknife update test fires against the focal change, five references, two detectors](experiments/m4c_reference/power.png)
+
 ![share of splits where the χ² update test fires against the focal change, for four covariances and two corner detectors](experiments/m4b_viewcov/power.png)
 
 ![share of splits where the χ² update test fires against the focal change applied to the new views, raw and transferred covariance](experiments/m4_accept/power.png)
@@ -387,6 +398,56 @@ is dominated by something the residuals do not carry (the remaining smooth corre
 lens or board terms the model omits, or the data's few views), so the honest error bar has
 to come from outside the fit, as milestone 3's jackknife did.
 
+## Milestone 4c: the jackknife test's reference distribution
+
+Pre-registered in `LOG.md` (2026-11-12) before any number was computed. Code:
+`experiments/m4c_reference/analyse.py`, `satterthwaite_nu` and `hotelling_crit` in `src/selfcal.py`.
+It re-uses milestone 4b's stored solves, splits and disturbances (k ≥ 4, 360 unchanged splits per
+detector, 9,360 decisions) and changes only the threshold.
+
+**Statistics and references.** W = dᵀ(J<sub>old</sub> + s²J<sub>new</sub>)⁻¹d on (f, c<sub>x</sub>, c<sub>y</sub>), and z<sub>f</sub>² on f
+alone. References at 1%: **χ²** (11.34; 6.63 for f), as 4b; **F**, Hotelling's T² with
+Welch–Satterthwaite degrees of freedom from the two jackknife f variances (median ν 6.2 / 5.9, so
+a median threshold of 68 / 79); **E**, the other camera's 99th percentile on unchanged splits,
+same detector; **O**, the same camera's own (an oracle, so ≈ 1% false alarms by construction).
+
+**Hypotheses** (`experiments/m4c_reference/summary.json`; 95% Wilson intervals):
+
+| | prediction | result | |
+|---|---|---|---|
+| H28 | F: false alarms ≤ 1%, both detectors | 0/360 on each (0–1.1%) | held |
+| H29 | F keeps < ½ of χ²'s ±4% detections at k = 6 | 19% (11×11), 22% (SB) | held |
+| H30 | E: false alarms ≤ 5% each camera, both detectors | 2.2 / 0.6% (11×11), 0.6 / 2.8% (SB) | held |
+| H31 | O: ±2% at k = 6 detected in < 25% | 4.6% (11×11), 10.0% (SB) | held |
+| H32 | f alone vs χ²<sub>1</sub> beats W vs χ²<sub>3</sub> at ±2%, ≤ 3% false alarms | 3.3 vs 8.3% (11×11), 7.9 vs 11.7% (SB) | refuted |
+
+**Power, 6 new views** (share of 120 splits; −/+ for focal changes):
+
+| change | W χ² 11×11 | f vs E 11×11 | W χ² SB | f vs E SB | f vs O SB (oracle) |
+|---|---|---|---|---|---|
+| none (k ≥ 4, false alarm) | 2.5% | 1.4% | 1.7% | 2.5% | 1.1% |
+| focal −1% / +1% | 4 / 3% | 4 / 10% | 3 / 4% | 12 / 7% | 11 / 7% |
+| focal −2% / +2% | 8 / 9% | 41 / 28% | 12 / 12% | 40 / 31% | 38 / 33% |
+| focal −4% / +4% | 41 / 46% | 83 / 79% | 63 / 49% | 85 / 78% | 89 / 83% |
+| principal point +10 px | 6% | 2% | 12% | 3% | 2% |
+| swap to the other unit | 37% | 4% | 86% | 2% | 3% |
+
+**Reading.** The 2% focal change was hidden by two different things. In the three-parameter
+statistic it is buried: no threshold, not even one fitted on the scored camera, lifts it above
+10%. On f alone it is visible, but the jackknife overstates f's variance by about 3× on these
+splits (the 99th percentile of z<sub>f</sub>² is 1.7–4.2, not 6.6), so a χ² threshold throws the
+signal away. A tail threshold measured on a sibling unit recovers it, at a false-alarm cost that
+did not always match the oracle (5.0% on the SB left camera, whose own threshold is 4.2 against
+the right's 1.9). The f-only test is blind to the unit swap, which lives in c<sub>x</sub>; an
+exploratory union with W (not pre-registered) keeps both, at 3–4% false alarms. A
+Hotelling-type small-sample correction is the textbook fix and the wrong one here: it assumes
+the jackknife is unbiased, and it is conservative already.
+
+**What it means for a robot.** Run two tests on an update: the focal length alone against a
+threshold measured on a sibling unit of the same camera model, and the three-parameter test for
+principal-point moves. With 6 new views of this rig that catches a 2% focal change about a third
+of the time and a 4% change four times in five; a 1% change remains below what the views can tell.
+
 ## Milestone 4b: a covariance from the calibration's own views, on two detectors
 
 Pre-registered in `LOG.md` (2026-11-12) before any solve. Code: `experiments/m4b_viewcov/`,
@@ -511,6 +572,7 @@ OMP_NUM_THREADS=1 python3 experiments/m4_accept/run.py   # ~3 min on 4 cores; re
 python3 experiments/m4_accept/analyse.py   # summary.json, power.png
 OMP_NUM_THREADS=1 python3 experiments/m4b_viewcov/run.py  # ~25 min on 4 cores; results.json.gz
 python3 experiments/m4b_viewcov/analyse.py  # summary.json, power.png
+python3 experiments/m4c_reference/analyse.py  # seconds, no new solve; summary.json, power.png
 python3 -m pytest tests
 ```
 
@@ -556,10 +618,12 @@ field that survives every localiser (tangential or thin-prism lens terms, or a p
 board deformation); and synthetic renders with a known camera to say which localiser is
 right. Milestone 3b: natural features (SIFT) on an openly licensed multi-view set with a target
 calibration of the same camera (H5). After milestone 4b (done: SB corners and a jackknife Σ): calibrate the test's threshold to the
-jackknife's heavier tails (a t-type or bootstrap reference distribution rather than χ²<sub>3</sub>);
+jackknife's heavier tails (done in milestone 4c: an F reference is too strict; a sibling unit's 99th percentile on f alone works);
 pool the update over several capture sessions to buy back power; find what drives the right camera's
 c<sub>x</sub> offset (which views pull it); and a capture with a physically changed lens (zoom or
-refocus) for a real focal change.
+refocus) for a real focal change. After milestone 4c: score the f-alone test with a borrowed threshold
+and the union with W as pre-registered hypotheses on fresh splits or a second rig, and pool
+thresholds over several sibling units rather than one.
 
 ## References
 
