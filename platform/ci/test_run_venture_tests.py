@@ -76,6 +76,22 @@ class FakeVentures(unittest.TestCase):
         self.assertIn("timed out", out)
         self.assertLess(secs, 30)
 
+    def test_a_failing_test_that_leaves_a_server_open_fails_fast(self):
+        # About 40 venture server suites close their server as a test's last line,
+        # so a failing assertion skips it and the open handle kept `node --test`
+        # running until SUITE_TIMEOUT (red-team run 2026-11-12: einvoice-preflight's
+        # server.test.mjs hung 300 s on each of four caught mutants).
+        self.venture("srv", {"s.test.mjs":
+            "import test from 'node:test'; import http from 'node:http';"
+            "test('t', async () => { const s = http.createServer(); await new Promise((r) => s.listen(0, r));"
+            " throw new Error('assertion that skips the close'); s.close(); });"})
+        with mock.patch.object(rvt, "SUITE_TIMEOUT", 20):
+            _, ok, out, secs = rvt.run("srv")
+        self.assertFalse(ok)
+        self.assertNotIn("timed out", out)
+        self.assertIn("assertion that skips the close", out)
+        self.assertLess(secs, 15)
+
     def test_ventures_without_tests_are_skipped(self):
         self.venture("d", {"index.html": "<p>"})
         self.venture("e", {"node_modules/dep/q.test.mjs": "throw 1"})

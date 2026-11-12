@@ -86,12 +86,18 @@ def stated_line_tax(line: dict[str, Any], net: Decimal | None, percent: Decimal 
     return stated if abs(stated - net * percent / Decimal("100")) <= _CENT else None
 
 
+# E, Z, AE, K and G must carry 0 (EN 16931 BR-E-05, BR-Z-05, BR-AE-05, BR-IC-05, BR-G-05)
+# and PINT (UAE, Oman) leaves BT-119 out on them, so a missing one reads as 0, like O.
+# Mirrors NO_RATE_CATEGORIES in linenet.mjs (tests/test_js_parity.py).
+_NO_RATE_CATEGORIES = frozenset({"O", "E", "Z", "AE", "K", "G"})
+
+
 def tax_percent_of(item: dict[str, Any]) -> Decimal | None:
     percent = _number(item.get("tax_percent"))
     if percent is not None:
         return percent
     category = item.get("tax_category")
-    if isinstance(category, str) and category.strip().upper() == "O":
+    if isinstance(category, str) and category.strip().upper() in _NO_RATE_CATEGORIES:
         return Decimal("0")
     return None
 

@@ -326,11 +326,19 @@ def workflows_naming():
     return named
 
 
+# --test-force-exit: about 40 venture server suites close their server as a
+# test's last line, so a failing assertion skipped the close and the open handle
+# kept `node --test` alive until SUITE_TIMEOUT; the failure now ends the file as
+# soon as its tests finish (red-team run 2026-11-12). On Node 22.23 it reports the
+# same tests as without it (einvoice-preflight: 1580 of 1580 either way).
+NODE_TEST = ["node", "--test", "--test-force-exit"]
+
+
 def command(slug):
     if slug not in own_workflow_slugs():
-        return ["node", "--test"]
+        return list(NODE_TEST)
     venture = VENTURES / slug
-    return ["node", "--test", *sorted(
+    return [*NODE_TEST, *sorted(
         str(p.relative_to(venture)) for p in node_tests(slug))]
 
 

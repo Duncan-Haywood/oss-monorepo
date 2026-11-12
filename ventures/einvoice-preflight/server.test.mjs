@@ -1,13 +1,26 @@
-import test from "node:test";
+import test, { after } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createApp, loadConfig } from "./server.mjs";
+
+// A test that fails an assertion never reaches its own `await s.close()`, and a
+// listening server keeps `node --test` from exiting: one caught regression then
+// hung the suite until the runner's timeout instead of failing in seconds
+// (red-team run 2026-11-12, four mutants of endpoint.mjs). Close what is left.
+const open = new Set();
+after(() => Promise.all([...open].map((close) => close())));
 
 async function start(env = {}) {
   const server = createApp(loadConfig(env));
   await new Promise((r) => server.listen(0, "127.0.0.1", r));
   const base = `http://127.0.0.1:${server.address().port}`;
-  return { base, close: () => new Promise((r) => { server.close(r); server.closeAllConnections(); }) };
+  const close = () => new Promise((r) => {
+    if (!open.delete(close)) return r();
+    server.close(() => r());
+    server.closeAllConnections();
+  });
+  open.add(close);
+  return { base, close };
 }
 const ex = (f) => readFile(new URL(`./examples/${f}`, import.meta.url));
 
