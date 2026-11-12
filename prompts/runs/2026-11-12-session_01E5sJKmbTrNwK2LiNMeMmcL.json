@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKmbTrNwK2LiNMeMmcL",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T07:23:39Z",
+  "ended": "2026-11-12T07:32:11Z",
+  "wall_minutes": 8.68,
+  "tokens_in": 6595652,
+  "tokens_out": 26909,
+  "cost_usd": 2.7255,
+  "tool_calls": 65,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15048",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/README.md",
+      "issue": "Said later EN releases drop UBL-SR-53; the rule was added in 1.3.14 and CIUS-RO pins 1.3.8. Corrected in this PR."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "slimdom/fontoxpath were not installed; `npm i --no-save slimdom fontoxpath` in the venture dir took under a minute and the plain-route tests had been silently skippable without it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-romania-checks-against-an-older-rulebook.md",
+    "ventures/einvoice-preflight/README.md (CIUS-RO runs on EN 16931 1.3.8)"
+  ],
+  "goal": null,
+  "notes": "Flagship einvoice-preflight item UBL-SR-53. Verified: node --test cius-ro-base/cius-ro (9 pass), plain-schematron/report-plain-route/official-good-cases/report (29 pass, 1 skip), run_venture_tests.py einvoice-preflight ok. phive-corpus --good cius-ro/1.0.9: UBL-SR-53 4 -> 0 files.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b79ff5a0-c951-5443-b12a-2efbbc5c2feb",
+    "transcripts": 1,
+    "first": "2026-11-12T07:23:39Z",
+    "last": "2026-11-12T07:32:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 122,
+        "output": 26909,
+        "thinking": 5050,
+        "cache_read": 6484278,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111252,
+        "api_equivalent_usd": 2.7255,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 122,
+      "output": 26909,
+      "thinking": 5050,
+      "cache_read": 6484278,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111252,
+      "api_equivalent_usd": 2.7255,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 61,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.68,
+      "active_minutes": 8.68,
+      "model_minutes": 6.9,
+      "tool_minutes": 1.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "tracing the rule version across EN branches and phive, a second base set, routing change, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 183.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

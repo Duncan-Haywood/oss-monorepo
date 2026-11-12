@@ -11,7 +11,11 @@ export const ADDONS = {
   peppol: { source: "peppol-schematron", match: /peppol\.eu/i, files: { ubl: "peppol-ubl.sef.json", cii: "peppol-cii.sef.json" } },
   // Romania's national rules (RO e-Factura, ANAF). UBL only; no Saxon form is built, so
   // only the plain route (browser and Node fallback) runs them: build-ro-rules.mjs.
-  "cius-ro": { source: "cius-ro-schematron", match: /CIUS-RO/i, files: { ubl: "cius-ro-ubl.sef.json" } },
+  // CIUS-RO 1.0.9 sits on EN 16931 validation 1.3.8 (phive-rules-cius-ro's basedOn, and
+  // ANAF's own bundled EN16931-CIUS_RO-UBL-validation.xslt), not on the current base: the
+  // plain route runs that release under it (`base`). 1.3.14 added UBL-SR-51..59, and
+  // UBL-SR-53 fails ANAF's own non-VAT buyer (a PartyTaxScheme with an empty TaxScheme).
+  "cius-ro": { source: "cius-ro-schematron", match: /CIUS-RO/i, files: { ubl: "cius-ro-ubl.sef.json" }, base: { ubl: ["en16931-1.3.8-ubl.json", "en16931-1.3.8"] } },
   // The Netherlands' NLCIUS (SI-UBL 2.0) and its G-account variant. UBL only, plain route
   // only, like Romania: build-nl-rules.mjs. A Peppol BIS file does not match; its NL-R
   // rules already run in the Peppol add-on.
