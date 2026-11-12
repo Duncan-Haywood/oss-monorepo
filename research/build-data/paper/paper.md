@@ -298,7 +298,22 @@ the baseline's loss) and helps a little at q0.5 (0.5 days). For issue-to-complet
 and q0.5 (0.7 and 0.8 days) but costs 2.2 days at q0.9 (interval 0.9 to 3.5; 4.7%), which the unpaired
 comparison could not detect. The own-city model gains in all six target-quantile cells (0.4 to 2.1
 days), so the class carries signal inside Seattle; across cities it helps everywhere except the upper
-tail of build time. One test year; the 2023 repeat was not run.
+tail of build time.
+
+The 2023 repeat and a per-class breakdown (session 75, feeds re-pulled 2026-11-11; `by_class` in the
+paired files, `../src/tail_check.py`, `../results/tail_check_seattle_i2c_{2023,2024}.json`) qualify
+that. The application-to-issue gain repeats: in 2023 the work type lowers the transfer q0.9 loss by
+5.6 days (95% interval 4.6 to 6.5; 13.7% of the baseline's loss). The issue-to-completion q0.9 cost
+does not: in 2023 the difference is -1.6 days (interval -3.4 to +0.1), and on the re-pulled feeds the
+2024 cost is 3.0 days (1.6 to 4.4). So the cost appears in one of two test years. Where it appears, it is not
+new construction (0.4 of the 3.0 days) but demolition: Seattle's 398 demolition test rows carry 1.7
+days (56%), at a mean of +18 days per row. Demolition is also the one class whose completion tail is
+longer in the source cities than in Seattle (q0.9 ratio 1.20 in 2024, 1.10 in 2023); in new
+construction and alteration Seattle's tail is longer (ratios 0.57 to 0.77) and its median completion
+time is about twice the sources' in every large class. A post-hoc reading, not a pre-registered
+test: naming the class imports the sources' tail, and that only hurts where the sources' tail is the
+longer one. Seattle's recent cohorts are right-truncated (a 2024 permit still open at the pull has no
+completion date), which shortens its observed tails, so the ratios understate Seattle's longer tails.
 
 Agreement beyond chance (Cohen's kappa, `python3 ../src/desc_eval.py kappa`) is 0.79 in Chicago and
 0.90 in Seattle on the held-out year for the revised rules, against 0.47 and 0.58 for the original.
