@@ -77,6 +77,22 @@ export function partitionRates(z, { kind = 'bernoulli', mult = 1, penalty = null
   return { cuts: cuts.reverse(), penalty: beta };
 }
 
+/**
+ * A range of dates for each cut: every position k between the neighbouring cuts (keeping minSegment on
+ * both sides) whose two-stretch cost is within `slack` of the best. Returned in z positions, like cuts.
+ */
+export function cutRanges(z, cuts, { kind = 'bernoulli', minSegment = 20, slack = 6 } = {}) {
+  const P = prefixes(z), b = [0, ...cuts, z.length];
+  return cuts.map((_, j) => {
+    const L = b[j], R = b[j + 2];
+    const D = [];
+    for (let k = L + minSegment; k <= R - minSegment; k++) D.push([k, segmentCost(P, L, k, kind) + segmentCost(P, k, R, kind)]);
+    const best = Math.min(...D.map((d) => d[1]));
+    const inside = D.filter((d) => d[1] - best <= slack).map((d) => d[0]);
+    return [Math.min(...inside), Math.max(...inside)];
+  });
+}
+
 // Wilson 95% interval for a share k / m.
 function wilson(k, m) {
   if (!m) return [NaN, NaN];
