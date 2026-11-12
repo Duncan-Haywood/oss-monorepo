@@ -223,7 +223,14 @@ flagships:
       profiles and IlluminantData, eval/triple-illuminant-2026-11-12.md; the
       default tone curve for profiles with none, identified as Adobe's ACR3
       default and fitted with 20 knots of our own, `--default-tone-curve`,
-      eval/default-tone-curve-2026-11-12.md, all 2026-11-12). Next, most valuable first: a real DNG 1.6 three-light
+      eval/default-tone-curve-2026-11-12.md; Canon CR2 developed directly
+      with a `.dcp` (image area, black, as-shot WB and CFA phase read from the
+      file; LibRaw's crop, phase and WB on a real 5D Mark II, render median
+      0.61 of an 8-bit step), eval/cr2-direct-2026-11-12.md, all 2026-11-12).
+      Next, most valuable first: CR2 in the pipeline's grade stage (a
+      per-camera `.dcp` setting; `shootflow develop` already reads CR2), and
+      real CR2s from other Canon bodies (other ColorData versions, the
+      per-model white level); a real DNG 1.6 three-light
       profile or DNG, and the SDK's own triple weights on a grid of whites
       (compiling it was blocked here); a tungsten-lit colour chart (real DNG, known patches) to say
       which colour model is closer to the scene, and a camera- or
@@ -233,8 +240,7 @@ flagships:
       saving on real 4K footage and a long shoot; the native Huffman reader
       (landed 2026-11-12, eval/ljpeg-native-huffman-2026-11-12.md: CR2 decode
       8.8-11.7 s to 1.2-1.7 s, Linux only so far) run on macOS, and the 0.8 s
-      list the public decoder still builds dropped; reading CR2 directly (needs
-      per-model colour matrices); a camera- or phone-written lossless-JPEG
+      list the public decoder still builds dropped; a camera- or phone-written lossless-JPEG
       DNG (raw.pixls.us and rawsamples.ch 403 from cloud); a trained blink
       model and a real shoot with a photographer's picks; photos with a real
       horizon and human tilt labels.
