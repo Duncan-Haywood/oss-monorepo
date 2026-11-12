@@ -84,7 +84,9 @@ function checkRows(rows, expected, withCategory, unattributed) {
       return;
     }
     const expectedTax = roundHalfUpToCents(taxable * percent / 100);
-    if (tax !== expectedTax) {
+    // PINT Oman: the row's tax may be the sum of its lines' own VAT amounts (linenet.mjs).
+    const lineTax = expected.get(key)?.lineTax ?? null;
+    if (tax !== expectedTax && !(lineTax !== null && !unattributed && tax === lineTax)) {
       findings.push(finding(
         "INV-038",
         `Tax breakdown row ${index + 1} tax amount does not equal taxable times the percentage.`,

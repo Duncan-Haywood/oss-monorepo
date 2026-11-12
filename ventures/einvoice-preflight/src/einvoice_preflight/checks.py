@@ -146,6 +146,11 @@ def _check_invoice(invoice: Any) -> list[dict[str, str]]:
     # VAT is worked out per rate on the summed taxable amount (EN 16931 BR-CO-17), not per line.
     groups, unattributed, _ = tax_groups(invoice)
     expected_tax = sum((g["tax"] for g in groups.values()), Decimal("0.00"))
+    # Where lines state their own VAT (PINT Oman, BTOM-016), the tax total may be their sum per rate.
+    line_tax_total = (
+        sum((g["line_tax"] if g["line_tax"] is not None else g["tax"] for g in groups.values()), Decimal("0.00"))
+        if any(g["line_tax"] is not None for g in groups.values()) else None
+    )
     expected_net = (expected_net + header_adjustment_net_delta(invoice)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     negative_invoice = is_negative_invoice(invoice)
     if expected_net < 0 and not negative_invoice:
@@ -167,7 +172,7 @@ def _check_invoice(invoice: Any) -> list[dict[str, str]]:
         pass
     elif tax_total is None or (tax_total < 0 and not negative_invoice):
         fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax")
-    elif not unattributed and tax_total != expected_tax:
+    elif not unattributed and tax_total != expected_tax and tax_total != line_tax_total:
         fail("INV-018", "Invoice tax total does not match its line tax percentages.", f"Set tax total to {expected_tax} or correct the line inputs.", "/totals/tax")
     if gross is None or (gross < 0 and not negative_invoice):
         fail("INV-016", "Invoice gross total is missing or invalid.", "Provide a non-negative numeric gross total.", "/totals/gross")

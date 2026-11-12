@@ -67,10 +67,27 @@ export function acceptedLineNet(line, supplied) {
 // as INV-012, instead of again in every total below it. A draft JSON invoice
 // is summed from quantity times price, so a typo in one line net shows up as
 // that line's INV-012 and in the totals only if they disagree with the lines.
+//
+// A stated net is summed at the precision it is stated in, and only the sum is
+// rounded: PINT Oman's lines carry baisa (0.047 OMR) under two-decimal totals, so
+// ten of them make 0.47, not 10 x 0.05 = 0.50 (OpenPeppol's "baisa gap" examples,
+// eval/phive-corpus.mjs, 2026-11-12). EN 16931 lines have two decimals (BR-DEC-23),
+// where both readings agree.
 export function summedLineNet(line, invoice = {}) {
   const stated = parseNumber(line.net);
   const parsed = typeof invoice.source_format === "string";
-  return stated === null || !parsed ? expectedLineNet(line) : roundCents(stated);
+  return stated === null || !parsed ? expectedLineNet(line) : stated;
+}
+
+// A line's own VAT amount (PINT Oman's BTOM-016, cac:ItemPriceExtension/cac:TaxTotal),
+// when the file states one that agrees with net x rate to within a cent. Oman's
+// category tax is the sum of these (ALIGNED-IBRP-S-09-OM), which can differ from the
+// rate applied to the summed taxable amount: thirty lines of 0.047 OMR at 5% state
+// 0.002 each, 0.06 in all, where 1.41 x 5% is 0.07. null when the line states none.
+export function statedLineTax(line, net, percent) {
+  const stated = parseNumber(line && line.tax_amount);
+  if (stated === null || net === null || percent === null) return null;
+  return Math.abs(stated - (net * percent) / 100) < 0.01 + 1e-9 ? stated : null;
 }
 
 // E, Z, AE, K and G must carry 0 (EN 16931 BR-E-05, BR-Z-05, BR-AE-05, BR-IC-05, BR-G-05),
@@ -112,9 +129,13 @@ export function taxGroups(invoice) {
   const withCategory = taxKeyMode(invoice);
   const groups = new Map();
   let unattributed = false;
-  const add = (key, percent, amount) => {
-    const group = groups.get(key) || { taxable: 0, tax: 0, percent };
+  // lineTax: the sum of the lines' own stated VAT amounts, kept only while every line
+  // in the group states one and no header allowance or charge falls in it.
+  const add = (key, percent, amount, lineTax = null) => {
+    const group = groups.get(key) || { taxable: 0, tax: 0, percent, lineTax: 0, lineTaxAll: true };
     group.taxable += amount;
+    if (lineTax === null) group.lineTaxAll = false;
+    else group.lineTax += lineTax;
     groups.set(key, group);
   };
   for (const line of Array.isArray(invoice.lines) ? invoice.lines : []) {
@@ -122,7 +143,7 @@ export function taxGroups(invoice) {
     const net = summedLineNet(line, invoice);
     const percent = taxPercentOf(line);
     if (net === null || percent === null || percent < 0 || percent > 100) continue;
-    add(taxKey(line, withCategory), percent, net);
+    add(taxKey(line, withCategory), percent, net, statedLineTax(line, net, percent));
   }
   for (const row of Array.isArray(invoice.adjustments) ? invoice.adjustments : []) {
     const delta = signedAdjustment([row], isNegativeInvoice(invoice));
@@ -136,6 +157,8 @@ export function taxGroups(invoice) {
   for (const group of groups.values()) {
     group.taxable = roundCents(group.taxable);
     group.tax = roundCents((group.taxable * group.percent) / 100);
+    group.lineTax = group.lineTaxAll ? roundCents(group.lineTax) : null;
+    delete group.lineTaxAll;
   }
   return { groups, unattributed, withCategory };
 }
