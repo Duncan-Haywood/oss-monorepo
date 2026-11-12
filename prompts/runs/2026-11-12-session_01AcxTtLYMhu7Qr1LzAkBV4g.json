@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtLYMhu7Qr1LzAkBV4g",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T05:07:06Z",
+  "ended": "2026-11-12T05:12:55Z",
+  "wall_minutes": 6.08,
+  "tokens_in": 3471926,
+  "tokens_out": 24442,
+  "cost_usd": 1.9858,
+  "tool_calls": 38,
+  "task": "aerolog-scaling milestone 11e: which bit to spend extra altitude layers on (leg direction, speed band or operator pairing)",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15010",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".claude/hooks/check_posts_before_push.py",
+      "issue": "post front-matter limits (description 160, seo_title 70) are only discoverable by running platform/ci/check_post_frontmatter.py; neither research/CLAUDE.md nor the research prompt mentions the post checks, cost two edit rounds"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/aerolog-scaling/LOG.md (11d Next)",
+      "why": "11d proposed a speed band as the extra layer bit; I widened it before running to all three operator pairings, since a speed band at four operators is one pairing and hub overlap varies 3.4 to 9.4 km",
+      "did": "tested 12 layer rules incl. all pairings, predictions committed first",
+      "result": "the geographic pairing beat both the speed band and leg direction en route by 2.3x to 3.7x; the speed band lost to leg direction"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "no separate docs/reports agent doc: the LOG entry's Limits and Next already tell the next run what to do",
+      "did": "LOG entry only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-drone-altitude-layers-by-operator-not-speed.md",
+    "research/aerolog-scaling/LOG.md (11e entry; serves as the agent doc for the next run)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty, IDEAS and website requests empty; routed research, pick_track drew aerolog-scaling (claim check clear). Predictions committed and pushed (PR #15010 opened as draft) before the run. Run 98 s. Scored: P2,P3,P5,P6 held; P1 (S3 semi+pC 1.305), P4 (speed band worse), P7 (S3 top-two swap within noise), P8 (S0 62%) refuted. Found: pairing does nothing for terminal conflicts, so semi+inout stays best on total conflicts. Checks run: pytest test_operator_layers + test_mixed_fleet 9 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_post_frontmatter ok; post_similarity 0 pairs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "36aa15cf-32e9-5b8b-9392-f8683b4d066d",
+    "transcripts": 1,
+    "first": "2026-11-12T05:07:06Z",
+    "last": "2026-11-12T05:13:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 70,
+        "output": 24442,
+        "thinking": 4892,
+        "cache_read": 3368996,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102860,
+        "api_equivalent_usd": 1.9858,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 70,
+      "output": 24442,
+      "thinking": 4892,
+      "cache_read": 3368996,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102860,
+      "api_equivalent_usd": 1.9858,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 32,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.08,
+      "active_minutes": 6.08,
+      "model_minutes": 4.56,
+      "tool_minutes": 1.52,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design 12 layer rules, adapt simulator and closed form, run, score 8 predictions, write LOG/README/post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 302.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
