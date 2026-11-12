@@ -1,9 +1,9 @@
 ---
 title: "Our two cloth models agree on the hanger once the cloth is stiff enough, and the KES table says how stiff"
-seo_title: "Robot hanger arm width in cloth simulation: shear vs stretch stiffness from KES data"
+seo_title: "Robot hanger width in cloth simulation: stretch vs shear from KES data"
 date: 2026-11-12
 tags: [research, robotics, cloth-simulation, laundry-robot, digital-twin, kes-fb]
-description: "With shear set from measured KES G, stretch stiffness still moves a shallow hanger arm's best width by 1 cm, but above about 800 N/m all four fabrics pick the 2D model's answer."
+description: "With shear set from measured KES G, stretch still moves a hanger arm's best width 1 cm, but above 800 N/m all four fabrics pick the 2D model's answer."
 ---
 
 Yesterday's step in the [`hanger-codesign`](../../research/hanger-codesign/)
