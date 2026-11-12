@@ -149,6 +149,16 @@ milestone 3's full rock is the conservative side.
 
 ![Press threshold by wall friction in MuJoCo, Drake and the closed form; clean sheets with each simulator's seated residual; push height that tips a sliding sheet](experiments/m6_drake/figure.png)
 
+**Milestone 8: the paper draft.** [`paper/draft.md`](paper/draft.md) writes milestones 1 to 7
+up as one article for *Automation in Construction* (highlights, abstract, methods, results by
+hypothesis, discussion, limitations, references in [`paper/references.bib`](paper/references.bib)).
+[`paper/check_numbers.py`](paper/check_numbers.py) ties its 70 quoted figures to the results
+files they came from. Scored against the proposal's five hypotheses: H-B (a humanoid needs a
+guide), H-C (rows need stud referencing) and H-E (two contact models agree) held; H-D held in its
+first half (base beats walker) and was refuted as registered in its second (the gantry crosses
+at about 500 houses a year, not 30–300); H-A (aim from the edge) held only at a 0.5 mm stud read
+and is not what decides an as-built wall: the joint framing is.
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -380,7 +390,7 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 53 tests; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake
+python -m pytest -q tests                                    # 55 tests; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -399,6 +409,7 @@ python experiments/m3b_humanoid/figure.py
 pip install drake                                            # milestone 6; results made with drake 1.51.1 (Python 3.11)
 python experiments/m6_drake/run.py > experiments/m6_drake/results.txt                   # ~7 min on 4 CPUs; seeds 13 and 7
 python experiments/m6_drake/figure.py
+python paper/check_numbers.py                                # every number the paper quotes, against its results file
 ```
 
 ## Milestone 1 results (`experiments/m1_gap_placement/results.txt`)
@@ -648,7 +659,7 @@ than its re-drive). A time study of a crew's sheathing, a quote for a drive-and-
 nailing bridge, and the cost of a missed nail found at inspection would replace milestone 7's
 widest sweeps. Milestone 6 found the ledger results hold on Drake; how far a bowed bottom edge
 rocks the sheet depends on the contact model (0.11–0.15°), so a flexible sheet and a measured rock
-on a mock-up would pin it. Milestone 8, the paper draft, is next. A measured sample of real panels' squareness and edge
+on a mock-up would pin it. Milestone 8, the paper draft, is done ([`paper/`](paper/)); before submission it needs the Elsevier LaTeX template, the unconfirmed citations checked and authorship decided. A measured sample of real panels' squareness and edge
 bow would settle the single-2x case. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 

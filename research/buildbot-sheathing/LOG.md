@@ -1,5 +1,14 @@
 # buildbot-sheathing research log
 
+## 2026-11-12 · Milestone 8: the paper draft, and what writing it changed
+
+`paper/draft.md`, `paper/references.bib`, `paper/check_numbers.py` (70 checks, all ok; run by `tests/test_paper.py`).
+
+- **The draft.** One article for *Automation in Construction* in its structure: highlights, abstract, an error-model section, methods and results for milestones 1–7 ordered by the proposal's hypotheses, discussion, limitations, a generative-AI declaration and references. Authorship is left for the owner.
+- **Scoring the proposal's hypotheses for the first time.** H-B, H-C and H-E held. H-D held in its first half (the base beats the walking H1 in every draw) and is refuted as registered in its second: the gantry is cheaper than the base in the median draw only from about 501 houses a year, not 30–300, though the ranking does flip inside the swept range. H-A held at a 0.5 mm stud read (no pose tolerance without edge aim), but at 0.3 mm aiming at the design window allows 0.38 mm and 0.0276°, so it depends on a stud reader's accuracy no commercial source we found states; and on an as-built wall the joint framing, not the aim, decides.
+- **H-B's own refutation test (a learned hang policy) was never run**; the paper says it is supported by the static analysis, not tested.
+- **Before submission:** the Elsevier `elsarticle` template, the citations marked "not confirmed" (Construction Robotics 2024's authors, Lachmayer et al. 2022's title, the Adel et al. 2024 DOI, the SDPWS edition), APA E30 and SDPWS read in full, and authorship.
+
 ## 2026-11-12 · Milestone 6 result: on Drake the ledger still seats the sheet and clean sheets move by 0.06 points at most; the bowed-edge rock and a soft held wrist depend on the contact model
 
 `experiments/m6_drake/` (results.txt, results.json, figure.png); Drake 1.51.1 SAP against MuJoCo 4.0.1; 404 s on 4 CPUs.
