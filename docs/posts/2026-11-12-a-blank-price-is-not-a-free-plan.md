@@ -1,9 +1,9 @@
 ---
 title: "A blank price is not a free plan: one escaped fault and one real bug in the subscription price calculator"
-seo_title: "SaaS price increase calculator: clearing a field no longer shows 100% churn headroom"
+seo_title: "SaaS price calculator: a cleared field no longer shows 100% churn"
 date: 2026-11-12
 tags: [testing, mutation-testing, saas, pricing, redteam]
-description: "Eight faults seeded into the subscription price impact calculator's share link, seven caught. A manual hunt found that clearing the current price produced a green 100% churn headline."
+description: "Eight faults seeded into the SaaS price calculator, seven caught. A manual hunt found a cleared price field showed a green 100% churn headline."
 ---
 
 The [subscription price impact calculator](../../ventures/subscription-price-impact/)
