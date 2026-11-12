@@ -3,7 +3,7 @@ title: "Reordering the pieces saves 2 to 5% of the cloth"
 seo_title: "Free marker making for clothing: local search over piece order"
 date: 2026-11-12
 tags: [clothing-design-studio, algorithms, manufacturing]
-description: "The studio's nesting marker now searches over the order it lays pattern pieces in. Tee, crewneck and hoodie markers came out 2 to 5% shorter; long sleeves did not move."
+description: "The nesting marker now searches the order it lays pattern pieces in: tee, crewneck and hoodie markers 2 to 5% shorter; long sleeves did not move."
 ---
 
 A marker is the plan for cutting a stack of cloth: every pattern piece for a

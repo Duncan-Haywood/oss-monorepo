@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVLQeeJnSTvN5JVHpsb",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T00:06:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005 clothing-design-studio: local search over the nesting marker's piece order, faster placer",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 14934,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First preflight failed: the post description was 168 characters (limit 160); shortened and reran."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "The allocator's default is a flagship row, CLAUDE.md's default is an open website request; I took the request (R-0005) as CLAUDE.md says requests come first."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-reorder-the-pieces.md"
+  ],
+  "goal": null,
+  "notes": "Measured on 150 cm cloth, 100 search steps: tee S+2M+L 341.5->334.2 cm, crewneck 2S+3M+3L+2XL 1087.6->1037.6 cm (12.5 s greedy before, 1.2 s greedy now, 8.3 s with search), hoodie 4M 570.4->551.9 cm, long sleeves unchanged; 156-tee cutting plan 144.54->142.83 m. Off-grain tilt 1-3 deg tried: crewneck -2% alone but long sleeve run +3% at 1 deg and worse than search alone with search; not shipped. Checks: node --test nest/marker/pattern 39 pass; run_venture_tests.py clothing-design-studio ok; headless Chromium pattern.html/fit.html no errors; venture-preflight clean on the second run.",
+  "corrections": [],
+  "redteam": null
+}
