@@ -28,11 +28,13 @@ for (const detector of ['pelt', 'bocpd-window']) {
   });
 }
 
-test('the default (bocpd) misses this clear step: its probability is split between neighbours (why bocpd-window exists)', () => {
+test('the old default (bocpd) misses this clear step: its probability is split between neighbours (why the window exists)', () => {
   const values = stepSeries(260, 200, 3);
   const labels = values.map((_, i) => String(i + 1));
-  assert.equal(WATCH_DEFAULTS.detector, 'bocpd');
-  assert.deepEqual(detectChanges(values, labels), []);
+  assert.deepEqual(detectChanges(values, labels, { detector: 'bocpd' }), []);
+  const d = detectChanges(values, labels);
+  assert.equal(d.length, 1);
+  assert.ok(Math.abs(d[0].index - 200) <= 2 && d[0].shift > 2.5);
   const w = detectChanges(values, labels, { detector: 'bocpd-window' });
   assert.equal(w.length, 1);
   assert.ok(w[0].probability >= 0.5 && w[0].shift > 2.5);
@@ -96,7 +98,7 @@ test('CLI: baseline, then a new step posts to the webhook once and writes the st
     r = await run([csv, '--state', state, '--webhook-env', 'HOOK', '--fail-on-alert']);
     assert.equal(r.code, 1, r.o);
     assert.equal(posts.length, 1);
-    assert.match(posts[0].text, /orders changed from 2026-05-01: level up from 49\.9 to 54\.9 \(5\.62 noise sd\), Bayesian probability 98%; 7 points since\./);
+    assert.match(posts[0].text, /orders changed from 2026-05-01: level up from 49\.9 to 54\.9 \(4\.29 noise sd\), Bayesian probability 99%; 7 points since\./);
     r = await run([csv, '--state', state, '--webhook-env', 'HOOK', '--fail-on-alert']);
     assert.equal(r.code, 0);
     assert.equal(posts.length, 1);
@@ -137,6 +139,49 @@ test('the defaults are the ones the pre-registered replay chose (eval/watch-repl
   assert.match(r1, /  pelt-mean\s+5\s+626\s+134 \(21%\)\s+98\.2\s+52\/52/);
   assert.match(r2, /Not adopted: bocpd stays the default\./);
   assert.match(r2, /  bocpd-window\s+5\s+307\s+85 \(28%\)\s+48\.2\s+46\/52/);
-  assert.equal(WATCH_DEFAULTS.detector, 'bocpd');
+  const r3 = readFileSync(new URL('./eval/watch-replay-round3.out.txt', import.meta.url), 'utf8');
+  assert.match(r3, /Adopted: bocpd-ar1-win becomes the default\./);
+  assert.equal(WATCH_DEFAULTS.detector, 'bocpd-ar1-window');
   assert.equal(WATCH_DEFAULTS.confirm, 5);
+});
+
+// Sticky noise: AR(1) 0.8 with marginal sd 1 (innovation sd 0.6), as in eval/watch-replay.mjs --round3.
+function ar1Series(n, seed, at = -1, size = 0) { const g = gauss(lcg(seed)); let e = 0; return Array.from({ length: n }, (_, i) => (at >= 0 && i >= at ? size : 0) + (e = 0.8 * e + 0.6 * g())); }
+
+test('bocpd-ar1: quiet on sticky noise with no change, where plain bocpd finds several', () => {
+  for (const seed of [1, 2, 4, 5]) {
+    const values = ar1Series(300, seed);
+    const labels = values.map((_, i) => String(i + 1));
+    assert.ok(detectChanges(values, labels, { detector: 'bocpd' }).length >= 4, `seed ${seed}: bocpd`);
+    assert.deepEqual(detectChanges(values, labels), [], `seed ${seed}: default`);
+    assert.deepEqual(detectChanges(values, labels, { detector: 'bocpd-ar1' }), [], `seed ${seed}`);
+  }
+});
+
+test('bocpd-ar1: a 6-sd step in sticky noise is reported once, with no false alerts before it', () => {
+  const values = ar1Series(260, 101, 200, 6);
+  const labels = values.map((_, i) => String(i + 1));
+  let state = emptyState(), reports = [];
+  for (let n = 100; n <= values.length; n++) {
+    const r = advance(state, detectChanges(values.slice(0, n), labels.slice(0, n), { detector: 'bocpd-ar1' }), n, labels.slice(0, n));
+    for (const a of r.alerts) reports.push(a.index);
+    state = r.state;
+  }
+  assert.deepEqual(reports, [200]);
+});
+
+test('--detector bocpd-ar1 runs from the CLI and refuses the count and volatility models', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'watch-ar1-'));
+  const f = join(dir, 'm.csv');
+  writeFileSync(f, csvOf(ar1Series(260, 101, 200, 6)));
+  let text = '';
+  assert.equal(await main([f, '--dry-run', '--alert-history', '--detector', 'bocpd-ar1'], { out: (s) => { text += s; } }), 0);
+  assert.match(text, /New change:\n {2}orders changed from 2026-07-20: level up/);
+  await assert.rejects(main([f, '--dry-run', '--detector', 'bocpd-ar1', '--model', 'poisson']), /level model/);
+  await assert.rejects(main([f, '--dry-run', '--detector', 'nope']), /bocpd-ar1/);
+  // with a count model and no --detector, the default falls back to plain bocpd instead of refusing
+  writeFileSync(f, csvOf(Array.from({ length: 120 }, (_, i) => (i >= 80 ? 30 : 10) + (i % 3))));
+  text = '';
+  assert.equal(await main([f, '--dry-run', '--alert-history', '--model', 'poisson'], { out: (s) => { text += s; } }), 0);
+  assert.match(text, /rate up/);
 });
