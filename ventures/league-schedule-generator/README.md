@@ -819,8 +819,8 @@ at or under V. SAT returns a timetable; UNSAT is a proof that none exists.
   | 84 | UNSAT | 78 s |
   | 86 | UNSAT | 387 s |
   | 88 | UNSAT | 1,302 s |
-  | 90 | not answered after <!--T90--> | |
-  | 92 | not answered after <!--T92--> | |
+  | 90 | no answer, stopped | 69 min |
+  | 92 | no answer, stopped | 98 min |
 
   So no 10-team round robin has non-cyclic carry-over below 90 (values are even), against 94, the best
   the refill search found with all ten playing. The least is 90, 92 or 94. Each step of 2 cost the

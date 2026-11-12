@@ -26,7 +26,7 @@ Then 10 teams, one solver core each:
 | 86 | impossible | 387 s |
 | 88 | impossible | 1,302 s |
 
-Carry-over values here are always even, so no 10-team round robin goes below 90. The true least is 90, 92 or 94, and the tool's 94 is at most 4 above it. Each step up made the solver work 3 to 7 times harder. Runs at 90 and 92 hadn't finished when this was written; the venture README has the result.
+Carry-over values here are always even, so no 10-team round robin goes below 90. The true least is 90, 92 or 94, and the tool's 94 is at most 4 above it. Each step up made the solver work 3 to 7 times harder. Runs asking for 90 and 92 were stopped after 69 and 98 minutes with no answer either way.
 
 ## What changed on the page
 
