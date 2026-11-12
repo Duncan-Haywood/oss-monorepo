@@ -1,5 +1,52 @@
 # buildbot-sheathing research log
 
+## 2026-11-12 · Milestone 3 (second part) result: a stock G1 or H1 can press and let the ledger seat the sheet, but neither can carry it there
+
+`experiments/m3b_humanoid/` (results.txt, results.json, figure.png); deterministic, about 6 min.
+
+- **H18 refuted in part.** The G1 holds at most 2.8–8.7 kg in both hands at 0.6–1.3 m and presses 66–110 N on the ledger, as predicted. The H1 does not carry it either: 12.4–18.8 kg against the sheet's 21.8 kg (elbow torque). It presses 128–281 N. A lift or a person must stand the sheet on the ledger for either robot.
+- **H19 held.** The push height that tips a sliding sheet is W/(2 μ_l) when the press is at the push height, 2.03 m at μ_l 0.3 to 0.87 m at 0.7; MuJoCo's threshold is 0.984–1.007 of the closed form in 14 cases, including a press fixed at 0.6 or 1.2 m (the general form).
+- **H20 held.** At foot friction 0.6 a G1 slides the sheet at μ_l 0.3 with up to 96 N of press, and at μ_l 0.5 with at most 41 N (none above 1.0 m); the H1 manages 105–206 N and 34–141 N. On a foot friction of 0.3 the G1 slips at about 50 N.
+- **Unplanned: not through the palms.** Sliding by palm friction needs F_n ≥ μ_l m g / (μ_h − μ_w), at least 107 N and up to 1.5 kN, and is impossible when the palm grips no better than the wall. The robot has to push the sheet's edge.
+- **H21 refuted.** At Unitree's published gains (G1 arms kp 60 N·m/rad) the sheet's stiffness about the landing corner is 182–1,946 N·m/rad on a G1 against part one's 5,641 at 1°, 2.9 to 31 times under; H1 palm contacts 876–2,740. Only an H1 rigid clamp is too stiff (10,423–613,376; it keeps 0.46–0.99° of a 1° error), because its 4-joint arms cannot turn the forearm end about the wall normal. Releasing a G1's wrist roll changes the stiffness by 0.1–19%.
+- **The catch.** The same softness lets the sheet's own gravity moment turn a stock hold 10–14° (G1) if nothing feeds the weight forward: the ledger carrying the weight is what makes the soft hold work, and a controller has to drop the feedforward at ledger contact.
+- **What it means for the programme.** A stock humanoid is not the hanger; it is the presser and nailer once a lift or a person sets the sheet on a ledger. Milestone 5's cycle should carry that division of labour.
+- **Modelling choices, not sourced:** static whole-body model, forces split 50/50 between hands, PD gains taken as the only compliance, feet rigidly planted, ledger and palm friction swept.
+
+## 2026-11-12 · Milestone 3 planned (second part): can a stock G1 or H1 work a sheet the ledger carries?
+
+Written before any part-two experiment was run. Part one found a ledger squares the sheet if the
+holder goes limp in roll and presses under about 100 N. This part asks whether a Menagerie G1 or
+H1 can be that holder, with the ledger (or a lift that stood the sheet on it) carrying the weight.
+
+- **Scene.** The robot stands square to the wall in front of the sheet, hands at height z above the
+  floor and reach x, feet flat (buildbot-payload's static whole-body model, buildbot-fasten's lean
+  for a push). Three jobs: (a) hold the 21.8 kg sheet with no ledger; (b) press it into the wall
+  with F_n once it sits on the ledger; (c) press and slide it sideways along the ledger to its
+  stud line, a lateral force P = mu_l m g + mu_w F_n. Feet must stay inside torque limits, keep
+  both soles loaded and not slip (rubber on concrete, mu 0.3 and 0.6, swept as in buildbot-fasten).
+- **Gains.** Unitree's G1 arm SDK example drives arms and waist at kp = 60 N m/rad (kd 1.5), and
+  unitree_rl_gym's G1 deploy config the legs at 100 (hips), 150 (knee), 40 (ankles); the H1
+  training config uses 150 shoulder, 100 elbow, 300 torso, 150/200/40 legs. The sheet's rotational
+  stiffness about the wall normal follows from those gains through both arms' Jacobians with the
+  feet planted, for a rigid grasp and for point contacts at the palms, rotating about the landing
+  corner. kp is also swept.
+- **H18 (the ledger is what makes a G1 usable).** A G1 cannot hold the 21.8 kg sheet at any hand
+  height from 0.6 to 1.3 m within its torque limits; with the ledger carrying it, it can press at
+  least 50 N at some height in that band. The H1 can do both.
+- **H19 (a high push tips the sheet).** Sliding a seated sheet by pushing at height h above its
+  bottom edge, with the press applied at the same height and wall contacts at the corners, lifts
+  the trailing corner once h > W / (2 mu_l) (1.52 m at mu_l 0.4): the wall friction's moment
+  cancels. Held if the MuJoCo threshold is within 10% of the closed form for mu_l 0.3 to 0.7.
+- **H20 (a G1 can slide only on a slippery ledger).** At F_n = 50 N and mu_w 0.4, a G1 can apply
+  the slide force at mu_l = 0.3 (84 N) at some height, and not at mu_l = 0.5 (127 N); the H1 can at
+  both.
+- **H21 (stock gains are too stiff to let the ledger seat it).** At the sourced gains the sheet's
+  rotational stiffness about the landing corner exceeds part one's limit (m g W/2 - mu F_n r_bar)
+  / theta0 at theta0 = 1 deg for both robots and both grasps, so a stock position hold keeps part of
+  its error; releasing the wrist roll alone does not bring it under, because the hands translate
+  about the corner. Also reported: the kp at which it would.
+
 ## 2026-11-12 · Milestone 3 (first part) result: let go and press lightly, and a ledger squares the sheet; then the panel's squareness is what single 2x joints cannot absorb
 
 `experiments/m3_ledger/` (results.txt, results.json, figure.png); MuJoCo seating runs are deterministic, Monte Carlo 20,000 sheets a cell, seed 5; about 95 s.
