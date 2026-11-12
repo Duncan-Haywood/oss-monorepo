@@ -96,6 +96,12 @@ Events counted: `bid_calculated`, `preset_applied`,
 - Water refill uses gallons × a per-gallon rate; municipal fees and fill
   time are the plasterer's choice of rate, not a second model.
 - Starting hours are ballpark figures, not timed from a named crew.
+- Freeform plaster area is water surface × a wall multiplier and does not
+  change with depth; the floor of a rectangle is treated as flat (a 16×32
+  pool sloping 3.5 to 8 ft has about 517 sf of floor, not 512). The full
+  chip-out default (0.14 h/sf) is uncited and may run 2–3× high against
+  trade guides. No bag count, bond coat or start-up line. (Quality audit
+  2026-11-12, `portfolio/quality/audits/2026-11-12-pool-plaster-bid-calculator.json`.)
 
 ## Disclaimer
 
