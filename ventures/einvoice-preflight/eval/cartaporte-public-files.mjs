@@ -43,7 +43,7 @@ const agree = readable.filter((x) => (lint.get(x.p) ?? false) === x.mine).length
 console.log(`${files.length} files read, ${rows.length} distinct CFDI 4.0 files with the complement, ${rows.length - readable.length} not CFDIs (MX-001)`);
 console.log(`schema verdict agrees with xmllint on ${agree} of ${readable.length}; xmllint-valid: ${rows.filter((x) => lint.get(x.p)).length}`);
 const by = {};
-for (const x of readable) for (const rule of new Set(x.r.findings.filter((y) => /^MX-07/.test(y.rule)).map((y) => y.rule))) ((by[rule] ||= { PAC: [], test: [], none: [] })[x.stamp]).push(x.f.split("/").pop());
+for (const x of readable) for (const rule of new Set(x.r.findings.filter((y) => /^MX-0[78]/.test(y.rule)).map((y) => y.rule))) ((by[rule] ||= { PAC: [], test: [], none: [] })[x.stamp]).push(x.f.split("/").pop());
 const stamps = { PAC: readable.filter((x) => x.stamp === "PAC"), test: readable.filter((x) => x.stamp === "test"), none: readable.filter((x) => x.stamp === "none") };
 console.log(`stamps: real PAC ${stamps.PAC.length}, test or placeholder ${stamps.test.length}, none ${stamps.none.length}`);
 for (const [rule, s] of Object.entries(by).sort()) console.log(`  ${rule}: PAC ${s.PAC.length} (${s.PAC.join(" ")}), test ${s.test.length}, none ${s.none.length}`);

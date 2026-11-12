@@ -1,7 +1,7 @@
 // Offline checks for the Carta Porte 3.1 complement (Complemento Carta Porte, namespace
 // http://www.sat.gob.mx/CartaPorte31) inside a CFDI 4.0: the waybill a Mexican carrier or
 // shipper stamps for goods moving by road, sea, air or rail. Called by cfdi.mjs. Rule ids
-// MX-070..MX-079 are this tool's own, not SAT's CPxxx codes: SAT's error matrix for the
+// MX-070..MX-080 are this tool's own, not SAT's CPxxx codes: SAT's error matrix for the
 // complement was not read (omawww.sat.gob.mx refused the build host on 2026-11-12), so
 // every rule below cites what it does rest on.
 //
@@ -21,7 +21,8 @@
 //      outside it (c_Estaciones, c_MaterialPeligroso; MX-003);
 //   3. locations (MX-071), distances (MX-072), goods totals (MX-073), stations and permits
 //      against the transport mode (MX-074), trailers (MX-075), hazardous goods (MX-076),
-//      international moves (MX-077), transport figures (MX-078), RFC check digits (MX-079).
+//      international moves (MX-077), transport figures (MX-078), RFC check digits (MX-079),
+//      Mexican addresses against the postal-code catalogues (MX-080).
 // Amounts are compared exactly (BigInt). An offline observation, not SAT's or a PAC's
 // acceptance, and not legal or customs advice.
 

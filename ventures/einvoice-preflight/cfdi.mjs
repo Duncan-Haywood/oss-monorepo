@@ -15,7 +15,7 @@
 // A type P (payment) CFDI's Pagos 2.0 complement is read by pagos20.mjs (MX-040..MX-049);
 // a type N (payroll) CFDI's Nómina 1.2 complement by nomina12.mjs (MX-050..MX-057); an
 // export's Comercio Exterior 2.0 complement by cce20.mjs (MX-060..MX-069); a waybill's
-// Carta Porte 3.1 complement by cartaporte31.mjs (MX-070..MX-079).
+// Carta Porte 3.1 complement by cartaporte31.mjs (MX-070..MX-080).
 // A check that depends on something this reader does not model (local taxes in the
 // implocal complement) is skipped and named in `skipped`. An
 // offline observation, not SAT's or a PAC's acceptance, and not tax advice. Findings
