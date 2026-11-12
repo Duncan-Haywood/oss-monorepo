@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232f5d50'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%5E%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Semver Range Explainer — Why Doesn't My npm Range Match This Version?</title>
+  <meta name="description" content="Free semver range checker: paste an npm range and versions to see the comparators ^, ~, x and hyphen ranges become, which versions match and why the others miss, prereleases included, and whether one range covers another, with a proving version. Runs in your browser.">
+  <meta property="og:title" content="Semver Range Explainer — free, private, in your browser">
+  <meta property="og:description" content="Which versions does ^1.2.0 really allow? Why is 2.0.0-beta skipped? Does ~1.2.5 fit inside ^1.2? npm's own rules, version by version.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Semver Range Explainer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Explains npm semver ranges the way npm resolves them: the comparators each caret, tilde, x-range and hyphen range becomes, which versions match and why the rest do not, including the prerelease rule, and whether one range covers or overlaps another, with a witness version. Runs in your browser.", "featureList": "node-semver compatible matching, desugaring steps, prerelease rule explanation, includePrerelease mode, highest matching version from npm view output, exact range subset and overlap with witness versions, range lint, CSV download, command-line version with package.json and package-lock.json check"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why doesn't my semver range match a prerelease like 2.0.0-beta.1?", "acceptedAnswer": {"@type": "Answer", "text": "Because npm only lets a prerelease match when some comparator in the same || branch names a prerelease of the same major.minor.patch. ^1.2.0 never matches 1.9.0-rc.1, and >=2.0.0-beta.1 matches 2.0.0-beta.4 but not 2.1.0-beta.0. Name the prerelease you want in the range, or run npm with --include-prerelease. The tool says which of these applies to every version you paste."}}, {"@type": "Question", "name": "What does ^ (caret) mean in package.json?", "acceptedAnswer": {"@type": "Answer", "text": "It allows changes that do not touch the leftmost non-zero number. ^1.2.3 means at least 1.2.3 and below 2.0.0; ^0.2.3 means at least 0.2.3 and below 0.3.0; ^0.0.3 means 0.0.3 only. The tool prints the comparators each caret becomes."}}, {"@type": "Question", "name": "What is the difference between ~ (tilde) and ^ (caret)?", "acceptedAnswer": {"@type": "Answer", "text": "A tilde allows patch updates when you give a minor version: ~1.2.3 is at least 1.2.3 and below 1.3.0, while ^1.2.3 goes up to below 2.0.0. With only a major, ~1 and ^1 are the same. Paste both into the compare box to see a version one allows and the other does not."}}, {"@type": "Question", "name": "Why does npm install a version my range does not seem to allow, or skip one it does?", "acceptedAnswer": {"@type": "Answer", "text": "Usually a prerelease, a partial version, or a bare * branch. A partial upper bound like <1.4 means below 1.4.0-0; a hyphen range needs spaces, so 1.2.3-2.0.0 is one prerelease version, not a range; and in a range with several || branches, a branch that is just * makes npm ignore the others. The tool flags each of these."}}, {"@type": "Question", "name": "How do I check whether one semver range is covered by another?", "acceptedAnswer": {"@type": "Answer", "text": "Paste both. The tool checks every version that can change the answer, including each named prerelease, and says whether the first range fits inside the second, the other way round, whether they overlap, and gives a version that proves each no."}}, {"@type": "Question", "name": "Is anything I paste uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The engine runs in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1b2b; background: #f4f4f8; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f6b5a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1f3d35; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f3d35; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #ebebf3; padding: 1px 4px; border-radius: 4px; }
+    .note, footer { font-size: .86rem; color: #50506a; }
+    .card { background: #fff; border: 1px solid #dcdce8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f3d3510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { max-width: 340px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #77779a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    textarea { font: 13.5px ui-monospace, Menlo, Consolas, monospace; min-height: 12em; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f6b5a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e6e6f2; color: #1f3d35; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #ebebf3; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #50506a; }
+    td code { white-space: pre-wrap; word-break: break-all; }
+    .finding { border-bottom: 1px solid #ebebf3; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding ul { margin: 6px 0 0; padding-left: 20px; font: .85rem ui-monospace, Menlo, Consolas, monospace; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.low, .pill.info { background: #e6e6f2; color: #1f3d35; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #efeff7; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f3d35; }
+    pre.fix { background: #1f1f38; color: #f0f0ff; padding: 14px; border-radius: 10px; overflow-x: auto; font: 13.5px ui-monospace, Menlo, Consolas, monospace; }
+    .scroll { overflow-x: auto; }
+    .yes { color: #7a1f10; font-weight: 600; }
+    .row { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+    .row > div { flex: 1 1 260px; }
+    ol.steps { padding-left: 20px; font-size: .94rem; }
+    footer { margin-top: 28px; border-top: 1px solid #dcdce8; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SEMVER RANGE EXPLAINER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why doesn't my npm version range match this version?</h1>
+    <p>Paste a range from <code>package.json</code> and the versions you care about. You get <strong>the comparators npm turns it into</strong> (what <code>^</code>, <code>~</code>, <code>1.x</code> and <code>1.2 - 2</code> really mean), <strong>a reason for every version</strong> that matches or misses, including the rule that makes npm skip most <strong>prereleases</strong>, and <strong>the version npm would install</strong> from your list. Add a second range to learn, exactly, whether one <strong>covers the other</strong>, with a version that proves it.</p>
+    <p class="note">Nothing you paste leaves this browser tab. Checked against node-semver, the package npm itself uses, on thousands of random ranges (see the README).</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. The range</h2>
+    <label for="range">Semver range</label>
+    <input id="range" spellcheck="false" autocomplete="off" placeholder="^1.2.0 || >=2.0.0-beta.1 <2.0.0">
+    <label for="incpre">Prerelease handling</label>
+    <select id="incpre"><option value="">npm default (prereleases only where the range names one)</option><option value="1">includePrerelease (npm --include-prerelease)</option></select>
+    <label for="semver">Your npm</label>
+    <select id="semver"><option value="7.8">npm 11 or later (node-semver 7.8+, Node 24)</option><option value="7.7">npm 10 or earlier (node-semver 7.7, Node 22)</option></select>
+    <p class="note">Two corners changed in node-semver 7.8: an x followed by a number, as in <code>1.x.2</code>, is now an error outside <code>^</code> and <code>~</code>, and with includePrerelease <code>~1.2</code> starts at <code>1.2.0-0</code> while <code>^0.2.3</code> starts at <code>0.2.3</code>. Everything else reads the same. The CLI reads the node-semver version bundled with your npm and picks for you.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Versions and a second range (both optional)</h2>
+    <div class="grid">
+      <div>
+        <label for="versions">Versions to test</label>
+        <textarea id="versions" spellcheck="false" placeholder="1.2.0&#10;1.9.0-rc.1&#10;2.0.0"></textarea>
+        <p class="note">One per line, comma separated, or the JSON array from <code>npm view &lt;package&gt; versions --json</code>.</p>
+      </div>
+      <div>
+        <label for="other">Compare with another range</label>
+        <input id="other" spellcheck="false" autocomplete="off" placeholder="^1.2.0 || ^2.0.0-0">
+        <p class="note">For example a peer dependency range against yours, or an old range against the one you plan to publish.</p>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="run">Explain</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p id="form-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <h2>Report</h2>
+    <div class="big" id="totals"></div>
+    <div id="sets"></div>
+    <div id="compare"></div>
+    <div id="findings"></div>
+    <h3>Every version</h3>
+    <div class="scroll"><table><thead><tr><th>Version</th><th>Matches</th><th>Why</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" class="secondary" id="csv">Download CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>From the command line</h2>
+    <p>The same engine, no dependencies, no network: <code>npm view react versions --json | node cli.mjs '^18.2.0' -</code> shows what npm would pick and why the rest miss; <code>node cli.mjs '~1.2.5' --compare '^1.2'</code> compares two ranges; <code>node cli.mjs --project .</code> lints every range in <code>package.json</code> and checks that <code>package-lock.json</code> still satisfies each one. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/semver-range-explainer">Source and README</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why doesn't my semver range match a prerelease like 2.0.0-beta.1?</h3>
+    <p>Because npm only lets a prerelease match when some comparator in the same || branch names a prerelease of the same major.minor.patch. ^1.2.0 never matches 1.9.0-rc.1, and >=2.0.0-beta.1 matches 2.0.0-beta.4 but not 2.1.0-beta.0. Name the prerelease you want in the range, or run npm with --include-prerelease. The tool says which of these applies to every version you paste.</p>
+    <h3>What does ^ (caret) mean in package.json?</h3>
+    <p>It allows changes that do not touch the leftmost non-zero number. ^1.2.3 means at least 1.2.3 and below 2.0.0; ^0.2.3 means at least 0.2.3 and below 0.3.0; ^0.0.3 means 0.0.3 only. The tool prints the comparators each caret becomes.</p>
+    <h3>What is the difference between ~ (tilde) and ^ (caret)?</h3>
+    <p>A tilde allows patch updates when you give a minor version: ~1.2.3 is at least 1.2.3 and below 1.3.0, while ^1.2.3 goes up to below 2.0.0. With only a major, ~1 and ^1 are the same. Paste both into the compare box to see a version one allows and the other does not.</p>
+    <h3>Why does npm install a version my range does not seem to allow, or skip one it does?</h3>
+    <p>Usually a prerelease, a partial version, or a bare * branch. A partial upper bound like <1.4 means below 1.4.0-0; a hyphen range needs spaces, so 1.2.3-2.0.0 is one prerelease version, not a range; and in a range with several || branches, a branch that is just * makes npm ignore the others. The tool flags each of these.</p>
+    <h3>How do I check whether one semver range is covered by another?</h3>
+    <p>Paste both. The tool checks every version that can change the answer, including each named prerelease, and says whether the first range fits inside the second, the other way round, whether they overlap, and gives a version that proves each no.</p>
+    <h3>Is anything I paste uploaded?</h3>
+    <p>No. The engine runs in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security or professional advice. Results come from the text you paste, evaluated by this tool's own reimplementation of npm's semver rules; it does not run npm or contact a registry. You are responsible for reviewing and verifying its output, for example with <code>npm ls</code> or <code>npx semver</code>, before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with or endorsed by npm, Inc., GitHub, the node-semver maintainers, the OpenJS Foundation or any other vendor. npm is a trademark of npm, Inc.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>range_checked</code>, <code>example_loaded</code>, <code>ranges_compared</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Sorting out a lockfile? The <a href="../npm-lockfile-duplicates-check/">npm lockfile duplicates checker</a> finds packages installed in several versions, and the <a href="../node-version-drift-check/">Node version drift checker</a> compares engines ranges across a repository. Guide: <a href="why-semver-range-skips-prereleases.html">why a semver range skips prereleases</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, EXAMPLE } from "./semver.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const status = $("#form-status");
+    let last = null;
+
+    const setsHtml = (r, title) => `<h3>${esc(title)}</h3><p class="note">Comparators: <code>${esc(r.range || "*")}</code>. Lowest matching version: <code>${esc(r.minVersion ?? "none")}</code></p><ol class="steps">` +
+      r.sets.map((s) => `<li><code>${esc(s.written)}</code>: ${esc(s.words)}${s.steps.map((st) => `<br><span class="note"><code>${esc(st.written)}</code> → <code>${esc(st.becomes)}</code> (${esc(st.rule)})</span>`).join("")}</li>`).join("") + "</ol>";
+
+    function run() {
+      const input = { range: $("#range").value, versions: $("#versions").value, other: $("#other").value, includePrerelease: $("#incpre").value === "1", semver: $("#semver").value };
+      if (!input.range.trim() && !input.versions.trim()) { status.textContent = "Type a range (an empty range means *)."; }
+      last = analyze(input);
+      const r = last.range;
+      if (!r.valid) {
+        status.textContent = r.error;
+        $("#report").hidden = true;
+        return;
+      }
+      const t = last.totals;
+      status.textContent = `Checked ${t.versions} version${t.versions === 1 ? "" : "s"} against ${r.sets.length} branch${r.sets.length === 1 ? "" : "es"}.`;
+      $("#totals").innerHTML = [["Versions", t.versions], ["Match", t.matching], ["Skipped prereleases", t.blocked], ["npm installs", last.max ?? "none"]]
+        .map(([k, v]) => `<div><strong>${esc(typeof v === "number" ? v.toLocaleString() : v)}</strong>${k}</div>`).join("");
+      $("#sets").innerHTML = setsHtml(r, "What the range means");
+      const c = last.comparison;
+      $("#compare").innerHTML = !c ? "" : !c.valid ? `<h3>Comparison</h3><p class="yes">${esc(c.error)}</p>` :
+        setsHtml(c.other, "The second range") + `<h3>Comparison</h3><ul>` +
+        `<li>Everything the first range allows, the second allows: ${c.aInB ? "<strong>yes</strong>" : `<span class="yes">no</span>, for example <code>${esc(c.onlyA)}</code>`}</li>` +
+        `<li>Everything the second range allows, the first allows: ${c.bInA ? "<strong>yes</strong>" : `<span class="yes">no</span>, for example <code>${esc(c.onlyB)}</code>`}</li>` +
+        `<li>Overlap: ${c.overlap ? `yes, for example <code>${esc(c.both)}</code>` : '<span class="yes">none</span>: no version satisfies both'}${c.equivalent ? " (the two are equivalent)" : ""}</li></ul>`;
+      $("#findings").innerHTML = `<h3>Findings</h3>` + (r.findings.length ? r.findings.map((f) => `<div class="finding"><p><span class="pill ${f.severity}">${f.severity}</span>${esc(f.message)}</p></div>`).join("") : "<p>Nothing to flag: the range is bounded and reads the way it is written.</p>");
+      $("#rows").innerHTML = last.versions.slice(0, 2000).map((v) => `<tr><td><code>${esc(v.version)}</code></td><td>${v.ok ? "yes" : v.valid ? '<span class="yes">no</span>' : "invalid"}</td><td>${esc(v.reason)}</td></tr>`).join("") ||
+        '<tr><td colspan="3" class="note">Add versions to test them.</td></tr>';
+      $("#report").hidden = false;
+      record("range_checked");
+      if (c && c.valid) record("ranges_compared");
+    }
+
+    $("#run").addEventListener("click", run);
+    for (const id of ["range", "other"]) $("#" + id).addEventListener("keydown", (ev) => { if (ev.key === "Enter") run(); });
+    $("#example").addEventListener("click", () => {
+      $("#range").value = EXAMPLE.range; $("#versions").value = EXAMPLE.versions; $("#other").value = EXAMPLE.other; $("#incpre").value = "";
+      record("example_loaded");
+      run();
+    });
+    $("#clear").addEventListener("click", () => { for (const id of ["range", "versions", "other"]) $("#" + id).value = ""; $("#report").hidden = true; status.textContent = ""; last = null; });
+    $("#csv").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "semver-report.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
