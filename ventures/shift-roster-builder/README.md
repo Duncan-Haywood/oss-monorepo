@@ -756,3 +756,31 @@ The reason is arithmetic, not search. Open hours are a sum of whole shifts: a sh
 Both still end "bounded" on the whole score: the pay part of the bound is $549-647 short. The whole-score column generation does not see the lifted floor (its master LP lets 3/8 of an 8 h shift stand in for the open lunch), so it reports 204,094 against the exact search's 303,423. Feeding it the floor needs a knapsack row (sum of open hours at least the floor) in `bnp.mjs`, whose simplex assumes 0/1 columns and right-hand sides of 1; that is the next step here. Same rosters, open hours and pay on every one of the 59 weeks before and after (`eval/callout-ilp-check.before.txt`, `eval/callout-ilp-check.out.txt`), and the full venture suite passes unchanged.
 
 Tests: `open-sums.test.mjs` (the lift against a brute-force subset sum on 200 random length sets, never below the floor it is given; the Cleo week proven on coverage with the lift and not without it), `page-callout.test.mjs` (all 27 sample rebuilds proven) and `page-posted.test.mjs` (the posted week and its four rebuilds proven). Not claimed: the spare-part-timer rebuilds are not asserted proven in their test, since two stay bounded on pay; one cloud machine; the lift only bites where the floor falls between two reachable sums, which needs open hours made of few, uneven shifts (a lunch cover, a short close); the 20-60 person benches were not re-measured with it, and with many shifts of 4-12 h most whole hours are reachable sums, so it should matter less there.
+
+## Keep people on their usual shifts (2026-11-12)
+
+The planner (and the plan reuse above) asked how often weeks repeat once dated leave spreads through a month. Measured with `node eval/steady-plan.mjs 5 4` (readings in `eval/steady-plan.out.txt`), the answer was "rarely", and that exposed a worse problem. When a week has someone off, the rebuild finds a roster as good as any on paper, but it moves people who were not off. On the café sample with Ana off on Tuesday and Ben on Friday of week 3, the proven rebuild changed 15 person-shifts going into week 3, among them a swap of Dev's and Gus's weekend opens that no time off required. It changed 15 more going back.
+
+**What changed.** `buildRoster` takes `keep` (person name to the shifts they had, each `slotKey`: day, start, end, role) and `keepValue`. Each hour someone works one of their keep shifts earns `keepValue` x their wage in the score, the same way a `prefer:` hour does. It runs through `preferBonus`, so the annealer, the exhaustive search's suffix bound, the pricing oracles and column generation all see it. The bonus is a fraction of a wage and an open hour costs `BIG`, so a proven roster never leaves an hour open to keep someone in place. An unproven one is checked: if a build without the bonus leaves fewer hours open, that build is returned (`keepChecked`). With the exact check off, one sample plan had left 5 more hours open with the bonus. `planWeeks` with `keepValue > 0` first builds the usual week (the staff text with dated days off left out, bonus off), then builds every planned week with that week as `keep`.
+
+Anchoring on the week before was tried first and dropped. It carried week 3's reshuffle into week 4 (5 of its 16 changes were week 4 not going back). `keepFromCsv` reads a roster CSV (role-free keys) for one-week builds. On the CLI that is `--keep-shifts 0.1` with `--weeks` or `--last-week`. On the page it is "Keep people on their usual shifts", default **Yes (0.1)**, applied to "Plan several weeks" and to a build after "Carry over last week". The CLI and `planWeeks` default to 0, so the guide pages and every existing figure are unchanged.
+
+Five invented teams (café sample, café, salon, retail and clinic templates), 4 weeks, leave scattered at random on each person-day at the rate shown, 5 draws, page settings, exact check on (100 weeks per row):
+
+| days off | keepValue | changes week to week | forced | off the usual rota | open h | pay |
+|---|---|---|---|---|---|---|
+| 0 | 0 / 0.05 / 0.1 / 0.25 | 0 | 0 | 0 | 700 | $287,840 (all the same) |
+| 2% | 0 | 617 | 25 | 496 | 785 | $286,537 |
+| 2% | 0.1 | 170 | 26 | 119 | 785 | $286,423 |
+| 4% | 0 | 1,022 | 67 | 1,000 | 952 | $283,733 |
+| 4% | 0.1 | 378 | 64 | 298 | 952 | $283,542 |
+| 8% | 0 | 1,226 | 106 | 1,265 | 1,147 | $280,042 |
+| 8% | 0.1 | 536 | 107 | 439 | 1,147 | $279,496 |
+
+"Changes" counts person-shift pairs that differ from the week before (adds plus drops). "Forced" counts the drops whose holder is off that day. "Off the usual" counts, over all weeks, the pairs that differ from the usual week. Changes fell 56-72% and distance from the usual week fell 65-76%. Open hours were the same in all 15 leave-rate x setting comparisons, all 1,600 planned weeks were proven, and pay moved under 0.2%, always down. 0.05 and 0.25 land within a few percent of 0.1 (see the out file), so the page's two levels are 0.1 and 0.25. Cost: a plan took 20-42% longer, mostly the extra build of the usual week (reuse is the same or higher with the bonus: 18 against 15 weeks reused at 2%). With no time off, plans and reuse are unchanged (`keep-shifts.test.mjs`).
+
+With the exact check off (`EXACT=off`), the same sweep was started but stopped unfinished in this run to free the machine for the test suite, so there is no reading for the quick search. The unproven-roster check above exists because of that case.
+
+Tests (`keep-shifts.test.mjs`): on 24 seeded tiny weeks with random keep maps and keepValue 0.1/0.25/1, the exact search returns the brute-force best score over every owner array, and the column-generation score bound stays below it. keepValue 0 or no map gives the same roster as before. On the four templates, keeping a rough roster never opens more hours than the proven build. `keepFromCsv` matches `keepFrom`. The café plan above is pinned with the guide page's figures (`keep-a-consistent-schedule-when-someone-is-off.html`). The CLI path is covered as well.
+
+Not claimed: the leave rates are swept, not read from real leave records (UCI's absenteeism dataset and BLS absence tables were not reachable from this host). The teams are invented. "Changes" counts pairs and does not weight a moved close against a moved lunch. Whether staff notice, or managers prefer the steadier plan, is unmeasured.

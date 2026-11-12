@@ -181,23 +181,19 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and every measurement are in the README and eval/*. Exact side: branch-and-price (bnp.mjs)
-      proves least open hours on every bench and 20-80 person week; column generation proves 40-person weeks in
-      6-12 s; since 2026-11-12 the exact check is on by default at every size (README "The exact check on by
-      default, every size": 40 seeded and template weeks never worse, better on 22, proven on 38; café sample 19 h
-      to 15 h open; off under --open-shift-hours). Forecast side (--from-sales, four real files): backtest,
-      closure score, half-life auto, priced cut, --count tickets, labour standard with fixed and shut-door work,
-      --shut-min by weekday (README, 2026-11-12 sections). Next: close the 100-person gaps (tree, not pricing);
-      cuts or branching that move the score LP on the 60-person pay week ($1.22 open); the 60x168 end-to-end
-      week 0 (root LP 275.2 h vs 300 h held); a knapsack row (open hours at least the lifted floor) in bnp.mjs's
-      master LP (README "Open hours come in whole shifts": two call-out weeks proven on coverage, still $549-647
-      bounded on pay; the simplex assumes 0/1 columns), then re-measure the 20-60 person benches with the lift; now that the page's build and the multi-week planner both run in the
-      worker (README "The multi-week planner plans in the worker too", 4-week plan freeze 6.2 s to 17 ms); a longer
-      per-week budget than 4 s proved no more planned weeks (32 of 32 at 4, 8 and 16 s), and repeated weeks now reuse
-      their roster (README "The planner stops rebuilding the same week": 4-week plans 2x faster, same rosters); next
-      there, a plan with real dated leave through the month (how often weeks still repeat); a real Square or Toast item export (columns read, made-up rows only); a real
-      published-schedule export for --import-shifts; whether the priced cut's r = 1 default suits a real
-      manager; a manager's real task list for the fixed minutes.
+      Landed work and every measurement are in the README and eval/*. Exact side: branch-and-price and column generation
+      prove 20-80 person weeks; the exact check is on by default at every size (README "The exact check on by default,
+      every size"). Forecast side (--from-sales, four real files): backtest, closure score, half-life auto, priced cut,
+      tickets, labour standard, shut-door work (README, 2026-11-12 sections). Planner: runs in the worker, reuses
+      repeated weeks, and since 2026-11-12 keeps people on their usual shifts (README "Keep people on their usual
+      shifts": week-to-week changes -56-72% at the same open hours, leave swept at 2-8%). Next: close the 100-person
+      gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person pay week ($1.22 open); the
+      60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held); a knapsack row (open hours at least the lifted floor) in
+      bnp.mjs's master LP (README "Open hours come in whole shifts"), then re-measure the 20-60 person benches; the
+      keep-usual-shifts sweep with the exact check off (stopped unfinished) and on real dated leave records; a manager's
+      read on whether the steadier plan is the one they would post; a real Square or Toast item export; a real
+      published-schedule export for --import-shifts; whether the priced cut's r = 1 default suits a real manager; a
+      manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
