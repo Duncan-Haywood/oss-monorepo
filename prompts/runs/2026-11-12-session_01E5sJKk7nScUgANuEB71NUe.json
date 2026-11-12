@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKk7nScUgANuEB71NUe",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T00:26:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 6 (shift-roster-builder) first next: item: closure score as backtest/half-life-auto default with the window, on the page; hindsight-free closure reference check",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14942",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "eval/hindsight-closure.mjs first draft keyed results as row['file'], overwriting row.file (the file id); caught on reading before the summary was used, killed and rerun"
+    },
+    {
+      "what": "post front matter: description 214 chars (limit 160) and seo_title 74 (limit 70); venture-preflight build caught both, fixed"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill-hook note says to bracket the first letter; it also refuses when the bare name appears elsewhere in the same command line (e.g. a later path), which cost one retry"
+    },
+    {
+      "file": "docs/posts (writing.mjs)",
+      "issue": "description <=160 and seo_title <=70 limits are only discovered from the 5-minute preflight; a one-line note in the post-writing guidance would save a preflight cycle"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-shift-roster-closure-score-default.md",
+    "ventures/shift-roster-builder/README.md (The closure score is the default ...)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered eval/hindsight-closure.mjs on the three SHA-checked bakery files: past-only reference, auto B vs A 6/12/0 mean -12.5% (whole-file -16.3%, reproducing window-auto.out.txt); rule PASS, 77% of the relative gain survives. Headless Chromium on shifts-from-sales.html: box on -> auto picks last 4 weeks, off -> equal weights; backtest notes switch; no console errors; 390px screenshot checked. Full venture node --test and venture-preflight results below.",
+  "corrections": [],
+  "redteam": null
+}

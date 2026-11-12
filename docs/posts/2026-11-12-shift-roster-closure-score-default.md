@@ -1,9 +1,9 @@
 ---
 title: "Did the backtest cheat? Checking a scheduling win against what the shop could have known"
-seo_title: "Backtesting staff schedules from sales data without hindsight in the score"
+seo_title: "Backtesting staff schedules from sales data without hindsight"
 date: 2026-11-12
 tags: [shift-roster-builder, product, measurement]
-description: "Shift Roster Builder now counts a staffed closure as spare by default, so half-life auto can pick the last 4 weeks of sales. A pre-registered check shows 77% of that gain survives when the score sees only the past."
+description: "Staffing a closed hour now counts as spare by default, so auto can plan from the last 4 weeks. 77% of the gain survives a hindsight-free check."
 ---
 
 [Shifts from your sales](https://marisstella.app/shift-roster-builder/shifts-from-sales.html) turns an hourly till or POS export into the shifts a shop needs. It can also backtest its own forecast on your file. Each past week is planned from the weeks before it and then compared, hour by hour, with what that week's sales needed.
