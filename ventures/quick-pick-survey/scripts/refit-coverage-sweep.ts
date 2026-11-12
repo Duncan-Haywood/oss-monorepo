@@ -20,13 +20,19 @@
  * min(8, items) items first have rd under 200, for Glicko and for the refit's
  * marginal sd (refit each answer; the couple screen's bar, src/lib/couples.ts).
  *
- *   npx tsx scripts/refit-coverage-sweep.ts [--seeds 40] [--seed-base 1000] [--items 8,15,30] [--lapses 0,0.1,0.2,0.35] [--per-item 2,4,8] [--selectors shipped,staged,random] [--couple-bar] [--jsonl out.jsonl]
+ * --eb adds a fourth interval and accuracy column: the refit with each
+ * respondent's empirical-Bayes prior sd (btRefit.ts, empiricalPriorPhi), full
+ * covariance. --pool makes that column the refit with one prior sd per cell,
+ * pooled over an independent panel with the same design (seeds offset by
+ * 100000; btRefit.ts, pooledPriorPhi).
+ *
+ *   npx tsx scripts/refit-coverage-sweep.ts [--eb | --pool] [--evidence sampled|laplace] [--seeds 40] [--seed-base 1000] [--items 8,15,30] [--lapses 0,0.1,0.2,0.35] [--per-item 2,4,8] [--selectors shipped,staged,random] [--couple-bar] [--jsonl out.jsonl]
  */
 import { appendFileSync } from "node:fs";
 import { selectNextPair, selectNextPairHybrid, pairKey } from "../src/lib/pairing";
 import { simulate, spearman, type Policy } from "../src/lib/infoGainSim";
 import { GLICKO_SCALE, ratingToLogit } from "../src/lib/glicko2";
-import { refitRatings } from "../src/lib/btRefit";
+import { refitRatings, empiricalPriorPhi, pooledPriorPhi } from "../src/lib/btRefit";
 import { clearPick } from "../src/lib/clearPick";
 
 const argv = process.argv;
@@ -37,6 +43,9 @@ const itemCounts = opt("--items", "8,15,30").split(",").map(Number);
 const lapses = opt("--lapses", "0,0.1,0.2,0.35").split(",").map(Number);
 const perItem = opt("--per-item", "2,4,8").split(",").map(Number);
 const selectorNames = opt("--selectors", "shipped,staged,random").split(",");
+const eb = argv.includes("--eb");
+const pool = argv.includes("--pool");
+const evidence = opt("--evidence", "sampled") as "laplace" | "sampled";
 const jsonl = argv.includes("--jsonl") ? opt("--jsonl", "") : "";
 const seeds = Array.from({ length: nSeeds }, (_, i) => seedBase + i * 7);
 const mean = (v: number[]) => v.reduce((a, b) => a + b, 0) / v.length;
@@ -92,24 +101,33 @@ for (const items of itemCounts) {
     for (const k of perItem) {
       const cell: Record<string, unknown> = { items, lapse, perItem: k };
       for (const sel of selectorNames) {
-        const acc = { g: [] as number[], r: [] as number[] };
-        const cov = { g: [] as number[], rm: [] as number[], rf: [] as number[] };
-        const wid = { g: [] as number[], rm: [] as number[], rf: [] as number[] };
+        const acc = { g: [] as number[], r: [] as number[], e: [] as number[] };
+        const cov = { g: [] as number[], rm: [] as number[], rf: [] as number[], re: [] as number[] };
+        const wid = { g: [] as number[], rm: [] as number[], rf: [] as number[], re: [] as number[] };
         const asked = { g: [] as number[], rf: [] as number[] };
         // The insights screen's "top pick" claim. Rules: half = the leader is ahead of the runner-up
         // by more than half its own rd (the route until 2026-11-12); z = the leader beats every other
         // item by more than 1.645 sd of the difference (src/lib/clearPick.ts). Glicko's sd of a
         // difference is hypot(rd_a, rd_b); the refit's has the covariance term.
+        const poolPhi = pool
+          ? pooledPriorPhi(seeds.map((s0) => {
+              const r = simulate(SELECTORS[sel], items, k * items, s0 + 100000, lapse);
+              return { ids: [...r.truth.keys()], answers: r.history.map(({ picked, other }) => ({ winner: picked, loser: other })) };
+            }), { evidence })
+          : 0;
         const RULES = ["g-half", "r-half", "g-z", "r-z"] as const;
         const claim = Object.fromEntries(RULES.map((k) => [k, { n: 0, wrong: 0 }])) as Record<(typeof RULES)[number], { n: number; wrong: number }>;
         for (const s of seeds) {
           const r = simulate(SELECTORS[sel], items, k * items, s, lapse);
           const ids = [...r.truth.keys()];
-          const fit = refitRatings(ids, r.history.map(({ picked, other }) => ({ winner: picked, loser: other })));
+          const answers = r.history.map(({ picked, other }) => ({ winner: picked, loser: other }));
+          const fit = refitRatings(ids, answers);
+          const efit = pool ? refitRatings(ids, answers, { priorPhi: poolPhi }) : eb ? refitRatings(ids, answers, { priorPhi: empiricalPriorPhi(ids, answers, { evidence }) }) : undefined;
           const askedKeys = new Set(r.history.map(({ picked, other }) => pairKey(picked, other)));
           const truth = ids.map((id) => 2 * r.truth.get(id)!);
           acc.g.push(spearman(truth, ids.map((id) => r.states.get(id)!.rating)));
           acc.r.push(spearman(truth, fit.mu));
+          if (efit) acc.e.push(spearman(truth, efit.mu));
           const n = ids.length;
           const trueTop = ids[truth.indexOf(Math.max(...truth))];
           const gC = ids.map((id) => ({ key: id, rating: r.states.get(id)!.rating, rd: r.states.get(id)!.rd }));
@@ -129,6 +147,7 @@ for (const items of itemCounts) {
             "r-z": viaZ(rC, (a, b) => GLICKO_SCALE * Math.sqrt(Math.max(0, fit.cov[a.i * n + a.i] + fit.cov[b.i * n + b.i] - 2 * fit.cov[a.i * n + b.i]))),
           };
           for (const k of RULES) if (got[k]) { claim[k].n++; if (got[k] !== trueTop) claim[k].wrong++; }
+          let hre = 0, wre = 0;
           let pairs = 0, hg = 0, hrm = 0, hrf = 0, wg = 0, wrm = 0, wrf = 0, ap = 0, ahg = 0, ahrf = 0;
           for (let i = 0; i < n; i++) {
             for (let j = i + 1; j < n; j++) {
@@ -139,6 +158,11 @@ for (const items of itemCounts) {
               const er = fit.mu[i] - fit.mu[j];
               const halfRm = 1.96 * Math.sqrt(fit.cov[i * n + i] + fit.cov[j * n + j]);
               const halfRf = 1.96 * Math.sqrt(Math.max(0, fit.cov[i * n + i] + fit.cov[j * n + j] - 2 * fit.cov[i * n + j]));
+              if (efit) {
+                const halfRe = 1.96 * Math.sqrt(Math.max(0, efit.cov[i * n + i] + efit.cov[j * n + j] - 2 * efit.cov[i * n + j]));
+                hre += +(Math.abs(efit.mu[i] - efit.mu[j] - real) <= halfRe);
+                wre += halfRe;
+              }
               const okG = Math.abs(eg - real) <= halfG, okRf = Math.abs(er - real) <= halfRf;
               pairs++;
               hg += +okG;
@@ -154,15 +178,17 @@ for (const items of itemCounts) {
           }
           cov.g.push(hg / pairs); cov.rm.push(hrm / pairs); cov.rf.push(hrf / pairs);
           wid.g.push(wg / pairs); wid.rm.push(wrm / pairs); wid.rf.push(wrf / pairs);
+          if (efit) { cov.re.push(hre / pairs); wid.re.push(wre / pairs); }
           if (ap > 0) {
             asked.g.push(ahg / ap);
             asked.rf.push(ahrf / ap);
           }
         }
         cell[sel] = {
-          acc: [r3(mean(acc.g)), r3(mean(acc.r))],
-          cov: [r3(mean(cov.g)), r3(mean(cov.rm)), r3(mean(cov.rf))],
-          w: [r3(mean(wid.g)), r3(mean(wid.rm)), r3(mean(wid.rf))],
+          ...(pool ? { poolPhi: r3(poolPhi) } : {}),
+          acc: [r3(mean(acc.g)), r3(mean(acc.r)), ...(eb || pool ? [r3(mean(acc.e))] : [])],
+          cov: [r3(mean(cov.g)), r3(mean(cov.rm)), r3(mean(cov.rf)), ...(eb || pool ? [r3(mean(cov.re))] : [])],
+          w: [r3(mean(wid.g)), r3(mean(wid.rm)), r3(mean(wid.rf)), ...(eb || pool ? [r3(mean(wid.re))] : [])],
           asked: [r3(mean(asked.g)), r3(mean(asked.rf))],
           top: Object.fromEntries(RULES.map((k) => [k, [r3(claim[k].n / seeds.length), r3(claim[k].n ? claim[k].wrong / claim[k].n : 0)]])),
         };

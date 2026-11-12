@@ -139,24 +139,27 @@ export const CONTENDERS_LEVEL = 0.95;
  * (or, with `bottom`, the bottom) item, most likely first, and never fewer
  * than two names (the card is only shown when no single item is clear, so a
  * one-name list would contradict it). `covariance(a, b)` is the posterior
- * covariance of two items' ratings (their variance when a === b).
+ * covariance of two items' scores (their variance when a === b); `score`
+ * (default: the rating) is the posterior mean the set is drawn around, so a
+ * caller can draw it from a different refit than the displayed ratings (the
+ * insights route uses the empirical-Bayes refit, btRefit.ts).
  */
 export function contenders<T extends { rating: number }>(
   items: readonly T[],
   covariance: (a: T, b: T) => number,
-  { level = CONTENDERS_LEVEL, bottom = false }: { level?: number; bottom?: boolean } = {}
+  { level = CONTENDERS_LEVEL, bottom = false, score = (x: T) => x.rating }: { level?: number; bottom?: boolean; score?: (x: T) => number } = {}
 ): T[] {
   const n = items.length;
   const cov = new Float64Array(n * n);
   for (let i = 0; i < n; i++) for (let j = 0; j <= i; j++) cov[i * n + j] = cov[j * n + i] = covariance(items[i], items[j]);
-  const set = favouriteSet(items.map((x) => x.rating), cov, { level, bottom });
+  const set = favouriteSet(items.map(score), cov, { level, bottom });
   const members = [...set.members];
   if (members.length < 2 && n >= 2) {
     const sign = bottom ? -1 : 1;
     const next = items
       .map((x, i) => i)
       .filter((i) => !members.includes(i))
-      .sort((a, b) => set.chance[b] - set.chance[a] || sign * (items[b].rating - items[a].rating))[0];
+      .sort((a, b) => set.chance[b] - set.chance[a] || sign * (score(items[b]) - score(items[a])))[0];
     members.push(next);
   }
   return members.map((i) => items[i]);

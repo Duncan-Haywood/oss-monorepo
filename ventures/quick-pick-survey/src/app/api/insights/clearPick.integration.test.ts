@@ -83,4 +83,23 @@ describe("the clear-pick claims", () => {
     expect(body.content["top-pick"].contested).toBe(true);
     expect([...body.content["top-pick"].rivals].sort()).toEqual(items.slice(0, 5).map((i) => i.label).sort());
   });
+
+  it("draws the contender list from the person's own prior spread: mild preferences keep more items in it", async () => {
+    const p = await createParticipant("behaviors");
+    const items = await itemsOf("behaviors", 6);
+    // A round robin where the earlier item wins two answers in three: a clear
+    // order but mild preferences. The fixed prior (sd 2.0) reads the spread as
+    // wide and lists the first four; the person's empirical-Bayes prior
+    // (lib/btRefit.ts, empiricalPriorPhi) reads it as narrow and keeps the
+    // fifth too (chances 0.49/0.27/0.14/0.06/0.03 against 0.34/0.25/0.17/0.12/0.07).
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        await answer(p.id, items[i].id, items[j].id, "A", 2);
+        await answer(p.id, items[i].id, items[j].id, "B", 1);
+      }
+    }
+    const body = await read(p.id);
+    expect(body.content["top-pick"]).toMatchObject({ label: items[0].label, contested: true });
+    expect(body.content["top-pick"].rivals).toEqual(items.slice(0, 5).map((i) => i.label));
+  });
 });
