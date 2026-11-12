@@ -7,9 +7,11 @@ itself and renders a 16-bit TIFF (or PNG) master the grade stage can take.
 
 Scope, stated plainly:
 
-* **DNG only.** DNG is the open format (Adobe's published specification),
-  every phone that shoots RAW writes it, and Adobe's free DNG Converter turns
-  CR2/CR3/NEF/ARW into it. Maker formats are not parsed here.
+* **DNG, and Canon CR2 with a camera profile.** DNG is the open format
+  (Adobe's published specification), every phone that shoots RAW writes it,
+  and Adobe's free DNG Converter turns CR3/NEF/ARW into it. A CR2 is read by
+  ``shootflow.cr2`` into the same tags (its sensor is the same lossless JPEG);
+  it carries no colour matrix, so it develops only with a ``.dcp`` profile.
 * Sensor data stored uncompressed (8 or 16 bit, or packed 10/12/14 bit) or as
   lossless JPEG (compression 7, SOF3, any of the seven predictors, interleaved
   components, restart markers), in strips or tiles, in IFD0 or a SubIFD.
@@ -901,6 +903,9 @@ class RawImage:
     values: array  # 'H' (or 'I'), row-major, samples interleaved
     ifd: Ifd
     ifd0: Ifd
+    # "dng", or "cr2" for a Canon CR2 read by ``shootflow.cr2`` (DNG-equivalent tags, no colour matrix).
+    source: str = "dng"
+    notes: list[str] = field(default_factory=list)  # what the reader inferred, carried into the report
 
 
 def _unpack_bits(chunk: bytes, bits: int, count: int, row_samples: int) -> list[int]:
@@ -956,19 +961,27 @@ def _decode_chunk(
     raise DevelopError(f"compression {compression} is not supported")
 
 
-def read_raw(path: Path | str) -> RawImage:
+def read_raw(path: Path | str, cfa: str | None = None) -> RawImage:
     data = Path(path).read_bytes()
-    return parse_raw(data)
+    return parse_raw(data, cfa=cfa)
 
 
-def parse_raw(data: bytes) -> RawImage:
+def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
+    """A DNG's (or a Canon CR2's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
+
+    from shootflow import cr2
+
+    if cr2.is_cr2(data):
+        return cr2.parse_cr2(data, cfa=cfa)
     reader = _Reader(data)
     ifds = _all_ifds(reader)
     if not ifds:
         raise DevelopError("the file has no IFDs")
     ifd0 = ifds[0]
     if ifd0.one(TAG_DNG_VERSION) is None:
-        raise DevelopError("not a DNG (no DNGVersion tag); convert maker RAW files with Adobe DNG Converter")
+        raise DevelopError(
+            "not a DNG or a Canon CR2 (no DNGVersion tag); convert other maker RAW files with Adobe DNG Converter"
+        )
     ifd = _raw_ifd(ifds)
     width = ifd.one(TAG_WIDTH)
     height = ifd.one(TAG_HEIGHT)
@@ -1071,6 +1084,9 @@ class DevelopSettings:
     # "always" applies it to every profile with no curve, as Adobe's own
     # converters do; "never" keeps the plain sRGB curve.
     default_tone: str = "auto"
+    # A Canon CR2's 2x2 CFA phase (RGGB, GRBG, GBRG, BGGR) when the reader
+    # cannot tell it from the picture; ignored for DNG (its CFAPattern rules).
+    cfa: str | None = None
 
 
 @dataclass
@@ -1449,7 +1465,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
 
     settings = settings or DevelopSettings()
     ifd, ifd0 = raw.ifd, raw.ifd0
-    notes: list[str] = []
+    notes: list[str] = list(raw.notes)
     photometric = ifd.one(TAG_PHOTOMETRIC)
     linear_raw = photometric == PHOTOMETRIC_LINEAR_RAW
     if linear_raw and raw.samples_per_pixel != 3:
@@ -1475,6 +1491,12 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     profile = _profile(ifd0, ifd, settings.dcp, notes) if settings.colour == "dng" else None
     if settings.dcp is not None and profile is None:
         raise DevelopError("the camera profile has no ColorMatrix1")
+    if raw.source == "cr2" and profile is None:
+        raise DevelopError(
+            "a CR2 carries no colour matrix: pass the camera's .dcp profile with --dcp (Adobe's free DNG "
+            "Converter installs one per camera, e.g. 'Canon EOS 5D Mark II Adobe Standard.dcp' under "
+            "CameraRaw/CameraProfiles), or convert the file to DNG"
+        )
     given_xy = None
     if (
         profile is not None
@@ -1906,7 +1928,7 @@ def write_png(path: Path, width: int, height: int, rgb16: array, bits: int = 8) 
 def develop_file(
     source: Path | str, destination: Path | str, settings: DevelopSettings | None = None, png_bits: int = 8
 ) -> DevelopReport:
-    """Develop ``source`` (a DNG) to ``destination`` (.tif/.tiff or .png)."""
+    """Develop ``source`` (a DNG, or a Canon CR2 with ``settings.dcp``) to ``destination`` (.tif/.tiff or .png)."""
 
     source, destination = Path(source), Path(destination)
     suffix = destination.suffix.lower()
@@ -1914,7 +1936,7 @@ def develop_file(
         raise DevelopError("output must end in .tif, .tiff or .png")
     if destination.exists():
         raise DevelopError(f"{destination} exists; masters are never overwritten")
-    raw = read_raw(source)
+    raw = read_raw(source, cfa=settings.cfa if settings is not None else None)
     width, height, pixels, report = develop(raw, settings)
     destination.parent.mkdir(parents=True, exist_ok=True)
     tmp = destination.with_name(destination.name + ".part")

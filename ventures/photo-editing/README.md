@@ -78,7 +78,9 @@ only, no real camera file yet). Since 2026-11-10 the pipeline develops DNG still
 TIFF and grades that into `graded/<job>/IMG_0001.DNG.tif`, and a DNG with no embedded preview
 gets its proxy and its scores from a half-size development instead of failing. Other RAW
 formats (CR2, CR3, NEF, ARW, ...) are still scored from their preview but stop at the grade
-stage with a message to convert them to DNG (Adobe's free DNG Converter); one with no preview
+stage with a message to convert them to DNG (Adobe's free DNG Converter); since 2026-11-12
+`shootflow develop` reads a Canon CR2 directly when given the camera's `.dcp` profile
+("Develop a Canon CR2 directly" below), though the pipeline's grade stage does not yet; one with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
 counts only 8-bit lossy JPEGs as previews: CR2 sensor data is a lossless JPEG (SOF3) and DNG
@@ -913,7 +915,7 @@ white balance with camera multipliers. Stdlib only, like the rest of ShootFlow
 the same arithmetic and writes the same bytes (`src/shootflow/raw_develop_np.py`, below;
 `--engine python|numpy` to choose, default `auto`).
 
-What it reads: DNG (convert CR2, CR3, NEF and ARW with Adobe's free DNG Converter first), raw
+What it reads: DNG, and Canon CR2 with a `.dcp` profile (since 2026-11-12; convert CR3, NEF and ARW with Adobe's free DNG Converter first), raw
 data in IFD0 or a SubIFD, in strips or tiles, uncompressed 8/16-bit or packed 10-14-bit, or
 lossless JPEG (SOF3, all seven predictors, restart markers, multi-component tiles); 2x2
 RGB colour filter arrays in any phase, and LinearRaw. It applies the linearization table,
@@ -1021,6 +1023,45 @@ How it was checked:
   and on the CR2, and still 0 of 22,032,768 sensels different from LibRaw. No compiler, Windows
   or `SHOOTFLOW_NATIVE=0`: the pure loop runs. `raw_develop.HUFFMAN_ENGINE` (`auto`, `python`,
   `native`) chooses; an invalid code falls back to the pure loop, which raises as before.
+
+## Develop a Canon CR2 directly (2026-11-12)
+
+`shootflow develop IMG_0001.CR2 --dcp "Canon EOS 5D Mark II Adobe Standard.dcp" --out DIR`
+develops a Canon CR2 with no DNG Converter step. A CR2's sensor is the same lossless JPEG a DNG
+tile is (the decoder above, native Huffman reader included), cut into vertical slices that
+`src/shootflow/cr2.py` puts back side by side. What a DNG states in tags, the reader finds:
+
+- **Image area** from the maker note's SensorInfo (tag 0x00E0) borders; the rest is masked.
+- **Black level** per 2x2 position: the median of the masked columns left of the image.
+- **White level**: the top of the stream's precision (16,383 at 14 bits). LibRaw uses a
+  per-model table here (15,600 for the 5D Mark II) that is not copied; on a frame with blown
+  highlights this leaves them up to about 5% darker than LibRaw renders them.
+- **As-shot white balance** from ColorData (tag 0x4001), whose version is told by its length
+  (ExifTool's documented layouts; unknown versions develop unbalanced and say so).
+- **CFA phase**: a CR2 has no CFAPattern tag and the phase differs between bodies, so it is
+  read from the picture: the green diagonal is the pair of 2x2 positions that agree most, and
+  red is told from blue by the as-shot balance. When either is unclear the file is refused
+  with a request for `--cfa RGGB|GRBG|GBRG|BGGR`, never guessed. (The small RGB thumbnail in
+  IFD 2 was tried first and dropped: on the 5D Mark II it is framed differently and carries an
+  unsubtracted black level, and matched no phase clearly.)
+- **Colour** needs a camera profile: a CR2 has no colour matrix. Adobe's free DNG Converter
+  installs one `.dcp` per camera (`CameraRaw/CameraProfiles/Adobe Standard/` under
+  `ProgramData` on Windows or `/Library/Application Support/Adobe` on macOS); dcamprof and
+  RawTherapee write them too. Without `--dcp` the command stops and says so.
+
+Checked (`eval/cr2-direct-2026-11-12.md`, `tools/cr2_develop_check.py`): on the real Canon
+5D Mark II CR2 from rawpy's test folder, the image area is LibRaw's crop to the pixel
+(56, 168, 3744 x 5616), the black levels are within 2 of LibRaw's, the CFA phase found (GBRG)
+is LibRaw's, the white balance is LibRaw's camera multipliers, and, developed with a profile
+built at run time from LibRaw's own matrix for the camera, the half-size render is within
+0.61 of an 8-bit step of LibRaw's at the median (3.9 at the 99th percentile; channel means
+within 3%). Full size, 21 MP to a 16-bit TIFF: 4.3 s with numpy and the native Huffman reader.
+`tests/test_cr2.py` (12 tests) builds CR2s with a known scene behind each of the four CFA
+phases and checks every inferred tag, the refusals (unclear phase, sRAW, no profile), a grey
+patch rendering neutral, the numpy and pure engines byte for byte, and the CLI. Not done: any
+Canon body but the 5D Mark II on real files (raw.pixls.us answers 403 here), a real Adobe
+profile (not in the build container), sRAW/mRAW, CR3, and the pipeline's grade stage, which
+still asks for DNG.
 
 ## Colour for the light the photo was taken in (2026-11-12)
 

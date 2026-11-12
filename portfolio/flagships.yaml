@@ -215,17 +215,14 @@ flagships:
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
       History and every measurement: README and eval/ (ingest, catalog,
-      proxies, cull with XMP and picks scoring, RAW previews; stdlib DNG
-      developer matching LibRaw within one 8-bit step in `--colour dcraw`;
-      pipeline grade stage and grade-scope; numpy engine and lossless-JPEG
-      speed-ups; DNG-spec colour checked against colour-hdri,
-      eval/dng-colour-2026-11-12.md; HueSatMap/LookTable and `--dcp`,
-      eval/dcp-tables-2026-11-12.md; ProfileToneCurve with hue-preserving
-      RGB tone, eval/tone-curve-2026-11-12.md; DNG 1.6 triple-illuminant
-      profiles and IlluminantData, eval/triple-illuminant-2026-11-12.md; the
-      default tone curve for profiles with none, identified as Adobe's ACR3
-      default and fitted with 20 knots of our own, `--default-tone-curve`,
-      eval/default-tone-curve-2026-11-12.md, all 2026-11-12). Next, most valuable first: a real DNG 1.6 three-light
+      proxies, cull, RAW previews; DNG developer with DNG-spec colour, DCP
+      tables, tone curves, triple-illuminant profiles and the default tone
+      curve; numpy engine and native lossless-JPEG Huffman reader; Canon CR2
+      developed directly with a `.dcp`, eval/cr2-direct-2026-11-12.md).
+      Next, most valuable first: CR2 in the pipeline's grade stage (a
+      per-camera `.dcp` setting; `shootflow develop` already reads CR2), and
+      real CR2s from other Canon bodies (other ColorData versions, the
+      per-model white level); a real DNG 1.6 three-light
       profile or DNG, and the SDK's own triple weights on a grid of whites
       (compiling it was blocked here); a tungsten-lit colour chart (real DNG, known patches) to say
       which colour model is closer to the scene, and a camera- or
@@ -235,8 +232,7 @@ flagships:
       saving on real 4K footage and a long shoot; the native Huffman reader
       (landed 2026-11-12, eval/ljpeg-native-huffman-2026-11-12.md: CR2 decode
       8.8-11.7 s to 1.2-1.7 s, Linux only so far) run on macOS, and the 0.8 s
-      list the public decoder still builds dropped; reading CR2 directly (needs
-      per-model colour matrices); a camera- or phone-written lossless-JPEG
+      list the public decoder still builds dropped; a camera- or phone-written lossless-JPEG
       DNG (raw.pixls.us and rawsamples.ch 403 from cloud); a trained blink
       model and a real shoot with a photographer's picks; photos with a real
       horizon and human tilt labels.
