@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 1,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 30,
   "outcome": "success",
@@ -38,7 +38,8 @@
     "Push hook rejected the post description (223 chars > 160); shortened in a separate commit.",
     "CI ventures-tests: UNITS[input.units] flagged by inherited_keys.py (prototype keys); fixed with Object.hasOwn.",
     "CI validate: optout-persistence pins the opt-out catalogue count (1311); raised to 1312 with an `earthwork-cut-fill graduated` note.",
-    "Local site-builder tests: earthwork-cut-fill landed in the catch-all section, FAQ JSON-LD not visible on page, no launch date; filed under the trades section in build.mjs, rendered the FAQ visibly, ran launched.mjs --write."
+    "Local site-builder tests: earthwork-cut-fill landed in the catch-all section, FAQ JSON-LD not visible on page, no launch date; filed under the trades section in build.mjs, rendered the FAQ visibly, ran launched.mjs --write.",
+    "CI portfolio-pages test: trades tool needed a SUBCATEGORY_RULES keyword (added earthwork- to trades-site). Local full site-builder suite then: 1553 pass, 1 fail -> fixed, targeted rerun 4/4."
   ],
   "integrity_issues": [],
   "doc_friction": [

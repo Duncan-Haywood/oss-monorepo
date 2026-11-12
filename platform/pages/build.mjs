@@ -4818,7 +4818,8 @@ const SUBCATEGORY_RULES = {
       id: 'trades-site',
       title: 'Concrete, masonry & site work',
       // `shed-designer` joined 2026-10-29 beside `shed-install` and `pole-barn`.
-      test: (slug) => /^(concrete|asphalt-|gravel-driveway|paver-patio|retaining-wall|parking-lot|french-drain|foundation-repair|epoxy-garage|pole-barn|shed-install|shed-designer)/.test(slug),
+      // `earthwork-cut-fill` joined 2026-11-12: pad cut and fill from survey points.
+      test: (slug) => /^(concrete|earthwork-|asphalt-|gravel-driveway|paver-patio|retaining-wall|parking-lot|french-drain|foundation-repair|epoxy-garage|pole-barn|shed-install|shed-designer)/.test(slug),
     },
     {
       id: 'trades-outdoor',
