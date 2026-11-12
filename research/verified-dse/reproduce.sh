@@ -42,3 +42,4 @@ $PY experiments/fresh_designs/analyse.py   # milestone 113 (no flow; under 3 s; 
 $PY experiments/r2_guard/guard.py   # milestone 114 (no flow; under 15 s)
 $PY experiments/clip_score/score.py   # milestone 115 (no flow; under 10 s; experiments/clip_score/run.py re-runs the 1,680-point flow, about 65 min on 4 cores)
 $PY experiments/pilot_clip/guard.py   # milestone 116 (no flow; under 15 s; experiments/pilot_clip/run.py re-runs the 1,200-point flow, about 1 h 50 min on 4 cores)
+$PY experiments/switch_pooled/pool.py   # milestone 117 (no flow; under 15 s)

@@ -34,6 +34,17 @@ but is informative only where the rung is already faithful. A conformal
 shortlist on the mapped rung retains the optimum 0.99 of the time at
 nominal 0.90 while routing 42 to 57\% of the pool; on the generic rung
 it is no better than random. A proof-success predictor is not supported.
+Where a routed point costs several mapped scores, one rule does pay.
+Time one routed point; if routing costs more than 3 mapped scores, route
+the best 8 by mapped area x max(period, 1.25 x mapped delay), else route
+random points for the same wall-clock. On 12 larger designs run blind
+after both parameters were fixed, it has 1.60\% mean routed regret
+against 2.91\% for equal-cost random routing (better in 18 of 24 cells,
+sign p = 0.011; design-bootstrap 95\% interval of the difference -2.45
+to +0.22 points). The same switch without the clip does not beat random
+routing on the 20 designs it had not seen (2.71\% against 2.80\%), and
+wide barrel shifters, where mapped delay does not predict routed delay,
+remain its failure.
 \end{abstract}
 \textbf{Draft for MLCAD (6 pages when typeset); not submitted.}
 Programme \texttt{verified-dse}, milestone 7. Written with AI assistance
@@ -507,6 +518,296 @@ shares (300 pilots) is beyond 3 binomial sigma of it (max
 The formula needs y for the whole pool, so it chooses a pilot size in
 evaluation, not inside a live search.
 
+\textbf{What a certificate says about regret} (milestone 95,
+\texttt{experiments/\allowbreak{}theory/\allowbreak{}pilot\_\allowbreak{}cert\_\allowbreak{}regret.py},
+\texttt{pilot\_\allowbreak{}cert\_\allowbreak{}regret\_\allowbreak{}results.txt}; no flow run, same pilots as
+milestone 84, 200 halving tie-breaks per cell, cells weighted equally).
+Read from the practitioner's side, a certified pilot (T \textless{} 1)
+comes from a cell where the optimum meets the zero-regret condition with
+probability 0.818 / 0.872 / 0.907 at m = 8 / 16 / 24, halving then has
+zero regret in 0.830 / 0.873 / 0.907 of draws (0.360 / 0.315 / 0.276
+after an uncertified pilot) and a mean relative excess of 1.3\% / 1.1\%
+/ 0.8\% (6.6\% / 7.0\% / 7.4\% uncertified). It is not a bound:
+tight/adder\_op16 from the R2 start is not a guaranteed cell, yet 0.36
+to 0.50 of its pilots are certified and its mean relative regret is
+13.9\%, so a certificate can sit on a cell with a large loss. Two of
+three predictions held (precision about 0.87; certified above
+uncertified); the 0.9 floor on P(zero regret \textbar{} certified) at m
+= 16 and the 5\% ceiling on any certified cell's mean regret were
+refuted.
+
+\textbf{How a pilot ceiling depends on pilot size and ladder (milestones
+97 to 104; all cached-table analyses, no flow run).} Any certified pilot
+point (ratio \textless{} 1), not only the pilot's best, gives a ceiling
+c = min y over certified pilot points that the returned cost stays
+under: 0 violations in about 145,000 to 253,000 draws at m = 8 to 24, a
+ceiling in 0.242 / 0.367 / 0.422 of pilots against 0.166 / 0.221 / 0.257
+with T \textless{} 1, but a 3x looser one for the extra pilots (mean
+excess 10.2\% against 3.0\% at m = 16; milestone 97). The share of
+pilots with a ceiling flattens at about 0.45 (0.140 at m = 4, 0.448 at m
+= 40) while the ceiling's mean excess falls from 5.5\% to 0.7\%
+(milestone 99): a larger pilot tightens the guarantee but does not make
+it more likely. Milestone 100 counts why exactly: the plateau is the
+share of cells containing any certified point, 18 of 40; all 20
+three-rung cells (r1 to r3) have none at the default keeps and 18 of the
+20 two-rung cells have two to five. Milestones 101 to 103 show that
+default is a schedule effect, not a rung property (this corrects a
+reading in milestone 102): with keeps (n/3, n/9, K) cells with a
+certified point at K = 1 / 2 / 3 / 5 / 8 are 0 / 2 / 6 / 6 / 7 of 20;
+widening the middle keep adds one cell at most; the first keep is what
+binds, and with F = 8 / 16 / 25 / 35 / 50 of the 50-point pool kept
+through r1 (and keeps 16 then 8) 6 / 8 / 12 / 18 / 18 of 20 three-rung
+cells are certifiable, the two left being adder\_ripple16 (ties).
+Milestone 104 prices that: the F = 35 three-rung schedule costs less
+wall-clock than the two-rung ladder in all 20 cells (median ratio 0.91)
+and certifies the same 18, but neither saves much over routing the whole
+pool of 50 (under half of its cost in 1 of 20 cells). So a certificate
+is available on this table, at a cost close to routing everything: the
+cheap rungs do not pay at this pool size. Limits: n = 50, one eta, mean
+per-cell stage times from one single-core run (the 9\% is inside
+plausible timing noise), no regret measured for the wide schedules;
+detail-routed mult24/mult32 cells, where the routed rung is dearer, are
+the test of whether the saving grows.
+
+\textbf{Choosing the keeps without peeking, and pool size (milestones
+105 to 107; cached table, no flow run).} Milestone 105 measures regret,
+which the schedules above did not: the three-rung schedule (keeps 35,
+16, 8) has mean regret 1.18\% against 2.27\% for the two-rung ladder
+(16, 5), and both beat random routing of the same count (5.38\% and
+7.86\%); the three-rung one is at most as bad in 18 of 20 cells. A
+certificate is not the optimum: the two-rung ladder misses the routed
+optimum entirely in 5 cells and barrel16 is worse than random routing at
+both clocks, because its rung scores are anti-informative. Those
+schedules were chosen after seeing the table, so milestone 106 selects
+them leave-one-design-out over a grid (F in 16/25/35/50, M in 8/16, K in
+3/5/8): all ten folds choose (50, 8, 8), ``skip r1, score everything at
+r2, keep 8, route 8'', with held-out mean regret 0.95\% against 1.17\%
+for (35, 16, 8) and 0.77\% for the in-grid oracle; the edge is carried
+by mult8 and crc16. Milestone 107 shrinks the pool by random subsampling
+(N = 20 / 30 / 40): skip-r1 has regret 0.45 / 0.92 / 1.00\% against 0.73
+/ 1.19 / 1.06\% for the 105-style schedule and 3.39 / 4.41 / 4.77\% for
+random routing of 8, better in only 5 to 6 of 10 designs. Regret falls
+as N shrinks (a prediction we got wrong) because routing 8 of 20 covers
+a larger share of the pool, so regret is not comparable across N.
+Limits: ten small designs, subsamples of the same 50-point pools, 20
+subsets and 100 to 200 tie-break draws rather than a bootstrap over
+designs, cost not re-priced; the gain over the 105 schedule is a small
+mean shift within noise.
+
+\textbf{A fresh, larger pool (milestone 108; flow run).} All of the
+above is on one 50-point table. Milestone 108 runs 120 new ABC pass
+sequences, disjoint from the original 60, through the four rungs on the
+same ten designs and clock targets (Yosys 0.70, OpenROAD 26Q3; 103 or
+104 usable points per cell), with predictions fixed before the run. The
+held-out choice survives: skip-r1 (N, 8, 8) has mean regret 1.04\%
+against 5.49\% for (round(0.7N), 16, 8) and 8.00\% for random routing of
+8. The gap is concentrated: adder\_ripple16 has four distinct
+generic-gate scores, 87 of 104 points share the lowest, and the routed
+optimum sits in the second group, so a first keep of 73 by r1 cannot
+contain it (34.3\% and 39.6\% regret, worse than random); barrel16 tight
+adds 12.7\%. Excluding those two designs the schedules are equal (1.30\%
+against 1.29\%), and cell by cell skip-r1 wins 7, ties 9 and loses 4
+(sign test p = 0.55). We therefore recommend skipping the generic-gate
+rung as protection against a catastrophic cut on tie-heavy cheap scores,
+not as an average gain. The mapped rung's median tau-b against routed is
+0.55 / 0.65 (tight / relaxed) on the new pool against 0.59 / 0.73 on the
+original, and the generic-gate rung's stays near zero, under a
+tool-version change that confounds the comparison.
+
+\textbf{Priced at equal wall-clock (milestone 109; no flow run).} The
+comparison above holds the routed count at 8; skip-r1 scores about 103
+points at the mapped rung where (round(0.7N), 16, 8) scores 72 and pays
+for the generic-gate rung instead. With milestone 104's per-cell
+stage-time model on the fresh table, skip-r1 is dearer in 18 of 20 cells
+(median ratio 1.08) and costs a median 0.69 of routing the whole pool
+(0.64 for the other schedule). Random routing given the same wall-clock
+routes 35 to 79 points and reaches mean regret 1.26\% against skip-r1's
+1.04\% (skip-r1 better in 14 of 20 cells, sign test p = 0.115) and
+1.43\% against the 105-style schedule's 5.48\% (9 better, 11 worse). On
+designs this small, where the mapped rung is about 70\% of a routed
+point, a rung ladder is therefore a robustness choice rather than a
+saving; the saving the programme asks about needs designs whose routed
+rung is far dearer than the mapped one.
+
+\textbf{Held-out designs (milestone 110; no flow run).} Milestones 105
+to 109 used only the ten small designs. Six cached tables hold 26 other
+designs (52 cells of 50 to 60 points, two clocks) that informed no
+schedule choice, among them the 16 to 40-bit multipliers where a routed
+point costs up to 22 times a mapped score. With the same schedules,
+regret and cost model, and predictions fixed before the replay, skip-r1
+has mean regret 4.38\% against 4.89\% for (round(0.7N), 16, 8) and
+5.95\% for random routing of 8. At equal wall-clock random routing has
+the lower mean (2.31\%), yet skip-r1 is better in 37 cells and worse in
+13 (sign test p = 0.001; design-bootstrap 95\% interval of the mean
+difference -1.3 to +6.9 points): the mean is carried by a few cells
+where the mapped rung misleads (bcastmix192 at 49.9\% in both clocks,
+barrel64 at 26 to 29\%, fanao96 at 11\%). Split at a routed-to-mapped
+cost ratio of 3, fixed in advance, the 23 dear-routing cells give
+skip-r1 a median cost of 0.26 of routing everything and lower regret
+than equal-cost random routing (2.07\% against 3.59\%, 18 of 23 cells),
+while the 29 cheap-routing cells favour random routing (1.29\% against
+6.21\%; these two means are post hoc). The multi-fidelity saving the
+programme asks about therefore exists on this benchmark, but only where
+routing is several times dearer than mapping, and it carries a tail risk
+from unfaithful mapped scores that a schedule alone does not remove.
+
+\textbf{A switching rule (milestone 111; no flow run).} Milestone 110's
+split suggests a rule that needs no routed score: measure the
+routed-to-mapped cost ratio on one point, run skip-r1 above a threshold
+theta and equal-cost random routing below it. With theta chosen from
+\{1.5, \ldots, 8\} by leave-one-design-out on the 52 held-out cells,
+every fold picks 3 and the held-out mean regret is 1.66\%, against
+2.29\% for random routing and 4.38\% for skip-r1 at the same wall-clock,
+with the worst cell at 13.2\% instead of 49.9\% (theta = 3 was also
+milestone 110's pre-registered split, so the selection is not
+independent of it). A guard that routes a pilot of p = 3 to 6 random
+points and abandons the mapped ranking when tau-b on the pilot falls
+below tau0 does not help: the selected guard is the pure hedge (six
+random points plus the mapped best two), the tau-b test flags
+bcastmix192 in 94 to 100\% of draws but its false alarms elsewhere cost
+more, and adding the hedge to the switch changes 12 of 52 cells, six
+each way. On the fresh pool, which chose nothing, the switch routes
+randomly in 18 of 20 cells and has 1.21\% against 1.04\% for skip-r1 and
+1.18\% for random (13 cells worse than skip-r1, 5 better, p = 0.10); the
+test set has almost no dear-routing cells, so the ladder branch of the
+rule is still untested out of sample.
+
+\textbf{The switch's ladder branch out of sample (milestone 112; flow
+run).} Milestone 111's test pool had routed/r2 ratios of at most 3.4, so
+only the random branch was tested. We ran milestone 108's 120 fresh
+sequences (disjoint from the held-out tables' 60) through all four rungs
+on six held-out designs whose ratio exceeded 3 (mult16, mult24, xbar16,
+gf2mat48, barrel128, bcastadd64), both clocks, Yosys 0.70 and OpenROAD
+26Q3: 1,440 runs, pools of 102 to 103 points. With every parameter fixed
+from milestone 111 and the predictions committed before the table was
+read, all 12 cells have ratios above 3 (3.6 to 19.5), so the switch runs
+skip-r1 everywhere: mean regret 1.05\% against 3.16\% for equal-cost
+random routing, better in 9 cells and worse in 3 (sign p = 0.15;
+design-bootstrap 95\% interval of the difference -3.95 to -0.06 points).
+The losses are mult24 at the relaxed clock (6.46\%, milestone 9's
+unfaithful family) and xbar16 at both clocks (3.18\%, 2.43\%). The
+six-point random hedge that milestone 111 selected by 0.07 points
+in-sample has 3.55\% here, worse than random routing: in pools of about
+103 points it leaves only two routed slots to the mapped ranking. The
+rule we recommend is therefore the switch alone. These designs informed
+theta, so this is a fresh-sample, not a fresh-design, test.
+
+\textbf{Designs that chose nothing (milestone 113; flow run).} Eight
+designs no earlier table had run (mult18, mult22, a 20-bit squarer from
+a family never run, a 32-port crossbar, gf2mat64, barrel32, popcount32,
+adder\_op32), milestone 108's 120 sequences, both clocks, Yosys 0.70 and
+OpenROAD 26Q3, 1,920 runs, predictions committed before the flow. With
+theta = 3 fixed, the switch has 0.91\% mean regret against 2.64\% for
+equal-cost random routing and 1.44\% for always running skip-r1 (better
+than random in 9 cells, worse in 1, sign p = 0.021; design-bootstrap
+interval of the difference -3.54 to +0.05 points). Ten cells have ratios
+above 3 and there skip-r1 beats random (1.32\% against 4.09\%); at or
+below 3 random beats skip-r1 (0.22\% against 1.63\%). The oracle switch
+would have 0.26\%; the 0.65-point gap is one cell, mult18 at the relaxed
+clock (10.48\% against 1.00\%), so the misleading mapped rung belongs to
+relaxed-clock multipliers as a family, not to one width
+(\texttt{experiments/\allowbreak{}fresh\_\allowbreak{}designs/\allowbreak{}results.txt}).
+
+\textbf{No guard from the mapped rung alone (milestone 114; no flow
+run).} Skip-r1 scores every point at the mapped rung anyway, so any
+statistic of that table is free. We tried two: the median mapped slack
+as a share of the clock period (the relaxed multipliers sit at +0.31 to
++0.34) and the coefficient of variation of the mapped delay across
+sequences (0.31 to 0.38 there, against 0.21 and 0.22 for mult16 and
+mult20, whose relaxed cells the ladder handled; the mapped delay does
+not depend on the clock, so the spread is the same at both clocks). A
+guard flags a cell above the cost threshold and routes randomly instead.
+Chosen on the 52 held-out cells among 34 thresholds, the guard slack
+\textgreater= 0.15 and spread \textgreater= 0.3 flags exactly the five
+relaxed mult24 to mult40 cells and cuts held-out regret from 1.66\% to
+1.15\% (1.25\% leave-one-family-out). On the 28 dear-pool test cells of
+milestones 112 and 113 it misses both relaxed multipliers (mult24 0.26,
+mult18 0.19 spread) and raises false alarms in one cell, bcastadd64
+relaxed, raising mean regret from 0.97\% to 1.16\% (design-bootstrap
+interval of the difference 0.00 to +0.57 points); four of the six
+predictions failed. Comparing the six designs both tables contain
+explains why: slack is a property of the design and clock (it moves by
+at most 0.10 between tables) but the spread is a property of the
+sequence pool (on the fresh sequences it fell by 11 to 35\% in five
+designs and rose by 23\% in gf2mat48). In hindsight the best of the 34
+guards on the test cells (slack \textgreater= 0.3) reaches 0.89\%, only
+0.08 points better than no guard, flagging 7 cells to catch 2. The
+relaxed-multiplier failure is not visible in the mapped rung's slack or
+spread; a guard needs information from a later rung
+(\texttt{experiments/\allowbreak{}r2\_\allowbreak{}guard/\allowbreak{}results.txt}).
+
+\textbf{A mapped score clipped at the clock (milestone 115; flow run).}
+The guard was the wrong question. The ladder fails only at the relaxed
+clock, with the same top 8 that succeed at the tight one, because the
+routed flow repairs timing up to the period and stops. On every relaxed
+multiplier the median routed delay is 0.993 to 1.000 of the period, so
+the routed area x delay ranks by area alone, while the mapped score
+still rewards mapped speed. Scoring a point as mapped area x max(period,
+1.25 x mapped delay) copies that saturation. alpha = 1.25 was chosen on
+the 52 held-out cells (1.66\% to 0.77\% in-sample, no gain
+leave-one-family-out, because the gain is in one family). We then ran
+seven new designs blind (mult14, mult26, sq16, sq24, xbar32x2, gf2mat40,
+gf2mat56; 1,680 runs; predictions committed first). The switch's mean
+regret falls from 2.73\% to 0.83\%, better in 5 of 14 cells and worse in
+none (design-bootstrap interval -3.63 to -0.41 points), and every
+relaxed cell on the ladder reaches 0.00\% (mult26 from 9.58\%, sq24 from
+11.30\%). The clip can hurt where the routed delay sits far below the
+period. On an earlier table seen during the exploration, barrel128 at
+the relaxed clock (routed delay 0.40 of the period) went from 0.00\% to
+19.2\% (\texttt{experiments/\allowbreak{}clip\_\allowbreak{}score/\allowbreak{}results.txt}).
+
+\textbf{A routed pilot does not tell the rule when to clip (milestone
+116; flow run).} The clip's one seen loss suggested a guard the switch
+gets for free: its timing pilot is a routed point, and routed delay /
+period is about 1 where the clip was right and 0.4 to 0.6 on barrel
+shifters. We fixed the threshold at 0.9 from that mechanism and ran five
+blind designs (barrel96, barrel192, barrel256, mult30, sq28; 1,200 runs;
+predictions committed first). The pilot separates the families as
+expected (0.41 to 0.59 on every relaxed barrel, 1.00 of points pass on
+the multiplier and squarer), but the premise fails: the clip took
+barrel192 and barrel256 at the relaxed clock from 8.21\% and 8.66\% to
+0.00\% and barrel96 from 3.18\% to 9.42\%. Mean blind regret is 2.69\%
+for the unguarded clip, 3.76\% guarded, 5.58\% for the plain switch and
+3.28\% for equal-cost random routing; no threshold from 0.6 to 0.97
+brings the guard below the clip. On these wide shifters mapped delay
+hardly predicts routed delay (tau-b -0.43 to +0.25) and whether
+area-only ranking wins in the top 8 flips from design to design; a slack
+statistic cannot see that. Pooled over the 124 cells of milestones 110
+to 116, the switch with the clipped score has 1.02\% mean regret, the
+plain switch 1.87\% and random routing 2.36\%
+(\texttt{experiments/\allowbreak{}pilot\_\allowbreak{}clip/\allowbreak{}results.txt}). We recommend the clipped
+switch, with wide shifters (and barrel256 at the tight clock, 11.55\%
+for either ladder against 5.81\% random) as its disclosed failure.
+
+\textbf{The switch's evidence, counted by what each rule had seen
+(milestone 117; no flow run).} Pooling every cell can flatter a rule
+whose parameters were chosen on some of them, so we split the tables by
+when each parameter was fixed. theta = 3 was fixed in milestone 111, so
+the plain switch is tested on the 52 cells of milestones 112, 113, 115
+and 116 (26 designs). There it has 2.33\% mean regret against 2.88\% for
+equal-cost random routing (better in 28 cells, worse in 17, sign p =
+0.14; design-bootstrap interval of the difference -1.66 to +0.49
+points). On the 40 cells of the 20 designs that no table had run when
+theta was fixed, it is level with random routing (2.71\% against 2.80\%,
+p = 0.49). alpha = 1.25 was fixed in milestone 115 after an exploration
+that read milestones 108, 112 and 113, so the clipped switch's only test
+cells are the 24 of milestones 115 and 116 (12 designs). There it has
+1.60\% against 2.91\% for random routing and 3.91\% for the plain
+switch: better than random in 18 cells and worse in 5 (sign p = 0.011;
+design-bootstrap interval -2.45 to +0.22 points), better than the plain
+switch in 9 and worse in 1 (p = 0.021; interval -3.70 to -0.72 points).
+It reaches 0.00\% in 15 of the 24 cells, which random routing reaches in
+none. By family, the clip wins on every squarer cell (6 of 6, 0.00\%
+against 3.23\%), on 5 of 6 multiplier cells and on both crossbar cells;
+on the six barrel-shifter cells it splits 3 to 3 and loses on the mean
+(4.48\% against 3.10\%). Without the barrel family (a split chosen after
+milestone 116, so post hoc) the interval excludes zero: 0.64\% against
+2.84\%, -3.06 to -1.26 points. The oracle switch, the per-cell better of
+the clipped ladder and random routing, would reach 0.87\% on the same
+cells. So the clip, not the cost-ratio switch alone, is what beats
+random routing out of sample, and the margin across designs is not yet
+significant at 95\% (\texttt{experiments/\allowbreak{}switch\_\allowbreak{}pooled/\allowbreak{}results.txt}).
+
 \textbf{Pilot-side certificate and its limits} (milestones 35 to 43,
 moved here from the to-do list). A proof or counterexample for the
 top-vs-all coverage, or a conformal pilot statistic with a theorem
@@ -610,7 +911,20 @@ OpenROAD run of the larger designs at the ss corner (liberty-only so
 far). 2. A causal fanout result that does not depend on the Yosys
 version (Section 5). 3. BO/BOHB baselines on larger pools and with
 structurally unfaithful R2 beyond the multiplier family. 4. A pilot-side
-regret certificate for the top-vs-all coverage (milestone 90 proves a
+regret certificate for the top-vs-all coverage (milestone 96 proves the
+part that holds without assumptions: a pilot with T \textless{} 1
+guarantees the returned cost is at most the pilot's best, 0 violations
+in 1.5 million draws, a ceiling about 2.7 times the realised regret at m
+= 16
+{[}\texttt{experiments/\allowbreak{}theory/\allowbreak{}pilot\_\allowbreak{}cert\_\allowbreak{}guarantee\_\allowbreak{}results.txt}{]};
+milestone 97 shows the same ceiling holds for the lowest-y certified
+point of any pilot, not only a pilot whose best point is certified: the
+share of pilots that yield a guarantee rises from 0.22 to 0.37 at m =
+16, with a ceiling about three times looser for the added pilots (10.2\%
+against 3.0\% mean excess over the pool minimum; 0 violations in 618,450
+draws
+{[}\texttt{experiments/\allowbreak{}theory/\allowbreak{}pilot\_\allowbreak{}cert\_\allowbreak{}anypoint\_\allowbreak{}results.txt}{]});
+the optimum-relative part stays open; milestone 90 proves a
 false-certificate bound for the rank-displacement certificate only; a
 regret certificate from a pilot's observed excesses stays open and
 Section 4 says what is excluded). 5. Final typesetting to the MLCAD
@@ -619,10 +933,26 @@ from this file by \texttt{paper/\allowbreak{}build.sh}; \texttt{paper/\allowbrea
 pages) is a working draft in that class; the official MLCAD style file
 and page limit still need checking against the call for papers.
 
-Until (1) to (3) land, the honest headline is the negative one: on small
-designs, cheap rungs did not pay, and a pilot gate that detects when
-they will not has not been shown to pay for itself on the 30 designs it
-was replayed on (20 in milestone 16, five each in milestones 27 and 28).
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  A blind test of the clipped switch large enough to settle its margin
+  over random routing: on its 24 test cells the design-bootstrap
+  interval still includes zero (-2.45 to +0.22 points), and wide barrel
+  shifters, where mapped delay does not predict routed delay, need a
+  score or a guard of their own (milestone 117).
+\end{enumerate}
+
+The headline is split by cost. On small designs, where a routed point
+costs under about 3 mapped scores, cheap rungs did not pay, and a pilot
+gate that detects when they will not has not been shown to pay for
+itself on the 30 designs it was replayed on (20 in milestone 16, five
+each in milestones 27 and 28). Where routing is dear, the clipped switch
+beat equal-cost random routing in 18 of 24 cells on designs run blind,
+at about half its mean regret, with the barrel shifters as the open
+failure.
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 \end{document}

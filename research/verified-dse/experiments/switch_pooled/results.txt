@@ -1,0 +1,41 @@
+# Milestone 117: the switch's out-of-sample evidence pooled by test status (no flow run; every cell as published in milestones 112 to 116)
+
+theta = 3, alpha = 1.25; 200 draws per cell; design bootstrap 2000 resamples, seed 117.
+
+## SW's test set (milestones 112, 113, 115, 116; theta fixed in 111): 52 cells on 26 designs
+
+mean regret %: SW 2.33, SWC 1.21, random 2.88, ladder 2.54, clipped ladder 1.99, oracle switch 0.57
+SW vs random: better 28, worse 17, tied 7; sign p = 0.135; design bootstrap 95% interval of mean (SW - random) -1.66 to +0.49 points
+SW vs ladder: better 4, worse 3, tied 45; sign p = 1.000; design bootstrap 95% interval of mean (SW - ladder) -0.56 to +0.01 points
+SW worst cell: pilot_clip barrel256 tight 11.55% (random 5.81%); cells at 0.00%: 22 of 52 (2 for random)
+
+## SW on designs no table had run when theta was fixed (milestones 113, 115, 116): 40 cells on 20 designs
+
+mean regret %: SW 2.71, SWC 1.06, random 2.80, ladder 2.99, clipped ladder 2.08, oracle switch 0.61
+SW vs random: better 19, worse 14, tied 7; sign p = 0.487; design bootstrap 95% interval of mean (SW - random) -1.32 to +1.10 points
+SW vs ladder: better 4, worse 3, tied 33; sign p = 1.000; design bootstrap 95% interval of mean (SW - ladder) -0.67 to +0.02 points
+SW worst cell: pilot_clip barrel256 tight 11.55% (random 5.81%); cells at 0.00%: 16 of 40 (2 for random)
+
+## SWC's test set (milestones 115, 116; alpha fixed in 115 before either blind run): 24 cells on 12 designs
+
+mean regret %: SW 3.91, SWC 1.60, random 2.91, ladder 4.02, clipped ladder 1.56, oracle switch 0.87
+SWC vs random: better 18, worse 5, tied 1; sign p = 0.011; design bootstrap 95% interval of mean (SWC - random) -2.45 to +0.22 points
+SWC vs SW: better 9, worse 1, tied 14; sign p = 0.021; design bootstrap 95% interval of mean (SWC - SW) -3.70 to -0.72 points
+SWC vs clipped ladder: better 0, worse 1, tied 23; sign p = 1.000; design bootstrap 95% interval of mean (SWC - clipped ladder) +0.00 to +0.13 points
+SWC worst cell: pilot_clip barrel256 tight 11.55% (random 5.81%); cells at 0.00%: 15 of 24 (0 for random)
+
+## SWC's test set by family (descriptive)
+
+family | cells | ladder branch | SW % | SWC % | random % | SWC better / worse than random
+barrel | 6 | 6 | 6.25 | 4.48 | 3.10 | 3 / 3
+gf2mat | 4 | 3 | 1.02 | 0.67 | 1.67 | 2 / 1
+mult | 6 | 6 | 4.34 | 0.89 | 2.70 | 5 / 1
+sq | 6 | 6 | 3.18 | 0.00 | 3.23 | 6 / 0
+xbar | 2 | 2 | 3.62 | 1.79 | 4.46 | 2 / 0
+
+without the barrel family (18 cells): SWC 0.64%, random 2.84%; better 15, worse 2, sign p = 0.002; design bootstrap 95% interval of the difference -3.06 to -1.26 points (post hoc: the family split is chosen after milestone 116)
+
+## Every cell of milestones 110 to 116 (seen and unseen; not a test)
+
+mean regret %: SW 1.87, SWC 1.02, random 2.36, ladder 3.07, clipped ladder 2.95, oracle switch 0.46
+cells: 124; on the ladder branch (routed/r2 > 3): 70
