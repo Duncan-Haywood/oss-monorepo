@@ -241,6 +241,16 @@ export function holidayChecker(spec) {
   return (day) => { const d = String(day).slice(0, 10), y = Number(d.slice(0, 4)); return dates.has(d) || (sets.length > 0 && (year(y).has(d) || year(y + 1).has(d))); };
 }
 
+// Country names as CRM exports write them (HubSpot "Country/Region", Apollo, LinkedIn: "United States", "Canada"), mapped
+// to the preset the code gets. Before 2026-11-12 only codes were read, so a prospect in "United States" had no calendar
+// and a call due on Thanksgiving stayed put. The UK nations map to their own division (Scotland keeps 2 January).
+const COUNTRY_PRESET = {
+  us: "us-business", "united states": "us-business", "united states of america": "us-business", usa: "us-business", "u.s.": "us-business", "u.s.a.": "us-business", america: "us-business",
+  canada: "ca",
+  "united kingdom": "gb", "great britain": "gb", britain: "gb", england: "gb", wales: "gb", scotland: "gb-sct", "northern ireland": "gb-nir",
+};
+const countryPreset = (v) => { const k = String(v || "").trim().toLowerCase().replace(/\s+/g, " "); return COUNTRY_PRESET[k] || v; };
+
 /** A reader for a prospect's own days off: (task row, prospect row) => { spec, isOff } or null. The `holidays` column
  * wins, then `region`, then `country`; a value that is not a known preset or dates is skipped, never an error, since a
  * prospect list carries countries we have no calendar for. Checkers are cached per spec. Shared by the daily run
@@ -256,6 +266,6 @@ export function theirDaysOff() {
   // A bare country "US" means the six days most businesses close, not the eleven federal ones (Columbus Day and
   // Veterans Day are working days at most firms); write holidays=us to get the federal list.
   // A region counts only in the two-part form ("CA-QC", "GB-SCT"): a bare region "CA" in a US list is California.
-  const pick = { holidays: (v) => v, region: (v) => (/^[a-z]{2}-[a-z]{2,3}$/i.test(String(v || "").trim()) ? v : ""), country: (v) => (String(v || "").trim().toLowerCase() === "us" ? "us-business" : v) };
+  const pick = { holidays: (v) => v, region: (v) => (/^[a-z]{2}-[a-z]{2,3}$/i.test(String(v || "").trim()) ? v : ""), country: countryPreset };
   return (row, p) => { for (const src of [row, p]) for (const k of ["holidays", "region", "country"]) { const c = src && tryOne(pick[k](src[k])); if (c) return c; } return null; };
 }
