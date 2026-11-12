@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232f5d50'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%5E%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Does My Semver Range Skip Prereleases? npm's Prerelease Rule, Explained</title>
+  <meta name="description" content="Why ^1.2.0 never matches 1.9.0-rc.1, why >=2.0.0-beta.1 accepts 2.0.0-beta.4 but not 2.1.0-beta.0, and why adding || * drops a prerelease you opened. npm's rule in one sentence, with checked examples.">
+  <meta property="og:title" content="Why does my semver range skip prereleases?">
+  <meta property="og:description" content="npm's prerelease rule in one sentence, with examples checked against node-semver.">
+  <link rel="canonical" href="./why-semver-range-skips-prereleases.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Why a semver range skips prereleases", "about": "npm semver prerelease matching rule"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does ^1.2.0 not match 1.9.0-rc.1?", "acceptedAnswer": {"@type": "Answer", "text": "Because 1.9.0-rc.1 is a prerelease and no comparator in ^1.2.0 names a prerelease of 1.9.0. npm only lets a prerelease through when the same || branch has a comparator with a prerelease on the same major.minor.patch."}}, {"@type": "Question", "name": "How do I make a range accept prereleases?", "acceptedAnswer": {"@type": "Answer", "text": "Name one: >=2.0.0-beta.1 <2.0.0 accepts every later 2.0.0 prerelease and nothing else. To accept prereleases of every version, run npm with --include-prerelease, which most installs do not."}}, {"@type": "Question", "name": "Why does adding || * break my prerelease range?", "acceptedAnswer": {"@type": "Answer", "text": "Because npm treats a range in which one || branch is a bare * as just *, and * accepts no prereleases. ^1.2.3-rc.1 matches 1.2.3-rc.1, but ^1.2.3-rc.1 || * does not."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1b2b; background: #f4f4f8; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f6b5a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1f3d35; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f3d35; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #ebebf3; padding: 1px 4px; border-radius: 4px; }
+    .note, footer { font-size: .86rem; color: #50506a; }
+    .card { background: #fff; border: 1px solid #dcdce8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f3d3510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { max-width: 340px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #77779a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    textarea { font: 13.5px ui-monospace, Menlo, Consolas, monospace; min-height: 12em; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f6b5a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e6e6f2; color: #1f3d35; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #ebebf3; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #50506a; }
+    td code { white-space: pre-wrap; word-break: break-all; }
+    .finding { border-bottom: 1px solid #ebebf3; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding ul { margin: 6px 0 0; padding-left: 20px; font: .85rem ui-monospace, Menlo, Consolas, monospace; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.low, .pill.info { background: #e6e6f2; color: #1f3d35; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #efeff7; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f3d35; }
+    pre.fix { background: #1f1f38; color: #f0f0ff; padding: 14px; border-radius: 10px; overflow-x: auto; font: 13.5px ui-monospace, Menlo, Consolas, monospace; }
+    .scroll { overflow-x: auto; }
+    .yes { color: #7a1f10; font-weight: 600; }
+    .row { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+    .row > div { flex: 1 1 260px; }
+    ol.steps { padding-left: 20px; font-size: .94rem; }
+    footer { margin-top: 28px; border-top: 1px solid #dcdce8; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SEMVER RANGE EXPLAINER · GUIDE</p>
+    <h1>Why does my semver range skip prereleases?</h1>
+    <p>npm's rule fits in one sentence: <strong>a prerelease version matches a range only if the same <code>||</code> branch has a comparator that names a prerelease of the same major.minor.patch</strong>. The bounds alone are not enough. Every example below is the output of <a href="./">the explainer</a>, whose engine is checked against node-semver, the package npm uses.</p>
+  </header>
+<main>
+  <section class="card">
+    <h2>Inside the bounds, still skipped</h2>
+    <p><code>^1.2.0</code> becomes <code>&gt;=1.2.0 &lt;2.0.0-0</code>. 1.9.0-rc.1 sorts between those bounds, yet:</p>
+    <pre class="fix">1.9.0-rc.1 is inside the bounds, but it is a prerelease and no comparator in this branch names a prerelease of 1.9.0, so npm skips it.</pre>
+    <p>The rule exists so that a range written for stable releases never pulls in a release candidate someone published by accident. It is why <code>npm install</code> keeps picking 1.8.3 even though 1.9.0-rc.1 is newer.</p>
+  </section>
+  <section class="card">
+    <h2>Opting in to one version's prereleases</h2>
+    <p>Name a prerelease and that version's prereleases open, and only that version's. With <code>&gt;=2.0.0-beta.1 &lt;2.0.0</code>, 2.0.0-beta.4:</p>
+    <pre class="fix">matches; it is a prerelease, allowed because &gt;=2.0.0-beta.1 names a prerelease of 2.0.0.</pre>
+    <p>But with <code>&gt;=2.0.0-beta.1</code> and no upper bound, 2.1.0-beta.0 is above the floor and still out:</p>
+    <pre class="fix">2.1.0-beta.0 is inside the bounds, but it is a prerelease and no comparator in this branch names a prerelease of 2.1.0, so npm skips it.</pre>
+    <p>To accept prereleases of every version, npm needs <code>--include-prerelease</code> (node-semver's <code>includePrerelease</code> option). The explainer has a switch for it.</p>
+  </section>
+  <section class="card">
+    <h2>The <code>|| *</code> trap</h2>
+    <p>node-semver applies one more rule when a range has several branches: if any branch is a bare <code>*</code>, the whole range becomes <code>*</code>. <code>^1.2.3-rc.1</code> matches 1.2.3-rc.1, but <code>^1.2.3-rc.1 || *</code> does not:</p>
+    <pre class="fix">1.2.3-rc.1 is inside the bounds, but it is a prerelease and no comparator in this branch names a prerelease of 1.2.3, so npm skips it.</pre>
+    <p>The explainer flags this as a high-severity finding whenever the swallowed branches had opened a prerelease.</p>
+  </section>
+  <section class="card">
+    <h2>The <code>-0</code> on upper bounds</h2>
+    <p>npm writes <code>^1.2.0</code> as <code>&lt;2.0.0-0</code>, not <code>&lt;2.0.0</code>. <code>0</code> is the lowest possible prerelease, so <code>&lt;2.0.0-0</code> also shuts out 2.0.0-alpha, 2.0.0-beta and every other 2.0.0 prerelease, even with <code>--include-prerelease</code> on. A plain <code>&lt;2.0.0</code> would let them through in that mode.</p>
+  </section>
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why does ^1.2.0 not match 1.9.0-rc.1?</h3>
+    <p>Because 1.9.0-rc.1 is a prerelease and no comparator in ^1.2.0 names a prerelease of 1.9.0. npm only lets a prerelease through when the same || branch has a comparator with a prerelease on the same major.minor.patch.</p>
+    <h3>How do I make a range accept prereleases?</h3>
+    <p>Name one: &gt;=2.0.0-beta.1 &lt;2.0.0 accepts every later 2.0.0 prerelease and nothing else. To accept prereleases of every version, run npm with --include-prerelease, which most installs do not.</p>
+    <h3>Why does adding || * break my prerelease range?</h3>
+    <p>Because npm treats a range in which one || branch is a bare * as just *, and * accepts no prereleases. ^1.2.3-rc.1 matches 1.2.3-rc.1, but ^1.2.3-rc.1 || * does not.</p>
+  </section>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security or professional advice. Results come from the text you paste, evaluated by this tool's own reimplementation of npm's semver rules; it does not run npm or contact a registry. You are responsible for reviewing and verifying its output, for example with <code>npm ls</code> or <code>npx semver</code>, before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with or endorsed by npm, Inc., GitHub, the node-semver maintainers, the OpenJS Foundation or any other vendor. npm is a trademark of npm, Inc.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>range_checked</code>, <code>example_loaded</code>, <code>ranges_compared</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+        <p>Sorting out a lockfile? The <a href="../npm-lockfile-duplicates-check/">npm lockfile duplicates checker</a> finds packages installed in several versions, and the <a href="../node-version-drift-check/">Node version drift checker</a> compares engines ranges across a repository. The tool: <a href="./">Semver Range Explainer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+</body>
+</html>

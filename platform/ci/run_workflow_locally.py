@@ -1070,6 +1070,7 @@ def run_steps(steps, timeout, budget: int | None = None) -> None:
     way, in the same eleven lines.
     """
     deadline = time.monotonic() + budget if budget else None
+    skipped_in_job = {}  # job -> label of the first run: step skipped in it
     for step in steps:
         # Name the step BEFORE running it, and flush. Both halves are
         # load-bearing; see the note above `STATUS_MARK`.
@@ -1092,12 +1093,26 @@ def run_steps(steps, timeout, budget: int | None = None) -> None:
                 step.status = "unrun"
                 step.missing_kind = "budget"
                 step.reason = f"TIMEOUT: workflow budget of {budget}s spent in this step"
+        # A step that fails after an earlier run: step of its job was skipped
+        # may only be missing that step's output (pages.yml's two `_site`
+        # checks after its `${{ }}` build step). Reported as FAILED, it read
+        # as a real defect (two doc-friction reports, 2026-11-11); it is no
+        # verdict either way, so UNRUN, with its output kept for the reader.
+        if step.status == "failed" and step.job in skipped_in_job:
+            step.status = "unrun"
+            step.missing_kind = "after-skip"
+            step.reason = (f"failed after '{skipped_in_job[step.job]}' was skipped; "
+                           f"it may only lack that step's output ({step.reason})")
+        if step.status == "skipped":
+            skipped_in_job.setdefault(step.job, step.name)
         print(f"[{STATUS_MARK[step.status]:6}] ({step.seconds:.1f}s)",
               flush=True)
 
 
 # report()'s exit when the sweep budget, not a check, stopped the workflow.
 BUDGET_SPENT = 3
+# report()'s exit when steps failed only after a step of their job was skipped.
+AFTER_SKIP = 4
 
 
 def report(name, steps, uses_skipped, forced) -> int:
@@ -1119,6 +1134,9 @@ def report(name, steps, uses_skipped, forced) -> int:
     for step in unrun:
         print(f"UNRUN   {step.label}: {step.reason}")
         print(f"        $ {step.run.splitlines()[0]}")
+        if step.missing_kind == "after-skip":
+            for line in step.tail:
+                print(f"        {line}")
     if unrun:
         # Name the fix rather than leaving the reader to derive it. The whole
         # point of the class is that these steps still owe an answer.
@@ -1145,6 +1163,11 @@ def report(name, steps, uses_skipped, forced) -> int:
                   f"platform/ci/run_workflow_locally.py {name}")
             print("        (or pass --workflow-timeout 0; run it in the "
                   "background, it can pass 10 min).")
+        if any(s.missing_kind == "after-skip" for s in unrun):
+            print("        A step before these was skipped, so their failure may "
+                  "only be its missing output.")
+            print("        Run the skipped step by hand with its expression "
+                  "filled in, then these, before reading them as verified.")
         if any(s.missing_kind == "self-reported" for s in unrun):
             print("        A step above reported itself unable to run. Its own "
                   "output says what it needs;")
@@ -1185,6 +1208,10 @@ def report(name, steps, uses_skipped, forced) -> int:
         print("  Not a verdict: the budget stopped this workflow before its "
               "steps finished.")
         return BUDGET_SPENT
+    if any(s.missing_kind == "after-skip" for s in unrun):
+        print("  Not a verdict: steps failed after a step they may need was "
+              "skipped.")
+        return AFTER_SKIP
     if not total:
         print("  Nothing was executed, so nothing was verified.")
         return 1
@@ -1387,7 +1414,7 @@ def _run_selected(args, selected, held, absent=()) -> int:
 
     before = checkout_fingerprint()
 
-    failures, out_of_budget = [], []
+    failures, out_of_budget, after_skip = [], [], []
     for name, workflow, allowed in selected:
         steps, uses_skipped = collect(workflow, only=allowed)
         print(f"\nRunning {name} locally "
@@ -1397,16 +1424,20 @@ def _run_selected(args, selected, held, absent=()) -> int:
         code = report(name, steps, uses_skipped, False)
         if code == BUDGET_SPENT:
             out_of_budget.append(name)
+        elif code == AFTER_SKIP:
+            after_skip.append(name)
         elif code != 0:
             failures.append(name)
 
     drift = checkout_drift(before, checkout_fingerprint())
 
-    finished = len(selected) - len(out_of_budget)
+    finished = len(selected) - len(out_of_budget) - len(after_skip)
     print(f"\n{finished - len(failures)}/{finished} selected "
           f"workflow(s) passed"
           + (f"; {len(out_of_budget)} ran out of budget with no verdict"
-             if out_of_budget else "") + ".")
+             if out_of_budget else "")
+          + (f"; {len(after_skip)} with no verdict after a skipped step "
+             f"({', '.join(after_skip)})" if after_skip else "") + ".")
     if out_of_budget:
         print("  Re-run each by name (no budget), in the background: "
               + "; ".join(f"python3 platform/ci/run_workflow_locally.py {n}"
@@ -1434,7 +1465,7 @@ def _run_selected(args, selected, held, absent=()) -> int:
               "not a reading of anything. Re-run on a checkout nothing else "
               "is writing to, and do not report either result.")
         return 1
-    return 1 if failures or out_of_budget else 0
+    return 1 if failures or out_of_budget or after_skip else 0
 
 
 def main(argv=None) -> int:
