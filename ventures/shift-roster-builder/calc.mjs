@@ -1047,7 +1047,7 @@ export function openSumLift(len, upTo) {
   };
 }
 
-function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, tolerance = 0 } = {}) {
+function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, tolerance = 0, onFloor = null } = {}) {
   let coverNodes = 0;
   const { P, S, slots, staff, o, elig } = ctx;
   const mono = o.otMult >= 1 && o.dtMult >= 1;
@@ -1363,7 +1363,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
       runColumnGeneration();
     }
   }
-  const rootBound = Math.max(lowerBound(0, 0), scoreDual);
+  let rootBound = Math.max(lowerBound(0, 0), scoreDual);
   let best = incumbent, bestOwner = null, nodes = 0, aborted = false;
   const t0 = Date.now();
   const rec = (k, unfilledH) => {
@@ -1421,6 +1421,17 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   if (lpOwner) {
     const total = scoreOwner(ctx, lpOwner).total;
     if (total < best - 1e-9) { best = total; bestOwner = lpOwner; }
+  }
+  // The open-hours floor is final here. `onFloor(hours, best)` (buildRoster's open-hours row, bnp.mjs `openFloor`) may return a
+  // whole-score bound that knows it, { bound, owner }; when that bound reaches the best roster the tree below is not needed.
+  if (onFloor && minOpenH > 0 && scoreDual < best - tolerance - 1e-9) {
+    const r = onFloor(minOpenH, best);
+    if (r) {
+      if (r.owner) { const total = scoreOwner(ctx, r.owner).total; if (total < best - 1e-9) { best = total; bestOwner = r.owner; } }
+      if (r.bound > scoreDual) scoreDual = r.bound;
+      rootBound = Math.max(rootBound, scoreDual);
+      if (scoreDual >= best - tolerance - 1e-9) return { proven: true, banned: bannedCount, nodes: coverNodes, coverNodes, coverOpen: minOpenH, rootBound, coverBranchStats, coverLPStats, owner: bestOwner, score: bestOwner ? best : null };
+    }
   }
   rec(0, 0);
   return { proven: !aborted, banned: bannedCount, nodes: nodes + coverNodes, coverNodes, coverOpen: minOpenH, rootBound, coverBranchStats, coverLPStats, owner: bestOwner, score: bestOwner ? best : null };
@@ -2069,11 +2080,25 @@ function buildRosterOnce(staff, slots, options = {}) {
       coverPasses();
       if (cg && best.score <= cg.floor + o.exactTolerance + 1e-9) cg.proven = true;
     }
+    // The open-hours row (bnp.mjs `openFloor`, 2026-11-12): once the exact search has proved more open hours than the whole-score
+    // LP left open, column generation runs again with that floor as a row of its master LP, before the exact search's score tree.
+    // On the call-out weeks of README "Open hours come in whole shifts" the first pass bounded 2 h open (204,094) against a 3 h
+    // roster; with the lifted 3 h floor as a row the root LP is the roster's score and the tree is skipped. `openRow: false` turns it off.
+    let cgRow = null;
+    const openRow = (hours, incumbent) => {
+      if (!(BIG * hours > cg.floor + 1e-6) || over()) return null;
+      try {
+        cgRow = scoreColumnGeneration(ctx, { incumbentScore: incumbent, tolerance: o.exactTolerance, openFloor: hours, nodeLimit: o.scoreCGNodes ?? 20000, ms: o.scoreCGMs ?? o.exactMs, maxNodes: o.scoreCGPricingNodes ?? 200000 });
+      } catch { return null; }
+      cgRow.openFloor = hours;
+      const own = cgRow.roster ? Array.from(cgRow.roster) : null;
+      return { bound: cgRow.floor, owner: own && ownerValid(ctx, own) ? own : null };
+    };
     const ex = cg?.proven
       ? { proven: true, rootBound: best.score, coverOpen: Math.floor(best.score / BIG + 1e-9), coverNodes: 0, nodes: 0, owner: null }
       : cg && bigExact
       ? { proven: false, rootBound: cg.floor, coverOpen: Math.max(0, Math.floor(cg.floor / BIG + 1e-9)), coverNodes: 0, nodes: 0, owner: null, skipped: true }
-      : exactSearch(ctx, best.score, { nodeLimit: o.exactNodes, timeLimitMs: o.exactMs, tolerance: o.exactTolerance });
+      : exactSearch(ctx, best.score, { nodeLimit: o.exactNodes, timeLimitMs: o.exactMs, tolerance: o.exactTolerance, onFloor: cg && o.openRow !== false ? openRow : null });
     mark("exactSearch");
     if (cg && !cg.proven) ex.rootBound = Math.max(ex.rootBound, cg.floor);
     if (ex.owner && ex.score < best.score - 1e-9) best = { owner: ex.owner, score: ex.score };
@@ -2085,6 +2110,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       coverageProven: ex.proven || Math.max(Math.floor(ex.rootBound / BIG + 1e-9), Math.floor(ex.coverOpen + 1e-9)) === Math.floor(best.score / BIG + 1e-9),
       tolerance: o.exactTolerance, coverOpen: ex.coverOpen, coverNodes: ex.coverNodes, gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes, treeSkipped: !!ex.skipped,
       scoreCG: cg ? { proven: cg.proven, rootLP: cg.rootLP, bound: cg.floor, nodes: cg.stats.nodes, columns: cg.stats.columns, inexactPricing: cg.stats.inexactPricing, ms: cg.stats.ms } : null,
+      openRow: cgRow ? { openFloor: cgRow.openFloor, proven: cgRow.proven, rootLP: cgRow.rootLP, bound: cgRow.floor, nodes: cgRow.stats.nodes, ms: cgRow.stats.ms } : null,
     };
   }
   const res = summarise(ctx, best.owner);

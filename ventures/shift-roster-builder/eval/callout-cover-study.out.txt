@@ -1,0 +1,6 @@
+sample: 27 cases, 0 patched, 15 covered by a rebuild, 2 to 15 other shifts moved; rebuilds {"posted":"optimal","optimal":21,"improved":6}
+with a spare part-timer: 32 cases, 0 patched, 20 covered by a rebuild, 9 to 21 other shifts moved; rebuilds {"posted":"improved","improved":24,"optimal":8}
+
+real	1m34.776s
+user	1m36.082s
+sys	0m0.987s
