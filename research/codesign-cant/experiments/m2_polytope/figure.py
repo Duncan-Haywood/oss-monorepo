@@ -21,10 +21,17 @@ for (mix, cap), (c, mk) in style.items():
         for t in rows:
             a2.scatter([t["lam"]] * len(t["alpha"]), t["alpha"], c=c, s=14, alpha=0.7)
         a2.plot(xs, [sorted(t["alpha"])[len(t["alpha"]) // 2] for t in rows], c=c, label=f"{mix} (median)")
+RS = json.load(open(os.path.join(HERE, "restarts.json"))) if os.path.exists(os.path.join(HERE, "restarts.json")) else []
+rr = sorted({r["lam"] for r in RS if r["cap"] == 80})
+for l in rr:
+    a2.scatter([l + 0.02] * 5, [r["alpha_deg"] for r in RS if r["cap"] == 80 and r["lam"] == l], marker="x", c="#1f6fb2", s=22)
+if rr:
+    a2.plot([l + 0.02 for l in rr], [sorted(r["alpha_deg"] for r in RS if r["cap"] == 80 and r["lam"] == l)[2] for l in rr], c="#1f6fb2", ls="--",
+            marker="x", label="prio, best of 3 starts (median)")
 a1.set_xscale("log"); a1.set_xlabel("hover power of the co-designed vehicle (W, log)"); a1.set_ylabel("held-out RMS attitude error (deg)")
 a1.legend(fontsize=7, frameon=False); a1.grid(alpha=0.3); a1.set_title("Each dot one seed; larger = higher price on power", fontsize=9)
 a2.set_xlabel("price on hover power, lam (deg per 100 W)"); a2.set_ylabel("chosen cant (deg), bound 80°"); a2.grid(alpha=0.3)
-a2.legend(fontsize=7, frameon=False); a2.set_title("Chosen cant as power is priced", fontsize=9)
+a2.legend(fontsize=7, frameon=False); a2.set_title("Chosen cant as power is priced (x: best of 3 CMA-ES starts)", fontsize=9)
 fig.suptitle(f"Milestone 2: co-designed canted quadrotor, TWR 2, c = {R['c']} (UIUC median); simulated", fontsize=10)
 fig.tight_layout()
 fig.savefig(os.path.join(HERE, "m2_polytope.png"), dpi=130)
