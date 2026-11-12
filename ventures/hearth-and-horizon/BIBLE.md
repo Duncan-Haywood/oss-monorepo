@@ -273,7 +273,6 @@ until it has. An empty shelf below means: write a proposal.
 
 - *Quarry Nine:* a short sequel, a few years on, in which the new system is
   asked why the old bell is rung (use sparingly; the first story is complete).
-- *The Stave Mill:* a 2100s story at a cooperage in the Cognac country (real: French oak for barrels is split, not sawn, along the grain, and air-dried in stacks for two years or more) where a cooper's AI finds that its drying schedule was fitted on fine-grained staves from a forest that has since grown faster, and wider-ringed oak (in a ring-porous oak, denser, with more latewood) dries more slowly, so staves pass the calendar while still too wet, shrink in the cask and weep. Check ring width against density and drying rate in the literature, then work out stave yield per cubic metre of log, drying time, and how many casks of one year leak before drafting; no real house or forester as the villain.
 - *The Tithe Barn Ledger:* a 2300s story in which a parish that has kept a corn rent for three centuries (thirty tonnes of wheat a year, reviewed every generation) finds the rent has been read aloud and left unchanged at six reviews running while wheat yields doubled, so the rent has quietly halved in real terms, and the meeting must decide whether a habit of saying "as it was" is consent. Work out three centuries of a slow real-price drift, what each review could have changed (a fifth either way), and how a review clause can fail by courtesy, before drafting; no grasping landlord or tenant as the villain.
 
 **For Other Minds**
