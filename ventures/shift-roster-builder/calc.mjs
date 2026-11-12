@@ -695,8 +695,10 @@ function anneal(ctx, seed, iterations, jitter) {
   const avgShift = ctx.totalHours / Math.max(1, S);
   const T0 = Math.max(0.5, ctx.avgWage * avgShift * 0.4), T1 = 0.01;
   const removeFrom = (list, i) => list.filter((x) => x !== i);
+  // The temperature T0 * (T1 / T0) ** (it / iterations) is computed only for an uphill step, the one place it is read: taking the
+  // power on every step cost more than the moves themselves in the plateau walk (coverPass, 2026-11-12 profile).
+  const decay = T1 / T0;
   for (let it = 0; it < iterations; it++) {
-    const T = T0 * (T1 / T0) ** (it / iterations);
     const i = Math.floor(rng() * S);
     const o = owner[i];
     if (rng() < 0.65) {
@@ -707,7 +709,7 @@ function anneal(ctx, seed, iterations, jitter) {
       const no = o >= 0 ? removeFrom(lists[o], i) : null;
       const sq = personScore(ctx, q, nq), so = o >= 0 ? personScore(ctx, o, no) : 0;
       let delta = sq - pScore[q] + (o >= 0 ? so - pScore[o] : -BIG * ((slots[i].end - slots[i].start) / 60));
-      if (delta < 0 || rng() < Math.exp(-delta / T)) {
+      if (delta < 0 || rng() < Math.exp(-delta / (T0 * decay ** (it / iterations)))) {
         lists[q] = nq; pScore[q] = sq;
         if (o >= 0) { lists[o] = no; pScore[o] = so; }
         owner[i] = q; score += delta;
@@ -721,7 +723,7 @@ function anneal(ctx, seed, iterations, jitter) {
       if (!validList(ctx, a, na) || !validList(ctx, b, nb)) continue;
       const sa = personScore(ctx, a, na), sb = personScore(ctx, b, nb);
       const delta = sa - pScore[a] + sb - pScore[b];
-      if (delta < 0 || rng() < Math.exp(-delta / T)) {
+      if (delta < 0 || rng() < Math.exp(-delta / (T0 * decay ** (it / iterations)))) {
         lists[a] = na; lists[b] = nb; pScore[a] = sa; pScore[b] = sb;
         owner[i] = b; owner[j] = a; score += delta;
       }
@@ -747,12 +749,11 @@ function ejectPass(ctx, owner0, seed, iterations) {
   const removeFrom = (list, i) => list.filter((x) => x !== i);
   let score = pScore.reduce((a, b) => a + b, 0) + BIG * owner.reduce((t, p, i) => t + (p < 0 ? hrs(i) : 0), 0);
   let bestScore = score, bestOwner = owner.slice();
-  const T0 = Math.max(0.5, ctx.avgWage * (ctx.totalHours / Math.max(1, S)) * 0.4), T1 = 0.01;
+  const T0 = Math.max(0.5, ctx.avgWage * (ctx.totalHours / Math.max(1, S)) * 0.4), T1 = 0.01, decay = T1 / T0; // temperature as in anneal
   for (let it = 0; it < iterations; it++) {
     const open = [];
     owner.forEach((p, i) => { if (p < 0) open.push(i); });
     if (!open.length) break;
-    const T = T0 * (T1 / T0) ** (it / iterations);
     const i = open[Math.floor(rng() * open.length)];
     const q = Math.floor(rng() * P);
     if (!elig[q][i] || !lists[q].length) continue;
@@ -765,7 +766,7 @@ function ejectPass(ctx, owner0, seed, iterations) {
     const sq = personScore(ctx, q, nq);
     let delta = sq - pScore[q] - BIG * hrs(i), sr = 0;
     if (nr) { sr = personScore(ctx, r, nr); delta += sr - pScore[r]; } else delta += BIG * hrs(j);
-    if (delta < 0 || rng() < Math.exp(-delta / T)) {
+    if (delta < 0 || rng() < Math.exp(-delta / (T0 * decay ** (it / iterations)))) {
       lists[q] = nq; pScore[q] = sq; owner[i] = q;
       if (nr) { lists[r] = nr; pScore[r] = sr; owner[j] = r; } else owner[j] = -1;
       score += delta;
@@ -779,8 +780,12 @@ function ejectPass(ctx, owner0, seed, iterations) {
 // region where no single chain frees the hour without first undoing a cheap assignment. Here only open hours count: shifts move
 // between people freely when that costs no coverage (a walk across the plateau), open shifts are pulled in by ejection chains, and
 // a worse step is taken at a falling temperature. The result is then polished for pay with moves that never lose coverage.
+// The walk stops once its best roster leaves only openHoursFloor(ctx) open: no later step can beat a proven floor, so the answer is
+// the same. Before 2026-11-12 it stopped only at 0 open, so on a week where some hours must stay open (the café sample: 15 h) all
+// twelve runs went the full 512,000 steps, about 1 s of every 1.4 s build, which the guide pages' studies repeat ~30 times each.
 function coverPass(ctx, owner0, seed, iterations) {
   const { P, S, slots, elig } = ctx;
+  const floor = (ctx.openFloor ??= openHoursFloor(ctx)) + 1e-6;
   const rng = mulberry32(seed);
   const owner = owner0.slice();
   const lists = Array.from({ length: P }, () => []);
@@ -789,11 +794,13 @@ function coverPass(ctx, owner0, seed, iterations) {
   const removeFrom = (list, i) => list.filter((x) => x !== i);
   let open = owner.reduce((t, p, i) => t + (p < 0 ? hrs(i) : 0), 0);
   let bestOpen = open, bestOwner = owner.slice();
-  for (let it = 0; it < iterations && bestOpen > 0; it++) {
-    const T = 0.6 * (0.05 / 0.6) ** (it / iterations);
+  // The open shifts in index order, rebuilt only after a move that changes them (the plateau walk below never does): rebuilding
+  // it every step was most of this pass's own time (2026-11-12 profile).
+  const openIdx = [];
+  let openStale = true;
+  for (let it = 0; it < iterations && bestOpen > floor; it++) {
     if (rng() < 0.5) {
-      const openIdx = [];
-      owner.forEach((p, i) => { if (p < 0) openIdx.push(i); });
+      if (openStale) { openIdx.length = 0; for (let x = 0; x < S; x++) if (owner[x] < 0) openIdx.push(x); openStale = false; }
       if (!openIdx.length) break;
       const i = openIdx[Math.floor(rng() * openIdx.length)];
       const q = Math.floor(rng() * P);
@@ -809,10 +816,12 @@ function coverPass(ctx, owner0, seed, iterations) {
         if (r !== q && elig[r][j]) { nr = insertSorted(ctx, lists[r], j); if (!validList(ctx, r, nr)) nr = null; }
       }
       const d = -hrs(i) + (j >= 0 && !nr ? hrs(j) : 0);
-      if (d <= 0 || rng() < Math.exp(-d / T)) {
+      // The temperature is read only for a step that opens hours, so the power is taken only then (it was 60% of this pass's own time).
+      if (d <= 0 || rng() < Math.exp(-d / (0.6 * (0.05 / 0.6) ** (it / iterations)))) {
         lists[q] = nq; owner[i] = q;
         if (j >= 0) { if (nr) { lists[r] = nr; owner[j] = r; } else owner[j] = -1; }
         open += d;
+        openStale = true;
       }
     } else {
       const i = Math.floor(rng() * S), o = owner[i];
@@ -826,6 +835,56 @@ function coverPass(ctx, owner0, seed, iterations) {
     if (open < bestOpen - 1e-9) { bestOpen = open; bestOwner = owner.slice(); }
   }
   return { owner: bestOwner, open: bestOpen };
+}
+
+// Least hours any valid roster must leave open, as a max flow: each shift's minutes go to a person-day the person is available
+// for, each person-day carries at most its longest rest-respecting chain of those shifts (weighted interval scheduling on
+// [start, end + rest)) and the daily cap, and each person at most their weekly hours. Every rule only relaxes (minutes may split
+// between people, streaks and history are ignored), so covered minutes never exceed the flow and the floor is never overstated.
+// Under 1 ms on the café sample, where it gives the proven 15 h. Non-integer minutes return 0 (no floor).
+function openHoursFloor(ctx) {
+  const { P, S, slots, staff, elig, restMin, o } = ctx;
+  if (slots.some((s) => !Number.isInteger(s.start) || !Number.isInteger(s.end))) return 0;
+  const head = [], to = [], cap = [], next = [];
+  const add = (u, v, c) => { to.push(v, u); cap.push(c, 0); next.push(head[u] ?? -1, head[v] ?? -1); head[u] = to.length - 2; head[v] = to.length - 1; };
+  let n = 2 + S, total = 0; // 0 source, 1 sink, 2.. shifts, then people and person-days
+  for (let i = 0; i < S; i++) { const m = slots[i].end - slots[i].start; total += m; add(0, 2 + i, m); }
+  for (let p = 0; p < P; p++) {
+    const pn = n++;
+    add(pn, 1, Math.max(0, Math.floor(staff[p].maxHours * 60 + 1e-9)));
+    const dcap = dailyCapMin(ctx, p), byDay = new Map();
+    for (let i = 0; i < S; i++) if (elig[p][i]) (byDay.get(slots[i].day) || byDay.set(slots[i].day, []).get(slots[i].day)).push(i);
+    for (const list of byDay.values()) {
+      const iv = list.map((i) => [slots[i].start, slots[i].end + restMin, slots[i].end - slots[i].start]).sort((x, y) => x[1] - y[1]);
+      const best = [0];
+      for (let k = 0; k < iv.length; k++) {
+        let lo = 0, hi = k;
+        while (lo < hi) { const m = (lo + hi) >> 1; if (iv[m][1] <= iv[k][0]) lo = m + 1; else hi = m; }
+        best.push(Math.max(best[k], best[lo] + iv[k][2]));
+      }
+      const u = n++;
+      add(u, pn, Math.min(best[iv.length], Math.floor(dcap + 1e-9)));
+      for (const i of list) add(2 + i, u, slots[i].end - slots[i].start);
+    }
+  }
+  const level = new Int32Array(n), it = new Int32Array(n);
+  const bfs = () => {
+    level.fill(-1); level[0] = 0;
+    const q = [0];
+    for (let h = 0; h < q.length; h++) for (let e = head[q[h]] ?? -1; e >= 0; e = next[e]) if (cap[e] > 0 && level[to[e]] < 0) { level[to[e]] = level[q[h]] + 1; q.push(to[e]); }
+    return level[1] >= 0;
+  };
+  const dfs = (u, f) => {
+    if (u === 1) return f;
+    for (; it[u] >= 0; it[u] = next[it[u]]) {
+      const e = it[u], v = to[e];
+      if (cap[e] > 0 && level[v] === level[u] + 1) { const g = dfs(v, Math.min(f, cap[e])); if (g > 0) { cap[e] -= g; cap[e ^ 1] += g; return g; } }
+    }
+    return 0;
+  };
+  let flow = 0;
+  while (bfs()) { for (let u = 0; u < n; u++) it[u] = head[u] ?? -1; for (let f; (f = dfs(0, Infinity)) > 0;) flow += f; }
+  return Math.max(0, total - flow) / 60;
 }
 
 // Exact repair of the open hours (large-neighbourhood search). Pick k people, release every shift they hold, and solve the
@@ -3318,7 +3377,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, scoreOwner, ownerValid, validList, BIG };
+export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, BIG };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, buildContext };
 
