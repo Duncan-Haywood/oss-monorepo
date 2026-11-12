@@ -19,6 +19,7 @@ from selfrep_closure.bom import Part  # noqa: E402
 
 PROCS = {"fdm", "cnc", "laser"}
 FEEDSTOCK = {"hardwood": "wood dowel", "aluminium": "aluminium bar"}
+ROD_SUB = "wood-smooth-rods"  # the substitution in selfrep-redesign whose rod line is replaced
 
 
 def rod_part(material, d):
@@ -30,12 +31,22 @@ def rod_part(material, d):
 
 def design_with(material, d):
     """All seven redesign substitutions, with the rod line replaced by ``material`` rods of diameter d (m)."""
-    base = rd.SUBS[4]
-    rd.SUBS[4] = rd.Sub(base.name, base.removes, (rod_part(material, d),), base.penalty)
+    i = rod_sub_index()
+    base = rd.SUBS[i]
+    rd.SUBS[i] = rd.Sub(base.name, base.removes, (rod_part(material, d),), base.penalty)
     try:
         return rd.design(tuple(range(len(rd.SUBS))))
     finally:
-        rd.SUBS[4] = base
+        rd.SUBS[i] = base
+
+
+def rod_sub_index(name=ROD_SUB):
+    """Index of the smooth-rod substitution in selfrep-redesign, found by name so a reorder there cannot
+    silently replace a different line."""
+    hits = [k for k, s in enumerate(rd.SUBS) if s.name == name]
+    if len(hits) != 1:
+        raise LookupError(f"expected one {name!r} substitution in selfrep-redesign, found {len(hits)}")
+    return hits[0]
 
 
 def closure(material, d, metric="mass"):

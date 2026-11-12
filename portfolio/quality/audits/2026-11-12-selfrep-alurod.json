@@ -1,0 +1,229 @@
+{
+  "date": "2026-11-12",
+  "subject": "research/selfrep-alurod",
+  "stratum": "research",
+  "seed": "2026-11-12-c",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality-audit round 44",
+  "status": "audited",
+  "professional": "a referee for a self-replicating-machines / open-hardware venue (e.g. HardwareX or Robotica, where RepRap was published) who also knows machine-element design. They would check first that the Euler-Bernoulli sizing is right (delta = PL^3/48EI, the fourth-root modulus rule) and the moduli are defensible against handbook values, whether a soft 6061 rod can really run in printed or brass bushings (industry practice, e.g. igus drylin, uses hard-anodised aluminium shafts), whether a 10.4 mm rod 'fits' 8 mm bearings and clamps at all, and whether mass closure is a fair metric when a relabelled imported bar raises it",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 1,
+    "craft": 2,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran `python3 experiments/run.py` and diffed with the committed experiments/results.txt: identical; `python3 experiments/figure.py` regenerated closure.svg byte-identical (git status clean). Recomputed independently without importing the subject or its siblings (/tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/alurod/recompute.py) from Gere & Goodno, Mechanics of Materials, simply supported beam with central load delta=PL^3/(48EI), I=pi d^4/64: steel 8 mm sag 0.1919 mm (reported 0.192); aluminium match 10.438 mm (10.4), and with the ASM/MatWeb 6061-T6 modulus 68.9 GPa 10.442 mm; hardwood at 10 GPa 16.92 mm (16.9); spec-table diameters Al 12.29/10.33/8.22/6.91 and wood 19.91/16.74/13.32/11.20 at 0.1/0.2/0.5/1.0 mm all match; rod masses from rho*pi d^2/4*2.35 m: Al 88.65 g/rod (88.7), wood 60.37 (60.4), Al-minus-wood stock 169.7 g (README 'about 170 g'); steel 8 mm set 927 g geometric vs 930 g in the closure BOM; closure = stock/(stock+vitamin) reproduces 39.54/37.77/28.72%. Bending stress at the 0.2 mm spec is 4.8 MPa, far under any allowable, so deflection governs as the README implies. Every number checked reproduces; not 4 because the inputs are assumed (wood E=10 GPa sits below the USDA Wood Handbook FPL-GTR-190 Table 5-3a range of about 11.9-12.6 GPa for maple/oak/ash/beech; with 12.6 GPa wood needs 15.97 mm at the steel match, conclusion unchanged).",
+    "completeness": "README claims: 6 tests standard library only (`cd research/selfrep-alurod && python3 -m unittest discover -s tests -v`: Ran 6 tests, OK; also 6 passed under /usr/bin/python3.13 -m pytest); run.py writes results.txt (identical rerun); the five Results bullets all appear in results.txt; figure exists and regenerates. Live page https://marisstella.app/research/selfrep-alurod/ could not be loaded (proxy CONNECT 403), so it is unverified, not failed. No stubs or TODOs. The 'next steps' (penalty search, frequency target) are listed as not done. 3.",
+    "verification": "`cd research/selfrep-alurod && python3 -m unittest discover -s tests -v`: 6 tests OK in 0.001 s. Seeded 5 mutations in src/selfrep_alurod/alu.py, each reverted with `git checkout -- src/selfrep_alurod/alu.py experiments/results.txt`: imported_stock_g filter `p.makers`->`not p.makers` (stock column becomes 0), rod_part per-rod mass /6->/3 (closure 39.5%->44.5%), vitamin_mass_g `not makeable`->`makeable`, fits tolerance -> D_MAX*1.05 (12.3 mm rod now 'fits'), and replacing SUBS[5] instead of SUBS[4] (closure 39.5->40.1%). All five survived: every test still passed while the published table changed. The tests mostly re-check the sibling selfrep-rodbeam formulas; imported_stock_g has no test at all, and no test pins any number in results.txt. 1.",
+    "craft": "Read alu.py (55 lines), tests/test_alu.py (39), experiments/run.py (31), figure.py (84). Small and readable, but: design_with mutates the sibling module's global rd.SUBS by magic index 4 (alu.py:33-38) with no check that it is 'wood-smooth-rods', so a reorder in selfrep-redesign silently replaces the wrong substitution (mutation M5 showed this goes unnoticed); sys.path manipulation at import across three sibling trees (alu.py:13-15); test file imports selfrep_rodbeam only via alu's side effect; run.py is an unstructured script recomputing min_diameter three times. 2.",
+    "claims": "Checked each README Results number against results.txt and my recomputation: 0.192 mm, 10.4 mm, 16.9 mm, 10.3-10.5 mm over 68-72 GPa, 12.3 mm at 0.1 mm, 0.2 mm feasibility, 39.5/37.8/28.7%, 4538->3608 g, 2360/2190/1828 g: all backed. Assumptions (moduli, load, 12 mm limit, router-cut bar surface) are stated as assumptions, 'computed only; no rod was built' and AI assistance are stated. One misleading comparison: 'the aluminium design imports ... 530 g more than the steel-rod design' counts only makeable-line stock; the steel rods (930 g) are imported too, as vitamins, so total imported mass actually falls from 6366 g (steel) to 5968 g (aluminium). The README partly explains this ('because it counts bar stock as makeable') but never states the total. 3.",
+    "fitness": "A researcher could extend it (sized rods plug into the closure model), but the result is not new: the fourth-root modulus scaling d_Al/d_steel=(E_s/E_Al)^(1/4) is textbook beam theory, and aluminium guide shafts with polymer bushings are established commercial practice (igus drylin hard-anodised aluminium shafts; OpenBuilds V-slot aluminium extrusion with wheels in many RepRap-derived machines), none cited. Nearest prior in-repo work is selfrep-rodbeam, which already sized wood; this adds one material row. Missing: a baseline comparing to aluminium extrusion/V-slot frames, any wear or surface-hardness analysis, bearing redesign for a non-8 mm rod, and the penalty-budget search the README defers. 2.",
+    "domain": "Against machine-element practice (Shigley's Mechanical Engineering Design, shafts; igus drylin shaft guidance): the beam sizing is correct, but (1) a guide rod under a carriage is better modelled with the load at the worst position plus self-weight, and two rods sharing the load; (2) untreated 6061 (about 95 HB) galls in bushings, which is why vendors hard-anodise, and the README only says 'optimistic'; (3) a 10.4 mm rod does not fit LM8UU or 8 mm printed bushings and clamps at all, so the 12 mm 'holder limit' hides a redesign of every bushing and rod clamp whose masses the model leaves unchanged; (4) hardwood E=10 GPa is at the low end of handbook values. 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "rerun of experiments/run.py vs committed results.txt",
+      "method": "byte diff",
+      "command": "cd research/selfrep-alurod && cp experiments/results.txt /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/results.orig && python3 experiments/run.py && diff experiments/results.txt results.orig",
+      "expected": "identical",
+      "observed": "identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "steel 8 mm rod mid-span sag, 5 N over 420 mm",
+      "method": "Gere & Goodno, Mechanics of Materials, App. G: delta=PL^3/(48EI), I=pi d^4/64, E=200 GPa; own script",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/alurod/recompute.py",
+      "expected": "0.1919 mm",
+      "observed": "0.192 mm (results.txt)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "aluminium diameter matching the steel sag",
+      "method": "invert delta=PL^3/(48EI) for d; E=69 GPa and ASM/MatWeb 6061-T6 68.9 GPa",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/alurod/recompute.py",
+      "expected": "10.438 mm (10.442 at 68.9 GPa)",
+      "observed": "10.4 mm; 10.44 at 69 GPa",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "hardwood diameter matching the steel sag",
+      "method": "same inversion, E=10 GPa (subject's) and 12.6 GPa (USDA Wood Handbook FPL-GTR-190 Table 5-3a, sugar maple)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/alurod/recompute.py",
+      "expected": "16.92 mm (15.97 mm at 12.6 GPa; does not fit 12 mm either way)",
+      "observed": "16.9 mm, fits False",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "spec-table diameters at 0.1/0.2/0.5/1.0 mm",
+      "method": "same inversion",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/alurod/recompute.py",
+      "expected": "Al 12.29/10.33/8.22/6.91, wood 19.91/16.74/13.32/11.20",
+      "observed": "Al 12.3/10.3/8.2/6.9, wood 19.9/16.7/13.3/11.2",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "per-rod mass at 0.2 mm spec and Al-wood stock difference",
+      "method": "m=rho*pi d^2/4*L, rho 2700 / 700 kg/m3, rod lengths 2x(350+405+420) mm",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/alurod/recompute.py",
+      "expected": "Al 88.65 g, wood 60.37 g, difference 169.7 g",
+      "observed": "88.7, 60.4 g/rod; 2360-2190=170 g",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "steel rod set mass vs the closure BOM",
+      "method": "rho 7850 kg/m3 geometry vs selfrep-closure bom.py:59-60 (140+160+165)x2",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/alurod/recompute.py",
+      "expected": "927 g geometric",
+      "observed": "930 g (4538-3608 vitamin drop)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "mass closure figures 39.5/37.8/28.7%",
+      "method": "closure = stock/(stock+vitamin) from the table's own columns",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/alurod/recompute.py",
+      "expected": "39.54, 37.77, 28.72%",
+      "observed": "39.5, 37.8, 28.7%",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "unittest and pytest",
+      "command": "cd research/selfrep-alurod && python3 -m unittest discover -s tests -v; /usr/bin/python3.13 -m pytest -q tests",
+      "expected": "6 tests pass",
+      "observed": "6 OK; 6 passed",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "mutation survival",
+      "method": "5 hand-seeded mutations in alu.py",
+      "command": "cd research/selfrep-alurod && python3 -m unittest discover -s tests",
+      "expected": "at least one caught",
+      "observed": "0 of 5 caught",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'imports 530 g more stock than the steel-rod design'",
+      "method": "total imported = stock + vitamins from results.txt",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/alurod/recompute.py",
+      "expected": "a fair comparison includes the 930 g of steel rods imported as vitamins",
+      "observed": "README compares stock only; total imports fall 6366 -> 5968 g, not stated",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "E sensitivity 68-72 GPa -> 10.3-10.5 mm",
+      "method": "results.txt lines 23-25",
+      "command": "cat research/selfrep-alurod/experiments/results.txt",
+      "expected": "10.3-10.5 mm",
+      "observed": "10.48/10.44/10.33 mm",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "live page",
+      "method": "curl",
+      "command": "curl -sS https://marisstella.app/research/selfrep-alurod/",
+      "expected": "200",
+      "observed": "proxy CONNECT 403, not loadable from this container",
+      "result": "partial"
+    },
+    {
+      "dimension": "domain",
+      "what": "10.4 mm rod in 8 mm bearings/bushings",
+      "method": "LM8UU bore 8 mm (Misumi/THK catalogue); README 12 mm holder assumption",
+      "command": "grep -n D_MAX_STD research/selfrep-rodbeam/src/selfrep_rodbeam/beam.py",
+      "expected": "bushing and clamp redesign modelled",
+      "observed": "12 mm limit is an assumed guess; bushing masses unchanged",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/selfrep-alurod/src/selfrep_alurod/alu.py:47",
+      "change": "p.feedstock and p.makers -> p.feedstock and not p.makers",
+      "caught": false,
+      "test_cmd": "cd research/selfrep-alurod && python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/selfrep-alurod/src/selfrep_alurod/alu.py:26",
+      "change": "rod_set_mass_g(material, d) / 6 -> / 3",
+      "caught": false,
+      "test_cmd": "cd research/selfrep-alurod && python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/selfrep-alurod/src/selfrep_alurod/alu.py:51",
+      "change": "if not rd.makeable(p, PROCS) -> if rd.makeable(p, PROCS)",
+      "caught": false,
+      "test_cmd": "cd research/selfrep-alurod && python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/selfrep-alurod/src/selfrep_alurod/alu.py:55",
+      "change": "d <= D_MAX_STD + 1e-12 -> d <= D_MAX_STD * 1.05",
+      "caught": false,
+      "test_cmd": "cd research/selfrep-alurod && python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/selfrep-alurod/src/selfrep_alurod/alu.py:33-38",
+      "change": "rd.SUBS[4] -> rd.SUBS[5] (replace the belt-drive sub instead of wood-smooth-rods)",
+      "caught": false,
+      "test_cmd": "cd research/selfrep-alurod && python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "0 of 5 seeded mutations caught: imported_stock_g is untested, vitamin_mass_g and the per-rod mass can be wrong with tests green, and no test pins any published number",
+      "where": "research/selfrep-alurod/tests/test_alu.py:1",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "design_with replaces rd.SUBS[4] by magic index with no name check; a reorder in selfrep-redesign silently substitutes the wrong line (mutation to SUBS[5] passed every test and shifted closure 39.5->40.1%)",
+      "where": "research/selfrep-alurod/src/selfrep_alurod/alu.py:33",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "'530 g more stock than the steel-rod design' omits the 930 g of steel rods imported as vitamins; total imported mass actually falls 6366 -> 5968 g",
+      "where": "research/selfrep-alurod/README.md:26",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "a 10.4 mm rod cannot run in LM8UU or 8 mm printed bushings and clamps; the assumed 12 mm holder limit hides a bushing/clamp redesign whose masses stay unchanged, and untreated aluminium surface hardness/galling is not modelled (vendors hard-anodise)",
+      "where": "research/selfrep-alurod/src/selfrep_alurod/alu.py:24",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "prior art not cited: aluminium guide shafts with polymer bushings (igus drylin hard-anodised shafts) and V-slot aluminium extrusion motion in RepRap-derived machines; the fourth-root result is textbook",
+      "where": "research/selfrep-alurod/README.md:7",
+      "category": "research-design",
+      "origin": "design"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15000"
+  ],
+  "verdict": "A small, honest computed note: every number in the README reproduces on rerun and against my own Euler-Bernoulli recomputation from Gere & Goodno with handbook moduli (steel sag 0.192 mm, aluminium 10.44 mm, hardwood 16.9 mm, rod masses, closures 39.5/37.8/28.7%), and its assumptions are labelled. It misses the bar on verification: all five mutations I seeded in alu.py survived the six tests, which mainly re-test the sibling beam model. Fitness and domain are 2: the stiffness result is textbook, aluminium guide shafts are established commercial practice not cited, and the 12 mm holder assumption hides that a 10.4 mm rod needs new bushings and clamps."
+}
