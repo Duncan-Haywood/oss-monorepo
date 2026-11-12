@@ -2959,3 +2959,39 @@ Seen after the rule, deciding nothing: 3 log n is best on F1 of the three on the
 also on the 34 TCPD series where the check does not fire (0.754 against 0.697 shipped; 4 log n 0.706),
 and finds 6 of 8 freezes. TCPD has been tuned against many times, so that is a lead for a fresh labelled
 set, not a default to change. Test: `drift-sticky-penalty.test.mjs`.
+
+### A stale probability per segment: it dates a change in stickiness, not the lost freezes (2026-11-12, pre-registered, negative)
+
+"Why the step goes missing" left one repeat model untried: each segment with its own stale
+probability, so that a change in how often a series updates counts toward a cut. It is now in the
+library (`repeats: 'missing', stale: 'segment'` in `drift-level.mjs`; each segment adds the profiled
+Bernoulli cost `staleCost(r, m)` of its r repeats among m steps; with no repeats it is plain `missing`).
+The hypothesis was that a freeze moves the juice price and also makes it update more often, so this
+term would recover the freezes (1958, 1970, 1985) that `missing` and a doubled penalty both drop.
+`eval/drift-stale-segment.mjs` (`.out.txt`; rule in its header, committed in dfe02989e before the option
+ran on anything) tested it at the default 2 log n. The first run stopped on a loader bug (two TCPD
+series sit in `heldout/`) after the synthetic table and two TCPD rows had printed; the lookup was fixed
+and the whole file rerun with the rule unchanged.
+
+| | shipped | `missing` | per-segment stale |
+|---|---|---|---|
+| F: sticky walk, no change (cuts a series) | 35.43 | 1.59 | 3.98 |
+| G: same with a 5-unit step (found of 120) | 119 | 93 | 97 |
+| S: repeats 10% then 60%, no step (cut within 5 of the switch) | 71 | 4 | **103** |
+| TCPD sticky four, mean F1 / cover | 0.380 / 0.524 | 0.476 / 0.570 | 0.381 / **0.435** |
+| frozen juice: cuts, freezes found | 67, 8 of 8 | 18, 5 of 8 | 24, **5 of 8** (the same five) |
+
+**Verdict: fails R1, R2 and R3 (R4 passes), so nothing changes for users.** The term does what it says:
+it dates a pure change in stickiness 103 times in 120. But that is not what the freezes needed. It adds
+six cuts on juice and finds the same five freezes, and on TCPD it cuts where annotators saw no change
+(children per woman: cover 0.780 under `missing`, 0.408 here). A descriptive check run afterwards
+(`eval/frozen-juice-staleness.mjs`, `.out.txt`) shows why: the repeat share does fall after five of the
+eight freezes, but at the three lost ones it barely moves (1958: 0.67 before and after; 1970: 0.58 to 0.42;
+1985: 0 and 0). Those shocks are small jumps in a series that updates at the same rate on both sides,
+which no model of the repeats can tell from wander.
+
+What it leaves: four repeat treatments (drop, missing, a doubled penalty, a stale probability per
+segment) now fail the same frozen-juice bar, so the sticky-series warning's advice (check jumps at the
+ends of flat runs against the raw data) stands. A per-segment stale rate may still be worth showing as a
+*description* ("this series began updating less often here"), which is a different product question
+from finding level changes. Test: `drift-stale-segment.test.mjs`.

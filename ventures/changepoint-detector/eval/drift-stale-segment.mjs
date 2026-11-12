@@ -30,11 +30,14 @@
 //   R4. G: steps found at least those of missing, less 3 of 120.
 // If any fails, nothing changes for users; the option stays in the library with its tests.
 //
+// First run stopped on a loader bug (ratner_stock and scanline_42049 are in DIR/heldout) after the
+// synthetic table and two TCPD rows had printed; the lookup was fixed and the whole file rerun, rule
+// unchanged (README "A stale probability per segment").
 // usage: sh eval/tcpd-fetch.sh tcpd-data && node eval/drift-stale-segment.mjs tcpd-data > eval/drift-stale-segment.out.txt
 import { driftLevelChanges } from '../drift-level.mjs';
 import { fMeasure, covering } from './tcpd-metrics.mjs';
 import { STICKY_TCPD, frozenJuice } from './drift-sticky-penalty.mjs';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const MODELS = { shipped: {}, missing: { repeats: 'missing' }, segment: { repeats: 'missing', stale: 'segment' } };
@@ -70,7 +73,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const res = {};
   console.log('\nTCPD sticky series: cuts / F1 / cover');
   for (const name of STICKY_TCPD) {
-    const j = JSON.parse(readFileSync(join(DIR, 'ds', `${name}.json`), 'utf8'));
+    const f = ['ds', 'heldout'].map((d) => join(DIR, d, `${name}.json`)).find(existsSync);
+    const j = JSON.parse(readFileSync(f, 'utf8'));
     let last = null;
     const values = j.series[0].raw.map((v) => (v == null || !Number.isFinite(Number(v)) ? last : (last = Number(v))));
     const n = values.length;

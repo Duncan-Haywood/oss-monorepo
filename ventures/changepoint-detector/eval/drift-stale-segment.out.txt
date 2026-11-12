@@ -1,0 +1,24 @@
+Synthetic: n 300, 120 series a cell, seed 20261114. Mean cuts a series / series with a cut within 5 of t 150
+  model     F (40%, no change)    G (40%, 5-unit step)    S (10% -> 60% repeats, no step)
+  shipped    35.43 /  90        36.64 / 119          27.55 /  71
+  missing     1.59 /   6         2.34 /  93           1.17 /   4
+  segment     3.98 /  16         5.34 /  97           4.38 / 103
+
+TCPD sticky series: cuts / F1 / cover
+  bank                 shipped:  63 0.031 0.048   missing:  40 0.048 0.048   segment:  51 0.038 0.048
+  children_per_woman   shipped:  19 0.571 0.756   missing:  16 0.576 0.780   segment:  22 0.462 0.408
+  ratner_stock         shipped:  30 0.324 0.592   missing:   9 0.547 0.711   segment:  17 0.428 0.663
+  scanline_42049       shipped:  27 0.593 0.702   missing:  12 0.732 0.740   segment:  22 0.596 0.622
+  mean                 shipped: F1 0.380 cover 0.524   missing: F1 0.476 cover 0.570   segment: F1 0.381 cover 0.435
+
+Frozen orange juice (612 months; freezes 1958-01 1963-01 1970-01 1977-02 1981-02 1984-01 1985-02 1990-01)
+  shipped    67 cuts, 8 of 8 found (1958-01 1963-01 1970-01 1977-02 1981-02 1984-01 1985-02 1990-01), 11 cuts near a freeze
+  missing    18 cuts, 5 of 8 found (1963-01 1977-02 1981-02 1984-01 1990-01), 7 cuts near a freeze
+  segment    24 cuts, 5 of 8 found (1963-01 1977-02 1981-02 1984-01 1990-01), 7 cuts near a freeze
+
+Decision rule:
+  R1 FAIL: juice 5 of 8 found, 24 cuts vs shipped 67
+  R2 FAIL: F1 0.381 vs 0.380, cover 0.435 vs 0.524
+  R3 FAIL: F cuts 3.98 vs missing 1.59
+  R4 PASS: G found 97 vs missing 93
+  verdict: FAIL, nothing changes for users
