@@ -179,7 +179,7 @@ planar vs non-planar scenes, mismatch rate.
    done 2026-11-11, see `LOG.md`); (b) natural features: SIFT matches on an openly
    licensed multi-view set with a known calibration; H5.
 4. The accept/reject test and its false-accept rate across milestones 1–3
-   **(done 2026-11-12, H18–H22, see `LOG.md`)**.
+   **(done 2026-11-12, H18–H22; 4b, a jackknife covariance and SB corners, H23–H27, see `LOG.md`)**.
 5. Unmodelled lens terms (k2, principal point) on real data, tying to
    `sensing-bak2` and `sensing-bapp`.
 6. Owner capture (owner step): a phone or machine-vision camera, a board and

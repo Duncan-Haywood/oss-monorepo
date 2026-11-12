@@ -211,3 +211,28 @@ def test_update_test_and_decision():
     assert decide(CHI2_3_99 - 1, 1.0, 500) == "keep"
     assert decide(CHI2_3_99 + 1, 2.0, 500) == "adopt"
     assert decide(CHI2_3_99 + 1, 3.0, 500) == "flag"
+
+
+def test_view_clustered_covariance_matrix_matches_scalar_and_is_psd():
+    # Milestone 4b: the 3x3 (here 4x4) view-clustered sandwich generalises sf_cr_view.
+    from selfcal import selfcal_fixed_analytic
+    obs = synth(n=6, noise=0.2, seed=5)
+    s = selfcal_fixed_analytic(obs, SIZE, 1.3 * TRUE[0], nk=1, ref=0)
+    C = np.array(s["cov_intr_cr_view"])
+    assert C.shape == (4, 4)
+    assert np.allclose(C, C.T)
+    assert np.isclose(np.sqrt(C[0, 0]), s["sf_cr_view"], rtol=1e-8)
+    assert np.linalg.eigvalsh(C).min() > -1e-9 * np.abs(C).max()
+
+
+def test_jackknife_cov_known_values():
+    # (m - 1)/m sum of outer products of deviations; non-finite rows are dropped.
+    from selfcal import jackknife_cov
+    t = np.array([[1.0, 0.0], [3.0, 2.0], [2.0, 1.0], [np.nan, 5.0]])
+    d = t[:3] - t[:3].mean(axis=0)
+    assert np.allclose(jackknife_cov(t), 2 / 3 * d.T @ d)
+    assert np.isnan(jackknife_cov(t[:1])).all()
+    # Leave-one-out means of iid draws: the jackknife variance of the mean is the usual s^2 / n.
+    x = np.random.default_rng(0).normal(size=(20, 1))
+    loo = np.array([(x.sum() - x[i]) / 19 for i in range(20)])
+    assert np.isclose(jackknife_cov(loo)[0, 0], x.var(ddof=1) / 20)
