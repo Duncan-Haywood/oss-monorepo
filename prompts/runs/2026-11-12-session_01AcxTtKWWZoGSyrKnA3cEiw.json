@@ -45,7 +45,7 @@
     "ventures/sales-agent/README.md (Provinces, and the prospect's own days off)"
   ],
   "goal": null,
-  "notes": "Took allocate.py's start row (sales-agent, flagship 3), the no-model-host queue: provincial presets and per-prospect days off. canada-holidays.ca answered; canada.ca refused (HTTP/2 INTERNAL_ERROR). 13 provinces x 2022-2028 fetched to fixtures/canada-provincial-holidays.json; caProvincialHolidays matched 855/855 dates first run. Verification: run_venture_tests.py sales-agent ok; node --test holidays (8) daily-theirs (4) page/page-calls/days-off/daily* 38 pass; post frontmatter/links/similarity checks pass.",
+  "notes": "Took allocate.py's start row (sales-agent, flagship 3), the no-model-host queue: provincial presets and per-prospect days off. canada-holidays.ca answered; canada.ca refused (HTTP/2 INTERNAL_ERROR). 13 provinces x 2022-2028 fetched to fixtures/canada-provincial-holidays.json; caProvincialHolidays matched 855/855 dates first run. Verification: run_venture_tests.py sales-agent ok; node --test holidays (8) daily-theirs (4) page/page-calls/days-off/daily* 38 pass; post frontmatter/links/similarity checks pass. CI validate went red on main's shift-roster-builder `next:` (2089 > 2000 chars, from PR #14979); fixed forward here by cutting the fourth-file detail (it stays in that README). venture-preflight sales-agent: clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
