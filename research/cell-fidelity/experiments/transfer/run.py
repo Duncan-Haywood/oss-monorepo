@@ -87,7 +87,7 @@ def params(x, pset):
     t_um, e_p, e_n, r = cell.clip(x)
     ok = pybamm.ParameterValues("OKane2022")
     pv = pybamm.ParameterValues(pset)
-    copied = sorted(k for k in ok.keys() if k not in pv.keys() and ("SEI" in k or "plating" in k or "stripping" in k))
+    copied = sorted(k for k in ok.keys() if k not in pv.keys() and ("SEI" in k or "plat" in k or "strip" in k))
     pv.update({k: ok[k] for k in copied}, check_already_exists=False)
     t0p, t0n = pv["Positive electrode thickness [m]"], pv["Negative electrode thickness [m]"]
     pv["Positive electrode thickness [m]"] = t_um * 1e-6
@@ -168,9 +168,53 @@ def probe():
     (HERE / "probe.json").write_text(json.dumps(out, indent=1) + "\n")
 
 
+def bench():
+    path = HERE / "bench.jsonl"
+    done = set()
+    if path.exists():
+        done = {(r["set"], r["j"], r["model"]) for r in map(json.loads, path.read_text().splitlines())}
+    xs = designs()
+    jobs = [(s, j, m) for m in ("DFN", "SPMe", "SPM") for s in SETS for j in range(len(xs)) if (s, j, m) not in done]
+
+    def go(job):
+        s, j, m = job
+        return dict(set=s, j=j, model=m, x=xs[j], **_spawn(xs[j], m, 100, s))
+
+    with ThreadPoolExecutor(WORKERS) as ex, path.open("a") as f:
+        for r in ex.map(go, jobs):
+            if "exit -9" in (r.get("error") or ""):   # killed by the session's memory limit, not a model failure
+                print(r["set"], r["j"], r["model"], "killed (-9), not recorded", flush=True)
+                continue
+            r.pop("copied", None)
+            f.write(json.dumps(r) + "\n")
+            f.flush()
+            print(r["set"], r["j"], r["model"], r["ok"], r["ok_cycles"], r["seconds"] and round(r["seconds"], 1), flush=True)
+
+
+def cost():
+    from energy_cell import cell
+    x = list(map(float, cell.BASELINE))
+    path = HERE / "cost.json"
+    out = json.loads(path.read_text()) if path.exists() else {}
+    for s in SETS:
+        out.setdefault(s, {})
+        for m in MODELS:
+            out[s].setdefault(m, {})
+            for n in NS:
+                if str(n) in out[s][m]:
+                    continue
+                out[s][m][str(n)] = [_spawn(x, m, n, s)["seconds"] for _ in range(3)]
+                print(s, m, n, out[s][m][str(n)], flush=True)
+                path.write_text(json.dumps(out, indent=1) + "\n")
+
+
 if __name__ == "__main__":
     if sys.argv[1:2] == ["child"]:
         print(json.dumps(simulate(json.loads(sys.argv[2]), sys.argv[3], int(sys.argv[4]), sys.argv[5])))
+    elif sys.argv[1:2] == ["bench"]:
+        bench()
+    elif sys.argv[1:2] == ["cost"]:
+        cost()
     elif sys.argv[1:2] == ["probe"]:
         probe()
     else:
