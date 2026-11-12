@@ -8,7 +8,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 R = json.load(open(os.path.join(HERE, "results.json")))
 fig, ax = plt.subplots(figsize=(5.6, 4.2))
 ax.scatter(R["nom"], R["mean_shifted"], s=7, alpha=0.5, color="#1b9e77", label="600 random feasible designs")
-lim = [0, 0.7]
+lim = [-0.1, 0.7]
 ax.plot(lim, lim, color="#888888", lw=1, ls="--", label="no change")
 ax.set_xlim(lim); ax.set_ylim(lim)
 ax.set_xlabel("J in the nominal world")
