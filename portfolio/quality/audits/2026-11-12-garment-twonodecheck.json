@@ -1,0 +1,227 @@
+{
+  "date": "2026-11-12",
+  "subject": "research/garment-twonodecheck",
+  "stratum": "research",
+  "seed": "2026-11-12-f",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality-audit round 47",
+  "status": "audited",
+  "professional": "a thermal-physiology modelling referee (Building and Environment / Journal of Thermal Biology; ASHRAE TC 2.1 style) who works with Gagge two-node and SET implementations. They would check first that the two models were configured equivalently before comparing them, then whether each gap is traced to a named constant or equation, then whether anything is compared with measured human data.",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 1,
+    "craft": 2,
+    "claims": 3,
+    "fitness": 1,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Built a venv (python 3.11, numpy, scipy, pytest, pythermalcomfort==4.6.1) and reran experiments/run.py in a scratch copy: results.txt is byte-identical to the committed file (1.9 s); figure.py regenerates bytemp.svg byte-identically. An independent script (own grid loop and statistics, imports the subject's two_node only as the thing under test, calls pythermalcomfort directly) reproduces every number in README section A to 3 dp (t_core mean -0.038, mabs 0.040, min -0.251, max +0.035; t_skin +0.213/0.581/-2.125/+1.568; e_skin worst +14.282), section B per-temperature means, and the 23/24 sign agreement (the one disagreement: 36 C, 1.0 met, clo 0.3->1.0, ours +0.064 C vs reference -0.024 C). DuBois area for 70 kg/170 cm by the 1916 cm formula 0.007184*W^0.425*H^0.725 = 1.810 m2 (README 'about 1.81'). p_sat_kpa vs Wagner-Pruss table: 5.6237 vs 5.6291 kPa at 35 C, 3.1674 vs 3.1699 at 25 C (0.1%, fine). The comparison numbers are right; what they mean is weaker than stated (see claims, domain).",
+    "completeness": "Every README section (A-E results, run-length table, sign check, figure) regenerates from the shipped scripts with the documented commands; 8 tests pass; the live page https://marisstella.app/research/garment-twonodecheck/ returns 200 and carries the same numbers (23 of 24, AI-assistance note). Listed in research/README.md:586. Nothing claimed as done is a stub; the attribution of the gap is listed as a next step, not claimed.",
+    "verification": "'python -m pytest -q' in the project with pythermalcomfort installed: 8 passed. Six hand-seeded mutations in model.py two_node, each reverted (git diff --stat empty afterwards): vasodilation coefficient 200->120 (line 122) survived; regulatory sweat 170->100 (125) survived; skin capacitance fraction 0.10->0.20 (110) survived; shivering 19.4->0 (124) survived; sweat-mass accounting 0.06*emax->0 (135) survived; respiratory latent 0.0023->0.023 (136) caught (3 failed). 5 of 6 survive because the tests only assert |dt_core| < 0.3 C on 4 points, |dt_skin| < 2.5 C on 3 points and one monotonicity case; the README's own headline gaps (0.58 C, 14.3 W/m2) are not pinned, and the statistics in run.py are untested. pyproject.toml does not declare pythermalcomfort, so without it every test skips green; research-ci.yml runs no project tests at all.",
+    "craft": "Read model.py, tests/test_check.py, experiments/run.py, figure.py, pyproject.toml, and the reference's two_nodes_gagge.py. Small and readable, deterministic, figure parsed from results rather than retyped. Defects: model.py is a verbatim copy of research/garment-thermal/src/garment_thermal/model.py (diff empty) including the PMV and optics code this project never uses; numpy imported and unused (model.py:10); 'import pythermalcomfort' unused (run.py:14); run.py uses a one-letter print-collector P, semicolon statements, and repeats the grid loop three times; two_node returns wet/dry/tcl defined only inside the loop (model.py:141) so minutes=0 raises NameError; sweat_g is computed but never compared even though the README draws conclusions about sweat loss.",
+    "claims": "Checked: every table and bullet number against results.txt and my rerun (all backed); 'copied unchanged' (diff empty, backed); AI-assistance and 'model on a CPU, no person measured' disclosures present; limitations prominent. Misses: README:12 says the body-area difference 'alone can account for some of the differences' - aligning the area (body_surface_area=1.8055 in the reference) changes mean |d t_skin| from 0.581 to 0.582 C, i.e. none, because area only scales heat capacity per m2 by 0.9%; README:12 says the reference runs 60 one-minute steps, its loop runs 59 (effect 0.001 C, low); README:35 'good to roughly a degree and a few W/m2' understates the measured worst cases of 2.1 C and 14.3 W/m2; README:16 reproduce line does not pin pythermalcomfort 4.6.1 although results depend on it.",
+    "fitness": "Nearest prior work: pythermalcomfort itself (Tartarini & Schiavon 2020, SoftwareX) and the CBE Thermal Comfort Tool, whose Gagge/SET code is already cross-checked against ASHRAE 55 reference values; JOS-3 (Takahashi et al. 2021) and the long literature validating Gagge two-node against measured core/skin temperatures. Checking a from-memory re-implementation against a reference code is a unit-verification step, not a research result, and is not new. The README declines to read the ~250-line reference source and leaves the gap 'not traced'; I traced the main parts in minutes from that source: the reference caps clothed wettedness at w_max = 0.59 v^-0.08 = 0.708 while ours allows 1.0 (applying the cap drops the worst e_skin gap from +14.28 to +3.66 W/m2); the reference uses c_dil = 120 vs ours 200 (switching cuts mean |d t_skin| from 0.581 to 0.436 C); the reference also varies the skin-mass fraction alfa with blood flow and uses Gagge's convection 8.6 v^0.53 / 5.66(met-0.85)^0.39 and fcl = 1+0.15 clo where ours uses ISO 7730 Fanger forms. A researcher can reuse the harness, but the deliverable stops before the one analysis a referee would want, and there is no comparison with measured data.",
+    "domain": "Comparing a model with a reference implementation over a factorial grid is accepted verification practice, and the grid, tolerances and reporting are sensible. A referee would reject the configuration: the two models are not set up equivalently (wettedness cap, vasodilation constant, variable alfa, convection correlation, clothing area factor, im semantics all differ and are knowable from the reference source), so the reported gaps mix constant choices with method, and the conclusion drawn for garment-thermal ('good to roughly a degree') is not separated from those knobs. The model under test itself departs from both the pythermalcomfort Gagge implementation and ASHRAE Fundamentals in the ways above (fixed alfa = 0.1, no w_max, c_dil 200)."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "README section A summary statistics over 108 grid points",
+      "method": "independent script: own grid loop and statistics, pythermalcomfort 4.6.1 called directly (not via run.py)",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/indep.py research/garment-twonodecheck/src/garment_twonodecheck/model.py",
+      "expected": "t_core mean -0.038 mabs 0.040 min -0.251 max +0.035; t_skin +0.213/0.581/-2.125/+1.568; e_skin max +14.282",
+      "observed": "identical to 3 dp for all five quantities",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "DuBois body surface area for 70 kg, 1.70 m (README 'about 1.81 m2')",
+      "method": "DuBois & DuBois (1916) in the original cm form 0.007184 W^0.425 H^0.725, by hand",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/indep.py research/garment-twonodecheck/src/garment_twonodecheck/model.py",
+      "expected": "1.810",
+      "observed": "model uses 0.202*70^0.425*1.7^0.725 = 1.8055; README 1.81",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "saturation vapour pressure used for skin and air",
+      "method": "Wagner-Pruss (IAPWS-95) tabulated values 5.6291 kPa at 35 C, 3.1699 kPa at 25 C",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/indep.py research/garment-twonodecheck/src/garment_twonodecheck/model.py",
+      "expected": "5.6291 / 3.1699",
+      "observed": "5.6237 / 3.1674 (0.1% low)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "sign agreement of skin-temperature change (section E)",
+      "method": "independent recomputation of the 24 paired cases, reporting the disagreeing one",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/indep.py research/garment-twonodecheck/src/garment_twonodecheck/model.py",
+      "expected": "23 of 24",
+      "observed": "23 of 24; disagreement at 36 C, 1.0 met, clo 0.3->1.0 (ours +0.064 C, reference -0.024 C)",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "results.txt and bytemp.svg regenerate",
+      "method": "rerun run.py and figure.py in a scratch copy and diff",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/copy && /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/venv/bin/python experiments/run.py && diff experiments/results.txt /home/user/oss-monorepo/research/garment-twonodecheck/experiments/results.txt",
+      "expected": "no diff",
+      "observed": "byte-identical (both files)",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run the project's tests with the reference installed",
+      "command": "cd research/garment-twonodecheck && /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/venv/bin/python -m pytest -q -p no:cacheprovider",
+      "expected": "pass",
+      "observed": "8 passed in 1.0 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:12 'body-area difference alone can account for some of the differences'",
+      "method": "rerun the reference with body_surface_area set to our DuBois area 1.8055",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/indep.py research/garment-twonodecheck/src/garment_twonodecheck/model.py",
+      "expected": "mean |d t_skin| moves materially from 0.581",
+      "observed": "0.582 C (no change); area only scales capacitance per m2",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:12 'reference simulates 60 minutes at one-minute steps'",
+      "method": "read reference loop (n_simulation from 1 while < 60) and rerun ours at 59 min",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/steps.py research/garment-twonodecheck/src/garment_twonodecheck/model.py",
+      "expected": "60 iterations",
+      "observed": "59 iterations; effect on mean |d t_skin| 0.001 C",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:35 'good to roughly a degree and a few W/m2'",
+      "method": "compare with results.txt worst cases",
+      "command": "grep -n 'largest' -A2 research/garment-twonodecheck/experiments/results.txt",
+      "expected": "worst cases within about 1 C and a few W/m2",
+      "observed": "worst cases 2.13 C and 14.28 W/m2",
+      "result": "partial"
+    },
+    {
+      "dimension": "fitness",
+      "what": "is the skin/evaporation gap traceable to named constants (README:39 says not traced)",
+      "method": "patch scratch copies of two_node with the reference's w_max = 0.708 and c_dil = 120 read from pythermalcomfort/models/two_nodes_gagge.py",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/twonode/attrib.py research/garment-twonodecheck/src/garment_twonodecheck/model.py",
+      "expected": "README: cause unknown",
+      "observed": "w cap: worst e_skin gap +14.28 -> +3.66 W/m2; c_dil 120: mean |d t_skin| 0.581 -> 0.436 C; cold-side max 2.125 C unchanged (convection/alfa forms remain)",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "configuration equivalence of the two models",
+      "method": "side-by-side reading of model.py two_node and the reference source against ASHRAE Fundamentals ch. 9 two-node description",
+      "command": "sed -n 99,142p research/garment-twonodecheck/src/garment_twonodecheck/model.py",
+      "expected": "same constants or differences listed and isolated",
+      "observed": "six differences (w_max, c_dil, variable alfa, hc correlation, fcl, im use) unlisted and unisolated",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/garment-twonodecheck/src/garment_twonodecheck/model.py:122",
+      "change": "vasodilation 200.0*warm_c -> 120.0*warm_c",
+      "caught": false,
+      "test_cmd": "python -m pytest -q"
+    },
+    {
+      "where": "research/garment-twonodecheck/src/garment_twonodecheck/model.py:125",
+      "change": "regulatory sweat coefficient 170.0 -> 100.0",
+      "caught": false,
+      "test_cmd": "python -m pytest -q"
+    },
+    {
+      "where": "research/garment-twonodecheck/src/garment_twonodecheck/model.py:110",
+      "change": "skin heat capacity 0.10*mass -> 0.20*mass",
+      "caught": false,
+      "test_cmd": "python -m pytest -q"
+    },
+    {
+      "where": "research/garment-twonodecheck/src/garment_twonodecheck/model.py:124",
+      "change": "shivering 19.4 -> 0.0",
+      "caught": false,
+      "test_cmd": "python -m pytest -q"
+    },
+    {
+      "where": "research/garment-twonodecheck/src/garment_twonodecheck/model.py:135",
+      "change": "sweat accounting esk - 0.06*emax -> esk - 0.0*emax",
+      "caught": false,
+      "test_cmd": "python -m pytest -q"
+    },
+    {
+      "where": "research/garment-twonodecheck/src/garment_twonodecheck/model.py:136",
+      "change": "respiratory latent 0.0023*m -> 0.023*m",
+      "caught": true,
+      "test_cmd": "python -m pytest -q"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "The skin and evaporation gaps are left 'not traced' although the reference source names the causes: pythermalcomfort caps clothed wettedness at w_max = 0.59 v^-0.08 (0.708 here) while two_node caps at 1.0 (this alone takes the worst e_skin gap from +14.28 to +3.66 W/m2), and uses c_dil = 120 vs 200 (mean |d t_skin| 0.581 -> 0.436 C). The conclusion about garment-thermal's accuracy therefore mixes constant choices with method.",
+      "where": "research/garment-twonodecheck/README.md:39",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Tests would not catch a real bug: 5 of 6 seeded changes to core control constants survive (tolerances 0.3 C core, 2.5 C skin on 3-4 points); headline gaps are not pinned.",
+      "where": "research/garment-twonodecheck/tests/test_check.py:12",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Not new and not a research result: re-implementation cross-check against a reference code, no measured-data comparison, prior validation literature (pythermalcomfort/CBE tool, JOS-3, Gagge validation studies) not cited.",
+      "where": "research/garment-twonodecheck/README.md:7",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "Claim that the body-area difference 'alone can account for some of the differences' is unsupported: aligning the area changes mean |d t_skin| 0.581 -> 0.582 C.",
+      "where": "research/garment-twonodecheck/README.md:12",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Conclusion 'good to roughly a degree and a few W/m2' understates measured worst cases of 2.13 C and 14.28 W/m2.",
+      "where": "research/garment-twonodecheck/README.md:35",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Reference loop runs 59 one-minute steps, not 60 as stated (n_simulation starts at 1, loop while < 60); effect 0.001 C.",
+      "where": "research/garment-twonodecheck/README.md:12",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "pythermalcomfort (the reference every test needs) and pytest are not declared; without it all tests skip green, and the README install line does not pin 4.6.1. Research CI runs no project tests.",
+      "where": "research/garment-twonodecheck/pyproject.toml:6",
+      "category": "repo-hygiene",
+      "origin": "build"
+    },
+    {
+      "severity": "low",
+      "what": "Unused imports (numpy in model.py, pythermalcomfort in run.py); wet/dry/tcl defined only inside the loop so minutes=0 raises NameError; PMV/optics code copied but unused.",
+      "where": "research/garment-twonodecheck/src/garment_twonodecheck/model.py:141",
+      "category": "code-craft",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A small, honest, fully reproducible cross-check: results.txt and the figure regenerate byte for byte, and an independent recomputation matches every README number. It does not meet the bar. Verification fails (5 of 6 seeded constant changes survive loose tolerance tests), and as research it is a unit-verification step rather than a result: the two models are compared without aligning their knowable configuration differences, and the gap the README calls untraced is largely explained in minutes from the reference source (wettedness cap 0.708 vs 1.0 accounts for the +14.3 W/m2 worst case; vasodilation constant 120 vs 200 for a quarter of the mean skin gap). A thermal-physiology referee would ask for that attribution and for a comparison with measured data before accepting any accuracy statement about garment-thermal."
+}

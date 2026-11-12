@@ -1,0 +1,218 @@
+{
+  "date": "2026-11-12",
+  "subject": "research/capture-trackprior",
+  "stratum": "research",
+  "seed": "2026-11-12-f",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality-audit round 47",
+  "status": "audited",
+  "professional": "a signal-processing referee for acoustic time-delay estimation and tracking (IEEE/ACM TASLP, ICASSP, or EURASIP JASMP, which publishes sampling-rate and time-offset estimation for distributed microphones and multi-camera audio sync). 'Capture' here is multi-camera recording sync for creators (track 13). They would check first whether the tracker is compared with standard delay trackers (gated Kalman, multi-hypothesis or particle filters that keep several GCC peaks), whether the reported differences carry intervals, whether the gate ratio was chosen on the test data, and whether the result is new relative to the authors' own earlier tracking experiment.",
+  "scores": {
+    "correctness": 4,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Reran both experiments in a scratch copy (python 3.13, numpy, LibreOffice gallery clips present): experiments/run.py 34 s and experiments/gated.py 43 s on 4 cores; results.txt and gated.txt are byte-identical to the committed files. Then wrote an independent re-implementation (scratchpad/trackprior/indep.py, no import of capture_trackprior or capture_aliaswin.gcc_search: own complex-FFT GCC with |X|^-gamma weighting and band mask after Knapp and Carter 1976, own lag ordering and parabolic peak, own loop Theil-Sen (Sen 1968: median pairwise slope, median residual intercept), own prior and gate rules written from the README text; only the data generator pair_at and the clip loader imported). For none, track boot 1/3/5 and gated boot 1 ratio 1.2/1.5 it reproduces every per-clip wrong share in results.txt section C and gated.txt section C to 3 dp (60 of 60 cells) and every section-B aggregate quoted in the README (0.375/0.374/0.344/0.225/0.274/0.221 wrong on the 4 failing clips; lost 0.007/0.368/0.243/0.139/0.076/0.097 = 1/53/35/20/11/14 of 144 cameras). By hand: drift between windows 40e-6 x 3600/11 = 13.09 ms ('up-to-13 ms', README:46); 252 = 12 x 3 x 7 scored windows. The numbers are right; what they mean is scored under domain and fitness.",
+    "completeness": "Everything the README says is done runs end to end from the documented commands: 6 tests (as stated), run.py writes results.txt sections A-C, gated.py writes gated.txt, both reproduce exactly; the LOG's pre-registered gated hypothesis and its refutation criteria are evaluated as written (lock-loss under 0.15: 0.076-0.139 at ratios 1.2-2; good clips stay at 0.000). The live page https://marisstella.app/research/capture-trackprior/ returns 200 and carries the project.json summary with the 22.1% gated figure. Stale: README:28 says run.py takes 'a few minutes on 4 cores' (measured 34 s). The next steps (long-window bootstrap, a gate that separates equal-height aliases, a k_mad/keep/floor sweep) are listed as not done and are not claimed.",
+    "verification": "'cd research/capture-trackprior && python -m pytest -q tests': 6 passed in 0.25 s. Nine hand-seeded mutations, each reverted (PYTHONDONTWRITEBYTECODE=1): caught 3 (Theil-Sen intercept median -> mean; 0.1 x drift term -> 1.0 x; cap min -> max); survived 6: k_mad 4.0 -> 1.0 (track.py:23), the one/two-point drift rule len(ts) < 3 -> < 2 (track.py:32), the keep=6 history window removed (track.py:28), the gate's line restart on re-acquisition removed (gated.py:61), p_full > ratio*p_in -> >= (gated.py:59, near-equivalent) and the out-of-lags fallback height p_full -> 0 (gated.py:58). The gate-restart survivor is material: rerunning gated.py with it moves the headline cell from 0.221 to 0.208 wrong and lost-lock from 0.097 to 0.076, so the tests do not pin the rule that produces the published numbers. Nothing tests the experiment aggregation (wrong share, lost-lock, section B means) or reproducibility of results.txt.",
+    "craft": "Read src/capture_trackprior/track.py, gated.py, __init__.py, tests/test_track.py, experiments/run.py, gated.py, and capture_aliaswin.gcc_search. Small, readable, deterministic (rng seeded per seed/camera/window, so every cell sees identical windows and reruns are byte-identical). Defects: gated.gcc_curve (gated.py:13-28) is a copy of capture_aliaswin.gcc_search's GCC body rather than a shared helper (a test checks they agree); track.py:26 docstring says the half-width is 'never more than the drift bound while the line has few points' but no such cap exists for 3+ points; run.py and gated.py duplicate the job/aggregation code and both prepend nine sibling src dirs to sys.path (run.py:11, gated.py:10), mirrored in pyproject pythonpath; no intervals computed anywhere.",
+    "claims": "Checked every number in the README headline, both results tables, the bullets, project.json summary and lede against results.txt/gated.txt and my independent rerun: all present and correct, including 0.374 vs 0.375, 37% lost, 0.225/14%, 0.338 on six clips, applause 0.889, drama 0.472, 0.076-0.097 lost, 0.221, 'space2 0.60 to 0.81'. Limits (constant drift, one SNR, untuned rule, non-independent seeds) and the clean-clip period leak in the cap cell are disclosed; ratio 1.5 is honestly called 'best of four values I tried'; AI-assistance line present. Misses: README:3 calls this 'the second next step of capture-aliaswin', but that step was 'take the first estimate from a 3 s window, then track', which this project lists as its own untested next step; the ungated headline (tracking no better than no prior, early alias persists) repeats capture-aliaswin's own section 'Does a prior taken from the previous windows (no oracle) help?' (0.378 vs 0.376, 'errors come as whole series') without citing it; README:47 says space2 'does not improve' when tracking makes it worse in 5 of 6 cells (0.742-0.885 vs 0.659); README:61 says soft keeps '0.09 to 0.2' wrong under gating, but soft is 0.000 at ratio 2 and 0.079 at 1.5.",
+    "fitness": "A researcher on track 13 can reuse the tracker and gate and the clean experimental design (identical windows across cells). As research the contribution is thin: the ungated result is a near-replication of capture-aliaswin's track.txt with a Theil-Sen line instead of least squares, and the gated tracker is a single-hypothesis validation gate (Bar-Shalom and Fortmann, Tracking and Data Association, 1988) whose ratio was picked on the same data it is scored on. Nearest prior work not cited: acoustic TDOA tracking with particle filters that keep multiple GCC peaks (Ward, Lehmann and Williamson, IEEE Trans. Speech Audio Process. 11(6), 2003; Vermaak and Blake, ICASSP 2001), which is exactly the remedy for alias lock-in; audio-based multi-camera sync (Shrestha, Barbieri and Weda, ACM Multimedia 2007); and sampling-rate/time-offset tracking in acoustic sensor networks (Schmalenstroeer and Haeb-Umbach's group). The project sits in no programme in research/PROGRAMMES.md, so it does not advance toward the PhD-level bar research/CLAUDE.md sets. Sound as a negative result on its simulation; not new.",
+    "domain": "Against standard delay-tracking practice: (1) only one hypothesis is carried, so an early alias can only be escaped by the height gate, while a referee would expect a multi-hypothesis or particle tracker over the top-k GCC peaks as the baseline; (2) no intervals on any difference: my seed-clustered bootstrap shows the claimed 'gating reaches the 5-bootstrap share' (0.221 vs 0.225) is indistinguishable [-0.089, 0.075] (fine as stated), but ratio 1.2 vs 1.5 lost-lock (0.076 vs 0.097) is within noise [-0.056, 0.007], and the paper-style reader is given none of this; the large effects (gated vs none -0.154 [-0.213, -0.094]; lost 0.368 -> 0.097, -0.271 [-0.340, -0.201]) are real; (3) constant, linear simulated drift favours the line fit (disclosed); (4) the period cap uses the clean clip's period (disclosed leak); (5) every 'hour' is resampled windows from the same ~4 s clips, so seeds and cameras are near-replicates of a handful of content draws (partly disclosed). A referee would accept it as a clearly caveated workshop-level negative result, not as a method."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "per-clip wrong shares, results.txt section C (none, track boot 1/3/5 no cap) and gated.txt section C (gated boot 1 ratio 1.2/1.5), 60 cells",
+      "method": "independent re-implementation: own complex-FFT GCC-gamma (Knapp and Carter 1976), own Theil-Sen (Sen 1968), own prior and gate from the README text; only pair_at (data) imported",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/trackprior && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -I indep.py",
+      "expected": "results.txt/gated.txt section C values, e.g. space2 0.659 0.885 0.845 0.548 0.631 0.667",
+      "observed": "all 60 cells identical to 3 dp (space2 0.659 0.885 0.845 0.548 0.631 0.667)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "section B aggregates quoted in README: wrong_4 and lost_4 for none, track 1/3/5, gated 1.2/1.5",
+      "method": "same independent script; lost = cameras with all 7 scored windows wrong, counted over 144 cameras",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/trackprior && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -I indep.py",
+      "expected": "wrong_4 0.375/0.374/0.344/0.225/0.274/0.221; lost_4 0.007/0.368/0.243/0.139/0.076/0.097",
+      "observed": "identical; lost counts 1/53/35/20/11/14 of 144",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "full rerun of run.py and gated.py vs committed outputs",
+      "method": "byte diff in a scratch copy with sibling projects symlinked",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/trackprior/research/capture-trackprior && python3 experiments/run.py && python3 experiments/gated.py && diff experiments/results.txt /home/user/oss-monorepo/research/capture-trackprior/experiments/results.txt",
+      "expected": "identical",
+      "observed": "results.txt and gated.txt byte-identical (34 s and 43 s)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "'up-to-13 ms drift between windows' (README:46) and 252 scored windows",
+      "method": "by hand: 40 ppm x 3600/11 s; 12 seeds x 3 cameras x 7 windows",
+      "command": "python3 -c \"print(40e-6*3600/11*1e3, 12*3*7)\"",
+      "expected": "13.09 252",
+      "observed": "13.09 ms, 252",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "are the headline differences outside seed noise",
+      "method": "seed-clustered bootstrap (2000 draws over the 12 seeds) on the independent re-implementation's per-window flags; Wilson intervals on lost counts",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/trackprior && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -I indep.py | tail -6",
+      "expected": "large claimed effects excluded zero; README reports no intervals",
+      "observed": "gated1.5-none -0.154 [-0.213,-0.094]; lost gated1.5-track1 -0.271 [-0.340,-0.201]; track1-none -0.001 [-0.091,0.084]; lost gated1.2-gated1.5 -0.021 [-0.056,0.007] (noise); none reported in README",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd research/capture-trackprior && python -m pytest -q tests",
+      "expected": "6 tests pass (README)",
+      "observed": "6 passed in 0.25 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "tests pin the gate and prior rules that produce the headline",
+      "method": "9 seeded mutations in track.py and gated.py",
+      "command": "cd research/capture-trackprior && PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests",
+      "expected": "core rule changes caught",
+      "observed": "3 of 9 caught; gate restart (gated.py:61), k_mad, keep window and few-point rule survive; the gate-restart survivor moves gated 1.5 from 0.221 to 0.208 wrong",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:3 'the second next step of capture-aliaswin'",
+      "method": "compare with capture-aliaswin README 'Next steps'",
+      "command": "sed -n 67,71p research/capture-aliaswin/README.md",
+      "expected": "this project performs that step",
+      "observed": "aliaswin's second step is 'take the first estimate from a 3 s window, then track'; trackprior lists it as its own untested next step",
+      "result": "fail"
+    },
+    {
+      "dimension": "fitness",
+      "what": "headline is new relative to the authors' own earlier result",
+      "method": "read capture-aliaswin README section 'Does a prior taken from the previous windows (no oracle) help?'",
+      "command": "sed -n 49,62p research/capture-aliaswin/README.md; grep -n 'track.txt' research/capture-trackprior/README.md",
+      "expected": "acknowledged and extended",
+      "observed": "aliaswin already found tracking no better than no prior (0.378 vs 0.376) and series locked to their first estimate; trackprior does not cite it",
+      "result": "fail"
+    },
+    {
+      "dimension": "fitness",
+      "what": "nearest prior work on delay tracking and alias lock-in cited",
+      "method": "grep for multi-hypothesis/particle/Kalman tracking, gating, multi-camera audio sync",
+      "command": "grep -rniE 'bar-shalom|particle|kalman|ward|shrestha|multi-hypothesis|schmalen' research/capture-trackprior",
+      "expected": "cited with a comparison or baseline",
+      "observed": "no matches; only Theil 1950, Sen 1968, Knapp and Carter 1976 cited",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:47 space2 'does not improve' and README:61 soft/untie 'keep 0.09 to 0.2'",
+      "method": "compare with results.txt and gated.txt section C",
+      "command": "grep -E '^(space2|soft) ' research/capture-trackprior/experiments/results.txt research/capture-trackprior/experiments/gated.txt",
+      "expected": "space2 roughly unchanged; soft 0.09-0.2 under gating",
+      "observed": "space2 worse in 5 of 6 tracked cells (0.742-0.885 vs 0.659); soft 0.000 at ratio 2, 0.079 at 1.5",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "README headline, both tables and project.json summary/lede numbers",
+      "method": "cross-check against results.txt, gated.txt and the independent rerun",
+      "command": "cat research/capture-trackprior/experiments/results.txt research/capture-trackprior/experiments/gated.txt",
+      "expected": "each number present",
+      "observed": "all present and matching; leak, limits and AI disclosure stated",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "live page and reproduce runtime",
+      "method": "curl the served page; time run.py",
+      "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/capture-trackprior/",
+      "expected": "200 with current summary; run.py 'a few minutes'",
+      "observed": "200, summary includes the gated 22.1% figure; run.py 34 s (stale estimate)",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {"where": "research/capture-trackprior/src/capture_trackprior/gated.py:61", "change": "on re-acquisition keep the history (ht + [t], hd + [d]) instead of restarting the line", "caught": false, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
+    {"where": "research/capture-trackprior/src/capture_trackprior/track.py:23", "change": "k_mad=4.0 -> 1.0", "caught": false, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
+    {"where": "research/capture-trackprior/src/capture_trackprior/track.py:32", "change": "len(ts) < 3 -> len(ts) < 2 (two-point line uses MAD rule)", "caught": false, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
+    {"where": "research/capture-trackprior/src/capture_trackprior/track.py:28", "change": "drop the keep=6 history window (fit all estimates)", "caught": false, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
+    {"where": "research/capture-trackprior/src/capture_trackprior/gated.py:59", "change": "p_full > ratio * p_in -> >=", "caught": false, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
+    {"where": "research/capture-trackprior/src/capture_trackprior/gated.py:58", "change": "out-of-lags fallback height p_full -> 0.0", "caught": false, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
+    {"where": "research/capture-trackprior/src/capture_trackprior/track.py:20", "change": "Theil-Sen intercept np.median(d - m*t) -> np.mean", "caught": true, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
+    {"where": "research/capture-trackprior/src/capture_trackprior/track.py:36", "change": "0.1 x drift term in the MAD half-width -> 1.0 x", "caught": true, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
+    {"where": "research/capture-trackprior/src/capture_trackprior/track.py:38", "change": "cap min(half, cap_s) -> max", "caught": true, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"}
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "the gate's line restart on re-acquisition is untested: removing it leaves all 6 tests green and moves the published gated 1.5 cell from 0.221 to 0.208 wrong and lost-lock from 0.097 to 0.076 (so the restart is also not the better design); k_mad, the keep window and the few-point drift rule also survive mutation",
+      "where": "research/capture-trackprior/src/capture_trackprior/gated.py:61",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "the ungated headline repeats capture-aliaswin's own tracked-prior experiment (track.txt: 0.378 vs 0.376, series locked to their first estimate) without citing it, and the project calls itself aliaswin's 'second next step' (3 s first window, then track), which it did not do",
+      "where": "research/capture-trackprior/README.md:3",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "nearest prior work and baseline missing: multi-hypothesis / particle-filter TDOA tracking over several GCC peaks (Ward, Lehmann and Williamson 2003; Vermaak and Blake 2001) is the standard remedy for alias lock-in; validation gating (Bar-Shalom and Fortmann 1988); audio multi-camera sync (Shrestha et al. 2007). Not in any PROGRAMMES.md programme",
+      "where": "research/capture-trackprior/README.md:7",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "no intervals on any reported difference, and the gate ratio is chosen on the scored data; a seed-clustered bootstrap shows ratio 1.2 vs 1.5 lost-lock (0.076 vs 0.097) is within noise [-0.056, 0.007]",
+      "where": "research/capture-trackprior/experiments/gated.py:18",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "README misdescribes two per-clip results: space2 'does not improve' when tracking makes it worse in 5 of 6 cells (0.742-0.885 vs 0.659); soft 'keeps 0.09 to 0.2' under gating when it is 0.000 at ratio 2 and 0.079 at 1.5",
+      "where": "research/capture-trackprior/README.md:47",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "predict docstring says the half-width is never more than the drift bound while the line has few points; no such cap exists for 3+ points",
+      "where": "research/capture-trackprior/src/capture_trackprior/track.py:26",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "gcc_curve copies capture_aliaswin.gcc_search's GCC body instead of sharing it (agreement is tested); run.py and gated.py duplicate the job/aggregation code and prepend nine sibling src dirs to sys.path",
+      "where": "research/capture-trackprior/src/capture_trackprior/gated.py:13",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "reproduce block says run.py takes 'a few minutes on 4 cores'; measured 34 s",
+      "where": "research/capture-trackprior/README.md:28",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "The numbers are exactly right: both experiments rerun byte-identical, and an independent re-implementation (own GCC, Theil-Sen, prior and gate) reproduces all 60 per-clip cells and every quoted aggregate to 3 dp. It misses the bar on verification: 6 of 9 seeded bugs survive, including the gate's line restart, whose removal changes the published gated cell (0.221 -> 0.208). As research it is thin and partly a repeat: capture-aliaswin had already shown a tracked prior is no better than none and locks onto its first estimate, which this project neither cites nor extends with the long-window bootstrap that aliaswin proposed; the gate is a single-hypothesis validation gate tuned on the scored data, no intervals are reported, and the delay-tracking literature (multi-hypothesis and particle filters over GCC peaks) that addresses alias lock-in directly is not cited or used as a baseline."
+}

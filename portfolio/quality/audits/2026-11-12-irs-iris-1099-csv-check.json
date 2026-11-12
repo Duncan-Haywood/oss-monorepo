@@ -1,0 +1,297 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/irs-iris-1099-csv-check",
+  "stratum": "venture",
+  "seed": "2026-11-12-f",
+  "drawn_by": "sample",
+  "round": 47,
+  "auditor": "agent session (Claude), quality-audit round 47",
+  "status": "audited",
+  "professional": "an information-returns specialist who files 1099-NEC/MISC batches for clients through the IRIS Taxpayer Portal CSV upload; they check first that each column's value is in the exact format the IRS template formatting guidelines require (TIN with dashes by type, TIN Type code list, name and address character sets and lengths, ZIP digits-only 5/9/12, Box 1 or Box 2 rule, CF/SF state list), then that the filing thresholds for the payment year are right",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "irs.gov was reachable this session. Recomputed against IRS TY2025 IRIS template formatting guidelines, 1099-NEC and 1099-MISC PDFs in irs.gov/pub/irs-efile/ty2025-template-formatting-guidelines.zip (downloaded 2026-11-12, HTTP 200), Instructions for Forms 1099-MISC and 1099-NEC (Rev. December 2026), irs.gov/pub/irs-pdf/i1099mec.pdf (downloaded 2026-11-12), the IRS state abbreviation list (irs.gov/pub/irs-utl/zip_code_and_state_abbreviations.pdf) and IRS/SSA TIN range rules, with node /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/iris/probe.mjs $PWD/calc.mjs (from ventures/irs-iris-1099-csv-check). Right: 2026 thresholds (NEC 1,999.99 warns, 2,000.00 does not; MISC rents 1,999.99, royalties 9.99, attorney 599.99, 409A 1,999 all warn) match the Rev. Dec 2026 instructions; 2025 NEC 599.99 warns; SSN 666/00/0000, ITIN middle digits 93 and 66 rejected and 94 accepted, EIN prefixes 07 flagged and 31 accepted, all match the published rules. Wrong, against the IRS guidelines: (1) the guidelines require Payer and Recipient TINs as XX-XXXXXXX (EIN, QI-EIN) or XXX-XX-XXXX (SSN, ITIN, ATIN); validate() flags a correctly dashed TIN (info tin-dashes, 'Upload files usually want nine plain digits') and repair() rewrites 12-3456780 -> 123456780 and 412-34-5678 -> 412345678, turning a conformant file into a non-conformant one; the tool's own sampleFile() uses undashed TINs and passes clean. (2) Recipient TIN Type QI-EIN and UND (both listed) warn; NONE (not listed) passes silently with a blank TIN. (3) Box 1 blank with Box 2 = Y ('Box 1 must be filled in or Box 2 must be checked') is an error 'No reportable amount'. (4) CF/SF value \"AL,CA,DE\" (the guidelines' own example) warns 'not a yes or no'. (5) FM, MH, PW recipients are errors 'not a two-letter USPS code'. (6) Business name 'Sam #7 Landscaping' (# allowed) warns while 'Acme, Inc.' (comma and period not allowed) passes; a 36-character address with '.' and '#' (limit 35, alnum - / space only) passes; ZIP 75201-1234 (digits only) passes and 12-digit ZIP errors. Arithmetic and number ranges are right; the format rules a user acts on are wrong in several places.",
+    "completeness": "Claimed features (README 'Template checks', 'Checks', 'Safe fixes'; index.html 'What it checks') run end to end in node: template detection, missing/out-of-order columns, one form per file, TIN Types, Name Type B/I, Y/N flags, State 1/2 codes, foreign country skip, >100 records warning, delimiter, quotes, cell counts, Form Type, tax year, TIN shape and ranges, names, addresses, states, ZIPs, money, thresholds, withholding, duplicates, expected totals and record counts, findings CSV, repair with a change list, usage counters. No TODOs or stubs; served calc.mjs is byte-identical to source. Not modelled although in the same IRS guidelines the README says were read: first/middle/last name charset and 20-char limit, city alphabet-only, Office Code 4 digits, Form Account Number not equal to a TIN, phone type/format, State 1 required when its section has amounts.",
+    "verification": "node --test '*.test.mjs' in the venture dir: 53 pass, 0 fail (Node v22.23.4); README's bare `node --test` also passes 53. Eight hand-seeded mutations in calc.mjs, each reverted with git checkout (git diff --stat empty at the end): caught 6 (NEC threshold >= 2026 -> >; SSN 666 check removed; MISC 2026 rents 2000 -> 600; below-threshold < -> <=; ME dropped from zero-ZIP states; serial 0000 check removed); survived 2 (ITIN group range 94-99 -> 95-99; federal withheld > reportable -> >=). The tests pin the wrong TIN convention: calc.test.mjs:165 asserts repair strips dashes and calc.test.mjs:67-68 expects tin-dashes, so a fix to the IRS format would fail them. No test uses a row from the IRS guidelines' own examples.",
+    "craft": "Read calc.mjs (640 lines), index.html script, template.test.mjs, calc.test.mjs, page.test.mjs. Pure module, no dependencies, no network calls, findings escaped. Defects: two layouts carried through one validate() with an alias table and a regex relabel() pass over finding text (calc.mjs:113-117) that rewrites column names inside sentences; repair() strips dashes from the Payer TIN with no matching finding in validate() (calc.mjs:561-566 vs 368, recipient only); TIN Type list includes UNKNOWN/NONE that silently suppress the blank-TIN error (calc.mjs:362-365); CF/SF treated as a check box (calc.mjs:405); the template's per-field rules are hard-coded constants from memory (NAME_OK, ADDRESS_MAX at calc.mjs:125-127) though the guideline document was in hand.",
+    "claims": "Disclaimer, no-warranty, independence and privacy text present (index.html:134-137), no-network claim backed by page.test.mjs:18-23, served page https://marisstella.app/irs-iris-1099-csv-check/ 200 and served calc.mjs identical. Contradicted or unbacked: 'Safe fixes ... only things with one reasonable reading ... dashes in TINs' (index.html:108,124; README.md:59) is false: the IRS guidelines require the dashes, so the 'safe' fix breaks a correct file. index.html:104 'nine digits, dashes optional' contradicts the guidelines. Inconsistent verification statements: README.md:27 says the TY2025 guidelines were checked on irs.gov 2026-11-11, while llms.txt:3, index.html:60/100 and VENTURE.yaml:38 say the layout was not read on irs.gov and every rule is from memory; README.md:36 still calls the accepted TIN Type and Name Type values unverified though the same guidelines list them.",
+    "fitness": "Walked a preparer's job: start from the IRIS portal's 1099-NEC template, fill 40 rows with dashed TINs as the guidelines show, paste, apply safe fixes, upload. The checker reports every row 'contains dashes', and the cleaned download removes them, producing a file outside the published format. A QI-EIN recipient warns; a Box-2-only direct-sales row is an error; a CF/SF row warns; a Palau or Marshall Islands contractor is an error. Meanwhile the field rules that most often reject IRIS rows (35-char address and its charset, name charsets, city letters only, ZIP digits only) are not checked or checked with the wrong limit. Threshold and TIN-range checks are useful. A specialist would use it as a rough scan, not sign off a batch on it.",
+    "domain": "Compared with IRS TY2025 IRIS template formatting guidelines, 1099-NEC and 1099-MISC PDFs in irs.gov/pub/irs-efile/ty2025-template-formatting-guidelines.zip (downloaded 2026-11-12, HTTP 200) and Instructions for Forms 1099-MISC and 1099-NEC (Rev. December 2026), irs.gov/pub/irs-pdf/i1099mec.pdf (downloaded 2026-11-12). Column layout (A-BB, A-BL) and the 2026 $2,000/$600/$10 thresholds match. Departures: TIN format (dashes required by type), TIN Type code list (QI-EIN, UND; Payer only SSN/EIN), name charsets (business: letters, digits, space, - # ( ) & '; individual: letters, blanks, hyphens, max 20), address max 35 with alnum - / space, city alphabet and space, ZIP digits only 5/9/12, Box 1 or Box 2 rule, CF/SF a quoted state list, IRS state list with FM/MH/PW. Thresholds are applied per row, not per payee aggregate (two 400.00 rows for one TIN under different account numbers both warn under 600)."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "2026 NEC threshold boundary 1,999.99 vs 2,000.00; 2025 at 599.99",
+      "method": "Instructions for Forms 1099-MISC and 1099-NEC (Rev. December 2026), irs.gov/pub/irs-pdf/i1099mec.pdf (downloaded 2026-11-12), 'Enter nonemployee compensation (NEC) of $2,000 or more'",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/iris/probe.mjs $PWD/calc.mjs (from ventures/irs-iris-1099-csv-check)",
+      "expected": "1,999.99 warns, 2,000.00 clean; 2025 599.99 warns",
+      "observed": "same",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "2026 MISC per-box amounts: rents 1,999.99, royalties 9.99, attorney 599.99, 409A 1,999",
+      "method": "Instructions for Forms 1099-MISC and 1099-NEC (Rev. December 2026), irs.gov/pub/irs-pdf/i1099mec.pdf (downloaded 2026-11-12), general instructions list ($10 royalties, $600 attorney, $2,000 rents/other/medical/crop/409A/NQDC)",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/iris/probe.mjs $PWD/calc.mjs (from ventures/irs-iris-1099-csv-check)",
+      "expected": "all four warn below their amounts",
+      "observed": "all four warn",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "SSN/ITIN/EIN number ranges: 666-12-3456, 123-00-4567, 123-45-0000, ITIN 912-93/94/66, EIN 07 and 31",
+      "method": "SSA SSN randomization rules (no 000, 666, 9xx area; no 00 group; no 0000 serial); IRS ITIN group ranges 50-65, 70-88, 90-92, 94-99; IRS EIN campus prefix list",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/iris/probe.mjs $PWD/calc.mjs (from ventures/irs-iris-1099-csv-check)",
+      "expected": "SSN x3 flagged; ITIN 93 and 66 flagged, 94 ok; EIN 07 flagged, 31 ok",
+      "observed": "same",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "guideline-format TINs (12-3456780 EIN payer, 412-34-5678 SSN recipient) through validate and repair",
+      "method": "IRS TY2025 IRIS template formatting guidelines, 1099-NEC and 1099-MISC PDFs in irs.gov/pub/irs-efile/ty2025-template-formatting-guidelines.zip (downloaded 2026-11-12, HTTP 200), columns D and U: 'EIN must be in XX-XXXXXXX format', 'SSN, ITIN, ATIN must be in XXX-XX-XXXX format'",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/iris/probe.mjs $PWD/calc.mjs (from ventures/irs-iris-1099-csv-check)",
+      "expected": "no finding; repair leaves both TINs dashed",
+      "observed": "info tin-dashes; repair rewrites to 123456780 and 412345678",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Recipient TIN Type QI-EIN and UND",
+      "method": "IRS TY2025 IRIS template formatting guidelines, 1099-NEC and 1099-MISC PDFs in irs.gov/pub/irs-efile/ty2025-template-formatting-guidelines.zip (downloaded 2026-11-12, HTTP 200), column T: 'SSN, EIN, ATIN, ITIN, QI-EIN, or UND'",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/iris/probe.mjs $PWD/calc.mjs (from ventures/irs-iris-1099-csv-check)",
+      "expected": "accepted",
+      "observed": "warning tin-type 'not SSN, EIN, ITIN or ATIN' for both; UND with blank TIN also errors; unlisted NONE passes silently",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Box 1 blank with Box 2 (direct sales) = Y",
+      "method": "IRS TY2025 IRIS template formatting guidelines, 1099-NEC and 1099-MISC PDFs in irs.gov/pub/irs-efile/ty2025-template-formatting-guidelines.zip (downloaded 2026-11-12, HTTP 200), columns AL/AM: 'Box 1 must be filled in or Box 2 must be checked'",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/iris/probe.mjs $PWD/calc.mjs (from ventures/irs-iris-1099-csv-check)",
+      "expected": "valid record",
+      "observed": "error no-amount 'No reportable amount on this record'",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "CF/SF column value \"AL,CA,DE\"",
+      "method": "IRS TY2025 IRIS template formatting guidelines, 1099-NEC and 1099-MISC PDFs in irs.gov/pub/irs-efile/ty2025-template-formatting-guidelines.zip (downloaded 2026-11-12, HTTP 200), column AP: quoted comma-separated state list",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/iris/probe.mjs $PWD/calc.mjs (from ventures/irs-iris-1099-csv-check)",
+      "expected": "accepted",
+      "observed": "warning flag-value 'is not a yes or no'",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "recipient state PW (Palau) and MH (Marshall Islands)",
+      "method": "IRS zip_code_and_state_abbreviations.pdf (linked from the guidelines), U.S. possessions: FM, MH, PW",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/iris/probe.mjs $PWD/calc.mjs (from ventures/irs-iris-1099-csv-check)",
+      "expected": "accepted",
+      "observed": "error state 'not a two-letter USPS code'",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "business name and address charset/length: 'Sam #7 Landscaping', 'Acme, Inc.', 36-char address with '.' and '#'",
+      "method": "IRS TY2025 IRIS template formatting guidelines, 1099-NEC and 1099-MISC PDFs in irs.gov/pub/irs-efile/ty2025-template-formatting-guidelines.zip (downloaded 2026-11-12, HTTP 200), columns W and AD: name allows - # ( ) & '; address max 35, alnum - / space",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/iris/probe.mjs $PWD/calc.mjs (from ventures/irs-iris-1099-csv-check)",
+      "expected": "Sam #7 ok; Acme, Inc. flagged; address flagged",
+      "observed": "Sam #7 warned; Acme, Inc. clean; address clean",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "ZIP 75201-1234, 752011234, 752011234001",
+      "method": "IRS TY2025 IRIS template formatting guidelines, 1099-NEC and 1099-MISC PDFs in irs.gov/pub/irs-efile/ty2025-template-formatting-guidelines.zip (downloaded 2026-11-12, HTTP 200), column AH: digits only, exactly 5, 9 or 12",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/cb322ece-d3bb-5c74-9693-c3fe9f6815e5/scratchpad/iris/probe.mjs $PWD/calc.mjs (from ventures/irs-iris-1099-csv-check)",
+      "expected": "dash flagged; 9 ok; 12 ok",
+      "observed": "dash clean; 9 ok; 12 errors",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "template column layout A-BB (NEC) and A-BL (MISC) incl. FATCA in AK",
+      "method": "IRS TY2025 IRIS template formatting guidelines, 1099-NEC and 1099-MISC PDFs in irs.gov/pub/irs-efile/ty2025-template-formatting-guidelines.zip (downloaded 2026-11-12, HTTP 200), column lists",
+      "command": "pdftotext the two PDFs; compare with TEMPLATE_NEC / TEMPLATE_MISC in calc.mjs",
+      "expected": "54 and 64 columns in the same order",
+      "observed": "match",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "53 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'safe fixes ... dashes in TINs' and 'nine digits, dashes optional'",
+      "method": "IRS TY2025 IRIS template formatting guidelines, 1099-NEC and 1099-MISC PDFs in irs.gov/pub/irs-efile/ty2025-template-formatting-guidelines.zip (downloaded 2026-11-12, HTTP 200)",
+      "command": "grep -n 'dashes' index.html README.md",
+      "expected": "backed by the IRS format",
+      "observed": "contradicted: IRS requires the dashes (index.html:104,108,124; README.md:59)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "verification status of the layout and rules stated consistently",
+      "method": "compare README.md:27,36 with llms.txt:3, index.html:60,100, VENTURE.yaml:38",
+      "command": "grep -n 'irs.gov' README.md llms.txt index.html VENTURE.yaml",
+      "expected": "one consistent statement",
+      "observed": "README says checked on irs.gov 2026-11-11; page, llms.txt and VENTURE.yaml say not read on irs.gov / all from memory",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "no network calls; served page matches source",
+      "method": "page.test.mjs:18-23; curl served calc.mjs and diff",
+      "command": "curl -sS https://marisstella.app/irs-iris-1099-csv-check/calc.mjs | diff -q - calc.mjs",
+      "expected": "identical",
+      "observed": "identical; page 200",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:229",
+      "change": "Number(year) >= 2026 -> > 2026",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:194",
+      "change": "drop area === \"666\" from ssnProblem",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:202",
+      "change": "ITIN range (g >= 94 && g <= 99) -> (g >= 95 && g <= 99)",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:43",
+      "change": "MISC_MIN_2026 rents 2000 -> 600",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:473",
+      "change": "below-threshold v < th -> v <= th",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:481",
+      "change": "withheld > reportable -> >=",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:123",
+      "change": "remove ME from ZERO_ZIP_STATES",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:196",
+      "change": "remove serial 0000 check",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "'Safe fix' strips the dashes the IRS template formatting guidelines require (EIN XX-XXXXXXX, SSN/ITIN/ATIN XXX-XX-XXXX), turning a conformant file into a non-conformant one; validate() also flags correctly dashed recipient TINs as a problem, and the tool's own sample file uses undashed TINs and passes clean",
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:561",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "high",
+      "what": "page and README call TIN dash removal a 'safe fix' with 'one reasonable reading' and say 'dashes optional'; the IRS format requires them",
+      "where": "ventures/irs-iris-1099-csv-check/index.html:104",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "Recipient TIN Type accepts unlisted UNKNOWN/NONE (silently suppressing the blank-TIN error) and warns on the listed QI-EIN and UND; Payer TIN Type accepts ITIN/ATIN though only SSN/EIN are allowed",
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:362",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Box 1 blank with Box 2 (direct sales $5,000+) checked is an error 'No reportable amount'; the guidelines accept Box 1 or Box 2",
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:469",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Combined Federal/State Filing (CF/SF) is treated as a Y/N check box; the guidelines define a quoted comma-separated state list, so the guidelines' own example \"AL,CA,DE\" warns",
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:405",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "business-name charset wrong (allows . , / which the guidelines forbid; warns on # and parentheses which they allow); individual name rules (letters, blanks, hyphens, max 20) not checked; address limit 40 instead of 35 and no charset check; city charset not checked",
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:125",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "STATES omits FM, MH and PW, which are on the IRS state abbreviation list the guidelines link; recipients there get an error",
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:120",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "ZIP check accepts 12345-6789 (guidelines: digits only) and rejects 12-digit ZIPs (guidelines: exactly 5, 9 or 12)",
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:444",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "verification status stated inconsistently: README says the TY2025 guidelines were checked on irs.gov; llms.txt, index.html and VENTURE.yaml say not read on irs.gov and every rule from memory; README still calls TIN Type and Name Type values unverified though the same guidelines list them",
+      "where": "ventures/irs-iris-1099-csv-check/llms.txt:3",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "tests pin the wrong TIN convention (repair must strip dashes) and survive mutations to the ITIN 94-99 range and the withheld > paid comparison",
+      "where": "ventures/irs-iris-1099-csv-check/calc.test.mjs:165",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "pre-2026 MISC box 12 (409A deferrals) reporting amount set to $0.01; the pre-2026 instructions used at least $600 (auditor's recollection, not re-read this session)",
+      "where": "ventures/irs-iris-1099-csv-check/calc.mjs:34",
+      "category": "source-data",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A tidy, private, well-disclaimed browser checker whose filing thresholds (including the 2026 $2,000 changes) and SSN/ITIN/EIN range rules match IRS sources, and whose column layout matches the IRS TY2025 template. But measured against the IRS's own TY2025 IRIS template formatting guidelines (reachable on irs.gov, and cited in the README as read), its field-format rules are wrong where a filer acts on them: the headline 'safe fix' removes TIN dashes the guidelines require, QI-EIN and UND TIN types warn, a Box-2-only record errors, the CF/SF state list warns, FM/MH/PW recipients error, and the name, address and ZIP rules use the wrong charset and limits. 53 tests pass and 6 of 8 seeded mutations were caught, but the tests encode the wrong TIN convention. Finished as described; does not meet the senior bar (correctness, claims and verification below 3)."
+}
