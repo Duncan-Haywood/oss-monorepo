@@ -1,8 +1,8 @@
 ---
 title: "If you stop asking a survey question, how many people still need to answer it?"
-seo_title: "Calibration subsample size for a rotated survey item (GSS religion items)"
+seo_title: "Calibration subsample size for a rotated GSS religion item"
 date: 2026-11-12
-description: "Across 241 group-by-item cells of the GSS, a model trained on another group saves 17% of the calibration sample a rotated religion item needs, and a group's share to ±3 points still takes about 700 to 1,400 asked respondents."
+description: "A model trained on another group saves 17% of the calibration sample a rotated GSS religion item needs; ±3 points still takes 700 to 1,400 respondents."
 tags: [research, christian-belief-models, survey-imputation, prediction-powered-inference, GSS]
 ---
 
