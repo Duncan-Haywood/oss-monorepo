@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First push failed two gates the venture's own tests did not catch: sibling-links (no sibling linked back; fixed with backlinks from npm-lockfile-duplicates-check and node-version-drift-check) and faq-visible (raw '<1.4' and '<2.0.0' in visible FAQ answers opened tags; fixed by escaping, and page.test.mjs now compares escaped text)."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,10 @@
     {
       "file": "ventures/gitignore-explainer (as template)",
       "issue": "Registering a new venture touches three places outside its folder (platform/pages/build.mjs category regex, launched.json, the SWITCHES_IN_THE_CATALOGUE constant in optout-persistence.test.mjs); this is only findable by reading a previous new-venture commit."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "run_workflow_locally.py --for-changes skips pages.yml's build step (contains a ${{ }} expression) and then reports the two link checks as FAILED for a missing _site; had to run build_pages_site.py by hand to get a real result. portfolio-pages' long test step went UNRUN at 299 s, so the faq-visible failure only showed up in CI."
     }
   ],
   "deviations": [],
