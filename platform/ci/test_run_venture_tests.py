@@ -3,6 +3,7 @@
 
 Run: python3 -m unittest test_run_venture_tests   (from platform/ci/)
 """
+import importlib.util
 import subprocess
 import tempfile
 import unittest
@@ -218,6 +219,7 @@ class Selection(unittest.TestCase):
         self.assertEqual(order, ["b-big", "c-mid", "a-small"])
 
 
+@unittest.skipUnless(importlib.util.find_spec("yaml"), "needs PyYAML (ventures-tests CI has none)")
 class Elsewhere(unittest.TestCase):
     """Locally, a named venture's own-workflow Python steps run too (2026-11-12:
     photo-editing printed "skip", einvoice-preflight "ok" for Node alone)."""

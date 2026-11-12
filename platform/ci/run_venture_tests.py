@@ -42,6 +42,7 @@ Exit 0 when every suite passes (ventures with no tests are skipped), else 1.
 """
 import argparse
 import functools
+import importlib.util
 import os
 import re
 import signal
@@ -449,6 +450,11 @@ def main(argv):
     # Named slugs and --changed are how a session checks its own work; --since
     # and a full run are CI's modes, where those workflows run on their own.
     elsewhere = bool(args.slugs or args.changed) and not ON_ACTIONS and not args.no_elsewhere
+    if elsewhere and importlib.util.find_spec("yaml") is None:
+        # run_workflow_locally reads workflows with PyYAML.
+        print("note: PyYAML is not installed, so own-workflow Python tests are not run here "
+              "(pip install pyyaml)", flush=True)
+        elsewhere = False
     runs_here = {s for s in slugs if has_tests(s)
                  or (elsewhere and (VENTURES / s).is_dir() and elsewhere_commands(s))}
     if named:
