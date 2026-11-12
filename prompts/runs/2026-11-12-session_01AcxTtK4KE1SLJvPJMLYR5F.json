@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtK4KE1SLJvPJMLYR5F",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T00:07:01Z",
+  "ended": "2026-11-12T00:24:30Z",
+  "wall_minutes": 17.67,
+  "tokens_in": 11738334,
+  "tokens_out": 95824,
+  "cost_usd": 5.7464,
+  "tool_calls": 77,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14941",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate-PR step says use search_pull_requests, but GitHub MCP search_* tools are not available in this session and `gh api search/issues` exited 2 (unauthenticated); skipped the duplicate search after duplicate_check.py found nothing above 0.18."
+    },
+    {
+      "file": "ventures/gitignore-explainer (as template)",
+      "issue": "Registering a new venture touches three places outside its folder (platform/pages/build.mjs category regex, launched.json, the SWITCHES_IN_THE_CATALOGUE constant in optout-persistence.test.mjs); this is only findable by reading a previous new-venture commit."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-a-semver-range-that-skips-the-newest-version.md",
+    "ventures/semver-range-explainer/README.md (how it is checked, subset() comparison, repo sweep)"
+  ],
+  "goal": null,
+  "notes": "Explore idea: semver-range-explainer, an npm semver range explainer with exact range comparison. Differential test against node-semver 7.7.4 (Node 22 npm) and 7.8.5 (Node 24 npm): all range parses, 103,958 / 83,944 satisfies checks identical. Found that 7.8 changed two corners (x followed by number invalid; tilde/caret -0 floors under includePrerelease), so the engine has a 7.7/7.8 switch. node-semver subset() differs from exact containment on 147/2500 random pairs (4 are false positives contradicted by its own satisfies()). Repo sweep: 195 ranges, 145 locked, 0 mismatches. Local checks: run_venture_tests.py semver-range-explainer ok; optout-persistence 20/20; post links/frontmatter/similarity clean; Playwright check of the page at 390px: no JS errors, no horizontal scroll.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ac35a1c3-242c-5c84-9e21-34ff7cbfbae1",
+    "transcripts": 1,
+    "first": "2026-11-12T00:07:01Z",
+    "last": "2026-11-12T00:24:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 145,
+        "output": 95824,
+        "thinking": 25020,
+        "cache_read": 11548227,
+        "cache_write_5m": 0,
+        "cache_write_1h": 189962,
+        "api_equivalent_usd": 5.7464,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 145,
+      "output": 95824,
+      "thinking": 25020,
+      "cache_read": 11548227,
+      "cache_write_5m": 0,
+      "cache_write_1h": 189962,
+      "api_equivalent_usd": 5.7464,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 71,
+      "Write": 3,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.67,
+      "active_minutes": 17.67,
+      "model_minutes": 15.74,
+      "tool_minutes": 1.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "senior JS dev: node-semver rules reimplementation, exact subset algorithm, differential tests across two versions, page, CLI, guide, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 278.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
