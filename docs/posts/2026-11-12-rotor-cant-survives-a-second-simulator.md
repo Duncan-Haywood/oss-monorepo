@@ -2,8 +2,8 @@
 title: "Rotor cant survives a second simulator; our ranking test did not"
 date: 2026-11-12
 tags: [codesign-cant, quadrotor, RotorPy, sim-to-sim, co-design, research]
-description: We re-scored 60 co-designed quadrotors in RotorPy with canted rotors. Cant still won in every seed, but our pre-registered top-ten ranking test failed, and it turned out the test could not have passed.
-seo_title: "Do quadrotor co-design results transfer from a simple simulator to RotorPy?"
+description: We flew 60 co-designed quadrotors in RotorPy with canted rotors. Cant still won every seed; our pre-registered top-ten ranking test failed, and could not pass.
+seo_title: "Do quadrotor co-design results transfer to RotorPy?"
 ---
 
 All of today's `codesign-cant` results came from one home-grown simulator. It models the airframe as a rigid body with Euler angles, the motors as a lag on torque, and the wind as a disturbance torque. Before writing a paper on when rotor cant pays, we needed a second, independent simulator. If a result only exists in the simulator you tuned against, it may say more about the simulator than about the drone.
