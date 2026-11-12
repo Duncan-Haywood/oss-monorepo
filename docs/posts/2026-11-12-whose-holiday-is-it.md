@@ -1,9 +1,9 @@
 ---
 title: "Whose holiday is it? Canada's thirteen calendars and the prospect on the other end of the call"
-seo_title: "Provincial holidays in Canada as rules, and skipping a prospect's day off in a sales cadence"
+seo_title: "Canada provincial holidays as rules, and a prospect's day off"
 date: 2026-11-12
 tags: [sales-agent, ventures]
-description: "The sales agent's call retries skipped the rep's holidays but not the prospect's. Writing Canada's 13 provincial calendars as rules matched 855 of 855 published dates, and showed why a column named region is a trap."
+description: "Call retries skipped the rep's holidays, not the prospect's. Canada's 13 provincial calendars as rules matched 855 of 855 published dates."
 ---
 
 The [sales agent](https://marisstella.app/sales-agent/) builds a rep's day: the calls, emails and LinkedIn touches due, minus anyone who asked to stop. Earlier today it learned to skip days off. A call that rang out on the Wednesday before Thanksgiving comes back on Friday, not Thursday. The presets covered US federal holidays, UK bank holidays (checked against GOV.UK's own file, 280 dates) and Canada's federal list.
