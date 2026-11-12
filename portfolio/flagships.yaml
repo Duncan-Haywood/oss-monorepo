@@ -188,9 +188,9 @@ flagships:
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     buildable: >-
-      WarpFisheye in dng_opcodes.py on synthetic DNGs with closed-form
-      answers, as tests/test_dng_vignette_poly.py and test_dng_bad_pixels.py
-      do; MapTable and Delta/ScalePerRow/Column are smaller and the same shape.
+      MapTable (opcode 7) and DeltaPerRow/Column, ScalePerRow/Column (10-13)
+      in dng_opcodes.py on synthetic DNGs with closed-form answers, as
+      tests/test_dng_warp_fisheye.py and test_dng_bad_pixels.py do.
     next: >-
       History and every measurement: README and eval/ (ingest, catalog,
       proxies, cull, RAW previews; DNG developer with DNG-spec colour, DCP
@@ -204,9 +204,12 @@ flagships:
       T's own preview to 0.18 px against 4.2 px uncorrected, eval/warp-
       rectilinear-2026-11-12.md; FixVignetteRadial/MapPolynomial on
       synthetic files, eval/vignette-polynomial-2026-11-12.md; OpcodeList1
-      FixBadPixels*, eval/bad-pixels-2026-11-12.md).
-      Next, most valuable first: WarpFisheye, MapTable, Delta/ScalePerRow/
-      Column; a real DNG carrying FixVignetteRadial or OpcodeList1 bad pixels;
+      FixBadPixels*, eval/bad-pixels-2026-11-12.md; OpcodeList3 WarpFisheye
+      on closed forms, formula not yet checked against Adobe's SDK,
+      eval/warp-fisheye-2026-11-12.md).
+      Next, most valuable first: MapTable, Delta/ScalePerRow/Column; a
+      converter-written fisheye DNG (or the SDK's dng_warp_params_fisheye)
+      to check WarpFisheye; a real DNG carrying FixVignetteRadial or OpcodeList1 bad pixels;
       lateral colour measured on a real frame with sharp corner edges; a real Adobe `.dcp` through the profile chooser;
       newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that
       collection under their plain names) and the DJI DNG (name unknown
