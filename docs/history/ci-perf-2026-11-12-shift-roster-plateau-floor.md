@@ -72,6 +72,10 @@ carries half the gain.
 | cli.test.mjs | 70 s | 46 s |
 | page-callout.test.mjs | 42 s | 27 s |
 
+After PR #15085 (exact check on by default at every size) merged mid-run, the harness was re-run against
+that main: still 83 of 83 identical, 80.4 s to 31.9 s, and `run_venture_tests.py --changed` passed
+(shift-roster-builder 106 s wall).
+
 Users of the free scheduler get the same speed-up on every build that leaves hours open.
 
 ## Not changed, ranked for the next run
