@@ -1121,12 +1121,37 @@ function ejectOpen(ctx, owner, lists, passes = 3) {
             if (dr < dq) { dq = dr; q = r; nq = nl; }
           }
           d += dq;
-          if (d < -1e-9 && (!best || d < best.d)) best = { d, p, j, np, q, nq };
+          if (d < -1e-9 && (!best || d < best.d)) best = { d, p, js: [j], np, moves: q >= 0 ? [[j, q, nq]] : [] };
         }
+        // Give up every shift that clashes with i (2026-11-12): when p holds two or more (6-10 and 11-15 against the caller's
+        // 6-16), no single drop makes room, so the one-shift move above cannot fire. Each dropped shift then goes, longest
+        // first, to whoever takes it at the least score given the earlier ones, or stays open.
+        if (ctx.o.keptEject2 === false) continue;
+        const clash = lists[p].filter((j) => !validList(ctx, p, insertSorted(ctx, [j], i)));
+        if (clash.length < 2 || clash.some((j) => slots[j].fixed)) continue;
+        const np = insertSorted(ctx, lists[p].filter((x) => !clash.includes(x)), i);
+        if (!validList(ctx, p, np)) continue;
+        let d = personScore(ctx, p, np) - base - BIG * slotHours(ctx, i);
+        const tmp = new Map(), moves = [];
+        const listOf = (r) => tmp.get(r) || lists[r];
+        for (const j of [...clash].sort((a, b) => slotHours(ctx, b) - slotHours(ctx, a) || a - b)) {
+          d += BIG * slotHours(ctx, j);
+          let q = -1, nq = null, dq = 0;
+          for (let r = 0; r < P; r++) {
+            if (r === p || !elig[r][j]) continue;
+            const cur = listOf(r), nl = insertSorted(ctx, cur, j);
+            if (!validList(ctx, r, nl)) continue;
+            const dr = personScore(ctx, r, nl) - personScore(ctx, r, cur) - BIG * slotHours(ctx, j);
+            if (dr < dq) { dq = dr; q = r; nq = nl; }
+          }
+          if (q >= 0) { d += dq; tmp.set(q, nq); moves.push([j, q, nq]); }
+        }
+        if (d < -1e-9 && (!best || d < best.d)) best = { d, p, js: clash, np, moves };
       }
       if (!best) continue;
-      owner[i] = best.p; lists[best.p] = best.np; owner[best.j] = -1;
-      if (best.q >= 0) { owner[best.j] = best.q; lists[best.q] = best.nq; }
+      owner[i] = best.p; lists[best.p] = best.np;
+      for (const j of best.js) owner[j] = -1;
+      for (const [j, q, nq] of best.moves) { owner[j] = q; lists[q] = nq; }
       moved = true;
     }
     if (!moved) break;
