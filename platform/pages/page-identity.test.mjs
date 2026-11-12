@@ -126,3 +126,12 @@ test('loadPages keeps serial walk order while reading concurrently', async () =>
   await walk(dir, '');
   assert.deepEqual([...(await loadPages(dir)).entries()], serial);
 });
+
+test('loadPages reads through the reader it is given, in walk order', async () => {
+  const dir = await mkSite({ 'b/index.html': page('B', '<h1>b</h1>'), 'a.html': page('A', '<h1>a</h1>') });
+  const asked = [];
+  const pages = await loadPages(dir, async (rel) => { asked.push(rel); return `cached ${rel}`; });
+  assert.deepEqual([...pages.keys()].sort(), ['a.html', 'b/index.html']);
+  assert.equal(pages.get('b/index.html'), 'cached b/index.html');
+  assert.deepEqual(asked.sort(), ['a.html', 'b/index.html']);
+});
