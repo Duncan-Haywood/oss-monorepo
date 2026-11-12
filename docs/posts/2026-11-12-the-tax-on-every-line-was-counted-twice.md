@@ -3,7 +3,7 @@ title: "Saudi e-invoices put tax on every line, and our checker counted it twice
 date: 2026-11-12
 tags: [einvoice-preflight, zatca, saudi-arabia, ubl, e-invoicing]
 seo_title: "ZATCA line-level TaxTotal and prepayment lines in a UBL validator"
-description: A UBL reader that took every TaxTotal in a ZATCA invoice as the document's raised false tax errors on all 19 of ZATCA's own good examples. Reading only the root fixed all 19.
+description: Reading every TaxTotal in a ZATCA invoice as the document's raised false tax errors on all 19 of ZATCA's good examples. Reading only the root fixed it.
 ---
 
 `einvoice-preflight` checks an e-invoice before it is sent. It runs its own arithmetic checks, and for Saudi files ZATCA's published rules too. We test it on the good-case examples that the `phive-rules` project ships for each national profile. Those are files the rule authors say must pass, so any blocking finding on one is a fault of ours or a gap between rule versions.
