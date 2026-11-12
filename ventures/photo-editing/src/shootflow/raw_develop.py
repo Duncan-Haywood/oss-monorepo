@@ -995,7 +995,7 @@ class DevelopSettings:
     colour: str = "dng"
     # A .dcp camera profile (Adobe, dcamprof, RawTherapee) used in place of
     # the DNG's own profile tags; read with ``read_dcp``. dng colour only.
-    dcp: "Ifd | None" = None
+    dcp: Ifd | None = None
     # Apply the profile's ProfileHueSatMap and ProfileLookTable (dng colour).
     profile_tables: bool = True
 
@@ -1085,7 +1085,7 @@ def _text(values) -> str:
 def _tables(tag, notes: list[str]):
     """(HueSatMap1, HueSatMap2, LookTable) from the profile tags; a bad table is skipped with a note."""
 
-    out = []
+    out: list[dc.HueSatTable | None] = []
     for dims_tag, data_tag, enc_tag, label in (
         (TAG_HUE_SAT_MAP_DIMS, TAG_HUE_SAT_MAP_DATA_1, TAG_HUE_SAT_MAP_ENCODING, "ProfileHueSatMapData1"),
         (TAG_HUE_SAT_MAP_DIMS, TAG_HUE_SAT_MAP_DATA_2, TAG_HUE_SAT_MAP_ENCODING, "ProfileHueSatMapData2"),

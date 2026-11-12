@@ -18,9 +18,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from shootflow import dng_colour as dc  # noqa: E402
-from shootflow import raw_develop as rd  # noqa: E402
-from test_raw_develop import CAMERA_MATRIX, PATCHES, _ifd_bytes, as_shot_neutral, make_dng, patch_sensor, read_pixel  # noqa: E402
+from shootflow import dng_colour as dc
+from shootflow import raw_develop as rd
+from test_raw_develop import (
+    CAMERA_MATRIX,
+    PATCHES,
+    _ifd_bytes,
+    as_shot_neutral,
+    make_dng,
+    patch_sensor,
+    read_pixel,
+)
 
 try:
     import numpy  # noqa: F401
@@ -183,7 +191,7 @@ def make_dcp(entries) -> bytes:
 
 
 def patches(blob, **settings):
-    w, h, px, report = rd.develop(rd.parse_raw(blob), rd.DevelopSettings(engine="python", **settings))
+    w, _h, px, report = rd.develop(rd.parse_raw(blob), rd.DevelopSettings(engine="python", **settings))
     return [read_pixel(w, px, i * 8 + 4, 4) for i in range(len(PATCHES))], report
 
 
@@ -298,9 +306,9 @@ class ProfileEngineTests(unittest.TestCase):
         rng = random.Random(3)
         sensor = [max(0, min(4095, v + rng.randint(-300, 300))) for v in patch_sensor(W, H)]
         cases = [
-            dict(extra=profile_tags(hsm=HSM_ROTATE)),
-            dict(extra=profile_tags(look=LOOK_DESAT, look_encoding=1)),
-            dict(extra=profile_tags(hsm=table(6, 2, 1, lambda h, s, v: (rng.uniform(-30, 30), 1.2, 0.9)), look=LOOK_DESAT)),
+            {"extra": profile_tags(hsm=HSM_ROTATE)},
+            {"extra": profile_tags(look=LOOK_DESAT, look_encoding=1)},
+            {"extra": profile_tags(hsm=table(6, 2, 1, lambda h, s, v: (rng.uniform(-30, 30), 1.2, 0.9)), look=LOOK_DESAT)},
         ]
         for case in cases:
             for settings in ({}, {"half": True}, {"exposure_ev": 1.3}, {"exposure_ev": -0.7}):

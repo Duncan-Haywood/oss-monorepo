@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import random
 import statistics
 import sys
@@ -131,7 +130,7 @@ def main(argv=None) -> int:
     for path in files:
         try:
             results.append(check_profile(path, args.samples, rng, np_mod))
-        except Exception as exc:  # report and keep going
+        except Exception as exc:  # noqa: BLE001 -- report and keep going
             failures.append({"file": path.name, "error": f"{type(exc).__name__}: {exc}"})
     elapsed = time.time() - t0
     shapes = Counter((r["hsm"], r["hsm2"], r["look"]) for r in results)
@@ -154,7 +153,7 @@ def main(argv=None) -> int:
             )
         )
         sats = sorted(r["sat_ratio"]["mean"] for r in with_tables)
-        print("mean saturation ratio per profile: median {:.3f}, range {:.3f}-{:.3f}".format(statistics.median(sats), sats[0], sats[-1]))
+        print(f"mean saturation ratio per profile: median {statistics.median(sats):.3f}, range {sats[0]:.3f}-{sats[-1]:.3f}")
         for group in ("2d", "3d"):
             sel = [r for r in with_tables if (r["hsm"] or "").split(" ")[0].endswith("x1") == (group == "2d")]
             if sel:

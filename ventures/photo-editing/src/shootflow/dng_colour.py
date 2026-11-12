@@ -239,11 +239,11 @@ class Profile:
     forward_matrix_2: Matrix | None = None
     analog_balance: tuple[float, float, float] = (1.0, 1.0, 1.0)
     use_calibration: bool = True
-    hue_sat_map_1: "HueSatTable | None" = None
-    hue_sat_map_2: "HueSatTable | None" = None
-    look_table: "HueSatTable | None" = None
+    hue_sat_map_1: HueSatTable | None = None
+    hue_sat_map_2: HueSatTable | None = None
+    look_table: HueSatTable | None = None
 
-    def hue_sat_map_at(self, cct: float) -> "HueSatTable | None":
+    def hue_sat_map_at(self, cct: float) -> HueSatTable | None:
         """The hue/saturation map for a white of ``cct``, blended like the matrices."""
 
         m1, m2 = self.hue_sat_map_1, self.hue_sat_map_2
@@ -457,8 +457,7 @@ def hsv_to_rgb(h: float, s: float, v: float) -> tuple[float, float, float]:
     if h >= 6.0:
         h -= 6.0
     i = int(h)
-    if i > 5:  # h a hair under 6 can round up to 6.0 after the wrap
-        i = 5
+    i = min(i, 5)
     f = h - i
     p = v * (1.0 - s)
     q = v * (1.0 - s * f)
@@ -477,7 +476,7 @@ def hsv_to_rgb(h: float, s: float, v: float) -> tuple[float, float, float]:
 
 
 def _pin(v: float) -> float:
-    return 0.0 if v < 0.0 else (1.0 if v > 1.0 else v)
+    return 0.0 if v < 0.0 else min(v, 1.0)
 
 
 @dataclass(frozen=True)
@@ -500,7 +499,7 @@ class HueSatTable:
     srgb: bool = False
 
     @classmethod
-    def from_tags(cls, dims, data, encoding=0) -> "HueSatTable":
+    def from_tags(cls, dims, data, encoding=0) -> HueSatTable:
         if not dims or len(dims) not in (2, 3):
             raise ColourError("table dimensions need two or three values")
         hd, sd = int(dims[0]), int(dims[1])
@@ -518,7 +517,7 @@ class HueSatTable:
     def dims(self) -> tuple[int, int, int]:
         return self.hue_divisions, self.sat_divisions, self.val_divisions
 
-    def blend(self, other: "HueSatTable", g: float) -> "HueSatTable":
+    def blend(self, other: HueSatTable, g: float) -> HueSatTable:
         """``g`` of this table plus ``1 - g`` of ``other``; this one alone when the shapes differ."""
 
         if g >= 1.0 or other.dims != self.dims:
@@ -541,8 +540,7 @@ class HueSatTable:
         ss = s * (sd - 1)
         hi0 = int(hs)
         si0 = int(ss)
-        if si0 > sd - 2:
-            si0 = sd - 2
+        si0 = min(si0, sd - 2)
         hi1 = hi0 + 1
         if hi0 >= hd - 1:
             hi0 = hd - 1
@@ -562,8 +560,7 @@ class HueSatTable:
         else:
             vs = ve * (vd - 1)
             vi0 = int(vs)
-            if vi0 > vd - 2:
-                vi0 = vd - 2
+            vi0 = min(vi0, vd - 2)
             vf1 = vs - vi0
             vf0 = 1.0 - vf1
             step = hd * sd * 3
