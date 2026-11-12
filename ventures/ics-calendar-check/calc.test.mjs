@@ -131,6 +131,8 @@ test("repair is idempotent and leaves a clean file semantically unchanged", () =
 test("makeUid is deterministic and distinct", () => {
   assert.equal(makeUid("a"), makeUid("a"));
   assert.notEqual(makeUid("a"), makeUid("b"));
+  // 16 hex digits then the domain: two 32-bit hashes, each padded to exactly 8.
+  for (const seed of ["a", "", "x|20260105|7"]) assert.match(makeUid(seed), /^[0-9a-f]{16}@ics-calendar-check$/);
 });
 
 test("findingsCsv quotes commas and quotes", () => {
@@ -141,6 +143,7 @@ test("findingsCsv quotes commas and quotes", () => {
 test("decodeBuffer handles BOM and UTF-16", () => {
   assert.equal(decodeBuffer(new Uint8Array([0xef, 0xbb, 0xbf, 0x41]).buffer), "A");
   assert.equal(decodeBuffer(new Uint8Array([0xff, 0xfe, 0x41, 0x00]).buffer), "A");
+  assert.equal(decodeBuffer(new Uint8Array([0xfe, 0xff, 0x00, 0x41, 0x00, 0x42]).buffer), "AB");
 });
 
 const ev = (...p) => cal(vevent("DTSTART:20260105T090000Z", "SUMMARY:t", ...p));
@@ -154,6 +157,30 @@ test("RRULE BY* parts are range-checked", () => {
   assert.ok(has(validate(ev("RRULE:FREQ=WEEKLY;WKST=XX")), /bad WKST/));
   assert.ok(has(validate(ev("RRULE:FREQ=WEEKLY;BYMONTHDAY=5")), /BYMONTHDAY with FREQ=WEEKLY/));
   assert.ok(has(validate(ev("RRULE:FREQ=WEEKLY;BYDAY=2TU")), /needs FREQ=MONTHLY/));
+  assert.ok(has(validate(ev("RRULE:FREQ=HOURLY;BYMINUTE=60")), /bad BYMINUTE value 60/));
+  assert.ok(has(validate(ev("RRULE:FREQ=MINUTELY;BYSECOND=61")), /bad BYSECOND value 61/));
+  assert.ok(has(validate(ev("RRULE:FREQ=MONTHLY;BYDAY=0MO")), /bad BYDAY value 0MO/));
+  assert.ok(has(validate(ev("RRULE:FREQ=YEARLY;BYDAY=54FR")), /bad BYDAY value 54FR/));
+});
+
+test("RRULE parts the standard forbids for a FREQ are reported (RFC 5545 3.3.10)", () => {
+  assert.ok(has(validate(ev("RRULE:FREQ=MONTHLY;BYWEEKNO=5")), /BYWEEKNO needs FREQ=YEARLY/));
+  for (const f of ["DAILY", "WEEKLY", "MONTHLY"]) assert.ok(has(validate(ev(`RRULE:FREQ=${f};BYYEARDAY=5`)), /BYYEARDAY with FREQ=/), f);
+  assert.ok(has(validate(ev("RRULE:FREQ=MONTHLY;BYSETPOS=-1")), /BYSETPOS without another BY/));
+  for (const rule of ["FREQ=YEARLY;BYWEEKNO=20;BYDAY=MO", "FREQ=YEARLY;BYYEARDAY=1,-1", "FREQ=HOURLY;BYYEARDAY=100", "FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-1", "FREQ=MINUTELY;BYSECOND=0,30,60"])
+    assert.deepEqual(validate(ev("RRULE:" + rule)).findings, [], rule);
+});
+
+test("UNTIL is compared with DTSTART as an instant, not as wall-clock digits", () => {
+  const zoned = (tz, start, until) => validate(cal(vevent(`DTSTART;TZID=${tz}:${start}`, "SUMMARY:t", `RRULE:FREQ=DAILY;UNTIL=${until}`)));
+  // 09:00 in Tokyo is 00:00Z, so an UNTIL of 05:00Z that day is after the start.
+  assert.ok(!has(zoned("Asia/Tokyo", "20260105T090000", "20260105T050000Z"), /UNTIL is before DTSTART/));
+  // 09:00 in New York is 14:00Z, so an UNTIL of 12:00Z that day ends the series before it starts.
+  assert.ok(has(zoned("America/New_York", "20260105T090000", "20260105T120000Z"), /UNTIL is before DTSTART/));
+  // A zone Intl does not know cannot be converted: fall back to the old wall-clock comparison.
+  assert.ok(has(zoned("My Custom Zone", "20260105T090000", "20260104T090000Z"), /UNTIL is before DTSTART/));
+  // Both UTC: a plain comparison.
+  assert.ok(has(validate(ev("RRULE:FREQ=DAILY;UNTIL=20260104T090000Z")), /UNTIL is before DTSTART/));
 });
 
 test("valid BY* parts raise nothing", () => {

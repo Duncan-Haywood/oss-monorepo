@@ -183,6 +183,7 @@ function rruleByProblems(r) {
   range("BYWEEKNO", -53, 53, true);
   range("BYHOUR", 0, 23);
   range("BYMINUTE", 0, 59);
+  range("BYSECOND", 0, 60);
   range("BYSETPOS", -366, 366, true);
   if (r.BYDAY !== undefined) {
     for (const x of nums(r.BYDAY)) {
@@ -193,6 +194,9 @@ function rruleByProblems(r) {
     }
   }
   if (r.WKST !== undefined && !/^(SU|MO|TU|WE|TH|FR|SA)$/i.test(r.WKST)) out.push({ title: `bad WKST value ${r.WKST}`, detail: "WKST must be a two-letter day such as MO or SU." });
+  if (r.BYWEEKNO !== undefined && r.FREQ && r.FREQ !== "YEARLY") out.push({ title: `BYWEEKNO needs FREQ=YEARLY`, detail: `The standard allows BYWEEKNO only in a yearly rule; with FREQ=${r.FREQ} importers ignore it or reject the event.` });
+  if (r.BYYEARDAY !== undefined && ["DAILY", "WEEKLY", "MONTHLY"].includes(r.FREQ)) out.push({ title: `BYYEARDAY with FREQ=${r.FREQ}`, detail: "The standard forbids BYYEARDAY in daily, weekly and monthly rules. Use FREQ=YEARLY." });
+  if (r.BYSETPOS !== undefined && !Object.keys(r).some((k) => k.startsWith("BY") && k !== "BYSETPOS")) out.push({ title: "BYSETPOS without another BY part", detail: "BYSETPOS picks from the set another BY part (BYDAY, BYMONTHDAY...) builds, so on its own it means nothing and importers reject or ignore it." });
   if (r.BYMONTHDAY !== undefined && ["WEEKLY"].includes(r.FREQ)) out.push({ title: "BYMONTHDAY with FREQ=WEEKLY", detail: "The standard forbids BYMONTHDAY in a weekly rule. Use FREQ=MONTHLY, or BYDAY for weekly." });
   return out;
 }
@@ -293,7 +297,9 @@ export function validate(text) {
               else {
                 if (u.kind !== s.kind) findings.push(F("error", rr.line, `${at}UNTIL type does not match DTSTART`, `DTSTART is a ${s.kind} but UNTIL is a ${u.kind}. Google Calendar and Outlook may drop the end of the series or reject it.`));
                 else if (s.kind === "datetime" && (ds.params.TZID || s.utc) && !u.utc) findings.push(F("warning", rr.line, `${at}UNTIL should be in UTC`, "When DTSTART has a time zone or is UTC, the RFC says UNTIL must be UTC (end in Z), otherwise the last occurrence may be dropped."));
-                if (!u.error && u.ms < s.ms) findings.push(F("error", rr.line, `${at}UNTIL is before DTSTART`, "The series ends before it begins."));
+                // Compare instants: a zoned DTSTART against a UTC UNTIL needs the zone's offset. An unknown zone falls back to wall clocks.
+                const untilGap = u.kind === "datetime" && s.kind === "datetime" ? instantCompare(s, ds.params.TZID, u, null) ?? (u.ms - s.ms) : u.ms - s.ms;
+                if (untilGap < 0) findings.push(F("error", rr.line, `${at}UNTIL is before DTSTART`, "The series ends before it begins."));
               }
             }
             if (r.INTERVAL && !/^[1-9]\d*$/.test(r.INTERVAL)) findings.push(F("error", rr.line, `${at}bad INTERVAL`, "INTERVAL must be a positive whole number."));
