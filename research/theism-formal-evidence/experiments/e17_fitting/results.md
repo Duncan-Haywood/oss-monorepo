@@ -112,3 +112,11 @@ consulted; the encoding follows B&F's figure.
 python3 research/theism-formal-evidence/experiments/e17_fitting/run.py   # about 10 s
 research/theism-formal-evidence/lean/build.sh
 ```
+
+**Correction (E18, 2026-11-12).** The AFP formalisation of Fitting's variant (Fuenmayor &
+Benzmüller 2017, `FittingProof.thy`) includes A4a, which it labels as Fitting's axiom 11.11. So
+positivity is rigid in Fitting's book, and the no-A4 case above is B&F 2020's Fig. 6 reading, not
+Fitting's. Also, the AFP's "de re" conclusion `GodNecExists_v2` (at every world some existent is
+in the actual extension of G) is weaker than the de re reading used here. It holds in every model
+above, so the de re gap reported here is not a failure of any published theorem.
+See `../e18_afp_crosscheck/results.md`.
