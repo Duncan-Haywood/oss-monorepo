@@ -121,7 +121,11 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         if (xml) {
           const plain = await runPlain(xml);
           own = plain.status === "ok" && (plain.sets || []).some((s) => /^(pint|zatca)/.test(s));
-          official = own ? plain : runSchematron(xml);
+          // The national add-ons (CIUS-RO, CIUS-PT, NLCIUS) have no Saxon form either, and
+          // CIUS-RO runs on an older EU base: the Saxon route would check a Romanian file
+          // against the current base alone, so the plain route takes those files too.
+          const national = plain.status === "ok" && (plain.sets || []).some((s) => /^(cius-ro|cius-pt|nlcius)$/.test(s));
+          official = own || national ? plain : runSchematron(xml);
           if (!own && official.status !== "ok" && plain.status === "ok") official = plain;
         }
         schematronStatus = official.status;
