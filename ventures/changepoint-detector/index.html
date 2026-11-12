@@ -110,6 +110,15 @@
     <button type="button" class="secondary" id="download">Download per-point results (CSV)</button>
   </section>
 
+  <section class="card" aria-labelledby="watch-h" id="watch-card" hidden>
+    <h2 id="watch-h">3. What a daily watch would have sent</h2>
+    <p>Before you set up an alert, see how it would have behaved on your own history. This replays the <a href="watch-a-metric-for-changes.html">free daily watch</a> as if it had run after each new row: the first check (at 20% of the series) records the changes already there, then each later change is alerted once, after 5 rows on its far side. Same engine, still in this tab.</p>
+    <button type="button" class="secondary" id="watch-run">Replay as a daily watch</button>
+    <p class="summary" id="watch-summary" role="status"></p>
+    <div class="scroll"><table id="watch-table"></table></div>
+    <p class="note" id="watch-note" hidden></p>
+  </section>
+
   <section class="card" aria-labelledby="multi-h" id="multi-results" hidden>
     <h2 id="multi-h">2. What changed, across columns</h2>
     <p class="summary" id="multi-summary"></p>
@@ -206,6 +215,7 @@
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { analyzeJob } from "./analyze-job.mjs";
+    import { replayText } from "./watch.mjs";
     import { multiChartSvg, agreedTableHtml, jointTableHtml, multiSummary, multiCsv } from "./multi-view.mjs";
     import { parseColumns } from "./multivariate.mjs";
     import { multiReportHtml } from "./multi-report.mjs";
@@ -317,6 +327,7 @@
     }
 
     function showMulti(out) {
+      lastWatchJob = null; resetWatch(false);
       if (out.error) { $("#multi-results").hidden = true; $("#error").textContent = out.error; return; }
       const { p, r } = out.result;
       lastMulti = { p, r };
@@ -421,6 +432,7 @@
 
     function showDrift(r, ignored) {
       last = null;
+      lastWatchJob = null; resetWatch(false);
       lastDrift = r;
       lastDriftIgnored = ignored;
       lastAgreed = "";
@@ -464,9 +476,43 @@
       $("#segments").innerHTML = `<tr><th>From</th><th>To</th><th class="n">Points</th><th class="n">Mean</th><th class="n">SD</th></tr>` +
         r.pelt.segments.map((s) => `<tr><td>${esc(s.from)}</td><td>${esc(s.to)}</td><td class="n">${s.n}</td><td class="n">${fmt(s.mean)}</td><td class="n">${fmt(s.sd)}</td></tr>`).join("");
       $("#results").hidden = false;
+      const wm = ["mean", "meanvar", "poisson"].includes(opts.model) ? opts.model : "mean";
+      lastWatchJob = { kind: "watch", csv: opts.csv, column: opts.column, opts: { model: wm, penalty: opts.penalty, ...(opts.period ? { period: opts.period } : {}), ...(opts.log && wm !== "poisson" ? { log: true } : {}) }, replayedAs: wm === opts.model ? null : opts.model };
+      resetWatch(r.n >= 10);
       record("analysis_run");
     }
 
+
+    // "What a daily watch would have sent" (watch.mjs replayWatch, in the main worker): the level,
+    // volatility or counts model with the page's period, logs and penalty; other models replay as level.
+    let lastWatchJob = null;
+    function resetWatch(show) {
+      $("#watch-card").hidden = !show;
+      $("#watch-summary").textContent = ""; $("#watch-table").innerHTML = ""; $("#watch-note").hidden = true;
+    }
+    function runWatch() {
+      const job = lastWatchJob;
+      if (!job) return;
+      $("#watch-summary").textContent = "Replaying in the background: a long series is checked every few rows, each alert then dated back to the row that would have sent it.";
+      $("#watch-table").innerHTML = ""; $("#watch-note").hidden = true;
+      startMain(job, (out) => {
+        if (out.error) { $("#watch-summary").textContent = out.error; return; }
+        const r = out.result;
+        const model = r.settings.model;
+        $("#watch-summary").textContent = replayText(r, { column: r.column, model }).split("\n").filter((l) => !l.startsWith("  on ")).join(" ");
+        $("#watch-table").innerHTML = r.alerts.length
+          ? `<tr><th>Alert sent at</th><th>Change from</th><th class="n">Rows late</th><th class="n">Level</th><th class="n">Prob.</th></tr>` +
+            r.alerts.map((a) => `<tr><td>${esc(a.reportedAtLabel)}</td><td>${esc(a.label)}</td><td class="n">${a.pointsAfter}${a.late ? " (dated well back)" : ""}</td><td class="n">${a.meanBefore !== undefined ? `${fmt(a.meanBefore)} → ${fmt(a.meanAfter)}` : ""}</td><td class="n">${a.probability !== undefined ? Math.round(a.probability * 100) + "%" : ""}</td></tr>`).join("")
+          : "";
+        const notes = [];
+        if (job.replayedAs) notes.push(`Replayed with the level model: the watch has level, volatility and counts models, not the ${esc(job.replayedAs)} model chosen above.`);
+        notes.push(`Detector: ${r.settings.detector}. Measured on 31 labelled real series, the default sent about 18 alerts per 1,000 daily checks, 41% of them at a change people had marked, and it often misses steps of about 1 noise sd (details on the <a href="watch-a-metric-for-changes.html">watch page</a>). If this history looks right to you, the watch page sets the same thing up on GitHub Actions in your own account, free.`);
+        $("#watch-note").innerHTML = notes.join(" ");
+        $("#watch-note").hidden = false;
+        record("watch_replay");
+      });
+    }
+    $("#watch-run").addEventListener("click", runWatch);
     $("#run").addEventListener("click", run);
     $("#example-fx").addEventListener("click", async () => {
       const { FX_CSV } = await import("./example-fx.mjs");

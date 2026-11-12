@@ -55,9 +55,12 @@ where it departs from the paper.
   Mattermost webhook (`--webhook-env NAME`). `deploy/make-watch-repo.sh <folder>` makes a standalone
   repository with a daily GitHub Actions workflow, so anyone can run it in their own account; page:
   [watch-a-metric-for-changes.html](watch-a-metric-for-changes.html). How the defaults were chosen:
-  "Watching a growing series" below.
+  "Watching a growing series" below. Since 2026-11-12 (later) the page replays the watch on the series
+  you just analysed ("What a daily watch would have sent"), and agents call `replayWatch` in `watch.mjs`
+  (README "Replaying the watch on your own history").
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
+  (the watch replay: `call changepoint-detector replayWatch --module watch.mjs --args '[[...]]'`)
   or the `call_tool` tool of the repository's MCP server
   ([`platform/agents/`](../../platform/agents/README.md)).
 

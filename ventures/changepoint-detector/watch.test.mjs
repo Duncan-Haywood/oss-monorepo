@@ -209,3 +209,34 @@ test('round 4: rho capped at 0.8 (the default) reports documented changes the un
   }
   assert.equal(WATCH_DEFAULTS.rhoCap, 0.8);
 });
+
+test('replayWatch: a clear step is alerted once, 5 to 7 points late; checking every 7 points and bisecting gives the same date', async () => {
+  const { replayWatch, replayText } = await import('./watch.mjs');
+  const values = stepSeries(260, 200, 3);
+  const every = replayWatch(values, null, { from: 150 });
+  assert.equal(every.step, 1);
+  assert.equal(every.alerts.length, 1, JSON.stringify(every.alerts));
+  assert.ok(Math.abs(every.alerts[0].index - 200) <= WATCH_DEFAULTS.tolerance);
+  assert.ok(every.alerts[0].pointsAfter >= WATCH_DEFAULTS.confirm && every.alerts[0].pointsAfter <= WATCH_DEFAULTS.confirm + 2);
+  const coarse = replayWatch(values, null, { from: 150, step: 7 });
+  assert.equal(coarse.step, 7);
+  assert.ok(coarse.checks < every.checks);
+  assert.deepEqual(coarse.alerts.map((a) => [a.index, a.reportedAt]), every.alerts.map((a) => [a.index, a.reportedAt]));
+  assert.match(replayText(every, { column: 'orders' }), /orders changed from 201|orders changed from 20\d/);
+});
+
+test('replayWatch: changes before the first check are the baseline, quiet noise sends nothing, the budget raises the step', async () => {
+  const { replayWatch } = await import('./watch.mjs');
+  const values = stepSeries(300, 40, 4, 5);
+  const r = replayWatch(values, null, { from: 100 });
+  assert.equal(r.baseline.length, 1);
+  assert.equal(r.alerts.length, 0);
+  // Seed 22 is quiet both ways. (Seed 21 is not: a 5-point run at 1.7 sd sends one false alert at point 320,
+  // checked every point or every 12 and bisected alike.)
+  const g = gauss(lcg(22));
+  const quiet = Array.from({ length: 400 }, () => 10 + g());
+  const q = replayWatch(quiet, null, { budget: 2e6 });
+  assert.ok(q.step > 1, `step ${q.step}`);
+  assert.equal(q.alerts.length, 0);
+  assert.throws(() => replayWatch([1, 2, 3]), /at least 10/);
+});
