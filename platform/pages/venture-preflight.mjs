@@ -13,6 +13,10 @@
 //      rounds on one venture came from these (publish-kit NEXT.md, 2026-10-21).
 //      The apex-mirror check that used to sit here left with `gitops/` on
 //      2026-10-30.
+//      Also the front matter of the posts this branch adds or edits
+//      (`check_post_frontmatter.py` on just those files): runs kept learning
+//      the 160-character description and 70-character seo_title limits from
+//      the build five minutes in (three run records on 2026-11-12 alone).
 //
 //   node platform/pages/venture-preflight.mjs <slug> [--skip-build]
 //
@@ -54,6 +58,32 @@ export const COUNT_CHECKS = [
   { script: 'platform/ci/publish_surface.py', fix: 'python3 platform/ci/publish_surface.py --write' },
 ];
 
+/** Posts this branch adds or edits: `git diff --name-only` against origin/main
+ * (HEAD when that ref is missing) plus untracked files, as newline-separated text. */
+export function changedPostPaths(...outputs) {
+  const seen = new Set();
+  for (const out of outputs) {
+    for (const line of (out || '').split('\n')) {
+      const p = line.trim();
+      if (/^docs\/posts\/[^/]+\.md$/.test(p)) seen.add(p);
+    }
+  }
+  return [...seen].sort();
+}
+
+function changedPosts() {
+  const git = (args) => spawnSync('git', args, { cwd: ROOT, encoding: 'utf8' });
+  let diff = git(['diff', '--name-only', '--diff-filter=AM', 'origin/main', '--', 'docs/posts']);
+  if (diff.status !== 0) diff = git(['diff', '--name-only', '--diff-filter=AM', 'HEAD', '--', 'docs/posts']);
+  const untracked = git(['ls-files', '--others', '--exclude-standard', '--', 'docs/posts']);
+  return changedPostPaths(diff.stdout, untracked.stdout).filter((p) => fs.existsSync(path.join(ROOT, p)));
+}
+
+export function postProblem(status, output) {
+  if (status === 0) return null;
+  return `post front matter (check_post_frontmatter.py):\n${output.trim().split('\n').map((l) => `      ${l}`).join('\n')}`;
+}
+
 export function countProblem({ script, fix }, status) {
   if (status === 0) return null;
   return `${script} --check exited ${status}: run \`${fix}\` and commit the result`;
@@ -94,10 +124,16 @@ async function main(argv) {
 
   // The count checks take seconds and the build takes minutes, so answer
   // them first and stop early.
-  console.log('1b/3 hand-written counts (--check)');
+  console.log('1b/3 hand-written counts (--check) and changed posts\' front matter');
   for (const check of COUNT_CHECKS) {
     const r = spawnSync('python3', [check.script, '--check'], { cwd: ROOT, encoding: 'utf8' });
     const problem = countProblem(check, r.status);
+    if (problem) failures.push(problem);
+  }
+  const posts = changedPosts();
+  if (posts.length) {
+    const r = spawnSync('python3', ['platform/ci/check_post_frontmatter.py', ...posts], { cwd: ROOT, encoding: 'utf8' });
+    const problem = postProblem(r.status, (r.stdout || '') + (r.stderr || ''));
     if (problem) failures.push(problem);
   }
   if (failures.length) {

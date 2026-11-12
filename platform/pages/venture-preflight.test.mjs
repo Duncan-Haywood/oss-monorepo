@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, checkProblems, COUNT_CHECKS, countProblem, launchedProblems } from './venture-preflight.mjs';
+import { buildProblem, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, launchedProblems, postProblem } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -53,4 +53,17 @@ test('unparseable check output is reported whole', () => {
 test('countProblem is silent on exit 0 and names the fix otherwise', () => {
   assert.equal(countProblem(COUNT_CHECKS[0], 0), null);
   assert.match(countProblem(COUNT_CHECKS[1], 1), /publish_surface\.py --write` and commit/);
+});
+
+test('changedPostPaths keeps only top-level posts, deduplicated and sorted', () => {
+  const diff = 'docs/posts/2026-11-12-b.md\nventures/x/README.md\ndocs/posts/img/a.md\n';
+  const untracked = 'docs/posts/2026-11-12-a.md\ndocs/posts/2026-11-12-b.md\n';
+  assert.deepEqual(changedPostPaths(diff, untracked, undefined), ['docs/posts/2026-11-12-a.md', 'docs/posts/2026-11-12-b.md']);
+});
+
+test('postProblem is silent on exit 0 and indents the checker output otherwise', () => {
+  assert.equal(postProblem(0, ''), null);
+  const p = postProblem(1, 'a.md: description is 214 characters; keep it to 160\n');
+  assert.match(p, /check_post_frontmatter\.py/);
+  assert.match(p, /\n {6}a\.md: description is 214/);
 });
