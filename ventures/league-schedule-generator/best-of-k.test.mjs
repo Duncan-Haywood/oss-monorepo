@@ -160,3 +160,16 @@ test("combineCarryOverTries refuses a missing try and survives a JSON round trip
   assert.deepEqual(viaJson.rounds, bestCarryOverRounds(6, { double: true, seed: 2, tries: 4 }).rounds);
   assert.equal("index" in viaJson, false);
 });
+
+test("a huge typed seed still gives every try its own seed (redteam 2026-11-12)", async () => {
+  const { carryOverTrySeed } = await import("./carryover.mjs");
+  // the form keeps any finite seed (readSpec), so 1e21 reaches the search; seed * 7919 then swamps
+  // i * 104729 in floating point and tries 1 to 9 all used one seed
+  for (const seed of [1, 2 ** 31, 2 ** 40, 1e21, 1e300, -1e21]) {
+    const seen = new Set(Array.from({ length: 10 }, (_, i) => carryOverTrySeed(seed, i) >>> 0));
+    assert.equal(seen.size, 10, `seed ${seed}`);
+  }
+  // seeds that were already fine keep exactly the tries they had, so old share links reproduce
+  assert.deepEqual([1, 2, 3].map((i) => carryOverTrySeed(1, i)), [112648, 217377, 322106]);
+  assert.equal(carryOverTrySeed(2 ** 40, 3), ((2 ** 40 * 7919 + 3 * 104729) % 2147483647) || 1);
+});

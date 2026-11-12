@@ -248,3 +248,28 @@ test("lower bound counts the diagonal only when a schedule meets a side twice ru
   assert.equal(r.lowerBound, 5); // 5 steps over 9 cells (the diagonal counts), all ones
   assert.equal(carryOverFromOpponents([[1, 2], [0, 2], [0, 1]]).repeats, 0);
 });
+
+test("a two-team league (one round, no bye) goes through the carry-over search (redteam 2026-11-12)", () => {
+  // byeStretches sizes its table from opp[0]: a league with one round has no opp[1]
+  const r = lowCarryOverRounds(2);
+  assert.equal(r.rounds.length, 1);
+  assert.deepEqual(r.rounds[0].matches.map((m) => [...m].sort()), [[0, 1]]);
+  assert.equal(assignVenues(circleOpp(2), 2).length, 1);
+});
+
+test("assignVenuesDouble starts its first restart from the host it is given (redteam 2026-11-12)", async () => {
+  // lowCarryOverDoubleRounds hands over leg one's hosts so the venue search only improves on them;
+  // with one restart, two opposite hosts must give two different seasons, not one that ignores both
+  const { assignVenuesDouble } = await import("./carryover.mjs");
+  for (const n of [4, 6, 8]) {
+    const leg = circleOpp(n), opp = [...leg, ...leg];
+    const host = (pick) => {
+      const h = new Int16Array(n * n).fill(-1);
+      for (const o of leg) for (let t = 0; t < n; t++) { const u = o[t]; if (t < u) h[t * n + u] = pick(t, u); }
+      return h;
+    };
+    const a = assignVenuesDouble(opp, n, 1, 1, host((t) => t)).map((x) => [...x]);
+    const b = assignVenuesDouble(opp, n, 1, 1, host((t, u) => u)).map((x) => [...x]);
+    assert.notDeepEqual(a, b, `${n} teams`);
+  }
+});
