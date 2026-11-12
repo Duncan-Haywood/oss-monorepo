@@ -18,6 +18,8 @@ class Tests(unittest.TestCase):
     def test_bh(self):
         self.assertEqual(h.benjamini_hochberg([0.001, 0.2, 0.9, 0.012]), {0, 3})
         self.assertEqual(h.benjamini_hochberg([0.5, 0.9]), set())
+        # Step-up, not Bonferroni: Bonferroni at 0.05/4 = 0.0125 would reject only {0} (quality audit 2026-11-12).
+        self.assertEqual(h.benjamini_hochberg([0.01, 0.02, 0.03, 0.04]), {0, 1, 2, 3})
 
     def test_propose_finds_planted_word(self):
         rng = random.Random(1)
