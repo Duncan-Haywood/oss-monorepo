@@ -729,6 +729,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         white_balance=wb,
         use_baseline_exposure=not args.no_baseline_exposure,
         engine=args.engine,
+        colour=args.colour,
     )
     sources = [Path(p) for p in args.files]
     out_dir = Path(args.out)
@@ -1211,6 +1212,13 @@ def _build_parser() -> argparse.ArgumentParser:
         choices=("auto", "python", "numpy"),
         default="auto",
         help="auto (numpy when installed, else pure Python; same bytes either way), python or numpy.",
+    )
+    develop.add_argument(
+        "--colour",
+        choices=("dng", "dcraw"),
+        default="dng",
+        help="dng (default): the DNG spec's model, matrices blended for the as-shot light, ForwardMatrix "
+        "when present; dcraw: one matrix nearest D65 and camera-space white balance, as dcraw and LibRaw.",
     )
 
     create_demo = subparsers.add_parser(
