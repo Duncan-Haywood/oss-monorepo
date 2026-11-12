@@ -1085,6 +1085,42 @@ three-decimal line net and its subtotal). Tests: `repair-pint.test.mjs` (11 more
 28 in all; 7 of the new ones fail on the code before). Not done: a real UAE
 business's file, or an ASP's verdict on a BTAE-08 written to two decimals.
 
+### INV-060: the checks now flag a wrong line VAT or amount payable (2026-11-12, latest)
+
+The section above ended with the gap: "The repair fixes them when asked; no check
+says to ask." **INV-060** closes it. On a PINT UAE (`@ae-1`) or PINT Oman (`@om-1`)
+file, the UBL reader now keeps each line's `ItemPriceExtension/Amount` (BTAE-10,
+BTOM-017) beside its line VAT (BTAE-08, BTOM-016), and `lineext.mjs` (mirrored in
+`src/einvoice_preflight/lineext.py`) flags a line whose
+
+- VAT is more than 0.01 off net x rate, or off 0 in reverse charge (AE), the UAE's
+  margin scheme (N) or on an exempt line;
+- amount is more than 0.01 off net + line VAT (net alone on an exempt line that
+  states none).
+
+The tolerance is the repair's, so a check never flags what the repair would keep,
+and the fix text names the figure the repair writes. PINT Malaysia is left out for
+the reason given above (LHDN's amounts tie to nothing).
+
+Measured on phive-rules commit dfa902d, built-in checks only, each
+`ItemPriceExtension` amount pushed off by 7, 0.05 and 0.02 in turn, one at a time:
+
+| Files | Correct files with INV-060 | Line VAT seeds flagged | Line amount seeds flagged |
+| --- | --- | --- | --- |
+| PINT AE 2026.5, 32 files, 40 lines | 0 | **36 of 36** (was 0 built-in; 11 with the UAE sets) | **40 of 40** (was 0, ours or the UAE's) |
+| PINT AE 2026.3, 14 files | 0 | 17 of 17 | 17 of 17 |
+| PINT OM 1.0.1, 49 files, 124 lines | 0 | 124 of 124 (50 already drew INV-018) | 124 of 124 (was 0 built-in) |
+| PINT OM 1.0.0, 41 files | 0 | 50 of 50 | 50 of 50 |
+| PINT MY 1.3.1, 26 files | 0 (left out) | none written | 0 of 42, by design |
+
+Same result at every delta. The Python mirror agrees on AE 2026.5, OM 1.0.1 and MY
+1.3.1 (0 on the 107 correct files, one finding on each of 133 seeded ones). A first
+seeding run missed 0.05 seeds on values written with one decimal (`524.3`): the
+seeder's `toFixed(1)` rounded the seed away, not a gap in the check; seeds are now
+written with at least two decimals. Tests: `lineext.test.mjs` (10),
+`tests/test_lineext.py` (7). Not done: a real UAE business's file, or what an
+accredited service provider does with a BTAE-10 a few fils off.
+
 ## BT-111 in the invoice's own currency
 
 A file may state its VAT total twice: once in the invoice currency (BT-110, the
