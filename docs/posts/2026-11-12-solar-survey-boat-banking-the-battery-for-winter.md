@@ -1,9 +1,9 @@
 ---
 title: "Banking a solar survey boat's battery for winter: a rule curve from ten years of sunlight"
-seo_title: "Solar USV battery reserve for winter: rule curve tested on 10 years of NASA POWER data"
+seo_title: "Solar USV battery reserve for winter: a rule curve on 10 years of sun"
 date: 2026-11-12
 tags: [research, marine-hull]
-description: "A pack-target curve built from other years' sunlight cuts a solar survey boat's avoidable payload downtime by 91% over 300 one-year missions; the price is up to a third of its distance at high latitude."
+description: "A pack-target curve built from past years of sunlight cuts a solar survey boat's avoidable payload downtime by 91%, at up to a third of its distance."
 ---
 
 The [last step](2026-11-12-solar-survey-boat-a-year-on-one-battery.md) carried a 4 m solar survey boat through 2024 on one 10 kWh battery. It found that past 40 degrees the 30 W payload goes dark for months whatever the boat does: a buoy with the same panel and battery that never moves goes dark on the same days. But the simple speed rule we gave the boat did worse than that floor. It kept only half a battery in reserve all year, so it went into the dark season part-empty, and its payload was off for 15 to 38 more days than necessary at every point from 30 degrees out.
