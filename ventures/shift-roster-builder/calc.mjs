@@ -2680,20 +2680,30 @@ function addWeeks(weekStart, k) {
 // they fall in. People who had no shift last week lose a stale `prev:` so it cannot block Monday. Returns one entry per
 // week with its roster and CSV; a parse error stops the plan.
 // `onWeek(done, of)` is called after each week is built (the page's worker posts it as progress); it changes nothing.
-export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, onWeek = null, ...options } = {}) {
+export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, onWeek = null, reuse = true, ...options } = {}) {
   const n = Math.max(1, Math.min(8, Math.floor(weeks) || 1));
   const sh = parseShifts(shiftsText);
   if (sh.errors.length) return { error: sh.errors[0] };
   let text = String(staffText || "");
   const out = [];
+  // A week whose parsed staff match an earlier week's exactly gets that week's roster again instead of a rebuild: the
+  // shifts and options are the same, so the search would answer the same week (below its time budgets, the same roster).
+  // The carried-over rest gaps and streaks settle after a week or two, so from week 3 on most plans repeat; the rolling
+  // `tough:` tally keeps changing, but it only enters the search when the spread setting (toughBalance) is above 0, so
+  // at 0 it is left out of the comparison. `sameAs` names the week reused; `reuse: false` rebuilds every week.
+  const toughCounts = Number(options.toughBalance) > 0;
+  const built = new Map();
   for (let k = 0; k < n; k++) {
     const ws = addWeeks(weekStart, k);
     const st = parseStaff(text, { weekStart: ws });
     if (st.errors.length) return { error: st.errors[0] };
-    const roster = buildRoster(st.staff, sh.slots, options);
+    const key = JSON.stringify(toughCounts ? st.staff : st.staff.map((p) => ({ ...p, toughBefore: 0 })));
+    const prior = reuse ? built.get(key) : null;
+    const roster = prior ? { ...prior.roster } : buildRoster(st.staff, sh.slots, options);
     if (roster.error) return { error: roster.error };
+    if (!prior) built.set(key, { week: k + 1, roster });
     const csv = rosterCsv(roster);
-    out.push({ week: k + 1, weekStart: ws, roster, csv });
+    out.push({ week: k + 1, weekStart: ws, roster, csv, ...(prior ? { sameAs: prior.week } : {}) });
     if (typeof onWeek === "function") onWeek(k + 1, n);
     if (k < n - 1) {
       const worked = lastShiftEnds(csv);
