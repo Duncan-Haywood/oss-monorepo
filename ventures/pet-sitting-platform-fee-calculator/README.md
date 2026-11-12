@@ -19,6 +19,14 @@ what to charge on the platform so a marketplace booking pays what a direct one d
 Not modelled: whether your platform agreement allows moving a client direct (many restrict it), income and
 self-employment tax, insurance, owner-side fees, tips and cancellations.
 
+## Known gaps
+
+From the quality audit of 2026-11-12 ([`portfolio/quality/audits/2026-11-12-pet-sitting-platform-fee-calculator.json`](../../portfolio/quality/audits/2026-11-12-pet-sitting-platform-fee-calculator.json)):
+
+- The platform fee is taken from the price the client pays. Wag no longer publishes a percentage; its help centre says owners pay about 1.67 times the walker's rate, which is where the 40% preset comes from. Type the owner's price, not your own rate, or the Wag take-home is understated. The page says so; the model does not convert a walker rate for you.
+- Rover's owner-side service fee and any pilot pricing are not modelled; only the sitter-side cut is.
+- Income and self-employment tax are ignored.
+
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.

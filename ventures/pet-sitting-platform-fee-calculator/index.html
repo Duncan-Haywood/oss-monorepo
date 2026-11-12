@@ -61,7 +61,7 @@
     <section class="card" aria-labelledby="h-0">
       <h2 id="h-0">1. Your bookings</h2>
       <div class="grid">
-        <div><label for="bookingsPerMonth">Bookings per month (visits, walks or nights)</label><input id="bookingsPerMonth" type="number" step="any" value="0"></div><div><label for="price">Price per booking ($)</label><input id="price" type="number" step="any" value="0"></div><div><label for="hoursPerBooking">Hours of your time per booking</label><input id="hoursPerBooking" type="number" step="any" value="0"></div><div><label for="costPerBooking">Your cost per booking: gas, supplies ($)</label><input id="costPerBooking" type="number" step="any" value="0"></div>
+        <div><label for="bookingsPerMonth">Bookings per month (visits, walks or nights)</label><input id="bookingsPerMonth" type="number" step="any" value="0"></div><div><label for="price">Price the client pays per booking, before the platform's cut ($)</label><input id="price" type="number" step="any" value="0"></div><div><label for="hoursPerBooking">Hours of your time per booking</label><input id="hoursPerBooking" type="number" step="any" value="0"></div><div><label for="costPerBooking">Your cost per booking: gas, supplies ($)</label><input id="costPerBooking" type="number" step="any" value="0"></div>
       </div>
     </section>
     <section class="card" aria-labelledby="h-1">
@@ -83,7 +83,7 @@
       <h3>How much does Rover take from sitters?</h3>
       <p>Rover has charged sitters a service fee of about 20% of each booking, and owners a separate fee on top. Fees change, so type the current figure from your own payout statement into this tool instead of trusting any blog post, including this one.</p>
       <h3>How much does Wag take from walkers?</h3>
-      <p>Wag has reported a commission on the order of 40% on walks, much higher than a typical sitting marketplace. Check your current terms and type the number you actually see on a payout.</p>
+      <p>Wag has reported a commission on the order of 40% on walks, much higher than a typical sitting marketplace. Check your current terms and type the number you actually see on a payout. The fee here is taken from the price the client pays, so on Wag type what the owner is charged for a walk (Wag says owners pay about 1.67 times the walker's rate), not your own rate: a $25 rate is about $41.75 charged, and 60% of that is the $25 you keep.</p>
       <h3>Is booking clients directly really better?</h3>
       <p>Per booking it usually nets more, because card processing is about 3% instead of 20-40%. But direct clients cost time to find, and software and marketing are monthly costs. The tool shows how many direct bookings a month it takes before the move pays for itself.</p>
       <h3>Can I move my Rover clients off the platform?</h3>
@@ -113,7 +113,7 @@
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     const KEYS = Object.keys(DEFAULTS);
-    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = num($(k).value); return o; };
     const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; $("preset").value = "rover"; };
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
