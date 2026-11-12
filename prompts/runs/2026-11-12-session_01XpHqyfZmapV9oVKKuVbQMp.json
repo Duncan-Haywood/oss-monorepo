@@ -27,18 +27,23 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 1,
   "outcome": "success",
   "errors": [
-    "A Bash call combining two heredocs (a python patch and a new .mjs file) was refused by the rm safety check as unparseable although it held no rm; split into a Write and a separate python run."
+    "A Bash call combining two heredocs (a python patch and a new .mjs file) was refused by the rm safety check as unparseable although it held no rm; split into a Write and a separate python run.",
+    "CI validate failed: flagships.yaml shift-roster-builder next: was 2003 characters (cap 2000); fixed by trimming older history. portfolio/router/validate.py catches it locally; I had only run a yaml parse."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "ventures/shift-roster-builder/README.md",
       "issue": "The keepShift 20 cafe total (94) does not reproduce; it was 95 on this run with and without the change, so unproven-search counts in README tables are machine-speed dependent and a rerun can look like a regression."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to rewrite the venture's next: in flagships.yaml but not that portfolio/router/validate.py enforces a 2000-character cap on it; a long next: fails CI after the push."
     }
   ],
   "deviations": [],
