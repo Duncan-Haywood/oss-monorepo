@@ -1,0 +1,37 @@
+Step 1, calibration seed 2: max R catchUp share, min T catchUp share
+minRun 2 ratio 1.4 minMoves  5  maxR 0.045  minT 0.846
+minRun 2 ratio 1.4 minMoves 10  maxR 0.045  minT 0.537
+minRun 2 ratio 1.6 minMoves  5  maxR 0.035  minT 0.794
+minRun 2 ratio 1.6 minMoves 10  maxR 0.035  minT 0.500
+minRun 2 ratio 1.8 minMoves  5  maxR 0.030  minT 0.721
+minRun 2 ratio 1.8 minMoves 10  maxR 0.030  minT 0.463
+minRun 2 ratio 2.0 minMoves  5  maxR 0.025  minT 0.632  admissible
+minRun 2 ratio 2.0 minMoves 10  maxR 0.025  minT 0.404  admissible
+minRun 2 ratio 2.4 minMoves  5  maxR 0.020  minT 0.559  admissible
+minRun 2 ratio 2.4 minMoves 10  maxR 0.020  minT 0.353  admissible
+minRun 3 ratio 1.4 minMoves  5  maxR 0.065  minT 0.831
+minRun 3 ratio 1.4 minMoves 10  maxR 0.045  minT 0.522
+minRun 3 ratio 1.6 minMoves  5  maxR 0.030  minT 0.779
+minRun 3 ratio 1.6 minMoves 10  maxR 0.030  minT 0.485
+minRun 3 ratio 1.8 minMoves  5  maxR 0.025  minT 0.735  admissible
+minRun 3 ratio 1.8 minMoves 10  maxR 0.025  minT 0.471  admissible
+minRun 3 ratio 2.0 minMoves  5  maxR 0.020  minT 0.684  admissible
+minRun 3 ratio 2.0 minMoves 10  maxR 0.020  minT 0.441  admissible
+minRun 3 ratio 2.4 minMoves  5  maxR 0.015  minT 0.596  admissible
+minRun 3 ratio 2.4 minMoves 10  maxR 0.015  minT 0.390  admissible
+Picked: minRun 3, ratio 1.8, minMoves 5
+
+Step 2, confirmation seed 20261214, 200 series a cell
+cell  with a change  one tick  catchUp  share of one tick  rounding  share of found
+R1              200       200        3              0.015       197           0.985
+R2              200       200        0              0.000       200           1.000
+R3              200       200        3              0.015       197           0.985
+T1              171       146      116              0.795        30           0.175
+T2              188       110       94              0.855        16           0.085
+T3               66        65       55              0.846        10           0.152
+F1              200         0        0                  -         0           0.000
+F2              200         0        0                  -         0           0.000
+F3              177         0        0                  -         0           0.000
+judged T cells: T1, T2, T3
+K1: pass; K2: FAIL; K3: pass
+Verdict: does not ship

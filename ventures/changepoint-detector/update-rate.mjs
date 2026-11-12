@@ -174,6 +174,7 @@ export function updateRateChanges(values, opts = {}) {
   const none = { changes: [], stretches: [], repeats: total, steps: z.length, setting: o };
   if (total < o.minRepeats || z.length < 2 * o.minSegment) return none;
   const { cuts, penalty } = partitionRates(z, o);
+  const cu = { ...CATCHUP, ...(opts.catchUp || {}) };
   const bounds = [0, ...cuts, z.length];
   const stretches = [];
   for (let k = 0; k + 1 < bounds.length; k++) {
@@ -183,15 +184,20 @@ export function updateRateChanges(values, opts = {}) {
     stretches.push({ from: a + 1, to: b, steps: m, repeats: r, share: r / m, lo, hi });
   }
   const ranges = cutRanges(z, cuts, o);
-  for (const st of stretches) { st.tick = smallestStep(values, st.from, st.to); st.medianMoveTicks = medianMoveTicks(values, st.from, st.to, st.tick); }
+  for (const st of stretches) {
+    st.tick = smallestStep(values, st.from, st.to); st.medianMoveTicks = medianMoveTicks(values, st.from, st.to, st.tick);
+    st.catchUp = catchUpRatio(values, st.from, st.to, st.tick, cu);
+  }
   const changes = cuts.map((c, k) => {
     const less = stretches[k + 1].share > stretches[k].share;
     const sticky = stretches[less ? k + 1 : k];
     return {
       index: c + 1, from: ranges[k][0] + 1, to: ranges[k][1] + 1, shareBefore: stretches[k].share, shareAfter: stretches[k + 1].share,
       direction: less ? 'less often' : 'more often',
-      // README "Repeats from rounding": in the stickier stretch, at least half the moves are one tick.
-      rounding: sticky.medianMoveTicks != null && sticky.medianMoveTicks <= ROUNDING_TICKS, tick: sticky.tick,
+      // README "Repeats from rounding": in the stickier stretch, at least half the moves are one tick,
+      // unless the move after a run of repeats grows with the run, as a stale feed's catch-up does
+      // (README "One-tick stale feeds: the catch-up check").
+      ...roundingVerdict(sticky, cu), tick: sticky.tick,
     };
   });
   return { changes, stretches, repeats: total, steps: z.length, penalty, setting: o };
@@ -230,6 +236,41 @@ export function medianMoveTicks(values, from, to, tick) {
   return m.length % 2 ? m[h] : (m[h - 1] + m[h]) / 2;
 }
 
+// One-tick stale feeds (README "One-tick stale feeds: the catch-up check"; eval/update-rate-catchup.mjs).
+// A stale feed whose real moves are about one tick passes the median-move test above, so it read as
+// rounding. What differs is the move that ends a run of repeats. In a rounded slow walk the value
+// leaves a run by crossing the next rounding boundary, so that move is still about one tick however
+// long the run was. In a stale feed the hidden value kept moving while the figure sat still, so the
+// move that ends k repeats is a catch-up over k + 1 steps, with about k + 1 times the variance.
+// catchUpRatio: mean squared move (in ticks) ending a run of CATCHUP.minRun or more repeats, over the
+// mean squared move that follows a move. Near 1 for rounding, above CATCHUP.ratio for a catch-up.
+// Not offered: two pre-registered rounds failed (eval/update-rate-catchup.out.txt: runs >= 2, ratio 1.4,
+// a 0.6-tick rounded walk called a catch-up in 6.0% of series, bar 5%; eval/update-rate-catchup-2.out.txt:
+// runs >= 3, ratio 1.8, one-tick stale feeds caught in 79.5% of one cell, bar 80%). So `ratio` is Infinity
+// and `catchUp` is always false; the ratio is still computed and returned (`catchUpRatio`) as a number,
+// with no sentence. A test checks this matches the files.
+export const CATCHUP = { minRun: 3, ratio: Infinity, minMoves: 5 };
+export function catchUpRatio(values, from, to, tick, { minRun = CATCHUP.minRun, minMoves = CATCHUP.minMoves } = {}) {
+  if (!tick) return null;
+  let after = 0, nAfter = 0, plain = 0, nPlain = 0, run = 0, prevMoved = false;
+  for (let t = Math.max(1, from); t <= to; t++) {
+    const a = Number(values[t]), b = Number(values[t - 1]);
+    if (!Number.isFinite(a) || !Number.isFinite(b)) { run = 0; prevMoved = false; continue; }
+    if (a === b) { run++; prevMoved = false; continue; }
+    const d2 = (sig(Math.abs(a - b)) / tick) ** 2;
+    if (run >= minRun) { after += d2; nAfter++; } else if (run === 0 && prevMoved) { plain += d2; nPlain++; }
+    run = 0; prevMoved = true;
+  }
+  if (nAfter < minMoves || nPlain < minMoves) return { ratio: null, after: nAfter, plain: nPlain };
+  return { ratio: (after / nAfter) / (plain / nPlain), after: nAfter, plain: nPlain };
+}
+function roundingVerdict(sticky, cu = CATCHUP) {
+  const oneTick = sticky.medianMoveTicks != null && sticky.medianMoveTicks <= ROUNDING_TICKS;
+  const r = sticky.catchUp && sticky.catchUp.ratio;
+  const catchUp = oneTick && r != null && r >= cu.ratio;
+  return { rounding: oneTick && !catchUp, catchUp, catchUpRatio: r ?? null };
+}
+
 const pct = (v) => `${(100 * v).toFixed(0)}%`;
 
 /** Plain lines for the CLI and the page; empty when no change of update rate was found. */
@@ -244,5 +285,9 @@ export function updateRateLines(u, labels) {
   const why = allRounded
     ? ` In the stretch with more repeats at least half the moves are one tick (${[...new Set(rounded.map(tk))].join(' or ')}, the smallest move there), so the repeats may only mean the series moved less than its recorded precision then: a slower series, not a stale one. If so, this is a change in how fast it moved, not in how often it was refreshed.`
     : ` This describes how often the data was refreshed (a stale feed, a figure carried forward, a change in how it was recorded), not a change in its level; jumps near these dates may be catch-ups after a stale stretch.${rounded.length ? ` Around ${rounded.map((c) => `${L(c.index)} (tick ${tk(c)})`).join(', ')}, though, at least half the moves in the stickier stretch are one tick, so those repeats may only be a slow series rounded to its precision.` : ''}`;
-  return [`Update-rate check: the share of steps that repeat the previous value exactly changed ${u.changes.length === 1 ? 'once' : `${u.changes.length} times`}: ${parts.join('; ')}.${why}`];
+  const caught = u.changes.filter((c) => c.catchUp);
+  const catchNote = caught.length
+    ? ` Around ${caught.map((c) => L(c.index)).join(', ')} most moves in the stickier stretch are one tick (${[...new Set(caught.map(tk))].join(' or ')}), but a move that ends two or more repeats is larger (${caught.map((c) => `${c.catchUpRatio.toFixed(1)}x`).join(', ')} the mean square of a move after a move), as a stale figure catching up would be, so those repeats read as staleness, not rounding.`
+    : '';
+  return [`Update-rate check: the share of steps that repeat the previous value exactly changed ${u.changes.length === 1 ? 'once' : `${u.changes.length} times`}: ${parts.join('; ')}.${why}${catchNote}`];
 }
