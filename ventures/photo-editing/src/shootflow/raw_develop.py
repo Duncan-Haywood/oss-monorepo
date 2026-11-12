@@ -110,6 +110,19 @@ TAG_CAMERA_CALIBRATION_SIGNATURE = 50931
 TAG_PROFILE_CALIBRATION_SIGNATURE = 50932
 TAG_FORWARD_MATRIX_1 = 50964
 TAG_FORWARD_MATRIX_2 = 50965
+TAG_UNIQUE_CAMERA_MODEL = 50708
+TAG_PROFILE_NAME = 50936
+TAG_HUE_SAT_MAP_DIMS = 50937
+TAG_HUE_SAT_MAP_DATA_1 = 50938
+TAG_HUE_SAT_MAP_DATA_2 = 50939
+TAG_PROFILE_TONE_CURVE = 50940
+TAG_LOOK_TABLE_DIMS = 50981
+TAG_LOOK_TABLE_DATA = 50982
+TAG_HUE_SAT_MAP_ENCODING = 51107
+TAG_LOOK_TABLE_ENCODING = 51108
+TAG_BASELINE_EXPOSURE_OFFSET = 51109
+# A .dcp camera profile is a TIFF-structured file with "RC" in place of 42.
+DCP_MAGIC = 0x4352
 
 PHOTOMETRIC_CFA = 32803
 PHOTOMETRIC_LINEAR_RAW = 34892
@@ -146,8 +159,9 @@ class _Reader:
         else:
             raise DevelopError("not a TIFF/DNG file (no II/MM byte-order mark)")
         magic = struct.unpack_from(self.end + "H", data, 2)[0]
-        if magic != 42:
+        if magic not in (42, DCP_MAGIC):
             raise DevelopError(f"not a classic TIFF/DNG file (magic {magic})")
+        self.magic = magic
 
     def first_ifd_offset(self) -> int:
         return struct.unpack_from(self.end + "I", self.data, 4)[0]
@@ -979,6 +993,11 @@ class DevelopSettings:
     # "dng": the DNG specification's colour model (dng_colour); "dcraw": one
     # matrix nearest D65 and camera-space white balance, as dcraw and LibRaw.
     colour: str = "dng"
+    # A .dcp camera profile (Adobe, dcamprof, RawTherapee) used in place of
+    # the DNG's own profile tags; read with ``read_dcp``. dng colour only.
+    dcp: Ifd | None = None
+    # Apply the profile's ProfileHueSatMap and ProfileLookTable (dng colour).
+    profile_tables: bool = True
 
 
 @dataclass
@@ -997,6 +1016,7 @@ class DevelopReport:
     colour: str = "dcraw"
     white_xy: tuple[float, float] | None = None  # as-shot white chromaticity (dng colour)
     cct: float | None = None  # its correlated colour temperature, kelvin
+    profile: str | None = None  # "<name>: <tables applied>" when a profile's tables were used
 
 
 def _cfa_pattern(ifd: Ifd) -> tuple[int, int, int, int]:
@@ -1045,11 +1065,64 @@ _SRGB_WHITE_XY = dc.xyz_to_xy(dc.apply(_XYZ_TO_SRGB_D65, (1.0, 1.0, 1.0)))
 _XYZ_D50_TO_SRGB = dc.matmul(_inverse3(_XYZ_TO_SRGB_D65), dc.bradford(dc.D50_XY, _SRGB_WHITE_XY))
 
 
-def _profile(ifd0: Ifd, ifd: Ifd) -> dc.Profile | None:
-    """The file's colour tags (raw IFD first, then IFD0); None without a ColorMatrix."""
+def read_dcp(path: Path | str) -> Ifd:
+    """A ``.dcp`` camera profile's tags (one IFD, TIFF layout, "RC" magic)."""
+
+    data = Path(path).read_bytes()
+    reader = _Reader(data)
+    if reader.magic != DCP_MAGIC:
+        raise DevelopError(f"{path}: not a DCP camera profile (expected IIRC or MMCR)")
+    ifd, _ = reader.read_ifd(reader.first_ifd_offset())
+    if ifd.get(TAG_COLOR_MATRIX_1) is None:
+        raise DevelopError(f"{path}: the profile has no ColorMatrix1")
+    return ifd
+
+
+def _text(values) -> str:
+    return bytes(values or b"").split(b"\0", 1)[0].decode("latin-1").strip()
+
+
+def _tables(tag, notes: list[str]):
+    """(HueSatMap1, HueSatMap2, LookTable) from the profile tags; a bad table is skipped with a note."""
+
+    out: list[dc.HueSatTable | None] = []
+    for dims_tag, data_tag, enc_tag, label in (
+        (TAG_HUE_SAT_MAP_DIMS, TAG_HUE_SAT_MAP_DATA_1, TAG_HUE_SAT_MAP_ENCODING, "ProfileHueSatMapData1"),
+        (TAG_HUE_SAT_MAP_DIMS, TAG_HUE_SAT_MAP_DATA_2, TAG_HUE_SAT_MAP_ENCODING, "ProfileHueSatMapData2"),
+        (TAG_LOOK_TABLE_DIMS, TAG_LOOK_TABLE_DATA, TAG_LOOK_TABLE_ENCODING, "ProfileLookTableData"),
+    ):
+        data = tag(data_tag)
+        if data is None:
+            out.append(None)
+            continue
+        try:
+            out.append(dc.HueSatTable.from_tags(tag(dims_tag), data, (tag(enc_tag) or (0,))[0]))
+        except dc.ColourError as exc:
+            notes.append(f"{label} ignored: {exc}")
+            out.append(None)
+    return out
+
+
+def _profile(ifd0: Ifd, ifd: Ifd, dcp: Ifd | None = None, notes: list[str] | None = None) -> dc.Profile | None:
+    """The file's colour tags (raw IFD first, then IFD0); None without a ColorMatrix.
+
+    With ``dcp``, the profile's own tags (matrices, illuminants, tables,
+    ProfileCalibrationSignature) come from that camera profile instead, while
+    the camera's tags (AnalogBalance, CameraCalibration and its signature)
+    still come from the DNG, as the specification's external-profile rule says.
+    """
+
+    notes = notes if notes is not None else []
+
+    def camera_tag(t):
+        return ifd.get(t) or ifd0.get(t)
 
     def tag(t):
-        return ifd.get(t) or ifd0.get(t)
+        if dcp is not None and t not in (
+            TAG_CAMERA_CALIBRATION_1, TAG_CAMERA_CALIBRATION_2, TAG_CAMERA_CALIBRATION_SIGNATURE, TAG_ANALOG_BALANCE
+        ):
+            return dcp.get(t)
+        return camera_tag(t)
 
     try:
         cm1, cm2 = dc.as_matrix(tag(TAG_COLOR_MATRIX_1)), dc.as_matrix(tag(TAG_COLOR_MATRIX_2))
@@ -1068,6 +1141,16 @@ def _profile(ifd0: Ifd, ifd: Ifd) -> dc.Profile | None:
     ab = tag(TAG_ANALOG_BALANCE)
     sig_cam = bytes(tag(TAG_CAMERA_CALIBRATION_SIGNATURE) or b"").rstrip(b"\0")
     sig_prof = bytes(tag(TAG_PROFILE_CALIBRATION_SIGNATURE) or b"").rstrip(b"\0")
+    if dcp is not None:
+        want, have = _text(dcp.get(TAG_UNIQUE_CAMERA_MODEL)), _text(camera_tag(TAG_UNIQUE_CAMERA_MODEL))
+        if want and have and want != have:
+            notes.append(f"camera profile is for {want!r}, the file is from {have!r}")
+    hsm1, hsm2, look = _tables(tag, notes)
+    if hsm1 is not None and hsm2 is not None and hsm1.dims != hsm2.dims:
+        notes.append("ProfileHueSatMapData2 ignored: its shape differs from ProfileHueSatMapData1")
+        hsm2 = None
+    if hsm1 is None and hsm2 is not None:
+        hsm1, hsm2 = hsm2, None
     return dc.Profile(
         color_matrix_1=cm1,
         color_matrix_2=cm2,
@@ -1079,6 +1162,9 @@ def _profile(ifd0: Ifd, ifd: Ifd) -> dc.Profile | None:
         forward_matrix_2=fm2,
         analog_balance=(float(ab[0]), float(ab[1]), float(ab[2])) if ab and len(ab) >= 3 and min(ab[:3]) > 0 else (1.0, 1.0, 1.0),
         use_calibration=sig_cam == sig_prof,
+        hue_sat_map_1=hsm1,
+        hue_sat_map_2=hsm2,
+        look_table=look,
     )
 
 
@@ -1114,6 +1200,38 @@ def _dng_colour(profile: dc.Profile, neutral_hat, white_xy, notes: list[str]):
     if not profile.use_calibration and (profile.camera_calibration_1 or profile.camera_calibration_2):
         notes.append("CameraCalibration ignored: its signature does not match the profile's")
     return m, name, xy, cct
+
+
+_PROPHOTO_TO_SRGB = dc.matmul(_XYZ_D50_TO_SRGB, dc.PROPHOTO_TO_XYZ_D50)
+
+
+def _profile_look(profile: dc.Profile, settings: DevelopSettings, ifd0: Ifd, cct, gain: float, notes: list[str]):
+    """(ProfileLook or None, report label) for the profile's tables."""
+
+    hsm = profile.hue_sat_map_at(cct) if cct else profile.hue_sat_map_1
+    lt = profile.look_table
+    src = settings.dcp if settings.dcp is not None else ifd0
+    name = _text(src.get(TAG_PROFILE_NAME)) or ("camera profile" if settings.dcp is not None else "embedded profile")
+    if hsm is None and lt is None:
+        return None, (name if settings.dcp is not None else None)
+    if not settings.profile_tables:
+        notes.append("profile tables present but not applied (profile_tables off)")
+        return None, f"{name}: tables off"
+    parts = []
+    if hsm is not None:
+        parts.append("HueSatMap {}x{}x{}".format(*hsm.dims))
+        if hsm.is_identity():
+            hsm = None
+    if lt is not None:
+        parts.append("LookTable {}x{}x{}".format(*lt.dims))
+        if lt.is_identity():
+            lt = None
+    if src.get(TAG_PROFILE_TONE_CURVE):
+        notes.append("ProfileToneCurve not applied (the sRGB curve is used)")
+    label = f"{name}: " + ", ".join(parts)
+    if hsm is None and lt is None:
+        return None, label + " (identity)"
+    return dc.ProfileLook(hsm, lt, gain, _PROPHOTO_TO_SRGB), label
 
 
 def _levels(raw: RawImage, top: int, left: int, h: int, w: int, colours: int):
@@ -1178,7 +1296,11 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         raise DevelopError(f"unknown colour model {settings.colour!r} (dng or dcraw)")
     neutral = ifd.get(TAG_AS_SHOT_NEUTRAL) or ifd0.get(TAG_AS_SHOT_NEUTRAL)
     white_xy_tag = ifd.get(TAG_AS_SHOT_WHITE_XY) or ifd0.get(TAG_AS_SHOT_WHITE_XY)
-    profile = _profile(ifd0, ifd) if settings.colour == "dng" else None
+    if settings.dcp is not None and settings.colour != "dng":
+        raise DevelopError("a DCP camera profile needs the dng colour model")
+    profile = _profile(ifd0, ifd, settings.dcp, notes) if settings.colour == "dng" else None
+    if settings.dcp is not None and profile is None:
+        raise DevelopError("the camera profile has no ColorMatrix1")
     given_xy = None
     if (
         profile is not None
@@ -1221,7 +1343,19 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         base = ifd0.get(TAG_BASELINE_EXPOSURE) or ifd.get(TAG_BASELINE_EXPOSURE)
         if base:
             ev += float(base[0])
+        if profile is not None:
+            # A profile's own exposure offset rides with it (DNG 1.4).
+            src = settings.dcp if settings.dcp is not None else ifd0
+            offset = src.get(TAG_BASELINE_EXPOSURE_OFFSET)
+            if offset:
+                ev += float(offset[0])
     gain = 2.0**ev
+    look, profile_label = None, None
+    if profile is not None:
+        look, profile_label = _profile_look(profile, settings, ifd0, cct, gain, notes)
+        if look is not None:
+            # Camera to ProPhoto here; the look's own matrix takes ProPhoto to sRGB.
+            rgb_cam = dc.matmul(dc.inverse(look.out), rgb_cam)
 
     spp = raw.samples_per_pixel
     vals = raw.values
@@ -1281,6 +1415,8 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     lut_size = 4096
     curve = [round(_srgb_curve(i / (lut_size - 1)) * 65535) for i in range(lut_size)]
 
+    look_apply = look.apply if look is not None else None
+
     def encode(r: float, g: float, b: float, out: array) -> None:
         r = hi if r > hi else (0.0 if r < 0 else r)
         g = hi if g > hi else (0.0 if g < 0 else g)
@@ -1288,6 +1424,8 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         x = m[0][0] * r + m[0][1] * g + m[0][2] * b
         yv = m[1][0] * r + m[1][1] * g + m[1][2] * b
         z = m[2][0] * r + m[2][1] * g + m[2][2] * b
+        if look_apply is not None:
+            x, yv, z = look_apply(x, yv, z)
         for v in (x, yv, z):
             if v <= 0:
                 out.append(0)
@@ -1303,10 +1441,11 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     if np_engine is not None:
         return _develop_numpy(
             np_engine, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name,
-            colour=(colour_model, white_xy, cct),
+            colour=(colour_model, white_xy, cct, profile_label),
             vals=vals, rw=rw, top=top, left=left, w=w, h=h, spp=spp, lin=lin, black_=black, span=span,
             dh=dh, dv=dv, rr=rr, rc=rc, caplines=caplines, linear_raw=linear_raw, pat=pat,
             half=settings.half, mults=(wbr, wbg, wbb), hi=hi, m=m, curve=curve, lut_size=lut_size,
+            look=look,
         )
 
     out = array("H")
@@ -1374,6 +1513,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         colour=colour_model,
         white_xy=None if white_xy is None else (round(white_xy[0], 5), round(white_xy[1], 5)),
         cct=None if cct is None else round(cct, 1),
+        profile=profile_label,
     )
     return report_w, report_h, out, report
 
@@ -1393,7 +1533,7 @@ def _numpy_engine(engine: str):
 def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name, colour, **kw):
     """``develop``'s rendering half on the numpy engine; same bytes as the pure path."""
 
-    colour_model, white_xy, cct = colour
+    colour_model, white_xy, cct, profile_label = colour
 
     black_ = kw.pop("black_")
     pixels, ow, oh, clipped = eng.render(black=black_, **kw)
@@ -1432,6 +1572,7 @@ def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, c
         colour=colour_model,
         white_xy=None if white_xy is None else (round(white_xy[0], 5), round(white_xy[1], 5)),
         cct=None if cct is None else round(cct, 1),
+        profile=profile_label,
     )
     return report_w, report_h, eng.to_array(pixels), report
 
