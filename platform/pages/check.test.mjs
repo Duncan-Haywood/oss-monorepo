@@ -143,6 +143,32 @@ test('a dead relative link is caught', async () => {
   assert.equal(mentioning(problems, 'dead link -> missing.html').length, 1);
 });
 
+test('a link out of the site root is caught, including into a same-prefix sibling', async () => {
+  // The root test compares resolved paths; a sibling directory whose name
+  // starts with the site's own (`<site>2/`) is outside it, not inside.
+  const site = await siteWith();
+  const sibling = `${site}2`;
+  await fs.mkdir(sibling, { recursive: true });
+  await fs.writeFile(path.join(sibling, 'x.html'), '<p>x</p>');
+  const name = path.basename(site);
+  await fs.writeFile(path.join(site, 'tool/how-much.html'),
+    `<p>How much?</p><a href="../../${name}2/x.html">s</a><a href="../../outside.html">o</a><a href="../tool/">in</a><footer>No warranty.</footer>`);
+  const problems = await checkSite(site);
+  assert.equal(mentioning(problems, `link escapes the site root -> ../../${name}2/x.html`).length, 1);
+  assert.equal(mentioning(problems, 'link escapes the site root -> ../../outside.html').length, 1);
+  assert.deepEqual(mentioning(problems, '-> ../tool/'), []);
+});
+
+test('checkSite keeps every served page in the pageReads map it is given', async () => {
+  // The CLI hands this map to the page-identity pass so no page is read twice.
+  const site = await siteWith({ 'tool/extra/deep.html': '<p>deep</p>' });
+  const pageReads = new Map();
+  await checkSite(site, { pageReads });
+  for (const page of ['index.html', 'tool/index.html', 'tool/extra/deep.html']) {
+    assert.equal(await pageReads.get(page), await fs.readFile(path.join(site, page), 'utf8'), page);
+  }
+});
+
 test('any page may link the self-deploy page, which is built after this check', async () => {
   const hub = await problemsFor({ 'index.html': '<a href="deploy/">Deploy your own copy</a>' });
   assert.deepEqual(mentioning(hub, 'dead link -> deploy/'), []);

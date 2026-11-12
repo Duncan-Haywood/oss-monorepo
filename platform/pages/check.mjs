@@ -645,7 +645,12 @@ export function llmsTxtMissingDate(texts) {
   return undated.length === texts.size ? [] : undated;
 }
 
-export async function checkSite(site, { minProducts = 1 } = {}) {
+/**
+ * @param pageReads  optional Map the served pages' reads are kept in (relative
+ *   path to a promise of its text). The CLI passes one and hands it to the
+ *   page-identity pass afterwards, so each page is read from disk once per run.
+ */
+export async function checkSite(site, { minProducts = 1, pageReads = new Map() } = {}) {
   const problems = [];
 
   if (!(await exists(site))) return [`${site} is not a directory`];
@@ -1071,14 +1076,18 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // Four passes read every served page (inline scripts, hidden-attribute
   // contrast, canonical origin, placeholder origin). One read per page, shared:
   // the promise is kept so the 32-wide pass and the serial ones never race to
-  // read the same file twice. About 185 MB of HTML on the real site.
-  const pageReads = new Map();
+  // read the same file twice. About 215 MB of HTML on the real site (2026-11-12).
+  // The sitemap pass and the CLI's page-identity pass read through it too.
   const readPage = (relative) => {
     let read = pageReads.get(relative);
     if (!read) pageReads.set(relative, (read = fs.readFile(path.join(site, relative), 'utf8')));
     return read;
   };
 
+  // The inline-script pass walks the pages in order, one await at a time; it
+  // was most of that pass's time on a cold read. Warm the shared reads 32 at a
+  // time first, then the serial passes find every page already decoded.
+  await mapLimit(servedPages, 32, readPage);
   await checkInlineScripts(site, servedPages, problems, readPage);
 
   // ---- Elements hidden in markup that CSS puts back on the page -----------
@@ -1270,6 +1279,12 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // that something did. Markup edges between HTML pages only -- see `navigable`.
   const outboundPages = new Map();
 
+  // Per-run constants of the loop below, hoisted out of the ~456k targets it
+  // resolves (docs/history/ci-perf-2026-11-12-check-reads-once.md).
+  const deployIndex = path.resolve(site, DEPLOY_DIR, 'index.html');
+  const devPrefix = path.resolve(site, DEV_DIR) + path.sep;
+  const rootPrefix = siteRoot + path.sep;
+
   // Files are read 32 at a time; each file's problems are kept apart and
   // joined in file order, so the report reads the same as a serial pass.
   const linkProblems = await mapLimit(files, 32, async (relative) => {
@@ -1306,6 +1321,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       ...[...text.matchAll(DYNAMIC_IMPORT_RE)].map((m) => m[1]),
     ];
     const navigable = new Set(markupTargets);
+    const from = path.resolve(site, path.dirname(relative));
     for (const target of targets) {
       // SCRIPT_OR_STYLE_RE only strips `<script>` wrappers inside HTML; a
       // `.mjs`/`.js` file has no such wrapper, so its raw source is scanned
@@ -1319,9 +1335,13 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       const cleaned = decodeURIComponent(target.split('#')[0].split('?')[0]);
       if (!cleaned) continue;
 
-      const from = path.resolve(site, path.dirname(relative));
       let resolved = path.resolve(from, cleaned);
-      if (path.relative(path.resolve(site), resolved).startsWith('..')) {
+      // Same test as `path.relative(siteRoot, resolved).startsWith('..')`
+      // without building the relative path: outside the root it starts with
+      // `..`; inside, it is the remainder after the root (which can itself
+      // start with `..`, a directory named `..x`); the root itself is ''.
+      const inside = resolved === siteRoot ? '' : resolved.startsWith(rootPrefix) ? resolved.slice(rootPrefix.length) : '..';
+      if (inside.startsWith('..')) {
         found.push(`${relative}: link escapes the site root -> ${target}`);
         continue;
       }
@@ -1339,11 +1359,12 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       }
       // Every tool page footer links `deploy/?app=<slug>` (the "Run your own copy" link), and the page is
       // written after this check runs.
-      if (resolved === path.resolve(site, DEPLOY_DIR, 'index.html')) continue;
+      if (resolved === deployIndex) continue;
       // Everything under dev/ (the dashboard, its stats.json and dev/analyses/)
       // is written by publish-branch.sh after this check, on the same terms.
-      if (resolved.startsWith(path.resolve(site, DEV_DIR) + path.sep)) continue;
-      if (!(await present(resolved))) found.push(`${relative}: dead link -> ${target}`);
+      if (resolved.startsWith(devPrefix)) continue;
+      // `known.has` first: a hit needs no await, and almost every target hits.
+      if (!(known.has(resolved) || (await exists(resolved)))) found.push(`${relative}: dead link -> ${target}`);
       else {
         inboundLinks.add(resolved);
         if (extension === '.html' && navigable.has(target) && resolved.endsWith('.html')) {
@@ -1470,7 +1491,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     // indexed it would be the search result for a calculator. A page that
     // declares noindex and is then listed in a sitemap is the contradiction;
     // one that declares it and stays out is correct.
-    if (NOINDEX_RE.test(await fs.readFile(path.join(site, page), 'utf8'))) {
+    if (NOINDEX_RE.test(await readPage(page))) {
       continue;
     }
     const candidates = [page, servedPath(page)];
@@ -1508,8 +1529,10 @@ if (invokedDirectly) {
   // does not require touching this number, while a collapse still fails.
   // Real-site search hygiene (unique titles, one h1). Kept out of checkSite
   // so the minimal fixtures in check.test.mjs need no <title>/<h1>.
-  const problems = await checkSite(site, { minProducts: 20 });
-  const hygiene = await exists(site) ? checkPageIdentity(await loadPages(site)) : [];
+  const pageReads = new Map();
+  const problems = await checkSite(site, { minProducts: 20, pageReads });
+  const readAgain = (rel) => pageReads.get(rel) ?? fs.readFile(path.join(site, rel), 'utf8');
+  const hygiene = await exists(site) ? checkPageIdentity(await loadPages(site, readAgain)) : [];
   if (hygieneIsFatal()) problems.push(...hygiene);
   else if (hygiene.length > 0) {
     // A deploy of main: the PR that caused this should have been stopped by

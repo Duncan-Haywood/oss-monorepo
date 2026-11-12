@@ -108,8 +108,10 @@ export async function fixPostTitleClashes(site, { log = () => {} } = {}) {
  *  directory-walk order. The walk lists paths first; the reads then run 32 at
  *  a time (a built site is ~8,500 pages, 1.1 GB), and the Map is filled in
  *  walk order, so callers see the same keys in the same order as a serial
- *  read (docs/history/pages-build-perf-2026-11-11-identity-preload-reads.md). */
-export async function loadPages(site) {
+ *  read (docs/history/pages-build-perf-2026-11-11-identity-preload-reads.md).
+ *  `read` lets check.mjs hand over the pages it already read
+ *  (docs/history/ci-perf-2026-11-12-check-reads-once.md). */
+export async function loadPages(site, read = (rel) => fs.readFile(path.join(site, rel), 'utf8')) {
   const rels = [];
   async function go(dir, prefix) {
     for (const e of await fs.readdir(dir, { withFileTypes: true })) {
@@ -119,7 +121,7 @@ export async function loadPages(site) {
     }
   }
   await go(site, '');
-  const texts = await mapLimit(rels, 32, (rel) => fs.readFile(path.join(site, rel), 'utf8'));
+  const texts = await mapLimit(rels, 32, read);
   return new Map(rels.map((rel, i) => [rel, texts[i]]));
 }
 
