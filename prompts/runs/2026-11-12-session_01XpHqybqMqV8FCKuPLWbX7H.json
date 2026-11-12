@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqybqMqV8FCKuPLWbX7H",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T03:45:14Z",
+  "ended": "2026-11-12T03:58:39Z",
+  "wall_minutes": 13.64,
+  "tokens_in": 4952146,
+  "tokens_out": 24483,
+  "cost_usd": 2.3252,
+  "tool_calls": 51,
+  "task": "changepoint-detector (flagship 4): update-rate check beside every level model; fix its n^2 search on long series",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14991",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First timing probe of update-rate on 20k-100k points ran past the 120 s tool timeout; it surfaced the n^2 search that this run then fixed",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "The update-rate section's shipped wording says 'began updating less often' generically while the frozen-juice result it reports is a fall in repeats (updating more often); the CLI text is right, the prose example reads backwards."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A foreground 'sleep N; cat' to wait for a background eval is blocked by a hook; the until-loop alternative works but is only described in the hook message, not in cloud-session.md."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-a-quadratic-search-made-linear-with-the-same-answer.md",
+    "ventures/changepoint-detector/README.md (The update-rate check beside every model)"
+  ],
+  "goal": "Deepen flagship 4 with a working slice of its next: item",
+  "notes": "Pre-registered grid-vs-exact rule committed in 77c09f79b before eval/update-rate-long.mjs ran; result G1 20/20 in all 10 cells, G2 160/160 at the identical step; 14.0 s vs 302.9 s. 100k-point updateRateChanges 150 ms (was > 2 min). Local verification: python3 platform/ci/run_venture_tests.py changepoint-detector -> ok (215.2s), 1 suites run, 0 failed; new update-rate-everywhere.test.mjs 5/5; post frontmatter, links and similarity checks pass. No agent doc in docs/reports: README and flagships.yaml next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a086256d-56c6-5363-b970-47e7e3d9702c",
+    "transcripts": 1,
+    "first": "2026-11-12T03:45:14Z",
+    "last": "2026-11-12T03:58:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 91,
+        "output": 24483,
+        "thinking": 5658,
+        "cache_read": 4843748,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108307,
+        "api_equivalent_usd": 2.3252,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 91,
+      "output": 24483,
+      "thinking": 5658,
+      "cache_read": 4843748,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108307,
+      "api_equivalent_usd": 2.3252,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.64,
+      "active_minutes": 13.64,
+      "model_minutes": 4.12,
+      "tool_minutes": 9.51,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "wire a check into three outputs, find and fix an n^2 search, write and run a pre-registered comparison, docs and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 258.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
