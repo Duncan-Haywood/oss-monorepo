@@ -141,6 +141,7 @@ footer p{margin:.6rem 0}
 <tr><td><code>INV-057</code></td><td>Batch runs only: credit notes in the batch against one invoice add up to more than that invoice's gross total.</td><td>Check the credit amounts and which invoice each credit note names; a credit cannot return more than was invoiced.</td></tr>
 <tr><td><code>INV-058</code></td><td>Batch runs only: the invoice a credit note names is in the batch, but a different seller issued it.</td><td>Check the original-invoice reference and the credit note's supplier.</td></tr>
 <tr><td><code>INV-059</code></td><td>The file repeats its VAT total in a VAT accounting currency that is the invoice currency (BT-111, as every SAR invoice under ZATCA does), and the repeat differs from the document VAT total (BT-110).</td><td>Set the repeat to the document VAT total, or fix the VAT breakdown if the document total is the wrong one. The repair pass rewrites the repeat.</td></tr>
+<tr><td><code>INV-060</code></td><td>A PINT UAE or PINT Oman line restates its own VAT (BTAE-08, BTOM-016) or its amount with VAT (BTAE-10, BTOM-017) in <code>ItemPriceExtension</code>, and the figure is more than 0.01 off the line net times the rate (0 for reverse charge, the UAE margin scheme and exempt lines) or off the line net plus that VAT. The UAE rule set requires both amounts but does not check their arithmetic.</td><td>Set the line VAT and amount to the figures the message names, or fix the line net or rate if those are wrong. The repair pass rewrites both, keeping the decimals the file used.</td></tr>
 </tbody>
 </table>
 </div>

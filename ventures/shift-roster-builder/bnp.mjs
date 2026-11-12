@@ -19,8 +19,12 @@ const EPS = 1e-9;
 // `warm` (optional) is a basis from an earlier solve of the same rows, as `basis` returns it: a column id, or -1 - r for the
 // artificial of row r. Column ids must mean the same columns (callers only append columns between solves).
 // `bigM` is the cost of an artificial; it must exceed every column cost (the whole-score LP has open shifts at 100,000 per hour).
-export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null, bigM = 1e6 } = {}) {
+// `vals` (optional, 2026-11-12): vals[j] null or missing means column j is 0/1 as above; otherwise vals[j][t] is the coefficient of
+// row cols[j][t]. The right-hand side stays 1 on every row, so a row with other coefficients is scaled to a right-hand side of 1
+// by its caller (columnGenerationOpen's open-hours row: sum of len[s] / F over open shifts, minus a surplus, = 1).
+export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null, bigM = 1e6, vals = null } = {}) {
   const n = cols.length;
+  const colVals = (j) => (vals && j < n ? vals[j] : null);
   const BIG_M = bigM;
   // Column ids >= n are artificials: id n + r covers row r.
   const basis = warm ? Int32Array.from(warm, (j) => (j >= 0 ? j : n + (-1 - j))) : Int32Array.from(init, (j, r) => (j >= 0 ? j : n + r));
@@ -33,7 +37,10 @@ export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null, b
     // Invert B by Gauss-Jordan with partial pivoting (B is 0/1 and well scaled).
     const A = new Float64Array(m * 2 * m);
     const nz = new Int32Array(2 * m);
-    for (let c = 0; c < m; c++) for (const r of colRows(basis[c])) A[r * 2 * m + c] = 1;
+    for (let c = 0; c < m; c++) {
+      const rows = colRows(basis[c]), v = colVals(basis[c]);
+      for (let t = 0; t < rows.length; t++) A[rows[t] * 2 * m + c] = v ? v[t] : 1;
+    }
     for (let r = 0; r < m; r++) A[r * 2 * m + m + r] = 1;
     for (let c = 0; c < m; c++) {
       let piv = c;
@@ -82,12 +89,15 @@ export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null, b
     for (let j = 0; j < n; j++) {
       if (inBasis[j]) continue;
       let rc = cost[j];
-      for (const r of cols[j]) rc -= y[r];
+      const v = vals && vals[j];
+      if (v) { const rows = cols[j]; for (let t = 0; t < rows.length; t++) rc -= y[rows[t]] * v[t]; }
+      else for (const r of cols[j]) rc -= y[r];
       if (rc < best) { enter = j; best = rc; if (bland) break; }
     }
     if (enter < 0) break;
     d.fill(0);
-    for (const r of cols[enter]) for (let k = 0; k < m; k++) d[k] += Binv[k * m + r];
+    const ev = vals && vals[enter], er = cols[enter];
+    for (let t = 0; t < er.length; t++) { const r = er[t], a = ev ? ev[t] : 1; for (let k = 0; k < m; k++) d[k] += a * Binv[k * m + r]; }
     let leave = -1, ratio = Infinity;
     for (let r = 0; r < m; r++) {
       if (d[r] > EPS) {
@@ -251,8 +261,17 @@ export function branchAndPriceOpen(sets, len, { incumbentOpen = Infinity, nodeLi
 // people of cost(p, set), when `price` also returns the set's `cost` and its `value` is sum of w[s] over the set minus that cost.
 // The open-hours LP is the case openCost = len, cost = 0. The whole roster score (pay, penalties and 100,000 per open hour) is
 // another (scoreBoundByColumnGeneration in calc.mjs); pass `unit: 0` there so bounds are not rounded to the hour grid.
-export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, nodeLimit = 2000, ms = 20000, maxRounds = 400, cls = null, dive = true, rootDive = true, diveWidth = null, warm = true, openCost = null, unit: unitOpt = null, tolerance = 0, diveBacktrack = null } = {}) {
+//
+// Open-hours row (2026-11-12): `openFloor` F > 0, a floor on open hours already proven for every roster (calc.mjs's exact search
+// lifts it to a sum of whole shift lengths), adds the knapsack row  sum over open shifts of len[s] >= F  to every node's master LP
+// (scaled to a right-hand side of 1, with a surplus column). Without it the LP may leave 3/8 of an 8 h shift open where a whole
+// 3 h lunch must stay open, and the whole-score bound sits one open hour (100,000) below the roster it should prove. The row is
+// valid for every roster, so every bound stays valid; it touches only the open-shift columns, so the pricing oracle is unchanged.
+export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, nodeLimit = 2000, ms = 20000, maxRounds = 400, cls = null, dive = true, rootDive = true, diveWidth = null, warm = true, openCost = null, unit: unitOpt = null, tolerance = 0, diveBacktrack = null, openFloor = 0 } = {}) {
   const S = len.length;
+  const knap = openFloor > 1e-9 ? S + P : -1; // row index of the open-hours row, -1 when there is none
+  const M = S + P + (knap >= 0 ? 1 : 0);
+  const totalLen = len.reduce((x, h) => x + h, 0);
   const oc = openCost || len;
   let maxCost = 0;
   for (const c of oc) if (c > maxCost) maxCost = c;
@@ -308,19 +327,29 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
     for (let round = 0; round < maxRounds; round++) {
       stats.rounds++;
       cols = []; owner = []; members = []; cost = [];
-      const init = new Int32Array(S + P).fill(-1);
-      for (let s = 0; s < S; s++) { init[s] = cols.length; cols.push([s]); cost.push(oc[s]); owner.push(-1); members.push([s]); }
+      const vals = knap >= 0 ? [] : null;
+      const init = new Int32Array(M).fill(-1);
+      for (let s = 0; s < S; s++) {
+        init[s] = cols.length;
+        if (vals) { cols.push([s, knap]); vals.push([1, len[s] / openFloor]); } else cols.push([s]);
+        cost.push(oc[s]); owner.push(-1); members.push([s]);
+      }
+      // The surplus of the open-hours row: a column that is in every node's LP, so the row's dual stays >= 0 and the bound valid.
+      // It starts basic: with every shift open the row's left side is (total hours) / F >= 1, so the start is feasible (an artificial
+      // there would start at 1 - total / F < 0, and the simplex, which assumes a feasible start, stops at once on a wrong answer).
+      if (vals) { if (totalLen >= openFloor - 1e-9) init[knap] = cols.length; cols.push([knap]); vals.push([-1]); cost.push(0); owner.push(-1); members.push([]); }
       for (const c of pool) {
         if (!fits(c)) continue;
         if (c.f.length === 0) init[S + c.p] = cols.length;
         const rows = c.f.slice(); rows.push(S + c.p);
         cols.push(rows); cost.push(c.cost); owner.push(c.p); members.push(c.f);
+        if (vals) vals.push(null);
       }
       try {
         // Within a node the pool only grows at the end and `fits` does not change, so last round's basis is still a feasible
         // basis of this round's LP: start from it (warm) rather than from the artificials. A failed warm solve retries cold.
-        try { lp = solveLP(S + P, cols, cost, init, { warm: warm ? prevBasis : null, bigM }); }
-        catch (e) { if (!warm || !prevBasis) throw e; lp = solveLP(S + P, cols, cost, init, { bigM }); }
+        try { lp = solveLP(M, cols, cost, init, { warm: warm ? prevBasis : null, bigM, vals }); }
+        catch (e) { if (!warm || !prevBasis) throw e; lp = solveLP(M, cols, cost, init, { bigM, vals }); }
         prevBasis = lp.basis;
       } catch (e) {
         // A solver failure (pivot limit, singular basis) stops this node with the bound it already has, which is still valid;
@@ -331,7 +360,7 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
       stats.pivots += lp.pivots;
       // The restricted LP's full objective (big-M artificials included) equals its dual objective, the sum of the duals.
       z = 0;
-      for (let r = 0; r < S + P; r++) z += lp.y[r];
+      for (let r = 0; r < M; r++) z += lp.y[r];
       const w = Float64Array.from({ length: S }, (_, s) => lp.y[s]);
       let added = 0, lagr = z, exact = true;
       for (let p = 0; p < P; p++) {

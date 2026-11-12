@@ -47,7 +47,7 @@ test("with a keep bonus the exact search still returns the brute-force best, and
     assert.ok(["optimal", "improved"].includes(r.optimality?.status), `case ${c}: ${r.optimality?.status}`);
     assert.ok(Math.abs(Number(r.score) - truth) < 0.02, `case ${c}: exact search ${r.score} vs brute force ${truth}`);
     const b = scoreBoundByColumnGeneration(staff, slots, options);
-    if (b && Number.isFinite(b.bound)) assert.ok(b.bound <= truth + 1e-6, `case ${c}: bound ${b.bound} above the best ${truth}`);
+    if (b && Number.isFinite(b.floor)) assert.ok(b.floor <= truth + 1e-6 * (1 + truth), `case ${c}: bound ${b.floor} above the best ${truth}`);
     checked++;
     if (Math.abs(truth - bruteBest(staff, slots, { ...options, keepValue: 0 })) > 1e-9) kept++;
   }

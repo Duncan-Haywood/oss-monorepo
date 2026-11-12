@@ -37,6 +37,14 @@ def _line_tax_amount(line: ElementTree.Element) -> str:
     return ""
 
 
+def _line_amount_with_vat(line: ElementTree.Element) -> str:
+    """cac:ItemPriceExtension/cbc:Amount on a line (UAE BTAE-10, Oman BTOM-017), or ""."""
+    for extension in (c for c in line if c.tag.rsplit("}", 1)[-1] == "ItemPriceExtension"):
+        for amount in (c for c in extension if c.tag.rsplit("}", 1)[-1] == "Amount"):
+            return (amount.text or "").strip()
+    return ""
+
+
 def _nested_text(element: ElementTree.Element, container: str, field: str) -> str:
     """Text of ``<container><field>``, scoped to that container.
 
@@ -162,6 +170,9 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         line_tax = _line_tax_amount(line)
         if parse_decimal(line_tax) is not None:
             mapped_line["tax_amount"] = _number(line_tax)
+        line_amount = _line_amount_with_vat(line)
+        if parse_decimal(line_amount) is not None:
+            mapped_line["amount_with_vat"] = _number(line_amount)
         line_adjustments = _line_adjustments(line)
         if line_adjustments:
             mapped_line["adjustments"] = line_adjustments
