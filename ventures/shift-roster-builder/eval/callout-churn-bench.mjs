@@ -33,14 +33,14 @@ export function run({ staffText = sampleStaff(), shiftsText = sampleShifts(), ch
     const a = scheduleChanges(postedCsv, rebuiltCsv, opt), b = scheduleChanges(postedCsv, patchedCsv, opt);
     const others = (r) => r.changes.filter((c) => c.person !== person);
     rows.push({ person, wedShifts: idx.length,
-      rebuild: { changes: a.changes.length, others: others(a).length, people: new Set(others(a).map((c) => c.person)).size, owed: a.owed, open: rebuilt.unfilled.length, cost: rebuilt.cost },
+      rebuild: { status: rebuilt.optimality?.status, changes: a.changes.length, others: others(a).length, people: new Set(others(a).map((c) => c.person)).size, owed: a.owed, open: rebuilt.unfilled.length, cost: rebuilt.cost },
       patch: { changes: b.changes.length, others: others(b).length, people: new Set(others(b).map((c) => c.person)).size, owed: b.owed, open: left, cost: posted.cost + patchCost } });
   }
-  return { postedCost: posted.cost, postedOpen: posted.unfilled.length, rows };
+  return { postedStatus: posted.optimality?.status, postedCost: posted.cost, postedOpen: posted.unfilled.length, rows };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const r = run({ exact: process.env.EXACT === "off" ? false : "auto" });
-  console.log(`posted: $${r.postedCost}, ${r.postedOpen} open`);
+  console.log(`posted: $${r.postedCost}, ${r.postedOpen} open, ${r.postedStatus}`);
   for (const x of r.rows) console.log(x.person.padEnd(5), x.wedShifts, "rebuild", JSON.stringify(x.rebuild), "patch", JSON.stringify(x.patch));
 }
