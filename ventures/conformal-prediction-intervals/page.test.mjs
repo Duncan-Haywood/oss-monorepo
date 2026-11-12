@@ -134,4 +134,5 @@ test("footer links the sibling research-algorithm tools", () => {
   assert.match(html, /href="\.\.\/changepoint-detector\/"/);
   assert.match(html, /href="\.\.\/matrix-profile-explorer\/"/);
   assert.match(html, /href="\.\.\/survival-analysis\/"/);
+  assert.match(html, /href="\.\.\/fdr-multiple-testing\/"/);
 });

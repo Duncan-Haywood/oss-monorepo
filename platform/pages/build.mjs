@@ -149,6 +149,7 @@ import {
   siteTitle,
 } from './site-nav.mjs';
 import { ASK_PATH, ASSISTANT_LAUNCHER_JS, ASSISTANT_VOICE_CSS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
+import { formatCount } from './count.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
 import {
   HERO_BACKDROP_HTML,
@@ -486,7 +487,7 @@ function shipsDeployableApp(slug) {
 }
 
 // Tools that implement a published paper (portfolio/research-tools/README.md).
-export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis'];
+export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis', 'fdr-multiple-testing'];
 
 const CATEGORY_RULES = [
   {
@@ -3423,8 +3424,12 @@ const CATEGORY_RULES = [
     // the checks above configure, next to `agent-permission-config-check`
     // and `agent-instructions-drift-check`, which it links; landing it here
     // keeps the catch-all inside its bound.
+    //
+    // `gitignore-explainer` joined 2026-11-11 on its first commit: resolves
+    // .gitignore files the way git does, beside `codeowners-shadow-check`,
+    // which resolves the same last-match-wins patterns for review routing.
     test: (slug) =>
-      /^(jwt-security-check|page-seo-audit|actions-|workflow-audit|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|webhook-relay|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|llm-spend-guard|liability-audit|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|status-keeper|visit-keeper|dunning-engine|waitlist-keeper|license-keeper|mrr-pulse|rev-rec|feedback-board|form-inbox|cancel-flow|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|pip-audit-triage|cargo-audit-triage|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|systemd-unit-hardening-check|git-bus-factor-check|lockfile-license-check|npm-audit-triage|npm-lockfile-duplicates-check|dupehound|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|agent-workroom|s3-bucket-exposure-check|aws-iam-policy-risk-check|devsec-toolkit|stranded-branch-finder)/.test(
+      /^(jwt-security-check|page-seo-audit|actions-|workflow-audit|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|webhook-relay|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|llm-spend-guard|liability-audit|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|gitignore-explainer|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|status-keeper|visit-keeper|dunning-engine|waitlist-keeper|license-keeper|mrr-pulse|rev-rec|feedback-board|form-inbox|cancel-flow|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|pip-audit-triage|cargo-audit-triage|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|systemd-unit-hardening-check|git-bus-factor-check|lockfile-license-check|npm-audit-triage|npm-lockfile-duplicates-check|dupehound|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|agent-workroom|s3-bucket-exposure-check|aws-iam-policy-risk-check|devsec-toolkit|stranded-branch-finder)/.test(
         slug,
       ),
   },
@@ -3812,7 +3817,7 @@ const CATEGORY_RULES = [
     id: 'research-algorithms',
     title: 'Research algorithms & ML',
     accent: '#5b3f8c',
-    blurb: 'Methods from published research papers, run on your own data in your browser and cited: changepoint detection, conformal prediction intervals, matrix-profile motifs and anomalies, Kaplan-Meier and Cox survival analysis. Also callable from the command line and by AI agents.',
+    blurb: 'Methods from published research papers, run on your own data in your browser and cited: changepoint detection, conformal prediction intervals, matrix-profile motifs and anomalies, Kaplan-Meier and Cox survival analysis, Benjamini-Hochberg and e-value multiple-testing correction. Also callable from the command line and by AI agents.',
     test: (slug) => RESEARCH_ALGORITHM_SLUGS.includes(slug),
   },
   {
@@ -4452,8 +4457,31 @@ export function isGuidePage(relativePath) {
   const posix = relativePath.split(path.sep).join('/');
   if (!posix.endsWith('.html')) return false;
   if (posix === 'index.html' || posix.endsWith('/index.html')) return false;
+  // A sample of what a builder writes (`monastery-site/demo/abbey/about.html`)
+  // is a fictional community's page, not an article about anything: "About
+  // Saint Aelred's Abbey" listed as a guide told a reader the abbey was real.
+  if (/(^|\/)demos?\//.test(posix)) return false;
   return !COMPARISON_FILE_PATTERN.test(posix.slice(posix.lastIndexOf('/') + 1));
 }
+
+/**
+ * Ventures whose extra pages are not guides at all, so the index skips them
+ * whole.
+ *
+ * The index promises "how a price is built up, and when one option beats
+ * another", from "free calculators". Until 2026-11-11 it also listed 342
+ * Hearth & Horizon bedtime stories, 97 saints' stories and 8 Catholic short
+ * videos as "pages beside the calculator" of products that have no
+ * calculator: 453 of its 2,300 links, about a fifth of the page, none of them
+ * what the heading said. Fiction has its own section (`stories.mjs`,
+ * `STORY_VENTURES`), and the video and Summa pages are watch-and-read
+ * content with their own indexes. Named by slug because "is this venture
+ * content or a tool" is an editorial call no file marks yet; a new story
+ * venture that joins `STORY_VENTURES` is covered without an edit here.
+ */
+export const NOT_GUIDE_VENTURES = Object.freeze(
+  new Set([...Object.keys(STORY_VENTURES), 'catholic-shorts', 'sed-contra']),
+);
 
 /**
  * The heading, title and blurb a guide page describes itself with.
@@ -4501,6 +4529,7 @@ export function guidePageMeta(html) {
 export async function discoverGuides(surfaces, outDir) {
   const groups = [];
   for (const surface of surfaces) {
+    if (NOT_GUIDE_VENTURES.has(surface.slug)) continue;
     const dir = path.join(outDir, surface.slug);
     let relatives;
     try {
@@ -6043,7 +6072,7 @@ ${questions
 ${cards}
       </ol>
     </section>${answers}
-    <h2 class="all-tools">All ${total} tools${who ? ` for ${escapeHtml(who)}` : ''}</h2>
+    <h2 class="all-tools">All ${formatCount(total)} tools${who ? ` for ${escapeHtml(who)}` : ''}</h2>
 `;
 }
 
@@ -6151,7 +6180,7 @@ ${subgroups
   // nothing; the full list is the markup either way.
   const filter = items.length > 12
     ? `    <p class="filter" id="cat-filter-row" hidden>
-      <label for="cat-filter">Filter these ${items.length} tools</label>
+      <label for="cat-filter">Filter these ${formatCount(items.length)} tools</label>
       <input id="cat-filter" type="search" placeholder="Type a word from the tool's name or job" autocomplete="off">
       <span id="cat-filter-count" aria-live="polite"></span>
     </p>`
@@ -6271,7 +6300,7 @@ ${otherAudiences
       <p class="starting">${escapeHtml(copy.starting)}</p>`
           : ''
       }
-      <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>${countExceptionList}
+      <p class="count">${formatCount(items.length)} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>${countExceptionList}
     </header>
 ${copy.lead ?? ''}${jumps}
 ${filter}
@@ -6451,7 +6480,7 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
   const toRoot = '../';
   const url = `${baseUrl}${CATEGORY_PATH_PREFIX}/`;
   const total = surfaces.length;
-  const title = `All ${total} free tools, by category`;
+  const title = `All ${formatCount(total)} free tools, by category`;
   const description = `Every free tool on ${SITE_NAME}, filed by the job it does: ${groups
     .map(({ category }) => category.title.toLowerCase())
     .join(', ')}. Runs in your browser; no account.`;
@@ -6528,7 +6557,7 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
     <header class="pf-hero">
       <p class="eyebrow">Tools</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">Each section has its own page with every tool in it. Know what you need? <a href="${escapeHtml(`${toRoot}#${SEARCH_ANCHOR}`)}">Search all ${total} tools</a> instead.</p>
+      <p class="lede">Each section has its own page with every tool in it. Know what you need? <a href="${escapeHtml(`${toRoot}#${SEARCH_ANCHOR}`)}">Search all ${formatCount(total)} tools</a> instead.</p>
     </header>
     <main>
       <h2 class="band">By job</h2>
@@ -6666,7 +6695,7 @@ export function renderComparePage({ groups, surfaces, categoryGroups = [], baseU
       (group) => `      <section class="subject" id="${escapeHtml(anchorFor(group))}">
         <h2>${escapeHtml(group.subject)}</h2>
         <p class="note">${escapeHtml(
-          `${group.items.length} tools here have a page comparing themselves with ${group.subject}. Written by the tool's author; not affiliated with ${group.subject}.`,
+          `${formatCount(group.items.length)} tools here have a page comparing themselves with ${group.subject}. Written by the tool's author; not affiliated with ${group.subject}.`,
         )} <a href="${escapeHtml(`${toRoot}${comparisonProductPath(group.key)}`)}">${escapeHtml(
           `${group.subject} on its own page →`,
         )}</a></p>
@@ -6759,7 +6788,7 @@ ${group.items.map(renderCard).join('\n')}
       <p class="eyebrow">Comparisons</p>
       <h1>What each free tool here does that the paid product does not — and what it does not do</h1>
       <p class="lede">Every tool on this site that overlaps with a commercial product has a page saying so plainly: what the product does, what the free tool does, and when the paid one is the right answer. They are written by the tool's author, cite the product's own public documentation, and are not affiliated with, endorsed by, or reviewed by any product named here.</p>
-      <p class="count">${total} comparison page${total === 1 ? '' : 's'} across ${groups.length} product${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
+      <p class="count">${formatCount(total)} comparison page${total === 1 ? '' : 's'} across ${groups.length} product${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
     </header>
 
     <nav class="jump" aria-label="Products with more than one comparison">
@@ -7134,7 +7163,7 @@ export function renderGuidesPage({ groups, surfaces, categoryGroups = [], baseUr
 
   const title = 'Guides: what to charge, and how each price is worked out';
   const description =
-    `${total} plain-English pages from ${groups.length} free calculators — how a price is built up, ` +
+    `${formatCount(total)} plain-English pages from ${groups.length} free calculators — how a price is built up, ` +
     'when one option beats another, and what to do with the answer. Written by each tool\'s author, ' +
     'free, and with the calculator on the same site.';
 
@@ -7143,7 +7172,7 @@ export function renderGuidesPage({ groups, surfaces, categoryGroups = [], baseUr
   const renderTool = (group) => `        <div class="tool" style="${escapeHtml(guideBlockStyle(group.title, group.items))}">
           <h3><a href="${escapeHtml(`${toRoot}${group.slug}/`)}" data-tool="${escapeHtml(group.slug)}" data-pf-to="${escapeHtml(group.slug)}">${escapeHtml(group.title)}</a></h3>
           <p class="note">${escapeHtml(
-            `${group.items.length} page${group.items.length === 1 ? '' : 's'} beside the calculator`,
+            `${group.items.length} page${group.items.length === 1 ? '' : 's'} beside the tool`,
           )}</p>
           <ul class="answers">
 ${group.items
@@ -7161,7 +7190,7 @@ ${group.items
       ({ category, tools }) => `      <section class="subject" id="${escapeHtml(anchorFor(category))}">
         <h2>${escapeHtml(categoryPageCopy(category).title)}</h2>
         <p class="note">${escapeHtml(
-          `${tools.reduce((n, t) => n + t.items.length, 0)} pages across ${tools.length} tool${
+          `${formatCount(tools.reduce((n, t) => n + t.items.length, 0))} pages across ${tools.length} tool${
             tools.length === 1 ? '' : 's'
           } for ${categoryPageCopy(category).audience}.`,
         )} <a href="${escapeHtml(`${toRoot}${categoryPagePath(category.id)}`)}">${escapeHtml(
@@ -7249,7 +7278,7 @@ ${tools.map(renderTool).join('\n')}
       <p class="eyebrow">Guides</p>
       <h1>The question people ask before they know a calculator exists</h1>
       <p class="lede">Every tool on this site ships pages beside the calculator: how a price is actually built up, when one option beats another, what a fee schedule does to a payout, and what to do with the number once you have it. They are written by the tool's author, in plain English, and the calculator that answers the same question with your own figures is one click away from each one.</p>
-      <p class="count">${total} page${total === 1 ? '' : 's'} across ${groups.length} tool${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
+      <p class="count">${formatCount(total)} page${total === 1 ? '' : 's'} across ${groups.length} tool${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
     </header>
 
     <nav class="jump" aria-label="Guides by trade">
@@ -7347,7 +7376,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   const total = surfaces.length;
   const categoryCount = groups.length;
   const title = 'About these tools';
-  const description = `Who makes these ${total} free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).`;
+  const description = `Who makes these ${formatCount(total)} free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).`;
 
   // The one absolute claim below — nothing typed ever leaves the browser —
   // is true for every tool except one this checks for: a tool whose whole
@@ -7363,11 +7392,11 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 
   // The boilerplate a linker copies. Kept as data, not prose, so the numbers in
   // it cannot drift from the catalogue the way hand-written marketing copy does.
-  const shortBoiler = `${total} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.`;
+  const shortBoiler = `${formatCount(total)} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.`;
   const deviceClaim = exceptions.length
     ? `the numbers a user types never leave their device, except on ${listProse(exceptions.map((x) => toolProseName(x.title)))}, where the one thing you paste — the lookup target — goes to the public API it checks (${exceptionHosts}) and nowhere else`
     : `the numbers a user types never leave their device`;
-  const longBoiler = `${SITE_NAME} is a collection of ${total} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — ${deviceClaim}, and each tool keeps working offline once it has been opened. All ${total} are free with no gated features and no paid tier.`;
+  const longBoiler = `${SITE_NAME} is a collection of ${formatCount(total)} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — ${deviceClaim}, and each tool keeps working offline once it has been opened. All ${formatCount(total)} are free with no gated features and no paid tier.`;
 
   // A stand-in slug, not a real one: naming an actual tool here would go stale
   // the day that tool is renamed, and every real snippet is already generated,
@@ -7431,7 +7460,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
     <header class="pf-hero">
       <p class="eyebrow">About</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser and they cost nothing. ${
+      <p class="lede">${formatCount(total)} free calculators and checks for people who run a small business. They run in your browser and they cost nothing. ${
         exceptions.length
           ? `The numbers you type never leave your device, except on the ${exceptions.length} lookup tools listed below, where the one thing you paste goes to the public API that tool checks.`
           : 'The numbers you type never leave your device.'
@@ -7559,7 +7588,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
       <p class="boiler">${escapeHtml(longBoiler)}</p>
       <h3>The facts, if you would rather write your own</h3>
       <ul>
-        <li><strong>${total} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
+        <li><strong>${formatCount(total)} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
         <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics; works offline once opened.${exceptions.length ? ` ${exceptionNames} ${exceptions.length === 1 ? 'is the one documented exception' : 'are the documented exceptions'} — see Privacy above.` : ' No upload.'}</li>
         <li><strong>MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
         <li><strong>Front page:</strong> <a href="${escapeHtml(toRoot)}" data-pf-to="hub">${escapeHtml(baseUrl)}</a></li>
@@ -7572,7 +7601,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 
       <h2>Embedding a tool on your own page</h2>
       <p>
-        Every one of the ${total} tools here can be framed on someone else's
+        Every one of the ${formatCount(total)} tools here can be framed on someone else's
         page — a trade association's resource page, a supplier's blog post, a
         forum's sidebar. Open any tool and scroll to the bottom for a
         ready-made, copyable snippet built from that page's own address and
@@ -7647,7 +7676,7 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
   const url = `${baseUrl}${FEEDBACK_PATH}`;
   const toRoot = '../';
   const title = 'Report a problem or suggest a feature';
-  const description = `Tell us what is wrong with one of these ${surfaces.length} free tools, or what you would like one to do. No account needed.`;
+  const description = `Tell us what is wrong with one of these ${formatCount(surfaces.length)} free tools, or what you would like one to do. No account needed.`;
   const issueBase = `${REPO_URL}/issues/new`;
   const form = feedbackUrl
     ? `
@@ -8580,7 +8609,7 @@ export function renderHub(
   <title>${escapeHtml(SITE_NAME)} | Free Tools, Self-Hostable Apps &amp; Research</title>
   <meta name="description" content="${escapeHtml(
     snippetize(
-      `Free bid calculators, fee checkers and pricing tools for small businesses: ${browserCount} open-source tools that run in your browser, plus self-hostable apps. No sign-up.`,
+      `Free bid calculators, fee checkers and pricing tools for small businesses: ${formatCount(browserCount)} open-source tools that run in your browser, plus self-hostable apps. No sign-up.`,
     ),
   )}">
   <link rel="canonical" href="${escapeHtml(baseUrl)}">${verificationHead()}
@@ -8867,7 +8896,7 @@ ${
            JavaScript the category grid below is the way in: every tool is on
            its category's page. -->
       <form class="search" id="${SEARCH_ANCHOR}" role="search" action="./" method="get">
-        <label for="q">Search ${surfaces.length} tools${researchCount ? ` and ${researchCount} research projects` : ''}</label>
+        <label for="q">Search ${formatCount(surfaces.length)} tools${researchCount ? ` and ${formatCount(researchCount)} research projects` : ''}</label>
         <div class="search-row">
           <input id="q" name="q" type="search" placeholder="eBay fees, roofing bid, freight, VAT, scoring rules…"
                  autocomplete="off" spellcheck="false">
@@ -8882,10 +8911,10 @@ ${
       </form>
 
       <dl class="stats" id="overview">
-        <div><dt>Browser tools</dt><dd><a href="${CATEGORY_PATH_PREFIX}/">${browserCount}</a></dd></div>
-        <div><dt>Self-hostable apps</dt><dd><a href="${escapeHtml(categoryPagePath('apps'))}">${apps.length}</a></dd></div>
-        <div><dt>Command-line tools</dt><dd><a href="${escapeHtml(categoryPagePath('cli'))}">${clis.length}</a></dd></div>
-        <div><dt>Research projects</dt><dd><a href="${RESEARCH_PATH}">${researchCount}</a></dd></div>
+        <div><dt>Browser tools</dt><dd><a href="${CATEGORY_PATH_PREFIX}/">${formatCount(browserCount)}</a></dd></div>
+        <div><dt>Self-hostable apps</dt><dd><a href="${escapeHtml(categoryPagePath('apps'))}">${formatCount(apps.length)}</a></dd></div>
+        <div><dt>Command-line tools</dt><dd><a href="${escapeHtml(categoryPagePath('cli'))}">${formatCount(clis.length)}</a></dd></div>
+        <div><dt>Research projects</dt><dd><a href="${RESEARCH_PATH}">${formatCount(researchCount)}</a></dd></div>
       </dl>
 
       <!-- The open custom development offer, aimed at businesses (owner,
@@ -8981,7 +9010,7 @@ ${audiencePages
     <section class="band" id="browse" aria-labelledby="browse-h">
       <p class="section-eyebrow">Browse</p>
       <h2 id="browse-h">Tools by the job they do</h2>
-      <p class="band-lede">${surfaces.length} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
+      <p class="band-lede">${formatCount(surfaces.length)} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
       <ul class="cats">
 ${categoryTiles}
       </ul>
@@ -10890,7 +10919,7 @@ ${askLine}    <h2>More free tools</h2>
       : 'Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.'
     }</p>
 ${noSla}${isEntry && baseUrl && hasCiChannels(slug) ? renderCiInstall(slug, baseUrl) : ''}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}${forLinks}    <p>
-      <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
+      <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${formatCount(total)} free tools →</a>
       &nbsp;·&nbsp;
       <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About &amp; privacy</a>
       &nbsp;·&nbsp;
@@ -11595,7 +11624,7 @@ ${audiences
   const researchSection = research.themes.length
     ? `## Open research
 
-${researchProjects} research projects, each with its question, code, tests and results, MIT licensed: [the research index](${baseUrl}${RESEARCH_PATH}). By topic:
+${formatCount(researchProjects)} research projects, each with its question, code, tests and results, MIT licensed: [the research index](${baseUrl}${RESEARCH_PATH}). By topic:
 
 ${research.themes
   .map((t) => `- [${oneLine(t.name)}](${baseUrl}${RESEARCH_PATH}topics/${t.id}/): ${t.count} project${t.count === 1 ? '' : 's'}`)
@@ -11619,7 +11648,7 @@ ${full ? `\n${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${ba
 
   return `# ${SITE_NAME}
 
-> ${SITE_NAME} is an open-source lab where AI agents build tools and research in public, all MIT licensed. ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
+> ${SITE_NAME} is an open-source lab where AI agents build tools and research in public, all MIT licensed. ${formatCount(surfaces.length)} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${formatCount(researchProjects)} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
@@ -12387,7 +12416,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     path.join(outDir, SOCIAL_CARD_FILE),
     renderSiteCard({
       address: siteAddress(base),
-      footer: `${surfaces.length} free tools · ${researchProjectCount()} research projects`,
+      footer: `${formatCount(surfaces.length)} free tools · ${formatCount(researchProjectCount())} research projects`,
     }),
   );
   // One card per category, tinted and headlined with the section's own name.

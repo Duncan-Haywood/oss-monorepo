@@ -580,3 +580,16 @@ test("joined cut is opt-in: without join the priced cut is unchanged, and backte
   const tail = tailOf(Object.fromEntries([...Array(24).keys()].map((h) => [h, h >= 8 && h < 18 ? [1, 1, q2(h), 0] : [1, 0]])));
   assert.deepEqual(cutShifts(p, 4, 8, { tail, r: 3, minStaff: 1 }), cutShifts(p, 4, 8, { tail, r: 3, minStaff: 1, join: false }));
 });
+
+test("camelCase headers read: an invoice-line export (InvoiceDate, Quantity, UnitPrice, InvoiceNo) plans", () => {
+  // Made-up rows in the UCI Online Retail export's shape (the real file: eval/fourth-file.mjs, not committed).
+  const rows = ["InvoiceNo,StockCode,Description,Quantity,InvoiceDate,UnitPrice,CustomerID,Country"];
+  for (const d of ["2026-11-02", "2026-11-09"]) for (const h of ["09", "10", "11"]) rows.push(`5363${h},85123A,LANTERN,10,${d} ${h}:26:00,20,17850,United Kingdom`);
+  const s = hourlySales(rows.join("\n"), {});
+  assert.equal(s.rows, 6);
+  assert.equal(s.avg[0][9], 200);
+  assert.ok(s.notes.some((n) => /quantity times its unit price/.test(n)));
+  // The UCI II spelling: "Invoice" and "Price"; counted by invoice it is one customer per invoice number.
+  const t = hourlySales(rows.join("\n").replace("InvoiceNo", "Invoice").replace("UnitPrice", "Price"), { count: "tickets" });
+  assert.equal(t.avg[0][10], 1);
+});

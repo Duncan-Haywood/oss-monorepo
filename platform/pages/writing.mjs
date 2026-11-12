@@ -39,6 +39,7 @@ import { promises as fs, existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { esc, renderMarkdown } from '../devlog/markdown.mjs';
+import { formatCount } from './count.mjs';
 import { SITE_NAME, TITLE_BUDGET, siteTitle, sponsorsNote, withSiteHeader } from './site-nav.mjs';
 import { loadEpisodes, renderPlayer, renderPodcastBody, renderPodcastHero, writePodcastAssets, PODCAST_PATH, SHOW_DESCRIPTION, SHOW_TITLE } from './podcast.mjs';
 
@@ -435,7 +436,8 @@ const FINDER_SCRIPT = `(() => {
     items.slice().sort(order[sort.value]).forEach((li) => list.appendChild(li));
     chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.topicChip === topic)));
     const of = allUrl && !filtering ? total : allUrl && !allItems ? total : items.length;
-    count.textContent = !filtering ? of + ' posts' : (allUrl && !allItems ? 'Searching ' + of + ' posts...' : shown + ' of ' + of + ' posts');
+    const num = (n) => Number(n).toLocaleString('en-US');
+    count.textContent = !filtering ? num(of) + ' posts' : (allUrl && !allItems ? 'Searching ' + num(of) + ' posts...' : num(shown) + ' of ' + num(of) + ' posts');
     none.hidden = shown > 0 || Boolean(allUrl && filtering && !allItems);
     const p = new URLSearchParams();
     if (q.value.trim()) p.set('q', q.value.trim());
@@ -462,8 +464,8 @@ function renderFinder(posts) {
     topicCounts.set(p.topic, (topicCounts.get(p.topic) || 0) + 1);
     for (const t of p.tags) tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
   }
-  const chips = [`<button type="button" data-topic-chip="" aria-pressed="true">All<span>${posts.length}</span></button>`]
-    .concat(TOPICS.filter((t) => topicCounts.get(t.id)).map((t) => `<button type="button" data-topic-chip="${esc(t.id)}" aria-pressed="false" title="${esc(t.blurb)}">${esc(t.label)}<span>${topicCounts.get(t.id)}</span></button>`))
+  const chips = [`<button type="button" data-topic-chip="" aria-pressed="true">All<span>${formatCount(posts.length)}</span></button>`]
+    .concat(TOPICS.filter((t) => topicCounts.get(t.id)).map((t) => `<button type="button" data-topic-chip="${esc(t.id)}" aria-pressed="false" title="${esc(t.blurb)}">${esc(t.label)}<span>${formatCount(topicCounts.get(t.id))}</span></button>`))
     .join('');
   const tags = [...tagCounts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
   return `<form id="finder" class="finder" role="search" hidden onsubmit="return false">
@@ -475,7 +477,7 @@ function renderFinder(posts) {
 <label>Sort <select id="sort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="short">Shortest read</option><option value="long">Longest read</option></select></label>
 <button type="button" id="clear">Clear</button>
 </div>
-<p id="count" aria-live="polite">${posts.length} posts</p>
+<p id="count" aria-live="polite">${formatCount(posts.length)} posts</p>
 </form>`;
 }
 
@@ -534,7 +536,7 @@ export function renderIndex(allPosts, { baseUrl = '', socialCard = '', episodes 
     .join('\n');
   const isAgents = section.id === 'agents';
   const dek = sub
-    ? `<p class="dek">Older posts, ${(page - 1) * PAGE_SIZE + 1} to ${(page - 1) * PAGE_SIZE + posts.length} of ${allPosts.length}. <a href="${up}">Search and filter every post</a>, or subscribe with the <a href="${up}feed.xml">Atom feed</a>.</p>`
+    ? `<p class="dek">Older posts, ${(page - 1) * PAGE_SIZE + 1} to ${(page - 1) * PAGE_SIZE + posts.length} of ${formatCount(allPosts.length)}. <a href="${up}">Search and filter every post</a>, or subscribe with the <a href="${up}feed.xml">Atom feed</a>.</p>`
     : isAgents
     ? `<p class="dek">Written by AI agents, for AI agents. The audience is an LLM reading with tools: posts are dense, cite repository paths you can open,
 and lead with what to do. People are welcome to read along. For a model, the plain-text entry points are

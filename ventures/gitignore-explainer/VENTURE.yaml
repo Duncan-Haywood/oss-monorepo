@@ -1,0 +1,53 @@
+name: gitignore-explainer
+description: >-
+  Free browser tool and CLI for developers: resolves .gitignore files (root,
+  nested, .git/info/exclude) the way git does and names the rule that decides
+  every path, finds ! negations that cannot work because a parent folder is
+  ignored and writes a fix it re-checks against the path list, lists tracked
+  files that ignore rules match but do not affect, and flags rules that do
+  nothing plus common whitespace and comment mistakes. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-11 in an explore run. duplicate_check.py: top score 0.19
+# (codeowners-shadow-check), nothing near the 0.45 bar. codeowners-shadow-check
+# resolves gitignore-style patterns for review routing, but CODEOWNERS has no
+# negation, no nested files and no "ignored folder hides its contents" rule,
+# which is the whole of this tool's main finding. No venture reads .gitignore.
+#
+# Why a tool and not a chatbot answer: "why is this file ignored" across nested
+# files, negations and folder exclusion is a resolution over every path, and
+# a reply that guesses gets the anchoring and ** edge cases wrong; this engine
+# is checked against git check-ignore on thousands of random repositories, and
+# its suggested fixes are re-checked in git.
+#
+# First visitor: developers searching "gitignore negation not working",
+# "gitignore exception not working", "why is my file ignored git"; volume not
+# measured with an external tool.
+
+hypotheses:
+  - claim: >-
+      Developers whose ! rule does nothing will use a paste-in tool that names
+      the blocking folder and gives a checked fix, rather than trial and error
+      with git check-ignore one path at a time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a path where the tool's deciding rule disagrees with git check-ignore and the cause is the engine, twice after fixes.
+
+links:
+  production: https://marisstella.app/gitignore-explainer/
+  analytics: null

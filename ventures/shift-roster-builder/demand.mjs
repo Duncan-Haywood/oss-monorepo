@@ -16,16 +16,18 @@
 import { splitCsvRow } from "./import-staff.mjs";
 import { DAYS } from "./calc.mjs";
 
-const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+// camelCase headers split into words first ("InvoiceDate" is "invoice date", "UnitPrice" "unit price"; 2026-11-11, the
+// UCI Online Retail export could not be read before).
+const norm = (s) => String(s || "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const SYN = {
-  stamp: ["datetime", "date time", "timestamp", "time", "hour", "date", "sale time", "order time", "created at", "opened", "check opened", "start", "interval", "period", "order date", "sale date", "transaction time", "transaction date", "paid at", "closed", "check closed", "payment time"],
+  stamp: ["datetime", "date time", "timestamp", "time", "hour", "date", "sale time", "order time", "created at", "opened", "check opened", "start", "interval", "period", "order date", "sale date", "transaction time", "transaction date", "invoice date", "time stamp", "paid at", "closed", "check closed", "payment time"],
   day: ["day", "weekday", "day of week", "dow"],
   sales: ["sales", "net sales", "gross sales", "amount", "total", "revenue", "net revenue", "net amount", "sales amount", "total sales", "net sale", "gross", "net price", "order total", "check total", "net total", "gross total", "payment amount", "transaction amount", "subtotal", "sub total"],
 };
 const QTY = ["quantity", "qty", "units", "quantity sold", "units sold", "items sold", "item quantity", "qty sold"];
 // A ticket, order or receipt number: with o.count "tickets" (or no sales column at all) each distinct number is one
 // customer served, so staffing follows how many people came through, not how much they spent.
-const TICKET = ["ticket", "ticket number", "ticket no", "ticket id", "transaction", "transaction id", "transaction number", "transaction no", "order id", "order number", "order no", "receipt", "receipt number", "receipt no", "receipt id", "check number", "check no", "check id", "bill number", "bill no", "invoice number", "invoice no", "sale id", "sale number"];
+const TICKET = ["ticket", "ticket number", "ticket no", "ticket id", "transaction", "transaction id", "transaction number", "transaction no", "order id", "order number", "order no", "receipt", "receipt number", "receipt no", "receipt id", "check number", "check no", "check id", "bill number", "bill no", "invoice", "invoice number", "invoice no", "invoice id", "sale id", "sale number"];
 const PRICE = ["unit price", "price", "item price", "price each", "selling price", "sale price", "unit price eur", "unit price euro"];
 const isoKey = (k) => String(k).trim().replace(/^(\d{4})-(\d{1,2})-(\d{1,2})$/, (_, y, m, d) => `${y}-${+m}-${+d}`);
 const DAYNAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
@@ -118,7 +120,7 @@ export function readSales(text, o = {}) {
   const find = (k) => head.findIndex((h) => SYN[k].includes(h));
   const ix = { stamp: find("stamp"), day: find("day"), sales: find("sales"), clock: -1 };
   // A separate date column and time column ("Date,Time,Net Sales" is how many POS exports come): join them into one stamp.
-  const dateCol = head.findIndex((h) => ["date", "day date", "business date", "sale date", "order date"].includes(h));
+  const dateCol = head.findIndex((h) => ["date", "day date", "business date", "sale date", "order date", "invoice date"].includes(h));
   const timeCol = head.findIndex((h, i) => i !== dateCol && ["time", "hour", "sale time", "order time", "start time", "interval", "period"].includes(h));
   if (dateCol >= 0 && timeCol >= 0) { ix.stamp = dateCol; ix.clock = timeCol; }
   // A line-item export (one row per item sold: a French bakery's "date,time,ticket_number,article,Quantity,unit_price",
@@ -301,10 +303,21 @@ function fractileHeads(entries, dates, a, splh, r) {
 export function hourlySales(text, o = {}) {
   if (o.shortCost !== undefined) shortCostShare(o.shortCost);
   if (o.halfLife !== undefined && !(Number(o.halfLife) > 0)) throw new Error("half-life must be a positive number of weeks");
+  if (o.window !== undefined && !(Number.isInteger(Number(o.window)) && Number(o.window) >= 1)) throw new Error("the last-weeks window must be a whole number of weeks, 1 or more");
   const r = readSales(text, o);
   const out = { avg: DAYS.map(() => new Array(24).fill(0)), observed: new Array(7).fill(0), seen: DAYS.map(() => new Array(24).fill(0)), closed: [], rows: r.rows, skipped: r.skipped, notes: [...r.notes], entries: r.entries, count: r.count };
   if (!r.rows && r.notes.length) return out;
-  const a = averageSales(r.entries, o);
+  // o.window (--last-weeks): plan from the last that many weeks of dated rows only, the days before the week after the
+  // newest date, as backtestSales' "last 4 weeks only" method trains (2026-11-11). Undated weekday rows are kept.
+  let entries = r.entries;
+  if (o.window !== undefined) {
+    let latest = -Infinity;
+    for (const e of entries) if (e.key) { const t = keyMs(e.key); if (t > latest) latest = t; }
+    const from = latest + DAY_MS - Number(o.window) * 7 * DAY_MS;
+    entries = entries.filter((e) => !e.key || keyMs(e.key) >= from);
+    out.notes.push(`Planned from the last ${o.window} week${+o.window === 1 ? "" : "s"} of dated sales only (${entries.filter((e) => e.key).length} of ${r.entries.filter((e) => e.key).length} dated rows).`);
+  }
+  const a = averageSales(entries, o);
   Object.assign(out, { avg: a.avg, observed: a.observed, seen: a.seen, closed: a.closed, heads: a.heads, tail: a.tail });
   if (a.heads) out.notes.push(`Short-vs-over weight ${+o.shortCost}: a short person-hour counted as ${+o.shortCost} times a spare one, so each hour is staffed for ${Math.round(shortCostShare(o.shortCost) * 100)}% of its past dates, not for the average.`);
   if (r.refunds.n) out.notes.push(`${r.refunds.n} row${r.refunds.n === 1 ? "" : "s"} with negative sales (refunds or voids, ${Math.round(-r.refunds.amount * 100) / 100} in all) left out: the plan follows what was rung up.`);
@@ -527,28 +540,34 @@ const clock = (h) => `${h === 24 ? "0" : h}:00`.replace(/^(\d):/, "$1:");
 // this way week by week on two real bakeries it was never clearly worse than the plain average in 12 settings and
 // 7.4% better on average, where a fixed half-life 2 was clearly worse in 2 and half-lives 4 and 8 helped less.
 export const AUTO_MIN_WEEKS = 4;
+// With o.scoreClosed the backtest is scored that way and "the last 4 weeks only" is a candidate too. Measured 2026-11-11
+// (eval/window-auto.mjs, README "A 4-week window in half-life auto"), out of sample on three real bakeries: under the
+// default score adding it changed nothing clearly in 18 of 18 settings (mean +0.2%, so it is not offered there); under
+// --score-closed it was clearly better than the four-weighting choice in 6 of 18 and clearly worse in none (mean -16.3%,
+// Bread Basket -47%).
 export function pickHalfLife(text, o = {}) {
   const rc = o.shortCost === undefined ? null : Number(o.shortCost);
-  const ids = ["hl8", "hl4", "hl2"];
+  const ids = o.scoreClosed ? ["hl8", "hl4", "hl2", "last4"] : ["hl8", "hl4", "hl2"];
   const pre = rc === null ? "" : "q-";
   let b;
-  try { b = backtestSales(text, { ...o, halfLife: undefined, shifts: true, methods: rc === null ? ids : ["all", ...ids].map((x) => pre + x) }); }
+  try { b = backtestSales(text, { ...o, halfLife: undefined, window: undefined, shifts: true, methods: rc === null ? ids : ["all", ...ids].map((x) => pre + x) }); }
   catch { return { halfLife: undefined, note: "Half-life auto: the file could not be backtested, so every earlier week weighs the same." }; }
   if (b.weeks < AUTO_MIN_WEEKS) return { halfLife: undefined, weeks: b.weeks, note: `Half-life auto: ${b.weeks} full week${b.weeks === 1 ? "" : "s"} to test on, fewer than ${AUTO_MIN_WEEKS}, so every earlier week weighs the same.` };
   const cands = b.methods.filter((m) => m.id === pre + "all" || ids.some((x) => m.id === pre + x));
   const base = cands.find((m) => m.id === pre + "all");
   const best = cands.reduce((a, m) => (m.miss < a.miss - 1e-9 ? m : a), base);
-  const hl = best.halfLife;
-  const what = hl ? `half-life ${hl} weeks` : "every earlier week weighed the same";
+  const hl = best.halfLife, win = best.window;
+  const what = hl ? `half-life ${hl} weeks` : win ? `the last ${win} weeks only` : "every earlier week weighed the same";
   const gain = base.miss - best.miss;
-  return { halfLife: hl, weeks: b.weeks, note: `Half-life auto: ${what}, the weighting with the least short + over on your last ${b.weeks} weeks${hl ? ` (${gain.toFixed(1)} person-hours a week fewer than equal weights)` : ""}. --half-life none turns it off; a number fixes it.` };
+  const scored = o.scoreClosed ? " (a staffed closure scored as over)" : "";
+  return { halfLife: hl, window: win, weeks: b.weeks, note: `Half-life auto: ${what}, the weighting with the least short + over on your last ${b.weeks} weeks${scored}${best !== base ? ` (${gain.toFixed(1)} person-hours a week fewer than equal weights)` : ""}. --half-life none turns it off; a number fixes it.` };
 }
 
 export function demandShifts(text, o = {}) {
   if (o.halfLife === "auto") {
     const p = pickHalfLife(text, o);
-    const r = demandShifts(text, { ...o, halfLife: p.halfLife });
-    r.notes.push(p.note); r.halfLife = p.halfLife;
+    const r = demandShifts(text, { ...o, halfLife: p.halfLife, window: p.window });
+    r.notes.push(p.note); r.halfLife = p.halfLife; r.window = p.window;
     return r;
   }
   if (o.halfLife === "none" || o.halfLife === 0) o = { ...o, halfLife: undefined };
