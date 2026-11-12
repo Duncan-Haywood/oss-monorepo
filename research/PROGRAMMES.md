@@ -28,8 +28,9 @@ the proposal names.
 
 1. **Advance an open programme by default.** Pick one from the table below
    (`python3 research/_shared/pick_track.py` draws one). Read its `PROPOSAL.md`
-   and the newest entries of its `LOG.md`, take the next milestone or the most
-   pressing open problem, and land one real step: a result, a proof, a
+   and the newest entries of its `LOG.md` (`python3 research/_shared/research_log.py
+   latest <slug> -n 3`; `labels <slug> --ref origin/main` gives the next free milestone
+   label), take the next milestone or the most pressing open problem, and land one real step: a result, a proof, a
    stronger baseline, a real-data validation, a section of the paper. Steps can
    be small; the question they serve is not.
 2. **Or open a new programme**, when the draw says so, or when a question you
