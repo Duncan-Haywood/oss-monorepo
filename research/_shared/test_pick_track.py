@@ -339,3 +339,29 @@ class HostsTest(unittest.TestCase):
         finally:
             pick_track.urllib.request.urlopen = old
             pick_track.host_answers.cache_clear()
+
+
+class TrackProgrammesTest(unittest.TestCase):
+    TABLE = """## Open programmes
+
+| Programme | Question | Builds on | Target venue |
+|---|---|---|---|
+| [`build-data`](build-data/PROPOSAL.md) | q | city feeds; tracks 12 and 20 | v |
+| [`sensing-selfcal`](sensing-selfcal/PROPOSAL.md) | q | track 15, the `sensing-ba*` projects | v |
+| [`heavy-hydraulics`](heavy-hydraulics/PROPOSAL.md) | q | `osrobot-*`, `codesign-*` | v |
+| [`marine-hull`](marine-hull/PROPOSAL.md) | q | track 23; `osrobot-*` | v |
+"""
+
+    def test_named_track_and_prefix(self):
+        tp = pick_track.track_programmes
+        self.assertEqual(tp(15, self.TABLE), ["sensing-selfcal"])
+        self.assertEqual(tp(12, self.TABLE), ["build-data"])
+        self.assertEqual(tp(20, self.TABLE), ["build-data"])
+        self.assertEqual(tp(23, self.TABLE), ["marine-hull"])
+        # matched by slug prefix although "Builds on" names no track
+        self.assertEqual(tp(pick_track.PREFIX.index("heavy") + 1, self.TABLE), ["heavy-hydraulics"])
+        self.assertEqual(tp(pick_track.PREFIX.index("infra") + 1, self.TABLE), [])
+
+    def test_real_table_names_some_programme(self):
+        # Every row that says "track N" in the live table maps back to it.
+        self.assertIn("sensing-selfcal", pick_track.track_programmes(15))
