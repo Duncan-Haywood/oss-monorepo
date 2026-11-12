@@ -169,3 +169,22 @@ test("a net stated as quantity x price beside a base quantity is kept (LHDN's sa
   const bad = invoice({ customization: "urn:peppol:pint:billing-1@my-1", currency: "MYR", lines: [{ qty: "10", price: "10.00", base: "10", net: "107.00" }], taxable: "100.00", rowTax: "5.00" });
   assert.equal(changed(repairUbl(bad))["/lines/0/net"], "10.00");
 });
+
+test("an amount inside an XML comment is not read, and the comment is kept byte for byte", () => {
+  // LHDN's PINT MY tourism tax samples keep a commented-out <cbc:Percent>10</cbc:Percent>.
+  const good = invoice({ customization: "urn:peppol:pint:billing-1@my-1", currency: "MYR", percent: "6", lines: [{ qty: "1", price: "200.00", net: "200.00" }], taxable: "200.00", rowTax: "12.00" })
+    .replace("<cbc:Percent>6</cbc:Percent><cac:TaxScheme>", "<!-- <cbc:Percent>10</cbc:Percent> --><cbc:Percent>6</cbc:Percent><cac:TaxScheme>");
+  assert.deepEqual(repairUbl(good).changes, []);
+  const bad = good.replace('<cbc:TaxAmount currencyID="MYR">12.00</cbc:TaxAmount>\n      <cac:TaxCategory>', '<cbc:TaxAmount currencyID="MYR">19.00</cbc:TaxAmount>\n      <cac:TaxCategory>');
+  const r = repairUbl(bad);
+  assert.equal(changed(r)["/tax_breakdown/0/tax"], "12.00");
+  assert.ok(r.xml.includes("<!-- <cbc:Percent>10</cbc:Percent> -->"));
+});
+
+test("a per-unit tax subtotal (PerUnitAmount) stops the tax recompute instead of applying a rate", () => {
+  const xml = invoice({ customization: "urn:peppol:pint:billing-1@my-1", currency: "MYR", percent: "10", lines: [{ qty: "2", price: "100.00", net: "200.00" }], taxable: "200.00", rowTax: "20.00" })
+    .replace('<cbc:TaxAmount currencyID="MYR">20.00</cbc:TaxAmount>\n      <cac:TaxCategory>', '<cbc:TaxAmount currencyID="MYR">20.00</cbc:TaxAmount>\n      <cbc:PerUnitAmount currencyID="MYR">10.00</cbc:PerUnitAmount>\n      <cac:TaxCategory>');
+  const r = repairUbl(xml.replace(/<cbc:TaxAmount currencyID="MYR">20.00<\/cbc:TaxAmount>\n    <cac:TaxSubtotal>/, '<cbc:TaxAmount currencyID="MYR">27.00</cbc:TaxAmount>\n    <cac:TaxSubtotal>'));
+  assert.equal(changed(r)["/totals/tax"], undefined);
+  assert.ok(r.skipped.some((s) => /per-unit/.test(s)));
+});

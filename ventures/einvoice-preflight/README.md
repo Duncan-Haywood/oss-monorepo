@@ -990,6 +990,14 @@ two of them on correct files, which the repair must never make worse:
   corrected VAT where every line states one (ALIGNED-IBRP-S-09-OM), not to rate
   x taxable.
 
+- **A rate inside an XML comment was read.** LHDN's tourism tax samples keep
+  a commented-out `<cbc:Percent>10</cbc:Percent>` in a per-unit tax subtotal
+  (10.00 a room-night, `PerUnitAmount`). The repair now reads the file with
+  comments blanked out (offsets kept, comments written back untouched), and
+  declines the tax part, with a note, when a subtotal is a per-unit amount.
+  Running the official sets on every repaired file (`--rules`) is what showed
+  this one.
+
 `eval/repair-seeded.mjs` now also seeds the line amounts inside
 `ItemPriceExtension` (Oman's BTOM-016/017, UAE's BTAE-08) under their own
 labels; before, the line VAT ones were counted as "KSA-11". Same seeds before
@@ -1009,7 +1017,7 @@ writes BTOM-017 to the cent (392.18) where the repair writes 373.5 + 18.675 =
 392.175. Both are within IBR-158-OM's 0.01. UAE and Malaysia's
 `ItemPriceExtension` amounts are not recomputed yet, and most of their
 remaining misses are there and in multi-currency and summary files.
-Tests: `repair-pint.test.mjs` (15, made-up invoices built in the test; 8 fail
+Tests: `repair-pint.test.mjs` (17, made-up invoices built in the test; 10 fail
 on the code before this change). Not done: a real
 business's file for any of the three; UAE's BTAE-08 and Malaysia's
 `ItemPriceExtension`.

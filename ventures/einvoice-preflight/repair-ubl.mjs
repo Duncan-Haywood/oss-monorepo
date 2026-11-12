@@ -74,7 +74,9 @@ export function repairUbl(source) {
   const before = checkInvoice(parseUblInvoice(text));
   const changes = [];
   const skipped = [];
-  const xml = text;
+  // Read with comments blanked out (same length, so offsets hold): LHDN's PINT MY tourism
+  // tax samples keep a <cbc:Percent>10</cbc:Percent> inside a comment. Edits go to `text`.
+  const xml = text.replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, " "));
   const edits = []; // {start, end, value}, applied at the end from the back
 
   // Plan a new value for the child `child` of a block (offsets on the original text).
@@ -87,7 +89,7 @@ export function repairUbl(source) {
     return true;
   };
   const done = () => {
-    let out = xml;
+    let out = text;
     for (const e of [...edits].sort((a, b) => b.start - a.start)) out = out.slice(0, e.start) + e.value + out.slice(e.end);
     return out;
   };
@@ -260,6 +262,10 @@ export function repairUbl(source) {
     skipped.push("Tax was not recomputed: the document does not have exactly one TaxTotal with subtotals (and at most one without, the tax currency's).");
   } else {
     const total = withSubs[0];
+    if (/<(?:[\w.-]+:)?PerUnitAmount[\s>]/.test(total.inner)) {
+      // A per-unit tax (PINT MY tourism tax: 10.00 a room-night) is not rate x taxable.
+      skipped.push("Tax was not recomputed: a tax subtotal is a per-unit amount (PerUnitAmount), not a rate on the taxable amount.");
+    } else {
     const groups = new Map();
     let bad = false;
     for (const l of lines) {
@@ -330,6 +336,7 @@ export function repairUbl(source) {
           skipped.push(`The tax in the VAT accounting currency (BT-111, ${cur || "no currency"}) was left as written: converting it needs your exchange rate.`);
         }
       }
+    }
     }
   }
 
