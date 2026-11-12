@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2392400e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EV%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cut and Fill Calculator from Survey Points | Earthwork Volumes, Balance Elevation</title>
+  <meta name="description" content="Free earthwork cut and fill calculator: drop in your survey shots (PNEZD or x,y,z), set a flat or sloped pad or load proposed grade, and get exact TIN cut and fill volumes, the pad elevation that balances the site with shrink, export or import and truckloads. Runs in your browser.">
+  <meta property="og:title" content="Earthwork Cut and Fill Calculator">
+  <meta property="og:description" content="Survey points in, triangulated cut and fill volumes, a cut/fill map, the balance pad elevation and truckloads out. Nothing uploaded.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Earthwork Cut and Fill Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reads PNEZD, PENZD, NEZ and ENZ point files with or without a header; Delaunay TIN of existing ground; flat or sloped design pad, or a proposed-grade TIN; boundary polygon of any shape; exact cut and fill volumes between the surfaces; topsoil strip; shrink and swell; balance pad elevation; export or import and truckloads; cut/fill map; CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How does this calculate cut and fill?","acceptedAnswer":{"@type":"Answer","text":"It joins your survey shots into a triangulated irregular network (a Delaunay TIN), the same kind of surface civil design software builds. Inside each triangle the ground is a plane and so is the design, so the depth between them changes linearly. The tool splits each triangle where that depth crosses zero and adds up the cut and fill parts exactly. There is no grid sampling on top of the triangulation."}},{"@type":"Question","name":"What is a balance elevation?","acceptedAnswer":{"@type":"Answer","text":"The pad elevation at which the material you cut is just enough to build the fill, so nothing is hauled off or brought in. Cut soil loses volume when it is compacted into fill, so with a shrink factor the balance point sits a little higher than where cut and fill volumes are equal."}},{"@type":"Question","name":"What are shrink and swell?","acceptedAnswer":{"@type":"Answer","text":"Shrink is the share of volume a cubic yard of undisturbed (bank) soil loses when it is placed and compacted as fill; 10 to 25 percent is common. Swell is the share it gains when dug and loaded loose in a truck; 15 to 40 percent is common for earth. Both depend on the soil and should come from the geotechnical report or your own experience on that material."}},{"@type":"Question","name":"What point file formats does it read?","acceptedAnswer":{"@type":"Answer","text":"Comma, tab, semicolon or space separated text. With a header row it finds Northing, Easting and Elevation (or X, Y, Z) by name. Without one, four or more columns are read as PNEZD (point, northing, easting, elevation, description), the usual data-collector and Civil 3D export, and three columns as easting, northing, elevation. You can force PENZD, NEZ or ENZ."}},{"@type":"Question","name":"Can I bid on these numbers?","acceptedAnswer":{"@type":"Answer","text":"Use them as a check, not as the only takeoff. A TIN is only as good as its shots: without breaklines it cuts straight across ditches, curbs and ridges between points, and it knows nothing about rock, unsuitable soil, over-excavation or the structural section under paving. Compare it with the engineer's grading plan and your own takeoff."}},{"@type":"Question","name":"Is my survey uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Files are read and every calculation runs in your browser. Nothing is sent anywhere. An optional anonymous counter in this browser's local storage records only which features were used and the day."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f1d1a; background: #ece8e1; --accent: #92400e; --ink2: #57534e; --line: #cbc4b8; --panel: #fbfaf7; --cut: #b42318; --fill: #1d4ed8; }
+    body { max-width: 1160px; margin: 0 auto; padding: 32px 16px; }
+    header { max-width: 780px; margin-bottom: 24px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3.1rem); line-height: 1.02; margin: 0 0 12px; letter-spacing: -.04em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: var(--accent); margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; align-items: start; }
+    section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    .hint { font-size: .83rem; color: var(--ink2); margin: -4px 0 12px; }
+    .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    label { display: grid; gap: 5px; font-size: .86rem; font-weight: 650; }
+    input, select, textarea { width: 100%; box-sizing: border-box; border: 1px solid #b5ad9f; border-radius: 7px; padding: 9px; font: inherit; background: #fff; }
+    textarea { font-family: ui-monospace, Menlo, monospace; font-size: .8rem; min-height: 110px; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b5ad9f; background: #f1ede6; padding: 9px 13px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e4ddd2; }
+    .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .primary:hover { background: #78350f; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+    .muted { color: var(--ink2); font-size: .84rem; }
+    .tin .padonly { display: none; } .tinonly { display: none; } .tin .tinonly { display: grid; }
+    .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .stat { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: #fff; }
+    .stat .k { font-size: .78rem; color: var(--ink2); font-weight: 650; }
+    .big { font-size: 1.7rem; font-weight: 750; letter-spacing: -.03em; font-variant-numeric: tabular-nums; margin: 2px 0; }
+    .cutc { color: var(--cut); } .fillc { color: var(--fill); }
+    .warn { font-size: .82rem; background: #fff4e5; border-left: 3px solid #d97706; padding: 6px 9px; margin: 6px 0 0; border-radius: 4px; }
+    .err { color: #b42318; font-size: .86rem; }
+    svg { width: 100%; height: auto; display: block; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+    .legend { display: flex; gap: 14px; font-size: .8rem; color: var(--ink2); margin-top: 6px; flex-wrap: wrap; }
+    .sw { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -2px; margin-right: 4px; }
+    footer { margin-top: 24px; font-size: .82rem; color: var(--ink2); }
+    footer a, header a, main a { color: #78350f; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 520px) { .fields, .stats { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SITE-WORK CONTRACTORS, ESTIMATORS AND BUILDERS</p>
+    <h1>How much dirt moves on this pad?</h1>
+    <p>Drop in the survey shots of the existing ground, set the pad (flat or sloped) or load the proposed grade, and get cut and fill volumes from a triangulated surface, the pad elevation that balances the site after shrink, and what is left to export or import in truckloads. Everything runs in your browser.</p>
+    <p><a href="./how-to-calculate-cut-and-fill.html">How cut and fill are calculated, with a worked example you can check by hand</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>1. Existing ground</h2>
+        <p class="hint">Survey points as text: PNEZD (point, northing, easting, elevation, description) from a data collector or Civil 3D, or easting, northing, elevation. A header row is read by name.</p>
+        <label>Point file <input id="existingFile" type="file" accept=".csv,.txt,.pnezd,text/csv,text/plain"></label>
+        <label style="margin-top:10px">Or paste it <textarea id="existingText" spellcheck="false" placeholder="1,2087150.00,612400.00,100.00,EG&#10;2,2087165.00,612400.00,100.53,EG&#10;..."></textarea></label>
+        <div class="fields" style="margin-top:10px">
+          <label>Columns
+            <select id="format"><option value="auto">Detect (header, else PNEZD or ENZ)</option><option>PNEZD</option><option>PENZD</option><option>NEZ</option><option>ENZ</option></select>
+          </label>
+          <label>Units
+            <select id="units"><option value="ft">Feet (volumes in cu yd)</option><option value="m">Metres (volumes in m³)</option></select>
+          </label>
+        </div>
+      </section>
+
+      <section id="designBox">
+        <h2>2. Design</h2>
+        <div class="fields">
+          <label>Design surface
+            <select id="designMode"><option value="pad">Flat or sloped pad</option><option value="tin">Proposed-grade points</option></select>
+          </label>
+          <label class="padonly">Pad elevation <input id="padElev" type="number" step="any" placeholder="or use Find balance"></label>
+          <label class="padonly">Slope rising to the east (%) <input id="slopeX" type="number" step="0.1" value="0"></label>
+          <label class="padonly">Slope rising to the north (%) <input id="slopeY" type="number" step="0.1" value="0"></label>
+        </div>
+        <p class="hint padonly" style="margin-top:10px">The pad elevation holds at the centre of the boundary (or of the survey, with no boundary); slopes tilt the plane about that point.</p>
+        <label class="tinonly" style="margin-top:10px">Proposed-grade points <textarea id="designText" spellcheck="false" placeholder="Same columns as the existing ground"></textarea></label>
+      </section>
+
+      <section>
+        <h2>3. Limits and soil</h2>
+        <label>Boundary (optional): one easting, northing per line <textarea id="boundaryText" spellcheck="false" placeholder="612420, 2087170&#10;612580, 2087170&#10;612580, 2087280&#10;..."></textarea></label>
+        <div class="fields" style="margin-top:10px">
+          <label>Topsoil strip depth <input id="strip" type="number" step="0.05" min="0" value="0"></label>
+          <label>Longest triangle edge (optional) <input id="maxEdge" type="number" step="any" min="0" placeholder="no limit"></label>
+          <label>Shrink, bank to compacted (%) <input id="shrink" type="number" step="1" min="0" max="90" value="15"></label>
+          <label>Swell, bank to loose (%) <input id="swell" type="number" step="1" min="0" value="25"></label>
+          <label>Truck capacity (loose cu yd or m³) <input id="truck" type="number" step="any" min="0" value="12"></label>
+        </div>
+        <div class="actions">
+          <button type="button" class="primary" id="run">Compute cut and fill</button>
+          <button type="button" id="balance">Find balance elevation</button>
+          <button type="button" id="example">Load a made-up example</button>
+        </div>
+        <p class="err" id="error" role="alert"></p>
+      </section>
+    </div>
+
+    <div>
+      <section aria-live="polite">
+        <h2>Volumes</h2>
+        <p class="muted" id="summary">Load points and press Compute.</p>
+        <div class="stats">
+          <div class="stat"><div class="k">Cut (bank)</div><div class="big cutc" id="cutOut">–</div><div class="muted" id="cutNote"></div></div>
+          <div class="stat"><div class="k">Fill (compacted)</div><div class="big fillc" id="fillOut">–</div><div class="muted" id="fillNote"></div></div>
+          <div class="stat"><div class="k" id="netLabel">Export or import</div><div class="big" id="netOut">–</div><div class="muted" id="netNote"></div></div>
+          <div class="stat"><div class="k">Truckloads</div><div class="big" id="truckOut">–</div><div class="muted" id="stripNote"></div></div>
+        </div>
+        <div id="warnings"></div>
+        <div class="actions"><button type="button" id="download" disabled>Download summary CSV</button></div>
+      </section>
+      <section>
+        <h2>Cut and fill map</h2>
+        <svg id="map" viewBox="0 0 600 420" role="img" aria-label="Plan view of the triangulated site coloured by cut and fill depth"></svg>
+        <div class="legend"><span><span class="sw" style="background:#b42318"></span>Cut</span><span><span class="sw" style="background:#1d4ed8"></span>Fill</span><span>Darker is deeper. Dots are shots; the dark outline is the boundary.</span></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. An estimate between two triangulated surfaces, not engineering, surveying or construction advice. Without breaklines a TIN cuts straight across ditches, curbs and ridges between shots, and it knows nothing about rock, unsuitable soil or over-excavation. Check it against the engineer's grading plan and your own takeoff before you bid or move material.</p>
+    <p>Nothing leaves your browser: your points are read and computed here. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/earthwork-cut-fill">Source and CLI</a> · <a href="LICENSE">MIT licence</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a> · Related: <a href="../concrete-maturity/">concrete maturity calculator</a>, <a href="../land-survey-bid-calculator/">land survey bid calculator</a>, <a href="../retaining-wall-bid-calculator/">retaining wall bid calculator</a></p>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+  </footer>
+
+  <script type="module">
+    import { run, toCsv, exampleCsv, EXAMPLE_BOUNDARY } from './earthwork.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const el = id => document.getElementById(id);
+    let last = null;
+    function count(event) { try { recordUsage(localStorage, el('usageOptOut').checked, event); } catch { /* storage is optional */ } }
+    const num = id => { const v = el(id).value.trim(); return v === '' ? null : Number(v); };
+    const fmt = (x, d = 0) => Number(x).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+
+    function inputs(balance) {
+      const tin = el('designMode').value === 'tin';
+      return {
+        existingText: el('existingText').value, format: el('format').value, units: el('units').value,
+        designText: tin ? el('designText').value : null,
+        pad: { elevation: num('padElev'), slopeX: num('slopeX') || 0, slopeY: num('slopeY') || 0 },
+        boundaryText: el('boundaryText').value, strip: num('strip') || 0, maxEdge: num('maxEdge'),
+        shrink: num('shrink') || 0, swell: num('swell') || 0, truck: num('truck'), balance: balance && !tin,
+      };
+    }
+
+    function compute(balance) {
+      el('error').textContent = '';
+      const r = run(inputs(balance));
+      if (r.error) { el('error').textContent = r.error; return; }
+      if (balance && r.design.type === 'plane') el('padElev').value = r.design.elevation.toFixed(2);
+      last = r;
+      show(r);
+      el('download').disabled = false;
+      count(balance ? 'balance_found' : 'volumes_computed');
+    }
+
+    function show(r) {
+      const u = r.units, v = r.volumes, s = r.sheet;
+      el('summary').textContent = `${r.existing.points} shots (${r.existing.format}), ${r.existing.triangles} triangles, ${fmt(v.area)} ${u.area}${r.boundary ? ' inside the boundary' : ''}. ` +
+        (r.design.type === 'plane' ? `Pad ${fmt(r.design.elevation, 2)} ${u.length}${r.design.balanced ? ' (balanced)' : ''}, ${r.design.slopeX}% east, ${r.design.slopeY}% north.` : `Proposed grade: ${r.design.points} points.`);
+      el('cutOut').textContent = `${fmt(v.cut)} ${u.volume}`;
+      el('cutNote').textContent = `over ${fmt(v.cutArea)} ${u.area}, deepest ${fmt(v.maxCut, 2)} ${u.length}`;
+      el('fillOut').textContent = `${fmt(v.fill)} ${u.volume}`;
+      el('fillNote').textContent = `over ${fmt(v.fillArea)} ${u.area}, deepest ${fmt(v.maxFill, 2)} ${u.length}`;
+      if (s.kind === 'balanced') { el('netLabel').textContent = 'Balanced'; el('netOut').textContent = '0'; el('netNote').textContent = `cut × (1 − ${s.shrink}%) builds the fill`; }
+      else {
+        el('netLabel').textContent = s.kind === 'export' ? 'Export (bank)' : 'Import (bank)';
+        el('netOut').textContent = `${fmt(s.bank)} ${u.volume}`;
+        el('netNote').textContent = `${fmt(s.loose)} ${u.volume} loose at ${s.swell}% swell; shrink ${s.shrink}%`;
+      }
+      el('truckOut').textContent = s.trucks === null ? '–' : fmt(s.trucks);
+      el('stripNote').textContent = v.strip > 0 ? `plus ${fmt(v.strip)} ${u.volume} topsoil stripped` : '';
+      const w = el('warnings'); w.replaceChildren();
+      for (const t of r.warnings) { const p = document.createElement('p'); p.className = 'warn'; p.textContent = t; w.append(p); }
+      drawMap(r);
+    }
+
+    function drawMap(r) {
+      const svg = el('map'); svg.replaceChildren();
+      const NS = 'http://www.w3.org/2000/svg';
+      const P = r.surface.pts;
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const p of P) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); }
+      const W = 600, H = 420, pad = 14;
+      const k = Math.min((W - 2 * pad) / ((x1 - x0) || 1), (H - 2 * pad) / ((y1 - y0) || 1));
+      const X = x => pad + (x - x0) * k, Y = y => H - pad - (y - y0) * k;
+      const mk = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const [a, b] of Object.entries(attrs)) n.setAttribute(a, b); return n; };
+      for (const t of r.surface.tris) svg.append(mk('polygon', { points: t.map(i => `${X(P[i].x)},${Y(P[i].y)}`).join(' '), fill: 'none', stroke: '#d6d0c6', 'stroke-width': '0.6' }));
+      const maxD = Math.max(r.volumes.maxCut, r.volumes.maxFill) || 1;
+      for (const c of r.cells) {
+        const a = Math.min(1, Math.abs(c.depth) / maxD);
+        svg.append(mk('polygon', { points: c.poly.map(([x, y]) => `${X(x)},${Y(y)}`).join(' '), fill: c.depth < 0 ? '#b42318' : '#1d4ed8', 'fill-opacity': (0.12 + 0.78 * a).toFixed(3), stroke: 'none' }));
+      }
+      if (r.boundary) svg.append(mk('polygon', { points: r.boundary.map(([x, y]) => `${X(x)},${Y(y)}`).join(' '), fill: 'none', stroke: '#1f1d1a', 'stroke-width': '2' }));
+      for (const p of P) svg.append(mk('circle', { cx: X(p.x), cy: Y(p.y), r: '1.6', fill: '#1f1d1a' }));
+      const n = mk('text', { x: W - 20, y: 24, 'font-size': '14', 'text-anchor': 'middle', fill: '#1f1d1a' }); n.textContent = 'N ↑'; svg.append(n);
+    }
+
+    async function readInto(input, area, event) {
+      const f = input.files[0]; if (!f) return;
+      el(area).value = await f.text(); count(event);
+    }
+    el('existingFile').addEventListener('change', e => readInto(e.target, 'existingText', 'points_file_loaded'));
+    el('designMode').addEventListener('change', () => el('designBox').classList.toggle('tin', el('designMode').value === 'tin'));
+    el('run').addEventListener('click', () => compute(false));
+    el('balance').addEventListener('click', () => compute(true));
+    el('example').addEventListener('click', () => {
+      el('existingText').value = exampleCsv(); el('boundaryText').value = EXAMPLE_BOUNDARY;
+      el('designMode').value = 'pad'; el('designBox').classList.remove('tin');
+      el('units').value = 'ft'; el('format').value = 'auto'; el('padElev').value = '107'; el('slopeX').value = '1'; el('slopeY').value = '0';
+      count('example_loaded');
+      compute(false);
+    });
+    el('download').addEventListener('click', () => {
+      if (!last) return;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: 'text/csv' })); a.download = 'cut-fill-summary.csv'; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      count('csv_downloaded');
+    });
+    try {
+      const u = el('usageOptOut');
+      u.checked = readOptOut(localStorage);
+      u.addEventListener('change', () => writeOptOut(localStorage, u.checked));
+    } catch { /* storage is optional */ }
+  </script>
+</body>
+</html>
