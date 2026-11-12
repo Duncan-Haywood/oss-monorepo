@@ -1,0 +1,311 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyfEYhDKjqoHYfk9Q8j",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T10:38:46Z",
+  "ended": "2026-11-12T10:40:20Z",
+  "wall_minutes": 10.1,
+  "tokens_in": 4918843,
+  "tokens_out": 30126,
+  "cost_usd": 2.2825,
+  "tool_calls": 57,
+  "task": "redteam: uk-vat-registration-checker campaign; thousands-comma list parsing across 5 ventures",
+  "projects": [
+    "uk-vat-registration-checker",
+    "usage-based-pricing-simulator",
+    "syndication-waterfall-calculator",
+    "shift-roster-builder",
+    "embroidery-shop-quote-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15098",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "Wrote a test expecting \u00a394,500 for the sample months; the true sum is \u00a393,500 (fixed before commit)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "rerun must run before refactoring the mutated line, but the natural fix for a real defect (blank optional field) rewrote the mutant's line; the prompt covers this but it still cost a hand re-mutation. A rerun mode that takes a replacement line would help."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets --probe 20 | grep` for files changed on main in the last 3 days printed nothing: recently changed engines (carryover.mjs, drift-level.mjs) are not in the guarded-target list, so step 1's 'aim at a file that just changed' advice had no candidates; used the random draw."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all five open entries are control-plane (.github/workflows or prompts/redteam.py) edits that need their own owner-approved PR, and several already have one waiting (#14612 for redteam.py rerun).",
+      "did": "Left them open and spent the run on the campaign and the real-defect sweep.",
+      "result": "Six real defects fixed instead of a sixth waiting control-plane PR."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Default for product PRs is to keep llms.txt and a marketing page current; this PR changes parsing, not features or claims.",
+      "did": "Left llms.txt and pages unchanged.",
+      "result": "No user-facing text became stale."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-six-thousand-is-two-numbers.md",
+    "docs/reports/redteam-2026-11-12-thousands-split.md"
+  ],
+  "goal": null,
+  "notes": "Campaign on ventures/uk-vat-registration-checker/calc.mjs: 6/8 caught before, 8/8 after (one by rerun, one re-mutated by hand). Guard added: platform/ci/check_thousands_split.py + test_check_thousands_split.py (runs via main_health.py glob; no PR workflow yet, control plane). First run found the shift-roster-builder copy. Suites run: uk-vat 28/28, usage-based-pricing 31/31, syndication-waterfall 23/23, embroidery 38/38, shift-roster-builder calc+page 176/176 (~3 min). Each new test confirmed failing on the old code.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/uk-vat-registration-checker/calc.mjs",
+        "test": "node --test ventures/uk-vat-registration-checker/**/*.test.mjs  (in .)",
+        "seed": 692217572,
+        "commit": "d4c0b903",
+        "sites": 120,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/uk-vat-registration-checker/calc.mjs",
+            "line": 61,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "const next30 = num(input.next30 ?? 0);",
+            "after": "const next30 = num(input.next30 ?? 1);",
+            "line_text": "  const next30 = num(input.next30 ?? 0);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test read r.next30 with the field omitted. This run rewrote the line (blank optional fields now go through optional()), so rerun reported line changed; re-applied by hand as optional() returning 1 for a blank: the new test \"blank optional fields count as zero\" fails with it."
+          },
+          {
+            "file": "ventures/uk-vat-registration-checker/calc.mjs",
+            "line": 66,
+            "col": 41,
+            "operator": "lt-to-le",
+            "before": "if (!Number.isFinite(next30) || next30 < 0) errors.push(\"Expected turnover in the next 30 days must be zero or more.\");",
+            "after": "if (!Number.isFinite(next30) || next30 <= 0) errors.push(\"Expected turnover in the next 30 days must be zero or more.\");",
+            "line_text": "  if (!Number.isFinite(next30) || next30 < 0) errors.push(\"Expected turnover in the next 30 days must be zero or more.\");",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-vat-registration-checker/calc.mjs",
+            "line": 75,
+            "col": 90,
+            "operator": "minus-to-plus",
+            "before": "rolling.push({ y, m, label: monthLabel(y, m), month: months[i], rolling: sum, full: i - from === 11 });",
+            "after": "rolling.push({ y, m, label: monthLabel(y, m), month: months[i], rolling: sum, full: i + from === 11 });",
+            "line_text": "    rolling.push({ y, m, label: monthLabel(y, m), month: months[i], rolling: sum, full: i - from === 11 });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test had a breach after month 12 of a full window; the mutant marks rows 12+ as not full and adds a false \"Fewer than 12 months\" finding. New test \"a breach after month 12 of a full window is not flagged as a short history\"."
+          },
+          {
+            "file": "ventures/uk-vat-registration-checker/calc.mjs",
+            "line": 85,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "const [ey, em] = addMonths(breach.y, breach.m, 2);",
+            "after": "const [ey, em] = addMonths(breach.y, breach.m, 3);",
+            "line_text": "    const [ey, em] = addMonths(breach.y, breach.m, 2);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-vat-registration-checker/calc.mjs",
+            "line": 105,
+            "col": 59,
+            "operator": "or-to-and",
+            "before": "return { ok: true, status, rolling, last, breach: breach || null, deadline, effective, headroom, next30, findings, errors: [] };",
+            "after": "return { ok: true, status, rolling, last, breach: breach && null, deadline, effective, headroom, next30, findings, errors: [] };",
+            "line_text": "  return { ok: true, status, rolling, last, breach: breach || null, deadline, effective, headroom, next30, findings, errors: [] };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-vat-registration-checker/calc.mjs",
+            "line": 127,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "if (!Number.isFinite(costs) || costs < 0) errors.push(\"Yearly VAT-able costs must be zero or more.\");",
+            "after": "if (!Number.isFinite(costs) || costs < 1) errors.push(\"Yearly VAT-able costs must be zero or more.\");",
+            "line_text": "  if (!Number.isFinite(costs) || costs < 0) errors.push(\"Yearly VAT-able costs must be zero or more.\");",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-vat-registration-checker/calc.mjs",
+            "line": 133,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "const grossTurnover = turnover * (1 + R.standardRate);",
+            "after": "const grossTurnover = turnover * (2 + R.standardRate);",
+            "line_text": "  const grossTurnover = turnover * (1 + R.standardRate);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-vat-registration-checker/calc.mjs",
+            "line": 135,
+            "col": 25,
+            "operator": "times-to-div",
+            "before": "const inputVat = costs * R.standardRate;",
+            "after": "const inputVat = costs / R.standardRate;",
+            "line_text": "  const inputVat = costs * R.standardRate;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/uk-vat-registration-checker/calc.mjs",
+        "issue": "parseMonths split on [\\s,;]+ so '6,000 6,500 ... 9,300' (rolling \u00a393,500, over the threshold) became 24 numbers and the tool said 'below', rolling \u00a31,550.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15098"
+      },
+      {
+        "file": "ventures/uk-vat-registration-checker/calc.mjs",
+        "issue": "A blank next30 or goodsCost field (as the form sends a cleared input) was NaN and rejected, blocking the result; now counts as zero.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15098"
+      },
+      {
+        "file": "ventures/usage-based-pricing-simulator/calc.mjs",
+        "issue": "parseUsageList split on commas before stripping them, so '$1,200' was usage 1 and 200.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15098"
+      },
+      {
+        "file": "ventures/syndication-waterfall-calculator/calc.mjs",
+        "issue": "parseCashFlows read '$1,800,000' as three years of cash flow (1, 800, 0), changing IRR and promote.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15098"
+      },
+      {
+        "file": "ventures/shift-roster-builder/calc.mjs",
+        "issue": "dailyLabor read daily sales '$2,000' as 2 then 0 (found by the new lint on its first run), so labour share was wrong.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15098"
+      },
+      {
+        "file": "ventures/embroidery-shop-quote-calculator/engine.mjs",
+        "issue": "parseQtyList read the quantity break '1,500' as breaks at 1 and 500.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15098"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ecc54978-e8dd-5797-9a83-695e0bb1de14",
+    "transcripts": 1,
+    "first": "2026-11-12T10:38:46Z",
+    "last": "2026-11-12T10:48:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 108,
+        "output": 30126,
+        "thinking": 7817,
+        "cache_read": 4829533,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89202,
+        "api_equivalent_usd": 2.2825,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 108,
+      "output": 30126,
+      "thinking": 7817,
+      "cache_read": 4829533,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89202,
+      "api_equivalent_usd": 2.2825,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.1,
+      "active_minutes": 10.1,
+      "model_minutes": 4.97,
+      "tool_minutes": 5.13,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "find, fix and test 6 parser defects across 5 tools plus a lint and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 262.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
