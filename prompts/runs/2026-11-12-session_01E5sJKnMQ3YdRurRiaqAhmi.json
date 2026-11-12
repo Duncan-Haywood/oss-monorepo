@@ -27,14 +27,15 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
   "errors": [
     "First idea (a 'squeeze' capped search starting from the best weighted leg one) never cut breaks below its start on 18-20 team single round robins; reverted, recorded in the README as a negative result.",
     "Two existing tests failed after the page change (fallback regex for bestCarryOverRounds on the page; the hidden carryOverKeep input had no label); fixed the regex to the new fallback and gave the input an aria-label.",
-    "Post front matter failed the preflight (description 188 chars, seo_title 79); shortened."
+    "Post front matter failed the preflight (description 188 chars, seo_title 79); shortened.",
+    "CI validate failed: flagships.yaml next: was 2,056 characters (cap 2,000); folded the previous slice's history into a README pointer. portfolio/router/validate.py was not in the local checks I ran; it is cheap and worth running before pushing a flagships edit."
   ],
   "integrity_issues": [],
   "doc_friction": [
