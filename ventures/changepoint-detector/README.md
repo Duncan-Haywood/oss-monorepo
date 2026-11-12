@@ -56,11 +56,11 @@ where it departs from the paper.
   repository with a daily GitHub Actions workflow, so anyone can run it in their own account; page:
   [watch-a-metric-for-changes.html](watch-a-metric-for-changes.html). How the defaults were chosen:
   "Watching a growing series" below. Since 2026-11-12 (later) the page replays the watch on the series
-  you just analysed ("What a daily watch would have sent"), and agents call `replayWatch` in `watch.mjs`
+  you just analysed ("What a daily watch would have sent"), and agents call `replayWatch` in `watch-core.mjs`
   (README "Replaying the watch on your own history").
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
-  (the watch replay: `call changepoint-detector replayWatch --module watch.mjs --args '[[...]]'`)
+  (the watch replay: `call changepoint-detector replayWatch --module watch-core.mjs --args '[[...]]'`)
   or the `call_tool` tool of the repository's MCP server
   ([`platform/agents/`](../../platform/agents/README.md)).
 
@@ -3317,23 +3317,54 @@ runs it. On the real series shipped with the tool (`watch.test.mjs`), the capped
 October 2008 fall and Canada's 1946 fertility rise, which the uncapped estimate read as persistence. TCPD now
 counted in a rule, so its 33 of 52 is no longer a held-out figure: a fresh labelled set is the test.
 
-Next: the watch on the page (paste a URL, keep the state in the browser) and as an agent tool; a real
-deployer's repository run end to end on GitHub Actions; the cap on fresh labelled series from outside TCPD; the
+### The watch on the page and as an agent tool (2026-11-12)
+
+The watch needed a GitHub repository and a scheduled workflow; someone who looks at a metric every few days
+needed neither. The logic moved, unchanged, from `watch.mjs` to `watch-core.mjs` (no file, network or process
+access; `watch.mjs` re-exports it and keeps the state file, the CSV link, the webhook and the exit code), and
+gained `watchCheck({ csv, state, column, model, detector, ... })`, one call that parses, detects and advances the
+state and returns `{ alerts, pending, baseline, notes, state, text }`.
+
+- **On the page:** a card, "Keep watching a series", under the results. It reads the data box or an https CSV link
+  (a published Google Sheet answers with CORS; a link that does not is reported with "paste the rows instead"),
+  takes the value column, model, period and logs from the boxes above (the trend, drift and robust models are
+  watched as a level, and the card says so), and offers the three measured settings as "How eager": quiet
+  (`bocpd-ar1-window`, the default), middle (`bocpd`), eager (`pelt`). The state is kept in the browser's
+  localStorage under the watch's name (the link, or "pasted series"); "Forget this watch" drops it. A new local
+  counter, `watch_check`. The one `fetch` on the page is that link, a GET without cookies; `page.test.mjs` now
+  allows exactly that call and nothing else.
+- **As an agent tool:** the page imports `watch-core.mjs`, so `platform/agents/tools.mjs` exposes it (its gate
+  refuses modules that touch the network or the process, which is why the CLI's `watch.mjs` could not be).
+  `node platform/agents/tools.mjs call changepoint-detector watchCheck --input '{"csv":"...","state":null}'`;
+  the agent keeps `state` for its next call.
+- **Checked:** `watch-page.test.mjs` (4: a baseline, then one new step reported exactly once across 80 one-row
+  checks with the state round-tripped through JSON as the page stores it, at 5 to 15 points after the step; the
+  CLI and the page share one copy; bad input; the page's wiring). `eval/watch-page-browser.mjs` in headless
+  Chromium (output `eval/watch-page-browser.out.txt`, 8 of 8): the baseline survives a reload, a second step is
+  reported once and then not again, an unreachable link explains itself, a CORS link (answered by Playwright, no
+  real sheet was read) is read into the data box, Forget starts a fresh baseline, no page errors. The deploy
+  script now copies `watch-core.mjs` too (`watch.test.mjs`'s self-deploy test runs the folder it makes). No
+  detection numbers changed: same defaults, same engine.
+- **Not done:** no person has used the card yet; a browser that clears storage forgets the watch (the card says
+  so); there is no reminder to come back, which is what the self-hosted daily run is for.
+
+Next: a real deployer's repository run end to end on GitHub Actions; the cap on fresh labelled series from outside TCPD; the
 plain pass's remaining lead (38 against 33 marked changes) is on series whose level wanders, where the drift model
 (`--model drift`) may be the better watch.
 
 ## Replaying the watch on your own history (2026-11-12, later)
 
 The question before anyone sets an alert up is "how often would this have pinged me, and how late?".
-`replayWatch(values, labels, opts)` in `watch.mjs` answers it by running the watch's own
+`replayWatch(values, labels, opts)` in `watch-core.mjs` (re-exported by `watch.mjs`) answers it by running the watch's own
 `detectChanges` and `advance` after each new point of a finished series. As a real first run does, the
 first check (default: at 20% of the series, at least 20 points) records the changes already there as the
 baseline. Each later alert comes back with the change's date, the row whose arrival sent it, and its delay
 in rows. On the page it is the card "3. What a daily watch would have sent" after any one-column run. It
-runs in the page's background worker (`analyzeJob` kind `watch`) and is counted as `watch_replay`. Agents
-call `node platform/agents/tools.mjs call changepoint-detector replayWatch --module watch.mjs --args
-'[[...values], [...labels], {"from": 100}]'`. `watch.mjs` no longer imports Node modules at the top (its
-`main` loads `node:fs` itself), so a browser can import it.
+runs in the page's background worker (`analyzeJob` kind `replay`) and is counted as `watch_replay`. Agents
+call `node platform/agents/tools.mjs call changepoint-detector replayWatch --module watch-core.mjs --args
+'[[...values], [...labels], {"from": 100}]'`. It complements "Keep watching a series" (`watchCheck`, the
+section above), which checks from today on with the state in the browser; the replay answers what that
+check would have said on every past day.
 
 **Cost, and a coarse replay.** Each check refits up to `window` points, and the Bayesian pass is about
 quadratic in that: 175 ms for 1,000 points on one core of this session's machine, so replaying a

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A synthetic CFDI 4.0 transfer (type T, unstamped) with Comercio Exterior 2.0: goods sent
+     on consignment (MotivoTraslado 02) to a US addressee, invoiced to the issuer itself.
+     No customs quantities on the Mercancia, so the line's Cantidad, Unidad (the c_UnidadAduana
+     code of the tariff's unit, 06 piezas) and ValorUnitario follow the transfer rules
+     (CCE154..CCE156, CCE162) and ValorDolares is the line's Importe / TipoCambioUSD (CCE172).
+     Expects no finding (cce20.test.mjs); eval/cce20-mutations.mjs plants defects in it. -->
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:cce20="http://www.sat.gob.mx/ComercioExterior20" Version="4.0" Serie="TR" Folio="7" Fecha="2026-11-10T11:30:00" SubTotal="0" Moneda="MXN" Total="0" TipoDeComprobante="T" Exportacion="02" LugarExpedicion="86000" NoCertificado="30001000000500003416" Sello="" Certificado="">
+  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" RegimenFiscal="601"/>
+  <cfdi:Receptor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" DomicilioFiscalReceptor="86000" RegimenFiscalReceptor="601" UsoCFDI="S01"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="43211503" NoIdentificacion="LAP-14" Cantidad="12.000" ClaveUnidad="H87" Unidad="06" Descripcion="Computadora portátil de 14 pulgadas" ValorUnitario="15240.50" Importe="182886.00" ObjetoImp="01"/>
+  </cfdi:Conceptos>
+  <cfdi:Complemento>
+    <cce20:ComercioExterior Version="2.0" MotivoTraslado="02" ClaveDePedimento="A1" CertificadoOrigen="0" Incoterm="DAP" TipoCambioUSD="18.2735" TotalUSD="10008.26">
+      <cce20:Emisor><cce20:Domicilio Calle="Avenida Paseo Tabasco" NumeroExterior="1203" Municipio="004" Estado="TAB" Pais="MEX" CodigoPostal="86000"/></cce20:Emisor>
+      <cce20:Destinatario NumRegIdTrib="987654321" Nombre="LONE STAR LAPTOP DEPOT INC"><cce20:Domicilio Calle="Commerce Street" NumeroExterior="200" Municipio="San Antonio" Estado="TX" Pais="USA" CodigoPostal="78205-1234"/></cce20:Destinatario>
+      <cce20:Mercancias>
+        <cce20:Mercancia NoIdentificacion="LAP-14" FraccionArancelaria="8471300199" ValorDolares="10008.26"/>
+      </cce20:Mercancias>
+    </cce20:ComercioExterior>
+  </cfdi:Complemento>
+</cfdi:Comprobante>

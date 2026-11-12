@@ -60,6 +60,20 @@ test("currency decimals come from ISO 4217", () => {
   assert.equal(currencyDecimals("MXN"), 2);
   assert.equal(currencyDecimals("JPY"), 0);
   assert.equal(currencyDecimals("XXX"), 2);
+  // Intl reads CLDR, not ISO 4217: CLDR gives COP, HUF, IDR, PKR and IQD 0 digits.
+  for (const c of ["COP", "HUF", "IDR", "PKR", "LBP", "AFN", "IRR"]) assert.equal(currencyDecimals(c), 2, c);
+  for (const c of ["IQD", "BHD", "KWD", "TND"]) assert.equal(currencyDecimals(c), 3, c);
+  assert.equal(currencyDecimals("CLF"), 4);
+  for (const c of ["CLP", "ISK", "KRW", "UGX", "VND"]) assert.equal(currencyDecimals(c), 0, c);
+});
+
+test("an invoice in pesos colombianos with two decimals draws no finding (red team 2026-11-12)", () => {
+  // Before: 10 false findings (MX-010 on every amount, then MX-030/033/034/035 from
+  // sums rounded to whole pesos), because Intl's CLDR data gives COP 0 digits.
+  for (const c of ["COP", "HUF"]) {
+    const r = checkCfdi(good.replace('Moneda="MXN"', `Moneda="${c}" TipoCambio="0.0046"`));
+    assert.deepEqual(r.findings.map((f) => f.rule), [], c);
+  }
 });
 
 test("catalogue lookups: compact runs and plain lists", () => {
@@ -245,4 +259,12 @@ test("every regime/use pair: a finding exactly when SAT's table forbids it", () 
     }
   }
   assert.deepEqual([allowed, total], [245, 483]);
+});
+
+test("no checker reads currency decimals from Intl (CLDR display digits, not ISO 4217)", async () => {
+  const { readdirSync } = await import("node:fs");
+  const here = new URL("./", import.meta.url);
+  const hits = readdirSync(here).filter((f) => f.endsWith(".mjs") && !f.endsWith(".test.mjs"))
+    .filter((f) => /resolvedOptions\(\)\s*\.\s*(maximum|minimum)FractionDigits/.test(readFileSync(new URL(f, here), "utf8")));
+  assert.deepEqual(hits, [], "use currencyDecimals() in cfdi.mjs, which reads ISO 4217");
 });

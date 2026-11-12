@@ -406,3 +406,51 @@ def test_default_screen_admits_a_rare_informative_coder_the_6am_screen_refused()
     assert S.screen(y, weak) == "pooled"
     plan = S.plan_audit(f, {i: y[i] for i in range(1000)}, 2000)
     assert plan["design"] == "cells"
+
+
+def test_predicted_ratio_prices_floor_lambda_and_fpc():
+    # LOG.md 7ak: predicted_ratio = sqrt(var_cells / var_pooled) at the planned sizes, pooled at the pilot's fitted
+    # lambda, cells at the floored allocation, both with the finite-population correction
+    from llmci import audit_design as S
+    rng = random.Random(3)
+    N, n = 4000, 800
+    y = [int(rng.random() < 0.1) for _ in range(N)]
+    good = [a if rng.random() < 0.9 else 1 - a for a in y]  # sens 0.9, spec 0.9
+    noise = [int(rng.random() < 0.1) for _ in range(N)]  # independent of y
+    pilot = {i: y[i] for i in rng.sample(range(N), 400)}
+    # brute-force arithmetic for the good coder
+    idx = sorted(pilot); ys = [pilot[i] for i in idx]; fs = [good[i] for i in idx]; m = len(idx)
+    my, mf = sum(ys) / m, sum(fs) / m
+    lam = min(1.0, max(0.0, sum((a - my) * (b - mf) for a, b in zip(ys, fs)) / (m - 1)
+                       / (sum((b - mf) ** 2 for b in fs) / (m - 1))))
+    r = [a - lam * b for a, b in zip(ys, fs)]; mr = sum(r) / m
+    vp = (1 - n / N) * sum((x - mr) ** 2 for x in r) / (m - 1) / n
+    cells = [[i for i in range(N) if good[i] == k] for k in (0, 1)]
+    s2 = S._cell_s2(good, pilot, cells)
+    al = S.cell_allocation(n, [len(c) for c in cells], s2)
+    vc = sum((len(c) / N) ** 2 * (1 - a / len(c)) * v / a for c, a, v in zip(cells, al, s2))
+    assert abs(S.predicted_ratio(good, pilot, n) - (vc / vp) ** 0.5) < 1e-12
+    assert S.predicted_ratio(good, pilot, n) < 0.9
+    assert S.predicted_ratio(noise, pilot, n) > 1.0  # no variance to save, the floor still costs
+    assert S.predicted_ratio(good, {0: 1, 1: 0}, n) == 1.0  # too small a pilot to say
+
+
+def test_width_margin_sends_a_costly_plan_to_pooled_and_defaults_to_zero():
+    from llmci import audit_design as S
+    rng = random.Random(5)
+    N, n = 4000, 800
+    y = [int(rng.random() < 0.1) for _ in range(N)]
+    good = [a if rng.random() < 0.9 else 1 - a for a in y]
+    pilot = {i: y[i] for i in rng.sample(range(N), 400)}
+    assert S.WIDTH_MARGIN == 0.0  # the default since 7ak
+    base = S.plan_audit(good, pilot, n)
+    assert base == S.plan_audit(good, pilot, n, width_margin=None)  # a coder that pays: the margin changes nothing
+    assert base["design"] == "cells"
+    pr = S.predicted_ratio(good, pilot, n)
+    assert S.plan_audit(good, pilot, n, width_margin=0.0)["design"] == "cells"
+    assert S.plan_audit(good, pilot, n, width_margin=1 - pr + 1e-9)["design"] == "pooled"
+    noise = [int(rng.random() < 0.1) for _ in range(N)]  # carries no information: the floor makes cells cost
+    assert S.predicted_ratio(noise, pilot, n) > 1.0
+    open_screen = dict(tau=-1.0, neg_guard=0)  # a screen that admits every coder, so only the margin decides
+    assert S.plan_audit(noise, pilot, n, **open_screen)["design"] == "pooled"
+    assert S.plan_audit(noise, pilot, n, width_margin=None, **open_screen)["design"] == "cells"

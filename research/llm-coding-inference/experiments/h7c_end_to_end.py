@@ -25,7 +25,7 @@ REPS = int(ARGS[0]) if ARGS else 500
 def one(f, human, n, truth, rr):
     pilot = rr.sample(range(len(f)), round(A.PILOT_SHARE * n))
     labels = {i: human[i] for i in pilot}
-    plan = A.plan_audit(f, labels, n, tau=A.TAU_6AM, guard=A.GUARD_6AM, neg_guard=0)  # 6al screen, as run in 7c
+    plan = A.plan_audit(f, labels, n, tau=A.TAU_6AM, guard=A.GUARD_6AM, neg_guard=0, width_margin=None)  # 6al screen, as run in 7c
     for cell, t in zip(plan["cells"], plan["to_label"]):
         for i in rr.sample([i for i in cell if i not in labels], t):
             labels[i] = human[i]
