@@ -146,12 +146,25 @@ with rigid positivity (A4, not in B&F's encoding), exists at every world (`de_re
 each world can have a different one (`cm_no_a4`). Unlike Anderson's, Fitting's NE is always in the
 algebra (`ne_in_algebra`) ([results](experiments/e17_fitting/results.md)).
 
+**M2 (part), agreement with the published Isabelle/HOL proofs (E18, 2026-11-12).** We
+transcribed every claim of Fuenmayor & Benzmüller's Archive of Formal Proofs formalisation of
+Fitting's variant (`FittingProof.thy`) into our finite semantics: 17 theorems and 4 Nitpick
+countermodels. All of them reproduce in an exhaustive search of 2,070,148 frames (modal logic K
+and S5, full and coarse algebras, empty domains allowed). There are 0 failures of any proved
+theorem, and every countermodel appears at the size the AFP and B&F 2020 report.
+
+The AFP file includes Fitting's axiom 11.11 (A4: positivity is rigid), which B&F 2020's Fig. 6
+omits. Its "de re" conclusion is weaker than E17's, so E17's de re gap is not a gap in any
+published theorem. Without A4, the de re conclusion still holds in K. The de dicto one holds in
+S5 but fails in K (Lean 4, `lean/TheismFormal/AFP.lean`: `afp_de_re_K`, `afp_de_dicto_K_A4`,
+`cm_dedicto_noA4`) ([results](experiments/e18_afp_crosscheck/results.md)).
+
 ## Layout
 
 - `src/logic.py`: decision procedures (S5 exact, K/T/B/S4 by certified countermodels, monadic first-order exact), minimal inconsistent and maximal consistent subsets.
 - `src/arguments.py`: the 11 arguments, each with its published source.
 - `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
-- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) E12's varying-domain theorems (`TheismFormal/Varying.lean`) E13's actualist ones (`TheismFormal/Actualist.lean`) E14's plain-necessity ones (`TheismFormal/Plain.lean`) E15's closure condition and 8-cell countermodel (`TheismFormal/Closure.lean`) E16's model characterisations (`TheismFormal/Models.lean`) and E17's theorems on Fitting's variant (`TheismFormal/Fitting.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
+- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) E12's varying-domain theorems (`TheismFormal/Varying.lean`) E13's actualist ones (`TheismFormal/Actualist.lean`) E14's plain-necessity ones (`TheismFormal/Plain.lean`) E15's closure condition and 8-cell countermodel (`TheismFormal/Closure.lean`) E16's model characterisations (`TheismFormal/Models.lean`) E17's theorems on Fitting's variant (`TheismFormal/Fitting.lean`) and E18's K-logic corollaries (`TheismFormal/AFP.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
 - `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`, `experiments/e12_varying_domains/run.py`, `experiments/e13_actualist_necessity/run.py`, `experiments/e14_plain_necessity/run.py`, `experiments/e15_a5z_not_a5/run.py`, `experiments/e17_fitting/run.py`: these regenerate `results.md` and `results.json`.
 - `test_theism.py`: 26 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
 
