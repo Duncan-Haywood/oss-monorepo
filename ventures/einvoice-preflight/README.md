@@ -915,9 +915,40 @@ does not add up) and example 11 writes its line nets with six decimals, which
 the repair keeps but cannot restore exactly. 17 of the 258 ZATCA seeds, all
 in the SAR repeat of the tax (BT-111), drew no finding from our checks or
 ZATCA's rules: a SAR invoice whose BT-111 disagrees with BT-110 passes them
-all. The repair now fixes it; the checks do not yet flag it. Tests:
+all. The repair fixes it, and since 2026-11-12 the checks flag it too (INV-059,
+"BT-111 in the invoice's own currency" below). Tests:
 `repair-ubl.test.mjs` (20). Not tried on a real ERP export or a Fatoora
 verdict.
+
+## BT-111 in the invoice's own currency
+
+A file may state its VAT total twice: once in the invoice currency (BT-110, the
+`TaxTotal` with subtotals) and once in the VAT accounting currency (BT-111, a
+`TaxTotal` with only a `TaxAmount`; in CII a second `TaxTotalAmount`). When the
+two currencies are the same, as on every SAR invoice under ZATCA, which asks
+for BT-111 in SAR, the repeat is the same tax written twice. **INV-059** fires
+when it differs from BT-110 (to the cent), at `/totals/tax_accounting_currency`,
+naming both figures; the repair pass rewrites the repeat. A BT-111 in another
+currency needs the seller's exchange rate and is not compared. Code:
+`taxcurrency.mjs` (and `src/einvoice_preflight/taxcurrency.py` for UBL);
+the UBL and CII readers keep the repeat as `totals.tax_accounting_currency`.
+
+Measured 2026-11-12 with `node eval/repair-seeded.mjs <ZATCA 3.4.6 good cases> --rules`
+(phive-rules, 19 files, every amount pushed off by 7, one at a time, the
+official rules on the plain route; that route needs `npm i --no-save slimdom
+fontoxpath`, and without it `--rules` silently runs the built-in checks only):
+
+| | before | after |
+|---|---|---|
+| seeded BT-111 repeats flagged | 0 of 17 | **17 of 17** |
+| all seeds flagged by some rule | 241 of 258 | **258 of 258** |
+| repaired files drawing a rule the original did not | 0 of 258 | 0 of 258 |
+
+`eval/phive-corpus.mjs --good` (141 publisher-valid files across PINT A-NZ and
+SG, NLCIUS, CIUS-RO, CIUS-PT and ZATCA): INV-059 on none. The eval now prints
+"seed flagged n/m" per site. Not tried: a real ERP's SAR export, or what
+Fatoora itself says about a mismatched repeat. Tests: `taxcurrency.test.mjs`
+(8), `tests/test_taxcurrency.py` (5).
 
 ## Repair a CII file (XRechnung CII, ZUGFeRD, Factur-X XML)
 

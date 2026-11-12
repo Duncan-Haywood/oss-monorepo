@@ -174,8 +174,13 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     chosen = [item for item in tax_totals if _same_currency(item)] or tax_totals
     # When the VAT accounting currency is the document currency (ZATCA requires
     # BT-111 in SAR), the repeat is the TaxTotal with no TaxSubtotal.
+    # That repeat is kept as totals.tax_accounting_currency so INV-059 can compare it.
     with_subtotal = [item for item in chosen if _has_subtotal(item)]
+    accounting_repeat = None
     if len(chosen) > 1 and with_subtotal:
+        repeats = [item for item in chosen if not _has_subtotal(item)]
+        if len(repeats) == 1:
+            accounting_repeat = parse_decimal(_text(repeats[0], "TaxAmount", required=False))
         chosen = with_subtotal
     tax_total = sum((Decimal(_text(item, "TaxAmount")) for item in chosen), Decimal("0"))
     due_date = _text(root, "DueDate", required=False)
@@ -202,6 +207,7 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
             # UBL permits a TaxTotal per tax scheme; the invoice tax is their sum.
             "tax": _number(str(tax_total)),
             "gross": _number(_text(total, "TaxInclusiveAmount")),
+            **({"tax_accounting_currency": accounting_repeat} if accounting_repeat is not None else {}),
             **_optional_monetary_totals(total),
         },
     }
