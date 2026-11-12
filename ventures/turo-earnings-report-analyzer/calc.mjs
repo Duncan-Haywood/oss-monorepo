@@ -307,8 +307,10 @@ export const LENGTHS = [
 export function analyze(trips, opts = {}) {
   const dflt = { cleaning: Number(opts.cleaning) || 0, fuel: Number(opts.fuel) || 0, delivery: Number(opts.delivery) || 0 };
   for (const [k, v] of Object.entries(dflt)) if (v < 0) return { invalid: `Default ${k} cost must be zero or more.` };
-  const defaultMonthly = (Number(opts.loan) || 0) + (Number(opts.insurance) || 0) + (Number(opts.depreciation) || 0);
-  if (defaultMonthly < 0) return { invalid: "Monthly fixed costs must be zero or more." };
+  const monthlyParts = [opts.loan, opts.insurance, opts.depreciation].map((v) => Number(v) || 0);
+  // Each part on its own: a negative loan must not quietly cancel the insurance.
+  if (monthlyParts.some((v) => v < 0)) return { invalid: "Monthly fixed costs must be zero or more." };
+  const defaultMonthly = monthlyParts.reduce((a, v) => a + v, 0);
   const fixed = parseFixedList(opts.fixedList);
   const inRange = trips.filter((x) => (opts.from == null || x.t >= opts.from) && (opts.to == null || x.t < opts.to + DAY));
   if (!inRange.length) return { invalid: "No trips fall inside that date range." };
