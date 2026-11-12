@@ -186,3 +186,69 @@ export function differenceSd(fit: RefitResult, a: string, b: string): number {
   const v = fit.cov[i * n + i] + fit.cov[j * n + j] - 2 * fit.cov[i * n + j];
   return Math.sqrt(Math.max(v, 0));
 }
+
+/**
+ * Laplace approximation of the log marginal likelihood (the evidence) of the
+ * answers under prior sd `priorPhi`, up to a constant that does not depend on
+ * it: log p(y | mu*) - |mu*|^2 / (2 phi^2) - n log phi - log det(H) / 2, with
+ * mu* the posterior mode and H the negative Hessian there. Items in no answer
+ * add exactly zero (mode 0, H = 1/phi^2 on their diagonal).
+ */
+export function refitEvidence(ids: readonly string[], answers: readonly RefitAnswer[], priorPhi: number): number {
+  const fit = refitRatings(ids, answers, { priorPhi });
+  const n = ids.length;
+  const index = new Map(ids.map((id, i) => [id, i]));
+  let s = 0;
+  for (const { winner, loser, tie } of answers) {
+    const d = fit.mu[index.get(winner)!] - fit.mu[index.get(loser)!];
+    const score = tie ? 0.5 : 1;
+    s -= score * Math.log1p(Math.exp(-d)) + (1 - score) * Math.log1p(Math.exp(d));
+  }
+  for (const m of fit.mu) s -= (0.5 * m * m) / (priorPhi * priorPhi);
+  s -= n * Math.log(priorPhi);
+  // log det H = -log det cov; the Cholesky factor of cov gives it stably.
+  let logDetCov = 0;
+  const l = cholesky(fit.cov, n);
+  for (let i = 0; i < n; i++) logDetCov += 2 * Math.log(l[i * n + i]);
+  return s + 0.5 * logDetCov;
+}
+
+/** Narrowest prior sd the empirical-Bayes search may pick (internal scale; 0.3 is about 52 rating points). */
+export const EB_PHI_MIN = 0.3;
+
+/**
+ * Empirical-Bayes prior sd for one respondent: the phi in [min, max] that
+ * maximises the Laplace evidence (refitEvidence), by golden-section search on
+ * log phi. The upper end defaults to REFIT_PRIOR_PHI, so the prior is never
+ * wider than the fixed one it replaces; the lower end stops the classic
+ * type-II failure where few, mixed answers drive the estimate to zero and make
+ * every interval falsely narrow.
+ *
+ * Why (docs/INFORMATION-GAIN-SELECTOR.md, "An empirical-Bayes prior"): with
+ * the fixed sd of 2.0 the favourite's credible set undercovers, because a
+ * prior wider than the person's real spread of likes shrinks the leader too
+ * little (a winner's curse on a maximum over many items).
+ */
+export function empiricalPriorPhi(ids: readonly string[], answers: readonly RefitAnswer[], { min = EB_PHI_MIN, max = REFIT_PRIOR_PHI, steps = 24 } = {}): number {
+  if (!(min > 0 && max >= min)) throw new RangeError("need 0 < min <= max");
+  if (answers.length === 0 || min === max) return max;
+  const f = (x: number) => refitEvidence(ids, answers, Math.exp(x));
+  const g = (Math.sqrt(5) - 1) / 2;
+  let a = Math.log(min), b = Math.log(max);
+  let c = b - g * (b - a), d = a + g * (b - a);
+  let fc = f(c), fd = f(d);
+  for (let i = 0; i < steps; i++) {
+    if (fc >= fd) {
+      b = d; d = c; fd = fc;
+      c = b - g * (b - a); fc = f(c);
+    } else {
+      a = c; c = d; fc = fd;
+      d = a + g * (b - a); fd = f(d);
+    }
+  }
+  // The evidence can be monotone in phi; check the ends so a boundary optimum is returned exactly.
+  const mid = (a + b) / 2;
+  const candidates: [number, number][] = [[Math.log(min), f(Math.log(min))], [Math.log(max), f(Math.log(max))], [mid, f(mid)]];
+  candidates.sort((p, q) => q[1] - p[1]);
+  return Math.exp(candidates[0][0]);
+}

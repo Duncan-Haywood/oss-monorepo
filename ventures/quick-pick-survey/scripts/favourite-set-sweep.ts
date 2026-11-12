@@ -13,7 +13,7 @@
 import { selectNextPair, selectNextPairHybrid } from "../src/lib/pairing";
 import { simulate, type Policy } from "../src/lib/infoGainSim";
 import { GLICKO_SCALE } from "../src/lib/glicko2";
-import { refitRatings } from "../src/lib/btRefit";
+import { refitRatings, empiricalPriorPhi } from "../src/lib/btRefit";
 import { clearPick } from "../src/lib/clearPick";
 import { favouriteSet } from "../src/lib/favouriteSet";
 
@@ -29,6 +29,8 @@ const spread = Number(opt("--spread", "1"));
 const bottom = argv.includes("--bottom");
 const priorPhis = opt("--prior-phi", "").split(",").filter(Boolean).map(Number);
 const byCell = argv.includes("--by-cell");
+const eb = argv.includes("--eb");
+const ebPhis: number[] = [];
 const seeds = Array.from({ length: nSeeds }, (_, i) => seedBase + i * 7);
 const SELECTORS: Record<string, Policy> = {
   shipped: (i) => selectNextPair({ ...i, answerAgreement: undefined }),
@@ -70,6 +72,22 @@ for (const lapse of lapses) {
             const f = favouriteSet(meanPts, covPts, { level, bottom });
             add(`set${level}`, f.members.map((i) => ids[i]), top);
           }
+          if (eb) {
+            const answers = r.history.map(({ picked, other }) => ({ winner: picked, loser: other }));
+            const phi = empiricalPriorPhi(ids, answers);
+            ebPhis.push(phi);
+            const g = refitRatings(ids, answers, { priorPhi: phi });
+            for (const level of levels) {
+              const f = favouriteSet(g.mu, g.cov, { level, bottom });
+              add(`set${level}@eb`, f.members.map((i) => ids[i]), top);
+            }
+            // Would the clear-pick rule, run on the EB refit, name the right item?
+            const ce = ids.map((id, i) => ({ key: id, rating: g.mu[i], i }));
+            const sdE = (x: (typeof ce)[number], y: (typeof ce)[number]) => Math.sqrt(Math.max(0, g.cov[x.i * n + x.i] + g.cov[y.i * n + y.i] - 2 * g.cov[x.i * n + y.i]));
+            const pick = clearPick(ce, sdE, { bottom })!;
+            add("ebClear", pick.clear ? ["fired"] : [], "fired");
+            if (pick.clear) add("ebClearRight", [pick.leader.key], top);
+          }
           for (const phi of priorPhis) {
             const g = refitRatings(ids, r.history.map(({ picked, other }) => ({ winner: picked, loser: other })), { priorPhi: phi });
             for (const level of levels) {
@@ -91,6 +109,12 @@ for (const lapse of lapses) {
       }
       return out;
     };
+    if (eb && ebPhis.length) {
+      const sorted = [...ebPhis].sort((a, b) => a - b);
+      const at = (p: number) => Number(sorted[Math.floor(p * (sorted.length - 1))].toFixed(2));
+      console.log(JSON.stringify({ selector: sel, lapse, spread, ebPhi: { p10: at(0.1), median: at(0.5), p90: at(0.9), atMin: Number((sorted.filter((x) => x <= 0.3001).length / sorted.length).toFixed(3)), atMax: Number((sorted.filter((x) => x >= 2.0147).length / sorted.length).toFixed(3)) } }));
+      ebPhis.length = 0;
+    }
     if (byCell) for (const c of cells) console.log(JSON.stringify({ selector: sel, lapse, spread, bottom, items: c.items, perItem: c.perItem, shown: c.shown, of: c.total, ...summarise([c]) }));
     const shown = cells.reduce((a, c) => a + c.shown, 0);
     console.log(JSON.stringify({ selector: sel, lapse, spread, bottom, cell: "all", shown, of: cells.reduce((a, c) => a + c.total, 0), ...summarise(cells), worstCellCoverage: Object.fromEntries([...new Set(cells.flatMap((c) => [...c.tally.keys()]))].map((key) => [key, Math.min(...cells.filter((c) => c.tally.has(key)).map((c) => Number(mean(c.tally.get(key)!.hit).toFixed(3))))])) }));
