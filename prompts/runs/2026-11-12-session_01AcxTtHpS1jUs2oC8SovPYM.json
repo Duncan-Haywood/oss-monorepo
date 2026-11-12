@@ -35,6 +35,10 @@
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "Step 0 says to fix every open defect first, but all five open entries are control-plane workflow/prompts edits that already have open owner-gated PRs (#12928, #14877, #14612, #14808, #14698); the open list does not show that, so each red-team run re-checks the same five. redteam.py open could print the PR that carries each fix."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Two red-team runs picked einvoice-preflight within an hour (#15132 and this one) because both followed 'aim at a file that just changed on main'. Disjoint files, so no harm, but a search of open redteam PRs for the target is not in the steps."
     }
   ],
   "deviations": [
@@ -49,7 +53,7 @@
     "docs/posts/2026-11-12-redteam-an-export-invoice-from-last-year.md"
   ],
   "goal": null,
-  "notes": "Targets: ventures/einvoice-preflight/cce20.mjs (newest code on main, #15129) and platform/ci/check_se_tax_floor.py (random --under platform draw). Fuzz harness (attribute edits) found a TypeError on Fecha before 2024-01-18; the same harness is now cfdi-fuzz.test.mjs (guard added, ~10k docs, ~3 s; found exactly that one crash on its first run). Hand fuzz of preflightDocuments over 35 example XMLs (25,320 attr/text edits): no JS errors. Verification: run_venture_tests.py einvoice-preflight ok 7.5 s; python3 -m unittest test_check_se_tax_floor 7 OK; redteam rerun: all gaps caught_after_fix true. Main went red mid-run: #15130 left changepoint-detector's flagships.yaml `next:` at 2120 chars (cap 2000), failing portfolio/router/validate.py on every PR; merged main and shortened three README pointers in that entry to 1,9xx chars (no item dropped).",
+  "notes": "Targets: ventures/einvoice-preflight/cce20.mjs (newest code on main, #15129) and platform/ci/check_se_tax_floor.py (random --under platform draw). Fuzz harness (attribute edits) found a TypeError on Fecha before 2024-01-18; the same harness is now cfdi-fuzz.test.mjs (guard added, ~10k docs, ~3 s; found exactly that one crash on its first run). Hand fuzz of preflightDocuments over 35 example XMLs (25,320 attr/text edits): no JS errors. Verification: run_venture_tests.py einvoice-preflight ok 7.5 s; python3 -m unittest test_check_se_tax_floor 7 OK; redteam rerun: all gaps caught_after_fix true. Main went red mid-run: #15130 left changepoint-detector's flagships.yaml `next:` at 2120 chars (cap 2000), failing portfolio/router/validate.py on every PR; I shortened it on this branch, but a parallel red-team run (#15132, same venture: cfdi.mjs/pagos20) landed its own fix first, so the merge keeps main's version. Two red-team runs on einvoice-preflight within the same hour: the router has no way to see a target is already taken.",
   "corrections": [],
   "redteam": {
     "campaigns": [
