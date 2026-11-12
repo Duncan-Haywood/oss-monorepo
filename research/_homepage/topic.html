@@ -56,14 +56,35 @@ figcaption{font-size:13px;color:var(--muted);margin-top:.5rem}
 .topic-chips small{color:var(--muted);margin-left:.25rem}
 footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;font-size:13px;color:var(--faint)}
 {{THEME_VARS}}
-.proj{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:1rem 1.1rem;margin:0 0 .9rem}
-.proj h2{font:600 19px/1.35 var(--serif);margin:0 0 .35rem}
+/* 100+ projects on one page: each card shows its question, slug and the first two lines of its
+   result; "Result and abstract" unclamps the result and shows the abstract. Two columns where
+   there is room. Without :has() the result stays clamped; the project page has it in full. */
+.projects{display:grid;gap:.75rem;margin:0}
+.proj{border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:.9rem 1rem;margin:0;min-width:0;border-top:3px solid var(--c,var(--accent))}
+.proj h2{font:600 17px/1.35 var(--serif);margin:0 0 .3rem}
 .proj h2 a{color:var(--text)}
-.proj .meta{font:12px var(--mono);color:var(--faint);margin:0 0 .4rem}
+.proj .meta{font:12px var(--mono);color:var(--faint);margin:0 0 .35rem;overflow-wrap:anywhere}
 .proj p{margin:.2rem 0}
-.proj details{margin-top:.5rem;font-size:15px}
-.proj summary{cursor:pointer;color:var(--muted);font-size:13px;font-weight:500}
-.count{font-size:14px;color:var(--muted);margin:0 0 1.5rem}
+.proj .res{font-size:15px;line-height:1.55;color:var(--muted);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+.proj:has(details[open]) .res{display:block;-webkit-line-clamp:unset;line-clamp:none;color:var(--text)}
+.proj details{margin-top:.35rem;font-size:15px}
+.proj summary{cursor:pointer;color:var(--accent-ink);font-size:13px;font-weight:500;padding:.15rem 0}
+.proj summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+@media (min-width:960px){
+  .wrap{max-width:1120px}
+  main.wrap>.lede,main.wrap>.count,main.wrap>h1,main.wrap>.note,.find{max-width:760px}
+  .projects{grid-template-columns:1fr 1fr}
+  .projects:has(details[open]){align-items:start}
+  .proj{display:flex;flex-direction:column}
+  .proj details{margin-top:auto;padding-top:.35rem}
+}
+.count{font-size:14px;color:var(--muted);margin:0 0 1.2rem}
+.find{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:0 0 1rem}
+.find input{flex:1 1 220px;min-width:0;font:inherit;font-size:15px;padding:.5rem .75rem;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--text)}
+.find input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.find output{font-size:14px;color:var(--muted)}
+.find[hidden]{display:none}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -73,7 +94,26 @@ footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;
   <h1>{{THEME_NAME}}</h1>
   <p class="lede">{{BLURB}}</p>
   <p class="count">{{THEME_COUNT}} projects, each with its own page, code and tests. <a href="../../index.html#{{THEME_ID}}">See them on the full research index</a>.</p>
+  <form class="find" role="search" hidden onsubmit="return false"><label for="find" class="sr">Filter these projects</label><input id="find" type="search" placeholder="Filter {{THEME_COUNT}} projects by word" autocomplete="off"><output for="find" aria-live="polite"></output></form>
+  <div class="projects">
 {{PROJECTS}}
+  </div>
+  <script>
+  (function () {
+    var form = document.querySelector('.find'), box = document.getElementById('find'), out = form.querySelector('output');
+    var cards = [].slice.call(document.querySelectorAll('.proj'));
+    var hay = cards.map(function (c) { return c.textContent.toLowerCase(); });
+    form.hidden = false;
+    box.addEventListener('input', function () {
+      var words = box.value.toLowerCase().split(/\s+/).filter(Boolean), n = 0;
+      cards.forEach(function (c, i) {
+        var hit = words.every(function (w) { return hay[i].indexOf(w) >= 0; });
+        c.hidden = !hit; if (hit) n++;
+      });
+      out.textContent = words.length ? n + ' of ' + cards.length : '';
+    });
+  })();
+  </script>
   <h2>Other research topics</h2>
   <p class="topic-chips">{{TOPICS}}</p>
   <p class="note">Produced with AI assistance (Claude). Results are from the code in this repository and are simulated or stylised unless the abstract says otherwise; nothing here implies affiliation with or endorsement by any lab, researcher or company cited. MIT licensed.</p>
