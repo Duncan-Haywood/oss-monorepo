@@ -282,7 +282,8 @@ flagships:
       season", eval/shift-double.txt): 25 teams 2,889/262 to 2,685/117, 9 of 10 sizes lower at
       weight 10, 26 unchanged. Next, most valuable first: re-measure the page's best-of-k picks
       with it; seed assignVenues with the shift orientation after the search's moves; a lower bound or a
-      timetable below 136 at 12; close 24-40 (tabu, longer runs, the literature's starters and
+      timetable below 136 at 12 (SAT encoding eval/carryover-sat.py, 2026-11-12: 10 teams proved >= 90, 12
+      teams unanswered at 134 after 70 min; next symmetry breaking or cube-and-conquer, README "SAT bounds"); close 24-40 (tabu, longer runs, the literature's starters and
       terraces); a 20-team leg at 22-30 breaks from a starter timetable; a real league's travel
       times and unavailable dates; a print check.
   - venture: open-tennis-robots
