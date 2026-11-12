@@ -21,7 +21,11 @@ returns at once (friction 2026-11-06); use `--pid`, or bracket the first letter,
 `echo EXIT $?` works as a marker line too: with no `--marker`, a `DONE` line or an
 `EXIT 0` line both end the wait (friction 2026-11-11: runs guessed `--pattern` or
 waited out the timeout on an EXIT log), and the printed tail shows the exit code.
-`--marker X` waits for X alone.
+`--marker X` waits for X alone. The default also accepts the line the harness
+ends a `run_in_background` task's own output file with, `[exited with code N]`,
+so the file the task notification names can be waited on as it stands (a wait
+on one ran its full 110 s past that line, 2026-11-12), and a `-` after the
+marker (`DONE-EXIT 3`, friction 2026-11-12).
 
 Exit 0 and the log's last lines once the marker line appears; exit 1 on timeout
 (the job may still run: call again). The default stays under the 120 s tool limit.
@@ -39,10 +43,10 @@ def is_marker(line, marker):
     inside a line (`not DONE yet`) does not count (friction 2026-11-11: `--marker
     EXIT` waited its full 540 s timeout on a log that ended `EXIT 0`)."""
     s = line.strip()
-    return s == marker or (s.startswith(marker) and s[len(marker)] in " \t:")
+    return s == marker or (s.startswith(marker) and s[len(marker)] in " \t:-")
 
 
-DEFAULT_MARKERS = ("DONE", "EXIT")
+DEFAULT_MARKERS = ("DONE", "EXIT", "[exited with code")
 
 
 def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.sleep):
