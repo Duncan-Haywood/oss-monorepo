@@ -298,7 +298,7 @@ class Feeder:
 
     # Mast: four posts and a turntable.
     post_dx: float = 80.0         # posts at head_x +- this
-    post_half_y: float = 130.0
+    post_half_y: float = 160.0    # 130 until 2026-11-12: nose up 45 deg the head's plates met a rear post at 32.3 deg, short of the hard stops' reach
     mast_top_z: float = 640.0     # underside of the fixed mast plate
     bearing_h: float = 10.0       # lazy-susan bearing
     bearing_d: float = 150.0
@@ -398,7 +398,7 @@ class Feeder:
                                    # 2000 fitted azimuth 0 only: at +45 deg turned 30 deg the shortest hose was 31 mm too long, 2026-11-10)
     post_front_x: float = -380.0
     post_rear_x: float = -640.0
-    shelf_post_y: float = 245.0    # 225 until 2026-11-10: turned 30 deg at 15-35 deg nose up, the head's plates cut into the front posts
+    shelf_post_y: float = 290.0    # 225 until 2026-11-10 (turned 30 deg at 15-35 deg nose up, the head's plates cut into the front posts); 245 until 2026-11-12 (clear to 31.6 deg only, short of the hard stops' reach)
     # Hopper frame loads and bracing (all assumptions to replace with a measurement).
     tub_mass_kg: float = 1.6          # empty storage tub
     side_load_g: float = 0.25         # sway load at the shelf as a fraction of the full hopper's weight
@@ -418,7 +418,7 @@ class Feeder:
     az_pinion_teeth: int = 15
     az_gear_teeth: int = 150          # full-circle count of the sector's teeth (pitch radius 112.5 mm)
     az_pressure_deg: float = 20.0
-    az_sector_margin_deg: float = 8.0  # teeth beyond +-az_max at each end, so the pinion never runs off the sector
+    az_sector_margin_deg: float = 10.0  # teeth beyond +-az_max at each end (8 until 2026-11-12: the hard stops at +-az_stop_deg need a tooth pitch of full mesh past them)
     az_clear_mm: float = 3.0          # trimmed plate edge inside the pinion's tip circle
     az_gear_gap_mm: float = 1.5       # printed sector's underside above the mast plate
     az_backlash_mm: float = 0.10      # tooth thinning at the pitch circle, printed into the sector (assumption: measure it)
@@ -459,6 +459,21 @@ class Feeder:
     home_bracket_t: float = 2.0       # printed bracket floor under the switch
     home_slot_mm: float = 1.5         # radial adjustment either way in the bracket's M3 slots
     az_microsteps: int = 4            # firmware AZ_MICROSTEPS: sets the step the homing creep can resolve
+    # Azimuth hard stops (2026-11-12): two printed blocks on the mast plate, in the bearing gap the gear sector turns in,
+    # each with a polyurethane pad glued on its face. The sector's own end faces hit the pads at +-az_stop_deg, past the
+    # working range and the home click and before the pinion leaves the teeth (`az_stop_design`). Pad and insert
+    # figures are assumptions: read your sheet's datasheet, and push a printed sector into a stop with a scale.
+    az_stop_deg: float = 35.0         # turntable angle where a sector end meets its stop's pad, either side
+    az_stop_margin_deg: float = 2.0   # stop at least this far past az_max (a runaway at full speed hits it, not a target)
+    az_stop_mesh_pitches: float = 1.0  # whole tooth pitches of sector left past the pinion's line at a stop
+    stop_pad_r: tuple = (95.0, 107.0)  # pad's radial span about the turntable axis: inside the sector's root circle
+    stop_pad_h: float = 6.0           # pad height (z), within the sector's face width
+    stop_pad_t: float = 5.0           # pad thickness, along the turning direction (4 mm would compress 49% at the runaway speed, no margin on the 50% counted on)
+    stop_pad_e_mpa: float = 5.5       # compression modulus, Shore 70A polyurethane sheet (assumption)
+    stop_pad_strain: float = 0.5      # largest compression the pad is counted on (assumption; PU bumpers run 40-50%)
+    stop_block_depth: float = 16.0    # printed block behind the pad, along the turning direction
+    stop_hit_deg_s: float = 60.0      # speed into a stop: the firmware's AZ_VMAX_DEG_S (a lost-step runaway at full speed)
+    insert_shear_n: float = 300.0     # allowed shear on one M4 heat-set insert in PETG (assumption; push-out tests run higher)
 
     # Elevation drive (2026-11-11): a linear actuator in a plane outboard of the -y (guard-side) cheek pushes a pin on
     # the guard plate. Gravity on the head is measured from the CAD (`feeder.head_moment`); the pin and anchor were
@@ -948,6 +963,7 @@ class Feeder:
         bad += self.check_launch()
         bad += self.check_azimuth()
         bad += self.check_home_switch()
+        bad += self.check_az_stops()
         return bad
 
     # ---- azimuth drive (2026-11-10) -------------------------------------------
@@ -1217,6 +1233,114 @@ class Feeder:
             bad.append("home switch is taller than the bearing gap")
         if abs((self.home_sw_deg - 90.0 + 180) % 360 - 180) < 25:
             bad.append("home switch sits by the pinion")
+        return bad
+
+    # ---- azimuth hard stops (2026-11-12) --------------------------------------
+    def az_stop_world_deg(self) -> tuple[float, float]:
+        """World angles (deg from +x, counter-clockwise) of the two pads' contact faces: the sector's low end meets the
+        negative stop turning negative, its high end the positive stop turning positive."""
+        lo, hi = self.az_sector_ends_deg()
+        return lo - self.az_stop_deg, hi + self.az_stop_deg
+
+    @property
+    def az_reach_deg(self) -> float:
+        """Furthest the head can turn either side: to a stop, plus the pad squeezed to `stop_pad_strain`. Everything
+        that turns must clear everything fixed out to here, not just to `az_max` (the sweeps check it)."""
+        return self.az_stop_deg + math.degrees(self.stop_pad_strain * self.stop_pad_t / (sum(self.stop_pad_r) / 2))
+
+    def az_stop_design(self, inertia_kgm2: float | None = None) -> dict:
+        """What the hard stops must take, and where they sit.
+
+        Position: past `az_max` by `az_stop_margin_deg`; past the home click by the bracket slots' whole adjustment
+        (a radial shift `home_slot_mm` moves the click by that much arc on the 45 deg ramp) plus 0.5 deg; and with
+        `az_stop_mesh_pitches` of teeth left beyond the pinion's line, so the pinion is in full mesh when the stall
+        torque arrives (`last tooth centre - pitches x pitch` at the pinion's plate angle 90 - az).
+
+        Impact: the head runs into a pad at `stop_hit_deg_s` (the firmware's top speed: a lost-step runaway, not a
+        commanded move, since the firmware clamps targets to +-az_max). Its kinetic energy, with the rotor and pinion
+        reflected through the ratio, goes into the pad as a linear spring k = E A / t; the peak force sqrt(2 E k) must
+        come with a compression under `stop_pad_strain`. The stepper keeps pushing at its holding torque through the
+        mesh, which adds its tangential force at the pad. The worst sector insert carries the direct share plus the
+        moment of that force about the three inserts' centroid. Stalled against a stop, the pinion's tooth load at
+        holding torque is checked with the same Lewis form as the drive."""
+        j = self.az_inertia_kgm2 if inertia_kgm2 is None else inertia_kgm2
+        pitch = 360.0 / self.az_gear_teeth
+        n = int(self.az_sector_half_deg // pitch)
+        last_tooth = 90.0 + n * pitch
+        stop_mesh_max = last_tooth - self.az_stop_mesh_pitches * pitch - 90.0
+        slot_deg = math.degrees(self.home_slot_mm / math.tan(math.radians(self.home_cam_ramp_deg))
+                                / self.home_switch_design()["r_roller"])
+        rp_m = (self.az_pinion_r + self.az_module) / 1000
+        pinion_j = 0.5 * (7850 * math.pi * rp_m ** 2 * 0.012) * rp_m ** 2
+        j_all = j + (self.stepper_rotor_kgm2 + pinion_j) * self.az_ratio ** 2
+        w = math.radians(self.stop_hit_deg_s)
+        energy_j = 0.5 * j_all * w * w
+        r0, r1 = self.stop_pad_r
+        area = (r1 - r0) * self.stop_pad_h
+        k = self.stop_pad_e_mpa * area / self.stop_pad_t * 1000          # N/m
+        x_mm = math.sqrt(2 * energy_j / k) * 1000
+        f_impact = k * x_mm / 1000
+        r_c = (r0 + r1) / 2
+        f_stall = self.stepper_hold_nm * self.az_ratio * self.az_gear_eff / (r_c / 1000)
+        f_peak = f_impact + f_stall
+        cap_j = 0.5 * k * (self.stop_pad_strain * self.stop_pad_t / 1000) ** 2
+        fastest = math.degrees(math.sqrt(2 * cap_j / j_all))
+        # Inserts: the force acts tangentially at r_c on the sector's high end (the low end mirrors it).
+        lo_end, hi_end = self.az_sector_ends_deg()
+        bolts = [(self.az_bolt_r * math.cos(math.radians(a)), self.az_bolt_r * math.sin(math.radians(a)))
+                 for a in (90.0 - (self.az_sector_half_deg - 6.0), 90.0, 90.0 + (self.az_sector_half_deg - 6.0))]
+        cx, cy = sum(b[0] for b in bolts) / 3, sum(b[1] for b in bolts) / 3
+        a = math.radians(hi_end)
+        px, py = r_c * math.cos(a), r_c * math.sin(a)
+        fx, fy = f_peak * math.sin(a), -f_peak * math.cos(a)                # the pad pushes the end back (clockwise)
+        m = (px - cx) * fy - (py - cy) * fx                                  # N mm about the centroid
+        r2 = sum((bx - cx) ** 2 + (by - cy) ** 2 for bx, by in bolts)
+        insert = max(math.hypot(fx / 3 - m * (by - cy) / r2, fy / 3 + m * (bx - cx) / r2) for bx, by in bolts)
+        f_tooth = self.stepper_hold_nm / (self.az_pinion_r / 1000)          # the steel pinion pushes the printed teeth
+        y_gear = 0.484 - 2.87 / self.az_gear_teeth
+        sigma = f_tooth / (self.az_gear_face_mm * self.az_module * y_gear)
+        block_bear = f_peak / 2 / (4.0 * (self.bearing_h - self.az_gear_gap_mm))  # two M4 screws bearing in the block
+        return {
+            "world_deg": self.az_stop_world_deg(), "last_tooth_deg": last_tooth, "stop_mesh_max_deg": stop_mesh_max,
+            "slot_deg": slot_deg, "stop_home_min_deg": -self.az_home_deg + slot_deg + 0.5,
+            "pinion_off_deg": hi_end - 90.0,
+            "inertia_all_kgm2": j_all, "energy_j": energy_j, "pad_k_n_mm": k / 1000, "pad_x_mm": x_mm,
+            "pad_strain": x_mm / self.stop_pad_t, "pad_capacity_j": cap_j, "fastest_hit_deg_s": fastest,
+            "force_impact_n": f_impact, "force_stall_n": f_stall, "force_peak_n": f_peak,
+            "pad_pressure_mpa": f_peak / area, "insert_n": insert, "stall_tooth_n": f_tooth, "stall_tooth_mpa": sigma,
+            "block_bearing_mpa": block_bear,
+        }
+
+    def check_az_stops(self, inertia_kgm2: float | None = None) -> list[str]:
+        bad = []
+        d = self.az_stop_design(inertia_kgm2)
+        s = self.az_stop_deg
+        if s < self.az_max + self.az_stop_margin_deg:
+            bad.append(f"azimuth hard stops at +-{s:g} deg are within {self.az_stop_margin_deg:g} deg of the working range")
+        if s < d["stop_home_min_deg"]:
+            bad.append(f"azimuth hard stop at -{s:g} deg can land before the home click (needs {d['stop_home_min_deg']:.2f})")
+        if s > d["stop_mesh_max_deg"]:
+            bad.append(f"azimuth hard stops at +-{s:g} deg leave under {self.az_stop_mesh_pitches:g} tooth pitch of mesh "
+                       f"(at most {d['stop_mesh_max_deg']:.2f} deg)")
+        if d["pad_strain"] > self.stop_pad_strain:
+            bad.append(f"azimuth stop pad compresses {d['pad_strain']:.0%} at {self.stop_hit_deg_s:g} deg/s "
+                       f"(allowed {self.stop_pad_strain:.0%})")
+        if d["insert_n"] > self.insert_shear_n:
+            bad.append(f"azimuth gear sector's worst insert takes {d['insert_n']:.0f} N at a stop "
+                       f"(allowed {self.insert_shear_n:g} N)")
+        if d["stall_tooth_mpa"] > self.petg_bend_allow_mpa:
+            bad.append(f"stalled against a stop, the printed teeth bend at {d['stall_tooth_mpa']:.1f} MPa")
+        if max(d["pad_pressure_mpa"], d["block_bearing_mpa"]) > self.petg_bend_allow_mpa:
+            bad.append("azimuth stop block or the sector's end face is crushed at a stop")
+        r0, r1 = self.stop_pad_r
+        rr = self.az_gear_r - 1.25 * self.az_module
+        if r1 + 2.0 > rr - 1.0 or r0 - 1.0 < self.home_switch_design()["r_lobe"] + 1.0:
+            bad.append("azimuth stop pad is not inside the sector's end face (root circle to cam lobe)")
+        if self.stop_pad_h > self.az_gear_face_mm - 1.0:
+            bad.append("azimuth stop pad is taller than the sector's face")
+        lo, hi = d["world_deg"]
+        if min(abs(lo - self.home_sw_deg), abs(hi - self.home_sw_deg)) < 15 or min(abs(lo - 90), abs(hi - 90)) < 25:
+            bad.append("an azimuth stop block sits by the home switch or the pinion")
         return bad
 
     # ---- elevation drive (2026-11-11) -----------------------------------------
