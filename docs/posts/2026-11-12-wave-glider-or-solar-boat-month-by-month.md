@@ -3,7 +3,7 @@ title: "Wave Glider or solar boat, month by month: a flip line that swings 30 de
 seo_title: "Wave Glider vs solar survey boat by latitude and month: 2024 map"
 date: 2026-11-12
 tags: [research, marine-hull]
-description: "Along two ocean meridians for all of 2024, a 4 m solar survey boat out-travels a 2015 Wave Glider within 20 degrees of the equator all year, and loses poleward of 40 degrees in winter."
+description: "Over all of 2024, a 4 m solar survey boat out-travels a 2015 Wave Glider within 20 degrees of the equator, and loses poleward of 40 degrees in winter."
 ---
 
 The [last post](2026-11-12-wave-glider-or-solar-boat-season-and-latitude.md) found that whether a solar-powered survey boat or a Wave Glider covers more distance per day flips with the season: at five sites, the solar boat won everywhere in July 2024 and lost at four of five in January. Two months and five sites can't tell you where the line between them sits, or how it moves through the year. That is what a survey planner choosing one platform for a year-round line actually needs.
