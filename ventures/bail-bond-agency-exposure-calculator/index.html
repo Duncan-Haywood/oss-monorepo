@@ -33,7 +33,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -166,7 +166,7 @@
         $("#report-stats").textContent = `${money(r.premium)} premium on ${money(r.liability)} open liability. After the surety's share and build-up fund (${money(r.buf)}, held until exoneration): ${money(r.netPremium)}. ` +
           `If every forfeitable bond failed: ${money(r.lossIfAllForfeit)}. Expected loss at your rate: ${money(r.expectedLoss)}. Break-even failure-to-appear rate: ${r.breakEvenFtaPct === null ? "n/a (fully collateralized)" : r.breakEvenFtaPct + "%"}. ` +
           `Cash on hand ${money(r.cash)} covers ${r.covered} of ${r.forfeitableCount} forfeitable bonds.` + (r.utilizationPct !== null ? ` Writing limit used: ${r.utilizationPct}%.` : "");
-        $("#report-findings").innerHTML = r.flags.length ? r.flags.map((f) => `<div class="finding"><h4><span class="pill ${f.level}">${f.level === "high" ? "act" : "watch"}</span>${esc(f.text)}</h4></div>`).join("") : '<div class="finding"><h4><span class="pill info">ok</span>Nothing in this book trips a check you typed.</h4></div>';
+        $("#report-findings").innerHTML = r.flags.length ? r.flags.map((f) => `<div class="finding"><h3><span class="pill ${f.level}">${f.level === "high" ? "act" : "watch"}</span>${esc(f.text)}</h3></div>`).join("") : '<div class="finding"><h3><span class="pill info">ok</span>Nothing in this book trips a check you typed.</h3></div>';
         $("#note").value = callList(r);
         out.hidden = false;
         $("#form-status").textContent = "";

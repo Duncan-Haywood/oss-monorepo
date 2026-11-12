@@ -1,0 +1,237 @@
+{
+  "date": "2026-11-12",
+  "subject": "research/osrobot-lipsweep",
+  "stratum": "research",
+  "seed": "2026-11-12",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality-audit round 42",
+  "status": "audited",
+  "professional": "a physical human-robot interaction researcher who works on impedance/compliance control for assistive feeding (bite transfer). They would check first what physically sets the worst-case contact force (steady-state impedance equilibrium against the environment versus impact), whether every parameter that bounds it is swept or at least named, whether shares of 200 trials are distinguishable, and whether the work is placed against the bite-transfer literature and the textbook impedance-control result",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 1,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 1,
+    "domain": 1
+  },
+  "evidence": {
+    "correctness": "Ran `PYTHONPATH=src python3 experiments/run.py` (3.08 s real) into scratch and diffed with experiments/results.txt: byte-identical, so every reported number is current. Then recomputed independently without importing the subject. (1) Closed form for the static equilibrium of a PD tip loop against a spring wall (series stiffness, Siciliano et al., Robotics: Modelling, Planning and Control, 2009, ch. 9 compliance control: F = kp*ke/(kp+ke)*(xd - xe)), with the reference either the carrot v*LEAD ahead (F = KP*LEAD*v) or clamped at X_DEPTH = 15 mm: F = min(KP*LEAD*v, KP*K*X_DEPTH/(KP+K)) (/tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/lip/closed_form.py). It predicts sweep-1 worst peaks 1.2/2.0/3.0/4.0 N at K_LIP 100/200/400/800 (observed 1.20/2.00/3.00/4.00), sweep-2 worst peaks 2.0/4.0/6.0/8.0 at KP 200/400/800/1600 (observed 2.12/4.00/6.00/8.00) and the sweep-3 plateau 4.0 at LEAD 0.10/0.20 (observed 4.01/4.01). (2) My own 1-D semi-implicit Euler sim of a head-on push into a Hunt-Crossley wall (/tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/lip/indep_sim.py) gives worst peaks 4.166/5.104/6.704 N at K_LIP 1600/3200/6400 (observed 4.17/5.10/6.70) and 1.077/1.725 N at 0.05 m/s for 1600/6400 (observed 1.08/1.72). All numbers reproduce. Capped at 3 because the outputs are right but the README's reading of them is not (see claims).",
+    "completeness": "README claims checked: '5 tests' (unittest: Ran 5 tests, OK, 0.284 s; pytest with /usr/bin/python3.13: 5 passed); run.py 'about 3 s' (3.08 s) writes results.txt identical to the committed one; figure.py exists and is parsed from results.txt (not run, to keep the tree clean); headline bullets 1, 2, 4, 5 quote results.txt correctly (safe 1.00/1.00/0.71/0.71/0.70; touch 0.62 -> 0.21; peak_mean 0.81 -> 1.19; slow worst 0.82 to 1.72). Live page https://marisstella.app/research/osrobot-lipsweep/ returns 200 with the abstract and the AI-assistance/stylised disclaimer. No TODOs or stubs. Everything stated as done works; the gaps are in interpretation, so 3.",
+    "verification": "`cd research/osrobot-lipsweep && PYTHONPATH=src python3 -m unittest discover -s tests`: 5 tests OK. Seeded four mutations in src/osrobot_lipsweep/model.py, each reverted with git checkout: removing the X_DEPTH clamp on the reference (line 58), halving the lip-wall stiffness (line 70), doubling the approach speed limit (line 65), and multiplying the Hunt-Crossley damping by 10 (line 70). All four survived (tests still OK). The tests are four ordinal comparisons and a determinism check with a 0.5 N slack; none pins a number from results.txt or the closed-form equilibrium that would have caught any of these. `git diff --stat research/` clean afterwards.",
+    "craft": "Read model.py (95 lines), run.py, figure.py, tests. Small and readable. Defects: run.py and the tests drive the model by mutating module globals with setattr (K_LIP, KP, KD, LEAD) and resetting from a BASE dict, so an omitted reset silently leaks into the next row; Design already exists and the parent project has since added a k_lip field to it for exactly this reason. The model is a copied file that has drifted from its source (diff vs research/osrobot-assist/src/osrobot_assist/model.py: parent added Design(k_lip=...)), while the README still calls it 'an unchanged copy'. model.py:9 comments KP/KD as 'about critically damped'; the damping ratio is 28/(2*sqrt(400*0.3)) = 1.28, overdamped.",
+    "claims": "Limits and disclaimer are honest (assumed constants, 2 N not a standard, no CI, passive user). But the mechanism claims are wrong in a way one setattr shows. README:13 says the LEAD plateau at 4.01 N 'plausibly' comes from sway bringing the mouth over the tip before the force builds; with X_DEPTH set to 1.0 m the worst peaks at LEAD 0.10/0.20 become 8.00/16.00 N, exactly the stall push (/tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/lip/xdepth.py): the plateau is the 15 mm reference clamp, not sway. README:11-12 attribute the soft-lip worst peaks (1.2, 2.0, 3.0 N) to lip stiffness under a stall-push ceiling; they are KP*K*X_DEPTH/(KP+K), and with the clamp removed the K_LIP 100 worst peak is 3.04 N, not 1.20. X_DEPTH is never named in the README. README:14/32 leave the KP 200 safe-share dip (0.60) unexplained and possibly noise; it replicates on seeds 200-399 (0.60) and 400-599 (0.59) (/tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/lip/kp_rep.py), Wilson 95% [0.53, 0.67] excludes 0.71, and it follows from safe ~= 1 - touch whenever the static force is at least 2 N (KP 200: stall push 2.0 N = F_SAFE, touch 0.44). README:28 'unchanged copy' is stale. Numbers backed, explanations not: 2.",
+    "fitness": "A researcher building on this would find that every worst-peak row in sweeps 1 to 3 is a two-line closed form (series-spring equilibrium against a clamped reference) plus a Hunt-Crossley impact overshoot for K_LIP > KP, which the README does not state; the one parameter that binds half the table (X_DEPTH) is not swept. The parent project osrobot-assist has since run sourced head-tissue stiffness (IFA Report 2/2022, 4.3 to 90 N/mm) in its sweep 5, which sits above this project's whole 0.1 to 6.4 N/mm range, and this README does not reference it. Nearest prior work, none cited: robot-assisted bite transfer (Belkhale et al., ICRA 2022, efficiency vs comfort in bite transfer; Shaikewitz et al., ICRA 2023, in-mouth bite transfer with visual and haptic sensing; Jenamani et al., HRI 2024, 'Feel the Bite', interaction-aware compliant control inside the mouth; Bhattacharjee/Gallenberger et al. on ADA feeding), and the textbook impedance-control result (Hogan 1985; Siciliano et al. 2009 ch. 9). The result is sound as simulation output but not new: it re-derives the impedance-control steady-state force without recognising it. 1.",
+    "domain": "Compared against standard impedance/compliance-control analysis (steady-state contact force with environment stiffness ke is kp*ke/(kp+ke) times the reference penetration; impact force scales with approach speed and sqrt of stiffness) and bite-transfer practice (force-limited, compliant in-mouth control with measured contact forces). Departures: the reference penetration X_DEPTH, the quantity that sets the soft-lip and long-lead peaks, is unnamed; the 'stall push' is treated as a controller property rather than one branch of the equilibrium; the safe-share metric is near-identical to 1 - touch share once static force >= 2 N, so it measures alignment, not force; Hunt-Crossley use and the passive point-mass user are fine for a stylised study and stated. A senior practitioner would not sign off the conclusions as written. 1."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "rerun of experiments/run.py vs committed results.txt",
+      "method": "byte diff",
+      "command": "cd research/osrobot-lipsweep && PYTHONPATH=src python3 experiments/run.py > /tmp/rerun.txt && diff /tmp/rerun.txt <(git show HEAD:research/osrobot-lipsweep/experiments/results.txt)",
+      "expected": "identical",
+      "observed": "identical (3.08 s)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "sweep 1 worst peak at K_LIP 100/200/400/800 (0.20 m/s)",
+      "method": "series-stiffness equilibrium against clamped reference, Siciliano et al. 2009 ch. 9: min(KP*LEAD*v, KP*K*X_DEPTH/(KP+K)); own script, no import",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/lip/closed_form.py",
+      "expected": "1.20, 2.00, 3.00, 4.00 N",
+      "observed": "results.txt 1.20, 2.00, 3.00, 4.00",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "sweep 1 worst peak at K_LIP 1600/3200/6400 (impact above equilibrium)",
+      "method": "own 1-D semi-implicit Euler PD + Hunt-Crossley wall sim, no import of the subject",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/lip/indep_sim.py",
+      "expected": "4.166, 5.104, 6.704 N",
+      "observed": "results.txt 4.17, 5.10, 6.70",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "sweep 2 worst peak at KP 200/400/800/1600",
+      "method": "same closed form",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/lip/closed_form.py",
+      "expected": "2.0, 4.0, 6.0, 8.0 N (static; impact may add)",
+      "observed": "2.12, 4.00, 6.00, 8.00",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "sweep 4 worst peak at 0.05 m/s, K_LIP 1600/6400",
+      "method": "own 1-D sim",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/lip/indep_sim.py",
+      "expected": "1.077, 1.725 N",
+      "observed": "1.08, 1.72",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:13 'plausible reason ... sway brings the mouth over the tip before the force builds' for the LEAD plateau",
+      "method": "rerun the subject's model with X_DEPTH=1.0 (reference unclamped), 200 seeds",
+      "command": "cd research/osrobot-lipsweep && python3 -I /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/lip/xdepth.py $PWD/src",
+      "expected": "plateau stays ~4.01 N if sway is the cause",
+      "observed": "LEAD 0.10 -> 8.00 N, 0.20 -> 16.00 N (= stall push); with X_DEPTH 0.015 -> 4.01, 4.01",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:11 soft-lip worst peaks set by lip stiffness",
+      "method": "same, X_DEPTH=1.0 at K_LIP 100/200/400",
+      "command": "cd research/osrobot-lipsweep && python3 -I /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/lip/xdepth.py $PWD/src",
+      "expected": "1.20/2.00/3.00 if set by stiffness alone",
+      "observed": "3.04/3.74/3.98 N",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:14/32 KP 200 safe-share dip 0.60 possibly noise",
+      "method": "replicate on disjoint seed sets; Wilson 95% interval",
+      "command": "cd research/osrobot-lipsweep && python3 -I /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/lip/kp_rep.py $PWD/src",
+      "expected": "if noise, dip absent on new seeds",
+      "observed": "0.60 (0-199), 0.60 (200-399), 0.59 (400-599); Wilson [0.531, 0.665] vs 0.71",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:28 'unchanged copy of the osrobot-assist model'",
+      "method": "diff against research/osrobot-assist/src/osrobot_assist/model.py",
+      "command": "diff research/osrobot-assist/src/osrobot_assist/model.py research/osrobot-lipsweep/src/osrobot_lipsweep/model.py",
+      "expected": "only docstring line differs",
+      "observed": "parent adds Design(k_lip=...) and uses design.k_lip at the wall",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "headline shares and means quoted from results.txt (safe 1.00/0.71/0.70, touch 0.62->0.21, slow worst 0.82-1.72)",
+      "method": "read against rerun output",
+      "command": "cat research/osrobot-lipsweep/experiments/results.txt",
+      "expected": "as quoted",
+      "observed": "as quoted",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "'5 tests' and run time 'about 3 s'",
+      "method": "run",
+      "command": "cd research/osrobot-lipsweep && PYTHONPATH=src python3 -m unittest discover -s tests -v; time PYTHONPATH=src python3 experiments/run.py",
+      "expected": "5 tests OK; ~3 s",
+      "observed": "5 tests OK 0.284 s; 3.08 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "live page and disclaimer",
+      "method": "curl served page",
+      "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/osrobot-lipsweep/",
+      "expected": "200 with stylised / AI-assistance note",
+      "observed": "200; abstract says 'Stylised: assumed constants'; footer 'Produced with AI assistance (Claude)'",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "model.py:9 'about critically damped'",
+      "method": "zeta = KD / (2 sqrt(KP M))",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/99f40ae1-c403-5383-a2e7-9eb948068889/scratchpad/lip/closed_form.py",
+      "expected": "~1.0",
+      "observed": "1.278",
+      "result": "fail"
+    },
+    {
+      "dimension": "fitness",
+      "what": "prior work placement (bite transfer, impedance control, parent's sourced sweep 5)",
+      "method": "grep README for citations",
+      "command": "grep -n -i 'belkhale\\|hogan\\|siciliano\\|IFA\\|sweep 5' research/osrobot-lipsweep/README.md",
+      "expected": "cited",
+      "observed": "no matches",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/osrobot-lipsweep/src/osrobot_lipsweep/model.py:58",
+      "change": "x_ref = min(X_DEPTH, x + v_app*LEAD) -> x + v_app*LEAD",
+      "caught": false,
+      "test_cmd": "cd research/osrobot-lipsweep && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/osrobot-lipsweep/src/osrobot_lipsweep/model.py:70",
+      "change": "K_LIP * x -> 0.5 * K_LIP * x",
+      "caught": false,
+      "test_cmd": "cd research/osrobot-lipsweep && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/osrobot-lipsweep/src/osrobot_lipsweep/model.py:65",
+      "change": "vx > design.v_app -> vx > 2 * design.v_app",
+      "caught": false,
+      "test_cmd": "cd research/osrobot-lipsweep && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/osrobot-lipsweep/src/osrobot_lipsweep/model.py:70",
+      "change": "C_LIP * max(vx,0) -> 10 * C_LIP * max(vx,0)",
+      "caught": false,
+      "test_cmd": "cd research/osrobot-lipsweep && PYTHONPATH=src python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Headline mechanism misattributed: the worst peaks in sweeps 1 to 3 are the static equilibrium F = min(KP*LEAD*v, KP*K_LIP*X_DEPTH/(KP+K_LIP)) set by the unnamed, unswept 15 mm reference depth X_DEPTH; the README's 'plausible' sway explanation for the LEAD plateau is refuted (X_DEPTH=1.0 gives 8.00 and 16.00 N, the stall push), so 'a longer lead does not raise the worst peak without bound' is an artefact a designer could act on",
+      "where": "research/osrobot-lipsweep/README.md:13",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Soft-lip worst peaks (1.2/2.0/3.0 N) credited to lip stiffness under a stall-push ceiling; they are the X_DEPTH series-spring branch (unclamped: 3.04/3.74/3.98 N)",
+      "where": "research/osrobot-lipsweep/README.md:11",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "Tests are ordinal with 0.5 N slack; 4 of 4 seeded mutations in core physics (reference clamp, wall stiffness, speed limit, impact damping) survive; nothing pins results.txt or the closed-form equilibrium",
+      "where": "research/osrobot-lipsweep/tests/test_lipsweep.py:26",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "No prior work cited: bite-transfer force/comfort literature (Belkhale et al. 2022, Shaikewitz et al. 2023, Jenamani et al. 2024) and the textbook impedance-control equilibrium (Hogan 1985; Siciliano et al. 2009) that the results re-derive; the parent's sourced tissue-stiffness sweep (osrobot-assist sweep 5, IFA Report 2/2022) is not referenced",
+      "where": "research/osrobot-lipsweep/README.md:3",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "KP 200 safe-share dip (0.60) presented as unexplained/possibly noise; replicates on two fresh seed sets (0.60, 0.59) and follows from safe ~= 1 - touch when static force (2.0 N) meets F_SAFE",
+      "where": "research/osrobot-lipsweep/README.md:32",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "'an unchanged copy of the osrobot-assist model' is stale: the parent now has Design(k_lip=...)",
+      "where": "research/osrobot-lipsweep/README.md:28",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "Comment says KP/KD 'about critically damped'; damping ratio is 1.28",
+      "where": "research/osrobot-lipsweep/src/osrobot_lipsweep/model.py:9",
+      "category": "code-craft",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14965"
+  ],
+  "verdict": "Every number in results.txt reproduces byte-for-byte and agrees with an independent closed form and an independent 1-D simulation to two decimals, and the limits are stated honestly. But the study misreads its own table: the worst-case lip force is the textbook impedance-control equilibrium min(KP*LEAD*v, KP*K*X_DEPTH/(KP+K)) plus an impact term, and the unnamed 15 mm reference depth X_DEPTH sets the soft-lip and long-lead results. Removing that clamp turns the README's bounded LEAD plateau (4.01 N) into 8 and 16 N, which refutes the offered sway explanation. The 'possibly noise' KP dip replicates on fresh seeds. The tests let four of four core-physics mutations through, and no bite-transfer or impedance-control prior work is cited. Finished as scoped, below the bar on verification, claims, fitness and domain."
+}

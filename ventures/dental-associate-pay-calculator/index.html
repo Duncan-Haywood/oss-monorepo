@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -164,7 +164,7 @@
       const tiles = [[usd(da.total), "Offer A yearly value"], [usd(db.total), "Offer B yearly value"], [(da.effectivePct * 100).toFixed(1) + "%", "A cash pay as % of net production"], [(db.effectivePct * 100).toFixed(1) + "%", "B cash pay as % of net production"], [usd(da.perDay), "A pay per day worked"], [usd(db.perDay), "B pay per day worked"]];
       if (a.crossovers.length) tiles.push([usd(a.crossovers[0]), "net production where A and B pay the same"]);
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#size-table tbody").innerHTML = a.scenarios.map((s) => `<tr class="${s.label === "Your expected production" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.prod)}</td><td class="n">${usd(s.a)}</td><td class="n">${usd(s.b)}</td><td class="n">${usd(s.diff)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";

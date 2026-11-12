@@ -21,6 +21,8 @@ const sitemap = fs.readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8
 const WAGE_DEFAULTS = {
   hourlyWage: 38, burdenRate: 32, overheadRate: 16, targetMargin: 28,
   travelAndEquipment: 425, permitFee: 125,
+  // the page defaults (index.html) include these; leaving them out priced a different job (quality audit 2026-11-12)
+  hoursTrip: 1.5, siteHours: 0.75,
 };
 
 const FABRIC_JOB = JOB_PRESETS[3];

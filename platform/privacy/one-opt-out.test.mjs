@@ -10,13 +10,13 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import {
   checkSource, checkAll, optOutUsage, resolveKey, describe,
-  checkPage, checkAllPages, checkOrder, checkAllPageOrders, describeOrder, findPages,
+  checkPage, checkAllPages, checkOrder, checkPageOrder, checkAllPageOrders, describeOrder, findPages,
 } from "./one-opt-out.mjs";
 
 const ONE_KEY = `
@@ -105,7 +105,12 @@ test("vendor-rate-break-even: one key, two encodings, which is the same failure"
   `);
   assert.equal(result.status, "two-encodings");
   assert.deepEqual(result.values, ["1", "true"]);
-  assert.match(describe({ name: "x", ...result }), /invisible to the other/);
+  // The whole sentence, not its tail: a `+` turned `-` in the message made it
+  // "NaNstored by one half is invisible to the other", which a tail-only match
+  // accepted (redteam 2026-11-12).
+  assert.equal(describe({ name: "x", ...result }),
+    `x: one key (${result.keys[0]}) written and read as "1" and "true", so a choice `
+    + `stored by one half is invisible to the other`);
 });
 
 test("a computed written value is not counted, only what a reader accepts", () => {
@@ -185,6 +190,30 @@ test("the restore must come before anything that counts", () => {
   assert.equal(checkOrder("recordUsage('x');").status, "no-restore");
 });
 
+test("checkPageOrder reports a page that counts before it restores, and passes one that does not", () => {
+  // checkOrder is tested above on a bare string, but the catalogue goes
+  // through checkPageOrder, and the catalogue is clean. Flipping its
+  // `!== "pass"` turned every records-first page into a pass, and nothing
+  // noticed (redteam 2026-11-12).
+  const dir = mkdtempSync(join(tmpdir(), "one-opt-out-order-"));
+  try {
+    writeFileSync(join(dir, "late.html"), `<script type="module">
+      recordUsage('page_viewed');
+      const usagePreference = 'widget-usage-preference';
+    </script>`);
+    writeFileSync(join(dir, "early.html"), `<script type="module">
+      const usagePreference = 'widget-usage-preference';
+      recordUsage('page_viewed');
+    </script>`);
+    writeFileSync(join(dir, "none.html"), `<script type="module">recordUsage('x');</script>`);
+    const late = checkPageOrder(join(dir, "late.html"));
+    assert.equal(late.status, "records-first", JSON.stringify(late));
+    assert.equal(late.call, "recordUsage(");
+    assert.equal(checkPageOrder(join(dir, "early.html")).status, "pass");
+    assert.equal(checkPageOrder(join(dir, "none.html")).status, "no-restore");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test("every page restores the control before it counts, and spells it one way", () => {
   // 2026-09-12: 3 pages carried two keys and 11 restored too late, every one
   // of them from the page-level half of this change. The two assertions are
@@ -241,6 +270,20 @@ test("findPages skips node_modules, dist and dot directories but finds the rest"
     mkdirSync(join(dir, "app"));
     writeFileSync(join(dir, "app", "index.html"), "<p>x</p>");
     assert.deepEqual(findPages(dir), [join(dir, "app", "index.html")]);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("findPages skips an entry that vanishes mid-walk instead of crashing", () => {
+  // The readdir-then-stat race browser-signals.mjs already survives: a test
+  // file running in parallel removes its scratch venture under ventures/ while
+  // this walk is inside it (CI, 2026-10-21, ENOENT on
+  // ventures/discovery-probe-IUtDEq, in this file's suite). findPages threw on
+  // it until redteam 2026-11-12.
+  const dir = mkdtempSync(join(tmpdir(), "one-opt-out-vanish-"));
+  try {
+    writeFileSync(join(dir, "index.html"), "<p>x</p>");
+    symlinkSync(join(dir, "gone"), join(dir, "dangling"));
+    assert.deepEqual(findPages(dir), [join(dir, "index.html")]);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

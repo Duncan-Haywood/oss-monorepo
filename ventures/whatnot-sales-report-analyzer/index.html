@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -170,7 +170,7 @@
       last = r;
       const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
       $("#report-stats").innerHTML = `${s.items} sales across ${s.shows} show(s) and ${s.categories} categor${s.categories === 1 ? "y" : "ies"}, ${dateStr(s.from)} to ${dateStr(s.to)}. Sales ${cur}${money(s.price)}, Whatnot fees ${cur}${money(s.fee)} (<strong>${ratePct(s.feeRate)} effective</strong>), other deductions ${cur}${money(s.deductions)}, payout ${cur}${money(s.payout)}` + (s.costedItems ? `, cost ${cur}${money(s.cost)} on ${s.costedItems} item(s), <strong>profit ${cur}${money(s.profit)}</strong>${s.margin === null ? "" : ` (${pct(s.margin)} of sale price)`}.` : ". <strong>No costs supplied, so these are payouts, not profit.</strong>");
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const grp = (rows) => rows.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${g.items}</td><td class="n">${money(g.price)}</td><td class="n">${money(g.fee)}</td><td class="n">${ratePct(g.feeRate)}</td><td class="n">${money(g.payout)}</td><td class="n">${g.costedItems ? money(g.cost) : "–"}</td><td class="n">${opt(g.profit)}</td><td class="n">${g.margin === null ? "–" : pct(g.margin)}</td><td class="n">${g.avgPrice === null ? "–" : money(g.avgPrice)}</td></tr>`).join("");
       $("#by-show").innerHTML = grp(r.byShow);
       $("#by-category").innerHTML = grp(r.byCategory);

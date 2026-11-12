@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -178,7 +178,7 @@
       last = r;
       const s = r.summary;
       $("#report-stats").innerHTML = `${s.orders} orders on ${s.platforms} platform(s), ${dateStr(s.from)} to ${dateStr(s.to)}. Food sales $${money(s.gross)}, charges $${money(s.charges)} (<strong>take rate ${pct(s.takeRate)}</strong>), net cash $${money(s.net)}${s.costsEntered ? `, after food cost and packaging <strong>$${money(s.netAfter)}</strong> ($${rate(s.netAfterPerOrder)} per order)` : ""}.`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#by-platform").innerHTML = r.byPlatform.map((b) => `<tr><th scope="row">${esc(b.label)}</th><td class="n">${b.orders}</td><td class="n">${money(b.gross)}</td><td class="n">${money(b.commission)}</td><td class="n">${money(b.delivery)}</td><td class="n">${money(b.marketing)}</td><td class="n">${money(b.ads)}</td><td class="n">${money(b.errors)}</td><td class="n">${pct(b.takeRate)}</td><td class="n">${money(b.net)}</td><td class="n">${rate(b.netPerOrder)}</td><td class="n">${s.costsEntered ? rate(b.netAfterPerOrder) : "–"}</td><td class="n">${s.costsEntered ? mk(b.markup) : "–"}</td><td class="n">${s.costsEntered ? money(b.direct.gain) : "–"}</td></tr>`).join("");
       const grp = (rows, empty) => rows.length ? rows.map((g) => `<tr><th scope="row">${esc(g.label)}${g.orders < 5 ? " (under 5, ignored)" : ""}</th><td class="n">${g.orders}</td><td class="n">${money(g.gross)}</td><td class="n">${pct(g.takeRate)}</td><td class="n">${money(g.net)}</td><td class="n">${s.costsEntered ? rate(g.netAfterPerOrder) : rate(g.netPerOrder)}</td></tr>`).join("") : `<tr><td colspan="6">${empty}</td></tr>`;
       $("#by-weekday").innerHTML = grp(r.byWeekday, "No completed orders.");

@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Colbert Oaks</title>
+      <link>https://example.invalid/hearth-and-horizon/the-colbert-oaks.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-colbert-oaks.html</guid>
+      <pubDate>Thu, 12 Nov 2026 12:00:00 GMT</pubDate>
+      <description>In 2216, after a January storm unroofs farmhouses across the Bourbonnais, the region asks a village for its eight-hectare oak wood, planted from Tronçais acorns in 2084 for the church roof due in about 2240. The wood holds about a hundred house roofs. The region's survey AI proposes keeping the 162 trees the roof needs and felling the other 678. The retired forester who keeps the wood walks it with a carpenter and a can of paint, and finds out why that would leave the village with neither. Setting: Chaumerolles (invented), a village on the edge of the Forest of Tronçais in the Allier, France, January to November 2216. Read the full text at https://example.invalid/hearth-and-horizon/the-colbert-oaks.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>In 2216, after a January storm unroofs farmhouses across the Bourbonnais, the region asks a village for its eight-hectare oak wood, planted from Tronçais acorns in 2084 for the church roof due in about 2240. The wood holds about a hundred house roofs. The region's survey AI proposes keeping the 162 trees the roof needs and felling the other 678. The retired forester who keeps the wood walks it with a carpenter and a can of paint, and finds out why that would leave the village with neither.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Bell Tax</title>
       <link>https://example.invalid/hearth-and-horizon/the-bell-tax.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-bell-tax.html</guid>

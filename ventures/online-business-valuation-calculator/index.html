@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -142,7 +142,7 @@
         [money(r.netMid), `Net to you after a ${r.sellingFeePct}% fee`],
         [r.buyerPaybackYears ? `${r.buyerPaybackYears.toFixed(1)} years` : "n/a", "Buyer payback on SDE"],
       ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
       $("#factors tbody").innerHTML = r.factors.map((f) => `<tr><td>${esc(f.label)}</td><td>${esc(f.note)}</td><td class="n">${f.delta >= 0 ? "+" : ""}${f.delta.toFixed(1)}x</td></tr>`).join("") + `<tr><td><strong>SDE multiple used</strong></td><td>${r.arrMult ? "ARR multiple " + esc(multiple(r.arrMult)) : ""}</td><td class="n"><strong>${esc(multiple(r.sdeMult))}</strong></td></tr>`;
       $("#levers tbody").innerHTML = r.levers.length ? r.levers.map((l) => `<tr><td>${esc(l.label)}</td><td>${esc(l.note)}</td><td class="n">+${l.multipleGain.toFixed(1)}x</td><td class="n">${esc(money(l.valueGain))}</td></tr>`).join("") : `<tr><td colspan="4">No factor is currently pulling your multiple down.</td></tr>`;
       report.hidden = false;

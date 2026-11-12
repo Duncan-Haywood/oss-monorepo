@@ -918,14 +918,15 @@ data in IFD0 or a SubIFD, in strips or tiles, uncompressed 8/16-bit or packed 10
 lossless JPEG (SOF3, all seven predictors, restart markers, multi-component tiles); 2x2
 RGB colour filter arrays in any phase, and LinearRaw. It applies the linearization table,
 black level (repeat pattern and row/column deltas), white level, active area, default crop,
-`AsShotNeutral`, the camera matrix nearest D65 through sRGB primaries (the method dcraw uses),
-`BaselineExposure` and the orientation tag. It refuses, with the reason, lossy DNG, deflate
+`AsShotNeutral` or `AsShotWhiteXY`, the DNG specification's colour model (both camera
+matrices blended for the light the photo was taken in, `ForwardMatrix`, `CameraCalibration`,
+`AnalogBalance`; next section), `BaselineExposure` and the orientation tag. It refuses, with the reason, lossy DNG, deflate
 and floating-point DNG, four-colour CFAs and non-DNG files.
 
-What it does not do: interpolate the two camera matrices by colour temperature, use
-`ForwardMatrix`, `CameraCalibration` or DNG profile hue maps, reconstruct blown highlights,
-reduce noise, or use a better demosaic than bilinear. Colours will be close to dcraw and
-LibRaw's plain rendering, not to Lightroom's. Masters are neutral on purpose: the look is the
+What it does not do: use DNG profile hue/saturation maps or look tables, a third
+calibration illuminant (DNG 1.6 `ColorMatrix3`), reconstruct blown highlights, reduce noise,
+or use a better demosaic than bilinear. Colours follow the DNG specification's matrices, not
+Adobe's full profiles, so they will still differ from Lightroom's. Masters are neutral on purpose: the look is the
 grade stage's job, and since 2026-11-10 the pipeline's grade stage calls the developer for
 every DNG still (below).
 
@@ -952,7 +953,7 @@ How it was checked:
   per-channel black about 1026, white 15600), both from rawpy's test folder on GitHub. LibRaw
   reads the sensor data and metadata, the tool writes them into an uncompressed DNG, and our
   render of that DNG is compared with LibRaw's own render set to the same steps (bilinear,
-  camera white balance, clip, no auto-brightening, sRGB). Every pixel agrees within one 8-bit
+  camera white balance, clip, no auto-brightening, sRGB; since 2026-11-12 the tool asks for `--colour dcraw`, the model LibRaw uses). Every pixel agrees within one 8-bit
   step at full size and at half size (worst pixel 0.46 to 0.60 of a step, mean 0.08 to 0.12).
   The first run on the Canon had 10% of pixels over one step, all in the deep shadows: we
   clamped below-black noise after demosaicing and LibRaw clamps each sensel before; matching
@@ -1009,3 +1010,57 @@ How it was checked:
   256x256-sensel tile 27-30 ms to 18-21 ms. Same samples as the pure pass on all 345 encoder
   cases and sensel-for-sensel equal to LibRaw on the CR2. `raw_develop.DECODE_ENGINE`
   (`auto`, `python`, `numpy`) chooses; the Huffman pass is now about 85% of decoding.
+
+## Colour for the light the photo was taken in (2026-11-12)
+
+A camera does not respond to colour the same way under tungsten as under daylight, so a DNG
+carries two colour matrices, measured under two calibration lights (almost always Standard
+Illuminant A, about 2856 K, and D65). Until today the developer picked the daylight matrix and
+white-balanced in camera space, as dcraw and LibRaw do. That is right for daylight shots and
+drifts for indoor ones. `shootflow develop` (and the pipeline's grade stage) now follows the
+DNG specification's colour model by default (`src/shootflow/dng_colour.py`):
+
+- the as-shot white is the one consistent with `AsShotNeutral`: blend the matrices for a
+  white's colour temperature, map the neutral back to XYZ, and the same white must come out.
+  The specification finds it by plain iteration, which took over 200 steps on some strongly
+  different matrix pairs in testing; here it iterates on the blend weight and bisects once
+  it stalls. `AsShotWhiteXY` is used directly when there is no neutral;
+- `ColorMatrix`, `CameraCalibration` and `ForwardMatrix` are blended linearly in inverse
+  temperature (mired) and clamped outside the two calibration lights; colour temperature is
+  Robertson's 1968 method;
+- with `ForwardMatrix`, camera to XYZ D50 is `FM * D * inv(AB * CC)`; without it, Bradford
+  from the white to D50 after the inverted blended matrix; then XYZ D50 to sRGB through
+  Bradford to D65;
+- `CameraCalibration` only when its signature matches the profile's; `AnalogBalance` is taken out.
+
+`--colour dcraw` (`DevelopSettings(colour="dcraw")`) keeps the old method, which is what the
+LibRaw comparison above measures (`tools/libraw_differential.py` now asks for it). The JSON
+report gains `colour`, `white_xy` and `cct`, and `matrix` says which tags were blended at what
+temperature (`"ColorMatrix1+2 at 3584 K"`).
+
+How it was checked (`eval/dng-colour-2026-11-12.md`):
+
+- `tests/test_dng_colour.py` (15 tests) writes DNGs from a known scene: a camera whose true
+  response under A differs from the one under D65, photographing patches lit by that light.
+  Under tungsten the new model gives the patches back within 0.0004 in linear light; the old
+  one misses them by 0.036. It also covers daylight, greys staying grey at any white, a
+  `ForwardMatrix` that carries the real response when the colour matrices are a crude fit,
+  `AsShotWhiteXY` against the neutral, `AnalogBalance`, the `CameraCalibration` signature rule,
+  one matrix or unknown illuminants, a `--wb` override (the white is found from it), and refusals.
+- Against an independent implementation, colour-hdri (BSD-3, colour-science.org), which has
+  its own Robertson code, iteration and blending (`tools/dng_colour_check.py`, in a separate
+  venv): on 2,000 random profiles of the shape Adobe publishes (with and without
+  `CameraCalibration`, `AnalogBalance` and `ForwardMatrix`) and whites from 2,000 to 10,000 K,
+  a little off the Planckian locus, the white, its temperature and the camera-to-XYZ matrix
+  agree to rounding (largest matrix difference about 1e-13), apart from two profiles with
+  several self-consistent whites where the two loops, started from different guesses,
+  settle on different ones.
+- On a real file's tags: exiftool's test DNG, written by Adobe's converter from a Canon EOS
+  350D (image data stripped, so tags only: two matrices for A and D65, a `CameraCalibration1`,
+  an as-shot neutral). Its white is x 0.4014, y 0.3905, 3584 K (an indoor shot), the blend is
+  64% the tungsten matrix, and colour-hdri gives the same white and matrix within 2e-15. On 64
+  colour patches at that white the old one-matrix method lands up to 35 8-bit sRGB steps from
+  the DNG model (mean 9). That measures how much the two models differ on a real camera
+  profile, not which is closer to the scene: a real tungsten-lit chart with known colours is
+  still wanted for that, as is a DNG with `ForwardMatrix` written by a camera or Adobe.
+

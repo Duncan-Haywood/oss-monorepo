@@ -176,6 +176,24 @@ export function callMarks(rows, maxTries = 3, { holidays } = {}) {
   return { done, retry, moved };
 }
 
+/** A calls file (CSV email,step,outcome,date; the CLI's --calls and the page's call box) read as rows for callMarks and
+ * runPrep: emails lower-cased, outcomes as spoke|voicemail|no_answer|done (blank is done), rows without email or step
+ * dropped. */
+export function callLog(text) {
+  return (Array.isArray(text) ? text : parseCsv(String(text || ""))).map((c) => ({ email: String(c.email || "").trim().toLowerCase(), step: String(c.step ?? "").trim(), outcome: String(c.outcome || "done").trim().toLowerCase().replace(/[\s-]+/g, "_"), date: String(c.date || c.at || "").slice(0, 10) })).filter((c) => c.email && c.step);
+}
+
+/** The calls file with one more call appended (a header is added to an empty file). A second no-answer for the same step
+ * on the same day is a slip, not a try, and is not added, the same rule as the server's button. Returns the new text. */
+export function addCall(text, { email, step, outcome, date }) {
+  const row = callLog([{ email, step, outcome, date }])[0];
+  if (!row || !/^\d{4}-\d{2}-\d{2}$/.test(row.date) || !["spoke", "voicemail", "no_answer", "done"].includes(row.outcome)) throw new Error("addCall: email, step, a YYYY-MM-DD date and an outcome of spoke, voicemail, no_answer or done");
+  const t = String(text || "").replace(/\s+$/, "");
+  if (row.outcome === "no_answer" && callLog(t).some((c) => c.email === row.email && c.step.toLowerCase() === row.step.toLowerCase() && c.date === row.date && c.outcome === "no_answer")) return t ? t + "\n" : "";
+  const cell = (v) => (/[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v);
+  return `${t || "email,step,outcome,date"}\n${[row.email, row.step, row.outcome, row.date].map(cell).join(",")}\n`;
+}
+
 /** One SDR morning: read the replies, update the prospects and suppression, then build today's queue from what is left. */
 export function runMorning(input) {
   const inbox = runInbox({ ...input, replies: input.replies ? input.replies : [] });

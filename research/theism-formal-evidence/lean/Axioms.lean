@@ -1,5 +1,5 @@
 import TheismFormal
-open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actualist TheismFormal.Plain
+open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actualist TheismFormal.Plain TheismFormal.Closure TheismFormal.Models
 #print axioms model_has_row_block
 #print axioms row_block_gives_model
 #print axioms no_contingent_proposition
@@ -23,3 +23,14 @@ open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actual
 #print axioms de_re_plain
 #print axioms ne0_imp_nea
 #print axioms cm_a5_not_a5z
+#print axioms nea_iff
+#print axioms a5a_iff_closed
+#print axioms full_a5z_imp_a5a
+#print axioms cm8
+#print axioms model_iff
+#print axioms godlike_iff
+#print axioms positive_set_unique
+#print axioms a5a_iff
+#print axioms a5z_iff
+#print axioms model_a5z_iff
+#print axioms model_a5a_iff

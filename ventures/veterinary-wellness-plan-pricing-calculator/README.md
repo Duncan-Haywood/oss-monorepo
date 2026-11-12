@@ -10,7 +10,9 @@ After using this, you can **set a plan price from your own costs and a utilisati
 
 Per member-year: list value = sum of quantity x list price; the member pays 12 x monthly fee. Service cost = sum of quantity x your cost x share of the bundle used. Billing fees = payments x fee rate. Margin = payments - fees - service cost. The fee for a target margin is service cost / (1 - fee rate - target) / 12. Break-even use = (payments - fees) / full bundle cost. Across members: margin x members less sign-up cost x members who leave.
 
-Not modelled: extra visits and retention a plan may bring, tax treatment of prepaid revenue, state rules on pet wellness plans, clinical appropriateness of bundled services.
+The fee is priced from cost, not from the plan discount. When the discount it gives members (1 - payments / list value) is more than 5 points from the discount you enter, the tool warns and shows the fee that would match your discount (list value x (1 - discount) / 12).
+
+Not modelled: one utilisation rate applies to every service (members skip dental more often than vaccines); no enrollment fee; no species or life-stage tiers; extra visits and retention a plan may bring, tax treatment of prepaid revenue, state rules on pet wellness plans, clinical appropriateness of bundled services.
 
 ## Run
 

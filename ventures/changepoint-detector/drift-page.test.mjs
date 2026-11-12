@@ -105,5 +105,6 @@ test('page wiring: the option, the worker job, the view module and the counter',
   assert.match(html, /<code>drift_run<\/code>/);
   assert.match(html, /doi\s+= \{10\.1080\/01621459\.2021\.1909598\}/);
   // drift-view imports only siblings, so the agent tool and the worker can load it.
-  assert.deepEqual([...read('drift-view.mjs').matchAll(/from '([^']+)'/g)].map((m) => m[1]), ['./report.mjs', './drift-cli.mjs']);
+  assert.deepEqual([...read('drift-view.mjs').matchAll(/from '([^']+)'/g)].map((m) => m[1]), ['./report.mjs', './drift-cli.mjs', './update-rate.mjs']);
+  assert.deepEqual([...read('update-rate.mjs').matchAll(/^import /gm)], []);
 });

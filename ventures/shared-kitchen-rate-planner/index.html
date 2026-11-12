@@ -32,7 +32,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
     .finding { border-bottom: 1px solid #e3eaf8; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -123,11 +123,11 @@
       const o = read();
       const a = analyze(o);
       const p = a.now;
-      let h = `<div class="finding"><h4>${money(p.profit)} a month at ${percent(o.utilization)} utilization</h4><p class="stats">${money(p.gross)} billed (${money(p.memberRevenue)} memberships + ${money(p.hourlyRevenue)} hourly) − ${money(p.fees)} fees − ${money(p.cost)} costs · ${Math.round(p.used)} of ${Math.round(p.capacity)} station-hours used · cost per used hour ${money2(p.costPerUsedHour)}</p></div>`;
-      h += `<div class="finding"><h4>What gets you there</h4><p>Break-even utilization: ${a.be === null ? "not reachable at this rate" : percent(a.be)}. Utilization for your goal: ${a.goal === null ? "not reachable" : percent(a.goal)}. Hourly rate to break even at ${percent(o.utilization)}: ${a.beRate === null ? "no hourly rate works" : money2(a.beRate)}. Rate for your goal: ${a.goalRate === null ? "no hourly rate works" : money2(a.goalRate)}.</p></div>`;
-      for (const f of a.findings) h += `<div class="finding"><h4><span class="pill ${f.level}">${LABEL[f.level]}</span>${esc(f.title)}</h4><p>${esc(f.text)}</p></div>`;
+      let h = `<div class="finding"><h3>${money(p.profit)} a month at ${percent(o.utilization)} utilization</h3><p class="stats">${money(p.gross)} billed (${money(p.memberRevenue)} memberships + ${money(p.hourlyRevenue)} hourly) − ${money(p.fees)} fees − ${money(p.cost)} costs · ${Math.round(p.used)} of ${Math.round(p.capacity)} station-hours used · cost per used hour ${money2(p.costPerUsedHour)}</p></div>`;
+      h += `<div class="finding"><h3>What gets you there</h3><p>Break-even utilization: ${a.be === null ? "not reachable at this rate" : percent(a.be)}. Utilization for your goal: ${a.goal === null ? "not reachable" : percent(a.goal)}. Hourly rate to break even at ${percent(o.utilization)}: ${a.beRate === null ? "no hourly rate works" : money2(a.beRate)}. Rate for your goal: ${a.goalRate === null ? "no hourly rate works" : money2(a.goalRate)}.</p></div>`;
+      for (const f of a.findings) h += `<div class="finding"><h3><span class="pill ${f.level}">${LABEL[f.level]}</span>${esc(f.title)}</h3><p>${esc(f.text)}</p></div>`;
       const s = sensitivity(o);
-      h += `<div class="finding"><h4>Monthly profit by utilization and hourly rate</h4><div class="scroll"><table><thead><tr><th>Utilization</th>${s.rates.map((r) => `<th class="n">${money2(r)}/hr</th>`).join("")}</tr></thead><tbody>${s.rows.map((r) => `<tr><td>${percent(r.utilization)}</td>${r.cells.map((c) => `<td class="n">${money(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>`;
+      h += `<div class="finding"><h3>Monthly profit by utilization and hourly rate</h3><div class="scroll"><table><thead><tr><th>Utilization</th>${s.rates.map((r) => `<th class="n">${money2(r)}/hr</th>`).join("")}</tr></thead><tbody>${s.rows.map((r) => `<tr><td>${percent(r.utilization)}</td>${r.cells.map((c) => `<td class="n">${money(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       record("plan_run");

@@ -157,7 +157,7 @@ def main(argv=None) -> int:
         )
         libraw_seconds = time.perf_counter() - t0
     t0 = time.perf_counter()
-    width, height, pixels, report = rd.develop(rd.parse_raw(blob), rd.DevelopSettings(half=args.half))
+    width, height, pixels, report = rd.develop(rd.parse_raw(blob), rd.DevelopSettings(half=args.half, colour="dcraw"))
     ours_seconds = time.perf_counter() - t0
     ours = numpy.frombuffer(pixels.tobytes(), dtype=numpy.uint16).reshape(height, width, 3)
     h = min(ours.shape[0], ref.shape[0])

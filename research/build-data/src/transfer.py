@@ -92,7 +92,8 @@ def run(frames, held, test_year, seeds, keep_rows=False):
     res["coverage_80_own_baseline"] = float(np.mean((bq[.1] <= yte) & (yte <= bq[.9])))
     if keep_rows:  # per-row seed-mean losses for paired(); not written to json
         rows["own_baseline"] = {t: boosted.pin(yte, bq[t], t) for t in TAUS}
-        res["_rows"] = dict(loss=rows, y=yte, weeks=wk, permit_id=te.permit_id.to_numpy())
+        res["_rows"] = dict(loss=rows, y=yte, weeks=wk, permit_id=te.permit_id.to_numpy(),
+                            cls=te.cls.to_numpy())
     return res
 
 
@@ -119,6 +120,26 @@ def paired(ra, rb, a, b):
             m, lo, hi = boosted.block_boot(d, xa["weeks"])
             out[name][str(t)] = dict(diff=m, lo=lo, hi=hi,
                                      rel_to_baseline=m / ra["pinball"]["own_baseline"][str(t)])
+    out["by_class"] = by_class(xa, xb, xb.get("cls"))
+    return out
+
+
+def by_class(xa, xb, cls):
+    """Session 75: where the b-minus-a difference sits. Rows are grouped by their class under
+    configuration b (cascade2 for the session 74 run). For each model, quantile and class: n rows,
+    the class's mean difference in days, and its contribution to the overall mean difference
+    (sum of the class's row differences over all test rows; contributions add up to the overall
+    diff). No interval: a description, not a test."""
+    if cls is None:
+        return None
+    N, out = len(cls), {}
+    for name in ("transfer", "own_boosted"):
+        out[name] = {}
+        for t in TAUS:
+            d = xb["loss"][name][t] - xa["loss"][name][t]
+            out[name][str(t)] = {str(c): dict(n=int((cls == c).sum()), mean=float(d[cls == c].mean()),
+                                              contribution=float(d[cls == c].sum() / N))
+                                 for c in sorted(set(cls))}
     return out
 
 

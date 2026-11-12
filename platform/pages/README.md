@@ -2051,6 +2051,21 @@ every real post through `renderPost` so CI catches a skip before it ships:
 node platform/pages/heading-order.mjs [--dist=DIR] [--list]
 ```
 
+`heading-order.mjs` strips `<script>`, so it cannot see headings a tool's
+script draws into its result. `rendered-headings.mjs` serves the build, clicks
+each tool's sample and run buttons in Chromium, and checks the headings
+actually on screen (every venture page whose script draws a heading by
+default, `--slugs=a,b` for some, `--json=FILE` for the per-page list; exit 1 on
+any skip; not in CI). On 2026-11-12 it found 281 tool pages that jumped from
+`<h2>Result</h2>` to script-drawn `<h4>` findings; all now draw `<h3>`, and
+`finding-heading.test.mjs` stops a new page drawing `.finding` `<h4>` unless it
+is on the list of pages whose findings sit under an `h3`
+(docs/reports/polish-2026-11-12-finding-headings.md):
+
+```
+node platform/pages/rendered-headings.mjs [--dist=DIR] [--slugs=a,b] [--json=FILE]
+```
+
 ## Reflow, and the two things that widen a page
 
 `reflow.mjs` is the build half of what `sideways.mjs` measures. Its header

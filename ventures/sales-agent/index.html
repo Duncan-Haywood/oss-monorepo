@@ -118,8 +118,14 @@
     <textarea id="cadence-tasks" rows="6" placeholder="date,call_window,channel,step,prospect,company,email,phone,subject,body,voicemail,issues"></textarea>
     <label for="done">Touches you already did (optional, one per line: email,step)</label>
     <textarea id="done" rows="2"></textarea>
+    <label for="calls">Calls you made (optional, CSV: email,step,outcome,date; outcome spoke, voicemail or no_answer)</label>
+    <textarea id="calls" rows="3" placeholder="email,step,outcome,date"></textarea>
+    <label for="holidays">Days off (optional: <code>us</code> for US federal holidays, <code>us-business</code> for the six most offices close, <code>gb-eng</code>, <code>gb-sct</code> or <code>gb-nir</code> for UK bank holidays, <code>ca</code> for Canada's federal holidays, or YYYY-MM-DD dates)</label>
+    <input id="holidays" placeholder="us-business or gb-eng, 2026-12-24">
+    <p class="note">A call due today gets three buttons below the queue. Spoke or Voicemail ends the step. No answer brings the call back the next business day, up to three tries, and moves that person's later steps back by the days the call slipped, so a retry never lands on the next email's day. Retries and moved steps skip your days off. Each button adds a line to the calls box; delete the line to undo it. The task list, done list, calls and days off stay in this browser only.</p>
     <button type="button" id="go-daily">Build today's queue</button>
     <p id="daily-status" role="status" class="note"></p>
+    <div id="daily-calls" hidden></div>
     <pre id="daily-brief" hidden style="white-space:pre-wrap"></pre>
     <div id="daily-dl" hidden>
       <button type="button" id="dl-queue">Today's queue (CSV)</button>
@@ -223,7 +229,8 @@
   <script type="module">
     import { runInbox, checkDraft, csv, CATEGORIES, SAMPLE_REPLIES, SAMPLE_PROSPECTS, SAMPLE_OFFER, iso } from "./engine.mjs";
     import { runInboxWithModel } from "./ai.mjs";
-    import { runDaily, csvQueue, csvLeftOut } from "./daily.mjs";
+    import { runDaily, csvQueue, csvLeftOut, callMarks, callLog, addCall } from "./daily.mjs";
+    import { holidayChecker } from "./holidays.mjs";
     import { runResearch, csvAccounts, csvLeftOutResearch, SAMPLE_CRM } from "./research.mjs";
     import { runPrep } from "./prep.mjs";
     import { runFollowUp } from "./followup.mjs";
@@ -363,13 +370,43 @@
     });
     $("#clear-all").addEventListener("click", () => { for (const id of ["#replies", "#prospects", "#suppression"]) $(id).value = ""; $("#out").hidden = true; result = null; approved.clear(); try { localStorage.removeItem(SAVE); } catch { /* optional */ } });
     let daily = null;
+    // The daily run's inputs are kept in this browser (never sent anywhere), so the calls marked today are there tomorrow.
+    const DAILY = "sales-agent:daily", DAILY_FIELDS = { tasks: "#cadence-tasks", done: "#done", calls: "#calls", holidays: "#holidays" };
+    const saveDaily = () => { try { localStorage.setItem(DAILY, JSON.stringify(Object.fromEntries(Object.entries(DAILY_FIELDS).map(([k, id]) => [k, $(id).value])))); } catch { /* storage is optional */ } };
+    try { const d = JSON.parse(localStorage.getItem(DAILY) || "null"); if (d) for (const [k, id] of Object.entries(DAILY_FIELDS)) if (typeof d[k] === "string" && !$(id).value) $(id).value = d[k]; } catch { /* optional */ }
+    for (const id of Object.values(DAILY_FIELDS)) $(id).addEventListener("change", saveDaily);
+    const OUTCOME_BUTTONS = [["spoke", "Spoke"], ["voicemail", "Voicemail"], ["no_answer", "No answer"]];
+    function showCalls(day) {
+      const box = $("#daily-calls"), calls = daily.queue.filter((q) => q.channel === "call");
+      box.replaceChildren(); box.hidden = !calls.length;
+      if (!calls.length) return;
+      const h = document.createElement("h3"); h.textContent = "Calls due today: mark each one"; box.append(h);
+      for (const q of calls) {
+        const row = document.createElement("p"), who = document.createElement("span");
+        who.textContent = (q.prospect || q.email) + (q.company ? ", " + q.company : "") + " (step " + q.step + ")" + (q.phone ? " " + q.phone : "") + (q.tries ? " — try " + (q.tries + 1) : "") + " ";
+        row.append(who);
+        for (const [outcome, label] of OUTCOME_BUTTONS) {
+          const b = document.createElement("button"); b.type = "button"; b.className = "secondary"; b.textContent = label;
+          b.dataset.email = q.email; b.dataset.step = q.step; b.dataset.outcome = outcome;
+          b.addEventListener("click", () => { $("#calls").value = addCall($("#calls").value, { email: q.email, step: q.step, outcome, date: day }); saveDaily(); record("call_outcome"); $("#go-daily").click(); });
+          row.append(b, " ");
+        }
+        box.append(row);
+      }
+    }
     $("#go-daily").addEventListener("click", () => {
       const tasks = $("#cadence-tasks").value;
       if (!tasks.trim()) { $("#daily-status").textContent = "Paste the task CSV from the cadence builder first."; return; }
+      let holidays;
+      try { holidays = holidayChecker($("#holidays").value); } catch (e) { $("#daily-status").textContent = String(e.message).replace(/^holidays: /, "Days off: "); return; }
+      saveDaily();
+      const day = $("#today").value || iso(Date.now());
+      const marks = callMarks(callLog($("#calls").value), 3, { holidays });
       // After an inbox run, use its updated prospects and new suppressions, so today's replies count.
       const prospects = result ? result.prospects : $("#prospects").value;
       const suppression = [$("#suppression").value, ...(result ? result.suppression.map((x) => x.email) : [])].join("\n");
-      daily = runDaily({ tasks, prospects, suppression, done: $("#done").value, sent: mailSent, today: $("#today").value || iso(Date.now()) });
+      daily = runDaily({ tasks, prospects, suppression, done: [$("#done").value, ...marks.done].filter(Boolean).join("\n"), retry: marks.retry, moved: marks.moved, holidays, sent: mailSent, today: day });
+      showCalls(day);
       $("#daily-brief").textContent = daily.brief; $("#daily-brief").hidden = false; $("#daily-dl").hidden = false;
       $("#daily-status").textContent = daily.summary.due + " touches due today" + (result ? ", after the replies above" : "") + (daily.summary.alreadySent ? "; " + daily.summary.alreadySent + " already in your sent mail" : "") + ". Nothing was sent.";
       record("daily_run");
@@ -396,6 +433,7 @@
       email: $("#call-email").value, prospects: result ? result.prospects : $("#prospects").value, replies: $("#replies").value, crm: $("#crm").value,
       suppression: [$("#suppression").value, ...(result ? result.suppression.map((x) => x.email) : [])].join("\n"),
       offer: offer(), today: $("#today").value || iso(Date.now()), notes: $("#call-notes").value,
+      calls: callLog($("#calls").value).filter((c) => c.email === $("#call-email").value.trim().toLowerCase()),
     });
     const callOut = (text, status) => { $("#call-out").textContent = text; $("#call-out").hidden = false; $("#call-status").textContent = status + " Nothing was sent."; };
     $("#go-prep").addEventListener("click", () => {

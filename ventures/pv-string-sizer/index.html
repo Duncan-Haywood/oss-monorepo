@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #efe9da; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #f8dcd6; color: #7a1f10; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -177,7 +177,7 @@
       last = a;
       const tiles = [[a.lengths.length ? `${a.minLen} to ${a.maxLen}` : "None", "modules per string"], [`${v(a.perModule.vocCold, 2)} V`, `Voc per module at ${v(a.temps.tMinC)} C`], [`${v(a.perModule.vmpHot, 2)} V`, `Vmp per module, ${v(a.temps.tCellHot)} C cell`], [a.current.perMppt === null ? "n/a" : String(a.current.perMppt), "strings per MPPT input"]];
       $("#big").innerHTML = tiles.map(([x, l]) => `<div><strong>${esc(x)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#length-table tbody").innerHTML = a.lengths.map((l) => `<tr><td class="n">${l.modules}</td><td class="n">${v(l.vocCold)} V</td><td class="n">${v(l.voltageMarginPct)}%</td><td class="n">${v(l.vmpHot)} V</td><td class="n">${v(l.mpptMarginPct)}%</td><td class="n${l.coldTracking === false ? " warn" : ""}">${v(l.vmpCold)} V</td><td class="n">${v(l.stcKw, 2)}</td></tr>`).join("");
       $("#layouts-wrap").hidden = !a.layouts.length;
       $("#layout-table tbody").innerHTML = a.layouts.map((l, i) => {

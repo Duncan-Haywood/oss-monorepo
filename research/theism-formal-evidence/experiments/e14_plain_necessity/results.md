@@ -1,5 +1,12 @@
 # E14: making "necessary existence" plain closes Anderson's de re gap
 
+> **Correction (E15, 2026-11-12).** The conjecture below ("every A5₀ model satisfies A5'") is
+> false beyond the sizes searched here. At 2 worlds x 4 individuals, 4,608 of 57,413 A5₀ models
+> fail A5', and 11,520 of 160,645 at 3 x 3; the smallest countermodel (8 cells, 3 blocks, every
+> individual existing somewhere) is proved in Lean (`Closure.lean`, `cm8`). A5₀ and A5' are
+> independent in coarse algebras, not nested. The de re results here are unaffected. See
+> `../e15_a5z_not_a5/results.md`.
+
 **Headline.** E13 showed that Anderson's axioms, read with varying domains and an actualist
 "x has f necessarily", prove only *de dicto* ("at every world something God-like exists"): in 580
 of 3,638 models two God-like individuals share one essence and each exists at only some worlds.

@@ -4,3 +4,5 @@ import TheismFormal.Anderson
 import TheismFormal.Varying
 import TheismFormal.Actualist
 import TheismFormal.Plain
+import TheismFormal.Closure
+import TheismFormal.Models

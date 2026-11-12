@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -183,7 +183,7 @@
       last = a;
       const s = a.summary;
       $("#report-stats").innerHTML = `${a.rows.length} SKU(s), ledger ${dateStr(s.from)} to ${dateStr(s.to)}. ${s.lost} lost and ${s.damaged} damaged unit(s), ${s.found} found, ${s.reimbursed} reimbursed. <strong>${s.claimNowUnits} unit(s) look claimable now, about $${money(s.claimNowValue)}</strong>` + (s.expiringUnits ? `, ${s.expiringUnits} of them expiring within three months` : "") + ".";
-      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out: no unreimbursed units were found.</p>`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out: no unreimbursed units were found.</p>`;
       $("#by-sku").innerHTML = a.rows.map((x) => `<tr><th scope="row">${esc(x.sku)}${x.title ? `<br><span class="note">${esc(x.title)}</span>` : ""}</th><td class="n">${x.lost}</td><td class="n">${x.damaged}</td><td class="n">${x.found}</td><td class="n">${x.reimbursed}</td><td class="n">${x.unclaimed}</td><td class="n">${x.claim}</td><td class="n">${x.expiring}</td><td class="n">${x.wait}</td><td class="n">${x.expired}</td><td class="n">${money(x.unitValue)}</td><td class="n">${money(x.claimNowValue)}</td><td class="n">${x.claimBy ? dateStr(x.claimBy) : "–"}</td></tr>`).join("");
       const claimable = a.rows.filter((x) => x.claim + x.expiring > 0);
       $("#claim-sku").innerHTML = claimable.map((x) => `<option value="${esc(x.sku)}">${esc(x.sku)} — ${x.claim + x.expiring} unit(s)</option>`).join("") || `<option value="">No claimable SKU</option>`;

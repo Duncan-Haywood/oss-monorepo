@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -165,7 +165,7 @@
       last = r;
       const s = r.summary;
       $("#report-stats").innerHTML = `${s.skus} SKU(s), ${dateStr(s.from)} to ${dateStr(s.to)} (${s.windowDays} days), ${money(s.units)} units.` + (s.hasStock ? ` <strong>${s.stockedOut + s.reorder} to reorder now, ${s.poUnits.toLocaleString("en-US")} units${s.poCost ? ` (about $${money(s.poCost)})` : ""}; $${money(s.excessCash)} tied up in overstock and dead stock.</strong>` : "");
-      $("#report-findings").innerHTML = r.findings.length ? r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out.</p>`;
+      $("#report-findings").innerHTML = r.findings.length ? r.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out.</p>`;
       $("#by-sku").innerHTML = r.rows.map((x) => `<tr><th scope="row">${esc(x.sku)}${x.name && x.name !== x.sku ? `<br><span class="note">${esc(x.name)}</span>` : ""}</th><td>${LABEL[x.status]}</td><td class="n">${x.abc}</td><td class="n">${x.velocity.toFixed(2)}</td><td class="n">${dash(x.onHand, (v) => v)}</td><td class="n">${x.cover === null ? "–" : Number.isFinite(x.cover) ? Math.round(x.cover) : "∞"}</td><td class="n">${x.reorderPoint}</td><td class="n">${x.orderQty || "–"}</td><td class="n">${dash(x.orderCost, (v) => v ? money(v) : "–")}</td><td class="n">${x.atRisk ? money(x.atRisk) : "–"}</td><td class="n">${x.excessCash ? money(x.excessCash) : "–"}</td></tr>`).join("");
       const notes = [];
       if (n.skipped.length) notes.push(`${n.skipped.length} sales row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));

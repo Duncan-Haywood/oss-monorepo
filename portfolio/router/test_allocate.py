@@ -811,6 +811,21 @@ class StartHereTests(unittest.TestCase):
         self.assertEqual(start_here(queue, None, now=now), (1, "claimed"))
         self.assertIsNone(start_here(queue[1:2] + queue[3:], claims, now=now))
 
+    def test_session_spreads_concurrent_runs_over_free_rows(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 11, 10, 0, tzinfo=timezone.utc)
+        queue = [{"venture": f"v{i}", "flagship": True, "task": "Deepen (flagship): x"}
+                 for i in range(6)]
+        queue.insert(1, {"venture": "stuck", "flagship": True, "task": "Inputs only: x"})
+        picks = {start_here(queue, {}, now=now, session=f"session_{n}") for n in range(40)}
+        # Only the first START_SPREAD free rows (rows 1, 3, 4) are ever picked.
+        self.assertEqual(picks, {(1, "v0"), (3, "v1"), (4, "v2")})
+        # The same session always gets the same row.
+        self.assertEqual(start_here(queue, {}, now=now, session="abc"),
+                         start_here(queue, {}, now=now, session="abc"))
+        # One free row: every session gets it.
+        self.assertEqual(start_here(queue[:2], {}, now=now, session="abc"), (1, "v0"))
+
 
 class VentureReportTests(unittest.TestCase):
     def test_prints_the_full_next_open_prs_and_last_landing(self):

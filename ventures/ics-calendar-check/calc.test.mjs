@@ -53,6 +53,13 @@ test("required calendar and event properties", () => {
 
 test("DTEND checks: before start, mismatched type, zero-length all-day, and with DURATION", () => {
   assert.ok(has(validate(cal(vevent("DTSTART:20260105T100000Z", "DTEND:20260105T090000Z"))), /ends before/));
+  // Different zones compare as instants (RFC 5545 allows a different TZID on DTEND): a Tokyo-Honolulu flight is 7.5 h long.
+  // Found by quality audit 2026-11-12, where it was reported as "ends before it starts".
+  assert.ok(!has(validate(cal(vevent("DTSTART;TZID=Asia/Tokyo:20260106T200000", "DTEND;TZID=Pacific/Honolulu:20260106T083000"))), /ends before/));
+  assert.ok(has(validate(cal(vevent("DTSTART;TZID=Asia/Tokyo:20260106T200000", "DTEND;TZID=Pacific/Honolulu:20260106T003000"))), /ends before/));
+  assert.ok(has(validate(cal(vevent("DTSTART;TZID=Europe/Berlin:20260105T100000", "DTEND;TZID=Europe/Berlin:20260105T090000"))), /ends before/));
+  assert.ok(!has(validate(cal(vevent("DTSTART;TZID=Europe/Berlin:20260105T100000", "DTEND:20260105T093000Z"))), /ends before/));
+  assert.ok(has(validate(cal(vevent("DTSTART;VALUE=DATE:20260106", "DTEND;VALUE=DATE:20260105"))), /ends before/));
   assert.ok(has(validate(cal(vevent("DTSTART:20260105", "DTEND:20260106T000000Z"))), /different types/));
   assert.ok(has(validate(cal(vevent("DTSTART;VALUE=DATE:20260105", "DTEND;VALUE=DATE:20260105"))), /zero length/));
   assert.ok(has(validate(cal(vevent("DTSTART:20260105T100000Z", "DTEND:20260105T110000Z", "DURATION:PT1H"))), /both DTEND and DURATION/));

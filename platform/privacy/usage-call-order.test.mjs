@@ -5,7 +5,7 @@
 // checker that always returned `[]` would look exactly as healthy as this one.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -128,6 +128,21 @@ test("reads a CommonJS usage.js the same way, since a handful of ventures ship o
   } finally {
     cleanup();
   }
+});
+
+test("the walk skips an entry that vanishes mid-walk instead of crashing", () => {
+  // node --test runs files in parallel, and browser-signals.test.mjs makes and
+  // removes ventures/discovery-probe-* while this file walks ventures/. That
+  // race crashed one-opt-out.test.mjs in CI on 2026-10-21 and was fixed only
+  // in browser-signals.mjs; this walk threw ENOENT on the same input
+  // (redteam 2026-11-12). A dangling symlink is the race, made deterministic.
+  const root = mkdtempSync(join(tmpdir(), "call-order-vanish-"));
+  try {
+    mkdirSync(join(root, "v"));
+    writeFileSync(join(root, "v", "usage.mjs"), "export function recordUsage(event) {}\n");
+    symlinkSync(join(root, "gone"), join(root, "v", "dangling"));
+    assert.deepEqual(findMismatches(root), []);
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
 test("the shipped catalogue calls recordUsage the way each venture declares it", () => {

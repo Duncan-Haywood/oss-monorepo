@@ -36,7 +36,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -166,7 +166,7 @@
       last = a;
       const t = a.totals;
       $("#report-stats").innerHTML = `${t.txns} transaction(s) from ${t.from} to ${t.to}, <strong>${t.categorisedPct}%</strong> categorised. Income <strong>${usd(t.income)}</strong>, expenses <strong>${usd(t.expenses)}</strong>, net profit <strong>${usd(t.net)}</strong> before self-employment tax and depreciation.`;
-      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
       $("#by-business").innerHTML = a.businesses.map((p) => `<h4>${esc(p.business)}</h4><div class="scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Item</th><th class="n" scope="col">Amount</th></tr></thead><tbody><tr><td>1</td><th scope="row">Gross receipts or sales</th><td class="n">${money(p.receipts)}</td></tr>${p.otherIncome ? `<tr><td>6</td><th scope="row">Other business income</th><td class="n">${money(p.otherIncome)}</td></tr>` : ""}${p.lines.filter((l) => l.amount).map((l) => `<tr><td>${l.line}</td><th scope="row">${esc(l.label)}</th><td class="n">${money(l.amount)}</td></tr>`).join("")}<tr><td></td><th scope="row">Total expenses</th><td class="n">${money(p.expenses)}</td></tr><tr><td></td><th scope="row">Net profit before self-employment tax</th><td class="n">${money(p.net)}</td></tr></tbody></table></div><p class="note">${p.equipmentExcluded ? `Equipment and large purchases ${usd(p.equipmentExcluded)} held out. ` : ""}${p.estimatedTaxPaid ? `Estimated tax payments ${usd(p.estimatedTaxPaid)} held out. ` : ""}${p.scheduleOne ? `Health insurance or retirement ${usd(p.scheduleOne)} held out (Schedule 1).` : ""}</p>`).join("");
       $("#uncat").innerHTML = a.uncategorised.length ? a.uncategorised.map((r) => `<tr><td>${r.date}</td><td>${esc(r.desc)}</td><td class="n">${money(r.amount)}</td></tr>`).join("") : `<tr><td colspan="3">Every transaction was categorised.</td></tr>`;
       const flagged = a.bigItems.concat(a.personalish.filter((r) => !a.bigItems.includes(r)));

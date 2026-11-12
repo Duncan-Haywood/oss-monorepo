@@ -2929,3 +2929,123 @@ well as any repeat model tried here, and it needs no new code: `--penalty` with 
 rule was written, so it needs its own pre-registration, on TCPD's four sticky series and on frozen orange
 juice (where it must still find the big freezes), before the sticky-series warning can suggest it. Test:
 `drift-sticky-why.test.mjs`.
+
+### A doubled penalty on sticky series: fewer cuts, lost freezes (2026-11-12, pre-registered, negative)
+
+The lead above, tested. `eval/drift-sticky-penalty.mjs` (`.out.txt`; rule in its header, committed in
+ad6c8a60 before any real series was fitted at 4 log n) runs the shipped `--model drift` at 2 log n
+(shipped) and 4 log n on every real series where the sticky check fires: TCPD's four (scored with TCPD's
+F1, margin 5, and cover) and frozen orange juice (the eight freezes, found within 2 months). The rule
+said the warning could suggest 4 log n only if mean F1 on the four did not fall, mean cover fell by no
+more than 0.02, juice kept at least 7 of 8 freezes, and juice's cuts at least halved.
+
+| series (repeats) | cuts / F1 / cover at 2 log n | at 3 log n (descriptive) | at 4 log n |
+|---|---|---|---|
+| bank (42%) | 63 / 0.031 / 0.048 | 50 / 0.038 / 0.048 | 43 / 0.044 / 0.048 |
+| children per woman (25%) | 19 / 0.571 / 0.756 | 14 / 0.628 / 0.781 | 6 / 0.367 / 0.793 |
+| ratner_stock (23%) | 30 / 0.324 / 0.592 | 9 / 0.547 / 0.726 | 3 / 0.308 / 0.746 |
+| scanline 42049 (49%) | 27 / 0.593 / 0.702 | 13 / 0.700 / 0.740 | 8 / 0.805 / 0.847 |
+| **mean of the four** | 0.380 F1 / 0.524 cover | 0.478 / 0.574 | **0.381 / 0.609** |
+| frozen juice (41%) | 67 cuts, **8 of 8** freezes | 24 cuts, 6 of 8 | 9 cuts, **5 of 8** |
+
+**Verdict: fails on R3, so the warning is unchanged.** On TCPD the doubled penalty passes (F1 level,
+cover +0.085), but on frozen juice it keeps only five freezes, dropping 1958, 1970 and 1985: the same
+smaller shocks the repeat models dropped. The synthetic cell's "same power at matched false cuts" does
+not carry to real shocks. On a sticky series every option tried so far (drop, missing, a doubled
+penalty) buys its fewer cuts by losing documented shocks, so the warning keeps telling the reader to
+check jumps at the ends of flat runs against the raw data rather than offering a setting.
+
+Seen after the rule, deciding nothing: 3 log n is best on F1 of the three on the sticky four (0.478) and
+also on the 34 TCPD series where the check does not fire (0.754 against 0.697 shipped; 4 log n 0.706),
+and finds 6 of 8 freezes. TCPD has been tuned against many times, so that is a lead for a fresh labelled
+set, not a default to change. Test: `drift-sticky-penalty.test.mjs`.
+
+### A stale probability per segment: it dates a change in stickiness, not the lost freezes (2026-11-12, pre-registered, negative)
+
+"Why the step goes missing" left one repeat model untried: each segment with its own stale
+probability, so that a change in how often a series updates counts toward a cut. It is now in the
+library (`repeats: 'missing', stale: 'segment'` in `drift-level.mjs`; each segment adds the profiled
+Bernoulli cost `staleCost(r, m)` of its r repeats among m steps; with no repeats it is plain `missing`).
+The hypothesis was that a freeze moves the juice price and also makes it update more often, so this
+term would recover the freezes (1958, 1970, 1985) that `missing` and a doubled penalty both drop.
+`eval/drift-stale-segment.mjs` (`.out.txt`; rule in its header, committed in dfe02989e before the option
+ran on anything) tested it at the default 2 log n. The first run stopped on a loader bug (two TCPD
+series sit in `heldout/`) after the synthetic table and two TCPD rows had printed; the lookup was fixed
+and the whole file rerun with the rule unchanged.
+
+| | shipped | `missing` | per-segment stale |
+|---|---|---|---|
+| F: sticky walk, no change (cuts a series) | 35.43 | 1.59 | 3.98 |
+| G: same with a 5-unit step (found of 120) | 119 | 93 | 97 |
+| S: repeats 10% then 60%, no step (cut within 5 of the switch) | 71 | 4 | **103** |
+| TCPD sticky four, mean F1 / cover | 0.380 / 0.524 | 0.476 / 0.570 | 0.381 / **0.435** |
+| frozen juice: cuts, freezes found | 67, 8 of 8 | 18, 5 of 8 | 24, **5 of 8** (the same five) |
+
+**Verdict: fails R1, R2 and R3 (R4 passes), so nothing changes for users.** The term does what it says:
+it dates a pure change in stickiness 103 times in 120. But that is not what the freezes needed. It adds
+six cuts on juice and finds the same five freezes, and on TCPD it cuts where annotators saw no change
+(children per woman: cover 0.780 under `missing`, 0.408 here). A descriptive check run afterwards
+(`eval/frozen-juice-staleness.mjs`, `.out.txt`) shows why: the repeat share does fall after five of the
+eight freezes, but at the three lost ones it barely moves (1958: 0.67 before and after; 1970: 0.58 to 0.42;
+1985: 0 and 0). Those shocks are small jumps in a series that updates at the same rate on both sides,
+which no model of the repeats can tell from wander.
+
+What it leaves: four repeat treatments (drop, missing, a doubled penalty, a stale probability per
+segment) now fail the same frozen-juice bar, so the sticky-series warning's advice (check jumps at the
+ends of flat runs against the raw data) stands. A per-segment stale rate may still be worth showing as a
+*description* ("this series began updating less often here"), which is a different product question
+from finding level changes. Test: `drift-stale-segment.test.mjs`.
+
+## When a series starts updating less often (2026-11-12, pre-registered; ships as a description)
+
+"A stale probability per segment" left one product idea: the drift model's per-segment stale rate dated a
+pure change in stickiness 103 times in 120, but did nothing for level changes, so it could only be worth
+showing as a *description*. That is now a separate pass, `update-rate.mjs`, apart from any level model:
+optimal partitioning (PELT) of the 0/1 indicators "this step repeats the previous value exactly", each
+stretch with its own repeat behaviour. A stretch is a two-state chain (P(repeat | the last step repeated),
+P(repeat | it updated)), so a quote that sits for months, which makes long flat runs, is not read as a
+change of rate. Missing values never count as repeats. It runs only with 10 or more repeats.
+
+**Round one: cost and penalty** (`eval/update-rate-sim.mjs`, `.out.txt`; rule in its header, committed in
+27308c125 before any run). On a calibration seed, independent-repeat costs needed 4 x 2 log n to keep
+false changes at or under 0.05 a series once flat runs clump (at 2 log n they reported 2.1 to 6.9 false
+changes a series on clumped chains), while the chain cost met it at 2 x 2 log n and found more, so that
+was chosen. On the confirmation seed false changes stayed at or under 0.005 a series in all 18
+no-change cells (repeat shares 10% to 60%, independent and clumped, n 100 to 600), but the rule also asked
+for a date within 5 steps: **S1 (10% to 60% repeats) 179 of 200, needed 180; S4 (a clumped stale feed
+fixed to 5% repeats) 121 of 200, needed 150. Fails, so it did not ship.** A diagnostic on another seed
+(not a decision input) showed why S4 fell short: only 16 of 200 had no change at all, 49 were dated 6 to
+20 steps early. In a clumped chain the last flat run before the switch ends at random, so the data do not
+say to the step when the rate changed.
+
+**Round two: a date range** (`eval/update-rate-range.mjs`, `.out.txt`; rule committed in 9302534ae after
+round one's verdict and before the range ran). Each change gets every position between its neighbours
+whose two-stretch cost is within a slack of the best. The slack was chosen on seed 20261203 as the
+smallest of {2, 3.84, 6, 9, 2 log n} with coverage 0.90 in every power cell (9; 6 gave 0.89 on S4), then
+checked on fresh seeds:
+
+| confirmation (200 series a cell) | result | rule |
+|---|---|---|
+| no-change cells, worst mean false changes | 0.010 | <= 0.10, pass |
+| S1, 10% to 60% repeats: range holds the switch | 200 of 200, median width 17 steps | >= 170, pass |
+| S4, clumped stale feed fixed: range holds the switch | 181 of 200 (a change found in 185), width 44 | >= 150, pass |
+| S2, 20% to 50% / S3, 40% to 10% (descriptive) | 172 of 200 / 197 of 200 | |
+
+**Verdict: ships.** `--model drift` (CLI text and JSON field `updateRate`), the page's "Read with care"
+notes and the branded drift report now say, when it finds one, "from about X (between A and B) it began
+updating less often (repeats p% of steps before, q% after)", and that jumps near those dates may be
+catch-ups after a stale stretch.
+
+**On real series** (`eval/update-rate-real.mjs`, `.out.txt`, run after the verdict, descriptive; no labels
+exist for this). Of 38 TCPD series it runs on 6 and speaks on 3: children per woman (37% repeats, then 5%
+from row 108, then 59% from row 255, the stretch where the series reads as projected), scanline 42049 (six
+switches between about 10% and 80 to 86% repeats, the image row's flat bright bands) and measles (6% to
+0% from row 519). It stays silent on `bank` (42%) and ratner_stock (23%), sticky at a steady rate. On
+Florida frozen orange juice it says repeats fell from **60% of months before about 1981-08 (between
+1980-09 and 1982-04) to 12% after**. Whatever changed in how that price was collected, a reader looking
+for freezes before 1981 should know that most months then were carried forward, which is why four
+repeat models lost the smaller early freezes. Test: `update-rate.test.mjs` (pruning against exhaustive
+search, the committed verdicts, the juice description and its wording in the CLI and page notes).
+
+Next: show it beside the other models too (it depends only on the values), and a long series with a
+documented change in collection to check a date against.

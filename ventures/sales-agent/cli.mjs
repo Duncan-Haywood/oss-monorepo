@@ -11,8 +11,8 @@
 //   [--calls calls.csv] (email,step,outcome,date; outcome spoke, voicemail, no_answer or done): the self-host page's call
 //   outcomes without the server. No answer brings the call back the next business day, up to three tries; --prep reads
 //   the same file and lists that person's calls.
-//   A call that slips pushes that person's later steps back by the same business days. [--holidays us|us-business|
-//   2026-11-27,...] keeps retry and moved dates off those days.
+//   A call that slips pushes that person's later steps back by the same business days. [--holidays us|us-business|gb-eng|
+//   gb-sct|gb-nir|2026-11-27,...] keeps retry and moved dates off those days.
 // Research: with --web it also reads each account home page title (robots.txt respected, 1 s apart).
 // Research: node cli.mjs --crm crm-export.csv [--icp icp.json] [--prospects p.csv] [--suppression s.txt] [--offer offer.json] [--top 25] [--web]
 //   ranks your CRM export against your ICP and writes accounts.csv (with first-touch drafts), research-left-out.csv and
@@ -28,7 +28,7 @@ import { readFileSync, writeFileSync, mkdirSync, openSync, readSync, closeSync, 
 import { createCollector, MboxSplitter, isMbox, describe } from "./mailfile.mjs";
 import { join } from "node:path";
 import { csv, iso, runInbox, parseCsv } from "./engine.mjs";
-import { runDaily, csvQueue, csvLeftOut, callMarks } from "./daily.mjs";
+import { runDaily, csvQueue, csvLeftOut, callMarks, callLog } from "./daily.mjs";
 import { runResearch, briefOf, csvAccounts, csvLeftOutResearch } from "./research.mjs";
 import { runInboxWithModel } from "./ai.mjs";
 import { runPrep } from "./prep.mjs";
@@ -40,7 +40,7 @@ import { configFromEnv } from "./byok.mjs";
 const args = process.argv.slice(2), opt = (k) => { const i = args.indexOf(`--${k}`); return i >= 0 ? args[i + 1] : undefined; };
 const read = (k) => (opt(k) ? readFileSync(opt(k), "utf8") : "");
 // --calls: one row per call made (email,step,outcome,date), the CLI's version of the self-host page's call buttons.
-const callRows = () => parseCsv(read("calls")).map((c) => ({ email: String(c.email || "").trim().toLowerCase(), step: String(c.step ?? "").trim(), outcome: String(c.outcome || "done").trim().toLowerCase().replace(/[\s-]+/g, "_"), date: String(c.date || "").slice(0, 10) })).filter((c) => c.email && c.step);
+const callRows = () => callLog(read("calls"));
 if (opt("followup")) {
   const o = opt("out") || "sales-agent-out";
   const d = runFollowUp({ email: opt("followup"), prospects: read("prospects"), replies: read("replies"), notes: read("notes"), suppression: read("suppression"), offer: opt("offer") ? JSON.parse(read("offer")) : {}, today: opt("today") || iso(Date.now()) });

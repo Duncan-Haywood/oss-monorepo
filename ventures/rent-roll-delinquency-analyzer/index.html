@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -154,7 +154,7 @@
       last = r;
       const s = r.summary;
       $("#report-stats").innerHTML = `${s.charges} charges on ${s.units} unit(s), ${dateStr(s.from)} to ${dateStr(s.to)}. Billed $${money(s.billed)}, collected $${money(s.collected)} (${pct(s.collectedRate)}), <strong>unpaid $${money(s.owed)}</strong>` + (s.onTimeRate === null ? "." : `, ${pct(s.onTimeRate)} paid in full within ${s.grace} day(s).`);
-      $("#report-findings").innerHTML = r.findings.length ? r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out.</p>`;
+      $("#report-findings").innerHTML = r.findings.length ? r.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out.</p>`;
       $("#aging").innerHTML = [{ label: "Not yet late", count: r.current.count, amount: r.current.amount }, ...r.aging].map((b) => `<tr><th scope="row">${esc(b.label)}</th><td class="n">${b.count}</td><td class="n">${money(b.amount)}</td></tr>`).join("") + `<tr><th scope="row">Total unpaid</th><td class="n">${r.current.count + r.aging.reduce((a, b) => a + b.count, 0)}</td><td class="n">${money(s.owed)}</td></tr>`;
       $("#by-unit").innerHTML = r.byUnit.map((u) => `<tr><th scope="row">${esc(u.label)}</th><td class="n">${u.charges}</td><td class="n">${money(u.billed)}</td><td class="n">${money(u.owed)}</td><td class="n">${dash(u.oldestDays, String)}</td><td class="n">${u.lateCount}</td><td class="n">${dash(u.avgDaysLate, (v) => v.toFixed(1))}</td><td class="n">${u.partials}</td></tr>`).join("");
       $("#by-month").innerHTML = r.byMonth.map((m) => `<tr><th scope="row">${esc(m.label)}</th><td class="n">${m.charges}</td><td class="n">${money(m.billed)}</td><td class="n">${money(m.collected)}</td><td class="n">${money(m.owed)}</td><td class="n">${dash(m.collectedRate, pct)}</td><td class="n">${dash(m.onTimeRate, pct)}</td></tr>`).join("");

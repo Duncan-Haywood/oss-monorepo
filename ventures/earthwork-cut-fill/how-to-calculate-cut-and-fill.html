@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2392400e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EV%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Calculate Cut and Fill from Survey Points (TIN Method, Worked Example)</title>
+  <meta name="description" content="How earthwork cut and fill volumes are calculated from survey shots: the TIN (triangulated) method, why it beats a coarse grid, shrink and swell, and how to find the balance elevation, with a worked example you can check by hand.">
+  <meta property="og:title" content="How to Calculate Cut and Fill from Survey Points">
+  <meta property="og:description" content="The TIN method, shrink and swell, and the balance elevation, worked through on a lot you can check by hand.">
+  <link rel="canonical" href="./how-to-calculate-cut-and-fill.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to calculate cut and fill from survey points","about":"Earthwork volume calculation by the TIN method, with shrink, swell and balance elevation","author":{"@type":"Organization","name":"Open-source contributors"}}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f1d1a; background: #ece8e1; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 16px; line-height: 1.6; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.08; letter-spacing: -.03em; }
+    h2 { margin-top: 32px; font-size: 1.3rem; }
+    table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: .92rem; background: #fbfaf7; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d6d0c6; }
+    code, pre { font-family: ui-monospace, Menlo, monospace; font-size: .86rem; }
+    pre { background: #fbfaf7; border: 1px solid #cbc4b8; border-radius: 8px; padding: 10px; overflow-x: auto; }
+    .cta { display: inline-block; background: #92400e; color: #fff; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 650; }
+    a { color: #78350f; }
+    footer { margin-top: 36px; font-size: .84rem; color: #57534e; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Earthwork cut and fill calculator</a></p>
+  <h1>How to calculate cut and fill from survey points</h1>
+  <p>Every site-work estimate starts with the same question: how much ground comes off the high side, how much goes back on the low side, and is there anything left over to truck away or bring in. This page explains how that is worked out from a surveyor's shots, and walks through a small lot where every number can be checked by hand.</p>
+
+  <h2>1. Build a surface from the shots</h2>
+  <p>A survey gives you points: an easting, a northing and an elevation for each shot. To get a volume you need a surface between them. Civil design software joins the shots into triangles, a <em>triangulated irregular network</em> (TIN), choosing the triangles by the Delaunay rule: no shot lies inside another triangle's circumscribed circle. That rule avoids long thin triangles wherever it can, so each triangle spans shots that are actually near each other.</p>
+  <p>Inside one triangle the ground is taken to be flat, a plane through its three shots. The design (a flat pad, a sloped pad, or the proposed grade from the engineer's plan, triangulated the same way) is also a plane inside each of its triangles.</p>
+
+  <h2>2. Integrate the difference, triangle by triangle</h2>
+  <p>Where both surfaces are planes, the depth between them (design minus existing) changes linearly across the triangle. Positive depth is fill, negative is cut. If all three corners are fill, the fill volume is the triangle's plan area times the mean of the three corner depths. If the depth changes sign inside the triangle, it is split along the zero line and each part is integrated the same way. Add every triangle up and you have the volume between the two TINs, exactly, with no rounding to a grid.</p>
+  <p>The older <strong>grid method</strong> samples both surfaces at the centre of square cells and multiplies each depth by the cell area. On a fine grid it converges to the same answer; on a coarse one it misses what happens between samples. The <strong>average-end-area</strong> method, from cross-sections at stations, suits roads and channels better than pads.</p>
+
+  <h2>3. Shrink, swell and the balance elevation</h2>
+  <table>
+    <tr><th>Term</th><th>Meaning</th><th>Typical</th></tr>
+    <tr><td>Bank</td><td>Soil in place, undisturbed. Cut is measured in bank volume.</td><td></td></tr>
+    <tr><td>Swell</td><td>Gain when dug and loaded loose. Trucks haul loose volume.</td><td>15 to 40% for earth</td></tr>
+    <tr><td>Shrink</td><td>Loss from bank when placed and compacted as fill.</td><td>10 to 25%</td></tr>
+  </table>
+  <p>The typical ranges are rough; the real factors depend on the soil and the compaction spec and should come from the geotechnical report or experience on that material. With shrink <em>s</em>, a cubic yard of cut builds (1 − <em>s</em>) cubic yards of compacted fill. A site <strong>balances</strong> when cut × (1 − <em>s</em>) = fill. Raising a pad lowers the cut and raises the fill, so there is exactly one balancing pad elevation, and a bisection search finds it.</p>
+
+  <h2>4. A worked example you can check by hand</h2>
+  <p>A made-up lot 100 ft square rises evenly 10 ft from west to east: elevation 100 + 0.1·<em>x</em>, where <em>x</em> is feet east of the west line. The shots are a 25 ft grid, 25 points. Because the ground is one plane, the TIN reproduces it exactly and every number below has a closed form.</p>
+  <p><strong>Pad at 105.00.</strong> The pad meets the ground at <em>x</em> = 50. The east half is cut, a wedge 50 ft wide, 0 to 5 ft deep, 100 ft long: ½ × 50 × 5 × 100 = 12,500 cu ft = <strong>463.0 cu yd</strong>. The west half is fill of the same size, 463.0 cu yd.</p>
+  <p>Equal cut and fill is not a balance: with 20% shrink the cut builds only 463.0 × 0.8 = 370.4 cu yd of fill, 92.6 short. That shortfall is 92.6 / 0.8 = <strong>115.7 cu yd</strong> of bank borrow, 144.7 cu yd loose at 25% swell, 13 loads in 12-yd trucks.</p>
+  <p><strong>Balance elevation.</strong> With the pad at elevation <em>E</em>, the crossing is at <em>a</em> = 10(<em>E</em> − 100), fill is 5<em>a</em>² cu ft and cut is 5(100 − <em>a</em>)². Setting 0.8 × cut = fill gives <em>a</em> = 100√0.8 / (1 + √0.8) = 47.21 ft, so <strong>E = 104.72</strong>: 516.0 cu yd of cut building 412.8 cu yd of fill.</p>
+  <p>The calculator gives the same figures from the 25 shots:</p>
+  <pre>node cli.mjs lot.csv --pad 105 --shrink 20 --swell 25 --truck 12
+Cut:  463.0 cu yd bank (deepest 5.00 ft)
+Fill: 463.0 cu yd compacted (deepest 5.00 ft)
+Import: 115.7 cu yd bank, 144.7 loose at 25% swell, about 13 truckloads (shrink 20%)
+
+node cli.mjs lot.csv --balance --shrink 20
+Design: balanced pad at 104.721 ft ...</pre>
+  <p>Its test suite checks this case and others against their closed forms, and a separate script checks the triangulation and volumes against SciPy's Qhull and an independent formula on 800-shot sets (identical triangles, volumes equal to 1 part in 10<sup>13</sup>).</p>
+
+  <h2>5. What a TIN cannot see</h2>
+  <ul>
+    <li><strong>Breaklines.</strong> Between two shots the TIN is a straight line. A ditch, curb or ridge with no shots on it is cut across. Shoot the top and toe of every grade break.</li>
+    <li><strong>Edges.</strong> Long thin triangles on the outside of the survey invent ground nobody shot. Set a boundary, or a longest-edge limit.</li>
+    <li><strong>What is under the surface.</strong> Rock, unsuitable soil, over-excavation and the pavement or slab section under finished grade change the real quantities; subtract the structural section from the design surface yourself.</li>
+  </ul>
+  <p><a class="cta" href="./">Open the calculator</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> An explanation and an estimate, not engineering, surveying or construction advice. Check every quantity against the engineer's grading plan and your own takeoff before you bid or move material. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/earthwork-cut-fill">Source</a> · <a href="LICENSE">MIT licence</a></p>
+  </footer>
+</body>
+</html>

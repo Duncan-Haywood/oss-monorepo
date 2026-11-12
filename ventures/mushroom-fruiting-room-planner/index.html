@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #eee5d8; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -162,7 +162,7 @@
       $("#report-stats").innerHTML = `<strong>${money(s.profitPerBlock)} per block started</strong> with ${s.flushes} flush${s.flushes === 1 ? "" : "es"} · <strong>${money(s.weeklyProfit)} a week</strong> after fixed costs · room carries up to <strong>${s.maxStarts} starts a week</strong> (you use about ${Math.ceil(s.peakSlots)} of ${s.slots} slots) · break-even contamination ${s.breakEvenContam.toFixed(0)}%, break-even price ${s.breakEvenPrice === null ? "n/a" : "$" + s.breakEvenPrice.toFixed(2)}/lb · first sale week ${s.firstSale ?? "n/a"} · lowest cash ${money(s.lowCash)} in week ${s.lowWeek || "n/a"}`;
       const pill = (l) => (l === "high" ? "high" : l === "medium" ? "medium" : "info");
       const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h4><span class="pill ${pill(w.level)}">${w.level === "info" ? "note" : "check"}</span></h4><p>${esc(w.text)}</p></div>`).join("") || `<div class="finding"><h4><span class="pill ok">ok</span></h4><p>Starts fit the room and each block earns more than it costs.</p></div>`;
+      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h3><span class="pill ${pill(w.level)}">${w.level === "info" ? "note" : "check"}</span></h3><p>${esc(w.text)}</p></div>`).join("") || `<div class="finding"><h3><span class="pill ok">ok</span></h3><p>Starts fit the room and each block earns more than it costs.</p></div>`;
       $("#flush-rows").innerHTML = r.table.map((t) => `<tr><td class="n">${t.flushes}${t.flushes === s.flushes ? " ✓" : ""}</td><td class="n">${t.yieldLb.toFixed(2)}</td><td class="n">${money(t.profit)}</td><td class="n">${t.slotWeeks}</td><td class="n">${t.profitPerSlotWeek.toFixed(2)}</td><td class="n">${money(t.marginalPerAdded)}</td></tr>`).join("");
       $("#sens-head").innerHTML = `<tr><th scope="col">Contamination</th>${r.sens[0].cells.map((c) => `<th scope="col" class="n">$${c.price.toFixed(2)}/lb</th>`).join("")}</tr>`;
       $("#sens-rows").innerHTML = r.sens.map((row) => `<tr><td>${row.contamination}%</td>${row.cells.map((c) => `<td class="n">${money(c.weekly)}</td>`).join("")}</tr>`).join("");

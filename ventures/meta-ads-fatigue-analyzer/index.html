@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -159,7 +159,7 @@
       const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
       const span = n.period ? ` (${n.period.from} to ${n.period.to})` : "";
       $("#report-stats").innerHTML = `${s.ads} ads${span}, ${cur}${money(s.spend)} spent, ${s.results % 1 ? s.results.toFixed(1) : s.results} results at ${cur}${money(s.cpa)} each, CTR ${pct(s.ctr)}${s.roas ? `, ROAS ${s.roas.toFixed(2)}` : ""}, average frequency ${s.freq ? s.freq.toFixed(2) : "–"}. <strong>${s.fatiguedCount} ad(s) show fatigue signals (${cur}${money(s.fatiguedSpend)})</strong>; <strong>${cur}${money(s.zeroSpend)} (${pct(s.zeroShare)}) went to ads with no results</strong>. Account medians: CTR ${pct(s.medCtr)}, cost per result ${s.medCpa === null ? "–" : money(s.medCpa)}.`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const names = { withResults: "Ads with results", proven: "No results, proven (enough clicks)", overspent: "No results, overspent (cost above one result)", watch: "No results, too little data" };
       $("#buckets").innerHTML = Object.entries(r.buckets).map(([k, v]) => `<tr><th scope="row">${names[k]}</th><td class="n">${money(v)}</td><td class="n">${pct(v / s.spend)}</td></tr>`).join("");
       const where = (a) => esc([a.campaign, a.adset].filter(Boolean).join(" / ") || "–");

@@ -547,11 +547,18 @@ function lint(r, incPre) {
       }
     }
   });
-  for (const m of raw.matchAll(/(?:^|\s|\|)\^?(0)\.(\d+)\.(\d+)(?=\s|$|\|)/g)) {
-    const tok = m[0].trim().replace(/^\|+/, "");
-    if (tok.startsWith("^")) {
-      out.push({ severity: "info", code: "caret-zero", message: `${tok}: a caret on a 0.x version is narrow. ${m[2] === "0" ? `It allows only 0.0.${m[3]} itself` : `It allows 0.${m[2]}.x patches only, not 0.${+m[2] + 1}.0`}, because before 1.0.0 the leftmost non-zero number is treated as the breaking one.` });
-    }
+  // From the parsed caret steps, not the raw text, so "^ 0.2.3", "^v0.2.3",
+  // "^0.2.3-beta" and partials like "^0.1" are caught the same as "^0.2.3".
+  const carets = new Set();
+  for (const s of r.written) for (const st of s.steps) {
+    const m = st.rule === "caret" && CARET_RE.exec(st.written);
+    if (!m || m[1] !== "0" || isX(m[2]) || carets.has(st.written)) continue;
+    carets.add(st.written);
+    const [, , mi, p, pr] = m;
+    const allows = mi === "0" && !isX(p)
+      ? pr ? `It allows only 0.0.${p} and its prereleases from 0.0.${p}-${pr} on` : `It allows only 0.0.${p} itself`
+      : `It allows 0.${mi}.x patches only, not 0.${+mi + 1}.0`;
+    out.push({ severity: "info", code: "caret-zero", message: `${st.written}: a caret on a 0.x version is narrow. ${allows}, because before 1.0.0 the leftmost non-zero number is treated as the breaking one.` });
   }
   for (const s of r.sets) {
     for (const st of s.steps) if (st.rule === "partial" && /^</.test(st.written) && !/^<=/.test(st.written)) {

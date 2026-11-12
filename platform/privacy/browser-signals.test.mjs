@@ -174,6 +174,23 @@ test("discovery outside the repository keeps everything, including a dist", () =
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
+test("discovery skips node_modules and dot-directories, each on its own", () => {
+  // Outside a repository git cannot filter anything (test above), so the
+  // name-based skip is the only thing keeping a dependency's or a cache's
+  // usage.mjs out of the catalogue. Each skip is checked alone: an `||`
+  // turned into `&&` keeps neither, and a test with only one kind of
+  // directory would not notice which half was lost (redteam 2026-11-12).
+  const root = mkdtempSync(join(tmpdir(), "discovery-skip-"));
+  try {
+    writeFileSync(join(root, "usage.mjs"), HONOURING);
+    mkdirSync(join(root, "node_modules", "dep"), { recursive: true });
+    writeFileSync(join(root, "node_modules", "dep", "usage.mjs"), HONOURING);
+    mkdirSync(join(root, ".cache"), { recursive: true });
+    writeFileSync(join(root, ".cache", "usage.mjs"), HONOURING);
+    assert.deepEqual(findUsageModules(root), [join(root, "usage.mjs")]);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
 test("discovery skips an entry that vanishes mid-walk instead of crashing", () => {
   // Test files run in parallel, and the probe above makes and removes a
   // scratch venture under ventures/ while other files walk it. A dangling

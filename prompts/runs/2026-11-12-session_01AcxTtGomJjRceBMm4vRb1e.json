@@ -1,0 +1,510 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtGomJjRceBMm4vRb1e",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T01:05:51Z",
+  "ended": "2026-11-12T01:07:42Z",
+  "wall_minutes": 7.1,
+  "tokens_in": 3516472,
+  "tokens_out": 22559,
+  "cost_usd": 1.8421,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14954",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "One new test expectation was wrong on first write (expected a '(its prereleases excluded too)' note on a written <2.0.0); corrected before rerun."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '2284/40 runs toward the next review' yet drew redteam, not review; the counter text reads as long overdue, so either the counter or review_when_due is off."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 assumes open entries are fixable here; today all 5 were control-plane fixes already sitting in owner-approval PRs, so step 0 was a no-op. The open list could show the PR that carries each pending fix."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for a guard that runs without a red-team run; the defect class (lint over raw text drifting from the parser) is removed structurally by reading the parser's steps, and the new tests run in ventures-tests on every PR. No separate lint added.",
+      "did": "structural fix plus tests in the existing suite",
+      "result": "suite 38/38 green; re-applied escaped mutants all caught"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Known open rerun defect (#14612) grades a red suite as caught, so the failing defect test was added only after rerun.",
+      "did": "words tests -> green suite -> rerun -> failing caret test -> fix",
+      "result": "caught_after_fix values are trustworthy"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-warning-that-only-fired-for-one-spelling.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/semver-range-explainer/semver.mjs (new on main today). Two campaigns, 12 mutants each. Probe of 75 ranges x 31 versions vs node-semver 7.7.4: full agreement on validity and matching; minVersion differs by design (documented in README). Verification: python3 platform/ci/run_venture_tests.py semver-range-explainer -> ok (2.0s); node --test *.test.mjs 38 pass; check_post_frontmatter, check_post_links clean; post_similarity 0 pairs.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/semver-range-explainer/semver.mjs",
+        "test": "node --test ventures/semver-range-explainer/**/*.test.mjs  (in .)",
+        "seed": 521489943,
+        "commit": "ab7c367f",
+        "sites": 299,
+        "baseline_seconds": 1.9,
+        "mutants": [
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 35,
+            "col": 44,
+            "operator": "ge-to-gt",
+            "before": "return +m[1] > 7 || (+m[1] === 7 && +m[2] >= 8) ? \"7.8\" : \"7.7\";",
+            "after": "return +m[1] > 7 || (+m[1] === 7 && +m[2] > 8) ? \"7.8\" : \"7.7\";",
+            "line_text": "  return +m[1] > 7 || (+m[1] === 7 && +m[2] >= 8) ? \"7.8\" : \"7.7\";",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 64,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "return mk(nums[0], nums[1], nums[2], m[4] ? m[4].split(\".\") : [], m[5] ? m[5].split(\".\") : []);",
+            "after": "return mk(nums[0], nums[1], nums[3], m[4] ? m[4].split(\".\") : [], m[5] ? m[5].split(\".\") : []);",
+            "line_text": "  return mk(nums[0], nums[1], nums[2], m[4] ? m[4].split(\".\") : [], m[5] ? m[5].split(\".\") : []);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 98,
+            "col": 71,
+            "operator": "and-to-or",
+            "before": "const sameTuple = (a, b) => a.major === b.major && a.minor === b.minor && a.patch === b.patch;",
+            "after": "const sameTuple = (a, b) => a.major === b.major && a.minor === b.minor || a.patch === b.patch;",
+            "line_text": "const sameTuple = (a, b) => a.major === b.major && a.minor === b.minor && a.patch === b.patch;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 174,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const version = parseVersion(m[2]);",
+            "after": "const version = parseVersion(m[3]);",
+            "line_text": "  const version = parseVersion(m[2]);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 232,
+            "col": 11,
+            "operator": "and-to-or",
+            "before": "if (gtlt && anyX) {",
+            "after": "if (gtlt || anyX) {",
+            "line_text": "  if (gtlt && anyX) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 234,
+            "col": 13,
+            "operator": "eq-flip",
+            "before": "if (gtlt === \">\") {",
+            "after": "if (gtlt !== \">\") {",
+            "line_text": "    if (gtlt === \">\") {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 301,
+            "col": 17,
+            "operator": "true-to-false",
+            "before": "return { ok: true, opener };",
+            "after": "return { ok: false, opener };",
+            "line_text": "    return { ok: true, opener };",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 347,
+            "col": 43,
+            "operator": "false-to-true",
+            "before": "return { version: text, valid: true, ok: false, blockedByPrerelease: perSet.some((x) => x.prereleaseBlocked), reason: reasons.join(\"; \") + \".\" };",
+            "after": "return { version: text, valid: true, ok: true, blockedByPrerelease: perSet.some((x) => x.prereleaseBlocked), reason: reasons.join(\"; \") + \".\" };",
+            "line_text": "  return { version: text, valid: true, ok: false, blockedByPrerelease: perSet.some((x) => x.prereleaseBlocked), reason: reasons.join(\"; \") + \".\" };",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 433,
+            "col": 58,
+            "operator": "false-to-true",
+            "before": "export function compareRanges(a, b, { includePrerelease = false, semver = DEFAULT_SEMVER } = {}) {",
+            "after": "export function compareRanges(a, b, { includePrerelease = true, semver = DEFAULT_SEMVER } = {}) {",
+            "line_text": "export function compareRanges(a, b, { includePrerelease = false, semver = DEFAULT_SEMVER } = {}) {",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 476,
+            "col": 53,
+            "operator": "const-plus-one",
+            "before": "else if (!hi || compare(c.version, hi.version) < 0 || (compare(c.version, hi.version) === 0 && c.op === \"<\")) hi = c;",
+            "after": "else if (!hi || compare(c.version, hi.version) < 1 || (compare(c.version, hi.version) === 0 && c.op === \"<\")) hi = c;",
+            "line_text": "    else if (!hi || compare(c.version, hi.version) < 0 || (compare(c.version, hi.version) === 0 && c.op === \"<\")) hi = c;",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "bounds(): <1 lets an equal-version upper bound replace a stricter one; '<1.2.3 <=1.2.3' read 'up to and including'. Test: words for both orders."
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 484,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "return hi.op === \"<\" ? `below ${format(v)}` : `up to and including ${format(v)}`;",
+            "after": "return hi.op !== \"<\" ? `below ${format(v)}` : `up to and including ${format(v)}`;",
+            "line_text": "  return hi.op === \"<\" ? `below ${format(v)}` : `up to and including ${format(v)}`;",
+            "caught": false,
+            "seconds": 2.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "upperWords(): < and <= words swapped. Test: '<=2.0.0' and '<2.0.0-beta' words."
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 578,
+            "col": 173,
+            "operator": "const-plus-one",
+            "before": "const result = { semver, includePrerelease, range: explained, versions: [], max: null, min: null, comparison: null, totals: { versions: list.length, matching: 0, blocked: 0, invalid: 0 } };",
+            "after": "const result = { semver, includePrerelease, range: explained, versions: [], max: null, min: null, comparison: null, totals: { versions: list.length, matching: 0, blocked: 1, invalid: 0 } };",
+            "line_text": "  const result = { semver, includePrerelease, range: explained, versions: [], max: null, min: null, comparison: null, totals: { versions: list.length, matching: 0, blocked: 0, invalid: 0 } };",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/semver-range-explainer/semver.mjs",
+        "test": "node --test ventures/semver-range-explainer/**/*.test.mjs  (in .)",
+        "seed": 633257254,
+        "commit": "ab7c367f",
+        "sites": 299,
+        "baseline_seconds": 1.9,
+        "mutants": [
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 51,
+            "col": 78,
+            "operator": "eq-flip",
+            "before": "const isX = (s) => s === undefined || s === \"\" || s === \"x\" || s === \"X\" || s === \"*\";",
+            "after": "const isX = (s) => s === undefined || s === \"\" || s === \"x\" || s === \"X\" || s !== \"*\";",
+            "line_text": "const isX = (s) => s === undefined || s === \"\" || s === \"x\" || s === \"X\" || s === \"*\";",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 62,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const nums = [m[1], m[2], m[3]].map(Number);",
+            "after": "const nums = [m[1], m[2], m[4]].map(Number);",
+            "line_text": "  const nums = [m[1], m[2], m[3]].map(Number);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 138,
+            "col": 61,
+            "operator": "or-to-and",
+            "before": "steps.push({ written: text, rule: \"hyphen\", becomes: out || \"*\" });",
+            "after": "steps.push({ written: text, rule: \"hyphen\", becomes: out && \"*\" });",
+            "line_text": "    steps.push({ written: text, rule: \"hyphen\", becomes: out || \"*\" });",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "hyphen step 'becomes' turned to '' or '*'. Test: steps of '1.2.3 - 2.3.4' and '* - *'."
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 171,
+            "col": 11,
+            "operator": "eq-flip",
+            "before": "if (text === \"\") return { any: true };",
+            "after": "if (text !== \"\") return { any: true };",
+            "line_text": "  if (text === \"\") return { any: true };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 198,
+            "col": 44,
+            "operator": "neq-flip",
+            "before": "if (flavour === \"7.8\" && ((isX(M) && mi !== undefined && !isX(mi)) || (isX(mi) && p !== undefined && !isX(p)))) return [tok, null];",
+            "after": "if (flavour === \"7.8\" && ((isX(M) && mi === undefined && !isX(mi)) || (isX(mi) && p !== undefined && !isX(p)))) return [tok, null];",
+            "line_text": "    if (flavour === \"7.8\" && ((isX(M) && mi !== undefined && !isX(mi)) || (isX(mi) && p !== undefined && !isX(p)))) return [tok, null];",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "7.8 rule for 'x.1' (x then a number in the minor) never fired. Test: x.1 and *.2.3 throw under 7.8, parse under 7.7."
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 213,
+            "col": 8,
+            "operator": "eq-flip",
+            "before": "if (M === \"0\") return mi === \"0\" ? `${from} <${M}.${mi}.${+p + 1}-0` : `${from} <${M}.${+mi + 1}.0-0`;",
+            "after": "if (M !== \"0\") return mi === \"0\" ? `${from} <${M}.${mi}.${+p + 1}-0` : `${from} <${M}.${+mi + 1}.0-0`;",
+            "line_text": "  if (M === \"0\") return mi === \"0\" ? `${from} <${M}.${mi}.${+p + 1}-0` : `${from} <${M}.${+mi + 1}.0-0`;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 342,
+            "col": 32,
+            "operator": "gt-to-ge",
+            "before": "const label = r.sets.length > 1 ? `branch ${x.set + 1} (${setString(s) || \"*\"}): ` : \"\";",
+            "after": "const label = r.sets.length >= 1 ? `branch ${x.set + 1} (${setString(s) || \"*\"}): ` : \"\";",
+            "line_text": "    const label = r.sets.length > 1 ? `branch ${x.set + 1} (${setString(s) || \"*\"}): ` : \"\";",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 475,
+            "col": 117,
+            "operator": "const-plus-one",
+            "before": "else if (c.op[0] === \">\") { if (!lo || compare(c.version, lo.version) > 0 || (compare(c.version, lo.version) === 0 && c.op === \">\")) lo = c; }",
+            "after": "else if (c.op[0] === \">\") { if (!lo || compare(c.version, lo.version) > 0 || (compare(c.version, lo.version) === 1 && c.op === \">\")) lo = c; }",
+            "line_text": "    else if (c.op[0] === \">\") { if (!lo || compare(c.version, lo.version) > 0 || (compare(c.version, lo.version) === 0 && c.op === \">\")) lo = c; }",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "bounds(): equal-version '>' no longer replaces '>='. Test: '>=1.2.3 >1.2.3' reads 'above'."
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 476,
+            "col": 17,
+            "operator": "or-to-and",
+            "before": "else if (!hi || compare(c.version, hi.version) < 0 || (compare(c.version, hi.version) === 0 && c.op === \"<\")) hi = c;",
+            "after": "else if (!hi && compare(c.version, hi.version) < 0 || (compare(c.version, hi.version) === 0 && c.op === \"<\")) hi = c;",
+            "line_text": "    else if (!hi || compare(c.version, hi.version) < 0 || (compare(c.version, hi.version) === 0 && c.op === \"<\")) hi = c;",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 476,
+            "col": 55,
+            "operator": "or-to-and",
+            "before": "else if (!hi || compare(c.version, hi.version) < 0 || (compare(c.version, hi.version) === 0 && c.op === \"<\")) hi = c;",
+            "after": "else if (!hi || compare(c.version, hi.version) < 0 && (compare(c.version, hi.version) === 0 && c.op === \"<\")) hi = c;",
+            "line_text": "    else if (!hi || compare(c.version, hi.version) < 0 || (compare(c.version, hi.version) === 0 && c.op === \"<\")) hi = c;",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "bounds(): tighter later upper bound ignored. Test: '<2.0.0 <1.5.0' reads 'below 1.5.0'."
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 503,
+            "col": 17,
+            "operator": "and-to-or",
+            "before": "if (!lo && !eq && hi) text = `any version ${text}`;",
+            "after": "if (!lo && !eq || hi) text = `any version ${text}`;",
+            "line_text": "  if (!lo && !eq && hi) text = `any version ${text}`;",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "'any version' prefixed to bounded sets. Test: '>=1.2.3 <2.0.0' words start 'at least'."
+          },
+          {
+            "file": "ventures/semver-range-explainer/semver.mjs",
+            "line": 553,
+            "col": 212,
+            "operator": "const-plus-one",
+            "before": "out.push({ severity: \"info\", code: \"caret-zero\", message: `${tok}: a caret on a 0.x version is narrow. ${m[2] === \"0\" ? `It allows only 0.0.${m[3]} itself` : `It allows 0.${m[2]}.x patches only, not 0.${+m[2] + 1}.0`}, because before 1.0.0 the leftmost non-zero number is treated as the breaking one.` });",
+            "after": "out.push({ severity: \"info\", code: \"caret-zero\", message: `${tok}: a caret on a 0.x version is narrow. ${m[2] === \"0\" ? `It allows only 0.0.${m[3]} itself` : `It allows 0.${m[2]}.x patches only, not 0.${+m[3] + 1}.0`}, because before 1.0.0 the leftmost non-zero number is treated as the breaking one.` });",
+            "line_text": "      out.push({ severity: \"info\", code: \"caret-zero\", message: `${tok}: a caret on a 0.x version is narrow. ${m[2] === \"0\" ? `It allows only 0.0.${m[3]} itself` : `It allows 0.${m[2]}.x patches only, not 0.${+m[2] + 1}.0`}, because before 1.0.0 the leftmost non-zero number is treated as the breaking one.` });",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "caret-zero message named the wrong next minor. Test: '^0.2.3' says 'not 0.3.0'. This line was rewritten by the defect fix after rerun; the same +1->+2 mutant was re-applied by hand to the new line and 2 tests failed."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/semver-range-explainer/semver.mjs",
+        "issue": "caret-zero lint matched the raw text with a regex, so '^ 0.2.3', '^v0.2.3', '^0.2.3-beta', '^0.2.3+build' and partials '^0.1', '^0.0', '^0.2.x' (all npm-equivalent narrow 0.x carets) got no warning. Fixed: the lint reads the parser's caret steps.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "064e72f7-3d14-5887-917c-b181fbe69fea",
+    "transcripts": 1,
+    "first": "2026-11-12T01:05:51Z",
+    "last": "2026-11-12T01:12:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 79,
+        "output": 22559,
+        "thinking": 5778,
+        "cache_read": 3428268,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88125,
+        "api_equivalent_usd": 1.8421,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 79,
+      "output": 22559,
+      "thinking": 5778,
+      "cache_read": 3428268,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88125,
+      "api_equivalent_usd": 1.8421,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 38,
+      "Edit": 2,
+      "Read": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.1,
+      "active_minutes": 7.1,
+      "model_minutes": 4.8,
+      "tool_minutes": 2.31,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: mutation triage, 4 tests, lint fix, oracle probe, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 162.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
