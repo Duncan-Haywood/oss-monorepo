@@ -105,9 +105,7 @@ flagships:
       local model on every reply set"; probe huggingface.co first; start llama_cpp.server with nohup,
       not as a tool background task, which is killed at 2 hours). Compare its false stops and false
       opt-outs with the 7B's, and whether its stop flags (4 of 23 right for the 7B) are good enough to
-      act on. Also (1) the Enron third reader with the same 14B via `eval/model-reader.mjs`. Without a
-      model host: re-score any merge change offline from the committed answer caches (`--offline`);
-      the 37 false stops the merge still lets through are listed by `--misses`. huggingface.co answered
+      act on. Also (1) the Enron third reader with the same 14B via `eval/model-reader.mjs`. Without a model host: re-score any merge change offline from the committed answer caches (`--offline`). The 37 false stops were sorted by what a person sees on 2026-11-12 (eval/README "The 37 false stops, by what a person would see"): a model's close of an unclear, question or objection reply is now a flag and a question stays a question (lost silently 16 to 3, honest pair 68 to 62 right as six true closes wait for a person); next, whether a 14B's closes (7B: 11 of 25 right) are good enough to act alone. huggingface.co answered
       403 through the proxy on 2026-11-12 (second run that day), so probe before planning on the 14B.
       Any rule change: re-score all eight Enron halves before and after by Message-ID, as eval/README
       "We are not interested" did (76,565 replies, about 10 min with the halves run in parallel).

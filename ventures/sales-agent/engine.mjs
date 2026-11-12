@@ -1155,12 +1155,14 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
         // shown, and nothing else changes until the user picks the category.
         set("status", "paused", "Paused the cadence until you read it");
         // A guess outside the category list (a stray training label) is no guess: before 2026-11-11 it threw and the whole run failed.
-        const g0 = guessFn ? guessFn(reply) : null, g = g0 && Object.hasOwn(CATEGORIES, g0.category) ? g0 : null;
+        // A model's close the merge held back (ai.mjs, mergeTriage) is the guess shown: the person confirms it in one look.
+        const modelClose = t.modelSaid === "not_interested" || t.modelSaid === "left_company";
+        const g0 = modelClose ? { category: t.modelSaid, source: "model" } : guessFn ? guessFn(reply) : null, g = g0 && Object.hasOwn(CATEGORIES, g0.category) ? g0 : null;
         if (g && g.category !== "unclear") {
           t.guess = g;
           if (CATEGORIES[g.category]?.outbound) draft = draftReply({ ...t, category: g.category, subtype: g.category === "objection" ? "need" : null, dateText: null, evidence: reply.body.split(/\n/)[0].slice(0, 160) }, p, reply, offer);
         }
-        tasks.push({ email: p.email, task: g && g.category !== "unclear" ? `The rules could not read this reply. Best guess: ${CATEGORIES[g.category].label.toLowerCase()}. Check it before you act.` : "The agent could not tell what this reply means. Read it and decide." });
+        tasks.push({ email: p.email, task: g && g.category !== "unclear" ? `The rules could not read this reply. ${g.source === "model" ? "The model reads it as" : "Best guess:"} ${CATEGORIES[g.category].label.toLowerCase()}. Check it before you act.` : "The agent could not tell what this reply means. Read it and decide." });
       }
     }
     // A model's stop is a flag, not an action (ai.mjs, mergeTriage): say what it read, so a real opt-out the rules missed
@@ -1168,6 +1170,10 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
     if (t.modelSaid === "unsubscribe" || t.modelSaid === "bounce") tasks.push({ email: p.email, task: t.modelSaid === "unsubscribe"
       ? `The model reads this reply as a request to stop${t.modelEvidence ? ` ("${t.modelEvidence.slice(0, 120)}")` : ""}; the rules did not. If they asked to stop, add them to your suppression list and send nothing; otherwise carry on.`
       : "The model reads this reply as a delivery failure; the rules did not. Check before you mark the address bounced." });
+    // A model's close is a flag too (mergeTriage, 2026-11-12): the reply stays in front of a person with the model's reading.
+    else if ((t.modelSaid === "not_interested" || t.modelSaid === "left_company") && t.category !== "unclear") tasks.push({ email: p.email, task: t.modelSaid === "not_interested"
+      ? "The model reads this reply as a plain no; the rules did not. If it is, mark it lost and send nothing; otherwise answer it."
+      : "The model reads this reply as \"left, or the wrong person\"; the rules did not. If so, stop the cadence and add anyone they name yourself." });
     const lint = draft ? checkDraft(draft, factsBase + "\n" + reply.body) : null;
     items.push({ n: i + 1, from: reply.from, name: reply.name, subject: reply.subject, body: reply.body, triage: t, applied, draft, lint, approval: draft ? (t.guess ? "guess_check_first" : "needs_approval") : "nothing_to_send", known: Boolean(known) });
   }
