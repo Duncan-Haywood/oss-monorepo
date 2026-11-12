@@ -8,6 +8,7 @@
 import { parseCsv, parseReplies, triage, CATEGORIES, iso } from "./engine.mjs";
 import { normalizeRow } from "./research.mjs";
 import { suppressionIndex } from "./suppression.mjs";
+import { theirDaysOff, upcomingHolidays } from "./holidays.mjs";
 
 // The nine fields and their questions mirror sales-call-notes-desk (kept inline so this venture builds on its own).
 export const FIELDS = [
@@ -22,6 +23,7 @@ export const FIELDS = [
   { id: "nextstep", label: "Dated next step", ask: "Can we put the next call on the calendar before we hang up?", re: /\b(next (call|meeting|step)|follow[- ]up (call|on)|demo on|schedule[d]? for|meet again|booked for|agreed to meet)\b/i },
 ];
 
+const shiftDays = (day, n) => { const t = new Date(`${day}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
 const CALL_LABEL = { done: "marked done", spoke: "spoke", voicemail: "left a voicemail", no_answer: "no answer" };
 const sentences = (text) => String(text || "").replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z"'(])/).map((s) => s.trim()).filter(Boolean);
 
@@ -29,7 +31,13 @@ const sentences = (text) => String(text || "").replace(/\s+/g, " ").split(/(?<=[
  * input: { email, prospects (CSV text or rows), replies (pasted thread, text), notes (earlier call notes, text),
  * crm (export CSV text or rows, optional), suppression (text), today, offer, calls (optional, the call outcomes marked on
  * the self-host Today's queue: [{ date, step, outcome: done|spoke|voicemail|no_answer }]) }.
- * Returns { today, email, found, status, stop (string or ""), history, calls, known, facts, unknown, agenda, brief }.
+ * Returns { today, email, found, status, stop (string or ""), history, calls, daysOff, known, facts, unknown, agenda, brief }.
+ *
+ * daysOff (added 2026-11-12): the prospect's own days off, read the way the daily run reads them (a `holidays`, then
+ * `region` like CA-QC or GB-SCT, then `country` column, on the prospects row first and then the CRM row; holidays.mjs
+ * theirDaysOff). { spec, source, today (the holiday's name if today is one of them, else ""), next: the next three
+ * [{ date, name }], soon: those within 14 days } or null when nothing names a calendar we have. A call on their
+ * holiday rings out, and a next step proposed for one gets moved, so the brief says so before you dial.
  */
 export function runPrep(input) {
   const today = input.today || iso(Date.now());
@@ -69,19 +77,31 @@ export function runPrep(input) {
   add("country", crm?.country, "CRM export"); add("lifecycle stage", crm?.lifecycle, "CRM export"); add("last contacted", crm?.last_contacted, "CRM export");
   add("status in the inbox agent", p?.status, "prospects table"); add("paused until", p?.paused_until, "prospects table");
 
+  const readOff = theirDaysOff();
+  const offP = readOff(p, null), off = offP || readOff(crm, null);
+  let daysOff = null;
+  if (off) {
+    const next = upcomingHolidays(off.spec, today, 6), until = shiftDays(today, 14);
+    daysOff = { spec: off.spec, source: offP ? "prospects table" : "CRM export", today: next.find((h) => h.date === today)?.name || "", next: next.slice(0, 3), soon: next.filter((h) => h.date > today && h.date <= until) };
+  }
+  const offLine = !daysOff ? [] : [
+    ...(daysOff.today ? [`Today is ${daysOff.today} for them (${daysOff.spec}): unless they booked this call themselves, expect no answer and try their next working day.`] : []),
+    ...daysOff.soon.slice(0, 2).map((h) => `Their office is closed on ${h.date} (${h.name}): do not propose that day for the next step.`),
+  ];
   const lastCall = calls.at(-1), misses = calls.filter((c) => c.outcome === "no_answer");
   const callLine = !lastCall ? [] : lastCall.outcome === "voicemail" ? [`You left a voicemail on ${lastCall.date}: if they are calling back, say so and refer to it.`]
     : lastCall.outcome === "no_answer" ? [`${misses.length} call${misses.length === 1 ? "" : "s"} rang out (last ${lastCall.date}): try a different time from their call window, and leave a short voicemail this time.`]
     : lastCall.outcome === "spoke" ? [`You spoke on ${lastCall.date}: open from what was said then (your notes), not from the cold script.`] : [];
   const agenda = stop ? [] : [
     "Confirm the time you have and what they want out of it.",
+    ...offLine,
     ...callLine,
     ...(history.length ? [`Pick up where they left off: ${history.at(-1).label.toLowerCase()}${history.at(-1).quote ? ` ("${history.at(-1).quote.slice(0, 100)}")` : ""}.`] : ["Open with why you are talking (they have not written to you yet in this thread)."]),
     ...unknown.slice(0, 4).map((u) => `Ask: ${u.ask}`),
     "End with a dated next step and write it down before the call ends.",
   ];
 
-  return { today, email, found: Boolean(p || crm || theirs.length || calls.length), status: p?.status || "", stop, history, calls, known, facts, unknown, agenda, brief: brief({ today, email, name, p, stop, history, calls, known, facts, unknown, agenda }) };
+  return { today, email, found: Boolean(p || crm || theirs.length || calls.length), status: p?.status || "", stop, history, calls, daysOff, known, facts, unknown, agenda, brief: brief({ today, email, name, p, stop, history, calls, daysOff, known, facts, unknown, agenda }) };
 }
 
 function brief(d) {
@@ -89,6 +109,7 @@ function brief(d) {
   if (d.stop) o.push(`**Do not chase this person: ${d.stop}.** If they booked this call themselves, take it; otherwise send nothing and do not add them to a cadence.`, "");
   if (!d.facts.length && !d.history.length && !d.calls.length) o.push(`Nothing is on file for ${d.email}: not in the prospects table, no replies from them in the thread you gave, no CRM row. Add what you have before the call.`, "");
   if (d.facts.length) { o.push("## On file"); for (const f of d.facts) o.push(`- ${f.fact} (${f.source})`); o.push(""); }
+  if (d.daysOff) { o.push(`## Their days off (${d.daysOff.spec}, from the ${d.daysOff.source})`); if (d.daysOff.today) o.push(`- **Today: ${d.daysOff.today}**`); for (const h of d.daysOff.next.filter((h) => h.date !== d.today)) o.push(`- ${h.date}: ${h.name}`); o.push(""); }
   if (d.history.length) { o.push("## What they wrote, oldest first"); for (const h of d.history) o.push(`- ${h.date || "undated"}${h.subject ? ` "${h.subject}"` : ""}: read as ${h.label.toLowerCase()}. "${h.quote}"`); o.push(""); }
   if (d.calls.length) { o.push("## Calls so far, oldest first"); for (const c of d.calls) o.push(`- ${c.date || "undated"} (step ${c.step}): ${Object.hasOwn(CALL_LABEL, c.outcome) ? CALL_LABEL[c.outcome] : c.outcome}`); o.push(""); }
   if (d.known.length) { o.push("## Already known (their words, or your notes)"); for (const k of d.known) o.push(`- ${k.field}: "${k.evidence}" (${k.source})`); o.push(""); }

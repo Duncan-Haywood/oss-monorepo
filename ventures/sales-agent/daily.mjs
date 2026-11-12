@@ -4,7 +4,7 @@
 // or hold a touch on its own, and it never sends one. Every touch it leaves out is listed with the reason, so the
 // run doubles as an audit trail.
 import { parseCsv, runInbox, toCsv, iso, toDay, DAY, addBusinessDays, businessDaysBetween } from "./engine.mjs";
-import { holidayChecker, upcomingHolidays } from "./holidays.mjs";
+import { holidayChecker, upcomingHolidays, theirDaysOff } from "./holidays.mjs";
 import { suppressionIndex } from "./suppression.mjs";
 
 // Statuses the inbox agent sets that end the cadence for good (or, for closed_lost, until its 180-day pause).
@@ -118,24 +118,6 @@ export function runDaily(input) {
   const by = (ch) => final.filter((q) => q.channel === ch).length;
   const summary = { due: final.length, overdue: final.filter((q) => q.overdue).length, email: by("email"), call: by("call"), linkedin: by("linkedin"), letter: by("letter"), held: held.length, dropped: dropped.length, stale: stale.length, later, alreadyDone, alreadySent: sentMatched.length, sentRead: sent.length };
   return { today, queue: final, held, dropped, stale, later, sentMatched, summary, brief: brief(today, final, held, dropped, stale, summary) };
-}
-
-/** A reader for a prospect's own days off: (task row, prospect row) => { spec, isOff } or null. The `holidays` column
- * wins, then `region`, then `country`; a value that is not a known preset or dates is skipped, never an error, since a
- * prospect list carries countries we have no calendar for. Checkers are cached per spec. */
-function theirDaysOff() {
-  const cache = new Map();
-  const tryOne = (v) => {
-    const spec = String(v || "").trim().toLowerCase();
-    if (!spec) return null;
-    if (!cache.has(spec)) { let c = null; try { c = { spec, isOff: holidayChecker(spec) }; } catch { c = null; } cache.set(spec, c); }
-    return cache.get(spec);
-  };
-  // A bare country "US" means the six days most businesses close, not the eleven federal ones (Columbus Day and
-  // Veterans Day are working days at most firms); write holidays=us to get the federal list.
-  // A region counts only in the two-part form ("CA-QC", "GB-SCT"): a bare region "CA" in a US list is California.
-  const pick = { holidays: (v) => v, region: (v) => (/^[a-z]{2}-[a-z]{2,3}$/i.test(String(v || "").trim()) ? v : ""), country: (v) => (String(v || "").trim().toLowerCase() === "us" ? "us-business" : v) };
-  return (row, p) => { for (const src of [row, p]) for (const k of ["holidays", "region", "country"]) { const c = src && tryOne(pick[k](src[k])); if (c) return c; } return null; };
 }
 
 /** For each person, walk their steps in plan order; a retried call (or one ended late after misses) that slipped N
