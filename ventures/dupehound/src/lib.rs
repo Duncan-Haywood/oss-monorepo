@@ -807,6 +807,9 @@ pub struct Family {
     /// The deepest directory that holds every occurrence (`""` for the root):
     /// the natural home for a shared module.
     pub common_dir: String,
+    /// With `--guarded`: how many guarded copies were folded into the one
+    /// occurrence that stands for them (0 when none were, or no guards).
+    pub guarded_copies: usize,
 }
 
 fn uf_find(p: &mut [u32], mut x: u32) -> u32 {
@@ -846,6 +849,73 @@ fn dir_of(path: &str) -> &str {
 
 fn name_of(path: &str) -> &str {
     path.rfind('/').map_or(path, |i| &path[i + 1..])
+}
+
+/// A family's statistics from its merged, sorted occurrence spans (at least
+/// two; one span is not a family).
+fn family_from(files: &[SourceFile], merged: Vec<Span>) -> Option<Family> {
+    if merged.len() < 2 {
+        return None;
+    }
+    let occurrences: Vec<Occurrence> = merged
+        .iter()
+        .map(|&s| Occurrence {
+            span: s,
+            whole_file: s.start == 0 && s.end as usize == files[s.file as usize].tokens.len(),
+        })
+        .collect();
+    let lines: Vec<u32> = merged.iter().map(|&s| span_lines(files, s)).collect();
+    let shortest = *lines.iter().min().unwrap();
+    let longest = *lines.iter().max().unwrap();
+    // Group occurrences by their exact token sequence.
+    let mut ident: std::collections::HashMap<(u32, u64), (usize, u32, usize)> = Default::default();
+    for (k, &s) in merged.iter().enumerate() {
+        let toks = &files[s.file as usize].tokens[s.start as usize..s.end as usize];
+        let h = toks
+            .iter()
+            .fold(0u64, |h, t| h.wrapping_mul(BASE).wrapping_add(t.hash));
+        let e = ident
+            .entry((s.end - s.start, h))
+            .or_insert((0, lines[k], k));
+        e.0 += 1;
+    }
+    let (identical_copies, identical_lines, identical_first) = ident
+        .into_values()
+        .max_by_key(|&(c, l, k)| ((c as u64 - 1) * l as u64, c, l, std::cmp::Reverse(k)))
+        .unwrap();
+    let paths: Vec<&str> = merged
+        .iter()
+        .map(|s| files[s.file as usize].path.as_str())
+        .collect();
+    let name = name_of(paths[0]);
+    let common_name = paths
+        .iter()
+        .all(|p| name_of(p) == name)
+        .then(|| name.to_string());
+    let mut dir: Vec<&str> = dir_of(paths[0]).split('/').collect();
+    for p in &paths[1..] {
+        let keep = dir
+            .iter()
+            .zip(dir_of(p).split('/'))
+            .take_while(|(a, b)| *a == b)
+            .count();
+        dir.truncate(keep);
+    }
+    let total: u64 = lines.iter().map(|&l| l as u64).sum();
+    Some(Family {
+        removable_lines: ((occurrences.len() as u64 - 1) * shortest as u64)
+            .max((identical_copies as u64 - 1) * identical_lines as u64),
+        removable_lines_max: total - longest as u64,
+        identical_copies,
+        identical_lines,
+        identical_first,
+        occurrences,
+        shortest_lines: shortest,
+        longest_lines: longest,
+        common_name,
+        common_dir: dir.join("/"),
+        guarded_copies: 0,
+    })
 }
 
 /// Group pairwise clones into families, largest `removable_lines` first.
@@ -931,85 +1001,183 @@ pub fn families(files: &[SourceFile], clones: &[Clone_]) -> Vec<Family> {
             if merged.len() < 2 {
                 return None; // a block repeated within its own span
             }
-            let occurrences: Vec<Occurrence> = merged
-                .iter()
-                .map(|&s| Occurrence {
-                    span: s,
-                    whole_file: s.start == 0
-                        && s.end as usize == files[s.file as usize].tokens.len(),
-                })
-                .collect();
-            let lines: Vec<u32> = merged.iter().map(|&s| span_lines(files, s)).collect();
-            let shortest = *lines.iter().min().unwrap();
-            let longest = *lines.iter().max().unwrap();
-            // Group occurrences by their exact token sequence.
-            let mut ident: std::collections::HashMap<(u32, u64), (usize, u32, usize)> =
-                Default::default();
-            for (k, &s) in merged.iter().enumerate() {
-                let toks = &files[s.file as usize].tokens[s.start as usize..s.end as usize];
-                let h = toks
-                    .iter()
-                    .fold(0u64, |h, t| h.wrapping_mul(BASE).wrapping_add(t.hash));
-                let e = ident
-                    .entry((s.end - s.start, h))
-                    .or_insert((0, lines[k], k));
-                e.0 += 1;
-            }
-            let (identical_copies, identical_lines, identical_first) = ident
-                .into_values()
-                .max_by_key(|&(c, l, k)| ((c as u64 - 1) * l as u64, c, l, std::cmp::Reverse(k)))
-                .unwrap();
-            let paths: Vec<&str> = merged
-                .iter()
-                .map(|s| files[s.file as usize].path.as_str())
-                .collect();
-            let name = name_of(paths[0]);
-            let common_name = paths
-                .iter()
-                .all(|p| name_of(p) == name)
-                .then(|| name.to_string());
-            let mut dir: Vec<&str> = dir_of(paths[0]).split('/').collect();
-            for p in &paths[1..] {
-                let keep = dir
-                    .iter()
-                    .zip(dir_of(p).split('/'))
-                    .take_while(|(a, b)| *a == b)
-                    .count();
-                dir.truncate(keep);
-            }
-            let total: u64 = lines.iter().map(|&l| l as u64).sum();
-            Some(Family {
-                removable_lines: ((occurrences.len() as u64 - 1) * shortest as u64)
-                    .max((identical_copies as u64 - 1) * identical_lines as u64),
-                removable_lines_max: total - longest as u64,
-                identical_copies,
-                identical_lines,
-                identical_first,
-                occurrences,
-                shortest_lines: shortest,
-                longest_lines: longest,
-                common_name,
-                common_dir: dir.join("/"),
-            })
+            family_from(files, merged)
         })
         .collect();
-    out.sort_by(|a, b| {
-        b.removable_lines
-            .cmp(&a.removable_lines)
-            .then(b.occurrences.len().cmp(&a.occurrences.len()))
-            .then(a.occurrences[0].span.file.cmp(&b.occurrences[0].span.file))
-            .then(
-                a.occurrences[0]
-                    .span
-                    .start
-                    .cmp(&b.occurrences[0].span.start),
-            )
-    });
+    out.sort_by(rank);
+    out
+}
+
+/// Family order: most removable lines first, then most copies, then position.
+fn rank(a: &Family, b: &Family) -> std::cmp::Ordering {
+    b.removable_lines
+        .cmp(&a.removable_lines)
+        .then(b.occurrences.len().cmp(&a.occurrences.len()))
+        .then(a.occurrences[0].span.file.cmp(&b.occurrences[0].span.file))
+        .then(
+            a.occurrences[0]
+                .span
+                .start
+                .cmp(&b.occurrences[0].span.start),
+        )
+}
+
+// ---------------------------------------------------------------------------
+// Guarded families: copies a test already keeps identical.
+// ---------------------------------------------------------------------------
+
+/// Path patterns for copies that are kept in sync on purpose (vendored
+/// modules with a test that fails when one copy drifts). A family whose every
+/// occurrence matches is reported as guarded: it is deliberate vendoring, not
+/// debt nobody watches.
+///
+/// One pattern a line; `#` starts a comment (at the line start, or after
+/// whitespace). `*` and `?` stay within one path segment, `**` crosses
+/// segments. A pattern without `/` matches the file name; one with `/`
+/// matches at any segment boundary of the path (so it works whatever root
+/// was scanned), unless it starts with `/`, which anchors it to the start.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Guards {
+    pub patterns: Vec<String>,
+}
+
+impl Guards {
+    pub fn parse(text: &str) -> Self {
+        let patterns = text
+            .lines()
+            .map(|line| {
+                let line = line.trim();
+                if line.starts_with('#') {
+                    return "";
+                }
+                let cut = line
+                    .char_indices()
+                    .find(|&(i, c)| c == '#' && line[..i].ends_with(|w: char| w.is_whitespace()))
+                    .map_or(line.len(), |(i, _)| i);
+                line[..cut].trim()
+            })
+            .filter(|p| !p.is_empty())
+            .map(|p| p.replace('\\', "/"))
+            .collect();
+        Guards { patterns }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.patterns.is_empty()
+    }
+
+    /// Index of the first pattern that matches `path`, if any.
+    pub fn matches(&self, path: &str) -> Option<usize> {
+        let norm = path.replace('\\', "/");
+        let mut p = norm.as_str();
+        while let Some(rest) = p.strip_prefix("./") {
+            p = rest;
+        }
+        let path = p.as_bytes();
+        self.patterns.iter().position(|pat| {
+            if let Some(anchored) = pat.strip_prefix('/') {
+                return glob(anchored.as_bytes(), path);
+            }
+            if !pat.contains('/') {
+                return glob(pat.as_bytes(), name_of(p).as_bytes());
+            }
+            glob(pat.as_bytes(), path)
+                || path
+                    .iter()
+                    .enumerate()
+                    .any(|(i, &b)| b == b'/' && glob(pat.as_bytes(), &path[i + 1..]))
+        })
+    }
+}
+
+/// Glob match: `*` and `?` never cross `/`; `**` does, and `**/` also
+/// matches zero directories.
+fn glob(p: &[u8], s: &[u8]) -> bool {
+    match p {
+        [] => s.is_empty(),
+        [b'*', b'*', rest @ ..] => {
+            if let [b'/', after @ ..] = rest {
+                glob(after, s)
+                    || s.iter()
+                        .enumerate()
+                        .any(|(i, &b)| b == b'/' && glob(after, &s[i + 1..]))
+            } else {
+                (0..=s.len()).any(|i| glob(rest, &s[i..]))
+            }
+        }
+        [b'*', rest @ ..] => {
+            let seg = s.iter().position(|&b| b == b'/').unwrap_or(s.len());
+            (0..=seg).any(|i| glob(rest, &s[i..]))
+        }
+        [b'?', rest @ ..] => matches!(s, [c, tail @ ..] if *c != b'/' && glob(rest, tail)),
+        [c, rest @ ..] => matches!(s, [d, tail @ ..] if d == c && glob(rest, tail)),
+    }
+}
+
+/// Families after guarded copies are folded: `families` still has copies
+/// nobody keeps in sync, `fully_guarded` had every copy guarded.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Guarded {
+    pub families: Vec<Family>,
+    pub fully_guarded: Vec<Family>,
+}
+
+/// Fold each family's guarded copies into one occurrence (the longest of
+/// them): a test already keeps them identical, so together they are one
+/// maintained copy, not N. Statistics and rank are recomputed on what is
+/// left; a family whose copies were all guarded moves to `fully_guarded`.
+/// A real family is often mostly guarded with a few stray copies (the same
+/// header or helper pasted into an unrelated file); those strays stay
+/// visible instead of hiding the whole family or none of it.
+pub fn apply_guards(files: &[SourceFile], fams: Vec<Family>, guards: &Guards) -> Guarded {
+    let mut out = Guarded::default();
+    if guards.is_empty() {
+        out.families = fams;
+        return out;
+    }
+    for fam in fams {
+        let (kept, open): (Vec<Occurrence>, Vec<Occurrence>) = fam
+            .occurrences
+            .iter()
+            .partition(|o| guards.matches(&files[o.span.file as usize].path).is_some());
+        if kept.len() < 2 {
+            out.families.push(fam);
+            continue;
+        }
+        if open.is_empty() {
+            out.fully_guarded.push(fam);
+            continue;
+        }
+        let rep = kept
+            .iter()
+            .max_by_key(|o| {
+                (
+                    span_lines(files, o.span),
+                    std::cmp::Reverse((o.span.file, o.span.start)),
+                )
+            })
+            .unwrap()
+            .span;
+        let mut spans: Vec<Span> = open.iter().map(|o| o.span).collect();
+        spans.push(rep);
+        spans.sort_unstable_by_key(|s| (s.file, s.start, s.end));
+        let mut f = family_from(files, spans).expect("two or more spans");
+        f.guarded_copies = kept.len();
+        out.families.push(f);
+    }
+    out.families.sort_by(rank);
+    out.fully_guarded.sort_by(rank);
     out
 }
 
 /// The `"families":[...]` member of the JSON report.
 pub fn json_families(files: &[SourceFile], fams: &[Family]) -> String {
+    json_families_with(files, fams, false)
+}
+
+/// `json_families`, with a `"guarded_copies"` member on each family when
+/// `guarded` is set.
+fn json_families_with(files: &[SourceFile], fams: &[Family], guarded: bool) -> String {
     let mut o = String::from("\"families\":[");
     for (i, f) in fams.iter().enumerate() {
         if i > 0 {
@@ -1034,6 +1202,9 @@ pub fn json_families(files: &[SourceFile], fams: &[Family]) -> String {
         }
         o.push_str(",\"common_dir\":");
         json_str(&mut o, &f.common_dir);
+        if guarded {
+            let _ = write!(o, ",\"guarded_copies\":{}", f.guarded_copies);
+        }
         o.push_str(",\"spans\":[");
         for (j, x) in f.occurrences.iter().enumerate() {
             if j > 0 {
@@ -1055,10 +1226,39 @@ pub fn json_report_with_families(
     opts: Options,
     secs: f64,
 ) -> String {
+    json_report_with_guarded_families(files, clones, st, opts, secs, &Guards::default())
+}
+
+/// `json_report_with_families` after `apply_guards`: each family carries
+/// `"guarded_copies"`, and a top-level `"guarded"` object totals the fully
+/// guarded families. With no patterns this is `json_report_with_families`.
+pub fn json_report_with_guarded_families(
+    files: &[SourceFile],
+    clones: &[Clone_],
+    st: &Stats,
+    opts: Options,
+    secs: f64,
+    guards: &Guards,
+) -> String {
     let mut o = json_report(files, clones, st, opts, secs);
     o.pop(); // the final '}'
     o.push(',');
-    o.push_str(&json_families(files, &families(files, clones)));
+    let fams = families(files, clones);
+    if guards.is_empty() {
+        o.push_str(&json_families(files, &fams));
+    } else {
+        let g = apply_guards(files, fams, guards);
+        o.push_str(&json_families_with(files, &g.families, true));
+        let _ = write!(
+            o,
+            ",\"guarded\":{{\"patterns\":{},\"families\":{},\"copies\":{},\"removable_lines\":{},\"removable_lines_max\":{}}}",
+            guards.patterns.len(),
+            g.fully_guarded.len(),
+            g.fully_guarded.iter().map(|f| f.occurrences.len()).sum::<usize>(),
+            g.fully_guarded.iter().map(|f| f.removable_lines).sum::<u64>(),
+            g.fully_guarded.iter().map(|f| f.removable_lines_max).sum::<u64>()
+        );
+    }
     o.push('}');
     o
 }

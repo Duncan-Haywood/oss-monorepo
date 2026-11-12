@@ -126,6 +126,7 @@ cargo install --path ventures/dupehound
 dupehound src/                       # top 20 clones and a summary
 dupehound --json src/ &gt; clones.json  # every clone, machine-readable
 dupehound --families src/            # copies grouped by block, largest saving first
+dupehound --guarded synced.txt src/  # count copies a sync test keeps identical as one
 dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pre>
     <p class="note">Needs a Rust toolchain (<code>rustup</code>). Respects <code>.gitignore</code>. <code>dupehound --help</code> lists every option.</p>
   </section>
