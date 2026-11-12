@@ -169,3 +169,40 @@ test('every real post: kits quote the post verbatim and fit every limit', () => 
   // Nearly every post has findings worth a thread (1,456 of 1,470 on 2026-10-31).
   assert.ok(kits >= posts.length * 0.9, `${kits} of ${posts.length}`);
 });
+
+// Guards added by the 2026-11-12 red-team run: each test fails with one mutant that escaped the suite above.
+test('clipWords: a one-grapheme budget leaves nothing, not a lone ellipsis', () => {
+  assert.equal(clipWords('alpha beta', 1), '');
+  assert.equal(clipWords('alpha beta', 2), 'a…');
+});
+
+test('blocks: a top-level "# " line is a heading', () => {
+  assert.deepEqual(blocks('# Top\n\nBody text.'), [{ kind: 'h', text: 'Top' }, { kind: 'p', text: 'Body text.' }]);
+});
+
+test('extract: only the first paragraph earns the lead bonus', () => {
+  const body = 'The opening paragraph states the main claim in a sentence of decent length.\n\nA second paragraph sentence with no digits that is long enough to count.';
+  assert.deepEqual(extract(body).points, [], 'the second paragraph scores 0 and stays out of the findings');
+});
+
+test('extract: a housekeeping opening sentence is skipped for the lead', () => {
+  const body = 'This PR #42 changes 3 detectors across 12 real series in one go today. The bootstrap option returns fewer changes on most of the real series it was tested on.';
+  assert.match(extract(body).lead, /^The bootstrap option/);
+});
+
+test('extract: the limits cap keeps the strongest limit, not the second', () => {
+  const c = extract(BODY, { limits: 1 });
+  assert.equal(c.limits.length, 1);
+});
+
+test('thread: the first finding gets its own post', () => {
+  const t = thread({ title: 'T', lead: 'Lead.', points: ['First finding here.', 'Second finding.'] }, { max: 280, link: 'L' });
+  assert.ok(t.some((p) => p.startsWith('First finding here.')), t.join(' | '));
+});
+
+test('longPost: when only one finding fits, it keeps one whole finding rather than clipping two', () => {
+  const pts = ['A'.repeat(100), 'B'.repeat(100)];
+  const t = longPost({ head: 'H', lead: 'Lead.', points: pts, limits: [] }, { max: 200, link: 'L' });
+  assert.ok(glen(t) <= 200);
+  assert.ok(t.includes('A'.repeat(100)) && !t.includes('B') && !t.includes('…'), t);
+});
