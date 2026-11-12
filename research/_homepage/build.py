@@ -467,6 +467,54 @@ def topic_page(theme, themes, ledes, tests, tokens, theme_vars, tmpl, out, base_
     (d / "index.html").write_text(page)
 
 
+# Research logs on the index: the newest few as cards, every one in a compact list.
+# With all 32 logs as cards the block was 10,300 px tall on a 390 px phone.
+LOG_CARDS = 6
+LOG_DATE = re.compile(r"^(\d{4}-\d{2}-\d{2})\s*[·:-]?\s*(.*)$")
+
+
+def latest_logs(by_slug):
+    """[(slug, date, rest_of_heading)] for every project with a LOG.md, newest entry first
+    (ties keep registry order); a heading with no leading date sorts last."""
+    out = []
+    for s in by_slug:
+        entries = read_log(s)
+        if not entries:
+            continue
+        m = LOG_DATE.match(entries[0][0])
+        out.append((s, m.group(1) if m else "", m.group(2) if m else entries[0][0]))
+    return sorted(out, key=lambda e: e[1], reverse=True)
+
+
+def logs_section(by_slug, ledes=None):
+    logs = latest_logs(by_slug)
+    if not logs:
+        return ""
+    def head(date, rest):
+        return f"{date} · {inline_md(rest)}" if date else inline_md(rest)
+    cards = "\n".join(
+        f'    <a class="feat t-{by_slug[s][1]["id"]}" href="{s}/#log"><span class="theme-tag">Ongoing · {s}</span>'
+        f'<h3>{by_slug[s][0]["title"]}</h3><p>Latest: {head(d, r)}</p><span class="go">Read the log →</span></a>'
+        for s, d, r in logs[:LOG_CARDS]
+    )
+    rest = logs[LOG_CARDS:]
+    listing = ""
+    if rest:
+        items = "\n".join(
+            f'      <li class="t-{by_slug[s][1]["id"]}"><a href="{s}/#log">{by_slug[s][0]["title"]}</a>'
+            f'<span>{d + " · " if d else ""}{s}</span></li>'
+            for s, d, r in rest
+        )
+        listing = (f'\n  <details class="log-more"><summary>{len(rest)} more research logs</summary>\n'
+                   f'    <ul class="log-list">\n{items}\n    </ul>\n  </details>')
+    return f'''<section class="featured" id="logs"><div class="wrap">
+  <h2 class="label">Research logs: the {min(LOG_CARDS, len(logs))} most recent of {len(logs)}</h2>
+  <div class="feat-grid">
+{cards}
+  </div>{listing}
+</div></section>'''
+
+
 # Cards per theme on the index page itself; the rest load on demand.
 INDEX_CARDS = 2
 
@@ -552,18 +600,7 @@ def build(out, base_url=None, chrome=None):
       <h3>{p['title']}</h3><p>{ledes[s]}</p><span class="go">Read more →</span></a>"""
         for s in data["featured"] for p, t in [by_slug[s]]
     )
-    logs = [(s, read_log(s)[0][0]) for s in by_slug if read_log(s)]
-    log_items = "\n".join(
-        f'    <a class="feat t-{by_slug[s][1]["id"]}" href="{s}/#log"><span class="theme-tag">Ongoing · {s}</span>'
-        f'<h3>{by_slug[s][0]["title"]}</h3><p>Latest: {inline_md(head)}</p><span class="go">Read the log →</span></a>'
-        for s, head in logs
-    )
-    log_section = (f'''<section class="featured" id="logs"><div class="wrap">
-  <h2 class="label">Research logs</h2>
-  <div class="feat-grid">
-{log_items}
-  </div>
-</div></section>''' if logs else "")
+    log_section = logs_section(by_slug, ledes)
     # The index shows the first INDEX_CARDS projects of each theme; the rest are
     # in more-cards.json, which the page fetches when someone searches or asks
     # for them (and each theme's topic page lists them all, no script needed).

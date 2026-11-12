@@ -610,8 +610,71 @@ def _default_dir(node, inherited: str) -> str:
     return run.get("working-directory", inherited)
 
 
+# A local sweep stands in for a pull request's CI, so a step or job whose
+# `if:` is false on a pull request is one CI would not run either. Running it
+# anyway was not harmless: portfolio-pages' "Add the development dashboard"
+# polls ten minutes for a file its (skipped) background step never writes.
+# Only `&&` chains are judged, and only by their `github.event_name` terms;
+# anything else (`||`, step outputs, `needs.`) still runs as before.
+EVENT_TERM = re.compile(
+    r"^github\.event_name\s*(==|!=)\s*'([a-z_]+)'$")
+
+
+def false_on_pull_request(condition) -> bool:
+    """True when an `if:` cannot hold on a `pull_request` event."""
+    if not isinstance(condition, str):
+        return False
+    text = condition.strip()
+    if text.startswith("${{") and text.endswith("}}"):
+        text = text[3:-2].strip()
+    if "||" in text:
+        return False
+    for term in text.split("&&"):
+        hit = EVENT_TERM.match(term.strip())
+        if hit and (hit.group(1) == "==") != (hit.group(2) == "pull_request"):
+            return True
+    return False
+
+
+# Actions' own cap for a job that declares no `timeout-minutes`.
+DEFAULT_JOB_MINUTES = 360
+
+
+def job_order(jobs: dict) -> list[str]:
+    """Job ids in an order that honours `needs:`, cheapest declared job first.
+
+    File order put portfolio-pages' `test` job (a 300+ s site-builder suite)
+    ahead of `build`, whose second step is the seconds-long blog front-matter
+    check. The sweep's per-workflow budget ran out inside `test`, so the one
+    check a post-only diff could fail came back UNRUN and sessions found it
+    in the YAML by hand (five doc-friction reports, 2026-11-12). Jobs with no
+    `needs:` between them are independent in CI too, so running the one its
+    author capped lowest first loses nothing and reaches cheap gates sooner.
+    Ties keep file order; a `needs:` cycle or unknown name falls back to it.
+    """
+    ids = list(jobs)
+    def minutes(job_id):
+        try:
+            return float((jobs[job_id] or {}).get("timeout-minutes",
+                                                   DEFAULT_JOB_MINUTES))
+        except (TypeError, ValueError):  # an expression: unknown cost
+            return float(DEFAULT_JOB_MINUTES)
+    def needs(job_id):
+        raw = (jobs[job_id] or {}).get("needs") or []
+        return {raw} if isinstance(raw, str) else set(raw)
+    done, order = set(), []
+    while len(order) < len(ids):
+        ready = [j for j in ids if j not in done and needs(j) <= done]
+        if not ready:
+            return ids
+        pick = min(ready, key=lambda j: (minutes(j), ids.index(j)))
+        done.add(pick)
+        order.append(pick)
+    return order
+
+
 def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[str]]:
-    """Every `run:` step in file order, plus a note for each skipped step.
+    """Every `run:` step in job order (`job_order`), plus a note for each skipped step.
 
     Returned separately because a skipped step is not a passing step, and a
     report that quietly omits them would overstate what was verified.
@@ -625,14 +688,22 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
     # succeeds against the wrong thing: `unittest discover` finds a different
     # set of tests from the repository root and reports them green.
     top_dir = _default_dir(workflow, ".")
-    for job_id, job in (workflow.get("jobs") or {}).items():
+    jobs = workflow.get("jobs") or {}
+    for job_id in job_order(jobs):
+        job = jobs[job_id] or {}
         if only is not None and job_id not in only:
+            continue
+        if false_on_pull_request(job.get("if")):
+            skipped.append(f"{job_id}: job's if: is false on a pull request")
             continue
         job_dir = _default_dir(job, top_dir)
         for raw in job.get("steps") or []:
             name = raw.get("name") or raw.get("uses") or "(unnamed)"
             if "run" not in raw:
                 skipped.append(f"{job_id} / {name}: uses: step, not run:")
+                continue
+            if false_on_pull_request(raw.get("if")):
+                skipped.append(f"{job_id} / {name}: if: is false on a pull request")
                 continue
             command = raw["run"].strip()
             workdir = raw.get("working-directory", job_dir)
@@ -1093,6 +1164,21 @@ def execute(step: Step, timeout: int) -> None:
         step.reason = f"exit {done.returncode}"
 
 
+# A `run:` that is exactly one argument-free platform/ci/check_*.py, the set
+# main_health.py runs on a bare checkout, minus the ones that need a built site.
+STANDALONE = re.compile(r"python3 (?:platform/ci/)?(check_\w+\.py)")
+NEEDS_BUILT_SITE = {"check_pages_links.py", "check_built_site.py"}
+
+
+def standalone(step: Step) -> bool:
+    """True for a step that depends on no earlier step (see run_steps)."""
+    m = STANDALONE.fullmatch(step.run.strip())
+    if not m or step.status == "skipped" or m.group(1) in NEEDS_BUILT_SITE:
+        return False
+    prefixed = step.run.strip().startswith("python3 platform/ci/")
+    return step.workdir == ("." if prefixed else "platform/ci")
+
+
 def run_steps(steps, timeout, budget: int | None = None) -> None:
     """Execute steps, printing the live progress line for each.
 
@@ -1105,42 +1191,61 @@ def run_steps(steps, timeout, budget: int | None = None) -> None:
     """
     deadline = time.monotonic() + budget if budget else None
     skipped_in_job = {}  # job -> label of the first run: step skipped in it
-    for step in steps:
-        # Name the step BEFORE running it, and flush. Both halves are
-        # load-bearing; see the note above `STATUS_MARK`.
-        print(f"  {step.label} ... ", end="", flush=True)
-        left = int(deadline - time.monotonic()) if deadline else None
-        # A step the sweep's budget stopped is UNRUN, not FAILED: it never
-        # reached a verdict. Reported as FAILED (0.0s), every step after
-        # portfolio-pages' 300+ s site-builder suite read as a real defect
-        # until the reader found the TIMEOUT reason (three doc-friction
-        # reports, 2026-11-11). It still keeps the sweep from reading green.
-        if left is not None and left <= 0 and step.status != "skipped":
-            step.status = "unrun"
-            step.missing_kind = "budget"
-            step.reason = f"TIMEOUT: workflow budget of {budget}s spent before this step"
-            step.seconds = 0.0
-        else:
-            step_timeout = min(timeout, left) if left is not None else timeout
-            execute(step, step_timeout)
-            if step.reason.startswith("timed out after") and step_timeout < timeout:
+
+    def run_one(step):
+            # Name the step BEFORE running it, and flush. Both halves are
+            # load-bearing; see the note above `STATUS_MARK`.
+            print(f"  {step.label} ... ", end="", flush=True)
+            # Seconds left as a float: int() rounded 0.9 s down to 0, so a
+            # 1 s budget (--workflow-timeout 1) read as spent before its
+            # first step started and nothing ran.
+            left = deadline - time.monotonic() if deadline else None
+            # A step the sweep's budget stopped is UNRUN, not FAILED: it never
+            # reached a verdict. Reported as FAILED (0.0s), every step after
+            # portfolio-pages' 300+ s site-builder suite read as a real defect
+            # until the reader found the TIMEOUT reason (three doc-friction
+            # reports, 2026-11-11). It still keeps the sweep from reading green.
+            if left is not None and left <= 0 and step.status != "skipped":
                 step.status = "unrun"
                 step.missing_kind = "budget"
-                step.reason = f"TIMEOUT: workflow budget of {budget}s spent in this step"
-        # A step that fails after an earlier run: step of its job was skipped
-        # may only be missing that step's output (pages.yml's two `_site`
-        # checks after its `${{ }}` build step). Reported as FAILED, it read
-        # as a real defect (two doc-friction reports, 2026-11-11); it is no
-        # verdict either way, so UNRUN, with its output kept for the reader.
-        if step.status == "failed" and step.job in skipped_in_job:
-            step.status = "unrun"
-            step.missing_kind = "after-skip"
-            step.reason = (f"failed after '{skipped_in_job[step.job]}' was skipped; "
-                           f"it may only lack that step's output ({step.reason})")
-        if step.status == "skipped":
-            skipped_in_job.setdefault(step.job, step.name)
-        print(f"[{STATUS_MARK[step.status]:6}] ({step.seconds:.1f}s)",
-              flush=True)
+                step.reason = f"TIMEOUT: workflow budget of {budget}s spent before this step"
+                step.seconds = 0.0
+            else:
+                step_timeout = min(timeout, left) if left is not None else timeout
+                execute(step, step_timeout)
+                if step.reason.startswith("timed out after") and step_timeout < timeout:
+                    step.status = "unrun"
+                    step.missing_kind = "budget"
+                    step.reason = f"TIMEOUT: workflow budget of {budget}s spent in this step"
+            # A step that fails after an earlier run: step of its job was skipped
+            # may only be missing that step's output (pages.yml's two `_site`
+            # checks after its `${{ }}` build step). Reported as FAILED, it read
+            # as a real defect (two doc-friction reports, 2026-11-11); it is no
+            # verdict either way, so UNRUN, with its output kept for the reader.
+            if step.status == "failed" and step.job in skipped_in_job:
+                step.status = "unrun"
+                step.missing_kind = "after-skip"
+                step.reason = (f"failed after '{skipped_in_job[step.job]}' was skipped; "
+                               f"it may only lack that step's output ({step.reason})")
+            if step.status == "skipped":
+                skipped_in_job.setdefault(step.job, step.name)
+            print(f"[{STATUS_MARK[step.status]:6}] ({step.seconds:.1f}s)",
+                  flush=True)
+
+    # In a budgeted sweep, argument-free platform/ci checks go first. Jobs run
+    # in parallel on CI but in file order here, so portfolio-pages' 300 s
+    # site-builder suite (job `test`) spent the whole budget before job
+    # `build` reached its 1 s post front-matter check: a research+post diff
+    # whose only real fault was that check saw it as UNRUN and found it by
+    # hand (doc friction, 2026-11-12). These checks need no setup step or
+    # build output (main_health.py runs them all on a bare checkout), so
+    # moving them up changes no verdict.
+    early = [s for s in steps if budget and standalone(s)]
+    if early:
+        print(f"  ({len(early)} standalone check(s) first, so a long step "
+              "cannot spend the budget before them)", flush=True)
+    for step in early + [s for s in steps if s not in early]:
+        run_one(step)
 
 
 # report()'s exit when the sweep budget, not a check, stopped the workflow.
@@ -1452,7 +1557,7 @@ def _run_selected(args, selected, held, absent=()) -> int:
     for name, workflow, allowed in selected:
         steps, uses_skipped = collect(workflow, only=allowed)
         print(f"\nRunning {name} locally "
-              f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)",
+              f"({len(steps)} run: step(s), {len(uses_skipped)} uses: or non-PR step(s) skipped)",
               flush=True)
         run_steps(steps, args.timeout, getattr(args, "workflow_timeout", 0))
         code = report(name, steps, uses_skipped, False)
@@ -1676,7 +1781,7 @@ def _main(argv=None) -> int:
         return 0
 
     print(f"Running {name} locally "
-          f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)",
+          f"({len(steps)} run: step(s), {len(uses_skipped)} uses: or non-PR step(s) skipped)",
           flush=True)
     run_steps(steps, args.timeout)
 

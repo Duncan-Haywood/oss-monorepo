@@ -10,6 +10,7 @@ import sys
 import textwrap
 import time
 import unittest
+from unittest import mock
 
 import run_workflow_locally as runner
 import yaml
@@ -34,6 +35,71 @@ class Collect(unittest.TestCase):
                     run: echo 2
         """)
         self.assertEqual([s.name for s in steps], ["first", "second"])
+
+    def test_independent_jobs_run_cheapest_declared_first(self):
+        # portfolio-pages' shape: a 30-minute test suite in file order ahead
+        # of a 20-minute build whose first step is a seconds-long gate.
+        steps, _ = self.collect("""
+            jobs:
+              gate:
+                timeout-minutes: 2
+                steps: [{name: g, run: "true"}]
+              test:
+                timeout-minutes: 30
+                steps: [{name: suite, run: "true"}]
+              build:
+                needs: gate
+                timeout-minutes: 20
+                steps: [{name: frontmatter, run: "true"}]
+        """)
+        self.assertEqual([s.name for s in steps], ["g", "frontmatter", "suite"])
+
+    def test_needs_wins_over_a_lower_timeout(self):
+        steps, _ = self.collect("""
+            jobs:
+              slow:
+                timeout-minutes: 50
+                steps: [{name: first, run: "true"}]
+              quick:
+                needs: [slow]
+                timeout-minutes: 1
+                steps: [{name: second, run: "true"}]
+              plain:
+                steps: [{name: undeclared, run: "true"}]
+        """)
+        self.assertEqual([s.name for s in steps], ["first", "second", "undeclared"])
+
+    def test_a_needs_cycle_keeps_file_order(self):
+        order = runner.job_order({"a": {"needs": "b", "timeout-minutes": 9},
+                                  "b": {"needs": "a", "timeout-minutes": 1}})
+        self.assertEqual(order, ["a", "b"])
+
+    def test_steps_and_jobs_ci_skips_on_a_pull_request_are_not_run(self):
+        steps, skipped = self.collect("""
+            jobs:
+              a:
+                steps:
+                  - {name: always, run: "true"}
+                  - {name: main-only, if: "github.event_name != 'pull_request'", run: "sleep 600"}
+                  - {name: chained, if: "${{ !cancelled() && github.event_name == 'schedule' }}", run: "true"}
+                  - {name: either, if: "github.event_name == 'schedule' || inputs.x", run: "true"}
+                  - {name: pr-only, if: "github.event_name == 'pull_request'", run: "true"}
+                  - {name: not-push, if: "github.event_name != 'push'", run: "true"}
+              deploy:
+                if: github.event_name == 'push'
+                steps: [{name: ship, run: "true"}]
+        """)
+        self.assertEqual([s.name for s in steps],
+                         ["always", "either", "pr-only", "not-push"])
+        self.assertEqual(len(skipped), 3)
+        self.assertTrue(all("pull request" in note for note in skipped))
+
+    def test_this_repositorys_pages_build_reaches_frontmatter_before_suite(self):
+        path = os.path.join(runner.REPO, ".github/workflows/portfolio-pages.yml")
+        steps, _ = runner.collect(runner.load_workflow(path))
+        names = [s.name for s in steps]
+        self.assertLess(names.index("Check blog post front matter before the long build"),
+                        names.index("Test the site builder"))
 
     def test_uses_steps_are_reported_not_silently_dropped(self):
         steps, skipped = self.collect("""
@@ -277,6 +343,14 @@ class WorkflowBudget(unittest.TestCase):
         self.assertTrue(all(s.reason.startswith("TIMEOUT") for s in steps))
         self.assertLess(steps[0].seconds, 4)
 
+    def test_a_short_budget_still_runs_its_first_step(self):
+        # The time left was int()-truncated, so 0.99 s read as 0 and a 1 s
+        # budget marked every step UNRUN before any ran.
+        steps = [runner.Step("j", "quick", "true", ".")]
+        with contextlib.redirect_stdout(io.StringIO()):
+            runner.run_steps(steps, 900, budget=1)
+        self.assertEqual(steps[0].status, "ok")
+
     def test_a_budget_cut_workflow_is_not_green_and_not_failed(self):
         steps = [runner.Step("j", "ok", "true", "."),
                  runner.Step("j", "slow", "sleep 5", ".")]
@@ -307,6 +381,40 @@ class WorkflowBudget(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(runner.report("wf.yml", steps[:2], [], False),
                              runner.AFTER_SKIP)
+
+    def test_standalone_checks_run_before_a_budget_spending_step(self):
+        # portfolio-pages: job `test` (300 s suite) came first in file order
+        # and starved job `build`'s 1 s front-matter check (2026-11-12).
+        steps = [runner.Step("test", "slow", "sleep 5", "."),
+                 runner.Step("build", "fm", "python3 platform/ci/check_post_frontmatter.py", "."),
+                 runner.Step("build", "after", "true", ".")]
+        order = []
+        with mock.patch.object(runner, "execute",
+                               side_effect=lambda s, t: (order.append(s.name), setattr(s, "status", "ok"))), \
+                contextlib.redirect_stdout(io.StringIO()) as out:
+            runner.run_steps(steps, 900, budget=60)
+        self.assertEqual(order, ["fm", "slow", "after"])
+        self.assertIn("1 standalone check(s) first", out.getvalue())
+
+    def test_only_argument_free_ci_checks_count_as_standalone(self):
+        S = runner.Step
+        self.assertTrue(runner.standalone(S("j", "n", "python3 platform/ci/check_x.py", ".")))
+        self.assertTrue(runner.standalone(S("j", "n", "python3 check_x.py", "platform/ci")))
+        for step in (S("j", "n", "python3 platform/ci/check_x.py --base main", "."),
+                     S("j", "n", "python3 check_x.py", "."),
+                     S("j", "n", "python3 platform/ci/check_built_site.py", "."),
+                     S("j", "n", "python3 -m unittest test_check_x", "platform/ci")):
+            self.assertFalse(runner.standalone(step), step.run)
+
+    def test_no_budget_keeps_file_order(self):
+        steps = [runner.Step("a", "first", "true", "."),
+                 runner.Step("b", "fm", "python3 platform/ci/check_x.py", ".")]
+        order = []
+        with mock.patch.object(runner, "execute",
+                               side_effect=lambda s, t: (order.append(s.name), setattr(s, "status", "ok"))), \
+                contextlib.redirect_stdout(io.StringIO()):
+            runner.run_steps(steps, 900)
+        self.assertEqual(order, ["first", "fm"])
 
     def test_no_budget_runs_normally(self):
         steps = [runner.Step("j", "ok", "true", ".")]

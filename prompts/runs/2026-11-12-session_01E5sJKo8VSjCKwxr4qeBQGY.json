@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKo8VSjCKwxr4qeBQGY",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T09:09:51Z",
+  "ended": "2026-11-12T09:13:47Z",
+  "wall_minutes": 17.35,
+  "tokens_in": 2754879,
+  "tokens_out": 13290,
+  "cost_usd": 1.3823,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15072",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "Duplicate work: PRs #15074 and #15075 fixed the same budget-starvation symptom while this run was verifying its per-job-clock fix; found only at merge time (conflict). Dropped the per-job clock and my post, and kept only the int() truncation fix that main still had.",
+    "My first post's description was 175 chars; check_post_frontmatter.py caught it before push to main."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "The open-PR search at start (around 09:00) showed nothing for run_workflow_locally. Two process runs opened #15074/#15075 on the same 08:27/08:50 friction reports within the hour. A process run picking from the doc-friction table has no claim marker, so three runs raced the same newest report."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Time left was int()-truncated, so a 1 s budget read as spent before the first step; fixed here."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Critique mode sends every process run to the same 'Doc friction by file' table, newest first, so concurrent runs converge on the same newest report. Suggest picking from an older or seeded-random row."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Most PRs carry a new blog post. Two posts on this exact fix (the cheap check went last; one second check behind a five-minute suite) merged an hour earlier, so a third would duplicate them.",
+      "did": "No post; the 5-line fix is described in the PR and this record.",
+      "result": "Avoided a duplicate post."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode (backlog: only owner/blocked rows). Lens: doc_friction on run_workflow_locally.py (2026-11-12 08:27, 08:50). Built a per-job budget clock and verified it on a real --for-changes sweep: 6/7 workflows passed, 0 failed, and portfolio-pages' front-matter check ran [ok] 0.2 s after test spent 300 s. At merge, main already had #15074 (cheapest job first) and #15075 (standalone checks before budget-spending steps) for the same symptom, so I dropped the per-job clock: it would only lengthen sweeps on top of those. Shipped: the float time-left fix (int() made <1 s remaining read as spent; --workflow-timeout 1 ran nothing) plus a regression test that fails without the fix. test_run_workflow_locally: 144 OK. main_health.py: 58/58 pass. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9b409bd2-df08-557a-b905-14a2325dc1b7",
+    "transcripts": 1,
+    "first": "2026-11-12T09:09:51Z",
+    "last": "2026-11-12T09:27:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 66,
+        "output": 13290,
+        "thinking": 2889,
+        "cache_read": 2682340,
+        "cache_write_5m": 0,
+        "cache_write_1h": 72473,
+        "api_equivalent_usd": 1.3823,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 66,
+      "output": 13290,
+      "thinking": 2889,
+      "cache_read": 2682340,
+      "cache_write_5m": 0,
+      "cache_write_1h": 72473,
+      "api_equivalent_usd": 1.3823,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.35,
+      "active_minutes": 17.35,
+      "model_minutes": 3.32,
+      "tool_minutes": 14.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "an engineer tracing the budget starvation, writing the fix, the test and the post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 108.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

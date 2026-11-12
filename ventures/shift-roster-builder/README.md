@@ -613,3 +613,24 @@ What it says: **the chain bound barely matters for pay** (largest call down 11-2
 3. **A refund written positive.** An event or status column (`Event Type`, `Transaction Type`, `Order Status`, `Status`, ...) reading refund, return, void, cancelled or deleted drops the row as a refund even when its amount is not negative. A `Status` of Completed is a sale.
 
 Tests: `pos-exports.test.mjs` (made-up rows under both header rows, and a two-week made-up Toast file through the CLI). The four real files have no void, event or second sales column (headers above), so their readings cannot move; `eval/bakery-backtest.mjs` on the Korean file printed byte-for-byte the same before and after the change. Its committed `eval/bakery-backtest.out.txt`, which predated the 2026-11-11 priced cut, is regenerated in the same change. Still wanted: a real Square or Toast export, private details removed.
+
+## The exact check end to end on 40-person weeks (2026-11-12)
+
+`buildRoster` with `exact: true` now returns `timings`, the milliseconds each stage took (anneal, eject, coverPass, coverRepair, scoreCG, exactSearch, critical, hireTest), and `node eval/end-to-end.mjs P S cases` prints them for the cg-scale-bench weeks with no time budget (readings in `eval/end-to-end.out.txt`; one 4-core machine, other benches alongside on some rows). On two 40-person weeks the old order spent its time in two places that the proof made redundant: the coverage plateau walk (`coverPass`, about 10 s a week) and the branch-and-bound tree in `exactSearch` (38 s on week 1, against its 8 s limit, because it reads the clock every 1,024 nodes and each node builds a flow over all 148 shifts). The tree proved nothing; week 1 ended "bounded", $31.96 open. The whole-score column generation needed only a little more than its 8 s to prove that week.
+
+Two changes, both only above 60 shift copies (`EXACT_TREE_SLOTS`) with the exact check on:
+
+- **The tree is skipped** once column generation has run (its bound is the one reported, `optimality.treeSkipped`), and column generation gets 4 x `exactMs` (32 s by default) instead of `exactMs`. `exactTree: true` gives the old behaviour.
+- **The cover passes wait.** Column generation runs straight after the anneal and the ejection chains; the plateau walk and the exact repair run only if it does not prove the roster, and the bound it reached still stands. `deferCover: false` gives the old order. On weeks with a time budget (above 150 copies, 20 s by default) column generation then gets at most half of what is left, so the passes keep time to work: without that cap a 60-person week spent 33 s in column generation and finished 11 open hours worse.
+
+| week | before | after |
+|---|---|---|
+| 20 x 56, three weeks (75-82 copies) | 4.9-6.3 s, all proven | 0.95-1.1 s, same rosters, all proven |
+| 30 x 84, three weeks (121-122 copies) | 9.3-12.9 s, all proven (tree skip already on) | 1.3-5.2 s, same rosters, all proven |
+| 40 x 112 week 0 (149 copies) | 15.2 s, proven | 5.7 s, same roster |
+| 40 x 112 week 1 (148) | 56.6 s, **not proven** ($31.96), pay $12,537 | 9.2 s, proven, pay $12,480 |
+| 40 x 112 week 2 (162) | 24.6 s (tree skip on), proven | 11.7 s, same roster |
+| 60 x 168 week 0, 20 s budget (245) | 20.5 s, no proof run (the budget went on the walk), 300 h open | 21.1 s, 300 h open, floor 275 h reported |
+| 60 x 168 week 1, 20 s budget (238) | 23.9 s, no proof run, 308 h open | 8.5 s, 308 h open, proven, $7 cheaper |
+
+The README's earlier "179-315 s end to end" for these weeks was measured before the root dive and the faster pay oracle; on today's code the old order took 15-57 s. Test: `end-to-end.test.mjs` (a 20-person, 76-copy week proven with the tree skipped and the walk never run, the same open hours as the old order and no higher score). Not claimed: seeded synthetic weeks only, one machine; the 60-person week 0 is still not proven (root LP 275.2 h against 300 h held), which is the "close the 60- and 100-person gaps" item, not this one.
