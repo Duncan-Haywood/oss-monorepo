@@ -1,7 +1,7 @@
 ---
-title: "\"We're not interested\" stopped, \"We are not interested\" didn't: one contraction in the sales agent's reply rules"
+title: "\"We're not interested\" stopped, \"We are not interested\" didn't: one contraction in a sales agent's rules"
 date: 2026-11-12
-seo_title: "Why \"We are not interested\" slipped past the sales agent's reply rules"
+seo_title: "Why \"We are not interested\" slipped past a sales agent's reply rules"
 tags: [sales-agent, email, evaluation, enron]
 description: A guard written for other people's no also caught the writer's own. The fix was one lookbehind, checked on 76,565 real Enron replies.
 ---
