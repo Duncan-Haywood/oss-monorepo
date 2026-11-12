@@ -89,6 +89,24 @@ contacts (2–6 times under) but **not with a rigid clamp**: its 4-joint arms ke
 
 ![Push height that tips a sliding sheet, whole-body press limits on the ledger, and stock-gain stiffness against the seating limit](experiments/m3b_humanoid/figure.png)
 
+**Milestone 5 headline: what does a clean sheet cost in seconds once every stage is charged?
+On doubled joint studs, 76–216 s with one read a stud; on single 2x, 18–65 s more, all of it
+rework.** One steady-state cycle along a row: a lift stands the sheet on a laser-set ledger, the
+robot slides and presses it so it seats, tacks it, reads the three new studs and both edges, and
+nails the 62 nails with edge aim (timed by [`buildbot-mobilebase`](../buildbot-mobilebase));
+every missed nail is found and re-driven. With **two 2x at the joint**, a **single read** a stud
+gives **0.9997** first-pass clean sheets at the lower published stud warp (three reads 1.0000),
+and it is the fastest choice in all 108 swept time cells. On **single 2x** joints no sensing
+policy passes 0.59 (single read 0.42, three 0.56, dense 0.58; 0.7–2.2 nails missed a sheet),
+three reads are fastest everywhere, and the best single-2x sheet is **17.8–65.2 s slower**
+before the extra stud is charged: at 30 s of rework a nail, framing the extra joint stud may
+take **30–42 s a sheet** and still win. Firing the next nail without waiting out a 4 N s recoil
+costs **up to 7.6 points** of clean sheets on single 2x (a conservative model) and nothing on
+doubled joints. On doubled joints even a lift that hangs and tacks the sheet to 0.25° and 5 mm
+without a ledger gives 0.978. Every stage time except the nailing is swept, not measured.
+
+![Clean sheets by sensing, framing and recoil; seconds a sheet by stage; the framing time the extra joint stud may take](experiments/m5_cycle/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -247,17 +265,38 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
   and the 1 − (1 − p)<sup>5</sup> clean rate; sway on straight studs matches a numerical
   integral (it moves only the edge side of the window); wider joints allow a coarser hang.
 
+## Milestone 5 method (`src/buildbot_sheathing/cycle.py`)
+- **Cycle** (steady state along a row): *place* (a lift stands the sheet on the ledger, the robot
+  slides and presses it; milestone 3's tilt draw with the laser rating, 0.5 mm a corner and PS 2
+  panels uniform within the limits; 1 or 3 mm left along the wall after the slide), two tacks,
+  *sense* (three new studs a sheet, the left joint stud is shared, plus both edges: 5, 11 or 53
+  reads for single, three and dense), *nail* (edge aim, `tack.simulate`), *rework* (each missed
+  nail found and re-driven). *Lift-tack*: no ledger, the lift hangs to 0.25° and 5 mm (1σ).
+- **Recoil.** *Wait*: `buildbot-nailseq`'s 2.4 s a sheet at 4 N s on a fast arm, 0 on a slow one.
+  *Fire at once*: its largest left-over tip error at the next nail, 0.37 mm, added to the 0.9 mm
+  tool scatter in quadrature as a Gaussian (conservative: the real residual is a bounded
+  transient).
+- **Seconds** (all swept, 108 cells): nailing with moves and settles 54 or 121 s
+  (`buildbot-mobilebase`, fast and slow, 2 s settle); place 15/30/60 s; ledger 0/10/20 s a
+  sheet; 1 or 3 s a read; rework 15/30/60 s a missed nail. The extra joint stud is reported as a
+  break-even time, not charged.
+- **Checks** (`tests/test_cycle.py`, 6 tests): read counts and stage sums; with straight studs
+  and a perfect hang only the tool scatter is left (> 0.97 clean); the two-2x three-read ledger
+  cell reproduces milestone 3's 1.0000.
+
 ## Reproduce
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 34 tests; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models
+python -m pytest -q tests                                    # 40 tests; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
 python experiments/m2_asbuilt_studs/figure.py
 python experiments/m4_tack_measure/run.py > experiments/m4_tack_measure/results.txt     # ~100 s, seed 4
 python experiments/m4_tack_measure/figure.py
+python experiments/m5_cycle/run.py > experiments/m5_cycle/results.txt                   # under a minute, seed 7
+python experiments/m5_cycle/figure.py
 pip install mujoco                                           # milestone 3; tested with mujoco 3
 python experiments/m3_ledger/run.py > experiments/m3_ledger/results.txt                 # ~95 s, seed 5
 python experiments/m3_ledger/figure.py
@@ -389,6 +428,25 @@ python experiments/m3b_humanoid/figure.py
   not ≥ 0.95, on single 2x); H11 held (0.54°, 10.4 mm against ≥ 0.2°, ≥ 4 mm); H12 held (sway
   0.19 mm against 4.1 mm).
 
+## Milestone 5 results (`experiments/m5_cycle/results.txt`)
+- **A. First-pass clean sheets** (lower warp, ledger, 1 mm after the slide; single / three /
+  dense reads). Single 2x: 0.417 / 0.560 / 0.583 (2.16 / 0.79 / 0.70 nails missed); 3 mm after
+  the slide 0.250 / 0.295 / 0.309; higher warp 0.314 / 0.308 / 0.323. Two 2x: 0.9997 / 1.0000 /
+  1.0000; higher warp 0.938 / 1.0000 / 1.0000. Lift-tack (0.25°, 5 mm): single 2x 0.079–0.092,
+  two 2x 0.978 / 0.996 / 0.997. Wilson intervals are in the file.
+- **B. Fastest policy** by seconds a sheet including rework: single read on two 2x and three
+  reads on single 2x in all 108 cells. At nailing 54 s, place 30 s, ledger 10 s, 1 s reads and
+  30 s rework: two 2x single 101 s, single 2x three 131 s (of which 24 s rework), single 2x
+  single 166 s (65 s rework).
+- **C. Break-even framing time** for the extra joint stud: 17.8–29.8 s at 15 s rework,
+  29.6–41.6 s at 30 s, 53.2–65.2 s at 60 s (the lower figure at 1 s reads, the higher at 3 s);
+  higher warp 33.8–129.2 s.
+- **D. Stages** (two 2x, single read): place 10–57%, sensing 2–17%, nailing 37–86% of the sheet;
+  76–216 s a sheet (median 146) against 94–281 s (median 183) for the best single-2x pipeline.
+- **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H22, H23, H24, H25 held; **H26 refuted**
+  (fire-at-once recoil costs up to 7.6 points on single 2x, at most 0.12 on two 2x); **H27
+  refuted** (placing the sheet outweighs fast nailing in 18 of 108 cells).
+
 ## Limitations
 - **Gaussian, independent, swept.** Stud, edge, gauge and width errors are swept, not measured;
   real errors have bias and heavy tails. The stud estimate includes the layout scatter
@@ -416,6 +474,9 @@ python experiments/m3b_humanoid/figure.py
   gains are examples and training defaults, not a holding controller. The sheet bottom is at
   floor level and the robot centred on it; rigid clamp and palm point contacts bracket a real
   hand. Ledger and palm friction are swept, not measured.
+- **Cycle (milestone 5).** Every stage time but the nailing is swept, not measured; each missed
+  nail is assumed found and re-driven at one cost, though a joint a bowed stud has closed may need
+  a block or a sister stud; stages run in series, with no overlap between the lift and the robot.
 - **Plate nails** see only the tool scatter: the sheet's vertical placement is not modelled.
 - **Strict pass/fail.** One nail outside its window fails the sheet; the nails missed are
   reported beside it, and real practice may accept a near miss or re-drive it.
@@ -428,7 +489,9 @@ real studs in a wall) in place of means and assumed shapes, and how far sheathin
 bowed stud straight. Milestone 3 is done for a static robot; what is left is dynamic: a
 G1 or H1 walking a sheet the last metre with a person or a lift, the edge push and its one-hand
 load, and a controller that feeds the weight forward and drops it at ledger contact, in MuJoCo
-with a balance policy. Then milestone 5, the end-to-end cycle. A measured sample of real panels' squareness and edge
+with a balance policy. Milestone 5 timed the cycle with swept stage times; a measured time for
+each stage (a lift cycle, a stud read, a re-drive) would pin it, and milestone 7 prices the extra
+joint stud against the 18–65 s it saves. A measured sample of real panels' squareness and edge
 bow would settle the single-2x case. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 

@@ -196,7 +196,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
 4. **Tack-then-measure** (done 2026-11-12, `experiments/m4_tack_measure/`): the hang allowed is
    0.03° and 0.4 mm on single 2x joints and 0.54° and 10 mm on doubled ones; re-hanging cannot
    lift single-2x joints to 95%. Run before milestone 3, to give it a target.
-5. End-to-end cycle: placement, sensing, recoil and sequence, seconds and clean sheets.
+5. **End-to-end cycle** (done 2026-11-12, `experiments/m5_cycle/`): ledger or lift-tack
+   placement, sensing, recoil and rework in one steady-state cycle. Two 2x at the joint with one
+   read a stud: 0.9997 clean, 76–216 s a sheet; the best single-2x pipeline (three reads) 0.56
+   clean and 18–65 s slower, which is what the extra joint stud may cost. Still open: a measured
+   time for each stage.
 6. Sim-to-sim on a second contact model.
 7. Cost per clean sheet by robot class.
 8. Paper draft in the venue's format.
