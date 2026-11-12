@@ -125,3 +125,52 @@ to f minus its mean, so the +0.96 for SPMe is partly mechanical and is reported,
 
 **Limits (part 2a).** Every prediction uses the same 128 designs the observations come from (not blind; a planner in
 practice would estimate sigma and the top density from a pilot sample). One parameter set; pools overlap.
+
+## Part 2b: where SPMe errs, from its own salt depletion (2026-11-12)
+
+Plan and H21 to H24 were logged before the run (`LOG.md`). Results are in `experiments/location/results.txt`.
+
+**Argument (a scaling argument, not a theorem).** In PyBaMM 26.10's SPMe (`electrolyte_conductivity.Composite`) the
+electrolyte concentration overpotential is eta_c = chi RT/F (mean over the positive electrode of ln c_e minus the
+mean over the negative), with ln clipped at a small tolerance. The model has one reaction rate per electrode. Write
+r for the cheap solution's minimum of c_e / c_e0. As r goes to 0 the positive-electrode mean of ln c_e is dominated
+by the depleted region near the current collector and grows like ln r. Because the reaction cannot move away from
+that region, the loss lands on the whole electrode, and the 2.5 V cut-off arrives earlier. The DFN has the same
+logarithm, but its local Butler-Volmer rate falls where the salt is gone, so the current moves towards the
+separator and the cell voltage does not follow ln of the minimum. So SPMe's extra energy loss over DFN should scale
+like g_log(r) = -ln r, not like (1 - r)^2, the order of the expansion's correction. If r is far from 0, both
+models agree to that order. The argument predicts a functional form for the screen's residual
+e = f - (a s + b), and so a *location*: which designs the residual hits.
+
+**Consequence for the cost of a screen.** Part 2a's proposition carries over to designs with different means: if
+the screen orders designs by m(x) + e(x), with e independent N(0, sigma0^2) and m(x) = f(x) - beta g(x), then
+E[R] = 1 + sum over x not in T of P(m(x) + e(x) > max over y in T of m(y) + e(y)). Each term is the same
+one-dimensional integral with means m (`expected_calls_loc`, unit-checked against part 2a's formula when m = f, a
+noiseless count and Monte Carlo in `tests/test_location.py`).
+
+**What the data say.**
+
+- **The form holds (H21, supported).** Over all 128 designs, 5-fold cross-validated RMSE of f ~ a + b s + beta g for
+  SPMe@100 is 11.3 Wh/kg with g_log, 12.3 with (1 - r)^2, 16.8 with milestone 1's flag and 21.3 with no feature (ratio 0.53).
+  The four registered forms rank the same way at 2, 10 and 30 cycles. SPMe's own most negative eta_c (the term itself, an extra) gives 13.3:
+  the minimum salt ratio is the better summary. Full-sample fit: f = 37.4 + 0.553 s + 18.8 g_log.
+- **The location does not plan the budget (H22, refuted).** With a, b, beta and sigma0 fitted on 16-design pilots,
+  E[R] is within 2x of the observed mean calls for SPMe@30 (1.04) and SPMe@100 (0.71), but not for SPMe@2 (2.64) or
+  SPMe@10 (9.07). Part 2a's location-free model on the same pilots gives 2.30, 7.44, 0.85 and 0.59. The residual left
+  after the location (sigma0 about 6 to 7 Wh/kg) is still four times the 1% tolerance (about 1.6 Wh/kg). Below that
+  scale, no noise model sees what makes SPMe@10 need one call.
+- **The location does not repair the screen (H23, refuted).** Refitting f ~ a + b s + beta g_log on the verified
+  designs after each call, after 4 calls in screen order, cuts SPMe@100's median T1 from 699.5 to 528.1 s. That is
+  still slower than milestone 1's fixed rule (top 5, then every flagged design: 417.8 s, p = 0.0001). Four points
+  in the top of the screen order do not pin beta. The flag spends its calls on the depleted designs directly.
+- **Post hoc: one design carries the cost.** The DFN-best design (j = 12) has r = 0.074 under SPMe (0.043 under DFN).
+  SPMe ranks it 1st at 10 cycles, 8th at 2, 27th at 30 and 41st at 100. Without it, SPMe@100 needs 2.07 calls on
+  pools of 64 instead of 14.03. The minimum salt ratio is reached in the first discharge: its median and 10th percentile
+  are the same over 2 to 100 cycles. But SPMe's score on depleted designs drifts away from DFN's as the cell cycles.
+  The argument above explains *where* SPMe's error lands. It does not explain why that error grows with cycling.
+  That needs SPMe's degradation path (SEI and plating driven by its x-averaged state) on depleted designs, and is
+  the open question.
+
+**Limits (part 2b).** One parameter set, the same 128 designs as every earlier part, overlapping pools. The
+argument is a scaling argument, checked only by which registered form fits best. The pilots see true f on 16 designs
+and the formula sees the pool's true f, as in part 2a.

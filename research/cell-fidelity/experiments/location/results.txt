@@ -1,0 +1,49 @@
+cell-fidelity milestone 3 (theory, part 2b): where SPMe's error falls, from its own salt depletion
+benchmark: 128 Sobol designs; target DFN@100; tau = 0.01; pools: 30 of 64 (milestone 4's)
+g_log = -ln max(r, 0.01); g_quad = (1 - r)^2; g_flag = 1[r <= 0.1]; r = SPMe min c_e / c_e0 over the cell's own first n cycles (0 for a run that did not complete them)
+
+0. rerun check: ok/failed agrees on 128 of 128; max relative per-cycle energy difference against bench.jsonl 0.0e+00; max |r_min difference| 4.8e-07; failed runs 7
+   r by cell (median, 10th pct): SPMe@2 0.297, 0.038, SPMe@10 0.297, 0.038, SPMe@30 0.297, 0.038, SPMe@100 0.297, 0.038
+
+A. H21: 5-fold CV RMSE (Wh/kg) of f ~ a + b s + beta g, all 128 designs
+cell           log    quad    flag    none   eta_c
+SPMe@2       11.93   12.27   16.66   20.67   12.59
+SPMe@10      11.13   11.93   16.45   20.76   11.73
+SPMe@30      10.15   11.52   16.21   21.03   12.62
+SPMe@100     11.34   12.31   16.80   21.27   13.25
+H21 SPMe@100: log 11.34, quad 12.31, flag 16.80, none 21.27 (log / none 0.53) -> supported
+    full-sample fit SPMe@100: f = 37.4 + 0.553 s + 18.80 g_log
+
+B. H22: E[R] under e = beta g_log + N(0, sigma0^2), fitted on pilots of 16 (20 pilots, median), against observed mean R on pools of 64
+cell        R obs  R loc loc/obs  R iid iid/obs beta med sig0 med
+SPMe@2       3.23   8.55    2.64   7.43    2.30    11.22     7.23
+SPMe@10      1.00   9.07    9.07   7.44    7.44    12.71     7.11
+SPMe@30      9.67  10.07    1.04   8.22    0.85    14.67     5.58
+SPMe@100    14.03   9.96    0.71   8.28    0.59    13.91     7.45
+H22 location model within 2x on 2 of 4 SPMe cells -> refuted (R iid = same pilots, no g, part 2a's model)
+
+C. H23, H24: online corrected screen-then-verify (first 4 calls by s, then refit after every call), pools of 64, median T1 (charged s) [DFN@100 calls]
+cell         c_s              log             quad             flag             none
+SPMe@2      0.87     129.4 [ 3.0]     129.4 [ 3.0]     129.4 [ 3.0]     129.4 [ 3.0]
+SPMe@10     1.54     122.9 [ 1.0]     122.9 [ 1.0]     122.9 [ 1.0]     122.9 [ 1.0]
+SPMe@30     1.65     301.8 [ 8.0]     301.8 [ 8.0]     326.3 [ 9.0]     424.2 [13.0]
+SPMe@100    3.66     528.1 [12.0]     528.1 [12.0]     479.1 [10.0]     699.5 [19.0]
+references (milestone 4, same pools): GP-EI DFN@100 220.4, screen SPM@2 168.2, screen SPMe@100 699.5, screen SPMe@100+flag 417.8
+H23 online g_log over SPMe@100: median T1 528.1 s vs SPMe@100+flag 417.8 s, paired Wilcoxon p = 0.00013 -> refuted
+H24 online g_log over SPMe@2: median T1 129.4 s vs screen SPM@2 168.2 s (p = 0.038; vs GP-EI 220.4 s, p = 0.00065) -> supported
+
+D. (extra, no verdict) pool sweep, online g_log over SPMe@10 (the best cell at 64) against milestone 4's medians
+ pool   online    GP-EI DFN@100     screen SPM@2   screen SPM@100     screen DFN@2    screen DFN@10 halving DFN (resumed runs)
+   16     49.1            147.0             54.3             65.9             46.0             81.7             53.6
+   32     73.7            195.9             96.4             95.0             67.6            138.9             96.6
+   64    122.9            220.4            168.2            153.2            159.6            253.3            184.8
+   96    172.1            220.4            240.1            199.3            251.7            367.8            267.8
+
+E. (extra, post hoc) plain whole-pool SPMe screens (milestone 4's m_screen), median T1 (charged s) by pool size; p = paired Wilcoxon at 64 against the milestone-4 method named
+screen           N=16     N=32     N=64     N=96   p vs SPM@2  p vs SPM@100  p vs DFN@2  p vs GP-EI DFN@100
+SPMe@2           38.5     52.5    129.4    230.9       0.0055          0.25     6.3e-07             0.00011
+SPMe@10          49.1     73.7    122.9    172.1      0.00048       4.8e-05      0.0001             7.3e-06
+SPMe@30          75.4     89.7    424.2    648.6      0.00038       0.00022     5.5e-06              0.0038
+   without the DFN-best design (j = 12), mean DFN@100 calls R on 30 pools of 64 from the other 127:
+   SPMe@2 1.13, SPMe@10 1.10, SPMe@30 1.60, SPMe@100 2.07, SPM@2 4.67, SPM@100 3.90, DFN@2 1.13, DFN@10 1.30
+   rank of the DFN-best design under each SPMe screen (of 128): SPMe@2 8, SPMe@10 1, SPMe@30 27, SPMe@100 41
