@@ -75,6 +75,20 @@ class T(unittest.TestCase):
         self.assertEqual(median([3, 1, 2]), 2); self.assertEqual(median([1, 2]), 1.5)
         self.assertEqual(len(creation_gaps(p)), 3)
 
+    def test_headline_on_committed_extract(self):
+        # Pins README headlines on the real extract: a seeded change to the censoring cutoff,
+        # the keyword list or the exclusion list moves one of these (quality audit 2026-11-12).
+        here = os.path.dirname(__file__)
+        p = projects(load(os.path.join(here, "..", "experiments", "commits.jsonl")))
+        self.assertEqual(len(p), 396)
+        rows = later_touches(p)
+        r = correction_rate(rows)
+        self.assertEqual((r["k"], r["n"]), (5, 234))
+        r = correction_rate(rows, observed_only=False)
+        self.assertEqual((r["k"], r["n"]), (7, 396))
+        self.assertFalse(is_fix({"hash": "556272fb434", "subject": "Add eiv-twin: ... and repair costs"}))
+        self.assertTrue(is_fix({"hash": "x", "subject": "Fix ratio range"}))
+
 
 if __name__ == "__main__":
     unittest.main()
