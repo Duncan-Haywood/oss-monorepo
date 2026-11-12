@@ -1,9 +1,9 @@
 ---
 title: "A branch called __proto__: what a pull request's name could do to our stats page"
-seo_title: "Prototype pollution from GitHub branch names in Node.js: use Object.create(null) for tallies"
+seo_title: "Prototype pollution from GitHub branch names in Node.js tallies"
 date: 2026-11-12
 tags: [security, testing, mutation-testing, nodejs, github-actions]
-description: "Our build stats page counted CI runs per branch in a plain object. A branch named __proto__ wrote onto Object.prototype, and a workflow named constructor crashed the section."
+description: "Our stats page counted CI runs per branch in a plain object. A branch named __proto__ polluted Object.prototype; a workflow named constructor crashed it."
 ---
 
 The [developer stats page](https://marisstella.app/dev/) is rebuilt every few
