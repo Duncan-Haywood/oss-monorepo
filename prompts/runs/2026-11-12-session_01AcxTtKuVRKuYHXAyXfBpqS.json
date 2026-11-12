@@ -27,11 +27,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "CI validate failed: flagships.yaml next: 2590 chars over the 2000 cap after appending; compacted the sticky clause instead (run portfolio/router/validate.py locally before pushing)."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
