@@ -208,12 +208,9 @@ flagships:
       History and every measurement: README and eval/ (ingest, catalog,
       proxies, cull, RAW previews; DNG developer with DNG-spec colour, DCP
       tables, tone curves, triple-illuminant profiles, default tone curve;
-      numpy engine and native lossless-JPEG Huffman reader; Canon CR2 directly
-      and in the grade stage; five real Canon bodies against LibRaw,
-      eval/cr2-five-bodies-2026-11-12.md; the "3-9% brighter" gap was the
-      check's own LibRaw call, eval/cr2-brightness-gap-2026-11-12.md: data
-      matches LibRaw to 0.05-0.19 8-bit steps, the rest is the DNG colour
-      model, 0.07 near D65 to 0.88 at 4,700 K; camera-written DNGs from a
+      numpy engine, native Huffman reader; Canon CR2 directly and in the
+      grade stage; five Canon bodies match LibRaw to 0.05-0.19 8-bit steps,
+      eval/cr2-brightness-gap-2026-11-12.md; camera-written DNGs from a
       Nexus 5X, Leica T and Pentax Q-S1 match LibRaw to 0.02-0.11 steps and
       the phone's OpcodeList2 GainMap lens shading runs, eval/camera-dngs-
       2026-11-12.md). Next, most valuable first: WarpRectilinear (OpcodeList3

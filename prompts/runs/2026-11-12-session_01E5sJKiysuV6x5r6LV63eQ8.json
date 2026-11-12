@@ -27,14 +27,15 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 12,
   "outcome": "success",
   "errors": [
     "cr2_develop_check.py run unchanged on DNGs failed: Nexus 5X 'colour matrix is singular' (LibRaw's rgb_xyz_matrix for that DNG) and Leica T has no ActiveArea; wrote tools/dng_camera_check.py instead",
     "First CLI test reused one --out folder for two runs and failed (develop refuses to overwrite); fixed the test",
-    "Post description 169 chars failed check_post_frontmatter in venture-preflight; shortened"
+    "Post description 169 chars failed check_post_frontmatter in venture-preflight; shortened",
+    "CI validate failed: flagships.yaml photo-editing next: 2083 chars over the 2000 cap; trimmed the history part. portfolio/router/validate.py was not in my local checks"
   ],
   "integrity_issues": [],
   "doc_friction": [
