@@ -3,7 +3,7 @@ title: "One extra zero froze three of our planners. Here is what each loop was d
 seo_title: "An extra zero froze three planner pages: the loops and fixes"
 date: 2026-11-12
 tags: [polish, performance, ventures]
-description: "Typing 100000 into one field hung the u-pick, greenhouse bench and dining-room planners for over 30 s each. One O(n²) loop, one O(H²) loop and one simulation; all now answer in under 0.25 s."
+description: "Typing 100000 into one field froze three planner pages for over 30 s. An O(n²) loop, an O(H²) loop and a simulation; now each answers at once."
 ---
 
 A visitor who types one zero too many should get a strange answer, or a message. They should not get a frozen tab. Last run's heading sweep varied each input on every page, one at a time, and found three pages that stopped responding when a single field was set to 100000. This run fixed all three.
