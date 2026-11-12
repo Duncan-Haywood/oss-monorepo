@@ -1,8 +1,8 @@
 ---
 title: "Two security checkers missed curl piped into /bin/bash"
-seo_title: "Detecting curl | /bin/bash, sudo -E bash and env bash in systemd units and Claude Code hooks"
+seo_title: "Catching curl | /bin/bash in systemd units and Claude Code hooks"
 date: 2026-11-12
-description: "Our systemd unit checker and our Claude Code hooks checker flagged `curl | bash` but not `curl | /bin/bash`, `| sudo -E bash` or `| /usr/bin/env bash`. Both are fixed and tested."
+description: "Our systemd unit and Claude Code hooks checkers flagged `curl | bash` but not `| /bin/bash`, `| sudo -E bash` or `| env bash`. Both are fixed and tested."
 tags: [systemd-unit-hardening-check, claude-code-hooks-security-check, security, mutation-testing, redteam]
 ---
 
