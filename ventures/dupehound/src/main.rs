@@ -23,6 +23,12 @@ OPTIONS:
     --families         group clones into families (every place one block was
                        pasted), largest first, with the lines a shared module
                        could remove; with --json, adds a \"families\" array
+    --guarded FILE     path patterns (one a line, # comments; * ? **) of
+                       copies a test already keeps in sync; a family's
+                       guarded copies count as one, and families with every
+                       copy guarded are only totalled, so the top of the
+                       table is what nobody watches (repeatable; implies
+                       --families)
     --json             print a JSON report instead of text
     --top N            clones (or families) to list         [default: 20]
     --threshold PCT    exit 1 if duplicated lines exceed PCT percent
@@ -38,6 +44,7 @@ struct Args {
     walk: WalkOptions,
     json: bool,
     families: bool,
+    guards: Guards,
     top: usize,
     threshold: Option<f64>,
 }
@@ -62,6 +69,7 @@ fn parse_args() -> Result<Option<Args>, String> {
         walk: WalkOptions::default(),
         json: false,
         families: false,
+        guards: Guards::default(),
         top: 20,
         threshold: None,
     };
@@ -100,6 +108,17 @@ fn parse_args() -> Result<Option<Args>, String> {
             }
             "--json" => a.json = true,
             "--families" => a.families = true,
+            "--guarded" => {
+                let path = val(&arg)?;
+                let text =
+                    std::fs::read_to_string(&path).map_err(|e| format!("--guarded {path}: {e}"))?;
+                let g = Guards::parse(&text);
+                if g.is_empty() {
+                    return Err(format!("--guarded {path}: no patterns in the file"));
+                }
+                a.guards.patterns.extend(g.patterns);
+                a.families = true
+            }
             "--top" => a.top = num(val(&arg)?, &arg)? as usize,
             "--threshold" => {
                 let v = val(&arg)?;
@@ -120,7 +139,9 @@ fn parse_args() -> Result<Option<Args>, String> {
     Ok(Some(a))
 }
 
-fn print_families(files: &[SourceFile], fams: &[Family], top: usize) {
+fn print_families(files: &[SourceFile], fams: &[Family], guards: &Guards, top: usize) {
+    let g = apply_guards(files, fams.to_vec(), guards);
+    let (fams, kept) = (&g.families[..], &g.fully_guarded[..]);
     for f in fams.iter().take(top) {
         let n = f.occurrences.len();
         let whole = f.occurrences.iter().filter(|x| x.whole_file).count();
@@ -140,6 +161,14 @@ fn print_families(files: &[SourceFile], fams: &[Family], top: usize) {
             format!(", {whole} whole-file")
         } else {
             String::new()
+        };
+        let whole = if f.guarded_copies > 0 {
+            format!(
+                "{whole} (one stands for {} guarded copies)",
+                f.guarded_copies
+            )
+        } else {
+            whole
         };
         let ident = if f.identical_copies > 1 {
             format!(
@@ -175,6 +204,15 @@ fn print_families(files: &[SourceFile], fams: &[Family], top: usize) {
         "\n{} families; moving each family's block to one shared module would remove {lo} to {hi} lines (before import and call lines; families can overlap).",
         fams.len()
     );
+    if !guards.is_empty() {
+        let glo: u64 = kept.iter().map(|f| f.removable_lines).sum();
+        let ghi: u64 = kept.iter().map(|f| f.removable_lines_max).sum();
+        let copies: usize = kept.iter().map(|f| f.occurrences.len()).sum();
+        println!(
+            "Not counted above: {} families whose every copy matches a --guarded pattern ({copies} copies, {glo} to {ghi} lines); in the rest, guarded copies count as one.",
+            kept.len()
+        );
+    }
 }
 
 fn main() -> ExitCode {
@@ -195,12 +233,12 @@ fn main() -> ExitCode {
     if args.json && args.families {
         println!(
             "{}",
-            json_report_with_families(&files, &clones, &st, args.opts, secs)
+            json_report_with_guarded_families(&files, &clones, &st, args.opts, secs, &args.guards)
         );
     } else if args.json {
         println!("{}", json_report(&files, &clones, &st, args.opts, secs));
     } else if args.families {
-        print_families(&files, &families(&files, &clones), args.top);
+        print_families(&files, &families(&files, &clones), &args.guards, args.top);
         println!(
             "\n{} files, {} lines: {} clones, {} duplicated lines ({:.2}%). {:.2}s",
             st.files,
