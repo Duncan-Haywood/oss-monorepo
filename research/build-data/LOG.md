@@ -1,6 +1,6 @@
 # build-data log
 
-## Session 75, 2026-11-11: where the cascade2 i2c q0.9 penalty sits, and test year 2023 for the paired run (predictions; outcome below when the runs finish)
+## Session 75, 2026-11-11/12: where the cascade2 i2c q0.9 penalty sits (demolition, not new construction), and test year 2023 replicates the a2i gain (R1, R2, R3 refuted; Q4 held)
 
 Why: session 74 found that cascade2 makes Seattle i2c transfer worse at q0.9 (+2.19 days [0.90, 3.51]) and read it, untested, as the sources (SF, Austin) giving new construction a completion tail Seattle's new-construction permits do not share; and Q4 (test year 2023) was not run. The Socrata hosts answered at 23:08 UTC; fresh four-feed pull started then.
 - New: `transfer.paired()` writes `by_class`, each cascade2 class's row count, mean b-minus-a difference and contribution to the overall difference (contributions add up to it; tested). New `src/tail_check.py`: per cascade2 class, q0.5 and q0.9 of the target among the sources' training rows and the held-out test year's rows, with a bootstrap interval on the q0.9 ratio (3 tests).
@@ -9,6 +9,22 @@ Predictions (written before any of these runs):
 - (R2) In the 2024 i2c paired rerun, Seattle's new-construction rows carry more than half of the transfer q0.9 penalty (contribution > 1.10 of the 2.19 days) and their own mean difference is positive. Refuted otherwise.
 - (R3) The rerun reproduces session 74's aggregate paired numbers exactly (same pull counts, fixed seeds).
 - (Q4, session 73) Test year 2023: a2i transfer q0.9 cascade2 minus type has a 95% interval below zero.
+Outcomes. The session that wrote the predictions pulled the feeds and ran R1 (2026-11-11 23:08 UTC), then stopped before the model runs; a second session (PR #14936, carrying #14919's commits) pulled again on 2026-11-12 00:08 to 00:27 UTC. Every row count equals the 2026-11-11 pull (`results/manifest.json`, only the dates move), and `tail_check.py` on the new pull rewrote `results/tail_check_seattle_i2c_2024.json` byte for byte. Runs: `python3.13 src/transfer.py DIR --target i2c --seeds 3 --held seattle --test-year 2024 --classes type cascade2` and the same with `--target a2i --test-year 2023`, the two in parallel with `OMP_NUM_THREADS=2` on 4 cores (about 2 h each).
+- (R1) Refuted, and the wrong way round. Within new construction the sources' i2c q0.9 is 484 days and Seattle 2024's is 654: ratio 0.74 [0.72, 0.77]. Seattle's tail is the longer one in every class with 50+ rows except demolition: alteration 0.77 [0.76, 0.78], other 0.89 [0.82, 0.97], demolition 1.20 [1.16, 1.24]. The medians differ more (Seattle 1.8 to 2.4 times the sources' in every class), so most of the source/target gap is a city-wide level shift, not a class mix effect.
+- (R2) Refuted. In the i2c 2024 paired rerun the transfer q0.9 penalty (cascade2 minus type, +3.01 days) splits by class as: demolition +1.69 (398 rows, mean +18.3 days per row), other +0.59 (230 rows, +11.1), new construction +0.42 (880 rows, +2.07), alteration +0.33 (2,788 rows, +0.50), the trades about -0.02. New construction carries 14%, not more than half. Post hoc, not predicted: demolition, more than half of the penalty from 9% of the rows, is the one class where R1 found the sources' q0.9 above Seattle's. So session 74's reading (naming a class imports the sources' tail for it) fits demolition, not new construction. One run, a description: no interval on the per-class split.
+- (R3) Refuted, and the precondition failed: the 2026-11-11 pull already differed from session 74's (11 more source training rows, 1 more Seattle own-history row; the 4,313 test rows are the same). The paired transfer q0.9 difference moved from +2.19 [0.90, 3.51] to +3.01 [1.65, 4.39] (+4.7% to +6.4% of baseline loss); the other five cells moved by 0.01 to 0.15 days. The type configuration alone moved from -3.5% to -4.2% at q0.9. Also, a2i 2023 type has the same row counts as the committed run (sessions 64 and 65) but its transfer q0.9 moved from +27.1% to +27.5%, so the feeds are revised in place, not only appended. The week-block interval covers sampling of test weeks, not this refit variance; an upper-tail difference of under 1 day should be read with that in mind.
+- (Q4) Held. Seattle a2i, test year 2023 (5,106 test rows), cascade2 minus type, days [95% week-block interval] (share of own baseline loss):
+
+| target, year | model | q0.1 | q0.5 | q0.9 |
+|---|---|---|---|---|
+| a2i 2023 | transfer | -0.003 [-0.010, 0.003] (-0.0%) | -0.22 [-0.42, -0.00] (-0.4%) | -5.56 [-6.46, -4.56] (-13.7%) |
+| a2i 2023 | own-city boosted | -0.22 [-0.41, -0.03] (-1.9%) | -0.73 [-1.21, -0.25] (-1.4%) | -0.86 [-1.32, -0.35] (-2.1%) |
+| i2c 2024 (rerun) | transfer | -0.74 [-0.96, -0.53] (-2.7%) | -0.91 [-1.56, -0.26] (-1.0%) | +3.01 [1.65, 4.39] (+6.4%) |
+| i2c 2024 (rerun) | own-city boosted | -0.93 [-1.35, -0.54] (-3.4%) | -1.91 [-2.59, -1.25] (-2.2%) | -0.86 [-1.07, -0.64] (-1.8%) |
+
+- So the a2i upper-tail gain from the work type replicates in a second test year and is larger (13.7% of baseline loss against 11.5% in 2024); against the baseline, cascade2 halves the 2023 transfer q0.9 penalty (+27.5% to +13.8%) and lifts the 80% interval's coverage from 0.61 to 0.73. The 2023 a2i q0.9 gain comes from alteration (-4.36) and new construction (-2.89), offset by "other" (+2.05, 241 rows, +43 days per row). Seattle's own model gains in all six 2023 cells again.
+- Limits: one held-out city; Q4 is one more year; 3 seeds; the per-class split has no interval; feeds revised between pulls (R3).
+Next: give demolition its own check: a transfer run with demolition folded into alteration (or source demolition rows dropped) should remove most of the i2c q0.9 penalty if the reading holds (write the prediction first); a seed and refit-variance band for the paired q0.9 difference (R3 shows it is near 1 day); 2022 for the pair; Chicago and Austin held out.
 
 ## Session 74, 2026-11-11: the paired cascade2-versus-type bootstrap (session 73's Q1 to Q3 run; two held, one refuted narrowly; Q4 not run)
 
