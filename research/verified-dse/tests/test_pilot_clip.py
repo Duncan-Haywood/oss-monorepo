@@ -49,3 +49,9 @@ def test_analysis_reproduces_results(tmp_path):
     out = tmp_path / "r.txt"
     _load("guard").main(out)
     assert out.read_text() == (EXP / "results.txt").read_text()
+
+
+def test_summary():
+    t = (EXP / "results.txt").read_text()
+    assert "mean: 10 cells; mean regret SW 5.58%, SWC 2.69%, SWCP 3.76%" in t
+    assert "(5) blind SWCP below SW and SWC: False" in t

@@ -167,6 +167,23 @@ def main(dst):
             f"{better} better)",
             f"(5) blind SWCP below SW and SWC: {mean(blind, swcp) < mean(blind, sw) and mean(blind, swcp) < mean(blind, swc)}",
             f"(6) blind SWCP below equal-cost random: {mean(blind, swcp) < mean(blind, lambda c: c['rand'])}"]
+    out += ["", "post hoc (lines added after the blind table was read):",
+            f"post hoc: blind SWC {mean(blind, swc):.2f}% against equal-cost random {mean(blind, lambda c: c['rand']):.2f}%; SWC vs random "
+            f"better {sum(swc(c) < c['rand'] for c in blind)}, worse {sum(swc(c) > c['rand'] for c in blind)}",
+            "post hoc: barrel cells above the threshold, Kendall tau-b of mapped delay vs routed delay, of mapped area vs routed "
+            "area x delay (what a fully binding clip ranks by) and of r2 vs routed area x delay; clipped and unclipped skip-r1 %:"]
+    raws = {"fresh_dear": rule.load_table(EXP / "fresh_dear" / "results.jsonl", "fresh_dear"),
+            "pilot_clip": rule.load_table(BLIND, "pilot_clip")}
+    for c in [c for c in dear + blind if fam(c) == "barrel" and c["ratio"] > score.THETA]:
+        rs = raws[c["table"]][(c["clock"], c["design"], c["table"])]
+        per = rs[0]["period_ns"]
+        y = [rule.flow.scores(r)["r4"] for r in rs]
+        md = [per - r["synth_netlist_wns"] for r in rs]
+        ma = [r["synth_netlist_area"] for r in rs]
+        tau = rule.stats.kendall_tau_b
+        out.append(f"  {c['table']} {c['clock']} {c['design']}: tau(md, rd) {tau(md, [per - r['final_wns'] for r in rs]):+.2f}, "
+                   f"tau(ma, y) {tau(ma, y):+.2f}, tau(r2, y) {tau([a * d for a, d in zip(ma, md)], y):+.2f}; "
+                   f"clipped {c['clip'][ALPHA]:.2f}, unclipped {c['skip']:.2f}")
     Path(dst).write_text("\n".join(out) + "\n")
     print("\n".join(out))
 
