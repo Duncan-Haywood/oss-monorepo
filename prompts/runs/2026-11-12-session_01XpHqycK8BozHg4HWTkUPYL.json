@@ -48,7 +48,7 @@
     "ventures/shift-roster-builder/README.md (The planner stops rebuilding the same week)"
   ],
   "goal": "Deepen a flagship with a measured, tested slice",
-  "notes": "Budget: 32 planned weeks (4 templates x 4, 2 x 30x84 x 4, 2 x 40x112 x 4) proven at 4, 8 and 16 s with identical rosters; page keeps 4 s. Found every planned week repeated; planWeeks now reuses a roster when the parsed staff match (tough tally ignored at toughBalance 0), sameAs marks it, reuse:false rebuilds. 4-week plans: cafe 6.8->3.3 s, templates 8.4->4.1 s, 40x112 20.0->9.0 s and 35.6->16.7 s, same totals. Readings in eval/plan-budget.out.txt. Tests: run_venture_tests.py shift-roster-builder and venture-preflight (results below).",
+  "notes": "Budget: 32 planned weeks (4 templates x 4, 2 x 30x84 x 4, 2 x 40x112 x 4) proven at 4, 8 and 16 s with identical rosters; page keeps 4 s. Found every planned week repeated; planWeeks now reuses a roster when the parsed staff match (tough tally ignored at toughBalance 0), sameAs marks it, reuse:false rebuilds. 4-week plans: cafe 6.8->3.3 s, templates 8.4->4.1 s, 40x112 20.0->9.0 s and 35.6->16.7 s, same totals. Readings in eval/plan-budget.out.txt. Tests: run_venture_tests.py shift-roster-builder and venture-preflight both passed locally: run_venture_tests.py shift-roster-builder ok (201 s, 0 failed); venture-preflight 'preflight clean for shift-roster-builder'.",
   "corrections": [],
   "redteam": null
 }
