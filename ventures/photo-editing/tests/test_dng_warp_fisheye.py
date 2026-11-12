@@ -45,15 +45,16 @@ def spec_source(terms, cx, cy, x, y, w, h):
     """The specification's source point for output pixel (x, y), written out independently of the module."""
 
     k0, k1, k2, k3 = terms
-    ox, oy = cx * w, cy * h
-    m = max(math.sqrt((px - ox) ** 2 + (py - oy) ** 2) for px in (0, w) for py in (0, h))
-    u, v = (x + 0.5 - ox) / m, (y + 0.5 - oy) / m
+    # DNG 1.7.1.0: centre x0 + cx (x1 - x0) between the top-left and bottom-right pixels; m to the farthest pixel.
+    ox, oy = cx * (w - 1), cy * (h - 1)
+    m = math.sqrt(max(ox, w - 1 - ox) ** 2 + max(oy, h - 1 - oy) ** 2)
+    u, v = (x - ox) / m, (y - oy) / m
     r = math.hypot(u, v)
     if r == 0:
-        return ox - 0.5, oy - 0.5
+        return ox, oy
     t = math.atan(r)
     rdist = k0 * t + k1 * t**3 + k2 * t**5 + k3 * t**7
-    return ox + m * rdist * u / r - 0.5, oy + m * rdist * v / r - 0.5
+    return ox + m * rdist * u / r, oy + m * rdist * v / r
 
 
 class ParseTests(unittest.TestCase):
@@ -119,17 +120,18 @@ class FormulaTests(unittest.TestCase):
         # kr0 = 1: a pixel at normalised radius r reads from radius atan(r), along the same ray (closed form).
         w, h = 4000, 3000
         wp = do.WarpFisheye(((1.0, 0.0, 0.0, 0.0),), 0.5, 0.5)
-        m = math.hypot(w / 2, h / 2)
+        ox, oy = (w - 1) / 2, (h - 1) / 2  # the middle pixel, as the specification places (0.5, 0.5)
+        m = math.hypot(ox, oy)
         for x, y in ((3999, 2999), (2999, 1499), (0, 0), (2000, 100)):
             sx, sy = do.warp_source(wp, 0, x, y, w, h)
-            u, v = (x + 0.5 - w / 2) / m, (y + 0.5 - h / 2) / m
-            su, sv = (sx + 0.5 - w / 2) / m, (sy + 0.5 - h / 2) / m
+            u, v = (x - ox) / m, (y - oy) / m
+            su, sv = (sx - ox) / m, (sy - oy) / m
             self.assertAlmostEqual(math.hypot(su, sv), math.atan(math.hypot(u, v)), places=12)
             self.assertAlmostEqual(u * sv - v * su, 0.0, places=12)  # same direction
             self.assertGreater(u * su + v * sv, 0.0)
-        # The corner (r = 1) reads from radius pi/4 of the corner distance: the unwrap pulls the rim inwards.
-        sx, _ = do.warp_source(wp, 0, w - 0.5, h - 0.5, w, h)
-        self.assertAlmostEqual(sx + 0.5 - w / 2, (w / 2) * math.pi / 4, places=6)
+        # The corner pixel (r = 1) reads from radius pi/4 of m: the unwrap pulls the rim inwards.
+        sx, _ = do.warp_source(wp, 0, w - 1, h - 1, w, h)
+        self.assertAlmostEqual(sx - ox, ox * math.pi / 4, places=6)
 
     def test_centre_pixel_reads_itself(self):
         w, h = 41, 21  # odd: pixel (20, 10) is exactly on the centre, r = 0

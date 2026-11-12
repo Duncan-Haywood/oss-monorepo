@@ -42,9 +42,10 @@ def poly_params(coeffs, *, top=0, left=0, bottom=1 << 20, right=1 << 20, plane=0
 def spec_vignette(k, cx, cy, x, y, w, h):
     """The specification's gain at pixel (x, y), written out independently of the module."""
 
-    ox, oy = cx * w, cy * h
-    m = max(math.sqrt((px - ox) ** 2 + (py - oy) ** 2) for px in (0, w) for py in (0, h))
-    r = math.sqrt((x + 0.5 - ox) ** 2 + (y + 0.5 - oy) ** 2) / m
+    # DNG 1.7.1.0: centre x0 + cx (x1 - x0) between the top-left and bottom-right pixels; m to the farthest pixel.
+    ox, oy = cx * (w - 1), cy * (h - 1)
+    m = math.sqrt(max(ox, w - 1 - ox) ** 2 + max(oy, h - 1 - oy) ** 2)
+    r = math.sqrt((x - ox) ** 2 + (y - oy) ** 2) / m
     return 1 + sum(k[i] * r ** (2 * (i + 1)) for i in range(5))
 
 
