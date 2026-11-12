@@ -125,15 +125,17 @@ def run_rule(sun, T, rule, cap=C, hotel=HOTEL, hc=None, tau=10):
     return {"km": km, "down": down, "dark": dark, "spill": spill, "end": soc, "hotel_wh": hotel_wh, "H": sum(h)}
 
 
-def foresight_acct(sun, table, end_min=0.0, cap=C, hotel=HOTEL):
-    """6zj's (F) (yp.foresight) with energy accounting and an optional end-of-year pack floor."""
+def foresight_acct(sun, table, end_min=0.0, cap=C, hotel=HOTEL, grid=None):
+    """6zj's (F) (yp.foresight) with energy accounting and an optional end-of-year pack floor.
+    `grid` is the pack grid step in Wh (default yp.GRID_WH, 100 Wh; 6zp passes cap / 100)."""
+    g = grid or yp.GRID_WH
     h = [yp.harvest_wh(k) for k in sun]
-    n = int(round(cap / yp.GRID_WH))
+    n = int(round(cap / g))
     hd = hotel * 24.0
     pen = yp.DARK_PENALTY
 
     def interp(V, s):
-        x = s / yp.GRID_WH
+        x = s / g
         i = min(int(x), n - 1)
         f = x - i
         return V[i] * (1 - f) + V[i + 1] * f
@@ -153,9 +155,9 @@ def foresight_acct(sun, table, end_min=0.0, cap=C, hotel=HOTEL):
         return top
 
     Vs = [None] * (len(h) + 1)
-    Vs[-1] = [0.0 if i * yp.GRID_WH >= end_min - 1e-9 else -1e9 for i in range(n + 1)]
+    Vs[-1] = [0.0 if i * g >= end_min - 1e-9 else -1e9 for i in range(n + 1)]
     for d in range(len(h) - 1, -1, -1):
-        Vs[d] = [best(Vs[d + 1], i * yp.GRID_WH, h[d])[0] for i in range(n + 1)]
+        Vs[d] = [best(Vs[d + 1], i * g, h[d])[0] for i in range(n + 1)]
     soc, km, down, dark, spill, hotel_wh = cap, 0.0, 0, 0.0, 0.0, 0.0
     for d, e in enumerate(h):
         _, pe, k, dh = best(Vs[d + 1], soc, e)

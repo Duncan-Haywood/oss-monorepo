@@ -1028,6 +1028,25 @@ const EXACT_AUTO_SLOTS = MAX_SLOTS;
 // keeps the tree on any week.
 const EXACT_TREE_SLOTS = 60;
 const TANGENTS = 8; // tangent lines under each person's hours curve inside the coverage flow
+// Open hours are a sum of whole shift lengths (a shift is held or open), so a floor on them lifts to the least such sum at or above
+// it: with shifts of 3, 8 and 10 hours nothing sums to 2, so a floor of 2 h means 3 h. The grid rounding in exactSearch only knows
+// the lengths share whole hours. Returns a function x -> least reachable sum >= x (x itself when the lengths are off the
+// quarter-hour grid, or past `upTo` hours, where the table stops). `openSums: false` in the options turns it off.
+export function openSumLift(len, upTo) {
+  const q = len.map((h) => Math.round(h * 4));
+  if (!q.length || q.some((u, i) => u <= 0 || Math.abs(u - len[i] * 4) > 1e-9)) return (x) => x;
+  const total = q.reduce((a, b) => a + b, 0), cap = Math.min(total, Math.max(0, Math.ceil(upTo * 4)) + Math.max(...q));
+  const reach = new Uint8Array(cap + 1); reach[0] = 1;
+  for (const u of q) for (let t = cap; t >= u; t--) if (reach[t - u]) reach[t] = 1;
+  const next = new Int32Array(cap + 2).fill(-1); // next[t]: least reachable sum >= t (quarter hours), -1 if none in the table
+  for (let t = cap; t >= 0; t--) next[t] = reach[t] ? t : next[t + 1];
+  return (x) => {
+    if (!(x > 1e-9)) return x;
+    const t = Math.ceil(x * 4 - 1e-6);
+    return t <= cap && next[t] >= 0 ? Math.max(x, next[t] / 4) : x;
+  };
+}
+
 function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, tolerance = 0 } = {}) {
   let coverNodes = 0;
   const { P, S, slots, staff, o, elig } = ctx;
@@ -1035,6 +1054,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   const mFloor = Math.min(1, o.otMult, o.dtMult);
   const burden = 1 + o.burdenPct / 100;
   const len = slots.map((s) => (s.end - s.start) / 60);
+  const lift = o.openSums === false ? (x) => x : openSumLift(len, Math.floor(incumbent / BIG + 1e-9) + 1);
   const cheapest = slots.map((s, i) => {
     let m = Infinity;
     for (let p = 0; p < P; p++) if (elig[p][i]) m = Math.min(m, burden * staff[p].wage * mFloor * paidMinutes(o, s) / 60);
@@ -1101,7 +1121,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     if (lb + BIG * openCap + Math.max(0, sufCheap[k] - openCap * maxRate) >= cutoff) return Infinity;
     const cov = coverableHours(k, hoursLeft);
     const flowOpen = Math.max(0, demand - capacity, demand - cov.flow);
-    const open = Math.max(flowOpen, minOpenH - unfilledH);
+    const open = lift(unfilledH + Math.max(flowOpen, minOpenH - unfilledH)) - unfilledH;
     // cov.cost and cov.joint price covering the most hours the flow can; when the coverage pass forces more hours open than that,
     // fewer hours get covered and those prices can overstate, so they are used only when the open hours are the flow's own.
     const flowPriced = open <= flowOpen + 1e-9;
@@ -1125,7 +1145,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     const base = BIG * unfilledH;
     const openCap = Math.max(0, demand - capacity);
     if (base + BIG * openCap >= cutoff) return Infinity;
-    return base + BIG * Math.max(openCap, minOpenH - unfilledH, demand - coverableHours(k, hoursLeft, true).flow);
+    return base + BIG * (lift(unfilledH + Math.max(openCap, minOpenH - unfilledH, demand - coverableHours(k, hoursLeft, true).flow)) - unfilledH);
   };
   // Lagrangian bound on the convex hours terms when the undecided shifts add at most `x` hours in all: for any price lam,
   // sum_p min_h [g_p(h) - lam (h - h0_p)] + lam x is a lower bound on the least total (weak duality), and an open hour costs
@@ -1301,7 +1321,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     const pricer = makeSetPricer(ctx);
     const cg = columnGenerationOpen(P, len, pricer, { cls: pricer.cls, incumbentOpen: incHours, nodeLimit: o.coverLPNodes ?? 2000, ms: o.coverLPMs ?? 10000 });
     coverLPStats = { ...cg.stats, rootLP: cg.rootLP, floor: cg.floor, proven: cg.proven, columnGeneration: true };
-    minOpenH = Math.max(minOpenH, cg.floor);
+    minOpenH = Math.max(minOpenH, lift(cg.floor));
     if (cg.roster) lpOwner = Array.from(cg.roster);
   };
   if (incHours > 0 && o.pricingFloor !== false) {
@@ -1315,7 +1335,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
       }
       if (pf.banned) { banned = pf.banned; bannedCount = pf.banCount; }
       const unit = [1, 0.5, 0.25].find((u) => len.every((h) => Math.abs(h / u - Math.round(h / u)) < 1e-9)); // open hours come in whole shifts
-      minOpenH = unit ? Math.ceil(pf.floor / unit - 1e-6) * unit : Math.max(0, pf.floor - 1e-6);
+      minOpenH = lift(unit ? Math.ceil(pf.floor / unit - 1e-6) * unit : Math.max(0, pf.floor - 1e-6));
       // Branch on the open-hours price itself: every held set is worth 0 and an open shift costs BIG x its hours, so the same
       // branch-and-bound as above bounds the least open hours and closes part of the integrality gap the root price leaves.
       if (o.coverBranch !== false && minOpenH < incHours - 1e-9) {
@@ -1324,7 +1344,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
         const cb = branchDual(ctx, { sets: pf.cov.sets, vals: zero, len: pf.cov.len, lam: lam0 }, BIG * pf.floor, BIG * incHours, BIG * (incHours - (unit || 1) / 2), { maxNodes: o.coverBranchNodes ?? 60, ms: o.coverBranchMs ?? 4000 });
         coverBranchStats = cb.stats;
         const fl = cb.bound / BIG;
-        minOpenH = Math.max(minOpenH, unit ? Math.ceil(fl / unit - 1e-6) * unit : Math.max(0, fl - 1e-6));
+        minOpenH = Math.max(minOpenH, lift(unit ? Math.ceil(fl / unit - 1e-6) * unit : Math.max(0, fl - 1e-6)));
       }
       // Branch-and-price (bnp.mjs): the Dantzig-Wolfe LP solved exactly at every node, branching on who holds which shift.
       // Subgradient prices stop short of the LP; this closes the integrality gap the priced floor leaves. Column generation is
@@ -1333,7 +1353,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
         if (o.coverCG === false) {
           const bp = branchAndPriceOpen(pf.cov.sets, pf.cov.len, { incumbentOpen: incHours, nodeLimit: o.coverLPNodes ?? 2000, ms: o.coverLPMs ?? 10000 });
           coverLPStats = { ...bp.stats, rootLP: bp.rootLP, floor: bp.floor, proven: bp.proven };
-          minOpenH = Math.max(minOpenH, bp.floor);
+          minOpenH = Math.max(minOpenH, lift(bp.floor));
           if (bp.roster) lpOwner = Array.from(bp.roster);
         } else runColumnGeneration();
       }

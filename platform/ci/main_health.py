@@ -8,6 +8,11 @@ fixed and live items, this does not. Checks that need a built site
 (runs keep hitting it red by hand). Takes 40 s to 3 min, so start it with
 `run_in_background`; prints one line per check as it finishes and a final DONE line
 (so `wait_for.py out.log` works on it); exit 1 if any check fails.
+
+A check that times out in the parallel pass is re-run once alone before it
+counts as red, and its line says TIME, not FAIL: run beside a full venture-suite
+run (load ~34 on 4 cores), check_js_syntax.py hit the 300 s cap and read like a
+real red check (run record 2026-11-11T22:23).
 """
 import subprocess
 import sys
@@ -29,13 +34,39 @@ def label(path):
     return p.name if p.parent == HERE else str(p.relative_to(ROOT))
 
 
-def run(path, *args):
+TIMED_OUT = 124
+TIMEOUT = 300
+
+
+def run(path, *args, timeout=TIMEOUT):
     try:
         r = subprocess.run([sys.executable, str(path), *args], cwd=ROOT, capture_output=True,
-                           text=True, timeout=300)
+                           text=True, timeout=timeout)
         return label(path), r.returncode, (r.stdout + r.stderr).strip()
     except subprocess.TimeoutExpired:
-        return label(path), 124, "timed out after 300 s"
+        return label(path), TIMED_OUT, f"timed out after {timeout} s"
+
+
+def status(rc):
+    return "ok  " if rc == 0 else "TIME" if rc == TIMED_OUT else "FAIL"
+
+
+def rerun_timeouts(jobs, results, runner=run):
+    """Re-run, one at a time, the jobs that timed out in the parallel pass.
+
+    A timeout under load says nothing about the check; a solo re-run does. Returns
+    the results with each re-run's outcome in place, its output prefixed so a
+    reader knows it passed or failed alone."""
+    by_name = {label(j[0]): j for j in jobs}
+    out = []
+    for name, rc, text in results:
+        if rc == TIMED_OUT and name in by_name:
+            print(f"re-running {name} alone (timed out beside the others)", flush=True)
+            name, rc, text = runner(*by_name[name])
+            text = f"(re-run alone after a parallel timeout) {text}".strip()
+            print(f"{status(rc)} {name} (solo re-run)", flush=True)
+        out.append((name, rc, text))
+    return out
 
 
 def main():
@@ -50,11 +81,11 @@ def main():
         for f in as_completed(futures):
             results.append(f.result())
             name, rc, _ = results[-1]
-            print(f"{'ok  ' if rc == 0 else 'FAIL'} {name} ({len(results)}/{len(jobs)})", flush=True)
-    results.sort()
+            print(f"{status(rc)} {name} ({len(results)}/{len(jobs)})", flush=True)
+    results = sorted(rerun_timeouts(jobs, results))
     bad = [r for r in results if r[1] != 0]
     for name, rc, out in bad:
-        print(f"FAIL {name} (exit {rc})\n" + "\n".join(out.splitlines()[-8:]) + "\n")
+        print(f"{status(rc)} {name} (exit {rc})\n" + "\n".join(out.splitlines()[-8:]) + "\n")
     print(f"{len(results) - len(bad)}/{len(results)} checks pass")
     print("DONE", flush=True)
     return 1 if bad else 0

@@ -9,9 +9,12 @@
 // so the reader meets what an OCR engine prints from a photo, as the CLI does.
 // --ocr <dirA>,<dirB> reads each receipt from both (e.g. --psm 6 and --psm 4) and
 // scores parseReceiptPasses, which settles a disagreement by the receipt's arithmetic.
+// --settled (with two --ocr dirs) scores what the page puts in the receipts box
+// instead: photoocr.mjs settleReadings, one block of text, read by parseReceipt.
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { cleanOcr } from "../cleanocr.mjs";
 import { parseReceipt, parseReceiptPasses } from "../receipts.mjs";
+import { settleReadings } from "../photoocr.mjs";
 import { labelCents } from "./cord-receipts.mjs";
 
 const norm = (s) => String(s ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -63,17 +66,18 @@ export function load(dir, ocrDir = null) {
     const id = f.replace(/\.json$/, "");
     const dirs = ocrDir ? String(ocrDir).split(",") : [];
     if (dirs.some((d) => !existsSync(`${d}/${id}.txt`))) continue;
-    const texts = dirs.map((d) => cleanOcr(readFileSync(`${d}/${id}.txt`, "utf8")));
+    const raw = dirs.map((d) => readFileSync(`${d}/${id}.txt`, "utf8"));
+    const texts = raw.map(cleanOcr);
     const text = dirs.length ? texts[0] : rowsOf(readFileSync(`${dir}/box/${id}.csv`, "utf8"));
-    rows.push({ id: f.replace(/\.json$/, ""), key, text, ...(texts.length > 1 ? { texts } : {}) });
+    rows.push({ id: f.replace(/\.json$/, ""), key, text, ...(texts.length > 1 ? { texts, raw } : {}) });
   }
   return rows;
 }
 
-export function score(rows) {
+export function score(rows, { settled = false } = {}) {
   const r = { receipts: rows.length, merchant: { exact: 0, contained: 0, wrong: 0, none: 0 }, date: { labelled: 0, right: 0, wrong: 0, none: 0 }, total: { labelled: 0, right: 0, within5: 0, wrong: 0, none: 0 }, misses: { merchant: [], date: [], total: [] } };
   for (const row of rows) {
-    const p = row.texts ? parseReceiptPasses(row.texts) : parseReceipt(row.text);
+    const p = row.texts ? (settled ? parseReceipt(settleReadings(row.raw).text) : parseReceiptPasses(row.texts)) : parseReceipt(row.text);
     const want = norm(row.key.company), got = norm(p.merchant);
     if (!got) { r.merchant.none++; r.misses.merchant.push({ id: row.id, want: row.key.company, got: null }); }
     else if (got === want) r.merchant.exact++;
@@ -99,7 +103,7 @@ export function score(rows) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const oi = process.argv.indexOf("--ocr");
   const rows = load(process.argv[2], oi > 0 ? process.argv[oi + 1] : null);
-  const r = score(rows);
+  const r = score(rows, { settled: process.argv.includes("--settled") });
   const pct = (a, b) => `${a}/${b} (${b ? ((100 * a) / b).toFixed(1) : "0"}%)`;
   console.log(`${process.argv[2]}: ${r.receipts} receipts`);
   console.log(`merchant exact ${pct(r.merchant.exact, r.receipts)}, name contained either way ${r.merchant.contained}, wrong ${r.merchant.wrong}, none ${r.merchant.none}`);

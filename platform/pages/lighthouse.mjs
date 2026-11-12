@@ -37,6 +37,9 @@
 // - Not stable to the point. Simulated mobile throttling on a shared runner
 //   moves performance by a few points between runs; compare runs from the
 //   same session, and trust accessibility/SEO (deterministic) over performance.
+//   Run it with nothing else CPU-heavy going: beside a test suite, TBT rose
+//   about 300 ms and performance fell about 7 points, nearly reported as a
+//   regression (run record 2026-11-12T04:41). `uptime` first; --runs=3 helps.
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';

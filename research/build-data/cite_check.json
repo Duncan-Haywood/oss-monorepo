@@ -1,0 +1,58 @@
+{
+ "arxiv:1603.02754": {
+  "checked": "2026-11-12",
+  "title": "XGBoost: A Scalable Tree Boosting System (2016)"
+ },
+ "arxiv:1705.07874": {
+  "checked": "2026-11-12",
+  "title": "A Unified Approach to Interpreting Model Predictions (2017)"
+ },
+ "arxiv:1706.09516": {
+  "checked": "2026-11-12",
+  "title": "CatBoost: unbiased boosting with categorical features (2017)"
+ },
+ "arxiv:1803.09010": {
+  "checked": "2026-11-12",
+  "title": "Datasheets for Datasets (2018)"
+ },
+ "arxiv:1905.03222": {
+  "checked": "2026-11-12",
+  "title": "Conformalized Quantile Regression (2019)"
+ },
+ "arxiv:2106.03253": {
+  "checked": "2026-11-12",
+  "title": "Tabular Data: Deep Learning is Not All You Need (2021)"
+ },
+ "arxiv:2107.07511": {
+  "checked": "2026-11-12",
+  "title": "A Gentle Introduction to Conformal Prediction and Distribution-Free Uncertainty Quantification (2021)"
+ },
+ "arxiv:2207.08815": {
+  "checked": "2026-11-12",
+  "title": "Why do tree-based models still outperform deep learning on tabular data? (2022)"
+ },
+ "doi:10.1002/(SICI)1097-0258(19990915/30)18:17/18<2529::AID-SIM274>3.0.CO;2-5": {
+  "checked": "2026-11-12",
+  "title": "Assessment and comparison of prognostic classification schemes for survival data (1999)"
+ },
+ "doi:10.1007/978-1-4757-1229-2_14": {
+  "checked": "2026-11-12",
+  "title": "Recovery of Information and Adjustment for Dependent Censoring Using Surrogate Markers (1992)"
+ },
+ "doi:10.1061/(ASCE)CO.1943-7862.0001736": {
+  "checked": "2026-11-12",
+  "title": "Machine Learning Algorithms for Construction Projects Delay Risk Prediction (2020)"
+ },
+ "doi:10.1177/875697280603700302": {
+  "checked": "2026-11-12",
+  "title": "From Nobel Prize to Project Management: Getting Risks Right (2006)"
+ },
+ "doi:10.1198/016214506000001437": {
+  "checked": "2026-11-12",
+  "title": "Strictly Proper Scoring Rules, Prediction, and Estimation (2007)"
+ },
+ "doi:10.2307/1913643": {
+  "checked": "2026-11-12",
+  "title": "Regression Quantiles (1978)"
+ }
+}

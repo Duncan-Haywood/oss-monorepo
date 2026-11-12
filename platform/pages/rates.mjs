@@ -51,6 +51,7 @@
  * it below 100 and this does too.
  */
 import { stripForInjection } from './jobs.mjs';
+import { BAR_ALIGN_JS } from './bar-align.mjs';
 
 export const SHOP_RATE_FIELDS = [
   { id: 'hourlyWage', label: 'Crew hourly wage', prefix: '$', suffix: '/h', max: 100000 },
@@ -903,6 +904,8 @@ const RATES_SCRIPT = () => `
 
   var root = document.querySelector('[data-pf-rates-root]');
   if (!root) return;
+${BAR_ALIGN_JS}
+  var aligned = false;
   var el = function(id){ return document.getElementById(id); };
   var fieldFor = function(f){
     var node = el(f.inputId);
@@ -1036,6 +1039,8 @@ const RATES_SCRIPT = () => `
 
   var render = function(rates, outcome){
     root.hidden = false;
+    // Once, on the first reveal: line up with the page's heading (bar-align.mjs).
+    if (!aligned) { aligned = true; pfAlignBar(root); }
     var list = el('pf-rates-list');
     var status = el('pf-rates-status');
     var button = function(name){ return root.querySelector('[data-pf-rates="' + name + '"]'); };
