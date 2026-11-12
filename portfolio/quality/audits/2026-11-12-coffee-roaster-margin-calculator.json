@@ -253,6 +253,8 @@
       "origin": "implementation"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15000"
+  ],
   "verdict": "Every number recomputed independently (roasted cost, four channels, blend optimum by own grid and LP vertices, weekly plan, break-even) matches calc.mjs, and the roast-loss and margin formulas are the ones a roastery cost accountant uses. It does not meet the bar: verification is 2 (31 tests pass but 5 of 8 seeded mutations survive, including the pounds-available constraint and the green weigh-out), craft is 2 (blank or mistyped inputs silently become $0 or 0%, lot lines are never range-checked), and fitness and domain are 2 because wholesale cannot be costed in its own bag size, there is no price-for-margin on the page, and break-even assumes every bag sells at the best channel. Finished (completeness 3) at a happy-path level."
 }

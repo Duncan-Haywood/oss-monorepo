@@ -235,6 +235,8 @@
       "origin": "claims"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15000"
+  ],
   "verdict": "A clean, well-scoped, well-disclaimed reference lookup whose CLI and page work as described (76 tests pass, 3 of 4 non-equivalent mutations caught). It does not meet the bar. Oregon, one of the 14 all-party rows, is wrong for the phone calls it covers (ORS 165.540(1)(a) is one-party for telecommunications). Connecticut and Delaware hide real splits a privacy lawyer would flag first. Three pages and the README say 'fourteen states and DC' although the table makes DC one-party. Every error errs conservative, so a user who follows it gets consent they did not strictly need. But the tool presents itself as a citation-grade summary, and on the boundary states it is not one. Statute checks were made from known citations because the network was blocked."
 }

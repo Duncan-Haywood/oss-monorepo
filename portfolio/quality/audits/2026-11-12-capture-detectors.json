@@ -1,240 +1,242 @@
 {
- "date": "2026-11-12",
- "subject": "research/capture-detectors",
- "stratum": "research",
- "seed": "2026-11-12-c",
- "drawn_by": "sample",
- "auditor": "agent session (Claude), quality-audit round 44",
- "status": "audited",
- "professional": "a computer-vision referee (CVPR/WACV, or a privacy-preserving-imaging venue such as PETS) who works on small-face detection and automatic anonymisation. 'Capture' here is camera capture for travel creators (track 13), not regulatory or particle capture. They would check first how the reference faces were chosen (circularity), whether synthetic downscaling stands in for distance, whether the recall-vs-size curve agrees with published tiny-face results, and whether the leak integral follows from the measured curve.",
- "scores": {
-  "correctness": 3,
-  "completeness": 3,
-  "verification": 2,
-  "craft": 3,
-  "claims": 3,
-  "fitness": 2,
-  "domain": 2
- },
- "evidence": {
-  "correctness": "Reran the whole pipeline in a scratch copy with opencv-python-headless 4.14.0 (pinned data and models fetched, SHA-256 checked, 42 MB): run.py 4m11s, report.py, yaw.py 34s. yaw.txt and yaw.json are byte-identical to the committed files. A second identical run (patched only to dump raw trials) reproduced results.txt byte for byte; the first run differed in one cell: YuNet 0.3 at 8-12 px gave 19/25 instead of 21/25, which moves its fitted k from 5.25 to 4.50 and its R=16 leak from 0.0030 to 0.0063 (run-to-run nondeterminism, probably multithreaded DNN scores near the 0.3 threshold; the 0.6 and 0.9 headlines are unchanged). Independent script (no import of the subject, /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/capture/indep.py): leak integral by change of variable to pixels with scipy quad reproduces 0.3618/0.1281/0.0481 (assumed), 0.0091/0.0008/0.0001 (YuNet 0.6) and 0.5908/0.2462/0.0723 (YuNet 0.9); Wilson intervals by numerically inverting the score test match results.txt to 2 dp on 7 cells; continuous Nelder-Mead MLE on dumped raw trials gives YuNet 0.6 mid 9.14 k 5.88 (grid: 9.23, 6.0), 0.9 mid 26.2 (26.6), YOLOX mid 22.8 k 1.92 (22.8, 2.0), all within the 4% grid step; 8K equirect F = 0.15*7680/(2 pi) = 183.35 px.",
-  "completeness": "Every README section A-F regenerates from the shipped scripts with the documented commands; the 10 tests pass; download size (~42 MB: 35M YOLOX, 6.7M coco128, 228K YuNet) and runtime (~4 min) are as stated. HOG is honestly reported as failing and not used. Nothing claimed as done is a stub. The live page could not be loaded (proxy 403 on marisstella.app), so the served page is unchecked.",
-  "verification": "'cd research/capture-detectors && python3 -m pytest -q tests': 10 passed in 1.6 s. Six hand-seeded mutations, each reverted: leak area weighting removed (caught), Wilson z*z/(2n) -> z/(2n) (caught); face_hit width rule loosened 0.5..2x -> 0.25..4x (survived: the only 'too wide' test case fails on the centre rule, not the width rule), bootstrap upper quantile 0.975 -> 0.75 (survived), bootstrap resampling replaced by groups[0] (survived), run.py person IoU 0.5 -> 0.3 (survived). The stats helpers are tested; the bootstrap that produces every quoted 95% range, the detector wrappers (YOLOX decoding) and the experiment matching code have no tests, and nothing checks reproducibility of results.json.",
-  "craft": "Read src/capture_detectors/stats.py, detectors.py, fetch.py, experiments/run.py, report.py, yaw.py, tests/test_stats.py. Small, readable, pure-function core with documented formulas; data and models pinned by URL and SHA-256 and kept out of the tree. Defects: label parsing and Haar cascade setup duplicated between run.py:30-38 and yaw.py:43-50; no thread/determinism control (detectors.py:2 imports cv2 with no cv2.setNumThreads), so reruns can differ; only 100 bootstrap draws on a 4% grid, so the CI ends are coarse; mid/k fit on a fixed grid whose edges could clip (k max 12) without a warning.",
-  "claims": "Checked every number in the headline, project.json summary/lede and sections A-F against results.txt/yaw.txt and my reruns: 52%/94% person recall, 22.8 px mid (18.0-26.6), 9.2 (8.2-10.4) and 26.6 px face mids, leak 4.8% -> 0.01% and 36% -> 0.9%, 7.2% at 0.9, 0.005/0.018 range ends, 11% face/body ratio, 2/8/10 of 10 coverage, 7% face miss in 30 joint trials, 0.97/0.54/0.66 vs 0.95/0.16/0.16 yaw recall, 'factor of four' (26.6/6.7 = 3.97): all backed. Limits are stated prominently ('pilot', 'optimistic bound', circular 0.9 row, confounded yaw size). Small misses: README:30 says n = 18 to 25 per bin below 64 px, but the 48-64 bin has n = 11; README:40 labels the merged row '64+' while its Haar 0.76 is the 64-128 bin only (128+ is 0.67); YuNet 0.3 figures are not exactly reproducible. AI-assistance disclosure present.",
-  "fitness": "A researcher modelling blur leak (capture-bystander, capture-sentinel) can plug these curves in, and the code is reusable on another face set. As research it is a pilot: 22 reference faces from 128 photos, references chosen by the detector under test (YuNet >= 0.9), recall measured on synthetic area-averaged downscales. The nearest prior work is not cited: Hu and Ramanan, 'Finding Tiny Faces' (CVPR 2017), which studies detection against face size and the effect of resolution; WIDER FACE (Yang et al., CVPR 2016), whose easy/medium/hard split is largely by scale (mentioned only in passing, with no numbers); and Frome et al., 'Large-scale privacy protection in Google Street View' (ICCV 2009), the canonical operational face-blurring recall study. No external baseline such as YuNet's published WIDER FACE hard AP or YOLOX-s's COCO AP_small anchors the curves. The finding that a modern CNN detector beats an assumed 20 px midpoint is expected rather than new; the value is replacing a modelling assumption, not a field result.",
-  "domain": "Against standard face-detection evaluation (WIDER FACE protocol, IoU-matched detections against human labels): the reference set is the detector's own confident output, so the YuNet curves measure self-consistency under downscaling, not recall; centre-in-box plus width-within-2x is looser than IoU 0.5; INTER_AREA downscaling is a known optimistic proxy for distant, noisy, compressed, blurred faces (acknowledged). A human-labelled face reference was available in principle: COCO person keypoints (eyes, nose, ears) give hand-labelled face positions for the same photos. The leak integral is a correct transcription of capture-bystander's flat-ground model (verified independently), but assumes every face is face-on, and the 0.01% headline inherits all the above biases. A referee would accept it as a clearly caveated pilot, not sign off the leak figure as a design value."
- },
- "checks": [
-  {
-   "dimension": "correctness",
-   "what": "Section C leak table (assumed, YuNet 0.3/0.6/0.9 at R=16/24/32)",
-   "method": "capture-bystander flat-ground leak: weight ~ d dd, rewritten in pixel space as p^-3 dp and integrated with scipy.integrate.quad; own script, no import",
-   "command": "/tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/capture/indep.py research/capture-detectors/experiments/yaw.json /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/dump/experiments/results.json",
-   "expected": "assumed 0.3618/0.1281/0.0481; 0.6: 0.0091/0.0008/0.0001; 0.9: 0.5908/0.2462/0.0723",
-   "observed": "results.txt identical to 4 dp (0.6 at the exact grid mid 9.233)",
-   "result": "pass"
+  "date": "2026-11-12",
+  "subject": "research/capture-detectors",
+  "stratum": "research",
+  "seed": "2026-11-12-c",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality-audit round 44",
+  "status": "audited",
+  "professional": "a computer-vision referee (CVPR/WACV, or a privacy-preserving-imaging venue such as PETS) who works on small-face detection and automatic anonymisation. 'Capture' here is camera capture for travel creators (track 13), not regulatory or particle capture. They would check first how the reference faces were chosen (circularity), whether synthetic downscaling stands in for distance, whether the recall-vs-size curve agrees with published tiny-face results, and whether the leak integral follows from the measured curve.",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
   },
-  {
-   "dimension": "correctness",
-   "what": "Wilson 95% intervals in results.txt and yaw.txt (10/18, 21/25, 5/25, 77/148, 45/48, 19/35, 3/19)",
-   "method": "Wilson (1927) score interval by numerically inverting the score test with brentq, not the closed form",
-   "command": "/tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/capture/indep.py research/capture-detectors/experiments/yaw.json /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/dump/experiments/results.json",
-   "expected": "[0.337,0.754] [0.653,0.936] [0.089,0.391] [0.440,0.599] [0.832,0.979] [0.382,0.695] [0.055,0.376]",
-   "observed": "results.txt/yaw.txt 0.34-0.75, 0.65-0.94, 0.09-0.39, 0.44-0.60, 0.83-0.98, 0.38-0.70, 0.06-0.38",
-   "result": "pass"
+  "evidence": {
+    "correctness": "Reran the whole pipeline in a scratch copy with opencv-python-headless 4.14.0 (pinned data and models fetched, SHA-256 checked, 42 MB): run.py 4m11s, report.py, yaw.py 34s. yaw.txt and yaw.json are byte-identical to the committed files. A second identical run (patched only to dump raw trials) reproduced results.txt byte for byte; the first run differed in one cell: YuNet 0.3 at 8-12 px gave 19/25 instead of 21/25, which moves its fitted k from 5.25 to 4.50 and its R=16 leak from 0.0030 to 0.0063 (run-to-run nondeterminism, probably multithreaded DNN scores near the 0.3 threshold; the 0.6 and 0.9 headlines are unchanged). Independent script (no import of the subject, /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/capture/indep.py): leak integral by change of variable to pixels with scipy quad reproduces 0.3618/0.1281/0.0481 (assumed), 0.0091/0.0008/0.0001 (YuNet 0.6) and 0.5908/0.2462/0.0723 (YuNet 0.9); Wilson intervals by numerically inverting the score test match results.txt to 2 dp on 7 cells; continuous Nelder-Mead MLE on dumped raw trials gives YuNet 0.6 mid 9.14 k 5.88 (grid: 9.23, 6.0), 0.9 mid 26.2 (26.6), YOLOX mid 22.8 k 1.92 (22.8, 2.0), all within the 4% grid step; 8K equirect F = 0.15*7680/(2 pi) = 183.35 px.",
+    "completeness": "Every README section A-F regenerates from the shipped scripts with the documented commands; the 10 tests pass; download size (~42 MB: 35M YOLOX, 6.7M coco128, 228K YuNet) and runtime (~4 min) are as stated. HOG is honestly reported as failing and not used. Nothing claimed as done is a stub. The live page could not be loaded (proxy 403 on marisstella.app), so the served page is unchecked.",
+    "verification": "'cd research/capture-detectors && python3 -m pytest -q tests': 10 passed in 1.6 s. Six hand-seeded mutations, each reverted: leak area weighting removed (caught), Wilson z*z/(2n) -> z/(2n) (caught); face_hit width rule loosened 0.5..2x -> 0.25..4x (survived: the only 'too wide' test case fails on the centre rule, not the width rule), bootstrap upper quantile 0.975 -> 0.75 (survived), bootstrap resampling replaced by groups[0] (survived), run.py person IoU 0.5 -> 0.3 (survived). The stats helpers are tested; the bootstrap that produces every quoted 95% range, the detector wrappers (YOLOX decoding) and the experiment matching code have no tests, and nothing checks reproducibility of results.json.",
+    "craft": "Read src/capture_detectors/stats.py, detectors.py, fetch.py, experiments/run.py, report.py, yaw.py, tests/test_stats.py. Small, readable, pure-function core with documented formulas; data and models pinned by URL and SHA-256 and kept out of the tree. Defects: label parsing and Haar cascade setup duplicated between run.py:30-38 and yaw.py:43-50; no thread/determinism control (detectors.py:2 imports cv2 with no cv2.setNumThreads), so reruns can differ; only 100 bootstrap draws on a 4% grid, so the CI ends are coarse; mid/k fit on a fixed grid whose edges could clip (k max 12) without a warning.",
+    "claims": "Checked every number in the headline, project.json summary/lede and sections A-F against results.txt/yaw.txt and my reruns: 52%/94% person recall, 22.8 px mid (18.0-26.6), 9.2 (8.2-10.4) and 26.6 px face mids, leak 4.8% -> 0.01% and 36% -> 0.9%, 7.2% at 0.9, 0.005/0.018 range ends, 11% face/body ratio, 2/8/10 of 10 coverage, 7% face miss in 30 joint trials, 0.97/0.54/0.66 vs 0.95/0.16/0.16 yaw recall, 'factor of four' (26.6/6.7 = 3.97): all backed. Limits are stated prominently ('pilot', 'optimistic bound', circular 0.9 row, confounded yaw size). Small misses: README:30 says n = 18 to 25 per bin below 64 px, but the 48-64 bin has n = 11; README:40 labels the merged row '64+' while its Haar 0.76 is the 64-128 bin only (128+ is 0.67); YuNet 0.3 figures are not exactly reproducible. AI-assistance disclosure present.",
+    "fitness": "A researcher modelling blur leak (capture-bystander, capture-sentinel) can plug these curves in, and the code is reusable on another face set. As research it is a pilot: 22 reference faces from 128 photos, references chosen by the detector under test (YuNet >= 0.9), recall measured on synthetic area-averaged downscales. The nearest prior work is not cited: Hu and Ramanan, 'Finding Tiny Faces' (CVPR 2017), which studies detection against face size and the effect of resolution; WIDER FACE (Yang et al., CVPR 2016), whose easy/medium/hard split is largely by scale (mentioned only in passing, with no numbers); and Frome et al., 'Large-scale privacy protection in Google Street View' (ICCV 2009), the canonical operational face-blurring recall study. No external baseline such as YuNet's published WIDER FACE hard AP or YOLOX-s's COCO AP_small anchors the curves. The finding that a modern CNN detector beats an assumed 20 px midpoint is expected rather than new; the value is replacing a modelling assumption, not a field result.",
+    "domain": "Against standard face-detection evaluation (WIDER FACE protocol, IoU-matched detections against human labels): the reference set is the detector's own confident output, so the YuNet curves measure self-consistency under downscaling, not recall; centre-in-box plus width-within-2x is looser than IoU 0.5; INTER_AREA downscaling is a known optimistic proxy for distant, noisy, compressed, blurred faces (acknowledged). A human-labelled face reference was available in principle: COCO person keypoints (eyes, nose, ears) give hand-labelled face positions for the same photos. The leak integral is a correct transcription of capture-bystander's flat-ground model (verified independently), but assumes every face is face-on, and the 0.01% headline inherits all the above biases. A referee would accept it as a clearly caveated pilot, not sign off the leak figure as a design value."
   },
-  {
-   "dimension": "correctness",
-   "what": "fitted 50% points and slopes (YuNet 0.6, 0.9, YOLOX upright)",
-   "method": "continuous maximum-likelihood with Nelder-Mead from 12 starts on raw trials dumped from a scratch rerun, vs the subject's grid search",
-   "command": "/tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/capture/indep.py research/capture-detectors/experiments/yaw.json /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/dump/experiments/results.json",
-   "expected": "0.6: mid 9.14 k 5.88; 0.9: mid 26.2 k 5.96; YOLOX: mid 22.8 k 1.92",
-   "observed": "results.txt 9.2/6.00, 26.6/6.00, 22.8/2.00 (within the 4% mid and 0.25 k grid steps)",
-   "result": "pass"
-  },
-  {
-   "dimension": "correctness",
-   "what": "8K 360 face pixels at 1 m (F_8K = 183.3)",
-   "method": "equirectangular 7680 px over 2 pi rad times 0.15 m face width, by hand",
-   "command": "/tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/capture/indep.py research/capture-detectors/experiments/yaw.json /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/dump/experiments/results.json",
-   "expected": "183.35",
-   "observed": "report.py:10 F_8K = 183.3",
-   "result": "pass"
-  },
-  {
-   "dimension": "correctness",
-   "what": "section F pooled yaw recall and whether the drop is outside noise",
-   "method": "recount from committed yaw.json raw trials plus Fisher exact test (scipy)",
-   "command": "/tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/capture/indep.py research/capture-detectors/experiments/yaw.json /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/dump/experiments/results.json",
-   "expected": "YuNet0.9 19/35 vs 3/19 (p=0.009); Haar front 23/35 vs 3/19 (p=0.0006); YuNet0.6 34/35 vs 18/19 (p=1.0)",
-   "observed": "yaw.txt 0.54 vs 0.16, 0.66 vs 0.16, 0.97 vs 0.95; README says the drop is outside the noise for 0.9 and absent for 0.6",
-   "result": "pass"
-  },
-  {
-   "dimension": "correctness",
-   "what": "full rerun of run.py + report.py + yaw.py vs committed results",
-   "method": "byte diff, two independent reruns (opencv 4.14.0)",
-   "command": "cp -r research/capture-detectors /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/rerun && cd /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/rerun && CAPTURE_DETECTORS_CACHE=/tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/cache /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python experiments/run.py && /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python experiments/report.py && /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python experiments/yaw.py; diff against committed experiments/",
-   "expected": "identical",
-   "observed": "yaw.txt/yaw.json identical; results.txt identical on rerun 2, but rerun 1 differed: YuNet 0.3 8-12 px 19/25 (0.76) vs committed 21/25 (0.84), k 4.50 vs 5.25, R=16 leak 0.0063 vs 0.0030",
-   "result": "partial"
-  },
-  {
-   "dimension": "verification",
-   "what": "test suite",
-   "method": "run",
-   "command": "cd research/capture-detectors && python3 -m pytest -q tests",
-   "expected": "10 tests pass (README)",
-   "observed": "10 passed in 1.55 s",
-   "result": "pass"
-  },
-  {
-   "dimension": "claims",
-   "what": "README:30 'n = 18 to 25 trials per bin below 64 px'",
-   "method": "compare with results.txt section A",
-   "command": "sed -n 5,13p research/capture-detectors/experiments/results.txt",
-   "expected": "every bin below 64 px has n 18-25",
-   "observed": "48-64 bin n = 11",
-   "result": "fail"
-  },
-  {
-   "dimension": "claims",
-   "what": "README:40 '64+' row (Haar 0.76)",
-   "method": "compare with results.txt section A",
-   "command": "sed -n 12,13p research/capture-detectors/experiments/results.txt",
-   "expected": "one value for all faces of 64 px or more",
-   "observed": "0.76 is the 64-128 bin (n=17); 128+ is 0.67 (n=3)",
-   "result": "partial"
-  },
-  {
-   "dimension": "claims",
-   "what": "headline numbers and project.json lede/summary (16 px, 10 px, 9.2 px, 4.8% -> 0.01%, 36% -> 0.9%, 7.2%, 52%/94%, 23 px, 54%->16%, 66%->16%)",
-   "method": "cross-check against results.txt, yaw.txt and the reruns",
-   "command": "cat research/capture-detectors/experiments/results.txt research/capture-detectors/experiments/yaw.txt",
-   "expected": "each number present",
-   "observed": "all present and matching",
-   "result": "pass"
-  },
-  {
-   "dimension": "claims",
-   "what": "reproduce block: '~42 MB once; ~4 min on a CPU'",
-   "method": "measure",
-   "command": "du -sh /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/cache/*; time (run.py)",
-   "expected": "~42 MB, ~4 min",
-   "observed": "35M+6.7M+0.2M = 42 MB; 4m11s",
-   "result": "pass"
-  },
-  {
-   "dimension": "fitness",
-   "what": "nearest prior work cited (tiny-face detection vs size; operational face-blurring recall)",
-   "method": "grep README and capture-bystander for Hu & Ramanan 2017, WIDER FACE numbers, Frome et al. 2009",
-   "command": "grep -rniE 'ramanan|tiny faces|frome|street view|WIDER' research/capture-detectors research/capture-bystander",
-   "expected": "cited with a comparison",
-   "observed": "only a passing mention of WIDER FACE in Limitations and Next steps, no numbers; the other two absent",
-   "result": "fail"
-  },
-  {
-   "dimension": "domain",
-   "what": "reference faces independent of the detector under test",
-   "method": "read run.py:63-67 against the WIDER FACE protocol (human labels, IoU match)",
-   "command": "sed -n 60,70p research/capture-detectors/experiments/run.py",
-   "expected": "human-labelled reference (e.g. COCO person keypoints) or a detector-independent set",
-   "observed": "reference = YuNet >= 0.9 detections; acknowledged in Limitations",
-   "result": "partial"
-  },
-  {
-   "dimension": "verification",
-   "what": "tests cover the bootstrap and the face width rule",
-   "method": "seeded mutations",
-   "command": "cd research/capture-detectors && python3 -m pytest -q tests",
-   "expected": "a test fails",
-   "observed": "4 of 6 mutations survived (width rule, bootstrap quantile, bootstrap resampling, run.py IoU)",
-   "result": "fail"
-  }
- ],
- "mutations": [
-  {
-   "where": "research/capture-detectors/src/capture_detectors/stats.py:35",
-   "change": "0.5 <= det[2]/ref[2] <= 2.0 -> 0.25 <= ... <= 4.0 (face width rule)",
-   "caught": false,
-   "test_cmd": "cd research/capture-detectors && python3 -m pytest -q tests"
-  },
-  {
-   "where": "research/capture-detectors/src/capture_detectors/stats.py:101-102",
-   "change": "num += d*miss; den += d -> num += miss; den += 1 (drop area weighting)",
-   "caught": true,
-   "test_cmd": "cd research/capture-detectors && python3 -m pytest -q tests"
-  },
-  {
-   "where": "research/capture-detectors/src/capture_detectors/stats.py:87",
-   "change": "upper bootstrap quantile 0.975 -> 0.75",
-   "caught": false,
-   "test_cmd": "cd research/capture-detectors && python3 -m pytest -q tests"
-  },
-  {
-   "where": "research/capture-detectors/src/capture_detectors/stats.py:44",
-   "change": "Wilson centre z*z/(2n) -> z/(2n)",
-   "caught": true,
-   "test_cmd": "cd research/capture-detectors && python3 -m pytest -q tests"
-  },
-  {
-   "where": "research/capture-detectors/src/capture_detectors/stats.py:82",
-   "change": "resample groups[rng.randrange(...)] -> groups[0] (no resampling)",
-   "caught": false,
-   "test_cmd": "cd research/capture-detectors && python3 -m pytest -q tests"
-  },
-  {
-   "where": "research/capture-detectors/experiments/run.py:120",
-   "change": "person hit IoU >= 0.5 -> >= 0.3",
-   "caught": false,
-   "test_cmd": "cd research/capture-detectors && python3 -m pytest -q tests"
-  }
- ],
- "defects": [
-  {
-   "severity": "medium",
-   "what": "face_hit's width-within-2x rule is untested: the only 'too wide' case (100 px vs 40 px ref) fails on the centre rule, so loosening the width bounds to 0.25-4x leaves every test green",
-   "where": "research/capture-detectors/tests/test_stats.py:17-21",
-   "category": "untested-core",
-   "origin": "tests"
-  },
-  {
-   "severity": "medium",
-   "what": "bootstrap_fit, which produces every quoted 95% range, has no test: replacing resampling with groups[0] or the 0.975 quantile with 0.75 passes; the experiment matching code (run.py) is untested too",
-   "where": "research/capture-detectors/src/capture_detectors/stats.py:74-87",
-   "category": "untested-core",
-   "origin": "tests"
-  },
-  {
-   "severity": "medium",
-   "what": "nearest prior work not cited or compared: Hu and Ramanan 'Finding Tiny Faces' (CVPR 2017), WIDER FACE scale split numbers (Yang et al. 2016), Frome et al. Street View face blurring (ICCV 2009); no external baseline (YuNet's WIDER hard AP, YOLOX-s COCO AP_small)",
-   "where": "research/capture-detectors/README.md:9",
-   "category": "research-design",
-   "origin": "design"
-  },
-  {
-   "severity": "medium",
-   "what": "reference faces are the tested detector's own confident detections, so the YuNet curves are self-consistency under downscaling, not recall; COCO person keypoints (hand-labelled eyes/nose/ears) offer a human-labelled face reference for the same photos that was not used. Acknowledged in Limitations, but the 0.01% leak headline inherits it",
-   "where": "research/capture-detectors/experiments/run.py:63-67",
-   "category": "research-design",
-   "origin": "design"
-  },
-  {
-   "severity": "low",
-   "what": "results are not deterministic across reruns: in one of two identical reruns YuNet 0.3 at 8-12 px gave 19/25 instead of the committed 21/25 (k 4.50 vs 5.25, R=16 leak 0.0063 vs 0.0030); no cv2.setNumThreads(1) or note in the README",
-   "where": "research/capture-detectors/src/capture_detectors/detectors.py:2",
-   "category": "repo-hygiene",
-   "origin": "build"
-  },
-  {
-   "severity": "low",
-   "what": "README says n = 18 to 25 trials per bin below 64 px, but the 48-64 bin has n = 11; the '64+' row's Haar 0.76 is the 64-128 bin only (128+ is 0.67)",
-   "where": "research/capture-detectors/README.md:30",
-   "category": "stale-docs",
-   "origin": "maintenance"
-  }
- ],
- "fix_prs": [],
- "verdict": "A careful, honestly caveated pilot whose numbers are right: rerunning the pinned pipeline reproduces yaw.txt exactly and results.txt exactly on one of two runs (the other moved one YuNet 0.3 cell by 2 trials), and an independent script reproduces the leak table to 4 dp, the Wilson intervals, the fitted mids (continuous MLE within the 4% grid step) and the 183.3 px camera constant. It misses the bar on verification: 4 of 6 seeded bugs survived, including the face width rule and the bootstrap behind every 95% range. As research it is a sound replacement for an assumed curve but not a field result: the reference faces are the tested detector's own output, recall is measured on synthetic downscales, n is 22 faces, and the tiny-face and face-anonymisation literature (Hu and Ramanan 2017, WIDER FACE, Frome et al. 2009) is not cited or compared."
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Section C leak table (assumed, YuNet 0.3/0.6/0.9 at R=16/24/32)",
+      "method": "capture-bystander flat-ground leak: weight ~ d dd, rewritten in pixel space as p^-3 dp and integrated with scipy.integrate.quad; own script, no import",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/capture/indep.py research/capture-detectors/experiments/yaw.json /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/dump/experiments/results.json",
+      "expected": "assumed 0.3618/0.1281/0.0481; 0.6: 0.0091/0.0008/0.0001; 0.9: 0.5908/0.2462/0.0723",
+      "observed": "results.txt identical to 4 dp (0.6 at the exact grid mid 9.233)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Wilson 95% intervals in results.txt and yaw.txt (10/18, 21/25, 5/25, 77/148, 45/48, 19/35, 3/19)",
+      "method": "Wilson (1927) score interval by numerically inverting the score test with brentq, not the closed form",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/capture/indep.py research/capture-detectors/experiments/yaw.json /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/dump/experiments/results.json",
+      "expected": "[0.337,0.754] [0.653,0.936] [0.089,0.391] [0.440,0.599] [0.832,0.979] [0.382,0.695] [0.055,0.376]",
+      "observed": "results.txt/yaw.txt 0.34-0.75, 0.65-0.94, 0.09-0.39, 0.44-0.60, 0.83-0.98, 0.38-0.70, 0.06-0.38",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "fitted 50% points and slopes (YuNet 0.6, 0.9, YOLOX upright)",
+      "method": "continuous maximum-likelihood with Nelder-Mead from 12 starts on raw trials dumped from a scratch rerun, vs the subject's grid search",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/capture/indep.py research/capture-detectors/experiments/yaw.json /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/dump/experiments/results.json",
+      "expected": "0.6: mid 9.14 k 5.88; 0.9: mid 26.2 k 5.96; YOLOX: mid 22.8 k 1.92",
+      "observed": "results.txt 9.2/6.00, 26.6/6.00, 22.8/2.00 (within the 4% mid and 0.25 k grid steps)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "8K 360 face pixels at 1 m (F_8K = 183.3)",
+      "method": "equirectangular 7680 px over 2 pi rad times 0.15 m face width, by hand",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/capture/indep.py research/capture-detectors/experiments/yaw.json /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/dump/experiments/results.json",
+      "expected": "183.35",
+      "observed": "report.py:10 F_8K = 183.3",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "section F pooled yaw recall and whether the drop is outside noise",
+      "method": "recount from committed yaw.json raw trials plus Fisher exact test (scipy)",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/capture/indep.py research/capture-detectors/experiments/yaw.json /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/dump/experiments/results.json",
+      "expected": "YuNet0.9 19/35 vs 3/19 (p=0.009); Haar front 23/35 vs 3/19 (p=0.0006); YuNet0.6 34/35 vs 18/19 (p=1.0)",
+      "observed": "yaw.txt 0.54 vs 0.16, 0.66 vs 0.16, 0.97 vs 0.95; README says the drop is outside the noise for 0.9 and absent for 0.6",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "full rerun of run.py + report.py + yaw.py vs committed results",
+      "method": "byte diff, two independent reruns (opencv 4.14.0)",
+      "command": "cp -r research/capture-detectors /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/rerun && cd /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/rerun && CAPTURE_DETECTORS_CACHE=/tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/cache /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python experiments/run.py && /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python experiments/report.py && /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/venv/bin/python experiments/yaw.py; diff against committed experiments/",
+      "expected": "identical",
+      "observed": "yaw.txt/yaw.json identical; results.txt identical on rerun 2, but rerun 1 differed: YuNet 0.3 8-12 px 19/25 (0.76) vs committed 21/25 (0.84), k 4.50 vs 5.25, R=16 leak 0.0063 vs 0.0030",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd research/capture-detectors && python3 -m pytest -q tests",
+      "expected": "10 tests pass (README)",
+      "observed": "10 passed in 1.55 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:30 'n = 18 to 25 trials per bin below 64 px'",
+      "method": "compare with results.txt section A",
+      "command": "sed -n 5,13p research/capture-detectors/experiments/results.txt",
+      "expected": "every bin below 64 px has n 18-25",
+      "observed": "48-64 bin n = 11",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:40 '64+' row (Haar 0.76)",
+      "method": "compare with results.txt section A",
+      "command": "sed -n 12,13p research/capture-detectors/experiments/results.txt",
+      "expected": "one value for all faces of 64 px or more",
+      "observed": "0.76 is the 64-128 bin (n=17); 128+ is 0.67 (n=3)",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "headline numbers and project.json lede/summary (16 px, 10 px, 9.2 px, 4.8% -> 0.01%, 36% -> 0.9%, 7.2%, 52%/94%, 23 px, 54%->16%, 66%->16%)",
+      "method": "cross-check against results.txt, yaw.txt and the reruns",
+      "command": "cat research/capture-detectors/experiments/results.txt research/capture-detectors/experiments/yaw.txt",
+      "expected": "each number present",
+      "observed": "all present and matching",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "reproduce block: '~42 MB once; ~4 min on a CPU'",
+      "method": "measure",
+      "command": "du -sh /tmp/claude-0/-home-user-oss-monorepo/f6ef42c6-8012-5d3f-acdc-59680071c426/scratchpad/cache/*; time (run.py)",
+      "expected": "~42 MB, ~4 min",
+      "observed": "35M+6.7M+0.2M = 42 MB; 4m11s",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "nearest prior work cited (tiny-face detection vs size; operational face-blurring recall)",
+      "method": "grep README and capture-bystander for Hu & Ramanan 2017, WIDER FACE numbers, Frome et al. 2009",
+      "command": "grep -rniE 'ramanan|tiny faces|frome|street view|WIDER' research/capture-detectors research/capture-bystander",
+      "expected": "cited with a comparison",
+      "observed": "only a passing mention of WIDER FACE in Limitations and Next steps, no numbers; the other two absent",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "reference faces independent of the detector under test",
+      "method": "read run.py:63-67 against the WIDER FACE protocol (human labels, IoU match)",
+      "command": "sed -n 60,70p research/capture-detectors/experiments/run.py",
+      "expected": "human-labelled reference (e.g. COCO person keypoints) or a detector-independent set",
+      "observed": "reference = YuNet >= 0.9 detections; acknowledged in Limitations",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "tests cover the bootstrap and the face width rule",
+      "method": "seeded mutations",
+      "command": "cd research/capture-detectors && python3 -m pytest -q tests",
+      "expected": "a test fails",
+      "observed": "4 of 6 mutations survived (width rule, bootstrap quantile, bootstrap resampling, run.py IoU)",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/capture-detectors/src/capture_detectors/stats.py:35",
+      "change": "0.5 <= det[2]/ref[2] <= 2.0 -> 0.25 <= ... <= 4.0 (face width rule)",
+      "caught": false,
+      "test_cmd": "cd research/capture-detectors && python3 -m pytest -q tests"
+    },
+    {
+      "where": "research/capture-detectors/src/capture_detectors/stats.py:101-102",
+      "change": "num += d*miss; den += d -> num += miss; den += 1 (drop area weighting)",
+      "caught": true,
+      "test_cmd": "cd research/capture-detectors && python3 -m pytest -q tests"
+    },
+    {
+      "where": "research/capture-detectors/src/capture_detectors/stats.py:87",
+      "change": "upper bootstrap quantile 0.975 -> 0.75",
+      "caught": false,
+      "test_cmd": "cd research/capture-detectors && python3 -m pytest -q tests"
+    },
+    {
+      "where": "research/capture-detectors/src/capture_detectors/stats.py:44",
+      "change": "Wilson centre z*z/(2n) -> z/(2n)",
+      "caught": true,
+      "test_cmd": "cd research/capture-detectors && python3 -m pytest -q tests"
+    },
+    {
+      "where": "research/capture-detectors/src/capture_detectors/stats.py:82",
+      "change": "resample groups[rng.randrange(...)] -> groups[0] (no resampling)",
+      "caught": false,
+      "test_cmd": "cd research/capture-detectors && python3 -m pytest -q tests"
+    },
+    {
+      "where": "research/capture-detectors/experiments/run.py:120",
+      "change": "person hit IoU >= 0.5 -> >= 0.3",
+      "caught": false,
+      "test_cmd": "cd research/capture-detectors && python3 -m pytest -q tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "face_hit's width-within-2x rule is untested: the only 'too wide' case (100 px vs 40 px ref) fails on the centre rule, so loosening the width bounds to 0.25-4x leaves every test green",
+      "where": "research/capture-detectors/tests/test_stats.py:17-21",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "bootstrap_fit, which produces every quoted 95% range, has no test: replacing resampling with groups[0] or the 0.975 quantile with 0.75 passes; the experiment matching code (run.py) is untested too",
+      "where": "research/capture-detectors/src/capture_detectors/stats.py:74-87",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "nearest prior work not cited or compared: Hu and Ramanan 'Finding Tiny Faces' (CVPR 2017), WIDER FACE scale split numbers (Yang et al. 2016), Frome et al. Street View face blurring (ICCV 2009); no external baseline (YuNet's WIDER hard AP, YOLOX-s COCO AP_small)",
+      "where": "research/capture-detectors/README.md:9",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "reference faces are the tested detector's own confident detections, so the YuNet curves are self-consistency under downscaling, not recall; COCO person keypoints (hand-labelled eyes/nose/ears) offer a human-labelled face reference for the same photos that was not used. Acknowledged in Limitations, but the 0.01% leak headline inherits it",
+      "where": "research/capture-detectors/experiments/run.py:63-67",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "results are not deterministic across reruns: in one of two identical reruns YuNet 0.3 at 8-12 px gave 19/25 instead of the committed 21/25 (k 4.50 vs 5.25, R=16 leak 0.0063 vs 0.0030); no cv2.setNumThreads(1) or note in the README",
+      "where": "research/capture-detectors/src/capture_detectors/detectors.py:2",
+      "category": "repo-hygiene",
+      "origin": "build"
+    },
+    {
+      "severity": "low",
+      "what": "README says n = 18 to 25 trials per bin below 64 px, but the 48-64 bin has n = 11; the '64+' row's Haar 0.76 is the 64-128 bin only (128+ is 0.67)",
+      "where": "research/capture-detectors/README.md:30",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15000"
+  ],
+  "verdict": "A careful, honestly caveated pilot whose numbers are right: rerunning the pinned pipeline reproduces yaw.txt exactly and results.txt exactly on one of two runs (the other moved one YuNet 0.3 cell by 2 trials), and an independent script reproduces the leak table to 4 dp, the Wilson intervals, the fitted mids (continuous MLE within the 4% grid step) and the 183.3 px camera constant. It misses the bar on verification: 4 of 6 seeded bugs survived, including the face width rule and the bootstrap behind every 95% range. As research it is a sound replacement for an assumed curve but not a field result: the reference faces are the tested detector's own output, recall is measured on synthetic downscales, n is 22 faces, and the tiny-face and face-anonymisation literature (Hu and Ramanan 2017, WIDER FACE, Frome et al. 2009) is not cited or compared."
 }

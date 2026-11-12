@@ -222,6 +222,8 @@
       "origin": "design"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15000"
+  ],
   "verdict": "A small, honest computed note: every number in the README reproduces on rerun and against my own Euler-Bernoulli recomputation from Gere & Goodno with handbook moduli (steel sag 0.192 mm, aluminium 10.44 mm, hardwood 16.9 mm, rod masses, closures 39.5/37.8/28.7%), and its assumptions are labelled. It misses the bar on verification: all five mutations I seeded in alu.py survived the six tests, which mainly re-test the sibling beam model. Fitness and domain are 2: the stiffness result is textbook, aluminium guide shafts are established commercial practice not cited, and the 12 mm holder assumption hides that a 10.4 mm rod needs new bushings and clamps."
 }
