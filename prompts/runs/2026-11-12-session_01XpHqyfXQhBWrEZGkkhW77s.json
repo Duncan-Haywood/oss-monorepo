@@ -7,14 +7,16 @@
   "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T09:39:07Z",
   "ended": "2026-11-12T09:54:22Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 29.0,
+  "tokens_in": 5033783,
+  "tokens_out": 18397,
+  "cost_usd": 2.071,
+  "tool_calls": 58,
   "task": "perf: profile buildSite warm (item 1 of the last perf run's Not changed) and fix the top own-code hotspots",
   "projects": [
     "platform/pages"
@@ -47,7 +49,84 @@
     "docs/history/pages-build-perf-2026-11-12-writing-per-page-memos.md"
   ],
   "goal": "faster Pages build and build.test.mjs shared build",
-  "notes": "Metric: wall time of `node platform/pages/build.mjs --out=<dir>`, warm caches, this container (4 cores). Before/after taken interleaved old/new/old/new by swapping writing.mjs: 108.9, 97.7, 115.3, 104.2 s; mean 112.1 -> 100.9 s (-10%). Profiled (--cpu-prof) 106.9 -> 91.6 s wall, busy CPU 53.9 -> 39.5 s (self time summed per function). Output byte-identical across 26,332 files except version.json built_at (diff -rq, two pairs). writing.test.mjs + writing-backlog.test.mjs 41/41 pass. Local checks: see PR.",
+  "notes": "Metric: wall time of `node platform/pages/build.mjs --out=<dir>`, warm caches, this container (4 cores). Before/after taken interleaved old/new/old/new by swapping writing.mjs: 108.9, 97.7, 115.3, 104.2 s; mean 112.1 -> 100.9 s (-10%). Profiled (--cpu-prof) 106.9 -> 91.6 s wall, busy CPU 53.9 -> 39.5 s (self time summed per function). Output byte-identical across 26,332 files except version.json built_at (diff -rq, two pairs). writing.test.mjs + writing-backlog.test.mjs 41/41 pass. Local checks: platform/pages `node --test \"*.test.mjs\" \"cloudflare/*.test.mjs\"` exit 0 (292 s); check_post_frontmatter.py exit 0 after shortening the post description (run_workflow_locally caught it at 200 chars); doc-refs 3/3; portfolio-validate 100/100 run steps (10 not run: pytest missing, base ref absent). run_workflow_locally's site-builder step hit its 300 s local budget, so the suite was run directly instead.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "78ea72d8-96b3-5b53-97d3-0f8b4eed301f",
+    "transcripts": 1,
+    "first": "2026-11-12T09:39:07Z",
+    "last": "2026-11-12T10:08:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 108,
+        "output": 18397,
+        "thinking": 2092,
+        "cache_read": 4944457,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89218,
+        "api_equivalent_usd": 2.071,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 108,
+      "output": 18397,
+      "thinking": 2092,
+      "cache_read": 4944457,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89218,
+      "api_equivalent_usd": 2.071,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.0,
+      "active_minutes": 29.0,
+      "model_minutes": 3.33,
+      "tool_minutes": 25.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "profile a 2-minute build, find and fix three per-page recomputations, verify byte-identical output over 26k files, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 193.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
