@@ -13,7 +13,8 @@
 //      RFC (person or company) and each use against the receiver's regime, from SAT's
 //      catCFDI spreadsheet columns, read by build-cfdi-regimen.mjs into cfdi-regimen-data.mjs.
 // A type P (payment) CFDI's Pagos 2.0 complement is read by pagos20.mjs (MX-040..MX-049);
-// a type N (payroll) CFDI's Nómina 1.2 complement by nomina12.mjs (MX-050..MX-057).
+// a type N (payroll) CFDI's Nómina 1.2 complement by nomina12.mjs (MX-050..MX-057); an
+// export's Comercio Exterior 2.0 complement by cce20.mjs (MX-060..MX-069).
 // A check that depends on something this reader does not model (local taxes in the
 // implocal complement) is skipped and named in `skipped`. An
 // offline observation, not SAT's or a PAC's acceptance, and not tax advice. Findings
@@ -24,6 +25,7 @@ import { checkRfc } from "./mexico.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { checkPagos } from "./pagos20.mjs";
 import { checkNomina } from "./nomina12.mjs";
+import { checkComercioExterior } from "./cce20.mjs";
 import { REGIMEN, USO } from "./cfdi-regimen-data.mjs";
 
 export { parseCfdiXml };
@@ -488,5 +490,6 @@ export function checkCfdi(text) {
   }
   Object.assign(meta, checkPagos(root, { findings, skipped, checkNode, ELEMENTS, currencyDecimals, taxBounds, CFDI_NS }));
   Object.assign(meta, checkNomina(root, { findings, skipped, checkNode, ELEMENTS, CFDI_NS, personType }));
+  Object.assign(meta, checkComercioExterior(root, { findings, skipped, checkNode, ELEMENTS, CFDI_NS, typeProblem, currencyDecimals }));
   return { findings, skipped, meta };
 }

@@ -44,14 +44,18 @@ test("every input has a label and nothing is sent anywhere", () => {
     const id = tag.match(/\sid="([^"]+)"/)?.[1];
     assert.ok(/aria-label=/.test(tag) || (id && html.includes(`<label for="${id}">`)), `unlabelled: ${tag}`);
   }
-  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/);
-  for (const f of ["engine.mjs", "example-data.mjs", "example-fx.mjs", "usage.mjs", "report.mjs", "multivariate.mjs", "multi-view.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
+  // One read is allowed: the watch's optional CSV link, a GET of the address the visitor typed, without cookies.
+  // It sends none of their data; the result stays in the tab.
+  const reads = html.match(/fetch\([^)]*\)/g) ?? [];
+  assert.deepEqual(reads, ['fetch(url, { credentials: "omit" })']);
+  assert.doesNotMatch(html.replace('fetch(url, { credentials: "omit" })', ''), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/);
+  for (const f of ["engine.mjs", "watch-core.mjs", "example-data.mjs", "example-fx.mjs", "usage.mjs", "report.mjs", "multivariate.mjs", "multi-view.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
   assert.doesNotMatch(html, /<form[^>]+action=/i);
 });
 
 test("the module script imports only local files and parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./analyze-job.mjs", "./checkout.mjs", "./consensus.mjs", "./drift-report.mjs", "./drift-view.mjs", "./engine.mjs", "./licence.mjs", "./multi-report.mjs", "./multi-view.mjs", "./multivariate.mjs", "./report.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./analyze-job.mjs", "./checkout.mjs", "./consensus.mjs", "./drift-report.mjs", "./drift-view.mjs", "./engine.mjs", "./licence.mjs", "./multi-report.mjs", "./multi-view.mjs", "./multivariate.mjs", "./report.mjs", "./usage.mjs", "./watch-core.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));

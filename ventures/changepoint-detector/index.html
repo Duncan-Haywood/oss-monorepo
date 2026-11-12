@@ -139,6 +139,21 @@
   </section>
   <p class="error" id="error" role="alert"></p>
 
+  <section class="card" id="watch-card" aria-labelledby="watch-h">
+    <h2 id="watch-h">Keep watching a series</h2>
+    <p>Come back when new rows have arrived and press <strong>Check for new changes</strong>. This browser remembers which changes it has already shown you, so each lasting change is reported <strong>once</strong>, after 5 points on its far side, not on every odd day. The first check records the changes already in the history as the baseline. The remembered list stays in this browser only (nothing is uploaded); clearing site data forgets it.</p>
+    <div class="grid">
+      <div><label for="watch-url">CSV link (optional; blank = the data box above)</label><input id="watch-url" type="url" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv"></div>
+      <div><label for="watch-name">Watch name</label><input id="watch-name" type="text" placeholder="blank = the link, or &ldquo;pasted series&rdquo;"></div>
+      <div><label for="watch-detector">How eager</label><select id="watch-detector"><option value="">Quiet (default; may miss steps under 2 noise sd)</option><option value="bocpd">Middle (more real changes, about twice the false alerts)</option><option value="pelt">Eager (every marked change in our test set, about six times the alerts)</option></select></div>
+    </div>
+    <p class="note">The value column, model (level, level and volatility, or counts), seasonal period and logs come from the boxes above; other models are watched as a level. A link must allow reading from a web page (a Google Sheet published as CSV does); if it does not, paste the rows instead.</p>
+    <button type="button" id="watch-check">Check for new changes</button>
+    <button type="button" class="secondary" id="watch-forget">Forget this watch</button>
+    <pre id="watch-status" role="status" hidden></pre>
+    <p class="note">How the defaults were chosen (four rounds, rules written before each run, false-alert and miss rates on synthetic and 31 real labelled series): <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/changepoint-detector#watching-a-growing-series-2026-11-12-four-pre-registered-rounds-ships">README, &ldquo;Watching a growing series&rdquo;</a>. To be messaged in Slack, Discord, Teams or Mattermost without opening this page, run the same watch every day in your own GitHub account: <a href="watch-a-metric-for-changes.html">self-hosted daily watch</a>.</p>
+  </section>
+
   <section class="card" aria-labelledby="method-h">
     <h2 id="method-h">Method and citation</h2>
     <p><strong>PELT</strong> (Pruned Exact Linear Time; Killick, Fearnhead &amp; Eckley 2012) minimises the total cost of a segmentation — twice the negative Gaussian log-likelihood of each segment, plus a penalty for every change — over <em>every</em> possible set of changes. Dynamic programming makes this exact; pruning discards candidate change locations that can never be optimal, which makes it about linear in the length of the series. For a change in level, the noise standard deviation is estimated once from the median absolute difference of successive points, so the level shifts themselves do not inflate it.</p>
@@ -191,7 +206,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> An independent implementation from the published papers; not affiliated with or endorsed by the papers' authors or their institutions.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>agreed_run</code>, <code>drift_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>agreed_run</code>, <code>drift_run</code>, <code>watch_check</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More research algorithms on your own data: <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. For time-to-event data (churn, failures, relapse), the <a href="../survival-analysis/">survival analysis tool</a> gives Kaplan-Meier curves, log-rank tests and Cox hazard ratios. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>. To check which of many test results survive multiple-testing correction, use <a href="../fdr-multiple-testing/">Benjamini-Hochberg and q-values</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -206,6 +221,7 @@
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { analyzeJob } from "./analyze-job.mjs";
+    import { watchCheck, recordText } from "./watch-core.mjs";
     import { multiChartSvg, agreedTableHtml, jointTableHtml, multiSummary, multiCsv } from "./multi-view.mjs";
     import { parseColumns } from "./multivariate.mjs";
     import { multiReportHtml } from "./multi-report.mjs";
@@ -481,6 +497,44 @@
       a.click();
       URL.revokeObjectURL(a.href);
       record("report_downloaded");
+    });
+    // Keep watching a series: the same check as watch.mjs, with the state in this browser's storage.
+    const WATCH_PREFIX = "changepoint-detector-watch:";
+    const watchName = () => $("#watch-name").value.trim() || $("#watch-url").value.trim() || "pasted series";
+    function watchLoad(name) { try { const s = localStorage.getItem(WATCH_PREFIX + name); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+    function watchSave(name, st) { try { localStorage.setItem(WATCH_PREFIX + name, JSON.stringify(st)); return true; } catch (e) { return false; } }
+    function watchShow(text) { $("#watch-status").hidden = false; $("#watch-status").textContent = text; }
+    $("#watch-check").addEventListener("click", async () => {
+      const name = watchName();
+      const url = $("#watch-url").value.trim();
+      let csv = $("#csv").value;
+      if (url) {
+        if (!/^https:\/\//i.test(url)) { watchShow("The link must start with https://."); return; }
+        watchShow("Fetching the link...");
+        try {
+          const r = await fetch(url, { credentials: "omit" });
+          if (!r.ok) throw new Error(`it answered ${r.status}`);
+          csv = await r.text();
+          $("#csv").value = csv;
+        } catch (e) { watchShow(`Could not read the link (${e.message}). Many sites do not let a web page read their files; paste the rows into the data box and leave the link blank.`); return; }
+      }
+      const m = $("#model").value;
+      const model = ["mean", "meanvar", "poisson"].includes(m) ? m : "mean";
+      const period = Number($("#period").value) || 0;
+      const col = $("#column").value.trim();
+      const state = watchLoad(name);
+      try {
+        const out = watchCheck({ csv, state, column: col || null, model, detector: $("#watch-detector").value || undefined, period: period > 1 ? period : undefined, log: $("#log").checked && model !== "poisson" ? true : undefined });
+        const kept = watchSave(name, out.state);
+        const head = `Watch: ${name} (${out.column ?? "values"}, ${out.n} points${model !== m ? "; watched as a level" : ""})`;
+        watchShow([head, out.text, "", "On record:", recordText(out.state), kept ? "" : "\nThis browser would not keep the list (private window or site data blocked): the next check starts fresh."].join("\n"));
+        record("watch_check");
+      } catch (e) { watchShow(e.message); }
+    });
+    $("#watch-forget").addEventListener("click", () => {
+      const name = watchName();
+      try { localStorage.removeItem(WATCH_PREFIX + name); } catch (e) { /* storage is optional */ }
+      watchShow(`Forgot the watch "${name}". The next check records the history as a new baseline.`);
     });
     $("#example").addEventListener("click", () => { $("#csv").value = DEFAULTS.csv; $("#column").value = ""; $("#shape").value = "one"; $("#columns").disabled = true; $("#column").disabled = false; record("example_loaded"); run(); });
     $("#file").addEventListener("change", async (e) => { const f = e.target.files?.[0]; if (!f) return; $("#csv").value = await f.text(); record("file_opened"); run(); });
