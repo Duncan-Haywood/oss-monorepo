@@ -1,0 +1,28 @@
+Milestone 4: attitude law x cant; mixer prio (collective at hover), TWR 2, lam 0.3 deg/100 W, 10 seeds, best of 3 CMA-ES starts x 1920 evaluations,
+held-out 64 wide-plant episodes; gust8 = same designs at twice the gust intensity; kappa = c D, c = 0.081
+ctrl  cant  rms deg (mean; per seed)                                              roll   yaw    gust8   J       P_hover W  chosen cant deg (median)  sat rp  sat yaw
+pid     0    18.35 (17.29, 17.45, 19.84, 21.08, 18.48, 17.19, 18.40, 17.46, 18.80, 17.52)   8.26  29.67   30.30   -18.77       141     0.0 (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)  0.484   0.736
+pid    80    13.08 (13.17, 13.51, 13.26, 12.94, 12.96, 13.11, 13.09, 12.95, 13.01, 12.83)   8.63  19.24   20.48   -13.88       266    34.2 (34, 37, 36, 32, 34, 34, 33, 35, 36, 31)  0.012   0.712
+indi    0    17.10 (16.90, 16.93, 17.56, 17.07, 16.89, 16.95, 17.09, 17.04, 17.22, 17.34)   7.94  27.50   24.94   -17.50       132     0.0 (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)  0.007   0.538
+indi   80    12.92 (12.90, 12.92, 13.00, 12.85, 12.89, 13.12, 12.90, 13.02, 12.84, 12.77)   8.67  18.86   20.43   -13.61       230    33.9 (35, 35, 35, 34, 35, 33, 32, 33, 33, 34)  0.006   0.518
+geo     0    17.61 (17.39, 17.53, 17.90, 17.58, 17.49, 17.37, 17.45, 17.79, 17.89, 17.73)   9.68  27.45   27.21   -18.05       146     0.0 (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)  0.018   0.596
+geo    80    12.73 (12.70, 12.77, 12.85, 12.74, 12.66, 12.75, 12.72, 12.69, 12.65, 12.75)   8.21  18.96   21.42   -13.49       254    35.3 (34, 35, 36, 34, 35, 36, 34, 35, 37, 36)  0.011   0.369
+
+Paired by seed: cant <= 80 minus no cant, same law (negative = cant better)
+  pid : RMS -5.27 deg (sd 1.32, better in 10 of 10); composite -4.89 (sd 1.27, better in 10 of 10); gust8 RMS -9.82 (better in 10 of 10)
+  indi: RMS -4.18 deg (sd 0.25, better in 10 of 10); composite -3.88 (sd 0.25, better in 10 of 10); gust8 RMS -4.51 (better in 10 of 10)
+  geo : RMS -4.88 deg (sd 0.20, better in 10 of 10); composite -4.56 (sd 0.17, better in 10 of 10); gust8 RMS -5.78 (better in 10 of 10)
+
+Paired by seed: law minus pid, same cant bound (negative = the law beats PID)
+  indi cant<=  0: RMS -1.25 deg (sd 1.20, better in 10 of 10); gust8 -5.36 (sd 5.83, better in 10 of 10)
+  indi cant<= 80: RMS -0.16 deg (sd 0.19, better in 8 of 10); gust8 -0.05 (sd 1.96, better in 5 of 10)
+  geo  cant<=  0: RMS -0.74 deg (sd 1.22, better in 5 of 10); gust8 -3.09 (sd 5.34, better in 4 of 10)
+  geo  cant<= 80: RMS -0.35 deg (sd 0.17, better in 10 of 10); gust8 +0.94 (sd 1.27, better in 3 of 10)
+
+H4 refutation test: law without cant minus PID with cant (negative = the law without cant matches or beats PID with cant)
+  indi no cant - pid cant: RMS +4.02 deg (sd 0.31, law-without-cant better in 0 of 10)
+  geo  no cant - pid cant: RMS +4.53 deg (sd 0.30, law-without-cant better in 0 of 10)
+
+Shrinkage of the cant advantage: (law's cant-minus-no-cant) minus (pid's), by seed (positive = narrower than under PID)
+  indi: +1.09 deg (sd 1.23, narrower in 9 of 10)
+  geo : +0.38 deg (sd 1.28, narrower in 5 of 10)

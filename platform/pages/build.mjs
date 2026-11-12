@@ -21,7 +21,7 @@
 // opt-out.
 
 import { verificationHead } from './site-verification.mjs';
-import { promises as fs, existsSync, readFileSync } from 'node:fs';
+import { promises as fs, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { loadLastChanged } from './lastmod.mjs';
 import { generateVenturePages } from './generated-pages.mjs';
@@ -770,10 +770,12 @@ const CATEGORY_RULES = [
     // `hvac-load-calc` joined 2026-11-11 on its first commit: the room-by-room heating and
     // cooling load an installer or builder checks before quoting a heat pump, beside the
     // furnace, mini-split and heat pump bid calculators.
+    // `continuous-beam-calculator` joined 2026-11-12 on its first commit: a builder or designer
+    // checking a deck or floor beam over several posts, beside `wall-framing-takeoff`.
     // `earthwork-cut-fill` joined 2026-11-12 on its first commit: a site-work contractor
     // turning a surveyor's point file into pad cut and fill and truckloads for a bid,
     // beside `concrete-maturity` and the excavation and grading bid calculators.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'concrete-maturity' || slug === 'earthwork-cut-fill' || slug === 'hvac-load-calc' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'concrete-maturity' || slug === 'earthwork-cut-fill' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -4066,21 +4068,38 @@ export async function markSponsorLinksIn(outDir) {
  * Applies a pure `html -> html` rewrite to every HTML file under `outDir` and
  * returns the relative paths it changed, in `listFiles` order.
  *
- * Pages are read and rewritten 32 at a time (`mapLimit` keeps input order), as
- * `addShareCards` does: one at a time, the disk sat idle between them. Each
- * rewrite reads and writes only its own file, so the order files finish in
- * cannot change any output.
+ * Pages are read and written with the sync calls, one after another
+ * (`rewritePagesSync`): measured 2026-11-12 over a full build's 8,784 pages,
+ * the promise API's per-file overhead was most of the pass, as it was in
+ * `offlineCacheName` (docs/history/pages-build-perf-2026-11-12-html-passes-sync.md).
  */
 async function rewriteHtmlIn(outDir, rewrite) {
   const files = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
-  const changed = await mapLimit(files, 32, async (file) => {
-    const html = await fs.readFile(file, 'utf8');
-    const next = rewrite(html);
-    if (next === html) return null;
-    await fs.writeFile(file, next);
-    return path.relative(outDir, file);
-  });
-  return changed.filter((file) => file !== null);
+  const changed = rewritePagesSync(files, (html) => rewrite(html));
+  return changed.map((file) => path.relative(outDir, file));
+}
+
+/**
+ * Reads each file, passes its text and path to `rewrite`, writes the result
+ * back when it differs, and returns the files it wrote, in input order.
+ *
+ * Sync on purpose. Over the 8,784 pages of a full build (2026-11-12, this
+ * container), `readFileSync`/`writeFileSync` one at a time took 1.7 s where
+ * `fs.promises` 32 at a time (`mapLimit`) took 3.0 s for the sponsor and
+ * notice pass, and 1.1 s against 1.9 s for the offline head injection, with
+ * byte-identical pages. The callers run in `buildSite` one after another with
+ * nothing else in flight, so blocking the event loop holds nothing up.
+ */
+function rewritePagesSync(files, rewrite) {
+  const written = [];
+  for (const file of files) {
+    const html = readFileSync(file, 'utf8');
+    const next = rewrite(html, file);
+    if (next === html) continue;
+    writeFileSync(file, next);
+    written.push(file);
+  }
+  return written;
 }
 
 /**
@@ -4097,18 +4116,17 @@ async function rewriteHtmlIn(outDir, rewrite) {
  */
 export async function markSponsorsAndNoscriptIn(outDir) {
   const files = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
-  const results = await mapLimit(files, 32, async (file) => {
-    const html = await fs.readFile(file, 'utf8');
+  // sync reads and writes, as in rewritePagesSync (measured there)
+  const sponsored = [], noscripted = [];
+  rewritePagesSync(files, (html, file) => {
     const marked = markSponsorLinks(html);
     const next = addNoscriptNotice(marked);
-    if (next !== html) await fs.writeFile(file, next);
     const relative = path.relative(outDir, file);
-    return { sponsored: marked !== html ? relative : null, noscripted: next !== marked ? relative : null };
+    if (marked !== html) sponsored.push(relative);
+    if (next !== marked) noscripted.push(relative);
+    return next;
   });
-  return {
-    sponsored: results.map((r) => r.sponsored).filter((f) => f !== null),
-    noscripted: results.map((r) => r.noscripted).filter((f) => f !== null),
-  };
+  return { sponsored, noscripted };
 }
 
 const NOSCRIPT_SCRIPT_RE = /<script\b(?![^>]*\btype\s*=\s*["']?(?:application\/(?:ld\+)?json|text\/(?:template|html))["']?)[^>]*>/i;
@@ -4810,9 +4828,10 @@ const SUBCATEGORY_RULES = {
       // even though its own job is furniture, not construction.
       // `tile-layout-planner` joined 2026-10-01 on its first commit: it lays out the
       // floor the flooring and tile-backsplash bids price, for the same remodeler.
+      // `continuous-beam-calculator` joined 2026-11-12 beside it: the beam a framer sets over posts.
       // `wall-framing-takeoff` joined 2026-10-28: studs and plates go up
       // before the drywall here, and its lumber list is the same job as `cut-list`.
-      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing)/.test(slug),
+      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
     },
     {
       id: 'trades-site',
@@ -11888,13 +11907,16 @@ export async function addOfflineSupport({
   );
 
   const pages = (await listFiles(outDir)).filter((file) => file.endsWith('.html'));
-  const injected = (await mapLimit(pages, 32, async (file) => {
+  // sync reads and writes (rewritePagesSync, measured there); a page counts
+  // when the injection reports it, as before, whether or not its bytes moved
+  let injected = 0;
+  rewritePagesSync(pages, (html, file) => {
     const depth = path.relative(outDir, file).split(path.sep).length - 1;
-    const result = injectOfflineSupport(await fs.readFile(file, 'utf8'), '../'.repeat(depth));
-    if (!result.injected) return 0;
-    await fs.writeFile(file, result.html);
-    return 1;
-  })).reduce((a, b) => a + b, 0);
+    const result = injectOfflineSupport(html, '../'.repeat(depth));
+    if (!result.injected) return html;
+    injected++;
+    return result.html;
+  });
 
   // The real weight of what "Save this category for offline" fetches, over
   // the wire rather than on disk -- GitHub Pages (Fastly) and the front

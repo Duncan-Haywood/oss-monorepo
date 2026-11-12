@@ -18,8 +18,8 @@ const here = dirname(fileURLToPath(import.meta.url));
 const out = join(here, "plain");
 const work = mkdtempSync(join(tmpdir(), "einvoice-plain-"));
 const git = (dir, ...args) => execFileSync("git", ["-C", dir, ...args], { encoding: "utf8" }).trim();
-const clone = (url, dir) => {
-  execFileSync("git", ["clone", "--depth", "1", url, dir], { stdio: "inherit", env: { ...process.env, GIT_LFS_SKIP_SMUDGE: "1" } });
+const clone = (url, dir, branch) => {
+  execFileSync("git", ["clone", "--depth", "1", ...(branch ? ["--branch", branch] : []), url, dir], { stdio: "inherit", env: { ...process.env, GIT_LFS_SKIP_SMUDGE: "1" } });
   return dir;
 };
 
@@ -27,6 +27,9 @@ mkdirSync(out, { recursive: true });
 const en = process.argv[2] || clone("https://github.com/ConnectingEurope/eInvoicing-EN16931", join(work, "en16931"));
 const xr = clone("https://github.com/itplr-kosit/xrechnung-schematron", join(work, "xrechnung"));
 const pe = clone("https://github.com/OpenPEPPOL/peppol-bis-invoice-3", join(work, "peppol"));
+// CIUS-RO 1.0.9 is built on EN 16931 validation 1.3.8, so a Romanian file gets that
+// release as its base (schematron-core.mjs, ADDONS["cius-ro"].base). Tag validation-1.3.8.
+const en138 = process.env.EINVOICE_EN138 || clone("https://github.com/ConnectingEurope/eInvoicing-EN16931", join(work, "en16931-1.3.8"), "validation-1.3.8");
 
 const sets = [
   ["en16931-ubl", join(en, "ubl/schematron/preprocessed/EN16931-UBL-validation-preprocessed.sch"), en, "eInvoicing-EN16931 (EUPL-1.2)"],
@@ -35,6 +38,7 @@ const sets = [
   ["xrechnung-cii", join(xr, "src/validation/schematron/cii/XRechnung-CII-validation.sch"), xr, "xrechnung-schematron (Apache-2.0)"],
   ["peppol-ubl", join(pe, "rules/sch/PEPPOL-EN16931-UBL.sch"), pe, "peppol-bis-invoice-3 (MPL-2.0)"],
   ["peppol-cii", join(pe, "rules/sch/PEPPOL-EN16931-CII.sch"), pe, "peppol-bis-invoice-3 (MPL-2.0)"],
+  ["en16931-1.3.8-ubl", join(en138, "ubl/schematron/preprocessed/EN16931-UBL-validation-preprocessed.sch"), en138, "eInvoicing-EN16931 validation-1.3.8 (EUPL-1.2), the base CIUS-RO 1.0.9 runs on"],
 ];
 const manifest = { built: new Date().toISOString().slice(0, 10), sets: {} };
 for (const [name, sch, repo, licence] of sets) {

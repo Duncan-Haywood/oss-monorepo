@@ -107,6 +107,17 @@ const PUBLISHED_ORIGIN = 'https://duncan-haywood.github.io/oss-monorepo/';
 export const relinkSite = (html, toRoot) => html.split(`href="${PUBLISHED_ORIGIN}`).join(`href="${toRoot}`);
 
 /** Parse the `---` front-matter block. Returns { meta, body }. Only the subset posts use. */
+// YAML's quoted scalars: "..." takes backslash escapes (\" and \\ are the ones posts use) and
+// '...' doubles a quote. Until 2026-11-12 the quotes were stripped and the escapes kept, so 24
+// post titles showed \"United States\" with the backslashes on the page, in <title> and in feeds.
+const YAML_ESCAPES = { '"': '"', '\\': '\\', '/': '/', n: '\n', t: '\t', r: '\r', 0: '\0' };
+export function unquoteYamlScalar(value) {
+  const dq = /^"(.*)"$/.exec(value);
+  if (dq) return dq[1].replace(/\\(.)/g, (m, c) => YAML_ESCAPES[c] ?? m);
+  const sq = /^'(.*)'$/.exec(value);
+  return sq ? sq[1].replace(/''/g, "'") : value;
+}
+
 export function parseFrontMatter(src) {
   const text = String(src).replace(/\r\n?/g, '\n');
   const m = /^---\n([\s\S]*?)\n---\n?/.exec(text);
@@ -123,7 +134,7 @@ export function parseFrontMatter(src) {
         .map((s) => s.trim().replace(/^["']|["']$/g, ''))
         .filter(Boolean);
     } else {
-      value = value.replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1');
+      value = unquoteYamlScalar(value);
     }
     meta[kv[1]] = value;
   }
@@ -223,8 +234,18 @@ function loadPost(root, POSTS_DIR, name) {
   };
 }
 
-const longDate = (iso) =>
-  new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+// Memoised per date string: `toLocaleDateString` builds an Intl formatter on
+// every call, and the blog index and every post's related list format the same
+// few hundred dates thousands of times (about 2 s of a warm build, 2026-11-12).
+const LONG_DATES = new Map();
+const longDate = (iso) => {
+  let s = LONG_DATES.get(iso);
+  if (s === undefined) {
+    s = new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+    LONG_DATES.set(iso, s);
+  }
+  return s;
+};
 
 const STYLE = `
   :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
@@ -268,6 +289,22 @@ const STYLE = `
   .pf-hero .crumbs { margin:0 0 18px; } .pf-hero .meta { margin:0; } .pf-hero .tag { color:var(--muted); border-color:var(--line); }
   .pf-hero h1 { font-size:clamp(1.9rem,4.4vw,2.6rem); }
   .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  .more h2 { font-size:1.15rem; margin:0 0 .7em; }
+  .related { list-style:none; padding:0; margin:0; display:grid; gap:10px; }
+  .related li { position:relative; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px 16px; line-height:1.4; transition:border-color .18s, box-shadow .18s; }
+  .related li:hover { border-color:var(--accent); box-shadow:0 6px 18px rgba(20,30,60,.08); }
+  .related a { color:var(--ink); font-weight:600; text-decoration:none; }
+  .related a::after { content:""; position:absolute; inset:0; border-radius:12px; }
+  .related a:hover, .related a:focus-visible { color:var(--accent); }
+  .related a:focus-visible { outline:none; } .related li:focus-within { outline:2px solid var(--accent); outline-offset:2px; }
+  .related .when { display:block; margin-top:4px; font-size:.8rem; color:var(--muted); }
+  .pager.steps { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap:10px; margin:1.6em 0 0; font-size:.9rem; }
+  .pager.steps a { display:block; padding:12px 16px; border:1px solid var(--line); border-radius:12px; color:var(--ink); text-decoration:none; line-height:1.4; }
+  .pager.steps a:hover, .pager.steps a:focus-visible { border-color:var(--accent); color:var(--accent); }
+  @media (min-width:600px) { .pager.steps a.next { text-align:right; } }
+  .pager.steps .dir { display:block; font-size:.75rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin-bottom:3px; }
+  .more .all { margin:1.4em 0 0; font-size:.9rem; }
+  @media (prefers-reduced-motion: reduce) { .related li { transition:none; } }
   .episode { margin:0 0 2em; padding:12px 14px; background:var(--panel); border:1px solid var(--line); border-radius:12px; }
   .episode figcaption { font-size:.85rem; color:var(--muted); margin:0 0 8px; }
   audio { width:100%; display:block; margin:.4em 0; }
@@ -582,12 +619,25 @@ export function linkSiblings(html, posts) {
   // One pass over the page's hrefs, not one scan of the page per post. The
   // replacement never contains REPO_BLOB, so the old chain of replaces and this
   // lookup agree; the first post with a given source wins, as before.
+  const to = siblingTargets(posts);
+  return html.replace(/href="([^"]*)"/g, (m, v) => to.get(v) ?? m);
+}
+
+// The source -> page map for one posts array, built once and reused for every
+// post page (as `relatedIndex` is). Rebuilding it per page was 3,700 posts x
+// 3,700 pages x two `esc` calls, about 8 s of a warm build (2026-11-12). The
+// length check rebuilds it if a caller grows the array between pages.
+const SIBLING_TARGETS = new WeakMap();
+function siblingTargets(posts) {
+  const cached = SIBLING_TARGETS.get(posts);
+  if (cached && cached.n === posts.length) return cached.to;
   const to = new Map();
   for (const p of posts) {
     const from = esc(REPO_BLOB + p.source);
     if (!to.has(from)) to.set(from, `href="../${esc(p.slug)}/"`);
   }
-  return html.replace(/href="([^"]*)"/g, (m, v) => to.get(v) ?? m);
+  SIBLING_TARGETS.set(posts, { n: posts.length, to });
+  return to;
 }
 
 export function renderPost(post, posts, opts = {}) {
@@ -596,11 +646,84 @@ export function renderPost(post, posts, opts = {}) {
   return baseUrl && baseUrl !== DEFAULT_SITE_ORIGIN ? html.split(DEFAULT_SITE_ORIGIN).join(baseUrl) : html;
 }
 
-/** Up to `n` other posts, same topic first (newest first), then the newest of the rest. */
+// Title words too common to say two posts are about the same thing.
+const RELATED_STOPWORDS = new Set(
+  ('about after again against also although among another because been before being between both cannot could does doing ' +
+    'down during each every first from have having here into itself just last made make more most much must never none ' +
+    'only other over same should since some still such than that their them then there these they this those three ' +
+    'through under until very were what when where which while whose will with without would your')
+    .split(' '),
+);
+const titleWords = (title = '') =>
+  new Set(String(title).toLowerCase().match(/[a-z0-9][a-z0-9'-]{3,}/g)?.filter((w) => !RELATED_STOPWORDS.has(w)) ?? []);
+
+// The scoring index for one posts array, built once and reused for every post page.
+const RELATED_INDEX = new WeakMap();
+function relatedIndex(posts) {
+  let index = RELATED_INDEX.get(posts);
+  if (index) return index;
+  const byTag = new Map();
+  const byWord = new Map();
+  const words = new Map();
+  posts.forEach((p, i) => {
+    for (const t of new Set(p.tags ?? [])) (byTag.get(t) ?? byTag.set(t, []).get(t)).push(i);
+    const w = titleWords(p.title);
+    words.set(p, w);
+    for (const x of w) (byWord.get(x) ?? byWord.set(x, []).get(x)).push(i);
+  });
+  // A tag or word shared by more than a fifth of the posts says little; leaving it out
+  // of the candidate lists also keeps the build linear-ish (3,700 posts, 2026-11-12).
+  const cap = Math.max(2, Math.floor(posts.length / 5));
+  const idf = (list) => (list && list.length > 1 && list.length <= cap ? Math.log(posts.length / list.length) : 0);
+  // Each post's date as a day number, by index: the nearest-in-date sorts
+  // below compare thousands of pairs per post page, and parsing the date in
+  // every comparison was about 2 s of a warm build (2026-11-12).
+  const days = posts.map((p) => dayNumber(p.date));
+  index = { byTag, byWord, words, idf, days };
+  RELATED_INDEX.set(posts, index);
+  return index;
+}
+
+const dayNumber = (iso) => (iso ? Date.parse(`${iso}T00:00:00Z`) / 86400000 : 0);
+
+/**
+ * Up to `n` other posts a reader of `post` would most likely want next.
+ *
+ * Until 2026-11-12 this was "same topic, newest first", so every post in a topic
+ * linked to the same five posts (the newest ones, alphabetical within a day):
+ * 36 of 3,717 posts received every related link and 3,681 received none. Now
+ * the score is the shared tags plus half the shared title words, each weighted
+ * by how rare it is (log N / df), ties going to the post nearest in date. When
+ * fewer than `n` posts share anything, the rest are the same topic's posts
+ * nearest in date, then the other topics' in the same order. A post never
+ * lists itself.
+ */
 export function relatedPosts(post, posts, n = 5) {
-  const others = posts.filter((p) => p.slug !== post.slug);
-  const same = others.filter((p) => p.topic === post.topic);
-  return same.concat(others.filter((p) => p.topic !== post.topic)).slice(0, n);
+  const { byTag, byWord, words, idf, days } = relatedIndex(posts);
+  const score = new Map();
+  const add = (list, weight) => {
+    if (!weight) return;
+    for (const i of list) score.set(i, (score.get(i) ?? 0) + weight);
+  };
+  for (const t of new Set(post.tags ?? [])) add(byTag.get(t) ?? [], idf(byTag.get(t)));
+  for (const w of words.get(post) ?? titleWords(post.title)) add(byWord.get(w) ?? [], idf(byWord.get(w)) / 2);
+  // Entries are { p: post, i: its index in `posts`, s: score }.
+  const day = dayNumber(post.date);
+  const gap = (x) => Math.abs((days[x.i] ?? dayNumber(x.p.date)) - day);
+  const nearest = (a, b) => gap(a) - gap(b) || a.i - b.i;
+  const ranked = [...score]
+    .map(([i, s]) => ({ p: posts[i], i, s }))
+    .filter((x) => x.s > 0 && x.p.slug !== post.slug)
+    .sort((a, b) => b.s - a.s || nearest(a, b))
+    .slice(0, n)
+    .map((x) => x.p);
+  if (ranked.length >= n) return ranked;
+  const taken = new Set(ranked.map((p) => p.slug).concat(post.slug));
+  const rest = posts.map((p, i) => ({ p, i })).filter((x) => !taken.has(x.p.slug));
+  const fill = (xs) => xs.sort(nearest).map((x) => x.p);
+  return ranked
+    .concat(fill(rest.filter((x) => x.p.topic === post.topic)), fill(rest.filter((x) => x.p.topic !== post.topic)))
+    .slice(0, n);
 }
 
 function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = null, section = BLOG } = {}) {
@@ -657,11 +780,11 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
     body: `<article>
 ${episode ? `${renderPlayer(episode, '../podcast/')}\n` : ''}${relinkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts), toRoot)}
 </article>
-${newer || older ? `<nav class="pager" aria-label="Older and newer posts">${older ? `<a href="../${esc(older.slug)}/" rel="prev">← ${esc(older.title)}</a>` : '<span></span>'}${newer ? `<a href="../${esc(newer.slug)}/" rel="next">${esc(newer.title)} →</a>` : ''}</nav>` : ''}
-<section class="more" aria-label="More writing">
-<p><strong>More in ${esc(topicLabel(post.topic))}</strong></p>
-${related.length ? `<ul>${related.map((p) => `<li><a href="../${esc(p.slug)}/">${esc(p.title)}</a></li>`).join('')}</ul>` : ''}
-<p><a href="../">All ${isAgents ? 'agent-to-agent posts' : 'writing'}</a> · <a href="../?topic=${esc(post.topic)}">All in this topic</a> · <a href="${toRoot}">All tools and research</a></p>
+<section class="more" aria-labelledby="related-h">
+${related.length ? `<h2 id="related-h">Related posts</h2>
+<ul class="related">${related.map((p) => `<li><a href="../${esc(p.slug)}/">${esc(p.title)}</a><span class="when"><time datetime="${p.date}">${longDate(p.date)}</time> · ${esc(topicLabel(p.topic))}</span></li>`).join('')}</ul>` : ''}
+${newer || older ? `<nav class="pager steps" aria-label="Older and newer posts">${older ? `<a href="../${esc(older.slug)}/" rel="prev"><span class="dir">← Older</span>${esc(older.title)}</a>` : '<span></span>'}${newer ? `<a href="../${esc(newer.slug)}/" rel="next" class="next"><span class="dir">Newer →</span>${esc(newer.title)}</a>` : ''}</nav>` : ''}
+<p class="all"><a href="../">All ${isAgents ? 'agent-to-agent posts' : 'writing'}</a> · <a href="../?topic=${esc(post.topic)}">More in ${esc(topicLabel(post.topic))}</a> · <a href="${toRoot}">All tools and research</a></p>
 </section>`,
   });
 }

@@ -187,13 +187,19 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
       }
       return { status: "ok", syntax, findings, sets: [profile[0]], skipped };
     }
-    const base = syntax && (await load(RULE_FILES[syntax]));
+    // A national add-on built on an older EN 16931 release (CIUS-RO on 1.3.8) gets that
+    // release as its base, as its own validator runs it; a copy without that file falls
+    // back to the current base.
+    const pinned = syntax ? matchingAddons(xml, syntax).map(([, a]) => a.base?.[syntax]).find(Boolean) : null;
+    let base = pinned ? await load(pinned[0]) : null;
+    const baseName = base ? pinned[1] : "en16931";
+    if (!base) base = syntax && (await load(RULE_FILES[syntax]));
     if (!base) return { status: "unavailable", syntax, findings: [], sets: [] };
     const doc = parseXml(xml);
     const baseRaw = runRules(base, doc);
     const findings = baseRaw.map((f) => toFinding(f, "en16931-schematron"));
     const skipped = [...baseRaw.skipped];
-    const sets = ["en16931"];
+    const sets = [baseName];
     const seen = new Set(findings.map((f) => `${f.rule}|${f.path}`));
     for (const [name, addon] of matchingAddons(xml, syntax)) {
       const rules = await load(PLAIN_ADDON_FILES[name][syntax]);

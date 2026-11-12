@@ -27,6 +27,44 @@ TAUS = harness.TAUS
 CITIES = ["chicago", "sf", "austin", "seattle"]
 CLASSES, RULES, harmonise = classmap.CLASSES, classmap.RULES, classmap.harmonise  # moved, session 70
 FOLD = {"cascade2_nodemo": {"demolition": "alteration"}}  # session 76: configuration -> class merges
+TAILFOLD_MIN_N = 50  # session 77: rows a class needs on each side before the rule may flag it
+
+
+def tailfold_map(frames, held, test_year, min_n=TAILFOLD_MIN_N, n_boot=2000, seed=0):
+    """Session 77, the general fold rule, decided from training-time data only.
+
+    For each class (cascade2 labels), compare the target's q0.9 among the sources' training rows
+    (years <= Y-2) with the held-out city's OWN history (years <= Y-2, the rows its own baseline
+    is fitted on). A class whose ratio source/held has a 95% bootstrap interval entirely above 1
+    is flagged: naming it would import the sources' longer tail. Flagged classes fold into
+    alteration, or into "other" if alteration is itself flagged. The test year is never read.
+    Returns (fold dict, per-class diagnostics)."""
+    import tail_check
+    src = [c for c in CITIES if c != held and c in frames]
+    tr = pd.concat([frames[c][frames[c].year <= test_year - 2] for c in src])
+    own = frames[held][frames[held].year <= test_year - 2]
+    diag, flagged = {}, []
+    for c in CLASSES:
+        a, b = tr.y[tr.cls == c].to_numpy(float), own.y[own.cls == c].to_numpy(float)
+        row = dict(n_source=len(a), n_held_history=len(b))
+        if len(a) >= min_n and len(b) >= min_n:
+            row["q90"] = tail_check.quantile_ratio(a, b, n_boot=n_boot, seed=seed)
+            if row["q90"]["lo"] is not None and row["q90"]["lo"] > 1:
+                flagged.append(c)
+        diag[c] = row
+    into = "other" if "alteration" in flagged else "alteration"
+    return {c: into for c in flagged if c != into}, diag
+
+
+def apply_fold(frames, fold):
+    """Copy of frames with classes merged per `fold`; the pre-fold class kept as cls_unfolded."""
+    out = {}
+    for c, d in frames.items():
+        d = d.copy()
+        d["cls_unfolded"] = d["cls"]
+        d["cls"] = d["cls"].replace(fold) if fold else d["cls"]
+        out[c] = d
+    return out
 
 
 def frame(path, target, classes="type"):
@@ -39,7 +77,7 @@ def frame(path, target, classes="type"):
     if classes == "type":
         df["cls"] = df["permit_type"].map(harmonise)
     else:
-        col = "desc_class_v2" if classes.startswith("cascade2") else "desc_class"
+        col = "desc_class_v2" if classes.startswith("cascade2") else "desc_class"  # incl. cascade2_tailfold
         if col not in df:
             raise SystemExit(f"{path} has no {col} column: re-pull with src/permits.py")
         df["cls"] = [classmap.cascade(t, w, d) for t, w, d in zip(df.permit_type, df.work_class, df[col])]
@@ -157,7 +195,7 @@ if __name__ == "__main__":
     ap.add_argument("--test-year", type=int, default=2024)
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--held", nargs="*", default=None)
-    ap.add_argument("--classes", nargs="+", choices=["type", "cascade", "cascade2", "cascade2_nodemo"], default=["type"],
+    ap.add_argument("--classes", nargs="+", choices=["type", "cascade", "cascade2", "cascade2_nodemo", "cascade2_tailfold"], default=["type"],
                     help="one or more class configurations; with two or more, the first is compared "
                          "with each later one on the same test rows (paired_*.json)")
     a = ap.parse_args()
@@ -174,7 +212,15 @@ if __name__ == "__main__":
         R = {}
         for k in a.classes:
             frames = allf[k]
+            fold = diag = None
+            if k == "cascade2_tailfold":  # session 77: fold chosen per held-out city and year
+                fold, diag = tailfold_map(frames, held, a.test_year)
+                print(held, a.target, "tailfold rule flags", fold)
+                frames = apply_fold(frames, fold)
             r = run(frames, held, a.test_year, a.seeds, keep_rows=len(a.classes) > 1)
+            if fold is not None:
+                r["tailfold"] = dict(fold=fold, diagnostics=diag, min_n=TAILFOLD_MIN_N,
+                                     rule="fold a class whose source/held-history q0.9 ratio 95% CI is above 1")
             R[k] = r
             tag4 = "_4city" if "seattle" in frames else ""
             tag = tag4 + ("" if k == "type" else "_" + k)

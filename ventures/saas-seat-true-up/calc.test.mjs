@@ -208,3 +208,19 @@ test('formatMoney puts the sign outside the symbol and never signs zero', () => 
   assert.equal(formatMoney(-0.004), '$0.00');
   assert.equal(formatMoney(1296), '$1296.00');
 });
+
+test('with no today given, the count is whole calendar days, whatever the hour', () => {
+  // Late in the evening, a raw new Date() made a deadline 2.98 days back read "3 days ago".
+  const RealDate = Date;
+  const late = new RealDate(2026, 2, 4, 23, 30);
+  globalThis.Date = class extends RealDate {
+    constructor(...a) { if (a.length) super(...a); else super(late.getTime()); }
+    static now() { return late.getTime(); }
+  };
+  try {
+    const n = evaluateNoticeDeadline({ renewalDate: '2026-03-02', noticeDays: 0 });
+    assert.equal(n.daysUntilDeadline, -2);
+  } finally {
+    globalThis.Date = RealDate;
+  }
+});

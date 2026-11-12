@@ -192,6 +192,7 @@ export function poolGeometry(input) {
     const widthFt = number(input.widthFt ?? 0, 'Width', { allowZero: false });
     const shallowFt = number(input.shallowFt ?? 0, 'Shallow depth', { allowZero: false });
     const deepFt = number(input.deepFt ?? 0, 'Deep depth', { allowZero: false });
+  if (shallowFt > deepFt) throw new Error('Shallow depth must not be deeper than the deep end');
     const floorSf = lengthFt * widthFt;
     const avgDepth = (shallowFt + deepFt) / 2;
     const wallSf = 2 * (lengthFt + widthFt) * avgDepth;
@@ -217,6 +218,7 @@ export function poolGeometry(input) {
   });
   const shallowFt = number(input.shallowFt ?? 0, 'Shallow depth', { allowZero: false });
   const deepFt = number(input.deepFt ?? 0, 'Deep depth', { allowZero: false });
+  if (shallowFt > deepFt) throw new Error('Shallow depth must not be deeper than the deep end');
   const floorSf = waterSurfaceSf;
   const shellSf = waterSurfaceSf * freeformMultiplier;
   const wallSf = shellSf - floorSf;

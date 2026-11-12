@@ -544,7 +544,7 @@
       });
       $("pack-open").addEventListener("click", () => {
         if (!latest) { $("pack-state").textContent = "Run a check first."; return; }
-        const html = auditPackHtml(latest, { title: $("pack-title").value, author: $("pack-author").value, contact: $("pack-contact").value, accent: $("pack-accent").value, scope: $("pack-scope").value, logo: packLogo, notes: $("pack-notes").value, date: new Date().toISOString().slice(0, 10) });
+        const html = auditPackHtml(latest, { title: $("pack-title").value, author: $("pack-author").value, contact: $("pack-contact").value, accent: $("pack-accent").value, scope: $("pack-scope").value, logo: packLogo, notes: $("pack-notes").value, date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
         const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
         window.open(url, "_blank", "noopener");
       });

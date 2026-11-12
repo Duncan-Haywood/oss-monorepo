@@ -273,7 +273,6 @@ until it has. An empty shelf below means: write a proposal.
 
 - *Quarry Nine:* a short sequel, a few years on, in which the new system is
   asked why the old bell is rung (use sparingly; the first story is complete).
-- *The Tithe Barn Ledger:* a 2300s story in which a parish that has kept a corn rent for three centuries (thirty tonnes of wheat a year, reviewed every generation) finds the rent has been read aloud and left unchanged at six reviews running while wheat yields doubled, so the rent has quietly halved in real terms, and the meeting must decide whether a habit of saying "as it was" is consent. Work out three centuries of a slow real-price drift, what each review could have changed (a fifth either way), and how a review clause can fail by courtesy, before drafting; no grasping landlord or tenant as the villain.
 
 **For Other Minds**
 

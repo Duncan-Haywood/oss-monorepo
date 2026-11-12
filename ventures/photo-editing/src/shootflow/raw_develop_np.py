@@ -238,7 +238,10 @@ def predict_rows(diffs, width, height, nf, predictor, initial, restart) -> array
 
     # Differences fit 32 bits (|d| <= 32768); reading them as int32 is the
     # cheaper conversion from a list, and the sums run in int64.
-    d = np.fromiter(diffs, dtype=np.int32, count=width * height * nf).astype(np.int64)
+    if isinstance(diffs, array) and diffs.itemsize == 4:  # the native Huffman reader's array('i')
+        d = np.frombuffer(diffs, dtype=np.int32, count=width * height * nf).astype(np.int64)
+    else:
+        d = np.fromiter(diffs, dtype=np.int32, count=width * height * nf).astype(np.int64)
     d = d.reshape(height, width, nf)
     fresh = np.zeros(height, dtype=bool)
     fresh[0] = True

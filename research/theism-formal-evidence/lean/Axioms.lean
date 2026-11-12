@@ -34,3 +34,13 @@ open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actual
 #print axioms a5z_iff
 #print axioms model_a5z_iff
 #print axioms model_a5a_iff
+#print axioms TheismFormal.Fitting.exists_god
+#print axioms TheismFormal.Fitting.ne_iff
+#print axioms TheismFormal.Fitting.ne_in_algebra
+#print axioms TheismFormal.Fitting.model_iff
+#print axioms TheismFormal.Fitting.model_a5_iff
+#print axioms TheismFormal.Fitting.de_dicto
+#print axioms TheismFormal.Fitting.god_unique_full
+#print axioms TheismFormal.Fitting.de_re_full
+#print axioms TheismFormal.Fitting.cm_de_re
+#print axioms TheismFormal.Fitting.cm_no_a4

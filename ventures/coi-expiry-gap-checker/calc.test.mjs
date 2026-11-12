@@ -94,6 +94,12 @@ test("a blank endorsement is a warning, an explicit no is an error, and workers 
   assert.equal(r.findings.filter((f) => /additional insured/.test(f.title) && f.coverage === "WC").length, 0);
 });
 
+test("other liability lines do not count as general liability", () => {
+  for (const name of ["Contractors pollution liability", "Liquor liability", "Cyber liability", "Garage liability"]) assert.equal(normalizeCoverage(name), null, name);
+  assert.equal(normalizeCoverage("Commercial general liability"), "GL");
+  assert.equal(normalizeCoverage("Liability"), "GL");
+});
+
 test("a renewal gap is measured in whole days between the two policies", () => {
   const r = run([
     "G,General liability,1000000,2000000,2025-06-01,2026-06-01,Yes,Yes",
@@ -101,12 +107,18 @@ test("a renewal gap is measured in whole days between the two policies", () => {
     "G,Auto,1000000,,2026-01-01,2027-01-01,Yes,Yes",
     "G,Workers comp,500000,,2026-01-01,2027-01-01,,Yes",
   ]);
-  assert.match(titles(r).join("|"), /18-day gap/);
+  // 12:01 a.m. to 12:01 a.m.: June 1 to June 19 inclusive is uncovered, 19 days.
+  assert.match(titles(r).join("|"), /19-day gap/);
   const contiguous = run([
+    "G,General liability,1000000,2000000,2025-06-01,2026-06-01,Yes,Yes",
+    "G,General liability,1000000,2000000,2026-06-01,2027-06-20,Yes,Yes",
+  ]);
+  assert.doesNotMatch(titles(contiguous).join("|"), /gap/);
+  const nextDay = run([
     "G,General liability,1000000,2000000,2025-06-01,2026-06-01,Yes,Yes",
     "G,General liability,1000000,2000000,2026-06-02,2027-06-20,Yes,Yes",
   ]);
-  assert.doesNotMatch(titles(contiguous).join("|"), /gap/);
+  assert.match(titles(nextDay).join("|"), /1-day gap/);
 });
 
 test("a swapped date pair and an unreadable date are errors on the list itself, with line numbers", () => {
@@ -163,6 +175,6 @@ test("both samples behave as the page says", () => {
   assert.deepEqual(ok.summary, { vendors: 3, policies: 10, fail: 1, watch: 1, ok: 1 });
   const bad = check(sampleBrokenList(), {}, AS_OF);
   assert.equal(bad.summary.fail, 2);
-  assert.match(titles(bad).join("|"), /18-day gap/);
+  assert.match(titles(bad).join("|"), /19-day gap/);
   assert.match(titles(bad).join("|"), /Expires before it takes effect/);
 });

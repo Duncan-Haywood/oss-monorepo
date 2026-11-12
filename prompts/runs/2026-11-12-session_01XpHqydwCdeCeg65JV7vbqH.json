@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqydwCdeCeg65JV7vbqH",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T08:39:29Z",
+  "ended": "2026-11-12T08:47:53Z",
+  "wall_minutes": 8.59,
+  "tokens_in": 4380345,
+  "tokens_out": 44396,
+  "cost_usd": 2.7789,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15066",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Lean: one application type mismatch in god_unique_full (implicit predicate not inferred); fixed by giving the predicate explicitly"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/theism-formal-evidence/README.md",
+      "issue": "Layout said 23 tests; there were 25 before this run (now 26). Corrected."
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Re-running it for the pre-merge CLAIM CHECK (prompt-0 step 3) redraws a different programme, so the check printed is for the wrong programme; checked git log origin/main -- research/<slug> by hand instead."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-fitting-godel-argument-de-re-gap.md",
+    "research/theism-formal-evidence/experiments/e17_fitting/results.md",
+    "research/theism-formal-evidence/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; ideas inbox and website requests empty; routed research, drew theism-formal-evidence. E17: Fitting's variant (B&F 2020, arXiv:1910.08955 Fig. 6, fetched this session) over block algebras with varying domains. Prediction H21 committed before the search. Search: 119,890 frames, 0 mismatches with closed form. Lean: lean/TheismFormal/Fitting.lean, 10 theorems, build.sh exit 0, no sorry, no warnings. python3 test_theism.py: all 26 pass. research/_homepage/build.py ok; research_live_links ok; check_md_links ok; cite_check ok (1 arXiv id).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3c88ef7f-7c8c-53b6-872a-e9e7198faa9e",
+    "transcripts": 1,
+    "first": "2026-11-12T08:39:29Z",
+    "last": "2026-11-12T08:48:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 77,
+        "output": 44396,
+        "thinking": 18529,
+        "cache_read": 4250189,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130079,
+        "api_equivalent_usd": 2.7789,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 77,
+      "output": 44396,
+      "thinking": 18529,
+      "cache_read": 4250189,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130079,
+      "api_equivalent_usd": 2.7789,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.59,
+      "active_minutes": 8.59,
+      "model_minutes": 7.2,
+      "tool_minutes": 1.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a logician formalising Fitting's variant, writing a model search and 10 Lean proofs, plus write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 431.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -153,7 +153,7 @@
         bonds: [...$("#rows").querySelectorAll("tr")].map((tr) => ({ label: g(tr, ".b-label"), face: g(tr, ".b-face"), premiumPct: g(tr, ".b-rate"), collateral: g(tr, ".b-col"), courtDate: g(tr, ".b-date") })),
       };
     }
-    const todayIso = () => new Date().toISOString().slice(0, 10);
+    const todayIso = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     function reset() { $("#rows").innerHTML = ""; addBond(); }
     $("#today").value = todayIso();
     reset();

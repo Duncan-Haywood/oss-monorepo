@@ -235,7 +235,7 @@
     };
     $("#clear-all").onclick = () => { if (!confirm("Clear everything on this device? This cannot be undone.")) return; data = { ...DEFAULTS }; persist(); fill(); render(); };
     $("#load-example").onclick = () => {
-      data = { ...DEFAULTS, contractor: "Ada Dev Studio (example)", client: "Acme Co (example)", effective: new Date().toISOString().slice(0, 10), law: "Colorado, USA",
+      data = { ...DEFAULTS, contractor: "Ada Dev Studio (example)", client: "Acme Co (example)", effective: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10), law: "Colorado, USA",
         project: "Design and build a five-page marketing website", deliverables: "Home page\nPricing page\nAbout page\nContact form\nHandover document",
         amount: "6000", depositPct: "40", milestones: "Designs approved | 30", revisions: "2", extraRevisionRate: "90" };
       persist(); fill(); render(); record("example_loaded");

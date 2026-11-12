@@ -107,5 +107,45 @@ class Paired(unittest.TestCase):
             transfer.paired(rt, rs, "type", "type")
 
 
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class TailFold(unittest.TestCase):
+    """Session 77: the general fold rule reads only training-time rows."""
+
+    def frames(self, test_lag=5):
+        import pandas as pd, numpy as np
+        rng = np.random.default_rng(0)
+        out = {}
+        for city in ("sf", "austin", "seattle"):
+            rows = []
+            for year in range(2018, 2025):
+                for cls in ("demolition", "alteration", "new_construction"):
+                    n = 200
+                    if city == "seattle" and year == 2024:
+                        y = np.full(n, test_lag, float)  # test year: must not matter
+                    elif cls == "demolition" and city != "seattle":
+                        y = rng.uniform(0, 300, n)  # sources' demolition tail ~2x the target's
+                    else:
+                        y = rng.uniform(0, 150, n)
+                    rows.append(pd.DataFrame(dict(year=year, cls=cls, y=y)))
+            out[city] = pd.concat(rows, ignore_index=True)
+        return out
+
+    def test_flags_only_the_longer_source_tail_and_ignores_the_test_year(self):
+        fold, diag = transfer.tailfold_map(self.frames(), "seattle", 2024, n_boot=200)
+        self.assertEqual(fold, {"demolition": "alteration"})
+        self.assertGreater(diag["demolition"]["q90"]["lo"], 1)
+        fold2, _ = transfer.tailfold_map(self.frames(test_lag=10_000), "seattle", 2024, n_boot=200)
+        self.assertEqual(fold, fold2)
+
+    def test_small_classes_are_never_flagged_and_apply_fold_keeps_the_label(self):
+        fold, diag = transfer.tailfold_map(self.frames(), "seattle", 2024, min_n=10_000, n_boot=50)
+        self.assertEqual(fold, {})
+        self.assertNotIn("q90", diag["demolition"])
+        f = transfer.apply_fold(self.frames(), {"demolition": "alteration"})
+        d = f["seattle"]
+        self.assertFalse((d.cls == "demolition").any())
+        self.assertTrue((d.cls_unfolded == "demolition").any())
+
+
 if __name__ == "__main__":
     unittest.main()

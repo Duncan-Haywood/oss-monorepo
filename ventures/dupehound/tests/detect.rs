@@ -344,3 +344,295 @@ fn keyword_list_is_sorted_for_binary_search() {
         );
     }
 }
+
+// ---- families ----
+
+#[test]
+fn one_block_in_four_files_is_one_family() {
+    let files = vec![
+        file("p/a/usage.mjs", &format!("let a = 1;\n{}", body("track"))),
+        file("p/b/usage.mjs", &body("track")),
+        file("p/c/usage.mjs", &format!("{}\nlet z = 2;\n", body("track"))),
+        file("p/d/usage.mjs", &body("track")),
+    ];
+    let clones = detect(&files, opts());
+    assert_eq!(
+        clones.len(),
+        3,
+        "three pairs, all pointing at the first copy"
+    );
+    let fams = families(&files, &clones);
+    assert_eq!(fams.len(), 1);
+    let f = &fams[0];
+    assert_eq!(f.occurrences.len(), 4);
+    assert_eq!(f.identical_copies, 4);
+    assert_eq!(f.shortest_lines, 12);
+    assert_eq!(f.longest_lines, 12);
+    assert_eq!(f.removable_lines, 3 * 12);
+    assert_eq!(f.removable_lines_max, 3 * 12);
+    assert_eq!(f.common_name.as_deref(), Some("usage.mjs"));
+    assert_eq!(f.common_dir, "p");
+    let whole: Vec<bool> = f.occurrences.iter().map(|o| o.whole_file).collect();
+    assert_eq!(whole, vec![false, true, false, true]);
+}
+
+#[test]
+fn two_unrelated_blocks_are_two_families() {
+    let other = {
+        let mut s = String::from("class Store {\n");
+        for i in 0..10 {
+            s.push_str(&format!(
+                "  get{i}() {{ return this.map.get('k{i}') ?? null; }}\n"
+            ));
+        }
+        s.push_str("}\n");
+        s
+    };
+    let files = vec![
+        file("x/one.js", &format!("{}\n{}", body("f"), other)),
+        file("x/two.js", &body("f")),
+        file("y/three.js", &other),
+        file("y/four.js", &other),
+    ];
+    let clones = detect(&files, opts());
+    let fams = families(&files, &clones);
+    assert_eq!(fams.len(), 2, "{fams:?}");
+    // Largest removable first: `other` has 3 copies, `f` has 2.
+    assert_eq!(fams[0].occurrences.len(), 3);
+    assert_eq!(fams[0].common_name, None);
+    assert_eq!(fams[0].common_dir, "", "x/ and y/ share only the root");
+    assert_eq!(fams[1].occurrences.len(), 2);
+    assert_eq!(fams[1].common_dir, "x");
+}
+
+#[test]
+fn an_edited_copy_stays_in_the_family_but_not_among_the_identical() {
+    // Three full copies, and one that kept only the first 8 statement lines.
+    let mut short = String::from("function f(a, b) {\n");
+    for i in 0..8 {
+        short.push_str(&format!(
+            "  const v{i} = a * {i} + b - compute(a, {i}, 'x');\n"
+        ));
+    }
+    short.push_str("  return 0;\n}\n");
+    let files = vec![
+        file("a.js", &body("f")),
+        file("b.js", &body("f")),
+        file("c.js", &short),
+        file("d.js", &body("f")),
+    ];
+    let clones = detect(&files, opts());
+    let fams = families(&files, &clones);
+    assert_eq!(fams.len(), 1, "{fams:?}");
+    let f = &fams[0];
+    assert_eq!(f.occurrences.len(), 4);
+    assert_eq!(f.identical_copies, 3);
+    assert_eq!(f.identical_lines, 12);
+    assert!(f.shortest_lines < f.longest_lines);
+    // Exact copies set the floor: 2 * 12 beats 3 * shortest.
+    assert_eq!(
+        f.removable_lines,
+        (2 * 12u64).max(3 * f.shortest_lines as u64)
+    );
+    assert_eq!(f.removable_lines_max, 2 * 12 + f.shortest_lines as u64);
+}
+
+#[test]
+fn no_clones_no_families() {
+    let files = vec![file("a.js", &body("f")), file("b.js", "let x = 1;\n")];
+    assert!(families(&files, &detect(&files, opts())).is_empty());
+}
+
+#[test]
+fn families_cover_every_clone_exactly_once_on_random_inputs() {
+    let mut seed = 0x2545_f491_4f6c_dd1du64;
+    let mut rnd = || {
+        seed ^= seed << 13;
+        seed ^= seed >> 7;
+        seed ^= seed << 17;
+        seed
+    };
+    for round in 0..80 {
+        let w = 4 + (round % 4);
+        let mut files = Vec::new();
+        for f in 0..5 {
+            let mut s = String::new();
+            for _ in 0..(30 + rnd() % 60) {
+                s.push_str(["a", "b", "c", "("][(rnd() % 4) as usize]);
+                s.push('\n');
+            }
+            files.push(file(&format!("d{}/{f}.js", f % 2), &s));
+        }
+        let o = Options {
+            min_tokens: w,
+            min_lines: 1,
+            ..Options::default()
+        };
+        let clones = detect(&files, o);
+        let fams = families(&files, &clones);
+        let inside = |f: &Family, s: Span| {
+            f.occurrences
+                .iter()
+                .any(|x| x.span.file == s.file && x.span.start <= s.start && s.end <= x.span.end)
+        };
+        for c in &clones {
+            let homes = fams
+                .iter()
+                .filter(|f| inside(f, c.first) || inside(f, c.second))
+                .count();
+            // A self-overlapping same-file clone can merge into one occurrence
+            // and be dropped (fewer than two places); every other clone has
+            // exactly one family holding both of its sides.
+            let self_overlap = c.first.file == c.second.file && c.second.start < c.first.end;
+            if !self_overlap {
+                assert_eq!(homes, 1, "round {round}: clone {c:?} in {homes} families");
+                let f = fams.iter().find(|f| inside(f, c.first)).unwrap();
+                assert!(inside(f, c.second), "round {round}: sides split");
+            }
+        }
+        for f in &fams {
+            assert!(f.occurrences.len() >= 2);
+            assert!(f.identical_copies >= 1 && f.identical_copies <= f.occurrences.len());
+            assert!(
+                f.removable_lines <= f.removable_lines_max,
+                "lower estimate above upper"
+            );
+            assert!(f.shortest_lines <= f.longest_lines);
+            // Occurrences in one file never overlap.
+            for p in f.occurrences.windows(2) {
+                if p[0].span.file == p[1].span.file {
+                    assert!(p[0].span.end <= p[1].span.start);
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn json_with_families_is_the_report_plus_a_families_array() {
+    let files = vec![file("a.js", &body("f")), file("b.js", &body("f"))];
+    let clones = detect(&files, opts());
+    let st = stats(&files, &clones);
+    let plain = json_report(&files, &clones, &st, opts(), 0.0);
+    let with = json_report_with_families(&files, &clones, &st, opts(), 0.0);
+    assert!(with.starts_with(&plain[..plain.len() - 1]));
+    assert!(with.contains("\"families\":[{\"occurrences\":2,\"whole_file\":2,"));
+    assert!(with.ends_with("]}]}"));
+}
+
+// ---------------------------------------------------------------------------
+// --guarded: copies a sync test already keeps identical.
+// ---------------------------------------------------------------------------
+
+#[test]
+fn guards_parse_skips_comments_and_blank_lines() {
+    let g = Guards::parse(
+        "# header\n\nventures/*/proposal.mjs   # sync.test.mjs\n  usage.mjs\nweird#name.mjs\n",
+    );
+    assert_eq!(
+        g.patterns,
+        vec!["ventures/*/proposal.mjs", "usage.mjs", "weird#name.mjs"]
+    );
+    assert!(Guards::parse("# only a comment\n\n").is_empty());
+}
+
+#[test]
+fn guard_patterns_match_like_gitignore() {
+    let g = Guards::parse("usage.mjs\nventures/*/proposal.mjs\n/platform/x/**/y.mjs\n");
+    // No slash: the file name, anywhere.
+    assert_eq!(g.matches("a/b/usage.mjs"), Some(0));
+    assert_eq!(g.matches("usage.mjs"), Some(0));
+    assert_eq!(g.matches("a/b/usage.mjs.bak"), None);
+    // A slash: at any segment boundary, whatever root was scanned.
+    assert_eq!(g.matches("ventures/foo/proposal.mjs"), Some(1));
+    assert_eq!(g.matches("./ventures/foo/proposal.mjs"), Some(1));
+    assert_eq!(g.matches("../../ventures/foo/proposal.mjs"), Some(1));
+    assert_eq!(g.matches("myventures/foo/proposal.mjs"), None);
+    // `*` stays inside one segment.
+    assert_eq!(g.matches("ventures/foo/bar/proposal.mjs"), None);
+    // Leading `/` anchors; `**/` matches zero or more directories.
+    assert_eq!(g.matches("platform/x/y.mjs"), Some(2));
+    assert_eq!(g.matches("platform/x/a/b/y.mjs"), Some(2));
+    assert_eq!(g.matches("z/platform/x/y.mjs"), None);
+    // Windows separators are normalised.
+    assert_eq!(g.matches("ventures\\foo\\proposal.mjs"), Some(1));
+}
+
+fn guarded_tree() -> Vec<SourceFile> {
+    // One 12-line block vendored into four projects plus its canonical copy,
+    // and the same block pasted once into an unrelated file.
+    let block = body("shared");
+    let mut files = vec![file("platform/lib/shared.mjs", &block)];
+    for p in ["a", "b", "c", "d"] {
+        files.push(file(&format!("ventures/{p}/shared.mjs"), &block));
+    }
+    files.push(file(
+        "ventures/e/calc.mjs",
+        &format!("export const unrelated = [1, 2, 3];\n{block}"),
+    ));
+    files.sort_by(|a, b| a.path.cmp(&b.path));
+    files
+}
+
+#[test]
+fn guarded_copies_fold_into_one_and_strays_stay_visible() {
+    let files = guarded_tree();
+    let clones = detect(&files, opts());
+    let fams = families(&files, &clones);
+    assert_eq!(fams.len(), 1);
+    assert_eq!(fams[0].occurrences.len(), 6);
+    assert_eq!(fams[0].removable_lines, 5 * 12);
+
+    let g = Guards::parse("platform/lib/shared.mjs\nventures/*/shared.mjs\n");
+    let out = apply_guards(&files, fams.clone(), &g);
+    assert!(out.fully_guarded.is_empty());
+    assert_eq!(out.families.len(), 1);
+    let f = &out.families[0];
+    assert_eq!(f.guarded_copies, 5, "five synced copies count as one");
+    assert_eq!(f.occurrences.len(), 2, "the stand-in and the stray");
+    assert_eq!(f.removable_lines, 12, "only the stray is removable");
+    assert!(f
+        .occurrences
+        .iter()
+        .any(|o| files[o.span.file as usize].path == "ventures/e/calc.mjs"));
+
+    // Guard the stray too and the family has nothing left to remove.
+    let all = Guards::parse("shared.mjs\ncalc.mjs\n");
+    let out = apply_guards(&files, fams.clone(), &all);
+    assert!(out.families.is_empty());
+    assert_eq!(out.fully_guarded, fams);
+
+    // No patterns: nothing changes.
+    let none = apply_guards(&files, fams.clone(), &Guards::default());
+    assert_eq!(none.families, fams);
+    assert!(none.fully_guarded.is_empty());
+}
+
+#[test]
+fn a_single_guarded_copy_changes_nothing() {
+    let files = guarded_tree();
+    let fams = families(&files, &detect(&files, opts()));
+    let g = Guards::parse("/platform/lib/shared.mjs\n");
+    let out = apply_guards(&files, fams.clone(), &g);
+    assert_eq!(out.families, fams);
+}
+
+#[test]
+fn guarded_json_reports_folded_and_fully_guarded_totals() {
+    let files = guarded_tree();
+    let clones = detect(&files, opts());
+    let st = stats(&files, &clones);
+    let plain = json_report_with_families(&files, &clones, &st, opts(), 0.0);
+    assert!(!plain.contains("guarded"), "no patterns, no new members");
+    assert_eq!(
+        json_report_with_guarded_families(&files, &clones, &st, opts(), 0.0, &Guards::default()),
+        plain
+    );
+    let g = Guards::parse("shared.mjs\n");
+    let j = json_report_with_guarded_families(&files, &clones, &st, opts(), 0.0, &g);
+    assert!(j.contains("\"guarded_copies\":5"), "{j}");
+    assert!(j.contains(
+        "\"guarded\":{\"patterns\":1,\"families\":0,\"copies\":0,\"removable_lines\":0,\"removable_lines_max\":0}"
+    ));
+    assert!(j.ends_with("}}"));
+}

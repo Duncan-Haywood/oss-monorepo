@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyfmzHnxdeFdL9cQXbC",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T09:38:58Z",
+  "ended": "2026-11-12T09:46:52Z",
+  "wall_minutes": 8.05,
+  "tokens_in": 3696938,
+  "tokens_out": 31436,
+  "cost_usd": 2.2457,
+  "tool_calls": 40,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15078",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "After the pre-registration commit 100b7e7a, the docstring's citation was edited (a guessed 'ch. 11' removed from Loucks and van Beek 2017); predictions and rules unchanged. post_hoc() was added after the first run, run alone and appended to the results file; labelled post hoc in the script, results and LOG."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/LOG.md",
+      "issue": "57 KB; reading the newest entry needs a sed range between '## ' headers, the whole file overflows a tool read."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-solar-survey-boat-banking-the-battery-for-winter.md",
+    "research/marine-hull/LOG.md (6zk entry)"
+  ],
+  "goal": null,
+  "notes": "Milestone 6zk of marine-hull: leave-one-year-out reservoir-style pack-target curve, 300 point-years (30 points x 2015-2024, NASA POWER). Excess dark hours over idle 31,664 -> 2,937 (equinox rule 24,630; own-year oracle 2,767). 7 of 8 predictions held; P5 (distance cost <=10%) refuted, median 0.84. Checks run locally: marine-hull test_reserve_curve + test_year_pack (11 OK), research/_homepage/build.py ok, research_live_links ok, check_md_links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e68744f0-ce98-55d9-ad30-d9a136597d25",
+    "transcripts": 1,
+    "first": "2026-11-12T09:38:58Z",
+    "last": "2026-11-12T09:47:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 72,
+        "output": 31436,
+        "thinking": 9156,
+        "cache_read": 3584383,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112483,
+        "api_equivalent_usd": 2.2457,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 72,
+      "output": 31436,
+      "thinking": 9156,
+      "cache_read": 3584383,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112483,
+      "api_equivalent_usd": 2.2457,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 34,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.05,
+      "active_minutes": 8.05,
+      "model_minutes": 5.03,
+      "tool_minutes": 3.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "data fetch, policy design, pre-registration, 300-mission study and write-up by a grad researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 534.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

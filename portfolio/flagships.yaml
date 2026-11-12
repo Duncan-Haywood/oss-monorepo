@@ -147,7 +147,7 @@ flagships:
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
       History and every measurement: README and git (TCPD benchmark: consensus F1 0.702 shipped / 0.711 held out, binseg 0.714/0.727; several columns on CLI, page and report; `--model drift` on the page and agent tool, step-robust omega, heavy-tail check; update-rate check).
-      Next, most valuable first: (w) watch mode (README "Watching a growing series"): next an AR(1) Bayesian candidate, the watch on the page and as an agent tool; (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments measured and not offered, all failing the frozen-juice bar (README "A stale probability per segment"); 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check on every output with a rounding sentence (README "The update-rate check on every output"); next: a documented collection change to date. One-tick stale feed vs rounding: catch-up ratio failed two pre-registered rounds (README "One-tick stale feeds", not offered); next: its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
+      Next, most valuable first: (w) watch (README "Watching a growing series"): default now bocpd-ar1-window, 29 of 52 marked TCPD changes vs 38: next why (rho per series), a capped rho as round 4; the watch on the page; (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments measured and not offered, all failing the frozen-juice bar (README "A stale probability per segment"); 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check on every output with a rounding sentence (README "The update-rate check on every output"); next: a documented collection change to date. One-tick stale feeds (README): next its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
       Open: (0) drift model: heavy-tailed level increments (t-walk), biweight where the check says noise on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
@@ -155,35 +155,36 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git. Open: ZATCA rules on a real sandbox invoice and
-      credit or debit note, built-in INV-0xx checks beside PINT/ZATCA sets
-      (INV-024/022/005/017/018 dropped there 2026-11-10; the rest still run);
-      VAT differential vs python-stdnum both ways 2026-11-11 and IBAN
-      structure plus BE/ES/ME/NO check digits 2026-11-10 (README),
-      BE/CZ/RO/IT/LV prefix rules closed 2026-11-10 (README), rest closed (FR
-      letter keys; TR differences are deliberate TCKN acceptance); FatturaPA
-      code lists (TD29, RF20) and tolerances against the primary spec 1.9
-      text; Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18
-      though AMA's rules admit them: which validator does AT run?); Poland's
-      FA(3) on a KSeF test-environment file and a real correction, advance or
-      settlement file; the rules and a repair on a real ERP or Factur-X
-      export; PINT SG and A-NZ: current releases (billing-1@sg-1/@aunz-1)
-      added and run on OpenPeppol's 40 examples 2026-11-11 (README,
-      eval/phive-corpus.mjs: 0 to 39 pass); open: a real business's PINT file,
-      PINT JP/MY/AE/OM; NL/RO/PT/ZATCA good cases scored 2026-11-11 (README
-      `--good`; 4 fixes); BT-86 clearing codes and line-level TaxTotal (ZATCA
-      19/19, INV-017/018/038 back on KSA files) closed 2026-11-12 (README);
-      open: UBL-SR-53 on RO empty TaxScheme, repair-ubl on line-level
-      TaxTotal; RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file;
-      India's INV-01 check on a real IRP payload; mandate dates read from
-      primary sources where pages cite guides (Israel, Denmark, Czech, Latvia;
-      Luxembourg; ato.gov.au 403 from cloud); Nigeria, Thailand, Taiwan, Oman,
-      Pakistan and Jordan pages (excerpts; Taiwan, Oman dates disagree);
-      Mexico CFDI 4.0 reader landed 2026-11-12 (README "Mexico: CFDI 4.0",
-      3,666/3,666 vs xmllint): open: Pagos 2.0 sums, a PAC rejection compared,
-      the regime-to-use table; Brazil NF-e XSD, NFS-e; refresh the Bulgaria
-      page when its draft passes. A run that lands a slice replaces its item
-      here; keep this under 2,000 characters.
+      History: README and git. Open: ZATCA rules on a real sandbox invoice
+      and credit or debit note, built-in INV-0xx checks beside PINT/ZATCA
+      sets (INV-024/022/005/017/018 dropped there 2026-11-10; the rest
+      still run); FatturaPA code lists (TD29, RF20) and tolerances against
+      the primary spec 1.9 text; Portugal's CIUS-PT add-on (AA/RED/INT/NOR
+      fail EU BR-CL-17/18 though AMA's rules admit them: which validator
+      does AT run?); Poland's FA(3) on a KSeF test-environment file and a
+      real correction, advance or settlement file; the rules and a repair
+      on a real ERP or Factur-X export; PINT SG and A-NZ: current releases
+      (billing-1@sg-1/@aunz-1) added and run on OpenPeppol's 40 examples
+      2026-11-11 (README, eval/phive-corpus.mjs: 0 to 39 pass); open: a
+      real business's PINT file, PINT JP/MY/AE/OM; BT-86 clearing codes,
+      line-level TaxTotal (ZATCA 19/19) and CIUS-RO on its EN 1.3.8 base
+      (UBL-SR-53 off ANAF's files) closed 2026-11-12 (README); UBL repair
+      on ZATCA line TaxTotals, document and line allowances closed
+      2026-11-12 (README, eval/repair-seeded.mjs: seeded faults restored
+      257/258 ZATCA, 270/270 PINT A-NZ); INV-059 (same-currency BT-111
+      = BT-110) closed 2026-11-12 (README; ZATCA seeds flagged 241 to
+      258/258); open: a 1.3.8 base on the Saxon route; RO_CIUS on a real ANAF
+      file; NLCIUS on a real Dutch file; India's INV-01 check on a real
+      IRP payload; mandate dates read from primary sources where pages
+      cite guides (IL, DK, CZ, LV, LU; ato.gov.au 403s from cloud);
+      Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages
+      (excerpts; Taiwan, Oman dates disagree); Mexico CFDI 4.0 reader
+      and Pagos 2.0 payments landed 2026-11-12 (README "Mexico: CFDI
+      4.0", "Mexico: payments"; 202/202 seeded, 1,446/1,446 vs
+      xmllint): open: a PAC rejection compared, the regime-to-use
+      table, nómina 1.2; Brazil NF-e XSD, NFS-e; refresh the Bulgaria
+      page when its draft passes. A run that lands a slice replaces its
+      item here; keep this under 2,000 characters.
 
   - venture: shift-roster-builder
     why: >-
@@ -200,9 +201,13 @@ flagships:
       minimum staff off there (README "Closing work after the last sale hour": one closer, 45 min after close +7 h a
       week vs +20 h in the last hour; two closers, 0 vs +11); 2026-11-12 last, shut-door work spreads at 60 min a
       person into the next hour and `--shut-min` is a floor the priced cut never drops (README "One person staying
-      two hours, or two people locking up"). Next: close the 100-person gaps (tree, not pricing); cuts or branching
-      that move the score LP on the 60-person pay week; buildRoster end to end on 40-person weeks with exact on; a
-      shut-hour minimum by weekday (two closers on late Fridays only); a real Square or Toast item export (columns read,
+      two hours, or two people locking up"); after that, `--shut-min "1, Fri/Sat=2"` sets it by weekday (README "Two
+      closers on late Fridays only": French bakery, two closers every night +45 h a week over one, Fri/Sat only +10).
+      Later: exact on, above 60 copies, proof first and no tree (README "The exact check end to end on 40-person
+      weeks": 40-person weeks 6-12 s, all proven).
+      Next: close the 100-person gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person
+      pay week; the 60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held, not proven in 34 s); the exact check
+      on by default for mid-size weeks now that 20-30 person weeks prove in 1-5 s; a real Square or Toast item export (columns read,
       made-up rows only); a real published-schedule export for --import-shifts; whether the priced cut's r = 1
       default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
@@ -218,18 +223,20 @@ flagships:
       eval/dng-colour-2026-11-12.md; HueSatMap/LookTable and `--dcp`,
       eval/dcp-tables-2026-11-12.md; ProfileToneCurve with hue-preserving
       RGB tone, eval/tone-curve-2026-11-12.md; DNG 1.6 triple-illuminant
-      profiles and IlluminantData, eval/triple-illuminant-2026-11-12.md, all
-      2026-11-12). Next, most valuable first: a real DNG 1.6 three-light
+      profiles and IlluminantData, eval/triple-illuminant-2026-11-12.md; the
+      default tone curve for profiles with none, identified as Adobe's ACR3
+      default and fitted with 20 knots of our own, `--default-tone-curve`,
+      eval/default-tone-curve-2026-11-12.md, all 2026-11-12). Next, most valuable first: a real DNG 1.6 three-light
       profile or DNG, and the SDK's own triple weights on a grid of whites
-      (compiling it was blocked here); a default tone
-      curve for profiles with none (68 RawTherapee profiles share one
-      8,192-point curve; check what it is before adopting it), BUILDABLE
-      HERE; a tungsten-lit colour chart (real DNG, known patches) to say
+      (compiling it was blocked here); a tungsten-lit colour chart (real DNG, known patches) to say
       which colour model is closer to the scene, and a camera- or
       Adobe-written DNG with ForwardMatrix; an Adobe render of a known frame
-      to compare the toned render with; the grade-scope
-      saving on real 4K footage and a long shoot; the Huffman loop (~85% of
-      lossless-JPEG decoding) in native code; reading CR2 directly (needs
+      to compare the toned render with (and to settle whether
+      `--default-tone-curve always` should be the default); the grade-scope
+      saving on real 4K footage and a long shoot; the native Huffman reader
+      (landed 2026-11-12, eval/ljpeg-native-huffman-2026-11-12.md: CR2 decode
+      8.8-11.7 s to 1.2-1.7 s, Linux only so far) run on macOS, and the 0.8 s
+      list the public decoder still builds dropped; reading CR2 directly (needs
       per-model colour matrices); a camera- or phone-written lossless-JPEG
       DNG (raw.pixls.us and rawsamples.ch 403 from cloud); a trained blink
       model and a real shoot with a photographer's picks; photos with a real
@@ -245,18 +252,18 @@ flagships:
       docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Latest, 2026-11-12: the
       insights screen refits each person's answers (btRefit.ts), calls a pick
       clear only at 1.645 sd (clearPick.ts), and lists "it's between" as a 95%
-      credible set (favouriteSet.ts) drawn from a refit at the person's own
-      empirical-Bayes prior sd (importance-sampled evidence; Laplace collapses
-      under staged): 93-96% coverage (90-95% careless) vs 88-92% fixed, at
-      7.4-8.7 names vs 5-6. Pairwise intervals keep the fixed prior (EB
-      undercovers; "An empirical-Bayes prior"). Next, most valuable first:
-      (a) a stored per-survey pooled prior sd for the set (pooled sizes 6.9-7.8
-      at the same coverage), the PrefLib panels through the refit and the set,
-      and a heavier-tailed prior for the pairwise intervals; (b) half-time
-      salience (q = 0.5 still leaks +0.12 to +0.29: does pace see them?);
-      (c) check the answer-time model against the first real survey's
-      msToAnswer; (d) position bias that starts mid-session; (e) the switch
-      rule above 120 items; then real pairwise answers.
+      credible set (favouriteSet.ts) drawn at min(own empirical-Bayes prior sd,
+      the survey's stored pooled sd) (surveyPrior.ts, surveyPriorStore.ts;
+      refreshed after the response via next/server after). In a mixed
+      synthetic survey (spreads 0.5/1/2, lapse 0/0.2) min covers 0.954-0.964
+      vs own 0.922-0.943; pooled alone drops to 0.83-0.92 for narrow-spread
+      people ("A stored survey prior"). Pairwise intervals keep the fixed
+      prior. Next, most valuable first: (a) the PrefLib panels through the
+      refit and the set, and a heavier-tailed prior for the pairwise
+      intervals; (b) half-time salience (q = 0.5 still leaks +0.12 to +0.29:
+      does pace see them?); (c) check the answer-time model against the first
+      real survey's msToAnswer; (d) position bias that starts mid-session;
+      (e) the switch rule above 120 items; then real pairwise answers.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot

@@ -67,6 +67,9 @@ export function normalizeCoverage(s) {
   if (/work|comp|\bwc\b|employers/.test(t)) return "WC";
   if (/auto|vehicle|\bba\b/.test(t)) return "AUTO";
   if (/profession|e&o|errors|omissions|\bpl\b/.test(t)) return "PRO";
+  // Other liability lines (pollution, liquor, cyber, garage ...) are not general liability and
+  // must not satisfy a GL requirement; they are left unrecognised.
+  if (/pollution|liquor|cyber|garage|recall|directors|d&o|employment practices|\bepl\b|fiduciary|crime|aircraft|aviation|marine/.test(t)) return null;
   if (/general|\bgl\b|\bcgl\b|\bclg\b|liability/.test(t)) return "GL";
   return null;
 }
@@ -234,7 +237,10 @@ export function check(text, req = {}, asOf) {
     for (const c of Object.keys(COVERAGES)) {
       const ps = v.policies.filter((p) => p.coverage === c && p.effective != null && p.expiry != null).sort((a, b) => a.effective - b.effective);
       for (let i = 1; i < ps.length; i++) {
-        const gap = ps[i].effective - ps[i - 1].expiry - 1;
+        // Policy periods run from 12:01 a.m. on the effective date to 12:01 a.m. on the expiration
+        // date, so a renewal effective on the old expiration date is continuous and one effective
+        // the next day leaves the expiration date itself uncovered (quality audit 2026-11-12).
+        const gap = ps[i].effective - ps[i - 1].expiry;
         if (gap > 0) add(v, { severity: "warning", coverage: c, line: ps[i].line, title: `${COVERAGES[c]}: ${gap}-day gap between policies`, detail: `The earlier policy ended ${isoDay(ps[i - 1].expiry)} and the next began ${isoDay(ps[i].effective)}. Work done in the gap was not covered by anything on this list.` });
       }
     }
@@ -270,11 +276,24 @@ export function chaseListCsv(result) {
   return csv(rows);
 }
 
+// RFC 5545 3.1: fold content lines longer than 75 octets (a continuation starts with a space), never inside a UTF-8 character.
+const foldIcs = (text) => text.split("\r\n").map((line) => {
+  const parts = [];
+  let cur = "", len = 0, limit = 75;
+  for (const ch of line) {
+    const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+    if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+    cur += ch; len += n;
+  }
+  parts.push(cur);
+  return parts.join("\r\n ");
+}).join("\r\n");
+
 // All-day calendar events on the day each policy enters its lead time, so the chase happens before the lapse.
 export function expiryCalendar(result, now = "2026-01-01T00:00:00Z") {
   const stamp = new Date(now).toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
   const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//coi-expiry-gap-checker//EN", "CALSCALE:GREGORIAN"];
-  const esc = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  const esc = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
   for (const p of result.policies) {
     if (p.expiry == null || p.expiry < result.asOf) continue;
     const day = Math.max(p.expiry - result.requirements.leadDays, result.asOf);
@@ -285,7 +304,7 @@ export function expiryCalendar(result, now = "2026-01-01T00:00:00Z") {
       `DESCRIPTION:${esc(`${p.carrier ? p.carrier + ". " : ""}${p.policy ? "Policy " + p.policy + ". " : ""}Ask for the renewal certificate and endorsements.`)}`, "END:VEVENT");
   }
   lines.push("END:VCALENDAR");
-  return lines.join("\r\n") + "\r\n";
+  return foldIcs(lines.join("\r\n")) + "\r\n";
 }
 
 export function sampleList() {

@@ -1,0 +1,518 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKn13S3LxLGTSNzopFT",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T09:18:38Z",
+  "ended": "2026-11-12T09:19:48Z",
+  "wall_minutes": 15.49,
+  "tokens_in": 5938418,
+  "tokens_out": 35440,
+  "cost_usd": 2.8404,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15077",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 lists 5 open defects but all are control-plane fixes that already have owner-gated PRs (#12928, #14877, #14612, #14698); redteam.py open could print the PR that claims each so runs don't re-check them by hand."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "rerun reports 'line changed' whenever a real fix touches a mutated line (3 of 9 here, twice for one line), and the record note then collects stacked '[rerun: ...]' suffixes; hand re-application was the only way."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a venture + docs/posts diff spent >5 min in portfolio-pages 'Test the site builder' and detached; the venture check itself took 6 s."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Running einvoice-preflight-ci.yml with --force ignores the job-level env (PYTHONPATH: src), so cli-test and examples fail locally with ModuleNotFoundError: einvoice_preflight, which looks like a real failure. With PYTHONPATH=src set, the 21 tests pass."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix open defects first; all 5 are control-plane with existing owner-gated PRs, so a duplicate PR would only add to the P061/P063 duplicate pile.",
+      "did": "Left them; noted the claiming PRs in the PR body.",
+      "result": "Run time went to two campaigns and a class fix instead."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-typo-should-blame-itself.md"
+  ],
+  "goal": null,
+  "notes": "Two campaigns (pagos20.mjs, cfdi.mjs; 12 mutants each, ~6 s suite). Catch rate 15/24 = 62.5% before, 24/24 after. Guard added: ventures/einvoice-preflight/unreadable-numbers.test.mjs (134 broken-number variants of both fixtures; every finding must point at the broken attribute) - it failed on main's code, both fixtures. run_venture_tests.py einvoice-preflight: ok (6.0s). run_workflow_locally --for-changes: pages.yml 3/3 run steps ok; portfolio-pages site-builder test detached after 100 s, left to CI. einvoice-preflight-ci.yml by hand: node --test via run_venture_tests ok; PYTHONPATH=src unittest discover -s tests OK.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/pagos20.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 179790955,
+        "commit": "da7fe22be",
+        "sites": 252,
+        "baseline_seconds": 6.6,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/pagos20.mjs",
+            "line": 36,
+            "col": 9,
+            "operator": "or-to-and",
+            "before": "if (!m || (m[2] === \"\" && (m[3] ?? \"\") === \"\")) return null;",
+            "after": "if (!m && (m[2] === \"\" && (m[3] ?? \"\") === \"\")) return null;",
+            "line_text": "  if (!m || (m[2] === \"\" && (m[3] ?? \"\") === \"\")) return null;",
+            "caught": true,
+            "seconds": 6.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/pagos20.mjs",
+            "line": 72,
+            "col": 64,
+            "operator": "eq-flip",
+            "before": "const childNs = (n, name, ns) => n?.children.find((c) => c.name === name && c.ns === ns);",
+            "after": "const childNs = (n, name, ns) => n?.children.find((c) => c.name !== name && c.ns === ns);",
+            "line_text": "const childNs = (n, name, ns) => n?.children.find((c) => c.name === name && c.ns === ns);",
+            "caught": true,
+            "seconds": 6.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/pagos20.mjs",
+            "line": 99,
+            "col": 66,
+            "operator": "or-to-and",
+            "before": "const name = { \"001\": \"ISR\", \"002\": \"IVA\", \"003\": \"IEPS\" }[imp] || imp;",
+            "after": "const name = { \"001\": \"ISR\", \"002\": \"IVA\", \"003\": \"IEPS\" }[imp] && imp;",
+            "line_text": "  const name = { \"001\": \"ISR\", \"002\": \"IVA\", \"003\": \"IEPS\" }[imp] || imp;",
+            "caught": false,
+            "seconds": 6.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "label() would print the SAT code (001) instead of ISR/IVA in every MX-048/049 message; test asserts the names"
+          },
+          {
+            "file": "ventures/einvoice-preflight/pagos20.mjs",
+            "line": 124,
+            "col": 34,
+            "operator": "neq-flip",
+            "before": "if (pagosNodes.some((n) => n.ns !== PAGOS20_NS)) {",
+            "after": "if (pagosNodes.some((n) => n.ns === PAGOS20_NS)) {",
+            "line_text": "  if (pagosNodes.some((n) => n.ns !== PAGOS20_NS)) {",
+            "caught": true,
+            "seconds": 6.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/pagos20.mjs",
+            "line": 145,
+            "col": 68,
+            "operator": "times-to-div",
+            "before": "if (c.attrs[k] !== undefined && dec(c.attrs[k]) !== BigInt(v) * ONE) findings.push(finding(\"MX-040\", `The Concepto of a type P CFDI has ${k} ${v}, not ${c.attrs[k]}.`, `Set ${k}=\"${v}\".`, `/Comprobante/Conceptos/Concepto/@${k}`));",
+            "after": "if (c.attrs[k] !== undefined && dec(c.attrs[k]) !== BigInt(v) / ONE) findings.push(finding(\"MX-040\", `The Concepto of a type P CFDI has ${k} ${v}, not ${c.attrs[k]}.`, `Set ${k}=\"${v}\".`, `/Comprobante/Conceptos/Concepto/@${k}`));",
+            "line_text": "      if (c.attrs[k] !== undefined && dec(c.attrs[k]) !== BigInt(v) * ONE) findings.push(finding(\"MX-040\", `The Concepto of a type P CFDI has ${k} ${v}, not ${c.attrs[k]}.`, `Set ${k}=\"${v}\".`, `/Comprobante/Conceptos/Concepto/@${k}`));",
+            "caught": true,
+            "seconds": 6.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/pagos20.mjs",
+            "line": 180,
+            "col": 16,
+            "operator": "eq-flip",
+            "before": "if (monedaP === \"XXX\") findings.push(finding(\"MX-042\", `Payment ${i + 1}: MonedaP is XXX; a payment is made in a real currency.`, \"Set MonedaP to the currency the money moved in (MXN, USD, ...).\", `${pp}/@MonedaP`));",
+            "after": "if (monedaP !== \"XXX\") findings.push(finding(\"MX-042\", `Payment ${i + 1}: MonedaP is XXX; a payment is made in a real currency.`, \"Set MonedaP to the currency the money moved in (MXN, USD, ...).\", `${pp}/@MonedaP`));",
+            "line_text": "    if (monedaP === \"XXX\") findings.push(finding(\"MX-042\", `Payment ${i + 1}: MonedaP is XXX; a payment is made in a real currency.`, \"Set MonedaP to the currency the money moved in (MXN, USD, ...).\", `${pp}/@MonedaP`));",
+            "caught": true,
+            "seconds": 5.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/pagos20.mjs",
+            "line": 184,
+            "col": 16,
+            "operator": "eq-flip",
+            "before": "if (monedaP === \"MXN\" && pa.TipoCambioP === undefined) tc = ONE;",
+            "after": "if (monedaP !== \"MXN\" && pa.TipoCambioP === undefined) tc = ONE;",
+            "line_text": "    if (monedaP === \"MXN\" && pa.TipoCambioP === undefined) tc = ONE;",
+            "caught": false,
+            "seconds": 6.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a peso payment without TipoCambioP would drop out of MontoTotalPagos; test plants a wrong total on such a file"
+          },
+          {
+            "file": "ventures/einvoice-preflight/pagos20.mjs",
+            "line": 187,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if (monto !== null && monto <= 0n) findings.push(finding(\"MX-042\", `Payment ${i + 1}: Monto must be greater than 0.`, \"Set Monto to the amount received.\", `${pp}/@Monto`));",
+            "after": "if (monto !== null || monto <= 0n) findings.push(finding(\"MX-042\", `Payment ${i + 1}: Monto must be greater than 0.`, \"Set Monto to the amount received.\", `${pp}/@Monto`));",
+            "line_text": "    if (monto !== null && monto <= 0n) findings.push(finding(\"MX-042\", `Payment ${i + 1}: Monto must be greater than 0.`, \"Set Monto to the amount received.\", `${pp}/@Monto`));",
+            "caught": true,
+            "seconds": 6.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/pagos20.mjs",
+            "line": 189,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if (monto !== null && tc !== null) montoTotal += mul(monto, tc);",
+            "after": "if (monto !== null || tc !== null) montoTotal += mul(monto, tc);",
+            "line_text": "    if (monto !== null && tc !== null) montoTotal += mul(monto, tc);",
+            "caught": false,
+            "seconds": 6.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a payment with no Monto would throw (null * BigInt) instead of reporting MX-002; test checks the schema finding alone"
+          },
+          {
+            "file": "ventures/einvoice-preflight/pagos20.mjs",
+            "line": 211,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if (ant !== null && ant <= 0n) findings.push(finding(\"MX-045\", `Payment ${i + 1}, document ${j + 1}: ImpSaldoAnt (balance before this payment) must be greater than 0.`, \"Use the invoice's outstanding balance before this payment.\", `${dp}/@ImpSaldoAnt`));",
+            "after": "if (ant !== null || ant <= 0n) findings.push(finding(\"MX-045\", `Payment ${i + 1}, document ${j + 1}: ImpSaldoAnt (balance before this payment) must be greater than 0.`, \"Use the invoice's outstanding balance before this payment.\", `${dp}/@ImpSaldoAnt`));",
+            "line_text": "      if (ant !== null && ant <= 0n) findings.push(finding(\"MX-045\", `Payment ${i + 1}, document ${j + 1}: ImpSaldoAnt (balance before this payment) must be greater than 0.`, \"Use the invoice's outstanding balance before this payment.\", `${dp}/@ImpSaldoAnt`));",
+            "caught": true,
+            "seconds": 6.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/pagos20.mjs",
+            "line": 302,
+            "col": 11,
+            "operator": "neq-flip",
+            "before": "if (tc !== null && sumOk) {",
+            "after": "if (tc === null && sumOk) {",
+            "line_text": "    if (tc !== null && sumOk) {",
+            "caught": false,
+            "seconds": 6.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Totales would ignore the documents' own tax sums when ImpuestosP leaves a group out; test drops payment 1's IVA row [rerun: line changed by the unreadable-number fix; re-applied by hand on the new line, the suite fails with it]"
+          },
+          {
+            "file": "ventures/einvoice-preflight/pagos20.mjs",
+            "line": 333,
+            "col": 42,
+            "operator": "eq-flip",
+            "before": "if (!cands.some((c) => roundD(c, 2) === w || truncD(c, 2) === w)) {",
+            "after": "if (!cands.some((c) => roundD(c, 2) !== w || truncD(c, 2) === w)) {",
+            "line_text": "      if (!cands.some((c) => roundD(c, 2) === w || truncD(c, 2) === w)) {",
+            "caught": true,
+            "seconds": 6.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/einvoice-preflight/cfdi.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 781170122,
+        "commit": "da7fe22be",
+        "sites": 340,
+        "baseline_seconds": 6.2,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/cfdi.mjs",
+            "line": 43,
+            "col": 20,
+            "operator": "plus-to-minus",
+            "before": "const mid = (lo + hi) >> 1;",
+            "after": "const mid = (lo - hi) >> 1;",
+            "line_text": "    const mid = (lo + hi) >> 1;",
+            "caught": true,
+            "seconds": 6.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cfdi.mjs",
+            "line": 67,
+            "col": 39,
+            "operator": "neq-flip",
+            "before": "if (type.length !== undefined && len !== type.length) return `should be ${type.length} characters long, not ${len}`;",
+            "after": "if (type.length !== undefined && len === type.length) return `should be ${type.length} characters long, not ${len}`;",
+            "line_text": "  if (type.length !== undefined && len !== type.length) return `should be ${type.length} characters long, not ${len}`;",
+            "caught": true,
+            "seconds": 6.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cfdi.mjs",
+            "line": 76,
+            "col": 42,
+            "operator": "and-to-or",
+            "before": "if (type.fractionDigits !== undefined && decimalsOf(v) > type.fractionDigits) return `has more than ${type.fractionDigits} decimals`;",
+            "after": "if (type.fractionDigits !== undefined || decimalsOf(v) > type.fractionDigits) return `has more than ${type.fractionDigits} decimals`;",
+            "line_text": "    if (type.fractionDigits !== undefined && decimalsOf(v) > type.fractionDigits) return `has more than ${type.fractionDigits} decimals`;",
+            "caught": true,
+            "seconds": 6.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cfdi.mjs",
+            "line": 147,
+            "col": 48,
+            "operator": "or-to-and",
+            "before": "const num = (v) => (v === undefined || v === \"\" || !Number.isFinite(Number(v)) ? null : Number(v));",
+            "after": "const num = (v) => (v === undefined || v === \"\" && !Number.isFinite(Number(v)) ? null : Number(v));",
+            "line_text": "const num = (v) => (v === undefined || v === \"\" || !Number.isFinite(Number(v)) ? null : Number(v));",
+            "caught": false,
+            "seconds": 6.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "num('') would read as 0, adding a false 'Base must be greater than 0' to an empty Base; the empty/unreadable Base test checks the findings are MX-003 alone"
+          },
+          {
+            "file": "ventures/einvoice-preflight/cfdi.mjs",
+            "line": 172,
+            "col": 43,
+            "operator": "times-to-div",
+            "before": "const hi = Math.ceil((c + hc) * (v + hv) * f - 1e-9) / f;",
+            "after": "const hi = Math.ceil((c + hc) * (v + hv) / f - 1e-9) / f;",
+            "line_text": "  const hi = Math.ceil((c + hc) * (v + hv) * f - 1e-9) / f;",
+            "caught": true,
+            "seconds": 6.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cfdi.mjs",
+            "line": 242,
+            "col": 46,
+            "operator": "neq-flip",
+            "before": "} else if (moneda === \"XXX\" && a.TipoCambio !== undefined) {",
+            "after": "} else if (moneda === \"XXX\" && a.TipoCambio === undefined) {",
+            "line_text": "  } else if (moneda === \"XXX\" && a.TipoCambio !== undefined) {",
+            "caught": true,
+            "seconds": 6.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cfdi.mjs",
+            "line": 258,
+            "col": 39,
+            "operator": "neq-flip",
+            "before": "if (tipo === \"N\" && moneda && moneda !== \"MXN\") {",
+            "after": "if (tipo === \"N\" && moneda && moneda === \"MXN\") {",
+            "line_text": "  if (tipo === \"N\" && moneda && moneda !== \"MXN\") {",
+            "caught": false,
+            "seconds": 5.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a USD payroll CFDI would pass and an MXN one be told to use MXN; test covers both"
+          },
+          {
+            "file": "ventures/einvoice-preflight/cfdi.mjs",
+            "line": 285,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "let sumImporte = 0, sumDesc = 0, anyDesc = false;",
+            "after": "let sumImporte = 0, sumDesc = 1, anyDesc = false;",
+            "line_text": "  let sumImporte = 0, sumDesc = 0, anyDesc = false;",
+            "caught": true,
+            "seconds": 5.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cfdi.mjs",
+            "line": 298,
+            "col": 42,
+            "operator": "neq-flip",
+            "before": "if (num(ca.Descuento) !== null && imp !== null && num(ca.Descuento) > imp) {",
+            "after": "if (num(ca.Descuento) !== null && imp === null && num(ca.Descuento) > imp) {",
+            "line_text": "    if (num(ca.Descuento) !== null && imp !== null && num(ca.Descuento) > imp) {",
+            "caught": true,
+            "seconds": 6.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cfdi.mjs",
+            "line": 319,
+            "col": 46,
+            "operator": "le-to-lt",
+            "before": "if (num(ta.Base) !== null && num(ta.Base) <= 0) findings.push(finding(\"MX-023\", `Line ${i + 1}: the ${kind} Base must be greater than 0.`, \"Set Base to the taxed amount.\", `${p}/@Base`));",
+            "after": "if (num(ta.Base) !== null && num(ta.Base) < 0) findings.push(finding(\"MX-023\", `Line ${i + 1}: the ${kind} Base must be greater than 0.`, \"Set Base to the taxed amount.\", `${p}/@Base`));",
+            "line_text": "    if (num(ta.Base) !== null && num(ta.Base) <= 0) findings.push(finding(\"MX-023\", `Line ${i + 1}: the ${kind} Base must be greater than 0.`, \"Set Base to the taxed amount.\", `${p}/@Base`));",
+            "caught": false,
+            "seconds": 6.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Base=0 would lose its MX-023 finding (only the schema minimum remained); test asserts MX-023"
+          },
+          {
+            "file": "ventures/einvoice-preflight/cfdi.mjs",
+            "line": 384,
+            "col": 35,
+            "operator": "neq-flip",
+            "before": "if (withBase && t.attrs.Base !== undefined && roundTo(g.base, dec) !== num(t.attrs.Base)) {",
+            "after": "if (withBase && t.attrs.Base === undefined && roundTo(g.base, dec) !== num(t.attrs.Base)) {",
+            "line_text": "      if (withBase && t.attrs.Base !== undefined && roundTo(g.base, dec) !== num(t.attrs.Base)) {",
+            "caught": false,
+            "seconds": 5.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a wrong summary Traslado Base would pass MX-034; test plants Base 3551.50 [rerun: line changed by the baseBad fix; re-applied === undefined by hand on the new line, test 14 fails with it] [rerun: line changed by the unreadable-number fix; re-applied by hand on the new line, the suite fails with it]"
+          },
+          {
+            "file": "ventures/einvoice-preflight/cfdi.mjs",
+            "line": 405,
+            "col": 14,
+            "operator": "gt-to-ge",
+            "before": "if (hours > 72) findings.push(finding(\"MX-036\", `The CFDI was stamped ${Math.round(hours)} hours after its Fecha; a PAC stamps within 72 hours of issue.`, \"Check the issue date; reissue if it was backdated.\", \"/Comprobante/@Fecha\"));",
+            "after": "if (hours >= 72) findings.push(finding(\"MX-036\", `The CFDI was stamped ${Math.round(hours)} hours after its Fecha; a PAC stamps within 72 hours of issue.`, \"Check the issue date; reissue if it was backdated.\", \"/Comprobante/@Fecha\"));",
+            "line_text": "    if (hours > 72) findings.push(finding(\"MX-036\", `The CFDI was stamped ${Math.round(hours)} hours after its Fecha; a PAC stamps within 72 hours of issue.`, \"Check the issue date; reissue if it was backdated.\", \"/Comprobante/@Fecha\"));",
+            "caught": false,
+            "seconds": 6.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a CFDI stamped exactly 72 h after Fecha would be flagged; boundary test at 72 h and 72 h + 1 s"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/pagos20.mjs",
+        "issue": "When one payment's TipoCambioP is missing or not a number, MX-049 compared Totales' tax sums against the other payments only and blamed correct totals with two false findings (e.g. TotalTrasladosBaseIVA16 20112.07 'is not ... (10000.00)'). Now the tax sums are skipped with a note naming the payment.",
+        "patched": true
+      },
+      {
+        "file": "ventures/einvoice-preflight/cfdi.mjs",
+        "issue": "An empty or non-numeric line tax Base (already MX-003) was summed as 0, so MX-034 blamed the correct summary Base ('Base 3550.50 is not the sum of the lines' bases (2700.00)'). Now a group with an unreadable line Base or Importe is not compared.",
+        "patched": true
+      },
+      {
+        "file": "ventures/einvoice-preflight/cfdi.mjs",
+        "issue": "Class: across cfdi.mjs and pagos20.mjs an amount the schema rejects (\"abc\" or empty) was read as 0 (Number('') is 0) and the arithmetic rules then blamed correct values beside it: SubTotal (MX-030), header Descuento (MX-031), Total (MX-035), TotalImpuestos* (MX-033), the tax summary (MX-034, an unreadable TasaOCuota made a phantom rate group), ImporteDR bounds (MX-047), ImpuestosP (MX-048) and Pagos Totales (MX-049, an unreadable TasaOCuotaDR became an IVA 0% group). Each sum now skips with a note; unreadable-numbers.test.mjs tries every numeric attribute of both fixtures as 'abc' and '' and requires every finding to point at the broken attribute.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "41a473e5-b6af-528d-bfde-0f74dad099fa",
+    "transcripts": 1,
+    "first": "2026-11-12T09:18:38Z",
+    "last": "2026-11-12T09:34:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 112,
+        "output": 35440,
+        "thinking": 8891,
+        "cache_read": 5817341,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120965,
+        "api_equivalent_usd": 2.8404,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 112,
+      "output": 35440,
+      "thinking": 8891,
+      "cache_read": 5817341,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120965,
+      "api_equivalent_usd": 2.8404,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.49,
+      "active_minutes": 15.49,
+      "model_minutes": 6.14,
+      "tool_minutes": 9.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: two mutation campaigns, 3 defect fixes with tests, property test, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 211.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

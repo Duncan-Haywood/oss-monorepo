@@ -259,6 +259,22 @@ def test_e15_a5z_does_not_imply_a5():
     e15.test_countermodel(); e15.test_crosscheck()
 
 
+def test_e17_fitting_matches_prediction():
+    """E17: Fitting's variant over block algebras of individuals.  The definition-level search
+    equals H21's closed form on every frame up to 3 worlds x 3 individuals; with A5 de dicto
+    never fails; with A4 de re fails only in coarse algebras; without A4 it fails under full
+    semantics too."""
+    e17 = _load("e17_fitting")
+    stats, mism, ex = e17.run([(d, w) for d in (1, 2, 3) for w in (1, 2, 3)])
+    assert mism == []
+    tot = lambda k: sum(st[k] for st in stats.values())
+    assert tot("dedicto_fail_withA5") == 0 and tot("dedicto_fail_withA5_noA4") == 0
+    assert tot("ne_not_in_algebra") == 0
+    assert tot("dere_fail_A4") > 0 and tot("full_dere_fail_A4") == 0
+    assert tot("full_dere_fail_noA4") > 0 and tot("full_multi_god") == 0
+    assert ex["de_re_fail_A4"]["partition"] == [0, 0]
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

@@ -116,6 +116,7 @@ TAG_HUE_SAT_MAP_DIMS = 50937
 TAG_HUE_SAT_MAP_DATA_1 = 50938
 TAG_HUE_SAT_MAP_DATA_2 = 50939
 TAG_PROFILE_TONE_CURVE = 50940
+TAG_PROFILE_TONE_COPYRIGHT = 50942
 TAG_LOOK_TABLE_DIMS = 50981
 TAG_LOOK_TABLE_DATA = 50982
 TAG_HUE_SAT_MAP_ENCODING = 51107
@@ -517,12 +518,16 @@ def _decode_scan(data, pos, width, height, tables, predictor, precision, pt, res
         if np_predict is not None and width * height >= _NP_PREDICT_MIN:
             out = np_predict(diffs, width, height, nf, predictor, initial, restart)
         else:
-            out = _predict_rows(diffs, width, height, nf, predictor, initial, restart)
+            out = _predict_rows(_as_list(diffs), width, height, nf, predictor, initial, restart)
     else:
-        out = _predict_scan(diffs, width, height, nf, predictor, initial, restart)
+        out = _predict_scan(_as_list(diffs), width, height, nf, predictor, initial, restart)
     if pt:
         out = [v << pt for v in out]
     return out
+
+
+def _as_list(diffs):
+    return diffs.tolist() if isinstance(diffs, array) else diffs
 
 
 # Below about this many pixels the numpy prediction pass costs more in setup
@@ -595,7 +600,7 @@ _MARKER = re.compile(rb"\xff[\x01-\xff]")
 _RESTART_MARKER = re.compile(rb"\xff[\xd0-\xd7]")
 
 
-def _segment_words(data: bytes, pos: int) -> tuple[list[int], int]:
+def _segment_words(data: bytes, pos: int, as_list: bool = True):
     """The entropy-coded bytes from ``pos`` to the next marker, as 32-bit words.
 
     Stuffed ``FF 00`` pairs become ``FF``; past the marker the stream reads as
@@ -612,10 +617,58 @@ def _segment_words(data: bytes, pos: int) -> tuple[list[int], int]:
     words.frombytes(seg)
     if sys.byteorder == "little":
         words.byteswap()
-    return words.tolist(), stop
+    return (words.tolist() if as_list else words), stop
 
 
-def _scan_diffs(data, pos, mcus_total, tables, restart) -> list[int]:
+# "auto" reads Huffman differences with the optional native reader
+# (``ljpeg_native``: C compiled on first use, loaded by ctypes) when it builds,
+# else the pure loop below; "python" keeps the pure loop (the reference);
+# "native" requires the C reader. Same differences either way.
+HUFFMAN_ENGINE = "auto"
+
+
+def _native_huffman():
+    if HUFFMAN_ENGINE == "python":
+        return None
+    from shootflow import ljpeg_native
+
+    if ljpeg_native.reader() is None:
+        if HUFFMAN_ENGINE == "native":
+            raise DevelopError("Huffman engine 'native' needs a C compiler (cc) to build ljpeg_native")
+        return None
+    return ljpeg_native
+
+
+def _scan_diffs_native(native, data, pos, mcus_total, tables, restart):
+    """``_scan_diffs`` through the C reader: an ``array('i')``, or None to fall back."""
+
+    if not restart:
+        words, _ = _segment_words(data, pos, as_list=False)
+        return native.huffman_run(words, mcus_total, tables)
+    out = array("i")
+    done = 0
+    while done < mcus_total:
+        if done:
+            m = _RESTART_MARKER.search(data, pos)
+            pos = m.end() if m else len(data)
+        words, pos = _segment_words(data, pos, as_list=False)
+        n = min(restart, mcus_total - done)
+        part = native.huffman_run(words, n, tables)
+        if part is None:
+            return None
+        out.extend(part)
+        done += n
+    return out
+
+
+def _scan_diffs(data, pos, mcus_total, tables, restart):
+    native = _native_huffman()
+    if native is not None:
+        got = _scan_diffs_native(native, data, pos, mcus_total, tables, restart)
+        if got is not None:
+            return got
+        # An invalid code (or a size the C table does not carry): the pure
+        # loop decides, so errors and odd streams behave exactly as before.
     luts = [(_combined_lookup(t), t) for t in tables]
     out: list[int] = []
     if not restart:
@@ -1012,6 +1065,12 @@ class DevelopSettings:
     # Apply the profile's ProfileToneCurve (with profile_tables on); off keeps
     # the plain sRGB curve.
     tone_curve: bool = True
+    # When the profile carries no ProfileToneCurve: "auto" applies the default
+    # curve (dng_colour.DEFAULT_TONE_KNOTS, a fit to Adobe's ACR3 default) only
+    # if the profile's ProfileToneCopyright names Adobe, as RawTherapee does;
+    # "always" applies it to every profile with no curve, as Adobe's own
+    # converters do; "never" keeps the plain sRGB curve.
+    default_tone: str = "auto"
 
 
 @dataclass
@@ -1268,7 +1327,7 @@ def _tone_curve(src: Ifd, settings: DevelopSettings, notes: list[str]):
 
     values = src.get(TAG_PROFILE_TONE_CURVE)
     if not values:
-        return None, None
+        return _default_tone(src, settings, notes)
     try:
         tone = dc.ToneCurve.from_tags(values)
     except dc.ColourError as exc:
@@ -1283,6 +1342,31 @@ def _tone_curve(src: Ifd, settings: DevelopSettings, notes: list[str]):
     return tone, label
 
 
+DEFAULT_TONE_MODES = ("auto", "always", "never")
+
+
+def _wants_default_tone(src: Ifd, settings: DevelopSettings) -> bool:
+    mode = settings.default_tone
+    if mode not in DEFAULT_TONE_MODES:
+        raise DevelopError(f"default_tone must be one of {', '.join(DEFAULT_TONE_MODES)}, not {mode!r}")
+    if mode == "never" or src.get(TAG_PROFILE_TONE_CURVE):
+        return False
+    if mode == "always":
+        return True
+    return "adobe" in (_text(src.get(TAG_PROFILE_TONE_COPYRIGHT)) or "").lower()
+
+
+def _default_tone(src: Ifd, settings: DevelopSettings, notes: list[str]):
+    """(ToneCurve or None, label or None) when the profile has no ProfileToneCurve."""
+
+    if not _wants_default_tone(src, settings):
+        return None, None
+    if not settings.tone_curve:
+        notes.append("default tone curve not applied (tone_curve off)")
+        return None, "default ToneCurve off"
+    return dc.default_tone_curve(), "default ToneCurve (ACR3 fit)"
+
+
 def _profile_look(
     profile: dc.Profile, settings: DevelopSettings, ifd0: Ifd, cct, gain: float, notes: list[str], white_xy=None
 ):
@@ -1295,7 +1379,7 @@ def _profile_look(
     lt = profile.look_table
     src = settings.dcp if settings.dcp is not None else ifd0
     name = _text(src.get(TAG_PROFILE_NAME)) or ("camera profile" if settings.dcp is not None else "embedded profile")
-    has_tone = bool(src.get(TAG_PROFILE_TONE_CURVE))
+    has_tone = bool(src.get(TAG_PROFILE_TONE_CURVE)) or _wants_default_tone(src, settings)
     if hsm is None and lt is None and not has_tone:
         return None, (name if settings.dcp is not None else None)
     if not settings.profile_tables:

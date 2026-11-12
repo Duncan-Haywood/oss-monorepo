@@ -159,7 +159,7 @@
     const $ = (sel) => document.querySelector(sel);
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const status = $("#form-status"), report = $("#report");
-    const today = () => new Date().toISOString().slice(0, 10);
+    const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     $("#reason").innerHTML = Object.entries(REASONS).map(([id, r]) => `<option value="${id}">${esc(r.label)}</option>`).join("");
     let last = null;
 

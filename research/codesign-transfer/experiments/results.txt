@@ -1,4 +1,4 @@
-600 random feasible designs, nominal world (codesign-agri's 600 fruit, no tolerance) vs 30 held-out shifted worlds, 3 printed copies per design per world.
+600 random feasible designs, nominal world (one 600-fruit draw at codesign-agri's nominal parameters, seed 1000, no tolerance) vs 30 held-out shifted worlds, 3 printed copies per design per world.
 
 Spearman rank correlation, nominal J vs mean J over worlds: 0.993
 Per-world Spearman: median 0.967, min 0.924, max 0.992

@@ -23,7 +23,7 @@ function addDaysISO(iso, days) {
   return d.toISOString().slice(0, 10);
 }
 
-const escapeText = s => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+const escapeText = s => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
 
 // RFC 5545 asks for lines of at most 75 octets, continued with CRLF + space.
 function fold(line) {

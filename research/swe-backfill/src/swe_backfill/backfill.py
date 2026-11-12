@@ -14,6 +14,13 @@ TRACKS = ("selfrep", "ambient", "chip", "robofab", "simdesign", "garment", "eda"
 FIX_RE = re.compile(r"\b(fix|fixes|fixed|correct|corrects|corrected|correction|revert|reverts|"
                     r"repair|wrong|bug|mismatch|stale|erratum)\b", re.I)
 FMT = "%Y-%m-%dT%H:%M:%SZ"
+# Hits read by hand and found not to be corrections (quality audit 2026-11-12, round 46):
+# 556272fb434 adds eiv-twin and matched only on "repair costs" in its title.
+NOT_A_FIX = frozenset({"556272fb434"})
+
+
+def is_fix(c):
+    return c["hash"] not in NOT_A_FIX and bool(FIX_RE.search(c["subject"]))
 
 
 def load(path):
@@ -118,7 +125,7 @@ def later_touches(projs, within_days=14):
         t0 = when(p["created"])
         win = t0 + timedelta(days=within_days)
         later = [c for c in p["commits"] if c["hash"] != p["created"]["hash"] and t0 < when(c) <= win]
-        fixes = [c for c in later if FIX_RE.search(c["subject"])]
+        fixes = [c for c in later if is_fix(c)]
         rows[slug] = {"later": len(later), "fixes": len(fixes), "censored": win > end,
                       "removed": p["removed"]}
     return rows

@@ -80,6 +80,75 @@ grammar; a regex literal is lexed as punctuation (harmless, both copies lex
 the same way, but a quote inside one can make the lexer read a string to the
 end of the line).
 
+## Families: which copies to merge first
+
+A pair list answers "is there duplication?"; it does not answer "what should
+I fix?". A template pasted into 1,000 projects shows up as 999 pairs.
+`--families` (and a table on the page) folds the pairs into **families**:
+every place one block lives.
+
+```sh
+dupehound --families src/              # 20 largest families
+dupehound --families --json src/       # the JSON report plus a "families" array
+```
+
+How a family forms: each clone joins its two sides, and within a file two
+spans join when they share at least half of the shorter one's tokens (plain
+overlap would chain neighbouring blocks into one sprawling family). Because
+every window pairs with its first occurrence, the N copies of a block all
+point at one earliest copy and meet there. Inside a family a file's
+overlapping spans merge into one occurrence.
+
+Each family reports its occurrences, how many are **token-identical** (and an
+example of one), the shortest and longest copy in lines, whether every copy
+sits in a file of the same name (`usage.mjs` in 1,025 projects is a template,
+not an accident), the deepest directory holding them all, and a **removable
+lines** range: at least the larger of `(copies - 1) x shortest` and
+`(identical - 1) x identical lines`, at most every copy's lines but the
+longest's. Import and call lines that would replace them are not subtracted,
+and two families can share lines, so their sum overstates a whole-tree saving.
+
+On this repository's 11,023 `.mjs` files the 39,263 pairs fold into 3,214
+families, in the same 1.1 to 1.3 s as the plain scan
+([`BENCHMARK.md`](BENCHMARK.md), "Families"). PMD CPD prints clone classes
+too; the removable-lines ranking, identical counts and template hint are
+dupehound's own.
+
+### Guarded copies
+
+Some copies are deliberate: a module vendored into each project, with a test
+that fails when one copy drifts. Those are not debt nobody watches, and they
+crowd the top of the table. `--guarded FILE` takes path patterns for such
+copies (one a line, `#` comments; `*` and `?` stay inside a path segment, `**`
+crosses them; a pattern without `/` matches the file name, one with `/`
+matches at any directory boundary, a leading `/` anchors it). It implies
+`--families`.
+
+Inside each family, the guarded copies fold into one occurrence (the longest
+of them), since the test already makes them one maintained copy, and the
+family's statistics and rank are recomputed on what is left. A family whose
+every copy is guarded drops out of the table and into a closing total. The
+fold matters more than a yes/no flag would: in this repository the two
+`proposal` families are 122 synced copies each plus two or three strays (a
+12-line `number()` validator pasted from `proposal.mjs` into three
+`calc.mjs` files, a 16-line header shared with two `usage.test.mjs` files),
+so "every copy guarded" was true of none of them, while folding moves them
+from ranks 2 and 3 to 568 and 645 and leaves the strays visible. JSON adds
+`guarded_copies` to each family and a top-level
+`guarded` {patterns, families, copies, removable_lines, removable_lines_max}.
+Without `--guarded` the output is byte for byte what it was.
+
+[`guards/oss-monorepo.txt`](guards/oss-monorepo.txt) lists the copies
+`platform/proposal/sync.test.mjs` keeps identical:
+
+```sh
+dupehound --ext mjs --guarded ventures/dupehound/guards/oss-monorepo.txt ventures platform
+```
+
+On 11,360 `.mjs` files (2026-11-12, commit `4dcaf94d`) the summed lower
+estimate falls from 396,673 to 283,122 removable lines, at the same 0.8 to
+1.0 s as without the flag.
+
 ## Browser page
 
 [`index.html`](index.html) loads [`web/dupehound.mjs`](web/dupehound.mjs) and
@@ -129,6 +198,9 @@ or endorsed by either.
 - Prebuilt binaries from a release workflow, so no Rust toolchain is needed.
 - Pair a window with every earlier occurrence on a diagonal, not only the
   first, so repetitive code in normalised mode reports whole clones.
+- Find guard candidates automatically: a family whose copies are all
+  token-identical and all whole files is probably vendored on purpose; list
+  them as suggested `--guarded` lines for a person to confirm.
 - Labelled data for normalised mode: how many of its extra matches a person
   would call real duplication.
 - Cut memory on large trees: the window table is 16 bytes a token; a

@@ -1,0 +1,37 @@
+name: continuous-beam-calculator
+description: Free browser tool and CLI that analyses a beam over any number of supports (pinned, fixed or overhanging ends) under point loads, moments and full, partial or tapered loads, with the live load patterned span by span, and returns exact moment, shear, reaction (with uplift) and deflection envelopes checked against typed allowables and deflection limits.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Builders, deck and framing contractors and designers who need to check a beam over three or more posts, or one with an overhang, have only single-span tables and formulas, and a free multi-span tool that patterns live load saves them guessing or paying for an engineer's first look.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The pattern live-load envelope (the worst arrangement for every point, and the uplift it causes) is the number free beam calculators leave out, and the one that changes a decision.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: Searches such as "continuous beam calculator", "multi span beam calculator" and "beam with overhang calculator" are a reachable free channel once the pages are in the catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Every calculation runs in the visitor's browser; one more visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - A structural engineer comparing it with their own software finds a result that differs on a beam inside the stated scope, and the cause is not fixed within a week.
+  - Fewer than three builders or designers use it on a real beam within 90 days of it being discoverable.
+
+links:
+  production: https://marisstella.app/continuous-beam-calculator/
+  analytics: null

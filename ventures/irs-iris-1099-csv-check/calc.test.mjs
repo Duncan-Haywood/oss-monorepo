@@ -1,10 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { sampleLegacyFile, sampleLegacyBrokenFile, TEMPLATE_NEC, TEMPLATE_MISC, isTemplateHeader, validate, repair, parseCsv, toCsv, sampleFile, sampleBrokenFile, ssnProblem, itinProblem, tinShape, maskTin, necThreshold, closestColumn, findingsCsv, COLUMNS } from "./calc.mjs";
+import { sampleLegacyFile, sampleLegacyBrokenFile, TEMPLATE_NEC, TEMPLATE_MISC, isTemplateHeader, validate, repair, parseCsv, toCsv, sampleFile, sampleBrokenFile, ssnProblem, itinProblem, tinShape, maskTin, necThreshold, closestColumn, findingsCsv, COLUMNS, tinFormat, STATES } from "./calc.mjs";
 
 const codes = (r) => r.findings.map((f) => f.code);
 const base = { "Form Type": "1099-NEC", "Tax Year": "2025", "Payer TIN": "123456780", "Payer Name": "Acme", "Payer Address": "1 A St", "Payer City": "Austin", "Payer State": "TX", "Payer ZIP": "78701",
-  "Recipient TIN": "412345678", "Recipient TIN Type": "SSN", "Recipient Name": "Jo Doe", "Recipient Address": "2 B St", "Recipient City": "Dallas", "Recipient State": "TX", "Recipient ZIP": "75201", "NEC Box 1 Nonemployee Compensation": "1000.00" };
+  "Recipient TIN": "412-34-5678", "Recipient TIN Type": "SSN", "Recipient Name": "Jo Doe", "Recipient Address": "2 B St", "Recipient City": "Dallas", "Recipient State": "TX", "Recipient ZIP": "75201", "NEC Box 1 Nonemployee Compensation": "1000.00" };
 const file = (...os) => toCsv([COLUMNS, ...os.map((o) => COLUMNS.map((c) => ({ ...base, ...o })[c] ?? ""))]);
 const one = (o) => validate(file(o));
 
@@ -65,7 +65,7 @@ test("EIN typed recipient with a bad prefix warns; SSN rules do not apply to it"
 });
 
 test("blank TIN type is inferred from dashes", () => {
-  assert.ok(codes(one({ "Recipient TIN Type": "", "Recipient TIN": "45-1234567" })).includes("tin-dashes"));
+  assert.ok(!codes(one({ "Recipient TIN Type": "", "Recipient TIN": "45-1234567" })).includes("recipient-ssn"));
   assert.ok(codes(one({ "Recipient TIN Type": "", "Recipient TIN": "666-12-3456" })).includes("recipient-ssn"));
 });
 
@@ -118,7 +118,7 @@ test("state, ZIP, name and address checks", () => {
 
 test("tax year checks and mixed years", () => {
   assert.ok(codes(one({ "Tax Year": "25" })).includes("tax-year"));
-  assert.ok(codes(validate(file({}, { "Tax Year": "2024", "Recipient TIN": "412345679" }))).includes("mixed-years"));
+  assert.ok(codes(validate(file({}, { "Tax Year": "2024", "Recipient TIN": "412-34-5679" }))).includes("mixed-years"));
 });
 
 test("duplicates: identical rows, same TIN, same TIN different names", () => {
@@ -144,7 +144,7 @@ test("short rows, totals rows and unterminated quotes", () => {
 });
 
 test("record count and total checks use the numbers the filer types", () => {
-  const f = file({}, { "Recipient TIN": "412345679", "NEC Box 1 Nonemployee Compensation": "500.00" });
+  const f = file({}, { "Recipient TIN": "412-34-5679", "NEC Box 1 Nonemployee Compensation": "500.00" });
   assert.ok(!codes(validate(f, { expectedRecords: 2, expectedTotal: "1,500.00" })).includes("record-count"));
   assert.ok(!codes(validate(f, { expectedRecords: 2, expectedTotal: "1,500.00" })).includes("total-mismatch"));
   assert.ok(codes(validate(f, { expectedRecords: 3 })).includes("record-count"));
@@ -162,12 +162,12 @@ test("semicolon files are flagged and repaired", () => {
   assert.ok(!codes(validate(r.text)).includes("delimiter"));
 });
 
-test("repair: strips $ and commas, dashes, pads ZIP, trims, lists every change", () => {
-  const f = file({ "Recipient TIN": "412-34-5678", "NEC Box 1 Nonemployee Compensation": "$1,200.00", "Recipient State": "NJ", "Recipient ZIP": "7101", "Recipient City": " Newark " });
+test("repair: strips $ and commas, writes the TIN in IRS format, pads ZIP, trims, lists every change", () => {
+  const f = file({ "Recipient TIN": "412345678", "NEC Box 1 Nonemployee Compensation": "$1,200.00", "Recipient State": "NJ", "Recipient ZIP": "7101", "Recipient City": " Newark " });
   const r = repair(f);
   const out = parseCsv(r.text).rows[1].cells;
   const at = (c) => out[COLUMNS.indexOf(c)];
-  assert.equal(at("Recipient TIN"), "412345678");
+  assert.equal(at("Recipient TIN"), "412-34-5678");
   assert.equal(at("NEC Box 1 Nonemployee Compensation"), "1200.00");
   assert.equal(at("Recipient ZIP"), "07101");
   assert.equal(at("Recipient City"), "Newark");
@@ -195,4 +195,27 @@ test("findingsCsv round-trips", () => {
   const r = validate(sampleBrokenFile());
   const rows = parseCsv(findingsCsv(r)).rows;
   assert.equal(rows.length, r.findings.length + 1);
+});
+
+// Quality audit 2026-11-12 (portfolio/quality/audits/2026-11-12-irs-iris-1099-csv-check.json): the IRIS template
+// formatting guidelines (TY2025, columns D and U) require dashed TINs by type; the old safe fix stripped them.
+test("TINs follow the IRIS guideline format by type, and repair writes that format instead of stripping dashes", () => {
+  assert.equal(tinFormat("456789012", "EIN"), "45-6789012");
+  assert.equal(tinFormat("456789012", "QI-EIN"), "45-6789012");
+  assert.equal(tinFormat("412345678", "ITIN"), "412-34-5678");
+  assert.equal(tinFormat("412345678", "UND"), "412345678");
+  assert.equal(tinFormat("412345678", ""), null);
+  assert.ok(codes(one({ "Recipient TIN": "412345678" })).includes("tin-format"));
+  assert.ok(!codes(one({ "Recipient TIN": "412-34-5678" })).includes("tin-format"));
+  assert.deepEqual(repair(sampleFile()).changes, []);
+  const r = repair(file({ "Recipient TIN Type": "EIN", "Recipient TIN": "456789012" }));
+  assert.equal(parseCsv(r.text).rows[1].cells[COLUMNS.indexOf("Recipient TIN")], "45-6789012");
+  const untyped = repair(file({ "Recipient TIN Type": "", "Recipient TIN": "412-34-5678" }));
+  assert.equal(parseCsv(untyped.text).rows[1].cells[COLUMNS.indexOf("Recipient TIN")], "412-34-5678");
+});
+
+test("QI-EIN and UND are IRS TIN types; FM, MH and PW are IRS state codes", () => {
+  assert.ok(!codes(one({ "Recipient TIN Type": "QI-EIN", "Recipient TIN": "45-6789012" })).includes("tin-type"));
+  assert.ok(!codes(one({ "Recipient TIN Type": "UND", "Recipient TIN": "412345678" })).includes("tin-type"));
+  for (const st of ["FM", "MH", "PW"]) assert.ok(STATES.has(st), st);
 });

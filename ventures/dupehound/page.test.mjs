@@ -58,3 +58,10 @@ test("focusable result rows keep a visible focus outline", () => {
   assert.match(html, /tr\.clone:focus-visible\s*\{[^}]*outline:\s*2px solid/);
   assert.doesNotMatch(html, /tr\.clone:focus[^-][^}]*outline:\s*none/);
 });
+
+// Families: the page asks the engine for them and has a table to show them.
+test("the page requests clone families and renders them", () => {
+  assert.match(html, /families: true \}\)/);
+  assert.match(html, /id="famRows"/);
+  assert.match(html, /dupehound --families/);
+});

@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVLVR8r582nFKoP6dc9",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production",
+  "input_sha256": "d5feb2a7af47facfb2e3a484826e8906b2901a5de41cdbfec10e702844764aaf",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T09:06:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15070",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "A bare `route` drew the research track although the scheduled message asks for revenue products; `route --task \"<message>\"` routes it to ventures. The master prompt's first command could pass the task by default."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The bare route drew research/0, but the scheduled task explicitly asks for venture work, so I re-routed with --task and followed ventures/1.",
+      "did": "Took the allocator's flagship pick (einvoice-preflight) and the `next:` item Pagos 2.0 sums.",
+      "result": "Landed MX-040..049 with 202/202 planted faults caught and 1,446/1,446 schema verdicts matching xmllint."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local checks: run_venture_tests.py einvoice-preflight ok; pagos20/cfdi/mexico page tests 27 pass; eval/pagos-mutations 202/202 over 10 files, 0 clean findings; eval/pagos-xsd-diff 1446/1446 vs xmllint; cfdi-mutations 24/24.",
+  "corrections": [],
+  "redteam": null
+}

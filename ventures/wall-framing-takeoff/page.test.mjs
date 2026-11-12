@@ -1,17 +1,23 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
-for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "gutter-calculator.html", "flooring-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html", "stud-drilling-checker.html", "plumbing-calculator.html", "hvac-calculator.html", "walltile-calculator.html", "electrical-calculator.html", "paint-calculator.html", "price-sensitivity-calculator.html", "order-by-date-calculator.html", "fireblock-calculator.html", "nail-calculator.html", "opening-schedule-calculator.html", "floor-calculator.html", "foundation-calculator.html", "cmu-calculator.html", "dormer-calculator.html", "fence-calculator.html", "paver-calculator.html", "mulch-topsoil-gravel-calculator.html", "board-foot-calculator.html", "retaining-wall-calculator.html", "soffit-fascia-calculator.html", "sheathing-calculator.html", "water-supply-sizing-calculator.html"]) {
+// Every page in the folder, not a hand-kept list: the list had drifted to 37
+// of 47 pages by 2026-11-12, so ten pages shipped with nothing checking them.
+// sample-bid-package.html is generated output (a customer proposal), checked by
+// sample-pack.test.mjs against build-sample-pack.mjs, not a site page.
+const PAGES = readdirSync(new URL("./", import.meta.url)).filter((f) => f.endsWith(".html") && f !== "sample-bid-package.html").sort();
+
+for (const name of PAGES) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {
     const html = page(name);
     assert.match(html, /No warranty/);
     assert.match(html, /not engineering, construction, building-code/i);
-    assert.match(html, /not checked against any span table or code/);
+    assert.match(html, /not checked against any (?:span table or )?code/);
     assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
-    assert.match(html, /Not affiliated with any lumberyard/);
+    assert.match(html, /Not affiliated with any (?:lumberyard|ready-mix plant)/);
     assert.match(html, /<html lang="en">/);
     assert.match(html, /<meta name="description" content="[^"]{80,}/);
     assert.match(html, /<link rel="canonical" href="\.\/[\w-]+\.html">/);

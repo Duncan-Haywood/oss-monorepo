@@ -172,7 +172,7 @@
     }
     function menu() {
       run();
-      const html = menuPage(last, { business: $("business").value, updated: new Date().toISOString().slice(0, 10) });
+      const html = menuPage(last, { business: $("business").value, updated: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(new Blob([html], { type: "text/html" }));
       link.download = "allergen-guide.html";

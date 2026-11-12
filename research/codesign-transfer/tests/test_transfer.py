@@ -41,5 +41,18 @@ class TransferTests(unittest.TestCase):
         self.assertAlmostEqual(T.phys(np.ones(5))[2], T.UB[2])
 
 
+class PinnedNumbers(unittest.TestCase):
+    # Pins results.txt on the nominal optimum (quality audit 2026-11-12): five of six seeded bugs
+    # in transfer.py survived the earlier tests because none pinned a score.
+    XN = [24.984, 24.902, 0.18, 8.0, 3]
+
+    def test_nominal_optimum_in_nominal_world(self):
+        self.assertAlmostEqual(T.score(self.XN, T.draw_world(0, width=0.0), builds=1), 0.6526, places=3)
+
+    def test_nominal_optimum_over_held_out_worlds(self):
+        s = [T.score(self.XN, T.draw_world(k)) for k in range(1000, 1030)]
+        self.assertAlmostEqual(float(np.mean(s)), 0.567, places=3)
+
+
 if __name__ == "__main__":
     unittest.main()

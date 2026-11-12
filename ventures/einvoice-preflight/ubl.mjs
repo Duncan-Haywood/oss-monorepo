@@ -360,7 +360,13 @@ export function parseUblInvoice(source) {
   // When the VAT accounting currency is the document currency (ZATCA requires
   // BT-111 in SAR, so every SAR invoice repeats its tax), the repeat is the
   // TaxTotal with no TaxSubtotal: BT-110 is the one that carries the breakdown.
-  if (sameCurrency.length > 1 && sameCurrency.some(hasSubtotal)) sameCurrency = sameCurrency.filter(hasSubtotal);
+  // That repeat is kept as totals.tax_accounting_currency so INV-059 can compare it.
+  let accountingRepeat = null;
+  if (sameCurrency.length > 1 && sameCurrency.some(hasSubtotal)) {
+    const repeats = sameCurrency.filter((item) => !hasSubtotal(item));
+    if (repeats.length === 1) accountingRepeat = parseDecimal(textOf(repeats[0], "TaxAmount", false));
+    sameCurrency = sameCurrency.filter(hasSubtotal);
+  }
   const taxTotal = (sameCurrency.length ? sameCurrency : taxTotals)
     .reduce((sum, item) => sum + asNumber(textOf(item, "TaxAmount")), 0);
   const dueDate = textOf(root, "DueDate", false);
@@ -384,6 +390,7 @@ export function parseUblInvoice(source) {
       net: asNumber(textOf(total, "TaxExclusiveAmount")),
       tax: asNumber(String(taxTotal)),
       gross: asNumber(textOf(total, "TaxInclusiveAmount")),
+      ...(accountingRepeat !== null ? { tax_accounting_currency: accountingRepeat } : {}),
       ...optionalMonetaryTotals(total),
     },
   };

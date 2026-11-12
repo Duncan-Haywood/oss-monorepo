@@ -90,3 +90,40 @@ class ResearchPublishTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ResearchIndexLengthTest(unittest.TestCase):
+    """The index stays a page a phone can scroll: logs and theme previews are capped,
+    and nothing they cap loses its link (2026-11-12: 44,050 px at 390 px wide)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.out = Path(cls.tmp.name)
+        subprocess.run([sys.executable, str(BUILD), "--out", str(cls.out)], check=True, capture_output=True, text=True)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def test_logs_newest_cards_then_every_log_listed(self):
+        index = (self.out / "index.html").read_text()
+        logs = index[index.index('id="logs"'):index.index('id="projects"')]
+        cards = re.findall(r'<a class="feat [^"]*" href="([\w-]+)/#log">.*?<p>Latest: (\d{4}-\d{2}-\d{2})?', logs, re.S)
+        self.assertLessEqual(len(cards), 6)
+        dates = [d for _, d in cards if d]
+        self.assertEqual(dates, sorted(dates, reverse=True), "cards are the newest logs, newest first")
+        linked = set(re.findall(r'href="([\w-]+)/#log"', logs))
+        # A log is a LOG.md with at least one `## <date> · <title>` entry (build.read_log).
+        with_log = {p.name for p in (ROOT / "research").iterdir()
+                    if (p / "LOG.md").is_file() and (self.out / p.name).is_dir()
+                    and any(l.startswith("## ") for l in (p / "LOG.md").read_text().splitlines())}
+        self.assertEqual(linked, with_log, "every project with a LOG.md is linked from the index")
+        if len(with_log) > 6:
+            self.assertIn('<details class="log-more">', logs)
+
+    def test_phone_preview_is_undone_by_show_all(self):
+        index = (self.out / "index.html").read_text()
+        self.assertIn("main:not(.all) .theme .grid>.card:nth-child(n+2){display:none}", index)
+        self.assertIn("classList.add('all')", index)
+

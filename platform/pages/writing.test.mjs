@@ -172,10 +172,10 @@ test('the index can be searched and filtered: finder, card data, full-text index
   const older = await fs.readFile(path.join(w, 'older/index.html'), 'utf8');
   assert.match(older, /<a class="topic" href="\.\.\/\?topic=research">Research findings<\/a>/);
   assert.match(older, /<a class="tag" href="\.\.\/\?tag=agents">agents<\/a>/);
-  assert.match(older, /<a href="\.\.\/newer\/" rel="next">Newer →<\/a>/);
+  assert.match(older, /<a href="\.\.\/newer\/" rel="next" class="next"><span class="dir">Newer →<\/span>Newer<\/a>/);
   // The pager runs both ways: the newest post links back to the older one, the oldest has no back link.
   const newer = await fs.readFile(path.join(w, 'newer/index.html'), 'utf8');
-  assert.match(newer, /<a href="\.\.\/older\/" rel="prev">← Older<\/a>/);
+  assert.match(newer, /<a href="\.\.\/older\/" rel="prev"><span class="dir">← Older<\/span>Older<\/a>/);
   assert.doesNotMatch(newer, /rel="next"/);
   assert.doesNotMatch(older, /rel="prev"/);
   assert.match(await fs.readFile(path.join(w, 'feed.xml'), 'utf8'), /<category term="research" label="Research findings"\/>/);
@@ -245,6 +245,16 @@ test('every committed post loads, so a 161-character description fails here and 
   assert.ok(loadPosts(undefined, undefined, { skipBad: false }).length > 0);
 });
 
+test('quoted front-matter values are unescaped the way YAML reads them', () => {
+  const { meta } = parseFrontMatter('---\ntitle: "\\"United States\\" is not \\"US\\""\ndescription: "the string \\"\\\\;\\" is a semicolon"\nseo_title: \'It\'\'s fine\'\n---\nbody\n');
+  assert.equal(meta.title, '"United States" is not "US"');
+  assert.equal(meta.description, 'the string "\\;" is a semicolon');
+  assert.equal(meta.seo_title, "It's fine");
+  // No committed post shows a YAML escape on the page.
+  const leaked = loadPosts().filter((p) => /\\"/.test(p.title + p.description + (p.seoTitle || '')));
+  assert.deepEqual(leaked.map((p) => p.slug), []);
+});
+
 test('a post may give a shorter seo_title for the results page and is held to the title budget', async () => {
   const fm = (extra) => `---\ntitle: "A very long headline that goes on and on past what a results page shows"\ndate: 2026-01-01\ndescription: "d"\n${extra}---\n\n# H\n\nbody\n`;
   const ok = parseFrontMatter(fm('seo_title: "Short query title"\n'));
@@ -261,6 +271,28 @@ test('relatedPosts never lists the post itself; same topic first, then the rest,
   const posts = [mk('a', 'x'), mk('b', 'y'), mk('c', 'x'), mk('d', 'y')];
   assert.deepEqual(relatedPosts(posts[0], posts).map((p) => p.slug), ['c', 'b', 'd']);
   assert.deepEqual(relatedPosts(posts[0], posts, 2).map((p) => p.slug), ['c', 'b']);
+});
+
+test('relatedPosts ranks by rare shared tags and title words, not by recency', () => {
+  const mk = (slug, date, topic, tags, title = slug) => ({ slug, date, topic, tags, title });
+  const posts = [
+    mk('new-a', '2026-11-12', 'tools', ['ventures'], 'Unrelated newest post'),
+    mk('new-b', '2026-11-12', 'tools', ['ventures'], 'Another newest post'),
+    mk('hull-1', '2026-10-01', 'research', ['research', 'marine-hull'], 'Wigley hull form factor'),
+    mk('hull-2', '2026-10-20', 'research', ['research', 'marine-hull'], 'Catamaran resistance'),
+    mk('hull-3', '2026-10-02', 'research', ['research', 'marine-hull', 'catamaran'], 'Catamaran tank curve'),
+    mk('words', '2026-09-01', 'tools', ['misc'], 'Wigley hull, retold'),
+    ...Array.from({ length: 20 }, (_, i) => mk(`filler-${i}`, '2026-09-15', 'research', ['research', `own-${i}`], `Filler ${i}`)),
+  ];
+  // A shared rare title word (catamaran) outranks a shared series tag; topic filler comes last.
+  assert.deepEqual(relatedPosts(posts[3], posts, 3).map((p) => p.slug), ['hull-3', 'hull-1', 'filler-0']);
+  // Two shared rare title words outrank one shared tag; equal scores go to the nearer date (hull-3 before hull-2).
+  assert.deepEqual(relatedPosts(posts[2], posts, 3).map((p) => p.slug), ['words', 'hull-3', 'hull-2']);
+  // A tag on more than a fifth of the posts (research) says nothing: with nothing else shared, the
+  // same topic nearest in date fills first, then the other topics, never the post itself.
+  assert.deepEqual(relatedPosts(posts[0], posts, 3).map((p) => p.slug), ['new-b', 'words', 'hull-2']);
+  // The old rule gave every post in a topic the topic's newest posts; the series no longer points at them.
+  for (const p of posts.slice(2, 5)) assert.ok(!relatedPosts(p, posts, 3).some((r) => r.slug.startsWith('new-')), p.slug);
 });
 
 // Runs the index's inline finder script against a small fake DOM, so the count

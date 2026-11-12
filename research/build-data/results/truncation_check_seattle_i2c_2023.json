@@ -1,0 +1,111 @@
+{
+ "held_out": "seattle",
+ "test_year": 2023,
+ "pull_date": "2026-11-12",
+ "sources": [
+  "sf",
+  "austin"
+ ],
+ "n_history": 89185,
+ "n_history_censored": 86020,
+ "classes": {
+  "new_construction": {
+   "n_source": 271168,
+   "n_history": 13657,
+   "n_history_censored": 12895,
+   "n_test": 980,
+   "q90_source": 471.0,
+   "q90_history": 954.0,
+   "q90_history_censored": 769.0,
+   "q90_test": 826.0,
+   "ratio_vs_censored": {
+    "q_source": 471.0,
+    "q_held": 769.0,
+    "ratio": 0.6124837451235371,
+    "lo": 0.5982142857142857,
+    "hi": 0.6251655629139072
+   }
+  },
+  "alteration": {
+   "n_source": 875070,
+   "n_history": 56753,
+   "n_history_censored": 55570,
+   "n_test": 2714,
+   "q90_source": 412.0,
+   "q90_history": 579.0,
+   "q90_history_censored": 552.0,
+   "q90_test": 599.0,
+   "ratio_vs_censored": {
+    "q_source": 412.0,
+    "q_held": 552.0,
+    "ratio": 0.7463768115942029,
+    "lo": 0.7436823104693141,
+    "hi": 0.7509090909090909
+   }
+  },
+  "electrical": {
+   "n_source": 567172,
+   "n_history": 486,
+   "n_history_censored": 466,
+   "n_test": 21
+  },
+  "plumbing": {
+   "n_source": 435776,
+   "n_history": 43,
+   "n_history_censored": 41,
+   "n_test": 0
+  },
+  "mechanical": {
+   "n_source": 427906,
+   "n_history": 174,
+   "n_history_censored": 161,
+   "n_test": 12
+  },
+  "demolition": {
+   "n_source": 18585,
+   "n_history": 9543,
+   "n_history_censored": 8771,
+   "n_test": 438,
+   "q90_source": 673.0,
+   "q90_history": 964.0,
+   "q90_history_censored": 629.0,
+   "q90_test": 612.3,
+   "ratio_vs_censored": {
+    "q_source": 673.0,
+    "q_held": 629.0,
+    "ratio": 1.0699523052464228,
+    "lo": 1.0304821150855399,
+    "hi": 1.1190082644628099
+   }
+  },
+  "sign": {
+   "n_source": 11236,
+   "n_history": 23,
+   "n_history_censored": 23,
+   "n_test": 0
+  },
+  "fire": {
+   "n_source": 3,
+   "n_history": 72,
+   "n_history_censored": 71,
+   "n_test": 1
+  },
+  "other": {
+   "n_source": 7826,
+   "n_history": 8434,
+   "n_history_censored": 8022,
+   "n_test": 221,
+   "q90_source": 513.5,
+   "q90_history": 853.6999999999998,
+   "q90_history_censored": 734.0,
+   "q90_test": 786.0,
+   "ratio_vs_censored": {
+    "q_source": 513.5,
+    "q_held": 734.0,
+    "ratio": 0.6995912806539509,
+    "lo": 0.6630727762803235,
+    "hi": 0.744695229085011
+   }
+  }
+ }
+}

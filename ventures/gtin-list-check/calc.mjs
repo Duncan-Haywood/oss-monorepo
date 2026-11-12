@@ -102,7 +102,8 @@ export function classify(raw) {
     const full = digits.padEnd(exp + 1, "0");
     const lost = exp + 1 - digits.length;
     const test = tryDigits(full);
-    if (lost > 0 && !test.ok) return { kind: "sci-lost", detail: `${s} is Excel scientific notation. About ${lost} trailing digit${lost === 1 ? "" : "s"} were rounded away when the file was saved, and the digits that remain do not form a valid code. The original codes must be re-exported from the source with the column formatted as text.` };
+    // Digits rounded away cannot be recovered, and a zero-filled guess passes the check digit about 1 time in 10, so a pass proves nothing.
+    if (lost > 0) return { kind: "sci-lost", detail: `${s} is Excel scientific notation. About ${lost} trailing digit${lost === 1 ? "" : "s"} were rounded away when the file was saved and cannot be recovered from what is left (a zero-filled guess passes the check digit about 1 time in 10, so a pass would prove nothing). The original codes must be re-exported from the source with the column formatted as text.` };
     if (test.ok) return { kind: "ok", value: test.value, fixed: true, notes: [...notes, `Excel scientific notation (${s}) expanded; the check digit confirms it`] };
     return { kind: "bad", why: "scientific notation" };
   }
@@ -195,7 +196,8 @@ export function validate(text, options = {}) {
       c.fixed ? fixable++ : valid++;
       if (c.fixed) add("info", r.line, `Fixable: ${c.notes.join("; ")}`, `"${String(raw).trim()}" becomes ${c.value}.`);
       lengths.set(c.value.length, (lengths.get(c.value.length) || 0) + 1);
-      const g13 = c.value.padStart(13, "0");
+      // A GTIN-14 is an indicator digit plus the item's GTIN-13 body; prefix rules apply to that body, not to the indicator.
+      const g13 = c.value.length === 14 ? c.value.slice(1) : c.value.padStart(13, "0");
       if (/^0+$/.test(c.value)) add("error", r.line, "All zeros", "A placeholder, not a barcode.");
       else if (/^(\d)\1+$/.test(c.value)) add("warning", r.line, "Repeated single digit", `${c.value} has a valid check digit but looks like a placeholder.`);
       const rp = restrictedPrefix(g13);

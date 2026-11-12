@@ -4,12 +4,12 @@
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23b7410e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ED%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>dupehound: Find Copy-Pasted Code in Your Repo, Fast (Rust, Runs in Your Browser)</title>
-  <meta name="description" content="Drop a project folder and see every copy-pasted block: file, lines and the matching copy. A Rust copy-paste detector compiled to WebAssembly. Nothing is uploaded. Also a CLI that checked 9,458 files in 1.2 seconds.">
+  <meta name="description" content="Drop a project folder and see every copy-pasted block, grouped into families by the lines a shared module would save. A Rust copy-paste detector compiled to WebAssembly. Nothing is uploaded. Also a CLI that checked 9,458 files in 1.2 seconds.">
   <meta property="og:title" content="Find copy-pasted code, fast">
   <meta property="og:description" content="A token-based copy-paste detector written in Rust: the same engine runs as a CLI and in your browser. On 1,054 JavaScript files it matched jscpd's duplicated lines to within a point, in 0.2 s instead of 40 s.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"dupehound","applicationCategory":"DeveloperApplication","operatingSystem":"Linux, macOS, Windows, any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","description":"Token-based copy-paste (code clone) detector written in Rust. Runs as a command-line tool and, compiled to WebAssembly, in the browser with nothing uploaded."}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is my code uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The folder you pick is read by this browser tab and handed to a WebAssembly module loaded from this site. Nothing is sent anywhere; the page makes no network requests after it loads."}}, {"@type": "Question", "name": "How is this different from jscpd?", "acceptedAnswer": {"@type": "Answer", "text": "Same method and defaults, written in Rust. On 1,054 JavaScript files jscpd took 40 seconds and dupehound 0.2 seconds, and they flagged the same lines to within about 6%. jscpd knows far more languages and has richer reports; dupehound has one generic lexer and JSON or text output."}}, {"@type": "Question", "name": "Does it find code that was copied and then renamed?", "acceptedAnswer": {"@type": "Answer", "text": "No. Matching is exact on token text after dropping whitespace and comments. jscpd's default mode behaves the same way."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is my code uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The folder you pick is read by this browser tab and handed to a WebAssembly module loaded from this site. Nothing is sent anywhere; the page makes no network requests after it loads."}}, {"@type": "Question", "name": "How is this different from jscpd?", "acceptedAnswer": {"@type": "Answer", "text": "Same method and defaults, written in Rust. On 1,054 JavaScript files jscpd took 40 seconds and dupehound 0.2 seconds, and they flagged the same lines to within about 6%. jscpd knows far more languages and has richer reports; dupehound has one generic lexer and JSON or text output."}}, {"@type": "Question", "name": "Does it find code that was copied and then renamed?", "acceptedAnswer": {"@type": "Answer", "text": "By default, no: matching is exact on token text after dropping whitespace and comments, as in jscpd's default mode. Tick \"Also find renamed copies\" (or pass --normalize) and names, strings and numbers are ignored, so a pasted function whose variables were renamed is found. Expect more false positives: two functions of the same shape and different meaning match."}}, {"@type": "Question", "name": "Which copies should I merge first?", "acceptedAnswer": {"@type": "Answer", "text": "Start at the top of the families table. A family with many identical copies in files of the same name is usually a template pasted into each project; one shared module and an import replaces it. A family whose copies vary in length has drifted, and the copies may no longer do the same thing, so read them before merging. On the command line: dupehound --families src/."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1f1a17; background: #f6f3f0; }
     body { max-width: 1040px; margin: auto; padding: 28px; }
@@ -83,6 +83,12 @@
       <tbody id="rows"></tbody>
     </table></div>
     <div id="detail"></div>
+    <h3 id="famHead">Families: every place one block was pasted</h3>
+    <p class="note" id="famNote">A family joins every copy of the same block, so a template pasted into 40 projects is one row, not 39 pairs. "Identical" counts copies that match token for token. "Removable" is an estimate of the lines that could go if the block moved to one shared module: at least the identical copies (or every copy's shortest common part), at most everything but the longest copy. It does not count the import and call lines that would replace them.</p>
+    <div class="tableWrap"><table>
+      <thead><tr><th>Copies</th><th>Identical</th><th>Lines</th><th>Removable</th><th>Example copy</th></tr></thead>
+      <tbody id="famRows"></tbody>
+    </table></div>
     <button type="button" class="secondary" id="download">Download the JSON report</button>
   </section>
 
@@ -92,8 +98,9 @@
       <li><strong>Tokenize</strong> each file: identifiers, numbers, strings and punctuation, with whitespace and comments dropped, so a re-indented or re-commented copy still matches.</li>
       <li><strong>Hash every run of 50 tokens</strong> with a rolling hash, and sort the hashes so equal runs sit side by side. Each run is checked token by token, so a hash collision cannot report a false clone.</li>
       <li><strong>Merge</strong> neighbouring matches into the longest block, and keep blocks of at least 5 lines on both sides.</li>
+      <li><strong>Group</strong> the pairs into families: two copies join when they share a side, or when their spans in one file overlap by at least half of the shorter one. Each family is one block and every place it lives, ranked by the lines a shared module could remove.</li>
     </ol>
-    <p>This is the method jscpd and PMD's CPD use, with jscpd's defaults. Matching is exact: a copy whose variables were renamed is not found.</p>
+    <p>This is the method jscpd and PMD's CPD use, with jscpd's defaults. Matching is exact unless you tick "Also find renamed copies". jscpd reports pairs; grouping them into families with a removable-lines estimate is dupehound's own addition.</p>
   </section>
 
   <section class="card">
@@ -118,6 +125,8 @@ cargo install --path ventures/dupehound
 
 dupehound src/                       # top 20 clones and a summary
 dupehound --json src/ &gt; clones.json  # every clone, machine-readable
+dupehound --families src/            # copies grouped by block, largest saving first
+dupehound --guarded synced.txt src/  # count copies a sync test keeps identical as one
 dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pre>
     <p class="note">Needs a Rust toolchain (<code>rustup</code>). Respects <code>.gitignore</code>. <code>dupehound --help</code> lists every option.</p>
   </section>
@@ -127,7 +136,7 @@ dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pr
     <ul>
       <li><strong><a href="https://github.com/kucherenko/jscpd" rel="noopener">jscpd</a></strong> when you need its 150-plus language grammars, HTML or badge reports, git blame on each clone, or its "weak" mode. On a project of a few hundred files its speed is fine.</li>
       <li><strong>PMD CPD</strong> when you already run PMD for Java and want one report.</li>
-      <li><strong>A clone detector that normalises names</strong> (several IDEs and SonarQube do some of this) when the copies you care about had their variables renamed. dupehound will not find those.</li>
+      <li><strong>A clone detector with a real parser</strong> (several IDEs and SonarQube) when you need copies matched by syntax tree, or copies whose statements were reordered. dupehound's renamed-copies mode only ignores names, strings and numbers.</li>
     </ul>
   </section>
 
@@ -138,7 +147,9 @@ dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pr
     <h3>How is this different from jscpd?</h3>
     <p>Same method and defaults, written in Rust. On 1,054 JavaScript files jscpd took 40 seconds and dupehound 0.2 seconds, and they flagged the same lines to within about 6%. jscpd knows far more languages and has richer reports; dupehound has one generic lexer and JSON or text output.</p>
     <h3>Does it find code that was copied and then renamed?</h3>
-    <p>No. Matching is exact on token text after dropping whitespace and comments. jscpd's default mode behaves the same way.</p>
+    <p>By default, no: matching is exact on token text after dropping whitespace and comments, as in jscpd's default mode. Tick "Also find renamed copies" (or pass <code>--normalize</code>) and names, strings and numbers are ignored, so a pasted function whose variables were renamed is found. Expect more false positives: two functions of the same shape and different meaning match.</p>
+    <h3>Which copies should I merge first?</h3>
+    <p>Start at the top of the families table. A family with many identical copies in files of the same name is usually a template pasted into each project; one shared module and an import replaces it. A family whose copies vary in length has drifted, and the copies may no longer do the same thing, so read them before merging. On the command line: <code>dupehound --families src/</code>.</p>
   </section>
 
   </main>
@@ -199,6 +210,14 @@ dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pr
       $("rows").innerHTML = top.map((c, i) =>
         `<tr class="clone" tabindex="0" data-i="${i}"><td>${c.tokens}</td><td>${c.lines}</td><td><code>${esc(c.second.file)}</code>:${c.second.start_line}-${c.second.end_line}</td><td><code>${esc(c.first.file)}</code>:${c.first.start_line}-${c.first.end_line}</td></tr>`).join("")
         + (report.clones.length > 200 ? `<tr><td colspan="4" class="note">Largest 200 of ${report.clones.length} shown; the JSON report has all of them.</td></tr>` : "");
+      const fams = report.families || [];
+      $("famRows").innerHTML = fams.slice(0, 50).map((f) => {
+        const ex = f.spans[f.identical_first];
+        const lines = f.shortest_lines === f.longest_lines ? `${f.shortest_lines}` : `${f.shortest_lines}-${f.longest_lines}`;
+        const name = f.common_name ? ` <span class="note">(every copy is a <code>${esc(f.common_name)}</code>)</span>` : "";
+        return `<tr><td>${f.occurrences.toLocaleString()}</td><td>${f.identical_copies > 1 ? f.identical_copies.toLocaleString() : "none"}</td><td>${lines}</td><td>${f.removable_lines === f.removable_lines_max ? f.removable_lines.toLocaleString() : `${f.removable_lines.toLocaleString()} to ${f.removable_lines_max.toLocaleString()}`}</td><td><code>${esc(ex.file)}</code>:${ex.start_line}-${ex.end_line}${name}</td></tr>`;
+      }).join("") + (fams.length > 50 ? `<tr><td colspan="5" class="note">Largest 50 of ${fams.length} families shown; the JSON report has all of them.</td></tr>` : "")
+        || `<tr><td colspan="5" class="note">No families at these settings.</td></tr>`;
       $("detail").innerHTML = "";
       for (const tr of document.querySelectorAll("tr.clone")) {
         const open = () => {
@@ -225,7 +244,7 @@ dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pr
         const t = performance.now();
         const minTokens = Math.max(5, Math.min(5000, Number($("minTokens").value) || 50));
         const minLines = Math.max(1, Math.min(1000, Number($("minLines").value) || 5));
-        lastReport = dh.analyze(files, { minTokens, minLines, normalize: $("normalize").checked });
+        lastReport = dh.analyze(files, { minTokens, minLines, normalize: $("normalize").checked, families: true });
         $("status").textContent = `Done in ${((performance.now() - t) / 1000).toFixed(2)} s.`;
         show(lastReport);
         record("scan_run");

@@ -521,7 +521,7 @@
         if (v.valid) record("report_unlocked");
       });
       $("#report-open").addEventListener("click", () => {
-        const brand = { title: $("#report-title").value, author: $("#report-author").value, contact: $("#report-contact").value, accent: $("#report-accent").value, logo, notes: $("#report-notes").value, date: new Date().toISOString().slice(0, 10) };
+        const brand = { title: $("#report-title").value, author: $("#report-author").value, contact: $("#report-contact").value, accent: $("#report-accent").value, logo, notes: $("#report-notes").value, date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) };
         // Several columns: the several-column report on the last run (multi-report.mjs); otherwise the one-column report.
         const multi = $("#shape").value === "multi";
         // Wandering-level model (drift-report.mjs): its own report, with the options it ignored named.
