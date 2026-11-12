@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtGPeENJq1GCvCztHJV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T18:21:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 6 (shift-roster-builder): cut the 8 s row-less first pass on the two slow call-out weeks; test feeding the open-hours row above 60 copies",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15213",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Ran a stash-then-eval background command, which left the working tree stashed while the eval ran; harmless (nothing was edited meanwhile) but it blocked edits for ~2 min. The committed eval/callout-cover-study.out.txt was already the 'before' reading."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Post front-matter limits (description <= 160, seo_title <= 70) are only reported after the 5-minute preflight starts; a standalone check_post_frontmatter.py run before it would have caught both in a second."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The next: item asked to feed the row on weeks above 60 copies via coverage-only column generation; measured, that LP root is whole hours on all 8 bench weeks (lift adds nothing) and costs 0.3-2.2 s.",
+      "did": "Landed the early floor on by default only up to 60 copies (earlyFloor: true forces it) and recorded the negative result in README and next:.",
+      "result": "Two slow call-out weeks 19.4 s -> 1.7 s, same scores; 63 other weeks unchanged; big weeks unchanged by default."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-shift-roster-the-floor-was-free.md",
+    "ventures/shift-roster-builder/README.md (section 'The open-hours row from the first pass')"
+  ],
+  "goal": null,
+  "notes": "earlyOpenFloor (calc.mjs): coverage-only CG root LP lifted by openSumLift, passed as openFloor to the first scoreColumnGeneration when the lift raises it. eval/early-floor.mjs: 65 call-out/posted/template weeks off vs on: 2 fired (19.4->1.7 s, 19.1->1.7 s, same score, tie roster), 63 same rosters, 65/65 proven both ways, total 88.7->54.5 s. callout-cover-study counts unchanged. Local verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (185.1 s), 1 suites run, 0 failed. Preflight: see PR.",
+  "corrections": [],
+  "redteam": null
+}

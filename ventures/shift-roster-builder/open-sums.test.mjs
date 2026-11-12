@@ -45,8 +45,19 @@ test("call-out week with Cleo off Saturday: coverage proven at 3 h open (2 h flo
   // And the pay part (README "The open-hours row in the score LP"): with the 3 h floor as a row of the whole-score LP the roster is
   // proven, where it ended "bounded", $647 short, before the row.
   assert.ok(["optimal", "improved"].includes(on.optimality.status), on.optimality.status);
-  assert.equal(on.optimality.openRow?.openFloor, 3);
-  assert.equal(on.optimality.openRow?.proven, true);
+  // Since the early floor (README "The open-hours row from the first pass"), the first pass already has the row: the coverage
+  // root LP is 1.5 h, lifted to 3 h, and the exact search's own floor stages never run.
+  assert.equal(on.optimality.earlyFloor?.floor, 3);
+  assert.equal(on.optimality.scoreCG?.proven, true);
+  assert.equal(on.optimality.openRow, null);
+  // Without it, the late row (fed by the exact search) still proves the week.
+  const late = buildRoster(staff, slots, { exactMs: 1500, earlyFloor: false });
+  assert.equal(late.unfilledHours, 3);
+  assert.equal(late.optimality.earlyFloor, null);
+  assert.equal(late.optimality.openRow?.openFloor, 3);
+  assert.equal(late.optimality.openRow?.proven, true);
+  assert.ok(["optimal", "improved"].includes(late.optimality.status), late.optimality.status);
+  assert.equal(late.optimality.bestScore, on.optimality.bestScore, "same proven score either way");
   const off = buildRoster(staff, slots, { exactMs: 1500, openSums: false });
   assert.equal(off.unfilledHours, 3);
   assert.equal(off.optimality.coverageProven, false);

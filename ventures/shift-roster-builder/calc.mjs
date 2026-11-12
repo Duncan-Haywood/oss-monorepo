@@ -2086,10 +2086,12 @@ function buildRosterOnce(staff, slots, options = {}) {
     // The open-hours row from the start (2026-11-12, later): the root LP of the coverage-only column generation (open hours, no
     // pay) is a floor on open hours for every roster, and lifted to a sum of whole shift lengths it can sit above that LP; then
     // the whole-score LP gets it as a row in its first pass instead of after 8 s without it and the exact search's ~10 s of floor
-    // stages. Cheap (0.1-0.2 s on the call-out weeks) and it needs no exact search, so it also runs above 60 copies.
-    // `earlyFloor: false` turns it off (and `openRow: false` or `openSums: false`).
-    const early = o.scoreCG !== false && o.openRow !== false && o.openSums !== false && o.earlyFloor !== false ? earlyOpenFloor(ctx, best.score, o) : null;
-    if (early) mark("earlyFloor");
+    // stages. Cheap (under 0.05 s on the call-out weeks). By default only up to 60 copies (EXACT_TREE_SLOTS): on the 30-60 person
+    // bench weeks (121-245 copies) the coverage root LP came out whole hours, so the lift added nothing, and it cost 0.3-2.2 s
+    // (eval/early-floor.out.txt). `earlyFloor: true` runs it at any size, `false` turns it off (so do `openRow: false`, `openSums: false`).
+    const tryEarly = o.scoreCG !== false && o.openRow !== false && o.openSums !== false && (o.earlyFloor === true || (o.earlyFloor !== false && ctx.S <= EXACT_TREE_SLOTS));
+    const early = tryEarly ? earlyOpenFloor(ctx, best.score, o) : null;
+    if (tryEarly) mark("earlyFloor");
     // With a time budget (weeks above BIG_WEEK) and the cover passes deferred, column generation gets at most half of what is left,
     // so the passes still have time if it does not prove the roster: a 60-person week given 33 s of it ended 11 open hours worse.
     if (o.scoreCG !== false) {
@@ -3550,7 +3552,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, BIG };
+export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, BIG };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, buildContext };
 

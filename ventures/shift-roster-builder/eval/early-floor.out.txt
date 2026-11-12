@@ -1,0 +1,93 @@
+sample posted: off 15 h 1503758.95 optimal 1597 ms | on 15 h 1503758.95 optimal 1471 ms | early - | same roster
+sample Ana off Mon: off 17 h 1703721.76 optimal 1285 ms | on 17 h 1703721.76 optimal 1191 ms | early - | same roster
+sample Ana off Tue: off 15 h 1503758.95 optimal 1168 ms | on 15 h 1503758.95 optimal 1260 ms | early - | same roster
+sample Ana off Wed: off 15 h 1503758.95 optimal 1277 ms | on 15 h 1503758.95 optimal 1279 ms | early - | same roster
+sample Ana off Thu: off 15 h 1503758.95 optimal 1203 ms | on 15 h 1503758.95 optimal 1201 ms | early - | same roster
+sample Ana off Fri: off 17 h 1703721.76 improved 1307 ms | on 17 h 1703721.76 improved 1323 ms | early - | same roster
+sample Ben off Mon: off 17 h 1703721.76 optimal 1387 ms | on 17 h 1703721.76 optimal 1375 ms | early - | same roster
+sample Ben off Thu: off 15 h 1503758.95 optimal 1329 ms | on 15 h 1503758.95 optimal 1413 ms | early - | same roster
+sample Ben off Fri: off 17 h 1703721.76 improved 1462 ms | on 17 h 1703721.76 improved 1511 ms | early - | same roster
+sample Ben off Sat: off 15 h 1503758.95 optimal 1371 ms | on 15 h 1503758.95 optimal 1374 ms | early - | same roster
+sample Cleo off Sat: off 25 h 2503776.90 optimal 1986 ms | on 25 h 2503776.90 optimal 1988 ms | early - | same roster
+sample Cleo off Sun: off 23 h 2303757.16 optimal 1868 ms | on 23 h 2303757.16 optimal 1966 ms | early - | same roster
+sample Dev off Tue: off 15 h 1503758.95 optimal 1244 ms | on 15 h 1503758.95 optimal 1208 ms | early - | same roster
+sample Dev off Wed: off 15 h 1503758.95 optimal 1232 ms | on 15 h 1503758.95 optimal 1300 ms | early - | same roster
+sample Dev off Thu: off 15 h 1503758.95 optimal 1265 ms | on 15 h 1503758.95 optimal 1355 ms | early - | same roster
+sample Dev off Fri: off 17 h 1703721.76 improved 1429 ms | on 17 h 1703721.76 improved 1504 ms | early - | same roster
+sample Dev off Sun: off 15 h 1503758.95 optimal 1311 ms | on 15 h 1503758.95 optimal 1296 ms | early - | same roster
+sample Eli off Sat: off 25 h 2503706.44 optimal 1885 ms | on 25 h 2503706.44 optimal 1934 ms | early - | same roster
+sample Eli off Sun: off 23 h 2303710.40 optimal 1879 ms | on 23 h 2303710.40 optimal 1869 ms | early - | same roster
+sample Fay off Mon: off 17 h 1703721.76 improved 1307 ms | on 17 h 1703721.76 improved 1274 ms | early - | same roster
+sample Fay off Tue: off 15 h 1503758.95 optimal 1156 ms | on 15 h 1503758.95 optimal 1231 ms | early - | same roster
+sample Fay off Wed: off 15 h 1503758.95 optimal 1217 ms | on 15 h 1503758.95 optimal 1167 ms | early - | same roster
+sample Fay off Thu: off 15 h 1503758.95 optimal 1173 ms | on 15 h 1503758.95 optimal 1181 ms | early - | same roster
+sample Gus off Mon: off 17 h 1703721.76 improved 1235 ms | on 17 h 1703721.76 improved 1379 ms | early - | same roster
+sample Gus off Tue: off 15 h 1503758.95 optimal 1131 ms | on 15 h 1503758.95 optimal 1255 ms | early - | same roster
+sample Gus off Wed: off 15 h 1503758.95 optimal 1218 ms | on 15 h 1503758.95 optimal 1168 ms | early - | same roster
+sample Gus off Fri: off 17 h 1703721.76 improved 1396 ms | on 17 h 1703721.76 improved 1476 ms | early - | same roster
+sample Gus off Sat: off 15 h 1503758.95 optimal 1282 ms | on 15 h 1503758.95 optimal 1320 ms | early - | same roster
+spare posted: off 0 h 3937.38 improved 123 ms | on 0 h 3937.38 improved 135 ms | early - | same roster
+spare Ana off Mon: off 3 h 303881.87 improved 219 ms | on 3 h 303881.87 improved 220 ms | early - | same roster
+spare Ana off Tue: off 0 h 3942.72 improved 766 ms | on 0 h 3942.72 improved 690 ms | early - | same roster
+spare Ana off Wed: off 0 h 3942.72 improved 196 ms | on 0 h 3942.72 improved 204 ms | early - | same roster
+spare Ana off Thu: off 0 h 3942.72 improved 714 ms | on 0 h 3942.72 improved 712 ms | early - | same roster
+spare Ana off Fri: off 3 h 303881.87 improved 1193 ms | on 3 h 303881.87 improved 1146 ms | early - | same roster
+spare Ana off Sat: off 0 h 3940.38 improved 113 ms | on 0 h 3940.38 improved 125 ms | early - | same roster
+spare Ben off Mon: off 3 h 303881.87 optimal 199 ms | on 3 h 303881.87 optimal 205 ms | early - | same roster
+spare Ben off Tue: off 0 h 3937.38 improved 137 ms | on 0 h 3937.38 improved 154 ms | early - | same roster
+spare Ben off Wed: off 0 h 3937.38 improved 105 ms | on 0 h 3937.38 improved 121 ms | early - | same roster
+spare Ben off Fri: off 3 h 303881.87 improved 261 ms | on 3 h 303881.87 improved 282 ms | early - | same roster
+spare Cleo off Sat: off 3 h 304070.57 improved 19360 ms | on 3 h 304070.57 improved 1689 ms | early 3 h (LP 1.50, 39 ms) | tie, other roster
+spare Cleo off Sun: off 0 h 4082.04 improved 1442 ms | on 0 h 4082.04 improved 1473 ms | early - | same roster
+spare Dev off Tue: off 0 h 3940.72 improved 164 ms | on 0 h 3940.72 improved 155 ms | early - | same roster
+spare Dev off Wed: off 0 h 3940.72 optimal 78 ms | on 0 h 3940.72 optimal 79 ms | early - | same roster
+spare Dev off Thu: off 0 h 3940.72 optimal 71 ms | on 0 h 3940.72 optimal 71 ms | early - | same roster
+spare Dev off Fri: off 3 h 303884.87 optimal 213 ms | on 3 h 303884.87 optimal 215 ms | early - | same roster
+spare Dev off Sat: off 0 h 3940.72 improved 145 ms | on 0 h 3940.72 improved 165 ms | early - | same roster
+spare Dev off Sun: off 0 h 3940.72 improved 449 ms | on 0 h 3940.72 improved 479 ms | early - | same roster
+spare Eli off Sat: off 3 h 304005.02 improved 19142 ms | on 3 h 304005.02 improved 1674 ms | early 3 h (LP 1.50, 28 ms) | tie, other roster
+spare Eli off Sun: off 0 h 4039.19 improved 1433 ms | on 0 h 4039.19 improved 1483 ms | early - | same roster
+spare Fay off Mon: off 3 h 303884.87 improved 211 ms | on 3 h 303884.87 improved 219 ms | early - | same roster
+spare Fay off Tue: off 0 h 3940.72 improved 97 ms | on 0 h 3940.72 improved 113 ms | early - | same roster
+spare Fay off Wed: off 0 h 3940.72 optimal 97 ms | on 0 h 3940.72 optimal 99 ms | early - | same roster
+spare Fay off Thu: off 0 h 3940.72 improved 155 ms | on 0 h 3940.72 improved 174 ms | early - | same roster
+spare Gus off Mon: off 3 h 303881.87 improved 219 ms | on 3 h 303881.87 improved 223 ms | early - | same roster
+spare Gus off Tue: off 0 h 3940.72 improved 132 ms | on 0 h 3940.72 improved 117 ms | early - | same roster
+spare Gus off Wed: off 0 h 3940.72 optimal 65 ms | on 0 h 3940.72 optimal 74 ms | early - | same roster
+spare Gus off Thu: off 0 h 3940.72 optimal 62 ms | on 0 h 3940.72 optimal 60 ms | early - | same roster
+spare Gus off Fri: off 3 h 303881.87 improved 213 ms | on 3 h 303881.87 improved 218 ms | early - | same roster
+spare Hal off Mon: off 3 h 303881.87 optimal 216 ms | on 3 h 303881.87 optimal 230 ms | early - | same roster
+spare Hal off Thu: off 0 h 3937.38 improved 123 ms | on 0 h 3937.38 improved 121 ms | early - | same roster
+spare Hal off Fri: off 3 h 303881.87 improved 247 ms | on 3 h 303881.87 improved 273 ms | early - | same roster
+template cafe: off 15 h 1503758.95 optimal 1378 ms | on 15 h 1503758.95 optimal 1479 ms | early - | same roster
+template salon: off 0 h 2095.75 optimal 12 ms | on 0 h 2095.75 optimal 11 ms | early - | same roster
+template retail: off 0 h 2251.82 optimal 22 ms | on 0 h 2251.82 optimal 22 ms | early - | same roster
+template clinic: off 5 h 503235.35 optimal 329 ms | on 5 h 503235.35 optimal 335 ms | early - | same roster
+{"weeks":65,"fired":2,"same":63,"offMs":88701,"onMs":54514,"offProven":65,"onProven":65}
+
+real	2m25.096s
+user	2m25.879s
+sys	0m1.140s
+
+# cg-scale-bench weeks, exact on, no budget (60x168: OPTS='{"timeBudgetMs":20000}'), earlyFloor false vs true; run before the 60-copy default gate, so 'on' is the forced early floor; never fired
+20x56 week 0 (76 copies): off 151 h 15105833.93 improved 927 ms | on 151 h 15105833.93 improved 641 ms | early - | same roster
+20x56 week 1 (82 copies): off 78 h 7806928.96 improved 760 ms | on 78 h 7806928.96 improved 816 ms | early - | same roster
+20x56 week 2 (75 copies): off 48 h 4806773.36 improved 873 ms | on 48 h 4806773.36 improved 909 ms | early - | same roster
+30x84 week 0 (121 copies): off 181 h 18110368.89 improved 4435 ms | on 181 h 18110368.89 improved 4548 ms | early - | same roster
+30x84 week 1 (122 copies): off 142 h 14211054.63 improved 1625 ms | on 142 h 14211054.63 improved 2134 ms | early - | same roster
+30x84 week 2 (122 copies): off 189 h 18909503.99 improved 894 ms | on 189 h 18909503.99 improved 1214 ms | early - | same roster
+40x112 week 0 (149 copies): off 169 h 16912612.78 improved 4603 ms | on 169 h 16912612.78 improved 5044 ms | early - | same roster
+40x112 week 1 (148 copies): off 146 h 14612836.63 improved 8518 ms | on 146 h 14612836.63 improved 9061 ms | early - | same roster
+40x112 week 2 (162 copies): off 281 h 28112519.55 improved 12600 ms | on 281 h 28112519.55 improved 12942 ms | early - | same roster
+60x168 week 0 (245 copies): off 300 h 30020010.32 bounded 18103 ms | on 300 h 30020010.32 bounded 18573 ms | early - | same roster
+60x168 week 1 (238 copies): off 308 h 30819981.75 improved 8298 ms | on 308 h 30819981.75 improved 10375 ms | early - | same roster
+
+# coverage-only root LP alone on the same weeks (nodeLimit 1, 2 s cap, no dive): whole hours on all 8, so the lift adds nothing
+30 84 0 root 180.9999999999995 floor 181 lift 181 589 ms 18 rounds
+30 84 1 root 141.99999999999804 floor 142 lift 142 485 ms 20 rounds
+30 84 2 root 188.99999999999855 floor 189 lift 189 255 ms 16 rounds
+40 112 0 root 168.99999999999866 floor 169 lift 169 689 ms 19 rounds
+40 112 1 root 145.999999999999 floor 146 lift 146 696 ms 20 rounds
+40 112 2 root 280.9999999999999 floor 281 lift 281 662 ms 18 rounds
+60 168 0 root 212 floor 212 lift 212 2040 ms 17 rounds
+60 168 1 root 302 floor 302 lift 302 2229 ms 17 rounds
