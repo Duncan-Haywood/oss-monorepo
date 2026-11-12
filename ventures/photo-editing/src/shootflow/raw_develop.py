@@ -1148,7 +1148,7 @@ def _profile(ifd0: Ifd, ifd: Ifd, dcp: Ifd | None = None, notes: list[str] | Non
             cm1, cm2, ill1, ill2 = cm2, None, (tag(TAG_ILLUMINANT_2) or (0,))[0], 0
             cc1, cc2 = dc.as_matrix(tag(TAG_CAMERA_CALIBRATION_2)), None
             fm1, fm2 = dc.as_matrix(tag(TAG_FORWARD_MATRIX_2)), None
-            data_tags = (TAG_ILLUMINANT_DATA_2, None)
+            data_tags: tuple[int | None, int | None] = (TAG_ILLUMINANT_DATA_2, None)
         else:
             ill1, ill2 = (tag(TAG_ILLUMINANT_1) or (0,))[0], (tag(TAG_ILLUMINANT_2) or (0,))[0]
             cc1, cc2 = dc.as_matrix(tag(TAG_CAMERA_CALIBRATION_1)), dc.as_matrix(tag(TAG_CAMERA_CALIBRATION_2))

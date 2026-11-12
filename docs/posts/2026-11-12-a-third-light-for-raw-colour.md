@@ -1,9 +1,9 @@
 ---
 title: "Tungsten, daylight and the tube light in between: reading DNG 1.6's third colour matrix"
-seo_title: "DNG 1.6 triple-illuminant profiles (ColorMatrix3) explained and implemented"
+seo_title: "DNG 1.6 triple-illuminant profiles (ColorMatrix3), implemented"
 date: 2026-11-12
 tags: [photo-editing, shootflow, dng, colour]
-description: "A DNG 1.6 profile can carry a third camera matrix for fluorescent or LED light. ShootFlow now blends all three; on a test scene, error drops from 0.079 to 0.0005."
+description: "DNG 1.6 profiles can carry a third camera matrix for fluorescent or LED light. ShootFlow now blends all three; test-scene error falls from 0.079 to 0.0005."
 ---
 
 A camera doesn't see colour the same way under every light. So a raw DNG file carries two
