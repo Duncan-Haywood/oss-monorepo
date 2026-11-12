@@ -3367,6 +3367,33 @@ Seven series and 12 marks are few; these are leads, not tight estimates.
 Old state files have no `quietUntil`, so a watch that was already running keeps alerting as before until it is
 reset; a new watch or a forgotten one starts with the guard.
 
+### Round 5, after the round: the other two settings, the coarse replay, and why persist 2 lost a mark (2026-11-12, deciding nothing)
+
+Three checks of the round-5 result, run after it and changing nothing.
+
+**The page's other "How eager" settings with `hold`** (`node eval/watch-hold-detectors.mjs tcpd-data --detector pelt`
+or `bocpd`; outputs `eval/watch-hold-pelt.out.txt`, `eval/watch-hold-bocpd.out.txt`). Round 5 scored only the quiet
+default, but the guard applies to every detector. With Eager (`pelt`), TCPD alerts go from 626 to 611 and the watch
+still reaches 52 of 52 marked changes. The 7 held-out series go from 289 to 286, still 12 of 12. With Middle (`bocpd`),
+TCPD goes from 193 to 183, still 38 of 52, and held-out from 122 to 112, still 11 of 12. Neither setting now sends an
+alert about history before the baseline (Eager had 15 on TCPD and 3 held out; Middle 10 and 10). So the page's labels
+still hold: Middle sends about 1.7 times the default's 106 TCPD alerts, and Eager reaches every marked change.
+
+**The coarse replay agrees a little more** (`node eval/watch-replay-bisect.mjs`, output
+`eval/watch-replay-bisect-hold.out.txt`; the pre-round file is kept). On the 57 series in `data/`, the every-point
+replay sends 130 alerts (was 141). Checking every 5 points gives 114 identical alerts (88%, was 85%) and every 15
+gives 110 (85%, was 80%). Hold removes some flicker but not all of it, so a coarse replay of a long series still
+undercounts.
+
+**Why persist 2 lost a mark** (`node eval/watch-persist-why.mjs tcpd-data`, output `eval/watch-persist-why.out.txt`).
+`children_per_woman` is 301 yearly points, 1800 to 2100. With persist 1, the alert that reaches the majority mark
+(row 145, the 1940s) is the change at row 142. The engine first detects it at point 301, the last row of the
+series, and sends it there, 159 rows late. With persist 2 it is still waiting for its second check when the
+series ends. The replay has no next point, so it scores the change as missed. A watch on a live series would have
+sent it the next day if the detection held. The mark was lost to censoring at the end of a finite replay, not to the
+guard. A fair retry of persist 2 scores changes still waiting at the end apart from misses (or adds one check past
+the end), and that rule needs pre-registering before the run.
+
 ### The watch on the page and as an agent tool (2026-11-12)
 
 The watch needed a GitHub repository and a scheduled workflow; someone who looks at a metric every few days
