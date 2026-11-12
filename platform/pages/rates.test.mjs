@@ -475,6 +475,25 @@ test('the bar sits under the site navigation when there is one', () => {
   assert.ok(navEnd > 0 && bar > navEnd, 'the bar must follow the nav, not precede it');
 });
 
+test('the bar sits under the heading block, so the tool\'s name comes first', () => {
+  // 171 of 174 bar pages put the h1 in a <header> that closes before the form.
+  const nav = '<nav class="pf-chrome pf-chrome-top" aria-label="Site"><a href="../">All tools</a></nav>';
+  const head = '<header><p class="eyebrow">FOR SIDING CONTRACTORS</p><h1>Bid the squares</h1><p>Pitch.</p></header>';
+  const out = injectShopRates(page(`${nav}${head}<main>${form}</main>`));
+  const bar = out.indexOf('data-pf-rates-root');
+  assert.ok(out.indexOf('</header>') < bar, 'after the heading block');
+  assert.ok(bar < out.indexOf('<main>'), 'before the form it fills');
+});
+
+test('a header that holds the form, or an h1 in <main>, keeps the old place under the nav', () => {
+  const nav = '<nav class="pf-chrome pf-chrome-top" aria-label="Site"><a href="../">All tools</a></nav>';
+  for (const body of [`<header><h1>T</h1>${form}</header>`, `<main><h1>T</h1>${form}</main>`]) {
+    const out = injectShopRates(page(`${nav}${body}`));
+    const bar = out.indexOf('data-pf-rates-root');
+    assert.ok(out.indexOf('</nav>') < bar && bar < out.indexOf('<h1>'), body.slice(0, 20));
+  }
+});
+
 test('a page with no navigation still gets the bar, at the top of the body', () => {
   const out = injectShopRates(page(form));
   assert.ok(out.indexOf('data-pf-rates-root') < out.indexOf('id="hourlyWage"'));

@@ -50,7 +50,7 @@
  * arithmetic meaning here (price divided by zero), which is why the forms cap
  * it below 100 and this does too.
  */
-import { stripForInjection } from './jobs.mjs';
+import { stripForInjection, toolHeadingEnd } from './jobs.mjs';
 import { BAR_ALIGN_JS } from './bar-align.mjs';
 
 export const SHOP_RATE_FIELDS = [
@@ -1189,7 +1189,10 @@ export function renderShopRatesStyle() {
  * bar offers exactly the fields that page was read to carry and says why any
  * of the four is absent.
  *
- * Placed directly after the navigation chrome rather than inside the form,
+ * Placed just below the page's heading block (`toolHeadingEnd` in jobs.mjs:
+ * the `</header>` that holds the `h1`), so the tool's name comes first and the
+ * bar sits on top of the form it fills. Pages without that shape keep the
+ * older place, directly after the navigation chrome, rather than inside the form,
  * because the form is the one part of these pages that is genuinely different
  * from venture to venture: there is no element every calculator has in the same
  * place, and a regex that guessed would put the control somewhere different on
@@ -1215,10 +1218,13 @@ export function injectShopRates(html, slug = '', toRoot = './') {
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
   const stylePrefix = withStyle === html ? `${styleLink}\n` : '';
 
+  const headingEnd = toolHeadingEnd(withStyle);
   const nav = withStyle.match(/<nav class="pf-chrome pf-chrome-top"[\s\S]*?<\/nav>/i);
-  const anchored = nav
-    ? withStyle.replace(nav[0], `${nav[0]}\n${stylePrefix}${markup}`)
-    : withStyle.replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${markup}`);
+  const anchored = headingEnd >= 0
+    ? `${withStyle.slice(0, headingEnd)}\n${stylePrefix}${markup}${withStyle.slice(headingEnd)}`
+    : nav
+      ? withStyle.replace(nav[0], `${nav[0]}\n${stylePrefix}${markup}`)
+      : withStyle.replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${markup}`);
 
   // A tag, not a body. The script is one file at the site root now — see
   // `renderShopRatesModule` — and the field pairs are the only thing that

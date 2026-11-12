@@ -10070,6 +10070,13 @@ body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .
  * their own 18px inset. */
 body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .pf-chrome-top[data-pfs-head]) > :is(.pf-rates,.pf-jobs){padding-left:0;padding-right:0}
 body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .pf-chrome-top[data-pfs-head]) > .pf-jobs .pf-jobs-status:empty{display:none}
+/* Since 2026-11-12 the bars sit under the venture's heading block instead of
+ * above it (toolHeadingEnd in jobs.mjs). Their top padding used to be the only
+ * space between the band and the content; without it the eyebrow touched the
+ * breadcrumb (0px gap, against 14px on the median tool page with no bars:
+ * the band's 26px bottom margin is reset to 0 by VENTURE_CHROME_CSS). 16px
+ * collapses with a first child's own top margin, so it never doubles. */
+header:has(+ .pf-rates, + .pf-jobs){margin-top:16px}
 
 /* Site chrome is not part of anything a visitor prints.
  *

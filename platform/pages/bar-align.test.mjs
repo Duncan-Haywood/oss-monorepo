@@ -82,11 +82,18 @@ test('a bar already lined up is left exactly as the stylesheet drew it', { skip 
   assert.ok(!m.style, `no inline style, got ${m.style}`);
 });
 
-test('no heading, or a heading above the bar: left alone', { skip }, async () => {
+test('no heading: left alone', { skip }, async () => {
   const none = await measure(page('max-width:1120px;margin:0 auto', ''), 1280);
   assert.ok(!none.style);
-  const above = await measure(page('max-width:1120px;margin:0 auto', '').replace('<section', '<h1>Above</h1><section'), 1280);
-  assert.ok(!above.style);
+});
+
+test('a heading above the bar (where the build now puts it) is lined up with too', { skip }, async () => {
+  const html = page('max-width:1120px;margin:0 auto;padding:0 0', '')
+    .replace('<section class="bar"', '<header><h1>Deck bid calculator</h1></header>\n<section class="bar"');
+  const m = await measure(html, 1280);
+  assert.equal(m.h1, 80);
+  assert.equal(m.line, 80);
+  assert.equal(m.sideways, false);
 });
 
 test(`a column under ${BAR_ALIGN_MIN_WIDTH} px is no column to align to`, { skip }, async () => {

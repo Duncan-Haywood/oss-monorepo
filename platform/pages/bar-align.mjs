@@ -5,7 +5,7 @@
  * column: 1120 px on one, 980 px on another, a hero with 90 px of padding on a
  * third. The bars could only guess, so they centred themselves at 1060 px. On
  * 36 of 168 pages at 1280 px wide (measured 2026-11-12) that put the bar's
- * buttons 10 to 170 px to one side of the `h1` right under them, which reads as
+ * buttons 10 to 170 px to one side of the `h1` right next to them, which reads as
  * a mistake on the first screen: wall-framing-takeoff, the top flagship, and
  * 30 of the trade bid calculators among them.
  *
@@ -14,8 +14,11 @@
  * edge the same distance from the page's right side (the columns here are
  * centred or full width; the `h1`'s own box is often a narrower text measure).
  * It is re-done on resize.
- * It leaves the bar as the stylesheet drew it when there is no heading below
- * the bar, when the bar would have to stick out of its container, or when the
+ * Since 2026-11-12 the bars sit just under the heading block rather than above
+ * it (`toolHeadingEnd` in jobs.mjs), so the heading is above the bar on most
+ * pages and below it on the few that keep the old place; either way it is the
+ * column to line up with.
+ * It leaves the bar as the stylesheet drew it when there is no heading, when the bar would have to stick out of its container, or when the
  * column left would be under MIN_WIDTH px (a heading squeezed beside a sidebar
  * is no column to align to).
  *
@@ -40,7 +43,7 @@ export const BAR_ALIGN_JS = `
       if (!h || root.contains(h)) return;
       var hr = h.getBoundingClientRect();
       var br = root.getBoundingClientRect();
-      if (!hr.width || !br.width || hr.top < br.top) return;
+      if (!hr.width || !br.width) return;
       // The heading's own box is often a narrow text measure (a <header> 740 px
       // wide in a 1060 px page), so the right edge is the left one mirrored
       // about the page's centre: the columns here are centred, or full width.
