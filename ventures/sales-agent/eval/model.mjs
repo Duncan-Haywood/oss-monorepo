@@ -71,7 +71,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const rows = loadRows(f);
     for (const r of rows) {
       const k = replyKey(r);
-      if (answers[k] || offline) continue;
+      // A transport failure ("could not reach", a server that stopped) is not the model's answer: ask again; so is an
+      // "unknown category" from before the alias map (ai.mjs, CATEGORY_ALIASES).
+      if ((answers[k] && !/^could not reach|^unknown category/.test(answers[k].error || "")) || offline) continue;
       const reply = { from: r.from || "prospect@example.com", name: "", subject: r.subject, body: stripQuoted(r.body) };
       const t0 = Date.now();
       try {

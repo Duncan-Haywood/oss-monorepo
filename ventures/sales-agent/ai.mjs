@@ -62,11 +62,19 @@ export function mergeTriage(rules, model, today) {
   };
 }
 
+export const CATEGORY_ALIASES = Object.freeze({
+  unsubscribed: "unsubscribe", unsubcribe: "unsubscribe", "opt-out": "unsubscribe", opt_out: "unsubscribe",
+  uninterested: "not_interested", "not interested": "not_interested", "not now": "not_now", "out of office": "out_of_office",
+  "left company": "left_company", wrong_person: "left_company", bounced: "bounce",
+});
+
 /** Ask the model to triage one reply. Throws on a bad answer; callers fall back to the rules. */
 export async function modelTriage(config, reply, today, opts = {}) {
   const prompt = `Today is ${today}.\nSubject: ${reply.subject || ""}\nReply:\n${String(reply.body).slice(0, 4000)}`;
   const out = await complete(config, { system: TRIAGE_SYSTEM, prompt, maxTokens: 300, fetch: opts.fetch });
   const j = parseJson(out.text);
+  // Small local models misspell the label now and then (Qwen2.5 7B, 9 of 788 answers, 2026-11-12): map the near misses.
+  j.category = CATEGORY_ALIASES[String(j.category || "").toLowerCase().trim()] || j.category;
   if (!CATEGORIES[j.category]) throw new Error(`unknown category "${j.category}"`);
   return j;
 }

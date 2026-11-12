@@ -78,3 +78,10 @@ test("a model's opt-out is a flag for a person, never a suppression by itself", 
   assert.ok(r.prospects.every((p) => p.status !== "unsubscribed"));
   assert.equal(r.tasks.filter((t) => /model reads this reply as a request to stop/.test(t.task)).length, 2);
 });
+
+test("a misspelt category from a small model is mapped, not thrown away", async () => {
+  const { modelTriage } = await import("./ai.mjs");
+  const t = await modelTriage(cfg, { subject: "Re: hi", body: "We're not interested." }, T, { fetch: anthropic(['{"category":"uninterested","subtype":null,"return_date":null,"evidence":"x"}']) });
+  assert.equal(t.category, "not_interested");
+  await assert.rejects(modelTriage(cfg, { body: "x" }, T, { fetch: anthropic(['{"category":"maybe"}']) }), /unknown category/);
+});
