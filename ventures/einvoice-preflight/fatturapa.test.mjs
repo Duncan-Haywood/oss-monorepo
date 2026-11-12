@@ -152,3 +152,56 @@ test("IT-024: lines at a rate and Natura with no DatiRiepilogo are flagged", () 
   assert.match(f[0].message, /0\.00 with Natura N2\.2/);
   assert.deepEqual(rules(clean).filter((r) => r === "IT-024"), []);
 });
+
+// Schema 1.2.3 (specification 1.9), read 2026-11-12 from a pinned copy (build-fatturapa-schema.mjs).
+import schema from "./fatturapa-xsd-data.mjs";
+import { codesFor } from "./fatturapa-xsd.mjs";
+const schemaRules = (xml) => checkFatturaPa(xml).findings.filter((f) => /^IT-0(18|19|20|21|22)$/.test(f.rule));
+const ritenuta = (tipo, causale) => `<DatiRitenuta><TipoRitenuta>${tipo}</TipoRitenuta><ImportoRitenuta>10.00</ImportoRitenuta><AliquotaRitenuta>20.00</AliquotaRitenuta><CausalePagamento>${causale}</CausalePagamento></DatiRitenuta>`;
+const withRitenute = (...blocks) => clean.replace(/(<Numero>[^<]*<\/Numero>)/, `$1${blocks.join("")}`);
+const pagamento = (mp) => clean.replace("</DatiBeniServizi>", `</DatiBeniServizi><DatiPagamento><CondizioniPagamento>TP02</CondizioniPagamento><DettaglioPagamento><ModalitaPagamento>${mp}</ModalitaPagamento><ImportoPagamento>1320.00</ImportoPagamento></DettaglioPagamento></DatiPagamento>`);
+
+test("the table is read from XSD 1.2.3 and its code lists are the ones the business rules use", () => {
+  assert.equal(schema.version, "1.2.3");
+  assert.deepEqual(codesFor("TipoDocumentoType").filter((c) => c < "TD10"), ["TD01", "TD02", "TD03", "TD04", "TD05", "TD06"]);
+  assert.ok(codesFor("TipoDocumentoType").includes("TD29"));
+  assert.ok(codesFor("RegimeFiscaleType").includes("RF20") && !codesFor("RegimeFiscaleType").includes("RF03"));
+  assert.ok(schema.enums.NaturaType.includes("N2"), "the schema keeps N2 for old files");
+  assert.ok(!codesFor("NaturaType").includes("N2") && !codesFor("NaturaType").includes("N6"), "its comments retire N2, N3, N6");
+  assert.deepEqual(schema.retired.map((r) => r.code).sort(), ["N2", "N3", "N6", "Z"]);
+});
+
+test("TD07-TD09 are simplified-invoice codes, refused in a FatturaElettronica file (IT-008)", () => {
+  for (const td of ["TD07", "TD08", "TD09"]) assert.ok(rules(clean.replace("<TipoDocumento>TD01", `<TipoDocumento>${td}`)).includes("IT-008"), td);
+  assert.ok(!rules(clean.replace("<TipoDocumento>TD01", "<TipoDocumento>TD06")).includes("IT-008"));
+});
+
+test("1.2.3 allows several DatiRitenuta (withholding plus INPS); 1.2.1 allowed one", () => {
+  assert.deepEqual(schemaRules(withRitenute(ritenuta("RT01", "A"), ritenuta("RT03", "A"))), []);
+});
+
+test("code lists 1.2.1 lacked are enforced: TipoRitenuta, CausalePagamento, ModalitaPagamento", () => {
+  assert.deepEqual(schemaRules(withRitenute(ritenuta("RT06", "ZO"))), [], "RT06 and ZO are 1.2.3 codes");
+  assert.deepEqual(schemaRules(pagamento("MP23")), [], "MP23 (PagoPA) is a 1.2.3 code");
+  const rt = schemaRules(withRitenute(ritenuta("RT07", "A")));
+  assert.equal(rt.length, 1);
+  assert.match(rt[0].message, /TipoRitenuta is not one of RT01/);
+  const mp = schemaRules(pagamento("MP24"));
+  assert.equal(mp.length, 1);
+  assert.match(mp[0].path, /ModalitaPagamento$/);
+});
+
+test("a code the schema keeps but retires is refused with its date: CausalePagamento Z, Natura N2", () => {
+  const z = schemaRules(withRitenute(ritenuta("RT01", "Z")));
+  assert.equal(z.length, 1);
+  assert.match(z[0].message, /no longer valid for invoices issued from 2021-01-01/);
+  assert.ok(!z[0].message.includes("Z,"), "the suggested list leaves Z out");
+  const n2 = clean.replace(/<Natura>N2\.2<\/Natura>/g, "<Natura>N2</Natura>");
+  assert.ok(rules(n2).includes("IT-011"));
+  assert.ok(!schemaRules(n2).length, "the XSD itself still accepts N2, so only IT-011 speaks");
+});
+
+test("1.2.3 makes ImportoBollo optional (bollo virtuale with the amount left to SdI)", () => {
+  const bollo = clean.replace(/(<Numero>[^<]*<\/Numero>)/, "$1<DatiBollo><BolloVirtuale>SI</BolloVirtuale></DatiBollo>");
+  assert.deepEqual(schemaRules(bollo), []);
+});

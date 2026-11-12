@@ -1,26 +1,36 @@
-// Reads the Agenzia delle Entrate FatturaPA schema (XSD 1.2.x) into
+// Reads the Agenzia delle Entrate FatturaPA schema (XSD 1.2.3, the schema of
+// technical specification 1.9, in force from 1 April 2025) into
 // fatturapa-xsd-data.mjs, the table fatturapa-xsd.mjs checks files against:
-//   node build-fatturapa-schema.mjs [path/to/Schema_1.2.1.xsd]
-// Without a path it runs `npm pack @digitalia/fatturapa` (the package carries the
-// schema as src/schemas/Schema_1.2.1.xsd; crd and fatturapa.gov.it were not
-// reachable from the build host). The XSD is not copied into the tree: the JSON
-// data module holds only facts read from it (element order, occurrence counts, length and
-// pattern facets). Enumerations are kept apart in `enums` and are NOT enforced:
-// 1.2.1 predates the TD16-TD28, RF17-RF19 and N2.1/N3.x/N6.x codes in current use.
-import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+//   node build-fatturapa-schema.mjs [path/to/Schema_VFPR12_v1.2.3.xsd]
+// Without a path it downloads the copy in phax/ph-fatturapa (Apache-2.0,
+// docs/1.2.3) and refuses it unless its SHA-256 is the pinned
+// one below (BOM dropped, CRLF folded to LF). fatturapa.gov.it and agenziaentrate.gov.it refuse the build host, so
+// the pin was set from three independent copies that agree byte for byte
+// (phax/ph-fatturapa, LucaCappelletti94/fatturapa, amusarra/dontesta-fisco-hub;
+// two more, invopop/gobl.it.sdi and deved-it/fattura-elettronica, differ only in
+// the xmldsig import path, documentation text and, in deved's FPR12-only copy,
+// the FPA12 code). The XSD is not copied into the tree: the data module holds
+// only facts read from it (element order, occurrence counts, facets, code lists,
+// and the codes the schema's own comments say are no longer valid).
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
 import { parseXmlTree } from "./ubl.mjs";
 
-let path = process.argv[2];
-if (!path) {
-  const dir = mkdtempSync(join(tmpdir(), "fatturapa-"));
-  execFileSync("npm", ["pack", "@digitalia/fatturapa", "--silent"], { cwd: dir });
-  execFileSync("sh", ["-c", "tar xzf *.tgz"], { cwd: dir });
-  path = join(dir, "package/src/schemas/Schema_1.2.1.xsd");
+const URL_123 = "https://raw.githubusercontent.com/phax/ph-fatturapa/master/docs/1.2.3/Schema_VFPR12_v1.2.3.xsd";
+const SHA256_123 = "ea951ee851892ae089bec3af84b76fcb1025ddecc88603ffc67c927e79dba27a";
+
+let text;
+const path = process.argv[2];
+if (path) text = readFileSync(path, "utf8");
+else {
+  const res = await fetch(URL_123);
+  if (!res.ok) throw new Error(`download failed: HTTP ${res.status}`);
+  text = await res.text();
 }
-const xsd = parseXmlTree(readFileSync(path, "utf8").replace(/^﻿/, ""));
+text = text.replace(/^\uFEFF/, "").replace(/\r/g, "");
+const digest = createHash("sha256").update(text).digest("hex");
+if (!path && digest !== SHA256_123) throw new Error(`unexpected schema: sha256 ${digest}`);
+const xsd = parseXmlTree(text);
 const schema = xsd.children.find((n) => n.name === "schema");
 const named = (n, name) => n.children.filter((c) => c.name === name);
 
@@ -38,6 +48,9 @@ function steps(node) {
   return out;
 }
 
+// The tree reader leaves attribute entities as written (&quot; in EmailType's pattern).
+const decode = (v) => v === undefined ? v : v.replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+
 const complex = {};
 for (const t of named(schema, "complexType")) {
   const seq = t.children.find((c) => c.name === "sequence");
@@ -51,7 +64,7 @@ for (const t of named(schema, "simpleType")) {
   const patterns = [];
   const codes = [];
   for (const f of r.children) {
-    const v = f.attrs.value;
+    const v = decode(f.attrs.value);
     if (f.name === "pattern") patterns.push(v);
     else if (f.name === "enumeration") codes.push(v);
     else if (["length", "minLength", "maxLength", "totalDigits", "fractionDigits"].includes(f.name)) s[f.name] = Number(v);
@@ -61,8 +74,14 @@ for (const t of named(schema, "simpleType")) {
   if (codes.length) enums[t.attrs.name] = codes;
   simple[t.attrs.name] = s;
 }
+// The schema keeps N2, N3 and N6 in NaturaType for old files, each under a comment
+// "IL CODICE SEGUENTE (N2) NON SARA' PIU' VALIDO PER LE FATTURE EMESSE A PARTIRE
+// DAL PRIMO GENNAIO 2021". The comment is the only place that says so, so read it.
+const retired = [...text.matchAll(/<!--\s*IL CODICE SEGUENTE \(([A-Z0-9.]+)\) NON SARA' PIU' VALIDO[^>]*?(\d{1,2}|PRIMO) GENNAIO (\d{4})\s*-->/g)]
+  .map((m) => ({ code: m[1], type: Object.keys(enums).find((t) => enums[t].includes(m[1])), from: `${m[3]}-01-${m[2] === "PRIMO" ? "01" : m[2].padStart(2, "0")}` }));
+const version = (/<xs:documentation>[^<]*?(\d+\.\d+\.\d+)\s*<\/xs:documentation>/.exec(text) || [])[1] ?? "unknown";
 const root = named(schema, "element")[0];
-const out = { source: "Agenzia delle Entrate FatturaPA XSD 1.2.1 (Schema_1.2.1.xsd)", root: root.attrs.type, complex, simple, enums };
+const out = { source: `Agenzia delle Entrate FatturaPA XSD ${version} (sha256 ${digest.slice(0, 16)}..., BOM dropped, LF line ends)`, version, root: root.attrs.type, complex, simple, enums, retired };
 writeFileSync(new URL("./fatturapa-xsd-data.mjs", import.meta.url),
   `// Generated by build-fatturapa-schema.mjs; do not edit.\nexport default ${JSON.stringify(out)};\n`);
-console.log(`${Object.keys(complex).length} complex types, ${Object.keys(simple).length} simple types, ${Object.keys(enums).length} enumerations`);
+console.log(`XSD ${version}: ${Object.keys(complex).length} complex types, ${Object.keys(simple).length} simple types, ${Object.keys(enums).length} enumerations, retired ${retired.map((r) => r.code).join(", ") || "none"}`);
