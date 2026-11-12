@@ -171,6 +171,18 @@ def _image(rng, width, height, nf, precision, pt, kind):
 
 
 class FastDecoderTests(unittest.TestCase):
+    # The pure Huffman loop is the reference; tests/test_ljpeg_native.py runs
+    # every case again on the optional C reader.
+    HUFFMAN = "python"
+
+    def run(self, result=None):
+        keep = rd.HUFFMAN_ENGINE
+        rd.HUFFMAN_ENGINE = self.HUFFMAN
+        try:
+            return super().run(result)
+        finally:
+            rd.HUFFMAN_ENGINE = keep
+
     def check(self, width, height, nf, precision, predictor, restart, pt, specs, kind, seed):
         rng = random.Random(seed)
         samples = _image(rng, width, height, nf, precision, pt, kind)
