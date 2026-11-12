@@ -435,16 +435,22 @@ def test_predicted_ratio_prices_floor_lambda_and_fpc():
     assert S.predicted_ratio(good, {0: 1, 1: 0}, n) == 1.0  # too small a pilot to say
 
 
-def test_width_margin_sends_a_costly_plan_to_pooled_and_is_off_by_default():
+def test_width_margin_sends_a_costly_plan_to_pooled_and_defaults_to_zero():
     from llmci import audit_design as S
     rng = random.Random(5)
     N, n = 4000, 800
     y = [int(rng.random() < 0.1) for _ in range(N)]
     good = [a if rng.random() < 0.9 else 1 - a for a in y]
     pilot = {i: y[i] for i in rng.sample(range(N), 400)}
+    assert S.WIDTH_MARGIN == 0.0  # the default since 7ak
     base = S.plan_audit(good, pilot, n)
-    assert base == S.plan_audit(good, pilot, n, width_margin=None)
+    assert base == S.plan_audit(good, pilot, n, width_margin=None)  # a coder that pays: the margin changes nothing
     assert base["design"] == "cells"
     pr = S.predicted_ratio(good, pilot, n)
     assert S.plan_audit(good, pilot, n, width_margin=0.0)["design"] == "cells"
     assert S.plan_audit(good, pilot, n, width_margin=1 - pr + 1e-9)["design"] == "pooled"
+    noise = [int(rng.random() < 0.1) for _ in range(N)]  # carries no information: the floor makes cells cost
+    assert S.predicted_ratio(noise, pilot, n) > 1.0
+    open_screen = dict(tau=-1.0, neg_guard=0)  # a screen that admits every coder, so only the margin decides
+    assert S.plan_audit(noise, pilot, n, **open_screen)["design"] == "pooled"
+    assert S.plan_audit(noise, pilot, n, width_margin=None, **open_screen)["design"] == "cells"

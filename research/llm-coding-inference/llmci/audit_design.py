@@ -13,6 +13,8 @@ TAU_6AM, GUARD_6AM = 0.3, 20  # the screen shipped from 6am to 7ah; experiments 
 PILOT_SHARE = 0.3
 NEG_GUARD = 3  # minimum pilot positives in the coder-negative cell (7r to 7w); the default since 7w, neg_guard=0 turns it off
 FLOOR = 0.35  # each coder cell gets at least this share of n (6ai)
+WIDTH_MARGIN = 0.0  # keep cells only if the pilot's `predicted_ratio` <= 1 - WIDTH_MARGIN (LOG.md 7ak: removed all 7 cells
+#                    the screen made wider than pooled, worst 1.002, and kept 100% of the gain); None turns it off
 
 
 def informedness(y, f):
@@ -120,7 +122,7 @@ def predicted_ratio(f_all, pilot_y, n, floor=FLOOR):
     return (var_cells / var_pool) ** 0.5
 
 
-def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=NEG_GUARD, width_margin=None):
+def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=NEG_GUARD, width_margin=WIDTH_MARGIN):
     """One call from a hand-coded pilot to the rest of the audit. f_all: the coder's 0/1 codes on every corpus item;
     pilot_y: {item index: human 0/1} for a simple random pilot (about PILOT_SHARE * n items); n: total audit budget.
     Returns {"design", "cells", "to_label"}: design is "pooled" or "cells" (`screen`); cells are lists of item
@@ -129,8 +131,8 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=N
     design; the pilot must be a random draw or J_hat is biased. The result also carries "ceiling": the best-case
     half-width ratio of cells over pooled at the pilot's sensitivity and specificity (`pilot_ceiling`), reported for
     the planner and not used by the rule (an upper bound, not a forecast; see `cell_ceiling`): 7h saw the screen pick cells at J = 0.39 for a gain of 0.6% against a
-    ceiling of 8%. width_margin (default None, off): also send the plan to pooled unless `predicted_ratio` is at most
-    1 - width_margin (LOG.md 7ak)."""
+    ceiling of 8%. width_margin (default WIDTH_MARGIN = 0 since 7ak; None turns it off, as every experiment before 7ak ran):
+    also send the plan to pooled unless `predicted_ratio` is at most 1 - width_margin."""
     idx = sorted(pilot_y)
     y = [pilot_y[i] for i in idx]
     f = [f_all[i] for i in idx]

@@ -124,7 +124,7 @@ def run_goemo(c, reps):
         for d, pilot in enumerate(draws):
             sb = random.Random(c["seed"] + 7 * d)
             labels = {i: h[i] for i in pilot}
-            plan = A.plan_audit(f, labels, n_aud, tau=tau, guard=g, neg_guard=ng)
+            plan = A.plan_audit(f, labels, n_aud, tau=tau, guard=g, neg_guard=ng, width_margin=None)
             for cell, t in zip(plan["cells"], plan["to_label"]):
                 for i in sb.sample([i for i in cell if i not in labels], t):
                     labels[i] = h[i]

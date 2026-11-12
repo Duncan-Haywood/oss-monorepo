@@ -67,7 +67,7 @@ def main():
         for _ in range(REPS):
             pilot = rr.sample(range(len(f)), round(SHARE * N))
             labels = {i: human[i] for i in pilot}
-            plan = A.plan_audit(f, labels, N, tau=tau, guard=0)
+            plan = A.plan_audit(f, labels, N, tau=tau, guard=0, width_margin=None)
             for cell, t in zip(plan["cells"], plan["to_label"]):
                 for i in rr.sample([i for i in cell if i not in labels], t):
                     labels[i] = human[i]
