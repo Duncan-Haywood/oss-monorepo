@@ -101,3 +101,12 @@ test("reform groups (IBSCBS) are skipped and named", () => {
   assert.deepEqual(r.findings, []);
   assert.match(r.skipped.join(" "), /IBSCBS/);
 });
+
+test("the main report routes an NF-e to these checks", async () => {
+  const { preflightDocuments } = await import("./report.mjs");
+  const bad = clean.replace("<vNF>335.72</vNF>", "<vNF>335.73</vNF>");
+  const r = await preflightDocuments([{ name: "nota.xml", source: bad }]);
+  assert.equal(r.reports.length, 1);
+  assert.match(r.reports[0].envelope, /Brazilian NF-e 4\.00/);
+  assert.deepEqual(r.reports[0].errors.map((f) => f.rule), ["BR-030"]);
+});
