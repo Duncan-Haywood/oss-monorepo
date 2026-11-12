@@ -54,6 +54,19 @@ class IPCW(unittest.TestCase):
         self.assertEqual(float(d["transfer:b-a"][0.9][0]), 10.0)
         self.assertEqual(float(d["a:transfer-own_baseline"][0.5][0]), 1.0)
 
+    def test_class_split_contributions_add_up_to_the_mean(self):
+        d = {"transfer:b-a": {0.9: np.array([1.0, 3.0, -2.0, 6.0])},
+             "a:transfer-own_baseline": {0.9: np.zeros(4)}}
+        cls = np.array(["x", "x", "y", "z"])
+        s = ce.class_split(d, cls)
+        self.assertEqual(list(s), ["transfer:b-a"])  # only transfer contrasts between configurations
+        r = s["transfer:b-a"]["0.9"]
+        self.assertAlmostEqual(sum(v["contribution"] for v in r.values()), 2.0)
+        self.assertEqual(r["x"], dict(n=2, mean=2.0, contribution=1.0))
+        m = ce.class_split(d, cls, np.array([True, False, True, False]))["transfer:b-a"]["0.9"]
+        self.assertEqual(set(m), {"x", "y"})
+        self.assertAlmostEqual(m["x"]["contribution"] + m["y"]["contribution"], -0.5)
+
     def test_out_name_keeps_session_78_names_and_tags_other_class_lists(self):
         pp = datetime.date(2023, 11, 12)
         self.assertEqual(ce.out_name("validate", "seattle", 2021, pp, ["cascade2", "cascade2_nodemo"]),

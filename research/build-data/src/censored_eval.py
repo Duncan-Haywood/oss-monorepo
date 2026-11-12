@@ -136,6 +136,26 @@ def fit(data_dir, held, test_year, seeds, classes):
     return R
 
 
+def class_split(diffs, cls, mask=None):
+    """Session 80: where a contrast sits. For each transfer contrast between configurations and each
+    quantile: per class (the first configuration's class, so cascade2 classes), n rows, the class's mean
+    difference and its contribution to the overall mean (class row sum over all rows in scope; the
+    contributions add up to the overall mean). mask=None scores all rows (the reference); a mask scores
+    the complete-case rows. No interval: a description, not a test (as transfer.by_class)."""
+    cls = np.asarray(cls).astype(str)
+    m = np.ones(len(cls), bool) if mask is None else np.asarray(mask, bool)
+    N, out = int(m.sum()), {}
+    for name, per in diffs.items():
+        if not name.startswith("transfer:"):
+            continue
+        out[name] = {}
+        for t, d in per.items():
+            out[name][str(t)] = {c: dict(n=int((m & (cls == c)).sum()), mean=float(d[m & (cls == c)].mean()),
+                                         contribution=float(d[m & (cls == c)].sum() / N))
+                                 for c in sorted(set(cls[m]))}
+    return out
+
+
 def bins(y, c, seen, edges=(0, 681, 800, 900, 1046)):
     """Per build-time bin: rows, share seen, and mean G(y) (the IPCW's estimate of that share).
     Only meaningful in `validate`, where unseen rows are known."""
@@ -181,7 +201,8 @@ def validate(data_dir, held, test_year, pull_date, pseudo_pull, seeds, classes, 
                 labels=summary(y, c, w, seen), bins=bins(y, c, seen), reference_window_min=float(real_c.min()),
                 note="reference = all test rows (windows >= reference_window_min days); cc/ipcw = rows the "
                      "pseudo-pull would have seen; days of mean pinball loss, negative = first term better",
-                contrasts=est)
+                contrasts=est,
+                by_class=dict(reference=class_split(d, x["cls"]), cc=class_split(d, x["cls"], seen)))
 
 
 def rescore(data_dir, held, test_year, pull_date, seeds, classes, floor):
