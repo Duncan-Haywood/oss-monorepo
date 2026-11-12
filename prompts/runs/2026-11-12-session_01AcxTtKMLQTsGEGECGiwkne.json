@@ -47,6 +47,14 @@
     {
       "what": "First push blocked by the post front-matter hook: description 202 chars > 160; shortened.",
       "fixed": true
+    },
+    {
+      "what": "First CI run red on three real checks: check_table_headers (result tables were empty in the markup, filled by script), siblings orphan budget (the new venture had no inbound sibling link; added from the deck lumber page and shed designer), and the same siblings test inside portfolio-pages. A first try put the deck link inside an FAQ answer, which broke wall-framing-takeoff's FAQ-matches-JSON-LD test; moved to its own paragraph.",
+      "fixed": true
+    },
+    {
+      "what": "run_workflow_locally --for-changes ran past the 10 min background limit (portfolio-pages' site-builder tests alone hit the 300 s step timeout); verified those suites directly instead (platform/pages 1560/1560; venture tests for the three touched ventures). shed-designer's browser test failed once under parallel load and passed alone, both with and without this change.",
+      "fixed": true
     }
   ],
   "integrity_issues": [],
@@ -58,6 +66,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "run_workflow_locally.py has no --dry-run to list which workflows a diff would trigger before running them all; I guessed the flag and got a usage error."
+    },
+    {
+      "file": "PRODUCT_PLAYBOOK.md / ventures/CLAUDE.md",
+      "issue": "A new venture page must have an inbound sibling link (siblings.mjs orphan budget 0) and static <th> in every <table> (check_table_headers.py); neither is on the new-venture checklist I read, so both surfaced only in CI."
     }
   ],
   "deviations": [
