@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtK4NSd2UnG3QvLSxoV",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T07:06:28Z",
+  "ended": "2026-11-12T07:20:39Z",
+  "wall_minutes": 14.36,
+  "tokens_in": 4208597,
+  "tokens_out": 36132,
+  "cost_usd": 2.4863,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15040",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "analyse.py first failed on json.dump of numpy bools; cast to bool and added a default serialiser",
+    "run_workflow_locally.py --for-changes outlasted the 300 s foreground timeout; moved to background"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/sensing-selfcal/PROPOSAL.md",
+      "issue": "H4 as written mixes change detection and update quality, and the \u03c7\u00b2 test needs a disturbed camera the set lacks; milestone 4 re-specified it as H18-H22 with disjoint view sets, exact model transforms and the stereo pair's unit swap"
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "limits (seo_title 70, description 160) are not stated in CLAUDE.md or the research prompt; found only by running the checker"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/sensing-selfcal/PROPOSAL.md",
+      "why": "milestone 4 was done before 3b because it needs no new data and the proposal's \u03c7\u00b2 test was still unrun",
+      "did": "pre-registered H18-H22 in LOG.md before running",
+      "result": "one held, four refuted; result landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-robot-camera-update-test-that-cries-wolf.md",
+    "research/sensing-selfcal/LOG.md (milestone 4 plan and result)"
+  ],
+  "goal": null,
+  "notes": "Programme sensing-selfcal milestone 4. 908 solves (~3 min on 4 cores), all converged. Local checks: 18 tests pass (pytest, python3.13), research homepage build ok, research_live_links ok, check_md_links ok, post frontmatter and link checks ok, post similarity 0 pairs >= 0.25. cite_check not rerun: no new citations added.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d1024066-8f71-5a9e-8fd3-27124d9170b2",
+    "transcripts": 1,
+    "first": "2026-11-12T07:06:28Z",
+    "last": "2026-11-12T07:20:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 82,
+        "output": 36132,
+        "thinking": 11118,
+        "cache_read": 4090357,
+        "cache_write_5m": 0,
+        "cache_write_1h": 118158,
+        "api_equivalent_usd": 2.4863,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 82,
+      "output": 36132,
+      "thinking": 11118,
+      "cache_read": 4090357,
+      "cache_write_5m": 0,
+      "cache_write_1h": 118158,
+      "api_equivalent_usd": 2.4863,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.36,
+      "active_minutes": 14.36,
+      "model_minutes": 6.97,
+      "tool_minutes": 7.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "design, run and write up one pre-registered experiment milestone on an existing codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 643.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
