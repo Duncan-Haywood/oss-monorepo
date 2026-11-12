@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVPeCoFXpVjYH7u512W",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support products; merge when done)",
+  "input_sha256": "3bacb6da1d6597aa438387432ba02aaf5ca117fccd8dc4fb52cfe978038d7aa0",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T20:04:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "track 21 draw: open programme grid-linopf; milestone 1 = held-out PGLib SAD test of infra-dcopf's successive linearisation",
+  "projects": [
+    "grid-linopf",
+    "infra-dcopf"
+  ],
+  "pr": 15239,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "crossref and arxiv API refused by the proxy (connect_rejected); citations confirmed by web search, listed in PROPOSAL.md 'Citation status'",
+    "run_aclin.py writes results_aclin.json even on a partial (named-case) run; restored it from git after a spot check"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/infra-dcopf/experiments/run_aclin.py",
+      "issue": "a partial run overwrites results_aclin.json (only the .txt is guarded by `if not only`)"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-a-grid-repair-rule-tested-on-cases-it-never-saw.md"
+  ],
+  "goal": null,
+  "notes": "SAD held-out: AC within 0.005% of published on 11/12 (case300 no convergence). MATPOWER DC with angle limits infeasible 8/11. C-frozen thermal clean 7/11, fully clean 3/11; C-ang fully clean 7/11 at the AC optimum's cost (pred >=8, refuted narrowly). Checks run here: pytest tests/test_aclin.py tests/test_pglib.py 14 passed; run_aclin.py on case14/30/39 API reproduces the committed C rows exactly after the slp refactor; research/_homepage/build.py ok; programme_check ok; check_md_links ok; post frontmatter/links ok.",
+  "corrections": [],
+  "redteam": null
+}

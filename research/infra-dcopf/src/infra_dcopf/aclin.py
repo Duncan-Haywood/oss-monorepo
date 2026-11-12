@@ -19,7 +19,7 @@ import copy
 import numpy as np
 from scipy.sparse import csr_matrix
 from pypower.api import ppoption, runpf
-from pypower.idx_brch import BR_STATUS, PF, PT, QF, QT, RATE_A
+from pypower.idx_brch import ANGMAX, ANGMIN, BR_STATUS, F_BUS, PF, PT, QF, QT, RATE_A, T_BUS
 from pypower.idx_bus import BUS_TYPE, REF, VA, VM
 from pypower.idx_gen import GEN_BUS, GEN_STATUS, PG, PMAX, PMIN, VG
 from pypower.qps_pips import qps_pips
@@ -61,8 +61,29 @@ def end_flows(res):
     return np.concatenate([np.hypot(br[:, PF], br[:, QF]), np.hypot(br[:, PT], br[:, QT])])
 
 
-def linearise(ppc, pg0, vg, delta=1.0, warm=None):
-    """Finite-difference sensitivities at the dispatch pg0. Returns a dict or None if the base PF fails."""
+def angle_limited(ppc):
+    """Indices of in-service branches with a voltage-angle difference limit tighter than +-360 deg
+    (MATPOWER's convention: 0 or +-360 means unlimited)."""
+    br = ppc["branch"]
+    lo, hi = br[:, ANGMIN], br[:, ANGMAX]
+    on = br[:, BR_STATUS] > 0
+    return np.where(on & (((lo > -360) & (lo != 0)) | ((hi < 360) & (hi != 0))))[0]
+
+
+def angle_diffs(res, idx):
+    """theta_from - theta_to in degrees for the branches idx of a power-flow result."""
+    pos = {int(b): i for i, b in enumerate(res["bus"][:, 0])}
+    br = res["branch"][idx]
+    f = np.array([pos[int(b)] for b in br[:, F_BUS]], dtype=int)
+    t = np.array([pos[int(b)] for b in br[:, T_BUS]], dtype=int)
+    va = res["bus"][:, VA]
+    return va[f] - va[t]
+
+
+def linearise(ppc, pg0, vg, delta=1.0, warm=None, angles=False):
+    """Finite-difference sensitivities at the dispatch pg0. Returns a dict or None if the base PF fails.
+    angles: also the sensitivities G of the limited branches' angle differences (degrees per MW),
+    taken from the same power flows (lin["G"], lin["d0"], lin["aidx"])."""
     base = run_point(ppc, pg0, vg, warm)
     if base is None:
         return None
@@ -73,6 +94,9 @@ def linearise(ppc, pg0, vg, delta=1.0, warm=None):
     s0 = end_flows(base)
     a = np.zeros(len(pg0))
     H = np.zeros((len(s0), len(pg0)))
+    aidx = angle_limited(ppc) if angles else np.zeros(0, dtype=int)
+    d0 = angle_diffs(base, aidx)
+    G = np.zeros((len(aidx), len(pg0)))
     for k in cols:
         pk = pg_base.copy()
         # step inward from whichever bound is nearer so the probe stays inside the unit's range
@@ -83,7 +107,12 @@ def linearise(ppc, pg0, vg, delta=1.0, warm=None):
             return None
         a[k] = (r["gen"][s, PG] - pg_base[s]) / step
         H[:, k] = (end_flows(r) - s0) / step
-    return {"base": base, "pg0": pg_base, "s0": s0, "a": a, "H": H, "slack": s, "cols": cols}
+        if len(aidx):
+            G[:, k] = (angle_diffs(r, aidx) - d0) / step
+    out = {"base": base, "pg0": pg_base, "s0": s0, "a": a, "H": H, "slack": s, "cols": cols}
+    if angles:
+        out.update(G=G, d0=d0, aidx=aidx)
+    return out
 
 
 def quad_costs(ppc):
@@ -123,6 +152,15 @@ def solve_linear(ppc, lin, margin=1.0, trust=None, elastic=None, tol=1e-6):
     s0 = lin["s0"][keep]
     cap = np.maximum(margin * rate[keep], np.minimum(s0, rate[keep] * (1.0 + tol)))
     uf = cap - s0 + Hf @ pg0
+    if "G" in lin and len(lin["aidx"]):
+        # angle rows, one-sided each way: G x <= dmax - d0 + G P0 and -G x <= -(dmin - d0 + G P0);
+        # a row already outside its limit by less than tol (relative) may stay where it is
+        G, d0 = lin["G"], lin["d0"]
+        dmin, dmax = br[lin["aidx"], ANGMIN], br[lin["aidx"], ANGMAX]
+        umax = np.maximum(dmax, np.minimum(d0, dmax + tol * np.abs(dmax)))
+        umin = np.minimum(dmin, np.maximum(d0, dmin - tol * np.abs(dmin)))
+        Hf = np.vstack([Hf, G, -G])
+        uf = np.concatenate([uf, umax - d0 + G @ pg0, -(umin - d0 + G @ pg0)])
     A = np.vstack([row[None, :], Hf])
     lo = np.concatenate([[rhs], np.full(Hf.shape[0], -np.inf)])
     up = np.concatenate([[rhs], uf])
