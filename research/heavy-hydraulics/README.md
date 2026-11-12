@@ -1,6 +1,6 @@
 # Which open hydraulic circuit gets a small excavator closest to stock energy use for the least money?
 
-**Status: open research programme. Milestones 1 to 5 have landed in steps (2a to 5x); a measured excavator pressure trace (5y) and a flow trace from joint motion (5z) now exist, but no excavator fuel record, so H4 is still open; the paper draft (milestone 6, [`paper/draft.md`](paper/draft.md)) is current to 5y.** The first step was a stdlib energy model
+**Status: open research programme. Milestones 1 to 5 have landed in steps (2a to 5x); a measured excavator pressure trace (5y) and a flow trace from joint motion (5z) now exist, but no excavator fuel record, so H4 is still open; the paper draft (milestone 6, [`paper/draft.md`](paper/draft.md)) is current to 5z.** The first step was a stdlib energy model
 of three excavator hydraulic circuits (fixed open-centre, load-sensing, ideal independent
 metering) over a work cycle (`src/heavy_hydraulics/`, 6 tests) and a first sweep of 2,916 cases
 on an illustrative cycle: load-sensing uses a median **47%** of open-centre pump-shaft energy
@@ -9,7 +9,7 @@ holds in every case, but only because each rung removes a loss term; the cycle a
 not sourced, so this is a first-order calculation, not a measurement of any machine.
 See [`PROPOSAL.md`](PROPOSAL.md) and [`LOG.md`](LOG.md).
 
-**Paper (milestone 6, 2026-11-12):** the draft now leads with the measured loader: no fixed open-centre pump from 25 to 63 cc matches load-sensing fuel per unit of work (best 53.5 cc, 11.5% more), and the break-even margin is the volume ratio times the surplus-flow pressure (99.5 bar), not the working pressure. Rerun from the Zenodo record, 5t to 5x reproduce their committed results byte for byte, and `python3 paper/check_numbers.py` checks every quoted number (155) against the results file it cites.
+**Paper (milestone 6, 2026-11-12):** the draft now leads with the measured loader: no fixed open-centre pump from 25 to 63 cc matches load-sensing fuel per unit of work (best 53.5 cc, 11.5% more), and the break-even margin is the volume ratio times the surplus-flow pressure (99.5 bar), not the working pressure. Rerun from the Zenodo record, 5t to 5x reproduce their committed results byte for byte. Sections 3.7 and 3.7b add the two excavator results (5y pressure, 5z volume ratio), which together put the break-even margin near 139 bar, and `python3 paper/check_numbers.py` checks every quoted number (183) against the results file it cites.
 
 **Latest (5z, 2026-11-12): how much more flow does a fixed pump push than an excavator uses? About 2.4 times.** On ten truck-loading recordings (16 min) of a 7.5 t class XCMG excavator from the same Hugging Face dataset (folder `75`, joint angles and speeds), turned into cylinder flow with the XE80E's published cylinder sizes (shared with the XE75U), a fixed pump sized for the machine's p99 demand delivers **2.38 times** the volume the work needs (95% bootstrap over files 2.34 to 2.42; 1.95 to 3.08 across lever, bucket-sign and swing assumptions), against 1.79 on the measured loader and 1.43 on the synthetic cycles. Without swing, the p99 cylinder demand comes out at 218.8 L/min, the machine's published 219 L/min pump maximum, with no fitting. With 5y's pressure, the break-even load-sensing margin is **70 to 140 bar**, several times the 14 to 25 bar margins sold. Two of three cylinder signs come from the dataset's own kinematics script; the flow and pressure halves come from different machines, and fuel (H4) is still untested. Predictions Z2 and Z5 held; Z1 (narrowly), Z3 and Z4 were refuted. Script: [`experiments/measured_excavator_flow.py`](experiments/measured_excavator_flow.py), output: [`experiments/measured_excavator_flow_results.txt`](experiments/measured_excavator_flow_results.txt), detail in [`LOG.md`](LOG.md).
 
@@ -48,6 +48,7 @@ python3 experiments/measured_fuel_time.py <Short_Y_cycle_data.mat>  # milestone 
 python3 experiments/fuel_time_figure.py                      # figure for 5x
 python3 paper/check_numbers.py                               # milestone 6: every number in paper/draft.md against its results file
 python3 experiments/measured_excavator_flow.py [cache dir]           # milestone 5z, 6 s from cache (numpy, h5py; Hugging Face range reads)
+python3 experiments/measured_excavator_pump_size.py [cache dir]      # milestone 6a, registered, not yet run on data (Hugging Face refused this session)
 python3 experiments/regen_measured.py <dir of the CC BY PATU 655 crane data, doi 10.17632/rn5j42rpyr.1>  # milestone 5g, needs numpy
 ```
 

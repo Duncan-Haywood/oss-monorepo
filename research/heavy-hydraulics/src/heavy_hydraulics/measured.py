@@ -194,3 +194,34 @@ def cylinder_flow(omega, lever, bore, rod, extend_sign):
     cap = math.pi * bore * bore / 4.0
     area = cap if extend_sign * omega > 0 else cap - math.pi * rod * rod / 4.0
     return area * lever * abs(omega) * 60000.0
+
+
+def pump_ratio(demand, q_pump):
+    """Pump-to-demand volume ratio r for a fixed pump that slows the actuators when short (6a).
+
+    With 5w's slowing rule a sample with demand q > q_pump lasts dt q / q_pump, so the pumped volume is
+    sum max(q_pump, q) dt and r = sum max(q_pump, q) / sum q (equal dt). r rises monotonically from 1
+    and is unchanged when demand and pump are scaled together."""
+    if q_pump < 0:
+        raise ValueError("need q_pump >= 0")
+    tot = sum(demand)
+    if tot <= 0:
+        raise ValueError("need some demand")
+    return sum(max(q_pump, q) for q in demand) / tot
+
+
+def pump_for_ratio(demand, r_target, tol=1e-9):
+    """The fixed pump flow at which pump_ratio equals r_target (>= 1), by bisection."""
+    if r_target < 1:
+        raise ValueError("r_target must be at least 1")
+    lo, hi = 0.0, max(demand)
+    if pump_ratio(demand, hi) < r_target:
+        # above the peak demand r is linear in q_pump: r = q_pump n / sum q
+        return r_target * sum(demand) / len(demand)
+    while hi - lo > tol * max(1.0, hi):
+        mid = 0.5 * (lo + hi)
+        if pump_ratio(demand, mid) < r_target:
+            lo = mid
+        else:
+            hi = mid
+    return 0.5 * (lo + hi)

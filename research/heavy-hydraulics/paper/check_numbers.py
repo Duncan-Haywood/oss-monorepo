@@ -183,6 +183,18 @@ CHECKS = [
     ("to 23.8 bar (pressure", "measured_excavator_results.txt", "times 0.78 23.8 bar"),
     ("or 58.8 bar (absolute", "measured_excavator_results.txt", "times 0.78 = 58.8 bar"),
 
+    ('(16.0 min, sample interval 99.3 to 99.8 ms)', "measured_excavator_flow_results.txt", '16.0 min; sample interval (T from qvel) 99.3 to 99.8 ms'),
+    ('moves in 97.5% of samples', "measured_excavator_flow_results.txt", 'moving (any joint above 0.05 rad/s): 97.5% of samples'),
+    ('a median of 90 L/min against a p99 of 240 L/min', "measured_excavator_flow_results.txt", 'bucket +1: p50 90, p99 240 L/min, r p99 2.38'),
+    ("the cylinders' p99 demand is 218.8 L/min", "measured_excavator_flow_results.txt", 'p99 cylinder demand 218.8 L/min'),
+    ('(per file 2.31 to 2.51, 95% bootstrap over files 2.34 to 2.42)', "measured_excavator_flow_results.txt", '2.31 to 2.51, mean 2.38, 95% bootstrap over files 2.34 to 2.42'),
+    ('it is 1.95 to 3.08 (median 2.44), and 1.69 to 2.63', "measured_excavator_flow_results.txt", 'r p99 1.95 to 3.08 (median 2.44), r p95 1.69 to 2.63'),
+    ('runs from 2.376 to 4.075', "measured_excavator_flow_results.txt", 'r p99 2.376 to 4.075'),
+    ('is 139.1 bar at r 2.38', "measured_excavator_flow_results.txt", 'r 2.38: m* ~ 139.1 bar'),
+    ('and 95.7 bar at the lowest p99 ratio', "measured_excavator_flow_results.txt", 'at the lowest r p99 there: 95.7 bar'),
+    ('(70.0 bar at the lowest p95 ratio)', "measured_excavator_flow_results.txt", 'at the lowest r p95: 70.0 bar'),
+    ('the synthetic r alone gives 43.8 bar', "measured_excavator_flow_results.txt", 'r 1.43: m* ~ 43.8 bar'),
+    ('a fixed pump at the p99 of demand delivers 2.38 times', "measured_excavator_flow_results.txt", 'r p99 2.38'),
 ]
 
 
