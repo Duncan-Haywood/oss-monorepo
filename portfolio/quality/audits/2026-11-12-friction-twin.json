@@ -243,6 +243,8 @@
    "origin": "design"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15196"
+ ],
  "verdict": "Does not meet the bar (verification 2). Every number in the README and whitepaper reproduces byte for byte and matches independent recomputation (own quadrature, hand LS, analytic minimax), so the arithmetic is right. But 4 of 6 seeded mutants survive, including removing abs() from the minimax objective, and the work is a correct closed-form exercise whose 'repair' (fit Coulomb plus viscous) is decades-old standard identification practice that the paper does not cite; far from the PhD+ research bar."
 }

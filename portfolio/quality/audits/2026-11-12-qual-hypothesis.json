@@ -217,6 +217,8 @@
    "origin": "maintenance"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15196"
+ ],
  "verdict": "A small, honest, correctly computed milestone. Everything it prints reproduces bit for bit (results.txt and the SVG), and an independent pandas/statsmodels pipeline that imports none of its code rebuilds the 5,313-comment corpus, the 24.7% label and all 20 rows of the E3 split exactly; its BH equals statsmodels on 20,000 families and the shuffled-label control is calibrated (27/800, Wilson 2.3-4.9%). It does not meet the bar: the headline '7.6 times too large' divides by the mean absolute held-out effect, which at 100 discovery comments is mostly noise (signed held-out effect 0.0023, so the inflation is ~40x); 4 of 7 seeded bugs survive, including BH replaced by Bonferroni, because the one BH test case cannot tell them apart; three of the E3 hypotheses are curly-apostrophe fragments ('m', 't', 'don'); and the result (winner's curse plus a held-out BH check, with a word-count proposer instead of an LLM) is a known one, short of the nearest prior work (Ludwig and Mullainathan 2024, Fightin' Words) and of a PhD-level contribution. Finished for what it claims (completeness 3), below the bar on claims, verification, fitness and domain."
 }
