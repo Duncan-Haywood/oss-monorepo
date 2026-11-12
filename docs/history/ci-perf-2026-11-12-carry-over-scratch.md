@@ -54,7 +54,8 @@ longest test files. No open PR touches `carryover.mjs`.
 - `best-of-k.test.mjs` 59.3 s to **56.2 s**; `capped-breaks.test.mjs` 67.2 s to
   **61.6 s**, all passing.
 - Full venture suite (`python3 platform/ci/run_venture_tests.py
-  league-schedule-generator`): see the run record's `notes`.
+  league-schedule-generator`): ok, 121.0 s (128 s on 2026-11-12 before this run,
+  same container type).
 
 The test files gain less than the workload because their single-leg 8-team
 tries spend most of their time in `mixed` (carry-over plus the greedy breaks
