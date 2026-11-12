@@ -128,3 +128,10 @@ test("the guide's worked numbers match the engine and it is in the sitemap", () 
   const sm = read("sitemap.xml");
   for (const n of readdirSync(new URL("./", import.meta.url)).filter((n) => n.endsWith(".html") && n !== "index.html")) assert.ok(sm.includes(n), n);
 });
+
+test("add-on parser keeps a quoted $1,200 in one cell (quality audit 2026-11-12)", () => {
+  assert.deepEqual(parseAddons('Photo booth,"$1,200",150,0.5,best').rows[0],
+    { name: "Photo booth", price: 1200, cost: 150, hours: 0.5, tier: "best" });
+  assert.deepEqual(parseAddons("Uplighting\t1,200\t80\t1\tgood").rows[0],
+    { name: "Uplighting", price: 1200, cost: 80, hours: 1, tier: "good" });
+});

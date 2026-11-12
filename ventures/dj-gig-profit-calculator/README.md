@@ -18,8 +18,8 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `usage.mjs` - local-only feature counters with an opt-out.
 
 **No warranty.** Free and as-is; arithmetic on figures you type, not tax or
-financial advice. It does not model payroll or self-employment tax, deposits and
-cancellations, seasonality, the extra bookings a marketplace or agency may send,
+financial advice. "Take-home" figures are pre-tax profit: it does not model payroll or
+self-employment tax, cancellations, the extra bookings a marketplace or agency may send,
 or local market prices. The quote builder's defaults are invented round numbers. Unverified against a real DJ's books: tested on
 hand-calculated examples.
 
