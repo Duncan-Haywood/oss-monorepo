@@ -52,6 +52,21 @@ class WaitFor(unittest.TestCase):
             self.assertFalse(wait(p, marker="EXIT", timeout=3, clock=lambda: t[0], nap=nap)[0])
             self.assertFalse(wait(p, timeout=3, clock=lambda: t[0], nap=nap)[0])
 
+    def test_default_accepts_the_harness_task_file_ending_and_a_dash(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("78\nrc=0\n\n[exited with code 0]\n")
+            ok, lines = wait(p, timeout=1)
+            self.assertTrue(ok)
+            self.assertEqual(lines[-1], "[exited with code 0]")
+            open(p, "w").write("ran\nDONE-EXIT 3\n")
+            self.assertTrue(wait(p, timeout=1)[0])
+            t = [0.0]
+            nap = lambda s: t.__setitem__(0, t[0] + s)
+            # An explicit marker still waits for itself alone.
+            open(p, "w").write("[exited with code 0]\n")
+            self.assertFalse(wait(p, marker="DONE", timeout=3, clock=lambda: t[0], nap=nap)[0])
+
     def test_missing_file_times_out(self):
         t = [0.0]
         ok, _ = wait("/nonexistent/x.log", timeout=5, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s))
