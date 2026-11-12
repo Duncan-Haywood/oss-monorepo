@@ -171,8 +171,8 @@ flagships:
       every size"). Forecast side (--from-sales, four real files): backtest, closure score, half-life auto, priced cut,
       tickets, labour standard, shut-door work (README, 2026-11-12 sections). Planner: worker, week reuse, keeps
       usual shifts (README "Keep people on their usual shifts"). Posted weeks: a call-out rebuild holds started shifts
-      and keeps posted ones (README "Reissue a posted week without reshuffling it": late changes 190 to 91 on 41). Next: whether 91
-      is the least (a change-count ILP, or score changes rather than kept shifts so a same-day move counts once); the
+      and keeps posted ones (README "Reissue a posted week without reshuffling it": late changes 190 to 91 on 41); a change-count ILP shows the default is the least on 41/41 when the caller's
+      changes count (153), 88 vs 91 only when they are all free (README "Is 91 the least?"). Next: the
       same reissue on the four templates and 20-60 person weeks; close the 100-person
       gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person pay week ($1.22 open); the
       60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held); the open-hours row now goes into the first
