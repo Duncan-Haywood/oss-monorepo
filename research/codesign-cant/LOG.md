@@ -2,9 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
-## 2026-11-12 · Milestone 5: does the design ranking survive RotorPy with canted rotors? (H5; plan, in progress)
+## 2026-11-12 · Milestone 5: does the design ranking survive RotorPy with canted rotors? (H5; predictions written and committed before `experiments/m5_rotorpy/run.py` was run)
 
-- Claim: this run takes milestone 5. Plan and predictions follow in the next commit, before `experiments/m5_rotorpy/run.py` is run.
+- Why: every result so far comes from one stylised simulator (Euler-angle rigid body, a first-order *torque* lag, a gust *torque* rather than aerodynamics, perfect altitude hold). H5 asks whether the co-designed ranking survives a higher-fidelity, independently written simulator. Milestone 3 (motor data) stays blocked on sources, so this run takes milestone 5.
+- Built: `src/codesign_cant/rotorpy_twin.py`. RotorPy 3.0.0 (Folk et al. 2023, MIT, `pip install rotorpy==3.0.0`) assumes every thrust axis is body z. `CantedMultirotor` subclasses its `Multirotor` and replaces only the wrench: each rotor thrusts along its canted axis n_i from `allocation.layout`, its rotor drag (H force) and induced inflow act in the rotor's own frame, its reaction torque turns with n_i, and the frame drag can act at a centre of pressure above the centre of mass. Everything else is RotorPy's: quaternion rigid body with gyroscopic terms, first-order motor *speed* dynamics with thrust ∝ ω², `solve_ivp` (RK45). Tests check that at α = 0 the wrench equals RotorPy's own `compute_body_wrench` to 1e-12 (aero on and off), that hover thrust balances weight with zero torque and side force at 0–60°, and that the mixer's thrust change delivers the requested torque.
+- Parameters: mass, inertia, arm, propeller, hover and maximum thrust, motor lag (as the motor time constant) and frame area from `aero.size`, the same as the stylised model. The aerodynamic coefficients RotorPy needs and the stylised model lacks come from RotorPy's AscTec Hummingbird file, scaled to each propeller by momentum-theory exponents: k_η (C_T = 0.1145, implied by the Hummingbird's k_η at D = 0.2 m) with D⁴, rotor drag k_d and inflow k_z with D³, translational lift k_h with D². The scaling is an assumption; one condition doubles the coefficients.
+- Controller: the stylised laws re-implemented for one vehicle with the same gains, the same one-step-old noisy measurements, the same attitude-priority mixer and the same INDI nominal model, plus an altitude loop (2 rad/s, critically damped; assumed) because RotorPy does not hold altitude for free.
+- Plan: `experiments/m5_rotorpy/run.py`. The 60 milestone-4 designs (PID, INDI, geometric × cant bound {0, 80°} × 10 seeds), unchanged and not retuned, on the same held-out task (32 episodes of seed 9999; the stylised scores are recomputed at 32). Four RotorPy conditions: `torque` (aero off, the stylised gust torque injected: isolates rigid-body, motor and altitude effects), `aero` (RotorPy aerodynamics driven by the stylised wind as a world wind, frame drag at the centre of mass), `aero_cop` (frame drag at the stylised lever 0.05 + 0.3 L above), `aero_cop2` (rotor-drag coefficients doubled). Score J = −RMS − 0.3 P/100 W as in milestone 4.
+- A smoke run (6 designs, seed 0, 4 episodes; not evidence) checked the pipeline: RotorPy RMS 0.4–1.2° above stylised, cant advantage 4.2–5.2° in every condition, no divergences. The predictions below were written after seeing it.
+- Predictions:
+  - F1 (H5): Spearman ρ of J over the top ten (by stylised J) is at least 0.5 in `torque` and in at least two of the three aero conditions. Risk: the top ten are likely all canted designs within about 1° of each other, so a shift of that size could scramble them.
+  - F2: ρ of J over all 60 designs is at least 0.85 in every condition.
+  - F3: in `torque`, mean RMS is 0.3–1.5° above the stylised mean (motor-speed dynamics, a real altitude loop).
+  - F4 (H2/H4 carry over): for each law and condition, cant lowers RMS in at least 9 of 10 seeds, and the mean advantage is within 1° of the stylised one.
+  - F5 (H4's refutation test): INDI without cant is worse than PID with cant in at least 9 of 10 seeds in every condition.
+  - F6: divergent episodes (|roll| or |pitch| ≥ 60°) are under 1% of episodes in every condition.
+- Analysis: Spearman ρ (scipy), per-arm means, paired differences by seed with sign counts. No test beyond the counts.
 
 ## 2026-11-12 · Milestone 6b: which gust-torque sign does a real frame have? Neither: a rigid frame is helped on one axis and hurt on the other (predictions written and committed before `experiments/m6b_cop/run.py` was run)
 
