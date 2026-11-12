@@ -1,5 +1,61 @@
 # buildbot-sheathing research log
 
+## 2026-11-12 · Milestone 3 (first part) result: let go and press lightly, and a ledger squares the sheet; then the panel's squareness is what single 2x joints cannot absorb
+
+`experiments/m3_ledger/` (results.txt, results.json, figure.png); MuJoCo seating runs are deterministic, Monte Carlo 20,000 sheets a cell, seed 5; about 95 s.
+
+- **H13 held.** Released with a press of 50 N or less at μ 0.3–0.5, the sheet ends within **0.00003°** of the ledger from θ0 up to 2°. In fact every cell up to 100 N, μ 0.2–0.7, seats; descent speed, release time, step size and contact layout change it by under 0.0001°.
+- **H14 held.** The press at which wall friction holds the error is 380, 253, 189, 143, 115 N at μ 0.2 to 0.7 (corner contacts), **0.87–0.99** of μ F_n r̄ = m g W/2; with contacts along four stud lines 0.90–1.00. The transition is sharp: below it the sheet seats, above it the sheet keeps 99.6–100% of its error.
+- **H15 refuted, narrowly.** The held-wrist closed form max(0, θ0 − (m g W/2 − μ F_n r̄)/k) matches 29 of 30 cells within 0.005° or 10%; at 100 N, 0.5° and 10,000 N·m/rad MuJoCo leaves 0.089° against 0.119°, where wrist and friction share the moment and friction is not fully mobilised. The practical reading stands: a wrist stiffer than about 130 N·m / θ0 (7,500 N·m/rad at 1°) keeps part of its own error.
+- **H16 held.** With a laser-set ledger (0.5 mm a corner) and panels uniform up to the PS 2 limits, the tilt σ is 0.085°, 6 times inside the doubled-joint target: **1.0000** clean on two 2x at the lower warp with σx = 3 mm, in every ledger and panel cell up to 2 mm a corner. Single 2x straight, σx 0: **0.844**.
+- **H17 held.** With a perfect ledger and seat, panels at the PS 2 limits give 0.857 on single 2x; 95% needs panels within **0.244** of the limits (0.020° out of square, 1/64 in of edge bow). Even perfect panels give only 0.953, the laser's 0.020° rating included.
+- **Unplanned: a bowed bottom edge rocks.** An outward bow of 1/16 in (PS 2's limit) puts the sheet on its middle and one corner, 0.139–0.145° in MuJoCo against 0.149° for a rigid edge; which corner follows the side the robot held it tilted to.
+- **What it means for the programme.** H-B now has a concrete form: a humanoid does not need to hang a sheet plumb if it can set it on a ledger, go limp in roll and press under about 100 N. Whether a G1 or H1 can do that while carrying 22 kg is the second part of milestone 3. On single 2x joints the floor is the panel, not the robot: the shear-wall case for doubled joint studs (milestone 2) gets stronger.
+- **Modelling choices, not sourced:** rigid sheet on point contacts; lumped impedance holder; uniform distributions within PS 2 limits; ledger height error swept; wall friction swept around a secondary-source range.
+
+## 2026-11-12 · Milestone 3 planned (first part): does a ledger board square the sheet, and what does it leave?
+
+Written before any milestone-3 experiment was run. Milestone 4 set the target: a hang within
+about 0.5° and 10 mm (1σ) on doubled joints, 0.03° and 0.4 mm on single 2x. Translation is easy
+(the robot sets x from its stud reads); rotation is the hard part. This first part of milestone 3
+asks whether a temporary ledger board under the sheet, the guide H-B names, can set the rotation
+for a robot that cannot, and what the ledger, the panel and the robot's wrist leave behind. The
+humanoid whole-body hang (Menagerie G1/H1) is left for the second part.
+
+- **Scene** (`src/buildbot_sheathing/ledger.py`, MuJoCo). A rigid 4x8 sheet of 7/16 in OSB
+  (1.219 x 2.438 x 0.011 m, 21.8 kg, `buildbot-payload`'s figure) pressed against a wall plane by
+  a holder that pushes at the sheet's centre with force F_n, and lowered onto a ledger board. The
+  holder is an in-plane impedance on (y, z, θ) aimed at its believed-plumb pose, which is off by
+  θ0. Once a corner touches, the holder ramps its vertical support and translation gains to zero
+  over 0.5 s; its rotational stiffness k_θ about θ0 is either released too ("release") or kept
+  ("hold", swept 0 to 10⁴ N·m/rad). Swept: wall friction μ 0.2 to 0.7 (wood on wood, 0.25 to 0.5
+  in a secondary table; the Wood Handbook's own figure was not found), F_n 0 to 600 N, θ0 0.25 to
+  2°, descent speed. The tilt left is read once the sheet has settled.
+- **Panel and ledger.** PS 2-18 §5.2.1.3 (opened this session): panels square within 1/64 in per
+  foot of the longest edge measured along the diagonals (1/8 in on an 8 ft panel, a corner angle
+  of 0.083°), and edges within 1/16 in of the corner-to-corner line. A bottom edge bowed out by
+  s rests on its middle and one corner, tilted 2s/W (up to 0.15°); bowed in, it rests on both
+  corners. The ledger is set to a laser line; pro cross-line lasers are rated 1/8 in at 30 ft
+  (0.020°; Fluke PLS 180, Stabila LAX 320 and others, maker listings seen in search), and the
+  board is fixed to it with a height error at each sheet corner (σ swept 0 to 2 mm, not sourced).
+- **H13 (a released sheet seats).** Released, with a light press (F_n ≤ 50 N) at μ 0.3 to 0.5,
+  the sheet's bottom edge ends parallel to the ledger within 0.005° from any θ0 up to 2°.
+- **H14 (a hard press freezes the hang).** Wall friction holds the tilt once μ F_n r̄ exceeds the
+  gravity moment about the landing corner, m g W/2 = 130 N·m. With MuJoCo's four corner contacts
+  on the wall, r̄ = (W + H + √(W² + H²))/4 = 1.596 m, so F_n* = 81.7/μ N (204 N at μ = 0.4).
+  Held if the simulated threshold (the least press that leaves over half of θ0) is within 25%.
+- **H15 (a stiff wrist fights the ledger).** Held, the residual tilt is
+  max(0, θ0 − (m g W/2 − μ F_n r̄)/k_θ): a wrist stiffer than about 7,500 N·m/rad at θ0 = 1°
+  with no press keeps part of its own error. Held if MuJoCo matches within 0.005° or 10%.
+- **H16 (the ledger meets the doubled-joint target, not the single).** A released seat on a
+  laser-set ledger (σ 0.5 mm a corner), with squareness and bottom-edge bow drawn uniformly up to
+  the PS 2 limits, gives ≥ 95% clean sheets on two-2x joints at the lower published warp with
+  σx = 3 mm, and < 95% on straight single-2x joints even with σx = 0 (milestone 4's model).
+- **H17 (the panel, not the ledger, sets the single-2x floor).** With a perfect ledger and a
+  perfect seat, panels drawn uniformly up to the PS 2 limits give under 90% clean sheets on
+  straight single-2x joints. Also reported: the fraction of the PS 2 limits a panel would have to
+  meet for 95%.
+
 ## 2026-11-12 · Milestone 4 result: on doubled joints a robot may hang the sheet 18x coarser; on single 2x joints re-hanging cannot reach 95%
 
 `experiments/m4_tack_measure/` (results.txt, results.json, figure.png); 20,000 sheets a cell, seed 4; about 100 s.
