@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKnMQ3YdRurRiaqAhmi",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T23:19:11Z",
+  "ended": "2026-11-12T23:33:59Z",
+  "wall_minutes": 15.79,
+  "tokens_in": 9461088,
+  "tokens_out": 47773,
+  "cost_usd": 4.0922,
+  "tool_calls": 72,
+  "task": "Deepen flagship 9 (league-schedule-generator), allocate.py row 7: fill the gap between 'fewer back-to-back' and 'fewest' at 17-20 teams",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15296",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First idea (a 'squeeze' capped search starting from the best weighted leg one) never cut breaks below its start on 18-20 team single round robins; reverted, recorded in the README as a negative result.",
+    "Two existing tests failed after the page change (fallback regex for bestCarryOverRounds on the page; the hidden carryOverKeep input had no label); fixed the regex to the new fallback and gave the input an aria-label.",
+    "Post front matter failed the preflight (description 188 chars, seo_title 79); shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The league-schedule-generator next: said the gap fill needed 'a versioned share link'; restricting the four choices to tries 0-9 (combineCarryOverTries among) made extra tries safe for old links with no version, and the four fixed choices would never have kept a gap season anyway, so the useful change was a picker, not more tries alone."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took the top next: item but changed its shape: measured that capped tries in the gap are never chosen by any of the four fixed picks (pick 40 and 1000 at 19 teams), so filling the gap only helps if the organiser can pick from the frontier.",
+      "did": "Built a frontier picker (buttons, share-link carryOverKeep tied to teams/kind/seed) plus 2 gap tries that only feed the picker.",
+      "result": "Gap tries join the frontier in 9 of 12 runs at 17-20 teams home and away and 10 of 10 single 15-20; old share links unchanged; browser e2e 8/8."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-season-between-the-choices.md",
+    "ventures/league-schedule-generator/README.md (Pick any season on the frontier)",
+    "ventures/league-schedule-generator/eval/frontier-gap.txt"
+  ],
+  "goal": "Deepen a flagship: the carry-over / breaks trade on the league schedule page",
+  "notes": "Verification: frontier-pick.test.mjs 6/6; best-of-k.test.mjs + page.test.mjs 72/72 after fixes; eval/browser-frontier-pick.mjs (Chromium, 12 teams double) 8/8 checks pass; full venture suite via run_venture_tests.py and venture-preflight results in the PR body. eval/frontier-gap.mjs ran on 4 cores (about 25 min total).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "582e8986-4878-5044-9b75-8bd707c45f61",
+    "transcripts": 1,
+    "first": "2026-11-12T23:19:11Z",
+    "last": "2026-11-12T23:34:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 139,
+        "output": 47773,
+        "thinking": 12820,
+        "cache_read": 9301468,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159481,
+        "api_equivalent_usd": 4.0922,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 139,
+      "output": 47773,
+      "thinking": 12820,
+      "cache_read": 9301468,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159481,
+      "api_equivalent_usd": 4.0922,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 67,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.79,
+      "active_minutes": 15.79,
+      "model_minutes": 10.98,
+      "tool_minutes": 4.81,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: measure the frontier gap (eval script, ~25 min compute), design the among/keep combine so old links are unchanged, page picker + share link, unit and browser tests, README/post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 244.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
