@@ -22,7 +22,13 @@ import { analyze, parseSeries, peaks } from './engine.mjs';
 // Pre-registered rule: of the candidates finding at least 90% of 2-sd steps, the fewest false alerts on three null
 // streams. Chosen: the Bayesian detections with 5 points of confirmation (0 per 1,000 checks on independent noise,
 // 7.5 on AR(1) 0.5, 2.5 on t3; PELT's level model 2.5 / 49.75 / 12.75). On TCPD: 193 alerts against PELT's 626.
-export const WATCH_DEFAULTS = { confirm: 5, tolerance: 5, window: 1000, detector: 'bocpd', model: 'mean' };
+// Round 3 (eval/watch-replay-round3.out.txt, rule pre-registered in eval/watch-replay.mjs) replaced the detector with
+// the AR(1) Bayesian pass, probability summed over 5 neighbours: mean null false alerts 2.38 per 1,000 against 10.56
+// (AR(1) 0.8: 1.5 against 32.25), 38 steps found against 35. The AR(1) term is for the level model only, so with
+// --model poisson or meanvar the default stays 'bocpd'.
+export const WATCH_DEFAULTS = { confirm: 5, tolerance: 5, window: 1000, detector: 'bocpd-ar1-window', model: 'mean' };
+/** The default detector for a model: the AR(1) pass for the level model, the plain Bayesian pass otherwise. */
+export const defaultDetector = (model = 'mean') => (model === 'mean' ? WATCH_DEFAULTS.detector : 'bocpd');
 
 const STATE_VERSION = 1;
 export const DETECTORS = ['bocpd', 'bocpd-window', 'bocpd-ar1', 'bocpd-ar1-window', 'pelt'];
@@ -36,9 +42,9 @@ export function emptyState() {
  * (0-based in the full series). opts: detector 'pelt' | 'bocpd', model, penalty, period, log, ...
  */
 export function detectChanges(values, labels, opts = {}) {
-  const d = opts.detector ?? WATCH_DEFAULTS.detector;
+  const d = opts.detector ?? defaultDetector(opts.model ?? 'mean');
   if (d.startsWith('bocpd-ar1') && (opts.model ?? 'mean') !== 'mean') throw new Error(`--detector ${d} is for the level model (--model mean) only.`);
-  const all = detectBoth(values, labels, opts);
+  const all = detectBoth(values, labels, { ...opts, detector: d });
   if (!all[d]) throw new Error(`Unknown detector ${d}.`);
   return all[d];
 }
@@ -179,10 +185,10 @@ Options:
   --penalty bic|aic|<number>     PELT penalty per change (default: bic)
   --period <n>              remove a seasonal cycle of n points first (7 for daily data, 12 for monthly)
   --log                     take logs first (positive values; percentage growth)
-  --detector bocpd|pelt     which detector's changes to alert on (default: bocpd, the Bayesian detections: far fewer false
-                            alerts; pelt finds smaller steps, e.g. 1 noise sd, at about 3x the false alerts on real series;
-                            bocpd-ar1 allows for sticky (autocorrelated) noise, level model only; *-window sums the
-                            probability over 5 neighbouring points: see the README, "Watching a growing series")
+  --detector <name>         which detector's changes to alert on: bocpd-ar1-window (default for --model mean: the Bayesian
+                            detections allowing for sticky, autocorrelated noise, probability summed over 5 neighbouring
+                            points), bocpd-ar1, bocpd (default for poisson and meanvar), bocpd-window, or pelt (finds
+                            smaller steps, e.g. 1 noise sd, at several times the false alerts). README, "Watching a growing series".
   --confirm <k>             report a change once k points are on its far side (default: ${WATCH_DEFAULTS.confirm})
   --tolerance <k>           a change within k points of one already reported is the same change (default: ${WATCH_DEFAULTS.tolerance})
   --window <n>              refit only the newest n points (default: ${WATCH_DEFAULTS.window})
