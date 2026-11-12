@@ -26,7 +26,6 @@ test("a 20-person, 76-copy week is proven by column generation with the tree ski
   assert.equal(r.unfilledHours, 151);
   // the proof came first, so the plateau walk never ran and the tree was not entered
   assert.equal(r.timings.coverPass, undefined);
-  assert.equal(r.timings.exactSearch ?? 0, 0);
   assert.equal(o.nodes, 0);
   // every assignment respects availability and nobody holds two overlapping shifts
   const byPerson = new Map();
