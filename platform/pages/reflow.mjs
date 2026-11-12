@@ -286,9 +286,16 @@ export const REFLOW_CSS = `
 
    Zero specificity throughout, so any rule a venture wrote wins; a browser with
    no :has() ignores the second rule and keeps today's layout rather than
-   getting a broken one. */
+   getting a broken one.
+
+   Checkboxes and radios are left out (measured 2026-11-12). They never hold a
+   track open: their automatic minimum is their own 13px box. With min-width:0
+   a checkbox inside a flex <label> beside a long caption is the item that
+   gives, so it was painted as a 7px-wide oval: android-data-safety-check's
+   category list at 390px, among others (docs/reports/polish-2026-11-12-
+   squashed-checkboxes.md). */
 @media (max-width:640px){
-  :where(input,select,textarea){min-width:0;max-width:100%}
+  :where(input:not([type=checkbox]):not([type=radio]),select,textarea){min-width:0;max-width:100%}
   :where(*:has(input,select,textarea,.${TABLE_SCROLL_CLASS})){min-width:0}
   /* And the page's own layout columns, which is where a two-column
      desktop layout meets a one-column phone. Freeing a box is not the same
