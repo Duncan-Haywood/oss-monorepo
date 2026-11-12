@@ -2004,7 +2004,8 @@ export function analyze(input = {}) {
   const joint = o.ar1 === 'joint';
   if (o.ar1) {
     if (model !== 'mean') throw new Error('The autocorrelation correction is for the "mean" model only.');
-    rho = ar1Rho(values);
+    // o.ar1Rho: a rho the caller fixes (watch.mjs: a cap, or the rho read at the baseline), clipped like the estimate
+    rho = !joint && o.ar1Rho != null && Number.isFinite(Number(o.ar1Rho)) ? Math.max(0, Math.min(0.95, Number(o.ar1Rho))) : ar1Rho(values);
     if (!joint) sigma = longRunSd(sigma, rho);
   }
   const minSegment = Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : model === 'trend' ? 4 : 2)));
