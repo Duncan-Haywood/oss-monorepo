@@ -50,3 +50,18 @@ test("the CLI reports, explains and gates", { skip: !hasGit && "git not installe
     assert.equal(code, 1);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
+
+// Red-team 2026-11-12: names git prints as they are under -z must reach the
+// engine unchanged (they used to go through the paste parser, which read a
+// backslash as a folder, `# x` as a comment and `MM x` as a status line).
+test("the CLI checks odd file names under their real names", { skip: !hasGit && "git not installed" }, () => {
+  const root = repo();
+  try {
+    for (const n of ["back\\slash.log", "# hash.log", "MM status.log", "trail.log "]) writeFileSync(join(root, n), "");
+    writeFileSync(join(root, ".gitignore"), "build/\n!build/keep.txt\nprod.env\n*.log\n");
+    const json = JSON.parse(execFileSync("node", [CLI, "--json"], { cwd: root, encoding: "utf8" }));
+    const got = new Map(json.paths.map((p) => [p.path, p.ignored]));
+    for (const n of ["back\\slash.log", "# hash.log", "MM status.log"]) assert.equal(got.get(n), true, n);
+    assert.equal(got.get("trail.log "), false, "*.log does not match a name ending in a space");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
