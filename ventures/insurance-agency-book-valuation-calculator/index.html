@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -157,7 +157,7 @@
       last = r;
       const big = [[money(r.keep), "Keep value today"], [mult(r.keep / r.p.revenue), "Keep value as a multiple of revenue"], [r.sell == null ? "no offer" : money(r.sell), "Offer value today, after costs"], [r.breakEven == null ? "n/a" : mult(r.breakEven), "Break-even offer multiple"], [money(r.onePoint), "Value of one more point of retention"]];
       $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
       $("#sens tbody").innerHTML = r.sens.map((x) => `<tr><td>${pct(x.retention)}${x.isYours ? " (yours)" : ""}</td><td class="n">${money(x.keep)}</td><td class="n">${mult(x.multiple)}</td><td class="n">${x.offer == null ? "n/a" : money(x.offer)}</td></tr>`).join("");
       $("#rows tbody").innerHTML = r.schedule.map((x) => `<tr><td>${x.year}</td><td class="n">${money(x.revenue)}</td><td class="n">${money(x.cash)}</td><td class="n">${money(x.pv)}</td><td class="n">${money(x.cumPv)}</td></tr>`).join("");
       report.hidden = false;

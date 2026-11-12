@@ -33,7 +33,7 @@
     .scroll { overflow-x: auto; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -165,7 +165,7 @@
       last = a;
       $("#verdict").textContent = a.verdict;
       $("#report-stats").textContent = `Assessed ${usd(a.subject.assessed)} at ${a.options.ratioPct}% of market implies ${usd(a.impliedMarket)}. ${a.rows.length} comparable sale(s); adjusted range ${usd(a.market.low)} to ${usd(a.market.high)}, median ${usd(a.market.median)}.`;
-      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : "<p class='note'>No warnings.</p>";
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("") : "<p class='note'>No warnings.</p>";
       const sc = a.scenarios;
       $("#scen").innerHTML = [["Weighted comps", sc.likely], ["Lower quartile of comps", sc.conservative]].map(([n, s]) => `<tr><td>${n}</td><td class="n">${usd(s.indicated)}</td><td class="n">${usd(s.overMarket)} (${s.overPct.toFixed(1)}%)</td><td class="n">${usd(s.assessedCut)}</td><td class="n">${usd(s.taxSaved)}</td></tr>`).join("");
       $("#equity").textContent = a.equity ? `Your assessment is ${usd(a.equity.subjectPerSqft)}/sq ft; the median of ${a.equity.comps} similar homes is ${usd(a.equity.medianPerSqft)}/sq ft. At that rate your assessment would be ${usd(a.equity.target)}, a difference of ${usd(a.equity.over)} (${a.equity.overPct.toFixed(1)}%), worth ${usd(a.equity.taxSaved)} a year in tax.` : "Needs at least three comparables that include both an assessed value and square feet (and your square feet).";

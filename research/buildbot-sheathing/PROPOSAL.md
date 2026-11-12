@@ -183,8 +183,9 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
 ## Milestones
 
 1. **Gap, pose and row drift in the joint budget** (done 2026-11-11, `experiments/m1_gap_placement/`).
-2. As-built framing: stud spacing, crook and twist from real measurements or grading limits;
-   stud twist moves the face under the joint.
+2. **As-built studs** (done 2026-11-12, `experiments/m2_asbuilt_studs/`): bow and twist from
+   grading limits and published means; bow closes single-2x joints, wider joint framing reopens them.
+   Still open: measured stud profiles in place of means.
 3. Placement in MuJoCo: the sheet pose a G1/H1 co-hold, a lift and a ledger guide leave.
 4. Tack-then-measure: two tack nails in the field, then measure the edge and aim the joints.
 5. End-to-end cycle: placement, sensing, recoil and sequence, seconds and clean sheets.

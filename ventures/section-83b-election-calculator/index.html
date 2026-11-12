@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -144,7 +144,7 @@
       const tiles = [[usd(b.grantTax), "Tax due at grant with the election"], [usd(b.elTotal), "Total tax with the election"], [usd(b.noTotal), "Total tax without it"], [usd(b.saving), "Election saves (negative = costs)"]];
       if (a.deadlineDate) tiles.push([a.deadlineDate.toISOString().slice(0, 10), "Filing deadline"]);
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#size-table tbody").innerHTML = a.scenarios.map((s) => `<tr class="${s.label === "The value you expect" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">$${s.saleFmv.toFixed(4).replace(/\.?0+$/, "")}</td><td class="n">${usd(s.elTotal)}</td><td class="n">${usd(s.noTotal)}</td><td class="n">${usd(s.saving)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";

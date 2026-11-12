@@ -1,5 +1,62 @@
 # buildbot-sheathing research log
 
+## 2026-11-12 · Milestone 2 result: a bowed 2x closes the joint whatever the robot sees; a 3x or doubled joint stud with three reads gives 100% clean sheets
+
+`experiments/m2_asbuilt_studs/` (results.txt, results.json, figure.png); 20,000 sheets a cell, seed 3; about 40 s.
+
+- **H6 held.** At the Stud-grade bow limit (3/4 in over 8 ft, 17.7 mm on the stud) no sheet is feasible with the gap centred on the stud's range: the arithmetic limit is 4h = 12.5 mm (0.53 in over 8 ft). Single and two-read policies pass 25% of sheets, but only by putting all the bow on one side, which closes the neighbour's.
+- **H7 held.** At the lower published warp (bow 0.11, twist 0.08 in mean, half-normal) a single mid-height read gives 0.55 clean sheets (1.7 nails missed a sheet).
+- **H8 refuted.** Three reads and a fitted parabola give 0.80, a read at every joint nail 0.83, and perfect stud and edge knowledge 0.87. The ceiling is the window the bow leaves, against 0.9 mm of tool scatter, not the sensing: no policy reaches 95% at any read scatter (table E).
+- **H9 held.** Twist costs 1.4 points under three reads (0.818 bow only, 0.803 both); twist alone 1 point. The band shrinks on the side the nail runs toward: 0.44 mm at 1°, 1.35 mm at 3°.
+- **Unplanned, and the useful result: widen the joint, don't sense harder.** A 3x joint stud (2.5 in face) or two 2x fastened together (3.0 in), which SDPWS 4.3.7.1 names for adjoining panel edges of some shear walls, widens the window by 1/2 or 3/4 in a side; the largest closable bow becomes 37.9 or 50.6 mm, beyond the grade limit, and three or dense reads give 1.0000 clean sheets at both warp levels and both distribution shapes. Even a single read gives 0.85–1.00. Section H was added after C–F showed no sensing policy could reach 95% on single 2x joints.
+- **Culling is the expensive alternative.** On single 2x joints a framer would reject studs bowed over 1/16 in (65% of them at the low warp) to bring dense reads to 0.96 and three reads to 0.94.
+- **Lean adds to bow.** Plate layout error of 1.6 mm at each stud end takes three-read from 0.80 to 0.72.
+- **What it means for the programme.** The robot design question (H-B, H-D) should be asked on doubled or 3x joint framing, where the sheet's pose and the tool scatter set the budget again, or the robot must straighten studs. A panel line that frames its own walls can choose that cheaply; a site robot sheathing someone else's framing cannot.
+- **Inputs not sourced or seen only in snippets:** warp limits and means come from search snippets of USDA and *Wood and Fiber* reports (southern and ponderosa pine), not opened; the distribution shape is assumed (two shown); the 10D penetration is from memory; plate layout error is swept. The model takes the free-piece warp as installed; nailing may pull bowed studs partly straight.
+
+## 2026-11-12 · Milestone 2 planned: real studs bow, twist and lean, and the sheet edge is straight
+
+Written before any milestone-2 experiment was run.
+
+- **Why.** Milestone 1 kept every stud straight and plumb. Stud-grade 2x4s are not: the grading
+  limits for an 8 ft Stud-grade 2x4 are crook 1/4 in, bow 3/4 in and twist 3/8 in (USDA Forest
+  Service reports quoting the 1978 NHPMA rules and Shelly, Arganbright and Birnbach 1979, *Wood and
+  Fiber* 11(1):50–56, seen through search, not opened; one report gives bow 1/2 in), and kiln-dried
+  southern pine studs averaged crook, bow and twist of 0.06, 0.11, 0.08 in in one Koch FPJ note
+  and 0.13, 0.21, 0.16 in in another (Koch 1974, serrated sticks), also seen through search. In a
+  wall the 3.5 in depth is normal to the sheathing, so **bow** (flatwise) moves the nailing face
+  along the wall, **twist** rotates it, and crook moves it out of plane (not modelled here). A sheet
+  edge is straight, so a bowed joint stud moves under it; no sensing can widen a window the bow
+  has closed.
+- **Model.** Each stud's face line is a parabola of bow b (sign random, zero at the plates) plus
+  a linear twist φ(z) = φ_T (z/H − 1/2) with φ_T = t / 3.5 in, scaled from 8 ft to the 92 5/8 in
+  precut stud (bow by length², twist by length). Magnitudes are half-normal or exponential with the
+  sourced mean, truncated at the grade limit. A joint nail must have its shank on the stud and at
+  least P = 10 nail diameters (1.31 in, the NDS full-value penetration, from memory, not checked
+  this session; 6D swept) of wood along its path, through the twisted section, within the 2 1/16 in
+  an 8d nail has past 7/16 in sheathing. Sheets are straight and plumb, edges set gap/2 either
+  side of a reference on each joint stud (panels cut to fit; milestone 1's width question is left
+  aside). The robot reads each stud with 0.5 mm scatter per read and aims from the measured edge
+  (0.5 mm) and its estimate of the stud at each nail height, with 0.9 mm tool scatter.
+- **Sensing policies.** *single*: one read at mid-height, stud assumed straight (studfind).
+  *ends*: reads near the top and bottom, a straight line. *three*: bottom, middle, top, a parabola.
+  *dense*: a read at each of the 17 joint heights, least-squares parabola. Every fitted policy
+  centres the gap on the middle of its estimated range (minimax).
+- **H6 (a grade-limit bow closes the joint).** A Stud-grade stud at the 3/4 in bow limit leaves
+  no window on one side of the joint under any straight-sheet placement. Arithmetic before the run:
+  minimax centring needs b ≤ 4h = 12.6 mm, and the scaled limit is about 17.7 mm. Held if the Monte
+  Carlo finds zero feasible joints at the limit.
+- **H7 (a single read fails on typical studs).** At the low published mean bow (0.11 in) and twist
+  (0.08 in), half-normal, a single mid-height read gives under 80% clean sheets. Refuted at ≥ 80%.
+- **H8 (three reads suffice).** Reading each stud at three heights and fitting a parabola gives
+  ≥ 95% clean sheets at the same warp. Refuted below 95%.
+- **H9 (twist is second order).** At that warp under the three-read policy, removing twist raises
+  clean sheets by under 3 points. Refuted at ≥ 3.
+- **Also reported, not scored:** the window against twist angle; clean sheets at the higher
+  published means (0.21 in bow, 0.16 in twist) and with exponential tails; the share of studs a
+  framer would have to cull (bow over a threshold) for a single read to reach 95%; stud read
+  scatter allowed for 95% by policy; plate layout lean swept 0 to 1.6 mm.
+
 ## 2026-11-11 · Milestone 1 result: the 1/8 in gap cuts the stud budget from 0.90 to 0.41 mm, sheets must hang plumb to ~0.03°, butted rows leave the studs by sheet 3–5
 
 `experiments/m1_gap_placement/` (results.txt, results.json, figure.png); 20,000 sheets a cell, seed 1; rows 4,000 trials, seed 2; about 12 s.

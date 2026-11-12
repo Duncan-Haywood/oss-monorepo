@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -149,7 +149,7 @@
       last = r;
       const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
       $("#report-stats").innerHTML = `${s.stays} stays across ${s.listings} listing(s), ${s.nights} nights, ${dateStr(s.from)} to ${dateStr(s.to)}. Gross ${cur}${money(s.gross)}, Airbnb fees ${cur}${money(s.fees)} (${pct(s.feeShare)}), <strong>net ${cur}${money(s.net)}</strong> (${cur}${money(s.netPerNight)} per booked night, ADR ${cur}${money(s.adr)}, average stay ${s.los.toFixed(1)} nights).` + (s.cleaningCost ? ` After ${s.stays} turnovers at ${cur}${money(s.cleaningCost)}: <strong>${cur}${money(s.profit)}</strong>.` : "");
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#by-listing").innerHTML = r.byListing.map((l) => `<tr><th scope="row">${esc(l.key)}</th><td class="n">${l.stays}</td><td class="n">${l.nights}</td><td class="n">${money(l.gross)}</td><td class="n">${money(l.fees)}</td><td class="n">${money(l.net)}</td><td class="n">${money(l.adr)}</td><td class="n">${money(l.netPerNight)}</td><td class="n">${l.occupancy === null ? "–" : pct(l.occupancy)}</td></tr>`).join("");
       $("#by-month").innerHTML = r.byMonth.map((m) => `<tr><th scope="row">${m.key}</th><td class="n">${m.stays}</td><td class="n">${m.nights}</td><td class="n">${money(m.gross)}</td><td class="n">${money(m.net)}</td><td class="n">${money(m.adr)}</td><td class="n">${money(m.netPerNight)}</td></tr>`).join("");
       $("#th-profit").textContent = s.cleaningCost ? "Profit / night (after cleaning)" : "Profit / night (needs cleaning cost)";

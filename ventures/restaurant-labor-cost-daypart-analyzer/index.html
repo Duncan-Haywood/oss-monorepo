@@ -36,7 +36,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -176,7 +176,7 @@
       last = a;
       const m = a.summary, tp = m.targetPct;
       $("#report-stats").innerHTML = `${m.days} business day(s), ${usd(m.sales)} net sales, ${usd(m.laborCost)} labor over ${Math.round(m.laborHours)} hours: <strong>${m.laborPct === null ? "n/a" : m.laborPct.toFixed(1) + "%"}</strong> labor against a ${tp}% target, ${dollars(m.splh)} sales per labor hour.` + (m.trim > 0 ? ` Trimmable above target: about <strong>${usd(m.trim)}</strong> over the period, ${usd(m.trimPerWeek)} a week.` : "");
-      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out at these settings.</p>`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out at these settings.</p>`;
       const row = (b, extra) => `<tr><th scope="row">${esc(b.name)}</th>${extra}<td class="n">${usd(b.sales)}</td><td class="n">${b.hours.toFixed(1)}</td><td class="n">${usd(b.cost)}</td><td class="n">${pct(b.pct, tp)}</td><td class="n">${dollars(b.splh)}</td><td class="n">${b.trim > 0 ? usd(b.trim) : "–"}</td></tr>`;
       $("#by-part").innerHTML = a.dayparts.map((b) => row(b, "")).join("");
       $("#by-dow").innerHTML = a.weekdays.map((b) => row(b, `<td class="n">${b.days}</td>`)).join("");

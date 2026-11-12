@@ -32,7 +32,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -157,7 +157,7 @@
       const asks = a.findings.filter((f) => f.severity !== "info").length;
       $("#big").innerHTML = [[String(asks), "item(s) worth asking about"], [usd(s.questioned), "most that is in question"], [usd(s.total), "total billed"], [s.patientOwed === null ? "–" : usd(s.patientOwed), "patient responsibility on the bill"]].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
       $("#report-stats").textContent = `${s.lines} line item(s) read, ${s.coded} with a code. Checked: ${a.rulesChecked.join(", ")}. ${s.arithChecked} line(s) had the columns needed for the arithmetic check. Amounts in question are the most that could be affected, not a refund owed.`;
-      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p><p class="note">Lines: ${f.lines.join(", ")}</p></div>`).join("") : `<p class="note">None of the checks fired. That does not mean the bill is right: the checks cover a short list of common patterns only.</p>`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p><p class="note">Lines: ${f.lines.join(", ")}</p></div>`).join("") : `<p class="note">None of the checks fired. That does not mean the bill is right: the checks cover a short list of common patterns only.</p>`;
       const notes = [];
       if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : "") + ".");
       notes.push("Columns read: " + Object.entries(n.columns).map(([k, v]) => `${k} = “${v}”`).join(", ") + ".");

@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -153,7 +153,7 @@
       const s = r.summary;
       const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
       $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.records} records, ${s.employers} employer${s.employers === 1 ? "" : "s"}, ${s.employees} employee wage line${s.employees === 1 ? "" : "s"}${s.taxYear ? ` · tax year ${s.taxYear}` : ""}`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
       $("#batches").innerHTML = s.groups.map((g) => `<tr><td>${g.line}</td><td>${esc(g.year)}</td><td>${esc(g.ein.slice(0, 2))}-${"*".repeat(5)}${esc(g.ein.slice(7))}</td><td class="n">${g.employees}</td><td class="n">${cents(g.sums.wages)}</td><td class="n">${cents(g.sums.fed)}</td><td class="n">${cents(g.sums.ssWages)}</td><td class="n">${cents(g.sums.medWages)}</td></tr>`).join("") || `<tr><td colspan="8">No complete employer group found.</td></tr>`;
       const fix = repair(text);
       fixedText = fix.text;

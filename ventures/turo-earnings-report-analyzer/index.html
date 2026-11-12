@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -171,7 +171,7 @@
       last = r;
       const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
       $("#report-stats").innerHTML = `${s.trips} trips across ${s.cars} vehicle(s), ${dateStr(s.from)} to ${dateStr(s.to)} (${s.periodDays} days). Trip price ${cur}${money(s.gross)}, Turo fee ${cur}${money(s.fee)}, paid to you ${cur}${money(s.payout)}, per-trip costs ${cur}${money(s.variable)}, fixed costs ${cur}${money(s.fixedCost)}, <strong>net ${cur}${money(s.net)}</strong>. Fleet utilization ${pct(s.utilization)}, revenue per rented day ${cur}${rate(s.revenuePerDay)}.`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#by-car").innerHTML = r.byCar.map((c) => `<tr><th scope="row">${esc(c.label)}</th><td class="n">${c.trips}</td><td class="n">${c.days}</td><td class="n">${pct(c.utilization)}</td><td class="n">${money(c.payout)}</td><td class="n">${money(c.variable)}</td><td class="n">${money(c.fixedCost)}</td><td class="n">${money(c.net)}</td><td class="n">${rate(c.revenuePerDay)}</td><td class="n">${rate(c.netPerDay)}</td><td class="n">${c.breakEvenUtilization === null ? "–" : pct(c.breakEvenUtilization)}</td></tr>`).join("");
       const grp = (rows) => rows.length ? rows.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${g.trips}</td><td class="n">${g.days}</td><td class="n">${money(g.payout)}</td><td class="n">${money(g.contribution)}</td><td class="n">${rate(g.contributionPerDay)}</td></tr>`).join("") : `<tr><td colspan="6">No completed trips.</td></tr>`;
       $("#by-weekday").innerHTML = grp(r.byWeekday);

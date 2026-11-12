@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -150,7 +150,7 @@
       const all = a.rows.find((r) => r.isAll);
       const tiles = [[esc(a.crossoverOptions.toLocaleString("en-US")), "options you can exercise with no AMT"], [usd(a.crossoverOptions * a.strike), "exercise cost for those"], [usd(all.amt), "AMT if you exercise all " + a.granted.toLocaleString("en-US")], [usd(all.cash), "cash needed to exercise all"]];
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${v}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#size-table tbody").innerHTML = a.rows.map((r) => `<tr class="${r.isCrossover ? "best" : ""}"><td class="n">${r.options.toLocaleString("en-US")}${r.isCrossover ? " (crossover)" : ""}</td><td class="n">${usd(r.cost)}</td><td class="n">${usd(r.spread)}</td><td class="n">${usd(r.amt)}</td><td class="n">${usd(r.cash)}</td><td class="n">${r.marginal === null ? "" : (r.marginal * 100).toFixed(1) + "%"}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";

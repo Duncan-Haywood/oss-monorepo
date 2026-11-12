@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -176,7 +176,7 @@
       const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
       const proof = r.reconcile.ok === true ? (r.reconcile.method === "sections" ? `${r.reconcile.sections.length} accounts, each adds up` : "balances agree") : r.reconcile.ok === false ? "balances do NOT agree" : "balances not found, unproven";
       $("#report-stats").innerHTML = `<strong>${r.transactions.length} transaction${r.transactions.length === 1 ? "" : "s"}</strong> · ${proof} · ${errs} error${errs === 1 ? "" : "s"}, ${warns} warning${warns === 1 ? "" : "s"}`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const b = r.reconcile;
       const cell = (label, v, cls = "") => `<tr><th scope="row">${label}</th><td class="n ${cls}">${v === null || v === undefined ? "not found" : money(v)}</td></tr>`;
       $("#balance").innerHTML = cell("Opening balance", b.opening) + cell("Sum of the transactions", r.transactions.length ? b.sum : null) + cell("Opening + transactions", b.expected) + cell("Closing balance on the statement", b.closing) + (b.diff === null || b.diff === undefined ? "" : cell("Difference", b.diff, b.diff ? "short" : ""));

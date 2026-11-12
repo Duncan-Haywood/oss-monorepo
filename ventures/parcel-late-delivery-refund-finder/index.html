@@ -32,7 +32,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -170,7 +170,7 @@
       const asks = a.findings.filter((f) => f.severity !== "info").length;
       $("#big").innerHTML = [[usd(s.refundable), "in shipping charges to ask about"], [String(s.lateCount), "late shipment(s), all kinds"], [s.lateRate === null ? "–" : (s.lateRate * 100).toFixed(1) + "%", "of judged shipments were late"], [usd(s.spend), "shipping billed in the file"]].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
       $("#report-stats").textContent = `${s.lines} line(s) read, ${s.judged} judged against a promised day, ${asks} item(s) worth asking about. Checked: ${a.rulesChecked.join(", ")}. Amounts are the most that could be affected, not a refund owed.` + (s.maybe ? ` A further ${usd(s.maybe)} depends on whether the carrier delivered on a federal holiday.` : "") + (s.pastWindow ? ` ${usd(s.pastWindow)} is past the claim window.` : "");
-      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p>${f.lines.length ? `<p class="note">Lines: ${f.lines.slice(0, 40).join(", ")}${f.lines.length > 40 ? ", …" : ""}</p>` : ""}</div>`).join("") : `<p class="note">Nothing late and no duplicates in the shipments that could be judged.</p>`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p>${f.lines.length ? `<p class="note">Lines: ${f.lines.slice(0, 40).join(", ")}${f.lines.length > 40 ? ", …" : ""}</p>` : ""}</div>`).join("") : `<p class="note">Nothing late and no duplicates in the shipments that could be judged.</p>`;
       $("#by-service tbody").innerHTML = a.byService.map((r) => `<tr><td>${esc(r.service)}</td><td class="n">${r.shipments}</td><td class="n">${r.late}</td><td class="n">${r.lateRate === null ? "–" : (r.lateRate * 100).toFixed(0) + "%"}</td><td class="n">${usd(r.refundable)}</td></tr>`).join("");
       const notes = [];
       if (lastMeta.skipped.length) notes.push(`${lastMeta.skipped.length} row(s) were skipped: ` + lastMeta.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (lastMeta.skipped.length > 5 ? "; …" : "") + ".");

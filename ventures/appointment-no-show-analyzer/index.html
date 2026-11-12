@@ -32,7 +32,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -186,7 +186,7 @@
       const s = a.summary, w = a.whatIf;
       $("#big").innerHTML = [[rate(s.noShowRate), `no-show rate (${s.noShows} of ${s.bookings})`], [rate(s.lateCancelRate), `late-cancel rate (${s.lateCancels}, under ${s.noticeHours} h notice)`], [usd(s.lostRevenue), "lost to no-shows"], [usd(s.lateCancelRevenue), "late-cancel revenue at risk"]].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
       $("#report-stats").textContent = `${s.firstDay} to ${s.lastDay} (${s.spanDays} days). ${s.bookings} bookings counted: ${s.completed} attended, ${s.noShows} no-show, ${s.cancelled} cancelled by the client (${s.earlyCancels} with enough notice, ${s.lateCancels} late, ${s.cancelledUnknown} of unknown notice). Left out: ${s.providerCancelled} cancelled by the business, ${s.open} still open, ${n.duplicates} duplicate row(s). Prices: ${s.priceSources.file} from the file, ${s.priceSources["service average"]} from the service average, ${s.priceSources.placeholder} from the ${usd(s.defaultPrice)} placeholder.`;
-      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
       $("#what-if").innerHTML = `Your assumptions: a ${w.feePct}% deposit or no-show fee prevents ${w.preventPct}% of no-shows and late cancels, and is collected on ${w.collectPct}% of the rest. On ${usd(w.noShowLost + w.lateCancelLost)} of lost and at-risk revenue that is <strong>${usd(w.recoveredVisits)}</strong> of kept visits plus <strong>${usd(w.feesCollected)}</strong> of fees, about <strong>${usd(w.total)}</strong> over this period` + (w.perYear !== null ? ` (roughly ${usd(w.perYear)} a year)` : " (the file covers under four weeks, so no yearly figure is given)") + `. These are your assumptions, not a forecast: nothing here knows how your clients would react to a fee.`;
       fill("#by-weekday", a.byWeekday, "No dates.");
       fill("#by-hour", a.byHour, "The file has no appointment times, so there is no hour-of-day breakdown.");

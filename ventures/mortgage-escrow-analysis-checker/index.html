@@ -33,7 +33,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -234,7 +234,7 @@
       if (asks) tiles.splice(1, 0, [usd(s.questioned), "most that is in question over a year"]);
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
       $("#report-stats").textContent = `Yearly bills ${usd(s.annual)}, so one-twelfth is ${usd(s.monthly)} a month. Balance needed at the start of the year with the largest allowed cushion: ${usd(s.needed)}; you entered ${usd(s.startBalance)}.${s.deficiency ? " Part of the gap (" + usd(s.deficiency) + ") would take the balance negative, which is a deficiency rather than a shortage." : ""} After a shortage is paid off the payment falls to ${usd(s.paymentAfterShortage)}. Amounts in question are the most that could be affected, not a refund owed.`;
-      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p>${f.cite ? `<p class="note">${esc(f.cite)}</p>` : ""}</div>`).join("") : `<p class="note">Nothing on the statement disagrees with these numbers. That does not mean it is right: the servicer's worksheet was not checked.</p>`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p>${f.cite ? `<p class="note">${esc(f.cite)}</p>` : ""}</div>`).join("") : `<p class="note">Nothing on the statement disagrees with these numbers. That does not mean it is right: the servicer's worksheet was not checked.</p>`;
       const minClose = Math.min(...a.rows.map((r) => r.closing));
       $("#schedule tbody").innerHTML = a.rows.map((r) => `<tr class="${r.closing === minClose ? "low" : ""}"><td>${esc(r.month)}${r.items ? " — " + esc(r.items) : ""}</td><td class="n">${usd(r.opening)}</td><td class="n">${usd(r.deposit)}</td><td class="n">${r.disbursement ? usd(r.disbursement) : ""}</td><td class="n">${usd(r.closing)}</td></tr>`).join("");
       $("#wi-item").innerHTML = a.items.map((i) => `<option value="${esc(i.name)}">${esc(i.name)} (${usd(i.amount)})</option>`).join("");

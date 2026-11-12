@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -234,7 +234,7 @@
       const tiles = [[a.offers[a.best].label, "keeps the most"], [usd(b.netPerWeekAll), "take-home per week, whole period"], [usd(b.netPerYear), "take-home per year at that pace"]];
       if (a.offers.length > 1) { const worst = a.results.reduce((m, r) => Math.min(m, r.netPerWeekAll), Infinity); tiles.push([usd(b.netPerWeekAll - worst), "a week better than the weakest offer"]); }
       $("#big").innerHTML = tiles.map(([v, l]) => "<div><strong>" + esc(v) + "</strong>" + esc(l) + "</div>").join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => '<div class="finding"><h4><span class="pill ' + f.severity + '">' + f.severity + "</span>" + esc(f.title) + "</h4><p>" + esc(f.detail) + "</p></div>").join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => '<div class="finding"><h3><span class="pill ' + f.severity + '">' + f.severity + "</span>" + esc(f.title) + "</h3><p>" + esc(f.detail) + "</p></div>").join("");
       $("#offer-table tbody").innerHTML = a.offers.map((o, i) => { const r = a.results[i]; return '<tr class="' + (i === a.best ? "best" : "") + '"><td>' + esc(o.label) + '</td><td class="n">' + usd(r.grossWeekly) + '</td><td class="n">' + usd(r.taxes) + '</td><td class="n">' + usd(r.costs) + '</td><td class="n">' + usd(r.net) + '</td><td class="n">' + usd(r.netPerWeekAll) + '</td><td class="n">' + usd(r.netPerYear) + "</td></tr>"; }).join("");
       $("#sens-table tbody").innerHTML = a.offers.map((o, i) => "<tr><td>" + esc(o.label) + "</td>" + a.sensitivity[i].map((v) => '<td class="n">' + usd(v) + "</td>").join("") + "</tr>").join("");
       $("#match-table tbody").innerHTML = a.offers.map((o, i) => "<tr><td>" + esc(o.label) + '</td><td class="n">$' + o.rate.toFixed(2) + '</td><td class="n">' + (i === a.best ? "best offer" : a.needed[i] === null ? "cannot match by rate" : "$" + a.needed[i].toFixed(2) + " (+$" + (a.needed[i] - o.rate).toFixed(2) + " an hour)") + "</td></tr>").join("");

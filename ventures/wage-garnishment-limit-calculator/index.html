@@ -33,7 +33,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -212,7 +212,7 @@
       if (s.questioned > 0) tiles.splice(1, 0, [usd(s.questioned), "most that is in question over a year"]);
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
       $("#report-stats").textContent = `Gross ${usd(s.gross)} minus ${usd(s.required)} required by law leaves ${usd(s.disposable)} of disposable earnings. With no order entered the federal ceilings would be ${usd(a.perType.ordinary)} for ordinary debt, ${usd(a.perType.student)} for a student loan and ${usd(a.perType.support)} for support (${s.supportPct}%). Amounts in question are the most that could be affected, not a refund owed.`;
-      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p>${f.cite ? `<p class="note">${esc(f.cite)}</p>` : ""}</div>`).join("") : `<p class="note">Nothing on the stub disagrees with these numbers. That does not mean it is right: the payroll worksheet and state law were not checked.</p>`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p>${f.cite ? `<p class="note">${esc(f.cite)}</p>` : ""}</div>`).join("") : `<p class="note">Nothing on the stub disagrees with these numbers. That does not mean it is right: the payroll worksheet and state law were not checked.</p>`;
       $("#orders tbody").innerHTML = a.results.length ? a.results.map((r) => `<tr><td>${esc(ORDER_TYPES[r.type])}<br><span class="note">${esc(r.reason)}</span></td><td class="n">${r.demand === null ? "–" : usd(r.demand)}</td><td class="n">${usd(r.cap)}</td><td class="n">${usd(r.take)}</td></tr>`).join("") : `<tr><td colspan="4" class="note">No order entered.</td></tr>`;
       $("#wi-result").textContent = "";
       letter();

@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -157,7 +157,7 @@
       last = r;
       const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
       $("#report-stats").innerHTML = `${s.trips} trips over ${s.days} day(s), ${dateStr(s.from)} to ${dateStr(s.to)}. Paid ${cur}${money(s.gross)} (tips ${cur}${money(s.tips)}), vehicle cost ${cur}${money(s.cost)} at ${cur}${money(cpm)} per mile, <strong>net ${cur}${money(s.net)}</strong>` + (s.netPerHourHeadline !== null ? ` — <strong>${cur}${money(s.netPerHourHeadline)} per hour</strong> net (${s.hourBasisIsOnline ? "your hours online" : "trip minutes only"})` : "") + (s.netPerMile !== null ? `, ${cur}${money(s.netPerMile)} net per mile` : "") + ".";
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#by-platform").innerHTML = r.byPlatform.map((p) => `<tr><th scope="row">${esc(p.label)}</th><td class="n">${p.trips}</td><td class="n">${money(p.gross)}</td><td class="n">${money(p.cost)}</td><td class="n">${money(p.net)}</td><td class="n">${money(p.netPerTrip)}</td><td class="n">${rate(p.netPerHour)}</td><td class="n">${rate(p.netPerMile)}</td></tr>`).join("");
       const grp = (rows) => rows.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${g.trips}</td><td class="n">${money(g.gross)}</td><td class="n">${money(g.net)}</td><td class="n">${rate(g.netPerHour)}</td><td class="n">${rate(g.netPerMile)}</td></tr>`).join("");
       $("#by-weekday").innerHTML = grp(r.byWeekday);
