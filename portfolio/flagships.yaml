@@ -200,27 +200,19 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and every measurement are in the README and eval/*. Exact side: branch-and-price (bnp.mjs) proves
-      least open hours on every bench and 20-80 person week; pay bound within $0.50 on 12 of 12 pay-gap and 4 of 4
-      30/40-person weeks; 100x280 week 0 root 358 vs roster 359, week 1 347 vs 344; the 60-person pay week is $1.22
-      open. Forecast side (--from-sales, four real files): backtest with the closure score as default, half-life auto
-      with the 4-week window, lunch breaks, --short-cost, priced cut, --count tickets, labour standard with fixed work
-      (`/hour`, `/open`, `/close`) and, 2026-11-12 later, `/before-open` and `/after-close` in the shut hours with
-      minimum staff off there (README "Closing work after the last sale hour": one closer, 45 min after close +7 h a
-      week vs +20 h in the last hour; two closers, 0 vs +11); 2026-11-12 last, shut-door work spreads at 60 min a
-      person into the next hour and `--shut-min` is a floor the priced cut never drops (README "One person staying
-      two hours, or two people locking up"); after that, `--shut-min "1, Fri/Sat=2"` sets it by weekday (README "Two
-      closers on late Fridays only": French bakery, two closers every night +45 h a week over one, Fri/Sat only +10).
-      Later: exact on, above 60 copies, proof first and no tree (README "The exact check end to end on 40-person
-      weeks": 40-person weeks 6-12 s, all proven). 2026-11-12 last: the exact check on by default at every size
-      (README "The exact check on by default, every size": 40 seeded and template weeks never worse, better on 22,
-      proven on 38, faster above 60 copies; the café sample 19 h to 15 h open; off under --open-shift-hours).
-      Next: close the 100-person gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person
-      pay week; the 60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held, not proven in 34 s); regenerate the
-      14 guide pages' tables with the exact check on (their tests pin exact: false today); run the page's build in a
-      Web Worker so the check does not block a phone's main thread; a real Square or Toast item export (columns read,
-      made-up rows only); a real published-schedule export for --import-shifts; whether the priced cut's r = 1
-      default suits a real manager; a manager's real task list for the fixed minutes.
+      Landed work and every measurement are in the README and eval/*. Exact side: branch-and-price (bnp.mjs)
+      proves least open hours on every bench and 20-80 person week; column generation proves 40-person weeks in
+      6-12 s; since 2026-11-12 the exact check is on by default at every size (README "The exact check on by
+      default, every size": 40 seeded and template weeks never worse, better on 22, proven on 38; café sample 19 h
+      to 15 h open; off under --open-shift-hours). Forecast side (--from-sales, four real files): backtest,
+      closure score, half-life auto, priced cut, --count tickets, labour standard with fixed and shut-door work,
+      --shut-min by weekday (README, 2026-11-12 sections). Next: close the 100-person gaps (tree, not pricing);
+      cuts or branching that move the score LP on the 60-person pay week ($1.22 open); the 60x168 end-to-end
+      week 0 (root LP 275.2 h vs 300 h held); regenerate the 14 guide pages' tables with the exact check on
+      (their tests pin exact: false today); run the page's build in a Web Worker so the check does not block a
+      phone's main thread; a real Square or Toast item export (columns read, made-up rows only); a real
+      published-schedule export for --import-shifts; whether the priced cut's r = 1 default suits a real
+      manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
