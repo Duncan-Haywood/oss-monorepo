@@ -42,7 +42,7 @@ test("clopening page's rest-gap table is what the engine returns for the sample 
   const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
   const html = page("how-to-avoid-clopening.html");
   for (const [h, open, covered, pay] of [[0, 2, 219, 3671], [8, 3, 216, 3620], [10, 3, 216, 3622], [12, 3, 216, 3630], [14, 4, 218, 3662]]) {
-    const r = buildRoster(staff, slots, { minRestHours: h });
+    const r = buildRoster(staff, slots, { exact: false, minRestHours: h });
     assert.equal(r.unfilled.length, open, `${h}h open`);
     assert.equal(r.hours, covered, `${h}h covered`);
     assert.equal(r.cost, pay, `${h}h payroll`);
