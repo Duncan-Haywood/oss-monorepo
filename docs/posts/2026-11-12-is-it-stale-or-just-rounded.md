@@ -3,7 +3,7 @@ title: "Stale or just rounded? A test that almost worked, twice"
 seo_title: "Telling a stale data feed from rounding in a time series"
 date: 2026-11-12
 tags: [changepoint-detector, time-series, data-quality, stale-data, rounding, pre-registration, negative-result]
-description: "A pre-registered check for telling a one-tick stale feed from a rounded slow series failed two rounds, one by a single series. Here is the trade-off it measured."
+description: "A pre-registered check telling a one-tick stale feed from a rounded slow series failed two rounds, one by a single series. Here is the trade-off it found."
 ---
 
 A series that repeats its last value can mean two different things. Either
