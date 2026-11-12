@@ -1,9 +1,9 @@
 ---
 title: "The replay ran out of rows, not the guard: a metric watch that waits for a second look"
-seo_title: "Time series alerting: confirm a changepoint on a second check before sending"
+seo_title: "Time series alerts that confirm a change on a second check"
 date: 2026-11-12
 tags: [changepoint-detector, changepoint-detection, time-series, alerting, evaluation, censoring]
-description: "A flicker guard for the Changepoint Detector's watch failed its test by one change. That change was first seen on the last row of the replay. Scored fairly, the guard passes, narrowly, and is now the default."
+description: "A metric-watch guard failed its test by one change, first seen on the replay's last row. Scored fairly, it passes narrowly and is now the default."
 ---
 
 The [Changepoint Detector](../../ventures/changepoint-detector/)'s watch reruns
