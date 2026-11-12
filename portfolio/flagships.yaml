@@ -179,9 +179,9 @@ flagships:
       and keeps posted ones (README "Reissue a posted week without reshuffling it": late changes 190 to 91 on 41); a change-count ILP shows the default is the least on 41/41 when the caller's
       changes count (153), 88 vs 91 only when they are all free (README "Is 91 the least?"); on the four templates and
       seeded 20-60 person weeks it holds at the same open hours, and a kept start (search seeded from the kept roster) took
-      40-person reissues from 124 changes to 40 (README "The reissue on the templates and 20-60 person weeks"). Next: the
+      40-person reissues from 124 changes to 40 and 60-person ones from 973 to 76 (README "The reissue on the templates and 20-60 person weeks"). Next: the
       change-count ILP on the 40-60 person reissues (are their changes needed?); the unproven 40-60 person reissues (the
-      exact check runs out of time on 8-12 of 24); close the 100-person
+      exact check runs out of time on 4 of 24 at 40 people, 12 of 24 at 60); close the 100-person
       gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person pay week ($1.22 open); the
       60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held); the open-hours row now goes into the first
       score pass (README "The open-hours row from the first pass": the lifted coverage root LP, the two slow call-out

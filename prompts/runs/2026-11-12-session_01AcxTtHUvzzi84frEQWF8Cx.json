@@ -7,33 +7,138 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T21:06:40Z",
   "ended": "2026-11-12T21:10:41Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "wall_minutes": 35.57,
+  "tokens_in": 9673934,
+  "tokens_out": 34473,
+  "cost_usd": 3.6169,
+  "tool_calls": 73,
+  "task": "flagship 6 shift-roster-builder: the posted-week reissue on the four templates and 20-60 person weeks",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15258",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "a bash heredoc writing the eval script was refused by the rm-safety parser (no rm in it)",
+      "fix": "wrote the file with the Write tool"
+    },
+    {
+      "what": "first preflight failed on the post's description (239 chars) and seo_title (72)",
+      "fix": "shortened both"
+    }
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "the Stop hook demands a commit every time a long background bench is still writing its output file, so the branch carries several WIP commits of half-written bench output; a note that eval outputs in flight can wait, or writing to scratch then copying, would avoid it"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "the item asked only to measure the reissue at scale; the measurement showed it degrading at 40-60 people, so the run also fixed the cause (keptStart in calc.mjs)",
+      "did": "added a kept-start seed for any keep-map build and re-measured before/after",
+      "result": "40-person changes 124 to 40, 60-person 973 to 76, same open hours, full venture suite green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-shift-roster-reissue-at-sixty.md",
+    "ventures/shift-roster-builder/README.md (The reissue on the templates and 20-60 person weeks, and a kept start)"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "eval/reissue-scale.mjs runs the posted-week reissue study on the four templates (56 call-outs) and two seeded weeks each of 20x56/30x84/40x112/60x168 (24 call-outs each). Changes to others, free rebuild vs keepShift 1 before vs after kept start: templates 162/73/73, 20p 253/26/26, 30p 507/50/50, 40p 603/124/40, 60p 1623/973/76; open hours identical in every column. Venture suite: run_venture_tests.py shift-roster-builder ok (253 s). Preflight: see PR. Benches ran two at a time on 4 cores.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "683298e0-6551-51f8-a010-8aaf8aa57c08",
+    "transcripts": 1,
+    "first": "2026-11-12T21:06:40Z",
+    "last": "2026-11-12T21:42:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 196,
+        "output": 34473,
+        "thinking": 5887,
+        "cache_read": 9546570,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127168,
+        "api_equivalent_usd": 3.6169,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 196,
+      "output": 34473,
+      "thinking": 5887,
+      "cache_read": 9546570,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127168,
+      "api_equivalent_usd": 3.6169,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 65,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Edit": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 35.57,
+      "active_minutes": 15.16,
+      "model_minutes": 8.13,
+      "tool_minutes": 7.03,
+      "waiting_on_human_minutes": 20.42,
+      "human_prompts": 19,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an optimisation engineer writing a scale study, diagnosing a warm-start gap and fixing it with tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 276.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
