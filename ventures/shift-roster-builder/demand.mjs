@@ -14,7 +14,7 @@
 // two real POS exports (a Korean bakery's orders, a French bakery's item lines; eval/); other column names are matched by
 // synonym, written from memory. Nothing leaves the machine.
 import { splitCsvRow } from "./import-staff.mjs";
-import { DAYS } from "./calc.mjs";
+import { DAYS, parseDaySpec } from "./calc.mjs";
 
 // camelCase headers split into words first ("InvoiceDate" is "invoice date", "UnitPrice" "unit price"; 2026-11-11, the
 // UCI Online Retail export could not be read before).
@@ -325,7 +325,7 @@ function readStandard(lines, sep, head, ix, tix, dateCol, timeCol, o, out, skip)
     if (!s.key) out.undated++;
     out.rows++;
   });
-  if (fixedMinutes(st)) addFixedWork(st, out, shutCrew(o));
+  if (fixedMinutes(st)) addFixedWork(st, out, shutCrewOf(o));
   const tot = out.parts.ticket + out.parts.sale + out.parts.item + (out.parts.fixed || 0);
   if (tot > 0) out.notes.push("Share of the work: " + [["ticket", "tickets"], ["sale", "money"], ["item", "items"], ["fixed", "fixed work"]].filter(([k]) => k === "fixed" ? fixedMinutes(st) : st[k]).map(([k, n]) => `${n} ${Math.round(out.parts[k] / tot * 100)}%`).join(", ") + ".");
   return out;
@@ -337,17 +337,46 @@ function readStandard(lines, sep, head, ix, tix, dateCol, timeCol, o, out, skip)
 // at all is not seen, so it gets no fixed work; the minimum staff setting covers that. Fixed entries carry fixed: true.
 // shutMin (o.shutMin, --shut-min): the fewest people on in an hour of before-open or after-close work only. Default:
 // 1 when minimum staff is 1 or more (0 with minimum staff 0). 2 is for a lone-worker rule (nobody locks up alone).
-export function shutMinOf(o = {}) {
+// By weekday (2026-11-12): "1, Fri/Sat=2" is one closer Monday to Thursday and Sunday and two on Friday and Saturday
+// nights; "Fri-Sun=2" leaves the other days at the default; a later entry wins over an earlier one for the same day.
+// Day names and ranges as in availability ("Mon-Fri", "Fri/Sat", "daily"); "Fri:2" and "Fri 2" read the same. An
+// array of 7 whole numbers (Monday first) is taken as given. shutMinDays returns the 7 values.
+export function shutMinDays(o = {}) {
   const minStaff = o.minStaff === undefined ? 1 : Number(o.minStaff);
-  if (o.shutMin === undefined || o.shutMin === null || o.shutMin === "") return Math.min(minStaff, 1);
-  const v = Number(o.shutMin);
-  if (!Number.isInteger(v) || v < 0) throw new Error("staff with the doors shut must be a whole number, 0 or more");
-  return v;
+  const def = Math.min(minStaff, 1);
+  const whole = (v, what) => {
+    const n = typeof v === "number" ? v : String(v).trim() === "" ? NaN : Number(v);
+    if (!Number.isInteger(n) || n < 0) throw new Error(`staff with the doors shut must be a whole number, 0 or more${what ? ` (${what})` : ""}`);
+    return n;
+  };
+  const v = o.shutMin;
+  if (v === undefined || v === null || v === "") return new Array(7).fill(def);
+  if (Array.isArray(v)) {
+    if (v.length !== 7) throw new Error("staff with the doors shut by weekday needs 7 numbers, Monday first");
+    return v.map((x) => whole(x));
+  }
+  if (typeof v === "number") return new Array(7).fill(whole(v));
+  const out = new Array(7).fill(def);
+  for (const part of String(v).split(/[,;]/).map((x) => x.trim()).filter(Boolean)) {
+    const m = part.match(/^(.*?)\s*(?:[=:]|\s)\s*(-?[\d.]+)$/);
+    if (!m || !m[1]) { out.fill(whole(part, part)); continue; }
+    const ds = parseDaySpec(m[1]);
+    if (!ds.length) throw new Error(`staff with the doors shut: could not read the day in "${part}" (try Fri=2 or Fri/Sat=2)`);
+    const n = whole(m[2], part);
+    for (const d of ds) out[d] = n;
+  }
+  return out;
 }
-// The crew that does the shut-door work together: the shut-hour minimum, at least 1. They clear crew x 60 minutes an hour.
-const shutCrew = (o) => Math.max(1, shutMinOf(o));
+// One weekday's shut-hour minimum (d 0 = Monday); without d, the most any day asks for.
+export function shutMinOf(o = {}, d) {
+  const a = shutMinDays(o);
+  return d === undefined ? Math.max(...a) : a[d];
+}
+// The crew that does the shut-door work together on weekday d: its shut-hour minimum, at least 1. They clear crew x 60
+// minutes an hour.
+const shutCrewOf = (o) => { const a = shutMinDays(o); return (d) => Math.max(1, a[d]); };
 
-function addFixedWork(st, out, crew = 1) {
+function addFixedWork(st, out, crewOf = () => 1) {
   const days = new Map(); // key or "~weekday" -> { day, key, hours: Set }
   for (const e of out.entries) {
     const id = e.key || `~${e.day}`;
@@ -368,7 +397,7 @@ function addFixedWork(st, out, crew = 1) {
     // person staying two hours, not two people for one). Before opening it spills earlier. Past 0:00 or midnight the
     // rest goes into the last hour placed, or, when the day itself starts at 0:00 or ends at 23:00, into its first or
     // last trading hour (the plan is one calendar day; counted in the note).
-    const cap = crew * 60;
+    const cap = crewOf(day) * 60;
     for (const [m, at, step, edge] of [[st.beforeOpen, first - 1, -1, first], [st.afterClose, last + 1, 1, last]]) {
       if (!(m > 0)) continue;
       let rem = m, h = at, placed = null;
@@ -546,7 +575,7 @@ export function headcount(avg, observed, o = {}) {
   if (!(splh > 0)) throw new Error("sales per labor hour must be a positive number");
   if (!Number.isInteger(minStaff) || minStaff < 0) throw new Error("minimum staff must be a whole number, 0 or more");
   const maxStaff = o.maxStaff === undefined ? 50 : Number(o.maxStaff);
-  const shutMin = shutMinOf(o);
+  const shutMin = shutMinDays(o);
   return avg.map((hours, d) => {
     if (!observed[d]) return new Array(24).fill(0);
     // o.seen (dates with any sale per weekday-hour): an edge hour that traded on fewer than 1 in 20 of the weekday's dates
@@ -582,7 +611,7 @@ export function headcount(avg, observed, o = {}) {
     // whatever the rate), and at least the shut-hour minimum (o.shutMin, default 1 when the minimum is 1 or more).
     const isOut = (h) => !!(o.outside && o.outside[d][h]);
     const want = (v, h) => (isOut(h) ? Math.ceil(v / 60 - 1e-9) : o.heads ? o.heads[d][h] : Math.ceil(v / splh - 1e-9));
-    const floor = (h) => (isOut(h) ? shutMin : minStaff);
+    const floor = (h) => (isOut(h) ? shutMin[d] : minStaff);
     return hours.map((v, h) => (h >= lo && h < hi && !brk[h] ? Math.min(maxStaff, Math.max(floor(h), want(v, h))) : 0));
   });
 }
@@ -802,9 +831,9 @@ export function demandShifts(text, o = {}) {
   // The cut is priced with dated rows whether or not --short-cost is given; without it a short and a spare hour weigh
   // the same (r = 1), the weight the plain backtest scores at.
   const rCut = o.shortCost === undefined ? 1 : Number(o.shortCost);
-  const shutMin = shutMinOf(o);
-  const floorOf = (out) => (out ? out.map((v) => (v ? shutMin : minStaff)) : null);
-  const cutCost = (d) => (s.tail && o.costCut !== false ? { tail: s.tail[d], r: rCut, minStaff, floor: floorOf(s.outside && s.outside[d]), join: o.join === true } : null);
+  const shutMin = shutMinDays(o);
+  const floorOf = (out, d) => (out ? out.map((v) => (v ? shutMin[d] : minStaff)) : null);
+  const cutCost = (d) => (s.tail && o.costCut !== false ? { tail: s.tail[d], r: rCut, minStaff, floor: floorOf(s.outside && s.outside[d], d), join: o.join === true } : null);
   const dropped = [];
   const days = prof.map((p, d) => {
     const shifts = cutShifts(p, minShift, maxShift, cutCost(d));
@@ -877,7 +906,7 @@ export function backtestSales(text, o = {}) {
   const tested = [];
   for (let w = warmup; w < fullWeeks; w++) if (byWeek.slice(0, w).some((x) => x.length)) tested.push(w);
   if (!tested.length) return { weeks: 0, methods: [], notes: notes.concat(`Needs more than ${warmup} full weeks of dated sales to test on (has ${fullWeeks}).`) };
-  const shutMin = shutMinOf({ minStaff, shutMin: o.shutMin });
+  const shutMin = shutMinDays({ minStaff, shutMin: o.shutMin });
   const hOpts = { splh, minStaff, shutMin, maxStaff: o.maxStaff, open: o.open, close: o.close, keepRare: o.keepRare };
   // The scorer's view of which weekday-hours are normally shut, from the whole file (hindsight is fine in the score; the
   // plans still learn only from earlier weeks). Fixed whatever rules the plan uses, so --keep-rare and the break rule
@@ -913,7 +942,7 @@ export function backtestSales(text, o = {}) {
       // a short-cost weight, the runs the cost-aware cut leaves unstaffed) show up in short and over.
       const plan = !o.shifts ? prof : prof.map((p, d) => {
         // Every row's cut is priced at the weight the week is scored at (rc, or 1), average rows included (2026-11-11).
-        const cost = a.tail && o.costCut !== false ? { tail: a.tail[d], r: rc === null ? 1 : rc, minStaff, floor: a.outside ? a.outside[d].map((v) => (v ? shutMin : minStaff)) : null, join: o.join === true } : null;
+        const cost = a.tail && o.costCut !== false ? { tail: a.tail[d], r: rc === null ? 1 : rc, minStaff, floor: a.outside ? a.outside[d].map((v) => (v ? shutMin[d] : minStaff)) : null, join: o.join === true } : null;
         const row = new Array(24).fill(0);
         for (const [x, y] of cutShifts(p, minShift, maxShift, cost)) for (let t = x; t < y; t++) row[t]++;
         return row;
@@ -927,7 +956,7 @@ export function backtestSales(text, o = {}) {
         // the weekday's dates across the whole file) on a date it sold nothing in that hour, so staffing a closure
         // shows as over. Without it, minimum staff counts as needed in every hour the plan staffs.
         const shut = closedRef && closedRef[d][h] && !soldOn[d][h];
-        const floor = out ? shutMin : minStaff;
+        const floor = out ? shutMin[d] : minStaff;
         const need = open[d][h] > 0 && !shut ? Math.max(floor, raw) : raw;
         sched += plan[d][h];
         if (need > plan[d][h]) { short += need - plan[d][h]; shortH++; } else over += plan[d][h] - need;
