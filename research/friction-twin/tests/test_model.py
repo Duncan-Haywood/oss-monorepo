@@ -39,9 +39,20 @@ class T(unittest.TestCase):
         k = fit_k_closed(1, 3, M, B, C)
         v = crossover_speed(M, B, C, k)
         self.assertAlmostEqual(twin_stop_distance(v, M, k), real_stop_distance(v, M, B, C), places=9)
-        self.assertLess(twin_stop_distance(0.1, M, k), 1e9)
+        self.assertAlmostEqual(v, 7.3395, places=3)  # independent bisection, quality audit 2026-11-12
         self.assertGreater(twin_stop_distance(v / 2, M, k), real_stop_distance(v / 2, M, B, C))
         self.assertLess(twin_stop_distance(2 * v, M, k), real_stop_distance(2 * v, M, B, C))
+
+    def test_minimax_matches_closed_form(self):
+        # The twin/real ratio falls monotonically with speed, so the minimax gain equalises the two ends.
+        q1 = 1 / real_stop_distance(1, M, B, C)
+        q2 = 3 / real_stop_distance(3, M, B, C)
+        km, em = minimax_k(M, B, C, 1, 3)
+        self.assertAlmostEqual(km, (q1 + q2) / 2, places=3)   # 1.8494
+        self.assertAlmostEqual(em, (q1 - q2) / (q1 + q2), places=3)   # 0.1997
+
+    def test_twin_time_closed_form(self):
+        self.assertAlmostEqual(twin_time_to_speed(3, 1e-3, M, 16 / 13), (13 / 16) * math.log(3000), places=9)
 
     def test_minimax_beats_least_squares(self):
         kl = fit_k_closed(0.2, 10, M, B, C)
