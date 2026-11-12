@@ -1,5 +1,16 @@
 # civ-levers research log
 
+## 2026-11-12 · Plan: is "collapse is fiscal" built into the closure? (milestone 7, fifth run, written before the run)
+
+- Why: the fourth run (entry below) read collapse in this model as fiscal (mean log(1/S) +0.49 in collapsing cells, collapse frequency rising with state cost g) and found the tax share the dominant lever. Reading `history.py` before any new run: S relaxes to tau R / (g E), and the elite aspiration is e0 = (1 - tau) R* / E*, so elite income over aspiration is (R / R*)(E* / E) with tau cancelled. If so, tau and g enter the whole model only as the ratio tau / g, and S* = 10 tau / g at the equilibrium (R* = 0.5, E* = 0.05). Then log PSI = log(E/E*) + log(s0/w) + log(S*/S) + log(g / (10 tau)): three deviations from equilibrium plus a constant offset that shifts the midpoint of the instability logistic. Raising tau to 0.45 would be the same as cutting g by a third, and "fiscal" collapse could be just a high offset, not a fiscal dynamic.
+- H1 (identity): trajectories depend on (tau, g) only through tau / g. Refuted if run(tau 0.45, g 24) differs from run(tau 0.3, g 16) by more than 1e-9 in N, E, S or psi, or collapse years differ.
+- H2 (decomposition at collapse, the fourth run's 576-cell grid, no lever): averaged over the 25 years before each post-burn collapse, the constant offset log(g / (10 tau)) is the largest of the four log terms in more than half of collapsing cells. Refuted otherwise.
+- H3: among the three dynamic deviations in the same windows, the fiscal one log(S*/S) is the largest in more than half of collapsing cells. Refuted otherwise.
+- H4 (neutral state: g 3, tau 0.3, offset 0; 432 cells over rho, m, k, lag, threshold and elite mortality me 0.02, 0.04, 0.08): if at least 20 cells collapse, the elite term log(E/E*) is the largest dynamic deviation before collapse in more than half of them. Refuted otherwise; untestable below 20.
+- H5 (neutral state, paired by cell as in the fourth run): an elite cap of 0.06 cuts collapses in more collapsing cells than a welfare transfer of 0.2. Refuted otherwise. (The tax lever is not run here: by H1 it is the offset.)
+- Robustness, reported not tested: a 100-year window (the stress lag reaches 200 years).
+- Caveats written now: deterministic model, one run per cell; the window length and neutral point are choices; every parameter is swept; nothing here is about a real state.
+
 ## 2026-11-12 · Plan: do the levers act cell by cell? (milestone 7, fourth run, written before the full run)
 
 - Why: the third run refuted H3 on a pooled number (mean collapses in cells that collapse: 31.2 none, 31.2 elite cap, 31.0 welfare). A one-cell pilot I ran before writing this (rho 0.03, m 0.02, k 4, g 2, lag 200, threshold 0.3) disagrees: 16 collapses with no lever, 0 with an elite cap of 0.06 (or 0.05, 0.04), 15 and 16 with welfare 0.2 and 0.4, while welfare raised mean population from 0.45 to 0.65 and 0.89. So the pooled null may hide cell-level effects that cancel. The pilot is disclosed; the hypotheses below are tested on the full grid, which the pilot did not see beyond that one cell.
