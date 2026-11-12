@@ -97,3 +97,35 @@ test("without a Carta Porte complement nothing here runs", () => {
   assert.equal(r.meta.waybills, undefined);
   assert.ok(!r.findings.some((f) => /^MX-07/.test(f.rule)));
 });
+
+// ---- MX-080: a Mexican address against c_Estado, c_Municipio, c_CodigoPostal and c_Colonia ----
+const origin = 'Calle="Avenida Paseo Tabasco" NumeroExterior="1203" Municipio="004" Estado="TAB" Pais="MEX" CodigoPostal="86000"';
+const withOrigin = (attrs) => road.replace(origin, attrs);
+const mx080 = (t) => checkCfdi(t).findings.filter((f) => f.rule === "MX-080");
+
+test("MX-080: the postal code's municipality, locality and colonia from SAT's catalogues", () => {
+  // c_CodigoPostal: 86000 is TAB 004 locality 02; c_Colonia lists 0001, 0002 and 1477 for it.
+  assert.deepEqual(mx080(withOrigin(`${origin} Localidad="02" Colonia="1477"`)), []);
+  const m = mx080(withOrigin(origin.replace('Municipio="004"', 'Municipio="005"')));
+  assert.equal(m.length, 1);
+  assert.match(m[0].message, /^Location 1: Municipio 005 is not the municipality of postal code 86000: c_CodigoPostal gives TAB 004\.$/);
+  assert.ok(m[0].path.endsWith("/Ubicaciones/Ubicacion[1]/Domicilio/@Municipio"));
+  assert.match(mx080(withOrigin(`${origin} Localidad="03"`))[0].message, /Localidad 03 is not the locality of postal code 86000/);
+  assert.match(mx080(withOrigin(`${origin} Colonia="0003"`))[0].message, /Colonia 0003 is not a c_Colonia code of postal code 86000, which lists 3/);
+});
+
+test("MX-080: state codes, municipality codes of the state, and the postal code's state", () => {
+  assert.match(mx080(withOrigin(origin.replace('Estado="TAB"', 'Estado="Tabasco"')))[0].message, /Estado "Tabasco" is not a c_Estado code/);
+  assert.match(mx080(withOrigin(origin.replace('Municipio="004"', 'Municipio="999"')))[0].message, /Municipio 999 is not a c_Municipio code of TAB/);
+  assert.match(mx080(withOrigin(origin.replace('CodigoPostal="86000"', 'CodigoPostal="24100"')))[0].message, /CodigoPostal 24100 belongs to CAM in c_CodigoPostal, not to Estado TAB/);
+  assert.match(mx080(withOrigin(origin.replace('CodigoPostal="86000"', 'CodigoPostal="8600"')))[0].message, /CodigoPostal "8600" is not a Mexican postal code/);
+});
+
+test("MX-080: names instead of codes are skipped and said; foreign addresses and empty catalogue columns are left alone", () => {
+  const r = checkCfdi(withOrigin(origin.replace('Municipio="004"', 'Municipio="Centro" Colonia="Centro Delegacional"')));
+  assert.deepEqual(r.findings.filter((f) => f.rule === "MX-080"), []);
+  assert.ok(r.skipped.some((s) => /^MX-080 \(addresses\): Municipio, Colonia written as a name/.test(s)), r.skipped.join(" | "));
+  // 86001 is in TAB's block but its catalogue row names no municipality: nothing to compare.
+  assert.deepEqual(mx080(withOrigin(origin.replace('CodigoPostal="86000"', 'CodigoPostal="86001"').replace('Municipio="004"', 'Municipio="005"'))), []);
+  assert.deepEqual(mx080(withOrigin(origin.replace('Pais="MEX"', 'Pais="USA"').replace('Estado="TAB"', 'Estado="TX"'))), []);
+});

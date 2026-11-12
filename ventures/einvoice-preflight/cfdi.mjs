@@ -495,6 +495,6 @@ export function checkCfdi(text) {
   Object.assign(meta, checkPagos(root, { findings, skipped, checkNode, ELEMENTS, currencyDecimals, taxBounds, CFDI_NS }));
   Object.assign(meta, checkNomina(root, { findings, skipped, checkNode, ELEMENTS, CFDI_NS, personType }));
   Object.assign(meta, checkComercioExterior(root, { findings, skipped, checkNode, ELEMENTS, CFDI_NS, typeProblem, currencyDecimals }));
-  Object.assign(meta, checkCartaPorte(root, { findings, skipped, checkNode, ELEMENTS, CFDI_NS }));
+  Object.assign(meta, checkCartaPorte(root, { findings, skipped, checkNode, ELEMENTS, CFDI_NS, typeProblem }));
   return { findings, skipped, meta };
 }
