@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKknJCLQkRavqBaSca2",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T03:44:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Polish: sideways scroll at mid widths (tablet / half-screen laptop), carried-over item from polish-2026-11-11-result-column.md",
+  "projects": [
+    "change-order-margin-calculator",
+    "contractor-bid-readiness",
+    "cash-runway-planner",
+    "vendor-rate-break-even",
+    "clothing-design-studio",
+    "s3-storage-class-savings",
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14988",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First probe of sideways.mjs output looked empty for ~10 min",
+      "why": "it prints only at the end of the whole-catalogue run (8,679 pages); not an error, just no progress output"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/sideways.mjs",
+      "issue": "Gives no progress output during a 10-15 minute whole-catalogue run, so an empty log is indistinguishable from a hung run. Fixed in this PR: a stderr progress line every 500 pages."
+    },
+    {
+      "file": "docs/reports/polish-2026-11-11-result-column.md",
+      "issue": "Says change-order-margin scrolls sideways at 768-900 px; the real range was 761-950 px and four other pages had the same defect, which a whole-catalogue sweep at one mid width found in one pass."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-the-width-nobody-checks.md",
+    "docs/reports/polish-2026-11-12-mid-width-sideways.md"
+  ],
+  "goal": "Impressive sites: no page scrolls sideways at any common width",
+  "notes": "Swept 8,679 built pages at 820 and 900 px with sideways.mjs: 5 and 4 overflowed (115-477 px at 820). All five fixed with minmax(0,1fr) tracks and inputs that fill their cells; each measured at 0 px overflow at 11 widths from 320 to 1,280. sideways.mjs now defaults to WIDTH=360,820 (resize in place; checked to give identical numbers to fresh loads on vendor-rate-break-even before the fix: +236 at 820, +156 at 900). Venture suites: change-order 107/107, contractor 56/56, cash-runway 76/76, vendor-rate 41/41, clothing-design-studio 654/654. Full catalogue at the new default 360,820 after the fixes: 820 clean; one real pre-existing failure at 360 (s3-storage-class-savings +67 px, an unbreakable CSV header in a label), fixed with <code> and re-measured 0 px at 320-1,280. sideways.mjs now names 'text in <el>' when no box sticks out. platform/pages tests: 1,544 pass, 0 fail, 15 skipped.",
+  "corrections": [],
+  "redteam": null
+}
