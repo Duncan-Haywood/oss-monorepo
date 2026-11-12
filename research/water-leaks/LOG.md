@@ -1,5 +1,13 @@
 # water-leaks research log
 
+## 2026-11-12 · Step 2 outcome: automatic LILA, 14 of 19 (P = 0.019), and a tie-break that undoes it
+- **Chosen on 2018:** delta = 1, C_thr = 20 (2018: 11 of 13, 0 false alarms; 26 alarms over both years, the same count as D1).
+- **2019, once:** 14 of 19 new leaks, 1 false alarm, median delay 138 h; MAS within 300 m along pipes for 7 (chance median 0, P < 0.001). Detection count against 26 random alarms: chance median 11 (8 to 13), **P = 0.019, so H1's detection clause is refuted as written**.
+- **Thin.** Over the whole grid, 2 of the 13 settings with ≥ 20 alarms have P < 0.05 on the count; all 27 settings have P ≤ 0.003 on the 300 m count.
+- **Found while writing a unit test, after the 2019 scores:** LI-2's vote ties are common (46% of hours in 15 Jan to 14 Feb 2018 have more than one sensor at the top count), because the inlet flow makes every model agree on the sign of a sensor's own noise. The pre-registered argmax takes the lowest index. Added as a labelled ablation, not a replacement: ties by the largest error norm, same grid and rule, chose the same setting and gave 13 of 19, 2 false alarms, 28 alarms, P = 0.265; 6 within 300 m (P < 0.001).
+- **What it changes.** H1 needs restating as a margin claim: detection counts sit within about one leak of chance's upper range, while location-aware counts sit far above it. The released LILA notebook supplies per-leak MAS, pipe and calibration windows, so its published timings are not a blind detector's; that goes in the paper's related-work section with the code reference.
+- **Data route.** Zenodo was refused; inputs came from two public GitHub copies whose SHA-256s match Zenodo's (now a fallback in `data.py`). The harness moved into `src/water_leaks/harness.py`; step 1 reran byte-identical.
+
 ## 2026-11-12 · Step 2 plan (LILA), written before LILA's 2018 or 2019 scores were seen
 - **Data route.** Zenodo refused this session's proxy. The eight BattLeDIM CSVs were taken from a public GitHub mirror (NaimurRahmanR/wds-sentinel, `data/raw/`) and `L-TOWN.inp` from another (Thierry-ctrl/bubble-man); all nine match the SHA-256s recorded from Zenodo in step 1 byte for byte, so the inputs are identical.
 - **What the released LILA does.** The authors' identification notebook (SWN-group-at-TU-Berlin/LILA, GPL-3.0, read, not copied) writes in by hand, for each known 2019 leak, the pipe, its most affected sensor, the neighbouring sensors and three or four calibration windows, then runs the CUSUM on that one leak's residuals. Its printed time to detection for p523 is 0 h. So the published LILA timings are start-time estimates given the leak, not the output of a detector run blind over the year.

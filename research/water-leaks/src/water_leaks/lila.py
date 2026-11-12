@@ -45,14 +45,32 @@ def errors(P, v, B):
     return pred - P.T[None, :, :]
 
 
-def mre(e):
-    """LI-2. [T, s] reconstruction error: non-zero only for the MAS at each step."""
+def mre(e, tie="index"):
+    """LI-2. [T, s] reconstruction error: non-zero only for the MAS at each step.
+
+    When several sensors share the top vote count, tie="index" (the step 2 pre-registered
+    rule) takes the lowest sensor index, as an argmax does; tie="norm" (an ablation added
+    after the 2019 scores were seen, LOG.md) takes the one with the largest error norm.
+    Ties are common: a strong common driver (the inlet flow) makes every model agree on the
+    sign of a sensor's own noise, so many sensors reach the maximum count at once.
+    """
     s, _, T = e.shape
     votes = (e > 0).sum(axis=0)          # [s, T]: models that find j too low
-    j = votes.argmax(axis=0)             # ties go to the lower index
+    norms = np.linalg.norm(e, axis=0)    # [s, T]
+    if tie == "norm":
+        top = votes == votes.max(axis=0)
+        j = np.where(top, norms, -1.0).argmax(axis=0)
+    else:
+        j = votes.argmax(axis=0)         # ties go to the lower index
     M = np.zeros((T, s))
-    M[np.arange(T), j] = np.linalg.norm(e[:, j, np.arange(T)], axis=0)
+    M[np.arange(T), j] = norms[j, np.arange(T)]
     return M
+
+
+def tie_share(e):
+    """Share of time steps where more than one sensor has the top vote count."""
+    votes = (e > 0).sum(axis=0)
+    return float(((votes == votes.max(axis=0)).sum(axis=0) > 1).mean())
 
 
 def ref_stats(M, min_count=12):
@@ -71,7 +89,7 @@ def ref_stats(M, min_count=12):
     return mu, sd
 
 
-def detect_lila(P, v, W=14, g=7, wmin=7, delta=4.0, c_thr=3.0):
+def detect_lila(P, v, W=14, g=7, wmin=7, delta=4.0, c_thr=3.0, tie="index"):
     """Automatic LILA over hourly data. Returns (alarms [(hour, MAS index)], M [H, s]).
 
     Day d is scored with LI-1 models and LI-3 statistics from days [max(d - g - W, anchor),
@@ -89,11 +107,11 @@ def detect_lila(P, v, W=14, g=7, wmin=7, delta=4.0, c_thr=3.0):
         if (lo, hi) not in cache:
             tr = slice(lo * 24, hi * 24)
             B = fit_pairs(P[tr], v[tr])
-            mu, sd = ref_stats(mre(errors(P[tr], v[tr], B)))
+            mu, sd = ref_stats(mre(errors(P[tr], v[tr], B), tie))
             cache = {(lo, hi): (B, mu, sd)}
         B, mu, sd = cache[(lo, hi)]
         te = slice(d * 24, (d + 1) * 24)
-        M = mre(errors(P[te], v[te], B))
+        M = mre(errors(P[te], v[te], B), tie)
         M_all[te] = M
         K = delta / 2 * sd
         for j in range(24):

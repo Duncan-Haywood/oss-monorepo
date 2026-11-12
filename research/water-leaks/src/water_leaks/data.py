@@ -30,6 +30,17 @@ SHA256 = {
     "dataset_configuration.yaml": "23471d8989d82c66a4909816ea248f7588d8ccc910e142265a7ea48db940b6a0",
 }
 
+# Fallbacks when Zenodo is unreachable (it refused a cloud session's proxy on 2026-11-12):
+# public GitHub copies pinned to a commit. They are accepted only if their SHA-256 matches the
+# Zenodo hash above, so the bytes are the same; the copies are third parties' redistributions
+# of the CC-BY-4.0 data.
+MIRRORS = [
+    "https://raw.githubusercontent.com/NaimurRahmanR/wds-sentinel/"
+    "104f0afc3a4682d4cb07a12dc95e4e9d6d539411/data/raw/{name}",
+    "https://raw.githubusercontent.com/Thierry-ctrl/bubble-man/"
+    "9f68e7de9ad802b5df6780608e4770bba453f6df/data/l-town/{name}",
+]
+
 STEP_MIN = 5  # SCADA sampling interval, minutes
 
 
@@ -42,12 +53,22 @@ def cache_dir() -> Path:
 def fetch(name: str) -> Path:
     """Path to a checked local copy of one BattLeDIM file, downloading it if needed."""
     p = cache_dir() / name
-    if not p.exists():
+    for url in [RECORD] + MIRRORS:
+        if p.exists():
+            break
         tmp = p.with_suffix(p.suffix + ".part")
-        with urllib.request.urlopen(RECORD.format(name=name), timeout=300) as r, open(tmp, "wb") as f:
-            while chunk := r.read(1 << 20):
-                f.write(chunk)
+        try:
+            with urllib.request.urlopen(url.format(name=name), timeout=300) as r, open(tmp, "wb") as f:
+                while chunk := r.read(1 << 20):
+                    f.write(chunk)
+        except OSError:
+            continue
+        if name in SHA256 and hashlib.sha256(tmp.read_bytes()).hexdigest() != SHA256[name]:
+            tmp.unlink()
+            continue
         tmp.rename(p)
+    if not p.exists():
+        raise OSError(f"{name}: no source reachable (Zenodo record 4017659 or the mirrors in data.py)")
     h = hashlib.sha256(p.read_bytes()).hexdigest()
     if name in SHA256 and h != SHA256[name]:
         raise ValueError(f"{name}: sha256 {h} does not match the recorded {SHA256[name]}")
