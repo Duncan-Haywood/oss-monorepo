@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtGfWxyC3h7QveVFqxA",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T21:06:42Z",
+  "ended": "2026-11-12T21:29:51Z",
+  "wall_minutes": 23.59,
+  "tokens_in": 12819067,
+  "tokens_out": 46652,
+  "cost_usd": 4.777,
+  "tool_calls": 91,
+  "task": "Deepen flagship 2 (ai-bookkeeper): the MCC layer on a held-out third buyer (Durham County Council procurement-card report) and importer fixes the real file exposed",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15259",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "The first bank.mjs edit added 'gross amount' as a general amount alias, which broke the SumUp Gross/Fee/Net test (booked gross instead of net). The full suite caught it; it was narrowed to a VAT-without-fee rule.",
+    "The first version of the sign rule required pos === null; a merchant named 'U OF I ONLINE PAYMENT' matched the weak payment pattern on one real month and blocked it. Found by checking all 78 files; fixed with !pos.",
+    "The post's description was 188 characters (limit 160); the pre-push hook blocked the push. git commit --amend was refused by the auto-mode classifier, so the fix went in a separate commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The Monitor tool is deferred; calling it without loading it through ToolSearch failed once. A blocking sleep-then-cat was also refused. A run_in_background until-loop was the working way to wait for long evals."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "It has no --dry-run to list what --for-changes would run; I guessed the flag and it errored."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-ai-bookkeeper-durham-card-codes.md",
+    "ventures/ai-bookkeeper/README.md (Merchant category codes on a third buyer: Durham County Council)"
+  ],
+  "goal": null,
+  "notes": "Data: 78 monthly CSVs from durham.gov.uk/article/8154 (OGL v3.0), fetched at run time and not committed. Importer check on all 78 real files: 199,776/199,776 rows, cents match the Gross Amount column on every file, MCC on every line. Eval (eval/durham-pcard.mjs; layer unchanged after reading): first-seen 7,354 lines, off 53.3/34.6, table 69.4/25.2, default 87.8/11.6 right/wrong. Plurality on: identical. --field name: 97.7% (the column is the council's own label, so it leaks the answer; not used). Departments: Resources 40.2->75.1, Adult and Health 51.3->75.5, DSG 62.8->69.5, Transformation 54.3->72.8. Local tests: node --test '*.test.mjs' 'eval/*.test.mjs' in ventures/ai-bookkeeper 3081/3081 pass. venture-preflight and run_workflow_locally --for-changes: see PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "86fc9a82-b084-5a87-83d1-b0154bca6e36",
+    "transcripts": 1,
+    "first": "2026-11-12T21:06:42Z",
+    "last": "2026-11-12T21:30:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 91,
+        "input": 183,
+        "output": 46652,
+        "thinking": 10708,
+        "cache_read": 12654848,
+        "cache_write_5m": 0,
+        "cache_write_1h": 164036,
+        "api_equivalent_usd": 4.777,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 91,
+      "input": 183,
+      "output": 46652,
+      "thinking": 10708,
+      "cache_read": 12654848,
+      "cache_write_5m": 0,
+      "cache_write_1h": 164036,
+      "api_equivalent_usd": 4.777,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 91,
+    "tools": {
+      "Bash": 77,
+      "ToolSearch": 3,
+      "Monitor": 3,
+      "ReadNotifications": 3,
+      "Write": 2,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.59,
+      "active_minutes": 14.26,
+      "model_minutes": 10.07,
+      "tool_minutes": 4.19,
+      "waiting_on_human_minutes": 9.34,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "Locating a held-out public card dataset, fixing three importer faults and checking 78 files, writing the eval and reading it 10 ways, plus the README and post: about a day and a half for a data engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 209.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

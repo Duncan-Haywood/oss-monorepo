@@ -690,6 +690,80 @@ already given up on. So the layer is **off** (`MCC_MEMORY.plurality: false`) and
 measurement. `--plurality` on `eval/toronto-pcard.mjs` (with `--division`) and on
 `eval/scotgov-card.mjs` reproduces the table. Test: `mcc.test.mjs`, "split category".
 
+### Merchant category codes on a third buyer: Durham County Council (2026-11-12)
+
+Scotland and Toronto both shaped the layer. Durham County Council (England) did not:
+nothing in `mcc.mjs` or `categorize.mjs` changed after its lines were read, so this is a
+held-out reading on a new buyer. The council publishes every procurement-card line each
+month, not only those over £500, with the merchant (`Beneficiary`), the network's
+four-digit code (`Merchant Category Number`) and the expense type it filed the line to
+(`node eval/durham-pcard.mjs --dir <folder>`, fetch command in the file; Durham County
+Council data under the Open Government Licence v3.0, not copied here). 78 monthly files,
+January 2020 to June 2026, 199,776 lines. 151,437 charges have an expense type that names
+a chart account (`EXPENSE_MAP`, written from the expense-type names before the first
+scored run; "Miscellaneous Expenses", "Services", grants and payments to clients left
+out). They are replayed a day at a time from empty books.
+
+| | every line (151,437) | first-seen merchant (7,354) |
+|---|---|---|
+| category layer off | 91.4% / 7.1% | 53.3% / 34.6% |
+| fixed table only | 92.7% / 6.7% | 69.4% / 25.2% |
+| table, then these books' own filings (default) | 94.0% / 5.9% | 87.8% / 11.6% |
+
+Departments as their own books, first-seen merchants right / wrong, layer off then on:
+
+| department | lines | first-seen | off | default |
+|---|---|---|---|---|
+| Resources | 10,635 | 931 | 40.2% / 25.2% | 75.1% / 20.4% |
+| Adult and Health Services | 8,367 | 306 | 51.3% / 36.9% | 75.5% / 19.9% |
+| Dedicated Schools Grant | 2,106 | 285 | 62.8% / 31.6% | 69.5% / 27.7% |
+| Transformation and Partnerships | 440 | 92 | 54.3% / 28.3% | 72.8% / 18.5% |
+
+What it says:
+
+- **The layer holds on a buyer it was not built on**: 34.5 points more right and 23.0
+  fewer wrong on first-seen merchants, the largest gain of the three buyers (Scotland
+  24.6, Toronto 14.2 over a year). On the 7,082 first-seen lines where it spoke it was
+  right 89.3% of the time.
+- **The books' own filings carry most of it** (18.4 points over the table). Six years of
+  one buyer's lines mean almost every code has a habit by the time a new merchant turns
+  up: grocery stores (5411) and the catch-all 5999, left unmapped by the table, are
+  23,820 and 28,050 lines here, learned as provisions and equipment.
+- **Small books gain too.** A 440-line department went from 54.3% to 72.8% right on new
+  merchants.
+- **The split-category guess** (`--plurality`, off by default) changed nothing: 87.8% with
+  it or without it. With the books' filings in place only 0.6% of first-seen lines are
+  left blank, so it has almost nothing to fill. It stays off.
+- **The report's `Merchant Category` column is not the network's name.** It is the
+  council's own expense label for the code (5411 reads "Catering costs - provisions"), so
+  reading it (`--field name`) scores 97.7% on first-seen merchants by giving the answer
+  away. Every figure above reads the code only. The importer does the same: when a file
+  has a code column, a name column beside it is ignored.
+- Caveats: one council, its own expense list, and the map from it to a small business's
+  chart is a judgment (equipment accepted as supplies or fixed assets; Adobe Creative
+  Cloud filed as "equipment and materials" counts as a miss when the layer says
+  software).
+
+**Found on the way, fixed:** the real report did not import correctly. The header was
+not recognised (`Date of Transaction`, `Beneficiary` and `Gross Amount` were not known
+headings), so the reader fell back to guessing: the description was the department or
+the purpose of the spend, never the merchant, the code was dropped, and **every charge
+was booked as money in**. That last fault is not Durham's alone. A purchasing-card
+report lists charges as positive and refunds as negative, with no "payment, thank you"
+rows, which is what the sign check looks for, and a few refunds stop the "every amount
+is positive" warning. Toronto's PCard report has the same shape (the same rule now covers
+it; its real file was not read again in this run). Now `Date of Transaction`,
+`Beneficiary` and `Merchant Category Number` are known headings, and `Gross Amount` is
+the amount when a VAT column sits beside it and no fee column (SumUp's Gross/Fee/Net
+export still books the net). A file with a merchant category column, one amount column,
+no balance and at least 80% of amounts positive is read as a card file whose charges are
+positive: signs are flipped and the import says so (`invert: false` keeps them as
+printed). A merchant called "U OF I ONLINE PAYMENT" had matched the weak card-payment
+pattern and blocked the flip on one month, so the rule now runs unless the payment rows
+prove the charges are negative. All 78 real files now read every line with the right
+sign, the code on every line, and totals to the penny. Tests: `durham-pcard.test.mjs`
+(7, made-up rows under the real header).
+
 ### Round-trip property test (2026-10-22)
 
 `node --test eval/roundtrip-fuzz.test.mjs` renders 40 seeded random statements (5-34 rows) with the quirks real exports have and checks `readStatement` returns exactly the rows rendered: BOM, CRLF, `;` delimiter, quoted commas and quotes, parenthesised negatives, thousands separators, European decimals, split debit/credit columns, and ISO, M/D/Y, D/M/Y and "12 Mar 2026" dates. 40 of 40 pass. Generated, not real bank data; a row that reads "PAYMENT - THANK YOU" is left out on purpose, because the card sign heuristic flips signs for it.
