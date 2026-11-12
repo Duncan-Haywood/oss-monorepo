@@ -140,6 +140,7 @@ footer p{margin:.6rem 0}
 <tr><td><code>INV-056</code></td><td>Batch runs only: a credit note and the invoice it reverses, both in the batch, are in different currencies.</td><td>Credit in the currency of the original invoice, or name the right original in the original-invoice reference.</td></tr>
 <tr><td><code>INV-057</code></td><td>Batch runs only: credit notes in the batch against one invoice add up to more than that invoice's gross total.</td><td>Check the credit amounts and which invoice each credit note names; a credit cannot return more than was invoiced.</td></tr>
 <tr><td><code>INV-058</code></td><td>Batch runs only: the invoice a credit note names is in the batch, but a different seller issued it.</td><td>Check the original-invoice reference and the credit note's supplier.</td></tr>
+<tr><td><code>INV-059</code></td><td>The file repeats its VAT total in a VAT accounting currency that is the invoice currency (BT-111, as every SAR invoice under ZATCA does), and the repeat differs from the document VAT total (BT-110).</td><td>Set the repeat to the document VAT total, or fix the VAT breakdown if the document total is the wrong one. The repair pass rewrites the repeat.</td></tr>
 </tbody>
 </table>
 </div>
