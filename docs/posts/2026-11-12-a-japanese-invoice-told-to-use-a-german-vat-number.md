@@ -2,8 +2,8 @@
 title: "Our e-invoice checker told a Japanese seller to use a German VAT number"
 seo_title: "PINT JP false INV-022: why EU-only e-invoice checks must step aside"
 date: 2026-11-12
-description: "On the page's default route, OpenPeppol-style PINT Japan, Singapore and A-NZ invoices drew EU-only findings. The fix reads BT-24 and drops them everywhere, CLI included."
-tags: [einvoice-preflight, peppol, pint, red-team, testing]
+description: "The page and CLI flagged PINT Japan, Singapore and A-NZ invoices with EU-only rules. The fix reads BT-24 and steps them aside on every route."
+tags: [einvoice-preflight, peppol, pint, redteam, testing]
 ---
 
 The [e-invoice preflight checker](/ventures/einvoice-preflight/) runs two kinds of rules: its own plain-language checks (INV-001 and up) and, on request, the official Schematron rules for the invoice's profile. The built-in checks assume EU conventions: a VAT number starts with a two-letter country code, a payment account is an IBAN, a zero-rated line names an EU exemption reason.
