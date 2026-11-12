@@ -1681,6 +1681,26 @@ export function makeScorePricer(ctx, { maxNodes = 2000000, chainBound = true } =
 export function scoreBoundByColumnGeneration(staff, slots, options = {}, cfg = {}) {
   return scoreColumnGeneration(buildContext(staff, slots, options), cfg);
 }
+// Open-hours floor for the first whole-score column generation (buildRoster, "earlyFloor"): the root of the coverage-only column
+// generation (bnp.mjs columnGenerationOpen with makeSetPricer, open hours only), lifted by openSumLift. Returned only when the
+// lift raises it above that root LP, i.e. when whole shifts say more than the LP does; otherwise the row would add little.
+// Returns { floor, rootLP, ms } or null (no open hours in the incumbent, or nothing gained).
+function earlyOpenFloor(ctx, incumbentScore, o = {}) {
+  const incOpen = Math.floor(incumbentScore / BIG + 1e-9);
+  if (!(incOpen > 0)) return null;
+  const t0 = Date.now();
+  const len = ctx.slots.map((s) => (s.end - s.start) / 60);
+  let cov;
+  try {
+    const pricer = makeSetPricer(ctx);
+    cov = columnGenerationOpen(ctx.P, len, pricer, { cls: pricer.cls, incumbentOpen: incOpen, nodeLimit: o.earlyFloorNodes ?? 1, ms: o.earlyFloorMs ?? 2000, dive: false, rootDive: false });
+  } catch { return null; }
+  const base = Math.max(cov.floor, cov.rootLP ?? 0);
+  if (!(base > 1e-9) || !Number.isFinite(base)) return null;
+  const floor = openSumLift(len, incOpen + 1)(base);
+  if (!(floor > (cov.rootLP ?? 0) + 1e-6) || floor > incOpen + 1e-9) return null;
+  return { floor, rootLP: cov.rootLP, ms: Date.now() - t0 };
+}
 function scoreColumnGeneration(ctx, { incumbentScore = Infinity, tolerance = 0, maxNodes = 2000000, chainBound = true, ...cfg } = {}) {
   const len = ctx.slots.map((s) => (s.end - s.start) / 60);
   const pricer = makeScorePricer(ctx, { maxNodes, chainBound });
@@ -2063,11 +2083,18 @@ function buildRosterOnce(staff, slots, options = {}) {
     // at most 0.2 s, where the exact search below left 9 of 12 unproven after 8 s, and it found a cheaper roster on 3. When it
     // proves the roster the exact search is skipped; otherwise its bound joins the exact search's. `scoreCG: false` turns it off.
     let cg = null;
+    // The open-hours row from the start (2026-11-12, later): the root LP of the coverage-only column generation (open hours, no
+    // pay) is a floor on open hours for every roster, and lifted to a sum of whole shift lengths it can sit above that LP; then
+    // the whole-score LP gets it as a row in its first pass instead of after 8 s without it and the exact search's ~10 s of floor
+    // stages. Cheap (0.1-0.2 s on the call-out weeks) and it needs no exact search, so it also runs above 60 copies.
+    // `earlyFloor: false` turns it off (and `openRow: false` or `openSums: false`).
+    const early = o.scoreCG !== false && o.openRow !== false && o.openSums !== false && o.earlyFloor !== false ? earlyOpenFloor(ctx, best.score, o) : null;
+    if (early) mark("earlyFloor");
     // With a time budget (weeks above BIG_WEEK) and the cover passes deferred, column generation gets at most half of what is left,
     // so the passes still have time if it does not prove the roster: a 60-person week given 33 s of it ended 11 open hours worse.
     if (o.scoreCG !== false) {
       try {
-        cg = scoreColumnGeneration(ctx, { incumbentScore: best.score, tolerance: o.exactTolerance, nodeLimit: o.scoreCGNodes ?? 20000, ms: o.scoreCGMs ?? Math.min(bigExact ? 4 * o.exactMs : o.exactMs, deferCover && budgetMs > 0 ? Math.max(1000, (budgetMs - (Date.now() - tStart)) / 2) : Infinity), maxNodes: o.scoreCGPricingNodes ?? 200000 });
+        cg = scoreColumnGeneration(ctx, { incumbentScore: best.score, tolerance: o.exactTolerance, openFloor: early?.floor || 0, nodeLimit: o.scoreCGNodes ?? 20000, ms: o.scoreCGMs ?? Math.min(bigExact ? 4 * o.exactMs : o.exactMs, deferCover && budgetMs > 0 ? Math.max(1000, (budgetMs - (Date.now() - tStart)) / 2) : Infinity), maxNodes: o.scoreCGPricingNodes ?? 200000 });
       } catch { cg = null; } // a solver failure leaves the exact search to do the work alone
       mark("scoreCG");
       if (cg?.roster) {
@@ -2110,6 +2137,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       coverageProven: ex.proven || Math.max(Math.floor(ex.rootBound / BIG + 1e-9), Math.floor(ex.coverOpen + 1e-9)) === Math.floor(best.score / BIG + 1e-9),
       tolerance: o.exactTolerance, coverOpen: ex.coverOpen, coverNodes: ex.coverNodes, gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes, treeSkipped: !!ex.skipped,
       scoreCG: cg ? { proven: cg.proven, rootLP: cg.rootLP, bound: cg.floor, nodes: cg.stats.nodes, columns: cg.stats.columns, inexactPricing: cg.stats.inexactPricing, ms: cg.stats.ms } : null,
+      earlyFloor: early,
       openRow: cgRow ? { openFloor: cgRow.openFloor, proven: cgRow.proven, rootLP: cgRow.rootLP, bound: cgRow.floor, nodes: cgRow.stats.nodes, ms: cgRow.stats.ms } : null,
     };
   }
