@@ -49,7 +49,7 @@
     "docs/posts/2026-11-12-redteam-an-export-invoice-from-last-year.md"
   ],
   "goal": null,
-  "notes": "Targets: ventures/einvoice-preflight/cce20.mjs (newest code on main, #15129) and platform/ci/check_se_tax_floor.py (random --under platform draw). Fuzz harness (attribute edits) found a TypeError on Fecha before 2024-01-18; the same harness is now cfdi-fuzz.test.mjs (guard added, ~10k docs, ~3 s; found exactly that one crash on its first run). Hand fuzz of preflightDocuments over 35 example XMLs (25,320 attr/text edits): no JS errors. Verification: run_venture_tests.py einvoice-preflight ok 7.5 s; python3 -m unittest test_check_se_tax_floor 7 OK; redteam rerun: all gaps caught_after_fix true.",
+  "notes": "Targets: ventures/einvoice-preflight/cce20.mjs (newest code on main, #15129) and platform/ci/check_se_tax_floor.py (random --under platform draw). Fuzz harness (attribute edits) found a TypeError on Fecha before 2024-01-18; the same harness is now cfdi-fuzz.test.mjs (guard added, ~10k docs, ~3 s; found exactly that one crash on its first run). Hand fuzz of preflightDocuments over 35 example XMLs (25,320 attr/text edits): no JS errors. Verification: run_venture_tests.py einvoice-preflight ok 7.5 s; python3 -m unittest test_check_se_tax_floor 7 OK; redteam rerun: all gaps caught_after_fix true. Main went red mid-run: #15130 left changepoint-detector's flagships.yaml `next:` at 2120 chars (cap 2000), failing portfolio/router/validate.py on every PR; merged main and shortened three README pointers in that entry to 1,9xx chars (no item dropped).",
   "corrections": [],
   "redteam": {
     "campaigns": [
