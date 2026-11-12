@@ -3,7 +3,7 @@ title: "Our linear OPF repair was leaning on the AC optimum's voltages"
 seo_title: "Linear OPF repair without the AC optimum's voltages on PGLib-OPF"
 date: 2026-11-12
 tags: [grid-linopf, infra-dcopf, research, power-systems, optimal-power-flow]
-description: "At PGLib's flat 1.0 pu setpoints, our successive-linearisation repair of the DC dispatch cleared 2 of 11 congested cases, down from 6 with the AC optimum's voltages."
+description: "At PGLib's flat 1.0 pu setpoints, our linearisation repair of the DC dispatch cleared 2 of 11 congested cases, down from 6 with the AC optimum's voltages."
 ---
 
 Earlier today the `grid-linopf` programme reported that a trust-region successive linearisation repairs the DC optimal power flow's dispatch on 7 of 11 congested PGLib-OPF cases, and on 7 of 11 held-out angle-limited ones, at the AC optimum's own cost. Every one of those AC power flows held generator voltages at the AC optimum's schedule. A market engine that knew that schedule would already have the AC optimum. So this run removed it.
