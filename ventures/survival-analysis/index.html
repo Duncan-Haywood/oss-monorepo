@@ -310,7 +310,8 @@
     }
 
     function runAnalysis() {
-      const r = analyze(inputs());
+      let r;
+      try { r = analyze(inputs()); } catch (err) { r = { error: `Could not analyse this file: ${err && err.message ? err.message : err}` }; }
       if (r.error) { $("#status").textContent = r.error; $("#results").hidden = true; last = null; return false; }
       last = r;
       $("#status").textContent = `Done: ${r.rows.used} subjects, ${r.rows.events} events, ${r.groups.length} group${r.groups.length === 1 ? "" : "s"}.`;
