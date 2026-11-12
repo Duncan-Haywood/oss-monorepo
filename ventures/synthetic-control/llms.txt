@@ -1,0 +1,25 @@
+# Synthetic control: did my intervention work?
+
+> Free synthetic control method (Abadie, Diamond & Hainmueller) for one treated unit. Upload a long panel CSV (one row per unit and period), choose the treated unit and the first affected period, and get donor weights, predictor balance, the treated and synthetic paths, the average post-period gap, a placebo-in-space permutation p-value with a pre-fit screen, and leave-one-out robustness. V can be nested (Synth default), cross-validated (ADH 2015) or equal. Checked against pysyncon, whose parity tests pin it to R's Synth. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/synthetic-control/)
+
+## Use it from code
+
+- `node cli.mjs panel.csv --unit state --time year --outcome sales --treated California --at 1989 [--covariates price,income] [--v nested|cv|equal] [--csv|--json]`
+- `node cli.mjs --example` for the West German reunification study
+- `node platform/agents/tools.mjs call synthetic-control analyze --input '{"csv":"...","unit":"state","time":"year","outcome":"sales","treated":"California","treatmentTime":1989}'`
+
+## What it answers
+
+- What would the treated unit's outcome have been without the intervention, and how big is the gap afterwards?
+- Which untreated units make up the comparison, with what weights, and how well do they match it before the intervention?
+- Is the gap unusual compared with placebo runs on every donor (permutation p-value), and does it survive dropping any one donor?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/synthetic-control): MIT licensed.
