@@ -1,0 +1,404 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKjX6Ni3w1S3H9mUcx1",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T10:18:16Z",
+  "ended": "2026-11-12T10:19:45Z",
+  "wall_minutes": 8.5,
+  "tokens_in": 5891521,
+  "tokens_out": 27140,
+  "cost_usd": 2.4592,
+  "tool_calls": 65,
+  "task": null,
+  "projects": [
+    "ventures/artificial-turf-bid-calculator",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15092",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 4b says to turn a fixed defect into a platform/ci lint, but no workflow runs platform/ci check_*.py generically; each new lint needs its own control-plane workflow line, and several such PRs (#14877, #14808, #14894, #14911) sit waiting on the owner. A lint added by a red-team run is therefore unrun by default."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open entry first, but all five open entries were control-plane changes that already have open PRs waiting on the owner; the step could say to skip entries whose PR is already open."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Step 3 sends unfixed process problems to prompts/process/backlog/ in the same PR, but /prompts/ (other than runs/, derived/, drift/) is control plane in CODEOWNERS, so following it gates the whole PR on the owner."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b: a new workflow step should go in its own control-plane PR. Did not open one for check_flag_words.py because the four lint-wiring control-plane PRs already queued are stalled on owner approval, and a fifth adds queue noise without running sooner.",
+      "did": "Added the lint and its unit test (test_repository_is_clean asserts the tree is clean), which main_health.py runs by glob, and wrote docs/reports/redteam-2026-11-12-flag-words.md proposing one PR step that runs every check_*.py.",
+      "result": "Fix and guard landed; the guard runs when invoked or when platform/ci tests are discovered, not on every PR yet."
+    },
+    {
+      "file": "prompt.md",
+      "why": "Step 3 says a process problem you could not fix goes in prompts/process/backlog/ in the same PR, but /prompts/ is in .github/CODEOWNERS, so that would hold this PR for owner approval.",
+      "did": "Put the proposal in docs/reports/redteam-2026-11-12-flag-words.md instead.",
+      "result": "PR stays outside the control plane."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-boolean-no-is-true.md",
+    "docs/reports/redteam-2026-11-12-flag-words.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: artificial-turf calc.mjs (8 mutants, 5 caught; 2 equivalent, 1 gap) and platform/ci/check_page_lists.py (8, 6 caught; 2 gaps). Gap tests added; rerun: catch_rate 0.786 -> 1.0 after fix. Real defect found by asking who else calls the engines: the MCP server passes agent JSON, and flag() mapped 'no'/'off' to true. Swept 64 identical copies; all 64 venture suites green (node --test *.test.mjs in each dir). Guard added: platform/ci/check_flag_words.py + test (first run on the unfixed tree: 64 offenders; on the fix: clean). Step 0: 5 open entries all control-plane, PRs already open (#14877, #14698, #14612) or needing an fps study (framerate); left as is. check_flag_words.py is picked up by platform/ci/main_health.py's check_*.py glob; no PR workflow runs it yet: docs/reports/redteam-2026-11-12-flag-words.md proposes one main_health step instead of a control-plane PR per lint. Local CI: run_workflow_locally --for-changes selected 10 workflows; every step that ran was ok; 3 build steps UNRUN (need a built _site/).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/artificial-turf-bid-calculator/calc.mjs",
+        "test": "node --test ventures/artificial-turf-bid-calculator/**/*.test.mjs  (in .)",
+        "seed": 720949173,
+        "commit": "d0e73874c",
+        "sites": 271,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/artificial-turf-bid-calculator/calc.mjs",
+            "line": 53,
+            "col": 13,
+            "operator": "true-to-false",
+            "before": "sodDemo: true,",
+            "after": "sodDemo: false,",
+            "line_text": "    sodDemo: true,",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/artificial-turf-bid-calculator/calc.mjs",
+            "line": 76,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "baseDepthIn: 3,",
+            "after": "baseDepthIn: 4,",
+            "line_text": "    baseDepthIn: 3,",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Preset base depth unpinned; new calc.test.mjs test checks every preset uses its type's comparison depth."
+          },
+          {
+            "file": "ventures/artificial-turf-bid-calculator/calc.mjs",
+            "line": 94,
+            "col": 41,
+            "operator": "or-to-and",
+            "before": "if (value === true || value === 'true' || value === '1' || value === 1) return true;",
+            "after": "if (value === true || value === 'true' && value === '1' || value === 1) return true;",
+            "line_text": "  if (value === true || value === 'true' || value === '1' || value === 1) return true;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "'true' and '1' that skip the first line fall through to Boolean(value), which is true for any non-empty string other than 'false'/'0'; same result for every input."
+          },
+          {
+            "file": "ventures/artificial-turf-bid-calculator/calc.mjs",
+            "line": 154,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "dumpPerTon: 18,",
+            "after": "dumpPerTon: 19,",
+            "line_text": "      dumpPerTon: 18,",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/artificial-turf-bid-calculator/calc.mjs",
+            "line": 217,
+            "col": 112,
+            "operator": "false-to-true",
+            "before": "const crushedLbPerCf = number(input.crushedLbPerCf ?? CRUSHED_LB_PER_CF, 'Crushed-rock density', { allowZero: false });",
+            "after": "const crushedLbPerCf = number(input.crushedLbPerCf ?? CRUSHED_LB_PER_CF, 'Crushed-rock density', { allowZero: true });",
+            "line_text": "  const crushedLbPerCf = number(input.crushedLbPerCf ?? CRUSHED_LB_PER_CF, 'Crushed-rock density', { allowZero: false });",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "calculateBid always calls baseTons(lawnSqFt, baseDepthIn, crushedLbPerCf), which rejects 0 with the identical message 'Crushed-rock density must be greater than zero'."
+          },
+          {
+            "file": "ventures/artificial-turf-bid-calculator/calc.mjs",
+            "line": 275,
+            "col": 45,
+            "operator": "plus-to-minus",
+            "before": "const totalHours = hoursTrip + hoursMethod + siteHours;",
+            "after": "const totalHours = hoursTrip + hoursMethod - siteHours;",
+            "line_text": "  const totalHours = hoursTrip + hoursMethod + siteHours;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/artificial-turf-bid-calculator/calc.mjs",
+            "line": 276,
+            "col": 52,
+            "operator": "const-plus-one",
+            "before": "const loadedWage = hourlyWage * (1 + burdenRate / 100);",
+            "after": "const loadedWage = hourlyWage * (1 + burdenRate / 101);",
+            "line_text": "  const loadedWage = hourlyWage * (1 + burdenRate / 100);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/artificial-turf-bid-calculator/calc.mjs",
+            "line": 295,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "const price = totalCost / (1 - targetMargin / 100);",
+            "after": "const price = totalCost / (2 - targetMargin / 100);",
+            "line_text": "  const price = totalCost / (1 - targetMargin / 100);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/check_page_lists.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_page_lists  (in platform/ci)",
+        "seed": 239720767,
+        "commit": "d0e73874c",
+        "sites": 15,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/check_page_lists.py",
+            "line": 27,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "MIN_NAMES = 8",
+            "after": "MIN_NAMES = 9",
+            "line_text": "MIN_NAMES = 8",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_page_lists.py",
+            "line": 39,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "names = set(NAME.findall(m.group(1)))",
+            "after": "names = set(NAME.findall(m.group(2)))",
+            "line_text": "        names = set(NAME.findall(m.group(1)))",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_page_lists.py",
+            "line": 42,
+            "col": 31,
+            "operator": "minus-to-plus",
+            "before": "missing = sorted(pages - names)",
+            "after": "missing = sorted(pages + names)",
+            "line_text": "        missing = sorted(pages - names)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_page_lists.py",
+            "line": 44,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "out.append((src.count(\"\\n\", 0, m.start()) + 1, missing))",
+            "after": "out.append((src.count(\"\\n\", 1, m.start()) + 1, missing))",
+            "line_text": "            out.append((src.count(\"\\n\", 0, m.start()) + 1, missing))",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Line number off only when the file starts with a newline; new test_line_number_counts_a_leading_blank_line."
+          },
+          {
+            "file": "platform/ci/check_page_lists.py",
+            "line": 44,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "out.append((src.count(\"\\n\", 0, m.start()) + 1, missing))",
+            "after": "out.append((src.count(\"\\n\", 0, m.start()) + 2, missing))",
+            "line_text": "            out.append((src.count(\"\\n\", 0, m.start()) + 1, missing))",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_page_lists.py",
+            "line": 55,
+            "col": 43,
+            "operator": "plus-to-minus",
+            "before": "shown = \", \".join(missing[:5]) + (\" ...\" if len(missing) > 5 else \"\")",
+            "after": "shown = \", \".join(missing[:5]) - (\" ...\" if len(missing) > 5 else \"\")",
+            "line_text": "            shown = \", \".join(missing[:5]) + (\" ...\" if len(missing) > 5 else \"\")",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_page_lists.py",
+            "line": 55,
+            "col": 69,
+            "operator": "gt-to-ge",
+            "before": "shown = \", \".join(missing[:5]) + (\" ...\" if len(missing) > 5 else \"\")",
+            "after": "shown = \", \".join(missing[:5]) + (\" ...\" if len(missing) >= 5 else \"\")",
+            "line_text": "            shown = \", \".join(missing[:5]) + (\" ...\" if len(missing) > 5 else \"\")",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Exactly five missing pages printed a stray ' ...'; new tests at 5 and 6 missing."
+          },
+          {
+            "file": "platform/ci/check_page_lists.py",
+            "line": 64,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 0",
+            "after": "return 1",
+            "line_text": "    return 0",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/*/calc.mjs (64 bid calculators, flag())",
+        "issue": "flag(value) ended in `return Boolean(value)`, so any checkbox word not in its lists ('no', 'off', 'No', 'n') read as true. Reproduced through the MCP server (platform/agents/tools.mjs): artificial-turf calculateBid({lawnSqFt:600, sodDemo:'no', geotextile:'off', ...}) priced $175.50 of sod dump and fabric the caller turned off. Fixed in all 64 copies: word map plus throw on unknown; guard platform/ci/check_flag_words.py; turf test sends no/off/Yes/' on '/maybe.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15092"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3a1030ed-3658-59e5-bb8a-ff990f4db0fa",
+    "transcripts": 1,
+    "first": "2026-11-12T10:18:16Z",
+    "last": "2026-11-12T10:26:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 120,
+        "output": 27140,
+        "thinking": 6043,
+        "cache_read": 5796837,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94564,
+        "api_equivalent_usd": 2.4592,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 120,
+      "output": 27140,
+      "thinking": 6043,
+      "cache_read": 5796837,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94564,
+      "api_equivalent_usd": 2.4592,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__monorepo-projects-tools__call_tool": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.5,
+      "active_minutes": 8.5,
+      "model_minutes": 7.13,
+      "tool_minutes": 1.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "Senior engineer: two mutation triages, reproduce via MCP, sweep 64 files and run their suites, lint + tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 162.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
