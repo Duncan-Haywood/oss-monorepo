@@ -204,10 +204,34 @@ function crossCheckTotal(checks, cents) {
   return { cents: v, why: [...why].join(" and ") };
 }
 
+// Whole-unit amounts OCR split at the group separator: "25 000", "308. 000",
+// "304 ,326" (CORD's phone photos through tesseract.js, eval/cord-receipts.mjs
+// --ocr). Joined only on a whole-unit receipt, and only where the second part
+// is exactly three digits ending the number, so "1 Sate 25 000" reads 25,000.
+const SPLIT_GROUP = /(?<![\d.,])(\d{1,3})(?:\s*([.,])\s+|\s+([.,])\s*|\s+)(\d{3})(?![\d%]|[.,]\d|\s*[.,]?\s*\d{3}(?!\d))/g;
+export const joinSplitGroups = (l) => l.replace(SPLIT_GROUP, (m, a, s1, s2, b) => `${a}${s1 ?? s2 ?? ","}${b}`);
+
+// No total line, but the bottom of the slip still reads total, cash, change
+// with the words lost ("45,500 / 50,000 / 4,500"): three amount lines in a row
+// where the second less the third is the first. The arithmetic must close
+// exactly, so a cash line alone never becomes the total. On a whole-unit slip
+// amounts under 100 are left out: OCR noise ("5", "2", "3") closes the sum by
+// chance (4 of 7 such picks on CORD validation photos before this floor).
+function totalCashChange(lines, comma) {
+  const floor = comma === "whole" ? 10000 : 1;
+  const rows = lines.map((l) => amountsIn(l, comma)).map((a) => (a.length ? a[a.length - 1] : null)).filter((v) => v !== null && v >= floor);
+  for (let i = rows.length - 3; i >= 0; i--) {
+    const [t, c, ch] = rows.slice(i, i + 3);
+    if (c > t && c - ch === t) return t;
+  }
+  return null;
+}
+
 export function parseReceipt(block, { dayFirst = null } = {}) {
-  const lines = cleanOcr(String(block)).split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  let lines = cleanOcr(String(block)).split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const notes = [];
   const comma = wholeStyle(lines.join("\n")) ? "whole" : commaStyle(lines.join("\n"));
+  if (comma === "whole") lines = lines.map(joinSplitGroups);
   const guess = dayFirst ?? dayFirstOf(lines);
   const dmy = !!guess;
   // every dated line; the one labelled "date" wins, then a four-digit year (a
@@ -338,6 +362,10 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     const pick = (re) => { const i = lines.findIndex((l) => re.test(l)); if (i < 0) return null; const a = amountsIn(lines[i], comma).length ? amountsIn(lines[i], comma) : bare(lines[i + 1]); return a.length ? a[a.length - 1] : null; };
     const tender = pick(/\b(?:cash|tendered|payment|paid|accepted\s+total)\b/i), change = pick(/\bchange\b/i);
     if (tender !== null && change !== null && tender > change) { cents = tender - change; notes.push("no total line; cash handed over less change"); }
+  }
+  if (cents === null) {
+    const t = totalCashChange(lines, comma);
+    if (t !== null) { cents = t; notes.push("no total line; three amounts read as total, cash and change (cash less change is the total)"); }
   }
   if (cents === null) {
     const all = lines.flatMap((l) => amountsIn(l, comma));

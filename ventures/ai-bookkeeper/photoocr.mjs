@@ -60,6 +60,23 @@ const tidy = (raw) => cleanOcr(String(raw || "")).split(/\r?\n/).map((l) => l.tr
 // replaces the first reading's, and the result is checked to read that total.
 // `note` says what changed, for the status line.
 export function settleReadings(readings) {
+  const out = settleTotals(readings);
+  const guess = out.text ? guessedTotal(out.text) : null;
+  return guess ? { ...out, note: out.note ? `${out.note}; ${guess}` : guess } : out;
+}
+
+// A photo whose text has no total line gets its total from the largest amount on
+// it, and on phone photos that guess is usually the cash handed over or noise: on
+// CORD's 100 validation photos through tesseract.js it was right 11 times in 30
+// (README, "Receipt photos from a phone"). Say so, so the total is typed, not trusted.
+export function guessedTotal(text) {
+  const p = parseReceipt(text);
+  if (p.cents === null) return "no total found in the photo: type it in";
+  if (p.notes.some((n) => /took the largest amount/.test(n))) return `no total line found in the photo; ${(p.cents / 100).toFixed(2)} is only the largest amount on it: check the total`;
+  return null;
+}
+
+function settleTotals(readings) {
   const t = readings.map(tidy).filter(Boolean);
   if (t.length < 2) return { text: t[0] ?? "", note: null };
   const one = parseReceipt(t[0]), both = parseReceiptPasses(t);

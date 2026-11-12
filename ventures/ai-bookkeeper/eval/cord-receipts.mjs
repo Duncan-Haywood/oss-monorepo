@@ -4,8 +4,15 @@
 // bottom and words left to right, so it tests reading a real layout, not OCR.
 // Merchant names and dates are masked in CORD, so only amounts are scored.
 //   node eval/cord-receipts.mjs eval/cord/validation.jsonl [--json] [--misses]
-import { readFileSync } from "node:fs";
-import { parseReceipt } from "../receipts.mjs";
+// --ocr <dir>[,<dir2>] reads each receipt from <dir>/<id>.txt instead: what an OCR
+// engine printed from CORD's own phone photo (eval/cord_images.py writes the photos,
+// eval/sroie-tesseractjs.mjs reads them with the page's engine in both modes). With two
+// folders it scores parseReceiptPasses; add --settled to score what the page puts in
+// the receipts box (photoocr.mjs settleReadings). Receipts with no OCR file are left out.
+import { readFileSync, existsSync } from "node:fs";
+import { cleanOcr } from "../cleanocr.mjs";
+import { parseReceipt, parseReceiptPasses } from "../receipts.mjs";
+import { settleReadings } from "../photoocr.mjs";
 
 // A label in the receipt's own style ("60.000", "28,000", "91000", "1.234,50")
 // as a number in minor units. Rupiah are written with no decimals, so a lone
@@ -20,15 +27,32 @@ export function labelCents(v) {
   return Number(whole) * 100 + Number(frac);
 }
 
-export function score(rows) {
+// Swap each row's hand-corrected text for OCR output: `texts` (cleaned) and `raw` when
+// two readings are given, as eval/sroie-receipts.mjs load() does.
+export function withOcr(rows, ocr) {
+  const dirs = String(ocr).split(",");
+  return rows.filter((row) => dirs.every((d) => existsSync(`${d}/${row.id}.txt`))).map((row) => {
+    const raw = dirs.map((d) => readFileSync(`${d}/${row.id}.txt`, "utf8"));
+    const texts = raw.map(cleanOcr);
+    return { ...row, text: texts[0], ...(texts.length > 1 ? { texts, raw } : {}) };
+  });
+}
+
+export function score(rows, { settled = false } = {}) {
   const r = { receipts: rows.length, total: { labelled: 0, right: 0, wrong: 0, none: 0 }, tax: { labelled: 0, right: 0, wrong: 0, none: 0, unlabelledRead: 0 }, misses: [] };
   for (const row of rows) {
-    const p = parseReceipt(row.text);
+    const s = row.texts && settled ? settleReadings(row.raw) : null;
+    const p = row.texts ? (s ? parseReceipt(s.text) : parseReceiptPasses(row.texts)) : parseReceipt(row.text);
     const want = labelCents(row.total);
     if (want !== null) {
       r.total.labelled++;
-      if (p.cents === want) r.total.right++;
-      else { if (p.cents === null) r.total.none++; else r.total.wrong++; r.misses.push({ id: row.id, want, got: p.cents, line: p.totalLine }); }
+      if (p.cents === want) { r.total.right++; if (s?.note) r.total.rightWarned = (r.total.rightWarned ?? 0) + 1; }
+      else {
+        if (p.cents === null) r.total.none++; else r.total.wrong++;
+        // --settled: did the page's status line warn about this photo's total?
+        if (s && p.cents !== null) r.total[s.note ? "wrongWarned" : "wrongSilent"] = (r.total[s.note ? "wrongWarned" : "wrongSilent"] ?? 0) + 1;
+        r.misses.push({ id: row.id, want, got: p.cents, line: p.totalLine });
+      }
     }
     const tax = labelCents(row.tax);
     if (tax !== null) {
@@ -41,13 +65,16 @@ export function score(rows) {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const file = process.argv[2];
-  const rows = readFileSync(file, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
-  const r = score(rows);
+  let rows = readFileSync(file, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+  const oi = process.argv.indexOf("--ocr");
+  if (oi > 0) rows = withOcr(rows, process.argv[oi + 1]);
+  const r = score(rows, { settled: process.argv.includes("--settled") });
   if (process.argv.includes("--json")) console.log(JSON.stringify({ ...r, misses: process.argv.includes("--misses") ? r.misses : r.misses.length }, null, 2));
   else {
     const pct = (a, b) => `${a}/${b} (${b ? ((100 * a) / b).toFixed(1) : "0"}%)`;
     console.log(`${file}: ${r.receipts} receipts`);
     console.log(`total right ${pct(r.total.right, r.total.labelled)}, wrong ${r.total.wrong}, none ${r.total.none}`);
+    if (process.argv.includes("--settled")) console.log(`page warned: on ${r.total.wrongWarned ?? 0} wrong totals and ${r.total.rightWarned ?? 0} right ones; wrong with no warning ${r.total.wrongSilent ?? 0}`);
     console.log(`tax   right ${pct(r.tax.right, r.tax.labelled)}, wrong ${r.tax.wrong}, none ${r.tax.none}; tax read where none labelled ${r.tax.unlabelledRead}`);
     if (process.argv.includes("--misses")) for (const m of r.misses) console.log(m);
   }
