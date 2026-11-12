@@ -40,7 +40,38 @@ test("less churn and a higher price both raise projected profit", () => {
   assert.ok(by["1 point less churn"].change > 0);
   assert.ok(by["1 point more churn"].change < 0);
   assert.ok(by["Price up $10"].change > 0);
-  assert.ok(by["5 more new members a month"].change > 0);
+  assert.ok(by["5 more new members a month at your cost per join"].change > 0);
+});
+
+// Expected values from an independent month loop (quality audit round 49), not from calc.mjs.
+test("scenario sizes and today's profit match a hand projection of the defaults", () => {
+  const a = analyze(base());
+  const by = Object.fromEntries(a.scenarios.map((s) => [s.label, s]));
+  near(a.profitNow, 5968.22, 0.01);
+  near(a.last.profit, 9891.94, 0.01);
+  near(by["Price up $10"].change, 2019.2, 0.01);
+  near(by["1 point less churn"].change, 2528.66, 0.01);
+  near(by["1 point more churn"].change, -2291.38, 0.01);
+  // Five more joins cost 5 x ($1,800 / 14) more marketing a month: +$5,487.96, not the free +$6,130.82.
+  near(by["5 more new members a month at your cost per join"].change, 5487.96, 0.01);
+});
+
+test("with no joins entered the growth row says it carries no marketing cost", () => {
+  const a = analyze({ ...base(), newPerMonth: "0" });
+  assert.ok(a.scenarios.some((s) => s.label === "5 more new members a month (no marketing cost entered)"));
+});
+
+test("warnings fire at their stated thresholds", () => {
+  const has = (inp, re) => analyze({ ...base(), ...inp }).warnings.some((w) => re.test(w));
+  // Capacity at the defaults is 42 x 52/12 x 16 = 2,912 spots; 9 visits each, so 85% is 275.0 members.
+  assert.equal(has({ members: "276" }, /more than 85%/), true);
+  assert.equal(has({ members: "274" }, /more than 85%/), false);
+  // Steady state 233.3; 5% above is 245.
+  assert.equal(has({ members: "246" }, /above where your joins and churn settle/), true);
+  assert.equal(has({ members: "244" }, /above where your joins and churn settle/), false);
+  // LTV $2,339.65; CAC under 3x needs CAC above $779.88, i.e. spend above 14 x 779.88 = $10,918.
+  assert.equal(has({ adSpend: "11000" }, /under 3x/), true);
+  assert.equal(has({ adSpend: "10800" }, /under 3x/), false);
 });
 
 test("break-even members covers fixed costs and marketing", () => {

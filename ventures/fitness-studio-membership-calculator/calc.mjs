@@ -86,7 +86,10 @@ export function analyze(input) {
     cmp("1 point less churn", { churn: Math.max(0.1, v.churn - 1) }),
     cmp("1 point more churn", { churn: v.churn + 1 }),
     cmp("Price up $10", { price: v.price + 10 }),
-    cmp("5 more new members a month", { newPerMonth: v.newPerMonth + 5 }),
+    // Extra joins are not free: charge them at the studio's own cost per join, so this row compares with the others.
+    cac === null
+      ? cmp("5 more new members a month (no marketing cost entered)", { newPerMonth: v.newPerMonth + 5 })
+      : cmp("5 more new members a month at your cost per join", { newPerMonth: v.newPerMonth + 5, adSpend: v.adSpend + 5 * cac }),
   ];
   if (cm <= 0) warnings.push("Price does not cover the card fee and variable cost per member, so every member loses money before fixed costs.");
   if (profitNow < 0) warnings.push("At today's member count the studio does not cover fixed costs and marketing.");

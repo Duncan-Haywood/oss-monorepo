@@ -12,6 +12,8 @@ Contribution per member-month = `price - (price x card% + fixed fee) - variable 
 
 Not modelled: seasonality, churn that varies by tenure, discounting, intro-offer cohorts, tiers, retail, personal training, taxes.
 
+The what-if rows: "5 more new members a month" charges those joins at your current cost per join (marketing spend / new members), so it compares fairly with the churn and price rows. "Price up $10" assumes no member leaves over the rise, and "1 point less churn" carries no retention cost; enter what a retention programme would cost under fixed costs to compare. (Quality audit round 49, `portfolio/quality/audits/2026-11-12-fitness-studio-membership-calculator.json`.)
+
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.
