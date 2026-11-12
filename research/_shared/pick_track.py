@@ -13,6 +13,8 @@ robot co-design; prompts/goals.md, "Direction: research at PhD+ level, aimed at 
 Pass a number to map a draw you already have: pick_track.py 0.11
 With no number the first draw is saved in .git (keyed by branch, 12 h) and
 reused, so a re-run in the same session gives the same programme; --new redraws.
+It first brings origin/main up to date (ls-remote, then a fetch reaching 7 h back when
+the ref is stale or too shallow; only the remote-tracking ref moves); --no-fetch skips that.
 
 A programme whose research/<slug>/HOSTS file lists a URL its next steps need is
 probed (HEAD, 6 s); when one does not answer through this session's proxy, the
@@ -23,8 +25,8 @@ tracks below that size, so a run does not spend its start on a finished chain.
 
 For a track it also lists that track's projects on this checkout (newest commit
 first), so the "Next steps" of the latest one is one `cat` away when the
-milestones in PROJECTS.md are all done. Fetch origin/main first: a stale
-checkout hides projects other runs landed.
+milestones in PROJECTS.md are all done. A stale checkout hides projects other
+runs landed: the WARNING line says when to merge origin/main.
 """
 import functools
 import math
@@ -142,6 +144,18 @@ def commits_behind():
     return int(out.stdout) if out.returncode == 0 and out.stdout.strip().isdigit() else None
 
 
+def shallow_edge():
+    """Full hashes at this clone's shallow boundary. `git log -- <path>` lists a boundary
+    commit as touching every path (its parent is missing), so the claim check named an
+    unrelated venture commit (friction 2026-11-12)."""
+    out = subprocess.run(["git", "rev-parse", "--git-path", "shallow"], cwd=RESEARCH,
+                         capture_output=True, text=True).stdout.strip()
+    try:
+        return set((RESEARCH / out).read_text().split()) if out else set()
+    except OSError:
+        return set()
+
+
 def recent_programme_commits(slug, hours=6):
     """Subjects of origin/main commits in the last `hours` that touch research/<slug>.
 
@@ -149,9 +163,55 @@ def recent_programme_commits(slug, hours=6):
     sees) shows up in. Empty when none, or when origin/main is unknown.
     """
     out = subprocess.run(["git", "log", "origin/main", f"--since={hours} hours ago",
-                          "--format=%h %cr: %s", "--", f"research/{slug}"],
+                          "--format=%H %h %cr: %s", "--", f":(top)research/{slug}"],
                          cwd=RESEARCH, capture_output=True, text=True)
-    return out.stdout.strip().splitlines() if out.returncode == 0 else []
+    if out.returncode != 0:
+        return []
+    edge = shallow_edge()
+    return [line.split(" ", 1)[1] for line in out.stdout.strip().splitlines()
+            if line and line.split(" ", 1)[0] not in edge]
+
+
+def history_covers(hours):
+    """True when origin/main's history in this clone reaches back `hours` (always, unshallowed).
+
+    A --depth=40 fetch reached only ~3 h of main on 2026-11-12, so a "clear in 6h" verdict
+    read from it was really "clear in 3h"."""
+    if not is_shallow():
+        return True
+    out = subprocess.run(["git", "rev-list", "-1", f"--before={hours} hours ago", "origin/main"],
+                         cwd=RESEARCH, capture_output=True, text=True)
+    return out.returncode == 0 and bool(out.stdout.strip())
+
+
+def refresh_origin_main(hours=6, run=subprocess.run):
+    """Bring the origin/main ref up to date, deep enough for the claim check. None when done
+    (or already current), else one line saying why not.
+
+    A fresh cloud clone's origin/main ref can be hours older than its checkout (11 h on
+    2026-11-12), and runs that fetched by hand still raced siblings that merged minutes
+    earlier (friction 2026-11-12, buildbot-sheathing). ls-remote costs ~1 s; the fetch
+    ~2 s with --shallow-since. Only the remote-tracking ref moves: HEAD and the work tree
+    are untouched."""
+    def git(*args, timeout=60):
+        return run(["git", *args], cwd=RESEARCH, capture_output=True, text=True, timeout=timeout)
+    try:
+        remote = git("ls-remote", "origin", "refs/heads/main", timeout=20)
+        tip = remote.stdout.split()[0] if remote.returncode == 0 and remote.stdout.strip() else None
+        if tip is None:
+            return "could not reach origin to check origin/main is current"
+        local = git("rev-parse", "-q", "--verify", "origin/main").stdout.strip()
+        covered = bool(local) and history_covers(hours)
+        if local == tip and covered:
+            return None
+        cmd = ["fetch", "-q", "origin", "main"]
+        if is_shallow() and not covered:
+            cmd.insert(2, f"--shallow-since={hours + 1} hours ago")
+        if git(*cmd, timeout=120).returncode != 0:
+            return "`git " + " ".join(cmd) + "` failed"
+    except (OSError, subprocess.SubprocessError) as e:
+        return f"could not refresh origin/main ({type(e).__name__})"
+    return None
 
 
 @functools.lru_cache(maxsize=None)
@@ -205,10 +265,10 @@ def claim_check(slug, hours=6):
         lines += [f"  {line}" for line in recent[:5]]
     age = origin_main_age_hours()
     if age is None:
-        lines.append("CLAIM CHECK: origin/main is not in this clone; run `git fetch --depth=40 origin main`, then re-run")
+        lines.append(f"CLAIM CHECK: origin/main is not in this clone; run `git fetch --shallow-since='{hours + 1} hours ago' origin main`, then re-run")
     elif age > hours:
         lines.append(f"CLAIM CHECK: origin/main's newest commit is {age:.0f}h old, so the commit check may be stale; "
-                     "run `git fetch --depth=40 origin main`, then re-run")
+                     f"run `git fetch --shallow-since='{hours + 1} hours ago' origin main`, then re-run")
     titles = _open_pr_titles("duncan-haywood/oss-monorepo", 100)
     if titles is None:
         lines.append(f"CLAIM CHECK: could not list open PRs (GitHub API unreachable); search open PRs for '{slug}' by hand")
@@ -217,7 +277,11 @@ def claim_check(slug, hours=6):
         lines += [f"CLAIM CHECK: open PR names this programme (take a different milestone or help land it): {p}"
                   for p in prs]
         if not recent and not prs and age is not None and age <= hours:
-            lines.append(f"CLAIM CHECK: clear (no origin/main commit in {hours}h; none of {len(titles)} open PRs names {slug})")
+            if history_covers(hours):
+                lines.append(f"CLAIM CHECK: clear (no origin/main commit in {hours}h; none of {len(titles)} open PRs names {slug})")
+            else:
+                lines.append(f"CLAIM CHECK: no commit in this clone's history and no open PR names {slug}, but the shallow "
+                             f"history is shorter than {hours}h; run `git fetch --shallow-since='{hours} hours ago' origin main`, then re-run")
     return lines
 
 
@@ -236,9 +300,13 @@ def recent_landed(slug, n=3):
 
     Two runs drew the same programme in the same hours and both did the same milestone
     (run friction 2026-10-25): the PR list shows a sibling only until it merges, this does not."""
-    out = subprocess.run(["git", "log", "origin/main", f"-n{n}", "--format=%cr: %s", "--", f"research/{slug}"],
+    out = subprocess.run(["git", "log", "origin/main", f"-n{n + 1}", "--format=%H %cr: %s", "--", f":(top)research/{slug}"],
                          cwd=RESEARCH, capture_output=True, text=True)
-    return out.stdout.strip().splitlines() if out.returncode == 0 else []
+    if out.returncode != 0:
+        return []
+    edge = shallow_edge()
+    return [line.split(" ", 1)[1] for line in out.stdout.strip().splitlines()
+            if line and line.split(" ", 1)[0] not in edge][:n]
 
 
 def milestones(prefix):
@@ -343,7 +411,8 @@ def session_draw(new=False, ttl=12 * 3600):
 
 if __name__ == "__main__":
     new = "--new" in sys.argv[1:]
-    args = [a for a in sys.argv[1:] if a != "--new"]
+    fetch = "--no-fetch" not in sys.argv[1:]
+    args = [a for a in sys.argv[1:] if a not in ("--new", "--no-fetch")]
     if args and args[0] in ("-h", "--help"):
         print(__doc__)
         sys.exit(0)
@@ -353,6 +422,10 @@ if __name__ == "__main__":
     except ValueError:
         sys.exit(f"usage: pick_track.py [draw]  (draw is a number in [0,1), e.g. 0.42; got {sys.argv[1]!r}. "
                  "A bare call reuses this session's first draw; --new redraws.)")
+    if fetch:
+        problem = refresh_origin_main()
+        if problem:
+            print(f"note: {problem}; the commit checks below read the local origin/main")
     progs = programmes()
     if progs and random.Random(r).random() < PROGRAMME_SHARE:
         slug, has, skipped = draw_programme(r, progs)
