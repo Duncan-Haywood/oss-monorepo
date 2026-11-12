@@ -193,8 +193,12 @@ flagships:
       rebuilds asserted proven like the café guide rows (guide pages re-derived with the exact check on 2026-11-12, README); now that the page's build and the multi-week planner both run in the
       worker (README "The multi-week planner plans in the worker too", 4-week plan freeze 6.2 s to 17 ms); a longer
       per-week budget than 4 s proved no more planned weeks (32 of 32 at 4, 8 and 16 s), and repeated weeks now reuse
-      their roster (README "The planner stops rebuilding the same week": 4-week plans 2x faster, same rosters); next
-      there, a plan with real dated leave through the month (how often weeks still repeat); a real Square or Toast item export (columns read, made-up rows only); a real
+      their roster (README "The planner stops rebuilding the same week": 4-week plans 2x faster, same rosters); and since
+      2026-11-12 later "keep people on their usual shifts" (README section of that name; keepValue, --keep-shifts,
+      page default on): with leave swept at 2-8% of person-days the proven rebuild moved 12-25x the shifts the time
+      off forced, and scoring each usual shift kept cut week-to-week changes 56-72% at the same open hours (5 teams x
+      5 draws, 1,600 weeks proven); next there, real dated leave records instead of the swept rate, and a manager's
+      read on whether the steadier plan is the one they would post; a real Square or Toast item export (columns read, made-up rows only); a real
       published-schedule export for --import-shifts; whether the priced cut's r = 1 default suits a real
       manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing

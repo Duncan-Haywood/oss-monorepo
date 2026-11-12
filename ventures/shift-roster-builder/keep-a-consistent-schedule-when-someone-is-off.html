@@ -40,7 +40,18 @@
     <tr><td>Payroll, whole month</td><td class="n">$14,722</td><td class="n">$14,722</td></tr>
   </table></div>
   <p>A "person-shift changed" is one person gaining or losing one shift. Ana's Tuesday open and Ben's Friday close must move whatever you do. The plain rebuild also swapped two Saturday and Sunday opens between Dev and Gus, which nobody's time off required. The keep setting left those alone. The café is tight (it already leaves its weekday lunches open), so most of the remaining changes are a chain: Dev takes Ana's Tuesday open, so Dev's Tuesday close goes to Ben, and so on.</p>
-  <!-- STEADY-TABLE -->
+  <h2>A month of scattered time off, five teams</h2>
+  <p>One week can be luck, so we ran more. We used the builder's five invented teams (the café example and the café, salon, retail and clinic templates) and planned four weeks for each. Days off were scattered at random at three rates, five different draws each, giving 100 planned weeks per row. "Changes" counts person-shifts that differ from the week before. "Off the usual" counts, over all four weeks, the person-shifts that differ from the week with nobody off. "Forced" counts the shifts whose holder was off that day, which had to move whatever you do.</p>
+  <div class="scroll"><table>
+    <tr><th>Days off</th><th>Setting</th><th class="n">Changes</th><th class="n">Forced</th><th class="n">Off the usual</th><th class="n">Hours uncovered</th><th class="n">Payroll</th></tr>
+    <tr><td>2% of person-days</td><td>Plain rebuild</td><td class="n">617</td><td class="n">25</td><td class="n">496</td><td class="n">785</td><td class="n">$286,537</td></tr>
+    <tr><td></td><td>Keep usual shifts</td><td class="n">170</td><td class="n">26</td><td class="n">119</td><td class="n">785</td><td class="n">$286,423</td></tr>
+    <tr><td>4%</td><td>Plain rebuild</td><td class="n">1,022</td><td class="n">67</td><td class="n">1,000</td><td class="n">952</td><td class="n">$283,733</td></tr>
+    <tr><td></td><td>Keep usual shifts</td><td class="n">378</td><td class="n">64</td><td class="n">298</td><td class="n">952</td><td class="n">$283,542</td></tr>
+    <tr><td>8%</td><td>Plain rebuild</td><td class="n">1,226</td><td class="n">106</td><td class="n">1,265</td><td class="n">1,147</td><td class="n">$280,042</td></tr>
+    <tr><td></td><td>Keep usual shifts</td><td class="n">536</td><td class="n">107</td><td class="n">439</td><td class="n">1,147</td><td class="n">$279,496</td></tr>
+  </table></div>
+  <p>At every rate the plain rebuild moved many times more shifts than the time off forced. Keeping the usual shifts cut the week-to-week changes by 56% to 72%, and the distance from the usual week by 65% to 76%. Uncovered hours were the same in every one of the 15 comparisons. Payroll moved by less than 0.2%, and it went down rather than up: among rosters that cover the same hours, the keep setting happened to pick slightly cheaper ones. Every planned week in the run (1,600 across all rates and settings) was proven best under its settings. With nobody off, the setting changes nothing. The cost is time: a plan took 20% to 42% longer, because the usual week is built first. The rates are swept, not taken from real leave records, and the teams are invented.</p>
   <p><a class="cta" href="./">Plan a month with your own time off</a></p>
   <h2>How it works</h2>
   <p>"Plan several weeks in a row" first builds your usual week, with the dated days off left out. Every planned week then scores a small bonus for each hour someone works one of their usual shifts. The bonus is a tenth of their wage an hour ("Yes, firmly" is a quarter). Leaving a shift open costs far more than any bonus, so the setting never leaves a shift open to keep someone in place. When two rosters cover the same hours for about the same money, it picks the one that looks like the usual week. The week after the time off, the usual week wins again, so people go back to their own shifts.</p>
