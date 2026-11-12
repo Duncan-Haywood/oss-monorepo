@@ -182,8 +182,7 @@ flagships:
       files): backtest, closure score, half-life auto, priced cut, tickets, labour standard, shut-door work (README,
       2026-11-12 sections). Planner: worker, week reuse, keeps usual shifts. Posted weeks: a call-out reissue holds
       started shifts and keeps posted ones; a change-count ILP shows it is the least on 41/41 café call-outs when the
-      caller's changes count (README "Is 91 the least?"); on the templates and seeded 20-60 person weeks it holds at the
-      same open hours, and a kept start took 40-person reissues from 124 changes to 40 and 60-person ones from 973 to 76
+      caller's changes count (README "Is 91 the least?"); a kept start holds big-week reissues near the posted roster
       (README "The reissue on the templates and 20-60 person weeks"). The change-count ILP at 20-60 people found a
       search miss; an eject move in the kept start took 60-person reissues to 26 changes against a least of 24 and
       40-person ones to 37 against 33, and every reissue still above the least is a score trade, not a miss (README
