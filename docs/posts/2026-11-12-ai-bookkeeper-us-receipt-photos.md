@@ -2,7 +2,7 @@
 title: "Reading US receipt photos: what the OCR loses, and reading twice more"
 seo_title: "Receipt photo OCR on 200 US receipts"
 date: 2026-11-12
-description: "On 200 real US receipt photos, the ai-bookkeeper's in-browser reader got 60.7% of totals right. Four readings and a vote took it to 68.4%, and wrong totals with no warning fell from 8 to 3."
+description: "On 196 real US receipt photos, four OCR readings and a vote took totals right from 60.7% to 68.4%; unflagged wrong totals fell from 8 to 3."
 tags: [ai-bookkeeper, evaluation, ocr, receipts]
 ---
 
@@ -23,7 +23,7 @@ The more useful finding is where the misses come from. On half the photos, 40 to
 
 What helped was giving the OCR more chances. The page already read each photo twice, in two of tesseract's layout modes. It now also draws a grey copy at twice the size on a canvas and reads that in both modes too. Across the four readings, the right total turned up on 146 of 196 photos, against 126 from the original two. Choosing among them is a vote. Each candidate total gets one point for each kind of arithmetic check that confirms it (subtotal plus tax, cash less change, the items added up), one for each reading that found it, and one more for each reading that printed it on a total line. The weights were picked on the even-numbered photos and scored once on the odd ones, where the score went from 60 to 66 of 97.
 
-SROIE_POST_PLACEHOLDER
+Because the rule applies to every small photo, it could have hurt the receipts the reader already did well on. It didn't. On SROIE's 626 Malaysian scans, which played no part in choosing the weights, 437 are small enough to get four readings, and totals right went from 505 (80.8%) to 521 (83.4%).
 
 ## What it doesn't do
 

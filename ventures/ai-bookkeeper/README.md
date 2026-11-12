@@ -1554,8 +1554,8 @@ worse than the plain photo (56.6% and 57.6% on the even half) and is not used.
   one point per kind of arithmetic check that gives it (cash less change,
   subtotal plus tax, the items), one per reading that read it, and one more
   per reading that printed it on a total line; a tie goes to the earlier
-  reading. With two readings the old rule stands unchanged, so the SROIE and
-  CORD tables above, and the CLI's `--two-pass`, are unaffected.
+  reading. With two readings the old rule stands unchanged, so the CLI's `--two-pass`
+  and the hand-corrected CORD and SROIE box-text scores are unaffected.
 
 The weights were chosen on the even-numbered photos (two readings 59 of 99,
 four with the vote 68; enlarged with ImageMagick) and scored once on the odd
@@ -1564,7 +1564,13 @@ drawn by Chromium's canvas with `greyCopy`'s settings
 (`eval/srd-canvas-grow.mjs`), 67 of 99 on the even half and 67 of 97 on the
 held-out odd half. One photo is already 2,000 pixels tall and is read twice.
 
-SROIE_PLACEHOLDER
+**The scans got better too, not worse.** 437 of SROIE's 626 scans are under
+2,000 pixels, so the page now reads them four times as well. Same engine, grey
+copies drawn by the canvas script: the two-reading page reproduced its earlier
+505 of 625 (80.8%) exactly, and the four-reading page reads **521 (83.4%)**
+right (wrong 112 to 96). Merchant and date are unchanged, except that 2 merchants
+another reading found are wrong. These scans were not looked at when the
+weights were chosen, so this is a second held-out check.
 
 Not measured: CORD's phone photos with four readings (Hugging Face, where
 they are fetched from, did not answer from this session); full-size 12
