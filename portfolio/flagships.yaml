@@ -201,7 +201,7 @@ flagships:
       6/12/0, -12.5%; README "The closure score is the default"). Next: close the 100-person gaps (tree,
       not pricing); cuts or branching that move the score LP on the 60-person pay week; buildRoster end to
       end on 40-person weeks with exact on; a real Square or Toast item export (columns read 2026-11-12, made-up rows only, README); a real published-schedule export for
-      --import-shifts; whether the priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes in `--standard` (`/hour`, `/open`, `/close` landed 2026-11-12, README "Fixed work"); closing work placed after the last sale hour.
+      --import-shifts; whether the priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes in `--standard` (`/hour`, `/open`, `/close` landed 2026-11-12, README "Fixed work"; `/before-open` and `/after-close`, with minimum staff off in those shut hours, landed 2026-11-12 later, README "Closing work after the last sale hour"); next on that queue: after-close work spread over part of an hour (90 minutes as one person, not two heads), and a per-hour minimum for the shut hours (lone-worker rules may want two at close).
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
