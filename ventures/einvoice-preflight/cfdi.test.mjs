@@ -129,3 +129,87 @@ test("an unreadable or empty line Base is a schema fault only: the correct summa
     assert.deepEqual(r.map((f) => f.rule), ["MX-003"], v);
   }
 });
+
+// ---------- regimes and uses (MX-015..MX-017), from SAT's catCFDI spreadsheet columns ----------
+import { personType, checkRegimen } from "./cfdi.mjs";
+import { REGIMEN, USO } from "./cfdi-regimen-data.mjs";
+
+const rules = (text) => checkCfdi(text).findings.map((f) => f.rule);
+const asPerson = (t) => t.replace('Rfc="URE180429TM6"', 'Rfc="GODE561231GR8"');
+
+test("the regime table matches SAT's catalogue on the rows people trip over", () => {
+  assert.equal(Object.keys(REGIMEN).length, 19);
+  assert.equal(Object.keys(USO).length, 24);
+  assert.deepEqual(REGIMEN["601"], { texto: "General de Ley Personas Morales", fisica: false, moral: true });
+  assert.ok(REGIMEN["626"].fisica && REGIMEN["626"].moral); // RESICO: both
+  assert.ok(REGIMEN["616"].fisica && !REGIMEN["616"].moral);
+  assert.ok(!USO.D01.moral && USO.D01.fisica);
+  assert.deepEqual(USO.CN01.regimenes, ["605"]);
+  assert.ok(!USO.G03.regimenes.includes("616") && USO.G02.regimenes.includes("616"));
+  assert.equal(USO.S01.regimenes.length, 19);
+});
+
+test("person type comes from the RFC length; generic RFCs have none", () => {
+  assert.equal(personType("EKU9003173C9"), "moral");
+  assert.equal(personType("GODE561231GR8"), "fisica");
+  assert.equal(personType("XAXX010101000"), null);
+  assert.equal(personType("XEXX010101000"), null);
+  assert.equal(personType("ABC"), null);
+  assert.equal(personType(undefined), null);
+});
+
+test("MX-015: a person's regime on a company issuer", () => {
+  const t = good.replace('RegimenFiscal="601"/>', 'RegimenFiscal="612"/>');
+  assert.deepEqual(rules(t), ["MX-015"]);
+  assert.match(checkCfdi(t).findings[0].message, /612 \(Personas Físicas con Actividades Empresariales y Profesionales\).*company/);
+});
+
+test("MX-016: a company regime or a personal-deduction use on the wrong kind of receiver", () => {
+  assert.deepEqual(rules(good.replace('RegimenFiscalReceptor="601"', 'RegimenFiscalReceptor="605"')), ["MX-016"]);
+  assert.deepEqual(rules(good.replace('UsoCFDI="G03"', 'UsoCFDI="D01"')), ["MX-016"]);
+  assert.deepEqual(rules(asPerson(good)), ["MX-016"]); // person RFC, company regime 601
+  assert.deepEqual(rules(asPerson(good).replace('RegimenFiscalReceptor="601"', 'RegimenFiscalReceptor="612"')), []);
+  assert.deepEqual(rules(asPerson(good).replace('RegimenFiscalReceptor="601"', 'RegimenFiscalReceptor="612"').replace('UsoCFDI="G03"', 'UsoCFDI="D01"')), []);
+});
+
+test("MX-017: a use SAT does not allow with the receiver's regime names the ones it does", () => {
+  const t = asPerson(good).replace('RegimenFiscalReceptor="601"', 'RegimenFiscalReceptor="616"');
+  const f = checkCfdi(t).findings;
+  assert.deepEqual(f.map((x) => x.rule), ["MX-017"]);
+  assert.match(f[0].message, /G03 .* not allowed with RegimenFiscalReceptor 616/);
+  assert.match(f[0].fix, /allowed uses are G02, S01\.$/);
+  assert.ok(!/GODE561231GR8/.test(JSON.stringify(f)), "findings never repeat an RFC");
+  // payroll use with a business regime
+  assert.deepEqual(rules(asPerson(good).replace('RegimenFiscalReceptor="601"', 'RegimenFiscalReceptor="612"').replace('UsoCFDI="G03"', 'UsoCFDI="CN01"')), ["MX-017"]);
+  // a company in the foreign-resident regime may only take S01 (or CP01 on a payment)
+  assert.deepEqual(rules(good.replace('RegimenFiscalReceptor="601"', 'RegimenFiscalReceptor="610"')), ["MX-017"]);
+  assert.deepEqual(rules(good.replace('RegimenFiscalReceptor="601"', 'RegimenFiscalReceptor="610"').replace('UsoCFDI="G03"', 'UsoCFDI="S01"')), []);
+});
+
+test("regime checks leave generic receivers to MX-014 and payment uses to pagos20", () => {
+  const pub = good.replace('Rfc="URE180429TM6"', 'Rfc="XAXX010101000"');
+  assert.deepEqual([...new Set(rules(pub))], ["MX-014"]);
+  const f = [];
+  checkRegimen({ Rfc: "EKU9003173C9", RegimenFiscal: "601" }, { Rfc: "GODE561231GR8", RegimenFiscalReceptor: "616", UsoCFDI: "G03" }, "P", f);
+  assert.deepEqual(f, []);
+  checkRegimen({}, { Rfc: "GODE561231GR8", RegimenFiscalReceptor: "999", UsoCFDI: "ZZZ" }, "I", f);
+  assert.deepEqual(f, [], "codes outside the catalogue are MX-003's");
+});
+
+test("every regime/use pair: a finding exactly when SAT's table forbids it", () => {
+  let allowed = 0, total = 0;
+  for (const [rfc, kind] of [["GODE561231GR8", "fisica"], ["EKU9003173C9", "moral"]]) {
+    for (const reg of Object.keys(REGIMEN)) {
+      if (!REGIMEN[reg][kind]) continue;
+      for (const uso of Object.keys(USO)) {
+        if (uso === "CP01") continue;
+        const f = [];
+        checkRegimen({}, { Rfc: rfc, RegimenFiscalReceptor: reg, UsoCFDI: uso }, "I", f);
+        const ok = USO[uso][kind] && USO[uso].regimenes.includes(reg);
+        total++; if (ok) allowed++;
+        assert.equal(f.length === 0, ok, `${kind} ${reg} ${uso}`);
+      }
+    }
+  }
+  assert.deepEqual([allowed, total], [245, 483]);
+});

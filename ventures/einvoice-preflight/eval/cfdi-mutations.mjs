@@ -34,8 +34,29 @@ export const MUTATIONS = [
   ["misspelt attribute", "MX-004", (t) => sub(t, /<cfdi:Emisor Rfc=/, () => "<cfdi:Emisor RFC=")],
   ["general public with UsoCFDI G03", "MX-014", (t) => sub(t, /(<cfdi:Receptor [^>]*?)Rfc="[A-Z&Ñ0-9]+"/, (m, pre) => `${pre}Rfc="XAXX010101000"`)],
   ["exempt line with a rate", "MX-023", (t) => sub(t, /(<cfdi:Traslado [^>]*?)TipoFactor="Tasa"/, (m, pre) => `${pre}TipoFactor="Exento"`)],
+  ["issuer regime for the other kind of RFC", "MX-015", (t) => swapRegime(t, "Emisor", "RegimenFiscal")],
+  ["receiver regime for the other kind of RFC", "MX-016", (t) => swapRegime(t, "Receptor", "RegimenFiscalReceptor")],
+  ["company receiver with use D01 (medical fees)", "MX-016", (t) => (rfcLength(t, "Receptor") !== 12 || / TipoDeComprobante="P"/.test(t) ? null : sub(t, / UsoCFDI="[A-Z0-9]+"/, () => ' UsoCFDI="D01"'))],
+  ["use G03 with a regime it does not allow", "MX-017", (t) => {
+    const len = rfcLength(t, "Receptor");
+    if ((len !== 12 && len !== 13) || / TipoDeComprobante="P"/.test(t)) return null;
+    // 610 (foreign resident) allows only S01 and CP01; 616 (no tax obligations) is not among G03's regimes.
+    const reg = sub(t, / RegimenFiscalReceptor="\d+"/, () => ` RegimenFiscalReceptor="${len === 12 ? "610" : "616"}"`);
+    return reg && sub(reg, / UsoCFDI="[A-Z0-9]+"/, () => ' UsoCFDI="G03"');
+  }],
   ["line discount above the amount", "MX-021", (t) => sub(t, /(<cfdi:Concepto [^>]*?Importe="([\d.]+)"[^>]*?)Descuento="[\d.]+"/, (m, pre, v) => `${pre}Descuento="${bump(v, 1)}"`)],
 ];
+
+function rfcLength(text, el) {
+  const rfc = new RegExp(`<cfdi:${el} [^>]*?Rfc="([^"]*)"`).exec(text)?.[1];
+  return rfc === undefined || rfc === "XAXX010101000" || rfc === "XEXX010101000" ? 0 : rfc.length;
+}
+// 601 (general regime, companies only) on a person's RFC; 612 (business activity, persons only) on a company's.
+function swapRegime(text, el, attr) {
+  const len = rfcLength(text, el);
+  if (len !== 12 && len !== 13) return null;
+  return sub(text, new RegExp(`(<cfdi:${el} [^>]*?)${attr}="\\d+"`), (m, pre) => `${pre}${attr}="${len === 12 ? "612" : "601"}"`);
+}
 
 function sub(text, re, fn) {
   if (!re.test(text)) return null;

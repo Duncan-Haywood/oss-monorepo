@@ -9,6 +9,9 @@
 //      rounded to the currency's decimals the way CfdiUtils (MIT) recomputes them;
 //   3. a handful of well-known 4.0 consistency rules (general public and foreign
 //      receivers, PPD with payment form 99, MXN exchange rate, T and P documents).
+//   4. regimes and uses (MX-015..MX-017): each regime and UsoCFDI against the kind of
+//      RFC (person or company) and each use against the receiver's regime, from SAT's
+//      catCFDI spreadsheet columns, read by build-cfdi-regimen.mjs into cfdi-regimen-data.mjs.
 // A type P (payment) CFDI's Pagos 2.0 complement is read by pagos20.mjs (MX-040..MX-049).
 // A check that depends on something this reader does not model (local taxes in the
 // implocal complement) is skipped and named in `skipped`. An
@@ -19,6 +22,7 @@ import { ELEMENTS, TYPES } from "./cfdi-xsd-data.mjs";
 import { checkRfc } from "./mexico.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { checkPagos } from "./pagos20.mjs";
+import { REGIMEN, USO } from "./cfdi-regimen-data.mjs";
 
 export { parseCfdiXml };
 
@@ -187,6 +191,53 @@ export function taxBounds(base, rate, importeDecimals) {
 const child = (n, name) => n?.children.find((c) => c.name === name && c.ns === CFDI_NS);
 const kidsOf = (n, name) => (n ? n.children.filter((c) => c.name === name && c.ns === CFDI_NS) : []);
 
+// ---------- regimes and uses (SAT's catCFDI spreadsheet columns) ----------
+
+/** "fisica" for a 13-character RFC, "moral" for 12, null for a generic or unreadable one. */
+export function personType(rfc) {
+  const s = String(rfc || "").trim().toUpperCase();
+  if (s === "XAXX010101000" || s === "XEXX010101000") return null;
+  return s.length === 13 ? "fisica" : s.length === 12 ? "moral" : null;
+}
+
+const PERSON = { fisica: "a person (13-character RFC, persona física)", moral: "a company (12-character RFC, persona moral)" };
+const listOf = (codes) => codes.join(", ");
+
+// MX-015: the issuer's RegimenFiscal is one SAT allows for its kind of RFC.
+// MX-016: the receiver's RegimenFiscalReceptor and UsoCFDI are ones SAT allows for its kind of RFC.
+// MX-017: the UsoCFDI is one SAT allows with the receiver's regime (the c_UsoCFDI
+//   "Régimen Fiscal Receptor" column). Codes outside the catalogue are MX-003's; the
+//   generic RFCs are MX-014's; a payment's UsoCFDI (CP01) is pagos20.mjs's.
+export function checkRegimen(e, r, tipo, findings) {
+  const et = personType(e.Rfc);
+  const er = REGIMEN[e.RegimenFiscal];
+  if (et && er && !er[et]) {
+    findings.push(finding("MX-015", `The issuer's RegimenFiscal ${e.RegimenFiscal} (${er.texto}) is not one SAT's c_RegimenFiscal allows for ${PERSON[et]}.`,
+      `Use the regime on the issuer's Constancia de Situación Fiscal, or check the issuer RFC.`, "/Comprobante/Emisor/@RegimenFiscal"));
+  }
+  const rt = personType(r.Rfc);
+  if (!rt) return;
+  const rr = REGIMEN[r.RegimenFiscalReceptor];
+  const regimeFits = rr && rr[rt];
+  if (rr && !regimeFits) {
+    findings.push(finding("MX-016", `The receiver's RegimenFiscalReceptor ${r.RegimenFiscalReceptor} (${rr.texto}) is not one SAT's c_RegimenFiscal allows for ${PERSON[rt]}.`,
+      "Copy the regime from the receiver's Constancia de Situación Fiscal, or check the receiver RFC.", "/Comprobante/Receptor/@RegimenFiscalReceptor"));
+  }
+  if (tipo === "P") return;
+  const u = USO[r.UsoCFDI];
+  if (!u) return;
+  if (!u[rt]) {
+    findings.push(finding("MX-016", `UsoCFDI ${r.UsoCFDI} (${u.texto}) is not one SAT's c_UsoCFDI allows for ${PERSON[rt]}.`,
+      rt === "moral" ? "The D01-D10 personal deductions and CN01 (payroll) are for persons only; a company usually takes G01, G03 or an I0x use." : "Pick the use the receiver asked for from c_UsoCFDI.",
+      "/Comprobante/Receptor/@UsoCFDI"));
+  } else if (regimeFits && !u.regimenes.includes(r.RegimenFiscalReceptor)) {
+    // A regime wrong for the RFC is already MX-016; its use list would be beside the point.
+    const fits = Object.keys(USO).filter((k) => k !== "CP01" && USO[k][rt] && USO[k].regimenes.includes(r.RegimenFiscalReceptor));
+    findings.push(finding("MX-017", `UsoCFDI ${r.UsoCFDI} (${u.texto}) is not allowed with RegimenFiscalReceptor ${r.RegimenFiscalReceptor} (${rr.texto}); SAT's c_UsoCFDI allows it only with regimes ${listOf(u.regimenes)}.`,
+      `Ask the receiver which use applies; with regime ${r.RegimenFiscalReceptor} the allowed uses are ${listOf(fits)}.`, "/Comprobante/Receptor/@UsoCFDI"));
+  }
+}
+
 export function checkCfdi(text) {
   const findings = [];
   const skipped = [];
@@ -283,6 +334,8 @@ export function checkCfdi(text) {
   } else if (r.ResidenciaFiscal !== undefined) {
     findings.push(finding("MX-014", "ResidenciaFiscal is only for a foreign receiver identified as XEXX010101000.", "Remove ResidenciaFiscal and NumRegIdTrib for a Mexican receiver.", "/Comprobante/Receptor/@ResidenciaFiscal"));
   }
+
+  checkRegimen(emisor?.attrs || {}, r, tipo, findings);
 
   // Lines.
   let sumImporte = 0, sumDesc = 0, anyDesc = false, importeBad = false, descBad = false;
