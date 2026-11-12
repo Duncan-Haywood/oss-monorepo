@@ -22,9 +22,11 @@ Scope, stated plainly:
 * The DNG rendering steps a viewer needs: linearization table, black level
   (repeat pattern and per-row/column deltas), white level, active area, default
   crop, as-shot white balance (``AsShotNeutral``), the camera colour matrix,
-  ``BaselineExposure``, the IFD0 orientation and the ``GainMap`` opcodes in
-  ``OpcodeList2`` (lens shading, as phones write it; ``dng_opcodes``). Other
-  opcodes are named in the report, not run.
+  ``BaselineExposure``, the IFD0 orientation, the ``GainMap`` opcodes in
+  ``OpcodeList2`` (lens shading, as phones write it; ``dng_opcodes``) and
+  ``WarpRectilinear`` in ``OpcodeList3`` (lens distortion and lateral colour,
+  run on the linear image after demosaic). Other opcodes are named in the
+  report, not run.
 * Colour (default ``colour="dng"``, since 2026-11-12): the DNG
   specification's model in ``dng_colour``: the as-shot white found from
   ``AsShotNeutral`` (or ``AsShotWhiteXY``), ``ColorMatrix``,
@@ -1091,7 +1093,8 @@ class DevelopSettings:
     # cannot tell it from the picture; ignored for DNG (its CFAPattern rules).
     cfa: str | None = None
     # Run the DNG opcode lists' GainMap (lens shading; every Android phone
-    # DNG carries one); other opcodes are named in the report, not run.
+    # DNG carries one) and WarpRectilinear (lens distortion); other opcodes
+    # are named in the report, not run.
     opcodes: bool = True
 
 
@@ -1563,10 +1566,12 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     vals = raw.values
     rw = raw.width
     gain_maps: list = []
+    warps: list = []
     if raw.source == "dng":
         op_plan = dng_opcodes.plan(ifd, ifd0, cfa=not linear_raw)
         if settings.opcodes:
             gain_maps = op_plan.gain_maps
+            warps = op_plan.warps
             notes.extend(op_plan.notes)
         elif op_plan.notes:
             notes.append("opcode lists not run (opcodes off)")
@@ -1647,6 +1652,21 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             else:
                 out.append(curve[int(v * (lut_size - 1) + 0.5)])
 
+    # With a WarpRectilinear to run, the white-balanced linear values (clipped as
+    # ``encode`` clips them) are kept, warped, and only then encoded: the warp
+    # resamples, which must happen in linear light, before the colour matrix's
+    # look tables and the sRGB curve. The white balance and the matrix are
+    # linear, so warping after the white balance gives what warping the camera
+    # values would.
+    lin_rgb = array("d") if warps else None
+
+    def collect(r: float, g: float, b: float, _out: array) -> None:
+        lin_rgb.append(hi if r > hi else (0.0 if r < 0 else r))
+        lin_rgb.append(hi if g > hi else (0.0 if g < 0 else g))
+        lin_rgb.append(hi if b > hi else (0.0 if b < 0 else b))
+
+    emit = collect if warps else encode
+
     cfa_name = "LinearRaw" if pat is None else "".join("RGB"[c] for c in pat)
     np_engine = _numpy_engine(settings.engine) if (w >= 2 and h >= 2) else None
     if settings.engine == "numpy" and np_engine is None:
@@ -1658,7 +1678,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             vals=vals, rw=rw, top=top, left=left, w=w, h=h, spp=spp, lin=lin, black_=black, span=span,
             dh=dh, dv=dv, rr=rr, rc=rc, caplines=caplines, linear_raw=linear_raw, pat=pat,
             half=settings.half, mults=(wbr, wbg, wbb), hi=hi, m=m, curve=curve, lut_size=lut_size,
-            look=look, gain_maps=gain_maps,
+            look=look, gain_maps=gain_maps, warps=warps,
         )
 
     out = array("H")
@@ -1666,7 +1686,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         for y in range(h):
             row = norm_row(y)
             for x in range(w):
-                encode(row[3 * x] * wbr, row[3 * x + 1] * wbg, row[3 * x + 2] * wbb, out)
+                emit(row[3 * x] * wbr, row[3 * x + 1] * wbg, row[3 * x + 2] * wbb, out)
         ow, oh = w, h
     else:
         assert pat is not None
@@ -1685,7 +1705,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                             c = pat[dy * 2 + dx]
                             acc[c] += row[2 * bx + dx]
                             cnt[c] += 1
-                    encode(
+                    emit(
                         acc[0] / cnt[0] * mults[0],
                         acc[1] / cnt[1] * mults[1],
                         acc[2] / cnt[2] * mults[2],
@@ -1697,7 +1717,13 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                 norm_row(h - 1)
         else:
             ow, oh = w, h
-            _bilinear(norm_row, w, h, pat, mults, encode, out)
+            _bilinear(norm_row, w, h, pat, mults, emit, out)
+
+    if warps:
+        lin_rgb = dng_opcodes.warp_rgb(warps, lin_rgb, ow, oh)
+        for i in range(0, len(lin_rgb), 3):
+            encode(lin_rgb[i], lin_rgb[i + 1], lin_rgb[i + 2], out)
+        lin_rgb = None
 
     report_w, report_h = ow, oh
     # Default crop (relative to the active area), in output pixels.

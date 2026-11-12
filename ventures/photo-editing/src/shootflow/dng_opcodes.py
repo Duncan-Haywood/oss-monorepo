@@ -1,4 +1,4 @@
-"""DNG opcode lists: read them all, run ``GainMap`` (lens shading), name the rest.
+"""DNG opcode lists: read them all, run ``GainMap`` and ``WarpRectilinear``, name the rest.
 
 DNG 1.3 added three opcode lists, each a tag holding a big-endian byte blob:
 ``OpcodeList1`` (51008) runs on the raw values as stored, ``OpcodeList2``
@@ -11,8 +11,10 @@ Phones are the reason this matters. Android's camera API writes the lens
 shading map it measured into ``OpcodeList2`` as four ``GainMap`` opcodes, one
 per Bayer position, and leaves the sensor data uncorrected, so a reader that
 ignores them shows the dark, often tinted corners the phone's own JPEG never
-has. ``GainMap`` (opcode 9) is run here; every other opcode is named in the
-report and left undone (``WarpRectilinear`` lens distortion, for instance).
+has. ``GainMap`` (opcode 9) is run here, and so is ``WarpRectilinear``
+(opcode 1, lens distortion and lateral colour in ``OpcodeList3``, as cameras
+with corrected lenses write it: the Leica T marks it required). Every other
+opcode is named in the report and left undone.
 
 GainMap, as the DNG specification (1.4, chapter 7) and Adobe's DNG SDK
 (``dng_gain_map_interpolator``) define it, in the stage-2 image (the active
@@ -33,12 +35,35 @@ area, ``h`` x ``w``):
 The SDK interpolates in float32; this module uses float64 throughout, and the
 pure-Python and numpy paths repeat the same operations in the same order, so
 both engines give the same bytes.
+
+WarpRectilinear (DNG specification 1.4, chapter 7), in the stage-3 image (after
+demosaic, ``w`` x ``h``, still linear):
+
+* the parameters are a plane count ``n`` and, per plane, the radial terms
+  ``kr0..kr3`` and tangential terms ``kt0, kt1`` (float64), then the optical
+  centre ``(cx, cy)`` as fractions of the image width and height; a plane past
+  ``n`` uses the last plane's terms;
+* for each output pixel, ``(dx, dy)`` is its offset from the optical centre
+  divided by the distance from the centre to the farthest image corner, so
+  ``r = 1`` there; ``r2 = dx*dx + dy*dy`` and
+  ``f = kr0 + kr1 r2 + kr2 r2^2 + kr3 r2^3``;
+* the pixel takes its value from the source point
+  ``centre + m * (f dx + kt0 2 dx dy + kt1 (r2 + 2 dx^2),
+  f dy + kt1 2 dx dy + kt0 (r2 + 2 dy^2))`` (``m`` the corner distance):
+  the opcode maps the corrected image back into the distorted one.
+
+Choices the specification leaves open, made here and named so a later check
+against Adobe's output can find them: pixel ``x`` sits at ``x + 0.5`` (pixel
+centres, the image spanning ``0..w``); the source is sampled bilinearly (the
+SDK uses a wider resampling kernel); a source point outside the image takes the
+nearest edge pixel.
 """
 
 from __future__ import annotations
 
 import struct
-from dataclasses import dataclass
+import math
+from dataclasses import dataclass, field
 
 TAG_OPCODE_LIST_1 = 51008
 TAG_OPCODE_LIST_2 = 51009
@@ -62,6 +87,7 @@ OPCODE_NAMES = {
 }
 
 GAIN_MAP = 9
+WARP_RECTILINEAR = 1
 
 
 class OpcodeError(ValueError):
@@ -109,6 +135,32 @@ class GainMap:
 
     def gain(self, i: int, j: int, p: int) -> float:
         return self.gains[(i * self.points_h + j) * self.map_planes + min(p, self.map_planes - 1)]
+
+
+@dataclass(frozen=True)
+class WarpRectilinear:
+    terms: tuple[tuple[float, float, float, float, float, float], ...]  # per plane: kr0..kr3, kt0, kt1
+    cx: float
+    cy: float
+
+    def plane_terms(self, p: int) -> tuple[float, float, float, float, float, float]:
+        return self.terms[min(p, len(self.terms) - 1)]
+
+
+def parse_warp_rectilinear(op: Opcode) -> WarpRectilinear:
+    p = op.params
+    if len(p) < 4:
+        raise OpcodeError("WarpRectilinear parameters shorter than their plane count")
+    (n,) = struct.unpack_from(">I", p, 0)
+    if n < 1:
+        raise OpcodeError("WarpRectilinear with no planes")
+    if len(p) < 4 + 48 * n + 16:
+        raise OpcodeError(f"WarpRectilinear holds fewer than its {n} planes of terms and a centre")
+    terms = tuple(struct.unpack_from(">6d", p, 4 + 48 * i) for i in range(n))
+    cx, cy = struct.unpack_from(">2d", p, 4 + 48 * n)
+    if not all(v == v and abs(v) < 1e6 for t in terms for v in t) or not (0.0 <= cx <= 1.0 and 0.0 <= cy <= 1.0):
+        raise OpcodeError("WarpRectilinear with terms out of range")
+    return WarpRectilinear(terms, cx, cy)
 
 
 def parse_list(blob) -> list[Opcode]:
@@ -174,20 +226,23 @@ class Plan:
 
     gain_maps: list[GainMap]
     notes: list[str]
+    warps: list[WarpRectilinear] = field(default_factory=list)
 
     def __bool__(self) -> bool:
-        return bool(self.gain_maps)
+        return bool(self.gain_maps or self.warps)
 
 
 def plan(ifd, ifd0, cfa: bool = True) -> Plan:
     """Read the three opcode lists from the raw IFD (or IFD0) and decide what runs.
 
-    Only ``GainMap`` in ``OpcodeList2`` on CFA data runs. Everything else is
+    ``GainMap`` in ``OpcodeList2`` on CFA data runs, and ``WarpRectilinear`` in
+    ``OpcodeList3`` (on any image: it runs after demosaic). Everything else is
     named in the notes, and a required (non-optional) opcode left undone says
     so, since the DNG specification expects a reader to run it.
     """
 
     gain_maps: list[GainMap] = []
+    warps: list[WarpRectilinear] = []
     notes: list[str] = []
     for tag, label in (
         (TAG_OPCODE_LIST_1, "OpcodeList1"),
@@ -214,13 +269,21 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
                     continue
                 gain_maps.append(gm)
                 continue
+            if tag == TAG_OPCODE_LIST_3 and op.id == WARP_RECTILINEAR:
+                try:
+                    warps.append(parse_warp_rectilinear(op))
+                except OpcodeError as exc:
+                    notes.append(f"{label} WarpRectilinear unreadable and skipped: {exc}")
+                continue
             key = op.name + ("" if op.optional else " (required)")
             skipped[key] = skipped.get(key, 0) + 1
         for key, n in skipped.items():
             notes.append(f"{label}: {n} x {key} not applied")
     if gain_maps:
         notes.append(f"OpcodeList2: {len(gain_maps)} GainMap applied (lens shading)")
-    return Plan(gain_maps, notes)
+    if warps:
+        notes.append(f"OpcodeList3: {len(warps)} WarpRectilinear applied (lens distortion)")
+    return Plan(gain_maps, notes, warps)
 
 
 def _row_entries(gm: GainMap, y: int, h: int, p: int) -> list[float]:
@@ -281,3 +344,106 @@ def apply_plane(maps: list[GainMap], plane, h: int, w: int, spp: int) -> None:
             xs = np.array(list(cols), dtype=np.int64) * spp + p
             sub = plane[ys[:, None], xs[None, :]] * g
             plane[ys[:, None], xs[None, :]] = np.where(sub > 1.0, 1.0, sub)
+
+
+# --- WarpRectilinear -------------------------------------------------------------------------------------------------
+
+
+def _warp_frame(wp: WarpRectilinear, w: int, h: int) -> tuple[float, float, float]:
+    """Optical centre in pixel units and the distance from it to the farthest corner."""
+
+    cxp, cyp = wp.cx * w, wp.cy * h
+    m = max(math.hypot(x - cxp, y - cyp) for x in (0.0, float(w)) for y in (0.0, float(h)))
+    return cxp, cyp, (m if m > 0 else 1.0)
+
+
+def warp_source(wp: WarpRectilinear, p: int, x: float, y: float, w: int, h: int) -> tuple[float, float]:
+    """Where output pixel (x, y) of plane p reads from, in pixel-index units (pure Python, the reference)."""
+
+    kr0, kr1, kr2, kr3, kt0, kt1 = wp.plane_terms(p)
+    cxp, cyp, m = _warp_frame(wp, w, h)
+    dx = (x + 0.5 - cxp) / m
+    dy = (y + 0.5 - cyp) / m
+    r2 = dx * dx + dy * dy
+    f = kr0 + r2 * (kr1 + r2 * (kr2 + r2 * kr3))
+    sx = f * dx + kt0 * (2.0 * dx * dy) + kt1 * (r2 + 2.0 * dx * dx)
+    sy = f * dy + kt1 * (2.0 * dx * dy) + kt0 * (r2 + 2.0 * dy * dy)
+    return cxp + m * sx - 0.5, cyp + m * sy - 0.5
+
+
+def _clamp_split(v: float, n: int) -> tuple[int, int, float]:
+    if v <= 0.0:
+        return 0, 0, 0.0
+    if v >= n - 1:
+        return n - 1, n - 1, 0.0
+    i = int(v)
+    return i, i + 1, v - i
+
+
+def warp_rgb(warps: list[WarpRectilinear], rgb, w: int, h: int):
+    """Run the warps on an interleaved linear RGB image (``array('d')``, h * w * 3); returns a new array (pure Python)."""
+
+    from array import array
+
+    for wp in warps:
+        out = array("d", bytes(8 * len(rgb)))
+        for p in range(3):
+            for y in range(h):
+                base = y * w
+                for x in range(w):
+                    sx, sy = warp_source(wp, p, x, y, w, h)
+                    x0, x1, fx = _clamp_split(sx, w)
+                    y0, y1, fy = _clamp_split(sy, h)
+                    a = rgb[(y0 * w + x0) * 3 + p]
+                    b = rgb[(y0 * w + x1) * 3 + p]
+                    c = rgb[(y1 * w + x0) * 3 + p]
+                    d = rgb[(y1 * w + x1) * 3 + p]
+                    out[(base + x) * 3 + p] = (1.0 - fy) * ((1.0 - fx) * a + fx * b) + fy * ((1.0 - fx) * c + fx * d)
+        rgb = out
+    return rgb
+
+
+def warp_planes(warps: list[WarpRectilinear], img, band: int = 256):
+    """Run the warps on a linear (h, w, 3) float64 image; returns a new array (numpy, same bytes as ``warp_rgb``)."""
+
+    import numpy as np
+
+    h, w = img.shape[0], img.shape[1]
+    for wp in warps:
+        cxp, cyp, m = _warp_frame(wp, w, h)
+        out = np.empty_like(img)
+        xs = (np.arange(w, dtype=np.float64) + 0.5 - cxp) / m
+        for p in range(3):
+            kr0, kr1, kr2, kr3, kt0, kt1 = wp.plane_terms(p)
+            src = img[..., p]
+            for y0 in range(0, h, band):
+                y1 = min(h, y0 + band)
+                dy = ((np.arange(y0, y1, dtype=np.float64) + 0.5 - cyp) / m)[:, None]
+                dx = xs[None, :]
+                r2 = dx * dx + dy * dy
+                f = kr0 + r2 * (kr1 + r2 * (kr2 + r2 * kr3))
+                sx = f * dx + kt0 * (2.0 * dx * dy) + kt1 * (r2 + 2.0 * dx * dx)
+                sy = f * dy + kt1 * (2.0 * dx * dy) + kt0 * (r2 + 2.0 * dy * dy)
+                sx = cxp + m * sx - 0.5
+                sy = cyp + m * sy - 0.5
+                xi0, xi1, fx = _np_split(np, sx, w)
+                yi0, yi1, fy = _np_split(np, sy, h)
+                a = src[yi0, xi0]
+                b = src[yi0, xi1]
+                c = src[yi1, xi0]
+                d = src[yi1, xi1]
+                out[y0:y1, :, p] = (1.0 - fy) * ((1.0 - fx) * a + fx * b) + fy * ((1.0 - fx) * c + fx * d)
+        img = out
+    return img
+
+
+def _np_split(np, v, n: int):
+    """``_clamp_split`` on an array."""
+
+    lo = v <= 0.0
+    hi = v >= n - 1
+    edge = lo | hi
+    i0 = np.floor(np.clip(v, 0.0, n - 1)).astype(np.int64)  # int(v) for 0 < v < n - 1, as in the pure path
+    i1 = np.where(edge, i0, i0 + 1)
+    fr = np.where(edge, 0.0, v - i0)
+    return i0, i1, fr
