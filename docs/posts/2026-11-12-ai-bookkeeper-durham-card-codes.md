@@ -2,7 +2,7 @@
 title: "A council's card books, a test the categoriser wasn't built on"
 seo_title: "Merchant category codes on 151,000 council card lines"
 date: 2026-11-12
-description: "On six years of Durham County Council's card lines, the merchant category code took first-seen merchants from 53% to 88% right. The real file also showed card spend being booked as income."
+description: "On six years of a council's card lines, the merchant category code took first-seen merchants from 53% to 88% right. The real file also booked spend as income."
 tags: [ai-bookkeeper, evaluation, merchant-category-codes, bank-import]
 ---
 
