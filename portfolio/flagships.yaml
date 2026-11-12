@@ -179,10 +179,10 @@ flagships:
       cite guides (IL, DK, CZ, LV, LU; ato.gov.au 403s from cloud);
       Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages
       (excerpts; Taiwan, Oman dates disagree); Mexico CFDI 4.0, Pagos 2.0,
-      regimes and Nómina 1.2 payroll (MX-050..057 from SAT's filling
-      guide, 62/62 seeded, 3,638/3,638 vs xmllint) landed 2026-11-12
-      (README "Mexico: ..."): open: a real payroll file, a PAC
-      rejection compared, Carta Porte / comercio exterior complements;
+      Nómina 1.2 and Comercio Exterior 2.0 (MX-060..069 from SAT's CCE
+      matrix, 208/208 seeded) landed 2026-11-12 (README "Mexico: ..."):
+      open: a real payroll or export file, a PAC rejection compared,
+      Carta Porte, postal code to municipality/colonia;
       Brazil NF-e XSD, NFS-e; refresh the Bulgaria
       page when its draft passes. A run that lands a slice replaces its
       item here; keep this under 2,000 characters.

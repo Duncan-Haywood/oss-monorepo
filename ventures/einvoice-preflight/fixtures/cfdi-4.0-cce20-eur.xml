@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Escenario 4 of SAT's "Guía de llenado del comprobante al que se le incorpore el
+     complemento para comercio exterior" (Apéndice 4, revision of 2026-01-16): an invoice in euros (EUR to USD, tonnes to kilos).
+     The amounts, units, rates and tariff unit are the guide's; the parties are SAT's
+     published test issuer and a made-up US buyer. Synthetic and unstamped. cce20.test.mjs
+     expects no finding from it and eval/cce20-mutations.mjs plants defects in it. -->
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:cce20="http://www.sat.gob.mx/ComercioExterior20" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd http://www.sat.gob.mx/ComercioExterior20 http://www.sat.gob.mx/sitio_internet/cfd/ComercioExterior20/ComercioExterior20.xsd" Version="4.0" Serie="EXP" Folio="4" Fecha="2026-11-10T09:00:00" FormaPago="03" SubTotal="846311.16" Moneda="EUR" TipoCambio="23.09903" Total="846311.16" TipoDeComprobante="I" Exportacion="02" MetodoPago="PUE" LugarExpedicion="86000" NoCertificado="30001000000500003416" Sello="" Certificado="">
+  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" RegimenFiscal="601"/>
+  <cfdi:Receptor Rfc="XEXX010101000" Nombre="BORDER METALS SUPPLY LLC" DomicilioFiscalReceptor="86000" ResidenciaFiscal="USA" NumRegIdTrib="121585958" RegimenFiscalReceptor="616" UsoCFDI="S01"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="11101700" NoIdentificacion="EXP-4" Cantidad="482.60594" ClaveUnidad="TNE" Unidad="Tonelada" Descripcion="Plomo refinado" ValorUnitario="1753.627737" Importe="846311.16" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="846311.16" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.000000" Importe="0.00"/>
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+  </cfdi:Conceptos>
+  <cfdi:Impuestos TotalImpuestosTrasladados="0.00">
+    <cfdi:Traslados>
+      <cfdi:Traslado Base="846311.16" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.000000" Importe="0.00"/>
+    </cfdi:Traslados>
+  </cfdi:Impuestos>
+  <cfdi:Complemento>
+    <cce20:ComercioExterior Version="2.0" ClaveDePedimento="A1" CertificadoOrigen="0" Incoterm="FCA" TipoCambioUSD="19.1202" TotalUSD="1022424.81">
+      <cce20:Emisor><cce20:Domicilio Calle="Avenida Paseo Tabasco" NumeroExterior="1203" Municipio="004" Estado="TAB" Pais="MEX" CodigoPostal="86000"/></cce20:Emisor>
+      <cce20:Receptor NumRegIdTrib="121585958"><cce20:Domicilio Calle="Mines Road" NumeroExterior="4501" Municipio="Laredo" Estado="TX" Pais="USA" CodigoPostal="78045"/></cce20:Receptor>
+      <cce20:Mercancias>
+        <cce20:Mercancia NoIdentificacion="EXP-4" FraccionArancelaria="7801100100" CantidadAduana="482605.940" UnidadAduana="01" ValorUnitarioAduana="2.118550" ValorDolares="1022424.8112"/>
+      </cce20:Mercancias>
+    </cce20:ComercioExterior>
+  </cfdi:Complemento>
+</cfdi:Comprobante>

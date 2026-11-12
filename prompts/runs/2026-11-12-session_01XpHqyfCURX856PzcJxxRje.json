@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyfCURX856PzcJxxRje",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T12:38:01Z",
+  "ended": "2026-11-12T12:53:34Z",
+  "wall_minutes": 16.22,
+  "tokens_in": 17918944,
+  "tokens_out": 88544,
+  "cost_usd": 7.3373,
+  "tool_calls": 101,
+  "task": "einvoice-preflight (flagship 5, allocate.py row 4): Comercio Exterior 2.0 complement checks for Mexican export CFDIs",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15129",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "dollarLimits treated a CFDI in USD as converting at a written rate of \"1\", widening the rate by half a unit (0.5), so a 10% ValorDolares error on a dollar invoice passed",
+      "fix": "an absent TipoCambioUSD now means no rate at all; the mutation run caught it before commit (206/208 to 208/208)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_venture_tests.py einvoice-preflight finished in 5.5 s with 'ok' while node --test '*.test.mjs' in the venture runs 1,548 tests; unclear which suite the runner covers, so I ran both."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "The flagship next: has a 2,000-character limit that a run discovers only by measuring; the first rewrite was 2,204 characters. A check in allocate.py or a test would catch it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "README.md (einvoice-preflight, CCE rules)",
+      "why": "The standard widens both exchange rates by NumDecimalesTipoCambio and converts a USD invoice with its agreed rate; read literally, the guide's own examples 2 and 3 fail",
+      "did": "Widened each rate by its own decimals and compared a USD invoice's ValorDolares with its line Importe (the guide's procedure 2)",
+      "result": "All four guide examples pass; the narrower reading also accepts them on the guide's numbers, which the post checks"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-checking-a-mexican-export-invoice.md",
+    "ventures/einvoice-preflight/README.md (Mexico: exports, the Comercio Exterior 2.0 complement)"
+  ],
+  "goal": "Deepen flagship einvoice-preflight with a hard slice from its next: list",
+  "notes": "Sources fetched from omawww.sat.gob.mx 2026-11-12: Matriz_de_Errores_CCE_v2.0.xls, EstandarComercioExterior_v20.pdf, Guia_complemento_Comercio_Exterior.pdf; XSDs from the phpcfdi mirror (byte-identical apart from schemaLocation to www.sat.gob.mx's copy, which answered); catalogue columns from phpcfdi/resources-sat-catalogs (Unlicense). Verification: node --test '*.test.mjs' in the venture 1484 pass / 0 fail; cce20.test.mjs 10/10; eval/cce20-mutations.mjs 208/208; eval/cce20-xsd-diff.mjs 1594/1594 vs xmllint; page sample clicked in headless Chromium with no console errors; venture-preflight run (see PR). run_workflow_locally --for-changes: einvoice-preflight-ci cli-test and clean-examples steps fail locally only because the runner skips the package install (ModuleNotFoundError einvoice_preflight); with PYTHONPATH=src the 381 Python tests pass and every non-skipped example is clean. Python code untouched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5d24aabc-379c-5782-bdb2-63ae9e3f2d93",
+    "transcripts": 1,
+    "first": "2026-11-12T12:38:01Z",
+    "last": "2026-11-12T12:54:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 96,
+        "input": 185,
+        "output": 88544,
+        "thinking": 22192,
+        "cache_read": 17664661,
+        "cache_write_5m": 0,
+        "cache_write_1h": 254098,
+        "api_equivalent_usd": 7.3373,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 96,
+      "input": 185,
+      "output": 88544,
+      "thinking": 22192,
+      "cache_read": 17664661,
+      "cache_write_5m": 0,
+      "cache_write_1h": 254098,
+      "api_equivalent_usd": 7.3373,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 101,
+    "tools": {
+      "Bash": 90,
+      "Write": 6,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.22,
+      "active_minutes": 16.22,
+      "model_minutes": 13.42,
+      "tool_minutes": 2.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "an engineer reading SAT's 68-rule CCE matrix, standard and guide, writing the checker, catalogue builder, fixtures from the guide's examples, mutation and xmllint evals: about 3 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 327.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
