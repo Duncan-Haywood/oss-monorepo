@@ -1,17 +1,18 @@
 ---
 title: "A crop that moves the origin: running the DNG TrimBounds opcode"
-seo_title: "DNG TrimBounds opcode: cropping inside OpcodeList2 and OpcodeList3, explained"
+seo_title: "DNG TrimBounds opcode: cropping inside an opcode list, explained"
 date: 2026-11-12
 tags: [photography, raw, dng, image-processing]
-description: "ShootFlow now runs the DNG TrimBounds opcode. Why a crop in the middle of an opcode list changes what every later opcode means, how we run it without moving pixels, and the two choices we could not check."
+description: "ShootFlow now runs the DNG TrimBounds opcode: why a crop mid-list changes every later opcode, how it runs without moving pixels, and what is unchecked."
 ---
 
 ShootFlow, the open-source overnight pipeline for photographers in
 `ventures/photo-editing`, develops DNG raw files with its own developer. A DNG
 can carry lists of "opcodes": corrections a camera or converter asks the reader
 to run, such as a phone's lens-shading map, a lens's distortion warp or a list of
-dead sensels. As of today ShootFlow runs all of them in `OpcodeList2` and
-`OpcodeList3` except `WarpRectilinear2`, because it now runs `TrimBounds`.
+dead sensels. As of today ShootFlow runs thirteen of the fourteen opcodes the
+specification defines, each in the list where cameras write it; `TrimBounds` is
+the newest, and `WarpRectilinear2` is the one left.
 
 ## The opcode is a crop. Why was it last?
 
