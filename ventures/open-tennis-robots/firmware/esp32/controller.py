@@ -47,15 +47,23 @@ class StepperAxis:
 
     Board-independent: `update(dt_ms, home_closed)` returns the signed number of step pulses to send now, and the
     board layer pulses them. Positions are in degrees at the output (the turntable); `steps_per_deg` folds in the
-    motor's steps, microstepping and the gear ratio. Until the home switch has been found the axis is unhomed: it
-    creeps toward negative angles at `home_deg_s`, and targets are remembered but not driven. A stop from above
-    `safe_stop_deg_s` may lose steps, so it clears the home and the axis homes again. Homing that travels further
-    than the whole range plus 10 deg without finding the switch faults and stops (a broken switch must not drive the
-    head into its end stop forever).
+    motor's steps, microstepping and the gear ratio. Until the home switch has been found the axis is unhomed and
+    targets are remembered but not driven. A stop from above `safe_stop_deg_s` may lose steps, so it clears the home
+    and the axis homes again.
+
+    The switch is held closed by a cam at every angle at or below `home_deg` (cad: Feeder.home_switch_design, added
+    2026-11-12), so it says which side of home the axis is on. Homing (all at `home_deg_s`): if the switch is closed
+    when the search starts, back off toward positive angles until it opens, then `backoff_deg` more; then creep
+    negative and take the home on the switch closing. The home is always taken on the same edge in the same
+    direction. Until 2026-11-12 a closed switch was taken as home at once, so a head left past home (turned by hand,
+    or coasting after a power cut) homed up to 5.5 deg off, and a switch wire shorted to ground homed anywhere.
+    Faults stop the axis: backing off more than `off_cam_deg` with the switch still closed (a stuck or shorted
+    switch, or a head turned past the end of the gear sector), or creeping more than `search_deg` without finding it
+    (a broken switch must not drive the head into its end stop forever).
     """
 
     def __init__(self, steps_per_deg, vmax_deg_s, accel_deg_s2, home_deg, lo_deg, hi_deg,
-                 home_deg_s=5.0, safe_stop_deg_s=10.0):
+                 home_deg_s=5.0, safe_stop_deg_s=10.0, backoff_deg=2.0, off_cam_deg=12.0, search_deg=None):
         self.k = steps_per_deg
         self.vmax, self.accel = vmax_deg_s, accel_deg_s2
         self.home_deg, self.lo, self.hi = home_deg, lo_deg, hi_deg
@@ -67,6 +75,11 @@ class StepperAxis:
         self.goal = 0.0
         self._sent = 0            # steps sent, in the same frame as round(pos x steps_per_deg)
         self._searched = 0.0
+        self._phase = None        # homing: None (not started), "off" (leaving the cam), "clear", "seek"
+        self._backed = self._cleared = 0.0
+        self.backoff, self.off_cam = backoff_deg, off_cam_deg
+        # the furthest a seek can need: from the top of the range plus the gear sector's spare teeth, down to home
+        self.search = search_deg if search_deg is not None else (hi_deg - home_deg) + 20.0
 
     @property
     def steps(self):
@@ -82,7 +95,7 @@ class StepperAxis:
     def stop(self):
         if abs(self.v) > self.safe_v:
             self.homed = False
-            self._searched = 0.0
+            self._phase = None
         self.v = 0.0
         if self.homed:
             self.goal = self.pos
@@ -92,22 +105,42 @@ class StepperAxis:
         self._sent += n
         return n
 
-    def update(self, dt_ms, home_closed):
-        dt = dt_ms / 1000.0
-        if self.fault or dt <= 0:
-            return 0
-        if not self.homed:
-            if home_closed:
-                self.homed, self.pos, self.v = True, self.home_deg, 0.0
+    def _home(self, dt, closed):
+        if self._phase is None:
+            self._phase, self._backed, self._searched = ("off" if closed else "seek"), 0.0, 0.0
+        if self._phase == "seek":
+            if closed:
+                self.homed, self.pos, self.v, self._phase = True, self.home_deg, 0.0, None
                 self._sent = round(self.pos * self.k)
                 return 0
             self._searched += self.home_v * dt
-            if self._searched > (self.hi - self.lo) + 10.0:
+            if self._searched > self.search:
                 self.fault, self.v = True, 0.0
                 return 0
             self.v = -self.home_v
             self.pos -= self.home_v * dt
             return self._emit()
+        if self._phase == "off" and not closed:
+            self._phase, self._cleared = "clear", self._backed
+        elif self._phase == "clear" and closed:
+            self._phase = "off"                    # a bounce: still on the cam
+        if self._phase == "off" and self._backed > self.off_cam:
+            self.fault, self.v = True, 0.0
+            return 0
+        if self._phase == "clear" and self._backed - self._cleared >= self.backoff:
+            self._phase, self.v = "seek", 0.0
+            return 0
+        self._backed += self.home_v * dt
+        self.v = self.home_v
+        self.pos += self.home_v * dt
+        return self._emit()
+
+    def update(self, dt_ms, home_closed):
+        dt = dt_ms / 1000.0
+        if self.fault or dt <= 0:
+            return 0
+        if not self.homed:
+            return self._home(dt, home_closed)
         d = self.goal - self.pos
         if abs(d) < 0.5 / self.k and abs(self.v) < self.accel * dt:
             self.v = 0.0
