@@ -53,7 +53,7 @@
     "docs/posts/2026-11-12-an-unsigned-nfe-is-not-always-just-unsigned.md"
   ],
   "goal": null,
-  "notes": "Target: ventures/einvoice-preflight/nfe.mjs (changed in #15221). 10 mutants, 7 caught; 3 gaps fixed with tests -> 10/10. 1 real defect patched (unsigned NFe + duplicate infNFe reported only as missing Signature). Step 0: 6 open entries, all control plane with PRs pending owner approval; none actionable here. Verify: run_venture_tests.py einvoice-preflight passes in 6.5 s; nfe.test.mjs 24/24.",
+  "notes": "Target: ventures/einvoice-preflight/nfe.mjs (changed in #15221). 10 mutants, 7 caught; 3 gaps fixed with tests -> 10/10. 1 real defect patched (unsigned NFe + duplicate infNFe reported only as missing Signature). Step 0: 6 open entries, all control plane with PRs pending owner approval; none actionable here. Verify: run_venture_tests.py einvoice-preflight passes in 6.5 s; nfe.test.mjs 24/24. run_workflow_locally --for-changes: 8/9 workflows passed (ventures-tests incl.); portfolio-pages.yml ran out of budget (site build) and pages.yml had no verdict after the skipped build; blog front-matter check passed. Merged with CI still queued (runners busy).",
   "corrections": [],
   "redteam": {
     "campaigns": [
