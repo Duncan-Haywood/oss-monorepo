@@ -49,7 +49,7 @@ test('bad input says what is wrong', () => {
 
 test('the page wires the watch card to watchCheck with the state in the browser', () => {
   const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
-  assert.match(html, /import \{ watchCheck, recordText(, replayText)?(, eagernessText)? \} from "\.\/watch-core\.mjs"/);
+  assert.match(html, /import \{ watchCheck, recordText(, replayText)?(, eagernessText)?(, budgetFromPlain, suggestFor, HINT_BUDGET)? \} from "\.\/watch-core\.mjs"/);
   assert.match(html, /id="watch-check"/);
   assert.match(html, /localStorage\.setItem\(WATCH_PREFIX/);
   assert.match(html, /record\("watch_check"\)/);
