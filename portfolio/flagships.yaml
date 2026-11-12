@@ -210,9 +210,8 @@ flagships:
       person into the next hour and `--shut-min` is a floor the priced cut never drops (README "One person staying
       two hours, or two people locking up"); after that, `--shut-min "1, Fri/Sat=2"` sets it by weekday (README "Two
       closers on late Fridays only": French bakery, two closers every night +45 h a week over one, Fri/Sat only +10).
-      2026-11-12 end of day: buildRoster with exact on reports per-stage `timings`; above 60 copies the exact tree is
-      skipped and column generation runs before the cover passes (README "The exact check end to end on 40-person
-      weeks": 40-person weeks 15-57 s, one unproven, to 5.7-11.7 s, all proven; eval/end-to-end.mjs).
+      Later: exact on, above 60 copies, proof first and no tree (README "The exact check end to end on 40-person
+      weeks": 40-person weeks 6-12 s, all proven).
       Next: close the 100-person gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person
       pay week; the 60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held, not proven in 34 s); the exact check
       on by default for mid-size weeks now that 20-30 person weeks prove in 1-5 s; a real Square or Toast item export (columns read,

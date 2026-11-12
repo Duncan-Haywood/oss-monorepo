@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
@@ -35,6 +35,10 @@
     {
       "what": "First version of the deferred cover passes let column generation spend 33 s on a 60-person week with a 20 s budget, leaving the roster 11 open hours worse",
       "fix": "cap column generation at half the remaining budget when a budget applies; re-measured: same 300 h roster as before"
+    },
+    {
+      "what": "portfolio-validate failed: flagships next: 2060 chars over the 2000 cap",
+      "fix": "shortened the appended line; validate.py passes"
     }
   ],
   "integrity_issues": [],
