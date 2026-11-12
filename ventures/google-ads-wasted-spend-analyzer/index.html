@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -159,7 +159,7 @@
       const s = r.summary;
       const cur = n.currency ? `${esc(n.currency)} ` : "";
       $("#report-stats").innerHTML = `${s.terms} search terms, ${cur}${money(s.cost)} spent, ${s.conv % 1 ? s.conv.toFixed(1) : s.conv} conversions (${pct(s.convRate)} of clicks, ${cur}${money(s.cpa)} each). <strong>${cur}${money(s.zeroCost)} (${pct(s.wasteShare)}) went to terms that never converted</strong>, of which ${cur}${money(s.buckets.proven)} is proven with at least ${s.needed} clicks each. The negative list below covers ${pct(s.coveredShare)} of it.`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const names = { converting: "Terms that converted", proven: "Proven waste (enough clicks, none converted)", overspent: "Overspent (cost above one conversion, none converted)", watch: "Watch (too little data)", excluded: "Already excluded" };
       $("#buckets").innerHTML = Object.entries(r.buckets).map(([k, v]) => `<tr><th scope="row">${names[k]}</th><td class="n">${money(v)}</td><td class="n">${pct(v / s.cost)}</td></tr>`).join("");
       $("#negatives").innerHTML = r.negatives.length ? r.negatives.map((x) => `<tr><th scope="row">${esc(x.text)}</th><td>${x.type}</td><td class="n">${money(x.cost)}</td><td>${esc(x.reason)}</td></tr>`).join("") : '<tr><td colspan="4">Nothing in this file clears the evidence bar.</td></tr>';

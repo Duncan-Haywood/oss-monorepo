@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -168,7 +168,7 @@
       last = r;
       const s = r.summary, c = s.counts;
       $("#report-stats").innerHTML = `As of ${dateStr(s.asOf)}: <strong>${c.active} active</strong>, ${c.declined} declined, ${c.former} former${c.other ? `, ${c.other} other` : ""}. <strong>MRR ${money(s.mrr)}</strong> (${money(s.arr)} a year), average ${money(s.arpp)} per active patron. Declined payments put ${money(s.atRisk)} a month at risk. Churn ${pct(s.churnRate)} of everyone who ever paid; median tenure ${s.medianActive === null ? "–" : s.medianActive.toFixed(1)} months for active and ${s.medianFormer === null ? "–" : s.medianFormer.toFixed(1)} for former. Estimated fees ${money(r.fees.total)} (${pct(r.fees.takePct)}), <strong>net to you ${money(r.net)}</strong> a month.`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const small = (ok) => (ok ? "" : " (few)");
       rows("#by-tier", r.byTier.map((t) => `<tr><th scope="row">${esc(t.tier)}</th><td class="n">${t.patrons}</td><td class="n">${t.declined}</td><td class="n">${t.former}</td><td class="n">${money(t.mrr)}</td><td class="n">${pct(t.share)}</td><td class="n">${pct(t.churn)}${small(t.enough)}</td></tr>`).join(""), 7);
       rows("#tenure", r.distribution.map((d) => `<tr><th scope="row">${esc(d.label)}</th><td class="n">${d.active}</td><td class="n">${d.declined}</td><td class="n">${d.former}</td></tr>`).join(""), 4);

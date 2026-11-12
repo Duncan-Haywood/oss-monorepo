@@ -34,7 +34,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -157,7 +157,7 @@
       const r = a.r;
       const tiles = [[usd(r.gain), "total gain"], [usd(r.used), "excluded from tax"], [usd(r.tax.total), "estimated federal tax"], [usd(a.savedByExclusion), "tax the exclusion saves you"]];
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const rows = [["Sale price", r.price], ["Total gain (after costs, basis, improvements, depreciation)", r.gain], ["Exclusion allowed", r.used], ["Taxable gain", r.taxableGain], ["Depreciation recapture tax", r.tax.recapTax], ["Long-term capital gain tax", r.tax.ltcgTax], ["Net investment income tax", r.tax.niit], ["Estimated federal tax", r.tax.total]];
       $("#size-table tbody").innerHTML = rows.map(([n, v]) => `<tr><td>${esc(n)}</td><td class="n">${usd(v)}</td></tr>`).join("");
       report.hidden = false;

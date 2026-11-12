@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -160,7 +160,7 @@
       last = r;
       const s = r.summary, b = s.base;
       $("#report-stats").innerHTML = `${s.first !== null ? dateStr(s.first) + " to " + dateStr(s.last) + ": " : ""}<strong>net proceeds ${money(s.netBase, b)}</strong> (${money(s.grossBase, b)} before ${money(-s.refundsBase, b)} of refunds), about ${s.annualNet !== null ? money(s.annualNet, b) : "–"} a year at this pace. ${s.downloads} downloads, ${s.paidUnits} paid units, ${pct(s.refundRate)} refunded. Proceeds are ${pct(s.proceedsShare)} of the customer price where comparable.`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       rows("#by-product", r.byProduct.map((p) => `<tr><th scope="row">${esc(p.title)}</th><td class="n">${p.downloads}</td><td class="n">${p.sold}</td><td class="n">${p.refunds}${p.refundRate !== null ? " (" + pct(p.refundRate) + ")" : ""}</td><td class="n">${money(p.net, b)}</td></tr>`).join(""), 5);
       rows("#by-kind", r.byKind.map((k) => `<tr><th scope="row">${esc(kindLabel(k.kind))}</th><td class="n">${k.units}</td><td class="n">${money(k.net, b)}</td></tr>`).join(""), 3);
       rows("#by-country", r.byCountry.slice(0, 25).map((c) => `<tr><th scope="row">${esc(c.country)}</th><td class="n">${c.downloads}</td><td class="n">${money(c.net, b)}</td><td class="n">${pct(c.share)}</td></tr>`).join(""), 4);

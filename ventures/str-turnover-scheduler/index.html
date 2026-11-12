@@ -35,7 +35,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -161,7 +161,7 @@
       const crewText = s.minCrew ? `${s.minCrew} cleaner${s.minCrew === 1 ? "" : "s"} clear every deadline` : "no crew size clears every deadline (see the flagged stays)";
       $("#report-stats").innerHTML = `<strong>${s.cleans} cleans</strong> across ${s.properties} properties, ${s.from} to ${s.to} · ${s.sameDay} same-day turnovers · <strong>${crewText}</strong> · with ${s.crew}: ${s.late} late, ${s.overtime} past shift end · labour ${money(s.cost)} against ${money(s.fees)} in cleaning fees`;
       $("#report-note").textContent = r.errors.length ? `${r.errors.length} line${r.errors.length === 1 ? "" : "s"} skipped: ${r.errors.slice(0, 3).join(" ")}` : "";
-      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h4><span class="pill ${w.level === "high" ? "high" : w.level === "medium" ? "medium" : "info"}">${w.level === "info" ? "note" : "check"}</span></h4><p>${esc(w.text)}</p></div>`).join("") || `<div class="finding"><h4><span class="pill ok">ok</span></h4><p>No conflicts found.</p></div>`;
+      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h3><span class="pill ${w.level === "high" ? "high" : w.level === "medium" ? "medium" : "info"}">${w.level === "info" ? "note" : "check"}</span></h3><p>${esc(w.text)}</p></div>`).join("") || `<div class="finding"><h3><span class="pill ok">ok</span></h3><p>No conflicts found.</p></div>`;
       $("#sweep").innerHTML = r.sweep.rows.map((x) => `<tr><td class="n">${x.crew}</td><td class="n">${x.late}</td><td class="n">${x.overtime}</td><td class="n">${x.hours.toFixed(1)}</td></tr>`).join("");
       $("#rows").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.start || x.date)}</td><td>${esc(x.property)}</td><td>${x.cleaner ? "Cleaner " + x.cleaner : "unassigned"}</td><td>${esc(x.start.slice(11))}–${esc(x.end)}</td><td>${esc(x.window)}</td><td>${esc(x.flag)}</td></tr>`).join("");
       $("#econ").innerHTML = r.economics.map((x) => `<tr><td>${esc(x.property)}</td><td class="n">${x.cleans}</td><td class="n">${money(x.fees)}</td><td class="n">${money(x.cost)}</td><td class="n">${money(x.margin)}</td></tr>`).join("");

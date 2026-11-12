@@ -39,7 +39,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
     .finding { border-bottom: 1px solid #ece9f5; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -144,15 +144,15 @@
       for (const k of ["irs", "dol", "abc"]) {
         const r = ev.results[k];
         const [cls, label] = VERDICT[r.verdict];
-        h += `<div class="finding"><h4><span class="pill ${cls}">${label}</span>${esc(r.name)}</h4><p class="note">${esc(r.scope)}. ${esc(r.note)}</p>`;
+        h += `<div class="finding"><h3><span class="pill ${cls}">${label}</span>${esc(r.name)}</h3><p class="note">${esc(r.scope)}. ${esc(r.note)}</p>`;
         if (r.share !== null && r.share !== undefined) h += `<p>Weight of the facts pointing to employee: ${percent(r.share)} (${r.answered} of ${r.count} questions answered).</p>`;
         if (k === "abc") h += "<ul>" + Object.values(r.prongs).map((p) => `<li>${p.shown ? "Shown" : p.blockers.length ? "Not met" : "Not shown (unanswered)"} — ${esc(p.label)}</li>`).join("") + "</ul>";
         h += "</div>";
       }
       const flags = topFlags(a);
-      h += `<div class="finding"><h4>Facts doing the most damage</h4>` + (flags.length ? "<ol>" + flags.map((q) => `<li>${esc(q.text)}</li>`).join("") + "</ol><p class=\"note\">Changing the real working arrangement, not the paperwork, is what moves these. Ask a lawyer before restructuring.</p>" : "<p>No answer points to employee status.</p>") + "</div>";
+      h += `<div class="finding"><h3>Facts doing the most damage</h3>` + (flags.length ? "<ol>" + flags.map((q) => `<li>${esc(q.text)}</li>`).join("") + "</ol><p class=\"note\">Changing the real working arrangement, not the paperwork, is what moves these. Ask a lawyer before restructuring.</p>" : "<p>No answer points to employee status.</p>") + "</div>";
       if (ex.error) h += `<p class="error">${esc(ex.error)}</p>`;
-      else h += `<div class="finding"><h4>Illustrative exposure</h4><p class="stats">${money(ex.low)} to ${money(ex.high)}</p><table><tbody>
+      else h += `<div class="finding"><h3>Illustrative exposure</h3><p class="stats">${money(ex.low)} to ${money(ex.high)}</p><table><tbody>
         <tr><th>Back payroll tax (reduced §3509 rates, ${percent(ex.taxRate)} of pay)</th><td class="n">${money(ex.payrollTax)}</td></tr>
         <tr><th>Federal unemployment tax</th><td class="n">${money(ex.futa)}</td></tr>
         <tr><th>Unpaid overtime (${ex.otHours} h/week over 40, ${ex.flsaYears} yr look-back)</th><td class="n">${money(ex.owedOvertime)}</td></tr>

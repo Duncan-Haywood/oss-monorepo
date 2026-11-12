@@ -36,7 +36,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -165,7 +165,7 @@
       last = a;
       const m = a.summary, t = a.thresholds;
       $("#report-stats").innerHTML = `${m.items} item(s), ${m.units} plates, ${usd(m.sales)} net sales, food cost ${m.foodCostPct === null ? "n/a" : m.foodCostPct.toFixed(1) + "%"}. Popular means at least <strong>${t.popularityPct.toFixed(2)}%</strong> of plates; high margin means at least <strong>${usd(t.avgCm)}</strong> per plate. <strong>${m.classes.Star} Stars, ${m.classes.Plowhorse} Plowhorses, ${m.classes.Puzzle} Puzzles, ${m.classes.Dog} Dogs.</strong> Costs: ${m.bySource.export} from the export, ${m.bySource.list} from your list, ${m.bySource.default} from the ${m.defaultPct}% placeholder.`;
-      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
       const p = a.priceMove;
       $("#price-move").innerHTML = p.items.length ? `A ${p.risePct}% rise on ${p.items.length} Plowhorse(s) with ${p.lossPct}% fewer plates changes total margin by <strong>${p.gain >= 0 ? "+" : ""}${usd(p.gain)}</strong> over the period the export covers` + (p.gainPerYear !== null ? ` (about ${usd(p.gainPerYear)} a year)` : "") + `. The loss you assumed is a guess: the rise stops paying at about ` + p.items.filter((x) => x.breakEvenLossPct !== null).map((x) => `${esc(x.name)} ${x.breakEvenLossPct.toFixed(0)}%`).join(", ") + ` fewer plates.` : "No Plowhorses in this menu, so there is nothing to reprice.";
       $("#by-item").innerHTML = a.rows.map((x) => `<tr><th scope="row">${esc(x.name)}${x.category !== "Uncategorised" ? `<br><span class="note">${esc(x.category)}</span>` : ""}</th><td class="cls-${x.cls}">${x.cls}</td><td class="n">${x.qty}</td><td class="n">${x.mixPct.toFixed(1)}</td><td class="n">${money(x.price)}</td><td class="n">${money(x.unitCost)}</td><td>${x.costSource === "default" ? "placeholder" : x.costSource}${x.zeroCost ? " (zero)" : ""}</td><td class="n">${money(x.cm)}</td><td class="n">${money(x.cmTotal)}</td></tr>`).join("");

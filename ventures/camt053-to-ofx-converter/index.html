@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -168,7 +168,7 @@
       const s = r.summary;
       const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
       $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${esc(s.format || "unrecognised")}, ${s.statements} statement${s.statements === 1 ? "" : "s"}, ${s.entries} entr${s.entries === 1 ? "y" : "ies"}`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#statements").innerHTML = r.statements.map((st) => `<tr><td>${esc(st.id)}</td><td>${esc(maskAccount(st.account))}</td><td>${esc(st.currency)}</td><td class="n">${st.opening ? money(st.opening.amount, st.opening.currency) : "—"}</td><td class="n">${st.closing ? money(st.closing.amount, st.closing.currency) : "—"}</td><td class="n">${st.entries.length}</td></tr>`).join("") || `<tr><td colspan="6">No statement found.</td></tr>`;
       $("#entries").innerHTML = r.statements.flatMap((st) => st.entries.map((e) => `<tr><td>${e.line}</td><td>${esc(e.bookDate)}</td><td>${esc(e.counterparty)}</td><td>${esc(e.ref || e.bankRef)}</td><td>${esc(e.text)}</td><td class="n">${money(e.amount, e.currency)}</td></tr>`)).join("") || `<tr><td colspan="6">No entries.</td></tr>`;
       $("#which").innerHTML = r.statements.map((st, i) => `<option value="${i}">${esc(st.id || "(no id)")} · ${esc(maskAccount(st.account))} · ${esc(st.currency)} · ${st.entries.length} entries</option>`).join("");

@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -156,7 +156,7 @@
       if (r.target > 0) f.push({ severity: "info", title: "To reach " + money(r.target) + " a year you need about " + money(r.need.amort) + " (fixed) or " + money(r.need.rmd) + " (RMD method) in the account", detail: "Your entered balance is " + money(r.balance) + ". " + (r.balance >= r.need.amort ? "It covers the target under fixed amortization." : "It falls short of the target even under fixed amortization, by " + money(r.need.amort - r.balance) + ".") });
       f.push({ severity: "medium", title: "Balance when the lock-in ends, at your assumed return: " + money(r.endBalance.amort) + " (fixed) vs " + money(r.endBalance.rmd) + " (RMD method)", detail: "Remaining balance after the last scheduled payment at " + pct(r.growth) + " a year. A negative real return can leave the fixed method drawing down faster than the account grows." });
       if (r.rateWarning) f.push({ severity: "medium", title: "Your rate is above 5%", detail: "The IRS caps the fixed-method rate at the greater of 5% or 120% of the federal mid-term rate for either of the two months before the first payment. Confirm that ceiling before using this rate." });
-      $("#report-findings").innerHTML = f.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = f.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
       $("#rows tbody").innerHTML = r.rows.map((x) => { const e = modificationExposure(r, x.year); return `<tr><td>${x.year}</td><td>${x.age}</td><td class="n">${money(x.rmd)}</td><td class="n">${money(x.amort)}</td><td class="n">${money(x.rmdBalance)}</td><td class="n">${money(x.amortBalance)}</td><td class="n">${money(e.amort)}</td></tr>`; }).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";

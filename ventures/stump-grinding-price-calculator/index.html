@@ -32,7 +32,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #57534e; }
     .finding { border-bottom: 1px solid #e3eee3; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #dcfce7; color: #15803d; }
     .stats { font-size: 1rem; color: #2f2a26; margin-bottom: 10px; }
     footer { margin-top: 28px; border-top: 1px solid #cfe3d0; padding-top: 16px; }
@@ -138,15 +138,15 @@
       let h = "";
       if (parsed.skipped) h += `<div class="finding"><span class="pill">Skipped</span> ${parsed.skipped} entr${parsed.skipped === 1 ? "y" : "ies"} could not be read as a diameter between 0 and 120 inches.</div>`;
       if (j.price === null) { h += '<div class="finding"><span class="pill">No price</span> Overhead plus margin is 100% or more; lower one of them.</div>'; }
-      else h += `<div class="finding"><h4>Headline</h4><p class="stats">Bid <strong>${money2(j.price)}</strong> for ${j.n} stump${j.n === 1 ? "" : "s"} (${j.totalInches.toFixed(0)} in total) · direct cost ${money2(j.direct)} · break-even ${mm(j.breakEven)} · ${mins(j.onSiteMin)} on site${j.minApplies ? " · your minimum charge applies" : ""}</p></div>`;
-      h += `<div class="finding"><h4>Where the cost goes</h4>${table(["Line", "Cost"], [["Crew (" + j.crew + " x " + j.paidHours.toFixed(2) + " h including the drive)", money2(j.labour)], ["Machine (" + mins(j.grindMin) + " cutting)", money2(j.machine)], ["Truck", money2(j.truck)], ["Direct cost", money2(j.direct)]])}</div>`;
+      else h += `<div class="finding"><h3>Headline</h3><p class="stats">Bid <strong>${money2(j.price)}</strong> for ${j.n} stump${j.n === 1 ? "" : "s"} (${j.totalInches.toFixed(0)} in total) · direct cost ${money2(j.direct)} · break-even ${mm(j.breakEven)} · ${mins(j.onSiteMin)} on site${j.minApplies ? " · your minimum charge applies" : ""}</p></div>`;
+      h += `<div class="finding"><h3>Where the cost goes</h3>${table(["Line", "Cost"], [["Crew (" + j.crew + " x " + j.paidHours.toFixed(2) + " h including the drive)", money2(j.labour)], ["Machine (" + mins(j.grindMin) + " cutting)", money2(j.machine)], ["Truck", money2(j.truck)], ["Direct cost", money2(j.direct)]])}</div>`;
       const ps = perStumpPrices(D, o);
-      if (ps.length) h += `<div class="finding"><h4>Price for each stump</h4>${table(["Diameter", "Cutting time", "Price", "Per inch"], ps.map((s) => [s.d + " in", mins(s.grindMin), money2(s.price), money2(s.perInch)]))}<p class="note">Setup and driving are split equally; each stump's own cutting, positioning and cleanup are weighted by time.</p></div>`;
-      h += `<div class="finding"><h4>Your quote of ${money2(o.quotePerInch)} per inch</h4>` + (q.gap === null ? "" : `<p>Quote <strong>${money2(q.quote)}</strong> vs needed <strong>${money2(q.needed)}</strong>: ${q.gap >= 0 ? "ahead by " : "short by "}${money2(Math.abs(q.gap))}. Profit after overhead ${money2(q.profit)} (${pct(q.marginPct)}), ${mm(q.profitPerPaidHour)} per paid hour. Break-even rate ${mm(q.breakEvenPerInch)} per inch; the rate that hits your margin is ${mm(q.neededPerInch)} per inch.</p>`) + `</div>`;
-      h += `<div class="finding"><h4>Wood and conditions</h4>${table(["Conditions", "Cutting time", "Bid"], hardnessSensitivity(D, o).map((x) => [x.label, mins(x.grindMin), mm(x.price)]))}</div>`;
-      h += `<div class="finding"><h4>Stumps per visit (average size ${j.n ? (j.totalInches / j.n).toFixed(0) : 0} in)</h4>${table(["Stumps", "Bid total", "Each"], bundleSensitivity(D, o).map((x) => [x.count, mm(x.total), mm(x.each)]))}</div>`;
-      h += `<div class="finding"><h4>If your grinder is faster or slower than you think</h4>${table(["Speed", "Cu in / min", "Cutting time", "Bid"], speedSensitivity(D, o).map((x) => [Math.round(x.mult * 100) + "%", Math.round(x.cuInPerMin), mins(x.grindMin), mm(x.price)]))}</div>`;
-      h += `<div class="finding"><h4>Labour cost</h4>${table(["Rate", "Per person-hour", "Bid"], wageSensitivity(D, o).map((x) => [Math.round(x.mult * 100) + "%", money2(x.wage), mm(x.price)]))}</div>`;
+      if (ps.length) h += `<div class="finding"><h3>Price for each stump</h3>${table(["Diameter", "Cutting time", "Price", "Per inch"], ps.map((s) => [s.d + " in", mins(s.grindMin), money2(s.price), money2(s.perInch)]))}<p class="note">Setup and driving are split equally; each stump's own cutting, positioning and cleanup are weighted by time.</p></div>`;
+      h += `<div class="finding"><h3>Your quote of ${money2(o.quotePerInch)} per inch</h3>` + (q.gap === null ? "" : `<p>Quote <strong>${money2(q.quote)}</strong> vs needed <strong>${money2(q.needed)}</strong>: ${q.gap >= 0 ? "ahead by " : "short by "}${money2(Math.abs(q.gap))}. Profit after overhead ${money2(q.profit)} (${pct(q.marginPct)}), ${mm(q.profitPerPaidHour)} per paid hour. Break-even rate ${mm(q.breakEvenPerInch)} per inch; the rate that hits your margin is ${mm(q.neededPerInch)} per inch.</p>`) + `</div>`;
+      h += `<div class="finding"><h3>Wood and conditions</h3>${table(["Conditions", "Cutting time", "Bid"], hardnessSensitivity(D, o).map((x) => [x.label, mins(x.grindMin), mm(x.price)]))}</div>`;
+      h += `<div class="finding"><h3>Stumps per visit (average size ${j.n ? (j.totalInches / j.n).toFixed(0) : 0} in)</h3>${table(["Stumps", "Bid total", "Each"], bundleSensitivity(D, o).map((x) => [x.count, mm(x.total), mm(x.each)]))}</div>`;
+      h += `<div class="finding"><h3>If your grinder is faster or slower than you think</h3>${table(["Speed", "Cu in / min", "Cutting time", "Bid"], speedSensitivity(D, o).map((x) => [Math.round(x.mult * 100) + "%", Math.round(x.cuInPerMin), mins(x.grindMin), mm(x.price)]))}</div>`;
+      h += `<div class="finding"><h3>Labour cost</h3>${table(["Rate", "Per person-hour", "Bid"], wageSensitivity(D, o).map((x) => [Math.round(x.mult * 100) + "%", money2(x.wage), mm(x.price)]))}</div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       record("bid_run");

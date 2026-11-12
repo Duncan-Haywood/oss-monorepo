@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -179,7 +179,7 @@
       const s = r.summary, c = s.counts;
       const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
       $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.rows} row${s.rows === 1 ? "" : "s"}, ${s.columns} columns${s.emailColumn ? `, email column "${esc(s.emailColumn)}"` : ""}<br>${c.valid || 0} well-formed · ${c.invalid || 0} invalid · ${c.blank || 0} blank · ${c.duplicates || 0} duplicate · ${c.aliasDuplicates || 0} likely duplicate · ${c.typos || 0} typo domain · ${c.roles || 0} role · ${c.disposable || 0} disposable · ${c.placeholders || 0} placeholder${s.suppressionLoaded ? ` · ${c.suppressed || 0} on your do-not-email list` : ""}`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
       $("#platforms").innerHTML = s.platforms.map((p) => `<tr><td>${esc(p.name)}</td><td><code>${esc(p.emailHeader)}</code></td><td>${p.emailExact ? "matches" : p.emailFound ? "found under another name" : "no email column found"}</td><td>${p.renames.filter((x) => x.concept !== "email").map((x) => `${esc(x.from)} → ${esc(x.to)}`).join(", ") || "none"}</td></tr>`).join("");
       fix = repair(text, { platform, fixTypos: $("#fixtypos").checked, suppress: suppressText });
       $("#fix-box").hidden = false;

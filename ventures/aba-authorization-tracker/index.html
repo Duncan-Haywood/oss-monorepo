@@ -35,7 +35,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -155,7 +155,7 @@
       $("#report-stats").innerHTML = `<strong>${s.needAttention} of ${s.count} authorizations need attention</strong> · ${s.runningOut} projected to run out early · ${s.reauthDue} reauthorizations due within 14 days or late` + (s.hasRates ? ` · <strong>${money(s.atRiskCents)}</strong> projected to expire unused` : ` · ${s.unusedUnits} units projected to expire unused`);
       $("#report-note").textContent = r.errors.length ? `${r.errors.length} row${r.errors.length === 1 ? "" : "s"} skipped: ${r.errors.slice(0, 3).join(" ")}` : "";
       $("#rows").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.client)}</td><td>${esc(x.code)}</td><td>${fmtDate(x.end)}</td><td class="n">${x.used} / ${x.approved} (${x.pctUsed.toFixed(0)}%)</td><td class="n">${x.pctTime.toFixed(0)}%</td><td class="n">${x.expired ? "expired" : x.projectedEnd.toFixed(0)}</td><td>${fmtDate(x.reauthBy)}</td></tr>`).join("");
-      $("#report-findings").innerHTML = r.rows.filter((x) => x.flags.length).map((x) => `<div class="finding"><h4>${esc(x.client)} · ${esc(x.code)}</h4>${x.flags.map((f) => `<p><span class="pill ${f.level === "info" ? "low" : f.level}">${f.level === "high" ? "act" : f.level === "medium" ? "watch" : "note"}</span>${esc(f.text)}</p>`).join("")}</div>`).join("");
+      $("#report-findings").innerHTML = r.rows.filter((x) => x.flags.length).map((x) => `<div class="finding"><h3>${esc(x.client)} · ${esc(x.code)}</h3>${x.flags.map((f) => `<p><span class="pill ${f.level === "info" ? "low" : f.level}">${f.level === "high" ? "act" : f.level === "medium" ? "watch" : "note"}</span>${esc(f.text)}</p>`).join("")}</div>`).join("");
       report.hidden = false;
       status.textContent = `${s.count} authorizations checked as of ${fmtDate(asOf)}.`;
       report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });

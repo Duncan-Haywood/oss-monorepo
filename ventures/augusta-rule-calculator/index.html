@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -156,7 +156,7 @@
       const tiles = [[usd(a.rent), "Rent excluded from your income"], [usd(a.gross), "Total tax saved per year"], [usd(a.yearNet), "Net saving per year after costs"], [usd(a.totalNet), "Net over " + a.p.years + " years after setup"]];
       if (a.p.days > 0) tiles.push([usd(a.perDay), "Tax saved per day rented"]);
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#days-table tbody").innerHTML = a.dayTable.map((d) => `<tr><td>${d.days}</td><td class="n">${usd(d.rent)}</td><td class="n">${usd(d.gross)}</td></tr>`).join("");
       $("#rate-table tbody").innerHTML = a.rateTable.map((s) => `<tr class="${s.label === "Your rate" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.rate)}</td><td class="n">${usd(s.gross)}</td><td class="n">${usd(s.net)}</td></tr>`).join("");
       report.hidden = false;

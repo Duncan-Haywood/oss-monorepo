@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -168,7 +168,7 @@
       last = r;
       const s = r.summary;
       $("#report-stats").innerHTML = `${s.invoices} invoices from ${s.clients} client(s), $${money(s.billed)} billed. <strong>Open $${money(s.openTotal)} on ${s.openCount} invoice(s), of which $${money(s.overdueTotal)} is overdue</strong>. ` + (s.medianDaysToPay === null ? "" : `Paid invoices took ${num(s.medianDaysToPay)} days at the median, ${pct(s.lateShare)} after the due date. `) + (s.dso === null ? "" : `<strong>DSO ${num(s.dso)} days</strong>.`);
-      $("#report-findings").innerHTML = r.findings.length ? r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out.</p>`;
+      $("#report-findings").innerHTML = r.findings.length ? r.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out.</p>`;
       $("#aging").innerHTML = r.aging.map((b) => `<tr><th scope="row">${esc(b.label)}</th><td class="n">${b.count}</td><td class="n">${money(b.balance)}</td><td class="n">${s.openTotal > 0 ? pct(b.balance / s.openTotal) : "–"}</td></tr>`).join("") + `<tr><th scope="row">Total open</th><td class="n">${s.openCount}</td><td class="n">${money(s.openTotal)}</td><td class="n">${s.openTotal > 0 ? "100%" : "–"}</td></tr>`;
       const fc = r.forecast;
       $("#forecast").innerHTML = [["Within 30 days", fc.d30], ["31–60 days", fc.d60], ["Later than 60 days", fc.later], ["Already past when that client normally pays", fc.unforecast]].map(([l, v]) => `<tr><th scope="row">${l}</th><td class="n">${money(v)}</td></tr>`).join("");
