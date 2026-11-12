@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKkSezp4nqaH51gnWGw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T14:19:22Z",
+  "ended": "2026-11-12T14:42:02Z",
+  "wall_minutes": 22.84,
+  "tokens_in": 8767610,
+  "tokens_out": 54848,
+  "cost_usd": 4.0041,
+  "tool_calls": 75,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15156",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "git ls-tree -l on a blob:none partial clone fetched every blob lazily and hung; use --name-only (sizes force blob fetches).",
+    "First thumbnail pass skipped the 350D: it tags its plain RGB strip with compression 6; now accepted at the exact size."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing next: said real CR2s from other bodies were blocked (raw.pixls.us 403); raw.githubusercontent.com serves drewnoakes/metadata-extractor-images with full-size CR2/NEF/ARW/ORF/DNG files. Recorded in the new next:."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-five-canon-bodies-two-surprises.md",
+    "ventures/photo-editing/eval/cr2-five-bodies-2026-11-12.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 7 photo-editing. Five real Canon bodies against LibRaw: 0 sensels differ; area, black, balance, phase all LibRaw's. Fixed 70D refusal (thumbnail red/blue rule, |r| 0.98-0.99 on 4 bodies) and 7D pink highlights (white level from clipped-sensel pile: 12,649; clipped pixels white 69% vs 0%). Verification run here: photo-editing full suite 678 passed 4 skipped (venv py3.11 numpy 2.4); test_cr2 also passes without numpy; ruff 0.15.8 check . clean; mypy 1.19.1 clean; check_post_frontmatter/check_post_links clean. Open: ShootFlow renders 3-9% brighter than LibRaw with the same matrix.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ab022536-1a94-5606-ad59-b453448ebee5",
+    "transcripts": 1,
+    "first": "2026-11-12T14:19:22Z",
+    "last": "2026-11-12T14:42:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 144,
+        "output": 54848,
+        "thinking": 16835,
+        "cache_read": 8619636,
+        "cache_write_5m": 0,
+        "cache_write_1h": 147830,
+        "api_equivalent_usd": 4.0041,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 144,
+      "output": 54848,
+      "thinking": 16835,
+      "cache_read": 8619636,
+      "cache_write_5m": 0,
+      "cache_write_1h": 147830,
+      "api_equivalent_usd": 4.0041,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 67,
+      "ToolSearch": 2,
+      "TaskStop": 2,
+      "Write": 2,
+      "mcp__github__get_file_contents": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.84,
+      "active_minutes": 22.84,
+      "model_minutes": 11.74,
+      "tool_minutes": 11.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer finding samples, debugging two body-specific reader faults, writing rules, tests and eval: about a day and a half",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 249.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
