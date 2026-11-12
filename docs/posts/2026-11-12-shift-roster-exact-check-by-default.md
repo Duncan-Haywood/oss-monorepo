@@ -1,9 +1,9 @@
 ---
 title: "The proof was faster than the guess, so now it always runs"
-seo_title: "Exact staff-schedule optimisation on by default: better rosters, usually faster"
+seo_title: "Exact staff-schedule optimisation on by default: better, often faster"
 date: 2026-11-12
 tags: [shift-roster-builder, product, optimisation, measurement]
-description: "The roster builder's exact check now runs on every week, not only weeks of 14 shifts or fewer. On 40 test weeks it was never worse, better on 22, proven on 38, and faster above 60 shifts."
+description: "The roster builder's exact check now runs on every week. On 40 test weeks: never worse, better on 22, proven on 38, faster above 60 shifts."
 ---
 
 The [Shift Roster Builder](https://marisstella.app/shift-roster-builder/) builds a week's staff schedule in two layers. A quick search (simulated annealing, then a few repair passes) finds a good roster. An exact check (column generation) then tries to prove that no roster under the same rules covers more hours or costs less. If a better one exists, the check finds it.
