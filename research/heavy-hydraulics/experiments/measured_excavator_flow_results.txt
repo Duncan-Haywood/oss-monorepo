@@ -1,0 +1,48 @@
+Milestone 5z: volume ratio r on a measured excavator (fuxi-robot/excavator-motion, folder 75, CC BY-NC-SA 4.0)
+
+10 files, 9679 samples, 16.0 min; sample interval (T from qvel) 99.3 to 99.8 ms
+check: corr(d qpos / d relative_time, qvel) per joint, min over files: boom 0.989, arm 0.942, bucket 0.880, swing 0.971
+observed joint span p0.1 to p99.9 (rad): boom -0.232 to 0.528 (0.760), arm -0.932 to 0.268 (1.200), bucket -0.450 to 2.202 (2.652), swing -0.820 to 1.129 (1.949)
+moving (any joint above 0.05 rad/s): 97.5% of samples
+joint speed p99 (rad/s): boom 0.374, arm 0.475, bucket 1.474, swing 0.785; swing p99 is 0.63 of the 12 rpm maximum
+
+lever k = stroke / (span x f); central f 1.0, swing share s 0.5. Per (f, s): min to max over the 8 sign assignments
+    f    s |     p50 L/min     p99 L/min        >219 |     r stock       r p99       r p95
+ 1.00  0.0 |         54-80       219-391 0.010-0.091 |   2.54-2.56   2.55-4.54   2.22-3.93
+ 1.00  0.5 |         66-90       240-413 0.038-0.104 |   2.16-2.17   2.38-4.08   2.09-3.56
+ 1.00  1.0 |        83-107       269-434 0.065-0.115 |   1.88-1.89   2.32-3.72   2.01-3.27
+ 1.25  0.0 |         43-64       175-313 0.000-0.076 |   3.17-3.20   2.55-4.54   2.22-3.93
+ 1.25  0.5 |         56-75       197-335 0.001-0.087 |   2.60-2.62   2.35-3.98   2.07-3.48
+ 1.25  1.0 |         70-93       229-359 0.018-0.099 |   2.20-2.21   2.32-3.61   1.97-3.15
+ 1.50  0.0 |         36-54       146-261 0.000-0.055 |   3.81-3.84   2.55-4.54   2.22-3.93
+ 1.50  0.5 |         50-65       169-283 0.000-0.073 |   3.01-3.03   2.33-3.88   2.04-3.40
+ 1.50  1.0 |         61-82       204-309 0.004-0.089 |   2.49-2.50   2.33-3.51   1.97-3.05
+
+central (f 1, s 0.5), 8 sign assignments: p99 demand 240 to 413 L/min; r stock 2.16 to 2.17; r p99 2.376 to 4.075 (max/min 1.715)
+all 72 cases: r stock 1.88 to 3.84; r p99 2.32 to 4.54
+per file, r at that pooled p99 pump (240 L/min, central, kinematic signs): 2.31 to 2.51, mean 2.38, 95% bootstrap over files 2.34 to 2.42
+
+5u rule m* ~ 0.78 (r - 1) p, p = 0.41 x 316 = 130 bar (5y share on this machine's maximum):
+  synthetic r            r 1.43: m* ~ 43.8 bar
+  loader r               r 1.79: m* ~ 79.8 bar
+  r p99, central min     r 2.38: m* ~ 139.1 bar
+  r p99, central max     r 4.08: m* ~ 310.8 bar
+  r p99, all cases min   r 2.32: m* ~ 133.0 bar
+  r stock, central min   r 2.16: m* ~ 117.0 bar
+
+Sign from the dataset's forward kinematics (scripts/visualize.py): boom -1, arm +1, bucket either
+  bucket +1: p50 90, p99 240 L/min, r p99 2.38, r p95 2.09
+  bucket -1: p50 87, p99 240 L/min, r p99 2.38, r p95 2.10
+  bucket +1, swing 0: p99 cylinder demand 218.8 L/min, so the spans would have to be 1.00 times the observed ones for the p99 to sit at the pump maximum
+  bucket -1, swing 0: p99 cylinder demand 218.6 L/min, so the spans would have to be 1.00 times the observed ones for the p99 to sit at the pump maximum
+  per-joint lever factors 1 to 2.5 each (64 combinations) x bucket sign x swing share 0/0.5/1 (384 cases): r p99 1.95 to 3.08 (median 2.44), r p95 1.69 to 2.63
+  m* ~ 0.78 (r - 1) x 130 bar at the lowest r p99 there: 95.7 bar; at the lowest r p95: 70.0 bar
+
+Predictions (LOG.md 5z):
+  Z1 p99 demand 60 to 219 L/min, central, every sign: refuted (240 to 413)
+  Z2 r stock > 1.79 under every sign and swing share (f 1): held; over all f: yes
+  Z3 r p99 within 1.433 to 2.5, central: refuted (2.38 to 4.08)
+  Z4 sign moves r p99 by under 15%: refuted (71.5%)
+  Z5 m* at r p99 (central min) > 25 bar: held (139.1 bar)
+
+Source: fuxi-robot/excavator-motion, https://huggingface.co/datasets/fuxi-robot/excavator-motion, CC BY-NC-SA 4.0. Derived statistics only; no data redistributed.

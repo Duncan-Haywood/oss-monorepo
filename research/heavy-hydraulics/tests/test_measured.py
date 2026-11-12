@@ -137,3 +137,17 @@ def test_highest_live_skips_dead_channels():
     assert highest_live([100.0, -60.0, 250.0, 300.0], [0, 1, 2]) == 250.0
     with pytest.raises(ValueError):
         highest_live([1.0], [])
+
+
+def test_cylinder_flow_cap_and_annulus():
+    import math
+    from heavy_hydraulics.measured import cylinder_flow
+    # 110 x 75 boom, 0.5 m/rad lever, 0.2 rad/s: rod speed 0.1 m/s
+    cap = math.pi * 0.11 ** 2 / 4
+    ann = cap - math.pi * 0.075 ** 2 / 4
+    assert cylinder_flow(0.2, 0.5, 0.11, 0.075, 1) == pytest.approx(cap * 0.1 * 60000)
+    assert cylinder_flow(-0.2, 0.5, 0.11, 0.075, 1) == pytest.approx(ann * 0.1 * 60000)
+    assert cylinder_flow(-0.2, 0.5, 0.11, 0.075, -1) == pytest.approx(cap * 0.1 * 60000)
+    assert cylinder_flow(0.0, 0.5, 0.11, 0.075, 1) == 0.0
+    with pytest.raises(ValueError):
+        cylinder_flow(0.1, 0.5, 0.07, 0.075, 1)
