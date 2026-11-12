@@ -27,7 +27,7 @@ test("Done takes a call off today's queue, survives a restart, and Undo puts it 
   const before = a.daily({ tasks, maxOverdueDays: 30 });
   const k = `${call.email}|call|${call.step}`;
   assert.ok(keys(before).includes(k), "the call is due before it is marked");
-  assert.deepEqual(a.markDone({ email: "Dana@Brightline.example", step: call.step }), { ok: true, done: true, changed: true });
+  assert.deepEqual(a.markDone({ email: "Dana@Brightline.example", step: call.step }), { ok: true, done: true, changed: true, outcome: "done", tries: 0 });
   assert.equal(a.markDone({ email: call.email, step: call.step }).changed, false, "marking twice changes nothing");
   const after = a.daily({});
   assert.ok(!keys(after).includes(k), "gone once marked");
@@ -79,5 +79,5 @@ test("POST /api/daily/done needs the token; the page carries the Done and Undo w
   const page = await (await fetch(`${base}/?token=${"x".repeat(16)}`)).text();
   assert.match(page, /\/api\/daily\/done/);
   assert.match(page, /id="dq-list"/);
-  assert.match(page, /Press Done on a call/);
+  assert.match(page, /Press Done on a LinkedIn touch/);
 });
