@@ -31,12 +31,66 @@ for the 3 cm arm: with the shear spring set to measured G, stretch still moves t
 across 40 to 800 N/m, but from 800 N/m up, including the stiffness the same table's tensile LT and WT
 imply, all four fabrics pick +1.0 cm, the 2D chain's answer, with certified margins. The tier
 disagreement belongs to soft cloth, and only the cotton jersey and the shirting, whose low-load
-stiffness lands in the band where the choice flips, still need a measured tensile toe. Milestone 5 proves the margin bound the proposal planned (regret is at most the spread of the paired tier error, not its size) and tests it on those 50 tier pairs: the bound certifies no 2D-chain choice (the paired error still spreads 0.6 to 1.3 cm across widths, against margins of 0.05 to 0.25 cm), though the 2D choice's realised regret is small (mean 0.03 cm); it certifies only a stretch-stiffness guess near the KES-sourced one, so a cheap tier can screen widths but not judge them.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
+stiffness lands in the band where the choice flips, still need a measured tensile toe. Milestone 5 proves the margin bound the proposal planned (regret is at most the spread of the paired tier error, not its size) and tests it on those 50 tier pairs: the bound certifies no 2D-chain choice (the paired error still spreads 0.6 to 1.3 cm across widths, against margins of 0.05 to 0.25 cm), though the 2D choice's realised regret is small (mean 0.03 cm); it certifies only a stretch-stiffness guess near the KES-sourced one, so a cheap tier can screen widths but not judge them. Milestone 5b keeps the cheap tier's own penalty term the first bound dropped: the regret is at most max over d of K|d − d^| minus the cheap tier's penalty at d, with K the slope of the paired error around the choice, 2.8 times tighter on the 2D chain (median realised share of the bound 34% against 12%). Used as a loop (three reference runs around the cheap choice, estimate K, run what the bound cannot rule out), it finds the reference optimum in 48 of 50 tier pairs with 3.9 of 7 reference runs on average; the two misses are the softest cloth (EA 40 N/m), whose optimum sits two grid steps away.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
 `research/PROJECTS.md`). Simulation only; nothing here is a measurement of real garments.
 
 **Live page:** https://marisstella.app/research/hanger-codesign/
 
 ![Shape error against arm width offset on fabric D for three model tiers](experiments/m1_kes_fidelity/err_vs_offset_D.svg)
+
+## Milestone 5b: a regret bound that keeps the cheap tier's penalty, and a screen-and-verify loop
+
+`experiments/m5b_penalty_bound/run.py` (stdlib only; no new simulation, it reuses milestone 5's 50
+instances). Predictions were committed before the first run, but after milestone 5's table was
+public, so Q2 to Q5 are not blind.
+
+**The bound.** Milestone 5's pair bound drops the term s_t(d*) − s_t(d^) ≥ 0 from the exact identity,
+and that term is large where the cheap tier is sharp, which is the 2D chain. Keeping it and taking
+the maximum over the unknown d*:
+
+    r = max_d [ e(d^) − e(d) − Dt(d) ] ≤ R(K) = max(0, max_{d ≠ d^} [ K |d − d^| − Dt(d) ]),   Dt(d) = s_t(d) − s_t(d^),
+
+for any K with |e(d) − e(d^)| ≤ K |d − d^|. R needs the cheap scores and K only, not d*. The smallest
+valid K is the star constant around the choice, K*, which is never above milestone 5's neighbour
+slope L. R(K) = 0 is the cone certificate. In practice K is estimated: K3 from the reference tier at
+d^ and its two grid neighbours. **Screen and verify (SV, κ):** run those three, estimate K from every
+reference run so far, run every design with Dt(d) ≤ κ K |d − d^|, repeat until nothing is added, and
+return the best design the reference tier has seen. Baselines: trusting the cheap choice (1 run),
+local-3 (the three runs, best of them) and exhaustive search (7 runs).
+
+| family | instances | regret > 0 | median r / pair bound | median r / R(K*) | R(K3) ≥ r | mean regret (cm): cheap, local-3, SV(1) | mean reference runs: local-3, SV(1), SV(2) |
+|---|---|---|---|---|---|---|---|
+| 2D chain → 3D sheet | 28 | 16 | 0.12 | 0.34 | 25 | 0.030, 0.0039, 0.0017 | 3.0, 3.9, 7.0 |
+| 3000 iterations → converged | 4 | 4 | 0.49 | 0.72 | 4 | 0.029, 0, 0 | 3.0, 3.5, 5.0 |
+| mesh change | 4 | 0 | – | – | 4 | 0, 0, 0 | 3.0, 3.0, 3.75 |
+| guessed EA or default → KES-sourced | 14 | 7 | 0.68 | 0.68 | 14 | 0.031, 0, 0 | 3.0, 4.3, 5.7 |
+| all | 50 | 27 | 0.29 | 0.53 | 47 | 0.028, 0.0022, 0.0010 | 3.0, 3.9, 6.2 |
+
+| | prediction | outcome |
+|---|---|---|
+| P1, P2 | r ≤ R(K*) ≤ R(L) and r ≤ (osc − margin)₊ ≤ osc (theorems) | held, all 50, and on 3,000 random instances (`tests/test_m5b.py`) |
+| Q1 | R(K*) ≤ K* abs(d^ − d*) in every instance | **refuted**, 24 of 50: in 20 the cheap choice is right (d^ = d*, so the oracle quantity is 0 while R is not), in 4 R is 1.0 to 1.35 times it |
+| Q2 | on 2D → 3D, median r / R(K*) at least twice median r / pair | held: 0.34 against 0.12 (2.8 times) |
+| Q3 | R(K3) ≥ r in at least 45 of 50, R(2 K3) ≥ r in all | held: 47 and 50 |
+| Q4 | SV(1): zero regret in at least 45, at most 4.5 runs on average, mean regret no worse than local-3 | held: 48, 3.92 runs, 0.0010 against 0.0022 cm |
+| Q5 | on 2D → 3D, SV(1) needs at least one more run than local-3 at the median | held: 4 against 3 |
+
+**Reading.** Keeping the penalty term turns milestone 5's certificate into a usable number: on the
+2D chain the realised regret is a median third of R(K*), against an eighth of the pair bound. With
+K estimated from three runs the bound still covers the realised regret in 47 of 50 instances, and
+doubling the estimate covers all 50. The three it misses, and the two instances SV(1) gets wrong
+(regret 0.036 and 0.012 cm, fabric A at EA 40 N/m in 1c and 1d), are the softest cloth: the
+reference optimum sits two grid steps (1 cm) from the cheap choice and the paired error is curved,
+so the slope near the choice understates the slope further out. SV(2) runs all seven candidates on
+the 2D chain, so it buys its zero regret at exhaustive cost there. SV(1) is the useful setting:
+on a 7-width study it cuts the 2D choice's mean regret from 0.030 cm to 0.0017 cm for 3.9
+reference runs instead of 7, and on the parameter families (where the cheap tier is the same model
+at a nearby parameter) it never misses.
+
+**Limits.** The same 50 instances as milestone 5, which share 2D scores and overlap, so no interval
+is claimed; one design variable on a grid of 7, so the run counts are small integers and the saving
+from SV grows only if the candidate set does; the reference tier is our converged sheet, not a
+validated solver; κ was swept at three values, not tuned.
 
 ## Milestone 5: the decision-margin bound, and what paired designs can certify
 
@@ -374,8 +428,9 @@ no validated solver yet; no real garment.
 4. Milestone 6 (H4) with milestone 5's finding built in: use the cheap tier as a screen (drop the
    candidates outside the cone set), estimate the slope L from three reference runs around its
    choice, and spend reference runs only on what is left; compare against single-tier CMA-ES.
-   A sharper bound that keeps the cheap tier's own penalty term (it is what makes the 2D bound
-   loose) is the theory step to try first.
+   Milestone 5b did the sharper bound and the loop on a 7-candidate grid (SV(1): 48 of 50 at 3.9
+   runs); next is SV inside a design loop over a continuous profile, where the candidate set is
+   large enough for the saving to matter, and a curvature-aware K for soft cloth, where SV(1) misses.
 5. Source a table of drape coefficient with B and W for the same fabrics (the Autex paper
    doi:10.2478/aut-2019-0034 with 63 woven fabrics is the first to read) once a session can
    reach it.
