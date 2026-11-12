@@ -2196,7 +2196,7 @@ function buildRosterOnce(staff, slots, options = {}) {
     if (!ctx.elig[k].some(Boolean)) warnings.push(`${p.name} is not available for any of the shifts, so they get no hours.`);
   });
   const known = new Set(staff.map((p) => p.name.toLowerCase()));
-  slots.forEach((s) => { if (s.fixed && !known.has(s.fixed.toLowerCase())) warnings.push(`A shift is pinned to "${s.fixed}", who is not in the staff list, so nobody can take it.`); });
+  slots.forEach((s) => { if (s.fixed && s.fixed !== STARTED_OPEN && !known.has(s.fixed.toLowerCase())) warnings.push(`A shift is pinned to "${s.fixed}", who is not in the staff list, so nobody can take it.`); });
   res.people.forEach((p) => {
     if (p.avoidHours > 0.01) warnings.push(`${p.name} works ${num(p.avoidHours)} hours inside the times they asked to avoid; avoiding them would have left a shift open or cost more.`);
   });
@@ -2636,6 +2636,25 @@ export function parseRosterCsv(csv) {
     out.push({ person, day, start: day * 1440 + start, end: day * 1440 + end, label: unDefuse((c[4] || "").trim()) });
   }
   return out;
+}
+
+// Reissuing a posted week part-way through (2026-11-12): shifts that started before `changedAt` (minutes from Monday 00:00)
+// already happened, so a rebuild must not move them. Each such shift is pinned (`fixed`) to whoever held it in the posted
+// roster CSV, matched on day, start and end, one copy per row; a started shift that was open stays open (pinned to
+// STARTED_OPEN, a name no one has). Later shifts are untouched. Returns { slots, pinned, open }.
+export const STARTED_OPEN = "(started, open)";
+export function pinStarted(slots, postedCsv, changedAt) {
+  const rows = parseRosterCsv(postedCsv);
+  const used = new Set();
+  let pinned = 0, open = 0;
+  const out = slots.map((s) => {
+    if (!(s.start < changedAt)) return s;
+    const k = rows.findIndex((r, j) => !used.has(j) && r.start === s.start && r.end === s.end);
+    if (k >= 0) { used.add(k); pinned++; return { ...s, fixed: rows[k].person }; }
+    open++;
+    return { ...s, fixed: STARTED_OPEN };
+  });
+  return { slots: out, pinned, open };
 }
 
 // What changed between the roster you posted and the one you are working from now, one entry per change:

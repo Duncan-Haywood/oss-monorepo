@@ -31,11 +31,14 @@ export function reissue({ staffText, slots, person, day, changedAt, posted, base
   // patch
   const idx = posted.owner.map((o, i) => (staff[o]?.name === person && slots[i].day === day ? i : -1)).filter((i) => i >= 0);
   const owner = posted.owner.slice();
+  // Patch pay: the posted payroll plus coverOptions' extraCost for each covered shift (the taker's pay less the caller's, overtime
+  // included); a shift left open drops the caller's straight-time pay for it (their overtime saving is not counted: approximate).
+  const caller = staff.find((s) => s.name === person);
   let patchPay = 0, left = 0;
   for (const i of idx) {
     const o = coverOptions(staff, slots, { ...posted, owner }, i);
     const best = o.fits[0];
-    if (best) { owner[i] = staff.findIndex((s) => s.name === best.name); patchPay += best.extraCost; } else { owner[i] = -1; left += (slots[i].end - slots[i].start) / 60; }
+    if (best) { owner[i] = staff.findIndex((s) => s.name === best.name); patchPay += best.extraCost; } else { patchPay -= ((slots[i].end - slots[i].start) / 60) * caller.wage; owner[i] = -1; left += (slots[i].end - slots[i].start) / 60; }
   }
   const lines = postedCsv.trim().split("\n"); const rowOf = posted.assignments.map((a) => slots.indexOf(a.slot));
   const patchedCsv = [lines[0], ...lines.slice(1).map((l, k) => { const i = rowOf[k]; const c = l.split(","); c[5] = owner[i] >= 0 ? staff[owner[i]].name : "UNFILLED"; return c.join(","); })].join("\n") + "\n";
@@ -49,7 +52,7 @@ export function reissue({ staffText, slots, person, day, changedAt, posted, base
   return { idx: idx.length, out };
 }
 
-export const VARIANTS = { rebuild: {}, "keep/h 0.1": { keepValue: 0.1 }, "keep/shift 1": { keepShift: 1 }, "keep/shift 2": { keepShift: 2 } };
+export const VARIANTS = { rebuild: {}, "keep/h 0.1": { keepValue: 0.1 }, "keep/shift 1": { keepShift: 1 }, "keep/shift 2": { keepShift: 2 }, "keep/shift 20": { keepShift: 20 } };
 
 export function study(staffText, { base = { minRestHours: 10 }, variants = VARIANTS, onCase = null } = {}) {
   const slots = parseShifts(sampleShifts()).slots;
@@ -60,7 +63,7 @@ export function study(staffText, { base = { minRestHours: 10 }, variants = VARIA
     const changedAt = (day - 1) * 1440 + 17 * 60; // the evening before
     for (const p of staff) {
       if (!posted.owner.some((o, i) => o >= 0 && staff[o] === p && slots[i].day === day)) continue;
-      const c = { person: p.name, day: DAYS[day], ...reissue({ staffText, person: p.name, day, changedAt, posted, base, variants }) };
+      const c = { person: p.name, day: DAYS[day], ...reissue({ staffText, slots, person: p.name, day, changedAt, posted, base, variants }) };
       cases.push(c);
       if (onCase) onCase(c);
     }
