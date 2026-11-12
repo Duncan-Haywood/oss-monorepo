@@ -266,7 +266,7 @@ alike. *The Letter in the Wall* (For Other Minds, 2026) and *Ten Percent*
 
 Proposals, not commitments; pick one and say so in the PR. Each needs its
 numbers worked out before drafting. Finished ones live in [DONE.md](DONE.md)
-(336 on 2026-11-12), with the numbers each story used: read it before
+(337 on 2026-11-12), with the numbers each story used: read it before
 proposing. Mark a proposal you finish `*(Done: Title, place, date.)*` here
 or anywhere; `node bible_done.mjs` moves it there, and `node --test` fails
 until it has. An empty shelf below means: write a proposal.
