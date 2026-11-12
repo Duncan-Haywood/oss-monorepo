@@ -1,9 +1,9 @@
 ---
 title: "A half-size fixed pump costs a measured excavator 11% more time, not 39%"
-seo_title: "Open-centre vs load-sensing excavator: smaller fixed pump, cycle time cost"
+seo_title: "Open-centre vs load-sensing excavator: smaller pump, cycle time cost"
 date: 2026-11-12
 tags: [research, heavy-equipment, hydraulics, load-sensing, open-centre, excavator]
-description: "On measured excavator motion, a fixed pump half the stock size matches load-sensing pump energy for about 11% more cycle time. The same trade cost a measured wheel loader 39%."
+description: "On measured excavator motion, a half-size fixed pump matches load-sensing pump energy for 11% more cycle time; on a measured loader it cost 39%."
 ---
 
 The [`heavy-hydraulics`](../../research/heavy-hydraulics/README.md)
