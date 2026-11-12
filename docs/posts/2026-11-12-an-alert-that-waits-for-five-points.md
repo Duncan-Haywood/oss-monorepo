@@ -2,7 +2,7 @@
 title: "An alert that waits for five points: watching a metric for lasting changes"
 date: 2026-11-12
 tags: [changepoint-detector, time-series, monitoring, pre-registration, self-hosting]
-description: The changepoint detector can now watch a daily metric and message you once per new change. We replayed 6,369 checks on labelled real series to pick its defaults, and a second pre-registered round failed.
+description: The changepoint detector now watches a daily metric and messages you once per new change. Defaults picked by replaying 6,369 labelled checks.
 ---
 
 Most people who ask "did this metric change?" ask it more than once. They ask every Monday. The [changepoint detector](https://marisstella.app/changepoint-detector/) answered it once per paste. It now has a watch mode. `watch.mjs` runs after each new row of a CSV, refits the series and posts to Slack, Discord, Teams or Mattermost when the level has changed. It posts once per change, after five points sit on the far side of it. A [setup script](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html) writes a standalone repository with a daily GitHub Actions job, so the watch runs in your own account and nothing goes through us.
