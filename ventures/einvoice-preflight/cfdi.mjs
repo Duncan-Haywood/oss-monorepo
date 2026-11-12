@@ -145,6 +145,9 @@ export function decimalsOf(s) {
   return i < 0 ? 0 : String(s).length - i - 1;
 }
 const num = (v) => (v === undefined || v === "" || !Number.isFinite(Number(v)) ? null : Number(v));
+// Present but not a number: the schema check names it (MX-003), and the sums that would read it
+// as 0 are skipped, so the correct values beside it are not blamed.
+const unreadable = (v) => v !== undefined && num(v) === null;
 function roundTo(x, d) {
   const f = 10 ** d;
   // toPrecision(12) first, as checks.mjs does: 0.285 * 100 is 28.499999999999996.
@@ -282,14 +285,17 @@ export function checkCfdi(text) {
   }
 
   // Lines.
-  let sumImporte = 0, sumDesc = 0, anyDesc = false;
+  let sumImporte = 0, sumDesc = 0, anyDesc = false, importeBad = false, descBad = false;
   const trasGroups = new Map(), retGroups = new Map();
+  const rateBad = new Set(); // "Traslado" / "Retencion" when a line's TasaOCuota is not a number
   conceptos.forEach((c, i) => {
     const p = `/Comprobante/Conceptos/Concepto[${i + 1}]`;
     const ca = c.attrs;
     const imp = num(ca.Importe);
     if (imp !== null) sumImporte += imp;
+    else importeBad = true;
     if (ca.Descuento !== undefined) { anyDesc = true; sumDesc += num(ca.Descuento) ?? 0; }
+    if (unreadable(ca.Descuento)) descBad = true;
     if (num(ca.Cantidad) !== null && num(ca.ValorUnitario) !== null && imp !== null) {
       const [lo, hi] = importeBounds(ca.Cantidad, ca.ValorUnitario, decimalsOf(ca.Importe));
       if (imp < lo || imp > hi) findings.push(finding("MX-020", `Line ${i + 1}: Importe ${ca.Importe} is outside Cantidad x ValorUnitario (${lo.toFixed(decimalsOf(ca.Importe))} to ${hi.toFixed(decimalsOf(ca.Importe))} with rounding).`,
@@ -326,16 +332,21 @@ export function checkCfdi(text) {
     const g = groups.get(key) || { base: 0, importe: 0, attrs: ta };
     g.base += num(ta.Base) ?? 0;
     g.importe += num(ta.Importe) ?? 0;
+    // A line value the schema check already rejects makes the group's sum unknowable:
+    // the summary is not blamed for disagreeing with it.
+    if (num(ta.Base) === null) g.baseBad = true;
+    if (unreadable(ta.TasaOCuota)) rateBad.add(kind);
+    if (ta.Importe !== undefined && num(ta.Importe) === null) g.importeBad = true;
     groups.set(key, g);
   }
 
   // Header sums.
   const subTotal = num(a.SubTotal), descuento = num(a.Descuento) ?? 0, total = num(a.Total);
   const tt = tipo === "T" || tipo === "P";
-  if (!tt && subTotal !== null && conceptos.length && roundTo(sumImporte, dec) !== subTotal) {
+  if (!tt && subTotal !== null && conceptos.length && !importeBad && roundTo(sumImporte, dec) !== subTotal) {
     findings.push(finding("MX-030", `SubTotal ${a.SubTotal} is not the sum of the line amounts (${roundTo(sumImporte, dec).toFixed(dec)}).`, "Set SubTotal to the sum of every Concepto Importe, before discounts.", "/Comprobante/@SubTotal"));
   }
-  if (!tt && anyDesc && roundTo(sumDesc, dec) !== descuento) {
+  if (!tt && anyDesc && !descBad && !unreadable(a.Descuento) && roundTo(sumDesc, dec) !== descuento) {
     findings.push(finding("MX-031", `Descuento ${a.Descuento ?? "(missing)"} is not the sum of the line discounts (${roundTo(sumDesc, dec).toFixed(dec)}).`, "Set the header Descuento to the sum of the Concepto discounts.", "/Comprobante/@Descuento"));
   }
   if (!anyDesc && descuento > 0 && conceptos.length) {
@@ -350,20 +361,24 @@ export function checkCfdi(text) {
   if (hasLineTax && !resumen && !tt) {
     findings.push(finding("MX-032", "Lines carry taxes but the CFDI has no tax summary (Comprobante/Impuestos).", "Add the Impuestos summary with the taxes grouped by tax, factor and rate.", "/Comprobante/Impuestos"));
   }
-  let totTras = 0, totRet = 0;
+  let totTras = 0, totRet = 0, totalsBad = false;
   if (resumen) {
     const ra = resumen.attrs;
     const sTras = kidsOf(child(resumen, "Traslados"), "Traslado");
     const sRet = kidsOf(child(resumen, "Retenciones"), "Retencion");
     if (sTras.length && ra.TotalImpuestosTrasladados === undefined && sTras.some((t) => t.attrs.TipoFactor !== "Exento")) findings.push(finding("MX-032", "The summary lists Traslados but TotalImpuestosTrasladados is missing.", "Add TotalImpuestosTrasladados.", "/Comprobante/Impuestos/@TotalImpuestosTrasladados"));
     if (sRet.length && ra.TotalImpuestosRetenidos === undefined) findings.push(finding("MX-032", "The summary lists Retenciones but TotalImpuestosRetenidos is missing.", "Add TotalImpuestosRetenidos.", "/Comprobante/Impuestos/@TotalImpuestosRetenidos"));
-    compareGroups(sTras, trasGroups, "Traslado", (ta) => `${ta.Impuesto}|${ta.TipoFactor}|${ta.TasaOCuota ?? ""}`, true);
+    if (rateBad.has("Traslado") || sTras.some((t) => unreadable(t.attrs.TasaOCuota))) {
+      skipped.push("MX-034 (Traslados): a TasaOCuota is not a number, so the lines' Traslados cannot be grouped by rate and the summary is not compared with them.");
+    } else compareGroups(sTras, trasGroups, "Traslado", (ta) => `${ta.Impuesto}|${ta.TipoFactor}|${ta.TasaOCuota ?? ""}`, true);
     compareGroups(sRet, retGroups, "Retencion", (ta) => `${ta.Impuesto}`, false);
     const sumS = (list) => list.reduce((s, t) => s + (num(t.attrs.Importe) ?? 0), 0);
+    const anyBad = (list) => list.some((t) => unreadable(t.attrs.Importe));
     totTras = num(ra.TotalImpuestosTrasladados) ?? 0;
     totRet = num(ra.TotalImpuestosRetenidos) ?? 0;
-    if (ra.TotalImpuestosTrasladados !== undefined && roundTo(sumS(sTras), dec) !== totTras) findings.push(finding("MX-033", `TotalImpuestosTrasladados ${ra.TotalImpuestosTrasladados} is not the sum of the summary's Traslado amounts (${roundTo(sumS(sTras), dec).toFixed(dec)}).`, "Set it to the sum of the summary Traslado Importe values.", "/Comprobante/Impuestos/@TotalImpuestosTrasladados"));
-    if (ra.TotalImpuestosRetenidos !== undefined && roundTo(sumS(sRet), dec) !== totRet) findings.push(finding("MX-033", `TotalImpuestosRetenidos ${ra.TotalImpuestosRetenidos} is not the sum of the summary's Retencion amounts (${roundTo(sumS(sRet), dec).toFixed(dec)}).`, "Set it to the sum of the summary Retencion Importe values.", "/Comprobante/Impuestos/@TotalImpuestosRetenidos"));
+    if (unreadable(ra.TotalImpuestosTrasladados) || unreadable(ra.TotalImpuestosRetenidos) || anyBad(sTras) || anyBad(sRet)) totalsBad = true;
+    if (ra.TotalImpuestosTrasladados !== undefined && !anyBad(sTras) && roundTo(sumS(sTras), dec) !== totTras) findings.push(finding("MX-033", `TotalImpuestosTrasladados ${ra.TotalImpuestosTrasladados} is not the sum of the summary's Traslado amounts (${roundTo(sumS(sTras), dec).toFixed(dec)}).`, "Set it to the sum of the summary Traslado Importe values.", "/Comprobante/Impuestos/@TotalImpuestosTrasladados"));
+    if (ra.TotalImpuestosRetenidos !== undefined && !anyBad(sRet) && roundTo(sumS(sRet), dec) !== totRet) findings.push(finding("MX-033", `TotalImpuestosRetenidos ${ra.TotalImpuestosRetenidos} is not the sum of the summary's Retencion amounts (${roundTo(sumS(sRet), dec).toFixed(dec)}).`, "Set it to the sum of the summary Retencion Importe values.", "/Comprobante/Impuestos/@TotalImpuestosRetenidos"));
   }
 
   function compareGroups(summary, groups, kind, keyOf, withBase) {
@@ -378,10 +393,10 @@ export function checkCfdi(text) {
         findings.push(finding("MX-034", `The summary has a ${kind} (${key.replace(/\|/g, " ")}) that no line carries.`, "Remove it, or add the tax to the lines it applies to.", p));
         return;
       }
-      if (t.attrs.Importe !== undefined && roundTo(g.importe, dec) !== num(t.attrs.Importe)) {
+      if (t.attrs.Importe !== undefined && !g.importeBad && roundTo(g.importe, dec) !== num(t.attrs.Importe)) {
         findings.push(finding("MX-034", `Summary ${kind} ${key.replace(/\|/g, " ")}: Importe ${t.attrs.Importe} is not the sum of the lines' (${roundTo(g.importe, dec).toFixed(dec)}).`, "Set it to the lines' tax amounts summed and rounded to the currency's decimals.", `${p}/@Importe`));
       }
-      if (withBase && t.attrs.Base !== undefined && roundTo(g.base, dec) !== num(t.attrs.Base)) {
+      if (withBase && t.attrs.Base !== undefined && !g.baseBad && roundTo(g.base, dec) !== num(t.attrs.Base)) {
         findings.push(finding("MX-034", `Summary ${kind} ${key.replace(/\|/g, " ")}: Base ${t.attrs.Base} is not the sum of the lines' bases (${roundTo(g.base, dec).toFixed(dec)}).`, "Set Base to the lines' bases summed and rounded.", `${p}/@Base`));
       }
     });
@@ -393,7 +408,7 @@ export function checkCfdi(text) {
   // Total.
   if (complements.some((c) => c.name === "ImpuestosLocales")) {
     skipped.push("MX-035 (Total): the ImpuestosLocales complement adds local taxes this reader does not model.");
-  } else if (!tt && subTotal !== null && total !== null) {
+  } else if (!tt && subTotal !== null && total !== null && !totalsBad && !unreadable(a.Descuento)) {
     const want = roundTo(subTotal - descuento + totTras - totRet, dec);
     if (want !== total) findings.push(finding("MX-035", `Total ${a.Total} is not SubTotal - Descuento + taxes transferred - taxes withheld (${want.toFixed(dec)}).`, "Recompute Total from the header amounts.", "/Comprobante/@Total"));
   }

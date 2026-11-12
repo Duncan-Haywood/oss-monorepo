@@ -163,6 +163,13 @@ export function checkPagos(root, ctx) {
   meta.payments = pagoList.length;
   meta.documents = 0;
   let montoTotal = 0n, montoOk = true;
+  // A payment whose taxes cannot be converted to pesos (no usable TipoCambioP) or summed
+  // (a tax amount or rate that is not a number) would leave the Totales tax sums partial:
+  // they are skipped rather than compared, so a correct Totales is never blamed.
+  const noRate = [], unreadableTax = [];
+  // Tax attributes the schema check rejects as numbers; summing them as 0 would blame the
+  // correct values beside them.
+  const badNums = (ta, names) => names.filter((n) => ta[n] !== undefined && dec(ta[n]) === null);
   // Totales candidates: from the written ImpuestosP and from our own recomputation.
   const totWritten = new Map(), totComputed = new Map();
   const addTot = (m, k, field, v) => {
@@ -191,6 +198,7 @@ export function checkPagos(root, ctx) {
 
     // related documents
     let paidInP = 0n, sumOk = true;
+    const badTax = new Set(); // unreadable tax attributes in this payment
     const drGroups = new Map(); // key -> {base, importe} in MonedaP, unrounded
     const docs = PK(pago, "DoctoRelacionado");
     meta.documents += docs.length;
@@ -235,11 +243,12 @@ export function checkPagos(root, ctx) {
         if (kind === "T" && ta.TipoFactorDR === "Exento" && (ta.TasaOCuotaDR !== undefined || ta.ImporteDR !== undefined)) findings.push(finding("MX-047", `${who}: an exempt TrasladoDR carries TasaOCuotaDR or ImporteDR.`, "Remove TasaOCuotaDR and ImporteDR from an Exento tax line.", tp));
         if (kind === "T" && ta.TipoFactorDR && ta.TipoFactorDR !== "Exento" && (ta.TasaOCuotaDR === undefined || ta.ImporteDR === undefined)) findings.push(finding("MX-047", `${who}: a ${ta.TipoFactorDR} TrasladoDR needs both TasaOCuotaDR and ImporteDR.`, "Add the rate and the tax amount.", tp));
         if (dec(ta.BaseDR) !== null && dec(ta.BaseDR) <= 0n) findings.push(finding("MX-047", `${who}: the ${what} BaseDR must be greater than 0.`, "Set BaseDR to the taxed share of the amount paid.", `${tp}/@BaseDR`));
-        if (ta.TipoFactorDR === "Tasa" && ta.BaseDR !== undefined && ta.TasaOCuotaDR !== undefined && ta.ImporteDR !== undefined && Number.isFinite(Number(ta.BaseDR)) && Number.isFinite(Number(ta.TasaOCuotaDR)) && Number.isFinite(Number(ta.ImporteDR))) {
+        if (ta.TipoFactorDR === "Tasa" && ta.BaseDR !== undefined && ta.TasaOCuotaDR !== undefined && ta.ImporteDR !== undefined && dec(ta.BaseDR) !== null && dec(ta.TasaOCuotaDR) !== null && dec(ta.ImporteDR) !== null) {
           const [lo, hi] = taxBounds(ta.BaseDR, ta.TasaOCuotaDR, decimalsOf(ta.ImporteDR));
           const v = Number(ta.ImporteDR);
           if (v < lo - 1e-9 || v > hi + 1e-9) findings.push(finding("MX-047", `${who}: ${what} ImporteDR ${ta.ImporteDR} is outside BaseDR x TasaOCuotaDR (${lo} to ${hi} with rounding).`, "Recompute ImporteDR as BaseDR x TasaOCuotaDR.", `${tp}/@ImporteDR`));
         }
+        for (const n of badNums(ta, ["BaseDR", "TasaOCuotaDR", "ImporteDR"])) badTax.add(n);
         if (eq === null || eq <= 0n) continue; // sumOk is false: the payment's taxes are not compared
         const k = key(kind, ta.ImpuestoDR, ta.TipoFactorDR, ta.TasaOCuotaDR);
         const g = drGroups.get(k) || { base: 0n, importe: 0n };
@@ -267,6 +276,12 @@ export function checkPagos(root, ctx) {
     if (!sumOk && pRows.length) {
       skipped.push(`MX-048 (payment ${i + 1}): a related document has no usable EquivalenciaDR, so its taxes cannot be converted to ${monedaP || "the payment currency"} and ImpuestosP is not compared.`);
     }
+    for (const [, t] of pRows) for (const n of badNums(t.attrs, ["BaseP", "TasaOCuotaP", "ImporteP"])) badTax.add(n);
+    const taxOk = sumOk && !badTax.size;
+    if (badTax.size) {
+      unreadableTax.push(i + 1);
+      skipped.push(`MX-048 (payment ${i + 1}): ${[...badTax].join(", ")} is not a number, so ImpuestosP is not compared with the related documents' taxes.`);
+    }
     for (const [kind, t, tp] of pRows) {
       const ta = t.attrs;
       const k = key(kind, ta.ImpuestoP, ta.TipoFactorP, ta.TasaOCuotaP);
@@ -278,7 +293,7 @@ export function checkPagos(root, ctx) {
           if (w !== null) addTot(totWritten, k, f, mul(w, tc));
         }
       }
-      if (!sumOk) continue;
+      if (!taxOk) continue;
       if (seen.has(k)) findings.push(finding("MX-048", `Payment ${i + 1}: ImpuestosP repeats the group ${label(k)}.`, "Merge the repeated rows into one per tax, factor and rate.", tp));
       seen.add(k);
       const g = drGroups.get(k);
@@ -297,9 +312,10 @@ export function checkPagos(root, ctx) {
       }
     }
     for (const k of drGroups.keys()) {
-      if (sumOk && impP && !seen.has(k)) findings.push(finding("MX-048", `Payment ${i + 1}: the related documents carry ${label(k)}, which ImpuestosP leaves out.`, "Add a row for it to ImpuestosP.", `${pp}/ImpuestosP`));
+      if (taxOk && impP && !seen.has(k)) findings.push(finding("MX-048", `Payment ${i + 1}: the related documents carry ${label(k)}, which ImpuestosP leaves out.`, "Add a row for it to ImpuestosP.", `${pp}/ImpuestosP`));
     }
-    if (tc !== null && sumOk) {
+    if (tc === null && (pRows.length || drGroups.size)) noRate.push(i + 1);
+    if (tc !== null && taxOk) {
       for (const [k, g] of drGroups) {
         addTot(totComputed, k, "base", mul(roundD(g.base, 6), tc));
         addTot(totComputed, k, "importe", mul(roundD(g.importe, 6), tc));
@@ -316,7 +332,14 @@ export function checkPagos(root, ctx) {
       if (w !== roundD(montoTotal, 2)) findings.push(finding("MX-049", `MontoTotalPagos ${ta.MontoTotalPagos} is not the payments' Monto x TipoCambioP summed (${show(montoTotal, 2)}).`,
         "Set MontoTotalPagos to the sum of every Pago's Monto times its TipoCambioP, rounded to 2 decimals (pesos).", `${base}/Totales/@MontoTotalPagos`));
     }
+    if (noRate.length) {
+      skipped.push(`MX-049: payment ${noRate.join(", ")} has taxes but no usable TipoCambioP, so the Totales tax sums cannot be converted to pesos and are not compared.`);
+    }
+    if (unreadableTax.length) {
+      skipped.push(`MX-049: payment ${unreadableTax.join(", ")} has a tax amount or rate that is not a number, so the Totales tax sums are not compared.`);
+    }
     for (const [attr, kind, imp, factor, tasa, f] of TOTALES) {
+      if (noRate.length || unreadableTax.length) break;
       const k = key(kind, imp, factor, tasa);
       const cands = [totWritten.get(k), totComputed.get(k)].filter(Boolean).map((g) => g[f]);
       const present = ta[attr] !== undefined;
