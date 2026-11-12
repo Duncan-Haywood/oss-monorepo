@@ -101,14 +101,61 @@ function cholInverse(l: Float64Array, n: number): Float64Array {
 
 const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
 
+/** log Gamma by Lanczos (g = 7, n = 9), accurate to about 1e-13 for x > 0.5; enough for a prior's normalising constant. */
+function logGamma(x: number): number {
+  const c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (x < 0.5) return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * x))) - logGamma(1 - x);
+  x -= 1;
+  let a = c[0];
+  const t = x + 7.5;
+  for (let i = 1; i < 9; i++) a += c[i] / (x + i);
+  return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(a);
+}
+
+/**
+ * The per-item prior on the internal scale: Gaussian with sd `scale` when
+ * `df` is Infinity (the refit's prior since it shipped), otherwise Student-t
+ * with `df` degrees of freedom and scale `scale`. Why a t (docs/INFORMATION-GAIN-SELECTOR.md,
+ * "A heavier-tailed prior for the pairwise intervals"): a Gaussian shrinks every item toward 0 in
+ * proportion to its distance, so the items a person loves or hates most are
+ * pulled in the most and the intervals that involve them miss; a t prior's
+ * pull fades for items far from the middle.
+ */
+export type ItemPrior = { scale: number; df: number };
+
+/** Fully normalised log density of one item's score under the prior. */
+export function priorLogDensity(m: number, { scale, df }: ItemPrior): number {
+  if (!Number.isFinite(df)) return -0.5 * (m / scale) ** 2 - Math.log(scale) - 0.5 * Math.log(2 * Math.PI);
+  return logGamma((df + 1) / 2) - logGamma(df / 2) - 0.5 * Math.log(df * Math.PI) - Math.log(scale) - ((df + 1) / 2) * Math.log1p((m * m) / (df * scale * scale));
+}
+
+/**
+ * Gradient, true curvature (minus the second derivative) and a majorising
+ * curvature of minus the log prior at m. The Gaussian's are -m/s^2, 1/s^2,
+ * 1/s^2. A t's true curvature (df+1)(df s^2 - m^2)/(df s^2 + m^2)^2 turns
+ * negative past |m| = s sqrt(df), so Newton steps use the majoriser
+ * (df+1)/(df s^2 + m^2), which is never smaller and always positive (the
+ * iteratively-reweighted step of a t model); the covariance uses the true one.
+ */
+function priorTerms(m: number, { scale, df }: ItemPrior): { grad: number; curv: number; major: number } {
+  if (!Number.isFinite(df)) {
+    const prec = 1 / (scale * scale);
+    return { grad: -prec * m, curv: prec, major: prec };
+  }
+  const q = df * scale * scale + m * m;
+  return { grad: (-(df + 1) * m) / q, curv: ((df + 1) * (df * scale * scale - m * m)) / (q * q), major: (df + 1) / q };
+}
+
 /**
  * Refits every item in `ids` from `answers`. Items in no answer keep the prior
  * (rating 1500, rd 350). Answers naming an id outside `ids` are rejected, not
  * skipped: a silently dropped answer would make the intervals too wide with no
  * sign of why.
  */
-export function refitRatings(ids: readonly string[], answers: readonly RefitAnswer[], { priorPhi = REFIT_PRIOR_PHI, maxIterations = 50, tolerance = 1e-9 } = {}): RefitResult {
+export function refitRatings(ids: readonly string[], answers: readonly RefitAnswer[], { priorPhi = REFIT_PRIOR_PHI, priorDf = Infinity, maxIterations = 50, tolerance = 1e-9 } = {}): RefitResult {
   if (!(priorPhi > 0)) throw new RangeError("priorPhi must be positive");
+  if (!(priorDf > 0)) throw new RangeError("priorDf must be positive (Infinity for the Gaussian prior)");
+  const prior: ItemPrior = { scale: priorPhi, df: priorDf };
   const n = ids.length;
   const index = new Map(ids.map((id, i) => [id, i]));
   if (index.size !== n) throw new RangeError("ids must be distinct");
@@ -118,21 +165,25 @@ export function refitRatings(ids: readonly string[], answers: readonly RefitAnsw
     if (w === l) throw new RangeError("an answer cannot compare an item with itself");
     return [w, l, tie ? 0.5 : 1] as const;
   });
-  const prec = 1 / (priorPhi * priorPhi);
   const logPost = (mu: number[]) => {
     let s = 0;
-    for (const m of mu) s -= 0.5 * prec * m * m;
+    for (const m of mu) s += priorLogDensity(m, prior);
     for (const [w, l, score] of games) {
       const d = mu[w] - mu[l];
       s -= score * Math.log1p(Math.exp(-d)) + (1 - score) * Math.log1p(Math.exp(d));
     }
     return s;
   };
-  // Negative Hessian and gradient of the log posterior at mu.
-  const curvature = (mu: number[]) => {
+  // Negative Hessian and gradient of the log posterior at mu; `major` swaps the
+  // prior's true curvature for its majoriser (identical for the Gaussian).
+  const curvature = (mu: number[], major = false) => {
     const h = new Float64Array(n * n);
-    const grad = mu.map((m) => -prec * m);
-    for (let i = 0; i < n; i++) h[i * n + i] = prec;
+    const grad = new Array<number>(n);
+    for (let i = 0; i < n; i++) {
+      const t = priorTerms(mu[i], prior);
+      grad[i] = t.grad;
+      h[i * n + i] = major ? t.major : t.curv;
+    }
     for (const [w, l, score] of games) {
       const p = sigmoid(mu[w] - mu[l]);
       grad[w] += score - p;
@@ -150,7 +201,7 @@ export function refitRatings(ids: readonly string[], answers: readonly RefitAnsw
   let iterations = 0;
   let current = logPost(mu);
   for (; iterations < maxIterations; iterations++) {
-    const { h, grad } = curvature(mu);
+    const { h, grad } = curvature(mu, true);
     const step = cholSolve(cholesky(h, n), n, grad);
     let t = 1;
     let next = mu.map((m, i) => m + step[i]);
@@ -168,7 +219,16 @@ export function refitRatings(ids: readonly string[], answers: readonly RefitAnsw
       break;
     }
   }
-  const cov = cholInverse(cholesky(curvature(mu).h, n), n);
+  // A t prior's true curvature can leave the Hessian indefinite when an item
+  // sits far out with few answers; the majoriser keeps the covariance defined
+  // (a slightly narrower interval for that item, never a crash).
+  let hFinal: Float64Array;
+  try {
+    hFinal = cholesky(curvature(mu).h, n);
+  } catch {
+    hFinal = cholesky(curvature(mu, true).h, n);
+  }
+  const cov = cholInverse(hFinal, n);
   const rating = new Map<string, number>();
   const rd = new Map<string, number>();
   ids.forEach((id, i) => {
@@ -241,10 +301,14 @@ export const EVIDENCE_DRAWS = 2000;
  * 0.45 where the sampled evidence peaks at 1.2 (true spread 1.155); under the
  * shipped selector the two agree (1.0).
  */
-export function sampledEvidence(ids: readonly string[], answers: readonly RefitAnswer[], priorPhi: number, { draws = EVIDENCE_DRAWS, seed = 0xe71d, inflate = 1.1 } = {}): number {
+export function sampledEvidence(ids: readonly string[], answers: readonly RefitAnswer[], priorPhi: number, { draws = EVIDENCE_DRAWS, seed = 0xe71d, inflate = 1.1, priorDf = Infinity } = {}): number {
   const n = ids.length;
   const index = new Map(ids.map((id, i) => [id, i]));
-  const fit = refitRatings(ids, answers, { priorPhi });
+  const fit = refitRatings(ids, answers, { priorPhi, priorDf });
+  const tPrior: ItemPrior | undefined = Number.isFinite(priorDf) ? { scale: priorPhi, df: priorDf } : undefined;
+  // The Gaussian branch below drops the (2 pi)^(-n/2) of prior and proposal, which cancel; a t prior's
+  // density is fully normalised, so add the proposal's half back for it.
+  const halfLog2PiN = 0.5 * n * Math.log(2 * Math.PI);
   // Answers grouped by ordered pair: wins of the first item, ties, as counts, so a repeated pair costs one term.
   const pairCounts = new Map<number, { a: number; b: number; wins: number; losses: number; ties: number }>();
   for (const { winner, loser, tie } of answers) {
@@ -293,7 +357,12 @@ export function sampledEvidence(ids: readonly string[], answers: readonly RefitA
       const sp = (diff > 0 ? diff : 0) + Math.log1p(Math.exp(-Math.abs(diff)));
       ll -= winW[k] * (sp - diff) + lossW[k] * sp;
     }
-    logw[d] = ll - 0.5 * prec * xx - nLogPhi + 0.5 * zz + logDetL;
+    let lp: number;
+    if (tPrior) {
+      lp = halfLog2PiN;
+      for (let a = 0; a < n; a++) lp += priorLogDensity(x[a], tPrior);
+    } else lp = -0.5 * prec * xx - nLogPhi;
+    logw[d] = ll + lp + 0.5 * zz + logDetL;
   }
   let m = -Infinity;
   for (const v of logw) if (v > m) m = v;
@@ -329,7 +398,7 @@ export const EB_PHI_MIN = 0.3;
  */
 export type EvidenceMethod = "laplace" | "sampled";
 
-export function empiricalPriorPhi(ids: readonly string[], answers: readonly RefitAnswer[], options: { min?: number; max?: number; steps?: number; evidence?: EvidenceMethod } = {}): number {
+export function empiricalPriorPhi(ids: readonly string[], answers: readonly RefitAnswer[], options: { min?: number; max?: number; steps?: number; evidence?: EvidenceMethod; priorDf?: number } = {}): number {
   return pooledPriorPhi([{ ids, answers }], options);
 }
 
@@ -342,9 +411,10 @@ export function empiricalPriorPhi(ids: readonly string[], answers: readonly Refi
  * empirical-Bayes prior"); pooling over a survey's respondents is the
  * hierarchical fix.
  */
-export function pooledPriorPhi(people: readonly { ids: readonly string[]; answers: readonly RefitAnswer[] }[], { min = EB_PHI_MIN, max = REFIT_PRIOR_PHI, steps = 8, evidence = "sampled" as EvidenceMethod } = {}): number {
+export function pooledPriorPhi(people: readonly { ids: readonly string[]; answers: readonly RefitAnswer[] }[], { min = EB_PHI_MIN, max = REFIT_PRIOR_PHI, steps = 8, evidence = "sampled" as EvidenceMethod, priorDf = Infinity } = {}): number {
   if (!(min > 0 && max >= min)) throw new RangeError("need 0 < min <= max");
-  const ev = evidence === "laplace" ? refitEvidence : sampledEvidence;
+  if (evidence === "laplace" && Number.isFinite(priorDf)) throw new RangeError("the Laplace evidence is Gaussian-prior only; use the sampled evidence for a t prior");
+  const ev = evidence === "laplace" ? refitEvidence : (i: readonly string[], a: readonly RefitAnswer[], phi: number) => sampledEvidence(i, a, phi, { priorDf });
   const used = people.filter((p) => p.answers.length > 0);
   if (used.length === 0 || min === max) return max;
   const search = logPhiSearch(min, max, steps);
