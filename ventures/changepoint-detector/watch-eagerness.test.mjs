@@ -19,6 +19,21 @@ test('the shipped budget is the one round 6 pre-registered, and the round passed
   assert.match(out, /The hint SHIPS\. Forecast claim \(quiet Spearman >= 0\.5\): 0\.616 SHIPS/);
 });
 
+test('round 6 re-checked under persist 2, the shipped default since round 7: the budget still passes', () => {
+  const out = readFileSync(new URL('./eval/watch-eagerness-persist2.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /Replayed with persist 2/);
+  assert.match(out, /fixed quiet \(default\)\s+61\s+26 \(43%\)\s+15\.7\s+16\/31/);
+  assert.match(out, /hint, B = 2 \(pre-registered\)\s+68\s+27 \(40%\)\s+17\.5\s+17\/31/);
+  assert.match(out, /The hint SHIPS\. Forecast claim \(quiet Spearman >= 0\.5\): 0\.616 SHIPS/);
+  // The page's caveat off the tested budget quotes this run's plain-budget rows.
+  assert.match(out, /hint, B = 3\.29\s+75\s+32 \(43%\)\s+19\.3\s+19\/31/);
+  assert.match(out, /hint, B = 14\.3\s+287\s+73 \(25%\)\s+74\.0\s+29\/31/);
+  const text = eagernessText(eagernessReplay(series(160, (i) => (i >= 100 ? 3 : 0), 7), null, { budget: 3.29 }));
+  assert.match(text, /19 of 31 at 19\.3 per 1,000/);
+  assert.match(text, /29 of 31 at 74\.0 per 1,000/);
+  assert.match(text, /against 15\.7 \(replayed with the shipped persist 2\)/);
+});
+
 test('each setting is the replay with that detector; the rate is per daily check after the baseline', () => {
   const v = series(160, (i) => (i >= 100 ? 3 : 0), 7);
   const r = eagernessReplay(v);

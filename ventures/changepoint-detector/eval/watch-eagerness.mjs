@@ -36,6 +36,19 @@
 // the other two settings and on the held-out series, deciding nothing.
 //
 //   sh eval/tcpd-fetch.sh tcpd-data && node eval/watch-eagerness.mjs tcpd-data > eval/watch-eagerness.out.txt
+//
+// Round 6b, the re-check under persist 2 (README "Round 6 again, under persist 2"; this paragraph committed before
+// the run). Round 7 made persist 2 the watch's default, and `advance` fills options a policy leaves out from
+// WATCH_DEFAULTS, so this script's replay, which named only confirm, tolerance and holdHistory, would since round 7
+// silently have run persist 2. The replay now names `persist`: WATCH_PERSIST (default 1, round 6 as published, so
+// eval/watch-eagerness.out.txt reproduces). The re-check is WATCH_PERSIST=2, output
+// eval/watch-eagerness-persist2.out.txt. Decision rule, fixed before that run: HINT_BUDGET stays 2 if round 6's rule
+// (a), (b) and (c) above all pass under persist 2. If any part fails, the hint keeps shipping (the page and CLI say
+// what the history would have sent, which stays true) but the README records the failure and the budget is put up
+// for a fresh labelled set; no other budget is adopted from this run, because every other row here is post hoc.
+// The forecast claim (quiet Spearman >= 0.5) is re-checked the same way. As in round 7, a change waiting only for
+// its second check when a replay ends is a known censoring effect: alerts that would land at h + 1 move from the
+// history to the future, and a change found at the last row is not sent. Both are counted, not corrected.
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { Worker, isMainThread, parentPort } from 'node:worker_threads';
@@ -43,6 +56,7 @@ import { availableParallelism } from 'node:os';
 import { detectChanges, advance, emptyState } from '../watch-core.mjs';
 
 const TOL = 5, CONFIRM = 5;
+const PERSIST = Number(process.env.WATCH_PERSIST || 1);
 const SETTINGS = { quiet: 'bocpd-ar1-window', middle: 'bocpd', eager: 'pelt' };
 const ORDER = ['eager', 'middle', 'quiet'];
 // WATCH_BUDGETS (comma-separated) adds budgets to the report, deciding nothing (README "The hint in the CLI watch").
@@ -77,7 +91,7 @@ function replay(steps, labels) {
   let state = emptyState();
   const alerts = [];
   for (const { n, changes } of steps) {
-    const r = advance(state, changes, n, labels.slice(0, n), { confirm: CONFIRM, tolerance: TOL, holdHistory: true });
+    const r = advance(state, changes, n, labels.slice(0, n), { confirm: CONFIRM, tolerance: TOL, holdHistory: true, persist: PERSIST });
     for (const a of r.alerts) alerts.push({ index: a.index, at: n });
     state = r.state;
   }
@@ -183,6 +197,7 @@ function report(title, { series, skipped }, per) {
 if (isMainThread) {
   const dir = process.argv[2] || 'tcpd-data';
   const t0 = Date.now();
+  if (PERSIST !== 1) console.log(`Replayed with persist ${PERSIST} (WATCH_PERSIST); round 6 as published used persist 1.\n`);
   const sets = [loadTcpd(dir, false), loadTcpd(dir, true)];
   const all = sets.flatMap((x) => x.series);
   const jobs = [];
