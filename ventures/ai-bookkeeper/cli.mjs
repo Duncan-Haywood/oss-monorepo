@@ -149,6 +149,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
 No warranty. Not accounting, tax or financial advice; check its output before you rely on it.`;
 
 const argv = process.argv.slice(2);
+// flag() removes what it reads (so repeated flags like --rate can be read in a loop): read each flag once into a const.
 const flag = (k) => { const i = argv.indexOf(k); if (i === -1) return null; const v = argv[i + 1]; argv.splice(i, 2); return v; };
 const has = (k) => { const i = argv.indexOf(k); if (i === -1) return false; argv.splice(i, 1); return true; };
 if (has("--help") || has("-h") || !argv.length) { console.log(HELP); process.exit(0); }

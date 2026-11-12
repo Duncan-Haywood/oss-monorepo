@@ -3,7 +3,7 @@ title: "The discount for filing on time: 15 more states, read from their own for
 seo_title: "Sales tax vendor discounts by state, from the official forms"
 date: 2026-11-12
 tags: [ai-bookkeeper, ventures]
-description: "Most states let a seller keep a slice of the sales tax for filing on time. We read 19 states' own rules into the worksheet, and found a CLI bug that ignored --state."
+description: "Most states let sellers keep a slice of sales tax for filing on time. We read 19 states' own rules, and found a CLI bug that ignored --state."
 ---
 
 Most US states pay sellers a little for collecting their sales tax. It goes by many names: vendor's compensation, collection allowance, timely filing discount, retailer's discount. You keep a small share of the tax if the return and payment arrive on time. [AI Bookkeeper's](https://marisstella.app/ai-bookkeeper/) sales tax worksheet took that off the amount owed for five states. This afternoon we added fifteen more. As with this morning's [due dates](2026-11-12-twenty-six-state-tax-pages-read.md), every rule came from the state's own form instructions, publication, FAQ or statute. Each page was saved, and each quoted sentence was checked against the saved copy.
