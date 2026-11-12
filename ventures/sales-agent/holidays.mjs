@@ -16,6 +16,9 @@
 // holidays.test.mjs compares every year 2019-2028 with GOV.UK's bank-holidays.json (fetched 2026-11-12, kept in
 // fixtures/), all three divisions, date for date. One-off holidays set by royal proclamation (the 2022 jubilee, the
 // 2023 coronation, Scotland's 2026 World Cup day) cannot come from a rule, so the known ones are listed in GB_ONE_OFF; a new one needs adding there.
+//
+// Canada (added 2026-11-12, later): "ca" (or "ca-federal"), the twelve federal holidays; see caFederalHolidays for
+// what is in it and how far it is checked (a second source, not canada.ca).
 
 const ymd = (y, m, d) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 const dow = (y, m, d) => new Date(Date.UTC(y, m, d)).getUTCDay();
@@ -102,27 +105,74 @@ export function gbBankHolidays(y, division = "eng") {
   return out.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 }
 
+/** Canada's federal holidays in year y (added 2026-11-12, later): the twelve the federal public service gets (the
+ * Canada Labour Code's ten general holidays plus Easter Monday and the Civic Holiday), as { date, name }. Weekend ones
+ * move to the next free weekday, as in the UK (Saturday 1 July 2028 is kept on Monday 3 July). Provinces differ and
+ * are not here. Checked against the observed dates canada-holidays.ca lists for 2022-2028 (fixtures/), an open-source
+ * site, not the Government of Canada: canada.ca timed out from this host on 2026-11-12. */
+export function caFederalHolidays(y) {
+  const [em, ed] = easter(y);
+  const out = [
+    { date: shift(y, em, ed, -2), name: "Good Friday" }, { date: shift(y, em, ed, 1), name: "Easter Monday" },
+    { date: ymd(y, 4, 24 - ((dow(y, 4, 24) + 6) % 7)), name: "Victoria Day" }, // the Monday on or before 24 May
+    { date: ymd(y, 7, nth(y, 7, 1, 1)), name: "Civic Holiday" }, { date: ymd(y, 8, nth(y, 8, 1, 1)), name: "Labour Day" },
+    { date: ymd(y, 9, nth(y, 9, 1, 2)), name: "Thanksgiving" },
+  ];
+  const fixed = [[0, 1, "New Year's Day"], [6, 1, "Canada Day"], ...(y >= 2021 ? [[8, 30, "National Day for Truth and Reconciliation"]] : []), [10, 11, "Remembrance Day"], [11, 25, "Christmas Day"], [11, 26, "Boxing Day"]];
+  const taken = new Set(out.map((h) => h.date));
+  for (const [m, d, name] of fixed) {
+    let n = 0, date = ymd(y, m, d);
+    while ([0, 6].includes(dow(y, m, d + n)) || taken.has(date)) date = shift(y, m, d, ++n);
+    taken.add(date);
+    out.push({ date, name: n ? `${name} (observed)` : name });
+  }
+  if (y === 2022) out.push({ date: "2022-09-19", name: "Day of Mourning for Queen Elizabeth II" });
+  return out.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+}
+
 const GB_DIVISIONS = { gb: "eng", uk: "eng", "gb-eng": "eng", "gb-wls": "eng", "gb-sct": "sct", "gb-nir": "nir" };
 
 const BUSINESS = new Set(["New Year's Day", "Memorial Day", "Independence Day", "Labor Day", "Thanksgiving Day", "Christmas Day"]);
 /** The six holidays most US businesses close for, observed in year y. */
 export const usBusinessHolidays = (y) => usFederalHolidays(y).filter((h) => BUSINESS.has(h.name));
 
-/** spec (see top of file), or an array of dates, or a Set, or a function -> (day YYYY-MM-DD) => boolean. */
-export function holidayChecker(spec) {
-  if (typeof spec === "function") return spec;
-  if (!spec) return () => false;
+function parseSpec(spec) {
   const parts = spec instanceof Set ? [...spec] : Array.isArray(spec) ? spec : String(spec).split(/[\s,;]+/);
   const dates = new Set(), sets = [];
   for (const raw of parts) {
     const p = String(raw).trim().toLowerCase();
     if (!p) continue;
     if (/^\d{4}-\d{2}-\d{2}$/.test(p)) dates.add(p);
-    else if (p === "us" || p === "us-federal") sets.push(usFederalHolidays);
-    else if (p === "us-business") sets.push(usBusinessHolidays);
-    else if (GB_DIVISIONS[p]) { const div = GB_DIVISIONS[p]; sets.push((y) => gbBankHolidays(y, div)); }
-    else throw new Error(`holidays: "${raw}" is not a date (YYYY-MM-DD), "us", "us-business", "gb-eng", "gb-sct" or "gb-nir"`);
+    else if (preset(p)) sets.push(preset(p));
+    else throw new Error(`holidays: "${raw}" is not a date (YYYY-MM-DD), "us", "us-business", "gb-eng", "gb-sct", "gb-nir" or "ca"`);
   }
+  return { dates, sets };
+}
+
+/** A named preset as (year) => [{ date, name }], or null. */
+function preset(p) {
+  if (p === "us" || p === "us-federal") return usFederalHolidays;
+  if (p === "us-business") return usBusinessHolidays;
+  if (p === "ca" || p === "ca-federal") return caFederalHolidays;
+  if (GB_DIVISIONS[p]) { const div = GB_DIVISIONS[p]; return (y) => gbBankHolidays(y, div); }
+  return null;
+}
+
+/** The next n days off on or after from (YYYY-MM-DD), as [{ date, name }], so a page can show what a spec means
+ * ("gb-nir" is St Patrick's Day and the Twelfth). A plain date is named "day off". Throws on a bad spec. */
+export function upcomingHolidays(spec, from, n = 5) {
+  if (!spec || typeof spec === "function") return [];
+  const { dates, sets } = parseSpec(spec), y = Number(String(from).slice(0, 4)), seen = new Map();
+  for (const d of dates) if (d >= from) seen.set(d, "day off");
+  for (const yy of [y, y + 1, y + 2]) for (const f of sets) for (const h of f(yy)) if (h.date >= from && !seen.has(h.date)) seen.set(h.date, h.name);
+  return [...seen].sort((a, b) => (a[0] < b[0] ? -1 : 1)).slice(0, n).map(([date, name]) => ({ date, name }));
+}
+
+/** spec (see top of file), or an array of dates, or a Set, or a function -> (day YYYY-MM-DD) => boolean. */
+export function holidayChecker(spec) {
+  if (typeof spec === "function") return spec;
+  if (!spec) return () => false;
+  const { dates, sets } = parseSpec(spec);
   const cache = new Map();
   const year = (y) => { if (!cache.has(y)) cache.set(y, new Set(sets.flatMap((f) => f(y).map((h) => h.date)))); return cache.get(y); };
   // An observed Friday holiday can fall in the year before (New Year's Day on a Saturday), so look at y + 1 as well.

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { usFederalHolidays, usBusinessHolidays, gbBankHolidays, easter, holidayChecker } from "./holidays.mjs";
+import { usFederalHolidays, usBusinessHolidays, gbBankHolidays, easter, holidayChecker, caFederalHolidays, upcomingHolidays } from "./holidays.mjs";
 import { addBusinessDays, businessDaysBetween } from "./engine.mjs";
 
 // Pinned from the rules (fixed dates moved off weekends; nth-weekday ones counted). 2026: July 4 is a Saturday, so
@@ -22,7 +22,7 @@ test("holidayChecker: presets, dates and mixes; the year-before observed day; ba
   assert.ok(biz("2026-11-26") && biz("2026-11-27") && !biz("2026-10-12"), "Columbus Day is not a business holiday");
   assert.ok(holidayChecker(["2026-12-24"])("2026-12-24"));
   assert.equal(holidayChecker("")("2026-12-25"), false);
-  assert.throws(() => holidayChecker("ca"), /not a date/);
+  assert.throws(() => holidayChecker("fr"), /not a date/);
 });
 
 test("business days skip holidays when given, weekends always", () => {
@@ -64,4 +64,21 @@ test("Easter and the UK presets in the checker", () => {
   assert.equal(holidayChecker("uk")("2026-12-28"), true, "Boxing Day 2026 is a Saturday");
   assert.equal(addBusinessDays("2026-04-02", 1, eng), "2026-04-07", "Thursday before Easter, then Tuesday");
   assert.equal(addBusinessDays("2026-04-02", 1, sct), "2026-04-06", "Scotland works Easter Monday");
+});
+
+// Canada against canada-holidays.ca's federal list (fixtures/canada-federal-holidays.json, fetched 2026-11-12): an
+// open-source site, not the Government of Canada, whose pages timed out from this host. 85 observed dates, 2022-2028.
+test("ca matches the federal holidays canada-holidays.ca lists, 2022-2028", () => {
+  const ca = JSON.parse(readFileSync(new URL("./fixtures/canada-federal-holidays.json", import.meta.url), "utf8")).years;
+  for (const [y, want] of Object.entries(ca)) assert.deepEqual(caFederalHolidays(Number(y)).map((h) => h.date), [...want].sort(), `ca ${y}`);
+  const ca1 = holidayChecker("ca");
+  assert.ok(ca1("2028-07-03") && !ca1("2028-06-30"), "Canada Day on a Saturday moves to Monday, not Friday as in the US");
+  assert.equal(addBusinessDays("2026-06-30", 1, ca1), "2026-07-02");
+});
+
+test("upcomingHolidays: the next days off with names, dates included, across the year end", () => {
+  assert.deepEqual(upcomingHolidays("gb-eng, 2026-12-24", "2026-12-01", 3), [{ date: "2026-12-24", name: "day off" }, { date: "2026-12-25", name: "Christmas Day" }, { date: "2026-12-28", name: "Boxing Day (substitute day)" }]);
+  assert.deepEqual(upcomingHolidays("us-business", "2026-12-26", 2).map((h) => h.date), ["2027-01-01", "2027-05-31"]);
+  assert.deepEqual(upcomingHolidays("", "2026-12-26"), []);
+  assert.throws(() => upcomingHolidays("fr", "2026-12-26"), /not a date/);
 });
