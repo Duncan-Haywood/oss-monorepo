@@ -22,6 +22,10 @@ import { fromAllocation } from './allocation.mjs';
 
 const DAY = 86_400_000;
 
+// Tallies keyed by text from outside (a fork's branch name, a workflow's `name:`)
+// start with no prototype, so `__proto__` or `constructor` is an ordinary key.
+const dict = () => Object.create(null);
+
 export function quantile(values, q) {
   const xs = values.filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
   if (!xs.length) return null;
@@ -122,7 +126,7 @@ export function fromRuns(repo, { days = 30, now = Date.now() } = {}) {
     }
   }
   const group = (key) => {
-    const out = {};
+    const out = dict();
     for (const r of recs) {
       const k = key(r) ?? 'unknown';
       const g = (out[k] ??= { runs: 0, success: 0, ci_failures: [], cost: [], active: [], leverage: [] });
@@ -148,7 +152,7 @@ export function fromRuns(repo, { days = 30, now = Date.now() } = {}) {
         }]),
     );
   };
-  const friction = {};
+  const friction = dict();
   for (const r of recs) for (const f of r.doc_friction ?? []) if (f?.file) friction[f.file] = (friction[f.file] ?? 0) + 1;
   return {
     available: true,
@@ -292,8 +296,8 @@ export function ciActivity({ counts = { per_day: {}, capped_days: [] }, sample =
   const totals = tally();
   for (const t of Object.values(counts.per_day)) for (const o of OUTCOMES) totals[o] += t[o] ?? 0;
 
-  const byEvent = {};
-  const byWorkflow = {};
+  const byEvent = dict();
+  const byWorkflow = dict();
   const durations = [];
   let reruns = 0;
   let wallMinutes = 0;
@@ -329,7 +333,7 @@ export function ciActivity({ counts = { per_day: {}, capped_days: [] }, sample =
     .filter((r) => ['passed', 'failed'].includes(outcomeOf(r.conclusion)))
     .sort((a, b) => (a.created_at ?? '').localeCompare(b.created_at ?? ''));
   const spells = [];
-  const redSince = {};
+  const redSince = dict();
   for (const r of mainRuns) {
     const name = r.name ?? 'unknown';
     if (outcomeOf(r.conclusion) === 'failed') redSince[name] ??= r.created_at;
@@ -506,7 +510,7 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
     const sample = merged.slice(0, 40);
     let reviewed = 0;
     const firstReview = [];
-    const reviewStates = {};
+    const reviewStates = dict();
     for (const p of sample) {
       const reviews = await ghPages(fetchImpl, token, `${api}/pulls/${p.number}/reviews`, 1);
       for (const r of reviews) if (r.state) reviewStates[r.state] = (reviewStates[r.state] ?? 0) + 1;
@@ -524,9 +528,9 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
 
     // Per PR head branch: how many distinct commits saw a failing run before
     // the first commit whose runs all passed. A proxy for CI iterations.
-    const byBranch = {};
+    const byBranch = dict();
     for (const r of prRuns.filter(decided)) {
-      const b = (byBranch[r.head_branch] ??= {});
+      const b = (byBranch[r.head_branch] ??= dict());
       const c = (b[r.head_sha] ??= { at: r.created_at, failed: false });
       if (r.conclusion !== 'success') c.failed = true;
       if (r.created_at < c.at) c.at = r.created_at;
@@ -543,7 +547,7 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
       if (green === 0) firstTry += 1;
     }
 
-    const failingWorkflows = {};
+    const failingWorkflows = dict();
     for (const r of mainRuns.filter((x) => x.conclusion === 'failure')) failingWorkflows[r.name] = (failingWorkflows[r.name] ?? 0) + 1;
 
     const branches = await ghPages(fetchImpl, token, `${api}/branches`, 30);
@@ -554,7 +558,7 @@ export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchIm
       pr_cycle_hours: { n: cycle.length, p50: round(quantile(cycle, 0.5)), p90: round(quantile(cycle, 0.9)) },
       prs_closed_unmerged_7d: closed.filter((p) => !p.merged_at && p.closed_at && Date.parse(p.closed_at) > now - 7 * DAY).length,
       first_review_hours: { sampled: sample.length, reviewed, p50: round(quantile(firstReview, 0.5)), p90: round(quantile(firstReview, 0.9)) },
-      review_states: reviewStates,
+      review_states: Object.fromEntries(Object.entries(reviewStates)),
       open_prs: {
         count: open.length,
         drafts: open.filter((p) => p.draft).length,

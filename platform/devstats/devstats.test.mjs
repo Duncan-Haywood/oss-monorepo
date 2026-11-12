@@ -42,6 +42,8 @@ test('quantile and dayRange', () => {
   assert.equal(quantile([3, 1, 2], 0.5), 2);
   assert.equal(quantile([], 0.5), null);
   assert.equal(quantile([0, 10], 0.9), 9);
+  // Interpolates from the lower neighbour, not from index 0: pos 1.5 lies halfway from 10 to 20.
+  assert.equal(quantile([20, 0, 10], 0.75), 15);
   assert.deepEqual(dayRange(NOW, 3), ['2026-10-14', '2026-10-15', '2026-10-16']);
 });
 
@@ -265,4 +267,68 @@ test('the page renders every section, marks missing data, and escapes', async ()
   assert.match(html, /<nav class="pfs-head" aria-label="Site" data-pfs-head>/);
   assert.match(html, /class="pfs-brand" href="\.\.\/" data-pf-to="hub"/);
   assert.match(html, /<link rel="stylesheet" href="\.\.\/pf-site\.css">/);
+});
+
+// A fork chooses its branch name and can add a workflow with any `name:`; both
+// reach these tallies through the runs API, so a key like `__proto__` must
+// count like any other and leave Object.prototype alone.
+test('github and ciActivity: hostile branch and workflow names are counted, not used to pollute prototypes', async () => {
+  const iso = (h) => new Date(NOW - h * 3_600_000).toISOString();
+  const routes = [
+    [/\/pulls\?state=closed/, []],
+    [/\/pulls\?state=open/, []],
+    [/event=push/, { workflow_runs: [{ name: '__proto__', conclusion: 'failure' }, { name: 'constructor', conclusion: 'failure' }] }],
+    [/event=pull_request/, { workflow_runs: [
+      { head_branch: '__proto__', head_sha: 'polluted_sha', created_at: iso(5), conclusion: 'success' },
+      { head_branch: 'constructor', head_sha: 'c1', created_at: iso(5), conclusion: 'failure' },
+      { head_branch: 'constructor', head_sha: 'c2', created_at: iso(4), conclusion: 'success' },
+      { head_branch: 'x', head_sha: 's1', created_at: iso(4), conclusion: 'success' },
+    ] }],
+    [/\/branches/, []],
+  ];
+  const fetch = async (url) => ({ ok: true, json: async () => routes.find(([re]) => re.test(url))[1] });
+  try {
+    const gh = await fromGitHub({ token: 't', repo: 'o/r', now: NOW, fetch });
+    assert.equal(gh.available, true, gh.reason);
+    assert.equal(gh.ci_pr.branches_seen, 3);
+    assert.equal(gh.ci_pr.first_try_green_share, round3(2 / 3));
+    assert.deepEqual(gh.ci_main.failing_workflows.map(([n, c]) => [n, c]).sort(), [['__proto__', 1], ['constructor', 1]]);
+    assert.equal({}.polluted_sha, undefined);
+    assert.equal(Object.c1, undefined);
+
+    const run = (name, conclusion, h) => ({ name, conclusion, event: 'push', head_branch: 'main', created_at: iso(h), run_started_at: iso(h), updated_at: iso(h - 0.1) });
+    const main = [run('__proto__', 'failure', 3), run('constructor', 'failure', 2), run('toString', 'success', 1)];
+    const ci = ciActivity({ sample: main, main }, { now: NOW });
+    assert.deepEqual(ci.workflows.map((w) => [w.name, w.runs]).sort(), [['__proto__', 1], ['constructor', 1], ['toString', 1]]);
+    assert.deepEqual(ci.red_on_main_now.map((r) => r.workflow).sort(), ['__proto__', 'constructor']);
+    assert.equal({}.passed, undefined);
+    assert.equal({}.minutes, undefined);
+  } finally {
+    delete Object.prototype.polluted_sha;
+    delete Object.c1;
+    delete Object.c2;
+    for (const k of ['passed', 'failed', 'cancelled', 'skipped', 'minutes']) delete Object.prototype[k];
+  }
+});
+
+test('github: each list stops at its page budget, and the top failing workflows are eight', async () => {
+  const calls = {};
+  const full = (make) => Array.from({ length: 100 }, (_, i) => make(i));
+  const fetch = async (url) => {
+    const key = url.replace(/[?&]per_page.*/, '');
+    calls[key] = (calls[key] ?? 0) + 1;
+    const page = Number(new URL(url).searchParams.get('page'));
+    if (/event=push/.test(url)) return { ok: true, json: async () => ({ workflow_runs: full((i) => ({ name: `W${(page * 100 + i) % 9}`, conclusion: 'failure' })) }) };
+    if (/event=pull_request/.test(url)) return { ok: true, json: async () => ({ workflow_runs: full((i) => ({ head_branch: `b${page}-${i}`, head_sha: 's', created_at: '2026-10-16T00:00:00Z', conclusion: 'success' })) }) };
+    if (/\/branches/.test(url)) return { ok: true, json: async () => full((i) => ({ name: `b${page}-${i}` })) };
+    return { ok: true, json: async () => [] };
+  };
+  const gh = await fromGitHub({ token: 't', repo: 'o/r', now: NOW, fetch });
+  assert.equal(gh.available, true, gh.reason);
+  assert.equal(gh.ci_main.runs, 200);
+  assert.equal(gh.ci_pr.runs, 300);
+  assert.equal(gh.ci_pr.branches_seen, 300);
+  assert.equal(gh.branches.count, 3000);
+  assert.equal(gh.branches.capped, true);
+  assert.equal(gh.ci_main.failing_workflows.length, 8);
 });
