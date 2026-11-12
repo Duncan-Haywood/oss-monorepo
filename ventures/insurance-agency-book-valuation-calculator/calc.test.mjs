@@ -89,3 +89,18 @@ test("no offer means no sell value and a tie price finding", () => {
   assert.equal(r.sell, null);
   assert.ok(r.findings.some((f) => /Break-even price/.test(f.title)));
 });
+
+// Expected values from an independent year-by-year sum (quality audit round 49), not from calc.mjs:
+// sum over t=1..15 of 250,000 x 0.75 x r^t / 1.15^t, at r = 0.90 and 0.91.
+test("one point of retention on the sample book is the difference of two independent sums", () => {
+  const r = analyze(sampleBook());
+  near(r.keep, 657920.55, 0.01);
+  near(r.onePoint, 31785.25, 0.01);
+});
+
+test("the holdback-cut finding fires below the required retention and not at it", () => {
+  const cut = (retention) => analyze({ ...sampleBook(), retention }).findings.some((f) => /holdback would be cut/.test(f.title));
+  assert.equal(cut(81), true);
+  assert.equal(cut(89.9), true);
+  assert.equal(cut(90), false);
+});
