@@ -505,6 +505,24 @@ def residual_structure(resid, obs, pattern=PATTERN):
 CHI2_3_99 = 11.344866730144373   # chi-square, 3 degrees of freedom, upper 1%
 
 
+def satterthwaite_nu(a, b, m_a, m_b):
+    """Milestone 4c: Welch-Satterthwaite degrees of freedom of a + b, two variance estimates from
+    m_a and m_b delete-one solves (each with m - 1 degrees of freedom)."""
+    den = a * a / (m_a - 1) + b * b / (m_b - 1)
+    return float((a + b) ** 2 / den) if den > 0 else float("nan")
+
+
+def hotelling_crit(p, nu, alpha=0.01):
+    """Milestone 4c: the upper-alpha point of Hotelling's T^2 with p dimensions and nu degrees of
+    freedom of the covariance, p nu / (nu - p + 1) F_{p, nu - p + 1}; tends to chi^2_p as nu grows.
+    nan when nu <= p - 1 (no finite reference)."""
+    from scipy.stats import f as fdist
+    d2 = nu - p + 1
+    if not np.isfinite(nu) or d2 <= 0:
+        return float("nan")
+    return float(p * nu / d2 * fdist.ppf(1 - alpha, p, d2))
+
+
 def disturb_obs(obs, size, s=1.0, du=0.0):
     """Exact model change applied to observed pixels: a focal change by factor s about the
     image centre p (f -> s f, c -> p + s (c - p), k1 unchanged) and a principal-point shift

@@ -236,3 +236,18 @@ def test_jackknife_cov_known_values():
     x = np.random.default_rng(0).normal(size=(20, 1))
     loo = np.array([(x.sum() - x[i]) / 19 for i in range(20)])
     assert np.isclose(jackknife_cov(loo)[0, 0], x.var(ddof=1) / 20)
+
+
+def test_satterthwaite_and_hotelling_reference():
+    from selfcal import satterthwaite_nu, hotelling_crit, CHI2_3_99
+    # one variance only: nu is that estimate's own degrees of freedom
+    assert abs(satterthwaite_nu(2.0, 0.0, 7, 5) - 6.0) < 1e-12
+    # equal variances and counts: nu = 2 (m - 1)
+    assert abs(satterthwaite_nu(1.0, 1.0, 5, 5) - 8.0) < 1e-12
+    # Hotelling tends to chi^2_3 for large nu, is larger for small nu, and is undefined at nu <= 2
+    assert abs(hotelling_crit(3, 1e7) - CHI2_3_99) < 1e-3
+    assert hotelling_crit(3, 6.0) > 2 * CHI2_3_99
+    assert np.isnan(hotelling_crit(3, 2.0))
+    # p = 1: the square of Student's t
+    from scipy.stats import t
+    assert abs(hotelling_crit(1, 5.0) - t.ppf(0.995, 5) ** 2) < 1e-9
