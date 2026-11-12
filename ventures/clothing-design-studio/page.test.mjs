@@ -129,3 +129,14 @@ test("the sunglasses profit page matches what returns.mjs computes", async () =>
   assert.ok(html.includes((Math.round(target * 1.21 * 100) / 100).toFixed(2)), "price for target");
   assert.match(html, /an assumption typed for illustration/);
 });
+
+test("the studio's form rows shrink with the column and style untyped inputs (no sideways scroll at 901 to 1,300 px)", () => {
+  // 2026-11-12: #sep-crop and #sep-knock have no type attribute, so the
+  // input[type=text] width rule missed them; at the browser's default width
+  // inside `1fr` tracks (minimum: content) they pushed the page 161 px wider
+  // than a 960 px window and squashed the paper select to "F".
+  const html = read("index.html");
+  assert.match(html, /input:not\(\[type\]\), input\[type=text\]/);
+  assert.match(html, /\.row \{ display: grid; grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1fr\);/);
+  assert.match(html, /\.row3 \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/);
+});

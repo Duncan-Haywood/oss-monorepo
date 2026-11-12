@@ -142,3 +142,12 @@ test('index links one hop to the which-job-first sibling', () => {
     'index must link ../which-job-first/ so crawlers reach the job-priority ranker in one hop',
   );
 });
+
+test('the two-column layout shrinks below its inputs\' default width (no sideways scroll at 651 to 800 px)', () => {
+  // 2026-11-12: `1fr 1fr` tracks held open by default-width inputs pushed the
+  // page 101 px wider than a 700 px window.
+  const html = page('index.html');
+  assert.match(html, /\.grid\{display:grid;grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\)/);
+  assert.match(html, /\.fields\{display:grid;grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\)/);
+  assert.match(html, /\.fields input\{min-width:0;width:100%;box-sizing:border-box\}/);
+});

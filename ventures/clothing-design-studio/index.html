@@ -37,9 +37,9 @@
     h3 { font-size: .95rem; margin: 12px 0 6px; }
     label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
     input, select, textarea, button { font: inherit; }
-    input[type=text], input[type=number], input[type=password], select, textarea { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    input:not([type]), input[type=text], input[type=number], input[type=password], select, textarea { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+    .row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     .btn { cursor: pointer; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--accent2); background: var(--card); color: var(--accent2); font-weight: 650; }
     .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
     .btn[disabled] { opacity: .4; cursor: not-allowed; }
