@@ -267,7 +267,15 @@ function headerTaxTotals(root) {
 const hasSubtotal = (taxTotal) => taxTotal.children.some((child) => child.name === "TaxSubtotal");
 
 function headerSubtotals(root) {
-  return headerTaxTotals(root).flatMap((total) => total.children.filter((child) => child.name === "TaxSubtotal"));
+  // PINT JP breaks the tax down again in the tax accounting currency (IBG-38, a JPY TaxTotal
+  // with its own TaxSubtotal beside the EUR one, OpenPeppol's Example2-TaxAcctCur): that is
+  // the same tax, so when a TaxTotal is in the document currency only those rows are read.
+  const totals = headerTaxTotals(root);
+  const docCurrency = textOf(root, "DocumentCurrencyCode", false);
+  const currencyOf = (total) => total.children.find((child) => child.name === "TaxAmount")?.attrs?.currencyID || "";
+  const own = docCurrency ? totals.filter((total) => currencyOf(total) === docCurrency) : [];
+  const read = own.length && own.length < totals.length ? own : totals;
+  return read.flatMap((total) => total.children.filter((child) => child.name === "TaxSubtotal"));
 }
 
 function taxBreakdown(root) {
@@ -289,6 +297,11 @@ function taxBreakdown(root) {
     if (taxable) row.taxable = asNumber(taxable);
     if (tax) row.tax = asNumber(tax);
     if (taxId) row.tax_category = taxId;
+    // A tax other than VAT/GST (Malaysia's tourism tax, scheme AAL) can be a flat amount
+    // with no percentage; the scheme is kept only then, so EU rows read as before.
+    const scheme = category ? descendants(category, "TaxScheme")[0] : null;
+    const schemeId = scheme ? textOf(scheme, "ID", false).trim().toUpperCase() : "";
+    if (schemeId && !["VAT", "GST"].includes(schemeId)) row.tax_scheme = schemeId;
     if (Object.keys(row).length) rows.push(row);
   }
   return rows;

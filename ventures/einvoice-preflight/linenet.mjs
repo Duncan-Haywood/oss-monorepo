@@ -73,7 +73,10 @@ export function summedLineNet(line, invoice = {}) {
   return stated === null || !parsed ? expectedLineNet(line) : roundCents(stated);
 }
 
-const NO_RATE_CATEGORIES = new Set(["O"]);
+// E, Z, AE, K and G must carry 0 (EN 16931 BR-E-05, BR-Z-05, BR-AE-05, BR-IC-05, BR-G-05),
+// and PINT (UAE, Oman) leaves BT-119 out on them: a missing one reads as 0 as well; the
+// official sets still flag a missing element where their profile requires it.
+const NO_RATE_CATEGORIES = new Set(["O", "E", "Z", "AE", "K", "G"]);
 
 // The VAT percentage of a line or breakdown row. Category O ("outside the
 // scope of VAT") carries no percentage, so a missing one reads as 0 there.

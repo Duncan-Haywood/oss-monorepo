@@ -43,6 +43,20 @@ export const PROFILES = {
   "pint-sg-1": { source: "pint-sg-schematron", match: /^\s*urn:peppol:pint:billing-1@sg-1\b/i, files: { ubl: ["pint1-sg-ubl.json", "pint1-sg-jur-ubl.json"] } },
   "pint-aunz-1": { source: "pint-aunz-schematron", match: /^\s*urn:peppol:pint:billing-1@aunz-1\b/i, files: { ubl: ["pint1-aunz-ubl.json", "pint1-aunz-jur-ubl.json"] } },
   "pint-aunz-sb-1": { source: "pint-aunz-schematron", match: /^\s*urn:peppol:pint:selfbilling-1@aunz-1\b/i, files: { ubl: ["pint1-aunz-sb-ubl.json", "pint1-aunz-sb-jur-ubl.json"] } },
+  // Japan (JP 1.1.3, plus its non-tax-registered seller and self-billing profiles), Malaysia
+  // (MY 1.3.1), the UAE (AE 2026.5) and Oman (OM 1.0.1), added 2026-11-12: before then their
+  // ids fell to the EU base, which rejects a JPY consumption-tax or MYR SST invoice for EU
+  // reasons. Billing releases that ship the shared PINT-UBL stylesheet byte for byte use
+  // pint1-sg-ubl.json (build-pint-rules.mjs checks and records `sameAs` in the manifest).
+  "pint-jp-1": { source: "pint-jp-schematron", match: /^\s*urn:peppol:pint:billing-1@jp-1\b/i, files: { ubl: ["pint1-sg-ubl.json", "pint1-jp-jur-ubl.json"] } },
+  "pint-jp-ntr-1": { source: "pint-jp-schematron", match: /^\s*urn:peppol:pint:nontaxinvoice-1@jp-1\b/i, files: { ubl: ["pint1-jp-ntr-ubl.json", "pint1-jp-ntr-jur-ubl.json"] } },
+  "pint-jp-sb-1": { source: "pint-jp-schematron", match: /^\s*urn:peppol:pint:selfbilling-1@jp-1\b/i, files: { ubl: ["pint1-jp-sb-ubl.json", "pint1-jp-sb-jur-ubl.json"] } },
+  "pint-my-1": { source: "pint-my-schematron", match: /^\s*urn:peppol:pint:billing-1@my-1\b/i, files: { ubl: ["pint1-sg-ubl.json", "pint1-my-jur-ubl.json"] } },
+  "pint-my-sb-1": { source: "pint-my-schematron", match: /^\s*urn:peppol:pint:selfbilling-1@my-1\b/i, files: { ubl: ["pint1-my-sb-ubl.json", "pint1-my-sb-jur-ubl.json"] } },
+  "pint-ae-1": { source: "pint-ae-schematron", match: /^\s*urn:peppol:pint:billing-1@ae-1\b/i, files: { ubl: ["pint1-ae-ubl.json", "pint1-ae-jur-ubl.json"] } },
+  "pint-ae-sb-1": { source: "pint-ae-schematron", match: /^\s*urn:peppol:pint:selfbilling-1@ae-1\b/i, files: { ubl: ["pint1-ae-sb-ubl.json", "pint1-ae-jur-ubl.json"] } },
+  "pint-om-1": { source: "pint-om-schematron", match: /^\s*urn:peppol:pint:billing-1@om-1\b/i, files: { ubl: ["pint1-sg-ubl.json", "pint1-om-jur-ubl.json"] } },
+  "pint-om-sb-1": { source: "pint-om-schematron", match: /^\s*urn:peppol:pint:selfbilling-1@om-1\b/i, files: { ubl: ["pint1-om-sb-ubl.json", "pint1-om-sb-jur-ubl.json"] } },
 };
 
 export function matchingProfile(xml, syntax) {
@@ -85,7 +99,7 @@ export function parseSvrl(svrl, source = "en16931-schematron") {
       message: withId ? withId[2] : text,
       fix: plainFix(rule),
       path: attr("location").replace(/\[namespace-uri\(\)='[^']*'\]/g, "").replace(/\/Q\{[^}]*\}/g, "/").replace(/\/\*:/g, "/"),
-      severity: attr("flag") || "fatal",
+      severity: attr("flag") || attr("role") || "fatal",
       source,
     });
   }
