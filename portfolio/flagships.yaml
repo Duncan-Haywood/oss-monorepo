@@ -201,7 +201,7 @@ flagships:
       past-only closure reference kept 77% of the window's gain (eval/hindsight-closure.mjs, pre-registered,
       6/12/0, -12.5%; README "The closure score is the default"). Next: close the 100-person gaps (tree,
       not pricing); cuts or branching that move the score LP on the 60-person pay week; buildRoster end to
-      end on 40-person weeks with exact on; a US POS item export (Square or Toast); a labour standard
+      end on 40-person weeks with exact on; a real Square or Toast item export (their documented columns read since 2026-11-12: net over gross, Void? lines and refund events dropped, README "Square and Toast item exports"; made-up rows only); a labour standard
       (minutes per ticket vs per euro) or a blend of the two drivers; a real published-schedule export for
       --import-shifts; whether the priced cut's r = 1 default suits a real manager.
   - venture: photo-editing
@@ -241,29 +241,29 @@ flagships:
       History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
       docs/CONVERGENCE.md and docs/REAL-RANKINGS.md (survey builder, pooled
       random-effects ranking with rank ranges, information-gain and staged
-      selectors, pool cap, lapse and repeat-probe studies; PrefLib real
-      rankings 2026-11-10). Staged uses the information selector up to 120
-      items (couple bar 8 items under rd 200, 2026-11-10). Measured 2026-11-11, not shipped (INFORMATION-GAIN-SELECTOR.md): careless-answer fallback, Glicko lapse term, per-respondent lapse estimate, anchor pairs and weights. Careless
-      patterns that are not random 2026-11-11 (scripts/careless-pattern-sweep.ts,
-      section "Careless patterns that are not random"; random, first-slot,
-      favourite, shared-salience and a different-taste control, 236 cells):
-      a favourite cancels out; a shared wrong reason biases the pool and makes
-      it confidently wrong (4.0% wrong-way clear pairs at 40% of 20 people,
-      8.9% at 60); slot clickers are now LEFT OUT of the pooled ranking by the
-      selector's own 0.7 first-slot rule (matches oracle-drop, 0.3-0.7% honest
-      flagged, never touches a different-taste camp; `leftOut` in the route,
-      builder and report); leave-one-out agreement ships as a NOTE, not a
-      weight (weights cost a real 25-40% camp). Position bias re-measured
-      behind the route's slot shuffle 2026-11-11 (INFORMATION-GAIN-SELECTOR.md
-      "Position bias behind the slot shuffle"): the 2026-10-28 table overstated
-      the harm ~4x; the 0.7 fallback still adds +0.02 to +0.06 at 300 answers
-      and bias 0.5-0.6, is a wash at 120, fires on 0.1% of honest answers, and
-      no other threshold beats it. Next: half-time salience (q = 0.5 still leaks +0.12
-      to +0.29 and only 5-13% fall under 0.2 agreement), a signal from outside
-      the answers (answer times, msToAnswer is stored) to tell a careless
-      block from a camp; position bias that starts mid-session; staged's 0.90 coverage for honest respondents (close pairs
-      shrink rd too fast); the switch rule above 120 items; then real pairwise
-      answers.
+      selectors, pool cap, lapse, careless-pattern and position-bias studies,
+      PrefLib real rankings). Latest, 2026-11-12: the insights screen refits
+      each person's answers (src/lib/btRefit.ts, Bradley-Terry Laplace;
+      staged per-person coverage 0.90 to 0.947 at the same width) and calls a
+      top or bottom pick clear only at 1.645 sd of the refit difference against
+      every item (src/lib/clearPick.ts; the old half-rd rule was wrong in 50-70%
+      of its claims). Next, most valuable first: (a) whether the card's
+      "between X, Y, Z" list holds the true favourite (a top-3 credible set
+      from the refit to replace "the three highest"), and the PrefLib panels
+      through the refit; (b) half-time salience (q = 0.5 still leaks +0.12 to
+      +0.29, only 5-13% fall under 0.2 agreement: does pace see them?);
+      (c) check the answer-time model against the first real survey's
+      msToAnswer (honest pace spread, slowing on close pairs, whether
+      out-of-step people are quicker); (d) position bias that starts
+      mid-session; (e) the switch rule above 120 items; then real pairwise
+      answers. Answer times landed 2026-11-12 (scripts/answer-time-sweep.ts,
+      INFORMATION-GAIN-SELECTOR.md "Answer times", simulated timing with its
+      assumptions swept): pace never mistakes a camp for the careless (AUC
+      0.50-0.56) and separates the careless as far as they are quicker
+      (0.83-0.98); the time-vs-closeness slope confuses camps like agreement.
+      Shipped as the ranking's `pace` note plus `?drop=fast` for comparison,
+      not a default (dropping costs up to 0.019 when the careless are no
+      faster).
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot

@@ -1515,3 +1515,190 @@ from the first answer on). `biasedRespondent.simulation.test.ts` keeps the
 unshuffled form so its 2026-10-28 numbers reproduce; the tables above replace
 its reading. Reproduce: `npx tsx scripts/position-bias-shuffled-sweep.ts
 --seeds 60 [--seed0 50000] [--out rows.jsonl]` (about 10 minutes per seed set).
+
+## Answer times: telling a careless block from a camp (2026-11-12)
+
+The careless-pattern section ended on a gap: leave-one-out agreement cannot
+tell people who pick by a shared wrong reason from a camp with a genuine
+second taste, and a careless majority is invisible in the answers. Every
+answer's `Trial.msToAnswer` is stored, so this measures whether time per pick
+can say which is which (`scripts/answer-time-sweep.ts`; raw rows
+`docs/answer-time-2026-11-12.jsonl`, 171 cells).
+
+**Setup.** The careless-pattern sweep's panels (staged selector behind the
+slot shuffle, 15 and 30 items, 4 answers per item, 20 respondents, 40
+surveys per cell; 60 respondents and 30 surveys for the stress cells), with
+patterns `salience`, `random` and `dissent` (the honest camp, the control) at
+25%, 40% and 50% of the panel. Answer times are **simulated, and every part of
+the timing model is an assumption**, so the assumptions are swept, not trusted:
+
+- each person has their own pace, 2.5 s times exp(0.4 N) (0.6 in the stress cells);
+- an honest answer takes that pace times (1 + gamma x closeness), closeness =
+  exp(-|own taste gap| / 0.25), times exp(0.35 N) noise; gamma 0 (no slowing
+  on hard pairs) or 0.6;
+- a careless answer takes the pace times `ratio` (1: no faster than honest;
+  0.6; 0.4), with no slowing on hard pairs (the stress cells let salience
+  pickers slow on pairs close in salience, gamma 0.6).
+
+Two signals: **pace** (a person's median time over the panel's median of
+medians) and **slope** (Spearman of a person's times with how close each
+pair is in everyone else's pool). Pool schemes, each a paired Spearman
+difference from shipped: `pace-drop` (leave out pace < 0.6, or 0.5), `loo-drop`
+(rho < 0.2), `loo-pace` and `loo-slope` (rho < 0.2 and fast or flat),
+`oracle-drop` (leave out the careless; for dissent, the camp).
+
+| pattern, share | careless ratio | pace AUC | slope AUC (gamma 0.6) | pace-drop 0.5 | oracle-drop | honest flagged by pace 0.5 |
+|---|---|---|---|---|---|---|
+| salience, 25-50% | 1 | 0.50-0.56 | 0.60-0.86 | +0.002 to +0.013 | +0.065 to +0.331 | 1-2% |
+| salience, 25-50% | 0.6 | 0.83-0.90 | 0.60-0.86 | +0.027 to +0.067 | same | 0-1% |
+| salience, 25-50% | 0.4 | 0.95-0.98 | 0.60-0.86 | +0.053 to +0.151 | same | 0-1% |
+| random, 25-50% | 0.4 | 0.95-0.98 | 0.74-0.90 | +0.016 to +0.021 | +0.022 to +0.067 | 0-1% |
+| dissent (camp), 25-50% | n/a | **0.50-0.56** | **0.47-0.84** | **-0.002 to -0.005** | -0.043 to -0.298 | 3-4% |
+
+Stress cells (person pace spread 0.6, threshold 0.6, panels of 20 and 60):
+14-19% of honest respondents fall under the threshold when the careless are no faster (4-15% when they are, since they pull the panel median down); leaving them out costs
+a camp panel 0.005 to 0.019 and a salience panel where the careless are no
+faster up to 0.005, and still gains +0.03 to +0.20 where they are.
+
+What it shows:
+
+- **Pace separates careless from honest exactly as far as the careless are
+  quicker, and never mistakes a camp for them.** A camp answering at a normal
+  pace scores AUC 0.50-0.56 against the majority in every cell: pace has no
+  view on taste. That is the property agreement lacked.
+- **The answer-time slope is not a camp detector.** Honest people slow down on
+  pairs the *panel* finds close, but a camp's hard pairs are close in its own
+  taste, so the camp looks flat too (AUC up to 0.84 at 25%): the same confusion
+  as agreement. Not shipped.
+- **Pace reaches where agreement cannot.** At 50% salience pickers, agreement
+  flags 1-5% of them (they are the consensus) and `loo-drop` costs -0.011 to
+  -0.015; dropping fast people recovers +0.10 to +0.23 when the careless are at
+  0.4-0.6x pace.
+- **Dropping by pace has a price when the assumption fails.** When careless
+  people are no faster, or a panel's natural paces spread widely, `pace-drop`
+  removes fast honest people and costs up to 0.019.
+
+**Decision.** Shipped a note and a comparison, not a default:
+
+1. `respondentPace`, `fastAnswerers` and `paceSummary` in `groupRanking.ts`:
+   a respondent with 10+ timed answers (times at or above 120 s ignored) has a
+   pace against the panel's median of medians (5+ respondents needed);
+   under `FAST_PACE` = 0.5 is fast. The ranking route returns `pace`, and the
+   builder and report show its note: how many answered in under half the
+   typical time, and how many of the out-of-step respondents (agreement under
+   0.2) were among them; when none were, it says the out-of-step answered at a
+   normal pace, which looks like a different taste. Slot clickers, already
+   left out, are not timed.
+2. `?drop=fast` on the ranking route (parsed by `parseDrop`, anything else is a
+   400), the builder's "Rank without the fast answerers" button: the ranking
+   without them, with `leftOut.fast` and a sentence saying so. The default
+   ranking keeps everyone, because the cost when the assumption fails is real
+   and the gain depends on an assumption nobody has measured on this product.
+
+Caveats: the timing model is invented; no real answer times from this
+product exist yet. The first real survey's `msToAnswer` should be checked
+against it: the spread of honest paces (the 0.4 and 0.6 here), whether people
+slow on close pairs, and whether out-of-step respondents are in fact quicker.
+
+
+## Per-person intervals from a refit (2026-11-12, shipped on the insights screen)
+
+The Glicko lapse section above left one gap no lapse term closes: for an
+honest respondent the staged selector's 95% pairwise intervals held only about
+90% of the time (shipped 97%). The cause is the update, not the answers:
+Glicko-2 processes one game at a time against the opponent's point rating,
+and the information selector asks exactly the pairs the current ratings call
+even, so each answer is booked at the maximum information a game can carry
+while the pair's real gap is not even. A posterior computed from all of a
+person's answers at once does not have that problem: by the likelihood
+principle an adaptive design changes which answers arrive, not what they mean.
+
+**The refit** (`src/lib/btRefit.ts`, tests in `btRefit.test.ts`). Bradley-Terry
+with the Glicko-2 link (g = 1) and an independent N(0, phi0^2) prior per item,
+phi0 = 350 / 173.7 (the Glicko starting rd, so an unseen item reads as it does
+today); Newton's method to the mode, covariance from the inverse negative
+Hessian (Laplace). Ties ("about equal") count as half a win each way, the
+convention Glicko's score of 0.5 follows. The tests check the mode against a
+finite-difference gradient and the covariance against a finite-difference
+Hessian. Cost: 18 ms at 50 items and 3000 answers, 34 ms at 200, 190 ms at
+400; callers fall back to the stored states past `REFIT_MAX_ITEMS` = 300.
+
+**Coverage and width** (`scripts/refit-coverage-sweep.ts`, synthetic
+respondent of `infoGainSim.ts`; 8, 15 and 30 items x 2, 4 and 8 answers per
+item, 60 respondents per cell, seed sets from 1000 and 50000;
+`docs/refit-coverage-2026-11-12.jsonl`). "Refit, marginal" treats the two
+items as independent (what a stored per-item rd can carry); "refit, full"
+uses Var(a - b) with the covariance term. Means over the 9 cells, honest
+respondent (run 1 / run 2):
+
+| selector | 95% coverage: Glicko | refit, marginal | refit, full | half-width: Glicko | refit, marginal | refit, full | rank accuracy: Glicko / refit |
+|---|---|---|---|---|---|---|---|
+| staged | 0.910 / 0.904 | 0.971 / 0.972 | 0.947 / 0.947 | 2.35 | 2.75 | 2.34 | 0.788 / 0.791, 0.784 / 0.788 |
+| shipped | 0.972 / 0.971 | 0.989 / 0.990 | 0.968 / 0.972 | 2.62 | 2.82 | 2.42-2.43 | 0.758 / 0.767, 0.764 / 0.772 |
+| random pair | 0.975 / 0.977 | 0.989 / 0.990 | 0.972 / 0.975 | 2.68-2.69 | 2.87 | 2.49 | 0.744 / 0.759, 0.753 / 0.763 |
+
+For staged the refit's full-covariance intervals reach nominal at the same
+width as Glicko's (worst cell 0.88 / 0.87 against 0.82 / 0.80); for shipped
+and random pairs they keep Glicko's coverage 7-8% narrower. Rank accuracy is
+never worse by more than 0.02 in any of the 216 selector-cells and better by
+more than 0.02 in up to 3 cells per lapse for shipped and random. Restricted
+to pairs the person was actually asked, staged's coverage is 0.94 for Glicko
+and 0.96 for the refit, so most of Glicko's miss sits on pairs it never asked,
+whose difference it can only read from two independent rds.
+
+With careless answers neither is calibrated, since both assume none: at a
+true lapse of 0.2 staged reads Glicko 0.859 / 0.856 against refit 0.899 /
+0.899; shipped reads 0.944 / 0.948 against 0.919 / 0.933, and at 0.35 shipped
+reads 0.905 / 0.923 against 0.872 / 0.895 (the refit's narrower intervals cost
+it there).
+
+**Not for the couple bar or the selector.** The refit's marginal rd is wider
+than Glicko's, so the couple screen's bar (min(8, items) items under rd 200)
+would take longer (`--couple-bar`, median / p90 answers, 40 respondents):
+staged 8 items 19 / 20 to 31 / 63, 15 items 27 / 27 to 32 / 34, 30 items
+35 / 35 to 41 / 45; shipped 8 items 26 / 31 to 30 / 69. The stored states
+stay what the selector and the couple bar read; the refit is for reporting.
+
+## The clear-top-pick claim (2026-11-12, shipped)
+
+The insights screen's "top pick" and "bottom pick" cards called the leader
+clear when it was ahead of the runner-up by more than half its own rd, and
+otherwise said "still too close to call: it's between X, Y, Z". Measured on
+the same synthetic respondents (`scripts/clear-pick-sweep.ts`, 8/15/30 items x
+2/4/8 answers per item, 60 respondents per cell, 540 per row;
+`docs/clear-pick-2026-11-12.jsonl`), as the share of respondents the claim
+fires for and the share of those claims naming an item that is not the
+person's true favourite (run 1 / run 2):
+
+| truth spread, lapse | selector | old rule fires / wrong | highest-rated item wrong | z = 1 fires / wrong | z = 1.645 fires / wrong |
+|---|---|---|---|---|---|
+| 1, 0 | staged | 0.76 / 0.58, 0.78 / 0.57 | 0.59, 0.59 | 0.15 / 0.45, 0.15 / 0.32 | 0.022 / 0.17, 0.019 / 0.20 |
+| 1, 0 | shipped | 0.44 / 0.52, 0.45 / 0.50 | 0.63, 0.62 | 0.07 / 0.33, 0.10 / 0.27 | 0.006 / 0, 0.011 / 0.33 |
+| 1, 0.2 | staged | 0.77 / 0.70, 0.76 / 0.63 | 0.71, 0.66 | 0.17 / 0.57, 0.13 / 0.44 | 0.015 / 0.38, 0.015 / 0.38 |
+| 2, 0 | staged | 0.78 / 0.46, 0.78 / 0.42 | 0.50, 0.45 | 0.19 / 0.24, 0.20 / 0.25 | 0.041 / 0.05, 0.033 / 0.11 |
+
+(z rules: the refit's leader beats every other item by more than z sd of the
+difference, full covariance; comparing with the runner-up only moved nothing
+by more than 0.03. Spread 2 is a respondent with twice as strong likes and
+dislikes.)
+
+**Reading.** The old rule was close to no rule: three staged respondents in
+four were told they had a clear favourite, and that favourite was wrong about
+as often as simply naming the highest-rated item. At the lengths people answer
+here, the top two items of a list are usually too close for their answers to
+separate. **Shipped:** the route now refits each person's answers and calls a
+pick clear only when it beats every other item by 1.645 sd of the difference
+(`src/lib/clearPick.ts`, one-sided 95%; the same rule for the bottom pick).
+It fires rarely (2-4% of staged respondents), and its claims are wrong 5-20% of
+the time on 10-22 claims per row, so those rates are rough. Everyone else sees the card's
+existing "it's between X, Y, Z" line, which is true. Pinned by
+`src/app/api/insights/clearPick.integration.test.ts`, which fails on the old
+route (stored ratings 40 points apart at rd 70 with answers that do not back
+them: claimed clear before, contested now).
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth; 30 items or
+fewer; no real pairwise answers; the z = 1.645 wrong-claim rates rest on few
+claims. Next: whether the "between X, Y, Z" list holds the true favourite (a
+top-3 credible set from the refit is the natural replacement for "the three
+highest"), and the PrefLib panels (`scripts/real-rankings-eval.ts`) through the
+refit.
