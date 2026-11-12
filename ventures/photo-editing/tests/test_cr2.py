@@ -391,5 +391,66 @@ class ClipWhiteLevelTests(unittest.TestCase):
         self.assertEqual(raw.ifd.entries[rd.TAG_WHITE_LEVEL], (16383.0,))
 
 
+class LibRawPhaseTests(unittest.TestCase):
+    """``tools/cr2_develop_check.py`` bins on LibRaw's 2x2 grid before comparing half-size renders.
+
+    The 350D's image area starts one row off LibRaw's, so the two half-size renders paired
+    different sensels and differed on every gradient (eval/cr2-brightness-gap-2026-11-12.md).
+    """
+
+    @staticmethod
+    def tool():
+        import importlib.util
+
+        path = Path(__file__).resolve().parents[1] / "tools" / "cr2_develop_check.py"
+        spec = importlib.util.spec_from_file_location("cr2_develop_check", path)
+        mod = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(mod)
+        return mod
+
+    def sizes(self, top, left):
+        from types import SimpleNamespace
+
+        return SimpleNamespace(top_margin=top, left_margin=left)
+
+    def test_same_parity_is_left_alone(self):
+        raw = rd.parse_raw(make_cr2()[0])
+        out, shift = self.tool().align_half_phase(raw, self.sizes(TOP - 2, LEFT - 4))
+        self.assertIs(out, raw)
+        self.assertEqual(shift, (0, 0))
+
+    def test_odd_offset_moves_area_and_turns_pattern_and_black(self):
+        raw = rd.parse_raw(make_cr2()[0])
+        before = dict(raw.ifd.entries)
+        pat, black = raw.ifd.entries[rd.TAG_CFA_PATTERN], raw.ifd.entries[rd.TAG_BLACK_LEVEL]
+        for dy, dx in ((1, 0), (0, 1), (1, 1)):
+            out, shift = self.tool().align_half_phase(raw, self.sizes(TOP - dy, LEFT - dx))
+            self.assertEqual(shift, (dy, dx))
+            top, left, bottom, right = out.ifd.entries[rd.TAG_ACTIVE_AREA]
+            self.assertEqual((top, left, bottom, right), (TOP + dy, LEFT + dx, BOTTOM, RIGHT))
+            for y in (0, 1):
+                for x in (0, 1):
+                    k, j = y * 2 + x, ((y + dy) % 2) * 2 + (x + dx) % 2
+                    self.assertEqual(out.ifd.entries[rd.TAG_CFA_PATTERN][k], pat[j])
+                    self.assertEqual(out.ifd.entries[rd.TAG_BLACK_LEVEL][k], black[j])
+        self.assertEqual(raw.ifd.entries, before)  # the original is untouched
+
+    def test_moved_copy_develops_the_same_colours(self):
+        # A wrongly turned pattern would swap red, green and blue across the whole frame.
+        raw = rd.parse_raw(make_cr2()[0])
+        settings = rd.DevelopSettings(half=True, dcp=rd.read_dcp(make_profile()), default_tone="never")
+
+        def means(r):
+            w, h, px, _ = rd.develop(r, settings)
+            return [sum(px[c::3]) / (w * h) / 65535 for c in range(3)]
+
+        base = means(raw)
+        for dy, dx in ((1, 0), (0, 1), (1, 1)):
+            out, _ = self.tool().align_half_phase(raw, self.sizes(TOP - dy, LEFT - dx))
+            for a, b in zip(means(out), base):
+                self.assertAlmostEqual(a, b, delta=0.02)
+
+
 if __name__ == "__main__":
     unittest.main()

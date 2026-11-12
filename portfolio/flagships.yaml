@@ -217,16 +217,19 @@ flagships:
       tables, tone curves, triple-illuminant profiles, default tone curve;
       numpy engine and native lossless-JPEG Huffman reader; Canon CR2 directly
       and in the grade stage; five real Canon bodies against LibRaw,
-      eval/cr2-five-bodies-2026-11-12.md). Next, most valuable first: why CR2
-      renders come out 3-9% brighter than LibRaw with the same matrix, checked
-      on a known grey; a real Adobe `.dcp` through the profile chooser; newer
+      eval/cr2-five-bodies-2026-11-12.md; the "3-9% brighter" gap was the
+      check's own LibRaw call, eval/cr2-brightness-gap-2026-11-12.md: data
+      matches LibRaw to 0.05-0.19 8-bit steps, the rest is the DNG colour
+      model, 0.07 near D65 to 0.88 at 4,700 K). Next, most valuable first: a
+      real Adobe `.dcp` through the profile chooser; newer
       CR2s (ColorData8-11: 5D Mark IV, 80D, 90D) and the four camera-written
       DNGs (DJI, Nexus 5X, Leica T, Pentax QS1; uncompressed, develop as RGGB,
       not yet compared with LibRaw), all from drewnoakes/metadata-extractor-
       images on raw.githubusercontent.com, which answers from cloud (its NEF,
       ARW and ORF folders would serve a NEF/ARW reader); a real DNG 1.6 three-
       light profile and the SDK's triple weights; a tungsten-lit colour chart
-      to say which colour model is closer, and a DNG with ForwardMatrix; an
+      to say which colour model is closer (the 70D frame, 4,700 K and green-
+      tinted, is where they part most), and a DNG with ForwardMatrix; an
       Adobe render of a known frame (settles `--default-tone-curve always`);
       the grade-scope saving on real 4K footage; the native Huffman reader on
       macOS and the 0.8 s list the public decoder still builds dropped; a
