@@ -118,6 +118,24 @@ At 220 items the worst case is under 20 ms, so a pair request is dominated by
 the database round trips, not the selector. At 500 items it is 67 ms; a list
 much beyond that should cap the pool before using `staged`.
 
+### Per-item terms (2026-11-12)
+
+The pair loop used to build a sorted key string for every pair and recompute
+terms that depend on one item only. It now computes those once per item and
+builds a key only when both ids occur in a recent key. The scores and the pair are
+unchanged (`src/lib/pairingInformationParity.test.ts` pins them against the
+old form), and the simulation MEASURE output is byte-identical. Selector compute
+by `pairLatency.test.ts`, median of 15 calls:
+
+| items | answers | information | staged |
+|---|---|---|---|
+| 220 | 300 | 10.4 to 4.1 ms | 9.7 to 4.0 ms |
+| 500 | 300 | 32.9 to 12.8 ms | 49.5 to 10.0 ms |
+
+The simulation suite went from 630 s to 151 s
+(`docs/history/ci-perf-2026-11-12-qps-information-selector-loop.md` at the
+repository root).
+
 ### Pool cap (2026-10-21)
 
 `selectNextPairByInformation` now scores at most `INFO_POOL_CAP` (400) items,
