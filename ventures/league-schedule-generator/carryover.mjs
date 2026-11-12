@@ -1182,9 +1182,16 @@ function hostBreaks(opp, n, R, host) {
  * at `legBreaks` (default a third of the season cap) and leg two moves on carry-over alone without
  * the season going over `maxBreaks` (or over the fewest its starts allow, if that is more).
  */
-export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null, field = true, fromStarter = false, weightedStarter = true, shift = true, leg1: givenLeg1 = null } = {}) {
+export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null, field = true, fromStarter = false, weightedStarter = true, shift = true, shiftCapped = true, leg1: givenLeg1 = null } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
+  const doubleScore = (r) => r.coe + REPEAT_PENALTY * r.repeats + breakWeight * r.breaks;
+  if (field && !fromStarter && !givenLeg1 && maxBreaks == null && fieldApplies(N) && breakWeight > 0 && shift && shiftStarts(N, n).length) {
+    // 15 and 31 teams (16 and 32 with a bye): the field-start season, and the 16 and 32 shift
+    // starters (STARTERS_SHIFT) as leg ones, as the single search has had since 2026-11-12
+    const best = { ...lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, shift: false }), start: "field" };
+    return withShiftLegOnes(best, N, n, { seed, effort, breakWeight, field, shiftCapped, score: doubleScore });
+  }
   if (field && !fromStarter && maxBreaks == null && !fieldApplies(N) && starterApplies(N)) {
     // as in lowCarryOverRounds: the season searched from a circle-start leg and from a
     // starter-start leg, the better kept (a tie keeps the circle start)
@@ -1194,17 +1201,9 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
       const st = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, fromStarter: which });
       if (score(st) < score(best)) best = { ...st, start: which };
     }
-    if (breakWeight > 0 && shift) {
-      // The built-in starters with shift venues as leg one (shiftStarts), not annealed, as the
-      // single search does: leg two is then searched against its host as usual and the plain
-      // mirror is tried too (README "Shift venues for a home-and-away season", 2026-11-11). Before
-      // this, no double season saw these candidates: every leg one came from a searched start.
-      for (const c of shiftStarts(N, n)) {
-        const legOne = finish(c.opp, n, false, best.circleCoe, best.lowerBound, 0, seed, c.venues);
-        const st = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, fromStarter: "shift", leg1: legOne });
-        if (score(st) < score(best)) best = { ...st, start: `${c.which}, shift venues` };
-      }
-    }
+    // The built-in starters with shift venues as leg one (README "Shift venues for a home-and-away
+    // season", 2026-11-11), and their capped versions (2026-11-12, later)
+    if (breakWeight > 0 && shift) best = withShiftLegOnes(best, N, n, { seed, effort, breakWeight, field, shiftCapped, score });
     return best;
   }
   const R = N - 1;
@@ -1305,6 +1304,26 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
 }
 
 const REPEAT_PENALTY = 1000;
+
+/**
+ * `best` (a lowCarryOverDoubleRounds result) against a season built on each shift candidate as leg
+ * one: the built-in starter as it is with its shift venues (shiftStarts), and, with `shiftCapped`,
+ * that starter annealed on carry-over with its home/away carried and its breaks as the cap
+ * (lowCarryOverCappedRounds from that start, as the single search's withShiftCandidates does).
+ * Leg two is searched against each leg one's hosts as usual, and the plain mirror is tried too. A
+ * season is kept only when strictly lower on the search's own score.
+ */
+function withShiftLegOnes(best, N, n, { seed, effort, breakWeight, field, shiftCapped, score }) {
+  for (const c of shiftStarts(N, n)) {
+    const legOnes = [[finish(c.opp, n, false, best.circleCoe, best.lowerBound, 0, seed, c.venues), `${c.which}, shift venues`]];
+    if (shiftCapped) legOnes.push([lowCarryOverCappedRounds(n, { seed, effort, start: c }), `${c.which}, shift venues, capped`]);
+    for (const [legOne, label] of legOnes) {
+      const st = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, fromStarter: "shift", leg1: legOne });
+      if (score(st) < score(best)) best = { ...st, start: label };
+    }
+  }
+  return best;
+}
 
 /**
  * coeOf(o, n, false) and hostBreaks(o, n, R, host) for a season whose leg one is fixed (the two
