@@ -145,9 +145,13 @@ export function readSales(text, o = {}) {
     const q = head.findIndex((h) => QTY.includes(h)), p = head.findIndex((h, i) => i !== q && (PRICE.includes(h) || /^unit price\b/.test(h)));
     if (q >= 0 && p >= 0) { ix.qty = q; ix.price = p; ix.sales = p; out.notes.push("No sales column: each row's sales are its quantity times its unit price (a line-item export)."); }
   }
+  const tix = head.findIndex((h) => TICKET.includes(h));
+  // A labour standard (2026-11-12): o.standard = { ticket, sale, item } minutes of work per ticket, per unit of money and
+  // per item sold. Each row then counts the minutes it costs, so --splh is minutes of work per labor hour (60 is a person
+  // busy every minute). This is the fixed-plus-variable workload model paid workforce tools call a labour standard.
+  if (o.standard) return readStandard(lines, sep, head, ix, tix, dateCol, timeCol, o, out, skip);
   const count = o.count === undefined || o.count === "sales" ? null : String(o.count);
   if (count !== null && count !== "tickets" && count !== "rows") throw new Error('count must be "sales", "tickets" or "rows"');
-  const tix = head.findIndex((h) => TICKET.includes(h));
   // Counting customers instead of money: "tickets" counts each distinct ticket number once (at its first row's hour),
   // "rows" counts every row. A file with no sales column but a ticket column is counted by ticket, with a note.
   let mode = "sales";
@@ -213,6 +217,96 @@ export function readSales(text, o = {}) {
     if (!st.key) out.undated++;
     out.rows++;
   });
+  return out;
+}
+
+// Parse a labour standard: "1.5/ticket + 0.1/sale + 0.3/item" (any order, "+" or "," between, "min" optional), or an
+// object { ticket, sale, item }. Returns { ticket, sale, item } in minutes, each 0 when absent; throws when all are 0.
+export function parseStandard(v) {
+  let st = { ticket: 0, sale: 0, item: 0 };
+  if (v && typeof v === "object") st = { ticket: +v.ticket || 0, sale: +v.sale || 0, item: +v.item || 0 };
+  else {
+    const parts = String(v || "").split(/[+,;]/).map((x) => x.trim()).filter(Boolean);
+    for (const p of parts) {
+      const m = /^(\d+(?:\.\d+)?)\s*(?:min(?:utes?)?|m)?\s*(?:\/|per|a|each)?\s*(tickets?|orders?|customers?|receipts?|transactions?|sales?|money|euros?|eur|dollars?|usd|pounds?|gbp|won|items?|units?|pieces?)$/i.exec(p);
+      if (!m) throw new Error(`could not read "${p}" in the labour standard: write minutes per ticket, sale or item, e.g. "1.5/ticket + 0.3/item"`);
+      const n = +m[1], u = m[2].toLowerCase();
+      const k = /^(ticket|order|customer|receipt|transaction)/.test(u) ? "ticket" : /^(item|unit|piece)/.test(u) ? "item" : "sale";
+      st[k] += n;
+    }
+  }
+  for (const k of ["ticket", "sale", "item"]) if (!(st[k] >= 0) || !Number.isFinite(st[k])) throw new Error("labour standard minutes must be 0 or more");
+  if (!(st.ticket + st.sale + st.item > 0)) throw new Error("a labour standard needs minutes per ticket, sale or item above 0");
+  return st;
+}
+
+const fmtMin = (n) => String(Math.round(n * 1000) / 1000);
+export function describeStandard(st) {
+  return [st.ticket && `${fmtMin(st.ticket)} min a ticket`, st.sale && `${fmtMin(st.sale)} min a unit of money taken`, st.item && `${fmtMin(st.item)} min an item`].filter(Boolean).join(" + ");
+}
+
+// readSales with a labour standard: every row becomes its minutes of work. A ticket's minutes land at the hour of its
+// first row; money and items at each row's own hour. Refund lines (negative money or quantity) are counted and left out.
+function readStandard(lines, sep, head, ix, tix, dateCol, timeCol, o, out, skip) {
+  const st = parseStandard(o.standard);
+  const qty = head.findIndex((h) => QTY.includes(h));
+  const price = head.findIndex((h, i) => i !== qty && (PRICE.includes(h) || /^unit price\b/.test(h)));
+  const money = ix.qty !== undefined ? { qty: ix.qty, price: ix.price } : ix.sales >= 0 ? { col: ix.sales } : qty >= 0 && price >= 0 ? { qty, price } : null;
+  if (!st.sale) out.notes = out.notes.filter((n) => !n.startsWith("No sales column: each row's sales"));
+  const missing = [];
+  if (st.ticket && tix < 0) missing.push("a ticket, order or receipt number column (for minutes a ticket)");
+  if (st.sale && !money) missing.push("a sales column, or quantity and unit price (for minutes a unit of money)");
+  if (st.item && qty < 0) missing.push("a quantity column (for minutes an item)");
+  out.count = "minutes";
+  if (missing.length) { out.notes.push("The labour standard needs " + missing.join("; ") + "."); return out; }
+  if (ix.stamp < 0) { out.notes.push("No date-time or hour column found."); return out; }
+  out.standard = st;
+  out.notes.push(`Labour standard: ${describeStandard(st)}, so the rate is minutes of work per labor hour (60 is someone busy every minute).`);
+  let dayFirst = false, monthFirst = false, ambiguous = false;
+  for (const line of lines.slice(1)) {
+    const t = String(splitCsvRow(line, sep)[ix.stamp] || "").trim();
+    const m = /^(?:[a-z]+[.,]?\s+)?(\d{1,2})([\/-])(\d{1,2})\2(\d{2}|\d{4})(?!\d)/i.exec(t);
+    if (!m) continue;
+    if (+m[1] > 12) dayFirst = true; else if (+m[3] > 12) monthFirst = true; else if (+m[1] !== +m[3]) ambiguous = true;
+  }
+  if (monthFirst) dayFirst = false;
+  out.dayFirst = dayFirst;
+  out.ambiguous = ambiguous && !dayFirst && !monthFirst;
+  const seen = new Set();
+  out.parts = { ticket: 0, sale: 0, item: 0 };
+  lines.slice(1).forEach((line, i) => {
+    const c = splitCsvRow(line, sep);
+    if (c.every((x) => String(x ?? "").trim() === "")) { out.blank++; return; }
+    const stampText = ix.clock >= 0 ? `${String(c[ix.stamp] || "").trim()} ${String(c[ix.clock] || "").trim()}` : c[ix.stamp];
+    const s = readStamp(stampText, ix.day >= 0 ? c[ix.day] : undefined, dayFirst);
+    if (!s) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${stampText || ""}"`); return; }
+    let amount = 0, items = 0;
+    if (st.sale) {
+      amount = money.col !== undefined ? readAmount(c[money.col]) : Math.round(readAmount(c[money.qty]) * readAmount(c[money.price]) * 100) / 100;
+      const blank = money.col !== undefined ? String(c[money.col] ?? "").trim() === "" : String(c[money.qty] ?? "").trim() === "";
+      if (!Number.isFinite(amount) || blank) { out.skipped.push(`row ${i + 2}: could not read the sales`); return; }
+    }
+    if (st.item) {
+      items = readAmount(c[qty]);
+      if (!Number.isFinite(items) || String(c[qty] ?? "").trim() === "") { out.skipped.push(`row ${i + 2}: could not read the quantity "${c[qty] ?? ""}"`); return; }
+    }
+    if (amount < 0 || items < 0) { out.refunds.n++; out.refunds.amount += amount; return; }
+    if (s.key && skip.has(isoKey(s.key))) { out.skippedDays.add(s.key); return; }
+    let tmin = 0;
+    if (st.ticket) {
+      const id = String(c[tix] ?? "").trim();
+      if (!id) { out.skipped.push(`row ${i + 2}: no ticket number`); return; }
+      const k = `${s.key}|${id}`;
+      if (!seen.has(k)) { seen.add(k); tmin = st.ticket; }
+    }
+    const parts = { ticket: tmin, sale: st.sale * amount, item: st.item * items };
+    out.parts.ticket += parts.ticket; out.parts.sale += parts.sale; out.parts.item += parts.item;
+    out.entries.push({ ...s, amount: parts.ticket + parts.sale + parts.item });
+    if (!s.key) out.undated++;
+    out.rows++;
+  });
+  const tot = out.parts.ticket + out.parts.sale + out.parts.item;
+  if (tot > 0) out.notes.push("Share of the work: " + [["ticket", "tickets"], ["sale", "money"], ["item", "items"]].filter(([k]) => st[k]).map(([k, n]) => `${n} ${Math.round(out.parts[k] / tot * 100)}%`).join(", ") + ".");
   return out;
 }
 
@@ -746,6 +840,6 @@ export function backtestSales(text, o = {}) {
   const perWeek = Object.fromEntries(results.map((res) => [res.id, res.short.map((x, i) => (rc === null ? 1 : rc) * x + res.over[i])]));
   const best = methods.reduce((a, b) => (b.miss < a.miss - 1e-9 ? b : a));
   const clear = best.id !== "all" && best.ci[1] < 0;
-  notes.push(`Tested on ${tested.length} full week${tested.length === 1 ? "" : "s"} (first ${warmup} used only to learn from), at ${splh} ${r.count && r.count !== "sales" ? r.count : "sales"} per labor hour and ${minStaff} minimum staff${rc === null ? "" : `, a short person-hour costing ${rc} spare ones`}.`);
+  notes.push(`Tested on ${tested.length} full week${tested.length === 1 ? "" : "s"} (first ${warmup} used only to learn from), at ${splh} ${r.count === "minutes" ? "minutes of work" : r.count && r.count !== "sales" ? r.count : "sales"} per labor hour and ${minStaff} minimum staff${rc === null ? "" : `, a short person-hour costing ${rc} spare ones`}.`);
   return { weeks: tested.length, methods, best: best.id, clear, shortCost: rc, shifts: !!o.shifts, scoreClosed, closedFrom: scoreClosed ? (o.closedFrom === "past" ? "past" : "file") : null, minShift, maxShift, perWeek, notes };
 }

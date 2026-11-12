@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVMrShjsSKYW9rVCD56",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T03:04:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 6) shift-roster-builder: labour standard blending tickets, money and items",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": 14980,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "The bare `route` drew research for a scheduled run whose stored prompt asks for revenue products; rerouted with --task as prompt.md says, but a scheduled run that skips the --task step lands on the wrong track."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-minutes-a-ticket-minutes-a-euro.md"
+  ],
+  "goal": null,
+  "notes": "Venture suite: 355 pass, 1 fail before fix (a source test pinned the old page wiring, count-tickets.test.mjs), fixed; targeted re-run 19/19. eval/labour-standard.mjs on the French bakery (SHA-256 af5eede5...): ends equal money and ticket plans line for line; off share 49.0% -> 40.0% from all-money to all-tickets. Headless Chromium page click at 1280/390 px: no console errors, no sideways scroll.",
+  "corrections": [],
+  "redteam": null
+}
