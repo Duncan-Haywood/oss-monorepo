@@ -26,6 +26,7 @@
 import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { preflightDocuments, isBlocking } from "../report.mjs";
+import { plainAvailable } from "../plain-node.mjs";
 
 const root = process.argv[2];
 if (!root || !existsSync(root)) { console.error("usage: node eval/phive-corpus.mjs <phive-rules checkout> [--set name] [--files] [--json]"); process.exit(2); }
@@ -113,6 +114,10 @@ export async function runSet(dir, good = null) {
   return out;
 }
 
+// Without slimdom/fontoxpath every file reports schematron "unavailable" and only the
+// built-in checks run, so INV ids the official sets would step aside for (INV-022 under
+// PINT, for one) fill the table (2026-11-12: 0 of 49 Oman files clean, not 45).
+if (!flag("--builtin") && !plainAvailable()) console.error("warning: slimdom/fontoxpath not installed, so the official rule sets do not run and every count is the built-in checks alone (npm i --no-save slimdom fontoxpath)");
 const only = arg("--set");
 const results = {};
 for (const [name, rel] of Object.entries(SETS)) {

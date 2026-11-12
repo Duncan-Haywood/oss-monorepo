@@ -99,3 +99,22 @@ test("two-decimal lines read as before", () => {
   assert.deepEqual(arithmetic(omrInvoice({ lines: 3, net: "0.05", lineTax: null, total: "0.15", tax: "0.01" })), []);
   assert.deepEqual(arithmetic(omrInvoice({ lines: 3, net: "0.05", lineTax: null, total: "0.14", taxable: "0.15", tax: "0.01" })), ["INV-014"]);
 });
+
+test("the repair leaves a correct baisa invoice alone", async () => {
+  const { repairUbl } = await import("./repair-ubl.mjs");
+  const xml = omrInvoice();
+  const r = repairUbl(xml);
+  assert.deepEqual(r.changes, [], JSON.stringify(r.changes.slice(0, 3)));
+  assert.equal(r.xml, xml);
+  assert.ok(!r.skipped.some((s) => /own TaxTotal/.test(s)), "Oman's ItemPriceExtension TaxTotal is not ZATCA's line TaxTotal");
+});
+
+test("the repair restores a wrong baisa net total to the sum at stated precision", async () => {
+  const { repairUbl } = await import("./repair-ubl.mjs");
+  const r = repairUbl(omrInvoice({ total: "1.50", taxable: "1.50", tax: "0.06" }));
+  const to = Object.fromEntries(r.changes.map((c) => [c.path, c.to]));
+  assert.equal(to["/totals/net"], "1.41");
+  assert.equal(to["/tax_breakdown/0/taxable"], "1.41");
+  assert.equal(to["/tax_breakdown/0/tax"], undefined, "0.06, the sum of the line VAT, is kept");
+  assert.deepEqual(arithmetic(r.xml), []);
+});
