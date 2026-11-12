@@ -105,11 +105,38 @@ export function compute(input) {
   const findings = [];
   if (prior === null) return { errors: [`There is no price on record in the ${WINDOW_DAYS} days before ${iso(anchor)}. Add the earlier prices.`] };
 
+  // Article 6a(5): the price before the first reduction may be used only while the reduction
+  // runs without interruption and keeps increasing. A price that goes back up in between, or a
+  // "first reduction" that was not a reduction, puts the standard 30-day rule back.
+  let progressiveBroken = null;
+  if (p.mode === "progressive") {
+    const inRun = p.rows.filter((r) => r.t >= p.firstT && r.t <= p.startT);
+    const atFirst = priceAt(p.rows, p.firstT);
+    const rise = inRun.find((r, k) => k > 0 && r.price > inRun[k - 1].price + 0.005);
+    if (atFirst === null || atFirst >= prior - 0.005) progressiveBroken = `the price on ${iso(p.firstT)} (EUR ${money(atFirst ?? 0)}) was not below the price before it`;
+    else if (rise) progressiveBroken = `the price went back up to EUR ${money(rise.price)} on ${iso(rise.t)}`;
+  }
+  if (progressiveBroken) {
+    const stdFrom = p.startT - WINDOW_DAYS * DAY;
+    const stdPrior = lowestBetween(p.rows, Math.max(stdFrom, p.rows[0].t), p.startT - DAY);
+    findings.push({ severity: "high", title: `This is not an uninterrupted, increasing reduction: ${progressiveBroken}. The progressive rule does not apply, so the standard rule does: the lowest price in the ${WINDOW_DAYS} days before ${iso(p.startT)} was EUR ${money(stdPrior)}.` });
+    return finish(p, stdPrior, findings, stdFrom, p.startT - DAY, p.rows[0].t <= stdFrom, "standard");
+  }
+  return finish(p, prior, findings, winFrom, winTo, covered, p.mode);
+}
+
+function priceAt(rows, t) {
+  let v = null;
+  for (const r of rows) if (r.t <= t) v = r.price;
+  return v;
+}
+
+function finish(p, prior, findings, winFrom, winTo, covered, appliedMode) {
   const trueDiscount = prior > 0 ? ((prior - p.salePrice) / prior) * 100 : 0;
   const isReduction = p.salePrice < prior;
   let verdict = "ok";
 
-  findings.push({ severity: "info", title: p.mode === "progressive"
+  findings.push({ severity: "info", title: appliedMode === "progressive"
     ? `Progressive reduction: the prior price is the lowest price in the ${WINDOW_DAYS} days before the first reduction (${iso(p.firstT)}) - EUR ${money(prior)} - if your Member State applies that rule.`
     : `Prior price: the lowest price applied in the ${WINDOW_DAYS} days from ${iso(winFrom)} to ${iso(winTo)} was EUR ${money(prior)}.` });
 
@@ -127,13 +154,14 @@ export function compute(input) {
       verdict = "misleading";
       findings.push({ severity: "high", title: `The crossed-out price of EUR ${money(p.claimedWas)} is higher than the prior price of EUR ${money(prior)}. Showing it as the previous price is likely to breach the 30-day rule. Show EUR ${money(prior)} instead, or do not show a reduction.` });
     } else if (p.claimedWas < prior - 0.005) {
-      findings.push({ severity: "info", title: `The crossed-out price of EUR ${money(p.claimedWas)} is below the prior price of EUR ${money(prior)}. That understates the discount and is not a problem under this rule, but it is not the figure the rule requires.` });
+      findings.push({ severity: "info", title: `The crossed-out price of EUR ${money(p.claimedWas)} is below the prior price of EUR ${money(prior)}. It understates the discount, but Article 6a asks for the prior price itself (EUR ${money(prior)}) to be shown as the previous price.` });
     } else {
       findings.push({ severity: "info", title: `The crossed-out price of EUR ${money(p.claimedWas)} matches the prior price.` });
     }
   }
   if (p.claimedPct !== null) {
-    if (isReduction && p.claimedPct > trueDiscount + 0.5) {
+    // A percentage may be the true one rounded to one decimal, no more (14.49 -> 14.5, not 14.99).
+    if (isReduction && p.claimedPct > Math.round(trueDiscount * 10) / 10 + 1e-9) {
       verdict = "misleading";
       findings.push({ severity: "high", title: `The advertised ${p.claimedPct} percent off is more than the ${trueDiscount.toFixed(1)} percent the price history supports. The percentage has to be calculated against the prior price.` });
     } else if (!isReduction) {
@@ -147,9 +175,9 @@ export function compute(input) {
   const dipped = p.rows.filter((r) => r.t >= winFrom && r.t <= winTo && r.price > prior + 0.005);
   if (dipped.length && p.claimedWas === null) findings.push({ severity: "info", title: `Prices in the window went up to EUR ${money(Math.max(...dipped.map((r) => r.price)))}; raising a price just before a "sale" does not move the prior price, which stays the lowest in the window.` });
 
-  findings.push({ severity: "medium", title: "Applies to a reduction announced to consumers for goods or services. The rule does not cover a price you simply show as normal, and Member States set their own fines (the Directive requires penalties that can reach at least 4 percent of annual turnover for widespread infringements). Check your national rule and keep the price log as evidence." });
+  findings.push({ severity: "medium", title: "Applies to a price reduction announced to consumers for goods (Article 6a does not cover services). The rule does not cover a price you simply show as normal. Member States set their own penalties for this rule; a misleading reduction can also breach the Unfair Commercial Practices Directive, where fines for widespread infringements can reach at least 4 percent of annual turnover. Check your national rule and keep the price log as evidence." });
 
-  return { errors: [], input: p, prior, trueDiscount, isReduction, verdict, window: { from: iso(winFrom), to: iso(winTo), covered }, findings };
+  return { errors: [], input: p, prior, trueDiscount, isReduction, verdict, appliedMode, window: { from: iso(winFrom), to: iso(winTo), covered }, findings };
 }
 
 export const SAMPLE = {

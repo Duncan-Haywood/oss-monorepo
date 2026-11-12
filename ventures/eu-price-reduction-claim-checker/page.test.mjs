@@ -61,3 +61,9 @@ test("modes are selectable and a related EU checker is linked", () => {
   assert.match(html, /href="\.\.\/eu-green-claims-checker\/"/);
   assert.match(html, /MODES\.map/);
 });
+
+test("the page does not attribute the 4 percent turnover fine to the Price Indication Directive", () => {
+  const html = page("index.html");
+  assert.ok(!/the Directive requires fines/.test(html));
+  assert.ok(!/goods or services/.test(html));
+});
