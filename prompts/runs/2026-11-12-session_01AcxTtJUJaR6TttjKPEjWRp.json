@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtJUJaR6TttjKPEjWRp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T01:06:33Z",
+  "ended": "2026-11-12T01:30:49Z",
+  "wall_minutes": 26.53,
+  "tokens_in": 7759241,
+  "tokens_out": 43939,
+  "cost_usd": 3.5406,
+  "tool_calls": 70,
+  "task": "sales-agent flagship: call outcomes and days off on the static page's Today's queue (after the planned item, cadence push-back + holidays, landed in parallel as PR #14949)",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14953",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "duplicate work: built the cadence push-back and holiday list (9 tests, preflight clean), then found at merge time that PR #14949 had landed the same item about an hour earlier",
+      "fix": "dropped this run's version, because #14949's plan-date slip plus max covers the same cases and adds US holiday rules, reset the branch onto main, and built the next recorded step instead"
+    },
+    {
+      "what": "the first preflight failed because the post description was over 160 characters (on the discarded version)",
+      "fix": "shortened it"
+    },
+    {
+      "what": "run_workflow_locally.py --for-changes was killed at a 500 s timeout",
+      "fix": "relied on the full venture suite, venture-preflight and a headless Chromium click-through instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "it pointed two concurrent sessions at the same sales-agent item: 'no PR opened in the last 24 h' cannot see a session that hasn't opened its PR yet. Opening a draft PR right after the first commit (or a claim file) would let the next run skip the item."
+    },
+    {
+      "file": "docs/posts (writing.mjs)",
+      "issue": "the 160-character limit on a post description is only enforced inside the 5-minute site build. A fast standalone check would catch it in seconds."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "opened the PR only after the work was done, not after the first push",
+      "did": "pushed and opened the PR at the end of the first slice",
+      "result": "a parallel session landed the same item first, and an early draft PR might have prevented the duplicate. Lesson: open the draft immediately."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-sales-agent-call-buttons-on-the-free-page.md",
+    "ventures/sales-agent/README.md (Call outcomes on the page itself)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed to ventures/1 by weighted draw; allocate.py row 2 was sales-agent. No CI check runs were reported on PR 14953. Verification: node --test '*.test.mjs' 'self-host/*.test.mjs' passed 534/534; headless Chromium e2e on a real cadence builder plan (no answer on Wed and Thu, Friday only the third try, Tuesday the email moved from 2026-10-30, marks survive a reload, call prep lists both tries, no page errors, scrollWidth 390 at 390 px); venture-preflight sales-agent: clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b6b186d6-e1b0-5909-9652-32d589138316",
+    "transcripts": 1,
+    "first": "2026-11-12T01:06:33Z",
+    "last": "2026-11-12T01:33:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 125,
+        "output": 43939,
+        "thinking": 6717,
+        "cache_read": 7616877,
+        "cache_write_5m": 0,
+        "cache_write_1h": 142239,
+        "api_equivalent_usd": 3.5406,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 125,
+      "output": 43939,
+      "thinking": 6717,
+      "cache_read": 7616877,
+      "cache_write_5m": 0,
+      "cache_write_1h": 142239,
+      "api_equivalent_usd": 3.5406,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 3,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__update_pull_request": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.53,
+      "active_minutes": 26.53,
+      "model_minutes": 8.63,
+      "tool_minutes": 17.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "page wiring for call outcomes with storage, helpers, tests and browser check; discarded duplicate slice not counted",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 113.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
