@@ -1,6 +1,6 @@
 ---
 title: "A sort code is not a typo: what an e-invoice's bank field is allowed to hold"
-seo_title: "BT-86 in EN 16931: BIC or national clearing code, checked against the IBAN"
+seo_title: "EN 16931 BT-86: BIC or clearing code, checked against the IBAN"
 date: 2026-11-12
 tags: [einvoice-preflight, ventures]
 description: "Our e-invoice checker failed every sort code, BLZ and routing number in BT-86. The standard allows them. Now it accepts them and checks them against the IBAN."
