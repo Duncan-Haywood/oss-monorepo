@@ -315,6 +315,16 @@ test: naming the class imports the sources' tail, and that only hurts where the 
 longer one. Seattle's recent cohorts are right-truncated (a 2024 permit still open at the pull has no
 completion date), which shortens its observed tails, so the ratios understate Seattle's longer tails.
 
+Session 76 tested that reading directly (`../results/paired_transfer_seattle_*_2024_4city_cascade2_nodemo_vs_cascade2.json`,
+four predictions written before the run, all held). Folding demolition into alteration, with the
+training rows unchanged, lowers the 2024 issue-to-completion transfer q0.9 loss by 2.0 days (95%
+interval 1.2 to 2.7), and the rows the unfolded class calls demolition carry 1.7 of those 2.0 days.
+Against the permit-type class the folded configuration's q0.9 cost falls from 3.0 to about 1.0 day
+(a difference of two paired estimates, with no interval of its own), while it keeps the lower-quantile
+gains and, for application-to-issue, the whole 3.9-day q0.9 gain (fold minus unfolded -0.07 days,
+interval spanning zero). That fold was chosen after seeing the per-class split of the same test year.
+<!-- tailfold -->
+
 Agreement beyond chance (Cohen's kappa, `python3 ../src/desc_eval.py kappa`) is 0.79 in Chicago and
 0.90 in Seattle on the held-out year for the revised rules, against 0.47 and 0.58 for the original.
 
