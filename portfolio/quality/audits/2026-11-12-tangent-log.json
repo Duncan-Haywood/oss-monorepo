@@ -1,0 +1,243 @@
+{
+  "date": "2026-11-12",
+  "subject": "research/tangent-log",
+  "stratum": "research",
+  "seed": "2026-11-12-b",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality-audit round 43",
+  "status": "audited",
+  "professional": "a programme-committee reviewer at ACM EC (Economics and Computation) or a Decision Analysis referee who works on proper scoring rules and incentive design. They would check first that the extended score really is strictly proper and bounded (Schervish/Savage representation), whether 'curvature per unit of payment range' is a meaningful objective and against which class of bounded scores the 63x claim is made, whether a cutoff tuned to the truth p is usable when p is what is being elicited, and whether the paper cites the weight-function (Schervish 1989; Buja, Stuetzle and Shen 2005), tailored-score (Johnstone, Jose and Winkler 2011; Merkle and Steyvers 2013) and bounded-range optimisation (Neyman, Noarov and Weinberg EC 2021; Li, Hartline, Shan and Wu EC 2022) literature",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran `PYTHONPATH=src python3 experiments/run.py` (0.04 s) and diffed with experiments/results.txt: identical. Recomputed independently without importing the subject, from the Schervish (1989) / Buja-Stuetzle-Shen (2005) weight-function representation of binary proper scores, l(r,1)=int_r^1 (1-q)w(q)dq, l(r,0)=int_0^r q w(q)dq with w=G'' (1/(q(1-q)) inside, c=1/(eps(1-eps)) outside), by Simpson quadrature (/tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/tangent/indep.py). It reproduces R_eps for all six eps in E1 to 4 decimals (2.6363 ... 14.8155), kappa -0.098144/-0.024978/-0.000500, the E2 efficiencies 126.58/126.58/12.77/1.41/0.51 and ratio 63.29, the four crossovers 0.2544/0.1466/0.099/0.0678 (by bisection on w(p)/R=2, not the closed form), the E3 expected losses 0.0079/0.0093/0.0102/0.0102/0.0102, and the E4 p=0.001 values 126.585/111.144/49.101. Hand algebra also gives kappa=ln(1-eps)+eps/(2(1-eps)) and l(0,1)=ln((1-eps)/eps)+1/(1-eps). Every reported number reproduces. Not 4: the paper's 'excess saturates at ~pR_eps' (whitepaper.md:18) is wrong by 4.3x (true excess 0.00235, pR=0.0102), and the E4 'at 3p' row for p=0.3 evaluates eps=0.9, outside the construction's domain (0,1/2) (my implementation gives 2.000 there, the subject 1.424).",
+    "completeness": "README: '6 tests, <1 s' (Ran 6 tests in 0.043s, OK); run.py writes results.txt (identical rerun); figure.py parses results.txt into misreport.svg (present, not rerun to keep the tree clean); live page https://marisstella.app/research/tangent-log/ returns 200 with the AI-assistance note. Paper sections 1 to 4 each map to a test or an E-block in run.py; the multiclass extension is stated as untested (section 5). No TODOs or stubs. Everything stated as done works: 3.",
+    "verification": "`cd research/tangent-log && PYTHONPATH=src python3 -m unittest discover -s tests -v`: 6 tests OK, 0.043 s. Seeded 8 mutations in src/tangent_log/model.py, each reverted with git checkout: quadratic coefficient /2 -> /3 (line 23), d2G doubled outside (35), crossover 2/R -> 2.2/R (75), R_eps + 1e-6 (54), c=1/eps (13), efficiency normalised by ln(1/eps)+1 (69), outer slope *(1+1e-3) (28): all 7 caught, because the tests pin the closed forms to 1e-10/1e-12 against an independent path (loss(0,1) vs score_range, efficiency at crossover = 2). One survived: best_eps searching eps in (0,1) instead of (0,1/2) (line 86), since nothing tests or guards the domain of eps. The tests check strict propriety on a 201-point grid, which is a real property test. 3.",
+    "craft": "Read model.py (86 lines), tests/test_model.py, experiments/run.py, figure.py. Clean, small, stdlib-only, closed forms documented in docstrings. Defects: no validation that 0<eps<1/2 (efficiency(0.3, 0.9) silently returns 1.424, and run.py:23 prints it); `from tangent_log import *` in tests and run.py; test_model.py:36 uses `assert... if p > eps else None` as a statement; run.py is an unstructured script. Acceptable for a research note: 3.",
+    "claims": "Backed: every number in README:3 and the paper's sections 1-4 matches results.txt and my recomputation; the abstract honestly says 'an application of standard Bregman/proper-scoring facts ... not a new theory'; limits (binary, risk-neutral, multiclass untested) are stated. Not backed: whitepaper.md:18 'the excess saturates at ~pR_eps' is the saturated expected loss, not the excess (excess at r=0 is 0.00235 vs pR=0.0102, from the subject's own exp_loss); the same paragraph says r=1e-9 'loses 0.0207 ... vs 0.0102', quoting total expected loss, of which 0.0079 is paid by the truthful report too (misreport cost 0.0128 vs 0.0023). README:3 'worse than Brier for p above a closed-form crossover' holds only on [crossover, 1-crossover] (symmetric score). The '63x Brier' headline is a comparison inside the tangent family at a cutoff tuned to the truth, which neither README nor paper says; over all bounded proper scores curvature per range is unbounded (a weight box on [p/2,3p/2] gives 1001 at p=1e-3, {S}/baseline.py). whitepaper.md:6 names Savage, Gneiting-Raftery, Frongillo-Waggoner with no reference list. 2.",
+    "fitness": "A researcher could build on the construction: it is correct, closed-form and tested. Nearest prior work: the Schervish (1989) / Buja, Stuetzle and Shen (2005) representation, in which every binary proper score is a weight function w=G'' and this construction is just w(q)=1/(q(1-q)) clipped to a constant outside [eps,1-eps]; tailored and Beta-family scores (Johnstone, Jose and Winkler 2011; Merkle and Steyvers 2013); and optimisation of scoring rules under a bounded payment range for incentive strength (Neyman, Noarov and Weinberg, EC 2021, 'Binary scoring rules that incentivize precision'; Li, Hartline, Shan and Wu, EC 2022, 'Optimization of scoring rules'). None is cited. The result is sound but not new, and the paper says so. Missing baselines: Brier is the only comparator; I ran the Beta family w=q^(a-1)(1-q)^(b-1) (a in 0.01..1, b in 0.05..4) and its best efficiency at p=1e-3 is 74.05 at (0.2, 4.0), below tangent-log's 126.58 (/tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/tangent/baseline.py), a favourable comparison the paper could have made. The 'eps=p is best' result needs the truth p, which is what is being elicited; there is no analysis over a prior or a range of p. No model of stake, slashing or verifier effort despite the application framing. 2.",
+    "domain": "Against standard proper-scoring practice (Gneiting and Raftery 2007; Schervish 1989): the construction and its strict propriety, range and log-equivalence are correct and would pass. Departures an EC reviewer would hit: (1) the objective 'curvature at the truth per unit of range' is a local, known-truth measure; incentive-for-precision work optimises expected score gain from information over the range bound, where the optimum is a V-shaped/threshold score, not a log variant; (2) the optimality claims (63x, eps=p) are within the one-parameter family and at a known p; (3) the saturation claim about deterrence is misstated by 4.3x; (4) no reference list. 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "rerun of experiments/run.py vs committed results.txt",
+      "method": "byte diff",
+      "command": "cd research/tangent-log && PYTHONPATH=src python3 experiments/run.py > /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/tangent/rerun.txt && diff /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/tangent/rerun.txt experiments/results.txt",
+      "expected": "identical",
+      "observed": "identical (0.04 s)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E1 worst-case payment R_eps for eps 0.2 ... 1e-6",
+      "method": "Schervish/Buja weight-function integral l(0,1)=int_0^1 (1-q)w(q)dq by Simpson quadrature, own script, no import",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/tangent/indep.py",
+      "expected": "2.6363, 3.9971, 5.6052, 7.9078, 10.2103, 14.8155",
+      "observed": "results.txt 2.6363, 3.9971, 5.6052, 7.9078, 10.2103, 14.8155",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E2 curvature per range at eps=1e-3 and the 63x headline",
+      "method": "w(p)/R_eps with R from quadrature",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/tangent/indep.py",
+      "expected": "126.58, 126.58, 12.77, 1.41, 0.51; ratio 63.29",
+      "observed": "results.txt 126.58, 126.58, 12.77, 1.41, 0.51; ratio 63.29",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "crossover p for eps 0.2/0.05/0.01/0.001",
+      "method": "bisection on w(p)/R_eps = 2 (Brier), not the paper's closed form",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/tangent/indep.py",
+      "expected": "0.2544, 0.1466, 0.0990, 0.0678",
+      "observed": "results.txt 0.2544, 0.1466, 0.099, 0.0678",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "kappa_eps offset vs -ln r",
+      "method": "hand algebra kappa=ln(1-eps)+eps/(2(1-eps)) and quadrature l(0.3,1)+ln 0.3",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/tangent/indep.py",
+      "expected": "-0.098144, -0.024978, -0.000500",
+      "observed": "results.txt -0.098144, -0.024978, -0.0005",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E3 expected loss of misreports at p=1e-3, eps=1e-4",
+      "method": "quadrature expected loss",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/tangent/indep.py",
+      "expected": "0.0079, 0.0093, 0.0102, 0.0102, 0.0102",
+      "observed": "results.txt 0.0079, 0.0093, 0.0102, 0.0102, 0.0102",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E4 efficiency at eps=3p for p=0.3",
+      "method": "construction requires eps<1/2; own weight function at eps=0.9",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/tangent/indep.py; cd research/tangent-log && PYTHONPATH=src python3 -c 'from tangent_log import *; print(efficiency(.3,.9))'",
+      "expected": "undefined (eps=0.9 outside (0,1/2))",
+      "observed": "results.txt prints 1.424 with no warning; my implementation gives 2.000",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "whitepaper.md:18 'the excess saturates at ~pR_eps'",
+      "method": "subject's own exp_loss: exp_loss(0,p)-exp_loss(p,p) vs p*score_range",
+      "command": "cd research/tangent-log && PYTHONPATH=src python3 -c 'from tangent_log import *; p,e=1e-3,1e-4; print(exp_loss(0,p,e)-exp_loss(p,p,e), p*score_range(e))'",
+      "expected": "~equal",
+      "observed": "0.002353 vs 0.010210 (pR is the saturated expected loss, not the excess)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:3 '6 tests, <1 s'",
+      "method": "run",
+      "command": "cd research/tangent-log && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+      "expected": "6 tests OK, <1 s",
+      "observed": "Ran 6 tests in 0.043s OK",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:3 / whitepaper.md:15 '63x Brier per unit of payment range' as a statement about bounded scores",
+      "method": "compare other bounded proper scores at p=1e-3: Beta family grid and a weight box on [p/2,3p/2]",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/tangent/baseline.py",
+      "expected": "tangent-log near the best bounded score",
+      "observed": "Beta family best 74.05 (tangent wins), box weight 1001 (curvature/range unbounded; 63x is within-family at eps=p)",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "live page and disclaimer",
+      "method": "curl served page",
+      "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/tangent-log/",
+      "expected": "200 with AI-assistance note",
+      "observed": "200; footer 'Produced with ... AI assistance (Claude) ... simulated or stylised unless the abstract says otherwise'",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "prior work cited (Schervish, Buja et al., Merkle-Steyvers, Johnstone-Jose-Winkler, Neyman et al., Li et al.)",
+      "method": "grep paper and README",
+      "command": "grep -rn -i 'schervish\\|buja\\|merkle\\|winkler\\|neyman\\|hartline\\|references' research/tangent-log",
+      "expected": "a reference list",
+      "observed": "no matches; three names in the abstract without years or venues",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "related projects named in whitepaper.md section 5 exist",
+      "method": "ls",
+      "command": "ls research | grep -E '^(risk-averse-scoring|audit-weighted-scoring|quantized-reports|score-recalibration|crps-drift-scoring|effort-elicitation)$'",
+      "expected": "6",
+      "observed": "6 present",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/tangent-log/src/tangent_log/model.py:23",
+      "change": "_c(eps)*(p-q)**2/2 -> /3",
+      "caught": true,
+      "test_cmd": "cd research/tangent-log && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/tangent-log/src/tangent_log/model.py:35",
+      "change": "d2G outside: _c(eps) -> 2*_c(eps)",
+      "caught": true,
+      "test_cmd": "cd research/tangent-log && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/tangent-log/src/tangent_log/model.py:75",
+      "change": "disc = 1 - 2/R -> 1 - 2.2/R",
+      "caught": true,
+      "test_cmd": "cd research/tangent-log && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/tangent-log/src/tangent_log/model.py:54",
+      "change": "score_range + 1e-6",
+      "caught": true,
+      "test_cmd": "cd research/tangent-log && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/tangent-log/src/tangent_log/model.py:13",
+      "change": "c = 1/(eps(1-eps)) -> 1/eps",
+      "caught": true,
+      "test_cmd": "cd research/tangent-log && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/tangent-log/src/tangent_log/model.py:69",
+      "change": "efficiency / score_range -> / (ln(1/eps)+1)",
+      "caught": true,
+      "test_cmd": "cd research/tangent-log && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/tangent-log/src/tangent_log/model.py:28",
+      "change": "outer slope c*(p-eps) -> c*(p-eps)*(1+1e-3)",
+      "caught": true,
+      "test_cmd": "cd research/tangent-log && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/tangent-log/src/tangent_log/model.py:86",
+      "change": "best_eps grid eps in (0,1/2) -> (0,1)",
+      "caught": false,
+      "test_cmd": "cd research/tangent-log && PYTHONPATH=src python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "'the excess saturates at ~pR_eps' is wrong: pR_eps (0.0102 at p=1e-3, eps=1e-4) is the saturated expected loss; the excess over truthful is 0.00235, 4.3x smaller. The same paragraph quotes total expected losses (0.0207 vs 0.0102) as what a misreporter 'loses', though 0.0079 of that is paid by the truthful report (misreport cost 0.0128 vs 0.0023), so deterrence of overconfidence is weaker than stated",
+      "where": "research/tangent-log/paper/whitepaper.md:18",
+      "category": "logic-error",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "No reference list and the nearest prior work is not cited: the construction is the Schervish (1989) / Buja-Stuetzle-Shen (2005) weight function 1/(q(1-q)) clipped to a constant; tailored/Beta-family scores (Johnstone-Jose-Winkler 2011, Merkle-Steyvers 2013) and bounded-range incentive optimisation (Neyman-Noarov-Weinberg EC 2021, Li-Hartline-Shan-Wu EC 2022) address the same trade-off",
+      "where": "research/tangent-log/paper/whitepaper.md:6",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Headline '63x Brier per unit of payment range' and 'eps=p is the best cutoff' are within the one-parameter tangent family at a cutoff tuned to the known truth; Brier is the only baseline, curvature per range is unbounded over bounded proper scores (box weight: 1001 at p=1e-3), and choosing eps=p presumes the p being elicited. Not stated as limits; a Beta-family baseline (best 74.05) would have supported the claim",
+      "where": "research/tangent-log/paper/whitepaper.md:15",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "E4 evaluates eps=3p=0.9 for p=0.3, outside the construction's domain (0,1/2), and prints 1.424; the model accepts any eps without validation (mutation widening best_eps to (0,1) survives)",
+      "where": "research/tangent-log/experiments/run.py:23",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "'worse than Brier for p above a closed-form crossover' holds only on [crossover, 1-crossover]: the score is symmetric, so tangent-log beats Brier again near p=1",
+      "where": "research/tangent-log/README.md:3",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Garbled sentence 'A stake >=R_eps scale therefore covers any report'",
+      "where": "research/tangent-log/paper/whitepaper.md:12",
+      "category": "other",
+      "origin": "claims"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A small, correct note. Every number in results.txt reproduces exactly on rerun and matches an independent quadrature of the Schervish/Buja weight-function representation (R_eps for six eps, kappa, the 126.58 efficiency and 63x ratio, four crossovers by bisection, the E3 misreport losses). The tests are real: 7 of 8 seeded mutations were caught, and only the unguarded eps domain slipped through. It misses the bar on claims: the paper's statement that the misreport excess saturates at pR_eps is wrong by 4.3x, the 63x and eps=p results are within-family, known-truth comparisons against Brier only, and the paper has no reference list although it re-derives a clipped Schervish weight function that an EC reviewer would recognise at once. Finished as scoped (completeness 3). Fitness and domain are 2: sound, but not new, and not yet placed against the bounded-range scoring-rule literature."
+}
