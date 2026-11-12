@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, launchedProblems, postProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem } from './venture-preflight.mjs';
+import { buildProblem, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -91,4 +91,26 @@ test('siteTestProblem is silent on exit 0, lists failing tests and says whether 
   assert.equal(mine.match(/not ok: FAQ answers are visible/g).length, 1);
   const other = siteTestProblem({ status: 1, stdout: tap, stderr: '' }, 'ta');
   assert.match(other, /none of the output names ta;/);
+});
+
+test('inheritedKeysProblem is silent on exit 0 and names the own-key fix otherwise', () => {
+  assert.equal(inheritedKeysProblem(0, 'whatever'), null);
+  const p = inheritedKeysProblem(1, 'ventures/x/calc.mjs:3: UNITS[input.units]\n1 new unguarded lookup(s)');
+  assert.match(p, /Object\.hasOwn/);
+  assert.match(p, /\n {6}ventures\/x\/calc\.mjs:3/);
+});
+
+test('placementProblems fails a trade tool in the trades catch-all and notes the site catch-all', async () => {
+  const site = await import('./build.mjs');
+  const named = placementProblems('earthwork-cut-fill', site);
+  assert.deepEqual([named.category, named.subcategory, named.failures, named.notes], ['trades', 'trades-site', [], []]);
+  const fake = {
+    categoryFor: () => ({ id: 'trades', title: 'Trades' }),
+    subcategoryFor: () => ({ id: 'trades-other' }),
+  };
+  assert.match(placementProblems('zz-bid-calculator', fake).failures[0], /SUBCATEGORY_RULES\.trades/);
+  const more = placementProblems('zzz-unclaimed-slug', site);
+  assert.equal(more.category, 'more');
+  assert.deepEqual(more.failures, []);
+  assert.match(more.notes[0], /CATEGORY_RULES/);
 });
