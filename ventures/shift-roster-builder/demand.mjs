@@ -222,27 +222,41 @@ export function readSales(text, o = {}) {
 
 // Parse a labour standard: "1.5/ticket + 0.1/sale + 0.3/item" (any order, "+" or "," between, "min" optional), or an
 // object { ticket, sale, item }. Returns { ticket, sale, item } in minutes, each 0 when absent; throws when all are 0.
+// Fixed work (2026-11-12): "10/hour" is minutes in every hour the shop trades (wiping down, restocking, the till),
+// "30/open" minutes in the first trading hour of each day (setting up) and "45/close" in the last (cleaning down).
+// These keys (hour, open, close) are present only when given, so a variable-only standard reads as before.
 export function parseStandard(v) {
   let st = { ticket: 0, sale: 0, item: 0 };
-  if (v && typeof v === "object") st = { ticket: +v.ticket || 0, sale: +v.sale || 0, item: +v.item || 0 };
-  else {
+  const fixed = {};
+  if (v && typeof v === "object") {
+    st = { ticket: +v.ticket || 0, sale: +v.sale || 0, item: +v.item || 0 };
+    for (const k of FIXED_KEYS) if (v[k] !== undefined && v[k] !== 0) fixed[k] = +v[k];
+  } else {
     const parts = String(v || "").split(/[+,;]/).map((x) => x.trim()).filter(Boolean);
     for (const p of parts) {
-      const m = /^(\d+(?:\.\d+)?)\s*(?:min(?:utes?)?|m)?\s*(?:\/|per|a|each)?\s*(tickets?|orders?|customers?|receipts?|transactions?|sales?|money|euros?|eur|dollars?|usd|pounds?|gbp|won|items?|units?|pieces?)$/i.exec(p);
-      if (!m) throw new Error(`could not read "${p}" in the labour standard: write minutes per ticket, sale or item, e.g. "1.5/ticket + 0.3/item"`);
+      const m = /^(\d+(?:\.\d+)?)\s*(?:min(?:utes?)?|m)?\s*(?:\/|per|a|an|each|every)?\s*(tickets?|orders?|customers?|receipts?|transactions?|sales?|money|euros?|eur|dollars?|usd|pounds?|gbp|won|items?|units?|pieces?|(?:open(?:ing)?[- ]?)?hours?(?:[- ]open)?|opening|open|closing|close)$/i.exec(p);
+      if (!m) throw new Error(`could not read "${p}" in the labour standard: write minutes per ticket, sale or item, or fixed minutes per hour, open or close, e.g. "1.5/ticket + 0.3/item + 10/hour"`);
       const n = +m[1], u = m[2].toLowerCase();
+      if (/hour/.test(u)) { fixed.hour = (fixed.hour || 0) + n; continue; }
+      if (/^open/.test(u)) { fixed.open = (fixed.open || 0) + n; continue; }
+      if (/^clos/.test(u)) { fixed.close = (fixed.close || 0) + n; continue; }
       const k = /^(ticket|order|customer|receipt|transaction)/.test(u) ? "ticket" : /^(item|unit|piece)/.test(u) ? "item" : "sale";
       st[k] += n;
     }
   }
-  for (const k of ["ticket", "sale", "item"]) if (!(st[k] >= 0) || !Number.isFinite(st[k])) throw new Error("labour standard minutes must be 0 or more");
-  if (!(st.ticket + st.sale + st.item > 0)) throw new Error("a labour standard needs minutes per ticket, sale or item above 0");
+  for (const k of FIXED_KEYS) if (fixed[k] !== undefined) st[k] = fixed[k];
+  for (const k of ["ticket", "sale", "item", ...FIXED_KEYS]) if (st[k] !== undefined && (!(st[k] >= 0) || !Number.isFinite(st[k]))) throw new Error("labour standard minutes must be 0 or more");
+  for (const k of FIXED_KEYS) if (st[k] === 0) delete st[k];
+  if (!(st.ticket + st.sale + st.item + fixedMinutes(st) > 0)) throw new Error("a labour standard needs minutes per ticket, sale, item, hour, open or close above 0");
   return st;
 }
+const FIXED_KEYS = ["hour", "open", "close"];
+const fixedMinutes = (st) => (st.hour || 0) + (st.open || 0) + (st.close || 0);
 
 const fmtMin = (n) => String(Math.round(n * 1000) / 1000);
 export function describeStandard(st) {
-  return [st.ticket && `${fmtMin(st.ticket)} min a ticket`, st.sale && `${fmtMin(st.sale)} min a unit of money taken`, st.item && `${fmtMin(st.item)} min an item`].filter(Boolean).join(" + ");
+  return [st.ticket && `${fmtMin(st.ticket)} min a ticket`, st.sale && `${fmtMin(st.sale)} min a unit of money taken`, st.item && `${fmtMin(st.item)} min an item`,
+    st.hour && `${fmtMin(st.hour)} min every trading hour`, st.open && `${fmtMin(st.open)} min at opening`, st.close && `${fmtMin(st.close)} min at closing`].filter(Boolean).join(" + ");
 }
 
 // readSales with a labour standard: every row becomes its minutes of work. A ticket's minutes land at the hour of its
@@ -305,9 +319,34 @@ function readStandard(lines, sep, head, ix, tix, dateCol, timeCol, o, out, skip)
     if (!s.key) out.undated++;
     out.rows++;
   });
-  const tot = out.parts.ticket + out.parts.sale + out.parts.item;
-  if (tot > 0) out.notes.push("Share of the work: " + [["ticket", "tickets"], ["sale", "money"], ["item", "items"]].filter(([k]) => st[k]).map(([k, n]) => `${n} ${Math.round(out.parts[k] / tot * 100)}%`).join(", ") + ".");
+  if (fixedMinutes(st)) addFixedWork(st, out);
+  const tot = out.parts.ticket + out.parts.sale + out.parts.item + (out.parts.fixed || 0);
+  if (tot > 0) out.notes.push("Share of the work: " + [["ticket", "tickets"], ["sale", "money"], ["item", "items"], ["fixed", "fixed work"]].filter(([k]) => k === "fixed" ? fixedMinutes(st) : st[k]).map(([k, n]) => `${n} ${Math.round(out.parts[k] / tot * 100)}%`).join(", ") + ".");
   return out;
+}
+
+// Fixed work: a trading hour is a date-hour with at least one sale row (refunds and skipped dates left out). Each gets
+// st.hour minutes; the first trading hour of each date gets st.open and the last st.close (one hour trading: both).
+// Undated weekday rows ("Mon,11,300") are grouped by weekday, as one day each. An hour the shop was open with no sale
+// at all is not seen, so it gets no fixed work; the minimum staff setting covers that. Fixed entries carry fixed: true.
+function addFixedWork(st, out) {
+  const days = new Map(); // key or "~weekday" -> { day, key, hours: Set }
+  for (const e of out.entries) {
+    const id = e.key || `~${e.day}`;
+    if (!days.has(id)) days.set(id, { day: e.day, key: e.key, hours: new Set() });
+    days.get(id).hours.add(e.hour);
+  }
+  let fixed = 0, hours = 0;
+  for (const { day, key, hours: hs } of days.values()) {
+    const list = [...hs].sort((a, b) => a - b), first = list[0], last = list[list.length - 1];
+    for (const hour of list) {
+      const m = (st.hour || 0) + (hour === first ? st.open || 0 : 0) + (hour === last ? st.close || 0 : 0);
+      hours++;
+      if (m > 0) { out.entries.push({ day, hour, key, amount: m, fixed: true }); fixed += m; }
+    }
+  }
+  out.parts.fixed = fixed;
+  out.notes.push(`Fixed work: ${Math.round(fixed)} minutes over ${hours} trading hours on ${days.size} days (an hour with no sale gets none).`);
 }
 
 const keyMs = (k) => { const [y, m, d] = k.split("-").map(Number); return Date.UTC(y, m - 1, d); };

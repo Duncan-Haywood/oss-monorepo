@@ -50,5 +50,6 @@ test("sales page: a labour standard option feeds minutes per ticket, sale and it
   assert.match(html, /id="std"/);
   assert.match(html, /\{ standard: \$\("#std"\)\.value \}/);
   assert.match(html, /record\("sales_labour_standard"\)/);
+  assert.match(html, /<code>10\/hour<\/code>[^<]*<code>30\/open<\/code>[^<]*<code>45\/close<\/code>/); // fixed work is explained beside the box
   assert.match(html, /Minutes of work per labor hour/);
 });

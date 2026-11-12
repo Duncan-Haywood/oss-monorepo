@@ -72,6 +72,8 @@ Options:
                       --standard "1.5/ticket + 0.02/sale + 0.3/item" plans from a labour standard instead: minutes of work per ticket,
                       per unit of money and per item, blended (any of the three); --splh is then minutes of work per labor hour
                       (default 60, everyone busy every minute; 45 leaves a quarter of each hour for cleaning and restocking).
+                      Fixed work joins it as "10/hour" (minutes in every trading hour), "30/open" (the first trading hour of
+                      each day) and "45/close" (the last), e.g. --standard "1.5/ticket + 10/hour + 45/close".
                       the average of what you sold, not a forecast. --skip-dates 2026-11-26,2026-12-25 leaves those days out (holiday, storm);
                       --half-life <weeks> weights recent weeks more (a day's weight halves every that many weeks back from the newest date);
                       the default, auto, backtests equal weights, half-lives 8, 4 and 2 and the last 4 weeks only on your file and keeps the best (equal
