@@ -2724,8 +2724,9 @@ export function keepFrom(roster) {
     if (!a.person) continue;
     (keep[a.person.toLowerCase()] ||= []).push(slotKey(a.slot));
   }
-  for (const k of Object.keys(keep)) keep[k].sort();
-  return keep;
+  // Sorted names and keys, so two rosters with the same people on the same shifts (copies swapped) give the same map, and the
+  // planner's reuse check sees the same week.
+  return Object.fromEntries(Object.keys(keep).sort().map((k) => [k, keep[k].sort()]));
 }
 
 // The same map from a roster CSV (last week's, as the page and --last-week read it). The CSV carries no role, so its keys

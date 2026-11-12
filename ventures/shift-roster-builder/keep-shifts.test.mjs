@@ -102,8 +102,9 @@ test("the planner keeps the week before: a day off moves fewer other shifts, wit
   assert.ok(on.totalOpenHours <= off.totalOpenHours, `open ${on.totalOpenHours} vs ${off.totalOpenHours}`);
   assert.ok(churn(on) < churn(off), `churn with keep ${churn(on)}, without ${churn(off)}`);
   // Reuse still works: a week whose staff and keep repeat is not rebuilt.
+  // With no time off, keep on reuses the same weeks as keep off (the keep map is sorted, so swapped copies give the same week).
   const plain = planWeeks(sampleStaff(), sampleShifts(), { ...o, keepValue: 0.25, weeks: 5 });
-  assert.ok(plain.weeks.some((w) => w.sameAs), "no week reused with keep on and no time off");
+  assert.deepEqual(plain.weeks.map((w) => w.sameAs ?? null), [null, null, 2, 2, 2]);
 });
 
 test("CLI: --keep-shifts with --last-week keeps last week's people in place", () => {
