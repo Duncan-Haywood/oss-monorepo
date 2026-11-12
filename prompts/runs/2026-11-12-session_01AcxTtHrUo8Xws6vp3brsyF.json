@@ -1,0 +1,545 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtHrUo8Xws6vp3brsyF",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T22:06:09Z",
+  "ended": "2026-11-12T22:06:56Z",
+  "wall_minutes": 21.38,
+  "tokens_in": 8364347,
+  "tokens_out": 41661,
+  "cost_usd": 3.5523,
+  "tool_calls": 75,
+  "task": "redteam campaign on ventures/subdomain-takeover-check (analyze, check, fingerprints); purple fixes across sibling checkers",
+  "projects": [
+    "subdomain-takeover-check",
+    "dotenv-exposure-check",
+    "backup-file-exposure-check",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15279",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 24,
+  "outcome": "success",
+  "errors": [
+    "create_pull_request returned 502 then 500; the third try (owner spelled Duncan-Haywood) succeeded",
+    "first post draft failed check_post_frontmatter (description 173 > 160 chars, tag red-team vs redteam); caught by run_workflow_locally --for-changes and fixed before merge"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open defect first, but all 7 open entries are control-plane workflow edits that already have open PRs waiting on the owner (#12928, #14877, #14612, #14808, #14698, #15201, #15248); redteam.py open could print the open PR per entry so runs skip them without searching"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 4b's preferred guard (a platform/ci lint) needs a portfolio-validate.yml edit to run in CI, which is control plane; seven such wiring PRs are already stuck. A self-discovering runner for platform/ci/check_*.py (main_health.py already globs them) in one workflow would let new lints run without a control-plane PR each"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: did not redo the 7 open defects since each already has an open control-plane PR awaiting owner approval",
+      "did": "listed the PRs in the PR body and moved on",
+      "result": "run time went to new campaigns and fixes"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "the campaign's random draw did not list subdomain-takeover-check in my grep (my pipe was wrong); I aimed --target at a security venture changed on main in the last commits, as the prompt allows",
+      "did": "three campaigns with --target on analyze.mjs, check.mjs and fingerprints.mjs (suite 0.1 s)",
+      "result": "18 of 24 escaped, 4 real defects"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-redteam-a-ci-gate-that-passes-on-a-dead-host.md"
+  ],
+  "goal": null,
+  "notes": "Catch rate 6/24 (25%) -> 24/24 after fix (redteam.py rerun). Guard added: platform/ci/check_unreachable_exit.py runs all 21 URL-taking checker CLIs against http://127.0.0.1:1/ and fails on exit 0 or hang; on the pre-fix tree it flagged dotenv-exposure-check and backup-file-exposure-check (2/21), on the fixed tree 0/21, in 0.6 s. Picked up by main_health.py's check_*.py glob; CI wiring in portfolio-validate.yml is control plane and recorded as an open defect for its own PR. Local verification: run_venture_tests.py on the three ventures ok; test_check_unreachable_exit 4 OK; run_workflow_locally --for-changes failures were all the post's front matter, re-checked green after fix (check_post_frontmatter, distribution hub tests 57/57, platform/pages suite).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/subdomain-takeover-check/analyze.mjs",
+        "test": "node --test ventures/subdomain-takeover-check/**/*.test.mjs  (in .)",
+        "seed": 278120863,
+        "commit": "7d83de594",
+        "sites": 18,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 85,
+            "col": 13,
+            "operator": "or-to-and",
+            "before": "if (!probe || !probe.ok) {",
+            "after": "if (!probe && !probe.ok) {",
+            "line_text": "  if (!probe || !probe.ok) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 108,
+            "col": 22,
+            "operator": "eq-flip",
+            "before": "if (result.category === 'dangling-confirmed') {",
+            "after": "if (result.category !== 'dangling-confirmed') {",
+            "line_text": "  if (result.category === 'dangling-confirmed') {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 130,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "target: result.chain[result.chain.length - 1],",
+            "after": "target: result.chain[result.chain.length - 2],",
+            "line_text": "      target: result.chain[result.chain.length - 1],",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "finding target untested for a two-hop chain; test added. Line later rewritten by the matched-hop fix (target is now matchedHop); the new test still pins it."
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 163,
+            "col": 30,
+            "operator": "gt-to-ge",
+            "before": "incomplete: errors.length > 0,",
+            "after": "incomplete: errors.length >= 0,",
+            "line_text": "    incomplete: errors.length > 0,",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "incomplete never asserted false; test added"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 163,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "incomplete: errors.length > 0,",
+            "after": "incomplete: errors.length > 1,",
+            "line_text": "    incomplete: errors.length > 0,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 164,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "ok: confirmedCount === 0 && unconfirmedCount === 0,",
+            "after": "ok: confirmedCount === 1 && unconfirmedCount === 0,",
+            "line_text": "    ok: confirmedCount === 0 && unconfirmedCount === 0,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 164,
+            "col": 29,
+            "operator": "and-to-or",
+            "before": "ok: confirmedCount === 0 && unconfirmedCount === 0,",
+            "after": "ok: confirmedCount === 0 || unconfirmedCount === 0,",
+            "line_text": "    ok: confirmedCount === 0 && unconfirmedCount === 0,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 164,
+            "col": 49,
+            "operator": "eq-flip",
+            "before": "ok: confirmedCount === 0 && unconfirmedCount === 0,",
+            "after": "ok: confirmedCount === 0 && unconfirmedCount !== 0,",
+            "line_text": "    ok: confirmedCount === 0 && unconfirmedCount === 0,",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/subdomain-takeover-check/check.mjs",
+        "test": "node --test ventures/subdomain-takeover-check/**/*.test.mjs  (in .)",
+        "seed": 615133646,
+        "commit": "7d83de594",
+        "sites": 25,
+        "baseline_seconds": 0.5,
+        "mutants": [
+          {
+            "file": "ventures/subdomain-takeover-check/check.mjs",
+            "line": 41,
+            "col": 85,
+            "operator": "eq-flip",
+            "before": "const clean = report.results.filter((r) => r.category === 'no-cname' || r.category === 'not-risky');",
+            "after": "const clean = report.results.filter((r) => r.category === 'no-cname' || r.category !== 'not-risky');",
+            "line_text": "  const clean = report.results.filter((r) => r.category === 'no-cname' || r.category === 'not-risky');",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "CLI formatText/parseArgs/main had no test; tests added (main run with stubbed fetch, exit and console)"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/check.mjs",
+            "line": 42,
+            "col": 19,
+            "operator": "gt-to-ge",
+            "before": "if (clean.length > 0) {",
+            "after": "if (clean.length >= 0) {",
+            "line_text": "  if (clean.length > 0) {",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "CLI formatText/parseArgs/main had no test; tests added (main run with stubbed fetch, exit and console)"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/check.mjs",
+            "line": 62,
+            "col": 16,
+            "operator": "eq-flip",
+            "before": "if (argv[i] === '--json') json = true;",
+            "after": "if (argv[i] !== '--json') json = true;",
+            "line_text": "    if (argv[i] === '--json') json = true;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "CLI formatText/parseArgs/main had no test; tests added (main run with stubbed fetch, exit and console)"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/check.mjs",
+            "line": 63,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "else if (argv[i] === '--timeout') timeoutMs = Number(argv[++i]);",
+            "after": "else if (argv[i] !== '--timeout') timeoutMs = Number(argv[++i]);",
+            "line_text": "    else if (argv[i] === '--timeout') timeoutMs = Number(argv[++i]);",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "CLI formatText/parseArgs/main had no test; tests added (main run with stubbed fetch, exit and console)"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/check.mjs",
+            "line": 89,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "const args = parseArgs(process.argv.slice(2));",
+            "after": "const args = parseArgs(process.argv.slice(3));",
+            "line_text": "  const args = parseArgs(process.argv.slice(2));",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "CLI formatText/parseArgs/main had no test; tests added (main run with stubbed fetch, exit and console)"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/check.mjs",
+            "line": 90,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "if (args.hostnames.length === 0) {",
+            "after": "if (args.hostnames.length === 1) {",
+            "line_text": "  if (args.hostnames.length === 0) {",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "CLI formatText/parseArgs/main had no test; tests added (main run with stubbed fetch, exit and console)"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/check.mjs",
+            "line": 103,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "process.exit(report.ok ? 0 : 1);",
+            "after": "process.exit(report.ok ? 1 : 1);",
+            "line_text": "  process.exit(report.ok ? 0 : 1);",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "CLI formatText/parseArgs/main had no test; tests added (main run with stubbed fetch, exit and console)"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/check.mjs",
+            "line": 103,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "process.exit(report.ok ? 0 : 1);",
+            "after": "process.exit(report.ok ? 0 : 2);",
+            "line_text": "  process.exit(report.ok ? 0 : 1);",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "CLI formatText/parseArgs/main had no test; tests added (main run with stubbed fetch, exit and console)"
+          }
+        ]
+      },
+      {
+        "target": "ventures/subdomain-takeover-check/fingerprints.mjs",
+        "test": "node --test ventures/subdomain-takeover-check/**/*.test.mjs  (in .)",
+        "seed": 873851630,
+        "commit": "7d83de594",
+        "sites": 30,
+        "baseline_seconds": 0.5,
+        "mutants": [
+          {
+            "file": "ventures/subdomain-takeover-check/fingerprints.mjs",
+            "line": 40,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "cnamePattern: /(^|\\.)s3(-website[.-][a-z0-9-]+)?\\.amazonaws\\.com$/i,",
+            "after": "cnamePattern: /(^|\\.)s3(-website[.-][a-z0-10-]+)?\\.amazonaws\\.com$/i,",
+            "line_text": "    cnamePattern: /(^|\\.)s3(-website[.-][a-z0-9-]+)?\\.amazonaws\\.com$/i,",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "vulnerable reads and S3 region digits unpinned; pinned-read test, note-required test and multi-region S3 test added"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/fingerprints.mjs",
+            "line": 42,
+            "col": 16,
+            "operator": "true-to-false",
+            "before": "vulnerable: true,",
+            "after": "vulnerable: false,",
+            "line_text": "    vulnerable: true,",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "vulnerable reads and S3 region digits unpinned; pinned-read test, note-required test and multi-region S3 test added"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/fingerprints.mjs",
+            "line": 51,
+            "col": 16,
+            "operator": "true-to-false",
+            "before": "vulnerable: true,",
+            "after": "vulnerable: false,",
+            "line_text": "    vulnerable: true,",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "vulnerable reads and S3 region digits unpinned; pinned-read test, note-required test and multi-region S3 test added"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/fingerprints.mjs",
+            "line": 60,
+            "col": 16,
+            "operator": "true-to-false",
+            "before": "vulnerable: true,",
+            "after": "vulnerable: false,",
+            "line_text": "    vulnerable: true,",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "vulnerable reads and S3 region digits unpinned; pinned-read test, note-required test and multi-region S3 test added"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/fingerprints.mjs",
+            "line": 69,
+            "col": 16,
+            "operator": "true-to-false",
+            "before": "vulnerable: true,",
+            "after": "vulnerable: false,",
+            "line_text": "    vulnerable: true,",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "vulnerable reads and S3 region digits unpinned; pinned-read test, note-required test and multi-region S3 test added"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/fingerprints.mjs",
+            "line": 87,
+            "col": 16,
+            "operator": "true-to-false",
+            "before": "vulnerable: true,",
+            "after": "vulnerable: false,",
+            "line_text": "    vulnerable: true,",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "vulnerable reads and S3 region digits unpinned; pinned-read test, note-required test and multi-region S3 test added"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/fingerprints.mjs",
+            "line": 231,
+            "col": 16,
+            "operator": "false-to-true",
+            "before": "vulnerable: false,",
+            "after": "vulnerable: true,",
+            "line_text": "    vulnerable: false,",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "vulnerable reads and S3 region digits unpinned; pinned-read test, note-required test and multi-region S3 test added"
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/fingerprints.mjs",
+            "line": 249,
+            "col": 16,
+            "operator": "true-to-false",
+            "before": "vulnerable: true,",
+            "after": "vulnerable: false,",
+            "line_text": "    vulnerable: true,",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "vulnerable reads and S3 region digits unpinned; pinned-read test, note-required test and multi-region S3 test added"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/subdomain-takeover-check/check.mjs",
+        "issue": "A failed DNS lookup exited 0 and the page showed a green 'No subdomain-takeover risk found', though README promises exit 1 when a lookup could not complete. Fixed with verdictFor() in analyze.mjs, used by CLI exit code and page verdict.",
+        "patched": true
+      },
+      {
+        "file": "ventures/subdomain-takeover-check/analyze.mjs",
+        "issue": "Finding target and detail named the chain's last name (e.g. internal s3-w.us-east-1.amazonaws.com) and claimed it matched the provider pattern, since providerForChain matches any hop. Now names the matched hop.",
+        "patched": true
+      },
+      {
+        "file": "ventures/dotenv-exposure-check/check.mjs",
+        "issue": "Exited 0 when every request failed (ok = exposedCount === 0), against README's exit-1 promise; page verdict green. Fixed CLI exit and page verdict.",
+        "patched": true
+      },
+      {
+        "file": "ventures/backup-file-exposure-check/check.mjs",
+        "issue": "Same as dotenv-exposure-check: exit 0 and green verdict when no request completed. Fixed.",
+        "patched": true
+      },
+      {
+        "file": ".github/workflows/portfolio-validate.yml",
+        "issue": "check_unreachable_exit.py (added 2026-11-12) runs in no PR workflow yet. Fix: in the validate job add `python3 platform/ci/check_unreachable_exit.py` and a `working-directory: platform/ci` step `python3 -m unittest test_check_unreachable_exit`; paths should include ventures/*/check.mjs and ventures/*/cli/check.mjs. Needs node on the runner. Control plane: own PR, owner approval.",
+        "patched": false
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d2af99d1-c230-58e0-ac93-fc59db51224c",
+    "transcripts": 1,
+    "first": "2026-11-12T22:06:09Z",
+    "last": "2026-11-12T22:27:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 138,
+        "output": 41661,
+        "thinking": 10273,
+        "cache_read": 8230151,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134058,
+        "api_equivalent_usd": 3.5523,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 138,
+      "output": 41661,
+      "thinking": 10273,
+      "cache_read": 8230151,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134058,
+      "api_equivalent_usd": 3.5523,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 66,
+      "Write": 3,
+      "mcp__github__create_pull_request": 3,
+      "mcp__github__list_pull_requests": 2,
+      "ToolSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.38,
+      "active_minutes": 21.38,
+      "model_minutes": 9.33,
+      "tool_minutes": 12.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a senior engineer: three mutation campaigns triaged, 24 tests, 4 bug fixes across 3 ventures, a new CI lint with tests, a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 168.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

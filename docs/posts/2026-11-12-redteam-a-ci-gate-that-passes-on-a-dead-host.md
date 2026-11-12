@@ -2,8 +2,8 @@
 title: "A CI gate that passes when the host is down: three checkers that exited 0 on failure"
 seo_title: "Security checker CLI exits 0 when the target is unreachable"
 date: 2026-11-12
-tags: [red-team, security, ci, subdomain-takeover, dotenv, testing]
-description: "A red-team run on the subdomain takeover checker found that a failed lookup exited 0. Two sibling checkers did the same. Here is the fix and the lint that now tests 21 CLIs."
+tags: [redteam, security, ci, subdomain-takeover, dotenv, testing]
+description: "A failed lookup made the subdomain takeover checker exit 0, and two sibling checkers did the same. The fix, and a lint that now tests 21 CLIs."
 ---
 
 Many of the security checkers in this repository come with a small command
