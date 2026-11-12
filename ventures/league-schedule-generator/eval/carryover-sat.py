@@ -35,7 +35,7 @@ import argparse
 import itertools
 import json
 import sys
-import threading
+import multiprocessing as mp
 import time
 
 from pysat.card import CardEnc, EncType, ITotalizer
@@ -142,25 +142,42 @@ def main():
           f"{'' if exact else ' (cap binds: an UNSAT here is not exact)'}: {cnf.nv} vars, "
           f"{len(cnf.clauses)} clauses, built in {time.time() - t0:.1f} s; {a.solver}, limit {a.seconds:.0f} s",
           flush=True)
-    s = Solver(name=a.solver, bootstrap_with=cnf.clauses)
-    timer = threading.Timer(a.seconds, s.interrupt)
-    timer.start()
+    # The solver holds the GIL, so a timer thread cannot interrupt it: solve in a child process
+    # and kill it at the limit.
+    q = mp.Queue()
+    xs = sorted(x(r, i, j) for r in range(n - 1) for i, j in itertools.combinations(range(n), 2))
+    child = mp.Process(target=solve, args=(a.solver, cnf.clauses, xs, q))
     t1 = time.time()
-    res = s.solve_limited(expect_interrupt=True)
-    timer.cancel()
+    child.start()
+    child.join(a.seconds)
     dt = time.time() - t1
-    if res is None:
+    if child.is_alive():
+        child.terminate()
+        child.join()
         print(f"UNKNOWN after {dt:.0f} s (time limit)", flush=True)
         return 2
+    res, model = q.get()
     if res is False:
         print(f"UNSAT in {dt:.1f} s: no {n}-team round robin has non-cyclic carry-over <= {floor + 2 * excess}"
               f"{'' if exact else f' with every cell <= {a.cap}'}", flush=True)
         return 1
-    opp = decode(n, s.get_model(), x)
+    opp = decode(n, model, x)
     value, mx = score(opp)
     print(f"SAT in {dt:.1f} s: non-cyclic carry-over {value}, largest cell {mx}")
     print(json.dumps(opp), flush=True)
     return 0
+
+
+def solve(name, clauses, xs, q):
+    # Only the true match variables go back: a whole model is large enough to fill the pipe, and a
+    # child blocked on a full pipe would look like a timeout.
+    with Solver(name=name, bootstrap_with=clauses) as s:
+        res = s.solve()
+        if res:
+            model = s.get_model()
+            q.put((True, [v for v in xs if model[v - 1] > 0]))
+        else:
+            q.put((False, None))
 
 
 if __name__ == "__main__":
