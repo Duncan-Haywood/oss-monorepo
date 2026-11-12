@@ -1,0 +1,294 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/survival-analysis",
+  "stratum": "venture",
+  "seed": "2026-11-12-j",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality-audit subagent",
+  "status": "audited",
+  "professional": "a senior biostatistician who reports time-to-event endpoints in clinical papers. They would check first that the Kaplan-Meier estimate and Greenwood SE match a textbook table, that the log-rank statistic on the 6-MP data is 16.79, that the Cox fit with Breslow and Efron ties reproduces published coefficients and -2 log L, that the median CI follows Brookmeyer-Crowley on the chosen band scale, that the PH test is the Grambsch-Therneau one, and whether a KM figure comes with a number-at-risk table",
+  "scores": {
+    "correctness": 4,
+    "completeness": 3,
+    "verification": 4,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran the CLI on the bundled Freireich 6-MP data and checked against sources the author did not write. (a) Kaplan-Meier for 6-MP: S = 0.8571/0.8067/0.7529/0.6902/0.6275/0.5378/0.4482 at t = 6,7,10,13,16,22,23 with Greenwood SE 0.0764/0.0869/0.0963/0.1068/0.1141/0.1282/0.1346, identical to the textbook table (Klein & Moeschberger, Survival Analysis, 2nd ed., Table 4.1A); median 23 weeks, placebo 8. (b) Log-rank 16.793 on 1 df, O/E 9/19.25 and 21/10.75, the published value (Kleinbaum & Klein 2012, ch. 2: 16.79). (c) Breslow-ties Cox, Rx only: coef 1.509 se 0.410 HR 4.523, -2LL 172.759 vs null 187.970; Rx + logWBC: 1.294 (HR 3.648) and 1.604 (HR 4.975), -2LL 144.559: all four numbers equal Kleinbaum & Klein's Stata output (ch. 3, Models 1 and 2). Efron coef 1.572 se 0.412, LR 16.35, Wald 14.53, score 17.25 equal R coxph on the same data as widely reproduced (Therneau). (d) On a new seeded data set the author never used (300 rows, 4 arms, integer months with heavy ties, age and a 3-level text covariate; scratchpad indep.py): own numpy KM and Greenwood max diff 0; own hand k-sample log-rank 35.763282785826 vs engine ...611 vs lifelines ...609; Gehan-Breslow and Tarone-Ware vs statsmodels survdiff to 1e-14; medians and both CI ends equal lifelines for all 4 arms; Cox coefficients and SEs vs statsmodels PHReg to 2e-15 for Efron and Breslow, log-lik equal; LR 83.2875 vs lifelines; Harrell C 0.66933718 identical; Grambsch-Therneau p (km transform) vs lifelines to 3e-6. (e) Re-ran the author's eval/reference.py in a scratch copy: every number in reference.json identical (max abs diff 0). Not 4-limiting: the median at a flat S = 0.5 takes the first time (R takes the midpoint), and >~130k rows throw a RangeError (craft).",
+    "completeness": "README/page claims checked end to end via CLI and engine: KM with log(-log) bands and censoring ticks (chart code read, page.test.mjs exercises the script), median + CI, RMST with --tau, log-rank / Gehan-Breslow / Tarone-Ware, k groups, --reference, Cox Efron/Breslow with LR/Wald/score, per-term PH test, Harrell C, text covariates dummy-coded, event coding (1/0, yes/no, 1/2 as R, --event-value), missing rows dropped and counted, --json, stdin, CSV download (code read), agent call documented. All worked. Gaps: the served page https://marisstella.app/survival-analysis/ could not be loaded (proxy CONNECT 403), so the page was checked through page.test.mjs and source only; no number-at-risk table, no figure export. No TODOs or stubs. 3.",
+    "verification": "`cd ventures/survival-analysis && node --test '*.test.mjs'`: 44 tests, 44 pass, 0.45 s. Tests pin KM (1e-12), bands (1e-9), log-rank (1e-10), Cox coef/SE/loglik (1e-8..1e-10) against lifelines and statsmodels on 4 data sets, plus identities (score test = log-rank with no ties) and properties. Seeded 12 mutations in engine.mjs, each reverted with git checkout: Greenwood term, log-rank variance (N-D)/(N-1)->N/N, covariance -nRisk/N -> /(N+1), Gehan weight n -> n-1, Efron f -> 0 (Breslow), median <= -> <, concordance censored-at-t insertion removed, PH transform 1-KM(t) -> t, separation threshold 12 -> 1200: all 9 caught. Survived: RMST break `>=` -> `>` (an equivalent mutant), the RMST-beyond-follow-up warning disabled (engine.mjs:612) and the single-group warning disabled (engine.mjs:594): two user-facing warnings untested. The reference generator reproduces bit for bit. 4.",
+    "craft": "Read engine.mjs (677 lines), cli.mjs, index.html script, usage.mjs, all four test files, eval/reference.py. Clean pure-function engine, one O(n log n) concordance with a Fenwick tree, step-halving Newton with convergence and separation warnings, careful event coding and readable errors. Defects: `Math.max(...eta)` (engine.mjs:359) and `Math.max(...tg)` (engine.mjs:604) spread the whole column onto the call stack; at 150,000 rows analyze() throws `RangeError: Maximum call stack size exceeded` (120,000 works), and the page's runAnalysis (index.html:313) has no try/catch, so the Analyze button silently does nothing. Event values `1.0/0.0` (pandas/Excel exports) are rejected (engine.mjs:138-157). 3.",
+    "claims": "Checked: '16.79 on 1 df (p = 4.2e-5)', 'median 23 (13 to not reached)', 'placebo 8 (4 to 11)', RMST 17.9/8.67, 'HR 4.82 (2.15 to 10.8), LR 16.35, Wald 14.53, score 17.25', 'Breslow 1.509', 'logWBC: 4.00 (1.74 to 9.20), 5.42', 'sex PH p = 0.052' (README:38-48): all reproduced by the CLI. 'checked against lifelines and statsmodels' (README, llms.txt, page meta): backed by eval/reference.json, reproduced by re-running eval/reference.py, and by my own new-data comparison. 'nothing uploaded / no analytics vendors' (index.html:202): usage.mjs only writes localStorage, page.test.mjs asserts no network calls. 'Not checked against R' and the log(-log) band / approximate PH-test departures are disclosed (README:85-90). Data provenance and SHA in data/SOURCE.md. Disclaimer on page, README, llms.txt, CLI. Unbacked or undisclosed: the median convention differs from R at a flat S = 0.5 (page says 'first time at or below 0.5' but not that R differs); the live page could not be fetched from this session. 3.",
+    "fitness": "Walked the job: a biostatistician pastes a 2-arm trial CSV, gets KM curves with bands, medians with CI, log-rank, a Cox HR adjusted for a covariate with PH check: every number matched a reference tool, so for a quick look, teaching or a churn/reliability analyst it does the job. For a paper they would still reach for R: no number-at-risk table under the curve (standard in published KM figures), no survival-at-time-t with CI in the summary (only in the downloadable table), no choice of reference level for text covariates (first seen is used, e.g. 'stage=I vs III'), no strata (open PR #14929 adds stratified Cox; not on main), no global PH test, no figure export. Stated limits are honest. 3.",
+    "domain": "Compared with R survival / Stata / Kalbfleisch-Prentice practice: product-limit and Greenwood are standard; log(-log) bands match Stata's default (R defaults to log, disclosed); median CI by band crossing (Brookmeyer-Crowley style) matches lifelines; log-rank with hypergeometric covariance, Fleming-Harrington-free weighted tests; Cox with Efron/Breslow, three global tests, Harrell C with tied-time handling equal to lifelines. Departures a biostatistician would note: the PH test is the approximate (lifelines) Grambsch-Therneau statistic without a GLOBAL test (R cox.zph >= 3.0 is exact; disclosed); median at an exact 0.5 plateau takes the left end rather than R's midpoint; text-covariate reference not selectable; events-per-variable warning is the 10-EPV rule of thumb (fine). Would sign off on the methods within the stated limits. 3."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "6-MP Kaplan-Meier survival and Greenwood SE at each event time",
+      "method": "Klein & Moeschberger, Survival Analysis (2nd ed.), Table 4.1A (6-MP arm of Freireich 1963)",
+      "command": "cd ventures/survival-analysis && node cli.mjs data/leukemia.csv --group treatment --curve",
+      "expected": "S 0.857,0.807,0.753,0.690,0.627,0.538,0.448; SE 0.076,0.087,0.096,0.107,0.114,0.128,0.135",
+      "observed": "S 0.8571,0.8067,0.7529,0.6902,0.6275,0.5378,0.4482; SE 0.0764,0.0869,0.0963,0.1068,0.1141,0.1282,0.1346",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "log-rank 6-MP vs placebo",
+      "method": "published value, Kleinbaum & Klein, Survival Analysis: A Self-Learning Text (3rd ed. 2012), ch. 2",
+      "command": "cd ventures/survival-analysis && node cli.mjs data/leukemia.csv --group treatment",
+      "expected": "16.79 on 1 df; O/E 9/19.25, 21/10.75",
+      "observed": "16.793 on 1 df, p = 4.2e-5; 9/19.25, 21/10.75",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Cox, Breslow ties, Rx alone and Rx + logWBC",
+      "method": "Kleinbaum & Klein (2012) ch. 3, Stata output for Models 1 and 2 (Breslow ties)",
+      "command": "node -e (analyze leukemia.csv, group treatment, covariates '' / logWBC, ties breslow; print coef, se, HR, -2LL)",
+      "expected": "M1 1.509 se 0.410 HR 4.523 -2LL 172.759; M2 1.294 (3.648), 1.604 (4.975) -2LL 144.559; null 187.970",
+      "observed": "M1 1.509 se 0.410 HR 4.523 -2LL 172.759; M2 1.294 se 0.422 HR 3.648, 1.604 se 0.329 HR 4.975, -2LL 144.559; null 187.970",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "new data (300 rows, 4 arms, heavy ties): KM, Greenwood and k-sample log-rank",
+      "method": "own numpy implementation (product-limit, Greenwood, hypergeometric covariance) plus lifelines multivariate_logrank_test",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/sv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/sa/indep.py /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/sa  (venv: /usr/bin/python3.13 -m venv sv && sv/bin/pip install lifelines statsmodels -> lifelines 0.30.3, statsmodels 0.15.0)",
+      "expected": "hand log-rank 35.76328278582608; lifelines 35.76328278582609; KM/Greenwood diff 0",
+      "observed": "engine 35.76328278582611; KM and Greenwood max abs diff 0",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "new data: Gehan-Breslow and Tarone-Ware",
+      "method": "statsmodels 0.15.0 survdiff weight_type gb / tw",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/sv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/sa/indep.py /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/sa  (venv: /usr/bin/python3.13 -m venv sv && sv/bin/pip install lifelines statsmodels -> lifelines 0.30.3, statsmodels 0.15.0)",
+      "expected": "25.145391734161432; 29.99939717580154",
+      "observed": "25.145391734161425; 29.999397175801537",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "new data: Cox with 3 arm dummies, age, 3-level text covariate, Efron and Breslow",
+      "method": "statsmodels PHReg (ties efron/breslow) and lifelines CoxPHFitter (LR, C, PH test km transform)",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/sv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/sa/indep.py /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/sa  (venv: /usr/bin/python3.13 -m venv sv && sv/bin/pip install lifelines statsmodels -> lifelines 0.30.3, statsmodels 0.15.0)",
+      "expected": "PHReg coefs/SEs; loglik -1244.0236157106178 (Efron), -1269.8588973498079 (Breslow); LR 83.2874929; C 0.66933718; PH p 0.6046,0.7240,0.7232,0.1167,0.1803,0.8088",
+      "observed": "coef max diff 2.2e-15 (Efron), 2.4e-15 (Breslow); SE <5e-16; loglik equal; LR 83.2874929; C 0.66933718; PH p within 3e-6",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "new data: medians and 95% CI ends per arm",
+      "method": "lifelines KaplanMeierFitter + median_survival_times(confidence_interval_)",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/sv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/sa/indep.py /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/sa  (venv: /usr/bin/python3.13 -m venv sv && sv/bin/pip install lifelines statsmodels -> lifelines 0.30.3, statsmodels 0.15.0)",
+      "expected": "ctl 5 (3-6), c 3 (2-4), a 7 (5-9), b 4 (3-6)",
+      "observed": "identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "author's reference generator reproduces",
+      "method": "re-ran eval/reference.py in a scratch copy with lifelines 0.30.3 / statsmodels 0.15.0, numeric diff of reference.json",
+      "command": "cp eval/reference.py data/leukemia.csv to scratch; sv/bin/python eval/reference.py; numeric walk-diff",
+      "expected": "identical",
+      "observed": "max abs diff 0 (only generated_with.numpy differs: 2.5.4 vs 2.4.6); cases/*.csv byte-identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "median when S is exactly 0.5 over an interval",
+      "method": "R survfit convention (midpoint of an exact 0.5 plateau) vs lifelines (left end), on time,event 1,1/2,1/3,0/4,1 where S = 0.75, 0.5, 0.5, 0",
+      "command": "node -e (analyze csv 'time,event\\n1,1\\n2,1\\n3,0\\n4,1')",
+      "expected": "lifelines 2; R survfit 3 (midpoint of 2 and 4)",
+      "observed": "2 (engine.mjs:283); matches lifelines, differs from R, departure not disclosed",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd ventures/survival-analysis && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "44/44 pass, 0.45 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "large input",
+      "method": "analyze() on synthetic CSVs of 120k and 150k rows",
+      "command": "node -e (analyze 150000-row time,event[,g] CSV)",
+      "expected": "result or readable error",
+      "observed": "120k ok; 150k throws RangeError: Maximum call stack size exceeded at engine.mjs:359 / :604; page has no try/catch",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "event column 1.0/0.0",
+      "method": "analyze time,event 1,1.0 / 2,0.0",
+      "command": "node -e (analyze)",
+      "expected": "read as 1/0",
+      "observed": "error: event column must say which rows had the event ... Found: 1.0, 0.0",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README example table and Cox numbers",
+      "method": "CLI rerun",
+      "command": "node cli.mjs data/leukemia.csv --group treatment [--covariates logWBC[,sex]] [--ties breslow]",
+      "expected": "README:38-48 values",
+      "observed": "all reproduced (HR 4.82 (2.15-10.8), LR 16.35, W 14.53, S 17.25; Breslow 1.509; 4.00 (1.74-9.20), 5.42; sex PH p 0.052)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'nothing uploaded, no analytics vendors'",
+      "method": "read usage.mjs and index.html; page.test.mjs network assertion",
+      "command": "node --test page.test.mjs",
+      "expected": "localStorage only",
+      "observed": "usage.mjs writes only localStorage, honours DNT/GPC and opt-out; test passes",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "live page reachable",
+      "method": "curl served URL",
+      "command": "curl -sS https://marisstella.app/survival-analysis/",
+      "expected": "200",
+      "observed": "proxy CONNECT 403 from this session; not verified",
+      "result": "partial"
+    },
+    {
+      "dimension": "fitness",
+      "what": "publication KM figure",
+      "method": "read chart() in index.html",
+      "command": "grep -n -i 'at risk' ventures/survival-analysis/index.html",
+      "expected": "number-at-risk table under the curves",
+      "observed": "absent (only in the downloadable CSV)",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/survival-analysis/engine.mjs:264",
+      "change": "Greenwood d/(n(n-d)) -> d/(n*n)",
+      "caught": true,
+      "test_cmd": "cd ventures/survival-analysis && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/survival-analysis/engine.mjs:335",
+      "change": "log-rank variance (N-D)/(N-1) -> N/N",
+      "caught": true,
+      "test_cmd": "cd ventures/survival-analysis && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/survival-analysis/engine.mjs:336",
+      "change": "covariance - nRisk[l]/N -> /(N+1)",
+      "caught": true,
+      "test_cmd": "cd ventures/survival-analysis && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/survival-analysis/engine.mjs:303",
+      "change": "Gehan weight n -> n-1",
+      "caught": true,
+      "test_cmd": "cd ventures/survival-analysis && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/survival-analysis/engine.mjs:388",
+      "change": "Efron f = l/d -> 0 (Breslow)",
+      "caught": true,
+      "test_cmd": "cd ventures/survival-analysis && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/survival-analysis/engine.mjs:283",
+      "change": "median r[key] <= q -> r[key] < q",
+      "caught": true,
+      "test_cmd": "cd ventures/survival-analysis && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/survival-analysis/engine.mjs:423",
+      "change": "concordance: censored-at-t subjects not inserted",
+      "caught": true,
+      "test_cmd": "cd ventures/survival-analysis && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/survival-analysis/engine.mjs:481",
+      "change": "PH transform 1-KM(t) -> t",
+      "caught": true,
+      "test_cmd": "cd ventures/survival-analysis && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/survival-analysis/engine.mjs:471",
+      "change": "separation threshold 12 -> 1200",
+      "caught": true,
+      "test_cmd": "cd ventures/survival-analysis && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/survival-analysis/engine.mjs:291",
+      "change": "RMST break r.time >= tau -> > tau (equivalent mutant)",
+      "caught": false,
+      "test_cmd": "cd ventures/survival-analysis && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/survival-analysis/engine.mjs:612",
+      "change": "RMST-past-follow-up warning disabled (tau > tauDefault + 1e9)",
+      "caught": false,
+      "test_cmd": "cd ventures/survival-analysis && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/survival-analysis/engine.mjs:594",
+      "change": "single-group warning disabled (levels.length < 1)",
+      "caught": false,
+      "test_cmd": "cd ventures/survival-analysis && node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Math.max(...eta) and Math.max(...tg) spread whole columns as call arguments; analyze() throws RangeError (maximum call stack) at 150,000 rows (120,000 ok), and the page's runAnalysis has no try/catch, so Analyze silently does nothing on a large CSV",
+      "where": "ventures/survival-analysis/engine.mjs:359",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "No number-at-risk table under the Kaplan-Meier figure, the standard a published KM plot carries; counts are only in the downloadable CSV",
+      "where": "ventures/survival-analysis/index.html:271",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Text covariates use the first value seen as reference (e.g. 'stage=I vs III' on the audit data) with no way to choose it; only the group column has --reference",
+      "where": "ventures/survival-analysis/engine.mjs:628",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Median on an exact S = 0.5 plateau takes the left end (lifelines convention); R's survfit reports the plateau midpoint. Page and README describe the rule but not the departure from R",
+      "where": "ventures/survival-analysis/engine.mjs:283",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Event values 1.0/0.0 (common in pandas or spreadsheet exports) are rejected instead of read as 1/0",
+      "where": "ventures/survival-analysis/engine.mjs:138",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "The RMST-beyond-follow-up and single-group warnings are untested: disabling either leaves all 44 tests green",
+      "where": "ventures/survival-analysis/engine.mjs:612",
+      "category": "untested-core",
+      "origin": "tests"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Expert-grade numerics: on data the author never used, Kaplan-Meier, Greenwood, k-sample log-rank, Gehan-Breslow, Tarone-Ware, Cox (Efron and Breslow), Harrell's C and the Grambsch-Therneau test agree with my own numpy code, lifelines and statsmodels to 1e-14 or better, and the 6-MP outputs equal the published textbook values (Klein & Moeschberger Table 4.1A; Kleinbaum & Klein log-rank 16.79 and Breslow Cox Models 1 and 2 including -2 log L). The author's reference generator reproduces bit for bit and 9 of 9 non-trivial core mutations are caught. It meets the bar (correctness 4, verification 4, claims 3, median 3). What keeps fitness and domain at 3: a crash above ~130k rows that the page swallows silently, no number-at-risk table, no choice of reference level for text covariates, no strata on main, and an undisclosed median convention difference from R."
+}

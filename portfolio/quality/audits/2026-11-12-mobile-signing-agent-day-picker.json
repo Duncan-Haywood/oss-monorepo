@@ -1,0 +1,169 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/mobile-signing-agent-day-picker",
+  "stratum": "venture",
+  "seed": "2026-11-12-j",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), independent quality audit, see run record",
+  "status": "audited",
+  "professional": "an experienced mobile notary / loan signing agent (NNA-certified, several years of title-company and signing-service work) who books 3 to 6 signings a day. What they check first: does the fee-minus-cost-minus-drive arithmetic per signing come out right, does the plan respect the appointment times, and does the day account for the parts of a signing day that are not at the table (printing the package, the same-day FedEx/UPS document drop with its cutoff, scanbacks, evening appointments)",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 2,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran 'node cli.mjs plan fixtures/signings.csv': 5 of 10 signings, $265.20, 62.3 mi, home 16:36; first-come $196.25 (4), highest-fee-first $70.77 (2); break-evens Pruitt $254.65, Ito $132.25, Brandt $122.48. Wrote an independent Python solver from the README's model statement only (scratchpad indep.py: own leg/feasibility arithmetic, exhaustive DFS over every feasible ordering of every subset, own greedy baselines, break-even by 60-step bisection on the price until the signing enters the optimum, not the author's 'price + gap' formula). Every figure matched to the cent, including the chosen route and order. Two legs by hand: Alvarez 5 mi x 1.3 = 6.5 mi, 13 min, $4.55 + $7.58 drive cost, value 125-14-35 = 76, margin $63.87 (CLI $63.87); Okafor sqrt(130) x 1.3 = 14.82 mi, 29.6 min, margin 109.25 - 10.38 - 17.29 = $81.58 (CLI $81.58). Default per-mile $0.70 equals the IRS 2025 business standard mileage rate (70 cents, Notice 2025-5); for 2026 the repo's own deduction tools cite 72.5 cents (Notice 2026-10), which I could not fetch (irs.gov 403 through the proxy). Not 4: the outputs are exact for the model, but the model is narrower than a signing day (see domain), and there is no external tool comparison.",
+    "completeness": "Claimed and checked: paste rows and get exact best set and order (CLI ran, page script reads the same engine), drive and idle time (route rows, 117 min idle finding), break-even price for every declined signing (5 rows, three recomputed), first-come and highest-fee-first comparison (both recomputed), --json and all six option flags (cli.test.mjs plus a manual --end 12:00 run), up to 14 signings (14 open-window signings solved in 554 ms; 15 throws a readable error), header and # comment skipping, line-numbered errors, usage counting with opt-out (usage.mjs, usage.test.mjs). No TODOs or stubs. Not loaded in a real browser (marisstella.app blocked by the proxy), so the page's DOM rendering is checked by reading index.html:138-178 only.",
+    "verification": "'cd ventures/mobile-signing-agent-day-picker && node --test *.test.mjs': 29 pass, 0 fail, 0.6 s. The key test compares optimize() with simulate() over every ordering of every subset on 120 random queues, and page.test.mjs pins the fixture's figures to the cent. Nine seeded mutations in engine.mjs: DP ignores window wait (caught, 3 fail), prune tolerance $50 (caught), break-even gap halved (caught), fee baseline ascending (caught), DP return slack 60 min (caught), simulate 15 min late start (caught), signingValue drops service-hour cost (caught), legMiles drops circuity (caught by the pinned fixture only), idle-finding threshold 30 -> 300 (NOT caught). 8/9 caught; the survivor is advisory text. Not 4: the brute-force oracle shares signingValue/legMiles with the code under test, so cost-model mutations are caught only by the one pinned fixture; the page's DOM rendering has no test.",
+    "craft": "Read engine.mjs (330 lines), cli.mjs, index.html script, usage.mjs and all four test files. The DP is clean, pure and well commented. Defects: the engine is a re-skin of ventures/mobile-tire-van-job-picker/engine.mjs (58 diff lines after renaming job->signing; three ventures carry the same 'non-dominated (finish time, profit)' DP), and the re-skin left tyre-shop residue that ships to users: INPUT_NOTES row 1 is 'Flat fix,85,18,30,...' and the window note says 'the shop is closed' (engine.mjs:23-24, rendered on the page's 'What's recognised' table); find-replace grammar 'the your hourly cost', 'you sits parked', 'You leaves the home base' (engine.mjs:7-9, README.md:22). sitemap.xml uses relative <loc>./index.html</loc> (invalid per sitemaps.org, which requires absolute URLs; the Pages build's rewrite_base_urls only rewrites absolute placeholder hosts, so this ships; same pattern in about 1,050 ventures). Input handling is good: '1,200' or bad times produce line-numbered errors, never a silent wrong value.",
+    "claims": "Checked: 'exact set and order with the highest profit' (independent exhaustive search agrees; tests do the same), 'what each signing it turns down would need to pay' (bisection agrees), 'what first-come and highest-fee-first booking leave behind' ($68.95, recomputed), 'up to 14 signings' (MAX_JOBS, ran 14), 'No network call ... never uploads' (no fetch/XHR in engine.mjs, cli.mjs, usage.mjs or the page script; usage counts are localStorage only), guide figures $265.20/$196.25/$70.77/$68.95/62.3 miles/$254.65/$132.25/16:36 (all match and are pinned by page.test.mjs), guide's 'highest fee first takes the $200 reverse mortgage ... blocks most of the rest of the day' (it takes Pruitt then Moreno only: backed). Limits ('not a routing service', no traffic, one agent, agreements and borrower come first) and the no-warranty disclaimer are on both pages and in llms.txt. Partial: the hero's 'fills the day with the wrong signings' is a general statement backed by one illustrative queue; llms.txt github.io URLs are placeholders rewritten at deploy (source-only, not filed).",
+    "fitness": "Walked the job as an LSA with a morning batch of offers: possible, but every signing's location must be converted by hand to miles east/north of home (no address, ZIP or drive-time input), which is the slowest step and an error source a professional would hit at once. The model assumes the whole day's offers are known at once; most signing-service and app offers arrive one at a time and need an answer in minutes, so the first-come comparison is against a hindsight optimum, and the most actionable output for that case is the break-even fee for a new offer, which needs the whole queue re-entered. Evening signings (common for borrowers who work) are outside the default 08:00-17:00 shift and show as 'never fits' until the user changes the shift.",
+    "domain": "Method: an orienteering/prize-collecting routing problem with time windows solved exactly by label-setting DP, which is the right technique, and the break-even fee is a correct marginal-price argument. Departures from how a signing day works: (1) the same-day document return (drive to a FedEx/UPS drop or staffed location by its cutoff) is not modelled at all, and it often decides whether a late signing is feasible; (2) printing two copies of a 100-200 page package costs time before departure that the hourly cost is never charged for (only dollars, via 'materials'); (3) scanbacks and appointment overruns are not represented; (4) the default shift and per-mile rate (2025 IRS rate) are not what a 2026 LSA would type. Each is a user-correctable input except (1), which needs a model change."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Best day on the fixture: set, order, profit, miles, home time",
+      "method": "independent Python exhaustive DFS written from the README model statement (own arithmetic, not the author's simulate/optimize)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/indep.py ventures/mobile-signing-agent-day-picker/fixtures/signings.csv",
+      "expected": "CLI: 5 signings Alvarez, Okafor, Kowalski, Lee, Moreno; $265.20; 62.3 mi; 16:36",
+      "observed": "best 265.2 [Alvarez, Okafor, Kowalski, Lee, Moreno] miles 62.3 home (16, 36)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Break-even fee for declined signings (Pruitt, Ito, Brandt)",
+      "method": "bisection on the signing's price with the independent exhaustive solver until it enters the optimum (does not use the author's price + gap formula)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/indep.py ventures/mobile-signing-agent-day-picker/fixtures/signings.csv",
+      "expected": "$254.65, $132.25, $122.48",
+      "observed": "254.65, 132.25, 122.48",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "First-come and highest-fee-first baselines",
+      "method": "independent greedy in the Python script (accept each offer that keeps the day feasible)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/indep.py ventures/mobile-signing-agent-day-picker/fixtures/signings.csv",
+      "expected": "$196.25 (4 signings), $70.77 (2 signings: Pruitt, Moreno)",
+      "observed": "fcfs 196.25 [Alvarez, Okafor, Lee, Haddad]; fee 70.77 [Pruitt, Moreno]",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "First two route legs' margins",
+      "method": "hand arithmetic: miles = hypot x 1.3; minutes = miles/30*60; margin = price - materials - service/60*35 - 0.70*miles - minutes/60*35",
+      "command": "python3 -c \"import math;d=5*1.3;print(125-14-35-0.7*d-d/30*35); d=math.sqrt(130)*1.3;print(175-22-75/60*35-0.7*d-d/30*35)\"",
+      "expected": "CLI: $63.87, $81.58",
+      "observed": "63.87, 81.58",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "Default per-mile cost against the IRS business standard mileage rate",
+      "method": "IRS Notice 2025-5 (70 cents for 2025); 2026 rate 72.5 cents as cited by ventures/ai-bookkeeper (Notice 2026-10), not fetched (irs.gov 403 via proxy)",
+      "command": "grep -n 'const DEFAULTS' ventures/mobile-signing-agent-day-picker/engine.mjs",
+      "expected": "a current-year rate, or the year named next to it",
+      "observed": "perMile: 0.7 with 'a common starting point is your mileage-method rate'; no year given",
+      "result": "partial"
+    },
+    {
+      "dimension": "domain",
+      "what": "Same-day document return (FedEx/UPS drop and cutoff) in the day model",
+      "method": "standard loan signing agent practice (packages returned same day by the shipping cutoff); searched engine.mjs for drop-off, cutoff or return-leg handling",
+      "command": "grep -niE 'fedex|ups|drop|cutoff|ship' ventures/mobile-signing-agent-day-picker/engine.mjs",
+      "expected": "a drop-off stop or cutoff constraint",
+      "observed": "none; the day ends at the home base",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite",
+      "method": "node test runner",
+      "command": "cd ventures/mobile-signing-agent-day-picker && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "29 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "14-signing limit and runtime",
+      "method": "ran 14 open-window signings with a 21:00 shift end",
+      "command": "node -e (plan of 14 rows J0..J13, 08:00-20:00 windows)",
+      "expected": "solves; 15 rows throws 'at most 14 signings'",
+      "observed": "14 accepted in 554 ms; 15-row case covered by engine.test.mjs",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Input errors are reported, not silently mis-parsed",
+      "method": "fee typed as 1,200 and a $-prefixed fee",
+      "command": "node -e parseSignings('Big,1,200,10,60,09:00,10:00,1,1') and 'Price $,$125,...'",
+      "expected": "line-numbered error; $125 accepted",
+      "observed": "line 1 errors (window opens, miles east); $125 parsed and planned",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Guide page figures",
+      "method": "compared each figure in which-signings-should-a-notary-take-in-a-day.html with the CLI and the independent solver",
+      "command": "node cli.mjs plan fixtures/signings.csv",
+      "expected": "$265.20, $196.25, $70.77, $68.95, 62.3 miles, $254.65, $132.25, 16:36",
+      "observed": "all match",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "No upload, no network call",
+      "method": "grep for fetch/XMLHttpRequest/sendBeacon in shipped JS and the page script",
+      "command": "grep -nE 'fetch\\(|XMLHttpRequest|sendBeacon' ventures/mobile-signing-agent-day-picker/*.mjs ventures/mobile-signing-agent-day-picker/index.html",
+      "expected": "none",
+      "observed": "none; usage.mjs writes localStorage only, with opt-out and DNT/GPC respected",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "Copied-engine residue on the user-facing page",
+      "method": "read INPUT_NOTES, which index.html:136 renders into the 'What's recognised' table",
+      "command": "grep -n 'Flat fix\\|shop is closed' ventures/mobile-signing-agent-day-picker/engine.mjs",
+      "expected": "signing-agent examples",
+      "observed": "engine.mjs:23 'Flat fix,85,18,30,08:00,10:00,3,4'; engine.mjs:24 'the shop is closed'",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "Sitemap URLs",
+      "method": "sitemaps.org protocol (loc must be an absolute URL); build_pages_site.py rewrite_base_urls rewrites only absolute placeholder hosts",
+      "command": "cat ventures/mobile-signing-agent-day-picker/sitemap.xml",
+      "expected": "absolute URLs",
+      "observed": "<loc>./index.html</loc> (ships unchanged)",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {"where": "ventures/mobile-signing-agent-day-picker/engine.mjs:215", "change": "Math.max(t + driveMin(miles, o), earliest) -> t + driveMin(miles, o) (DP ignores waiting for the window)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "ventures/mobile-signing-agent-day-picker/engine.mjs:173", "change": "l.p > best + EPS -> l.p > best + 50 (prune drops labels)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "ventures/mobile-signing-agent-day-picker/engine.mjs:294", "change": "(opt.profit - forced.profit) -> (opt.profit - forced.profit) / 2 (break-even)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "ventures/mobile-signing-agent-day-picker/engine.mjs:275", "change": "highest-fee sort descending -> ascending", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "ventures/mobile-signing-agent-day-picker/engine.mjs:196", "change": "home > shiftEnd + EPS -> home > shiftEnd + 60", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "ventures/mobile-signing-agent-day-picker/engine.mjs:154", "change": "start > latest + EPS -> start > latest + 15 (simulate)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "ventures/mobile-signing-agent-day-picker/engine.mjs:140", "change": "signingValue drops the service-hour cost", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "ventures/mobile-signing-agent-day-picker/engine.mjs:134", "change": "legMiles drops the circuity factor (caught only by the pinned fixture in page.test.mjs)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "ventures/mobile-signing-agent-day-picker/engine.mjs:316", "change": "idle finding threshold 30 -> 300 minutes", "caught": false, "test_cmd": "node --test '*.test.mjs'"}
+  ],
+  "defects": [
+    {"severity": "medium", "what": "The day model has no same-day document return: no FedEx/UPS drop stop or shipping cutoff, so a late signing the plan accepts may leave no time to drop the package, and the drive to the drop is never costed", "where": "ventures/mobile-signing-agent-day-picker/engine.mjs:162", "category": "scope-gap", "origin": "spec"},
+    {"where": "ventures/mobile-signing-agent-day-picker/engine.mjs:23", "severity": "low", "what": "Copied-engine residue shown to users: the 'What's recognised' table's first example row is 'Flat fix,85,18,30,08:00,10:00,3,4' and the window note says 'the shop is closed' (from mobile-tire-van-job-picker)", "category": "code-craft", "origin": "implementation"},
+    {"where": "ventures/mobile-signing-agent-day-picker/engine.mjs:7", "severity": "low", "what": "Find-replace grammar in the model comment and README: 'the your hourly cost', 'you sits parked', 'You leaves the home base' (also README.md:22)", "category": "code-craft", "origin": "implementation"},
+    {"where": "ventures/mobile-signing-agent-day-picker/engine.mjs:109", "severity": "low", "what": "Default per-mile $0.70 is the 2025 IRS rate with no year named; 2026 is 72.5 cents per the repo's own deduction tools", "category": "source-data", "origin": "spec"},
+    {"where": "ventures/mobile-signing-agent-day-picker/engine.mjs:316", "severity": "low", "what": "The idle-time finding's threshold is untested (a 30 -> 300 mutation survives)", "category": "untested-core", "origin": "tests"},
+    {"where": "ventures/mobile-signing-agent-day-picker/sitemap.xml:3", "severity": "low", "what": "Sitemap <loc> entries are relative (./index.html); the protocol requires absolute URLs and the build does not rewrite them (same pattern in about 1,050 ventures)", "category": "other", "origin": "build"},
+    {"where": "ventures/mobile-signing-agent-day-picker/index.html:50", "severity": "low", "what": "Locations must be typed as miles east/north of home; no address or drive-time input, the slowest and most error-prone step for the user", "category": "scope-gap", "origin": "spec"}
+  ],
+  "fix_prs": [],
+  "verdict": "Meets the bar on the computed gates: the exact optimizer, break-even fees and both baselines matched an independent exhaustive solver to the cent on the fixture, two route legs match hand arithmetic, and eight of nine seeded bugs failed the 29-test suite. It falls short as a signing-agent tool rather than as arithmetic: it is a re-skinned tyre-van engine with tyre residue on the live page, it ignores the same-day document drop that governs a loan signing agent's afternoon, and locations must be typed as east/north miles. Fitness and domain are 2; craft is 2."
+}
