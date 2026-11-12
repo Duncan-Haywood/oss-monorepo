@@ -1,0 +1,994 @@
+{
+ "versions": {
+  "python": "3.13.18",
+  "numpy": "2.5.3"
+ },
+ "trials": 20000,
+ "seed": 4,
+ "fixed": "three reads per stud at 0.5 mm, edge line 0.5 mm, tool 0.9 mm, 1/8 in gap, 10D penetration",
+ "A": [
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "aim": "nominal",
+   "clean0": 0.972,
+   "s_x_mm": 0.438,
+   "s_theta_deg": 0.0319,
+   "top_mm": 0.673
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "aim": "edge",
+   "clean0": 0.9584,
+   "s_x_mm": 0.372,
+   "s_theta_deg": 0.0294,
+   "top_mm": 0.621
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "aim": "nominal",
+   "clean0": 0.8307,
+   "s_x_mm": 0.0,
+   "s_theta_deg": 0.0,
+   "top_mm": 0.0
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "aim": "edge",
+   "clean0": 0.807,
+   "s_x_mm": 0.0,
+   "s_theta_deg": 0.0,
+   "top_mm": 0.0
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "straight",
+   "aim": "nominal",
+   "clean0": 1.0,
+   "s_x_mm": 3.969,
+   "s_theta_deg": 0.2111,
+   "top_mm": 4.457
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "straight",
+   "aim": "edge",
+   "clean0": 1.0,
+   "s_x_mm": 7.575,
+   "s_theta_deg": 0.3992,
+   "top_mm": 8.428
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "aim": "nominal",
+   "clean0": 1.0,
+   "s_x_mm": 3.783,
+   "s_theta_deg": 0.2061,
+   "top_mm": 4.352
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "aim": "edge",
+   "clean0": 1.0,
+   "s_x_mm": 7.154,
+   "s_theta_deg": 0.3823,
+   "top_mm": 8.072
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "straight",
+   "aim": "nominal",
+   "clean0": 1.0,
+   "s_x_mm": 5.62,
+   "s_theta_deg": 0.2901,
+   "top_mm": 6.125
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "straight",
+   "aim": "edge",
+   "clean0": 1.0,
+   "s_x_mm": 10.849,
+   "s_theta_deg": 0.5558,
+   "top_mm": 11.734
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "aim": "nominal",
+   "clean0": 1.0,
+   "s_x_mm": 5.414,
+   "s_theta_deg": 0.2852,
+   "top_mm": 6.021
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "aim": "edge",
+   "clean0": 1.0,
+   "s_x_mm": 10.414,
+   "s_theta_deg": 0.5365,
+   "top_mm": 11.327
+  }
+ ],
+ "B": {
+  "2x (1.5 in)": {
+   "s_x_mm": [
+    0,
+    1,
+    2,
+    4,
+    6
+   ],
+   "s_theta_deg": [
+    0,
+    0.05,
+    0.1,
+    0.2,
+    0.3
+   ],
+   "clean": [
+    [
+     0.807,
+     0.747,
+     0.6147,
+     0.3984,
+     0.2812
+    ],
+    [
+     0.7103,
+     0.6506,
+     0.5212,
+     0.3228,
+     0.2263
+    ],
+    [
+     0.5281,
+     0.4733,
+     0.37,
+     0.2303,
+     0.1583
+    ],
+    [
+     0.313,
+     0.2783,
+     0.2132,
+     0.1299,
+     0.09
+    ],
+    [
+     0.2189,
+     0.192,
+     0.1473,
+     0.0889,
+     0.0628
+    ]
+   ]
+  },
+  "2 x 2x (3.0 in)": {
+   "s_x_mm": [
+    0,
+    1,
+    2,
+    4,
+    6
+   ],
+   "s_theta_deg": [
+    0,
+    0.05,
+    0.1,
+    0.2,
+    0.3
+   ],
+   "clean": [
+    [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     0.9994
+    ],
+    [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     0.9996
+    ],
+    [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     0.9991
+    ],
+    [
+     1.0,
+     1.0,
+     1.0,
+     0.9999,
+     0.9965
+    ],
+    [
+     0.9992,
+     0.9988,
+     0.9984,
+     0.9955,
+     0.983
+    ]
+   ]
+  }
+ },
+ "C": [
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "sway_95_mm": 0.187,
+   "sway_mm": [
+    0,
+    0.25,
+    0.5,
+    1,
+    2,
+    3,
+    4
+   ],
+   "clean": [
+    0.9584,
+    0.9461,
+    0.9144,
+    0.6586,
+    0.0649,
+    0.0036,
+    0.0002
+   ]
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "sway_95_mm": 0.0,
+   "sway_mm": [
+    0,
+    0.25,
+    0.5,
+    1,
+    2,
+    3,
+    4
+   ],
+   "clean": [
+    0.807,
+    0.7868,
+    0.7379,
+    0.49,
+    0.0473,
+    0.0023,
+    0.0001
+   ]
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "straight",
+   "sway_95_mm": 3.077,
+   "sway_mm": [
+    0,
+    0.25,
+    0.5,
+    1,
+    2,
+    3,
+    4
+   ],
+   "clean": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    0.9998,
+    0.9594,
+    0.7017
+   ]
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "sway_95_mm": 2.995,
+   "sway_mm": [
+    0,
+    0.25,
+    0.5,
+    1,
+    2,
+    3,
+    4
+   ],
+   "clean": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    0.9993,
+    0.9491,
+    0.6868
+   ]
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "straight",
+   "sway_95_mm": 4.186,
+   "sway_mm": [
+    0,
+    0.25,
+    0.5,
+    1,
+    2,
+    3,
+    4
+   ],
+   "clean": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    0.9989,
+    0.9667
+   ]
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "sway_95_mm": 4.127,
+   "sway_mm": [
+    0,
+    0.25,
+    0.5,
+    1,
+    2,
+    3,
+    4
+   ],
+   "clean": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    0.9985,
+    0.9618
+   ]
+  }
+ ],
+ "D": [
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": null,
+   "clean": 0.7035,
+   "missed": 0.5106,
+   "feasible": 0.9849,
+   "hangs": 1.0
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 1.0,
+   "clean": 0.7701,
+   "missed": 0.302,
+   "feasible": 1.0,
+   "hangs": 1.1596
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 1.5,
+   "clean": 0.8244,
+   "missed": 0.212,
+   "feasible": 1.0,
+   "hangs": 1.4163
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 2.0,
+   "clean": 0.869,
+   "missed": 0.1643,
+   "feasible": 0.9985,
+   "hangs": 2.1002
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 2.5,
+   "clean": 0.8114,
+   "missed": 0.2971,
+   "feasible": 0.9937,
+   "hangs": 3.5964
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": null,
+   "clean": 0.3309,
+   "missed": 2.7473,
+   "feasible": 0.7159,
+   "hangs": 1.0
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 1.0,
+   "clean": 0.6202,
+   "missed": 0.7646,
+   "feasible": 0.9738,
+   "hangs": 2.0997
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 1.5,
+   "clean": 0.6621,
+   "missed": 0.8996,
+   "feasible": 0.9315,
+   "hangs": 2.7532
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 2.0,
+   "clean": 0.5934,
+   "missed": 1.4723,
+   "feasible": 0.8563,
+   "hangs": 3.6325
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 2.5,
+   "clean": 0.4389,
+   "missed": 2.2826,
+   "feasible": 0.7655,
+   "hangs": 4.5201
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": null,
+   "clean": 0.1744,
+   "missed": 5.2939,
+   "feasible": 0.4566,
+   "hangs": 1.0
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 1.0,
+   "clean": 0.4702,
+   "missed": 2.1429,
+   "feasible": 0.8246,
+   "hangs": 3.0604
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 1.5,
+   "clean": 0.4511,
+   "missed": 2.8868,
+   "feasible": 0.7205,
+   "hangs": 3.6648
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 2.0,
+   "clean": 0.3609,
+   "missed": 3.8967,
+   "feasible": 0.6048,
+   "hangs": 4.278
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "straight",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 2.5,
+   "clean": 0.241,
+   "missed": 4.8532,
+   "feasible": 0.5021,
+   "hangs": 4.7638
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": null,
+   "clean": 0.5212,
+   "missed": 0.9288,
+   "feasible": 0.947,
+   "hangs": 1.0
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 1.0,
+   "clean": 0.625,
+   "missed": 0.5833,
+   "feasible": 0.9912,
+   "hangs": 1.4743
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 1.5,
+   "clean": 0.6626,
+   "missed": 0.5321,
+   "feasible": 0.9778,
+   "hangs": 2.1857
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 2.0,
+   "clean": 0.6389,
+   "missed": 0.6448,
+   "feasible": 0.961,
+   "hangs": 3.4122
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 2.5,
+   "clean": 0.5579,
+   "missed": 0.8431,
+   "feasible": 0.9496,
+   "hangs": 4.6004
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": null,
+   "clean": 0.2303,
+   "missed": 3.3096,
+   "feasible": 0.641,
+   "hangs": 1.0
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 1.0,
+   "clean": 0.4627,
+   "missed": 1.3559,
+   "feasible": 0.9092,
+   "hangs": 2.576
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 1.5,
+   "clean": 0.4591,
+   "missed": 1.7693,
+   "feasible": 0.8246,
+   "hangs": 3.4226
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 2.0,
+   "clean": 0.362,
+   "missed": 2.5534,
+   "feasible": 0.7241,
+   "hangs": 4.3222
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 2.5,
+   "clean": 0.2596,
+   "missed": 3.137,
+   "feasible": 0.66,
+   "hangs": 4.8672
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": null,
+   "clean": 0.1186,
+   "missed": 5.7764,
+   "feasible": 0.3972,
+   "hangs": 1.0
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 1.0,
+   "clean": 0.3281,
+   "missed": 3.0539,
+   "feasible": 0.7187,
+   "hangs": 3.4504
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 1.5,
+   "clean": 0.2918,
+   "missed": 3.998,
+   "feasible": 0.5915,
+   "hangs": 4.1048
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 2.0,
+   "clean": 0.2031,
+   "missed": 5.0523,
+   "feasible": 0.4736,
+   "hangs": 4.6527
+  },
+  {
+   "framing": "2x (1.5 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 2.5,
+   "clean": 0.1328,
+   "missed": 5.6489,
+   "feasible": 0.4119,
+   "hangs": 4.9436
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": null,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 1.0,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 1.5,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 2.0,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 2.5,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": null,
+   "clean": 0.9989,
+   "missed": 0.0013,
+   "feasible": 0.9999,
+   "hangs": 1.0
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 1.0,
+   "clean": 0.9997,
+   "missed": 0.0003,
+   "feasible": 1.0,
+   "hangs": 1.0012
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 1.5,
+   "clean": 0.9998,
+   "missed": 0.0003,
+   "feasible": 1.0,
+   "hangs": 1.0028
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 2.0,
+   "clean": 0.9999,
+   "missed": 0.0001,
+   "feasible": 1.0,
+   "hangs": 1.0054
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 2.5,
+   "clean": 0.9999,
+   "missed": 0.0001,
+   "feasible": 1.0,
+   "hangs": 1.0093
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": null,
+   "clean": 0.9669,
+   "missed": 0.0539,
+   "feasible": 0.9856,
+   "hangs": 1.0
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 1.0,
+   "clean": 0.9926,
+   "missed": 0.008,
+   "feasible": 1.0,
+   "hangs": 1.0342
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 1.5,
+   "clean": 0.9964,
+   "missed": 0.0037,
+   "feasible": 1.0,
+   "hangs": 1.0488
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 2.0,
+   "clean": 0.9986,
+   "missed": 0.0014,
+   "feasible": 1.0,
+   "hangs": 1.0703
+  },
+  {
+   "framing": "3x (2.5 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 2.5,
+   "clean": 0.9996,
+   "missed": 0.0004,
+   "feasible": 1.0,
+   "hangs": 1.1009
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": null,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 1.0,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 1.5,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 2.0,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "1 mm, 0.1 deg",
+   "threshold_mm": 2.5,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": null,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 1.0,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0001
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 1.5,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0001
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 2.0,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0001
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "2 mm, 0.2 deg",
+   "threshold_mm": 2.5,
+   "clean": 1.0,
+   "missed": 0.0,
+   "feasible": 1.0,
+   "hangs": 1.0001
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": null,
+   "clean": 0.9982,
+   "missed": 0.0022,
+   "feasible": 0.9994,
+   "hangs": 1.0
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 1.0,
+   "clean": 0.9996,
+   "missed": 0.0005,
+   "feasible": 1.0,
+   "hangs": 1.0026
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 1.5,
+   "clean": 0.9998,
+   "missed": 0.0002,
+   "feasible": 1.0,
+   "hangs": 1.0039
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 2.0,
+   "clean": 0.9999,
+   "missed": 0.0001,
+   "feasible": 1.0,
+   "hangs": 1.0062
+  },
+  {
+   "framing": "2 x 2x (3.0 in)",
+   "studs": "low warp",
+   "hang": "3 mm, 0.3 deg",
+   "threshold_mm": 2.5,
+   "clean": 1.0,
+   "missed": 0.0001,
+   "feasible": 1.0,
+   "hangs": 1.0091
+  }
+ ],
+ "hypotheses": {
+  "H10": {
+   "held": false,
+   "best": {
+    "framing": "2x (1.5 in)",
+    "studs": "straight",
+    "hang": "1 mm, 0.1 deg",
+    "threshold_mm": 2.0,
+    "clean": 0.869,
+    "missed": 0.1643,
+    "feasible": 0.9985,
+    "hangs": 2.1002
+   }
+  },
+  "H11": {
+   "held": true,
+   "s_theta_deg": 0.5365,
+   "s_x_mm": 10.414
+  },
+  "H12": {
+   "held": true,
+   "sway_2x_straight_mm": 0.187,
+   "sway_2x2x_low_mm": 4.127
+  }
+ }
+}

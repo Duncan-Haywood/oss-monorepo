@@ -187,7 +187,9 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    grading limits and published means; bow closes single-2x joints, wider joint framing reopens them.
    Still open: measured stud profiles in place of means.
 3. Placement in MuJoCo: the sheet pose a G1/H1 co-hold, a lift and a ledger guide leave.
-4. Tack-then-measure: two tack nails in the field, then measure the edge and aim the joints.
+4. **Tack-then-measure** (done 2026-11-12, `experiments/m4_tack_measure/`): the hang allowed is
+   0.03° and 0.4 mm on single 2x joints and 0.54° and 10 mm on doubled ones; re-hanging cannot
+   lift single-2x joints to 95%. Run before milestone 3, to give it a target.
 5. End-to-end cycle: placement, sensing, recoil and sequence, seconds and clean sheets.
 6. Sim-to-sim on a second contact model.
 7. Cost per clean sheet by robot class.
