@@ -209,7 +209,8 @@
       {
         "file": "ventures/einvoice-preflight/src/einvoice_preflight/cli.py",
         "issue": "The Python CLI never reads CustomizationID, so it cannot drop INV-022/INV-035 under PINT profiles as report.mjs does: OpenPeppol's PINT JP example still draws both from Python. Fix needs: read CustomizationID in ubl.py, map it to the profile families report.mjs uses (pint, pint-jp/my/ae/om), and drop the same rule ids in cli.py; test against examples/pint-current-*.xml.",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15200"
       }
     ]
   },

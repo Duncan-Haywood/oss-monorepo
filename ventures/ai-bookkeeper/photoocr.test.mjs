@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readPhotos, settleReadings, PASSES, OCR_URLS } from "./photoocr.mjs";
+import { readPhotos, settleReadings, guessedTotal, PASSES, OCR_URLS } from "./photoocr.mjs";
 
 const png = (name) => ({ name, type: "image/png" });
 const engine = (texts) => { let i = 0; return { closed: false, recognize: async () => texts[i++], close() { this.closed = true; } }; };
@@ -80,4 +80,14 @@ test("one reading, or an empty second one, is the first reading tidied", () => {
   assert.equal(settleReadings(["Cafe\n\nTotal l0.62  "]).text, "Cafe\nTotal 10.62");
   assert.equal(settleReadings(["Cafe\nTotal 5.00", ""]).text, "Cafe\nTotal 5.00");
   assert.equal(settleReadings([]).text, "");
+});
+
+test("a photo with no total line says its total is only a guess", () => {
+  // on CORD's phone photos the largest-amount guess was right 11 times in 30
+  const r = settleReadings(["Kopi 20,000\nNasi 25,000\n50,000", "Kopi 20,000\nNasi 25,000\n50,000"]);
+  assert.match(r.note, /no total line found in the photo; 50000\.00 is only the largest amount on it: check the total/);
+  assert.equal(guessedTotal("Cafe\nTotal 3.50"), null);
+  assert.match(guessedTotal("Cafe\nthank you"), /no total found/);
+  // a settled photo with a total line has no note, as before
+  assert.equal(settleReadings(["KEDAI MAJU\nTotal 12.00", "KEDAI MAJU\nTotal 12.00"]).note, null);
 });

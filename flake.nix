@@ -39,6 +39,7 @@
       "jwt-verification-misuse-check" = tool "jwt-verification-misuse-check" "Free, read-only heuristic scanner that reads your own JavaScript/TypeScript, Python, Go and Java source for JWT verification misuse -- jwt.decode where verify is needed, signature checks switched…";
       "k8s-pod-security-check" = tool "k8s-pod-security-check" "Free, read-only heuristic scanner that reads your own Kubernetes Pod, Deployment, StatefulSet, DaemonSet, Job and CronJob manifests for risky pod and container security settings -- privileged…";
       "pinned-actions-check" = tool "pinned-actions-check" "Free, read-only checker that scans a repository's GitHub Actions workflow files and flags third-party actions referenced by a mutable tag (@v4, @main) instead of a pinned 40-character commit SHA,…";
+      "systemd-unit-hardening-check" = tool "systemd-unit-hardening-check" "Free, read-only checker that reads your own systemd .service files with their NAME.service.d drop-ins merged in systemd order, for services running as root, missing sandboxing (NoNewPrivileges,…";
         };
     in {
       packages = forAll toolsFor;

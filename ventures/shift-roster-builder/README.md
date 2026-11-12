@@ -733,3 +733,75 @@ What the proof changed in what the pages say, not only in the digits:
 Restaurant, retail, salon, daycare and the hiring test were already the same under both. The five open shifts on the proven café week are the weekday 11:00-14:00 lunches (everyone free then is at their weekly limit), so the pages now say which shifts and why.
 
 Not claimed: the call-out and posted-schedule studies' individual rebuilds are not each asserted proven (about 60 builds); the 8-week rotation and the café rows are. The exact check runs under a time budget above 60 copies; every week here is 16-32 shifts and proves in 0.3-2.6 s on one cloud machine, so the figures should not depend on machine speed, but a much slower machine could in principle stop early. The guide page tests now take longer (the `page*.test.mjs` files took 89 s together on one 4-core cloud machine, all 50 passing).
+
+## Open hours come in whole shifts (2026-11-12)
+
+The guide-page section above left one thing unchecked: the call-out and posted-schedule studies' individual rebuilds were not each asserted proven. They now report the exact check's status on every rebuild (`eval/callout-cover-study.mjs` and `eval/callout-churn-bench.mjs` print it), and an independent ILP checks the call-out weeks' open hours (`eval/callout-ilp-export.mjs` dumps the 59 weeks with their hard rules; `eval/callout-ilp-check.py` solves each with HiGHS through scipy: availability with the day off, one person per shift copy, the 10 h rest gap, weekly and daily caps and at most 6 days in a row; no pay terms).
+
+| study | rebuilds | proven (optimal or improved) | open hours against the ILP |
+|---|---|---|---|
+| posted schedule (`page-posted.test.mjs`) | posted week + 4 | 5 of 5 | (not run; all proven) |
+| call-out, sample café (`page-callout.test.mjs`) | 27 | 27 of 27 | equal on 27 |
+| call-out, with a spare part-timer | 32 | **30 of 32** before, see below | equal on 32 |
+
+The two unproven weeks were Cleo off Saturday and Eli off Saturday with the spare part-timer: 3 h open (one weekday lunch), and the ILP proves 3 h is least in 0.1 s. The engine's floor stopped at 2 h, took 39-41 s, and called the week "bounded" with a $99,976 gap, which is one open hour at the 100,000-per-hour coverage weight. The roster was right; the proof was not.
+
+The reason is arithmetic, not search. Open hours are a sum of whole shifts: a shift is held or it is open. The café's shifts are 3, 8 and 10 hours long, so no set of open shifts adds up to 2 h, and a floor of 2 h means at least 3 h. The engine already rounded its floor up to the shared hour grid (whole hours here), which cannot see that. Now `openSumLift` (calc.mjs) rounds every open-hours floor in `exactSearch` up to the least subset sum of the week's shift lengths at or above it: the priced floor, the branch on that price, the branch-and-price floor, and every node bound of the coverage tree and the score tree. A small subset-sum table (quarter-hour units, up to one shift past the incumbent's open hours) makes each lift one lookup. Lengths off the quarter-hour grid leave the floor as it was. `openSums: false` turns it off.
+
+| week (spare part-timer) | before | after |
+|---|---|---|
+| Cleo off Sat | 41.2 s, floor 2 h, coverage not proven, gap $99,976 | 28.0 s, floor 3 h, **coverage proven**, gap $647 (0.21%) |
+| Eli off Sat | 38.6 s, floor 2 h, coverage not proven, gap $99,977 | 27.3 s, floor 3 h, **coverage proven**, gap $549 (0.18%) |
+
+Both still end "bounded" on the whole score: the pay part of the bound is $549-647 short. The whole-score column generation does not see the lifted floor (its master LP lets 3/8 of an 8 h shift stand in for the open lunch), so it reports 204,094 against the exact search's 303,423. Feeding it the floor needs a knapsack row (sum of open hours at least the floor) in `bnp.mjs`, whose simplex assumes 0/1 columns and right-hand sides of 1; that is the next step here. (Done the same day: next section.) Same rosters, open hours and pay on every one of the 59 weeks before and after (`eval/callout-ilp-check.before.txt`, `eval/callout-ilp-check.out.txt`), and the full venture suite passes unchanged.
+
+Tests: `open-sums.test.mjs` (the lift against a brute-force subset sum on 200 random length sets, never below the floor it is given; the Cleo week proven on coverage with the lift and not without it), `page-callout.test.mjs` (all 27 sample rebuilds proven) and `page-posted.test.mjs` (the posted week and its four rebuilds proven). Not claimed: the spare-part-timer rebuilds are not asserted proven in their test, since two stay bounded on pay; one cloud machine; the lift only bites where the floor falls between two reachable sums, which needs open hours made of few, uneven shifts (a lunch cover, a short close); the 20-60 person benches were not re-measured with it, and with many shifts of 4-12 h most whole hours are reachable sums, so it should matter less there.
+
+## The open-hours row in the score LP (2026-11-12)
+
+The section above left two call-out weeks (spare part-timer, Cleo or Eli off Saturday) proven on coverage, 3 h open, but "bounded" on pay, $549-647 short, after 38-41 s. The whole-score column generation's master LP let 3/8 of an 8 h shift stand in for the 3 h lunch that must stay open, so its bound sat one open hour (100,000) below the roster.
+
+**What changed.** `columnGenerationOpen` (bnp.mjs) takes `openFloor` F, a floor on open hours already proven for every roster, and adds the knapsack row "open shift hours >= F" to every node's master LP. The simplex assumed 0/1 columns and right-hand sides of 1; `solveLP` now takes `vals`, per-column coefficients, and the row is scaled to a right-hand side of 1 (len[s] / F on each open-shift column, a surplus column at -1). The surplus starts basic, since with every shift open the row's left side is total hours / F >= 1; an artificial there would start negative, and the first version did exactly that and returned a bound of 0. The row touches only open-shift columns, so the pricing oracles are unchanged, and since it holds for every roster every bound stays valid.
+
+In `buildRoster`, when the first whole-score column generation does not prove the roster, the exact search computes its open-hours floor (priced, branched, lifted to whole-shift sums) and then calls back with it before its own score tree. If 100,000 x that floor is above the first pass's bound, column generation runs again with the row; when its bound reaches the best roster, the tree is skipped and the roster is proven. `optimality.openRow` reports the floor, the root LP, the bound and the time. `openRow: false` turns it off.
+
+| week (spare part-timer, default options) | before | after |
+|---|---|---|
+| Cleo off Sat | 27.4 s, bounded, lower bound 303,423, gap $647 | 19.6 s, **proven** ("improved"); row's root LP 304,070.57 against 304,070.6, 1 node, 0.15 s |
+| Eli off Sat | 27.3 s, bounded, gap $549 | 19.6 s, **proven**; root LP 304,005.02, 1 node, 0.19 s |
+
+("Before" is the code with the lift and no row: Cleo measured in this run with `openRow: false`, Eli as the section above reported it; both were 38-41 s before the lift.) The call-out study (`node eval/callout-cover-study.mjs`, `eval/callout-cover-study.out.txt`): the sample's 27 rebuilds 27 of 27 proven as before, the spare part-timer's 32 rebuilds now **32 of 32** (was 30 of 32), with the same covered counts (15 of 27, 20 of 32) and the same moves.
+
+Re-measured where the row could fire: weeks of up to 60 copies, where the exact search runs. The 6-15 person benches (15 weeks) and the four templates give the same rosters and scores as `eval/auto-exact.out.txt` (`eval/auto-exact-open-row.out.txt`); the first column generation already proves every one, so the row never ran. The 20-60 person benches are above 60 copies, where the exact search is skipped and no proven floor exists to feed the row; they are unchanged by construction and were not re-run.
+
+Tests: `open-row.test.mjs` (a hand LP whose answer is known at three floors; on 399 seeded three-person weeks with 3, 8 and 10 h shifts and 8-16 h caps, the brute-force least open hours as the row never lifts the root LP or the floor above the brute-force best score and never lowers the root LP; it raised the root LP on the weeks where whole shifts matter, and a full search with the row reaches the brute-force best there), `open-sums.test.mjs` (the Cleo week now proven, through the row). Same run, a test fix: `keep-shifts.test.mjs` read `b.bound` from the score column generation, which returns `floor`, so its "bound stays below the brute-force best" check never ran; it reads `floor` now and passes.
+
+Not claimed: two weeks changed, both from the call-out study; on every other week measured the row did not run. The first, row-less column generation still spends its full 8 s on those weeks before the floor is known, and the exact search's floor stages take about 9.7 s more; feeding the floor earlier would cut that. Above 60 copies there is no proven floor yet to feed. One cloud machine.
+
+## Keep people on their usual shifts (2026-11-12)
+
+The planner (and the plan reuse above) asked how often weeks repeat once dated leave spreads through a month. Measured with `node eval/steady-plan.mjs 5 4` (readings in `eval/steady-plan.out.txt`), the answer was "rarely", and that exposed a worse problem. When a week has someone off, the rebuild finds a roster as good as any on paper, but it moves people who were not off. On the café sample with Ana off on Tuesday and Ben on Friday of week 3, the proven rebuild changed 15 person-shifts going into week 3, among them a swap of Dev's and Gus's weekend opens that no time off required. It changed 15 more going back.
+
+**What changed.** `buildRoster` takes `keep` (person name to the shifts they had, each `slotKey`: day, start, end, role) and `keepValue`. Each hour someone works one of their keep shifts earns `keepValue` x their wage in the score, the same way a `prefer:` hour does. It runs through `preferBonus`, so the annealer, the exhaustive search's suffix bound, the pricing oracles and column generation all see it. The bonus is a fraction of a wage and an open hour costs `BIG`, so a proven roster never leaves an hour open to keep someone in place. An unproven one is checked: if a build without the bonus leaves fewer hours open, that build is returned (`keepChecked`). With the exact check off, one sample plan had left 5 more hours open with the bonus. `planWeeks` with `keepValue > 0` first builds the usual week (the staff text with dated days off left out, bonus off), then builds every planned week with that week as `keep`.
+
+Anchoring on the week before was tried first and dropped. It carried week 3's reshuffle into week 4 (5 of its 16 changes were week 4 not going back). `keepFromCsv` reads a roster CSV (role-free keys) for one-week builds. On the CLI that is `--keep-shifts 0.1` with `--weeks` or `--last-week`. On the page it is "Keep people on their usual shifts", default **Yes (0.1)**, applied to "Plan several weeks" and to a build after "Carry over last week". The CLI and `planWeeks` default to 0, so the guide pages and every existing figure are unchanged.
+
+Five invented teams (café sample, café, salon, retail and clinic templates), 4 weeks, leave scattered at random on each person-day at the rate shown, 5 draws, page settings, exact check on (100 weeks per row):
+
+| days off | keepValue | changes week to week | forced | off the usual rota | open h | pay |
+|---|---|---|---|---|---|---|
+| 0 | 0 / 0.05 / 0.1 / 0.25 | 0 | 0 | 0 | 700 | $287,840 (all the same) |
+| 2% | 0 | 617 | 25 | 496 | 785 | $286,537 |
+| 2% | 0.1 | 170 | 26 | 119 | 785 | $286,423 |
+| 4% | 0 | 1,022 | 67 | 1,000 | 952 | $283,733 |
+| 4% | 0.1 | 378 | 64 | 298 | 952 | $283,542 |
+| 8% | 0 | 1,226 | 106 | 1,265 | 1,147 | $280,042 |
+| 8% | 0.1 | 536 | 107 | 439 | 1,147 | $279,496 |
+
+"Changes" counts person-shift pairs that differ from the week before (adds plus drops). "Forced" counts the drops whose holder is off that day. "Off the usual" counts, over all weeks, the pairs that differ from the usual week. Changes fell 56-72% and distance from the usual week fell 65-76%. Open hours were the same in all 15 leave-rate x setting comparisons, all 1,600 planned weeks were proven, and pay moved under 0.2%, always down. 0.05 and 0.25 land within a few percent of 0.1 (see the out file), so the page's two levels are 0.1 and 0.25. Cost: a plan took 20-42% longer, mostly the extra build of the usual week (reuse is the same or higher with the bonus: 18 against 15 weeks reused at 2%). With no time off, plans and reuse are unchanged (`keep-shifts.test.mjs`).
+
+With the exact check off (`EXACT=off`), the same sweep was started but stopped unfinished in this run to free the machine for the test suite, so there is no reading for the quick search. The unproven-roster check above exists because of that case.
+
+Tests (`keep-shifts.test.mjs`): on 24 seeded tiny weeks with random keep maps and keepValue 0.1/0.25/1, the exact search returns the brute-force best score over every owner array, and the column-generation score bound stays below it. keepValue 0 or no map gives the same roster as before. On the four templates, keeping a rough roster never opens more hours than the proven build. `keepFromCsv` matches `keepFrom`. The café plan above is pinned with the guide page's figures (`keep-a-consistent-schedule-when-someone-is-off.html`). The CLI path is covered as well.
+
+Not claimed: the leave rates are swept, not read from real leave records (UCI's absenteeism dataset and BLS absence tables were not reachable from this host). The teams are invented. "Changes" counts pairs and does not weight a moved close against a moved lunch. Whether staff notice, or managers prefer the steadier plan, is unmeasured.

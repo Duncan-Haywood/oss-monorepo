@@ -306,6 +306,7 @@ def selfcal_fixed_analytic(obs, size, f0, nk=1, ref=0, max_nfev=2000, keep_resid
                         max_nfev=max_nfev, xtol=1e-12, ftol=1e-12, gtol=1e-10)
     out = _summarise(sol, ni, nk, ref)
     out.update(robust_sf(np.asarray(sol.jac), sol.fun, nv, npt))
+    out["cov_intr_cr_view"] = cov_cr_view(np.asarray(sol.jac), sol.fun, nv, npt, ni).tolist()
     out["planarity"] = planarity(np.insert(sol.x[ni + 6 * (nv - 1):], 2, X[0, 2]).reshape(npt, 3))
     if keep_resid:
         out["resid"] = sol.fun.reshape(nv, npt, 2)
@@ -339,6 +340,35 @@ def robust_sf(J, r, nv, npt):
             G = len(c)
             out["sf_cr_" + name] = float(np.sqrt(G / (G - 1) * c @ c))
     return out
+
+
+def cov_cr_view(J, r, nv, npt, ni):
+    """Milestone 4b: the full sandwich covariance of the first ni parameters (the
+    intrinsics), clustered by view, with the small-sample factor G / (G - 1).
+
+    Influence of residual i on parameter j: U[i, j] = (J (J^T J)^-1)[i, j] r_i; the view
+    sums s_g = sum over the view's residuals of U, and cov = G/(G-1) sum_g s_g s_g^T.
+    The generalisation of robust_sf's sf_cr_view to a matrix (its [0, 0] is sf_cr_view^2)."""
+    sc = np.linalg.norm(J, axis=0)
+    sc[sc == 0] = 1.0
+    Js = J / sc
+    E = np.zeros((J.shape[1], ni)); E[np.arange(ni), np.arange(ni)] = 1.0
+    B = np.linalg.lstsq(Js.T @ Js, E / sc[:, None], rcond=None)[0] / sc[:, None]   # (J^T J)^-1 E
+    U = (J @ B) * r[:, None]
+    S = U.reshape(nv, npt * 2, ni).sum(axis=1)
+    return (nv / (nv - 1)) * S.T @ S if nv > 1 else np.full((ni, ni), np.nan)
+
+
+def jackknife_cov(thetas):
+    """Milestone 4b: the leave-one-out jackknife covariance (m - 1)/m sum (t_i - mean)(t_i - mean)^T
+    of the m delete-one estimates (rows of thetas); rows with a non-finite entry are dropped."""
+    a = np.asarray(thetas, float)
+    a = a[np.all(np.isfinite(a), axis=1)]
+    m = len(a)
+    if m < 2:
+        return np.full((a.shape[1], a.shape[1]), np.nan)
+    d = a - a.mean(axis=0)
+    return (m - 1) / m * d.T @ d
 
 
 def jackknife_sf(obs, size, f0, nk=1, max_nfev=2000):

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%235f1b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Keep A Consistent Work Schedule When Someone Is Off</title>
+  <meta name="description" content="A day off should move the shifts it has to, not reshuffle the whole week. Measured on invented small-business teams over a month of scattered time off: how many shifts a plain rebuild moves, and how many a keep-the-usual-rota setting moves. Free, private roster builder included.">
+  <meta property="og:title" content="One day off, how many changed shifts?">
+  <meta property="og:description" content="A plain rebuild reshuffles people who were not off. Measured with the free roster builder.">
+  <link rel="canonical" href="./keep-a-consistent-schedule-when-someone-is-off.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I keep a consistent schedule when someone takes time off?", "acceptedAnswer": {"@type": "Answer", "text": "Start from the usual rota and move only the shifts the person who is off cannot work, then put everyone back on their usual shifts the week after. A scheduler that rebuilds the week from scratch often finds an equally good roster that moves people who were not off. The free roster builder's \"Keep people on their usual shifts\" setting scores each usual shift kept, so the rebuild moves fewer of them without leaving a shift open."}}, {"@type": "Question", "name": "Does keeping a consistent schedule cost more?", "acceptedAnswer": {"@type": "Answer", "text": "On the invented teams we measured, it left exactly the same hours uncovered and changed the month's payroll by a fraction of a percent. The setting is a small bonus per kept hour, far below the cost of an open shift, so it never leaves a shift open to keep someone in place."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f5f86; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f5f86; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; Shift roster builder</a></p>
+  <h1>One person is off on Tuesday. Why did four people's weeks change?</h1>
+  <p>When someone books a day off, the honest fix is small: find cover for their shift and leave everyone else alone. A scheduler that rebuilds the week from scratch does not know what "everyone else alone" means. It finds a roster that is just as good on paper and hands it out, and people who asked for nothing find their closes moved. Do that every time someone is off and the schedule stops being something staff can plan around.</p>
+  <p><a class="cta" href="./">Open the free roster builder</a></p>
+  <h2>One café, one week with two days off</h2>
+  <p>The roster builder's built-in invented example: a seven-person café, 32 shifts a week. We planned four weeks in a row. In week 3, Ana is off on Tuesday and Ben on Friday. Every week was built with the builder's exact check on, and each roster is the best possible under its settings.</p>
+  <div class="scroll"><table>
+    <tr><th>Week 3, compared with the usual week</th><th class="n">Plain rebuild</th><th class="n">Keep people on their usual shifts</th></tr>
+    <tr><td>Person-shifts changed going into week 3</td><td class="n">15</td><td class="n">11</td></tr>
+    <tr><td>Changed again going back in week 4</td><td class="n">15</td><td class="n">11</td></tr>
+    <tr><td>Hours left uncovered, whole month</td><td class="n">62</td><td class="n">62</td></tr>
+    <tr><td>Payroll, whole month</td><td class="n">$14,722</td><td class="n">$14,722</td></tr>
+  </table></div>
+  <p>A "person-shift changed" is one person gaining or losing one shift. Ana's Tuesday open and Ben's Friday close must move whatever you do. The plain rebuild also swapped two Saturday and Sunday opens between Dev and Gus, which nobody's time off required. The keep setting left those alone. The café is tight (it already leaves its weekday lunches open), so most of the remaining changes are a chain: Dev takes Ana's Tuesday open, so Dev's Tuesday close goes to Ben, and so on.</p>
+  <h2>A month of scattered time off, five teams</h2>
+  <p>One week can be luck, so we ran more. We used the builder's five invented teams (the café example and the café, salon, retail and clinic templates) and planned four weeks for each. Days off were scattered at random at three rates, five different draws each, giving 100 planned weeks per row. "Changes" counts person-shifts that differ from the week before. "Off the usual" counts, over all four weeks, the person-shifts that differ from the week with nobody off. "Forced" counts the shifts whose holder was off that day, which had to move whatever you do.</p>
+  <div class="scroll"><table>
+    <tr><th>Days off</th><th>Setting</th><th class="n">Changes</th><th class="n">Forced</th><th class="n">Off the usual</th><th class="n">Hours uncovered</th><th class="n">Payroll</th></tr>
+    <tr><td>2% of person-days</td><td>Plain rebuild</td><td class="n">617</td><td class="n">25</td><td class="n">496</td><td class="n">785</td><td class="n">$286,537</td></tr>
+    <tr><td></td><td>Keep usual shifts</td><td class="n">170</td><td class="n">26</td><td class="n">119</td><td class="n">785</td><td class="n">$286,423</td></tr>
+    <tr><td>4%</td><td>Plain rebuild</td><td class="n">1,022</td><td class="n">67</td><td class="n">1,000</td><td class="n">952</td><td class="n">$283,733</td></tr>
+    <tr><td></td><td>Keep usual shifts</td><td class="n">378</td><td class="n">64</td><td class="n">298</td><td class="n">952</td><td class="n">$283,542</td></tr>
+    <tr><td>8%</td><td>Plain rebuild</td><td class="n">1,226</td><td class="n">106</td><td class="n">1,265</td><td class="n">1,147</td><td class="n">$280,042</td></tr>
+    <tr><td></td><td>Keep usual shifts</td><td class="n">536</td><td class="n">107</td><td class="n">439</td><td class="n">1,147</td><td class="n">$279,496</td></tr>
+  </table></div>
+  <p>At every rate the plain rebuild moved many times more shifts than the time off forced. Keeping the usual shifts cut the week-to-week changes by 56% to 72%, and the distance from the usual week by 65% to 76%. Uncovered hours were the same in every one of the 15 comparisons. Payroll moved by less than 0.2%, and it went down rather than up: among rosters that cover the same hours, the keep setting happened to pick slightly cheaper ones. Every planned week in the run (1,600 across all rates and settings) was proven best under its settings. With nobody off, the setting changes nothing. The cost is time: a plan took 20% to 42% longer, because the usual week is built first. The rates are swept, not taken from real leave records, and the teams are invented.</p>
+  <p><a class="cta" href="./">Plan a month with your own time off</a></p>
+  <h2>How it works</h2>
+  <p>"Plan several weeks in a row" first builds your usual week, with the dated days off left out. Every planned week then scores a small bonus for each hour someone works one of their usual shifts. The bonus is a tenth of their wage an hour ("Yes, firmly" is a quarter). Leaving a shift open costs far more than any bonus, so the setting never leaves a shift open to keep someone in place. When two rosters cover the same hours for about the same money, it picks the one that looks like the usual week. The week after the time off, the usual week wins again, so people go back to their own shifts.</p>
+  <p>On a single week, load last week's roster CSV with "Carry over last week" and the same setting keeps people on last week's shifts. On the command line it is <code>--keep-shifts 0.1</code>, with <code>--weeks</code> or <code>--last-week</code>.</p>
+  <h2>Doing it by hand</h2>
+  <h3>1. Write down the usual week once</h3>
+  <p>Keep a copy of the rota you would run with nobody off. That is the week you change from and go back to.</p>
+  <h3>2. Move only the shifts the time off touches</h3>
+  <p>Cover the absent person's shifts with someone already free at that time. Only move a second person if nobody free can take it, and stop as soon as the gap is filled.</p>
+  <h3>3. Go back the week after</h3>
+  <p>Don't carry a one-off reshuffle into the next week. Start again from the usual week.</p>
+  <h2>Questions</h2>
+  <h3>How do I keep a consistent schedule when someone takes time off?</h3>
+  <p>Start from the usual rota and move only the shifts the person who is off cannot work, then put everyone back on their usual shifts the week after. A scheduler that rebuilds the week from scratch often finds an equally good roster that moves people who were not off. The free roster builder's "Keep people on their usual shifts" setting scores each usual shift kept, so the rebuild moves fewer of them without leaving a shift open.</p>
+  <h3>Does keeping a consistent schedule cost more?</h3>
+  <p>On the invented teams we measured, it left exactly the same hours uncovered and changed the month's payroll by a fraction of a percent. The setting is a small bonus per kept hour, far below the cost of an open shift, so it never leaves a shift open to keep someone in place.</p>
+  <p class="note">Figures from the builder's own engine on invented teams (12 November 2026), with the exact check on. Your team's availability decides how much a day off has to move. Check the rules where you operate for any notice or premium owed when a posted schedule changes; see <a href="schedule-change-after-posting.html">changing a posted schedule</a>.</p>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not tell you what scheduling law requires of you. The examples are invented and the numbers come from running this tool's own engine on them.</p>
+    <p>Everything the roster builder does runs in your browser; your staff list is never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. See also <a href="how-to-handle-time-off-requests.html">how many time-off requests you can grant</a> and <a href="how-to-cover-a-shift-when-someone-calls-out.html">covering a call-out</a>.</p>
+  </footer>
+</body>
+</html>

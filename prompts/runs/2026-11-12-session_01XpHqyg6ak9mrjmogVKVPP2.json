@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyg6ak9mrjmogVKVPP2",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T17:39:07Z",
+  "ended": "2026-11-12T18:10:35Z",
+  "wall_minutes": 31.73,
+  "tokens_in": 8276922,
+  "tokens_out": 42451,
+  "cost_usd": 3.6414,
+  "tool_calls": 70,
+  "task": "research/sensing-selfcal milestone 4b: a view-level (jackknife, clustered sandwich) covariance for the camera update test, on two corner detectors",
+  "projects": [
+    "sensing-selfcal"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15204",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First m4b run.py import collided with experiments/m6_detector/run.py (both modules named `run`, circular import); fixed by loading sibling run.py files with importlib."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "The draw sent the run to hanger-codesign while an open PR (#15184, opened 75 min earlier) already claimed its next milestone; every other FOCUS programme had a merge within hours, so the run had to check LOG.md and open PRs for six programmes by hand to find a free one (sensing-selfcal). A redraw that skips claimed programmes would save that."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "why": "drawn programme hanger-codesign was claimed by open PR #15184",
+      "did": "took sensing-selfcal (track 15 programme, no open PR, last merge earlier the same day) and its README's next step after milestone 4",
+      "result": "landed milestone 4b with five of five pre-registered predictions held"
+    },
+    {
+      "file": "research/sensing-selfcal/experiments",
+      "why": "raw results.json was 12 MB, larger than any tracked research file",
+      "did": "kept only the fields analyse.py needs and gzipped it (3.1 MB); analyse.py output byte-identical before and after",
+      "result": "reproducible from one command per figure"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-an-honest-camera-update-test-is-a-blind-one.md",
+    "research/sensing-selfcal/LOG.md (milestone 4b plan and result)",
+    "research/sensing-selfcal/README.md (Milestone 4b section)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered H23-H27 committed and pushed (181dac794) before any solve. 8,580 target-free BA solves (2 detectors x 2 cameras x 2,145 view sets), 4 not converged (3-view sets). Jackknife covariance: false alarms 2.5% (11x11 corners) / 1.7% (SB) at nominal 1% with no borrowed factor; 2% focal change detected 7-12% at 6 views; unit swap 30% -> 75% with SB corners. Checks run locally: pytest 20 passed; research/_homepage/build.py ok; check_md_links ok; programme_check ok; research_live_links --write; post front matter, links and similarity ok. No new citations, so cite_check not rerun.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "74a804d0-7347-5a4e-9341-99d34a22fddc",
+    "transcripts": 1,
+    "first": "2026-11-12T17:39:07Z",
+    "last": "2026-11-12T18:10:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 128,
+        "output": 42451,
+        "thinking": 9390,
+        "cache_read": 8131094,
+        "cache_write_5m": 0,
+        "cache_write_1h": 145700,
+        "api_equivalent_usd": 3.6414,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 128,
+      "output": 42451,
+      "thinking": 9390,
+      "cache_read": 8131094,
+      "cache_write_5m": 0,
+      "cache_write_1h": 145700,
+      "api_equivalent_usd": 3.6414,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 63,
+      "Write": 3,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 31.73,
+      "active_minutes": 31.73,
+      "model_minutes": 6.83,
+      "tool_minutes": 24.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a research engineer designing, running and writing up a pre-registered 8,580-solve calibration study",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 274.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -120,6 +120,21 @@ class Evasions(unittest.TestCase):
             with self.subTest(line=line):
                 self.assertTrue(check_social_proof.check(line))
 
+    def test_attribution_far_before_the_claim_does_not_excuse_it(self):
+        # Red team 2026-11-12: the window was only tested after the claim; a slice
+        # starting at 0 (min for max) let a header "for example" excuse the page.
+        page = "<p>Enter amounts, for example 12.50</p>" + "<p>Plain words.</p>" * 20 + "<p>Trusted by 5,000 shops</p>"
+        self.assertTrue(check_social_proof.check(page))
+
+    def test_attribution_window_reaches_exactly_near_chars_before(self):
+        # "says" opens the line; the claim starts `start` characters in. The window
+        # reaches NEAR characters back, so it starts on the "s" of "says" or just past it.
+        near = 120  # the docstring promises 120 characters; read from the module, a mutant would move with it
+        for start, flagged in ((near, False), (near + 1, True)):
+            line = "says " + "x" * (start - 5) + "trusted by 5,000 shops"
+            with self.subTest(start=start):
+                self.assertEqual(bool(check_social_proof.check(line)), flagged)
+
     def test_code_span_attribution_survives_normalising(self):
         self.assertEqual(check_social_proof.check(
             "<li>Flags <code>trusted by 5,000</code> in copy</li>"), [])

@@ -328,6 +328,14 @@ function lineTaxAmount(line) {
   return taxTotal ? textOf(taxTotal, "TaxAmount", false) : "";
 }
 
+// The line's own amount with VAT where PINT states one: UAE's BTAE-10, Oman's BTOM-017,
+// cac:ItemPriceExtension/cbc:Amount. "" when absent.
+function lineAmountWithVat(line) {
+  const extension = line.children.find((child) => child.name === "ItemPriceExtension");
+  const amount = extension ? extension.children.find((child) => child.name === "Amount") : null;
+  return amount ? amount.text.trim() : "";
+}
+
 function billingReference(root) {
   for (const ref of descendants(root, "BillingReference")) {
     for (const invoiceRef of descendants(ref, "InvoiceDocumentReference")) {
@@ -360,6 +368,7 @@ export function parseUblInvoice(source) {
       tax_percent: percent === "" ? "" : asNumber(percent),
       net: asNumber(textOf(line, "LineExtensionAmount")),
       ...(parseDecimal(lineTaxAmount(line)) !== null ? { tax_amount: parseDecimal(lineTaxAmount(line)) } : {}),
+      ...(parseDecimal(lineAmountWithVat(line)) !== null ? { amount_with_vat: parseDecimal(lineAmountWithVat(line)) } : {}),
       ...(baseQuantity ? { price_base_quantity: asNumber(baseQuantity) } : {}),
       ...(adjustments.length ? { adjustments } : {}),
       ...taxCategoryFields(category),

@@ -1321,3 +1321,37 @@ file is read as two-light. Temperature and tint match colour-science's Robertson
 (to 6e-15 and 5e-13), and spectra give colour-science's xy on 20 CIE illuminants within 5e-5
 (`tools/triple_illuminant_check.py`). The weights were not compared value for value with the
 SDK's output, and no real DNG 1.6 profile has been read yet.
+
+## Phone DNGs: the lens shading map, and camera DNGs against LibRaw (2026-11-12)
+
+Android phones write their raw files uncorrected and store the lens shading they measured in
+the DNG's `OpcodeList2` as four `GainMap`s, one per Bayer position. Ignore them and the corners
+come out at about a third of their brightness, tinted. `shootflow develop` now runs `GainMap`
+(`shootflow.dng_opcodes`, the DNG specification's rectangle, pitch and map coordinates, gain
+bilinear between map points, capped at white) on both engines, byte-identical, and names every
+other opcode in the report (`"OpcodeList3: 1 x WarpRectilinear (required) not applied"`).
+`--no-opcodes` turns it off. On a real LG Nexus 5X DNG the gains run 1.00 at the centre to 3.8
+in the corners, different per colour. Picture: `docs/reports/img/photo-editing-2026-11-12-gainmap.jpg`
+in the repository.
+
+The first three camera-written DNGs read against LibRaw (`tools/dng_camera_check.py`, opcodes
+off on both sides, since rawpy's LibRaw does not run them): Nexus 5X, Leica T and Pentax Q-S1
+match to a median 0.105, 0.027 and 0.023 of an 8-bit step through dcraw's colour method, with
+the same black, white and white balance. Correctness of the gain map itself is checked on
+synthetic files, including a linear map whose flat-field answer is known in closed form; it
+has not been compared with an Adobe render. Details: `eval/camera-dngs-2026-11-12.md`.
+
+## Lens distortion from the DNG: WarpRectilinear (2026-11-12)
+
+Cameras with corrected lenses store the correction in the DNG's `OpcodeList3` as a
+`WarpRectilinear`. It has a radial polynomial per colour plane, so it covers both distortion and
+lateral colour. Adobe's readers apply it; LibRaw, as rawpy packages it, does not. `shootflow
+develop` now runs it after demosaic, on the linear image before colour and tone. Both engines run
+it with the same output bytes, and `--no-opcodes` turns it off. On the real Leica T DNG the
+correction moves features by up to 5 px at the 720 px preview's scale (about 34 px at full size).
+Block-matched against the camera's own embedded preview, 444 patches sit a median 4.2 px off with
+the warp off. The offsets follow the formula's prediction within 0.1-0.3 px at every radius. With
+the warp on they drop to 0.18 px, the same as the matcher's noise across the radius.
+`tools/warp_preview_check.py` runs that check on any DNG with a preview and a warp. The formula is
+also checked exactly on synthetic ramps (13 tests) and agrees with darktable's reading of the same
+opcode. Details, choices and what is not checked: `eval/warp-rectilinear-2026-11-12.md`.

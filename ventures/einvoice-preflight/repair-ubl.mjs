@@ -27,6 +27,11 @@
 // rewritten to it, rounded to three decimals (IBR-168-OM); and BTOM-017 more than
 // 0.01 off net plus line VAT is rewritten (IBR-158-OM; not on a profit margin
 // invoice, where it is the item's sale value).
+//
+// PINT UAE files (...@ae-1) state each line's VAT (BTAE-08) and amount payable
+// (BTAE-10) the same way; each more than 0.01 off is rewritten, keeping the
+// decimals the file wrote. PINT Malaysia's ItemPriceExtension amount is left as
+// written: LHDN's samples tie it to nothing (100.00 on a 5,000.00 line).
 
 import { checkInvoice, roundHalfUpToCents } from "./checks.mjs";
 import { parseUblInvoice } from "./ubl.mjs";
@@ -41,6 +46,15 @@ export const roundBaisa = (n) => {
 export const fmtBaisa = (n) => {
   const v = roundBaisa(n);
   return roundHalfUpToCents(v) === v ? v.toFixed(2) : v.toFixed(3);
+};
+// Half up with the decimals a written amount used (at least 2, at most 4), trailing zeros
+// past the second dropped: 49.96875 written as "49.9688" comes back as 49.9688.
+export const fmtAs = (n, written) => {
+  const dp = Math.min(4, Math.max(2, /\.(\d+)/.exec(String(written ?? "").trim())?.[1].length ?? 2));
+  const f = 10 ** dp;
+  const sign = n < 0 ? -1 : 1;
+  const v = (sign * Math.round(Number((Math.abs(n) * f).toPrecision(12)))) / f;
+  return v.toFixed(dp).replace(/(\.\d\d\d*?)0+$/, "$1");
 };
 export const tagRe = (name, flags = "g") => new RegExp(`<((?:[\\w.-]+:)?${name})(\\s[^>]*)?>([\\s\\S]*?)</\\1>`, flags);
 export const num = (s) => (s === undefined || s === null || s.trim() === "" ? null : Number(s.trim()));
@@ -119,6 +133,10 @@ export function repairUbl(source) {
   // PINT UAE aligned-ibrp-ae-09-ae, which states the rate, 5%, with a tax of 0) and PINT
   // UAE's margin scheme "N" (ibr-108-ae).
   const zeroTax = (id) => id === "AE" || (uae && id === "N");
+  // Group key of a category and rate. A zero-tax category's tax is 0 whatever rate it
+  // states, so its rows group by category alone: PINT UAE's examples put a reverse-charge
+  // header allowance at AE 0% beside AE 5% lines and an AE 5% subtotal.
+  const groupKey = (id, rate) => `${id}|${zeroTax(id) ? 0 : rate}`;
 
   const lines = [];
   let computable = lineBlocks.length > 0;
@@ -192,6 +210,42 @@ export function repairUbl(source) {
     }
   });
 
+  // PINT UAE's own line VAT (BTAE-08) and line amount payable (BTAE-10), in
+  // ItemPriceExtension. No UAE rule fixes their arithmetic or decimals beyond the zero
+  // rules (ibr-162-ae reverse charge, ibr-165-ae zero rated; exempt states none,
+  // ibr-163-ae), so the repair rewrites one only when it is more than 0.01 off net x
+  // rate (net + VAT), and writes it with the decimals the file used there (2 to 4):
+  // OpenPeppol's examples write 999.375 x 5% as 49.9688.
+  if (uae) lines.forEach((l, i) => {
+    const ext = blocks(l.b.inner, "ItemPriceExtension")[0];
+    if (!ext || l.net === null) return;
+    const abs = { ...ext, open: l.b.open + ext.open };
+    const tt = blocks(ext.inner, "TaxTotal")[0];
+    const { id, pct } = category(l.b.inner, "ClassifiedTaxCategory");
+    const rate = pct ?? (id && /^[EZO]$/.test(id) ? 0 : null);
+    if (rate === null) return;
+    const exempt = id === "E";
+    let vat = null;
+    if (tt) {
+      const c = firstChild(tt.inner, "TaxAmount");
+      vat = num(c?.value);
+      if (c && !exempt) {
+        const want = zeroTax(id) ? 0 : (l.net * rate) / 100;
+        if (vat === null || Number.isNaN(vat) || Math.abs(vat - want) > 0.01 + 1e-9) {
+          set({ ...tt, open: abs.open + tt.open }, "TaxAmount", [], `/lines/${i}/vat`, fmtAs(want, c.value), zeroTax(id) ? `Line VAT (BTAE-08) is 0 in category ${id} (${id === "AE" ? "reverse charge, ibr-162-ae" : "margin scheme"}).` : `Line VAT (BTAE-08) is the line net times ${rate}%; the written amount was more than 0.01 off.`);
+          vat = want;
+        }
+      }
+    } else if (exempt) vat = 0; // exempt lines state no BTAE-08 (ibr-163-ae); the amount is the net
+    if (tt) l.vat = vat;
+    if (vat === null || Number.isNaN(vat)) return;
+    const c = firstChild(ext.inner, "Amount", ["TaxTotal"]);
+    const amount = num(c?.value);
+    if (c && (amount === null || Number.isNaN(amount) || Math.abs(amount - (l.net + vat)) > 0.01 + 1e-9)) {
+      set(abs, "Amount", ["TaxTotal"], `/lines/${i}/amount_with_vat`, fmtAs(l.net + vat, c.value), "Line amount payable (BTAE-10) is the line net plus the line VAT (BTAE-08).");
+    }
+  });
+
   // A line's own TaxTotal. Only ZATCA defines what it holds, so other files keep it as written.
   let prepaySum = 0;
   let prepayRows = 0;
@@ -241,7 +295,7 @@ export function repairUbl(source) {
     const { id, pct } = category(a.inner);
     const rate = pct ?? (id && /^[EZO]$/.test(id) ? 0 : null);
     if (!["true", "false"].includes(charge) || amount === null || Number.isNaN(amount) || !id || rate === null) { adjustOk = false; continue; }
-    adjust.push({ charge: charge === "true", amount, key: `${id}|${rate}` });
+    adjust.push({ charge: charge === "true", amount, key: groupKey(id, rate) });
   }
   const allowances = adjust.filter((a) => !a.charge).reduce((s, a) => roundHalfUpToCents(s + a.amount), 0);
   const charges = adjust.filter((a) => a.charge).reduce((s, a) => roundHalfUpToCents(s + a.amount), 0);
@@ -272,7 +326,7 @@ export function repairUbl(source) {
       const { id, pct } = category(l.b.inner, "ClassifiedTaxCategory");
       const rate = pct ?? (id && /^[EZO]$/.test(id) ? 0 : null);
       if (!id || rate === null) { bad = true; break; }
-      const key = `${id}|${rate}`;
+      const key = groupKey(id, rate);
       // A PINT line's own VAT (Oman's BTOM-016, ItemPriceExtension/TaxTotal) counts only
       // within a cent of net x rate, and only while every line at the rate states one.
       const ext = blocks(l.b.inner, "ItemPriceExtension")[0];
@@ -295,7 +349,7 @@ export function repairUbl(source) {
     const subtotals = blocks(total.inner, "TaxSubtotal").map((s) => ({ ...s, open: total.open + s.open }));
     const subKey = subtotals.map((s) => {
       const { id, pct } = category(s.inner);
-      return `${id}|${pct ?? (id && /^[EZO]$/.test(id) ? 0 : null)}`;
+      return groupKey(id, pct ?? (id && /^[EZO]$/.test(id) ? 0 : null));
     });
     // A rate whose lines net to zero needs no subtotal (a ZATCA prepayment line at
     // the old rate: quantity 0, net 0.00).
@@ -325,7 +379,10 @@ export function repairUbl(source) {
         tax = roundHalfUpToCents(tax + t);
         const writtenTaxable = num(firstChild(s.inner, "TaxableAmount", ["TaxCategory"])?.value);
         if (!(pint && writtenTaxable !== null && roundHalfUpToCents(writtenTaxable) === g.taxable)) set(s, "TaxableAmount", ["TaxCategory"], `/tax_breakdown/${j}/taxable`, fmt(g.taxable), "Taxable amount is the sum of the nets of the lines in this tax group, minus its document allowances, plus its charges.");
-        if (!kept) set(s, "TaxAmount", ["TaxCategory"], `/tax_breakdown/${j}/tax`, fmt(t), oman && !zero && lineSum !== null && t === lineSum ? "Tax is the sum of this category's line VAT amounts (BTOM-016; ALIGNED-IBRP-S-09-OM)." : zero ? `Tax in category ${subKey[j].split("|")[0]} is 0 whatever the stated rate (the buyer accounts for it, or it is a margin scheme).` : `Tax is the taxable amount times ${g.pct}%, rounded half up.`);
+        // A PINT subtotal written with more decimals (532.1645) is rewritten with as many.
+        const writtenText = firstChild(s.inner, "TaxAmount", ["TaxCategory"])?.value;
+        const exact = pint && !zero && t === roundHalfUpToCents((g.taxable * g.pct) / 100) && /\.\d{3,}/.test(writtenText || "") ? fmtAs((g.taxable * g.pct) / 100, writtenText) : fmt(t);
+        if (!kept) set(s, "TaxAmount", ["TaxCategory"], `/tax_breakdown/${j}/tax`, exact, oman && !zero && lineSum !== null && t === lineSum ? "Tax is the sum of this category's line VAT amounts (BTOM-016; ALIGNED-IBRP-S-09-OM)." : zero ? `Tax in category ${subKey[j].split("|")[0]} is 0 whatever the stated rate (the buyer accounts for it, or it is a margin scheme).` : `Tax is the taxable amount times ${g.pct}%, rounded half up.`);
       });
       set(total, "TaxAmount", ["TaxSubtotal"], "/totals/tax", fmt(tax), "Document tax is the sum of the tax subtotals.");
       if (repeats.length) {

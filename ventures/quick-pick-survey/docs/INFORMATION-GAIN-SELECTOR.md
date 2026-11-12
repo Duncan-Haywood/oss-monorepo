@@ -2089,3 +2089,114 @@ the insights card's clear pick and a slightly better pooled ranking on real
 people; the cost is up to 0.025 of pooled Spearman when half of a small panel
 are whole-session coin flippers, a panel the agreement note already flags.
 
+
+## Self-consistency: a coin-flip check that does not tax camps (2026-11-12, measured, not shipped)
+
+The section above left one cost of the staged default: a panel where 40-50% of
+people flip a coin on every answer pools 0.006-0.025 lower than under standard.
+The defences measured so far either cannot see coin flippers (`first-flag`) or
+see them by disagreement with the rest of the panel (`loo-w`, `loo-drop`),
+which taxes a real camp with a taste of its own by 0.01-0.03. This section
+tried a check that looks only at a person's own answers.
+
+**The score** (`src/lib/selfConsistency.ts`, unit-tested). A person's answers
+are split into five interleaved folds; each fold is predicted by a
+Bradley-Terry refit (`btRefit.ts`, prior sd 1 on the logit scale) of the other
+four and scored in bits over a coin. `z` is the mean gain over its standard
+error; `logBayesFactor` is the Laplace evidence of a Bradley-Terry taste over a
+coin on all the answers. Someone answering by a stable taste, the panel's or
+their own, should score above zero; a coin flipper at or below it. Reversing a
+person's taste leaves every reading unchanged (a test checks this), so it
+cannot penalise a camp for disagreeing.
+
+**Two schemes** were added to `scripts/careless-pattern-sweep.ts`
+(`--self-z`, `--self-bf`): `self-drop` leaves out people whose own z is under a
+threshold, and `gate-drop` leaves out people only if they are under the 0.2
+agreement line *and* their own answers are inconsistent (z under 0.5 or 1, or
+log BF under 0). A new script, `scripts/coin-flip-gate-real.ts`, runs the same
+defences on the PrefLib panels of REAL-RANKINGS.md, with a share of the sampled
+real people swapped for whole-session coin flippers and scored against the
+people not asked (`--honest-lapse e` adds random answers to the real people
+too, since a replayed ranking answers without noise).
+
+Raw rows: `docs/self-consistency-2026-11-12.jsonl` (96 synthetic cells, tagged
+with their seed base) and `docs/self-consistency-real-2026-11-12.jsonl` (64 real
+cells, tagged with selector and honest lapse).
+
+**Synthetic panels** (staged selector, 15 and 30 items, 4 answers per item,
+panels of 8 and 20, 40 surveys a cell, seed bases 2000 and 50000; paired
+difference from the shipped pool, range over cells, cells beyond 2 SE up / down
+summed over both seed sets):
+
+| panel | loo-drop | gate-drop, z < 0.5 | gate-drop, z < 1 | gate-drop, log BF < 0 | oracle-drop |
+|---|---|---|---|---|---|
+| honest only (4 cells a seed set) | -0.001 to +0.000 | -0.000 to +0.001 | -0.001 to +0.000 | -0.000 to +0.001 | 0 |
+| coin flippers, 25% (8) | +0.004 to +0.032 (7 / 0) | -0.001 to +0.019 (5 / 0) | +0.002 to +0.025 (6 / 0) | +0.001 to +0.030 (5 / 0) | +0.011 to +0.038 |
+| coin flippers, 40-50% (16) | +0.021 to +0.103 (16 / 0) | +0.011 to +0.052 (15 / 0) | +0.015 to +0.081 (16 / 0) | +0.013 to +0.088 (16 / 0) | +0.028 to +0.134 |
+| a camp, 25% (8) | **-0.027 to -0.009** (0 / 6) | -0.006 to +0.001 (0 / 4) | -0.010 to -0.001 (0 / 4) | -0.013 to -0.001 (0 / 4) | -0.051 to -0.027 |
+| a camp, 40-50% (16) | **-0.050 to -0.002** (0 / 11) | -0.014 to +0.001 (0 / 3) | -0.019 to +0.002 (0 / 10) | -0.020 to +0.001 (0 / 8) | -0.275 to -0.100 |
+
+Slot clickers (seed base 2000, 12 cells): the gate recovers +0.004 to +0.040
+against `first-flag`'s +0.007 to +0.058, which already ships and matches
+oracle-drop. `self-drop` alone lost in every cell (-0.008 to -0.118, honest panels
+included). How well the scores tell coin flippers from honest people (AUC):
+own z 0.60-0.69, own log BF 0.67-0.80, agreement 0.96-1.00; camp members from
+honest people: own z 0.47-0.58, own BF 0.47-0.55 (blind, as intended),
+agreement 0.49-1.00.
+
+**Real panels** (breakfast 20 of 42 people at 30 and 60 answers, T-shirts 10
+of 30 at 20 and 44; 80 draws, staged; honest = the panel's own people, camps
+and all):
+
+| real people's own answers | panel | loo-drop | gate, z < 1 | oracle-drop | honest people under 0.2 agreement / also gated |
+|---|---|---|---|---|---|
+| as ranked (no noise) | honest only | -0.010 to +0.001 | -0.013 to +0.000 | 0 | 18-32% / 0.7-17% |
+| as ranked | 25% coin | +0.015 to +0.030 | +0.008 to +0.029 | +0.030 to +0.071 | |
+| as ranked | 40-50% coin | +0.023 to +0.048 | +0.041 to +0.078 | +0.081 to +0.149 | |
+| 20% random | honest only | -0.014 to -0.003 | -0.004 to +0.009 | 0 | 20-36% / 6.5-24% |
+| 20% random | 40-50% coin | -0.008 to +0.033 | -0.009 to +0.062 | +0.085 to +0.164 | |
+| 35% random | honest only | **-0.033 to -0.015** | **-0.035 to -0.007** | 0 | 25-46% / 13-32% |
+| 35% random | 40-50% coin | -0.020 to +0.027 | -0.065 to +0.036 | +0.097 to +0.153 | |
+
+With 4 answers per item (breakfast 60, T-shirts 44) and clean answers the gate
+left out 0.2-6% of real people and recovered 40-70% of oracle-drop at 40-50% coin flippers; at 2
+answers per item it gated 10-25% of them. Under the standard selector the gate
+gated 0-2% of real people at every budget (its pairs are spread, so a person's
+own answers show their consistency), and recovered +0.009 to +0.078.
+
+What it shows:
+
+- **Under staged, a person's own answers barely beat a coin.** An honest
+  synthetic respondent's log Bayes factor for a taste over a coin averages
+  -0.1 to +0.09 on 15-30 items x 4 answers (a coin flipper's, -0.5 to -1.1);
+  46-55% of honest people fall below zero. The selector
+  asks the pairs it is least sure of, so the answers carry little sign of
+  consistency, which is the anchor section's finding (AUC 0.56-0.72 without
+  anchors) seen from another side. Self-consistency alone cannot carry a
+  defence here.
+- **As a gate on the agreement drop it halves the camp tax**, on synthetic
+  panels (25% camps: -0.001 to -0.010 against -0.009 to -0.027) and keeps
+  about three quarters of loo-drop's gain against 40-50% coin flippers. Against
+  salience pickers it keeps less (25%: +0.022 to +0.026 against +0.035 to
+  +0.037), since they are self-consistent.
+- **Real disagreement is common.** With no careless people at all, 18-46% of
+  real respondents fall under the 0.2 agreement line, and leaving them out
+  costs the pool up to 0.033 (0.007-0.018 under standard). This is the first real-data confirmation that
+  agreement must not drop or weight people (`respondentAgreement` stays a note).
+- **On real panels the gate works only while honest answers are clean.** If
+  real people answer a fifth of pairs at random it still recovers up to +0.062
+  with 4 answers per item, costing honest panels nothing measurable; at a third
+  random it costs honest panels up to 0.035 and loses ground to coin flippers on
+  short sessions.
+
+**Decision.** Not shipped. The gate's cost to camps is smaller but not zero,
+and on real panels it turns on how noisy real pairwise answers are, which no
+data here measures; the first real survey's answers (item (c)) are what
+decide it. `selfConsistency` stays a tested library, unwired, and both scripts
+re-run in minutes once real answers exist. The coin-flip cost under staged
+stays as recorded in the section above: at most 0.025 when half of a small
+panel flips coins, a panel the agreement note already flags.
+
+Caveats: synthetic camps share one second taste; real panels are replayed
+rankings (no real pairwise noise, so `--honest-lapse` is a stand-in); two
+panels, 11 and 15 items; coin flippers on every answer.

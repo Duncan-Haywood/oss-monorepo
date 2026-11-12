@@ -1,0 +1,50 @@
+{
+ "arxiv:1701.03573": {
+  "checked": "2026-11-12",
+  "title": "Mobile Robotic Fabrication at 1:1 scale: the In situ Fabricator (2017)"
+ },
+ "arxiv:1703.06907": {
+  "checked": "2026-11-12",
+  "title": "Domain Randomization for Transferring Deep Neural Networks from Simulation to the Real World (2017)"
+ },
+ "arxiv:1909.05700": {
+  "checked": "2026-11-12",
+  "title": "A Transition-Aware Method for the Simulation of Compliant Contact with Regularized Friction (2019)"
+ },
+ "arxiv:2110.10107": {
+  "checked": "2026-11-12",
+  "title": "An Unconstrained Convex Formulation of Compliant Contact (2021)"
+ },
+ "arxiv:2502.08844": {
+  "checked": "2026-11-12",
+  "title": "MuJoCo Playground (2025)"
+ },
+ "doi:10.1007/BF01580066": {
+  "checked": "2026-11-12",
+  "title": "A survey of research in the application of tolerance analysis to the design of mechanical assemblies (1991)"
+ },
+ "doi:10.1007/s41693-017-0003-5": {
+  "checked": "2026-11-12",
+  "title": "Mobile robotic fabrication at 1:1 scale: the In situ Fabricator (2017)"
+ },
+ "doi:10.1007/s41693-024-00122-0": {
+  "checked": "2026-11-12",
+  "title": "Adaptive robotic construction of wood frames (2024)"
+ },
+ "doi:10.1016/j.autcon.2015.09.011": {
+  "checked": "2026-11-12",
+  "title": "Robotic timber construction — Expanding additive fabrication to new dimensions (2016)"
+ },
+ "doi:10.1109/IROS.2012.6386109": {
+  "checked": "2026-11-12",
+  "title": "MuJoCo: A physics engine for model-based control (2012)"
+ },
+ "doi:10.1109/ROBOT.2003.1241826": {
+  "checked": "2026-11-12",
+  "title": "Biped walking pattern generation by using preview control of zero-moment point (None)"
+ },
+ "doi:10.34770/0w80-p436": {
+  "checked": "2026-11-12",
+  "title": "Adaptive Multi-Robot Timber Construction Dataset (2024)"
+ }
+}

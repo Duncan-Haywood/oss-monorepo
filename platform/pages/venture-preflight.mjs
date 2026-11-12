@@ -17,6 +17,13 @@
 //      (`check_post_frontmatter.py` on just those files): runs kept learning
 //      the 160-character description and 70-character seo_title limits from
 //      the build five minutes in (three run records on 2026-11-12 alone).
+//      Also `inherited_keys.py <slug>` (a lookup of user input in an
+//      object map without an own-key check; ventures-tests fails on a new
+//      one) and where build.mjs files the slug: a trade tool that no
+//      SUBCATEGORY_RULES keyword claims fails build.test.mjs, which this
+//      preflight skips, and a slug in the catch-all section is printed as a
+//      note. New-venture runs met all three only in CI (run records
+//      2026-11-11 explore #14822, 2026-11-12 explore #14962).
 //   4. The site's own tests, the same `node --test "*.test.mjs"
 //      "cloudflare/*.test.mjs"` glob CI's "Test the site builder" step runs,
 //      minus the two files that build the whole site (SITE_BUILD_TESTS, about
@@ -94,6 +101,34 @@ export function postProblem(status, output) {
   return `post front matter (check_post_frontmatter.py):\n${output.trim().split('\n').map((l) => `      ${l}`).join('\n')}`;
 }
 
+/** null when inherited_keys.py passed on the slug; else its output and the fix. */
+export function inheritedKeysProblem(status, output) {
+  if (status === 0) return null;
+  const body = output.trim().split('\n').map((l) => `      ${l}`).join('\n');
+  return `inherited_keys.py (use \`Object.hasOwn(MAP, key) ? MAP[key] : fallback\`; ventures-tests fails on a new hit):\n${body}`;
+}
+
+/**
+ * Where build.mjs files the slug. `categoryFor` / `subcategoryFor` are passed
+ * in (build.mjs's own) so the preflight cannot drift from the site. A trade
+ * tool in the trades catch-all sub-group fails build.test.mjs ("every
+ * published trade tool lands in a named sub-group"); a slug in the site-wide
+ * catch-all is allowed, so it is only a note.
+ */
+export function placementProblems(slug, { categoryFor, subcategoryFor }) {
+  const category = categoryFor(slug);
+  const sub = subcategoryFor(slug);
+  const failures = [];
+  const notes = [];
+  if (sub && /-other$/.test(sub.id)) {
+    failures.push(`${slug} lands in the ${sub.id} catch-all sub-group, which build.test.mjs fails: add a keyword for it to SUBCATEGORY_RULES.${category.id} in platform/pages/build.mjs`);
+  }
+  if (category.id === 'more') {
+    notes.push(`${slug} lands in the catch-all "${category.title}" section; if a named section fits, add a keyword to CATEGORY_RULES in platform/pages/build.mjs`);
+  }
+  return { category: category.id, subcategory: sub?.id ?? null, failures, notes };
+}
+
 export function countProblem({ script, fix }, status) {
   if (status === 0) return null;
   return `${script} --check exited ${status}: run \`${fix}\` and commit the result`;
@@ -167,11 +202,21 @@ async function main(argv) {
 
   // The count checks take seconds and the build takes minutes, so answer
   // them first and stop early.
-  console.log('1b/3 hand-written counts (--check) and changed posts\' front matter');
+  console.log('1b/3 hand-written counts (--check), inherited keys, section placement, changed posts\' front matter');
   for (const check of COUNT_CHECKS) {
     const r = spawnSync('python3', [check.script, '--check'], { cwd: ROOT, encoding: 'utf8' });
     const problem = countProblem(check, r.status);
     if (problem) failures.push(problem);
+  }
+  {
+    const r = spawnSync('python3', ['platform/ci/inherited_keys.py', slug], { cwd: ROOT, encoding: 'utf8' });
+    const problem = inheritedKeysProblem(r.status, (r.stdout || '') + (r.stderr || ''));
+    if (problem) failures.push(problem);
+    const site = await import('./build.mjs');
+    const placed = placementProblems(slug, site);
+    console.log(`   filed under ${placed.category}${placed.subcategory ? ` / ${placed.subcategory}` : ''}`);
+    for (const note of placed.notes) console.log(`   note: ${note}`);
+    failures.push(...placed.failures);
   }
   const posts = changedPosts();
   if (posts.length) {

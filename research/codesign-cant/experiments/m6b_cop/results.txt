@@ -1,0 +1,57 @@
+Milestone 6b: rigid centre-of-pressure offset (roll, pitch gust-torque signs: above [-1.0, 1.0], below [1.0, -1.0]).
+6 seeds, best of 2 CMA-ES starts x 3200 evaluations on 16 episodes; held-out 64 episodes (seed 9999).
+retrained = trained under that geometry; m6 = milestone 6's designs (trained with signs (+1, +1)) re-scored. lever = multiple of the inherited 0.05 + 0.3 L.
+hurt axis: y when above, x when below (the counter-torque's side force adds to the drag there).
+
+[above, retrained, nocant] cant deg 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; lat x lever 0.00
+  lever 0   pos on 0.105 off 0.105 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 0.96; yaw 14.60; J -1.91; dead 0.000
+  lever 0.5 pos on 0.106 off 0.106 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 0.96; yaw 14.69; J -1.92; dead 0.000
+  lever 1   pos on 0.106 off 0.106 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 0.96; yaw 14.87; J -1.94; dead 0.000
+  lever 2   pos on 0.439 off 0.439 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 1.00; yaw 18.26; J -4.87; dead 0.099
+[above, retrained, aware] cant deg 29.75, 34.50, 32.98, 33.48, 29.77, 35.04; lat x lever 0.57
+  lever 0   pos on 0.104 off 0.103 on/off 1.002 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 0.97; yaw 9.50; J -1.54; dead 0.000
+  lever 0.5 pos on 0.105 off 0.104 on/off 1.009 (1.01, 1.01, 1.01, 1.01, 1.01, 1.01); late hurt/helped axis 1.46; yaw 9.56; J -1.55; dead 0.000
+  lever 1   pos on 0.119 off 0.104 on/off 1.142 (1.02, 1.03, 1.03, 1.03, 1.02, 1.72); late hurt/helped axis 1.91; yaw 9.78; J -1.68; dead 0.003
+  lever 2   pos on 0.327 off 0.256 on/off 1.359 (1.56, 1.67, 1.19, 1.04, 1.57, 1.12); late hurt/helped axis 1.20; yaw 12.61; J -3.65; dead 0.060
+[above, m6, nocant] cant deg 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; lat x lever 0.00
+  lever 0   pos on 0.106 off 0.106 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 0.96; yaw 14.56; J -1.91; dead 0.000
+  lever 0.5 pos on 0.112 off 0.112 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 0.97; yaw 14.71; J -1.96; dead 0.003
+  lever 1   pos on 0.122 off 0.122 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 0.97; yaw 14.98; J -2.04; dead 0.005
+  lever 2   pos on 0.470 off 0.470 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 1.00; yaw 18.53; J -5.17; dead 0.112
+[above, m6, aware] cant deg 35.87, 36.41, 37.51, 38.18, 38.18, 38.30; lat x lever 0.64
+  lever 0   pos on 0.122 off 0.122 on/off 1.003 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 0.95; yaw 9.58; J -1.66; dead 0.003
+  lever 0.5 pos on 0.124 off 0.122 on/off 1.015 (1.01, 1.01, 1.02, 1.02, 1.02, 1.01); late hurt/helped axis 1.53; yaw 9.63; J -1.68; dead 0.003
+  lever 1   pos on 0.151 off 0.123 on/off 1.208 (1.04, 1.37, 1.05, 1.05, 1.69, 1.05); late hurt/helped axis 2.08; yaw 10.12; J -1.93; dead 0.008
+  lever 2   pos on 0.623 off 0.588 on/off 1.071 (0.90, 1.17, 1.22, 1.03, 0.90, 1.21); late hurt/helped axis 1.13; yaw 15.88; J -6.53; dead 0.156
+  [above] lever 0: aware minus nocant (retrained, force on): yaw -5.10 deg (cant lower in 6 of 6); pos -0.002 m (cant lower in 5); J +0.37 (cant better in 6)
+  [above] lever 0.5: aware minus nocant (retrained, force on): yaw -5.13 deg (cant lower in 6 of 6); pos -0.001 m (cant lower in 5); J +0.37 (cant better in 6)
+  [above] lever 1: aware minus nocant (retrained, force on): yaw -5.10 deg (cant lower in 6 of 6); pos +0.012 m (cant lower in 2); J +0.26 (cant better in 5)
+  [above] lever 2: aware minus nocant (retrained, force on): yaw -5.65 deg (cant lower in 6 of 6); pos -0.112 m (cant lower in 5); J +1.23 (cant better in 5)
+  [above] retrained minus m6 on/off ratio at lever 1: -0.067 (retraining lower in 5 of 6)
+
+[below, retrained, nocant] cant deg 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; lat x lever 0.00
+  lever 0   pos on 0.132 off 0.132 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 1.06; yaw 17.22; J -2.24; dead 0.003
+  lever 0.5 pos on 0.131 off 0.131 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 1.00; yaw 17.33; J -2.23; dead 0.005
+  lever 1   pos on 0.147 off 0.147 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 0.96; yaw 17.71; J -2.38; dead 0.010
+  lever 2   pos on 1.010 off 1.023 on/off 0.992 (1.00, 0.95, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 0.99; yaw 24.99; J -10.49; dead 0.266
+[below, retrained, aware] cant deg 29.57, 31.79, 30.85, 30.53, 31.44, 31.32; lat x lever 0.51
+  lever 0   pos on 0.112 off 0.112 on/off 1.002 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 1.06; yaw 9.60; J -1.57; dead 0.000
+  lever 0.5 pos on 0.104 off 0.104 on/off 1.007 (1.01, 1.01, 1.01, 1.01, 1.01, 1.01); late hurt/helped axis 2.09; yaw 9.65; J -1.52; dead 0.000
+  lever 1   pos on 0.126 off 0.100 on/off 1.261 (1.03, 2.41, 1.04, 1.04, 1.03, 1.03); late hurt/helped axis 3.41; yaw 9.98; J -1.73; dead 0.005
+  lever 2   pos on 0.379 off 0.311 on/off 1.188 (1.06, 1.61, 1.20, 1.15, 1.07, 1.05); late hurt/helped axis 1.02; yaw 13.04; J -4.12; dead 0.086
+[below, m6, nocant] cant deg 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; lat x lever 0.00
+  lever 0   pos on 0.106 off 0.106 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 1.04; yaw 14.56; J -1.91; dead 0.000
+  lever 0.5 pos on 0.105 off 0.105 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 1.04; yaw 14.62; J -1.91; dead 0.000
+  lever 1   pos on 0.105 off 0.105 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 1.04; yaw 14.79; J -1.92; dead 0.000
+  lever 2   pos on 0.314 off 0.314 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 1.00; yaw 16.98; J -3.70; dead 0.081
+[below, m6, aware] cant deg 35.87, 36.41, 37.51, 38.18, 38.18, 38.30; lat x lever 0.64
+  lever 0   pos on 0.122 off 0.122 on/off 1.003 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt/helped axis 1.05; yaw 9.58; J -1.66; dead 0.003
+  lever 0.5 pos on 0.111 off 0.110 on/off 1.017 (1.02, 1.02, 1.02, 1.02, 1.02, 1.01); late hurt/helped axis 1.82; yaw 9.48; J -1.56; dead 0.000
+  lever 1   pos on 0.117 off 0.109 on/off 1.071 (1.06, 1.07, 1.07, 1.09, 1.07, 1.05); late hurt/helped axis 2.76; yaw 9.61; J -1.62; dead 0.000
+  lever 2   pos on 0.465 off 0.381 on/off 1.211 (1.12, 1.42, 1.08, 1.16, 1.29, 1.19); late hurt/helped axis 1.15; yaw 13.97; J -4.96; dead 0.122
+  [below] lever 0: aware minus nocant (retrained, force on): yaw -7.62 deg (cant lower in 6 of 6); pos -0.020 m (cant lower in 6); J +0.66 (cant better in 6)
+  [below] lever 0.5: aware minus nocant (retrained, force on): yaw -7.68 deg (cant lower in 6 of 6); pos -0.026 m (cant lower in 5); J +0.71 (cant better in 6)
+  [below] lever 1: aware minus nocant (retrained, force on): yaw -7.73 deg (cant lower in 6 of 6); pos -0.021 m (cant lower in 4); J +0.66 (cant better in 6)
+  [below] lever 2: aware minus nocant (retrained, force on): yaw -11.94 deg (cant lower in 6 of 6); pos -0.632 m (cant lower in 5); J +6.36 (cant better in 5)
+  [below] retrained minus m6 on/off ratio at lever 1: +0.191 (retraining lower in 5 of 6)
+

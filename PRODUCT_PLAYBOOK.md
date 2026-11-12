@@ -568,6 +568,13 @@ Ship when every line is true:
       commit** with `python3 platform/ci/publish_surface.py --write`, and say
       in the PR what it can publish (`none` for a test-only workflow);
       `--check` fails until the snapshot names it, by design.
+- [ ] `node platform/pages/venture-preflight.mjs <slug>` is clean (add
+      `--skip-build` for the one-minute pass). It runs the repository-wide
+      gates a new venture trips in CI that its own tests cannot see:
+      `launched.json`, the hand-written counts (the opt-out switch count
+      among them), `inherited_keys.py`, the build.mjs section and trades
+      sub-group, post front matter, the site's source-scan tests
+      (visible FAQ, schema, siblings) and the full build with `check.mjs`.
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.
 - [ ] A stranger can reach it without cloning this repo — a public URL or an
       install command. Merged-to-`main` is not deployed. Static products go

@@ -44,3 +44,6 @@ open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actual
 #print axioms TheismFormal.Fitting.de_re_full
 #print axioms TheismFormal.Fitting.cm_de_re
 #print axioms TheismFormal.Fitting.cm_no_a4
+#print axioms TheismFormal.AFP.afp_de_re_K
+#print axioms TheismFormal.AFP.afp_de_dicto_K_A4
+#print axioms TheismFormal.AFP.cm_dedicto_noA4

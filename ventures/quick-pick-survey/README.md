@@ -174,6 +174,10 @@ It is a data-quality note, never a weight: careless clicking by something other 
 question (a familiar name, a short label) moves the pool and makes it confidently wrong, but a
 group with a genuinely different taste scores just as low, and down-weighting would quiet it
 (docs/INFORMATION-GAIN-SELECTOR.md, "Careless patterns that are not random").
+On real people's published rankings, 18-46% of respondents fall under 0.2 with nobody careless
+at all, and leaving them out costs the pool up to 0.033; a check on each person's own consistency
+(`src/lib/selfConsistency.ts`) does not tax them but is near a coin under the staged question order,
+so it is measured and not wired in (same file, "Self-consistency: a coin-flip check that does not tax camps").
 Answer times break that tie when they can: the response's `pace` field compares each
 respondent's median time per pick (`Trial.msToAnswer`, 10+ timed answers, 5+ respondents)
 with the panel's, counts those under half the typical time, and says how many of the

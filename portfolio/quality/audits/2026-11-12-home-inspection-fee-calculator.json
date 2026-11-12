@@ -1,0 +1,269 @@
+{
+ "date": "2026-11-12",
+ "subject": "ventures/home-inspection-fee-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-12-k",
+ "drawn_by": "sample",
+ "round": 52,
+ "auditor": "agent session (Claude), quality-audit round 52",
+ "status": "audited",
+ "professional": "an independent licensed home inspector who sets their own fee schedule; they check first whether the time model matches a real job (on-site hours, report-writing hours, drive time), whether square-footage tiers and the age/foundation premiums look like their own schedule, how add-ons (radon, sewer scope, WDO, mold, pool) are priced, and whether the fee clears E&O, software and agreement costs at their weekly volume",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Independent Python model (/tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/model.py) written from the README/article description with Decimal arithmetic (base hours = max(1.25, sqft/800), +0.25 h per story above one, crawl +0.5 / basement +0.25, age bands 10/25/60 y, rush on labor only, miles x rate, add-ons, overhead, price = cost/(1-margin)), compared with node runs of calculateQuote (/tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/run.mjs) and with the page in headless Chrome (/tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/pw.py). Defaults: 3.75 h, cost 424.00, price 565.33, profit 141.33 in all three. How-to worked example (2,800 sf, crawl, 45 y, 30 mi, 95/h, rush, radon + sewer): 4.75 h, rush 67.69, cost 899.94, price 1,199.92, profit 299.98 in all three; weekly 5 x 299.98 = 1,499.90, gap 500.10, 2 more jobs. vs-flat pair: 2.5 h / 398.67 and 4.5 h / 665.33 (4.5/2.5 = 1.8). Market cross-check: the 2.5 h for 2,000 sf matches the 2-3 h on-site range in HomeGauge/HomeLight guides, and the slab case's 398.67 sits inside the 75-500 quoted for 2,000 sf (Angi lists 75-400 for 2,000-2,500 sf). Not 4: the 'about $137.69/hr all-in' line is labor rate + profit/hour, not revenue per on-site hour (565.33/3.75 = 150.76), and add-on 'fees' are grossed up by the margin (radon $150 adds $200.00 to the price).",
+  "completeness": "Every feature the README and page list was exercised in headless Chrome: square footage, stories, three foundation types, age, travel, hourly rate, rush premium on labor only, four add-ons with editable fees, overhead, margin, weekly income check (default 140 x 5 vs 2,000: $700.00, $1300.00 gap, 10 more), local draft save ('Restored your last job from this browser.' after reload), Reset to defaults (back to 2,000 sf / $565.33), usage opt-out, links to the three articles (200) and LICENSE. No TODOs or stubs; no console errors; no horizontal scroll at 375 px (scrollWidth 375).",
+  "verification": "cd ventures/home-inspection-fee-calculator && node --test '*.test.mjs': 40 tests, 40 pass, 0 fail. Eight mutations through platform/ci/quality_mutate.py on calc.mjs: six caught (age >=60 -> >60, base hours per sf, extra-story count, margin -> markup, effective hourly formula, basement hours), two survived: MIN_BASE_HOURS 1.25 -> 1.0 (the small-home floor that sets every condo price is untested) and meetsTarget gap <= 0 -> < 0 (the exactly-on-goal boundary). The article numbers 1,199.92, 398.67 and 665.33 are pinned by page.test.mjs and vs-a-flat test; the expected values are the author's own arithmetic, matched here by an independent model.",
+  "craft": "Read calc.mjs (164 lines), index.html module script (114-224), usage.mjs, calc.test.mjs, page.test.mjs. Pure, small, validated core with readable errors (a '1,200' or blank square footage shows 'Square footage must be a positive number.'). Defects: a blank add-on fee with the add-on ticked becomes $0 silently (Number('') = 0; the page dropped from $1199.92 to $999.92 with no error), blank overhead likewise; weeklyIncomeGap accepts negative inspections (-3 jobs -> -$1200.00 and '8' more); money() has no thousands separator ('$1300.00'); the weekly 'profit per inspection' is a hard-coded 140, not linked to the quote's profit.",
+  "claims": "All dollar and hour figures on the how-to, vs-flat and index pages match the independent model. Disclaimer present on index, README and all three articles (loaded in Chrome); privacy claim backed (no fetch/beacon; usage.mjs is localStorage only), though the page lists two counted events while index.html:211 also records 'sponsor_link_clicked'. Unbacked or contradicted: (1) README, index meta/lede/FAQ and both comparison pages say add-ons are priced 'at their own flat fee', but calc.mjs:126-127 puts them in cost and divides by (1 - margin), so a $150 radon fee adds $200 to the quote; (2) vs-flat:66 and :92 say 'the actual on-site time differs by 80%', which is the model's uncited constants, not measured time; (3) the time premiums are presented as 'the specifics that actually drive on-site time' with no source for 0.00125 h/sf, 0.25 h/story, 0.5 h crawl or the age bands. Served page not checked: marisstella.app is outside this session's allowed hosts (CONNECT 403), so source llms.txt github.io URLs are not filed (rewritten at deploy).",
+  "fitness": "Walked an inspector's quote: 2,800 sf two-story crawlspace, 45 years, radon + sewer, same-day report. The tool gives a defensible line-item quote quickly. Gaps an inspector hits in the first hour: labor is on-site hours only, so report writing (commonly 1-2+ h per job) and drive time are unpaid unless folded into the hourly rate; no square-footage tier table, which is how inspectors publish fees; no pool/spa, outbuilding, condo/multi-unit, re-inspection or ancillary like well/septic/thermal add-ons; no annual break-even (E&O, software, agreements, association dues) at a weekly volume, only a flat $35 overhead. A sibling venture (home-inspection-business-profit-calculator, linked at index.html:108) covers report hours and fixed cost, which softens but does not close the gap here.",
+  "domain": "Compared with published practice: on-site time 2-3 h for 2,000 sf (HomeGauge, HomeLight, Spectora guides) matches the 2.5 h base; one guide's +30 min per 500 sf is close to the tool's 0.00125 h/sf (37.5 min per 500 sf). Departures: (a) pricing only on-site hours omits report time, which practitioners treat as a large share of a job; (b) add-on fees are marked up by the job margin, so retail-looking defaults (radon 150, sewer 175, WDO 90, mold 125) become 200/233/120/167 in the price; (c) mileage default 0.70 is the IRS 2025 rate, the 2026 rate is 72.5 cents (IR-2025-128; secondary sources report 76 cents from July 2026), uncited and stale; (d) no source for the foundation, story or age premiums; (e) industry fee schedules are square-footage tiers with add-on menus, not hourly; the tool does not output one. The default crawl/2-story/25-y quote of $565.33 sits above Angi's $275-400 band for 2,000-2,500 sf, which is defensible as a floor but not compared on the page."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "default inputs: hours, cost, price, profit",
+   "method": "independent Decimal model from the README/article description, not importing calc.mjs",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/model.py; node /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/run.mjs",
+   "expected": "3.75 h; cost 424.00; price 565.33; profit 141.33",
+   "observed": "3.75 h; cost 424.00; price 565.33; profit 141.33 (page shows $565.33)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "how-to worked example (2,800 sf crawl 45 y, 95/h, 30 mi, rush 15%, radon + sewer)",
+   "method": "independent model; hand arithmetic 4.75 x 95 = 451.25, x 0.15 = 67.6875",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/model.py; python3 /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/pw.py",
+   "expected": "4.75 h; rush 67.69; cost 899.94; price 1,199.92; profit 299.98",
+   "observed": "4.75 h; rush 67.69; cost 899.94; price 1,199.92; profit 299.98",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "vs-flat-rate pair: 2,000 sf 1-story slab 5 y vs 3-story crawl 60 y",
+   "method": "independent model",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/model.py",
+   "expected": "2.5 h / 398.67 and 4.5 h / 665.33; ratio 1.8",
+   "observed": "2.5 h / 398.67 and 4.5 h / 665.33",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "weekly income check from the how-to (5 x 299.98 vs 2,000)",
+   "method": "hand arithmetic, ceil(500.10 / 299.98)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/run.mjs",
+   "expected": "1,499.90; gap 500.10; 2 more",
+   "observed": "1499.9; gap 500.10; 2",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "'about $X/hr all-in' line on the page",
+   "method": "revenue per on-site hour = price / hours",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/pw.py",
+   "expected": "565.33 / 3.75 = 150.76 if 'all-in' means revenue per hour",
+   "observed": "$137.69 (= 100 + 141.33/3.75, labor rate plus profit per hour)",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "add-on 'flat fee' passes through at its own amount",
+   "method": "README/index claim 'priced at their own flat fee'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/run.mjs (radon delta)",
+   "expected": "price rises by 150.00 when radon ($150 fee) is ticked",
+   "observed": "price rises by 200.00 (fee divided by 1 - 25%)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "on-site time and market price for 2,000 sf",
+   "method": "HomeGauge / HomeLight guides 2-3 h on site; Angi $275-400 for 2,000-2,500 sf, other guides $375-500",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/run.mjs",
+   "expected": "about 2-3 h; fee in the low-to-mid $300-500s for an easy house",
+   "observed": "2.5 h base; 398.67 slab/new, 565.33 default crawl/2-story/25 y",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "default mileage rate",
+   "method": "IRS IR-2025-128: 2026 business rate 72.5 cents (2025: 70 cents)",
+   "command": "grep -n mileageRate ventures/home-inspection-fee-calculator/calc.mjs",
+   "expected": "0.725 (or a cited rate and year)",
+   "observed": "0.7, uncited (the 2025 rate)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "report-writing and drive time in labor",
+   "method": "practice: on-site time is only part of the job; report turnaround is a separate step",
+   "command": "read calc.mjs:61-66,110-113",
+   "expected": "report hours and drive hours priced at the hourly rate",
+   "observed": "labor = on-site hours only; travel = mileage only",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "article and index dollar figures",
+   "method": "compared with the independent model",
+   "command": "sed -e 's/<[^>]*>/ /g' *.html | grep '\\$'",
+   "expected": "1,199.92 / 299.98 / 1,499.90 / 500.10 / 398.67 / 665.33 / 560",
+   "observed": "all match",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'the actual on-site time differs by 80%'",
+   "method": "is there a measured source?",
+   "command": "grep -n 'differs by 80%' ventures/home-inspection-fee-calculator/*.html",
+   "expected": "a cited time study, or 'the model estimates'",
+   "observed": "model output from uncited constants stated as actual time (vs-a-flat:66, :92)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer and privacy on every page",
+   "method": "loaded index and three articles in headless Chrome; read usage.mjs",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/pw.py",
+   "expected": "No-warranty text on all four; only the listed events counted",
+   "observed": "disclaimer on all four; events listed are quote-priced and weekly-goal-check, but sponsor_link_clicked is also recorded (index.html:211)",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/home-inspection-fee-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "40 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "blank and negative inputs",
+   "method": "page and node calls",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/pw.py; node /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/hi/run.mjs",
+   "expected": "blank fee with add-on ticked flagged; negative bookings rejected",
+   "observed": "blank radon fee -> $0 silently ($1199.92 -> $999.92); -3 inspections -> -$1200.00 and '8' more",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:55",
+   "change": "if (homeAgeYears >= 60) return 1; -> > 60",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:44",
+   "change": "BASE_HOURS_PER_SQFT 0.00125 -> 0.0013",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:45",
+   "change": "MIN_BASE_HOURS 1.25 -> 1.0",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:63",
+   "change": "Math.max(0, stories - 1) * 0.25 -> stories * 0.25",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:127",
+   "change": "cost / (1 - m) -> cost * (1 + m)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:130",
+   "change": "profit / onSiteHours + baseHourlyRate -> profit / onSiteHours",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:161",
+   "change": "meetsTarget = gap <= 0 -> gap < 0",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:51",
+   "change": "basement 0.25 -> 0.5",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Add-on fees are added to cost and grossed up by the target margin, so a ticked $150 radon test adds $200.00 to the quote (sewer 175 -> 233.33), while the README, index lede/FAQ and both comparison pages say add-ons are priced 'at their own flat fee'.",
+   "where": "ventures/home-inspection-fee-calculator/calc.mjs:126",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Labor is on-site hours only; report-writing time and drive time are never priced, though practitioners count report time as a large share of each job. Only mileage is charged for travel.",
+   "where": "ventures/home-inspection-fee-calculator/calc.mjs:110",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Two seeded mutations survive: MIN_BASE_HOURS 1.25 -> 1.0 (the small-home floor) and the weekly goal boundary gap <= 0 -> < 0; no test prices a home under 1,000 sf or a week that lands exactly on the goal.",
+   "where": "ventures/home-inspection-fee-calculator/calc.test.mjs:5",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Time constants (0.00125 h/sf, 0.25 h/story, 0.5 h crawl, 0.25 h basement, age bands) and add-on/overhead defaults are uncited; the default mileage rate 0.70 is the IRS 2025 rate (2026 is 72.5 cents, IR-2025-128).",
+   "where": "ventures/home-inspection-fee-calculator/calc.mjs:25",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "'the actual on-site time differs by 80%' states the model's uncited estimate as measured time.",
+   "where": "ventures/home-inspection-fee-calculator/vs-a-flat-per-square-foot-rate.html:66",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "The 'about $X/hr all-in' line is base rate plus profit per on-site hour ($137.69 on defaults), not revenue per hour ($150.76); 'all-in' misdescribes it and add-on margin inflates it.",
+   "where": "ventures/home-inspection-fee-calculator/index.html:166",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Blank add-on fee (with the add-on ticked) or blank overhead silently becomes $0; weeklyIncomeGap accepts negative bookings (-3 -> '8' more); money() prints $1300.00 with no thousands separator.",
+   "where": "ventures/home-inspection-fee-calculator/calc.mjs:122",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Privacy section lists the counted events as quote-priced and weekly-goal-check, but the page also records sponsor_link_clicked.",
+   "where": "ventures/home-inspection-fee-calculator/index.html:211",
+   "category": "overclaim",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": [
+  15193
+ ],
+ "verdict": "The arithmetic is right: an independent model reproduces the defaults, the how-to worked example, the vs-flat pair and the weekly check to the cent, in node and on the page in headless Chrome, and the 2.5 h / $398.67 easy case sits inside published on-site-time and price ranges. It does not meet the bar. Claims fall to 2 because every page says add-ons are priced 'at their own flat fee' while the code grosses them up by the margin (a $150 radon test adds $200), and an 80% 'actual' time gap rests on uncited constants. Verification is 2: two of eight seeded mutations survive, including the small-home minimum. For an inspector the method misses report-writing and drive hours, square-footage tiers and common add-ons such as pool or outbuildings, and the mileage default is last year's IRS rate."
+}

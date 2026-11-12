@@ -72,6 +72,19 @@ adopts a harmful update (f error 0.5% worse than keeping the old one) in 5.6% of
 with the raw covariance and 1.4% with the transferred factor. One of five pre-registered
 hypotheses held.
 
+**Milestone 4b headline** (8,580 more solves, two corner detectors): replacing the scalar
+factor with a covariance each calibration computes from its own views, **a leave-one-view-out
+jackknife makes the update test quiet with nothing borrowed from another camera**: 2.5% false
+alarms on the old corners and 1.7% on `findChessboardCornersSB` corners (nominal 1%), against
+58–74% for the solver's covariance and 36–38% for a sandwich clustered by view. The price is
+power: with 6 new views the jackknife test **detects a 2% focal change in 7–12% of splits and a
+4% change in 41–62%**. The corner detector matters as much as the covariance: with SB corners
+the jackknife test **catches the real swap to the other camera unit in 75% of splits, against
+30%** with the old corners. Harmful adoptions fall to 0.5–1.5% of decisions. All five
+pre-registered predictions held.
+
+![share of splits where the χ² update test fires against the focal change, for four covariances and two corner detectors](experiments/m4b_viewcov/power.png)
+
 ![share of splits where the χ² update test fires against the focal change applied to the new views, raw and transferred covariance](experiments/m4_accept/power.png)
 
 ![the 11×11 cornerSubPix window misplaces an outer corner; neighbour correlation along a column by detector; nested rms z by detector and σ](experiments/m6_detector/detector.png)
@@ -374,6 +387,58 @@ is dominated by something the residuals do not carry (the remaining smooth corre
 lens or board terms the model omits, or the data's few views), so the honest error bar has
 to come from outside the fit, as milestone 3's jackknife did.
 
+## Milestone 4b: a covariance from the calibration's own views, on two detectors
+
+Pre-registered in `LOG.md` (2026-11-12) before any solve. Code: `experiments/m4b_viewcov/`,
+`cov_cr_view` and `jackknife_cov` in `src/selfcal.py`.
+
+**Set-up.** Milestone 4's splits, disturbances and rule, run on two corner detectors:
+`cornerSubPix` with an 11×11 window (milestones 1–5) and `findChessboardCornersSB`
+(milestone 6). Four covariances for Σ<sub>old</sub> + Σ<sub>new</sub>: **R** the solver's reported
+covariance; **T** R times the *other* camera's nested rms z for that detector (2.67 / 1.89 for 11×11
+corners, as milestone 3; 3.47 / 2.74 for SB); **V** the 3×3 sandwich clustered by view with
+the G/(G − 1) factor; **J** the 3×3 leave-one-view-out jackknife, each delete-one set
+re-solved cold. J needs 4 or more new views, so all hypotheses are scored on k ≥ 4 (360
+decisions per detector and covariance). 2,145 distinct view sets per camera and detector, 8,580
+solves, 4 not converged (all 3-view sets).
+
+**Hypotheses** (`experiments/m4b_viewcov/summary.json`; 95% Wilson intervals; k ≥ 4):
+
+| | prediction | result | |
+|---|---|---|---|
+| H23 | R, SB corners: false alarms ≥ 50% | 57.8% (53–63); 11×11 corners 74.2% | held |
+| H24 | V: false alarms > 5%, both detectors | 37.8% (11×11), 36.1% (SB) | held |
+| H25 | J: ≤ 3% pooled, ≤ 5% each camera, both detectors | 2.5% (1.3–4.7; 2.8 / 2.2%), 1.7% (0.8–3.6; 0.6 / 2.8%) | held |
+| H26 | J detects the unit swap less often than T, both detectors | J 30.3% vs T 41.7% (11×11); 74.7% vs 93.1% (SB) | held |
+| H27 | J: harmful adoptions ≤ 2%, both detectors | 0.47% (11×11), 1.54% (SB) | held |
+
+**Power, 6 new views** (unscored; share of 120 splits where the test fires):
+
+| change | R 11×11 | J 11×11 | R SB | T SB | J SB |
+|---|---|---|---|---|---|
+| none (false alarm) | 76% | 3% | 53% | 1% | 0% |
+| focal +1% / −1% | 78 / 88% | 3 / 4% | 71 / 73% | 2 / 6% | 4 / 3% |
+| focal +2% / −2% | 96 / 98% | 9 / 7% | 94 / 97% | 16 / 27% | 12 / 12% |
+| focal +4% / −4% | 100 / 100% | 46 / 41% | 99 / 100% | 79 / 88% | 49 / 62% |
+| principal point +10 px | 70% | 6% | 98% | 6% | 12% |
+| swap to the other unit | 100% | 37% | 100% | 99% | 86% |
+
+**Reading.** The jackknife's per-parameter rms z on unchanged cameras is 0.46–0.84, so it
+overstates the spread on average, yet it still fires on 1.7–2.5% at a nominal 1%: the
+set-to-set offsets have heavier tails than a χ² assumes. With the gate also on the jackknife
+σ<sub>f</sub> (unscored), harmful adoptions fall to 0.04–0.13%, but the rule then adopts in only
+about 1% of decisions. SB corners help every covariance: the transferred factor no longer
+over-alarms on the left camera (1.1% against 11.7%), and the swap, which shows mostly in the
+principal point, becomes visible to the jackknife.
+
+**What it means for a robot.** A camera can judge its own update without a factor calibrated
+elsewhere: re-solve with each view left out and use the spread. That gives an honest test with
+4–6 views, but an honest test on this rig says a focal change under about 4% is not
+distinguishable from the difference between two sets of views. Use the best corner localiser
+available before tuning the statistics; with SB corners, a borrowed factor from a sibling unit
+of the same camera model (T) is the most sensitive quiet test here, at the cost of trusting that
+the sibling's error matches.
+
 ## Milestone 4: the accept/reject test, old and new calibrations from disjoint views
 
 Pre-registered in `LOG.md` (2026-11-12) before any run. Code: `experiments/m4_accept/`,
@@ -444,6 +509,8 @@ python3 experiments/m6_detector/analyse.py # summary.json, detector.png
 python3 experiments/m6_detector/bend.py    # ~1 min; bend.json
 OMP_NUM_THREADS=1 python3 experiments/m4_accept/run.py   # ~3 min on 4 cores; results.json
 python3 experiments/m4_accept/analyse.py   # summary.json, power.png
+OMP_NUM_THREADS=1 python3 experiments/m4b_viewcov/run.py  # ~25 min on 4 cores; results.json.gz
+python3 experiments/m4b_viewcov/analyse.py  # summary.json, power.png
 python3 -m pytest tests
 ```
 
@@ -475,6 +542,9 @@ python3 -m pytest tests
   It uses the milestone 1–5 corners (11×11 `cornerSubPix`); the focal and shift changes are
   exact model transforms, not physically disturbed lenses, and the swap is the only real change.
   The precision gate uses the reported σ, as in milestone 2.
+- Milestone 4b inherits milestone 4's split reuse (intervals too narrow) and its synthetic
+  focal and shift changes. Its jackknife needs k + 7 extra solves per decision and is undefined
+  with 3 new views.
 - `cite_check.py` could not reach the DOI registries; citations are unchecked (see
   `PROPOSAL.md`).
 
@@ -485,9 +555,9 @@ After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on S
 field that survives every localiser (tangential or thin-prism lens terms, or a per-view
 board deformation); and synthetic renders with a known camera to say which localiser is
 right. Milestone 3b: natural features (SIFT) on an openly licensed multi-view set with a target
-calibration of the same camera (H5). After milestone 4: rerun the update test on SB corners (milestone 6's cleaner corners may cut
-the per-view-set offsets, or only shrink σ further); use the jackknife or a view-set
-bootstrap for Σ in the χ² test instead of a scalar κ; find what drives the right camera's
+calibration of the same camera (H5). After milestone 4b (done: SB corners and a jackknife Σ): calibrate the test's threshold to the
+jackknife's heavier tails (a t-type or bootstrap reference distribution rather than χ²<sub>3</sub>);
+pool the update over several capture sessions to buy back power; find what drives the right camera's
 c<sub>x</sub> offset (which views pull it); and a capture with a physically changed lens (zoom or
 refocus) for a real focal change.
 

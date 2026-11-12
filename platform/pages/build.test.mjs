@@ -9,7 +9,7 @@ import { loadRequests } from '../../portfolio/requests/requests.mjs';
 import { test, after } from 'node:test';
 import { servedPath } from './served-path.mjs';
 import assert from 'node:assert/strict';
-import { promises as fs } from 'node:fs';
+import { promises as fs, statSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import zlib from 'node:zlib';
@@ -145,6 +145,48 @@ import { normalizeBid, normalizeOutcome, stripForInjection } from './jobs.mjs';
 
 const BASE = 'https://example.test/site/';
 const VENTURES = path.join(REPO_ROOT, 'ventures');
+
+// The suite builds from the live checkout, so a file written under docs/,
+// ventures/, research/ or portfolio/ while it runs (a post drafted beside a
+// 4-minute run) lands in one build and not the other, and a test fails with a
+// cache-name or search-index mismatch that says nothing about the edit (run
+// records 2026-11-12T06:48 and 12:48). Called only once a comparison has
+// already failed, it names the files changed since the suite started, so the
+// failure reads as "re-run" rather than as a builder bug.
+//
+// Every tracked file is checked by mtime, not only the ones git calls dirty:
+// an edit that is reverted mid-run (a scratch change to try a tool, then
+// `git checkout`) leaves git clean but the builds still differ. Until
+// 2026-11-12 the check read only dirty files under docs/ and ventures/, so a
+// research/ README edited and reverted beside the suite failed the cache-name
+// test with no hint (process run, 2026-11-12). About 49k stats, under a second.
+const SUITE_START = Date.now();
+const BUILD_INPUTS = ['docs', 'ventures', 'research', 'portfolio'];
+async function editedDuringRun() {
+  let tracked, dirty;
+  try {
+    const git = (args) => promisify(execFile)('git', args, { cwd: REPO_ROOT, maxBuffer: 1 << 28 })
+      .then((r) => r.stdout);
+    [tracked, dirty] = await Promise.all([
+      git(['ls-files', '-z', '--', ...BUILD_INPUTS]),
+      git(['status', '--porcelain', '-uall', '--', ...BUILD_INPUTS]),
+    ]);
+  } catch {
+    return '';
+  }
+  const paths = new Set(tracked.split('\0').filter(Boolean));
+  for (const line of dirty.split('\n').filter(Boolean)) paths.add(line.slice(3).split(' -> ').pop());
+  const changed = [];
+  for (const rel of paths) {
+    let stat = null;
+    try { stat = statSync(path.join(REPO_ROOT, rel)); } catch { /* deleted */ }
+    if (!stat || stat.mtimeMs >= SUITE_START) changed.push(rel);
+  }
+  if (!changed.length) return '';
+  return `\n${changed.length} file(s) under ${BUILD_INPUTS.join('/, ')}/ changed while the suite ran ` +
+    `(${changed.slice(0, 5).join(', ')}${changed.length > 5 ? ', ...' : ''}), even if since reverted: ` +
+    'the builds read different trees; re-run without editing before treating this as a builder fault';
+}
 
 // Memoise the promise, not the result: when the build throws (a post with a
 // 164-character description did this on 2026-11-01), every later test awaits
@@ -1297,7 +1339,7 @@ test("a tool's guide pages and the blog's posts are their own search results", a
   assert.deepEqual(jobber, [], 'a vs page its compare/ page gathers is not listed again');
   for (const item of index.items.filter((i) => i.k === 'post')) {
     assert.equal(index.cats[item.c], 'Blog');
-    assert.ok(await exists(path.join(outDir, item.u, 'index.html')), `${item.u} did not ship`);
+    if (!(await exists(path.join(outDir, item.u, 'index.html')))) assert.fail(`${item.u} did not ship${await editedDuringRun()}`);
   }
   // Listed after every tool, so the tie-break never puts a guide above a tool.
   const lastTool = index.items.findLastIndex((i) => ['tool', 'app', 'cli'].includes(i.k));
@@ -3384,7 +3426,10 @@ test('an identical build produces an identical cache name', async () => {
   // on neither build order, process nor output path.
   const [a, b] = await Promise.all([site(), childSite()]);
   assert.notEqual(a.outDir, b.outDir);
-  assert.equal(a.offline.cacheName, b.cacheName, 'the hash must not depend on build order or paths');
+  if (a.offline.cacheName !== b.cacheName) {
+    assert.fail(`the hash must not depend on build order or paths: ${a.offline.cacheName} vs ${b.cacheName}` +
+      (await editedDuringRun()));
+  }
 });
 
 test('the worker only ever touches same-origin GETs', async () => {

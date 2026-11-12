@@ -144,7 +144,19 @@ h1 em{font-style:italic;color:var(--accent-ink)}
 .theme-tag{display:inline-flex;align-items:center;gap:.4rem;font:500 11.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;overflow-wrap:anywhere;max-width:100%;color:var(--c)}
 .theme-tag::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--c)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:14px}
-.showall{margin:14px 0 0;color:var(--muted);font-size:14px}.showall .btn{cursor:pointer;margin-right:.6rem}
+.showall{margin:14px 0 0;color:var(--muted);font-size:14px;display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .9rem}.showall .btn{cursor:pointer}.showall a{white-space:nowrap}
+/* Phones: 31 themes stacked made 19,761 px at 390 px, a third of it theme heads. The number
+ * column indented the blurb by ~40 px on every theme, so it wrapped a line longer; here the
+ * number sits on the heading's line and the blurb takes the full width. */
+@media (max-width:600px){
+  .theme{padding:36px 0 4px}
+  .theme-head{display:block;margin-bottom:1rem}
+  .theme-num{display:inline-block;margin-right:.55rem;vertical-align:.3em}
+  .theme h2{display:inline;font-size:1.5rem}
+  .theme-head p{margin-top:.45rem;font-size:15px;line-height:1.5}
+  /* The heading and the blurb already link to the topic page; a third link wrapped onto its own row. */
+  .showall a{display:none}
+}
 @media (max-width:400px){.grid{grid-template-columns:minmax(0,1fr)}}
 /* On a phone each theme previews one project; search or "Show all" brings the rest (main.all). */
 @media (max-width:600px){main:not(.all) .theme .grid>.card:nth-child(n+2){display:none}}

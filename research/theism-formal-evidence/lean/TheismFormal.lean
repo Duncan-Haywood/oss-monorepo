@@ -7,3 +7,4 @@ import TheismFormal.Plain
 import TheismFormal.Closure
 import TheismFormal.Models
 import TheismFormal.Fitting
+import TheismFormal.AFP

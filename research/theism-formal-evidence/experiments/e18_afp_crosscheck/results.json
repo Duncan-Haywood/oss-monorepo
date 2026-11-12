@@ -1,0 +1,6748 @@
+{
+ "sizes": [
+  [
+   1,
+   1,
+   false
+  ],
+  [
+   1,
+   2,
+   false
+  ],
+  [
+   1,
+   3,
+   false
+  ],
+  [
+   1,
+   4,
+   false
+  ],
+  [
+   2,
+   1,
+   false
+  ],
+  [
+   2,
+   2,
+   false
+  ],
+  [
+   2,
+   3,
+   false
+  ],
+  [
+   2,
+   4,
+   false
+  ],
+  [
+   3,
+   1,
+   false
+  ],
+  [
+   3,
+   2,
+   false
+  ],
+  [
+   3,
+   3,
+   false
+  ],
+  [
+   3,
+   4,
+   true
+  ],
+  [
+   4,
+   2,
+   true
+  ],
+  [
+   4,
+   3,
+   true
+  ]
+ ],
+ "frames": {
+  "1x1": {
+   "frames": 4,
+   "models": {
+    "I": 1,
+    "II": 1,
+    "III": 1,
+    "III-noA4": 1
+   },
+   "seconds": 0.0
+  },
+  "1x2": {
+   "frames": 16,
+   "models": {
+    "I": 7,
+    "II": 7,
+    "III": 7,
+    "III-noA4": 7
+   },
+   "seconds": 0.0
+  },
+  "1x3": {
+   "frames": 80,
+   "models": {
+    "I": 49,
+    "II": 49,
+    "III": 49,
+    "III-noA4": 49
+   },
+   "seconds": 0.0
+  },
+  "1x4": {
+   "frames": 480,
+   "models": {
+    "I": 375,
+    "II": 375,
+    "III": 375,
+    "III-noA4": 375
+   },
+   "seconds": 0.1
+  },
+  "2x1": {
+   "frames": 64,
+   "models": {
+    "I": 17,
+    "II": 17,
+    "III": 11,
+    "III-noA4": 11
+   },
+   "seconds": 0.0
+  },
+  "2x2": {
+   "frames": 512,
+   "models": {
+    "I": 339,
+    "II": 249,
+    "III": 183,
+    "III-noA4": 225
+   },
+   "seconds": 0.1
+  },
+  "2x3": {
+   "frames": 5120,
+   "models": {
+    "I": 6203,
+    "II": 3629,
+    "III": 2795,
+    "III-noA4": 4145
+   },
+   "seconds": 1.1
+  },
+  "2x4": {
+   "frames": 61440,
+   "models": {
+    "I": 115967,
+    "II": 57617,
+    "III": 45719,
+    "III-noA4": 78533
+   },
+   "seconds": 19.8
+  },
+  "3x1": {
+   "frames": 4096,
+   "models": {
+    "I": 1183,
+    "II": 1183,
+    "III": 427,
+    "III-noA4": 427
+   },
+   "seconds": 0.2
+  },
+  "3x2": {
+   "frames": 65536,
+   "models": {
+    "I": 80107,
+    "II": 35413,
+    "III": 17359,
+    "III-noA4": 25837
+   },
+   "seconds": 10.3
+  },
+  "3x3": {
+   "frames": 1310720,
+   "models": {
+    "I": 3903433,
+    "II": 1030849,
+    "III": 560671,
+    "III-noA4": 1250575
+   },
+   "seconds": 461.9
+  },
+  "3x4 S5": {
+   "frames": 307200,
+   "models": {
+    "I": 2698023,
+    "II": 1013025,
+    "III": 599883,
+    "III-noA4": 810561
+   },
+   "seconds": 548.7
+  },
+  "4x2 S5": {
+   "frames": 7680,
+   "models": {
+    "I": 22283,
+    "II": 9137,
+    "III": 2719,
+    "III-noA4": 3129
+   },
+   "seconds": 4.2
+  },
+  "4x3 S5": {
+   "frames": 307200,
+   "models": {
+    "I": 2913419,
+    "II": 802001,
+    "III": 301311,
+    "III-noA4": 413601
+   },
+   "seconds": 653.2
+  }
+ },
+ "rows": [
+  {
+   "statement": "A4b",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2953552,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "A4b",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2268495,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "A4b",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 685057,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "A4b",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1870002,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "A4b",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1448308,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "A4b",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 421694,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "A4b",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "A4b",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "A4b",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "A4b",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "A4b",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "A4b",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 9741406,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 6044481,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 3696925,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 5724144,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 3701914,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 2022230,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2953552,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2268495,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 685057,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1870002,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1448308,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 421694,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "D (axioms imply seriality)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 9741406,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 6044481,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 3696925,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 5724144,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 3701914,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 2022230,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2953552,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2268495,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 685057,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1870002,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1448308,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 421694,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodDefsAreEquivalent",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v1",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v1",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v1",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v1",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v1",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v1",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v1",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 196502,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "GodExImpliesNecEx_v1",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 112720,
+   "smallest": [
+    2,
+    3,
+    2
+   ],
+   "example": {
+    "size": "2x3",
+    "partition": [
+     0,
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     4
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     4,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "GodExImpliesNecEx_v1",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 83782,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "GodExImpliesNecEx_v1",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v1",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v1",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v2",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v2",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v2",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v2",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v2",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v2",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v2",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v2",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v2",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v2",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v2",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodExImpliesNecEx_v2",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodIsEssential",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2953552,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodIsEssential",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2268495,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodIsEssential",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 685057,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodIsEssential",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1870002,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodIsEssential",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1448308,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodIsEssential",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 421694,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodIsEssential",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodIsEssential",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodIsEssential",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodIsEssential",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodIsEssential",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodIsEssential",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v1 (de dicto)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v1 (de dicto)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v1 (de dicto)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v1 (de dicto)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v1 (de dicto)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v1 (de dicto)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v1 (de dicto)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 196502,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "GodNecExists_v1 (de dicto)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 112720,
+   "smallest": [
+    2,
+    3,
+    2
+   ],
+   "example": {
+    "size": "2x3",
+    "partition": [
+     0,
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     4
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     4,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "GodNecExists_v1 (de dicto)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 83782,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "GodNecExists_v1 (de dicto)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v1 (de dicto)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v1 (de dicto)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v2 (de re)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v2 (de re)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v2 (de re)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v2 (de re)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v2 (de re)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v2 (de re)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v2 (de re)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v2 (de re)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v2 (de re)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v2 (de re)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v2 (de re)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "GodNecExists_v2 (de re)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starIsEssential",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2953552,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starIsEssential",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2268495,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starIsEssential",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 685057,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starIsEssential",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1870002,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starIsEssential",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1448308,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starIsEssential",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 421694,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starIsEssential",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starIsEssential",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starIsEssential",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starIsEssential",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starIsEssential",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starIsEssential",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v1",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v1",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v1",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v1",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v1",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v1",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v1",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 196502,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "God_starNecExists_v1",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 112720,
+   "smallest": [
+    2,
+    3,
+    2
+   ],
+   "example": {
+    "size": "2x3",
+    "partition": [
+     0,
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     4
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     4,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "God_starNecExists_v1",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 83782,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "God_starNecExists_v1",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v1",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v1",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v2",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v2",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v2",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v2",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v2",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v2",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v2",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v2",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v2",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v2",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v2",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "God_starNecExists_v2",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "predicted",
+   "models": 9741406,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "predicted",
+   "models": 6044481,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "predicted",
+   "models": 3696925,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "predicted",
+   "models": 5724144,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "predicted",
+   "models": 3701914,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "predicted",
+   "models": 2022230,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "predicted",
+   "models": 2953552,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "predicted",
+   "models": 2268495,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "predicted",
+   "models": 685057,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "predicted",
+   "models": 1870002,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "predicted",
+   "models": 1448308,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "predicted",
+   "models": 421694,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "predicted",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "predicted",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "predicted",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "predicted",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "predicted",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "predicted",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "predicted",
+   "models": 2587476,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "predicted",
+   "models": 2024365,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "predicted",
+   "models": 563111,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "predicted",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "predicted",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "P principal, generated by a block (H22 d)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "predicted",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "Q4: box exists^E Q <-> (lambda X. box exists^E X)(down Q)",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 1366894,
+   "fail": 1166170,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ]
+   }
+  },
+  {
+   "statement": "Q4: box exists^E Q <-> (lambda X. box exists^E X)(down Q)",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 1123752,
+   "fail": 953564,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ]
+   }
+  },
+  {
+   "statement": "Q4: box exists^E Q <-> (lambda X. box exists^E X)(down Q)",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 243142,
+   "fail": 212606,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ]
+   }
+  },
+  {
+   "statement": "Q4: box exists^E Q <-> (lambda X. box exists^E X)(down Q)",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 564925,
+   "fail": 404785,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "Q4: box exists^E Q <-> (lambda X. box exists^E X)(down Q)",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 489105,
+   "fail": 350329,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "Q4: box exists^E Q <-> (lambda X. box exists^E X)(down Q)",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 75820,
+   "fail": 54456,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T1a",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 9741406,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 6044481,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 3696925,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 5724144,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 3701914,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 2022230,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2953552,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2268495,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 685057,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1870002,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1448308,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 421694,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1a",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1b",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 9741406,
+   "fail": 7308293,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 6044481,
+   "fail": 4209629,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 3696925,
+   "fail": 3098664,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 5724144,
+   "fail": 3615920,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     0,
+     1
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 3701914,
+   "fail": 2083794,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     0,
+     1
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 2022230,
+   "fail": 1532126,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     0,
+     1
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 2953552,
+   "fail": 1921567,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 2268495,
+   "fail": 1397243,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 685057,
+   "fail": 524324,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 1870002,
+   "fail": 937034,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     0,
+     1
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 1448308,
+   "fail": 660716,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     0,
+     1
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 421694,
+   "fail": 276318,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     0,
+     1
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 1531510,
+   "fail": 499525,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 1284319,
+   "fail": 413067,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 247191,
+   "fail": 86458,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1b",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1b",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1b",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 2587476,
+   "fail": 1140761,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 2024365,
+   "fail": 824285,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 563111,
+   "fail": 316476,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T1b",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1b",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T1b",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 9741406,
+   "fail": 822166,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 6044481,
+   "fail": 356596,
+   "smallest": [
+    2,
+    3,
+    2
+   ],
+   "example": {
+    "size": "2x3",
+    "partition": [
+     0,
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     4
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     4,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 3696925,
+   "fail": 465570,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 5724144,
+   "fail": 255348,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 3701914,
+   "fail": 112088,
+   "smallest": [
+    2,
+    3,
+    2
+   ],
+   "example": {
+    "size": "2x3",
+    "partition": [
+     0,
+     0,
+     1
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     4
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     4,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 2022230,
+   "fail": 143260,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 2953552,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 2268495,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 685057,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 1870002,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 1448308,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 421694,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 2587476,
+   "fail": 81786,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 2024365,
+   "fail": 43110,
+   "smallest": [
+    2,
+    3,
+    2
+   ],
+   "example": {
+    "size": "2x3",
+    "partition": [
+     0,
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     4
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     4,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 563111,
+   "fail": 38676,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deDicto",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 9741406,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 6044481,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 3696925,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 5724144,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 3701914,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 2022230,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2953552,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2268495,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 685057,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1870002,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1448308,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 421694,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T3_deRe",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v1",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v1",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v1",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v1",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v1",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v1",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v1",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 196502,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T4_v1",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 112720,
+   "smallest": [
+    2,
+    3,
+    2
+   ],
+   "example": {
+    "size": "2x3",
+    "partition": [
+     0,
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     4
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     4,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "T4_v1",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 83782,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "T4_v1",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v1",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v1",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v2",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v2",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v2",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v2",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v2",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v2",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v2",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v2",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v2",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v2",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v2",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "T4_v2",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 9741406,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 6044481,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "I",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 3696925,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 5724144,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 3701914,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "I",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 2022230,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2953552,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2268495,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "II",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 685057,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1870002,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1448308,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "II",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 421694,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "U1: P is an ultrafilter (B&F 2020)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "modal collapse",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 1531510,
+   "fail": 1210386,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "modal collapse",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 1284319,
+   "fail": 1019982,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "modal collapse",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 247191,
+   "fail": 190404,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "modal collapse",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 932968,
+   "fail": 611844,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     1
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "modal collapse",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 787592,
+   "fail": 523255,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     1
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "modal collapse",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 145376,
+   "fail": 88589,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     1
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "modal collapse",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 2587476,
+   "fail": 2266352,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "modal collapse",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 2024365,
+   "fail": 1760028,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "modal collapse",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 563111,
+   "fail": 506324,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "modal collapse",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "nitpick",
+   "models": 1261702,
+   "fail": 940578,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     1
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "modal collapse",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "nitpick",
+   "models": 1056442,
+   "fail": 792105,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     1
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "modal collapse",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "nitpick",
+   "models": 205260,
+   "fail": 148473,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     1
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "no empty domain (H22 f)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "predicted",
+   "models": 1531510,
+   "fail": 25038,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "no empty domain (H22 f)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "predicted",
+   "models": 1284319,
+   "fail": 19408,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "no empty domain (H22 f)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "predicted",
+   "models": 247191,
+   "fail": 5630,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "no empty domain (H22 f)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "predicted",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "no empty domain (H22 f)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "predicted",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "no empty domain (H22 f)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "predicted",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "no empty domain (H22 f)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "predicted",
+   "models": 2587476,
+   "fail": 60674,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "no empty domain (H22 f)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "predicted",
+   "models": 2024365,
+   "fail": 40568,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "no empty domain (H22 f)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "predicted",
+   "models": 563111,
+   "fail": 20106,
+   "smallest": [
+    2,
+    1,
+    1
+   ],
+   "example": {
+    "size": "2x1",
+    "partition": [
+     0
+    ],
+    "R": [
+     1,
+     1
+    ],
+    "dom": [
+     1,
+     0
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "no empty domain (H22 f)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "predicted",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "no empty domain (H22 f)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "predicted",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "no empty domain (H22 f)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "predicted",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "one necessary God-like being (E17's de re; not in the AFP)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "not stated",
+   "models": 1531510,
+   "fail": 235354,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     3,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "one necessary God-like being (E17's de re; not in the AFP)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "not stated",
+   "models": 1284319,
+   "fail": 235354,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     3,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "one necessary God-like being (E17's de re; not in the AFP)",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "not stated",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "one necessary God-like being (E17's de re; not in the AFP)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "not stated",
+   "models": 932968,
+   "fail": 112272,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "one necessary God-like being (E17's de re; not in the AFP)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "not stated",
+   "models": 787592,
+   "fail": 112272,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "one necessary God-like being (E17's de re; not in the AFP)",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "not stated",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "one necessary God-like being (E17's de re; not in the AFP)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "not stated",
+   "models": 2587476,
+   "fail": 1146720,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     3,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "one necessary God-like being (E17's de re; not in the AFP)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "not stated",
+   "models": 2024365,
+   "fail": 883180,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     3,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "one necessary God-like being (E17's de re; not in the AFP)",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "not stated",
+   "models": 563111,
+   "fail": 263540,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "one necessary God-like being (E17's de re; not in the AFP)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "not stated",
+   "models": 1261702,
+   "fail": 441006,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "one necessary God-like being (E17's de re; not in the AFP)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "not stated",
+   "models": 1056442,
+   "fail": 381122,
+   "smallest": [
+    2,
+    2,
+    1
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     0
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ],
+    "G": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "one necessary God-like being (E17's de re; not in the AFP)",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "not stated",
+   "models": 205260,
+   "fail": 59884,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     3,
+     3
+    ],
+    "dom": [
+     3,
+     3
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "possExImpliesNecEx_v1",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v1",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v1",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v1",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v1",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v1",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v1",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 196502,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "possExImpliesNecEx_v1",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 112720,
+   "smallest": [
+    2,
+    3,
+    2
+   ],
+   "example": {
+    "size": "2x3",
+    "partition": [
+     0,
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     4
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     4,
+     3
+    ]
+   }
+  },
+  {
+   "statement": "possExImpliesNecEx_v1",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 83782,
+   "smallest": [
+    2,
+    2,
+    2
+   ],
+   "example": {
+    "size": "2x2",
+    "partition": [
+     0,
+     1
+    ],
+    "R": [
+     2,
+     1
+    ],
+    "dom": [
+     1,
+     2
+    ],
+    "P": [
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      3
+     ]
+    ],
+    "G": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "statement": "possExImpliesNecEx_v1",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v1",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v1",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v2",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1531510,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v2",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1284319,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v2",
+   "stage": "III",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 247191,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v2",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 932968,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v2",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 787592,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v2",
+   "stage": "III",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 145376,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v2",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 2587476,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v2",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 2024365,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v2",
+   "stage": "III-noA4",
+   "logic": "K",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 563111,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v2",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "all",
+   "afp": "proved",
+   "models": 1261702,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v2",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "coarse",
+   "afp": "proved",
+   "models": 1056442,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  },
+  {
+   "statement": "possExImpliesNecEx_v2",
+   "stage": "III-noA4",
+   "logic": "S5",
+   "semantics": "full",
+   "afp": "proved",
+   "models": 205260,
+   "fail": 0,
+   "smallest": null,
+   "example": null
+  }
+ ]
+}
