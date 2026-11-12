@@ -3588,3 +3588,55 @@ under 30 points and over budget it keeps Quiet; bad flags are refused. Run on th
 picked Eager at 2.56 per 100 on the history, recorded 1899 as the baseline, then kept the pick.
 
 Not done: the page's hint button still uses the fixed budget (a plain-terms box is next); no person has used it.
+
+## A budget box on the page (2026-11-12, latest)
+
+The page's "Which How eager suits this series?" button used the fixed budget of 2 alerts per 100 checks; only the CLI
+(`--alerts-per`) took one in plain terms. Now the replay card has a box above the button: "About [n] alerts a
+[year | month | week], checked every [day | hour | week]". Blank is the tested default (2 per 100, about 7.3 a year at a
+daily check). The summary reads the budget back in both forms, so a person sees what their words meant.
+
+- **No second replay.** Alerts per 100 checks do not depend on how often the checks run, so the box only moves the
+  cut. `suggestFor(settings, budget, n)` (new in `watch-core.mjs`, used by `eagernessReplay` too) re-picks from the
+  last replay as the box changes; the replay itself runs once per button press.
+- **Off the tested budget, the evidence says so.** The "not a promise" line was measured at 2 per 100. At any other
+  budget `eagernessText` adds that those numbers are for the tested budget and gives the plain-budget menu from the
+  section above (about 1 a month: 19 of 31 future marks at 19.6 per 1,000; about 1 a week: 29 of 31 at 75.3).
+- **Two edge cases the browser check found.** "30 a week at a daily check" is 429 alerts per 100 checks, more than one
+  per check; `budgetFromPlain` now refuses it ("That is more than one alert per check (7 daily checks a week); give
+  at most 7"), in the CLI as well. And a budget of 0 a year printed the "a level that wanders all the time" advice,
+  which is wrong when the person simply asked for few alerts: under the default budget the text now says Quiet is
+  the least eager setting and leaves the wandering-level advice to budgets at or above 2. The old error said
+  "dayly"; fixed.
+- **Under 30 points the hint keeps Quiet**, as `--detector auto` already did (round 6 skipped those series). Before,
+  the page and `--suggest` would suggest Eager on, for example, the 24-point airmiles series, where every setting sent
+  nothing on a history too short to judge.
+
+What the box changes on real series in `data/` (default settings; rate = alerts per 100 daily checks on the
+history; computed with `suggestFor` on one replay each, not a round, deciding nothing):
+
+| series | points | quiet | middle | eager | default (7.3/yr) | 6 a year | 1 a month | 1 a week |
+|---|---|---|---|---|---|---|---|---|
+| nile | 100 | 1.25 | 1.25 | 2.50 | Middle | Middle | Eager | Eager |
+| uk-driver-deaths | 192 | 0.00 | 1.95 | 5.84 | Middle | Quiet | Middle | Eager |
+| lake-huron | 98 | 0.00 | 3.85 | 8.97 | Quiet | Quiet | Quiet | Eager |
+| us-unemployment | 202 | 3.70 | 6.79 | 12.96 | Quiet | Quiet | Quiet | Eager |
+| ausbeer | 218 | 0.00 | 0.00 | 1.71 | Eager | Middle | Eager | Eager |
+| payroll-views | 731 | 0.00 | 0.17 | 4.27 | Middle | Middle | Middle | Eager |
+| gold | 1074 | 1.51 | 3.60 | 9.53 | Quiet | Quiet | Quiet | Eager |
+
+uk-driver-deaths shows why the box matters: Middle sent 1.95 per 100 on the history, just under the default's 2, so
+"6 a year" (1.64) and "about 7 a year" give different answers. A person can now see that cliff instead of trusting
+one fixed number. "1 a week" picks Eager on every one of them, which matches round 6's B = 5 and plain-budget rows:
+a weekly budget is close to always-eager.
+
+Tests: `watch-eagerness.test.mjs` (7: re-picking from one replay matches a fresh replay at five plain budgets; the
+off-budget caveat; the under-30 rule), `watch-auto.test.mjs` (the over-one-per-check refusal and 7 a week = 100 per
+100), `watch-page.test.mjs` (the import). `eval/watch-eagerness-browser.mjs` in headless Chromium at 390 px on the Nile
+example (output `eval/watch-eagerness-browser.out.txt`, 15 of 15): 0 a year suggests Quiet without the wandering
+advice, 3 a week suggests Eager and reads back "42.9 alerts per 100 checks, about 13 alerts a month", "Use Eager" sets
+the watch select to `pelt`, -1 and 8 a week are refused in words, blank returns to the default, no page errors, no
+sideways scroll.
+
+Not done: the budget box does not carry into the "Keep watching" card's state (the card stores the setting, not the
+budget); no person has used it; the next real test of the hint is still a fresh labelled set.

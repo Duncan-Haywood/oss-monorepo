@@ -94,5 +94,10 @@ test('the page\'s budget box: re-picking from one replay matches a fresh replay 
   assert.match(month, /Those numbers are for the tested budget of 2 per 100 \(about 7\.3 alerts a year at a daily check\); at about 1 a month the same series reached 19 of 31/);
   const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
   for (const id of ['eager-alerts', 'eager-per', 'eager-every']) assert.match(html, new RegExp(`id="${id}"`));
-  assert.match(html, /suggestFor\(r\.settings, b\.budget\)/);
+  assert.match(html, /suggestFor\(r\.settings, b\.budget, r\.n\)/);
+  // Under 30 points the hint keeps Quiet whatever the budget, as --detector auto does, and says why.
+  const short = eagernessReplay(series(25, (i) => (i >= 15 ? 4 : 0), 4), null, { budget: 100 });
+  assert.equal(short.suggest, 'quiet');
+  assert.equal(suggestFor(short.settings, 100, short.n), 'quiet');
+  assert.match(eagernessText(short), /Suggested: Quiet\. 25 points is under the 30/);
 });

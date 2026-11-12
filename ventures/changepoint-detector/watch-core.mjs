@@ -347,14 +347,16 @@ export function eagernessReplay(values, labels = null, opts = {}) {
     const daily = r.n - r.from;
     return { key, detector, alerts: r.alerts.length, checks: daily, step: r.step, per100: daily ? (100 * r.alerts.length) / daily : 0, medianDelay: d.length ? (d.length % 2 ? d[m] : (d[m - 1] + d[m]) / 2) : null };
   });
-  return { n, from, model, budget, suggest: suggestFor(settings, budget), settings };
+  return { n, from, model, budget, suggest: suggestFor(settings, budget, n), settings };
 }
 
 /**
  * The round 6 rule on settings already replayed: the most eager one whose rate is at most `budget` alerts per 100
  * checks, else quiet. The page uses it to re-pick when the person changes the budget, without replaying again.
+ * Given `n`, a history under AUTO_MIN_POINTS keeps quiet, as `--detector auto` does (round 6 skipped those series).
  */
-export function suggestFor(settings, budget = HINT_BUDGET) {
+export function suggestFor(settings, budget = HINT_BUDGET, n = Infinity) {
+  if (n < AUTO_MIN_POINTS) return 'quiet';
   return [...settings].reverse().find((x) => x.per100 <= budget)?.key ?? 'quiet';
 }
 
@@ -370,7 +372,9 @@ export function eagernessText(res, { column = 'the series', every = 'day' } = {}
   for (const s of res.settings) lines.push(`  ${eagerName(s.key)} (${s.detector}): ${s.alerts} alert${s.alerts === 1 ? '' : 's'}, ${s.per100.toFixed(1)} per 100 checks${s.medianDelay !== null ? `, median ${s.medianDelay} rows late` : ''}.`);
   const fb = Number(Number(res.budget).toPrecision(3));
   const pick = res.settings.find((s) => s.key === res.suggest);
-  lines.push(res.suggest === 'quiet'
+  lines.push(res.n < AUTO_MIN_POINTS
+    ? `Suggested: Quiet. ${res.n} points is under the ${AUTO_MIN_POINTS} the suggestion was tested on, too short a history to choose from.`
+    : res.suggest === 'quiet'
     ? (pick.per100 > res.budget
       ? (res.budget < HINT_BUDGET
         ? `Suggested: Quiet, the least eager setting. Even Quiet would have sent ${pick.per100.toFixed(1)} alerts per 100 checks on this history, above your ${fb}.`

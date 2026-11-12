@@ -557,7 +557,7 @@
       if (!r) return;
       let b;
       try { b = eagerBudget(); } catch (e) { $("#eager-summary").textContent = String(e.message || e); $("#eager-use").hidden = true; return; }
-      const res = { ...r, budget: b.budget, suggest: suggestFor(r.settings, b.budget) };
+      const res = { ...r, budget: b.budget, suggest: suggestFor(r.settings, b.budget, r.n) };
       const lines = eagernessText(res, { column: r.column, every: b.every }).split("\n");
       $("#eager-summary").textContent = lines.filter((l) => l.startsWith("Suggested") || l.startsWith("Budget")).join(" ");
       $("#eager-table").innerHTML = `<tr><th>Setting</th><th class="n">Alerts</th><th class="n">Per 100 checks</th><th class="n">Median rows late</th></tr>` +
