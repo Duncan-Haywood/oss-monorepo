@@ -176,6 +176,7 @@ introduces a dated fact.
 | 2048 | Hrafnvík (invented), Reykjanes south coast: fissure eruption from Thu 13 Feb behind the Hrafnsfell, western barrier (built 2031) turns the main flow; a lobe reaches the 1909 timber church's churchyard Sun 16 Feb; lava model Varða (civil protection); land-based salmon farm Hrafnvík Lax (two 100 L/s bore pumps); eruption ends Sat 22 Feb | *The Stones in the Nave* |
 | 2216 | Chaumerolles (invented), Allier, beside the Forest of Tronçais: church of Saint-Hubert (fir frame 1861, steel-strapped 2081, good to about 2240), communal Bois du Curé (8 ha, 840 oaks planted Tue 11 Jan 2084 by Abbé Thibault Ravel and 26 schoolchildren, deliberation 'à abattre quand la charpente le demandera, et pas avant'); storm night of Fri 19 Jan 2216, 11,000 roofs and 2,300 frames in the Bourbonnais; region builds in oak since spruce and fir were lost; reconstruction timber cell, survey AI Cubage; 279 trees felled from Sat 23 Mar, abbé's oak (68.7 cm) to the Haddad farm at Les Brosses as a ridge beam; next thinning 2226; forester Jeanne Lavergne, carpenter Gaspard Moreau, engineer Solène Martel, mayor Fatou Diallo, Père Vincent Lê | *The Colbert Oaks* |
 | 2130 | Thorsby (invented), West Riding: Our Lady's (built 1958, roof with about ten years in it), Lady Close (2.14 ha, 38 co-op houses, common house of larch 2034), 99-year lease from Lady Day 2031 at a fixed £3,800 renewed from 22 Mar 2130 at the price of 30 t of milling wheat (seven-harvest average), reviews Lady Day 2163 and 2196, a new option for 2229; long winter 2071-73 (gas); Black Sea harvest failure 2096; records assistant Terrier; Agnieszka Wróbel, Dev Mistry, Winifred Asante, Helen Garside, Fr Paul Nkemelu | *Ninety-Nine Years* |
+| 2052 | Vellakkayal (invented), Kuttanad, Kerala: 180 ha puncha rice polder, sown 24 Nov 2051; sluice 1.8 m wide with a bottom-lifting steel gate (2031) and the old stop-log grooves; salinity buoy at 30 cm reads 0.7 dS/m while a weighted bottle finds 11.0 at 2.2 m (interface about 1.3 m down at high water); low corner 6 ha, 14 families, field water 4.8; 14 anjili planks of 15 cm, crest 30 cm under the surface, about 0.4 m³/s; leaks at the joints sealed by the feast tarpaulin, then a clay-smeared coconut-leaf mat; St Sebastian's feast kept Sun 21 Jan 2052 with a shorter display; secretary Thresiamma Varghese, grandson Tony, president Ouseppachan Mathai, ex-keeper Kunjappan (88), agriculture officer Anjana Pillai, feast convenor Varkey, Fr Biju, Saramma; assistant Ola | *The Top Water* |
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
 not on this timeline.
@@ -265,7 +266,7 @@ alike. *The Letter in the Wall* (For Other Minds, 2026) and *Ten Percent*
 
 Proposals, not commitments; pick one and say so in the PR. Each needs its
 numbers worked out before drafting. Finished ones live in [DONE.md](DONE.md)
-(335 on 2026-11-12), with the numbers each story used: read it before
+(336 on 2026-11-12), with the numbers each story used: read it before
 proposing. Mark a proposal you finish `*(Done: Title, place, date.)*` here
 or anywhere; `node bible_done.mjs` moves it there, and `node --test` fails
 until it has. An empty shelf below means: write a proposal.
