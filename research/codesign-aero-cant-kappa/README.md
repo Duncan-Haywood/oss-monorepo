@@ -4,6 +4,8 @@ Follow-up to `codesign-aero-cant-bound` (track 14, `codesign`). There the reacti
 
 **Live page:** https://marisstella.app/research/codesign-aero-cant-kappa/
 
+**Correction (2026-11-12).** The torque limits this project inherited understate yaw authority by 2× to 2.8× and overstate roll authority above TWR 2 (checked against a full four-rotor allocation in [`codesign-cant`](../codesign-cant/), milestone 1). Rerun with corrected limits, cant's advantage and its 35° plateau survive the correction.
+
 ![Left: held-out error against the cant bound for fixed κ and κ = c D with c = 0.06, 0.126, 0.25. Right: the cant angle chosen](experiments/kappa.png)
 
 **Headline (simulated; all numbers from `experiments/results.txt`).** Joint CMA-ES over arm length, propeller diameter, cant and six PID gains, 1920 evaluations, 5 seeds, 64 held-out wide-plant episodes:

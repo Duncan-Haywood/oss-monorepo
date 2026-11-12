@@ -4,6 +4,8 @@ Follow-up to `codesign-aero-cant` (track 14, `codesign`), whose joint optimum sa
 
 **Live page:** https://marisstella.app/research/codesign-aero-cant-bound/
 
+**Correction (2026-11-12).** The torque limits this project inherited understate yaw authority by 2× to 2.8× and overstate roll authority above TWR 2 (checked against a full four-rotor allocation in [`codesign-cant`](../codesign-cant/), milestone 1). Rerun with corrected limits, cant's advantage and its 35° plateau survive the correction.
+
 ![Left: held-out error against the allowed cant bound for tilt loss 0 and 0.2. Right: the cant angle the optimiser chose](experiments/bound.png)
 
 **Headline (simulated; all numbers from `experiments/results.txt`).** Joint CMA-ES over arm length, propeller diameter, cant and six PID gains, 1920 evaluations, 5 seeds, scored on 64 held-out wide-plant episodes:

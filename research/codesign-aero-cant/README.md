@@ -4,6 +4,8 @@ Follow-up to `codesign-aero-coupled` (track 14, `codesign`). That project found 
 
 **Live page:** https://marisstella.app/research/codesign-aero-cant/
 
+**Correction (2026-11-12).** The torque limits this project inherited understate yaw authority by 2× to 2.8× and overstate roll authority above TWR 2 (checked against a full four-rotor allocation in [`codesign-cant`](../codesign-cant/), milestone 1). Rerun with corrected limits, cant's advantage and its 35° plateau survive the correction.
+
 ![Left: held-out error against cant angle, with the reaction-torque ratio swept. Right: joint co-design with cant fixed at 0 or free](experiments/cant.png)
 
 **Headline (simulated; all numbers from `experiments/results.txt`).** Held-out combined RMS attitude error, 64 wide-plant episodes:
