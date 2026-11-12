@@ -98,10 +98,15 @@ function locate(a, labelIndex) {
 
 /**
  * Compare today's changes with the state and decide what to report. Pure: returns
- * { alerts, pending, state, notes }. `changes` from detectChanges on the same series.
+ * { alerts, pending, baseline, held, state, notes }. `changes` from detectChanges on the same series.
+ * Two flicker guards (round 5, eval/watch-flicker.mjs), off unless asked for:
+ *   holdHistory: a change dated where the first check already had `confirm` points after it (history the
+ *     baseline called quiet) is recorded as `held`, not alerted.
+ *   persist: 2 makes a change wait until a detection within `tolerance` of it was also present at the
+ *     previous check (state.seen), so a detection that appears for one check and vanishes is never sent.
  */
 export function advance(state, changes, n, labels, opts = {}) {
-  const { confirm, tolerance } = { ...WATCH_DEFAULTS, ...opts };
+  const { confirm, tolerance, holdHistory = false, persist = 1 } = { ...WATCH_DEFAULTS, ...opts };
   const st = state && state.version === STATE_VERSION ? state : emptyState();
   const notes = [];
   if (st.n && n < st.n) notes.push(`The series is shorter than at the last check (${n} points, was ${st.n}): rows were removed or the file was replaced.`);
@@ -109,25 +114,34 @@ export function advance(state, changes, n, labels, opts = {}) {
   const labelIndex = unique ? new Map(labels.map((x, i) => [String(x), i])) : null;
   if (st.lastLabel != null && labelIndex && !labelIndex.has(st.lastLabel)) notes.push(`The last label seen before (${st.lastLabel}) is no longer in the series: its history was rewritten.`);
   const known = st.alerted.map((a) => locate(a, labelIndex));
-  const alerts = [], pending = [], baseline = [];
+  const alerts = [], pending = [], baseline = [], held = [];
   // The first check of a file that already has history records the changes in it as the baseline
   // instead of alerting on each (opts.alertHistory reports them).
   const first = !st.n && !st.alerted.length && !opts.alertHistory;
+  // The last row the first check had `confirm` points after: changes up to it are history the baseline saw.
+  const quiet = first ? (n - confirm >= 0 ? { index: n - confirm, label: String(labels[n - confirm]) } : null) : st.quietUntil ?? null;
+  const quietAt = !quiet ? -1 : labelIndex ? (labelIndex.has(quiet.label) ? labelIndex.get(quiet.label) : -1) : quiet.index;
+  const seen = Array.isArray(st.seen) ? st.seen.map((a) => locate(a, labelIndex)) : [];
   for (const c of changes) {
     if (known.some((k) => Math.abs(k - c.index) <= tolerance)) continue;
     const after = n - c.index; // points from the change to the newest, inclusive
     if (after < confirm) { pending.push({ ...c, pointsAfter: after }); continue; }
     if (first) baseline.push({ ...c, pointsAfter: after });
+    else if (holdHistory && c.index <= quietAt) held.push({ ...c, pointsAfter: after });
+    else if (persist > 1 && !seen.some((k) => Math.abs(k - c.index) <= tolerance)) { pending.push({ ...c, pointsAfter: after, unconfirmed: true }); continue; }
     else alerts.push({ ...c, pointsAfter: after, late: after > 2 * confirm + 1 });
     known.push(c.index);
   }
+  const rec = (a, extra) => ({ index: a.index, label: String(a.label), reportedAtN: n, ...(a.shift !== undefined ? { shift: a.shift } : {}), ...extra });
   const next = {
     version: STATE_VERSION,
-    alerted: [...st.alerted, ...[...baseline, ...alerts].map((a) => ({ index: a.index, label: String(a.label), reportedAtN: n, ...(a.shift !== undefined ? { shift: a.shift } : {}), ...(first ? { baseline: true } : {}) }))],
+    alerted: [...st.alerted, ...baseline.map((a) => rec(a, { baseline: true })), ...held.map((a) => rec(a, { held: true })), ...alerts.map((a) => rec(a, {}))],
     n,
     lastLabel: labels.length ? String(labels[labels.length - 1]) : null,
+    ...(quiet ? { quietUntil: quiet } : {}),
+    ...(persist > 1 ? { seen: changes.map((c) => ({ index: c.index, label: String(c.label) })) } : {}),
   };
-  return { alerts, pending, baseline, state: next, notes };
+  return { alerts, pending, baseline, held, state: next, notes };
 }
 
 const fmt = (v) => (Math.abs(v) >= 100 ? String(Math.round(v * 10) / 10) : String(Number(v.toPrecision(3))));
@@ -172,7 +186,7 @@ export function recordText(state) {
   return a.map((c) => {
     let s = `${c.label}`;
     if (c.shift !== undefined) s += `: ${c.shift > 0 ? 'up' : 'down'} ${fmt(Math.abs(c.shift))}`;
-    s += c.baseline ? ' (in the history at the first check)' : ` (reported at point ${c.reportedAtN})`;
+    s += c.baseline ? ' (in the history at the first check)' : c.held ? ` (found at point ${c.reportedAtN}, dated inside the history the first check saw; not alerted)` : ` (reported at point ${c.reportedAtN})`;
     return s;
   }).join('\n');
 }
