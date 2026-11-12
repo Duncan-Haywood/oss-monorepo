@@ -1,5 +1,18 @@
 # sensing-selfcal research log
 
+## 2026-11-12 · Milestone 4b planned: does a view-level covariance (jackknife or clustered sandwich) make the update test honest, and do SB corners change it?
+
+Written before any milestone-4b solve was run. Milestone 4 left the χ² update test firing on 72.5% of unchanged splits with the reported covariance, and a scalar κ borrowed from the other camera (H19) under- or over-corrected per camera (10.8% left, 2.1% right). Milestone 3 found the leave-one-view-out jackknife σ of f conservative (rms z 0.65–0.70) where the reported σ is overconfident (≈ 2×). Here the scalar κ is replaced by a covariance each calibration computes from its own views, and the whole test is rerun on milestone 6's `findChessboardCornersSB` corners.
+
+- **Same splits.** Milestone 4's 60 splits per camera and k ∈ {3, 4, 5, 6} (old set of 7 views, new set of k from the other 6, seeds 4000 + 100k + i), the same disturbances S0–S3, the same rule (χ²<sub>3</sub> on f, c<sub>x</sub>, c<sub>y</sub> at 1%, adopt iff detected and reported σ<sub>f,new</sub>/f ≤ 0.5%), for two detectors: `cornerSubPix` 11×11 (milestones 1–5) and SB.
+- **Four covariances for Σ<sub>old</sub> + Σ<sub>new</sub>.** (R) reported (κ = 1); (T) reported × the other camera's nested rms z for that detector (milestone 3 for 11×11; milestone 6's SB subsets for SB, computed with H8's formula); (V) the 3×3 sandwich clustered by view, with the small-sample factor G/(G − 1); (J) the 3×3 leave-one-view-out jackknife, (m − 1)/m Σ(θ<sub>i</sub> − θ̄)(θ<sub>i</sub> − θ̄)ᵀ, each delete-one set re-solved cold from reference views 0 and n // 2. J needs k ≥ 4 (a 2-view delete-one set is not identifiable), so J's hypotheses are scored on k ≥ 4; V and R also on k ≥ 4 for the comparison. Under S1/S2 every covariance is scaled by s² as in milestone 4.
+- **H23 (better corners do not fix the false alarms).** With R and SB corners, S0 false alarms (k ≥ 4, pooled) ≥ 50%. Refuted if below 50%. Milestone 6 found SB corners shrink σ more than the error.
+- **H24 (few clusters bias the sandwich down).** With V, S0 false alarms (k ≥ 4, pooled) > 5% on both detectors. Refuted if ≤ 5% on either.
+- **H25 (the jackknife makes the test honest).** With J, S0 false alarms (k ≥ 4) ≤ 3% pooled and ≤ 5% on each camera, on both detectors. Refuted otherwise.
+- **H26 (the jackknife pays in power).** With J, the real unit swap S3 (k ≥ 4, pooled over directions) is detected in fewer splits than with T, on both detectors. Refuted if J detects at least as many on either detector.
+- **H27 (no harmful adoption with J).** With J, over all scenarios with k ≥ 4, adoptions whose f error exceeds the old calibration's by more than 0.5% of f ≤ 2% of decisions, on both detectors. Refuted if more on either.
+- **Reported, unscored.** The full power table (focal changes ±0.5–4%, principal-point shifts 2–10 px) for each covariance and detector; the gate applied with the jackknife σ<sub>f</sub> instead of the reported one; the per-parameter rms z on S0.
+
 ## 2026-11-12 · Milestone 4 result: the update test cries wolf on the raw covariance and goes deaf when inflated; each view set carries its own offset
 
 - **Runs.** 908 distinct view sets (old sets of 7, new sets of 3–6, all-view), all converged. The disturbance transform was checked by re-solving disturbed synthetic corners (match to 1e-4 px, `tests/test_selfcal.py`).
