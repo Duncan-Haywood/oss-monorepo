@@ -61,10 +61,18 @@ export function parseContentLine(s) {
   const params = {};
   for (const p of segs) {
     const eq = p.indexOf("=");
-    if (eq > 0) params[p.slice(0, eq).toUpperCase()] = p.slice(eq + 1).replace(/^"|"$/g, "");
+    if (eq <= 0) continue;
+    const key = p.slice(0, eq).toUpperCase(), val = p.slice(eq + 1).replace(/^"|"$/g, "");
+    // Enumerated parameter values are case-insensitive (RFC 5545 2.1): VALUE=date means VALUE=DATE.
+    params[key] = key === "VALUE" ? val.toUpperCase() : val;
   }
   return { name, params, value };
 }
+
+// A duration (RFC 5545 3.3.6) with at least one number: "P" or "-PT" alone is not one.
+const DUR_RE = /^([+-])?P(\d+W|(?=\d|T\d)(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+S)?)?)$/i;
+// Same parameter written back: quote a value that holds a separator, or the line re-parses differently.
+const paramText = (params) => Object.entries(params).map(([k, v]) => `;${k}=${/[:;,"]/.test(v) ? `"${v.replace(/"/g, "")}"` : v}`).join("");
 
 const DATE_RE = /^(\d{4})(\d{2})(\d{2})$/;
 const DT_RE = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z?)$/;
@@ -162,7 +170,7 @@ const walk = (c, f) => { f(c); c.children.forEach((k) => walk(k, f)); };
 
 export function parseRrule(value) {
   const o = {};
-  for (const part of value.split(";")) { const [k, v] = part.split("="); if (k) o[k.toUpperCase()] = v; }
+  for (const part of value.split(";")) { const [k, v] = part.split("="); if (k) o[k.toUpperCase()] = v === undefined ? v : v.toUpperCase(); /* values are case-insensitive (RFC 5545 2.1) */ }
   return o;
 }
 
@@ -274,6 +282,11 @@ export function validate(text) {
         else {
           if (s.kind === "datetime" && !s.utc && !ds.params.TZID) findings.push(F("info", ds.line, `${at}floating time`, "DTSTART has no Z and no TZID, so it means 'this local time wherever you are'. That is correct for some uses (a reminder at 9:00 anywhere) but a meeting will land at a different hour for people in other zones."));
           if (ds.params.VALUE === "DATE" && s.kind !== "date") findings.push(F("error", ds.line, `${at}VALUE=DATE with a time`, "DTSTART says it is a date but carries a time."));
+          if (du) {
+            const m = DUR_RE.exec(du.value.trim());
+            if (!m) findings.push(F("error", du.line, `${at}bad DURATION`, `"${du.value.slice(0, 30)}" is not a duration such as PT1H, PT30M, P1D or P1W. Importers drop the end of the event or reject it.`));
+            else if (m[1] === "-") findings.push(F("error", du.line, `${at}bad DURATION`, `"${du.value.slice(0, 30)}" is negative. An event's DURATION must be positive; a negative one is only for VALARM TRIGGER.`));
+          }
           if (de && du) findings.push(F("error", de.line, `${at}both DTEND and DURATION`, "An event may have one or the other, not both. Several importers reject the event. Not fixed automatically because it is not provable which is intended."));
           if (de) {
             const e = parseTime(de.value);
@@ -322,7 +335,7 @@ export function validate(text) {
         if (!act) findings.push(F("error", al.line, `${at}VALARM has no ACTION`, "Every reminder needs ACTION (DISPLAY, AUDIO or EMAIL). Google Calendar and Outlook drop or reject the reminder without it."));
         else if (!["DISPLAY", "AUDIO", "EMAIL"].includes(act.value.trim().toUpperCase())) findings.push(F("warning", act.line, `${at}VALARM ACTION ${act.value.slice(0, 20)} is not standard`, "RFC 5545 defines DISPLAY, AUDIO and EMAIL. Other values are ignored by most calendar apps."));
         if (!trig) findings.push(F("error", al.line, `${at}VALARM has no TRIGGER`, "A reminder needs TRIGGER, for example TRIGGER:-PT15M for 15 minutes before. Without it importers skip the reminder or reject the event."));
-        else if (!/^[+-]?P(\d+W|(\d+D)?(T(\d+H)?(\d+M)?(\d+S)?)?)$/i.test(trig.value.trim()) && trig.params.VALUE !== "DATE-TIME") findings.push(F("error", trig.line, `${at}bad VALARM TRIGGER`, `"${trig.value.slice(0, 30)}" is not a duration such as -PT15M or -P1D. Use VALUE=DATE-TIME for an absolute time.`));
+        else if (!DUR_RE.test(trig.value.trim()) && trig.params.VALUE !== "DATE-TIME") findings.push(F("error", trig.line, `${at}bad VALARM TRIGGER`, `"${trig.value.slice(0, 30)}" is not a duration such as -PT15M or -P1D. Use VALUE=DATE-TIME for an absolute time.`));
         if (act && act.value.trim().toUpperCase() === "DISPLAY" && !get(al, "DESCRIPTION")) findings.push(F("warning", al.line, `${at}DISPLAY alarm has no DESCRIPTION`, "RFC 5545 requires DESCRIPTION on a DISPLAY alarm; strict importers reject it."));
       }
       if (!get(ev, "SUMMARY")) findings.push(F("info", ev.line, `${at}no SUMMARY`, "The event will show as untitled."));
@@ -365,7 +378,7 @@ export function repair(text, { now = Date.now() } = {}) {
       if (ds && de && !get(ev, "DURATION")) {
         const s = parseTime(ds.value), e = parseTime(de.value);
         if (!s.error && !e.error && s.kind === "date" && e.kind === "date" && s.ms === e.ms) {
-          replace.set(de.line, `${de.name}${Object.entries(de.params).map(([k, v]) => `;${k}=${v}`).join("")}:${fmtDate(e.ms + 86400000)}`);
+          replace.set(de.line, `${de.name}${paramText(de.params)}:${fmtDate(e.ms + 86400000)}`);
           changes.push(`${label}: all-day DTEND moved to ${fmtDate(e.ms + 86400000)}`);
         }
       }
