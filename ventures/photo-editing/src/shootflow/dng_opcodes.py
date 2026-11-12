@@ -456,9 +456,11 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
                 stage3.append(wp)
                 continue
             if tag == TAG_OPCODE_LIST_1 and op.id in (FIX_BAD_PIXELS_CONSTANT, FIX_BAD_PIXELS_LIST) and cfa:
-                parser = parse_bad_pixels_constant if op.id == FIX_BAD_PIXELS_CONSTANT else parse_bad_pixels_list
                 try:
-                    stage1.append(parser(op))
+                    if op.id == FIX_BAD_PIXELS_CONSTANT:
+                        stage1.append(parse_bad_pixels_constant(op))
+                    else:
+                        stage1.append(parse_bad_pixels_list(op))
                 except OpcodeError as exc:
                     notes.append(f"{label} {op.name} unreadable and skipped: {exc}")
                 continue
