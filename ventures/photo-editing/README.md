@@ -1146,3 +1146,24 @@ How it was checked (`eval/tone-curve-2026-11-12.md`):
 Still open: whether the curve brings the render closer to Adobe's own (needs an Adobe render
 of a known frame), and Adobe's default curve for profiles with none.
 
+
+## Three calibration lights: DNG 1.6 profiles (2026-11-12)
+
+A two-matrix profile blends between tungsten and daylight. A photo lit by a fluorescent tube or
+an LED lies off that line, and DNG 1.6 lets a profile carry a third set of tags for a third
+light (`ColorMatrix3`, `CalibrationIlluminant3`, `CameraCalibration3`, `ForwardMatrix3`,
+`ProfileHueSatMapData3`), plus `IlluminantData` to describe a custom light by its xy or its
+spectrum. The developer now reads them from the DNG or a `.dcp` and blends the three sets the
+way Adobe's DNG SDK does: by the photo's white's distance to each light in a plane of tint and
+inverse temperature (`dng_colour.triple_weights`). The as-shot white is found by the SDK's loop on
+xy. The report names the sets used and their weights (`"ColorMatrix3 at 4225 K (weights
+0.00/0.00/1.00)"`). A third set that breaks the SDK's validity rules is ignored with a note
+saying why. A light coded 255 ("other") takes its white from `IlluminantData`, in two-light
+profiles too.
+
+How it was checked (`eval/triple-illuminant-2026-11-12.md`): on a synthetic fluorescent-lit
+scene the third matrix gives the patches back within 0.0005 linear, against 0.079 when the same
+file is read as two-light. Temperature and tint match colour-science's Robertson on 5,000 whites
+(to 6e-15 and 5e-13), and spectra give colour-science's xy on 20 CIE illuminants within 5e-5
+(`tools/triple_illuminant_check.py`). The weights were not compared value for value with the
+SDK's output, and no real DNG 1.6 profile has been read yet.

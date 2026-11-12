@@ -24,7 +24,8 @@ owner: duncan
 # assert no network calls).
 # Path to revenue (payment rails stay off): lead magnet and donations. A later
 # paid or bring-your-own-key tier could add scheduled refreshes, multi-location
-# and supplier-specific purchase-order export; not built (the order list from a stock file is).
+# and supplier-specific purchase-order export; not built (the order list from a stock file is, and since
+# 2026-11-12 a Wagner-Whitin order calendar priced against Silver-Meal, EOQ and lot-for-lot).
 # Liability: statistical forecast of supplied data, not advice; the page lists
 # what is not modelled. Unverified: tested on constructed and invented series
 # only, not on a published retail dataset.

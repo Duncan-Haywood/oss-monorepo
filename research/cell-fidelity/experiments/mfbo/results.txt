@@ -1,0 +1,138 @@
+cell-fidelity milestone 4b: co-kriging multi-fidelity BO against whole-pool screens and GP-EI (cached benchmark replay)
+30 seeds per pool size; target within 1% of the pool's best DFN@100; T1 = charged s to it
+cost A: each cell's median baseline fresh-run cost; cost B: scaled per design by its own 100-cycle benchmark time / the median design's
+DFN 100-cycle benchmark time per design: min 19.1, median 26.1, max 67.0 s
+
+A16
+cost A, pool 16
+method                             T1 median          95% CI DFN@100 calls low calls p vs GP-EI
+GP-EI DFN@100                          147.0   147.0-183.7             6.0       0.0           
+screen SPM@2                            54.3    54.3-66.6              2.0      16.0    1.4e-05
+screen SPM@100                          65.9    41.4-65.9              2.0      16.0    1.9e-05
+screen DFN@2                            46.0    46.0-46.0              1.0      16.0    3.2e-06
+coKrig aEI SPM@2                       151.3   150.3-174.9             6.0      10.5       0.17
+coKrig aEI DFN@2                       163.1   160.4-165.1             6.0      11.5       0.41
+coKrig MF-UCB SPM@2                    149.3   149.0-150.3             6.0       7.0      0.048
+coKrig MF-UCB DFN@2                    157.1   155.0-162.4             6.0       7.0       0.14
+  (extra, not in the plan: co-kriging started from 10 low-rung runs and DFN@100 on their best 2)
+coKrig aEI SPM@2 cheap-start            77.8    52.3-78.3              3.0      12.0    2.6e-05
+coKrig aEI DFN@2 cheap-start            38.0    38.0-90.3              2.0      10.0    4.2e-06
+coKrig MF-UCB SPM@2 cheap-start         77.0    52.3-77.1              3.0      10.5    1.3e-05
+coKrig MF-UCB DFN@2 cheap-start         38.0    38.0-88.3              2.0      10.0    1.5e-05
+
+A32
+cost A, pool 32
+method                             T1 median          95% CI DFN@100 calls low calls p vs GP-EI
+GP-EI DFN@100                          195.9   171.5-220.4             8.0       0.0           
+screen SPM@2                            96.4    84.1-108.6             3.5      32.0    5.5e-05
+screen SPM@100                          95.0    82.7-107.2             2.5      32.0    1.3e-05
+screen DFN@2                            67.6    67.6-92.1              1.0      32.0    4.1e-06
+coKrig aEI SPM@2                       179.1   175.1-202.3             7.0      16.5       0.88
+coKrig aEI DFN@2                       173.2   165.1-193.0             6.0      16.0      0.083
+coKrig MF-UCB SPM@2                    176.4   173.8-200.1             7.0      11.0       0.32
+coKrig MF-UCB DFN@2                    165.8   158.4-213.4             6.0      12.0       0.17
+  (extra, not in the plan: co-kriging started from 10 low-rung runs and DFN@100 on their best 2)
+coKrig aEI SPM@2 cheap-start           104.5    79.8-129.4             4.0      20.0    0.00013
+coKrig aEI DFN@2 cheap-start            97.0    91.7-124.9             3.0      17.0    8.5e-06
+coKrig MF-UCB SPM@2 cheap-start        102.0    77.1-127.1             4.0      12.0    4.4e-05
+coKrig MF-UCB DFN@2 cheap-start         90.3    88.3-120.2             3.0      12.0    9.3e-06
+
+A64
+cost A, pool 64
+method                             T1 median          95% CI DFN@100 calls low calls p vs GP-EI
+GP-EI DFN@100                          220.4   195.9-257.2             9.0       0.0           
+screen SPM@2                           168.2   143.7-192.7             6.0      64.0       0.01
+screen SPM@100                         153.2   141.0-165.5             3.5      64.0    3.3e-05
+screen DFN@2                           159.6   135.1-159.6             3.0      64.0     0.0006
+coKrig aEI SPM@2                       240.3   202.6-278.7             9.5      27.0       0.25
+coKrig aEI DFN@2                       209.2   186.0-248.6             7.0      25.5       0.41
+coKrig MF-UCB SPM@2                    226.1   212.8-274.2             9.0      14.0       0.24
+coKrig MF-UCB DFN@2                    204.6   187.6-242.0             7.5      14.5       0.23
+  (extra, not in the plan: co-kriging started from 10 low-rung runs and DFN@100 on their best 2)
+coKrig aEI SPM@2 cheap-start           158.6   146.2-185.7             6.0      35.0     0.0041
+coKrig aEI DFN@2 cheap-start           128.9   107.8-153.4             4.0      22.5    5.8e-05
+coKrig MF-UCB SPM@2 cheap-start        153.3   128.0-201.6             6.0      16.0    0.00062
+coKrig MF-UCB DFN@2 cheap-start        144.0   104.6-170.5             5.0      16.0    1.4e-05
+
+A96
+cost A, pool 96
+method                             T1 median          95% CI DFN@100 calls low calls p vs GP-EI
+GP-EI DFN@100                          220.4   195.9-257.2             9.0       0.0           
+screen SPM@2                           240.1   215.6-252.3             8.5      96.0       0.89
+screen SPM@100                         199.3   174.8-199.3             4.0      96.0      0.015
+screen DFN@2                           251.7   251.7-276.2             5.0      96.0       0.23
+coKrig aEI SPM@2                       269.1   242.3-282.7            10.5      31.5      0.025
+coKrig aEI DFN@2                       279.8   259.5-324.0            10.0      34.5     0.0019
+coKrig MF-UCB SPM@2                    274.9   237.0-299.2            11.0      15.5     0.0066
+coKrig MF-UCB DFN@2                    267.1   223.5-291.5            10.0      20.5      0.035
+  (extra, not in the plan: co-kriging started from 10 low-rung runs and DFN@100 on their best 2)
+coKrig aEI SPM@2 cheap-start           214.7   176.7-236.2             8.0      48.0      0.094
+coKrig aEI DFN@2 cheap-start           193.4   170.9-227.3             6.0      32.0      0.011
+coKrig MF-UCB SPM@2 cheap-start        177.1   140.2-227.3             7.0      18.0      0.014
+coKrig MF-UCB DFN@2 cheap-start        173.9   134.5-201.1             6.0      21.5    0.00031
+
+B64
+cost B, pool 64
+method                             T1 median          95% CI DFN@100 calls low calls p vs GP-EI
+GP-EI DFN@100                          259.4   218.9-302.2             9.0       0.0           
+screen SPM@2                           238.3   191.2-285.6             6.0      64.0       0.34
+screen SPM@100                         199.8   174.3-211.5             3.5      64.0    0.00087
+screen DFN@2                           174.1   143.1-184.0             3.0      64.0    0.00014
+coKrig aEI SPM@2                       300.0   231.9-354.8             9.5      27.0      0.053
+coKrig aEI DFN@2                       235.6   197.4-280.1             7.0      25.5       0.13
+coKrig MF-UCB SPM@2                    288.7   250.2-347.6             9.0      14.0      0.065
+coKrig MF-UCB DFN@2                    229.7   204.9-277.6             7.5      14.5      0.088
+  (extra, not in the plan: co-kriging started from 10 low-rung runs and DFN@100 on their best 2)
+coKrig aEI SPM@2 cheap-start           216.7   197.0-240.8             6.0      35.0      0.038
+coKrig aEI DFN@2 cheap-start           153.1   128.4-191.5             4.0      22.5    1.1e-05
+coKrig MF-UCB SPM@2 cheap-start        222.9   170.8-265.8             6.0      16.0     0.0076
+coKrig MF-UCB DFN@2 cheap-start        164.7   127.0-199.2             5.0      16.0    1.7e-06
+
+H. hypotheses
+H18 coKrig aEI SPM@2 median T1 240.3 s vs GP-EI 220.4 s on pools of 64 (cost A), p = 0.25: refuted
+H19 best co-kriging variant at 64 (cost A): coKrig MF-UCB DFN@2; pool 96 T1 267.1 vs GP-EI 220.4 (ratio 1.21, bar <= 1.0, refuted > 1.1); pool 16 T1 157.1 vs best screen 46.0 (ratio 3.41, bar <= 1.5, refuted > 2.0): refuted
+H20 Spearman of the 8 methods' median T1 at 64, cost A vs cost B: 0.90 (supported >= 0.8, refuted < 0.6): supported
+
+E. (extra, not in the plan; exploratory) cost split and cheap-start co-kriging against the best whole-pool screen, cost A
+pool method                             DFN@100 s low-rung s
+  16 GP-EI DFN@100                          147.0        0.0
+  16 coKrig MF-UCB DFN@2                    147.0        9.4
+  16 coKrig MF-UCB DFN@2 cheap-start         49.0       13.5
+  16 screen DFN@2                            24.5       21.5
+  32 GP-EI DFN@100                          195.9        0.0
+  32 coKrig MF-UCB DFN@2                    147.0       16.2
+  32 coKrig MF-UCB DFN@2 cheap-start         73.5       16.2
+  32 screen DFN@2                            24.5       43.1
+  64 GP-EI DFN@100                          220.4        0.0
+  64 coKrig MF-UCB DFN@2                    183.7       19.5
+  64 coKrig MF-UCB DFN@2 cheap-start        122.5       21.5
+  64 screen SPM@100                          85.7       67.5
+  96 GP-EI DFN@100                          220.4        0.0
+  96 coKrig MF-UCB DFN@2                    244.9       27.6
+  96 coKrig MF-UCB DFN@2 cheap-start        147.0       28.9
+  96 screen SPM@100                          98.0      101.3
+
+pool cheap-start variant                best screen       T1 med  screen wins losses      p
+  16 coKrig aEI SPM@2 cheap-start       screen DFN@2        77.8    46.0   10     20 0.0085
+  16 coKrig aEI DFN@2 cheap-start       screen DFN@2        38.0    46.0   18     12   0.19
+  16 coKrig MF-UCB SPM@2 cheap-start    screen DFN@2        77.0    46.0   10     20  0.015
+  16 coKrig MF-UCB DFN@2 cheap-start    screen DFN@2        38.0    46.0   18     12   0.19
+  32 coKrig aEI SPM@2 cheap-start       screen DFN@2       104.5    67.6    9     21  0.043
+  32 coKrig aEI DFN@2 cheap-start       screen DFN@2        97.0    67.6   10     20  0.086
+  32 coKrig MF-UCB SPM@2 cheap-start    screen DFN@2       102.0    67.6    8     22   0.06
+  32 coKrig MF-UCB DFN@2 cheap-start    screen DFN@2        90.3    67.6   13     17    0.4
+  64 coKrig aEI SPM@2 cheap-start       screen SPM@100     158.6   153.2   14     16   0.45
+  64 coKrig aEI DFN@2 cheap-start       screen SPM@100     128.9   153.2   17     13   0.15
+  64 coKrig MF-UCB SPM@2 cheap-start    screen SPM@100     153.3   153.2   13     17   0.86
+  64 coKrig MF-UCB DFN@2 cheap-start    screen SPM@100     144.0   153.2   19     11  0.047
+  96 coKrig aEI SPM@2 cheap-start       screen SPM@100     214.7   199.3   13     17    0.5
+  96 coKrig aEI DFN@2 cheap-start       screen SPM@100     193.4   199.3   15     15   0.86
+  96 coKrig MF-UCB SPM@2 cheap-start    screen SPM@100     177.1   199.3   17     13   0.66
+  96 coKrig MF-UCB DFN@2 cheap-start    screen SPM@100     173.9   199.3   18     12  0.052
+
+F. median T1 (charged s, cost A) against pool size (figure data)
+pool [GP-EI DFN@100] [screen SPM@100] [coKrig MF-UCB DFN@2] [coKrig MF-UCB DFN@2 cheap-start] [screen SPM@2] [screen DFN@2]
+16 146.961 65.867 157.058 37.956 54.304 46.034
+32 195.948 94.994 165.809 90.309 96.360 67.574
+64 220.442 153.247 204.568 144.008 168.227 159.641
+96 220.442 199.254 267.148 173.886 240.094 251.709

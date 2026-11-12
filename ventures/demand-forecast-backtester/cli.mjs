@@ -7,6 +7,7 @@
 //   node cli.mjs --json sales.csv                  # machine-readable
 //   cat sales.csv | node cli.mjs -                 # read stdin
 //   node cli.mjs --stock stock.csv sales.csv       # add what to order now (sku,on_hand[,on_order,moq,pack_size])
+//   node cli.mjs --stock stock.csv --order-cost 60 sales.csv   # plus a cheapest order calendar (needs unit_cost)
 //   node cli.mjs --example                         # run on the built-in synthetic data
 //
 // Zero dependencies, no network: the file is read locally and nothing is sent.
@@ -14,7 +15,8 @@
 
 import { readFile } from "node:fs/promises";
 import process from "node:process";
-import { parseSales, parseStock, orderPlan, analyze, reportCsv, sampleText, pct, num } from "./calc.mjs";
+import { parseSales, parseStock, orderPlan, purchaseSchedule, scheduleCsv, whenLabel, analyze, reportCsv, sampleText, pct, num, money } from "./calc.mjs";
+import { LOT_METHODS } from "./lotsize.mjs";
 
 const USAGE = `Back-test demand forecasts per SKU and get safety stock and reorder points.
 
@@ -27,6 +29,11 @@ Options:
   --service <percent>  target in-stock probability, 50 to 99.9 (default 95)
   --stock <file.csv>   stock file: sku, on_hand, optional on_order, moq, pack_size; adds an order list
   --cover <days>       days of demand to order beyond the reorder point (default: the lead time)
+  --order-cost <$>     cost of placing one order; with --stock and a unit_cost column, plans when to
+                       order and how much (Wagner-Whitin) and prices the rules of thumb against it
+  --carry <percent>    yearly holding cost as a percent of unit cost (default 25)
+  --plan <periods>     periods to plan ahead (default 26 weeks or 12 months)
+  --schedule-csv       print the planned orders as CSV (needs --order-cost)
   --keep-partial       keep a part-filled first or last period (default drops them)
   --top <n>            rows in the text table (default 15)
   --csv                one row per SKU as CSV
@@ -37,7 +44,7 @@ Options:
 Input: one row per sale or per day, with a date, a SKU and units sold.`;
 
 export function parseArgs(argv) {
-  const o = { period: "week", lead: 14, service: 95, top: 15, stock: null, cover: null, partial: "auto", csv: false, json: false, example: false, file: null, help: false };
+  const o = { period: "week", lead: 14, service: 95, top: 15, stock: null, cover: null, orderCost: null, carry: null, plan: null, scheduleCsv: false, partial: "auto", csv: false, json: false, example: false, file: null, help: false };
   const num = (flag, v) => { const n = Number(v); if (!Number.isFinite(n)) throw new Error(`${flag} needs a number`); return n; };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -48,6 +55,10 @@ export function parseArgs(argv) {
     else if (a === "--top") o.top = num(a, argv[++i]);
     else if (a === "--stock") { o.stock = argv[++i]; if (!o.stock) throw new Error("--stock needs a file"); }
     else if (a === "--cover") o.cover = num(a, argv[++i]);
+    else if (a === "--order-cost") o.orderCost = num(a, argv[++i]);
+    else if (a === "--carry") o.carry = num(a, argv[++i]);
+    else if (a === "--plan") o.plan = num(a, argv[++i]);
+    else if (a === "--schedule-csv") o.scheduleCsv = true;
     else if (a === "--keep-partial") o.partial = "keep";
     else if (a === "--csv") o.csv = true;
     else if (a === "--json") o.json = true;
@@ -56,7 +67,9 @@ export function parseArgs(argv) {
     else if (a.startsWith("--")) throw new Error(`unknown option ${a}`);
     else o.file = a;
   }
-  if (o.csv && o.json) throw new Error("use only one of --csv and --json");
+  if ([o.csv, o.json, o.scheduleCsv].filter(Boolean).length > 1) throw new Error("use only one of --csv, --json and --schedule-csv");
+  if (o.scheduleCsv && o.orderCost === null) throw new Error("--schedule-csv needs --order-cost");
+  if (o.orderCost !== null && !o.stock) throw new Error("--order-cost needs --stock (with a unit_cost column)");
   return o;
 }
 
@@ -66,13 +79,18 @@ export function run(text, opts = {}) {
   if (!(service >= 50 && service <= 99.9)) return { error: "service level must be between 50 and 99.9 percent" };
   const parsed = parseSales(text);
   if (parsed.error) return { error: parsed.error };
-  const result = analyze(parsed.rows, { period: opts.period || "week", leadDays: lead, serviceLevel: service / 100, partial: opts.partial || "auto" });
+  const result = analyze(parsed.rows, { period: opts.period || "week", leadDays: lead, serviceLevel: service / 100, partial: opts.partial || "auto", planPeriods: opts.plan ?? undefined });
   if (result.error) return { error: result.error };
   if (opts.stockText) {
     const st = parseStock(opts.stockText);
     if (st.error) return { error: st.error };
     result.purchase = orderPlan(result, st.stock, { coverDays: opts.cover ?? undefined });
     result.purchase.stockSkipped = st.skipped;
+    if (opts.orderCost !== null && opts.orderCost !== undefined) {
+      const sch = purchaseSchedule(result, st.stock, { orderCost: opts.orderCost, carryRate: opts.carry === null || opts.carry === undefined ? undefined : opts.carry / 100 });
+      if (sch.error) return { error: sch.error };
+      result.schedule = sch;
+    }
   }
   return { result, parsed };
 }
@@ -96,6 +114,17 @@ export function render(result, parsed, opts = {}) {
     for (const k of buy.slice(0, opts.top ?? 15)) out.push(`  ${k.sku.slice(0, 18).padEnd(18)} order ${num(k.order.qty).padStart(7)}   have ${num(k.order.onHand)} + ${num(k.order.onOrder)} on order, reorder point ${num(k.order.reorderPoint)}${k.order.notes.length ? "  (" + k.order.notes.join(" ") + ")" : ""}`);
     if (pp.unmatchedSales.length) out.push(`  No stock row for ${pp.unmatchedSales.length} SKU(s) with sales (e.g. ${pp.unmatchedSales.slice(0, 3).join(", ")}); they are not in the order list.`);
     if (pp.unmatchedStock.length) out.push(`  ${pp.unmatchedStock.length} stock SKU(s) never appear in the sales file (e.g. ${pp.unmatchedStock.slice(0, 3).join(", ")}); check spelling.`);
+  }
+  const sc = result.schedule;
+  if (sc) {
+    out.push("", `Order calendar: ${sc.planned} SKUs over ${sc.planPeriods} ${s.period}s, ${money(sc.orderCost)} an order, holding ${pct(sc.carryRate)} of unit cost a year`);
+    if (sc.planned) {
+      for (const m of LOT_METHODS) out.push(`  ${m.label.padEnd(30)} ${money(sc.totals[m.id]).padStart(10)}${m.id === "ww" ? "" : `   (+${money(sc.totals[m.id] - sc.totals.ww)})`}`);
+      out.push(`  Place now: ${sc.placeNow} orders, ${num(sc.unitsNow)} units.${sc.gaps ? ` ${sc.gaps} SKU(s) dip below safety stock before an order can land.` : ""}`);
+      const rows = result.skus.filter((k) => k.schedule).slice(0, opts.top ?? 15);
+      for (const k of rows) out.push(`  ${k.sku.slice(0, 18).padEnd(18)} ${k.schedule.plans.ww.orders.map((x) => `${whenLabel(x.place, s.period)}: ${num(Math.ceil(x.qty - 1e-9))}`).join("; ") || "nothing to order in the horizon"}`);
+    }
+    if (sc.noCost.length) out.push(`  No unit cost for ${sc.noCost.length} SKU(s) (e.g. ${sc.noCost.slice(0, 3).join(", ")}); add a unit_cost column to plan them.`);
   }
   if (parsed.skipped) out.push("", `${parsed.skipped} unreadable rows skipped (lines ${parsed.skippedLines.join(", ")}${parsed.skipped > parsed.skippedLines.length ? ", ..." : ""}).`);
   return out.join("\n");
@@ -124,6 +153,7 @@ async function main() {
   if (error) { console.error(`error: ${error}`); process.exit(2); }
   if (o.json) console.log(JSON.stringify(result, null, 2));
   else if (o.csv) process.stdout.write(reportCsv(result));
+  else if (o.scheduleCsv) process.stdout.write(scheduleCsv(result));
   else console.log(render(result, parsed, o));
 }
 

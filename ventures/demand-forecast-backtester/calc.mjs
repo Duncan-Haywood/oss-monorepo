@@ -1,4 +1,4 @@
-// Demand forecast back-tester. Pure functions, no network, no state, no imports.
+// Demand forecast back-tester. Pure functions, no network, no state; one local import (lotsize.mjs).
 //
 // Input: sales rows (date, SKU, units). Output: for every SKU, the forecasting
 // method that held up best when replayed on the SKU's own past, how much better
@@ -9,6 +9,8 @@
 // replayed from many past forecast origins, and the winner is picked on the
 // older origins and scored on the newest ones. A method that only looks good
 // because it was chosen on the same data it is scored on is reported as such.
+
+import { scheduleSku, LOT_METHODS } from "./lotsize.mjs";
 
 export const METHODS = [
   { id: "naive", label: "Repeat last period" },
@@ -367,6 +369,9 @@ export function analyze(rows, options = {}) {
   const horizon = Math.max(1, Math.min(12, Math.ceil(leadDays / cfg.days)));
   const service = Math.min(0.999, Math.max(0.5, Number(options.serviceLevel) || 0.95));
   const z = qnorm(service);
+  // Periods to forecast for the order schedule: half a year of weeks or a year of months, and always
+  // a few periods past the lead time so an order can be planned at all.
+  const planPeriods = Math.max(horizon + 4, Math.min(104, Math.floor(Number(options.planPeriods)) || (period === "week" ? 26 : 12)));
   const b = bucketSales(rows, period, options.partial || "auto");
   if (b.periods < 12) {
     return { error: `Only ${b.periods} ${period}s of history after cleaning. A back-test needs at least 12; 2 years is better, and seasonal methods need 2 full years.` };
@@ -386,7 +391,7 @@ export function analyze(rows, options = {}) {
     const bt = y.length >= 12 + horizon ? backtest(y, horizon, period) : { ok: false, origins: 0 };
     if (!bt.ok) {
       const fc = maFor(cfg.ma)(y, horizon);
-      Object.assign(row, { method: "ma", methodLabel: LABEL.ma, verified: false, leadDemand: sum(fc), perPeriod: fc, sigma: null, safetyStock: null, reorderPoint: null, wape: null, naiveWape: null, gain: null, origins: bt.origins || 0 });
+      Object.assign(row, { method: "ma", methodLabel: LABEL.ma, verified: false, leadDemand: sum(fc), perPeriod: fc, future: maFor(cfg.ma)(y, planPeriods), sigma: null, safetyStock: null, reorderPoint: null, wape: null, naiveWape: null, gain: null, origins: bt.origins || 0 });
       row.flags.push(`Too little history to back-test (${y.length} ${period}s); moving average shown, no safety stock.`);
       skus.push(row);
       continue;
@@ -396,12 +401,13 @@ export function analyze(rows, options = {}) {
     const win = score(bt, id, evalFrom, bt.origins.length);
     const nv = score(bt, "naive", evalFrom, bt.origins.length);
     const fc = methodSet(period, bt.seasonal)[id](y, horizon);
+    const future = methodSet(period, bt.seasonal)[id](y, planPeriods);
     const leadDemand = sum(fc);
     const sigma = score(bt, id, 0, bt.origins.length).rmse;
     const ss = z * sigma;
     const gain = nv.wape !== null && win.wape !== null && nv.wape > 0 ? 1 - win.wape / nv.wape : null;
     Object.assign(row, {
-      method: id, methodLabel: LABEL[id], verified: bt.honest, leadDemand, perPeriod: fc, sigma, safetyStock: ss, reorderPoint: leadDemand + ss,
+      method: id, methodLabel: LABEL[id], verified: bt.honest, leadDemand, perPeriod: fc, future, sigma, safetyStock: ss, reorderPoint: leadDemand + ss,
       low: Math.max(0, leadDemand - qnorm(0.975) * sigma), high: leadDemand + qnorm(0.975) * sigma,
       wape: win.wape, naiveWape: nv.wape, bias: win.bias, gain, origins: bt.origins.length, evalAbs: win.abs, naiveAbs: nv.abs, evalActual: win.actual, seasonalTested: bt.seasonal,
     });
@@ -427,7 +433,7 @@ export function analyze(rows, options = {}) {
   const byMethod = {};
   for (const s of skus) byMethod[s.method] = (byMethod[s.method] || 0) + 1;
   const summary = {
-    skus: skus.length, periods: b.periods, period, horizon, leadDays, service, z,
+    skus: skus.length, periods: b.periods, period, horizon, planPeriods, leadDays, service, z,
     startLabel: b.startLabel, endLabel: b.endLabel, tested: tested.length,
     pooledWape: pooledActual > 0 ? pooledWin / pooledActual : null,
     pooledNaiveWape: pooledActual > 0 ? pooledNaive / pooledActual : null,
@@ -453,6 +459,7 @@ const ONHAND_HEAD = /^(on[ _-]?hand|stock|in[ _-]?stock|qty[ _-]?on[ _-]?hand|in
 const ONORDER_HEAD = /^(on[ _-]?order|incoming|open[ _-]?po|inbound|in[ _-]?transit|po[ _-]?qty|on[ _-]?po)/i;
 const MOQ_HEAD = /^(moq|min(imum)?[ _-]?order|min[ _-]?qty)/i;
 const PACK_HEAD = /^(pack|pack[ _-]?size|case|case[ _-]?size|multiple|order[ _-]?multiple|carton)/i;
+const COST_HEAD = /^(unit[ _-]?cost|cost|cost[ _-]?per[ _-]?(item|unit)|landed[ _-]?cost|item[ _-]?cost|purchase[ _-]?price|buy[ _-]?price)/i;
 
 /**
  * Parse a stock file: one row per SKU with on-hand units, and optionally units already on order,
@@ -467,7 +474,7 @@ export function parseStock(text) {
   const iHand = head.findIndex((c, i) => i !== iSku && ONHAND_HEAD.test(c));
   if (iSku < 0 || iHand < 0) return { error: `Could not find a SKU column and an on-hand column in the stock header (${head.join(", ")}). Name them "sku" and "on_hand".` };
   const find = (re) => head.findIndex((c, i) => i !== iSku && i !== iHand && re.test(c));
-  const iOrd = find(ONORDER_HEAD), iMoq = find(MOQ_HEAD), iPack = find(PACK_HEAD);
+  const iOrd = find(ONORDER_HEAD), iMoq = find(MOQ_HEAD), iPack = find(PACK_HEAD), iCost = find(COST_HEAD);
   const n = (cells, i) => {
     if (i < 0 || cells[i] === undefined || cells[i] === "") return null;
     const v = Number(String(cells[i]).replace(/[, ]/g, ""));
@@ -479,6 +486,9 @@ export function parseStock(text) {
     const cells = splitLine(line, delim);
     const sku = cells[iSku];
     const hand = n(cells, iHand), ord = n(cells, iOrd), moq = n(cells, iMoq), pack = n(cells, iPack);
+    // Cost cells often carry a currency sign; a cost that still will not read is left blank, not fatal.
+    const rawCost = iCost >= 0 && cells[iCost] !== undefined ? String(cells[iCost]).replace(/[^0-9.\-]/g, "") : "";
+    const cost = rawCost === "" || !Number.isFinite(Number(rawCost)) || Number(rawCost) < 0 ? null : Number(rawCost);
     if (!sku || hand === null || [hand, ord, moq, pack].some((v) => Number.isNaN(v))) { skipped++; continue; }
     // Duplicate SKU rows (several bins or locations) add up.
     const key = sku.toLowerCase();
@@ -486,6 +496,7 @@ export function parseStock(text) {
     stock.set(key, {
       sku: prev?.sku ?? sku, onHand: (prev?.onHand || 0) + hand, onOrder: (prev?.onOrder || 0) + (ord || 0),
       moq: Math.max(prev?.moq || 0, moq || 0), pack: Math.max(prev?.pack || 0, pack || 0),
+      unitCost: cost ?? prev?.unitCost ?? null,
     });
   }
   if (!stock.size) return { error: "No readable rows in the stock file. Each row needs a SKU and a number of units on hand." };
@@ -538,6 +549,69 @@ export function orderPlan(result, stock, options = {}) {
   }
   for (const e of stock.values()) if (!seen.has(e.sku.toLowerCase())) plan.unmatchedStock.push(e.sku);
   return plan;
+}
+
+// ---------- order schedule (dynamic lot sizing) ----------
+
+/**
+ * Plan each SKU's orders over the forecast horizon (`summary.planPeriods`) so the total of order costs
+ * and holding costs is smallest, by Wagner-Whitin, and price the usual rules of thumb on the same
+ * forecast (lotsize.mjs). Needs a cost per order and, for each SKU, a unit cost from the stock file.
+ *
+ *   orderCost  fixed cost of placing and receiving one order of one SKU (freight, admin, receiving)
+ *   carryRate  yearly cost of holding a unit, as a share of its unit cost (default 0.25)
+ *
+ * Holding cost per unit per period = unit cost x carryRate x period days / 365. The lead time in
+ * periods is the one the forecast uses. Safety stock is kept as a floor and never planned away, so
+ * its holding cost is the same under every method and is left out of the comparison.
+ * Adds `schedule` to every SKU it plans and returns a summary.
+ */
+export function purchaseSchedule(result, stock, options = {}) {
+  const orderCost = Number(options.orderCost);
+  if (!(Number.isFinite(orderCost) && orderCost >= 0)) return { error: "Cost per order must be a number of dollars, zero or more." };
+  const carryRate = options.carryRate === undefined || options.carryRate === null || options.carryRate === "" ? 0.25 : Number(options.carryRate);
+  if (!(Number.isFinite(carryRate) && carryRate > 0 && carryRate <= 5)) return { error: "Holding cost must be a yearly percentage above 0 and at most 500." };
+  const { period, horizon, planPeriods } = result.summary;
+  const days = PERIOD[period].days;
+  const out = { orderCost, carryRate, planPeriods, leadPeriods: horizon, planned: 0, noCost: [], totals: Object.fromEntries(LOT_METHODS.map((m) => [m.id, 0])), placeNow: 0, unitsNow: 0, gaps: 0 };
+  for (const s of result.skus) {
+    const e = stock.get(s.sku.toLowerCase());
+    if (!e || !s.future) continue;
+    if (!(e.unitCost > 0)) { out.noCost.push(s.sku); continue; }
+    const hold = (e.unitCost * carryRate * days) / 365;
+    const sk = scheduleSku({ forecast: s.future, leadPeriods: horizon, onHand: e.onHand, onOrder: e.onOrder, safetyStock: s.safetyStock ?? 0, setup: orderCost, hold });
+    const best = sk.plans.ww;
+    const notes = [];
+    if (sk.gap > 0) notes.push(`About ${Math.ceil(sk.gap)} units short of the safety floor before the first order placed now could arrive: expedite or accept the risk.`);
+    if (e.moq && best.orders.some((o) => o.qty < e.moq)) notes.push(`Some planned orders are below the minimum order of ${e.moq}; the plan does not include minimums.`);
+    if (e.pack > 1) notes.push(`Round each order up to packs of ${e.pack}; the plan is in units.`);
+    s.schedule = { unitCost: e.unitCost, hold, gap: sk.gap, net: sk.net, plans: sk.plans, notes };
+    out.planned++;
+    for (const m of LOT_METHODS) out.totals[m.id] += sk.plans[m.id].cost;
+    const now = best.orders.find((o) => o.place === 0);
+    if (now) { out.placeNow++; out.unitsNow += now.qty; }
+    if (sk.gap > 0) out.gaps++;
+  }
+  return out;
+}
+
+/** When an order placed `place` periods from now is, in words. */
+export function whenLabel(place, period) {
+  return place === 0 ? "now" : `in ${place} ${period}${place === 1 ? "" : "s"}`;
+}
+
+/** One row per planned Wagner-Whitin order, for a purchase calendar. */
+export function scheduleCsv(result) {
+  const q = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  const period = result.summary.period;
+  const lines = ["sku,place_order,place_in_periods,arrives_in_periods,period,units,unit_cost,order_value"];
+  for (const s of result.skus) {
+    if (!s.schedule) continue;
+    for (const o of s.schedule.plans.ww.orders) {
+      lines.push([s.sku, whenLabel(o.place, period), o.place, o.arrive, period, Math.ceil(o.qty - 1e-9), s.schedule.unitCost.toFixed(2), (Math.ceil(o.qty - 1e-9) * s.schedule.unitCost).toFixed(2)].map(q).join(","));
+    }
+  }
+  return lines.join("\n") + "\n";
 }
 
 // ---------- output ----------
@@ -596,6 +670,17 @@ export function sampleText() {
       const date = `${2022 + Math.floor(t / 12)}-${String(month + 1).padStart(2, "0")}-01`;
       lines.push(`${date},${sku},${q}`);
     }
+  }
+  return lines.join("\n");
+}
+
+/** Invented stock for the 20 sample SKUs: on hand, on order, packs and unit costs, for the demo only. */
+export function sampleStockText() {
+  const rnd = mulberry32(20261112);
+  const lines = ["sku,on_hand,on_order,moq,pack_size,unit_cost"];
+  for (let k = 0; k < 20; k++) {
+    const sku = `SKU-${String(k + 1).padStart(3, "0")}`;
+    lines.push(`${sku},${Math.floor(rnd() * 600)},${rnd() < 0.3 ? 100 : 0},,${rnd() < 0.4 ? 12 : ""},${(2 + rnd() * 38).toFixed(2)}`);
   }
   return lines.join("\n");
 }
