@@ -1,9 +1,9 @@
 ---
 title: "Tack, then measure: how coarsely may a sheathing robot hang the sheet?"
 date: 2026-11-12
-tags: [buildbot-sheathing, construction-robotics, tolerance-analysis, humanoids, simulation]
+tags: [buildbot-sheathing, construction-robotics, tolerance-analysis, humanoid, simulation]
 seo_title: "How accurately must a robot hang wall sheathing before nailing?"
-description: On doubled joint studs a robot that tacks the sheet and measures its edge may hang it to 0.54° and 10 mm; on single 2x joints it needs 0.03° and 0.4 mm, and re-hanging tops out at 87% clean.
+description: "A sheathing robot that tacks and measures may hang a sheet to 0.54° and 10 mm on doubled joints; single 2x joints need 0.03° and 0.4 mm."
 ---
 
 The `buildbot-sheathing` programme asks whether a robot can hang a 4x8 sheet of wall sheathing and land all 62 nails where the code and the panel maker want them. Two earlier steps today and yesterday found the answer depends on the 34 joint nails, which must sit 3/8 in in from a sheet edge and still hit a 1.5 in stud. On a single 2x joint stud that leaves about ±3 mm. Bowed studs close it further.
