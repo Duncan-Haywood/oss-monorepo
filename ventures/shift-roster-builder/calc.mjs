@@ -1085,7 +1085,52 @@ function keptStart(ctx) {
     }
     if (best >= 0) { owner[i] = best; lists[best] = bestList; }
   }
+  // Eject moves for what is still open: p takes open shift i by giving up one shift j it clashes with, and j goes to whoever
+  // takes it at the least score or stays open, when that lowers the score (the open-hours term dominates, so a longer i for a
+  // shorter j is taken). Neither pass above can do it: a posted person whose 6-11 shift blocks the caller's 6-14 moves up
+  // as one change, where filling 6-14 around them took a chain of five (40 x 112 reissue, eval/reissue-ilp-score.mjs).
+  if (ctx.o.keptEject !== false) ejectOpen(ctx, owner, lists);
   return owner;
+}
+
+const slotHours = (ctx, i) => (ctx.slots[i].end - ctx.slots[i].start) / 60;
+
+function ejectOpen(ctx, owner, lists, passes = 3) {
+  const { P, S, slots, elig } = ctx;
+  const without = (list, j) => list.filter((x) => x !== j);
+  for (let pass = 0; pass < passes; pass++) {
+    let moved = false;
+    const open = [...Array(S).keys()].filter((i) => owner[i] < 0).sort((a, b) => slotHours(ctx, b) - slotHours(ctx, a) || a - b);
+    for (const i of open) {
+      if (owner[i] >= 0) continue;
+      let best = null;
+      for (let p = 0; p < P; p++) {
+        if (!elig[p][i]) continue;
+        const base = personScore(ctx, p, lists[p]);
+        for (const j of lists[p]) {
+          if (slots[j].fixed) continue;
+          const np = insertSorted(ctx, without(lists[p], j), i);
+          if (!validList(ctx, p, np)) continue;
+          let d = personScore(ctx, p, np) - base + BIG * (slotHours(ctx, j) - slotHours(ctx, i));
+          let q = -1, nq = null, dq = 0;
+          for (let r = 0; r < P; r++) {
+            if (r === p || !elig[r][j]) continue;
+            const nl = insertSorted(ctx, lists[r], j);
+            if (!validList(ctx, r, nl)) continue;
+            const dr = personScore(ctx, r, nl) - personScore(ctx, r, lists[r]) - BIG * slotHours(ctx, j);
+            if (dr < dq) { dq = dr; q = r; nq = nl; }
+          }
+          d += dq;
+          if (d < -1e-9 && (!best || d < best.d)) best = { d, p, j, np, q, nq };
+        }
+      }
+      if (!best) continue;
+      owner[i] = best.p; lists[best.p] = best.np; owner[best.j] = -1;
+      if (best.q >= 0) { owner[best.j] = best.q; lists[best.q] = best.nq; }
+      moved = true;
+    }
+    if (!moved) break;
+  }
 }
 
 // Single moves and swaps that lower the score and never leave a shift open that was covered.
@@ -3700,7 +3745,7 @@ export const TEMPLATES = {
 };
 
 export const _paidMinutes = paidMinutes;
-export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, BIG };
+export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, keptStart, BIG };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
 export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 
