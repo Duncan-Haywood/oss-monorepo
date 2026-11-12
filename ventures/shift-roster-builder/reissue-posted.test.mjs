@@ -106,3 +106,16 @@ test("CLI --changes keeps the posted shifts by default and --keep-posted 0 rebui
   const owed = (o) => Number(/Premium on your numbers[^:]*: \$([\d,.]+)/.exec(o)[1].replace(/,/g, ""));
   assert.ok(owed(kept) < owed(free), `kept ${owed(kept)} vs free ${owed(free)}`);
 });
+
+test("on the salon and retail templates the kept reissue never opens more hours and never makes more changes than a free rebuild", async () => {
+  const { TEMPLATES } = await import("./calc.mjs");
+  const { studyWeek, tally } = await import("./eval/reissue-scale.mjs");
+  for (const k of ["salon", "retail"]) {
+    const r = studyWeek(TEMPLATES[k].staff(), TEMPLATES[k].shifts());
+    assert.equal(r.cases.length, 14, k);
+    const t = tally(r.cases);
+    assert.equal(t._cmp.openUp, 0, k);
+    assert.equal(t._cmp.more, 0, k);
+    assert.ok(t["keep/shift 1"].changes < t.rebuild.changes, `${k}: ${t["keep/shift 1"].changes} vs ${t.rebuild.changes}`);
+  }
+});
