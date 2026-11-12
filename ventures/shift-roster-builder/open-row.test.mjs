@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { solveLP } from "./bnp.mjs";
 import { parseStaff, parseShifts, scoreBoundByColumnGeneration, _internals } from "./calc.mjs";
 
-const { buildContext, scoreOwner, ownerValid } = _internals;
+const { buildContext, scoreOwner, ownerValid, earlyOpenFloor } = _internals;
 
 test("solveLP with weighted columns: a row with other coefficients than 1, scaled to a right-hand side of 1", () => {
   // Shifts of 3 h and 8 h, one person who can hold either or none, open hours at least 3 (row 3: 3/3 x0 + 8/3 x1 - surplus = 1).
@@ -74,4 +74,21 @@ test("with the true least open hours as the row, the score bound stays at or bel
   }
   assert.ok(checked >= 150, `only ${checked} weeks with open hours`);
   assert.ok(raised >= 3, `the row raised the root LP on only ${raised} weeks`);
+});
+
+test("the early floor (lifted coverage root LP) never exceeds the brute-force least open hours, and fires where whole shifts matter", () => {
+  let fired = 0, checked = 0;
+  for (let seed = 1; seed < 400; seed++) {
+    const { staff, slots } = seededWeek(seed * 7919, 3, 6);
+    const { best, leastOpen } = brute(staff, slots, {});
+    if (!(leastOpen > 0)) continue;
+    checked++;
+    const e = earlyOpenFloor(buildContext(staff, slots, {}), best);
+    if (!e) continue;
+    fired++;
+    assert.ok(e.floor <= leastOpen + 1e-9, `seed ${seed}: early floor ${e.floor} above the least open hours ${leastOpen}`);
+    assert.ok(e.floor > e.rootLP, `seed ${seed}: returned without lifting the LP`);
+  }
+  console.log(`early floor fired on ${fired} of ${checked}`);
+  assert.ok(checked >= 150 && fired >= 3, `fired on ${fired} of ${checked}`);
 });
