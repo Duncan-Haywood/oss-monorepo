@@ -159,14 +159,26 @@ published theorem. Without A4, the de re conclusion still holds in K. The de dic
 S5 but fails in K (Lean 4, `lean/TheismFormal/AFP.lean`: `afp_de_re_K`, `afp_de_dicto_K_A4`,
 `cm_dedicto_noA4`) ([results](experiments/e18_afp_crosscheck/results.md)).
 
+**M2 (part), Anderson's variant needs only symmetry (E19, 2026-11-12).** All claims of the AFP's
+formalisation of Anderson's variant (`AndersonProof.thy`) reproduce in an exhaustive search of
+8,112,532 frames (every accessibility relation up to 3 worlds × 2 individuals, empty domains
+allowed, full and coarse algebras). On the 17,742 frames where the two overlap, the S5 models
+are exactly E12's. The file proves its conclusion (God necessarily exists) in S5. The conclusion
+holds in every model on a symmetric frame, with or without reflexivity, transitivity or A4a. It
+fails in K, T, K4 and S4: in S4, in 96,036 of 136,466 models; the smallest has 2 worlds and 1
+individual. Proved in Lean 4 for any frame, domains and property collection
+(`lean/TheismFormal/AndersonK.lean`: `nec_exists_symm`, `essential_symm`, `essential_refl`,
+`domain_nonempty_symm`). So the modal premise Anderson's argument rests on is the B axiom, as for
+the Hartshorne–Plantinga argument (H2) ([results](experiments/e19_afp_anderson/results.md)).
+
 ## Layout
 
 - `src/logic.py`: decision procedures (S5 exact, K/T/B/S4 by certified countermodels, monadic first-order exact), minimal inconsistent and maximal consistent subsets.
 - `src/arguments.py`: the 11 arguments, each with its published source.
 - `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
-- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) E12's varying-domain theorems (`TheismFormal/Varying.lean`) E13's actualist ones (`TheismFormal/Actualist.lean`) E14's plain-necessity ones (`TheismFormal/Plain.lean`) E15's closure condition and 8-cell countermodel (`TheismFormal/Closure.lean`) E16's model characterisations (`TheismFormal/Models.lean`) E17's theorems on Fitting's variant (`TheismFormal/Fitting.lean`) and E18's K-logic corollaries (`TheismFormal/AFP.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
-- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`, `experiments/e12_varying_domains/run.py`, `experiments/e13_actualist_necessity/run.py`, `experiments/e14_plain_necessity/run.py`, `experiments/e15_a5z_not_a5/run.py`, `experiments/e17_fitting/run.py`: these regenerate `results.md` and `results.json`.
-- `test_theism.py`: 26 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
+- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) E12's varying-domain theorems (`TheismFormal/Varying.lean`) E13's actualist ones (`TheismFormal/Actualist.lean`) E14's plain-necessity ones (`TheismFormal/Plain.lean`) E15's closure condition and 8-cell countermodel (`TheismFormal/Closure.lean`) E16's model characterisations (`TheismFormal/Models.lean`) E17's theorems on Fitting's variant (`TheismFormal/Fitting.lean`) E18's K-logic corollaries (`TheismFormal/AFP.lean`) and E19's frame-condition theorems for Anderson's variant (`TheismFormal/AndersonK.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
+- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`, `experiments/e12_varying_domains/run.py`, `experiments/e13_actualist_necessity/run.py`, `experiments/e14_plain_necessity/run.py`, `experiments/e15_a5z_not_a5/run.py`, `experiments/e17_fitting/run.py`, `experiments/e18_afp_crosscheck/run.py`, `experiments/e19_afp_anderson/run.py`: these regenerate `results.md` and `results.json`.
+- `test_theism.py`: 28 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
 
 ## Run
 

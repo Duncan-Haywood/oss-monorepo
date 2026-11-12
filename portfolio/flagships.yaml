@@ -187,10 +187,10 @@ flagships:
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     buildable: >-
-      FixVignetteRadial and MapPolynomial in dng_opcodes.py on synthetic DNGs
-      (closed-form answers, as tests/test_dng_warp.py does for the warp), then
-      look for a camera DNG carrying them in metadata-extractor-images on
-      raw.githubusercontent.com.
+      FixBadPixelsConstant and FixBadPixelsList (neighbour averaging along the
+      CFA) and WarpFisheye in dng_opcodes.py on synthetic DNGs with closed-form
+      answers, as tests/test_dng_vignette_poly.py does; MapTable and
+      Delta/ScalePerRow/Column are smaller and the same shape.
     next: >-
       History and every measurement: README and eval/ (ingest, catalog,
       proxies, cull, RAW previews; DNG developer with DNG-spec colour, DCP
@@ -202,8 +202,10 @@ flagships:
       the phone's OpcodeList2 GainMap lens shading runs, eval/camera-dngs-
       2026-11-12.md; OpcodeList3 WarpRectilinear runs and matches the Leica
       T's own preview to 0.18 px against 4.2 px uncorrected, eval/warp-
-      rectilinear-2026-11-12.md). Next, most valuable first: the other
-      opcodes (FixVignetteRadial, MapPolynomial, FixBadPixels, WarpFisheye);
+      rectilinear-2026-11-12.md; FixVignetteRadial/MapPolynomial on
+      synthetic files, eval/vignette-polynomial-2026-11-12.md).
+      Next, most valuable first: FixBadPixels, WarpFisheye, MapTable; a real
+      DNG carrying FixVignetteRadial;
       lateral colour measured on a real frame with sharp corner edges; a real Adobe `.dcp` through the profile chooser;
       newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that
       collection under their plain names) and the DJI DNG (name unknown
@@ -215,10 +217,9 @@ flagships:
       tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
       Adobe render of a known frame (settles `--default-tone-curve always`);
       the grade-scope saving on real 4K footage; the native Huffman reader on
-      macOS and the 0.8 s list the public decoder still builds dropped; a
-      camera-written lossless-JPEG DNG; a trained blink model and a real shoot
-      with a photographer's picks; photos with a real horizon and human tilt
-      labels.
+      macOS; a camera-written lossless-JPEG DNG; a trained blink model and a
+      real shoot with a photographer's picks; photos with a real horizon and
+      human tilt labels.
 
   - venture: quick-pick-survey
     why: >-

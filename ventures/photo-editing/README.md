@@ -1355,3 +1355,25 @@ the warp on they drop to 0.18 px, the same as the matcher's noise across the rad
 `tools/warp_preview_check.py` runs that check on any DNG with a preview and a warp. The formula is
 also checked exactly on synthetic ramps (13 tests) and agrees with darktable's reading of the same
 opcode. Details, choices and what is not checked: `eval/warp-rectilinear-2026-11-12.md`.
+
+## Vignetting and value maps from the DNG: FixVignetteRadial and MapPolynomial (2026-11-12)
+
+Two more opcodes now run, in `OpcodeList2` (on the sensor values, before demosaic) and
+`OpcodeList3` (after it), in the order the list gives them alongside `GainMap` and
+`WarpRectilinear`. `FixVignetteRadial` brightens the frame by `1 + k0 r^2 + ... + k4 r^10`, with
+`r` the distance from the optical centre over the distance to the farthest corner, capped at
+white. `MapPolynomial` maps each value in an area, plane range and pitch through a polynomial of
+degree up to 8, pinned to 0..1. In stage 3 the developer holds white-balanced values, so each
+plane is divided by its white-balance scale for the polynomial and multiplied back: the opcode
+sees the 0..1 camera values the specification describes. Both engines give the same bytes, and
+`--no-opcodes` turns them off. Anything in `OpcodeList1` is still named and not run.
+
+What is checked: 13 tests (`tests/test_dng_vignette_poly.py`) against the formulas written out
+independently. A raw file darkened by the inverse of a known vignette, or with its red sensels
+halved, develops back to the undarkened scene within 3 8-bit steps (the darkened sensels'
+rounding); a stage-3 vignette and polynomial hit the closed form at every pixel to 12 places;
+area, plane and pitch select exactly the named samples; numpy and pure Python agree byte for
+byte with a mixed list in both stages, full and half size. What is not: no camera-written DNG
+carrying either opcode has been found (`eval/vignette-polynomial-2026-11-12.md` lists the names
+tried), and the SDK evaluates the vignette on a coarser fixed-point mask, so an Adobe render may
+differ in the last bits.

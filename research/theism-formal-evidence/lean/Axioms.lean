@@ -47,3 +47,10 @@ open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actual
 #print axioms TheismFormal.AFP.afp_de_re_K
 #print axioms TheismFormal.AFP.afp_de_dicto_K_A4
 #print axioms TheismFormal.AFP.cm_dedicto_noA4
+#print axioms TheismFormal.AndersonK.t3
+#print axioms TheismFormal.AndersonK.essential_refl
+#print axioms TheismFormal.AndersonK.essential_symm
+#print axioms TheismFormal.AndersonK.nec_exists_symm
+#print axioms TheismFormal.AndersonK.domain_nonempty_symm
+#print axioms TheismFormal.AndersonK.a4b_symm
+#print axioms TheismFormal.AndersonK.rigid_symm
