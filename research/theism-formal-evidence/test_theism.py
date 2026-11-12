@@ -317,6 +317,18 @@ def test_e19_afp_anderson_claims_and_frame_conditions():
     assert res["smallest"]["modal collapse|III|S5"]["individuals"] == 1
 
 
+def test_e20_separating_algebras_need_no_frame_condition():
+    """H24: GodIsEssential and GEINE never fail when singletons, complements and E! are properties;
+    every GodIsEssential failure has a second existing God-like individual at a successor."""
+    e20 = _load("e20_full_semantics")
+    res = e20.run([(1, 2), (2, 1), (2, 2), (3, 1)])
+    for key, (bad, n) in res["table"].items():
+        if "|separating|" in key:
+            assert bad == 0, key
+    assert res["h24d_failures_without"] == 0
+    e20.test_full_semantics_is_separating(); e20.test_trivial_algebra_is_not_separating()
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

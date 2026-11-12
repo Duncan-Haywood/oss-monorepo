@@ -54,3 +54,9 @@ open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actual
 #print axioms TheismFormal.AndersonK.domain_nonempty_symm
 #print axioms TheismFormal.AndersonK.a4b_symm
 #print axioms TheismFormal.AndersonK.rigid_symm
+#print axioms TheismFormal.AndersonK.god_unique
+#print axioms TheismFormal.AndersonK.essential_any
+#print axioms TheismFormal.AndersonK.god_exists_succ
+#print axioms TheismFormal.AndersonK.geine_any
+#print axioms TheismFormal.AndersonK.essential_failure
+#print axioms TheismFormal.AndersonK.CM.cm_s4_full
