@@ -152,14 +152,7 @@ flagships:
       fail EU BR-CL-17/18 though AMA's rules admit them: which validator
       does AT run?); Poland's FA(3) on a KSeF test-environment file and a
       real correction, advance or settlement file; the rules and a repair
-      on a real ERP or Factur-X export; PINT JP/MY/AE/OM loaded 2026-11-12
-      (README "PINT Japan, Malaysia, UAE and Oman": OpenPeppol's 123
-      examples 2 to 117 pass; OM baisa line nets and line VAT closed
-      2026-11-12, OM 49/49, README "Baisa line nets"); PINT repair
-      closed 2026-11-12 (README "PINT Oman, UAE and Malaysia": OM seeded 657/658,
-      AE and MY correct files 32/32 and 26/26, AE reverse charge kept at 0); INV-060 flags
-      a wrong UAE BTAE-08/10 or Oman BTOM-016/017 2026-11-12 (355/355 seeds, 0 on 136
-      correct files, README "INV-060"); open: AE volume-discount credit note, a real business's PINT file; BT-86, ZATCA line
+      on a real ERP or Factur-X export; PINT JP/MY/AE/OM rules, repair and INV-060 (UAE BTAE-08/10, Oman BTOM-016/017) landed 2026-11-12 (README); open: AE volume-discount credit note, a real business's PINT file; BT-86, ZATCA line
       TaxTotal, CIUS-RO 1.3.8 base, ZATCA/A-NZ repair (257/258,
       270/270) and INV-059 closed 2026-11-12 (README); open: a 1.3.8 base on the Saxon route; RO_CIUS on a real ANAF
       file; NLCIUS on a real Dutch file; India's INV-01 check on a real
@@ -169,7 +162,7 @@ flagships:
       (excerpts; Taiwan, Oman dates disagree); Mexico CFDI 4.0 and three complements landed 2026-11-12 (README "Mexico: ..."):
       open: a real payroll or export file, a PAC rejection compared,
       Carta Porte, postal code to municipality/colonia;
-      Brazil NF-e 4.00 landed 2026-11-12 (README "Brazil: NF-e"); open: PL_010 IBS/CBS groups, a real SEFAZ rejection, NFS-e; refresh the Bulgaria
+      Brazil NF-e 4.00 landed 2026-11-12 (README "Brazil: NF-e"; 35 real files, vII fix); open: PL_010 IBS/CBS groups, a real SEFAZ rejection, NFS-e; refresh the Bulgaria
       page when its draft passes. A run that lands a slice replaces its
       item here; keep this under 2,000 characters.
 
