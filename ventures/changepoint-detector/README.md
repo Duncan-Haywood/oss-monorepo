@@ -2929,3 +2929,33 @@ well as any repeat model tried here, and it needs no new code: `--penalty` with 
 rule was written, so it needs its own pre-registration, on TCPD's four sticky series and on frozen orange
 juice (where it must still find the big freezes), before the sticky-series warning can suggest it. Test:
 `drift-sticky-why.test.mjs`.
+
+### A doubled penalty on sticky series: fewer cuts, lost freezes (2026-11-12, pre-registered, negative)
+
+The lead above, tested. `eval/drift-sticky-penalty.mjs` (`.out.txt`; rule in its header, committed in
+ad6c8a60 before any real series was fitted at 4 log n) runs the shipped `--model drift` at 2 log n
+(shipped) and 4 log n on every real series where the sticky check fires: TCPD's four (scored with TCPD's
+F1, margin 5, and cover) and frozen orange juice (the eight freezes, found within 2 months). The rule
+said the warning could suggest 4 log n only if mean F1 on the four did not fall, mean cover fell by no
+more than 0.02, juice kept at least 7 of 8 freezes, and juice's cuts at least halved.
+
+| series (repeats) | cuts / F1 / cover at 2 log n | at 3 log n (descriptive) | at 4 log n |
+|---|---|---|---|
+| bank (42%) | 63 / 0.031 / 0.048 | 50 / 0.038 / 0.048 | 43 / 0.044 / 0.048 |
+| children per woman (25%) | 19 / 0.571 / 0.756 | 14 / 0.628 / 0.781 | 6 / 0.367 / 0.793 |
+| ratner_stock (23%) | 30 / 0.324 / 0.592 | 9 / 0.547 / 0.726 | 3 / 0.308 / 0.746 |
+| scanline 42049 (49%) | 27 / 0.593 / 0.702 | 13 / 0.700 / 0.740 | 8 / 0.805 / 0.847 |
+| **mean of the four** | 0.380 F1 / 0.524 cover | 0.478 / 0.574 | **0.381 / 0.609** |
+| frozen juice (41%) | 67 cuts, **8 of 8** freezes | 24 cuts, 6 of 8 | 9 cuts, **5 of 8** |
+
+**Verdict: fails on R3, so the warning is unchanged.** On TCPD the doubled penalty passes (F1 level,
+cover +0.085), but on frozen juice it keeps only five freezes, dropping 1958, 1970 and 1985: the same
+smaller shocks the repeat models dropped. The synthetic cell's "same power at matched false cuts" does
+not carry to real shocks. On a sticky series every option tried so far (drop, missing, a doubled
+penalty) buys its fewer cuts by losing documented shocks, so the warning keeps telling the reader to
+check jumps at the ends of flat runs against the raw data rather than offering a setting.
+
+Seen after the rule, deciding nothing: 3 log n is best on F1 of the three on the sticky four (0.478) and
+also on the 34 TCPD series where the check does not fire (0.754 against 0.697 shipped; 4 log n 0.706),
+and finds 6 of 8 freezes. TCPD has been tuned against many times, so that is a lead for a fresh labelled
+set, not a default to change. Test: `drift-sticky-penalty.test.mjs`.
