@@ -94,6 +94,11 @@ export function SurveyBuilder() {
             <option value="staged">Sharper: most informative pairs (from the first answer up to 120 options)</option>
           </select>
         </label>
+        <p className="text-xs text-neutral-600 dark:text-neutral-400">
+          Sharper puts each person&apos;s likely favourites against each other, so at about 8 answers per option
+          it can often name their single favourite; Standard spreads answers across the whole list and almost never
+          can, and says who it&apos;s between instead (measured on real people&apos;s rankings).
+        </p>
         <button type="submit" disabled={busy || !title.trim() || !items.trim()} className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-neutral-950 disabled:opacity-50">
           {busy ? "…" : "Create survey"}
         </button>
