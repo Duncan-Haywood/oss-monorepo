@@ -250,14 +250,11 @@ flagships:
       (up to +0.025), real panels at least standard's in 22 of 25 cells; the
       one cost is whole-session coin flippers at 40-50% of a panel (-0.006 to
       -0.025), and salience leaks 0.01-0.03 more. Coin-flip fix tried
-      2026-11-12 (INFORMATION-GAIN-SELECTOR.md "Self-consistency", not
-      shipped): a person's own cross-validated fit (selfConsistency.ts) is
-      camp-blind but near a coin under staged (AUC 0.60-0.80); as a gate on
-      the agreement drop it halves the camp tax (25% camps -0.001 to -0.010
-      against -0.009 to -0.027) and on real PrefLib panels recovers 40-70% of
-      oracle while real answers are clean, but costs honest real panels up to
-      0.035 if a third of their answers are random; 18-46% of real people sit
-      under the 0.2 agreement line with no careless people at all. Next, most
+      2026-11-12, not shipped (INFORMATION-GAIN-SELECTOR.md "Self-consistency"):
+      selfConsistency.ts is camp-blind but near a coin under staged; as a gate
+      on the agreement drop it halves the camp tax, but on real panels it
+      depends on real answer noise; 18-46% of real people sit under the 0.2
+      agreement line with nobody careless. Next, most
       valuable first: (a) a heavier-tailed prior for the pairwise intervals;
       (b) half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace
       see them?); (c) the first real survey's answers: msToAnswer against the
