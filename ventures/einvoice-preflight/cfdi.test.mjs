@@ -96,3 +96,36 @@ test("findings never repeat an RFC", () => {
   const bad = good.replace('Rfc="EKU9003173C9"', 'Rfc="EKU9003173C8"');
   for (const f of checkCfdi(bad).findings) assert.doesNotMatch(JSON.stringify(f), /EKU9003173C/);
 });
+
+// Red-team guards (2026-11-12): each test below fails with a code mutant, or the defect, that got through.
+const stampedAt = (t) => good.replace("</cfdi:Comprobante>", `<cfdi:Complemento><tfd:TimbreFiscalDigital xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" Version="1.1" UUID="5FB2822E-396D-4725-8521-CDC4BDD20CCF" FechaTimbrado="${t}" RfcProvCertif="SAT970701NN3" SelloCFD="x" NoCertificadoSAT="30001000000500003456" SelloSAT="x"/></cfdi:Complemento></cfdi:Comprobante>`);
+
+test("MX-036: stamped exactly 72 hours after Fecha is inside the window; one second later is not", () => {
+  assert.deepEqual(checkCfdi(stampedAt("2026-11-13T10:15:00")).findings, []);
+  assert.deepEqual(checkCfdi(stampedAt("2026-11-13T10:15:01")).findings.map((f) => f.rule), ["MX-036"]);
+});
+
+test("MX-034: a summary Traslado Base that is not the lines' bases summed", () => {
+  const r = checkCfdi(good.replace('Base="3550.50"', 'Base="3551.50"')).findings;
+  assert.deepEqual(r.map((f) => f.rule), ["MX-034"]);
+  assert.match(r[0].message, /Base 3551\.50 is not the sum of the lines' bases \(3550\.50\)/);
+});
+
+test("MX-023: a line tax Base of 0 is named, not only the schema minimum", () => {
+  const r = checkCfdi(good.replace('Base="850.50"', 'Base="0"')).findings;
+  assert.ok(r.some((f) => f.rule === "MX-023" && /Base must be greater than 0/.test(f.message)));
+});
+
+test("MX-012: a payroll CFDI in USD is told to use MXN; in MXN it is not", () => {
+  const n = good.replace('TipoDeComprobante="I"', 'TipoDeComprobante="N"');
+  const usd = checkCfdi(n.replace('Moneda="MXN"', 'Moneda="USD" TipoCambio="17.25"')).findings;
+  assert.ok(usd.some((f) => f.rule === "MX-012" && /payroll/.test(f.message)));
+  assert.ok(!checkCfdi(n).findings.some((f) => /payroll/.test(f.message)));
+});
+
+test("an unreadable or empty line Base is a schema fault only: the correct summary is not blamed", () => {
+  for (const v of ["", "abc"]) {
+    const r = checkCfdi(good.replace('Base="850.50"', `Base="${v}"`)).findings;
+    assert.deepEqual(r.map((f) => f.rule), ["MX-003"], v);
+  }
+});
