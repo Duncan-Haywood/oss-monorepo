@@ -398,9 +398,12 @@ test("OH: the 23rd for monthly and semiannual returns (tax.ohio.gov Due Dates an
   assert.equal(dueDate("2026-H2", stateDueDay("OH", "semiannual")), "2027-01-23");
 });
 
-test("IA: a note says semi-monthly prepayment filers are not modelled", () => {
-  assert.match(stateFilingNote("IA", "quarterly"), /semi-monthly/);
-  assert.equal(stateFilingNote("IA", "monthly") !== null, true);
+test("IA: annual or monthly only, semimonthly remittance ended 2022 (revenue.iowa.gov, read 2026-11-12)", () => {
+  assert.match(stateFilingNote("IA", "quarterly"), /lists monthly, annual sales tax filing, not quarterly/);
+  assert.match(stateFilingNote("IA", "monthly"), /ended on July 1, 2022/);
+  assert.doesNotMatch(stateFilingNote("IA", "monthly"), /lists/);
+  assert.equal(dueDate("2026", stateDueDay("IA", "annual")), "2027-01-31");
+  assert.equal(dueDate("2026-09", stateDueDay("IA", "monthly")), "2026-10-31");
   assert.equal(stateFilingNote("SC", "monthly"), null);
 });
 
@@ -450,9 +453,56 @@ test("NE, MS and OK returns are due the 20th (official text via search excerpts 
 });
 
 test("AZ and IN carry a filing note that names the open question, other states stay silent", () => {
-  assert.match(stateFilingNote("az", "monthly"), /20th.*month-end|month-end.*20th/s);
+  assert.match(stateFilingNote("az", "monthly"), /20th.*grace period.*accrue from the 20th/s); // azdor.gov read 2026-11-12: the grace period does not stop penalties
   assert.match(stateFilingNote("IN", "quarterly"), /INTIME/);
   assert.equal(stateDueDay("AZ", "monthly"), 20);
   assert.equal(STATE_DUE_DAYS.IN, 30);
   assert.equal(stateFilingNote("KS", "quarterly"), null);
+});
+
+// Each date below was read on the state's own page on 2026-11-12 (STATE_SOURCES; README "State due dates read on the states' own pages").
+test("due dates match the states' own pages, read 2026-11-12", async () => {
+  const { STATE_SOURCES } = await import("./salestaxreturn.mjs");
+  const cases = [
+    // [state, frequency, period, due before the weekend move]
+    ["AL", "semiannual", "2026-H1", "2026-07-20"], ["AL", "annual", "2026", "2027-01-20"],
+    ["AZ", "quarterly", "2026-Q1", "2026-04-20"], ["AZ", "annual", "2025", "2026-01-20"],
+    ["CA", "monthly", "2026-06", "2026-07-31"], ["CA", "quarterly", "2026-Q1", "2026-04-30"], ["CA", "annual", "2026", "2027-01-31"],
+    ["CT", "quarterly", "2026-Q2", "2026-07-31"], ["DC", "monthly", "2026-05", "2026-06-20"],
+    ["HI", "semiannual", "2026-H1", "2026-07-20"], ["HI", "annual", "2026", "2027-04-20"],
+    ["ID", "semiannual", "2026-H1", "2026-07-20"], ["ID", "annual", "2026", "2027-01-20"],
+    ["KS", "monthly", "2026-03", "2026-04-25"], ["KS", "annual", "2026", "2027-01-25"],
+    ["KY", "annual", "2025", "2026-01-20"], ["LA", "quarterly", "2026-Q3", "2026-10-20"],
+    ["MI", "quarterly", "2026-Q3", "2026-10-20"], ["MI", "annual", "2026", "2027-02-28"],
+    ["MS", "monthly", "2026-10", "2026-11-20"], ["NE", "monthly", "2026-10", "2026-11-20"],
+    ["ND", "quarterly", "2026-Q1", "2026-04-30"], ["ND", "semiannual", "2026-H1", "2026-07-31"],
+    ["NM", "monthly", "2026-10", "2026-11-25"], ["NM", "semiannual", "2026-H2", "2027-01-25"],
+    ["OK", "semiannual", "2026-H1", "2026-07-20"], ["OK", "semiannual", "2026-H2", "2027-01-20"],
+    ["PA", "quarterly", "2026-Q3", "2026-10-20"], ["SD", "monthly", "2026-10", "2026-11-20"],
+    ["TX", "annual", "2026", "2027-01-20"], ["VT", "monthly", "2026-06", "2026-07-25"], ["VT", "quarterly", "2026-Q3", "2026-10-25"],
+    ["WI", "quarterly", "2026-Q2", "2026-07-31"], ["WV", "quarterly", "2026-Q3", "2026-10-20"],
+    ["WY", "annual", "2023", "2024-01-31"], ["WY", "quarterly", "2026-Q1", "2026-04-30"],
+  ];
+  for (const [st, f, period, due] of cases) assert.equal(dueDate(period, stateDueDay(st, f)), due, `${st} ${f} ${period}`);
+  // Vermont's own table: Q1 2026 due 4/27/2026 (25th is a Saturday), Q3 10/26/2026, annual 2025 1/26/2026; ND's Jan 31 2026 moved to Feb 2
+  const vt = salesTaxDueDates(2026, { state: "VT", frequency: "quarterly" }).map((e) => e.due);
+  assert.ok(vt.includes("2026-04-27") && vt.includes("2026-07-27") && vt.includes("2026-10-26"));
+  assert.ok(salesTaxDueDates(2026, { state: "VT", frequency: "annual" }).some((e) => e.due === "2026-01-26"));
+  assert.ok(salesTaxDueDates(2026, { state: "ND", frequency: "annual" }).some((e) => e.due === "2026-02-02"));
+  for (const s of Object.values(STATE_SOURCES)) assert.match(s.url, /^https:\/\//);
+});
+
+test("a frequency the state's own page does not offer gets a note naming the ones it does", () => {
+  assert.match(stateFilingNote("OK", "quarterly"), /lists monthly, semiannual sales tax filing, not quarterly/);
+  assert.match(stateFilingNote("NM", "annual"), /not annual/);
+  assert.match(stateFilingNote("CA", "semiannual"), /cdtfa\.ca\.gov.*not semiannual|not semiannual.*cdtfa/);
+  assert.match(stateFilingNote("IN", "quarterly"), /not quarterly.*INTIME/);
+  assert.match(stateFilingNote("PA", "annual"), /^Pennsylvania has no annual return/);
+  assert.equal(stateFilingNote("TX", "quarterly"), null);
+  assert.equal(stateFilingNote("CA", "quarterly"), null);
+  assert.equal(stateFilingNote("FL", "semiannual"), null); // FL's page lists no frequencies: no claim either way
+  assert.match(stateFilingNote("KY", "monthly"), /accelerated filers are due the 25th/);
+  assert.match(stateFilingNote("WI", "monthly"), /early monthly filers/);
+  assert.match(stateFilingNote("MI", "quarterly"), /February 28/);
+  assert.match(stateFilingNote("AZ", "monthly"), /accrue from the 20th/);
 });

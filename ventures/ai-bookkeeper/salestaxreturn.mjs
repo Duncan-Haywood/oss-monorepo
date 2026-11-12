@@ -102,16 +102,81 @@ export function parseDiscountSpecs(specs = []) {
   return discounts;
 }
 
+// Read in full on each state's own site on 2026-11-12 (pages saved and every quoted sentence checked
+// against the saved text; README "State due dates read on the states' own pages"). `freqs` lists the
+// sales tax filing frequencies the page names, in this module's terms; a frequency outside it gets a
+// note instead of a silent date. Only states whose page names its frequencies carry `freqs`.
+export const STATE_SOURCES = {
+  AL: { url: "https://www.revenue.alabama.gov/sales-use/due-date-calendar-for-taxes-administered-by-sales-use/", freqs: ["monthly", "quarterly", "semiannual", "annual"] },
+  AZ: { url: "https://azdor.gov/transaction-privilege-tax/tpt-license/tpt-filing-frequency", freqs: ["monthly", "quarterly", "annual"] },
+  CA: { url: "https://www.cdtfa.ca.gov/taxes-and-fees/sales-use-tax-returns-filing-dates.htm", freqs: ["monthly", "quarterly", "annual"] },
+  CT: { url: "https://portal.ct.gov/drs/sales-tax/tax-information", freqs: ["monthly", "quarterly", "annual"] },
+  DC: { url: "https://otr.cfo.dc.gov/page/sales-and-use-tax-faqs", freqs: ["monthly", "quarterly", "annual"] },
+  FL: { url: "https://floridarevenue.com/taxes/taxesfees/Pages/sales_tax.aspx" },
+  HI: { url: "https://tax.hawaii.gov/geninfo/get/", freqs: ["monthly", "quarterly", "semiannual", "annual"] },
+  IA: { url: "https://revenue.iowa.gov/taxes/file-my-taxes/business-taxes/filing-frequency-return-due-dates", freqs: ["monthly", "annual"] },
+  ID: { url: "https://tax.idaho.gov/taxes/sales-use/stfiling/", freqs: ["monthly", "quarterly", "semiannual", "annual"] },
+  IN: { url: "https://www.in.gov/dor/files/new-small-business-handbook.pdf", freqs: ["monthly", "annual"] },
+  KS: { url: "https://www.ksrevenue.gov/pdf/pub1510.pdf", freqs: ["monthly", "quarterly", "annual"] },
+  KY: { url: "https://revenue.ky.gov/News/Pages/January.aspx", freqs: ["monthly", "quarterly", "annual"] },
+  LA: { url: "https://revenue.louisiana.gov/businesses/general-sales-and-use-taxes/general-sales-use-tax/" },
+  MI: { url: "https://www.michigan.gov/taxes/business-taxes/sales-use-tax", freqs: ["monthly", "quarterly", "annual"] },
+  MS: { url: "https://www.dor.ms.gov/business/business-tax-frequently-asked-questions", freqs: ["monthly", "quarterly", "annual"] },
+  ND: { url: "https://www.tax.nd.gov/sales-and-use-tax-deadlines", freqs: ["monthly", "quarterly", "semiannual", "annual"] },
+  NE: { url: "https://revenue.nebraska.gov/about/frequently-asked-questions/nebraska-sales-and-use-tax-faqs" },
+  NM: { url: "https://realfile.tax.newmexico.gov/FYI-105.pdf", freqs: ["monthly", "quarterly", "semiannual"] },
+  OK: { url: "https://oklahoma.gov/tax/helpcenter/businesses.html", freqs: ["monthly", "semiannual"] },
+  PA: { url: "https://www.pa.gov/content/dam/copapwp-pagov/en/revenue/documents/formsandpublications/formsforbusinesses/sut/documents/rev-717.pdf", freqs: ["monthly", "quarterly", "semiannual"] },
+  SD: { url: "https://dor.sd.gov/businesses/taxes/sales-use-tax/filing-and-paying-taxes-online-help/" },
+  TX: { url: "https://comptroller.texas.gov/taxes/sales/", freqs: ["monthly", "quarterly", "annual"] },
+  VT: { url: "https://tax.vermont.gov/business/sales-and-use-tax", freqs: ["monthly", "quarterly", "annual"] },
+  WI: { url: "https://www.revenue.wi.gov/Pages/FAQS/pcs-sales.aspx", freqs: ["monthly", "quarterly", "annual"] },
+  WV: { url: "https://tax.wv.gov/Documents/CST/cst200cu.instructions.pdf", freqs: ["monthly", "quarterly", "annual"] },
+  WY: { url: "https://excise-tax-div.wyo.gov/salesuselodging-tax/salesuselodging-returns", freqs: ["monthly", "quarterly", "annual"] },
+};
+export const STATE_SOURCES_READ = "2026-11-12";
+const FREQ_WORD = { monthly: "monthly", quarterly: "quarterly", semiannual: "semiannual", annual: "annual" };
+const STATE_NAME = { AL: "Alabama", AZ: "Arizona", CA: "California", CT: "Connecticut", DC: "The District of Columbia", HI: "Hawaii", IA: "Iowa", ID: "Idaho", IN: "Indiana", KS: "Kansas", KY: "Kentucky", MI: "Michigan", MS: "Mississippi", ND: "North Dakota", NM: "New Mexico", OK: "Oklahoma", PA: "Pennsylvania", TX: "Texas", VT: "Vermont", WI: "Wisconsin", WV: "West Virginia", WY: "Wyoming" };
+
+// A frequency the state's own page does not offer: say so and name the ones it does.
+function frequencyNote(s, frequency) {
+  const src = STATE_SOURCES[s];
+  if (!src?.freqs || src.freqs.includes(frequency)) return null;
+  if (s === "PA") return null; // PA's annual case has its own, more specific note below
+  return `${STATE_NAME[s] ?? s}'s own page lists ${src.freqs.map((f) => FREQ_WORD[f]).join(", ")} sales tax filing, not ${FREQ_WORD[frequency] ?? frequency} (${src.url}, read ${STATE_SOURCES_READ}). Use the frequency on your own notice.`;
+}
+
 export function stateFilingNote(state, frequency = "quarterly") {
   const s = String(state ?? "").toUpperCase();
   if (NO_STATE_SALES_TAX[s]) return NO_STATE_SALES_TAX[s];
+  const notes = [frequencyNote(s, frequency), stateRuleNote(s, frequency)].filter(Boolean);
+  return notes.length ? notes.join(" ") : null;
+}
+
+function stateRuleNote(s, frequency) {
   if (s === "PA" && frequency === "annual") return "Pennsylvania has no annual return; assigned filers file monthly, quarterly or semiannually (due Aug 20 and Feb 20), use --freq semiannual with --state PA for the Feb-Jul and Aug-Jan periods.";
-  // IA (secondary guides via search 2026-10-28; revenue.iowa.gov not reachable): large filers make semi-monthly prepayments, not one return
-  if (s === "IA") return "Iowa: this is the due date for a monthly or quarterly return. Large filers prepay semi-monthly instead (the 1st to 15th by the 25th, the 16th to month end by the 10th of the next month; the size threshold varies between guides), which this command does not build. Check your own notice.";
-  // AZ (search excerpts 2026-11-08: ADOR forms say the statutory due date is the 20th and a third-party guide says penalties run from it; azdor.gov/transaction-privilege-tax/due-dates lists month-end paper and electronic deadlines; azdor.gov not reachable from the session)
-  if (s === "AZ") return "Arizona: the statutory due date is the 20th of the month after the period, which is the date here. ADOR's due-dates page lists later month-end deadlines for paper and electronic returns, but one guide says penalties and interest still run from the 20th. Check azdor.gov/transaction-privilege-tax/due-dates and your own AZTaxes notice before relying on the later date.";
-  // IN (search excerpts 2026-11-08: guides conflict, the 20th for monthly filers above about $1,000 of tax a month and the 30th otherwise; in.gov not reachable from the session)
-  if (s === "IN") return "Indiana: the 30th of the month after the period is used here. Some guides give the 20th for larger monthly filers, and the sources conflict, so use the due date printed on your INTIME return.";
+  // IA (revenue.iowa.gov "Filing Frequency & Return Due Dates" and "Sales and Use Tax Permit, Return Filing and Payment Changes", read 2026-11-12):
+  // sales tax filers are annual (under $1,200 a year, due Jan 31) or monthly (due the last day of the next month); the July 1, 2022 changes
+  // "eliminate the semimonthly remittance". The quarterly and semimonthly rows on that page are withholding tax, not sales tax.
+  // Corrected 2026-11-12: the note used to describe semi-monthly prepayments from secondary guides.
+  if (s === "IA") return "Iowa: sales tax returns are annual (under $1,200 of tax a year, due January 31) or monthly (due the last day of the next month, filed electronically); semimonthly remittance ended on July 1, 2022. Seasonal filers file monthly for the months they operate. Check your own notice.";
+  // AZ (azdor.gov TPT filing-frequency page, read 2026-11-12): due the 20th; a return is timely by the last business day of the month
+  // (electronic) or the second-to-last business day (paper, received not postmarked); "Penalties and interest ... will accrue from the
+  // statutory due date of the 20th and not from the last date of the grace period."
+  if (s === "AZ") return "Arizona: TPT is due the 20th of the month after the period, the date here. azdor.gov allows a grace period (electronic returns and payments received by the last business day of that month, paper by the second-to-last business day, received not postmarked), but says penalties and interest accrue from the 20th, not from the end of the grace period.";
+  // IN (in.gov New Small Business Handbook and ST-103 instructions, read 2026-11-12): monthly, or annual under $1,000 a year; neither names
+  // the day of the month for sales tax (the handbook's 20th/30th table is withholding). The 30th stays from earlier search excerpts.
+  if (s === "IN") return "Indiana: the 30th of the month after the period is used here, from secondary sources; in.gov's handbook and ST-103 instructions do not print the day, and some guides give the 20th for larger monthly filers, so use the due date printed on your INTIME return.";
+  // KY (Retail Packet 11-17 and the DOR January 2026 calendar, read 2026-11-12): accelerated filers are due the 25th
+  if (s === "KY" && frequency === "monthly") return "Kentucky: monthly returns are due the 20th, but accelerated filers are due the 25th of the next month (revenue.ky.gov). Check which you are.";
+  // WI (revenue.wi.gov sales tax FAQ, read 2026-11-12): "Early monthly sales tax filers are required to file by the 20th"
+  if (s === "WI" && frequency === "monthly") return "Wisconsin: monthly returns are due the last day of the next month, except early monthly filers, who file by the 20th (revenue.wi.gov). Check which you are.";
+  // MI (michigan.gov Sales, Use and Withholding page, read 2026-11-12): "All filers must submit an annual return by February 28, regardless of assigned filing frequency."
+  if (s === "MI" && frequency !== "annual") return "Michigan: every filer also submits an annual return by February 28 of the next year, whatever its filing frequency (michigan.gov).";
+  // OK (oklahoma.gov help center, read 2026-11-12): semiannual only when the tax does not exceed $50 a month
+  if (s === "OK" && frequency === "semiannual") return "Oklahoma: semiannual filing is allowed only when the tax does not exceed $50 a month; due July 20 and January 20.";
+  // NM (FYI-105, 08/11/2025, read 2026-11-12): quarterly or semiannual only on approved application, at $500 a month or less
+  if (s === "NM" && (frequency === "quarterly" || frequency === "semiannual")) return "New Mexico: quarterly or semiannual filing needs the Department's approval (ACD-31015) and an average of $500 a month or less in tax; returns are due the 25th after the period (FYI-105).";
   return null;
 }
 // Timely-filing discounts pinned in tests (IL ST-1 R-01/26, TX comptroller, FL Rule 12A-1.056), keyed by the
@@ -150,6 +215,10 @@ export function stateDueDay(state, frequency = "quarterly") {
   if (s === "MN" && frequency === "annual") return { months: 2, day: 5 };
   // MI: annual filers file by February 28 (michigan.gov Treasury "Filing and Payment Due Dates" and Sales and Use Tax pages, via search 2026-10-26; monthly and quarterly are the 20th)
   if (s === "MI" && frequency === "annual") return { months: 2, day: 28 };
+  // HI (tax.hawaii.gov GET general information, read 2026-11-12): periodic returns (monthly, quarterly, semiannual) the 20th after the period;
+  // "What is the due date for filing an annual GET return? The due date is the 20th day of the fourth month following the close of the taxable
+  // year. For calendar year filers, the due date is April 20th". Corrected 2026-11-12: annual used to fall on January 20.
+  if (s === "HI" && frequency === "annual") return { months: 4, day: 20 };
   return STATE_DUE_DAYS[s] ?? 20;
 }
 export function dueDate(period, dueDay = 20) {

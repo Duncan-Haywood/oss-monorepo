@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtGrUGv7WD2SZAeJEcz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T22:07:02Z",
+  "ended": "2026-11-12T22:25:31Z",
+  "wall_minutes": 18.81,
+  "tokens_in": 15645320,
+  "tokens_out": 88613,
+  "cost_usd": 7.2834,
+  "tool_calls": 181,
+  "task": "Deepen (flagship 2) ai-bookkeeper item (8): sales tax due dates against the states' own pages",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15278",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Every ai-bookkeeper item reads as needing real inputs. Item (8)'s 'other states from excerpts or memory' only became buildable because state hosts that refused earlier runs answered today. A probe-the-hosts hint on such items would save the next run its scan."
+    },
+    {
+      "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+      "issue": "The provenance comments above STATE_DUE_DAYS are ~40 lines of overlapping, dated claims. Finding which states had been read on the official page took longer than the reading. STATE_SOURCES now gives a structured place for this."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Delegated reading 29 state pages to three parallel subagents instead of reading them inline, to keep fetched HTML out of the main context.",
+      "did": "Had each agent save the page text. Grep-verified every quoted sentence against the saved files before using it.",
+      "result": "All quotes checked out; one agent cited the wrong file for AZ and the quote was found in its sibling file."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Checked the allocator's MCC/keyword data-set idea first: public US p-card sets (College Station truncates merchant names; Denver and Delaware have no account labels). Switched to item (8), which had real primary sources reachable.",
+      "did": "Item (8) instead of item (0).",
+      "result": "Two real corrections (HI annual, IA prepayments) and frequency notes."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-twenty-six-state-tax-pages-read.md",
+    "ventures/ai-bookkeeper/README.md (State due dates read on the states' own pages)"
+  ],
+  "goal": null,
+  "notes": "venture-preflight ai-bookkeeper: clean (exit 0). node --test salestaxreturn/property/calendar/page: 90 pass. run_venture_tests ai-bookkeeper: ok (43.5s). run_workflow_locally --for-changes: only UNRUN steps that need the built _site. Tax calendar clicked through in headless Chromium at 390px with no console errors (OK quarterly note, HI annual 2026-04-20, NJ 'not yet checked', IA note). Probed public p-card datasets on Socrata for a fourth MCC buyer; none had both full merchant names and account labels.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ccaaa6d8-894e-5211-b0d5-c1bf07864a61",
+    "transcripts": 4,
+    "first": "2026-11-12T22:07:02Z",
+    "last": "2026-11-12T22:25:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 180,
+        "input": 362,
+        "output": 88613,
+        "thinking": 14828,
+        "cache_read": 15241277,
+        "cache_write_5m": 255995,
+        "cache_write_1h": 147686,
+        "api_equivalent_usd": 7.2834,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 180,
+      "input": 362,
+      "output": 88613,
+      "thinking": 14828,
+      "cache_read": 15241277,
+      "cache_write_5m": 255995,
+      "cache_write_1h": 147686,
+      "api_equivalent_usd": 7.2834,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 181,
+    "tools": {
+      "Bash": 168,
+      "Agent": 3,
+      "ScheduleWakeup": 3,
+      "SubagentHandback": 3,
+      "Read": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.81,
+      "active_minutes": 12.78,
+      "model_minutes": 8.34,
+      "tool_minutes": 4.44,
+      "waiting_on_human_minutes": 6.03,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 17.22
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "finding and reading 29 state tax pages and PDFs, then code, tests, page and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 82.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1019,6 +1019,39 @@ period shows payable, paid over and still owed, with a warning for an unpaid per
 its due date. Hand-made fixtures only; no state's own return layout is
 modelled. Added 2026-10-24: non-calendar periods. `--state NY` groups quarters as Dec-Feb, Mar-May, Jun-Aug, Sep-Nov (labelled by the month they end in, `2026-05`), and `--freq semiannual --state PA` groups Feb-Jul and Aug-Jan, both from search excerpts of the states' instructions, not the forms; `--end-month N` sets the month the year's first period ends in for any other schedule. Added 2026-10-23: `--state CA|TX|FL|NY|WA|IL|PA` presets the due day (CA month end, WA the 25th, the rest the 20th; recalled from the states' published schedules, not checked against each state's current calendar, so confirm yours). Added 2026-10-24: checked CA, TX, FL and WA against the states' own pages (search excerpts of cdtfa.ca.gov, comptroller.texas.gov, floridarevenue.com, dor.wa.gov; the hosts themselves are unreachable from the build container). One correction: Washington quarterly returns are due the last day of the next month (Q3 2026: 10/31/26), only monthly ones on the 25th, now what `--state WA --freq quarterly` gives (`stateDueDay`). Florida's collection allowance (2.5% of the first $1,200, max $30, electronic and timely) equals `--discount "<label>=2.5,30"`. Added 2026-10-24 (second slice): NY, IL and PA monthly and quarterly returns are due the 20th (search excerpts of tax.ny.gov, tax.illinois.gov, revenue.pa.gov; PA's only official page found was the 2025 REV-819, so confirm the current one). One gap found: NY quarters are Mar-May, Jun-Aug, Sep-Nov, Dec-Feb, not calendar quarters, and PA also has semiannual returns (Aug 20, Feb 20); neither is modelled, so `--state NY --freq quarterly` and `--state PA --freq annual` add a warning (`stateFilingNote`). Corrected 2026-10-27: Massachusetts monthly returns are also due 30 days after the period (mass.gov Sales and Use Tax guide, via search excerpt; the 20th in 830 CMR 62C.16.2 is the older rule), where `--state MA` gave the 20th. Added 2026-10-28: `--state IL|TX|FL` applies that state's timely-filing discount by default to the jurisdiction labelled "IL state" (etc.); an explicit `--discount` for the same label wins. Added 2026-10-29: `--state OH` joins them: 0.75% of the tax, capped at $750 per month on returns due from 2026-01-01 (R.C. 5739.12, ODT notice ST 2025-02, via search excerpts; tax.ohio.gov answers 404 here). Motor vehicle dealers' vehicle sales are uncapped and not modelled. Ohio's quarterly 23rd due date applies to use-tax and direct-pay accounts; vendors file monthly or semiannually. Not tax advice.
 
+**State due dates read on the states' own pages (2026-11-12).** Earlier due-date presets came
+mostly from search excerpts, because the state tax sites refused the build container. On
+2026-11-12, 26 of them answered, so each one's sales tax page (or its official guide, calendar
+or form instructions) was read in full and saved, and every sentence relied on was checked
+against the saved text. `STATE_SOURCES` in `salestaxreturn.mjs` lists the page for each state
+and the filing frequencies it names. The tax calendar page links the source under the form, or
+says the state is not yet checked. Results:
+
+- **Two corrections.** Hawaii's annual GET return is due the 20th day of the fourth month
+  after the year (April 20), not January 20 (tax.hawaii.gov); `--state HI --freq annual` now
+  gives April 20. Iowa's note described semi-monthly prepayments, but revenue.iowa.gov says
+  the July 1, 2022 changes "eliminate the semimonthly remittance". Iowa sales tax is annual
+  (under $1,200 a year, due January 31) or monthly (the last day of the next month), and the
+  quarterly rows on that page are withholding tax.
+- **Frequencies a state does not offer now get a note.** Oklahoma lists monthly and
+  semiannual (at $50 a month or less), not quarterly. New Mexico lists monthly, quarterly and
+  semiannual, not annual. Iowa and Indiana list monthly and annual. A worksheet or calendar
+  asked for another frequency still gives dates, with a note naming the ones the page lists.
+- **New notes from the pages:** Kentucky accelerated filers are due the 25th. Wisconsin's
+  early monthly filers are due the 20th. Every Michigan filer also files an annual return by
+  February 28. Arizona's grace period (the last business day of the month electronic, the
+  second-to-last on paper) does not stop penalties, which run from the 20th. New Mexico's
+  quarterly and semiannual filing needs approval at $500 a month or less.
+- **Confirmed unchanged:** AL, AZ, CA, CT, DC, FL, ID, KS, KY, LA, MI, MS, ND, NE, NM, OK,
+  PA, SD, TX, VT, WI, WV, WY. Vermont's own 2026 table (Q1 due April 27, Q3 October 26) and
+  North Dakota's (January 31, 2026 moved to February 2) match the calendar's weekend moves.
+  These are pinned in `salestaxreturn.test.mjs`.
+- **Still not read:** Indiana's pages name the frequencies but not the day of the month for
+  sales tax (the handbook's 20th/30th table is withholding), so the 30th stays with its note.
+  Maryland's (JavaScript only), Nevada's (bot check) and New Jersey's pages gave no due-date
+  text. Utah, Tennessee, Arkansas, Rhode Island, Colorado, Maine, Massachusetts and Ohio
+  refused the connection. Not tax advice: your own notice decides your date.
+
 **Refunds and write-offs.** A bank line for the exact amount left on a credit
 note nobody applied (money out for a customer's credit, money in for a
 supplier's), with the credit's number or the party's name in the description,
