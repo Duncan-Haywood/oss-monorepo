@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 12,
   "outcome": "success",
@@ -35,7 +35,9 @@
     "Eval workers did not see --round2: worker_threads do not inherit process.argv; passed argv explicitly and reran (5 min lost).",
     "First single-threaded replay estimate was ~75 min; rewrote eval to a 4-worker pool (~5 min per part).",
     "detectChanges read opts.detector instead of the default, so the CLI silently used PELT after the default changed to bocpd; caught by checking output, fixed.",
-    "Post description first written at 203 characters; preflight caught it."
+    "Post description first written at 203 characters; preflight caught it.",
+    "CI validate: flagships.yaml next: over its 2,000-character cap after appending item (w); shortened.",
+    "CI test: faq-visible.test.mjs, the new page's FAQPage JSON-LD had no visible copy; added a Questions section from the same strings."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -46,6 +48,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "The hook refusing pkill -f also refuses a bracketed pattern if the word appears anywhere else on the command line (e.g. a later node command); kill <pid> worked."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "venture-preflight.mjs passed clean while CI's platform/pages suite failed on faq-visible.test.mjs for the new page; the preflight does not run that test, so a new marketing page with FAQ JSON-LD can pass preflight and still fail CI."
     }
   ],
   "deviations": [

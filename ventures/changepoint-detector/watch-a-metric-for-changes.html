@@ -78,6 +78,17 @@
 <li>Five points of evidence means a change is reported no sooner than five rows after it. Use <code>--confirm 3</code> to hear sooner at the cost of more false alarms.</li>
 <li>It reports when the data changed, not why. Whether your release, a holiday or an outage caused it needs what you know about that date.</li>
 </ul>
+<section>
+<h2>Questions</h2>
+<h3>How is this different from a threshold or anomaly alert?</h3>
+<p>A threshold or anomaly alert fires on single odd points. This watch asks whether the level of the series has changed for good: it refits the series each day with Bayesian online changepoint detection (Adams and MacKay 2007) and reports a change once five new points sit on its far side, then never again for that change.</p>
+<h3>Where does it run, and who sees my data?</h3>
+<p>In a GitHub repository you own, on GitHub Actions, or on any machine with Node 18 or later. Your data and your webhook URL stay in your account; nothing is sent to the people who made the tool.</p>
+<h3>How many false alarms should I expect?</h3>
+<p>Measured by replaying series one point at a time: on 8,000 daily checks of independent noise with no change, none; on sticky (autocorrelated) noise, about 7 per 1,000 checks. On 31 real labelled series from the Turing Change Point Dataset it raised 30 alerts per 1,000 checks, a third of them at a change a human annotator marked; most of the rest were on wandering series such as a bank balance and exchange rates, where the level never holds still.</p>
+<h3>What does it cost?</h3>
+<p>Nothing from us: the code is MIT licensed. A once-a-day run takes well under a minute, inside GitHub&#x27;s free Actions minutes for most accounts.</p>
+</section>
 </main>
 <footer>
 <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
