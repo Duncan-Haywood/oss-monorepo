@@ -1,0 +1,399 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyeJiwTCrWuTsoP7eMA",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T10:38:45Z",
+  "ended": "2026-11-12T10:39:19Z",
+  "wall_minutes": 13.33,
+  "tokens_in": 7118128,
+  "tokens_out": 26399,
+  "cost_usd": 2.805,
+  "tool_calls": 68,
+  "task": "redteam: hunt + seed; uk-capital-gains-tax-calculator/calc.mjs and qsbs-exclusion-calculator/calc.mjs campaigns; unrounded-percent sweep",
+  "projects": [
+    "ai-bookkeeper",
+    "uk-capital-gains-tax-calculator",
+    "qsbs-exclusion-calculator",
+    "wall-framing-takeoff",
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15097",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First campaign on ventures/league-schedule-generator/carryover.mjs was killed by my own `timeout 590` wrapper before finishing 8 mutants (the tool runs the whole venture suite per mutant); the file was restored and nothing recorded. Retargeted to two sub-second suites."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --probe 20` prints a random sample of 20 files, not the probe time of a file you name, so there was no quick way to see that league-schedule-generator's whole-venture suite was too slow for 8 mutants before starting; a `--target` probe-only mode would have saved ~10 minutes."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "campaign refuses a dirty target, so committing a fix before `rerun` is needed; I used a throwaway commit and soft-reset. A note in the prompt (commit tests before rerun) would help."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0's five open defects all already have control-plane PRs awaiting owner approval (#12928, #14877, #14612, #14698); re-doing them would only add duplicates.",
+      "did": "Left them as is and noted the PRs.",
+      "result": "No duplicate control-plane PRs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-seven-point-zero-zero-zero-percent.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: platform/pages/percent-float.test.mjs scans ventures/, platform/, research/ for `${... * 100}%` / `${100 * ...}%`; runs with the site-builder tests on every PR touching ventures/** (no workflow change). It flagged 22 sites on first run; all fixed. Python f-strings checked by grep: none. Verification: run_venture_tests.py over the 11 touched ventures, 10 suites ok (quick-pick-survey has no node suite; its change is a script string). league divisions.test.mjs 93/93. Catch rate: 11/16 before, 16/16 after.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/uk-capital-gains-tax-calculator/calc.mjs",
+        "test": "node --test ventures/uk-capital-gains-tax-calculator/**/*.test.mjs  (in .)",
+        "seed": 553668124,
+        "commit": "9897dd4c",
+        "sites": 128,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/uk-capital-gains-tax-calculator/calc.mjs",
+            "line": 21,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "const r2 = (n) => Math.round(n * 100) / 100;",
+            "after": "const r2 = (n) => Math.round(n * 100) / 101;",
+            "line_text": "const r2 = (n) => Math.round(n * 100) / 100;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-capital-gains-tax-calculator/calc.mjs",
+            "line": 24,
+            "col": 18,
+            "operator": "or-to-and",
+            "before": "const i = input || {};",
+            "after": "const i = input && {};",
+            "line_text": "  const i = input || {};",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-capital-gains-tax-calculator/calc.mjs",
+            "line": 30,
+            "col": 33,
+            "operator": "lt-to-le",
+            "before": "if (!Number.isFinite(n) || n < 0) { errors.push(`Enter ${label} as zero or more.`); return 0; }",
+            "after": "if (!Number.isFinite(n) || n <= 0) { errors.push(`Enter ${label} as zero or more.`); return 0; }",
+            "line_text": "    if (!Number.isFinite(n) || n < 0) { errors.push(`Enter ${label} as zero or more.`); return 0; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-capital-gains-tax-calculator/calc.mjs",
+            "line": 56,
+            "col": 114,
+            "operator": "const-plus-one",
+            "before": "const allowance = income <= TAPER_FROM ? ALLOWANCE : Math.max(0, ALLOWANCE - Math.floor((income - TAPER_FROM) / 2));",
+            "after": "const allowance = income <= TAPER_FROM ? ALLOWANCE : Math.max(0, ALLOWANCE - Math.floor((income - TAPER_FROM) / 3));",
+            "line_text": "  const allowance = income <= TAPER_FROM ? ALLOWANCE : Math.max(0, ALLOWANCE - Math.floor((income - TAPER_FROM) / 2));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-capital-gains-tax-calculator/calc.mjs",
+            "line": 64,
+            "col": 51,
+            "operator": "minus-to-plus",
+            "before": "lossUsed = r2(Math.min(lossBf, Math.max(0, net - AEA)));",
+            "after": "lossUsed = r2(Math.min(lossBf, Math.max(0, net + AEA)));",
+            "line_text": "    lossUsed = r2(Math.min(lossBf, Math.max(0, net - AEA)));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-capital-gains-tax-calculator/calc.mjs",
+            "line": 79,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "} else if (tax === 0) {",
+            "after": "} else if (tax !== 0) {",
+            "line_text": "  } else if (tax === 0) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Flipping tax === 0 swapped the 'covered by the exempt amount' and 'Capital Gains Tax for' findings; no test read the findings. New test checks both directions."
+          },
+          {
+            "file": "ventures/uk-capital-gains-tax-calculator/calc.mjs",
+            "line": 83,
+            "col": 91,
+            "operator": "times-to-div",
+            "before": "findings.push({ severity: \"medium\", title: `${atLow ? `${money(atLow)} at ${+(LOW_RATE * 100).toFixed(4)}% (${money(taxLow)})` : \"\"}${atLow && atHigh ? \" and \" : \"\"}${atHigh ? `${money(atHigh)} at ${+(HIGH_RATE * 100).toFixed(4)}% (${money(taxHigh)})` : \"\"}. Your unused basic-rate band for gains was ${money(bandLeft)} (${money(BASIC_BAND)} less your ${money(taxableIncome)} of taxable income).` });",
+            "after": "findings.push({ severity: \"medium\", title: `${atLow ? `${money(atLow)} at ${+(LOW_RATE / 100).toFixed(4)}% (${money(taxLow)})` : \"\"}${atLow && atHigh ? \" and \" : \"\"}${atHigh ? `${money(atHigh)} at ${+(HIGH_RATE * 100).toFixed(4)}% (${money(taxHigh)})` : \"\"}. Your unused basic-rate band for gains was ${money(bandLeft)} (${money(BASIC_BAND)} less your ${money(taxableIncome)} of taxable income).` });",
+            "line_text": "    findings.push({ severity: \"medium\", title: `${atLow ? `${money(atLow)} at ${+(LOW_RATE * 100).toFixed(4)}% (${money(taxLow)})` : \"\"}${atLow && atHigh ? \" and \" : \"\"}${atHigh ? `${money(atHigh)} at ${+(HIGH_RATE * 100).toFixed(4)}% (${money(taxHigh)})` : \"\"}. Your unused basic-rate band for gains was ${money(bandLeft)} (${money(BASIC_BAND)} less your ${money(taxableIncome)} of taxable income).` });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Band line's rate text (18%/24%) was unchecked; new test asserts both."
+          },
+          {
+            "file": "ventures/uk-capital-gains-tax-calculator/calc.mjs",
+            "line": 86,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "if (net > 0 && atHigh > 0 && bandLeft > 0) findings.push({ severity: \"medium\", title: `Only ${money(bandLeft)} of gains fall in the 18% band. Spreading a sale across two tax years, or having a spouse or civil partner own part of the asset before sale, can use a second allowance and band; transfers between spouses are no-gain-no-loss.` });",
+            "after": "if (net > 0 && atHigh > 1 && bandLeft > 0) findings.push({ severity: \"medium\", title: `Only ${money(bandLeft)} of gains fall in the 18% band. Spreading a sale across two tax years, or having a spouse or civil partner own part of the asset before sale, can use a second allowance and band; transfers between spouses are no-gain-no-loss.` });",
+            "line_text": "  if (net > 0 && atHigh > 0 && bandLeft > 0) findings.push({ severity: \"medium\", title: `Only ${money(bandLeft)} of gains fall in the 18% band. Spreading a sale across two tax years, or having a spouse or civil partner own part of the asset before sale, can use a second allowance and band; transfers between spouses are no-gain-no-loss.` });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "atHigh between 0 and 1 (a gain under GBP 1 into the higher band) dropped the spread-the-sale tip; new test with atHigh 0.5."
+          }
+        ]
+      },
+      {
+        "target": "ventures/qsbs-exclusion-calculator/calc.mjs",
+        "test": "node --test ventures/qsbs-exclusion-calculator/**/*.test.mjs  (in .)",
+        "seed": 277412911,
+        "commit": "9897dd4c",
+        "sites": 65,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/qsbs-exclusion-calculator/calc.mjs",
+            "line": 64,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;",
+            "after": "return value < 0 && /[1-10]/.test(text) ? `-${text}` : text;",
+            "line_text": "  return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/qsbs-exclusion-calculator/calc.mjs",
+            "line": 74,
+            "col": 10,
+            "operator": "eq-flip",
+            "before": "if (era === \"new\") {",
+            "after": "if (era !== \"new\") {",
+            "line_text": "  if (era === \"new\") {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/qsbs-exclusion-calculator/calc.mjs",
+            "line": 75,
+            "col": 14,
+            "operator": "ge-to-gt",
+            "before": "if (years >= 5) return 1;",
+            "after": "if (years > 5) return 1;",
+            "line_text": "    if (years >= 5) return 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/qsbs-exclusion-calculator/calc.mjs",
+            "line": 75,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "if (years >= 5) return 1;",
+            "after": "if (years >= 5) return 2;",
+            "line_text": "    if (years >= 5) return 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/qsbs-exclusion-calculator/calc.mjs",
+            "line": 91,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "yearsHeld = 0,",
+            "after": "yearsHeld = 1,",
+            "line_text": "  yearsHeld = 0,",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Default yearsHeld is echoed in the result (yearsHeld field); new test calls with {} and expects 0."
+          },
+          {
+            "file": "ventures/qsbs-exclusion-calculator/calc.mjs",
+            "line": 92,
+            "col": 9,
+            "operator": "const-plus-one",
+            "before": "gain = 0,",
+            "after": "gain = 1,",
+            "line_text": "  gain = 0,",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Default gain is echoed as gain/taxableGain; new test calls with {} and expects 0."
+          },
+          {
+            "file": "ventures/qsbs-exclusion-calculator/calc.mjs",
+            "line": 97,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const basisValue = Math.max(0, num(basis));",
+            "after": "const basisValue = Math.max(1, num(basis));",
+            "line_text": "  const basisValue = Math.max(0, num(basis));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/qsbs-exclusion-calculator/calc.mjs",
+            "line": 100,
+            "col": 23,
+            "operator": "min-to-max",
+            "before": "const eligibleGain = Math.min(gainValue, cap);",
+            "after": "const eligibleGain = Math.max(gainValue, cap);",
+            "line_text": "  const eligibleGain = Math.min(gainValue, cap);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/ai-bookkeeper/penalty2210.mjs",
+        "issue": "ratePeriods warning printed the fallback rate as `${rate * 100}%`, so every 2026 penalty showed '7.000000000000001% (the last one on file, 2026 Q4)'. Same unrounded pattern at 21 more sites in 11 other ventures (several fed by user-typed rates: wall-framing waste/weather allowance, drilling limits, crypto tax rates). All rounded with +(x * 100).toFixed(4); failing-first test in penalty2210.test.mjs; class guard platform/pages/percent-float.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15097"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b17d3dce-1696-5ec1-9708-733fb0a50870",
+    "transcripts": 1,
+    "first": "2026-11-12T10:38:45Z",
+    "last": "2026-11-12T10:52:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 143,
+        "output": 26399,
+        "thinking": 7208,
+        "cache_read": 7008641,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109344,
+        "api_equivalent_usd": 2.805,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 143,
+      "output": 26399,
+      "thinking": 7208,
+      "cache_read": 7008641,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109344,
+      "api_equivalent_usd": 2.805,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 61,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "ScheduleWakeup": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.33,
+      "active_minutes": 6.6,
+      "model_minutes": 4.73,
+      "tool_minutes": 1.86,
+      "waiting_on_human_minutes": 6.74,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "sweep 22 sites in 12 tools, write guard test and 5 gap tests, triage 16 mutants",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 107.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
