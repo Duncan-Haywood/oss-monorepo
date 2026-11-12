@@ -24,6 +24,7 @@ import argparse
 import json
 import tempfile
 import time
+from array import array
 from pathlib import Path
 
 from shootflow import raw_develop as rd
@@ -44,6 +45,40 @@ def libraw_profile(raw, model: str) -> Path:
     path = Path(tempfile.mkdtemp()) / "libraw-matrix.dcp"
     path.write_bytes(blob)
     return path
+
+
+def clipped_highlights(raw, settings, ours, white: float, full: float) -> dict:
+    """Where the sensor clipped: the render with the clip-level white against full scale."""
+
+    import copy
+
+    import numpy as np
+
+    top, left, bottom, right = (int(v) for v in raw.ifd.get(rd.TAG_ACTIVE_AREA))
+    img = np.frombuffer(raw.values, dtype=np.uint16).reshape(-1, raw.width)[top:bottom, left:right]
+    hh, ww = img.shape[0] // 2, img.shape[1] // 2
+    blocks = img[: 2 * hh, : 2 * ww].reshape(hh, 2, ww, 2).max(axis=(1, 3))
+    # Turn the sensor-side mask the way the render was turned (IFD0 orientation).
+    flat = np.repeat((blocks >= white).astype(np.uint16).ravel(), 3)
+    turned, tw, th = rd._orient(array("H", flat.tobytes()), ww, hh, raw.ifd0.one(rd.TAG_ORIENTATION, 1))
+    mask = np.frombuffer(turned.tobytes(), dtype=np.uint16).reshape(th, tw, 3)[..., 0].astype(bool)
+    mask = mask[: ours.shape[0], : ours.shape[1]]
+    full_raw = copy.copy(raw)
+    full_raw.ifd = copy.deepcopy(raw.ifd)
+    full_raw.ifd.entries[rd.TAG_WHITE_LEVEL] = (full,)
+    w, h, px, _ = rd.develop(full_raw, settings)
+    at_full = np.frombuffer(px.tobytes(), dtype=np.uint16).reshape(h, w, 3).astype(float) / 65535
+
+    def stats(pic):
+        sel = pic[mask]
+        spread = sel.max(axis=1) - sel.min(axis=1)
+        return {
+            "mean_rgb": sel.mean(axis=0).round(3).tolist(),
+            "share_white": round(float((sel.min(axis=1) >= 0.97).mean()), 3),
+            "median_spread": round(float(np.median(spread)), 3),
+        }
+
+    return {"clipped_pixels": int(mask.sum()), "clip_level_white": stats(ours), "full_scale_white": stats(at_full)}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -120,6 +155,9 @@ def main(argv: list[str] | None = None) -> int:
         "channel_means": {"shootflow": a.mean(axis=(0, 1)).round(4).tolist(), "libraw": b.mean(axis=(0, 1)).round(4).tolist()},
         "notes": report.notes,
     }
+    full = float((1 << int(ours_raw.ifd.one(rd.TAG_BITS))) - 1)
+    if white < full:
+        result["highlights"] = clipped_highlights(ours_raw, settings, ours, white, full)
     print(json.dumps(result, indent=2))
     return 0
 

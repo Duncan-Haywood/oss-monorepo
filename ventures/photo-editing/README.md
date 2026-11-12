@@ -1033,17 +1033,23 @@ tile is (the decoder above, native Huffman reader included), cut into vertical s
 
 - **Image area** from the maker note's SensorInfo (tag 0x00E0) borders; the rest is masked.
 - **Black level** per 2x2 position: the median of the masked columns left of the image.
-- **White level**: the top of the stream's precision (16,383 at 14 bits). LibRaw uses a
-  per-model table here (15,600 for the 5D Mark II) that is not copied; on a frame with blown
-  highlights this leaves them up to about 5% darker than LibRaw renders them.
+- **White level**: read from the picture when the frame has clipped sensels (since the same
+  day, "Five Canon bodies" below): a pile of at least 64 sensels on one 2x2 position's maximum,
+  8 times the values just below it and well above black, is the clip, and the lowest such pile
+  is the white level. Otherwise the top of the stream's precision (16,383 at 14 bits), which
+  changes nothing when nothing clipped. LibRaw's per-model table (15,600 for the 5D Mark II,
+  13,584 for the 7D) is not copied.
 - **As-shot white balance** from ColorData (tag 0x4001), whose version is told by its length
   (ExifTool's documented layouts; unknown versions develop unbalanced and say so).
 - **CFA phase**: a CR2 has no CFAPattern tag and the phase differs between bodies, so it is
   read from the picture: the green diagonal is the pair of 2x2 positions that agree most, and
-  red is told from blue by the as-shot balance. When either is unclear the file is refused
-  with a request for `--cfa RGGB|GRBG|GBRG|BGGR`, never guessed. (The small RGB thumbnail in
-  IFD 2 was tried first and dropped: on the 5D Mark II it is framed differently and carries an
-  unsubtracted black level, and matched no phase clearly.)
+  red is told from blue by the as-shot balance, or, when that balance is too close to neutral,
+  by the sign of the correlation between the two non-green positions and the RGB thumbnail's
+  red/blue across a 12 x 8 grid (needs |r| of at least 0.8; a clear thumbnail that contradicts
+  a clear balance is refused). When these are unclear the file is refused with a request for
+  `--cfa RGGB|GRBG|GBRG|BGGR`, never guessed. (The thumbnail cannot place the green diagonal:
+  on the 5D Mark II it is framed differently and matched no phase clearly. Red against blue
+  needs only a sign, which survives the framing.)
 - **Colour** needs a camera profile: a CR2 has no colour matrix. Adobe's free DNG Converter
   installs one `.dcp` per camera (`CameraRaw/CameraProfiles/Adobe Standard/` under
   `ProgramData` on Windows or `/Library/Application Support/Adobe` on macOS); dcamprof and
@@ -1058,10 +1064,37 @@ built at run time from LibRaw's own matrix for the camera, the half-size render 
 within 3%). Full size, 21 MP to a 16-bit TIFF: 4.3 s with numpy and the native Huffman reader.
 `tests/test_cr2.py` (12 tests) builds CR2s with a known scene behind each of the four CFA
 phases and checks every inferred tag, the refusals (unclear phase, sRAW, no profile), a grey
-patch rendering neutral, the numpy and pure engines byte for byte, and the CLI. Not done: any
-Canon body but the 5D Mark II on real files (raw.pixls.us answers 403 here), a real Adobe
-profile (not in the build container), sRAW/mRAW and CR3. (The pipeline's grade stage reads CR2
-since later the same day: "CR2 in the pipeline".)
+patch rendering neutral, the numpy and pure engines byte for byte, and the CLI. Not done: a
+real Adobe profile (not in the build container), sRAW/mRAW and CR3. (The pipeline's grade stage
+reads CR2 since later the same day: "CR2 in the pipeline"; four more bodies on real files:
+"Five Canon bodies".)
+
+## Five Canon bodies on real files (2026-11-12)
+
+Real full-size CR2s from the 350D (12-bit, ColorData1), 600D (ColorData6), 70D (ColorData7)
+and 7D (ColorData4), from the public metadata-extractor-images collection, joined the 5D Mark
+II (`eval/cr2-five-bodies-2026-11-12.md`, `tools/cr2_ljpeg_check.py`,
+`tools/cr2_develop_check.py`). Against LibRaw on all five: 0 sensels different, the image area
+to LibRaw's crop, black levels within 2, the as-shot white balance equal, and the CFA phase
+LibRaw's. Two bodies needed changes:
+
+- **The 70D was refused.** Its as-shot balance is nearly neutral (red level 1,993, blue
+  1,964), so the balance cannot tell red from blue. The RGB thumbnail now decides when the
+  balance cannot: its red/blue correlates with the two non-green positions at +0.99 when the
+  first is red, -0.98 to -0.99 when it is blue, on four of the five bodies (the dim ISO 3200
+  5D Mark II frame gives -0.06, so there the balance alone decides, as before). The 70D now
+  develops as RGGB, LibRaw's phase.
+- **The 7D's highlights were pink.** Its greens clip at 12,649 and 12,650 (25,793 sensels
+  piled there), not at 16,383. Read as 16,383, the 14,224 clipped half-size pixels rendered a
+  pinkish grey (mean 0.94, 0.87, 0.87; none white). With the clip level read from the frame
+  they render white (mean 0.998, 1.000, 0.981; 69% at 0.97 or more in every channel).
+  LibRaw's table value for the body, 13,584, would also leave them grey.
+
+The other three frames have no pile at the clip, so their white level stays 16,383 (4,095 on
+the 12-bit 350D, whose pile sits at full scale). Rendered against LibRaw with LibRaw's matrix,
+the median difference is 3.0-5.6 8-bit steps on these brighter daylight frames (0.6 on the dim
+5D Mark II), with ShootFlow 3-9% brighter in every channel on every body: the DNG colour model
+against dcraw's, not a reader fault, and left as found. Speed with numpy: read 0.3-0.7 s.
 
 ## CR2 in the pipeline (2026-11-12)
 

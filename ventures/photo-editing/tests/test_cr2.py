@@ -13,6 +13,7 @@ A real 5D Mark II file against LibRaw: ``tools/cr2_develop_check.py`` and
 from __future__ import annotations
 
 import io
+import math
 import random
 import struct
 import sys
@@ -46,8 +47,11 @@ def scene(seed=7):
     return cells
 
 
-def sensor(pattern="GBRG", levels=(2048, 1024, 1024, 1536), seed=7):
-    """Row-major sensor values: masked borders at BLACK, the scene behind ``pattern``."""
+def sensor(pattern="GBRG", levels=(2048, 1024, 1024, 1536), seed=7, gain=6000, clip=None):
+    """Row-major sensor values: masked borders at BLACK, the scene behind ``pattern``.
+
+    ``clip`` saturates the image area at that raw value, as a sensor does.
+    """
 
     pat = cr2.PHASES[pattern]
     mult = (levels[0] / 1024, 1.0, levels[3] / 1024)
@@ -60,7 +64,8 @@ def sensor(pattern="GBRG", levels=(2048, 1024, 1024, 1536), seed=7):
             if TOP <= y < BOTTOM and LEFT <= x < RIGHT:
                 colour = pat[py * 2 + px]
                 refl = cells[(y - TOP) // 4, (x - LEFT) // 4][colour]
-                out.append(b + int(round(refl / mult[colour] * 6000)))
+                v = b + int(round(refl / mult[colour] * gain))
+                out.append(v if clip is None else min(v, clip))
             else:
                 out.append(b)
     return out
@@ -79,10 +84,43 @@ def sliced(values):
     return out
 
 
-def make_cr2(pattern="GBRG", levels=(2048, 1024, 1024, 1536), color_data_len=1250, sensor_info=True, seed=7):
-    values = sensor(pattern, levels, seed)
+def thumbnail(kind, seed=7, bits=16):
+    """An uncompressed RGB thumbnail of the scene, one 4x4 cell per scene cell, as IFD 2 of a CR2.
+
+    ``kind``: "match" (the scene), "swapped" (red and blue exchanged) or "flat" (grey).
+    A 16-bit one carries the sensor's black level, as Canon's do.
+    """
+
+    cells = scene(seed)
+    w, h = RIGHT - LEFT, BOTTOM - TOP
+    off, scale = (sum(BLACK) // 4, 8000) if bits == 16 else (0, 250)
+    px = []
+    for y in range(h):
+        for x in range(w):
+            r, g, b = cells[y // 4, x // 4]
+            if kind == "swapped":
+                r, b = b, r
+            elif kind == "flat":
+                r = g = b = 0.4
+            px.extend(off + int(round(v * scale)) for v in (r, g, b))
+    data = struct.pack("<" + ("H" if bits == 16 else "B") * len(px), *px)
+    return w, h, bits, data
+
+
+def make_cr2(
+    pattern="GBRG",
+    levels=(2048, 1024, 1024, 1536),
+    color_data_len=1250,
+    sensor_info=True,
+    seed=7,
+    thumb=None,
+    thumb_bits=16,
+    gain=6000,
+    clip=None,
+):
+    values = sensor(pattern, levels, seed, gain=gain, clip=clip)
     stream = encode_lossless_jpeg(sliced(values), SENSOR_W // FRAME_NF, SENSOR_H, FRAME_NF, precision=14)
-    # Layout: header (16) | IFD0 | Exif IFD | Canon IFD | raw IFD | stream
+    # Layout: header (16) | IFD0 | Exif IFD | Canon IFD | [thumbnail IFD | its pixels] | raw IFD | stream
     blob = bytearray(b"II*\0" + struct.pack("<I", 16) + b"CR\x02\0" + struct.pack("<I", 0))
 
     def ifd0_at(exif_at):
@@ -109,16 +147,41 @@ def make_cr2(pattern="GBRG", levels=(2048, 1024, 1024, 1536), color_data_len=125
             (0x00E0, 3, (34, SENSOR_W, SENSOR_H, 1, 1, LEFT, TOP, RIGHT - 1, BOTTOM - 1, 0, 0, 0, 0, 0, 0, 0, 0))
         )
     canon = _ifd_bytes(canon_entries, canon_at)
-    raw_at = canon_at + len(canon)
+    thumb_blob = b""
+    after_canon = canon_at + len(canon)
+    raw_at = after_canon
+    if thumb is not None:
+        tw, th, tbits, tdata = thumbnail(thumb, seed, thumb_bits)
+
+        def thumb_ifd(data_at):
+            return _ifd_bytes(
+                [
+                    (256, 3, (tw,)),
+                    (257, 3, (th,)),
+                    (258, 3, (tbits, tbits, tbits)),
+                    (259, 3, (1,)),
+                    (262, 3, (2,)),
+                    (273, 4, (data_at,)),
+                    (277, 3, (3,)),
+                    (279, 4, (len(tdata),)),
+                ],
+                after_canon,
+            )
+
+        tlen = len(thumb_ifd(0))
+        tifd = bytearray(thumb_ifd(after_canon + tlen))
+        raw_at = after_canon + tlen + len(tdata)
+        struct.pack_into("<I", tifd, 2 + 12 * 8, raw_at)  # thumbnail IFD -> raw IFD
+        thumb_blob = bytes(tifd) + tdata
     raw_len = len(_ifd_bytes([(259, 3, (6,)), (273, 4, (0,)), (279, 4, (0,)), (0xC640, 3, SLICES)], raw_at))
     stream_at = raw_at + raw_len
     raw_ifd = _ifd_bytes([(259, 3, (6,)), (273, 4, (stream_at,)), (279, 4, (len(stream),)), (0xC640, 3, SLICES)], raw_at)
 
     ifd0 = bytearray(ifd0_at(exif_at))
-    struct.pack_into("<I", ifd0, 2 + 12 * 4, raw_at)  # IFD0 -> raw IFD
+    struct.pack_into("<I", ifd0, 2 + 12 * 4, after_canon)  # IFD0 -> thumbnail IFD, or the raw IFD
     exif = bytearray(_ifd_bytes([(37500, 4, (canon_at,))], exif_at))
     struct.pack_into("<HI", exif, 2 + 2, 7, len(canon))  # MakerNote: UNDEFINED, the Canon IFD's length
-    blob += ifd0 + exif + canon + raw_ifd + stream
+    blob += ifd0 + exif + canon + thumb_blob + raw_ifd + stream
     return bytes(blob), values
 
 
@@ -250,6 +313,82 @@ class DevelopTests(unittest.TestCase):
             self.assertEqual(code, 0, err.getvalue())
             self.assertTrue((Path(tmp) / "m" / "IMG_0001.tif").exists())
             self.assertIn('"cfa": "GBRG"', out.getvalue())
+
+
+NEUTRAL = (1400, 1024, 1024, 1450)  # an as-shot balance too close to neutral to tell red from blue
+
+
+class ThumbnailPhaseTests(unittest.TestCase):
+    """Red told from blue by the RGB thumbnail when the as-shot balance cannot (a real 70D frame)."""
+
+    def test_thumbnail_decides_every_phase_under_a_neutral_balance(self):
+        for name in cr2.PHASES:
+            for bits in (16, 8):
+                with self.subTest(name, bits=bits):
+                    raw = rd.parse_raw(make_cr2(pattern=name, levels=NEUTRAL, thumb="match", thumb_bits=bits)[0])
+                    self.assertEqual(raw.ifd.entries[rd.TAG_CFA_PATTERN], cr2.PHASES[name])
+                    self.assertTrue(
+                        any(n.startswith(f"CR2: CFA {name} from green diagonal and thumbnail colour") for n in raw.notes),
+                        raw.notes,
+                    )
+
+    def test_grey_thumbnail_is_unclear_and_refused(self):
+        with self.assertRaisesRegex(rd.DevelopError, "thumbnail colour unclear.*--cfa"):
+            rd.parse_raw(make_cr2(levels=NEUTRAL, thumb="flat")[0])
+
+    def test_thumbnail_against_the_balance_is_refused(self):
+        with self.assertRaisesRegex(rd.DevelopError, "disagree"):
+            rd.parse_raw(make_cr2(thumb="swapped")[0])
+
+    def test_clear_balance_still_decides_when_the_thumbnail_agrees(self):
+        raw = rd.parse_raw(make_cr2(thumb="match")[0])
+        self.assertEqual(raw.ifd.entries[rd.TAG_CFA_PATTERN], cr2.PHASES["GBRG"])
+        self.assertIn("CR2: CFA GBRG from green diagonal and as-shot balance", raw.notes)
+
+    def test_correlation_threshold(self):
+        cells = [[1.0, 2.0 + i, 0.5 + (i % 3), 1.0] for i in range(12)]
+        rb = [math.log(c[1] / c[2]) for c in cells]
+        self.assertEqual(cr2._phase_from_data(cells, (1.0, 1.0, 1.0), rb)[0], "GRBG")
+        self.assertEqual(cr2._phase_from_data(cells, (1.0, 1.0, 1.0), [-v for v in rb])[0], "GBRG")
+        self.assertIsNone(cr2._phase_from_data(cells, (1.0, 1.0, 1.0), [0.0] * 12)[0])
+
+
+class ClipWhiteLevelTests(unittest.TestCase):
+    """The white level read from clipped sensels (a real 7D frame clips at 12,649, not 16,383)."""
+
+    def test_pile_at_the_clip_sets_the_white_level(self):
+        blob, values = make_cr2(gain=12000, clip=9000)
+        self.assertGreaterEqual(values.count(9000), 2 * cr2.CLIP_MIN_SENSELS)
+        raw = rd.parse_raw(blob)
+        self.assertEqual(raw.ifd.entries[rd.TAG_WHITE_LEVEL], (9000.0,))
+        self.assertTrue(any(n.startswith("white level 9000 from clipped sensels") for n in raw.notes), raw.notes)
+
+    def test_pure_python_and_numpy_agree(self):
+        blob, _ = make_cr2(gain=12000, clip=9000)
+        values, width = rd.parse_raw(blob).values, SENSOR_W
+        args = (values, width, TOP, LEFT, BOTTOM, RIGHT, [float(b) for b in BLACK], 14)
+        with_np = cr2._white_from_clipping(*args)
+        saved = sys.modules.get("numpy")
+        sys.modules["numpy"] = None  # type: ignore[assignment]
+        try:
+            without = cr2._white_from_clipping(*args)
+        finally:
+            if saved is None:
+                del sys.modules["numpy"]
+            else:
+                sys.modules["numpy"] = saved
+        self.assertEqual(with_np, without)
+        self.assertEqual(without[0], 9000.0)
+
+    def test_no_pile_keeps_full_scale(self):
+        raw = rd.parse_raw(make_cr2(gain=12000)[0])
+        self.assertEqual(raw.ifd.entries[rd.TAG_WHITE_LEVEL], (16383.0,))
+        self.assertFalse(any(n.startswith("white level") for n in raw.notes))
+
+    def test_a_pile_near_black_is_not_a_clip(self):
+        # An underexposed frame cut off low (well under a quarter of the range) is not read as white.
+        raw = rd.parse_raw(make_cr2(clip=1500)[0])
+        self.assertEqual(raw.ifd.entries[rd.TAG_WHITE_LEVEL], (16383.0,))
 
 
 if __name__ == "__main__":
