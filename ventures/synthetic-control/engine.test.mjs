@@ -217,3 +217,61 @@ test("PAPERS and DEFAULTS describe the method", () => {
   assert.equal(DEFAULTS.vMethod, "nested");
   assert.ok(JSON.stringify(adh));
 });
+
+// ---- red-team guards, 2026-11-12 ----
+
+test("result.lossW is the V-weighted predictor misfit: zero for an exact convex combination", () => {
+  const r = analyze({ ...planted({ effect: 10 }), vMethod: "equal", ...quiet });
+  assert.ok(Number.isFinite(r.lossW) && r.lossW >= 0 && r.lossW < 1e-10, String(r.lossW));
+  assert.ok(adh.lossW > 0 && Number.isFinite(adh.lossW));
+});
+
+test("post-period RMSPE covers every post period, the last one included", () => {
+  const post = adh.series.filter((s) => s.time >= 1990).map((s) => s.gap);
+  const pre = adh.series.filter((s) => s.time < 1990).map((s) => s.gap);
+  const rm = (g) => Math.sqrt(g.reduce((a, x) => a + x * x, 0) / g.length);
+  assert.ok(Math.abs(adh.postRMSPE - rm(post)) < 1e-9 * rm(post));
+  assert.ok(Math.abs(adh.preRMSPE - rm(pre)) < 1e-9 * rm(pre));
+  assert.ok(Math.abs(adh.ratio - rm(post) / rm(pre)) < 1e-9 * adh.ratio);
+});
+
+test("default spec with covariates lags the outcome at the first, middle and last pre-period", () => {
+  const spec = defaultSpec({ outcome: "y", covariates: ["x"], preTimes: R(1, 10), vMethod: "nested" });
+  assert.deepEqual(spec.predictors.slice(1).map((p) => p.times), [[1], [5], [10]]);
+  const cv = defaultSpec({ outcome: "y", covariates: ["x"], preTimes: R(1, 10), vMethod: "cv" });
+  assert.deepEqual(cv.predictors.slice(1).map((p) => p.times), [[6], [8], [10]]);
+  assert.deepEqual(defaultSpec({ outcome: "y", covariates: ["x"], preTimes: [1, 2, 3], vMethod: "nested" }).predictors.slice(1).map((p) => p.times), [[1], [2], [3]]);
+});
+
+test("the cross-validation fallback note appears only when cv was asked for and could not run", () => {
+  const p = planted({ T: 5, T0: 3 });
+  const cv = analyze({ ...p, vMethod: "cv", ...quiet });
+  assert.match(cv.notes.join(" "), /Cross-validation needs at least four pre-periods/);
+  for (const vMethod of ["equal", "nested"]) {
+    const r = analyze({ ...p, vMethod, ...quiet });
+    assert.doesNotMatch(r.notes.join(" "), /Cross-validation/, vMethod);
+  }
+});
+
+test("Nelder-Mead stops on its tolerance well before the iteration cap", () => {
+  const r = nelderMead(([x, y]) => (x - 5) ** 2 + (y + 3) ** 2, [1, 1]);
+  assert.ok(Math.abs(r.x[0] - 5) < 1e-2 && Math.abs(r.x[1] + 3) < 1e-2, r.x.join(","));
+  // The defaults allow 400 evaluations for two variables; this bowl converges in under 100.
+  assert.ok(r.fcalls < 200, `used ${r.fcalls} evaluations in ${r.iterations} iterations`);
+});
+
+test("records with numeric unit ids work (the treated id is matched as text)", () => {
+  const rec = [];
+  for (const u of [1, 2, 3, 4]) for (let t = 0; t < 6; t++) rec.push({ id: u, t, y: 10 * u + t * u + (u === 1 && t >= 4 ? 5 : 0) });
+  const r = analyze({ records: rec, unit: "id", time: "t", outcome: "y", treated: 1, treatmentTime: 4, vMethod: "equal", ...quiet });
+  assert.equal(r.treated, "1");
+  assert.deepEqual([...r.donors].sort(), ["2", "3", "4"]);
+  const d = analyze({ records: rec, unit: "id", time: "t", outcome: "y", treated: 1, donors: [2, 3], treatmentTime: 4, vMethod: "equal", ...quiet });
+  assert.deepEqual([...d.donors].sort(), ["2", "3"]);
+});
+
+test("a non-numeric time column says so instead of blaming the treated unit", () => {
+  const rows = ["u,t,y"];
+  for (const u of ["A", "B", "C"]) for (let m = 1; m <= 6; m++) rows.push(`${u},2020-0${m},${m}`);
+  assert.throws(() => analyze({ csv: rows.join("\n"), unit: "u", time: "t", outcome: "y", treated: "A", treatmentTime: 4 }), /time column "t" has no numeric values/);
+});

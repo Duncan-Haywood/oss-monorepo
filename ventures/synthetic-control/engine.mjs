@@ -117,9 +117,11 @@ export function buildPanel(records, { unit, time, variables }) {
   const timeSet = new Set();
   const cells = new Map();
   for (const r of records) {
-    const u = r[unit];
+    // Unit ids are text: CSV cells already are, and records may carry numbers
+    // (unit 1, 2, 3) that the treated/donor ids must still match.
+    const u = r[unit] === undefined || r[unit] === null ? "" : String(r[unit]).trim();
     const t = num(r[time]);
-    if (u === undefined || u === "" || !Number.isFinite(t)) continue;
+    if (u === "" || !Number.isFinite(t)) continue;
     if (!cells.has(u)) { cells.set(u, new Map()); units.push(u); }
     timeSet.add(t);
     const m = cells.get(u);
@@ -467,6 +469,7 @@ export function analyze(input = {}) {
   const variables = [...new Set([opts.outcome, ...covariates, ...specVars])];
   const panel = buildPanel(records, { unit: opts.unit, time: opts.time, variables });
   panel.outcome = opts.outcome;
+  if (records.length && !panel.times.length) throw new Error(`The time column "${opts.time}" has no numeric values: use a number per period (a year, or a period index such as 1, 2, 3 for months).`);
   const T0 = num(opts.treatmentTime);
   if (!Number.isFinite(T0)) throw new Error("Give the first period the intervention affected (a number, such as a year).");
   const treated = String(opts.treated ?? "");
