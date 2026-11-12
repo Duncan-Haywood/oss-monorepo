@@ -373,7 +373,7 @@ export function renewalsIcs(a, { leadDays = 3, stamp = null } = {}) {
       "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsText(`${s.merchant} renews in ${lead} day(s)`)}`, `TRIGGER:-P${lead}D`, "END:VALARM", "END:VEVENT");
   }
   out.push("END:VCALENDAR");
-  return out.join("\r\n") + "\r\n";
+  return foldIcs(out.join("\r\n") + "\r\n");
 }
 
 export function summaryText(a, cancelled = []) {
@@ -409,4 +409,22 @@ export function sampleCsv() {
   add("2026-09-17", "DROPBOX*ANNUAL 8005555 CA", "-119.88");
   add("2026-08-15", "HULU 877-8244858 CA", "-17.99");
   return L.sort((x, y) => (x.startsWith("Date") ? -1 : y.startsWith("Date") ? 1 : x.localeCompare(y))).join("\n") + "\n";
+}
+
+// RFC 5545 3.1: fold content lines longer than 75 octets (CRLF plus one space),
+// never splitting a UTF-8 character. Some calendar importers truncate longer lines.
+function foldIcs(text) {
+  const enc = new TextEncoder();
+  return text.split("\r\n").map((line) => {
+    if (enc.encode(line).length <= 75) return line;
+    const parts = [];
+    let cur = "", len = 0, limit = 75;
+    for (const ch of line) {
+      const n = enc.encode(ch).length;
+      if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+      cur += ch; len += n;
+    }
+    parts.push(cur);
+    return parts.join("\r\n ");
+  }).join("\r\n");
 }

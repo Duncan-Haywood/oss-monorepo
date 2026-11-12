@@ -195,7 +195,7 @@ export function calendarIcs(r, name = "Insurance policy") {
     const next = iso(addDays(c.date, 1)).replace(/-/g, "");
     return ["BEGIN:VEVENT", `UID:policy-${i}-${d}@business-insurance-policy-reader`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${next}`, `SUMMARY:${name}: ${c.label.replace(/[,;\n]/g, " ")}`, ...(c.critical ? ["BEGIN:VALARM", "TRIGGER:-P14D", "ACTION:DISPLAY", "DESCRIPTION:Insurance renewal date in 14 days", "END:VALARM"] : []), "END:VEVENT"].join("\r\n");
   });
-  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//business-insurance-policy-reader//EN", ...ev, "END:VCALENDAR"].join("\r\n");
+  return foldIcs(["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//business-insurance-policy-reader//EN", ...ev, "END:VCALENDAR"].join("\r\n"));
 }
 
 export function findingsCsv(r) {
@@ -211,3 +211,21 @@ Defense costs are included within the limits of liability and reduce the amount 
 We may cancel this policy by giving you 10 days written notice. If this policy is not renewed, you may purchase an extended reporting period by request within 60 days after the policy expires. You must notify us of any claim as soon as practicable.`;
 }
 export const SAMPLE_SETTINGS = { expiration: "", premium: "", requiredOccurrence: "1000000", requiredAggregate: "2000000", today: "2027-11-15", insured: "Example Builders LLC" };
+
+// RFC 5545 3.1: fold content lines longer than 75 octets (CRLF plus one space),
+// never splitting a UTF-8 character. Some calendar importers truncate longer lines.
+function foldIcs(text) {
+  const enc = new TextEncoder();
+  return text.split("\r\n").map((line) => {
+    if (enc.encode(line).length <= 75) return line;
+    const parts = [];
+    let cur = "", len = 0, limit = 75;
+    for (const ch of line) {
+      const n = enc.encode(ch).length;
+      if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+      cur += ch; len += n;
+    }
+    parts.push(cur);
+    return parts.join("\r\n ");
+  }).join("\r\n");
+}

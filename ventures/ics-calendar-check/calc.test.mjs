@@ -246,3 +246,30 @@ test("repair keeps quoted parameter values quoted when it rewrites DTEND", () =>
   assert.match(out, /DTEND;VALUE=DATE;X-NOTE="a:b":20260107/);
   assert.equal(validate(out).findings.length, 0, titles(validate(out)).join("; "));
 });
+
+test("seconds may be 60 (a leap second) but never 61 (RFC 5545 3.3.12)", () => {
+  assert.equal(parseTime("20261231T235960Z").kind, "datetime");
+  assert.ok(parseTime("20261231T235961Z").error);
+});
+
+test("INTERVAL accepts any positive whole number and rejects zero", () => {
+  for (const n of ["1", "2", "9", "10", "52"]) assert.ok(!has(validate(ev(`RRULE:FREQ=WEEKLY;INTERVAL=${n}`)), /bad INTERVAL/), n);
+  for (const n of ["0", "00", "-1"]) assert.ok(has(validate(ev(`RRULE:FREQ=WEEKLY;INTERVAL=${n}`)), /bad INTERVAL/), n);
+});
+
+test("every finding repair fixes is marked fixable, so the CSV and summary agree with repair", () => {
+  const r = validate("BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDTSTART:20260105T090000Z\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n");
+  for (const code of ["version", "prodid", "uid", "dtstamp"]) {
+    const f = r.findings.find((x) => x.code === code);
+    assert.ok(f, code);
+    assert.equal(f.fixable, true, code);
+  }
+  assert.ok(findingsCsv(r).split("\r\n").some((l) => /no VERSION/.test(l) && l.endsWith(",yes")));
+});
+
+test("INTERVAL and COUNT with leading zeros are valid (RFC 5545 3.3.10: 1*DIGIT)", () => {
+  assert.ok(!has(validate(ev("RRULE:FREQ=WEEKLY;INTERVAL=02")), /bad INTERVAL/));
+  assert.ok(!has(validate(ev("RRULE:FREQ=DAILY;COUNT=05")), /bad COUNT/));
+  assert.ok(has(validate(ev("RRULE:FREQ=DAILY;COUNT=000")), /bad COUNT/));
+  assert.ok(has(validate(ev("RRULE:FREQ=DAILY;COUNT=1.5")), /bad COUNT/));
+});

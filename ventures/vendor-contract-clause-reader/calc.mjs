@@ -234,7 +234,7 @@ export function calendarIcs(r, name = "Vendor contract") {
     const next = iso(addDays(c.date, 1)).replace(/-/g, "");
     return ["BEGIN:VEVENT", `UID:vendor-${i}-${d}@vendor-contract-clause-reader`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${next}`, `SUMMARY:${name}: ${c.label.replace(/[,;\n]/g, " ")}`, ...(c.critical ? ["BEGIN:VALARM", "TRIGGER:-P30D", "ACTION:DISPLAY", "DESCRIPTION:Non-renewal deadline in 30 days", "END:VALARM"] : []), "END:VEVENT"].join("\r\n");
   });
-  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//vendor-contract-clause-reader//EN", ...ev, "END:VCALENDAR"].join("\r\n");
+  return foldIcs(["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//vendor-contract-clause-reader//EN", ...ev, "END:VCALENDAR"].join("\r\n"));
 }
 
 export function findingsCsv(r) {
@@ -250,3 +250,21 @@ This Agreement shall automatically renew for successive terms of 12 months unles
 Vendor's total liability shall not exceed the fees paid in the preceding 3 months. Customer shall defend and indemnify Vendor against all claims arising from Customer's use of the Services. Any dispute shall be resolved by binding arbitration, and Customer waives any class action. This Agreement is governed by the laws of the State of Delaware.`;
 }
 export const SAMPLE_SETTINGS = { annualFee: "", upliftPct: "", effective: "", today: "2027-09-01", vendor: "Example SaaS Inc." };
+
+// RFC 5545 3.1: fold content lines longer than 75 octets (CRLF plus one space),
+// never splitting a UTF-8 character. Some calendar importers truncate longer lines.
+function foldIcs(text) {
+  const enc = new TextEncoder();
+  return text.split("\r\n").map((line) => {
+    if (enc.encode(line).length <= 75) return line;
+    const parts = [];
+    let cur = "", len = 0, limit = 75;
+    for (const ch of line) {
+      const n = enc.encode(ch).length;
+      if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+      cur += ch; len += n;
+    }
+    parts.push(cur);
+    return parts.join("\r\n ");
+  }).join("\r\n");
+}

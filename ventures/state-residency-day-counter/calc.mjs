@@ -645,7 +645,7 @@ export function deadlinesIcs(result, { name = "State residency day counter" } = 
     );
   }
   lines.push("END:VCALENDAR");
-  return { ics: lines.join("\r\n") + "\r\n", count: events.length };
+  return { ics: foldIcs(lines.join("\r\n") + "\r\n"), count: events.length };
 }
 
 // ---- output ------------------------------------------------------------------
@@ -769,4 +769,22 @@ export function setupFromJson(text) {
   const fields = {};
   for (const k of SETUP_FIELDS) if (typeof doc.fields[k] === "string") fields[k] = doc.fields[k].slice(0, 100000);
   return { fields };
+}
+
+// RFC 5545 3.1: fold content lines longer than 75 octets (CRLF plus one space),
+// never splitting a UTF-8 character. Some calendar importers truncate longer lines.
+function foldIcs(text) {
+  const enc = new TextEncoder();
+  return text.split("\r\n").map((line) => {
+    if (enc.encode(line).length <= 75) return line;
+    const parts = [];
+    let cur = "", len = 0, limit = 75;
+    for (const ch of line) {
+      const n = enc.encode(ch).length;
+      if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+      cur += ch; len += n;
+    }
+    parts.push(cur);
+    return parts.join("\r\n ");
+  }).join("\r\n");
 }

@@ -285,7 +285,7 @@ export function expiryCalendar(result, now = "2026-01-01T00:00:00Z") {
       `DESCRIPTION:${esc(`${p.carrier ? p.carrier + ". " : ""}${p.policy ? "Policy " + p.policy + ". " : ""}Ask for the renewal certificate and endorsements.`)}`, "END:VEVENT");
   }
   lines.push("END:VCALENDAR");
-  return lines.join("\r\n") + "\r\n";
+  return foldIcs(lines.join("\r\n") + "\r\n");
 }
 
 export function sampleList() {
@@ -316,4 +316,22 @@ export function sampleBrokenList() {
     "Echo Excavating,Workers comp,Liberty,WC-2,250000,,2026-01-01,2026-12-31,,No",
     "",
   ].join("\n");
+}
+
+// RFC 5545 3.1: fold content lines longer than 75 octets (CRLF plus one space),
+// never splitting a UTF-8 character. Some calendar importers truncate longer lines.
+function foldIcs(text) {
+  const enc = new TextEncoder();
+  return text.split("\r\n").map((line) => {
+    if (enc.encode(line).length <= 75) return line;
+    const parts = [];
+    let cur = "", len = 0, limit = 75;
+    for (const ch of line) {
+      const n = enc.encode(ch).length;
+      if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+      cur += ch; len += n;
+    }
+    parts.push(cur);
+    return parts.join("\r\n ");
+  }).join("\r\n");
 }

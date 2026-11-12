@@ -257,7 +257,7 @@ export function calendarIcs(r, name = "Lease") {
     const next = iso(addDays(c.date, 1)).replace(/-/g, "");
     return ["BEGIN:VEVENT", `UID:lease-${i}-${d}@commercial-lease-abstract-reader`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${next}`, `SUMMARY:${name}: ${c.label.replace(/[,;\n]/g, " ")}`, ...(c.critical ? ["BEGIN:VALARM", "TRIGGER:-P60D", "ACTION:DISPLAY", "DESCRIPTION:Lease deadline in 60 days", "END:VALARM"] : []), "END:VEVENT"].join("\r\n");
   });
-  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//commercial-lease-abstract-reader//EN", ...ev, "END:VCALENDAR"].join("\r\n");
+  return foldIcs(["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//commercial-lease-abstract-reader//EN", ...ev, "END:VCALENDAR"].join("\r\n"));
 }
 
 export function findingsCsv(r) {
@@ -271,3 +271,21 @@ export function sampleLease() {
 Tenant has one option to renew for five years, exercisable by written notice not less than 270 days prior to the expiration of the initial term. Any holdover by Tenant shall be at 200% of the Base Rent in effect. A late charge of 10% applies to rent more than three days overdue. Tenant may not assign or sublet without Landlord's consent, which may be withheld in Landlord's sole and absolute discretion. Landlord may relocate Tenant to substitute premises on 60 days notice. The principal of Tenant shall personally guarantee all obligations under this lease. Upon default Landlord may accelerate all rent for the remainder of the term.`;
 }
 export const SAMPLE_SETTINGS = { monthlyRent: "", escalationPct: "", tenant: "Example Bakery LLC", premises: "Suite 4, 100 Main St", today: "2027-01-15" };
+
+// RFC 5545 3.1: fold content lines longer than 75 octets (CRLF plus one space),
+// never splitting a UTF-8 character. Some calendar importers truncate longer lines.
+function foldIcs(text) {
+  const enc = new TextEncoder();
+  return text.split("\r\n").map((line) => {
+    if (enc.encode(line).length <= 75) return line;
+    const parts = [];
+    let cur = "", len = 0, limit = 75;
+    for (const ch of line) {
+      const n = enc.encode(ch).length;
+      if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+      cur += ch; len += n;
+    }
+    parts.push(cur);
+    return parts.join("\r\n ");
+  }).join("\r\n");
+}

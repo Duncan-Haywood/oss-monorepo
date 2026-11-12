@@ -44,8 +44,13 @@ import * as wedding from "../wedding-day-timeline-builder/calc.mjs";
 function clean(ics) {
   assert.equal(typeof ics, "string");
   assert.match(ics, /BEGIN:VEVENT/, "generator produced no events; the input is too thin to test");
-  const errors = validate(ics).findings.filter((f) => f.severity === "error");
+  const findings = validate(ics).findings;
+  const errors = findings.filter((f) => f.severity === "error");
   assert.deepEqual(errors, []);
+  // RFC 5545 3.1: lines SHOULD be folded at 75 octets; some importers truncate
+  // longer ones. A warning in the checker, but every generator here folds.
+  const unfolded = findings.filter((f) => f.code === "fold");
+  assert.deepEqual(unfolded, [], "a line is longer than 75 octets: fold the generator's output");
 }
 
 test("ai-bookkeeper", () => {

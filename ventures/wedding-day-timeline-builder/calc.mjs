@@ -437,7 +437,7 @@ export function timelineIcs(plan, p, view = "all", stamp = "20260101T000000Z") {
     lines.push("END:VEVENT");
   });
   lines.push("END:VCALENDAR");
-  return lines.join("\r\n") + "\r\n";
+  return foldIcs(lines.join("\r\n") + "\r\n");
 }
 
 export function serializeState(state) {
@@ -454,4 +454,22 @@ export function parseState(text) {
 // Invented example for the demo button. Not a real couple or venue.
 export function sampleFields(year = new Date().getFullYear()) {
   return { city: "Charleston, SC", date: `${year}-10-17`, ceremonyStart: "16:30", curfew: "22:30", ceremonyLen: 30, outdoors: true, sameVenue: true, travel: 20, firstLook: true, partySize: 8, familyGroups: 10, minPerGroup: 3, guests: 120, meal: "plated", cocktailMin: 60, toasts: 3, grandEntrance: true, parentDances: true, cake: true, bouquet: false, sendoff: true, hairPeople: 5, artists: 2, brideMin: 90, otherMin: 60 };
+}
+
+// RFC 5545 3.1: fold content lines longer than 75 octets (CRLF plus one space),
+// never splitting a UTF-8 character. Some calendar importers truncate longer lines.
+function foldIcs(text) {
+  const enc = new TextEncoder();
+  return text.split("\r\n").map((line) => {
+    if (enc.encode(line).length <= 75) return line;
+    const parts = [];
+    let cur = "", len = 0, limit = 75;
+    for (const ch of line) {
+      const n = enc.encode(ch).length;
+      if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+      cur += ch; len += n;
+    }
+    parts.push(cur);
+    return parts.join("\r\n ");
+  }).join("\r\n");
 }
