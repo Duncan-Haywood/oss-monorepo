@@ -31,7 +31,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 16,
   "outcome": "success",
@@ -59,7 +59,7 @@
     "docs/posts/2026-11-12-quality-audit-round-48.md"
   ],
   "goal": "quality audits: measure share of sampled work at the senior-professional bar and fix what is small",
-  "notes": "Seed 2026-11-12-g, round 48. Subjects: ventures/section-1256-futures-tax-calculator, ventures/eu-price-reduction-claim-checker, research/free-modelcost, research/ambient-wakeburst (no flagship/platform eligible). Share meeting the bar: 0 of 4 (cumulative sampled 29 of 206, Wilson 10-20%). Seeded bugs caught 7 of 25. Fix PRs: #15117 (venture fixes for both ventures, free-modelcost correction, ambient-wakeburst README/test), #15120 (control plane: Sonnet 5.5 cache_read 0.20 -> 0.10, Fable/Mythos 5.2 rows). Spot-checks by the session: EU sample prior 69 / 14.49% by hand; 60/40 blended 21.8% by hand; free-modelcost re-pricing rerun (6.53x at 0.20, 8.45x at 0.10) and pricing page row read from the fetched page; ambient-wakeburst 1-a-day Fano recomputed (5.43+1, 145+1). Local checks: venture node tests 33/33 and 27/27, wakeburst pytest 10/10, prompts test_runcost 16/16, quality_audit validate 0 problems, check_post_frontmatter 0.",
+  "notes": "Seed 2026-11-12-g, round 48. Subjects: ventures/section-1256-futures-tax-calculator, ventures/eu-price-reduction-claim-checker, research/free-modelcost, research/ambient-wakeburst (no flagship/platform eligible). Share meeting the bar: 0 of 4 (cumulative sampled 29 of 206, Wilson 10-20%). Seeded bugs caught 7 of 25. Fix PRs: #15117 (venture fixes for both ventures, free-modelcost correction, ambient-wakeburst README/test), #15120 (control plane: Sonnet 5.5 cache_read 0.20 -> 0.10, Fable/Mythos 5.2 rows). Spot-checks by the session: EU sample prior 69 / 14.49% by hand; 60/40 blended 21.8% by hand; free-modelcost re-pricing rerun (6.53x at 0.20, 8.45x at 0.10) and pricing page row read from the fetched page; ambient-wakeburst 1-a-day Fano recomputed (5.43+1, 145+1). Local checks: venture node tests 33/33 and 27/27, wakeburst pytest 10/10, prompts test_runcost 16/16, quality_audit validate 0 problems, check_post_frontmatter 0. run_workflow_locally --for-changes: 13/15 workflows passed after regenerating research/README.md (readme-live-links failed first on the stale list); pages.yml and portfolio-pages.yml reached no verdict locally (no _site build / budget). GitHub registered no check runs on the PR at merge time.",
   "corrections": [],
   "redteam": null,
   "usage": {
