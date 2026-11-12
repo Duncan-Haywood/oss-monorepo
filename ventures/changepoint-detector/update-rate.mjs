@@ -101,9 +101,11 @@ function wilson(k, m) {
   return [Math.max(0, c - h), Math.min(1, c + h)];
 }
 
-// The shipped setting, from eval/update-rate-sim.out.txt (chosen on the calibration seed, checked
-// on the confirmation seed; a test checks these match the file).
-export const UPDATE_RATE = { kind: 'markov', mult: 1.5, minSegment: 20, minRepeats: 10 };
+// The shipped setting. Cost and penalty from eval/update-rate-sim.out.txt (round one: chosen on its
+// calibration seed; its confirmation failed on dating to within 5 steps), the range's slack from
+// eval/update-rate-range.out.txt (round two: chosen on seed 20261203, all four rules passed on
+// 20261204-5). A test checks these match the files.
+export const UPDATE_RATE = { kind: 'markov', mult: 2, minSegment: 20, minRepeats: 10, slack: 9 };
 
 /**
  * When the share of exact repeats changed. Value indexes throughout: a stretch [from, to] covers the
@@ -126,8 +128,9 @@ export function updateRateChanges(values, opts = {}) {
     const [lo, hi] = wilson(r, m);
     stretches.push({ from: a + 1, to: b, steps: m, repeats: r, share: r / m, lo, hi });
   }
+  const ranges = cutRanges(z, cuts, o);
   const changes = cuts.map((c, k) => ({
-    index: c + 1, shareBefore: stretches[k].share, shareAfter: stretches[k + 1].share,
+    index: c + 1, from: ranges[k][0] + 1, to: ranges[k][1] + 1, shareBefore: stretches[k].share, shareAfter: stretches[k + 1].share,
     direction: stretches[k + 1].share > stretches[k].share ? 'less often' : 'more often',
   }));
   return { changes, stretches, repeats: total, steps: z.length, penalty, setting: o };
@@ -139,6 +142,7 @@ const pct = (v) => `${(100 * v).toFixed(0)}%`;
 export function updateRateLines(u, labels) {
   if (!u || !u.changes || !u.changes.length) return [];
   const L = (i) => (labels && labels[i] != null ? labels[i] : `point ${i}`);
-  const parts = u.changes.map((c) => `from ${L(c.index)} it began updating ${c.direction} (repeats ${pct(c.shareBefore)} of steps before, ${pct(c.shareAfter)} after)`);
+  const when = (c) => (c.from === c.to ? L(c.index) : `about ${L(c.index)} (between ${L(c.from)} and ${L(c.to)})`);
+  const parts = u.changes.map((c) => `from ${when(c)} it began updating ${c.direction} (repeats ${pct(c.shareBefore)} of steps before, ${pct(c.shareAfter)} after)`);
   return [`Update-rate check: the share of steps that repeat the previous value exactly changed ${u.changes.length === 1 ? 'once' : `${u.changes.length} times`}: ${parts.join('; ')}. This describes how often the data was refreshed (a stale feed, a figure carried forward, a change in how it was recorded), not a change in its level; jumps near these dates may be catch-ups after a stale stretch.`];
 }
