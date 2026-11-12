@@ -19,6 +19,7 @@ import { NILE_CSV } from './example-data.mjs';
 import { slopeBreaks } from './slope-breaks.mjs';
 
 import { groupRamps } from './ramps.mjs';
+import { updateRateChanges, updateRateLines } from './update-rate.mjs';
 
 export const PAPERS = [
   {
@@ -2121,6 +2122,11 @@ export function analyze(input = {}) {
     }
   }
   const overcutWarning = overcut ? `${overcut.cuts} steps may be over-cutting a smooth or trending series: with the noise floor set to twice the scatter about a local line (--noise-floor 2 --noise-floor-local 25; page: smooth or trending series) the same search keeps ${overcut.refitCuts}${overcut.refitCuts ? ` (${overcut.refitAt.slice(0, 8).join(', ')}${overcut.refitCuts > 8 ? ', ...' : ''})` : ''}. On 31 labelled real series (Turing Change Point Dataset) that floor matched the annotators better on 27 of 28 that it changed; neither setting reliably beat reporting no change, so check the dates.` : null;
+  // update-rate check (update-rate.mjs, README "When a series starts updating less often"): when the share of steps that
+  // repeat the previous value exactly changed. It reads only the values (before any log), so it is the same check the drift
+  // model shows; jumps near such a date may be catch-ups after a stale stretch, whatever model dated them.
+  const updateRate = updateRateChanges(original0);
+  const updateRateWarning = updateRateLines(updateRate, labels)[0] ?? null;
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -2167,6 +2173,7 @@ export function analyze(input = {}) {
     ...(driftWarning ? { driftWarning } : {}),
     ...(cycleWarning ? { cycleWarning } : {}),
     ...(overcutWarning ? { overcutWarning, overcut } : {}),
+    ...(updateRateWarning ? { updateRateWarning, updateRate: { changes: updateRate.changes, stretches: updateRate.stretches } } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),

@@ -41,20 +41,26 @@ export function segmentCost(P, a, b, kind) {
   const m = b - a, r = P.R[b] - P.R[a];
   if (kind === 'bernoulli') return bernoulliCost(r, m);
   // Markov: transitions wholly inside [a, b) (s from a + 1 to b - 1), first step by its own share.
-  const c = [0, 1, 2, 3].map((k) => P.T[k][b] - P.T[k][a + 1]);
-  const first = P.R[a + 1] - P.R[a];
-  return bernoulliCost(first, 1) + -2 * (xlx(c[0], c[0] + c[1]) + xlx(c[1], c[0] + c[1]) + xlx(c[2], c[2] + c[3]) + xlx(c[3], c[2] + c[3]));
+  // (Written out without arrays: this runs O(n) to O(n^2) times in the search below.)
+  const T = P.T, a1 = a + 1;
+  const c0 = T[0][b] - T[0][a1], c1 = T[1][b] - T[1][a1], c2 = T[2][b] - T[2][a1], c3 = T[3][b] - T[3][a1];
+  const first = P.R[a1] - P.R[a];
+  return bernoulliCost(first, 1) - 2 * (xlx(c0, c0 + c1) + xlx(c1, c0 + c1) + xlx(c2, c2 + c3) + xlx(c3, c2 + c3));
 }
 
 /**
  * Stretches of steady update rate in the repeat indicators z (from repeatIndicators).
  * Returns cut positions in z (a cut at k starts a new stretch at z[k], value index k + 1).
  */
-export function partitionRates(z, { kind = 'bernoulli', mult = 1, penalty = null, minSegment = 20 } = {}) {
+export function partitionRates(z, { kind = 'bernoulli', mult = 1, penalty = null, minSegment = 20, exactUpTo = EXACT_UP_TO } = {}) {
   const n = z.length;
   const beta = penalty ?? mult * 2 * Math.log(n + 1);
   if (n < 2 * minSegment) return { cuts: [], penalty: beta };
   const P = prefixes(z);
+  // PELT prunes little when changes are few, so the exact search grows as n^2 (24 s at 20,000 steps before
+  // this guard). Above exactUpTo steps it searches a grid of about exactUpTo positions, then moves each cut to
+  // its best position between its neighbours (README "The update-rate check on long series").
+  if (n > exactUpTo) return gridPartition(z, P, { kind, beta, minSegment, step: Math.ceil(n / exactUpTo) });
   const F = new Float64Array(n + 1).fill(Infinity), last = new Int32Array(n + 1);
   F[0] = -beta;
   let cand = [0];
@@ -77,6 +83,52 @@ export function partitionRates(z, { kind = 'bernoulli', mult = 1, penalty = null
   return { cuts: cuts.reverse(), penalty: beta };
 }
 
+// Series longer than this many steps are searched on a grid first (partitionRates).
+export const EXACT_UP_TO = 1500;
+
+// Optimal partitioning with cuts only at multiples of `step`, then each cut moved, with its neighbours
+// fixed, to its best position anywhere between them (passes until nothing moves). Every move lowers the
+// total cost, so the result is never worse than the grid's.
+function gridPartition(z, P, { kind, beta, minSegment, step }) {
+  const n = z.length, pos = [0];
+  for (let t = step; t < n; t += step) pos.push(t);
+  pos.push(n);
+  const m = pos.length, F = new Float64Array(m).fill(Infinity), last = new Int32Array(m);
+  F[0] = -beta;
+  let cand = [0];
+  for (let j = 1; j < m; j++) {
+    const t = pos[j];
+    let best = Infinity, arg = -1;
+    for (const i of cand) {
+      if (t - pos[i] < minSegment) continue;
+      const v = F[i] + segmentCost(P, pos[i], t, kind) + beta;
+      if (v < best) { best = v; arg = i; }
+    }
+    if (arg < 0) continue; // too close to the start for any segment
+    F[j] = best; last[j] = arg;
+    const keep = [];
+    for (const i of cand) if (t - pos[i] < minSegment || F[i] + segmentCost(P, pos[i], t, kind) <= F[j]) keep.push(i);
+    keep.push(j);
+    cand = keep;
+  }
+  const cuts = [];
+  for (let j = m - 1; j > 0; j = last[j]) if (last[j] > 0) cuts.push(pos[last[j]]);
+  cuts.reverse();
+  for (let pass = 0, moved = true; moved && pass < 10; pass++) {
+    moved = false;
+    for (let k = 0; k < cuts.length; k++) {
+      const L = k ? cuts[k - 1] : 0, R = k + 1 < cuts.length ? cuts[k + 1] : n;
+      let best = segmentCost(P, L, cuts[k], kind) + segmentCost(P, cuts[k], R, kind), arg = cuts[k];
+      for (let c = L + minSegment; c <= R - minSegment; c++) {
+        const v = segmentCost(P, L, c, kind) + segmentCost(P, c, R, kind);
+        if (v < best - 1e-9) { best = v; arg = c; }
+      }
+      if (arg !== cuts[k]) { cuts[k] = arg; moved = true; }
+    }
+  }
+  return { cuts, penalty: beta, grid: step };
+}
+
 /**
  * A range of dates for each cut: every position k between the neighbouring cuts (keeping minSegment on
  * both sides) whose two-stretch cost is within `slack` of the best. Returned in z positions, like cuts.
@@ -87,9 +139,11 @@ export function cutRanges(z, cuts, { kind = 'bernoulli', minSegment = 20, slack 
     const L = b[j], R = b[j + 2];
     const D = [];
     for (let k = L + minSegment; k <= R - minSegment; k++) D.push([k, segmentCost(P, L, k, kind) + segmentCost(P, k, R, kind)]);
-    const best = Math.min(...D.map((d) => d[1]));
-    const inside = D.filter((d) => d[1] - best <= slack).map((d) => d[0]);
-    return [Math.min(...inside), Math.max(...inside)];
+    let best = Infinity;
+    for (const d of D) if (d[1] < best) best = d[1];
+    let lo = Infinity, hi = -Infinity; // loops, not Math.min(...): a range on a long series can hold 100,000 positions
+    for (const d of D) if (d[1] - best <= slack) { if (d[0] < lo) lo = d[0]; if (d[0] > hi) hi = d[0]; }
+    return [lo, hi];
   });
 }
 
