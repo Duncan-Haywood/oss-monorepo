@@ -129,3 +129,23 @@ def moving_by_position(x, half, d_min):
     x[i - half] .. x[i + half] (window clipped at the ends)."""
     n = len(x)
     return [abs(x[min(n - 1, i + half)] - x[max(0, i - half)]) > d_min for i in range(n)]
+
+
+def slowed_time(samples, dt):
+    """Record time when a pump cannot supply the demand (5w).
+
+    samples: iterable of (q_demand, q_pump), L/min. Where demand exceeds the pump, the actuators slow
+    so the pump delivers the demanded volume: that sample lasts dt * q_demand / q_pump. Returns
+    (time, shortfall share of samples with demand > 0)."""
+    t, short, moving = 0.0, 0, 0
+    for q_dem, q_pump in samples:
+        if q_dem > 0:
+            moving += 1
+            if q_pump <= 0:
+                raise ValueError("demand with no pump flow")
+            if q_dem > q_pump:
+                short += 1
+                t += dt * q_dem / q_pump
+                continue
+        t += dt
+    return t, (short / moving if moving else 0.0)
