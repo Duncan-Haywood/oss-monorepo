@@ -85,7 +85,7 @@ export function reminderSchedule(input) {
 }
 
 function icsEscape(text) {
-  return String(text).replace(/\\/g, '\\\\').replace(/;/g, '\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+  return String(text).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
 }
 
 // RFC 5545 content lines are folded at 75 octets; continuation lines start

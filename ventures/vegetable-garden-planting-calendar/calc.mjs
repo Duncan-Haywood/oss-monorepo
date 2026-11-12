@@ -313,7 +313,7 @@ export function tasksText(garden) {
   return out.join("\n") + "\n";
 }
 
-const icsEscape = (t) => String(t).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+const icsEscape = (t) => String(t).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
 const icsDate = (day) => isoDate(day).replace(/-/g, "");
 
 // All-day events. `stamp` is injected so the output is reproducible in tests.

@@ -188,6 +188,19 @@ export function summaryText(r, s = {}) {
   return lines.join("\n");
 }
 
+// RFC 5545 3.1: fold content lines longer than 75 octets (a continuation starts with a space), never inside a UTF-8 character.
+const foldIcs = (text) => text.split("\r\n").map((line) => {
+  const parts = [];
+  let cur = "", len = 0, limit = 75;
+  for (const ch of line) {
+    const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+    if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+    cur += ch; len += n;
+  }
+  parts.push(cur);
+  return parts.join("\r\n ");
+}).join("\r\n");
+
 export function calendarIcs(r, name = "Insurance policy") {
   const stamp = "20260101T000000Z";
   const ev = r.calendar.map((c, i) => {
@@ -195,7 +208,7 @@ export function calendarIcs(r, name = "Insurance policy") {
     const next = iso(addDays(c.date, 1)).replace(/-/g, "");
     return ["BEGIN:VEVENT", `UID:policy-${i}-${d}@business-insurance-policy-reader`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${next}`, `SUMMARY:${name}: ${c.label.replace(/[,;\n]/g, " ")}`, ...(c.critical ? ["BEGIN:VALARM", "TRIGGER:-P14D", "ACTION:DISPLAY", "DESCRIPTION:Insurance renewal date in 14 days", "END:VALARM"] : []), "END:VEVENT"].join("\r\n");
   });
-  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//business-insurance-policy-reader//EN", ...ev, "END:VCALENDAR"].join("\r\n");
+  return foldIcs(["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//business-insurance-policy-reader//EN", ...ev, "END:VCALENDAR"].join("\r\n"));
 }
 
 export function findingsCsv(r) {

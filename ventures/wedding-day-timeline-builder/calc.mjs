@@ -420,13 +420,26 @@ export function timelineText(plan, p, view = "all") {
   return out.join("\n") + "\n";
 }
 
-const icsEscape = (t) => String(t).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+const icsEscape = (t) => String(t).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
 const icsStamp = (iso, mins) => {
   const base = parseDate(iso).getTime() + Math.round(mins) * 60000;
   const d = new Date(base);
   const z = (n) => String(n).padStart(2, "0");
   return `${d.getUTCFullYear()}${z(d.getUTCMonth() + 1)}${z(d.getUTCDate())}T${z(d.getUTCHours())}${z(d.getUTCMinutes())}00`;
 };
+
+// RFC 5545 3.1: fold content lines longer than 75 octets (a continuation starts with a space), never inside a UTF-8 character.
+const foldIcs = (text) => text.split("\r\n").map((line) => {
+  const parts = [];
+  let cur = "", len = 0, limit = 75;
+  for (const ch of line) {
+    const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+    if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+    cur += ch; len += n;
+  }
+  parts.push(cur);
+  return parts.join("\r\n ");
+}).join("\r\n");
 
 // Floating local times: the calendar app shows them at the same clock time wherever it is opened.
 export function timelineIcs(plan, p, view = "all", stamp = "20260101T000000Z") {
@@ -437,7 +450,7 @@ export function timelineIcs(plan, p, view = "all", stamp = "20260101T000000Z") {
     lines.push("END:VEVENT");
   });
   lines.push("END:VCALENDAR");
-  return lines.join("\r\n") + "\r\n";
+  return foldIcs(lines.join("\r\n")) + "\r\n";
 }
 
 export function serializeState(state) {
