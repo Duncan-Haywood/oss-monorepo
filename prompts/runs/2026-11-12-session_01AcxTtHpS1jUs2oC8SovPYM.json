@@ -39,6 +39,10 @@
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "Two red-team runs picked einvoice-preflight within an hour (#15132 and this one) because both followed 'aim at a file that just changed on main'. Disjoint files, so no harm, but a search of open redteam PRs for the target is not in the steps."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Three red-team runs (#15132, #15135, this one) took einvoice-preflight within one hour; #15135 and this run found and fixed the identical cce20 crash in parallel. Step 1's 'aim at a file that just changed on main' steers concurrent runs to the same target; it should say to search open redteam PRs for the target first, or prefer a random draw when the newest change already has a redteam PR."
     }
   ],
   "deviations": [
@@ -47,13 +51,17 @@
       "why": "Step 0 asks to fix the open defects; each already has an owner-gated control-plane PR open, and a second copy would only add duplicates (P061/P063).",
       "did": "Left them patched:false and seeded new targets instead.",
       "result": "No duplicate PRs; the run's time went to a new real defect."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Most PRs carry a new post; this run's post covered the same pre-2024 crash as #15135's post (2026-11-12-redteam-an-export-invoice-from-last-december.md), which landed first.",
+      "did": "Dropped the post rather than publish a near-duplicate.",
+      "result": "PR carries only the two unique gap tests and the record."
     }
   ],
-  "writeups": [
-    "docs/posts/2026-11-12-redteam-an-export-invoice-from-last-year.md"
-  ],
+  "writeups": [],
   "goal": null,
-  "notes": "Targets: ventures/einvoice-preflight/cce20.mjs (newest code on main, #15129) and platform/ci/check_se_tax_floor.py (random --under platform draw). Fuzz harness (attribute edits) found a TypeError on Fecha before 2024-01-18; the same harness is now cfdi-fuzz.test.mjs (guard added, ~10k docs, ~3 s; found exactly that one crash on its first run). Hand fuzz of preflightDocuments over 35 example XMLs (25,320 attr/text edits): no JS errors. Verification: run_venture_tests.py einvoice-preflight ok 7.5 s; python3 -m unittest test_check_se_tax_floor 7 OK; redteam rerun: all gaps caught_after_fix true. Main went red mid-run: #15130 left changepoint-detector's flagships.yaml `next:` at 2120 chars (cap 2000), failing portfolio/router/validate.py on every PR; I shortened it on this branch, but a parallel red-team run (#15132, same venture: cfdi.mjs/pagos20) landed its own fix first, so the merge keeps main's version. Two red-team runs on einvoice-preflight within the same hour: the router has no way to see a target is already taken.",
+  "notes": "Targets: ventures/einvoice-preflight/cce20.mjs (newest code on main, #15129) and platform/ci/check_se_tax_floor.py (random --under platform draw). Fuzz harness (attribute edits) found a TypeError on Fecha before 2024-01-18; the same harness is now cfdi-fuzz.test.mjs (guard added, ~10k docs, ~3 s; found exactly that one crash on its first run). Hand fuzz of preflightDocuments over 35 example XMLs (25,320 attr/text edits): no JS errors. Verification: run_venture_tests.py einvoice-preflight ok 7.5 s; python3 -m unittest test_check_se_tax_floor 7 OK; redteam rerun: all gaps caught_after_fix true. Main went red mid-run: #15130 left changepoint-detector's flagships.yaml `next:` at 2120 chars (cap 2000), failing portfolio/router/validate.py on every PR; I shortened it on this branch, but a parallel red-team run (#15132, same venture: cfdi.mjs/pagos20) landed its own fix first, so the merge keeps main's version. Two red-team runs on einvoice-preflight within the same hour: the router has no way to see a target is already taken. At merge: #15135 had landed the same crash fix and a robustness sweep, so this PR keeps only the CCE154 Cantidad test, the check_se_tax_floor main() test and this record.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -133,7 +141,7 @@
             "seconds": 5.6,
             "triage": null,
             "caught_after_fix": null,
-            "note": ""
+            "note": " Kept at merge (not covered by #15135)."
           },
           {
             "file": "ventures/einvoice-preflight/cce20.mjs",
@@ -147,7 +155,7 @@
             "seconds": 5.8,
             "triage": "gap",
             "caught_after_fix": true,
-            "note": "No test had a transfer line with a 1-decimal Cantidad (the fixture uses 12.000), so tightening the decimals to {2,3} went unseen. Added 'a transfer's Cantidad may have one, two or three decimals, not four (CCE154)' in cce20.test.mjs."
+            "note": "No test had a transfer line with a 1-decimal Cantidad (the fixture uses 12.000), so tightening the decimals to {2,3} went unseen. Added 'a transfer's Cantidad may have one, two or three decimals, not four (CCE154)' in cce20.test.mjs. Kept at merge (not covered by #15135)."
           },
           {
             "file": "ventures/einvoice-preflight/cce20.mjs",
@@ -361,8 +369,9 @@
     "real_defects": [
       {
         "file": "ventures/einvoice-preflight/cce20.mjs",
-        "issue": "checkCfdi threw TypeError (Cannot read properties of undefined (reading '0')) on any Comercio Exterior CFDI dated before 2024-01-18, or with an unreadable Fecha: the CCE161 not-in-force message read VIGENCIA[fr][0], but most tariff codes have no VIGENCIA row. mexico-cfdi-e-invoice-mandate.html calls checkCfdi without try/catch, so the page showed nothing; the CLI/report path gave a read error instead of the finding. Fixed with a vigencia() default shared by fraccionVigente and the message; guarded by a per-date test and cfdi-fuzz.test.mjs (no throw on ~10,000 one-attribute edits of every CFDI fixture).",
-        "patched": true
+        "issue": "checkCfdi threw TypeError (Cannot read properties of undefined (reading '0')) on any Comercio Exterior CFDI dated before 2024-01-18, or with an unreadable Fecha: the CCE161 not-in-force message read VIGENCIA[fr][0], but most tariff codes have no VIGENCIA row. mexico-cfdi-e-invoice-mandate.html calls checkCfdi without try/catch, so the page showed nothing; the CLI/report path gave a read error instead of the finding. Found independently by the parallel red-team run #15135, which landed first with the same fix (fraccionVigencia) and cfdi-robustness.test.mjs; this run's identical fix, fuzz test and post were dropped at merge.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15135"
       }
     ]
   },

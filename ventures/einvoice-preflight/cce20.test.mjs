@@ -107,19 +107,60 @@ test("Exportacion 01 without the complement draws nothing from these rules", () 
   assert.ok(!rules(read("cfdi-4.0-invoice.xml")).some((r) => /^MX-06\d$/.test(r)));
 });
 
+// Red-team round 2026-11-12: each test below failed against a seeded mutant (or, the first,
+// against main) that the suite above let through.
+test("a CFDI dated before CCE 2.0 names the code's start date instead of throwing", () => {
+  // 7801100100 has no VIGENCIA entry, so it runs from 2024-01-18; on main this threw a TypeError.
+  const old = read("cfdi-4.0-cce20-mxn.xml").replace('Fecha="2026-11-10', 'Fecha="2023-12-01');
+  const f = checkCfdi(old).findings.find((x) => /CCE161/.test(x.message));
+  assert.ok(f, "CCE161 expected");
+  assert.match(f.message, /in force 2024-01-18 to now/);
+  // With no date to test against, a listed code counts as in force.
+  assert.ok(fraccionVigente("9503002300"));
+  assert.ok(fraccionVigente("7801100100", ""));
+});
+
+test("Propietario on a type T CFDI with MotivoTraslado 05 is accepted", () => {
+  const t05 = read("cfdi-4.0-cce20-traslado.xml").replace('MotivoTraslado="02"', 'MotivoTraslado="05"');
+  assert.ok(rules(t05).includes("MX-062"));
+  const owned = t05.replace("</cce20:Emisor>", '</cce20:Emisor><cce20:Propietario NumRegIdTrib="987654321" ResidenciaFiscal="USA"/>');
+  assert.deepEqual(rules(owned), []);
+});
+
+test("one line split over two Mercancia nodes needs the customs fields", () => {
+  const tr = read("cfdi-4.0-cce20-traslado.xml").replace(
+    '<cce20:Mercancia NoIdentificacion="LAP-14" FraccionArancelaria="8471300199" ValorDolares="10008.26"/>',
+    '<cce20:Mercancia NoIdentificacion="LAP-14" FraccionArancelaria="8471300199" ValorDolares="5004.13"/><cce20:Mercancia NoIdentificacion="LAP-14" FraccionArancelaria="8471500199" ValorDolares="5004.13"/>');
+  const msgs = checkCfdi(tr).findings.filter((f) => /CCE165/.test(f.message));
+  assert.equal(msgs.length, 2);
+  assert.match(msgs[0].message, /more than one line or Mercancia/);
+});
+
+test("a transfer's ValorUnitario allows 16 integer digits, not 17", () => {
+  const tr = read("cfdi-4.0-cce20-traslado.xml");
+  const has156 = (t) => checkCfdi(t).findings.some((f) => /CCE156/.test(f.message));
+  assert.ok(!has156(tr.replace('ValorUnitario="15240.50"', 'ValorUnitario="1234567890123456.00"')));
+  assert.ok(has156(tr.replace('ValorUnitario="15240.50"', 'ValorUnitario="12345678901234567.00"')));
+});
+
+test("the ValorDolares finding says how the limits were computed for the CFDI's currency", () => {
+  const usd = read("cfdi-4.0-cce20-usd.xml").replace(' ValorDolares="1022424.81"', ' ValorDolares="962500.00"').replace(' TotalUSD="1022424.81"', ' TotalUSD="962500.00"');
+  const f = checkCfdi(usd).findings.find((x) => /CCE158/.test(x.message));
+  assert.ok(f);
+  assert.match(f.message, /Importe \(a CFDI in dollars\)/);
+});
+
+test("a four-digit colonia code is named as not checked", () => {
+  const tr = read("cfdi-4.0-cce20-traslado.xml").replace('NumeroExterior="1203"', 'NumeroExterior="1203" Colonia="0001"');
+  const r = checkCfdi(tr);
+  assert.deepEqual(r.findings, []);
+  assert.ok(r.skipped.some((s) => /^CCE129 \(Emisor colonia 0001\)/.test(s)), r.skipped.join(" | "));
+});
+
 test("a transfer's Cantidad may have one, two or three decimals, not four (CCE154)", () => {
+  // Red-team 2026-11-12 (#15134): narrowing the pattern to {2,3} decimals went unseen,
+  // since every fixture writes 12.000.
   const t = read("cfdi-4.0-cce20-traslado.xml");
   for (const q of ["12", "12.5", "12.50", "12.500"]) assert.ok(!rules(t.replace('Cantidad="12.000"', `Cantidad="${q}"`)).includes("MX-067"), q);
   assert.ok(rules(t.replace('Cantidad="12.000"', 'Cantidad="12.5000"')).includes("MX-067"));
-});
-
-test("an export dated before the tariff catalogue took effect is reported, not thrown", () => {
-  // Red-team 2026-11-12: a code with no VIGENCIA row (most of them) made the message read
-  // VIGENCIA[fr][0] and throw, so the page showed nothing for any export dated before 2024-01-18.
-  const t = read("cfdi-4.0-cce20-eur.xml");
-  for (const d of ["2023-12-31T10:00:00", "2024-01-17T23:59:59"]) {
-    const f = checkCfdi(t.replace(/Fecha="[^"]*"/, `Fecha="${d}"`)).findings.find((x) => x.rule === "MX-068");
-    assert.ok(f, d);
-    assert.match(f.message, /not in force on the CFDI's date \d{4}-\d\d-\d\d \(in force 2024-01-18 to now\)/);
-  }
 });

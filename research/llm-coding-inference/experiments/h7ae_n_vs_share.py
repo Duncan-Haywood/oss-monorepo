@@ -72,7 +72,7 @@ def main():
                 human = [human_all[j] for j in corpora[d]]; f = [f_all[j] for j in corpora[d]]
                 truth = sum(human) / N; npos += sum(human)
                 labels = {i: human[i] for i in pilots[d]}
-                plan = A.plan_audit(f, labels, N_audit, tau=tau, guard=guard, neg_guard=ng)
+                plan = A.plan_audit(f, labels, N_audit, tau=tau, guard=guard, neg_guard=ng, width_margin=None)
                 nc += plan["design"] == "cells"
                 for cell, t in zip(plan["cells"], plan["to_label"]):
                     for i in sb.sample([i for i in cell if i not in labels], t): labels[i] = human[i]
