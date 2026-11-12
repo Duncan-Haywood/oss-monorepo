@@ -64,3 +64,12 @@ test("the NF-e file check is on the page and its sample draws exactly the three 
   const sample = html.match(/const SAMPLE=`([\s\S]*?)`;/)[1];
   assert.deepEqual(checkNfe(sample).findings.map((f) => f.rule).sort(), ["BR-013", "BR-030", "BR-042"]);
 });
+
+test("the national NFS-e check is on the page and its sample draws exactly the three planted findings", async () => {
+  assert.match(html, /import\{checkNfse\}from"\.\/nfse\.mjs"/);
+  assert.match(html, /id="nfse-file"/);
+  const { checkNfse } = await import("./nfse.mjs");
+  const sample = html.match(/const SAMPLE_NFSE=`([\s\S]*?)`;/)[1];
+  assert.deepEqual(checkNfse(sample).findings.map((f) => f.rule).sort(), ["NFSE-013", "NFSE-021", "NFSE-032"]);
+  assert.doesNotMatch(html, /do not read NFS-e/);
+});

@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVKTXk16fubw1wwHuEP",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T22:12:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 5 einvoice-preflight: Brazil's national NFS-e (DPS/NFSe) check",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 15273,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight next: was already near the 2,000-character cap; adding one landed item meant compressing three older ones."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-brazils-service-invoice-schema-moved-its-fields.md"
+  ],
+  "goal": null,
+  "notes": "Schemas from akretion/nfelib (MIT) pinned commit; gov.br unreachable. eval/nfse-xsd-diff.mjs vs xmllint: 7,843/7,843 agree, 1,439/1,439 under IBSCBS (8 seeds incl. 3 real issued NFS-e from nfse-nacional/nfse-php tests, migrated in scratch, not copied). Real NFS-e pass all sums; key DV mod 11 reproduced on 3 real keys. run_venture_tests einvoice-preflight passes; nfse.test 13/13; Brazil page test 10/10; headless Chromium page + main checker OK. venture-preflight and the site-builder test from run_workflow_locally were run in the background before merging (results in PR).",
+  "corrections": [],
+  "redteam": null
+}

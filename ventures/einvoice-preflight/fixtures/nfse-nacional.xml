@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Made-up national NFS-e for tests (einvoice-preflight): test CNPJ 11.222.333/0001-81 and
+     CPF 111.444.777-35, no real party. Worked by hand: ISSQN base 1500.00 - 100.00 = 1400.00;
+     ISSQN 5% = 70.00, retained by the customer; IRRF 1.5% = 21.00; vTotalRet 91.00;
+     vLiq 1500.00 - 100.00 - 91.00 = 1309.00; IBS/CBS base (2026) 1500.00 - 100.00 - 70.00
+     - PIS 9.10 - COFINS 42.00 = 1278.90; IBS UF 0.10% = 1.28, CBS 0.90% = 11.51; vTotNF = vLiq.
+     The signature block is a placeholder: it holds no real signature. -->
+<NFSe versao="1.01" xmlns="http://www.sped.fazenda.gov.br/nfse">
+	<infNFSe Id="NFS35503082211222333000181000000000012326110000045673">
+		<xLocEmi>São Paulo</xLocEmi>
+		<xLocPrestacao>São Paulo</xLocPrestacao>
+		<nNFSe>123</nNFSe>
+		<cLocIncid>3550308</cLocIncid>
+		<xLocIncid>São Paulo</xLocIncid>
+		<xTribNac>Análise e desenvolvimento de sistemas.</xTribNac>
+		<xNBS>Serviços de desenvolvimento de software sob encomenda</xNBS>
+		<verAplic>SefinNac_Pre_1.5.0</verAplic>
+		<ambGer>2</ambGer>
+		<tpEmis>1</tpEmis>
+		<procEmi>1</procEmi>
+		<cStat>100</cStat>
+		<dhProc>2026-11-10T10:00:05-03:00</dhProc>
+		<nDFSe>4567</nDFSe>
+		<emit>
+			<CNPJ>11222333000181</CNPJ>
+			<IM>1234567</IM>
+			<xNome>EXEMPLO SERVICOS DE SOFTWARE LTDA</xNome>
+			<enderNac>
+				<xLgr>RUA EXEMPLO</xLgr>
+				<nro>100</nro>
+				<xBairro>CENTRO</xBairro>
+				<cMun>3550308</cMun>
+				<UF>SP</UF>
+				<CEP>01001000</CEP>
+			</enderNac>
+		</emit>
+		<valores>
+			<vBC>1400.00</vBC>
+			<pAliqAplic>5.00</pAliqAplic>
+			<vISSQN>70.00</vISSQN>
+			<vTotalRet>91.00</vTotalRet>
+			<vLiq>1309.00</vLiq>
+		</valores>
+		<IBSCBS>
+			<cLocalidadeIncid>3550308</cLocalidadeIncid>
+			<xLocalidadeIncid>São Paulo</xLocalidadeIncid>
+			<valores>
+				<vBC>1278.90</vBC>
+				<uf>
+					<pIBSUF>0.10</pIBSUF>
+					<pAliqEfetUF>0.10</pAliqEfetUF>
+				</uf>
+				<mun>
+					<pIBSMun>0.00</pIBSMun>
+					<pAliqEfetMun>0.00</pAliqEfetMun>
+				</mun>
+				<fed>
+					<pCBS>0.90</pCBS>
+					<pAliqEfetCBS>0.90</pAliqEfetCBS>
+				</fed>
+			</valores>
+			<totCIBS>
+				<vTotNF>1309.00</vTotNF>
+				<gIBS>
+					<vIBSTot>1.28</vIBSTot>
+					<gIBSUFTot>
+						<vIBSUF>1.28</vIBSUF>
+					</gIBSUFTot>
+					<gIBSMunTot>
+						<vIBSMun>0.00</vIBSMun>
+					</gIBSMunTot>
+				</gIBS>
+				<gCBS>
+					<vCBS>11.51</vCBS>
+				</gCBS>
+			</totCIBS>
+		</IBSCBS>
+		<DPS versao="1.01">
+			<infDPS Id="DPS355030821122233300018100001000000000000017">
+				<tpAmb>2</tpAmb>
+				<dhEmi>2026-11-10T10:00:00-03:00</dhEmi>
+				<verAplic>EXEMPLO_1.0</verAplic>
+				<serie>1</serie>
+				<nDPS>17</nDPS>
+				<dCompet>2026-11-10</dCompet>
+				<tpEmit>1</tpEmit>
+				<finNFSe>0</finNFSe>
+				<cLocEmi>3550308</cLocEmi>
+				<prest>
+					<CNPJ>11222333000181</CNPJ>
+					<IM>1234567</IM>
+					<regTrib>
+						<opSimpNac>1</opSimpNac>
+						<regEspTrib>0</regEspTrib>
+					</regTrib>
+				</prest>
+				<toma>
+					<CPF>11144477735</CPF>
+					<xNome>CLIENTE EXEMPLO</xNome>
+				</toma>
+				<serv>
+					<locPrest>
+						<cLocPrestacao>3550308</cLocPrestacao>
+					</locPrest>
+					<cServ>
+						<cTribNac>010101</cTribNac>
+						<cNBS>115022000</cNBS>
+						<xDescServ>Desenvolvimento de sistema sob encomenda</xDescServ>
+					</cServ>
+				</serv>
+				<valores>
+					<vServPrest>
+						<vServ>1500.00</vServ>
+					</vServPrest>
+					<vDescCondIncond>
+						<vDescIncond>100.00</vDescIncond>
+						<vDescCond>0.00</vDescCond>
+					</vDescCondIncond>
+					<trib>
+						<tribMun>
+							<tribISSQN>1</tribISSQN>
+							<tpRetISSQN>2</tpRetISSQN>
+						</tribMun>
+						<tribFed>
+							<piscofins>
+								<CST>01</CST>
+								<vBCPisCofins>1400.00</vBCPisCofins>
+								<pAliqPis>0.65</pAliqPis>
+								<pAliqCofins>3.00</pAliqCofins>
+								<vPis>9.10</vPis>
+								<vCofins>42.00</vCofins>
+								<tpRetPisCofins>2</tpRetPisCofins>
+							</piscofins>
+							<vRetIRRF>21.00</vRetIRRF>
+						</tribFed>
+						<totTrib>
+							<indTotTrib>0</indTotTrib>
+						</totTrib>
+					</trib>
+				</valores>
+				<IBSCBS>
+					<cIndOp>100301</cIndOp>
+					<indDest>0</indDest>
+					<valores>
+						<trib>
+							<CST>000</CST>
+							<cClassTrib>000001</cClassTrib>
+						</trib>
+					</valores>
+				</IBSCBS>
+			</infDPS>
+		</DPS>
+	</infNFSe>
+	<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+		<SignedInfo>
+			<CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+			<SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+			<Reference URI="#NFS35503082211222333000181000000000012326110000045673">
+				<Transforms>
+					<Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+					<Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+				</Transforms>
+				<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+				<DigestValue>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</DigestValue>
+			</Reference>
+		</SignedInfo>
+		<SignatureValue>AAAA</SignatureValue>
+		<KeyInfo>
+			<X509Data>
+				<X509Certificate>AAAA</X509Certificate>
+			</X509Data>
+		</KeyInfo>
+	</Signature>
+</NFSe>

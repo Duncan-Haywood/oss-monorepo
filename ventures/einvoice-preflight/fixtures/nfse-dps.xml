@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Made-up national DPS (the request inside fixtures/nfse-nacional.xml) for tests (einvoice-preflight): test CNPJ 11.222.333/0001-81 and
+     CPF 111.444.777-35, no real party. Worked by hand: ISSQN base 1500.00 - 100.00 = 1400.00;
+     ISSQN 5% = 70.00, retained by the customer; IRRF 1.5% = 21.00; vTotalRet 91.00;
+     vLiq 1500.00 - 100.00 - 91.00 = 1309.00; IBS/CBS base (2026) 1500.00 - 100.00 - 70.00
+     - PIS 9.10 - COFINS 42.00 = 1278.90; IBS UF 0.10% = 1.28, CBS 0.90% = 11.51; vTotNF = vLiq.
+     The signature block is a placeholder: it holds no real signature. -->
+<DPS versao="1.01" xmlns="http://www.sped.fazenda.gov.br/nfse">
+			<infDPS Id="DPS355030821122233300018100001000000000000017">
+				<tpAmb>2</tpAmb>
+				<dhEmi>2026-11-10T10:00:00-03:00</dhEmi>
+				<verAplic>EXEMPLO_1.0</verAplic>
+				<serie>1</serie>
+				<nDPS>17</nDPS>
+				<dCompet>2026-11-10</dCompet>
+				<tpEmit>1</tpEmit>
+				<finNFSe>0</finNFSe>
+				<cLocEmi>3550308</cLocEmi>
+				<prest>
+					<CNPJ>11222333000181</CNPJ>
+					<IM>1234567</IM>
+					<regTrib>
+						<opSimpNac>1</opSimpNac>
+						<regEspTrib>0</regEspTrib>
+					</regTrib>
+				</prest>
+				<toma>
+					<CPF>11144477735</CPF>
+					<xNome>CLIENTE EXEMPLO</xNome>
+				</toma>
+				<serv>
+					<locPrest>
+						<cLocPrestacao>3550308</cLocPrestacao>
+					</locPrest>
+					<cServ>
+						<cTribNac>010101</cTribNac>
+						<cNBS>115022000</cNBS>
+						<xDescServ>Desenvolvimento de sistema sob encomenda</xDescServ>
+					</cServ>
+				</serv>
+				<valores>
+					<vServPrest>
+						<vServ>1500.00</vServ>
+					</vServPrest>
+					<vDescCondIncond>
+						<vDescIncond>100.00</vDescIncond>
+						<vDescCond>0.00</vDescCond>
+					</vDescCondIncond>
+					<trib>
+						<tribMun>
+							<tribISSQN>1</tribISSQN>
+							<tpRetISSQN>2</tpRetISSQN>
+						</tribMun>
+						<tribFed>
+							<piscofins>
+								<CST>01</CST>
+								<vBCPisCofins>1400.00</vBCPisCofins>
+								<pAliqPis>0.65</pAliqPis>
+								<pAliqCofins>3.00</pAliqCofins>
+								<vPis>9.10</vPis>
+								<vCofins>42.00</vCofins>
+								<tpRetPisCofins>2</tpRetPisCofins>
+							</piscofins>
+							<vRetIRRF>21.00</vRetIRRF>
+						</tribFed>
+						<totTrib>
+							<indTotTrib>0</indTotTrib>
+						</totTrib>
+					</trib>
+				</valores>
+				<IBSCBS>
+					<cIndOp>100301</cIndOp>
+					<indDest>0</indDest>
+					<valores>
+						<trib>
+							<CST>000</CST>
+							<cClassTrib>000001</cClassTrib>
+						</trib>
+					</valores>
+				</IBSCBS>
+			</infDPS>
+		</DPS>

@@ -11,6 +11,7 @@ import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
 import { checkFa3, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
 import { checkNfe, looksLikeNfe } from "./nfe.mjs";
+import { checkNfse, looksLikeNfse } from "./nfse.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
 export const DEFAULT_MAX_FILES = 50;
@@ -24,7 +25,7 @@ export function looksLikeIsdoc(text) {
   return /xmlns(?::\w+)?\s*=\s*["']http:\/\/isdoc\.cz\/namespace\/2013["']/.test(String(text).slice(0, 4096));
 }
 
-export const ISDOC_MESSAGE = "This is an ISDOC invoice (the Czech national format). The checker reads UBL, CII, Factur-X, FatturaPA, FA(3), CFDI 4.0 and NF-e 4.00, not ISDOC, and applies no Czech national rules. Export the invoice from your accounting software as Peppol BIS (UBL) or EN 16931 and check that file instead.";
+export const ISDOC_MESSAGE = "This is an ISDOC invoice (the Czech national format). The checker reads UBL, CII, Factur-X, FatturaPA, FA(3), CFDI 4.0, NF-e 4.00 and the national NFS-e, not ISDOC, and applies no Czech national rules. Export the invoice from your accounting software as Peppol BIS (UBL) or EN 16931 and check that file instead.";
 
 export async function inspectInvoiceSource(name, source) {
   let payload = source;
@@ -115,6 +116,13 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         const brazilian = checkNfe(peek);
         const m = brazilian.meta;
         reports.push({ file: name, errors: brazilian.findings, envelope: `Read as Brazilian ${m.mod === "65" ? "NFC-e" : "NF-e"} ${m.versao || ""} (SEFAZ), not EN 16931${m.authorised ? "; authorised (protocol cStat 100)" : ""}${m.tpAmb === "2" ? "; test environment (tpAmb 2)" : ""}`, ...(brazilian.skipped.length ? { skipped: brazilian.skipped } : {}) });
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeNfse(peek)) {
+        // Brazil's national NFS-e (Padrão Nacional, services) is its own schema: own rules.
+        const nfse = checkNfse(peek);
+        const m = nfse.meta;
+        reports.push({ file: name, errors: nfse.findings, envelope: `Read as a Brazilian national NFS-e ${m.kind === "DPS" ? "DPS (the request)" : "(as issued)"} ${m.versao || ""}, not EN 16931${m.cStat === "100" ? "; issued (cStat 100)" : ""}${m.ambGer === "2" || m.tpAmb === "2" ? "; test environment" : ""}`, ...(nfse.skipped.length ? { skipped: nfse.skipped } : {}) });
         continue;
       }
       const { invoice, envelope, xml, pdfFindings } = await inspectInvoiceSource(name, source);
