@@ -46,8 +46,25 @@ export function carryOverFromOpponents(opponents, { cyclic = false } = {}) {
   const cells = diagonal ? n * n : n * (n - 1);
   const q = Math.floor(total / cells), r = total - q * cells;
   const lowerBound = cells ? r * (q + 1) ** 2 + (cells - r) * q * q : 0;
-  return { matrix, value, max, pairs, total, lowerBound, repeats: diagonal };
+  // A single round robin, all n teams playing, non-cyclic: the floor above is not always reachable,
+  // and for some n a SAT solver has proved a higher least value (PROVEN_LEAST).
+  const single = !cyclic && !diagonal && n % 2 === 0 && opponents.every((s) => s.length === n - 1);
+  const proven = single ? PROVEN_LEAST[n] || null : null;
+  return { matrix, value, max, pairs, total, lowerBound, repeats: diagonal, proven };
 }
+
+/**
+ * Least non-cyclic carry-over of a single round robin with n teams, all playing, as far as it is
+ * proved. `least` is a value no such round robin goes below; `exact` says a round robin reaches it.
+ * 6: all 720 ordered 1-factorizations enumerated (carryover.test.mjs) and eval/carryover-sat.py
+ * (no round robin at 40 or under). 8: reaches the floor. 10: eval/carryover-sat.py proves none at
+ * 88 or under (UNSAT); the best known, from the refill search, is 94 (README "SAT bounds").
+ */
+export const PROVEN_LEAST = {
+  6: { least: 42, exact: true },
+  8: { least: 48, exact: true },
+  10: { least: 90, exact: false, best: 94 },
+};
 
 /** Each team's opponents in order from schedule rounds (`{ matches: [{ home, away }] }` or [h, a] pairs). */
 export function opponentsFromRounds(rounds, n) {

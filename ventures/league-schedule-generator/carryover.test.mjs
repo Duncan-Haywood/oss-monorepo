@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { carryOverFromOpponents, carryOver, lowCarryOverRounds, circleOpp, assignVenues, venueCost } from "./carryover.mjs";
+import { carryOverFromOpponents, carryOver, lowCarryOverRounds, circleOpp, assignVenues, venueCost, PROVEN_LEAST } from "./carryover.mjs";
 import { roundRobin, buildSchedule, validateSchedule, countBreaks, readSpec, encodeFields, decodeFields } from "./calc.mjs";
 
 const teams = (n) => Array.from({ length: n }, (_, i) => `T${i + 1}`);
@@ -66,6 +66,7 @@ test("circle method values (cyclic) and the exhaustive K6 optimum", () => {
   assert.equal(count, 720);
   assert.equal(best.true, 60);
   assert.equal(best.false, 42);
+  assert.equal(best.false, PROVEN_LEAST[6].least, "the proved least matches the enumeration");
   const r = lowCarryOverRounds(6, { cyclic: true });
   assert.equal(r.coe, 60, "the search reaches the K6 optimum");
 });
@@ -272,4 +273,21 @@ test("assignVenuesDouble starts its first restart from the host it is given (red
     const b = assignVenuesDouble(opp, n, 1, 1, host((t, u) => u)).map((x) => [...x]);
     assert.notDeepEqual(a, b, `${n} teams`);
   }
+});
+
+test("proved least carry-over: only on single non-cyclic round robins, and never beaten", () => {
+  const opps = (opp, n) => Array.from({ length: n }, (_, t) => opp.map((row) => row[t]));
+  for (const n of [6, 8, 10]) {
+    const c = carryOverFromOpponents(opps(circleOpp(n), n));
+    assert.deepEqual(c.proven, PROVEN_LEAST[n]);
+    assert.ok(c.value >= c.proven.least);
+    const r = lowCarryOverRounds(n, { seed: 1, effort: 0.3 });
+    assert.ok(r.coe >= PROVEN_LEAST[n].least, `${n} teams: ${r.coe} below a proved least`);
+    assert.equal(carryOverFromOpponents(opps(circleOpp(n), n), { cyclic: true }).proven, null);
+    const twice = opps(circleOpp(n), n).map((s) => [...s, ...s]);
+    assert.equal(carryOverFromOpponents(twice).proven, null, "a double round robin has no proved least");
+  }
+  assert.equal(carryOverFromOpponents(opps(circleOpp(12), 12)).proven, null, "12 teams: nothing proved yet");
+  // 8 teams: the proved least is the floor itself (the search above reaches it)
+  assert.equal(carryOverFromOpponents(opps(circleOpp(8), 8)).lowerBound, PROVEN_LEAST[8].least);
 });

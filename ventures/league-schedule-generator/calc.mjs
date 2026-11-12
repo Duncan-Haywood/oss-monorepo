@@ -814,7 +814,7 @@ export function scheduleStats(schedule) {
   return {
     matches, home, away, breaks, totalBreaks: breaks.reduce((a, b) => a + b, 0), byCourt, byTime,
     courtSpread: spread(byCourt), timeSpread: spread(byTime),
-    carryOver: { value: co.value, max: co.max, pairs: co.pairs, lowerBound: co.lowerBound },
+    carryOver: { value: co.value, max: co.max, pairs: co.pairs, lowerBound: co.lowerBound, proven: co.proven },
     lastDay: schedule.rounds.length ? schedule.rounds[schedule.rounds.length - 1].day : null,
   };
 }
