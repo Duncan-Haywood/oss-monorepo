@@ -64,7 +64,7 @@ def evaluate(geom, arm, s, bx, source):
 def summarise(out):
     sel = lambda g, a, src: sorted((r for r in out if r["geom"] == g and r["arm"] == a and r["source"] == src), key=lambda r: r["seed"])
     f = lambda v: ", ".join(f"{x:.2f}" for x in v)
-    L = [f"Milestone 6b: rigid centre-of-pressure offset (roll, pitch gust-torque signs: above {list(GEOMS['above'])}, below {list(GEOMS['below'])}).",
+    L = [f"Milestone 6b: rigid centre-of-pressure offset (roll, pitch gust-torque signs: above {GEOMS['above'].tolist()}, below {GEOMS['below'].tolist()}).",
          f"{SEEDS} seeds, best of {len(M6.STARTS)} CMA-ES starts x {BUDGET} evaluations on {TRAIN_EP} episodes; held-out {TEST_EP} episodes (seed {M6.TEST_SEED}).",
          "retrained = trained under that geometry; m6 = milestone 6's designs (trained with signs (+1, +1)) re-scored. lever = multiple of the inherited 0.05 + 0.3 L.",
          "hurt axis: y when above, x when below (the counter-torque's side force adds to the drag there).", ""]
