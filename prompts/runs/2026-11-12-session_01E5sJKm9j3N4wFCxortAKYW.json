@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKm9j3N4wFCxortAKYW",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T12:20:09Z",
+  "ended": "2026-11-12T12:48:54Z",
+  "wall_minutes": 29.09,
+  "tokens_in": 8219463,
+  "tokens_out": 26735,
+  "cost_usd": 3.0336,
+  "tool_calls": 71,
+  "task": "perf: sync page reads in addShareCards, loadPages (fixPostTitleClashes) and addModulePreloads",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15125",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "/usr/bin/time is not installed in the container; the first interleaved build loop exited 127 four times",
+      "fix": "timed with date +%s.%N instead"
+    },
+    {
+      "what": "First full build.test.mjs + check.test.mjs run failed 'an identical build produces an identical cache name' because I created and moved a post in docs/posts while the in-process and child builds read the repo",
+      "fix": "the test alone passed on old and new code; full build.test.mjs on a quiet tree 311/311"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) are owner-gated again; the 'skip to 2 to 4' fallback worked, but the ranked 'Not changed' lists in today's history docs were the faster source of a landable item."
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "The determinism test builds twice from the live repository at once, so any edit to docs/ or ventures/ during the ~4 min run fails it with a misleading cache-name mismatch; nothing in the test or docs warns about this."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-the-third-pass-with-the-same-slow-read.md",
+    "docs/history/pages-build-perf-2026-11-12-share-identity-preload-sync.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of three whole-site passes and of the full Pages build, this 4-core container, Node v22.23.4, warm caches. Pass level (scratch script importing old vs new modules, run on the same finished 8,831-page tree, 3 runs each, ms): loadPages 1429/1511/1550 -> 720/654/630; addShareCards 4719/4592/4423 -> 3526/3498/3431; addModulePreloads 1998/1749/1996 -> 938/982/1008 (about -2.9 s). Full build `node platform/pages/build.mjs --out=<dir>`, interleaved new/old/new/old with git stash, timed with date: 88.6, 91.5, 88.3, 91.6 s (mean 91.5 -> 88.4 s, -3.1 s, -3.4%). diff -rq old vs new output: only version.json differs. Tests: page-identity, preload, share 49/49; build.test.mjs 311/311 (220 s). CI pool reading at start: ci_profile --runs 300: 199.7 job-min, checkout 73.2; Pages 'Test the site builder' 23.4 min the largest step.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7fccebb5-436f-595f-9cc1-0ac250303d1d",
+    "transcripts": 1,
+    "first": "2026-11-12T12:20:09Z",
+    "last": "2026-11-12T12:49:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 163,
+        "output": 26735,
+        "thinking": 5694,
+        "cache_read": 8109763,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109537,
+        "api_equivalent_usd": 3.0336,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 163,
+      "output": 26735,
+      "thinking": 5694,
+      "cache_read": 8109763,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109537,
+      "api_equivalent_usd": 3.0336,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 67,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.09,
+      "active_minutes": 11.58,
+      "model_minutes": 8.38,
+      "tool_minutes": 3.2,
+      "waiting_on_human_minutes": 17.5,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: profile three passes, change, A/B builds and byte diff, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 98.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

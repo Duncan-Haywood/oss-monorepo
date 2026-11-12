@@ -52,7 +52,12 @@ pay this.
   differs (its `built_at`).
 - `node --test page-identity.test.mjs preload.test.mjs share.test.mjs`:
   49 of 49 pass.
-- `node --test build.test.mjs check.test.mjs`: see the PR's run record notes.
+- `node --test build.test.mjs`: 311 of 311 pass (220 s wall). A first run
+  (with `check.test.mjs`, 408 tests) failed one, `an identical build produces
+  an identical cache name`, because this run created a post in `docs/posts/`
+  while the in-process and child builds were reading the repository; the
+  test alone passed on both old and new code, and the full file passed on a
+  quiet tree. Don't edit the tree while that suite runs.
 
 ## Not changed, ranked for the next run
 
