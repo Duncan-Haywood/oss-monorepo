@@ -22,7 +22,7 @@ import { readFile } from "node:fs/promises";
 import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
-import { demandShifts, backtestSales, parseStandard } from "./demand.mjs";
+import { demandShifts, backtestSales, parseStandard, shutMinDays } from "./demand.mjs";
 import {
   parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
@@ -78,7 +78,8 @@ Options:
                       minimum staff does not apply there). That work is planned at 60 minutes a person whatever --splh says,
                       and spills into the next hour out (90 after close = one person staying 2 hours, not 2 people for 1).
                       --shut-min <n> sets the fewest people on in those hours (default 1; 2 if nobody may lock up alone):
-                      the crew of n then clears n x 60 minutes an hour.
+                      the crew of n then clears n x 60 minutes an hour. By weekday: --shut-min "1, Fri/Sat=2" puts two on to
+                      lock up on Friday and Saturday nights only ("Fri-Sun=2" leaves the other days at the default).
                       the average of what you sold, not a forecast. --skip-dates 2026-11-26,2026-12-25 leaves those days out (holiday, storm);
                       --half-life <weeks> weights recent weeks more (a day's weight halves every that many weeks back from the newest date);
                       the default, auto, backtests equal weights, half-lives 8, 4 and 2 and the last 4 weeks only on your file and keeps the best (equal
@@ -156,7 +157,7 @@ export function parseArgs(argv) {
     else if (a === "--join") o.demand = { ...o.demand, join: true };
     else if (a === "--warmup") { const v = Number(argv[++i]); if (!Number.isInteger(v) || v < 1) throw new Error("--warmup needs a whole number of weeks, 1 or more"); o.demand = { ...o.demand, warmup: v }; }
     else if (a === "--short-cost") { const v = Number(argv[++i]); if (!(v > 0) || !Number.isFinite(v)) throw new Error("--short-cost needs a positive number (a short person-hour costs that many spare ones; 1 = equal)"); o.demand = { ...o.demand, shortCost: v }; }
-    else if (a === "--shut-min") { const v = Number(argv[++i]); if (!Number.isInteger(v) || v < 0) throw new Error("--shut-min needs a whole number, 0 or more (people on in an hour of before-open or after-close work)"); o.demand = { ...o.demand, shutMin: v }; }
+    else if (a === "--shut-min") { const v = argv[++i]; try { shutMinDays({ shutMin: v }); } catch (e) { throw new Error(`--shut-min needs a whole number, 0 or more, or one per weekday such as "1, Fri/Sat=2" (people on in an hour of before-open or after-close work): ${e.message}`); } o.demand = { ...o.demand, shutMin: /^\d+$/.test(String(v).trim()) ? Number(v) : v }; }
     else if (a === "--last-weeks") { const v = Number(argv[++i]); if (!Number.isInteger(v) || v < 1) throw new Error("--last-weeks needs a whole number of weeks, 1 or more"); o.demand = { ...o.demand, window: v }; }
     else if (a === "--half-life") {
       const t = String(argv[++i]).toLowerCase();

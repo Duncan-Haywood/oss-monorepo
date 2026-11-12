@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVLdRaer4uzzabUqrU5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T07:56:19Z",
+  "ended": "2026-11-12T08:01:32Z",
+  "wall_minutes": 5.68,
+  "tokens_in": 3968692,
+  "tokens_out": 19883,
+  "cost_usd": 1.9243,
+  "tool_calls": 43,
+  "task": "shift-roster-builder flagship: shut-hour minimum by weekday",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15053",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The default route (no --task) drew the research track though the scheduled brief is the ventures brief; re-routing with --task was needed, as prompt.md says, but the scheduled routine could pass --track ventures itself."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-shift-roster-two-closers-on-fridays.md",
+    "ventures/shift-roster-builder/README.md (Two closers on late Fridays only)"
+  ],
+  "goal": "Deepen flagship 6 with an item from its next: list buildable without outside input",
+  "notes": "--shut-min now takes per-weekday entries (\"1, Fri/Sat=2\"); threaded through addFixedWork crew, headcount floor, priced-cut floor and backtest score. Real-data eval on French bakery (SHA-checked): 198/243/208 h/week for 1/2/Fri-Sat-2. No agent doc in docs/reports: the README section and flagships next: carry everything the next run needs. Verification: run_venture_tests.py shift-roster-builder ok (213.4s, 0 failed); venture-preflight shift-roster-builder clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c6598f09-7539-59b4-ab1e-e2f9e7b5ecae",
+    "transcripts": 1,
+    "first": "2026-11-12T07:56:19Z",
+    "last": "2026-11-12T08:02:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 79,
+        "output": 19883,
+        "thinking": 2557,
+        "cache_read": 3874694,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93919,
+        "api_equivalent_usd": 1.9243,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 79,
+      "output": 19883,
+      "thinking": 2557,
+      "cache_read": 3874694,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93919,
+      "api_equivalent_usd": 1.9243,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.68,
+      "active_minutes": 5.68,
+      "model_minutes": 3.82,
+      "tool_minutes": 1.86,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "parser, threading through four call sites, tests, real-data eval, docs and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 259.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
