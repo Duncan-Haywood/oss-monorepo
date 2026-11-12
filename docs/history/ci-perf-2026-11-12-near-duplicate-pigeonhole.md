@@ -62,8 +62,9 @@ first member by asset path whatever order the pairs are found in.
   upper-case hex, distances of exactly 8 and 9. Mutation check: cutting 8 blocks
   instead of 9 (no longer exact) fails it.
 - Full suite: 736 tests, 53.1 s, the same single pre-existing Pillow error.
-- `mypy`: no issues. `ruff check .`: 160 findings before and after (all
-  pre-existing; the changed function adds none).
+- `mypy`: no issues. `ruff check .` with the pinned ruff 0.15.8: all checks
+  passed. (An unpinned ruff 0.16.9 earlier on `PATH` reported 160 findings
+  on main too; use the CI pin.)
 
 ## Not changed, ranked for the next run
 
