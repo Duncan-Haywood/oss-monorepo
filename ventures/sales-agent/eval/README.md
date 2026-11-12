@@ -930,7 +930,7 @@ is the untuned cost. The rules (`triage`) did not change, so the Enron re-score 
 Still open: a larger or hosted model, which may close well enough to act alone (a 14B, when a model host answers); and
 whether the 11-of-25 close accuracy holds on real replies.
 
-## A 14B local model on the same replies (2026-11-12)
+## A 14B local model on the same replies (2026-11-12): a pre-registered test, failed
 
 **Setup.** Qwen2.5-14B-Instruct, Q4_K_M, Qwen's own split GGUF (three files, 8.99 GB) from Hugging Face, which answered on
 the third run of 2026-11-12. Same `llama-cpp-python[server]` 0.3.16 venv build, `--n_ctx 4096 --n_threads 4 --chat_format
@@ -972,6 +972,46 @@ alone. It is accepted if, on the 611 replies not in the 181 (the other fresh set
 are right at least 85% of the time and at most 2 of them lose a live reply silently. If accepted, it becomes an opt-in
 setting, not the default, since a deployer's model may be smaller. Closes from `question` or `objection` stay flags either
 way. The counterfactual is computed from the committed cache with the merge's close flag lifted for that one case.
+
+**The test failed (all 792 answered, 2026-11-12).** On the 611 replies outside the first 181, the 14B's closes on replies
+the rules read as `unclear` were right **2 of 7 (29%)**, against the bar of 85%, and **4 would have lost a live reply
+silently**, against the limit of 2: "Ok.", "Noted.", "Thanks." and "ok", each a reply a person should see. The 7 of 7 on the
+first 181 was a small sample, and the setting is not added. `eval/model-closes.mjs` re-scores it from the committed cache:
+
+```
+node eval/model-closes.mjs eval/model-answers/qwen2.5-14b-q4km.json <the 18 files outside the first 181>
+```
+
+| Closes held for a person | 14B, first 181 | 14B, other 611 | 7B, other 611 |
+|---|---|---|---|
+| From `unclear` (right / wrong / lost silently) | 7 / 0 / 0 | 2 / 5 / 4 | 3 / 4 / 4 |
+| From `objection` | 1 / 1 / 1 | 1 / 16 / 16 | 0 / 6 / 5 |
+
+On the 611 the 14B closes objections far more readily than the 7B: "We already use Salesforce and our team won't switch",
+"We built something in-house for this already", "We're a nonprofit with no budget for tools like this, so it's a pass from
+us" all came back as plain no's. The labels call these objections (a reply that names a reason can be answered), and the
+merge keeps them as objections with a task, which is why it matters that the flag holds.
+
+**All 792, both models** (offline from the two caches, today's merge):
+
+| All 792 | Right | False stops | False opt-outs | Lost silently | Stop flags (right / wrong) | Close flags (right / wrong) |
+|---|---|---|---|---|---|---|
+| Rules | 726 | 19 | 2 | 3 | | |
+| 7B alone | 684 | 66 | 10 | 13 | | |
+| 14B alone | 691 | 75 | 27 | 22 | | |
+| 7B merged | 735 | 24 | 2 | 3 | 4 / 19 | 11 / 14 |
+| 14B merged | 732 | 23 | 2 | 4 | 4 / 32 | 11 / 22 |
+
+On the 672 fresh replies the 14B alone reads 589 (88%) to the 7B's 578 (86%); merged, both 617. The 14B reads **27 live
+replies as opt-outs** to the 7B's 10, and the pattern is plain in its answers: it treats a stranger asking who they are
+as a request to stop ("Who is this?", "Who gave you my email?", "Who are you and how did you get my email", each several
+times), and "No thanks. Please don't follow up." as an opt-out where the labels say a decline. Under the merge none of
+those act; each is a flag a person dismisses, 32 wrong to 4 right.
+
+**What it means for a user.** On a 4-core machine with 16 GB, the 14B costs twice the memory and twice the time per reply
+of the 7B and buys nothing in the product: merged 732 against 735 on all 792, more flags to dismiss, the same right
+answers. Run the 7B. Larger models in the same family are not the next step; a hosted model of another family is (it needs
+a key), and the merge's limits stay as they are for every model: a model's stops and closes are flags, never actions.
 
 **The same 14B as the Enron third reader** (item (1) of the flagship's `next:`), on the 107 `5*` stops both agent readers
 labelled, with `eval/model-reader.mjs` and `READER.md` exactly as for Llama and the 7B (6.9 to 17 s a stop; labels in
