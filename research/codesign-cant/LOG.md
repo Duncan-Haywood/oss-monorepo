@@ -2,6 +2,25 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-12 · Milestone 4: does a stronger attitude law shrink the cant advantage? INDI and geometric control (predictions written and committed before `experiments/m4_controllers/run.py` was run)
+
+- Why: every result so far is for one per-axis PID law. H4 says a stronger law narrows but does not remove the cant advantage, and is refuted if INDI without cant matches PID with cant. A reviewer at RA-L will ask this first: maybe cant only patches a weak controller.
+- Order: milestone 3 (motor catalogue data) was attempted first and deferred. T-Motor's site is reachable but its thrust tables are images and its prices sit on a store that returns 403 through the proxy; the Tyto Robotics database serves its tests through an internal search API that this session may not call. Milestone 4 needs no outside data.
+- Built: `aero.rollout(ctrl=...)` with two new laws, both reading the same noisy, one-step-old angles and rates as the PID law and sending their torque request through the same mixer.
+  - `indi` (Smeur, Chu and de Croon 2016): attitude P loop to a rate demand, rate P loop to a desired angular acceleration ν; torque = (filtered estimate of the delivered torque) + g·I_nom·(ν − filtered angular acceleration). The torque estimate runs the command through the design's nominal lag and limits; the plant's randomised torque scale (0.7–1.0), inertia (0.9–1.3×) and lag (1–2×) stay unknown to it. Gyro and torque estimate share a tuned two-pole low-pass filter. Tuned: K_att and K_rate for roll/pitch and for yaw, filter cut-off (5–100 Hz), effectiveness scale g (0.5–2).
+  - `geo` (Lee, Leok and McClamroch 2010): τ = I_nom(−k_R e_R − k_Ω Ω − k_I ∫e_R) + Ω × I_nom Ω, with the SO(3) error e_R = vee(R_dᵀR − RᵀR_d)/2. Tuned: k_R, k_Ω, k_I for roll/pitch and for yaw.
+- Plan: `experiments/m4_controllers/run.py`. Law {pid, indi, geo} × cant bound {0, 80°}, attitude-priority mixer with collective at hover, TWR 2, λ = 0.3° per 100 W (milestone 2's middle price), **10 seeds**, three CMA-ES starts per seed (cant started at 4, 32, 64°), 1920 evaluations per start, best training score kept: 180 CMA-ES runs. The PID arms use `restarts.py`'s CMA-ES seeds, so their seeds 0–4 must reproduce milestone 2. Held-out: 64 wide-plant episodes, plus the same designs at twice the gust intensity (gust_std 8) as an out-of-distribution check.
+- Predictions:
+  - S1 (reproduction): PID seeds 0–4 give milestone 2's restart numbers (held-out RMS 17.29, 17.45, 19.84, 21.08, 18.48° without cant; 13.17, 13.51, 13.26, 12.94, 12.96° with cant) exactly.
+  - S2: INDI beats PID on held-out RMS in both cant arms, paired, in at least 8 of 10 seeds (it cancels the gust torque and the inertia mismatch that PID must absorb with gain).
+  - S3 (H4, first half): the cant advantage narrows under INDI against PID (paired shrinkage positive in at least 7 of 10 seeds).
+  - S4 (H4, second half): cant still helps under INDI: cant minus no cant negative in at least 8 of 10 seeds, by more than 1° on average.
+  - S5 (H4's refutation test): INDI without cant does not match PID with cant: INDI-no-cant RMS is above PID-cant RMS in at least 8 of 10 seeds. Reason: without cant the vehicle is authority-limited in yaw (milestone 2: yaw scaled on 100% of steps), and no law creates torque the rotors cannot make.
+  - S6: geometric control is within ±1° of PID in both arms (milestone 0 found gyroscopic compensation worth nothing at these angles, and e_R ≈ the Euler error below 30°).
+  - S7: the chosen cant under INDI and geo has a median of 25–40°, as under PID.
+  - S8: at twice the gust intensity the cant advantage keeps its sign for all three laws (mean negative, at least 8 of 10 seeds).
+- Analysis: per-arm means and per-seed values of held-out RMS, roll and yaw RMS, gust-8 RMS, composite J, hover power, chosen cant, mixer saturation shares; paired differences by seed with SD and sign counts. With 10 seeds a sign count of 9 or 10 is p ≤ 0.021 two-sided (sign test); stated where it applies, no other test.
+
 ## 2026-11-12 · Milestone 2: combined commands on one thrust polytope, and a price on hover power (predictions written and committed before `experiments/m2_polytope/run.py` was run)
 
 - Why: milestone 1 kept the per-axis torque box: roll, pitch and yaw could each saturate at their pure-axis limit at the same time. A real mixer cannot do that. The roll, pitch, yaw and Fz rows of the canted-X wrench map are orthogonal sign patterns (a 4×4 Hadamard matrix), so with the collective held at hover the attainable set is |x ± y ± z|-type: per rotor, −Th ≤ (√2/4kr)(±τr ± τp) + (1/4ky)(±τy) ≤ Tmax − Th. At TWR 2 a full roll command alone uses all the thrust swing and leaves no yaw. Milestone 1 also found the cant optimum held up by an attitude-only objective that leaves hover power free up to the $300 cap.
