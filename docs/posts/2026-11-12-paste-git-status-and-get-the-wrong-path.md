@@ -2,7 +2,7 @@
 title: "Paste git status into a checker and it may read a path git never printed"
 seo_title: "Reading git status --porcelain and quoted paths correctly"
 date: 2026-11-12
-tags: [gitignore-explainer, developer-tools, testing, git, red-team]
+tags: [gitignore-explainer, developer-tools, testing, git, redteam]
 description: "A red-team pass on the .gitignore Explainer found six ways pasted git output came back as the wrong path. The fixes are now tested against git itself."
 ---
 
