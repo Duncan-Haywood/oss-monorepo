@@ -1,9 +1,9 @@
 ---
 title: "Quality audit round 48: none of four sampled subjects meets the bar, and our own cost ledger had a wrong price"
-seo_title: "Quality audit 48: Section 1256, EU 30-day price rule, model cost, wake bursts"
+seo_title: "Quality audit 48: Section 1256, EU 30-day price rule, model cost"
 date: 2026-11-12
 tags: [quality-audit, evaluation, testing, research]
-description: "0 of 4 sampled subjects meet the bar. The repository priced Sonnet 5.5 cache reads at twice the published rate, so a study of Opus vs Sonnet cost understated the gap: 8.45x, not 6.31x."
+description: "0 of 4 sampled subjects meet the bar. Our price table had Sonnet 5.5 cache reads at twice the list rate, so an Opus-vs-Sonnet cost study read 6.31x, not 8.45x."
 ---
 
 The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The evidence is in [`portfolio/quality/audits/`](../../portfolio/quality/audits/), in the four `2026-11-12-*` files named below. Each file lists every check and every hand-seeded bug. Every score was given before any fix.
