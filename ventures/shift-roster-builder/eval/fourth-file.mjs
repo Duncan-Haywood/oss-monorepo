@@ -56,9 +56,9 @@ let pass1 = 0, pass2 = 0, n = 0;
 for (const splh of F.splhs) for (const minStaff of [1, 2]) {
   n++;
   const base = { splh, minStaff, shifts: true, methods: SETS.B };
-  const old = backtestSales(text, base), neu = backtestSales(text, { ...base, scoreClosed: true });
-  const offNew = backtestSales(text, { ...base, scoreClosed: true, keepRare: true, methods: [] });
-  const offOld = backtestSales(text, { ...base, keepRare: true, methods: [] });
+  const old = backtestSales(text, base), neu = backtestSales(text, { scoreClosed: false, ...base, scoreClosed: true });
+  const offNew = backtestSales(text, { scoreClosed: false, ...base, scoreClosed: true, keepRare: true, methods: [] });
+  const offOld = backtestSales(text, { scoreClosed: false, ...base, keepRare: true, methods: [] });
   console.log(`\n== ${F.id}, ${splh} ${F.unit} per labor hour, minimum staff ${minStaff} (${old.weeks} tested weeks)`);
   const a = (b) => b.methods[0];
   console.log(`  plain average: scheduled ${a(neu).scheduled.toFixed(1)}; short + over old score ${a(old).miss.toFixed(1)}, new score ${a(neu).miss.toFixed(1)}`);

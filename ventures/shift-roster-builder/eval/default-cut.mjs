@@ -29,8 +29,8 @@ for (const [i, F] of FILES.entries()) {
   console.log(`\n== ${F.name}: no --short-cost, scored short + over`);
   console.log("splh   min-shift | profile cost | plain cut: short over sched cost | priced cut: short over sched cost | priced - plain (95% CI)   | best priced row, vs plain average");
   for (const splh of F.splh) for (const minShift of [3, 4, 6]) {
-    const prof = backtestSales(text, { splh, minShift }).methods[0];
-    const P = backtestSales(text, { splh, minShift, shifts: true, costCut: false }), C = backtestSales(text, { splh, minShift, shifts: true });
+    const prof = backtestSales(text, { scoreClosed: false, splh, minShift }).methods[0];
+    const P = backtestSales(text, { scoreClosed: false, splh, minShift, shifts: true, costCut: false }), C = backtestSales(text, { scoreClosed: false, splh, minShift, shifts: true });
     const a = P.methods[0], c = C.methods[0];
     const best = C.methods.reduce((x, y) => (y.miss < x.miss ? y : x));
     console.log(`${String(splh).padEnd(7)}${String(minShift).padEnd(10)}| ${f(prof.miss).padStart(12)} | ${f(a.short).padStart(16)} ${f(a.over).padStart(4)} ${f(a.scheduled).padStart(5)} ${f(a.miss).padStart(5)} | ${f(c.short).padStart(17)} ${f(c.over).padStart(4)} ${f(c.scheduled).padStart(5)} ${f(c.miss).padStart(5)} | ${paired(C.perWeek.all, P.perWeek.all).padEnd(26)}| ${best.label}: ${paired(C.perWeek[best.id], P.perWeek.all)}`);
@@ -38,7 +38,7 @@ for (const [i, F] of FILES.entries()) {
   console.log(`\n== ${F.name}: the average row under --short-cost r, min-shift 4, scored r x short + over`);
   console.log("splh   r     | average plain cut | average priced cut | priced - plain (95% CI)");
   for (const splh of F.splh) for (const r of [1 / 3, 3]) {
-    const P = backtestSales(text, { splh, shortCost: r, shifts: true, costCut: false }), C = backtestSales(text, { splh, shortCost: r, shifts: true });
+    const P = backtestSales(text, { scoreClosed: false, splh, shortCost: r, shifts: true, costCut: false }), C = backtestSales(text, { scoreClosed: false, splh, shortCost: r, shifts: true });
     console.log(`${String(splh).padEnd(7)}${r.toFixed(2).padEnd(6)}| ${f(P.methods[0].miss).padStart(17)} | ${f(C.methods[0].miss).padStart(18)} | ${paired(C.perWeek.all, P.perWeek.all)}`);
   }
 }

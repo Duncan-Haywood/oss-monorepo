@@ -29,7 +29,7 @@ for (const F of FILES) {
   for (const splh of F.splhs) {
     for (const minStaff of [1, 2]) {
       const base = { splh, minStaff, shifts: true };
-      const run = (extra) => backtestSales(text, { ...base, ...extra });
+      const run = (extra) => backtestSales(text, { scoreClosed: false, ...base, ...extra });
       const onOld = run({}), offOld = run({ keepRare: true });
       const onNew = run({ scoreClosed: true }), offNew = run({ keepRare: true, scoreClosed: true });
       const a = (b) => b.methods[0];
