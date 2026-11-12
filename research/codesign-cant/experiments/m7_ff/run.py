@@ -1,0 +1,141 @@
+"""Milestone 7: can the controller cancel the canted rotor's side force with a feed-forward it already has the numbers for?
+
+Milestone 6b found that, on a rigid frame, the attitude loop's steady counter-torque to the gust makes a side force (F = lat tau)
+that adds to the wind push on one horizontal axis, so that axis holds position 1.9-3.4x worse after a wind step. The mixer cannot
+cancel that force (four rotors, four commands: the side force is fixed by the torque), but the position loop can lean against it:
+the controller knows lat (its own geometry), its commanded torque and its nominal motor lag, so it can predict the side force and
+subtract it from the acceleration the tilt has to make (`poshold.rollout(ff=...)`). No new sensor, a few lines of flight code.
+
+Arms, each under both rigid geometries of milestone 6b (centre of pressure above and below the centre of mass):
+  ff        - cant <= 80 deg, side force on, feed-forward on in training and test: retrained with milestones 6/6b's CMA-ES, budget,
+              episodes, seeds and starts, plus a 13th coordinate, the feed-forward's filter constant tau_ff (log-uniform 0.05-2 s).
+              A pre-check on milestone 6b's designs (training episodes and, before this was written, held-out ones; see LOG.md) showed
+              a fast filter (0.05-0.2 s) destabilising designs not tuned for it, so the design chooses tau_ff rather than us;
+              also scored with the feed-forward switched off (`ff retrained, ff off`);
+  6b+ff     - milestone 6b's retrained force-aware designs with the feed-forward switched on, no retraining, tau_ff 0.2/0.5/1/2 s;
+  6b aware and 6b nocant - milestone 6b's designs as trained (re-scored here, deterministic, for paired comparisons).
+Held-out: 64 episodes (seed 9999), lever 0, 1 and 2 times the inherited 0.05 + 0.3 L, side force on and off.
+Predictions in ../../LOG.md, written and committed before this was run.
+"""
+import json, os, sys, warnings
+from multiprocessing import Pool
+import numpy as np
+import cma
+
+warnings.filterwarnings("ignore")
+np.seterr(all="ignore")
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, "..", "m6_poshold"))
+import run as M6  # noqa: E402  (milestone 6: constants, cond(), the CMA-ES settings)
+
+P = M6.P
+GEOMS = {"above": P.cop_signs(1.0), "below": P.cop_signs(-1.0)}
+LEVERS = (0.0, 1.0, 2.0)
+TAUS = (0.2, 0.5, 1.0, 2.0)
+SMOKE = os.environ.get("SMOKE") == "1"
+BUDGET = 64 if SMOKE else M6.BUDGET
+SEEDS = 2 if SMOKE else M6.SEEDS
+TRAIN_EP = 4 if SMOKE else M6.TRAIN_EP
+TEST_EP = 8 if SMOKE else M6.TEST_EP
+
+
+def one(args):
+    geom, s, k = args
+    x0 = [0.5] * 13; x0[2] = M6.STARTS[k]
+    es = cma.CMAEvolutionStrategy(x0, 0.25, {"bounds": [0, 1], "seed": 100 * (s + 1) + k, "popsize": 16, "verbose": -9})
+    best, bx, n = -1e9, None, 0
+    while n < BUDGET:
+        xs = np.array(es.ask()); ys = P.score(xs, TRAIN_EP, M6.TRAIN_SEED + s, dist_sign=GEOMS[geom], ff=1.0, **M6.cond("aware"))[0]
+        n += len(xs); es.tell(xs.tolist(), (-ys).tolist())
+        if ys.max() > best: best, bx = ys.max(), xs[int(np.argmax(ys))].copy()
+    return geom, s, k, float(best), bx.tolist()
+
+
+def evaluate(geom, arm, s, bx, ff, tau, label):
+    x = np.array(bx)[None]
+    r = dict(geom=geom, arm=arm, seed=s, label=label, ff=ff, tau_ff=tau, x=bx)
+    if len(bx) == 13:
+        r["tau_chosen"] = float(P.TAU_FF_RANGE[0] * (P.TAU_FF_RANGE[1] / P.TAU_FF_RANGE[0]) ** np.clip(bx[12], 0, 1))
+    for lev in LEVERS:
+        for couple in (True, False):
+            c = M6.cond(arm); c["couple"] = couple
+            J, sz, o = P.score(x, TEST_EP, M6.TEST_SEED, parts=True, dist_sign=GEOMS[geom], lever_scale=lev, ff=ff, tau_ff=tau, **c)
+            tag = f"{lev:g}_{'on' if couple else 'off'}"
+            r.update({f"J_{tag}": float(J[0]), f"pos_{tag}": float(o["pos"][0]), f"late_{tag}": float(o["pos_late"][0]),
+                      f"latex_{tag}": float(o["late_x"][0]), f"latey_{tag}": float(o["late_y"][0]), f"yaw_{tag}": float(o["yaw"][0]),
+                      f"dead_{tag}": float(o["dead"][0])})
+    r.update(alpha_deg=float(np.rad2deg(sz["alpha"][0])), power=float(sz["power"][0]), lever=float(sz["lever"][0]),
+             lat=float(P.lateral_per_torque(sz["alpha"][0], sz["L"][0], M6.C * sz["D"][0])))
+    return r
+
+
+def summarise(out):
+    sel = lambda g, lab: sorted((r for r in out if r["geom"] == g and r["label"] == lab), key=lambda r: r["seed"])
+    f = lambda v: ", ".join(f"{x:.2f}" for x in v)
+    labels = ["6b nocant", "6b aware"] + [f"6b+ff tau {t:g}" for t in TAUS] + ["ff retrained", "ff retrained, ff off"]
+    L = [f"Milestone 7: side-force feed-forward in the position loop, rigid centre-of-pressure geometries (signs above {GEOMS['above'].tolist()}, below {GEOMS['below'].tolist()}).",
+         f"{SEEDS} seeds, best of {len(M6.STARTS)} CMA-ES starts x {BUDGET} evaluations on {TRAIN_EP} episodes; held-out {TEST_EP} episodes (seed {M6.TEST_SEED}).",
+         "6b = milestone 6b's retrained designs (ff off); 6b+ff = the same designs with the feed-forward on, not retrained; ff retrained = trained with it on (tau_ff chosen by CMA-ES).",
+         "on/off = side force in/out of the held-out rollout. hurt axis: y when above, x when below. lever = multiple of the inherited 0.05 + 0.3 L.", ""]
+    for g in GEOMS:
+        hurt, help_ = ("latey", "latex") if g == "above" else ("latex", "latey")
+        for lab in labels:
+            rs = sel(g, lab)
+            if not rs:
+                continue
+            L.append(f"[{g}, {lab}] cant deg {f([r['alpha_deg'] for r in rs])}; hover W {np.mean([r['power'] for r in rs]):.1f}")
+            for lev in LEVERS:
+                t = f"{lev:g}"
+                ratio = [r[f"pos_{t}_on"] / r[f"pos_{t}_off"] for r in rs]
+                hr = [r[f"{hurt}_{t}_on"] / r[f"{help_}_{t}_on"] for r in rs]
+                L.append(f"  lever {t:3s} pos on {np.mean([r[f'pos_{t}_on'] for r in rs]):.3f} (median {np.median([r[f'pos_{t}_on'] for r in rs]):.3f}) off {np.mean([r[f'pos_{t}_off'] for r in rs]):.3f} "
+                         f"on/off {np.mean(ratio):.3f} ({f(ratio)}); late hurt {np.mean([r[f'{hurt}_{t}_on'] for r in rs]):.3f} helped {np.mean([r[f'{help_}_{t}_on'] for r in rs]):.3f} "
+                         f"ratio {np.mean(hr):.2f} ({f(hr)}); yaw {np.mean([r[f'yaw_{t}_on'] for r in rs]):.2f}; J {np.mean([r[f'J_{t}_on'] for r in rs]):+.2f}; dead {np.mean([r[f'dead_{t}_on'] for r in rs]):.3f}")
+        base, nc = sel(g, "6b aware"), sel(g, "6b nocant")
+        for lab in labels[2:]:
+            rs = sel(g, lab)
+            if not rs:
+                continue
+            for lev in LEVERS:
+                t = f"{lev:g}"
+                dh = [x[f"{hurt}_{t}_on"] - y[f"{hurt}_{t}_on"] for x, y in zip(rs, base)]
+                dp = [x[f"pos_{t}_on"] - y[f"pos_{t}_on"] for x, y in zip(rs, base)]
+                dj = [x[f"J_{t}_on"] - y[f"J_{t}_on"] for x, y in zip(rs, base)]
+                dy = [x[f"yaw_{t}_on"] - y[f"yaw_{t}_on"] for x, y in zip(rs, nc)]
+                djn = [x[f"J_{t}_on"] - y[f"J_{t}_on"] for x, y in zip(rs, nc)]
+                L.append(f"  [{g}] {lab} lever {t}: minus 6b aware: hurt axis {np.mean(dh):+.4f} m (lower in {sum(v < 0 for v in dh)} of {len(dh)}), "
+                         f"pos {np.mean(dp):+.4f} m (lower in {sum(v < 0 for v in dp)}), J {np.mean(dj):+.3f} (better in {sum(v > 0 for v in dj)}); "
+                         f"minus 6b nocant: yaw {np.mean(dy):+.2f} deg (lower in {sum(v < 0 for v in dy)}), J {np.mean(djn):+.2f} (better in {sum(v > 0 for v in djn)})")
+        rs = sel(g, "ff retrained")
+        if rs:
+            L.append(f"  [{g}] ff retrained: chosen tau_ff s {f([r['tau_chosen'] for r in rs])}")
+        L.append("")
+    return L
+
+
+if __name__ == "__main__":
+    jobs = [(g, s, k) for g in GEOMS for s in range(SEEDS) for k in range(len(M6.STARTS))]
+    with Pool() as p:
+        res = p.map(one, jobs, chunksize=1)
+    ev = []
+    for g in GEOMS:
+        for s in range(SEEDS):
+            b = max((r for r in res if r[:2] == (g, s)), key=lambda r: r[3])
+            ev.append((g, "aware", s, b[4], 1.0, P.TAU_FF, "ff retrained"))
+            ev.append((g, "aware", s, b[4], 0.0, P.TAU_FF, "ff retrained, ff off"))
+    m6b = json.load(open(os.path.join(HERE, "..", "m6b_cop", "results.json")))["runs"]
+    for r in m6b:
+        if r["source"] != "retrained" or r["seed"] >= SEEDS:
+            continue
+        ev.append((r["geom"], r["arm"], r["seed"], r["x"], 0.0, P.TAU_FF, f"6b {r['arm']}"))
+        if r["arm"] == "aware":
+            for t in TAUS:
+                ev.append((r["geom"], "aware", r["seed"], r["x"], 1.0, t, f"6b+ff tau {t:g}"))
+    with Pool() as p:
+        out = p.starmap(evaluate, ev)
+    lines = summarise(out)
+    tag = "_smoke" if SMOKE else ""
+    open(os.path.join(HERE, f"results{tag}.txt"), "w").write("\n".join(lines) + "\n")
+    json.dump(dict(geoms={k: list(v) for k, v in GEOMS.items()}, levers=LEVERS, taus=TAUS, budget=BUDGET, runs=out),
+              open(os.path.join(HERE, f"results{tag}.json"), "w"), indent=1)
+    print("\n".join(lines))

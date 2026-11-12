@@ -2,6 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-12 · Milestone 7: can the controller cancel the side force with numbers it already has? A position-loop feed-forward (predictions written and committed before the full `experiments/m7_ff/run.py` run)
+
+- Why: milestone 6b found that on a rigid frame the attitude loop's steady counter-torque to the gust makes a side force (lat·τ) that adds to the wind push on one horizontal axis: that axis holds position 1.9–3.4× worse after a wind step, and one seed in six diverges on 1–2 of 64 episodes. Its first listed next step was a feed-forward that cancels it.
+- Method (`poshold.rollout(ff=...)`): the mixer cannot cancel the force (four rotors, four commands; the side force is fixed by the torque), but the position loop can lean against it. The controller knows lat (its geometry), what the mixer commanded and the nominal motor lag, so it predicts the delivered torque through the nominal lag (as INDI does in `aero`), turns it into the side force, low-passes it with time constant τ_ff and subtracts F/m_nominal from the acceleration the tilt must make. Causal (previous step's command), nominal plant only (the randomised mass, lag and torque scale stay unknown). No new sensor.
+- Pre-check, seen before these predictions were written (and so not counted as tests): milestone 6b's force-aware designs with the feed-forward switched on, not retrained, scored on the 64 held-out episodes. The axes even out (hurt ≈ helped in nearly every design), but a fast filter destabilises them: τ_ff 0.05 s diverges on 2–70% of episodes, 0.2 s on up to 52%, 0.5 s on 0–17%. The loop "tilt reference → torque → predicted side force → tilt reference" has gain lat·k_p·I/(m g) and the motor lag in it. So the full run lets CMA-ES choose τ_ff as a 13th coordinate (log-uniform 0.05–2 s) instead of us picking it from held-out data. A smoke run (64 evaluations, 2 seeds, 8 test episodes; not evidence) checked the pipeline.
+- Plan: `experiments/m7_ff/run.py`. Retrain the force-aware arm with the feed-forward on under both rigid geometries (`above`, `below`), milestone 6/6b's CMA-ES, budget (3200), 16 training episodes, 6 seeds, two starts: 24 runs. Score on the 64 held-out episodes at lever 0, 1 and 2, force on and off; also with the feed-forward switched off (ablation), and milestone 6b's designs with the feed-forward added at τ_ff 0.2, 0.5, 1 and 2 s (no retraining).
+- Predictions (lever 1 unless stated):
+  - S1 (re-score, 6b designs + feed-forward at τ_ff 1 s): late-window hurt/helped axis ratio between 0.8 and 1.25 (mean) in both geometries, against 1.91 and 3.41 without it; the hurt-axis late RMS falls in at least 5 of 6 seeds per geometry.
+  - S2 (H3, retrained with the feed-forward): mean on/off position ratio at most 1.05 in both geometries.
+  - S3: retrained with the feed-forward against milestone 6b's force-aware designs: whole-episode position RMS lower in at least 4 of 6 seeds per geometry, and J better in at least 4 of 6.
+  - S4: retrained with the feed-forward against no cant (milestone 6b's `nocant`): yaw RMS at least 3° lower in 6 of 6 seeds and J better in at least 5 of 6, both geometries.
+  - S5: chosen τ_ff median at least 0.3 s in both geometries.
+  - S6: chosen cant median 30–45° in both geometries (the feed-forward removes a cost of cant, so it should not fall below milestone 6b's 31–33°).
+  - S7 (lever 2, out of distribution): the retrained feed-forward designs diverge on fewer episodes (mean share) than milestone 6b's force-aware designs, in both geometries.
+- Analysis: per-arm means and per-seed values, paired differences by seed with sign counts; six seeds, no test beyond the sign count.
+
 ## 2026-11-12 · Milestone 6b: which gust-torque sign does a real frame have? Neither: a rigid frame is helped on one axis and hurt on the other (predictions written and committed before `experiments/m6b_cop/run.py` was run)
 
 - Why: milestone 6 found that H3 hangs on the sign of the gust torque (on/off position ratio 0.96 with the inherited sign, 1.21 flipped) and left "derive which sign a real frame has" as the next step.
