@@ -1,0 +1,4 @@
+French bakery, 6 min a ticket. after: minutes after close; rate: minutes of work per labor hour; tail: person-hours from the tickets-only plan's last hour on; late: shift-days ending past it. Backtest: mean person-hours per tested week.
+after rate  min  shut  hours  late   tail    short   over     off
+    -   60    1     1    184     0      0     44.4   29.6   41.7%
+   45   60    1     1    191     7      7     44.5   30.6   40.5%
