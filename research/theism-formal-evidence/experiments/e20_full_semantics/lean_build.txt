@@ -1,0 +1,12 @@
+'TheismFormal.AndersonK.essential_refl' does not depend on any axioms
+'TheismFormal.AndersonK.essential_symm' does not depend on any axioms
+'TheismFormal.AndersonK.nec_exists_symm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.AndersonK.domain_nonempty_symm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.AndersonK.a4b_symm' does not depend on any axioms
+'TheismFormal.AndersonK.rigid_symm' does not depend on any axioms
+'TheismFormal.AndersonK.god_unique' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.AndersonK.essential_any' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.AndersonK.god_exists_succ' does not depend on any axioms
+'TheismFormal.AndersonK.geine_any' does not depend on any axioms
+'TheismFormal.AndersonK.essential_failure' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TheismFormal.AndersonK.CM.cm_s4_full' depends on axioms: [propext, Quot.sound]
