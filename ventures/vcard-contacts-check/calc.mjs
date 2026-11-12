@@ -97,7 +97,7 @@ export function splitUnescaped(v, sep) {
 }
 
 const unescapeText = (s) => s.replace(/\\([nN,;\\])/g, (_, c) => (c === "n" || c === "N" ? "\n" : c));
-const escapeText = (s) => s.replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,");
+const escapeText = (s) => s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,");
 
 function validYMD(y, m, d) {
   const dt = new Date(Date.UTC(y, m - 1, d));

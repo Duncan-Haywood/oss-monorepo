@@ -531,7 +531,7 @@
     $("#download-packet").addEventListener("click", () => {
       if (!plan) return;
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob([planReportHtml(plan, lines, sys, { notes: notices, when: new Date().toISOString().slice(0, 10) })], { type: "text/html" }));
+      a.href = URL.createObjectURL(new Blob([planReportHtml(plan, lines, sys, { notes: notices, when: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) })], { type: "text/html" }));
       a.download = "container-load-plan.html";
       a.click();
       record("packet_downloaded");

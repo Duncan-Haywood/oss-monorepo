@@ -217,7 +217,7 @@
     }
 
     function runCalculate() {
-      const today = $("#as-of").value || new Date().toISOString().slice(0, 10);
+      const today = $("#as-of").value || new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
       const identified = $("#identified").value.split(",").map((s) => Number(s.replace(/[$\s]/g, ""))).filter((n) => n > 0);
       const r = exchangeOutcome({
         salePrice: num("sale-price"), sellingCosts: num("selling-costs"), mortgagePayoff: num("mortgage-payoff"),

@@ -151,7 +151,7 @@
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
-    $("#today").addEventListener("click", () => { $("#refDate").value = new Date().toISOString().slice(0, 10); });
+    $("#today").addEventListener("click", () => { $("#refDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10); });
     $("#load-ok").addEventListener("click", () => {
       for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
       run(); record("example_loaded");

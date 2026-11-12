@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A synthetic CFDI 4.0 ingreso (unstamped) between two of SAT's published test
+     taxpayers. Two lines, a line discount, IVA 16% and 10% ISR withheld on a service.
+     Passes every MX rule in cfdi.mjs; cfdi.test.mjs plants defects in it. -->
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd" Version="4.0" Serie="A" Folio="1042" Fecha="2026-11-10T10:15:00" FormaPago="03" CondicionesDePago="Contado" SubTotal="3850.50" Descuento="300.00" Moneda="MXN" Total="3848.58" TipoDeComprobante="I" Exportacion="01" MetodoPago="PUE" LugarExpedicion="86000" NoCertificado="30001000000500003416" Sello="" Certificado="">
+  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" RegimenFiscal="601"/>
+  <cfdi:Receptor Rfc="URE180429TM6" Nombre="UNIVERSIDAD ROBOTICA ESPAÑOLA" DomicilioFiscalReceptor="86991" RegimenFiscalReceptor="601" UsoCFDI="G03"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="86101700" Cantidad="2" ClaveUnidad="E48" Unidad="Servicio" Descripcion="Curso de formación técnica" ValorUnitario="1500.00" Importe="3000.00" Descuento="300.00" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="2700.00" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="432.00"/>
+        </cfdi:Traslados>
+        <cfdi:Retenciones>
+          <cfdi:Retencion Base="2700.00" Impuesto="001" TipoFactor="Tasa" TasaOCuota="0.100000" Importe="270.00"/>
+        </cfdi:Retenciones>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="55101500" Cantidad="1" ClaveUnidad="H87" Unidad="Pieza" Descripcion="Manual impreso &amp; guía" ValorUnitario="850.50" Importe="850.50" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="850.50" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="136.08"/>
+        </cfdi:Traslados>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+  </cfdi:Conceptos>
+  <cfdi:Impuestos TotalImpuestosRetenidos="270.00" TotalImpuestosTrasladados="568.08">
+    <cfdi:Retenciones>
+      <cfdi:Retencion Impuesto="001" Importe="270.00"/>
+    </cfdi:Retenciones>
+    <cfdi:Traslados>
+      <cfdi:Traslado Base="3550.50" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="568.08"/>
+    </cfdi:Traslados>
+  </cfdi:Impuestos>
+</cfdi:Comprobante>

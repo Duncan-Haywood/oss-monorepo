@@ -178,7 +178,8 @@ planar vs non-planar scenes, mismatch rate.
 3. (a) Is the σ gap real, and does a cluster-robust or jackknife σ fix it (H8–H10,
    done 2026-11-11, see `LOG.md`); (b) natural features: SIFT matches on an openly
    licensed multi-view set with a known calibration; H5.
-4. The accept/reject test and its false-accept rate across milestones 1–3.
+4. The accept/reject test and its false-accept rate across milestones 1–3
+   **(done 2026-11-12, H18–H22, see `LOG.md`)**.
 5. Unmodelled lens terms (k2, principal point) on real data, tying to
    `sensing-bak2` and `sensing-bapp`.
 6. Owner capture (owner step): a phone or machine-vision camera, a board and

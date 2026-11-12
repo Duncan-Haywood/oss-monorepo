@@ -8,6 +8,8 @@ tags: [research, build-data, construction]
 
 # One class merge fixes most of a borrowed permit model's build-time tail
 
+> **Update, later the same day:** the practical rule below does not hold up. Seattle's short 2024 demolition tail is right-censoring at the data pull, and a merge rule fixed in advance helps in Chicago but hurts in Austin. See [the follow-up](2026-11-12-build-data-censored-tail.md).
+
 The build-data programme trains permit-duration models on San Francisco, Austin and Chicago and tests them on Seattle. [Earlier today](2026-11-12-build-data-demolition-tail.md) the programme found that a work-type label read from permit descriptions helps the borrowed model in most places. At the 0.9 quantile of Seattle's 2024 build times (issue to completion), though, it made forecasts 3.0 days worse, and demolition permits carried 56% of that cost. Demolition is also the one class where the source cities' completion tail is longer than Seattle's: a 0.9 quantile of 665 days against 552.
 
 The reading was that naming a class lets the model copy the source cities' tail for it, which hurts wherever their tail is longer than the target's. This session tested that reading directly. It kept every training row the same and merged demolition into alteration in the class feature, so the model can no longer single out demolition. Four predictions were logged before the run, and all four held:

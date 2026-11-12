@@ -185,3 +185,29 @@ def test_column_clustered_sandwich_sees_column_offsets():
         s = selfcal_fixed_analytic(b.reshape(8, 54, 2), SIZE, 1.3 * TRUE[0], nk=1, ref=0)
         ratio.append(s["sf_cr_viewcol"] / s["sf"])
     assert np.median(ratio) > 1.05
+
+
+def test_disturbance_is_an_exact_model_change():
+    # Milestone 4: re-solving the disturbed corners gives the transformed solution, so the
+    # disturbance experiments can transform the undisturbed solutions instead of re-solving.
+    from selfcal import selfcal_fixed_best, disturb_obs, disturb_solution
+    obs = synth(n=6, seed=3)
+    a = selfcal_fixed_best(obs, SIZE, 1.3 * TRUE[0], nk=1, refs=(0,))
+    for s, du in ((1.02, 0.0), (1.0, 5.0), (0.97, -3.0)):
+        b = selfcal_fixed_best(disturb_obs(obs, SIZE, s, du), SIZE, 1.3 * TRUE[0], nk=1, refs=(0,))
+        th, cov = disturb_solution([a["f"], a["cx"], a["cy"]], np.array(a["cov_intr"])[:3, :3], SIZE, s, du)
+        assert np.allclose([b["f"], b["cx"], b["cy"]], th, atol=1e-4)
+        assert abs(b["k1"] - a["k1"]) < 1e-7
+        assert np.allclose(np.array(b["cov_intr"])[:3, :3], cov, rtol=1e-4, atol=1e-8)
+
+
+def test_update_test_and_decision():
+    from selfcal import update_test, decide, CHI2_3_99
+    cov = np.diag([1.0, 4.0, 4.0])
+    assert update_test([500, 320, 240], cov, [500, 320, 240], cov) == 0.0
+    # f moves by 2: d^2 / (1 + 1) = 2; with kappa 2 it is a quarter of that
+    assert np.isclose(update_test([500, 320, 240], cov, [502, 320, 240], cov), 2.0)
+    assert np.isclose(update_test([500, 320, 240], cov, [502, 320, 240], cov, kappa=2.0), 0.5)
+    assert decide(CHI2_3_99 - 1, 1.0, 500) == "keep"
+    assert decide(CHI2_3_99 + 1, 2.0, 500) == "adopt"
+    assert decide(CHI2_3_99 + 1, 3.0, 500) == "flag"

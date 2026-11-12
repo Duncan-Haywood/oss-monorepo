@@ -83,7 +83,7 @@ export default function App() {
     await saveVehicles(next); setVehicles(next); setNewVehicle(""); await pickVehicle(name);
   };
   const shareBackup = async () => {
-    const uri = FileSystem.cacheDirectory + `mileage-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    const uri = FileSystem.cacheDirectory + `mileage-backup-${new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10)}.json`;
     await FileSystem.writeAsStringAsync(uri, makeBackup({ trips, places, vehicles: vehicleList, activeVehicle: active }));
     if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(uri, { mimeType: "application/json", dialogTitle: "Mileage Log backup" });
   };

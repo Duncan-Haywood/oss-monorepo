@@ -34,7 +34,7 @@ test('creates transparent copyable terms without claiming compliance', () => {
 test('does not ship a stale hardcoded invoice date', () => {
   const page = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
   assert.doesNotMatch(page, /id="invoiceDate"[^>]*value="\d{4}-\d{2}-\d{2}"/);
-  assert.match(page, /invoiceDate.*new Date\(\)\.toISOString\(\)/s);
+  assert.match(page, /invoiceDate.*new Date\(Date\.now\(\) - new Date\(\)\.getTimezoneOffset\(\) \* 6e4\)\.toISOString\(\)/s); // local date, not UTC
 });
 
 test('offers local draft persistence without an upload path', () => {

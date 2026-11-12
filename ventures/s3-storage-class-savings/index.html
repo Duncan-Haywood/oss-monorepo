@@ -154,7 +154,7 @@ node cli.mjs analyze inventory.csv --json --prices my-prices.json</pre>
     };
     const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     els.patterns.innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
-    $("#asof").value = new Date().toISOString().slice(0, 10);
+    $("#asof").value = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 
     const PRICE_KEYS = ["STANDARD", "STANDARD_IA", "GLACIER_IR", "GLACIER", "DEEP_ARCHIVE"];
     $("#price-inputs").innerHTML = PRICE_KEYS.map((k) => `<div><label for="p-${k}">${k}</label><input type="number" id="p-${k}" min="0" step="0.0001" value="${DEFAULT_PRICES.storage[k]}"></div>`).join("");

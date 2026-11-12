@@ -211,6 +211,19 @@ export function toCsv(result) {
 const icsDate = (iso) => iso.replaceAll('-', '');
 const icsText = (s) => String(s).replace(/[\;,]/g, (c) => '\\' + c).replace(/\r?\n/g, '\\n');
 
+// RFC 5545 3.1: fold content lines longer than 75 octets (a continuation starts with a space), never inside a UTF-8 character.
+const foldIcs = (text) => text.split("\r\n").map((line) => {
+  const parts = [];
+  let cur = "", len = 0, limit = 75;
+  for (const ch of line) {
+    const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+    if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+    cur += ch; len += n;
+  }
+  parts.push(cur);
+  return parts.join("\r\n ");
+}).join("\r\n");
+
 // One all-day reminder per upcoming fee: `warnDays` before the no-surcharge due date (never before today), and the due date itself.
 export function toIcs(result) {
   const { asOf, warnDays } = result.inputs;
@@ -230,7 +243,7 @@ export function toIcs(result) {
     }
   }
   out.push('END:VCALENDAR');
-  return out.join('\r\n') + '\r\n';
+  return foldIcs(out.join('\r\n')) + '\r\n';
 }
 
 const STATE_KEYS = ['asOf', 'horizonYears', 'warnDays'];

@@ -159,7 +159,7 @@
 
     function letter() {
       if (!last) return;
-      $("#letter").value = claimLetter(last, { name: $("#who").value.trim(), company: $("#company").value.trim(), carrier: $("#carrier").value.trim(), account: $("#account").value.trim(), date: new Date().toISOString().slice(0, 10) });
+      $("#letter").value = claimLetter(last, { name: $("#who").value.trim(), company: $("#company").value.trim(), carrier: $("#carrier").value.trim(), account: $("#account").value.trim(), date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
     }
 
     let lastRecords = null, lastMeta = null;

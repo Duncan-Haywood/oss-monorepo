@@ -338,8 +338,9 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (40 stories)
+### Little Lamps (41 stories)
 
+- [Kateri and the Cross in the Tree](stories/kateri-and-the-cross-in-the-tree.md) (2026-11-12; 9 min read, text only)
 - [Katharine and the Question from the Pope](stories/katharine-and-the-question-from-the-pope.md) (2026-11-12; 10 min read, text only)
 - [Albert and the Ostriches](stories/albert-and-the-ostriches.md) (2026-11-11; 7 min read, text only)
 - [Columbanus and the Squirrel in His Robe](stories/columbanus-and-the-squirrel-in-his-robe.md) (2026-11-11; 9 min read, text only)

@@ -1,5 +1,30 @@
 # sensing-selfcal research log
 
+## 2026-11-12 · Milestone 4 result: the update test cries wolf on the raw covariance and goes deaf when inflated; each view set carries its own offset
+
+- **Runs.** 908 distinct view sets (old sets of 7, new sets of 3–6, all-view), all converged. The disturbance transform was checked by re-solving disturbed synthetic corners (match to 1e-4 px, `tests/test_selfcal.py`).
+- **H18 held.** Unchanged camera, κ = 1: the 3-parameter test fires on 72.5% of splits (95% 68–76; left 68%, right 77%); the f-only test on 22–30%.
+- **H19 refuted.** With the other camera's factor (1.89 left, 2.67 right): 6.5% pooled (4.6–9.0), 10.8% left, 2.1% right.
+- **H20 refuted.** The real unit swap, k ≥ 4: detected in 77% (new views from the left camera) and 30% (from the right). The f-only test almost never sees it (0–5%): the swap shows in the principal point.
+- **H21 refuted.** A 1% focal change, k ≥ 5: 11.7% (−1%) and 10.0% (+1%). 4% is detected in 62–75% at k = 5–6.
+- **H22 refuted.** Harmful adoptions (new f error 0.5% of f worse than the old) 3.5% of all decisions (3.2–3.9); 5.6% with κ = 1, 1.4% with the transferred factor. Flag rate 37% / 7%.
+- **Unscored diagnostic: why.** Old-vs-new rms z for (f, c<sub>x</sub>, c<sub>y</sub>): 2.45 / 2.35 / 2.94 (left), 2.33 / 4.56 / 2.51 (right). The right camera's c<sub>x</sub> stays at 4.3–4.8 from 3 to 6 new views: an offset per view set, not noise. The in-sample factor for exactly 1% false alarms is 2.69 / 4.80 (3-parameter) and 2.24 / 2.69 (f only); at it, a 2% focal change with 6 views is detected in 32–38% (left) and 0–2% (right) of splits, 4% in 90–97% and 52–72%.
+- **Caveat.** 60 splits of 13 views reuse views heavily, so the intervals, which assume independent splits, are too narrow. Corners are milestones 1–5's 11×11 `cornerSubPix`; the next step reruns on SB corners.
+
+## 2026-11-12 · Milestone 4 planned: the accept/reject test on disjoint views, a real camera swap and exact disturbances
+
+Written before any milestone-4 experiment was run. Proposal milestone 4: turn milestones 1–3 into the decision a robot makes, and measure its false-alarm and false-adopt rates.
+
+- **Old and new from disjoint views.** Milestones 2–3 scored subsets against an all-view solution that contains them (hence the nested variance). A deployed camera's old calibration comes from other images, so here each camera's 13 views are split: an "old" set of 7 views, and a "new" set of k ∈ {3, 4, 5, 6} views drawn from the other 6. 60 splits per camera and k (fixed seeds), both sets solved with the milestone-2 solver (k1 model). The two estimates are then independent apart from the shared board, and the test covariance is Σ<sub>old</sub> + Σ<sub>new</sub> (full 3×3 over f, c<sub>x</sub>, c<sub>y</sub>).
+- **Changes.** (S0) none. (S1) focal change: the new set's corners scaled about the image centre by s = 1 ± 0.5, 1, 2, 4%. (S2) principal-point shift of 2, 5, 10 px in u. Both are exact transforms of the pinhole-plus-k1 model, so the new solution is the transformed undisturbed one (checked by re-solving in a test) and the real detector noise is kept. (S3) a real change: old from one camera, new from the other (the stereo pair is two units of the same model; all-view f differs by 0.67%, c<sub>x</sub> by 17 px, c<sub>y</sub> by 10 px). Truth: the camera's all-view target-free solution, transformed for S1/S2, the other camera's for S3.
+- **The rule.** χ² = Δᵀ(κ²(Σ<sub>old</sub> + Σ<sub>new</sub>))⁻¹Δ on (f, c<sub>x</sub>, c<sub>y</sub>). Change detected iff χ² > 11.34 (χ²<sub>3</sub>, 1%). Detected and σ<sub>f,new</sub>/f ≤ 0.5% (milestone 2's gate): adopt the new calibration. Detected and imprecise: flag for a target recalibration. Not detected: keep the old one. κ = 1 (reported covariance) and κ = the other camera's milestone-3 nested rms z (1.89 for the left camera, 2.67 for the right), so no factor is fitted on the camera it is scored on.
+- **H18 (false alarms).** On S0 with κ = 1 the test fires on more than 5% of splits (nominal 1%). Refuted if ≤ 5%.
+- **H19 (the transferred κ).** On S0 with transferred κ, false alarms ≤ 3% pooled and ≤ 5% on each camera. Refuted otherwise.
+- **H20 (the real swap).** With transferred κ, S3 is detected in ≥ 90% of splits with k ≥ 4, in both directions. Refuted if below on either.
+- **H21 (power for a 1% focal change).** With transferred κ, s = 1.01 and 0.99 are detected in ≥ 80% of splits with k ≥ 5. Refuted below. The power curve over all s, shifts and k is reported.
+- **H22 (no harmful adoption).** Over all scenarios, k and both κ, the rule adopts an update whose f error against truth exceeds the old calibration's by more than 0.5% of f in ≤ 2% of splits. Refuted if more. Also reported: the flag rate, and how often the decision leaves an f error ≥ 1%.
+- **Ablation, unscored.** The f-only test (1 degree of freedom) and the 4-parameter test with k1.
+
 ## 2026-11-11 · Milestone 6 result: the one-axis pattern was the corner localiser; it also made most of milestone 5's c<sub>y</sub> shift; better corners make σ less honest
 
 - **Localiser.** Corners from `cornerSubPix` with an 11×11 half-window (milestones 1–5) against a 5×5 window and `findChessboardCornersSB` (`CALIB_CB_ACCURACY`), matched one-to-one in all 26 images. Interior median gap 0.07 px (11 vs 5), but 26 corners differ by > 1 px (max 6.4 px), every one on the outer ring of the grid, where the 23 px box runs off the pattern. SB vs 11×11: 52 over 1 px, max 7.7, all on the ring; SB vs 5×5: max 1.7 px.

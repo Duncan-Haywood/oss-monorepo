@@ -31,7 +31,7 @@ import { makeRecord, summary, buildEvidencePack, packSummary, entriesToCsv } fro
 })();
 
 const $ = (id) => document.getElementById(id);
-const today = new Date().toISOString().slice(0, 10);
+const today = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 $('date').value = today;
 let latest = null;
 

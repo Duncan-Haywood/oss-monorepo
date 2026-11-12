@@ -5,7 +5,7 @@ CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:E-invoicing mandate dates
 X-WR-CALDESC:Dated e-invoicing mandate milestones by country. Not legal o
- r tax advice; confirm with the tax authority.
+ r tax advice\; confirm with the tax authority.
 BEGIN:VEVENT
 UID:835befb0123dfae8@einvoice-preflight
 DTSTAMP:20260101T000000Z
@@ -60,10 +60,10 @@ DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20161001
 DTEND;VALUE=DATE:20161002
 SUMMARY:Czech Republic: B2G acceptance since 1 Oct 2016
-DESCRIPTION:Czech Republic (B2G in force; B2B not enacted). B2G acceptanc
- e since 1 Oct 2016. Detail and sources: https://example.invalid/einvoice
- -preflight/czech-republic-e-invoice-mandate.html. Not legal or tax advic
- e.
+DESCRIPTION:Czech Republic (B2G in force\; B2B not enacted). B2G acceptan
+ ce since 1 Oct 2016. Detail and sources: https://example.invalid/einvoic
+ e-preflight/czech-republic-e-invoice-mandate.html. Not legal or tax advi
+ ce.
 URL:https://example.invalid/einvoice-preflight/czech-republic-e-invoice-m
  andate.html
 TRANSP:TRANSPARENT
@@ -147,12 +147,12 @@ DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20200701
 DTEND;VALUE=DATE:20200702
 SUMMARY:Uganda: mandatory for VAT-registered taxpayers (Gazette Notice 59
- 5 of 2020\, reported; start 1 J...
+ 5 of 2020\, reported\; start 1 J...
 DESCRIPTION:Uganda (In force). mandatory for VAT-registered taxpayers (Ga
- zette Notice 595 of 2020\, reported; start 1 July 2020 to 1 January 2021
-  in different guides). Detail and sources: https://example.invalid/einvo
- ice-preflight/uganda-efris-e-invoice-mandate.html. Not legal or tax advi
- ce.
+ zette Notice 595 of 2020\, reported\; start 1 July 2020 to 1 January 202
+ 1 in different guides). Detail and sources: https://example.invalid/einv
+ oice-preflight/uganda-efris-e-invoice-mandate.html. Not legal or tax adv
+ ice.
 URL:https://example.invalid/einvoice-preflight/uganda-efris-e-invoice-man
  date.html
 TRANSP:TRANSPARENT
@@ -178,12 +178,12 @@ DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20210101
 DTEND;VALUE=DATE:20210102
 SUMMARY:Uganda: mandatory for VAT-registered taxpayers (Gazette Notice 59
- 5 of 2020\, reported; start 1 J...
+ 5 of 2020\, reported\; start 1 J...
 DESCRIPTION:Uganda (In force). mandatory for VAT-registered taxpayers (Ga
- zette Notice 595 of 2020\, reported; start 1 July 2020 to 1 January 2021
-  in different guides). Detail and sources: https://example.invalid/einvo
- ice-preflight/uganda-efris-e-invoice-mandate.html. Not legal or tax advi
- ce.
+ zette Notice 595 of 2020\, reported\; start 1 July 2020 to 1 January 202
+ 1 in different guides). Detail and sources: https://example.invalid/einv
+ oice-preflight/uganda-efris-e-invoice-mandate.html. Not legal or tax adv
+ ice.
 URL:https://example.invalid/einvoice-preflight/uganda-efris-e-invoice-man
  date.html
 TRANSP:TRANSPARENT
@@ -225,10 +225,10 @@ DTSTART;VALUE=DATE:20220701
 DTEND;VALUE=DATE:20220702
 SUMMARY:Australia: Federal agencies must receive Peppol e-invoices (1 Jul
   2022) and pay within five days
-DESCRIPTION:Australia (In force for government; B2B voluntary). Federal a
- gencies must receive Peppol e-invoices (1 Jul 2022) and pay within five 
- days. Detail and sources: https://example.invalid/einvoice-preflight/aus
- tralia-e-invoice-mandate.html. Not legal or tax advice.
+DESCRIPTION:Australia (In force for government\; B2B voluntary). Federal 
+ agencies must receive Peppol e-invoices (1 Jul 2022) and pay within five
+  days. Detail and sources: https://example.invalid/einvoice-preflight/au
+ stralia-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/australia-e-invoice-mandat
  e.html
 TRANSP:TRANSPARENT
@@ -256,11 +256,11 @@ DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20230101
 DTEND;VALUE=DATE:20230102
 SUMMARY:Serbia: B2G from 2022\, B2B from 1 Jan 2023 via the state SEF pla
- tform (vendor guides; some date...
+ tform (vendor guides\; some date...
 DESCRIPTION:Serbia (In force). B2G from 2022\, B2B from 1 Jan 2023 via th
- e state SEF platform (vendor guides; some dates disagree). Detail and so
- urces: https://example.invalid/einvoice-preflight/serbia-e-invoice-manda
- te.html. Not legal or tax advice.
+ e state SEF platform (vendor guides\; some dates disagree). Detail and s
+ ources: https://example.invalid/einvoice-preflight/serbia-e-invoice-mand
+ ate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/serbia-e-invoice-mandate.h
  tml
 TRANSP:TRANSPARENT
@@ -404,11 +404,11 @@ DTSTART;VALUE=DATE:20241201
 DTEND;VALUE=DATE:20241202
 SUMMARY:China: STA fully digitalised e-fapiao on the national platform\, 
  launched nationwide 1 December...
-DESCRIPTION:China (In force (scope disputed; 2026 regional steps reported
- )). STA fully digitalised e-fapiao on the national platform\, launched n
- ationwide 1 December 2024 as reported. Detail and sources: https://examp
- le.invalid/einvoice-preflight/china-fapiao-e-invoice-mandate.html. Not l
- egal or tax advice.
+DESCRIPTION:China (In force (scope disputed\; 2026 regional steps reporte
+ d)). STA fully digitalised e-fapiao on the national platform\, launched 
+ nationwide 1 December 2024 as reported. Detail and sources: https://exam
+ ple.invalid/einvoice-preflight/china-fapiao-e-invoice-mandate.html. Not 
+ legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/china-fapiao-e-invoice-man
  date.html
 TRANSP:TRANSPARENT
@@ -434,10 +434,10 @@ DTEND;VALUE=DATE:20250102
 SUMMARY:Indonesia: VAT invoices (faktur pajak) issued electronically and 
  approved in the tax authority&rsq...
 DESCRIPTION:Indonesia (In force). VAT invoices (faktur pajak) issued elec
- tronically and approved in the tax authority&rsquo;s Coretax system sinc
- e 1 January 2025 (PMK 81/2024). Detail and sources: https://example.inva
- lid/einvoice-preflight/indonesia-coretax-e-invoice-mandate.html. Not leg
- al or tax advice.
+ tronically and approved in the tax authority&rsquo\;s Coretax system sin
+ ce 1 January 2025 (PMK 81/2024). Detail and sources: https://example.inv
+ alid/einvoice-preflight/indonesia-coretax-e-invoice-mandate.html. Not le
+ gal or tax advice.
 URL:https://example.invalid/einvoice-preflight/indonesia-coretax-e-invoic
  e-mandate.html
 TRANSP:TRANSPARENT
@@ -479,10 +479,10 @@ SUMMARY:Vietnam: Decree 70/2025 amended the rules from 1 June 2025\, addi
  ng cash-register invoices for ho...
 DESCRIPTION:Vietnam (In force). Decree 70/2025 amended the rules from 1 J
  une 2025\, adding cash-register invoices for household businesses with r
- evenue of VND 1 billion or more (vendor and legal-news summaries; the de
- crees are unread and sources differ on scope). Detail and sources: https
- ://example.invalid/einvoice-preflight/vietnam-e-invoice-mandate.html. No
- t legal or tax advice.
+ evenue of VND 1 billion or more (vendor and legal-news summaries\; the d
+ ecrees are unread and sources differ on scope). Detail and sources: http
+ s://example.invalid/einvoice-preflight/vietnam-e-invoice-mandate.html. N
+ ot legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/vietnam-e-invoice-mandate.
  html
 TRANSP:TRANSPARENT
@@ -643,9 +643,9 @@ SUMMARY:Kazakhstan: Tax Code No. 214-VIII and Order No. 629 from 1 Januar
  y 2026\, automated VAT-balance cont...
 DESCRIPTION:Kazakhstan (In force). Tax Code No. 214-VIII and Order No. 62
  9 from 1 January 2026\, automated VAT-balance control of issuance report
- ed (advisory-firm summaries\, orders unread; start year disputed 2017 or
-  2019). Detail and sources: https://example.invalid/einvoice-preflight/k
- azakhstan-is-esf-e-invoice-mandate.html. Not legal or tax advice.
+ ed (advisory-firm summaries\, orders unread\; start year disputed 2017 o
+ r 2019). Detail and sources: https://example.invalid/einvoice-preflight/
+ kazakhstan-is-esf-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/kazakhstan-is-esf-e-invoic
  e-mandate.html
 TRANSP:TRANSPARENT
@@ -704,10 +704,10 @@ SUMMARY:Paraguay: brought in by taxpayer group: press reports start dates
   from 1 June 2026 to 1 September...
 DESCRIPTION:Paraguay (Phasing in). brought in by taxpayer group: press re
  ports start dates from 1 June 2026 to 1 September 2027 (RG 52) and State
-  suppliers from 2 January 2026 (press and vendor guides; the resolutions
-  are unread\, and sources differ on the State-supplier rule's number). D
- etail and sources: https://example.invalid/einvoice-preflight/paraguay-d
- nit-e-invoice-mandate.html. Not legal or tax advice.
+  suppliers from 2 January 2026 (press and vendor guides\; the resolution
+ s are unread\, and sources differ on the State-supplier rule's number). 
+ Detail and sources: https://example.invalid/einvoice-preflight/paraguay-
+ dnit-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/paraguay-dnit-e-invoice-ma
  ndate.html
 TRANSP:TRANSPARENT
@@ -746,12 +746,12 @@ DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260201
 DTEND;VALUE=DATE:20260202
 SUMMARY:Malawi: and mandatory use reported from 1 May 2026 (one tracker s
- ays 1 Feb 2026; vendor guides\,...
+ ays 1 Feb 2026\; vendor guides\,...
 DESCRIPTION:Malawi (In force or piloting (date disputed)). and mandatory 
- use reported from 1 May 2026 (one tracker says 1 Feb 2026; vendor guides
- \, MRA notices unread). Detail and sources: https://example.invalid/einv
- oice-preflight/malawi-mra-eis-e-invoice-mandate.html. Not legal or tax a
- dvice.
+ use reported from 1 May 2026 (one tracker says 1 Feb 2026\; vendor guide
+ s\, MRA notices unread). Detail and sources: https://example.invalid/ein
+ voice-preflight/malawi-mra-eis-e-invoice-mandate.html. Not legal or tax 
+ advice.
 URL:https://example.invalid/einvoice-preflight/malawi-mra-eis-e-invoice-m
  andate.html
 TRANSP:TRANSPARENT
@@ -815,12 +815,12 @@ DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260501
 DTEND;VALUE=DATE:20260502
 SUMMARY:Malawi: and mandatory use reported from 1 May 2026 (one tracker s
- ays 1 Feb 2026; vendor guides\,...
+ ays 1 Feb 2026\; vendor guides\,...
 DESCRIPTION:Malawi (In force or piloting (date disputed)). and mandatory 
- use reported from 1 May 2026 (one tracker says 1 Feb 2026; vendor guides
- \, MRA notices unread). Detail and sources: https://example.invalid/einv
- oice-preflight/malawi-mra-eis-e-invoice-mandate.html. Not legal or tax a
- dvice.
+ use reported from 1 May 2026 (one tracker says 1 Feb 2026\; vendor guide
+ s\, MRA notices unread). Detail and sources: https://example.invalid/ein
+ voice-preflight/malawi-mra-eis-e-invoice-mandate.html. Not legal or tax 
+ advice.
 URL:https://example.invalid/einvoice-preflight/malawi-mra-eis-e-invoice-m
  andate.html
 TRANSP:TRANSPARENT
@@ -832,10 +832,10 @@ DTSTART;VALUE=DATE:20260506
 DTEND;VALUE=DATE:20260507
 SUMMARY:Qatar: Council of Ministers approved a draft e-invoicing law and 
  executive regulations on 6 Ma...
-DESCRIPTION:Qatar (Draft law approved; not yet in force). Council of Mini
- sters approved a draft e-invoicing law and executive regulations on 6 Ma
- y 2026. Detail and sources: https://example.invalid/einvoice-preflight/q
- atar-e-invoice-mandate.html. Not legal or tax advice.
+DESCRIPTION:Qatar (Draft law approved\; not yet in force). Council of Min
+ isters approved a draft e-invoicing law and executive regulations on 6 M
+ ay 2026. Detail and sources: https://example.invalid/einvoice-preflight/
+ qatar-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/qatar-e-invoice-mandate.ht
  ml
 TRANSP:TRANSPARENT
@@ -846,11 +846,11 @@ DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260601
 DTEND;VALUE=DATE:20260602
 SUMMARY:Israel: NIS 5\,000 from 1 June 2026 (law-firm and vendor summarie
- s; the directive is unread)
+ s\; the directive is unread)
 DESCRIPTION:Israel (In force\, tightening). NIS 5\,000 from 1 June 2026 (
- law-firm and vendor summaries; the directive is unread). Detail and sour
- ces: https://example.invalid/einvoice-preflight/israel-allocation-number
- -e-invoice-mandate.html. Not legal or tax advice.
+ law-firm and vendor summaries\; the directive is unread). Detail and sou
+ rces: https://example.invalid/einvoice-preflight/israel-allocation-numbe
+ r-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/israel-allocation-number-e
  -invoice-mandate.html
 TRANSP:TRANSPARENT
@@ -864,10 +864,10 @@ SUMMARY:Paraguay: brought in by taxpayer group: press reports start dates
   from 1 June 2026 to 1 September...
 DESCRIPTION:Paraguay (Phasing in). brought in by taxpayer group: press re
  ports start dates from 1 June 2026 to 1 September 2027 (RG 52) and State
-  suppliers from 2 January 2026 (press and vendor guides; the resolutions
-  are unread\, and sources differ on the State-supplier rule's number). D
- etail and sources: https://example.invalid/einvoice-preflight/paraguay-d
- nit-e-invoice-mandate.html. Not legal or tax advice.
+  suppliers from 2 January 2026 (press and vendor guides\; the resolution
+ s are unread\, and sources differ on the State-supplier rule's number). 
+ Detail and sources: https://example.invalid/einvoice-preflight/paraguay-
+ dnit-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/paraguay-dnit-e-invoice-ma
  ndate.html
 TRANSP:TRANSPARENT
@@ -922,10 +922,10 @@ DTSTART;VALUE=DATE:20260801
 DTEND;VALUE=DATE:20260802
 SUMMARY:Oman: pilot of about 100 large taxpayers from 1 August 2026 (seco
  ndary sources\, Gazette text ...
-DESCRIPTION:Oman (Pilot; mandate reported for 2027). pilot of about 100 l
- arge taxpayers from 1 August 2026 (secondary sources\, Gazette text unre
- ad). Detail and sources: https://example.invalid/einvoice-preflight/oman
- -fawtara-e-invoice-mandate.html. Not legal or tax advice.
+DESCRIPTION:Oman (Pilot\; mandate reported for 2027). pilot of about 100 
+ large taxpayers from 1 August 2026 (secondary sources\, Gazette text unr
+ ead). Detail and sources: https://example.invalid/einvoice-preflight/oma
+ n-fawtara-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/oman-fawtara-e-invoice-man
  date.html
 TRANSP:TRANSPARENT
@@ -937,11 +937,11 @@ DTSTART;VALUE=DATE:20260901
 DTEND;VALUE=DATE:20260902
 SUMMARY:Côte d'Ivoire: sources give start dates from June 2025 to June 2
  026 and DGI controls from 1 September ...
-DESCRIPTION:Côte d'Ivoire (In force; dates conflict between sources). so
- urces give start dates from June 2025 to June 2026 and DGI controls from
-  1 September 2026. Detail and sources: https://example.invalid/einvoice-
- preflight/cote-divoire-fne-e-invoice-mandate.html. Not legal or tax advi
- ce.
+DESCRIPTION:Côte d'Ivoire (In force\; dates conflict between sources). s
+ ources give start dates from June 2025 to June 2026 and DGI controls fro
+ m 1 September 2026. Detail and sources: https://example.invalid/einvoice
+ -preflight/cote-divoire-fne-e-invoice-mandate.html. Not legal or tax adv
+ ice.
 URL:https://example.invalid/einvoice-preflight/cote-divoire-fne-e-invoice
  -mandate.html
 TRANSP:TRANSPARENT
@@ -981,9 +981,9 @@ SUMMARY:Mauritius: Invoices registered with the MRA before issue: widenin
  g in waves to above MUR 40 millio...
 DESCRIPTION:Mauritius (In force\, phasing in). Invoices registered with t
  he MRA before issue: widening in waves to above MUR 40 million from 1 Se
- p 2026 (compliance guides\, not the MRA; earlier wave dates disagree). D
- etail and sources: https://example.invalid/einvoice-preflight/mauritius-
- e-invoice-mandate.html. Not legal or tax advice.
+ p 2026 (compliance guides\, not the MRA\; earlier wave dates disagree). 
+ Detail and sources: https://example.invalid/einvoice-preflight/mauritius
+ -e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/mauritius-e-invoice-mandat
  e.html
 TRANSP:TRANSPARENT
@@ -997,9 +997,9 @@ SUMMARY:Rwanda: Ministerial Order No 006/26/10/TC of 24 September 2026 re
  ported (Gazette and RRA notice...
 DESCRIPTION:Rwanda (In force (2026 order reported\, unconfirmed)). Minist
  erial Order No 006/26/10/TC of 24 September 2026 reported (Gazette and R
- RA notices unread; start 2013 or 2021 in different sources). Detail and 
- sources: https://example.invalid/einvoice-preflight/rwanda-eis-e-invoice
- -mandate.html. Not legal or tax advice.
+ RA notices unread\; start 2013 or 2021 in different sources). Detail and
+  sources: https://example.invalid/einvoice-preflight/rwanda-eis-e-invoic
+ e-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/rwanda-eis-e-invoice-manda
  te.html
 TRANSP:TRANSPARENT
@@ -1013,10 +1013,10 @@ SUMMARY:Mauritania: STT platform: public entities reported to require sup
  plier invoice declaration before p...
 DESCRIPTION:Mauritania (Public suppliers (reported 1 Nov 2026)). STT plat
  form: public entities reported to require supplier invoice declaration b
- efore payment from 1 November 2026 (circular of 29 September 2026; secon
- dary guides\, circular unread). Detail and sources: https://example.inva
- lid/einvoice-preflight/mauritania-stt-e-invoice-mandate.html. Not legal 
- or tax advice.
+ efore payment from 1 November 2026 (circular of 29 September 2026\; seco
+ ndary guides\, circular unread). Detail and sources: https://example.inv
+ alid/einvoice-preflight/mauritania-stt-e-invoice-mandate.html. Not legal
+  or tax advice.
 URL:https://example.invalid/einvoice-preflight/mauritania-stt-e-invoice-m
  andate.html
 TRANSP:TRANSPARENT
@@ -1042,13 +1042,13 @@ DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20261001
 DTEND;VALUE=DATE:20261002
 SUMMARY:Bolivia: groups 9 to 12 reported due 1 October 2026 after a postp
- onement (RND 102600000007; one ...
+ onement (RND 102600000007\; one ...
 DESCRIPTION:Bolivia (Phased (groups 9 to 12 reported 1 Oct 2026)). groups
   9 to 12 reported due 1 October 2026 after a postponement (RND 102600000
- 007; one source says 30 September\, an older guide 31 March) (secondary 
- guides and vendors\, SIN resolutions unread). Detail and sources: https:
- //example.invalid/einvoice-preflight/bolivia-sin-e-invoice-mandate.html.
-  Not legal or tax advice.
+ 007\; one source says 30 September\, an older guide 31 March) (secondary
+  guides and vendors\, SIN resolutions unread). Detail and sources: https
+ ://example.invalid/einvoice-preflight/bolivia-sin-e-invoice-mandate.html
+ . Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/bolivia-sin-e-invoice-mand
  ate.html
 TRANSP:TRANSPARENT
@@ -1078,9 +1078,9 @@ SUMMARY:Moldova: B2B e-invoicing reported mandatory from 1 October 2026 a
 DESCRIPTION:Moldova (B2B mandate reported 1 Oct 2026 (unconfirmed)). B2B 
  e-invoicing reported mandatory from 1 October 2026 after a January 2026 
  pilot (Law 214/2024)\, B2G already in use (vendor and advisory guides\, 
- SFS orders and Official Gazette unread; older guides still say B2B is vo
- luntary). Detail and sources: https://example.invalid/einvoice-preflight
- /moldova-e-factura-e-invoice-mandate.html. Not legal or tax advice.
+ SFS orders and Official Gazette unread\; older guides still say B2B is v
+ oluntary). Detail and sources: https://example.invalid/einvoice-prefligh
+ t/moldova-e-factura-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/moldova-e-factura-e-invoic
  e-mandate.html
 TRANSP:TRANSPARENT
@@ -1091,11 +1091,11 @@ DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20261005
 DTEND;VALUE=DATE:20261006
 SUMMARY:Spain: under Order HAC/1028/2026 published 5 Oct 2026 (advisory a
- nd news summaries; BOE text u...
+ nd news summaries\; BOE text u...
 DESCRIPTION:Spain (Upcoming). under Order HAC/1028/2026 published 5 Oct 2
- 026 (advisory and news summaries; BOE text unread). Detail and sources: 
- https://example.invalid/einvoice-preflight/spain-verifactu-e-invoice-man
- date.html. Not legal or tax advice.
+ 026 (advisory and news summaries\; BOE text unread). Detail and sources:
+  https://example.invalid/einvoice-preflight/spain-verifactu-e-invoice-ma
+ ndate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/spain-verifactu-e-invoice-
  mandate.html
 TRANSP:TRANSPARENT
@@ -1123,12 +1123,12 @@ DTSTART;VALUE=DATE:20261101
 DTEND;VALUE=DATE:20261102
 SUMMARY:China: whether mandatory everywhere is disputed\, and 2026 brings
   regional paper withdrawals an...
-DESCRIPTION:China (In force (scope disputed; 2026 regional steps reported
- )). whether mandatory everywhere is disputed\, and 2026 brings regional 
- paper withdrawals and a fuel-station deadline of 1 November 2026 (second
- ary guides\, STA notices unread). Detail and sources: https://example.in
- valid/einvoice-preflight/china-fapiao-e-invoice-mandate.html. Not legal 
- or tax advice.
+DESCRIPTION:China (In force (scope disputed\; 2026 regional steps reporte
+ d)). whether mandatory everywhere is disputed\, and 2026 brings regional
+  paper withdrawals and a fuel-station deadline of 1 November 2026 (secon
+ dary guides\, STA notices unread). Detail and sources: https://example.i
+ nvalid/einvoice-preflight/china-fapiao-e-invoice-mandate.html. Not legal
+  or tax advice.
 URL:https://example.invalid/einvoice-preflight/china-fapiao-e-invoice-man
  date.html
 TRANSP:TRANSPARENT
@@ -1142,9 +1142,9 @@ SUMMARY:Ghana: and a reported extension to medium taxpayers from 1 Novemb
  er 2026 (vendor guides\, GRA n...
 DESCRIPTION:Ghana (Phased (2026 expansion reported\, unconfirmed)). and a
   reported extension to medium taxpayers from 1 November 2026 (vendor gui
- des\, GRA notices unread; sources disagree on the overall start). Detail
-  and sources: https://example.invalid/einvoice-preflight/ghana-e-vat-e-i
- nvoice-mandate.html. Not legal or tax advice.
+ des\, GRA notices unread\; sources disagree on the overall start). Detai
+ l and sources: https://example.invalid/einvoice-preflight/ghana-e-vat-e-
+ invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/ghana-e-vat-e-invoice-mand
  ate.html
 TRANSP:TRANSPARENT
@@ -1158,10 +1158,10 @@ SUMMARY:Mauritania: STT platform: public entities reported to require sup
  plier invoice declaration before p...
 DESCRIPTION:Mauritania (Public suppliers (reported 1 Nov 2026)). STT plat
  form: public entities reported to require supplier invoice declaration b
- efore payment from 1 November 2026 (circular of 29 September 2026; secon
- dary guides\, circular unread). Detail and sources: https://example.inva
- lid/einvoice-preflight/mauritania-stt-e-invoice-mandate.html. Not legal 
- or tax advice.
+ efore payment from 1 November 2026 (circular of 29 September 2026\; seco
+ ndary guides\, circular unread). Detail and sources: https://example.inv
+ alid/einvoice-preflight/mauritania-stt-e-invoice-mandate.html. Not legal
+  or tax advice.
 URL:https://example.invalid/einvoice-preflight/mauritania-stt-e-invoice-m
  andate.html
 TRANSP:TRANSPARENT
@@ -1250,12 +1250,12 @@ DTSTART;VALUE=DATE:20270101
 DTEND;VALUE=DATE:20270102
 SUMMARY:New Zealand: large suppliers to government reported to be require
  d to send from 1 Jan 2027\, though M...
-DESCRIPTION:New Zealand (B2G in force; B2B voluntary). large suppliers to
-  government reported to be required to send from 1 Jan 2027\, though MBI
- E reportedly applies it through new and renewed contracts (vendor and co
- mpliance guides\, not MBIE or the law). Detail and sources: https://exam
- ple.invalid/einvoice-preflight/new-zealand-e-invoice-mandate.html. Not l
- egal or tax advice.
+DESCRIPTION:New Zealand (B2G in force\; B2B voluntary). large suppliers t
+ o government reported to be required to send from 1 Jan 2027\, though MB
+ IE reportedly applies it through new and renewed contracts (vendor and c
+ ompliance guides\, not MBIE or the law). Detail and sources: https://exa
+ mple.invalid/einvoice-preflight/new-zealand-e-invoice-mandate.html. Not 
+ legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/new-zealand-e-invoice-mand
  ate.html
 TRANSP:TRANSPARENT
@@ -1308,12 +1308,12 @@ UID:646c30cbec0487ef@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20270101
 DTEND;VALUE=DATE:20270102
-SUMMARY:Slovakia: 1 Jan 2027 for domestic B2B and B2G (vendor guides; vol
- untary in 2026)
+SUMMARY:Slovakia: 1 Jan 2027 for domestic B2B and B2G (vendor guides\; vo
+ luntary in 2026)
 DESCRIPTION:Slovakia (Upcoming). 1 Jan 2027 for domestic B2B and B2G (ven
- dor guides; voluntary in 2026). Detail and sources: https://example.inva
- lid/einvoice-preflight/slovakia-e-invoice-mandate.html. Not legal or tax
-  advice.
+ dor guides\; voluntary in 2026). Detail and sources: https://example.inv
+ alid/einvoice-preflight/slovakia-e-invoice-mandate.html. Not legal or ta
+ x advice.
 URL:https://example.invalid/einvoice-preflight/slovakia-e-invoice-mandate
  .html
 TRANSP:TRANSPARENT
@@ -1368,10 +1368,10 @@ DTSTART;VALUE=DATE:20270401
 DTEND;VALUE=DATE:20270402
 SUMMARY:Oman: Decision 189/2026 reported to set 1 April 2027 (annual supp
  lies above OMR 5 million)
-DESCRIPTION:Oman (Pilot; mandate reported for 2027). Decision 189/2026 re
- ported to set 1 April 2027 (annual supplies above OMR 5 million). Detail
-  and sources: https://example.invalid/einvoice-preflight/oman-fawtara-e-
- invoice-mandate.html. Not legal or tax advice.
+DESCRIPTION:Oman (Pilot\; mandate reported for 2027). Decision 189/2026 r
+ eported to set 1 April 2027 (annual supplies above OMR 5 million). Detai
+ l and sources: https://example.invalid/einvoice-preflight/oman-fawtara-e
+ -invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/oman-fawtara-e-invoice-man
  date.html
 TRANSP:TRANSPARENT
@@ -1423,10 +1423,10 @@ SUMMARY:Paraguay: brought in by taxpayer group: press reports start dates
   from 1 June 2026 to 1 September...
 DESCRIPTION:Paraguay (Phasing in). brought in by taxpayer group: press re
  ports start dates from 1 June 2026 to 1 September 2027 (RG 52) and State
-  suppliers from 2 January 2026 (press and vendor guides; the resolutions
-  are unread\, and sources differ on the State-supplier rule's number). D
- etail and sources: https://example.invalid/einvoice-preflight/paraguay-d
- nit-e-invoice-mandate.html. Not legal or tax advice.
+  suppliers from 2 January 2026 (press and vendor guides\; the resolution
+ s are unread\, and sources differ on the State-supplier rule's number). 
+ Detail and sources: https://example.invalid/einvoice-preflight/paraguay-
+ dnit-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/paraguay-dnit-e-invoice-ma
  ndate.html
 TRANSP:TRANSPARENT
@@ -1437,9 +1437,9 @@ DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20271001
 DTEND;VALUE=DATE:20271002
 SUMMARY:Oman: 1 October 2027 (others)
-DESCRIPTION:Oman (Pilot; mandate reported for 2027). 1 October 2027 (othe
- rs). Detail and sources: https://example.invalid/einvoice-preflight/oman
- -fawtara-e-invoice-mandate.html. Not legal or tax advice.
+DESCRIPTION:Oman (Pilot\; mandate reported for 2027). 1 October 2027 (oth
+ ers). Detail and sources: https://example.invalid/einvoice-preflight/oma
+ n-fawtara-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/oman-fawtara-e-invoice-man
  date.html
 TRANSP:TRANSPARENT
@@ -1533,11 +1533,11 @@ DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20280101
 DTEND;VALUE=DATE:20280102
 SUMMARY:Slovenia: 1 Jan 2028 for domestic B2B (ZIERDED\, gazette text rea
- d 2026-11-07; provider rules appl...
+ d 2026-11-07\; provider rules appl...
 DESCRIPTION:Slovenia (Upcoming). 1 Jan 2028 for domestic B2B (ZIERDED\, g
- azette text read 2026-11-07; provider rules apply earlier). Detail and s
- ources: https://example.invalid/einvoice-preflight/slovenia-e-invoice-ma
- ndate.html. Not legal or tax advice.
+ azette text read 2026-11-07\; provider rules apply earlier). Detail and 
+ sources: https://example.invalid/einvoice-preflight/slovenia-e-invoice-m
+ andate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/slovenia-e-invoice-mandate
  .html
 TRANSP:TRANSPARENT
@@ -1661,10 +1661,10 @@ DTSTART;VALUE=DATE:20300701
 DTEND;VALUE=DATE:20300702
 SUMMARY:Cyprus: EU cross-border step 1 July 2030 (advisory guides\, not t
  he Tax Department)
-DESCRIPTION:Cyprus (B2G receipt in force; B2B voluntary). EU cross-border
-  step 1 July 2030 (advisory guides\, not the Tax Department). Detail and
-  sources: https://example.invalid/einvoice-preflight/cyprus-e-invoice-ma
- ndate.html. Not legal or tax advice.
+DESCRIPTION:Cyprus (B2G receipt in force\; B2B voluntary). EU cross-borde
+ r step 1 July 2030 (advisory guides\, not the Tax Department). Detail an
+ d sources: https://example.invalid/einvoice-preflight/cyprus-e-invoice-m
+ andate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/cyprus-e-invoice-mandate.h
  tml
 TRANSP:TRANSPARENT
@@ -1676,10 +1676,10 @@ DTSTART;VALUE=DATE:20300701
 DTEND;VALUE=DATE:20300702
 SUMMARY:Finland: EU-wide ViDA from 1 Jul 2030 (vendor and advisory guides
  \, not the law)
-DESCRIPTION:Finland (B2G in force; B2B voluntary). EU-wide ViDA from 1 Ju
- l 2030 (vendor and advisory guides\, not the law). Detail and sources: h
- ttps://example.invalid/einvoice-preflight/finland-e-invoice-mandate.html
- . Not legal or tax advice.
+DESCRIPTION:Finland (B2G in force\; B2B voluntary). EU-wide ViDA from 1 J
+ ul 2030 (vendor and advisory guides\, not the law). Detail and sources: 
+ https://example.invalid/einvoice-preflight/finland-e-invoice-mandate.htm
+ l. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/finland-e-invoice-mandate.
  html
 TRANSP:TRANSPARENT
@@ -1691,10 +1691,10 @@ DTSTART;VALUE=DATE:20300701
 DTEND;VALUE=DATE:20300702
 SUMMARY:Malta: EU-wide ViDA from 1 Jul 2030 (Commission sheets and vendor
   guides\, not the legal notices)
-DESCRIPTION:Malta (B2G receive-side; B2B voluntary). EU-wide ViDA from 1 
- Jul 2030 (Commission sheets and vendor guides\, not the legal notices). 
- Detail and sources: https://example.invalid/einvoice-preflight/malta-e-i
- nvoice-mandate.html. Not legal or tax advice.
+DESCRIPTION:Malta (B2G receive-side\; B2B voluntary). EU-wide ViDA from 1
+  Jul 2030 (Commission sheets and vendor guides\, not the legal notices).
+  Detail and sources: https://example.invalid/einvoice-preflight/malta-e-
+ invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/malta-e-invoice-mandate.ht
  ml
 TRANSP:TRANSPARENT
@@ -1706,10 +1706,10 @@ DTSTART;VALUE=DATE:20300701
 DTEND;VALUE=DATE:20300702
 SUMMARY:Sweden: EU-wide ViDA from 1 Jul 2030 (vendor and advisory guides\
  , not the law)
-DESCRIPTION:Sweden (B2G in force; B2B voluntary). EU-wide ViDA from 1 Jul
-  2030 (vendor and advisory guides\, not the law). Detail and sources: ht
- tps://example.invalid/einvoice-preflight/sweden-e-invoice-mandate.html. 
- Not legal or tax advice.
+DESCRIPTION:Sweden (B2G in force\; B2B voluntary). EU-wide ViDA from 1 Ju
+ l 2030 (vendor and advisory guides\, not the law). Detail and sources: h
+ ttps://example.invalid/einvoice-preflight/sweden-e-invoice-mandate.html.
+  Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/sweden-e-invoice-mandate.h
  tml
 TRANSP:TRANSPARENT
