@@ -121,7 +121,12 @@ if (invokedDirectly) {
         // One clicked state misses findings that only appear for other input
         // (an empty field, a zero, another option). Change one control at a
         // time, press the run button, and record skips in every state seen.
-        const seen = await page.evaluate(varyStates, { run: RUN.source, max: Number(arg('max-states') ?? 40) });
+        // A page that loops on an edge value (100000 rows) would hang the sweep.
+        const seen = await Promise.race([
+          page.evaluate(varyStates, { run: RUN.source, max: Number(arg('max-states') ?? 40) }),
+          new Promise((ok) => setTimeout(() => ok(null), 45000)),
+        ]);
+        if (!seen) throw new Error('varying inputs took over 45 s: a field value may hang the page');
         for (const l of seen) for (const k of skipsOf(l)) skips.add(k);
         states += seen.length;
       }
@@ -129,7 +134,8 @@ if (invokedDirectly) {
     } catch (e) {
       res[slug] = { fail: String(e).slice(0, 160) };
     }
-    await page.close();
+    await page.close({ runBeforeUnload: false }).catch(() => {});
+    if (process.env.PROGRESS) console.error(`${Object.keys(res).length}/${slugs.length} ${slug}`);
   }
   await Promise.all(Array.from({ length: 6 }, async () => { while (next < slugs.length) await one(slugs[next++]); }));
   await browser.close();

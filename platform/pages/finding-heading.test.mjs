@@ -32,7 +32,7 @@ const KNOWN_H4 = new Set([
   'donor-acknowledgment-letter-generator', 'eu-vat-oss-calculator',
   'exemption-certificate-audit-check', 'fractional-executive-rate-calculator',
   'freight-broker-load-margin-calculator', 'gitignore-explainer',
-  'grant-writer-proposal-price-calculator', 'inherited-ira-10-year-withdrawal-planner',
+  'inherited-ira-10-year-withdrawal-planner',
   'insurance-commission-reconciler', 'med-spa-treatment-profit-calculator',
   'payroll-tax-deposit-penalty-calculator', 'pg-stat-statements-analyzer',
   'physician-wrvu-compensation-calculator',
