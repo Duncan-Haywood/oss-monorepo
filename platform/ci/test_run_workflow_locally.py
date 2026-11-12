@@ -575,6 +575,16 @@ class ToolchainMissing(unittest.TestCase):
         step = self.run_one("python3 -c 'assert False, \"real defect\"'")
         self.assertEqual(step.status, "failed")
 
+    def test_a_compiled_extension_that_will_not_load_names_pkg_dot_ext(self):
+        # PATH's python3 3.11 picked up a Pillow built for 3.13 (2026-11-12).
+        line = "ImportError: cannot import name '_imaging' from 'PIL' (/usr/lib/python3/dist-packages/PIL/__init__.py)"
+        self.assertEqual(runner.missing_toolchain([line], "."), "PIL._imaging")
+
+    def test_a_public_name_missing_from_a_package_is_not_a_tool(self):
+        # `cannot import name 'foo'` is usually a code bug, not a broken install.
+        self.assertIsNone(runner.missing_toolchain(
+            ["ImportError: cannot import name 'Image' from 'PIL'"], "."))
+
     def test_a_failing_install_is_still_classified_as_setup_first(self):
         """SETUP is checked before this, and must stay that way: an install
         that fails because a package is absent is the setup class, not a
