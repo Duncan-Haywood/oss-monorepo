@@ -3,18 +3,18 @@ Round 7: persist 2 retried with end-of-series censoring scored apart. Rule and r
 Part A: 10 fresh seeds (51-60) per cell, 500 points, baseline check at 100, then one check per point; a step at point 301. False alerts per 1,000 checks, then steps found and median delay.
 
   policy           null iid       null ar1 0.5   null t3        null ar1 0.8   null ar1 0.95  step 1sd iid      step 2sd iid      step 3sd iid      step 2sd ar1 0.5  step 4sd ar1 0.8  
-  now              0.00           0.25           7.00           1.25           2.50           1/10 d5           10/10 d5          10/10 d5          8/10 d5           10/10 d5          
+  now              0.00           0.50           7.50           1.75           2.75           1/10 d5           10/10 d5          10/10 d5          8/10 d5           10/10 d5          
   hold             0.00           0.25           7.00           1.25           2.50           1/10 d5           10/10 d5          10/10 d5          8/10 d5           10/10 d5          
-  persist2         0.00           0.25           7.00           1.00           2.00           1/10 d6           10/10 d6          10/10 d5          8/10 d5.5         10/10 d5          
+  persist2         0.00           0.50           7.50           1.25           2.25           1/10 d6           10/10 d6          10/10 d5          8/10 d5.5         10/10 d5          
   hold+persist2    0.00           0.25           7.00           1.00           2.00           1/10 d6           10/10 d6          10/10 d5          8/10 d5.5         10/10 d5          
 
 Part B: 31 univariate TCPD series (shipped), watched from 20% of their length.
 
   raw scoring (as round 5):
   policy           alerts  at a mark (share)  majority-marked reached  end-pending at the last check
-  now                 106         45 (42.5%)          33/52             0
+  now                 115         47 (40.9%)          33/52             0
   hold                106         45 (42.5%)          33/52             0
-  persist2            103         44 (42.7%)          32/52             1
+  persist2            112         46 (41.1%)          32/52             1
   hold+persist2       103         44 (42.7%)          32/52             1
 
   censored scoring, 'hold' against 'hold+persist2' (header): censored marks 1 (children_per_woman row 145)
@@ -29,9 +29,9 @@ Part C: the 7 held-out TCPD series (seen by round 5's report, not by its rule).
 
   raw scoring (as round 5):
   policy           alerts  at a mark (share)  majority-marked reached  end-pending at the last check
-  now                  61         26 (42.6%)           9/12             0
+  now                  68         26 (38.2%)           9/12             0
   hold                 61         26 (42.6%)           9/12             0
-  persist2             59         25 (42.4%)           9/12             0
+  persist2             66         25 (37.9%)           9/12             0
   hold+persist2        59         25 (42.4%)           9/12             0
 
   censored scoring, 'hold' against 'hold+persist2' (header): censored marks 0
@@ -44,9 +44,9 @@ Part C: the 7 held-out TCPD series (seen by round 5's report, not by its rule).
 
 Part D, deciding nothing: 57 series in data/ (no labels), watched from 20% of their length.
 
-  now              alerts  130   series ending with a change waiting on its second check: 0
+  now              alerts  141   series ending with a change waiting on its second check: 0
   hold             alerts  130   series ending with a change waiting on its second check: 0
-  persist2         alerts  125   series ending with a change waiting on its second check: 0
+  persist2         alerts  134   series ending with a change waiting on its second check: 0
   hold+persist2    alerts  125   series ending with a change waiting on its second check: 0
 
 Rule, 'hold+persist2' against 'hold':

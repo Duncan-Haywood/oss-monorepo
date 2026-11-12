@@ -3715,7 +3715,8 @@ Two things in the scripts were fixed after the run, and neither changes a decisi
 policy leaves out from `WATCH_DEFAULTS`, so since round 5 the `now` policy (`{}`) in `eval/watch-flicker.mjs` and in
 this script had silently meant `hold`. In this run's first output `now` equals `hold`. Once persist 2 became the
 default, `hold` would likewise have meant `hold+persist2`. Every policy in both scripts now names both options. The
-output file is the rerun with the pinned policies. Its `hold` and `hold+persist2` rows match the first run's.
+output file is the rerun with the pinned policies. Its `hold` and `hold+persist2` rows and the decision match the
+first run's exactly, and its `now` row again matches round 5's (115 TCPD alerts, 68 held out, 141 on the 57 in `data/`).
 
 Old watch-state files have no `seen` list, so after upgrading, a running watch's first newly confirmed change waits
 one check more than it would have. Nothing is lost.
