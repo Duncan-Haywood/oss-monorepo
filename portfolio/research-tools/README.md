@@ -73,6 +73,7 @@ for the browser-extension, iOS and Android packagers.
 | [`matrix-profile-explorer`](../../ventures/matrix-profile-explorer/) | Yeh et al. 2016; Zhu et al. 2016 | Which stretch of this series repeats (motif), and which is unlike anything else (discord)? |
 | [`survival-analysis`](../../ventures/survival-analysis/) | Kaplan & Meier 1958; Mantel 1966; Cox 1972; Efron 1977; Grambsch & Therneau 1994 | How long until the event, do groups differ, and by what hazard ratio once covariates are adjusted for? |
 | [`fdr-multiple-testing`](../../ventures/fdr-multiple-testing/) | Benjamini & Hochberg 1995; Benjamini & Yekutieli 2001; Benjamini, Krieger & Yekutieli 2006; Storey 2002; Wang & Ramdas 2022 | I ran many tests: which results still stand, at a chosen false discovery rate or family-wise error rate? |
+| [`synthetic-control`](../../ventures/synthetic-control/) | Abadie & Gardeazabal 2003; Abadie, Diamond & Hainmueller 2010, 2015; Abadie 2021 | Did this intervention change one unit's outcome, by how much, and is the gap unusual against placebo runs on every donor? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the
@@ -80,8 +81,9 @@ slug there when a tool lands.
 
 ## Candidates
 
-Next papers to implement, each a job someone has: synthetic control (Abadie,
-Diamond & Hainmueller 2010) for "did my intervention work"; Sinkhorn optimal
+Next papers to implement, each a job someone has: augmented synthetic
+control (Ben-Michael, Feller & Rothstein 2021) as a bias-corrected mode for
+`synthetic-control`; Sinkhorn optimal
 transport (Cuturi 2013) for comparing distributions; Gaussian-process
 regression with marginal-likelihood fitting (Rasmussen & Williams 2006);
 isolation forest (Liu, Ting & Zhou 2008); robust PCA by principal component

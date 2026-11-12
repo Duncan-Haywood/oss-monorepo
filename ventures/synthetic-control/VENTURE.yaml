@@ -1,0 +1,62 @@
+name: synthetic-control
+description: >-
+  Free browser tool, CLI and agent call for economists, policy analysts,
+  students and marketing or operations teams with one treated unit: upload
+  a panel of units over time and get the synthetic control estimate of
+  Abadie, Diamond and Hainmueller (donor weights, predictor balance, the
+  counterfactual path, the average post-period gap), placebo-in-space
+  permutation p-values and leave-one-out robustness. Checked against
+  pysyncon, which is pinned to R's Synth. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-12 on an explore run, as the sixth tool of "research
+# algorithms as tools" (portfolio/research-tools/README.md listed synthetic
+# control, Abadie, Diamond & Hainmueller 2010, as the first candidate).
+# Implemented from the papers' definitions; no third-party code was ported.
+# pysyncon 1.7.0 (MIT) was used only to produce eval/reference.json, which
+# the tests check against. Example data: the ADH (2015) West Germany panel;
+# source in data/SOURCE.md.
+#
+# First visitor: searches such as "synthetic control method online",
+# "synthetic control calculator", "causal impact of a policy", "did my
+# marketing campaign work one region"; students in causal-inference courses
+# and analysts without R or Stata. Volume not measured with an external tool.
+#
+# Alternatives: R's Synth, tidysynth and augsynth, Stata's synth, Python's
+# pysyncon and SparseSC (all need an environment and code), and Google's
+# CausalImpact (a Bayesian structural time-series model, not synthetic
+# control). Not surveyed for hosted web versions. The differentiators here
+# are no install, placebo and leave-one-out runs in one click, a reading in
+# words, and tests pinned to an R-parity implementation.
+#
+# Liability: statistical output from supplied data, not policy, legal or
+# financial advice; the page states the identification limits. Data never
+# leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Analysts and students who need a synthetic control estimate for one
+      treated unit will use a no-install tool that shows weights, fit and
+      placebo inference together, and will link or cite it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports weights or an effect that disagree with R's Synth on the same data and specification, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/synthetic-control/
+  analytics: null
