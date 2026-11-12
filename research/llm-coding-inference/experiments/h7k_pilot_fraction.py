@@ -23,7 +23,7 @@ N = 1000
 def one(f, human, share, truth, rr, tau, guard):
     pilot = rr.sample(range(len(f)), round(share * N))
     labels = {i: human[i] for i in pilot}
-    plan = A.plan_audit(f, labels, N, tau=tau, guard=guard)
+    plan = A.plan_audit(f, labels, N, tau=tau, guard=guard, width_margin=None)
     for cell, t in zip(plan["cells"], plan["to_label"]):
         for i in rr.sample([i for i in cell if i not in labels], t):
             labels[i] = human[i]

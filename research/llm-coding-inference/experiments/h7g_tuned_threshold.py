@@ -35,7 +35,7 @@ def best_threshold(s, y):
 def one(f, human, n, truth, rr, tau):
     pilot = rr.sample(range(len(f)), round(A.PILOT_SHARE * n))
     labels = {i: human[i] for i in pilot}
-    plan = A.plan_audit(f, labels, n, tau=tau, guard=A.GUARD_6AM, neg_guard=0)  # the 7g screen (before 7r and 7ai)
+    plan = A.plan_audit(f, labels, n, tau=tau, guard=A.GUARD_6AM, neg_guard=0, width_margin=None)  # the 7g screen (before 7r and 7ai)
     for cell, t in zip(plan["cells"], plan["to_label"]):
         for i in rr.sample([i for i in cell if i not in labels], t):
             labels[i] = human[i]

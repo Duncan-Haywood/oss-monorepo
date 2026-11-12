@@ -47,7 +47,7 @@ def main():
         cov = nc = 0; hw = 0.0
         for d, pilot in enumerate(draws):
             labels = {i: human[i] for i in pilot}
-            plan = A.plan_audit(f, labels, N, tau=tau, guard=guard, neg_guard=ng)
+            plan = A.plan_audit(f, labels, N, tau=tau, guard=guard, neg_guard=ng, width_margin=None)
             nc += plan["design"] == "cells"
             for cell, t in zip(plan["cells"], plan["to_label"]):
                 for i in sb[d].sample([i for i in cell if i not in labels], t): labels[i] = human[i]
