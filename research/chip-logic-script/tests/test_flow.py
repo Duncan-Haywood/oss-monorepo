@@ -48,5 +48,18 @@ class FlowTest(unittest.TestCase):
             self.assertTrue(ok)
 
 
+    def test_unparseable_yosys_output_raises_not_zero(self):
+        # quality audit 2026-11-12: a missing stat/ltp line must not score 0 cells x 0 depth (the "best" score)
+        real = flow._yosys
+        class P:
+            returncode, stdout, stderr = 0, "no stats here", ""
+        flow._yosys = lambda script: P()
+        try:
+            with self.assertRaises(RuntimeError):
+                flow.score(f"{D}/absd8.v", "absd8", "yosys_default")
+        finally:
+            flow._yosys = real
+
+
 if __name__ == "__main__":
     unittest.main()
