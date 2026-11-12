@@ -1,0 +1,222 @@
+{
+ "date": "2026-11-12",
+ "subject": "research/qual-hypothesis",
+ "stratum": "research",
+ "seed": "2026-11-12-l",
+ "round": 53,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality-audit subagent",
+ "status": "audited",
+ "professional": "a quantitative methodologist in computational social science / a statistician who works on selective inference and text-as-data. They would check first that the label and corpus are built as stated, that the held-out z tests and BH step are the textbook ones, that the 'overstatement' ratio measures what it says (selection bias, not noise), that the shuffled-label control is calibrated, that the tokens being tested are real words, and what the nearest prior work (Ludwig and Mullainathan 2024; Fightin' Words; winner's-curse literature; LLM distribution-difference describers) already shows",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Reran experiments/run.py in a scratch copy (it writes results.txt, so not in the tree; needs qual-real and qual-correction on the path): 43.6 s, results.txt byte-identical to the committed one, figure.py regenerates replication.svg byte-identical. Independent recomputation (scratchpad qual/indep.py, imports nothing from the subject): pandas load of goemotions_1.csv, own rater collapse with the GoEmotions paper's 11 negative emotions -> 5,313 examples, share 0.2469 (README 5,313 / 0.247); the E3 split rebuilt from the same seeded permutation, counted with own code, tested with statsmodels proportions_ztest (pooled) and multipletests fdr_bh: all 20 words, discovery effects, held-out effects, p values and replicated flags equal results.txt E3 to the printed precision. Author's BH vs statsmodels fdr_bh on 20,000 random 20-p families: 0 disagreements. Shuffled-label control: 11/200 at n=2000 has Wilson 95% 3.1-9.6%, pooled 27/800 = 3.4% (2.3-4.9%), so 'consistent with 5%' holds. Ratios 0.0948/0.0125 = 7.58 and 0.0211/0.0141 = 1.50 as printed. What keeps it from 4: the computations are right but the headline quantity is not the one it is named for (claims/domain): the mean ABSOLUTE held-out effect includes the noise floor (0.0089 with shuffled labels at n=100); the in-direction (signed) held-out effect at n=100 is 0.0023 (probe, 100 splits), so discovery effects are about 40x too large there, not 7.6x; at n=2000 signed 0.0139 vs abs 0.0143, so the 1.5x stands. 3.",
+  "completeness": "Claimed and checked: E1 (four discovery sizes, 200 splits), E2 (shuffled control), E3 (one split listing), the figure, the 7 unit tests, the reproduce commands, the live page (https://marisstella.app/research/qual-hypothesis/ loaded, HTTP 200, summary matches project.json). All work end to end. The milestone question ('does the check catch hypotheses that merely restate the label') is answered only with a word-list flag, which the README itself says. The LLM proposer is listed as a next step, not claimed. Stale: README:27 says ~1.5 min, run.py:5 'about 1 minute', measured 44 s (low). Undocumented transitive dependency on research/qual-correction (qualreal imports qualml). 3.",
+  "verification": "`cd research/qual-hypothesis && python3 -m unittest test_qualhyp`: 7 tests OK in 0.003 s. Seven mutations via platform/ci/quality_mutate.py: caught 3 (restates_label without emotion names; pooled p -> a/n1; BH cut off-by-one). Survived 4: BH replaced by Bonferroni (alpha*rank/m -> alpha/m) survives because test_bh's family [0.001, 0.2, 0.9, 0.012] gives the same answer under both (0.012 <= 0.0125); dropping the same-sign requirement for replication; min_count >= -> >; ranking by |d| instead of |z|. No test pins any experiment number (results.txt) or the shuffled-label calibration. 2.",
+  "craft": "Read qualhyp.py (91 lines), test_qualhyp.py, experiments/run.py, figure.py, and the imported qual-real/qualreal.py loader and tokenizer. Small, readable, stdlib, seeded, pure functions. Defects: the tokenizer `[a-z']+` (qual-real/qualreal.py:22) does not normalise U+2019, so 'I’m', 'don’t' split into 'm', 't', 'don' (673 of 5,313 comments contain U+2019); three of E3's 20 hypotheses are such fragments and 'm' is reported as a confirmed hypothesis. Cross-project sys.path imports (qualhyp.py:13, run.py:13-14) into qual-real and transitively qual-correction; `import random` unused in qualhyp.py:9; restates_label rebuilds set(r.NEGATIVE) per call. 3.",
+  "claims": "Backed: 5,313 comments and 24.7% (recomputed), 0.8 -> 14.7 replicating, shuffled 0.03-0.07 and at most 5.5% of splits (results.txt, rerun), 36-59% label vocabulary at 300-2,000 (results.txt), E3 word list (recomputed), 'not an LLM' disclosed prominently, references flagged as from memory, no comment text committed (checked: no CSV in the tree). Not backed as worded: the headline 'overstates every effect ... 7.6 times too large' (README:3, project.json summary, live page) uses mean |held-out effect| as the truth; that is inflated by noise, and the signed held-out effect gives ~40x at 100 comments; README:62 'mean held-out difference about 1 point' is the same absolute measure (the signed one at n=100 is 0.2 points). 'overstates every effect' is a statement about a mean, not each of the 20. 'm' and 'lol' are discussed as hypotheses without saying 'm' is a tokenizer fragment of I’m. 2.",
+  "fitness": "A researcher wanting to test LLM-proposed hypotheses could reuse test_hypotheses/benjamini_hochberg and the split harness (small and correct), but the thing the project is about, an LLM proposer, is absent, the hypotheses are single tokens, and the restatement measure is a hand list. Nearest prior work: Ludwig and Mullainathan (QJE 2024), cited, already does generate-then-validate on held-out data with a far richer proposer; word-level discriminative lexicons with held-out checks are Monroe, Colaresi and Quinn's 'Fightin' Words' (Political Analysis 2008), not cited; the winner's curse after selection is standard (Zhong and Prentice 2008; Ioannidis 2008), cited only via an internal project; LLM describers of distribution differences with held-out validation (Zhong et al. 2022 D5, ICML; Zhou et al. 2024 HypoGeniC) not cited. Result: sound in direction, not new, below a publishable contribution. 2.",
+  "domain": "Against selective-inference practice: sample splitting plus BH on the selected family is the textbook remedy and is implemented correctly; the shuffled-label control checks only the complete null (FWER), not FDR under a mixture of true and null hypotheses, which needs planted effects. The inflation measure departs from practice (compare in-direction held-out estimates, or the conditional/bias-corrected estimator, not absolute values). 'Restates the label' should be a conditional test (README's own next step) rather than a list. Tokens should be normalised before treating them as hypotheses. 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "corpus size and label prevalence",
+   "method": "own pandas rater collapse of goemotions_1.csv with the 11 negative emotions of Demszky et al. 2020, >=3 raters, no 'very unclear'",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad && sv/bin/python -I qual/indep.py /root/.cache/qual-real/goemotions_1.csv  (venv: /usr/bin/python3.13 -m venv sv && sv/bin/pip install pandas statsmodels scipy -> pandas 3.1.1, statsmodels 0.15.0, scipy 1.18.1)",
+   "expected": "5313; 0.247",
+   "observed": "5313; 0.2469",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E3 split: 20 proposed words, discovery and held-out effects, p values, BH-replicated flags",
+   "method": "own counting + statsmodels 0.15.0 proportions_ztest (pooled) and multipletests(method='fdr_bh')",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad && sv/bin/python -I qual/indep.py /root/.cache/qual-real/goemotions_1.csv  (venv: /usr/bin/python3.13 -m venv sv && sv/bin/pip install pandas statsmodels scipy -> pandas 3.1.1, statsmodels 0.15.0, scipy 1.18.1)",
+   "expected": "results.txt E3 (sorry +0.060 +0.054 2.1e-21 yes ... lol -0.022 -0.024 0.00015 yes)",
+   "observed": "all 20 rows identical to printed precision",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Benjamini-Hochberg step-up implementation",
+   "method": "author's algorithm vs statsmodels multipletests fdr_bh on 20,000 random families of 20 p-values",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad && sv/bin/python -I qual/indep.py /root/.cache/qual-real/goemotions_1.csv  (venv: /usr/bin/python3.13 -m venv sv && sv/bin/pip install pandas statsmodels scipy -> pandas 3.1.1, statsmodels 0.15.0, scipy 1.18.1)",
+   "expected": "0 disagreements",
+   "observed": "0 disagreements",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "shuffled-label control calibrated to 5%",
+   "method": "Wilson 95% interval (statsmodels proportion_confint) on results.txt E2 counts",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad && sv/bin/python -I qual/indep.py /root/.cache/qual-real/goemotions_1.csv  (venv: /usr/bin/python3.13 -m venv sv && sv/bin/pip install pandas statsmodels scipy -> pandas 3.1.1, statsmodels 0.15.0, scipy 1.18.1)",
+   "expected": "interval containing or below 0.05",
+   "observed": "11/200: 0.031-0.096; pooled 27/800: 0.023-0.049",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "overstatement ratio at 100 discovery comments measures selection inflation",
+   "method": "signed (in-discovery-direction) held-out effect vs mean |held-out effect|, 100 splits, real and shuffled labels; standard winner's-curse comparison",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad/qual && python3 -I probe.py /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad/qual/research/qual-hypothesis  (scratch copy of research/qual-hypothesis, qual-real, qual-correction)",
+   "expected": "abs and signed held-out effects close if |.| is not noise-dominated",
+   "observed": "n=100: abs 0.0129, signed 0.0023 (null abs 0.0089, signed -0.0004) -> ratio ~40x not 7.6x; n=2000: abs 0.0143, signed 0.0139 (1.5x stands)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "results.txt and figure reproduce",
+   "method": "rerun in scratch copy, byte diff",
+   "command": "cd <scratch>/research/qual-hypothesis && python3 experiments/run.py && python3 experiments/figure.py; diff against tree",
+   "expected": "identical",
+   "observed": "results.txt and replication.svg byte-identical; 43.6 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd research/qual-hypothesis && python3 -m unittest test_qualhyp",
+   "expected": "all pass",
+   "observed": "7 tests OK, 0.003 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "tokens tested are words",
+   "method": "count U+2019 in examples; rerun E3 split with U+2019 -> ' normalised",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad/qual && python3 -I probe.py /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad/qual/research/qual-hypothesis  (scratch copy of research/qual-hypothesis, qual-real, qual-correction)",
+   "expected": "no fragments like 'm', 't', 'don'",
+   "observed": "673/5313 comments contain U+2019; E3 lists m, t, don; normalised E3 has i'm, don't, and 'worse', 'thanks' replicate (13 vs 11); E1 n=1000 replicated 10.31 -> 10.68",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline '7.6 times too large' and 'about 1 point' held-out effect",
+   "method": "compare with signed held-out effect (probe)",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad/qual && python3 -I probe.py /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad/qual/research/qual-hypothesis  (scratch copy of research/qual-hypothesis, qual-real, qual-correction)",
+   "expected": "ratio of discovery to true held-out effect",
+   "observed": "7.6x is discovery/|held-out|; signed gives ~40x at n=100",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page and summary",
+   "method": "curl the served page",
+   "command": "curl -sS https://marisstella.app/research/qual-hypothesis/",
+   "expected": "200, summary matching README",
+   "observed": "200; same 7.6x / 36-59% / not-an-LLM summary; 7 tests",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "no comment text committed; runtime",
+   "method": "ls tree; time run.py",
+   "command": "ls -R research/qual-hypothesis; time python3 experiments/run.py",
+   "expected": "no CSV; ~1.5 min (README:27)",
+   "observed": "no CSV; 44 s",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited",
+   "method": "literature: Ludwig & Mullainathan 2024; Monroe, Colaresi & Quinn 2008; Zhong & Prentice 2008; Zhong et al. 2022 (D5); Zhou et al. 2024",
+   "command": "grep -n 'Monroe\\|Fightin\\|Zhong\\|Ioannidis' research/qual-hypothesis/README.md",
+   "expected": "nearest prior work cited",
+   "observed": "only Ludwig & Mullainathan, Demszky, BH cited",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "research/qual-hypothesis/qualhyp.py:64",
+   "change": "BH alpha*rank/m -> alpha/m (Bonferroni)",
+   "caught": false,
+   "test_cmd": "cd research/qual-hypothesis && python3 -m unittest test_qualhyp"
+  },
+  {
+   "where": "research/qual-hypothesis/qualhyp.py:79",
+   "change": "replicated = in BH set and same sign -> in BH set",
+   "caught": false,
+   "test_cmd": "cd research/qual-hypothesis && python3 -m unittest test_qualhyp"
+  },
+  {
+   "where": "research/qual-hypothesis/qualhyp.py:52",
+   "change": "a + b >= min_count -> a + b > min_count",
+   "caught": false,
+   "test_cmd": "cd research/qual-hypothesis && python3 -m unittest test_qualhyp"
+  },
+  {
+   "where": "research/qual-hypothesis/qualhyp.py:54",
+   "change": "rank by -abs(z) -> -abs(d)",
+   "caught": false,
+   "test_cmd": "cd research/qual-hypothesis && python3 -m unittest test_qualhyp"
+  },
+  {
+   "where": "research/qual-hypothesis/qualhyp.py:84",
+   "change": "restates_label drops emotion names",
+   "caught": true,
+   "test_cmd": "cd research/qual-hypothesis && python3 -m unittest test_qualhyp"
+  },
+  {
+   "where": "research/qual-hypothesis/qualhyp.py:38",
+   "change": "pooled p (a+b)/(n1+n0) -> a/n1",
+   "caught": true,
+   "test_cmd": "cd research/qual-hypothesis && python3 -m unittest test_qualhyp"
+  },
+  {
+   "where": "research/qual-hypothesis/qualhyp.py:66",
+   "change": "BH rejection set off by one",
+   "caught": true,
+   "test_cmd": "cd research/qual-hypothesis && python3 -m unittest test_qualhyp"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Headline overstatement ratio uses mean ABSOLUTE held-out effect as the truth; |noise| dominates at small discovery samples (shuffled-label |held-out| 0.0089), so at 100 comments the in-direction held-out effect is 0.0023 and discovery effects are ~40x too large, not 7.6x; same measure behind 'about 1 point' (README:62). Direction of the conclusion holds; the number does not",
+   "where": "research/qual-hypothesis/experiments/run.py:45",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "BH test family [0.001, 0.2, 0.9, 0.012] gives the same answer under Bonferroni, so replacing BH with Bonferroni leaves all tests green; same-sign requirement, min_count and z-ranking are also untested",
+   "where": "research/qual-hypothesis/test_qualhyp.py:19",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Tokenizer does not normalise U+2019 (673 of 5,313 comments); 'I’m', 'don’t' become hypotheses 'm', 't', 'don', and 'm' is reported as a confirmed hypothesis in E3 and README:54",
+   "where": "research/qual-real/qualreal.py:22",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Nearest prior work not cited: Fightin' Words (Monroe, Colaresi and Quinn 2008), winner's curse (Zhong and Prentice 2008), LLM distribution-difference describers with held-out validation (Zhong et al. 2022; Zhou et al. 2024)",
+   "where": "research/qual-hypothesis/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Runtime stale: README says ~1.5 min, run.py 'about 1 minute', measured 44 s; transitive dependency on research/qual-correction not documented",
+   "where": "research/qual-hypothesis/README.md:27",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, honest, correctly computed milestone. Everything it prints reproduces bit for bit (results.txt and the SVG), and an independent pandas/statsmodels pipeline that imports none of its code rebuilds the 5,313-comment corpus, the 24.7% label and all 20 rows of the E3 split exactly; its BH equals statsmodels on 20,000 families and the shuffled-label control is calibrated (27/800, Wilson 2.3-4.9%). It does not meet the bar: the headline '7.6 times too large' divides by the mean absolute held-out effect, which at 100 discovery comments is mostly noise (signed held-out effect 0.0023, so the inflation is ~40x); 4 of 7 seeded bugs survive, including BH replaced by Bonferroni, because the one BH test case cannot tell them apart; three of the E3 hypotheses are curly-apostrophe fragments ('m', 't', 'don'); and the result (winner's curse plus a held-out BH check, with a word-count proposer instead of an LLM) is a known one, short of the nearest prior work (Ludwig and Mullainathan 2024, Fightin' Words) and of a PhD-level contribution. Finished for what it claims (completeness 3), below the bar on claims, verification, fitness and domain."
+}
