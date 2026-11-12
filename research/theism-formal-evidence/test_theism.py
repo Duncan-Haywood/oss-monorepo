@@ -251,6 +251,14 @@ def test_e14_plain_necessity_closes_de_re():
     e14.test_e13_countermodel_fails_a50(); e14.test_constant_domain_a50_is_a5()
 
 
+def test_e15_a5z_does_not_imply_a5():
+    """E15: the census's exact model enumeration agrees with E14's definition-level search on
+    every frame up to 4 cells, and the 2-world, 4-individual frame is a model of A5₀ where
+    Anderson's A5' fails (E14's conjecture refuted)."""
+    e15 = _load("e15_a5z_not_a5")
+    e15.test_countermodel(); e15.test_crosscheck()
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

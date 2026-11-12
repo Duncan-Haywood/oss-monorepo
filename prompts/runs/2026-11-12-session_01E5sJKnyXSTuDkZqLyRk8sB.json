@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKnyXSTuDkZqLyRk8sB",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T01:21:12Z",
+  "ended": "2026-11-12T01:37:14Z",
+  "wall_minutes": 16.37,
+  "tokens_in": 6640796,
+  "tokens_out": 44430,
+  "cost_usd": 3.2769,
+  "tool_calls": 56,
+  "task": "theism-formal-evidence M2: prove or refute E14's conjecture that A5\u2080 implies Anderson's A5'",
+  "projects": [
+    "research/theism-formal-evidence"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14956",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "The first full run of E15 hung for ~10 min: --full-crosscheck included the 6-cell full-powerset partition (2^32 positive sets) that E14 skips; killed and excluded it, matching E14."
+  ],
+  "integrity_issues": [
+    "The 2x4 countermodel was found on paper and checked on that one frame with E14's search before the H20 prediction was written; the LOG entry says so. The census, 3x3 and 4x2 predictions were committed in the PR's first commit before they ran.",
+    "E15 refutes the previous run's (E14) conjecture; corrections added to E14's results.md, the README, project.json and the 2026-11-11 blog post rather than leaving the old claim standing."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/theism-formal-evidence/lean/build.sh",
+      "issue": "Works as documented: zstd install plus the release tarball through the proxy, built in about a minute. No friction; noted so the next run trusts it."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '2288/40 runs toward the next review', which reads as if the review is long overdue; unclear whether review_when_due is counting correctly."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-anderson-godel-plain-necessity-does-not-imply-andersons.md",
+    "research/theism-formal-evidence/experiments/e15_a5z_not_a5/results.md"
+  ],
+  "goal": "Advance the theism-formal-evidence programme (M2) with a machine-checked result.",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed research/0, pick_track drew theism-formal-evidence (claim check clear). Checks run here: lean/build.sh (build ok, no sorry, 0 warnings, axioms printed), python3 test_theism.py (all ok incl. new E15 test), E15 run.py --3x3 --full-crosscheck (crosscheck 17,440 frames agree with E14; census table in results.md), research/_homepage/build.py ok, research_live_links.py --write, check_md_links.py ok, cite_check (no DOIs in README).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1e29d975-7c5b-506a-b906-6857fcef1764",
+    "transcripts": 1,
+    "first": "2026-11-12T01:21:12Z",
+    "last": "2026-11-12T01:37:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 100,
+        "output": 44430,
+        "thinking": 17519,
+        "cache_read": 6504826,
+        "cache_write_5m": 0,
+        "cache_write_1h": 135870,
+        "api_equivalent_usd": 3.2769,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 100,
+      "output": 44430,
+      "thinking": 17519,
+      "cache_read": 6504826,
+      "cache_write_5m": 0,
+      "cache_write_1h": 135870,
+      "api_equivalent_usd": 3.2769,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 50,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.37,
+      "active_minutes": 16.37,
+      "model_minutes": 8.91,
+      "tool_minutes": 7.47,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a logician finding the countermodel, proving four Lean theorems and writing an exact census and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 366.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
