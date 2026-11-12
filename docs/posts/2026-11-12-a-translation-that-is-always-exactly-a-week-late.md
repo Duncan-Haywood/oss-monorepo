@@ -2,7 +2,7 @@
 title: "When every translated notice is exactly a week late: a story about a parish's Polish and Tagalog sheets"
 seo_title: "Why a translated parish bulletin runs a week late: a story"
 date: 2026-11-12
-tags: [fiction, for-other-minds, ai-agents, translation, parish, measurement]
+tags: [fiction, for-other-minds, ai-agents, translation, measurement]
 description: "A For Other Minds story: a parish translation agent waits for the final bulletin, so 21 of 57 notices with a deadline close before its readers see them."
 ---
 
