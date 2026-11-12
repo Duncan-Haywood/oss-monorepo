@@ -29,12 +29,14 @@
 //   K2. every T cell with >= 50 one-tick series: catchUp in >= 80% of them (a cell with fewer
 //       one-tick series is reported, not judged; at least two T cells must be judged);
 //   K3. every F cell: rounding <= 5% of series with a change (Q2 survives).
+// Round one's verdict (eval/update-rate-catchup.out.txt): K1 FAIL (R3 6.0% catchUp, bar 5%); K2, K3
+// pass. Does not ship. Round two: eval/update-rate-catchup-2.mjs.
 // usage: node eval/update-rate-catchup.mjs > eval/update-rate-catchup.out.txt
 import { updateRateChanges } from '../update-rate.mjs';
 import { makeRng } from './update-rate-sim.mjs';
 import { CELLS as ROUNDING_CELLS } from './update-rate-rounding.mjs';
 
-const N = 300, AT = 150, REPS = 200, SEED = 20261213;
+export const N = 300, AT = 150, REPS = 200, SEED = 20261213;
 const gauss = (rnd) => { let u = 0; while (u === 0) u = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rnd()); };
 const round = (v) => Math.round(v * 10) / 10;
 function stale(rnd, s, before, after) {
@@ -53,12 +55,13 @@ export const CELLS = {
   F1: ROUNDING_CELLS.F1, F2: ROUNDING_CELLS.F2, F3: ROUNDING_CELLS.F3,
 };
 
-export function run(seed = SEED, reps = REPS) {
+export const ROUND_ONE = { minRun: 2, ratio: 1.4, minMoves: 5 };
+export function run(seed = SEED, reps = REPS, catchUp = ROUND_ONE) {
   const rnd = makeRng(seed), out = {};
   for (const [name, gen] of Object.entries(CELLS)) {
     let found = 0, oneTick = 0, caught = 0, rounding = 0;
     for (let i = 0; i < reps; i++) {
-      const u = updateRateChanges(gen(rnd));
+      const u = updateRateChanges(gen(rnd), { catchUp });
       if (!u.changes.length) continue;
       found++;
       const c = u.changes.reduce((a, z) => (Math.abs(z.index - AT) < Math.abs(a.index - AT) ? z : a));

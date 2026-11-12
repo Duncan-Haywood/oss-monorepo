@@ -174,6 +174,7 @@ export function updateRateChanges(values, opts = {}) {
   const none = { changes: [], stretches: [], repeats: total, steps: z.length, setting: o };
   if (total < o.minRepeats || z.length < 2 * o.minSegment) return none;
   const { cuts, penalty } = partitionRates(z, o);
+  const cu = { ...CATCHUP, ...(opts.catchUp || {}) };
   const bounds = [0, ...cuts, z.length];
   const stretches = [];
   for (let k = 0; k + 1 < bounds.length; k++) {
@@ -185,7 +186,7 @@ export function updateRateChanges(values, opts = {}) {
   const ranges = cutRanges(z, cuts, o);
   for (const st of stretches) {
     st.tick = smallestStep(values, st.from, st.to); st.medianMoveTicks = medianMoveTicks(values, st.from, st.to, st.tick);
-    st.catchUp = catchUpRatio(values, st.from, st.to, st.tick);
+    st.catchUp = catchUpRatio(values, st.from, st.to, st.tick, cu);
   }
   const changes = cuts.map((c, k) => {
     const less = stretches[k + 1].share > stretches[k].share;
@@ -196,7 +197,7 @@ export function updateRateChanges(values, opts = {}) {
       // README "Repeats from rounding": in the stickier stretch, at least half the moves are one tick,
       // unless the move after a run of repeats grows with the run, as a stale feed's catch-up does
       // (README "One-tick stale feeds: the catch-up check").
-      ...roundingVerdict(sticky), tick: sticky.tick,
+      ...roundingVerdict(sticky, cu), tick: sticky.tick,
     };
   });
   return { changes, stretches, repeats: total, steps: z.length, penalty, setting: o };
@@ -259,10 +260,10 @@ export function catchUpRatio(values, from, to, tick, { minRun = CATCHUP.minRun, 
   if (nAfter < minMoves || nPlain < minMoves) return { ratio: null, after: nAfter, plain: nPlain };
   return { ratio: (after / nAfter) / (plain / nPlain), after: nAfter, plain: nPlain };
 }
-function roundingVerdict(sticky) {
+function roundingVerdict(sticky, cu = CATCHUP) {
   const oneTick = sticky.medianMoveTicks != null && sticky.medianMoveTicks <= ROUNDING_TICKS;
   const r = sticky.catchUp && sticky.catchUp.ratio;
-  const catchUp = oneTick && r != null && r >= CATCHUP.ratio;
+  const catchUp = oneTick && r != null && r >= cu.ratio;
   return { rounding: oneTick && !catchUp, catchUp, catchUpRatio: r ?? null };
 }
 
