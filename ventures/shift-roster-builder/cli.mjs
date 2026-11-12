@@ -71,7 +71,7 @@ Options:
                       hour; --count rows counts each row); a file with a ticket column and no sales column is counted by ticket.
                       the average of what you sold, not a forecast. --skip-dates 2026-11-26,2026-12-25 leaves those days out (holiday, storm);
                       --half-life <weeks> weights recent weeks more (a day's weight halves every that many weeks back from the newest date);
-                      the default, auto, backtests equal weights and half-lives 8, 4 and 2 on your file and keeps the best (equal
+                      the default, auto, backtests equal weights, half-lives 8, 4 and 2 and the last 4 weeks only on your file and keeps the best (equal
                       weights under 4 testable weeks or on a tie); none weighs every week the same
                       A weekday that traded on under 1 in 4 of its dates is treated as closed, and an edge hour with sales on under 1 in
                       20 days does not stretch the day (--keep-rare turns both off). --backtest tests the forecast on your own file
@@ -86,9 +86,10 @@ Options:
                       other share one shift, and a short run lengthen the shift next to it, when that is cheaper (opt-in: no gain on held-out weeks). With it, a run shorter than
                       --min-shift is stretched only where that is cheaper than leaving it unstaffed, to the cheapest window.
                       The backtest scores the shifts cut from each plan, so the shortest-shift stretch counts as over
-                      --score-closed: in the backtest, minimum staff is not needed in an hour your shop normally keeps shut (traded
-                      on under 1 in 5 of that weekday's dates) on a day it sold nothing then, so a staffed closure counts as over;
-                      without --backtest, half-life auto picks on that score and may pick the last 4 weeks only
+                      The backtest and half-life auto need minimum staff only in hours your shop normally trades (on 1 in 5 of
+                      that weekday's dates or more) or sold in that day, so a staffed closure counts as over, and auto may pick
+                      the last 4 weeks only. --score-open-hours scores the old way (minimum staff needed in every hour the plan
+                      staffs; auto then chooses among the weightings only); --score-closed is the default and kept as a name
                       --last-weeks <n>: plan from the last n weeks of dated sales only
   --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
   --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
@@ -138,6 +139,7 @@ export function parseArgs(argv) {
     else if (a === "--backtest") o.backtest = true;
     else if (a === "--keep-rare") o.demand = { ...o.demand, keepRare: true };
     else if (a === "--score-closed") o.demand = { ...o.demand, scoreClosed: true };
+    else if (a === "--score-open-hours") o.demand = { ...o.demand, scoreClosed: false };
     else if (a === "--count") { const v = argv[++i]; if (!["sales", "tickets", "rows"].includes(v)) throw new Error("--count needs sales, tickets or rows"); o.demand = { ...o.demand, count: v }; }
     else if (a === "--plain-cut") o.demand = { ...o.demand, costCut: false };
     else if (a === "--join") o.demand = { ...o.demand, join: true };
@@ -591,7 +593,7 @@ export function backtestReport(b) {
   const best = b.methods.find((m) => m.id === b.best);
   lines.push("", "Person-hours per week. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that.");
   if (b.shifts) lines.push(`Scored on the shifts cut from each plan (${b.minShift} to ${b.maxShift} hours), so hours added to reach the shortest shift count as over.`);
-  if (b.scoreClosed) lines.push("Minimum staff counted as needed only in hours your shop normally trades (on 1 in 5 of that weekday's dates or more) or sold in that day (--score-closed), so staffing a closure counts as over.");
+  if (b.scoreClosed) lines.push("Minimum staff counted as needed only in hours your shop normally trades (on 1 in 5 of that weekday's dates or more) or sold in that day, so staffing a closure counts as over (--score-open-hours scores every staffed hour as needing minimum staff).");
   if (r !== null) lines.push(`Scored as ${r} x short + over (--short-cost ${r}). Rows with "short cost" staff each hour for ${Math.round(r / (1 + r) * 100)}% of its past dates instead of the average.`);
   lines.push(b.clear
     ? `Best on your file: ${best.label} (${f(-best.vsDefault)} ${r === null ? "fewer person-hours off" : "less weighted cost"} per week than the default, interval below zero).`

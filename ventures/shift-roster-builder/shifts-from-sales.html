@@ -14,6 +14,8 @@
     .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 18px; margin: 16px 0; }
     label { display: block; font-weight: 600; margin: 12px 0 4px; }
     input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: flex-start; font-weight: 600; }
+    label.check input { width: auto; margin-top: 3px; }
     textarea { font: 14px ui-monospace, monospace; min-height: 120px; }
     button { display: inline-block; border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 12px 8px 0 0; }
     .note, footer { font-size: .86rem; color: #4c5a68; }
@@ -47,7 +49,9 @@
     <input id="skip" placeholder="2026-11-26, 2026-12-25">
     <label for="half">Weigh recent weeks more: half-life in weeks, or auto (optional)</label>
     <input id="half" placeholder="blank: every week the same; auto: picked from your past weeks">
-    <p class="note">auto tests equal weights and half-lives of 8, 4 and 2 weeks on your own file (each past week planned from the weeks before it) and keeps whichever left the fewest hours short or spare. It needs 8 or more full weeks of dated sales; on a long file it takes a few seconds.</p>
+    <p class="note">auto tests equal weights, half-lives of 8, 4 and 2 weeks and the last 4 weeks only on your own file (each past week planned from the weeks before it) and keeps whichever left the fewest hours short or spare. It needs 8 or more full weeks of dated sales; on a long file it takes a few seconds.</p>
+    <label class="check"><input type="checkbox" id="scoreclosed" checked> In the tests, a person staffed while the shop is normally shut counts as spare</label>
+    <p class="note">On (the default): minimum staff is needed only in hours your shop normally trades (sales on 1 in 5 of that weekday's dates or more) or sold in that day, so a plan that staffs a lunch closure or old closing hours is charged for it, and auto may pick the last 4 weeks only, which follows a change in opening hours fastest. Off: minimum staff counts as needed in every hour a plan staffs, and auto chooses among the weightings only.</p>
     <label for="shortcost">A short hour costs this many times a spare one (optional; 1 = the same, 3 = being short is three times worse)</label>
     <input id="shortcost" inputmode="decimal" placeholder="blank: staff for the average hour">
     <p class="note">Planned from the average, an hour is short about half the time. With a number here each hour is staffed for that share of its past days instead: 1 staffs for the median day, 3 for 3 days in 4 (75%), 0.5 for 1 in 3.</p>
@@ -99,14 +103,14 @@
         const o = {
           splh: num("#splh"), minStaff: num("#minstaff"), minShift: num("#minshift"), maxShift: num("#maxshift"),
           skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: num("#shortcost"),
-          count: $("#count").value || undefined,
+          count: $("#count").value || undefined, scoreClosed: $("#scoreclosed").checked,
         };
         const half = $("#half").value.trim().toLowerCase();
         let autoNote = null;
         if (half === "auto") {
           const key = JSON.stringify(o) + "\n" + $("#csv").value;
           if (key !== autoKey) { autoPick = pickHalfLife($("#csv").value, o); autoKey = key; record("sales_auto_halflife"); }
-          o.halfLife = autoPick.halfLife;
+          o.halfLife = autoPick.halfLife; o.window = autoPick.window;
           autoNote = autoPick.note.replace(" --half-life none turns it off; a number fixes it.", "");
         } else o.halfLife = num("#half");
         r = demandShifts($("#csv").value, o);
@@ -140,16 +144,17 @@
       const out = $("#btout");
       let b;
       const rc = num("#shortcost");
-      try { b = backtestSales($("#csv").value, { splh: num("#splh"), minStaff: num("#minstaff"), minShift: num("#minshift"), maxShift: num("#maxshift"), skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: rc, shifts: true, count: $("#count").value || undefined }); }
+      try { b = backtestSales($("#csv").value, { splh: num("#splh"), minStaff: num("#minstaff"), minShift: num("#minshift"), maxShift: num("#maxshift"), skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: rc, shifts: true, count: $("#count").value || undefined, scoreClosed: $("#scoreclosed").checked }); }
       catch (e) { out.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
       if (!b.weeks) { out.innerHTML = `<p class="err">${b.notes.map(esc).join(" ")}</p>`; return; }
       record("sales_backtest_run");
       const f = (x) => x.toFixed(1);
       for (const m of b.methods) m.label = m.label.replace(/--half-life (\d+)/, "half-life $1 weeks");
       const best = b.methods.find((m) => m.id === b.best);
-      const hint = (m) => { const t = [m.halfLife ? `put ${m.halfLife} in the half-life box above` : "", m.shortCost ? `keep ${m.shortCost} in the short-cost box` : ""].filter(Boolean); return t.length ? ` (${t.join("; ")})` : ""; };
+      const hint = (m) => { const t = [m.halfLife ? `put ${m.halfLife} in the half-life box above` : "", m.window === 4 ? "put auto in the half-life box above, which picks the last 4 weeks when they test best" : "", m.shortCost ? `keep ${m.shortCost} in the short-cost box` : ""].filter(Boolean); return t.length ? ` (${t.join("; ")})` : ""; };
       out.innerHTML = `<p class="note">${esc(b.notes.at(-1))}</p><div class="scroll"><table><tr><th>Method</th><th>Short</th><th>Over</th><th>Scheduled</th>${b.shortCost != null ? `<th>${b.shortCost} &times; short + over</th>` : ""}<th>vs default (95% CI)</th></tr>${b.methods.map((m) => `<tr${m.id === b.best ? ' style="font-weight:600"' : ""}><td>${esc(m.label)}</td><td>${f(m.short)}</td><td>${f(m.over)}</td><td>${f(m.scheduled)}</td>${b.shortCost != null ? `<td>${f(m.miss)}</td>` : ""}<td>${m.id === "all" ? "" : `${m.vsDefault >= 0 ? "+" : ""}${f(m.vsDefault)} (${f(m.ci[0])} to ${f(m.ci[1])})`}</td></tr>`).join("")}</table></div>`
         + `<p class="note">Labor hours per week, scored on the shifts cut from each plan (${b.minShift} to ${b.maxShift} hours), so hours added to reach the shortest shift count as over. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that. `
+        + (b.scoreClosed ? "A person staffed in an hour your shop is normally shut, on a day it sold nothing then, counts as over. " : "Minimum staff counted as needed in every hour a plan staffs. ")
         + (b.shortCost != null ? `Scored with a short hour costing ${b.shortCost} spare ones; the rows marked "short cost" staff each hour for that share of its past days. ` : "")
         + (b.clear ? `Best on your sales: <strong>${esc(best.label)}</strong>${hint(best)}.` : `No method is clearly better than the plain average on your sales: leave the half-life${b.shortCost != null ? " and short-cost boxes" : " box"} empty.`)
         + ` A test on your past weeks, not a promise about the next one.</p>`;

@@ -133,9 +133,9 @@ for (const f of FILES.slice(0, 2)) {
   say(`== breadbasket: ${T.total} tickets, ${full} full weeks; no prices, so tickets are the only driver`);
   for (const tplh of [5, 10, 20]) {
     for (const minStaff of [1, 2]) {
-      const b = backtestSales(text, { splh: tplh, minStaff, shifts: true });
+      const b = backtestSales(text, { scoreClosed: false, splh: tplh, minStaff, shifts: true });
       const m = Object.fromEntries(b.methods.map((x) => [x.id, x]));
-      const r = demandShifts(text, { splh: tplh, minStaff, halfLife: "auto" });
+      const r = demandShifts(text, { splh: tplh, minStaff, halfLife: "auto", scoreClosed: false });
       const pick = r.halfLife ? `half-life ${r.halfLife}` : "equal weights";
       say(`tplh ${String(tplh).padStart(2)} min ${minStaff}: ${b.weeks} weeks; plain ${m.all.miss.toFixed(1)} (short ${m.all.short.toFixed(1)}, over ${m.all.over.toFixed(1)}, ${m.all.scheduled.toFixed(0)} h/wk); ` +
         ["hl8", "hl4", "hl2", "last4", "last1"].map((id) => `${id} ${f1(m[id].vsDefault)} (${m[id].ci[0].toFixed(1)} to ${m[id].ci[1].toFixed(1)})`).join(", ") + `; auto picks ${pick}; plan ${r.scheduled} h/wk`);
