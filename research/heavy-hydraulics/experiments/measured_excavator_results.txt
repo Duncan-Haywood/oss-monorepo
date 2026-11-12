@@ -1,0 +1,65 @@
+10 files, folder 490; samples paired by index from the start (pressure rows - qpos rows per file: [13, 11, 9, 12, 10, 37, 50, 70, 4, 7]; repeated timestamps dropped: 3)
+total 76.7 min; sample interval median 99.5 ms (p1 89.7, p99 110.7)
+check: stdlib central_speed equals a numpy central difference on file 1, boom joint
+
+channel range (max - min, bar) per file; live = range > 5 bar
+  ch0: min range   214.6, median   230.2
+  ch1: min range    81.2, median   122.2
+  ch2: min range   228.6, median   279.4
+  ch3: min range   345.8, median   354.9
+  ch4: min range     0.5, median     0.6
+  ch5: min range   237.1, median   256.2
+  ch6: min range   297.2, median   306.5
+  ch7: min range   374.2, median   390.3
+  live in every file: [0, 1, 2, 3, 5, 6, 7]
+
+moving (any of boom, arm, bucket > 0.05 rad/s): 40042 samples, 86.9%; still (all four < 0.01 rad/s): 1187 samples
+per channel, bar: median moving, median still, mean moving; share of moving samples where it is the highest live channel
+  ch0:   136.8   133.1   131.4    29.0%
+  ch1:     7.8     8.6    10.9     0.0%
+  ch2:    53.2    11.8    61.0     2.9%
+  ch3:   123.1   104.5   132.0    20.2%
+  ch4:   -60.6   -60.6   -60.7     0.0%
+  ch5:   106.8    90.2   107.1     7.2%
+  ch6:    35.4     3.6    64.2     7.9%
+  ch7:   112.0    67.0   147.1    32.8%
+
+highest live channel while moving, per file: median, mean, moving share, median while still
+  robot_data_20250420_123326.h5:  200.9  223.3 bar, moving 87.4%, still median  322.8
+  robot_data_20250420_135018.h5:  165.4  198.3 bar, moving 92.3%, still median  252.7
+  robot_data_20250420_142113.h5:  167.1  188.5 bar, moving 86.8%, still median  161.1
+  robot_data_20250420_164956.h5:  181.2  207.5 bar, moving 72.5%, still median  132.1
+  robot_data_20250420_170112.h5:  165.9  191.1 bar, moving 83.3%, still median  136.0
+  robot_data_20250423_133123.h5:  180.4  205.6 bar, moving 87.6%, still median  132.5
+  robot_data_20250423_134505.h5:  174.5  198.9 bar, moving 91.3%, still median  177.8
+  robot_data_20250423_140312.h5:  167.9  194.9 bar, moving 89.1%, still median  175.4
+  robot_data_20250430_121917.h5:  175.2  214.2 bar, moving 91.3%, still median  205.5
+  robot_data_20250430_123028.h5:  171.2  212.6 bar, moving 94.2%, still median  170.9
+pooled median 174.1 bar (p10 131.1, p90 324.5); median of file medians 172.9, 95% bootstrap 167.1 to 180.4 bar
+
+sweep of the moving threshold (rad/s): pooled median of the highest live channel, moving share
+  0.02:  175.5 bar, 91.0%
+  0.03:  175.0 bar, 89.4%
+  0.05:  174.1 bar, 86.9%
+  0.07:  173.6 bar, 84.8%
+  0.10:  172.5 bar, 80.9%
+without channel 7 (if it is a supply pressure, the rest are nearer load pressures): pooled moving median of the highest of the others 155.4 bar
+
+pairing sensitivity: pooled moving median of the highest live channel
+  as stored (start)           174.1 bar
+  aligned at the end          173.6 bar
+  pressure 30 rows later      175.1 bar
+  pressure 30 rows earlier    178.0 bar
+  every sample, no mask       176.6 bar (mean 206.2)
+
+not registered: share of top pressure. Measured top (p99.9 of highest live channel) 444.1 bar, max 477.4; moving median / top 0.392; force model 33 / 180 bar relief 0.183; ratio 2.14
+  at the force model's 180 bar relief, the measured share means a working pressure of 70.6 bar; R2 at r 1.433 then 30.6 bar, times 0.78 23.8 bar
+  without ch7 (it alone passes 400 bar): top 357.7 bar, moving median 155.4, share 0.434 (ratio to the force model's share 2.37; at 180 bar 78.2 bar)
+  channel p99.9 over all samples, bar: ch0 245, ch1 119, ch2 265, ch3 358, ch5 319, ch6 307, ch7 444
+
+Y1 HOLDS (moving median of the highest live channel > 100 bar, bootstrap above 100: 174.1; 167.1 to 180.4)
+Y2 HOLDS (ch4 range under 5 bar in every file: max range 0.75 bar; dead in every file: [4])
+Y3 REFUTED (ch7 moving over still median +67.2%; highest in 32.8% of moving samples)
+Y4 HOLDS (R2 at r 1.433: force model 14.3 bar -> measured 75.4 bar; times 0.78 = 58.8 bar)
+Y5 REFUTED (moving median within 30% of the loader's 133.9 bar: 174.1, ratio 1.30)
+ratio to the force model's 33 bar: 5.28

@@ -120,3 +120,20 @@ def test_extra_fuel_splits_energy_and_time():
     assert extra_fuel(1.0, 1.0, 9.0, 10.0, 0.2, 0.8, 3.6)[1] == pytest.approx(-0.001)
     with pytest.raises(ValueError):
         extra_fuel(1, 1, 1, 1, 0.2, 0.0, 1)
+
+
+def test_central_speed_uneven_steps():
+    from heavy_hydraulics.measured import central_speed
+    t = [0.0, 0.1, 0.3, 0.4]
+    q = [0.0, 0.1, 0.3, 0.2]          # +1 rad/s, +1 rad/s, then -1 rad/s
+    v = central_speed(t, q)
+    assert v == pytest.approx([1.0, 1.0, 0.1 / 0.3, 1.0])
+    with pytest.raises(ValueError):
+        central_speed([0.0], [0.0])
+
+
+def test_highest_live_skips_dead_channels():
+    from heavy_hydraulics.measured import highest_live
+    assert highest_live([100.0, -60.0, 250.0, 300.0], [0, 1, 2]) == 250.0
+    with pytest.raises(ValueError):
+        highest_live([1.0], [])

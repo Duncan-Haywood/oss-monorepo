@@ -161,3 +161,23 @@ def extra_fuel(e_oc, e_ls, t_oc, t_ls, b, eta, f_t):
     if not 0 < eta <= 1:
         raise ValueError("eta must be in (0, 1]")
     return b * (e_oc - e_ls) / eta / 3.6e6, f_t * (t_oc - t_ls) / 3600.0
+
+
+def central_speed(t, q):
+    """Joint speed |dq/dt| by central differences on uneven timestamps (one-sided at the ends), 5y."""
+    n = len(q)
+    if n < 2 or len(t) != n:
+        raise ValueError("need two or more samples and one timestamp per sample")
+    out = []
+    for i in range(n):
+        a, b = max(0, i - 1), min(n - 1, i + 1)
+        out.append(abs(q[b] - q[a]) / (t[b] - t[a]))
+    return out
+
+
+def highest_live(row, live):
+    """Highest pressure over the live channels of one sample (the label-free p_q reading of 5y)."""
+    vals = [row[i] for i in live]
+    if not vals:
+        raise ValueError("no live channel")
+    return max(vals)
