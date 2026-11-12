@@ -1,0 +1,57 @@
+Round 5: flicker after the baseline. Rule and reasons: header of eval/watch-flicker.mjs. Detector: bocpd-ar1-window, rho cap 0.8, --confirm 5, --tolerance 5 (the shipped default); only the advance policy differs.
+
+Part A: 10 fresh seeds (41-50) per cell, 500 points, baseline check at 100, then one check per point; a step at point 301, found when an alert lies within 5 points. False alerts per 1,000 checks (flicker alerts among them in brackets), then steps found and median delay.
+
+  candidate        null iid        null ar1 0.5    null t3         null ar1 0.8    null ar1 0.95   step 1sd iid      step 2sd iid      step 3sd iid      step 2sd ar1 0.5  step 4sd ar1 0.8  
+  now              0.00 (0)        1.00 (0)        3.75 (5)        1.00 (1)        4.75 (3)        4/10 d6.5         9/10 d5           10/10 d5          7/10 d6           10/10 d5          
+  hold             0.00 (0)        1.00 (0)        3.75 (5)        1.00 (1)        4.75 (3)        4/10 d6.5         9/10 d5           10/10 d5          7/10 d6           10/10 d5          
+  persist2         0.00 (0)        1.00 (0)        3.25 (3)        0.75 (0)        4.50 (1)        4/10 d7.5         9/10 d5           10/10 d5          7/10 d7           10/10 d5          
+  hold+persist2    0.00 (0)        1.00 (0)        3.25 (3)        0.75 (0)        4.50 (1)        4/10 d7.5         9/10 d5           10/10 d5          7/10 d7           10/10 d5          
+
+Part B: 31 univariate TCPD series (the ones TCPD ships), watched from 20% of their length, one check per point. A majority-marked change is reached when an alert lies within 5 points of it.
+
+  candidate        alerts  at a mark (share)  per 1000 checks  flicker  majority-marked reached
+  now                 115         47 (41%)             18.0        8  33/52
+  hold                106         45 (42%)             16.6        7  33/52
+  persist2            112         46 (41%)             17.6        4  32/52
+  hold+persist2       103         44 (43%)             16.2        4  32/52
+
+  per series where the candidates differ (alerts / marked / reached of majority / flicker):
+    bank                   now 32/0/0 of 0/1   hold 29/0/0 of 0/1   persist2 32/0/0 of 0/0   hold+persist2 29/0/0 of 0/0
+    children_per_woman     now 8/1/1 of 2/3   hold 6/1/1 of 2/3   persist2 6/0/0 of 2/0   hold+persist2 4/0/0 of 2/0
+    ozone                  now 1/1/0 of 1/0   hold 0/0/0 of 1/0   persist2 1/1/0 of 1/0   hold+persist2 0/0/0 of 1/0
+    quality_control_4      now 12/3/1 of 1/1   hold 11/3/1 of 1/1   persist2 11/3/1 of 1/0   hold+persist2 10/3/1 of 1/0
+    unemployment_nl        now 5/4/3 of 4/1   hold 4/4/3 of 4/0   persist2 5/4/3 of 4/0   hold+persist2 4/4/3 of 4/0
+    usd_isk                now 3/2/1 of 2/0   hold 2/1/1 of 2/0   persist2 3/2/1 of 2/0   hold+persist2 2/1/1 of 2/0
+
+Rule, against 'now' (mean null false alerts 1.44 per 1,000; 40 steps, median delay 5; TCPD 115 alerts, 33 of 52 marks, 40.9% at a mark):
+  hold: (a) mean null false alerts 1.44: pass; (b) steps 40, median delay 5: pass; (c) TCPD 106 alerts, 33 marks, 42.5% at a mark: pass.
+  persist2: (a) mean null false alerts 1.25: pass; (b) steps 40, median delay 5: pass; (c) TCPD 112 alerts, 32 marks, 41.1% at a mark: fail.
+  hold+persist2: (a) mean null false alerts 1.25: pass; (b) steps 40, median delay 5: pass; (c) TCPD 103 alerts, 32 marks, 42.7% at a mark: fail.
+Adopted: 'hold' becomes the watch's default.
+
+Part C, held out (deciding nothing for round 5): the 7 univariate TCPD series TCPD does not ship, never used by a watch round (bitcoin 774, iceland_tourism 199, measles 991, ratner_stock 600, robocalls 52, scanline_126007 481, scanline_42049 481).
+
+  candidate        alerts  at a mark (share)  per 1000 checks  flicker  majority-marked reached
+  now                  68         26 (38%)             23.8        5  9/12
+  hold                 61         26 (43%)             21.4        5  9/12
+  persist2             66         25 (38%)             23.1        3  9/12
+  hold+persist2        59         25 (42%)             20.7        3  9/12
+
+  The round-4 cap on fresh data (policy now):
+
+  detector         alerts  at a mark (share)  per 1000 checks  flicker  majority-marked reached
+  cap 0.8 (shipped)     68         26 (38%)             23.8        5  9/12
+  uncapped (0.95)      47         20 (43%)             16.5        3  6/12
+  plain bocpd-window    161         39 (24%)             56.4        9  12/12
+
+  per series (alerts / marked / reached of majority):
+    bitcoin            cap 0.8 (shipped): 9/1/0 of 3   uncapped (0.95): 5/1/0 of 3   plain bocpd-window: 33/5/3 of 3
+    iceland_tourism    cap 0.8 (shipped): 3/0/0 of 0   uncapped (0.95): 4/0/0 of 0   plain bocpd-window: 8/0/0 of 0
+    measles            cap 0.8 (shipped): 20/0/0 of 0   uncapped (0.95): 13/0/0 of 0   plain bocpd-window: 53/0/0 of 0
+    ratner_stock       cap 0.8 (shipped): 5/2/1 of 1   uncapped (0.95): 1/0/0 of 1   plain bocpd-window: 21/6/1 of 1
+    robocalls          cap 0.8 (shipped): 1/1/1 of 1   uncapped (0.95): 0/0/0 of 1   plain bocpd-window: 1/1/1 of 1
+    scanline_126007    cap 0.8 (shipped): 17/15/1 of 1   uncapped (0.95): 14/12/0 of 1   plain bocpd-window: 27/19/1 of 1
+    scanline_42049     cap 0.8 (shipped): 13/7/6 of 6   uncapped (0.95): 10/7/6 of 6   plain bocpd-window: 18/8/6 of 6
+
+Cap check (pre-registered): cap 0.8 reaches 9 of 12 with 38.2% at a mark; uncapped 6 with 42.6%. Confirmed on fresh data.

@@ -240,3 +240,72 @@ test('replayWatch: changes before the first check are the baseline, quiet noise 
   assert.equal(q.alerts.length, 0);
   assert.throws(() => replayWatch([1, 2, 3]), /at least 10/);
 });
+
+// Round 5 flicker guards (eval/watch-flicker.mjs): advance options, off by default.
+import { advance as adv5, emptyState as empty5, replayWatch as replay5, statusText as status5 } from './watch-core.mjs';
+test('holdHistory: a change dated inside the quiet baseline is held, not alerted; a later one still alerts', () => {
+  const labels = Array.from({ length: 60 }, (_, i) => `d${i}`);
+  let r = adv5(null, [], 20, labels.slice(0, 20), { holdHistory: true });
+  assert.equal(r.baseline.length, 0);
+  assert.deepEqual(r.state.quietUntil, { index: 15, label: 'd15' });
+  // ausair's case: at the next check the engine finds old changes at rows 9 and 15.
+  r = adv5(r.state, [{ index: 9, label: 'd9' }, { index: 15, label: 'd15' }], 21, labels.slice(0, 21), { holdHistory: true });
+  assert.equal(r.alerts.length, 0);
+  assert.equal(r.held.length, 2);
+  assert.match(status5(r), /Held, not alerted: a change from d9/);
+  // It is the default since round 5; switched off, the same check alerts on both (what the replay found before).
+  const dflt = adv5(adv5(null, [], 20, labels.slice(0, 20)).state, [{ index: 9, label: 'd9' }], 21, labels.slice(0, 21));
+  assert.equal(dflt.held.length, 1);
+  const off = { holdHistory: false };
+  const r0 = adv5(adv5(null, [], 20, labels.slice(0, 20), off).state, [{ index: 9, label: 'd9' }, { index: 15, label: 'd15' }], 21, labels.slice(0, 21), off);
+  assert.equal(r0.alerts.length, 2);
+  // A change after the quiet history alerts as usual.
+  const r2 = adv5(r.state, [{ index: 30, label: 'd30' }], 36, labels.slice(0, 36), { holdHistory: true });
+  assert.equal(r2.alerts.length, 1);
+  // A rolling file that drops the quiet row's label holds nothing.
+  const rolled = labels.slice(25, 45);
+  const r3 = adv5({ ...r.state, alerted: [] }, [{ index: 2, label: 'd27' }], 20, rolled, { holdHistory: true });
+  assert.equal(r3.alerts.length, 1);
+});
+
+test('persist 2: a detection seen at one check only is never sent; one seen at two is sent one check later', () => {
+  const labels = Array.from({ length: 60 }, (_, i) => `d${i}`);
+  const o = { persist: 2, holdHistory: false };
+  let st = adv5(null, [], 20, labels.slice(0, 20), o).state;
+  let r = adv5(st, [{ index: 9, label: 'd9' }], 21, labels.slice(0, 21), o);
+  assert.equal(r.alerts.length, 0);
+  assert.equal(r.pending[0].unconfirmed, true);
+  assert.match(status5(r), /reported if the next check finds it too/);
+  const gone = adv5(r.state, [], 22, labels.slice(0, 22), o);
+  assert.equal(gone.alerts.length, 0);
+  const again = adv5(gone.state, [{ index: 30, label: 'd30' }], 40, labels.slice(0, 40), o);
+  assert.equal(again.alerts.length, 0);
+  const sent = adv5(again.state, [{ index: 31, label: 'd31' }], 41, labels.slice(0, 41), o);
+  assert.equal(sent.alerts.length, 1);
+  assert.equal(sent.alerts[0].index, 31);
+});
+
+test('replayWatch passes the guards through; persist on a coarse replay dates the alert as an every-point one', () => {
+  const r = { s: 7 };
+  const g = () => { r.s = (Math.imul(r.s, 1664525) + 1013904223) >>> 0; const u = (r.s + 0.5) / 4294967296; r.s = (Math.imul(r.s, 1664525) + 1013904223) >>> 0; const w = (r.s + 0.5) / 4294967296; return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * w); };
+  const v = Array.from({ length: 260 }, (_, i) => (i >= 200 ? 3 : 0) + g());
+  const fine = replay5(v, null, { persist: 2, step: 1 });
+  const coarse = replay5(v, null, { persist: 2, step: 7 });
+  const plain = replay5(v, null, { step: 1 });
+  assert.equal(fine.alerts.length, 1);
+  assert.ok(Math.abs(fine.alerts[0].index - 200) <= 5);
+  assert.deepEqual(coarse.alerts.map((a) => [a.index, a.reportedAt]), fine.alerts.map((a) => [a.index, a.reportedAt]));
+  assert.ok(fine.alerts[0].reportedAt >= plain.alerts[0].reportedAt);
+  assert.deepEqual(fine.held, []);
+  // replayWatch honours holdHistory false (it must not fall back to the default).
+  assert.equal(replay5(v, null, { holdHistory: false }).settings.holdHistory, false);
+});
+
+test('ausair: the old-history alerts the replay found are held by default', () => {
+  const csv = readFileSync(new URL('./data/ausair.csv', import.meta.url), 'utf8').trim().split('\n').slice(1).map((r) => r.split(','));
+  const v = csv.map((r) => Number(r[r.length - 1])), l = csv.map((r) => r[0]);
+  const old = replay5(v, l, { holdHistory: false }), now = replay5(v, l);
+  assert.ok(old.alerts.length > now.alerts.length, `${old.alerts.length} vs ${now.alerts.length}`);
+  assert.ok(now.held.length >= 1);
+  assert.ok(now.held.every((h) => h.index <= now.from - 5));
+});

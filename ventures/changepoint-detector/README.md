@@ -66,7 +66,7 @@ where it departs from the paper.
 
 ## Verification
 
-`node --test` (577 tests on 2026-11-12). What they check:
+`node --test` (581 tests on 2026-11-12). What they check:
 
 - **Against an independent PELT:** on 100 seeded cases (60-200 points, 0-3
   planted changes, mean and mean-and-variance models, several penalties) the
@@ -3317,6 +3317,56 @@ runs it. On the real series shipped with the tool (`watch.test.mjs`), the capped
 October 2008 fall and Canada's 1946 fertility rise, which the uncapped estimate read as persistence. TCPD now
 counted in a rule, so its 33 of 52 is no longer a held-out figure: a fresh labelled set is the test.
 
+## Round 5: flicker after the baseline (2026-11-12, pre-registered; `hold` ships)
+
+The fault is the one the replay found on `ausair`: right after a quiet first check, a short history can make the
+engine find changes well in the past for one check, and the watch alerted on them. Two guards, written as `advance`
+options in `watch-core.mjs` and pre-registered with the rule in the header of `eval/watch-flicker.mjs` (committed
+before the first run; output `eval/watch-flicker.out.txt`, 349 s on 4 cores):
+
+- `hold` (`holdHistory`): a change dated where the first check already had 5 points after it is history the
+  baseline called quiet; it is recorded as held, never alerted. The state keeps that row's label (`quietUntil`).
+- `persist2` (`persist: 2`): a change is alerted only if a detection within 5 points of it was also there at the
+  previous check, so a one-check blip is never sent; it costs one check of delay.
+
+All candidates use the shipped detector (AR(1) Bayesian pass, rho cap 0.8, probability over 5 neighbours,
+`--confirm 5`), so the detections are identical and only what is sent differs. Rule: replace the default only with
+mean false alerts on the four synthetic nulls no higher, at least as many synthetic steps with the median delay at
+most 2 points longer, and on TCPD's 31 shipped series at least as many majority-marked changes reached, fewer alerts
+and no lower share at an annotated change.
+
+| policy | null false alerts / 1,000 (mean of 4) | steps (5 cells, 50) | median delay | TCPD alerts | at a mark | marked reached | flicker alerts |
+|---|---|---|---|---|---|---|---|
+| now (old default) | 1.44 | 40 | 5 | 115 | 47 (41%) | 33 of 52 | 8 |
+| **hold (default from round 5)** | 1.44 | 40 | 5 | **106** | 45 (42%) | **33 of 52** | 7 |
+| persist2 | 1.25 | 40 | 5 | 112 | 46 (41%) | 32 of 52 | 4 |
+| hold + persist2 | 1.25 | 40 | 5 | 103 | 44 (43%) | 32 of 52 | 4 |
+
+(Flicker alert: one whose change has no detection within 5 points at the very next check.) `hold` passed all three
+parts and **is the default from 2026-11-12** in the CLI, the page's watch card, the replay and the agent tools;
+`--alert-old-history` (or `holdHistory: false`) turns it off. On the synthetic cells it changes nothing, because
+their baseline is at point 100 and the changes come later: the guard only acts on short histories. On TCPD it took
+9 alerts off six series (bank 3, children per woman 2, and one each on ozone, quality control 4, Dutch unemployment
+and the krona-dollar rate) and lost no majority-marked change; two of the 9 were at a change at least one annotator (not a majority) marked
+(ozone, the krona), so the share at a mark moved only from 41% to 42%. `persist2` removed half the flicker alerts
+and the most false alerts on sticky noise, but it lost the one majority-marked change it reached on `children_per_woman` (why
+was not traced), so it failed the rule and stays an option (`--persist 2`). On
+`ausair` the replay now sends 1 alert (2011, for the 1991 rise) instead of 3; the 1979 and 1985 detections that
+showed at row 1990 are listed as held (`watch.test.mjs`).
+
+**On fresh data.** Part C of the same run scored the 7 univariate TCPD series TCPD does not ship (bitcoin, Iceland
+tourism, measles, Ratner stock, robocalls, two scan lines; `tcpd-data/heldout`, never used by a watch round),
+deciding nothing for round 5. `hold` went from 68 alerts to 61 with the same 9 of 12 marked changes (38% to 43% at a
+mark). The same run made round 4's pre-registered check of the rho cap on fresh data: capped at 0.8 the watch
+reaches 9 of 12 marked changes with 38% of alerts at a mark; the uncapped estimate 6 of 12 at 43%. **The cap held
+on fresh data** (the bar was at least as many marks, share no more than 5 points lower). The plain windowed pass
+without the AR(1) term reached all 12 at 161 alerts (24% at a mark), so the quiet default still trades about a
+quarter of the marked changes for 60% fewer alerts; measles alone gave the shipped watch 20 alerts and no mark.
+Seven series and 12 marks are few; these are leads, not tight estimates.
+
+Old state files have no `quietUntil`, so a watch that was already running keeps alerting as before until it is
+reset; a new watch or a forgotten one starts with the guard.
+
 ### The watch on the page and as an agent tool (2026-11-12)
 
 The watch needed a GitHub repository and a scheduled workflow; someone who looks at a metric every few days
@@ -3399,9 +3449,8 @@ replay's own text says how often it checked.
 
 **What the replay shows about the watch itself.** The `ausair` case is a weakness of the watch, not
 only of the replay: right after the baseline, a short history can produce alerts about changes well in
-the past, sent the day the engine first finds them. Possible fixes (not built): hold back alerts about
-changes dated before the baseline check, or wait for a detection to persist across two checks. Each
-needs a pre-registered replay like rounds 1 to 4 before it ships.
+the past, sent the day the engine first finds them. Two fixes were then tested in a
+pre-registered round and one ships: "Round 5" below.
 
 Tests: `watch.test.mjs` (2 new). A clear 3-sd step at row 200 of 260 is alerted once, 5 to 7 rows late,
 and checking every 7 points with bisection gives the same change and row. A step before the first check
