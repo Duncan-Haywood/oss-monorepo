@@ -58,7 +58,7 @@ export function deadlines({ lossDate, noticeDate }) {
   const election = addDays(base, 60);
   return {
     electionDeadline: iso(election),
-    firstPremiumDue: iso(addDays(election, 45)),
+    firstPremiumDue: iso(addDays(election, 45)), // the latest it can be: 45 days after electing, if you elect on the last day
     marketplaceWindowEnds: iso(addDays(loss, 60)),
     marketplaceNoGapPickBy: iso(lastOfMonth(loss)),
     marketplaceStartsIfPickedByThen: iso(firstOfNextMonth(loss)),
@@ -119,20 +119,25 @@ export function compute(input) {
   const premiumGap = cobraPremiums - marketPremiums;
   let breakeven = null;
   const diffAt = (s) => (cobraPremiums + patientCost(s, cobra)) - (marketPremiums + patientCost(s, market));
-  if (diffAt(0) <= 0) breakeven = { kind: "always" };
-  else {
-    const top = Math.max(f.cobraOopMax, f.marketOopMax) + Math.max(f.cobraDeductible, f.marketDeductible) + 1e6;
-    let prev = 0;
-    for (let s = 100; s <= top; s += 100) {
-      if (diffAt(s) <= 0) {
-        const a = diffAt(prev), b = diffAt(s);
-        breakeven = { kind: "at", spend: Math.round(prev + (a / (a - b)) * (s - prev)) };
-        break;
-      }
-      prev = s;
+  // Both cost curves are piecewise linear in allowed charges, with corners at each plan's remaining deductible and
+  // at the charge where it reaches its out-of-pocket maximum, so the sign of diffAt at those corners (and between them,
+  // by linear interpolation) is exact. Quality audit 2026-11-12: the old test looked only at $0 of care and could call
+  // COBRA "always" cheaper above a table showing the marketplace cheaper at $9,000.
+  const capAt = (p) => (p.coinsurance > 0 ? p.dedLeft + Math.max(0, p.oopLeft - p.dedLeft) / p.coinsurance : p.dedLeft);
+  const corners = [...new Set([0, cobra.dedLeft, market.dedLeft, capAt(cobra), capAt(market), Math.min(cobra.oopLeft, cobra.dedLeft), Math.min(market.oopLeft, market.dedLeft)])]
+    .filter((x) => Number.isFinite(x) && x >= 0).sort((a, b) => a - b);
+  corners.push(corners[corners.length - 1] + 1e6);
+  const crossings = []; // { spend, to: which plan is cheaper past this point }
+  for (let i = 1; i < corners.length; i++) {
+    const p = corners[i - 1], q = corners[i], a = diffAt(p), b = diffAt(q);
+    if ((a > 0 && b <= 0) || (a <= 0 && b > 0)) {
+      crossings.push({ spend: Math.round(a === b ? p : p + (a / (a - b)) * (q - p)), to: b <= 0 ? "cobra" : "marketplace" });
     }
-    if (!breakeven) breakeven = { kind: "never" };
   }
+  if (!crossings.length) breakeven = diffAt(0) <= 0 ? { kind: "always" } : { kind: "never" };
+  else if (crossings.length === 1 && crossings[0].to === "cobra") breakeven = { kind: "at", spend: crossings[0].spend };
+  else if (crossings.length === 1) breakeven = { kind: "below", spend: crossings[0].spend };
+  else breakeven = { kind: "mixed", crossings };
 
   const worstCobra = cobraPremiums + patientCost(1e9, cobra);
   const worstMarket = marketPremiums + patientCost(1e9, market);
@@ -141,10 +146,24 @@ export function compute(input) {
   notes.push("Choosing a marketplace plan means giving up COBRA. If you pick COBRA and quit mid-year you usually cannot get a marketplace special enrollment for that, only at open enrollment, and while you are enrolled in COBRA you get no premium tax credit.");
   notes.push("Doctors and drugs matter as much as price: check that each doctor you see is in the marketplace plan's network and each prescription is on its formulary. COBRA keeps the exact plan you had.");
   if (f.months > 3) notes.push("The longer you need coverage, the more the premium gap dominates. A new job's plan or Medicare often starts sooner than planned; model the months you actually expect.");
+  // Deductibles and out-of-pocket maximums reset each plan year: January 1 for every marketplace plan (45 CFR 147.104(f))
+  // and for most employer plans. The totals above treat the whole period as one plan year (quality audit 2026-11-12).
+  const lossDay = parseDay(input.lossDate);
+  if (lossDay instanceof Date && !Number.isNaN(lossDay.getTime())) {
+    const startMonth = lossDay.getUTCMonth() + 1; // coverage you are pricing starts the month after the old plan ends
+    if (startMonth + f.months > 12) {
+      const before = Math.max(0, 12 - startMonth);
+      notes.push(`These months cross January 1, when a marketplace plan's deductible and out-of-pocket maximum start again at zero (most employer plans, and so COBRA, reset too). The totals above treat all ${f.months} months as one plan year, so with care on both sides of January the real cost can be higher than shown, and what COBRA carries over only helps for the ${before} month${before === 1 ? "" : "s"} before the reset.`);
+    }
+  }
   const waitSavings = f.cobraPremium * Math.min(2, f.months);
   notes.push(`Election window: you have 60 days to elect COBRA and 45 more to pay. Coverage is retroactive, so if nothing is spent in those first months you can skip them. That can defer up to ${fmt(waitSavings)} of premium, at the risk that care in the gap is uninsured until you elect.`);
 
-  const text = breakeven.kind === "always"
+  const text = breakeven.kind === "below"
+    ? `COBRA is cheaper until your care reaches about ${fmt(breakeven.spend)} of allowed charges over ${f.months} months; past that, the marketplace plan costs less because its out-of-pocket maximum is lower.`
+    : breakeven.kind === "mixed"
+    ? `Which plan is cheaper changes more than once as care rises (at about ${breakeven.crossings.map((c) => fmt(c.spend)).join(", ")} of allowed charges); compare the scenarios below at the level of care you expect.`
+    : breakeven.kind === "always"
     ? "COBRA costs no more than the marketplace plan at any level of care, given these numbers."
     : breakeven.kind === "never"
       ? `Marketplace plan is cheaper at every level of care you could have over ${f.months} months: premiums alone differ by ${fmt(premiumGap)} and COBRA's lower deductible never catches up.`
