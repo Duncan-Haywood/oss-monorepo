@@ -1,5 +1,17 @@
 # build-data log
 
+## Session 79, 2026-11-12: does cascade2's build-time q0.9 transfer cost (session 74) survive complete labels, and does session 78's demolition result hold with SF and Austin held out? (in progress)
+
+Why: session 78 found that complete-case scoring of a right-truncated test year flips the sign of the demolition fold at i2c q0.9, and asked for the same check on session 74's cascade2-versus-type comparison (cascade2 cost +2.19 days of Seattle i2c 2024 transfer q0.9 on complete-case labels) and for other held-out cities.
+- Change: `censored_eval.py` names a result file after its class list when it is not session 78's default pair (`out_name`, 1 test), so `--classes cascade2 type cascade2_nodemo` does not overwrite session 78's files.
+Predictions (written before any run): `python3 src/censored_eval.py validate DIR --pull-date 2026-11-12 --held H --test-year Y --pseudo-pull Y+2-11-12 --classes cascade2 type cascade2_nodemo`, Seattle for Y = 2020, 2021, 2022; SF and Austin for Y = 2021. "Reference" = all test rows; "CC" = the rows the pseudo-pull would have seen. Paired transfer contrasts, days of mean pinball loss, negative = the first term better.
+- (V1) Seattle, every year: reference transfer q0.9 type minus cascade2 has a point estimate >= 0 (on complete labels cascade2 does not cost at the build-time tail). Refuted if negative in any year.
+- (V2) Seattle: the CC estimate of that contrast is below the reference in at least 2 of the 3 years (censoring biases the comparison against cascade2, as it did against naming demolition). Refuted otherwise.
+- (V3) Seattle, every year: reference transfer type minus cascade2 is > 0 at q0.1 and at q0.5 (cascade2's lower-quantile gain, sessions 74 and 76, is not a censoring artefact). Refuted if either fails in any year.
+- (V4) Seattle: the nodemo-minus-cascade2 reference q0.9 contrasts reproduce session 78 (+1.66, +2.49, +2.37) to within 0.1 day if the SF, Austin and Seattle row counts are unchanged.
+- (V5) SF held out and Austin held out, 2021: reference transfer q0.9 nodemo minus cascade2 >= 0 (naming demolition does not cost on complete labels in other cities either). Refuted if negative in either city.
+Each is refuted if its condition fails.
+
 ## Session 78, 2026-11-12: on complete labels, folding demolition costs 1.7 to 2.5 days at build-time q0.9 in every year; complete-case scoring flips that sign, and IPCW cannot reach the tail (U1, U3 refuted; U2, U4, U5 held)
 
 Why: session 77 found that every i2c test-year score is a complete-case (CC) mean over the permits finished before the pull, so recent test years lose their long builds. Its "Next" asked for a censoring-aware evaluation and a rerun of the cascade2/type/nodemo comparison under it.

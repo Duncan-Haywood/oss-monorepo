@@ -200,6 +200,18 @@ def rescore(data_dir, held, test_year, pull_date, seeds, classes, floor):
                 contrasts=score(contrasts(R, classes), weeks, w, seen))
 
 
+DEFAULT_CLASSES = ["cascade2", "cascade2_nodemo"]
+
+
+def out_name(mode, held, test_year, pseudo_pull, classes):
+    """Result file name. Session 78's default pair keeps its original name; any other class list
+    (session 79: cascade2 type cascade2_nodemo) is appended, so it does not overwrite those files."""
+    tag = "" if mode == "rescore" else "_pp" + pseudo_pull.isoformat()[:4]
+    if list(classes) != DEFAULT_CLASSES:
+        tag += "_" + "-".join(classes)
+    return f"censored_eval_{mode}_{held}_i2c_{test_year}{tag}.json"
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("mode", choices=["validate", "rescore"])
@@ -210,7 +222,7 @@ if __name__ == "__main__":
     ap.add_argument("--test-year", type=int, required=True)
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--floor", type=float, default=0.05)
-    ap.add_argument("--classes", nargs="+", default=["cascade2", "cascade2_nodemo"],
+    ap.add_argument("--classes", nargs="+", default=DEFAULT_CLASSES,
                     choices=["type", "cascade2", "cascade2_nodemo"])
     a = ap.parse_args()
     if a.mode == "validate":
@@ -219,9 +231,8 @@ if __name__ == "__main__":
         res = validate(a.data_dir, a.held, a.test_year, a.pull_date, a.pseudo_pull, a.seeds, a.classes, a.floor)
     else:
         res = rescore(a.data_dir, a.held, a.test_year, a.pull_date, a.seeds, a.classes, a.floor)
-    tag = "" if a.mode == "rescore" else "_pp" + a.pseudo_pull.isoformat()[:4]
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results",
-                       f"censored_eval_{a.mode}_{a.held}_i2c_{a.test_year}{tag}.json")
+                       out_name(a.mode, a.held, a.test_year, a.pseudo_pull, a.classes))
     json.dump(res, open(out, "w"), indent=1)
     print(json.dumps(res["labels"]))
     for n, per in res["contrasts"].items():
