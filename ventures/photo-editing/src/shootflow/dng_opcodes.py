@@ -406,7 +406,7 @@ def _row_entries(gm: GainMap, y: int, h: int, p: int) -> list[float]:
     return [(1.0 - rf) * gm.gain(i1, j, p) + rf * gm.gain(i2, j, p) for j in range(gm.points_h)]
 
 
-def _rows_cols(gm: GainMap, h: int, w: int):
+def _rows_cols(gm: "GainMap | MapPolynomial", h: int, w: int):
     rows = range(max(gm.top, 0), min(gm.bottom, h), gm.row_pitch)
     cols = range(max(gm.left, 0), min(gm.right, w), gm.col_pitch)
     return rows, cols
