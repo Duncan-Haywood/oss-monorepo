@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqygF7T5koW1uDdoLBVn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T00:37:54Z",
+  "ended": "2026-11-12T00:42:39Z",
+  "wall_minutes": 4.93,
+  "tokens_in": 3663085,
+  "tokens_out": 27378,
+  "cost_usd": 2.0756,
+  "tool_calls": 40,
+  "task": "sales-agent flagship item (6): call outcomes. Built in full, found duplicated by PR #14947 merged first; consolidated to the CLI --calls path plus a shared callMarks in daily.mjs",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": 14945,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "gh api search/issues exited 2 (gh unauthenticated); duplicate check relied on allocate.py 'open PRs naming it: 0', which was true at start but another session opened and merged PR #14947 (same item) within the hour"
+    },
+    {
+      "what": "first venture-preflight failed: post description 212 chars / seo_title 71 (limits 160/70); shortened. That post was later dropped with the duplicate work"
+    },
+    {
+      "what": "merge of PR #14945 refused (conflicts): main had PR #14947 with the same feature. Branch reset onto main; only the CLI --calls file and the callMarks refactor kept"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Duplicate PRs' says search with search_pull_requests, but the GitHub MCP search_* tools are unavailable and gh is unauthenticated; allocate.py's open-PR count is the only check, and it cannot see a session that starts the same flagship item minutes later."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two concurrent sessions both took 'Start here: row 2, sales-agent' item (6) and built it in parallel; a claim marker (e.g. a draft PR opened at start, which allocate.py already reads) would have avoided ~an hour of duplicate work. I opened my draft PR only after building."
+    },
+    {
+      "file": "docs/posts (writing.mjs)",
+      "issue": "the 160-char description / 70-char seo_title limits surface only in the 5-minute preflight or promptctl validate; a fast post lint before commit would catch them"
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "open the PR right after the first push",
+      "did": "built and tested the whole feature before the first push, so no draft PR claimed the item",
+      "result": "another session built the same item in parallel and merged first; most of this run's code was dropped"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-sales-agent-call-outcomes-in-a-csv.md",
+    "ventures/sales-agent/README.md (Call outcomes on the command line)"
+  ],
+  "goal": null,
+  "notes": "Local checks after rebase onto main: node --test ventures/sales-agent/*.test.mjs 481 pass; self-host/*.test.mjs 42 pass (agent refactored to daily.mjs callMarks, unchanged); run_venture_tests.py sales-agent ok. Earlier full feature version also passed venture-preflight and a headless Chromium click test, but was superseded by PR #14947.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d5991a31-22d0-5446-9b0f-86857848df5a",
+    "transcripts": 1,
+    "first": "2026-11-12T00:37:54Z",
+    "last": "2026-11-12T00:54:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 128,
+        "output": 42107,
+        "thinking": 5707,
+        "cache_read": 7934304,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138039,
+        "api_equivalent_usd": 3.5338,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 128,
+      "output": 42107,
+      "thinking": 5707,
+      "cache_read": 7934304,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138039,
+      "api_equivalent_usd": 3.5338,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 63,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.56,
+      "active_minutes": 16.56,
+      "model_minutes": 6.49,
+      "tool_minutes": 10.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "an engineer adding a CLI calls-file input and extracting a shared mark reader, with tests, after the main feature had landed",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 56.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

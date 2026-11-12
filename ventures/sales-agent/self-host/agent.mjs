@@ -17,8 +17,8 @@ import { timingSafeEqual } from "node:crypto";
 import { Imap, parseMessage, replyBlocks, findSentBox } from "./imap.mjs";
 import { headerMap, splitHead } from "../mime.mjs";
 import { sentRecord } from "../mailfile.mjs";
-import { runDaily, csvQueue, csvLeftOut } from "../daily.mjs";
-import { parseReplies, parseCsv, csv, iso, toCsv, addBusinessDays } from "../engine.mjs";
+import { runDaily, csvQueue, csvLeftOut, callMarks as readMarks } from "../daily.mjs";
+import { parseReplies, parseCsv, csv, iso, toCsv } from "../engine.mjs";
 import { runInboxWithModel } from "../ai.mjs";
 import { configFromEnv } from "../byok.mjs";
 import { buildMessage, sendMail } from "./smtp.mjs";
@@ -184,18 +184,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
 
   /** The kept marks, read for runDaily: a step is done once it has any mark other than "no answer", or MAX_TRIES of them;
    * a call with only no-answers so far comes back the next business day after the last one. */
-  function callMarks() {
-    const by = new Map();
-    for (const x of state.done) { const k = `${x.email}|${String(x.step).toLowerCase()}`; if (!by.has(k)) by.set(k, []); by.get(k).push(x); }
-    const done = [], retry = [];
-    for (const list of by.values()) {
-      const misses = list.filter((x) => x.outcome === "no_answer");
-      if (misses.length < list.length || misses.length >= MAX_TRIES) { done.push(`${list[0].email}|${list[0].step}`); continue; }
-      const last = misses.map((x) => String(x.at).slice(0, 10)).sort().at(-1);
-      retry.push({ email: list[0].email, step: list[0].step, on: addBusinessDays(last, 1), tries: misses.length, last });
-    }
-    return { done, retry };
-  }
+  function callMarks() { return readMarks(state.done, MAX_TRIES); }
 
   /** Every call outcome marked for one person, oldest first, for call prep. */
   const callsFor = (addr) => state.done.filter((x) => x.email === addr && x.channel === "call").map((x) => ({ date: String(x.at || "").slice(0, 10), step: x.step, outcome: x.outcome || "done" })).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));

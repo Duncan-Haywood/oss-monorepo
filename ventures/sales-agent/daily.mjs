@@ -3,7 +3,7 @@
 // minus anyone who stopped, paused, bounced or is suppressed. Same principle as the inbox agent: it may always drop
 // or hold a touch on its own, and it never sends one. Every touch it leaves out is listed with the reason, so the
 // run doubles as an audit trail.
-import { parseCsv, runInbox, toCsv, iso, toDay, DAY } from "./engine.mjs";
+import { parseCsv, runInbox, toCsv, iso, toDay, DAY, addBusinessDays } from "./engine.mjs";
 import { suppressionIndex } from "./suppression.mjs";
 
 // Statuses the inbox agent sets that end the cadence for good (or, for closed_lost, until its 180-day pause).
@@ -35,7 +35,7 @@ export function runDaily(input) {
   const prospects = Array.isArray(input.prospects) ? input.prospects : parseCsv(input.prospects);
   const byEmail = new Map(prospects.filter((p) => p.email).map((p) => [p.email.toLowerCase(), p]));
   const suppressedBy = suppressionIndex(input.suppression);
-  const done = new Set(String(input.done || "").split(/\n/).map((l) => l.trim()).filter(Boolean).map((l) => { const [e, ...s] = l.split(/[|,]/); return stepKey(e, s.join(",")); }));
+  const done = new Set((Array.isArray(input.done) ? input.done.join("\n") : String(input.done || "")).split(/\n/).map((l) => l.trim()).filter(Boolean).map((l) => { const [e, ...s] = l.split(/[|,]/); return stepKey(e, s.join(",")); }));
   const retry = new Map((Array.isArray(input.retry) ? input.retry : String(input.retry || "").split(/\n/).map((l) => l.trim()).filter(Boolean).map((l) => { const [email, step, on, tries] = l.split("|"); return { email, step, on, tries }; }))
     .filter((r) => r && r.email && r.step != null && Number.isFinite(toDay(r.on))).map((r) => [stepKey(r.email, r.step), { on: String(r.on).slice(0, 10), tries: Number(r.tries) || 1, last: r.last || "" }]));
   const maxOverdue = input.maxOverdueDays ?? 5, emailCap = input.emailCap ?? 40;
@@ -111,6 +111,31 @@ function brief(today, queue, held, dropped, stale, s) {
   section("Dropped", dropped);
   section("Too old", stale);
   return out.join("\n");
+}
+
+/**
+ * Touch marks (the self-host page's Done buttons, or a calls file for the CLI) read for runDaily: rows { email, step,
+ * outcome (done|spoke|voicemail|no_answer; blank is done), at or date }. A step is done once it has any mark other than
+ * "no answer", or maxTries of them; otherwise it is retried the business day after its last miss. Returns { done
+ * (lines "email|step"), retry (rows for runDaily's retry input) }.
+ */
+export function callMarks(rows, maxTries = 3) {
+  const by = new Map();
+  for (const r of Array.isArray(rows) ? rows : parseCsv(rows || "")) {
+    const email = String(r.email || "").trim().toLowerCase(), step = String(r.step ?? "").trim();
+    if (!email || !step) continue;
+    const k = stepKey(email, step);
+    if (!by.has(k)) by.set(k, []);
+    by.get(k).push({ email, step, outcome: String(r.outcome || "done").trim().toLowerCase().replace(/[\s-]+/g, "_"), date: String(r.at || r.date || "").slice(0, 10) });
+  }
+  const done = [], retry = [];
+  for (const list of by.values()) {
+    const misses = list.filter((x) => x.outcome === "no_answer");
+    const last = misses.map((x) => x.date).filter((d) => Number.isFinite(toDay(d))).sort().at(-1);
+    if (misses.length < list.length || misses.length >= maxTries || !last) { done.push(`${list[0].email}|${list[0].step}`); continue; }
+    retry.push({ email: list[0].email, step: list[0].step, on: addBusinessDays(last, 1), tries: misses.length, last });
+  }
+  return { done, retry };
 }
 
 /** One SDR morning: read the replies, update the prospects and suppression, then build today's queue from what is left. */

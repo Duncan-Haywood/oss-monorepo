@@ -8,11 +8,14 @@
 //   Sent label, or --own addresses; pass Thunderbird's Sent mbox too) also counts: an email step whose subject you already
 //   sent to that person is not queued again, and a due step is held if you wrote to them some other way that week.
 //   [--sent sent.csv] (date,to,subject) does the same without a mail file.
+//   [--calls calls.csv] (email,step,outcome,date; outcome spoke, voicemail, no_answer or done): the self-host page's call
+//   outcomes without the server. No answer brings the call back the next business day, up to three tries; --prep reads
+//   the same file and lists that person's calls.
 // Research: with --web it also reads each account home page title (robots.txt respected, 1 s apart).
 // Research: node cli.mjs --crm crm-export.csv [--icp icp.json] [--prospects p.csv] [--suppression s.txt] [--offer offer.json] [--top 25] [--web]
 //   ranks your CRM export against your ICP and writes accounts.csv (with first-touch drafts), research-left-out.csv and
 //   research-brief.md. Reads nothing but the file; guesses no addresses; sends nothing.
-// Prep: node cli.mjs --prep person@example.com [--replies thread.txt] [--prospects p.csv] [--notes notes.txt] [--crm export.csv] [--suppression s.txt]
+// Prep: node cli.mjs --prep person@example.com [--replies thread.txt] [--prospects p.csv] [--notes notes.txt] [--crm export.csv] [--suppression s.txt] [--calls calls.csv]
 //   writes call-prep.md for one person: what is on file, their own words, the discovery fields still unknown. Sends nothing.
 // Follow-up: node cli.mjs --followup person@example.com --notes call-notes.txt [--prospects p.csv] [--offer offer.json] [--suppression s.txt]
 //   writes followup.md: a draft recapping only your notes, for you to approve. No draft for anyone who asked to stop.
@@ -23,7 +26,7 @@ import { readFileSync, writeFileSync, mkdirSync, openSync, readSync, closeSync, 
 import { createCollector, MboxSplitter, isMbox, describe } from "./mailfile.mjs";
 import { join } from "node:path";
 import { csv, iso, runInbox, parseCsv } from "./engine.mjs";
-import { runDaily, csvQueue, csvLeftOut } from "./daily.mjs";
+import { runDaily, csvQueue, csvLeftOut, callMarks } from "./daily.mjs";
 import { runResearch, briefOf, csvAccounts, csvLeftOutResearch } from "./research.mjs";
 import { runInboxWithModel } from "./ai.mjs";
 import { runPrep } from "./prep.mjs";
@@ -34,6 +37,8 @@ import { configFromEnv } from "./byok.mjs";
 
 const args = process.argv.slice(2), opt = (k) => { const i = args.indexOf(`--${k}`); return i >= 0 ? args[i + 1] : undefined; };
 const read = (k) => (opt(k) ? readFileSync(opt(k), "utf8") : "");
+// --calls: one row per call made (email,step,outcome,date), the CLI's version of the self-host page's call buttons.
+const callRows = () => parseCsv(read("calls")).map((c) => ({ email: String(c.email || "").trim().toLowerCase(), step: String(c.step ?? "").trim(), outcome: String(c.outcome || "done").trim().toLowerCase().replace(/[\s-]+/g, "_"), date: String(c.date || "").slice(0, 10) })).filter((c) => c.email && c.step);
 if (opt("followup")) {
   const o = opt("out") || "sales-agent-out";
   const d = runFollowUp({ email: opt("followup"), prospects: read("prospects"), replies: read("replies"), notes: read("notes"), suppression: read("suppression"), offer: opt("offer") ? JSON.parse(read("offer")) : {}, today: opt("today") || iso(Date.now()) });
@@ -44,7 +49,7 @@ if (opt("followup")) {
 }
 if (opt("prep")) {
   const o = opt("out") || "sales-agent-out";
-  const d = runPrep({ email: opt("prep"), prospects: read("prospects"), replies: read("replies"), notes: read("notes"), crm: read("crm"), suppression: read("suppression"), today: opt("today") || iso(Date.now()) });
+  const d = runPrep({ email: opt("prep"), prospects: read("prospects"), replies: read("replies"), notes: read("notes"), crm: read("crm"), calls: callRows().filter((c) => c.email === String(opt("prep")).trim().toLowerCase()), suppression: read("suppression"), today: opt("today") || iso(Date.now()) });
   mkdirSync(o, { recursive: true });
   writeFileSync(join(o, "call-prep.md"), d.brief);
   console.log(`${d.stop ? "Do not chase: " + d.stop + ". " : ""}${d.known.length} of 9 discovery fields known, ${d.unknown.length} to ask. Nothing was sent. Output in ${o}/call-prep.md`);
@@ -80,7 +85,7 @@ if (opt("mail")) {
   console.log(describe(m));
   mailReplies = m.replies; mailSent = m.sent;
 }
-if (!opt("replies") && !opt("tasks") && !opt("mail")) { console.error("usage: node cli.mjs --crm crm.csv [--icp icp.json] | --replies replies.txt | --mail inbox.mbox,reply.eml [--own me@x.com] [--prospects p.csv] [--suppression s.txt] [--offer offer.json] [--tasks cadence-tasks.csv] [--done done.txt] [--sent sent.csv] [--today YYYY-MM-DD] [--out DIR]"); process.exit(2); }
+if (!opt("replies") && !opt("tasks") && !opt("mail")) { console.error("usage: node cli.mjs --crm crm.csv [--icp icp.json] | --replies replies.txt | --mail inbox.mbox,reply.eml [--own me@x.com] [--prospects p.csv] [--suppression s.txt] [--offer offer.json] [--tasks cadence-tasks.csv] [--done done.txt] [--calls calls.csv] [--sent sent.csv] [--today YYYY-MM-DD] [--out DIR]"); process.exit(2); }
 const input = { replies: [opt("replies") ? read("replies") : "", mailReplies].filter((x) => x.trim()).join("\n---\n"), prospects: read("prospects"), suppression: read("suppression"), offer: opt("offer") ? JSON.parse(read("offer")) : {}, today: opt("today") || iso(Date.now()) };
 const r = input.replies.trim() || !opt("tasks") ? await runInboxWithModel(configFromEnv(process.env), input) : { ...runInbox(input), source: "none", errors: [] };
 const out = opt("out") || "sales-agent-out";
@@ -108,7 +113,8 @@ if (opt("tasks")) {
   const suppression = [input.suppression, ...r.suppression.map((x) => x.email)].join("\n");
   // Your own sent mail in the --mail files (or a --sent CSV of date,to,subject) is the done list for email touches.
   const sent = [...mailSent, ...(opt("sent") ? [read("sent")] : [])].flatMap((x) => (typeof x === "string" ? parseCsv(x) : [x]));
-  const d = runDaily({ tasks: read("tasks"), prospects: r.prospects, suppression, done: read("done"), sent, today: r.today });
+  const marks = callMarks(callRows());
+  const d = runDaily({ tasks: read("tasks"), prospects: r.prospects, suppression, done: [read("done"), ...marks.done].filter(Boolean).join("\n"), retry: marks.retry, sent, today: r.today });
   writeFileSync(join(out, "todays-queue.csv"), csvQueue(d));
   writeFileSync(join(out, "left-out.csv"), csvLeftOut(d));
   writeFileSync(join(out, "brief.md"), d.brief);
