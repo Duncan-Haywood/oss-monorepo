@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-12 · Milestone 2: combined commands on one thrust polytope, and a price on hover power (predictions written and committed before `experiments/m2_polytope/run.py` was run)
+
+- Why: milestone 1 kept the per-axis torque box: roll, pitch and yaw could each saturate at their pure-axis limit at the same time. A real mixer cannot do that. The roll, pitch, yaw and Fz rows of the canted-X wrench map are orthogonal sign patterns (a 4×4 Hadamard matrix), so with the collective held at hover the attainable set is |x ± y ± z|-type: per rotor, −Th ≤ (√2/4kr)(±τr ± τp) + (1/4ky)(±τy) ≤ Tmax − Th. At TWR 2 a full roll command alone uses all the thrust swing and leaves no yaw. Milestone 1 also found the cant optimum held up by an attitude-only objective that leaves hover power free up to the $300 cap.
+- Built: `allocation.mix_priority`, an attitude-priority mixer (roll and pitch scaled together first, yaw gets what is left, as PX4 and Betaflight do; collective held at hover, or free as in airmode) with exact largest-scale solutions; tests check delivered torque against `layout`, thrust bounds, hover Fz, and that 0.1% more of either scaled part leaves the polytope. `aero.rollout(mixer=...)` and `aero.score(lam=...)`, J = −RMS − λ·P_hover/100 W.
+- Plan: `experiments/m2_polytope/run.py`, the milestone-1 co-design (1920 evaluations, 5 seeds, 64 held-out episodes, c = 0.081, actuator `hover`, TWR 2) over mixer {`box`, `prio`} × cant bound {0, 80°} × λ {0, 0.1, 0.3, 1} deg per 100 W, plus `prio_free` (collective free) at λ {0, 0.3} × cant {0, 80°}. 100 CMA-ES runs. λ spans the range where the energy term goes from negligible (0.1: a 1.5 kW design pays 1.5°) to dominant (1: 15°); milestone-1 designs drew 160 W to 1.5 kW at near-equal RMS, so hover power was free to the optimiser.
+- Predictions:
+  - Q1 (reproduction): `box`, λ = 0 reproduces milestone 1's hover/TWR 2 arms (15.44° no cant, 10.63° cant ≤ 80°) exactly.
+  - Q2: under `prio` the held-out RMS rises against `box` for both no cant and cant (combined commands lose authority), by more than 1° for no cant.
+  - Q3: cant's paired advantage at λ = 0 is larger under `prio` than under `box` (more negative than −4.81°), because the larger ky needs less thrust swing per unit yaw torque, so yaw is starved less by roll and pitch.
+  - Q4 (tests H1): with energy priced the chosen cant falls; at λ = 0.3 the median chosen cant is below 25° under `prio` (H1 predicts 5–20°).
+  - Q5: hover power falls with λ in both arms; at λ = 0.3 the 5-seed mean hover power is below half its λ = 0 value.
+  - Q6: cant still wins on the composite objective at λ = 0.3 under `prio` (paired composite better in at least 4 of 5 seeds), and at λ = 1 it no longer wins on RMS by more than 2°.
+  - Q7: `prio_free` (airmode) beats `prio` on RMS at λ = 0 for both cant arms.
+- Analysis: per-arm means and per-seed values of RMS, composite score, hover power, mass, chosen cant; paired cant-minus-no-cant differences in RMS and composite by seed with SD and sign count; mean share of steps in which the mixer scaled yaw (s_yaw < 1) on the held-out set. Five seeds, no test beyond the sign count.
+
 ## 2026-11-12 · Milestone 1: are the earlier cant results artefacts of the actuator model? (predictions written and committed before `experiments/m1_allocation/run.py` was run)
 
 - Why: the seven `codesign-aero-cant*` projects gave the attitude simulator two hand-written per-axis torque limits, roll 4 (Tmax − Th) r cos α and yaw 2 (Tmax − Th)(κ cos α + r sin α), with r = L/√2 and L the arm length. Writing out the full 6×4 map from rotor thrusts to body wrench (`src/codesign_cant/allocation.py`) and maximising each pure torque with a linear programme (thrusts in [0, Tmax], other torques zero, no net side force) gives, with Δ = min(Th, Tmax − Th) at hover or Tmax/2 with free collective:
