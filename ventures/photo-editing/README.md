@@ -1101,7 +1101,48 @@ How it was checked (`eval/dcp-tables-2026-11-12.md`):
   pixels by more than 5 8-bit steps. The two engines give identical bytes, and numpy takes
   3.8 s at half size against 1.3 s without the tables.
 
-Not yet: the profile's tone curve (`ProfileToneCurve`, in 126 of the 161 profiles; the sRGB
-curve is used instead), DNG 1.6's third illuminant, and a comparison against Adobe's own
-render of the same profile.
+Not yet: DNG 1.6's third illuminant, and a comparison against Adobe's own render of the same
+profile. The tone curve landed later the same day (next section).
+
+## The profile's tone curve (2026-11-12)
+
+Most camera profiles also carry a **tone curve** (`ProfileToneCurve`): the contrast curve the
+profile's maker meant to sit on top of its colours. 126 of RawTherapee's 161 profiles have
+one; 53 of those are a plain straight line, and 68 share one 8,192-point film-like curve that
+takes linear mid-grey (0.18) to 0.388 and steepens the mid-tones about 2.1 times. The
+developer now applies it after the look table, by default, as the DNG specification and
+Adobe's reference code do:
+
+- the points are joined by the **natural cubic spline** (second derivative zero at both ends)
+  and sampled into a 4,096-step table;
+- the curve is applied in linear ProPhoto by the **hue-preserving RGB tone**: the brightest and
+  darkest channel go through the curve and the middle one keeps its place between them, so
+  a colour gains contrast without its hue drifting the way a per-channel curve shifts it.
+
+```
+shootflow develop IMG_0001.dng --out masters/ --dcp "Canon EOS 6D.dcp"   # tone curve applied
+shootflow develop IMG_0001.dng --out masters/ --no-tone-curve            # tables, plain sRGB curve
+```
+
+The report's `profile` field lists it (`"Canon EOS 6D: HueSatMap 90x30x1, LookTable 90x30x30,
+ToneCurve 8192 points"`); `--no-profile-tables` turns the curve off with the tables.
+
+How it was checked (`eval/tone-curve-2026-11-12.md`):
+
+- `tests/test_dng_tone_curve.py` (14 tests): the spline against a second implementation in the
+  test (second-derivative form, dense elimination) and against scipy's
+  `CubicSpline(bc_type="natural")`, worst 1e-9 on 200 random curves; HSV hue unchanged and the
+  brightest and darkest channel through the curve on 5,000 colours with ties; renders against
+  the plain render toned by hand; DCP and embedded curves giving the same bytes; the numpy
+  engine byte-identical to pure Python.
+- `tools/dcp_check.py` on all 161 profiles: all 126 curves load, every table is
+  non-decreasing, the spline equals scipy's to 3e-16, hue moves at most 6e-14 degrees, and
+  numpy matches pure Python on every colour.
+- A real Canon 5D Mark II frame (its own profile's curve is a straight line, so the shared
+  8,192-point curve was taken from the Canon EOS 6D profile): 37% of pixels move more than 5
+  8-bit steps, mean level 26.0 to 29.6, and the two engines give identical bytes (numpy 4.9 s,
+  pure Python 40 s, half size).
+
+Still open: whether the curve brings the render closer to Adobe's own (needs an Adobe render
+of a known frame), and Adobe's default curve for profiles with none.
 

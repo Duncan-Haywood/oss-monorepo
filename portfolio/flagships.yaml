@@ -222,13 +222,19 @@ flagships:
       35 8-bit steps away). Profile HueSatMap/LookTable and `--dcp` camera
       profiles landed 2026-11-12 later (README "Camera profiles",
       eval/dcp-tables-2026-11-12.md: 161 of 161 RawTherapee DCPs read, greys
-      exact, numpy byte-identical; real 5D Mark II frame with its DCP). Next,
-      most valuable first: ProfileToneCurve (dng_sdk's hue-preserving RGB
-      tone through its cubic spline; in 126 of 161 DCPs), BUILDABLE HERE
-      with the same RawTherapee DCPs; a tungsten-lit colour chart (real DNG,
-      known patches) to say which colour model is closer to the scene, and a
-      camera- or Adobe-written DNG with ForwardMatrix; DNG 1.6 ColorMatrix3
-      and triple-illuminant tables; the grade-scope
+      exact, numpy byte-identical; real 5D Mark II frame with its DCP).
+      ProfileToneCurve landed 2026-11-12 last (README "The profile's tone
+      curve", eval/tone-curve-2026-11-12.md: natural spline equal to scipy's
+      to 3e-16 on all 126 RawTherapee curves, hue-preserving RGB tone, numpy
+      byte-identical; 37% of a real 5D Mark II frame moves over 5 steps).
+      Next, most valuable first: DNG 1.6 ColorMatrix3 and triple-illuminant
+      tables, BUILDABLE HERE as code against synthetic tags; a default tone
+      curve for profiles with none (68 RawTherapee profiles share one
+      8,192-point curve; check what it is before adopting it), BUILDABLE
+      HERE; a tungsten-lit colour chart (real DNG, known patches) to say
+      which colour model is closer to the scene, and a camera- or
+      Adobe-written DNG with ForwardMatrix; an Adobe render of a known frame
+      to compare the toned render with; the grade-scope
       saving on real 4K footage and a long shoot; the Huffman loop (~85% of
       lossless-JPEG decoding) in native code; reading CR2 directly (needs
       per-model colour matrices); a camera- or phone-written lossless-JPEG
