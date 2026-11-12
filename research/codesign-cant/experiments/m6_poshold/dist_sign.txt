@@ -1,0 +1,10 @@
+Post-hoc: trained designs re-scored with the gust torque's sign flipped (dist_sign -1); no retraining. 64 held-out episodes.
+arm      dist  pos on  pos off  on/off (per seed)                         late on/off  yaw on  J on
+nocant   +1    0.113   0.113    1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00)   1.000        14.88   -1.98
+nocant   -1    0.106   0.106    1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00)   1.000        14.84   -1.93
+aware    +1    0.147   0.146    0.961 (0.90, 1.24, 0.89, 0.89, 0.94, 0.91)   0.714        10.18   -1.92
+aware    -1    0.133   0.110    1.206 (1.19, 1.21, 1.21, 1.24, 1.21, 1.18)   1.623         9.71   -1.75
+unaware  +1    0.181   0.154    1.104 (0.97, 1.31, 0.94, 0.92, 0.93, 1.55)   0.975        10.53   -2.26
+unaware  -1    0.189   0.117    1.590 (2.64, 1.74, 1.12, 1.15, 1.11, 1.78)   2.671        10.36   -2.30
+aware minus nocant, dist +1: J +0.06 (cant better in 4 of 6); pos +0.034 m (cant lower in 4 of 6)
+aware minus nocant, dist -1: J +0.19 (cant better in 6 of 6); pos +0.027 m (cant lower in 0 of 6)
