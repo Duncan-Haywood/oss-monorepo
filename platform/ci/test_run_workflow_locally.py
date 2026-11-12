@@ -7,6 +7,7 @@ import io
 import contextlib
 import os
 import sys
+import tempfile
 import textwrap
 import time
 import unittest
@@ -1580,6 +1581,63 @@ class Handoff(unittest.TestCase):
     def test_the_child_ends_with_a_line_wait_for_accepts(self):
         import wait_for
         self.assertTrue(wait_for.is_marker(runner.DONE_PREFIX + "1", "DONE"))
+
+
+class FailureCauses(unittest.TestCase):
+    """A failed suite's distinct errors, so "# fail 172" names its one cause."""
+
+    TAP = [
+        "not ok 1 - builds the writing index",
+        "  ---",
+        "  error: 'docs/posts/x.md: description is 208 characters; keep it to 160'",
+        "  ...",
+        "not ok 2 - lists every post",
+        "  error: 'docs/posts/x.md: description is 208 characters; keep it to 160'",
+        "not ok 3 - a block-form error",
+        "  error: |-",
+        "    Error: docs/posts/x.md: description is 208 characters; keep it to 160",
+        "not ok 4 - an unrelated one",
+        "  error: 'Expected values to be strictly equal'",
+        "# fail 4",
+    ]
+
+    def test_node_tap_errors_are_grouped_most_frequent_first(self):
+        self.assertEqual(runner.failure_causes(self.TAP), [
+            (3, "docs/posts/x.md: description is 208 characters; keep it to 160"),
+            (1, "Expected values to be strictly equal"),
+        ])
+
+    def test_pytest_summary_lines_are_read(self):
+        lines = ["FAILED tests/test_a.py::test_x - AssertionError: 2 != 3",
+                 "FAILED tests/test_a.py::test_y - AssertionError: 2 != 3"]
+        self.assertEqual(runner.failure_causes(lines), [(2, "2 != 3")])
+
+    def test_output_without_either_gives_nothing(self):
+        self.assertEqual(runner.failure_causes(["boom", "exit 1"]), [])
+
+    def test_report_prints_the_cause_above_the_tail(self):
+        step = runner.Step("test", "Test the site builder", "node --test", ".")
+        step.status, step.reason = "failed", "exit 1"
+        step.causes = runner.failure_causes(self.TAP)
+        step.tail = ["# fail 4"]
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            runner.report("portfolio-pages.yml", [step], [], False)
+        text = out.getvalue()
+        self.assertIn("4 error(s), 2 distinct", text)
+        self.assertLess(text.index("3 x docs/posts/x.md"), text.index("# fail 4"))
+
+    def test_a_real_failing_node_test_is_digested(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "a.test.mjs")
+            with open(path, "w") as fh:
+                fh.write("import test from 'node:test';\n"
+                         "for (const n of [1, 2]) test(`t${n}`, () => { "
+                         "throw new Error('one shared cause'); });\n")
+            step = runner.Step("j", "s", f"node --test {path}", ".")
+            runner.execute(step, 60)
+        self.assertEqual(step.status, "failed")
+        self.assertEqual(step.causes, [(2, "one shared cause")])
 
 
 if __name__ == "__main__":

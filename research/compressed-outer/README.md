@@ -1,6 +1,6 @@
 # Compressed reports in local SGD
 
-Pure Python, no dependencies. Companion to `noisy-local-sgd` and `partial-participation`: DiLoCo-style local SGD whose workers send compressed pseudo-gradients. Exact stationary loss for unbiased multiplicative compression (`α V_w (1+ω)/(M s (2−αsc))`, `c = 1+ω/M`, stable iff `αsc<2`, which contains random participation as `ω = 1/p−1`) and for dithered quantisation (`α (V_w+Δ²/12)/(M s (2−αs))`, stability unchanged), matched to simulation within 0.2–3%; at fixed bandwidth, sparsification favours few full reports while quantisation has an interior optimum near 1.3 bits per coordinate, ~4× below 8-bit reports. See `paper/whitepaper.md`.
+Pure Python, no dependencies. Companion to `noisy-local-sgd` and `partial-participation`: DiLoCo-style local SGD whose workers send compressed pseudo-gradients. Exact stationary loss for unbiased multiplicative compression (`α V_w (1+ω)/(M s (2−αsc))`, `c = 1+ω/M`, stable iff `αsc<2`, which contains random participation as `ω = 1/p−1`) and for dithered quantisation (`α (V_w+Δ²/12)/(M s (2−αs))`, stability unchanged), matched to simulation within 0.2–3%; at fixed bandwidth, sparsification favours few full reports while quantisation has an interior optimum near 1.3 bits per coordinate, ~4× below 8-bit reports (measured with H(K); under the shared dither the right rate is H(K|U), which moves the optimum to about 0.8 bits, not yet recomputed: see the whitepaper, "Prior work and known gaps"). See `paper/whitepaper.md`.
 
 **Live page:** https://marisstella.app/research/compressed-outer/
 

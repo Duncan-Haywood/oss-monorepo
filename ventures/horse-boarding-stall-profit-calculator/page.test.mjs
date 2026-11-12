@@ -18,7 +18,8 @@ test("inputs have labels and nothing can send the figures anywhere", () => {
   const html = page("index.html");
   for (const id of ["stalls", "occupancy", "boardprice", "extras", "feed", "bedding", "caremin", "wage", "fixedmonth", "baddebt", "target"]) assert.match(html, new RegExp(`<label for="${id}">`));
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
-  assert.doesNotMatch(page("calc.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  // Every module the page imports, so the FAQ's "a test asserts there are no network calls" holds (quality audit round 53).
+  for (const f of ["calc.mjs", "usage.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
 });
 
 test("the module scripts import only local files", () => {
