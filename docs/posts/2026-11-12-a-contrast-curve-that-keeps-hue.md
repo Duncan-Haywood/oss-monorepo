@@ -1,9 +1,9 @@
 ---
 title: "A contrast curve that keeps hue: camera profile tone curves, measured"
-seo_title: "DNG ProfileToneCurve and hue-preserving RGB tone, measured on 126 DCP profiles"
+seo_title: "DNG ProfileToneCurve and hue-preserving tone on 126 DCP profiles"
 date: 2026-11-12
 tags: [photography, raw, dng, dcp, tone-curve, colour-science, image-processing]
-description: "ShootFlow now applies a camera profile's tone curve the way the DNG reference code does. A per-channel curve would turn saturated hues by 3.8 degrees on average; this one turns them by none."
+description: "ShootFlow now applies camera profile tone curves without shifting hue. A per-channel curve turns saturated hues 3.8 degrees on average; this one, none."
 ---
 
 ShootFlow, the open-source overnight pipeline for photographers in
