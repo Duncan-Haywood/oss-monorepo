@@ -43,6 +43,29 @@ class T(unittest.TestCase):
         m = P.run(self.rows, 16, 60, 2)
         self.assertEqual(m["killed"] + m["equivalent"] + m["unresolved"], len(self.rows))
 
+    # Added by quality audit round 49: these pin train_cap and the cap boundary, which no test reached.
+    def test_unresolved_matches_checkorder(self):
+        from eda_checkorder import cascade as C
+        a = P.run(self.rows, 16, None, 0)
+        b = C.run_cascade(self.rows, [("random", 16), ("directed",), ("formal",)], 0)
+        self.assertEqual(a["unresolved"], len(self.rows) - b["killed"] - b["equivalent"])
+        self.assertEqual(a["unresolved"], 9)
+
+    def test_train_cap_is_margin_times_longest_kill_that_reaches_formal(self):
+        from eda_checkorder import cascade as C
+        longest = max(r["formal_seconds"] for r in self.rows for s in range(20)
+                      if r["formal"] == "killed" and r["directed_first"] is None and not C.random_kills(r, 16, s))
+        self.assertAlmostEqual(P.train_cap(self.rows, 16), 1.1 * longest)
+        self.assertAlmostEqual(P.train_cap(self.rows, 16), 57.77, places=2)  # the 52.52 s kill, from the log
+        self.assertIsNone(P.train_cap([r for r in self.rows if r["formal"] != "killed"], 16))
+
+    def test_a_run_exactly_at_the_cap_keeps_its_outcome(self):
+        from eda_checkorder import cascade as C
+        r = dict(self.rows[0], random_first=[None] * 20, directed_first=None, formal="equivalent", formal_seconds=100.0)
+        self.assertFalse(any(C.random_kills(r, 16, s) for s in range(20)))
+        self.assertEqual(P.run([r], 16, 100.0, 0)["equivalent"], 1)
+        self.assertEqual(P.run([r], 16, 99.9, 0)["unresolved"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()
