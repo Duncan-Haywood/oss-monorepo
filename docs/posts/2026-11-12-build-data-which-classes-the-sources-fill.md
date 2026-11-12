@@ -2,7 +2,7 @@
 title: "Austin's 15-day build-time penalty came from 649 Seattle permits"
 seo_title: "Permit duration transfer: why work type helps SF and hurts Austin"
 date: 2026-11-12
-description: "Across three test years, a work-type class helps San Francisco's borrowed build-time forecast by 14 to 23 days at q0.9 and costs Austin 10 to 17. The cause is which classes the source cities fill, and with how many rows."
+description: "A work-type class helps San Francisco's borrowed build forecast by 14 to 23 days at q0.9 and costs Austin 10 to 17. The cause: which classes the sources fill."
 tags: [research, build-data, construction, transfer-learning, evaluation]
 ---
 
