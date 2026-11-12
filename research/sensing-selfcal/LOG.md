@@ -1,5 +1,20 @@
 # sensing-selfcal research log
 
+## 2026-11-12 · Milestone 4c planned: is the jackknife test deaf because of its χ² reference or because 4–6 views carry too little information?
+
+Written before any milestone-4c number was computed. Milestone 4b's jackknife test (J) was quiet (1.7–2.5% false alarms at a nominal 1%) but caught a ±2% focal change in only 7–12% of splits with 6 new views. Two explanations predict different fixes: the χ²<sub>3</sub> reference is wrong for a covariance estimated from 4–7 delete-one solves (then a better reference or a narrower test buys power back), or the views simply do not carry the information (then no threshold helps). Milestone 4c answers it from milestone 4b's 8,580 stored solves (`m4b_viewcov/results.json.gz`), with no new solve, on the same splits, disturbances, detectors and k ≥ 4 scoring.
+
+- **Statistic.** W = dᵀ(J<sub>old</sub> + s²J<sub>new</sub>)⁻¹d on d = θ<sub>new</sub> − θ<sub>old</sub>, θ = (f, c<sub>x</sub>, c<sub>y</sub>), as in 4b; and the one-parameter z<sub>f</sub>² on f alone.
+- **Four references for W at 1%.** (χ²) 11.34, as 4b. (F) a Hotelling-type reference with Satterthwaite degrees of freedom from the f variances, ν = (a + b)² / (a²/(m<sub>old</sub> − 1) + b²/(m<sub>new</sub> − 1)), a = J<sub>old,ff</sub>, b = s²J<sub>new,ff</sub>, m the delete-one solves that converged; threshold 3ν/(ν − 2) · F<sub>3, ν−2</sub>(0.99). (E) the other camera's empirical 99th percentile of W on unchanged splits (S0), same detector, k ≥ 4 pooled. (O, oracle) the same camera's own S0 99th percentile, k ≥ 4 pooled: false alarms ≈ 1% by construction, so it is an upper bound on the power any recalibration of the threshold can buy, not a usable test.
+- **Two references for z<sub>f</sub>².** χ²<sub>1</sub> (6.63) and F<sub>1, ν</sub>(0.99).
+- **H28 (F is safe).** J with the F reference: S0 false alarms (k ≥ 4, pooled) ≤ 1% on both detectors. Refuted if above 1% on either.
+- **H29 (F is too strict).** J with F detects a ±4% focal change at k = 6 (pooled over sign and camera) in fewer than half as many splits as J with χ², on both detectors. Refuted if F keeps at least half on either. Milestone 4b found J already overstates the spread (rms z 0.46–0.84), and ν is 3–9 here, so F's threshold is several times χ²'s.
+- **H30 (a transferred threshold travels).** J with E: S0 false alarms (k ≥ 4) ≤ 5% on each camera, on both detectors. Refuted if above 5% on any. Unlike milestone 4's borrowed κ, the jackknife already scales to each camera, so only the tail shape is borrowed.
+- **H31 (the limit is information).** With the oracle threshold O, a ±2% focal change at k = 6 (pooled over sign and camera) is detected in fewer than 25% of splits on both detectors. Refuted if 25% or more on either.
+- **H32 (testing f alone buys power).** z<sub>f</sub>² against χ²<sub>1</sub> detects a ±2% focal change at k = 6 in more splits than W against χ²<sub>3</sub>, on both detectors, with S0 false alarms (k ≥ 4, pooled) ≤ 3%. Refuted if either part fails on either detector.
+- **Reported, unscored.** The full power table (±0.5–4% focal, 2–10 px principal point, the swap) for every reference; harmful adoptions under milestone 4's rule with each reference; the threshold values (median ν, F and E thresholds).
+- **Caveat carried over.** The splits reuse 13 views, so the 95% Wilson intervals are too narrow, and an empirical 99th percentile from 180 statistics rests on about two of them.
+
 ## 2026-11-12 · Milestone 4b result: a jackknife over views makes the update test quiet with no borrowed factor (1.7–2.5% false alarms), but it cannot see a 2% focal change; SB corners lift its swap detection from 30% to 75%
 
 - **Runs.** 2,145 distinct view sets per camera and detector (old and new sets plus every leave-one-view-out subset needed for the jackknife), 8,580 solves, 4 not converged (all 3-view sets; a jackknife drops a failed delete-one solve). The other camera's nested κ recomputed with H8's formula: 11×11 corners 2.67 (left) / 1.89 (right), as milestone 3; SB corners 3.47 / 2.74. All scored on k ≥ 4 (360 decisions per detector and covariance); 95% Wilson intervals.
