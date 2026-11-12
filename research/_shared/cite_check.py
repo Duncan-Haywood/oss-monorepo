@@ -21,6 +21,11 @@ confirmed it, instead of SKIP, so a blocked session can still tell a checked
 citation from an unchecked one (13 run records from 2026-11-10/11 report doi.org or
 arXiv refused and re-verified ids by hand). Only this script writes the file;
 a 404 removes the entry. `--no-write` leaves it untouched.
+
+A file below its project root (`research/<slug>/paper/draft.md`) also reads the
+`cite_check.json` files of the directories above it, up to `research/<slug>/`,
+so ids confirmed for the README still print `ok*` for the paper (friction
+2026-11-12). New lookups are written beside the file checked, as before.
 """
 import datetime
 import os
@@ -96,6 +101,19 @@ def cache_path(path):
     return os.path.join(os.path.dirname(os.path.abspath(path)), CACHE_NAME)
 
 
+def ancestor_caches(path):
+    """cite_check.json paths above the file's own directory, nearest first, stopping
+    at the project root (a directory whose parent is named `research`) or a `.git`."""
+    d = os.path.dirname(os.path.abspath(path))
+    out = []
+    while True:
+        parent = os.path.dirname(d)
+        if parent == d or os.path.basename(parent) == "research" or os.path.exists(os.path.join(d, ".git")):
+            return out
+        d = parent
+        out.append(os.path.join(d, CACHE_NAME))
+
+
 def load_cache(cpath):
     try:
         with open(cpath, encoding="utf-8") as f:
@@ -125,6 +143,7 @@ def main(argv):
         cpath = cache_path(path)
         cache = load_cache(cpath)
         before = json.dumps(cache, sort_keys=True)
+        inherited = [load_cache(c) for c in ancestor_caches(path)]
         for kind, ids, fn in (("doi", dois, lookup_doi), ("arxiv", arxivs, lookup_arxiv)):
             for i in ids:
                 key = f"{kind}:{i}"
@@ -152,7 +171,7 @@ def main(argv):
                     print(f"  FAIL {key}  {e}")
                 if reason is None:
                     continue
-                hit = cache.get(key)
+                hit = cache.get(key) or next((c[key] for c in inherited if key in c), None)
                 if hit:
                     cached += 1
                     print(f"  ok*  {key}  {hit['title']}  (host unreachable now; a live lookup confirmed it on {hit['checked']})")
