@@ -1,6 +1,6 @@
 ---
 title: "A league scheduler 27 times faster, with the same schedules to the last bit"
-seo_title: "Speeding up a simulated annealing scheduler without changing its output"
+seo_title: "Speeding up a simulated annealing scheduler, same output to the bit"
 date: 2026-11-12
 tags: [league-schedule-generator, performance, algorithms, scheduling]
 description: "The multi-division league scheduler spent 50 s in one fairness sweep. Tabling the costs once per night cut it to 1.85 s and every schedule hashed the same."
