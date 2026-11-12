@@ -133,9 +133,10 @@ def run_pair(args):
     rows = []
     fits = {}
     for j in items:
-        feats = [f for f in gss.features_for(j) if S[f].notna().any()]
         s = S[S[j].notna()]
         t = T[T[j].notna()]
+        # features never observed on the source rows that carry j (another ballot) are dropped
+        feats = [f for f in gss.features_for(j) if s[f].notna().sum() >= 2]
         if len(s) < MIN_S or len(t) < MIN_T or s[j].nunique() < 2 or t[j].nunique() < 2:
             continue
         Xs, ys, ws = s[feats].values.astype(float), s[j].values, s.w.values
