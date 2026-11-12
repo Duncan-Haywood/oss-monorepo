@@ -666,4 +666,19 @@ Measured in headless Chromium on the café sample (32 shifts, exact check on, `b
 
 Both builds give the same summary, grid, notices and who-is-critical text. Stop ends a build mid-run and the next build works. With **Off** the report carries no "Checked against an exact search" line. `page-worker.test.mjs` checks, on the sample and the four templates, that the worker's roster equals a direct call, and that every report the page draws (cover, swaps, hand-over chains, trades, absences, cuts, flags, breaks, fairness, CSV, .ics, messages, open-shift post) is the same from the cloned roster as from the original.
 
-Not claimed: one desktop machine and one sample week; DevTools' 4x throttle is a stand-in for a phone and does not slow the worker thread, so there is no throttled worker time in the table. The multi-week planner ("Plan several weeks") still builds on the main thread with a 4 s exact budget per week.
+Not claimed: one desktop machine and one sample week; DevTools' 4x throttle is a stand-in for a phone and does not slow the worker thread, so there is no throttled worker time in the table. The multi-week planner moved to the worker later the same day (below).
+
+## The multi-week planner plans in the worker too (2026-11-12)
+
+"Plan several weeks in a row" built every week on the main thread, one exact check (4 s budget) per week, so a four-week plan froze the page for the whole run. It now posts `{ kind: "plan", staffText, shiftsText, options }` to the same `roster-worker.mjs`, which calls `planWeeks` from `calc.mjs` and posts `{ progress: { done, of } }` after each week, so the page shows "Week 2 of 4 planned…". The planner has its own **Stop** (it does not share the build's, so a roster build and a plan can run side by side). The plan travels back in one message; the table, CSV buttons and the "who gets the hard shifts" fairness table are drawn from that copy. Without a module worker it plans on the main thread as before. `planWeeks` gained an `onWeek(done, of)` callback for this and nothing else; the weeks it builds are unchanged.
+
+Measured in headless Chromium, café sample, four weeks, exact check on (`build-worker.check.mjs`):
+
+| planner | time to the table | longest gap between frames |
+|---|---|---|
+| main thread (Worker removed) | 7.2 s | 6,233 ms |
+| worker | 6.4 s | 17 ms |
+
+Same table text from both. Stop ends a plan mid-run ("Stopped…", no table) and the next plan works. `page-worker.test.mjs` checks that the worker's plan equals a direct `planWeeks` call (timings aside), that it posts exactly one progress message per week, that `planFairness` reads the same from the structured-clone copy, and that the page's click handler no longer calls `planWeeks` itself.
+
+Not claimed: one machine, one sample, four weeks. The per-week exact budget stays 4 s, so plans are the same as before; with the freeze gone a longer budget could prove more weeks, not yet measured.
