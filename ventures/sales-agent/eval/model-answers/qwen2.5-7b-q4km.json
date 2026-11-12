@@ -460,4 +460,11 @@
 "38635dd9b17fb740":{"category":"not_now","subtype":null,"return_date":null},
 "d4e975a6decd98fa":{"category":"interested","subtype":null,"return_date":"2026-10-26"},
 "fe98035611caac8d":{"category":"interested","subtype":null,"return_date":"2026-10-27"},
-"edf9014228be5f96":{"category":"interested","subtype":null,"return_date":null}}
+"edf9014228be5f96":{"category":"interested","subtype":null,"return_date":null},
+"784ec5df4f79b4eb":{"category":"interested","subtype":null,"return_date":null},
+"b61dd51fb5d8e474":{"category":"objection","subtype":"competitor","return_date":null},
+"40ac9f81e7c394f5":{"category":"question","subtype":"competitor","return_date":null},
+"7f2f67692a80d5d8":{"category":"question","subtype":"price","return_date":null},
+"dfa92e5b955fa204":{"category":"question","subtype":null,"return_date":null},
+"c939caccb38d1a57":{"category":"unclear","subtype":null,"return_date":null},
+"ece07bb2eeef1011":{"category":"not_now","subtype":null,"return_date":"2027-03-31"}}

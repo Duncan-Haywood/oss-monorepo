@@ -28,6 +28,10 @@ test("merge: the model may lower contact, never raise it", () => {
   assert.equal(unclearStop.category, "unclear");
   assert.equal(unclearStop.modelSaid, "unsubscribe");
   assert.equal(mergeTriage(triage({ body: "Can you resend the attachment? It didn't open." }, T), { category: "bounce" }, T).modelSaid, "bounce");
+  // Nor does it pause a reply the rules read as interested (2026-11-12).
+  const hot = mergeTriage(triage({ body: "Call me later today, around 3pm. I'm free after lunch." }, T), { category: "not_now" }, T);
+  assert.equal(hot.category, "interested");
+  assert.equal(hot.modelSaid, "not_now");
   assert.equal(mergeTriage(triage({ body: "ok" }, T), { category: "made_up" }, T).source, "rules");
   const nn = mergeTriage(triage({ body: "hmm" }, T), { category: "not_now", return_date: "2027-02-01" }, T);
   assert.equal(nn.date, "2027-02-01");

@@ -49,3 +49,14 @@ test("every cached answer file holds categories only, no reply text", () => {
     }
   }
 });
+
+test("every label in the reply sets is a triage category (a typo once read as a silent miss)", async () => {
+  const { CATEGORIES } = await import("./engine.mjs");
+  const dir = new URL("./eval/", import.meta.url);
+  for (const f of fs.readdirSync(dir).filter((x) => /^(fresh-.*|replies|heldout)\.jsonl$/.test(x))) {
+    for (const line of fs.readFileSync(new URL(f, dir), "utf8").split("\n").filter(Boolean)) {
+      const { label } = JSON.parse(line);
+      assert.ok(Object.hasOwn(CATEGORIES, label), `${f}: "${label}"`);
+    }
+  }
+});

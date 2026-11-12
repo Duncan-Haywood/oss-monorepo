@@ -39,6 +39,10 @@ export function mergeTriage(rules, model, today) {
   if (model.category === "unsubscribe" || model.category === "bounce") {
     return { ...rules, source: "rules", modelSaid: model.category, modelEvidence: String(model.evidence || "").slice(0, 300) };
   }
+  // Nor does a model pause a reply the rules read as interested: the same 7B model read "Call me later today, around 3pm" and
+  // "Now is actually a perfect time ... Wednesday at 10?" as not now. Lower is not always safer; a paused hot lead is lost.
+  // Chosen on the scored sets themselves (eval/README.md), so it is a tuned policy: 421/472 vs 407, false stops 26 vs 41.
+  if (rules.category === "interested" && model.category !== "interested") return { ...rules, source: "rules", modelSaid: model.category };
   // Allowed: anything from "unclear"; a move to the same or less contact; or a move between two categories that both
   // end in a draft awaiting approval (question -> interested). Never from a no-contact category to a drafting one.
   const lower = CATEGORIES[model.category].rank <= CATEGORIES[rules.category].rank;
