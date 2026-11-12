@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtJXSLdppq1LNF9jspW",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T01:06:37Z",
+  "ended": "2026-11-12T03:14:39Z",
+  "wall_minutes": 128.19,
+  "tokens_in": 6570395,
+  "tokens_out": 26010,
+  "cost_usd": 2.6903,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14952",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Smoke run first picked same-sex marriage 2010, which is not a held-out year for that item (0 item-years), and the script crashed on an empty frame; reran on 2022."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/src_layout.py",
+      "issue": "A new test that imported src/ via the experiment driver's sys.path side effect tripped programme_check; adding an explicit sys.path line fixed it. The message names --fix, but the smaller fix was one line in the test."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The stop hook flags untracked in-progress experiment outputs (partial CSVs written mid-run), which forced a 'partial checkpoint' commit of a result file that was not final."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-survey-decade-fixes-mixture-imputation.md",
+    "research/christian-belief-models/LOG.md (2026-11-12 entry)"
+  ],
+  "goal": null,
+  "notes": "Programme christian-belief-models, milestone 3: period-aware DPMPM. Decade arm 3.55 points vs year-free 4.81 (paired -1.26, 95% CI -1.58 to -0.94), five-year arm 3.59; matches the decade mean 3.54 and does not beat interpolation 3.43; combo with interpolation 3.15 is the programme's best. 4 of 5 predictions held. Local checks: 24 project tests pass, build.py ok, check_md_links ok, programme_check ok, cite_check ok. ~8.3 CPU-hours of sampling over two arms.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "733f68f6-e60f-5e0e-b7b2-c5c22e2d6a16",
+    "transcripts": 1,
+    "first": "2026-11-12T01:06:37Z",
+    "last": "2026-11-12T03:14:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 125,
+        "output": 26010,
+        "thinking": 4471,
+        "cache_read": 6460587,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109683,
+        "api_equivalent_usd": 2.6903,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 125,
+      "output": 26010,
+      "thinking": 4471,
+      "cache_read": 6460587,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109683,
+      "api_equivalent_usd": 2.6903,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 53,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 128.19,
+      "active_minutes": 8.24,
+      "model_minutes": 6.07,
+      "tool_minutes": 2.18,
+      "waiting_on_human_minutes": 119.95,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a research assistant writing, running and scoring a pre-registered period-aware mixture experiment with two arms and a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 371.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
