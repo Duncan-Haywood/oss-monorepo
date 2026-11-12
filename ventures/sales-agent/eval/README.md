@@ -704,6 +704,68 @@ folded, an earlier half already fired on), 31 of `7*`'s 56 silent stops are repe
 Any further rule round should score on de-duplicated text only, and a 25-stop half is too small to measure a rule change against
 the ~1 per 1,000 reader effect. The useful next data is a second reader on these and real replies to outreach.
 
+### A third reader from another model family: a local 8B model is not a second reader (2026-11-12)
+
+Every Enron label so far came from agents of one model family. Item (1) of the flagship's `next:` asked for a reader from
+another family, run with no key. `eval/model-reader.mjs` does that: it gives a local model `enron-labels/READER.md` as the
+system prompt (its batch-file "Output" section swapped for "answer with one label"), then one reply at a time, at
+temperature 0, through any OpenAI-compatible server (llama.cpp, Ollama, vLLM). It never sees the rules, their answers or
+the other readers' labels. `compare` prints exact agreement, stop-or-not agreement and Cohen's kappa between label files.
+
+**Setup.** Meta-Llama-3.1-8B-Instruct, Q4_K_M GGUF (bartowski's build on Hugging Face, 4.9 GB), on a `llama-cpp-python`
+0.3.16 server, CPU only, 4 cores, `--n_ctx 4096`, 10 to 15 s per reply. It labelled every stop the three agent-labelled
+halves hold (298: `5*` 107, `6*` 101, `7*` 90; texts gathered by Message-ID with `model-reader.mjs texts`, since earlier
+rounds' stops that no longer fire are still labelled). Labels: `enron-labels/{sixth,seventh,eighth}-llama.json` (no text).
+Every answer parsed as a label; it never answered `ambiguous` and twice answered `bounce`.
+
+| Agreement, same Message-IDs | Exact | Stop or not | Kappa |
+|---|---|---|---|
+| `5*`: agent reader 1 vs agent reader 2 (107) | 87 (81%) | 89 | 0.71 |
+| `5*`: agent reader 1 vs Llama 8B | 58 (54%) | 67 | 0.39 |
+| `5*`: agent reader 2 vs Llama 8B | 65 (61%) | 75 | 0.49 |
+| `6*`: agent reader vs Llama 8B (101) | 64 (63%) | 69 | 0.52 |
+| `7*`: agent reader vs Llama 8B (90) | 68 (76%) | 73 | 0.68 |
+
+**It disagrees in one direction: toward the rules.** On `5*` the commonest split (19 of 49) is agent `none`, Llama
+`not_interested`: a "no" in passing, someone else's no, reported speech, the very phrasings the rule rounds spent six rounds
+vetoing. Over the three halves the agent reader called 160 of the stops `none`; Llama gave 74 of those (46%) the category
+the rules fired, and called 79 `none`. On the 128 the agent reader called right, Llama agreed 111 times (87%). A reader that
+falls for the same surface cues as the rules is not an independent check: it makes the rules look better than they are.
+
+| Wrong silent stops on today's rules, per 1,000 `RE:` replies | Agent reader 1 | Agent reader 2 | Llama 8B |
+|---|---|---|---|
+| `5*` (9,538) | 2.3 (30 / 22 / 2) | 2.1 (34 / 20 / 0) | 1.7 (38 / 16 / 0) |
+| `6*` (9,592) | 0.9 (36 / 9 / 1) | | 1.1 (35 / 11 / 0) |
+| `7*` (9,428) | 1.6 (36 / 15 / 3) | | 1.8 (37 / 17 / 0) |
+
+(Right / wrong / ambiguous in brackets. `5*` and `6*` are tuning halves now, so their figures are low by construction.)
+On the stops today's rules still fire, the three readers land within 0.6 per 1,000 of one another, because most of the stops
+the readers fought over have since been vetoed or moved to a person by the away policy.
+
+**Where both families say wrong, the stop is wrong.** On `7*`'s 56 silent stops (before the veto below), the agent reader and
+Llama agree on 43: 31 right, 12 wrong. The 12 are plain phrasing faults: "I am not interested in climbing a mountain", "good
+teams don't need to change their uniforms", "these dates don't work for him", "the fuel valve replacement is scheduled", "if you
+do not have enough response from your list below". 9 of them are among the 25 de-duplicated stops (`--seen`), where the two
+readers agree on 18: 9 right, 9 wrong. That double-wrong list is the cleanest input a future rule round has, and it is now read.
+
+**One veto from it** (`engine.mjs`, after "don't work for (me|us)"): a date or time that "doesn't work for" anyone is
+scheduling ("Lay asked me to let you know that these dates don't work for him, either"). On the eight halves (`0*`-`7*`,
+76,565 `RE:` replies) it removes exactly the two copies of that message on `7*` and no other stop; auto-reply and bounce
+catches unchanged. `7*` is a read half, so this is tuning, not a score: wrong silent stops there go 17 to 15 under the agent
+reader.
+
+**What it means.** A small local model can't stand in for a second reader on this task: it agrees with the agent reader
+less than the two agent readers agree with each other, and its errors lean toward the rules. The agent-reader figures stay
+the reference. A person reading `READER.md`, or a larger model from another family, is still the missing second reader;
+`model-reader.mjs` runs either (a hosted one with `LLM_BASE_URL`/`LLM_API_KEY` on any OpenAI-compatible endpoint).
+
+```
+node eval/model-reader.mjs texts <dir of links to blobs/7?> --ids eval/enron-labels/eighth.json > 7-texts.json
+LLM_BASE_URL=http://localhost:8080/v1 LLM_MODEL=llama node eval/model-reader.mjs label 7-texts.json \
+  --ids eval/enron-labels/eighth.json --out eval/enron-labels/eighth-llama.json   # resumable
+node eval/model-reader.mjs compare eval/enron-labels/eighth.json eval/enron-labels/eighth-llama.json
+```
+
 ## Mail files read as the server reads a mailbox (2026-11-11)
 
 `eval/mailfile-enron.mjs <dir>` writes every Enron message under `<dir>` into one mbox (mboxrd escaping), reads it back

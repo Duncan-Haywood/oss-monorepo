@@ -808,6 +808,9 @@ VETO.left_company.push(
   /\b(if|any) (you have )?(any )?(questions|queries)\b.{0,40}\bspeak (with|to)\b/i,
   // "Unfortunately, these new dates don't work for me" (6*): a time that does not suit, not "I don't work for them".
   /\b(don'?t|doesn'?t|do not|does not|won'?t|will not) work for (me|us)\b/i,
+  // "Lay asked me to let you know that these dates don't work for him, either" (7*, both readers none, 2026-11-11): a date or
+  // time that does not suit someone else is scheduling too.
+  /\b(dates?|times?|days?|timing|schedule|week(end)?|morning|afternoon|evening|(mon|tues|wednes|thurs|fri|satur|sun)day)s? (don'?t|doesn'?t|do not|does not|won'?t|will not) work for\b/i,
   // "My husband is no longer with Koch" (6*): family, not a contact.
   // "I have passed it on to Dave and will let you know!" (5*): the writer's own handover with a promise to come back is a person
   // still on the thread. A bare "I passed it on to Stacey" still files as wrong person, by design (2026-11-04).
