@@ -1,5 +1,17 @@
 # buildbot-sheathing research log
 
+## 2026-11-12 · Milestone 7 result: a G1 on a lift base is the cheapest robot below about 500 houses a year, the walking H1 never wins, and the extra joint stud does not pay in dollars
+
+`experiments/m7_cost/` (results.txt, results.json, figure.png); 4,000 draws, seed 11, common random numbers; under a second.
+
+- **H28 held.** The G1 on a drive-and-lift base costs less per clean sheet than a walking H1 in every draw, at every volume and with either sensing policy forced (H1 about 2.5 times dearer: a higher price and 85–265 s of walking nails against 54–121 s).
+- **H29 refuted.** In the median draw the gantry is dearer than the base at 10 houses a year (+$43.67 a sheet) and cheaper only from about **501 houses a year**, outside the predicted 30–300 (at 300 it is still +$0.51). Per draw, 62% cross inside 10–1,000, at a median of 54 houses; the gantry's unsourced $40k–600k price spreads the crossing over two decades.
+- **H30 refuted, for every class.** Doubled joints are cheaper in **0%** of draws at 100 houses a year: the stud and a framer's minute or two cost $5.42 a sheet (median), while the rework it saves (0.79 missed nails with three reads on single 2x) is under a dollar of robot and supervisor time. Doubling pays only if a missed nail costs **$6.51 [5.21, 7.88] more than its re-drive**, about ten loaded person-minutes. Milestone 5's 18–65 s are real but cheap; the milestone 5 conclusion that the joint framing moves the cost is reversed when the cost is dollars rather than seconds, unless missed nails are expensive (found at inspection, or on a shear wall where a missed nail is a structural defect) or the doubled joint is required anyway.
+- **H31 held.** Hand crew $5.21 a sheet (median; $1.93–14.46 over the taskbook's sweep of its minutes); at 100 houses a year the base is $7.03 and the H1 $17.23; the gantry is $3.93 at 300 and $33.49 at 30. Paired, the base is cheaper than the crew in 37% of draws at 100 houses a year, 74% at 300 and 94% at 1,000.
+- **Where the base's dollars go** (two 2x, single read, 100 houses a year): ownership 44%, the stud 44%, people 11%. Its cost is moved most by its life (ρ −0.58) and its base price (+0.58), both unsourced; supervision is fourth (+0.26).
+- **What it means for the programme.** The robot design question has a plain answer on cost (put the arm on a lift base, not on legs) and an open one on volume (a robot pays against a crew only when it sheathes about 100 or more houses a year, which a site robot moving between jobs would struggle to do). The joint-framing recommendation of milestones 2 and 5 holds for clean sheets and seconds, not for dollars, unless a missed nail is costly. The paper should report both. Milestone 6 (a second contact model) is the remaining check before the draft.
+- **Inputs not sourced:** the base and gantry prices, every life, interest and upkeep, every stage time but the nailing; the hand crew's minutes are its author's estimate and its own misses are not charged; site robots are dedicated to wall sheathing with no transport or set-up cost.
+
 ## 2026-11-12 · Milestone 7 planned: dollars per clean sheet, by robot class and house volume
 
 Written before any milestone-7 experiment was run.

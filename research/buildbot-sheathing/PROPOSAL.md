@@ -202,7 +202,10 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    clean and 18–65 s slower, which is what the extra joint stud may cost. Still open: a measured
    time for each stage.
 6. Sim-to-sim on a second contact model.
-7. Cost per clean sheet by robot class.
+7. **Cost per clean sheet by robot class** (done 2026-11-12, `experiments/m7_cost/`): the G1 on a
+   drive-and-lift base is the cheapest robot below about 500 houses a year and beats the walking H1
+   in every draw; it beats a hand crew in 37% of draws at 100 houses a year and 74% at 300. Doubled
+   joints never pay in dollars unless a missed nail costs about $6.50 more than its re-drive.
 8. Paper draft in the venue's format.
 
 ## Target venue

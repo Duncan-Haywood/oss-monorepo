@@ -107,6 +107,28 @@ without a ledger gives 0.978. Every stage time except the nailing is swept, not 
 
 ![Clean sheets by sensing, framing and recoil; seconds a sheet by stage; the framing time the extra joint stud may take](experiments/m5_cycle/figure.png)
 
+**Milestone 7 headline: what does a clean sheet cost in dollars, by robot class? A G1 on a
+drive-and-lift base is the cheapest robot below about 500 houses a year, it beats the hand crew
+in only 37% of draws at 100 houses a year (74% at 300), and doubled joint studs never pay in
+dollars.** Milestone 5's seconds, priced: ownership (price, life, interest and upkeep spread over
+the wall sheets of V houses a year, capped at 2,000 machine hours), people (supervision, an
+operator, and the person who still carries the sheet) at a loaded carpenter wage, and the extra
+joint stud ($3.41–5.56 for a 92 5/8 in precut, retail listings, plus a framer's minute or two).
+Over 4,000 draws with common random numbers, the **hand crew** costs **$5.21 a sheet** (median;
+$1.93–14.46 over the taskbook's own sweep of its minutes). The **base** costs $54, $19, $7.03,
+$3.48 and $2.20 at 10, 30, 100, 300 and 1,000 houses a year; the **walking H1** about 2.5 times
+that, and it beats the base in **no draw** at any volume or sensing policy. The **gantry**
+($40k–600k, unsourced) is cheaper than the base in the median draw only from **about 500 houses
+a year**. Every robot picks **single 2x joints with three reads**: the extra stud costs
+**$5.42 a sheet**, and the rework it saves (0.79 missed nails) is worth well under a dollar of
+robot time, so doubling pays only if a missed nail costs **about $6.50 more than its re-drive**
+(about ten loaded person-minutes: an inspection callback would; a robot re-driving its own miss
+would not). Where a shear wall already requires 3x or doubled joints the stud is sunk and the
+milestone 5 result stands. The base's cost is moved most by its life and its base price (rank
+correlation ±0.58), both unsourced.
+
+![Dollars per clean sheet by robot class and house volume; which way is cheapest](experiments/m7_cost/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -284,11 +306,41 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
   and a perfect hang only the tool scatter is left (> 0.97 clean); the two-2x three-read ledger
   cell reproduces milestone 3's 1.0000.
 
+## Milestone 7 method (`src/buildbot_sheathing/cost.py`)
+- **Classes.** *Hand crew*: `buildbot-taskbook` S1 carry 0.8, S2 hold and square 1.5 and S4 nail
+  62 x 0.1 person-minutes a sheet, times its one-third-to-three-times sweep (log-uniform); its own
+  missed nails are not modelled. *Walking H1*: nailing 84.7–264.7 s (the walking-G1 range of
+  `buildbot-mobilebase`, 5–20 s a step), a ledger, a person carries the sheet (milestone 3b).
+  *G1 on a drive-and-lift base*: nailing 54–121 s (`buildbot-mobilebase`), ledger or lift-tack, a
+  person carries the sheet. *Gantry* in a plant: nailing 20–115 s, scan 10–60 s, load 30–180 s
+  (`buildbot-custom`), the table fence as the ledger. Where in its range each robot nails is one
+  shared draw.
+- **Pipelines.** Per draw, each class takes its cheapest of single or two 2x joints by single or
+  three reads (and ledger or lift-tack on the base), with missed nails from milestone 5
+  (`experiments/m5_cycle/results.json`, lower warp, recoil waited out). Every missed nail is
+  re-driven, so the cost of a sheet is the cost of a clean sheet.
+- **Dollars.** Ownership = price x (capital recovery factor + upkeep) / sheets a year, sheets =
+  min(32 V, 2,000 h / seconds a sheet). People = loaded wage x (supervision x machine seconds +
+  carry seconds). Doubled joints add the stud and 60–120 s of a framer.
+
+| input | range | source |
+|---|---|---|
+| Carpenter wage, burden | $29.12/h, x1.0–1.6 | BLS, via [`buildbot-cost`](../buildbot-cost) |
+| Hand minutes a sheet | 8.5 at mid, x1/3–3 | [`buildbot-taskbook`](../buildbot-taskbook) (its author's estimate) |
+| 2x4 92 5/8 in stud | $3.41–5.56 | retail listings (McCoy's, Saber Sales, Foxgal) seen through search, 2026-11-12, not opened |
+| G1 | $13,500–21,600 | Unitree's page ("from $13.5K") and 2026 retailer listings, seen through search |
+| H1 | $90,000–150,000 | press reports of the launch ([`buildbot-cost`](../buildbot-cost)) |
+| Drive-and-lift base | $10,000–40,000 | **not sourced** |
+| Gantry | $40,000–600,000, log-uniform | **not sourced** ([`buildbot-custom`](../buildbot-custom)'s sweep) |
+| Life, interest, upkeep | site 2–7 y, gantry 7–20 y; 4–10%; site 5–20%, gantry 3–12% a year | **not sourced** |
+| Supervision, operator | 0.1–1.0 and 0–0.5 person-h a machine-h | [`buildbot-cost`](../buildbot-cost), [`buildbot-custom`](../buildbot-custom) sweeps |
+| Stage times | place 15–60 s, ledger 0–20 s, read 1–3 s, re-drive 15–60 s; framer 60–120 s a stud | **not sourced**, milestone 5's sweep |
+
 ## Reproduce
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 40 tests; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models
+python -m pytest -q tests                                    # 47 tests; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -297,6 +349,8 @@ python experiments/m4_tack_measure/run.py > experiments/m4_tack_measure/results.
 python experiments/m4_tack_measure/figure.py
 python experiments/m5_cycle/run.py > experiments/m5_cycle/results.txt                   # under a minute, seed 7
 python experiments/m5_cycle/figure.py
+python experiments/m7_cost/run.py > experiments/m7_cost/results.txt                     # under a second, seed 11; reads m5's results.json
+python experiments/m7_cost/figure.py
 pip install mujoco                                           # milestone 3; tested with mujoco 3
 python experiments/m3_ledger/run.py > experiments/m3_ledger/results.txt                 # ~95 s, seed 5
 python experiments/m3_ledger/figure.py
@@ -447,6 +501,27 @@ python experiments/m3b_humanoid/figure.py
   (fire-at-once recoil costs up to 7.6 points on single 2x, at most 0.12 on two 2x); **H27
   refuted** (placing the sheet outweighs fast nailing in 18 of 108 cells).
 
+## Milestone 7 results (`experiments/m7_cost/results.txt`)
+- **A. Dollars per clean sheet** (median [5%, 95%]) at 10 / 30 / 100 / 300 / 1,000 houses a year.
+  Walking H1: 151.73 / 52.07 / 17.23 / 7.26 / 4.02. Base: 54.43 / 19.28 / 7.03 [4.52, 11.03] /
+  3.48 / 2.20. Gantry: 99.24 / 33.49 / 10.51 [3.33, 34.17] / 3.93 / 1.78. Hand crew 5.21
+  [1.93, 14.46] at every volume.
+- **Cheapest way** (share of draws): hand 1.00 at 10 houses, 0.96 at 30, 0.56 at 100, 0.19 at 300,
+  0.03 at 1,000; the base 0.25 at 100 and 0.42 at 300; the gantry 0.58 at 1,000; the H1 never.
+- **Pipeline.** All three robots choose single 2x with three reads (ledger on the base) in every
+  draw at 100 houses a year.
+- **B. Where the dollars go** (two 2x, single read, 100 houses a year): ownership 44% of the base's
+  sheet, 62% of the gantry's, 67% of the H1's; the stud 24–44%; people 3–11%.
+- **C. Sensitivity** of the base at 100 houses a year: life −0.58, base price +0.58, upkeep
+  +0.29, supervision +0.26, hand minutes +0.19 (Spearman).
+- **D. Higher warp** raises the medians by $0.14–0.53 a sheet (100 and 1,000 houses a year).
+- **E. Break-even** for doubled joints on the base: a missed nail must cost $6.51 [5.21, 7.88]
+  more than its re-drive.
+- **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H28 held (the base beats the H1 in every
+  draw); **H29 refuted** (the median crossing is at about 500 houses a year, outside 30–300;
+  62% of draws cross inside 10–1,000, at a median of 54 houses); **H30 refuted** for every class
+  (doubled joints win in 0% of draws, median $5.1–5.3 a sheet dearer); H31 held.
+
 ## Limitations
 - **Gaussian, independent, swept.** Stud, edge, gauge and width errors are swept, not measured;
   real errors have bias and heavy tails. The stud estimate includes the layout scatter
@@ -477,6 +552,11 @@ python experiments/m3b_humanoid/figure.py
 - **Cycle (milestone 5).** Every stage time but the nailing is swept, not measured; each missed
   nail is assumed found and re-driven at one cost, though a joint a bowed stud has closed may need
   a block or a sister stud; stages run in series, with no overlap between the lift and the robot.
+- **Cost (milestone 7).** Every machine price but the humanoids', every life and upkeep, and
+  every stage time are swept, not sourced. The hand crew's minutes are the taskbook author's,
+  and its own missed nails are not charged (which favours it). A site robot is dedicated to wall
+  sheathing; moving it between sites, setting it up, insurance and idle days are not priced, and
+  neither are a plant's floor space, the walls a plant must ship, or a missed nail found late.
 - **Plate nails** see only the tool scatter: the sheet's vertical placement is not modelled.
 - **Strict pass/fail.** One nail outside its window fails the sheet; the nails missed are
   reported beside it, and real practice may accept a near miss or re-drive it.
@@ -490,8 +570,11 @@ bowed stud straight. Milestone 3 is done for a static robot; what is left is dyn
 G1 or H1 walking a sheet the last metre with a person or a lift, the edge push and its one-hand
 load, and a controller that feeds the weight forward and drops it at ledger contact, in MuJoCo
 with a balance policy. Milestone 5 timed the cycle with swept stage times; a measured time for
-each stage (a lift cycle, a stud read, a re-drive) would pin it, and milestone 7 prices the extra
-joint stud against the 18–65 s it saves. A measured sample of real panels' squareness and edge
+each stage (a lift cycle, a stud read, a re-drive) would pin it, and milestone 7 priced the extra
+joint stud against the 18–65 s it saves (it does not pay unless a missed nail costs about $6.50 more
+than its re-drive). A time study of a crew's sheathing, a quote for a drive-and-lift base and a
+nailing bridge, and the cost of a missed nail found at inspection would replace milestone 7's
+widest sweeps. Milestone 6 (a second contact model) is next. A measured sample of real panels' squareness and edge
 bow would settle the single-2x case. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
