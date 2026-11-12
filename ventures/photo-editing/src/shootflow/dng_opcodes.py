@@ -1,4 +1,4 @@
-"""DNG opcode lists: read them all; run ``GainMap``, ``WarpRectilinear``, ``WarpFisheye``, ``FixVignetteRadial``, ``MapPolynomial`` and the two bad-pixel fixes; name the rest.
+"""DNG opcode lists: read them all; run ``GainMap``, the two warps, ``FixVignetteRadial``, ``MapPolynomial``, ``MapTable``, the four per-row and per-column fixes and the two bad-pixel fixes; name the rest.
 
 DNG 1.3 added three opcode lists, each a tag holding a big-endian byte blob:
 ``OpcodeList1`` (51008) runs on the raw values as stored, ``OpcodeList2``
@@ -19,8 +19,10 @@ with corrected lenses write it: the Leica T marks it required).
 ``OpcodeList2`` and ``OpcodeList3``, in the order the list gives them.
 ``FixBadPixelsConstant`` and ``FixBadPixelsList`` (opcodes 4 and 5) run in
 ``OpcodeList1`` on CFA data, on the stored raw values before anything else
-touches them. Every other opcode, and anything else in ``OpcodeList1``, is
-named in the report and left undone.
+touches them. ``MapTable`` (opcode 7) and ``DeltaPerRow``, ``DeltaPerColumn``,
+``ScalePerRow`` and ``ScalePerColumn`` (opcodes 10 to 13) run in ``OpcodeList2``
+and ``OpcodeList3``. Every other opcode, and anything else in ``OpcodeList1``,
+is named in the report and left undone.
 
 GainMap, as the DNG specification (1.4, chapter 7) and Adobe's DNG SDK
 (``dng_gain_map_interpolator``) define it, in the stage-2 image (the active
@@ -140,6 +142,32 @@ which is what the tests check. Choices: the SDK's own interpolation weights
 sensel with no good same-colour neighbour within ``d = 8`` is left as is; and
 a FixBadPixelsConstant that would flag more than 1% of the frame is not run
 (a frame that dark is under-exposed, not a defect map) and the report says so.
+
+MapTable, DeltaPerRow, DeltaPerColumn, ScalePerRow and ScalePerColumn (DNG
+specification 1.4, chapter 7) share MapPolynomial's area, planes and pitches
+(``top, left, bottom, right, plane, planes, row_pitch, col_pitch``, uint32),
+then:
+
+* MapTable: ``TableSize`` (uint32, 1 to 65536) and that many uint16 entries.
+  A 16-bit value ``v`` becomes ``table[min(v, TableSize - 1)]``. This module
+  holds values as 0..1 floats, as the DNG SDK does when it converts 16-bit
+  data to float (``v / 65535``), so a value ``x`` indexes the table at
+  ``floor(x * 65535 + 0.5)`` (``x`` pinned to 0..1 first) and becomes the entry
+  over 65535;
+* DeltaPerRow / DeltaPerColumn: ``Count`` (uint32) and that many float32
+  offsets, one per row (column) of the area in pitch steps; ``Count`` must be
+  ``ceil((bottom - top) / row_pitch)`` (``ceil((right - left) / col_pitch)``
+  for columns), as the SDK requires. The value becomes ``x + delta`` pinned to
+  0..1;
+* ScalePerRow / ScalePerColumn: the same layout with float32 scales, and the
+  value becomes ``x * scale`` pinned to 0..1.
+
+Row ``y`` of the area takes entry ``(y - top) // row_pitch``, column ``x``
+entry ``(x - left) // col_pitch``. In stage 3 the white-balance scale is taken
+off and put back as for MapPolynomial. These run nowhere in ``OpcodeList1``:
+there the SDK's float view of a raw value is ``value / 65535`` whatever the
+white level, a unit no camera file in the evaluation set has been seen to use,
+so they stay named and undone there until one is.
 """
 
 from __future__ import annotations
@@ -176,6 +204,17 @@ FIX_VIGNETTE_RADIAL = 3
 MAP_POLYNOMIAL = 8
 FIX_BAD_PIXELS_CONSTANT = 4
 FIX_BAD_PIXELS_LIST = 5
+MAP_TABLE = 7
+DELTA_PER_ROW = 10
+DELTA_PER_COLUMN = 11
+SCALE_PER_ROW = 12
+SCALE_PER_COLUMN = 13
+PER_LINE_KINDS = {
+    DELTA_PER_ROW: ("delta", "row"),
+    DELTA_PER_COLUMN: ("delta", "column"),
+    SCALE_PER_ROW: ("scale", "row"),
+    SCALE_PER_COLUMN: ("scale", "column"),
+}
 
 # A FixBadPixelsConstant that matches more than this share of the frame is not run (module docstring).
 BAD_CONSTANT_MAX_SHARE = 0.01
@@ -271,6 +310,40 @@ class MapPolynomial:
 
 
 @dataclass(frozen=True)
+class MapTable:
+    top: int
+    left: int
+    bottom: int
+    right: int
+    plane: int
+    planes: int
+    row_pitch: int
+    col_pitch: int
+    table: tuple[int, ...]  # uint16 entries
+
+
+@dataclass(frozen=True)
+class PerLine:
+    """DeltaPerRow, DeltaPerColumn, ScalePerRow or ScalePerColumn."""
+
+    top: int
+    left: int
+    bottom: int
+    right: int
+    plane: int
+    planes: int
+    row_pitch: int
+    col_pitch: int
+    kind: str  # "delta" or "scale"
+    axis: str  # "row" or "column"
+    values: tuple[float, ...]
+
+    @property
+    def name(self) -> str:
+        return ("Delta" if self.kind == "delta" else "Scale") + ("PerRow" if self.axis == "row" else "PerColumn")
+
+
+@dataclass(frozen=True)
 class BadPixelsConstant:
     constant: int
     bayer_phase: int
@@ -337,6 +410,40 @@ def parse_map_polynomial(op: Opcode) -> MapPolynomial:
     if not all(math.isfinite(c) and abs(c) < 1e6 for c in coeffs):
         raise OpcodeError("MapPolynomial with coefficients out of range")
     return MapPolynomial(top, left, bottom, right, plane, planes, rp, cp, tuple(coeffs))
+
+
+def _parse_area(op: Opcode, name: str) -> tuple[int, ...]:
+    p = op.params
+    if len(p) < 36:
+        raise OpcodeError(f"{name} parameters shorter than 36 bytes")
+    top, left, bottom, right, plane, planes, rp, cp, n = struct.unpack_from(">9I", p, 0)
+    if rp < 1 or cp < 1 or bottom <= top or right <= left or planes < 1:
+        raise OpcodeError(f"{name} with an empty area or zero pitch")
+    return top, left, bottom, right, plane, planes, rp, cp, n
+
+
+def parse_map_table(op: Opcode) -> MapTable:
+    *area, n = _parse_area(op, "MapTable")
+    if not 1 <= n <= 65536:
+        raise OpcodeError(f"MapTable of {n} entries (1 to 65536)")
+    if len(op.params) < 36 + 2 * n:
+        raise OpcodeError(f"MapTable holds fewer than its {n} entries")
+    return MapTable(*area, struct.unpack_from(f">{n}H", op.params, 36))
+
+
+def parse_per_line(op: Opcode) -> PerLine:
+    kind, axis = PER_LINE_KINDS[op.id]
+    *area, n = _parse_area(op, op.name)
+    top, left, bottom, right, _plane, _planes, rp, cp = area
+    steps = (bottom - top + rp - 1) // rp if axis == "row" else (right - left + cp - 1) // cp
+    if n != steps:
+        raise OpcodeError(f"{op.name} with {n} entries for {steps} {axis}s of its area")
+    if len(op.params) < 36 + 4 * n:
+        raise OpcodeError(f"{op.name} holds fewer than its {n} entries")
+    values = struct.unpack_from(f">{n}f", op.params, 36)
+    if not all(math.isfinite(v) and abs(v) < 1e6 for v in values):
+        raise OpcodeError(f"{op.name} with entries out of range")
+    return PerLine(*area, kind, axis, values)
 
 
 def parse_warp_rectilinear(op: Opcode) -> WarpRectilinear:
@@ -509,8 +616,8 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
                 except OpcodeError as exc:
                     notes.append(f"{label} {op.name} unreadable and skipped: {exc}")
                 continue
-            if tag != TAG_OPCODE_LIST_1 and op.id in (FIX_VIGNETTE_RADIAL, MAP_POLYNOMIAL):
-                parser = parse_vignette_radial if op.id == FIX_VIGNETTE_RADIAL else parse_map_polynomial
+            if tag != TAG_OPCODE_LIST_1 and op.id in _STAGE23_PARSERS:
+                parser = _STAGE23_PARSERS[op.id]
                 try:
                     parsed = parser(op)
                 except OpcodeError as exc:
@@ -531,9 +638,24 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
     if len(warps) - n_rect:
         notes.append(f"OpcodeList3: {len(warps) - n_rect} WarpFisheye applied (fisheye unwrap)")
     for (label, name) in dict.fromkeys(applied):
-        what = "lens vignetting" if name == "FixVignetteRadial" else "value mapping"
+        what = _WHAT.get(name, "value mapping")
         notes.append(f"{label}: {applied.count((label, name))} {name} applied ({what})")
     return Plan(gain_maps, notes, warps, stage2, stage3, stage1)
+
+
+_STAGE23_PARSERS = {
+    FIX_VIGNETTE_RADIAL: parse_vignette_radial,
+    MAP_POLYNOMIAL: parse_map_polynomial,
+    MAP_TABLE: parse_map_table,
+    **{k: parse_per_line for k in PER_LINE_KINDS},
+}
+_WHAT = {
+    "FixVignetteRadial": "lens vignetting",
+    "DeltaPerRow": "row offsets",
+    "DeltaPerColumn": "column offsets",
+    "ScalePerRow": "row gains",
+    "ScalePerColumn": "column gains",
+}
 
 
 # --- FixBadPixelsConstant and FixBadPixelsList ---------------------------------------------------------------------
@@ -659,6 +781,9 @@ def apply_row(maps: list, y: int, row: list[float], h: int, w: int, spp: int) ->
         if isinstance(gm, MapPolynomial):
             _poly_row(gm, y, row, 0, h, w, spp, None)
             continue
+        if isinstance(gm, (MapTable, PerLine)):
+            _area_row(gm, y, row, 0, h, w, spp, None)
+            continue
         rows, cols = _rows_cols(gm, h, w)
         if y not in rows:
             continue
@@ -683,6 +808,9 @@ def apply_plane(maps: list, plane, h: int, w: int, spp: int) -> None:
             continue
         if isinstance(gm, MapPolynomial):
             _poly_plane(gm, plane, h, w, spp, None)
+            continue
+        if isinstance(gm, (MapTable, PerLine)):
+            _area_plane(gm, plane, h, w, spp, None)
             continue
         rows, cols = _rows_cols(gm, h, w)
         if not len(rows) or not len(cols):
@@ -798,6 +926,68 @@ def _poly_plane(mp: MapPolynomial, plane, h: int, w: int, spp: int, scale) -> No
         plane[rsl, csl] = acc if scale is None else acc * scale[p]
 
 
+# --- MapTable, DeltaPerRow/Column, ScalePerRow/Column ----------------------------------------------------------------
+#
+# Same buffers, scale and byte-for-byte promise as FixVignetteRadial and MapPolynomial above.
+
+
+def _table_value(table: tuple[int, ...], v: float) -> float:
+    i = int(v * 65535.0 + 0.5) if v > 0.0 else 0
+    return table[i if i < len(table) else len(table) - 1] / 65535.0
+
+
+def _area_row(op: "MapTable | PerLine", y: int, buf, off: int, h: int, w: int, spp: int, scale) -> None:
+    rows, cols = _rows_cols(op, h, w)
+    if y not in rows:
+        return
+    table = isinstance(op, MapTable)
+    if not table:
+        add = op.kind == "delta"
+        rowwise = op.axis == "row"
+        rv = op.values[(y - op.top) // op.row_pitch] if rowwise else 0.0
+    for p in range(op.plane, min(op.plane + op.planes, spp)):
+        for x in cols:
+            k = off + x * spp + p
+            v = buf[k] if scale is None else buf[k] / scale[p]
+            if table:
+                v = _table_value(op.table, v)
+            else:
+                d = rv if rowwise else op.values[(x - op.left) // op.col_pitch]
+                v = v + d if add else v * d
+                v = 0.0 if v < 0.0 else (1.0 if v > 1.0 else v)
+            buf[k] = v if scale is None else v * scale[p]
+
+
+def _area_plane(op: "MapTable | PerLine", plane, h: int, w: int, spp: int, scale) -> None:
+    import numpy as np
+
+    rows, cols = _rows_cols(op, h, w)
+    if not len(rows) or not len(cols):
+        return
+    rsl = slice(rows.start, rows.stop, rows.step)
+    if isinstance(op, MapTable):
+        tbl = np.array(op.table, dtype=np.float64) / 65535.0
+    else:
+        vals = np.array(op.values, dtype=np.float64)
+        if op.axis == "row":
+            d = vals[(np.arange(rows.start, rows.stop, rows.step) - op.top) // op.row_pitch][:, None]
+        else:
+            d = vals[(np.arange(cols.start, cols.stop, cols.step) - op.left) // op.col_pitch][None, :]
+    for p in range(op.plane, min(op.plane + op.planes, spp)):
+        csl = slice(cols.start * spp + p, cols.stop * spp, cols.step * spp)
+        v = plane[rsl, csl]
+        if scale is not None:
+            v = v / scale[p]
+        if isinstance(op, MapTable):
+            idx = np.where(v > 0.0, np.floor(v * 65535.0 + 0.5), 0.0)
+            idx = np.minimum(idx, len(op.table) - 1).astype(np.int64)
+            out = tbl[idx]
+        else:
+            out = v + d if op.kind == "delta" else v * d
+            out = np.where(out < 0.0, 0.0, np.where(out > 1.0, 1.0, out))
+        plane[rsl, csl] = out if scale is None else out * scale[p]
+
+
 def run_stage3_rgb(ops: list, rgb, w: int, h: int, scale=(1.0, 1.0, 1.0)):
     """Run ``Plan.stage3`` in order on interleaved linear RGB (``array('d')``); returns the result (pure Python)."""
 
@@ -807,6 +997,9 @@ def run_stage3_rgb(ops: list, rgb, w: int, h: int, scale=(1.0, 1.0, 1.0)):
         elif isinstance(op, VignetteRadial):
             for y in range(h):
                 _vignette_row(op, y, rgb, y * w * 3, h, w, 3, scale)
+        elif isinstance(op, (MapTable, PerLine)):
+            for y in range(h):
+                _area_row(op, y, rgb, y * w * 3, h, w, 3, scale)
         else:
             for y in range(h):
                 _poly_row(op, y, rgb, y * w * 3, h, w, 3, scale)
@@ -826,6 +1019,8 @@ def run_stage3_planes(ops: list, img, scale=(1.0, 1.0, 1.0)):
         flat = np.ascontiguousarray(img).reshape(h, w * 3)
         if isinstance(op, VignetteRadial):
             _vignette_plane(op, flat, h, w, 3, scale)
+        elif isinstance(op, (MapTable, PerLine)):
+            _area_plane(op, flat, h, w, 3, scale)
         else:
             _poly_plane(op, flat, h, w, 3, scale)
         img = flat.reshape(h, w, 3)
