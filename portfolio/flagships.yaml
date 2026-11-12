@@ -110,8 +110,11 @@ flagships:
       box and localStorage the same day (README "Call outcomes on the page itself");
       the self-host page's Days off field and UK presets (gb-eng, gb-sct, gb-nir,
       280 of 280 GOV.UK dates 2019-2028) landed 2026-11-12 (README "UK bank holidays");
-      next on that queue: a CA preset checked against canada.ca (timed out through the
-      proxy 2026-11-12: probe first), and the US rules checked against OPM's calendar.
+      `ca` (federal, 85 of 85 dates 2022-2028 on canada-holidays.ca, a second source) and
+      the page's next-five-days-off line landed 2026-11-12 later (README "Canada");
+      next on that queue: `ca` and `us` against canada.ca and OPM's own calendars (both
+      refused this host 2026-11-12: probe first), provincial presets (ca-on, ca-qc,
+      ca-bc), and a country per prospect so a call skips their holidays as well as the rep's.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading

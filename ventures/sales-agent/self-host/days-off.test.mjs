@@ -52,11 +52,15 @@ test("over HTTP: the page shows the field, a mistyped value is refused and nothi
   const page = await (await fetch(`${base}/?token=${TOKEN}`)).text();
   assert.match(page, /<input id="dq-holidays"[^>]*value="us-business"/, "prefilled from HOLIDAYS");
   assert.match(page, /gb-sct/);
+  assert.match(page, /<p id="dq-off-next">Next days off: 2026-05-25 Memorial Day; 2026-07-03 Independence Day \(substitute|<p id="dq-off-next">Next days off: 2026-05-25 Memorial Day; 2026-07-03 Independence Day; 2026-09-07 Labor Day; 2026-11-26 Thanksgiving Day; 2026-12-25 Christmas Day\.<\/p>/, "the next five, named");
   const bad = await fetch(`${base}/api/daily`, { method: "POST", headers: H, body: JSON.stringify({ tasks, holidays: "gb-wales-typo" }) });
   assert.equal(bad.status, 422);
   assert.match((await bad.json()).error, /^Days off: "gb-wales-typo" is not a date/);
   assert.equal(a.state.holidays, null, "nothing kept from a refused value");
   const ok = await (await fetch(`${base}/api/daily`, { method: "POST", headers: H, body: JSON.stringify({ tasks, holidays: "gb-eng, 2026-04-08" }) })).json();
   assert.equal(ok.holidays, "gb-eng, 2026-04-08");
+  assert.deepEqual(ok.upcomingOff.slice(0, 3), [{ date: "2026-04-03", name: "Good Friday" }, { date: "2026-04-06", name: "Easter Monday" }, { date: "2026-04-08", name: "day off" }]);
   assert.match(await (await fetch(`${base}/?token=${TOKEN}`)).text(), /value="gb-eng, 2026-04-08"/);
+  const ca = await (await fetch(`${base}/api/daily`, { method: "POST", headers: H, body: JSON.stringify({ holidays: "ca" }) })).json();
+  assert.deepEqual(ca.upcomingOff.map((h) => h.name).slice(0, 3), ["Good Friday", "Easter Monday", "Victoria Day"]);
 });
