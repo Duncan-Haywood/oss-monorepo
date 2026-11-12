@@ -501,27 +501,36 @@ function teamSwapRounds(opp, a, b, r, lo = 0, hi = opp.length) {
   // X and Y are the opponents a and b meet over S, each in first-seen order (the order the search
   // used to read them out of a Set, so the same round is added); S only grows, so each round's two
   // opponents are appended once rather than the sets being rebuilt every pass.
+  // The membership marks live in scratch tables shared across calls (the annealers call this once
+  // per move): a mark counts only when it holds this call's stamp, as in coeOf.
   const N = opp[0].length;
-  const inS = new Uint8Array(opp.length);
-  const inX = new Uint8Array(N), inY = new Uint8Array(N);
+  if (swapStamp.length < opp.length + 2 * N) { swapStamp = new Uint32Array(opp.length + 2 * N); swapGen = 0; }
+  if (++swapGen > 0xfffffffe) { swapStamp.fill(0); swapGen = 1; }
+  const gen = swapGen, mark = swapStamp, xAt = opp.length, yAt = opp.length + N;
   const X = [], Y = [];
-  const S = [r]; inS[r] = 1;
-  const roundOf = (t, o) => { for (let q = lo; q < hi; q++) if (opp[q][t] === o) return q; return -1; };
+  const S = [r]; mark[r] = gen;
   let seen = 0;
   for (;;) {
     for (; seen < S.length; seen++) {
       const q = S[seen], x = opp[q][a], y = opp[q][b];
-      if (x !== b && !inX[x]) { inX[x] = 1; X.push(x); }
-      if (y !== a && !inY[y]) { inY[y] = 1; Y.push(y); }
+      if (x !== b && mark[xAt + x] !== gen) { mark[xAt + x] = gen; X.push(x); }
+      if (y !== a && mark[yAt + y] !== gen) { mark[yAt + y] = gen; Y.push(y); }
     }
     let add = -1;
-    for (const y of Y) if (!inX[y]) { add = roundOf(a, y); break; }
-    if (add < 0) for (const x of X) if (!inY[x]) { add = roundOf(b, x); break; }
+    for (let i = 0; i < Y.length; i++) {
+      const y = Y[i];
+      if (mark[xAt + y] !== gen) { for (let q = lo; q < hi; q++) if (opp[q][a] === y) { add = q; break; } break; }
+    }
+    if (add < 0) for (let i = 0; i < X.length; i++) {
+      const x = X[i];
+      if (mark[yAt + x] !== gen) { for (let q = lo; q < hi; q++) if (opp[q][b] === x) { add = q; break; } break; }
+    }
     if (add < 0) return S;
-    if (inS[add]) return S; // cannot happen for a valid round robin; stop safely
-    inS[add] = 1; S.push(add);
+    if (mark[add] === gen) return S; // cannot happen for a valid round robin; stop safely
+    mark[add] = gen; S.push(add);
   }
 }
+let swapStamp = new Uint32Array(0), swapGen = 0;
 
 function swapTeamsIn(opp, S, a, b) {
   for (const q of S) {
@@ -1034,22 +1043,45 @@ function assignVenuesOnce(opp, n, seed, { start = null, runs = true } = {}) {
 // so every team has n - 1 home and n - 1 away games. The value is counted over the whole season,
 // including the step from the last game of leg one to the first of leg two.
 
-/** Breaks over the whole season when `host` (who hosts each pair in leg one) sets every venue. */
-function hostBreaks(opp, n, R, host) {
-  const N = opp[0].length;
-  let b = 0;
+/**
+ * Breaks over the whole season when `host` (who hosts each pair in leg one; the second meeting is
+ * at the other ground) sets every venue, for searches that move leg two only (leg one's rows are
+ * never touched). Each team's leg-one breaks and its last venue there are counted once, and the
+ * hosts are read from a table hosts[t * N + u] = 1 when t hosts u, so each call walks leg two alone
+ * (it used to walk the whole season with a min/max lookup per game: ci-perf-2026-11-12-carry-over-scratch).
+ */
+function legTwoHostBreaks(leg1, n, R, host) {
+  const N = leg1[0].length;
+  const hosts = new Uint8Array(N * N);
+  for (let t = 0; t < N; t++) for (let u = 0; u < N; u++) if (t !== u && host[Math.min(t, u) * N + Math.max(t, u)] === t) hosts[t * N + u] = 1;
+  const lastOne = new Int8Array(n);
+  let base = 0;
   for (let t = 0; t < n; t++) {
     let last = -1;
-    for (let r = 0; r < opp.length; r++) {
-      const u = opp[r][t];
+    for (let r = 0; r < R; r++) {
+      const u = leg1[r][t];
       if (u >= n) { last = -1; continue; }
-      const h1 = host[Math.min(t, u) * N + Math.max(t, u)] === t ? 1 : 0;
-      const h = r < R ? h1 : 1 - h1;
-      if (h === last) b++;
+      const h = hosts[t * N + u];
+      if (h === last) base++;
       last = h;
     }
+    lastOne[t] = last;
   }
-  return b;
+  return (opp) => {
+    let b = base;
+    const rows = opp.length;
+    for (let t = 0; t < n; t++) {
+      let last = lastOne[t];
+      for (let r = R; r < rows; r++) {
+        const u = opp[r][t];
+        if (u >= n) { last = -1; continue; }
+        const h = 1 - hosts[t * N + u];
+        if (h === last) b++;
+        last = h;
+      }
+    }
+    return b;
+  };
 }
 
 /**
@@ -1131,17 +1163,19 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
       const turned = leg1.map((o) => o.slice());
       [turned[0], turned[R - 1]] = [turned[R - 1], turned[0]];
       const starts = [opp.slice(R), mirror, turned].map((leg) => [...leg1.map((o) => o.slice()), ...leg.map((o) => o.slice())]);
-      const fewest = Math.min(...starts.map((o) => hostBreaks(o, n, R, host) + REPEAT_PENALTY * repeatsAcross(o, n, R)));
+      const seasonBreaks = legTwoHostBreaks(leg1, n, R, host);
+      const fewest = Math.min(...starts.map((o) => seasonBreaks(o) + REPEAT_PENALTY * repeatsAcross(o, n, R)));
       const cap = Math.max(maxBreaks, fewest);
-      const startCost = (o) => { const b = hostBreaks(o, n, R, host); return coeCost(o) + (b > cap ? 1e9 : 0); };
+      const startCost = (o) => { const b = seasonBreaks(o); return coeCost(o) + (b > cap ? 1e9 : 0); };
       opp = starts.reduce((a, b) => (startCost(b) < startCost(a) ? b : a));
-      const within = (o) => { const b = hostBreaks(o, n, R, host); return coeCost(o) + (b > cap ? 1e9 : 0); };
+      const within = (o) => { const b = seasonBreaks(o); return coeCost(o) + (b > cap ? 1e9 : 0); };
       ({ bestOpp: opp } = anneal(opp, within, { iterations, T0, rand, stopAt: -Infinity, blocks: [[R, 2 * R]] }));
     } else if (breakWeight > 0) {
       // Leg one keeps the rounds and home/away the single search chose for it (already traded for
       // breaks); only leg two moves, and its venues follow from leg one, so the breaks in the cost
       // are exact rather than estimated.
-      const exact = (o) => coeCost(o) + breakWeight * hostBreaks(o, n, R, host);
+      const seasonBreaks = legTwoHostBreaks(leg1, n, R, host);
+      const exact = (o) => coeCost(o) + breakWeight * seasonBreaks(o);
       ({ bestOpp: opp } = anneal(opp, exact, { iterations, T0, rand, stopAt: -Infinity, blocks: [[R, 2 * R]] }));
     } else {
       ({ bestOpp: opp } = anneal(opp, coeCost, { iterations, T0, rand, stopAt: lb, blocks }));
