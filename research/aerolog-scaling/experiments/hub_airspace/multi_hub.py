@@ -1,4 +1,4 @@
-"""Milestone 11b: several hubs and several operators in one cruise layer. Where do crossing flows come from, does
+"""Milestone 11c: several hubs and several operators in one cruise layer. Where do crossing flows come from, does
 a closed form still predict the conflict rate, and which altitude-layer rule removes the most conflicts?
 
 Milestone 11a counted one hub's own traffic: a head-on problem, predicted to about 1% by a closed form. A city has
@@ -62,6 +62,7 @@ Preliminary; straight legs, no wind, no avoidance, equal speeds.
 
     python3 multi_hub.py > multi_hub_results.txt
 """
+import importlib.util
 import math
 import os
 import random
@@ -69,8 +70,11 @@ import sys
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-from run import HOVER, R_TERM, load_nyc  # noqa: E402
+# 11a's run.py, loaded under its own name (a bare "import run" would shadow other experiments' run modules)
+_spec = importlib.util.spec_from_file_location("hub_airspace_run_11a", os.path.join(HERE, "run.py"))
+_run = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_run)
+HOVER, R_TERM, load_nyc = _run.HOVER, _run.R_TERM, _run.load_nyc
 
 RULES = ("single", "inout", "semi", "semi_inout")
 
@@ -246,8 +250,10 @@ def union_area(hubs, radius, seed=5, n=400000):
     xs = [h[0] for h in hubs]
     ys = [h[1] for h in hubs]
     x0, x1, y0, y1 = min(xs) - radius, max(xs) + radius, min(ys) - radius, max(ys) + radius
-    hit = sum(1 for _ in range(n) if any((u - hx) ** 2 + (w - hy) ** 2 <= radius * radius for hx, hy in hubs)
-              for u, w in [(rnd.uniform(x0, x1), rnd.uniform(y0, y1))])
+    hit = 0
+    for _ in range(n):
+        u, w = rnd.uniform(x0, x1), rnd.uniform(y0, y1)
+        hit += any((u - hx) ** 2 + (w - hy) ** 2 <= radius * radius for hx, hy in hubs)
     return hit / n * (x1 - x0) * (y1 - y0)
 
 
@@ -270,7 +276,7 @@ def main():
     lam = 240
     pts = load_nyc(10000.0)
     P = print
-    P(f"# Milestone 11b: several hubs and operators. {len(pts)} NYC destinations within 10 km of 11a's hub.")
+    P(f"# Milestone 11c: several hubs and operators. {len(pts)} NYC destinations within 10 km of 11a's hub.")
     P(f"# Lambda {lam}/h for the city, v 20 m/s, R 50 m, r_t {R_TERM:.0f} m, h {HOVER:.0f} s. Rates in conflicts per hour.")
     P("# columns: same-hub terminal, same-hub en route, cross-hub terminal, cross-hub en route")
     cases = {}
