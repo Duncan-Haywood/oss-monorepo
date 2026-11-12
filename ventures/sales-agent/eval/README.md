@@ -930,11 +930,48 @@ is the untuned cost. The rules (`triage`) did not change, so the Enron re-score 
 Still open: a larger or hosted model, which may close well enough to act alone (a 14B, when a model host answers); and
 whether the 11-of-25 close accuracy holds on real replies.
 
-## A 14B local model on the same replies (2026-11-12, in progress)
+## A 14B local model on the same replies (2026-11-12)
 
-huggingface.co answered on the third run of 2026-11-12, so this run downloads Qwen2.5-14B-Instruct Q4_K_M (Qwen's own
-split GGUF, three files, about 9 GB) and runs it through the same `TRIAGE_SYSTEM` prompt and merge as the 7B above, honest
-pair and trap probes first. Results follow when the run finishes.
+**Setup.** Qwen2.5-14B-Instruct, Q4_K_M, Qwen's own split GGUF (three files, 8.99 GB) from Hugging Face, which answered on
+the third run of 2026-11-12. Same `llama-cpp-python[server]` 0.3.16 venv build, `--n_ctx 4096 --n_threads 4 --chat_format
+chatml`, CPU only, 4 cores, 15 GB RAM. **Load it with `--use_mmap false`**: with mmap on, the AMX repack this CPU build does
+holds a second copy beside the mapped file and the kernel killed the server at about 15 GB; with mmap off it sits at 10 GB.
+21.3 s a reply. Same product prompt (`TRIAGE_SYSTEM`), same merge, answers in `model-answers/qwen2.5-14b-q4km.json`:
+
+```
+LLM_PROVIDER=llamacpp LLM_MODEL=qwen node eval/model.mjs eval/fresh-*.jsonl eval/replies.jsonl eval/heldout.jsonl \
+  --cache eval/model-answers/qwen2.5-14b-q4km.json
+```
+
+**First 181: the two honest sets and the five trap probes**, the replies the flagship's `next:` asked for first. The 7B
+column is the committed 7B cache re-scored offline on the same replies with today's merge.
+
+| Same 181 replies | Rules | 7B alone | 14B alone | 7B merged | 14B merged |
+|---|---|---|---|---|---|
+| Right | 133 | 136 | 144 | 147 | 146 |
+| Honest pair (81) right | 49 | 70 | 72 | 62 | 61 |
+| False stops | 12 | 30 | 26 | 11 | 12 |
+| False opt-outs | 0 | 6 | 9 | 0 | 0 |
+| Lost silently | 1 | 4 | 2 | 1 | 2 |
+| Stop flags for a person (right / wrong) | | | | 4 / 12 | 4 / 14 |
+| Close flags (right / wrong) | | | | 8 / 4 | 8 / 1 |
+
+Twice the size buys 8 replies alone (4%) and nothing merged. Its opt-out reading is no better: 9 false opt-outs to the 7B's
+6, among them "Who gave you my email?", "Do you handle unsubscribe links and suppression lists for us?" and "Our legal
+team asks: are you CAN-SPAM compliant", and it reads "Can you resend the attachment? It didn't open" and "I got a bounce
+when I tried your calendar link" as bounces just as the 7B did. A model's stop stays a flag, for the 14B too.
+
+The one place it differs is its closes. Of the replies the rules leave to a person as `unclear`, the 14B called 7 a plain
+no or the wrong person, and all 7 were ("We have decided not to proceed. All the best.", "We don't use outside software
+for this and don't plan to.", "You've got the wrong Sam, I work in finance not operations."); the 7B called 11 and was right
+on 7. Its one wrong close came from an objection ("we already pay for QuickBooks and I'm not adding a second tool").
+
+**Pre-registered, before the 14B saw the other 611 replies** (committed in this PR before that run finished): the hypothesis
+is that a 14B's `not_interested` or `left_company` on a reply the rules read as `unclear` is right often enough to act
+alone. It is accepted if, on the 611 replies not in the 181 (the other fresh sets and the two tuning sets), those closes
+are right at least 85% of the time and at most 2 of them lose a live reply silently. If accepted, it becomes an opt-in
+setting, not the default, since a deployer's model may be smaller. Closes from `question` or `objection` stay flags either
+way. The counterfactual is computed from the committed cache with the merge's close flag lifted for that one case.
 
 ## "We are not interested": a veto narrowed with an Enron re-score (2026-11-12)
 

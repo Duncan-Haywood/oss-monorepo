@@ -1,0 +1,21 @@
+{
+ "note": "Labelled by qwen at temperature 0 through an OpenAI-compatible server, one reply per call, from eval/enron-labels/READER.md (eval/model-reader.mjs). No text.",
+ "rows": [
+  {
+   "id": "<2821195.1075847310048.JavaMail.evans@thyme>",
+   "reader": "left_company"
+  },
+  {
+   "id": "<30714746.1075857023214.JavaMail.evans@thyme>",
+   "reader": "out_of_office"
+  },
+  {
+   "id": "<7995504.1075847543480.JavaMail.evans@thyme>",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<28193102.1075858680298.JavaMail.evans@thyme>",
+   "reader": "none"
+  }
+ ]
+}
