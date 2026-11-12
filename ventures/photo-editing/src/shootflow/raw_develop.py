@@ -1581,6 +1581,17 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                 vals = dng_opcodes.run_stage1(op_plan.stage1, vals, rw, raw.height, notes)
         elif op_plan.notes:
             notes.append("opcode lists not run (opcodes off)")
+    # TrimBounds: each opcode after a trim runs on its frame, and the output is cropped to the last one.
+    half_f = 0.5 if (settings.half and not linear_raw) else 1.0
+    stage3_w, stage3_h = (w // 2, h // 2) if half_f != 1.0 else (w, h)
+    trim = (0, 0, stage3_h, stage3_w)
+    if gain_maps or warps:
+        gain_maps, (t2, l2, h2, w2) = dng_opcodes.frame_trims(gain_maps, h, w, "OpcodeList2", notes)
+        t3, l3 = int(t2 * half_f), int(l2 * half_f)
+        start3 = (t3, l3, min(int((t2 + h2) * half_f), stage3_h) - t3, min(int((l2 + w2) * half_f), stage3_w) - l3)
+        warps, trim = dng_opcodes.frame_trims(
+            warps, stage3_h, stage3_w, "OpcodeList3", notes, start=start3, factor=half_f
+        )
     # Normalised 0..1 sample for active-area pixel (y, x), sample s.
     # Each CFA position's black is subtracted and its own span to white scaled
     # to 1, so per-channel blacks do not tint the picture.
@@ -1684,7 +1695,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             vals=vals, rw=rw, top=top, left=left, w=w, h=h, spp=spp, lin=lin, black_=black, span=span,
             dh=dh, dv=dv, rr=rr, rc=rc, caplines=caplines, linear_raw=linear_raw, pat=pat,
             half=settings.half, mults=(wbr, wbg, wbb), hi=hi, m=m, curve=curve, lut_size=lut_size,
-            look=look, gain_maps=gain_maps, warps=warps,
+            look=look, gain_maps=gain_maps, warps=warps, trim=trim,
         )
 
     out = array("H")
@@ -1731,20 +1742,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             encode(lin_rgb[i], lin_rgb[i + 1], lin_rgb[i + 2], out)
         del lin_rgb
 
-    report_w, report_h = ow, oh
-    # Default crop (relative to the active area), in output pixels.
-    origin = ifd.get(TAG_CROP_ORIGIN)
-    size = ifd.get(TAG_CROP_SIZE)
-    if origin and size and len(origin) == 2 and len(size) == 2:
-        f = 0.5 if (settings.half and not linear_raw) else 1.0
-        cx, cy = int(round(float(origin[0]) * f)), int(round(float(origin[1]) * f))
-        cw, ch = int(round(float(size[0]) * f)), int(round(float(size[1]) * f))
-        if 0 <= cx and 0 <= cy and cw > 0 and ch > 0 and cx + cw <= ow and cy + ch <= oh:
-            if (cx, cy, cw, ch) != (0, 0, ow, oh):
-                out = _crop(out, ow, cx, cy, cw, ch)
-                report_w, report_h = cw, ch
-        else:
-            notes.append("DefaultCrop lies outside the image and was ignored")
+    out, report_w, report_h = _trim_and_crop(out, ow, oh, trim, ifd, settings, linear_raw, notes, _crop)
     orientation = ifd0.one(TAG_ORIENTATION, 1)
     out, report_w, report_h = _orient(out, report_w, report_h, orientation)
     total = max(1, w * h * spp)
@@ -1785,21 +1783,12 @@ def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, c
     colour_model, white_xy, cct, profile_label = colour
 
     black_ = kw.pop("black_")
+    trim = kw.pop("trim")
     pixels, ow, oh, clipped = eng.render(black=black_, **kw)
     linear_raw, w, h, spp = kw["linear_raw"], kw["w"], kw["h"], kw["spp"]
-    report_w, report_h = ow, oh
-    origin = ifd.get(TAG_CROP_ORIGIN)
-    size = ifd.get(TAG_CROP_SIZE)
-    if origin and size and len(origin) == 2 and len(size) == 2:
-        f = 0.5 if (settings.half and not linear_raw) else 1.0
-        cx, cy = int(round(float(origin[0]) * f)), int(round(float(origin[1]) * f))
-        cw, ch = int(round(float(size[0]) * f)), int(round(float(size[1]) * f))
-        if 0 <= cx and 0 <= cy and cw > 0 and ch > 0 and cx + cw <= ow and cy + ch <= oh:
-            if (cx, cy, cw, ch) != (0, 0, ow, oh):
-                pixels = eng.crop(pixels, cx, cy, cw, ch)
-                report_w, report_h = cw, ch
-        else:
-            notes.append("DefaultCrop lies outside the image and was ignored")
+    pixels, report_w, report_h = _trim_and_crop(
+        pixels, ow, oh, trim, ifd, settings, linear_raw, notes, lambda p, _w, cx, cy, cw, ch: eng.crop(p, cx, cy, cw, ch)
+    )
     orientation = ifd0.one(TAG_ORIENTATION, 1)
     if orientation in range(2, 9):
         pixels = eng.orient(pixels, orientation)
@@ -1871,6 +1860,41 @@ def _bilinear(norm_row, w, h, pat, mults, encode, out) -> None:
                         n += 1
                 rgb[colour] = total / n if n else 0.0
             encode(rgb[0] * mults[0], rgb[1] * mults[1], rgb[2] * mults[2], out)
+
+
+def _trim_and_crop(pixels, ow, oh, trim, ifd, settings, linear_raw, notes, crop):
+    """Crop the output to the TrimBounds frame ``trim``, then to the DefaultCrop; returns ``(pixels, w, h)``.
+
+    The DefaultCrop is relative to the active area (DNG 1.4), so after a trim
+    it moves by the trim's top-left and is cut to the trimmed image
+    (``dng_opcodes`` docstring, TrimBounds).
+    """
+
+    ty, tx, th, tw = trim
+    trimmed = (ty, tx, th, tw) != (0, 0, oh, ow)
+    if trimmed:
+        pixels = crop(pixels, ow, tx, ty, tw, th)
+        ow, oh = tw, th
+    origin = ifd.get(TAG_CROP_ORIGIN)
+    size = ifd.get(TAG_CROP_SIZE)
+    if origin and size and len(origin) == 2 and len(size) == 2:
+        f = 0.5 if (settings.half and not linear_raw) else 1.0
+        cx, cy = int(round(float(origin[0]) * f)), int(round(float(origin[1]) * f))
+        cw, ch = int(round(float(size[0]) * f)), int(round(float(size[1]) * f))
+        if trimmed and cw > 0 and ch > 0:
+            x0, y0 = max(cx - tx, 0), max(cy - ty, 0)
+            x1, y1 = min(cx - tx + cw, ow), min(cy - ty + ch, oh)
+            if x1 > x0 and y1 > y0:
+                cx, cy, cw, ch = x0, y0, x1 - x0, y1 - y0
+            else:
+                cw = 0  # nothing of it is left: ignored below
+        if 0 <= cx and 0 <= cy and cw > 0 and ch > 0 and cx + cw <= ow and cy + ch <= oh:
+            if (cx, cy, cw, ch) != (0, 0, ow, oh):
+                pixels = crop(pixels, ow, cx, cy, cw, ch)
+                ow, oh = cw, ch
+        else:
+            notes.append("DefaultCrop lies outside the image and was ignored")
+    return pixels, ow, oh
 
 
 def _crop(pixels: array, width: int, cx: int, cy: int, cw: int, ch: int) -> array:
