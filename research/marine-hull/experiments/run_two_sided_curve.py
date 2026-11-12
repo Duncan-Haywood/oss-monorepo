@@ -43,7 +43,8 @@ Descriptive (no prediction): per |lat| band, mean excess dark hours per year and
   from C after the winter.
 
 Run (from research/marine-hull): PYTHONPATH=src python3 experiments/run_two_sided_curve.py > experiments/results_two_sided_curve.txt
-(about 5 minutes, mostly (F); stdlib, deterministic)"""
+(about 5 minutes, mostly (F); stdlib, deterministic; post_hoc() was added after the first run, run alone and appended
+to the results, and main() now calls it)"""
 import os
 import statistics as st
 import sys
@@ -173,7 +174,43 @@ def main():
     print(f"P8 within 20 deg ({len(eq)} point-years) (C) km == (R) km == (Y) km: {'held' if same else 'refuted'}")
     print("\nTotals over 300 point-years: excess dark h " + ", ".join(f"({m}) {tot[m]:.0f}" for m in POLICIES)
           + "; km " + ", ".join(f"({m}) {km[m]:.0f}" for m in POLICIES + ("F",)))
+    post_hoc()
     return R
+
+
+def lead(T, days):
+    """T'(d) = max of T over days d to d + days (circular): reach each day's target `days` ahead of it."""
+    n = len(T)
+    return [max(T[(d + j) % n] for j in range(days + 1)) for d in range(n)]
+
+
+def post_hoc(leads=(0, 10, 20, 30), haircuts=(1.0, 0.9, 0.8)):
+    """Written after reading P1 to P8. The own-year oracle (C1) has almost as many excess dark hours as (C)
+    (10,729 against 11,211), so the climatology is not what costs (C) its dark hours: the policy is. Its planned power
+    h7 + (SOC - T) / 240 h refills the pack toward the target with a 10-day time constant, while (C)'s target climbs
+    from 0.5 C to C over the last few weeks before the deficit season, so the pack arrives short. Test: lead the target
+    by L days (T'(d) = max T over d..d+L) and combine with the sun haircut; no (F) needed. Every point-year as in main()."""
+    pts = yp.points()
+    print("\nPost hoc (after reading the predictions): lead the (C) target by L days, with a sun haircut")
+    print("   haircut lead | summed excess dark h | summed km | km |lat|>=40 | km / (R) km")
+    base = {}
+    for p in pts:
+        for yr in YEARS:
+            sun = rc.year_sun(p, yr)
+            hc = rc.climatology_wh(p, yr)
+            base[(p, yr)] = (sun, hc, yp.idle(sun)[1],
+                             rc.causal_target(sun, rc.target_from_reserve(rc.reserve(hc)))[0])
+    kR = sum(b[3] for b in base.values())
+    for hcut in haircuts:
+        for L in leads:
+            ex = km = km40 = 0.0
+            for (p, yr), (sun, hc, idle_dark, _) in base.items():
+                T = lead(target_capped(reserve_capped([hcut * e for e in hc])), L)
+                k, _, dark = rc.causal_target(sun, T)
+                ex += dark - idle_dark
+                km += k
+                km40 += k if abs(yp.lat_of(p)) >= 40 else 0.0
+            print(f"   {hcut:7.1f} {L:4d} | {ex:20.0f} | {km:9.0f} | {km40:13.0f} | {km / kR:.4f}")
 
 
 if __name__ == "__main__":
