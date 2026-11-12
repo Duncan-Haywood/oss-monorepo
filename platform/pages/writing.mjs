@@ -234,8 +234,18 @@ function loadPost(root, POSTS_DIR, name) {
   };
 }
 
-const longDate = (iso) =>
-  new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+// Memoised per date string: `toLocaleDateString` builds an Intl formatter on
+// every call, and the blog index and every post's related list format the same
+// few hundred dates thousands of times (about 2 s of a warm build, 2026-11-12).
+const LONG_DATES = new Map();
+const longDate = (iso) => {
+  let s = LONG_DATES.get(iso);
+  if (s === undefined) {
+    s = new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+    LONG_DATES.set(iso, s);
+  }
+  return s;
+};
 
 const STYLE = `
   :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
@@ -609,12 +619,25 @@ export function linkSiblings(html, posts) {
   // One pass over the page's hrefs, not one scan of the page per post. The
   // replacement never contains REPO_BLOB, so the old chain of replaces and this
   // lookup agree; the first post with a given source wins, as before.
+  const to = siblingTargets(posts);
+  return html.replace(/href="([^"]*)"/g, (m, v) => to.get(v) ?? m);
+}
+
+// The source -> page map for one posts array, built once and reused for every
+// post page (as `relatedIndex` is). Rebuilding it per page was 3,700 posts x
+// 3,700 pages x two `esc` calls, about 8 s of a warm build (2026-11-12). The
+// length check rebuilds it if a caller grows the array between pages.
+const SIBLING_TARGETS = new WeakMap();
+function siblingTargets(posts) {
+  const cached = SIBLING_TARGETS.get(posts);
+  if (cached && cached.n === posts.length) return cached.to;
   const to = new Map();
   for (const p of posts) {
     const from = esc(REPO_BLOB + p.source);
     if (!to.has(from)) to.set(from, `href="../${esc(p.slug)}/"`);
   }
-  return html.replace(/href="([^"]*)"/g, (m, v) => to.get(v) ?? m);
+  SIBLING_TARGETS.set(posts, { n: posts.length, to });
+  return to;
 }
 
 export function renderPost(post, posts, opts = {}) {
@@ -652,7 +675,11 @@ function relatedIndex(posts) {
   // of the candidate lists also keeps the build linear-ish (3,700 posts, 2026-11-12).
   const cap = Math.max(2, Math.floor(posts.length / 5));
   const idf = (list) => (list && list.length > 1 && list.length <= cap ? Math.log(posts.length / list.length) : 0);
-  index = { byTag, byWord, words, idf };
+  // Each post's date as a day number, by index: the nearest-in-date sorts
+  // below compare thousands of pairs per post page, and parsing the date in
+  // every comparison was about 2 s of a warm build (2026-11-12).
+  const days = posts.map((p) => dayNumber(p.date));
+  index = { byTag, byWord, words, idf, days };
   RELATED_INDEX.set(posts, index);
   return index;
 }
@@ -672,7 +699,7 @@ const dayNumber = (iso) => (iso ? Date.parse(`${iso}T00:00:00Z`) / 86400000 : 0)
  * lists itself.
  */
 export function relatedPosts(post, posts, n = 5) {
-  const { byTag, byWord, words, idf } = relatedIndex(posts);
+  const { byTag, byWord, words, idf, days } = relatedIndex(posts);
   const score = new Map();
   const add = (list, weight) => {
     if (!weight) return;
@@ -682,7 +709,7 @@ export function relatedPosts(post, posts, n = 5) {
   for (const w of words.get(post) ?? titleWords(post.title)) add(byWord.get(w) ?? [], idf(byWord.get(w)) / 2);
   // Entries are { p: post, i: its index in `posts`, s: score }.
   const day = dayNumber(post.date);
-  const gap = (x) => Math.abs(dayNumber(x.p.date) - day);
+  const gap = (x) => Math.abs((days[x.i] ?? dayNumber(x.p.date)) - day);
   const nearest = (a, b) => gap(a) - gap(b) || a.i - b.i;
   const ranked = [...score]
     .map(([i, s]) => ({ p: posts[i], i, s }))
