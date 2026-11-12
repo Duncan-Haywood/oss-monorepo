@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVLRmri6S55JiMzaJYv",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (ventures brief)",
+  "input_sha256": "a372f5532eaf1427e680bfca426c38d03eba700db7e876d70d0ffb8f9d68093a",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T05:55:40Z",
+  "ended": "2026-11-12T06:08:25Z",
+  "wall_minutes": 13.13,
+  "tokens_in": 11396978,
+  "tokens_out": 58776,
+  "cost_usd": 4.9845,
+  "tool_calls": 80,
+  "task": "Deepen flagship 7 (photo-editing): DNG 1.6 ColorMatrix3 / triple-illuminant tables and IlluminantData",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15025",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 19,
+  "outcome": "success",
+  "errors": [
+    "Compiling Adobe DNG SDK functions in the scratchpad for a value-for-value comparison was denied by the auto-mode classifier (code from external); replaced with property tests and colour-science checks, and the gap is stated in the eval doc.",
+    "pyenv.py pytest numpy colour-science failed (PEP 668 / no matching interpreter); a scratchpad venv worked.",
+    "First preflight failed on post front matter lengths (description 162 > 160, seo_title 75 > 70); fixed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "`run_venture_tests.py photo-editing` reports '0 suites run' and exit 0 for a Python venture; ventures/CLAUDE.md presents it as the venture test command, so a reader can think the tests passed when none ran. The real command is in photo-editing-ci.yml."
+    },
+    {
+      "file": "ventures/photo-editing/tests",
+      "issue": "System Python in the container has a broken PIL (_imaging import error), so test_real_photo_calibration errors on every run; prior eval docs call it 'a failure that predates this change' without naming the cause."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Router's 'Start here' picked sales-agent; it had six slices land today on one queue (holiday presets), while photo-editing had a named BUILDABLE HERE item needing no outside input and no open PR.",
+      "did": "Took photo-editing's DNG 1.6 triple-illuminant item.",
+      "result": "Landed with tests and a colour-science check."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-third-light-for-raw-colour.md",
+    "ventures/photo-editing/eval/triple-illuminant-2026-11-12.md"
+  ],
+  "goal": null,
+  "notes": "Fluorescent synthetic scene: worst patch error 0.0005 with ColorMatrix3 vs 0.079 two-light. temperature_tint vs colour-science on 5,000 whites: 6e-15 relative / 5e-13 tint. Spectrum->xy on 20 CIE illuminants within 4.8e-5. Local: photo-editing unittest discover 624 tests, 1 pre-existing PIL error; ruff and mypy clean; venture preflight rerun after front matter fix.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f270847e-7425-5386-83c2-64e7487b1ffc",
+    "transcripts": 1,
+    "first": "2026-11-12T05:55:40Z",
+    "last": "2026-11-12T06:08:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 141,
+        "output": 58776,
+        "thinking": 12585,
+        "cache_read": 11200807,
+        "cache_write_5m": 0,
+        "cache_write_1h": 196030,
+        "api_equivalent_usd": 4.9845,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 141,
+      "output": 58776,
+      "thinking": 12585,
+      "cache_read": 11200807,
+      "cache_write_5m": 0,
+      "cache_write_1h": 196030,
+      "api_equivalent_usd": 4.9845,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 75,
+      "Write": 2,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.13,
+      "active_minutes": 13.13,
+      "model_minutes": 10.92,
+      "tool_minutes": 2.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "colour scientist reading the DNG 1.6 spec/SDK, implementing three-way blending, IlluminantData spectra and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 200.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
