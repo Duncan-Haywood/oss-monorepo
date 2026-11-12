@@ -246,3 +246,25 @@ test("repair keeps quoted parameter values quoted when it rewrites DTEND", () =>
   assert.match(out, /DTEND;VALUE=DATE;X-NOTE="a:b":20260107/);
   assert.equal(validate(out).findings.length, 0, titles(validate(out)).join("; "));
 });
+
+test("unfold drops only the final empty line a trailing CRLF leaves", () => {
+  assert.deepEqual(unfold("A:1\r\nB:2\r\n").map((l) => l.value), ["A:1", "B:2"]);
+  assert.deepEqual(unfold("A:1\r\n\r\n").map((l) => l.value), ["A:1", ""]);
+});
+
+const calOf = (...ev) => ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//t//EN", ...ev.flat(), "END:VCALENDAR", ""].join("\r\n");
+const evOf = (uid, extra) => ["BEGIN:VEVENT", `UID:${uid}`, "DTSTAMP:20260101T000000Z", ...extra, "SUMMARY:x", "END:VEVENT"];
+
+test("BYHOUR=0 (midnight) is a valid RRULE value", () => {
+  const r = validate(calOf(evOf("a@t", ["DTSTART:20260105T000000Z", "RRULE:FREQ=DAILY;BYHOUR=0"])));
+  assert.deepEqual(r.findings.filter((f) => /BYHOUR/.test(f.title)), []);
+  const bad = validate(calOf(evOf("a@t", ["DTSTART:20260105T000000Z", "RRULE:FREQ=DAILY;BYHOUR=24"])));
+  assert.ok(bad.findings.some((f) => /bad BYHOUR/.test(f.title)));
+});
+
+test("findings sort errors, then warnings, then info, whatever the line", () => {
+  const r = validate(calOf(evOf("a@t", ["DTSTART:20260105T090000"]), evOf("b@t", ["DTSTART:20260105T090000Z", "DESCRIPTION:" + "x".repeat(120)])));
+  const sev = r.findings.map((f) => f.severity);
+  assert.ok(sev.includes("warning") && sev.includes("info"), sev.join());
+  assert.deepEqual(sev, [...sev].sort((a, b) => ["error", "warning", "info"].indexOf(a) - ["error", "warning", "info"].indexOf(b)));
+});
