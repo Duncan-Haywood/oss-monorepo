@@ -11,6 +11,12 @@ P = Path(__file__).resolve().parent
 EXP = P.parent / "experiments"
 CHECKS = [
     ("within 0.0012", "excavator_fuel_breakeven_results.txt", "max |diff| 0.0012 over 20 rows"),
+    # figure captions (milestone 6 references step)
+    ("crosses 1 at 19.3, 23.9 and 28.4 bar", "ranking_map_results.txt", "p_n  1.44 bar: monotone=True; break-even dp_ls = 19.3 bar"),
+    ("crosses 1 at 19.3, 23.9 and 28.4 bar", "ranking_map_results.txt", "p_n  6.44 bar: monotone=True; break-even dp_ls = 23.9 bar"),
+    ("crosses 1 at 19.3, 23.9 and 28.4 bar", "ranking_map_results.txt", "p_n 11.44 bar: monotone=True; break-even dp_ls = 28.4 bar"),
+    ("to 20.5 bar at 25 cc", "measured_pump_size_results.txt", "25     20.5  1.200"),
+    ("only at 28.51 cc, where open-centre takes 1.3885 times", "measured_pump_size_results.txt", "V_eq (bisection) 28.51 cc: m* 24.90 bar, r 1.244, p_s 80.0, p_q 133.9, beta 0.995, idle 1.6 bar; T_oc/T_ls 1.3885"),
     ("peaks at 2.46 L/h for a pump of 87.6 L/min", "excavator_fuel_breakeven_results.txt", "f_t,max central: 2.46 to 2.46 L/h, at q_p 87.6"),
     ("runs 1.16 to 5.24 L/h", "excavator_fuel_breakeven_results.txt", "upper bound 1.16 to 5.24 L/h"),
     ("threshold, from 3.6f's committed numbers, is 0.14 L/h", "excavator_fuel_breakeven_results.txt", "f_t* there is 0.14 L/h"),

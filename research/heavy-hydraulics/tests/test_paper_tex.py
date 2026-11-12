@@ -23,3 +23,20 @@ def test_inline_markup():
     assert r"\emph{italic \texttt{a\_\allowbreak{}b}}" in s
     assert r"5\textminus{}2" in s and r"10\%" in s
     assert s.endswith(r"cite~\cite{vukovic2017}")
+
+
+def test_every_figure_has_its_own_numbered_caption():
+    md = (PAPER / "draft.md").read_text()
+    tex, figures = build_tex.convert(md)
+    labels = [int(n) for n in __import__("re").findall(r"\\label\{fig:(\d+)\}", tex)]
+    assert labels == list(range(1, len(figures) + 1))
+
+
+def test_out_of_order_figure_number_is_refused():
+    md = "# T\n\n![a](x.svg)\n\n*Figure 2 (src): text.*\n"
+    try:
+        build_tex.convert(md)
+    except ValueError as e:
+        assert "number them in order" in str(e)
+    else:
+        raise AssertionError("expected ValueError")
