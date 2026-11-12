@@ -158,12 +158,23 @@ def elsewhere_commands(slug):
             if step.status != "skipped" and step.run.strip() in wanted:
                 cwd = ROOT / step.workdir
                 if cwd.is_dir():
-                    out.append((["bash", "-ec", step.run], cwd, step.env, wf.name))
+                    out.append((["bash", "-ec", step.run], cwd,
+                                {**editable_path(wf, cwd), **step.env}, wf.name))
     return out
 
 
-def interpreter_with(module):
-    """A python3 here that already imports `module`, or None. Installs nothing.
+def editable_path(wf, cwd):
+    """PYTHONPATH standing in for the workflow's `pip install -e .` of a src
+    layout (vendor-change-watch, ig-media-pipeline), so a local run imports the
+    package from the tree without installing it."""
+    if (cwd / "src").is_dir() and re.search(r"pip install -e \.(\s|$)", wf.read_text(), re.M):
+        return {"PYTHONPATH": os.pathsep.join(filter(None, ["src", os.environ.get("PYTHONPATH")]))}
+    return {}
+
+
+def interpreter_with(*modules):
+    """A python3 here that already imports every one of `modules`, or None.
+    Installs nothing.
 
     Some session images put a bare python3 first on PATH while pip installs
     go to another (platform/ci/pyenv.py, "Why"), so a workflow's
@@ -172,19 +183,21 @@ def interpreter_with(module):
     import pyenv
     venv = os.environ.get("PYENV_VENV") or os.path.expanduser("~/.cache/pyenv-venv")
     for py in [*pyenv.candidates(), os.path.join(venv, "bin", "python3")]:
-        if os.path.isfile(py) and pyenv.imports(py, [module]):
+        if os.path.isfile(py) and pyenv.imports(py, list(modules)):
             return py
     return None
 
 
 def shim_dir(py):
-    """A directory whose `python3` and `python` run `py`: put it first on PATH.
+    """A directory whose `python3`, `python` and `pytest` run `py`: put it
+    first on PATH. A bare `pytest` (ubuntu-agent-server-ci.yml) can be a uv
+    tool with its own interpreter, which lacked PyYAML here.
 
     Wrapper scripts, not symlinks, so a venv interpreter keeps its venv.
     """
     d = Path(tempfile.mkdtemp(prefix="venture-python-"))
-    for name in ("python3", "python"):
-        (d / name).write_text(f'#!/bin/sh\nexec "{py}" "$@"\n')
+    for name, args in (("python3", ""), ("python", ""), ("pytest", " -m pytest")):
+        (d / name).write_text(f'#!/bin/sh\nexec "{py}"{args} "$@"\n')
         (d / name).chmod(0o755)
     return str(d)
 
@@ -193,17 +206,25 @@ def run_elsewhere_step(argv, cwd, env, timeout):
     """Run one workflow test step; when python3 here lacks a module the step
     needs, retry once with an interpreter that has it, else say how to get it."""
     import run_workflow_locally as rwl
+    env = env or {}
     ok, out = run_one(argv, cwd, timeout, env)
-    absent = None if ok else rwl.missing_toolchain(out.splitlines(), str(cwd))
-    if not absent:
-        return ok, out
-    py = interpreter_with(absent.split(".")[0])
-    if py is None:
-        return False, (f"{out}\n`{absent}` is not installed for python3 here, so this suite "
-                       f"never ran: `python3 platform/ci/pyenv.py {absent}` installs it, then run again.")
-    path = shim_dir(py) + os.pathsep + (env or {}).get("PATH", os.environ.get("PATH", ""))
-    ok, out = run_one(argv, cwd, timeout, {**(env or {}), "PATH": path})
-    return ok, f"(python3 here lacks {absent}; ran with {py})\n{out}"
+    lacking, note = [], ""
+    # Each retry can surface the next missing module (ig-media-pipeline:
+    # numpy, then pytest), so ask for all of them at once.
+    while not ok and len(lacking) < 4:
+        absent = rwl.missing_toolchain(out.splitlines(), str(cwd))
+        if not absent or absent.split(".")[0] in lacking:
+            break
+        lacking.append(absent.split(".")[0])
+        py = interpreter_with(*lacking)
+        if py is None:
+            names = " ".join(lacking)
+            return False, (f"{note}{out}\n`{names}` not installed for python3 here, so this suite "
+                           f"never ran: `python3 platform/ci/pyenv.py {names}` installs it, then run again.")
+        path = shim_dir(py) + os.pathsep + env.get("PATH", os.environ.get("PATH", ""))
+        ok, out = run_one(argv, cwd, timeout, {**env, "PATH": path})
+        note = f"(python3 here lacks {', '.join(lacking)}; ran with {py})\n"
+    return ok, note + out
 
 
 def clear_workflow_caches():

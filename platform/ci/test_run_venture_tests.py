@@ -292,6 +292,31 @@ class Elsewhere(unittest.TestCase):
         shim = calls[1]["PATH"].split(":")[0]
         self.assertIn('exec "/opt/py/bin/python3"', (Path(shim) / "python3").read_text())
 
+    def test_an_editable_install_becomes_pythonpath(self):
+        (self.wf / "own-ci.yml").write_text(self.WF.replace(
+            "pip install pytest", "pip install -e . pytest").replace(
+            "    env:\n      PYTHONPATH: src\n", ""))
+        [(_, _, env, _)] = rvt.elsewhere_commands("own")
+        self.assertEqual(env["PYTHONPATH"].split(":")[0], "src")
+        _, ok, out, _ = rvt.run("own", elsewhere=True)
+        self.assertTrue(ok, out)
+
+    def test_retries_ask_for_every_module_seen_missing(self):
+        outs = iter([(False, "No module named numpy"), (False, "No module named pytest"),
+                     (True, "ok")])
+        asked = []
+
+        def find(*mods):
+            asked.append(mods)
+            return "/opt/py/bin/python3"
+
+        with mock.patch.object(rvt, "run_one", lambda *a, **k: next(outs)), \
+             mock.patch.object(rvt, "interpreter_with", find):
+            ok, out = rvt.run_elsewhere_step(["bash", "-ec", "python3 -m pytest"],
+                                             rvt.ROOT, {}, 10)
+        self.assertTrue(ok, out)
+        self.assertEqual(asked, [("numpy",), ("numpy", "pytest")])
+
     def test_with_no_interpreter_it_fails_and_says_how_to_get_one(self):
         with mock.patch.object(rvt, "run_one", return_value=(False, "No module named pytest")), \
              mock.patch.object(rvt, "interpreter_with", return_value=None):
