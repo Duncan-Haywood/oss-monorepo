@@ -59,6 +59,9 @@ test("dates: year-first is flagged, day-first is proven, mixed is an error, mont
   const dm = validate([...HDR, ...tx("31/12/2024", "A", "B")].join("\n"));
   assert.ok(titles(dm).includes("Date reads day-first"));
   assert.ok(titles(validate([...HDR, ...tx("2024-13-40", "A", "B")].join("\n"))).includes("Impossible date"));
+  assert.ok(titles(validate([...HDR, ...tx("02/30/2024", "A", "B")].join("\n"))).includes("Impossible date"), "30 February is not a day");
+  assert.ok(titles(validate([...HDR, ...tx("2023-02-29", "A", "B")].join("\n"))).includes("Impossible date"), "29 February 2023 is not a day");
+  assert.ok(!titles(validate([...HDR, ...tx("02/29/2024", "A", "B")].join("\n"))).includes("Impossible date"), "29 February 2024 is");
 });
 
 test("an !ACCNT list makes undefined accounts a warning; without one the used accounts are listed", () => {
@@ -79,6 +82,9 @@ test("repair unquotes, normalises amounts, rewrites year-first dates and closes 
   assert.match(out.text, /\r\nENDTRNS/);
   assert.ok(out.changes.length >= 4);
   assert.doesNotMatch(out.text, /"/);
+  const feb30 = repair([...HDR, ...tx("2024-02-30", "A", "B")].join("\n")).text;
+  assert.doesNotMatch(feb30, /02\/30\/2024/, "an impossible year-first date is left for the person, not rewritten");
+  assert.doesNotMatch(repair([...HDR, ...tx("31/12/2024", "A", "B"), ...tx("30/02/2024", "A", "B")].join("\n"), { fixDates: "dmy" }).text, /02\/30\/2024/);
 });
 
 test("repair rewrites day-first dates only when proven or chosen, and never when mixed", () => {

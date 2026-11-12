@@ -18,6 +18,10 @@ test("parseNumber handles $, thousands, parentheses, trailing minus and decimal 
 });
 
 test("parseDate reads US, ISO, short-year, day-first and month-name dates", () => {
+  assert.equal(parseDate("02/30/2026"), null, "30 February is not a day");
+  assert.equal(parseDate("2026-04-31"), null, "31 April is not a day");
+  assert.equal(parseDate("2027-02-29"), null, "29 February 2027 is not a day");
+  assert.equal(parseDate("2028-02-29"), "2028-02-29");
   assert.equal(parseDate("01/03/2024"), "2024-01-03");
   assert.equal(parseDate("1/3/24"), "2024-01-03");
   assert.equal(parseDate("2024-03-05"), "2024-03-05");

@@ -188,6 +188,9 @@ export function parseDate(v, dayFirst = false) {
     mo = "jan feb mar apr may jun jul aug sep oct nov dec".split(" ").indexOf(m[1].toLowerCase()) + 1; d = +m[2]; y = +m[3];
   } else return null;
   if (!(mo >= 1 && mo <= 12 && d >= 1 && d <= 31)) return null;
+  // 30 February, 31 April and 29 February in a common year are not days.
+  const t = new Date(Date.UTC(y, mo - 1, d));
+  if (t.getUTCMonth() !== mo - 1 || t.getUTCDate() !== d) return null;
   return `${y}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
