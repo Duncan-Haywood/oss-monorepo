@@ -242,7 +242,7 @@ Four faults of ours, found and fixed:
 - **A Romanian buyer that is not VAT registered was read as having a bad VAT number.** CIUS-RO puts such a buyer's fiscal code (CUI, `8609468`) in a `PartyTaxScheme` with an empty `TaxScheme`. The reader took any unlabelled scheme as BT-48, so INV-022 fired on the buyer in 4 of ANAF's 10 examples. EN 16931's BR-CO-9 reads only `TaxScheme/ID` = `VAT`; an unlabelled scheme now counts as a VAT number only when it starts with a two-letter prefix (JS and Python readers both).
 - **Five EU-only built-in checks fired on ZATCA files.** A simplified (B2C) invoice names no buyer (INV-006); KSA credit and debit notes are `Invoice` documents with type code 381 or 383 (INV-034); ZATCA's own cut of the EN 16931 rules leaves out BR-33, allowance reason (INV-052) and BR-61, account for a credit transfer (INV-045), checked in `plain/zatca-en16931-ubl.json`; and a prepayment adjustment repeats a rate in the tax breakdown (INV-038, that message only). These are now dropped where a ZATCA set governs, like INV-005/017/018/022 before.
 
-Read and left alone, because they are faults in the examples, not in the checks: SimplerInvoicing's `NL11 BANK 1111111111` IBANs and `NL…B01` VAT numbers fail their checksums (INV-023/025, 57 files); ANAF's seller id `RO1111111111118` has 13 digits where a Romanian VAT number has 2 to 10 (INV-022, all 10); line nets that are not quantity times price, such as 2 × 1273.00 billed as 1273.00 or a returned line with a positive quantity and a negative net (INV-012 on 6 RO files, 3 NL and the CII example; EN 16931 has no rule for this but Peppol's PEPPOL-EN16931-R120 does); and AMA's files are syntax templates with placeholders (`$%()*`, `#ENTITY@ATMPAYMENT#12345#`, type code `NC`), which the EU base rejects as it should. Still open: UBL-SR-53 fires on 4 RO files with an empty `TaxScheme` (an EU-base rule that later EN releases drop, so a rule-version gap); ZATCA's rate-change prepayment example leaves INV-038 "row 2 taxable amount" (a prepayment at the old rate); INV-026 reads BT-86 as a BIC, while EN 16931 also allows a national clearing code (the NL examples carry placeholders, `BA11`). Tests: `official-good-cases.test.mjs` (6: the CUI reading, the warning severity, the regex rewrite, a PT invoice with an 8,000-character attachment finishing in under 2 s), 2 more in `report-plain-route.test.mjs`, 3 in `tests/test_ubl_party.py`. The examples are not copied here.
+Read and left alone, because they are faults in the examples, not in the checks: SimplerInvoicing's `NL11 BANK 1111111111` IBANs and `NL…B01` VAT numbers fail their checksums (INV-023/025, 57 files); ANAF's seller id `RO1111111111118` has 13 digits where a Romanian VAT number has 2 to 10 (INV-022, all 10); line nets that are not quantity times price, such as 2 × 1273.00 billed as 1273.00 or a returned line with a positive quantity and a negative net (INV-012 on 6 RO files, 3 NL and the CII example; EN 16931 has no rule for this but Peppol's PEPPOL-EN16931-R120 does); and AMA's files are syntax templates with placeholders (`$%()*`, `#ENTITY@ATMPAYMENT#12345#`, type code `NC`), which the EU base rejects as it should. Still open: UBL-SR-53 fires on 4 RO files with an empty `TaxScheme` (an EU-base rule that later EN releases drop, so a rule-version gap); ZATCA's rate-change prepayment example leaves INV-038 "row 2 taxable amount" (a prepayment at the old rate); INV-026 read BT-86 as a BIC, while EN 16931 also allows a national clearing code; closed 2026-11-12, see "BT-86 clearing codes" (the NL examples' placeholder `BA11` is still INV-026, as it should be). Tests: `official-good-cases.test.mjs` (6: the CUI reading, the warning severity, the regex rewrite, a PT invoice with an 8,000-character attachment finishing in under 2 s), 2 more in `report-plain-route.test.mjs`, 3 in `tests/test_ubl_party.py`. The examples are not copied here.
 
 **Romania RO e-Factura national rules, CIUS-RO (shipped 2026-10-24).** A UBL file whose BT-24 names `CIUS-RO` now also gets Romania's 122 national rules (v1.0.9 from `phive-rules-cius-ro` on Maven Central) after the EU base, in the browser and on the Node plain route: date format `YYYY-MM-DD`, an invoice number with a digit, the profile id, RON as the VAT accounting currency, `SECTOR1..6` city and `RO-xx` county codes, address and tax-id presence, two-decimal amounts and the length caps. It is an add-on (`ADDONS["cius-ro"]`), not a replacement like PINT, because the national file only adds to EN 16931. The messages are bilingual in the source (`Romanian #English`); the English half is shown, each rule has an English fix. `build-ro-rules.mjs` rebuilds `plain/cius-ro-ubl.json` (set `EINVOICE_RO_JAR` for a jar on disk). Verification (`cius-ro.test.mjs`, 5 tests; made-up invoices `examples/ro-invoice.xml` and `ro-invoice-with-defects.xml`): the clean RON invoice passes both sets with no skipped rule; the defect file raises BR-RO-001, -010, -030, -110 and -DT001; removing the buyer street raises BR-RO-082. Not done: the Saxon route and server API do not run it (no `.sef.json` built); the bundled `EN16931-CIUS_RO` XSLT (EN rules with RO changes) is not used; no real invoice from a Romanian ERP and no ANAF SPV verdict has been tried, so false positives or gaps against ANAF's live validator are unmeasured.
 
@@ -416,15 +416,45 @@ the account number. This is a typo catch, not a bank lookup and not a
 determination that the account exists or belongs to the named party. UBL
 `PaymentMeans/PayeeFinancialAccount/ID` maps into `payment.iban`.
 
-`payment.bic` is optional. When supplied, it must be an 8- or 11-character
-ISO 9362 identifier (four letters, a two-letter country, a two-character
-location, and an optional three-character branch). A value that is not
-that shape is `INV-026`. When both a complete IBAN and a complete BIC are
-present, a country mismatch is `INV-027`. Messages never repeat the BIC
+`payment.bic` is optional. EN 16931's BT-86 (payment service provider
+identifier) admits a BIC or a national clearing code, so either is accepted:
+an 8- or 11-character ISO 9362 identifier (four letters, a two-letter
+country, a two-character location, and an optional three-character branch),
+a clearing code of 3 to 11 digits (UK sort code, German BLZ, US ABA routing
+number, Australian BSB, Italian ABI/CAB and so on), or an Indian IFSC. A
+value that is none of these is `INV-026`, and so is a nine-digit number with
+a US district prefix whose ABA check digit fails (a **note** when it starts
+with 0, since Canada's EFT form and Russia's BIK do too). When both a
+complete IBAN and a complete BIC are present, a country mismatch is
+`INV-027`; when a clearing code and a complete IBAN are present and the
+IBAN's country carries its bank code in a known place (23 countries, from
+the SWIFT IBAN registry's bank and branch positions: DE, GB, IE, AT, CH, IT,
+FR, ES and others), a code that is not that bank code is also `INV-027`
+(see "BT-86 clearing codes" below). Messages never repeat the BIC
 or the account number. This is a typo catch, not a SWIFT directory lookup
 and not a determination that the institution will accept the payment. UBL
 `PayeeFinancialAccount/FinancialInstitutionBranch/ID` (or the nested
 `FinancialInstitution/ID`) maps into `payment.bic`.
+
+**BT-86 clearing codes (2026-11-12).** Before this, every non-BIC value in
+BT-86 was `INV-026`, so a UK supplier quoting a sort code, a US one quoting a
+routing number, or an Australian one quoting a BSB failed the preflight on a
+field the standard lets them fill that way (the PINT route already dropped
+INV-026 for this reason; EU files had no such escape). Now `classifyProviderId`
+in `bic.mjs` (mirrored by `classify_provider_id` in the Python package) reads
+the value as a BIC, a clearing code, or neither, and a clearing code is checked
+against the IBAN: a German BLZ must be the IBAN's first eight BBAN digits, a
+UK sort code its six digits after the bank letters, an Italian ABI or ABI+CAB
+the digits after the CIN letter, a Swiss IID the five-digit bank code (written
+with or without leading zeros). That catches a typo a BIC check never could:
+`37040045` against `DE89 3704 0044 ...` is INV-027. The ABA check (weights 3,
+7, 1, sum divisible by 10) is checked on published routing numbers (021000021,
+121000358). Not done: no bank directory lookup (a well-formed sort code may
+not exist); countries outside the 23 are not compared; the Python package has
+no note severity, so the leading-0 routing note is silent there. Tests:
+`bic.test.mjs` (4 new), `tests/test_bic.py` (`ClearingCodeTest`, 3), and
+`pint-current.test.mjs` now uses a malformed value for its "EU still checks"
+case, since a BSB on an EU file is no longer wrong.
 
 `payment.remittance` is the text the buyer should quote on the transfer.
 When a complete IBAN is present and remittance is missing, that is

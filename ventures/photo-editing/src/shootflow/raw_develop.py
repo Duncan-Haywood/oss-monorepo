@@ -121,6 +121,15 @@ TAG_LOOK_TABLE_DATA = 50982
 TAG_HUE_SAT_MAP_ENCODING = 51107
 TAG_LOOK_TABLE_ENCODING = 51108
 TAG_BASELINE_EXPOSURE_OFFSET = 51109
+# DNG 1.6: a third calibration illuminant and custom illuminant data.
+TAG_ILLUMINANT_3 = 52529
+TAG_CAMERA_CALIBRATION_3 = 52530
+TAG_COLOR_MATRIX_3 = 52531
+TAG_FORWARD_MATRIX_3 = 52532
+TAG_ILLUMINANT_DATA_1 = 52533
+TAG_ILLUMINANT_DATA_2 = 52534
+TAG_ILLUMINANT_DATA_3 = 52535
+TAG_HUE_SAT_MAP_DATA_3 = 52537
 # A .dcp camera profile is a TIFF-structured file with "RC" in place of 42.
 DCP_MAGIC = 0x4352
 
@@ -139,6 +148,8 @@ class DevelopError(ValueError):
 @dataclass
 class Ifd:
     entries: dict[int, tuple] = field(default_factory=dict)
+    # The file's byte order, for UNDEFINED tags with inner structure (IlluminantData).
+    byte_order: str = "<"
 
     def get(self, tag: int, default=None):
         values = self.entries.get(tag)
@@ -171,7 +182,7 @@ class _Reader:
         if offset <= 0 or offset + 2 > len(data):
             raise DevelopError(f"IFD offset {offset} is outside the file")
         count = struct.unpack_from(end + "H", data, offset)[0]
-        ifd = Ifd()
+        ifd = Ifd(byte_order=end)
         pos = offset + 2
         for _ in range(count):
             if pos + 12 > len(data):
@@ -1086,13 +1097,14 @@ def _text(values) -> str:
 
 
 def _tables(tag, notes: list[str]):
-    """(HueSatMap1, HueSatMap2, LookTable) from the profile tags; a bad table is skipped with a note."""
+    """(HueSatMap1, HueSatMap2, LookTable, HueSatMap3) from the profile tags; a bad table is skipped with a note."""
 
     out: list[dc.HueSatTable | None] = []
     for dims_tag, data_tag, enc_tag, label in (
         (TAG_HUE_SAT_MAP_DIMS, TAG_HUE_SAT_MAP_DATA_1, TAG_HUE_SAT_MAP_ENCODING, "ProfileHueSatMapData1"),
         (TAG_HUE_SAT_MAP_DIMS, TAG_HUE_SAT_MAP_DATA_2, TAG_HUE_SAT_MAP_ENCODING, "ProfileHueSatMapData2"),
         (TAG_LOOK_TABLE_DIMS, TAG_LOOK_TABLE_DATA, TAG_LOOK_TABLE_ENCODING, "ProfileLookTableData"),
+        (TAG_HUE_SAT_MAP_DIMS, TAG_HUE_SAT_MAP_DATA_3, TAG_HUE_SAT_MAP_ENCODING, "ProfileHueSatMapData3"),
     ):
         data = tag(data_tag)
         if data is None:
@@ -1122,7 +1134,8 @@ def _profile(ifd0: Ifd, ifd: Ifd, dcp: Ifd | None = None, notes: list[str] | Non
 
     def tag(t):
         if dcp is not None and t not in (
-            TAG_CAMERA_CALIBRATION_1, TAG_CAMERA_CALIBRATION_2, TAG_CAMERA_CALIBRATION_SIGNATURE, TAG_ANALOG_BALANCE
+            TAG_CAMERA_CALIBRATION_1, TAG_CAMERA_CALIBRATION_2, TAG_CAMERA_CALIBRATION_3,
+            TAG_CAMERA_CALIBRATION_SIGNATURE, TAG_ANALOG_BALANCE,
         ):
             return dcp.get(t)
         return camera_tag(t)
@@ -1135,12 +1148,30 @@ def _profile(ifd0: Ifd, ifd: Ifd, dcp: Ifd | None = None, notes: list[str] | Non
             cm1, cm2, ill1, ill2 = cm2, None, (tag(TAG_ILLUMINANT_2) or (0,))[0], 0
             cc1, cc2 = dc.as_matrix(tag(TAG_CAMERA_CALIBRATION_2)), None
             fm1, fm2 = dc.as_matrix(tag(TAG_FORWARD_MATRIX_2)), None
+            data_tags: tuple[int | None, int | None] = (TAG_ILLUMINANT_DATA_2, None)
         else:
             ill1, ill2 = (tag(TAG_ILLUMINANT_1) or (0,))[0], (tag(TAG_ILLUMINANT_2) or (0,))[0]
             cc1, cc2 = dc.as_matrix(tag(TAG_CAMERA_CALIBRATION_1)), dc.as_matrix(tag(TAG_CAMERA_CALIBRATION_2))
             fm1, fm2 = dc.as_matrix(tag(TAG_FORWARD_MATRIX_1)), dc.as_matrix(tag(TAG_FORWARD_MATRIX_2))
+            data_tags = (TAG_ILLUMINANT_DATA_1, TAG_ILLUMINANT_DATA_2)
+        cm3 = dc.as_matrix(tag(TAG_COLOR_MATRIX_3)) if cm2 is not None else None
+        ill3 = (tag(TAG_ILLUMINANT_3) or (0,))[0] if cm3 is not None else 0
+        cc3 = dc.as_matrix(tag(TAG_CAMERA_CALIBRATION_3)) if cm3 is not None else None
+        fm3 = dc.as_matrix(tag(TAG_FORWARD_MATRIX_3)) if cm3 is not None else None
     except dc.ColourError as exc:
         raise DevelopError(str(exc)) from None
+    # IlluminantData's inner fields follow the byte order of the file that holds it.
+    order = dcp.byte_order if dcp is not None else ifd.byte_order
+    light_data: list[tuple[float, float] | None] = []
+    for code, data_tag in ((ill1, data_tags[0]), (ill2, data_tags[1]), (ill3, TAG_ILLUMINANT_DATA_3)):
+        values = tag(data_tag) if data_tag is not None and int(code) == dc.LIGHT_OTHER else None
+        xy = None
+        if values:
+            try:
+                xy = dc.parse_illuminant_data(values, order)
+            except dc.ColourError as exc:
+                notes.append(f"{exc}; that illuminant is treated as unknown")
+        light_data.append(xy)
     ab = tag(TAG_ANALOG_BALANCE)
     sig_cam = bytes(tag(TAG_CAMERA_CALIBRATION_SIGNATURE) or b"").rstrip(b"\0")
     sig_prof = bytes(tag(TAG_PROFILE_CALIBRATION_SIGNATURE) or b"").rstrip(b"\0")
@@ -1148,7 +1179,12 @@ def _profile(ifd0: Ifd, ifd: Ifd, dcp: Ifd | None = None, notes: list[str] | Non
         want, have = _text(dcp.get(TAG_UNIQUE_CAMERA_MODEL)), _text(camera_tag(TAG_UNIQUE_CAMERA_MODEL))
         if want and have and want != have:
             notes.append(f"camera profile is for {want!r}, the file is from {have!r}")
-    hsm1, hsm2, look = _tables(tag, notes)
+    hsm1, hsm2, look, hsm3 = _tables(tag, notes)
+    if cm3 is None:
+        hsm3 = None
+    elif hsm3 is not None and hsm1 is not None and hsm3.dims != hsm1.dims:
+        notes.append("ProfileHueSatMapData3 ignored: its shape differs from ProfileHueSatMapData1")
+        hsm3 = None
     if hsm1 is not None and hsm2 is not None and hsm1.dims != hsm2.dims:
         notes.append("ProfileHueSatMapData2 ignored: its shape differs from ProfileHueSatMapData1")
         hsm2 = None
@@ -1168,6 +1204,14 @@ def _profile(ifd0: Ifd, ifd: Ifd, dcp: Ifd | None = None, notes: list[str] | Non
         hue_sat_map_1=hsm1,
         hue_sat_map_2=hsm2,
         look_table=look,
+        color_matrix_3=cm3,
+        illuminant_3=int(ill3),
+        camera_calibration_3=cc3,
+        forward_matrix_3=fm3,
+        hue_sat_map_3=hsm3,
+        illuminant_data_1=light_data[0],
+        illuminant_data_2=light_data[1],
+        illuminant_data_3=light_data[2],
     )
 
 
@@ -1187,8 +1231,19 @@ def _dng_colour(profile: dc.Profile, neutral_hat, white_xy, notes: list[str]):
         raise DevelopError(str(exc)) from None
     m = dc.matmul(dc.matmul(_XYZ_D50_TO_SRGB, cam_xyz), dc.diag(neutral_hat))
     base = "ForwardMatrix" if used_fm else "ColorMatrix"
-    t1 = dc.ILLUMINANT_CCT.get(profile.illuminant_1, 0.0)
-    if profile.color_matrix_2 is not None and profile._pair() is not None:
+    t1 = dc.illuminant_temperature(profile.illuminant_1, profile.illuminant_data_1)
+    problem = profile.triple_problem()
+    if problem:
+        notes.append(problem)
+    if profile.is_triple():
+        w = profile.weights_for_white(xy)
+        # A weight under 0.05% is left out of the name, as in the two-illuminant case.
+        which = "+".join(str(i + 1) for i, v in enumerate(w) if v > 0.0005)
+        name = f"{base}{which} at {cct:.0f} K (weights {w[0]:.2f}/{w[1]:.2f}/{w[2]:.2f})"
+        hsms = (profile.hue_sat_map_1, profile.hue_sat_map_2, profile.hue_sat_map_3)
+        if any(h is not None for h in hsms) and not all(h is not None for h in hsms):
+            notes.append("ProfileHueSatMapData is not present for all three illuminants: blended by temperature from the first two")
+    elif profile.color_matrix_2 is not None and profile._pair() is not None:
         g = profile.weight(cct)
         # Within 0.05% of one end (a white a few kelvin off the illuminant's
         # nominal temperature) the name says that end.
@@ -1228,10 +1283,15 @@ def _tone_curve(src: Ifd, settings: DevelopSettings, notes: list[str]):
     return tone, label
 
 
-def _profile_look(profile: dc.Profile, settings: DevelopSettings, ifd0: Ifd, cct, gain: float, notes: list[str]):
+def _profile_look(
+    profile: dc.Profile, settings: DevelopSettings, ifd0: Ifd, cct, gain: float, notes: list[str], white_xy=None
+):
     """(ProfileLook or None, report label) for the profile's tables and tone curve."""
 
-    hsm = profile.hue_sat_map_at(cct) if cct else profile.hue_sat_map_1
+    if white_xy is not None:
+        hsm = profile.hue_sat_map_for_white(white_xy)
+    else:
+        hsm = profile.hue_sat_map_at(cct) if cct else profile.hue_sat_map_1
     lt = profile.look_table
     src = settings.dcp if settings.dcp is not None else ifd0
     name = _text(src.get(TAG_PROFILE_NAME)) or ("camera profile" if settings.dcp is not None else "embedded profile")
@@ -1382,7 +1442,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     gain = 2.0**ev
     look, profile_label = None, None
     if profile is not None:
-        look, profile_label = _profile_look(profile, settings, ifd0, cct, gain, notes)
+        look, profile_label = _profile_look(profile, settings, ifd0, cct, gain, notes, white_xy)
         if look is not None:
             # Camera to ProPhoto here; the look's own matrix takes ProPhoto to sRGB.
             rgb_cam = dc.matmul(dc.inverse(look.out), rgb_cam)
