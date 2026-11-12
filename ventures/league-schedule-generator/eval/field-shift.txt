@@ -1,0 +1,13 @@
+# node eval/field-shift.mjs 7 8 15 16 31 32 (2026-11-12)
+{"n":7,"seed":1,"before":{"coe":47,"breaks":2,"score":67,"start":"field"},"now":{"coe":47,"breaks":2,"score":67,"start":"field"},"secondsBefore":0.271,"secondsNow":0.301}
+{"n":7,"seed":2,"before":{"coe":47,"breaks":2,"score":67,"start":"field"},"now":{"coe":47,"breaks":2,"score":67,"start":"field"},"secondsBefore":0.279,"secondsNow":0.215}
+{"n":8,"seed":1,"before":{"coe":48,"breaks":8,"score":128,"start":"field"},"now":{"coe":48,"breaks":8,"score":128,"start":"field"},"secondsBefore":0.234,"secondsNow":0.282}
+{"n":8,"seed":2,"before":{"coe":48,"breaks":8,"score":128,"start":"field"},"now":{"coe":48,"breaks":8,"score":128,"start":"field"},"secondsBefore":0.25,"secondsNow":0.246}
+{"n":15,"seed":1,"before":{"coe":195,"breaks":41,"score":605,"start":"field"},"now":{"coe":195,"breaks":28,"score":475,"start":"shift starter, shift venues"},"secondsBefore":0.327,"secondsNow":0.323}
+{"n":15,"seed":2,"before":{"coe":239,"breaks":35,"score":589,"start":"field"},"now":{"coe":195,"breaks":28,"score":475,"start":"shift starter, shift venues"},"secondsBefore":0.352,"secondsNow":0.367}
+{"n":16,"seed":1,"before":{"coe":224,"breaks":24,"score":464,"start":"field"},"now":{"coe":224,"breaks":24,"score":464,"start":"field"},"secondsBefore":0.345,"secondsNow":0.352}
+{"n":16,"seed":2,"before":{"coe":224,"breaks":24,"score":464,"start":"field"},"now":{"coe":224,"breaks":24,"score":464,"start":"field"},"secondsBefore":0.393,"secondsNow":0.4}
+{"n":31,"seed":1,"before":{"coe":899,"breaks":245,"score":3349,"start":"field"},"now":{"coe":1189,"breaks":60,"score":1789,"start":"shift starter, shift venues"},"secondsBefore":0.941,"secondsNow":1.099}
+{"n":31,"seed":2,"before":{"coe":899,"breaks":231,"score":3209,"start":"field"},"now":{"coe":1189,"breaks":60,"score":1789,"start":"shift starter, shift venues"},"secondsBefore":1.007,"secondsNow":1.193}
+{"n":32,"seed":1,"before":{"coe":960,"breaks":106,"score":2020,"start":"field"},"now":{"coe":960,"breaks":106,"score":2020,"start":"field"},"secondsBefore":1.222,"secondsNow":1.139}
+{"n":32,"seed":2,"before":{"coe":960,"breaks":106,"score":2020,"start":"field"},"now":{"coe":960,"breaks":106,"score":2020,"start":"field"},"secondsBefore":1.053,"secondsNow":1.219}
