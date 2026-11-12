@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtKBiTXeWVXnHdnEWeq",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T04:06:40Z",
+  "ended": "2026-11-12T04:14:01Z",
+  "wall_minutes": 7.63,
+  "tokens_in": 4145887,
+  "tokens_out": 29729,
+  "cost_usd": 2.3141,
+  "tool_calls": 41,
+  "task": "research/heavy-hydraulics milestone 5w: smaller fixed open-centre pump on the measured wheel loader, priced in cycle time",
+  "projects": [
+    "research/heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14995",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "linefig.table matched no rows when the section prefix was the indented header line '  Vg cc'; the leading spaces are flattened away, so the first figure run failed. Used the block heading instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/linefig.py",
+      "issue": "table()'s section match flattens whitespace, so an indented column-header line cannot be the section key, and per-cycle rows later in the file that start with a number get parsed into the block unless maxrows is set; the docstring says neither."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-a-smaller-pump-wont-save-open-centre.md",
+    "research/heavy-hydraulics/LOG.md (5w)",
+    "research/heavy-hydraulics/README.md (Milestone 5w)"
+  ],
+  "goal": "Advance an open PhD-level programme (heavy-hydraulics) with a real-data step",
+  "notes": "Security queue empty; ideas inbox and website requests empty; route drew research, pick_track drew track 25 (heavy-*), the next step named in LOG.md 5v. zenodo.org answered (HTTP 200) and the 96 MB loader record downloaded. W1 to W5 registered in LOG.md and pushed (draft PR) before any code; all five held. V_eq 28.5 cc; time ratio 1.39 there. Local verification: heavy-hydraulics pytest 45 passed; measured_breakeven.py and measured_volume_ratio.py results files reproduce byte for byte after the vg edit; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; cite_check all DOIs ok; programme_check ok; post link and similarity checks clean. Data finding: velocity-derived demand exceeds the 63 cc pump's geometric flow in 16% of moving samples (authors' angle estimate > 1 there).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7aa1ae1d-5538-5022-918f-8e30b401f6db",
+    "transcripts": 1,
+    "first": "2026-11-12T04:06:40Z",
+    "last": "2026-11-12T04:14:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 77,
+        "output": 29729,
+        "thinking": 7317,
+        "cache_read": 4031703,
+        "cache_write_5m": 0,
+        "cache_write_1h": 114107,
+        "api_equivalent_usd": 2.3141,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 77,
+      "output": 29729,
+      "thinking": 7317,
+      "cache_read": 4031703,
+      "cache_write_5m": 0,
+      "cache_write_1h": 114107,
+      "api_equivalent_usd": 2.3141,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.63,
+      "active_minutes": 7.63,
+      "model_minutes": 5.73,
+      "tool_minutes": 1.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "data check, sweep script with tested helper, figure, write-ups for one measured-data milestone, estimated",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 259.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 import math
 import pytest
-from heavy_hydraulics.measured import (inlet_pressure, load_pressure, energies,
+from heavy_hydraulics.measured import (slowed_time, inlet_pressure, load_pressure, energies,
                                        pump_torque, linfit, cycle_starts,
                                        stationary_samples, percentile,
                                        moving_by_position,
@@ -97,3 +97,14 @@ def test_percentile_matches_linear_rule():
 def test_moving_by_position():
     x = [0, 0, 0, 0.002, 0.004, 0.004, 0.004]
     assert moving_by_position(x, 1, 0.001) == [False, False, True, True, True, False, False]
+
+
+def test_slowed_time_stretches_only_short_samples():
+    # 2 still, 1 within capacity, 1 at twice the pump: time 1 + 1 + 1 + 2 steps of 0.5 s
+    t, share = slowed_time([(0, 10), (0, 0), (5, 10), (20, 10)], 0.5)
+    assert t == pytest.approx(2.5)
+    assert share == pytest.approx(0.5)
+    # pumped volume over the stretched sample equals the demanded volume
+    assert 10 * (2 * 0.5) == pytest.approx(20 * 0.5)
+    with pytest.raises(ValueError):
+        slowed_time([(1, 0)], 0.1)

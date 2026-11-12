@@ -32,8 +32,9 @@ SYNTH_ZERO_DROP = 20.53     # bar, closed-form zero-drop break-even (breakeven_c
 QSB = (0.0, 2.0, 5.0)       # L/min standby flow while nothing moves (swept; 0 is 5n's convention)
 
 
-def parts(r, masks, drops, p_neutral, q_sb=0.0, sl=slice(None)):
-    """numpy twin of breakeven.trace_breakeven. drops[i]: per-sample spool drop of section i."""
+def parts(r, masks, drops, p_neutral, q_sb=0.0, sl=slice(None), vg=63e-6):
+    """numpy twin of breakeven.trace_breakeven. drops[i]: per-sample spool drop of section i.
+    vg: open-centre fixed-pump displacement, m3/rev (the loader's own 63 cc unless swept, 5w)."""
     dt = r["dt"]
     k = dt / 0.6
     qs = [s[0][sl] for s in r["secs"]]
@@ -41,7 +42,7 @@ def parts(r, masks, drops, p_neutral, q_sb=0.0, sl=slice(None)):
     ms = [m[sl] for m in masks]
     ds = [d[sl] for d in drops]
     w = r["w"][sl]
-    q_fix = np.maximum(0.0, 63e-6 * 1e3 * w / (2 * math.pi) * 60 - 2.5)
+    q_fix = np.maximum(0.0, vg * 1e3 * w / (2 * math.pi) * 60 - 2.5)
     q_tot = sum(np.where(q > 0, q, 0.0) for q in qs)
     pl = np.full_like(q_fix, -np.inf)
     pin = np.full_like(q_fix, -np.inf)
