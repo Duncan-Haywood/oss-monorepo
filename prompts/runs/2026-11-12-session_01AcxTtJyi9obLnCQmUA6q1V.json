@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
   "errors": [
     "First clippy run failed on manual_is_multiple_of (rustc 1.97 lint); used a bitmask so older CI toolchains still compile.",
-    "web/dupehound.test.mjs CLI-vs-wasm equality broke because src/lib.rs grew past the CLI's 1,000-line default skip; test now passes --max-lines 100000 to the CLI."
+    "web/dupehound.test.mjs CLI-vs-wasm equality broke because src/lib.rs grew past the CLI's 1,000-line default skip; test now passes --max-lines 100000 to the CLI.",
+    "Portfolio Pages CI failed faq-visible.test.mjs: the page's FAQPage JSON-LD kept the old 'renamed copies' answer after the visible FAQ changed. Regenerated the JSON-LD from the visible questions; a local run of the platform/pages suite was not part of run_workflow_locally --for-changes (portfolio-pages jobs were not run), so CI caught it."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,6 +45,10 @@
     {
       "file": "platform/ci/run_workflow_locally.py",
       "issue": "--for-changes does not run dupehound-ci.yml (not on the verification-only list) and naming it asks for --force; ran its five steps by hand instead."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes skipped portfolio-pages.yml's test job, which is the one that checks FAQ JSON-LD against visible text for any venture page edit; a venture index.html edit should pull in platform/pages faq-visible.test.mjs."
     }
   ],
   "deviations": [],
