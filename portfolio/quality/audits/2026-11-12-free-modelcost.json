@@ -1,0 +1,254 @@
+{
+  "date": "2026-11-12",
+  "subject": "research/free-modelcost",
+  "stratum": "research",
+  "round": 48,
+  "seed": "2026-11-12-g",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality-audit round 48",
+  "status": "audited",
+  "professional": "an applied statistician who does observational cost studies (with LLM API cost/FinOps experience). They would check first that the cost inputs are priced at the vendor's published rates for each model, that the stratified estimator and its bootstrap are sound and reproducible from a frozen dataset, and that the confounding caveats are stated; then whether the estimator is a recognised one (Mantel-Haenszel / stratum fixed effects) and whether prior cost-aware agent evaluation work is cited",
+  "scores": {
+    "correctness": 1,
+    "completeness": 2,
+    "verification": 1,
+    "craft": 2,
+    "claims": 1,
+    "fitness": 1,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Estimator arithmetic reproduces, inputs do not. Own implementation (/tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/modelcost/recompute.py: numpy, own median/weights/bootstrap, no import of modelcost.py, costs recomputed from usage.models token counts) on records dated <= 2026-10-21 gives tool calls 3.16x [2.41,3.89], cache-read/call 1.92x, human hours 3.62x [3.05,5.20], cost/human-hour 1.44x [1.15,1.80] vs README 3.15x, 1.91x, 3.62x, 1.43x; the subject's own compare() on the same filtered input gives 6.35x cost, so the estimator is implemented as described. But the cost inputs price Sonnet 5.5 cache reads at $0.20/MTok (prompts/pricing.json:14); Anthropic's live pricing page (platform.claude.com/docs/en/about-claude/pricing.md, fetched 2026-11-12, line 31) and the Claude API skill's models table both list Sonnet 5.5 cache reads at $0.10 (0.05x input) and Opus 5.5 at $0.20. Re-priced at $0.10: matched cost 8.45x [6.37,10.64] (README 6.31x [4.69,8.01]), cost per call 2.70x (README 2.00x), cost per self-estimated human hour 1.91x [1.50,2.38] (README 1.43x [1.11,1.72], the corrected point lies outside the published interval). Sonnet cache-read share of cost falls from 0.46 to 0.30. The headline numbers a reader would act on are about 34% low: 1.",
+    "completeness": "Ran `python3 -m unittest discover -s research/free-modelcost/tests` (4 OK, 0.000 s); ran experiments/run.py in a scratch copy (/tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/modelcost/copy, prompts/runs symlinked): runs in 3.0 s but prints 5.02x cost [4.19,5.99], 21 strata, 101/570 runs, because it reads the live prompts/runs/ (now 2,333 eligible records, 462 Opus) with no date cutoff or frozen manifest. Filtering to the README's window (<= 2026-10-21) gives 1,048 records (46 Opus, 1,002 Sonnet), not the stated 1,004 (958 Sonnet): records were added later and the exact snapshot cannot be rebuilt. figure.py not run (would overwrite tracked svg); ratios.svg committed. Live page https://marisstella.app/research/free-modelcost/ returns 200 with 'Preliminary' and 'API-equivalent'. No TODOs or stubs. The pipeline works; its published result is not reproducible: 2.",
+    "verification": "`cd research/free-modelcost && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m unittest discover -s tests`: Ran 4 tests OK; pytest 4 passed. Seeded six mutations in modelcost.py, each reverted with git checkout: weights min->max (line 53) survived; median->mean (line 54) survived; cost_per_call c/t -> c (line 31) survived; upper CI index -> median of reps (line 70) survived; c <= 0 -> c < 0 (line 18) survived; swapping the Opus/Sonnet slot (line 45) caught (2 failures). 1 of 6 caught. load() (all derived metrics, the filters, the model list) has no test at all; the tests use one value per group, equal group sizes or a single stratum, so weighting, the median and the interval are untested: 1.",
+    "craft": "Read modelcost.py (73 lines), experiments/run.py, experiments/figure.py, tests/test_modelcost.py. Short, readable stdlib code. Defects: modelcost.py:14 json.load(open(f)) never closes files (also figure.py:4); modelcost.py:25 computes `ok` but lines 29 and 31 repeat the same test inline; modelcost.py:17 takes top-level cost_usd, which for 5 of 1,048 window records disagrees with the runcost total in usage.totals.api_equivalent_usd (e.g. 2026-10-20-session_01VhnjpUZhGAi2HFRFpgwLcZ: 3.43 vs 18.76) and for 2 Opus records comes from session metadata, not runcost.py; run.py:10 imports statistics mid-file; no CLI flag for a date cutoff or the runs directory, so results.txt is overwritten by whatever the tree holds: 2.",
+    "claims": "Backed: list prices input/output/cache-write exactly 2x (published page: Opus 4/20, 5/8 vs Sonnet 2/10, 2.50/4); only 44 Opus runs have a matched stratum (n=44, the 2 dated 2026-10-14 have none); Opus concentrated on 2026-10-20 and process (27/46 on 10-20; process largest track); human-equivalent certainty 'low' (1,046/1,048); costs labelled API-equivalent, not charges; associations not causal. Failing: README:25 'cache reads cost the same (0.20)' is false (Sonnet 5.5 $0.10); README:25 'cache reads dominate cost (swe-cachecost: 86%)' misquotes swe-cachecost, whose 86% is cache reads AND writes; measured cache-read share of cost here is 0.46 (0.30 at the correct Sonnet price); README:1/9/17/23 headline 6.31x and 1.43x rest on the wrong price; README:9 '1,004 runs' not reproducible from the tree; README:34 'all but a few runs record outcome: success': 43 of 1,048 (4%) are 'partial'. Two load-bearing claims fail: 1.",
+    "fitness": "A researcher could reuse the stratified-ratio function, but not the numbers (mispriced, unreproducible). Nearest prior work, none cited (README:5 'Builds on none'): Kapoor et al. 2024 'AI Agents That Matter' (cost-controlled agent comparison, Pareto cost/accuracy), the Holistic Agent Leaderboard (cost per task across models), Erol et al. 2025 'Cost-of-Pass', SWE-bench/agent leaderboards reporting $ per task; on the method, Mantel-Haenszel (1959) / Cochran stratified estimators and log-cost regression with stratum fixed effects. The question (does the bigger model cost more per run on one shop's workload) is useful operationally for the owner but not new as research and not a PhD-level programme; quality per dollar, the quantity prior work optimises, is explicitly unmeasured. With the price error the conclusion 'Opus is dearer by only 1.1-1.7x per human hour' is not sound: 1.",
+    "domain": "Compared against observational-study practice. Sound: matching on (date, track) to remove task-mix confounding, log ratio of medians, within-stratum percentile bootstrap, honest non-randomisation caveat, n reported per metric. Departures: weights min(n_opus, n_sonnet) are ad hoc (not inverse-variance or MH); no sensitivity analysis (e.g. dropping one-Opus strata, mean vs median, a fixed-effects regression); the bootstrap upper index int(.975*B)-1 is fine; no frozen data snapshot, which a statistician would require; cost inputs not checked against the vendor price card, which is the first thing a FinOps reviewer checks: 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Sonnet 5.5 and Opus 5.5 list prices used for every cost (prompts/pricing.json)",
+      "method": "Anthropic pricing page (live) and Claude API skill models table, neither written by the author",
+      "command": "curl -sS https://platform.claude.com/docs/en/about-claude/pricing.md | grep -n 'Sonnet 5.5\\|Opus 5.5'",
+      "expected": "Sonnet 5.5 cache read $0.10/MTok, Opus 5.5 $0.20; input/output/writes 2/10/2.50/4 and 4/20/5/8",
+      "observed": "pricing.json:14 Sonnet 5.5 cache_read 0.20; all other rates match",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "matched cost ratio and cost per human hour at published prices",
+      "method": "own stratified estimator (numpy), costs recomputed from per-model token counts at the published price card",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/modelcost/recompute.py 2026-10-21 0.10",
+      "expected": "README 6.31x [4.69,8.01]; 1.43x [1.11,1.72]",
+      "observed": "8.45x [6.37,10.64]; 1.91x [1.50,2.38]; cost per call 2.70x vs 2.00x",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "non-cost matched ratios (tool calls, cache-read per call, human hours)",
+      "method": "own implementation, independent of modelcost.py, on records dated <= 2026-10-21",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/modelcost/recompute.py 2026-10-21 0.20",
+      "expected": "README 3.15x [2.39,3.90]; 1.91x [1.65,2.36]; 3.62x [3.03,5.23]",
+      "observed": "3.16x [2.41,3.89]; 1.92x [1.66,2.34]; 3.62x [3.05,5.20] (1,048 vs 1,004 records)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "per-run cost = tokens x rates (runcost formula)",
+      "method": "hand recompute of a Sonnet record: 32x2 + 6734x10 + 1,245,605x0.20 + 75,965x4 per 1e6",
+      "command": "python3 -c 'print((32*2+6734*10+1245605*.2+75965*4)/1e6)'",
+      "expected": "0.6204 (record cost_usd)",
+      "observed": "0.6204; 5 of 1,048 window records disagree with their own usage totals (e.g. 3.43 vs 18.76)",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:25 'cache reads dominate cost (swe-cachecost: 86%)'",
+      "method": "cache-read cost share recomputed from token totals; read swe-cachecost README:1",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/modelcost/recompute.py 2026-10-21 0.20; head -1 research/swe-cachecost/README.md",
+      "expected": "cache reads ~86% of cost",
+      "observed": "swe-cachecost's 86% is reads + writes; cache-read share here 0.46 (Opus 0.46, Sonnet 0.46; Sonnet 0.30 at $0.10)",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "rerun experiments/run.py reproduces results.txt",
+      "method": "scratch copy with prompts/runs symlinked",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/modelcost/copy && /usr/bin/python3.13 research/free-modelcost/experiments/run.py",
+      "expected": "6.31x, strata 11, n=44/477",
+      "observed": "5.02x [4.19,5.99], strata 21, n=101/570 (live data grew, no cutoff)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:9 '1,004 runs (46 Opus, 958 Sonnet)'",
+      "method": "count eligible records in the stated window",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/modelcost/explore.py",
+      "expected": "1,004 / 46 / 958",
+      "observed": "1,048 / 46 / 1,002 through 2026-10-21; no frozen manifest",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:25 'List prices for input, output and cache writes are exactly 2x'",
+      "method": "Anthropic pricing page",
+      "command": "grep -n 'Sonnet 5.5\\|Opus 5.5' pricing.md",
+      "expected": "2x",
+      "observed": "4/2, 20/10, 5/2.50, 8/4: exactly 2x",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:31 'only 44 Opus runs have a stratum with a Sonnet counterpart'; README:11 Opus concentrated on 10-20 and process",
+      "method": "stratum counts",
+      "command": "results.txt n=44/477; own counter of Opus (date, track)",
+      "expected": "44; 10-20 / process dominant",
+      "observed": "44; 27/46 Opus on 10-20, (10-20, process) 13 the largest cell",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:34 'all but a few runs record outcome: success'",
+      "method": "count outcomes in window",
+      "command": "python3 count of r['outcome']",
+      "expected": "a few non-success",
+      "observed": "1,005 success, 43 partial (4%)",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "unittest and pytest",
+      "command": "cd research/free-modelcost && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m unittest discover -s tests",
+      "expected": "pass",
+      "observed": "Ran 4 tests OK; pytest 4 passed",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "live page and caveats",
+      "method": "curl served page",
+      "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/free-modelcost/",
+      "expected": "200 with preliminary / API-equivalent caveats",
+      "observed": "200; 'Preliminary', 'API-equivalent', '6.3x'",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "prior work cited",
+      "method": "grep README",
+      "command": "grep -n -i 'kapoor\\|leaderboard\\|cost-of-pass\\|mantel' research/free-modelcost/README.md",
+      "expected": "cited",
+      "observed": "no matches; README:5 'Builds on none'",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/free-modelcost/modelcost.py:53",
+      "change": "weight min(len(o), len(s)) -> max(...)",
+      "caught": false,
+      "test_cmd": "cd research/free-modelcost && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/free-modelcost/modelcost.py:54",
+      "change": "st.median -> st.mean in the per-stratum ratio",
+      "caught": false,
+      "test_cmd": "cd research/free-modelcost && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/free-modelcost/modelcost.py:31",
+      "change": "cost_per_call c / t -> c",
+      "caught": false,
+      "test_cmd": "cd research/free-modelcost && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/free-modelcost/modelcost.py:70",
+      "change": "upper CI reps[int(.975*boot)-1] -> reps[int(.5*boot)]",
+      "caught": false,
+      "test_cmd": "cd research/free-modelcost && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/free-modelcost/modelcost.py:18",
+      "change": "c <= 0 -> c < 0 (zero-cost runs admitted)",
+      "caught": false,
+      "test_cmd": "cd research/free-modelcost && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/free-modelcost/modelcost.py:45",
+      "change": "swap Opus/Sonnet slot in strata()",
+      "caught": true,
+      "test_cmd": "cd research/free-modelcost && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Sonnet 5.5 cache reads priced at $0.20/MTok; Anthropic's pricing page and the Claude API skill list $0.10 (0.05x input). Every Sonnet cost is overstated, so the headline is understated: matched cost 8.45x [6.37,10.64] not 6.31x, cost per call 2.70x not 2.00x, cost per self-estimated human hour 1.91x [1.50,2.38] not 1.43x [1.11,1.72]. The rate card is shared (prompts/pricing.json), so other cost studies inherit it",
+      "where": "prompts/pricing.json:14",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "high",
+      "what": "README states 'cache reads cost the same (0.20)' and builds the per-call reading on it; with the published prices the 6.3x / 1.43x headline (README:1, :17, :23, project.json title/summary) is wrong",
+      "where": "research/free-modelcost/README.md:25",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "Results not reproducible: run.py reads the live, growing prompts/runs/ with no date cutoff or frozen file list; a rerun now gives 5.02x cost over 21 strata (101 Opus) and the README window holds 1,048 records, not 1,004",
+      "where": "research/free-modelcost/experiments/run.py:8",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "5 of 6 seeded core mutations survive (stratum weights, median->mean, cost_per_call, upper CI bound, zero-cost filter); load() and every derived metric are untested; tests use single-value or equal-size groups",
+      "where": "research/free-modelcost/tests/test_modelcost.py:13",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "'cache reads dominate cost (swe-cachecost: 86%)' misquotes swe-cachecost, whose 86% is cache reads plus writes; the cache-read share of cost in this data is 0.46 (0.30 for Sonnet at the published price)",
+      "where": "research/free-modelcost/README.md:25",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "No prior work cited (Kapoor et al. 2024 'AI Agents That Matter', HAL cost-per-task leaderboard, Cost-of-Pass 2025; Mantel-Haenszel / fixed-effects stratified estimation); ad hoc min(n) weights with no sensitivity analysis",
+      "where": "research/free-modelcost/README.md:5",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "Uses top-level cost_usd, which for 5 window records disagrees with the record's own runcost total (usage.totals.api_equivalent_usd; e.g. 3.43 vs 18.76) and for 2 Opus records comes from session metadata, not runcost.py as README:9 says",
+      "where": "research/free-modelcost/modelcost.py:17",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "'all but a few runs record outcome: success': 43 of 1,048 (4%) are 'partial'",
+      "where": "research/free-modelcost/README.md:34",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Files opened without closing (json.load(open(f))); `ok` computed then re-tested inline; mid-file import in run.py",
+      "where": "research/free-modelcost/modelcost.py:14",
+      "category": "code-craft",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "The stratified estimator is implemented as described: an independent reimplementation on the same window reproduces tool calls 3.16x, cache-read per call 1.92x and human hours 3.62x. The cost results do not hold. The shared rate card prices Sonnet 5.5 cache reads at $0.20/MTok where Anthropic's pricing page lists $0.10, and the README repeats this ('cache reads cost the same'). At the published price an Opus run costs 8.45x a matched Sonnet run (not 6.31x) and 1.91x per self-estimated human hour (not 1.43x, outside the published interval). The README also misquotes swe-cachecost's 86% (reads plus writes), cannot be reproduced (run.py reads the growing run log; a rerun gives 5.02x over 101 Opus runs), cites no prior work on cost-aware agent evaluation, and its tests catch 1 of 6 seeded core mutations. Below the bar on correctness, claims and verification.",
+  "notes": "Mutations reverted with git checkout under PYTHONDONTWRITEBYTECODE=1; git diff --stat research/free-modelcost empty afterwards. The pricing error lives in prompts/pricing.json (shared by runcost.py and other swe-* studies), so a fix there changes newly measured run records, not old ones; this study would need to re-price from token counts (recompute.py shows how)."
+}

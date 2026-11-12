@@ -1,0 +1,268 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/section-1256-futures-tax-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-12-g",
+  "drawn_by": "sample",
+  "round": 48,
+  "auditor": "agent session (Claude), quality-audit round 48",
+  "status": "audited",
+  "professional": "a CPA / enrolled agent who prepares active-trader returns; they check first that 1099-B box 11 = box 8 - box 9 + box 10 feeds Form 6781 line 1, that lines 8/9 are 40%/60% of line 7 and flow to Schedule D lines 4 and 11, that the tax effect is computed by stacking the 40% short-term part on ordinary income and the 60% part in the 2026 0/15/20% bands (Rev. Proc. 2025-32) with NIIT only above the IRC 1411 threshold, and that the net section 1256 contracts loss election (Form 6781 box D, IRC 1212(c)) is described with its limits: only the loss left after other gains and the $3,000 allowance, earliest year first, capped at each year's net 1256 gain, no NOL created, individuals only, claimed by Form 1045 or amended return",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Auditor probe /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/s1256/probe.mjs, written from IRC 1256(a)(3) and 1212(c) (fetched from law.cornell.edu), Form 6781 (2025) lines 1-9 and its Box D instructions (irs.gov/pub/irs-pdf/f6781.pdf, fetched; the separate i6781.pdf returned 404) and Rev. Proc. 2025-32 sec. 4.01 Table 3 and 4.03 (irs.gov/pub/irs-drop/rp-25-32.pdf, fetched). Right: box 11 per account on the sample (22,850 / -5,550 / 950, net 18,250) matches; Form 6781 lines 8/9 on an odd-cent net 1,234.57 -> 493.83 / 740.74 match; top blended rate 0.6x20 + 0.4x37 = 26.8% (30.6% with NIIT) matches; for single, $150k other ordinary + $50k 1256 gain the stacked 2026 tax is $9,300 and the tool at 24/15 gives $9,300. Departures a user would act on: (1) a net loss is shown as 'tax at 60/40 -$2,180, tax if all short-term -$3,200, difference -$1,020' for a $10,000 loss although only $3,000 is deductible in the year against no other gains (IRC 1211(b)) and the box-D carryback amount would be $7,000, not the $10,000 the note implies; (2) unquoted thousands separators ('Broker A,18,250.00,-1,200.00,3,400.00') are silently read as realized 18, prior 250, current -1 -> net -$233 instead of $22,850, with no row error; (3) a blank rate field gives 'blended rate NaN%, tax $NaN' (page walk). Marginal-rate approximation is disclosed but can miss by >10%: single $190k + $100k gain, exact stacked federal $20,858 + NIIT $3,420 vs tool $18,600 (24%) or $21,800 (32%), NIIT box adds $3,800. Core gain arithmetic is exact; capped at 2 by the loss-year figures and the silent mis-parse.",
+    "completeness": "Claims checked by running: box 8/9/10 per account -> box 11 aggregate (works); 60/40 split (works); blended rate and tax vs short-term (works for gains); NIIT toggle (works); Form 6781 loss carryback note (shown for net < 0); header row optional, losses as -500 or (500) (works); file upload or paste, CSV or pasted spreadsheet range (tab path works in the browser; untested); download report CSV (works, playwright download read back); no upload (page.test.mjs). Served page https://marisstella.app/section-1256-futures-tax-calculator/ returns 200 and served llms.txt links marisstella.app. No stubs or TODOs; README test command works from repo root (20 pass). No horizontal scroll at 390 px, no console errors.",
+    "verification": "node --test '*.test.mjs' from ventures/section-1256-futures-tax-calculator: 20 pass, 0 fail (calc 7, page 7, usage 6). Seven seeded mutations in calc.mjs, each reverted with git checkout (git diff --stat clean at the end): neg sign from leading '-' dropped (caught, 2 fail); saving uses long-term rate (caught); NIIT not added to the ordinary side (caught); net < 0 -> net <= 0 for the loss note (survived); tab delimiter detection removed so pasted spreadsheet ranges fail (survived, although the page advertises 'pasted spreadsheet range'); f.length < 2 guard removed (survived); default long-term rate 15 -> 20 (survived). 4 of 7 survived. No test covers tab input, extra columns, blank or NaN rates, or the loss-year tax figures.",
+    "craft": "Read calc.mjs (88 lines), calc.test.mjs, page.test.mjs, usage.mjs, index.html script block. Small, pure, dependency-free functions; tests import the shipped module; esc() on all user labels; usage counters guarded against blocked storage. Defects: rates use ?? so NaN from an emptied input propagates to '$NaN' (calc.mjs:62); rows with more than four fields are accepted with the extras silently dropped (calc.mjs:45); a first data row with all-blank boxes ('ES,,,') is taken as a header and dropped (calc.mjs:40); num() reads U+2212 minus and trailing-minus '1200-' as positive (calc.mjs:17); no semicolon (EU CSV) support, which at least errors instead of guessing. Footer boilerplate 'Not affiliated with any court, housing agency' copied from another venture (index.html:118). Acceptable to a senior JS reviewer with these noted.",
+    "claims": "Disclaimer present and specific (index.html:56, 94-95, 117: not tax advice, marginal rates not brackets, rules reviewed 2026-10-08 by the author not a professional, straddles / 988 / 475 / loss limits / state tax listed as not decided) - pass. 'Nothing uploaded' backed by page.test.mjs (no fetch/XHR/beacon, local imports only) - pass. 60/40 and box 11 statements match IRC 1256(a)(3) and Form 6781 line 1 instructions - pass. 'dealer equity options' as 1256 contracts matches 1256(b)(1)(D) - pass. 'Form 6781 Part II lets you elect to carry it back' (calc.mjs:67) and the FAQ (index.html:108, JSON-LD index.html:12) - fail: Part II is 'Gains and Losses From Straddles'; the election is box D with the amount on Part I line 6. FAQ 'a net 1256 loss can be carried back three years' - partial: only the net section 1256 contracts loss (after other gains and $3,000) can be, limited per year (Form 6781 Box D instructions). 'pasted spreadsheet range' - pass in browser but untested. Footer 'court, housing agency' - wrong boilerplate. llms.txt source github.io link rewritten at deploy (served file checked), not a defect.",
+    "fitness": "Walked the trader's job in headless chromium at 390 px (NODE_PATH=$(npm root -g) node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/s1256/walk.cjs (page served from ventures/section-1256-futures-tax-calculator with python3 -m http.server)): Load an example -> net $18,250, LT $10,950, ST $7,300, blended 21.8%, tax $3,978.50 vs $5,840.00, difference $1,861.50; CSV download carries the rows and total. A retail trader gets a reasonable gain-year estimate. The CPA named above would not use it for a return: no Form 6781 line mapping (line 3/5/6/7/8/9 to Schedule D lines 4 and 11), no netting with other Schedule D gains and losses, no bracket stacking or 0% band, no NIIT threshold, and in a loss year it prints negative 'tax' figures and a carryback note that points at the wrong part of the form and omits the amount and limits; unquoted '18,250.00' style numbers (common when copying from a PDF 1099-B) silently corrupt the result.",
+    "domain": "Compared with IRC 1256(a), 1212(c), 1211(b), Form 6781 (2025) and its Box D instructions, and Rev. Proc. 2025-32. Right: mark-to-market framing, 60/40 regardless of holding period, 1099-B box 11 arithmetic, which contracts qualify (futures, broad-based index options, dealer equity options, some FX) and that SPY/QQQ/single-stock options do not. Departures: the carryback election is placed in Part II (it is box D / line 6) and described without the Box D limits (eligible amount is the smaller of the loss over 1256 gains plus $3,000 or the capital loss carryover; earliest year first; capped at the carryback year's net 1256 gain and capital gain net income; may not create or increase an NOL; not for estates and trusts; claimed by Form 1045 or amended return); the tax effect is a flat marginal blend rather than stacking the 40% on ordinary income and the 60% in the 0/15/20% bands, and NIIT is applied to the whole gain instead of the excess over the 1411 threshold; loss years ignore the $3,000 limit. A practitioner would accept the gain-year saving as a rough planning number with the stated limits, not the loss-year output."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "1099-B box 11 per account and net on the shipped sample",
+      "method": "Form 1099-B box 11 = box 8 - box 9 + box 10; Form 6781 (2025) line 1 instructions take box 11",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/s1256/probe.mjs ventures/section-1256-futures-tax-calculator/calc.mjs",
+      "expected": "22850, -5550, 950; net 18250",
+      "observed": "22850, -5550, 950; net 18250",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Form 6781 lines 8 and 9 on net 1,234.57",
+      "method": "Form 6781 (2025) line 8 = 40% of line 7, line 9 = 60%; IRC 1256(a)(3)",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/s1256/probe.mjs ventures/section-1256-futures-tax-calculator/calc.mjs",
+      "expected": "ST 493.83, LT 740.74",
+      "observed": "ST 493.83, LT 740.74",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "top-bracket blended rate",
+      "method": "0.6 x 20% + 0.4 x 37% (IRC 1(h), 1(j)); +3.8% NIIT both sides",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/s1256/probe.mjs ventures/section-1256-futures-tax-calculator/calc.mjs",
+      "expected": "26.8%, 30.6%",
+      "observed": "26.8%, 30.6%",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "single filer, $150k other ordinary taxable income + $50k 1256 gain, tool at 24/15",
+      "method": "auditor bracket stacking from Rev. Proc. 2025-32 sec. 4.01 Table 3 and 4.03 (0% to $49,450, 15% to $545,500)",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/s1256/probe.mjs ventures/section-1256-futures-tax-calculator/calc.mjs",
+      "expected": "9,300",
+      "observed": "9,300",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "single filer, $190k other ordinary + $100k 1256 gain (crosses 24%/32% and NIIT threshold)",
+      "method": "Rev. Proc. 2025-32 stacking; NIIT 3.8% on min(NII, MAGI - 200,000) per IRC 1411",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/s1256/probe.mjs ventures/section-1256-futures-tax-calculator/calc.mjs",
+      "expected": "federal 20,858 + NIIT 3,420",
+      "observed": "18,600 at 24/15; 21,800 at 32/15; NIIT toggle adds 3,800",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "net 1256 loss of $10,000, no other capital gains",
+      "method": "IRC 1211(b) $3,000 limit; Form 6781 Box D: eligible carryback = loss - 1256 gains - $3,000 = 7,000",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/s1256/probe.mjs ventures/section-1256-futures-tax-calculator/calc.mjs",
+      "expected": "no negative 'tax' figure beyond the $3,000 deduction; carryback amount 7,000 named or limits stated",
+      "observed": "tax at 60/40 -2,180, if short-term -3,200, difference -1,020; note implies the whole $10,000 can be carried back",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "unquoted thousands separators in a pasted row 'Broker A,18,250.00,-1,200.00,3,400.00'",
+      "method": "by hand: 18,250 + 1,200 + 3,400",
+      "command": "NODE_PATH=$(npm root -g) node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/s1256/walk.cjs (page served from ventures/section-1256-futures-tax-calculator with python3 -m http.server)",
+      "expected": "22,850 or a row error",
+      "observed": "realized $18.00, net -$233.00, no error",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "carryback election location",
+      "method": "Form 6781 (2025): Part II is straddles; election is box D, amount on Part I line 6",
+      "command": "grep -n 'Part II' ventures/section-1256-futures-tax-calculator/calc.mjs ventures/section-1256-futures-tax-calculator/index.html; pdftotext f6781.pdf",
+      "expected": "box D / line 6",
+      "observed": "'Form 6781 Part II lets you elect' (calc.mjs:67, index.html:12, index.html:108)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "no-upload and disclaimer claims",
+      "method": "page.test.mjs asserts no fetch/XHR/beacon/WebSocket, local imports, disclaimer text",
+      "command": "node --test '*.test.mjs' (from ventures/section-1256-futures-tax-calculator)",
+      "expected": "pass",
+      "observed": "pass",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "node --test '*.test.mjs' (from ventures/section-1256-futures-tax-calculator)",
+      "expected": "all pass",
+      "observed": "20 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "blank ordinary-rate field",
+      "method": "page walk: clear #ordinary, Calculate",
+      "command": "NODE_PATH=$(npm root -g) node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/s1256/walk.cjs (page served from ventures/section-1256-futures-tax-calculator with python3 -m http.server)",
+      "expected": "default or a validation message",
+      "observed": "blended rate NaN%, tax at 60/40 $NaN",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "sign handling of U+2212 minus and trailing minus",
+      "method": "num() on '−1200' and '1200-'",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/s1256/probe.mjs ventures/section-1256-futures-tax-calculator/calc.mjs",
+      "expected": "-1200 or a row error",
+      "observed": "+1200 for both",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "served page and llms.txt",
+      "method": "curl https://marisstella.app/section-1256-futures-tax-calculator/ and llms.txt",
+      "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/section-1256-futures-tax-calculator/",
+      "expected": "200; llms.txt points at marisstella.app",
+      "observed": "200; llms.txt links https://marisstella.app/section-1256-futures-tax-calculator/",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "example walk, CSV download, phone width",
+      "method": "headless chromium 390x800",
+      "command": "NODE_PATH=$(npm root -g) node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/s1256/walk.cjs (page served from ventures/section-1256-futures-tax-calculator with python3 -m http.server)",
+      "expected": "result, downloadable report, no horizontal scroll",
+      "observed": "net $18,250, saving $1,861.50; CSV downloaded with rows and total; scrollWidth 390; no console errors",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/section-1256-futures-tax-calculator/calc.mjs:17",
+      "change": "neg = paren || startsWith('-') -> paren only",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/section-1256-futures-tax-calculator/calc.mjs:56",
+      "change": "saving net*(o - blended) -> net*(l - blended)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/section-1256-futures-tax-calculator/calc.mjs:54",
+      "change": "NIIT not added to the ordinary rate",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/section-1256-futures-tax-calculator/calc.mjs:67",
+      "change": "loss note if (net < 0) -> if (net <= 0)",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/section-1256-futures-tax-calculator/calc.mjs:37",
+      "change": "delimiter detection removed (always ','), breaking pasted spreadsheet ranges",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/section-1256-futures-tax-calculator/calc.mjs:45",
+      "change": "f.length < 2 guard removed",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/section-1256-futures-tax-calculator/calc.mjs:62",
+      "change": "default long-term rate 15 -> 20",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Loss note and FAQ say the carryback election is in 'Form 6781 Part II'; Part II is straddles. The election is box D with the amount on Part I line 6, claimed by Form 1045 or amended return.",
+      "where": "ventures/section-1256-futures-tax-calculator/calc.mjs:67",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Same wrong 'Part II' reference and an unqualified 'a net 1256 loss can be carried back three years' in the visible FAQ and FAQPage JSON-LD; Box D limits (only the loss beyond 1256 gains + $3,000, earliest year first, capped at the year's net 1256 gain, no NOL, not estates/trusts) are not stated.",
+      "where": "ventures/section-1256-futures-tax-calculator/index.html:108",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "In a loss year the page prints 'tax at 60/40 -$2,180 / tax if all short-term -$3,200 / difference -$1,020' for a $10,000 loss, i.e. a full-rate tax benefit, though only $3,000 is deductible against ordinary income in the year (IRC 1211(b)).",
+      "where": "ventures/section-1256-futures-tax-calculator/calc.mjs:65",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Rows with more than four fields are accepted and extras dropped: unquoted '18,250.00,-1,200.00,3,400.00' is read as 18 / 250 / -1, net -$233 instead of $22,850, with no row error.",
+      "where": "ventures/section-1256-futures-tax-calculator/calc.mjs:45",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "4 of 7 seeded mutations survived: no test for tab-delimited (spreadsheet paste) input, the row-length guard, the net = 0 boundary or the default rates.",
+      "where": "ventures/section-1256-futures-tax-calculator/calc.test.mjs:5",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "An emptied rate field passes NaN; ?? does not catch NaN, so the page shows 'blended rate NaN%' and '$NaN' tax.",
+      "where": "ventures/section-1256-futures-tax-calculator/calc.mjs:62",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "num() treats U+2212 minus ('−1200') and trailing-minus ('1200-') as positive; a first data row with blank boxes ('ES,,,') is taken as a header and dropped.",
+      "where": "ventures/section-1256-futures-tax-calculator/calc.mjs:17",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Tax is a flat marginal blend, not bracket stacking; NIIT toggle applies 3.8% to the whole gain rather than the excess over the IRC 1411 threshold (single $190k + $100k: exact $20,858 + $3,420 vs tool $18,600-$21,800 + $3,800). Disclosed as 'not a bracket calculation', so a scope gap, not a hidden error.",
+      "where": "ventures/section-1256-futures-tax-calculator/calc.mjs:53",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Footer boilerplate 'Not affiliated with any court, housing agency or government body' copied from another venture.",
+      "where": "ventures/section-1256-futures-tax-calculator/index.html:118",
+      "category": "code-craft",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Does not meet the bar (correctness 2, claims 2, verification 2; median 2); finished (completeness 3). The gain-year core is exact against sources the author did not write: 1099-B box 11 per account, Form 6781 lines 8/9 at 40/60, the 26.8% top blended rate, and a single-filer 2026 case stacked on Rev. Proc. 2025-32 brackets ($9,300 = $9,300). A trader-return CPA would not sign it off: the loss carryback note and FAQ send the user to Form 6781 Part II (straddles) instead of box D / line 6 and omit the Box D limits, a $10,000 loss year is shown as a -$2,180 'tax' benefit ignoring the $3,000 limit, unquoted '18,250.00' numbers silently become a -$233 net, and the marginal-rate blend can miss stacked tax by over $2,000 on a $100k gain. Four of seven seeded mutations, including removing the tab delimiter behind the advertised 'pasted spreadsheet range', left all 20 tests green."
+}
