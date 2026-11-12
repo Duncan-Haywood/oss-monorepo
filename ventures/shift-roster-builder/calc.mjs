@@ -929,6 +929,12 @@ function search(ctx, restarts, iterations, first = 0) {
 // "auto" runs the exact search by itself on weeks this small, where it finishes in well under a second; 150 random 5-10 shift weeks
 // had the quick search beaten in 38 (each by covering more hours) before this was on by default.
 const EXACT_AUTO_SLOTS = 14;
+// Above this many shift copies the branch-and-bound tree in exactSearch is skipped when the whole-score column generation has run
+// (eval/end-to-end.mjs, 2026-11-12): on two 40-person, 148-149 copy weeks the tree ran 38-68 s against its 8 s limit (each node
+// builds a flow over every shift, and the clock is read every 1,024 nodes) and never proved or improved anything, while column
+// generation given the time proved both. Those weeks get it instead: `scoreCGMs` defaults to 4 x exactMs there. `exactTree: true`
+// keeps the tree on any week.
+const EXACT_TREE_SLOTS = 60;
 const TANGENTS = 8; // tangent lines under each person's hours curve inside the coverage flow
 function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, tolerance = 0 } = {}) {
   let coverNodes = 0;
@@ -1882,40 +1888,51 @@ export function buildRoster(staff, slots, options = {}) {
   }
   mark("eject");
   // Still open: walk the coverage plateau (open hours only), then polish pay. Kept only if it covers more.
-  if (o.coverPass !== false && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
-    for (let k = 0; k < (o.coverPassRuns ?? 12) && !over(); k++) {
-      const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000) * (o.coverPassScale ?? 4));
-      if (cp.open >= scoreOwner(ctx, best.owner).unfilled - 1e-9) continue;
-      const po = polishPay(ctx, cp.owner, o.seed + k, Math.max(20000, ctx.S * 1000));
-      const ps = scoreOwner(ctx, po).total;
-      if (ps < best.score - 1e-9) best = { owner: po, score: ps };
-    }
-    mark("coverPass");
-    if ((o.coverRepair ?? (o.exact === true || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
-      const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: o.coverRepairMs ?? 60000, shiftWeight: o.openShiftWeight ?? 1e-6 });
-      const cur = best.owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
-      const w = o.openShiftWeight ?? 1e-6;
-      const curObj = scoreOwner(ctx, best.owner).unfilled + w * cur;
-      if (rp.open + w * rp.openShifts < curObj - 1e-9) {
-        const po = polishPay(ctx, rp.owner, o.seed + 31, Math.max(20000, ctx.S * 1000));
+  const coverPasses = () => {
+    if (o.coverPass !== false && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
+      for (let k = 0; k < (o.coverPassRuns ?? 12) && !over(); k++) {
+        const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000) * (o.coverPassScale ?? 4));
+        if (cp.open >= scoreOwner(ctx, best.owner).unfilled - 1e-9) continue;
+        const po = polishPay(ctx, cp.owner, o.seed + k, Math.max(20000, ctx.S * 1000));
         const ps = scoreOwner(ctx, po).total;
         if (ps < best.score - 1e-9) best = { owner: po, score: ps };
       }
+      mark("coverPass");
+      if ((o.coverRepair ?? (o.exact === true || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
+        const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: o.coverRepairMs ?? 60000, shiftWeight: o.openShiftWeight ?? 1e-6 });
+        const cur = best.owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
+        const w = o.openShiftWeight ?? 1e-6;
+        const curObj = scoreOwner(ctx, best.owner).unfilled + w * cur;
+        if (rp.open + w * rp.openShifts < curObj - 1e-9) {
+          const po = polishPay(ctx, rp.owner, o.seed + 31, Math.max(20000, ctx.S * 1000));
+          const ps = scoreOwner(ctx, po).total;
+          if (ps < best.score - 1e-9) best = { owner: po, score: ps };
+        }
+      }
+      mark("coverRepair");
     }
-    mark("coverRepair");
-  }
+  };
+  // On a big week with the exact check on, the whole-score column generation below finds the best roster itself, so the plateau
+  // walk and the repair (about 10 s on a 40-person week) run only if it does not prove one. eval/end-to-end.mjs, 2026-11-12: on
+  // three 40-person weeks (148-162 copies) and three 30-person weeks the rosters and proofs were the same with them first or not.
+  const exactOn = o.exact === true || (o.exact === "auto" && ctx.S <= EXACT_AUTO_SLOTS);
+  const bigExact = ctx.S > EXACT_TREE_SLOTS && o.exactTree !== true;
+  const deferCover = exactOn && bigExact && o.scoreCG !== false && o.deferCover !== false;
+  if (!deferCover) coverPasses();
   // Optional proof: for small problems search exhaustively (with pruning) and say how far the annealed roster is from the best possible.
   let optimality = null;
-  if ((o.exact === true || (o.exact === "auto" && ctx.S <= EXACT_AUTO_SLOTS)) && !over()) {
+  if (exactOn && !over()) {
     const annealScore = best.score;
     // Whole-score branch-and-price first (scoreColumnGeneration: the Dantzig-Wolfe LP costed at each person's score, solved by
     // column generation). On the 12 seeded weeks of eval/score-cg-bench.mjs it proved every roster best to within the tolerance in
     // at most 0.2 s, where the exact search below left 9 of 12 unproven after 8 s, and it found a cheaper roster on 3. When it
     // proves the roster the exact search is skipped; otherwise its bound joins the exact search's. `scoreCG: false` turns it off.
     let cg = null;
+    // With a time budget (weeks above BIG_WEEK) and the cover passes deferred, column generation gets at most half of what is left,
+    // so the passes still have time if it does not prove the roster: a 60-person week given 33 s of it ended 11 open hours worse.
     if (o.scoreCG !== false) {
       try {
-        cg = scoreColumnGeneration(ctx, { incumbentScore: best.score, tolerance: o.exactTolerance, nodeLimit: o.scoreCGNodes ?? 20000, ms: o.scoreCGMs ?? o.exactMs, maxNodes: o.scoreCGPricingNodes ?? 200000 });
+        cg = scoreColumnGeneration(ctx, { incumbentScore: best.score, tolerance: o.exactTolerance, nodeLimit: o.scoreCGNodes ?? 20000, ms: o.scoreCGMs ?? Math.min(bigExact ? 4 * o.exactMs : o.exactMs, deferCover && budgetMs > 0 ? Math.max(1000, (budgetMs - (Date.now() - tStart)) / 2) : Infinity), maxNodes: o.scoreCGPricingNodes ?? 200000 });
       } catch { cg = null; } // a solver failure leaves the exact search to do the work alone
       mark("scoreCG");
       if (cg?.roster) {
@@ -1923,8 +1940,15 @@ export function buildRoster(staff, slots, options = {}) {
         if (ownerValid(ctx, own)) { const t = scoreOwner(ctx, own).total; if (t < best.score - 1e-9) best = { owner: own, score: t }; }
       }
     }
+    // Not proven (or the solver failed): now run the passes deferred above; the bound column generation reached still holds.
+    if (deferCover && !cg?.proven) {
+      coverPasses();
+      if (cg && best.score <= cg.floor + o.exactTolerance + 1e-9) cg.proven = true;
+    }
     const ex = cg?.proven
       ? { proven: true, rootBound: best.score, coverOpen: Math.floor(best.score / BIG + 1e-9), coverNodes: 0, nodes: 0, owner: null }
+      : cg && bigExact
+      ? { proven: false, rootBound: cg.floor, coverOpen: Math.max(0, Math.floor(cg.floor / BIG + 1e-9)), coverNodes: 0, nodes: 0, owner: null, skipped: true }
       : exactSearch(ctx, best.score, { nodeLimit: o.exactNodes, timeLimitMs: o.exactMs, tolerance: o.exactTolerance });
     mark("exactSearch");
     if (cg && !cg.proven) ex.rootBound = Math.max(ex.rootBound, cg.floor);
@@ -1935,7 +1959,7 @@ export function buildRoster(staff, slots, options = {}) {
       annealScore, bestScore: best.score, lowerBound: ex.proven ? best.score : ex.rootBound,
       forcedOpenHours: ex.proven ? Math.floor(best.score / BIG + 1e-9) : Math.max(Math.floor(ex.rootBound / BIG + 1e-9), Math.floor(ex.coverOpen + 1e-9)),
       coverageProven: ex.proven || Math.max(Math.floor(ex.rootBound / BIG + 1e-9), Math.floor(ex.coverOpen + 1e-9)) === Math.floor(best.score / BIG + 1e-9),
-      tolerance: o.exactTolerance, coverOpen: ex.coverOpen, coverNodes: ex.coverNodes, gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes,
+      tolerance: o.exactTolerance, coverOpen: ex.coverOpen, coverNodes: ex.coverNodes, gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes, treeSkipped: !!ex.skipped,
       scoreCG: cg ? { proven: cg.proven, rootLP: cg.rootLP, bound: cg.floor, nodes: cg.stats.nodes, columns: cg.stats.columns, inexactPricing: cg.stats.inexactPricing, ms: cg.stats.ms } : null,
     };
   }
