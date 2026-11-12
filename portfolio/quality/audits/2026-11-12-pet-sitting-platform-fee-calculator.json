@@ -1,0 +1,222 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/pet-sitting-platform-fee-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-12-d",
+  "drawn_by": "sample",
+  "round": 45,
+  "auditor": "agent session (Claude), quality-audit round 45",
+  "status": "audited",
+  "professional": "an independent pet sitter / dog walker who runs their own small business (with a bookkeeper's eye); they check first what fee is taken from which price (Rover's sitter fee comes off the sitter's rate, Wag's 60/40 split is on the owner price, which is the walker's rate x 1.67), then card fees on direct payments, then whether the break-even counts the software and marketing correctly",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Independent exact-fraction Python model (/tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/pet/model.py), written from the platforms' fee rules (Rover sitter fee 20% of booking, Wag 60/40 split) and Stripe's published US rate (stripe.com/pricing: '2.9% + 30c per successful transaction for domestic cards'), not from calc.mjs. Three input sets compared with node -e on analyze(): defaults (platform net $32.00, direct net $39.395, gain $7.395, break-even 7.437 direct bookings, match price $54.24375, current month $949.37, all-platform $960, all-direct $1,126.85, annual gain $2,002.20, hourly $10.5486, grid 960/960.46/1015.93/1071.39/1126.85); Wag preset 40% (platform net $23, break-even 3.355, match price $72.325, annual gain $5,242.20); a walker case (12 x $25, $1 cost, 50% direct, no fixed: platform $19, direct $22.975, month $251.85). Every figure matches to floating-point noise; CSV rows match too. Scored 3, not 4: the arithmetic is right, but which price the fee applies to is ambiguous for Wag (domain), and a blank field silently becomes the example value (craft).",
+    "completeness": "README/page features checked end to end in node: per-booking platform vs direct take-home, per-hour figure, break-even direct bookings, matching platform price and raise, 0-100% direct table, current-mix month, annual gain, CSV export, Rover/Wag/custom presets, warnings for bad input, fee below card cost and price below cost, usage counters with opt-out (usage.test.mjs). All work. No TODOs or stubs. Small gaps: changing the preset does not re-run the result; with no fixed costs the page says 'once 0 bookings a month are direct'.",
+    "verification": "node --test '*.test.mjs' in the subject dir: 23 pass, 0 fail. Seven hand-seeded mutations in calc.mjs, each reverted with git checkout: caught 2 (fixed cost charged at 0% direct; match price dropping cost per booking); survived 5 (hourly = net / bookings instead of net / hours; breakEvenOk threshold halved; fee-below-card-cost warning dropping the fixed card fee; directShare > 100 accepted; annualGain computed from current mix instead of all-direct). The headline 'worth $X a year' figure and the per-hour column the page shows are not pinned by any test.",
+    "craft": "Read calc.mjs (86 lines), the index.html script, calc.test.mjs, page.test.mjs, usage.mjs. Pure, short, readable, no dependencies, escapes warnings before innerHTML. Defects: index.html:116 opts() replaces any blank or unparseable field with DEFAULTS[k], so clearing the marketing field to mean 'none' silently uses $30 (verified: num('') is NaN -> 30), and the result does not say a default was used; calc.mjs:72 uses Math.max(price,1) while gainPerDirect uses price, two slightly different tests of the same condition; month() returns a 'fees' figure that excludes the fixed cost while the table labels them separately (fine) but the per-hour figure ignores admin time for direct clients without saying so.",
+    "claims": "Disclaimer, privacy line and usage events on index.html and README, backed by usage.mjs and page.test.mjs. FAQ 'Rover about 20%': consistent with Rover community answers (80% take-home for profiles after March 2016, 85% before) and a 2026 third-party guide citing Rover's US help centre ('20% service fee per booking'; some US sitters in a pilot with different fees); Rover's own support page returned 403 to this session, so not loaded directly. FAQ 'Wag about 40% on walks': matches Wag's own Product Hunt statement ('rev share to the walkers is 60%') and NerdWallet; a 2026 guide says Wag no longer publishes a percentage and its help centre says owners pay the walker's rate x 1.67. 'Card processing about 3%': Stripe 2.9% + 30c = 3.57% on $45. llms.txt in source points at duncan-haywood.github.io but the served https://marisstella.app/pet-sitting-platform-fee-calculator/llms.txt (HTTP 200) carries the marisstella.app URL, and the served sitemap has an absolute loc (source-only, not filed).",
+    "fitness": "Walked a sitter's job: 'I do 30 visits a month on Rover at $45; is a $25 booking app plus $30 of ads worth it?' The tool answers it directly: 8 direct bookings a month to break even, and at the default 20% direct (6 bookings) the mix earns $949 vs $960 all-platform, which the table makes visible. The match price answers 'what to list on Rover'. Limits a sitter hits: one average price for all services (walks vs overnights differ a lot), no admin time for direct clients, no owner-side fee, no tax; all stated on the page under 'Not decided'.",
+    "domain": "Compared with the platforms' fee mechanics. Rover: sitter fee taken from the sitter's rate, owner pays a separate fee: modelled correctly when 'price' is the sitter's listed rate. Wag: the 40% is a share of what the owner pays (owner price = walker's rate x 1.67, per Wag's help centre as quoted in a 2026 guide); a walker who types their own Wag rate into 'Price per booking' with the 40% preset gets platform net understated by 40% (e.g. $25 rate: tool says $15 - cost, walker actually keeps $25 - cost), and the label does not say which price to type. No mention of the legacy 15% Rover rate or the US pilot. Card fee 2.9% + 30c matches Stripe's standard rate. Break-even and match-price formulas are standard."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "default per-booking nets, gain and break-even",
+      "method": "independent exact-fraction model using Stripe US 2.9% + $0.30 (stripe.com/pricing) and a 20% Rover sitter fee",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/pet/model.py; node -e analyze({})",
+      "expected": "32.00 / 39.395 / 7.395 / 7.4375",
+      "observed": "32 / 39.395 / 7.395 / 7.4375",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "default monthly grid and annual gain all-direct vs all-platform",
+      "method": "same independent model",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/pet/model.py",
+      "expected": "960 / 960.46 / 1015.93 / 1071.39 / 1126.85; annual 2,002.20",
+      "observed": "960 / 960.46 / 1015.93 / 1071.39 / 1126.85; annual 2,002.20",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Wag preset 40%: platform net, break-even, match price, annual gain",
+      "method": "independent model with Wag's 60/40 split (Wag statement on Product Hunt; NerdWallet)",
+      "command": "node -e analyze({platformFee:0.4})",
+      "expected": "23 / 3.355 / 72.325 / 5,242.20",
+      "observed": "23 / 3.355 / 72.325 / 5,242.20",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "walker case 12 x $25, $1 cost, 50% direct, no fixed costs",
+      "method": "hand arithmetic: 6 x 19 + 6 x (25 - 1.025 - 1)",
+      "command": "node -e analyze({bookingsPerMonth:12,price:25,hoursPerBooking:1,costPerBooking:1,directShare:0.5,softwareMonthly:0,marketingMonthly:0})",
+      "expected": "251.85",
+      "observed": "251.85",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "CSV rows equal the grid",
+      "method": "compared toCsv(analyze({})) to the model grid",
+      "command": "node -e toCsv(analyze({}))",
+      "expected": "net 960.00 ... 1126.85, per hour 10.67 ... 12.52",
+      "observed": "same",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "Wag fee basis: 40% preset applied to the price the user types",
+      "method": "Wag help centre as quoted by lilachbullock.com (2026): owner price = walker rate x 1.67",
+      "command": "node -e analyze({price:25,platformFee:0.4,costPerBooking:0}).platformNet",
+      "expected": "25 if the walker typed their own Wag rate (they keep 100% of it)",
+      "observed": "15",
+      "result": "partial"
+    },
+    {
+      "dimension": "craft",
+      "what": "blank input field",
+      "method": "replicated index.html:116 opts() logic",
+      "command": "node -e (num('') finite ? num('') : DEFAULTS.marketingMonthly)",
+      "expected": "0 or a warning",
+      "observed": "30, silently",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Rover sitter fee about 20%",
+      "method": "Rover community answers (80%/85% take-home by sign-up date) and 2026 guide citing Rover US help centre; support.rover.com returned 403",
+      "command": "WebFetch support.rover.com (403); WebSearch",
+      "expected": "about 20%",
+      "observed": "20% (legacy 15%; US pilot differs)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Wag commission about 40% on walks",
+      "method": "Wag's own Product Hunt statement, NerdWallet Rover vs Wag",
+      "command": "WebSearch",
+      "expected": "about 40%",
+      "observed": "60/40 split; no longer published by Wag",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "served llms.txt and sitemap carry the live URL",
+      "method": "loaded the served files",
+      "command": "curl -sS https://marisstella.app/pet-sitting-platform-fee-calculator/llms.txt",
+      "expected": "marisstella.app URL",
+      "observed": "marisstella.app URL, HTTP 200",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "ran it",
+      "command": "node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "23 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "no-fixed-cost break-even wording",
+      "method": "read index.html:128 against analyze() with software 0, marketing 0",
+      "command": "node -e analyze({softwareMonthly:0,marketingMonthly:0}).breakEvenDirect",
+      "expected": "a sensible message",
+      "observed": "0 -> 'once 0 bookings a month are direct'",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/pet-sitting-platform-fee-calculator/calc.mjs:50",
+      "change": "hourly net / hours -> net / n",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/pet-sitting-platform-fee-calculator/calc.mjs:78",
+      "change": "breakEvenDirect <= bookingsPerMonth -> < bookingsPerMonth / 2",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/pet-sitting-platform-fee-calculator/calc.mjs:47",
+      "change": "share > 0 -> share >= 0 (fixed cost at 0% direct)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/pet-sitting-platform-fee-calculator/calc.mjs:72",
+      "change": "drop cardFixed/price from the fee-below-card-cost warning",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/pet-sitting-platform-fee-calculator/calc.mjs:62",
+      "change": "directShare > 1 -> > 100",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/pet-sitting-platform-fee-calculator/calc.mjs:77",
+      "change": "annualGain from allDirect -> from current mix",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/pet-sitting-platform-fee-calculator/calc.mjs:70",
+      "change": "matchPrice drops + costPerBooking",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Wag preset applies 40% to whatever 'Price per booking' the user types; Wag's split is on the owner price (walker rate x 1.67), so a walker who types their own Wag rate sees platform take-home understated by 40% and direct booking overstated. The label does not say which price to enter.",
+      "where": "ventures/pet-sitting-platform-fee-calculator/calc.mjs:13",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "A blank or unparseable field silently becomes the example value (clearing marketing to mean $0 uses $30) with no warning.",
+      "where": "ventures/pet-sitting-platform-fee-calculator/index.html:116",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "5 of 7 seeded mutations survive: the annual gain headline, the per-hour column, the break-even OK flag, the directShare bound and the fixed-card-fee part of the warning are untested.",
+      "where": "ventures/pet-sitting-platform-fee-calculator/calc.test.mjs:57",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "With no software or marketing cost the page says direct booking pays 'once 0 bookings a month are direct'.",
+      "where": "ventures/pet-sitting-platform-fee-calculator/index.html:128",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Rover preset and FAQ give 20% without the legacy 15% rate for older profiles or Rover's US fee pilot.",
+      "where": "ventures/pet-sitting-platform-fee-calculator/index.html:84",
+      "category": "scope-gap",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A small, correct calculator: every output recomputed from an independent model built on Stripe's published 2.9% + 30c and the platforms' 20% / 60-40 splits matches calc.mjs to the cent on three input sets, the served page and llms.txt are right, and the fee claims are consistent with the sources reachable (Rover's own help centre returned 403). It misses the bar on verification: 5 of 7 seeded bugs survive, including the annual-gain headline and the per-hour column. A pet sitter on Rover can use it as is; a Wag walker can be misled because the 40% is on the owner price, not the walker's rate, and the page does not say which price to type. Blank fields silently become example values."
+}
