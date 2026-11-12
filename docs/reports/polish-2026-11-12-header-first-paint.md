@@ -6,8 +6,8 @@ traced on the tool pages came from `nav.pf-chrome.pf-chrome-top` going from the 
 `pf-site.js`, a classic script at the end of `<body>`, so the browser could paint the unfitted header
 mid-parse and then move it. It is the first thing on all ~1,345 tool pages.
 
-**How it was measured.** Full local build of main (`node platform/pages/build.mjs`, about 30 minutes
-this run). A Node static server served `dist/` twice: as built ("before"), and with the new inline
+**How it was measured.** Full local build of main (`node platform/pages/build.mjs`, within the 3 to 20
+minutes the polish prompt quotes). A Node static server served `dist/` twice: as built ("before"), and with the new inline
 script spliced in after the header's `</nav>` exactly as `injectChrome` now emits it ("after"), so
 both runs read the same pages. Every eighth tool page carrying the venture header (169 pages), three
 loads each, at 1,280 × 900 and 390 × 900, six tabs in parallel, pre-installed Chromium, third-party
