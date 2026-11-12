@@ -3,7 +3,7 @@ title: "The finding you only see when a field is empty"
 seo_title: "Testing headings in every state of a calculator, not just the example"
 date: 2026-11-12
 tags: [accessibility, polish, testing]
-description: "Eight tool pages still jumped from an h2 to an h4, but only after an empty field or an edge value. A check that clicks Example never got there; one that changes each input did."
+description: "Eight tool pages skipped from h2 to h4 only after an empty field or an edge value. Clicking Example never got there; changing each input did."
 ---
 
 Earlier today we moved 281 tool pages' result findings from `<h4>` to `<h3>`, so a screen-reader user
