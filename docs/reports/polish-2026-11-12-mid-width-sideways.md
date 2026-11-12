@@ -3,7 +3,7 @@ kind: polish
 topics: [layout, responsive, accessibility]
 date: 2026-11-12
 ---
-# Polish 2026-11-12: five pages stop scrolling sideways at tablet widths, and the sideways sweep now checks 820 px by default
+# Polish 2026-11-12: six pages stop scrolling sideways (five at tablet widths), and the sideways sweep now checks 820 px by default
 
 **Why this item.** Item 2 of "still weakest" in `polish-2026-11-11-result-column.md`, carried
 in every polish note since: "change-order-margin sideways scroll at 761 to 1,000 px". I fixed it,
@@ -56,8 +56,21 @@ What a visitor saw at 800 px on change-order-margin: the price card cut off at t
 
 **After.** Each of the five measured at 320, 360, 390, 600, 700, 761, 820, 900, 1,000, 1,100 and
 1,280 px: 0 px overflow at every width. Venture suites pass (change-order 107, contractor 56,
-cash-runway 76, vendor-rate 41, clothing-design-studio 654). Full-catalogue result at the new
-default is in this PR's run record.
+cash-runway 76, vendor-rate 41, clothing-design-studio 654). Full-catalogue result below.
+
+## The full-catalogue run at the new default, and a sixth page
+
+After the five fixes, `sideways.mjs` (default `360,820`) over all 8,679 pages: **820 px clean**, and
+one failure at 360 px. **s3-storage-class-savings** was +67 px at 360 (+107 at 320, +37 at 390). The
+inventory-CSV label read `Bucket,Key,Size,LastModifiedDate,StorageClass`, one 376 px word with no
+break opportunity. The label now puts the column names in `<code>`, which this page already lets
+break anywhere: 0 px at 320, 360, 390, 820 and 1,280; its 33 tests pass. The sweep's report named no
+element for it, because nothing's *box* stuck out, only a text run, so `sideways.mjs` now falls
+back to naming the deepest element whose content spills past it ("widest: text in label"). It also
+prints a progress line to stderr every 500 pages.
+
+Final: 5 venture pages fixed at mid widths, 1 at phone widths; a rerun of the six slugs at
+`360,820`: none scroll sideways.
 
 ## Keeping it fixed
 

@@ -146,7 +146,11 @@ try {
 const page = await browser.newPage({ viewport: { width: WIDTH, height: HEIGHT } });
 const failures = [];
 
+let done = 0;
 for (const rel of pages) {
+  // A whole-catalogue run takes 10 to 15 minutes and prints its verdict only
+  // at the end; a line on stderr every 500 pages tells a live run from a hung one.
+  if (++done % 500 === 0) process.stderr.write(`sideways: ${done}/${pages.length} pages\n`);
   const url = `${BASE}/${rel.replace(/(^|\/)index\.html$/, '$1')}`;
   try {
     await page.setViewportSize({ width: WIDTH, height: HEIGHT });
@@ -180,6 +184,22 @@ for (const rel of pages) {
             widest = {
               right: Math.round(box.right),
               tag: el.tagName.toLowerCase()
+                + (el.id ? `#${el.id}` : '')
+                + (el.className ? `.${String(el.className).trim().split(/\s+/).join('.')}` : ''),
+            };
+          }
+        }
+        // No box sticks out, so the overflow is a run of text that cannot
+        // break (s3-storage-class-savings, 2026-11-12: a CSV header with no
+        // spaces in a <label>). Name the deepest element whose content spills
+        // past its own box instead.
+        if (!widest) {
+          for (const el of document.querySelectorAll('body *')) {
+            if (el.scrollWidth <= el.clientWidth + 1 || !el.clientWidth) continue;
+            if (getComputedStyle(el).overflowX !== 'visible') continue;
+            widest = {
+              right: null,
+              tag: 'text in ' + el.tagName.toLowerCase()
                 + (el.id ? `#${el.id}` : '')
                 + (el.className ? `.${String(el.className).trim().split(/\s+/).join('.')}` : ''),
             };
