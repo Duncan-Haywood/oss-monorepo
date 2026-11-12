@@ -130,6 +130,39 @@ test("an unreadable or empty line Base is a schema fault only: the correct summa
   }
 });
 
+// Red-team guards, second pass (2026-11-12).
+test("a hex, exponent or blank amount is a schema fault only: the sums do not read it as a number", () => {
+  // Number() reads "0x10" as 16, "1e3" as 1000 and " " as 0; the schema calls them not numbers.
+  for (const v of ["0x10", "1e3", " ", "Infinity"]) {
+    const line = checkCfdi(good.replace('Importe="850.50"', `Importe="${v}"`)).findings;
+    assert.deepEqual([...new Set(line.map((f) => f.rule))], ["MX-003"], `Concepto Importe ${JSON.stringify(v)}`);
+    const base = checkCfdi(good.replace('Base="850.50"', `Base="${v}"`)).findings;
+    assert.deepEqual(base.map((f) => f.rule), ["MX-003"], `Traslado Base ${JSON.stringify(v)}`);
+  }
+  // Whitespace around a decimal is collapsed by the schema, so it still reads as the number.
+  assert.deepEqual(checkCfdi(good.replace('Total="3848.58"', 'Total=" 3848.58 "')).findings, []);
+});
+
+test("an unreadable line tax Importe leaves the summary's group Importe unjudged", () => {
+  const r = checkCfdi(good.replace('Importe="136.08"', 'Importe="abc"')).findings;
+  assert.ok(!r.some((f) => f.rule === "MX-034" && /Importe .* is not the sum of the lines'/.test(f.message)), JSON.stringify(r));
+});
+
+test("MX-032: one line tax group and no summary is still a missing summary", () => {
+  const oneTax = good
+    .replace(/<cfdi:Retenciones>\s*<cfdi:Retencion Base="2700.00"[^>]*\/>\s*<\/cfdi:Retenciones>/, "")
+    .replace(/<cfdi:Impuestos TotalImpuestosRetenidos[\s\S]*?<\/cfdi:Impuestos>/, "");
+  assert.ok(checkCfdi(oneTax).findings.some((f) => f.rule === "MX-032"));
+});
+
+test("detection reads the first 4096 characters, no more", () => {
+  const tag = '<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" Version="4.0"/>';
+  const end = tag.indexOf("cfd/4") + 5; // the namespace's last character
+  const at = (n) => `<!--${"x".repeat(n - end - 7)}-->` + tag; // the "4" lands at index n - 1
+  assert.ok(looksLikeCfdi(at(4096)));
+  assert.ok(!looksLikeCfdi(at(4097)));
+});
+
 // ---------- regimes and uses (MX-015..MX-017), from SAT's catCFDI spreadsheet columns ----------
 import { personType, checkRegimen } from "./cfdi.mjs";
 import { REGIMEN, USO } from "./cfdi-regimen-data.mjs";

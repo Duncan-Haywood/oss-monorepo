@@ -145,10 +145,17 @@ function schemaPath(path) {
 // ---------- numbers ----------
 
 export function decimalsOf(s) {
-  const i = String(s).indexOf(".");
-  return i < 0 ? 0 : String(s).length - i - 1;
+  const t = String(s).trim(); // the schema collapses whitespace: " 3848.58 " has 2 decimals
+  const i = t.indexOf(".");
+  return i < 0 ? 0 : t.length - i - 1;
 }
-const num = (v) => (v === undefined || v === "" || !Number.isFinite(Number(v)) ? null : Number(v));
+// The schema's decimal syntax, after its whitespace collapse: Number() alone would read
+// "0x10" as 16, "1e3" as 1000 and " " as 0, values typeProblem already calls not numbers.
+const num = (v) => {
+  if (v === undefined) return null;
+  const s = String(v).trim();
+  return /^[+-]?(\d+(\.\d*)?|\.\d+)$/.test(s) ? Number(s) : null;
+};
 // Present but not a number: the schema check names it (MX-003), and the sums that would read it
 // as 0 are skipped, so the correct values beside it are not blamed.
 const unreadable = (v) => v !== undefined && num(v) === null;
