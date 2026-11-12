@@ -1905,3 +1905,89 @@ Caveats: synthetic Bradley-Terry respondents with uniform truth; 30 items or
 fewer in the sweeps; 60 respondents per cell, so a coverage differs by about
 0.01 between seed bases; no real pairwise answers.
 
+
+## A stored survey prior (2026-11-12, latest; shipped as a floor, not a replacement)
+
+The previous section left one step open: store a pooled prior sd per survey
+and draw the set from it, since in its sweep the pooled sd covered as well as
+the person's own at shorter lengths (7.1-7.8 names against 8.4-8.7). That
+sweep pooled over a panel that shared one spread of likes and one lapse rate,
+so the pooled value was the right answer for everyone in it. A real survey
+mixes people. This section measures the mixed case, finds pooling alone is
+wrong for the people whose likes are close together, and ships the pooled sd
+as a floor on the person's own.
+
+**Design** (`scripts/mixed-prior-sweep.ts`). Respondents cycle through
+spreads 0.5, 1 and 2 and lapse rates 0 and 0.2 (six equal groups); the
+pooled sd is estimated on an independent panel of the same mixture (120,
+seeds + 100000); 120 scored respondents per cell, the same 8/15/30 items x
+2/4/8 answers per item, both selectors, counted where the card is shown,
+the 95% set; seed bases 1000 and 50000. Five priors: the fixed 2.0; the
+person's own estimate (shipped earlier today); the pooled one; the
+geometric mean of own and pooled ("shrink"); the narrower of the two
+("min"). Coverage / mean size (raw rows: `docs/mixed-prior-2026-11-12.jsonl`):
+
+| selector | group | fixed | own | pool | shrink | min |
+|---|---|---|---|---|---|---|
+| shipped | all | 0.861 / 6.4, 0.868 / 6.3 | 0.943 / 8.8, 0.937 / 8.5 | 0.922 / 7.9, 0.937 / 7.9 | 0.935 / 8.3, 0.939 / 8.1 | **0.954 / 9.2, 0.956 / 9.0** |
+| | spread 0.5 | 0.744, 0.819 | 0.905, 0.947 | 0.833, 0.917 | 0.877, 0.936 | 0.911, 0.956 |
+| | spread 0.5, lapse 0.2 | 0.700, 0.783 | 0.883, 0.939 | 0.772, 0.889 | 0.839, 0.917 | 0.889, 0.939 |
+| | worst cell | 0.742, 0.750 | 0.892, 0.858 | 0.825, 0.867 | 0.875, 0.875 | 0.908, 0.892 |
+| staged | all | 0.813 / 5.2, 0.841 / 5.1 | 0.922 / 9.1, 0.926 / 9.0 | 0.914 / 7.8, 0.940 / 7.2 | 0.933 / 8.3, 0.941 / 8.1 | **0.957 / 10.1, 0.964 / 9.8** |
+| | spread 0.5 | 0.697, 0.764 | 0.881, 0.888 | 0.827, 0.888 | 0.881, 0.899 | 0.918, 0.938 |
+| | spread 0.5, lapse 0.2 | 0.670, 0.719 | 0.875, 0.854 | 0.813, 0.854 | 0.881, 0.854 | 0.920, 0.916 |
+| | worst cell | 0.683, 0.733 | 0.867, 0.875 | 0.795, 0.867 | 0.855, 0.892 | 0.889, 0.925 |
+
+The pooled sd lands near 1 (0.61-1.21 by cell), the middle of the mixture:
+too wide for the spread-0.5 people, whose coverage falls to 0.83-0.92
+(0.77-0.89 when they also answer carelessly), and too narrow for the
+spread-2 people, who over-cover (0.96-1.00). Pooling buys its shorter lists
+from exactly the people whose answers are hardest. Shrink sits between and
+is not clearly better than own on the shipped selector (0.935 and 0.939 against 0.943 and 0.937). The narrower of own and
+pooled is the only rule that reaches the 95% label overall on both
+selectors and both seed bases (0.954-0.964 against own's 0.922-0.943), and
+it lifts every worst cell (0.889-0.925 against 0.858-0.892) and the
+hardest group (spread 0.5 with lapses: 0.889-0.939 against 0.854-0.939). It
+costs 0.4-1.1 names on average, most of it in lists the card already cuts
+to three names and a count.
+
+Why min works: the person's own estimate errs in both directions, and the
+direction that hurts the claim is too wide (a wide prior shrinks the leader
+too little, the winner's curse of the previous sections). Taking the
+narrower of two noisy estimates removes most of the too-wide errors; it
+also makes some lists longer than they need be, which costs length, not
+correctness.
+
+**Shipped** (`src/lib/surveyPrior.ts`, `src/lib/surveyPriorStore.ts`,
+migration `20261112000000_survey_set_prior`): the Survey row stores the
+pooled sd (`setPriorPhi`), how many respondents it pooled and the survey's
+decided-answer count when it was estimated. The insights route reads it and
+draws the set at `min(own, stored)` once it pools at least 10 respondents;
+below that, own alone, as before. After its response (next/server `after`)
+the route refreshes the stored value when the answer count has grown by a
+quarter and by at least 20 since the last estimate (the first estimate
+waits for 40 answers). A refresh pools the 40 most recent respondents with
+at least 4 answers and at most 40 answered items (`EB_MAX_ITEMS`), searches
+with `pooledPriorPhiAsync`, which yields to the event loop after each
+respondent (2.5 s of CPU at 40 people x 15 items x 4 answers, 7.5 s at 30 x
+8, 11.5 s at 40 x 8), and writes only if no newer estimate landed in the
+meantime. The ratings, intervals and clear-pick rule are unchanged.
+
+Pinned by `src/lib/surveyPrior.test.ts` (eligibility, the minimum, the
+staleness rule, the async search equal to the synchronous one, the min
+rule) and `src/lib/surveyPriorStore.integration.test.ts` against Postgres:
+no estimate under 10 respondents; the stored estimate equals the pooled
+search; no recompute on a few new answers, a recompute after a quarter
+more; and on the route, a survey prior of 0.3 lengthens a six-item round
+robin's list from three names to four, while a wider one (2.0) or one
+behind 9 respondents changes nothing (fails with the route's old
+own-only rule).
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth; the
+mixture is equal thirds and halves, chosen, not measured; 30 items or
+fewer; group rows have about 175 respondents, so a group's coverage moves
+by about 0.02-0.05 between seed bases (the table shows both); the refresh
+pools the most recent respondents, so a survey whose audience changes
+follows it with a lag of a quarter of its answers. No real pairwise
+answers yet. Next: the PrefLib panels through the refit and the set, and a
+heavier-tailed prior for the pairwise intervals.
