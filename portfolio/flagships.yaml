@@ -190,10 +190,8 @@ flagships:
       --shut-min by weekday (README, 2026-11-12 sections). Next: close the 100-person gaps (tree, not pricing);
       cuts or branching that move the score LP on the 60-person pay week ($1.22 open); the 60x168 end-to-end
       week 0 (root LP 275.2 h vs 300 h held); a knapsack row (open hours at least the lifted floor) in bnp.mjs's
-      master LP so the whole-score column generation sees open hours come in whole shifts (README "Open hours come
-      in whole shifts", 2026-11-12: the lift proved coverage on the two bounded call-out weeks, 3 h = ILP optimum,
-      but they stay $549-647 bounded on pay; the simplex assumes 0/1 columns and right-hand sides of 1), then
-      re-measure the 20-60 person benches with the lift; now that the page's build and the multi-week planner both run in the
+      master LP (README "Open hours come in whole shifts": two call-out weeks proven on coverage, still $549-647
+      bounded on pay; the simplex assumes 0/1 columns), then re-measure the 20-60 person benches with the lift; now that the page's build and the multi-week planner both run in the
       worker (README "The multi-week planner plans in the worker too", 4-week plan freeze 6.2 s to 17 ms); a longer
       per-week budget than 4 s proved no more planned weeks (32 of 32 at 4, 8 and 16 s), and repeated weeks now reuse
       their roster (README "The planner stops rebuilding the same week": 4-week plans 2x faster, same rosters); next
