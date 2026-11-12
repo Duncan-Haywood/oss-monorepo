@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtLB1LH32wzW2T9vgVp",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T08:06:51Z",
+  "ended": "2026-11-12T08:20:57Z",
+  "wall_minutes": 14.66,
+  "tokens_in": 7895157,
+  "tokens_out": 37037,
+  "cost_usd": 3.2197,
+  "tool_calls": 82,
+  "task": "Polish: blog post foot. Related posts are now ranked by shared tags and title words instead of newest-in-topic, the foot is drawn as cards, and YAML escapes in front matter are decoded",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15057",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First draft of the new tests had tautological assertions and a Python-heredoc backslash loss; caught and rewritten before commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says the build takes 3 to 20 minutes; this run it took about 9 minutes, and its base URL printed the retired github.io address (open PR #14596 covers that)."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "There is no documented way to rebuild only the blog section into dist with the site chrome. Before/after screenshots needed a hand-written patch script that splices renderPost output into the built page."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "I took the after screenshots from built pages patched with the new renderPost foot rather than from a second full build",
+      "did": "Spliced the freshly rendered section and CSS into 2 dist pages",
+      "result": "The screenshots match what the code renders, and I skipped a second 9-minute build"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-every-post-pointed-at-the-same-five.md",
+    "docs/reports/polish-2026-11-12-related-posts.md"
+  ],
+  "goal": null,
+  "notes": "Measured over every post. Posts receiving a related link went from 36 to 3,527, max inbound from 2,756 to 26, and links sharing a tag from 29.7% to 99.6%. Scoring cost for the whole build went from 0.7 s to 3.3 s. Local checks: writing.test.mjs 36/36, check_post_frontmatter.py exit 0, propose_seo_titles.py --check exit 0, check_post_links 0 broken. Full node --test 'platform/pages/*.test.mjs': 1565 tests, 1550 pass, 0 fail, 15 skipped.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cfe30767-0e15-5449-84b4-224c1e2f5b10",
+    "transcripts": 1,
+    "first": "2026-11-12T08:06:51Z",
+    "last": "2026-11-12T08:21:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 145,
+        "output": 37037,
+        "thinking": 6239,
+        "cache_read": 7779706,
+        "cache_write_5m": 0,
+        "cache_write_1h": 115306,
+        "api_equivalent_usd": 3.2197,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 145,
+      "output": 37037,
+      "thinking": 6239,
+      "cache_read": 7779706,
+      "cache_write_5m": 0,
+      "cache_write_1h": 115306,
+      "api_equivalent_usd": 3.2197,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 66,
+      "Read": 10,
+      "Edit": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.66,
+      "active_minutes": 14.66,
+      "model_minutes": 8.28,
+      "tool_minutes": 6.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "a web engineer: measuring the link graph, writing a ranker with tests, restyling the foot, finding the YAML bug, writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 155.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
