@@ -112,9 +112,13 @@ flagships:
       280 of 280 GOV.UK dates 2019-2028) landed 2026-11-12 (README "UK bank holidays");
       `ca` (federal, 85 of 85 dates 2022-2028 on canada-holidays.ca, a second source) and
       the page's next-five-days-off line landed 2026-11-12 later (README "Canada");
-      next on that queue: `ca` and `us` against canada.ca and OPM's own calendars (both
-      refused this host 2026-11-12: probe first), provincial presets (ca-on, ca-qc,
-      ca-bc), and a country per prospect so a call skips their holidays as well as the rep's.
+      provincial presets, all 13 provinces and territories (855 of 855 canada-holidays.ca
+      dates 2022-2028), and the prospect's own days off (a `holidays`, `region` CA-QC or
+      `country` column moves a call off their holiday) landed 2026-11-12 later still
+      (README "Provinces, and the prospect's own days off"); next on that queue: `ca`,
+      the provinces and `us` against canada.ca, provincial pages and OPM's calendar (all
+      refused this host 2026-11-12: probe first), US state holidays for a `region` like
+      US-TX, and call prep showing the prospect's next day off.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
