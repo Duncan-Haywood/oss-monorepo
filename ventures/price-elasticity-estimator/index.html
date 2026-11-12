@@ -172,7 +172,7 @@
         const d = r.elasticity - prev.e;
         msg = `Since your last estimate on this device (${esc(prev.d)}): elasticity ${prev.e.toFixed(2)} to ${r.elasticity.toFixed(2)} (${d >= 0 ? "+" : ""}${d.toFixed(2)}), ${prev.n} to ${r.n} periods.`.replace(/&amp;/g, "&");
       }
-      try { localStorage.setItem(key, JSON.stringify({ e: r.elasticity, n: r.n, d: new Date().toISOString().slice(0, 10) })); } catch (e) { /* storage blocked */ }
+      try { localStorage.setItem(key, JSON.stringify({ e: r.elasticity, n: r.n, d: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) })); } catch (e) { /* storage blocked */ }
       return msg;
     }
 

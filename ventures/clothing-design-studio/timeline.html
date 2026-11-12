@@ -97,7 +97,7 @@
       $("#csv").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([timelineCsv(last.rows)], { type: "text/csv" })); a.download = "production-schedule.csv"; a.click(); recordUsage("timeline_csv"); };
     }
     document.querySelectorAll("section input, section select").forEach(el => el.addEventListener("input", () => { render(); recordUsage("timeline_check"); }));
-    const t = new Date(Date.now() + 240 * 86400000); $("#target").value = t.toISOString().slice(0, 10);
+    const t = new Date(Date.now() + 240 * 86400000); $("#target").value = new Date(t.getTime() - t.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     render(); recordUsage("timeline_open");
   </script>
 </body>

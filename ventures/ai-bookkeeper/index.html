@@ -964,7 +964,7 @@
       try {
         const lines = (id) => $(id).value.split("\n").map((x) => x.trim()).filter(Boolean);
         const freq = $("#str-freq").value, st = $("#str-state").value || null;
-        const t = salesTaxReturn(books, { frequency: freq, endMonth: st ? stateEndMonth(st, freq) : null, dueDay: st ? stateDueDay(st, freq) : 20, rates: parseRateSpecs(lines("#str-rate")), discounts: { ...stateDiscounts(st), ...parseDiscountSpecs(lines("#str-disc")) }, asOf: new Date().toISOString().slice(0, 10) });
+        const t = salesTaxReturn(books, { frequency: freq, endMonth: st ? stateEndMonth(st, freq) : null, dueDay: st ? stateDueDay(st, freq) : 20, rates: parseRateSpecs(lines("#str-rate")), discounts: { ...stateDiscounts(st), ...parseDiscountSpecs(lines("#str-disc")) }, asOf: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
         const note = stateFilingNote(st, freq);
         if (note) t.warnings.push(note);
         const rows = [];
@@ -985,7 +985,7 @@
     }
 
     function dollars(sel) { const v = $(sel).value.replace(/[$,\s]/g, ""); if (!v) return undefined; const n = Number(v); if (!Number.isFinite(n)) throw new Error("Use plain numbers in the dollar boxes."); return Math.round(n * 100); }
-    function estOpts() { return { year: deductYear(), monthsElapsed: parseInt($("#est-months").value, 10) || 12, filing: $("#est-filing").value, wages: dollars("#est-wages"), otherIncome: dollars("#est-other"), withholding: dollars("#est-withheld"), paid: dollars("#est-paid"), priorYearTax: dollars("#est-prior"), priorAgi: dollars("#est-prior-agi"), healthInsurance: dollars("#est-health"), retirement: dollars("#est-retire"), children: parseInt($("#est-children").value, 10) || 0, otherDependents: parseInt($("#est-other-deps").value, 10) || 0, over65: parseInt($("#est-over65").value, 10) || 0, blind: parseInt($("#est-blind").value, 10) || 0, eitcChildren: $("#est-eitc").value.trim() === "" ? undefined : parseInt($("#est-eitc").value, 10) || 0, eitcTable: true, stateRate: $("#est-state-rate").value.trim() === "" ? undefined : (parseFloat($("#est-state-rate").value) || 0) / 100, stateDeduction: dollars("#est-state-ded"), stateWithheld: dollars("#est-state-wh"), service: $("#est-service").checked, businessWages: dollars("#est-bizwages"), asOf: new Date().toISOString().slice(0, 10) }; }
+    function estOpts() { return { year: deductYear(), monthsElapsed: parseInt($("#est-months").value, 10) || 12, filing: $("#est-filing").value, wages: dollars("#est-wages"), otherIncome: dollars("#est-other"), withholding: dollars("#est-withheld"), paid: dollars("#est-paid"), priorYearTax: dollars("#est-prior"), priorAgi: dollars("#est-prior-agi"), healthInsurance: dollars("#est-health"), retirement: dollars("#est-retire"), children: parseInt($("#est-children").value, 10) || 0, otherDependents: parseInt($("#est-other-deps").value, 10) || 0, over65: parseInt($("#est-over65").value, 10) || 0, blind: parseInt($("#est-blind").value, 10) || 0, eitcChildren: $("#est-eitc").value.trim() === "" ? undefined : parseInt($("#est-eitc").value, 10) || 0, eitcTable: true, stateRate: $("#est-state-rate").value.trim() === "" ? undefined : (parseFloat($("#est-state-rate").value) || 0) / 100, stateDeduction: dollars("#est-state-ded"), stateWithheld: dollars("#est-state-wh"), service: $("#est-service").checked, businessWages: dollars("#est-bizwages"), asOf: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) }; }
     $("#est-annual").addEventListener("click", () => {
       try {
         const o = estOpts(); delete o.paid; delete o.monthsElapsed;
@@ -1301,7 +1301,7 @@
       else download(exportJournal(books, f), `bookkeeper-journal-${f}.${f === "iif" ? "iif" : f === "ledger" ? "journal" : f === "beancount" ? "beancount" : "csv"}`, ["iif", "ledger", "beancount"].includes(f) ? "text/plain" : "text/csv");
       record("exported");
     });
-    $("#save").addEventListener("click", () => { download(serializeBooks(books), `books-${new Date().toISOString().slice(0, 10)}.json`, "application/json"); $("#save-status").textContent = "Books file downloaded. Open it here on any computer to carry on."; });
+    $("#save").addEventListener("click", () => { download(serializeBooks(books), `books-${new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10)}.json`, "application/json"); $("#save-status").textContent = "Books file downloaded. Open it here on any computer to carry on."; });
     $("#open").addEventListener("change", async () => {
       const f = $("#open").files[0];
       if (!f) return;
