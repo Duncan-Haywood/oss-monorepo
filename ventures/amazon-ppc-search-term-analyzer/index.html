@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -158,7 +158,7 @@
       const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
       const span = n.period ? ` (${n.period.from} to ${n.period.to})` : "";
       $("#report-stats").innerHTML = `${s.terms} search terms${span}, ${cur}${money(s.spend)} spent on ${s.clicks} clicks (CPC ${money(s.cpc)}), ${s.orders} orders${s.acos !== null ? `, ACOS ${pct(s.acos)}` : ""}${s.target ? `, target ACOS ${pct(s.target)}${s.targetGiven ? "" : " (account average)"}` : ""}. <strong>${pct(s.wasteShare)} of spend (${cur}${money(s.wasteSpend)}) had no orders.</strong>`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const names = { profitable: "Terms with orders at or under target ACOS", unprofitable: "Terms with orders above target ACOS", proven: "No orders, proven (enough clicks)", overspent: "No orders, overspent (more than one order is worth)", watch: "No orders, too little data" };
       $("#buckets").innerHTML = Object.entries(r.buckets).map(([k, v]) => `<tr><th scope="row">${names[k]}</th><td class="n">${money(v)}</td><td class="n">${pct(v / s.spend)}</td></tr>`).join("");
       const where = (p) => esc([p.campaign, p.adgroup].filter(Boolean).join(" / ") || "–");

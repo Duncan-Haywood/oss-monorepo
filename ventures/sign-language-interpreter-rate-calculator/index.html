@@ -37,7 +37,7 @@
     .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
     .finding { border-bottom: 1px solid #e2f0e7; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #d8ecdf; color: #1f6e4c; }
     .stats { font-size: .85rem; color: #435048; margin-bottom: 10px; }
     .error { color: #9a3412; font-weight: 600; }
@@ -240,7 +240,7 @@
       }
       els.findings.innerHTML = findings.map((f) => `
         <div class="finding">
-          <h4><span class="pill">${f.severity}</span>${f.title}</h4>
+          <h3><span class="pill">${f.severity}</span>${f.title}</h3>
           ${f.detail ? `<p>${f.detail}</p>` : ""}
         </div>`).join("");
     }

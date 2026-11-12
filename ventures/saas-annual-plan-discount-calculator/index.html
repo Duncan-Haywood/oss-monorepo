@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -194,7 +194,7 @@
       if (r.blended) rows.push(`<tr><th scope="row">If ${pct(r.blended.share, 0)} switch: PV change per customer / upfront cash per customer</th><td colspan="2">${money(r.blended.pvChangePerCustomer)} / ${money(r.blended.upfrontCashPerCustomer)}</td></tr>`);
       $("#result-table").innerHTML = rows.join("");
       $("#report-findings").innerHTML = r.findings.map((f) => `
-        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+        <div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h3><p>${f.detail}</p></div>`).join("");
       $("#sens-head").innerHTML = `<tr><th scope="col">Discount</th>${r.sensitivity.churns.map((c) => `<th scope="col">${pct(c)} churn</th>`).join("")}</tr>`;
       $("#sens-body").innerHTML = r.sensitivity.rows.map((row) => `<tr><th scope="row">${pct(row.discount, 0)}</th>${row.cells.map((c) => `<td>${money(c)}</td>`).join("")}</tr>`).join("");
       report.hidden = false;

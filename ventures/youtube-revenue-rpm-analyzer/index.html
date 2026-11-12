@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -150,7 +150,7 @@
       last = r;
       const s = r.summary;
       $("#report-stats").innerHTML = `${s.rows} ${esc(r.dimension)} rows` + (s.from !== null ? `, ${dateStr(s.from)} to ${dateStr(s.to)}` : "") + `. ${s.views.toLocaleString("en-US")} views earned <strong>$${money(s.revenue)}</strong>, <strong>RPM $${dash(s.rpm, money)}</strong>` + (r.medianRpm !== null ? ` (median row $${money(r.medianRpm)})` : "") + (r.rpmGap ? `. Rows under half the median leave about <strong>$${money(r.rpmGap.revenue)}</strong> on the table at the median rate` : "") + ".";
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#label-head").textContent = r.dimension[0].toUpperCase() + r.dimension.slice(1);
       $("#rows-title").textContent = `By ${r.dimension} (highest revenue first)`;
       $("#rows").innerHTML = r.byRev.slice(0, 200).map((x) => `<tr><th scope="row">${esc(x.label)}</th><td class="n">${x.views.toLocaleString("en-US")}</td><td class="n">${money(x.revenue)}</td><td class="n">${s.revenue > 0 ? pct(x.revenue / s.revenue) : "–"}</td><td class="n">${dash(x.rpm, money)}</td><td class="n">${dash(x.perHour, money)}</td><td class="n">${dash(x.ctr, (v) => v.toFixed(1) + "%")}</td></tr>`).join("");

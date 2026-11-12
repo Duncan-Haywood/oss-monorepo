@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -151,7 +151,7 @@
       last = r;
       const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
       $("#report-stats").innerHTML = `${s.orders} orders, ${cur}${money(s.gross)} at list price. <strong>${cur}${money(s.discount)} (${pct(s.discountRate)}) was given away in discounts</strong>; ${pct(s.codeShare)} of orders used one. Average order ${s.aovCode === null ? "–" : money(s.aovCode)} with a discount, ${s.aovNone === null ? "–" : money(s.aovNone)} without. Refunds: ${cur}${money(s.refunded)}.` + (s.contribution === null ? "" : ` After product cost, fees and refunds the orders left ${cur}${money(s.contribution)} before shipping and ads.`);
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const be = (c) => (c.breakEven === null ? "–" : c.breakEven === Infinity ? "never" : pct(c.breakEven));
       $("#by-code").innerHTML = r.byCode.map((c) => `<tr><th scope="row">${esc(c.key)}</th><td class="n">${c.orders}</td><td class="n">${money(c.discount)}</td><td class="n">${pct(c.rate)}</td><td class="n">${money(c.aov)}</td><td class="n">${pct(c.refundRate)}</td><td class="n">${be(c)}</td></tr>`).join("");
       $("#by-band").innerHTML = r.byBand.map((b) => `<tr><th scope="row">${b.key}</th><td class="n">${b.orders}</td><td class="n">${money(b.discount)}</td><td class="n">${s.discount ? pct(b.discount / s.discount) : "–"}</td><td class="n">${b.orders ? money(b.aov) : "–"}</td><td class="n">${b.orders ? pct(b.refundRate) : "–"}</td></tr>`).join("");

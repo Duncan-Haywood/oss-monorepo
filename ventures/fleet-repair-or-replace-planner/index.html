@@ -41,7 +41,7 @@
     .chosen { font-weight: 800; color: #14452f; }
     .finding { border-bottom: 1px solid #eaefec; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .96rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .96rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fbe4e0; color: #8a2e0c; }
     .pill.medium { background: #fbf0d4; color: #6f540d; }
@@ -275,7 +275,7 @@
 
       findingsEl.innerHTML = result.findings.map((f) => `
         <div class="finding">
-          <h4><span class="pill ${f.severity}">${f.severity}</span>${escapeHtml(f.title)}</h4>
+          <h3><span class="pill ${f.severity}">${f.severity}</span>${escapeHtml(f.title)}</h3>
           <p>${escapeHtml(f.detail)}</p>
         </div>`).join("");
     }

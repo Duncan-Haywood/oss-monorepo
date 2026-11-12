@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -182,7 +182,7 @@
       const b = a.base;
       const tiles = [[usd(b.cashIn), "cash you put in"], [usd(b.cashOut), "cash out at refinance"], [usd(b.cashLeft), "cash left in the deal"], [usd(b.allIn), "all-in cost"], [usd(b.cashFlow), "yearly cash flow after refi"], [b.cashOnCash === null ? "no cash left" : pct(b.cashOnCash), "cash-on-cash"], [b.dscr === null ? "n/a" : b.dscr.toFixed(2), "DSCR (NOI)"], [usd(b.equity), "equity after refi"], [a.maxPrice === null ? "none" : usd(a.maxPrice), "max price, all cash out"]];
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#arv-table tbody").innerHTML = a.arvRows.map((s) => `<tr class="${s.label === "Your ARV" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.arv)}</td><td class="n">${usd(s.refiLoan)}</td><td class="n">${usd(s.cashOut)}</td><td class="n">${usd(s.cashLeft)}</td><td class="n">${usd(s.cashFlow)}</td></tr>`).join("");
       $("#overrun-table tbody").innerHTML = a.overrunRows.map((s, i) => `<tr class="${i === 0 ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.cashIn)}</td><td class="n">${usd(s.cashOut)}</td><td class="n">${usd(s.cashLeft)}</td><td class="n">${usd(s.cashFlow)}</td></tr>`).join("");
       $("#rate-table tbody").innerHTML = a.rateRows.map((s) => `<tr class="${s.label === "Your rate" ? "best" : ""}"><td>${esc(s.label)} (${s.rate.toFixed(2)}%)</td><td class="n">${usd(s.refiLoan)}</td><td class="n">${usd(s.cashLeft)}</td><td class="n">${usd(s.cashFlow)}</td><td class="n">${s.dscr === null ? "n/a" : s.dscr.toFixed(2)}</td></tr>`).join("");

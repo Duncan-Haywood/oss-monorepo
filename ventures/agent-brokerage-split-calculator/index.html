@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -200,7 +200,7 @@
       const b = a.best;
       const tiles = [[b.plan.label, "nets you the most"], [usd(b.net), "you keep in a year, before tax"], [(b.keptPct * 100).toFixed(0) + "%", "of your commission kept"], [usd(b.brokerageCost), "goes to the brokerage and fees"]];
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#size-table tbody").innerHTML = a.results.map((r) => `<tr class="${r === b ? "best" : ""}"><td>${esc(r.plan.label)}</td><td class="n">${usd(r.net)}</td><td class="n">${(r.keptPct * 100).toFixed(1)}%</td><td class="n">${usd(r.brokerageCost)}</td><td class="n">${r.capHitDeal ? "deal " + r.capHitDeal : "no"}</td></tr>`).join("");
       $("#sens-table thead").innerHTML = "<tr><th>Brokerage</th>" + SENS_DEALS.map((d) => `<th class="n">${d} deals</th>`).join("") + "</tr>";
       $("#sens-table tbody").innerHTML = a.results.map((r) => `<tr><td>${esc(r.plan.label)}</td>` + r.table.map((t, i) => { const top = Math.max(...a.results.map((x) => x.table[i].net)); return `<td class="n${t.net === top ? " hot" : ""}">${usd(t.net)}</td>`; }).join("") + "</tr>").join("");

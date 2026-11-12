@@ -33,7 +33,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -189,7 +189,7 @@
         const r = auditDispute(inputs());
         $("#report-total").textContent = money(r.claimable) + " of premium worth disputing";
         $("#report-stats").textContent = (r.againstYou ? money(r.againstYou) + " of lines go against you if corrected. " : "") + "Estimated at a combined load of " + r.factor.toFixed(4) + "× manual premium (mod, schedule, discount, surcharges).";
-        $("#report-findings").innerHTML = r.items.map((f) => `<div class="finding"><h4><span class="pill ${f.dollars < 0 ? "high" : f.dollars > 0 ? "medium" : "info"}">${f.dollars < 0 ? "dispute" : f.dollars > 0 ? "against you" : "check"}</span>${esc(f.title)}${f.dollars ? " — " + money(f.dollars) : ""}</h4><p>${esc(f.detail)}</p><p class="note"><strong>Records that prove it:</strong> ${esc(f.evidence)}</p></div>`).join("");
+        $("#report-findings").innerHTML = r.items.map((f) => `<div class="finding"><h3><span class="pill ${f.dollars < 0 ? "high" : f.dollars > 0 ? "medium" : "info"}">${f.dollars < 0 ? "dispute" : f.dollars > 0 ? "against you" : "check"}</span>${esc(f.title)}${f.dollars ? " — " + money(f.dollars) : ""}</h3><p>${esc(f.detail)}</p><p class="note"><strong>Records that prove it:</strong> ${esc(f.evidence)}</p></div>`).join("");
         $("#note").value = disputeNote(r, { policy: $("#policy").value });
         out.hidden = false;
         $("#form-status").textContent = "";

@@ -32,7 +32,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
     .finding { border-bottom: 1px solid #e3eaf8; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -139,15 +139,15 @@
       const o = { commissionPct: val("commission"), fuel: val("fuel"), ice: val("ice"), bait: val("bait"), food: val("food"), other: val("other"), boatPct: val("boatpct"), days: val("days") || 1, boatDaily: val("boatdaily") };
       const target = val("target");
       const r = settle(c.catch, p.crew, o), be = breakEven(p.crew, o, target);
-      let h = `<div class="finding"><h4>The trip</h4><p class="stats">${money(r.gross)} sold (${Math.round(r.pounds).toLocaleString("en-US")} lb) − ${money(r.commission)} commission − ${money(r.tripCosts)} trip costs = <strong>${money(r.net)} net</strong>. Boat takes ${money(r.boatReceives)} (${r.boatPct}%), crew pool ${money(r.crewPool)} over ${r.totalShares} shares = ${money(r.perShare)} a share.</p>`
+      let h = `<div class="finding"><h3>The trip</h3><p class="stats">${money(r.gross)} sold (${Math.round(r.pounds).toLocaleString("en-US")} lb) − ${money(r.commission)} commission − ${money(r.tripCosts)} trip costs = <strong>${money(r.net)} net</strong>. Boat takes ${money(r.boatReceives)} (${r.boatPct}%), crew pool ${money(r.crewPool)} over ${r.totalShares} shares = ${money(r.perShare)} a share.</p>`
         + `<div class="scroll"><table><thead><tr><th>Crew</th><th class="n">Shares</th><th class="n">Share pay</th><th class="n">Personal</th><th class="n">Take-home</th><th class="n">Per day</th></tr></thead><tbody>`
         + r.people.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${x.shares}</td><td class="n">${money(x.share)}</td><td class="n">${money(x.personal)}</td><td class="n">${money(x.takeHome)}</td><td class="n">${money(x.perDay)}</td></tr>`).join("")
         + `</tbody></table></div></div>`;
-      h += `<div class="finding"><h4>The boat</h4><p>Receives ${money(r.boatReceives)}, carries ${money(r.boatCosts)} of its own cost over ${r.days} day${r.days === 1 ? "" : "s"}: <strong>${money(r.boatProfit)}</strong> trip profit.${be.boatCover ? ` Break-even gross for the boat: ${money(be.boatCover)}.` : ""}${be.crewTarget ? ` A full-share hand reaches ${money(target)} a day at about ${money(be.crewTarget)} gross.` : ""}</p></div>`;
-      h += `<div class="finding"><h4>If prices move</h4><div class="scroll"><table><thead><tr><th>Price change</th><th class="n">Gross</th><th class="n">Net</th><th class="n">Full hand per day</th><th class="n">Boat profit</th></tr></thead><tbody>`
+      h += `<div class="finding"><h3>The boat</h3><p>Receives ${money(r.boatReceives)}, carries ${money(r.boatCosts)} of its own cost over ${r.days} day${r.days === 1 ? "" : "s"}: <strong>${money(r.boatProfit)}</strong> trip profit.${be.boatCover ? ` Break-even gross for the boat: ${money(be.boatCover)}.` : ""}${be.crewTarget ? ` A full-share hand reaches ${money(target)} a day at about ${money(be.crewTarget)} gross.` : ""}</p></div>`;
+      h += `<div class="finding"><h3>If prices move</h3><div class="scroll"><table><thead><tr><th>Price change</th><th class="n">Gross</th><th class="n">Net</th><th class="n">Full hand per day</th><th class="n">Boat profit</th></tr></thead><tbody>`
         + priceSensitivity(c.catch, p.crew, o).map((s) => `<tr><td>${s.pct > 0 ? "+" : ""}${s.pct}%</td><td class="n">${money(s.gross)}</td><td class="n">${money(s.net)}</td><td class="n">${money(s.handPerDay)}</td><td class="n">${money(s.boatProfit)}</td></tr>`).join("")
         + `</tbody></table></div></div>`;
-      for (const f of diagnose(r, o, target, be)) h += `<div class="finding"><h4><span class="pill ${f.level}">${LABEL[f.level]}</span>${esc(f.title)}</h4><p>${esc(f.text)}</p></div>`;
+      for (const f of diagnose(r, o, target, be)) h += `<div class="finding"><h3><span class="pill ${f.level}">${LABEL[f.level]}</span>${esc(f.title)}</h3><p>${esc(f.text)}</p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       record("settle_run");

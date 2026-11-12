@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -176,12 +176,12 @@
         [gain === null ? "–" : (gain >= 0 ? "" : "-") + Math.abs(gain * 100).toFixed(0) + "%", "Error cut by the chosen methods"],
         [`${s.beatNaive} of ${s.tested}`, "SKUs clearly better than repeating last period"],
       ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
       $("#skus tbody").innerHTML = r.skus.slice(0, 40).map((k) => `<tr><td>${esc(k.sku)}</td><td>${k.abc}${k.xyz}</td><td>${esc(k.methodLabel)}${k.verified ? "" : " *"}</td><td class="n">${num(k.leadDemand)}</td><td class="n">${num(k.safetyStock)}</td><td class="n">${num(k.reorderPoint)}</td><td class="n">${pct(k.wape)}</td><td class="n">${pct(k.naiveWape)}</td></tr>`).join("");
       $("#sku-note").textContent = (r.skus.length > 40 ? `Showing the 40 highest-volume of ${r.skus.length} SKUs; the download has all of them. ` : "") + `Lead time ${s.leadDays} days = ${s.horizon} ${s.period}(s); service level ${pct(s.service)} (z = ${s.z.toFixed(2)}). * = too little history to back-test or choose honestly.`;
       $("#methods tbody").innerHTML = Object.entries(s.byMethod).sort((a, b) => b[1] - a[1]).map(([id, n]) => `<tr><td>${esc(r.skus.find((k) => k.method === id).methodLabel)}</td><td class="n">${n}</td></tr>`).join("");
       const flagged = r.skus.filter((k) => k.flags.length).slice(0, 30);
-      $("#sku-flags").innerHTML = flagged.length ? flagged.map((k) => `<div class="finding"><h4>${esc(k.sku)}</h4><p>${esc(k.flags.join(" "))}</p></div>`).join("") : '<p class="note">No SKU-level warnings.</p>';
+      $("#sku-flags").innerHTML = flagged.length ? flagged.map((k) => `<div class="finding"><h3>${esc(k.sku)}</h3><p>${esc(k.flags.join(" "))}</p></div>`).join("") : '<p class="note">No SKU-level warnings.</p>';
       report.hidden = false;
       status.textContent = `Done: ${s.skus} SKUs over ${s.periods} ${s.period}s (${s.startLabel} to ${s.endLabel})` + (parsed.skipped ? `; ${parsed.skipped} unreadable rows skipped.` : ".");
       report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });

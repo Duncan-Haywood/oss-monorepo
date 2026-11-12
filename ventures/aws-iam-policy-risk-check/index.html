@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -137,7 +137,7 @@
       const s = r.summary, b = s.bySeverity;
       $("#score").textContent = `${s.score}/100 · grade ${s.grade}`;
       $("#report-stats").textContent = `${s.statements} statements (${s.allow} allow, ${s.deny} deny) in ${s.policies} policy document(s): ${b.critical} critical, ${b.high} high, ${b.medium} medium, ${b.info} info.`;
-      $("#findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.sid)}: ${esc(f.title)}</h4><p>${esc(f.detail)}</p><p class="note"><strong>Fix:</strong> ${esc(f.fix)}</p></div>`).join("") || "<p>No findings. That is not proof the policy is safe; see what is not modelled below.</p>";
+      $("#findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.sid)}: ${esc(f.title)}</h3><p>${esc(f.detail)}</p><p class="note"><strong>Fix:</strong> ${esc(f.fix)}</p></div>`).join("") || "<p>No findings. That is not proof the policy is safe; see what is not modelled below.</p>";
       report.hidden = false;
       status.textContent = `Read ${s.statements} statement(s).`;
       report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });

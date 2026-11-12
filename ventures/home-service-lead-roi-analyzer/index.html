@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -157,7 +157,7 @@
       last = r;
       const s = r.summary;
       $("#report-stats").innerHTML = `${s.leads} leads from ${s.sources} source(s), ${dateStr(s.from)} to ${dateStr(s.to)}. Spend $${money(s.spend)}, <strong>${s.won} booked (${pct(s.closeRate)} close rate)</strong>, job value $${money(s.revenue)}, <strong>profit $${money(s.profit)}</strong> after lead cost at a ${(s.margin * 100).toFixed(0)}% job margin` + (s.costPerWon === null ? "." : `, $${money(s.costPerWon)} per booked job.`);
-      $("#report-findings").innerHTML = r.findings.length ? r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out: no named source loses money after lead cost.</p>`;
+      $("#report-findings").innerHTML = r.findings.length ? r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out: no named source loses money after lead cost.</p>`;
       const grp = (rows) => rows.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${g.leads}</td><td class="n">${money(g.spend)}</td><td class="n">${dash(g.costPerLead, money)}</td><td class="n">${g.won}</td><td class="n">${dash(g.closeRate, pct)}</td><td class="n">${dash(g.costPerWon, money)}</td><td class="n">${money(g.revenue)}</td><td class="n">${dash(g.avgJob, whole)}</td><td class="n">${dash(g.breakEvenClose, pct)}</td><td class="n">${money(g.profit)}</td></tr>`).join("");
       $("#by-source").innerHTML = grp(r.bySource);
       $("#by-service").innerHTML = grp(r.byService);

@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -182,7 +182,7 @@
       const b = a.base;
       const tiles = [[x2(b.dscrRent), "DSCR, rent / PITIA"], [x2(b.dscrNoi), "DSCR, NOI / debt service"], [pct(b.cashOnCash), "cash-on-cash, year 1"], [pct(b.capRate), "cap rate"], [usd(b.cashFlow), "year-1 cash flow"], [b.breakEven === null ? "n/a" : Math.round(b.breakEven * 100) + "%", "break-even occupancy"], [pct(a.long.irr), "IRR over " + a.p.years + " years"]];
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#size-table tbody").innerHTML = a.rates.map((s, i) => `<tr class="${i === 1 ? "best" : ""}"><td>${esc(s.label)} (${s.rate.toFixed(2)}%)</td><td class="n">${usd(s.payment)}</td><td class="n">${x2(s.dscrRent)}</td><td class="n">${x2(s.dscrNoi)}</td><td class="n">${usd(s.cashFlow)}</td></tr>`).join("");
       $("#max-table tbody").innerHTML = [["Rent / PITIA at " + a.p.targetDscr.toFixed(2), a.maxLoanRent], ["NOI / debt service at " + a.p.targetDscr.toFixed(2), a.maxLoanNoi]].map(([l, v]) => `<tr><td>${esc(l)}</td><td class="n">${usd(v)}</td></tr>`).join("");
       $("#year-table tbody").innerHTML = a.long.rows.map((r) => `<tr><td>${r.year}</td><td class="n">${usd(r.noi)}</td><td class="n">${usd(r.debt)}</td><td class="n">${usd(r.cashFlow)}</td><td class="n${r.cumulative >= 0 ? " hot" : ""}">${usd(r.cumulative)}</td></tr>`).join("");
