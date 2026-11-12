@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqycK8BozHg4HWTkUPYL",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T14:46:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship row 5, shift-roster-builder: whether a longer per-week exact budget than the page's 4 s proves more planned weeks",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15155",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "A heredoc writing a .mjs file through Bash was refused by the rm-safety parser (no rm in it); wrote it with the Write tool instead.",
+    "First version of plan-reuse.test.mjs expected week 4 to reuse week 2 after a week-3 day off; wrong expectation (week 4 inherits week 3's rest gaps), loosened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "docs/reports/",
+      "why": "No agent doc: the README section and flagships.yaml next: already carry what the next run needs.",
+      "did": "README section + post only",
+      "result": "one less duplicate of the same facts"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-shift-roster-same-week-twice.md",
+    "ventures/shift-roster-builder/README.md (The planner stops rebuilding the same week)"
+  ],
+  "goal": "Deepen a flagship with a measured, tested slice",
+  "notes": "Budget: 32 planned weeks (4 templates x 4, 2 x 30x84 x 4, 2 x 40x112 x 4) proven at 4, 8 and 16 s with identical rosters; page keeps 4 s. Found every planned week repeated; planWeeks now reuses a roster when the parsed staff match (tough tally ignored at toughBalance 0), sameAs marks it, reuse:false rebuilds. 4-week plans: cafe 6.8->3.3 s, templates 8.4->4.1 s, 40x112 20.0->9.0 s and 35.6->16.7 s, same totals. Readings in eval/plan-budget.out.txt. Tests: run_venture_tests.py shift-roster-builder and venture-preflight both passed locally: run_venture_tests.py shift-roster-builder ok (201 s, 0 failed); venture-preflight 'preflight clean for shift-roster-builder'.",
+  "corrections": [],
+  "redteam": null
+}

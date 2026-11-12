@@ -1,0 +1,230 @@
+# Per-week exact budget (before week reuse; 2026-11-12, one 4-core cloud machine; the 30 x 84 and 40 x 112 runs ran side by side)
+## node eval/plan-budget.mjs templates 4
+cafe (4 weeks)
+  exactMs  4000: total 6808 ms, open 60 h, pay $14760.00
+    w1   1757 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w2   1679 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w3   1534 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w4   1838 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+  exactMs  8000: total 6119 ms, open 60 h, pay $14760.00
+    w1   1540 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w2   1616 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w3   1627 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w4   1336 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+  exactMs 16000: total 6233 ms, open 60 h, pay $14760.00
+    w1   1378 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w2   1521 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w3   1699 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w4   1634 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+salon (4 weeks)
+  exactMs  4000: total 75 ms, open 0 h, pay $8216.00
+    w1     40 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w2     14 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w3     11 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w4     10 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+  exactMs  8000: total 43 ms, open 0 h, pay $8216.00
+    w1     11 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w2     11 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w3     10 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w4     11 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+  exactMs 16000: total 44 ms, open 0 h, pay $8216.00
+    w1     11 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w2     11 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w3     10 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w4     12 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+retail (4 weeks)
+  exactMs  4000: total 94 ms, open 0 h, pay $9000.00
+    w1     28 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w2     21 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w3     23 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w4     22 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+  exactMs  8000: total 89 ms, open 0 h, pay $9000.00
+    w1     24 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w2     21 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w3     22 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w4     22 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+  exactMs 16000: total 85 ms, open 0 h, pay $9000.00
+    w1     22 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w2     21 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w3     22 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w4     20 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+clinic (4 weeks)
+  exactMs  4000: total 1472 ms, open 20 h, pay $10832.00
+    w1    400 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w2    411 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w3    328 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w4    333 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+  exactMs  8000: total 1313 ms, open 20 h, pay $10832.00
+    w1    322 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w2    331 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w3    333 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w4    327 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+  exactMs 16000: total 1354 ms, open 20 h, pay $10832.00
+    w1    323 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w2    363 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w3    335 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w4    333 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+summary (all plans above):
+  exactMs  4000: 16 of 16 weeks proven, open 80 h, pay $42808.00, score 8045367.45, 8.4 s
+  exactMs  8000: 16 of 16 weeks proven, open 80 h, pay $42808.00, score 8045367.45, 7.6 s
+  exactMs 16000: 16 of 16 weeks proven, open 80 h, pay $42808.00, score 8045367.45, 7.7 s
+## node eval/plan-budget.mjs 30 84 2 4
+30 x 84 case 0 (4 weeks)
+  exactMs  4000: total 19682 ms, open 724 h, pay $39056.00
+    w1   5162 ms, open 181 h, pay $9764.00, score 18110368.89, improved
+    w2   5099 ms, open 181 h, pay $9764.00, score 18110368.89, improved
+    w3   4495 ms, open 181 h, pay $9764.00, score 18110368.89, improved
+    w4   4925 ms, open 181 h, pay $9764.00, score 18110368.89, improved
+  exactMs  8000: total 19213 ms, open 724 h, pay $39056.00
+    w1   4915 ms, open 181 h, pay $9764.00, score 18110368.89, improved
+    w2   4383 ms, open 181 h, pay $9764.00, score 18110368.89, improved
+    w3   4833 ms, open 181 h, pay $9764.00, score 18110368.89, improved
+    w4   5082 ms, open 181 h, pay $9764.00, score 18110368.89, improved
+  exactMs 16000: total 18928 ms, open 724 h, pay $39056.00
+    w1   4834 ms, open 181 h, pay $9764.00, score 18110368.89, improved
+    w2   4325 ms, open 181 h, pay $9764.00, score 18110368.89, improved
+    w3   5349 ms, open 181 h, pay $9764.00, score 18110368.89, improved
+    w4   4420 ms, open 181 h, pay $9764.00, score 18110368.89, improved
+30 x 84 case 1 (4 weeks)
+  exactMs  4000: total 7023 ms, open 568 h, pay $42488.00
+    w1   1772 ms, open 142 h, pay $10622.00, score 14211054.63, improved
+    w2   1782 ms, open 142 h, pay $10622.00, score 14211054.63, improved
+    w3   1644 ms, open 142 h, pay $10622.00, score 14211054.63, improved
+    w4   1825 ms, open 142 h, pay $10622.00, score 14211054.63, improved
+  exactMs  8000: total 8126 ms, open 568 h, pay $42488.00
+    w1   1779 ms, open 142 h, pay $10622.00, score 14211054.63, improved
+    w2   2345 ms, open 142 h, pay $10622.00, score 14211054.63, improved
+    w3   2059 ms, open 142 h, pay $10622.00, score 14211054.63, improved
+    w4   1943 ms, open 142 h, pay $10622.00, score 14211054.63, improved
+  exactMs 16000: total 6713 ms, open 568 h, pay $42488.00
+    w1   1695 ms, open 142 h, pay $10622.00, score 14211054.63, improved
+    w2   1654 ms, open 142 h, pay $10622.00, score 14211054.63, improved
+    w3   1663 ms, open 142 h, pay $10622.00, score 14211054.63, improved
+    w4   1701 ms, open 142 h, pay $10622.00, score 14211054.63, improved
+summary (all plans above):
+  exactMs  4000: 8 of 8 weeks proven, open 1292 h, pay $81544.00, score 129285694.09, 26.7 s
+  exactMs  8000: 8 of 8 weeks proven, open 1292 h, pay $81544.00, score 129285694.09, 27.3 s
+  exactMs 16000: 8 of 8 weeks proven, open 1292 h, pay $81544.00, score 129285694.09, 25.6 s
+## node eval/plan-budget.mjs 40 112 2 4
+40 x 112 case 0 (4 weeks)
+  exactMs  4000: total 20037 ms, open 676 h, pay $48624.00
+    w1   5471 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+    w2   4853 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+    w3   5352 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+    w4   4361 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+  exactMs  8000: total 20185 ms, open 676 h, pay $48624.00
+    w1   4734 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+    w2   4872 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+    w3   5149 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+    w4   5430 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+  exactMs 16000: total 20832 ms, open 676 h, pay $48624.00
+    w1   5300 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+    w2   5463 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+    w3   5443 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+    w4   4626 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+40 x 112 case 1 (4 weeks)
+  exactMs  4000: total 35570 ms, open 584 h, pay $49920.00
+    w1   8515 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+    w2   9074 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+    w3   8359 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+    w4   9622 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+  exactMs  8000: total 37638 ms, open 584 h, pay $49920.00
+    w1   9489 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+    w2   9511 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+    w3   9391 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+    w4   9247 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+  exactMs 16000: total 35588 ms, open 584 h, pay $49920.00
+    w1   8984 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+    w2   9141 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+    w3   8607 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+    w4   8856 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+summary (all plans above):
+  exactMs  4000: 8 of 8 weeks proven, open 1260 h, pay $98544.00, score 126101797.66, 55.6 s
+  exactMs  8000: 8 of 8 weeks proven, open 1260 h, pay $98544.00, score 126101797.66, 57.8 s
+  exactMs 16000: 8 of 8 weeks proven, open 1260 h, pay $98544.00, score 126101797.66, 56.4 s
+# After week reuse (same machine, one run at a time): BUDGETS=4000
+## templates 4
+cafe (4 weeks)
+  exactMs  4000: total 3250 ms, open 60 h, pay $14760.00
+    w1   1676 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w2   1569 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w3      2 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w4      2 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+salon (4 weeks)
+  exactMs  4000: total 85 ms, open 0 h, pay $8216.00
+    w1     54 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w2     29 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w3      1 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w4      1 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+retail (4 weeks)
+  exactMs  4000: total 80 ms, open 0 h, pay $9000.00
+    w1     46 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w2     33 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w3      0 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w4      1 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+clinic (4 weeks)
+  exactMs  4000: total 647 ms, open 20 h, pay $10832.00
+    w1    336 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w2    311 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w3      0 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w4      0 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+summary (all plans above):
+  exactMs  4000: 16 of 16 weeks proven, open 80 h, pay $42808.00, score 8045367.45, 4.1 s
+## templates 8
+cafe (8 weeks)
+  exactMs  4000: total 3012 ms, open 120 h, pay $29520.00
+    w1   1452 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w2   1552 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w3      2 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w4      1 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w5      1 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w6      1 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w7      1 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+    w8      1 ms, open  15 h, pay $3690.00, score 1503758.95, optimal
+salon (8 weeks)
+  exactMs  4000: total 84 ms, open 0 h, pay $16432.00
+    w1     52 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w2     28 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w3      1 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w4      0 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w5      1 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w6      1 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w7      0 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+    w8      1 ms, open   0 h, pay $2054.00, score 2095.75, optimal
+retail (8 weeks)
+  exactMs  4000: total 101 ms, open 0 h, pay $18000.00
+    w1     50 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w2     47 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w3      1 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w4      0 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w5      1 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w6      1 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w7      0 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+    w8      1 ms, open   0 h, pay $2250.00, score 2251.82, optimal
+clinic (8 weeks)
+  exactMs  4000: total 866 ms, open 40 h, pay $21664.00
+    w1    451 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w2    414 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w3      0 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w4      0 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w5      0 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w6      0 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w7      1 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+    w8      0 ms, open   5 h, pay $2708.00, score 503235.35, optimal
+summary (all plans above):
+  exactMs  4000: 32 of 32 weeks proven, open 160 h, pay $85616.00, score 16090734.90, 4.1 s
+## 40 112 2 4
+40 x 112 case 0 (4 weeks)
+  exactMs  4000: total 9039 ms, open 676 h, pay $48624.00
+    w1   4785 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+    w2   4250 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+    w3      2 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+    w4      2 ms, open 169 h, pay $12156.00, score 16912612.78, improved
+40 x 112 case 1 (4 weeks)
+  exactMs  4000: total 16721 ms, open 584 h, pay $49920.00
+    w1   8112 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+    w2   8606 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+    w3      2 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+    w4      1 ms, open 146 h, pay $12480.00, score 14612836.63, improved
+summary (all plans above):
+  exactMs  4000: 8 of 8 weeks proven, open 1260 h, pay $98544.00, score 126101797.66, 25.8 s

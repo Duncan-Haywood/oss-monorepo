@@ -681,7 +681,37 @@ Measured in headless Chromium, café sample, four weeks, exact check on (`build-
 
 Same table text from both. Stop ends a plan mid-run ("Stopped…", no table) and the next plan works. `page-worker.test.mjs` checks that the worker's plan equals a direct `planWeeks` call (timings aside), that it posts exactly one progress message per week, that `planFairness` reads the same from the structured-clone copy, and that the page's click handler no longer calls `planWeeks` itself.
 
-Not claimed: one machine, one sample, four weeks. The per-week exact budget stays 4 s, so plans are the same as before; with the freeze gone a longer budget could prove more weeks, not yet measured.
+Not claimed: one machine, one sample, four weeks. The per-week exact budget stays 4 s, so plans are the same as before; a longer budget proved no more weeks when measured later the same day (below).
+
+## The planner stops rebuilding the same week (2026-11-12)
+
+Two questions about "Plan several weeks in a row" (and `--weeks` on the CLI), both measured with `node eval/plan-budget.mjs` (readings in `eval/plan-budget.out.txt`; one 4-core cloud machine).
+
+**Does a longer exact budget than the page's 4 s prove more planned weeks? No, not on any week measured.** The page passes `exactMs: 4000` to each week (the builder's default is 8000; weeks above 60 shift copies give column generation 4 x that). The four templates planned 4 weeks, and two seeded 30 x 84 and two 40 x 112 weeks planned 4 weeks, at 4, 8 and 16 s:
+
+| plans | weeks | proven at 4 s / 8 s / 16 s | open hours, pay |
+|---|---|---|---|
+| 4 templates x 4 weeks | 16 | 16 / 16 / 16 | identical at every budget |
+| 30 x 84, 2 cases x 4 weeks (121-122 copies) | 8 | 8 / 8 / 8 | identical (1,292 h, $81,544) |
+| 40 x 112, 2 cases x 4 weeks (148-149 copies) | 8 | 8 / 8 / 8 | identical (1,260 h, $98,544) |
+
+Every week finished well inside 4 s of exact search (the slowest took 9.6 s end to end, most of it outside the exact stage), so the budget was never what stopped it. The page keeps 4 s.
+
+**Why every planned week looked the same.** In those plans week 1, week 2 and every later week came out the same roster, and the planner built each one from scratch. The reason: what carries from one week to the next is each person's last shift end (`prev:`), their run of days (`streak:`) and the rolling tough-shift tally (`tough:`). The first two settle after week 2 when the shifts repeat; the tally keeps changing (it fades by half each week), but it only enters the search when the spread setting (`toughBalance`) is above 0, which is not the default. So from week 3 on, the default plan asked the same question again.
+
+`planWeeks` now keeps each week it built under its parsed staff (with the tally left out when the spread setting is 0) and hands a later week with the same staff that roster, marked `sameAs: <week>`; the page shows "same rota as week 2" in that row. Anything that changes the week, a dated day off, a different carried-over rest gap or the tally with spread on, makes it a rebuild. `reuse: false` rebuilds every week.
+
+| plan (exact check on, 4 s per week) | before | after |
+|---|---|---|
+| café, 4 weeks | 6.8 s | 3.3 s |
+| 4 templates, 4 weeks each | 8.4 s | 4.1 s |
+| 4 templates, 8 weeks each | not run | 4.1 s (32 weeks, all proven) |
+| 40 x 112 case 0, 4 weeks | 20.0 s | 9.0 s |
+| 40 x 112 case 1, 4 weeks | 35.6 s | 16.7 s |
+
+Same rosters, open hours and pay in every row. `plan-reuse.test.mjs` checks, on all four templates over 6 weeks and on the café sample with the exact check on over 4, that the reused plan's CSV, pay, open hours and score equal a plan that rebuilds every week; that a day off dated in week 3 makes week 3 a rebuild; and that with the spread setting at 60 no week is reused.
+
+Not claimed: seeded synthetic weeks and the built-in templates, with no dated time off, which is the case where weeks repeat; a real team with leave spread through the month repeats less. The 30 x 84 and 40 x 112 budget runs ran two at a time on 4 cores. Below their time budgets the exact stages are deterministic, so a rebuild gives the same roster; on a week that hits a time limit a rebuild could in principle land on a different roster of the same proven bound, and reuse returns the first.
 
 ## The guide pages re-derived with the exact check on (2026-11-12)
 
