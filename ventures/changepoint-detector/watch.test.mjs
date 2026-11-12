@@ -197,3 +197,15 @@ test('a fixed rho (ar1Rho) replaces the estimate in the AR(1) pass, clipped to [
   assert.equal(d.length, 1);
   assert.ok(Math.abs(d[0].index - 120) <= 2);
 });
+
+test('round 4: rho capped at 0.8 (the default) reports documented changes the uncapped AR(1) pass reads as persistence', async () => {
+  const { parseSeries } = await import('./engine.mjs');
+  const load = (f) => parseSeries(readFileSync(new URL(`./data/${f}`, import.meta.url), 'utf8'), null, null);
+  // S&P 500 monthly closes: the October 2008 crash; Canada's fertility: the 1946 post-war rise. Both estimate rho at the 0.95 clip.
+  for (const [f, label] of [['sp500-monthly.csv', 'Oct 1 2008'], ['canada-fertility.csv', '1946']]) {
+    const { values, labels } = load(f);
+    assert.ok(detectChanges(values, labels).some((c) => c.label === label), `${f}: capped`);
+    assert.ok(!detectChanges(values, labels, { rhoCap: 0.95 }).some((c) => c.label === label), `${f}: uncapped`);
+  }
+  assert.equal(WATCH_DEFAULTS.rhoCap, 0.8);
+});

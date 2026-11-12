@@ -2006,6 +2006,9 @@ export function analyze(input = {}) {
     if (model !== 'mean') throw new Error('The autocorrelation correction is for the "mean" model only.');
     // o.ar1Rho: a rho the caller fixes (watch.mjs: a cap, or the rho read at the baseline), clipped like the estimate
     rho = !joint && o.ar1Rho != null && Number.isFinite(Number(o.ar1Rho)) ? Math.max(0, Math.min(0.95, Number(o.ar1Rho))) : ar1Rho(values);
+    // o.ar1RhoCap: an upper bound on the estimate (watch.mjs uses 0.8: at the 0.95 clip a wandering level reads every
+    // real move as persistence, eval/watch-replay-round4.out.txt)
+    if (!joint && o.ar1RhoCap != null && Number.isFinite(Number(o.ar1RhoCap))) rho = Math.min(rho, Math.max(0, Number(o.ar1RhoCap)));
     if (!joint) sigma = longRunSd(sigma, rho);
   }
   const minSegment = Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : model === 'trend' ? 4 : 2)));

@@ -72,7 +72,7 @@ function trace(values, start) {
       const key = rho.toFixed(6);
       if (!cache.has(key)) {
         const d = rho > 0
-          ? detectBoth(values.slice(0, n), labels.slice(0, n), { model: 'mean', detector: 'bocpd-ar1-window', ar1Rho: rho })['bocpd-ar1-window']
+          ? detectBoth(values.slice(0, n), labels.slice(0, n), { model: 'mean', detector: 'bocpd-ar1-window', ar1Rho: rho, rhoCap: null })['bocpd-ar1-window']
           : detectBoth(values.slice(0, n), labels.slice(0, n), { model: 'mean', detector: 'bocpd' })['bocpd-window'];
         cache.set(key, d);
       }

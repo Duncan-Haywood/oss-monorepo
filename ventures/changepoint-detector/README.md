@@ -3182,7 +3182,7 @@ Next for this question: longer stretches (the ratio's noise falls with the numbe
 power curve in n would say where a setting could pass both bars), or a likelihood for a rounded walk
 against a rounded walk carried forward; and a real series with documented carry-forward to check against.
 
-## Watching a growing series (2026-11-12, three pre-registered rounds; ships)
+## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other
 question: tell me, once, when it changes from now on. `watch.mjs` does that. Each run refits the newest
@@ -3282,7 +3282,39 @@ high and a real move reads as persistence. So the page now says: the default is 
 change costs more than a false alarm, use `--detector bocpd` (38 of 52) or `--detector pelt` (52 of 52 at
 about six times the alerts).
 
+**Why the AR(1) pass lost marked changes** (`node eval/watch-rho.mjs tcpd-data --why`, output
+`eval/watch-rho-why.out.txt`; diagnostic, decides nothing). The same replay, per series, with the rho the AR(1)
+pass used at each check. Of the 17 majority-marked changes the plain windowed pass reaches and the AR(1) pass does
+not, 15 were confirmed at a check where rho sat at the engine's 0.95 clip (median 0.95, range 0.55-0.95); the 29 it
+reaches had median rho 0.48. 20 of the 30 series long enough to watch are at the clip from the baseline on, and all
+are smooth or wandering: Brent crude (4 marked changes, 4 reached by the plain pass, 0 by the AR(1) pass), CO2 in
+Canada (4 against 1), fertility (2 against 0), business inventories. At rho 0.95 the conditional AR(1) likelihood
+expects each point to sit almost on the last, so a real move reads as persistence. A rho frozen at the baseline
+cannot help: it is 0.95 there too.
+
+**Round 4: a cap on rho** (`node eval/watch-rho.mjs tcpd-data --round4`, output
+`eval/watch-replay-round4.out.txt`; the rule is in the script's header, committed before the run). Candidates: rho
+capped at 0.8 and at 0.5, against the uncapped estimate, on round 3's nine synthetic cells with fresh seeds 31-40
+plus AR(1) 0.95 noise (reported, deciding nothing). Unlike rounds 1-3, the TCPD series count, because the fault only
+shows on real series. Rule: (a) mean false alerts over the four round-3 nulls at most 1.0 per 1,000 above the
+uncapped default, (b) at least as many synthetic steps, (c) more TCPD marked changes reached with the share of
+alerts at a mark at most 5 points lower.
+
+| rho (`--confirm 5`, window 5) | iid | AR(1) 0.5 | t3 | AR(1) 0.8 | AR(1) 0.95 | steps (5 cells) | TCPD alerts | at a mark | marked changes reached |
+|---|---|---|---|---|---|---|---|---|---|
+| uncapped (round 3 default) | 0.50 | 0.25 | 5.25 | 0.25 | 1.25 | 36 | 103 | 39 (38%) | 29 of 52 |
+| **capped at 0.8 (default from round 4)** | 0.50 | 0.25 | 5.25 | 0.00 | 3.00 | 36 | 115 | 47 (41%) | 33 of 52 |
+| capped at 0.5 | 0.50 | 0.50 | 5.25 | 15.00 | 27.25 | 37 | 169 | 66 (39%) | 41 of 52 |
+
+The 0.8 cap passed all three parts and **is the default from 2026-11-12** (`--rho-cap`, default 0.8; `--rho-cap
+0.95` is the uncapped estimate). On the synthetic cells it changed nothing except the stickiest noise: AR(1) 0.95
+with no change rose from 1.25 to 3.0 false alerts per 1,000 checks. The 0.5 cap reaches 41 of 52 at 15 and 27 false
+alerts per 1,000 on AR(1) 0.8 and 0.95 noise; it failed (a) and is not offered as a default, though `--rho-cap 0.5`
+runs it. On the real series shipped with the tool (`watch.test.mjs`), the capped watch reports the S&P 500's
+October 2008 fall and Canada's 1946 fertility rise, which the uncapped estimate read as persistence. TCPD now
+counted in a rule, so its 33 of 52 is no longer a held-out figure: a fresh labelled set is the test.
+
 Next: the watch on the page (paste a URL, keep the state in the browser) and as an agent tool; a real
-deployer's repository run end to end on GitHub Actions; why the AR(1) pass loses marked TCPD changes
-(per-series rho against the annotations), and a rho capped or estimated from the baseline only, as a
-pre-registered round 4.
+deployer's repository run end to end on GitHub Actions; the cap on fresh labelled series from outside TCPD; the
+plain pass's remaining lead (38 against 33 marked changes) is on series whose level wanders, where the drift model
+(`--model drift`) may be the better watch.
