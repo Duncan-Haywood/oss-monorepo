@@ -1,9 +1,9 @@
 ---
 title: "Three eighths of a shift: why a staff scheduler couldn't prove a roster it had already found"
-seo_title: "Proving a staff schedule optimal: the open-hours row in column generation"
+seo_title: "Proving a staff schedule optimal: one row in the column generation LP"
 date: 2026-11-12
 tags: [shift-roster-builder, product, optimisation, measurement]
-description: "Two call-out weeks stayed 'bounded' because the pay bound's LP left part of an 8-hour shift open where a whole 3-hour lunch had to stay open. One extra row in the LP proves both."
+description: "Two call-out weeks stayed bounded because the pay LP left part of an 8-hour shift open instead of a whole 3-hour lunch. One extra LP row proves both."
 ---
 
 The [shift roster builder](https://marisstella.app/shift-roster-builder/) builds a week's staff schedule and then checks it against an exact search. When that check finishes, the page says no roster under the same rules does better. When it doesn't, the page says "bounded" and shows how far off the best roster could be.
