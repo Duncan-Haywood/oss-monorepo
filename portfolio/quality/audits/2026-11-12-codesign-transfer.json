@@ -1,0 +1,237 @@
+{
+  "date": "2026-11-12",
+  "subject": "research/codesign-transfer",
+  "stratum": "research",
+  "round": 46,
+  "seed": "2026-11-12-e",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality-audit round 46",
+  "status": "audited",
+  "professional": "a robot co-design / robust design optimisation researcher who works on sim-to-real transfer of designs (domain randomisation, transferability, optimisation under uncertainty). They would check first that the nominal and shifted scores reproduce, whether the rank-transfer statistic measures ranking among competitive designs or just separates working designs from non-working ones, whether the robust-vs-nominal comparison is fair and stable across optimiser seeds, and where the work sits against Koos et al. (2013) transferability, Beyer and Sendhoff (2007) robust optimisation and Tobin/Peng domain randomisation",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 1,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Reran in a scratch copy (/tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/codesign/copy, with codesign-agri beside it): `python3.13 experiments/run.py` took 29.8 s and results.txt AND results.json are byte-identical to the committed files. Independent recomputation (/tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/codesign/indep.py, imports neither codesign_transfer nor codesign_agri; line-contact Hertz from Johnson, Contact Mechanics 1985, a^2 = 4P'R/(pi E*), E* = E/(1-nu^2), nu=0.5; hand-written Spearman with tie-averaged ranks): (1) Spearman(nom, mean_shifted) from results.json = 0.9934 (README 0.993); share with drop > 0.10 = 0.202 (0.20). (2) Nominal CMA-ES optimum [24.984, 24.902, 0.18, 8.0, 3]: cost 52.04 USD, nominal J 0.653, held-out mean 0.567, p5 0.465, min 0.425 (all as reported). (3) Robust optimum [25.0, 29.97, 0.151, 7.98, 3]: cost 53.39, nominal 0.623, mean 0.582, p5 0.501 (reported 0.502; the 1e-3 gap is the 3-dp rounding of x), min 0.459. (4) Best random design: 0.618 / 0.560 / 0.451 (0.452) / 0.411. (5) Arithmetic: (0.567-0.653)/0.653 = -13.2%; 0.582-0.567 = 0.015; 0.459-0.425 = 0.034. One label is wrong: run.py:65 writes 'nominal world (codesign-agri's 600 fruit ...)' but NOMINAL = draw_world(0, 0) uses population seed 1000, not codesign-agri's POP (seed 12345); the nominal optimum scores 0.6526 on the seed-1000 population and 0.6326 on codesign-agri's. Numbers are right; the label is not.",
+    "completeness": "README claims checked: '6 tests' (Ran 6 tests in 0.009 s, OK); run.py writes results.txt and results.json (byte-identical); figure.py exists and transfer.png is committed (not re-run, to keep the tree clean); every number in the five headline bullets matches results.txt; CMA-ES evaluation counts (240, 160) match run.py; 10 training worlds (seeds 5000+) disjoint from 30 test worlds (1000+) and sweep worlds (9000+) confirmed in run.py:13-15,77. '~50 s' measured 29.8 s here (machine-dependent, not counted). Live page https://marisstella.app/research/codesign-transfer/ returns 200 with 0.993, 'sim-to-sim' and 'assumed ranges; no gripper was printed'. No stubs or TODOs. Milestone 7 of PROJECTS.md track 14 ('widen the domain randomisation ... measure how the ranking changes') is done as scoped, minus the 'mass, motor strength' axes (force tolerance stands in for motor strength).",
+    "verification": "`cd research/codesign-transfer && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3.13 -m unittest discover -s tests`: 6 tests OK. Seeded six mutations in src/codesign_transfer/transfer.py, each reverted with `git checkout --`: drop p_scale from the bruise threshold (line 38) survived; drop f_scale from stem pull (line 39) survived; bruised value added with the wrong sign in _j (line 58) survived; every printed copy uses build k=0 so the 3 copies are identical (line 66) survived; modulus tolerance divides instead of multiplies (line 50) survived; population ignores d_mean (line 36) was caught by test_world_is_reproducible_and_population_shifts. 5 of 6 survive: no test pins a score, a population statistic other than mean diameter, or the J formula to a hand-computed value; the tests check shape (bounds, determinism, width-0 identity, over-cap -1).",
+    "craft": "Read transfer.py (66 lines), run.py (85), figure.py (20), tests/test_transfer.py (45), and codesign-agri/src/codesign_agri/agri.py (the imported model). Small, readable, deterministic, seeds disjoint and documented; population() mirrors agri._population draw for draw (same RNG order). Defects: transfer.py:8 imports the sibling project through a sys.path insert and pyproject.toml does not declare it; figure.py:12 fixes the axes to [0, 0.7], which hides the 181 designs with negative nominal J (216 with negative shifted J) of the 600 plotted; run.py:65 mislabels the nominal population. A senior Python reviewer would accept it with those fixes.",
+    "claims": "Disclaimers are strong and honest: sim-to-sim, every range assumed, monotone model inflates rank correlation, no gripper printed (README:3, 28, 36). Checked: (a) README:10 headline 'Spearman 0.993 ... the ranking of designs transfers': reproduced, but 282 of the 600 designs have nominal J < 0.05 (they pick almost no fruit), so the whole-space correlation mostly separates working from non-working designs; recomputed within the nominal top 10% (60 designs) Spearman is 0.838, top 25% 0.961, top 50% 0.987. The README's own top-10% overlap (85%) and regret (median 0.004) are the more informative numbers, but the headline and the page lead with 0.993: partial. (b) results.txt header / README:38 imply the nominal world is codesign-agri's fruit; it is a different draw (fail). (c) README:37 'a different seed could move it by as much as the gain': over 6 independent CMA-ES seed pairs the robust gain on held-out worlds is +0.010 to +0.023 (mean 0.015, sd 0.006, all positive); for the reported pair the robust optimum wins 20 of 30 held-out worlds, paired t = 3.5. The caution is honest but miscalibrated (the result is firmer than stated). (d) 'designs that win sit at the bounds' confirmed (Fg 8.0/7.98 of UB 8, w 24.98/25.0 of UB 25). Net: numbers backed, the headline statistic oversells what it measures: 2.",
+    "fitness": "Job: a co-design researcher deciding whether a nominal-sim optimum is safe to print. The harness (draw_world/build/score, held-out worlds) is reusable and the robust-vs-nominal result is sound and stable across seeds (my 6-seed rerun). But the answer is mostly built in: the model is monotone in force, width and opening (README says so), the shift ranges are invented, and 'optimising the expected objective over scenarios beats the nominal optimum on the scenario mean' is the textbook result of stochastic/robust optimisation. Nearest prior work, none cited except Tobin et al. (2017): Jakobi et al. (1995) and Koos, Mouret and Doncieux (2013, IEEE TEVC) 'The transferability approach: crossing the reality gap in evolutionary robotics' (the same question, with a transfer measure); Beyer and Sendhoff (2007, CMAME) robust optimisation survey and Taguchi robust design; Peng et al. (2018) dynamics randomisation; Muratore et al. (2022) review of randomised-simulation transfer; design-under-uncertainty co-design (e.g. Ha et al. 2017 / Schaff et al. 2019 on joint morphology-control). No strawberry-harvesting gripper data (e.g. Xiong et al. 2020, J. Field Robotics) anchor the ranges. Not new, sound as a sim-to-sim sanity check; well short of the PhD-level programme bar in research/CLAUDE.md: 2.",
+    "domain": "Compared against robust design optimisation practice (Beyer and Sendhoff 2007; scenario/sample-average approximation with held-out scenarios) and the repository's own research rule 'Run the numbers; don't stylise them' (research/CLAUDE.md). Correct: train/test scenario split, common random numbers across designs, print-tolerance modelled as manufacturing noise on the design, tail metrics (p5, worst) reported. Departures: rank transfer summarised by a whole-space Spearman dominated by infeasible-in-practice designs; the robust objective is the mean only although the discussion is about the tail (no CVaR or chance constraint tried); both optima sit on the force and width bounds, so the box, not the physics, sets the design; every shift range (bruise scale 0.7-1.2, friction share 0.1-0.6, stem 0.8-1.4, tolerances 0.3/15%/0.4 mm) is a round number with no source and no sweep of its own width beyond the global 'width' knob, contrary to the 'Run the numbers' rule. A practitioner would accept the harness, not the strength of the headline: 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "rerun experiments/run.py vs committed results.txt and results.json",
+      "method": "byte diff in a scratch copy",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/codesign/copy/research/codesign-transfer && python3.13 experiments/run.py && diff experiments/results.txt /home/user/oss-monorepo/research/codesign-transfer/experiments/results.txt && cmp experiments/results.json /home/user/oss-monorepo/research/codesign-transfer/experiments/results.json",
+      "expected": "identical",
+      "observed": "both identical, 29.8 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Spearman nominal J vs mean shifted J, and share dropping > 0.10",
+      "method": "hand-written Spearman (tie-averaged ranks, Pearson on ranks) on results.json, no scipy",
+      "command": "python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/codesign/indep.py research/codesign-transfer/experiments/results.json",
+      "expected": "0.993; 0.20",
+      "observed": "0.9934; 0.202",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "nominal CMA-ES optimum: cost, nominal J, held-out mean/p5/min",
+      "method": "own re-implementation of world, population, print tolerance and line-contact Hertz scoring (Johnson 1985 eq. 4.43), no import of the subject or codesign-agri",
+      "command": "python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/codesign/indep.py research/codesign-transfer/experiments/results.json",
+      "expected": "results.txt 0.653 / 0.567 / 0.465 / 0.425",
+      "observed": "cost 52.04 USD; 0.653 / 0.567 / 0.465 / 0.425",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "robust optimum and best random design: nominal J, held-out mean/p5/min",
+      "method": "same independent re-implementation",
+      "command": "python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/codesign/indep.py research/codesign-transfer/experiments/results.json",
+      "expected": "0.623/0.582/0.502/0.459 and 0.618/0.560/0.452/0.411",
+      "observed": "0.623/0.582/0.501/0.459 and 0.618/0.560/0.451/0.411 (p5 differs by 0.001 from the 3-dp rounding of x)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "results.txt header: nominal world is codesign-agri's 600 fruit",
+      "method": "score the nominal optimum on codesign-agri's POP (seed 12345) vs the subject's NOMINAL population (seed 1000), own scorer",
+      "command": "python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/codesign/indep.py research/codesign-transfer/experiments/results.json",
+      "expected": "equal if the label is right",
+      "observed": "0.6326 on codesign-agri's POP vs 0.6526 on the seed-1000 population",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:10 'the ranking of designs transfers' (Spearman 0.993) among competitive designs",
+      "method": "Spearman restricted to the nominal top 10/25/50% and count of near-zero designs, from results.json",
+      "command": "python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/codesign/indep.py research/codesign-transfer/experiments/results.json",
+      "expected": "close to 0.993 if the ranking of good designs transfers",
+      "observed": "top 60: 0.838, top 150: 0.961, top 300: 0.987; 282/600 designs have nominal J < 0.05",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:37 robust gain could be moved by a different seed as much as the gain",
+      "method": "rerun both CMA-ES objectives with 6 seed pairs (subject's cma_opt), score on the 30 held-out worlds; paired t and win count for the reported pair",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3.13 /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/codesign/seeds.py <scratch copy>/research/codesign-transfer",
+      "expected": "gain sign unstable across seeds",
+      "observed": "gain +0.012, +0.022, +0.010, +0.013, +0.023, +0.010 (mean 0.015, sd 0.006); reported pair wins 20/30 worlds, paired t 3.5",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "'designs that win sit at the bounds'",
+      "method": "compare optima to agri.py LB/UB",
+      "command": "sed -n 15,16p research/codesign-agri/src/codesign_agri/agri.py; sed -n 18,20p research/codesign-transfer/experiments/results.txt",
+      "expected": "Fg near 8, w near 25",
+      "observed": "Fg 8.0 / 7.98, w 24.98 / 25.0",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "'6 tests' and the reproduce steps",
+      "method": "run",
+      "command": "cd research/codesign-transfer && PYTHONPATH=src python3.13 -m unittest discover -s tests -v",
+      "expected": "6 OK",
+      "observed": "Ran 6 tests in 0.009s OK",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "live page and sim-to-sim/assumed disclosure",
+      "method": "curl served page",
+      "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/codesign-transfer/",
+      "expected": "200 with disclosure",
+      "observed": "200; 'Sim-to-sim', 'assumed ranges; no gripper was printed', 0.993",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "figure shows all 600 designs",
+      "method": "count negative J in results.json against figure.py axis limits [0, 0.7]",
+      "command": "python3.13 -c \"import json;R=json.load(open('research/codesign-transfer/experiments/results.json'));print(sum(v<0 for v in R['nom']), sum(v<0 for v in R['mean_shifted']))\"",
+      "expected": "0 hidden",
+      "observed": "181 nominal and 216 shifted values below the 0 axis limit",
+      "result": "fail"
+    },
+    {
+      "dimension": "fitness",
+      "what": "prior work placement",
+      "method": "grep README for transferability, robust optimisation and randomisation literature",
+      "command": "grep -n -i 'koos\\|transferab\\|beyer\\|taguchi\\|robust optim\\|muratore\\|peng\\|jakobi\\|strawberr\\|xiong' research/codesign-transfer/README.md",
+      "expected": "cited",
+      "observed": "no matches; only Tobin et al. (2017)",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/codesign-transfer/src/codesign_transfer/transfer.py:38",
+      "change": "drop * world['p_scale'] from the bruise threshold",
+      "caught": false,
+      "test_cmd": "cd research/codesign-transfer && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3.13 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/codesign-transfer/src/codesign_transfer/transfer.py:39",
+      "change": "drop * world['f_scale'] from stem pull-off force",
+      "caught": false,
+      "test_cmd": "cd research/codesign-transfer && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3.13 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/codesign-transfer/src/codesign_transfer/transfer.py:58",
+      "change": "good + VALUE_BRUISED*bruised -> good - VALUE_BRUISED*bruised",
+      "caught": false,
+      "test_cmd": "cd research/codesign-transfer && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3.13 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/codesign-transfer/src/codesign_transfer/transfer.py:66",
+      "change": "build(x, world, k) -> build(x, world, 0) (3 identical copies)",
+      "caught": false,
+      "test_cmd": "cd research/codesign-transfer && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3.13 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/codesign-transfer/src/codesign_transfer/transfer.py:50",
+      "change": "x[2] *= exp(...) -> x[2] /= exp(...)",
+      "caught": false,
+      "test_cmd": "cd research/codesign-transfer && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3.13 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/codesign-transfer/src/codesign_transfer/transfer.py:36",
+      "change": "normal(world['d_mean'], 5.0) -> normal(28.0, 5.0)",
+      "caught": true,
+      "test_cmd": "cd research/codesign-transfer && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3.13 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Headline 'the ranking of designs transfers' leads with a whole-space Spearman of 0.993, but 282 of the 600 designs have nominal J < 0.05 (181 negative), so the statistic mostly separates working from non-working designs; within the nominal top 10% Spearman is 0.838 (top 25% 0.961). The top-10% overlap and regret figures are the informative ones and should lead",
+      "where": "research/codesign-transfer/README.md:10",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "5 of 6 seeded core mutations survive (bruise-threshold shift, stem-pull shift, sign of the bruised value, identical printed copies, inverted modulus tolerance); no test pins a score or the J formula to a hand-computed value",
+      "where": "research/codesign-transfer/tests/test_transfer.py:1",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Prior work on exactly this question is not cited: transferability/reality gap (Jakobi 1995; Koos, Mouret and Doncieux 2013), robust design optimisation (Beyer and Sendhoff 2007; Taguchi), dynamics randomisation (Peng et al. 2018; Muratore et al. 2022 review); that the scenario-mean optimum beats the nominal optimum on the scenario mean is the expected textbook result, not a finding",
+      "where": "research/codesign-transfer/README.md:43",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Every shift and tolerance range is an unsourced round number (bruise scale 0.7-1.2, wet share 0.1-0.6, stem 0.8-1.4, modulus SD 0.3, force SD 15%, width SD 0.4 mm) and only a global width knob is swept, against research/CLAUDE.md 'Run the numbers'; strawberry bruise/friction and FDM/TPU tolerance data exist",
+      "where": "research/codesign-transfer/src/codesign_transfer/transfer.py:28",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "results.txt header says the nominal world is 'codesign-agri's 600 fruit' and README:38 implies it, but NOMINAL = draw_world(0, 0) uses population seed 1000, not codesign-agri's POP (seed 12345); nominal optimum scores 0.653 vs 0.633 on codesign-agri's fruit",
+      "where": "research/codesign-transfer/experiments/run.py:65",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "README says the robust gain is from single CMA-ES runs and 'a different seed could move it by as much as the gain'; over 6 seed pairs it is +0.010 to +0.023, all positive (paired t 3.5, 20/30 worlds for the reported pair): the multi-seed run in Next steps is cheap (~1 min) and was not done, so the strongest result is under-reported",
+      "where": "research/codesign-transfer/README.md:37",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "Figure axes fixed at [0, 0.7] hide 181 of 600 designs (negative nominal J) and 216 negative shifted values",
+      "where": "research/codesign-transfer/experiments/figure.py:12",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "codesign-agri imported through a sys.path insert to a sibling directory; pyproject.toml does not declare it",
+      "where": "research/codesign-transfer/src/codesign_transfer/transfer.py:8",
+      "category": "repo-hygiene",
+      "origin": "build"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Every number reproduces byte-for-byte (results.txt and results.json, 29.8 s), and an independent re-implementation of the world, print tolerance and Hertz line-contact scoring with a hand-written Spearman reproduces the headline to three decimals: Spearman 0.9934, nominal optimum 0.653 -> 0.567 (p5 0.465, worst 0.425), robust optimum 0.623 -> 0.582 (0.501, 0.459). The robust gain is firmer than the README says (+0.010 to +0.023 over 6 CMA-ES seed pairs, all positive). But the headline statistic oversells the transfer: 282 of 600 designs pick almost no fruit, and among the nominal top 10% the rank correlation is 0.838, not 0.993; the 'nominal world' is not codesign-agri's fruit as labelled; 5 of 6 seeded core mutations survive the tests; every shift range is invented; and the transferability and robust-optimisation literature the question belongs to is not cited. Finished as scoped; below the bar on verification, claims, fitness and domain."
+}
