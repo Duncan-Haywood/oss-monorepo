@@ -16,7 +16,11 @@ Where the order matters, it is kept:
   3x3 offset order, starting from 0.0 (an out-of-image neighbour adds +0.0,
   which leaves any sum unchanged), then divides by the count;
 * half size: the 2x2 block's samples are added in row order from 0.0;
-* the colour matrix row is ``(m0*r + m1*g) + m2*b``.
+* the colour matrix row is ``(m0*r + m1*g) + m2*b``;
+* a profile's hue/saturation map and look table (``apply_look``) repeat
+  ``dng_colour.HueSatTable.apply`` and ``ProfileLook.apply`` step for step;
+  the sRGB-encoded value axis calls Python's own ``**`` per sample, since
+  numpy's vectorised ``power`` may differ from it in the last bit.
 
 Images narrower or shorter than 2 pixels go to the pure-Python path, which
 reflects neighbours at a 1-pixel edge.
@@ -73,7 +77,7 @@ def _normalised_plane(vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, 
     return out, clipped
 
 
-def _encode(r, g, b, hi, m, curve, lut_size):
+def _encode(r, g, b, hi, m, curve, lut_size, look):
     """(rows, cols) channel planes, white-balanced, to uint16 (rows, cols, 3)."""
 
     r = np.where(r > hi, hi, np.where(r < 0, 0.0, r))
@@ -81,9 +85,15 @@ def _encode(r, g, b, hi, m, curve, lut_size):
     b = np.where(b > hi, hi, np.where(b < 0, 0.0, b))
     lut = np.asarray(curve, dtype=np.uint16)
     out = np.empty(r.shape + (3,), dtype=np.uint16)
+    planes = []
     for i in range(3):
         v = m[i][0] * r + m[i][1] * g
         v += m[i][2] * b
+        planes.append(v)
+    if look is not None:
+        planes = list(apply_look(look, *planes))
+    for i in range(3):
+        v = planes[i]
         idx = (v * (lut_size - 1) + 0.5).astype(np.int64)
         np.clip(idx, 0, lut_size - 1, out=idx)
         enc = lut[idx]
@@ -93,7 +103,7 @@ def _encode(r, g, b, hi, m, curve, lut_size):
     return out
 
 
-def _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size):
+def _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look):
     pad = np.zeros((h + 2, w + 2), dtype=np.float64)
     pad[1:-1, 1:-1] = norm
     inside = np.zeros((h + 2, w + 2), dtype=np.int64)
@@ -139,11 +149,11 @@ def _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size):
                             total = total + v
                             count = count + k
                     chans[colour][lr, lc] = total / count
-        out[y0:y1] = _encode(chans[0] * mults[0], chans[1] * mults[1], chans[2] * mults[2], hi, m, curve, lut_size)
+        out[y0:y1] = _encode(chans[0] * mults[0], chans[1] * mults[1], chans[2] * mults[2], hi, m, curve, lut_size, look)
     return out
 
 
-def _half(norm, w, h, pat, mults, hi, m, curve, lut_size):
+def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look):
     ow, oh = w // 2, h // 2
     acc = [np.zeros((oh, ow), dtype=np.float64) for _ in range(3)]
     cnt = [0, 0, 0]
@@ -153,25 +163,25 @@ def _half(norm, w, h, pat, mults, hi, m, curve, lut_size):
             acc[c] = acc[c] + norm[dy : 2 * oh : 2, dx : 2 * ow : 2]
             cnt[c] += 1
     return _encode(
-        acc[0] / cnt[0] * mults[0], acc[1] / cnt[1] * mults[1], acc[2] / cnt[2] * mults[2], hi, m, curve, lut_size
+        acc[0] / cnt[0] * mults[0], acc[1] / cnt[1] * mults[1], acc[2] / cnt[2] * mults[2], hi, m, curve, lut_size, look
     )
 
 
 def render(
     *, vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines,
-    linear_raw, pat, half, mults, hi, m, curve, lut_size,
+    linear_raw, pat, half, mults, hi, m, curve, lut_size, look=None,
 ):
     """Returns ``(pixels uint16 (oh, ow, 3), ow, oh, clipped)``."""
 
     norm, clipped = _normalised_plane(vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines)
     if linear_raw:
         img = norm.reshape(h, w, 3)
-        out = _encode(img[..., 0] * mults[0], img[..., 1] * mults[1], img[..., 2] * mults[2], hi, m, curve, lut_size)
+        out = _encode(img[..., 0] * mults[0], img[..., 1] * mults[1], img[..., 2] * mults[2], hi, m, curve, lut_size, look)
         return out, w, h, clipped
     if half:
-        out = _half(norm, w, h, pat, mults, hi, m, curve, lut_size)
+        out = _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look)
         return out, w // 2, h // 2, clipped
-    return _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size), w, h, clipped
+    return _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look), w, h, clipped
 
 
 def crop(pixels, cx, cy, cw, ch):
@@ -258,3 +268,120 @@ def _segmented_cumsum(a, starts):
     before[1:] = total[begin[1:] - 1]
     total -= before[seg]
     return total
+
+
+def _pin(v):
+    return np.where(v < 0.0, 0.0, np.where(v > 1.0, 1.0, v))
+
+
+_pow = np.frompyfunc(lambda x, e: float(x) ** e, 2, 1)
+
+
+def _srgb_encode(v):
+    lo = v <= 0.0031308
+    hi = np.where(lo, 1.0, v)
+    enc = 1.055 * _pow(hi, 1.0 / 2.4).astype(np.float64) - 0.055
+    return np.where(lo, 12.92 * v, enc)
+
+
+def _srgb_decode(v):
+    lo = v <= 0.04045
+    hi = np.where(lo, 1.0, v)
+    dec = _pow((hi + 0.055) / 1.055, 2.4).astype(np.float64)
+    return np.where(lo, v / 12.92, dec)
+
+
+def _table_apply(table, r, g, b):
+    """``dng_colour.HueSatTable.apply`` on arrays, the same operations in the same order."""
+
+    mx = np.maximum(np.maximum(r, g), b)
+    gap = mx - np.minimum(np.minimum(r, g), b)
+    some = gap > 0.0
+    safe = np.where(some, gap, 1.0)
+    hr = (g - b) / safe
+    hr = np.where(hr < 0.0, hr + 6.0, hr)
+    hg = 2.0 + (b - r) / safe
+    hb = 4.0 + (r - g) / safe
+    h = np.where(r == mx, hr, np.where(g == mx, hg, hb))
+    h = np.where(some, h, 0.0)
+    s = np.where(some, gap / np.where(some, mx, 1.0), 0.0)
+    v = mx
+    ve = _srgb_encode(v) if table.srgb else v
+
+    hd, sd, vd = table.dims
+    d = np.asarray(table.data, dtype=np.float64)
+    hs = h * (hd / 6.0) if hd >= 2 else np.zeros_like(h)
+    ss = s * (sd - 1)
+    hi0 = hs.astype(np.int64)
+    si0 = np.minimum(ss.astype(np.int64), sd - 2)
+    hi1 = hi0 + 1
+    wrap = hi0 >= hd - 1
+    hi0 = np.where(wrap, hd - 1, hi0)
+    hi1 = np.where(wrap, 0, hi1)
+    hf1 = hs - hi0
+    sf1 = ss - si0
+    hf0 = 1.0 - hf1
+    sf0 = 1.0 - sf1
+    e00 = (hi0 * sd + si0) * 3
+    e01 = (hi1 * sd + si0) * 3
+    out = []
+    if vd < 2:
+        for k in range(3):
+            a0 = hf0 * d[e00 + k] + hf1 * d[e01 + k]
+            a1 = hf0 * d[e00 + 3 + k] + hf1 * d[e01 + 3 + k]
+            out.append(sf0 * a0 + sf1 * a1)
+    else:
+        vs = ve * (vd - 1)
+        vi0 = np.minimum(vs.astype(np.int64), vd - 2)
+        vf1 = vs - vi0
+        vf0 = 1.0 - vf1
+        step = hd * sd * 3
+        e00 = e00 + vi0 * step
+        e01 = e01 + vi0 * step
+        e10 = e00 + step
+        e11 = e01 + step
+        for k in range(3):
+            j = k + 3
+            a0 = vf0 * (hf0 * d[e00 + k] + hf1 * d[e01 + k]) + vf1 * (hf0 * d[e10 + k] + hf1 * d[e11 + k])
+            a1 = vf0 * (hf0 * d[e00 + j] + hf1 * d[e01 + j]) + vf1 * (hf0 * d[e10 + j] + hf1 * d[e11 + j])
+            out.append(sf0 * a0 + sf1 * a1)
+    shift, sat, val = out
+    h = h + shift * (6.0 / 360.0)
+    s = _pin(s * sat)
+    if table.srgb:
+        v = _srgb_decode(_pin(ve * val))
+    else:
+        v = _pin(v * val)
+
+    # hsv_to_rgb
+    h = np.where(h < 0.0, h + 6.0, h)
+    h = np.where(h >= 6.0, h - 6.0, h)
+    i = np.minimum(h.astype(np.int64), 5)
+    f = h - i
+    p = v * (1.0 - s)
+    q = v * (1.0 - s * f)
+    t = v * (1.0 - s * (1.0 - f))
+    conds = [i == 0, i == 1, i == 2, i == 3, i == 4]
+    ro = np.select(conds, [v, q, p, p, t], v)
+    go = np.select(conds, [t, v, v, q, p], p)
+    bo = np.select(conds, [p, p, t, v, v], q)
+    grey = s <= 0.0
+    return np.where(grey, v, ro), np.where(grey, v, go), np.where(grey, v, bo)
+
+
+def apply_look(look, r, g, b):
+    """``dng_colour.ProfileLook.apply`` on arrays."""
+
+    if look.hue_sat_map is not None:
+        gain = look.gain
+        r, g, b = _table_apply(look.hue_sat_map, _pin(r / gain), _pin(g / gain), _pin(b / gain))
+        r, g, b = r * gain, g * gain, b * gain
+    r, g, b = _pin(r), _pin(g), _pin(b)
+    if look.look_table is not None:
+        r, g, b = _table_apply(look.look_table, r, g, b)
+    m = look.out
+    return (
+        m[0][0] * r + m[0][1] * g + m[0][2] * b,
+        m[1][0] * r + m[1][1] * g + m[1][2] * b,
+        m[2][0] * r + m[2][1] * g + m[2][2] * b,
+    )

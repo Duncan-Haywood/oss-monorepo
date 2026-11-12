@@ -29,10 +29,17 @@ Colour temperature is Robertson's (1968) method on the CIE 1960 UCS, with the
 isotemperature lines published in Wyszecki and Stiles, *Color Science* (2nd
 ed., 1982), including Lindbloom's correction of the 325-mired row.
 
+The profile's hue/saturation map and look table (``ProfileHueSatMapData1/2``,
+``ProfileLookTableData``, DNG 1.2 onwards; the same tags in a ``.dcp``
+camera profile) are ``HueSatTable`` and ``ProfileLook`` below: applied in
+linear ProPhoto RGB, the map before the exposure and the look table after it,
+in the specification's order.
+
 Not handled here: ``ColorMatrix3``/``CalibrationIlluminant3`` (DNG 1.6, a
-third illuminant), ``IlluminantData`` (custom illuminant spectra), and the
-profile's hue/saturation and look tables. ``tools/dng_colour_check.py``
-compares this module with colour-hdri's independent implementation.
+third illuminant), ``IlluminantData`` (custom illuminant spectra), and
+``ProfileToneCurve``. ``tools/dng_colour_check.py`` compares this module with
+colour-hdri's independent implementation; ``tools/dcp_check.py`` reads real
+camera profiles.
 """
 
 from __future__ import annotations
@@ -232,6 +239,17 @@ class Profile:
     forward_matrix_2: Matrix | None = None
     analog_balance: tuple[float, float, float] = (1.0, 1.0, 1.0)
     use_calibration: bool = True
+    hue_sat_map_1: "HueSatTable | None" = None
+    hue_sat_map_2: "HueSatTable | None" = None
+    look_table: "HueSatTable | None" = None
+
+    def hue_sat_map_at(self, cct: float) -> "HueSatTable | None":
+        """The hue/saturation map for a white of ``cct``, blended like the matrices."""
+
+        m1, m2 = self.hue_sat_map_1, self.hue_sat_map_2
+        if m1 is None or m2 is None or self._pair() is None:
+            return m1 if m1 is not None else m2
+        return m1.blend(m2, self.weight(cct))
 
     def _pair(self):
         """(T1, T2) of the two calibration illuminants, or None when only one counts."""
@@ -382,3 +400,226 @@ def illuminant_name(code: int) -> str:
         21: "D65", 22: "D75", 23: "D50", 24: "ISO studio tungsten",
     }
     return names.get(int(code), f"illuminant {int(code)}")
+
+
+# --------------------------------------------------------------------------
+# Hue/saturation map and look table (DNG 1.2+, chapter 6; and .dcp profiles)
+# --------------------------------------------------------------------------
+
+# ProPhoto RGB (ROMM, ISO 22028-2) to XYZ, D50 white: the space the DNG
+# specification applies HueSatMap and LookTable in.
+PROPHOTO_TO_XYZ_D50: Matrix = (
+    (0.7977, 0.1352, 0.0313),
+    (0.2880, 0.7119, 0.0001),
+    (0.0, 0.0, 0.8249),
+)
+
+SRGB_EXPONENT = 1.0 / 2.4
+
+
+def srgb_encode(v: float) -> float:
+    """sRGB transfer function, linear to encoded, for v in [0, 1]."""
+
+    if v <= 0.0031308:
+        return 12.92 * v
+    return 1.055 * v**SRGB_EXPONENT - 0.055
+
+
+def srgb_decode(v: float) -> float:
+    if v <= 0.04045:
+        return v / 12.92
+    return ((v + 0.055) / 1.055) ** 2.4
+
+
+def rgb_to_hsv(r: float, g: float, b: float) -> tuple[float, float, float]:
+    """Hue in [0, 6), saturation, value: the specification's convention."""
+
+    mx = max(r, g, b)
+    gap = mx - min(r, g, b)
+    if gap > 0.0:
+        if r == mx:
+            h = (g - b) / gap
+            if h < 0.0:
+                h += 6.0
+        elif g == mx:
+            h = 2.0 + (b - r) / gap
+        else:
+            h = 4.0 + (r - g) / gap
+        return h, gap / mx, mx
+    return 0.0, 0.0, mx
+
+
+def hsv_to_rgb(h: float, s: float, v: float) -> tuple[float, float, float]:
+    if s <= 0.0:
+        return v, v, v
+    if h < 0.0:
+        h += 6.0
+    if h >= 6.0:
+        h -= 6.0
+    i = int(h)
+    if i > 5:  # h a hair under 6 can round up to 6.0 after the wrap
+        i = 5
+    f = h - i
+    p = v * (1.0 - s)
+    q = v * (1.0 - s * f)
+    t = v * (1.0 - s * (1.0 - f))
+    if i == 0:
+        return v, t, p
+    if i == 1:
+        return q, v, p
+    if i == 2:
+        return p, v, t
+    if i == 3:
+        return p, q, v
+    if i == 4:
+        return t, p, v
+    return v, p, q
+
+
+def _pin(v: float) -> float:
+    return 0.0 if v < 0.0 else (1.0 if v > 1.0 else v)
+
+
+@dataclass(frozen=True)
+class HueSatTable:
+    """A ``ProfileHueSatMap`` or ``ProfileLookTable``: for each (hue,
+    saturation, value) cell, a hue shift in degrees, a saturation scale and a
+    value scale.
+
+    ``data`` holds ``3 * hue * sat * val`` floats with value outermost, then
+    hue, then saturation (the order the tags store them). A lookup
+    interpolates linearly on each axis, hue wrapping round from the last
+    division to the first; ``srgb`` (encoding 1) indexes the value axis by the
+    sRGB-encoded value and scales that.
+    """
+
+    hue_divisions: int
+    sat_divisions: int
+    val_divisions: int
+    data: tuple[float, ...]
+    srgb: bool = False
+
+    @classmethod
+    def from_tags(cls, dims, data, encoding=0) -> "HueSatTable":
+        if not dims or len(dims) not in (2, 3):
+            raise ColourError("table dimensions need two or three values")
+        hd, sd = int(dims[0]), int(dims[1])
+        vd = int(dims[2]) if len(dims) == 3 else 1
+        if hd < 1 or sd < 2 or vd < 1 or hd * sd * vd > 1_000_000:
+            raise ColourError(f"table dimensions {hd}x{sd}x{vd} are not valid (hue >= 1, saturation >= 2)")
+        values = tuple(float(v) for v in (data or ()))
+        if len(values) != 3 * hd * sd * vd:
+            raise ColourError(f"table holds {len(values)} values; {hd}x{sd}x{vd} needs {3 * hd * sd * vd}")
+        if any(not math.isfinite(v) for v in values):
+            raise ColourError("table holds a value that is not finite")
+        return cls(hd, sd, vd, values, int(encoding) == 1)
+
+    @property
+    def dims(self) -> tuple[int, int, int]:
+        return self.hue_divisions, self.sat_divisions, self.val_divisions
+
+    def blend(self, other: "HueSatTable", g: float) -> "HueSatTable":
+        """``g`` of this table plus ``1 - g`` of ``other``; this one alone when the shapes differ."""
+
+        if g >= 1.0 or other.dims != self.dims:
+            return self
+        if g <= 0.0:
+            return other
+        data = tuple(g * a + (1.0 - g) * b for a, b in zip(self.data, other.data))
+        return HueSatTable(*self.dims, data, self.srgb)
+
+    def is_identity(self) -> bool:
+        d = self.data
+        return all(d[i] == 0.0 and d[i + 1] == 1.0 and d[i + 2] == 1.0 for i in range(0, len(d), 3))
+
+    def lookup(self, h: float, s: float, ve: float) -> tuple[float, float, float]:
+        """(hue shift in degrees, saturation scale, value scale) at hue ``h`` in
+        [0, 6), saturation ``s`` in [0, 1] and (encoded) value ``ve`` in [0, 1]."""
+
+        hd, sd, vd, d = self.hue_divisions, self.sat_divisions, self.val_divisions, self.data
+        hs = h * (hd / 6.0) if hd >= 2 else 0.0
+        ss = s * (sd - 1)
+        hi0 = int(hs)
+        si0 = int(ss)
+        if si0 > sd - 2:
+            si0 = sd - 2
+        hi1 = hi0 + 1
+        if hi0 >= hd - 1:
+            hi0 = hd - 1
+            hi1 = 0
+        hf1 = hs - hi0
+        sf1 = ss - si0
+        hf0 = 1.0 - hf1
+        sf0 = 1.0 - sf1
+        e00 = (hi0 * sd + si0) * 3
+        e01 = (hi1 * sd + si0) * 3
+        out = [0.0, 0.0, 0.0]
+        if vd < 2:
+            for k in range(3):
+                a0 = hf0 * d[e00 + k] + hf1 * d[e01 + k]
+                a1 = hf0 * d[e00 + 3 + k] + hf1 * d[e01 + 3 + k]
+                out[k] = sf0 * a0 + sf1 * a1
+        else:
+            vs = ve * (vd - 1)
+            vi0 = int(vs)
+            if vi0 > vd - 2:
+                vi0 = vd - 2
+            vf1 = vs - vi0
+            vf0 = 1.0 - vf1
+            step = hd * sd * 3
+            e00 += vi0 * step
+            e01 += vi0 * step
+            e10 = e00 + step
+            e11 = e01 + step
+            for k in range(3):
+                j = k + 3
+                a0 = vf0 * (hf0 * d[e00 + k] + hf1 * d[e01 + k]) + vf1 * (hf0 * d[e10 + k] + hf1 * d[e11 + k])
+                a1 = vf0 * (hf0 * d[e00 + j] + hf1 * d[e01 + j]) + vf1 * (hf0 * d[e10 + j] + hf1 * d[e11 + j])
+                out[k] = sf0 * a0 + sf1 * a1
+        return out[0], out[1], out[2]
+
+    def apply(self, r: float, g: float, b: float) -> tuple[float, float, float]:
+        """The table applied to linear ProPhoto ``(r, g, b)`` in [0, 1]."""
+
+        h, s, v = rgb_to_hsv(r, g, b)
+        ve = srgb_encode(v) if self.srgb else v
+        shift, sat, val = self.lookup(h, s, ve)
+        h = h + shift * (6.0 / 360.0)
+        s = _pin(s * sat)
+        if self.srgb:
+            v = srgb_decode(_pin(ve * val))
+        else:
+            v = _pin(v * val)
+        return hsv_to_rgb(h, s, v)
+
+
+@dataclass(frozen=True)
+class ProfileLook:
+    """The profile's tables between the camera matrix and the output space.
+
+    The input is linear ProPhoto RGB with the exposure gain already in it (the
+    developer folds the gain into its white-balance multipliers). In the
+    specification's order: take the gain back out and pin to [0, 1], apply the
+    hue/saturation map, put the exposure back, pin, apply the look table; then
+    ``out`` maps ProPhoto to the output space (linear sRGB in the developer).
+    """
+
+    hue_sat_map: HueSatTable | None
+    look_table: HueSatTable | None
+    gain: float
+    out: Matrix
+
+    def apply(self, r: float, g: float, b: float) -> tuple[float, float, float]:
+        if self.hue_sat_map is not None:
+            gain = self.gain
+            r, g, b = self.hue_sat_map.apply(_pin(r / gain), _pin(g / gain), _pin(b / gain))
+            r, g, b = r * gain, g * gain, b * gain
+        r, g, b = _pin(r), _pin(g), _pin(b)
+        if self.look_table is not None:
+            r, g, b = self.look_table.apply(r, g, b)
+        m = self.out
+        return (
+            m[0][0] * r + m[0][1] * g + m[0][2] * b,
+            m[1][0] * r + m[1][1] * g + m[1][2] * b,
+            m[2][0] * r + m[2][1] * g + m[2][2] * b,
+        )

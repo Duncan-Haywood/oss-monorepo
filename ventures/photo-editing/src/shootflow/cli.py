@@ -20,7 +20,7 @@ from shootflow.cull import (
     write_sidecars,
 )
 from shootflow.ffmpeg_media import FfmpegMediaError
-from shootflow.raw_develop import DevelopError, DevelopSettings, develop_file
+from shootflow.raw_develop import DevelopError, DevelopSettings, develop_file, read_dcp
 from shootflow.assembly import (
     AssemblyPlan,
     AssemblyPlanError,
@@ -730,6 +730,8 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         use_baseline_exposure=not args.no_baseline_exposure,
         engine=args.engine,
         colour=args.colour,
+        dcp=read_dcp(args.dcp) if args.dcp else None,
+        profile_tables=not args.no_profile_tables,
     )
     sources = [Path(p) for p in args.files]
     out_dir = Path(args.out)
@@ -1219,6 +1221,16 @@ def _build_parser() -> argparse.ArgumentParser:
         default="dng",
         help="dng (default): the DNG spec's model, matrices blended for the as-shot light, ForwardMatrix "
         "when present; dcraw: one matrix nearest D65 and camera-space white balance, as dcraw and LibRaw.",
+    )
+    develop.add_argument(
+        "--dcp",
+        help="A .dcp camera profile (Adobe DNG Converter, dcamprof, RawTherapee) used in place of the DNG's "
+        "own profile: its matrices, hue/saturation map and look table. dng colour only.",
+    )
+    develop.add_argument(
+        "--no-profile-tables",
+        action="store_true",
+        help="Skip the profile's hue/saturation map and look table; matrices only.",
     )
 
     create_demo = subparsers.add_parser(
