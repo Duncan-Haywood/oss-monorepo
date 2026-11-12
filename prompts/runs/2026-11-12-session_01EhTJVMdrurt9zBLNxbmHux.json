@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVMdrurt9zBLNxbmHux",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine 2: continue work on the repo (develop, deploy, market, sell, support products; research track routed)",
+  "input_sha256": "d449ddb0cd26dbbb5a13d29b41af99f4f3cc39c0a83195812e2051179ab9f8a6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T23:34:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/grid-linopf milestone 3b: generator voltage setpoints as decision variables in the successive-linearisation repair",
+  "projects": [
+    "grid-linopf",
+    "infra-dcopf"
+  ],
+  "pr": 15287,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py pytest numpy scipy pypower returned /usr/bin/python3.13 without pandapower, which infra_dcopf/__init__ imports; needed a second pyenv call naming pandapower (the project's pyproject lists it, so `pyenv.py -r` style use of the project deps would avoid it)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "why": "draw gave theism-formal-evidence, which a sibling merged into 6 minutes before this run started (collision risk) and which is outside the deep-tech focus; took grid-linopf (deep tech, young programme, next milestone named in its LOG) instead",
+      "did": "advanced grid-linopf milestone 3b",
+      "result": "landed a pre-registered negative result plus a declared post-hoc variant that repairs 28 of 34 cases"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-grid-repair-has-to-move-voltages-and-stop-short-of-the-limit.md"
+  ],
+  "goal": null,
+  "notes": "Pre-registered J (P + voltage setpoints, all limits as hard linear rows) fully clean on 5 of 34 PGLib TYP/API/SAD cases (H1, H2 refuted); 19 of 34 within 0.1 % / 0.1 MVAr. Declared post-hoc variant J-m (bounds pulled inward) 18 of 34 alone, 28 of 34 with the reactive stage, mean +0.17/+0.34/+0.32 % vs AC optimum (milestone 3 F+R: 16 at +0.8 to +4.3 %). Predictions for J-m committed (4419e30f) before its run. Local checks: infra-dcopf pytest 37 passed; research/_homepage/build.py ok; check_md_links ok; research_live_links ok; programme_check ok; post frontmatter/links/similarity ok. Runs: run_vlin.py 1740 s, run_vlin.py --margin 1535 s on 4 processes.",
+  "corrections": [],
+  "redteam": null
+}
