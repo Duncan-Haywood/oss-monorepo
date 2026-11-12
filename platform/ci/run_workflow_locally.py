@@ -88,6 +88,8 @@ import functools
 import hashlib
 import os
 import re
+import shlex
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -586,6 +588,10 @@ class Step:
         # saying nothing at all.
         self.missing = ""
         self.missing_kind = "tool"
+        # Pinned tools this step was pointed at, and a pin no local copy
+        # matched (tool, pinned version, local --version line); see PIN.
+        self.pinned = []
+        self.pin_miss = None
         self.seconds = 0.0
         self.tail = []
         # (count, message) for each distinct error a failed step printed; see
@@ -1239,6 +1245,141 @@ STANDALONE = re.compile(r"python3 (?:platform/ci/)?(check_\w+\.py)")
 NEEDS_BUILT_SITE = {"check_pages_links.py", "check_built_site.py"}
 
 
+# Pinned tools. `photo-editing-ci.yml` runs `pip install ruff==0.15.8
+# mypy==1.19.1` and then `ruff check .` and `mypy`. Here the container's own
+# ruff 0.16.9 sits earlier on PATH than anything pip installs, and its newer
+# rules reported 165 errors on code the pinned version passes: a FAIL on a
+# clean `main` (doc friction, 2026-11-12). Putting the pinned binary first was
+# not enough either: pinned mypy then read the container's numpy stubs, which
+# CI's lint job never installs, and failed on them. So a step that calls a
+# pinned tool gets it from a venv of that job's `pip install` arguments (cached under
+# PIN_CACHE, built once), as CI's fresh runner would; only those tools are
+# shimmed, so `python3` and `pip` in the step are untouched. If the venv cannot
+# be built (no network), a failure under a tool at another version is no
+# verdict (UNRUN, version), since it came from a tool CI does not run.
+PIN = re.compile(r"(?<![\w.-])([A-Za-z][\w.-]*)==([\w.+-]+)")
+PIN_CACHE = os.path.join(os.path.expanduser("~"), ".cache", "run_workflow_locally")
+
+
+def install_args(step) -> list:
+    """The package arguments of a step's `pip install` lines, `-r` files made absolute."""
+    out = []
+    for line in step.run.splitlines():
+        try:
+            words = shlex.split(line, comments=True)
+        except ValueError:
+            continue
+        for i, w in enumerate(words[:-1]):
+            if w == "install" and words[i - 1:i] and words[i - 1].startswith("pip"):
+                rest = words[i + 1:]
+                break
+        else:
+            continue
+        j = 0
+        while j < len(rest) and rest[j] not in ("&&", "||", ";", "|"):
+            w = rest[j]
+            if w in ("-r", "--requirement", "-c", "--constraint") and j + 1 < len(rest):
+                out += [w, os.path.join(REPO, step.workdir, rest[j + 1])]
+                j += 1
+            elif not w.startswith("-"):
+                out.append(w)
+            j += 1
+    return out
+
+
+def job_pins(steps) -> dict:
+    """{step: (pins, install)}: the `pip install` arguments before each step in its
+    job, and the `x==v` pins among them."""
+    seen, out = {}, {}
+    for step in steps:
+        pins, install = seen.setdefault(step.job, ({}, []))
+        out[step] = (dict(pins), list(install))
+        if SETUP.match(step.run) and "pip" in step.run:
+            args = install_args(step)
+            install.extend(args)
+            pins.update((n.lower(), v) for a in args for n, v in PIN.findall(a))
+    return out
+
+
+def called_tools(run: str, pins: dict) -> list:
+    """The pinned names `run` invokes as a command (first word of a command)."""
+    return [n for n in pins
+            if re.search(rf"(?:^|[;&|(]|\$\()\s*(?:\w+=\S*\s+)*{re.escape(n)}(?=\s|$)", run, re.M)]
+
+
+def pin_venv(install: list, cache: str = PIN_CACHE, timeout: int = 300) -> str | None:
+    """bin/ of a cached venv with the job's `pip install` arguments, or None."""
+    h = hashlib.sha256(" ".join(install).encode())
+    for i, a in enumerate(install[:-1]):
+        if a in ("-r", "--requirement", "-c", "--constraint"):
+            try:
+                with open(install[i + 1], "rb") as f:
+                    h.update(f.read())
+            except OSError:
+                return None
+    venv = os.path.join(cache, f"pins-{h.hexdigest()[:12]}")
+    bindir = os.path.join(venv, "bin")
+    stamp = os.path.join(venv, ".complete")
+    if os.path.exists(stamp):
+        return bindir
+    try:
+        subprocess.run([sys.executable, "-m", "venv", "--clear", venv], check=True,
+                       capture_output=True, timeout=timeout)
+        subprocess.run([os.path.join(bindir, "python"), "-m", "pip", "install", "-q",
+                        "--disable-pip-version-check", *install], check=True,
+                       capture_output=True, timeout=timeout)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    with open(stamp, "w") as f:
+        f.write(" ".join(install) + "\n")
+    return bindir
+
+
+def _tool_version(path: str) -> str:
+    try:
+        done = subprocess.run([path, "--version"], capture_output=True,
+                              text=True, timeout=20)
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    lines = (done.stdout + done.stderr).strip().splitlines()
+    return lines[0] if lines else ""
+
+
+def _has_version(text: str, version: str) -> bool:
+    return re.search(rf"(?<![\w.]){re.escape(version)}(?![\w.])", text) is not None
+
+
+def pin_tools(step: Step, setup: tuple, venv_for=pin_venv, version_of=_tool_version,
+              path_env: str | None = None) -> None:
+    """Run each pinned tool the step calls from a venv of the job's pins.
+
+    Sets `step.env["PATH"]` (a one-directory shim first) and `step.pinned`, or,
+    when no venv can be built and the tool on PATH is another version,
+    `step.pin_miss` = (tool, pinned version, local --version line).
+    """
+    pins, install = setup
+    tools = called_tools(step.run, pins)
+    if not tools:
+        return
+    path_env = os.environ.get("PATH", "") if path_env is None else path_env
+    bindir = venv_for(install)
+    found = [t for t in tools if bindir and os.access(os.path.join(bindir, t), os.X_OK)]
+    if found:
+        shim = tempfile.mkdtemp(prefix="pinned-")
+        for t in found:
+            os.symlink(os.path.join(bindir, t), os.path.join(shim, t))
+        step.env["PATH"] = shim + os.pathsep + step.env.get("PATH", path_env)
+        step.pinned.append(", ".join(f"{t} {pins[t]}" for t in found)
+                           + " from a venv of this job's pip install")
+    for t in tools:
+        if t in found:
+            continue
+        exe = shutil.which(t, path=path_env)
+        here = version_of(exe) if exe else ""
+        if exe and not _has_version(here, pins[t]):
+            step.pin_miss = (t, pins[t], here)
+
+
 def standalone(step: Step) -> bool:
     """True for a step that depends on no earlier step (see run_steps)."""
     m = STANDALONE.fullmatch(step.run.strip())
@@ -1260,6 +1401,7 @@ def run_steps(steps, timeout, budget: int | None = None) -> None:
     """
     deadline = time.monotonic() + budget if budget else None
     skipped_in_job = {}  # job -> label of the first run: step skipped in it
+    pins = job_pins(steps)
 
     def run_one(step):
             # Name the step BEFORE running it, and flush. Both halves are
@@ -1281,7 +1423,19 @@ def run_steps(steps, timeout, budget: int | None = None) -> None:
                 step.seconds = 0.0
             else:
                 step_timeout = min(timeout, left) if left is not None else timeout
+                if pins[step][0] and step.status != "skipped" and not SETUP.match(step.run):
+                    pin_tools(step, pins[step])
                 execute(step, step_timeout)
+                # A failure from a tool at a version CI does not run is no
+                # verdict on the repository; see PIN.
+                if step.status == "failed" and step.pin_miss:
+                    tool, version, here = step.pin_miss
+                    step.status = "unrun"
+                    step.missing_kind = "version"
+                    step.missing = f"{tool}=={version}"
+                    step.reason = (f"CI pins {tool} {version}; here it is "
+                                   f"{here or 'unknown'}, so this step did not run "
+                                   f"the check CI runs ({step.reason})")
                 if step.reason.startswith("timed out after") and step_timeout < timeout:
                     step.status = "unrun"
                     step.missing_kind = "budget"
@@ -1372,6 +1526,11 @@ def report(name, steps, uses_skipped, forced) -> int:
         # fetch and a merge, not an install). Point at it rather than
         # inventing a generic instruction that would be wrong for the next
         # check to join this class.
+        pinned = sorted({s.missing for s in unrun if s.missing_kind == "version"})
+        if pinned:
+            print("        Install the pinned version(s) so they come first on "
+                  "PATH (or in a venv) and re-run:")
+            print("          python3 -m pip install " + " ".join(pinned))
         if any(s.missing_kind == "budget" for s in unrun):
             print("        The sweep's per-workflow budget ran out, so these "
                   "steps reached no verdict.")
@@ -1404,6 +1563,9 @@ def report(name, steps, uses_skipped, forced) -> int:
             print(f"LOCAL   {step.label}: ran with "
                   + ", ".join(sorted(set(step.resolved)))
                   + f" given its local value (base: merge base with {LOCAL_BASE['ref']})")
+    for step in steps:
+        if step.pinned and step.status in ("ok", "failed"):
+            print(f"PINNED  {step.label}: ran " + "; ".join(step.pinned))
     for step in skipped + refused:
         print(f"SKIPPED {step.label}: {step.reason}")
     for note in uses_skipped:

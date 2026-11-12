@@ -1650,5 +1650,88 @@ class FailureCauses(unittest.TestCase):
         self.assertEqual(step.causes, [(2, "one shared cause")])
 
 
+class PinnedTools(unittest.TestCase):
+    """A step calling a pip-pinned tool runs the pinned version (see PIN)."""
+
+    def steps(self):
+        a = runner.Step("lint", "a", "pip install ruff==0.15.8 mypy==1.19.1", ".")
+        b = runner.Step("lint", "b", "ruff check .", ".")
+        c = runner.Step("test", "c", "ruff check .", ".")
+        d = runner.Step("lint", "d", "PYTHONPATH=src mypy && echo ok", ".")
+        return a, b, c, d
+
+    def test_pins_reach_later_steps_of_the_same_job_only(self):
+        a, b, c, d = self.steps()
+        pins = runner.job_pins([a, b, c, d])
+        self.assertEqual(pins[a], ({}, []))
+        self.assertEqual(pins[b], ({"ruff": "0.15.8", "mypy": "1.19.1"},
+                                   ["ruff==0.15.8", "mypy==1.19.1"]))
+        self.assertEqual(pins[c], ({}, []))
+
+    def test_install_args_keep_unpinned_and_requirement_files(self):
+        s = runner.Step("python", "i", "pip install -q -r tests/requirements.txt "
+                        "pyflakes ruff==0.15.8 types-PyYAML && echo done", "ventures/x")
+        self.assertEqual(runner.install_args(s), [
+            "-r", os.path.join(runner.REPO, "ventures/x", "tests/requirements.txt"),
+            "pyflakes", "ruff==0.15.8", "types-PyYAML"])
+        m = runner.Step("python", "m", "mypy", ".")
+        self.assertEqual(runner.job_pins([s, m])[m][0], {"ruff": "0.15.8"})
+
+    def test_called_tools_needs_a_command_position(self):
+        pins = {"ruff": "1", "mypy": "2"}
+        self.assertEqual(runner.called_tools("ruff check .", pins), ["ruff"])
+        self.assertEqual(runner.called_tools("PYTHONPATH=src mypy", pins), ["mypy"])
+        self.assertEqual(runner.called_tools("echo ruff-report.txt", pins), [])
+        self.assertEqual(runner.called_tools("cat x && mypy", pins), ["mypy"])
+
+    def test_tool_comes_from_the_pin_venv(self):
+        with tempfile.TemporaryDirectory() as d:
+            exe = os.path.join(d, "ruff")
+            with open(exe, "w") as f:
+                f.write("#!/bin/sh\necho pinned\n")
+            os.chmod(exe, 0o755)
+            _, b, _, _ = self.steps()
+            runner.pin_tools(b, ({"ruff": "0.15.8"}, ["ruff==0.15.8"]), venv_for=lambda i: d,
+                             path_env="/usr/bin")
+            shim = b.env["PATH"].split(os.pathsep)[0]
+            self.assertEqual(os.path.realpath(os.path.join(shim, "ruff")), exe)
+            self.assertEqual(b.env["PATH"].split(os.pathsep)[1:], ["/usr/bin"])
+            self.assertIn("ruff 0.15.8", b.pinned[0])
+            self.assertIsNone(b.pin_miss)
+
+    def test_no_venv_and_another_version_is_a_miss(self):
+        with tempfile.TemporaryDirectory() as d:
+            exe = os.path.join(d, "ruff")
+            with open(exe, "w") as f:
+                f.write("#!/bin/sh\n")
+            os.chmod(exe, 0o755)
+            _, b, _, _ = self.steps()
+            runner.pin_tools(b, ({"ruff": "0.15.8"}, []), venv_for=lambda i: None,
+                             version_of=lambda p: "ruff 0.16.9", path_env=d)
+            self.assertEqual(b.pin_miss, ("ruff", "0.15.8", "ruff 0.16.9"))
+            self.assertNotIn("PATH", b.env)
+            # The matching version on PATH is no miss.
+            _, b2, _, _ = self.steps()
+            runner.pin_tools(b2, ({"ruff": "0.15.8"}, []), venv_for=lambda i: None,
+                             version_of=lambda p: "ruff 0.15.8", path_env=d)
+            self.assertIsNone(b2.pin_miss)
+
+    def test_a_failure_under_a_missed_pin_is_unrun(self):
+        _, b, _, _ = self.steps()
+        b.run = "false"
+        b.pin_miss = ("ruff", "0.15.8", "ruff 0.16.9")
+        ok = runner.Step("lint", "ok", "true", ".")
+        with contextlib.redirect_stdout(io.StringIO()):
+            runner.run_steps([ok, b], timeout=30)
+        self.assertEqual(b.status, "unrun")
+        self.assertEqual(b.missing_kind, "version")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner.report("w.yml", [ok, b], [], False)
+        self.assertEqual(code, 0)
+        self.assertIn("pip install ruff==0.15.8", out.getvalue())
+        self.assertIn("Not a green check", out.getvalue())
+
+
 if __name__ == "__main__":
     unittest.main()
