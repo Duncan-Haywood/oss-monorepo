@@ -3206,8 +3206,9 @@ the script's header, which needs no clone) writes the engine, `watch.mjs`, the M
 `.github/workflows/watch-metric.yml`: a daily run that reads the `METRIC_CSV` variable (a file in the
 repository or an https link, such as a published Google Sheet's CSV), posts to the `WATCH_WEBHOOK_URL`
 secret if set, and commits `watch-state.json` back. Nothing in it calls anything the owner runs. The
-workflow itself has not been run on GitHub from this session; the folder it makes is run locally by
-`watch.test.mjs`.
+workflow's own shell steps are replayed over simulated weeks of daily runs by `watch-workflow.test.mjs`
+(section "The self-deploy workflow, run as a deployer's repository runs it" below); it has still not run on
+GitHub itself.
 
 **Round 1: which detector and how much confirmation** (`eval/watch-replay.mjs`, output
 `eval/watch-replay.out.txt`). The rule was written in the script's header before the first run:
@@ -3640,3 +3641,35 @@ sideways scroll.
 
 Not done: the budget box does not carry into the "Keep watching" card's state (the card stores the setting, not the
 budget); no person has used it; the next real test of the hint is still a fresh labelled set.
+
+## The self-deploy workflow, run as a deployer's repository runs it (2026-11-12, last; a bug found and fixed)
+
+Every earlier test ran `watch.mjs` in the folder `make-watch-repo.sh` writes, never the workflow file that wraps it,
+so the YAML's shell, its `if: always()` save step and its `git push` were untested. `deploy/run-workflow.mjs` now runs
+`watch-metric.yml`'s own `run:` blocks the way a GitHub-hosted runner does: a fresh shallow clone per run (as
+`actions/checkout`), GitHub's default shell (`bash --noprofile --norc -eo pipefail`), `${{ vars.* }}` and
+`${{ secrets.* }}` substituted (empty when unset), `GITHUB_STEP_SUMMARY` as a file, and later steps skipped after a
+failure unless marked `always()`. A local bare repository stands in for GitHub; a second clone plays the deployer's
+data job, committing one row a day. `watch-workflow.test.mjs` (5 tests, about 18 s) replays 20 daily runs after a
+60-row history, with orders around 100 a day (sd 5) stepping to 120 on day 70:
+
+- **No webhook:** the baseline run is green and its state reaches the remote; exactly one run goes red, on day 72,
+  for a change dated day 68 (within the 5-point tolerance of the true day 70, after 5 points on its far side); the
+  state is committed on that red run too, so no later run repeats it.
+- **A failing webhook:** the run whose POST got a 500 is red and saves nothing ("the state was not saved"); the
+  next day's run posts the same dated change once more, gets a 200 and stays green. Two POSTs in all, `text` and
+  `content` identical. The stand-in chat service is a local HTTP server; no real one was called.
+- **`METRIC_CSV` unset:** the first step exits 2 with the instruction; the save step still runs and commits nothing.
+- **The bug: a row pushed while the run is in progress.** A deployer whose CSV is updated by another scheduled job,
+  or by hand, can push between the checkout and the save step. The old save step ran a plain `git push`, which the
+  remote refused ("fetch first"): the run went red, `watch-state.json` was lost, and the next day the same change
+  would have been reported again. The test reproduced it against the old file (it fails there and passes now). The
+  save step now replays its one commit on top with `git pull --rebase` and pushes again, up to four tries 0, 5, 15
+  and 30 s apart, and says so if it still cannot. Only the bot writes `watch-state.json`, so the rebase has
+  nothing to conflict with.
+
+Not done: this is an emulation, not GitHub. `actions/checkout` and `actions/setup-node` are replaced by `git clone`
+and the local Node 22 (the workflow asks for 20); the YAML reader handles only the subset this workflow uses; GitHub's
+60-day pause of scheduled workflows in quiet repositories, run timing and the token's push permission are not
+exercised. A real deployer's repository on GitHub is still the open check.
+
