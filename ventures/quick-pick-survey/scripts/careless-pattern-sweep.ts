@@ -53,6 +53,7 @@ import { selectNextPair, selectNextPairHybrid, type PairingInput } from "../src/
 import { DEFAULT_GLICKO_STATE } from "../src/lib/glicko2";
 import { simulate, spearman, type Chooser, type Policy } from "../src/lib/infoGainSim";
 import { groupRanking, type RatingRow } from "../src/lib/groupRanking";
+import { selfConsistency } from "../src/lib/selfConsistency";
 
 const argv = process.argv;
 const opt = (name: string, d: string) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : d);
@@ -67,6 +68,8 @@ const nSurveys = Number(opt("--surveys", "20"));
 const spread = Number(opt("--spread", "0.25"));
 const looMin = Number(opt("--loo-min", "0.2"));
 const seedBase = Number(opt("--seed-base", "2000"));
+const selfZs = nums(opt("--self-z", "0,1,1.645"));
+const selfBfs = nums(opt("--self-bf", "0,2"));
 const FLAG_SHARE = 0.7, FLAG_MIN = 30;
 
 const mean = (v: number[]) => (v.length ? v.reduce((a, b) => a + b, 0) / v.length : NaN);
@@ -94,7 +97,7 @@ const routeStaged: Policy = (input: PairingInput) => {
   return (input.rand ?? Math.random)() < 0.5 ? [a, b] : [b, a];
 };
 
-type Person = { careless: boolean; rows: RatingRow[]; firstShare: number; answered: number; loo: number };
+type Person = { careless: boolean; rows: RatingRow[]; firstShare: number; answered: number; loo: number; selfZ: number; selfLapse: number; selfBf: number };
 
 const answeredRows = (rows: RatingRow[]) => rows.filter((r) => r.rd < DEFAULT_GLICKO_STATE.rd - 1e-9);
 
@@ -161,6 +164,7 @@ for (const pattern of patterns) {
               acc[name].wrong.push(s.wrong);
             };
             const looH: number[] = [], looC: number[] = [];
+            const selfH: number[] = [], selfC: number[] = [], bfH: number[] = [], bfC: number[] = [];
             let flagH = 0, flagC = 0, nH = 0, nC = 0;
             for (let sv = 0; sv < nSurveys; sv++) {
               const svSeed = seedBase + sv * 104729 + items * 31 + k;
@@ -196,7 +200,8 @@ for (const pattern of patterns) {
                 const res = simulate(routeStaged, items, budget, seed, 0, 0, 0, false, undefined, 0, undefined, (i) => own[i], chooser);
                 const firsts = res.history.filter((h, i) => h.picked === slots[i]).length;
                 const rows = [...res.states].map(([itemId, s]) => ({ itemId, rating: s.rating, rd: s.rd }));
-                people.push({ careless, rows, firstShare: firsts / res.history.length, answered: res.history.length, loo: NaN });
+                const sc = selfConsistency(ids, res.history.map((h) => ({ winner: h.picked, loser: h.other })));
+                people.push({ careless, rows, firstShare: firsts / res.history.length, answered: res.history.length, loo: NaN, selfZ: sc?.z ?? NaN, selfLapse: sc?.lapse ?? NaN, selfBf: sc?.logBayesFactor ?? NaN });
               }
               // Leave-one-out agreement with everyone else's pool.
               for (let i = 0; i < people.length; i++) {
@@ -207,14 +212,26 @@ for (const pattern of patterns) {
                 p.loo = mine.length >= 3 ? spearman(mine.map((m) => m.rating), mine.map((m) => oth.get(m.itemId)!)) : 0;
                 if (!Number.isFinite(p.loo)) p.loo = 0;
                 const flagged = p.answered >= FLAG_MIN && (p.firstShare >= FLAG_SHARE || p.firstShare <= 1 - FLAG_SHARE);
-                if (p.careless) { looC.push(p.loo); nC++; if (flagged) flagC++; }
-                else { looH.push(p.loo); nH++; if (flagged) flagH++; }
+                if (p.careless) { looC.push(p.loo); bfC.push(Number.isFinite(p.selfBf) ? p.selfBf : 0); selfC.push(Number.isFinite(p.selfZ) ? p.selfZ : 0); nC++; if (flagged) flagC++; }
+                else { looH.push(p.loo); bfH.push(Number.isFinite(p.selfBf) ? p.selfBf : 0); selfH.push(Number.isFinite(p.selfZ) ? p.selfZ : 0); nH++; if (flagged) flagH++; }
               }
               const flag = (p: Person) => p.answered >= FLAG_MIN && (p.firstShare >= FLAG_SHARE || p.firstShare <= 1 - FLAG_SHARE);
               add("shipped", score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: 1 })))));
               add("first-flag", score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: flag(p) ? 0 : 1 })))));
               add("loo-w", score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: Math.max(0, p.loo) ** 2 })))));
               add("loo-drop", score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: p.loo < looMin ? 0 : 1 })))));
+              // Self-consistency (selfConsistency.ts): each person's held-out fit to their own answers, blind to the panel.
+              const lapses = people.map((p) => p.selfLapse).filter(Number.isFinite).sort((a, b) => a - b);
+              const eRef = lapses.length ? lapses[Math.floor(0.25 * (lapses.length - 1))] : 0;
+              const selfW = (p: Person) => (Number.isFinite(p.selfLapse) ? Math.min(1, ((1 - p.selfLapse) / Math.max(1 - eRef, 1e-9)) ** 2) : 1);
+              for (const zMin of selfZs) add(`self-drop z<${zMin}`, score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: p.selfZ < zMin ? 0 : 1 })))));
+              // Gated: agreement with the panel counts against a person only when their own answers are inconsistent too.
+              for (const zMin of selfZs) {
+                add(`gate-drop z<${zMin}`, score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: p.loo < looMin && !(p.selfZ >= zMin) ? 0 : 1 })))));
+                add(`gate-w z<${zMin}`, score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: p.selfZ >= zMin ? 1 : Math.max(0, p.loo) ** 2 })))));
+              }
+              for (const bf of selfBfs) add(`gate-drop bf<${bf}`, score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: p.loo < looMin && !(p.selfBf >= bf) ? 0 : 1 })))));
+              add("self-w", score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: selfW(p) })))));
               add("median", medianScore(ids, target, salience, people));
               add("oracle-drop", score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: p.careless ? 0 : 1 })))));
             }
@@ -241,6 +258,14 @@ for (const pattern of patterns) {
               looCarelessMean: Number(mean(looC).toFixed(3)),
               looHonestBelowMin: Number((looH.filter((x) => x < looMin).length / Math.max(looH.length, 1)).toFixed(3)),
               looCarelessBelowMin: Number((looC.filter((x) => x < looMin).length / Math.max(looC.length, 1)).toFixed(3)),
+              selfAuc: Number(auc(selfH, selfC).toFixed(3)),
+              bfAuc: Number(auc(bfH, bfC).toFixed(3)),
+              bfHonestMean: Number(mean(bfH).toFixed(2)),
+              bfCarelessMean: Number(mean(bfC).toFixed(2)),
+              ...Object.fromEntries(selfBfs.flatMap((b) => [[`bfHonestBelow${b}`, Number((bfH.filter((x) => x < b).length / Math.max(bfH.length, 1)).toFixed(3))], [`bfCarelessBelow${b}`, Number((bfC.filter((x) => x < b).length / Math.max(bfC.length, 1)).toFixed(3))]])),
+              selfHonestMeanZ: Number(mean(selfH).toFixed(3)),
+              selfCarelessMeanZ: Number(mean(selfC).toFixed(3)),
+              ...Object.fromEntries(selfZs.flatMap((z) => [[`selfHonestBelow${z}`, Number((selfH.filter((x) => x < z).length / Math.max(selfH.length, 1)).toFixed(3))], [`selfCarelessBelow${z}`, Number((selfC.filter((x) => x < z).length / Math.max(selfC.length, 1)).toFixed(3))]])),
               firstFlagHonest: Number((flagH / Math.max(nH, 1)).toFixed(3)),
               firstFlagCareless: Number((flagC / Math.max(nC, 1)).toFixed(3)),
             };
