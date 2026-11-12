@@ -90,6 +90,7 @@ None of these raised a score this round; a later round re-audits.
   - QI-EIN and UND are accepted TIN types. FM, MH and PW are accepted state codes.
   - The bundled samples use the IRS format. Two new tests pin both changes.
   - The page and README describe the new behaviour, and a "Known gaps" section lists the rest.
+  - CI showed the sibling `ai-bookkeeper` export already writes dashed TINs, having followed the same IRS guidelines; only its cross-check test filled in plain digits, and it now uses the IRS format.
 - **gtin-list-check.**
   - Scientific notation that lost digits is always reported as unrecoverable.
   - Prefix rules for a 14-digit code read the item number after the indicator digit.
