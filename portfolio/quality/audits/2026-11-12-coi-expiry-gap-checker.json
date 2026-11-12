@@ -1,0 +1,287 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/coi-expiry-gap-checker",
+  "stratum": "venture",
+  "seed": "2026-11-12-e",
+  "drawn_by": "sample",
+  "round": 46,
+  "auditor": "agent session (Claude), quality-audit round 46",
+  "status": "audited",
+  "professional": "a commercial insurance broker / contractor risk manager who tracks subcontractor certificates of insurance (ACORD 25); they check first whether the policy period is read the way the declarations write it (12:01 a.m. standard time on both the effective and expiration dates, so a renewal effective on the old expiration date is continuous and one effective the next day leaves a day uncovered), whether each ACORD 25 line (GL, auto, umbrella, WC/EL, 'other') is classified correctly, whether additional insured, waiver of subrogation and primary/non-contributory are asked of the right lines, and whether umbrella can satisfy a primary shortfall only when in force",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Independent model /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/coi/model.py written from the ISO/NCCI policy-period convention (coverage runs from 12:01 a.m. standard time on the effective date to 12:01 a.m. on the expiration date; sample declarations show renewals sharing the boundary date, e.g. 04/08/2024 to 04/08/2025 at 12:01 AM) and the ACORD 25 field meanings, not from calc.mjs. Compared with node /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/coi/probe.mjs $PWD/calc.mjs (from ventures/coi-expiry-gap-checker). Matches: sample list as of 2026-10-05: Blue Line 15 days left -> 3 warnings, watch; Carter GL occurrence $500,000 short and aggregate $1,000,000 short both made up by the $2M in-force umbrella (info), AI 'No' and WOS 'No' -> fail; Apex clear. Broken list: Delta auto $750,000 short $250,000 -> error, no WC -> error; Echo GL expired 2025-10-01, EL $250,000 short, WOS no. Departures: Delta's GL renewal gap (expired 2026-06-01, renewed 2026-06-20) is reported as 18 days; under the 12:01 a.m. convention June 1 through June 19 are uncovered, 19 days. A renewal effective the day after expiration (exp 2026-06-01, eff 2026-06-02) reports no gap at all; it leaves June 1 uncovered. A 'Contractors pollution liability' row is classified as GL and satisfies the GL requirement: vendor P with no CGL comes out 'ok'. Arithmetic is right; the date convention and the classification give wrong answers a user would act on.",
+    "completeness": "Features claimed on index.html/README/VENTURE.yaml checked end to end in node: expired, expiring inside lead time (error within 7 days), limit shortfall, umbrella making up a shortfall (and not when disallowed or when the umbrella is not in force), AI/WOS/PNC with blank = not a yes, renewal gaps, swapped dates, unreadable dates, missing columns, case-insensitive vendor grouping, chase list CSV, findings CSV with formula neutralisation, .ics renewal reminders with stable UIDs, opt-in usage counters. All run; no TODOs or stubs. Gaps: a renewal certificate already on the list does not clear the lead-time warning (vendor R with the 2026-10-20 renewal on file is still 'watch' and goes on the chase list); ACORD 25's own column headings are not recognised.",
+    "verification": "node --test '*.test.mjs' in the subject dir: 27 pass, 0 fail (Node v22.23.4). Nine hand-seeded mutations in calc.mjs, each reverted with git checkout: caught 5 (in-force expiry >= -> >; calendar start not clamped to as-of; gap formula; umbrella must be in force; aggregate check skipped); survived 4 (umbrella limit >= short -> >; 7-day error threshold <= -> <; WC dropped from the waiver-of-subrogation lines, although the page says WOS is asked of workers' compensation; umbrella offset allowed on WC employers' liability). The renewal-gap test (calc.test.mjs:104-110) pins the off-by-one convention: changing the formula to the ISO-correct one fails it. README's test command `node --test ventures/coi-expiry-gap-checker/` fails on Node 22 ('Cannot find module').",
+    "craft": "Read calc.mjs (319 lines), the index.html module script, calc.test.mjs, page.test.mjs. Pure module, no dependencies, escapes before innerHTML, neutralises CSV formulas. Defects: calc.mjs:70 the GL regex matches any bare 'liability', so pollution, liquor, cyber, garage liability all become GL; calc.mjs:277 the .ics escape writes \"\\;\" which in JS is just ';' so semicolons are not escaped as RFC 5545 TEXT requires (observed 'SUMMARY:Renew COI: Smith; Sons\\, ...'); index.html:168 an unparseable requirement such as '1 million' silently becomes 0 and turns that limit check off (verified: GL each occurrence $500,000 passes with no finding); index.html:172 a blank lead time silently becomes 0; index.html:160 the default as-of date is the UTC date, a day ahead in US evenings.",
+    "claims": "Disclaimer, no-warranty, ACORD trademark note, business-data and privacy lines on index.html and README, backed by page.test.mjs; 'a test asserts there are no network calls' is backed (page.test.mjs:18-23). The 'Not checked' list is honest. Served page https://marisstella.app/coi-expiry-gap-checker/ returns 200, served calc.mjs identical to source, served llms.txt and sitemap carry marisstella.app URLs (source llms.txt's github.io link is rewritten at deploy: source-only, not filed). Unbacked or contradicted: the page defines a gap as 'the days between one policy's expiration and the next one's effective date', yet exp 06-01 / eff 06-02 reports none and 06-01 / 06-20 reports 18 not 19; calc.mjs header says rows are 'as copied off the ACORD 25 certificates' but ACORD 25 headings (TYPE OF INSURANCE, ADDL INSD, SUBR WVD, POLICY EFF, POLICY EXP) are rejected as missing columns; README test command fails.",
+    "fitness": "Walked a GC's job: 'I keep 40 subs' COIs in a spreadsheet; who can't work Monday, who do I chase this month?' Pasting a list with my own headers gives a clear fix/watch/clear table, a chase list and calendar reminders; that works. A risk manager hits within the first hour: a renewal certificate already filed still produces a 'renewal soon' chase; a pollution or liquor line can stand in for missing GL; a one-day lapse at renewal is invisible; pasting columns as headed on the ACORD form fails. Per-vendor requirements (different contracts) are not supported, and WC/EL has only each-accident (not disease each employee / policy limit).",
+    "domain": "Compared with the ISO/NCCI policy period (12:01 a.m. standard time at the named insured's address, both ends) and ACORD 25 structure. Departs: (1) gap = effective - expiration - 1 treats a next-day renewal as continuous; the standard convention makes same-date renewal continuous and next-day renewal a 1-day lapse; (2) in force counts the expiration date itself (flagged as an error at 0 days, so the user is warned, but the 'in force' state is wrong); (3) 'liability' catch-all maps other ACORD 25 lines to GL; (4) umbrella offset excluded from employers' liability, though umbrellas normally schedule EL and contracts often allow it (conservative); (5) EL disease limits not modelled. Correct: AI asked of GL/auto/umbrella, not WC; WOS asked of WC too; blank endorsement treated as not a yes; umbrella counted only when in force; 'a certificate does not amend a policy' stated."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "sample list as of 2026-10-05: statuses, days left, umbrella offsets, endorsement errors",
+      "method": "independent model from ACORD 25 field meanings and the default requirements (model.py)",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/coi/model.py; node /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/coi/probe.mjs $PWD/calc.mjs (from ventures/coi-expiry-gap-checker)",
+      "expected": "Carter fail (2 info umbrella offsets 500,000/1,000,000, AI no, WOS no); Blue Line watch, 15 days x3; Apex ok",
+      "observed": "same",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "broken sample: Delta auto shortfall and missing WC, Echo expired GL / EL short / WOS no",
+      "method": "hand arithmetic from the rows",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/coi/probe.mjs $PWD/calc.mjs (from ventures/coi-expiry-gap-checker)",
+      "expected": "auto short 250,000 error; WC nothing on file; Echo GL expired 2025-10-01; EL 250,000 below 500,000",
+      "observed": "same",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Delta GL renewal gap length, exp 2026-06-01, eff 2026-06-20",
+      "method": "ISO/NCCI policy period 12:01 a.m. standard time at both ends (sample declarations; Achievable common policy provisions): June 1..19 uncovered",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/coi/probe.mjs $PWD/calc.mjs (from ventures/coi-expiry-gap-checker)",
+      "expected": "19-day gap",
+      "observed": "18-day gap",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "renewal effective the day after expiration (exp 2026-06-01, eff 2026-06-02)",
+      "method": "same 12:01 a.m. convention: June 1 uncovered",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/coi/probe.mjs $PWD/calc.mjs (from ventures/coi-expiry-gap-checker)",
+      "expected": "1-day gap, watch",
+      "observed": "no gap, vendor ok",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "pollution liability row in place of CGL",
+      "method": "ACORD 25: pollution is an 'other' line, not CGL",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/coi/probe.mjs $PWD/calc.mjs (from ventures/coi-expiry-gap-checker)",
+      "expected": "GL nothing on file -> fail",
+      "observed": "classified GL, vendor ok",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "renewal certificate already on the list",
+      "method": "current GL exp 2026-10-20 plus renewal 2026-10-20 to 2027-10-20, as of 2026-10-05",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/coi/probe.mjs $PWD/calc.mjs (from ventures/coi-expiry-gap-checker)",
+      "expected": "no chase (renewal on file)",
+      "observed": "warning 'expires 2026-10-20 (15 days)', vendor watch",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "ACORD 25 column headings",
+      "method": "header INSURED, TYPE OF INSURANCE, ADDL INSD, SUBR WVD, POLICY EFF, POLICY EXP",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/coi/probe.mjs $PWD/calc.mjs (from ventures/coi-expiry-gap-checker)",
+      "expected": "columns recognised",
+      "observed": "No coverage column; No expiration column",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "unparseable requirement field",
+      "method": "index.html:168 money() on '1 million'",
+      "command": "node -e parseMoney('1 million') then check() with GL limit 0",
+      "expected": "a warning or 1,000,000",
+      "observed": "NaN -> 0, occurrence check off, $500,000 GL passes",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": ".ics TEXT escaping of ';'",
+      "method": "RFC 5545 3.3.11",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/coi/probe.mjs $PWD/calc.mjs (from ventures/coi-expiry-gap-checker)",
+      "expected": "Smith\\; Sons",
+      "observed": "Smith; Sons",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "ran it",
+      "command": "node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "27 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README test command",
+      "method": "ran it from ventures/",
+      "command": "node --test coi-expiry-gap-checker/",
+      "expected": "tests run",
+      "observed": "Cannot find module (Node 22)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "served page, calc.mjs, llms.txt, sitemap",
+      "method": "loaded the served files",
+      "command": "curl -sS https://marisstella.app/coi-expiry-gap-checker/{,llms.txt,sitemap.xml,calc.mjs}",
+      "expected": "200, marisstella.app URLs, calc identical",
+      "observed": "200 x4, marisstella.app URLs, calc.mjs identical to source",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "disclaimer, ACORD trademark note, no-network claim",
+      "method": "read index.html; page.test.mjs:18-23",
+      "command": "node --test page.test.mjs",
+      "expected": "present and tested",
+      "observed": "present and tested",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "AI not asked of WC; WOS asked of WC; blank endorsement not a yes",
+      "method": "standard COI review practice",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/coi/probe.mjs $PWD/calc.mjs (from ventures/coi-expiry-gap-checker)",
+      "expected": "as stated",
+      "observed": "as stated (Echo WC WOS no -> error; Apex WC AI blank -> nothing)",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:215",
+      "change": "umb.p.limit >= short -> > short",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:208",
+      "change": "left <= 7 (error) -> left < 7",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:190",
+      "change": "p.expiry >= asOf -> > asOf (in force)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:230",
+      "change": "drop WC from waiver-of-subrogation lines",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:280",
+      "change": "drop Math.max(..., asOf) on calendar start",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:237",
+      "change": "gap = eff - exp - 1 -> eff - exp",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:197",
+      "change": "umbOk no longer requires umbrella in force",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:222",
+      "change": "aggregate check skipped",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:215",
+      "change": "umbrella offset allowed on WC employers' liability",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Renewal gaps use effective - expiration - 1, contrary to the 12:01 a.m. standard-time policy period: a renewal effective the day after expiration (the classic one-day lapse) is reported as continuous, and every other gap is one day short (Delta: 18 reported, 19 uncovered). The test at calc.test.mjs:104-110 pins the wrong convention.",
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:237",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "high",
+      "what": "normalizeCoverage maps any bare 'liability' to GL, so pollution, liquor, cyber or garage liability rows satisfy the GL requirement; a vendor with no CGL but a $1M pollution policy is reported clear.",
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:70",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "A renewal certificate already on the list does not clear the lead-time warning: the expiring policy still goes on the chase list as 'renewal soon'.",
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:208",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "ACORD 25's own column headings (TYPE OF INSURANCE, ADDL INSD, SUBR WVD, POLICY EFF, POLICY EXP) are not aliases, so a list headed as on the certificate is rejected.",
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:27",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "An unparseable requirement (e.g. '1 million') silently becomes 0 and turns that limit check off; a blank lead time silently becomes 0.",
+      "where": "ventures/coi-expiry-gap-checker/index.html:168",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "4 of 9 seeded mutations survive: the umbrella-equals-shortfall boundary, the 7-day error boundary, waiver of subrogation on WC (claimed on the page) and the WC exclusion from umbrella offset are untested.",
+      "where": "ventures/coi-expiry-gap-checker/calc.test.mjs:66",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": ".ics escape uses \"\\;\" (a plain ';' in JS), so semicolons in SUMMARY/DESCRIPTION are not escaped per RFC 5545.",
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:277",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "README test command `node --test ventures/coi-expiry-gap-checker/` fails on Node 22; use node --test '*.test.mjs' from the directory.",
+      "where": "ventures/coi-expiry-gap-checker/README.md:21",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "Employers' liability modelled with each-accident only; disease each employee and disease policy limit (both on ACORD 25) are not compared, and the umbrella cannot count toward EL.",
+      "where": "ventures/coi-expiry-gap-checker/calc.mjs:221",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Default as-of date is the UTC date (toISOString), a day ahead for US users in the evening.",
+      "where": "ventures/coi-expiry-gap-checker/index.html:160",
+      "category": "input-handling",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A tidy, private, well-disclaimed COI checker whose arithmetic is right: the sample and broken-sample results (days left, shortfalls, umbrella offsets, endorsement errors) match an independent model, and the served page equals the source. It misses the bar on correctness, verification and claims. Renewal gaps are computed with an off-by-one convention that contradicts the 12:01 a.m. policy period, so a next-day renewal (a one-day lapse) shows as continuous and the test suite enforces that; any 'liability' line such as pollution can stand in for CGL and mark a vendor clear; ACORD 25's own headings are rejected; a renewal already on file still produces a chase. 4 of 9 seeded mutations survive. A contractor can use it to spot lapsed and under-limit subs; a broker would not sign off on its gap or line-classification answers."
+}

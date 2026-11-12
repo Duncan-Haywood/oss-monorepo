@@ -1,0 +1,168 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/pool-plaster-bid-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-12-e",
+  "drawn_by": "sample",
+  "round": 46,
+  "auditor": "agent session (Claude), quality-audit round 46",
+  "status": "audited",
+  "professional": "a pool replastering contractor who bids drain-and-replaster jobs; they check first the plaster takeoff (floor plus walls, floor slope, spa, steps), then bags of finish per square foot, chip-out and bond coat, drain / acid wash / start-up, tile line and coping, how many crew days the job takes, and whether the margin is on price or a markup on cost",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Independent Python model (/tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/pool/model.py) written from first principles, not from calc.mjs: rectangle walls as two end walls W*s + W*d plus two trapezoidal side walls L*(s+d)/2 (linear floor slope), volume L*W*avg depth, US gallon = 231 in^3 so 1728/231 = 7.48052 gal/ft^3, loaded wage, overhead on direct cost, price = cost / (1 - margin). Compared with node runs of calculateBid on all four JOB_PRESETS (scratchpad run.mjs): 16x32 white plaster 1,064 sf / 53.38 h / cost $5,791.23 / price $7,825.99 / $7.36 per plaster sf / $15.29 per water sf / 22,022.65 gal; 20x40 glass full chip-out 1,638 sf / 416.04 h / $58,721.70; freeform pebble 1,275 sf / 330.12 h / $44,057.94; all equal to the cent. A 26% markup instead of margin gives $7,296.96 and a 20.63% margin, matching the page FAQ and calc's proposed-margin check. Not 4: the floor is taken as flat L*W (a 32 ft floor dropping 4.5 ft is 517.0 sf, +1%), and the freeform branch ignores depth entirely (plaster is 1,147 sf at 8.5 ft or 12 ft deep end).",
+    "completeness": "README / page features exercised in node and by the shipped tests: floor-plus-wall takeoff, rectangle and freeform shapes, four finish kits and three chip-out kits (applied without overwriting edited rates via dataset.edited, index.html:384-396), spa, steps, tile, coping, drain-and-refill water cost, acid wash, permit, walk-away price, proposed-price margin check, copy bid summary (formatBidSummary), share link (share.mjs), printable proposal (proposal.mjs, proposal-terms.mjs), opt-out usage counter (usage.mjs). All work; no TODOs or stubs. Served page https://marisstella.app/pool-plaster-bid-calculator/ returns 200 with the same defaults; the three article URLs 307 to extensionless pretty URLs that return 200.",
+    "verification": "node --test '*.test.mjs' in the subject dir: 128 tests, 128 pass, 0 fail (375 ms). Eight hand-seeded mutations in calc.mjs, each reverted with git checkout -- calc.mjs: all eight caught (wall perimeter halved: 3 fail; margin -> markup: 3 fail; dumpster always charged: 1 fail; freeform volume uses deep end: 1 fail; spa hours with no spa: 2 fail; full chip-out bills shell not plaster: 3 fail; overhead on labor only: 2 fail; water billed without drain: 1 fail). Two of the eight are each caught by a single test. Not 4: the expected values in calc.test.mjs are the author's own numbers, not from an outside takeoff, and the how-much article's dollar figures are not pinned by a test.",
+    "craft": "Read calc.mjs (431 lines), the index.html module script (lines 333-520), calc.test.mjs, page.test.mjs, usage.mjs. Pure, dependency-free core with validation through number(); escapes are not needed because the page writes numbers via textContent. Defects: shallow depth greater than deep depth accepted silently (calc.mjs:194; {shallowFt:9, deepFt:3} prices without warning); a blank rate field becomes 0 silently (Number('') is 0, calc.mjs:120; blank wage gives laborCost 0); stepBenches parsed twice (calc.mjs:301 re-reads input.stepBenches instead of using geometry); the 7.48052 constant is repeated in two branches.",
+    "claims": "Checked against calc output: index.html FAQ (1,064 sf = 512 + 96 x 5.75; $7,825.99; $7.36 / $15.29; 22,023 gal and $264.27 water; $5,791.23 / 0.74; markup $7,296.95 and 20.6%), how-much article ($44,058, $34.56 / $71.06, 330.1 h; $7,826, 53.4 h, walk-away $5,791; $58,722, $35.85, 416.0 h; $18,520, 112.3 h), vs-flat-rate article ($9,476.79, 21.5%, $34,581.15, 4.6x): every number matches. Disclaimer on all four pages and the README; privacy claim backed (no fetch/sendBeacon in index.html, usage.mjs is localStorage only). Source llms.txt points at duncan-haywood.github.io but the served llms.txt carries marisstella.app URLs (source-only, not filed). Two muddled sentences: the vs-flat-rate page says the 1,275 sf of plaster comes from 'the walls, spa, and tile band' (it is walls, spa and steps; tile is linear feet, not plaster), and the how-much page explains the 20x40 glass rectangle's per-foot price by 'the freeform wall multiplier' it does not use. 'Starting rates ... not an industry standard' is stated.",
+    "fitness": "Walked a contractor's job: a 16x32 rectangle, white plaster over sound plaster, drain and refill. The tool gives a takeoff, hours, cost, price and walk-away the contractor can check. Gaps a replasterer hits in the first hour: no crew-days or crew-size output (only total crew-hours, though plaster must go on in one continuous day and the job is scheduled in days); no bag count (the trade orders finish by the 80 lb bag at about 20-22 sf per bag at 3/8-1/2 in, e.g. SGM Diamond Brite and Florida Stucco listings; the brochure pool is about 51 bags); no bond-coat line for the 'plaster over, if bonded' overlay; no start-up / curing line (chemical start-up and brushing during the first weeks are a standard replaster scope item); no main-drain cover / VGB line. Freeform pools, very common in the replaster market, get a multiplier that ignores depth.",
+    "domain": "Compared with first-principles shell geometry and trade practice. Rectangle walls = 2(L+W) x average depth is exact for a linear floor slope (checked); flat floor understates a sloped or hopper floor slightly (+1% here, more with a hopper break). Freeform: plaster = water surface x multiplier (calc.mjs:221) ignores depth; a 2:1 ellipse of 620 sf with a 6 ft average depth has perimeter 96.2 ft and a shell of 1,197 sf (multiplier 1.93), above the preset 1.85, and a kidney's concave edge adds more. Full chip-out default 0.14 h/sf gives 178.5 crew-hours of chip-out on the 1,275 sf pebble preset; trade guides put prep (chip-out, bond coat, cleanup) at 2-3 days for a crew, roughly 50-75 crew-hours, so the default looks 2-3x high and it drives the article's headline 'loss job' gap; it is unsourced. Margin as a share of price and overhead on direct cost are standard and right. Finish $/sf presets (1.85 white, 3.4 quartz) are consistent with 80 lb bags at 20-22 sf, but uncited."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "16x32 rectangle brochure preset: takeoff, gallons, hours, cost, price, $/sf",
+      "method": "independent first-principles model: end walls W*s + W*d plus trapezoid side walls, US gallon 231 in^3, price = cost/(1-margin)",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/pool/model.py; node /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/pool/run.mjs",
+      "expected": "1,064 sf; 22,022.65 gal; 53.38 h; cost 5,791.23; price 7,825.99; 7.36 / 15.29",
+      "observed": "1,064 sf; 22,022.7 gal; 53.38 h; cost 5,791.23; price 7,825.99; 7.36 / 15.29",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "20x40 glass bead preset with full chip-out, 64 sf spa, 2 steps, 40 lf tile, 80 lf coping",
+      "method": "same independent model, glass kit 8.80 $/sf 0.09 h/sf, full chip-out 0.14 h/sf on whole plaster takeoff, $650 dumpster",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/pool/model.py",
+      "expected": "1,638 sf; 416.04 h; price 58,721.70; 35.85 per plaster sf",
+      "observed": "1,638 sf; 416.04 h; price 58,721.70; 35.85 per plaster sf",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "freeform pebble 'loss job' preset",
+      "method": "same independent model, 620 x 1.85 + 80 spa + 4 x 12 steps",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/pool/model.py",
+      "expected": "1,275 sf; 330.12 h; price 44,057.94; 34.56 / 71.06",
+      "observed": "1,275 sf; 330.13 h; price 44,057.94; 34.56 / 71.06",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "margin versus markup: a proposed price of cost x 1.26",
+      "method": "hand arithmetic: (1.26c - c)/1.26c = 20.63%",
+      "command": "node run.mjs (proposedPrice 7296.95)",
+      "expected": "20.63% margin, not below break-even",
+      "observed": "20.63, false",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "floor slope in the rectangle takeoff",
+      "method": "sloped floor = W x sqrt(L^2 + (d-s)^2)",
+      "command": "python3 model.py",
+      "expected": "517.04 sf floor for 16x32, 3.5 -> 8 ft",
+      "observed": "512 sf (flat L x W)",
+      "result": "partial"
+    },
+    {
+      "dimension": "domain",
+      "what": "freeform plaster responds to depth",
+      "method": "shell = water area + perimeter x average depth; a 2:1 ellipse of 620 sf has perimeter 96.2 ft (Ramanujan)",
+      "command": "node run.mjs (poolGeometry freeform deepFt 8.5 vs 12)",
+      "expected": "plaster grows with depth; ~1,197 sf at 6 ft average depth",
+      "observed": "1,147 sf at both 8.5 ft and 12 ft deep ends",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "full chip-out default hours",
+      "method": "trade guides (poolresearch.com plaster process; resurfacing guides): prep incl. chip-out and bond coat 2-3 days for a crew",
+      "command": "node run.mjs (pebble preset chipoutHours = 1275 x 0.14)",
+      "expected": "roughly 50-75 crew-hours",
+      "observed": "178.5 crew-hours",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "finish material per sf versus bag coverage",
+      "method": "SGM Diamond Brite and Florida Stucco 80 lb bag listings: 20-22 sf at 3/8-1/2 in",
+      "command": "python3 model.py (1064/21 = 50.7 bags)",
+      "expected": "a bag count, or $/sf consistent with bag price / 21 sf",
+      "observed": "no bag count; $1.85 and $3.40 per sf are consistent with plausible bag prices but uncited",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "article dollar figures (how-much, vs-flat-rate, index FAQ)",
+      "method": "compared each figure to calculateBid output and the independent model",
+      "command": "node run.mjs; sed -e 's/<[^>]*>//g' *.html",
+      "expected": "7,826 / 44,058 / 58,722 / 18,520 / 9,476.79 / 21.5% / 34,581.15",
+      "observed": "all match",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "explanations attached to the figures",
+      "method": "read against calc.mjs",
+      "command": "grep -n 'tile band' *.html",
+      "expected": "plaster sf = walls + spa + steps; the 20x40 is a rectangle",
+      "observed": "vs-flat-rate:93 credits the 'tile band' for plaster sf; how-much:36 credits the 'freeform wall multiplier' for a rectangle",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "served page and llms.txt",
+      "method": "curl https://marisstella.app/pool-plaster-bid-calculator/ and /llms.txt",
+      "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/pool-plaster-bid-calculator/",
+      "expected": "200; llms.txt with marisstella.app URLs",
+      "observed": "200; served llms.txt uses marisstella.app (source uses github.io, rewritten at deploy)",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run it",
+      "command": "cd ventures/pool-plaster-bid-calculator && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "128 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "inverted depths and blank rate fields",
+      "method": "node calls",
+      "command": "node run.mjs",
+      "expected": "error or warning for shallow > deep; blank wage flagged",
+      "observed": "shallowFt 9 / deepFt 3 accepted; blank wage -> laborCost 0 silently",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {"where": "calc.mjs:197", "change": "wallSf = 2*(L+W)*avg -> (L+W)*avg", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "calc.mjs:324", "change": "price = cost/(1-m) -> cost*(1+m)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "calc.mjs:313", "change": "dumpster only with chip-out -> always", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "calc.mjs:225", "change": "freeform volume uses deepFt instead of avgDepth", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "calc.mjs:300", "change": "spa hours charged with no spa", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "calc.mjs:293", "change": "full chip-out bills shellSf instead of plasterSf", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "calc.mjs:322", "change": "overhead on laborCost instead of directCost", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "calc.mjs:314", "change": "water billed without drain-and-refill", "caught": true, "test_cmd": "node --test '*.test.mjs'"}
+  ],
+  "defects": [
+    {"severity": "medium", "what": "Freeform plaster takeoff ignores depth: shell = water surface x multiplier, so a 12 ft deep end prices the same plaster as 8.5 ft; shallow/deep are required but only feed the water volume. A 2:1 ellipse of 620 sf at 6 ft average depth is ~1,197 sf of shell against the preset's 1,147.", "where": "ventures/pool-plaster-bid-calculator/calc.mjs:221", "category": "domain-rule", "origin": "spec"},
+    {"severity": "medium", "what": "No crew-days, bag count, bond-coat or start-up/curing line: a replasterer schedules in crew days, orders finish by the 80 lb bag (~20-22 sf each), and bids bond coat and plaster start-up; the tool outputs only total crew-hours and $/sf.", "where": "ventures/pool-plaster-bid-calculator/calc.mjs:245", "category": "scope-gap", "origin": "spec"},
+    {"severity": "medium", "what": "Full chip-out default 0.14 h/sf (178.5 crew-hours on the 1,275 sf pebble preset) is uncited and looks 2-3x trade guides' 2-3 crew-days of prep; the articles' headline 'loss job' gap leans on it.", "where": "ventures/pool-plaster-bid-calculator/calc.mjs:170", "category": "source-data", "origin": "spec"},
+    {"severity": "low", "what": "Shallow depth greater than deep depth is accepted silently; a blank rate field becomes 0 silently (blank wage prices labor at $0).", "where": "ventures/pool-plaster-bid-calculator/calc.mjs:194", "category": "input-handling", "origin": "implementation"},
+    {"severity": "low", "what": "Floor taken as flat L x W; a sloped floor is slightly larger (517 vs 512 sf on the brochure pool), more with a hopper. Not stated as a limit.", "where": "ventures/pool-plaster-bid-calculator/calc.mjs:195", "category": "domain-rule", "origin": "spec"},
+    {"severity": "low", "what": "Article explanations wrong though numbers are right: plaster sf credited to the 'tile band' (vs-flat-rate) and a rectangle's price credited to the 'freeform wall multiplier' (how-much).", "where": "ventures/pool-plaster-bid-calculator/how-much-to-charge-to-replaster-a-pool.html:36", "category": "overclaim", "origin": "claims"}
+  ],
+  "fix_prs": [],
+  "verdict": "The arithmetic is right: four presets recomputed from first-principles geometry and the margin formula match to the cent, every dollar figure on the three pages matches, and the 128-test suite caught all eight seeded mutations. It meets the bar on correctness, claims and verification. It falls short of what a replastering contractor needs on domain and fitness: the freeform takeoff ignores depth, the chip-out default looks 2-3x high and uncited, and there is no crew-days, bag-count, bond-coat or start-up line, so the contractor still does the scheduling and ordering by hand."
+}

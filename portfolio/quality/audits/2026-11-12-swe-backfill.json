@@ -1,0 +1,225 @@
+{
+  "date": "2026-11-12",
+  "subject": "research/swe-backfill",
+  "stratum": "research",
+  "round": 46,
+  "seed": "2026-11-12-e",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality-audit round 46",
+  "status": "audited",
+  "professional": "an empirical software-engineering researcher in mining software repositories (MSR). They would check first how bug-fix commits are identified (keyword heuristics in the style of Mockus and Votta 2000, SZZ of Sliwerski, Zimmermann and Zeller 2005) and whether the keyword classifier was hand-validated for false positives (Herzig, Just and Zeller 2013), how renames and parallel-branch history are handled (Bird et al. 2009, 'The promises and perils of mining git'), and whether the extract is pinned to a recorded ref so it can be reproduced",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 1,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran `python3 experiments/run.py` (python3.13): output byte-identical to experiments/results.txt. Recomputed every headline from commits.jsonl with my own code that imports nothing from the subject (/tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/swe/re.py): 517 commits, 396 slugs, per-day creations 1/89/129/20/93/61/3, median creation gap 4.2 min, 275 of 395 gaps <=10 min, never-touched 302/396, observed n 234 with 6 correction-worded hits, era split 239 early (22 logged) / 157 late (157 logged), the same 5 log-only slugs, Wilson 6/234 = 0.0118 to 0.0548 and 302/396 = 0.718 to 0.802 by solving the score quadratic directly: all match. Checked the extract against a source the author did not write, the GitHub API: commits ddb362fdc3c (2026-09-28T16:50:47Z, 'Add peer-prediction verification markets research package', 15 files added under research/decentralized-verification-markets of which 5 are test_*.py), 019565f1a2f (2026-09-29T04:20:01Z, 2 files modified under effort-elicitation) and c084c28a8c8 (2026-10-13T02:19:49Z, rename) match time, subject and counts; list_commits path=research for 2026-10-02..10-12 returns [] so the quiet window is real upstream. But hand-reading the 6 'correction' hits shows one false positive: eiv-twin's 556272fb434 'Add eiv-twin: ... 1/lambda controller overshoot, and repair costs' is the completion of a WIP creation, matched on the domain word 'repair'. The headline 6/234 (2.6%) presented as a lower bound is 5/234 (2.1%); removing 'repair' from FIX_RE reproduces 5/234. extract.py also attributes the source side of a rename to the old slug as 'M' (5 rename commits, e.g. c084c28a8c8 records chip-rtl-loop M=57), adding spurious later touches to the projects whose slug was taken. Wrong number is small and inside the interval, so 2, not 1.",
+    "completeness": "Claimed deliverables: the extract (commits.jsonl, 517 lines, present), 9 tests (ran: 'Ran 9 tests in 0.008s OK'), run.py reproducing results.txt (identical), the per-day figure (projects_per_day.svg present), the run-log comparison (runs ../swe-ledger snapshot, present). extract.py cannot be rerun here (shallow clone) and the ref/commit it was run against is not recorded; the extract ends at 2026-10-15T03:28:56Z although GitHub lists 100+ research commits on 2026-10-15. The README is explicit about what it does not do (tokens, PRs, CI). Everything it says is done works end to end.",
+    "verification": "`cd research/swe-backfill && PYTHONPATH=src python3 -m unittest discover -s tests` -> 9 tests OK. Seeded 5 mutations in src/swe_backfill/backfill.py with PYTHONDONTWRITEBYTECODE=1, each reverted with git checkout: censoring cutoff end -> end+1 day (headline observed n 234 -> 239), close-pair '<=' -> '<', creation rule 'A > 0' -> 'A >= 0', drop 'repair' from FIX_RE (headline 6 -> 5), removed-flag always on D (removed 1 -> 2). All 5 survived: 0/5 caught, including two that change a README headline. Tests use hand-made fixtures and pin no number from the real extract.",
+    "craft": "Read backfill.py (170 lines), run.py, extract.py, tests. Small, readable, standard library only. Defects: extract.py:271 classifies the source path of an 'R' entry as 'M' instead of 'D' (renames count as edits of the old slug, and the 'removed' flag can never fire for a rename); the git ref and HEAD used for the extract are not written to the output; FIX_RE is a bare keyword list with no word-context guard; run.py and tests use 'from ... import *'; run.py silently skips the whole run-log section when the sibling snapshot is missing (backs two README headlines).",
+    "claims": "Checked: 517/396/span (results.txt:1, pass); per-day burst and 10-02..10-12 gap (pass, and confirmed upstream via GitHub API); 157/157 late in log and 22/239 early (pass); 49% in families (pass); 152 close pairs (pass); 6/234 lower bound (fail: includes a false positive, 5/234); 'Family members and other projects look alike (4/196 and 4/200)' is placed in the observed-window paragraph but is computed over all projects incl. censored (partial); 'This data cannot tell them apart' (duplicate claim vs deliberate series) is contradicted by the data: 5 commit subjects in commits.jsonl say the slug was taken by a parallel run ('Rename to chip-rtl-probe: slug chip-rtl-loop landed in parallel', 'Rename to robofab-cell-bound: robofab-cell slug merged first from a parallel run', etc.) (fail); 'every commit ... from the full history' with no recorded ref, ending 03:28 on 10-15 (partial). Limits section is honest and specific; AI-assistance disclosure present.",
+    "fitness": "A researcher on track 10 can build on it, and three later projects do (research/swe-prflow, swe-spendoutput, swe-reccover cite it). The extract and history reader are reusable. But it is a descriptive count, not a result: no hypothesis, no validated defect measure, and the one correctness proxy is uncalibrated. Nearest prior work (MSR bug-fix mining: Mockus and Votta 2000; SZZ, Sliwerski et al. 2005; Herzig et al. 2013 on misclassification; Bird et al. 2009 on git-mining perils) is not cited, so a reader is not told the keyword proxy has known 30%+ misclassification rates in the literature. Novelty: none claimed beyond this repository, appropriately.",
+    "domain": "Against MSR practice: keyword-based fix detection without a hand-validated sample (6 hits would take minutes; 1 of 6 is wrong); no rename/copy detection policy stated (git log default rename detection is on, and the old path is mis-bucketed); author time used for ordering with parallel branches merged non-linearly (acknowledged in Limitations); the extract is not pinned to a commit. Wilson intervals and the explicit censoring of the 14-day window are correct and good practice. A senior MSR reviewer would ask for the validated sample and the rename fix before signing off."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "rerun experiments/run.py vs committed results.txt",
+      "method": "byte diff",
+      "command": "cd research/swe-backfill && python3 experiments/run.py | diff - experiments/results.txt",
+      "expected": "identical",
+      "observed": "identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "commit ddb362fdc3c time, subject, files added and test files in commits.jsonl",
+      "method": "GitHub API get_commit (Duncan-Haywood/oss-monorepo), a source the author did not write",
+      "command": "mcp github get_commit sha=ddb362fdc3c",
+      "expected": "2026-09-28T16:50:47Z; 'Add peer-prediction verification markets research package'; A=15, tests_A=5 under decentralized-verification-markets",
+      "observed": "author date 2026-09-28T16:50:47Z, same subject, 15 research files added of which 5 tests/test_*.py",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "commit 019565f1a2f (a counted 'correction') time and slug attribution",
+      "method": "GitHub API get_commit",
+      "command": "mcp github get_commit sha=019565f1a2f",
+      "expected": "2026-09-29T04:20:01Z, effort-elicitation M=2",
+      "observed": "2026-09-29T04:20:01Z, 2 modified files under research/effort-elicitation",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "no research commits 2026-10-02..10-12 (the quiet window)",
+      "method": "GitHub API list_commits path=research",
+      "command": "mcp github list_commits path=research since=2026-10-02 until=2026-10-12T23:59:59Z",
+      "expected": "empty",
+      "observed": "[]",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "headline counts recomputed with independent code (projects, per-day, median gap, never-touched, era split, log-only slugs)",
+      "method": "own script, no subject imports: /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/swe/re.py",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/swe/re.py",
+      "expected": "396; 1/89/129/20/93/61/3; median 4; 275/395; 302/396; 239(22)/157(157); 5 log-only",
+      "observed": "396; 1/89/129/20/93/61/3; 4.22; 275/395; 302/396; 239(22)/157(157); accel-dataflow, osrobot-bodysearch, osrobot-morph, osrobot-specialise, project-pages",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Wilson 95% interval for 6/234 and 302/396",
+      "method": "solve (p-phat)^2 = z^2 p(1-p)/n directly (Wilson 1927), z=1.95996",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/swe/re.py",
+      "expected": "README: 1% to 5%; 72% to 80%",
+      "observed": "0.0118 to 0.0548; 0.718 to 0.802",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "the 6 correction-worded hits in the observed window are corrections",
+      "method": "hand-read each commit subject",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a970c956-8347-5ada-9f27-66faff8c126b/scratchpad/swe/re.py  (prints the 6 hits)",
+      "expected": "6 corrections (README: lower bound 6/234 = 2.6%)",
+      "observed": "5 corrections; eiv-twin 556272fb434 'Add eiv-twin: ... and repair costs' is a WIP-completion matched on the domain word 'repair' -> 5/234 = 2.1%",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "rename handling in extract.py",
+      "method": "git name-status semantics: R<score> old new means old is removed",
+      "command": "grep Rename research/swe-backfill/experiments/commits.jsonl",
+      "expected": "old slug D, new slug A",
+      "observed": "old slug counted M (e.g. c084c28a8c8 chip-rtl-loop M=57), 5 rename commits",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'This data cannot tell them apart' (duplicate claim vs deliberate series)",
+      "method": "grep commit subjects in the subject's own extract",
+      "command": "grep -i 'parallel\\|slug taken' research/swe-backfill/experiments/commits.jsonl",
+      "expected": "no direct duplicate-claim signal in the data",
+      "observed": "5 rename commits whose subjects say the slug was taken by a parallel run",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Family members and other projects look alike (4/196 and 4/200)' in the observed-window paragraph",
+      "method": "read run.py:39-40",
+      "command": "sed -n 37,41p research/swe-backfill/experiments/run.py",
+      "expected": "observed-window rates",
+      "observed": "correction_rate(..., False): all projects incl. censored",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "extract covers the full history to its stated end",
+      "method": "GitHub list_commits path=research on 2026-10-15",
+      "command": "mcp github list_commits path=research since=2026-10-15 until=2026-10-15T23:59:59Z",
+      "expected": "about 13 commits (extract)",
+      "observed": "100+ commits upstream; extract ends 2026-10-15T03:28:56Z and records no ref",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "unit tests",
+      "method": "run",
+      "command": "cd research/swe-backfill && PYTHONPATH=src python3 -m unittest discover -s tests",
+      "expected": "9 tests OK",
+      "observed": "Ran 9 tests in 0.008s OK",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/swe-backfill/src/swe_backfill/backfill.py:122",
+      "change": "censored: win > end -> win > end + timedelta(days=1) (headline observed n 234 -> 239)",
+      "caught": false,
+      "test_cmd": "cd research/swe-backfill && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/swe-backfill/src/swe_backfill/backfill.py:15",
+      "change": "remove 'repair|' from FIX_RE (headline 6/234 -> 5/234)",
+      "caught": false,
+      "test_cmd": "cd research/swe-backfill && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/swe-backfill/src/swe_backfill/backfill.py:168",
+      "change": "dt <= minutes -> dt < minutes",
+      "caught": false,
+      "test_cmd": "cd research/swe-backfill && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/swe-backfill/src/swe_backfill/backfill.py:56",
+      "change": "d.get('A', 0) > 0 -> >= 0 (creation = first touch)",
+      "caught": false,
+      "test_cmd": "cd research/swe-backfill && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/swe-backfill/src/swe_backfill/backfill.py:61",
+      "change": "removed flag set on any D (removed 1 -> 2)",
+      "caught": false,
+      "test_cmd": "cd research/swe-backfill && PYTHONPATH=src python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Headline 'lower bound' of in-tree corrections (6/234 = 2.6%) includes a false positive: eiv-twin 556272fb434 'Add eiv-twin: ... and repair costs' matched on the domain word 'repair'. Hand-checking the 6 hits gives 5/234 = 2.1%. The keyword classifier was never hand-validated, though the hit list is six lines",
+      "where": "research/swe-backfill/src/swe_backfill/backfill.py:14",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Seeded mutations: 0 of 5 caught, including the censoring cutoff and the FIX_RE word list, each of which moves a README headline. Tests pin no number from the real extract",
+      "where": "research/swe-backfill/tests/test_backfill.py:322",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "README says the data 'cannot tell apart' a duplicate claim from a deliberate series, but the extract holds 5 commits whose subjects say the slug was taken by a parallel run (c084c28a8c8, b9dcb86c1d6, 0389abcbb27, c535e964982, 1ff6f330d72): a direct, countable measure of the duplicate-claim problem the project says it cannot see",
+      "where": "research/swe-backfill/README.md:9",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "extract.py counts the old path of a rename (R status) as 'M' on the old slug instead of 'D', so the 5 slug-collision renames add spurious later touches to chip-rtl-loop (twice), robofab-cell, selfrep-extinction, simdesign-gaugescatter and can never mark a renamed slug removed",
+      "where": "research/swe-backfill/experiments/extract.py:271",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Extract is not pinned: no ref/commit recorded, and it ends 2026-10-15T03:28:56Z while GitHub lists 100+ research commits that day; README calls it 'every commit ... from the full history'",
+      "where": "research/swe-backfill/experiments/extract.py:276",
+      "category": "repo-hygiene",
+      "origin": "build"
+    },
+    {
+      "severity": "low",
+      "what": "No prior work from mining software repositories cited for keyword-based fix detection and its misclassification rate (Mockus and Votta 2000; Sliwerski, Zimmermann and Zeller 2005 SZZ; Herzig, Just and Zeller 2013; Bird et al. 2009)",
+      "where": "research/swe-backfill/README.md:27",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "'Family members and other projects look alike (4/196 and 4/200)' sits in the observed-window paragraph but is computed over all projects including censored ones",
+      "where": "research/swe-backfill/README.md:10",
+      "category": "overclaim",
+      "origin": "claims"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A small, honest, reproducible descriptive study: run.py reproduces results.txt byte for byte, every headline count recomputes from the extract with independent code, and three commits plus the 10-02..10-12 quiet window check out against the GitHub API. It does not meet the bar. The one correctness proxy it reports, a 'lower bound' of 6/234 correction-worded follow-ups, contains a false positive (eiv-twin's 'repair costs'), so the true count is 5/234; the keyword list was never hand-checked although there were only six hits. Its own data holds 5 commits stating a slug was taken by a parallel run, which contradicts the README's 'this data cannot tell them apart'. Tests caught 0 of 5 seeded mutations, two of which move README headlines. Renames are mis-bucketed in extract.py, the extract ref is not recorded, and MSR prior work on fix-commit mining is not cited.",
+  "notes": "Interpreter: /usr/bin/python3.13 (from platform/ci/pyenv.py). Mutations run with PYTHONDONTWRITEBYTECODE=1, each reverted with git checkout -- src/swe_backfill/backfill.py; no __pycache__ left. During the audit git status also showed modifications under ventures/coi-expiry-gap-checker and ventures/pool-plaster-bid-calculator that this audit did not make (another session sharing the working tree); they were left untouched."
+}
