@@ -64,8 +64,9 @@ export function compute(raw) {
   else if (profit < p.target) findings.push({ severity: "medium", title: `The barn makes about ${dollars(profit)} a month, short of your ${dollars(p.target)} target. Board needs to be ${dollars(targetPrice)} a horse at this occupancy to reach it.` });
   if (breakEvenOcc === null) findings.push({ severity: "high", title: `Each horse costs more to keep than it brings in (${dollars(margin)} a month), so filling more stalls loses more. Price or feed cost has to change before occupancy helps.` });
   else if (breakEvenOcc > 100) findings.push({ severity: "high", title: `Break-even needs ${breakEvenHorses.toFixed(1)} horses but you have ${p.stalls} stalls. Even full, the barn loses money at this price.` });
+  else if (p.occupancy < breakEvenOcc) findings.push({ severity: "medium", title: `Break-even is ${breakEvenOcc.toFixed(0)}% full and you run ${p.occupancy}%, ${(breakEvenOcc - p.occupancy).toFixed(0)} points short: about ${(breakEvenHorses - horses).toFixed(1)} more boarded horses at this price.` });
   else if (p.occupancy - breakEvenOcc < 10) findings.push({ severity: "medium", title: `Break-even is ${breakEvenOcc.toFixed(0)}% full and you run ${p.occupancy}%. A couple of empty stalls turns it into a loss.` });
-  if (profit >= 0 && p.wage > 0 && p.careMin > 0) {
+  if (p.wage > 0 && p.careMin > 0 && profit + labour > 0) {
     const unpaid = profit + labour;
     findings.push({ severity: "info", title: `If you do the care yourself, the barn pays you about ${dollars(unpaid / labourHours)} an hour for ${labourHours.toFixed(0)} hours a month, profit and labour together.` });
   }

@@ -75,3 +75,22 @@ test("summary and dollars format", () => {
   const s = summaryText(compute(raw()));
   assert.match(s, /Horse boarding: 20 stalls, 85% full/);
 });
+
+// Quality audit 2026-11-12 (portfolio/quality/audits/2026-11-12-horse-boarding-stall-profit-calculator.json).
+test("below break-even is told how far short, not that a couple of stalls makes a loss", () => {
+  const r = compute(raw({ occupancy: "50" })); // break-even 73%
+  assert.ok(r.profit < 0);
+  assert.ok(!r.findings.some((f) => /couple of empty stalls/.test(f.title)));
+  assert.ok(r.findings.some((f) => /23 points short/.test(f.title)));
+  const near = compute(raw({ occupancy: "80" })); // 7 points above break-even
+  assert.ok(near.findings.some((f) => /couple of empty stalls/.test(f.title)));
+  const far = compute(raw({ occupancy: "100" })); // 27 points above
+  assert.ok(!far.findings.some((f) => /couple of empty stalls/.test(f.title)));
+});
+
+test("owner's real hourly pay is shown when the barn loses money after wages", () => {
+  // board $450: profit + labour = 17*(450+40)*0.97 - 17*215 - 3000 = 1425.10; hours = 17*20*30.4/60 = 172.27
+  const r = compute(raw({ boardPrice: "450" }));
+  assert.ok(r.profit < 0);
+  assert.ok(r.findings.some((f) => /\$8\.27 an hour/.test(f.title)), JSON.stringify(r.findings));
+});
