@@ -261,6 +261,29 @@ class Collect(unittest.TestCase):
         """)
         self.assertEqual(steps[0].status, "skipped")
 
+    def test_workflow_and_job_env_reach_the_step(self):
+        """einvoice-preflight-ci.yml sets `PYTHONPATH: src` on the job; until
+        2026-11-12 plain env values were dropped at every level, so its 22
+        Python tests failed locally on an import that is green in CI."""
+        steps, _ = self.collect("""
+            env:
+              TOP: a
+              SHARED: top
+            jobs:
+              a:
+                env:
+                  PYTHONPATH: src
+                  SHARED: job
+                  TOKEN: ${{ secrets.NPM_TOKEN }}
+                steps:
+                  - name: t
+                    env:
+                      SHARED: step
+                    run: echo 1
+        """)
+        self.assertEqual(steps[0].status, "pending")
+        self.assertEqual(steps[0].env, {"TOP": "a", "SHARED": "step", "PYTHONPATH": "src"})
+
     def test_a_vars_expression_in_the_command_still_skips(self):
         """Only `env:` is resolved. A `vars.` reference inline in the command
         would have to be substituted into shell text, which is the literal-text

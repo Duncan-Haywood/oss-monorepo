@@ -3,6 +3,7 @@
 
 Run: python3 -m unittest test_run_venture_tests   (from platform/ci/)
 """
+import importlib.util
 import subprocess
 import tempfile
 import unittest
@@ -212,10 +213,119 @@ class Selection(unittest.TestCase):
                 (root / slug / "x.test.mjs").write_text("x" * size)
             order = []
             with mock.patch.object(rvt, "VENTURES", root), \
-                    mock.patch.object(rvt, "run", side_effect=lambda s: (order.append(s), (s, True, "", 0.0))[1]), \
+                    mock.patch.object(rvt, "run", side_effect=lambda s, *_: (order.append(s), (s, True, "", 0.0))[1]), \
                     mock.patch("sys.stdout"):
                 rvt.main(["--jobs", "1", "a-small", "b-big", "c-mid"])
         self.assertEqual(order, ["b-big", "c-mid", "a-small"])
+
+
+@unittest.skipUnless(importlib.util.find_spec("yaml"), "needs PyYAML (ventures-tests CI has none)")
+class Elsewhere(unittest.TestCase):
+    """Locally, a named venture's own-workflow Python steps run too (2026-11-12:
+    photo-editing printed "skip", einvoice-preflight "ok" for Node alone)."""
+
+    WF = ("defaults:\n  run:\n    working-directory: ventures/own\n"
+          "jobs:\n  t:\n    env:\n      PYTHONPATH: src\n    steps:\n"
+          "      - run: pip install pytest\n"
+          "      - run: python3 -m unittest discover -s tests\n")
+
+    venture = FakeVentures.venture
+
+    def setUp(self):
+        FakeVentures.setUp(self)
+        top = tempfile.TemporaryDirectory()
+        self.addCleanup(top.cleanup)
+        (Path(top.name) / "ventures").symlink_to(self.root)
+        patcher = mock.patch.object(rvt, "ROOT", Path(top.name))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.venture("own", {
+            "src/ownpkg/__init__.py": "VALUE = 3\n",
+            "tests/test_own.py": "import unittest\nfrom ownpkg import VALUE\n"
+                                 "class T(unittest.TestCase):\n"
+                                 "    def test_v(self): self.assertEqual(VALUE, 3)\n",
+        })
+        (self.wf / "own-ci.yml").write_text(self.WF)
+
+    def test_the_test_step_comes_with_its_directory_and_job_env(self):
+        [(argv, cwd, env, wf)] = rvt.elsewhere_commands("own")
+        self.assertEqual(argv[-1], "python3 -m unittest discover -s tests")
+        self.assertEqual(cwd, rvt.ROOT / "ventures/own")
+        self.assertEqual(env.get("PYTHONPATH"), "src")
+        self.assertEqual(wf, "own-ci.yml")
+
+    def test_it_runs_and_passes_only_with_the_job_env(self):
+        _, ok, out, _ = rvt.run("own", elsewhere=True)
+        self.assertTrue(ok, out)
+        self.assertIn("from .github/workflows/own-ci.yml", out)
+
+    def test_main_runs_a_named_python_only_venture_instead_of_skipping(self):
+        with mock.patch.object(rvt, "ON_ACTIONS", False), \
+             mock.patch("builtins.print") as printed:
+            self.assertEqual(rvt.main(["own"]), 0)
+        lines = " ".join(str(c.args[0]) for c in printed.call_args_list)
+        self.assertIn("ok   own", lines)
+        self.assertIn("1 suites run, 0 failed", lines)
+
+    def test_no_elsewhere_and_ci_keep_the_skip(self):
+        for argv, on_actions in ((["--no-elsewhere", "own"], False), (["own"], True)):
+            with mock.patch.object(rvt, "ON_ACTIONS", on_actions), \
+                 mock.patch("builtins.print") as printed:
+                rvt.main(argv)
+            lines = " ".join(str(c.args[0]) for c in printed.call_args_list)
+            self.assertIn("skip own", lines)
+            self.assertIn("0 suites run", lines)
+
+    def test_a_missing_module_retries_with_an_interpreter_that_has_it(self):
+        calls = []
+
+        def fake_run(argv, cwd, timeout, env=None):
+            calls.append(env or {})
+            if len(calls) == 1:
+                return False, "/usr/local/bin/python3: No module named pytest"
+            return True, "ok"
+
+        with mock.patch.object(rvt, "run_one", fake_run), \
+             mock.patch.object(rvt, "interpreter_with", return_value="/opt/py/bin/python3"):
+            ok, out = rvt.run_elsewhere_step(["bash", "-ec", "python3 -m pytest"],
+                                             rvt.ROOT, {}, 10)
+        self.assertTrue(ok)
+        self.assertIn("ran with /opt/py/bin/python3", out)
+        shim = calls[1]["PATH"].split(":")[0]
+        self.assertIn('exec "/opt/py/bin/python3"', (Path(shim) / "python3").read_text())
+
+    def test_an_editable_install_becomes_pythonpath(self):
+        (self.wf / "own-ci.yml").write_text(self.WF.replace(
+            "pip install pytest", "pip install -e . pytest").replace(
+            "    env:\n      PYTHONPATH: src\n", ""))
+        [(_, _, env, _)] = rvt.elsewhere_commands("own")
+        self.assertEqual(env["PYTHONPATH"].split(":")[0], "src")
+        _, ok, out, _ = rvt.run("own", elsewhere=True)
+        self.assertTrue(ok, out)
+
+    def test_retries_ask_for_every_module_seen_missing(self):
+        outs = iter([(False, "No module named numpy"), (False, "No module named pytest"),
+                     (True, "ok")])
+        asked = []
+
+        def find(*mods):
+            asked.append(mods)
+            return "/opt/py/bin/python3"
+
+        with mock.patch.object(rvt, "run_one", lambda *a, **k: next(outs)), \
+             mock.patch.object(rvt, "interpreter_with", find):
+            ok, out = rvt.run_elsewhere_step(["bash", "-ec", "python3 -m pytest"],
+                                             rvt.ROOT, {}, 10)
+        self.assertTrue(ok, out)
+        self.assertEqual(asked, [("numpy",), ("numpy", "pytest")])
+
+    def test_with_no_interpreter_it_fails_and_says_how_to_get_one(self):
+        with mock.patch.object(rvt, "run_one", return_value=(False, "No module named pytest")), \
+             mock.patch.object(rvt, "interpreter_with", return_value=None):
+            ok, out = rvt.run_elsewhere_step(["bash", "-ec", "python3 -m pytest"],
+                                             rvt.ROOT, {}, 10)
+        self.assertFalse(ok)
+        self.assertIn("pyenv.py pytest", out)
 
 
 if __name__ == "__main__":

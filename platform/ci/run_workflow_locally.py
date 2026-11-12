@@ -717,10 +717,20 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
             # deploy has happened -- so it is skipped and named, like any
             # other step this tool cannot honestly evaluate.
             raw_env = {str(k): str(v) for k, v in (raw.get("env") or {}).items()}
+            # Workflow and job `env:` apply too, step entries winning. Until
+            # 2026-11-12 only resolved expressions were set at all, so plain
+            # values were dropped at every level: einvoice-preflight's job-level
+            # `PYTHONPATH: src` never reached its step, and its 22 Python tests
+            # failed locally on an import that is green in CI. An inherited
+            # entry this tool cannot evaluate (a secret) is left unset rather
+            # than skipping every step under it, which is what it did before.
+            inherited = {str(k): str(v) for node in (workflow, job)
+                         for k, v in ((node or {}).get("env") or {}).items()
+                         if str(k) not in raw_env}
             # Resolve `${{ vars.X }}` to the empty string an unset repository
             # variable actually has, and record which ones. What is left after
             # that is an expression this tool genuinely cannot evaluate.
-            for key, value in raw_env.items():
+            for key, value in {**inherited, **raw_env}.items():
                 resolved, hits = VARS_EXPRESSION.subn("", value)
                 if hits:
                     step.unset_vars.extend(
@@ -731,7 +741,7 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
                     ambient_github_token(), resolved)
                 resolved, context_hits = resolve_context(resolved)
                 step.resolved.extend(context_hits)
-                if hits or token_hits or context_hits:
+                if not EXPRESSION.search(resolved):
                     step.env[key] = resolved
             command, context_hits = resolve_context(command)
             step.run = command
