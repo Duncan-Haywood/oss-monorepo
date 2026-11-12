@@ -113,6 +113,7 @@ introduces a dated fact.
 | Year | What is established | Story |
 |---|---|---|
 | 1954 | 600,000 to 800,000 northern Catholics move south in Vietnam; migrant parishes in the Mekong Delta take the names of their old ones | *NOTES.md* (real history) |
+| 2035 | Lune and Ribble Catholic Schools Trust (invented), 40 primary schools in Lancashire, about 11,000 pupils; family liaison pilot (Jo Baptiste, Darren Leigh) in the 8 schools with the highest 2033-34 persistent absence; board votes 12 Jul 2035 to extend it to 16 schools drawn by lot from 24, using a bingo cage borrowed from St Anne's parish club; the data agent's 2.9-point baseline rule | *Two Point Nine* |
 | 2041 | A typhoon takes down the tower of the San Isidro church in Batangas; its bell is recast | *Slowest Bell* |
 | 2044 | Teddy and Remedios marry at Our Lady of Remedies, Malate | *Slowest Bell* |
 | 2060s | Saltwater flooding in the Mekong Delta resettles people inland | *NOTES.md* |
