@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-12 · Milestone 5: does the design ranking survive RotorPy with canted rotors? (H5; plan, in progress)
+
+- Claim: this run takes milestone 5. Plan and predictions follow in the next commit, before `experiments/m5_rotorpy/run.py` is run.
+
 ## 2026-11-12 · Milestone 6b: which gust-torque sign does a real frame have? Neither: a rigid frame is helped on one axis and hurt on the other (predictions written and committed before `experiments/m6b_cop/run.py` was run)
 
 - Why: milestone 6 found that H3 hangs on the sign of the gust torque (on/off position ratio 0.96 with the inherited sign, 1.21 flipped) and left "derive which sign a real frame has" as the next step.
