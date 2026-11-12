@@ -1,6 +1,6 @@
 ---
 title: "Why a work-type label hurt one permit forecast: demolition, not new construction"
-seo_title: "Cross-city permit build-time forecasts: where a work-type label backfires"
+seo_title: "Cross-city permit build-time forecasts: when a work-type label hurts"
 date: 2026-11-12
 description: "A work-type label hurt a cross-city forecast of Seattle build times in 2024. The cost sits in demolition permits, and it did not repeat in 2023."
 tags: [research, build-data, construction]
