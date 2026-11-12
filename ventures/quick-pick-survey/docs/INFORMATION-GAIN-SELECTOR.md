@@ -1883,7 +1883,9 @@ that refit (`src/app/api/insights/route.ts`; `contenders(..., { score })` in
 search takes about 60 ms at 15 items x 4 answers, 215 ms at 30 x 8 and 600 ms
 at 60 x 8, so past `EB_MAX_ITEMS` (40) answered items the set uses the
 fixed-prior refit as before. The shipped search uses 8 golden-section steps
-(phi within about 4.5%); the tables above ran 14. Pinned by
+(phi within about 4.5%); the tables above ran 14, and a rerun at 8 (spread
+1 and lapse 0.2, seeds from 1000) matched every coverage to 0.001 and every
+mean size to 0.02. Pinned by
 `src/lib/btRefitEb.test.ts` (Laplace evidence against a one-pair closed
 form, sampled evidence against quadrature, the search's maximum on a grid,
 floor and ceiling cases, recovery of a known spread, pooling) and a case in
