@@ -33,15 +33,15 @@
   <p>The roster builder's built-in invented example: a seven-person cafe, 32 shifts, 235 hours to cover, a 40-hour overtime line and a 10-hour rest gap. We granted a Saturday-and-Sunday request to the five people with the widest weekend availability, one at a time in the order shown, and rebuilt the week after each. Everything else is the tool's defaults.</p>
   <table>
     <tr><th>Weekends off granted to</th><th class="n">Shifts left open</th><th class="n">Hours covered of 235</th><th class="n">Payroll</th></tr>
-    <tr><td>Nobody</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td></tr>
-    <tr><td>Ana</td><td class="n">3</td><td class="n">216</td><td class="n">$3,624</td></tr>
-    <tr><td>Ana, Gus</td><td class="n">4</td><td class="n">218</td><td class="n">$3,656</td></tr>
-    <tr><td>Ana, Gus, Dev</td><td class="n">5</td><td class="n">210</td><td class="n">$3,522</td></tr>
-    <tr><td>Ana, Gus, Dev, Cleo</td><td class="n">7</td><td class="n">192</td><td class="n">$3,252</td></tr>
-    <tr><td>Ana, Gus, Dev, Cleo, Eli</td><td class="n">9</td><td class="n">174</td><td class="n">$3,001</td></tr>
+    <tr><td>Nobody</td><td class="n">5</td><td class="n">220</td><td class="n">$3,690</td></tr>
+    <tr><td>Ana</td><td class="n">5</td><td class="n">220</td><td class="n">$3,690</td></tr>
+    <tr><td>Ana, Gus</td><td class="n">5</td><td class="n">220</td><td class="n">$3,690</td></tr>
+    <tr><td>Ana, Gus, Dev</td><td class="n">6</td><td class="n">212</td><td class="n">$3,554</td></tr>
+    <tr><td>Ana, Gus, Dev, Cleo</td><td class="n">8</td><td class="n">194</td><td class="n">$3,284</td></tr>
+    <tr><td>Ana, Gus, Dev, Cleo, Eli</td><td class="n">10</td><td class="n">176</td><td class="n">$3,032</td></tr>
   </table>
   <h2>What it shows</h2>
-  <p>The first request is nearly free: the week still covers 216 hours and payroll moves by $2. The second costs a shift. By the fifth, more than a quarter of the week's hours are uncovered, and the payroll that "fell" is only the pay for shifts nobody is working. So the number to watch is open shifts, not cost. This is one invented example, not a benchmark, and your availability decides where your limit falls.</p>
+  <p>The first two requests are free: the week still covers 220 hours for the same $3,690, and the builder's exact check proves that is the most any roster can cover. The third costs 8 hours and a shift. By the fifth, a quarter of the week's hours are uncovered, and the payroll that "fell" is only the pay for shifts nobody is working. So the number to watch is open hours, not cost. (An earlier version of this table, built with the quick search alone, showed the second request costing a shift; the quick search had missed a roster that absorbs it.) This is one invented example, not a benchmark, and your availability decides where your limit falls.</p>
   <p><a class="cta" href="./">Try your own requests</a></p>
   <h2>How to do it by hand</h2>
   <h3>1. Rank requests by how few people could cover</h3>
@@ -56,7 +56,7 @@
   <h3>How do I schedule around time-off requests?</h3>
   <p>Put the approved days off into each person's availability before you assign anyone, so the schedule never gives them a shift on those days, then check whether any shift went uncovered. The roster builder reads an off: entry, such as off: Sat-Sun, and re-plans the week around it.</p>
   
-  <p class="note">These figures come from the builder's quick search, with the exact check off. Since 12 November 2026 the builder also runs an exact check by default: on this invented café it covers 4 more hours (15 hours open instead of 19, payroll $3,690 instead of $3,622) and proves no roster under the same rules does better. Every row above was built the same way, so the comparisons hold.</p>
+  <p class="note">These figures come from the builder's default build, with its exact check on (re-derived 12 November 2026). Every roster above was built the same way and the check proved it the best possible under its settings, so the comparisons hold. Earlier versions of this page used the quick search alone, which on this invented café left 19 hours open instead of 15.</p>
 </main>
 <footer>
     <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not tell you what scheduling law requires of you. The example is invented and the numbers come from running this tool's own engine on it.</p>

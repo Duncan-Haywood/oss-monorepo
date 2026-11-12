@@ -33,14 +33,14 @@
   <p>The roster builder's built-in invented example: a seven-person cafe, 32 shifts, 235 hours to cover, a 40-hour overtime line, and each person's own availability. Only the rest gap changed between runs; everything else is the tool's defaults.</p>
   <table>
     <tr><th>Minimum rest gap</th><th class="n">Shifts left open</th><th class="n">Hours covered</th><th class="n">Payroll</th></tr>
-    <tr><td>None (0 h)</td><td class="n">2</td><td class="n">219 of 235</td><td class="n">$3,671</td></tr>
-    <tr><td>8 h</td><td class="n">3</td><td class="n">216</td><td class="n">$3,620</td></tr>
-    <tr><td>10 h</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td></tr>
-    <tr><td>12 h</td><td class="n">3</td><td class="n">216</td><td class="n">$3,630</td></tr>
+    <tr><td>None (0 h)</td><td class="n">5</td><td class="n">220 of 235</td><td class="n">$3,690</td></tr>
+    <tr><td>8 h</td><td class="n">5</td><td class="n">220</td><td class="n">$3,690</td></tr>
+    <tr><td>10 h</td><td class="n">5</td><td class="n">220</td><td class="n">$3,690</td></tr>
+    <tr><td>12 h</td><td class="n">4</td><td class="n">218</td><td class="n">$3,662</td></tr>
     <tr><td>14 h</td><td class="n">4</td><td class="n">218</td><td class="n">$3,662</td></tr>
   </table>
   <h2>What it shows</h2>
-  <p>For this cafe, a rest gap anywhere from 8 to 12 hours left one more shift open than no rule (3 against 2, three fewer hours covered) and cut payroll by roughly $40 to $50 because that last awkward shift went unstaffed rather than paid for. The search gave the other close-then-open pairs to different people. At 14 hours the rule starts to bite: two more shifts go open. So the question to ask of your own week is where your cliff is, not whether a rule is affordable in general. This is one invented example, not a benchmark, and your availability decides your numbers.</p>
+  <p>For this cafe, a rest gap of up to 10 hours costs nothing: with or without it the builder covers 220 hours for $3,690, and its exact check proves no roster under the same rules covers more. The close-then-open pairs simply go to different people. At 12 hours the rule starts to bite: two more hours go uncovered (218), and payroll falls $28 only because those hours go unpaid. Going on to 14 hours changes nothing more here. So the question to ask of your own week is where your cliff is, not whether a rule is affordable in general. This is one invented example, not a benchmark, and your availability decides your numbers.</p>
   <p><a class="cta" href="./">Find the cliff in your own week</a></p>
   <h2>How to do it by hand</h2>
   <h3>1. Mark every close and every open</h3>
@@ -55,7 +55,7 @@
   <h3>How many hours of rest should be between shifts?</h3>
   <p>There is no single answer. Some employers use 8 to 12 hours as policy and some places regulate it for certain workers. Check the rules where you operate. The roster builder lets you set the gap and will not break it.</p>
   
-  <p class="note">These figures come from the builder's quick search, with the exact check off. Since 12 November 2026 the builder also runs an exact check by default: on this invented café it covers 4 more hours (15 hours open instead of 19, payroll $3,690 instead of $3,622) and proves no roster under the same rules does better. Every row above was built the same way, so the comparisons hold.</p>
+  <p class="note">These figures come from the builder's default build, with its exact check on (re-derived 12 November 2026). Every roster above was built the same way and the check proved it the best possible under its settings, so the comparisons hold. Earlier versions of this page used the quick search alone, which on this invented café left 19 hours open instead of 15.</p>
 </main>
 <footer>
     <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not tell you what scheduling law requires of you. The example is invented and the numbers come from running this tool's own engine on it.</p>

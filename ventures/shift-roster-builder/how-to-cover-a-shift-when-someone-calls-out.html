@@ -33,11 +33,11 @@
   <p>The roster builder's built-in invented example: a seven-person cafe, 32 shifts, 235 hours to cover, a 40-hour overtime line and a 10-hour rest gap. We took every person-day on the finished roster (each is one possible call-out) and tried both moves, with the rest of the week fixed. Then we added one spare part-timer (15 an hour, up to 24 hours, free any time) and ran it again. &ldquo;Covered&rdquo; means the move created no new open hours.</p>
   <table>
     <tr><th>Staff</th><th class="n">Possible call-outs</th><th class="n">Patched with one swap</th><th class="n">Rebuild covers it</th><th class="n">Shifts a rebuild moves</th></tr>
-    <tr><td>The cafe as given</td><td class="n">29</td><td class="n">0</td><td class="n">24</td><td class="n">2 to 19</td></tr>
-    <tr><td>Plus one spare part-timer</td><td class="n">32</td><td class="n">1</td><td class="n">18</td><td class="n">13 to 24</td></tr>
+    <tr><td>The cafe as given</td><td class="n">27</td><td class="n">0</td><td class="n">15</td><td class="n">2 to 15</td></tr>
+    <tr><td>Plus one spare part-timer</td><td class="n">32</td><td class="n">0</td><td class="n">20</td><td class="n">9 to 21</td></tr>
   </table>
   <h2>What it shows</h2>
-  <p>A one-for-one swap almost never works on a week that was built to use everyone: the people who are free that hour are already at their weekly limit, on another shift, or inside their rest gap. A rebuild finds a cover far more often, but it is not free. It re-plans the whole week, so it moved between 2 and 24 shifts, which is a lot of text messages. Rebuilds find cover for 24 of 29 call-outs on the cafe as given. Adding a spare part-timer does not raise that share (18 of 32) in this example, and it makes each rebuild move more people. The practical lesson is to decide in advance who your first call is, and to treat a rebuild as a last resort once the swap list comes back empty. This is one invented example, not a benchmark, and your own availability decides your numbers.</p>
+  <p>A one-for-one swap almost never works on a week that was built to use everyone: the people who are free that hour are already at their weekly limit, on another shift, or inside their rest gap. A rebuild finds a cover far more often, but it is not free. It re-plans the whole week, so it moved between 2 and 21 shifts, which is a lot of text messages. Rebuilds find cover for 15 of 27 call-outs on the cafe as given. Adding a spare part-timer raises that a little (20 of 32), and it makes each rebuild move more people: never fewer than 9 shifts. (These figures use the exact check, on by default since 12 November 2026. The finished week already covers every hour it can, so there is less slack for a rebuild to find than the quick search alone suggested: it showed 24 of 29.) The practical lesson is to decide in advance who your first call is, and to treat a rebuild as a last resort once the swap list comes back empty. This is one invented example, not a benchmark, and your own availability decides your numbers.</p>
   <p><a class="cta" href="./">Test a call-out on your own week</a></p>
   <h2>How to do it by hand</h2>
   <h3>1. List who could take the shift</h3>
@@ -52,7 +52,7 @@
   <h3>How do you cover a shift at the last minute?</h3>
   <p>Ask the people whose availability and weekly hours leave room first, since they cost no overtime. If the shift is thin rather than empty, leaving it short for one day is sometimes cheaper than paying overtime. Check the rules where you operate before asking anyone to work extra.</p>
   
-  <p class="note">These figures come from the builder's quick search, with the exact check off. Since 12 November 2026 the builder also runs an exact check by default: on this invented café it covers 4 more hours (15 hours open instead of 19, payroll $3,690 instead of $3,622) and proves no roster under the same rules does better. Every row above was built the same way, so the comparisons hold.</p>
+  <p class="note">These figures come from the builder's default build, with its exact check on (re-derived 12 November 2026); every roster above was built the same way, so the comparisons hold. Earlier versions of this page used the quick search alone, which on this invented café left 19 hours open instead of 15.</p>
 </main>
 <footer>
     <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not tell you what scheduling law requires of you. The example is invented and the numbers come from running this tool's own engine on it.</p>

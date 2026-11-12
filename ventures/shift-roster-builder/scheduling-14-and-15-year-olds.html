@@ -35,13 +35,13 @@
   <p>The roster builder's invented seven-person cafe: 32 shifts, 235 hours to cover. Cleo and Eli are the two youngest on the team. Only their ages changed between runs, using the <code>age:</code> cell; everything else is the tool's defaults.</p>
   <table>
     <tr><th>Cleo and Eli</th><th class="n">Shifts left open</th><th class="n">Hours covered</th><th class="n">Payroll</th><th class="n">Cleo + Eli hours</th></tr>
-    <tr><td>No age set</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td><td class="n">36</td></tr>
-    <tr><td>Cleo 15, school weeks</td><td class="n">5</td><td class="n">200</td><td class="n">$3,382</td><td class="n">18</td></tr>
+    <tr><td>No age set</td><td class="n">5</td><td class="n">220</td><td class="n">$3,690</td><td class="n">36</td></tr>
+    <tr><td>Cleo 15, school weeks</td><td class="n">6</td><td class="n">202</td><td class="n">$3,420</td><td class="n">18</td></tr>
     <tr><td>Cleo 15 and Eli 14, school weeks</td><td class="n">7</td><td class="n">184</td><td class="n">$3,168</td><td class="n">0</td></tr>
     <tr><td>Both, summer</td><td class="n">3</td><td class="n">216</td><td class="n">$3,632</td><td class="n">32</td></tr>
   </table>
   <h2>What it shows</h2>
-  <p>In a school week neither teenager fits a single shift. The cafe's shifts run 6 to 14 and 14 to 22 and the limits stop work at 7pm and cap a day at 3 hours, so a whole 8-hour shift never fits inside what they may do. The two of them go from 36 hours to none and four more shifts go unfilled; the payroll falls only because the hours disappear. In summer the window widens to 9pm and the day to 8 hours, and most of it comes back. The lesson is not that teenagers are a bad hire. It is that a teenager needs <em>short shifts built for them</em> (a 3-hour 4pm to 7pm slot, or a weekend half-day) rather than a place in the adult rota.</p>
+  <p>In a school week neither teenager fits a single shift. The cafe's shifts run 6 to 14 and 14 to 22 and the limits stop work at 7pm and cap a day at 3 hours, so a whole 8-hour shift never fits inside what they may do. The two of them go from 36 hours to none and 36 more hours go uncovered (184 against 220); the payroll falls only because the hours disappear. In summer the window widens to 9pm and the day to 8 hours, and most of it comes back. The lesson is not that teenagers are a bad hire. It is that a teenager needs <em>short shifts built for them</em> (a 3-hour 4pm to 7pm slot, or a weekend half-day) rather than a place in the adult rota.</p>
   <p>This is one invented example, not a benchmark. The page applies the 3-hour school-day cap to every day in school mode, which is the cautious reading; the federal rule counts only school days, so for Saturdays use the summer setting or an <code>off:</code> cell for school hours.</p>
   <p><a class="cta" href="./">Try it with your own team</a></p>
   <h2>How to do it by hand</h2>
@@ -57,7 +57,7 @@
   <h3>How do I enter a teenager's age in the roster builder?</h3>
   <p>Add age: 15 (or age: 15 summer) to that person's row. The search then treats the limits above as hard rules, and any age under 18 also marks the person as someone who should not be alone on shift. Ages under 14 are refused.</p>
   
-  <p class="note">These figures come from the builder's quick search, with the exact check off. Since 12 November 2026 the builder also runs an exact check by default: on this invented café it covers 4 more hours (15 hours open instead of 19, payroll $3,690 instead of $3,622) and proves no roster under the same rules does better. Every row above was built the same way, so the comparisons hold.</p>
+  <p class="note">These figures come from the builder's default build, with its exact check on (re-derived 12 November 2026). Every roster above was built the same way and the check proved it the best possible under its settings, so the comparisons hold. Earlier versions of this page used the quick search alone, which on this invented café left 19 hours open instead of 15.</p>
 </main>
 <footer>
     <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not tell you what child-labor law requires of you. State and local rules can be stricter than the federal ones described here. The example is invented and the numbers come from running this tool's own engine on it.</p>

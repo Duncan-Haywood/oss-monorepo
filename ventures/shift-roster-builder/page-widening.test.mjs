@@ -6,6 +6,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
+// The guide pages quote the builder's default build, exact check on since 2026-11-12.
+const proven = (r) => assert.ok(["optimal", "improved"].includes(r.optimality?.status), `not proven: ${r.optimality?.status}`);
 
 test("widening page's table is what the engine returns for the sample cafe with one person freed or lifted to 40 h", async () => {
   const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts } = await import("./calc.mjs");
@@ -15,11 +17,13 @@ test("widening page's table is what the engine returns for the sample cafe with 
   const run = (lines) => {
     const p = parseStaff(lines.join("\n"));
     assert.deepEqual(p.errors, []);
-    const r = buildRoster(p.staff, slots, { exact: false, minRestHours: 10 });
+    const r = buildRoster(p.staff, slots, { minRestHours: 10 });
+    proven(r);
     return [r.unfilled.length, r.hours, r.cost];
   };
-  const any = { Ana: [3, 216, 3622], Ben: [3, 216, 3622], Cleo: [1, 232, 3870], Dev: [3, 216, 3620], Eli: [2, 224, 3736], Fay: [3, 216, 3622], Gus: [3, 216, 3622] };
-  const cap = { Ana: [3, 216, 3622], Ben: [2, 224, 3750], Cleo: [3, 216, 3622], Dev: [3, 216, 3622], Eli: [3, 216, 3622], Fay: [2, 224, 3746], Gus: [3, 216, 3622] };
+  const B = [5, 220, 3690];
+  const any = { Ana: B, Ben: B, Cleo: [1, 232, 3870], Dev: B, Eli: [3, 226, 3774], Fay: B, Gus: B };
+  const cap = { Ana: B, Ben: [3, 226, 3780], Cleo: B, Dev: B, Eli: B, Fay: [3, 226, 3776], Gus: B };
   for (let i = 1; i < base.length; i++) {
     const parts = base[i].split(", ");
     const name = parts[0];
