@@ -115,6 +115,7 @@ python3 experiments/idle_models.py > experiments/idle_models_results.txt
 python3 experiments/payback.py > experiments/payback_results.txt
 python3 experiments/figure.py
 python3 paper/check_numbers.py
+python3 paper/build_tex.py --pdf   # venue-format PDF in paper/build/ (needs pdflatex, bibtex, rsvg-convert)
 PYTHONPATH=src python3 experiments/regen_bound.py > experiments/regen_bound_results.txt
 python3 experiments/spool_floor_synthetic.py
 python3 experiments/spool_function_sizing.py
