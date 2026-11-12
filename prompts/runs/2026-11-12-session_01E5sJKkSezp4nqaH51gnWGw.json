@@ -31,13 +31,18 @@
   "outcome": "success",
   "errors": [
     "git ls-tree -l on a blob:none partial clone fetched every blob lazily and hung; use --name-only (sizes force blob fetches).",
-    "First thumbnail pass skipped the 350D: it tags its plain RGB strip with compression 6; now accepted at the exact size."
+    "First thumbnail pass skipped the 350D: it tags its plain RGB strip with compression 6; now accepted at the exact size.",
+    "CI validate: flagships next: over the 2000-char cap after appending; rewrote it to 1419 chars (portfolio/router/validate.py now passes)."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "portfolio/flagships.yaml",
       "issue": "photo-editing next: said real CR2s from other bodies were blocked (raw.pixls.us 403); raw.githubusercontent.com serves drewnoakes/metadata-extractor-images with full-size CR2/NEF/ARW/ORF/DNG files. Recorded in the new next:."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "says 'rewrite next:' but not that validate.py caps it at 2000 chars; the first push failed CI on that. Running portfolio/router/validate.py before pushing would have caught it."
     }
   ],
   "deviations": [],
