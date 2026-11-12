@@ -156,6 +156,8 @@ function site() {
     // Started here so it runs beside the shared build, not after it: see
     // 'an identical build produces an identical cache name'.
     childSite().catch(() => {});
+    // The same for the two-venture fixture the /compare/ and /guides/ tests read.
+    hubFixtureSite().catch(() => {});
   }
   return built;
 }
@@ -5617,6 +5619,13 @@ test('the hub sitemap lists every product page the build writes', () => {
 // buildSite does the same fixed, expensive work whatever the ventures
 // directory holds (about 60 s and 28 s as two builds, 2026-11-04), so a second
 // build for a second assertion about the hub is pure cost.
+//
+// It builds in a child process started beside the shared build (site() starts
+// it), not in this process once the shared build is done: buildSite keeps
+// per-build state at module level, so an in-process build had to wait its turn,
+// and its 31 s (warm cards; 81 s cold) ran on the sequential tail with cores idle
+// (docs/history/pages-test-perf-2026-11-12-hub-fixture-child.md). The child
+// also keeps the fixture's module state out of this process.
 let hubFixture;
 function hubFixtureSite() {
   hubFixture ??= (async () => {
@@ -5646,14 +5655,14 @@ function hubFixtureSite() {
       'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
     });
     const dist = path.join(out, 'dist');
-    const result = await buildSite({
-      venturesDir: ventures,
-      outDir: dist,
-      baseUrl: 'https://example.test/',
-      log: () => {},
-      disableWorker: true,
+    const code = `import { buildSite } from ${JSON.stringify(BUILD_MODULE)};
+      const r = await buildSite({ venturesDir: ${JSON.stringify(ventures)}, outDir: ${JSON.stringify(dist)},
+        baseUrl: 'https://example.test/', log: () => {}, disableWorker: true });
+      process.stdout.write(JSON.stringify({ comparisons: r.comparisons }));`;
+    const { stdout } = await promisify(execFile)(process.execPath, ['--input-type=module', '-e', code], {
+      maxBuffer: 1 << 28,
     });
-    return { out, dist, result };
+    return { out, dist, result: JSON.parse(stdout.slice(stdout.lastIndexOf('{"comparisons"'))) };
   })();
   return hubFixture;
 }
