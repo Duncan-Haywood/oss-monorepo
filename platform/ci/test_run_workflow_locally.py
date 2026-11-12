@@ -6,7 +6,9 @@ import argparse
 import io
 import contextlib
 import os
+import sys
 import textwrap
+import time
 import unittest
 
 import run_workflow_locally as runner
@@ -1405,6 +1407,48 @@ class BudgetHintTest(unittest.TestCase):
         self.assertIsNone(runner.budget_hint(2, 300, listing=False))
         self.assertIsNone(runner.budget_hint(13, 300, listing=True))
         self.assertIsNone(runner.budget_hint(13, 0, listing=False))
+
+
+class Handoff(unittest.TestCase):
+    """A long run under an agent harness detaches instead of being cut off."""
+
+    def test_only_an_agent_harness_without_a_terminal_hands_off(self):
+        agent = {"CLAUDECODE": "1"}
+        no_tty = lambda: False
+        self.assertTrue(runner.wants_handoff(["--for-changes"], agent, no_tty))
+        self.assertFalse(runner.wants_handoff(["--for-changes"], {}, no_tty))
+        self.assertFalse(runner.wants_handoff(["--for-changes"], agent, lambda: True))
+        self.assertFalse(runner.wants_handoff(["--for-changes", "--foreground"],
+                                              agent, no_tty))
+        self.assertFalse(runner.wants_handoff(["--list"], agent, no_tty))
+        child = dict(agent, **{runner.CHILD_ENV: "1"})
+        self.assertFalse(runner.wants_handoff(["--tree"], child, no_tty))
+
+    def test_a_short_run_reads_as_before_with_its_exit_code(self):
+        out = io.StringIO()
+        code = runner.handoff([], window=60, out=out, nap=lambda _s: None)
+        self.assertEqual(code, 2)
+        self.assertIn("name a workflow", out.getvalue())
+        self.assertNotIn(runner.DONE_PREFIX, out.getvalue())
+
+    def test_a_long_run_prints_its_log_and_how_to_wait(self):
+        out = io.StringIO()
+        cmd = [sys.executable, "-c",
+               "import time; print('started', flush=True); time.sleep(5); "
+               f"print('{runner.DONE_PREFIX}0')"]
+        ticks = iter(range(100))
+        code = runner.handoff([], window=1, out=out, clock=lambda: next(ticks),
+                              nap=lambda _s: time.sleep(0.2), cmd=cmd)
+        self.assertEqual(code, runner.HANDED_OFF)
+        text = out.getvalue()
+        self.assertIn("[handed off]", text)
+        log = text.split("Log: ", 1)[1].split()[0]
+        self.assertTrue(os.path.isfile(log))
+        self.assertIn("wait_for.py " + log, text)
+
+    def test_the_child_ends_with_a_line_wait_for_accepts(self):
+        import wait_for
+        self.assertTrue(wait_for.is_marker(runner.DONE_PREFIX + "1", "DONE"))
 
 
 if __name__ == "__main__":
