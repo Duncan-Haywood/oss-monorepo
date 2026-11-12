@@ -3541,3 +3541,50 @@ page errors, no sideways scroll). Not done: the CLI `watch.mjs` has no flag for 
 Next for the watch: a second labelled set to test the hint where it matters (only 23 series and 31 future marks
 here); a budget the person sets in plain terms ("about one alert a month at a daily check" is B = 3.3); the drift model as
 the watch for wandering levels.
+
+## The hint in the CLI watch, and a budget in plain terms (2026-11-12, latest)
+
+Round 6's hint was on the page and the agent tool only; the scheduled watch (`watch.mjs`, the one that runs daily
+in a deployer's own GitHub repository) still needed the person to pick "How eager" by hand. Now:
+
+- `node watch.mjs daily.csv --suggest` replays the history once per setting and prints the same table and
+  suggestion as the page, then stops (no state read or written; `--json` for the numbers).
+- `--detector auto` makes the first run pick the setting from the history by the round 6 rule and store it in the
+  state file as `choice` (detector, setting, budget, the number of points it was picked from, the history rate).
+  Later runs reuse it, so the watch does not switch setting under the person as the series grows; deleting
+  `choice` from the state file picks again. Under 30 points of history (round 6 skipped those series) it keeps
+  Quiet and says why. `advance` now carries `choice` from one state to the next.
+- The budget in plain terms: `--alerts-per 1/month` (also `<n>/week`, `<n>/year`) with `--check-every day`
+  (default; `hour`, `week`), or `--budget <alerts per 100 checks>`. A month is a twelfth of 365.25 days, so one
+  alert a month at a daily check is 3.29 per 100 checks; the default budget, 2 per 100, reads back as "about
+  7.3 alerts a year at a daily check". `budgetFromPlain` and `plainBudgetText` are in `watch-core.mjs`, so the
+  page and agents can use them; `eagernessText` now prints the budget in both forms.
+- The scheduled workflow (`deploy/watch-metric.yml`) and the README `deploy/make-watch-repo.sh` writes suggest
+  `WATCH_OPTIONS="--detector auto --alerts-per 1/month"`.
+
+**What the plain budgets do on TCPD** (round 6's script re-run with the extra budgets via `WATCH_BUDGETS`, deciding
+nothing; output `eval/watch-eagerness-plain.out.txt`; every original row reproduced exactly). Future halves of the
+23 scored series, then the 6 held-out ones:
+
+| budget | as asked | alerts | at a mark | per 1,000 checks | marked changes reached | held out: per 1,000, reached |
+|---|---|---|---|---|---|---|
+| fixed quiet (default) | | 62 | 27 (44%) | 16.0 | 16 of 31 | 22.7, 6 of 9 |
+| 1.64 | 6 a year | 67 | 28 (42%) | 17.3 | 17 of 31 | 22.7, 6 of 9 |
+| 2 (pre-registered default) | about 7 a year | 68 | 28 (41%) | 17.5 | 17 of 31 | 22.7, 6 of 9 |
+| 3.29 | 1 a month | 76 | 34 (45%) | 19.6 | 19 of 31 | 30.6, 6 of 9 |
+| 14.3 | 1 a week | 292 | 74 (25%) | 75.3 | 29 of 31 | 93.5, 9 of 9 |
+| fixed middle | | 107 | 35 (33%) | 27.6 | 23 of 31 | 41.9, 8 of 9 |
+
+Read it as a menu, not a result: "1 a month" reached 19 of 31 future marks at 19.6 alerts per 1,000 checks with the
+best share at a mark of any row (45%), but on the held-out series it sent a third more alerts for the same 6 of 9.
+"1 a week" is close to eager. The budget caps what a setting sent on the history; the future rate came out well under
+it at every budget up to a month (19.6 per 1,000 is about 0.6 a month), because most series are quiet in their second
+half. The shipped default stays 2 per 100, the pre-registered budget.
+
+Tests: `watch-auto.test.mjs` (5): the conversions and their round trip; `--suggest` prints all three settings and the
+plain budget and writes nothing; `--detector auto` picks Eager at a 100-per-100 budget on 150 points, stores it, keeps it
+for 70 one-row runs even when later runs pass a budget that would pick otherwise, and alerts the step at row 200 once;
+under 30 points and over budget it keeps Quiet; bad flags are refused. Run on the Nile (59 then 60 points, 1 a month):
+picked Eager at 2.56 per 100 on the history, recorded 1899 as the baseline, then kept the pick.
+
+Not done: the page's hint button still uses the fixed budget (a plain-terms box is next); no person has used it.
