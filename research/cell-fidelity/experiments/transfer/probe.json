@@ -2,7 +2,7 @@
  "Ecker2015|SPM|2": {
   "ok": true,
   "cycles": 2,
-  "seconds": 0.3520150999999885,
+  "seconds": 0.3742114369999854,
   "error": null,
   "wh_kg": 282.2131835638698,
   "r_min": 1.0,
@@ -14,7 +14,7 @@
  "Ecker2015|SPM|100": {
   "ok": true,
   "cycles": 100,
-  "seconds": 1.4209909879999998,
+  "seconds": 1.528870225999981,
   "error": null,
   "wh_kg": 301.6543486316618,
   "r_min": 1.0,
@@ -26,7 +26,7 @@
  "Ecker2015|SPMe|2": {
   "ok": true,
   "cycles": 2,
-  "seconds": 0.6741399029999968,
+  "seconds": 0.7239370479999252,
   "error": null,
   "wh_kg": 275.3841453555269,
   "r_min": 0.45617703952360267,
@@ -38,7 +38,7 @@
  "Ecker2015|SPMe|100": {
   "ok": true,
   "cycles": 100,
-  "seconds": 3.8928346669999883,
+  "seconds": 3.8714603659998374,
   "error": null,
   "wh_kg": 287.0618988715001,
   "r_min": 0.45616002908817815,
@@ -50,7 +50,7 @@
  "Ecker2015|DFN|2": {
   "ok": true,
   "cycles": 2,
-  "seconds": 0.9502714489999846,
+  "seconds": 0.923876276999863,
   "error": null,
   "wh_kg": 272.0804062796044,
   "r_min": 0.37642298043235445,
@@ -62,7 +62,7 @@
  "Ecker2015|DFN|100": {
   "ok": true,
   "cycles": 100,
-  "seconds": 16.708139481000018,
+  "seconds": 15.007098700000142,
   "error": null,
   "wh_kg": 280.8169082886674,
   "r_min": 0.3764229804323461,
@@ -72,93 +72,105 @@
   ]
  },
  "Ai2020|SPM|2": {
-  "ok": false,
-  "cycles": 0,
-  "seconds": 0.1679723420000414,
-  "error": "KeyError: \"Parameter 'Typical plated lithium concentration [mol.m-3]' not found. 'Typical plated lithium concentration [mol.m-3]' not found. Best matches are ['Bulk solve",
-  "wh_kg": 0.0,
-  "r_min": 0.0,
+  "ok": true,
+  "cycles": 2,
+  "seconds": 0.3677233010000691,
+  "error": null,
+  "wh_kg": 210.51098158423153,
+  "r_min": 1.0,
   "current_A": 3.9677702044790637,
   "copied": [
    "Exchange-current density for plating [A.m-2]",
    "Exchange-current density for stripping [A.m-2]",
+   "Initial plated lithium concentration [mol.m-3]",
    "Lithium plating kinetic rate constant [m.s-1]",
-   "Lithium plating transfer coefficient"
+   "Lithium plating transfer coefficient",
+   "Typical plated lithium concentration [mol.m-3]"
   ]
  },
  "Ai2020|SPM|100": {
-  "ok": false,
-  "cycles": 0,
-  "seconds": 0.14713969700000007,
-  "error": "KeyError: \"Parameter 'Typical plated lithium concentration [mol.m-3]' not found. 'Typical plated lithium concentration [mol.m-3]' not found. Best matches are ['Bulk solve",
-  "wh_kg": 0.0,
-  "r_min": 0.0,
+  "ok": true,
+  "cycles": 100,
+  "seconds": 0.9494787439998618,
+  "error": null,
+  "wh_kg": 119.04902872283151,
+  "r_min": 1.0,
   "current_A": 3.9677702044790637,
   "copied": [
    "Exchange-current density for plating [A.m-2]",
    "Exchange-current density for stripping [A.m-2]",
+   "Initial plated lithium concentration [mol.m-3]",
    "Lithium plating kinetic rate constant [m.s-1]",
-   "Lithium plating transfer coefficient"
+   "Lithium plating transfer coefficient",
+   "Typical plated lithium concentration [mol.m-3]"
   ]
  },
  "Ai2020|SPMe|2": {
-  "ok": false,
-  "cycles": 0,
-  "seconds": 0.17631427599997096,
-  "error": "KeyError: \"Parameter 'Typical plated lithium concentration [mol.m-3]' not found. 'Typical plated lithium concentration [mol.m-3]' not found. Best matches are ['Bulk solve",
-  "wh_kg": 0.0,
-  "r_min": 0.0,
+  "ok": true,
+  "cycles": 2,
+  "seconds": 0.7637537610000891,
+  "error": null,
+  "wh_kg": 23.05751900077532,
+  "r_min": 1.5705036527275646e-10,
   "current_A": 3.9677702044790637,
   "copied": [
    "Exchange-current density for plating [A.m-2]",
    "Exchange-current density for stripping [A.m-2]",
+   "Initial plated lithium concentration [mol.m-3]",
    "Lithium plating kinetic rate constant [m.s-1]",
-   "Lithium plating transfer coefficient"
+   "Lithium plating transfer coefficient",
+   "Typical plated lithium concentration [mol.m-3]"
   ]
  },
  "Ai2020|SPMe|100": {
-  "ok": false,
-  "cycles": 0,
-  "seconds": 0.15044268600001942,
-  "error": "KeyError: \"Parameter 'Typical plated lithium concentration [mol.m-3]' not found. 'Typical plated lithium concentration [mol.m-3]' not found. Best matches are ['Bulk solve",
-  "wh_kg": 0.0,
-  "r_min": 0.0,
+  "ok": true,
+  "cycles": 100,
+  "seconds": 3.136573222000152,
+  "error": null,
+  "wh_kg": 12.220169657751098,
+  "r_min": 1.340056790373142e-12,
   "current_A": 3.9677702044790637,
   "copied": [
    "Exchange-current density for plating [A.m-2]",
    "Exchange-current density for stripping [A.m-2]",
+   "Initial plated lithium concentration [mol.m-3]",
    "Lithium plating kinetic rate constant [m.s-1]",
-   "Lithium plating transfer coefficient"
+   "Lithium plating transfer coefficient",
+   "Typical plated lithium concentration [mol.m-3]"
   ]
  },
  "Ai2020|DFN|2": {
-  "ok": false,
-  "cycles": 0,
-  "seconds": 0.1562437089999662,
-  "error": "KeyError: \"Parameter 'Typical plated lithium concentration [mol.m-3]' not found. 'Typical plated lithium concentration [mol.m-3]' not found. Best matches are ['Bulk solve",
-  "wh_kg": 0.0,
-  "r_min": 0.0,
+  "ok": true,
+  "cycles": 2,
+  "seconds": 1.107026044000122,
+  "error": null,
+  "wh_kg": 126.77467572856673,
+  "r_min": 0.04865649567680194,
   "current_A": 3.9677702044790637,
   "copied": [
    "Exchange-current density for plating [A.m-2]",
    "Exchange-current density for stripping [A.m-2]",
+   "Initial plated lithium concentration [mol.m-3]",
    "Lithium plating kinetic rate constant [m.s-1]",
-   "Lithium plating transfer coefficient"
+   "Lithium plating transfer coefficient",
+   "Typical plated lithium concentration [mol.m-3]"
   ]
  },
  "Ai2020|DFN|100": {
-  "ok": false,
-  "cycles": 0,
-  "seconds": 0.15839435800000956,
-  "error": "KeyError: \"Parameter 'Typical plated lithium concentration [mol.m-3]' not found. 'Typical plated lithium concentration [mol.m-3]' not found. Best matches are ['Bulk solve",
-  "wh_kg": 0.0,
-  "r_min": 0.0,
+  "ok": true,
+  "cycles": 100,
+  "seconds": 18.371677767000165,
+  "error": null,
+  "wh_kg": 73.6812395800359,
+  "r_min": 0.04865649567680194,
   "current_A": 3.9677702044790637,
   "copied": [
    "Exchange-current density for plating [A.m-2]",
    "Exchange-current density for stripping [A.m-2]",
+   "Initial plated lithium concentration [mol.m-3]",
    "Lithium plating kinetic rate constant [m.s-1]",
-   "Lithium plating transfer coefficient"
+   "Lithium plating transfer coefficient",
+   "Typical plated lithium concentration [mol.m-3]"
   ]
  }
 }
