@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
   "errors": [
     "update-rate.test.mjs first draft pinned one simulated series (seed 99) that happened to be among the ~8% S4 misses; replaced with a 20-series coverage check rather than hunting for a seed that passes.",
-    "drift-page.test.mjs pinned drift-view.mjs's imports to two siblings; adding ./update-rate.mjs failed it until the list was extended (with a check that update-rate.mjs itself imports nothing)."
+    "drift-page.test.mjs pinned drift-view.mjs's imports to two siblings; adding ./update-rate.mjs failed it until the list was extended (with a check that update-rate.mjs itself imports nothing).",
+    "CI validate failed: flagships.yaml changepoint-detector next: was 2077 characters (cap 2000); shortened the added clause. portfolio/router/validate.py was not in the local checks run before pushing."
   ],
   "integrity_issues": [
     "Round one's pre-registered rule failed (dating within 5 steps); the description was not shipped on it. Round two (a date range) was pre-registered and committed (9302534ae) after round one's verdict and after a diagnostic on a separate seed (777) showed the misses were early dates; that sequence is stated in the README, the eval header and the post, so a reader can weigh the second round as a revised rule, not a first-try pass.",
