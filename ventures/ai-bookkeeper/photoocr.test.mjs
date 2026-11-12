@@ -39,10 +39,11 @@ test("a photo the reader cannot open is skipped and the rest are read; reader fi
 const A = "KEDAI MAJU\nDate: 05/01/2019\nTotal Amount: 34.00\nCash Received 101.00\nChange : 70.00";
 const B = "KEDAI MAJU\nDate: 05/01/2019\nTotal Amount: 31.00\nCash Received 101.00\nChange : 70.00";
 
-test("each photo is read in both modes, block mode first", async () => {
-  assert.deepEqual(PASSES, ["6", "4"]);
+test("each photo is read in both modes, block mode first; a grey copy at 2,000 px is read again only when the engine makes one", async () => {
+  assert.deepEqual(PASSES, ["6", "4", { psm: "6", grow: 2000 }, { psm: "4", grow: 2000 }]);
   const modes = [];
-  const e = { recognize: async (_f, { psm }) => { modes.push(psm); return psm === "6" ? A : B; }, close() {} };
+  // the engine returns null for a grown pass when the photo is already 2,000 px or more
+  const e = { recognize: async (_f, { psm, grow }) => { if (grow) return null; modes.push(psm); return psm === "6" ? A : B; }, close() {} };
   const r = await readPhotos([png("a.png")], { loadEngine: async () => e });
   assert.deepEqual(modes, ["6", "4"]);
   assert.match(r.text, /Total Amount: 31\.00/);
@@ -90,4 +91,15 @@ test("a photo with no total line says its total is only a guess", () => {
   assert.match(guessedTotal("Cafe\nthank you"), /no total found/);
   // a settled photo with a total line has no note, as before
   assert.equal(settleReadings(["KEDAI MAJU\nTotal 12.00", "KEDAI MAJU\nTotal 12.00"]).note, null);
+});
+
+// Four readings (a small phone photo): the grey copy's readings join the vote.
+test("a small photo is read four times, and the grey copy's readings can outvote the first", async () => {
+  const seen = [];
+  const C = "KEDAI MAJU\nDate: 05/01/2019\nSubtotal 30.00\nTax 1.00\nTOTAL 31.00";
+  const e = { recognize: async (_f, { psm, grow }) => { seen.push(`${psm}${grow ? "g" : ""}`); return grow ? C : "KEDAI MAJU\nDate: 05/01/2019\nSubtotal 30.00\nTax 1.00"; }, close() {} };
+  const r = await readPhotos([png("a.png")], { loadEngine: async () => e });
+  assert.deepEqual(seen, ["6", "4", "6g", "4g"]);
+  assert.match(r.text, /Total 31\.00|TOTAL 31\.00/);
+  assert.match(r.notes[0].note, /31\.00 in 2 of 4 readings; kept 31\.00/);
 });

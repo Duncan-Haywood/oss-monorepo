@@ -101,3 +101,14 @@ test("addReceipts takes two readings of one photo as one receipt", async () => {
   assert.equal(r.added[0].cents, 3100);
   assert.equal(addReceipts(books, [a]).added[0].cents, 3400);
 });
+
+// Three or more readings vote (eval/srd, US phone photos). Receipt text written here.
+test("with four readings the total printed on a total line by most readings wins", () => {
+  const lost = "GREEN FIELD\nSUB TOTAL: 51.90\nTax 1: 4.60";          // big TOTAL line lost: largest amount 51.90
+  const read = "GREEN FIELD\nSUB TOTAL: 51.90\nTax 1: 4.68\nTOTAL: 56.58";
+  const misread = "GREEN FIELD\nSUB TOTAL: 51.90\nTax 1: 4.68\nTOTAL: 56.50";
+  assert.equal(parseReceiptPasses([lost, misread]).cents, 5650);          // two readings: rule unchanged
+  assert.equal(parseReceiptPasses([lost, misread, read, read]).cents, 5658); // two lines and subtotal plus tax
+  // a tie goes to the earlier reading
+  assert.equal(parseReceiptPasses(["Total 12.00", "Total 13.00", "Total 13.00", "Total 12.00"]).cents, 1200);
+});

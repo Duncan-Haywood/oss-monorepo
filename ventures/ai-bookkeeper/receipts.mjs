@@ -400,6 +400,26 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   return out;
 }
 
+// Three or more readings of one photo (the page reads a phone photo four times:
+// two modes, on the photo and on a grey copy at twice the size) vote on the total.
+// Each value scores one point per kind of arithmetic check that gives it, one per
+// reading that read it, and one more per reading that printed it on a total line;
+// a tie goes to the earlier reading. Chosen on the even-numbered half of the 200
+// ExpressExpense photos (eval/srd: 59 to 68 of 99 right) and scored once on the
+// odd half (60 to 66 of 97). With two readings the rule below is unchanged.
+function voteTotal(ps, support) {
+  const votes = new Map();
+  ps.forEach((p, i) => {
+    if (p.cents === null) return;
+    const v = votes.get(p.cents) ?? { score: support(p.cents), first: i };
+    v.score += 1 + (p.totalLine ? 1 : 0);
+    votes.set(p.cents, v);
+  });
+  let win = null;
+  for (const [c, v] of votes) if (!win || v.score > win.score || (v.score === win.score && v.first < win.first)) win = { cents: c, ...v };
+  return win ? ps[win.first] : null;
+}
+
 // One receipt read by OCR more than once (two page-segmentation modes, or two
 // engines): the first reading is the default; a field the readings disagree on
 // takes the reading the receipt's own arithmetic confirms. A total confirmed by
@@ -417,7 +437,8 @@ export function parseReceiptPasses(texts, opts = {}) {
   // picked the wrong reading as often as the right one)
   const support = (c) => new Set(all.filter(([v, w]) => v === c && w !== "another total line").map(([, w]) => w.replace(" plus tax", ""))).size;
   let pick = best;
-  for (const p of ps.slice(1)) if (p.cents !== null && p.cents !== pick.cents && (pick.cents === null || support(p.cents) > support(pick.cents))) pick = p;
+  if (ps.length >= 3) pick = voteTotal(ps, support) ?? best;
+  else for (const p of ps.slice(1)) if (p.cents !== null && p.cents !== pick.cents && (pick.cents === null || support(p.cents) > support(pick.cents))) pick = p;
   const out = { ...best };
   if (pick !== best) {
     Object.assign(out, { cents: pick.cents, taxCents: pick.taxCents, tipCents: pick.tipCents, items: pick.items, itemsOk: pick.itemsOk, taxIncluded: pick.taxIncluded, totalLine: pick.totalLine });
