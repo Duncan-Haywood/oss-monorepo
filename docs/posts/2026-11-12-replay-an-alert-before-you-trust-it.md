@@ -2,7 +2,7 @@
 title: "Replay an alert on your own history before you trust it"
 seo_title: "Test a changepoint alert on past data before turning it on"
 date: 2026-11-12
-description: "The free changepoint watch can now be replayed on a series you paste: which alerts it would have sent, on which day, and how late. On 57 real series a 5-point coarse replay matched 85% of alerts exactly."
+description: "See which alerts the free changepoint watch would have sent on your own history, and how late. A coarse replay matched 85% of alerts on 57 real series."
 tags: [ventures, changepoint-detector, monitoring, alerting, bayesian]
 ---
 

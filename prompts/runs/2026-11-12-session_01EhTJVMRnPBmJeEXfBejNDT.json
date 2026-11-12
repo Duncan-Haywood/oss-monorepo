@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVMRnPBmJeEXfBejNDT",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled routine prompt)",
+  "input_sha256": "ae27643fa8423f5a611327d756eec4166eb2e3c4b4d16b0c31bb3ea2a0232a74",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T12:56:59Z",
+  "ended": "2026-11-12T13:07:40Z",
+  "wall_minutes": 17.59,
+  "tokens_in": 8893013,
+  "tokens_out": 37205,
+  "cost_usd": 3.683,
+  "tool_calls": 71,
+  "task": "Deepen (flagship 4) changepoint-detector: (w) watch on the page and as an agent tool",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15131",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First full suite run: page.test.mjs pinned the page's import list; added ./watch.mjs. Post description over 160 characters, caught by check_post_frontmatter.py, shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "A plain `route` (no --task) drew the research track for a scheduled prompt that asks only for revenue products; the scheduled prompt has to be passed as --task to get ventures. Scheduled routines could pass their own text to route by default."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "sales-agent's BUILDABLE HERE item needs huggingface.co, which answered 403 through the proxy again (third run on 2026-11-12); the allocator picked that row first anyway. A BUILDABLE item behind a host known to be blocked could be marked as such."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The first route drew research; the scheduled prompt asks for revenue-generating products, so I routed with --task and took ventures.",
+      "did": "route --task <scheduled prompt> -> ventures/2",
+      "result": "Landed a ventures flagship slice"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "It picked sales-agent, whose buildable item needs a 14B model from huggingface.co (403 through the proxy). I took the next flagship with buildable work, changepoint-detector item (w).",
+      "did": "Took flagship row 3 instead of row 2",
+      "result": "Slice landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-replay-an-alert-before-you-trust-it.md",
+    "ventures/changepoint-detector/README.md#replaying-the-watch-on-your-own-history-2026-11-12-later"
+  ],
+  "goal": "Let a would-be watch user see, on their own history, what the alert would have sent, before setting it up (conversion path from the free page to the self-deployed watch); also callable by agents.",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py changepoint-detector: 575 of 576 pass before the import-list fix; after it, page/analyze-worker/watch tests 45 of 45 pass. eval/watch-replay-bisect.mjs on 57 real series: the every-point replay sent 141 alerts. A coarse replay matched 120 of them at step 5 and 113 at step 15; the differences come from detections that flicker. Headless Chromium at 390 px: the replay card works on the Nile example with no console errors and no horizontal scroll. Agent call via platform/agents/tools.mjs checked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a9a3f705-6fee-51b1-9c00-aff51e582722",
+    "transcripts": 1,
+    "first": "2026-11-12T12:56:59Z",
+    "last": "2026-11-12T13:14:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 133,
+        "output": 37205,
+        "thinking": 9280,
+        "cache_read": 8744188,
+        "cache_write_5m": 0,
+        "cache_write_1h": 148692,
+        "api_equivalent_usd": 3.683,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 133,
+      "output": 37205,
+      "thinking": 9280,
+      "cache_read": 8744188,
+      "cache_write_5m": 0,
+      "cache_write_1h": 148692,
+      "api_equivalent_usd": 3.683,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 66,
+      "ToolSearch": 2,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.59,
+      "active_minutes": 17.59,
+      "model_minutes": 6.15,
+      "tool_minutes": 11.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior engineer: browser-safe refactor, budgeted replay with bisection, page card, agent tool, a 57-series check and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 271.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
