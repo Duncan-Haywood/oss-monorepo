@@ -1,0 +1,8 @@
+PASS the replay card shows after a one-column run
+PASS a suggestion is shown: Suggested: Middle, the most eager setting that stayed at or under 2 alerts per 100 checks on this history.
+PASS the table has a header and three settings: Quiet11.36 | Middle (suggested)11.35 | Eager22.58
+PASS the note gives the evidence and says it is not a promise
+PASS "Use ..." sets the watch card's How eager: Use Middle for the watch below -> Middle (more real changes, about twice the false alerts)
+PASS watch_eagerness counted locally: {"example_loaded":1,"analysis_run":1,"agreed_run":1,"watch_eagerness":1}
+PASS no horizontal scroll at 390 px
+PASS no page errors
