@@ -295,6 +295,28 @@ def test_e18_afp_fitting_claims_reproduce():
     assert k("GodNecExists_v1 (de dicto)", "III-noA4")["fail"] > 0
     assert k("GodNecExists_v1 (de dicto)", "III-noA4", "S5")["fail"] == 0
 
+
+def test_e19_afp_anderson_claims_and_frame_conditions():
+    """AFP AndersonProof theorems hold at their stages; symmetry is what the conclusion needs."""
+    e19 = _load("e19_afp_anderson")
+    res = e19.run([(1, 2, "all", 9), (2, 1, "all", 9), (2, 2, "all", 9), (3, 1, "all", 9)])
+    agg = e19.summary(res)
+    bad = lambda name, st, cls: sum(agg[(name, st)].get(cls, [0, 0, 0, 0])[0::2])
+    names = {n.split(":")[0]: n for n, *_ in e19.WORLD + e19.GLOBAL}
+    for st in ("III", "III-noA4"):
+        for cls in ("KB", "B", "S5"):          # symmetric frames: the conclusion always holds
+            assert bad(names["GodNecExists"], st, cls) == 0
+        assert bad(names["GodNecExists"], st, "S4") > 0     # reflexive + transitive is not enough
+    for cls in e19.ORDER:
+        if cls in ("T", "B", "S4", "S5", "KB"):    # reflexive or symmetric (Lean: essential_*)
+            assert bad(names["GodIsEssential"], "II", cls) == 0
+        assert bad(names["T3"], "I", cls) == 0
+    assert bad(names["A4b"], "II", "S4") > 0 and bad(names["A4b"], "II", "B") == 0
+    assert res["e12"]["agree_III"] == res["e12"]["frames"] > 0
+    assert res["smallest"]["modal collapse|III|S5"]["worlds"] == 2
+    assert res["smallest"]["modal collapse|III|S5"]["individuals"] == 1
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
