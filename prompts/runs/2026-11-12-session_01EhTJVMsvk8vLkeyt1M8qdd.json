@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVMsvk8vLkeyt1M8qdd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T19:09:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 7 (photo-editing): its BUILDABLE HERE item, FixVignetteRadial and MapPolynomial DNG opcodes on synthetic files, then look for a camera DNG carrying them.",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": 15225,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Allocator's start-here row was einvoice-preflight, which had 108 commits in 7 days and a merge 0.1 h before this run, and whose open items mostly need real outside files. I took photo-editing (row 6) instead: it had no open PR and a concrete BUILDABLE HERE item.",
+      "did": "took flagship 7",
+      "result": "slice landed; buildable/next rewritten"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-two-more-instructions-a-raw-file-can-carry.md",
+    "ventures/photo-editing/eval/vignette-polynomial-2026-11-12.md"
+  ],
+  "goal": "Run two more DNG opcodes correctly on both engines, checked against closed forms.",
+  "notes": "Local verification: python3 platform/ci/run_venture_tests.py photo-editing. The first run failed 1 of 720 tests (test_dng_opcodes expected FixVignetteRadial to be named and skipped). I switched that test to WarpFisheye; the rerun result is below. New file: 13/13 pass on Python 3.13 with numpy. The camera-file search was name probes only (api.github.com trees and github.com tree pages return 403); 39 names are listed in the eval doc.",
+  "corrections": [],
+  "redteam": null
+}
