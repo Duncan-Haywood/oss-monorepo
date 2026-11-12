@@ -83,6 +83,8 @@ export const JOB_PRESETS = Object.freeze([
 ]);
 
 function number(value, name, { min = 0, allowZero = true } = {}) {
+  // Number('') is 0: a cleared field must not price the job as free (quality audit 2026-11-12)
+  if (value == null || (typeof value === 'string' && value.trim() === '')) throw new Error(`${name} is blank`);
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
   if (result < min) throw new Error(`${name} must be at least ${min}`);

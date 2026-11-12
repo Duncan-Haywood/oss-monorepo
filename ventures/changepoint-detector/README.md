@@ -2995,3 +2995,57 @@ segment) now fail the same frozen-juice bar, so the sticky-series warning's advi
 ends of flat runs against the raw data) stands. A per-segment stale rate may still be worth showing as a
 *description* ("this series began updating less often here"), which is a different product question
 from finding level changes. Test: `drift-stale-segment.test.mjs`.
+
+## When a series starts updating less often (2026-11-12, pre-registered; ships as a description)
+
+"A stale probability per segment" left one product idea: the drift model's per-segment stale rate dated a
+pure change in stickiness 103 times in 120, but did nothing for level changes, so it could only be worth
+showing as a *description*. That is now a separate pass, `update-rate.mjs`, apart from any level model:
+optimal partitioning (PELT) of the 0/1 indicators "this step repeats the previous value exactly", each
+stretch with its own repeat behaviour. A stretch is a two-state chain (P(repeat | the last step repeated),
+P(repeat | it updated)), so a quote that sits for months, which makes long flat runs, is not read as a
+change of rate. Missing values never count as repeats. It runs only with 10 or more repeats.
+
+**Round one: cost and penalty** (`eval/update-rate-sim.mjs`, `.out.txt`; rule in its header, committed in
+27308c125 before any run). On a calibration seed, independent-repeat costs needed 4 x 2 log n to keep
+false changes at or under 0.05 a series once flat runs clump (at 2 log n they reported 2.1 to 6.9 false
+changes a series on clumped chains), while the chain cost met it at 2 x 2 log n and found more, so that
+was chosen. On the confirmation seed false changes stayed at or under 0.005 a series in all 18
+no-change cells (repeat shares 10% to 60%, independent and clumped, n 100 to 600), but the rule also asked
+for a date within 5 steps: **S1 (10% to 60% repeats) 179 of 200, needed 180; S4 (a clumped stale feed
+fixed to 5% repeats) 121 of 200, needed 150. Fails, so it did not ship.** A diagnostic on another seed
+(not a decision input) showed why S4 fell short: only 16 of 200 had no change at all, 49 were dated 6 to
+20 steps early. In a clumped chain the last flat run before the switch ends at random, so the data do not
+say to the step when the rate changed.
+
+**Round two: a date range** (`eval/update-rate-range.mjs`, `.out.txt`; rule committed in 9302534ae after
+round one's verdict and before the range ran). Each change gets every position between its neighbours
+whose two-stretch cost is within a slack of the best. The slack was chosen on seed 20261203 as the
+smallest of {2, 3.84, 6, 9, 2 log n} with coverage 0.90 in every power cell (9; 6 gave 0.89 on S4), then
+checked on fresh seeds:
+
+| confirmation (200 series a cell) | result | rule |
+|---|---|---|
+| no-change cells, worst mean false changes | 0.010 | <= 0.10, pass |
+| S1, 10% to 60% repeats: range holds the switch | 200 of 200, median width 17 steps | >= 170, pass |
+| S4, clumped stale feed fixed: range holds the switch | 181 of 200 (a change found in 185), width 44 | >= 150, pass |
+| S2, 20% to 50% / S3, 40% to 10% (descriptive) | 172 of 200 / 197 of 200 | |
+
+**Verdict: ships.** `--model drift` (CLI text and JSON field `updateRate`), the page's "Read with care"
+notes and the branded drift report now say, when it finds one, "from about X (between A and B) it began
+updating less often (repeats p% of steps before, q% after)", and that jumps near those dates may be
+catch-ups after a stale stretch.
+
+**On real series** (`eval/update-rate-real.mjs`, `.out.txt`, run after the verdict, descriptive; no labels
+exist for this). Of 38 TCPD series it runs on 6 and speaks on 3: children per woman (37% repeats, then 5%
+from row 108, then 59% from row 255, the stretch where the series reads as projected), scanline 42049 (six
+switches between about 10% and 80 to 86% repeats, the image row's flat bright bands) and measles (6% to
+0% from row 519). It stays silent on `bank` (42%) and ratner_stock (23%), sticky at a steady rate. On
+Florida frozen orange juice it says repeats fell from **60% of months before about 1981-08 (between
+1980-09 and 1982-04) to 12% after**. Whatever changed in how that price was collected, a reader looking
+for freezes before 1981 should know that most months then were carried forward, which is why four
+repeat models lost the smaller early freezes. Test: `update-rate.test.mjs` (pruning against exhaustive
+search, the committed verdicts, the juice description and its wording in the CLI and page notes).
+
+Next: show it beside the other models too (it depends only on the values), and a long series with a
+documented change in collection to check a date against.

@@ -21,13 +21,16 @@ Scope, stated plainly:
   (repeat pattern and per-row/column deltas), white level, active area, default
   crop, as-shot white balance (``AsShotNeutral``), the camera colour matrix,
   ``BaselineExposure`` and the IFD0 orientation.
-* Colour: the camera matrix nearest D65 (``ColorMatrix2`` when its
-  ``CalibrationIlluminant2`` is D65 or daylight, else ``ColorMatrix1``) taken
-  through sRGB primaries with each row normalised, so a white-balanced neutral
-  stays neutral (the method dcraw uses). Matrices are not interpolated by
-  colour temperature, and ``ForwardMatrix``, ``CameraCalibration`` and the
-  profile hue/sat maps are ignored. Expect hues close to, not identical to,
-  Adobe's rendering.
+* Colour (default ``colour="dng"``, since 2026-11-12): the DNG
+  specification's model in ``dng_colour``: the as-shot white found from
+  ``AsShotNeutral`` (or ``AsShotWhiteXY``), ``ColorMatrix``,
+  ``CameraCalibration`` and ``ForwardMatrix`` interpolated in mired between
+  the two calibration illuminants, ``AnalogBalance``, then XYZ D50 to sRGB
+  through Bradford. ``colour="dcraw"`` keeps the earlier method: the matrix
+  nearest D65 (``ColorMatrix2`` when its ``CalibrationIlluminant2`` is D65 or
+  daylight, else ``ColorMatrix1``) through sRGB primaries with each row
+  normalised and white balance in camera space, which is what dcraw and
+  LibRaw do. The profile hue/sat and look tables are ignored either way.
 * Demosaic: bilinear (each missing colour is the mean of the same-colour
   sensels in the 3x3 neighbourhood) at full size, or ``half`` (each 2x2 block
   becomes one pixel, no interpolation, a quarter of the pixels).
@@ -54,6 +57,8 @@ from dataclasses import dataclass, field
 from itertools import accumulate
 from operator import add
 from pathlib import Path
+
+from shootflow import dng_colour as dc
 
 # --------------------------------------------------------------------------
 # TIFF / DNG container
@@ -92,12 +97,19 @@ TAG_CROP_ORIGIN = 50719
 TAG_CROP_SIZE = 50720
 TAG_COLOR_MATRIX_1 = 50721
 TAG_COLOR_MATRIX_2 = 50722
+TAG_CAMERA_CALIBRATION_1 = 50723
+TAG_CAMERA_CALIBRATION_2 = 50724
+TAG_ANALOG_BALANCE = 50727
 TAG_AS_SHOT_NEUTRAL = 50728
 TAG_AS_SHOT_WHITE_XY = 50729
 TAG_BASELINE_EXPOSURE = 50730
 TAG_ILLUMINANT_1 = 50778
 TAG_ILLUMINANT_2 = 50779
 TAG_ACTIVE_AREA = 50829
+TAG_CAMERA_CALIBRATION_SIGNATURE = 50931
+TAG_PROFILE_CALIBRATION_SIGNATURE = 50932
+TAG_FORWARD_MATRIX_1 = 50964
+TAG_FORWARD_MATRIX_2 = 50965
 
 PHOTOMETRIC_CFA = 32803
 PHOTOMETRIC_LINEAR_RAW = 34892
@@ -964,6 +976,9 @@ class DevelopSettings:
     # "auto": the numpy engine when numpy is importable, else pure Python;
     # "python" or "numpy" to choose. Both give the same bytes (raw_develop_np).
     engine: str = "auto"
+    # "dng": the DNG specification's colour model (dng_colour); "dcraw": one
+    # matrix nearest D65 and camera-space white balance, as dcraw and LibRaw.
+    colour: str = "dng"
 
 
 @dataclass
@@ -979,6 +994,9 @@ class DevelopReport:
     clipped_fraction: float
     notes: list[str] = field(default_factory=list)
     engine: str = "python"
+    colour: str = "dcraw"
+    white_xy: tuple[float, float] | None = None  # as-shot white chromaticity (dng colour)
+    cct: float | None = None  # its correlated colour temperature, kelvin
 
 
 def _cfa_pattern(ifd: Ifd) -> tuple[int, int, int, int]:
@@ -1020,6 +1038,82 @@ def _colour_matrix(ifd0: Ifd, ifd: Ifd, notes: list[str]):
             raise DevelopError("camera colour matrix row sums to zero")
         normalised.append(tuple(v / s for v in row))
     return _inverse3(tuple(normalised)), name
+
+
+_SRGB_WHITE_XY = dc.xyz_to_xy(dc.apply(_XYZ_TO_SRGB_D65, (1.0, 1.0, 1.0)))
+# XYZ (D50 white) to linear sRGB (D65 white): Bradford, then the sRGB primaries.
+_XYZ_D50_TO_SRGB = dc.matmul(_inverse3(_XYZ_TO_SRGB_D65), dc.bradford(dc.D50_XY, _SRGB_WHITE_XY))
+
+
+def _profile(ifd0: Ifd, ifd: Ifd) -> dc.Profile | None:
+    """The file's colour tags (raw IFD first, then IFD0); None without a ColorMatrix."""
+
+    def tag(t):
+        return ifd.get(t) or ifd0.get(t)
+
+    try:
+        cm1, cm2 = dc.as_matrix(tag(TAG_COLOR_MATRIX_1)), dc.as_matrix(tag(TAG_COLOR_MATRIX_2))
+        if cm1 is None and cm2 is None:
+            return None
+        if cm1 is None:
+            cm1, cm2, ill1, ill2 = cm2, None, (tag(TAG_ILLUMINANT_2) or (0,))[0], 0
+            cc1, cc2 = dc.as_matrix(tag(TAG_CAMERA_CALIBRATION_2)), None
+            fm1, fm2 = dc.as_matrix(tag(TAG_FORWARD_MATRIX_2)), None
+        else:
+            ill1, ill2 = (tag(TAG_ILLUMINANT_1) or (0,))[0], (tag(TAG_ILLUMINANT_2) or (0,))[0]
+            cc1, cc2 = dc.as_matrix(tag(TAG_CAMERA_CALIBRATION_1)), dc.as_matrix(tag(TAG_CAMERA_CALIBRATION_2))
+            fm1, fm2 = dc.as_matrix(tag(TAG_FORWARD_MATRIX_1)), dc.as_matrix(tag(TAG_FORWARD_MATRIX_2))
+    except dc.ColourError as exc:
+        raise DevelopError(str(exc)) from None
+    ab = tag(TAG_ANALOG_BALANCE)
+    sig_cam = bytes(tag(TAG_CAMERA_CALIBRATION_SIGNATURE) or b"").rstrip(b"\0")
+    sig_prof = bytes(tag(TAG_PROFILE_CALIBRATION_SIGNATURE) or b"").rstrip(b"\0")
+    return dc.Profile(
+        color_matrix_1=cm1,
+        color_matrix_2=cm2,
+        illuminant_1=int(ill1),
+        illuminant_2=int(ill2),
+        camera_calibration_1=cc1,
+        camera_calibration_2=cc2,
+        forward_matrix_1=fm1,
+        forward_matrix_2=fm2,
+        analog_balance=(float(ab[0]), float(ab[1]), float(ab[2])) if ab and len(ab) >= 3 and min(ab[:3]) > 0 else (1.0, 1.0, 1.0),
+        use_calibration=sig_cam == sig_prof,
+    )
+
+
+def _dng_colour(profile: dc.Profile, neutral_hat, white_xy, notes: list[str]):
+    """Matrix from white-balanced camera RGB to linear sRGB, by the DNG model.
+
+    ``neutral_hat`` is the camera neutral scaled to a largest value of 1; the
+    developer multiplies sensels by ``1 / neutral_hat`` before this matrix, so
+    the matrix takes back that scaling: ``sRGB = XYZ_D50->sRGB *
+    CameraToXYZ_D50 * diag(neutral_hat)``. A white-balanced (1, 1, 1) is
+    the neutral and renders as sRGB white.
+    """
+
+    try:
+        cam_xyz, xy, cct, used_fm = profile.camera_to_xyz_d50(neutral_hat, white_xy)
+    except dc.ColourError as exc:
+        raise DevelopError(str(exc)) from None
+    m = dc.matmul(dc.matmul(_XYZ_D50_TO_SRGB, cam_xyz), dc.diag(neutral_hat))
+    base = "ForwardMatrix" if used_fm else "ColorMatrix"
+    t1 = dc.ILLUMINANT_CCT.get(profile.illuminant_1, 0.0)
+    if profile.color_matrix_2 is not None and profile._pair() is not None:
+        g = profile.weight(cct)
+        # Within 0.05% of one end (a white a few kelvin off the illuminant's
+        # nominal temperature) the name says that end.
+        which = "1" if g >= 0.9995 else ("2" if g <= 0.0005 else "1+2")
+        name = f"{base}{which} at {cct:.0f} K"
+    else:
+        name = f"{base}1"
+        if profile.color_matrix_2 is not None:
+            notes.append("calibration illuminants unknown or equal: ColorMatrix1 used alone")
+        elif t1:
+            name += f" ({dc.illuminant_name(profile.illuminant_1)})"
+    if not profile.use_calibration and (profile.camera_calibration_1 or profile.camera_calibration_2):
+        notes.append("CameraCalibration ignored: its signature does not match the profile's")
+    return m, name, xy, cct
 
 
 def _levels(raw: RawImage, top: int, left: int, h: int, w: int, colours: int):
@@ -1080,7 +1174,25 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     h, w = bottom - top, right - left
     lin, black, dh, dv, white, rr, rc = _levels(raw, top, left, h, w, 3)
 
+    if settings.colour not in ("dng", "dcraw"):
+        raise DevelopError(f"unknown colour model {settings.colour!r} (dng or dcraw)")
     neutral = ifd.get(TAG_AS_SHOT_NEUTRAL) or ifd0.get(TAG_AS_SHOT_NEUTRAL)
+    white_xy_tag = ifd.get(TAG_AS_SHOT_WHITE_XY) or ifd0.get(TAG_AS_SHOT_WHITE_XY)
+    profile = _profile(ifd0, ifd) if settings.colour == "dng" else None
+    given_xy = None
+    if (
+        profile is not None
+        and settings.white_balance is None
+        and not (neutral and len(neutral) >= 3 and min(neutral[:3]) > 0)
+        and white_xy_tag
+        and len(white_xy_tag) >= 2
+    ):
+        # AsShotWhiteXY: the white is known; its camera neutral follows from the profile.
+        given_xy = (float(white_xy_tag[0]), float(white_xy_tag[1]))
+        try:
+            neutral = profile.xy_to_neutral(given_xy)
+        except dc.ColourError as exc:
+            raise DevelopError(str(exc)) from None
     if settings.white_balance is not None:
         wb = tuple(float(v) for v in settings.white_balance)
     elif neutral and len(neutral) >= 3 and min(neutral[:3]) > 0:
@@ -1090,10 +1202,20 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     else:
         wb = (1.0, 1.0, 1.0)
         if ifd.get(TAG_AS_SHOT_WHITE_XY) or ifd0.get(TAG_AS_SHOT_WHITE_XY):
-            notes.append("AsShotWhiteXY is not used; rendered without white balance")
+            notes.append("AsShotWhiteXY is used only by the dng colour model; rendered without white balance")
         else:
             notes.append("no AsShotNeutral; rendered without white balance")
-    rgb_cam, matrix_name = _colour_matrix(ifd0, ifd, notes)
+    white_xy = cct = None
+    if profile is not None:
+        lo_wb = min(wb)
+        neutral_hat = tuple(lo_wb / v for v in wb)
+        rgb_cam, matrix_name, white_xy, cct = _dng_colour(
+            profile, neutral_hat, given_xy if settings.white_balance is None else None, notes
+        )
+        colour_model = "dng"
+    else:
+        rgb_cam, matrix_name = _colour_matrix(ifd0, ifd, notes)
+        colour_model = "dcraw"
     ev = settings.exposure_ev
     if settings.use_baseline_exposure:
         base = ifd0.get(TAG_BASELINE_EXPOSURE) or ifd.get(TAG_BASELINE_EXPOSURE)
@@ -1181,6 +1303,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     if np_engine is not None:
         return _develop_numpy(
             np_engine, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name,
+            colour=(colour_model, white_xy, cct),
             vals=vals, rw=rw, top=top, left=left, w=w, h=h, spp=spp, lin=lin, black_=black, span=span,
             dh=dh, dv=dv, rr=rr, rc=rc, caplines=caplines, linear_raw=linear_raw, pat=pat,
             half=settings.half, mults=(wbr, wbg, wbb), hi=hi, m=m, curve=curve, lut_size=lut_size,
@@ -1248,6 +1371,9 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         exposure_ev=round(ev, 3),
         clipped_fraction=round(clipped / total, 6),
         notes=notes,
+        colour=colour_model,
+        white_xy=None if white_xy is None else (round(white_xy[0], 5), round(white_xy[1], 5)),
+        cct=None if cct is None else round(cct, 1),
     )
     return report_w, report_h, out, report
 
@@ -1264,8 +1390,10 @@ def _numpy_engine(engine: str):
     return raw_develop_np
 
 
-def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name, **kw):
+def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name, colour, **kw):
     """``develop``'s rendering half on the numpy engine; same bytes as the pure path."""
+
+    colour_model, white_xy, cct = colour
 
     black_ = kw.pop("black_")
     pixels, ow, oh, clipped = eng.render(black=black_, **kw)
@@ -1301,6 +1429,9 @@ def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, c
         clipped_fraction=round(clipped / total, 6),
         notes=notes,
         engine="numpy",
+        colour=colour_model,
+        white_xy=None if white_xy is None else (round(white_xy[0], 5), round(white_xy[1], 5)),
+        cct=None if cct is None else round(cct, 1),
     )
     return report_w, report_h, eng.to_array(pixels), report
 

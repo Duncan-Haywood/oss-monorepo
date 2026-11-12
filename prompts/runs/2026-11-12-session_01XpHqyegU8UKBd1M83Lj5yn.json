@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyegU8UKBd1M83Lj5yn",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T02:38:55Z",
+  "ended": "2026-11-12T02:46:03Z",
+  "wall_minutes": 7.37,
+  "tokens_in": 9035965,
+  "tokens_out": 110730,
+  "cost_usd": 6.6037,
+  "tool_calls": 109,
+  "task": "quality round 43 (mode sample, seed 2026-11-12-b)",
+  "projects": [
+    "ventures/veterinary-wellness-plan-pricing-calculator",
+    "ventures/asphalt-driveway-pave-bid-calculator",
+    "research/osrobot-weedsrc",
+    "research/tangent-log"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14975",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "Four auditor subagents shared one checkout; the asphalt auditor hit one git index.lock collision during mutation runs and re-ran those mutations (it confirmed calc.mjs reverted each time)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Parallel per-subject auditors all seed mutations in the same working tree, so one auditor sees another's temporary edits (weedsrc model.py appeared modified to the asphalt auditor) and git locks collide; suggesting isolation: worktree per auditor, or mutating a copy, would remove that."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-quality-audit-round-43.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-12-b (round 42 had used 2026-11-12). Subjects: ventures/veterinary-wellness-plan-pricing-calculator, ventures/asphalt-driveway-pave-bid-calculator, research/osrobot-weedsrc, research/tangent-log; no flagship or platform drawn (skip windows). Share meeting the bar this round: 0 of 4; cumulative sampled 28 of 186 (Wilson 11%-21%). Mutations caught 3/6, 9/9, 1/5, 7/8. Spot-checks I re-ran myself: vet fee 42.615 at discount 0/15/90 (defect confirmed) and hand formula; asphalt fabric preset 8896.28/10801.42 vs page 8714.45/10619.59; tangent-log excess 0.00235 vs pR_eps 0.0102; weedsrc TREAT_OK inversion, queue max and hidden mutations now all caught by the new tests. Local checks: vet node --test 20/20, asphalt 150/150, weedsrc unittest 9 OK, tangent-log 6 OK and run.py output identical to results.txt, quality_audit.py validate 0 problems. Fix PR: #14975 (same PR). No agent doc in docs/reports: the audit files and post carry everything the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a3a7f90a-8376-570c-8a4f-69ce15ac73b5",
+    "transcripts": 5,
+    "first": "2026-11-12T02:38:55Z",
+    "last": "2026-11-12T02:46:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 104,
+        "input": 210,
+        "output": 110730,
+        "thinking": 30160,
+        "cache_read": 8573566,
+        "cache_write_5m": 341312,
+        "cache_write_1h": 120877,
+        "api_equivalent_usd": 6.6037,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 104,
+      "input": 210,
+      "output": 110730,
+      "thinking": 30160,
+      "cache_read": 8573566,
+      "cache_write_5m": 341312,
+      "cache_write_1h": 120877,
+      "api_equivalent_usd": 6.6037,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.949,
+    "tool_calls": 109,
+    "tools": {
+      "Bash": 93,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "ReadNotifications": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.37,
+      "active_minutes": 4.7,
+      "model_minutes": 4.18,
+      "tool_minutes": 0.52,
+      "waiting_on_human_minutes": 2.67,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 13.64
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "four subject audits with independent recomputation and mutation testing (~2h each) plus fixes and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 151.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

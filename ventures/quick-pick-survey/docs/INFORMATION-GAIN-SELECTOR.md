@@ -1599,3 +1599,106 @@ Caveats: the timing model is invented; no real answer times from this
 product exist yet. The first real survey's `msToAnswer` should be checked
 against it: the spread of honest paces (the 0.4 and 0.6 here), whether people
 slow on close pairs, and whether out-of-step respondents are in fact quicker.
+
+
+## Per-person intervals from a refit (2026-11-12, shipped on the insights screen)
+
+The Glicko lapse section above left one gap no lapse term closes: for an
+honest respondent the staged selector's 95% pairwise intervals held only about
+90% of the time (shipped 97%). The cause is the update, not the answers:
+Glicko-2 processes one game at a time against the opponent's point rating,
+and the information selector asks exactly the pairs the current ratings call
+even, so each answer is booked at the maximum information a game can carry
+while the pair's real gap is not even. A posterior computed from all of a
+person's answers at once does not have that problem: by the likelihood
+principle an adaptive design changes which answers arrive, not what they mean.
+
+**The refit** (`src/lib/btRefit.ts`, tests in `btRefit.test.ts`). Bradley-Terry
+with the Glicko-2 link (g = 1) and an independent N(0, phi0^2) prior per item,
+phi0 = 350 / 173.7 (the Glicko starting rd, so an unseen item reads as it does
+today); Newton's method to the mode, covariance from the inverse negative
+Hessian (Laplace). Ties ("about equal") count as half a win each way, the
+convention Glicko's score of 0.5 follows. The tests check the mode against a
+finite-difference gradient and the covariance against a finite-difference
+Hessian. Cost: 18 ms at 50 items and 3000 answers, 34 ms at 200, 190 ms at
+400; callers fall back to the stored states past `REFIT_MAX_ITEMS` = 300.
+
+**Coverage and width** (`scripts/refit-coverage-sweep.ts`, synthetic
+respondent of `infoGainSim.ts`; 8, 15 and 30 items x 2, 4 and 8 answers per
+item, 60 respondents per cell, seed sets from 1000 and 50000;
+`docs/refit-coverage-2026-11-12.jsonl`). "Refit, marginal" treats the two
+items as independent (what a stored per-item rd can carry); "refit, full"
+uses Var(a - b) with the covariance term. Means over the 9 cells, honest
+respondent (run 1 / run 2):
+
+| selector | 95% coverage: Glicko | refit, marginal | refit, full | half-width: Glicko | refit, marginal | refit, full | rank accuracy: Glicko / refit |
+|---|---|---|---|---|---|---|---|
+| staged | 0.910 / 0.904 | 0.971 / 0.972 | 0.947 / 0.947 | 2.35 | 2.75 | 2.34 | 0.788 / 0.791, 0.784 / 0.788 |
+| shipped | 0.972 / 0.971 | 0.989 / 0.990 | 0.968 / 0.972 | 2.62 | 2.82 | 2.42-2.43 | 0.758 / 0.767, 0.764 / 0.772 |
+| random pair | 0.975 / 0.977 | 0.989 / 0.990 | 0.972 / 0.975 | 2.68-2.69 | 2.87 | 2.49 | 0.744 / 0.759, 0.753 / 0.763 |
+
+For staged the refit's full-covariance intervals reach nominal at the same
+width as Glicko's (worst cell 0.88 / 0.87 against 0.82 / 0.80); for shipped
+and random pairs they keep Glicko's coverage 7-8% narrower. Rank accuracy is
+never worse by more than 0.02 in any of the 216 selector-cells and better by
+more than 0.02 in up to 3 cells per lapse for shipped and random. Restricted
+to pairs the person was actually asked, staged's coverage is 0.94 for Glicko
+and 0.96 for the refit, so most of Glicko's miss sits on pairs it never asked,
+whose difference it can only read from two independent rds.
+
+With careless answers neither is calibrated, since both assume none: at a
+true lapse of 0.2 staged reads Glicko 0.859 / 0.856 against refit 0.899 /
+0.899; shipped reads 0.944 / 0.948 against 0.919 / 0.933, and at 0.35 shipped
+reads 0.905 / 0.923 against 0.872 / 0.895 (the refit's narrower intervals cost
+it there).
+
+**Not for the couple bar or the selector.** The refit's marginal rd is wider
+than Glicko's, so the couple screen's bar (min(8, items) items under rd 200)
+would take longer (`--couple-bar`, median / p90 answers, 40 respondents):
+staged 8 items 19 / 20 to 31 / 63, 15 items 27 / 27 to 32 / 34, 30 items
+35 / 35 to 41 / 45; shipped 8 items 26 / 31 to 30 / 69. The stored states
+stay what the selector and the couple bar read; the refit is for reporting.
+
+## The clear-top-pick claim (2026-11-12, shipped)
+
+The insights screen's "top pick" and "bottom pick" cards called the leader
+clear when it was ahead of the runner-up by more than half its own rd, and
+otherwise said "still too close to call: it's between X, Y, Z". Measured on
+the same synthetic respondents (`scripts/clear-pick-sweep.ts`, 8/15/30 items x
+2/4/8 answers per item, 60 respondents per cell, 540 per row;
+`docs/clear-pick-2026-11-12.jsonl`), as the share of respondents the claim
+fires for and the share of those claims naming an item that is not the
+person's true favourite (run 1 / run 2):
+
+| truth spread, lapse | selector | old rule fires / wrong | highest-rated item wrong | z = 1 fires / wrong | z = 1.645 fires / wrong |
+|---|---|---|---|---|---|
+| 1, 0 | staged | 0.76 / 0.58, 0.78 / 0.57 | 0.59, 0.59 | 0.15 / 0.45, 0.15 / 0.32 | 0.022 / 0.17, 0.019 / 0.20 |
+| 1, 0 | shipped | 0.44 / 0.52, 0.45 / 0.50 | 0.63, 0.62 | 0.07 / 0.33, 0.10 / 0.27 | 0.006 / 0, 0.011 / 0.33 |
+| 1, 0.2 | staged | 0.77 / 0.70, 0.76 / 0.63 | 0.71, 0.66 | 0.17 / 0.57, 0.13 / 0.44 | 0.015 / 0.38, 0.015 / 0.38 |
+| 2, 0 | staged | 0.78 / 0.46, 0.78 / 0.42 | 0.50, 0.45 | 0.19 / 0.24, 0.20 / 0.25 | 0.041 / 0.05, 0.033 / 0.11 |
+
+(z rules: the refit's leader beats every other item by more than z sd of the
+difference, full covariance; comparing with the runner-up only moved nothing
+by more than 0.03. Spread 2 is a respondent with twice as strong likes and
+dislikes.)
+
+**Reading.** The old rule was close to no rule: three staged respondents in
+four were told they had a clear favourite, and that favourite was wrong about
+as often as simply naming the highest-rated item. At the lengths people answer
+here, the top two items of a list are usually too close for their answers to
+separate. **Shipped:** the route now refits each person's answers and calls a
+pick clear only when it beats every other item by 1.645 sd of the difference
+(`src/lib/clearPick.ts`, one-sided 95%; the same rule for the bottom pick).
+It fires rarely (2-4% of staged respondents), and its claims are wrong 5-20% of
+the time on 10-22 claims per row, so those rates are rough. Everyone else sees the card's
+existing "it's between X, Y, Z" line, which is true. Pinned by
+`src/app/api/insights/clearPick.integration.test.ts`, which fails on the old
+route (stored ratings 40 points apart at rd 70 with answers that do not back
+them: claimed clear before, contested now).
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth; 30 items or
+fewer; no real pairwise answers; the z = 1.645 wrong-claim rates rest on few
+claims. Next: whether the "between X, Y, Z" list holds the true favourite (a
+top-3 credible set from the refit is the natural replacement for "the three
+highest"), and the PrefLib panels (`scripts/real-rankings-eval.ts`) through the
+refit.

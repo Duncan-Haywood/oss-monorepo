@@ -1,0 +1,47 @@
+TCPD, one-dimensional series (labels are row indexes)
+bank                       n   581  repeats  246 ( 42%)  no change of update rate
+brent_spot                 n   500  repeats    2 (  0%)  no change of update rate (under 10 repeats: not run)
+businv                     n   330  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+centralia                  n    15  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+children_per_woman         n   301  repeats   75 ( 25%)  2 change(s): 108 [46..119] more often; 255 [236..258] less often
+                            stretches: 1..107 37% | 108..254 5% | 255..300 59%
+co2_canada                 n   215  repeats    7 (  3%)  no change of update rate (under 10 repeats: not run)
+construction               n   319  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+debt_ireland               n    21  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+gdp_argentina              n    59  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+gdp_croatia                n    24  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+gdp_iran                   n    58  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+gdp_japan                  n    58  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+global_co2                 n   104  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+homeruns                   n   118  repeats    1 (  1%)  no change of update rate (under 10 repeats: not run)
+jfk_passengers             n   468  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+lga_passengers             n   468  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+nile                       n   100  repeats    1 (  1%)  no change of update rate (under 10 repeats: not run)
+ozone                      n    54  repeats    1 (  2%)  no change of update rate (under 10 repeats: not run)
+quality_control_1          n   313  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+quality_control_2          n   283  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+quality_control_3          n   366  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+quality_control_4          n   500  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+quality_control_5          n   325  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+rail_lines                 n    37  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+seatbelts                  n   192  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+shanghai_license           n   205  repeats    1 (  0%)  no change of update rate (under 10 repeats: not run)
+uk_coal_employ             n   105  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+unemployment_nl            n   214  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+us_population              n   816  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+usd_isk                    n   247  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+well_log                   n   675  repeats    2 (  0%)  no change of update rate (under 10 repeats: not run)
+bitcoin (held out)         n   774  repeats    1 (  0%)  no change of update rate (under 10 repeats: not run)
+iceland_tourism (held out) n   199  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+measles (held out)         n   991  repeats   33 (  3%)  1 change(s): 519 [413..547] more often
+                            stretches: 1..518 6% | 519..990 0%
+ratner_stock (held out)    n   600  repeats  138 ( 23%)  no change of update rate
+robocalls (held out)       n    52  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
+scanline_126007 (held out) n   481  repeats   31 (  6%)  no change of update rate
+scanline_42049 (held out)  n   481  repeats  233 ( 49%)  6 change(s): 88 [79..101] less often; 177 [155..179] more often; 281 [277..286] less often; 341 [330..344] more often; 375 [374..377] less often; 455 [446..460] more often
+                            stretches: 1..87 31% | 88..176 80% | 177..280 10% | 281..340 85% | 341..374 9% | 375..454 86% | 455..480 8%
+TCPD: 38 series, run on 6 (10+ repeats), a change of update rate on 3.
+
+Florida frozen orange juice, monthly price (data/frozen-juice.csv)
+frozen juice               n   612  repeats  253 ( 41%)  1 change(s): 1981-08 [1980-09..1982-04] more often
+                            stretches: 1950-02..1981-07 60% | 1981-08..2000-12 12%

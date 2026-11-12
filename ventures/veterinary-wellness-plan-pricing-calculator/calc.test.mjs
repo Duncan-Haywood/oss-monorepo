@@ -79,3 +79,31 @@ test("csv has service rows, a blank line and a summary", () => {
   const lines = toCsv(analyze(EXAMPLE_SHARED)).trim().split("\n");
   assert.equal(lines.length, 1 + 6 + 1 + 1 + 1);
 });
+
+// Quality audit 2026-11-12 (portfolio/quality/audits/2026-11-12-veterinary-wellness-plan-pricing-calculator.json):
+// the plan discount changed nothing and no test pinned a concrete number.
+test("the example's fee, margin, break-even and cohort match a hand calculation", () => {
+  // list 950, full cost 370, cost at 85% use 314.5; fee = 314.5 / (1 - 0.035 - 0.35) / 12
+  const a = analyze(EXAMPLE_SHARED);
+  assert.ok(Math.abs(a.fee - 42.6152) < 1e-4);
+  assert.ok(Math.abs(a.base.margin - 178.9837) < 1e-4);
+  assert.ok(Math.abs(a.breakEvenUse - 1.33374) < 1e-5);
+  assert.ok(Math.abs(a.cohort.annualMargin - 20518.0488) < 1e-3);
+  assert.ok(Math.abs(a.base.patientSavings - (950 * 0.85 - a.fee * 12)) < 1e-9);
+  assert.ok(Math.abs(a.base.alaCarteMargin - (950 * 0.85 - 314.5)) < 1e-9);
+});
+
+test("a fee far from the entered plan discount is flagged with the fee that would match it", () => {
+  const a = analyze(EXAMPLE_SHARED);
+  assert.ok(Math.abs(a.discountFee - 950 * 0.85 / 12) < 1e-9);
+  assert.ok(Math.abs(a.impliedDiscount - (1 - a.fee * 12 / 950)) < 1e-9);
+  assert.ok(a.warnings.some((w) => /not the 15% plan discount/.test(w) && w.includes("$67.29")), a.warnings.join(" | "));
+  // a fixed fee at the discount raises no such warning
+  const b = analyze({ ...EXAMPLE_SHARED, feeMode: "fixed", monthlyFee: String(950 * 0.85 / 12) });
+  assert.ok(!b.warnings.some((w) => /plan discount you entered/.test(w)));
+});
+
+test("zero use is flagged instead of a silent $0 fee", () => {
+  const a = analyze({ ...EXAMPLE_SHARED, usePct: "0" });
+  assert.ok(a.warnings.some((w) => /\$0/.test(w)));
+});

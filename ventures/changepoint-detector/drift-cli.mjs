@@ -2,6 +2,7 @@
 // the level model's hundred-odd pinned real-series results cannot move.
 import { parseSeries } from './engine.mjs';
 import { driftLevel } from './drift-level.mjs';
+import { updateRateChanges, updateRateLines } from './update-rate.mjs';
 
 export const DRIFT_PAPER = {
   authors: 'Gaetano Romano, Guillem Rigaill, Vincent Runge and Paul Fearnhead',
@@ -39,6 +40,7 @@ export function driftResult({ csv, column = null, labelColumn = null, penalty = 
     omegaFromLags: r.ml ? r.ml.start.omega : r.omega,
     tails: r.tails,
     sticky: r.sticky,
+    updateRate: updateRateChanges(values),
     changes: r.changes.map((c) => ({ ...c, label: labels[c.index] })),
     level: r.level, labels, values,
     method: DRIFT_PAPER,
@@ -59,7 +61,7 @@ export function driftText(r) {
     L.push(`${r.changes.length} jump${r.changes.length === 1 ? '' : 's'} too big for the drift:`);
     for (const c of r.changes) L.push(`  ${c.label}: level ${fmt(c.before)} -> ${fmt(c.after)} (${c.jump >= 0 ? '+' : ''}${fmt(c.jump)}, ${c.jumpSd >= 0 ? '+' : ''}${c.jumpSd.toFixed(1)} noise sd)`);
   }
-  L.push(...tailLines(r), ...stickyLines(r));
+  L.push(...tailLines(r), ...stickyLines(r), ...updateRateLines(r.updateRate, r.labels));
   const t = DRIFT_TCPD;
   L.push('');
   const k = r.noise === 'ml' ? 'ml' : 'lags';

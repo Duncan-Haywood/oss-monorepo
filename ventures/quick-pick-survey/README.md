@@ -184,3 +184,13 @@ default ranking still counts them, because dropping fast people cost up to 0.019
 the sweep's widest-spread panels where careless people were no faster than anyone else
 (docs/INFORMATION-GAIN-SELECTOR.md, "Answer times: telling a careless block from a camp").
 Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.
+
+**A person's own results** (`/api/insights`) refit all of that person's answers at once
+(`src/lib/btRefit.ts`: Bradley-Terry with a Glicko-scale prior, Laplace posterior) rather than
+reporting the stored one-answer-at-a-time Glicko states, whose 95% intervals held for about 90%
+of pairs under the staged selector (refit: 95% at the same width). The top and bottom pick are
+called clear only when they beat every other item by 1.645 sd of the difference
+(`src/lib/clearPick.ts`); the old "ahead by half its rd" rule named the wrong favourite in more
+than half of its claims on synthetic respondents. The stored states still drive question
+selection and the couple screen. Measurements: docs/INFORMATION-GAIN-SELECTOR.md, "Per-person
+intervals from a refit" and "The clear-top-pick claim" (2026-11-12).

@@ -501,27 +501,36 @@ function teamSwapRounds(opp, a, b, r, lo = 0, hi = opp.length) {
   // X and Y are the opponents a and b meet over S, each in first-seen order (the order the search
   // used to read them out of a Set, so the same round is added); S only grows, so each round's two
   // opponents are appended once rather than the sets being rebuilt every pass.
+  // The membership marks live in scratch tables shared across calls (the annealers call this once
+  // per move): a mark counts only when it holds this call's stamp, as in coeOf.
   const N = opp[0].length;
-  const inS = new Uint8Array(opp.length);
-  const inX = new Uint8Array(N), inY = new Uint8Array(N);
+  if (swapStamp.length < opp.length + 2 * N) { swapStamp = new Uint32Array(opp.length + 2 * N); swapGen = 0; }
+  if (++swapGen > 0xfffffffe) { swapStamp.fill(0); swapGen = 1; }
+  const gen = swapGen, mark = swapStamp, xAt = opp.length, yAt = opp.length + N;
   const X = [], Y = [];
-  const S = [r]; inS[r] = 1;
-  const roundOf = (t, o) => { for (let q = lo; q < hi; q++) if (opp[q][t] === o) return q; return -1; };
+  const S = [r]; mark[r] = gen;
   let seen = 0;
   for (;;) {
     for (; seen < S.length; seen++) {
       const q = S[seen], x = opp[q][a], y = opp[q][b];
-      if (x !== b && !inX[x]) { inX[x] = 1; X.push(x); }
-      if (y !== a && !inY[y]) { inY[y] = 1; Y.push(y); }
+      if (x !== b && mark[xAt + x] !== gen) { mark[xAt + x] = gen; X.push(x); }
+      if (y !== a && mark[yAt + y] !== gen) { mark[yAt + y] = gen; Y.push(y); }
     }
     let add = -1;
-    for (const y of Y) if (!inX[y]) { add = roundOf(a, y); break; }
-    if (add < 0) for (const x of X) if (!inY[x]) { add = roundOf(b, x); break; }
+    for (let i = 0; i < Y.length; i++) {
+      const y = Y[i];
+      if (mark[xAt + y] !== gen) { for (let q = lo; q < hi; q++) if (opp[q][a] === y) { add = q; break; } break; }
+    }
+    if (add < 0) for (let i = 0; i < X.length; i++) {
+      const x = X[i];
+      if (mark[yAt + x] !== gen) { for (let q = lo; q < hi; q++) if (opp[q][b] === x) { add = q; break; } break; }
+    }
     if (add < 0) return S;
-    if (inS[add]) return S; // cannot happen for a valid round robin; stop safely
-    inS[add] = 1; S.push(add);
+    if (mark[add] === gen) return S; // cannot happen for a valid round robin; stop safely
+    mark[add] = gen; S.push(add);
   }
 }
+let swapStamp = new Uint32Array(0), swapGen = 0;
 
 function swapTeamsIn(opp, S, a, b) {
   for (const q of S) {
