@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtHKppiLBoF55VKqB2C",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T21:07:11Z",
+  "ended": "2026-11-12T21:21:30Z",
+  "wall_minutes": 14.46,
+  "tokens_in": 3667791,
+  "tokens_out": 20490,
+  "cost_usd": 1.8059,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15262",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Local unittest discover shows 1 error both before and after: test_real_photo_calibration imports PIL and fails on this container's broken system Pillow (cannot import name '_imaging'). run_venture_tests.py photo-editing passes."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) touch CODEOWNERS paths again, so the backlog step leads nowhere (4th perf run to report this)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-a-sine-wave-was-the-slowest-thing-in-the-test.md",
+    "docs/history/ci-perf-2026-11-12-photo-editing-fixture-audio.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of photo-editing tests. The slowest test, test_selected_grade_scope_masters_only_the_picked_clip, went from 9.03/8.65/8.62 s to 6.92/6.86/6.81 s (python3 -m unittest <id>, 3 runs each). load_asset_analyses on 10k files went from a median of 1.44/1.43 s to 1.17/1.30 s (5 calls x 2 runs, git stash before/after) with an identical result hash (3bc2c557aaadb2b0). Whole suite (unittest discover) went from 49.9 s to 47.1 s back to back. run_venture_tests.py photo-editing: ok (98.8s).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "00ae0466-5423-5ac0-b1f3-2ee3a45025b4",
+    "transcripts": 1,
+    "first": "2026-11-12T21:07:11Z",
+    "last": "2026-11-12T21:21:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 85,
+        "output": 20490,
+        "thinking": 4215,
+        "cache_read": 3582811,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84895,
+        "api_equivalent_usd": 1.8059,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 85,
+      "output": 20490,
+      "thinking": 4215,
+      "cache_read": 3582811,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84895,
+      "api_equivalent_usd": 1.8059,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.46,
+      "active_minutes": 14.46,
+      "model_minutes": 4.54,
+      "tool_minutes": 9.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "profiling a Python test suite, two small changes, timing and a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 110.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 // Offline checks for the Carta Porte 3.1 complement (Complemento Carta Porte, namespace
 // http://www.sat.gob.mx/CartaPorte31) inside a CFDI 4.0: the waybill a Mexican carrier or
 // shipper stamps for goods moving by road, sea, air or rail. Called by cfdi.mjs. Rule ids
-// MX-070..MX-079 are this tool's own, not SAT's CPxxx codes: SAT's error matrix for the
+// MX-070..MX-080 are this tool's own, not SAT's CPxxx codes: SAT's error matrix for the
 // complement was not read (omawww.sat.gob.mx refused the build host on 2026-11-12), so
 // every rule below cites what it does rest on.
 //
@@ -21,13 +21,17 @@
 //      outside it (c_Estaciones, c_MaterialPeligroso; MX-003);
 //   3. locations (MX-071), distances (MX-072), goods totals (MX-073), stations and permits
 //      against the transport mode (MX-074), trailers (MX-075), hazardous goods (MX-076),
-//      international moves (MX-077), transport figures (MX-078), RFC check digits (MX-079).
+//      international moves (MX-077), transport figures (MX-078), RFC check digits (MX-079),
+//      Mexican addresses against the postal-code catalogues (MX-080).
 // Amounts are compared exactly (BigInt). An offline observation, not SAT's or a PAC's
 // acceptance, and not legal or customs advice.
 
 import { dec, show } from "./pagos20.mjs";
 import { checkRfc } from "./mexico.mjs";
 import { ESTACIONES, SIN_MODO, PELIGROSOS, PROD_MP, CONFIG, PERMISOS } from "./cartaporte-data.mjs";
+import { ESTADOS, MUNICIPIOS, LOCALIDADES } from "./cce20-data.mjs";
+import { cpEstado } from "./cce20.mjs";
+import { addressProblems } from "./mx-address.mjs";
 
 export const CP31_NS = "http://www.sat.gob.mx/CartaPorte31";
 
@@ -89,7 +93,7 @@ const decimals = (s) => { const t = String(s).trim(); const i = t.indexOf("."); 
  * cfdi.mjs's helpers: {findings, skipped, checkNode, ELEMENTS, CFDI_NS}.
  */
 export function checkCartaPorte(root, ctx) {
-  const { findings, skipped, checkNode, ELEMENTS, CFDI_NS } = ctx;
+  const { findings, skipped, checkNode, ELEMENTS, CFDI_NS, typeProblem } = ctx;
   const complemento = childNs(root, "Complemento", CFDI_NS);
   const all = (complemento?.children || []).filter((c) => c.name === "CartaPorte");
   if (!all.length) return {};
@@ -313,6 +317,40 @@ export function checkCartaPorte(root, ctx) {
     const a = u.attrs, p = `${base}/Ubicaciones/Ubicacion[${i + 1}]`;
     if (a.NumRegIdTrib !== undefined && a.ResidenciaFiscal === undefined) push("MX-078", `Location ${i + 1} has a foreign tax id (NumRegIdTrib) but no ResidenciaFiscal, the country that issued it.`, "Add ResidenciaFiscal (c_Pais).", `${p}/@ResidenciaFiscal`);
   });
+
+  // ---- 3j. Mexican addresses against the postal-code catalogues ----
+  // A Domicilio in Mexico (Pais MEX) on a location or a transport figure: Estado, Municipio
+  // and Localidad as c_Estado, c_Municipio and c_Localidad codes of that state, the postal
+  // code in c_CodigoPostal and in that state, and, where SAT's catalogues fill the column,
+  // the postal code's municipality, locality and colonias (mx-address.mjs). The same
+  // cross-references SAT's Comercio Exterior matrix checks on the same catalogues (CCE126 to
+  // CCE130); Carta Porte's own matrix was not read, so this rests on that and on the
+  // schema's notes ("la clave de la colonia", "conforme con el catálogo c_Pais"). A field
+  // written as a name rather than a code is not compared and is named in `skipped`.
+  const doms = [
+    ...ubicaciones.map((u, i) => [P(u, "Domicilio"), `Location ${i + 1}`, `${base}/Ubicaciones/Ubicacion[${i + 1}]/Domicilio`]),
+    ...figuras.map((f, i) => [P(f, "Domicilio"), `Figure ${i + 1}`, `${base}/FiguraTransporte/TiposFigura[${i + 1}]/Domicilio`]),
+  ];
+  const uncoded = new Set();
+  for (const [dom, who, p] of doms) {
+    if (!dom || dom.attrs.Pais !== "MEX") continue;
+    const d = dom.attrs;
+    if (d.Estado !== undefined && !(ESTADOS.MEX || []).includes(d.Estado)) {
+      push("MX-080", `${who}'s address is in Mexico but Estado "${d.Estado}" is not a c_Estado code.`, "Use the three-letter c_Estado code (for example NLE, JAL, CMX).", `${p}/@Estado`);
+      continue;
+    }
+    if (d.Municipio !== undefined && /^\d{3}$/.test(d.Municipio) && !(MUNICIPIOS[d.Estado] || "").split(" ").includes(d.Municipio)) push("MX-080", `${who}: Municipio ${d.Municipio} is not a c_Municipio code of ${d.Estado}.`, `Use the municipality's three-digit code within ${d.Estado}.`, `${p}/@Municipio`);
+    if (d.Localidad !== undefined && /^\d{2}$/.test(d.Localidad) && !(LOCALIDADES[d.Estado] || "").split(" ").includes(d.Localidad)) push("MX-080", `${who}: Localidad ${d.Localidad} is not a c_Localidad code of ${d.Estado}.`, `Use the locality's two-digit code within ${d.Estado}, or leave Localidad out.`, `${p}/@Localidad`);
+    const cp = d.CodigoPostal;
+    if (cp === undefined) continue;
+    const st = cpEstado(cp);
+    if (!/^\d{5}$/.test(cp) || typeProblem({ ref: "c_CodigoPostal" }, cp)) { push("MX-080", `${who}: CodigoPostal "${cp}" is not a Mexican postal code in c_CodigoPostal.`, "Use the address's five-digit postal code.", `${p}/@CodigoPostal`); continue; }
+    if (st && st !== d.Estado) { push("MX-080", `${who}: CodigoPostal ${cp} belongs to ${st} in c_CodigoPostal, not to Estado ${d.Estado}.`, "Correct the postal code or the state.", `${p}/@CodigoPostal`); continue; }
+    const r = addressProblems(d);
+    for (const q of r.problems) push("MX-080", `${who}: ${q.message}`, q.fix, `${p}/@${q.field}`);
+    for (const f of r.uncoded) uncoded.add(f);
+  }
+  if (uncoded.size) skipped.push(`MX-080 (addresses): ${[...uncoded].join(", ")} written as a name rather than a SAT catalogue code, so not compared with the postal code.`);
 
   // ---- 3i. RFC check digits ----
   const rfcs = [

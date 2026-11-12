@@ -34,11 +34,14 @@ def load_asset_analyses(plan: ProductionPlan, workspace_root: Path | str) -> lis
     expected_outputs = {_planned_analysis_output(job) for job in analysis_jobs}
     _reject_unplanned_analysis_files(root, expected_outputs)
 
+    # The root is resolved once per load, not twice per file; each file and its
+    # parent directories are still resolved and checked one by one.
+    resolved_root = root.resolve()
     analyses: list[AssetAnalysis] = []
     for analysis_job in analysis_jobs:
         output = _planned_analysis_output(analysis_job)
-        analysis_path = _safe_workspace_path(root, output)
-        _reject_symlink_path(analysis_path, root, "analysis file")
+        analysis_path = _safe_workspace_path(root, output, resolved_root=resolved_root)
+        _reject_symlink_path(analysis_path, root, "analysis file", resolved_root=resolved_root)
         if not analysis_path.is_file():
             raise AnalysisLoaderError(f"Missing planned analysis file: {output}")
 
@@ -171,20 +174,21 @@ def _reject_unplanned_analysis_files(root: Path, expected_outputs: set[str]) -> 
             raise AnalysisLoaderError(f"Unplanned per-asset analysis file: {relative}")
 
 
-def _safe_workspace_path(root: Path, relative_output: str) -> Path:
+def _safe_workspace_path(root: Path, relative_output: str, *, resolved_root: Path | None = None) -> Path:
     output = Path(relative_output)
     if output.is_absolute() or ".." in output.parts:
         raise AnalysisLoaderError(f"Unsafe analysis output path: {relative_output}")
     path = root / output
     try:
-        path.resolve().relative_to(root.resolve())
+        path.resolve().relative_to(root.resolve() if resolved_root is None else resolved_root)
     except ValueError as exc:
         raise AnalysisLoaderError(f"Analysis output escapes workspace: {relative_output}") from exc
     return path
 
 
-def _reject_symlink_path(path: Path, root: Path, label: str) -> None:
-    resolved_root = root.resolve()
+def _reject_symlink_path(path: Path, root: Path, label: str, *, resolved_root: Path | None = None) -> None:
+    if resolved_root is None:
+        resolved_root = root.resolve()
     current = path
     chain: list[Path] = []
     while True:

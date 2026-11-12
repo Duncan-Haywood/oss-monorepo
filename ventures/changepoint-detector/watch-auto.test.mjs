@@ -25,6 +25,8 @@ test('a plain budget: per 100 checks from alerts a period at a check interval, a
   assert.throws(() => budgetFromPlain({ alerts: 1, per: 'week', every: 'fortnight' }), /every takes/);
   assert.throws(() => budgetFromPlain({ alerts: 1, per: 'day' }), /per takes/);
   assert.throws(() => budgetFromPlain({ alerts: -1 }), /0 or more/);
+  assert.throws(() => budgetFromPlain({ alerts: 8, per: 'week' }), /more than one alert per check \(7 daily checks a week\); give at most 7/);
+  assert.equal(budgetFromPlain({ alerts: 7, per: 'week' }), 100);
   // Round trip: a budget made from "1 a month" reads back as about 1 a month.
   assert.equal(plainBudgetText(budgetFromPlain({ alerts: 1, per: 'month' })), 'about 1 alert a month at a daily check');
   assert.equal(plainBudgetText(HINT_BUDGET), 'about 7.3 alerts a year at a daily check');

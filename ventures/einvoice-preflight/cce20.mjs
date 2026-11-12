@@ -28,13 +28,15 @@
 //      and the dollar values (MX-069), exact in BigInt.
 // Not checkable offline and named in `skipped` when they arise: whether TipoCambioUSD is
 // Banxico's FIX rate for the day (CCE121), a receiver's RFC in SAT's l_RFC list (CCE107), a
-// tax id against a country's online register (CCE131, CCE135), the colonia of a postal code
-// (CCE129, CCE136, CCE145), and the municipality and locality of a postal code (CCE130,
-// CCE141, CCE150; only its state is checked). An offline observation, not SAT's or a PAC's
-// acceptance, and not customs or tax advice.
+// tax id against a country's online register (CCE131, CCE135). Since 2026-11-12 a Mexican
+// address's postal code is also checked against its municipality and locality (CCE130,
+// CCE141, CCE150) and its colonia code (CCE129, CCE136, CCE145) in c_CodigoPostal and
+// c_Colonia, where those catalogues fill the column (mx-address.mjs). An offline
+// observation, not SAT's or a PAC's acceptance, and not customs or tax advice.
 
 import { dec, roundD, truncD, show } from "./pagos20.mjs";
 import { PAISES, ESTADOS, MUNICIPIOS, LOCALIDADES, CP_ESTADO, FRACCIONES, VIGENCIA } from "./cce20-data.mjs";
+import { addressProblems } from "./mx-address.mjs";
 
 export const CCE20_NS = "http://www.sat.gob.mx/ComercioExterior20";
 const CCE11_NS = "http://www.sat.gob.mx/ComercioExterior11";
@@ -401,10 +403,13 @@ export function checkComercioExterior(root, ctx) {
       else {
         const st = cpEstado(d.CodigoPostal);
         if (st && d.Estado && st !== d.Estado) push(rule, codes.cp, `CodigoPostal ${d.CodigoPostal} belongs to ${st} in c_CodigoPostal, not to Estado ${d.Estado}.`, "Correct the postal code or the state.", `${p}/@CodigoPostal`);
-        else if (d.Municipio !== undefined) skipped.push(`${codes.cp} (${p.split("/").slice(-2, -1)[0]} postal code): only the state of ${d.CodigoPostal} is checked; its municipality and locality are not in this tool's tables.`);
+        else {
+          // CCE130 and twins: the postal code's c_Municipio and c_Localidad columns; CCE129
+          // and twins: a colonia code listed for the postal code in c_Colonia (mx-address.mjs).
+          for (const q of addressProblems(d).problems) push(rule, q.field === "Colonia" ? codes.colonia : codes.cp, q.message, q.fix, `${p}/@${q.field}`);
+        }
       }
     }
-    if (d.Colonia !== undefined && /^\d{4}$/.test(d.Colonia)) skipped.push(`${codes.colonia} (${p.split("/").slice(-2, -1)[0]} colonia ${d.Colonia}): the colonia catalogue by postal code is not in this tool's tables.`);
   }
 
   function foreignOrMexican(d, p, rule, codes) {
