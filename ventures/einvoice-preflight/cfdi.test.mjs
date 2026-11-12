@@ -6,7 +6,7 @@ import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { runMutations, MUTATIONS } from "./eval/cfdi-mutations.mjs";
 import { preflightDocuments } from "./report.mjs";
 
-const good = readFileSync(new URL("./examples/cfdi-4.0-invoice.xml", import.meta.url), "utf8");
+const good = readFileSync(new URL("./fixtures/cfdi-4.0-invoice.xml", import.meta.url), "utf8");
 
 test("the example CFDI draws no finding", () => {
   const r = checkCfdi(good);

@@ -1,7 +1,7 @@
 // Planted-defect run for the CFDI 4.0 checker (cfdi.mjs). Each mutation edits a
 // clean CFDI's text once and names the rule that should catch it. A mutation whose
 // pattern is absent from a file is skipped, not counted.
-//   node eval/cfdi-mutations.mjs [file.xml ...]   (default: examples/cfdi-4.0-invoice.xml)
+//   node eval/cfdi-mutations.mjs [file.xml ...]   (default: fixtures/cfdi-4.0-invoice.xml)
 // Prints, per file, clean findings (should be none) and each mutation's verdict.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -63,7 +63,7 @@ export function runMutations(text) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const files = process.argv.slice(2);
-  if (!files.length) files.push(fileURLToPath(new URL("../examples/cfdi-4.0-invoice.xml", import.meta.url)));
+  if (!files.length) files.push(fileURLToPath(new URL("../fixtures/cfdi-4.0-invoice.xml", import.meta.url)));
   let caught = 0, ran = 0;
   for (const f of files) {
     const { clean, results } = runMutations(readFileSync(f, "utf8"));
