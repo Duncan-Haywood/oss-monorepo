@@ -26,7 +26,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 30,
@@ -68,7 +68,7 @@
     "docs/posts/2026-11-12-cut-and-fill-from-a-point-file.md"
   ],
   "goal": null,
-  "notes": "Explore idea: earthwork cut/fill from survey point files (construction direction). Verification: node tests 30/30; check/differential.py identical triangle sets to SciPy Qhull on 5x800-point state-plane sets, volumes within 6e-14; Chromium smoke (example, balance, no console errors, 380px no overflow); siblings.mjs --check 0 orphans. No agent doc written: README carries Next steps (breaklines, daylight slopes).",
+  "notes": "Explore idea: earthwork cut/fill from survey point files (construction direction). Verification: node tests 30/30; check/differential.py identical triangle sets to SciPy Qhull on 5x800-point state-plane sets, volumes within 6e-14; Chromium smoke (example, balance, no console errors, 380px no overflow); siblings.mjs --check 0 orphans. No agent doc written: README carries Next steps (breaklines, daylight slopes). CI all green on 3547dc0c after three fix rounds (inherited-keys guard, opt-out count, catch-all section/FAQ/launch date, trades sub-group).",
   "corrections": [],
   "redteam": null,
   "usage": {
