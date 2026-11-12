@@ -95,3 +95,22 @@ test("an unreadable TipoCambioP skips the Totales tax sums instead of blaming co
     assert.ok(r.skipped.some((s) => /MX-049/.test(s) && /TipoCambioP/.test(s)), tc);
   }
 });
+
+// Red team 2026-11-12: three mutants of pagos20.mjs escaped this suite; one test each.
+test("EquivalenciaDR 0 is a schema fault, not a division by zero", () => {
+  const r = checkCfdi(good.replace('EquivalenciaDR="17.25"', 'EquivalenciaDR="0"'));
+  assert.deepEqual(r.findings.map((f) => f.rule), ["MX-003"]);
+});
+
+test("a TrasladoDR ImporteDR on the lower rounding bound is accepted", () => {
+  // 9999.995 x 0.16 = 1599.9992, floored to 1599.99: the bound itself is valid.
+  const r = checkCfdi(good.replace('TasaOCuotaDR="0.160000" ImporteDR="1600.00"', 'TasaOCuotaDR="0.160000" ImporteDR="1599.99"'));
+  assert.deepEqual(r.findings.filter((f) => f.rule === "MX-047"), []);
+});
+
+test("an ImporteP written with 2 decimals is compared at 2, even when the documents' sum has a third", () => {
+  const f = good
+    .replace('BaseDR="10000.00" ImpuestoDR="002" TipoFactorDR="Tasa" TasaOCuotaDR="0.160000" ImporteDR="1600.00"', 'BaseDR="10000.025" ImpuestoDR="002" TipoFactorDR="Tasa" TasaOCuotaDR="0.160000" ImporteDR="1600.004"')
+    .replace('BaseP="10000.00"', 'BaseP="10000.03"');
+  assert.deepEqual(checkCfdi(f).findings.filter((x) => x.rule === "MX-048"), []);
+});
