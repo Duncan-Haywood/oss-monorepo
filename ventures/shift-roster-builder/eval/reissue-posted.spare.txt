@@ -1,0 +1,161 @@
+spare Ana off Wed (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3741.00 - 0 ms
+  rebuild         0 h open 11 changes (6 people) owed $176.00 pay $3894.00 optimal 81 ms
+  keep/h 0.1      0 h open  4 changes (3 people) owed $ 66.00 pay $3896.00 improved 71 ms
+  keep/shift 1    0 h open  4 changes (3 people) owed $ 66.00 pay $3896.00 improved 605 ms
+  keep/shift 2    0 h open  4 changes (3 people) owed $ 66.00 pay $3896.00 improved 629 ms
+  keep/shift 20   0 h open  4 changes (3 people) owed $ 66.00 pay $3896.00 optimal 168 ms
+spare Ben off Wed (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3757.00 - 0 ms
+  rebuild         0 h open 10 changes (4 people) owed $164.00 pay $3885.00 optimal 22 ms
+  keep/h 0.1      0 h open  3 changes (2 people) owed $ 48.00 pay $3885.00 optimal 24 ms
+  keep/shift 1    0 h open  3 changes (2 people) owed $ 48.00 pay $3885.00 optimal 18 ms
+  keep/shift 2    0 h open  3 changes (2 people) owed $ 48.00 pay $3885.00 optimal 18 ms
+  keep/shift 20   0 h open  3 changes (2 people) owed $ 48.00 pay $3885.00 optimal 104 ms
+spare Dev off Wed (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3749.00 - 0 ms
+  rebuild         0 h open  8 changes (4 people) owed $130.00 pay $3897.00 optimal 42 ms
+  keep/h 0.1      0 h open  4 changes (3 people) owed $ 67.00 pay $3899.00 optimal 47 ms
+  keep/shift 1    0 h open  4 changes (3 people) owed $ 67.00 pay $3899.00 improved 46 ms
+  keep/shift 2    0 h open  4 changes (3 people) owed $ 67.00 pay $3899.00 optimal 417 ms
+  keep/shift 20   0 h open  5 changes (3 people) owed $ 85.00 pay $3899.00 optimal 213 ms
+spare Fay off Wed (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3761.00 - 0 ms
+  rebuild         0 h open 15 changes (7 people) owed $245.00 pay $3897.00 improved 19 ms
+  keep/h 0.1      0 h open  7 changes (4 people) owed $118.00 pay $3899.00 improved 38 ms
+  keep/shift 1    0 h open  7 changes (4 people) owed $118.00 pay $3899.00 improved 38 ms
+  keep/shift 2    0 h open  7 changes (4 people) owed $118.00 pay $3899.00 improved 1028 ms
+  keep/shift 20   0 h open  7 changes (4 people) owed $118.00 pay $3899.00 improved 878 ms
+spare Gus off Wed (1 shifts)
+  patch           3 h open  0 changes (0 people) owed $  0.00 pay $3828.00 - 0 ms
+  rebuild         0 h open 12 changes (6 people) owed $197.00 pay $3894.00 optimal 20 ms
+  keep/h 0.1      0 h open  4 changes (2 people) owed $ 66.00 pay $3896.00 improved 17 ms
+  keep/shift 1    0 h open  4 changes (2 people) owed $ 66.00 pay $3896.00 improved 19 ms
+  keep/shift 2    0 h open  4 changes (2 people) owed $ 66.00 pay $3896.00 improved 18 ms
+  keep/shift 20   0 h open  6 changes (2 people) owed $ 96.00 pay $3899.00 optimal 795 ms
+spare Ana off Thu (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3741.00 - 0 ms
+  rebuild         3 h open  5 changes (3 people) owed $ 80.00 pay $3831.00 improved 459 ms
+  keep/h 0.1      3 h open  3 changes (2 people) owed $ 47.00 pay $3831.00 improved 830 ms
+  keep/shift 1    3 h open  3 changes (2 people) owed $ 47.00 pay $3831.00 improved 830 ms
+  keep/shift 2    3 h open  3 changes (2 people) owed $ 47.00 pay $3831.00 improved 949 ms
+  keep/shift 20   3 h open  3 changes (2 people) owed $ 47.00 pay $3831.00 optimal 936 ms
+spare Dev off Thu (1 shifts)
+  patch           3 h open  0 changes (0 people) owed $  0.00 pay $3834.00 - 0 ms
+  rebuild         3 h open  4 changes (3 people) owed $ 64.00 pay $3834.00 improved 477 ms
+  keep/h 0.1      3 h open  0 changes (0 people) owed $  0.00 pay $3834.00 improved 875 ms
+  keep/shift 1    3 h open  0 changes (0 people) owed $  0.00 pay $3834.00 improved 892 ms
+  keep/shift 2    3 h open  0 changes (0 people) owed $  0.00 pay $3834.00 improved 883 ms
+  keep/shift 20   3 h open  0 changes (0 people) owed $  0.00 pay $3834.00 improved 511 ms
+spare Fay off Thu (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3761.00 - 0 ms
+  rebuild         3 h open  5 changes (2 people) owed $ 81.00 pay $3834.00 improved 488 ms
+  keep/h 0.1      3 h open  5 changes (2 people) owed $ 81.00 pay $3834.00 optimal 852 ms
+  keep/shift 1    3 h open  5 changes (2 people) owed $ 81.00 pay $3834.00 improved 829 ms
+  keep/shift 2    3 h open  5 changes (2 people) owed $ 81.00 pay $3834.00 improved 819 ms
+  keep/shift 20   3 h open  5 changes (2 people) owed $ 81.00 pay $3834.00 improved 798 ms
+spare Gus off Thu (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3733.00 - 0 ms
+  rebuild         3 h open  6 changes (4 people) owed $ 99.00 pay $3831.00 improved 467 ms
+  keep/h 0.1      3 h open  4 changes (2 people) owed $ 68.00 pay $3831.00 improved 766 ms
+  keep/shift 1    3 h open  4 changes (2 people) owed $ 68.00 pay $3831.00 improved 779 ms
+  keep/shift 2    3 h open  4 changes (2 people) owed $ 68.00 pay $3831.00 improved 883 ms
+  keep/shift 20   3 h open  4 changes (2 people) owed $ 68.00 pay $3831.00 improved 930 ms
+spare Hal off Thu (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3765.00 - 0 ms
+  rebuild         3 h open 10 changes (5 people) owed $173.00 pay $3831.00 improved 496 ms
+  keep/h 0.1      3 h open  4 changes (2 people) owed $ 68.00 pay $3831.00 improved 848 ms
+  keep/shift 1    3 h open  4 changes (2 people) owed $ 68.00 pay $3831.00 improved 862 ms
+  keep/shift 2    3 h open  4 changes (2 people) owed $ 68.00 pay $3831.00 improved 1043 ms
+  keep/shift 20   3 h open  4 changes (2 people) owed $ 68.00 pay $3831.00 improved 909 ms
+spare Ana off Fri (1 shifts)
+  patch           3 h open  0 changes (0 people) owed $  0.00 pay $3831.00 - 0 ms
+  rebuild         3 h open  2 changes (2 people) owed $ 29.00 pay $3831.00 optimal 109 ms
+  keep/h 0.1      3 h open  0 changes (0 people) owed $  0.00 pay $3831.00 optimal 78 ms
+  keep/shift 1    3 h open  0 changes (0 people) owed $  0.00 pay $3831.00 optimal 83 ms
+  keep/shift 2    3 h open  0 changes (0 people) owed $  0.00 pay $3831.00 optimal 114 ms
+  keep/shift 20   3 h open  0 changes (0 people) owed $  0.00 pay $3831.00 optimal 75 ms
+spare Ben off Fri (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3757.00 - 0 ms
+  rebuild         3 h open  4 changes (3 people) owed $ 65.00 pay $3831.00 optimal 72 ms
+  keep/h 0.1      3 h open  2 changes (1 people) owed $ 36.00 pay $3831.00 optimal 76 ms
+  keep/shift 1    3 h open  2 changes (1 people) owed $ 36.00 pay $3831.00 optimal 86 ms
+  keep/shift 2    3 h open  2 changes (1 people) owed $ 36.00 pay $3831.00 optimal 75 ms
+  keep/shift 20   3 h open  2 changes (1 people) owed $ 36.00 pay $3831.00 optimal 73 ms
+spare Dev off Fri (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3749.00 - 0 ms
+  rebuild         6 h open  3 changes (2 people) owed $ 50.00 pay $3785.00 improved 682 ms
+  keep/h 0.1      6 h open  2 changes (1 people) owed $ 36.00 pay $3785.00 improved 684 ms
+  keep/shift 1    6 h open  2 changes (1 people) owed $ 36.00 pay $3785.00 improved 696 ms
+  keep/shift 2    6 h open  2 changes (1 people) owed $ 36.00 pay $3785.00 improved 725 ms
+  keep/shift 20   6 h open  2 changes (1 people) owed $ 36.00 pay $3785.00 improved 780 ms
+spare Gus off Fri (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3733.00 - 0 ms
+  rebuild         3 h open  3 changes (2 people) owed $ 53.00 pay $3831.00 optimal 72 ms
+  keep/h 0.1      3 h open  2 changes (1 people) owed $ 36.00 pay $3831.00 optimal 78 ms
+  keep/shift 1    3 h open  2 changes (1 people) owed $ 36.00 pay $3831.00 optimal 78 ms
+  keep/shift 2    3 h open  2 changes (1 people) owed $ 36.00 pay $3831.00 optimal 77 ms
+  keep/shift 20   3 h open  2 changes (1 people) owed $ 36.00 pay $3831.00 optimal 84 ms
+spare Hal off Fri (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3765.00 - 0 ms
+  rebuild         3 h open  5 changes (4 people) owed $ 81.00 pay $3831.00 optimal 70 ms
+  keep/h 0.1      3 h open  2 changes (1 people) owed $ 36.00 pay $3831.00 improved 78 ms
+  keep/shift 1    3 h open  2 changes (1 people) owed $ 36.00 pay $3831.00 improved 78 ms
+  keep/shift 2    3 h open  2 changes (1 people) owed $ 36.00 pay $3831.00 optimal 75 ms
+  keep/shift 20   3 h open  2 changes (1 people) owed $ 36.00 pay $3831.00 optimal 78 ms
+spare Ana off Sat (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3741.00 - 0 ms
+  rebuild         3 h open  4 changes (3 people) owed $ 67.00 pay $3836.00 optimal 438 ms
+  keep/h 0.1      3 h open  2 changes (1 people) owed $ 38.00 pay $3836.00 optimal 402 ms
+  keep/shift 1    3 h open  2 changes (1 people) owed $ 38.00 pay $3836.00 optimal 398 ms
+  keep/shift 2    3 h open  2 changes (1 people) owed $ 38.00 pay $3836.00 optimal 414 ms
+  keep/shift 20   3 h open  2 changes (1 people) owed $ 38.00 pay $3836.00 optimal 423 ms
+spare Cleo off Sat (1 shifts)
+  patch          10 h open  0 changes (0 people) owed $  0.00 pay $3735.00 - 0 ms
+  rebuild         3 h open  4 changes (3 people) owed $ 69.00 pay $3864.00 optimal 378 ms
+  keep/h 0.1      3 h open  3 changes (2 people) owed $ 55.00 pay $3864.00 optimal 388 ms
+  keep/shift 1    3 h open  3 changes (2 people) owed $ 55.00 pay $3864.00 optimal 389 ms
+  keep/shift 2    3 h open  3 changes (2 people) owed $ 55.00 pay $3864.00 optimal 380 ms
+  keep/shift 20   3 h open  3 changes (2 people) owed $ 55.00 pay $3864.00 optimal 442 ms
+spare Dev off Sat (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3749.00 - 0 ms
+  rebuild         3 h open  4 changes (3 people) owed $ 67.00 pay $3844.00 optimal 387 ms
+  keep/h 0.1      3 h open  2 changes (1 people) owed $ 38.00 pay $3844.00 optimal 381 ms
+  keep/shift 1    3 h open  2 changes (1 people) owed $ 38.00 pay $3844.00 optimal 385 ms
+  keep/shift 2    3 h open  2 changes (1 people) owed $ 38.00 pay $3844.00 optimal 381 ms
+  keep/shift 20   3 h open  2 changes (1 people) owed $ 38.00 pay $3844.00 optimal 385 ms
+spare Eli off Sat (1 shifts)
+  patch          10 h open  0 changes (0 people) owed $  0.00 pay $3745.00 - 0 ms
+  rebuild         3 h open  3 changes (2 people) owed $ 55.00 pay $3874.00 optimal 389 ms
+  keep/h 0.1      3 h open  3 changes (2 people) owed $ 55.00 pay $3874.00 optimal 388 ms
+  keep/shift 1    3 h open  3 changes (2 people) owed $ 55.00 pay $3874.00 optimal 381 ms
+  keep/shift 2    3 h open  3 changes (2 people) owed $ 55.00 pay $3874.00 optimal 382 ms
+  keep/shift 20   3 h open  3 changes (2 people) owed $ 55.00 pay $3874.00 optimal 392 ms
+spare Cleo off Sun (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3765.00 - 0 ms
+  rebuild         3 h open  2 changes (1 people) owed $ 38.00 pay $3860.00 optimal 42 ms
+  keep/h 0.1      3 h open  2 changes (1 people) owed $ 38.00 pay $3860.00 optimal 43 ms
+  keep/shift 1    3 h open  2 changes (1 people) owed $ 38.00 pay $3860.00 optimal 42 ms
+  keep/shift 2    3 h open  2 changes (1 people) owed $ 38.00 pay $3860.00 optimal 42 ms
+  keep/shift 20   3 h open  2 changes (1 people) owed $ 38.00 pay $3860.00 optimal 41 ms
+spare Dev off Sun (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3749.00 - 0 ms
+  rebuild         3 h open  3 changes (2 people) owed $ 52.00 pay $3844.00 optimal 40 ms
+  keep/h 0.1      3 h open  2 changes (1 people) owed $ 38.00 pay $3844.00 optimal 41 ms
+  keep/shift 1    3 h open  2 changes (1 people) owed $ 38.00 pay $3844.00 optimal 41 ms
+  keep/shift 2    3 h open  2 changes (1 people) owed $ 38.00 pay $3844.00 optimal 41 ms
+  keep/shift 20   3 h open  2 changes (1 people) owed $ 38.00 pay $3844.00 optimal 41 ms
+spare Eli off Sun (1 shifts)
+  patch           8 h open  0 changes (0 people) owed $  0.00 pay $3773.00 - 0 ms
+  rebuild         3 h open  3 changes (2 people) owed $ 55.00 pay $3868.00 optimal 40 ms
+  keep/h 0.1      3 h open  2 changes (1 people) owed $ 38.00 pay $3868.00 optimal 41 ms
+  keep/shift 1    3 h open  2 changes (1 people) owed $ 38.00 pay $3868.00 optimal 42 ms
+  keep/shift 2    3 h open  2 changes (1 people) owed $ 38.00 pay $3868.00 improved 45 ms
+  keep/shift 20   3 h open  2 changes (1 people) owed $ 38.00 pay $3868.00 optimal 41 ms
+spare posted: pay $3885, 0 h open, improved; 22 call-outs
+TOTAL spare patch         open 165 h, changes to others 0, premiums $0.00, pay $82762.00, pay+premiums $82762.00, proven 0/22, 0.0 s
+TOTAL spare rebuild       open 54 h, changes to others 126, premiums $2090.00, pay $84727.00, pay+premiums $86817.00, proven 22/22, 5.3 s
+TOTAL spare keep/h 0.1    open 54 h, changes to others 62, premiums $1073.00, pay $84735.00, pay+premiums $85808.00, proven 22/22, 7.0 s
+TOTAL spare keep/shift 1  open 54 h, changes to others 62, premiums $1073.00, pay $84735.00, pay+premiums $85808.00, proven 22/22, 7.6 s
+TOTAL spare keep/shift 2  open 54 h, changes to others 62, premiums $1073.00, pay $84735.00, pay+premiums $85808.00, proven 22/22, 9.4 s
+TOTAL spare keep/shift 20 open 54 h, changes to others 65, premiums $1121.00, pay $84738.00, pay+premiums $85859.00, proven 22/22, 9.1 s

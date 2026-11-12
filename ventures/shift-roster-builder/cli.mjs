@@ -27,6 +27,7 @@ import {
   parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
   keepFromCsv,
+  pinStarted,
 } from "./calc.mjs";
 
 const USAGE = `Build a weekly roster that respects availability, hour limits and rest, covers as many shifts as it can, and avoids overtime.
@@ -60,6 +61,9 @@ Options:
                       rest gaps and the tough-shift tally carry over; prints a fairness total. With --csv a "week" column is added
   --changes <csv>     compare the roster you posted (CSV) with this build: every shift added, cancelled or moved, its notice and the premium
                       on your numbers. Needs --week-start and --changed-at "YYYY-MM-DD HH:MM" for notice; --notice-hours (default 336),
+                      The build keeps posted shifts where it can: shifts that started before --changed-at stay as posted, and each posted
+                      shift someone keeps earns --keep-posted <h> hours of their pay in the score (default 1; 0 rebuilds freely); it never
+                      leaves a shift open to do it.
                       --premium-hours (default 1), --cancel-hours (hours of pay for a cancelled shift, default the same), --premium-flat <$> (a fixed dollar amount per short-notice change, no wage needed) and --exempt "Ben,Cleo" (employee-requested changes) are yours to set, not a statement of any law
   --burden <pct>      payroll burden added to wages, in percent (default 0)
   --daily-ot-after <h> / --daily-dt-after <h> / --dt-mult <x>   daily overtime and double-time thresholds and the double-time multiplier (default off, 2)
@@ -184,6 +188,7 @@ export function parseArgs(argv) {
       if (!Number.isInteger(v) || v < 1 || v > 5) throw new Error("--max-moves needs a whole number from 1 to 5");
       o.maxMoves = v;
     }
+    else if (a === "--keep-posted") { o.keepPosted = Number(argv[++i]); if (!(o.keepPosted >= 0)) throw new Error("--keep-posted needs a number of hours of pay, 0 or more"); }
     else if (a === "--changes") { o.changes = argv[++i]; if (!o.changes) throw new Error("--changes needs the posted roster CSV"); }
     else if (a === "--changed-at") {
       o.changedAt = argv[++i];
@@ -391,7 +396,18 @@ export function run(staffText, shiftsText, opts = {}) {
   if (errors.length) return { code: 2, out: errors.join("\n") + "\n" };
   // --keep-shifts with --last-week: last week's shifts earn the keep bonus, so the new week stays close to the posted one.
   const bo = opts.options || {};
-  const r = buildRoster(st.staff, sh.slots, opts.lastWeekCsv && bo.keepValue > 0 ? { ...bo, keep: keepFromCsv(opts.lastWeekCsv) } : bo);
+  let bopts = opts.lastWeekCsv && bo.keepValue > 0 ? { ...bo, keep: keepFromCsv(opts.lastWeekCsv) } : bo;
+  let slots = sh.slots, pin = null;
+  // --changes posted.csv (2026-11-12): reissuing a posted week. Shifts that started before --changed-at are held as posted,
+  // and every posted shift someone keeps earns --keep-posted hours of their wage (default 1, the shape of a per-change
+  // short-notice premium), so the rebuild moves only what it must. eval/reissue-posted.mjs: premiums halved, same open hours.
+  if (opts.postedCsv) {
+    const kp = opts.keepPosted ?? 1;
+    if (kp > 0) bopts = { ...bopts, keep: keepFromCsv(opts.postedCsv), keepShift: kp };
+    if (opts.changedAt && opts.weekStart) { pin = pinStarted(sh.slots, opts.postedCsv, minutesSinceMonday(opts.weekStart, opts.changedAt)); slots = pin.slots; }
+  }
+  const r = buildRoster(st.staff, slots, bopts);
+  if (pin) r.pinnedStarted = pin;
   if (r.error) return { code: 2, out: r.error + "\n" };
   const open = r.unfilledSlots > 0;
   const code = opts.check && open ? 1 : 0;
@@ -417,7 +433,12 @@ export function run(staffText, shiftsText, opts = {}) {
   if (opts.longOver) return { code, out: longReport(r, opts) };
   if (opts.hoursWatch) return { code, out: hoursWatchReport(r, opts) };
   if (opts.restUnder) return { code, out: restReport(st.staff, opts, rosterCsv(r)) };
-  if (opts.postedCsv) return { code, out: changesReport(st.staff, opts, rosterCsv(r)) };
+  if (opts.postedCsv) {
+    const kp = opts.keepPosted ?? 1;
+    const how = [kp > 0 ? `Rebuilt keeping posted shifts where it could (--keep-posted ${num(kp)} h of pay each; 0 rebuilds freely)` : "Rebuilt freely (--keep-posted 0)",
+      r.pinnedStarted ? `; ${r.pinnedStarted.pinned + r.pinnedStarted.open} shift(s) that started before the change held as posted` : ""].join("");
+    return { code, out: `${how}. ${num(r.unfilledHours)} h left open.\n` + changesReport(st.staff, opts, rosterCsv(r)) };
+  }
   if (opts.mode === "hours") return { code, out: hoursCsv(r) };
   if (opts.mode === "json") {
     return {
