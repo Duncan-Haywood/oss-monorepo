@@ -2,6 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-12 · Milestone 6b: which gust-torque sign does a real frame have? Neither: a rigid frame is helped on one axis and hurt on the other (predictions written and committed before `experiments/m6b_cop/run.py` was run)
+
+- Why: milestone 6 found that H3 hangs on the sign of the gust torque (on/off position ratio 0.96 with the inherited sign, 1.21 flipped) and left "derive which sign a real frame has" as the next step.
+- Derivation (`poshold.cop_signs`, checked in `tests/test_poshold.py` against `np.cross`): drag F = (F_x, F_y, 0) acting at the centre of pressure r = (0, 0, h), z up, gives τ = r × F = (−h F_y, h F_x, 0). In `rollout` the roll torque goes with F_y and the pitch torque with F_x, each with its own sign, so a rigid body has signs (roll, pitch) = (−sign h, +sign h). **Milestone 6's (+1, +1) and its flip (−1, −1) are not rigid bodies**: each puts the centre of pressure below the centre of mass on one axis and above it on the other. The side-force map from the allocation rows is F_y = lat·τ_x, F_x = lat·τ_y (a reflection, not a rotation, because the canted layout is chiral), so the steady counter-torque −τ makes a side force −lat·(ds_roll·k)F_y on y and −lat·(ds_pitch·k)F_x on x, k = lever. With opposite signs, **the side force opposes the drag on one axis and adds to it on the other for either sign of h** (h above: y hurt, x helped; h below: x hurt, y helped). The magnitude of the effect is lat·lever, about 0.6–0.8 of the drag at milestone 6's designs. So the question "which sign" becomes "how large is the lever", and the hurt axis should show it.
+- Plan: `experiments/m6b_cop/run.py`. Retrain milestone 6's `aware` and `nocant` arms under both rigid geometries (`above`, `below`), same 12-parameter CMA-ES, budget (3200), training episodes (16), 6 seeds and two starts: 48 CMA-ES runs. Score each design on the 64 held-out episodes with the side force on and off, at lever 0, 0.5, 1 and 2 times the inherited 0.05 + 0.3 L (assumed; no frame data), with late-window (3–6 s) position RMS per world axis. Also re-score milestone 6's designs under both geometries (no retraining).
+- A smoke run (64 evaluations, 2 seeds, 4 training and 8 test episodes; not evidence) checked the pipeline. It showed milestone 6's designs with a late-window hurt/helped axis ratio of about 3 under `below`. The predictions below were written after seeing it.
+- Predictions (all at lever 1 unless stated):
+  - R1 (re-score, milestone 6 aware designs): the on/off position ratio lies between milestone 6's two values (0.96 and 1.21) in both geometries; the late-window hurt/helped axis ratio is at least 1.5.
+  - R2 (H3, retrained aware): mean on/off ratio at most 1.2 in both geometries, so H3 is not refuted for a rigid frame at the inherited lever.
+  - R3: retraining under the geometry lowers the on/off ratio against the re-scored milestone 6 design in at least 4 of 6 seeds, in each geometry.
+  - R4: cant lowers held-out yaw RMS by at least 3° in 6 of 6 seeds and improves J in at least 5 of 6, in both geometries.
+  - R5 (lever sweep, retrained aware): the on/off ratio at lever 2 exceeds that at lever 1 in at least 5 of 6 seeds, and its mean crosses 1.2 in at least one geometry.
+  - R6: late-window hurt/helped axis ratio within 0.85–1.15 for `nocant` (no side force, so nothing breaks the symmetry) and above 1.3 for `aware`.
+  - R7: chosen cant median 25–45° in both geometries.
+- Analysis: per-arm means and per-seed values, paired differences by seed with sign counts; six seeds, no test beyond the sign count. Outcome to follow in this entry.
+
 ## 2026-11-12 · Milestone 6: does the side force of a canted rotor cost position hold more than cant's yaw gain is worth? (predictions written and committed before `experiments/m6_poshold/run.py` was run)
 
 - Why: H3. A canted rotor makes a horizontal body force whenever the mixer makes roll or pitch torque. `codesign-aero-cant-poshold` tested this with a per-axis torque box, a side force √2 too large (tan α / (L/√2)) and 2 s episodes, too short for drift. Milestone 3 (motor data) stays blocked on sources (see milestone 4's entry), so this run takes milestone 6.
