@@ -1,6 +1,6 @@
 ---
 title: "A solar boat should set its speed from the average sun, not last week's: the held-out test"
-seo_title: "Solar USV speed control: average sun beats recent weather out of sample"
+seo_title: "Solar USV speed control: average sun beats recent weather, held out"
 date: 2026-11-12
 tags: [research, marine-hull]
 description: "Tuned on 2015-2019 and tested on 2020-2024, a solar boat that plans speed from day-of-year average sun goes 3.5% further with 44% less payload downtime."
