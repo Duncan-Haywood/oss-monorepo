@@ -2087,6 +2087,20 @@ test('wrapping a page twice does not stack two navigation bars', () => {
   assert.equal(once.match(/<aside class="pf-chrome pf-chrome-foot"/g).length, 1);
 });
 
+test('the header fits itself inline, before the page below it is laid out', () => {
+  // pf-site.js runs at the end of the body; the inline copy straight after the
+  // nav lets the first paint be the full-width one (VENTURE_CHROME_EARLY_JS).
+  const page = '<html><head></head><body><h1>Tool</h1></body></html>';
+  const out = injectChrome(page, { slug: 'x', toRoot: '../', total: 2, related: [] });
+  const after = /<nav class="pf-chrome pf-chrome-top"[\s\S]*?<\/nav>(<script>[\s\S]*?<\/script>)/.exec(out);
+  assert.ok(after, 'an inline script follows the header directly');
+  assert.ok(after[1].includes("querySelector('nav.pf-chrome.pf-chrome-top')"));
+  assert.equal(out.split(HEADER_MARKER).length - 1, 1, 'still one header marker on the page');
+  assert.ok(out.indexOf(after[1]) < out.indexOf('<h1>Tool</h1>'), 'it runs before the venture markup');
+  assert.equal(out.match(/<script>/g).length, 1);
+  assert.doesNotThrow(() => new Function(after[1].slice(8, -9)));
+});
+
 test('a quoted "<body>...</body>" inside a script does not fool the chrome injector', () => {
   // git-exposure-check's own soft-404 guide (2026-09-23): the FAQ answer
   // explains what a fake .git exposure looks like by quoting the literal
