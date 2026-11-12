@@ -136,7 +136,7 @@ node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-oop-max 80
       const notes = [...r.notes, ...r.warnings];
       $("#notes").innerHTML = "<ul>" + notes.map((n) => `<li>${escapeHtml(n)}</li>`).join("") + "</ul>";
       const d = r.dates;
-      $("#dates").innerHTML = d ? `<h3>Your deadlines</h3><ul><li>Elect COBRA by <strong>${d.electionDeadline}</strong> (60 days from ${escapeHtml(d.electionNoticeBasis)}); first premium due by <strong>${d.firstPremiumDue}</strong>.</li><li>Marketplace special enrollment ends <strong>${d.marketplaceWindowEnds}</strong>. Pick a plan by <strong>${d.marketplaceNoGapPickBy}</strong> to start <strong>${d.marketplaceStartsIfPickedByThen}</strong>.</li><li>COBRA for a job loss runs at most to <strong>${d.maxCobraEnds}</strong>.</li></ul>` : "";
+      $("#dates").innerHTML = d ? `<h3>Your deadlines</h3><ul><li>Elect COBRA by <strong>${d.electionDeadline}</strong> (60 days from ${escapeHtml(d.electionNoticeBasis)}); first premium due 45 days after you elect, so <strong>${d.firstPremiumDue}</strong> at the latest.</li><li>Marketplace special enrollment ends <strong>${d.marketplaceWindowEnds}</strong>. Pick a plan by <strong>${d.marketplaceNoGapPickBy}</strong> to start <strong>${d.marketplaceStartsIfPickedByThen}</strong>.</li><li>COBRA for a job loss runs at most to <strong>${d.maxCobraEnds}</strong>.</li></ul>` : "";
       $("#estimate").textContent = RULES_AS_OF + ". Your numbers; not insurance or legal advice.";
       $("#report-card").hidden = false;
       record("compare_run");

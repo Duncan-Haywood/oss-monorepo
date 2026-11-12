@@ -68,3 +68,35 @@ test("deadlines: 60 days from the later of coverage end and notice, plus 45", ()
   assert.ok(deadlines({ lossDate: "2026-02-30" }).error);
   assert.ok(deadlines({ lossDate: "2026-10-31", noticeDate: "nope" }).error);
 });
+
+// Quality audit round 45 (portfolio/quality/audits/2026-11-12-cobra-vs-marketplace-calculator.json).
+test("a COBRA plan cheaper at $0 but with a high out-of-pocket maximum is not called 'always' cheaper", () => {
+  const r = compute({ cobraPremium: 150, marketPremium: 400, months: 12, cobraDeductible: 9000, cobraOopMax: 9200, marketDeductible: 0, marketOopMax: 1000 });
+  assert.equal(r.breakeven.kind, "below");
+  // 1800 + s = 4800 + 0.2 s  ->  s = 3750 (below the 9000 deductible and before the marketplace's 5000 cap)
+  assert.equal(r.breakeven.spend, 3750);
+  assert.equal(r.scenarios.find((s) => s.spend === 9000).cheaper, "marketplace");
+  assert.doesNotMatch(r.text, /at any level of care/);
+});
+
+test("worst case pins what COBRA carries over: 8000 - 2600 left + 6 x 780 premiums", () => {
+  const r = compute(base);
+  assert.equal(r.worstCase.cobra, 6 * 780 + (8000 - 2600));
+  assert.equal(r.worstCase.marketplace, 6 * 210 + 9200);
+});
+
+test("break-even is exact: 3420 + 600 + 0.2 (s - 600) = s gives s = 4875", () => {
+  assert.equal(compute(base).breakeven.spend, 4875);
+});
+
+test("an 'always' verdict needs COBRA no dearer at every level of care, including exactly equal", () => {
+  const r = compute({ cobraPremium: 100, marketPremium: 100, months: 6, cobraDeductible: 1000, cobraOopMax: 2000, marketDeductible: 1000, marketOopMax: 2000 });
+  assert.equal(r.breakeven.kind, "always");
+});
+
+test("months that cross January 1 carry a plan-year reset note; months that do not, none", () => {
+  const cross = compute({ ...base, lossDate: "2026-10-31" });
+  assert.ok(cross.notes.some((n) => /cross January 1/.test(n) && /2 months before the reset/.test(n)));
+  const within = compute({ ...base, months: 3, lossDate: "2026-03-31" });
+  assert.ok(!within.notes.some((n) => /cross January 1/.test(n)));
+});
