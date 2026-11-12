@@ -36,6 +36,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -724,21 +725,47 @@ def _age_hours(created: str, now: datetime) -> float:
         return float("inf")
 
 
+START_SPREAD = 3
+
+
+def session_id() -> Optional[str]:
+    """This session's id from the harness environment, or None outside one."""
+    for key in ("CLAUDE_CODE_REMOTE_SESSION_ID", "CLAUDE_CODE_SESSION_ID"):
+        if os.environ.get(key):
+            return os.environ[key]
+    return None
+
+
 def start_here(queue: list[dict], claims: Optional[dict[str, list]],
-               now: Optional[datetime] = None) -> Optional[tuple[int, str]]:
-    """(row number, venture) of the first Deepen flagship row with no open PR
-    younger than CLAIM_FRESH_HOURS, or None. Rows marked `inputs_only` are not
-    Deepen rows, so they are skipped too. With claims unread (None) the first
-    Deepen row is named, since nothing is known against it."""
+               now: Optional[datetime] = None, session: Optional[str] = None,
+               spread: int = START_SPREAD) -> Optional[tuple[int, str]]:
+    """(row number, venture) of a Deepen flagship row with no open PR younger
+    than CLAIM_FRESH_HOURS, or None. Rows marked `inputs_only` are not Deepen
+    rows, so they are skipped too. With claims unread (None) nothing is known
+    against any row.
+
+    Without a session id the first such row is named. With one, the row is
+    picked among the first `spread` such rows by a hash of the id, so sessions
+    started in the same few minutes (before either has opened a PR) usually
+    get different rows: two sessions took the same sales-agent item in
+    parallel three times on 2026-11-11/12 (doc_friction on this file), which
+    the open-PR read cannot see."""
     now = now or datetime.now(timezone.utc)
+    free = []
     for i, item in enumerate(queue, 1):
         if not (item["flagship"] and item["task"].startswith("Deepen")):
             continue
         hits = (claims or {}).get(item["venture"], [])
         if any(_age_hours(created, now) < CLAIM_FRESH_HOURS for _, _, created in hits):
             continue
-        return i, item["venture"]
-    return None
+        free.append((i, item["venture"]))
+        if session is None or len(free) >= spread:
+            break
+    if not free:
+        return None
+    if session is None:
+        return free[0]
+    return free[int(hashlib.sha256(session.encode()).hexdigest(), 16) % len(free)]
 
 
 def claim_note(hits: list[tuple[int, str, str]], now: Optional[datetime] = None) -> str:
@@ -860,13 +887,17 @@ def print_table(ventures: list[Venture], queue: list[dict],
             f"Flagships ({len(flagships)}, portfolio/flagships.yaml): deepen these before "
             "adding another small tool -- owner, 2026-10-20."
         )
-    first = start_here(queue, claims)
+    sid = session_id()
+    first = start_here(queue, claims, session=sid)
     if first:
+        how = (f"picked by this session's id among the first {START_SPREAD} Deepen flagships"
+               if sid else "the first Deepen flagship")
         print(
-            f"Start here: row {first[0]}, {first[1]} (the first Deepen flagship with no PR "
+            f"Start here: row {first[0]}, {first[1]} ({how} with no PR "
             f"opened in the last {CLAIM_FRESH_HOURS} h; `allocate.py --venture {first[1]}` "
             "prints its full `next:`; a BUILDABLE HERE note says what a session can do with "
-            "no outside input)."
+            "no outside input). Open your draft PR with the slug in its title as soon as "
+            "you pick: that title is the claim the next session's table reads."
         )
     print()
     print(
