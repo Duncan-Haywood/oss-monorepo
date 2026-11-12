@@ -1,0 +1,41 @@
+n 300, 120 series a cell, ML wander, walk step sd 1, noise sd 0.1. found: a change within 5 of t = 150. Penalty = m x 2 log n (11.41).
+
+1. Why the step goes missing under repeats 'missing' (m = 1, G, 40% repeats), by the reveal gap k
+  k     series  found   share  median z^2 of the revealed jump
+  1         43     39    0.91      22.9
+  2         36     24    0.67      15.2
+  3         26      9    0.35       5.7
+  >=4       15      5    0.33       4.4
+  (P1) found share at k = 1: 0.91 (>= 0.90 predicted); at k >= 3: 0.34 (<= 0.60 predicted): holds
+  (P2) misses with k >= 2: 39 of 43 (>= 3/4 predicted): holds
+  (P3) median fitted omega: G 0.917, F 0.891 (true 1; within 15% predicted on G): holds
+
+2. Operating points: mean cuts on the walk with no change (F) and steps found on G, by penalty multiplier m
+
+  40% repeats   m:            0.5            1            2            4            8           16           32
+  shipped  F cuts              89.86        34.75         1.35         0.03         0.00         0.00         0.00
+           G found           120/120      117/120       82/120       17/120        0/120        0/120        0/120
+  missing  F cuts              29.48         1.35         0.00         0.00         0.00         0.00         0.00
+           G found           114/120       77/120       33/120        0/120        0/120        0/120        0/120
+    shipped m 0.5  F cuts  89.86, G 120/120; missing at no more F cuts finds at best 114/120: FAILS
+    shipped m 1    F cuts  34.75, G 117/120; missing at no more F cuts finds at best 114/120: ok
+    shipped m 2    F cuts   1.35, G 82/120; missing at no more F cuts finds at best 77/120: FAILS
+    shipped m 4    F cuts   0.03, G 17/120; missing at no more F cuts finds at best 33/120: ok
+    shipped m 8    F cuts   0.00, G 0/120; missing at no more F cuts finds at best 33/120: ok
+    shipped m 16   F cuts   0.00, G 0/120; missing at no more F cuts finds at best 33/120: ok
+    shipped m 32   F cuts   0.00, G 0/120; missing at no more F cuts finds at best 33/120: ok
+
+  20% repeats   m:            0.5            1            2            4            8           16           32
+  shipped  F cuts              61.67         7.76         0.28         0.00         0.00         0.00         0.00
+           G found           120/120      118/120       85/120        9/120        0/120        0/120        0/120
+  missing  F cuts              35.94         1.52         0.02         0.00         0.00         0.00         0.00
+           G found           119/120      100/120       56/120        0/120        0/120        0/120        0/120
+    shipped m 0.5  F cuts  61.67, G 120/120; missing at no more F cuts finds at best 119/120: ok
+    shipped m 1    F cuts   7.76, G 118/120; missing at no more F cuts finds at best 100/120: FAILS
+    shipped m 2    F cuts   0.28, G 85/120; missing at no more F cuts finds at best 56/120: FAILS
+    shipped m 4    F cuts   0.00, G 9/120; missing at no more F cuts finds at best 0/120: FAILS
+    shipped m 8    F cuts   0.00, G 0/120; missing at no more F cuts finds at best 0/120: ok
+    shipped m 16   F cuts   0.00, G 0/120; missing at no more F cuts finds at best 0/120: ok
+    shipped m 32   F cuts   0.00, G 0/120; missing at no more F cuts finds at best 0/120: ok
+
+Rule (missing at least as powerful at no more false cuts, every shipped m, both repeat shares): FAILS -> nothing changes for users
