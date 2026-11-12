@@ -21,7 +21,7 @@
 // opt-out.
 
 import { verificationHead } from './site-verification.mjs';
-import { promises as fs, existsSync, readFileSync } from 'node:fs';
+import { promises as fs, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { loadLastChanged } from './lastmod.mjs';
 import { generateVenturePages } from './generated-pages.mjs';
@@ -4068,21 +4068,38 @@ export async function markSponsorLinksIn(outDir) {
  * Applies a pure `html -> html` rewrite to every HTML file under `outDir` and
  * returns the relative paths it changed, in `listFiles` order.
  *
- * Pages are read and rewritten 32 at a time (`mapLimit` keeps input order), as
- * `addShareCards` does: one at a time, the disk sat idle between them. Each
- * rewrite reads and writes only its own file, so the order files finish in
- * cannot change any output.
+ * Pages are read and written with the sync calls, one after another
+ * (`rewritePagesSync`): measured 2026-11-12 over a full build's 8,784 pages,
+ * the promise API's per-file overhead was most of the pass, as it was in
+ * `offlineCacheName` (docs/history/pages-build-perf-2026-11-12-html-passes-sync.md).
  */
 async function rewriteHtmlIn(outDir, rewrite) {
   const files = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
-  const changed = await mapLimit(files, 32, async (file) => {
-    const html = await fs.readFile(file, 'utf8');
-    const next = rewrite(html);
-    if (next === html) return null;
-    await fs.writeFile(file, next);
-    return path.relative(outDir, file);
-  });
-  return changed.filter((file) => file !== null);
+  const changed = rewritePagesSync(files, (html) => rewrite(html));
+  return changed.map((file) => path.relative(outDir, file));
+}
+
+/**
+ * Reads each file, passes its text and path to `rewrite`, writes the result
+ * back when it differs, and returns the files it wrote, in input order.
+ *
+ * Sync on purpose. Over the 8,784 pages of a full build (2026-11-12, this
+ * container), `readFileSync`/`writeFileSync` one at a time took 1.7 s where
+ * `fs.promises` 32 at a time (`mapLimit`) took 3.0 s for the sponsor and
+ * notice pass, and 1.1 s against 1.9 s for the offline head injection, with
+ * byte-identical pages. The callers run in `buildSite` one after another with
+ * nothing else in flight, so blocking the event loop holds nothing up.
+ */
+function rewritePagesSync(files, rewrite) {
+  const written = [];
+  for (const file of files) {
+    const html = readFileSync(file, 'utf8');
+    const next = rewrite(html, file);
+    if (next === html) continue;
+    writeFileSync(file, next);
+    written.push(file);
+  }
+  return written;
 }
 
 /**
@@ -4099,18 +4116,17 @@ async function rewriteHtmlIn(outDir, rewrite) {
  */
 export async function markSponsorsAndNoscriptIn(outDir) {
   const files = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
-  const results = await mapLimit(files, 32, async (file) => {
-    const html = await fs.readFile(file, 'utf8');
+  // sync reads and writes, as in rewritePagesSync (measured there)
+  const sponsored = [], noscripted = [];
+  rewritePagesSync(files, (html, file) => {
     const marked = markSponsorLinks(html);
     const next = addNoscriptNotice(marked);
-    if (next !== html) await fs.writeFile(file, next);
     const relative = path.relative(outDir, file);
-    return { sponsored: marked !== html ? relative : null, noscripted: next !== marked ? relative : null };
+    if (marked !== html) sponsored.push(relative);
+    if (next !== marked) noscripted.push(relative);
+    return next;
   });
-  return {
-    sponsored: results.map((r) => r.sponsored).filter((f) => f !== null),
-    noscripted: results.map((r) => r.noscripted).filter((f) => f !== null),
-  };
+  return { sponsored, noscripted };
 }
 
 const NOSCRIPT_SCRIPT_RE = /<script\b(?![^>]*\btype\s*=\s*["']?(?:application\/(?:ld\+)?json|text\/(?:template|html))["']?)[^>]*>/i;
@@ -11891,13 +11907,16 @@ export async function addOfflineSupport({
   );
 
   const pages = (await listFiles(outDir)).filter((file) => file.endsWith('.html'));
-  const injected = (await mapLimit(pages, 32, async (file) => {
+  // sync reads and writes (rewritePagesSync, measured there); a page counts
+  // when the injection reports it, as before, whether or not its bytes moved
+  let injected = 0;
+  rewritePagesSync(pages, (html, file) => {
     const depth = path.relative(outDir, file).split(path.sep).length - 1;
-    const result = injectOfflineSupport(await fs.readFile(file, 'utf8'), '../'.repeat(depth));
-    if (!result.injected) return 0;
-    await fs.writeFile(file, result.html);
-    return 1;
-  })).reduce((a, b) => a + b, 0);
+    const result = injectOfflineSupport(html, '../'.repeat(depth));
+    if (!result.injected) return html;
+    injected++;
+    return result.html;
+  });
 
   // The real weight of what "Save this category for offline" fetches, over
   // the wire rather than on disk -- GitHub Pages (Fastly) and the front
