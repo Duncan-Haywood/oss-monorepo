@@ -212,9 +212,11 @@ flagships:
       speed-ups; DNG-spec colour checked against colour-hdri,
       eval/dng-colour-2026-11-12.md; HueSatMap/LookTable and `--dcp`,
       eval/dcp-tables-2026-11-12.md; ProfileToneCurve with hue-preserving
-      RGB tone, eval/tone-curve-2026-11-12.md, all 2026-11-12).
-      Next, most valuable first: DNG 1.6 ColorMatrix3 and triple-illuminant
-      tables, BUILDABLE HERE as code against synthetic tags; a default tone
+      RGB tone, eval/tone-curve-2026-11-12.md; DNG 1.6 triple-illuminant
+      profiles and IlluminantData, eval/triple-illuminant-2026-11-12.md, all
+      2026-11-12). Next, most valuable first: a real DNG 1.6 three-light
+      profile or DNG, and the SDK's own triple weights on a grid of whites
+      (compiling it was blocked here); a default tone
       curve for profiles with none (68 RawTherapee profiles share one
       8,192-point curve; check what it is before adopting it), BUILDABLE
       HERE; a tungsten-lit colour chart (real DNG, known patches) to say
