@@ -41,7 +41,7 @@ def available() -> bool:
     return True
 
 
-def _normalised_plane(vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines):
+def _normalised_plane(vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines, gain_maps=()):
     """Active-area samples, black-subtracted, scaled and clamped; and the clip count."""
 
     full = np.frombuffer(vals, dtype=np.uint16 if vals.typecode == "H" else np.uint32)
@@ -71,6 +71,11 @@ def _normalised_plane(vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, 
         out -= dvy[:, None]
         out -= dhx[None, :]
         out *= sp[rphase]
+    if gain_maps:
+        from shootflow import dng_opcodes
+
+        out = np.where(out < 0.0, 0.0, np.where(out > 1.0, 1.0, out))
+        dng_opcodes.apply_plane(gain_maps, out, h, w, spp)
     caps = np.array(caplines, dtype=np.float64)[ys % 2]
     clipped = int(np.count_nonzero(out >= caps))
     out = np.where(out < 0.0, 0.0, np.where(out > caps, caps, out))
@@ -169,11 +174,11 @@ def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look):
 
 def render(
     *, vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines,
-    linear_raw, pat, half, mults, hi, m, curve, lut_size, look=None,
+    linear_raw, pat, half, mults, hi, m, curve, lut_size, look=None, gain_maps=(),
 ):
     """Returns ``(pixels uint16 (oh, ow, 3), ow, oh, clipped)``."""
 
-    norm, clipped = _normalised_plane(vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines)
+    norm, clipped = _normalised_plane(vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines, gain_maps)
     if linear_raw:
         img = norm.reshape(h, w, 3)
         out = _encode(img[..., 0] * mults[0], img[..., 1] * mults[1], img[..., 2] * mults[2], hi, m, curve, lut_size, look)
