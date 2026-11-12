@@ -1,9 +1,9 @@
 ---
 title: "Clean down before or after you lock the door? It depends on who's closing"
-seo_title: "Closing duties after close: what they cost a small shop's staff schedule"
+seo_title: "Closing duties after close: what they cost a small shop schedule"
 date: 2026-11-12
 tags: [shift-roster-builder, product, measurement]
-description: "On a real bakery's till file, 45 minutes of cleaning after close cost 7 staff hours a week where the same work during the last hour cost 20. With two people on at close, it went the other way."
+description: "On a real bakery's till file, cleaning after close cost 7 staff hours a week against 20 in the last hour. With two people closing, it went the other way."
 ---
 
 [Shifts from your sales](https://marisstella.app/shift-roster-builder/shifts-from-sales.html) turns a till or POS export into the shifts a shop needs. This morning it learned fixed work: `45/close` puts 45 minutes of cleaning into the last hour the shop trades. That assumes the cleaning happens between the last customers. Plenty of shops lock the door first and clean after, and until now the plan couldn't show that.
