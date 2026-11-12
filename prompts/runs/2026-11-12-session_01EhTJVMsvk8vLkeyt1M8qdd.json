@@ -45,7 +45,7 @@
     "ventures/photo-editing/eval/vignette-polynomial-2026-11-12.md"
   ],
   "goal": "Run two more DNG opcodes correctly on both engines, checked against closed forms.",
-  "notes": "Local verification: python3 platform/ci/run_venture_tests.py photo-editing. The first run failed 1 of 720 tests (test_dng_opcodes expected FixVignetteRadial to be named and skipped). I switched that test to WarpFisheye; the rerun result is below. New file: 13/13 pass on Python 3.13 with numpy. The camera-file search was name probes only (api.github.com trees and github.com tree pages return 403); 39 names are listed in the eval doc.",
+  "notes": "Local verification: python3 platform/ci/run_venture_tests.py photo-editing. The first run failed 1 of 720 tests (test_dng_opcodes expected FixVignetteRadial to be named and skipped). I switched that test to WarpFisheye; rerun: 'ok photo-editing (126.6s) incl. Python steps of photo-editing-ci.yml; 1 suites run, 0 failed'. New file: 13/13 pass on Python 3.13 with numpy. The camera-file search was name probes only (api.github.com trees and github.com tree pages return 403); 39 names are listed in the eval doc.",
   "corrections": [],
   "redteam": null
 }
