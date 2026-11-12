@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqycbYQph7KSkwix2kka",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T21:44:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 7 (photo-editing): DNG TrimBounds opcode, the row's BUILDABLE HERE item",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15266",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 17,
+  "outcome": "success",
+  "errors": [
+    "venture-preflight failed first on the new post's front matter (description 204 > 160 chars, seo_title 77 > 70); shortened and reran"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to open the draft PR right away to claim the flagship row, but a branch with no changes cannot open a PR; I pushed an empty claim commit, which reads close to CLAUDE.md's 'never push an empty commit' (that rule is about kicking CI, but the two sit uneasily)."
+    },
+    {
+      "file": "ventures/photo-editing/tests (pytest)",
+      "issue": "The suite needs PYTHONPATH=src:tests when run with a bare pytest; platform/ci/run_venture_tests.py sets it, but cloud-session.md's pyenv.py hint does not mention it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-a-crop-that-moves-the-origin.md",
+    "ventures/photo-editing/README.md (TrimBounds section)"
+  ],
+  "goal": null,
+  "notes": "TrimBounds (opcode 6) runs in OpcodeList2/3 via dng_opcodes.frame_trims: opcodes after a trim are wrapped in Framed and run on their sub-image in its own coordinates; the developer crops output to the last frame after encoding; DefaultCrop moves with the trim. Named choices: demosaic sees the whole active area (edge pixels of a stage-2 trim differ from the SDK); DefaultCrop shifted rather than read in trimmed coordinates. 17 new tests, 3 seeded mutations each caught (3-5 failures). Flagship buildable/next rewritten to WarpRectilinear2. No real file with TrimBounds tried.",
+  "corrections": [],
+  "redteam": null
+}

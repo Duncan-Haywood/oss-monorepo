@@ -1381,6 +1381,36 @@ and pure Python agree byte for byte in both stages, full and half size. What is 
 converter-written file carrying any of the five has been tried. Details:
 `eval/table-per-line-2026-11-12.md`.
 
+## Cropping inside the opcode lists: TrimBounds (2026-11-12)
+
+`TrimBounds` (opcode 6) now runs in `OpcodeList2` and `OpcodeList3`. It crops the image to a
+rectangle, and every opcode after it in the list works on the smaller image: its area counts from
+the trimmed top-left, and a vignette's or warp's optical centre and corner distance are measured
+on the trimmed frame (as the DNG SDK resets a trimmed image's origin, `dng_simple_image::Trim`).
+A converter writes it after a warp to drop the edges the warp leaves without data. Before this, a
+DNG carrying it got "TrimBounds (required) not applied" and its full frame.
+
+How it runs: no pixel moves while the lists run. `dng_opcodes.frame_trims` resolves each list once
+the image size is known, wraps every opcode after a trim with its frame, and the developer crops
+its output to the last frame after encoding; an `OpcodeList2` trim is the frame `OpcodeList3`
+starts in. A trim that is empty or does not lie inside the image is skipped with a note (the SDK
+rejects the file). On a half-size develop the rectangle is halved. The DefaultCrop, given relative
+to the active area, moves with the trim and is cut to it. Choices to check against Adobe's output
+when a file turns up: the demosaic sees the whole active area, so the outermost pixel or two of an
+`OpcodeList2` trim are interpolated from neighbours the SDK would not see; and whether the SDK
+moves the DefaultCrop with a trim, or reads it in the trimmed image's own coordinates. In
+`OpcodeList1` (a crop of the stored frame, Bayer phase and all) it stays named and undone.
+
+What is checked: 17 tests (`tests/test_dng_trim_bounds.py`). A trim alone, in either list, gives
+the untrimmed develop's pixels inside the rectangle byte for byte, at full and half size; an
+`OpcodeList3` trim inside an `OpcodeList2` trim lands where the two compose; a vignette, a warp and
+a per-row gain after a trim give exactly what they give on the cropped image, and an opcode before
+it what it gives on the whole image; a row gain indexed from the trim's top undoes rows darkened
+by known gains (within 3 8-bit steps away from the trim's edge); the DefaultCrop inside, across and
+outside a trim; numpy and pure Python agree byte for byte with two trims per list. Three seeded
+faults (frame offset dropped, framed result not written back, frames not applied) each fail 3 to 5
+of the tests. What is not: no camera- or converter-written file carrying TrimBounds has been tried.
+
 ## Fisheye unwrapping from the DNG: WarpFisheye (2026-11-12)
 
 `WarpFisheye`, the DNG's other warp, now runs in `OpcodeList3` beside `WarpRectilinear`, in list

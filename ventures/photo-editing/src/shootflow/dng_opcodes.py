@@ -1,4 +1,4 @@
-"""DNG opcode lists: read them all; run ``GainMap``, the two warps, ``FixVignetteRadial``, ``MapPolynomial``, ``MapTable``, the four per-row and per-column fixes and the two bad-pixel fixes; name the rest.
+"""DNG opcode lists: read them all; run ``GainMap``, the two warps, ``FixVignetteRadial``, ``MapPolynomial``, ``MapTable``, the four per-row and per-column fixes, the two bad-pixel fixes and ``TrimBounds``; name the rest.
 
 DNG 1.3 added three opcode lists, each a tag holding a big-endian byte blob:
 ``OpcodeList1`` (51008) runs on the raw values as stored, ``OpcodeList2``
@@ -168,6 +168,36 @@ off and put back as for MapPolynomial. These run nowhere in ``OpcodeList1``:
 there the SDK's float view of a raw value is ``value / 65535`` whatever the
 white level, a unit no camera file in the evaluation set has been seen to use,
 so they stay named and undone there until one is.
+
+TrimBounds (DNG specification 1.4, chapter 7; opcode 6), in ``OpcodeList2`` or
+``OpcodeList3``:
+
+* the parameters are ``top, left, bottom, right`` (uint32, bottom and right
+  exclusive), in the coordinates of the image as it stands when the opcode
+  runs;
+* the image is cropped to that rectangle, and its top-left becomes (0, 0): an
+  opcode after it in the list sees the smaller image, so its area, its
+  relative map positions and a warp's optical centre and corner distance all
+  count from the trimmed frame (Adobe's DNG SDK trims a simple image in place
+  and resets its origin, ``dng_simple_image::Trim``);
+* the SDK rejects a rectangle that is empty or does not lie inside the image;
+  here such a TrimBounds is skipped and the report says so.
+
+The crop does not move pixels while the opcodes run. ``frame_trims`` walks a
+list once the image size is known, takes each TrimBounds out and wraps every
+opcode after one in a ``Framed`` (the frame's top, left, height and width in
+the untrimmed image); ``apply_row``, ``apply_plane`` and ``run_stage3_*`` run a
+framed opcode on that sub-image alone, in its own coordinates, and the
+developer crops its output to the last frame after encoding. An
+``OpcodeList2`` trim is the starting frame of ``OpcodeList3``. Choices, named
+for a later check against Adobe's output: the demosaic runs on the whole
+active area, so pixels on the edge of an ``OpcodeList2`` trim are interpolated
+from neighbours just outside it, where the SDK sees only the trimmed image (a
+difference in the outermost pixel or two); on a half-size develop the
+rectangle is halved (rounded down); the DefaultCrop, given relative to the
+active area, is moved by the trim's top-left and cut to the trimmed image,
+and ignored if nothing is left. A TrimBounds in ``OpcodeList1`` (which would
+crop the stored frame, Bayer phase and all) is named and left undone.
 """
 
 from __future__ import annotations
@@ -209,6 +239,7 @@ DELTA_PER_ROW = 10
 DELTA_PER_COLUMN = 11
 SCALE_PER_ROW = 12
 SCALE_PER_COLUMN = 13
+TRIM_BOUNDS = 6
 PER_LINE_KINDS = {
     DELTA_PER_ROW: ("delta", "row"),
     DELTA_PER_COLUMN: ("delta", "column"),
@@ -323,6 +354,27 @@ class MapTable:
 
 
 @dataclass(frozen=True)
+class TrimBounds:
+    """Crop the image to ``top <= y < bottom``, ``left <= x < right`` (module docstring)."""
+
+    top: int
+    left: int
+    bottom: int
+    right: int
+
+
+@dataclass(frozen=True)
+class Framed:
+    """An opcode that runs after a TrimBounds: on the sub-image ``top .. top + height``, ``left .. left + width`` alone."""
+
+    op: object
+    top: int
+    left: int
+    height: int
+    width: int
+
+
+@dataclass(frozen=True)
 class PerLine:
     """DeltaPerRow, DeltaPerColumn, ScalePerRow or ScalePerColumn."""
 
@@ -430,6 +482,15 @@ def parse_map_table(op: Opcode) -> MapTable:
         raise OpcodeError(f"MapTable holds fewer than its {n} entries")
     table = struct.unpack_from(f">{n}H", op.params, 36)
     return MapTable(top, left, bottom, right, plane, planes, rp, cp, table)
+
+
+def parse_trim_bounds(op: Opcode) -> TrimBounds:
+    if len(op.params) < 16:
+        raise OpcodeError("TrimBounds parameters shorter than 16 bytes")
+    top, left, bottom, right = struct.unpack_from(">4I", op.params, 0)
+    if bottom <= top or right <= left:
+        raise OpcodeError(f"TrimBounds with an empty rectangle ({top}, {left}, {bottom}, {right})")
+    return TrimBounds(top, left, bottom, right)
 
 
 def parse_per_line(op: Opcode) -> PerLine:
@@ -624,7 +685,8 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
                     notes.append(f"{label} {op.name} unreadable and skipped: {exc}")
                     continue
                 (stage2 if tag == TAG_OPCODE_LIST_2 else stage3).append(parsed)
-                applied.append((label, op.name))
+                if not isinstance(parsed, TrimBounds):  # ``frame_trims`` reports a trim, once the size is known
+                    applied.append((label, op.name))
                 continue
             key = op.name + ("" if op.optional else " (required)")
             skipped[key] = skipped.get(key, 0) + 1
@@ -647,6 +709,7 @@ _STAGE23_PARSERS = {
     FIX_VIGNETTE_RADIAL: parse_vignette_radial,
     MAP_POLYNOMIAL: parse_map_polynomial,
     MAP_TABLE: parse_map_table,
+    TRIM_BOUNDS: parse_trim_bounds,
     **{k: parse_per_line for k in PER_LINE_KINDS},
 }
 _WHAT = {
@@ -726,6 +789,46 @@ def repair_bad_pixels(vals, w: int, h: int, bad: list[int], phase: int) -> tuple
     return len(fixes), left
 
 
+def frame_trims(
+    ops: list,
+    h: int,
+    w: int,
+    label: str,
+    notes: list[str],
+    start: tuple[int, int, int, int] | None = None,
+    factor: float = 1.0,
+) -> tuple[list, tuple[int, int, int, int]]:
+    """Take the TrimBounds out of a stage-2 or stage-3 list for an ``h`` x ``w`` image; returns ``(ops, frame)``.
+
+    Every opcode after a trim comes back wrapped in a ``Framed``; ``frame`` is
+    the image's last ``(top, left, height, width)``, to crop the output to.
+    ``start`` is the frame the list begins in (the ``OpcodeList2`` trim, for
+    ``OpcodeList3``); ``factor`` scales a trim's rectangle (0.5 on a half-size
+    develop, rounded down). A trim that is empty or does not lie inside the
+    frame is skipped, with a note.
+    """
+
+    top, left, fh, fw = start if start is not None else (0, 0, h, w)
+    out: list = []
+    done = 0
+    for op in ops:
+        if not isinstance(op, TrimBounds):
+            out.append(op if (top, left, fh, fw) == (0, 0, h, w) else Framed(op, top, left, fh, fw))
+            continue
+        t, lf, b, r = (int(v * factor) for v in (op.top, op.left, op.bottom, op.right))
+        if not (0 <= t < b <= fh and 0 <= lf < r <= fw):
+            notes.append(
+                f"{label}: TrimBounds ({op.top}, {op.left}, {op.bottom}, {op.right}) lies outside "
+                f"the {fw}x{fh} image and was skipped"
+            )
+            continue
+        top, left, fh, fw = top + t, left + lf, b - t, r - lf
+        done += 1
+    if done:
+        notes.append(f"{label}: {done} TrimBounds applied (image trimmed to {fw}x{fh} at x {left}, y {top})")
+    return out, (top, left, fh, fw)
+
+
 def run_stage1(ops: list, vals, w: int, h: int, notes: list[str]):
     """Run ``Plan.stage1`` in list order on a copy of the stored CFA values; returns the copy.
 
@@ -775,6 +878,15 @@ def apply_row(maps: list, y: int, row: list[float], h: int, w: int, spp: int) ->
     """Run the stage-2 opcodes (``Plan.stage2``) on one normalised active-area row, in place (pure Python)."""
 
     for gm in maps:
+        if isinstance(gm, TrimBounds):
+            continue  # ``frame_trims`` takes these out; a list with one left in is run untrimmed
+        if isinstance(gm, Framed):
+            if gm.top <= y < gm.top + gm.height:
+                a, b = gm.left * spp, (gm.left + gm.width) * spp
+                sub = row[a:b]
+                apply_row([gm.op], y - gm.top, sub, gm.height, gm.width, spp)
+                row[a:b] = sub
+            continue
         if isinstance(gm, VignetteRadial):
             _vignette_row(gm, y, row, 0, h, w, spp, None)
             continue
@@ -803,6 +915,12 @@ def apply_plane(maps: list, plane, h: int, w: int, spp: int) -> None:
     import numpy as np
 
     for gm in maps:
+        if isinstance(gm, TrimBounds):
+            continue  # as in ``apply_row``
+        if isinstance(gm, Framed):
+            sub = plane[gm.top : gm.top + gm.height, gm.left * spp : (gm.left + gm.width) * spp]
+            apply_plane([gm.op], sub, gm.height, gm.width, spp)  # a view: written in place
+            continue
         if isinstance(gm, VignetteRadial):
             _vignette_plane(gm, plane, h, w, spp, None)
             continue
@@ -992,6 +1110,20 @@ def run_stage3_rgb(ops: list, rgb, w: int, h: int, scale=(1.0, 1.0, 1.0)):
     """Run ``Plan.stage3`` in order on interleaved linear RGB (``array('d')``); returns the result (pure Python)."""
 
     for op in ops:
+        if isinstance(op, TrimBounds):
+            continue  # as in ``apply_row``
+        if isinstance(op, Framed):
+            from array import array
+
+            sub = array("d")
+            for y in range(op.top, op.top + op.height):
+                s = (y * w + op.left) * 3
+                sub.extend(rgb[s : s + op.width * 3])
+            sub = run_stage3_rgb([op.op], sub, op.width, op.height, scale)
+            for i, y in enumerate(range(op.top, op.top + op.height)):
+                s = (y * w + op.left) * 3
+                rgb[s : s + op.width * 3] = sub[i * op.width * 3 : (i + 1) * op.width * 3]
+            continue
         if isinstance(op, (WarpRectilinear, WarpFisheye)):
             rgb = warp_rgb([op], rgb, w, h)
         elif isinstance(op, VignetteRadial):
@@ -1013,6 +1145,13 @@ def run_stage3_planes(ops: list, img, scale=(1.0, 1.0, 1.0)):
 
     h, w = img.shape[0], img.shape[1]
     for op in ops:
+        if isinstance(op, TrimBounds):
+            continue  # as in ``apply_row``
+        if isinstance(op, Framed):
+            img = np.array(img, dtype=np.float64)  # own, writable copy
+            sl = (slice(op.top, op.top + op.height), slice(op.left, op.left + op.width))
+            img[sl] = run_stage3_planes([op.op], img[sl].copy(), scale)
+            continue
         if isinstance(op, (WarpRectilinear, WarpFisheye)):
             img = warp_planes([op], img)
             continue
