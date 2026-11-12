@@ -253,8 +253,11 @@ test('holdHistory: a change dated inside the quiet baseline is held, not alerted
   assert.equal(r.alerts.length, 0);
   assert.equal(r.held.length, 2);
   assert.match(status5(r), /Held, not alerted: a change from d9/);
-  // Without the option the same check alerts on both (the shipped behaviour the replay found).
-  const r0 = adv5(adv5(null, [], 20, labels.slice(0, 20)).state, [{ index: 9, label: 'd9' }, { index: 15, label: 'd15' }], 21, labels.slice(0, 21));
+  // It is the default since round 5; switched off, the same check alerts on both (what the replay found before).
+  const dflt = adv5(adv5(null, [], 20, labels.slice(0, 20)).state, [{ index: 9, label: 'd9' }], 21, labels.slice(0, 21));
+  assert.equal(dflt.held.length, 1);
+  const off = { holdHistory: false };
+  const r0 = adv5(adv5(null, [], 20, labels.slice(0, 20), off).state, [{ index: 9, label: 'd9' }, { index: 15, label: 'd15' }], 21, labels.slice(0, 21), off);
   assert.equal(r0.alerts.length, 2);
   // A change after the quiet history alerts as usual.
   const r2 = adv5(r.state, [{ index: 30, label: 'd30' }], 36, labels.slice(0, 36), { holdHistory: true });
@@ -267,7 +270,7 @@ test('holdHistory: a change dated inside the quiet baseline is held, not alerted
 
 test('persist 2: a detection seen at one check only is never sent; one seen at two is sent one check later', () => {
   const labels = Array.from({ length: 60 }, (_, i) => `d${i}`);
-  const o = { persist: 2 };
+  const o = { persist: 2, holdHistory: false };
   let st = adv5(null, [], 20, labels.slice(0, 20), o).state;
   let r = adv5(st, [{ index: 9, label: 'd9' }], 21, labels.slice(0, 21), o);
   assert.equal(r.alerts.length, 0);
@@ -294,4 +297,15 @@ test('replayWatch passes the guards through; persist on a coarse replay dates th
   assert.deepEqual(coarse.alerts.map((a) => [a.index, a.reportedAt]), fine.alerts.map((a) => [a.index, a.reportedAt]));
   assert.ok(fine.alerts[0].reportedAt >= plain.alerts[0].reportedAt);
   assert.deepEqual(fine.held, []);
+  // replayWatch honours holdHistory false (it must not fall back to the default).
+  assert.equal(replay5(v, null, { holdHistory: false }).settings.holdHistory, false);
+});
+
+test('ausair: the old-history alerts the replay found are held by default', () => {
+  const csv = readFileSync(new URL('./data/ausair.csv', import.meta.url), 'utf8').trim().split('\n').slice(1).map((r) => r.split(','));
+  const v = csv.map((r) => Number(r[r.length - 1])), l = csv.map((r) => r[0]);
+  const old = replay5(v, l, { holdHistory: false }), now = replay5(v, l);
+  assert.ok(old.alerts.length > now.alerts.length, `${old.alerts.length} vs ${now.alerts.length}`);
+  assert.ok(now.held.length >= 1);
+  assert.ok(now.held.every((h) => h.index <= now.from - 5));
 });

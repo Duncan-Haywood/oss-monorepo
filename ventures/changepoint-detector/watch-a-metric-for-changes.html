@@ -65,7 +65,7 @@
 <pre>curl -fsSL https://raw.githubusercontent.com/Duncan-Haywood/oss-monorepo/main/ventures/changepoint-detector/deploy/make-watch-repo.sh | sh -s -- metric-watch</pre></li>
 <li>Put your series in <code>metric-watch/data/metric.csv</code> (a date column and a value column, oldest first), or plan to use a CSV link instead.</li>
 <li>Push the folder to a new GitHub repository. In its Settings &gt; Secrets and variables &gt; Actions, add the variable <code>METRIC_CSV</code> (<code>data/metric.csv</code> or the link) and, for chat messages, the secret <code>WATCH_WEBHOOK_URL</code>. With no webhook, a new change fails the run and GitHub emails you.</li>
-<li>Run the <code>watch-metric</code> workflow once by hand. The first run records the changes already in your history as the baseline and does not alert on them; after that it runs daily.</li>
+<li>Run the <code>watch-metric</code> workflow once by hand. The first run records the changes already in your history as the baseline and does not alert on them, nor later on a change dated back inside that history; after that it runs daily.</li>
 </ol>
 <p>Or anywhere with Node: <code>node watch.mjs data.csv --state watch-state.json</code>, from cron, a CI job or a notebook. Options for counts (<code>--model poisson</code>), volatility (<code>--model meanvar</code>), a weekly cycle (<code>--period 7</code>) and growth (<code>--log</code>) are in <code>node watch.mjs --help</code>.</p>
 

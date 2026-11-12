@@ -17,7 +17,11 @@ import { analyze, parseSeries, peaks } from './engine.mjs';
 // 15 of the 17 marked TCPD changes the AR(1) pass lost were at the 0.95 clip (eval/watch-rho-why.out.txt). With the cap,
 // 33 of 52 marked changes against 29, 41% of alerts at a mark against 38%, synthetic nulls and steps unchanged; the cost
 // is noise that really is that sticky (AR(1) 0.95: 3.0 false alerts per 1,000 checks against 1.25).
-export const WATCH_DEFAULTS = { confirm: 5, tolerance: 5, window: 1000, detector: 'bocpd-ar1-window', model: 'mean', rhoCap: 0.8 };
+// Round 5 (eval/watch-flicker.out.txt, rule pre-registered in eval/watch-flicker.mjs) holds changes dated inside the history
+// the first check called quiet instead of alerting them: TCPD 115 alerts to 106 with the same 33 of 52 marked changes and
+// 42% at a mark against 41%; synthetic cells unchanged; on the 7 held-out TCPD series 68 to 61 alerts, the same 9 of 12.
+// persist 2 (wait for a second check) failed: it lost a marked change on TCPD; it stays an option.
+export const WATCH_DEFAULTS = { confirm: 5, tolerance: 5, window: 1000, detector: 'bocpd-ar1-window', model: 'mean', rhoCap: 0.8, holdHistory: true, persist: 1 };
 /** The default detector for a model: the AR(1) pass for the level model, the plain Bayesian pass otherwise. */
 export const defaultDetector = (model = 'mean') => (model === 'mean' ? WATCH_DEFAULTS.detector : 'bocpd');
 
@@ -99,14 +103,14 @@ function locate(a, labelIndex) {
 /**
  * Compare today's changes with the state and decide what to report. Pure: returns
  * { alerts, pending, baseline, held, state, notes }. `changes` from detectChanges on the same series.
- * Two flicker guards (round 5, eval/watch-flicker.mjs), off unless asked for:
- *   holdHistory: a change dated where the first check already had `confirm` points after it (history the
+ * Two flicker guards (round 5, eval/watch-flicker.mjs):
+ *   holdHistory (on by default since round 5): a change dated where the first check already had `confirm` points after it (history the
  *     baseline called quiet) is recorded as `held`, not alerted.
- *   persist: 2 makes a change wait until a detection within `tolerance` of it was also present at the
+ *   persist (default 1, off): 2 makes a change wait until a detection within `tolerance` of it was also present at the
  *     previous check (state.seen), so a detection that appears for one check and vanishes is never sent.
  */
 export function advance(state, changes, n, labels, opts = {}) {
-  const { confirm, tolerance, holdHistory = false, persist = 1 } = { ...WATCH_DEFAULTS, ...opts };
+  const { confirm, tolerance, holdHistory, persist } = { ...WATCH_DEFAULTS, ...opts };
   const st = state && state.version === STATE_VERSION ? state : emptyState();
   const notes = [];
   if (st.n && n < st.n) notes.push(`The series is shorter than at the last check (${n} points, was ${st.n}): rows were removed or the file was replaced.`);
@@ -258,7 +262,7 @@ export function replayWatch(values, labels = null, opts = {}) {
   let step = Math.max(1, Math.round(step0 ?? 1));
   while (step < n && cost(endsFor(step)) > budget) step = Math.max(step + 1, Math.ceil(step * 1.25));
   const { confirm, tolerance, holdHistory, persist, ...detOpts } = settings;
-  const pol = { confirm, tolerance, ...(holdHistory ? { holdHistory } : {}), ...(persist > 1 ? { persist } : {}) };
+  const pol = { confirm, tolerance, holdHistory: !!holdHistory, persist: persist > 1 ? persist : 1 };
   let state = emptyState(), baseline = [], pending = [], checks = 0;
   const alerts = [], held = [];
   const det = (end) => detectChanges(v.slice(0, end), l.slice(0, end), detOpts);
