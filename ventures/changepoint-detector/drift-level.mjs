@@ -139,9 +139,19 @@ export function dropRepeats(values) {
 // k + 1 steps of wander in it, which 'drop' charged as one, so a real jump there looked like
 // wander (README "Sticky series"). sigma and omega start from the lag fit on the kept points, as
 // with 'drop'; minSegment counts kept points; the penalty uses the original length.
-export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 2, slope = false, noise = 'lags', loss = 'gauss', lossK = 3, scale = 'global', repeats = 'keep' } = {}) {
+//
+// stale: with repeats 'missing', 'shared' (the default) or 'segment'. A repeat is then its own event,
+// a Bernoulli draw with a stale probability p. One p for the whole series adds the same cost to
+// every partition, so 'shared' is plain 'missing' (README "Why the step goes missing"). 'segment'
+// gives each segment its own p (profiled: r / m, r repeats among its m steps), so a change in how
+// often the series updates counts toward a cut. Step s (from s - 1 to s) belongs to the segment
+// holding s; a segment's repeats are those after its first point and before the next segment's.
+// README "A stale probability per segment" (pre-registered, 2026-11-12).
+export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 2, slope = false, noise = 'lags', loss = 'gauss', lossK = 3, scale = 'global', repeats = 'keep', stale = 'shared' } = {}) {
   if (repeats !== 'keep' && repeats !== 'drop' && repeats !== 'missing') throw new Error(`repeats must be keep, drop or missing, not ${repeats}`);
-  if (repeats === 'missing') return gapDrift(values, { sigma, omega, penalty, minSegment, slope, noise, loss, scale });
+  if (stale !== 'shared' && stale !== 'segment') throw new Error(`stale must be shared or segment, not ${stale}`);
+  if (stale === 'segment' && repeats !== 'missing') throw new Error('stale segment needs repeats missing');
+  if (repeats === 'missing') return gapDrift(values, { sigma, omega, penalty, minSegment, slope, noise, loss, scale, stale });
   if (repeats === 'drop') {
     if (slope) throw new Error('repeats drop does not take slope (the median step would be per kept point, not per period)');
     const d = dropRepeats(values);
@@ -204,7 +214,7 @@ export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 
   return { changepoints: cps, sigma: s, omega: w, penalty: beta, cost: best[n], slope: g, noise: est ? 'lags' : 'given', loss, lossK: lossKind ? lossK : null, scale };
 }
 
-function gapDrift(values, { sigma, omega, penalty, minSegment, slope, noise, loss, scale }) {
+function gapDrift(values, { sigma, omega, penalty, minSegment, slope, noise, loss, scale, stale = 'shared' }) {
   if (slope) throw new Error('repeats missing does not take slope');
   if (loss !== 'gauss') throw new Error('repeats missing takes the Gaussian loss only');
   const N = Array.from(values).length;
@@ -212,13 +222,14 @@ function gapDrift(values, { sigma, omega, penalty, minSegment, slope, noise, los
   const beta = penalty ?? (scale === 'segment' ? 3 : 2) * Math.log(N);
   const gap = d.index.map((t, k) => (k ? t - d.index[k - 1] : 0));
   const n = d.values.length;
-  if (n < 2 * minSegment) return { changepoints: [], sigma: sigma ?? null, omega: omega ?? null, penalty: null, repeats: 'missing' };
+  const st = stale === 'segment' ? { index: d.index, N } : null;
+  if (n < 2 * minSegment) return { changepoints: [], sigma: sigma ?? null, omega: omega ?? null, penalty: null, repeats: 'missing', stale };
   if (noise === 'ml' && (sigma == null || omega == null)) {
     const s0 = sigma ?? driftNoise(d.values).sigma;
     const memo = new Map();
     const evalQ = (q) => {
       const key = q.toPrecision(12);
-      if (!memo.has(key)) memo.set(key, { q, ...gapPartition(d.values.map((v) => v / s0), gap, q, beta, minSegment, scale) });
+      if (!memo.has(key)) memo.set(key, { q, ...gapPartition(d.values.map((v) => v / s0), gap, q, beta, minSegment, scale, st) });
       return memo.get(key);
     };
     const qs = [0, ...Array.from({ length: 17 }, (_, i) => 10 ** (-4 + i / 2))];
@@ -234,18 +245,20 @@ function gapDrift(values, { sigma, omega, penalty, minSegment, slope, noise, los
       }
       for (const q of [10 ** c, 10 ** e]) { const r = evalQ(q); if (r.cost < best.cost) best = r; }
     }
-    return { changepoints: best.changepoints.map((c) => d.index[c]), sigma: s0, omega: s0 * Math.sqrt(best.q), penalty: beta, cost: best.cost, slope: 0, noise: 'ml', loss, scale, repeats: 'missing', repeatsDropped: N - n, kept: d };
+    return { changepoints: best.changepoints.map((c) => d.index[c]), sigma: s0, omega: s0 * Math.sqrt(best.q), penalty: beta, cost: best.cost, slope: 0, noise: 'ml', loss, scale, repeats: 'missing', stale, repeatsDropped: N - n, kept: d };
   }
   const est = sigma == null || omega == null ? driftNoise(d.values) : null;
   const s = sigma ?? est.sigma, w = omega ?? est.omega;
-  const r = gapPartition(d.values.map((v) => v / s), gap, (w * w) / (s * s), beta, minSegment, scale);
-  return { changepoints: r.changepoints.map((c) => d.index[c]), sigma: s, omega: w, penalty: beta, cost: r.cost, slope: 0, noise: est ? 'lags' : 'given', loss, scale, repeats: 'missing', repeatsDropped: N - n, kept: d };
+  const r = gapPartition(d.values.map((v) => v / s), gap, (w * w) / (s * s), beta, minSegment, scale, st);
+  return { changepoints: r.changepoints.map((c) => d.index[c]), sigma: s, omega: w, penalty: beta, cost: r.cost, slope: 0, noise: est ? 'lags' : 'given', loss, scale, repeats: 'missing', stale, repeatsDropped: N - n, kept: d };
 }
 
 // Exact partition of the kept points y (sigma units) where gap[k] steps of wander separate y[k-1]
 // and y[k]. Each open segment start carries its own filter state, since the variances now depend on
 // the gaps since the start; still O(n^2). With every gap 1 it is driftLevelChanges' partition exactly.
-export function gapPartition(y, gap, q, beta, minSegment = 2, scale = 'global') {
+// stale: null, or { index, N } (kept point k sits at original position index[k] of N) to add each
+// segment's profiled stale-probability cost (staleCost).
+export function gapPartition(y, gap, q, beta, minSegment = 2, scale = 'global', stale = null) {
   const n = y.length;
   const a = new Float64Array(n), P = new Float64Array(n), S = new Float64Array(n), LF = new Float64Array(n);
   const best = new Float64Array(n + 1), last = new Int32Array(n + 1);
@@ -262,7 +275,12 @@ export function gapPartition(y, gap, q, beta, minSegment = 2, scale = 'global') 
     let bv = Infinity, bs = 0;
     for (let st = 0; st + minSegment - 1 <= t; st++) {
       if (st > 0 && st < minSegment) continue;
-      const c = seg ? scaleCost(t - st, S[st], LF[st]) : LF[st] + S[st];
+      let c = seg ? scaleCost(t - st, S[st], LF[st]) : LF[st] + S[st];
+      if (stale) {
+        const from = stale.index[st], end = t + 1 < n ? stale.index[t + 1] : stale.N;
+        const steps = end - Math.max(from, 1), fresh = t - st + (st === 0 ? 0 : 1);
+        c += staleCost(steps - fresh, steps);
+      }
       const v = best[st] + beta + c;
       if (v < bv) { bv = v; bs = st; }
     }
@@ -272,6 +290,12 @@ export function gapPartition(y, gap, q, beta, minSegment = 2, scale = 'global') 
   for (let t = n; t > 0; t = last[t]) if (last[t] > 0) cps.push(last[t]);
   cps.reverse();
   return { changepoints: cps, cost: best[n] };
+}
+
+// -2 log-likelihood of r repeats among m steps at the profiled stale probability r / m (0 log 0 = 0).
+export function staleCost(r, m) {
+  if (m <= 0 || r <= 0 || r >= m) return 0;
+  return -2 * (r * Math.log(r / m) + (m - r) * Math.log((m - r) / m));
 }
 
 // The profiled cost of j innovations whose sum of squared standardised innovations is S and whose
