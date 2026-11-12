@@ -2200,3 +2200,113 @@ panel flips coins, a panel the agreement note already flags.
 Caveats: synthetic camps share one second taste; real panels are replayed
 rankings (no real pairwise noise, so `--honest-lapse` is a stand-in); two
 panels, 11 and 15 items; coin flippers on every answer.
+
+
+## A heavier-tailed prior for the pairwise intervals (2026-11-12, latest; not shipped)
+
+The empirical-Bayes section left the pairwise intervals on the fixed prior
+(sd 2.0, wide, 0.95-0.97 coverage at a half-width of about 2.4 logits) and
+named one reason the narrower pooled Gaussian fell short of 95%: "a Gaussian
+prior on uniform truth over-shrinks the extreme items". A Student-t prior
+is the textbook fix for that, since its pull toward the middle fades for an
+item far from it. This section builds it, measures it, and finds the
+diagnosis was wrong: the t narrows the intervals further but covers less,
+under every shape of truth tried, including the heavy-tailed one it is
+meant for.
+
+**Method** (`src/lib/btRefit.ts`, `priorDf` on `refitRatings`,
+`sampledEvidence` and `pooledPriorPhi`; tests in `btRefitT.test.ts`). Each
+item's score gets an independent Student-t prior with `df` degrees of freedom
+and scale phi; `df` Infinity is the Gaussian, so every existing caller is
+unchanged. The t's curvature turns negative past |m| = phi sqrt(df), so the
+Newton steps use its iteratively-reweighted majoriser (df + 1)/(df phi^2 +
+m^2) with the existing halving line search, and the covariance uses the true
+curvature at the mode (the majoriser only if that Hessian is indefinite).
+The sampled evidence uses the fully normalised t density, so a Gaussian
+and a t can be compared on one scale. Tests: the density against the
+closed form at df 3 and against numerical integration at df 1, 2.5 and 7;
+the mode against a finite-difference gradient of a posterior written out in
+the test; the covariance against a finite-difference Hessian; df 1e8
+against the Gaussian; the evidence against 2-D quadrature on one pair
+answered four ways and exactly log 1/2 on one answer.
+
+**Design** (`scripts/t-prior-interval-sweep.ts`, rows in
+`docs/t-prior-intervals-2026-11-12.jsonl`). Synthetic respondent of
+`infoGainSim.ts`, 8/15/30 items x 2/4/8 answers per item, lapse 0 and 0.2,
+shipped and staged selectors, 40 respondents per cell, seed bases 1000 and
+50000 (18 cells per row below). Three shapes of true likes, all with sd
+1.155 on the logit scale: uniform (the simulator's own, every earlier
+sweep), normal, and Laplace (double exponential: a few items far out, the
+case a t prior is for). Priors: the fixed Gaussian; the Gaussian with its sd
+from the pooled sampled evidence of an independent panel of 40 with the
+same design (as the empirical-Bayes section's `--pool`); t with df 7, 3 and
+1 (Cauchy), each with its scale from the same pooled evidence; and "by
+evidence", the family (Gaussian, t7, t3 or t1) whose pooled evidence at its
+own best scale is highest. Coverage of every pair's 95% interval (full
+covariance) / coverage over pairs with an item in the true top or bottom
+fifth ("ends") / half-width in logits, honest respondents:
+
+| truth | selector | fixed | Gaussian, pooled | t7, pooled | t3, pooled | t1, pooled | family by evidence | picked g / t7 / t3 / t1 |
+|---|---|---|---|---|---|---|---|---|
+| uniform | shipped | 0.969 / 0.968 / 2.42 | 0.942 / 0.930 / 1.90 | 0.920 / 0.899 / 1.80 | 0.880 / 0.847 / 1.70 | 0.801 / 0.758 / 1.67 | 0.942 / 0.930 / 1.90 | 18 / 0 / 0 / 0 |
+| uniform | staged | 0.948 / 0.947 / 2.34 | 0.866 / 0.830 / 1.63 | 0.812 / 0.762 / 1.54 | 0.755 / 0.697 / 1.50 | 0.751 / 0.711 / 1.68 | 0.864 / 0.827 / 1.62 | 17 / 1 / 0 / 0 |
+| normal | shipped | 0.968 / 0.966 / 2.42 | 0.930 / 0.910 / 1.86 | 0.912 / 0.885 / 1.77 | 0.879 / 0.838 / 1.67 | 0.809 / 0.758 / 1.66 | 0.930 / 0.909 / 1.86 | 17 / 1 / 0 / 0 |
+| normal | staged | 0.941 / 0.941 / 2.35 | 0.856 / 0.813 / 1.56 | 0.837 / 0.780 / 1.52 | 0.811 / 0.747 / 1.53 | 0.793 / 0.746 / 1.71 | 0.856 / 0.813 / 1.56 | 18 / 0 / 0 / 0 |
+| Laplace | shipped | 0.964 / 0.961 / 2.41 | 0.913 / 0.882 / 1.78 | 0.899 / 0.862 / 1.70 | 0.875 / 0.826 / 1.60 | 0.828 / 0.771 / 1.61 | 0.908 / 0.874 / 1.77 | 10 / 4 / 4 / 0 |
+| Laplace | staged | 0.922 / 0.924 / 2.35 | 0.888 / 0.853 / 1.69 | 0.882 / 0.839 / 1.62 | 0.871 / 0.821 / 1.61 | 0.855 / 0.810 / 1.75 | 0.883 / 0.842 / 1.67 | 10 / 6 / 2 / 0 |
+
+With careless answers (lapse 0.2) every pooled prior breaks, as the
+empirical-Bayes section found for the Gaussian: 0.65-0.77 for the pooled
+Gaussian, 0.61-0.77 for the t's, against 0.88-0.93 for the fixed prior.
+Rank accuracy moves by 0.01 at most between any two priors in any row.
+
+What it shows:
+
+- **The t covers less than the Gaussian of the same evidence, under every
+  truth.** Each step to a heavier tail (Gaussian, t7, t3, t1) costs coverage
+  on shipped in every row, 0.01-0.08 per step, and buys at most 0.10
+  logits of width per step. Under staged the order is the same except t1, whose Cauchy scale
+  sometimes lands wider. Even with Laplace truth the t3 holds 0.875 and
+  0.871 against the Gaussian's 0.913 and 0.888.
+- **The ends were never the main miss.** Pairs with an item in the top or
+  bottom fifth do miss more than the rest under the pooled Gaussian, but by
+  0.01-0.04, and the t widens that gap rather than closing it (t3 ends
+  0.03-0.06 under t3 overall).
+- **Why.** A heavier-tailed prior with the same spread is more peaked in
+  the middle. Its curvature at 0 is (df + 1)/(df phi^2), and the pooled
+  evidence gives it a smaller scale than the Gaussian's sd (on uniform truth
+  under shipped: Gaussian 1.06-1.37, t3 0.82-1.06; under staged with 8
+  answers per item the t3 scale falls to 0.34-0.80), so most items, which sit
+  in the middle, are pulled together harder and their Laplace intervals read
+  as more certain than the answers make them. The long tail helps the one
+  or two items far out; the peak costs every other pair.
+- **The evidence knows.** Choosing the family by pooled evidence picks the
+  Gaussian in 90 of 108 honest cells (35 of 36 on uniform truth; 20 of 36
+  on Laplace) and ends within 0.005 of the pooled Gaussian everywhere, so the
+  data do not ask for heavier tails even when the truth has them.
+- **The pooled Gaussian is not safe for intervals either.** On seed base
+  50000 the staged 15 items x 8 answers cell's pooled sd fell to 0.33 (near
+  the 0.3 floor) and its intervals held 0.39 of pairs; the staged rows
+  above are 0.86-0.89 rather than the empirical-Bayes section's 0.926
+  (seed base 1000 only, 8/15/30) for that reason. On seed base 1000 alone
+  the staged honest uniform cells give 0.88-0.95, matching it. The favourite
+  set is not hurt by such a collapse, since it takes the narrower of own and
+  stored sd and a narrower sd only lengthens the list.
+
+**Decision.** Not shipped. The pairwise intervals keep the fixed Gaussian
+prior, which is the only prior here that holds 0.92 or better in every honest
+row and 0.88 or better with careless answers. `priorDf` stays in `btRefit.ts`, tested and
+unwired (no caller passes it), so a later prior experiment can reuse it.
+Next for the intervals, if they are to get narrower: why the pooled
+Gaussian panel collapses under staged with many answers per item (a
+hyperprior on phi, or more than 40 people, are the obvious tries) and
+intervals from posterior draws rather than Laplace curvature, since staged
+asks exactly the pairs whose posterior is least Gaussian.
+
+Caveats: synthetic Bradley-Terry respondents; three chosen truth shapes,
+not measured ones; 30 items or fewer; 40 respondents per cell, so a cell's
+coverage moves by about 0.01-0.02 between seed bases (and by more when a
+pooled estimate collapses). The PrefLib panels give real orderings but no
+true logit gaps, so pairwise intervals on them cannot be scored; real
+pairwise answers would not either, which is why this stays a simulation
+question.

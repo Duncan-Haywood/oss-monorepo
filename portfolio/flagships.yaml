@@ -243,29 +243,24 @@ flagships:
       (2026-11-12): per-person refit (btRefit.ts), clear pick at 1.645 sd
       (clearPick.ts), "it's between" as a 95% credible set at min(own EB prior
       sd, stored survey pooled sd) (favouriteSet.ts, surveyPrior*.ts); on real
-      PrefLib rankings clear picks wrong 5 of 860, set holds 97-100%. Latest,
-      2026-11-12: staged is the server default up to 120 items
-      (defaultPairSelector/resolvePairSelector in pairing.ts; survey setting,
-      then PAIR_SELECTOR, win) after the careless, position-bias and
-      answer-time sweeps were re-run under both selectors
-      (INFORMATION-GAIN-SELECTOR.md "Staged as the default up to 120 items",
-      docs/staged-default-2026-11-12.jsonl): pooled Spearman equal overall
-      (+0.0007 over 80 cells), better on honest panels and slot clickers
-      (up to +0.025), real panels at least standard's in 22 of 25 cells; the
-      one cost is whole-session coin flippers at 40-50% of a panel (-0.006 to
-      -0.025), and salience leaks 0.01-0.03 more. Coin-flip fix tried
-      2026-11-12, not shipped (INFORMATION-GAIN-SELECTOR.md "Self-consistency"):
-      selfConsistency.ts is camp-blind but near a coin under staged; as a gate
-      on the agreement drop it halves the camp tax, but on real panels it
-      depends on real answer noise; 18-46% of real people sit under the 0.2
-      agreement line with nobody careless. Next, most
-      valuable first: (a) a heavier-tailed prior for the pairwise intervals;
-      (b) half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace
-      see them?); (c) the first real survey's answers: msToAnswer against the
-      answer-time model, and how noisy real pairwise answers are, which
-      decides the self-consistency gate (scripts/coin-flip-gate-real.ts
-      --honest-lapse); (d) position bias that starts mid-session; (e) the
-      switch rule above 120 items (then make staged the default there too).
+      PrefLib rankings clear picks wrong 5 of 860, set holds 97-100%. Staged
+      is the server default up to 120 items (pairing.ts; "Staged as the
+      default up to 120 items"); its one cost is whole-session coin flippers
+      at 40-50% of a panel (-0.006 to -0.025). Tried and not shipped
+      2026-11-12: the self-consistency gate ("Self-consistency": depends on
+      real answer noise) and a Student-t prior for the pairwise intervals ("A
+      heavier-tailed prior for the pairwise intervals": narrower but covers
+      less than the Gaussian under uniform, normal and Laplace truths;
+      priorDf in btRefit.ts, unwired). Next, most valuable first: (a) why the
+      pooled Gaussian sd collapses toward the 0.3 floor under staged with many
+      answers per item (one cell 0.33, intervals 0.39), and intervals from
+      posterior draws rather than Laplace curvature; (b) half-time salience
+      (q = 0.5 still leaks +0.12 to +0.29: does pace see them?); (c) the first
+      real survey's answers: msToAnswer against the answer-time model, and how
+      noisy real pairwise answers are, which decides the self-consistency gate
+      (scripts/coin-flip-gate-real.ts --honest-lapse); (d) position bias that
+      starts mid-session; (e) the switch rule above 120 items (then make staged
+      the default there too).
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot

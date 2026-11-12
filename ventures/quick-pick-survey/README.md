@@ -208,7 +208,9 @@ and the set uses the narrower of the person's and the survey's: in a synthetic s
 and careless answers that held the favourite for 95.4-96.4% (own alone 92.2-94.3%), where the pooled
 value alone dropped to 83-92% for people whose likes are close together.
 The ratings, intervals and clear-pick rule keep the fixed prior: the estimated one makes pairwise
-intervals undercover. The stored states still drive question
+intervals undercover, and a heavier-tailed (Student-t) prior, tried 2026-11-12 under uniform, normal
+and Laplace-shaped synthetic truths, narrows them further but covers less than the Gaussian in every
+case (`priorDf` in `btRefit.ts`, tested, unwired). The stored states still drive question
 selection and the couple screen. Measurements: docs/INFORMATION-GAIN-SELECTOR.md, "Per-person
 intervals from a refit", "The clear-top-pick claim", "Who it's between", "An empirical-Bayes
-prior" and "A stored survey prior" (2026-11-12).
+prior", "A stored survey prior" and "A heavier-tailed prior for the pairwise intervals" (2026-11-12).
