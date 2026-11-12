@@ -27,11 +27,12 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
   "errors": [
+    {"what": "CI validate: flagships.yaml next: over the 2,000-character cap after the rewrite", "fix": "shortened the (w) item; portfolio/router/validate.py passes"},
     {
       "what": "First --why run crashed after 20 min on centralia (15 points, shorter than the 20-point baseline: empty trace)",
       "fix": "guard for series too short to watch; traces cached to tcpd-data so a rerun skips the replay"
