@@ -31,5 +31,11 @@ for e in [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]:
 n = len(xs); mx, my = sum(xs)/n, sum(ys)/n
 slope = sum((x-mx)*(y-my) for x, y in zip(xs, ys)) / sum((x-mx)**2 for x in xs)
 out.append(f"fit slope dT/dln(1/eps) = {-slope:.3f}  (1/lambda = {1/lam:.3f})")
+# eps=1e-1 is saturated (the twin leaves tol within 0.1 time units), so the
+# all-points slope is pulled down by that one row; fit the unsaturated range too.
+xs2, ys2 = xs[1:], ys[1:]
+n = len(xs2); mx, my = sum(xs2)/n, sum(ys2)/n
+slope2 = sum((x-mx)*(y-my) for x, y in zip(xs2, ys2)) / sum((x-mx)**2 for x in xs2)
+out.append(f"fit slope without the saturated eps=1e-1 row (eps 1e-2..1e-5) = {-slope2:.3f}")
 open(os.path.join(os.path.dirname(__file__), "results.txt"), "w").write("\n".join(out) + "\n")
 print("\n".join(out))

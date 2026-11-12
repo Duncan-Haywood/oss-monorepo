@@ -19,3 +19,4 @@ eps  mean_T
 1e-04     5.19
 1e-05     7.81
 fit slope dT/dln(1/eps) = 0.853  (1/lambda = 1.106)
+fit slope without the saturated eps=1e-1 row (eps 1e-2..1e-5) = 0.996
