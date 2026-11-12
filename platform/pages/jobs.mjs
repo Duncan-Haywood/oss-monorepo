@@ -61,6 +61,7 @@
 /** The one `localStorage` key. Device-local, like every other signal here. */
 
 import { readFileSync } from 'node:fs';
+import { BAR_ALIGN_JS } from './bar-align.mjs';
 export const SAVED_BIDS_KEY = 'portfolio-saved-bids';
 
 const JOBS_MARKER = 'pf-jobs';
@@ -3012,6 +3013,7 @@ ${BID_PRICE_BAND_HELPERS}
 
   var root = document.querySelector('[data-pf-jobs-root]');
   if (!root) return;
+${BAR_ALIGN_JS}
   var el = function(id){ return document.getElementById(id); };
 
   var store = (function(){ try { return window.localStorage; } catch (e) { return null; } })();
@@ -3736,6 +3738,8 @@ ${BID_PRICE_BAND_HELPERS}
     if (formFields().length < MIN_FIELDS) { root.remove(); return; }
 
     root.hidden = false;
+    // Line up with the page's heading, now the bar is in the layout (bar-align.mjs).
+    pfAlignBar(root);
     render();
     var saved = mine().length;
     if (saved > 0) say(saved === 1 ? '1 saved bid.' : saved + ' saved bids.');

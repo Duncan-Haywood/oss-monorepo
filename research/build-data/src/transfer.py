@@ -136,7 +136,7 @@ def run(frames, held, test_year, seeds, keep_rows=False):
     res["coverage_80_own_baseline"] = float(np.mean((bq[.1] <= yte) & (yte <= bq[.9])))
     if keep_rows:  # per-row seed-mean losses for paired(); not written to json
         rows["own_baseline"] = {t: boosted.pin(yte, bq[t], t) for t in TAUS}
-        res["_rows"] = dict(loss=rows, y=yte, weeks=wk, permit_id=te.permit_id.to_numpy(),
+        res["_rows"] = dict(loss=rows, y=yte, weeks=wk, permit_id=te.permit_id.to_numpy(), start=te.start.to_numpy(),
                             cls=(te.cls_unfolded if "cls_unfolded" in te else te.cls).to_numpy())
     return res
 
