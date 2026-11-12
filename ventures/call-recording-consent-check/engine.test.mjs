@@ -42,19 +42,19 @@ test("normalizeState rejects unrecognized input", () => {
   assert.throws(() => normalizeState("Puerto Rico"), /Unrecognized/);
 });
 
-// The 14 jurisdictions this table classifies as all-party, spelled out so a
+// The 13 jurisdictions this table classifies as all-party, spelled out so a
 // future edit that silently drops or adds one is caught by name rather than
 // only by a changed count.
 const EXPECTED_ALL_PARTY = [
   "California", "Connecticut", "Delaware", "Florida", "Illinois", "Maryland",
-  "Massachusetts", "Michigan", "Montana", "Nevada", "New Hampshire", "Oregon",
+  "Massachusetts", "Michigan", "Montana", "Nevada", "New Hampshire",
   "Pennsylvania", "Washington",
 ].sort();
 
-test("exactly the expected 14 states are classified all-party; every other jurisdiction is one-party", () => {
+test("exactly the expected 13 states are classified all-party; every other jurisdiction is one-party", () => {
   const allParty = listStates().filter((s) => getRule(s).type === "all-party").sort();
   assert.deepEqual(allParty, EXPECTED_ALL_PARTY);
-  assert.equal(listStates().length - allParty.length, 37); // 36 one-party states + DC
+  assert.equal(listStates().length - allParty.length, 38); // 37 one-party states + DC
 });
 
 test("getRule is case/abbreviation-insensitive the same way normalizeState is", () => {
@@ -136,4 +136,16 @@ test("Vermont is classified one-party with its structural-exception note present
 test("Nevada and Michigan carry their ambiguity notes (statute text vs. how it is applied)", () => {
   assert.match(getRule("Nevada").note, /Lane v\. Allstate/);
   assert.match(getRule("Michigan").note, /least certain/i);
+});
+
+// Quality audit 2026-11-12 (portfolio/quality/audits/2026-11-12-call-recording-consent-check.json):
+// Oregon was classed all-party. ORS 165.540(1)(a) allows recording a
+// telecommunication with one participant's consent; the all-party rule in
+// (1)(c) is for in-person conversations, which this tool does not cover.
+test("Oregon phone calls are one-party under ORS 165.540(1)(a); Pennsylvania cites the § 5704(4) consent exception", () => {
+  assert.equal(getRule("Oregon").type, "one-party");
+  assert.match(getRule("Oregon").statute, /165\.540\(1\)\(a\)/);
+  assert.match(getRule("Pennsylvania").statute, /5704\(4\)/);
+  assert.match(getRule("Connecticut").note, /one-party/);
+  assert.match(getRule("Delaware").note, /2402/);
 });

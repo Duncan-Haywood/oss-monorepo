@@ -25,12 +25,12 @@
 //     ambiguity is disclosed in the `note` field rather than resolved by
 //     picking a side.
 //
-// Sourcing: the fourteen "all-party" classifications and their statute
+// Sourcing: the thirteen "all-party" classifications and their statute
 // citations are the same list repeated, in substance, across the major free
 // public references on this topic (state bar consumer-law pages, the
 // Reporters Committee for Freedom of the Press's long-running "Can We Tape?"
 // guide, and most call-center-compliance vendor blogs) -- this table did not
-// invent a new classification for any state. Citations for the thirty-six
+// invent a new classification for any state. Citations for the thirty-seven
 // "one-party" states are intentionally left as a pointer to that state's own
 // wiretapping/eavesdropping statute rather than a specific section number,
 // because getting a *pinpoint* citation wrong reads as more authoritative
@@ -64,14 +64,19 @@ const STATE_TABLE = {
   Colorado: { type: ONE_PARTY },
   Connecticut: {
     type: ALL_PARTY,
-    statute: "Conn. Gen. Stat. § 52-570d (civil action); § 53a-187 (criminal eavesdropping)",
+    statute: "Conn. Gen. Stat. § 52-570d (civil action)",
+    note: "Split rule: the civil statute (§ 52-570d) requires every party's consent (or a beep or announcement) to record a telephone call, and lets the unconsenting party sue. The criminal eavesdropping statutes (§§ 53a-187, 53a-189) are one-party. Listed as all-party because the civil exposure applies to an ordinary recorded call.",
   },
-  Delaware: { type: ALL_PARTY, statute: "Del. Code Ann. tit. 11, § 1335" },
+  Delaware: {
+    type: ALL_PARTY,
+    statute: "Del. Code Ann. tit. 11, § 1335",
+    note: "Disputed: Delaware's wiretap act (tit. 11, § 2402(c)(4)) allows a participant to record with one party's consent, while the privacy statute (§ 1335) is read as requiring every party's consent. Listed as all-party out of caution.",
+  },
   Florida: { type: ALL_PARTY, statute: "Fla. Stat. § 934.03" },
   Georgia: { type: ONE_PARTY },
   Hawaii: {
     type: ONE_PARTY,
-    note: "One-party for a call you are personally part of (Haw. Rev. Stat. § 711-1111); a separate, stricter rule applies to a non-party planting a recording device in a private place.",
+    note: "One-party for a call you are personally part of (Haw. Rev. Stat. § 803-42(b)(3)); a separate, stricter rule applies to a non-party planting a recording device in a private place.",
   },
   Idaho: { type: ONE_PARTY },
   Illinois: {
@@ -111,13 +116,13 @@ const STATE_TABLE = {
   Ohio: { type: ONE_PARTY },
   Oklahoma: { type: ONE_PARTY },
   Oregon: {
-    type: ALL_PARTY,
-    statute: "Or. Rev. Stat. § 165.540",
-    note: "Telephone and other electronic communications require all-party consent. In-person conversations have a narrower rule (only announcement to those present may be required in some cases) — this tool covers phone/video calls only.",
+    type: ONE_PARTY,
+    statute: "Or. Rev. Stat. § 165.540(1)(a)",
+    note: "Telephone and radio communications need the consent of at least one participant (ORS 165.540(1)(a)). In-person conversations are different: every participant must be specifically informed (ORS 165.540(1)(c)). This tool covers phone/video calls only, so an in-person recording in Oregon is all-party and out of scope here.",
   },
   Pennsylvania: {
     type: ALL_PARTY,
-    statute: "18 Pa. Cons. Stat. § 5703 (Wiretapping and Electronic Surveillance Control Act)",
+    statute: "18 Pa. Cons. Stat. §§ 5703, 5704(4) (Wiretapping and Electronic Surveillance Control Act; § 5704(4) is the all-party consent exception)",
   },
   "Rhode Island": { type: ONE_PARTY },
   "South Carolina": { type: ONE_PARTY },
@@ -230,7 +235,6 @@ export function disclosureScript(requirement, { company = "[Your Company]", purp
     );
   }
   return (
-    `This call may be recorded for ${why}. ` +
-    `(One-party consent applies here, so this notice is a trust/best-practice courtesy, not a statutory requirement — see the tool's guidance for why.)`
+    `This call may be recorded for ${why}.`
   );
 }

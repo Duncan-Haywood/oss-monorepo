@@ -1,0 +1,240 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/call-recording-consent-check",
+  "stratum": "venture",
+  "seed": "2026-11-12-c",
+  "drawn_by": "sample",
+  "round": 44,
+  "auditor": "agent session (Claude), quality-audit round 44",
+  "status": "audited",
+  "professional": "a telecommunications/privacy attorney or call-center compliance officer, who would check first the all-party list against each statute's text (especially the commonly mis-listed Oregon, Connecticut, Delaware, Michigan and Nevada), the interstate rule, and whether the script is something an agent can read aloud",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran `node cli.mjs check` for CA TX, NY CA, OR OR, OR WA, CT CT, DE NY, MI MI, DC DC, XX CA. The network was blocked (WebFetch ENOTFOUND for oregon.public.law, cga.ct.gov, delcode.delaware.gov; curl to marisstella.app got proxy 403), so I checked against statute citations I know well, not live text. Correct: CA (Penal Code 631/632, $5,000 per violation under 637.2), FL 934.03, IL 720 ILCS 5/14-2 (re-enacted after Melongo, 2014), MD 10-402, MA ch.272 s.99, MT 45-8-213, NH 570-A:2, WA 9.73.030, NV 200.620 with Lane v. Allstate 969 P.2d 938 (1998), the federal 2511(2)(d) text, Kearney 39 Cal.4th 95 (2006), and DC one-party (D.C. Code 23-542). Wrong: Oregon. ORS 165.540(1)(a) bars obtaining a telecommunication 'unless consent is given by at least one participant', which makes phone calls one-party. All-party notice applies only to in-person conversations, under (1)(c). The engine note says the reverse ('Telephone and other electronic communications require all-party consent'), and the tool's own scope is phone calls only. Connecticut prints 53a-187 as an all-party criminal statute, but criminal eavesdropping there is one-party; only the civil 52-570d is all-party for telephone calls, and the entry carries no note. Delaware is classed all-party with no note, though its wiretap act (tit. 11 s.2402(c)(4)) is one-party and only s.1335 points the other way. That gives 11 of 14 all-party rows clean and 1 classification wrong, all erring conservative, which limits the harm. Score 2.",
+    "completeness": "Every claimed feature works end to end: `check` (exit 1 all-party, 0 one-party, 2 on a bad state or missing argument), `states` (51 rows, 14 all-party, also with --json), `script` all-party and one-party with --company/--purpose/--json, abbreviation and case-insensitive input, and a page that imports the shipped engine.mjs (index.html:141). No stubs or TODOs found.",
+    "verification": "`node --test '*.test.mjs'`: 76 pass, 0 fail. Mutations: interstate || -> && caught (8 fail); Oregon flipped to one-party caught (1 fail, from a hard-coded list of 14); stricter-state name swap caught (1 fail); Nevada statute 200.620 -> 200.650 survived (no test checks citation text); same-state requirement caller.type -> recipient.type survived, but it is an equivalent mutant. The tests pin the author's own list of 14, so they could never have caught the Oregon error. They catch regressions, not domain mistakes.",
+    "craft": "Read engine.mjs (236 lines), cli.mjs, index.html script, and the test names. The code is clean and small, one engine is shared by the CLI and the page, and input errors are explicit. Two small defects: the company name is not stripped of a trailing period ('Acme Inc..' in the script output), and the one-party 'script' text includes a developer parenthetical ('(One-party consent applies here, so this notice is ... see the tool's guidance for why.)') that an agent reading it aloud would say to the caller.",
+    "claims": "The disclaimer is on every page, and the tool is framed as a reference lookup, not legal advice (index.html:47,124,132; both articles; CLI footer). Contradiction: index.html:14,121, why-...html:9,33,88 and README:26 say 'Fourteen states and DC' require all-party consent (or 'do not' follow the floor), while the table, index.html:111 and the tests make DC one-party, and 'the other thirty-six' only adds up without DC. The meta description's 'the exact statute cited' holds only for the 14 all-party states. llms.txt says 'Results are estimates from the numbers typed in', boilerplate that does not fit a state picker. The llms.txt github.io hosts are rewritten at build (source-only), and I could not load the served page (proxy 403). The Oregon note claims phone all-party, which is the correctness defect restated as a claim.",
+    "fitness": "Walked the job: a compliance officer setting up recording for a team that calls into OR, CT and DE. The tool says all-party for all three, with no hint that phone calls in OR are one-party, that CT is all-party only civilly, or that DE is disputed. Its answer (get consent) is safe, but the officer cannot use the table as the citation-grade summary it presents itself as. Nor does it model the case where the recording party is not a participant. The interstate rule is the safe, standard advice. Useful as a conservative checklist, not as a reference for the boundary states.",
+    "domain": "Compared with RCFP 'Can We Tape?'-style practice and the statutes. The conservative interstate rule (all-party if either end is all-party, citing Kearney) matches standard practice. Departures: Oregon is misclassified for phone calls; CT's civil and criminal split is not disclosed; DE's dispute is not disclosed although the README says only NV and MI are ambiguous; PA cites s.5703 (the prohibition) rather than s.5704(4), the all-party consent exception a lawyer would quote; Hawaii's note cites HRS 711-1111 (privacy in the second degree) instead of HRS 803-42, the wiretap statute with the one-party rule."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "California same-state and CA-TX interstate",
+      "method": "Cal. Penal Code 632(a) (consent of all parties to a confidential communication); 637.2 civil $5,000; Kearney v. Salomon Smith Barney, 39 Cal.4th 95 (2006). Statute citations from memory, network blocked",
+      "command": "node cli.mjs check CA TX; node cli.mjs check NY CA",
+      "expected": "all-party for both directions, citing 631/632",
+      "observed": "ALL-PARTY CONSENT REQUIRED, exit 1, both directions",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Oregon phone call, same state",
+      "method": "ORS 165.540(1)(a): telecommunication may be obtained if 'consent is given by at least one participant'; (1)(c) all-party notice for in-person conversations only. Citation from memory, network blocked",
+      "command": "node cli.mjs check OR OR",
+      "expected": "one-party for phone/video calls",
+      "observed": "ALL-PARTY CONSENT REQUIRED; note says telephone requires all-party",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Connecticut classification and cited statutes",
+      "method": "Conn. Gen. Stat. 52-570d (civil, all parties for telephone calls) vs 53a-187/53a-189 (criminal eavesdropping defined as without consent of at least one party). From memory",
+      "command": "node cli.mjs check CT CT",
+      "expected": "all-party civil exposure, with a note that criminal eavesdropping is one-party",
+      "observed": "all-party citing both 52-570d and 53a-187 as if both are all-party, no note",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Delaware classification",
+      "method": "Del. Code tit. 11 s.2402(c)(4) (wiretap act, party or one-party prior consent lawful) vs s.1335(a)(4); commonly listed as disputed. From memory",
+      "command": "node cli.mjs check DE NY",
+      "expected": "all-party conservatively, with an ambiguity note",
+      "observed": "all-party citing only s.1335, no note",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Nevada wire communication",
+      "method": "NRS 200.620; Lane v. Allstate Ins. Co., 969 P.2d 938 (Nev. 1998)",
+      "command": "node cli.mjs states --json",
+      "expected": "all-party with the Lane note",
+      "observed": "all-party, Lane v. Allstate 969 P.2d 938 cited",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Washington-Oregon interstate and DC same-state",
+      "method": "RCW 9.73.030 (all parties); D.C. Code 23-542 (one-party). From memory",
+      "command": "node cli.mjs check Oregon washington; node cli.mjs check DC DC",
+      "expected": "WA alone forces all-party; DC one-party exit 0",
+      "observed": "all-party (attributed to Oregon as the stricter state); DC one-party exit 0",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Remaining all-party citations FL, IL, MD, MA, MT, NH, PA",
+      "method": "Fla. Stat. 934.03; 720 ILCS 5/14-2; Md. CJP 10-402; M.G.L. c.272 s.99; MCA 45-8-213; RSA 570-A:2; 18 Pa.C.S. 5704(4)",
+      "command": "node cli.mjs states",
+      "expected": "all-party with those sections",
+      "observed": "all match except PA cites 5703 (prohibition) rather than 5704(4) (all-party exception)",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "node --test '*.test.mjs'",
+      "expected": "green",
+      "observed": "76 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "CLI subcommands and exit codes",
+      "method": "run",
+      "command": "node cli.mjs states | grep -c all-party; node cli.mjs script all-party --company 'Acme Inc.'; node cli.mjs script bogus; node cli.mjs check TX; node cli.mjs check XX CA",
+      "expected": "14 all-party rows, script, exit 2 on bad input",
+      "observed": "14; script printed (with 'Acme Inc..'); exit 2, 2, 2",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Fourteen states and DC' require all-party consent",
+      "method": "compared with engine.mjs:137 (DC one-party) and index.html:111",
+      "command": "grep -n 'Fourteen states and DC' ventures/call-recording-consent-check/*.html ventures/call-recording-consent-check/README.md",
+      "expected": "consistent: 14 states, DC one-party",
+      "observed": "index.html:14,121 and why-...html:9,33,88 say 'Fourteen states and DC'; README:26 says 'fourteen states plus DC'",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "disclaimer present and not framed as legal advice",
+      "method": "read pages",
+      "command": "grep -n -i 'legal advice\\|warranty' ventures/call-recording-consent-check/*.html",
+      "expected": "on every page",
+      "observed": "index.html:47,124,132; why-...html:99; vs-...html:66; CLI footer",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "only two ambiguous states (NV, MI)",
+      "method": "Delaware and Connecticut nuance as in the checks above",
+      "command": "grep -n 'Two, named' ventures/call-recording-consent-check/why-call-recording-consent-laws-differ-by-state.html",
+      "expected": "DE and CT disclosed too",
+      "observed": "only NV and MI",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "llms.txt hosts and blurb",
+      "method": "read; build rewrites hosts (build_pages_site.py rewrite_base_urls); served page not reachable (proxy 403)",
+      "command": "cat ventures/call-recording-consent-check/llms.txt",
+      "expected": "accurate blurb",
+      "observed": "github.io hosts (source-only); 'estimates from the numbers typed in' boilerplate fits no input of this tool",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/call-recording-consent-check/engine.mjs:190",
+      "change": "eitherAllParty || -> &&",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/call-recording-consent-check/engine.mjs:114",
+      "change": "Oregon type ALL_PARTY -> ONE_PARTY",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/call-recording-consent-check/engine.mjs:202",
+      "change": "stricterState ternary branches swapped",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/call-recording-consent-check/engine.mjs:102",
+      "change": "Nevada statute 200.620 -> 200.650",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/call-recording-consent-check/engine.mjs:195",
+      "change": "same-state requirement caller.type -> recipient.type (equivalent mutant: both equal when same state)",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Oregon is classed all-party for phone calls and the note says 'Telephone and other electronic communications require all-party consent'. ORS 165.540(1)(a) needs only one participant's consent for a telecommunication; all-party notice applies to in-person conversations under (1)(c), which the tool explicitly does not cover. It is backwards for the tool's own scope (it errs conservative).",
+      "where": "ventures/call-recording-consent-check/engine.mjs:113",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "'Fourteen states and DC' require all-party consent on index.html (FAQ and JSON-LD), the explainer (three places) and the README, contradicting the table (DC one-party, engine.mjs:137), index.html:111 and the 'thirty-six' count.",
+      "where": "ventures/call-recording-consent-check/why-call-recording-consent-laws-differ-by-state.html:33",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "Connecticut cites 53a-187 (criminal eavesdropping, one-party) next to 52-570d as if both were all-party, with no note on the civil/criminal split.",
+      "where": "ventures/call-recording-consent-check/engine.mjs:67",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Delaware is classed all-party citing only tit. 11 s.1335 with no ambiguity note, though its wiretap act s.2402(c)(4) is one-party; the pages claim only NV and MI are ambiguous.",
+      "where": "ventures/call-recording-consent-check/engine.mjs:69",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Statute citations are untested: changing Nevada's section number leaves all 76 tests green, and the all-party list test pins the author's own list, so domain errors cannot be caught.",
+      "where": "ventures/call-recording-consent-check/engine.test.mjs:54",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Pennsylvania cites 18 Pa.C.S. 5703 (the prohibition) rather than 5704(4), the all-party consent exception; Hawaii's note cites HRS 711-1111 rather than the wiretap statute HRS 803-42.",
+      "where": "ventures/call-recording-consent-check/engine.mjs:120",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "The 'ready-to-read' one-party script contains a developer parenthetical an agent would read aloud, and a company name ending in a period yields 'Acme Inc..'.",
+      "where": "ventures/call-recording-consent-check/engine.mjs:234",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt blurb 'Results are estimates from the numbers typed in' is boilerplate that fits no input of this tool (hosts are separately rewritten at build: source-only).",
+      "where": "ventures/call-recording-consent-check/llms.txt:5",
+      "category": "overclaim",
+      "origin": "claims"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A clean, well-scoped, well-disclaimed reference lookup whose CLI and page work as described (76 tests pass, 3 of 4 non-equivalent mutations caught). It does not meet the bar. Oregon, one of the 14 all-party rows, is wrong for the phone calls it covers (ORS 165.540(1)(a) is one-party for telecommunications). Connecticut and Delaware hide real splits a privacy lawyer would flag first. Three pages and the README say 'fourteen states and DC' although the table makes DC one-party. Every error errs conservative, so a user who follows it gets consent they did not strictly need. But the tool presents itself as a citation-grade summary, and on the boundary states it is not one. Statute checks were made from known citations because the network was blocked."
+}
