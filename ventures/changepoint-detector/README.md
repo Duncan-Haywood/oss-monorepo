@@ -3182,7 +3182,7 @@ Next for this question: longer stretches (the ratio's noise falls with the numbe
 power curve in n would say where a setting could pass both bars), or a likelihood for a rounded walk
 against a rounded walk carried forward; and a real series with documented carry-forward to check against.
 
-## Watching a growing series (2026-11-12, two pre-registered rounds; ships)
+## Watching a growing series (2026-11-12, three pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other
 question: tell me, once, when it changes from now on. `watch.mjs` does that. Each run refits the newest
@@ -3245,8 +3245,44 @@ both rounds it is 15 of 20, below the 90% the rule asked for. The default stays 
 the page states the trade plainly: quiet, and it misses small steps; `--detector pelt` reaches every
 marked change at about three times the alerts.
 
-Next: a Bayesian pass with the AR(1) term the engine already has (`rho` in `bocpd`) as a round-3
-candidate, since sticky noise is where the windowed probability lost; the watch on the page (paste a
-URL, keep the state in the browser) and as an agent tool; a real deployer's repository run end to end
-on GitHub Actions.
+**Round 3: the AR(1) term in the Bayesian pass** (`--round3`, output `eval/watch-replay-round3.out.txt`;
+rule committed before the run). Sticky noise is where round 2 lost, and the engine's Bayesian pass already
+has an AR(1) term (`--ar1`: rho from the lag-1 correlation of the clipped first differences, then the
+conditional AR(1) likelihood in every run). Candidates `bocpd-ar1` and `bocpd-ar1-window` (the same pass,
+probability summed over 5 neighbours), each at `--confirm 5`, against `bocpd`, on fresh seeds 21-30, with two
+cells added: AR(1) 0.8 noise with no change, and a 4 marginal-sd step in it. Rule: replace the default only if
+the mean false-alert rate over the four nulls is at or below `bocpd`'s and the steps found over the five step
+cells are at least as many.
 
+| detector (`--confirm 5`) | iid | AR(1) 0.5 | t3 | AR(1) 0.8 | 1-sd | 2-sd | 3-sd | 2-sd AR(1) 0.5 | 4-sd AR(1) 0.8 |
+|---|---|---|---|---|---|---|---|---|---|
+| `bocpd` (old default) | 0.00 | 6.25 | 3.75 | **32.25** | 0/10 | 7/10 | 10/10 | 8/10 | 10/10 |
+| `bocpd-ar1` | 0.00 | 0.75 | 3.75 | 1.00 | 0/10 | 7/10 | 10/10 | 3/10 | 10/10 |
+| **`bocpd-ar1-window` (new default)** | 0.50 | 0.75 | 6.75 | 1.50 | 2/10 | 10/10 | 10/10 | 6/10 | 10/10 |
+
+(False alerts per 1,000 checks on the four nulls, then steps reported.) `bocpd-ar1-window` passed both parts
+(mean false alerts 2.38 against 10.56; 38 steps against 35) and **is the default from 2026-11-12** for the
+level model. `bocpd-ar1` passed the false-alert part and failed on steps (30). What it costs: on t3 noise
+false alerts rose from 3.75 to 6.75, and the 2-sd step in AR(1) 0.5 noise was found 6 times in 10 against 8,
+because the AR(1) term explains part of a modest step as noise. The AR(1) term is for the level model only:
+with `--model poisson` or `meanvar` the default stays `bocpd`.
+
+The TCPD replay, scored once and deciding nothing, shows the same trade on real series, and the loss is
+larger than on the synthetic cells:
+
+| detector | alerts | at an annotated change | per 1,000 checks | majority-marked changes reached |
+|---|---|---|---|---|
+| `bocpd` | 193 | 63 (33%) | 30.3 | 38 of 52 |
+| `bocpd-ar1` | 76 | 29 (38%) | 11.9 | 23 of 52 |
+| **`bocpd-ar1-window`** | 103 | 39 (38%) | 16.2 | 29 of 52 |
+
+About half the alerts, a slightly larger share of them at a marked change, and 9 fewer of the 52 marked
+changes reached. Many TCPD series are short and smooth (yearly GDP, population), where the estimated rho is
+high and a real move reads as persistence. So the page now says: the default is the quiet one; if a missed
+change costs more than a false alarm, use `--detector bocpd` (38 of 52) or `--detector pelt` (52 of 52 at
+about six times the alerts).
+
+Next: the watch on the page (paste a URL, keep the state in the browser) and as an agent tool; a real
+deployer's repository run end to end on GitHub Actions; why the AR(1) pass loses marked TCPD changes
+(per-series rho against the annotations), and a rho capped or estimated from the baseline only, as a
+pre-registered round 4.

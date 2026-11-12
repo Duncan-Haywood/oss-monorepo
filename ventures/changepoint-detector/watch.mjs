@@ -22,9 +22,16 @@ import { analyze, parseSeries, peaks } from './engine.mjs';
 // Pre-registered rule: of the candidates finding at least 90% of 2-sd steps, the fewest false alerts on three null
 // streams. Chosen: the Bayesian detections with 5 points of confirmation (0 per 1,000 checks on independent noise,
 // 7.5 on AR(1) 0.5, 2.5 on t3; PELT's level model 2.5 / 49.75 / 12.75). On TCPD: 193 alerts against PELT's 626.
-export const WATCH_DEFAULTS = { confirm: 5, tolerance: 5, window: 1000, detector: 'bocpd', model: 'mean' };
+// Round 3 (eval/watch-replay-round3.out.txt, rule pre-registered in eval/watch-replay.mjs) replaced the detector with
+// the AR(1) Bayesian pass, probability summed over 5 neighbours: mean null false alerts 2.38 per 1,000 against 10.56
+// (AR(1) 0.8: 1.5 against 32.25), 38 steps found against 35. The AR(1) term is for the level model only, so with
+// --model poisson or meanvar the default stays 'bocpd'.
+export const WATCH_DEFAULTS = { confirm: 5, tolerance: 5, window: 1000, detector: 'bocpd-ar1-window', model: 'mean' };
+/** The default detector for a model: the AR(1) pass for the level model, the plain Bayesian pass otherwise. */
+export const defaultDetector = (model = 'mean') => (model === 'mean' ? WATCH_DEFAULTS.detector : 'bocpd');
 
 const STATE_VERSION = 1;
+export const DETECTORS = ['bocpd', 'bocpd-window', 'bocpd-ar1', 'bocpd-ar1-window', 'pelt'];
 
 export function emptyState() {
   return { version: STATE_VERSION, alerted: [], n: 0, lastLabel: null };
@@ -35,8 +42,9 @@ export function emptyState() {
  * (0-based in the full series). opts: detector 'pelt' | 'bocpd', model, penalty, period, log, ...
  */
 export function detectChanges(values, labels, opts = {}) {
-  const d = opts.detector ?? WATCH_DEFAULTS.detector;
-  const all = detectBoth(values, labels, opts);
+  const d = opts.detector ?? defaultDetector(opts.model ?? 'mean');
+  if (d.startsWith('bocpd-ar1') && (opts.model ?? 'mean') !== 'mean') throw new Error(`--detector ${d} is for the level model (--model mean) only.`);
+  const all = detectBoth(values, labels, { ...opts, detector: d });
   if (!all[d]) throw new Error(`Unknown detector ${d}.`);
   return all[d];
 }
@@ -46,7 +54,7 @@ export function detectBoth(values, labels, opts = {}) {
   const o = { ...WATCH_DEFAULTS, ...opts };
   const off = Math.max(0, values.length - o.window);
   const v = values.slice(off), l = labels.slice(off);
-  const { confirm, tolerance, window, detector, alertHistory, ...engine } = o;
+  const { confirm, tolerance, window, detector, alertHistory, ar1Detectors, ...engine } = o;
   const r = analyze({ ...engine, values: v, labels: l });
   const map = (c) => ({
     index: c.index + off,
@@ -56,17 +64,27 @@ export function detectBoth(values, labels, opts = {}) {
     ...(c.sdBefore !== undefined ? { sdBefore: c.sdBefore, sdAfter: c.sdAfter } : {}),
     ...(c.probability !== undefined ? { probability: c.probability } : {}),
   });
-  // A Bayesian detection carries only a probability; give it the levels on each side (from the previous
-  // detection, or the window's start, to the next one or the end) so a message can say what moved.
-  const det = r.bocpd.detections;
+  const out = { pelt: r.pelt.changepoints.map(map), ...bayesLists(r, map, '') };
+  // 'bocpd-ar1' / 'bocpd-ar1-window': the same Bayesian pass with the engine's AR(1) term (--ar1: rho from the
+  // window, the conditional AR(1) likelihood in bocpd), for sticky noise. A second engine run, so only on request.
+  if ((o.ar1Detectors || String(detector).startsWith('bocpd-ar1')) && (engine.model ?? 'mean') === 'mean') {
+    Object.assign(out, bayesLists(analyze({ ...engine, values: v, labels: l, ar1: true }), map, '-ar1'));
+  }
+  return out;
+}
+
+// The Bayesian detections of one engine run, with the levels on each side, as { bocpd<suffix>, bocpd<suffix>-window }.
+function bayesLists(r, map, suffix) {
   const sd = r.noiseSd;
   const mean = (a, b) => { let t = 0; for (let i = a; i < b; i++) t += r.values[i]; return t / Math.max(1, b - a); };
-  const bocpd = det.map((c, i) => {
-    const a = i ? det[i - 1].index : 0, b = i + 1 < det.length ? det[i + 1].index : r.values.length;
+  // A Bayesian detection carries only a probability; give it the levels on each side (from the previous
+  // detection, or the window's start, to the next one or the end) so a message can say what moved.
+  const withLevels = (list) => list.map((c, i) => {
+    const a = i ? list[i - 1].index : 0, b = i + 1 < list.length ? list[i + 1].index : r.values.length;
     const meanBefore = mean(a, c.index), meanAfter = mean(c.index, b), shift = meanAfter - meanBefore;
     return { ...map(c), meanBefore, meanAfter, shift, ...(sd > 0 ? { shiftInNoiseSd: shift / sd } : {}) };
   });
-  // 'bocpd-window': the Bayesian probability summed over 5 neighbouring points, because on a clear step the
+  // The '-window' variant: the Bayesian probability summed over 5 neighbouring points, because on a clear step the
   // probability is often split between neighbours (a 3-sd step at 0.15, 0.03, 0.17, 0.36: no single point at 0.5).
   const cp = r.bocpd.changeProb, H = 2;
   const m = cp.map((_, i) => { let t = 0; for (let j = Math.max(0, i - H); j <= Math.min(cp.length - 1, i + H); j++) t += cp[j]; return Math.min(1, t); });
@@ -75,12 +93,7 @@ export function detectBoth(values, labels, opts = {}) {
     for (let j = Math.max(1, i - H); j <= Math.min(cp.length - 1, i + H); j++) if (cp[j] > cp[best]) best = j;
     return { index: best, label: r.labels[best], probability: Math.round(m[i] * 1000) / 1000 };
   });
-  const withLevels = (list) => list.map((c, i) => {
-    const a = i ? list[i - 1].index : 0, b = i + 1 < list.length ? list[i + 1].index : r.values.length;
-    const meanBefore = mean(a, c.index), meanAfter = mean(c.index, b), shift = meanAfter - meanBefore;
-    return { ...map(c), meanBefore, meanAfter, shift, ...(sd > 0 ? { shiftInNoiseSd: shift / sd } : {}) };
-  });
-  return { pelt: r.pelt.changepoints.map(map), bocpd, 'bocpd-window': withLevels(wdet) };
+  return { [`bocpd${suffix}`]: withLevels(r.bocpd.detections), [`bocpd${suffix}-window`]: withLevels(wdet) };
 }
 
 // Where a previously alerted change sits in today's series: by its label when labels are unique
@@ -172,8 +185,10 @@ Options:
   --penalty bic|aic|<number>     PELT penalty per change (default: bic)
   --period <n>              remove a seasonal cycle of n points first (7 for daily data, 12 for monthly)
   --log                     take logs first (positive values; percentage growth)
-  --detector bocpd|pelt     which detector's changes to alert on (default: bocpd, the Bayesian detections: far fewer false
-                            alerts; pelt finds smaller steps, e.g. 1 noise sd, at about 3x the false alerts on real series)
+  --detector <name>         which detector's changes to alert on: bocpd-ar1-window (default for --model mean: the Bayesian
+                            detections allowing for sticky, autocorrelated noise, probability summed over 5 neighbouring
+                            points), bocpd-ar1, bocpd (default for poisson and meanvar), bocpd-window, or pelt (finds
+                            smaller steps, e.g. 1 noise sd, at several times the false alerts). README, "Watching a growing series".
   --confirm <k>             report a change once k points are on its far side (default: ${WATCH_DEFAULTS.confirm})
   --tolerance <k>           a change within k points of one already reported is the same change (default: ${WATCH_DEFAULTS.tolerance})
   --window <n>              refit only the newest n points (default: ${WATCH_DEFAULTS.window})
@@ -200,7 +215,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     else if (a === '--penalty') { const p = argv[++i]; o.penalty = /^\d+(\.\d+)?$/.test(p) ? Number(p) : p; }
     else if (a === '--period') o.period = num(argv[++i], '--period');
     else if (a === '--log') o.log = true;
-    else if (a === '--detector') { o.detector = argv[++i]; if (!['pelt', 'bocpd', 'bocpd-window'].includes(o.detector)) throw new Error('--detector takes bocpd, bocpd-window or pelt.'); }
+    else if (a === '--detector') { o.detector = argv[++i]; if (!DETECTORS.includes(o.detector)) throw new Error(`--detector takes ${DETECTORS.join(', ')}.`); }
     else if (a === '--confirm') o.confirm = num(argv[++i], '--confirm');
     else if (a === '--tolerance') o.tolerance = Number(argv[++i]);
     else if (a === '--window') o.window = num(argv[++i], '--window');
