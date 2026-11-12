@@ -1,9 +1,9 @@
 ---
-title: "A solar survey boat's battery target that knows the battery's size: 7% more distance, and a lag we didn't plan for"
+title: "A solar survey boat battery target that knows the battery size: 7% more distance and an unplanned lag"
 seo_title: "Solar USV battery rule curve with storage capacity: 300 missions"
 date: 2026-11-12
 tags: [research, marine-hull]
-description: "Putting the battery's capacity into a solar survey boat's winter rule curve adds 7% distance at high latitude, but the boat's speed rule refills too slowly. A 30-day lead fixes that, in sample."
+description: "Putting battery capacity into a solar survey boat winter rule curve adds 7% distance past 40 degrees; a refill lag costs payload time."
 ---
 
 The [last step](2026-11-12-solar-survey-boat-banking-the-battery-for-winter.md) gave a 4 m solar survey boat a daily battery target built like a reservoir's rule curve from nine other years of sunlight. It cut the payload's avoidable downtime by 91%, but at 40 degrees and beyond it cost a quarter to a third of the distance. The reason was simple: the winter shortfall there is 45 to 230 kWh against a 10 kWh battery, so the curve said "keep the battery full" every day of the year.
