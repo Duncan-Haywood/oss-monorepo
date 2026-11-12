@@ -118,3 +118,8 @@ test("the worked example matches the default boxes and shows three finding kinds
   const kinds = new Set(analyze(toFiles(example), { today: "2026-10-11" }).findings.map((f) => f.kind));
   for (const k of [K.PIN_VIOLATES_ENGINES, K.MAJOR_DISAGREEMENT, K.EOL_NODE]) assert.ok(kinds.has(k), `example should show ${k}`);
 });
+
+test("index links one hop to the semver-range-explainer sibling", async () => {
+  const html = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/semver-range-explainer\/"/);
+});

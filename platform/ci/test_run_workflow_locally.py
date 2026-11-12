@@ -286,6 +286,26 @@ class WorkflowBudget(unittest.TestCase):
         self.assertNotIn("FAILED", out.getvalue())
         self.assertIn("run_workflow_locally.py wf.yml", out.getvalue())
 
+    def test_a_failure_after_a_skipped_step_is_no_verdict(self):
+        build = runner.Step("j", "build", "true", ".")
+        build.status = "skipped"
+        build.reason = "contains a ${{ }} expression this cannot evaluate"
+        steps = [build, runner.Step("j", "check", "echo no _site; false", "."),
+                 runner.Step("other", "real", "false", ".")]
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            runner.run_steps(steps, 900)
+            code = runner.report("wf.yml", steps, [], False)
+        # Same job as the skip: UNRUN with its output kept; another job's
+        # failure stays a real FAILED and decides the exit.
+        self.assertEqual([s.status for s in steps], ["skipped", "unrun", "failed"])
+        self.assertEqual(steps[1].missing_kind, "after-skip")
+        self.assertIn("no _site", out.getvalue())
+        self.assertEqual(code, 1)
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(runner.report("wf.yml", steps[:2], [], False),
+                             runner.AFTER_SKIP)
+
     def test_no_budget_runs_normally(self):
         steps = [runner.Step("j", "ok", "true", ".")]
         with contextlib.redirect_stdout(io.StringIO()):

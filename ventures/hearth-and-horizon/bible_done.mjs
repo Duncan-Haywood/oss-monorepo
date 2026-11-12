@@ -39,8 +39,8 @@ export function split(bible, shelfOf = () => undefined) {
     if (line.startsWith('- ')) {
       const entry = [line];
       while (i + 1 < lines.length && /^ {2}\S/.test(lines[i + 1])) entry.push(lines[++i]);
-      const done = line.match(/^- \*\(Done: (.*)/);
-      if (done) moved.push({ shelf: shelfOf(done[1]) || shelf, lines: entry });
+      const marked = leadDone(entry);
+      if (marked) moved.push({ shelf: shelfOf(marked[0].slice('- *(Done: '.length)) || shelf, lines: marked });
       else kept.push(...entry);
       continue;
     }
@@ -48,6 +48,23 @@ export function split(bible, shelfOf = () => undefined) {
   }
   const rest = kept.join('\n').replace(/\n{3,}/g, '\n\n').replace(/\n+(\n## )/g, '\n$1');
   return { bible: rest, moved };
+}
+
+// An entry is Done when its first line starts "- *(Done: " or when the marker
+// sits anywhere else in it ("- *Title:* proposal ... *(Done: X.)*"). Runs
+// appended it inline and saw nothing move (two run records, 2026-11-11), so an
+// inline marker is moved to the front, the form DONE.md uses. A marker quoted
+// in backticks is an example, not a mark. Returns the entry's lines, or null.
+export function leadDone(entry) {
+  if (/^- \*\(Done: /.test(entry[0])) return entry;
+  const text = entry.join('\n');
+  const m = text.match(/(?<!`)\*\(Done: ([\s\S]*?)\)\*/);
+  if (!m) return null;
+  const rest = (text.slice(0, m.index) + text.slice(m.index + m[0].length))
+    .split('\n').map((l) => l.trimEnd());
+  const first = rest[0].slice(2).trim();
+  const done = `- *(Done: ${m[1].replace(/\s*\n\s*/g, ' ')})*`;
+  return [first ? `${done} ${first}` : done, ...rest.slice(1).filter((l) => l.trim())];
 }
 
 // Append entries to DONE.md under "## <shelf>", creating the heading if needed.
