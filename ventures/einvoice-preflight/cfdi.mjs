@@ -14,7 +14,8 @@
 //      catCFDI spreadsheet columns, read by build-cfdi-regimen.mjs into cfdi-regimen-data.mjs.
 // A type P (payment) CFDI's Pagos 2.0 complement is read by pagos20.mjs (MX-040..MX-049);
 // a type N (payroll) CFDI's Nómina 1.2 complement by nomina12.mjs (MX-050..MX-057); an
-// export's Comercio Exterior 2.0 complement by cce20.mjs (MX-060..MX-069).
+// export's Comercio Exterior 2.0 complement by cce20.mjs (MX-060..MX-069); a waybill's
+// Carta Porte 3.1 complement by cartaporte31.mjs (MX-070..MX-079).
 // A check that depends on something this reader does not model (local taxes in the
 // implocal complement) is skipped and named in `skipped`. An
 // offline observation, not SAT's or a PAC's acceptance, and not tax advice. Findings
@@ -26,6 +27,7 @@ import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { checkPagos } from "./pagos20.mjs";
 import { checkNomina } from "./nomina12.mjs";
 import { checkComercioExterior } from "./cce20.mjs";
+import { checkCartaPorte } from "./cartaporte31.mjs";
 import { REGIMEN, USO } from "./cfdi-regimen-data.mjs";
 
 export { parseCfdiXml };
@@ -81,7 +83,9 @@ export function typeProblem(typeIn, raw) {
     // libxml2 (xmllint, and the many tools built on it) rejects a decimal of more than
     // 24 digits; XML Schema 1.0 promises only 18. No real amount is that long.
     if (v.replace(/^[+-]?0*/, "").replace(".", "").length > 24) return "has more digits than schema validators accept";
-    if (type.fractionDigits !== undefined && decimalsOf(v) > type.fractionDigits) return `has more than ${type.fractionDigits} decimals`;
+    // fractionDigits limits the value, not the spelling: "27.8900" has two (xmllint and a
+    // real PAC accept it under fractionDigits 2). Currency decimals are checked elsewhere.
+    if (type.fractionDigits !== undefined && decimalsOf(v.replace(/(\.\d*?)0+$/, "$1")) > type.fractionDigits) return `has more than ${type.fractionDigits} decimals`;
     if (type.minInclusive !== undefined && Number(v) < Number(type.minInclusive)) return `is below the minimum ${type.minInclusive}`;
     if (type.maxInclusive !== undefined && Number(v) > Number(type.maxInclusive)) return `is above the maximum ${type.maxInclusive}`;
     if (type.minExclusive !== undefined && Number(v) <= Number(type.minExclusive)) return `must be greater than ${type.minExclusive}`;
@@ -491,5 +495,6 @@ export function checkCfdi(text) {
   Object.assign(meta, checkPagos(root, { findings, skipped, checkNode, ELEMENTS, currencyDecimals, taxBounds, CFDI_NS }));
   Object.assign(meta, checkNomina(root, { findings, skipped, checkNode, ELEMENTS, CFDI_NS, personType }));
   Object.assign(meta, checkComercioExterior(root, { findings, skipped, checkNode, ELEMENTS, CFDI_NS, typeProblem, currencyDecimals }));
+  Object.assign(meta, checkCartaPorte(root, { findings, skipped, checkNode, ELEMENTS, CFDI_NS }));
   return { findings, skipped, meta };
 }

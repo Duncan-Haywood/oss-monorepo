@@ -56,3 +56,12 @@ test("links to Germany and the hub and the sitemap entry is its own url block", 
   assert.match(html, /href="e-invoicing-mandates-by-country\.html"/);
   assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*mexico-cfdi-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
 });
+
+test("the waybill sample draws the five Carta Porte rules it plants", async () => {
+  const { checkCfdi } = await import("./cfdi.mjs");
+  const sample = /const CP_SAMPLE=`([^`]*)`/.exec(html)[1];
+  const r = checkCfdi(sample);
+  assert.deepEqual([...new Set(r.findings.map((f) => f.rule))], ["MX-071", "MX-072", "MX-073", "MX-075", "MX-076"]);
+  assert.equal(r.meta.waybills, 1);
+  assert.match(html, /id="cp-sample"/);
+});
