@@ -1077,7 +1077,7 @@ def _profile(ifd0: Ifd, ifd: Ifd) -> dc.Profile | None:
         camera_calibration_2=cc2,
         forward_matrix_1=fm1,
         forward_matrix_2=fm2,
-        analog_balance=tuple(float(v) for v in ab[:3]) if ab and len(ab) >= 3 and min(ab[:3]) > 0 else (1.0, 1.0, 1.0),
+        analog_balance=(float(ab[0]), float(ab[1]), float(ab[2])) if ab and len(ab) >= 3 and min(ab[:3]) > 0 else (1.0, 1.0, 1.0),
         use_calibration=sig_cam == sig_prof,
     )
 

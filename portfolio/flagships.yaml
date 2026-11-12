@@ -206,43 +206,28 @@ flagships:
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
       History and every measurement: README and eval/ (ingest, catalog,
-      proxies, measured analysis with tilt, grain, framing and opt-in face
-      scores, cull with XMP and picks scoring, RAW previews, and a stdlib DNG
-      developer matching LibRaw within one 8-bit step on a real Nikon NEF and
-      Canon CR2). Since 2026-11-10 the pipeline's grade stage develops DNG
-      stills into 16-bit TIFF masters and preview-less DNGs are proxied and
-      scored from a half-size develop (real Nikon sensor DNG end to end in
-      75 s, master bit-identical to `shootflow develop`;
-      eval/pipeline-dng-grade-2026-11-10.md). Grade only the picks landed
-      2026-11-11 (`--grade-scope selected`, README "Grade only the picks",
-      eval/grade-scope-2026-11-11.md): unpicked clips graded from their proxy
-      with a note, story stage refuses a review-graded pick; synthetic 12-clip
-      1080p card, grade stage 164 s to 88 s; default stays all. DNG-spec
+      proxies, measured analysis, cull with XMP and picks scoring, RAW
+      previews; stdlib DNG developer matching LibRaw within one 8-bit step on
+      a real Nikon NEF and Canon CR2 in `--colour dcraw` mode; pipeline grade
+      stage develops DNG stills, eval/pipeline-dng-grade-2026-11-10.md; grade
+      only the picks, eval/grade-scope-2026-11-11.md; numpy engine and
+      lossless-JPEG decoder speed-ups, eval/ljpeg-*-2026-11-11.md). DNG-spec
       colour landed 2026-11-12 (README "Colour for the light the photo was
       taken in", eval/dng-colour-2026-11-12.md): both matrices blended in
       mired for the as-shot white, ForwardMatrix, CameraCalibration,
       AnalogBalance, AsShotWhiteXY; equal to colour-hdri on 2,000 random
-      profiles and a real Canon 350D DNG's tags (3584 K, old method up to 35
-      8-bit steps away); `--colour dcraw` keeps the LibRaw model. Next, most
-      valuable first: a tungsten-lit colour chart (real DNG with known
-      patches) to say which model is closer to the scene, and a camera- or
-      Adobe-written DNG with ForwardMatrix; DNG 1.6 ColorMatrix3 and profile
-      hue/sat maps (HueSatMap, LookTable) as the next colour steps; that saving on real 4K camera footage and a long shoot;
-      develop speed, rest of it (optional numpy engine landed 2026-11-10,
-      byte-identical, 31 s to 1.5 s on the 12 MP Nikon, pipeline 74.5 s to
-      7.5 s, README "Speed with numpy"); lossless-JPEG decoder 2026-11-11
-      (README "Lossless-JPEG decoder speed", eval/ljpeg-decoder-2026-11-11.md):
-      two-pass, 16.8 s to 7.4 s on the real Canon CR2's camera-written
-      22-megasample stream, every sensel equal to LibRaw's raw_image; numpy
-      prediction pass 2026-11-11 (README "Prediction pass on numpy",
-      eval/ljpeg-numpy-predict-2026-11-11.md): after the Huffman pass 3.8-4.1 s
-      to 1.1-1.5 s on the CR2, same samples, LibRaw-equal; the Huffman loop
-      (0.2 us/sample, now ~85% of decoding) stays pure (native code is the
-      next step down); reading CR2 directly (needs per-model colour matrices)
-      is open; a camera- or phone-written DNG with lossless-JPEG
-      tiles (raw.pixls.us and rawsamples.ch 403 from cloud); a trained blink model
-      and a real shoot with a photographer's picks (wanted: a labelled
-      portrait set); photos with a real horizon and human tilt labels.
+      profiles and on a real Canon 350D DNG's tags (3584 K; old method up to
+      35 8-bit steps away). Next, most valuable first: a tungsten-lit colour
+      chart (real DNG, known patches) to say which colour model is closer to
+      the scene, and a camera- or Adobe-written DNG with ForwardMatrix; DNG
+      1.6 ColorMatrix3 and profile HueSatMap/LookTable; the grade-scope
+      saving on real 4K footage and a long shoot; the Huffman loop (~85% of
+      lossless-JPEG decoding) in native code; reading CR2 directly (needs
+      per-model colour matrices); a camera- or phone-written lossless-JPEG
+      DNG (raw.pixls.us and rawsamples.ch 403 from cloud); a trained blink
+      model and a real shoot with a photographer's picks; photos with a real
+      horizon and human tilt labels.
+
   - venture: quick-pick-survey
     why: >-
       Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a
