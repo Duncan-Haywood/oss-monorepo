@@ -230,6 +230,8 @@
       "origin": "spec"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14965"
+  ],
   "verdict": "Every number checked is right: an independent liberty reader over files I fetched (ORFS at the pinned commit, and IHP-Open-PDK upstream for one macro) reproduces the IHP and SKY130 flop and gate energies, all ten macro read energies and the 92/120, 33/60, max-G 6 verdict counts, and run.py regenerates results.txt byte for byte. The unit question is settled by the IHP macro header. It falls short of the bar on verification (two of four seeded bugs survive; the verdict code and the real-library path are untested by default) and on research depth: no prior work is cited (Eyeriss, Timeloop/Accelergy, CACTI), and the 'ungated WS is node-dependent' half of the headline is not robust to the omitted clock-tree energy (33 to 18 of 60 packed wins at 2x). A useful, honest data point in a chain, not a publishable result."
 }

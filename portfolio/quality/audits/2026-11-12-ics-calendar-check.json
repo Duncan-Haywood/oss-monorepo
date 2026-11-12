@@ -145,19 +145,84 @@
     }
   ],
   "mutations": [
-    {"where": "calc.mjs:37", "change": "fold continuation limit MAX_OCTETS - 1 -> MAX_OCTETS", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:5", "change": "MAX_OCTETS 75 -> 76", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:152", "change": "drop the non-zero check on BY* parts", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:254", "change": "e.ms < s.ms -> e.ms < s.ms - 3600000", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:336", "change": "all-day DTEND fix +1 day -> +2 days", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:269", "change": "&& !u.utc -> && u.utc", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:220", "change": "ignore whether the VTIMEZONE is defined", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:233", "change": "duplicate-UID check disabled", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:241", "change": "METHOD exemption for a missing DTSTART removed", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:161", "change": "BYSETPOS allows 0", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:166", "change": "BYDAY ordinal limit 53 -> 99", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:202", "change": "multi-VCALENDAR warning threshold 1 -> 2", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:89", "change": "seconds > 60 -> > 61", "caught": false, "test_cmd": "node --test '*.test.mjs'"}
+    {
+      "where": "calc.mjs:37",
+      "change": "fold continuation limit MAX_OCTETS - 1 -> MAX_OCTETS",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:5",
+      "change": "MAX_OCTETS 75 -> 76",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:152",
+      "change": "drop the non-zero check on BY* parts",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:254",
+      "change": "e.ms < s.ms -> e.ms < s.ms - 3600000",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:336",
+      "change": "all-day DTEND fix +1 day -> +2 days",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:269",
+      "change": "&& !u.utc -> && u.utc",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:220",
+      "change": "ignore whether the VTIMEZONE is defined",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:233",
+      "change": "duplicate-UID check disabled",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:241",
+      "change": "METHOD exemption for a missing DTSTART removed",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:161",
+      "change": "BYSETPOS allows 0",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:166",
+      "change": "BYDAY ordinal limit 53 -> 99",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:202",
+      "change": "multi-VCALENDAR warning threshold 1 -> 2",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:89",
+      "change": "seconds > 60 -> > 61",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
   ],
   "defects": [
     {
@@ -210,6 +275,8 @@
       "origin": "claims"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14965"
+  ],
   "verdict": "ICS Calendar Check is a tidy, private, well-tested smoke test for .ics files: every check its README claims fires, the fixer's output is octet-correct for multibyte UTF-8 and parses in Python icalendar, 46 tests pass and 8 of 13 seeded mutations are caught. It does not meet the bar on correctness: it compares DTSTART and DTEND across different time zones as naive wall-clock times, so a valid NRT-HNL flight event is an error and fails a CI build, and it misses several RFC 5545 MUSTs that real generators break (DTSTAMP not UTC, DATE without VALUE=DATE, duplicated single-occurrence properties, RRULE part restrictions, duration grammar). The rules were written from memory and never reconciled with the RFC text. Finished (completeness 3), median 3, but correctness, fitness and domain are 2."
 }

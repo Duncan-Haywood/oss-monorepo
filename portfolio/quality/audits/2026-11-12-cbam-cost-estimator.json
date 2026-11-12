@@ -268,6 +268,8 @@
       "origin": "audit"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14965"
+  ],
   "verdict": "CBAM Cost Estimator does the certificate arithmetic right: two independent cases match to the cent and the 2026-2034 phase-out table equals the ETS Directive schedule. It does not meet the bar. A CBAM consultant checking the 2026 rules would find that a hydrogen importer is told they are probably exempt (the 50 t exemption excludes hydrogen, it does not exempt it), exactly 50 t is called over the threshold, fertilisers on default values get the 10/20/30% mark-up instead of 1%, and '1,200' tonnes reads as 1.2 t. The benchmark presets are a mix of stale ETS vintages. 26 tests pass but 4 of 6 seeded mutations survive, and one test asserts the wrong hydrogen rule. Correctness, claims, verification and the median are all 2."
 }
