@@ -24,8 +24,9 @@ Scope, stated plainly:
   crop, as-shot white balance (``AsShotNeutral``), the camera colour matrix,
   ``BaselineExposure``, the IFD0 orientation, the ``GainMap`` opcodes in
   ``OpcodeList2`` (lens shading, as phones write it; ``dng_opcodes``) and
-  ``WarpRectilinear`` in ``OpcodeList3`` (lens distortion and lateral colour,
-  run on the linear image after demosaic), and ``FixVignetteRadial`` and
+  ``WarpRectilinear`` and ``WarpFisheye`` in ``OpcodeList3`` (lens distortion
+  and lateral colour, and fisheye unwrapping, run on the linear image after
+  demosaic), and ``FixVignetteRadial`` and
   ``MapPolynomial`` in either list, in list order, and ``FixBadPixelsConstant``
   and ``FixBadPixelsList`` in ``OpcodeList1`` (bad sensels on the stored CFA
   values). Other opcodes are named in the report, not run.

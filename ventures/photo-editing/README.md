@@ -1356,6 +1356,21 @@ the warp on they drop to 0.18 px, the same as the matcher's noise across the rad
 also checked exactly on synthetic ramps (13 tests) and agrees with darktable's reading of the same
 opcode. Details, choices and what is not checked: `eval/warp-rectilinear-2026-11-12.md`.
 
+## Fisheye unwrapping from the DNG: WarpFisheye (2026-11-12)
+
+`WarpFisheye`, the DNG's other warp, now runs in `OpcodeList3` beside `WarpRectilinear`, in list
+order and through the same resampler. A converter writes it for a fisheye lens: each output pixel
+at normalised radius `r` reads from radius `kr0 t + kr1 t^3 + kr2 t^5 + kr3 t^7` with
+`t = atan(r)`, per colour plane, so an equidistant fisheye comes out as a rectilinear (pinhole)
+image. Before, the report named it as "required, not applied" and the frame stayed curved. Both
+engines give the same bytes; `--no-opcodes` turns it off. 13 tests (`tests/test_dng_warp_fisheye.py`)
+check it on closed forms: with `kr0 = 1` every pixel reads from radius `atan(r)` along its own ray,
+the centre pixel reads itself, and on a ramp every pixel equals the ramp at the formula's source
+point. What is not checked: the formula is the specification's as this session knew it, since
+neither the specification nor Adobe's SDK could be fetched here and no open-source reader runs this
+opcode; and no camera- or converter-written file carrying it has been tried. Details:
+`eval/warp-fisheye-2026-11-12.md`.
+
 ## Vignetting and value maps from the DNG: FixVignetteRadial and MapPolynomial (2026-11-12)
 
 Two more opcodes now run, in `OpcodeList2` (on the sensor values, before demosaic) and

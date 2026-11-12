@@ -1,4 +1,4 @@
-"""DNG opcode lists: read them all; run ``GainMap``, ``WarpRectilinear``, ``FixVignetteRadial``, ``MapPolynomial`` and the two bad-pixel fixes; name the rest.
+"""DNG opcode lists: read them all; run ``GainMap``, ``WarpRectilinear``, ``WarpFisheye``, ``FixVignetteRadial``, ``MapPolynomial`` and the two bad-pixel fixes; name the rest.
 
 DNG 1.3 added three opcode lists, each a tag holding a big-endian byte blob:
 ``OpcodeList1`` (51008) runs on the raw values as stored, ``OpcodeList2``
@@ -63,6 +63,24 @@ against Adobe's output can find them: pixel ``x`` sits at ``x + 0.5`` (pixel
 centres, the image spanning ``0..w``); the source is sampled bilinearly (the
 SDK uses a wider resampling kernel); a source point outside the image takes the
 nearest edge pixel.
+
+WarpFisheye (DNG specification 1.4, chapter 7; opcode 2), in the stage-3 image,
+unwraps a fisheye lens's equidistant-style projection into a rectilinear one:
+
+* the parameters are a plane count ``n`` and, per plane, the radial terms
+  ``kr0..kr3`` (float64), then the optical centre ``(cx, cy)`` as fractions of
+  the image width and height; a plane past ``n`` uses the last plane's terms;
+* ``(dx, dy)`` and ``r`` are as for WarpRectilinear (``r = 1`` at the farthest
+  corner); ``t = atan(r)`` and ``rd = kr0 t + kr1 t^3 + kr2 t^5 + kr3 t^7``;
+* the pixel takes its value from ``centre + m * (rd / r) * (dx, dy)``, and at
+  the centre itself (``r = 0``), where ``rd / r`` tends to ``kr0``, from
+  ``centre + m * kr0 * (dx, dy)``, which is the centre.
+
+So with ``kr0 = 1`` and the rest zero a pixel at normalised radius ``r`` reads
+from radius ``atan(r)``: an ideal equidistant fisheye (image radius
+proportional to the angle off axis) becomes a pinhole image (radius
+proportional to its tangent). Sampling, pixel centres and the edge are as for
+WarpRectilinear, and both warps run through the same resampler.
 
 FixVignetteRadial (DNG specification 1.4, chapter 7), on every plane of the
 stage-2 or stage-3 image:
@@ -153,6 +171,7 @@ OPCODE_NAMES = {
 
 GAIN_MAP = 9
 WARP_RECTILINEAR = 1
+WARP_FISHEYE = 2
 FIX_VIGNETTE_RADIAL = 3
 MAP_POLYNOMIAL = 8
 FIX_BAD_PIXELS_CONSTANT = 4
@@ -218,6 +237,16 @@ class WarpRectilinear:
     cy: float
 
     def plane_terms(self, p: int) -> tuple[float, float, float, float, float, float]:
+        return self.terms[min(p, len(self.terms) - 1)]
+
+
+@dataclass(frozen=True)
+class WarpFisheye:
+    terms: tuple[tuple[float, float, float, float], ...]  # per plane: kr0..kr3
+    cx: float
+    cy: float
+
+    def plane_terms(self, p: int) -> tuple[float, float, float, float]:
         return self.terms[min(p, len(self.terms) - 1)]
 
 
@@ -326,6 +355,22 @@ def parse_warp_rectilinear(op: Opcode) -> WarpRectilinear:
     return WarpRectilinear(terms, cx, cy)
 
 
+def parse_warp_fisheye(op: Opcode) -> WarpFisheye:
+    p = op.params
+    if len(p) < 4:
+        raise OpcodeError("WarpFisheye parameters shorter than their plane count")
+    (n,) = struct.unpack_from(">I", p, 0)
+    if n < 1:
+        raise OpcodeError("WarpFisheye with no planes")
+    if len(p) < 4 + 32 * n + 16:
+        raise OpcodeError(f"WarpFisheye holds fewer than its {n} planes of terms and a centre")
+    terms = tuple(struct.unpack_from(">4d", p, 4 + 32 * i) for i in range(n))
+    cx, cy = struct.unpack_from(">2d", p, 4 + 32 * n)
+    if not all(math.isfinite(v) and abs(v) < 1e6 for t in terms for v in t) or not (0.0 <= cx <= 1.0 and 0.0 <= cy <= 1.0):
+        raise OpcodeError("WarpFisheye with terms out of range")
+    return WarpFisheye(terms, cx, cy)
+
+
 def parse_list(blob) -> list[Opcode]:
     """The opcodes in one opcode-list tag (raw bytes, or the reader's tuple of byte values)."""
 
@@ -395,7 +440,7 @@ class Plan:
 
     gain_maps: list[GainMap]
     notes: list[str]
-    warps: list[WarpRectilinear] = field(default_factory=list)
+    warps: list[WarpRectilinear | WarpFisheye] = field(default_factory=list)
     stage2: list = field(default_factory=list)
     stage3: list = field(default_factory=list)
     stage1: list = field(default_factory=list)  # FixBadPixelsConstant / FixBadPixelsList, for ``run_stage1``
@@ -414,7 +459,7 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
     """
 
     gain_maps: list[GainMap] = []
-    warps: list[WarpRectilinear] = []
+    warps: list[WarpRectilinear | WarpFisheye] = []
     stage1: list = []
     stage2: list = []
     stage3: list = []
@@ -446,11 +491,11 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
                 gain_maps.append(gm)
                 stage2.append(gm)
                 continue
-            if tag == TAG_OPCODE_LIST_3 and op.id == WARP_RECTILINEAR:
+            if tag == TAG_OPCODE_LIST_3 and op.id in (WARP_RECTILINEAR, WARP_FISHEYE):
                 try:
-                    wp = parse_warp_rectilinear(op)
+                    wp = parse_warp_rectilinear(op) if op.id == WARP_RECTILINEAR else parse_warp_fisheye(op)
                 except OpcodeError as exc:
-                    notes.append(f"{label} WarpRectilinear unreadable and skipped: {exc}")
+                    notes.append(f"{label} {op.name} unreadable and skipped: {exc}")
                     continue
                 warps.append(wp)
                 stage3.append(wp)
@@ -480,8 +525,11 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
             notes.append(f"{label}: {n} x {key} not applied")
     if gain_maps:
         notes.append(f"OpcodeList2: {len(gain_maps)} GainMap applied (lens shading)")
-    if warps:
-        notes.append(f"OpcodeList3: {len(warps)} WarpRectilinear applied (lens distortion)")
+    n_rect = sum(isinstance(wp, WarpRectilinear) for wp in warps)
+    if n_rect:
+        notes.append(f"OpcodeList3: {n_rect} WarpRectilinear applied (lens distortion)")
+    if len(warps) - n_rect:
+        notes.append(f"OpcodeList3: {len(warps) - n_rect} WarpFisheye applied (fisheye unwrap)")
     for (label, name) in dict.fromkeys(applied):
         what = "lens vignetting" if name == "FixVignetteRadial" else "value mapping"
         notes.append(f"{label}: {applied.count((label, name))} {name} applied ({what})")
@@ -754,7 +802,7 @@ def run_stage3_rgb(ops: list, rgb, w: int, h: int, scale=(1.0, 1.0, 1.0)):
     """Run ``Plan.stage3`` in order on interleaved linear RGB (``array('d')``); returns the result (pure Python)."""
 
     for op in ops:
-        if isinstance(op, WarpRectilinear):
+        if isinstance(op, (WarpRectilinear, WarpFisheye)):
             rgb = warp_rgb([op], rgb, w, h)
         elif isinstance(op, VignetteRadial):
             for y in range(h):
@@ -772,7 +820,7 @@ def run_stage3_planes(ops: list, img, scale=(1.0, 1.0, 1.0)):
 
     h, w = img.shape[0], img.shape[1]
     for op in ops:
-        if isinstance(op, WarpRectilinear):
+        if isinstance(op, (WarpRectilinear, WarpFisheye)):
             img = warp_planes([op], img)
             continue
         flat = np.ascontiguousarray(img).reshape(h, w * 3)
@@ -795,13 +843,26 @@ def _warp_frame(wp: WarpRectilinear, w: int, h: int) -> tuple[float, float, floa
     return cxp, cyp, (m if m > 0 else 1.0)
 
 
-def warp_source(wp: WarpRectilinear, p: int, x: float, y: float, w: int, h: int) -> tuple[float, float]:
-    """Where output pixel (x, y) of plane p reads from, in pixel-index units (pure Python, the reference)."""
+def warp_source(wp, p: int, x: float, y: float, w: int, h: int) -> tuple[float, float]:
+    """Where output pixel (x, y) of plane p reads from, in pixel-index units (pure Python, the reference).
 
-    kr0, kr1, kr2, kr3, kt0, kt1 = wp.plane_terms(p)
+    ``wp`` is a ``WarpRectilinear`` or a ``WarpFisheye``.
+    """
+
     cxp, cyp, m = _warp_frame(wp, w, h)
     dx = (x + 0.5 - cxp) / m
     dy = (y + 0.5 - cyp) / m
+    if isinstance(wp, WarpFisheye):
+        k0, k1, k2, k3 = wp.plane_terms(p)
+        r = math.sqrt(dx * dx + dy * dy)
+        if r == 0.0:
+            ratio = k0
+        else:
+            t = math.atan(r)
+            t2 = t * t
+            ratio = t * (k0 + t2 * (k1 + t2 * (k2 + t2 * k3))) / r
+        return cxp + m * (ratio * dx) - 0.5, cyp + m * (ratio * dy) - 0.5
+    kr0, kr1, kr2, kr3, kt0, kt1 = wp.plane_terms(p)
     r2 = dx * dx + dy * dy
     f = kr0 + r2 * (kr1 + r2 * (kr2 + r2 * kr3))
     sx = f * dx + kt0 * (2.0 * dx * dy) + kt1 * (r2 + 2.0 * dx * dx)
@@ -818,7 +879,7 @@ def _clamp_split(v: float, n: int) -> tuple[int, int, float]:
     return i, i + 1, v - i
 
 
-def warp_rgb(warps: list[WarpRectilinear], rgb, w: int, h: int):
+def warp_rgb(warps: list, rgb, w: int, h: int):
     """Run the warps on an interleaved linear RGB image (``array('d')``, h * w * 3); returns a new array (pure Python)."""
 
     from array import array
@@ -841,8 +902,8 @@ def warp_rgb(warps: list[WarpRectilinear], rgb, w: int, h: int):
     return rgb
 
 
-def warp_planes(warps: list[WarpRectilinear], img, band: int = 256):
-    """Run the warps on a linear (h, w, 3) float64 image; returns a new array (numpy, same bytes as ``warp_rgb``)."""
+def warp_planes(warps: list, img, band: int = 256):
+    """Run the warps (WarpRectilinear or WarpFisheye) on a linear (h, w, 3) float64 image; returns a new array (numpy, same bytes as ``warp_rgb``)."""
 
     import numpy as np
 
@@ -851,17 +912,23 @@ def warp_planes(warps: list[WarpRectilinear], img, band: int = 256):
         cxp, cyp, m = _warp_frame(wp, w, h)
         out = np.empty_like(img)
         xs = (np.arange(w, dtype=np.float64) + 0.5 - cxp) / m
-        for p in range(3):
-            kr0, kr1, kr2, kr3, kt0, kt1 = wp.plane_terms(p)
-            src = img[..., p]
-            for y0 in range(0, h, band):
-                y1 = min(h, y0 + band)
-                dy = ((np.arange(y0, y1, dtype=np.float64) + 0.5 - cyp) / m)[:, None]
-                dx = xs[None, :]
-                r2 = dx * dx + dy * dy
-                f = kr0 + r2 * (kr1 + r2 * (kr2 + r2 * kr3))
-                sx = f * dx + kt0 * (2.0 * dx * dy) + kt1 * (r2 + 2.0 * dx * dx)
-                sy = f * dy + kt1 * (2.0 * dx * dy) + kt0 * (r2 + 2.0 * dy * dy)
+        fisheye = isinstance(wp, WarpFisheye)
+        dx = xs[None, :]
+        for y0 in range(0, h, band):
+            y1 = min(h, y0 + band)
+            dy = ((np.arange(y0, y1, dtype=np.float64) + 0.5 - cyp) / m)[:, None]
+            # WarpFisheye's radius and angle depend only on where the pixel is: taken once per band, for every plane.
+            geo = _np_fisheye_geometry(np, dx, dy) if fisheye else None
+            for p in range(3):
+                src = img[..., p]
+                if fisheye:
+                    sx, sy = _np_fisheye(wp.plane_terms(p), geo)
+                else:
+                    kr0, kr1, kr2, kr3, kt0, kt1 = wp.plane_terms(p)
+                    r2 = dx * dx + dy * dy
+                    f = kr0 + r2 * (kr1 + r2 * (kr2 + r2 * kr3))
+                    sx = f * dx + kt0 * (2.0 * dx * dy) + kt1 * (r2 + 2.0 * dx * dx)
+                    sy = f * dy + kt1 * (2.0 * dx * dy) + kt0 * (r2 + 2.0 * dy * dy)
                 sx = cxp + m * sx - 0.5
                 sy = cyp + m * sy - 0.5
                 xi0, xi1, fx = _np_split(np, sx, w)
@@ -873,6 +940,32 @@ def warp_planes(warps: list[WarpRectilinear], img, band: int = 256):
                 out[y0:y1, :, p] = (1.0 - fy) * ((1.0 - fx) * a + fx * b) + fy * ((1.0 - fx) * c + fx * d)
         img = out
     return img
+
+
+def _np_fisheye_geometry(np, dx, dy):
+    """``(dx, dy, r, t, r == 0)`` on arrays for WarpFisheye, with ``r`` and ``t = atan(r)`` as ``warp_source`` takes them.
+
+    ``atan`` is taken with ``math.atan``, not ``np.arctan``: numpy may use a vectorised arctan that differs from the
+    C library's in the last bit, and the two engines must give the same bytes.
+    """
+
+    dx, dy = np.broadcast_arrays(dx, dy)
+    r = np.sqrt(dx * dx + dy * dy)
+    flat = r.ravel()
+    t = np.fromiter(map(math.atan, flat.tolist()), dtype=np.float64, count=flat.size).reshape(r.shape)
+    return dx, dy, r, t, r == 0.0
+
+
+def _np_fisheye(terms, geo):
+    """WarpFisheye's normalised source offsets for one plane, the same operations in the same order as ``warp_source``."""
+
+    import numpy as np
+
+    k0, k1, k2, k3 = terms
+    dx, dy, r, t, zero = geo
+    t2 = t * t
+    ratio = np.where(zero, k0, t * (k0 + t2 * (k1 + t2 * (k2 + t2 * k3))) / np.where(zero, 1.0, r))
+    return ratio * dx, ratio * dy
 
 
 def _np_split(np, v, n: int):
