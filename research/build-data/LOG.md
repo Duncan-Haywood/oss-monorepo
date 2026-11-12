@@ -1,5 +1,16 @@
 # build-data log
 
+## Session 80, 2026-11-12: do San Francisco's gain and Austin's cost from the work-type class hold across test years, and which classes carry Austin's cost? (in progress)
+
+Why: session 79 found, on complete build-time labels, that the cascade2 work-type class gains 15.7 days of transfer q0.9 with SF held out and costs 15.3 with Austin held out, but from one test year (2021) per city, and with no split of where Austin's cost sits. Its "Next" asked for both.
+- New: `censored_eval.class_split()` writes, for every transfer contrast between configurations, each class's rows, mean difference and contribution to the overall mean, on all rows (reference) and on the complete-case rows (`by_class` in the validate json; 1 test: contributions add up to the mean, CC scope drops unseen rows). Rows are grouped by the first configuration's class (cascade2).
+Predictions (written before any run): `python3.13 src/censored_eval.py validate DIR --pull-date 2026-11-12 --held H --test-year Y --pseudo-pull Y+2-11-12 --classes cascade2 type cascade2_nodemo`, H = sf and austin, Y = 2020 and 2022, plus Austin 2021 again for its class split. Same sign conventions as session 79.
+- (W1) SF held out, 2020 and 2022: reference transfer q0.9 type minus cascade2 > 0 with a 95% interval above zero. Refuted if either year fails.
+- (W2) Austin held out, 2020 and 2022: reference transfer q0.9 type minus cascade2 < 0 with an interval below zero. Refuted if either year fails.
+- (W3) Austin held out, 2020 and 2022: reference transfer q0.9 nodemo minus cascade2 < 0 (folding demolition helps Austin's tail, as in 2021). Refuted if either year is >= 0.
+- (W4) Austin 2021, reference, transfer q0.9 type minus cascade2: rows in the classes the work-type cascade adds to Austin's building permits (new construction, alteration, demolition) carry more than half of the -15.3-day total. Refuted otherwise.
+- (W5) In all four new city-years, the CC estimate of type minus cascade2 at q0.9 has the same sign as the reference (in SF and Austin under 4% of a cohort is beyond the longest window, against 5 to 8% in Seattle). Refuted if any sign differs.
+
 ## Session 79, 2026-11-12: on complete labels the work-type class helps Seattle and SF build-time q0.9 transfer and costs Austin 15 days; session 74's Seattle cost was censoring (V1, V2, V4 held; V3, V5 refuted)
 
 Why: session 78 found that complete-case scoring of a right-truncated test year flips the sign of the demolition fold at i2c q0.9, and asked for the same check on session 74's cascade2-versus-type comparison (cascade2 cost +2.19 days of Seattle i2c 2024 transfer q0.9 on complete-case labels) and for other held-out cities.
