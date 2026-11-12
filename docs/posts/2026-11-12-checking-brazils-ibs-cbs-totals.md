@@ -2,7 +2,7 @@
 title: "Checking Brazil's IBS and CBS totals before they cost money"
 seo_title: "NF-e IBS/CBS (IBSCBSTot, vNFTot) totals check on PL_010"
 date: 2026-11-12
-description: "The NF-e checker now reads the tax-reform layout PL_010_V1.30 and adds up IBSCBSTot, ISTot and vNFTot against the items. Its schema layer agreed with xmllint on 4,987 of 4,987 mutated files."
+description: "The NF-e checker now reads the PL_010 reform layout and adds up IBS, CBS and IS totals against the items; 4,987 of 4,987 schema verdicts match xmllint."
 tags: [ventures, einvoice-preflight, brazil, nf-e, ibs, cbs, tax-reform]
 ---
 
