@@ -16,6 +16,7 @@
   "n_seen": 4292,
   "window_min": 681.0,
   "window_max": 1044.0,
+  "share_beyond_window_max": 0.08252726898538794,
   "ess_ipcw": 4057.724963226758,
   "max_weight": 9.487179487179484,
   "q90_all": 945.1999999999998,
@@ -25,6 +26,36 @@
   "q50_cc": 308.0,
   "q50_ipcw": 318.0
  },
+ "bins": [
+  {
+   "lo": 0,
+   "hi": 681,
+   "n": 4068,
+   "share_seen": 1.0,
+   "mean_g": 1.0
+  },
+  {
+   "lo": 681,
+   "hi": 800,
+   "n": 163,
+   "share_seen": 0.901840490797546,
+   "mean_g": 0.8803002668033344
+  },
+  {
+   "lo": 800,
+   "hi": 900,
+   "n": 100,
+   "share_seen": 0.55,
+   "mean_g": 0.5617444717444717
+  },
+  {
+   "lo": 900,
+   "hi": 1046,
+   "n": 127,
+   "share_seen": 0.15748031496062992,
+   "mean_g": 0.21186519375495755
+  }
+ ],
  "reference_window_min": 1777.0,
  "note": "reference = all test rows (windows >= reference_window_min days); cc/ipcw = rows the pseudo-pull would have seen; days of mean pinball loss, negative = first term better",
  "contrasts": {
