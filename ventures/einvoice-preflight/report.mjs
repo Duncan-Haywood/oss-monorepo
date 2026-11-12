@@ -8,6 +8,7 @@ import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mj
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
 import { checkFa3, looksLikeFa3 } from "./fa3.mjs";
+import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
 export const DEFAULT_MAX_FILES = 50;
@@ -21,7 +22,7 @@ export function looksLikeIsdoc(text) {
   return /xmlns(?::\w+)?\s*=\s*["']http:\/\/isdoc\.cz\/namespace\/2013["']/.test(String(text).slice(0, 4096));
 }
 
-export const ISDOC_MESSAGE = "This is an ISDOC invoice (the Czech national format). The checker reads UBL, CII, Factur-X, FatturaPA and FA(3), not ISDOC, and applies no Czech national rules. Export the invoice from your accounting software as Peppol BIS (UBL) or EN 16931 and check that file instead.";
+export const ISDOC_MESSAGE = "This is an ISDOC invoice (the Czech national format). The checker reads UBL, CII, Factur-X, FatturaPA, FA(3) and CFDI 4.0, not ISDOC, and applies no Czech national rules. Export the invoice from your accounting software as Peppol BIS (UBL) or EN 16931 and check that file instead.";
 
 export async function inspectInvoiceSource(name, source) {
   let payload = source;
@@ -101,6 +102,12 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         reports.push({ file: name, errors: polish.findings, envelope: "Read as Polish KSeF FA(3), not EN 16931", ...(polish.skipped.length ? { skipped: polish.skipped } : {}) });
         continue;
       }
+      if (!looksLikePdf(name, source) && looksLikeCfdi(peek)) {
+        // Mexico's CFDI 4.0 is its own schema, not EN 16931: own rules, no UBL/CII reading.
+        const mexican = checkCfdi(peek);
+        reports.push({ file: name, errors: mexican.findings, envelope: `Read as Mexican CFDI ${mexican.meta.version || ""} (SAT), not EN 16931${mexican.meta.stamped ? "; stamped by a PAC" : "; not stamped"}`, ...(mexican.skipped.length ? { skipped: mexican.skipped } : {}) });
+        continue;
+      }
       const { invoice, envelope, xml, pdfFindings } = await inspectInvoiceSource(name, source);
       const errors = checkInvoice(invoice);
       errors.push(...pdfFindings);
@@ -143,11 +150,14 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
           // rules require one where KSA does); credit and debit notes are Invoice
           // documents with type code 381 or 383 (INV-034); ZATCA's own cut of EN 16931
           // leaves out BR-33 (allowance reason, INV-052) and BR-61 (account for a credit
-          // transfer, INV-045); and a prepayment adjustment repeats a rate in the tax
-          // breakdown (INV-038, that message only: a missing row is still reported).
+          // transfer, INV-045). INV-017, INV-018 and INV-038 used to be dropped too; they
+          // came from the reader adding each line's own TaxTotal (KSA-11/12, and the
+          // prepayment lines' KSA-31/32 subtotal) and BT-111's SAR repeat to the document
+          // tax and breakdown. ubl.mjs reads only the root's TaxTotal since 2026-11-12,
+          // so those checks run on KSA files again (19 of 19 good cases still pass).
           const zatca = sets.some((x) => /^zatca/.test(x));
-          if (zatca) ["INV-022", "INV-005", "INV-017", "INV-018", "INV-006", "INV-034", "INV-045", "INV-052"].forEach((r) => drop.add(r));
-          const dropped = (e) => drop.has(e.rule) || (zatca && e.rule === "INV-038" && /repeats the same tax percentage/.test(e.message));
+          if (zatca) ["INV-022", "INV-005", "INV-006", "INV-034", "INV-045", "INV-052"].forEach((r) => drop.add(r));
+          const dropped = (e) => drop.has(e.rule);
           for (let i = errors.length - 1; i >= 0; i--) if (dropped(errors[i])) errors.splice(i, 1);
         }
         errors.push(...official.findings);

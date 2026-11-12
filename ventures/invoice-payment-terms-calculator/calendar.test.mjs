@@ -22,7 +22,7 @@ test('merges events that land on the same day', () => {
 
 test('escapes text and folds long lines', () => {
   const ics = buildCalendar({ ...base, label: 'A, B; C' });
-  assert.match(ics, /SUMMARY:A\\, B\; C/);
+  assert.match(ics, /SUMMARY:A\\, B\\; C/);
   for (const line of ics.split('\r\n')) assert.ok(line.length <= 75);
 });
 

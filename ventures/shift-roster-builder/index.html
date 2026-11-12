@@ -387,7 +387,7 @@
       if (sh.slots.length > 1) $("#trade-b").value = "1";
       $("#trade-out").innerHTML = "";
       showCover();
-      const sf = scheduleFlags(r, { minDay: val("minday", 0), weekStart: $("#weekstart").value || null, today: new Date().toISOString().slice(0, 10) });
+      const sf = scheduleFlags(r, { minDay: val("minday", 0), weekStart: $("#weekstart").value || null, today: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
       const flagMsgs = [
         ...sf.overDaily.map((x) => `${x.person} works ${num(x.hours)} hours on ${x.day}, ${num(x.overBy)} over 8 in a day. Some states pay daily overtime; check yours.`),
         ...sf.splits.map((x) => `${x.person} has a split shift on ${x.day} with a ${num(x.gapHours)}-hour gap. Some places owe split-shift pay.`),

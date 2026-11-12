@@ -163,23 +163,35 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History (country tax-id checks wired into vat.mjs, each pinned on published
-      numbers with the authority's text unread; pages read or from excerpts):
-      README and git. Open: ZATCA rules on a real sandbox invoice and credit or
-      debit note, built-in INV-0xx checks beside PINT/ZATCA sets (INV-024/022/005/017/018 dropped there 2026-11-10; the rest still run); VAT differential vs python-stdnum both ways 2026-11-11 and IBAN structure plus BE/ES/ME/NO check digits 2026-11-10 (README), BE/CZ/RO/IT/LV prefix rules closed 2026-11-10 (README), rest closed (FR letter keys; TR differences are deliberate TCKN acceptance); FatturaPA code lists (TD29, RF20) and
-      tolerances against the primary spec 1.9 text; Portugal's CIUS-PT add-on
-      (AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit them: which
-      validator does AT run?); Poland's FA(3) on a KSeF test-environment file and
-      a real correction, advance or settlement file; the rules and a repair on a
-      real ERP or Factur-X export; PINT SG and A-NZ: current releases (billing-1@sg-1/@aunz-1) added and run on OpenPeppol's 40 examples 2026-11-11 (README, eval/phive-corpus.mjs: 0 to 39 pass); open: a real business's PINT file, PINT JP/MY/AE/OM; NL/RO/PT/ZATCA good cases scored 2026-11-11 (README `--good`; 4 fixes); BT-86 clearing codes closed 2026-11-12 (README); open: UBL-SR-53 on RO empty TaxScheme, ZATCA rate-change row;
-      RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
-      check on a real IRP payload; mandate dates read from primary sources where
-      pages cite guides (Israel, Denmark, Czech, Latvia; Luxembourg; ato.gov.au
-      403 from cloud); Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages
-      (excerpts; Taiwan, Oman dates disagree); Latin American, Spain and Brazil
-      pages (open: CFDI, NF-e XSD, NFS-e); refresh the Bulgaria page when its
-      draft passes. A run that lands a slice replaces its item here; keep this
-      under 2,000 characters.
+      History: README and git. Open: ZATCA rules on a real sandbox invoice and
+      credit or debit note, built-in INV-0xx checks beside PINT/ZATCA sets
+      (INV-024/022/005/017/018 dropped there 2026-11-10; the rest still run);
+      VAT differential vs python-stdnum both ways 2026-11-11 and IBAN
+      structure plus BE/ES/ME/NO check digits 2026-11-10 (README),
+      BE/CZ/RO/IT/LV prefix rules closed 2026-11-10 (README), rest closed (FR
+      letter keys; TR differences are deliberate TCKN acceptance); FatturaPA
+      code lists (TD29, RF20) and tolerances against the primary spec 1.9
+      text; Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18
+      though AMA's rules admit them: which validator does AT run?); Poland's
+      FA(3) on a KSeF test-environment file and a real correction, advance or
+      settlement file; the rules and a repair on a real ERP or Factur-X
+      export; PINT SG and A-NZ: current releases (billing-1@sg-1/@aunz-1)
+      added and run on OpenPeppol's 40 examples 2026-11-11 (README,
+      eval/phive-corpus.mjs: 0 to 39 pass); open: a real business's PINT file,
+      PINT JP/MY/AE/OM; NL/RO/PT/ZATCA good cases scored 2026-11-11 (README
+      `--good`; 4 fixes); BT-86 clearing codes and line-level TaxTotal (ZATCA
+      19/19, INV-017/018/038 back on KSA files) closed 2026-11-12 (README);
+      open: UBL-SR-53 on RO empty TaxScheme, repair-ubl on line-level
+      TaxTotal; RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file;
+      India's INV-01 check on a real IRP payload; mandate dates read from
+      primary sources where pages cite guides (Israel, Denmark, Czech, Latvia;
+      Luxembourg; ato.gov.au 403 from cloud); Nigeria, Thailand, Taiwan, Oman,
+      Pakistan and Jordan pages (excerpts; Taiwan, Oman dates disagree);
+      Mexico CFDI 4.0 reader landed 2026-11-12 (README "Mexico: CFDI 4.0",
+      3,666/3,666 vs xmllint): open: Pagos 2.0 sums, a PAC rejection compared,
+      the regime-to-use table; Brazil NF-e XSD, NFS-e; refresh the Bulgaria
+      page when its draft passes. A run that lands a slice replaces its item
+      here; keep this under 2,000 characters.
 
   - venture: shift-roster-builder
     why: >-

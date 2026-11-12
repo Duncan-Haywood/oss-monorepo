@@ -282,7 +282,7 @@ until it has. An empty shelf below means: write a proposal.
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
-- *Kateri Tekakwitha* (14 July, United States calendar; 17 April in Canada): a Mohawk woman of the 1670s, scarred by smallpox, baptized at Kahnawake's mission and remembered for her prayer before a cross cut into a tree. The sources are two Jesuit Lives (Chauchetière and Cholenec) written after her death; tell them as their accounts, keep her severe penances for the grown-ups note, and treat Mohawk people and her family with the same specificity and respect as the missionaries.
+- *Damien of Molokai* (10 May, United States calendar; not in the General Roman Calendar): a Belgian priest of the Congregation of the Sacred Hearts (1840 to 1889) who went in 1873 to the settlement at Kalaupapa for people exiled with leprosy (Hansen's disease), built houses, a church and coffins, and caught the disease himself. The sources are his own letters and the accounts of those who worked with him; tell the work and the friendships plainly, say gently that the illness can now be cured and is hard to catch, and treat the Hawaiian people of the settlement, who did much of the building, as people with names, not as a backdrop.
 
 ## What not to do
 

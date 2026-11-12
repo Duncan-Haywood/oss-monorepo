@@ -107,3 +107,18 @@ test("a negative input is treated as zero, as the page does, not carried into th
   assert.equal(project({ ...base, rent: -5000 }).profit, project({ ...base, rent: 0 }).profit);
   assert.deepEqual(analyze({ ...base, visitors: -10 }).now, analyze({ ...base, visitors: 0 }).now);
 });
+
+test("seasonOdds: an extra zero in open days answers fast and matches the direct binomial", () => {
+  const t0 = performance.now();
+  const big = seasonOdds({ ...DEFAULTS, openDays: 100000 });
+  assert.ok(performance.now() - t0 < 3000, "100000 open days must not hang the page");
+  assert.ok(Number.isFinite(big.expected) && big.pLoss >= 0 && big.pLoss <= 1);
+  // The incremental log C(n, k) gives the same probabilities as a from-scratch sum at a normal season length.
+  const n = 24, p = 0.2;
+  const odds = seasonOdds({ ...DEFAULTS, openDays: n, rainoutPct: p, wetChance: 0 });
+  for (const { lost, prob } of odds.outcomes) {
+    let lc = 0;
+    for (let j = 1; j <= lost; j++) lc += Math.log(n - lost + j) - Math.log(j);
+    assert.ok(Math.abs(prob - Math.exp(lc + lost * Math.log(p) + (n - lost) * Math.log(1 - p))) < 1e-12);
+  }
+});

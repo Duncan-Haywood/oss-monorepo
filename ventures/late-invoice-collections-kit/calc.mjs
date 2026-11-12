@@ -254,7 +254,7 @@ export function planText(inputs, plan) {
 }
 
 // ---------- .ics ----------
-const icsEsc = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+const icsEsc = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 function fold(line) {
   const out = [];
   let rest = line;

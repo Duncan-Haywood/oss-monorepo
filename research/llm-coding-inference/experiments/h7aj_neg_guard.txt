@@ -1,0 +1,24 @@
+P1 forecast within max(5 points, 3 SE): 45 of 45; misses []; largest gap 3.0
+P2 coverage >= 93% in every cell and rule: yes
+0.5B fear n 500: k=3 1.027 (17% cells), k=5 1.006 (3% cells), k=8 1.000 (0% cells)
+0.5B fear n 1000: k=3 0.961 (64% cells), k=5 0.987 (31% cells), k=8 1.000 (2% cells)
+0.5B fear n 2000: k=3 0.914 (90% cells), k=5 0.921 (83% cells), k=8 0.955 (50% cells)
+0.5B sadness n 500: k=3 1.027 (56% cells), k=5 1.025 (24% cells), k=8 1.003 (2% cells)
+0.5B sadness n 1000: k=3 1.027 (88% cells), k=5 1.034 (80% cells), k=8 1.036 (42% cells)
+0.5B sadness n 2000: k=3 0.942 (97% cells), k=5 0.942 (97% cells), k=8 0.943 (96% cells)
+1.5B admiration n 500: k=3 0.910 (59% cells), k=5 0.974 (21% cells), k=8 0.999 (1% cells)
+1.5B admiration n 1000: k=3 0.801 (96% cells), k=5 0.858 (75% cells), k=8 0.957 (28% cells)
+1.5B admiration n 2000: k=3 0.742 (100% cells), k=5 0.745 (100% cells), k=8 0.759 (96% cells)
+1.5B fear n 500: k=3 1.014 (13% cells), k=5 1.003 (1% cells), k=8 1.000 (0% cells)
+1.5B fear n 1000: k=3 0.918 (56% cells), k=5 0.982 (16% cells), k=8 1.000 (0% cells)
+1.5B fear n 2000: k=3 0.831 (94% cells), k=5 0.871 (74% cells), k=8 0.960 (26% cells)
+1.5B sadness n 500: k=3 0.973 (26% cells), k=5 1.000 (3% cells), k=8 1.000 (0% cells)
+1.5B sadness n 1000: k=3 0.856 (71% cells), k=5 0.960 (29% cells), k=8 0.998 (2% cells)
+1.5B sadness n 2000: k=3 0.714 (99% cells), k=5 0.747 (89% cells), k=8 0.883 (44% cells)
+k=3: worst ratio in the 3 n-500 cells wider than pooled at k=3 1.027; worst ratio in any cell 1.027; keeps 100% of the k=3 gain summed over the 10 cells with k=3 ratio < 0.97
+k=5: worst ratio in the 3 n-500 cells wider than pooled at k=3 1.025; worst ratio in any cell 1.034; keeps 72% of the k=3 gain summed over the 10 cells with k=3 ratio < 0.97
+k=8: worst ratio in the 3 n-500 cells wider than pooled at k=3 1.003; worst ratio in any cell 1.036; keeps 39% of the k=3 gain summed over the 10 cells with k=3 ratio < 0.97
+P3 k=5 brings every costly n-500 cell to ratio <= 1.010: no
+P4 k=5 keeps >= 90% of the k=3 gain: no
+P5 k=8 keeps < 90% of the k=3 gain: yes
+Decision rule: keep NEG_GUARD 3

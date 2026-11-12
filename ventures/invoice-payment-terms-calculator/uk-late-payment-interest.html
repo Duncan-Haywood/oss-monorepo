@@ -97,7 +97,7 @@
     const gbp = n => `£${n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
     const ids = ['amount', 'baseRatePct', 'dueDate', 'asOfDate'];
     const today = new Date();
-    const iso = d => d.toISOString().slice(0, 10);
+    const iso = d => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); // local date, not UTC
     function setDates() {
       $('asOfDate').value = iso(today);
       $('dueDate').value = iso(new Date(today.getTime() - 30 * 86400000));

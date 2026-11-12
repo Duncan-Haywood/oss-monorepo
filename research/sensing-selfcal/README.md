@@ -58,6 +58,22 @@ survives, 25–45% shallower. The **detector choice alone moves Zhang's focal le
 more**: σ halves but the error does not, so the nested rms z rises from 2.28 to 3.1–3.5. A
 sandwich clustered by board column does not fix it (2.44 / 1.72).
 
+**Milestone 4 headline** (the accept/reject decision, 908 solves on disjoint view sets): when
+the old calibration comes from 7 views and the new one from 3–6 *other* views of the same,
+unchanged camera, **the χ² update test with the solver's covariance fires on 72% of splits**
+(nominal 1%). The covariance is 2.3–2.9× too small for f and c<sub>y</sub> and **4.6× for the right
+camera's c<sub>x</sub>, a gap that does not shrink with more views**: each view set carries its own
+systematic offset. Inflating the covariance by the factor measured on the *other* camera
+brings false alarms to 6.5% (11% left, 2% right), but then the test **detects a 1% focal
+change in only 10–12% of splits** with 5–6 views and **a real swap to the other camera unit
+(0.67% in f, 17 px in c<sub>x</sub>) in 30–77%**. Even a factor fitted on the scored camera itself
+(optimistic) leaves 4% as the smallest focal change detected most of the time. The rule
+adopts a harmful update (f error 0.5% worse than keeping the old one) in 5.6% of decisions
+with the raw covariance and 1.4% with the transferred factor. One of five pre-registered
+hypotheses held.
+
+![share of splits where the χ² update test fires against the focal change applied to the new views, raw and transferred covariance](experiments/m4_accept/power.png)
+
 ![the 11×11 cornerSubPix window misplaces an outer corner; neighbour correlation along a column by detector; nested rms z by detector and σ](experiments/m6_detector/detector.png)
 
 ![principal point c_y for flat-board Zhang, released-board Zhang and target-free BA, and rms nested z with k1 vs k1+k2](experiments/m5_lens/cy_and_k2.png)
@@ -358,6 +374,58 @@ is dominated by something the residuals do not carry (the remaining smooth corre
 lens or board terms the model omits, or the data's few views), so the honest error bar has
 to come from outside the fit, as milestone 3's jackknife did.
 
+## Milestone 4: the accept/reject test, old and new calibrations from disjoint views
+
+Pre-registered in `LOG.md` (2026-11-12) before any run. Code: `experiments/m4_accept/`,
+`update_test`, `decide`, `disturb_obs` and `disturb_solution` in `src/selfcal.py`.
+
+**Set-up.** A deployed camera's old calibration comes from images other than the new ones,
+so each camera's 13 views are split: an *old* set of 7 views and a *new* set of k ∈ {3, 4,
+5, 6} views from the other 6, 60 splits per k and camera (seeds fixed; 908 distinct view
+sets, all converged). Model: f, c<sub>x</sub>, c<sub>y</sub>, k<sub>1</sub>, the milestone-2 solver.
+Changes applied to the new set: none (S0); a focal change of ±0.5, 1, 2, 4% about the image
+centre (S1); a principal-point shift of 2, 5, 10 px (S2); and a real one, the new views
+taken from the *other* camera of the pair (S3: a different unit of the same model, all-view
+f 0.67% and c<sub>x</sub> 17 px apart). S1 and S2 are exact transforms of the pinhole-plus-k<sub>1</sub>
+model, so the disturbed solution is the transformed undisturbed one; a test re-solves the
+disturbed corners and matches to 1e-4 px. Truth: the camera's all-view solution, transformed.
+
+**The rule.** χ² = Δᵀ(κ²(Σ<sub>old</sub> + Σ<sub>new</sub>))⁻¹Δ over (f, c<sub>x</sub>, c<sub>y</sub>). Above
+11.34 (χ²<sub>3</sub>, 1%) a change is detected; detected and σ<sub>f,new</sub>/f ≤ 0.5%: adopt the new
+calibration; detected and imprecise: flag for a target recalibration; otherwise keep the old
+one. κ = 1, or κ = the other camera's milestone-3 nested rms z (1.89 for left, 2.67 for right).
+
+**Hypotheses** (`experiments/m4_accept/summary.json`; 95% Wilson intervals):
+
+| | prediction | result | |
+|---|---|---|---|
+| H18 | S0, κ = 1: false alarms > 5% | 72.5% (68–76); left 68%, right 77% | held |
+| H19 | S0, transferred κ: ≤ 3% pooled, ≤ 5% each | 6.5% (4.6–9.0); left 10.8%, right 2.1% | refuted |
+| H20 | S3 detected ≥ 90%, k ≥ 4, both directions | 77% (new views left), 30% (new views right) | refuted |
+| H21 | 1% focal change detected ≥ 80%, k ≥ 5 | 11.7% (−1%), 10.0% (+1%) | refuted |
+| H22 | harmful adoption ≤ 2% overall | 3.5% (3.2–3.9); κ = 1: 5.6%, transferred: 1.4% | refuted |
+
+**Why the test cannot be both quiet and sensitive** (unscored diagnostics on S0). The rms
+z-scores of (f, c<sub>x</sub>, c<sub>y</sub>) between old and new are 2.45 / 2.35 / 2.94 (left) and
+2.33 / **4.56** / 2.51 (right). The right camera's c<sub>x</sub> z stays at 4.3–4.8 from 3 to 6 new
+views, so it is not noise that more views average away but an offset each view set carries.
+The median principal-point error of a new set is 15 px with 3 views and 6.3 px with 6
+(old set of 7: about 5 px), against a reported σ near 1.3 px. The factor that makes S0 fire
+on exactly 1% (fitted in sample, so optimistic) is 2.69 / 4.80 for the 3-parameter test and
+2.24 / 2.69 for f alone. At that factor the f-only test detects a 2% focal change with 6 new
+views in 32–38% (left) and 0–2% (right) of splits, and a 4% change in 90–97% and 52–72%; the
+3-parameter test detects the unit swap in at most 28%. The raw-covariance rule flags 37% of
+all decisions for a target recalibration; with the transferred factor, 7%.
+
+**What it means for a robot.** With 3–6 views of a checkerboard-grade scene, the update
+test is limited by systematic error that differs between view sets, not by the noise the
+covariance describes. A raw χ² test cries wolf on most unchanged cameras; inflated enough to
+be quiet, it misses focal changes under about 4% and misses a swapped camera unit more often
+than not. A fleet that wants to catch 1% changes in the field needs either many more views
+per update or an error model built from repeated captures of the same camera (the empirical
+null used above), not the solver's covariance. Keeping the old calibration is the safe
+default: with the transferred factor the rule made a harmful adoption in 1.4% of decisions.
+
 ## Reproduce
 
 ```
@@ -374,6 +442,8 @@ python3 experiments/m5_lens/analyse.py    # summary.json, cy_and_k2.png
 OMP_NUM_THREADS=1 python3 experiments/m6_detector/run.py # ~15 min on 4 cores; results.json
 python3 experiments/m6_detector/analyse.py # summary.json, detector.png
 python3 experiments/m6_detector/bend.py    # ~1 min; bend.json
+OMP_NUM_THREADS=1 python3 experiments/m4_accept/run.py   # ~3 min on 4 cores; results.json
+python3 experiments/m4_accept/analyse.py   # summary.json, power.png
 python3 -m pytest tests
 ```
 
@@ -400,6 +470,11 @@ python3 -m pytest tests
   absolute intrinsics, the c<sub>y</sub> gap and the bend's depth are detector-dependent.
   There is no ground truth for which localiser is right; SB and 5×5 agree with each other
   to 0.15 px median and 1.7 px at worst.
+- Milestone 4 splits 13 views, so the 60 splits per k and camera reuse views heavily and
+  are not independent; the Wilson intervals treat them as independent and are too narrow.
+  It uses the milestone 1–5 corners (11×11 `cornerSubPix`); the focal and shift changes are
+  exact model transforms, not physically disturbed lenses, and the swap is the only real change.
+  The precision gate uses the reported σ, as in milestone 2.
 - `cite_check.py` could not reach the DOI registries; citations are unchecked (see
   `PROPOSAL.md`).
 
@@ -410,11 +485,11 @@ After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on S
 field that survives every localiser (tangential or thin-prism lens terms, or a per-view
 board deformation); and synthetic renders with a known camera to say which localiser is
 right. Milestone 3b: natural features (SIFT) on an openly licensed multi-view set with a target
-calibration of the same camera (H5). For the gate (milestone 4): a two-stage test that ranks by
-the reported σ and view spread and vetoes with the jackknife σ, fitted on one camera and
-scored on the other; a cheaper honest σ than k re-solves (a one-step, linearised jackknife
-from the solution, or a delete-d jackknife for few views); and the χ² test against a
-disturbed camera.
+calibration of the same camera (H5). After milestone 4: rerun the update test on SB corners (milestone 6's cleaner corners may cut
+the per-view-set offsets, or only shrink σ further); use the jackknife or a view-set
+bootstrap for Σ in the χ² test instead of a scalar κ; find what drives the right camera's
+c<sub>x</sub> offset (which views pull it); and a capture with a physically changed lens (zoom or
+refocus) for a real focal change.
 
 ## References
 

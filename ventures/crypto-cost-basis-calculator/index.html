@@ -307,7 +307,7 @@
       const out = $("#harvest-out");
       if (!last) { out.innerHTML = ""; return; }
       const { prices, errors } = parsePrices($("#prices").value);
-      const asOf = $("#asof").value || new Date().toISOString().slice(0, 10);
+      const asOf = $("#asof").value || new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
       const rates = { shortRate: rate("#shortRate") ?? 0.24, longRate: rate("#longRate") ?? 0.15 };
       const h = harvestPlan(last.openLots, prices, { asOf, summary: last.summary, ...rates });
       const msgs = [...errors, ...(h.unpriced.length ? [`No price typed for: ${h.unpriced.join(", ")}. Those lots are left out.`] : [])].map((w) => `<div class="warn">${esc(w)}</div>`);
@@ -329,7 +329,7 @@
       const fee = Number($("#plan-fee").value || 0);
       const bad = !asset ? "Type the coin, for example BTC." : !(price > 0) ? "Type a price above zero." : (qty === null && cash === null) ? "Type how many coins or how many dollars to sell." : !((qty ?? cash) > 0) ? "The amount to sell must be above zero." : !(fee >= 0 && fee < 50) ? "Enter the fee as a percent between 0 and 50." : "";
       if (bad) { out.innerHTML = `<div class="warn">${esc(bad)}</div>`; return false; }
-      const asOf = $("#asof").value || new Date().toISOString().slice(0, 10);
+      const asOf = $("#asof").value || new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
       const rates = { shortRate: rate("#shortRate") ?? 0.24, longRate: rate("#longRate") ?? 0.15 };
       const p = planSale(last.openLots, { asset, price, asOf, qty, cash, feeRate: fee / 100, summary: last.summary, ...rates });
       if (!p.qty) { out.innerHTML = `<div class="warn">No ${esc(asset)} on record to sell. Check the coin symbol against the "Coins still held" table.</div>`; return false; }

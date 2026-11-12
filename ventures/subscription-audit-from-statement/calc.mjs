@@ -356,6 +356,19 @@ export function reportCsv(a) {
 const icsText = (v) => String(v ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 const icsDate = (day) => isoDay(day).replace(/-/g, "");
 
+// RFC 5545 3.1: fold content lines longer than 75 octets (a continuation starts with a space), never inside a UTF-8 character.
+const foldIcs = (text) => text.split("\r\n").map((line) => {
+  const parts = [];
+  let cur = "", len = 0, limit = 75;
+  for (const ch of line) {
+    const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+    if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+    cur += ch; len += n;
+  }
+  parts.push(cur);
+  return parts.join("\r\n ");
+}).join("\r\n");
+
 // Calendar file of the next expected charge for each active subscription that
 // bills monthly or less often (weekly and two-weekly ones would bury the
 // calendar), each with a reminder `leadDays` before so there is time to cancel.
@@ -373,7 +386,7 @@ export function renewalsIcs(a, { leadDays = 3, stamp = null } = {}) {
       "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsText(`${s.merchant} renews in ${lead} day(s)`)}`, `TRIGGER:-P${lead}D`, "END:VALARM", "END:VEVENT");
   }
   out.push("END:VCALENDAR");
-  return out.join("\r\n") + "\r\n";
+  return foldIcs(out.join("\r\n")) + "\r\n";
 }
 
 export function summaryText(a, cancelled = []) {

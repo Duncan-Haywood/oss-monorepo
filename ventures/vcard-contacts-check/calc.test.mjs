@@ -27,6 +27,8 @@ test("dates must be real, and year-less birthdays are accepted", () => {
 test("FN is built from N in display order", () => {
   assert.equal(fnFromN("Rivera;Sam;J;Dr.;Jr."), "Dr. Sam J Rivera Jr.");
   assert.equal(fnFromN(";;;;"), "");
+  // A ";" inside a name part stays escaped in the built FN (a one-backslash JS string never escaped it).
+  assert.equal(fnFromN("Smith\\;Jones;Ann;;;"), "Ann Smith\\;Jones");
 });
 
 test("a clean card has no findings", () => {

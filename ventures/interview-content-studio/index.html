@@ -230,7 +230,7 @@ node cli.mjs studio.json --interview "Bakery launch" --format md</pre>
     const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
     const store = (() => { try { return window.localStorage; } catch { return null; } })();
     const AI_KEY = "interview-content-studio-ai";
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 
     let state = loadState(store) || emptyState(today);
     let qIndex = 0;
