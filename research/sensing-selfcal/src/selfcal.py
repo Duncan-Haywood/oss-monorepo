@@ -391,6 +391,7 @@ def _summarise(sol, ni, nk, ref):
                status=int(sol.status), ref=ref, cond_intr=float(ev[-1] / ev[0]),
                corr_f_cx=float(corr[0, 1]), corr_f_cy=float(corr[0, 2]), corr_f_k1=float(corr[0, 3]),
                cond_full=float(np.linalg.cond(H)))
+    out["cov_intr"] = cov[:ni, :ni].tolist()   # milestone 4: the full intrinsics covariance
     return out
 
 
@@ -466,3 +467,42 @@ def residual_structure(resid, obs, pattern=PATTERN):
     return dict(col_share=col_share, col_null=1 / pattern[1], row_share=row_share, row_null=1 / pattern[0],
                 col_perp_share=perp_share, row_perp_share=row_perp,
                 col_mean_rms_px=float(np.sqrt((cm ** 2).sum(-1).mean())))
+
+
+# ---------------------------------------------------------------------------
+# Milestone 4: the accept/reject test for an in-field update.
+
+CHI2_3_99 = 11.344866730144373   # chi-square, 3 degrees of freedom, upper 1%
+
+
+def disturb_obs(obs, size, s=1.0, du=0.0):
+    """Exact model change applied to observed pixels: a focal change by factor s about the
+    image centre p (f -> s f, c -> p + s (c - p), k1 unchanged) and a principal-point shift
+    of du pixels in u. Both keep the pinhole-plus-radial model closed."""
+    p = np.array([size[0] / 2.0, size[1] / 2.0])
+    out = p + s * (np.asarray(obs, float) - p)
+    out[..., 0] += du
+    return out
+
+
+def disturb_solution(theta, cov, size, s=1.0, du=0.0):
+    """The same change applied to a solution (f, cx, cy) and its 3x3 covariance."""
+    p = np.array([size[0] / 2.0, size[1] / 2.0])
+    f, cx, cy = theta
+    t = np.array([s * f, p[0] + s * (cx - p[0]) + du, p[1] + s * (cy - p[1])])
+    return t, (s * s) * np.asarray(cov)
+
+
+def update_test(th_old, cov_old, th_new, cov_new, kappa=1.0, idx=(0, 1, 2)):
+    """Chi-square of the change between two independent estimates on the parameters idx."""
+    i = list(idx)
+    d = np.asarray(th_new, float)[i] - np.asarray(th_old, float)[i]
+    C = kappa ** 2 * (np.asarray(cov_old)[np.ix_(i, i)] + np.asarray(cov_new)[np.ix_(i, i)])
+    return float(d @ np.linalg.solve(C, d))
+
+
+def decide(chi2, sf_new, f_new, crit=CHI2_3_99, gate=0.005):
+    """keep (no change detected), adopt (detected, new is precise) or flag (detected, imprecise)."""
+    if chi2 <= crit:
+        return "keep"
+    return "adopt" if sf_new / f_new <= gate else "flag"

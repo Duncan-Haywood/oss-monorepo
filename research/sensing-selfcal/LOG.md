@@ -1,5 +1,16 @@
 # sensing-selfcal research log
 
+## 2026-11-12 · Milestone 4 result: the update test cries wolf on the raw covariance and goes deaf when inflated; each view set carries its own offset
+
+- **Runs.** 908 distinct view sets (old sets of 7, new sets of 3–6, all-view), all converged. The disturbance transform was checked by re-solving disturbed synthetic corners (match to 1e-4 px, `tests/test_selfcal.py`).
+- **H18 held.** Unchanged camera, κ = 1: the 3-parameter test fires on 72.5% of splits (95% 68–76; left 68%, right 77%); the f-only test on 22–30%.
+- **H19 refuted.** With the other camera's factor (1.89 left, 2.67 right): 6.5% pooled (4.6–9.0), 10.8% left, 2.1% right.
+- **H20 refuted.** The real unit swap, k ≥ 4: detected in 77% (new views from the left camera) and 30% (from the right). The f-only test almost never sees it (0–5%): the swap shows in the principal point.
+- **H21 refuted.** A 1% focal change, k ≥ 5: 11.7% (−1%) and 10.0% (+1%). 4% is detected in 62–75% at k = 5–6.
+- **H22 refuted.** Harmful adoptions (new f error 0.5% of f worse than the old) 3.5% of all decisions (3.2–3.9); 5.6% with κ = 1, 1.4% with the transferred factor. Flag rate 37% / 7%.
+- **Unscored diagnostic: why.** Old-vs-new rms z for (f, c<sub>x</sub>, c<sub>y</sub>): 2.45 / 2.35 / 2.94 (left), 2.33 / 4.56 / 2.51 (right). The right camera's c<sub>x</sub> stays at 4.3–4.8 from 3 to 6 new views: an offset per view set, not noise. The in-sample factor for exactly 1% false alarms is 2.69 / 4.80 (3-parameter) and 2.24 / 2.69 (f only); at it, a 2% focal change with 6 views is detected in 32–38% (left) and 0–2% (right) of splits, 4% in 90–97% and 52–72%.
+- **Caveat.** 60 splits of 13 views reuse views heavily, so the intervals, which assume independent splits, are too narrow. Corners are milestones 1–5's 11×11 `cornerSubPix`; the next step reruns on SB corners.
+
 ## 2026-11-12 · Milestone 4 planned: the accept/reject test on disjoint views, a real camera swap and exact disturbances
 
 Written before any milestone-4 experiment was run. Proposal milestone 4: turn milestones 1–3 into the decision a robot makes, and measure its false-alarm and false-adopt rates.
