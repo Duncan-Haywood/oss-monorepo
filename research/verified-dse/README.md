@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 116 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 117 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -70,6 +70,12 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   3.18% to 9.42%). Blind mean regret: unguarded clip 2.69%, guarded 3.76%, plain switch 5.58%, equal-cost random 3.28%. Over
   all 124 cells of milestones 110 to 116 the unguarded clip has 1.02% against 1.87% for the plain switch and 2.36% for random
   routing, so it stays the rule: [`experiments/pilot_clip/`](experiments/pilot_clip/results.txt).
+- **Counted by what each rule had seen, the clip is what beats random routing (milestone 117, no flow run).** The plain
+  switch (theta fixed in milestone 111) is level with equal-cost random routing on the 20 designs it had not seen (2.71% against
+  2.80% mean regret, 40 cells). The clipped switch (alpha fixed in milestone 115) has 1.60% against 2.91% on its only test cells,
+  the 24 of the 12 designs run blind in milestones 115 and 116: better in 18, worse in 5 (sign p = 0.011), design-bootstrap
+  interval of the difference -2.45 to +0.22 points, so not yet significant across designs. Squarers, multipliers and crossbars
+  carry the win; wide barrel shifters split 3 to 3: [`experiments/switch_pooled/`](experiments/switch_pooled/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 
