@@ -56,3 +56,11 @@ test("links to Mexico and the hub and the sitemap entry is its own url block", (
   assert.match(html, /href="e-invoicing-mandates-by-country\.html"/);
   assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*brazil-nfe-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
 });
+
+test("the NF-e file check is on the page and its sample draws exactly the three planted findings", async () => {
+  assert.match(html, /import\{checkNfe\}from"\.\/nfe\.mjs"/);
+  assert.match(html, /id="nfe-file"/);
+  const { checkNfe } = await import("./nfe.mjs");
+  const sample = html.match(/const SAMPLE=`([\s\S]*?)`;/)[1];
+  assert.deepEqual(checkNfe(sample).findings.map((f) => f.rule).sort(), ["BR-013", "BR-030", "BR-042"]);
+});
