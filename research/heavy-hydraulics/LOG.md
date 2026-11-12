@@ -2,6 +2,15 @@
 
 Newest first.
 
+## 2026-11-12 · Milestone 5v: the volume-ratio split on the measured loader (V6 run; V7 to V10 registered before any code was written)
+- Why: 5u split the exact break-even margin into m* = beta [(r - 1) p_q + r (p_Q - p_q) + r d_bar] + I / B and explained the fourfold gap between the synthetic cycles (20.5 bar) and the measured loader (82.9 bar at no spool drop) by r (1.78 against 1.43) and an inferred loader working pressure near 100 bar. That pressure was inferred, not computed: zenodo.org refused the proxy in 5u, so V6 stayed registered and unrun. It answered (HTTP 200) at 03:45 UTC this session.
+- Setup fixed before the run: 5t's cases (a) floor, no drop, p_neutral 5; (b) PVG 32 orifice floor, p99.9 sizing, p_neutral 5; (c) 10 bar drop, p_neutral 10; q_sb 0; 5t's noise-floor motion masks and 18 Y-cycles. The numpy twin of `trace_breakeven` in `measured_breakeven.py` gains the 5u fields (r, p_Q, p_q, d_bar, beta, terms), checked against the stdlib function on the first 50,000 samples as in 5t.
+- **Predictions:** V6 as registered in 5u (p_q between 90 and 115 bar; covariance term positive). Added now, before any code of this step existed:
+  - V7: under (b), the moving rule R1 (all but the covariance term) is within 10% of the exact whole-record m*. Prior 50%.
+  - V8: across the 18 Y-cycles under (b), Spearman(r, m*_c) exceeds Spearman(p_q, m*_c), as on the synthetic cycles (0.77 against 0.12). Prior 55%.
+  - V9: beta, the share of load-sensing margin volume delivered while open-centre moves, exceeds 0.9 on the whole record (load-sensing is almost never still on this trace, 5t). Prior 70%.
+  - V10: under (b), the per-cycle two-number rule R2 = (r - 1) p_q + r d_bar is within 25% of m*_c in the median cycle. Prior 50%.
+
 ## 2026-11-11 · Milestone 5u: the break-even margin is a volume ratio times a load pressure (predictions registered before any code was written)
 - Why: 5s wrote the break-even margin as m* = (S + D + I) / B, and 5t found on the measured loader that dm*/dd equals the ratio of fixed-pump flow to demand flow while moving (1.78), and that my back-of-envelope for m* (about 64 bar) missed the measured 87 bar for a reason I did not trace. The surplus term has an exact split that names the two numbers a builder actually knows. With V the volume load-sensing delivers while open-centre moves, r = (pump volume while moving) / V, p_Q the pump-flow-weighted highest load pressure while moving (time-weighted for a fixed pump) and p_q the demand-weighted one: S = V (r p_Q - p_q), so
   m* = beta [ (r - 1) p_q + r (p_Q - p_q) + r d_bar ] + I / B,   beta = V / B,
