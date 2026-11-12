@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyfZmapV9oVKKuVbQMp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T22:38:48Z",
+  "ended": "2026-11-12T23:15:04Z",
+  "wall_minutes": 39.31,
+  "tokens_in": 11846498,
+  "tokens_out": 53014,
+  "cost_usd": 4.7262,
+  "tool_calls": 94,
+  "task": "Deepen (flagship 6) shift-roster-builder: the change-count ILP on the 40-60 person reissues (are their changes needed?)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15281",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "A Bash call combining two heredocs (a python patch and a new .mjs file) was refused by the rm safety check as unparseable although it held no rm; split into a Write and a separate python run."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/README.md",
+      "issue": "The keepShift 20 cafe total (94) does not reproduce; it was 95 on this run with and without the change, so unproven-search counts in README tables are machine-speed dependent and a rerun can look like a regression."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-shift-roster-the-one-move-it-could-not-make.md",
+    "ventures/shift-roster-builder/README.md (section 'Are the big-week reissues' changes needed?')"
+  ],
+  "goal": null,
+  "notes": "Extended eval/reissue-ilp-export.mjs to templates and seeded P x S weeks; reissue-ilp-check.py gained --limit, --dump, coo assembly and engine-status breakdown; new eval/reissue-ilp-score.mjs scores the ILP's roster under the engine objective. Before: 60x168 keepShift 1 made 76 changes vs least 24 (one call-out 51 vs 2); 40x112 40 vs 33, with one unproven week where the ILP roster also scored 35 better (a search miss). Cause: the kept start could not move a posted person up to the caller's longer clashing shift. Fix: ejectOpen in keptStart (keptEject:false turns it off). After: 60x168 26 vs 24, 40x112 37 vs 33; templates/20/30 and cafes unchanged to the dollar; all 19 call-outs still above the least are score trades (ILP roster scores worse). Verification: node --test reissue/keep/plan-reuse 20/20; run_venture_tests.py shift-roster-builder ok (145.5 s); post front matter/links/similarity checks pass. venture-preflight shift-roster-builder: clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4c15c65f-5714-5090-8596-c941642a31e9",
+    "transcripts": 1,
+    "first": "2026-11-12T22:38:48Z",
+    "last": "2026-11-12T23:18:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 86,
+        "input": 161,
+        "output": 53014,
+        "thinking": 12900,
+        "cache_read": 11680182,
+        "cache_write_5m": 0,
+        "cache_write_1h": 166155,
+        "api_equivalent_usd": 4.7262,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 86,
+      "input": 161,
+      "output": 53014,
+      "thinking": 12900,
+      "cache_read": 11680182,
+      "cache_write_5m": 0,
+      "cache_write_1h": 166155,
+      "api_equivalent_usd": 4.7262,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 94,
+    "tools": {
+      "Bash": 85,
+      "Write": 5,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 39.31,
+      "active_minutes": 39.31,
+      "model_minutes": 8.68,
+      "tool_minutes": 30.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an OR engineer extending an ILP cross-check to five benchmark sets, diagnosing one search miss, implementing and testing a local-search move, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 211.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
