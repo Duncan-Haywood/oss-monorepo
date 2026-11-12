@@ -21,12 +21,13 @@ S0 = A
 
 def run(years=3000, dt=0.5, r=0.015, tau=0.3, g=1.0, k=4.0, m=0.02, me=0.04, rho=0.02,
         elite_cap=None, welfare=0.0, n0=0.5, e0f=0.05, seed=0, noise=0.0, lag=0.0, plag=0.0,
-        collapse_thr=None, collapse_elite=0.5, collapse_pop=0.2, refractory=50):
+        collapse_thr=None, collapse_elite=0.5, collapse_pop=0.2, refractory=50, psi_reset=1.0):
     """Returns arrays t, N, E, S, psi sampled each year. Levers: elite_cap (max elite
     number, a ceiling on recruitment), welfare (share of rent paid to peasants as a transfer).
     collapse_thr: if set, a state collapse fires when instability psi reaches it (and at least
     `refractory` years since the last): elites lose the fraction collapse_elite, peasants
-    collapse_pop, fiscal strength resets to a tenth, and stress memory clears. Returns the same
+    collapse_pop, fiscal strength resets to a tenth, and stress memory (plag > 0) resets to
+    psi_reset (1.0, the default, is where psi = 0.5; None keeps the memory). Returns the same
     five arrays; collapse years are in run.collapses (list) of the last call."""
     run.collapses = []
     last = -10 ** 9
@@ -63,7 +64,8 @@ def run(years=3000, dt=0.5, r=0.015, tau=0.3, g=1.0, k=4.0, m=0.02, me=0.04, rho
             E *= 1 - collapse_elite
             N *= 1 - collapse_pop
             S *= 0.1
-            PSI_s = 1.0
+            if psi_reset is not None:
+                PSI_s = psi_reset
             ei_s = e0
         N = max(N + dt * dN + (noise * N * rng.normal() * dt ** 0.5 if noise else 0), 1e-3)
         E = max(E + dt * dE, 1e-4)
