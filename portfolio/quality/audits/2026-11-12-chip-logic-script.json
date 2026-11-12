@@ -225,6 +225,8 @@
    "origin": "maintenance"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15264"
+ ],
  "verdict": "The numbers are right: the experiment reproduces byte for byte under Yosys 0.33, all 170 mapped netlists pass an independent exhaustive simulation, cells and depth recompute from the netlists, and all 30 README table cells match. But it does not meet the bar for an EDA workshop reviewer. The headline (the clz16 verdict flips under 3 of 5 ABC scripts, a 'wide margin' at 216 vs 344) rests on a unit-cost MUX: without MUX in the library it is 2 of 5 and dch_map goes back to the sweep. The comparison with chip-ppa-logic crosses an undisclosed flow change. The winning structure is Oklobdzija's 1994 leading-zero detector, and the script-sensitivity finding is published (Fiser and Schmidt); neither is cited. 5 of 6 seeded bugs survive the tests, including proving the RTL instead of the mapped netlist, the one step this project adds. Correctness 3, verification 1, claims 2, median 2."
 }

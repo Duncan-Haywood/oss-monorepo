@@ -282,6 +282,8 @@
    "origin": "maintenance"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15264"
+ ],
  "verdict": "Does not meet the bar. The architecture is the right one (provider-specific live fingerprint required before 'confirmed', DNS-only matches kept unconfirmed, detection only), the code is tidy and 83 tests pass with 4 of 6 seeded mutations caught. But recomputed against can-i-take-over-xyz and a published S3 DNS write-up, the shipped pipeline gives a clean 'not-risky' for the canonical case of a CNAME to a deleted S3 bucket via the REST endpoint, because it matches only the last hop of the chain; Azure dangling records (NXDOMAIN) can never be confirmed; Pantheon and Ghost fingerprints are stale; Zendesk is reported critical though the reference lists it not vulnerable; and the '25 providers' claim is 24. Live DNS and the served page were unreachable from this session (proxy 403), so the S3 chain is modelled from the write-up, not observed; a re-check with real DNS should be the first step of the fix."
 }
