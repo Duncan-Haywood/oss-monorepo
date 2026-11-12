@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyf5umiYfSEiREmcrRe",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T11:39:25Z",
+  "ended": "2026-11-12T11:52:59Z",
+  "wall_minutes": 13.75,
+  "tokens_in": 12675097,
+  "tokens_out": 71267,
+  "cost_usd": 5.8661,
+  "tool_calls": 74,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15112",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "CURP digit test first asserted SAT's generic woman's CURP fits the rule; it cannot (H/M differ by 5 at weight 8), caught by the test, both generics now exempt and documented"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill bracket hint is incomplete: a hook also blocks it when the bare pattern appears elsewhere on the same command line (e.g. starting the server in the same call); needs a separate call."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight's next: is near its 2,000-character cap and mixes landed history with open items, so finding a buildable item takes a careful read."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-checking-a-mexican-payroll-receipt.md",
+    "ventures/einvoice-preflight/README.md (Mexico: payroll)"
+  ],
+  "goal": null,
+  "notes": "Flagship 5 slice: N\u00f3mina 1.2 payroll CFDI checks MX-050..MX-057 from SAT's GuiaNomina11102019.pdf (primary, fetched from omawww.sat.gob.mx). nomina12.xsd/catNomina.xsd added to build-cfdi-schema (existing CFDI/Pagos tables byte-identical). Verification: nomina12.test.mjs 11/11; cfdi+pagos+nomina+page tests 55/55; run_venture_tests einvoice-preflight ok; eval/nomina-mutations 62/62 caught, 0 clean findings; eval/nomina-xsd-diff 3,638/3,638 agree with xmllint; payroll sample button checked in headless Chromium, no page errors. No real payroll file available: two made-up seeds.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4c5c2d91-638b-5e81-a458-558645ee5136",
+    "transcripts": 1,
+    "first": "2026-11-12T11:39:25Z",
+    "last": "2026-11-12T11:53:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 131,
+        "output": 71267,
+        "thinking": 17373,
+        "cache_read": 12430699,
+        "cache_write_5m": 0,
+        "cache_write_1h": 244267,
+        "api_equivalent_usd": 5.8661,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 131,
+      "output": 71267,
+      "thinking": 17373,
+      "cache_read": 12430699,
+      "cache_write_5m": 0,
+      "cache_write_1h": 244267,
+      "api_equivalent_usd": 5.8661,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 67,
+      "Write": 3,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.75,
+      "active_minutes": 13.75,
+      "model_minutes": 10.24,
+      "tool_minutes": 3.51,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "reading a 117-page SAT guide, writing 8 rule groups, fixtures, two evals, page, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 272.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
