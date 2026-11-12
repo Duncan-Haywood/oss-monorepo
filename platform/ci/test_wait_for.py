@@ -211,6 +211,54 @@ class WaitFor(unittest.TestCase):
             self.assertEqual(e.exception.code, 2)
 
 
+class PidProbe(unittest.TestCase):
+    """Red team 2026-11-12: three mutants of the pid and progress probes escaped."""
+
+    def test_probing_a_job_never_signals_it(self):
+        # os.kill(pid, 0) only asks; any other signal number would hang up
+        # (or kill) the very job the session is waiting for.
+        p = subprocess.Popen(["sleep", "30"])
+        try:
+            for _ in range(3):
+                self.assertTrue(pid_alive(p.pid))
+            with self.assertRaises(subprocess.TimeoutExpired):
+                p.wait(timeout=0.3)
+        finally:
+            p.kill()
+            p.wait()
+
+    def test_another_users_process_counts_as_alive(self):
+        # EPERM means the pid exists but belongs to someone else.
+        import wait_for
+        from unittest import mock
+        with mock.patch.object(wait_for.os, "kill", side_effect=PermissionError):
+            self.assertTrue(pid_alive(12345))
+        with mock.patch.object(wait_for.os, "kill", side_effect=ProcessLookupError):
+            self.assertFalse(pid_alive(12345))
+
+    def test_a_live_pid_without_proc_counts_as_alive(self):
+        # macOS and BSD have no /proc: os.kill succeeding is all we know.
+        import builtins, wait_for
+        from unittest import mock
+        real_open = builtins.open
+        def no_proc(path, *a, **k):
+            if str(path).startswith("/proc/"):
+                raise FileNotFoundError(path)
+            return real_open(path, *a, **k)
+        with mock.patch.object(wait_for.os, "kill", return_value=None), \
+                mock.patch("builtins.open", no_proc):
+            self.assertTrue(pid_alive(12345))
+
+    def test_progress_calls_a_log_silent_from_60s(self):
+        from wait_for import progress
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("x\n")
+            mtime = os.stat(p).st_mtime
+            self.assertIn("still being written", progress(p, now=lambda: mtime + 59.9))
+            self.assertIn("silent for a while", progress(p, now=lambda: mtime + 60))
+
+
 class LongerHint(unittest.TestCase):
     def test_short_timeouts_name_the_longer_form(self):
         import wait_for

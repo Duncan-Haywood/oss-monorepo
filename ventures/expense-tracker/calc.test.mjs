@@ -149,3 +149,57 @@ test("net profit and set-aside", () => {
   assert.equal(setAside(-5, 25), 0);
   assert.equal(setAside(70000, "x"), 0);
 });
+
+// invoiceParts says it mirrors Invoice Maker's arithmetic. Hold it to that
+// against Invoice Maker's own computeTotals, so drift in either file fails here.
+import { invoiceParts } from "./calc.mjs";
+import { computeTotals } from "../invoice-maker/calc.mjs";
+test("invoiceParts matches Invoice Maker's computeTotals, edge cases and a seeded sweep", () => {
+  const cases = [
+    // a zero subtotal (a line and its credit) with tax: no 0/0 in the tax base
+    { lines: [{ qty: 1, rate: "100" }, { qty: -1, rate: "100", taxable: false }], taxRate: 8, paid: "10" },
+    { lines: [], taxRate: 8, discountType: "amount", discountValue: "5" },
+    // a negative half-cent line large enough that a smaller nudge is lost to float spacing
+    { lines: [{ qty: -0.5, rate: "20971.53" }, { qty: 1, rate: "50000" }], taxRate: 0 },
+    { lines: [{ qty: 0.5, rate: "20971.53" }], taxRate: 0 },
+    { lines: [{ qty: 3, rate: "19.99" }, { qty: 1, rate: "5", taxable: false }], discountType: "percent", discountValue: 15, taxRate: 7.25, shipping: "4.50", paid: "20" },
+    { lines: [{ qty: "x", rate: "10" }, { qty: 2, rate: "$1,000.10" }], discountType: "amount", discountValue: "5000", taxRate: 10 },
+  ];
+  let seed = 20261112;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  for (let i = 0; i < 400; i++) {
+    const n = Math.floor(rnd() * 4);
+    const lines = Array.from({ length: n }, () => ({
+      qty: [1, 2, 0.5, 1.5, -1, -0.5, 0.25, 3][Math.floor(rnd() * 8)],
+      rate: (Math.floor(rnd() * 5000000) / 100).toFixed(2),
+      taxable: rnd() < 0.8,
+    }));
+    cases.push({ lines, taxRate: [0, 5, 7.25, 8.875, 20][Math.floor(rnd() * 5)],
+      discountType: ["none", "percent", "amount"][Math.floor(rnd() * 3)],
+      discountValue: rnd() < 0.5 ? 12.5 : (rnd() * 300).toFixed(2), shipping: rnd() < 0.3 ? "9.99" : "", paid: (rnd() * 1000).toFixed(2) });
+  }
+  for (const inv of cases) {
+    const t = computeTotals(inv), p = invoiceParts(inv);
+    const want = { revenue: t.subtotal - t.discount, total: t.total, paid: t.paid };
+    assert.deepEqual(p, want, JSON.stringify(inv));
+    assert.ok(Number.isFinite(p.total), JSON.stringify(inv));
+  }
+});
+
+// Red team 2026-11-12: the column finder took the first header matching any
+// name, so Chase checking's leading "Details" column (DEBIT/CREDIT) became the
+// vendor, an "Account Name" column beat "Payee", and "Last Updated" beat
+// "Transaction Date". An exact header now wins over a partial one.
+test("bank import prefers an exact column name over a partial match", () => {
+  const chase = importBankCsv("Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #\nDEBIT,03/04/2026,ADOBE CREATIVE CLOUD,-54.99,ACH_DEBIT,1000.00,\n");
+  assert.equal(chase.entries[0].vendor, "ADOBE CREATIVE CLOUD");
+  assert.equal(chase.entries[0].date, "2026-03-04");
+  const acct = importBankCsv("Account Name,Date,Payee,Amount\nBiz Checking,2026-03-04,STAPLES 123,-20.00\n");
+  assert.equal(acct.entries[0].vendor, "STAPLES 123");
+  const upd = importBankCsv("Last Updated,Transaction Date,Description,Amount\n2026-05-01,2026-03-04,STAPLES,-20.00\n");
+  assert.equal(upd.entries[0].date, "2026-03-04");
+  // a partial match still works when nothing matches exactly
+  const card = importBankCsv("Trans. Date,Post Date,Merchant Name,Amount (USD)\n03/04/2026,03/05/2026,UPWORK,-80\n");
+  assert.equal(card.entries[0].vendor, "UPWORK");
+  assert.equal(card.entries[0].date, "2026-03-04");
+});
