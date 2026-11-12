@@ -136,7 +136,7 @@
   <pre class="cmd"><code>node check.mjs blog.example.com --json</code></pre>
   <p class="status-note">
     Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/subdomain-takeover-check" rel="noopener">check.mjs, lookup.mjs, probe.mjs, fingerprints.mjs, and analyze.mjs from the repo</a> —
-    exit code 1 if any hostname is confirmed or unconfirmed-risky, so you can gate a deploy or a
+    exit code 1 if any hostname is confirmed or unconfirmed-risky, or a lookup could not complete, so you can gate a deploy or a
     DNS-zone review on it.
   </p>
 </div>
@@ -158,7 +158,7 @@
 <script type="module">
   import { resolveCnameChain } from './lookup.mjs';
   import { fetchHostname } from './probe.mjs';
-  import { classify, buildReport } from './analyze.mjs';
+  import { classify, buildReport, verdictFor } from './analyze.mjs';
   import { providerForChain } from './fingerprints.mjs';
   import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
 
@@ -182,14 +182,9 @@
   }
 
   function render(report) {
-    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
-    if (report.confirmedCount > 0) {
-      els.verdict.textContent = `${report.confirmedCount} confirmed dangling CNAME(s) found.`;
-    } else if (report.unconfirmedCount > 0) {
-      els.verdict.textContent = `${report.unconfirmedCount} hostname(s) point at a takeover-prone provider, unconfirmed.`;
-    } else {
-      els.verdict.textContent = `No subdomain-takeover risk found (${report.hostnamesChecked} hostname(s) checked).`;
-    }
+    const verdict = verdictFor(report);
+    els.verdict.className = `verdict ${verdict.clean ? 'ok' : 'bad'}`;
+    els.verdict.textContent = verdict.text;
 
     els.findings.innerHTML = report.findings.length === 0
       ? '<p>No risky findings.</p>'

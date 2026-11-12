@@ -136,7 +136,7 @@
   <pre class="cmd"><code>node check.mjs https://example.com/ --json</code></pre>
   <p class="status-note">
     Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/dotenv-exposure-check" rel="noopener">check.mjs, probe.mjs, and analyze.mjs from the repo</a> —
-    exit code 1 if any path is exposed, so you can gate a deploy on it.
+    exit code 1 if any path is exposed or a request could not complete, so you can gate a deploy on it.
   </p>
 </div>
 
@@ -186,9 +186,13 @@
   }
 
   function render(report) {
-    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    els.verdict.className = `verdict ${report.ok && !report.incomplete ? 'ok' : 'bad'}`;
+    const unchecked = report.errors?.length ?? 0;
+    const uncheckedNote = unchecked > 0 ? ` ${unchecked} path(s) could not be checked, so this is not a clean result.` : '';
     if (report.exposedCount > 0) {
-      els.verdict.textContent = `${report.exposedCount} of ${report.pathsChecked} path(s) confirm a dotenv file is publicly exposed.`;
+      els.verdict.textContent = `${report.exposedCount} of ${report.pathsChecked} path(s) confirm a dotenv file is publicly exposed.${uncheckedNote}`;
+    } else if (unchecked > 0) {
+      els.verdict.textContent = `No exposed dotenv file found among the ${report.pathsChecked - unchecked} path(s) that answered.${uncheckedNote}`;
     } else {
       els.verdict.textContent = `No exposed dotenv file found (${report.pathsChecked} path(s) checked).`;
     }

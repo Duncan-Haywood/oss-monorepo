@@ -148,3 +148,8 @@ test('no page ever prints literal row-data / example customer content into the D
   // plainly that row-data content is never shown.
   assert.match(html, /row-data statements? .*never (?:be )?(?:quoted|shown)/i);
 });
+
+test('the page verdict is not green, and says so, when some paths could not be checked', () => {
+  assert.match(html, /verdict \$\{report\.ok && !report\.incomplete \? 'ok' : 'bad'\}/);
+  assert.match(html, /could not be checked/);
+});

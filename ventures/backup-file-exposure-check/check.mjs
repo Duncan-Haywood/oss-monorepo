@@ -97,7 +97,8 @@ async function main() {
   } else {
     console.log(formatText(report));
   }
-  process.exit(report.ok ? 0 : 1);
+  // `ok` counts exposures only; a request that never completed is not a pass.
+  process.exit(report.ok && !report.incomplete ? 0 : 1);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
