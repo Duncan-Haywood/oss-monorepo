@@ -23,6 +23,7 @@
 //   node platform/pages/sideways.mjs
 //
 //   WIDTH=320 node platform/pages/sideways.mjs   # the WCAG reflow width
+//   WIDTH=360,820,900 node platform/pages/sideways.mjs  # default is 360,820
 //   SAMPLE=300 node platform/pages/sideways.mjs  # section indexes + pages spread over the site
 //
 //   # or against production once the owner flip lands:
@@ -76,8 +77,26 @@ const LAUNCH = chromePath ? { executablePath: chromePath } : {};
  * WCAG 1.4.10 names; both are clean as of 2026-08-29, and `WIDTH=320` is the
  * one to run before believing a narrow-viewport change — it found four pages
  * this default did not, each needing a fix in its own venture.
+ *
+ * 820 is the second default (2026-11-12): a tablet, or a laptop window at
+ * half the screen. Pages are written for a phone and a desktop, and the
+ * width between a page's single-column breakpoint (usually 700 to 860 px)
+ * and its full desktop width is the one nobody looks at. A `1fr` grid
+ * track there grows to its content's min-content width: five inputs at the
+ * browser's default ~270 px each, or a full-size SVG or table inside its own
+ * scroll box. At 820 px, 5 of 8,679 pages scrolled sideways by 115 to 477
+ * px, none of them at 360. Each page is loaded once and resized in place
+ * for every further width, so the second width costs a resize, not a load.
+ * `WIDTH` takes a comma-separated list (`WIDTH=320` for one width).
  */
-const WIDTH = Number(process.env.WIDTH || 360);
+const WIDTHS = String(process.env.WIDTH || '360,820')
+  .split(',').map((w) => Number(w.trim())).filter((w) => w > 0);
+if (!WIDTHS.length) {
+  console.error(`WIDTH=${process.env.WIDTH} names no width.`);
+  process.exit(2);
+}
+const WIDTH = WIDTHS[0];
+const AT = WIDTHS.map((w) => `${w}px`).join(' and ');
 const HEIGHT = Number(process.env.HEIGHT || 780);
 
 /** Every built page, in the order a crawler would meet them. */
@@ -130,38 +149,46 @@ const failures = [];
 for (const rel of pages) {
   const url = `${BASE}/${rel.replace(/(^|\/)index\.html$/, '$1')}`;
   try {
+    await page.setViewportSize({ width: WIDTH, height: HEIGHT });
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20000 });
-    const verdict = await page.evaluate((width) => {
-      const over = document.documentElement.scrollWidth - width;
-      // One pixel of slack: a sub-pixel layout rounds up and is not a defect
-      // anybody can see or scroll to.
-      if (over <= 1) return null;
-      // Name the widest box that sticks out, and the leaf inside it, so the
-      // report says what to fix rather than only that something is wrong.
-      let widest = null;
-      for (const el of document.querySelectorAll('body *')) {
-        const box = el.getBoundingClientRect();
-        if (!box.width && !box.height) continue;
-        if (box.right <= width + 1) continue;
-        if (getComputedStyle(el).position === 'fixed') continue;
-        // Inside a scroller (a nav strip, a table wrapper) it is clipped, so it is not the cause.
-        let clipped = false;
-        for (let c = el.parentElement; c && c !== document.body; c = c.parentElement) {
-          if (getComputedStyle(c).overflowX !== 'visible') { clipped = true; break; }
-        }
-        if (clipped) continue;
-        if (!widest || box.right > widest.right) {
-          widest = {
-            right: Math.round(box.right),
-            tag: el.tagName.toLowerCase()
-              + (el.id ? `#${el.id}` : '')
-              + (el.className ? `.${String(el.className).trim().split(/\s+/).join('.')}` : ''),
-          };
-        }
+    for (const width of WIDTHS) {
+      if (width !== WIDTH) {
+        await page.setViewportSize({ width, height: HEIGHT });
+        // Let the resize lay out before measuring.
+        await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => r())));
       }
-      return { over: Math.round(over), widest };
-    }, WIDTH);
-    if (verdict) failures.push({ rel, ...verdict });
+      const verdict = await page.evaluate((width) => {
+        const over = document.documentElement.scrollWidth - width;
+        // One pixel of slack: a sub-pixel layout rounds up and is not a defect
+        // anybody can see or scroll to.
+        if (over <= 1) return null;
+        // Name the widest box that sticks out, and the leaf inside it, so the
+        // report says what to fix rather than only that something is wrong.
+        let widest = null;
+        for (const el of document.querySelectorAll('body *')) {
+          const box = el.getBoundingClientRect();
+          if (!box.width && !box.height) continue;
+          if (box.right <= width + 1) continue;
+          if (getComputedStyle(el).position === 'fixed') continue;
+          // Inside a scroller (a nav strip, a table wrapper) it is clipped, so it is not the cause.
+          let clipped = false;
+          for (let c = el.parentElement; c && c !== document.body; c = c.parentElement) {
+            if (getComputedStyle(c).overflowX !== 'visible') { clipped = true; break; }
+          }
+          if (clipped) continue;
+          if (!widest || box.right > widest.right) {
+            widest = {
+              right: Math.round(box.right),
+              tag: el.tagName.toLowerCase()
+                + (el.id ? `#${el.id}` : '')
+                + (el.className ? `.${String(el.className).trim().split(/\s+/).join('.')}` : ''),
+            };
+          }
+        }
+        return { over: Math.round(over), widest };
+      }, width);
+      if (verdict) failures.push({ rel, width, ...verdict });
+    }
   } catch (error) {
     failures.push({ rel, error: String(error).split('\n')[0] });
   }
@@ -170,14 +197,14 @@ for (const rel of pages) {
 await browser.close();
 
 if (failures.length === 0) {
-  console.log(`${pages.length} pages at ${WIDTH}px: none scroll sideways.`);
+  console.log(`${pages.length} pages at ${AT}: none scroll sideways.`);
   process.exit(0);
 }
 
-console.log(`${pages.length} pages at ${WIDTH}px: ${failures.length} scroll sideways.\n`);
+console.log(`${pages.length} pages at ${AT}: ${failures.length} page-width pair(s) scroll sideways.\n`);
 for (const f of failures.sort((a, b) => (b.over || 0) - (a.over || 0))) {
   if (f.error) console.log(`  ${f.rel}  — ${f.error}`);
-  else console.log(`  +${String(f.over).padStart(4)}px  ${f.rel}${f.widest ? `  — widest: ${f.widest.tag}` : ''}`);
+  else console.log(`  +${String(f.over).padStart(4)}px  at ${f.width}px  ${f.rel}${f.widest ? `  — widest: ${f.widest.tag}` : ''}`);
 }
 console.log('\nA page wider than the window zooms out to fit, so every figure on it '
   + 'renders smaller. See platform/pages/reflow.mjs for the causes this '
