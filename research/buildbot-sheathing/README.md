@@ -69,6 +69,26 @@ drawn uniformly up to the PS 2 limits; 95% there needs panels within about a qua
 
 ![Seating against press and friction, a held wrist against the closed form, and clean sheets with a ledger hang](experiments/m3_ledger/figure.png)
 
+**Milestone 3 (second part) headline: can a stock Unitree G1 or H1 be the holder a ledger
+needs? It can press and let the ledger seat the sheet, but it cannot carry the sheet there.** In
+the static whole-body model (MuJoCo Menagerie models, torque limits, both soles loaded, no foot
+slip), the heaviest load a **G1** holds in both hands at 0.6–1.3 m is **2.8–8.7 kg** and an
+**H1** **12.4–18.8 kg**, against 21.8 kg for a 4x8 sheet of 7/16 in OSB: neither can hang it
+alone, so a lift or a person must stand it on the ledger. Once it sits there, a G1 presses
+**66–110 N** into the wall and an H1 **128–281 N**, both over part one's light press. Sliding
+the seated sheet sideways to its stud line takes μ_l m g + μ_w F_n (84 N at a ledger friction of
+0.3 and a 50 N press); a G1 manages that at μ_l 0.3 but not at 0.5, and it cannot do it through
+palm friction (that would need 107 N to 1.5 kN of press), so it must push the sheet's edge. Push
+below **h\* = W / (2 μ_l)** (2.03 m at 0.3, 0.87 m at 0.7) or the trailing corner lifts: MuJoCo
+agrees within 1.6% in 14 cases. At Unitree's own joint gains (arms kp 60 N·m/rad) a G1 holding
+the sheet is **3 to 31 times softer** about the landing corner than the stiffness at which part
+one's held wrist keeps its error, so the ledger seats the sheet; the same softness would let the
+sheet's own weight turn the hold 10–14° if nothing carried it. An H1 is soft enough through palm
+contacts (2–6 times under) but **not with a rigid clamp**: its 4-joint arms keep 0.46–0.99° of a
+1° error. Releasing a G1's wrist roll barely matters.
+
+![Push height that tips a sliding sheet, whole-body press limits on the ledger, and stock-gain stiffness against the seating limit](experiments/m3b_humanoid/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -171,6 +191,44 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 | Ledger height error | 0–2 mm a corner, swept | not sourced |
 | Press, wrist stiffness, θ0 | swept | robot-dependent; no figure found |
 
+## Milestone 3 method, second part (`src/buildbot_sheathing/humanoid.py`)
+- **Robots.** Unitree G1 (29 joints) and H1 (19) from MuJoCo Menagerie at the commit pinned in
+  `buildbot-payload`, standing square to the wall, centred on the sheet, hands 0.36 m (G1) or
+  0.44 m (H1) apart at reach x and height z. `buildbot-payload`'s static model solves the pose
+  (feet fixed, combined CoM over the feet, leaning by F_n z / weight for a press as in
+  `buildbot-fasten`) and the joint torques with the ground wrench split between the soles. A
+  pose passes if every joint is inside its torque limit, both soles carry load and the ground
+  force stays inside a friction cone (rubber on concrete, μ 0.3 and 0.6 swept, as in
+  `buildbot-fasten`).
+- **Jobs.** *Carry*: heaviest load in both hands with no press (`max_payload`). *Press*: largest
+  F_n into the seated sheet. *Slide*: largest F_n while also pushing the sheet sideways with
+  P = μ_l m g + μ_w F_n, μ_l 0.3 and 0.5, μ_w 0.4. Forces are split equally between the hands.
+- **Tipping while sliding** (MuJoCo, part one's sheet, wall and ledger with separate friction on
+  the wall and ledger contacts). A hand at height h above the bottom edge pushes through a spring
+  (20 kN/m) moving at 5 cm/s while the press is applied at h_press; the threshold is the least h
+  whose slide tilts the sheet past 0.5° (bisection to 1 cm). Closed form, moments about the
+  leading bottom corner: h* = (m g W/2 + μ_w F_n h_press) / (μ_l m g + μ_w F_n), which is W/(2μ_l)
+  when the press is at the push height, because the wall friction then acts at that height too.
+- **Stiffness.** Joint PD gains as published by Unitree: G1 arms and waist kp 60 N·m/rad
+  (`unitree_sdk2`, `g1_arm7_sdk_dds_example.cpp`), G1 legs 100/150/40 (hips/knee/ankles,
+  `unitree_rl_gym` G1 deploy config); H1 150/200/40 legs, 300 torso, 150 shoulder, 100 elbow
+  (`unitree_rl_gym` `h1_config.py`); read 2026-11-12. With the feet planted (the base follows by
+  least squares through the foot Jacobian), the hands' compliance is C = J K⁻¹ Jᵀ and the sheet's
+  stiffness for a rotation about the wall normal through the landing corner is tᵀ C⁻¹ t, t the
+  hands' motion per radian: point velocity and, for a rigid clamp, rotation; for palm (point)
+  contacts, point velocity only. The lower bound lets the sheet translate freely in the wall
+  plane (a Schur complement). Compared with part one's limit (m g W/2 − μ F_n r̄)/θ0.
+
+| Input | Value | Source |
+|---|---|---|
+| Robots | G1 29-dof, H1 | MuJoCo Menagerie, commit in `buildbot-payload/src/buildbot_payload/fetch.py` (BSD-3-Clause, Unitree) |
+| G1 arm and waist gains | kp 60 N·m/rad, kd 1.5 | `unitreerobotics/unitree_sdk2`, `example/g1/high_level/g1_arm7_sdk_dds_example.cpp`, main, read 2026-11-12 |
+| G1 leg gains | hips 100, knee 150, ankles 40 | `unitreerobotics/unitree_rl_gym`, `deploy/deploy_mujoco/configs/g1.yaml` |
+| H1 gains | hips 150, knee 200, ankle 40, torso 300, shoulder 150, elbow 100 | `unitree_rl_gym`, `legged_gym/envs/h1/h1_config.py` |
+| Foot friction | 0.3, 0.6 swept | `buildbot-fasten` (rubber on concrete spans about this range) |
+| Ledger friction μ_l | 0.3–0.7 swept | wood on wood 0.25–0.5 (secondary table, part one); not measured |
+| Palm friction μ_h | 0.5–1.0 swept | not sourced |
+
 ## Milestone 4 method (`src/buildbot_sheathing/tack.py`)
 - **Hang.** On milestone 2's as-built studs (three reads at 0.5 mm, edge line 0.5 mm, tool
   0.9 mm, gap centred on each joint stud's estimated range), the sheet hangs off by a translation
@@ -193,7 +251,7 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 29 tests; one uses ../buildbot-studfind, four need mujoco
+python -m pytest -q tests                                    # 34 tests; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -203,6 +261,8 @@ python experiments/m4_tack_measure/figure.py
 pip install mujoco                                           # milestone 3; tested with mujoco 3
 python experiments/m3_ledger/run.py > experiments/m3_ledger/results.txt                 # ~95 s, seed 5
 python experiments/m3_ledger/figure.py
+python experiments/m3b_humanoid/run.py > experiments/m3b_humanoid/results.txt          # ~6 min; clones Menagerie G1/H1 once
+python experiments/m3b_humanoid/figure.py
 ```
 
 ## Milestone 1 results (`experiments/m1_gap_placement/results.txt`)
@@ -284,6 +344,31 @@ python experiments/m3_ledger/figure.py
   0.87–0.99); **H15 refuted** narrowly (29 of 30 cells); H16 held (1.0000 against 0.844); H17
   held (0.857 < 0.90).
 
+## Milestone 3 results, second part (`experiments/m3b_humanoid/results.txt`)
+- **A. Tipping while sliding.** MuJoCo threshold over closed form 0.984–1.007 in 14 cases (μ_l
+  0.3–0.7, F_n 50 and 100 N, press at the push height or fixed at 0.6 or 1.2 m); h* = 2.03, 1.52,
+  1.22, 1.02, 0.87 m at μ_l 0.3 to 0.7. Pushed at 0.8 h*, the sheet slides 9 cm in 2 s with a peak
+  tilt of 0.004–0.011° and a mean push within 1% of μ_l m g + μ_w F_n.
+- **A2. Palm friction.** Sliding by friction at the palms needs F_n ≥ μ_l m g / (μ_h − μ_w): 107 N
+  at μ_l 0.3 and μ_h 1.0, 535 N at 0.5 and 0.6, impossible for μ_h ≤ μ_w.
+- **B. Whole body** (reach 0.3 and 0.4 m, hands 0.6–1.3 m). G1: carry 2.8–8.7 kg (waist pitch
+  or wrist pitch); press 66–110 N at foot friction 0.6, 66–98 N at 0.3 (slip at 98 N); press while
+  sliding at μ_l 0.3, 42–96 N (0.6) and 42–50 N (0.3, slip); at μ_l 0.5, at most 41 N, nothing above
+  1.0 m (ankle roll). H1: carry 12.4–18.8 kg (elbow); press 128–281 N (0.6), 128–151 N (0.3);
+  sliding at μ_l 0.3, 105–206 N; at 0.5, 34–141 N.
+- **C. Stiffness about the landing corner at stock gains** (F_n 50 N, x 0.35 m; limit 11,281 /
+  5,641 / 2,820 N·m/rad at θ0 0.5 / 1 / 2°). G1 rigid clamp 778–1,946, palm contacts 182–1,101
+  (gains could rise 2.9–31 times before the limit at 1°); releasing the wrist roll changes it by
+  0.1–19%, all three wrist joints by up to 99%. H1 palm contacts 876–2,740 (2.1–6.4 times under);
+  H1 rigid clamp 10,423–613,376, which keeps 0.46–0.99° of a 1° error. With free translation the
+  stiffness drops to 0–305 N·m/rad: the pivot, not the joints, sets most of it.
+- **C2.** At 1.0 m the sheet's gravity moment (130 N·m) on a stock-gain hold with no weight
+  feedforward turns a G1's grip 9.6° (clamp) or 14.2° (palms), an H1's palms 4.8°.
+- **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): **H18 refuted in part** (the G1 cannot carry
+  and can press, as predicted; the H1 cannot carry either, 18.8 kg at best); H19 held (within
+  1.6%); H20 held (G1 slides with ≥ 50 N press at μ_l 0.3 at foot friction 0.6, never at 0.5; the
+  H1 at both); **H21 refuted** (stock gains are soft enough except an H1 clamp).
+
 ## Milestone 4 results (`experiments/m4_tack_measure/results.txt`)
 - **A. Hang allowed for 95% clean sheets** (tacked, 1σ; translation alone, rotation alone).
   Single 2x, straight studs: nominal aim 0.44 mm / 0.032°, edge aim 0.37 mm / 0.029°; at the
@@ -324,6 +409,13 @@ python experiments/m3_ledger/figure.py
   the uniform shapes are assumptions, and real panels are probably far inside the limits, which
   is what decides the single-2x case. The bowed edge is modelled at the bottom only; a bowed
   vertical edge would also bend the measured edge line.
+- **Humanoid (milestone 3, second part).** Static only: no walking, no balance controller, no
+  dynamics of the press or slide, and a 50/50 force split between the hands, where pushing the
+  sheet's edge would load one hand. The PD stiffness takes the joint gains at face value (no
+  motor or gearbox compliance, no grip compliance), with the feet rigidly planted; the published
+  gains are examples and training defaults, not a holding controller. The sheet bottom is at
+  floor level and the robot centred on it; rigid clamp and palm point contacts bracket a real
+  hand. Ledger and palm friction are swept, not measured.
 - **Plate nails** see only the tool scatter: the sheet's vertical placement is not modelled.
 - **Strict pass/fail.** One nail outside its window fails the sheet; the nails missed are
   reported beside it, and real practice may accept a near miss or re-drive it.
@@ -333,10 +425,10 @@ python experiments/m3_ledger/figure.py
 ## Next steps
 Milestone 2 left two checks: measured stud profiles (the Adel et al. 2024 data set, or a scan of
 real studs in a wall) in place of means and assumed shapes, and how far sheathing nails pull a
-bowed stud straight. Milestone 3, second part: the Menagerie G1/H1 and a lift setting the sheet on the ledger, to
-see whether a humanoid can release its wrist and press under about 100 N while holding a 22 kg
-sheet (the first part says that is what a ledger needs), and how a free hang without a ledger
-compares with milestone 4's 0.5° target. A measured sample of real panels' squareness and edge
+bowed stud straight. Milestone 3 is done for a static robot; what is left is dynamic: a
+G1 or H1 walking a sheet the last metre with a person or a lift, the edge push and its one-hand
+load, and a controller that feeds the weight forward and drops it at ledger contact, in MuJoCo
+with a balance policy. Then milestone 5, the end-to-end cycle. A measured sample of real panels' squareness and edge
 bow would settle the single-2x case. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
@@ -345,5 +437,5 @@ None needed. A hardware check needs a framed mock-up wall, a nailer on an arm, a
 grid and a risk assessment.
 
 ## Outside dependencies (vitamins)
-NumPy, Matplotlib (figure), pytest, MuJoCo (Apache-2.0, milestone 3). Reads `../buildbot-studfind` in one test. No group in
+NumPy, Matplotlib (figure), pytest, MuJoCo (Apache-2.0, milestone 3). Reads `../buildbot-studfind` in one test, and `../buildbot-payload` and `../buildbot-fasten` (the whole-body model) in milestone 3's second part, which clones the Unitree G1 and H1 models (BSD-3-Clause) from MuJoCo Menagerie at a pinned commit. No group in
 `prompt.md` covers construction, and none is claimed.
