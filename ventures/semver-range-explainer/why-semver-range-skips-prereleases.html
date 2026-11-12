@@ -89,7 +89,7 @@
     <h3>Why does ^1.2.0 not match 1.9.0-rc.1?</h3>
     <p>Because 1.9.0-rc.1 is a prerelease and no comparator in ^1.2.0 names a prerelease of 1.9.0. npm only lets a prerelease through when the same || branch has a comparator with a prerelease on the same major.minor.patch.</p>
     <h3>How do I make a range accept prereleases?</h3>
-    <p>Name one: >=2.0.0-beta.1 <2.0.0 accepts every later 2.0.0 prerelease and nothing else. To accept prereleases of every version, run npm with --include-prerelease, which most installs do not.</p>
+    <p>Name one: &gt;=2.0.0-beta.1 &lt;2.0.0 accepts every later 2.0.0 prerelease and nothing else. To accept prereleases of every version, run npm with --include-prerelease, which most installs do not.</p>
     <h3>Why does adding || * break my prerelease range?</h3>
     <p>Because npm treats a range in which one || branch is a bare * as just *, and * accepts no prereleases. ^1.2.3-rc.1 matches 1.2.3-rc.1, but ^1.2.3-rc.1 || * does not.</p>
   </section>

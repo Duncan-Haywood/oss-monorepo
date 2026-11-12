@@ -114,13 +114,13 @@
   <section class="card">
     <h2>Questions</h2>
     <h3>Why doesn't my semver range match a prerelease like 2.0.0-beta.1?</h3>
-    <p>Because npm only lets a prerelease match when some comparator in the same || branch names a prerelease of the same major.minor.patch. ^1.2.0 never matches 1.9.0-rc.1, and >=2.0.0-beta.1 matches 2.0.0-beta.4 but not 2.1.0-beta.0. Name the prerelease you want in the range, or run npm with --include-prerelease. The tool says which of these applies to every version you paste.</p>
+    <p>Because npm only lets a prerelease match when some comparator in the same || branch names a prerelease of the same major.minor.patch. ^1.2.0 never matches 1.9.0-rc.1, and &gt;=2.0.0-beta.1 matches 2.0.0-beta.4 but not 2.1.0-beta.0. Name the prerelease you want in the range, or run npm with --include-prerelease. The tool says which of these applies to every version you paste.</p>
     <h3>What does ^ (caret) mean in package.json?</h3>
     <p>It allows changes that do not touch the leftmost non-zero number. ^1.2.3 means at least 1.2.3 and below 2.0.0; ^0.2.3 means at least 0.2.3 and below 0.3.0; ^0.0.3 means 0.0.3 only. The tool prints the comparators each caret becomes.</p>
     <h3>What is the difference between ~ (tilde) and ^ (caret)?</h3>
     <p>A tilde allows patch updates when you give a minor version: ~1.2.3 is at least 1.2.3 and below 1.3.0, while ^1.2.3 goes up to below 2.0.0. With only a major, ~1 and ^1 are the same. Paste both into the compare box to see a version one allows and the other does not.</p>
     <h3>Why does npm install a version my range does not seem to allow, or skip one it does?</h3>
-    <p>Usually a prerelease, a partial version, or a bare * branch. A partial upper bound like <1.4 means below 1.4.0-0; a hyphen range needs spaces, so 1.2.3-2.0.0 is one prerelease version, not a range; and in a range with several || branches, a branch that is just * makes npm ignore the others. The tool flags each of these.</p>
+    <p>Usually a prerelease, a partial version, or a bare * branch. A partial upper bound like &lt;1.4 means below 1.4.0-0; a hyphen range needs spaces, so 1.2.3-2.0.0 is one prerelease version, not a range; and in a range with several || branches, a branch that is just * makes npm ignore the others. The tool flags each of these.</p>
     <h3>How do I check whether one semver range is covered by another?</h3>
     <p>Paste both. The tool checks every version that can change the answer, including each named prerelease, and says whether the first range fits inside the second, the other way round, whether they overlap, and gives a version that proves each no.</p>
     <h3>Is anything I paste uploaded?</h3>

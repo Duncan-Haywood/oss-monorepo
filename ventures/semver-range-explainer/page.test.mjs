@@ -5,6 +5,8 @@ import { readFileSync } from "node:fs";
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const PAGES = ["index.html", "why-semver-range-skips-prereleases.html"];
 const ld = (html) => [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
+// Visible copy escapes < > & ; a raw "<1.4" would open a tag and swallow the rest of the answer.
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const unescape = (s) => s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
 
 test("every page carries the no-warranty clause, independence line and sponsor link", () => {
@@ -24,8 +26,8 @@ test("JSON-LD blocks parse and each FAQ matches the visible questions", () => {
     const faq = ld(html).find((b) => b["@type"] === "FAQPage");
     assert.ok(faq && faq.mainEntity.length >= 3, p);
     for (const q of faq.mainEntity) {
-      assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
-      assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+      assert.ok(html.includes(`<h3>${esc(q.name)}</h3>`), q.name);
+      assert.ok(html.includes(`<p>${esc(q.acceptedAnswer.text)}</p>`), q.name);
     }
   }
   const app = ld(page("index.html"))[0];
