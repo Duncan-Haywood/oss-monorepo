@@ -901,7 +901,8 @@ minus document allowances plus document charges in that category, times the
 rate, rounded half up, the EN 16931 way), the document `TaxAmount`, and the
 line-extension, allowance, charge, tax-exclusive, tax-inclusive and payable
 totals. A net written with more decimals that rounds to the right cent (PINT
-allows them) is kept. It reads the document's tax from the root-level
+allows them) is kept; on a PINT Oman file a recomputed net is written to the
+baisa (three decimals), see "PINT Oman, UAE and Malaysia" below. It reads the document's tax from the root-level
 `TaxTotal` that carries subtotals; a root-level one without subtotals is
 BT-111, set equal to the new tax when it is in the document currency and left
 alone (with a note) when converting it would need an exchange rate. It
@@ -958,6 +959,60 @@ all. The repair fixes it, and since 2026-11-12 the checks flag it too (INV-059,
 "BT-111 in the invoice's own currency" below). Tests:
 `repair-ubl.test.mjs` (20). Not tried on a real ERP export or a Fatoora
 verdict.
+
+**PINT Oman, UAE and Malaysia (2026-11-12, second pass).** Scored the same way on
+OpenPeppol's PINT examples (phive-rules dfa902d), the repair had four faults,
+two of them on correct files, which the repair must never make worse:
+
+- **UAE reverse charge and margin scheme got VAT added.** PINT UAE states the
+  rate on an `AE` (reverse charge) or `N` (margin scheme) subtotal, 5%, with a
+  tax of 0, as its rules require (aligned-ibrp-ae-09-ae, ibr-108-ae). The repair
+  computed 5% anyway: "Supply under Reverse charge mechanism" went from 0 to
+  148.50 of VAT and its amount due from 2,970.00 to 3,118.50. A category `AE`
+  subtotal (any file; EN 16931 BR-AE-08 says the same) and `N` on a PINT UAE
+  file now always come to 0.
+- **More decimals on a PINT subtotal were rounded off.** UAE's examples write
+  a subtotal tax of 532.1645 and a taxable amount of 949.405. On a PINT file
+  (`CustomizationID` `urn:peppol:pint:...`) one that rounds to the right cent is
+  kept, as a line net already was.
+- **LHDN's Malaysian sample was re-netted from 100.00 to 10.00.** It states a
+  price of 10.00 per base quantity of 10, for 10 hours, and nets the line as
+  quantity x price. The checks already accept that reading
+  (`acceptedLineNet`); now the repair does too. A net that matches neither
+  reading still goes to the base-quantity one.
+- **Oman lines to the baisa.** On a PINT Oman file (`...@om-1`) a recomputed line
+  net is rounded to three decimals (0.047, not 0.05). A line VAT (BTOM-016)
+  more than 0.001 off net x rate is rewritten to it, to three decimals
+  (IBR-168-OM's own tolerance). The line amount with VAT (BTOM-017) is
+  rewritten to net + VAT when it is more than 0.01 off (IBR-158-OM), except on
+  a profit margin invoice (BTOM-001 position 10), where it is the item's sale
+  value. A subtotal's tax that is wrong is rewritten to the sum of its lines'
+  corrected VAT where every line states one (ALIGNED-IBRP-S-09-OM), not to rate
+  x taxable.
+
+`eval/repair-seeded.mjs` now also seeds the line amounts inside
+`ItemPriceExtension` (Oman's BTOM-016/017, UAE's BTAE-08) under their own
+labels; before, the line VAT ones were counted as "KSA-11". Same seeds before
+and after this change:
+
+| Files | Correct files left unchanged | Seeded faults restored | `ItemPriceExtension` amount (new seeds) |
+| --- | --- | --- | --- |
+| PINT OM 1.0.1, 49 | 49 to 49 | 461 to **657 of 658** | 0 to 120 of 124 |
+| PINT AE 2026.5, 32 | 20 to **32** | 166 to **286 of 346** | 0 of 40 (not touched) |
+| PINT MY 1.3.1, 26 | 22 to **26** | 208 to **244 of 300** | 0 of 42 (not touched) |
+| ZATCA 19, PINT A-NZ 24, SG 16, JP 9 | unchanged, all | 257/258, 270/270, 158/164, 116/121, unchanged | none |
+
+Not restored on Oman: one line `TaxTotal` outside `ItemPriceExtension` on
+Exports-2 (left as written, as outside ZATCA); BTOM-017 on the two profit margin
+files (a fact, deliberately not touched); and two on Summary-Utilities, which
+writes BTOM-017 to the cent (392.18) where the repair writes 373.5 + 18.675 =
+392.175. Both are within IBR-158-OM's 0.01. UAE and Malaysia's
+`ItemPriceExtension` amounts are not recomputed yet, and most of their
+remaining misses are there and in multi-currency and summary files.
+Tests: `repair-pint.test.mjs` (15, made-up invoices built in the test; 8 fail
+on the code before this change). Not done: a real
+business's file for any of the three; UAE's BTAE-08 and Malaysia's
+`ItemPriceExtension`.
 
 ## BT-111 in the invoice's own currency
 

@@ -19,11 +19,29 @@
 // within ZATCA's own tolerance (0.01 per invoice line, BR-S-09/BR-CO-17 in
 // ZATCA's cut of EN 16931) is left as written, since that is how a price
 // that already includes VAT comes out.
+//
+// PINT Oman files (CustomizationID ...@om-1) price lines to the baisa, a
+// thousandth of a rial, and state each line's VAT (BTOM-016) and amount with VAT
+// (BTOM-017) in cac:ItemPriceExtension. For them a recomputed line net is rounded
+// to three decimals, not two; a line VAT more than 0.001 off net x rate is
+// rewritten to it, rounded to three decimals (IBR-168-OM); and BTOM-017 more than
+// 0.01 off net plus line VAT is rewritten (IBR-158-OM; not on a profit margin
+// invoice, where it is the item's sale value).
 
 import { checkInvoice, roundHalfUpToCents } from "./checks.mjs";
 import { parseUblInvoice } from "./ubl.mjs";
 
 export const fmt = (n) => roundHalfUpToCents(n).toFixed(2);
+// Half up to the baisa (three decimals), through toPrecision so 0.0475 is not 0.047.
+export const roundBaisa = (n) => {
+  const sign = n < 0 ? -1 : 1;
+  return (sign * Math.round(Number((Math.abs(n) * 1000).toPrecision(12)))) / 1000;
+};
+// Two decimals when the amount has no baisa part, three when it has.
+export const fmtBaisa = (n) => {
+  const v = roundBaisa(n);
+  return roundHalfUpToCents(v) === v ? v.toFixed(2) : v.toFixed(3);
+};
 export const tagRe = (name, flags = "g") => new RegExp(`<((?:[\\w.-]+:)?${name})(\\s[^>]*)?>([\\s\\S]*?)</\\1>`, flags);
 export const num = (s) => (s === undefined || s === null || s.trim() === "" ? null : Number(s.trim()));
 
@@ -87,6 +105,18 @@ export function repairUbl(source) {
   const docCurrency = firstChild(xml, "DocumentCurrencyCode")?.value.trim() || null;
   const zatca = /<(?:[\w.-]+:)?ProfileID[^>]*>\s*reporting:1\.0\s*</.test(xml)
     || /<(?:[\w.-]+:)?InvoiceTypeCode[^>]*\bname\s*=\s*"0[12]\d{5}"/.test(xml);
+  // PINT Oman: lines to the baisa, BTOM-016/017 in ItemPriceExtension.
+  const oman = /<(?:[\w.-]+:)?CustomizationID[^>]*>[^<]*@om-1[^<]*</.test(xml);
+  // BTOM-001, the 20-digit transaction type: position 10 marks a profit margin invoice.
+  const omType = /<(?:[\w.-]+:)?(?:InvoiceTypeCode|CreditNoteTypeCode)[^>]*\bname\s*=\s*"([01]{20})"/.exec(xml)?.[1] ?? null;
+  const profitMargin = omType !== null && omType[9] === "1";
+  // Any PINT jurisdiction; PINT UAE in particular.
+  const pint = /<(?:[\w.-]+:)?CustomizationID[^>]*>[^<]*urn:peppol:pint:[^<]*</.test(xml);
+  const uae = pint && /<(?:[\w.-]+:)?CustomizationID[^>]*>[^<]*@ae-1[^<]*</.test(xml);
+  // Categories whose tax is 0 whatever rate they state: reverse charge (EN 16931 BR-AE-08,
+  // PINT UAE aligned-ibrp-ae-09-ae, which states the rate, 5%, with a tax of 0) and PINT
+  // UAE's margin scheme "N" (ibr-108-ae).
+  const zeroTax = (id) => id === "AE" || (uae && id === "N");
 
   const lines = [];
   let computable = lineBlocks.length > 0;
@@ -114,7 +144,13 @@ export function repairUbl(source) {
     const p = num(firstChild(inner, "PriceAmount")?.value);
     const base = num(firstChild(inner, "BaseQuantity")?.value) ?? 1;
     if (q === null || p === null || !(base > 0)) { computable = false; lines.push({ b, net: null, written, fixed: false }); return; }
-    lines.push({ b, net: roundHalfUpToCents(roundHalfUpToCents((q * p) / base) + adj), written, fixed: true });
+    // Oman: the exact net to the baisa (IBR line net rule: q x p / base + charges - allowances).
+    const net = oman ? roundBaisa((q * p) / base + adj) : roundHalfUpToCents(roundHalfUpToCents((q * p) / base) + adj);
+    // Some producers state a base quantity and still net the line as quantity x price (LHDN's
+    // PINT MY CompleteSample: 10 x 10.00 per 10 written as 100.00); the checks accept that
+    // reading (acceptedLineNet in linenet.mjs), so a net written that way is kept too.
+    const unscaled = base !== 1 && written !== null && roundHalfUpToCents(written) === roundHalfUpToCents(roundHalfUpToCents(q * p) + adj);
+    lines.push({ b, net: unscaled ? written : net, written, fixed: true });
   });
   if (!computable) {
     skipped.push("Some line has no quantity or price to compute from; nothing was recomputed.");
@@ -124,10 +160,35 @@ export function repairUbl(source) {
   lines.forEach((l, i) => {
     // A net written with more decimals (PINT allows them) that rounds to the right cent is
     // kept, and summed as written: ten PINT Oman lines of 0.047 OMR make 0.47, not 0.50.
-    if (l.fixed && l.written !== null && roundHalfUpToCents(l.written) === l.net) { l.net = l.written; return; }
-    if (l.fixed) set(l.b, "LineExtensionAmount", ["TaxTotal"], `/lines/${i}/net`, fmt(l.net), "Line net is quantity times unit price (per base quantity), plus the line's charges, minus its allowances.");
+    if (l.fixed && l.written !== null && roundHalfUpToCents(l.written) === roundHalfUpToCents(l.net)) { l.net = l.written; return; }
+    if (l.fixed && oman) set(l.b, "LineExtensionAmount", ["TaxTotal", "ItemPriceExtension"], `/lines/${i}/net`, fmtBaisa(l.net), "Line net is quantity times unit price (per base quantity), plus the line's charges, minus its allowances, to the baisa (0.001 OMR).");
+    else if (l.fixed) set(l.b, "LineExtensionAmount", ["TaxTotal"], `/lines/${i}/net`, fmt(l.net), "Line net is quantity times unit price (per base quantity), plus the line's charges, minus its allowances.");
   });
   const netSum = roundHalfUpToCents(lines.reduce((s, l) => s + l.net, 0));
+
+  // PINT Oman's own line VAT (BTOM-016) and line amount with VAT (BTOM-017).
+  if (oman) lines.forEach((l, i) => {
+    const ext = blocks(l.b.inner, "ItemPriceExtension")[0];
+    if (!ext || l.net === null) return;
+    const abs = { ...ext, open: l.b.open + ext.open };
+    const tt = blocks(ext.inner, "TaxTotal")[0];
+    const { id, pct } = category(l.b.inner, "ClassifiedTaxCategory");
+    const rate = pct ?? (id && /^[EZO]$/.test(id) ? 0 : null);
+    let vat = tt ? num(firstChild(tt.inner, "TaxAmount")?.value) : null;
+    if (tt && vat !== null && rate !== null) {
+      const want = zeroTax(id) ? 0 : roundBaisa((l.net * rate) / 100);
+      if (Number.isNaN(vat) || Math.abs(vat - want) > 0.001 + 1e-9) {
+        set({ ...tt, open: abs.open + tt.open }, "TaxAmount", [], `/lines/${i}/vat`, fmtBaisa(want), `Line VAT (BTOM-016) is the line net times ${rate}%, to the baisa (IBR-168-OM); the written amount was more than 0.001 off.`);
+        vat = want;
+      }
+    }
+    l.vat = vat;
+    if (vat === null || Number.isNaN(vat) || profitMargin) return;
+    const amount = num(firstChild(ext.inner, "Amount", ["TaxTotal"])?.value);
+    if (amount !== null && (Number.isNaN(amount) || Math.abs(amount - (l.net + vat)) > 0.01 + 1e-9)) {
+      set(abs, "Amount", ["TaxTotal"], `/lines/${i}/amount_with_vat`, fmtBaisa(l.net + vat), "Line amount with VAT (BTOM-017) is the line net plus the line VAT (IBR-158-OM).");
+    }
+  });
 
   // A line's own TaxTotal. Only ZATCA defines what it holds, so other files keep it as written.
   let prepaySum = 0;
@@ -210,8 +271,8 @@ export function repairUbl(source) {
       // within a cent of net x rate, and only while every line at the rate states one.
       const ext = blocks(l.b.inner, "ItemPriceExtension")[0];
       const extTotal = ext ? blocks(ext.inner, "TaxTotal")[0] : null;
-      const lv = extTotal ? num(firstChild(extTotal.inner, "TaxAmount")?.value) : null;
-      const plausible = lv !== null && !Number.isNaN(lv) && Math.abs(lv - (l.net * rate) / 100) < 0.01 + 1e-9;
+      const lv = l.vat !== undefined ? l.vat : extTotal ? num(firstChild(extTotal.inner, "TaxAmount")?.value) : null;
+      const plausible = lv !== null && !Number.isNaN(lv) && Math.abs(lv - (zeroTax(id) ? 0 : (l.net * rate) / 100)) < 0.01 + 1e-9;
       const g = groups.get(key) || { pct: rate, taxable: 0, lineTax: 0, lineTaxAll: true };
       g.taxable += l.net;
       if (plausible) g.lineTax += lv;
@@ -241,17 +302,24 @@ export function repairUbl(source) {
       tax = 0;
       subtotals.forEach((s, j) => {
         const g = groups.get(subKey[j]);
-        let t = roundHalfUpToCents((g.taxable * g.pct) / 100);
+        const zero = zeroTax(subKey[j].split("|")[0]);
+        let t = zero ? 0 : roundHalfUpToCents((g.taxable * g.pct) / 100);
         const written = num(firstChild(s.inner, "TaxAmount", ["TaxCategory"])?.value);
         const taxableOk = num(firstChild(s.inner, "TaxableAmount", ["TaxCategory"])?.value) === g.taxable;
         // PINT Oman: the subtotal's tax may be the sum of its lines' own VAT (ALIGNED-IBRP-S-09-OM).
         const lineSum = g.lineTaxAll ? roundHalfUpToCents(g.lineTax) : null;
         // It does not depend on the written taxable amount, so a wrong taxable does not undo it.
-        const kept = written !== null && ((taxableOk && zatca && Math.abs(written - t) <= tolerance + 1e-9) || written === lineSum);
+        // PINT allows more decimals on a subtotal's tax (PINT UAE's examples write 532.1645):
+        // one that rounds to the right cent is kept as written, as a line net is.
+        const kept = written !== null && ((taxableOk && zatca && Math.abs(written - t) <= tolerance + 1e-9) || written === lineSum
+          || (pint && !Number.isNaN(written) && roundHalfUpToCents(written) === t));
         if (kept) t = written;
+        // Oman's category tax is the sum of its lines' VAT, so a wrong one is rewritten to that.
+        else if (oman && !zero && lineSum !== null) t = lineSum;
         tax = roundHalfUpToCents(tax + t);
-        set(s, "TaxableAmount", ["TaxCategory"], `/tax_breakdown/${j}/taxable`, fmt(g.taxable), "Taxable amount is the sum of the nets of the lines in this tax group, minus its document allowances, plus its charges.");
-        if (!kept) set(s, "TaxAmount", ["TaxCategory"], `/tax_breakdown/${j}/tax`, fmt(t), `Tax is the taxable amount times ${g.pct}%, rounded half up.`);
+        const writtenTaxable = num(firstChild(s.inner, "TaxableAmount", ["TaxCategory"])?.value);
+        if (!(pint && writtenTaxable !== null && roundHalfUpToCents(writtenTaxable) === g.taxable)) set(s, "TaxableAmount", ["TaxCategory"], `/tax_breakdown/${j}/taxable`, fmt(g.taxable), "Taxable amount is the sum of the nets of the lines in this tax group, minus its document allowances, plus its charges.");
+        if (!kept) set(s, "TaxAmount", ["TaxCategory"], `/tax_breakdown/${j}/tax`, fmt(t), oman && !zero && lineSum !== null && t === lineSum ? "Tax is the sum of this category's line VAT amounts (BTOM-016; ALIGNED-IBRP-S-09-OM)." : zero ? `Tax in category ${subKey[j].split("|")[0]} is 0 whatever the stated rate (the buyer accounts for it, or it is a margin scheme).` : `Tax is the taxable amount times ${g.pct}%, rounded half up.`);
       });
       set(total, "TaxAmount", ["TaxSubtotal"], "/totals/tax", fmt(tax), "Document tax is the sum of the tax subtotals.");
       if (repeats.length) {
