@@ -35,6 +35,71 @@ class Collect(unittest.TestCase):
         """)
         self.assertEqual([s.name for s in steps], ["first", "second"])
 
+    def test_independent_jobs_run_cheapest_declared_first(self):
+        # portfolio-pages' shape: a 30-minute test suite in file order ahead
+        # of a 20-minute build whose first step is a seconds-long gate.
+        steps, _ = self.collect("""
+            jobs:
+              gate:
+                timeout-minutes: 2
+                steps: [{name: g, run: "true"}]
+              test:
+                timeout-minutes: 30
+                steps: [{name: suite, run: "true"}]
+              build:
+                needs: gate
+                timeout-minutes: 20
+                steps: [{name: frontmatter, run: "true"}]
+        """)
+        self.assertEqual([s.name for s in steps], ["g", "frontmatter", "suite"])
+
+    def test_needs_wins_over_a_lower_timeout(self):
+        steps, _ = self.collect("""
+            jobs:
+              slow:
+                timeout-minutes: 50
+                steps: [{name: first, run: "true"}]
+              quick:
+                needs: [slow]
+                timeout-minutes: 1
+                steps: [{name: second, run: "true"}]
+              plain:
+                steps: [{name: undeclared, run: "true"}]
+        """)
+        self.assertEqual([s.name for s in steps], ["first", "second", "undeclared"])
+
+    def test_a_needs_cycle_keeps_file_order(self):
+        order = runner.job_order({"a": {"needs": "b", "timeout-minutes": 9},
+                                  "b": {"needs": "a", "timeout-minutes": 1}})
+        self.assertEqual(order, ["a", "b"])
+
+    def test_steps_and_jobs_ci_skips_on_a_pull_request_are_not_run(self):
+        steps, skipped = self.collect("""
+            jobs:
+              a:
+                steps:
+                  - {name: always, run: "true"}
+                  - {name: main-only, if: "github.event_name != 'pull_request'", run: "sleep 600"}
+                  - {name: chained, if: "${{ !cancelled() && github.event_name == 'schedule' }}", run: "true"}
+                  - {name: either, if: "github.event_name == 'schedule' || inputs.x", run: "true"}
+                  - {name: pr-only, if: "github.event_name == 'pull_request'", run: "true"}
+                  - {name: not-push, if: "github.event_name != 'push'", run: "true"}
+              deploy:
+                if: github.event_name == 'push'
+                steps: [{name: ship, run: "true"}]
+        """)
+        self.assertEqual([s.name for s in steps],
+                         ["always", "either", "pr-only", "not-push"])
+        self.assertEqual(len(skipped), 3)
+        self.assertTrue(all("pull request" in note for note in skipped))
+
+    def test_this_repositorys_pages_build_reaches_frontmatter_before_suite(self):
+        path = os.path.join(runner.REPO, ".github/workflows/portfolio-pages.yml")
+        steps, _ = runner.collect(runner.load_workflow(path))
+        names = [s.name for s in steps]
+        self.assertLess(names.index("Check blog post front matter before the long build"),
+                        names.index("Test the site builder"))
+
     def test_uses_steps_are_reported_not_silently_dropped(self):
         steps, skipped = self.collect("""
             jobs:
