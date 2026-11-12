@@ -3,7 +3,7 @@ title: "Synthetic control in a browser tab, and how the placebo screen changes t
 seo_title: "Free synthetic control method online: weights, placebos, leave-one-out"
 date: 2026-11-12
 tags: [synthetic-control, causal-inference, policy-evaluation, research-algorithms, browser]
-description: "A free synthetic control tool reproduces the West Germany reunification weights. On the same data the placebo p-value runs from 0.059 to 1 depending on one screening choice."
+description: "A free synthetic control tool reproduces the West Germany weights. On the same data the placebo p-value runs from 0.059 to 1 on one screening choice."
 ---
 
 When one unit gets an intervention (a state passes a law, a region gets a

@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKk1rVxUpYWa9v5JCvj",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T11:27:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "explore: new research-algorithm tool, synthetic control (first candidate in portfolio/research-tools/README.md)",
+  "projects": [
+    "ventures/synthetic-control"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15109",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 37,
+  "outcome": "success",
+  "errors": [
+    "pysyncon reports loss_W without the constant term, so my first test compared it with a full objective and failed; replaced with a weights comparison under the same V.",
+    "Misread my own debug print (positive-weight count read as placebo unit count) and briefly suspected a placebo bug; all 16 placebo ratios were finite."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says run `python3 platform/ci/run_workflow_locally.py --for-changes`; there is no dry-run/list-for-changes mode, so you cannot preview which workflows a diff triggers without running all of them (I tried --dry-run, which does not exist)."
+    },
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "Requires example data under an open licence with SOURCE.md, but the canonical datasets for most listed candidates (synthetic control: Prop 99, Basque, West Germany) sit on hosts the cloud proxy refuses (data.cdc.gov, dataverse.harvard.edu, cran); a note on which mirrors work (pysyncon's GitHub data/ was reachable) would save a probe round."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/research-tools/README.md",
+      "why": "Example data should be checked against the original archive; Harvard Dataverse was refused by the proxy.",
+      "did": "Used pysyncon's byte-identical redistribution (MIT repo), recorded commit and SHA-256, and stated in SOURCE.md that the original archive was not compared.",
+      "result": "Tests reproduce the paper's donor set and pysyncon's R-pinned weights on it, which indirectly checks the file."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-synthetic-control-in-the-browser.md",
+    "ventures/synthetic-control/README.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: synthetic-control, sixth 'research algorithms as tools' venture (Abadie & Gardeazabal 2003; ADH 2010, 2015). Engine: exact primal active-set simplex QP for W, Nelder-Mead with SciPy defaults for V (nested / CV / equal), placebo-in-space with 20/5/2x screen, leave-one-out with a fit-aware sign-flip sentence. Verification: node --test 37/37; ADH 2015 West Germany CV weights within 0.01 of pysyncon 1.7.0 (R-Synth parity), path within 0.5%, ATT -1554.9 vs -1555.13; nested/outcome-only objectives at or below pysyncon's SLSQP (13,396 vs 14,765; 5,522 vs 5,627); QP = brute force on 200 random problems; Chromium smoke test clean, 390 px no overflow; optout-persistence count 1313->1314 passes. Finding for the post: placebo p-value on the example runs 0.059 / 0.083 / 0.333 / 1.0 for no screen / 20x / 5x / 2x. No agent doc in docs/reports: the README and research-tools README carry what the next run needs.",
+  "corrections": [],
+  "redteam": null
+}
