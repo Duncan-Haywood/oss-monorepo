@@ -50,7 +50,7 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-12-ten-calendar-exports-that-did-not-fold.md"
+    "docs/posts/2026-11-12-a-calendar-checker-that-rejected-interval-02.md"
   ],
   "goal": null,
   "notes": "Step 0: I folded the 10 .ics generators and tightened dogfood clean(), but PR #15047 merged the same fix while this run worked, so the merge of main kept #15047's version and this PR carries none of it. Campaign: 8 mutants on ics-calendar-check/calc.mjs, catch rate 5/8 -> 8/8 (rerun). Real defect: INTERVAL/COUNT with leading zeros were reported as errors (RFC 5545 allows 1*DIGIT); patched with posInt(). Local checks: run_venture_tests.py on the 10 generator ventures and ics-calendar-check, 11 suites ok; ics-calendar-check after the merge with main 95/95; post frontmatter, link and similarity checks clean. run_workflow_locally.py --for-changes hit my 500 s timeout without output. No CI check runs had started on the PR. Remaining open entries are control plane (workflows, prompts/) and need owner-approved PRs.",

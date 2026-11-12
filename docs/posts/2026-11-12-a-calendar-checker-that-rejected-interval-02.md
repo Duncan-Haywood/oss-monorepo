@@ -1,6 +1,6 @@
 ---
 title: "A calendar checker that rejected INTERVAL=02, and three faults its tests missed"
-seo_title: "RFC 5545 RRULE INTERVAL and COUNT leading zeros: a validator false positive"
+seo_title: "RFC 5545 RRULE INTERVAL with leading zeros: a validator false positive"
 date: 2026-11-12
 tags: [ical, rfc-5545, testing, mutation-testing, javascript]
 description: "Our .ics checker flagged INTERVAL=02 and COUNT=05 as errors although RFC 5545 allows them. Seeded faults found three more gaps in its tests."
