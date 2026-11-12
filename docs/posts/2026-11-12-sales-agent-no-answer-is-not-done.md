@@ -1,9 +1,9 @@
 ---
 title: "A call that rang out is not a call you made"
-seo_title: "No answer, voicemail, spoke: call outcomes in a self-hosted sales queue"
+seo_title: "No answer, voicemail or spoke: call outcomes in a sales queue"
 date: 2026-11-12
 tags: [sales-agent, product]
-description: "Sales Agent's Today's queue now takes an outcome for each call. No answer brings the call back the next business day for up to three tries, and call prep lists every try."
+description: "Sales Agent's Today's queue takes an outcome per call: no answer brings it back the next business day, up to three tries, and call prep lists each try."
 ---
 
 This morning [Sales Agent](https://marisstella.app/sales-agent/)'s self-hosted server got a **Done** button for the touches a Sent folder can't see: calls, LinkedIn visits, letters. That fixed one problem and left another. On a cold call, "done" usually means "nobody picked up". If one button covers both, a rep either taps Done on a call that rang out, and the call drops out of the cadence, or leaves it open, and it sits there overdue every day until it goes stale.
