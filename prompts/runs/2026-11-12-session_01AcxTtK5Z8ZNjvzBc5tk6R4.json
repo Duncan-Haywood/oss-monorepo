@@ -31,7 +31,12 @@
   "review_findings": null,
   "tests_added": 8,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "PR validate red from main (flagships.yaml cap, #15130), not this diff",
+      "fixed": true
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -48,7 +53,7 @@
     "docs/posts/2026-11-12-redteam-an-export-invoice-from-last-december.md"
   ],
   "goal": null,
-  "notes": "Target chosen because it landed on main today (#15129, 424 lines). Campaign: 10 mutants, 4 caught; 6 gaps, each covered by a new test in cce20.test.mjs; rerun 10/10. Real defect: a pre-2024-01-18 CFDI with a code missing from VIGENCIA threw a TypeError (fixed via fraccionVigencia). Guard added: ventures/einvoice-preflight/cfdi-robustness.test.mjs, ~1,500 perturbations of the 9 CFDI fixtures must never throw; on its first run (against main) it found 15 throws, all this bug. Full einvoice suite: 1564 tests, 1500 pass, 0 fail, 64 skipped (ran clean after the fix, so rerun's caught_after_fix is trustworthy despite the open rerun defect).",
+  "notes": "Target chosen because it landed on main today (#15129, 424 lines). Campaign: 10 mutants, 4 caught; 6 gaps, each covered by a new test in cce20.test.mjs; rerun 10/10. Real defect: a pre-2024-01-18 CFDI with a code missing from VIGENCIA threw a TypeError (fixed via fraccionVigencia). Guard added: ventures/einvoice-preflight/cfdi-robustness.test.mjs, ~1,500 perturbations of the 9 CFDI fixtures must never throw; on its first run (against main) it found 15 throws, all this bug. Full einvoice suite: 1564 tests, 1500 pass, 0 fail, 64 skipped (ran clean after the fix, so rerun's caught_after_fix is trustworthy despite the open rerun defect). CI validate went red because main itself was red: #15130 left changepoint-detector's flagships.yaml next: at 2120 chars (cap 2000). Merged main and trimmed the history parenthetical (validate.py now green).",
   "corrections": [],
   "redteam": {
     "campaigns": [
