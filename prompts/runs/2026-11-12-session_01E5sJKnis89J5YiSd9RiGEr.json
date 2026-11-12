@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKnis89J5YiSd9RiGEr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T01:21:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship (allocate row 3): a stale probability per segment for the drift model on sticky series, pre-registered",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14955",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "eval/drift-stale-segment.mjs first run read TCPD series only from DIR/ds; ratner_stock and scanline_42049 live in DIR/heldout, so it crashed after the synthetic table and two TCPD rows printed",
+      "fix": "lookup over ds and heldout, whole file rerun with the rule unchanged; disclosed in the eval header and README"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/eval/tcpd-fetch.sh",
+      "issue": "held-out series go to DIR/heldout, which a new eval that only reads DIR/ds misses; a shared loader exported from one eval (drift-sticky-penalty.mjs has a private loadTcpd) would prevent it"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-a-stale-rate-per-segment-finds-the-wrong-change.md",
+    "ventures/changepoint-detector/README.md (A stale probability per segment)"
+  ],
+  "goal": null,
+  "notes": "Pre-registration committed in dfe02989e before any run. Result negative: R1-R3 fail, R4 passes; juice same 5 of 8 freezes (24 cuts), TCPD sticky four cover 0.435 vs 0.524 shipped, F false cuts 3.98 vs missing 1.59; dates a pure stickiness change 103/120. Descriptive follow-up eval/frozen-juice-staleness.mjs: repeat share barely moves at the three lost freezes. flagships.yaml next: rewritten. Local checks: run_venture_tests.py changepoint-detector and venture-preflight (results below in the PR body).",
+  "corrections": [],
+  "redteam": null
+}
