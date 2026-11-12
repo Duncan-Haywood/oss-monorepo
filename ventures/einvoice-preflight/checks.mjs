@@ -211,7 +211,8 @@ export function checkInvoice(invoice) {
     if (quantity !== null && price !== null && price >= 0) {
       const supplied = money(line.net);
       const lineNet = acceptedLineNet(line, supplied);
-      expectedNet = roundHalfUpToCents(expectedNet + summedLineNet(line, invoice));
+      // Summed unrounded and rounded once below: baisa lines (linenet.mjs, summedLineNet).
+      expectedNet += summedLineNet(line, invoice);
       if (supplied === null || supplied !== lineNet) {
         fail(
           "INV-012",
@@ -227,6 +228,13 @@ export function checkInvoice(invoice) {
   const perRate = taxGroups(invoice);
   let expectedTax = 0;
   for (const group of perRate.groups.values()) expectedTax = roundHalfUpToCents(expectedTax + group.tax);
+  // Where the lines state their own VAT (PINT Oman, BTOM-016), the tax total may be
+  // their sum per rate instead (ALIGNED-IBRP-S-09-OM); either reading is accepted.
+  let lineTaxTotal = null;
+  if ([...perRate.groups.values()].some((g) => g.lineTax !== null)) {
+    lineTaxTotal = 0;
+    for (const group of perRate.groups.values()) lineTaxTotal = roundHalfUpToCents(lineTaxTotal + (group.lineTax ?? group.tax));
+  }
   expectedNet = roundHalfUpToCents(expectedNet + headerAdjustmentNetDelta(invoice));
   const negativeInvoice = isNegativeInvoice(invoice);
   if (expectedNet < 0 && !negativeInvoice) expectedNet = 0;
@@ -253,7 +261,7 @@ export function checkInvoice(invoice) {
     // nothing to compare
   } else if (taxTotal === null || (taxTotal < 0 && !negativeInvoice)) {
     fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax");
-  } else if (!(linesOptional && noLines) && !perRate.unattributed && taxTotal !== expectedTax && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
+  } else if (!(linesOptional && noLines) && !perRate.unattributed && taxTotal !== expectedTax && taxTotal !== lineTaxTotal && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
     fail("INV-018", "Invoice tax total does not match its line tax percentages.", `Set tax total to ${formatMoney(expectedTax)} or correct the line inputs.`, "/totals/tax");
   }
   if (gross === null || (gross < 0 && !negativeInvoice)) {

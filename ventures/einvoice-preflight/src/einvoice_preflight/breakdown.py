@@ -98,7 +98,9 @@ def _check_rows(rows: list[Any], expected: dict[Any, dict[str, Decimal]], with_c
             ))
             continue
         expected_tax = (taxable * percent / Decimal("100")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-        if tax != expected_tax:
+        # PINT Oman: the row's tax may be the sum of its lines' own VAT amounts (linenet.py).
+        line_tax = (expected.get(key) or {}).get("line_tax")
+        if tax != expected_tax and not (line_tax is not None and not unattributed and tax == line_tax):
             findings.append(_finding(
                 "INV-038",
                 f"Tax breakdown row {index + 1} tax amount does not equal taxable times the percentage.",

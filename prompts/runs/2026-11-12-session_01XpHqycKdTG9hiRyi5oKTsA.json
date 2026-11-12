@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqycKdTG9hiRyi5oKTsA",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T14:39:18Z",
+  "ended": "2026-11-12T14:52:17Z",
+  "wall_minutes": 13.31,
+  "tokens_in": 13690462,
+  "tokens_out": 53507,
+  "cost_usd": 5.2421,
+  "tool_calls": 99,
+  "task": "einvoice-preflight (flagship 5): PINT Oman baisa line nets summed at stated precision and Oman line VAT (BTOM-016) accepted as the tax total, in checks, breakdown and repair, JS and Python",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15159",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 17,
+  "outcome": "success",
+  "errors": [
+    "A stray '>' in my own grep command (grep -c InvoiceLine> FILE) overwrote one scratch copy of an OpenPeppol example; noticed when the file read as '0', restored from git. It came after the first corpus measurement and before the before/after runs, so no number used it.",
+    "The first venture-preflight run failed on the post's 248-character description (limit 160); fixed and rerun."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/phive-corpus.mjs",
+      "issue": "Without slimdom/fontoxpath it silently ran built-in checks only (Oman 0/49 instead of 45/49), with no warning, although the previous run's post said the eval now warns (that warning was in repair-seeded.mjs only). Added the same warning to phive-corpus.mjs."
+    },
+    {
+      "file": "ventures/einvoice-preflight/README.md",
+      "issue": "The README says to run eval/phive-corpus.mjs on a phive-rules checkout but not that a plain clone takes over 100 s and was cut off by the tool timeout mid-checkout here; checking out only the needed modules (git checkout HEAD -- phive-rules-peppol-pint ...) worked. The script's own header suggests a sparse clone, which is the better path."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-einvoice-oman-baisa.md",
+    "ventures/einvoice-preflight/README.md (Baisa line nets and Oman's line VAT)"
+  ],
+  "goal": "Deepen flagship 5 (einvoice-preflight): close the open 'OM baisa line nets' item from the PINT JP/MY/AE/OM landing",
+  "notes": "Measured with eval/phive-corpus.mjs on phive-rules dfa902d, before (worktree at origin/main 2dffcd1b) and after, whole preflight with official sets: PINT OM 45 -> 49/49 clean; the 4 baisa files were the only change across all 300 files in 12 sets (A-NZ 24, SG 15, JP 8, JP-NTR 7, MY 26, AE 31, ZATCA 19 clean unchanged; NLCIUS/CII/RO/PT 0 unchanged per file). eval/repair-seeded.mjs before/after: OM clean-unchanged 45 -> 49/49, seeded restored 427 -> 461/658; ZATCA 257/258, A-NZ 270/270, SG 158/164 identical. The repair had been rewriting correct baisa files (net 1.41 -> 1.50, tax 0.06 -> 0.08). Local checks: python3 platform/ci/run_venture_tests.py einvoice-preflight ok (20.4 s, incl. Python steps); baisa.test.mjs 10/10 (7 of the first 8 fail on main); tests/test_baisa.py 7/7; check_post_frontmatter, check_post_links, post_similarity clean; venture-preflight clean on the rerun after the description fix.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "db7db865-4b91-596b-a1f7-0c724dd572b1",
+    "transcripts": 1,
+    "first": "2026-11-12T14:39:18Z",
+    "last": "2026-11-12T14:52:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 96,
+        "input": 184,
+        "output": 53507,
+        "thinking": 12284,
+        "cache_read": 13506542,
+        "cache_write_5m": 0,
+        "cache_write_1h": 183736,
+        "api_equivalent_usd": 5.2421,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 96,
+      "input": 184,
+      "output": 53507,
+      "thinking": 12284,
+      "cache_read": 13506542,
+      "cache_write_5m": 0,
+      "cache_write_1h": 183736,
+      "api_equivalent_usd": 5.2421,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 99,
+    "tools": {
+      "Bash": 96,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.31,
+      "active_minutes": 13.31,
+      "model_minutes": 8.87,
+      "tool_minutes": 4.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an e-invoicing engineer: reproduce on the corpus, fix rounding and line-VAT reading in JS and Python checks plus repair, before/after evals, tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 114.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

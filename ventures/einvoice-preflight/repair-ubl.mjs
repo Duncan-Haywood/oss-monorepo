@@ -122,17 +122,19 @@ export function repairUbl(source) {
   }
 
   lines.forEach((l, i) => {
-    // A net written with more decimals (PINT allows them) that rounds to the right cent is kept.
-    if (l.fixed && l.written !== null && roundHalfUpToCents(l.written) === l.net) return;
+    // A net written with more decimals (PINT allows them) that rounds to the right cent is
+    // kept, and summed as written: ten PINT Oman lines of 0.047 OMR make 0.47, not 0.50.
+    if (l.fixed && l.written !== null && roundHalfUpToCents(l.written) === l.net) { l.net = l.written; return; }
     if (l.fixed) set(l.b, "LineExtensionAmount", ["TaxTotal"], `/lines/${i}/net`, fmt(l.net), "Line net is quantity times unit price (per base quantity), plus the line's charges, minus its allowances.");
   });
-  const netSum = lines.reduce((s, l) => roundHalfUpToCents(s + l.net), 0);
+  const netSum = roundHalfUpToCents(lines.reduce((s, l) => s + l.net, 0));
 
   // A line's own TaxTotal. Only ZATCA defines what it holds, so other files keep it as written.
   let prepaySum = 0;
   let prepayRows = 0;
   lines.forEach((l, i) => {
-    const tt = blocks(l.b.inner, "TaxTotal")[0];
+    // PINT Oman's line VAT (BTOM-016) sits in ItemPriceExtension: not ZATCA's KSA-11 TaxTotal.
+    const tt = blocks(l.b.inner.replace(tagRe("ItemPriceExtension"), (m) => " ".repeat(m.length)), "TaxTotal")[0];
     if (!tt) return;
     if (!zatca) {
       skipped.push(`Line ${i + 1} has its own TaxTotal; it was left as written (only ZATCA's KSA-11/12 say what it must hold).`);
@@ -204,11 +206,23 @@ export function repairUbl(source) {
       const rate = pct ?? (id && /^[EZO]$/.test(id) ? 0 : null);
       if (!id || rate === null) { bad = true; break; }
       const key = `${id}|${rate}`;
-      groups.set(key, { pct: rate, taxable: roundHalfUpToCents((groups.get(key)?.taxable || 0) + l.net) });
+      // A PINT line's own VAT (Oman's BTOM-016, ItemPriceExtension/TaxTotal) counts only
+      // within a cent of net x rate, and only while every line at the rate states one.
+      const ext = blocks(l.b.inner, "ItemPriceExtension")[0];
+      const extTotal = ext ? blocks(ext.inner, "TaxTotal")[0] : null;
+      const lv = extTotal ? num(firstChild(extTotal.inner, "TaxAmount")?.value) : null;
+      const plausible = lv !== null && !Number.isNaN(lv) && Math.abs(lv - (l.net * rate) / 100) < 0.01 + 1e-9;
+      const g = groups.get(key) || { pct: rate, taxable: 0, lineTax: 0, lineTaxAll: true };
+      g.taxable += l.net;
+      if (plausible) g.lineTax += lv;
+      else g.lineTaxAll = false;
+      groups.set(key, g);
     }
+    for (const g of groups.values()) g.taxable = roundHalfUpToCents(g.taxable);
     for (const a of adjust) {
-      const g = groups.get(a.key) || { pct: Number(a.key.split("|")[1]), taxable: 0 };
+      const g = groups.get(a.key) || { pct: Number(a.key.split("|")[1]), taxable: 0, lineTax: 0, lineTaxAll: false };
       g.taxable = roundHalfUpToCents(g.taxable + (a.charge ? a.amount : -a.amount));
+      g.lineTaxAll = false;
       groups.set(a.key, g);
     }
     const subtotals = blocks(total.inner, "TaxSubtotal").map((s) => ({ ...s, open: total.open + s.open }));
@@ -229,8 +243,11 @@ export function repairUbl(source) {
         const g = groups.get(subKey[j]);
         let t = roundHalfUpToCents((g.taxable * g.pct) / 100);
         const written = num(firstChild(s.inner, "TaxAmount", ["TaxCategory"])?.value);
-        const kept = written !== null && zatca && num(firstChild(s.inner, "TaxableAmount", ["TaxCategory"])?.value) === g.taxable
-          && Math.abs(written - t) <= tolerance + 1e-9;
+        const taxableOk = num(firstChild(s.inner, "TaxableAmount", ["TaxCategory"])?.value) === g.taxable;
+        // PINT Oman: the subtotal's tax may be the sum of its lines' own VAT (ALIGNED-IBRP-S-09-OM).
+        const lineSum = g.lineTaxAll ? roundHalfUpToCents(g.lineTax) : null;
+        // It does not depend on the written taxable amount, so a wrong taxable does not undo it.
+        const kept = written !== null && ((taxableOk && zatca && Math.abs(written - t) <= tolerance + 1e-9) || written === lineSum);
         if (kept) t = written;
         tax = roundHalfUpToCents(tax + t);
         set(s, "TaxableAmount", ["TaxCategory"], `/tax_breakdown/${j}/taxable`, fmt(g.taxable), "Taxable amount is the sum of the nets of the lines in this tax group, minus its document allowances, plus its charges.");
