@@ -1,0 +1,16 @@
+French bakery: 136451 tickets on 600 trading days, 5566 trading hours (9.3 a day).
+Work held at 818706 minutes (6 min a ticket, 10 tickets per labor hour at 60 minutes of work an hour).
+
+1. Fixed terms add 53362 minutes, expected 53362: yes;
+   0/hour gives the tickets-only shift lines: yes.
+
+2-3. Plan from the whole file; backtest per tested week (mean person-hours). first/last: person-hours in each day's first and last scheduled hour, summed over the week.
+                                     hours  <10:00   10-14  14:00+  first   last    short   over     off
+tickets only (6 min)                   184      58      98      28      7      8     44.4   29.6   41.7%
+tickets, --splh 48 (+1/4 as a rate)    230      68     114      48      7      8     49.6   41.2   41.2%
+3/4 tickets + 1/4 every hour           202      56      98      48      8     10     32.1   33.0   33.9%
+3/4 tickets + 1/4 open and close       186      67      91      28     21     10     49.9   32.0   46.7%
+3/4 tickets + 1/8 hour + 1/8 o/c       189      61      80      48     15     14     36.0   31.1   35.6%
+tickets + 1/4 extra every hour         232      70     114      48     13     13     46.4   37.0   37.3%
+
+Fixed minutes used: 1/4 every hour = 36.8 min an hour; 1/4 open and close = 171 min each end of the day.
