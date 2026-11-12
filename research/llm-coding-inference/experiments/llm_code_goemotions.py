@@ -21,7 +21,10 @@ import group_shift_reddit as R  # noqa: E402
 import h6r_rare_pilot as P  # noqa: E402
 
 QUESTION = {"fear": "Does this Reddit comment express fear?", "sadness": "Does this Reddit comment express sadness?",
-            "admiration": "Does this Reddit comment express admiration?", "neutral": "Does this Reddit comment express no particular emotion (neutral)?"}
+            "admiration": "Does this Reddit comment express admiration?", "neutral": "Does this Reddit comment express no particular emotion (neutral)?",
+            # 7al held-out categories (added before any of their scores existed)
+            "gratitude": "Does this Reddit comment express gratitude?", "curiosity": "Does this Reddit comment express curiosity?",
+            "anger": "Does this Reddit comment express anger?", "disapproval": "Does this Reddit comment express disapproval?"}
 
 
 def test_items(cat):

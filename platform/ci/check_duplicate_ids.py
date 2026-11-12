@@ -17,6 +17,8 @@ import sys
 from html.parser import HTMLParser
 from pathlib import Path
 
+from page_pool import map_pages
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -44,13 +46,16 @@ def duplicates(html):
     return p.dups
 
 
+def _page(f):
+    return duplicates(f.read_text(encoding="utf-8", errors="ignore"))
+
+
 def scan(root=ROOT):
     bad = []
     # Nested pages (site/, tools/) are served too; vendored trees are not ours.
-    for f in sorted((root / "ventures").rglob("*.html")):
-        if "node_modules" in f.parts:
-            continue
-        for line, i, first in duplicates(f.read_text(encoding="utf-8", errors="ignore")):
+    files = [f for f in sorted((root / "ventures").rglob("*.html")) if "node_modules" not in f.parts]
+    for f, found in zip(files, map_pages(_page, files)):
+        for line, i, first in found:
             bad.append((f.relative_to(root), line, i, first))
     return bad
 

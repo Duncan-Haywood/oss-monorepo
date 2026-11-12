@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyerRAvi5RwjFbxYs2k",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T19:38:46Z",
+  "ended": "2026-11-12T19:48:19Z",
+  "wall_minutes": 9.84,
+  "tokens_in": 5646250,
+  "tokens_out": 31181,
+  "cost_usd": 2.6623,
+  "tool_calls": 57,
+  "task": "Flagship 4 (changepoint-detector) item (w): per-series eagerness hint from the watch replay",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15237",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First preflight failed on 2 inherited-key lookups in watch-core.mjs (EAGER_NAMES[key])",
+      "fix": "Object.hasOwn guard"
+    },
+    {
+      "what": "Second preflight reported platform/pages podcast.test.mjs failing; it passed 10/10 when rerun alone",
+      "fix": "reran the preflight; likely a race with editing the post's front matter while the site tests ran"
+    },
+    {
+      "what": "CI validate failed: flagships.yaml changepoint-detector next: 2072 chars over the 2000 cap",
+      "fix": "shortened the round-6 clause; portfolio/router/validate.py passes locally"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pgrep '[n]ame' advice is incomplete: the hook also refuses the bracketed form when the name appears elsewhere in the same command (e.g. in a grep of the output file); a wait loop on the output file was simpler."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-how-eager-should-a-metric-alarm-be.md",
+    "ventures/changepoint-detector/README.md (Round 6)"
+  ],
+  "goal": null,
+  "notes": "Round 6 pre-registered in its own commit (748fdad6c) before the run. eval/watch-eagerness.out.txt: hint at B=2 reached 17 vs 16 of 31 future majority marks at 17.5 vs 16.0 alerts per 1,000 checks (middle 27.6), share 41% vs 44%: all three parts passed, narrowly; held-out 6 series: hint = quiet everywhere, no change. Forecast Spearman quiet 0.616 TCPD (ships), -0.20 held out (reported). Shipped eagernessReplay/eagernessText in watch-core.mjs, analyzeJob kind eagerness, replay-card button + 'Use X for the watch below', usage counter watch_eagerness, llms.txt, flagships next. Verification: run_venture_tests.py changepoint-detector ok (199 s); watch-eagerness.test.mjs + watch-page.test.mjs 10/10; eval/watch-eagerness-browser.mjs 8/8 at 390 px; venture-preflight clean on rerun. No agent doc in docs/reports: the README section and flagships next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d9a891ba-9d45-5bbe-888b-c401c36b0036",
+    "transcripts": 1,
+    "first": "2026-11-12T19:38:46Z",
+    "last": "2026-11-12T19:48:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 100,
+        "output": 31181,
+        "thinking": 4627,
+        "cache_read": 5529604,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116546,
+        "api_equivalent_usd": 2.6623,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 100,
+      "output": 31181,
+      "thinking": 4627,
+      "cache_read": 5529604,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116546,
+      "api_equivalent_usd": 2.6623,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 52,
+      "Write": 2,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.84,
+      "active_minutes": 9.84,
+      "model_minutes": 4.9,
+      "tool_minutes": 4.94,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "design and pre-register an evaluation, write a replay comparison, page UI, tests and write-up for a senior data engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 450.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

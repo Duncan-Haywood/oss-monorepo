@@ -1355,3 +1355,52 @@ the warp on they drop to 0.18 px, the same as the matcher's noise across the rad
 `tools/warp_preview_check.py` runs that check on any DNG with a preview and a warp. The formula is
 also checked exactly on synthetic ramps (13 tests) and agrees with darktable's reading of the same
 opcode. Details, choices and what is not checked: `eval/warp-rectilinear-2026-11-12.md`.
+
+## Vignetting and value maps from the DNG: FixVignetteRadial and MapPolynomial (2026-11-12)
+
+Two more opcodes now run, in `OpcodeList2` (on the sensor values, before demosaic) and
+`OpcodeList3` (after it), in the order the list gives them alongside `GainMap` and
+`WarpRectilinear`. `FixVignetteRadial` brightens the frame by `1 + k0 r^2 + ... + k4 r^10`, with
+`r` the distance from the optical centre over the distance to the farthest corner, capped at
+white. `MapPolynomial` maps each value in an area, plane range and pitch through a polynomial of
+degree up to 8, pinned to 0..1. In stage 3 the developer holds white-balanced values, so each
+plane is divided by its white-balance scale for the polynomial and multiplied back: the opcode
+sees the 0..1 camera values the specification describes. Both engines give the same bytes, and
+`--no-opcodes` turns them off. (`OpcodeList1` now runs the two bad-pixel fixes; see below.)
+
+What is checked: 13 tests (`tests/test_dng_vignette_poly.py`) against the formulas written out
+independently. A raw file darkened by the inverse of a known vignette, or with its red sensels
+halved, develops back to the undarkened scene within 3 8-bit steps (the darkened sensels'
+rounding); a stage-3 vignette and polynomial hit the closed form at every pixel to 12 places;
+area, plane and pitch select exactly the named samples; numpy and pure Python agree byte for
+byte with a mixed list in both stages, full and half size. What is not: no camera-written DNG
+carrying either opcode has been found (`eval/vignette-polynomial-2026-11-12.md` lists the names
+tried), and the SDK evaluates the vignette on a coarser fixed-point mask, so an Adobe render may
+differ in the last bits.
+
+## Dead and hot sensels from the DNG: FixBadPixelsConstant and FixBadPixelsList (2026-11-12)
+
+The first opcode list, `OpcodeList1`, now runs too, for the two opcodes a camera writes there to
+mark defective sensels. `FixBadPixelsConstant` says "every sensel holding this value is bad";
+`FixBadPixelsList` lists bad points and rectangles (a dead column is a one-wide rectangle). Both
+run on the stored CFA values before black subtraction or anything else reads them, so a dead
+sensel never reaches the demosaic as a black dot with a coloured fringe.
+
+A bad sensel becomes the mean of the nearest good sensels of its own colour: the four diagonal
+neighbours for green, the eight two rows or columns away for red and blue, widening one step at a
+time (up to 8) when those are bad too. Repairs read only original good values, so their order
+does not matter. On any plane `a + b*row + c*col` a whole ring gives the exact value back, so an
+isolated point, a dead column or a dead row comes back exactly. A constant that would flag more
+than 1% of the frame is not run (that is an under-exposed frame, not a defect map) and the report
+says so. Both engines read the repaired copy, so they give the same bytes; `--no-opcodes` turns it
+off. A 12 MP frame with 2,000 marked sensels repairs in 0.15 s (numpy scan) or 0.34 s (pure).
+
+What is checked: 15 tests (`tests/test_dng_bad_pixels.py`): parse round trips and malformed
+parameters; the nearest rings and the green parity for all four Bayer phases; isolated points, a
+dead column and a dead row exact on a plane; corners, adjacent bad sensels and blocks equal to a
+brute-force reference written in the test; a develop of a file with zeroed sensels and either
+opcode equal byte for byte to the develop of the clean file (and far from it with opcodes off);
+numpy and pure Python identical. What is not: no camera-written DNG with `OpcodeList1` has been
+found yet (the Nexus 5X and Leica T files carry none), and the SDK's own interpolation weights are
+not reproduced, so an Adobe render can differ at the repaired sensels. Details:
+`eval/bad-pixels-2026-11-12.md`.

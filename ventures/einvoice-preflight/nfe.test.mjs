@@ -46,6 +46,22 @@ test("schema: unknown, missing and out-of-order elements, bad values", () => {
   assert.match(valueProblem("@TCnpj", "12ABC34501DE35", "CNPJ"), /^$/); // alphanumeric CNPJ shape accepted
 });
 
+test("an unsigned NF-e with another root fault names that fault, not just the signature", () => {
+  // Two infNFe and no signature: signing it would still fail the schema (cStat 225), so the
+  // finding is the order/number one and nothing is put down to "not signed yet".
+  const inf = clean.match(/<infNFe[\s\S]*<\/infNFe>/)[0];
+  const r = checkNfe(clean.replace(inf, inf + inf));
+  assert.deepEqual(r.findings.map((f) => f.rule), ["BR-002"]);
+  assert.match(r.findings[0].message, /not in the order or number/);
+  assert.doesNotMatch(r.skipped.join(" "), /not signed yet/);
+});
+
+test("the alphanumeric CNPJ shape is accepted in CNPJ fields only", () => {
+  // a 14-character CNPJ-shaped value in a CPF (11 digits) is still a schema error
+  assert.match(valueProblem("@TCpf", "12345678901234", "CPF"), /longer than 11/);
+  assert.match(valueProblem("@TCpf", "12ABC34501DE35", "CPF"), /\S/);
+});
+
 test("CNPJ and CPF check digits (cStat 207, 208)", () => {
   const f = checkNfe(swap("<CNPJ>98765432000198</CNPJ>", "<CNPJ>98765432000199</CNPJ>")).findings;
   assert.deepEqual(f.map((x) => x.rule), ["BR-013"]);
@@ -137,6 +153,13 @@ test("BR-051: every IBSCBSTot field is the sum of the items", () => {
   }
   // an item that is off is caught at the total too
   assert.deepEqual(rules(rswap("<vCBS>0.54</vCBS>", "<vCBS>0.55</vCBS>")), ["BR-051"]);
+});
+
+test("BR-051: an item with no gIBSUF adds nothing to gIBS/vIBS", () => {
+  // item 2 drops its state group (a schema error); the totals are set to item 1 alone
+  let t = rswap("<gIBSUF><pIBSUF>0.1000</pIBSUF><vIBSUF>0.06</vIBSUF></gIBSUF>", "");
+  t = t.replace("<vIBS>0.06</vIBS>", "<vIBS>0.00</vIBS>").replace("<vIBSUF>0.32</vIBSUF>", "<vIBSUF>0.26</vIBSUF>").replace("<vIBS>0.32</vIBS>", "<vIBS>0.26</vIBS>");
+  assert.deepEqual(rules(t), ["BR-002"]);
 });
 
 test("BR-051: ISTot is the sum of the items' Imposto Seletivo", () => {

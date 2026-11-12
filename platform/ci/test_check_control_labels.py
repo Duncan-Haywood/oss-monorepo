@@ -58,5 +58,16 @@ class ControlLabels(unittest.TestCase):
             self.assertIn("bad", out.getvalue())
 
 
+    def test_prefilter_sees_any_case_and_skips_control_free_pages(self):
+        self.assertTrue(check_control_labels.CONTROL_OPEN.search('<SELECT id="s">'))
+        self.assertTrue(check_control_labels.CONTROL_OPEN.search('<TextArea>'))
+        self.assertFalse(check_control_labels.CONTROL_OPEN.search('<p>input select</p>'))
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "ventures" / "v").mkdir(parents=True)
+            (root / "ventures" / "v" / "index.html").write_text('<P>\n<INPUT id="up">')
+            self.assertEqual([n for *_, n in scan(root)], ["up"])
+
+
 if __name__ == "__main__":
     unittest.main()

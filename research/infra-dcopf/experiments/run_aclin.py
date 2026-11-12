@@ -63,20 +63,24 @@ def merit(c, base_mva):
     return max(c["max_load"] - 1.0, 0.0) + c["slack_out_mw"] / base_mva
 
 
-def slp(ppc, pg_start, vg, ac_ref):
+def slp(ppc, pg_start, vg, ac_ref, angles=False, check_fn=None, merit_fn=None):
     """Successive linearisation with a step box, a trust-region SLP. Round 1 is B (no box). Later
     rounds relinearise at the current dispatch and solve the QP inside a per-unit box (starting at
     20 % of the unit's range, at least 0.1 MW); when the first-order model has no feasible point in
     the box the QP is elastic (l1-penalised overload, Fletcher's Sl1QP device; the penalty is retried
     10x lower if PIPS stalls). A step is taken when it lowers the merit (or is clean) and the box is
-    halved when it does not."""
+    halved when it does not. angles, check_fn, merit_fn: the SAD variant (run_sad.py) adds angle rows and
+    an angle-aware check and merit; the defaults are the rules as first committed. Each history entry
+    keeps its dispatch under "pg"."""
+    check_fn = check_fn or check
+    merit_fn = merit_fn or merit
     g = ppc["gen"]
     trust = np.maximum(0.2 * (g[:, PMAX] - g[:, PMIN]), 0.1)
     pg = pg_start.copy()
-    cur = check(ppc, pg, ac_ref)
+    cur = check_fn(ppc, pg, ac_ref)
     hist = []
     for it in range(1, ROUNDS + 1):
-        lin = linearise(ppc, pg, vg)
+        lin = linearise(ppc, pg, vg, angles=angles)
         if lin is None:
             hist.append({"it": it, "status": "PF failed at point"})
             break
@@ -90,15 +94,15 @@ def slp(ppc, pg_start, vg, ac_ref):
             hist.append({"it": it, "status": "QP infeasible"})
             trust = trust / 2
             continue
-        c = check(ppc, x, ac_ref)
+        c = check_fn(ppc, x, ac_ref)
         if c is None:
             hist.append({"it": it, "status": "PF failed"})
             trust = trust / 2
             continue
-        hist.append({"it": it, "status": "clean" if c["clean"] else "not clean", "qp": "+".join(kw) or "hard", **c})
+        hist.append({"it": it, "status": "clean" if c["clean"] else "not clean", "qp": "+".join(kw) or "hard", **c, "pg": x.copy()})
         if c["clean"]:
             break
-        if cur is None or merit(c, ppc["baseMVA"]) < merit(cur, ppc["baseMVA"]):
+        if cur is None or merit_fn(c, ppc["baseMVA"]) < merit_fn(cur, ppc["baseMVA"]):
             pg, cur = x.copy(), c
         else:
             trust = trust / 2
@@ -132,7 +136,7 @@ def run_case(name, kind):
         b = one_shot(ppc, dc["gen"][:, PG], vg, ac_ref)
         b.pop("pg", None)
         out["B"] = b
-        out["C"] = slp(ppc, dc["gen"][:, PG], vg, ac_ref)
+        out["C"] = [{k: v for k, v in x.items() if k != "pg"} for x in slp(ppc, dc["gen"][:, PG], vg, ac_ref)]
     out["secs"] = time.time() - t0
     return out
 

@@ -137,6 +137,7 @@ import {
   SITE_STYLE_FILE,
   VENTURE_CHROME_CSS,
   VENTURE_CHROME_JS,
+  VENTURE_CHROME_EARLY_JS,
   SEARCH_ANCHOR,
   renderSiteHeader,
   renderSiteFooterNav,
@@ -10981,7 +10982,11 @@ ${noSla}${isEntry && baseUrl && hasCiChannels(slug) ? renderCiInstall(slug, base
   // matter.
   const bodyAfterHead = locateBody(withStyle);
   if (!bodyAfterHead) return withStyle; // defensive: entry already required a body pair
-  const withTopBar = spliceAt(withStyle, bodyAfterHead.openEnd, `\n${stylePrefix}${topBar}`);
+  // The header's first fit runs inline, straight after it, so the first paint
+  // is already full width (see `VENTURE_CHROME_EARLY_JS`). rates.mjs and
+  // jobs.mjs anchor on the `<nav>...</nav>` itself, so a tag after it is safe.
+  const earlyFit = `<script>${stripForInjection(VENTURE_CHROME_EARLY_JS)}</script>`;
+  const withTopBar = spliceAt(withStyle, bodyAfterHead.openEnd, `\n${stylePrefix}${topBar}${earlyFit}`);
 
   const bodyBeforeFooter = locateBody(withTopBar);
   if (!bodyBeforeFooter) return withTopBar; // defensive: same structure, just shifted

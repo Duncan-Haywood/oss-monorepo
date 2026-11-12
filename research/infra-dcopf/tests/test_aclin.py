@@ -83,3 +83,58 @@ def test_oracle_point_returns_the_ac_optimum_dispatch_clean(case30_api):
     rate = np.concatenate([ppc["branch"][:, RATE_A]] * 2)
     on = rate > 0
     assert np.max(end_flows(r)[on] / rate[on]) <= 1.0 + 1e-4
+
+
+@pytest.fixture(scope="module")
+def case14_sad():
+    ppc = load_m(case_path("case14_ieee", "sad"))
+    ac = runopf(ppc, ACOPT)
+    assert ac["success"]
+    vm = dict(zip(ac["bus"][:, 0].astype(int), ac["bus"][:, VM]))
+    vg = np.array([vm[int(b)] for b in ppc["gen"][:, GEN_BUS]])
+    return ppc, ac, vg
+
+
+def test_sad_case_limits_every_branch_angle(case14_sad):
+    from infra_dcopf.aclin import angle_limited
+    ppc, _ac, _vg = case14_sad
+    assert len(angle_limited(ppc)) == ppc["branch"].shape[0]  # SAD tightens all of them (8.6 deg here)
+    assert len(angle_limited(load_m(case_path("case14_ieee", "typ")))) == ppc["branch"].shape[0]  # TYP: 30 deg
+
+
+def test_angle_rows_predict_a_small_redispatch(case14_sad):
+    from infra_dcopf.aclin import angle_diffs
+    ppc, ac, vg = case14_sad
+    lin = linearise(ppc, ac["gen"][:, PG], vg, angles=True)
+    base = run_point(ppc, ac["gen"][:, PG], vg)
+    assert np.allclose(lin["d0"], angle_diffs(base, lin["aidx"]), atol=1e-9)
+    k = lin["cols"][0]
+    pg = lin["pg0"].copy()
+    step = -5.0 if pg[k] - 5.0 >= ppc["gen"][k, PMIN] else 5.0
+    pg[k] += step
+    r = run_point(ppc, pg, vg, lin["base"])
+    err = np.abs(angle_diffs(r, lin["aidx"]) - (lin["d0"] + lin["G"][:, k] * step))
+    assert err.max() < 0.05  # degrees: second-order residual of a 5 MW move
+    assert np.abs(lin["G"][:, k]).max() > 1e-3  # and the move does shift some angle
+
+
+def test_angle_aware_qp_respects_its_angle_rows(case14_sad):
+    from pypower.idx_brch import ANGMAX, ANGMIN
+    ppc, ac, vg = case14_sad
+    lin = linearise(ppc, ac["gen"][:, PG], vg, angles=True)
+    x, ok = solve_linear(ppc, lin)
+    assert ok
+    pred = lin["d0"] + lin["G"] @ (x - lin["pg0"])
+    br = ppc["branch"][lin["aidx"]]
+    assert np.all(pred <= br[:, ANGMAX] + 1e-3) and np.all(pred >= br[:, ANGMIN] - 1e-3)
+
+
+def test_linearise_without_angles_is_unchanged(case30_api):
+    ppc, ac, vg = case30_api
+    a = linearise(ppc, ac["gen"][:, PG], vg)
+    b = linearise(ppc, ac["gen"][:, PG], vg, angles=True)
+    assert "G" not in a
+    assert np.array_equal(a["H"], b["H"]) and np.array_equal(a["a"], b["a"])
+    xa, _ = solve_linear(ppc, a)
+    xb, _ = solve_linear(ppc, dict(b, aidx=np.zeros(0, dtype=int), G=np.zeros((0, len(xa))), d0=np.zeros(0)))
+    assert np.allclose(xa, xb, atol=1e-6)

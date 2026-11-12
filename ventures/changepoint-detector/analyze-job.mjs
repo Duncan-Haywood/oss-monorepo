@@ -4,11 +4,12 @@
 //     | { kind: 'multi', csv, columns, opts } -> parseColumns + analyzeMulti
 //     | { kind: 'drift', opts }            -> driftResult(opts) (jumps on a wandering level)
 //     | { kind: 'replay', csv, column, opts } -> parseSeries + replayWatch (what a daily watch would have sent)
+//     | { kind: 'eagerness', csv, column, opts } -> parseSeries + eagernessReplay (each "How eager" setting on the history)
 // Returns { result } or { error } (an error message for the page to show), never throws.
 import { analyze, parseSeries } from './engine.mjs';
 import { parseColumns, analyzeMulti } from './multivariate.mjs';
 import { driftResult } from './drift-cli.mjs';
-import { replayWatch } from './watch-core.mjs';
+import { replayWatch, eagernessReplay } from './watch-core.mjs';
 
 export const MULTI_NEEDS_TWO = 'Several-columns mode needs two or more numeric columns; for one column pick “One column”.';
 
@@ -23,6 +24,10 @@ export function analyzeJob(job) {
     if (job.kind === 'replay') {
       const { labels, values, column } = parseSeries(job.csv, job.column ?? null, null);
       return { result: { column, ...replayWatch(values, labels, job.opts) } };
+    }
+    if (job.kind === 'eagerness') {
+      const { labels, values, column } = parseSeries(job.csv, job.column ?? null, null);
+      return { result: { column, ...eagernessReplay(values, labels, job.opts) } };
     }
     return { result: analyze(job.opts) };
   } catch (e) {

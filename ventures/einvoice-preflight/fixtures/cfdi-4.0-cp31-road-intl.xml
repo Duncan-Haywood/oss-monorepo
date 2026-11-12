@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- An international road transfer: laptops leaving Mexico for the United States by road (TranspInternac Sí, EntradaSalidaMerc Salida, PaisOrigenDestino USA, ViaEntradaSalida 01) under the definitive-export regime, in a straight truck without a trailer (C2).
+     Synthetic and unstamped: SAT's test RFC EKU9003173C9, made-up plates, permits and
+     policies. Expects no finding (cartaporte31.test.mjs); eval/cartaporte-mutations.mjs
+     plants defects in it and eval/cartaporte-xsd-diff.mjs mutates it against xmllint. -->
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:cartaporte31="http://www.sat.gob.mx/CartaPorte31" Version="4.0" Serie="CP" Folio="2" Fecha="2026-11-10T07:00:00" SubTotal="0" Moneda="XXX" Total="0" TipoDeComprobante="T" Exportacion="01" LugarExpedicion="86000" NoCertificado="30001000000500003416" Sello="" Certificado="">
+  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" RegimenFiscal="601"/>
+  <cfdi:Receptor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" DomicilioFiscalReceptor="86000" RegimenFiscalReceptor="601" UsoCFDI="S01"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="43211503" NoIdentificacion="LAP-14" Cantidad="12" ClaveUnidad="H87" Descripcion="Computadora portátil" ValorUnitario="0" Importe="0" ObjetoImp="01"/>
+  </cfdi:Conceptos>
+  <cfdi:Complemento>
+    <cartaporte31:CartaPorte Version="3.1" IdCCP="CCC2B3C4-5D6E-4F70-9A1B-2C3D4E5F6A7B" TranspInternac="Sí" EntradaSalidaMerc="Salida" PaisOrigenDestino="USA" ViaEntradaSalida="01" TotalDistRec="1150">
+      <cartaporte31:RegimenesAduaneros>
+        <cartaporte31:RegimenAduaneroCCP RegimenAduanero="EXD"/>
+      </cartaporte31:RegimenesAduaneros>
+      <cartaporte31:Ubicaciones>
+        <cartaporte31:Ubicacion TipoUbicacion="Origen" IDUbicacion="OR000010" RFCRemitenteDestinatario="EKU9003173C9" FechaHoraSalidaLlegada="2026-11-10T06:00:00">
+          <cartaporte31:Domicilio Calle="Avenida Paseo Tabasco" NumeroExterior="1203" Municipio="004" Estado="TAB" Pais="MEX" CodigoPostal="86000"/>
+        </cartaporte31:Ubicacion>
+        <cartaporte31:Ubicacion TipoUbicacion="Destino" IDUbicacion="DE000010" RFCRemitenteDestinatario="XEXX010101000" NumRegIdTrib="987654321" ResidenciaFiscal="USA" FechaHoraSalidaLlegada="2026-11-11T09:00:00" DistanciaRecorrida="1150">
+          <cartaporte31:Domicilio Calle="Mines Road" NumeroExterior="4501" Estado="TX" Pais="USA" CodigoPostal="78045"/>
+        </cartaporte31:Ubicacion>
+      </cartaporte31:Ubicaciones>
+      <cartaporte31:Mercancias PesoBrutoTotal="36.5" UnidadPeso="KGM" NumTotalMercancias="1">
+        <cartaporte31:Mercancia BienesTransp="43211503" Descripcion="Computadora portátil" Cantidad="12" ClaveUnidad="H87" PesoEnKg="36.5" FraccionArancelaria="8471300199" TipoMateria="05">
+          <cartaporte31:DocumentacionAduanera TipoDocumento="01" NumPedimento="26  27  3173  6000123" RFCImpo="EKU9003173C9"/>
+        </cartaporte31:Mercancia>
+        <cartaporte31:Autotransporte PermSCT="TPAF08" NumPermisoSCT="PERM-0002-2026">
+          <cartaporte31:IdentificacionVehicular ConfigVehicular="C2" PesoBrutoVehicular="11.00" PlacaVM="CD5678E" AnioModeloVM="2021"/>
+          <cartaporte31:Seguros AseguraRespCivil="ASEGURADORA EJEMPLO" PolizaRespCivil="RC-223344"/>
+        </cartaporte31:Autotransporte>
+      </cartaporte31:Mercancias>
+      <cartaporte31:FiguraTransporte>
+        <cartaporte31:TiposFigura TipoFigura="01" RFCFigura="EKU9003173C9" NumLicencia="LFED654321" NombreFigura="OPERADOR DE EJEMPLO"/>
+      </cartaporte31:FiguraTransporte>
+    </cartaporte31:CartaPorte>
+  </cfdi:Complemento>
+</cfdi:Comprobante>
