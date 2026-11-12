@@ -1823,7 +1823,7 @@ generative agents, UIST.
    Fehr and Gächter's published rounds.
 6. `civ-calibrate` (first run landed in civ-levers 2026-11-08: negative, the GSS 2016-2020 panel cannot identify eps, power 14% at eps 0.3): estimate ε and τ from public panel data on attitude change (e.g. ANES or
    GSS panels) and rerun milestones 1–2 at the fitted values.
-7. `civ-history` (landed in civ-levers 2026-10-30, second run 2026-10-31): structural-demographic dynamics (Turchin) as a toy civilization: population,
+7. `civ-history` (landed in civ-levers 2026-10-30, second run 2026-10-31; fourth run 2026-11-12: paired by cell, the tax share is the lever that prevents collapse, elite cap and welfare help only where they bind, collapse here is fiscal): structural-demographic dynamics (Turchin) as a toy civilization: population,
    elites and state capacity over centuries, and which policy levers damp the cycles.
 8. `civ-llmsociety` (harness and stub-policy run landed in civ-levers 2026-11-02; no real model called): a town of language-model agents against the same levers, behind an
    environment variable with a deterministic stub. Do LLM agents assimilate and backfire like

@@ -38,3 +38,20 @@ def test_collapse_fires_and_cuts_population():
     N = run(years=1500, rho=0.12, m=0.05, k=4, g=8.0, collapse_thr=0.1)[1]
     assert len(run.collapses) >= 1
     assert all(b - a >= 50 for a, b in zip(run.collapses, run.collapses[1:]))
+
+
+def test_slack_elite_cap_reproduces_baseline():
+    kw = dict(years=1500, rho=0.03, m=0.02, k=4, g=2.0, lag=200, plag=200, collapse_thr=0.3)
+    a = run(**kw)[1]
+    ca = list(run.collapses)
+    b = run(elite_cap=10.0, **kw)[1]
+    assert (a == b).all() and run.collapses == ca
+
+
+def test_higher_tax_cuts_collapses_in_a_fiscal_cell():
+    # g = 16: a costly state; the 2026-11-12 paired run found tau 0.45 cuts collapses in such cells
+    kw = dict(years=2500, rho=0.03, m=0.05, k=8, g=16.0, lag=200, plag=200, collapse_thr=0.5)
+    run(**kw)
+    base = len(run.collapses)
+    run(tau=0.45, **kw)
+    assert len(run.collapses) < base
