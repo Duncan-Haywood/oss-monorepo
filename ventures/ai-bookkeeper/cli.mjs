@@ -17,7 +17,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, checkLenderSchedule, loanRegister, loanSchedule } from "./loans.mjs";
-import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote } from "./salestaxreturn.mjs";
+import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote, stateDiscountNote } from "./salestaxreturn.mjs";
 import { gstReturn } from "./gstreturn.mjs";
 import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
@@ -434,7 +434,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     if (out) { writeFileSync(out, r.html); console.log(`Wrote ${out}: ${r.id}, ${r.status}${r.balance ? `, balance ${fmt(r.balance)}` : ""}.`); } else process.stdout.write(r.html);
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "reminders") {
-  const min = flag("--min") ? Math.round(Number(flag("--min")) * 100) : 1;
+  const minFlag = flag("--min"), min = minFlag ? Math.round(Number(minFlag) * 100) : 1;
   const r = reminders(books, { asOf: asOf ?? null, min });
   const dir = flag("--out");
   if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
@@ -445,7 +445,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   });
   console.log(r.length ? `${r.length} reminder${r.length > 1 ? "s" : ""}${dir ? ` written to ${dir}` : " (add --out DIR to write the drafts)"}.` : "Nothing overdue.");
 } else if (cmd === "paybills") {
-  const p = planBills(books, { asOf: asOf ?? null, days: +(flag("--days") ?? 90), reserve: Math.round(Number(flag("--reserve") ?? 0) * 100), terms: flag("--terms") ? JSON.parse(readFileSync(flag("--terms"), "utf8")) : {} });
+  const p = planBills(books, { asOf: asOf ?? null, days: +(flag("--days") ?? 90), reserve: Math.round(Number(flag("--reserve") ?? 0) * 100), terms: ((t) => t ? JSON.parse(readFileSync(t, "utf8")) : {})(flag("--terms")) });
   if (json) { console.log(JSON.stringify(p, null, 2)); process.exit(0); }
   console.log(`BILL PLAN ${p.asOf} to ${p.to}: cash ${fmt(p.start)}, reserve ${fmt(p.reserve)}, lowest after paying ${fmt(p.lowest.cents)} on ${p.lowest.date}.`);
   for (const r of p.rows) console.log(`  ${r.payOn}  ${fmt(r.cents).padStart(11)}  ${r.id.padEnd(12)} ${r.party.slice(0, 24).padEnd(24)} due ${r.due}  ${r.status}${r.note ? ` - ${r.note}` : ""}`);
@@ -763,7 +763,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   console.log("  A worksheet for you or your preparer. Not tax advice; it leaves out passive-loss limits, personal-use days and the depreciation schedule.");
 } else if (cmd === "schedulec") {
   const yr = flag("--year");
-  const sc = scheduleC(books, { from, to, mealsPct: flag("--meals") !== null ? +flag("--meals") : 50, year: yr ? +yr : null });
+  const sc = scheduleC(books, { from, to, mealsPct: ((m) => m !== null ? +m : 50)(flag("--meals")), year: yr ? +yr : null });
   if (json) { console.log(JSON.stringify(sc, null, 2)); process.exit(0); }
   if (has("--csv")) { process.stdout.write(scheduleCCsv(sc)); process.exit(0); }
   console.log(`SCHEDULE C WORKSHEET${from || to ? ` ${from ?? ""}..${to ?? ""}` : ""}`);
@@ -784,7 +784,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
 } else if (cmd === "scorp") {
   const yr = flag("--year"), mo = flag("--months"), c = (n) => { const v = flag(n); return v !== null ? Math.round(+v * 100) : undefined; };
   try {
-    const r = scorpFromBooks(books, { year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", salary: c("--salary"), salaryPct: flag("--salary-pct") !== null ? +flag("--salary-pct") / 100 : undefined, extraCost: c("--extra-cost"), stateUnemployment: c("--suta"), otherIncome: c("--other-income"), service: has("--service") });
+    const r = scorpFromBooks(books, { year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", salary: c("--salary"), salaryPct: ((v) => v !== null ? +v / 100 : undefined)(flag("--salary-pct")), extraCost: c("--extra-cost"), stateUnemployment: c("--suta"), otherIncome: c("--other-income"), service: has("--service") });
     if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
     console.log(`S-CORPORATION ELECTION ${r.year} (${r.filing}), profit annualised ${fmt(r.profit)}, salary ${fmt(r.salary)}`);
     const row = (l, a, b) => console.log(`  ${l.padEnd(26)} ${fmt(a).padStart(12)} ${fmt(b).padStart(12)}`);
@@ -801,7 +801,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     const ttFile = flag("--tax-table");
     const table = ttFile ? taxTableOptions(JSON.parse(readFileSync(ttFile, "utf8"))) : {};
     const stateRatePct = flag("--state-rate");
-    const r = estimatedTax(books, { ...table, year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", wages: c("--wages"), otherIncome: c("--other"), withholding: c("--withholding"), paid: c("--paid"), priorYearTax: c("--prior-tax"), priorAgi: c("--prior-agi"), healthInsurance: c("--health-insurance"), retirement: c("--retirement"), over65: +(flag("--over65") ?? 0), blind: +(flag("--blind") ?? 0), children: +(flag("--children") ?? 0), otherDependents: +(flag("--other-dependents") ?? 0), asOf: asOf ?? undefined, qbi: has("--no-qbi") ? false : undefined, service: has("--service"), businessWages: c("--business-wages"), itemized: c("--itemized"), investmentIncome: c("--investment"), eitcChildren: flag("--eitc-children") !== undefined ? +flag("--eitc-children") : undefined, eitcTable: has("--eitc-table"), stateRate: stateRatePct !== null ? +stateRatePct / 100 : undefined, stateDeduction: c("--state-deduction"), stateWithheld: c("--state-withheld") });
+    const r = estimatedTax(books, { ...table, year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", wages: c("--wages"), otherIncome: c("--other"), withholding: c("--withholding"), paid: c("--paid"), priorYearTax: c("--prior-tax"), priorAgi: c("--prior-agi"), healthInsurance: c("--health-insurance"), retirement: c("--retirement"), over65: +(flag("--over65") ?? 0), blind: +(flag("--blind") ?? 0), children: +(flag("--children") ?? 0), otherDependents: +(flag("--other-dependents") ?? 0), asOf: asOf ?? undefined, qbi: has("--no-qbi") ? false : undefined, service: has("--service"), businessWages: c("--business-wages"), itemized: c("--itemized"), investmentIncome: c("--investment"), eitcChildren: ((v) => v != null ? +v : undefined)(flag("--eitc-children")), eitcTable: has("--eitc-table"), stateRate: stateRatePct !== null ? +stateRatePct / 100 : undefined, stateDeduction: c("--state-deduction"), stateWithheld: c("--state-withheld") });
     if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
     console.log(`FEDERAL ESTIMATE ${r.year} (${r.filing}), profit annualised ${fmt(r.profit)}`);
     console.log(`${r.healthDeduction ? `  Health insurance (7206)  ${fmt(r.healthDeduction).padStart(12)}\n` : ""}${r.retirementDeduction ? `  Retirement contribution  ${fmt(r.retirementDeduction).padStart(12)}\n` : ""}  Adjusted gross income    ${fmt(r.agi).padStart(12)}\n  Standard deduction       ${fmt(r.standardDeduction).padStart(12)}\n  QBI deduction            ${fmt(r.qbiDeduction).padStart(12)}\n  Taxable income           ${fmt(r.taxable).padStart(12)}\n  Income tax (${Math.round(r.marginalRate * 100)}% top)    ${fmt(r.incomeTax).padStart(12)}\n  Self-employment tax      ${fmt(r.se.tax).padStart(12)}\n  Additional Medicare tax  ${fmt(r.addlMedicare).padStart(12)}\n  Total                    ${fmt(r.totalTax).padStart(12)}  (${(r.effectiveRate * 100).toFixed(1)}% of income)`);
@@ -917,10 +917,15 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   const rates = parseRateSpecs(specs("--rate"));
   let t;
   const discounts = parseDiscountSpecs(specs("--discount"));
-  for (const [k, d] of Object.entries(stateDiscounts(flag("--state")))) if (!(k in discounts)) discounts[k] = d;
-  try { t = salesTaxReturn(books, { frequency: flag("--freq") ?? "quarterly", endMonth: flag("--end-month") ? Number(flag("--end-month")) : stateEndMonth(flag("--state"), flag("--freq") ?? "quarterly"), dueDay: flag("--due-day") ? Number(flag("--due-day")) : stateDueDay(flag("--state"), flag("--freq") ?? "quarterly"), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
-  const stateNote = stateFilingNote(flag("--state"), t.frequency);
+  // flag() removes what it reads, so each flag is read once (before 2026-11-12 only the first --state read saw it:
+  // due days, NY/PA/DC periods and the state notes all fell back to the defaults)
+  const state = flag("--state"), freq = flag("--freq") ?? "quarterly", endMonthFlag = flag("--end-month"), dueDayFlag = flag("--due-day");
+  for (const [k, d] of Object.entries(stateDiscounts(state))) if (!(k in discounts)) discounts[k] = d;
+  try { t = salesTaxReturn(books, { frequency: freq, endMonth: endMonthFlag ? Number(endMonthFlag) : stateEndMonth(state, freq), dueDay: dueDayFlag ? Number(dueDayFlag) : stateDueDay(state, freq), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
+  const stateNote = stateFilingNote(state, t.frequency);
   if (stateNote) t.warnings.push(stateNote);
+  const discNote = stateDiscountNote(state);
+  if (discNote) t.warnings.push(discNote);
   if (json) { console.log(JSON.stringify(t, null, 2)); process.exit(0); }
   console.log(`SALES TAX RETURN WORKSHEET (${t.frequency})`);
   for (const p of t.periods) {

@@ -146,6 +146,25 @@ function frequencyNote(s, frequency) {
   return `${STATE_NAME[s] ?? s}'s own page lists ${src.freqs.map((f) => FREQ_WORD[f]).join(", ")} sales tax filing, not ${FREQ_WORD[frequency] ?? frequency} (${src.url}, read ${STATE_SOURCES_READ}). Use the frequency on your own notice.`;
 }
 
+// What the preset discount leaves out, or why a state has none (read 2026-11-12; README "Vendor discounts read on the states' own pages").
+const DISCOUNT_NOTES = {
+  AZ: "Arizona discount: 1.2% for returns filed electronically (A.R.S. 42-5017); paper filers get 1%, and any paper return in the year loses the higher rate. The yearly cap ($12,000 e-filed, $10,000 paper, all locations together) is not tracked here; city TPT gets no credit.",
+  SC: "South Carolina discount: 3% when the return's tax is under $100, otherwise 2% of the whole amount (Code 12-36-2610), applied here to \"SC state\". It is capped at $3,000 a state fiscal year ($3,100 filed electronically), which is not tracked here.",
+  WY: "Wyoming discount: 1.95% of the tax, up to $500 per filing period, only if the return and payment are postmarked by the 15th, earlier than the due date (Return 41 instructions). Pay by the 15th or remove the discount with --discount \"WY state=0\".",
+  FL: "Florida's collection allowance applies only when the return is filed and paid electronically and on time (DR-15 instructions).",
+  TX: "Texas: the 0.5% timely discount is applied; prepayers may claim another 1.25% (comptroller.texas.gov), which is not applied here.",
+  PA: "Pennsylvania's discount cap is shared between state and local tax in proportion to each; here it is applied to \"PA state\" alone.",
+  LA: "Louisiana's 0.84% is figured on state tax due plus excess tax collected; parish taxes are filed separately and are not covered here.",
+  NE: "Nebraska's 2.5% collection fee is on state and local sales tax together (Form 10 line 8, $75 at most); book both under \"NE state\" or add a --discount for the local label.",
+  MI: "Michigan's discount is not applied: it is 0.75% (by the 12th) or 0.5% (by the 20th) of the 4% part of the tax, or the tax on $150 if greater, with monthly limits (MCL 205.54). Add it with --discount once you have figured it.",
+  IN: "Indiana's collection allowance is not applied: its rate (0.73%, 0.53% or 0.26%) depends on your tax for the 12 months to June 30 of the previous year (in.gov handbook). Add yours with --discount \"IN state=0.73\".",
+  VA: "Virginia's dealer discount is not applied: the statute (Code 58.1-622) sets percentages of the first 3% of the tax, but the rates in force were not confirmed on tax.virginia.gov. Use the rate on your ST-9.",
+  OK: "Oklahoma's current return (STS-20002-C, from August 2024) has no vendor discount line.",
+  NM: "New Mexico's gross receipts tax return (TRD-41413) has no vendor discount line.",
+};
+
+export function stateDiscountNote(state) { return DISCOUNT_NOTES[String(state ?? "").toUpperCase()] ?? null; }
+
 export function stateFilingNote(state, frequency = "quarterly") {
   const s = String(state ?? "").toUpperCase();
   if (NO_STATE_SALES_TAX[s]) return NO_STATE_SALES_TAX[s];
@@ -179,13 +198,28 @@ function stateRuleNote(s, frequency) {
   if (s === "NM" && (frequency === "quarterly" || frequency === "semiannual")) return "New Mexico: quarterly or semiannual filing needs the Department's approval (ACD-31015) and an average of $500 a month or less in tax; returns are due the 25th after the period (FYI-105).";
   return null;
 }
-// Timely-filing discounts pinned in tests (IL ST-1 R-01/26, TX comptroller, FL Rule 12A-1.056), keyed by the
+// Timely-filing discounts pinned in tests (IL ST-1 R-01/26, TX comptroller, FL DR-15 instructions, and 15 more read 2026-11-12), keyed by the
 // "<ST> state" label; the CLI applies them under --state unless --discount names that label. Check yours.
 export function stateDiscounts(state) {
   const s = String(state ?? "").toUpperCase();
   // GA vendor's compensation (ST-3 instructions via search 2026-10-28; dor.georgia.gov not reachable): 3% of the first $3,000 of tax on a return, 0.5% of the rest, only when return and payment are both timely. A 2026 fiscal note describes a proposal to raise the $3,000 step to $10,000: unconfirmed, not modelled. The tax of one return is the whole base here, local tax included only if booked under the same label.
   // OH vendor discount (R.C. 5739.12, ODT notice ST 2025-02 via search excerpts 2026-10-29; tax.ohio.gov not reachable): 0.75% of tax, capped at $750 per vendor's license per month covered, on returns due on or after 2026-01-01; motor vehicle dealers' vehicle sales are uncapped (not modelled); timely return and payment required.
-  const d = { OH: { rate: 0.0075, capPerMonth: 75000 }, IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 }, GA: { rate: 0.03, tiers: [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }] } }[s];
+  // Read on the states' own sites 2026-11-12 (saved and quote-checked; README "Vendor discounts read on the states' own pages"):
+  // PA (Sales Tax Discount Q&A, pa.gov): the lesser of 1% of tax or $25 monthly / $75 quarterly / $150 semiannual, i.e. $25 a month, periods ending after 2016-08-01.
+  // SC (Code 12-36-2610, scstatehouse.gov; ST-3): 3% when the return's tax is under $100, else 2%, on the whole amount; capped at $3,000 a state fiscal year ($3,100 e-filed), not modelled per year (note).
+  // WI (Publication 201): 0.75% of tax, at least the lesser of $10 or the tax, at most $8,000 per reporting period; not on tax paid late.
+  // MO (RSMo 144.140, revisor.mo.gov; Form 53-1 line 2): 2% of the tax, no cap, timely only.
+  // WY (Return 41 instructions, rev. 7.10.24): 1.95% of total tax due, up to $500 per filing period per vendor, only if postmarked by the 15th (note).
+  // FL (DR-15 instructions): 2.5% of the first $1,200 of the amount due, max $30, only when filed and paid electronically and on time; matches the 2026-10 preset.
+  // TX (comptroller.texas.gov sales tax page): 0.5% of tax timely reported and paid; prepayers add 1.25% (not applied, note).
+  // AL (revenue.alabama.gov due-date calendar): 5% of the first $100 of tax and 2% of the rest, at most $400 a month (local: the same, per jurisdiction), timely only.
+  // KY (KRS 139.570, apps.legislature.ky.gov): 1.75% of the first $1,000 of tax and 1.5% of the rest, at most $50 per reporting period, not delinquent.
+  // LA (R-1029 instructions rev. 06/01/26): 0.84% of state tax due plus excess tax collected, at most $750 a month from 2025-01-01; timely and paid in full. Parish tax is filed separately.
+  // MS (dor.ms.gov business FAQ): 2% of tax due, not to exceed $50 (per return assumed), paid by the 20th.
+  // NE (Neb. Rev. Stat. 77-2708; Form 10 1-2026 line 8): 2.5% of state and local sales tax, $75 at most on the return.
+  // ND (N.D.C.C. 57-39.2-12.1, ndlegis.gov): 1.5% of the tax due, at most $110 per return, paid on time.
+  // AZ (A.R.S. 42-5017, azleg.gov): 1.2% for e-filers (1% on paper), capped at $12,000 ($10,000) a calendar year, which is not tracked here (note).
+  const d = { AL: { rate: 0.05, tiers: [{ upTo: 10000, rate: 0.05 }, { rate: 0.02 }], capPerMonth: 40000 }, KY: { rate: 0.0175, tiers: [{ upTo: 100000, rate: 0.0175 }, { rate: 0.015 }], cap: 5000 }, LA: { rate: 0.0084, capPerMonth: 75000 }, MS: { rate: 0.02, cap: 5000 }, NE: { rate: 0.025, cap: 7500 }, ND: { rate: 0.015, cap: 11000 }, AZ: { rate: 0.012 }, PA: { rate: 0.01, capPerMonth: 2500 }, SC: { rate: 0.02, steps: [{ below: 10000, rate: 0.03 }, { rate: 0.02 }] }, WI: { rate: 0.0075, min: 1000, cap: 800000 }, MO: { rate: 0.02 }, WY: { rate: 0.0195, cap: 50000 }, OH: { rate: 0.0075, capPerMonth: 75000 }, IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 }, GA: { rate: 0.03, tiers: [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }] } }[s];
   return d ? { [`${s} state`]: { ...d } } : {};
 }
 export function stateEndMonth(state, frequency = "quarterly") {
@@ -295,7 +329,7 @@ export function salesTaxReturn(books, { account = "2100", frequency = "quarterly
   if (!(dd === "last" || (Number.isInteger(dd) && dd >= 1 && dd <= (dueDay?.after != null ? 366 : 31)))) throw new Error('due day must be a whole day from 1 to 31 or "last"');
   for (const [j, d] of Object.entries(discounts)) {
     const okCap = (c) => c == null || (Number.isFinite(c) && c >= 0);
-    if (!d || !Number.isFinite(d.rate) || d.rate < 0 || d.rate > 1 || !okCap(d.cap) || !okCap(d.capPerMonth) || !(d.tiers == null || (Array.isArray(d.tiers) && d.tiers.length && d.tiers.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.upTo == null || okCap(t.upTo)))))) throw new Error(`discount for "${j}" needs a rate between 0 and 100 percent and a cap of zero or more, as in --discount "${j}=0.5,100"`);
+    if (!d || !Number.isFinite(d.rate) || d.rate < 0 || d.rate > 1 || !okCap(d.cap) || !okCap(d.capPerMonth) || !(d.tiers == null || (Array.isArray(d.tiers) && d.tiers.length && d.tiers.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.upTo == null || okCap(t.upTo))))) || !okCap(d.min) || !(d.steps == null || (Array.isArray(d.steps) && d.steps.length && d.steps.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.below == null || okCap(t.below)))))) throw new Error(`discount for "${j}" needs a rate between 0 and 100 percent and a cap of zero or more, as in --discount "${j}=0.5,100"`);
   }
   const cells = new Map();
   const cell = (period, j) => {
@@ -334,6 +368,10 @@ export function salesTaxReturn(books, { account = "2100", frequency = "quarterly
       raw = 0; let lo = 0;
       for (const t of disc.tiers) { const hi = t.upTo ?? Infinity; if (r.tax > lo) raw += (Math.min(r.tax, hi) - lo) * t.rate; lo = hi; }
     }
+    // steps: one rate on the whole tax, chosen by the return's tax (`below` in cents; South Carolina 3% under $100, else 2%)
+    if (disc?.steps && r.tax > 0) raw = r.tax * (disc.steps.find((t) => t.below == null || r.tax < t.below) ?? disc.steps[disc.steps.length - 1]).rate;
+    // min: a floor of the lesser of `min` and the tax itself (Wisconsin: the lesser of $10 or the tax)
+    if (disc?.min != null && r.tax > 0) raw = Math.max(raw, Math.min(disc.min, r.tax));
     r.discount = disc && r.tax > 0 ? Math.min(Math.round(raw), cap) : 0;
     r.payable = r.tax - r.discount;
     const want = rates[r.jurisdiction];
