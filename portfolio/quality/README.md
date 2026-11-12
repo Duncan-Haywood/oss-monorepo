@@ -143,10 +143,14 @@ easy failure is grading the README instead of the thing. So:
   author believed. Check at least one output against a source the author did
   not write.
 - **Seed one bug.** Change one comparison or constant in the core logic,
-  run the tests, record whether they caught it, revert.
-  On Python, set `PYTHONDONTWRITEBYTECODE=1` (or delete `__pycache__` after
-  reverting): a revert of the same size in the same second leaves the mutated
-  `.pyc` in use, and later runs read the bug, not the file (round 45).
+  run the tests, record whether they caught it. Use
+  `python3 platform/ci/quality_mutate.py <file> --old "<text>" --new "<text>" -- <test command>`:
+  it runs a baseline and the mutant in a private copy of the subject and
+  prints the `mutations` row, so parallel auditors never see each other's
+  mutants in the shared tree and nothing needs reverting (four run records,
+  2026-11-12, hit that race). By hand, set `PYTHONDONTWRITEBYTECODE=1`: a
+  revert of the same size in the same second leaves the mutated `.pyc` in
+  use (round 45).
 - **Name the professional.** Write who the senior reviewer is ("a licensed
   structural engineer", "a payroll specialist") and what they would check
   first, then check that.
