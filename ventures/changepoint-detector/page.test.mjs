@@ -168,3 +168,10 @@ test("index page has a growth-rate (slope break) box wired to the engine", () =>
   assert.match(html, /id="slopeResult"/);
   assert.match(html, /for="slopeBreaks"/);
 });
+
+test("the replay card is wired: button, worker job kind and replayText from watch-core.mjs", () => {
+  const html = page("index.html");
+  assert.match(html, /id="replay-run"/);
+  assert.match(html, /kind: "replay"/);
+  assert.match(page("analyze-job.mjs"), /job\.kind === 'replay'/);
+});

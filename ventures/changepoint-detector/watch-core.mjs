@@ -198,3 +198,87 @@ export function watchCheck({ csv, state = null, column = null, labelColumn = nul
   const text = statusText(res, { column: parsed.column, model, confirm: clean.confirm });
   return { column: parsed.column, n: values.length, ...res, text };
 }
+
+/**
+ * Work one replay may do, in (points refit)^2 summed over its checks: each check refits the newest
+ * `window` points, and the Bayesian pass costs about the square of that (175 ms for 1,000 points on
+ * one 2026 cloud core). 3e7 is about 5 s there: a 500-point series is checked every 2 points, 1,000
+ * points every 11, a 2,000-point series every 30 or so.
+ */
+export const REPLAY_BUDGET = 3e7;
+
+/**
+ * Replay the watch over a finished series, as if it had run after each new point, and return what it
+ * would have sent and when. The question a person asks before setting a watch up: "on my own history,
+ * how often would this have pinged me, and how late?" values: numbers, oldest first; labels: dates or
+ * row names (default 1..n). opts: the watch options (model, detector, confirm, tolerance, window,
+ * penalty, period, log, rhoCap) plus from (the number of points at the first check; default 20% of the
+ * series, at least 20, as in eval/watch-replay.mjs), step (points between checks; default 1, raised to
+ * keep within budget, default REPLAY_BUDGET). With step above 1, a check that finds an alert is
+ * bisected back to the first point whose arrival sends it, so each alert's date and delay are those of
+ * a watch run after every point (assuming an alert, once due, stays due: true in every test here); a
+ * detection that showed and vanished between two checks is not seen, so false alerts can be undercounted.
+ * The first check records the changes already in the history as the baseline, as a real first run does.
+ * Returns { n, from, step, checks, settings, baseline, alerts, pending }; each alert carries the change
+ * (index, label, levels each side when known), reportedAt / reportedAtLabel (the point whose arrival
+ * sent it) and pointsAfter, its delay in points.
+ */
+export function replayWatch(values, labels = null, opts = {}) {
+  if (!Array.isArray(values)) throw new Error('values must be an array of numbers.');
+  const v = values.map(Number);
+  if (v.some((x) => !Number.isFinite(x))) throw new Error('values must all be numbers.');
+  const n = v.length;
+  if (n < 10) throw new Error(`A replay needs at least 10 points; got ${n}.`);
+  const l = (labels && labels.length === n ? labels : v.map((_, i) => i + 1)).map(String);
+  const { from: from0, step: step0, budget: budget0, alertHistory: _h, ...rest } = opts;
+  const model = rest.model ?? 'mean';
+  const settings = { ...WATCH_DEFAULTS, ...rest, model, detector: rest.detector ?? defaultDetector(model) };
+  if (!DETECTORS.includes(settings.detector)) throw new Error(`detector takes ${DETECTORS.join(', ')}.`);
+  const from = Math.min(n, Math.max(4, Math.round(from0 ?? Math.max(Math.min(20, n), Math.floor(0.2 * n)))));
+  const budget = budget0 ?? REPLAY_BUDGET;
+  const endsFor = (s) => { const e = []; for (let x = from; x <= n; x += s) e.push(x); if (e[e.length - 1] !== n) e.push(n); return e; };
+  const cost = (e) => e.reduce((t, x) => t + Math.min(x, settings.window) ** 2, 0);
+  let step = Math.max(1, Math.round(step0 ?? 1));
+  while (step < n && cost(endsFor(step)) > budget) step = Math.max(step + 1, Math.ceil(step * 1.25));
+  const { confirm, tolerance, ...detOpts } = settings;
+  let state = emptyState(), baseline = [], pending = [], checks = 0;
+  const alerts = [];
+  const check = (end) => { checks++; const ls = l.slice(0, end); return advance(state, detectChanges(v.slice(0, end), ls, detOpts), end, ls, { confirm, tolerance }); };
+  const commit = (r, end) => {
+    if (end === from) baseline = r.baseline;
+    for (const a of r.alerts) alerts.push({ ...a, reportedAt: end - 1, reportedAtLabel: l[end - 1] });
+    pending = r.pending;
+    state = r.state;
+  };
+  let prev = from - 1;
+  for (const end of endsFor(step)) {
+    for (;;) {
+      const r = check(end);
+      if (!r.alerts.length || end - prev <= 1) { commit(r, end); break; }
+      // Bisect for the first point in (prev, end] whose arrival sends an alert.
+      let lo = prev + 1, hi = end, best = r;
+      while (lo < hi) { const mid = Math.floor((lo + hi) / 2); const m = check(mid); if (m.alerts.length) { hi = mid; best = m; } else lo = mid + 1; }
+      commit(best, hi);
+      prev = hi;
+      if (hi === end) break;
+    }
+    prev = end;
+  }
+  return { n, from, step, checks, settings, baseline, alerts, pending };
+}
+
+/** Plain sentences for a replay, for the page and an agent's answer. */
+export function replayText(res, { column = 'the series', model = 'mean' } = {}) {
+  const lines = [];
+  const every = res.step > 1 ? `every ${res.step} points, each alert dated back to the point that would have sent it` : 'after each new point';
+  lines.push(`Replayed as a watch started at point ${res.from} of ${res.n} and run ${every} (${res.checks} checks).`);
+  if (res.baseline.length) lines.push(`Already in the history at the start, recorded and not alerted: ${res.baseline.map((b) => b.label).join(', ')}.`);
+  if (!res.alerts.length) lines.push('It would have sent no alert.');
+  else {
+    lines.push(`It would have sent ${res.alerts.length} alert${res.alerts.length > 1 ? 's' : ''}:`);
+    const body = alertText({ alerts: res.alerts }, { column, model }).split('\n');
+    res.alerts.forEach((a, i) => lines.push(`  on ${a.reportedAtLabel}: ${body[i]}`));
+  }
+  for (const p of res.pending) lines.push(`Still watching at the end: a possible change from ${p.label}, ${p.pointsAfter} point${p.pointsAfter === 1 ? '' : 's'} after it (reported at ${res.settings.confirm}).`);
+  return lines.join('\n');
+}
