@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [hub, mobile, copy]
+topics: [design, seo]
 date: 2026-11-12
 ---
 # Polish 2026-11-12: hub lede cut so the search sits above the fold on a phone
