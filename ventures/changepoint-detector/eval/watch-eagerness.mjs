@@ -45,7 +45,8 @@ import { detectChanges, advance, emptyState } from '../watch-core.mjs';
 const TOL = 5, CONFIRM = 5;
 const SETTINGS = { quiet: 'bocpd-ar1-window', middle: 'bocpd', eager: 'pelt' };
 const ORDER = ['eager', 'middle', 'quiet'];
-const BUDGETS = [2, 1, 5];
+// WATCH_BUDGETS (comma-separated) adds budgets to the report, deciding nothing (README "The hint in the CLI watch").
+const BUDGETS = [2, 1, 5, ...String(process.env.WATCH_BUDGETS || '').split(',').filter(Boolean).map(Number).filter((b) => ![2, 1, 5].includes(b))];
 
 function trace(values, start, detector) {
   const labels = values.map((_, i) => String(i + 1));

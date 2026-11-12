@@ -5,6 +5,8 @@
 #   variable METRIC_CSV         a CSV file in this repository (data/metric.csv) or an https:// link to one
 #                               (a published Google Sheet's CSV link works); rows oldest first
 #   variable WATCH_OPTIONS      optional, e.g. "--column orders --model poisson --period 7"
+#                               "--detector auto --alerts-per 1/month" picks how eager to be from your history
+#                               at the first run, within about one alert a month, and keeps that pick
 #   secret   WATCH_WEBHOOK_URL  optional: a Slack, Discord, Teams or Mattermost incoming-webhook URL
 # With no webhook, a new change fails the run and GitHub emails you (--fail-on-alert).
 name: watch-metric
