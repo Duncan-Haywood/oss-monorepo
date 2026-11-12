@@ -1,5 +1,16 @@
 # build-data log
 
+## Session 78, 2026-11-12: a censoring-aware (IPCW) score for issue-to-completion, checked on a nearly complete test year (in progress)
+
+Why: session 77 found that every i2c test-year score is a complete-case (CC) mean over the permits finished before the pull, so recent test years lose their long builds. Its "Next" asked for a censoring-aware evaluation and a rerun of the cascade2/type/nodemo comparison under it.
+- New: `src/censored_eval.py`. A test row issued on day s has a window C = pull date minus s and is seen iff y <= C. If build time does not depend on the issue day within the year, P(seen | y) = G(y) = P(C >= y); each seen row is weighted 1/G(y) (inverse probability of censoring weighting, IPCW; Robins & Rotnitzky 1992, Graf et al. 1999 for the Brier score). G comes from the issue days of rows short enough to be seen on any issue day (y <= min C). Weights are floored at G = 0.05; rows longer than the largest window cannot be seen at all. `validate` scores a nearly complete year (2021 against the 2026-11-12 pull, windows >= 1,777 days) on all rows (reference), and CC and IPCW on the rows a pseudo-pull on 2023-11-12 would have seen (windows 681 to 1,045 days, the real 2024 test year's 681 to 1,046), with the same fitted models. `rescore` scores the real test years both ways. `transfer.run` now keeps the issue dates in its per-row output. 6 tests, including an analytic case (y uniform on 0 to 100, windows uniform on 50 to 150: CC mean below 47, IPCW 50).
+Predictions (written before any run): `python3.13 src/censored_eval.py validate DIR --pull-date 2026-11-12 --held seattle --test-year 2021 --pseudo-pull 2023-11-12 --classes cascade2 cascade2_nodemo` and `... rescore DIR --pull-date 2026-11-12 --held seattle --test-year 2024 --classes cascade2 cascade2_nodemo`.
+- (U1) Validation: the IPCW q0.9 of the seen rows is within 10% of the all-rows q0.9, and the CC q0.9 is more than 15% below it.
+- (U2) Validation, q0.9: of the three contrasts cascade2 transfer minus own baseline, cascade2 own-boosted minus own baseline, and transfer nodemo minus cascade2, IPCW's absolute error against the reference is smaller than CC's in at least two.
+- (U3) Real 2024: transfer q0.9, nodemo minus cascade2, scored by IPCW, has a 95% interval that includes zero (CC, session 76: -1.98 [-2.70, -1.24]).
+- (U4) Real 2024: cascade2 transfer minus own baseline at q0.5 keeps a negative point estimate under IPCW (the programme's finding that SF and Austin transfer beats Seattle's own baseline at the i2c median).
+Each is refuted if its condition fails.
+
 ## Session 77, 2026-11-12: a fold rule chosen from history helps Chicago and hurts Austin, and the demolition tail gap of sessions 75 and 76 is right-censoring of the test year (T1, T4 Austin refuted; T5, T6, T4 Chicago held)
 
 Why: session 76 showed that folding demolition into alteration removes two thirds of cascade2's Seattle i2c 2024 transfer q0.9 cost, but the fold was picked after seeing session 75's per-class split of that very test year. A rule a practitioner can use must decide the fold before the test year exists. Session 76's suggested rule read the ratio interval on the test year; this one does not.
