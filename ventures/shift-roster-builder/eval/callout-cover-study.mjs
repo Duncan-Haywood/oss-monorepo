@@ -9,13 +9,15 @@ export function study(text, { exact = "auto" } = {}) {
   const groups = (ow) => { const m = new Map(); ow.forEach((x, i) => { const k = `${slots[i].day}|${slots[i].start}|${slots[i].label}`; (m.get(k) || m.set(k, []).get(k)).push(x); }); return m; };
   const moved = (a, b) => { const B = groups(b); let n = 0; for (const [k, v] of groups(a)) { const w = [...B.get(k)]; for (const x of v) { const j = w.indexOf(x); if (j >= 0) w.splice(j, 1); } n += w.length; } return n; };
   const staff = parseStaff(text).staff, r = buildRoster(staff, slots, { exact });
-  const o = { cases: 0, patched: 0, covered: 0, moves: [] };
+  const o = { cases: 0, patched: 0, covered: 0, moves: [], statuses: { posted: r.optimality?.status }, unproven: [] };
+  const tally = (st, who) => { o.statuses[st] = (o.statuses[st] || 0) + 1; if (!["optimal", "improved"].includes(st)) o.unproven.push(who); };
   for (let p = 0; p < staff.length; p++) for (let d = 0; d < 7; d++) {
     if (!r.owner.some((x, i) => x === p && slots[i].day === d)) continue;
     o.cases++;
     if (!absencePlan(staff, slots, r, staff[p].name, [d]).open.length) o.patched++;
     const off = text.split("\n").map((l) => (l.startsWith(staff[p].name + ",") ? `${l}, off: ${DAYS[d]}` : l)).join("\n").replace("min hours, availability", "min hours, availability, off");
     const r2 = buildRoster(parseStaff(off).staff, slots, { exact });
+    tally(r2.optimality?.status, `${staff[p].name} ${DAYS[d]}`);
     if (r2.unfilledHours <= r.unfilledHours) { o.covered++; o.moves.push(moved(r.owner, r2.owner)); }
   }
   return o;
@@ -28,6 +30,6 @@ export const WITH_SPARE = () => sampleStaff() + "\nHal, 15, 24, 0, any";
 if (import.meta.url === `file://${process.argv[1]}`) {
   for (const [name, t] of [["sample", SAMPLE()], ["with a spare part-timer", WITH_SPARE()]]) {
     const o = study(t, { exact: process.env.EXACT === "off" ? false : "auto" });
-    console.log(`${name}: ${o.cases} cases, ${o.patched} patched, ${o.covered} covered by a rebuild, ${Math.min(...o.moves)} to ${Math.max(...o.moves)} other shifts moved`);
+    console.log(`${name}: ${o.cases} cases, ${o.patched} patched, ${o.covered} covered by a rebuild, ${Math.min(...o.moves)} to ${Math.max(...o.moves)} other shifts moved; rebuilds ${JSON.stringify(o.statuses)}${o.unproven.length ? `, unproven: ${o.unproven.join(", ")}` : ""}`);
   }
 }
