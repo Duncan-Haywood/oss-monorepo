@@ -71,3 +71,25 @@ Same measurements: `check_js_syntax.py` **1.45 s** (from 58.6 s, about 40x);
    repo path and line would be better output but is an output change: do it
    as a product change with its own test, not under "same answers".
 4. P063 and P064 remain owner-gated.
+
+## Independent check (a second perf run, same evening)
+
+A second perf session (PR #15284) found the same 11,238 `node --check` starts and
+built a different batch: it called Node 22's own `check_syntax.js` internals
+(`defaultGetFormat`, then `ModuleWrap` or `wrapSafe`) under `--expose-internals`,
+one process per core, 62.4 s to 4.4 s. This change landed first and is faster
+(1.45 s), so that version was dropped. Its equivalence sweep was run against this
+batch instead, with the fallback switched off (`batch_parses` alone):
+
+- 1,500 tracked files (seed 20261112), each plus a truncated copy and a copy with one
+  injected token (`)`, `}`, `await x`, `return 1`, `import "z"`, `#!`, `<div>`,
+  ` yield 2`, `export {}`, a backtick, `with(a){}`, `08`, `let let=1`), plus 14 hand
+  cases (hashbang in `.js` and `.mjs`, BOM, `<!--` comments in both, top-level
+  `return` and `await`, `import.meta` and `import()` in `.js`, an empty file):
+  **4,514 texts, 2,244 failing `node --check`.**
+- The batch passed **none** that `node --check` rejects, and rejected **5** that it
+  passes (the stricter cases this doc names; they take the per-file path and pass
+  there). The one-sided design holds on a sweep written without sight of this one.
+- `main_health.py` timed the same way: 78.8 s and 75.9 s before either change;
+  18.0 s and 18.4 s with the internals version, so the two batches are the same
+  saving at that level (the check is no longer the sweep's longest job either way).

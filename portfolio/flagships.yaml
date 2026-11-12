@@ -145,8 +145,8 @@ flagships:
     next: >-
       History: README and git. Open: ZATCA rules on a real sandbox invoice and
       credit or debit note, built-in INV-0xx checks beside PINT/ZATCA sets;
-      FatturaPA code lists (TD29, RF20) and tolerances against the primary
-      spec 1.9 text; Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU
+      FatturaPA code lists read from XSD 1.2.3 (2026-11-12,
+      README); open: one-cent tolerance and SdI error codes vs spec 1.9 text; Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU
       BR-CL-17/18 though AMA's rules admit them: which validator does AT
       run?); Poland's FA(3) on a KSeF test-environment file and a real
       correction, advance or settlement file; the rules and a repair on a real
