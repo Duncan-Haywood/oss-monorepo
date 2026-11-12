@@ -733,6 +733,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         dcp=read_dcp(args.dcp) if args.dcp else None,
         profile_tables=not args.no_profile_tables,
         tone_curve=not args.no_tone_curve,
+        default_tone=args.default_tone_curve,
     )
     sources = [Path(p) for p in args.files]
     out_dir = Path(args.out)
@@ -1237,6 +1238,14 @@ def _build_parser() -> argparse.ArgumentParser:
         "--no-tone-curve",
         action="store_true",
         help="Skip the profile's ProfileToneCurve and use the plain sRGB curve (the tables still apply).",
+    )
+    develop.add_argument(
+        "--default-tone-curve",
+        choices=("auto", "always", "never"),
+        default="auto",
+        help="For a profile with no ProfileToneCurve: 'always' applies the default curve (a fit to Adobe's ACR3 "
+        "default, what Adobe's converters use), 'auto' only when the profile's tone copyright names Adobe "
+        "(RawTherapee's rule), 'never' keeps the plain sRGB curve.",
     )
 
     create_demo = subparsers.add_parser(
