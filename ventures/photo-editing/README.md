@@ -1411,6 +1411,24 @@ outside a trim; numpy and pure Python agree byte for byte with two trims per lis
 faults (frame offset dropped, framed result not written back, frames not applied) each fail 3 to 5
 of the tests. What is not: no camera- or converter-written file carrying TrimBounds has been tried.
 
+## The opcodes against the DNG specification's own text (2026-11-12)
+
+Earlier opcode work was written without the specification, which no session had fetched. It
+turns out to be reachable from a cloud session (Adobe's helpx PDF of DNG 1.7.1.0, September 2023).
+So every opcode ShootFlow runs was compared with chapter 6 of that text: GainMap, WarpRectilinear,
+WarpFisheye, FixVignetteRadial, FixBadPixelsConstant/List, TrimBounds, MapTable, MapPolynomial
+and Delta/ScalePerRow/Column. Parameter layouts and formulas all match, including the WarpFisheye
+formula written from memory. One thing differed. The specification places the optical centre
+between the top-left and bottom-right *pixels* (`(1, 0)` is "the top-right pixel") and measures
+`m` to the farthest *pixel*. The module measured both from the image's edges and called that a
+choice the specification leaves open. It now follows the text, for both warps and the vignette.
+On the Leica T's terms a source point moves at most 0.048 px. The check against that camera's
+own preview, re-run, is unchanged: median radial shift +0.18 px over 444 patches. That shows
+nothing regressed; the preview can't tell the two conventions apart. Tests: the independent
+formula helpers now use the text's pixel-index coordinates, and a new test pins the text's `(1, 0)`
+example and `r = 1` at the farthest pixel. Not done: an Adobe render or the SDK's own code, which
+may differ from its text. Details: `eval/opcode-spec-audit-2026-11-12.md`.
+
 ## Fisheye unwrapping from the DNG: WarpFisheye (2026-11-12)
 
 `WarpFisheye`, the DNG's other warp, now runs in `OpcodeList3` beside `WarpRectilinear`, in list
@@ -1421,9 +1439,10 @@ image. Before, the report named it as "required, not applied" and the frame stay
 engines give the same bytes; `--no-opcodes` turns it off. 13 tests (`tests/test_dng_warp_fisheye.py`)
 check it on closed forms: with `kr0 = 1` every pixel reads from radius `atan(r)` along its own ray,
 the centre pixel reads itself, and on a ramp every pixel equals the ramp at the formula's source
-point. What is not checked: the formula is the specification's as this session knew it, since
-neither the specification nor Adobe's SDK could be fetched here and no open-source reader runs this
-opcode; and no camera- or converter-written file carrying it has been tried. Details:
+point. What is not checked: the formula was written from memory, since neither the specification
+nor Adobe's SDK could be fetched that session (it has since been compared with the DNG 1.7.1.0
+text and matches; see "The opcodes against the DNG specification's own text" above); no
+camera- or converter-written file carrying it has been tried. Details:
 `eval/warp-fisheye-2026-11-12.md`.
 
 ## Vignetting and value maps from the DNG: FixVignetteRadial and MapPolynomial (2026-11-12)

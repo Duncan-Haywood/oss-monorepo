@@ -344,13 +344,14 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (44 stories)
+### Little Lamps (45 stories)
 
 - [Camillus and the Red Cross](stories/camillus-and-the-red-cross.md) (2026-11-12; 10 min read, text only)
 - [Damien and the Houses by the Sea](stories/damien-and-the-houses-by-the-sea.md) (2026-11-12; 9 min read, text only)
 - [Josephine Bakhita and the Door at Schio](stories/josephine-bakhita-and-the-door-at-schio.md) (2026-11-12; 9 min read, text only)
 - [Kateri and the Cross in the Tree](stories/kateri-and-the-cross-in-the-tree.md) (2026-11-12; 9 min read, text only)
 - [Katharine and the Question from the Pope](stories/katharine-and-the-question-from-the-pope.md) (2026-11-12; 10 min read, text only)
+- [Peter Claver and the Baskets Down the Ladder](stories/peter-claver-and-the-baskets-down-the-ladder.md) (2026-11-12; 10 min read, text only)
 - [Albert and the Ostriches](stories/albert-and-the-ostriches.md) (2026-11-11; 7 min read, text only)
 - [Columbanus and the Squirrel in His Robe](stories/columbanus-and-the-squirrel-in-his-robe.md) (2026-11-11; 9 min read, text only)
 - [Elizabeth Ann and the School for Everyone](stories/elizabeth-ann-and-the-school-for-everyone.md) (2026-11-11; 9 min read, text only)

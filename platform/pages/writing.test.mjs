@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
 import { spawnSync } from 'node:child_process';
-import { AGENT_BLOG, autoSeoTitle, BLOG, buildWriting, loadPosts, parseFrontMatter, postPageTitle, relatedPosts, renderFeed, renderIndex, renderPost, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
+import { AGENT_BLOG, autoSeoTitle, BLOG, buildWriting, loadPosts, parseFrontMatter, postPageTitle, rankRelated, relatedPosts, renderFeed, renderIndex, renderPost, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
 
@@ -273,7 +273,7 @@ test('relatedPosts never lists the post itself; same topic first, then the rest,
   assert.deepEqual(relatedPosts(posts[0], posts, 2).map((p) => p.slug), ['c', 'b']);
 });
 
-test('relatedPosts ranks by rare shared tags and title words, not by recency', () => {
+test('rankRelated ranks by rare shared tags and title words, not by recency', () => {
   const mk = (slug, date, topic, tags, title = slug) => ({ slug, date, topic, tags, title });
   const posts = [
     mk('new-a', '2026-11-12', 'tools', ['ventures'], 'Unrelated newest post'),
@@ -285,14 +285,42 @@ test('relatedPosts ranks by rare shared tags and title words, not by recency', (
     ...Array.from({ length: 20 }, (_, i) => mk(`filler-${i}`, '2026-09-15', 'research', ['research', `own-${i}`], `Filler ${i}`)),
   ];
   // A shared rare title word (catamaran) outranks a shared series tag; topic filler comes last.
-  assert.deepEqual(relatedPosts(posts[3], posts, 3).map((p) => p.slug), ['hull-3', 'hull-1', 'filler-0']);
+  assert.deepEqual(rankRelated(posts[3], posts, 3).map((p) => p.slug), ['hull-3', 'hull-1', 'filler-0']);
   // Two shared rare title words outrank one shared tag; equal scores go to the nearer date (hull-3 before hull-2).
-  assert.deepEqual(relatedPosts(posts[2], posts, 3).map((p) => p.slug), ['words', 'hull-3', 'hull-2']);
+  assert.deepEqual(rankRelated(posts[2], posts, 3).map((p) => p.slug), ['words', 'hull-3', 'hull-2']);
   // A tag on more than a fifth of the posts (research) says nothing: with nothing else shared, the
   // same topic nearest in date fills first, then the other topics, never the post itself.
-  assert.deepEqual(relatedPosts(posts[0], posts, 3).map((p) => p.slug), ['new-b', 'words', 'hull-2']);
+  assert.deepEqual(rankRelated(posts[0], posts, 3).map((p) => p.slug), ['new-b', 'words', 'hull-2']);
   // The old rule gave every post in a topic the topic's newest posts; the series no longer points at them.
-  for (const p of posts.slice(2, 5)) assert.ok(!relatedPosts(p, posts, 3).some((r) => r.slug.startsWith('new-')), p.slug);
+  for (const p of posts.slice(2, 5)) assert.ok(!rankRelated(p, posts, 3).some((r) => r.slug.startsWith('new-')), p.slug);
+});
+
+test('relatedPosts gives every post an inbound link, taken from the weakest slot of its best match', () => {
+  const mk = (slug, date, topic, tags) => ({ slug, date, topic, tags, title: slug });
+  const posts = [
+    mk('a', '2026-10-01', 'x', ['pair']),
+    mk('b', '2026-10-02', 'x', ['pair']),
+    mk('c', '2026-10-20', 'x', ['pair']),
+    ...Array.from({ length: 12 }, (_, i) => mk(`f${i}`, `2026-0${1 + (i % 9)}-1${i % 10}`, 'y', [`own-${i}`])),
+  ];
+  const inbound = (fn, n) => {
+    const count = new Map(posts.map((p) => [p.slug, 0]));
+    for (const p of posts) for (const r of fn(p, posts, n)) count.set(r.slug, count.get(r.slug) + 1);
+    return count;
+  };
+  // Ranking alone: a and c both list b (nearest in date), so nobody lists c.
+  assert.equal(inbound(rankRelated, 1).get('c'), 0);
+  // Balanced: c's best match b cannot spare its slot (a would lose its only link), so a links c.
+  assert.deepEqual(['a', 'b', 'c'].map((s) => relatedPosts(posts.find((p) => p.slug === s), posts, 1)[0].slug), ['c', 'a', 'b']);
+  for (const n of [1, 2, 5]) {
+    assert.ok([...inbound(relatedPosts, n).values()].every((k) => k > 0), `n=${n}: no orphan`);
+    // Only the last slot ever changes, and a post never lists itself or the same post twice.
+    for (const p of posts) {
+      const got = relatedPosts(p, posts, n).map((r) => r.slug);
+      assert.deepEqual(got.slice(0, -1), rankRelated(p, posts, n).map((r) => r.slug).slice(0, -1), p.slug);
+      assert.ok(!got.includes(p.slug) && new Set(got).size === got.length, p.slug);
+    }
+  }
 });
 
 // Runs the index's inline finder script against a small fake DOM, so the count

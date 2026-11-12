@@ -138,3 +138,16 @@ test("with a keep map and nothing changed, the kept start hands back the kept ro
   assert.equal(count(true), 0);
   assert.ok(count(false) > 0, "the annealer alone should not reproduce the posted roster here");
 });
+
+test("the kept start moves a posted person up to the caller's longer clashing shift (eject) rather than leaving it open", () => {
+  // Cal is posted 6-14 Wednesday, Ana 6-11. Cal calls out. Nobody else may work Wednesday morning, so without the eject move
+  // the kept start leaves 6-14 open (8 h); with it Ana moves up to 6-14 and only 6-11 is open (5 h): one change.
+  const staff = parseStaff("Ana, 15, 40, 0, Wed 6-14\nBo, 15, 40, 0, Thu 6-14\nCal, 15, 40, 0, Thu 6-14, off: Wed").staff;
+  const slots = parseShifts("Wed, 6, 11, 1\nWed, 6, 14, 1\nThu, 6, 14, 1").slots;
+  const csv = "day,start,end,label,role,person\nWed,06:00,11:00,,,Ana\nWed,06:00,14:00,,,Cal\nThu,06:00,14:00,,,Bo\n";
+  const { keptStart } = _internals;
+  const owner = (keptEject) => keptStart(buildContext(staff, slots, { keep: keepFromCsv(csv), keepShift: 1, keptEject }));
+  const a = slots.findIndex((x) => x.endMin === 11 * 60), b = slots.findIndex((x) => x.day === 2 && x.endMin === 14 * 60), c = slots.findIndex((x) => x.day === 3);
+  assert.deepEqual([owner(false)[a], owner(false)[b], owner(false)[c]], [0, -1, 1]);
+  assert.deepEqual([owner(true)[a], owner(true)[b], owner(true)[c]], [-1, 0, 1]);
+});
