@@ -26,8 +26,9 @@ Scope, stated plainly:
   ``OpcodeList2`` (lens shading, as phones write it; ``dng_opcodes``) and
   ``WarpRectilinear`` in ``OpcodeList3`` (lens distortion and lateral colour,
   run on the linear image after demosaic), and ``FixVignetteRadial`` and
-  ``MapPolynomial`` in either list, in list order. Other opcodes are named in
-  the report, not run.
+  ``MapPolynomial`` in either list, in list order, and ``FixBadPixelsConstant``
+  and ``FixBadPixelsList`` in ``OpcodeList1`` (bad sensels on the stored CFA
+  values). Other opcodes are named in the report, not run.
 * Colour (default ``colour="dng"``, since 2026-11-12): the DNG
   specification's model in ``dng_colour``: the as-shot white found from
   ``AsShotNeutral`` (or ``AsShotWhiteXY``), ``ColorMatrix``,
@@ -1574,6 +1575,9 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             gain_maps = op_plan.stage2  # GainMap, FixVignetteRadial, MapPolynomial, in list order
             warps = op_plan.stage3  # WarpRectilinear, FixVignetteRadial, MapPolynomial, in list order
             notes.extend(op_plan.notes)
+            if op_plan.stage1 and spp == 1:
+                # FixBadPixels in OpcodeList1, on the stored values (a copy) before anything reads them.
+                vals = dng_opcodes.run_stage1(op_plan.stage1, vals, rw, raw.height, notes)
         elif op_plan.notes:
             notes.append("opcode lists not run (opcodes off)")
     # Normalised 0..1 sample for active-area pixel (y, x), sample s.

@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqydZJVqYXtXFV6Nsrbr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T19:37:38Z",
+  "ended": "2026-11-12T19:44:18Z",
+  "wall_minutes": 7.0,
+  "tokens_in": 4902477,
+  "tokens_out": 33611,
+  "cost_usd": 2.4977,
+  "tool_calls": 49,
+  "task": "photo-editing flagship 7 buildable item: DNG FixBadPixelsConstant / FixBadPixelsList",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15235",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 15,
+  "outcome": "success",
+  "errors": [
+    "First test version asserted exactness where a dead column and dead row cross; the ring is lopsided there by design, so the test was split (recorded in eval doc).",
+    "First CI push failed lint (ruff E741 on `l` loop names) and validate (flagships next: 2018 chars, cap 2000); both fixed in a follow-up commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "'Start here' named sales-agent though none of its items is buildable without outside input and no BUILDABLE HERE note says so; the pick could skip flagships whose next: has only input-gated items."
+    },
+    {
+      "file": "ventures/photo-editing (ruff config)",
+      "issue": "Running plain `ruff check` locally reports 16 findings in existing code that CI's lint does not; the lint CI actually runs is not obvious from the venture, so E741 only surfaced in CI."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The allocator picked sales-agent (row 2), but every open item in its next: needs an outside input this session lacks (a non-Claude strong reader, real outreach replies, a hosted key, real accounts). The ventures prompt says to take the next flagship then.",
+      "did": "Took photo-editing's BUILDABLE HERE item instead (FixBadPixels opcodes).",
+      "result": "Landed with 15 tests; flagship next: rewritten."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-dead-sensel-and-its-four-diagonals.md",
+    "ventures/photo-editing/eval/bad-pixels-2026-11-12.md"
+  ],
+  "goal": null,
+  "notes": "Checked public camera DNGs (Nexus 5X, Leica T) for OpcodeList1: none present, so the opcodes are verified on synthetic files only, and the README/post say so. Verification: tests/test_dng_bad_pixels.py 15 pass (python3.13 with numpy, including the engine byte-identity test); photo-editing suite via run_venture_tests.py; venture-preflight run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e40e3d82-535f-535e-8d27-7a58d67eb57f",
+    "transcripts": 1,
+    "first": "2026-11-12T19:37:38Z",
+    "last": "2026-11-12T19:44:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 90,
+        "output": 33611,
+        "thinking": 8407,
+        "cache_read": 4794098,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108289,
+        "api_equivalent_usd": 2.4977,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 90,
+      "output": 33611,
+      "thinking": 8407,
+      "cache_read": 4794098,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108289,
+      "api_equivalent_usd": 2.4977,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 45,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.0,
+      "active_minutes": 7.0,
+      "model_minutes": 5.33,
+      "tool_minutes": 1.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "spec reading, two opcodes with CFA-aware interpolation, 15 tests, docs and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 240.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
