@@ -108,8 +108,10 @@ flagships:
       shift and holiday-aware retries landed 2026-11-12 (README "A late call moves the
       rest of the cadence"); the static page's Today's queue got the call buttons, a days-off
       box and localStorage the same day (README "Call outcomes on the page itself");
-      next on that queue: a HOLIDAYS field on the self-host page, and a per-country
-      holiday preset (CA, GB) checked against each government's own list.
+      the self-host page's Days off field and UK presets (gb-eng, gb-sct, gb-nir,
+      280 of 280 GOV.UK dates 2019-2028) landed 2026-11-12 (README "UK bank holidays");
+      next on that queue: a CA preset checked against canada.ca (timed out through the
+      proxy 2026-11-12: probe first), and the US rules checked against OPM's calendar.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
