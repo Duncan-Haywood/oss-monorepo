@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKiyfFXRixXzwvQHugJ",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T17:18:28Z",
+  "ended": "2026-11-12T17:32:36Z",
+  "wall_minutes": 14.29,
+  "tokens_in": 4272171,
+  "tokens_out": 19242,
+  "cost_usd": 1.9622,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15202",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Four 2026-11-12 records called the site-builder suite's 172 failures environmental; seeding a bad post reproduced exactly 172, 168 sharing one error. The 12-line tail showed only the TAP summary. Fixed in this PR (failed steps print distinct errors with counts)."
+    },
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "doi.org, api.crossref.org, export.arxiv.org, api.openalex.org, api.semanticscholar.org and api.datacite.org all return 000 / refused through this container's proxy; no alternate host to fall back to, so nothing to fix in the tool."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again; of the top friction reports checked, three were already fixed (build.mjs import side effect, --list as dry run, post checks run first). Grouping the run records' doc_friction by file for today found the live one fastest."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-172-failures-one-cause.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode. main_health.py on main: 60/60 pass. platform/pages full suite on clean main: 1570 pass, 0 fail, 21 skipped, 352 s. Seeded fault (208-char post description) under --for-changes: 172 fail in 30 s; post-fix report prints '168 x ...description is 208 characters'. test_run_workflow_locally: 150 OK (5 new). No backlog ids touched (no agent-owned items open).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8efd3aca-9e1e-50fe-92e0-ee04ea95cb29",
+    "transcripts": 1,
+    "first": "2026-11-12T17:18:28Z",
+    "last": "2026-11-12T17:32:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 90,
+        "output": 19242,
+        "thinking": 4533,
+        "cache_read": 4179447,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92634,
+        "api_equivalent_usd": 1.9622,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 90,
+      "output": 19242,
+      "thinking": 4533,
+      "cache_read": 4179447,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92634,
+      "api_equivalent_usd": 1.9622,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 46,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.29,
+      "active_minutes": 14.29,
+      "model_minutes": 4.77,
+      "tool_minutes": 9.52,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "reproduce a misread CI failure, add error grouping with tests, write a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 152.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
