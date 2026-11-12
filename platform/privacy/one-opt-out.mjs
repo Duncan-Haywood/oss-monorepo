@@ -197,7 +197,15 @@ export function findPages(root = VENTURES) {
     for (const entry of readdirSync(dir)) {
       if (entry === "node_modules" || entry === "dist" || entry.startsWith(".")) continue;
       const full = join(dir, entry);
-      if (statSync(full).isDirectory()) walk(full);
+      // An entry gone between readdir and stat (a parallel test's scratch
+      // venture) was never part of the catalogue: skip it, as
+      // browser-signals.mjs does, rather than crash the suite.
+      let stats;
+      try { stats = statSync(full); } catch (error) {
+        if (error.code === "ENOENT") continue;
+        throw error;
+      }
+      if (stats.isDirectory()) walk(full);
       else if (entry.endsWith(".html")) found.push(full);
     }
   };
