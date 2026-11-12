@@ -1,9 +1,9 @@
 ---
 title: "The half of the season the search never moved, and counted every time"
-seo_title: "Home-and-away league schedule search: skipping work on the fixed first leg"
+seo_title: "Home-and-away league schedule search: skip the fixed first leg"
 date: 2026-11-12
 tags: [league-schedule-generator, performance, algorithms, scheduling]
-description: "The scheduler's home-and-away search recounted breaks over both legs on every move, though leg one never changes. Counting it once cut the search's CPU by 17%, same schedules."
+description: "A home-and-away schedule search recounted breaks over both legs per move, though leg one never moves. Counting it once: 17% faster, same schedules."
 ---
 
 The [league schedule generator](../../ventures/league-schedule-generator/README.md)
