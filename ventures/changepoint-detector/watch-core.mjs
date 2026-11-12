@@ -20,8 +20,12 @@ import { analyze, parseSeries, peaks } from './engine.mjs';
 // Round 5 (eval/watch-flicker.out.txt, rule pre-registered in eval/watch-flicker.mjs) holds changes dated inside the history
 // the first check called quiet instead of alerting them: TCPD 115 alerts to 106 with the same 33 of 52 marked changes and
 // 42% at a mark against 41%; synthetic cells unchanged; on the 7 held-out TCPD series 68 to 61 alerts, the same 9 of 12.
-// persist 2 (wait for a second check) failed: it lost a marked change on TCPD; it stays an option.
-export const WATCH_DEFAULTS = { confirm: 5, tolerance: 5, window: 1000, detector: 'bocpd-ar1-window', model: 'mean', rhoCap: 0.8, holdHistory: true, persist: 1 };
+// persist 2 (wait for a second check) failed round 5 by one marked TCPD change, which round 7 (eval/watch-persist-censor.mjs,
+// rule pre-registered there) traced to the replay ending: the change was first seen at the series' last point. Scored
+// with end-pending changes apart, it passed on fresh synthetic seeds and on TCPD (103 alerts against 105, the same 32 of
+// 51 marks) and the held-out 7 (59 against 61, the same 9 of 12), so it is the default from round 7; --persist 1 turns
+// it off. It costs one check of delay on every alert.
+export const WATCH_DEFAULTS = { confirm: 5, tolerance: 5, window: 1000, detector: 'bocpd-ar1-window', model: 'mean', rhoCap: 0.8, holdHistory: true, persist: 2 };
 /** The default detector for a model: the AR(1) pass for the level model, the plain Bayesian pass otherwise. */
 export const defaultDetector = (model = 'mean') => (model === 'mean' ? WATCH_DEFAULTS.detector : 'bocpd');
 
@@ -106,7 +110,7 @@ function locate(a, labelIndex) {
  * Two flicker guards (round 5, eval/watch-flicker.mjs):
  *   holdHistory (on by default since round 5): a change dated where the first check already had `confirm` points after it (history the
  *     baseline called quiet) is recorded as `held`, not alerted.
- *   persist (default 1, off): 2 makes a change wait until a detection within `tolerance` of it was also present at the
+ *   persist (2 by default since round 7; 1 turns it off): 2 makes a change wait until a detection within `tolerance` of it was also present at the
  *     previous check (state.seen), so a detection that appears for one check and vanishes is never sent.
  */
 export function advance(state, changes, n, labels, opts = {}) {
@@ -132,7 +136,8 @@ export function advance(state, changes, n, labels, opts = {}) {
     if (after < confirm) { pending.push({ ...c, pointsAfter: after }); continue; }
     if (first) baseline.push({ ...c, pointsAfter: after });
     else if (holdHistory && c.index <= quietAt) held.push({ ...c, pointsAfter: after });
-    else if (persist > 1 && !seen.some((k) => Math.abs(k - c.index) <= tolerance)) { pending.push({ ...c, pointsAfter: after, unconfirmed: true }); continue; }
+    // Only once there was a previous check: a first check with --alert-history has nothing to compare with.
+    else if (persist > 1 && st.n && !seen.some((k) => Math.abs(k - c.index) <= tolerance)) { pending.push({ ...c, pointsAfter: after, unconfirmed: true }); continue; }
     else alerts.push({ ...c, pointsAfter: after, late: after > 2 * confirm + 1 });
     known.push(c.index);
   }

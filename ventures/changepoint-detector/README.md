@@ -3351,7 +3351,7 @@ their baseline is at point 100 and the changes come later: the guard only acts o
 and the krona-dollar rate) and lost no majority-marked change; two of the 9 were at a change at least one annotator (not a majority) marked
 (ozone, the krona), so the share at a mark moved only from 41% to 42%. `persist2` removed half the flicker alerts
 and the most false alerts on sticky noise, but it lost the one majority-marked change it reached on `children_per_woman` (why
-was not traced), so it failed the rule and stays an option (`--persist 2`). On
+was not traced), so it failed the rule and stayed an option (`--persist 2`) until round 7, which traced the lost mark to the replay ending and made it the default (below). On
 `ausair` the replay now sends 1 alert (2011, for the 1991 rise) instead of 3; the 1979 and 1985 detections that
 showed at row 1990 are listed as held (`watch.test.mjs`).
 
@@ -3543,7 +3543,7 @@ Next for the watch: a second labelled set to test the hint where it matters (onl
 here); a budget the person sets in plain terms ("about one alert a month at a daily check" is B = 3.3); the drift model as
 the watch for wandering levels.
 
-## The hint in the CLI watch, and a budget in plain terms (2026-11-12, latest)
+## The hint in the CLI watch, and a budget in plain terms (2026-11-12)
 
 Round 6's hint was on the page and the agent tool only; the scheduled watch (`watch.mjs`, the one that runs daily
 in a deployer's own GitHub repository) still needed the person to pick "How eager" by hand. Now:
@@ -3590,7 +3590,7 @@ picked Eager at 2.56 per 100 on the history, recorded 1899 as the baseline, then
 
 Not done: the page's hint button still uses the fixed budget (a plain-terms box is next); no person has used it.
 
-## A budget box on the page (2026-11-12, latest)
+## A budget box on the page (2026-11-12)
 
 The page's "Which How eager suits this series?" button used the fixed budget of 2 alerts per 100 checks; only the CLI
 (`--alerts-per`) took one in plain terms. Now the replay card has a box above the button: "About [n] alerts a
@@ -3673,3 +3673,50 @@ and the local Node 22 (the workflow asks for 20); the YAML reader handles only t
 60-day pause of scheduled workflows in quiet repositories, run timing and the token's push permission are not
 exercised. A real deployer's repository on GitHub is still the open check.
 
+
+## Round 7: persist 2 retried, with the end of the replay scored apart (2026-11-12, pre-registered; ships, narrowly)
+
+Round 5's `persist2` guard (send a change only when the next check still finds it) cut flicker alerts by half but
+failed its rule by one majority-marked change, on `children_per_woman`. The diagnosis afterwards (Round 5, "after the
+round") found the cause: the change at row 142 is first detected at point 301, the series' last row. Persist 1 sends it
+there. Persist 2 is still waiting for its second check when the replay runs out of rows, and the replay scored that as
+a miss. A live watch would get its next check.
+
+`eval/watch-persist-censor.mjs` retries the comparison. Its rule was committed before the first run (git history of
+this PR). It compares `hold+persist2` with the default `hold` and scores **end-pending** changes apart: a change that
+has its 5 points after it and is waiting only for the second check when the replay ends. A majority-marked change is
+censored when one policy has such a change near it and no alert there. It is then dropped from both policies' totals.
+An alert sent at the last check, at a change the other policy holds end-pending, is set apart in the same way. To
+adopt, all four parts had to pass: (a) and (b) on fresh synthetic seeds 51-60 (round 5's null and step cells), (c) on
+TCPD's 31 series (reach no fewer marks, send fewer alerts, keep no lower a share at a mark), and (d) on the 7
+held-out series (no fewer marks, no more alerts). Output: `eval/watch-persist-censor.out.txt`, 278 s on 4 cores.
+
+| part | hold | hold + persist2 |
+|---|---|---|
+| (a) false alerts / 1,000 checks, mean of 4 nulls (fresh seeds) | 2.13 | 2.06 |
+| (b) steps found (50), median delay | 39, 5 | 39, 5 |
+| (c) TCPD, censored: marks reached, alerts, share at a mark | 32 of 51, 105, 41.9% | 32 of 51, 103, 42.7% |
+| (d) held out, censored: marks reached, alerts | 9 of 12, 61 | 9 of 12, 59 |
+| 57 unlabelled series in `data/` (deciding nothing): alerts | 130 | 125 |
+
+All four passed, so **persist 2 is the watch's default from round 7** in `WATCH_DEFAULTS` (CLI, page watch card,
+replay, eagerness hint and agent tools). `--persist 1` sends at once. Only one mark was censored, the
+`children_per_woman` one. No held-out series and none of the 57 in `data/` ended with a change waiting.
+
+How much this rests on, said plainly. Parts (c) and (d) re-score data round 5 already reported for this policy, under
+a rule written after seeing it. The header of the script predicted (c) to the alert before the run, and the run
+matched. Only (a) and (b) are on unseen data. There persist 2 ties on every step cell and every rule null except
+AR(1) 0.8 (1.00 against 1.25 false alerts per 1,000) and 0.95 (2.00 against 2.50, reported only). Its delay is one
+point longer on the 1-sd and 2-sd iid cells (6 against 5). So the gain is small: about 2% fewer alerts on real
+series, a fifth fewer on very sticky noise, no marked change lost. The cost is one check of delay on every alert,
+which is a day on a daily watch. Adopted because the pre-registered bar was met, not because the margin is large.
+
+Two things in the scripts were fixed after the run, and neither changes a decision. `advance` fills any option a
+policy leaves out from `WATCH_DEFAULTS`, so since round 5 the `now` policy (`{}`) in `eval/watch-flicker.mjs` and in
+this script had silently meant `hold`. In this run's first output `now` equals `hold`. Once persist 2 became the
+default, `hold` would likewise have meant `hold+persist2`. Every policy in both scripts now names both options. The
+output file is the rerun with the pinned policies. Its `hold` and `hold+persist2` rows and the decision match the
+first run's exactly, and its `now` row again matches round 5's (115 TCPD alerts, 68 held out, 141 on the 57 in `data/`).
+
+Old watch-state files have no `seen` list, so after upgrading, a running watch's first newly confirmed change waits
+one check more than it would have. Nothing is lost.
