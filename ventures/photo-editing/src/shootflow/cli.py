@@ -1271,7 +1271,10 @@ def _build_parser() -> argparse.ArgumentParser:
     develop.add_argument(
         "--no-opcodes",
         action="store_true",
-        help="Skip the DNG's OpcodeList2 GainMap (the lens shading map phones write); by default it runs.",
+        help=(
+            "Skip the DNG's opcode lists (GainMap lens shading as phones write it, WarpRectilinear "
+            "lens distortion, FixVignetteRadial, MapPolynomial); by default they run."
+        ),
     )
 
     create_demo = subparsers.add_parser(
