@@ -59,8 +59,9 @@ def run_one(seed, eta):
             d = -lr_at(t, T, LR0) * grad(wr, xtr[batches[t]], ytr[batches[t]], low_precision=True)
             norms.append(float(np.linalg.norm(d)))
             wr = wr + d
-        seg.append({"drift": float(np.linalg.norm(ws[t0 + S] - wr)), "step": float(np.mean(norms)),
-                    "lr": float(np.mean([lr_at(t, T, LR0) for t in range(t0, t0 + S)])), "probe": probe})
+        g7 = lambda v: float(f"{v:.7g}")  # 7 significant digits keeps results.json under 1 MB
+        seg.append({"drift": g7(np.linalg.norm(ws[t0 + S] - wr)), "step": g7(np.mean(norms)),
+                    "lr": g7(np.mean([lr_at(t, T, LR0) for t in range(t0, t0 + S)])), "probe": g7(probe)})
     return seg, float(loss(ws[-1], xte, yte))
 
 
@@ -82,7 +83,7 @@ def main():
             test.setdefault(n, {})[str(sd)] = {"seg": seg, "loss": l}
     json.dump({"T": T, "S": S, "LR0": LR0, "TAIL0": TAIL0, "cheats": {k: list(v) for k, v in CHEATS.items()},
                "cal": {str(k): v for k, v in sorted(cal.items())}, "test": test},
-              open(os.path.join(HERE, "results.json"), "w"))
+              open(os.path.join(HERE, "results.json"), "w"), separators=(",", ":"))
     print("wrote results.json:", len(cal), "calibration seeds,", len(test), "test configs")
 
 
