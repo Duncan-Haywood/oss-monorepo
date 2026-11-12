@@ -3,11 +3,9 @@
 // markup. Scripts and templates are stripped before counting, because a tool
 // that builds an <h1> inside a template string is not a second heading.
 //   used by check.mjs; node platform/pages/page-identity.mjs <dist> to run alone
-import { promises as fs } from 'node:fs';
+import { promises as fs, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-import { mapLimit } from './share.mjs';
 
 // Pages that are not search landing pages (error and offline shells).
 const SKIP = new Set(['404.html', 'offline.html']);
@@ -110,17 +108,20 @@ export async function fixPostTitleClashes(site, { log = () => {} } = {}) {
  *  walk order, so callers see the same keys in the same order as a serial
  *  read (docs/history/pages-build-perf-2026-11-11-identity-preload-reads.md). */
 export async function loadPages(site) {
-  const rels = [];
-  async function go(dir, prefix) {
-    for (const e of await fs.readdir(dir, { withFileTypes: true })) {
+  const pages = new Map();
+  // Sync reads, one after another: faster than 32 promise reads in flight on
+  // ~8,800 mostly small pages, and nothing runs beside this pass
+  // (docs/history/pages-build-perf-2026-11-12-share-identity-preload-sync.md).
+  // Still async to its callers.
+  function go(dir, prefix) {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
       const rel = prefix ? `${prefix}/${e.name}` : e.name;
-      if (e.isDirectory()) await go(path.join(dir, e.name), rel);
-      else if (e.name.endsWith('.html')) rels.push(rel);
+      if (e.isDirectory()) go(path.join(dir, e.name), rel);
+      else if (e.name.endsWith('.html')) pages.set(rel, readFileSync(path.join(site, rel), 'utf8'));
     }
   }
-  await go(site, '');
-  const texts = await mapLimit(rels, 32, (rel) => fs.readFile(path.join(site, rel), 'utf8'));
-  return new Map(rels.map((rel, i) => [rel, texts[i]]));
+  go(site, '');
+  return pages;
 }
 
 const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));

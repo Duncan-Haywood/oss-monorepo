@@ -17,10 +17,9 @@
 // demand, on purpose) stays on demand, and a specifier inside a comment that
 // names no real file is dropped.
 
-import { promises as fs } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-import { mapLimit } from './share.mjs';
 
 /** Pages with at most this many levels gain nothing worth a tag per module:
  *  a page whose modules import nothing further already fetches in parallel. */
@@ -143,27 +142,29 @@ function hrefFor(file, pageFile) {
  */
 export async function addModulePreloads(outDir, { listFiles, minDepth = MIN_DEPTH, max = MAX_PRELOADS } = {}) {
   const cache = new Map();
-  const readModule = async (file) => {
+  const readModule = (file) => {
     if (!/\.m?js$/.test(file)) return null;
-    try { return await fs.readFile(file, 'utf8'); } catch { return null; }
+    try { return readFileSync(file, 'utf8'); } catch { return null; }
   };
-  // Pages are read and rewritten 32 at a time. Each task reads and writes only
-  // its own page, and reads only .js/.mjs files, which no task writes, so the
-  // finishing order cannot change any file. The shared `cache` may read one
-  // module twice when two pages ask for it at once; both reads give the same
-  // imports. The totals are sums and a max, so order-free too.
+  // Pages are read and rewritten one after another with sync calls: on a full
+  // build that is faster than 32 promise reads in flight, since most pages are
+  // small and most have no module script
+  // (docs/history/pages-build-perf-2026-11-12-share-identity-preload-sync.md).
+  // Each page reads and writes only itself and reads only .js/.mjs files,
+  // which nothing here writes, so the output is the same in any order.
   const html = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
-  const done = await mapLimit(html, 32, async (file) => {
-    const page = await fs.readFile(file, 'utf8');
-    if (!/type=["']?module/i.test(page)) return null;
+  const done = [];
+  for (const file of html) {
+    const page = readFileSync(file, 'utf8');
+    if (!/type=["']?module/i.test(page)) continue;
     const { files, depth } = await moduleGraph(page, file, outDir, readModule, cache);
-    if (depth < minDepth) return null;
+    if (depth < minDepth) continue;
     const hrefs = files.slice(0, max).map((f) => hrefFor(f, file));
     const out = injectPreloads(page, hrefs);
-    if (out === page) return null;
-    await fs.writeFile(file, out);
-    return { links: hrefs.length, depth };
-  });
+    if (out === page) continue;
+    writeFileSync(file, out);
+    done.push({ links: hrefs.length, depth });
+  }
   let pages = 0;
   let links = 0;
   let deepest = 0;
