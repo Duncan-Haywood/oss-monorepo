@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
@@ -49,7 +49,7 @@
     "docs/posts/2026-11-12-camillus-de-lellis-little-lamps.md"
   ],
   "goal": null,
-  "notes": "Creative track: Hearth & Horizon, Little Lamps shelf, slug camillus-and-the-red-cross (bible next-up proposal, now in DONE.md). Text only: audio 423 MB > 400 MB cap. node --test in ventures/hearth-and-horizon: 15/15 pass. Chose Little Lamps because SF already had 6 stories today.",
+  "notes": "Creative track: Hearth & Horizon, Little Lamps shelf, slug camillus-and-the-red-cross (bible next-up proposal, now in DONE.md). Text only: audio 423 MB > 400 MB cap. node --test in ventures/hearth-and-horizon: 15/15 pass. Chose Little Lamps because SF already had 6 stories today. CI: first site-builder 'test' run failed 1 of 1591 (log host blocked, test unnamed); the full platform/pages suite passed locally (0 fail); after merging main the CI re-run was green on all 21 checks.",
   "corrections": [],
   "redteam": null
 }
