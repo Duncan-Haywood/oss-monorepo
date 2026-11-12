@@ -10,6 +10,7 @@ false `datePublished`) and that `tags` is a non-empty list.
 
     python3 platform/ci/check_post_frontmatter.py [--root DIR]   # exit 1 if any
     python3 platform/ci/check_post_frontmatter.py docs/posts/NEW.md   # just these
+    python3 platform/ci/check_post_frontmatter.py --limits   # the caps, before you write
 
 Named posts are checked alone, and the cross-post checks (tag spellings,
 shared descriptions) report only groups that include one of them. Runs kept
@@ -39,7 +40,20 @@ except ImportError:
                 if minimum <= len(head) <= budget:
                     return head
         return None
+
+
 REQUIRED = ("title", "date", "description", "tags")
+# Character caps, stated once so tools that name a new post can print them
+# before it is written: runs learned them only when this check or the pre-push
+# hook refused a first draft (nine run records on 2026-11-12 alone).
+LIMITS = {"title": 110, "description": 160, "seo_title": 70}
+MIN_DESCRIPTION = 60
+
+
+def limits_line():
+    return (f"front matter: title <= {LIMITS['title']} chars, description {MIN_DESCRIPTION} to "
+            f"{LIMITS['description']}, seo_title <= {LIMITS['seo_title']} (needed when a title over "
+            f"{LIMITS['seo_title']} has no clean cut at ': '), date = `date -u +%F`, tags: [a, b]")
 
 
 def problems(name, text, today=None):
@@ -61,19 +75,19 @@ def problems(name, text, today=None):
     if prefix and prefix.group(0) > limit.isoformat():
         out.append(f"dated {prefix.group(0)}, after today ({limit}, UTC); date a post `date -u +%F` when it is written")
     desc = fields.get("description", "").strip("\"'")
-    if len(desc) > 160:  # writing.mjs throws on this; PR builds fail, so say so early
-        out.append(f"description is {len(desc)} characters; keep it to 160")
+    if len(desc) > LIMITS["description"]:  # writing.mjs throws on this; PR builds fail, so say so early
+        out.append(f"description is {len(desc)} characters; keep it to {LIMITS['description']}")
     # Search results cut a title near 60 characters and the longest 14 of 2,299 posts run
     # 111 to 122; posts from 2026-11-05 on keep to 110 so the part that gets cut is not the point.
     title = fields.get("title", "").strip("\"'")
-    if prefix and prefix.group(0) >= "2026-11-05" and len(title) > 110:
-        out.append(f"title is {len(title)} characters; keep it to 110")
-    if len(desc) < 60:  # a stub ("d", a filename) gives a search result or an answer engine nothing to quote
+    if prefix and prefix.group(0) >= "2026-11-05" and len(title) > LIMITS["title"]:
+        out.append(f"title is {len(title)} characters; keep it to {LIMITS['title']}")
+    if len(desc) < MIN_DESCRIPTION:  # a stub ("d", a filename) gives a search result or an answer engine nothing to quote
         out.append(f"description is {len(desc)} characters; write at least 60 so a result says what the post is")
     # writing.mjs throws on this too: three posts on 2026-10-29 broke every site build.
     seo = fields.get("seo_title", "").strip("\"'")
-    if len(seo) > 70:
-        out.append(f"seo_title is {len(seo)} characters; keep it to 70")
+    if len(seo) > LIMITS["seo_title"]:
+        out.append(f"seo_title is {len(seo)} characters; keep it to {LIMITS['seo_title']}")
     # propose_seo_titles.py --check failed main four times in two days because only
     # main_health ran it: a title over 70 with no seo_title and no clean cut to 70.
     if not seo and len(title) > 70 and not _cut(title):
@@ -141,8 +155,12 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=str(ROOT))
     ap.add_argument("posts", nargs="*", help="check only these posts (default: every post)")
+    ap.add_argument("--limits", action="store_true", help="print the front-matter limits and exit")
     args = ap.parse_args(argv)
-    bad = 0
+    if args.limits:
+        print(limits_line())
+        return 0
+    bad, own = 0, False
     texts = {f.name: f.read_text(encoding="utf-8") for f in sorted((Path(args.root) / "docs" / "posts").glob("*.md"))}
     named = set()
     for p in args.posts:
@@ -159,6 +177,7 @@ def main(argv=None):
         for p in problems(name, text):
             print(f"{name}: {p}")
             bad += 1
+            own = True
     own_tags = set()
     for name in named:
         m = re.search(r"^tags:\s*\[(.*?)\]", texts[name], re.M)
@@ -177,6 +196,8 @@ def main(argv=None):
             continue
         print(f"one description on {len(group)} posts: {', '.join(group)}; word each for its own post")
         bad += 1
+    if own:  # a post's own field failed: show every cap, so one rewrite fixes them all
+        print(limits_line())
     return 1 if bad else 0
 
 

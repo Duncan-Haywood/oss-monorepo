@@ -144,7 +144,8 @@ class T(unittest.TestCase):
         bad = GOOD.replace("tags: [a, b]\n", "")
         code, out = self._run({"2026-10-24-x.md": GOOD, "2026-10-24-y.md": bad, "z.md": "# hi\n"})
         self.assertEqual(code, 1)  # exit 1 whatever the count: CI treats only 1 as "check failed"
-        self.assertEqual(out.splitlines(), ["2026-10-24-y.md: missing `tags`", "z.md: no front matter"])
+        self.assertEqual(out.splitlines()[:-1], ["2026-10-24-y.md: missing `tags`", "z.md: no front matter"])
+        self.assertTrue(out.splitlines()[-1].startswith("front matter:"))
 
     def test_indented_line_is_not_a_field(self):
         # a nested/continued value must not satisfy a required key
@@ -184,6 +185,22 @@ class T(unittest.TestCase):
 
     def test_no_front_matter(self):
         self.assertEqual(problems("x.md", "# hi\n"), ["no front matter"])
+
+    def test_limits_are_printed_up_front_and_after_a_failure(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(main(["--limits"]), 0)
+        self.assertIn("description 60 to 160", out.getvalue())
+        self.assertIn("seo_title <= 70", out.getvalue())
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "docs" / "posts").mkdir(parents=True)
+            bad = Path(d) / "2026-01-01-x.md"
+            bad.write_text("---\ntitle: x\ndate: 2026-01-01\ndescription: " + "y" * 200 + "\ntags: [a]\n---\nbody\n")
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(main(["--root", d, str(bad)]), 1)
+        self.assertIn("keep it to 160", out.getvalue())
+        self.assertTrue(out.getvalue().rstrip().splitlines()[-1].startswith("front matter:"))
 
 
 if __name__ == "__main__":

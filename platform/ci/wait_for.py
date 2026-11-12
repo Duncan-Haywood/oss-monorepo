@@ -6,6 +6,7 @@ reported blocked too (review prompt, cloud-session.md). Start the job with
 `run_in_background`, `echo DONE` as its last output line, then:
 
     python3 platform/ci/wait_for.py out.log            # waits up to 100 s
+    python3 platform/ci/wait_for.py out.log --timeout 540   # up to 9 min: give the tool call timeout 600000
     python3 platform/ci/wait_for.py out.log --marker END --timeout 60   # --pattern works too
 
 On a timeout it says how big the log is, how long since it was written and its
@@ -118,6 +119,16 @@ def progress(path, now=time.time):
     return f"log is {st.st_size} bytes, last written {idle:.0f}s ago, last line: {last!r}; {hint}"
 
 
+def longer(timeout):
+    """How to wait longer in one call. The 100 s default keeps a plain call under
+    the tool's 120 s limit, but the tool takes up to 600 s, and three runs in
+    three days waited out 100 s on a ~15 minute job without knowing --timeout
+    existed (friction 2026-11-12)."""
+    if timeout >= 540:
+        return ""
+    return "; to wait up to 9 min in one call, pass --timeout 540 and set the tool call's timeout to 600000 ms"
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("log", nargs="?")
@@ -139,20 +150,20 @@ def main(argv=None):
         if wait_pid(a.pid, a.timeout):
             print(f"wait_for: pid {a.pid} has exited")
             return 0
-        print(f"wait_for: pid {a.pid} still running after {a.timeout:.0f}s; call again", file=sys.stderr)
+        print(f"wait_for: pid {a.pid} still running after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
         return 1
     if a.until:
         if wait_until(a.until, a.timeout):
             print("wait_for: condition met")
             return 0
-        print(f"wait_for: '{a.until}' still failing after {a.timeout:.0f}s; call again", file=sys.stderr)
+        print(f"wait_for: '{a.until}' still failing after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
         return 1
     if not a.log:
         ap.error("give a log file, --until or --pid")
     ok, lines = wait(a.log, a.marker or DEFAULT_MARKERS, a.timeout)
     if not ok:
         shown = a.marker or "DONE' or 'EXIT"
-        print(f"wait_for: no '{shown}' line in {a.log} after {a.timeout:.0f}s; {progress(a.log)}", file=sys.stderr)
+        print(f"wait_for: no '{shown}' line in {a.log} after {a.timeout:.0f}s; {progress(a.log)}{longer(a.timeout)}", file=sys.stderr)
         return 1
     print("\n".join(lines[-15:]))
     return 0
