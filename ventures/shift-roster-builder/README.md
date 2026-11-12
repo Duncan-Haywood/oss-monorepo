@@ -779,7 +779,7 @@ Five invented teams (café sample, café, salon, retail and clinic templates), 4
 
 "Changes" counts person-shift pairs that differ from the week before (adds plus drops). "Forced" counts the drops whose holder is off that day. "Off the usual" counts, over all weeks, the pairs that differ from the usual week. Changes fell 56-72% and distance from the usual week fell 65-76%. Open hours were the same in all 15 leave-rate x setting comparisons, all 1,600 planned weeks were proven, and pay moved under 0.2%, always down. 0.05 and 0.25 land within a few percent of 0.1 (see the out file), so the page's two levels are 0.1 and 0.25. Cost: a plan took 20-42% longer, mostly the extra build of the usual week (reuse is the same or higher with the bonus: 18 against 15 weeks reused at 2%). With no time off, plans and reuse are unchanged (`keep-shifts.test.mjs`).
 
-The same plans with the exact check off: `eval/steady-plan.off.txt` (EXACT=off).
+With the exact check off (`EXACT=off`), the same sweep was started but stopped unfinished in this run to free the machine for the test suite, so there is no reading for the quick search. The unproven-roster check above exists because of that case.
 
 Tests (`keep-shifts.test.mjs`): on 24 seeded tiny weeks with random keep maps and keepValue 0.1/0.25/1, the exact search returns the brute-force best score over every owner array, and the column-generation score bound stays below it. keepValue 0 or no map gives the same roster as before. On the four templates, keeping a rough roster never opens more hours than the proven build. `keepFromCsv` matches `keepFrom`. The café plan above is pinned with the guide page's figures (`keep-a-consistent-schedule-when-someone-is-off.html`). The CLI path is covered as well.
 
