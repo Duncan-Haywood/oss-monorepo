@@ -16,6 +16,15 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
   - Q6: cant still wins on the composite objective at λ = 0.3 under `prio` (paired composite better in at least 4 of 5 seeds), and at λ = 1 it no longer wins on RMS by more than 2°.
   - Q7: `prio_free` (airmode) beats `prio` on RMS at λ = 0 for both cant arms.
 - Analysis: per-arm means and per-seed values of RMS, composite score, hover power, mass, chosen cant; paired cant-minus-no-cant differences in RMS and composite by seed with SD and sign count; mean share of steps in which the mixer scaled yaw (s_yaw < 1) on the held-out set. Five seeds, no test beyond the sign count.
+### Outcome of `run.py` (`experiments/m2_polytope/results.txt`, 100 CMA-ES runs, about 20 minutes on 4 cores; simulated)
+- **Q1 held:** `box`, λ = 0 reproduces milestone 1 exactly (15.44° and 10.63°).
+- **Q2 held:** the shared polytope costs accuracy. `prio` minus `box`, paired by seed at λ = 0: +2.90° with no cant (SD 0.29, 5 of 5), +1.63° with cant (SD 0.06, 5 of 5). Without cant the tuned controller saturates roll and pitch on 97% of held-out steps, and yaw gets nothing on 100% of them; with cant roll and pitch saturate on 0.7% and yaw is scaled on 39%.
+- **Q3 held:** cant's paired advantage at λ = 0 grows from −4.81° (`box`) to −6.08° (`prio`, SD 0.28, 5 of 5).
+- **Q4 refuted:** at λ = 0.3 under `prio` the chosen cants are 35, 0, 13, 31, 34° (median 31°, not below 25°). Under `box` cant stays at 29–36° even at λ = 1. The `prio` split looks like an optimiser failure, not an optimum: the low-cant seeds score 4–6° worse on both training and held-out than the seeds that kept cant (λ = 0.3: J −18.9 and −21.7 against −13.8 to −14.0).
+- **Q5 held, and more:** hover power falls by 4–7× from λ = 0 to λ = 0.3 in every arm (`box` cant: 1380 W to 219 W) while RMS moves by at most 0.45° (`box`). Milestone 1's heavy designs were not buying accuracy with that power; the attitude-only objective was flat in power.
+- **Q6 held:** at λ = 0.3 under `prio` cant wins the composite in 4 of 5 seeds (mean −2.65), and at λ = 1 its RMS edge is −0.85° (under 2°) because 4 of 5 seeds fell to low cant.
+- **Q7 held (cant 4 of 5):** airmode (`prio_free`) beats `prio` by 1.56° with no cant (5 of 5) and 0.26° with cant (4 of 5) at λ = 0.
+- Follow-up, specified before running: `experiments/m2_polytope/restarts.py` reruns the four `prio` arms at λ 0.3 and 1.0 with three CMA-ES starts per seed (cant started at 4, 32 and 64°), keeping the best training score. Prediction R1: with restarts the chosen cant at cant ≤ 80° is above 25° in at least 4 of 5 seeds at both λ, and cant wins the composite in 5 of 5 at both λ. R2: the no-cant arm improves by less than 0.5° from the restarts (its landscape is not the problem).
 
 ## 2026-11-12 · Milestone 1: are the earlier cant results artefacts of the actuator model? (predictions written and committed before `experiments/m1_allocation/run.py` was run)
 
