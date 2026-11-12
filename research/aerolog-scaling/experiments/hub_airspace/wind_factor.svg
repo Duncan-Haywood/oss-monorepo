@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: one layer's en-route conflicts rise with the ratio of wind speed to airspeed, more with the wind along Manhattan's axis than across it, tracking the rise in each flight's time in the layer">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Hub in wind: en-route conflicts vs still air (NYC, 20 m/s, one layer)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="285.7" y2="285.7" stroke="#ddd"/><text x="58" y="289.7" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="247.5" y2="247.5" stroke="#ddd"/><text x="58" y="251.5" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="209.2" y2="209.2" stroke="#ddd"/><text x="58" y="213.2" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="170.9" y2="170.9" stroke="#ddd"/><text x="58" y="174.9" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="132.6" y2="132.6" stroke="#ddd"/><text x="58" y="136.6" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="94.4" y2="94.4" stroke="#ddd"/><text x="58" y="98.4" text-anchor="end" font-family="sans-serif" font-size="11">1.2</text>
+<line x1="64" x2="624" y1="56.1" y2="56.1" stroke="#ddd"/><text x="58" y="60.1" text-anchor="end" font-family="sans-serif" font-size="11">1.4</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="400.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="512.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">wind speed / airspeed</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">factor vs still air</text>
+<polyline points="64.0,132.6 176.0,130.7 288.0,124.8 400.0,114.2 512.0,97.4 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="132.6" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="130.7" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="124.8" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="114.2" r="3" fill="#c0392b"/>
+<circle cx="512.0" cy="97.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">conflicts, wind along axis</text>
+<polyline points="64.0,132.6 176.0,131.2 288.0,127.5 400.0,121.2 512.0,111.5 624.0,97.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="132.6" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="131.2" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="127.5" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="121.2" r="3" fill="#1f6fb2"/>
+<circle cx="512.0" cy="111.5" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="97.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">conflicts, wind across axis</text>
+<polyline points="64.0,132.6 176.0,130.9 288.0,125.4 400.0,115.6 512.0,99.8 624.0,75.3" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="132.6" r="3" fill="#2e8b57"/>
+<circle cx="176.0" cy="130.9" r="3" fill="#2e8b57"/>
+<circle cx="288.0" cy="125.4" r="3" fill="#2e8b57"/>
+<circle cx="400.0" cy="115.6" r="3" fill="#2e8b57"/>
+<circle cx="512.0" cy="99.8" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="75.3" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">time in layer, along</text>
+<polyline points="64.0,132.6 176.0,131.5 288.0,127.9 400.0,121.5 512.0,111.4 624.0,96.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="132.6" r="3" fill="#8e44ad"/>
+<circle cx="176.0" cy="131.5" r="3" fill="#8e44ad"/>
+<circle cx="288.0" cy="127.9" r="3" fill="#8e44ad"/>
+<circle cx="400.0" cy="121.5" r="3" fill="#8e44ad"/>
+<circle cx="512.0" cy="111.4" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="96.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">time in layer, across</text>
+</svg>

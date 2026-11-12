@@ -60,8 +60,14 @@ import random
 import sys
 import time
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from run import DMAX, HOVER, R_TERM, load_nyc, shuffled  # noqa: E402
+import importlib.util  # noqa: E402
+
+# 11a's run.py, loaded under its own name so it never shadows another experiment's `run` module in a test session
+_spec = importlib.util.spec_from_file_location("hub_airspace_run_11a",
+                                               os.path.join(os.path.dirname(os.path.abspath(__file__)), "run.py"))
+_run = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_run)
+DMAX, HOVER, R_TERM, load_nyc, shuffled = _run.DMAX, _run.HOVER, _run.R_TERM, _run.load_nyc, _run.shuffled
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 AXIS_DEG = None   # Manhattan's axis bearing, measured from the destinations below (not assumed)
@@ -284,7 +290,7 @@ def main():
                     c = closed_form(ds, lam, wind=wind, split=split, spread=spread)
                     so = out_rate_h(s)
                     fs = so / out_rate_h(s0) if not split else so / out_rate_h(s0)
-                    fc = c["out"] / c0["out"] if name == "nyc" else c["out"] / closed_form(ds, lam)["out"]
+                    fc = c["out"] / closed_form(ds, lam)["out"]   # 200k pairs, seed 3 both: paired
                     lt = mean_layer_time(ds, v, wind) / lt0
                     lay = "split" if split else "single"
                     P(f"{name:8s} {w:.1f} {dname:6s} {lay:6s} {spread:+5.2f} | {so:7.3f} ({out_count(s):6d}) | {c['out']:6.3f} |"
@@ -292,6 +298,8 @@ def main():
 
     P("\n## C. Grid, NYC, v 20: w x wind direction (relative to the axis), closed form; simulator at every other cell")
     P("w     rel_dir | cf single | sim single (n) ratio | single factor  layer-time factor  diff | cf split eq | sim split eq (n) ratio | split/single (cf)")
+    c0g = closed_form(nyc, lam, pairs=120000)   # same pairs and seed as each grid cell (common random numbers)
+    lt_still = mean_layer_time(nyc, v, (0.0, 0.0))
     grid = {}
     worst_single = worst_p2 = 0.0
     worst_split = []
@@ -300,8 +308,8 @@ def main():
             wind = wind_vec(w * v, ax + math.radians(rel))
             cs = closed_form(nyc, lam, wind=wind, pairs=120000)
             cp = closed_form(nyc, lam, wind=wind, split=True, pairs=120000)
-            fac = cs["out"] / c0["out"]
-            ltf = mean_layer_time(nyc, v, wind) / mean_layer_time(nyc, v, (0.0, 0.0))
+            fac = cs["out"] / c0g["out"]
+            ltf = mean_layer_time(nyc, v, wind) / lt_still
             worst_p2 = max(worst_p2, abs(fac / ltf - 1))
             simtxt = " " * 22
             sptxt = " " * 24
@@ -341,8 +349,9 @@ def main():
       f" above 15 {sum(1 for x in Ws if x > 15) / n:.4f}")
     # per-hour closed form on a lookup table (w step 0.025, direction step 10 deg), linear in w, nearest direction
     for vv in (15.0, 20.0, 30.0):
-        c_still = closed_form(nyc, lam, v=vv, pairs=100000)["out"]
-        c_still_sp = closed_form(nyc, lam, v=vv, split=True, spread=0.15, pairs=100000)["out"]
+        # same pairs and seed as the table cells (common random numbers), so ratios carry no sampling offset
+        c_still = closed_form(nyc, lam, v=vv, pairs=20000, seed=5)["out"]
+        c_still_sp = closed_form(nyc, lam, v=vv, split=True, spread=0.15, pairs=20000, seed=5)["out"]
         table = {}
         tot = tot_sp = tot_sp15 = 0.0
         flown = grounded = 0
