@@ -3720,3 +3720,42 @@ first run's exactly, and its `now` row again matches round 5's (115 TCPD alerts,
 
 Old watch-state files have no `seen` list, so after upgrading, a running watch's first newly confirmed change waits
 one check more than it would have. Nothing is lost.
+
+## Round 6 again, under persist 2 (2026-11-12, pre-registered re-check; the budget stands)
+
+Round 7 made persist 2 the watch's default, and the page's and CLI's eagerness hint replays with the defaults, so
+since round 7 the hint has been picking from replays that round 6 never scored. The round 6 script had the same
+silent drift: its replay named confirm, tolerance and hold but not `persist`, so `advance` would have filled in
+persist 2. `eval/watch-eagerness.mjs` now names it (`WATCH_PERSIST`, default 1, so the published round 6 output
+reproduces line for line, which it did). The re-check's rule was committed in the script's header before the run:
+keep `HINT_BUDGET` = 2 if round 6's parts (a), (b) and (c) all pass under persist 2; if any fails, record it and
+adopt no other budget from this run, since every other row is post hoc.
+
+Output: `eval/watch-eagerness-persist2.out.txt` (104 s on 4 cores; `WATCH_PERSIST=2 WATCH_BUDGETS=1.64,3.29,14.3`).
+Future halves of the 23 scored TCPD series:
+
+| policy | persist 1 (round 6): alerts, at a mark, per 1,000, reached | persist 2 (shipped): alerts, at a mark, per 1,000, reached |
+|---|---|---|
+| fixed quiet (default) | 62, 27 (44%), 16.0, 16 of 31 | 61, 26 (43%), 15.7, 16 of 31 |
+| fixed middle | 107, 35 (33%), 27.6, 23 of 31 | 106, 35 (33%), 27.3, 23 of 31 |
+| fixed eager | 369, 80 (22%), 95.2, 31 of 31 | 364, 79 (22%), 93.9, 31 of 31 |
+| **hint, B = 2** | 68, 28 (41%), 17.5, 17 of 31 | **68, 27 (40%), 17.5, 17 of 31** |
+| hint, about 1 a month (3.29) | 76, 34 (45%), 19.6, 19 of 31 | 75, 32 (43%), 19.3, 19 of 31 |
+| hint, about 1 a week (14.3) | 292, 74 (25%), 75.3, 29 of 31 | 287, 73 (25%), 74.0, 29 of 31 |
+
+**All three parts pass, so the budget stands at 2:** (a) 17 marks against quiet's 16; (b) 17.5 per 1,000 against
+middle's 27.3; (c) 39.7% at a mark against quiet's 42.6%, inside the 5-point allowance. The forecast claim's
+Spearman for quiet is 0.616 again (middle 0.600, eager 0.767), so the "on your history it would have sent" line
+stays. Held out (6 series, deciding nothing): the hint still picks Quiet on all six, 6 of 9 marks at 22.1 per 1,000.
+
+What persist 2 changed, read plainly: about 1-2% fewer alerts at every setting, the same marks reached, and one pick.
+`children_per_woman`'s Middle setting sent 3.3 alerts per 100 history checks under persist 1 and 1.7 under persist
+2 (the flicker persist 2 exists to cut), so the hint moved it from Quiet to Middle (picks 14/7/2 against 15/6/2).
+That did not change the totals. One mark fewer at a mark under the hint (27 against 28) is the cost of that move.
+The margin is what it was in round 6: one marked change over the default for 7 more alerts on 23 series. The fresh
+labelled set is still the real test.
+
+The page's and CLI's off-budget caveat (`eagernessText`) quoted round 6's persist-1 numbers for the plain budgets;
+it now quotes this run's (1 a month: 19 of 31 at 19.3 per 1,000; 1 a week: 29 of 31 at 74.0), and the
+default-budget line says the 15.7 baseline is under the shipped persist 2. Test: `watch-eagerness.test.mjs`
+("round 6 re-checked under persist 2"), which reads the output file and the text.
