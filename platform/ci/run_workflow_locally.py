@@ -33,6 +33,9 @@ each step's `working-directory`, and reports which passed.
     python3 platform/ci/run_workflow_locally.py portfolio-validate.yml
     python3 platform/ci/run_workflow_locally.py --list portfolio-pages.yml
 
+Under an agent harness a run still going after 100 s detaches and prints
+its log path and a `wait_for.py` line (exit 3); `--foreground` stays attached.
+
 `--for-changes` and `--tree` ask different questions and the difference
 matters. The first is "is my diff sound?" and on a clean checkout it
 correctly reports nothing to verify. The second is "is this checkout
@@ -1499,7 +1502,99 @@ def _run_selected(args, selected, held, absent=()) -> int:
     return 1 if failures or out_of_budget or after_skip else 0
 
 
+# Handing a long run to the background. The 120 s default of a foreground
+# tool call was the most reported cost of this tool: nine doc-friction entries
+# in the twelve hours to 2026-11-12T08:00 said --for-changes "outlasted the
+# 120 s foreground timeout" on research, docs or venture diffs, each losing the
+# run and starting again with run_in_background. Instead of one more line in
+# the always-read guides, the tool does it: under an agent harness (CLAUDECODE
+# set, stdout not a terminal) it runs itself as a detached child writing a log,
+# relays that log for HANDOFF_S seconds and, if the child is still running,
+# says where the log is and exits HANDED_OFF. A run that ends inside the window
+# reads exactly as before, exit code included. --foreground turns it off.
+HANDOFF_S = 100
+HANDED_OFF = 3
+CHILD_ENV = "RUN_WORKFLOW_LOCALLY_CHILD"
+DONE_PREFIX = "DONE exit "
+
+
+def wants_handoff(argv, environ=None, isatty=None) -> bool:
+    """True when this invocation should run as a detached child (see above)."""
+    environ = os.environ if environ is None else environ
+    isatty = sys.stdout.isatty if isatty is None else isatty
+    if environ.get(CHILD_ENV) or not environ.get("CLAUDECODE"):
+        return False
+    if "--foreground" in argv or "--list" in argv or "-h" in argv or "--help" in argv:
+        return False
+    try:
+        return not isatty()
+    except (AttributeError, ValueError):
+        return False
+
+
+def handoff(argv, window=HANDOFF_S, out=None, clock=time.monotonic,
+            nap=time.sleep, cmd=None) -> int:
+    """Run this script on `argv` as a detached child and relay its log.
+
+    Returns the child's exit code when it ends inside `window` seconds, else
+    HANDED_OFF after printing the log path and how to wait for it."""
+    out = sys.stdout if out is None else out
+    fd, log = tempfile.mkstemp(prefix="run_workflow_locally-", suffix=".log")
+    env = dict(os.environ, **{CHILD_ENV: "1", "PYTHONUNBUFFERED": "1"})
+    with os.fdopen(fd, "w") as fh:
+        child = subprocess.Popen(
+            cmd or [sys.executable, os.path.abspath(__file__), *argv],
+            stdout=fh, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+            env=env, start_new_session=True)
+    pos, end = 0, clock() + window
+
+    def relay():
+        nonlocal pos
+        with open(log, encoding="utf-8", errors="replace") as fh:
+            fh.seek(pos)
+            text = fh.read()
+            pos = fh.tell()
+        lines = [ln for ln in text.splitlines(keepends=True)
+                 if not ln.startswith(DONE_PREFIX)]
+        out.write("".join(lines))
+        out.flush()
+
+    while True:
+        code = child.poll()
+        relay()
+        if code is not None:
+            return code
+        if clock() >= end:
+            out.write(
+                f"\n[handed off] Still running after {window} s, detached so a "
+                f"foreground tool call cannot cut it off (pid {child.pid}).\n"
+                f"  Log: {log}\n"
+                f"  Wait: python3 platform/ci/wait_for.py {log} --timeout 110 "
+                "(repeat until it exits 0, or start it with run_in_background "
+                "--timeout 3600); the last line reads 'DONE exit <code>'.\n"
+                "  Pass --foreground to run attached instead.\n")
+            out.flush()
+            return HANDED_OFF
+        nap(1)
+
+
+def cli(argv=None) -> int:
+    """The command-line entry: hands a long run off (see HANDOFF_S), then main."""
+    argv = sys.argv[1:] if argv is None else list(argv)
+    if wants_handoff(argv):
+        return handoff(argv)
+    return main(argv)
+
+
 def main(argv=None) -> int:
+    code = _main(argv)
+    if os.environ.get(CHILD_ENV):
+        sys.stdout.flush()
+        print(f"{DONE_PREFIX}{code}", flush=True)
+    return code
+
+
+def _main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("workflow", nargs="?",
@@ -1524,6 +1619,10 @@ def main(argv=None) -> int:
                          "--for-changes runs, in seconds (default 300, 0 = "
                          "none); steps past it report TIMEOUT instead of "
                          "hanging the sweep")
+    ap.add_argument("--foreground", action="store_true",
+                    help="never hand a long run to the background (see "
+                         "HANDOFF_S); the default under an agent harness is "
+                         "to detach after 100 s and print the log path")
     args = ap.parse_args(argv)
 
     if args.tree:
@@ -1585,4 +1684,4 @@ def main(argv=None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(cli())
