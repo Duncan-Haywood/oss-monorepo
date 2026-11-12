@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVP39ehYigAUbxCyjkJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T14:08:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship (allocate.py row 3): watch flicker after the baseline, pre-registered round 5; and the round-4 rho cap on held-out labelled data",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": 15146,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First edit chained after 'git checkout -b' on an existing branch, so the edit silently did not run",
+      "fix": "re-ran the edit; tests caught nothing because nothing had changed"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-a-metric-watch-that-stops-alerting-on-old-history.md"
+  ],
+  "goal": "Fix the watch's alerts about history it had called quiet, under a rule written before the run",
+  "notes": "Rule committed in eval/watch-flicker.mjs (commit 5ba453d54) before the first run. Result eval/watch-flicker.out.txt: 'hold' passed (TCPD 115->106 alerts, 33/52 marks kept, 42% at a mark vs 41%; synthetic nulls and steps unchanged) and is the default; 'persist2' lost a marked change on children_per_woman and failed. Part C, 7 held-out TCPD series: hold 68->61 alerts, same 9/12; rho cap 0.8 reaches 9/12 vs uncapped 6/12 (pre-registered check passed). Verification: python3 platform/ci/run_venture_tests.py changepoint-detector -> ok (278.7s); page/watch tests 48/48 after the text edits; post frontmatter, links and similarity checks clean; venture-preflight clean. ausair replay now sends 1 alert instead of 3.",
+  "corrections": [],
+  "redteam": null
+}
