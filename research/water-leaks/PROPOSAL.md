@@ -52,7 +52,7 @@ Narrowly: claim 1 is new for this benchmark as far as the papers we could read g
 
 ## Hypotheses
 
-- **H1 (scoring).** On BattLeDIM 2019, a detection-only true-positive count under a 30-day matching window is within the 95% chance range for any detector that raises 20 or more alarms over 2018-19; location-aware counts are not. *Refuted* if a reimplemented published method (LILA or SICAMS) scores a detection-only count with P(chance ≥) < 0.05 at 20 or more alarms, or if our location-aware count falls inside the chance range. Step 1: D1 is consistent with H1 (P = 0.105 and P < 0.001).
+- **H1 (scoring).** On BattLeDIM 2019, a detection-only true-positive count under a 30-day matching window is within the 95% chance range for any detector that raises 20 or more alarms over 2018-19; location-aware counts are not. *Refuted* if a reimplemented published method (LILA or SICAMS) scores a detection-only count with P(chance ≥) < 0.05 at 20 or more alarms, or if our location-aware count falls inside the chance range. Step 1: D1 is consistent with H1 (P = 0.105 and P < 0.001). Step 2: refuted as written by LILA-auto (P = 0.019 at 26 alarms), thinly (2 of 13 grid settings with ≥ 20 alarms below 0.05; P = 0.265 under a norm tie-break); the location clause held in all 27 settings. To restate as a margin claim.
 - **H2 (certified rate).** An e-process-calibrated residual detector keeps its false alarms on simulated leak-free L-Town years at or below the nominal rate α (e.g. one per 90 days) and still detects at least 80% of 2019's abrupt leaks above 10 m³/h peak within 24 h. *Refuted* if the simulated false-alarm rate exceeds 2α or abrupt detection within 24 h falls below 80%.
 - **H3 (localisation).** Data-driven detection followed by sensitivity-based localisation on the nominal `L-TOWN.inp` puts at least half of the detected 2019 leaks within 300 m. *Refuted* below 30%.
 - **H4 (incipient leaks).** For incipient leaks (peak under about 12 m³/h), a minimum-night-flow statistic on the three inlet flows detects with a shorter median delay than pressure CUSUM. *Refuted* if its median delay is not shorter on the 2019 incipient leaks.
@@ -74,7 +74,7 @@ Narrowly: claim 1 is new for this benchmark as far as the papers we could read g
 ## Milestones
 
 1. **Harness, D1 and the chance level** (done 2026-11-12, this PR): loader with checksums, ground truth, matching, distances, D1 tuned on 2018 and scored on 2019, chance level for five metrics.
-2. **Reimplement SICAMS and LILA** on the harness from their papers, check against their published 2019 figures, and add their chance levels (H1).
+2. **Reimplement SICAMS and LILA** on the harness from their papers, check against their published 2019 figures, and add their chance levels (H1). LILA done 2026-11-12 (automatic identification; 14 of 19, P = 0.019 on the count, P = 0.265 with a norm tie-break; MAS within 300 m for 7, P < 0.001); SICAMS open.
 3. **Localisation** by WNTR sensitivities on the nominal model; the 300 m confusion matrix as BattLeDIM scored it (H3).
 4. **Leak-free simulated years** from `L-TOWN_Real.inp` (177 MB, with real demands) for measuring false-alarm rates.
 5. **E-process detector** and its measured false-alarm rate against α (H2).

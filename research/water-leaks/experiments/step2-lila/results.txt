@@ -1,0 +1,161 @@
+# water-leaks step 2: automatic LILA identification on BattLeDIM (LI-1 pairwise regressions on PUMP_1 flow, LI-2 most-affected-sensor MRE, LI-3 tabular CUSUM); trailing window W=14 d, gap g=7 d, re-anchored (min 7 d)
+# tune on 2018 (leaks starting from 2018-01-15), test on 2019; hourly means
+# matching as step 1 (30-day window, detection only); the alarm's sensor is LILA's MAS
+
+# LI-2 vote ties: 46% of hours from 2018-01-15 to 2018-02-14 have more than one sensor at the top vote count
+
+# MAS tie-break: index
+delta 1.0 C_thr    3: alarms  49 | 2018 TP 12/13 FP 12 | 2019 new TP 17/19 FP  7
+delta 1.0 C_thr    5: alarms  46 | 2018 TP 10/13 FP 12 | 2019 new TP 18/19 FP  5
+delta 1.0 C_thr   10: alarms  36 | 2018 TP 11/13 FP  5 | 2019 new TP 16/19 FP  3
+delta 1.0 C_thr   20: alarms  26 | 2018 TP 11/13 FP  0 | 2019 new TP 14/19 FP  1
+delta 1.0 C_thr   30: alarms  21 | 2018 TP 8/13 FP  1 | 2019 new TP 11/19 FP  1
+delta 1.0 C_thr   50: alarms  19 | 2018 TP 8/13 FP  1 | 2019 new TP 10/19 FP  0
+delta 1.0 C_thr  100: alarms  16 | 2018 TP 7/13 FP  1 | 2019 new TP 8/19 FP  0
+delta 1.0 C_thr  200: alarms  14 | 2018 TP 7/13 FP  1 | 2019 new TP 6/19 FP  0
+delta 1.0 C_thr  300: alarms  13 | 2018 TP 7/13 FP  1 | 2019 new TP 5/19 FP  0
+delta 2.0 C_thr    3: alarms  46 | 2018 TP 9/13 FP 13 | 2019 new TP 17/19 FP  6
+delta 2.0 C_thr    5: alarms  41 | 2018 TP 11/13 FP  9 | 2019 new TP 15/19 FP  5
+delta 2.0 C_thr   10: alarms  31 | 2018 TP 10/13 FP  2 | 2019 new TP 16/19 FP  2
+delta 2.0 C_thr   20: alarms  22 | 2018 TP 9/13 FP  1 | 2019 new TP 11/19 FP  1
+delta 2.0 C_thr   30: alarms  18 | 2018 TP 8/13 FP  1 | 2019 new TP 8/19 FP  1
+delta 2.0 C_thr   50: alarms  16 | 2018 TP 7/13 FP  1 | 2019 new TP 8/19 FP  0
+delta 2.0 C_thr  100: alarms  14 | 2018 TP 7/13 FP  1 | 2019 new TP 6/19 FP  0
+delta 2.0 C_thr  200: alarms  14 | 2018 TP 7/13 FP  1 | 2019 new TP 6/19 FP  0
+delta 2.0 C_thr  300: alarms  11 | 2018 TP 7/13 FP  1 | 2019 new TP 3/19 FP  0
+delta 4.0 C_thr    3: alarms  36 | 2018 TP 10/13 FP  6 | 2019 new TP 15/19 FP  4
+delta 4.0 C_thr    5: alarms  31 | 2018 TP 10/13 FP  3 | 2019 new TP 15/19 FP  2
+delta 4.0 C_thr   10: alarms  24 | 2018 TP 10/13 FP  0 | 2019 new TP 11/19 FP  2
+delta 4.0 C_thr   20: alarms  16 | 2018 TP 6/13 FP  1 | 2019 new TP 8/19 FP  1
+delta 4.0 C_thr   30: alarms  13 | 2018 TP 6/13 FP  1 | 2019 new TP 6/19 FP  0
+delta 4.0 C_thr   50: alarms  13 | 2018 TP 6/13 FP  1 | 2019 new TP 6/19 FP  0
+delta 4.0 C_thr  100: alarms  12 | 2018 TP 6/13 FP  1 | 2019 new TP 5/19 FP  0
+delta 4.0 C_thr  200: alarms  10 | 2018 TP 6/13 FP  1 | 2019 new TP 3/19 FP  0
+delta 4.0 C_thr  300: alarms   9 | 2018 TP 5/13 FP  1 | 2019 new TP 3/19 FP  0
+
+# selection on 2018 only: most 2018 true positives with at most 2 2018 false alarms (ties: fewer false alarms, then larger delta, then larger C_thr)
+## LILA-auto, MAS ties by index: delta = 1.0, C_thr = 20
+2018: TP 11/13, FP 0
+2019: TP 14/19 new leaks, FP 1; carried leaks found in 2018: 2/4
+chance level: the same 26 alarms over 2018-19 at random hours (14 d apart) from random sensors, 1,000 draws; 2019 new leaks:
+  metric          det  chance median (95% range)   P(chance >= det)
+  TP              14      11 (8 to 13)              0.019
+  FP               1       2 (0 to 4)              0.964
+  TP<=72h          3       2 (0 to 5)              0.341
+  TP<=300m         7       0 (0 to 2)              0.000
+  TP<=72h&300m     2       0 (0 to 1)              0.005
+   p123 onset 2019-09-15T15:40 peak  9.19 m3/h  missed
+   p142 onset 2019-06-12T19:55 peak 27.04 m3/h  missed
+   p193 onset 2019-05-20T21:55 peak 10.36 m3/h  missed
+   p277 onset 2019-06-01T19:40 peak  7.36 m3/h  detected + 254 h, MAS n752 ( 2789 m along pipes)
+   p280 onset 2019-02-10T13:05 peak  5.26 m3/h  detected + 134 h, MAS  n31 (   73 m along pipes)
+   p331 onset 2019-04-20T10:10 peak 10.93 m3/h  detected + 142 h, MAS n410 (  277 m along pipes)
+   p426 onset 2019-10-25T13:25 peak 13.56 m3/h  detected + 262 h, MAS n429 (  387 m along pipes)
+   p455 onset 2019-10-05T03:35 peak 11.05 m3/h  detected +  23 h, MAS n215 ( 2541 m along pipes)
+   p514 onset 2019-04-02T20:40 peak 15.58 m3/h  detected + 196 h, MAS n332 (   77 m along pipes)
+   p523 onset 2019-01-15T23:00 peak 28.39 m3/h  detected +   2 h, MAS n506 (   86 m along pipes)
+   p586 onset 2019-07-27T02:55 peak 20.52 m3/h  missed
+   p653 onset 2019-03-04T08:40 peak 18.28 m3/h  missed
+   p680 onset 2019-07-10T08:45 peak  5.37 m3/h  detected +   2 h, MAS n215 (  288 m along pipes)
+   p710 onset 2019-03-24T14:15 peak  5.58 m3/h  detected +  73 h, MAS n644 (  141 m along pipes)
+   p721 onset 2019-08-03T03:20 peak 13.18 m3/h  detected +  94 h, MAS  n31 ( 1760 m along pipes)
+   p762 onset 2019-10-10T09:40 peak 15.71 m3/h  detected + 301 h, MAS  n31 ( 2148 m along pipes)
+   p800 onset 2019-08-16T22:05 peak 21.95 m3/h  detected + 185 h, MAS n549 ( 2411 m along pipes)
+   p827 onset 2019-01-24T18:30 peak 26.46 m3/h  detected + 134 h, MAS n726 (  229 m along pipes)
+   p879 onset 2019-11-21T09:15 peak 10.93 m3/h  detected + 193 h, MAS n288 ( 1132 m along pipes)
+  false alarm 2019-09-07T09 by n296
+  median delay 138 h (range 2 to 301); MAS within 300 m along pipes: 7/14
+
+# H1 check over the whole grid (2019 new leaks; chance from 300 draws per setting)
+  delta C_thr alarms  TP  P(chance>=TP)  TP<=300m  P(chance>=)
+    1.0     3     49  17          0.353         5        0.000
+    1.0     5     46  18          0.083         6        0.000
+    1.0    10     36  16          0.100         7        0.000
+    1.0    20     26  14          0.023         7        0.000
+    1.0    30     21  11          0.140         7        0.000
+    1.0    50     19  10          0.190         8        0.000
+    1.0   100     16   8          0.377         7        0.000
+    1.0   200     14   6          0.650         6        0.000
+    1.0   300     13   5          0.837         5        0.000
+    2.0     3     46  17          0.407         6        0.000
+    2.0     5     41  15          0.793         5        0.000
+    2.0    10     31  16          0.017         7        0.000
+    2.0    20     22  11          0.210         7        0.000
+    2.0    30     18   8          0.593         6        0.000
+    2.0    50     16   8          0.377         7        0.000
+    2.0   100     14   6          0.650         6        0.000
+    2.0   200     14   6          0.650         6        0.000
+    2.0   300     11   3          0.970         3        0.000
+    4.0     3     36  15          0.377         6        0.000
+    4.0     5     31  15          0.077         6        0.000
+    4.0    10     24  11          0.423         7        0.000
+    4.0    20     16   8          0.377         6        0.000
+    4.0    30     13   6          0.577         6        0.000
+    4.0    50     13   6          0.577         6        0.000
+    4.0   100     12   5          0.723         5        0.000
+    4.0   200     10   3          0.943         3        0.003
+    4.0   300      9   3          0.900         3        0.000
+
+# ablation added after the 2019 scores above were seen (LOG.md): MAS ties broken by the largest error norm; same grid and 2018 rule
+# MAS tie-break: norm
+delta 1.0 C_thr    3: alarms  50 | 2018 TP 12/13 FP 12 | 2019 new TP 16/19 FP  9
+delta 1.0 C_thr    5: alarms  47 | 2018 TP 12/13 FP 10 | 2019 new TP 18/19 FP  6
+delta 1.0 C_thr   10: alarms  37 | 2018 TP 10/13 FP  6 | 2019 new TP 16/19 FP  4
+delta 1.0 C_thr   20: alarms  28 | 2018 TP 11/13 FP  1 | 2019 new TP 13/19 FP  2
+delta 1.0 C_thr   30: alarms  21 | 2018 TP 8/13 FP  1 | 2019 new TP 11/19 FP  1
+delta 1.0 C_thr   50: alarms  19 | 2018 TP 8/13 FP  1 | 2019 new TP 10/19 FP  0
+delta 1.0 C_thr  100: alarms  17 | 2018 TP 7/13 FP  1 | 2019 new TP 8/19 FP  1
+delta 1.0 C_thr  200: alarms  16 | 2018 TP 7/13 FP  1 | 2019 new TP 8/19 FP  0
+delta 1.0 C_thr  300: alarms  15 | 2018 TP 7/13 FP  1 | 2019 new TP 7/19 FP  0
+delta 2.0 C_thr    3: alarms  47 | 2018 TP 12/13 FP 10 | 2019 new TP 17/19 FP  7
+delta 2.0 C_thr    5: alarms  43 | 2018 TP 11/13 FP  8 | 2019 new TP 17/19 FP  6
+delta 2.0 C_thr   10: alarms  33 | 2018 TP 9/13 FP  4 | 2019 new TP 16/19 FP  3
+delta 2.0 C_thr   20: alarms  23 | 2018 TP 9/13 FP  1 | 2019 new TP 12/19 FP  1
+delta 2.0 C_thr   30: alarms  19 | 2018 TP 8/13 FP  1 | 2019 new TP 9/19 FP  1
+delta 2.0 C_thr   50: alarms  18 | 2018 TP 7/13 FP  1 | 2019 new TP 9/19 FP  1
+delta 2.0 C_thr  100: alarms  16 | 2018 TP 7/13 FP  1 | 2019 new TP 8/19 FP  0
+delta 2.0 C_thr  200: alarms  15 | 2018 TP 7/13 FP  1 | 2019 new TP 7/19 FP  0
+delta 2.0 C_thr  300: alarms  14 | 2018 TP 7/13 FP  1 | 2019 new TP 6/19 FP  0
+delta 4.0 C_thr    3: alarms  39 | 2018 TP 9/13 FP  8 | 2019 new TP 15/19 FP  6
+delta 4.0 C_thr    5: alarms  32 | 2018 TP 9/13 FP  4 | 2019 new TP 16/19 FP  2
+delta 4.0 C_thr   10: alarms  23 | 2018 TP 9/13 FP  0 | 2019 new TP 12/19 FP  1
+delta 4.0 C_thr   20: alarms  17 | 2018 TP 7/13 FP  1 | 2019 new TP 8/19 FP  1
+delta 4.0 C_thr   30: alarms  17 | 2018 TP 7/13 FP  1 | 2019 new TP 8/19 FP  1
+delta 4.0 C_thr   50: alarms  15 | 2018 TP 7/13 FP  1 | 2019 new TP 7/19 FP  0
+delta 4.0 C_thr  100: alarms  13 | 2018 TP 7/13 FP  1 | 2019 new TP 5/19 FP  0
+delta 4.0 C_thr  200: alarms  11 | 2018 TP 6/13 FP  1 | 2019 new TP 4/19 FP  0
+delta 4.0 C_thr  300: alarms  11 | 2018 TP 6/13 FP  1 | 2019 new TP 4/19 FP  0
+
+# selection on 2018 only: most 2018 true positives with at most 2 2018 false alarms (ties: fewer false alarms, then larger delta, then larger C_thr)
+## LILA-auto, MAS ties by norm: delta = 1.0, C_thr = 20
+2018: TP 11/13, FP 1
+2019: TP 13/19 new leaks, FP 2; carried leaks found in 2018: 3/4
+chance level: the same 28 alarms over 2018-19 at random hours (14 d apart) from random sensors, 1,000 draws; 2019 new leaks:
+  metric          det  chance median (95% range)   P(chance >= det)
+  TP              13      12 (9 to 14)              0.265
+  FP               2       3 (1 to 5)              0.846
+  TP<=72h          4       2 (0 to 5)              0.179
+  TP<=300m         6       0 (0 to 2)              0.000
+  TP<=72h&300m     4       0 (0 to 1)              0.000
+   p123 onset 2019-09-15T15:40 peak  9.19 m3/h  missed
+   p142 onset 2019-06-12T19:55 peak 27.04 m3/h  missed
+   p193 onset 2019-05-20T21:55 peak 10.36 m3/h  missed
+   p277 onset 2019-06-01T19:40 peak  7.36 m3/h  detected + 254 h, MAS n752 ( 2789 m along pipes)
+   p280 onset 2019-02-10T13:05 peak  5.26 m3/h  detected +  75 h, MAS   n1 (  775 m along pipes)
+   p331 onset 2019-04-20T10:10 peak 10.93 m3/h  detected +  46 h, MAS n410 (  277 m along pipes)
+   p426 onset 2019-10-25T13:25 peak 13.56 m3/h  detected + 193 h, MAS n429 (  387 m along pipes)
+   p455 onset 2019-10-05T03:35 peak 11.05 m3/h  missed
+   p514 onset 2019-04-02T20:40 peak 15.58 m3/h  detected +  70 h, MAS n332 (   77 m along pipes)
+   p523 onset 2019-01-15T23:00 peak 28.39 m3/h  detected +   2 h, MAS n506 (   86 m along pipes)
+   p586 onset 2019-07-27T02:55 peak 20.52 m3/h  missed
+   p653 onset 2019-03-04T08:40 peak 18.28 m3/h  detected + 362 h, MAS n613 (  227 m along pipes)
+   p680 onset 2019-07-10T08:45 peak  5.37 m3/h  detected +   2 h, MAS n215 (  288 m along pipes)
+   p710 onset 2019-03-24T14:15 peak  5.58 m3/h  missed
+   p721 onset 2019-08-03T03:20 peak 13.18 m3/h  detected +  94 h, MAS  n31 ( 1760 m along pipes)
+   p762 onset 2019-10-10T09:40 peak 15.71 m3/h  detected + 139 h, MAS  n31 ( 2148 m along pipes)
+   p800 onset 2019-08-16T22:05 peak 21.95 m3/h  detected + 184 h, MAS n549 ( 2411 m along pipes)
+   p827 onset 2019-01-24T18:30 peak 26.46 m3/h  detected + 134 h, MAS n726 (  229 m along pipes)
+   p879 onset 2019-11-21T09:15 peak 10.93 m3/h  detected + 303 h, MAS n288 ( 1132 m along pipes)
+  false alarm 2019-09-07T09 by n296
+  false alarm 2019-11-18T07 by n288
+  median delay 134 h (range 2 to 362); MAS within 300 m along pipes: 6/13

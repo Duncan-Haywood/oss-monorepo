@@ -98,3 +98,57 @@ def test_network_distances():
     gd = network.graph_dist(links, "a")
     assert gd["d"] == 150 and network.pipe_dist(links, gd, "p2") == 125
     assert network.euclid_to_pipe(coords, links, "a", "p2") == 125
+
+
+# --- step 2: automatic LILA -------------------------------------------------------------
+
+from water_leaks import lila  # noqa: E402
+
+
+def _network(T=24 * 40, s=4, seed=0):
+    """Pressures driven by one common demand signal plus small noise, as in a DMA."""
+    rng = np.random.default_rng(seed)
+    hod = np.arange(T) % 24
+    v = 40 + 10 * np.sin(2 * np.pi * hod / 24) + rng.normal(0, 0.5, T)
+    P = np.column_stack([50 - 0.1 * (k + 1) * v + rng.normal(0, 0.05, T) for k in range(s)])
+    return P, v
+
+
+def test_lila_pair_models_reconstruct_leak_free_data():
+    P, v = _network()
+    B = lila.fit_pairs(P, v)
+    e = lila.errors(P, v, B)
+    assert np.allclose(e[np.arange(4), np.arange(4)], 0)    # a sensor predicts itself exactly
+    assert np.abs(e).mean() < 0.2
+
+
+def test_lila_mas_is_the_sensor_that_drops():
+    # with v in every model the other sensors' votes are coin flips, so a few sensors can tie
+    # with the leaking one by chance; 12 sensors make that rare
+    P, v = _network(s=12)
+    B = lila.fit_pairs(P[:480], v[:480])
+    Q = P[480:].copy()
+    Q[:, 2] -= 1.0                                           # a leak near sensor 2
+    e = lila.errors(Q, v[480:], B)
+    votes = (e > 0).sum(axis=0)
+    assert (votes[2] == 11).all()                            # every model finds sensor 2 low
+    assert lila.tie_share(e) > 0.5                           # ...but others often tie with it
+    assert (lila.mre(e, "norm").argmax(axis=1) == 2).all()   # the norm tie-break finds it
+    M = lila.mre(e)
+    assert (M > 0).sum(axis=1).max() == 1                    # one MAS per step
+
+
+def test_lila_detects_a_step_once_at_its_sensor():
+    P, v = _network(T=24 * 60)
+    P[24 * 40 + 5:, 1] -= 1.0
+    al, _ = lila.detect_lila(P, v, W=14, g=7, wmin=7, delta=1.0, c_thr=20)
+    assert len(al) == 1
+    t, i = al[0]
+    assert i == 1 and 24 * 40 + 5 <= t <= 24 * 41 + 5
+
+
+def test_lila_rare_mas_sensor_is_not_disabled():
+    M = np.zeros((100, 3))
+    M[:, 0] = 1.0 + 0.1 * np.arange(100) % 3
+    mu, sd = lila.ref_stats(M)
+    assert np.isfinite(sd).all() and mu[1] == 0 and sd[1] == sd[0]
