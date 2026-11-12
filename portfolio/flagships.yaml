@@ -213,20 +213,10 @@ flagships:
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
       History and every measurement: README and eval/ (ingest, catalog,
-      proxies, cull with XMP and picks scoring, RAW previews; stdlib DNG
-      developer matching LibRaw within one 8-bit step in `--colour dcraw`;
-      pipeline grade stage and grade-scope; numpy engine and lossless-JPEG
-      speed-ups; DNG-spec colour checked against colour-hdri,
-      eval/dng-colour-2026-11-12.md; HueSatMap/LookTable and `--dcp`,
-      eval/dcp-tables-2026-11-12.md; ProfileToneCurve with hue-preserving
-      RGB tone, eval/tone-curve-2026-11-12.md; DNG 1.6 triple-illuminant
-      profiles and IlluminantData, eval/triple-illuminant-2026-11-12.md; the
-      default tone curve for profiles with none, identified as Adobe's ACR3
-      default and fitted with 20 knots of our own, `--default-tone-curve`,
-      eval/default-tone-curve-2026-11-12.md; Canon CR2 developed directly
-      with a `.dcp` (image area, black, as-shot WB and CFA phase read from the
-      file; LibRaw's crop, phase and WB on a real 5D Mark II, render median
-      0.61 of an 8-bit step), eval/cr2-direct-2026-11-12.md, all 2026-11-12).
+      proxies, cull, RAW previews; DNG developer with DNG-spec colour, DCP
+      tables, tone curves, triple-illuminant profiles and the default tone
+      curve; numpy engine and native lossless-JPEG Huffman reader; Canon CR2
+      developed directly with a `.dcp`, eval/cr2-direct-2026-11-12.md).
       Next, most valuable first: CR2 in the pipeline's grade stage (a
       per-camera `.dcp` setting; `shootflow develop` already reads CR2), and
       real CR2s from other Canon bodies (other ColorData versions, the
