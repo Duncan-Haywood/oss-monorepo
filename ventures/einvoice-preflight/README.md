@@ -851,18 +851,69 @@ quantity, price or tax percent is invalid, no totals are touched. Tests in
 `node repair-cli.mjs invoice.xml -o fixed.xml` (or `POST /v1/repair` with the
 XML as the body) edits only the amount elements of a UBL Invoice or
 CreditNote and leaves every other byte alone (comments, namespaces, order).
-It recomputes each line's net (quantity x price / base quantity), the taxable
-amount and VAT of each `TaxSubtotal` (taxable x rate, rounded half up, the
-EN 16931 way), the document `TaxAmount`, the line-extension, tax-exclusive,
-tax-inclusive and payable totals. It skips, and says so in `skipped`, any
-line with its own allowance, charge or sub-line, any document with header
-allowances or charges, more than one `TaxTotal`, and any tax group that does
-not match the subtotals one to one: it never adds a subtotal or picks a rate
-or category. The result is re-parsed and re-checked. On
+It recomputes each line's net (quantity x price / base quantity, plus the
+line's own charges, minus its allowances; a discount inside `Price` is already
+in the net price), the taxable amount and VAT of each `TaxSubtotal` (line nets
+minus document allowances plus document charges in that category, times the
+rate, rounded half up, the EN 16931 way), the document `TaxAmount`, and the
+line-extension, allowance, charge, tax-exclusive, tax-inclusive and payable
+totals. A net written with more decimals that rounds to the right cent (PINT
+allows them) is kept. It reads the document's tax from the root-level
+`TaxTotal` that carries subtotals; a root-level one without subtotals is
+BT-111, set equal to the new tax when it is in the document currency and left
+alone (with a note) when converting it would need an exchange rate. It
+declines the tax part, and says so in `skipped`, when a tax group or a
+document allowance's category does not match the subtotals one to one: it
+never adds an element or picks a rate or category. Lines with sub-lines keep
+their net. The result is re-parsed and re-checked. On
 `examples/ubl-invoice-with-defects.xml` it fixes 3 amounts and clears
 INV-017, INV-018, INV-029 and INV-038; INV-021 (due date) and INV-045 (no
-IBAN) stay for a person. Tested on the repo's hand-written UBL examples only
-(`repair-ubl.test.mjs`, `server.test.mjs`); not tried on a real ERP export.
+IBAN) stay for a person.
+
+**Saudi files (ZATCA, 2026-11-12).** A ZATCA invoice (`ProfileID`
+`reporting:1.0`, or an `InvoiceTypeCode` name of `01xxxxx`/`02xxxxx`) carries
+a `TaxTotal` on every line. Before, the repair counted those as extra
+document `TaxTotal`s, or stopped at the header allowance most ZATCA examples
+carry, so it declined the tax part on all 19 of ZATCA's good cases. Now, on a
+ZATCA file only:
+
+- the line VAT (KSA-11) is rewritten to net x rate when it is more than 0.01
+  off, and kept within 0.01 (ZATCA's "Standard Invoice with Payable Rounding
+  Adjustment" writes 869.57 + 130.43 = 1000.00, a cent under 869.57 x 15%);
+  the line amount with VAT (KSA-12) is set to net + KSA-11 (BR-KSA-51);
+- a prepayment line's VAT (KSA-32) is recomputed from its taxable amount
+  (KSA-31) and rate (BR-KSA-79); KSA-31 and the prepaid amount are facts,
+  and a prepaid amount that is not KSA-31 + KSA-32 is reported (BR-KSA-80),
+  never edited;
+- a subtotal's VAT within ZATCA's own tolerance of the exact figure (0.01 per
+  invoice line, BR-S-09/BR-CO-17 in ZATCA's cut of EN 16931) is kept.
+
+A line `TaxTotal` outside ZATCA is left as written, with a note.
+
+Measured with `eval/repair-seeded.mjs` (2026-11-12): every amount the repair
+may recompute is pushed off by 7.00, one at a time, in files the publisher
+lists as valid, and the repaired file is compared with the original.
+
+| Files | Before | After | Repaired file draws a rule id the original did not |
+| --- | --- | --- | --- |
+| ZATCA 3.4.6, 19 good cases (phive-rules dfa902d) | 42 of 258 restored; tax part reached on 0 of 19 | **257 of 258**; 19 of 19 | 0 of 258 (`--rules`, the official ZATCA sets on the plain route) |
+| PINT A-NZ 1.1.3, 24 files | 140 of 270 | **270 of 270** | not run |
+| PINT SG 1.4.1, 16 files | 27 of 164 | **158 of 164** | not run |
+| The repo's 14 clean UBL examples | not measured | **147 of 147** | 0 of 147 |
+
+"Restored" counts the same values; 64 of the 257 ZATCA ones are written
+`300.00` where the original wrote `300`. Every clean file still comes back
+byte for byte. What is not restored: on ZATCA's rounding example a seeded
+KSA-11 comes back as 130.44 (net x rate, rounded half up), not the 130.43 the
+publisher chose; the file still passes every rule. PINT SG example 07 is
+declined (a 7% charge with no 7% subtotal and 0.00 tax: the example itself
+does not add up) and example 11 writes its line nets with six decimals, which
+the repair keeps but cannot restore exactly. 17 of the 258 ZATCA seeds, all
+in the SAR repeat of the tax (BT-111), drew no finding from our checks or
+ZATCA's rules: a SAR invoice whose BT-111 disagrees with BT-110 passes them
+all. The repair now fixes it; the checks do not yet flag it. Tests:
+`repair-ubl.test.mjs` (20). Not tried on a real ERP export or a Fatoora
+verdict.
 
 ## Repair a CII file (XRechnung CII, ZUGFeRD, Factur-X XML)
 
@@ -1034,7 +1085,7 @@ The UBL reader (`ubl.mjs`, and `src/einvoice_preflight/ubl.py` to match) took ev
 
 Now the reader takes only the `TaxTotal` elements that are children of the root (falling back to all of them only when none is), and when several are in the document currency and some carry subtotals, the subtotal-less one is the BT-111 repeat and is left out. A tax per scheme (several `TaxTotal`s that each carry subtotals) is still summed. The breakdown check also stops asking for a row for a rate whose lines net to zero, the mirror of the zero row with no line it already accepted: the prepayment line has quantity 0 and net 0.00 at the old 5%, and SimplerInvoicing's `SI-UBL-2.0_ok_full.xml` has a 21% charge and allowance that cancel. INV-017, INV-018 and INV-038 now run on KSA files.
 
-Measured with `eval/phive-corpus.mjs --good` on phive-rules commit dfa902d, before and after: ZATCA 18 to **19 of 19** with no blocking finding, with the three drops removed; SimplerInvoicing loses 3 INV-038 and 1 INV-017/018 that were also false (the `UBL-CR-561_warning` file is SimplerInvoicing's example of a line-level `TaxTotal`, a warning-only good case, whose 6.00 the old reader added to the tax); every other set unchanged. Tests: `line-taxtotal.test.mjs` (7) and `tests/test_line_taxtotal.py` (4), on a made-up prepayment-at-the-old-rate invoice, `examples/zatca-prepayment-rate-change.xml`, which passes ZATCA's own rules (only the 24-hour clock rule fires) and on which the old reader raised INV-017, INV-018 and INV-038. Not done: no real ZATCA sandbox invoice or Fatoora verdict; `repair-ubl.mjs` still counts line-level `TaxTotal`s and so declines to recompute tax on a ZATCA file (a safe refusal, not a wrong edit).
+Measured with `eval/phive-corpus.mjs --good` on phive-rules commit dfa902d, before and after: ZATCA 18 to **19 of 19** with no blocking finding, with the three drops removed; SimplerInvoicing loses 3 INV-038 and 1 INV-017/018 that were also false (the `UBL-CR-561_warning` file is SimplerInvoicing's example of a line-level `TaxTotal`, a warning-only good case, whose 6.00 the old reader added to the tax); every other set unchanged. Tests: `line-taxtotal.test.mjs` (7) and `tests/test_line_taxtotal.py` (4), on a made-up prepayment-at-the-old-rate invoice, `examples/zatca-prepayment-rate-change.xml`, which passes ZATCA's own rules (only the 24-hour clock rule fires) and on which the old reader raised INV-017, INV-018 and INV-038. Not done: no real ZATCA sandbox invoice or Fatoora verdict. (`repair-ubl.mjs` used to count line-level `TaxTotal`s and decline the tax part on ZATCA files; fixed later on 2026-11-12, see "Repair a UBL file".)
 
 ## CIUS-RO runs on EN 16931 1.3.8 (2026-11-12)
 
