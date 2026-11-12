@@ -1,6 +1,7 @@
 import { parseIsdocInvoice } from "./isdoc.mjs";
 import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
 import { inspectCreditLinks } from "./creditlink.mjs";
+import { steppedAside } from "./aside.mjs";
 import { inspectXrechnungProfile, inspectPeppolProfile, inspectFrenchProfile } from "./profile.mjs";
 import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
 import { checkPdfEnvelope } from "./pdf-envelope.mjs";
@@ -109,7 +110,10 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         continue;
       }
       const { invoice, envelope, xml, pdfFindings } = await inspectInvoiceSource(name, source);
-      const errors = checkInvoice(invoice);
+      // PINT and ZATCA files: built-in EU-convention rules that fire falsely step aside
+      // on every route, whether or not the official rules run (aside.mjs).
+      const aside = steppedAside(invoice);
+      const errors = checkInvoice(invoice).filter((e) => !aside.has(e.rule));
       errors.push(...pdfFindings);
       if (profile === "xrechnung") errors.push(...inspectXrechnungProfile(invoice));
       if (profile === "peppol") errors.push(...inspectPeppolProfile(invoice));
