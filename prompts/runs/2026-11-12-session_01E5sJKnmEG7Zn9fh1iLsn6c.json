@@ -32,7 +32,7 @@
   "tests_added": 17,
   "outcome": "success",
   "errors": [
-    "First --rules background run was started with an early version of the code and had to be killed and rerun; its output file name differed from the one I grepped (rules-om vs rules-pint-om), costing a few minutes.",
+    "First --rules background run was started with an early version of the code and had to be killed and rerun; its output file name differed from the one I grepped (rules-om vs rules-pint-om), costing a few minutes. A first reading of the MY --rules output took 'drew a new rule id' as repair damage; it is unrestored seeds on declined files.",
     "One rules run (PINT AE) wrote nothing and disappeared; not rerun."
   ],
   "integrity_issues": [],
@@ -59,7 +59,7 @@
     "ventures/einvoice-preflight/README.md (PINT Oman, UAE and Malaysia)"
   ],
   "goal": null,
-  "notes": "Verification: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok (35.9s); node --test repair-pint/baisa/repair-ubl/repair tests 51+ pass; eval/repair-seeded.mjs on phive-rules dfa902d (ZATCA 3.4.6, PINT OM/AE/MY/SG/A-NZ/JP) before/after in README; repo examples per-file identical before/after. --rules (official sets on repaired files) on PINT MY surfaced the comment/per-unit bug, fixed in the second commit.",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok (35.9s); node --test repair-pint/baisa/repair-ubl/repair tests 51+ pass; eval/repair-seeded.mjs on phive-rules dfa902d (ZATCA 3.4.6, PINT OM/AE/MY/SG/A-NZ/JP) before/after in README; repo examples per-file identical before/after. --rules on PINT MY: 28/342 repaired files draw a new rule id, identical old vs new code; all are seeded faults the repair declines on the four TTX samples (left in place, not damage). Reading them found the comment/per-unit bug, fixed in the second commit (moves no corpus number; covered by tests). venture-preflight.mjs einvoice-preflight: clean. PINT OM and AE --rules runs did not finish in the session.",
   "corrections": [],
   "redteam": null,
   "usage": {

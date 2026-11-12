@@ -995,8 +995,13 @@ two of them on correct files, which the repair must never make worse:
   (10.00 a room-night, `PerUnitAmount`). The repair now reads the file with
   comments blanked out (offsets kept, comments written back untouched), and
   declines the tax part, with a note, when a subtotal is a per-unit amount.
-  Running the official sets on every repaired file (`--rules`) is what showed
-  this one.
+  Found reading those samples while checking `--rules`; on them the repair
+  already declined the tax part (their tax groups do not match the subtotals
+  one to one), so no number moves. It matters for a file whose groups do
+  match (tests). With `--rules` on PINT MY, 28 of 342 repaired files draw a
+  rule id the original did not, the same 28 before and after: all are seeded
+  faults in the four TTX samples that the repair declines and leaves in place,
+  not changes it made.
 
 `eval/repair-seeded.mjs` now also seeds the line amounts inside
 `ItemPriceExtension` (Oman's BTOM-016/017, UAE's BTAE-08) under their own
