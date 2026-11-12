@@ -15,6 +15,8 @@ import sys
 from html.parser import HTMLParser
 from pathlib import Path
 
+from page_pool import map_pages
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -67,15 +69,18 @@ def problems(html):
     return sorted(out)
 
 
+def _page(f):
+    return problems(f.read_text(errors="ignore"))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=str(ROOT / "ventures"))
     root = Path(ap.parse_args(argv).root)
     bad = 0
-    for f in sorted(root.rglob("*.html")):
-        if "node_modules" in f.parts:
-            continue
-        for msg in problems(f.read_text(errors="ignore")):
+    files = [f for f in sorted(root.rglob("*.html")) if "node_modules" not in f.parts]
+    for f, found in zip(files, map_pages(_page, files)):
+        for msg in found:
             print(f"{f.relative_to(root)}: {msg}")
             bad += 1
     print(f"{bad} problem(s)")

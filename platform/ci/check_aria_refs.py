@@ -15,9 +15,12 @@ so an id a script adds later needs an `id` in the markup or a waiver below.
 First run, 2026-10-29: 0 dangling references in 13,258 checked.
 """
 import argparse
+import re
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
+
+from page_pool import map_pages
 
 ROOT = Path(__file__).resolve().parents[2]
 ARIA = ("aria-labelledby", "aria-describedby", "aria-controls", "aria-owns", "aria-activedescendant")
@@ -50,12 +53,22 @@ def dangling(html):
     return [r for r in p.refs if r[2] not in p.ids]
 
 
+# A reference needs one of the ARIA attribute names or a `<label` tag (html.parser
+# lower-cases names, so any case); a page with neither has nothing to flag and
+# skips the parse (58% of pages).
+REF_HINT = re.compile("|".join(ARIA) + "|<label", re.I)
+
+
+def _page(f):
+    html = f.read_text(encoding="utf-8", errors="ignore")
+    return dangling(html) if REF_HINT.search(html) else []
+
+
 def scan(root=ROOT):
     bad = []
-    for f in sorted((root / "ventures").rglob("*.html")):
-        if "node_modules" in f.parts:
-            continue
-        for line, attr, i in dangling(f.read_text(encoding="utf-8", errors="ignore")):
+    files = [f for f in sorted((root / "ventures").rglob("*.html")) if "node_modules" not in f.parts]
+    for f, found in zip(files, map_pages(_page, files)):
+        for line, attr, i in found:
             bad.append((f.relative_to(root), line, attr, i))
     return bad
 

@@ -53,5 +53,27 @@ class DuplicateIds(unittest.TestCase):
         self.assertIn("Fail if a served page uses the same", out.getvalue())
 
 
+    def test_pool_scan_matches_serial_scan_in_order(self):
+        # Above page_pool.MIN_POOL files the pages are parsed on a process
+        # pool; the findings must come back in the same sorted-path order.
+        import page_pool
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            for n in range(page_pool.MIN_POOL + 40):
+                v = root / "ventures" / f"v{n:03d}"
+                v.mkdir(parents=True)
+                body = '<p id="a"></p><p id="a"></p>' if n % 3 == 0 else '<p id="a"></p>'
+                (v / "index.html").write_text(body)
+            pooled = scan(root)
+            old = page_pool.workers
+            page_pool.workers = lambda: 1
+            try:
+                serial = scan(root)
+            finally:
+                page_pool.workers = old
+            self.assertEqual(len(pooled), (page_pool.MIN_POOL + 40 + 2) // 3)
+            self.assertEqual(pooled, serial)
+
+
 if __name__ == "__main__":
     unittest.main()
