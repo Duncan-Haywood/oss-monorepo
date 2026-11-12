@@ -178,4 +178,7 @@
 "2fcec2b3bbab55a3":{"category":"not_now","subtype":null,"return_date":"2026-04-01"},
 "4b1224788fdfccce":{"category":"not_now","subtype":null,"return_date":"2026-03-01"},
 "db358b78c5d28b36":{"category":"not_now","subtype":null,"return_date":"2026-10-18"},
-"5559fc47b264fb69":{"category":"not_interested","subtype":"authority","return_date":null}}
+"5559fc47b264fb69":{"category":"not_interested","subtype":"authority","return_date":null},
+"11dbd1ba06f591a7":{"category":"unsubscribe","subtype":null,"return_date":null},
+"b69fd45990b52adb":{"category":"unsubscribe","subtype":null,"return_date":null},
+"a3f62f9b848a82a0":{"category":"unsubscribe","subtype":null,"return_date":null}}

@@ -966,12 +966,30 @@ no or the wrong person, and all 7 were ("We have decided not to proceed. All the
 for this and don't plan to.", "You've got the wrong Sam, I work in finance not operations."); the 7B called 11 and was right
 on 7. Its one wrong close came from an objection ("we already pay for QuickBooks and I'm not adding a second tool").
 
-**Pre-registered, before the 14B saw the other 611 replies** (committed in this PR before that run finished): the hypothesis
+**Pre-registered, before the 14B saw the other 611 replies** (committed to PR #15142, commit `bde54ec`, and merged before that run finished): the hypothesis
 is that a 14B's `not_interested` or `left_company` on a reply the rules read as `unclear` is right often enough to act
 alone. It is accepted if, on the 611 replies not in the 181 (the other fresh sets and the two tuning sets), those closes
 are right at least 85% of the time and at most 2 of them lose a live reply silently. If accepted, it becomes an opt-in
 setting, not the default, since a deployer's model may be smaller. Closes from `question` or `objection` stay flags either
 way. The counterfactual is computed from the committed cache with the merge's close flag lifted for that one case.
+
+**The same 14B as the Enron third reader** (item (1) of the flagship's `next:`), on the 107 `5*` stops both agent readers
+labelled, with `eval/model-reader.mjs` and `READER.md` exactly as for Llama and the 7B (6.9 to 17 s a stop; labels in
+`enron-labels/sixth-qwen14b.json`, no text):
+
+| `5*`, 107 stops | Exact | Stop or not | Kappa |
+|---|---|---|---|
+| Agent reader 1 vs agent reader 2 | 87 (81%) | 89 | 0.71 |
+| Agent reader 1 vs Qwen2.5 14B | 75 (70%) | 78 | 0.56 |
+| Agent reader 2 vs Qwen2.5 14B | 80 (75%) | 82 | 0.64 |
+| Agent reader 1 vs Qwen2.5 7B (before) | 71 (66%) | 79 | 0.52 |
+| Qwen2.5 7B vs Qwen2.5 14B | 84 (79%) | 90 | 0.71 |
+
+On the 87 stops where the two agent readers agree, the 14B matches 69 and the 7B 67. On the 53 of those both call `none`
+(the rules' wrong stops), the 14B still calls a stop on 15 and the 7B on 13; on the 34 both call a stop, 31 and 32. So
+doubling the size moved agreement by four points and did not move the lean toward the rules at all: the 14B agrees with
+its own 7B (kappa 0.71) as well as the two agent readers agree with each other. A larger model of the same family is not
+the independent reader item (1) needs; a person, or a strong model of another family (a hosted one, on a key), still is.
 
 ## "We are not interested": a veto narrowed with an Enron re-score (2026-11-12)
 
