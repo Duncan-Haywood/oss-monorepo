@@ -5,12 +5,14 @@
 //   node eval/best-of-k.mjs            # table to stdout (several minutes)
 //   node eval/best-of-k.mjs --json
 //   node eval/best-of-k.mjs --picks    # what "fair", "balanced" and "breaks" keep (eval/best-of-k-picks.txt)
+//   node eval/best-of-k.mjs --page     # the same on the page's own search: 8 weighted + 2 capped tries,
+//                                      # all four choices (eval/best-of-k-page.txt)
 //
 // Each row is one base seed; "pick" is the trade used to choose among the tries (carry-over +
 // pick x breaks). The same base seeds are used in every setting.
 
 import { fileURLToPath } from "node:url";
-import { bestCarryOverRounds, carryOver } from "../carryover.mjs";
+import { bestCarryOverRounds, carryOver, carryOverTry, combineCarryOverTries, CARRY_OVER_PICK } from "../carryover.mjs";
 import { run as realRun } from "./carryover-real.mjs";
 
 export const SETTINGS = [
@@ -55,7 +57,7 @@ export function compare({ sizes = [18, 20], seeds = [1, 2, 3], settings = SETTIN
   return rows;
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1] && !process.argv.includes("--picks")) {
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1] && !process.argv.includes("--picks") && !process.argv.includes("--page")) {
   const rows = compare();
   if (process.argv.includes("--json")) { console.log(JSON.stringify(rows, null, 1)); process.exit(0); }
   const pad = (s, w) => String(s).padStart(w);
@@ -88,4 +90,47 @@ export function picks({ sizes = [18, 20], seeds = [1, 2, 3], picks: P = { fair: 
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1] && process.argv.includes("--picks")) {
   for (const r of picks()) console.log(`${r.teams} teams seed ${r.seed} ${r.pick.padEnd(9)} carry-over ${r.coe}  breaks ${r.breaks}  dominates ${r.dominates}/${r.of}`);
+}
+
+// The page as it ships (index.html: CARRY_WEIGHTED = 8, CARRY_CAPPED = 2): ten tries run once per
+// seed, then each of the four choices (CARRY_OVER_PICK) is applied with combineCarryOverTries, the
+// function the page itself calls. Carry-over and breaks are recounted from the kept rounds, not
+// taken from the search, and set against the professional seasons of the same size.
+export const PAGE = { weighted: 8, capped: 2 };
+export function pagePicks({ sizes = [18, 20], seeds = [1, 2, 3, 4, 5], picks: P = CARRY_OVER_PICK, onRow = null } = {}) {
+  const pro = realRun().map((r) => ({ teams: r.teams, coe: r.plannedCoe, breaks: r.plannedBreaks }));
+  const rows = [];
+  for (const n of sizes) for (const seed of seeds) {
+    const t0 = Date.now();
+    const results = [];
+    for (let i = 0; i < PAGE.weighted + PAGE.capped; i++) results.push(carryOverTry(n, i, { double: true, seed, weighted: PAGE.weighted }));
+    const ms = Date.now() - t0;
+    const same = pro.filter((q) => q.teams === n);
+    for (const [name, p] of Object.entries(P)) {
+      const best = combineCarryOverTries(results, p);
+      const coe = carryOver({ teams: Array.from({ length: n }, (_, i) => i), rounds: best.rounds }).value;
+      const breaks = breaksOf(n, best.rounds);
+      const t = best.tries[best.chosen];
+      if (t.coe !== coe || t.breaks !== breaks) throw new Error(`recount differs at ${n} teams seed ${seed} ${name}: search ${t.coe}/${t.breaks}, recount ${coe}/${breaks}`);
+      const dom = same.filter((q) => coe <= q.coe && breaks <= q.breaks && (coe < q.coe || breaks < q.breaks)).length;
+      const beatsAll = { coe: same.every((q) => coe < q.coe), breaks: same.every((q) => breaks < q.breaks) };
+      const row = { teams: n, seed, pick: name, coe, breaks, chosen: best.chosen, kind: best.chosen >= PAGE.weighted ? "capped" : "weighted", frontier: best.frontier.length, dominates: dom, of: same.length, beatsAll, ms };
+      rows.push(row);
+      if (onRow) onRow(row);
+    }
+  }
+  return rows;
+}
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1] && process.argv.includes("--page")) {
+  const pad = (s, w) => String(s).padStart(w);
+  const rows = pagePicks({ onRow: (r) => console.log(`${pad(r.teams, 2)} teams seed ${r.seed} ${r.pick.padEnd(9)} carry-over ${pad(r.coe, 5)}  breaks ${pad(r.breaks, 3)}  try ${pad(r.chosen, 2)} ${r.kind.padEnd(8)}  frontier ${pad(r.frontier, 2)}  dominates ${pad(r.dominates, 2)}/${r.of}  ${(r.ms / 1000).toFixed(1)} s`) });
+  console.log("\nmeans over the seeds (min-max)");
+  const groups = new Map();
+  for (const r of rows) { const k = `${r.teams} teams ${r.pick}`; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(r); }
+  for (const [k, g] of groups) {
+    const m = (f) => (g.reduce((s, r) => s + f(r), 0) / g.length).toFixed(1);
+    const mm = (f) => `${Math.min(...g.map(f))}-${Math.max(...g.map(f))}`;
+    console.log(`${k.padEnd(20)} carry-over ${m((r) => r.coe)} (${mm((r) => r.coe)})  breaks ${m((r) => r.breaks)} (${mm((r) => r.breaks)})  dominates ${m((r) => r.dominates)} of ${g[0].of}  capped kept ${g.filter((r) => r.kind === "capped").length}/${g.length}  ${m((r) => r.ms / 1000)} s`);
+  }
 }
