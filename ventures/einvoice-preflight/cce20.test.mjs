@@ -106,3 +106,20 @@ test("an approved-exporter number is accepted for an EU destination", () => {
 test("Exportacion 01 without the complement draws nothing from these rules", () => {
   assert.ok(!rules(read("cfdi-4.0-invoice.xml")).some((r) => /^MX-06\d$/.test(r)));
 });
+
+test("a transfer's Cantidad may have one, two or three decimals, not four (CCE154)", () => {
+  const t = read("cfdi-4.0-cce20-traslado.xml");
+  for (const q of ["12", "12.5", "12.50", "12.500"]) assert.ok(!rules(t.replace('Cantidad="12.000"', `Cantidad="${q}"`)).includes("MX-067"), q);
+  assert.ok(rules(t.replace('Cantidad="12.000"', 'Cantidad="12.5000"')).includes("MX-067"));
+});
+
+test("an export dated before the tariff catalogue took effect is reported, not thrown", () => {
+  // Red-team 2026-11-12: a code with no VIGENCIA row (most of them) made the message read
+  // VIGENCIA[fr][0] and throw, so the page showed nothing for any export dated before 2024-01-18.
+  const t = read("cfdi-4.0-cce20-eur.xml");
+  for (const d of ["2023-12-31T10:00:00", "2024-01-17T23:59:59"]) {
+    const f = checkCfdi(t.replace(/Fecha="[^"]*"/, `Fecha="${d}"`)).findings.find((x) => x.rule === "MX-068");
+    assert.ok(f, d);
+    assert.match(f.message, /not in force on the CFDI's date \d{4}-\d\d-\d\d \(in force 2024-01-18 to now\)/);
+  }
+});

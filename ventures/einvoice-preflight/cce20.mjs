@@ -131,11 +131,13 @@ export function fracciones() {
   }
   return fraccionMap;
 }
+/** A tariff code's [start, end] in force; codes not listed in VIGENCIA run from 2024-01-18 on. */
+const vigencia = (code) => VIGENCIA[code] || ["2024-01-18", ""];
 /** Whether a tariff code is in force on `day` (YYYY-MM-DD): the catalogue's start and end
  * dates, both counted as in force. Codes not listed in VIGENCIA run from 2024-01-18 on. */
 export function fraccionVigente(code, day) {
   if (!fracciones().has(code)) return false;
-  const [start, end] = VIGENCIA[code] || ["2024-01-18", ""];
+  const [start, end] = vigencia(code);
   if (!day) return true;
   return day >= start && (!end || day <= end);
 }
@@ -314,7 +316,7 @@ export function checkComercioExterior(root, ctx) {
     if (fr !== undefined) {
       const umt = fracciones().get(fr);
       if (!umt) push("MX-068", "CCE161", `FraccionArancelaria ${fr} is not a tariff code in SAT's current c_FraccionArancelaria (10 digits, fracción + NICO, in force since 2024-01-18).`, "Use the 10-digit code from the current TIGIE with its NICO.", `${p}/@FraccionArancelaria`);
-      else if (!fraccionVigente(fr, fecha)) push("MX-068", "CCE161", `FraccionArancelaria ${fr} is not in force on the CFDI's date ${fecha} (in force ${VIGENCIA[fr][0]} to ${VIGENCIA[fr][1] || "now"}).`, "Use the code in force on the issue date.", `${p}/@FraccionArancelaria`);
+      else if (!fraccionVigente(fr, fecha)) push("MX-068", "CCE161", `FraccionArancelaria ${fr} is not in force on the CFDI's date ${fecha} (in force ${vigencia(fr)[0]} to ${vigencia(fr)[1] || "now"}).`, "Use the code in force on the issue date.", `${p}/@FraccionArancelaria`);
       else if (ma.UnidadAduana !== undefined && ma.UnidadAduana !== umt) push("MX-068", "CCE161", `Mercancia ${i + 1}: UnidadAduana ${ma.UnidadAduana} is not the tariff unit of ${fr}, which is ${umt}.`, `Express CantidadAduana in unit ${umt} and set UnidadAduana="${umt}".`, `${p}/@UnidadAduana`);
       else if (ma.UnidadAduana === undefined) {
         for (const c of lines) if (c.attrs.Unidad !== umt) push("MX-068", "CCE162", `Line ${conceptos.indexOf(c) + 1}: without UnidadAduana on its Mercancia, the line's Unidad is the tariff unit of ${fr}, ${umt}, not ${c.attrs.Unidad === undefined ? "absent" : `"${c.attrs.Unidad}"`}.`, `Set Unidad="${umt}" on the line, or fill the Mercancia's customs fields.`, `/Comprobante/Conceptos/Concepto[${conceptos.indexOf(c) + 1}]/@Unidad`);
