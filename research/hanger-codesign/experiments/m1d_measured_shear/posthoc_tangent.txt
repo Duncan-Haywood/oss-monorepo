@@ -1,0 +1,5 @@
+fabric n F_shoulder_N/m strain_at_F tangent_EA@F tangent_EA@F/2 secant_EA_kes
+A 2.16 3.70 0.0217 369 254 2363
+B 1.36 4.68 0.0010 6194 5164 15487
+C 2.35 3.69 0.0083 1046 702 7385
+D 2.00 7.25 0.0076 1896 1341 7787

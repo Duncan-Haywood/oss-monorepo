@@ -26,12 +26,60 @@ grid to 2.5 mm: the stiff suiting converges (to about 0.01) but the soft jersey 
 N/m and up (0.70 to 0.37 at EA 3200, still falling), and swapping springs shows most of the
 leftover "stretch" dependence is the shear spring that the model ties to EA (on the suiting, shear
 alone +0.046, stretch alone +0.027). Shear rigidity is measured: the same KES table gives G = 26
-to 89 N/m per radian, so the next tier comparison can take it from data.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
+to 89 N/m per radian, so the next tier comparison can take it from data. Milestone 1d does that
+for the 3 cm arm: with the shear spring set to measured G, stretch still moves the best width by 1.0 cm
+across 40 to 800 N/m, but from 800 N/m up, including the stiffness the same table's tensile LT and WT
+imply, all four fabrics pick +1.0 cm, the 2D chain's answer, with certified margins. The tier
+disagreement belongs to soft cloth, and only the cotton jersey and the shirting, whose low-load
+stiffness lands in the band where the choice flips, still need a measured tensile toe.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
 `research/PROJECTS.md`). Simulation only; nothing here is a measurement of real garments.
 
 **Live page:** https://marisstella.app/research/hanger-codesign/
 
 ![Shape error against arm width offset on fabric D for three model tiers](experiments/m1_kes_fidelity/err_vs_offset_D.svg)
+
+## Milestone 1d: the shallow-arm width with shear from measured KES G
+
+`experiments/m1d_measured_shear/run.py`. Milestone 1c's converged 3 cm arm, with the sheet's shear
+spring set to each fabric's measured KES shear rigidity G (26, 27, 29, 89 N/m; in this sheet the
+in-plane shear stiffness is exactly the diagonal-spring setting, `tests/test_m1d.py`) and the
+stretch stiffness EA swept on its own: fabrics A to D at EA 150, 800, 3200 N/m and at EA_kes, plus
+EA 40 on A and D. 126 cases, all converged under milestone 1b's rule; predictions committed first.
+
+EA_kes is new data, not a sweep value: Ramaiah et al.'s Table 3 also lists KES-FB1 tensile
+linearity LT and energy WT, and with the standard 500 gf/cm maximum load (assumed; the paper does
+not state it) the strain at that load is EMT = 2 WT / (LT Fm), giving a secant stiffness of 2,360
+(A), 15,490 (B), 7,380 (C) and 7,790 N/m (D). Because LT < 1, the curve stiffens with load, so this
+is an upper bracket on the stiffness under a garment's own weight.
+
+![Best arm width offset against stretch stiffness for fabrics A and D, shear tied to EA against shear from measured G](experiments/m1d_measured_shear/best_width_vs_ea.svg)
+
+| best offset (cm) | EA 40 | 150 | 800 | 3200 | EA_kes | 2D chain at EA_kes |
+|---|---|---|---|---|---|---|
+| A, cotton jersey | +2.0 | +1.5 | +1.0 | +1.0 | +1.0 (2,360) | +1.0 |
+| B, elastane jersey | | +1.5 | +1.0 | +1.0 | +1.0 (15,490) | +1.0 |
+| C, shirting | | +1.5 | +1.5 | +1.0 | +1.0 (7,380) | +1.0 |
+| D, suiting | +2.0 | +1.5 | +1.0 | +1.0 | +1.0 (7,790) | +1.0 |
+| A, shear tied to EA (1c) | +2.0 | +1.5 | +0.5 | | | |
+| D, shear tied to EA (1c) | +2.5 | +1.5 | +1.0 | | | |
+
+| | prediction | outcome |
+|---|---|---|
+| S1 | with measured G, EA 40 to 800 moves the best by at most 0.5 cm (A, D) | **refuted**: 1.0 cm on both; shear was a third of 1c's 1.5 cm |
+| S2 | EA 800, 3200 and EA_kes move the best by at most 0.5 cm, every fabric | held: +1.0 everywhere except C at EA 800 (+1.5) |
+| S3 | at EA_kes, 3D best within 0.5 cm of the 2D chain's | held, exactly: +1.0 on all four |
+| S4 | at EA 150, measured G narrows D's best to +1.0 or less | **refuted**: D stays at +1.5 |
+| S5 | at EA_kes every margin exceeds twice the last-chunk change | held: margins 0.021 to 0.078 cm against at most 0.0076 cm |
+
+**Post hoc: the stiffness at the garment's own load** (`posthoc_tangent.py`, not predicted). The
+relevant stiffness is the tangent at the shoulder load (3.7 to 7.3 N/m: each model garment's
+weight over the sheet's 20 cm depth), not the secant at 490 N/m. A power law F = Fm (e/EMT)^n with
+n = 2/LT − 1 matches both LT and WT. Its tangent at that load is 369 (A), 6,194 (B), 1,046 (C) and
+1,896 N/m (D), and 254, 5,164, 702 and 1,341 at half the load. The suiting and the elastane jersey sit in the
+regime where the choice is settled at +1.0 cm; the cotton jersey and the shirting sit where it
+flips between +1.0 and +1.5. Their answer needs the toe of the tensile curve at a few N/m, which
+the KES summary numbers do not give. A real curve with a linear toe would be stiffer at low load
+than this power law, so the estimate leans soft.
 
 ## Milestone 2b: refining the drape test's grid, and the shear spring hidden in EA
 
@@ -241,7 +289,7 @@ enough to separate the width choices with margin. Testing H1 needs the validated
 
 ## Limitations
 
-EA assumed and, until milestone 2b, shear tied to it at 0.1 EA (2b finds the shear spring, now sourced from KES G, carries most of the "EA" effect on drape; milestone 1c shows it moves the shallow-arm width choice by 1.5 cm across 40 to 800 N/m, and milestone 2a shows the 3D sheet's drape depends on it strongly, through
+EA swept, and bracketed only since milestone 1d (a secant from KES LT and WT at an assumed 500 gf/cm load, and a power-law tangent at the garment load), and, until milestone 2b, shear tied to it at 0.1 EA (2b finds the shear spring, now sourced from KES G, carries most of the "EA" effect on drape; milestone 1c shows it moves the shallow-arm width choice by 1.5 cm across 40 to 800 N/m, and milestone 2a shows the 3D sheet's drape depends on it strongly, through
 membrane locking); the simulated Cusick test has no measured drape to compare with yet; one garment size and one 20 cm strip, not a shirt; one hanger profile for
 the width sweep; no friction; the four fabrics are unfinished and come from a trade-site PDF;
 no validated solver yet; no real garment.
@@ -251,22 +299,23 @@ no validated solver yet; no real garment.
 1. Milestone 3: build an open validated solver (ARCSim or C-IPC) as the top tier and run the
    same Cusick test on it; it passes only if DC is flat in stretch stiffness and mesh (the test
    this sheet fails).
-2. Rerun milestone 1c's shallow-arm width choice with the shear spring set from the measured KES
-   G (26 to 89 N/m) and EA swept on its own (milestone 2b: shear, not stretch, carries most of
-   the drape's "EA" dependence); for the soft jersey, a 1.5 to 2 mm grid or a nonconforming
-   element, since 2.5 mm is not converged above EA 150.
-3. Source EA for the KES fabrics (KES-FB1 tensile, or a published woven tensile table): milestone
-   1c shows the shallow-arm width follows EA (+2.5 cm at 40 N/m to +1.0 at 800 on fabric D), and
-   recheck the mesh at high EA, where locking should be worst.
+2. Place the cotton jersey and the shirting: a published low-load load-extension curve for a
+   comparable cotton jersey and shirting, or an owner measurement (a strip, a spring scale, a
+   ruler), to find whether their stiffness at a few N/m is above or below the ~800 N/m where the
+   shallow-arm choice settles (milestone 1d). For the soft jersey's drape test, a 1.5 to 2 mm
+   grid or a nonconforming element, since 2.5 mm is not converged above EA 150.
+3. Recheck the shallow arm's mesh at EA 3200 and above (milestone 1d ran one mesh, and locking
+   should be worst at high EA); and give the sheet separate warp and weft stiffness, since woven
+   fabrics differ by direction (the source table gives one mean per property).
 4. Source a table of drape coefficient with B and W for the same fabrics (the Autex paper
    doi:10.2478/aut-2019-0034 with 63 woven fabrics is the first to read) once a session can
-   reach it, and source EA for the KES fabrics (KES-FB1 tensile).
+   reach it.
 
 ## Reproduce
 
 ```bash
 cd research/hanger-codesign
-python3 -m unittest discover -s tests              # 20 tests, under a minute; needs numpy
+python3 -m unittest discover -s tests              # 23 tests, under a minute; needs numpy
 python3 experiments/m1_kes_fidelity/run.py         # about 4 min on 4 cores
 python3 experiments/m1_kes_fidelity/figure.py      # the SVG above, stdlib only
 python3 experiments/m1c_ea_mesh/run.py           # milestone 1c, 70 cases, about 15 min on 4 cores
@@ -277,4 +326,7 @@ python3 experiments/m2_cusick/figure.py            # stdlib only
 python3 experiments/m2b_locking/run.py             # milestone 2b, 26 cases, about 20 min on 4 cores
 python3 experiments/m2b_locking/posthoc_shear.py   # post hoc shear/stretch swap, about 10 min
 python3 experiments/m2b_locking/figure.py          # stdlib only
+python3 experiments/m1d_measured_shear/run.py      # milestone 1d, 126 cases, about 40 min on 4 cores
+python3 experiments/m1d_measured_shear/posthoc_tangent.py  # stdlib only, instant
+python3 experiments/m1d_measured_shear/figure.py   # stdlib only
 ```
