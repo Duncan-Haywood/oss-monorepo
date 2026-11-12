@@ -1,9 +1,9 @@
 ---
 title: "Measuring the rounding noise did not tame the drift tolerance"
-seo_title: "Normalising fp16 replay drift by a measured noise probe: a negative result"
+seo_title: "Normalising fp16 replay drift by a noise probe: a negative result"
 date: 2026-11-12
 tags: [research, verifiable-training, machine-learning, open-source]
-description: "A referee that divides replay drift by the gradient rounding error it measures gets no more stable a threshold than one that divides by the step norm. The honest tail lives between seeds, not in the schedule."
+description: "Dividing fp16 replay drift by a measured gradient-noise probe gives no more stable a tolerance than the step norm: the honest tail lives between seeds."
 ---
 
 A referee that replays 20-step segments of an outsourced training run on fp16
