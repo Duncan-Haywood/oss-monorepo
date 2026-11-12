@@ -2,7 +2,8 @@
 title: "Multi-fidelity Bayesian optimisation for battery design loses its race at the start line"
 date: 2026-11-12
 tags: [cell-fidelity, batteries, simulation, multi-fidelity, bayesian-optimisation]
-description: Co-kriging BO over a cheap and a full battery model was slower than plain GP-EI, because of five random full runs at the start. Started from cheap runs, it kept pace with the best screen.
+seo_title: "Multi-fidelity BO for battery design loses at the start"
+description: Co-kriging BO over a cheap and a full battery model lost to GP-EI because of its random start. Started from cheap runs, it kept pace with the best screen.
 ---
 
 The `cell-fidelity` programme asks how a lithium-ion electrode design search should split its compute between a cheap battery model and the full DFN model. Yesterday's replay found something awkward for the textbook answer. On pools of 16 to 64 candidate designs, the fastest way to find a design within 1% of the best 100-cycle DFN score was crude: run every candidate through a cheap model (the plain SPM, or DFN stopped after 2 cycles), then run the full model in that order. Bayesian optimisation (GP-EI) on the full model only caught up at 96 candidates.
