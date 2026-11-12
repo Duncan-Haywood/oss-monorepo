@@ -82,8 +82,8 @@ flagships:
       first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): first-seen 68.7% right, 15.6% wrong; card MCC (README): first-seen right 41% to 66% (Scotland), 61% to 75% (Toronto year, 16 divisions 55-84%); wanted: a firm's own labelled bank books; (1) AI layer on real lines (README "A year of Toronto"): local Qwen 7B right on 35 of 140, 14B on 24 (abstains 32), rules 43; fill keeps the guess (48 either model); split-category plurality measured, off; next: a hosted model (needs a key), real bank text; (2) bank readers: 22 public US exports all read (README); open: WF, US Bank, Chase downloads, a business account; (3) Adyen's sample read (README); open: a real merchant's payout export, a real 1099-K; (4) a real supplier's terms letter
       checked against the fee and discount rules, and one named lender's own
       schedule against the loan register (`loan check`); (5) receipts
-      through real OCR (SROIE page 80.8%; CORD phone photos 50.5%, unwarned
-      wrong 12 of 95, README; next: a US thermal photo); (6) payroll (941, Schedule B, 940,
+      through real OCR (SROIE 83.4%, CORD photos 50.5%, US photos 68.4%,
+      README; next: curled paper, full-size photos); (6) payroll (941, Schedule B, 940,
       deposits, `payroll reconcile`): a real Gusto or ADP report; (7) IRIS
       NEC and MISC rents files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
       return` (page card; no-sales-tax states warn): due dates read from the
@@ -97,15 +97,6 @@ flagships:
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
   - venture: sales-agent
-    buildable: >-
-      (3c) the pre-registered test (eval/README "A 14B local model on the same replies"): finish
-      Qwen2.5-14B-Instruct Q4_K_M on the other 611 replies (`LLM_PROVIDER=llamacpp node eval/model.mjs
-      eval/fresh-*.jsonl eval/replies.jsonl eval/heldout.jsonl --cache eval/model-answers/qwen2.5-14b-q4km.json`
-      resumes from the committed cache; 21 s a reply on 4 cores, so about 3.5 hours; load the server with
-      `--use_mmap false` or the kernel kills it at 15 GB; start it with nohup), then score whether its closes on
-      rules-unclear replies reach the bar written there (at least 85% right, at most 2 lost silently) and, only if they
-      do, add the opt-in setting. Without a model host: re-score any merge change offline from the committed caches
-      (`--offline`). Any rule change: re-score all eight Enron halves before and after by Message-ID (about 10 min).
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
@@ -123,10 +114,12 @@ flagships:
       real replies to outreach and a real rep's call notes to check the reply rules, prep rules and follow-up
       sorter; (3) M2: Qwen2.5 7B on all 792 replies (alone 86% of fresh vs rules-before-tuning 69%; merged
       735/792, 2 false opt-outs) and Qwen2.5 14B on the first 181 (alone 144 vs 136, merged 146 vs 147, 9 false
-      opt-outs vs 6, closes on rules-unclear replies 7 of 7 right); next the pre-registered test on the other 611
-      (buildable above) and a hosted model; (4) run the self-host server, OAuth and CRM write-back against a real
-      mailbox, Google or Microsoft app and HubSpot or Pipedrive account (all fakes so far); (5) a real HubSpot or
-      Pipedrive export for the research agent (none found public).
+      opt-outs vs 6, and on all 792 merged 732 vs the 7B's 735 with 27 false opt-outs alone vs 10; a
+      pre-registered test of letting its closes act alone failed on the 611 it had not been read on: 2 of 7 right,
+      4 live replies lost); next a hosted model of another family (needs a key), merge limits unchanged; (4) run
+      the self-host server, OAuth and CRM write-back against a real mailbox, Google or Microsoft app and HubSpot
+      or Pipedrive account (all fakes so far); (5) a real HubSpot or Pipedrive export for the research agent (none
+      found public).
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.
@@ -162,7 +155,7 @@ flagships:
       (excerpts; Taiwan, Oman dates disagree); Mexico CFDI 4.0 and three complements landed 2026-11-12 (README "Mexico: ..."):
       open: a real payroll or export file, a PAC rejection compared,
       Carta Porte, postal code to municipality/colonia;
-      Brazil NF-e 4.00 landed 2026-11-12 (README "Brazil: NF-e"; 35 real files, vII fix); open: PL_010 IBS/CBS groups, a real SEFAZ rejection, NFS-e; refresh the Bulgaria
+      Brazil NF-e 4.00 landed 2026-11-12 (README "Brazil: NF-e"; 35 real files, vII fix); PL_010_V1.30 reform layout and IBS/CBS/IS sums (BR-050..052, 4,987/4,987 vs xmllint) landed 2026-11-12; open: a real reform NF-e from a SEFAZ test environment, cClassTrib/rate tables, a real SEFAZ rejection, NFS-e; refresh the Bulgaria
       page when its draft passes. A run that lands a slice replaces its
       item here; keep this under 2,000 characters.
 
@@ -175,9 +168,11 @@ flagships:
       Landed work and every measurement are in the README and eval/*. Exact side: branch-and-price and column generation
       prove 20-80 person weeks; the exact check is on by default at every size (README "The exact check on by default,
       every size"). Forecast side (--from-sales, four real files): backtest, closure score, half-life auto, priced cut,
-      tickets, labour standard, shut-door work (README, 2026-11-12 sections). Planner: runs in the worker, reuses
-      repeated weeks, and since 2026-11-12 keeps people on their usual shifts (README "Keep people on their usual
-      shifts": week-to-week changes -56-72% at the same open hours, leave swept at 2-8%). Next: close the 100-person
+      tickets, labour standard, shut-door work (README, 2026-11-12 sections). Planner: worker, week reuse, keeps
+      usual shifts (README "Keep people on their usual shifts"). Posted weeks: a call-out rebuild holds started shifts
+      and keeps posted ones (README "Reissue a posted week without reshuffling it": late changes 190 to 91 on 41). Next: whether 91
+      is the least (a change-count ILP, or score changes rather than kept shifts so a same-day move counts once); the
+      same reissue on the four templates and 20-60 person weeks; close the 100-person
       gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person pay week ($1.22 open); the
       60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held); the open-hours row now goes into the first
       score pass (README "The open-hours row from the first pass": the lifted coverage root LP, the two slow call-out
@@ -192,10 +187,10 @@ flagships:
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     buildable: >-
-      FixVignetteRadial and MapPolynomial in dng_opcodes.py on synthetic DNGs
-      (closed-form answers, as tests/test_dng_warp.py does for the warp), then
-      look for a camera DNG carrying them in metadata-extractor-images on
-      raw.githubusercontent.com.
+      FixBadPixelsConstant and FixBadPixelsList (neighbour averaging along the
+      CFA) and WarpFisheye in dng_opcodes.py on synthetic DNGs with closed-form
+      answers, as tests/test_dng_vignette_poly.py does; MapTable and
+      Delta/ScalePerRow/Column are smaller and the same shape.
     next: >-
       History and every measurement: README and eval/ (ingest, catalog,
       proxies, cull, RAW previews; DNG developer with DNG-spec colour, DCP
@@ -207,8 +202,10 @@ flagships:
       the phone's OpcodeList2 GainMap lens shading runs, eval/camera-dngs-
       2026-11-12.md; OpcodeList3 WarpRectilinear runs and matches the Leica
       T's own preview to 0.18 px against 4.2 px uncorrected, eval/warp-
-      rectilinear-2026-11-12.md). Next, most valuable first: the other
-      opcodes (FixVignetteRadial, MapPolynomial, FixBadPixels, WarpFisheye);
+      rectilinear-2026-11-12.md; FixVignetteRadial/MapPolynomial on
+      synthetic files, eval/vignette-polynomial-2026-11-12.md).
+      Next, most valuable first: FixBadPixels, WarpFisheye, MapTable; a real
+      DNG carrying FixVignetteRadial;
       lateral colour measured on a real frame with sharp corner edges; a real Adobe `.dcp` through the profile chooser;
       newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that
       collection under their plain names) and the DJI DNG (name unknown
@@ -220,10 +217,9 @@ flagships:
       tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
       Adobe render of a known frame (settles `--default-tone-curve always`);
       the grade-scope saving on real 4K footage; the native Huffman reader on
-      macOS and the 0.8 s list the public decoder still builds dropped; a
-      camera-written lossless-JPEG DNG; a trained blink model and a real shoot
-      with a photographer's picks; photos with a real horizon and human tilt
-      labels.
+      macOS; a camera-written lossless-JPEG DNG; a trained blink model and a
+      real shoot with a photographer's picks; photos with a real horizon and
+      human tilt labels.
 
   - venture: quick-pick-survey
     why: >-
@@ -268,23 +264,19 @@ flagships:
       Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up
       CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool,
-      capped breaks, zero-break odd leagues, field start at 4/8/16/32 teams; sampled, annealed and
-      O(p)-climbed starters, 20 and 22 teams at the floor, 24-40 8-21% above it; refilled rounds,
-      12 teams 136 against 120; break-weighted starters; all 2026-11-11). Shift venues 2026-11-11
-      latest (README "Home and away that moves with the starter", eval/starter-orient.mjs,
-      eval/shift-search.txt): a starter's home/away read off the starter has exactly
-      (p-1)(E+1) breaks, or (p-1)E with a bye, least E by a Gray-code walk; scored as a candidate at
-      break weights, plus STARTERS_SHIFT from a climb with breaks in the move: odd leagues 17-39
-      from 4-10 breaks per team to under 2 (23 teams 565/127 to 565/44), 18 of 28 sizes lower at
-      weight 10, none higher. Refill from climbed starters at 13-18 teams: no gain (negative).
-      Shift leg ones for home-and-away seasons 2026-11-11 (README "Shift venues for a home-and-away
-      season", eval/shift-double.txt): 25 teams 2,889/262 to 2,685/117, 9 of 10 sizes lower at
-      weight 10, 26 unchanged. Next, most valuable first: re-measure the page's best-of-k picks
-      with it; seed assignVenues with the shift orientation after the search's moves; a lower bound or a
-      timetable below 136 at 12 (SAT encoding eval/carryover-sat.py, 2026-11-12: 10 teams proved >= 90, 12
-      teams unanswered at 134 after 70 min; next symmetry breaking or cube-and-conquer, README "SAT bounds"); close 24-40 (tabu, longer runs, the literature's starters and
-      terraces); a 20-team leg at 22-30 breaks from a starter timetable; a real league's travel
-      times and unavailable dates; a print check.
+      capped breaks, zero-break odd leagues, field start; sampled, annealed and climbed starters,
+      20 and 22 teams at the floor, 24-40 8-21% above it; break-weighted starters; shift venues for
+      single and home-and-away seasons, odd leagues 17-39 under 2 breaks per team). 2026-11-12
+      (README "Shift venues carried through the search", eval/field-shift.txt, eval/shift-carry.txt):
+      shift starters at the field sizes, 15 teams 195/41 to 195/28, 31 teams 899/245 to 1,189/60;
+      capped shift candidates, 11 teams 253 to 237, 13 teams 373 to 335; carried pair hosts through
+      the search's moves: 1 row of 60 changed (negative, off). Next, most valuable first: the 16/32
+      shift starters and capped candidates in the home-and-away search; re-measure the page's
+      best-of-k picks with all of it; moves that keep the shift pattern for 17-40 teams; a lower
+      bound or a timetable below 136 at 12 (SAT, eval/carryover-sat.py: 10 teams proved >= 90, 12
+      unanswered at 134 after 70 min; next symmetry breaking or cube-and-conquer); close 24-40
+      (tabu, longer runs, the literature's starters); a real league's travel times and unavailable
+      dates; a print check.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

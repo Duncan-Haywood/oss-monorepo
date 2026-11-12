@@ -253,7 +253,9 @@ export const STARTERS_SHIFT = {
   22: { even: [1, 1, 13, 2, 19, 3, 17, 4, 9, 5, 20, 6, 14, 7, 18, 8, 11, 10, 12, 15, 16], odd: [1, 1, 16, 2, 19, 3, 14, 4, 18, 5, 6, 7, 15, 8, 20, 9, 11, 10, 13, 12, 17] },
   26: { odd: [1, 1, 14, 2, 8, 3, 12, 4, 21, 5, 7, 6, 10, 9, 19, 11, 18, 13, 24, 15, 16, 17, 22, 20, 23] },
   28: { odd: [1, 1, 5, 2, 23, 3, 8, 4, 22, 6, 20, 7, 14, 9, 25, 10, 13, 11, 21, 12, 24, 15, 16, 17, 19, 18, 26] },
+  16: { odd: [1, 1, 12, 2, 9, 3, 4, 5, 10, 6, 8, 7, 13, 11, 14] },
   30: { even: [1, 1, 4, 2, 25, 3, 10, 5, 17, 6, 15, 7, 26, 8, 21, 9, 14, 11, 22, 12, 16, 13, 28, 18, 20, 19, 27, 23, 24], odd: [1, 1, 6, 2, 9, 3, 28, 4, 17, 5, 23, 7, 10, 8, 20, 11, 21, 12, 27, 13, 19, 14, 15, 16, 25, 18, 26, 22, 24] },
+  32: { odd: [1, 1, 28, 2, 8, 3, 18, 4, 21, 5, 17, 6, 9, 7, 15, 10, 30, 11, 13, 12, 22, 14, 23, 16, 29, 19, 24, 20, 27, 25, 26] },
   34: { even: [1, 1, 2, 3, 30, 4, 17, 5, 26, 6, 21, 7, 18, 8, 10, 9, 32, 11, 15, 12, 20, 13, 27, 14, 31, 16, 23, 19, 28, 22, 25, 24, 29], odd: [1, 1, 18, 2, 21, 3, 28, 4, 25, 5, 8, 6, 10, 7, 30, 9, 20, 11, 17, 12, 14, 13, 31, 15, 24, 16, 29, 19, 26, 22, 23, 27, 32] },
   36: { even: [1, 1, 32, 2, 18, 3, 9, 4, 16, 5, 13, 6, 23, 7, 14, 8, 30, 10, 34, 11, 31, 12, 26, 15, 20, 17, 27, 19, 21, 22, 25, 24, 33, 28, 29], odd: [1, 1, 28, 2, 17, 3, 21, 4, 9, 5, 12, 6, 19, 7, 16, 8, 33, 10, 24, 11, 14, 13, 32, 15, 26, 18, 20, 22, 34, 23, 27, 25, 31, 29, 30] },
   38: { even: [1, 1, 10, 2, 7, 3, 18, 4, 33, 5, 25, 6, 9, 8, 19, 11, 34, 12, 24, 13, 32, 14, 35, 15, 16, 17, 30, 20, 22, 21, 28, 23, 29, 26, 36, 27, 31], odd: [1, 1, 36, 2, 26, 3, 20, 4, 15, 5, 10, 6, 24, 7, 32, 8, 30, 9, 16, 11, 25, 12, 21, 13, 23, 14, 35, 17, 18, 19, 27, 22, 28, 29, 33, 31, 34] },
@@ -328,7 +330,7 @@ export function shiftVenues(N, f, H) {
  * beats every searched start (odd leagues of 17 to 35 teams: about half the breaks at the same
  * carry-over, README "Home and away that moves with the starter").
  */
-function shiftStarts(N, n) {
+export function shiftStarts(N, n) {
   const kind = n === N ? "even" : "odd", p = N - 1, out = [];
   for (const [which, table] of [["starter", STARTERS], ["weighted starter", STARTERS_WEIGHTED], ["shift starter", STARTERS_SHIFT]]) {
     const entry = table[N]?.[kind];
@@ -340,6 +342,26 @@ function shiftStarts(N, n) {
     out.push({ which, opp: starterOpp(N, pairs, { step: 1 }), venues: shiftVenues(N, f, H) });
   }
   return out;
+}
+
+/**
+ * `best` (a lowCarryOverRounds result) against every shift candidate (shiftStarts): the built-in
+ * starters as they are, with home/away that shifts with them (shiftVenues), which no venue search
+ * gets near on odd leagues, and, with `shiftCapped`, each one annealed on carry-over with its
+ * home/away carried and its breaks as the cap (lowCarryOverCappedRounds from that start; 11 and 13
+ * teams gain, README "Shift venues carried through the search"). A candidate is kept only when its
+ * carry-over + breakWeight x breaks is strictly lower.
+ */
+function withShiftCandidates(best, N, n, { seed, effort, cyclic, breakWeight, shiftCapped }) {
+  const score = (r) => r.coe + breakWeight * r.breaks;
+  for (const c of shiftStarts(N, n)) {
+    const st = finish(c.opp, n, cyclic, best.circleCoe, best.lowerBound, best.iterations, seed, c.venues);
+    if (score(st) < score(best)) best = { ...st, start: `${c.which}, shift venues` };
+    if (!shiftCapped) continue;
+    const { maxBreaks, ...cap } = lowCarryOverCappedRounds(n, { seed, effort, cyclic, start: c });
+    if (score(cap) < score(best)) best = { ...cap, circleCoe: best.circleCoe, lowerBound: best.lowerBound, start: `${c.which}, shift venues, capped` };
+  }
+  return best;
 }
 
 /** True when a searched starter or stored timetable is built in for N teams (N even, a bye team included). */
@@ -462,15 +484,51 @@ function bestStarterOnly(N, n, cyclic, weighted = false) {
   const [step, ...flat] = entry;
   const pairs = [];
   for (let i = 0; i < flat.length; i += 2) pairs.push([flat[i], flat[i + 1]]);
-  let best = null, bestC = Infinity, bestB = Infinity;
+  let best = null, bestC = Infinity, bestB = Infinity, bestStart = 0;
   for (let start = 0; start < N - 1; start++) {
     const o = starterOpp(N, pairs, { step, start });
     const c = coeOf(o, n, cyclic);
     if (c > bestC) continue;
     const b = greedyBreaks(o, n);
-    if (c < bestC || b < bestB) { best = o; bestC = c; bestB = b; }
+    if (c < bestC || b < bestB) { best = o; bestC = c; bestB = b; bestStart = start; }
   }
+  // who hosts whom under the starter's least-break shift venues, for seeding the venue search
+  // after the carry-over moves (pairHostsOf, README "Shift venues carried through the search")
+  best.hosts = pairHostsOf(best, starterShiftVenues(N, entry, bestStart));
   return best;
+}
+
+/**
+ * The least-break shift venues of starterOpp(N, pairs of entry, { step, start }). That timetable is
+ * the step-1 timetable of starterPartner(N, entry) with team t renamed step * (t + start) mod p
+ * (the fixed team p stays p): both play the fixed team against those teams in round r.
+ */
+export function starterShiftVenues(N, entry, start = 0) {
+  const p = N - 1, step = entry[0];
+  const f = starterPartner(N, entry);
+  const { H } = shiftOrientation(f, p);
+  return shiftVenues(N, f, H).map((v) => {
+    const w = new Uint8Array(N);
+    for (let t = 0; t < N; t++) w[t === p ? p : (step * (t + start)) % p] = v[t];
+    return w;
+  });
+}
+
+/**
+ * hosts[t * N + u] = 1 when t hosts u under `venues` for timetable `opp` (a single round robin, so
+ * every pair meets once). Every carry-over move keeps the set of pairs, so this map gives a valid,
+ * equally balanced home/away for any timetable the search reaches from `opp` (venuesFromHosts).
+ */
+export function pairHostsOf(opp, venues) {
+  const N = opp[0].length, hosts = new Uint8Array(N * N);
+  for (let r = 0; r < opp.length; r++) for (let t = 0; t < N; t++) hosts[t * N + opp[r][t]] = venues[r][t] ? 1 : 0;
+  return hosts;
+}
+
+/** venues[r][t] for timetable `opp` with every pair keeping the host `hosts` gives it. */
+export function venuesFromHosts(opp, hosts) {
+  const N = opp[0].length;
+  return opp.map((o) => { const v = new Uint8Array(N); for (let t = 0; t < N; t++) v[t] = hosts[t * N + o[t]]; return v; });
 }
 
 /**
@@ -582,7 +640,7 @@ function cycleOf(opp, r, s, t) {
  * (shiftStarts; `shift: false` turns it off), and one is kept only when strictly better.
  * Returns { rounds, coe, circleCoe, lowerBound, breaks, iterations }.
  */
-export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false, weightedStarter = true, shift = true } = {}) {
+export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false, weightedStarter = true, shift = true, shiftCapped = true, carryHosts = false } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
   if (field && !fromStarter && !fieldApplies(N) && starterApplies(N)) {
@@ -592,18 +650,17 @@ export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, br
     const score = (r) => r.coe + breakWeight * r.breaks;
     let best = { ...lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field: false }), start: "circle" };
     for (const which of constructionStarts(N, n, breakWeight > 0 && weightedStarter)) {
-      const st = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field, fromStarter: which });
+      const st = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field, fromStarter: which, carryHosts });
       if (score(st) < score(best)) best = { ...st, start: which };
     }
-    if (breakWeight > 0 && shift) {
-      // the built-in starters as they are, with home/away that shifts with them (shiftVenues):
-      // no venue search gets near it on odd leagues, so it is a candidate of its own
-      for (const c of shiftStarts(N, n)) {
-        const st = finish(c.opp, n, cyclic, best.circleCoe, best.lowerBound, best.iterations, seed, c.venues);
-        if (score(st) < score(best)) best = { ...st, start: `${c.which}, shift venues` };
-      }
-    }
+    if (breakWeight > 0 && shift) best = withShiftCandidates(best, N, n, { seed, effort, cyclic, breakWeight, shiftCapped });
     return best;
+  }
+  if (field && !fromStarter && fieldApplies(N) && breakWeight > 0 && shift && shiftStarts(N, n).length) {
+    // 15 and 31 teams: the field timetable with a bye leaves 41 and 245 breaks; a shift starter
+    // (STARTERS_SHIFT 16 and 32, odd) is a candidate here too
+    const best = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field, shift: false });
+    return withShiftCandidates({ ...best, start: "field" }, N, n, { seed, effort, cyclic, breakWeight, shiftCapped });
   }
   const rand = mulberry32(seed);
   let opp = circleOpp(N);
@@ -618,6 +675,9 @@ export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, br
     opp = bestStarterOpp(N, n, cyclic, fromStarter === true ? "starter" : fromStarter);
     useField = true;
   }
+  // with a break weight, the starter's shift home/away rides along: every move keeps the set of
+  // pairs, so each pair keeps its host and the venue search gets that as one more start
+  const hosts = breakWeight > 0 && shift && carryHosts && opp.hosts ? opp.hosts : null;
   const R = N - 1;
   let cur = coeOf(opp, n, cyclic);
   let best = cur, bestOpp = opp.map((o) => o.slice());
@@ -631,19 +691,24 @@ export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, br
   if (breakWeight > 0) {
     // second pass: trade some carry-over for fewer home/away breaks, scored with a fast greedy
     // venue pass; the full venue search runs once on the result
-    const mixed = (o) => coeOf(o, n, cyclic) + breakWeight * greedyBreaks(o, n);
+    // with carried pair hosts (see `hosts` above), the breaks they give are a second stand-in:
+    // the cheaper of the two prices each move, so moves that keep the starter's home/away pattern
+    // are not charged for breaks the greedy pass would add
+    const mixed = hosts && carryHosts !== "seed"
+      ? (o) => coeOf(o, n, cyclic) + breakWeight * Math.min(greedyBreaks(o, n), fixedHostBreaks(o, n, hosts))
+      : (o) => coeOf(o, n, cyclic) + breakWeight * greedyBreaks(o, n);
     const start = bestOpp.map((o) => o.slice());
     const floorOpp = start.map((o) => o.slice());
     ({ bestOpp } = anneal(start, mixed, { iterations: Math.round(iterations / 2), T0: T0 / 2, rand, stopAt: -Infinity }));
     if (useField) {
       // The greedy stand-in can trade the field timetable's floor for breaks the full venue search
       // then does not deliver (16 teams: 224 / 24 breaks became 256 / 24), so score both exactly.
-      const traded = finish(bestOpp, n, cyclic, circleCoe, lb, iterations, seed);
-      const kept = finish(floorOpp, n, cyclic, circleCoe, lb, iterations, seed);
+      const traded = finish(bestOpp, n, cyclic, circleCoe, lb, iterations, seed, null, hosts);
+      const kept = finish(floorOpp, n, cyclic, circleCoe, lb, iterations, seed, null, hosts);
       return kept.coe + breakWeight * kept.breaks <= traded.coe + breakWeight * traded.breaks ? kept : traded;
     }
   }
-  return finish(bestOpp, n, cyclic, circleCoe, lb, iterations, seed);
+  return finish(bestOpp, n, cyclic, circleCoe, lb, iterations, seed, null, hosts);
 }
 
 /**
@@ -657,7 +722,7 @@ export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, br
  * fewest-breaks end of the trade, where the breakWeight pass is the low-carry-over end.
  * Returns the lowCarryOverRounds shape plus { maxBreaks }.
  */
-export function lowCarryOverCappedRounds(n, { seed = 1, effort = 1, cyclic = false, maxBreaks = null } = {}) {
+export function lowCarryOverCappedRounds(n, { seed = 1, effort = 1, cyclic = false, maxBreaks = null, start = null } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
   const R = N - 1;
@@ -665,8 +730,9 @@ export function lowCarryOverCappedRounds(n, { seed = 1, effort = 1, cyclic = fal
   const circle = circleOpp(N);
   const circleCoe = coeOf(circle, n, cyclic);
   const lb = carryOverFromOpponents(opponentsFromOpp(circle, n), { cyclic }).lowerBound;
-  const opp = circle;
-  const ven = assignVenues(opp, n, seed);
+  // `start` ({ opp, venues }, e.g. a shift candidate) replaces the circle method and its venues
+  const opp = start ? start.opp.map((o) => o.slice()) : circle;
+  const ven = start ? start.venues.map((v) => v.slice()) : assignVenues(opp, n, seed);
   const breaksOf = () => { let b = 0; for (let t = 0; t < n; t++) b += teamBreaks(ven, opp, t, n); return b; };
   const balanced = (ts) => {
     for (const t of ts) {
@@ -809,6 +875,23 @@ function anneal(opp, costOf, { iterations, T0, rand, stopAt, blocks = [[0, opp.l
   return { best, bestOpp };
 }
 
+/** Breaks when every pair keeps the host `hosts` gives it (pairHostsOf), byes resetting a streak. */
+function fixedHostBreaks(opp, n, hosts) {
+  const R = opp.length, N = opp[0].length;
+  let b = 0;
+  for (let t = 0; t < n; t++) {
+    let last = -1;
+    for (let r = 0; r < R; r++) {
+      const u = opp[r][t];
+      if (u >= n) { last = -1; continue; }
+      const v = hosts[t * N + u];
+      if (v === last) b++;
+      last = v;
+    }
+  }
+  return b;
+}
+
 /** Breaks after the greedy venue pass alone (no annealing): a cheap stand-in inside the search. */
 let greedyPhase = new Int8Array(0); // scratch, reused across calls (see coeOf)
 function greedyBreaks(opp, n) {
@@ -837,7 +920,8 @@ function opponentsFromOpp(opp, n) {
   return out;
 }
 
-function finish(opp, n, cyclic, circleCoe, lowerBound, iterations, seed, venues = assignVenues(opp, n, seed)) {
+function finish(opp, n, cyclic, circleCoe, lowerBound, iterations, seed, venues = null, hosts = null) {
+  if (!venues) venues = assignVenues(opp, n, seed, 8, { hosts });
   const rounds = opp.map((o, r) => {
     const matches = [];
     let bye = null;
@@ -879,8 +963,15 @@ function teamBreaks(venues, opp, t, n) {
  * `legacy: true` is the single-flip search with the greedy start only, kept for the measurements
  * in eval/venue-runs.mjs.
  */
-export function assignVenues(opp, n, seed = 1, restarts = 8, { legacy = false } = {}) {
+export function assignVenues(opp, n, seed = 1, restarts = 8, { legacy = false, hosts = null } = {}) {
   let best = null, bestCost = Infinity;
+  if (hosts) {
+    // one more restart, from the pair hosts carried through the search (see pairHostsOf); kept
+    // only when strictly better than every unseeded restart, so a size can only gain
+    const plain = assignVenues(opp, n, seed, restarts, { legacy });
+    const seeded = assignVenuesOnce(opp, n, (seed * 7919 + 0x51ed) >>> 0, { start: venuesFromHosts(opp, hosts) });
+    return venueCost(seeded, opp, n) < venueCost(plain, opp, n) ? seeded : plain;
+  }
   const colour = !legacy && byeStretches(opp, n);
   for (let k = 0; k < restarts; k++) {
     const start = colour && k % 2 === 0 ? colourStart(opp, n, colour, (seed * 31 + k) >>> 0) : null;

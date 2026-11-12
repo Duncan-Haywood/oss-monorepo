@@ -1,0 +1,18 @@
+cells run: 12 (4 categories of 4 planned)
+1.5B anger n 500 (J 0.457): oracle 0.912; pooled half-width 1.234 pts, cov 95.3; default 0.982 (48% cells, cov 95.6), m=0 0.978 (29% cells, cov 95.9), m=0.02 0.983 (24% cells, cov 95.8)
+1.5B anger n 1000 (J 0.457): oracle 0.904; pooled half-width 0.829 pts, cov 94.1; default 0.914 (91% cells, cov 95.5), m=0 0.914 (75% cells, cov 95.2), m=0.02 0.916 (67% cells, cov 95.3)
+1.5B anger n 2000 (J 0.457): oracle 0.831; pooled half-width 0.531 pts, cov 94.7; default 0.829 (100% cells, cov 94.3), m=0 0.829 (100% cells, cov 94.3), m=0.02 0.830 (99% cells, cov 94.3)
+1.5B curiosity n 500 (J 0.409): oracle 0.944; pooled half-width 1.548 pts, cov 95.5; default 0.958 (81% cells, cov 96.1), m=0 0.954 (57% cells, cov 95.8), m=0.02 0.955 (50% cells, cov 95.9)
+1.5B curiosity n 1000 (J 0.409): oracle 0.939; pooled half-width 1.046 pts, cov 95.1; default 0.930 (99% cells, cov 95.1), m=0 0.930 (82% cells, cov 94.8), m=0.02 0.932 (73% cells, cov 94.8)
+1.5B curiosity n 2000 (J 0.409): oracle 0.904; pooled half-width 0.670 pts, cov 95.4; default 0.898 (100% cells, cov 94.8), m=0 0.898 (98% cells, cov 95.0), m=0.02 0.900 (94% cells, cov 95.3)
+1.5B disapproval n 500 (J 0.135): oracle 1.092; pooled half-width 1.398 pts, cov 95.2; default 1.034 (46% cells, cov 95.3), m=0 1.001 (11% cells, cov 94.7), m=0.02 1.001 (6% cells, cov 95.2)
+1.5B disapproval n 1000 (J 0.135): oracle 1.100; pooled half-width 0.942 pts, cov 96.7; default 1.046 (62% cells, cov 95.8), m=0 0.998 (7% cells, cov 95.7), m=0.02 0.998 (5% cells, cov 95.9)
+1.5B disapproval n 2000 (J 0.135): oracle 1.041; pooled half-width 0.603 pts, cov 94.0; default 1.016 (69% cells, cov 95.0), m=0 0.999 (17% cells, cov 93.5), m=0.02 0.998 (8% cells, cov 93.7)
+1.5B gratitude n 500 (J 0.778): oracle 0.669; pooled half-width 1.663 pts, cov 94.3; default 0.980 (10% cells, cov 93.9), m=0 0.980 (10% cells, cov 93.9), m=0.02 0.980 (10% cells, cov 93.9)
+1.5B gratitude n 1000 (J 0.778): oracle 0.632; pooled half-width 1.128 pts, cov 95.9; default 0.883 (39% cells, cov 95.6), m=0 0.883 (39% cells, cov 95.6), m=0.02 0.883 (39% cells, cov 95.6)
+1.5B gratitude n 2000 (J 0.778): oracle 0.520; pooled half-width 0.724 pts, cov 95.3; default 0.609 (84% cells, cov 97.4), m=0 0.609 (84% cells, cov 97.4), m=0.02 0.609 (84% cells, cov 97.4)
+P1 coverage >= 93% in every cell and rule: yes
+P2 m=0 ratio <= 1.010 in every cell: yes (worst 1.001)
+P3 m=0 keeps >= 90% of the screen-only gain over 7 cells: yes (100%)
+P4 (observation) oracle < 1 where m=0 < 0.97 (7 cells): yes
+Decision rule: WIDTH_MARGIN 0 stays the default; held on held-out categories

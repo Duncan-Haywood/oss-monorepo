@@ -358,6 +358,26 @@ against -0.7 to -4.1 CC. The median results stand. Transfer beats Seattle's own 
 every year, by more on complete labels (-5.3 to -8.3 days) than CC shows. From here, build-time q0.9 is
 scored only on test years whose shortest window exceeds the cohort's tail.
 
+Session 79 applied that rule to the permit-type against work-type comparison of 4.4b
+(`../results/censored_eval_validate_*_cascade2-type-cascade2_nodemo.json`; five predictions written
+before the runs). On all rows of Seattle's 2020, 2021 and 2022 cohorts the work-type class lowers the
+transfer q0.9 loss by 3.2, 6.3 and 6.3 days (intervals 1.2 to 5.2, 4.1 to 8.2, 4.1 to 8.8). The 2024
+cost reported above (2.2 days in session 74, 3.0 on the re-pulled feeds) is therefore a censoring
+artefact like the fold gain: complete-case scoring of a two-year window is below the reference in all
+three years and reports a cost in 2020 (-2.3 days, interval -3.7 to -0.9). At the median the class is
+a wash in Seattle (-0.4 to +0.8 days). With other cities held out (test year 2021 only) the sign of the
+tail effect changes. San Francisco gains 15.7 days at q0.9 (interval 14.2 to 17.4); Austin loses 15.3
+(14.6 to 16.0), although the class helps Austin at the median (2.6 days) and helps Austin's own-city
+model at every quantile. Folding demolition, which costs Seattle 1.7 to 2.5 days, changes nothing in San
+Francisco (0.0) and helps Austin (-2.0 days, interval -2.9 to -1.3). Censoring distorts the comparison
+in proportion to how much of a cohort outlasts the window: in Seattle (5 to 8% beyond the longest window)
+complete-case scoring shrinks or reverses the effect, in San Francisco (3.5%) and Austin (1.6%) it keeps
+the sign and inflates the size (SF +33.9 against +15.7 days). In Austin the IPCW assumption that build
+time does not depend on the issue day within the year also fails (800-to-900-day rows seen 41% of the
+time against a predicted 55%). For a practitioner the result is a check, not a rule: whether a class
+feature helps a borrowed model's build-time tail must be measured per target city, on cohorts old
+enough to be seen in full.
+
 Agreement beyond chance (Cohen's kappa, `python3 ../src/desc_eval.py kappa`) is 0.79 in Chicago and
 0.90 in Seattle on the held-out year for the revised rules, against 0.47 and 0.58 for the original.
 
@@ -474,5 +494,5 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 4. A fourth city after a licence check: Seattle added in 4.8 (public domain; H1, coverage, width and H4 transfer for 2022 to 2024); NYC DOB NOW is still unchecked. (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
 5. Empirical permit-duration prior published for all three cities (4.7); a median-of-predictions table of the boosted model failed to keep its gain (4.7a); a model-based version for `ventures/` is still to do: three flattening routes (4.7a, 4.7c) keep the gain only partly, the guarded-interval rerun (4.7d) repaired the collapse, and 4.7e picks the shipped interval (per-type baseline in four of five sets).
 6. Build a work-type class from the description text for Chicago and Seattle (4.4a: their structured fields do not name the work; overlap without "other" is 0.00 to 0.19) and from `work_class` for Austin, validate it on a hand-labelled sample, and rerun H4. Code in place (session 70: `src/classmap.py` cascade, the loader's `desc_class`, `transfer.py --classes cascade`, with a prediction in `../LOG.md`). Validated in session 71 (4.4b): the session 70 rules agree with hand labels on 60% (Chicago) and 78% (Seattle) of held-out rows, the revised rules (`desc_class_v2`, `--classes cascade2`) on 85% and 95%.
-7. Score issue-to-completion with a censoring-aware evaluation: done for the demolition fold in session 78 (4.4b; IPCW cannot reach q0.9 on a two-year window, so tails are scored on mature cohorts). Still to do: rerun cascade2 against type (4.4b) on mature cohorts, other held-out cities, and a censored-quantile model that trains on incomplete permits.
+7. Score issue-to-completion with a censoring-aware evaluation: done for the demolition fold in session 78 (4.4b; IPCW cannot reach q0.9 on a two-year window, so tails are scored on mature cohorts). Session 79 reran cascade2 against type on mature cohorts and held out SF and Austin (2021): the tail effect is city-specific (4.4b). Still to do: SF and Austin in other mature years, a by-class split of Austin's cost, an issue-month-conditional G for Austin, and a censored-quantile model that trains on incomplete permits.
 8. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.

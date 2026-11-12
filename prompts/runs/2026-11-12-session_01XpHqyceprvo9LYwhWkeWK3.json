@@ -17,7 +17,7 @@
   "tokens_out": 29119,
   "cost_usd": 3.0954,
   "tool_calls": 75,
-  "task": "Deepen (flagship 3) sales-agent: (3b) Qwen2.5 14B local model on the reply sets, and (1) the Enron third reader with the same 14B",
+  "task": "Deepen (flagship 3) sales-agent: (3b) Qwen2.5 14B local model on all 792 reply sets with a pre-registered test, and (1) the Enron third reader with the same 14B",
   "projects": [
     "sales-agent"
   ],
@@ -30,11 +30,15 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "partial",
+  "outcome": "success",
   "errors": [
     {
       "what": "llama-cpp-python server killed by the kernel (OOM) loading the 14B with mmap on: AMX repack keeps a second copy beside the mapped file",
       "fix": "--use_mmap false; 10 GB resident"
+    },
+    {
+      "what": "the llama server was OOM-killed again while run_workflow_locally ran beside it; 599 calls cached as 'could not reach' errors",
+      "fix": "restarted the server; model.mjs retries transport errors, so the rerun filled them; do not run local CI next to a 10 GB model"
     }
   ],
   "integrity_issues": [],
@@ -57,15 +61,16 @@
       "file": "prompt.md",
       "why": "The 611-reply 14B run takes about 3.5 h; rather than hold the PR, landed the 181-reply result, the Enron reader result and a pre-registered test first, and left the 611 test as the next buildable item (it continues in a follow-up PR if this session lasts).",
       "did": "merged interim results with the test pre-registered on main before the held-out answers exist",
-      "result": "pre-registration is on main before the data, which a single end-of-run PR could not show"
+      "result": "pre-registration merged in PR #15142 before the held-out answers existed; the 611-reply run then failed the test (2 of 7 right, 4 lost silently) and landed in PR #15172, so the interim merge is what makes the failed result credible"
     }
   ],
   "writeups": [
     "docs/posts/2026-11-12-sales-agent-twice-the-model-same-mistakes.md",
-    "ventures/sales-agent/eval/README.md (A 14B local model on the same replies)"
+    "ventures/sales-agent/eval/README.md (A 14B local model on the same replies)",
+    "docs/posts/2026-11-12-sales-agent-seven-of-seven-was-luck.md"
   ],
   "goal": null,
-  "notes": "Local checks: node --test in ventures/sales-agent (see PR). Measurements: 181 replies (honest pair + five trap probes): 14B alone 144 vs 7B 136, merged 146 vs 147, false opt-outs alone 9 vs 6, close flags 8/1 vs 8/4; closes on rules-unclear 7/7 vs 7/11. Enron 5* 107 stops: 14B vs agent readers 70%/75% (kappa 0.56/0.64) vs 81%/0.71 between agents; 15 of 53 agreed-none stops called a stop (7B 13).",
+  "notes": "Local checks: node --test in ventures/sales-agent (see PR). Measurements: 181 replies (honest pair + five trap probes): 14B alone 144 vs 7B 136, merged 146 vs 147, false opt-outs alone 9 vs 6, close flags 8/1 vs 8/4; closes on rules-unclear 7/7 vs 7/11. Enron 5* 107 stops: 14B vs agent readers 70%/75% (kappa 0.56/0.64) vs 81%/0.71 between agents; 15 of 53 agreed-none stops called a stop (7B 13). Second PR https://github.com/Duncan-Haywood/oss-monorepo/pull/15172: all 792 answered (19.5 s a reply). Pre-registered test failed: closes from rules-unclear on the other 611 right 2/7, 4 lost silently (Ok., Noted., Thanks., ok); bar was >=85% and <=2. All 792: 14B alone 691 vs 7B 684, merged 732 vs 735, false opt-outs alone 27 vs 10. New eval/model-closes.mjs re-scores it offline.",
   "corrections": [],
   "redteam": null,
   "usage": {

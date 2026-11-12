@@ -1,12 +1,13 @@
-// Differential of the NF-e 4.00 schema layer (BR-002..BR-004, from leiauteNFe_v4.00.xsd
-// and tiposBasico_v4.00.xsd read by build-nfe-schema.mjs) against xmllint on the real
-// PL_009_V4 schemas. Each seed is a signed NF-e or NFC-e that xmllint accepts; each
+// Differential of the NF-e 4.00 schema layer (BR-002..BR-004, from the PL_010_V1.30 XSDs
+// read by build-nfe-schema.mjs) against xmllint on the real schemas of the same package. Each seed is a signed NF-e or NFC-e that xmllint accepts; each
 // mutant changes one thing outside ds:Signature: a value deleted, emptied, given junk,
 // lengthened, made negative or over-precise, padded with a space; an element deleted,
 // duplicated or swapped with its next sibling; an unknown element inserted. xmllint
 // validates the whole <NFe> against nfe_v4.00.xsd; this tool counts only its schema
 // findings. The signature no longer matches any mutant; neither side checks it.
-//   node eval/nfe-xsd-diff.mjs <dir with nfe_v4.00.xsd and its includes> [--per N] seed.xml ...
+// --under A,B mutates only inside elements named A or B (and the elements themselves), to
+// aim the mutants at one part of the layout, such as the reform groups:
+//   node eval/nfe-xsd-diff.mjs <dir with nfe_v4.00.xsd and its includes> [--per N] [--under IBSCBS,IBSCBSTot] seed.xml ...
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -17,7 +18,12 @@ import { parseCfdiXml } from "../cfdi-xml.mjs";
 const args = process.argv.slice(2);
 const dir = args.shift();
 let per = 300;
-if (args[0] === "--per") { args.shift(); per = Number(args.shift()); }
+let under = null;
+for (;;) {
+  if (args[0] === "--per") { args.shift(); per = Number(args.shift()); }
+  else if (args[0] === "--under") { args.shift(); under = new Set(args.shift().split(",")); }
+  else break;
+}
 const xsd = join(dir, "nfe_v4.00.xsd");
 const SCHEMA = new Set(["BR-002", "BR-003", "BR-004"]);
 
@@ -36,11 +42,12 @@ const clone = (n) => ({ ...n, attrs: { ...n.attrs }, children: n.children.map(cl
 
 function nodes(root) {
   const out = [];
-  (function walk(n, parent) {
+  (function walk(n, parent, inside) {
     if (n.name === "Signature") return;
-    out.push({ n, parent });
-    for (const c of n.children) if (c.name) walk(c, n);
-  })(root, null);
+    const here = inside || !under || under.has(n.name);
+    if (here) out.push({ n, parent });
+    for (const c of n.children) if (c.name) walk(c, n, here);
+  })(root, null, false);
   return out;
 }
 

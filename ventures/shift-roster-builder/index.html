@@ -206,7 +206,9 @@
       <div><label for="notice-h">Notice window (hours)</label><input id="notice-h" inputmode="decimal" value="336"></div>
       <div><label for="premium-h">Premium per late change (hours of pay)</label><input id="premium-h" inputmode="decimal" value="1"></div>
       <div><label for="exempt-names">Employee-requested, no premium (names, comma separated)</label><input id="exempt-names" placeholder="e.g. Ben, Cleo"></div>
+      <div><label for="keep-posted">When you build again, keep the posted shifts</label><select id="keep-posted"><option value="1">Yes, move only what must move (never leaves a shift open to do it)</option><option value="0">No, rebuild the week freely</option></select></div>
     </div>
+    <p class="note">With a posted roster loaded, add the time off (for example <code>off: Thu</code> on the person who called out) and build again: shifts that started before the change time stay as posted, and the rest of the week keeps everyone else on their posted shifts where it can. On 41 invented call-outs this halved the late changes, and the premium, of a free rebuild with the same shifts left open (<a href="schedule-change-after-posting.html">changing a posted schedule</a>).</p>
     <div id="changes-out" aria-live="polite"></div>
     <h3>Someone called in sick? Who can take the shift</h3>
     <p class="note">Pick a shift. It lists everyone who could take it without touching anyone else's week, cheapest first, and why the rest cannot.</p>
@@ -285,7 +287,7 @@
     import { staffPackHtml } from "./staffpack.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
-    import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seniorityClaims, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, coverChain, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, keepFromCsv, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seniorityClaims, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, coverChain, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, keepFromCsv, pinStarted, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -444,13 +446,19 @@
       if (errors.length) { status.textContent = errors.slice(0, 4).join(" · ") + (errors.length > 4 ? ` · and ${errors.length - 4} more` : ""); report.hidden = true; return false; }
       status.textContent = "Building… the page stays usable while the exact check runs; Stop ends it.";
       const prev = worker; if (prev) { stopWorker(); prev.cancel(); }
-      const built = await buildInBackground(st.staff, sh.slots, {
+      // A posted roster loaded below (2026-11-12): shifts that started before the change time are held as posted, and each
+      // posted shift someone keeps earns the "keep the posted shifts" hours of their pay, so a rebuild moves only what it must.
+      const kp = postedCsv ? Number($("#keep-posted").value) || 0 : 0;
+      const ca = postedCsv ? changedAtMin() : null;
+      const pin = ca !== null ? pinStarted(sh.slots, postedCsv, ca) : null;
+      const built = await buildInBackground(st.staff, pin ? pin.slots : sh.slots, {
         minRestHours: val("rest", 10), maxConsecDays: val("consec", 6), maxDailyHours: val("daily", 0), otAfter: val("otafter", 40), otMult: val("otmult", 1.5),
         mealAfter: val("mealafter", 0), mealMin: val("mealmin", 30), splitPremium: val("splitprem", 0), splitGap: val("splitgap", 1), diffWhen: $("#diffwhen").value, diffPerHour: val("diffhour", 0), diffPct: val("diffpct", 0), dailyOtAfter: val("dotafter", 0), dailyDtAfter: val("ddtafter", 0),
         burdenPct: val("burden", 0), balance: Math.min(100, Math.max(0, val("balance", 25))), toughBalance: Math.min(100, Math.max(0, val("tough", 0))),
         ...($("#openpref").value ? { openShiftWeight: $("#openpref").value === "shifts" ? 100 : 0 } : {}),
         ...($("#prove").value === "0" ? { exact: false } : {}),
         ...(lastWeekCsv && Number($("#keep").value) > 0 ? { keepValue: Number($("#keep").value), keep: keepFromCsv(lastWeekCsv) } : {}),
+        ...(kp > 0 ? { keepShift: kp, keep: keepFromCsv(postedCsv) } : {}),
       });
       if (!built) return false; // stopped, or replaced by a newer build
       // The worker's copies of the staff and shifts travel in the same message as the roster, so their shared
@@ -669,12 +677,16 @@
     if (shareHash) { try { apply(JSON.parse(unb64(shareHash[1]))); status.textContent = "Loaded the setup from the link you opened. Click the button to build; check every name and wage."; record("share_link_opened"); } catch (e) { status.textContent = "That link's setup could not be read."; } }
 
     let postedCsv = "";
+    function changedAtMin() {
+      const ws = $("#weekstart").value, ca = $("#changed-at").value;
+      if (!ws || !ca) return null;
+      const m = (new Date(ca) - new Date(ws + "T00:00")) / 60000;
+      return Number.isFinite(m) ? m : null;
+    }
     function showChanges() {
       const out = $("#changes-out");
       if (!last || !postedCsv) { out.innerHTML = ""; return; }
-      const ws = $("#weekstart").value, ca = $("#changed-at").value;
-      let changedAt = null;
-      if (ws && ca) { const m = (new Date(ca) - new Date(ws + "T00:00")) / 60000; if (Number.isFinite(m)) changedAt = m; }
+      const changedAt = changedAtMin();
       const wages = {}; for (const p of lastIn.staff) wages[p.name] = p.wage;
       const r = scheduleChanges(postedCsv, rosterCsv(last), { changedAt, noticeHours: val("notice-h", 336), premiumHours: val("premium-h", 1), wages, exempt: $("#exempt-names").value.split(",") });
       if (!r.changes.length) { out.innerHTML = '<p class="ok">The roster matches the one you posted: nothing changed.</p>'; return; }

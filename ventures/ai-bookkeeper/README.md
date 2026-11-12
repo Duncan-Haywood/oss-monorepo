@@ -1492,6 +1492,99 @@ node eval/sroie-tesseractjs.mjs photos ocr <folder>/node_modules 4      # about 
 node eval/cord-receipts.mjs eval/cord/test.jsonl --ocr ocr/psm6,ocr/psm4 --settled
 ```
 
+### US receipt photos (ExpressExpense SRD, 2026-11-12)
+
+Flagship item (5), "next: a US thermal photo". ExpressExpense gives away 200
+receipt photos as a free OCR dataset (the "large receipt image dataset", SRD):
+US restaurant, fast-food and shop receipts on thermal paper, held in a hand or
+laid on a table and taken with a phone, 750 x 1000 pixels or smaller, curled,
+creased, faded, some with handwritten tips. 187 are in dollars; 13 are from
+Europe, Canada, India, the UK, Malaysia and the UAE. `eval/srd-fetch.mjs`
+fetches them at run time from a public MIT-licensed GitHub copy pinned to one
+commit; they are never committed here.
+
+**The labels were read by eye**, by four agent sessions working from the
+photos alone (no OCR text in front of them), 50 photos each, to a written
+brief: the last machine-printed amount charged (never a handwritten tip or
+total), the printed subtotal and tax. They are in `eval/srd/labels.jsonl`
+with a note on every judgement call. Checks: on 172 receipts with a subtotal
+and tax, 146 add up exactly and every one of the other 26 has a printed reason
+(service charge, printed tip, discount, a void, a split check); three labels
+checked again by a fourth reader all matched. Two photos are duplicates
+(`duplicate_of`) and two totals are unreadable (cut off, too blurred), so 196
+totals are scored. Labels made this way can still hold a misread digit; the
+misses are scored as they stand.
+
+What the page did with them (tesseract.js 5.1.1, the page's model, both modes,
+settled as the page settles them):
+
+| SRD, 196 labelled totals | Total right | Wrong, page warned | Wrong, no warning | No total |
+|---|---|---|---|---|
+| block mode (`6`) alone | 116 (59.2%) | | | 7 |
+| the page before: two readings | 119 (60.7%) | 65 | 8 | 4 |
+| **the page now: four readings, vote** | **134 (68.4%)** | 57 | **3** | 2 |
+
+Tax was right on 79 of 185 before and after: on these photos the tax line is
+usually lost with the total line, not misparsed.
+
+What goes wrong is OCR, not the reader. On the even-numbered half, 40
+totals were wrong with two readings, and the right amount appeared anywhere in
+either reading's text on only 7 of them. The big double-height `TOTAL` line
+that US point-of-sale printers use is the line tesseract loses most often, and
+the bottom of a curled receipt often reads as noise. Changing the reader's
+rules could fix at most those 7 (one tried rule, preferring a reading with a
+total line over one that guessed the largest amount, fixed one and broke one:
+on a receipt with a printed tip the largest amount was the real total; not
+shipped).
+
+What helped was reading more. A grey copy of the photo at twice the size,
+read in both modes, finds the total on many photos where the original does
+not: any of the four readings had the right total on 146 of 196, against 126
+for the original's two. Binarising (ImageMagick `-lat`, at either size) did
+worse than the plain photo (56.6% and 57.6% on the even half) and is not used.
+
+- **Four readings** (`PASSES` and `greyCopy` in `photoocr.mjs`): a photo
+  under 2,000 pixels on its long side is also drawn on a canvas at 2,000,
+  grey, and read in both modes. A larger photo (a full-size phone photo) is
+  read twice as before; enlarging was measured only on small photos. The
+  status line says how many readings were made. Reading takes about twice as
+  long for a small photo.
+- **A vote between them** (`voteTotal` in `receipts.mjs`, used by
+  `parseReceiptPasses` only with three or more readings): each value scores
+  one point per kind of arithmetic check that gives it (cash less change,
+  subtotal plus tax, the items), one per reading that read it, and one more
+  per reading that printed it on a total line; a tie goes to the earlier
+  reading. With two readings the old rule stands unchanged, so the CLI's `--two-pass`
+  and the hand-corrected CORD and SROIE box-text scores are unaffected.
+
+The weights were chosen on the even-numbered photos (two readings 59 of 99,
+four with the vote 68; enlarged with ImageMagick) and scored once on the odd
+ones (60 to 66 of 97). The table above is the page exactly: the grey copies
+drawn by Chromium's canvas with `greyCopy`'s settings
+(`eval/srd-canvas-grow.mjs`), 67 of 99 on the even half and 67 of 97 on the
+held-out odd half. One photo is already 2,000 pixels tall and is read twice.
+
+**The scans got better too, not worse.** 437 of SROIE's 626 scans are under
+2,000 pixels, so the page now reads them four times as well. Same engine, grey
+copies drawn by the canvas script: the two-reading page reproduced its earlier
+505 of 625 (80.8%) exactly, and the four-reading page reads **521 (83.4%)**
+right (wrong 112 to 96). Merchant and date are unchanged, except that 2 merchants
+another reading found are wrong. These scans were not looked at when the
+weights were chosen, so this is a second held-out check.
+
+Not measured: CORD's phone photos with four readings (Hugging Face, where
+they are fetched from, did not answer from this session); full-size 12
+megapixel phone photos; the CLI (it calls the tesseract binary and still reads
+twice). Reproduce: `node eval/srd-fetch.mjs <photos>`, `node
+eval/sroie-tesseractjs.mjs <photos> <ocr> <node_modules>`, `node
+eval/srd-canvas-grow.mjs <photos> <grown>`, `node eval/sroie-tesseractjs.mjs
+<grown> <ocr2> <node_modules>`, then `node eval/cord-receipts.mjs
+eval/srd/labels.jsonl --ocr <ocr>/psm6,<ocr>/psm4,<ocr2>/psm6,<ocr2>/psm4
+--settled` (a photo with no grown copy needs empty files in `<ocr2>`). Tests:
+`photoocr.test.mjs` (11), `receipt-crosscheck.test.mjs` (12, text written
+here); `node eval/photo-ocr-browser.mjs` shows four readings in headless
+Chromium (6/6).
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200
