@@ -468,7 +468,7 @@ class Feeder:
     az_stop_mesh_pitches: float = 1.0  # whole tooth pitches of sector left past the pinion's line at a stop
     stop_pad_r: tuple = (95.0, 107.0)  # pad's radial span about the turntable axis: inside the sector's root circle
     stop_pad_h: float = 6.0           # pad height (z), within the sector's face width
-    stop_pad_t: float = 5.0           # pad thickness, along the turning direction (4 mm would compress 49% at the runaway speed)
+    stop_pad_t: float = 5.0           # pad thickness, along the turning direction (4 mm would compress 49% at the runaway speed, no margin on the 50% counted on)
     stop_pad_e_mpa: float = 5.5       # compression modulus, Shore 70A polyurethane sheet (assumption)
     stop_pad_strain: float = 0.5      # largest compression the pad is counted on (assumption; PU bumpers run 40-50%)
     stop_block_depth: float = 16.0    # printed block behind the pad, along the turning direction

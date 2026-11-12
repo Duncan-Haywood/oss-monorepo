@@ -290,9 +290,10 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): a hard stop past the gear sector's ends (+-37.5 deg);
-      the servo's 5-6 V supply and the cable runs to the turntable; the netting
-      trough that rolls balls to the hopper inlet.
+      venv, about 2 min): the servo's 5-6 V supply and the cable runs to the
+      turntable (they must clear the head out to the hard stops' 36.4 deg
+      reach, not just +-30); the netting trough that rolls balls to the hopper
+      inlet; a lower tub if the 2.3 m rim is too high.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -310,11 +311,15 @@ flagships:
       simulated board moves a physical shuttle. Azimuth home switch 2026-11-12 (cad/README.md "Azimuth home
       switch"): a roller-lever switch on a slotted bracket in the bearing gap, and a cam lobe on the gear sector
       that clicks it at -32 deg and holds it closed to -82.5; the firmware homes from either side (backs off first)
-      and faults on a stuck switch; the simulated drill aims right from a head left at -35 deg. Next: log a real
+      and faults on a stuck switch; the simulated drill aims right from a head left at -35 deg. Hard stops
+      2026-11-12 (cad/README.md "Azimuth hard stops"): printed blocks with polyurethane pads meet the sector's ends at
+      +-35 deg (sector teeth margin 8 to 10 deg for full mesh there); a 60 deg/s runaway squeezes a pad 44%; turned
+      that far the head hit the hopper and mast posts first at 31.6-32.3 deg, so they moved out (y 245 to 290, 130 to
+      160) and the build sweeps to the 36.4 deg reach. Next: log a real
       wheel's tach on spin-up and rerun the sweep with its lag; weigh the head and measure the hose's torque, the
       stepper's pull-out, the actuator's real lengths, the column's load on the shuttle and the servo's loaded
-      stroke time, and click the home switch on a printed sector to calibrate AZ_HOME_DEG (needs a person); a hard
-      stop past the gear sector's ends; hang a real hose from a tube; the servo's supply and the cable runs; the netting trough that rolls
+      stroke time, and click the home switch on a printed sector to calibrate AZ_HOME_DEG, push a sector into a stop
+      with a scale and measure a pad's stiffness (needs a person); hang a real hose from a tube; the servo's supply and the cable runs; the netting trough that rolls
       balls to the hopper inlet; consider a lower, rear-mounted tub if the 2.3 m rim is too high to fill.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
