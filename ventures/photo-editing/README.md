@@ -1340,3 +1340,18 @@ match to a median 0.105, 0.027 and 0.023 of an 8-bit step through dcraw's colour
 the same black, white and white balance. Correctness of the gain map itself is checked on
 synthetic files, including a linear map whose flat-field answer is known in closed form; it
 has not been compared with an Adobe render. Details: `eval/camera-dngs-2026-11-12.md`.
+
+## Lens distortion from the DNG: WarpRectilinear (2026-11-12)
+
+Cameras with corrected lenses store the correction in the DNG's `OpcodeList3` as a
+`WarpRectilinear`. It has a radial polynomial per colour plane, so it covers both distortion and
+lateral colour. Adobe's readers apply it; LibRaw, as rawpy packages it, does not. `shootflow
+develop` now runs it after demosaic, on the linear image before colour and tone. Both engines run
+it with the same output bytes, and `--no-opcodes` turns it off. On the real Leica T DNG the
+correction moves features by up to 5 px at the 720 px preview's scale (about 34 px at full size).
+Block-matched against the camera's own embedded preview, 444 patches sit a median 4.2 px off with
+the warp off. The offsets follow the formula's prediction within 0.1-0.3 px at every radius. With
+the warp on they drop to 0.18 px, the same as the matcher's noise across the radius.
+`tools/warp_preview_check.py` runs that check on any DNG with a preview and a warp. The formula is
+also checked exactly on synthetic ramps (13 tests) and agrees with darktable's reading of the same
+opcode. Details, choices and what is not checked: `eval/warp-rectilinear-2026-11-12.md`.

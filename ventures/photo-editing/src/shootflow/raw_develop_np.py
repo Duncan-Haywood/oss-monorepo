@@ -108,7 +108,7 @@ def _encode(r, g, b, hi, m, curve, lut_size, look):
     return out
 
 
-def _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look):
+def _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, sink=None):
     pad = np.zeros((h + 2, w + 2), dtype=np.float64)
     pad[1:-1, 1:-1] = norm
     inside = np.zeros((h + 2, w + 2), dtype=np.int64)
@@ -154,7 +154,30 @@ def _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look):
                             total = total + v
                             count = count + k
                     chans[colour][lr, lc] = total / count
+        if sink is not None:
+            for i in range(3):
+                sink[y0:y1, :, i] = _clip(chans[i] * mults[i], hi)
+            continue
         out[y0:y1] = _encode(chans[0] * mults[0], chans[1] * mults[1], chans[2] * mults[2], hi, m, curve, lut_size, look)
+    return out
+
+
+def _clip(v, hi):
+    """``_encode``'s clip, alone (the warp runs on clipped linear values, as the pure path keeps them)."""
+
+    return np.where(v > hi, hi, np.where(v < 0, 0.0, v))
+
+
+def _encode_warped(img, warps, hi, m, curve, lut_size, look):
+    """Warp a clipped linear (h, w, 3) image (``dng_opcodes.warp_planes``), then encode it band by band."""
+
+    from shootflow import dng_opcodes
+
+    img = dng_opcodes.warp_planes(warps, img)
+    out = np.empty(img.shape, dtype=np.uint16)
+    for y0 in range(0, img.shape[0], _BAND_ROWS):
+        band = img[y0 : y0 + _BAND_ROWS]
+        out[y0 : y0 + _BAND_ROWS] = _encode(band[..., 0], band[..., 1], band[..., 2], hi, m, curve, lut_size, look)
     return out
 
 
@@ -174,11 +197,33 @@ def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look):
 
 def render(
     *, vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines,
-    linear_raw, pat, half, mults, hi, m, curve, lut_size, look=None, gain_maps=(),
+    linear_raw, pat, half, mults, hi, m, curve, lut_size, look=None, gain_maps=(), warps=(),
 ):
     """Returns ``(pixels uint16 (oh, ow, 3), ow, oh, clipped)``."""
 
     norm, clipped = _normalised_plane(vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines, gain_maps)
+    if warps:
+        # WarpRectilinear: keep the clipped, white-balanced linear image, warp it, then encode (raw_develop.develop).
+        if linear_raw:
+            img = norm.reshape(h, w, 3)
+            lin = np.stack([_clip(img[..., i] * mults[i], hi) for i in range(3)], axis=-1)
+            ow, oh = w, h
+        elif half:
+            ow, oh = w // 2, h // 2
+            acc = [np.zeros((oh, ow), dtype=np.float64) for _ in range(3)]
+            cnt = [0, 0, 0]
+            for dy in (0, 1):
+                for dx in (0, 1):
+                    c = pat[dy * 2 + dx]
+                    acc[c] = acc[c] + norm[dy : 2 * oh : 2, dx : 2 * ow : 2]
+                    cnt[c] += 1
+            lin = np.stack([_clip(acc[i] / cnt[i] * mults[i], hi) for i in range(3)], axis=-1)
+        else:
+            ow, oh = w, h
+            lin = np.empty((h, w, 3), dtype=np.float64)
+            _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, sink=lin)
+        del norm
+        return _encode_warped(lin, warps, hi, m, curve, lut_size, look), ow, oh, clipped
     if linear_raw:
         img = norm.reshape(h, w, 3)
         out = _encode(img[..., 0] * mults[0], img[..., 1] * mults[1], img[..., 2] * mults[2], hi, m, curve, lut_size, look)
