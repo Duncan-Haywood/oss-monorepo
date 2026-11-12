@@ -3,7 +3,7 @@ title: "A hydraulic bet written down before the data: what a smaller pump should
 seo_title: "Smaller fixed pump vs load-sensing on an excavator, before the data"
 date: 2026-11-12
 tags: [research, heavy-equipment, hydraulics, load-sensing, open-centre, excavator, pre-registration]
-description: "The paper draft now carries the excavator volume ratio (2.38). The next test, a smaller fixed pump priced in cycle time, is registered and scripted but not yet run on data."
+description: "The paper draft now carries the excavator volume ratio (2.38). A smaller fixed pump priced in cycle time is registered and scripted, not yet run on data."
 ---
 
 The [`heavy-hydraulics`](../../research/heavy-hydraulics/README.md)
