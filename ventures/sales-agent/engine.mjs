@@ -1161,6 +1161,11 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
         tasks.push({ email: p.email, task: g && g.category !== "unclear" ? `The rules could not read this reply. Best guess: ${CATEGORIES[g.category].label.toLowerCase()}. Check it before you act.` : "The agent could not tell what this reply means. Read it and decide." });
       }
     }
+    // A model's stop is a flag, not an action (ai.mjs, mergeTriage): say what it read, so a real opt-out the rules missed
+    // reaches the suppression list through a person.
+    if (t.modelSaid === "unsubscribe" || t.modelSaid === "bounce") tasks.push({ email: p.email, task: t.modelSaid === "unsubscribe"
+      ? `The model reads this reply as a request to stop${t.modelEvidence ? ` ("${t.modelEvidence.slice(0, 120)}")` : ""}; the rules did not. If they asked to stop, add them to your suppression list and send nothing; otherwise carry on.`
+      : "The model reads this reply as a delivery failure; the rules did not. Check before you mark the address bounced." });
     const lint = draft ? checkDraft(draft, factsBase + "\n" + reply.body) : null;
     items.push({ n: i + 1, from: reply.from, name: reply.name, subject: reply.subject, body: reply.body, triage: t, applied, draft, lint, approval: draft ? (t.guess ? "guess_check_first" : "needs_approval") : "nothing_to_send", known: Boolean(known) });
   }

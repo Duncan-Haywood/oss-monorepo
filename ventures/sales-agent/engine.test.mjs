@@ -306,7 +306,9 @@ test("seventh set (2026-11-03c): 24 opt-outs scored once at 10 missed before the
   const s = score(rows);
   assert.equal(s.n, 30);
   assert.equal(s.unsubMissed, 0);
-  assert.equal(s.right, 26);
+  // 27 since 2026-11-12: "remove Dana from this thread, she left the company" was labelled "wrong_person", not a category, so it
+  // could never score right; relabelled left_company, which the rules already said.
+  assert.equal(s.right, 27);
 });
 
 test("eighth set (2026-11-04): quoted footers and signatures stripped as in production; 14/20 before the change (6 misses, 2 of them my label errors), 20/20 after; a tuned set", () => {
