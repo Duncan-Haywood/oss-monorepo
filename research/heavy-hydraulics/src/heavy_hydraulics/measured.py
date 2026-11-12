@@ -149,3 +149,15 @@ def slowed_time(samples, dt):
                 continue
         t += dt
     return t, (short / moving if moving else 0.0)
+
+
+def extra_fuel(e_oc, e_ls, t_oc, t_ls, b, eta, f_t):
+    """Open-centre fuel minus load-sensing fuel for the same motion, L (5x).
+
+    e_oc, e_ls: hydraulic energy of each circuit, J; t_oc, t_ls: time each needs, s;
+    b: marginal fuel per shaft energy, L/kWh (the Willans slope); eta: pump hydraulic-to-shaft
+    efficiency; f_t: fuel rate of the rest of the machine over the extra time, L/h.
+    Returns (hydraulic part, time part)."""
+    if not 0 < eta <= 1:
+        raise ValueError("eta must be in (0, 1]")
+    return b * (e_oc - e_ls) / eta / 3.6e6, f_t * (t_oc - t_ls) / 3600.0
