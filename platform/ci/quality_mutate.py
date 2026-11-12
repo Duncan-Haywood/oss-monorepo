@@ -27,6 +27,10 @@ Then it:
 3. prints a `mutations` row for the audit file and exits 0 when the tests
    caught the bug, 1 when it survived (a timeout counts as caught, and says so).
 
+The command runs in the subject root (or `--cwd`). One that starts with
+`cd <path> &&`, the shape audit files record as `test_cmd`, runs through bash
+from the repository root instead, so a row copied from an audit works as is.
+
 PYTHONDONTWRITEBYTECODE=1 is set, and the copy starts without `__pycache__`,
 so a stale `.pyc` cannot run the mutant or hide it (round 45).
 """
@@ -104,12 +108,22 @@ def mutate_text(text: str, old: str, new: str, occurrence: int | None) -> tuple[
     return text[:at] + new + text[at + len(old):], text.count("\n", 0, at) + 1
 
 
+def is_shell(cmd: list[str]) -> bool:
+    """A command written for a shell: `cd x && ...` (an audit's own `test_cmd` shape), or one quoted string."""
+    return cmd[0] == "cd" or (len(cmd) == 1 and any(c in cmd[0] for c in " &|;"))
+
+
+def starts_with_cd(cmd: list[str]) -> bool:
+    return " ".join(cmd).lstrip().startswith("cd ")
+
+
 def run(cmd: list[str], cwd: Path, timeout: int) -> tuple[str, float, str]:
     """Run `cmd`; return ('pass'|'fail'|'timeout', seconds, output tail)."""
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
     start = time.monotonic()
+    argv = ["bash", "-c", " ".join(cmd)] if is_shell(cmd) else cmd
     try:
-        p = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True,
+        p = subprocess.run(argv, cwd=cwd, env=env, capture_output=True, text=True,
                            timeout=timeout, errors="replace")
     except subprocess.TimeoutExpired as e:
         out = (e.stdout or "") if isinstance(e.stdout, str) else ""
@@ -171,7 +185,12 @@ def main(argv: list[str] | None = None) -> int:
     say = (lambda *a: None) if args.json else print
     try:
         build_shadow(REPO, root, tmp / "repo")
-        shadow_cwd = tmp / "repo" / cwd
+        # A command that starts with `cd <subject> &&` (the shape audit files record
+        # as test_cmd) is written from the repository root, so run it from there;
+        # from the subject folder its `cd` failed and read as a red baseline
+        # (run-record doc_friction, 2026-11-12).
+        from_top = starts_with_cd(cmd) and not args.cwd
+        shadow_cwd = tmp / "repo" if from_top else tmp / "repo" / cwd
         if not args.no_baseline:
             state, secs, tail = run(cmd, shadow_cwd, args.timeout)
             say(f"baseline (unmutated copy): {state} in {secs:.1f} s")
