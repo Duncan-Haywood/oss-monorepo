@@ -1196,7 +1196,10 @@ def run_steps(steps, timeout, budget: int | None = None) -> None:
             # Name the step BEFORE running it, and flush. Both halves are
             # load-bearing; see the note above `STATUS_MARK`.
             print(f"  {step.label} ... ", end="", flush=True)
-            left = int(deadline - time.monotonic()) if deadline else None
+            # Seconds left as a float: int() rounded 0.9 s down to 0, so a
+            # 1 s budget (--workflow-timeout 1) read as spent before its
+            # first step started and nothing ran.
+            left = deadline - time.monotonic() if deadline else None
             # A step the sweep's budget stopped is UNRUN, not FAILED: it never
             # reached a verdict. Reported as FAILED (0.0s), every step after
             # portfolio-pages' 300+ s site-builder suite read as a real defect
