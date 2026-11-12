@@ -127,3 +127,19 @@ class ResearchIndexLengthTest(unittest.TestCase):
         self.assertIn("main:not(.all) .theme .grid>.card:nth-child(n+2){display:none}", index)
         self.assertIn("classList.add('all')", index)
 
+
+    def test_topic_pages_show_every_project_compactly(self):
+        """2026-11-12: research/topics/twins/ was 68,158 px at 390 px (164 cards, every lede in
+        full). Each card keeps its question, link and full result text in the page once; the
+        result is clamped until "Result and abstract" opens; the filter needs script to show."""
+        page = (self.out / "topics" / "twins" / "index.html").read_text()
+        cards = re.findall(r'<article class="proj" id="([\w-]+)">(.*?)</article>', page, re.S)
+        self.assertGreater(len(cards), 50)
+        for slug, body in cards:
+            self.assertIn(f'href="../../{slug}/"', body)
+            self.assertEqual(body.count('<p class="res">'), 1, slug)
+            self.assertIn("<details><summary>Result and abstract</summary>", body)
+        self.assertIn("-webkit-line-clamp:2", page)
+        self.assertIn(".proj:has(details[open]) .res{display:block", page)
+        self.assertIn('<form class="find" role="search" hidden', page)
+        self.assertIn(".find[hidden]{display:none}", page)

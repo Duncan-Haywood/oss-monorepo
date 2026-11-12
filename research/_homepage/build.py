@@ -432,10 +432,12 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
 
 
 def topic_card(p, lede, tests):
+    """One project on its topic page. The lede (the result) is clamped to two lines by the template
+    until "Result and abstract" is opened, which unclamps it; the text is in the page once, in full."""
     count = f" · {tests} tests" if tests else ""
     return (f'  <article class="proj" id="{p["slug"]}"><h2><a href="../../{p["slug"]}/">{p["title"]}</a></h2>'
-            f'<p class="meta">research/{p["slug"]}{count}</p><p>{lede}</p>'
-            f'<details><summary>Abstract</summary><p>{p["summary"]}</p></details></article>')
+            f'<p class="meta">research/{p["slug"]}{count}</p><p class="res">{lede}</p>'
+            f'<details><summary>Result and abstract</summary><p>{p["summary"]}</p></details></article>')
 
 
 def topic_page(theme, themes, ledes, tests, tokens, theme_vars, tmpl, out, base_url=None, chrome=None):
