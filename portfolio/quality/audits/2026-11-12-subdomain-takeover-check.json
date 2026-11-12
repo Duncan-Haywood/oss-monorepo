@@ -1,0 +1,287 @@
+{
+ "date": "2026-11-12",
+ "subject": "ventures/subdomain-takeover-check",
+ "stratum": "venture",
+ "seed": "2026-11-12-m",
+ "drawn_by": "sample",
+ "round": 54,
+ "auditor": "agent session (Claude), quality-audit round 54",
+ "status": "audited",
+ "professional": "a senior bug-bounty / attack-surface-management security engineer who runs subdomain-takeover sweeps (subjack, nuclei takeover templates, dnsReaper) against client zones; they check first that the canonical cases are caught end to end (a CNAME to a deleted S3 bucket via the REST endpoint, a CNAME to a deleted Azure app whose target NXDOMAINs), then that each provider's fingerprint and exploitability status match the community reference (can-i-take-over-xyz), then false-positive control (generic fingerprints, providers that now require domain verification)",
+ "scores": {
+  "correctness": 1,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Live DNS could not be used: cloudflare-dns.com (DoH) returns CONNECT 403 through this session's proxy, and a direct resolver probe was refused by the session's permission classifier. So I ran the shipped runCheck()/resolveCnameChain()/dohQueryCname() with injected DNS answers modelled on a published write-up (celes.in 's3 dns enum', via web search: a nonexistent bucket name.s3.amazonaws.com CNAMEs to s3-1-w.amazonaws.com then s3-w.us-east-1.amazonaws.com) and probe bodies taken verbatim from EdOverflow/can-i-take-over-xyz fingerprints.json (raw.githubusercontent.com, master, fetched 2026-11-12 to scratchpad/stc/dl/ciot.json). Command: node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/stc/scripts/recompute.mjs /home/user/oss-monorepo/ventures/subdomain-takeover-check. Results: a CNAME to a deleted bucket via the REST endpoint with the real multi-hop chain is classified 'not-risky' (no finding at all), because matchProvider() is applied only to the LAST hop (analyze.mjs:73, check.mjs:78) and 's3-w.us-east-1.amazonaws.com' does not match the S3 pattern; the same bucket with a one-hop chain is 'dangling-confirmed', so the fingerprint is right and the chain handling is wrong. Pantheon's current page ('404 error unknown site!', per can-i-take-over-xyz) and Ghost's ('Site unavailable.') give 'risky-unconfirmed' because the tool's fingerprints are stale (fingerprints.mjs:239, :203). Azure App Service dangling records NXDOMAIN at the target (can-i-take-over-xyz: fingerprint 'NXDOMAIN'), so the probe fails with ENOTFOUND and the CLI reports 'risky-unconfirmed ... commonly a browser CORS block' - an Azure takeover can never be confirmed. Zendesk 'Help Center Closed' is reported CRITICAL though can-i-take-over-xyz lists Zendesk as 'Not vulnerable'. Passes: S3 one-hop and website-endpoint chains, GitHub Pages, and 14 of 24 body fingerprints agree with can-i-take-over-xyz text. A clean ('not-risky') verdict for the canonical S3 case is a wrong answer a user would act on, hence 1.",
+  "completeness": "Claimed features exercised via the test suite and my harness: CNAME chain following with loop and hop-limit handling, provider match, single live GET with 200 kB cap, confirmed/unconfirmed/no-cname/not-risky/lookup-error categories, CLI multi-host, --json, --timeout, exit codes 0/1/2 (check.mjs), browser page with worked S3 example, usage counter with opt-out, two explainer pages. All present, no TODOs or stubs. '25 providers' is 24 (node -e PROVIDERS.length -> 24). Served page https://marisstella.app/subdomain-takeover-check/ could not be loaded (proxy 403 / WebFetch ENOTFOUND), so checked from source.",
+  "verification": "cd ventures/subdomain-takeover-check && node --test '*.test.mjs': 83 tests, 83 pass, 0 fail (0.54 s). Six mutations via platform/ci/quality_mutate.py: 4 caught (confirmed always true; hop-limit truncation removed; report ok ignoring unconfirmed; NXDOMAIN treated as an error), 2 survived (S3 pattern narrowed to drop the s3-website.<region> form; body cap 200000 -> 200 bytes). Every lookup/analyze test feeds a synthetic chain whose last hop is the provider hostname, so the real-world multi-hop S3 chain and NXDOMAIN-at-target cases are never exercised; fingerprints are asserted only against the author's own strings.",
+  "craft": "Read fingerprints.mjs, lookup.mjs, probe.mjs, analyze.mjs, check.mjs, index.html module script. Small pure modules, injectable fetch/resolver, byte-capped body reader, output escaped via escapeHtml. Defects: the resolver parameter is named fetchTxt (copied from email-auth-check, lookup.mjs:85); analyze.mjs:35-39 says `vulnerable` is surfaced in the finding but findingFor() never includes it and the page/CLI text never shows it; the unconfirmed detail always blames 'a browser CORS block' even in the CLI where an ENOTFOUND is the real (and diagnostic) cause (analyze.mjs:138); probe.mjs:24 user-agent points at a stale duncan-haywood.github.io/monorepo-projects URL that the Pages build does not rewrite (.mjs is not in the rewrite set).",
+  "claims": "Backed: detection-only/no-claim statements (no write path exists in probe.mjs), privacy (only cloudflare-dns.com and the target are fetched; usage.mjs stores counts only), no-warranty and no-SLA footer, 'not-risky is not safe' limits stated clearly. Unbacked: '25 known takeover-prone providers' in README.md:4, VENTURE.yaml:5, index.html:21,25,46,61,98,149,155,270 - the table has 24; calling all of them 'takeover-prone' while 10 of the 24 are listed 'Not vulnerable' or 'Edge case' by can-i-take-over-xyz and the tool itself sets vulnerable:true on Heroku, GitHub, Unbounce, Tumblr, Zendesk, Statuspage, UserVoice against that reference; vs-checking-dig-by-hand.html:77 sells 'following a multi-hop chain to its real end' as an advantage, which is exactly what loses the S3 case; llms.txt carries copy-paste boilerplate ('estimates from the numbers typed in, not legal, tax, financial') that does not fit this tool. github.io URLs in llms.txt are rewritten at deploy; not filed.",
+  "fitness": "Walked an attack-surface engineer's job: check a list of a client's CNAMEs for takeovers. CLI takes hostnames on argv (no file/stdin list), runs in parallel, exits non-zero - usable in CI. But a REST-endpoint S3 bucket deletion (the most common reported takeover) gets a clean report, Azure (3 table rows; the most reported class in can-i-take-over-xyz's NXDOMAIN group) is never confirmable, and missing are Elastic Beanstalk (NXDOMAIN), Heroku's current herokudns.com targets, regional s3.<region>.amazonaws.com endpoints, and NS/MX delegation takeovers. The engineer would keep using nuclei/subjack/dnsReaper and treat this as a second opinion at best.",
+  "domain": "Compared with can-i-take-over-xyz (the community reference), nuclei takeover templates and subjack's method. Sound: requires a provider-specific live fingerprint before 'confirmed', keeps DNS-only matches as unconfirmed, never escalates on the `vulnerable` field. Departures: matches only the final hop, whereas the standard is to test every CNAME in the chain (the first-hop provider target is the one that matters); no NXDOMAIN-at-target fingerprint, which is the signal for Azure, Elastic Beanstalk, Discourse and others; exploitability status diverges from the reference for 9 providers; Pantheon and Ghost fingerprints stale; generic fingerprints ('404 Not Found' for Cargo, 'You are being redirected' for Statuspage) invite false positives."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "CNAME to deleted S3 bucket via REST endpoint, real chain gone-bkt.s3.amazonaws.com -> s3-1-w.amazonaws.com -> s3-w.us-east-1.amazonaws.com, body NoSuchBucket",
+   "method": "chain from celes.in 's3 dns enum' write-up (via web search); body from EdOverflow/can-i-take-over-xyz fingerprints.json (raw.githubusercontent.com, master, fetched 2026-11-12 to scratchpad/stc/dl/ciot.json), AWS/S3 entry 'The specified bucket does not exist', status Vulnerable",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/stc/scripts/recompute.mjs /home/user/oss-monorepo/ventures/subdomain-takeover-check",
+   "expected": "dangling-confirmed (critical)",
+   "observed": "not-risky (no finding, clean report)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "the real lookup layer on the same S3 chain",
+   "method": "injected DoH JSON answers (RFC 1035 type 5 CNAME records) through the shipped dohQueryCname",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/stc/scripts/lookup_chain.mjs /home/user/oss-monorepo/ventures/subdomain-takeover-check",
+   "expected": "finalTarget should leave the provider hop available for matching (gone-bkt.s3.amazonaws.com)",
+   "observed": "finalTarget s3-w.us-east-1.amazonaws.com; matchProvider on it -> null",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "CNAME directly to bucket.s3.amazonaws.com (one hop), NoSuchBucket body",
+   "method": "EdOverflow/can-i-take-over-xyz fingerprints.json (raw.githubusercontent.com, master, fetched 2026-11-12 to scratchpad/stc/dl/ciot.json), AWS/S3",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/stc/scripts/recompute.mjs /home/user/oss-monorepo/ventures/subdomain-takeover-check",
+   "expected": "dangling-confirmed",
+   "observed": "dangling-confirmed critical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Pantheon unclaimed page '404 error unknown site!'",
+   "method": "EdOverflow/can-i-take-over-xyz fingerprints.json (raw.githubusercontent.com, master, fetched 2026-11-12 to scratchpad/stc/dl/ciot.json), Pantheon entry, status Vulnerable",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/stc/scripts/recompute.mjs /home/user/oss-monorepo/ventures/subdomain-takeover-check",
+   "expected": "dangling-confirmed",
+   "observed": "risky-unconfirmed (tool fingerprint is 'The site you were looking for could not be found')",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Ghost unclaimed page 'Site unavailable.'",
+   "method": "EdOverflow/can-i-take-over-xyz fingerprints.json (raw.githubusercontent.com, master, fetched 2026-11-12 to scratchpad/stc/dl/ciot.json), Ghost entry, status Vulnerable",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/stc/scripts/recompute.mjs /home/user/oss-monorepo/ventures/subdomain-takeover-check",
+   "expected": "dangling-confirmed",
+   "observed": "risky-unconfirmed",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Azure App Service dangling CNAME (target NXDOMAIN, probe ENOTFOUND)",
+   "method": "EdOverflow/can-i-take-over-xyz fingerprints.json (raw.githubusercontent.com, master, fetched 2026-11-12 to scratchpad/stc/dl/ciot.json), Microsoft Azure entry: fingerprint NXDOMAIN, nxdomain true, azurewebsites.net listed, Vulnerable",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/stc/scripts/recompute.mjs /home/user/oss-monorepo/ventures/subdomain-takeover-check",
+   "expected": "dangling-confirmed (or at least a finding citing NXDOMAIN)",
+   "observed": "risky-unconfirmed, detail says 'commonly a browser CORS block'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Zendesk 'Help Center Closed'",
+   "method": "EdOverflow/can-i-take-over-xyz fingerprints.json (raw.githubusercontent.com, master, fetched 2026-11-12 to scratchpad/stc/dl/ciot.json), Zendesk entry status 'Not vulnerable'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/stc/scripts/recompute.mjs /home/user/oss-monorepo/ventures/subdomain-takeover-check",
+   "expected": "not reported as a critical confirmed takeover (at most a caveated finding)",
+   "observed": "dangling-confirmed critical, no caveat",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "GitHub Pages 'There isn't a GitHub Pages site here.'",
+   "method": "EdOverflow/can-i-take-over-xyz fingerprints.json (raw.githubusercontent.com, master, fetched 2026-11-12 to scratchpad/stc/dl/ciot.json), Github entry (Edge case)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/stc/scripts/recompute.mjs /home/user/oss-monorepo/ventures/subdomain-takeover-check",
+   "expected": "fingerprint matches -> dangling-confirmed",
+   "observed": "dangling-confirmed critical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "body fingerprints agree with can-i-take-over-xyz text, 24 providers",
+   "method": "EdOverflow/can-i-take-over-xyz fingerprints.json (raw.githubusercontent.com, master, fetched 2026-11-12 to scratchpad/stc/dl/ciot.json), compared each regex with the reference fingerprint string by hand",
+   "command": "python3 -I -c \"import json;[print(e['service'],e['fingerprint']) for e in json.load(open('/tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/stc/dl/ciot.json'))]\"",
+   "expected": "24 of 24 agree",
+   "observed": "14 agree (S3, GitHub, Fastly, Shopify, Unbounce, Tumblr, WordPress, Zendesk, Surge, Helpjuice, Help Scout, Cargo, UserVoice, Webflow, Netlify, Vercel, Bitbucket - minus the 3 Azure rows whose reference is NXDOMAIN); Pantheon and Ghost differ; Statuspage and Heroku have no reference body/cname",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "regional S3 REST endpoint and Heroku DNS target recognised",
+   "method": "AWS S3 virtual-hosting docs (bucket.s3.<region>.amazonaws.com); Heroku custom-domain DNS targets *.herokudns.com",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/stc/scripts/recompute.mjs /home/user/oss-monorepo/ventures/subdomain-takeover-check",
+   "expected": "aws-s3, heroku",
+   "observed": "null, null",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/subdomain-takeover-check && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "83 pass, 0 fail, 0.54 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'25 known takeover-prone providers' (README, VENTURE.yaml, index.html x8)",
+   "method": "count the shipped table",
+   "command": "cd ventures/subdomain-takeover-check && node -e \"import('./fingerprints.mjs').then(m=>console.log(m.PROVIDERS.length))\"",
+   "expected": "25",
+   "observed": "24",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "analyze.mjs header: `vulnerable` is surfaced in the finding as context",
+   "method": "read findingFor() and the page/CLI renderers",
+   "command": "grep -n vulnerable ventures/subdomain-takeover-check/analyze.mjs ventures/subdomain-takeover-check/check.mjs ventures/subdomain-takeover-check/index.html",
+   "expected": "finding carries vulnerable / note",
+   "observed": "only in the raw provider object of --json results; findings, CLI text and page never show it",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "privacy: requests go only to Cloudflare DoH and the target; detection only",
+   "method": "read lookup.mjs, probe.mjs, index.html script; grep fetch/sendBeacon",
+   "command": "grep -n 'fetch\\|sendBeacon\\|XMLHttp' ventures/subdomain-takeover-check/*.mjs ventures/subdomain-takeover-check/index.html",
+   "expected": "only DOH_ENDPOINT and https://<hostname>/",
+   "observed": "only those two; GET only",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, no warranty, no SLA, authorisation warning on the page",
+   "method": "read index.html footer and README",
+   "command": "grep -n 'No warranty\\|no SLA\\|authorised' ventures/subdomain-takeover-check/index.html",
+   "expected": "present",
+   "observed": "present (index.html footer, README 'No warranty')",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "served page",
+   "method": "load https://marisstella.app/subdomain-takeover-check/",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/subdomain-takeover-check/",
+   "expected": "200",
+   "observed": "CONNECT tunnel 403 from the session proxy (not reachable from here)",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "analyze.mjs:99",
+   "change": "category: confirmed ? 'dangling-confirmed' : 'risky-unconfirmed' -> category: 'dangling-confirmed'",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "lookup.mjs:100",
+   "change": "if (hop === maxHops - 1) truncated = true; -> (removed)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "analyze.mjs:164",
+   "change": "ok: confirmedCount === 0 && unconfirmedCount === 0 -> ok: confirmedCount === 0",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "lookup.mjs:47",
+   "change": "Status === 3 return { ok: true -> { ok: false",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "fingerprints.mjs:40",
+   "change": "s3(-website[.-][a-z0-9-]+)? -> s3(-website-[a-z0-9-]+)? (drops bucket.s3-website.<region> endpoints)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "probe.mjs:29",
+   "change": "MAX_BODY_BYTES 200_000 -> 200",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Provider matching uses only the final hop of the CNAME chain. A CNAME to a deleted bucket at <bucket>.s3.amazonaws.com resolves on through s3-1-w.amazonaws.com to s3-w.us-east-1.amazonaws.com, which matches no pattern, so the canonical S3 takeover is reported 'not-risky' (a clean report). Same shape for any provider whose hostname CNAMEs onward. Fix: test every hop after the hostname (chain.slice(1)) and use the first match.",
+   "where": "ventures/subdomain-takeover-check/analyze.mjs:73",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "high",
+   "what": "No NXDOMAIN-at-target signal. Azure (App Service, Blob, Traffic Manager), Elastic Beanstalk and others are identified by can-i-take-over-xyz by NXDOMAIN on the CNAME target, not by a body; the tool's Azure body fingerprints are unreachable for a dangling record, the probe fails ENOTFOUND, and the result is only 'risky-unconfirmed' with a message blaming a browser CORS block.",
+   "where": "ventures/subdomain-takeover-check/fingerprints.mjs:68",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Stale fingerprints: Pantheon ('404 error unknown site!' per can-i-take-over-xyz; tool has 'The site you were looking for could not be found') and Ghost ('Site unavailable.|Failed to resolve DNS path for this host'; tool has 'The thing you were looking for is no longer here'), so real takeovers there are never confirmed.",
+   "where": "ventures/subdomain-takeover-check/fingerprints.mjs:239",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Exploitability status diverges from can-i-take-over-xyz for 9 providers (Heroku, GitHub Pages, Tumblr = Edge case; Unbounce, Zendesk, Statuspage, UserVoice, Fastly = Not vulnerable; Ghost = Vulnerable but tool null), and `vulnerable`/`note` never reach the finding, so e.g. a Zendesk 'Help Center Closed' is shown as a CRITICAL confirmed takeover with no caveat.",
+   "where": "ventures/subdomain-takeover-check/analyze.mjs:107",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Coverage gaps a practitioner hits at once: regional REST endpoints <bucket>.s3.<region>.amazonaws.com, Heroku's current *.herokudns.com DNS targets, Elastic Beanstalk, cloudapp.net/azureedge.net, and no NS/MX delegation checks.",
+   "where": "ventures/subdomain-takeover-check/fingerprints.mjs:40",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests never model a real multi-hop provider chain or an NXDOMAIN target, and fingerprints are checked only against the author's strings; the S3 pattern narrowing and a 200-byte body cap both survive.",
+   "where": "ventures/subdomain-takeover-check/lookup.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "'25 known takeover-prone providers' in README, VENTURE.yaml and 8 places in index.html; the table has 24 (llms.txt and the meta description say 'and 20 more', i.e. 24).",
+   "where": "ventures/subdomain-takeover-check/README.md:4",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Unconfirmed-finding text always says 'commonly a browser CORS block' even in the CLI, where the probe error (e.g. ENOTFOUND, which itself suggests a dangling target) is the real cause.",
+   "where": "ventures/subdomain-takeover-check/analyze.mjs:138",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "analyze.mjs header claims `vulnerable` is surfaced in the finding; findingFor() omits it.",
+   "where": "ventures/subdomain-takeover-check/analyze.mjs:38",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt carries boilerplate 'Results are estimates from the numbers typed in, not legal, tax, financial or professional advice' that does not describe this tool; probe.mjs user-agent cites a stale duncan-haywood.github.io/monorepo-projects URL that the build does not rewrite (.mjs files are copied verbatim).",
+   "where": "ventures/subdomain-takeover-check/probe.mjs:24",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Does not meet the bar. The architecture is the right one (provider-specific live fingerprint required before 'confirmed', DNS-only matches kept unconfirmed, detection only), the code is tidy and 83 tests pass with 4 of 6 seeded mutations caught. But recomputed against can-i-take-over-xyz and a published S3 DNS write-up, the shipped pipeline gives a clean 'not-risky' for the canonical case of a CNAME to a deleted S3 bucket via the REST endpoint, because it matches only the last hop of the chain; Azure dangling records (NXDOMAIN) can never be confirmed; Pantheon and Ghost fingerprints are stale; Zendesk is reported critical though the reference lists it not vulnerable; and the '25 providers' claim is 24. Live DNS and the served page were unreachable from this session (proxy 403), so the S3 chain is modelled from the write-up, not observed; a re-check with real DNS should be the first step of the fix."
+}
