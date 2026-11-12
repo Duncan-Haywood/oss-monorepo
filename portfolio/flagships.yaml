@@ -193,9 +193,10 @@ flagships:
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     buildable: >-
-      MapTable (opcode 7) and DeltaPerRow/Column, ScalePerRow/Column (10-13)
-      in dng_opcodes.py on synthetic DNGs with closed-form answers, as
-      tests/test_dng_warp_fisheye.py and test_dng_bad_pixels.py do.
+      TrimBounds (opcode 6: crop the stage-2 or stage-3 image to a rectangle)
+      in dng_opcodes.py on synthetic DNGs, as tests/test_dng_table_per_line.py
+      does; MapTable and Delta/ScalePerRow/Column in OpcodeList1 once the
+      raw-value unit is settled (README, 2026-11-12 MapTable section).
     next: >-
       History and every measurement: README and eval/ (ingest, catalog,
       proxies, cull, RAW previews; DNG developer with DNG-spec colour, DCP
@@ -208,9 +209,9 @@ flagships:
       2026-11-12.md; WarpRectilinear matches the Leica T's own preview to
       0.18 px, eval/warp-rectilinear-2026-11-12.md; FixVignetteRadial/MapPolynomial on
       synthetic files, eval/vignette-polynomial-2026-11-12.md; OpcodeList1
-      FixBadPixels*; WarpFisheye on closed forms, eval/warp-fisheye-*).
-      Next, most valuable first: MapTable, Delta/ScalePerRow/Column; a
-      fisheye DNG or the SDK to check WarpFisheye; a real DNG carrying FixVignetteRadial or OpcodeList1 bad pixels;
+      FixBadPixels*; WarpFisheye; MapTable, Delta/ScalePerRow/Column).
+      Next, most valuable first: TrimBounds; a real DNG carrying any opcode
+      run only on synthetic files so far, or the SDK to check them;
       lateral colour measured on a real frame with sharp corner edges; a real Adobe `.dcp` through the profile chooser;
       newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that
       collection under their plain names) and the DJI DNG (name unknown
