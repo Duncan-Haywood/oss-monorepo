@@ -11,6 +11,9 @@
 // probability does not depend on how long parties stay (only on the mean), so the simulator is tested against the closed form.
 
 export const MAX_TYPES = 6;
+// Run time grows with the number of parties simulated (about 1.6 s at 300 and 5 s at 1,000 on a laptop), and an extra
+// zero used to hang the tab. Above this the page asks for one section or a shorter window instead of guessing.
+export const MAX_PARTIES = 600;
 export const PARTY_SIZES = [1, 2, 3, 4, 5, 6, 7, 8];
 
 export const SHARED_DEFAULTS = {
@@ -208,6 +211,9 @@ export function normalize(tableRows, partyRows, shared) {
   const areaSqFt = get("areaSqFt", 1, "Enter the dining floor area in square feet.");
   const windowHours = get("windowHours", 0.25, "Enter how many hours the busy service lasts.");
   const partiesPerService = get("partiesPerService", 1, "Enter how many parties want a table during that window.");
+  if (partiesPerService > MAX_PARTIES) {
+    warnings.push(`This simulator handles up to ${MAX_PARTIES} parties in one busy window; you entered ${Math.round(partiesPerService).toLocaleString("en-US")}. Model one section of the room, or a shorter window, with its share of the parties.`);
+  }
   const patienceRaw = num(shared.patienceMin);
   const patienceMin = Number.isFinite(patienceRaw) && patienceRaw >= 0 ? patienceRaw : 0;
   const spendPerGuest = Number.isFinite(num(shared.spendPerGuest)) && num(shared.spendPerGuest) >= 0 ? num(shared.spendPerGuest) : 0;
@@ -248,7 +254,7 @@ export function normalize(tableRows, partyRows, shared) {
     if (shares[k] > 0 && dwells[k] <= 0) { warnings.push(`Enter how long a party of ${PARTY_SIZES[k]} stays, in minutes.`); }
   }
 
-  const ok = Boolean(areaSqFt && windowHours && partiesPerService && T.length && shareSum > 0 && shares.every((s, k) => s === 0 || dwells[k] > 0));
+  const ok = Boolean(areaSqFt && windowHours && partiesPerService && partiesPerService <= MAX_PARTIES && T.length && shareSum > 0 && shares.every((s, k) => s === 0 || dwells[k] > 0));
   return { ok, warnings, areaSqFt, windowHours, partiesPerService, patienceMin, spendPerGuest, marginPct, servicesPerMonth, combine, types: T, shares, dwells, shareSum };
 }
 

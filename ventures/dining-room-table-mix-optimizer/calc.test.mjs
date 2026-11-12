@@ -109,3 +109,14 @@ test("the CSV lists every type with today and recommended counts", () => {
   assert.equal(lines.length, 1 + EXAMPLE_TABLES.length);
   assert.match(lines[0], /tables recommended/);
 });
+
+test("parties above MAX_PARTIES are refused with a message, not simulated for minutes", async () => {
+  const { MAX_PARTIES, analyze, EXAMPLE_TABLES, EXAMPLE_PARTIES, EXAMPLE_SHARED } = await import("./calc.mjs");
+  const t0 = performance.now();
+  const a = analyze(EXAMPLE_TABLES, EXAMPLE_PARTIES, { ...EXAMPLE_SHARED, partiesPerService: "100000" });
+  assert.ok(performance.now() - t0 < 1000);
+  assert.equal(a.ok, false);
+  assert.ok(a.warnings.some((w) => w.includes(`up to ${MAX_PARTIES} parties`) && w.includes("100,000")));
+  const atCap = analyze(EXAMPLE_TABLES, EXAMPLE_PARTIES, { ...EXAMPLE_SHARED, partiesPerService: String(MAX_PARTIES) });
+  assert.equal(atCap.ok, true);
+});

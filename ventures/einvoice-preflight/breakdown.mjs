@@ -114,7 +114,11 @@ function checkRows(rows, expected, withCategory, unattributed) {
       ));
     }
   });
-  for (const key of expected.keys()) {
+  for (const [key, group] of expected) {
+    // The mirror of the zero row above: lines whose nets sum to zero at a rate carry
+    // no tax, so no row is needed (ZATCA's prepayment-deduction line at the advance's
+    // old rate: quantity 0, net 0.00, its 5% detail in the line's own TaxTotal).
+    if (group && group.taxable === 0) continue;
     if (!seen.has(key) && !unattributed) {
       findings.push(finding(
         "INV-038",

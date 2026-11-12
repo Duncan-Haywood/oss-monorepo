@@ -87,9 +87,10 @@ export function seasonOdds(input) {
   const regimes = [{ w: 1 - clamp(o.wetChance), p: clamp(o.rainoutPct) }, { w: clamp(o.wetChance), p: clamp(o.wetLossPct) }].filter((r) => r.w > 0);
   const probLost = new Array(n + 1).fill(0);
   for (const { w, p } of regimes) {
+    // log C(n, k), built up from log C(n, k - 1): one step per k, so a typo like 100000 open days stays O(n), not O(n^2).
+    let lc = 0;
     for (let k = 0; k <= n; k++) {
-      let lc = 0;
-      for (let j = 1; j <= k; j++) lc += Math.log(n - k + j) - Math.log(j);
+      if (k) lc += Math.log(n - k + 1) - Math.log(k);
       const lp = lc + (k ? k * Math.log(p) : 0) + (n - k ? (n - k) * Math.log(1 - p) : 0);
       probLost[k] += p === 0 ? (k === 0 ? w : 0) : p === 1 ? (k === n ? w : 0) : w * Math.exp(lp);
     }
