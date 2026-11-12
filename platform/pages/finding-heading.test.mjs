@@ -25,7 +25,7 @@ const VENTURES = fileURLToPath(new URL('../../ventures/', import.meta.url));
 
 const KNOWN_H4 = new Set([
   'apparel-decoration-price-calculator',
-  'bonus-depreciation-calculator', 'brand-deal-rate-calculator', 'business-loan-offer-comparator',
+  'bonus-depreciation-calculator', 'business-loan-offer-comparator',
   'charitable-deduction-calculator', 'childcare-center-break-even-calculator',
   'chiropractor-new-patient-roi-calculator', 'cnc-machining-quote-calculator', 'coi-expiry-gap-checker',
   'commercial-lease-effective-rent-calculator', 'contractor-wip-schedule', 'depreciation-recapture-calculator',
@@ -34,14 +34,13 @@ const KNOWN_H4 = new Set([
   'freight-broker-load-margin-calculator', 'gitignore-explainer',
   'grant-writer-proposal-price-calculator', 'inherited-ira-10-year-withdrawal-planner',
   'insurance-commission-reconciler', 'med-spa-treatment-profit-calculator',
-  'newsletter-sponsorship-rate-calculator',
   'payroll-tax-deposit-penalty-calculator', 'pg-stat-statements-analyzer',
-  'physician-wrvu-compensation-calculator', 'podcast-sponsorship-rate-calculator', 'rent-increase-notice-checker',
+  'physician-wrvu-compensation-calculator',
   'roth-conversion-bracket-fill-calculator',
   'rsu-withholding-gap-calculator', 'section-174a-catchup-calculator',
-  'startup-exit-waterfall-calculator', 'str-cleaning-fee-pricing-calculator', 'supplier-price-creep-checker',
-  'syndication-waterfall-calculator', 'tow-truck-rate-calculator', 'turo-host-payout-calculator',
-  'usage-based-pricing-simulator', 'voiceover-project-rate-calculator', 'wash-and-fold-price-calculator',
+  'startup-exit-waterfall-calculator', 'supplier-price-creep-checker',
+  'syndication-waterfall-calculator', 'tow-truck-rate-calculator',
+  'usage-based-pricing-simulator', 'wash-and-fold-price-calculator',
 ]);
 
 /** True when an inline script on the page draws `<... class="finding..."><h4>`. */
