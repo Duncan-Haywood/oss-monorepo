@@ -1,6 +1,6 @@
 # build-data log
 
-## Session 79, 2026-11-12: does cascade2's build-time q0.9 transfer cost (session 74) survive complete labels, and does session 78's demolition result hold with SF and Austin held out? (in progress)
+## Session 79, 2026-11-12: on complete labels the work-type class helps Seattle and SF build-time q0.9 transfer and costs Austin 15 days; session 74's Seattle cost was censoring (V1, V2, V4 held; V3, V5 refuted)
 
 Why: session 78 found that complete-case scoring of a right-truncated test year flips the sign of the demolition fold at i2c q0.9, and asked for the same check on session 74's cascade2-versus-type comparison (cascade2 cost +2.19 days of Seattle i2c 2024 transfer q0.9 on complete-case labels) and for other held-out cities.
 - Change: `censored_eval.py` names a result file after its class list when it is not session 78's default pair (`out_name`, 1 test), so `--classes cascade2 type cascade2_nodemo` does not overwrite session 78's files.
@@ -11,6 +11,35 @@ Predictions (written before any run): `python3 src/censored_eval.py validate DIR
 - (V4) Seattle: the nodemo-minus-cascade2 reference q0.9 contrasts reproduce session 78 (+1.66, +2.49, +2.37) to within 0.1 day if the SF, Austin and Seattle row counts are unchanged.
 - (V5) SF held out and Austin held out, 2021: reference transfer q0.9 nodemo minus cascade2 >= 0 (naming demolition does not cost on complete labels in other cities either). Refuted if negative in either city.
 Each is refuted if its condition fails.
+
+Outcome. Fresh pull of SF, Austin and Seattle 2026-11-12 18:08 to 18:21 UTC: row counts equal session 78's (`results/manifest.json` unchanged). Runs one after another with `/usr/bin/python3.13` (pyenv), 5 to 8 minutes each, 18:21 to 18:54 UTC. Outputs: `results/censored_eval_validate_{seattle_i2c_2020_pp2022,seattle_i2c_2021_pp2023,seattle_i2c_2022_pp2024,sf_i2c_2021_pp2023,austin_i2c_2021_pp2023}_cascade2-type-cascade2_nodemo.json`.
+- Transfer contrasts, days of mean pinball loss [95% week-block interval]. "type minus cascade2" > 0 means the cascade2 work-type class is better; "nodemo minus cascade2" > 0 means folding demolition costs.
+
+| held, year | contrast | q | reference (all rows) | CC | IPCW |
+|---|---|---|---|---|---|
+| Seattle 2020 | type minus cascade2 | q0.9 | **+3.15 [1.19, 5.24]** | -2.27 [-3.69, -0.93] | -1.42 [-3.25, 0.32] |
+| Seattle 2021 | type minus cascade2 | q0.9 | **+6.25 [4.11, 8.19]** | +0.62 [-0.68, 1.85] | +1.98 [0.19, 3.75] |
+| Seattle 2022 | type minus cascade2 | q0.9 | **+6.31 [4.06, 8.76]** | +0.77 [-0.83, 2.37] | +2.16 [0.24, 3.98] |
+| Seattle 2020 / 2021 / 2022 | type minus cascade2 | q0.1 | +0.30 / +0.11 / +0.11 | +0.41 / +0.20 / +0.18 | +0.40 / +0.22 / +0.17 |
+| Seattle 2020 / 2021 / 2022 | type minus cascade2 | q0.5 | -0.42 / +0.01 / +0.83 | -0.39 / +0.07 / +0.47 | -0.29 / +0.15 / +0.57 |
+| SF 2021 | type minus cascade2 | q0.9 | **+15.74 [14.18, 17.37]** | +33.86 [32.70, 35.02] | +28.08 [24.45, 31.19] |
+| SF 2021 | type minus cascade2 | q0.5 | +10.52 [9.68, 11.41] | +13.03 | +11.85 |
+| Austin 2021 | type minus cascade2 | q0.9 | **-15.34 [-16.04, -14.60]** | -19.38 [-19.82, -18.93] | -18.43 [-18.99, -17.82] |
+| Austin 2021 | type minus cascade2 | q0.5 | +2.59 [1.63, 3.52] | +0.75 | +1.26 |
+| Seattle 2020 / 2021 / 2022 | nodemo minus cascade2 | q0.9 | +1.66 / +2.49 / +2.37 | -0.89 / -0.75 / +0.94 | -0.60 / -0.18 / +1.37 |
+| SF 2021 | nodemo minus cascade2 | q0.9 | +0.00 [-0.19, 0.21] | +0.07 | -0.08 |
+| Austin 2021 | nodemo minus cascade2 | q0.9 | **-2.02 [-2.91, -1.25]** | -1.07 [-1.54, -0.64] | -1.23 [-1.91, -0.66] |
+| Austin 2021 | nodemo minus cascade2 | q0.5 | +8.19 [7.71, 8.66] | +8.79 | +8.72 |
+
+- (V1) Held: on all rows the cascade2 class lowers Seattle's transfer q0.9 loss by 3.2, 6.3 and 6.3 days, every interval above zero. Session 74's +2.2-day cost (and session 75's +3.0 on the re-pulled 2024 year) is the right-truncation artefact session 78 found for the demolition fold, and is withdrawn.
+- (V2) Held, 3 of 3: CC is below the reference in every year, and in 2020 it reports a cost with an interval below zero (-2.27) where the full cohort shows a 3.15-day gain. IPCW again closes only part of the gap (16 to 25% of the CC error).
+- (V3) Refuted at q0.5 in 2020 (-0.42, interval -1.25 to +0.43). q0.1 point estimates are positive in all three years (only 2020's interval excludes zero). At the Seattle median the class is a wash, not a gain.
+- (V4) Held: the nodemo contrasts and every cascade2 own-baseline contrast reproduce session 78 to the printed digit (same pull counts, fixed seeds).
+- (V5) Refuted in Austin, held (trivially) in SF. With Austin held out, folding demolition *helps* at q0.9 (-2.02 days on all rows) and costs 8.2 days at the median; in SF the fold changes nothing (0.00). So session 78's Seattle result (naming demolition helps the tail) is Seattle-specific.
+- The wider picture is a city-specific sign, not a rule. Held-out SF gains 15.7 days at q0.9 from the work-type class; held-out Austin loses 15.3, though the same class helps Austin at the median (+2.6) and the own-city Austin model gains from it at every quantile (+0.07, +1.27, +0.73). Transferred to Austin, the type-only model beats Austin's own baseline at q0.9 (-9.56 days) and the cascade2 one does not (+5.78).
+- Censoring's effect differs by city too. In Seattle (5.3 to 8.3% of a cohort beyond the longest window) CC shrinks or flips the comparison. In SF (3.5%) and Austin (1.6%) CC keeps the sign but exaggerates the size: SF's q0.9 gain is doubled (+33.9 against +15.7), Austin's cost grows by a quarter (-19.4 against -15.3). In Austin the IPCW independence assumption also fails: rows of 800 to 900 days are seen 41% of the time against a mean G of 0.55 (in Seattle and SF the two agree within 0.05 in every bin), so build time there depends on the issue day within the year.
+- Limits: one mature year (2021) for SF and Austin, 3 seeds, one class pair beyond the fold; references are themselves truncated at 1,777 days (2021) and 1,412 (2022); no by-class split of the Austin cost yet; the pseudo-pull truncates only the test labels.
+Next: a by-class split of the Austin type-versus-cascade2 q0.9 cost on complete labels (paired `by_class` in `censored_eval`); SF and Austin 2020 and 2022 to see whether their signs hold across years; an Austin-specific G that conditions on issue month, since the within-year independence fails there; a censored-quantile model.
 
 ## Session 78, 2026-11-12: on complete labels, folding demolition costs 1.7 to 2.5 days at build-time q0.9 in every year; complete-case scoring flips that sign, and IPCW cannot reach the tail (U1, U3 refuted; U2, U4, U5 held)
 
