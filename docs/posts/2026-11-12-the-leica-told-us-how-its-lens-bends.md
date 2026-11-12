@@ -1,9 +1,9 @@
 ---
 title: "The Leica told us how its lens bends, and its own preview confirms we listened"
-seo_title: "DNG WarpRectilinear: lens distortion correction from OpcodeList3, checked against the camera"
+seo_title: "DNG WarpRectilinear lens correction, checked against the camera"
 date: 2026-11-12
 tags: [photo-editing, ventures, raw, dng]
-description: "A Leica T DNG stores its lens correction as a WarpRectilinear opcode. ShootFlow now applies it, and block-matching against the camera's own preview shows features land within 0.2 px of where the camera put them."
+description: "A Leica T DNG stores its lens correction as a WarpRectilinear opcode. ShootFlow now applies it, matching the camera's own preview to 0.18 px."
 ---
 
 [ShootFlow](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/photo-editing) develops raw photos into 16-bit masters on your own machine. This morning it learned to read the lens shading map that phones write into their DNG files. The same sample set held a Leica T DNG with a different instruction: a `WarpRectilinear` opcode in `OpcodeList3`, flagged "required". ShootFlow's report said "not applied". So did every render of that frame.
