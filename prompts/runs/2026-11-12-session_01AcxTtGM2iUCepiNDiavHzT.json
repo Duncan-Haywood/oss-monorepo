@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtGM2iUCepiNDiavHzT",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T02:06:25Z",
+  "ended": "2026-11-12T02:23:08Z",
+  "wall_minutes": 24.14,
+  "tokens_in": 6087696,
+  "tokens_out": 37574,
+  "cost_usd": 2.9543,
+  "tool_calls": 56,
+  "task": "Deepen flagship 4 (changepoint-detector, allocate.py row 3): ship the per-segment update-rate description the last run left as a product idea",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14966",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "update-rate.test.mjs first draft pinned one simulated series (seed 99) that happened to be among the ~8% S4 misses; replaced with a 20-series coverage check rather than hunting for a seed that passes.",
+    "drift-page.test.mjs pinned drift-view.mjs's imports to two siblings; adding ./update-rate.mjs failed it until the list was extended (with a check that update-rate.mjs itself imports nothing)."
+  ],
+  "integrity_issues": [
+    "Round one's pre-registered rule failed (dating within 5 steps); the description was not shipped on it. Round two (a date range) was pre-registered and committed (9302534ae) after round one's verdict and after a diagnostic on a separate seed (777) showed the misses were early dates; that sequence is stated in the README, the eval header and the post, so a reader can weigh the second round as a revised rule, not a first-try pass.",
+    "PELT pruning was checked against exhaustive search only after the round-one rule was committed; the check passed, so no committed result depended on a pruning bug."
+  ],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/eval/drift-sticky-penalty.mjs",
+      "issue": "loadTcpd fills missing values by carrying the last value forward, which manufactures exact repeats; anything measuring repeats must load raw values itself (eval/update-rate-real.mjs does)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Venture tests and preflight both outlast the foreground timeout; the 8-minute simulation did too (ran fine with a 600 s timeout), so long evals are worth flagging alongside tests in 'Long commands'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Scope kept to --model drift (where the sticky check lives) rather than every model, to land one verified slice.",
+      "did": "Wired update-rate into drift CLI text/JSON, page notes and the drift report; recorded 'show it beside the other models' as next in flagships.yaml.",
+      "result": "Shipped; the remaining wiring is a clear next item."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-when-did-this-series-stop-updating.md",
+    "ventures/changepoint-detector/README.md#when-a-series-starts-updating-less-often"
+  ],
+  "goal": null,
+  "notes": "Round one (eval/update-rate-sim.out.txt): chain cost m2 chosen; confirmation nulls <=0.005, S1 179/200 (needed 180), S4 121/200 (needed 150) -> FAIL, not shipped. Round two (eval/update-rate-range.out.txt): slack 9 chosen on seed 20261203; confirmation nulls worst 0.010, S1 range covers 200/200 (median width 17), S4 181/200 -> all four rules pass, shipped. Real (eval/update-rate-real.out.txt): fires on 3 of 38 TCPD series (children_per_woman, scanline_42049, measles); frozen juice repeats 60% -> 12% around 1981-08 [1980-09..1982-04]. Verification: run_venture_tests.py changepoint-detector 540 tests pass (216.9 s); eval/drift-page-browser.mjs all ok in headless Chromium; venture-preflight clean (first run failed only on a 182-char post description, fixed).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "175911f5-f932-570f-8314-d904903534ce",
+    "transcripts": 1,
+    "first": "2026-11-12T02:06:25Z",
+    "last": "2026-11-12T02:30:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 99,
+        "output": 37574,
+        "thinking": 8299,
+        "cache_read": 5961330,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126267,
+        "api_equivalent_usd": 2.9543,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 99,
+      "output": 37574,
+      "thinking": 8299,
+      "cache_read": 5961330,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126267,
+      "api_equivalent_usd": 2.9543,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 50,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.14,
+      "active_minutes": 24.14,
+      "model_minutes": 7.52,
+      "tool_minutes": 16.61,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a statistician designing, pre-registering and running two simulation rounds, real-data description, wiring into CLI/page/report and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 406.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
