@@ -34,7 +34,9 @@ node check.mjs <hostname> [<hostname> ...] [--json] [--timeout <ms>]
 
 Not run from a browser tab, so it is never subject to CORS. Exit code `0` when no hostname is
 confirmed or unconfirmed-risky; `1` when at least one is, or a lookup could not be completed at
-all. Wire it into a recurring DNS-zone-audit job:
+all. A pasted URL (`https://blog.example.com/path`) is checked as the hostname inside it; an
+argument that is not a hostname at all counts as a failed lookup (exit `1`), never as clean.
+Wire it into a recurring DNS-zone-audit job:
 
 ```yaml
 # in your own CI, not this portfolio's -- your zone, your pipeline

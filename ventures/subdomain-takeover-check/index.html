@@ -158,7 +158,7 @@
 <script type="module">
   import { resolveCnameChain } from './lookup.mjs';
   import { fetchHostname } from './probe.mjs';
-  import { classify, buildReport, verdictFor } from './analyze.mjs';
+  import { classify, buildReport, verdictFor, parseHostname } from './analyze.mjs';
   import { providerForChain } from './fingerprints.mjs';
   import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
 
@@ -204,9 +204,15 @@
   }
 
   async function runLiveCheck() {
-    const hostname = els.hostname.value.trim();
-    if (!hostname) {
+    if (!els.hostname.value.trim()) {
       els.status.innerHTML = '<span class="error">Enter a hostname.</span>';
+      return;
+    }
+    // A pasted URL is checked as the hostname inside it; anything that is not
+    // a hostname is refused rather than sent to DNS, where it would read clean.
+    const { hostname, error: inputError } = parseHostname(els.hostname.value);
+    if (inputError) {
+      els.status.innerHTML = `<span class="error">That is not a hostname (${escapeHtml(inputError)}). Enter one such as blog.example.com.</span>`;
       return;
     }
     els.status.textContent = 'Checking… this sends real DNS and (for a provider match) HTTP requests.';
