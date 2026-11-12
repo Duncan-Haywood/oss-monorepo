@@ -213,6 +213,8 @@ function fold(line) {
  * the same wall-clock hour whatever the daylight-saving date). `now` is injected so the
  * output is reproducible.
  */
+const icsText = (t) => String(t).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+
 export function toIcs(days, { patternKey, crewName, dayStart = "07:00", nightStart = "19:00", now = new Date() } = {}) {
   const p = pattern(patternKey);
   const [dh, dm] = parseClock(dayStart, "Day start");
@@ -230,11 +232,11 @@ export function toIcs(days, { patternKey, crewName, dayStart = "07:00", nightSta
     const label = d.shift === "D" ? "Day shift" : "Night shift";
     lines.push(
       "BEGIN:VEVENT",
-      `UID:${d.date}-${d.shift}-${patternKey}-${crewName}@shift-rotation-schedule-generator`,
+      `UID:${d.date}-${d.shift}-${patternKey}-${String(crewName).replace(/[\r\n]+/g, " ")}@shift-rotation-schedule-generator`,
       `DTSTAMP:${stamp}`,
       `DTSTART:${fmt(s)}`,
       `DTEND:${fmt(e)}`,
-      fold(`SUMMARY:${label} (${p.name}, crew ${crewName})`),
+      fold(`SUMMARY:${icsText(`${label} (${p.name}, crew ${crewName})`)}`),
       "END:VEVENT",
     );
   }
