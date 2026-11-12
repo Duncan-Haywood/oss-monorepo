@@ -40,7 +40,9 @@ export function collect(cwd = process.cwd(), max = 50000) {
   const exclude = join(git(["rev-parse", "--git-dir"], root).trim().replace(/^(?!\/)/, root + "/"), "info", "exclude");
   if (existsSync(exclude)) parts.push(`==> .git/info/exclude <==\n${readFileSync(exclude, "utf8")}`);
   const mode = gitModeFor(execFileSync("git", ["--version"], { encoding: "utf8" }));
-  return { root, sources: parts.join("\n"), tracked: tracked.join("\n"), paths: others.join("\n"), truncated, git: mode };
+  // the strings are for --bundle (pasted into the page); the lists are the
+  // exact names git gave, which analyze takes as they are
+  return { root, sources: parts.join("\n"), tracked: tracked.join("\n"), paths: others.join("\n"), trackedList: tracked, pathList: others, truncated, git: mode };
 }
 
 function text(report) {
@@ -83,7 +85,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
       console.log(`${s.path}: ${s.ignored ? "ignored" : "not ignored"}${s.rule ? ` by ${s.rule.source}:${s.rule.line} ${s.rule.text}` : " (no rule matches)"}${s.note ? `\n  ${s.note}` : ""}`);
     }
   } else {
-    const report = analyze(input);
+    const report = analyze({ sources: input.sources, tracked: input.trackedList, paths: input.pathList, git: input.git });
     console.log(flag("--json") ? JSON.stringify(report, null, 2) : text(report));
     if (flag("--strict") && report.findings.some((f) => f.severity === "high")) process.exit(1);
   }

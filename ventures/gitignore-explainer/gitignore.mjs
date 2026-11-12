@@ -364,18 +364,62 @@ export function resolver(files, skip = null) {
 
 // ----------------------------------------------------------------- analysis
 
+// git prints a path with unusual bytes C-quoted (core.quotePath, on by
+// default): `"caf\303\251.txt"`, `"tab\tname"`. Returns the decoded path and
+// the text after the closing quote, or null when `s` is not a quoted path.
+const C_ESCAPES = { a: 7, b: 8, t: 9, n: 10, v: 11, f: 12, r: 13, '"': 34, "\\": 92 };
+function unquoteC(s) {
+  if (s[0] !== '"') return null;
+  const bytes = [];
+  for (let i = 1; i < s.length; i++) {
+    const c = s[i];
+    if (c === '"') return { path: new TextDecoder().decode(new Uint8Array(bytes)), rest: s.slice(i + 1) };
+    if (c !== "\\") { bytes.push(...new TextEncoder().encode(c)); continue; }
+    const o = s.slice(i + 1, i + 4);
+    if (/^[0-3][0-7]{2}$/.test(o)) { bytes.push(parseInt(o, 8)); i += 3; continue; }
+    if (!(s[i + 1] in C_ESCAPES)) return null;
+    bytes.push(C_ESCAPES[s[i + 1]]);
+    i++;
+  }
+  return null;
+}
+
+// `text` is pasted text, or an array of exact paths (the CLI reads them
+// with `git ls-files -z`, so nothing in them is quoting or a status column).
 function parsePaths(text) {
   const out = [];
   const seen = new Set();
+  if (Array.isArray(text)) {
+    for (const path of text) {
+      if (!path || path === ".git" || path.startsWith(".git/") || seen.has(path)) continue;
+      seen.add(path);
+      out.push({ path, isDir: false });
+    }
+    return out;
+  }
   for (let line of String(text ?? "").replace(/\r\n/g, "\n").split("\n")) {
-    line = line.replace(/^\s+|\s+$/g, "");
-    if (!line || line.startsWith("#")) continue;
-    // `git status --porcelain` / `--ignored` lines: "?? path", "!! path"
-    const m = line.match(/^(\?\?|!!|[ MADRCU?!]{2}) (.+)$/);
-    if (m) line = m[2];
-    if (line.startsWith('"') && line.endsWith('"')) line = line.slice(1, -1);
+    line = line.replace(/\s+$/, "");
+    // `# note` is a comment; `#draft.md` and Emacs's `#file#` are paths that
+    // `git ls-files --others` prints as they are
+    if (!line.trim() || /^#(\s|$)/.test(line.trim())) continue;
+    // `git status --porcelain [--ignored]` lines: "?? path", "!! path",
+    // " M path", "R  old -> new". Matched before any leading trim, since the
+    // status column itself can start with a space.
+    const m = line.match(/^([ MTADRCU?!]{2}) (\S.*)$/);
+    let rename = false;
+    if (m && m[1].trim()) { line = m[2]; rename = /[RC]/.test(m[1]); } else line = line.replace(/^\s+/, "");
+    let q = unquoteC(line);
+    if (rename) {
+      // a rename or copy is checked under its new name
+      const arrow = q ? (q.rest.startsWith(" -> ") ? q.rest.slice(4) : null) : (line.includes(" -> ") ? line.slice(line.indexOf(" -> ") + 4) : null);
+      if (arrow !== null) { line = arrow; q = unquoteC(line); }
+    }
+    if (q && q.rest === "") line = q.path;
+    else q = null;
     const isDir = line.endsWith("/");
-    const path = normalisePath(line).replace(/\/+$/, "");
+    // a decoded quoted path holds real bytes: a backslash in it is part of
+    // the name, not a Windows separator
+    const path = (q ? line.replace(/^\.\//, "").replace(/^\/+/, "") : normalisePath(line)).replace(/\/+$/, "");
     if (!path || path === "." || path.startsWith(".git/") || path === ".git") continue;
     if (seen.has(path)) continue;
     seen.add(path);
@@ -506,6 +550,10 @@ function candidate(file, b) {
     // the negation sits in a file git never read: copy it here, anchored
     const where = rel(r.base);
     neg = r.anchored ? `!/${where}/${r.pattern}${r.dirOnly ? "/" : ""}` : `!/${where}/**/${r.pattern}${r.dirOnly ? "/" : ""}`;
+  } else if (r.kind === "exclude" && !base) {
+    // .git/info/exclude and global excludes read like the root .gitignore,
+    // which git checks first: the negation means the same there
+    neg = r.text;
   } else return null;
   return { file: file.path, dirs, negs: [neg] };
 }

@@ -168,3 +168,46 @@ test("every suggested fix does in git what the report says it does", { skip: !ha
   t.diagnostic(`${fixes} suggested fixes checked in git; ${complete} re-include every blocked path, ${clean} change no other path`);
   assert.ok(fixes > 5);
 });
+
+// Red-team 2026-11-12: the path box takes `git status --porcelain --ignored`
+// and `git ls-files --others` as pasted. Build a repository with modified,
+// deleted, renamed and oddly named files, paste git's own output, and check
+// every path comes back under the name git gives it with `-z` (never quoted)
+// and with git's ignored/untracked verdict.
+test("pasted git status and ls-files output is read the way git means it", { skip: !hasGit && "git not installed" }, () => {
+  const root = mkdtempSync(join(tmpdir(), "gi-status-"));
+  const git = (...args) => execFileSync("git", ["-c", "core.excludesFile=/dev/null", "-c", "core.quotePath=true", ...args], { cwd: root, encoding: "utf8" });
+  try {
+    git("init", "-q");
+    git("config", "user.email", "redteam@example.invalid");
+    git("config", "user.name", "redteam");
+    const put = (p, s = "x") => { mkdirSync(join(root, dirname(p)), { recursive: true }); writeFileSync(join(root, p), s); };
+    for (const p of ["src/a.js", "src/b.js", "old.js", "x.js", "keep.md"]) put(p);
+    git("add", "."); git("commit", "-qm", "init");
+    put("src/a.js", "changed"); rmSync(join(root, "old.js")); git("mv", "x.js", "y z.js");
+    const odd = ["café.txt", "tab\tname.log", 'say "hi".txt', "back\\slash.log", "spaced name.log", "#hash.txt", "build/out.js", "build/deep/κ.bin"];
+    for (const p of odd) put(p);
+    const sources = "*.log\nbuild/\n";
+    put(".gitignore", sources);
+    const z = (out) => out.split("\0").filter(Boolean);
+    const expect = new Map();
+    const recs = z(git("status", "--porcelain", "-z", "--ignored=matching", "-uall"));
+    for (let i = 0; i < recs.length; i++) {
+      const code = recs[i].slice(0, 2), path = recs[i].slice(3);
+      if (/[RC]/.test(code)) i++; // -z gives the old name as the next record; the new one is checked
+      expect.set(path.replace(/\/$/, ""), code === "!!");
+    }
+    assert.ok(expect.has("y z.js") && !expect.has("x.js"));
+    const pasted = git("status", "--porcelain", "--ignored=matching", "-uall");
+    assert.match(pasted, /"caf\\303\\251\.txt"/, "git quotes non-ASCII names");
+    const res = analyze({ sources, paths: pasted, tracked: "" });
+    const got = new Map(res.paths.map((p) => [p.path, p.ignored]));
+    for (const [path, ignored] of expect) assert.equal(got.get(path), ignored, `${JSON.stringify(path)}\n${pasted}`);
+    assert.equal(got.size, expect.size, [...got.keys()].join("\n"));
+    const others = git("ls-files", "--others");
+    const res2 = analyze({ sources, paths: others, tracked: "" });
+    assert.deepEqual(res2.paths.map((p) => p.path).sort(), z(git("ls-files", "--others", "-z")).sort());
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

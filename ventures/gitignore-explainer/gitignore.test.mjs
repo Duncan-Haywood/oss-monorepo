@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { analyze, why, parseRule, splitSources, reportCsv, DEFAULTS, compile, resolver } from "./gitignore.mjs";
+import { analyze, why, parseRule, splitSources, reportCsv, DEFAULTS, compile, resolver, wildmatch } from "./gitignore.mjs";
 
 const run = (sources, paths, tracked = "") => analyze({ sources, paths, tracked });
 const decide = (sources, path, isDir = false) => resolver(compile(sources))(path, isDir);
@@ -181,4 +181,48 @@ test("a negated folder inside an ignored folder is blocked too, and its contents
   assert.deepEqual(r.fix.fixed.sort(), ["build/assets", "build/assets/logo.svg", "build/keep.txt"]);
   assert.deepEqual(r.fix.sideEffects, []);
   assert.equal(r.paths.find((p) => p.path === "build/app.js").ignored, true);
+});
+
+// Red-team 2026-11-12: inputs copied from real git 2.43 output.
+test("git status --porcelain lines keep their leading status column", () => {
+  // ` M` and ` D` start with a space: trimming first turned them into paths
+  // "M src/a.js" and "D old.js", so an anchored `/src/` rule missed them.
+  const r = run("/src/\n/old.js", " M src/a.js\n D old.js\nMM src/b.js\n   indented.txt\n?? #notes.md\n  # a comment\n#\n#autosave.txt#");
+  assert.deepEqual(r.paths.map((p) => [p.path, p.ignored]), [["src/a.js", true], ["old.js", true], ["src/b.js", true], ["indented.txt", false], ["#notes.md", false], ["#autosave.txt#", false]]);
+});
+
+test("renames and copies are checked under their new name", () => {
+  const r = run("*.md", 'R  x.js -> "y z.md"\nC  a.txt -> b.txt');
+  assert.deepEqual(r.paths.map((p) => [p.path, p.ignored]), [["y z.md", true], ["b.txt", false]]);
+});
+
+test("git's C-quoted paths are decoded, not read as folders", () => {
+  // core.quotePath (on by default) prints non-ASCII bytes as octal escapes in
+  // both `git status --porcelain` and `git ls-files --others`
+  const r = run("café.txt\ntab*", '?? "caf\\303\\251.txt"\n"tab\\tname"\n"say \\"hi\\".txt"\n"back\\\\slash"');
+  assert.deepEqual(r.paths.map((p) => [p.path, p.ignored]), [["café.txt", true], ["tab\tname", true], ['say "hi".txt', false], ["back\\slash", false]]);
+  // an unquoted Windows-style path still has its backslashes turned into slashes
+  assert.equal(run("x", "src\\a.js").paths[0].path, "src/a.js");
+});
+
+test("POSIX classes match what git's wildmatch matches", () => {
+  // checked with `git check-ignore --no-index`: [[:print:]] includes space,
+  // [[:graph:]] does not
+  assert.ok(wildmatch("[[:print:]]x", " x"));
+  assert.ok(wildmatch("[[:print:]]x", "ax"));
+  assert.ok(wildmatch("[[:graph:]]y", "ay"));
+  assert.ok(!wildmatch("[[:graph:]]y", " y"));
+});
+
+test("splitSources keeps a lone empty root file and drops a blank lead-in", () => {
+  assert.deepEqual(splitSources("").map((f) => f.path), [".gitignore"]);
+  assert.deepEqual(splitSources("\n==> a/.gitignore <==\nfoo").map((f) => f.path), ["a/.gitignore"]);
+});
+
+test("a negation in .git/info/exclude blocked by a root folder rule gets a fix", () => {
+  const r = run("build/\n==> .git/info/exclude <==\n!build/keep.txt", "build/keep.txt\nbuild/app.js");
+  assert.ok(r.findings.some((f) => f.kind === "negation-blocked" && f.source === ".git/info/exclude"));
+  assert.deepEqual(r.fix.patches, [{ file: ".gitignore", lines: ["!/build/", "/build/*", "!build/keep.txt"] }]);
+  assert.deepEqual(r.fix.fixed, ["build/keep.txt"]);
+  assert.deepEqual(r.fix.unfixed, []);
 });
