@@ -143,6 +143,7 @@ export function consensusText(c) {
     L.push('', { all: 'Found by every setting:', most: 'Found by half or more:', few: 'Found by fewer than half (candidates):' }[t]);
     for (const x of rows) L.push(`  ${x.label}${x.from !== x.to ? ` (${x.from} – ${x.to})` : ''}  ${x.support}/${x.of}  ${x.direction}`);
   }
+  if (c.updateRateWarning) L.push('', `Read with care: ${c.updateRateWarning}`);
   L.push('', `(${c.note})`);
   if (c.measured) L.push(`(${c.measured})`);
   return L.join('\n');

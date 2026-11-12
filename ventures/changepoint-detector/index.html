@@ -321,7 +321,7 @@
       const { p, r } = out.result;
       lastMulti = { p, r };
       $("#multi-summary").textContent = multiSummary(r);
-      $("#multi-warnings").innerHTML = r.overcutWarning ? `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r.overcutWarning)}</p>` : "";
+      $("#multi-warnings").innerHTML = [r.overcutWarning, ...(r.updateRateWarnings || [])].filter(Boolean).map((w) => `<p class="note" role="note"><strong>Read with care:</strong> ${esc(w)}</p>`).join("");
       $("#multi-chart").innerHTML = multiChartSvg(p, r);
       $("#multi-agreed").innerHTML = agreedTableHtml(r);
       $("#multi-joint").innerHTML = jointTableHtml(r, p);

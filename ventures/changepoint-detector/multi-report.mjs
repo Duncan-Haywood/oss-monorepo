@@ -35,7 +35,7 @@ export function multiReportHtml(p, r, o = {}) {
   const lead = r.agreed.length
     ? `<p class="agreed"><strong>Agreed changes:</strong> ${r.agreed.length} change${r.agreed.length === 1 ? "" : "s"} that every one of six settings finds, column by column: ${r.agreed.slice(0, 12).map((/** @type {any} */ c) => `${esc(c.label)} (${esc(c.columns.join(", "))})`).join("; ")}${r.agreed.length > 12 ? `; and ${r.agreed.length - 12} more in the table below` : ""}.</p>`
     : `<p class="agreed"><strong>Agreed changes:</strong> no change that every setting agrees on in any of the ${r.columns.length} columns.</p>`;
-  const warn = r.overcutWarning ? `<p class="warn"><strong>Read with care:</strong> ${esc(r.overcutWarning)}</p>` : "";
+  const warn = [r.overcutWarning, ...(r.updateRateWarnings || [])].filter(Boolean).map((/** @type {string} */ w) => `<p class="warn"><strong>Read with care:</strong> ${esc(w)}</p>`).join("");
   const perColumn = `<table><thead><tr><th>Column</th><th class="n">Agreed changes</th><th>New segments from</th></tr></thead><tbody>` +
     r.perColumn.map((/** @type {any} */ c) => `<tr><td>${esc(c.column)}</td><td class="n">${c.changes.length}</td><td>${c.changes.length ? c.changes.slice(0, 20).map((/** @type {number} */ i) => esc(p.labels[i])).join(", ") + (c.changes.length > 20 ? `, and ${c.changes.length - 20} more` : "") : "none"}</td></tr>`).join("") + `</tbody></table>`;
   const noteBlock = notes.length ? `<h2>Analyst's notes</h2><ul>${notes.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>` : "";

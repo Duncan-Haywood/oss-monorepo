@@ -16,7 +16,7 @@ export function describe(name, values, labels) {
   if (!u.changes.length) return { u, text: `${head}  no change of update rate${u.repeats < u.setting.minRepeats ? ' (under 10 repeats: not run)' : ''}` };
   const L = (i) => labels[i] ?? i;
   const parts = u.stretches.map((s) => `${L(s.from)}..${L(s.to)} ${pct(s.share)}`).join(' | ');
-  const ch = u.changes.map((c) => `${L(c.index)} [${L(c.from)}..${L(c.to)}] ${c.direction}`).join('; ');
+  const ch = u.changes.map((c) => `${L(c.index)} [${L(c.from)}..${L(c.to)}] ${c.direction}${c.rounding ? ` (rounding: tick ${+c.tick.toPrecision(6)})` : ''}`).join('; ');
   return { u, text: `${head}  ${u.changes.length} change(s): ${ch}\n${''.padEnd(28)}stretches: ${parts}` };
 }
 

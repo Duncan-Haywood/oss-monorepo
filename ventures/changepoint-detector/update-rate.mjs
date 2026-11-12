@@ -183,11 +183,51 @@ export function updateRateChanges(values, opts = {}) {
     stretches.push({ from: a + 1, to: b, steps: m, repeats: r, share: r / m, lo, hi });
   }
   const ranges = cutRanges(z, cuts, o);
-  const changes = cuts.map((c, k) => ({
-    index: c + 1, from: ranges[k][0] + 1, to: ranges[k][1] + 1, shareBefore: stretches[k].share, shareAfter: stretches[k + 1].share,
-    direction: stretches[k + 1].share > stretches[k].share ? 'less often' : 'more often',
-  }));
+  for (const st of stretches) { st.tick = smallestStep(values, st.from, st.to); st.medianMoveTicks = medianMoveTicks(values, st.from, st.to, st.tick); }
+  const changes = cuts.map((c, k) => {
+    const less = stretches[k + 1].share > stretches[k].share;
+    const sticky = stretches[less ? k + 1 : k];
+    return {
+      index: c + 1, from: ranges[k][0] + 1, to: ranges[k][1] + 1, shareBefore: stretches[k].share, shareAfter: stretches[k + 1].share,
+      direction: less ? 'less often' : 'more often',
+      // README "Repeats from rounding": in the stickier stretch, at least half the moves are one tick.
+      rounding: sticky.medianMoveTicks != null && sticky.medianMoveTicks <= ROUNDING_TICKS, tick: sticky.tick,
+    };
+  });
   return { changes, stretches, repeats: total, steps: z.length, penalty, setting: o };
+}
+
+// A slowly moving series recorded to a fixed precision repeats whenever it moves less than that
+// precision, so a change in its repeat share may be a change in how fast it moves, not in how often it
+// was refreshed. A stretch's tick is its smallest move between neighbours (its own, since a series may
+// gain a decimal later; to 9 significant digits, so 0.1
+// stored as 0.0999... counts as 0.1); a stretch whose median move, among steps that moved, is at most
+// ROUNDING_TICKS ticks moves mostly by the smallest step the data records. 1.5 (half the moves are one
+// tick) was set before any run (README "Repeats from rounding", eval/update-rate-rounding.mjs).
+export const ROUNDING_TICKS = 1.5;
+const sig = (v) => Number(v.toPrecision(9));
+export function smallestStep(values, from = 1, to = values.length - 1) {
+  let tick = Infinity;
+  for (let t = Math.max(1, from); t <= to; t++) {
+    const a = Number(values[t]), b = Number(values[t - 1]);
+    if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) continue;
+    const d = sig(Math.abs(a - b));
+    if (d > 0 && d < tick) tick = d;
+  }
+  return Number.isFinite(tick) ? tick : null;
+}
+/** Median |move| in ticks over the steps into values from..to that moved; null with no tick or no move. */
+export function medianMoveTicks(values, from, to, tick) {
+  if (!tick) return null;
+  const m = [];
+  for (let t = from; t <= to; t++) {
+    const a = Number(values[t]), b = Number(values[t - 1]);
+    if (Number.isFinite(a) && Number.isFinite(b) && a !== b) m.push(sig(Math.abs(a - b)) / tick);
+  }
+  if (!m.length) return null;
+  m.sort((x, y) => x - y);
+  const h = m.length >> 1;
+  return m.length % 2 ? m[h] : (m[h - 1] + m[h]) / 2;
 }
 
 const pct = (v) => `${(100 * v).toFixed(0)}%`;
@@ -198,5 +238,11 @@ export function updateRateLines(u, labels) {
   const L = (i) => (labels && labels[i] != null ? labels[i] : `point ${i}`);
   const when = (c) => (c.from === c.to ? L(c.index) : `about ${L(c.index)} (between ${L(c.from)} and ${L(c.to)})`);
   const parts = u.changes.map((c) => `from ${when(c)} it began updating ${c.direction} (repeats ${pct(c.shareBefore)} of steps before, ${pct(c.shareAfter)} after)`);
-  return [`Update-rate check: the share of steps that repeat the previous value exactly changed ${u.changes.length === 1 ? 'once' : `${u.changes.length} times`}: ${parts.join('; ')}. This describes how often the data was refreshed (a stale feed, a figure carried forward, a change in how it was recorded), not a change in its level; jumps near these dates may be catch-ups after a stale stretch.`];
+  const rounded = u.changes.filter((c) => c.rounding);
+  const tk = (c) => String(+c.tick.toPrecision(6));
+  const allRounded = rounded.length === u.changes.length;
+  const why = allRounded
+    ? ` In the stretch with more repeats at least half the moves are one tick (${[...new Set(rounded.map(tk))].join(' or ')}, the smallest move there), so the repeats may only mean the series moved less than its recorded precision then: a slower series, not a stale one. If so, this is a change in how fast it moved, not in how often it was refreshed.`
+    : ` This describes how often the data was refreshed (a stale feed, a figure carried forward, a change in how it was recorded), not a change in its level; jumps near these dates may be catch-ups after a stale stretch.${rounded.length ? ` Around ${rounded.map((c) => `${L(c.index)} (tick ${tk(c)})`).join(', ')}, though, at least half the moves in the stickier stretch are one tick, so those repeats may only be a slow series rounded to its precision.` : ''}`;
+  return [`Update-rate check: the share of steps that repeat the previous value exactly changed ${u.changes.length === 1 ? 'once' : `${u.changes.length} times`}: ${parts.join('; ')}.${why}`];
 }
