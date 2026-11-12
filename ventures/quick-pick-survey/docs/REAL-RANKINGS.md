@@ -74,6 +74,73 @@ information selector from the first answer on lists up to 120 items, and the
 eval prints a `staged` row that equals the information row in all 25 cells
 (INFORMATION-GAIN-SELECTOR.md, "A switch point that depends on list length").
 
+## The insights card on real people (2026-11-12)
+
+The insights card makes two per-person claims: "your clear top pick is X"
+(src/lib/clearPick.ts: the fixed-prior refit puts X ahead of every other
+item by more than 1.645 sd of the difference), and otherwise "it's between
+X, Y, Z" (the 95% credible set of src/lib/favouriteSet.ts, drawn at the
+narrower of the person's own empirical-Bayes prior sd and the survey's
+pooled one, src/lib/surveyPrior.ts). Both were tuned on synthetic
+Bradley-Terry respondents (INFORMATION-GAIN-SELECTOR.md, "The clear-top-pick
+claim" to "A stored survey prior"). This runs them on the same two PrefLib
+panels as above, with truth the person's own written first (and last) choice.
+
+**Method** (`scripts/real-favourite-set.ts`). Per draw, 20 people from the
+panel are one survey. Each answers 2, 4 or 8 pairs per item (30 to 120 answers
+on breakfast, 22 to 88 on T-shirts), chosen by the standard or the staged
+selector, by their own order, with 0, 10% or 20% coin-flip answers. The
+survey's pooled sd is fitted over those 20 people, and the card is computed
+for each person as `/api/insights` does. 10 draws per cell, so 200 people
+per cell; top and bottom card. This answering is not Bradley-Terry (with no
+lapse a person never contradicts themselves however close two items are, and
+a lapse ignores distance), so it tests the claims off the model they were
+fitted on. Every cell: `docs/real-favourite-set-2026-11-12.jsonl`.
+
+    npx tsx scripts/real-favourite-set.ts --seeds 10 --per-item 2,4,8 --data breakfast --selectors staged   # about 15 min a selector and panel
+
+**Results** (top card; the bottom card is within a few points in every cell):
+
+| panel | lapse | answers per item | clear pick named (standard / staged) | clear pick wrong | set holds the favourite | set length (shipped / fixed prior) | old top-3 list holds |
+|---|---:|---:|---|---:|---:|---|---:|
+| breakfast, 15 | 0 | 2 / 4 / 8 | 0 / 0 / 0.5% vs 0 / 0 / 100% | 0 of 201 | 100% | 6.5-6.5, 3.2-4.1, 2.5 | 90-100% |
+| breakfast, 15 | 0.1 | 2 / 4 / 8 | 0 / 0 / 1% vs 0 / 0 / 77% | 1 of 155 | 99-100% | 6.9-7.7, 3.7-4.3, 2.1-2.9 | 84-100% |
+| breakfast, 15 | 0.2 | 2 / 4 / 8 | 0 / 0 / 2.5% vs 0 / 0 / 49% | 2 of 102 | 97-100% | 8.2-9.1 (fixed 6.2-6.9), 4.8-4.9, 2.5-3.5 | 72-100% |
+| T-shirt, 11 | 0 | 2 / 4 / 8 | 0 / 0 / 2.5% vs 0 / 0 / 100% | 0 of 205 | 100% | 5.2-5.3, 2.8-3.3, 2.2 | 96-100% |
+| T-shirt, 11 | 0.1 | 2 / 4 / 8 | 0 / 0 / 2.5% vs 0 / 0 / 55% | 0 of 115 | 99-100% | 5.6-6.1, 3.3-3.7, 2.0-2.5 | 90.5-100% |
+| T-shirt, 11 | 0.2 | 2 / 4 / 8 | 0 / 0 / 5.5% vs 0 / 0 / 36% | 2 of 82 | 98-100% | 6.5-6.7 (fixed 5.1-5.5), 4.0-4.1, 2.3-2.9 | 84-100% |
+
+What it shows:
+
+1. **Both claims are honest on real people.** When the card names a clear
+   pick it was the person's written favourite 855 of 860 times (at most 2.8%
+   wrong in any cell, against the 5% the one-sided 1.645 sd allows). The set
+   held the favourite in 97-100% of cases in every cell (target 95%), top and
+   bottom; the old "three highest-rated" list fell to 72% (breakfast, 20%
+   lapse, 2 answers per item).
+2. **Off the model the set is conservative, and the empirical-Bayes floor
+   costs names.** With 2 answers per item and 20% lapse the shipped set
+   names 8.2-9.1 of 15 breakfast items where the fixed-prior set names 6.2-6.9
+   and still holds 91.5-93%. That is the cell the floor was built for (it
+   lifts coverage over 95%); with consistent answers it changes nothing.
+3. **The survey's pooled sd does nothing here.** Its median is the ceiling
+   (2.015) in 29 of 36 cells, and the shipped rule takes the narrower of it
+   and the person's own, so it never moved a set. Real orders look like a
+   wide spread of likes to the model; the pooled value only came off the
+   ceiling with 20% lapse (1.73-1.90).
+4. **Only the staged selector lets the card name a favourite.** At 8 answers
+   per item a perfectly consistent person gets a clear pick 100% of the time
+   under staged and 0.5-2.5% of the time under standard (35-77% vs 1-5.5% with
+   lapse). In 120 answers on a 15-item list the standard selector asked a
+   person's #1 against their #2 1.9 times on average and showed #1 against 9.8
+   different items; staged asked #1 vs #2 8.7 times against 4.0 items. The
+   standard selector spreads its answers across the list, which is good for
+   the whole ranking but never pins the top. The survey builder's "Question
+   order" menu now says so. Standard stays the server default
+   (`PAIR_SELECTOR` unset): changing it changes every survey that has not
+   chosen, so it is a decision of its own; this is the evidence for it.
+
+
 ## Summary tables (shipped selector, no lapse)
 
 "range holds" is overlap / difference. Width is in places.
