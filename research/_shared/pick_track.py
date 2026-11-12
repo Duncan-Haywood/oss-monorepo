@@ -279,7 +279,8 @@ def claim_check(slug, hours=6):
                   for p in prs]
         if not recent and not prs and age is not None and age <= hours:
             if history_covers(hours):
-                lines.append(f"CLAIM CHECK: clear (no origin/main commit in {hours}h; none of {len(titles)} open PRs names {slug})")
+                lines.append(f"CLAIM CHECK: clear (no origin/main commit in {hours}h; none of {len(titles)} open PRs names {slug}); "
+                             f"after opening your draft PR, `python3 portfolio/router/claim_check.py {slug}` says who keeps it if a sibling opened one too")
             else:
                 lines.append(f"CLAIM CHECK: no commit in this clone's history and no open PR names {slug}, but the shallow "
                              f"history is shorter than {hours}h; run `git fetch --shallow-since='{hours} hours ago' origin main`, then re-run")

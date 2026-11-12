@@ -897,7 +897,9 @@ def print_table(ventures: list[Venture], queue: list[dict],
             f"opened in the last {CLAIM_FRESH_HOURS} h; `allocate.py --venture {first[1]}` "
             "prints its full `next:`; a BUILDABLE HERE note says what a session can do with "
             "no outside input). Open your draft PR with the slug in its title as soon as "
-            "you pick: that title is the claim the next session's table reads."
+            "you pick: that title is the claim the next session's table reads. Then run "
+            f"`python3 portfolio/router/claim_check.py {first[1]}`: two sessions that opened "
+            "in the same minute both see this row free, and the PR opened first keeps it."
         )
     print()
     print(

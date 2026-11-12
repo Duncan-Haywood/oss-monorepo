@@ -858,3 +858,60 @@ class VentureReportTests(unittest.TestCase):
         v = make("deep")
         v.flagship_rank, v.flagship_next = 0, "y" * 900
         self.assertIn("allocate.py --venture deep", next_task(v))
+
+
+class ClaimCheckTest(unittest.TestCase):
+    """claim_check.py: the PR opened first keeps a contested item."""
+
+    from datetime import datetime as _dt, timezone as _tz
+    NOW = _dt(2026, 11, 12, 14, 10, tzinfo=_tz.utc)
+
+    @staticmethod
+    def pr(n, title, created, branch=None, repo="duncan-haywood/oss-monorepo"):
+        return {"number": n, "title": title, "created_at": created,
+                "head": {"ref": branch or f"b{n}", "repo": {"full_name": repo}}}
+
+    def decide(self, prs, kw, **kw2):
+        from claim_check import decide
+        return decide(prs, kw, now=self.NOW, **kw2)
+
+    def test_the_15145_15146_race_goes_to_the_first_opened(self):
+        prs = [self.pr(15146, "changepoint-detector: watch round 5 + post", "2026-11-12T14:00:49Z"),
+               self.pr(15145, "changepoint-detector: watch round 5", "2026-11-12T13:59:51Z")]
+        later = self.decide(prs, "changepoint-detector", mine=15146)
+        self.assertEqual(later["verdict"], "YIELD")
+        self.assertEqual([r["number"] for r in later["older"]], [15145])
+        first = self.decide(prs, "changepoint-detector", mine=15145)
+        self.assertEqual(first["verdict"], "HOLD")
+        self.assertEqual([r["number"] for r in first["newer"]], [15146])
+
+    def test_same_second_tie_goes_to_the_lower_number(self):
+        prs = [self.pr(9, "x: a", "2026-11-12T14:00:00Z"), self.pr(8, "x: b", "2026-11-12T14:00:00Z")]
+        self.assertEqual(self.decide(prs, "x", mine=9)["verdict"], "YIELD")
+        self.assertEqual(self.decide(prs, "x", mine=8)["verdict"], "HOLD")
+
+    def test_mine_is_found_by_branch(self):
+        prs = [self.pr(2, "x: mine", "2026-11-12T14:05:00Z", branch="claude/me"),
+               self.pr(1, "x: theirs", "2026-11-12T14:00:00Z")]
+        r = self.decide(prs, "x", branch="claude/me")
+        self.assertEqual(r["mine"]["number"], 2)
+        self.assertEqual(r["verdict"], "YIELD")
+
+    def test_stale_claims_and_fork_prs_do_not_count(self):
+        prs = [self.pr(1, "x: stalled", "2026-11-10T09:00:00Z"),
+               self.pr(2, "x: from a fork", "2026-11-12T13:00:00Z", repo="someone/fork"),
+               self.pr(3, "x: mine", "2026-11-12T14:05:00Z")]
+        r = self.decide(prs, "x", mine=3)
+        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual(r["older"], [])
+
+    def test_whole_word_match_only(self):
+        from claim_check import names
+        self.assertTrue(names("sales-agent: local model", "sales-agent"))
+        self.assertFalse(names("sales-agent-eval: thing", "sales-agent"))
+        self.assertTrue(names("Perf: P063 checkout", "p063"))
+
+    def test_no_pr_of_mine_yields_to_any_fresh_claim(self):
+        prs = [self.pr(1, "x: theirs", "2026-11-12T14:00:00Z")]
+        self.assertEqual(self.decide(prs, "x")["verdict"], "YIELD")
+        self.assertEqual(self.decide([], "x")["verdict"], "HOLD")
