@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
-for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "gutter-calculator.html", "flooring-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html", "stud-drilling-checker.html", "plumbing-calculator.html", "hvac-calculator.html", "walltile-calculator.html", "electrical-calculator.html", "paint-calculator.html", "price-sensitivity-calculator.html", "order-by-date-calculator.html", "fireblock-calculator.html", "nail-calculator.html", "opening-schedule-calculator.html", "floor-calculator.html", "foundation-calculator.html", "cmu-calculator.html", "dormer-calculator.html", "fence-calculator.html", "paver-calculator.html", "mulch-topsoil-gravel-calculator.html", "board-foot-calculator.html", "retaining-wall-calculator.html", "soffit-fascia-calculator.html", "sheathing-calculator.html"]) {
+for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html", "drywall-calculator.html", "schedule-calculator.html", "siding-calculator.html", "insulation-calculator.html", "trim-calculator.html", "roof-calculator.html", "gutter-calculator.html", "flooring-calculator.html", "bid-leveling-calculator.html", "change-order-calculator.html", "ventilation-calculator.html", "stud-drilling-checker.html", "plumbing-calculator.html", "hvac-calculator.html", "walltile-calculator.html", "electrical-calculator.html", "paint-calculator.html", "price-sensitivity-calculator.html", "order-by-date-calculator.html", "fireblock-calculator.html", "nail-calculator.html", "opening-schedule-calculator.html", "floor-calculator.html", "foundation-calculator.html", "cmu-calculator.html", "dormer-calculator.html", "fence-calculator.html", "paver-calculator.html", "mulch-topsoil-gravel-calculator.html", "board-foot-calculator.html", "retaining-wall-calculator.html", "soffit-fascia-calculator.html", "sheathing-calculator.html", "water-supply-sizing-calculator.html"]) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {
     const html = page(name);
     assert.match(html, /No warranty/);
@@ -610,7 +610,7 @@ test("the deck lumber calculator page: FAQ matches its data, default inputs give
 });
 
 test("every page links to every other page (internal linking for readers and crawlers)", () => {
-  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "insulation-calculator", "trim-calculator", "roof-calculator", "gutter-calculator", "flooring-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator", "stud-drilling-checker", "plumbing-calculator", "hvac-calculator", "walltile-calculator", "electrical-calculator", "paint-calculator", "price-sensitivity-calculator", "order-by-date-calculator", "fireblock-calculator", "nail-calculator", "opening-schedule-calculator", "floor-calculator", "foundation-calculator", "cmu-calculator", "dormer-calculator", "fence-calculator", "paver-calculator", "board-foot-calculator", "retaining-wall-calculator", "soffit-fascia-calculator", "sheathing-calculator"].map((n) => n + ".html");
+  const pages = ["index", "how-many-studs-for-a-wall", "stair-stringer-calculator", "drywall-calculator", "concrete-calculator", "siding-calculator", "insulation-calculator", "trim-calculator", "roof-calculator", "gutter-calculator", "flooring-calculator", "deck-lumber-calculator", "schedule-calculator", "bid-leveling-calculator", "change-order-calculator", "ventilation-calculator", "stud-drilling-checker", "plumbing-calculator", "hvac-calculator", "walltile-calculator", "electrical-calculator", "paint-calculator", "price-sensitivity-calculator", "order-by-date-calculator", "fireblock-calculator", "nail-calculator", "opening-schedule-calculator", "floor-calculator", "foundation-calculator", "cmu-calculator", "dormer-calculator", "fence-calculator", "paver-calculator", "board-foot-calculator", "retaining-wall-calculator", "soffit-fascia-calculator", "sheathing-calculator", "water-supply-sizing-calculator"].map((n) => n + ".html");
   for (const f of pages) {
     const html = page(f);
     for (const other of pages) if (other !== f) assert.ok(html.includes(`<a href="${other}">`), `${f} does not link ${other}`);
@@ -1295,4 +1295,30 @@ test("the mulch, topsoil and gravel page: FAQ matches its data and the stated fi
   assert.equal(r.roundedYards, 2); assert.equal(r.bags, 102); assert.equal(r.cost, 76);
   const g = layoutBulk({ areas: [{ length: 40, width: 3, depth: 4 }], material: { name: "crushed stone", pricePerTon: 32 } });
   assert.equal(g.sqFt, 120); assert.equal(g.netYards, 1.48); assert.equal(g.orderYards, 1.87); assert.equal(g.tons, 2.61); assert.equal(g.cost, 83.63);
+});
+
+test("water supply sizing page: FAQ matches its JSON-LD, and its figures are the engine's", async () => {
+  const html = page("water-supply-sizing-calculator.html");
+  const faq = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  assert.equal(faq["@type"], "FAQPage");
+  for (const q of faq.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const { sizeSupply, demandDistribution, normInv, pipeFlow, EXAMPLE } = await import("./supplysize.mjs");
+  const main = sizeSupply(EXAMPLE).segments.find((s) => s.id === "main");
+  assert.equal(main.fixtures, 11);
+  assert.equal(main.allOnGpm, 27.2);
+  assert.equal(main.demandGpm, 12.2);
+  assert.equal(main.size, "1");
+  assert.equal(main.normalGpm.toFixed(2), "10.76");
+  assert.equal(pipeFlow(12.2, 0.785).velocityFps.toFixed(1), "8.1");
+  assert.ok(pipeFlow(10.76, 0.785).velocityFps < 8);
+  const bath = (n) => demandDistribution([{ gpm: 1.5, p: 0.1, count: 2 * n }, { gpm: 3, p: 4 / 60, count: n }, { gpm: 2, p: 16 / 60, count: n }]);
+  const approx = (d) => d.mean + normInv(0.99) * Math.sqrt(d.variance);
+  assert.equal(bath(1).quantile(0.99), 5);
+  assert.equal(approx(bath(1)).toFixed(2), "4.11");
+  const big = bath(64);
+  assert.equal(((big.quantile(0.99) - approx(big)) / big.quantile(0.99) * 100).toFixed(1), "1.4");
+  for (const t of ["27.2 gpm", "12.2 gpm", "8.1 ft/s", "4.11 gpm", "18% low", "10.76 gpm", "about 1.4%"]) assert.ok(html.includes(t), t);
 });
