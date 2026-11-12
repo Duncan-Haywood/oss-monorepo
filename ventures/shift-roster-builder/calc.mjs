@@ -509,6 +509,80 @@ function validList(ctx, p, list) {
   return true;
 }
 
+let MERGE = new Int32Array(64);
+// Each slot's start, end and day as typed arrays, built once per ctx (slots are not changed after parsing). Reading three numbers
+// from a typed array is cheaper than loading them from the slot objects, which was most of validWith's own time.
+function slotTable(ctx) {
+  const slots = ctx.slots;
+  let t = ctx.slotTab;
+  if (t && t.slots === slots && t.n === slots.length) return t;
+  const n = slots.length, st = new Float64Array(n), en = new Float64Array(n), dy = new Float64Array(n);
+  for (let k = 0; k < n; k++) { st[k] = slots[k].start; en[k] = slots[k].end; dy[k] = slots[k].day; }
+  t = ctx.slotTab = { slots, n, st, en, dy };
+  return t;
+}
+// validList(ctx, p, insertSorted(ctx, list without `skip`, i)) without building that list. The search tries far more moves than it
+// keeps (7.7 million checks on one café sample build, 1 in 8 valid), and building each candidate list first was a fifth of the
+// build (2026-11-12 profile). The candidate is merged in exactly the order insertSorted gives (shift i before the first shift it
+// does not start after, ties by index) and checked by the same steps as validList, stopping at the first rest or overlap clash, so
+// the answer is the same. An unordered list, or a day outside 0-30, takes the original path.
+function validWith(ctx, p, list, i, skip = -1) {
+  const { staff, restMin, o } = ctx;
+  const { st, en, dy } = slotTable(ctx);
+  const n = list.length;
+  for (let k = 1; k < n; k++) {
+    const a = list[k - 1], b = list[k];
+    if (st[b] < st[a] || (st[b] === st[a] && b < a)) {
+      return validList(ctx, p, insertSorted(ctx, skip >= 0 ? list.filter((x) => x !== skip) : list, i));
+    }
+  }
+  if (MERGE.length < n + 1) MERGE = new Int32Array(2 * (n + 1));
+  // One pass: take the next shift of the merged order (i before the first shift it does not start after), check it as validList's
+  // first loop does, and stop at the first rest or overlap clash. Shifts not yet reached are written out only for the slow path.
+  const buf = MERGE, si = st[i];
+  let m = 0, k = 0, placed = false, minutes = 0, maxEnd = staff[p].prevEnd ?? -Infinity, mask = 0;
+  for (;;) {
+    let x;
+    if (k < n) {
+      x = list[k];
+      if (!placed && !(st[x] < si || (st[x] === si && x < i))) { x = i; placed = true; }
+      else { k++; if (x === skip) continue; }
+    } else if (!placed) { x = i; placed = true; } else break;
+    buf[m++] = x;
+    const s0 = st[x], e0 = en[x], d = dy[x];
+    if (s0 < maxEnd + restMin) return false;
+    if (e0 > maxEnd) maxEnd = e0;
+    minutes += e0 - s0;
+    if (!(d >= 0 && d <= 30 && Number.isInteger(d))) {
+      for (; k < n; k++) {
+        const y = list[k];
+        if (!placed && !(st[y] < si || (st[y] === si && y < i))) { buf[m++] = i; placed = true; }
+        if (y !== skip) buf[m++] = y;
+      }
+      if (!placed) buf[m++] = i;
+      return validListSlow(ctx, p, Array.from(buf.subarray(0, m)));
+    }
+    mask |= 1 << d;
+  }
+  if (minutes > staff[p].maxHours * 60 + 1e-9) return false;
+  const a = staff[p].maxDaily, b = o.maxDailyHours;
+  const cap = a > 0 && b > 0 ? Math.min(a, b) * 60 : a > 0 ? a * 60 : b > 0 ? b * 60 : Infinity;
+  if (cap !== Infinity) {
+    for (let k = 0; k < m; k++) DAY_MIN[dy[buf[k]]] = 0;
+    for (let k = 0; k < m; k++) { const x = buf[k]; DAY_MIN[dy[x]] += en[x] - st[x]; }
+    for (let k = 0; k < m; k++) if (DAY_MIN[dy[buf[k]]] > cap + 1e-9) return false;
+  }
+  const before = staff[p].streakBefore || 0;
+  let run = before, prev = before > 0 ? -1 : -9;
+  for (let d = 0; d <= 30; d++) {
+    if (!(mask & (1 << d))) continue;
+    run = d === prev + 1 ? run + 1 : 1;
+    if (run > o.maxConsecDays) return false;
+    prev = d;
+  }
+  return true;
+}
+
 function validListSlow(ctx, p, list) {
   const { slots, staff, restMin, o } = ctx;
   let minutes = 0, maxEnd = staff[p].prevEnd ?? -Infinity;
@@ -712,8 +786,8 @@ function anneal(ctx, seed, iterations, jitter) {
     let best = -1, bestD = Infinity, bestList = null;
     for (let p = 0; p < P; p++) {
       if (!elig[p][i]) continue;
+      if (!validWith(ctx, p, lists[p], i)) continue;
       const nl = insertSorted(ctx, lists[p], i);
-      if (!validList(ctx, p, nl)) continue;
       const d = personScore(ctx, p, nl) - pScore[p] + (jitter ? rng() * jitter : 0);
       if (d < bestD) { bestD = d; best = p; bestList = nl; }
     }
@@ -735,8 +809,8 @@ function anneal(ctx, seed, iterations, jitter) {
     if (rng() < 0.65) {
       const q = Math.floor(rng() * P);
       if (q === o || !elig[q][i]) continue;
+      if (!validWith(ctx, q, lists[q], i)) continue;
       const nq = insertSorted(ctx, lists[q], i);
-      if (!validList(ctx, q, nq)) continue;
       const no = o >= 0 ? removeFrom(lists[o], i) : null;
       const sq = personScore(ctx, q, nq), so = o >= 0 ? personScore(ctx, o, no) : 0;
       let delta = sq - pScore[q] + (o >= 0 ? so - pScore[o] : -BIG * ((slots[i].end - slots[i].start) / 60));
@@ -749,9 +823,9 @@ function anneal(ctx, seed, iterations, jitter) {
       const j = Math.floor(rng() * S);
       const a = owner[i], b = owner[j];
       if (a < 0 || b < 0 || a === b || !elig[a][j] || !elig[b][i]) continue;
+      if (!validWith(ctx, a, lists[a], j, i) || !validWith(ctx, b, lists[b], i, j)) continue;
       const na = insertSorted(ctx, removeFrom(lists[a], i), j);
       const nb = insertSorted(ctx, removeFrom(lists[b], j), i);
-      if (!validList(ctx, a, na) || !validList(ctx, b, nb)) continue;
       const sa = personScore(ctx, a, na), sb = personScore(ctx, b, nb);
       const delta = sa - pScore[a] + sb - pScore[b];
       if (delta < 0 || rng() < Math.exp(-delta / (T0 * decay ** (it / iterations)))) {
@@ -789,11 +863,11 @@ function ejectPass(ctx, owner0, seed, iterations) {
     const q = Math.floor(rng() * P);
     if (!elig[q][i] || !lists[q].length) continue;
     const j = lists[q][Math.floor(rng() * lists[q].length)];
+    if (!validWith(ctx, q, lists[q], i, j)) continue;
     const nq = insertSorted(ctx, removeFrom(lists[q], j), i);
-    if (!validList(ctx, q, nq)) continue;
     const r = Math.floor(rng() * P);
     let nr = null;
-    if (r !== q && elig[r][j]) { nr = insertSorted(ctx, lists[r], j); if (!validList(ctx, r, nr)) nr = null; }
+    if (r !== q && elig[r][j] && validWith(ctx, r, lists[r], j)) nr = insertSorted(ctx, lists[r], j);
     const sq = personScore(ctx, q, nq);
     let delta = sq - pScore[q] - BIG * hrs(i), sr = 0;
     if (nr) { sr = personScore(ctx, r, nr); delta += sr - pScore[r]; } else delta += BIG * hrs(j);
@@ -829,6 +903,23 @@ function coverPass(ctx, owner0, seed, iterations) {
   // it every step was most of this pass's own time (2026-11-12 profile).
   const openIdx = [];
   let openStale = true;
+  // "Can q take shift i on top of what q holds" depends only on q's list, which changes only when a move is taken, while the walk
+  // asks again and again: the answers are kept per person and dropped when that person's list changes (stamp = list version).
+  const ver = new Int32Array(P).fill(1), stamp = new Int32Array(P * S), fits = new Uint8Array(P * S);
+  let tick = 1;
+  const canTake = (q, i) => {
+    const k = q * S + i;
+    if (stamp[k] !== ver[q]) { stamp[k] = ver[q]; fits[k] = validWith(ctx, q, lists[q], i) ? 1 : 0; }
+    return fits[k] === 1;
+  };
+  // The same for "q gives up shift j and takes i", while P * S * S stays small enough to keep (4M entries).
+  const pair = P * S * S <= 1 << 22 ? { stamp: new Int32Array(P * S * S), fits: new Uint8Array(P * S * S) } : null;
+  const canSwap = (q, i, j) => {
+    if (!pair) return validWith(ctx, q, lists[q], i, j);
+    const k = (q * S + i) * S + j;
+    if (pair.stamp[k] !== ver[q]) { pair.stamp[k] = ver[q]; pair.fits[k] = validWith(ctx, q, lists[q], i, j) ? 1 : 0; }
+    return pair.fits[k] === 1;
+  };
   for (let it = 0; it < iterations && bestOpen > floor; it++) {
     if (rng() < 0.5) {
       if (openStale) { openIdx.length = 0; for (let x = 0; x < S; x++) if (owner[x] < 0) openIdx.push(x); openStale = false; }
@@ -836,21 +927,20 @@ function coverPass(ctx, owner0, seed, iterations) {
       const i = openIdx[Math.floor(rng() * openIdx.length)];
       const q = Math.floor(rng() * P);
       if (!elig[q][i]) continue;
-      let nq = insertSorted(ctx, lists[q], i);
-      let j = -1, nr = null, r = -1;
-      if (!validList(ctx, q, nq)) {
+      // Moves are checked with validWith and the new lists built only for a move that is taken.
+      let j = -1, nr = false, r = -1;
+      if (!canTake(q, i)) {
         if (!lists[q].length) continue;
         j = lists[q][Math.floor(rng() * lists[q].length)];
-        nq = insertSorted(ctx, removeFrom(lists[q], j), i);
-        if (!validList(ctx, q, nq)) continue;
+        if (!canSwap(q, i, j)) continue;
         r = Math.floor(rng() * P);
-        if (r !== q && elig[r][j]) { nr = insertSorted(ctx, lists[r], j); if (!validList(ctx, r, nr)) nr = null; }
+        if (r !== q && elig[r][j]) nr = canTake(r, j);
       }
       const d = -hrs(i) + (j >= 0 && !nr ? hrs(j) : 0);
       // The temperature is read only for a step that opens hours, so the power is taken only then (it was 60% of this pass's own time).
       if (d <= 0 || rng() < Math.exp(-d / (0.6 * (0.05 / 0.6) ** (it / iterations)))) {
-        lists[q] = nq; owner[i] = q;
-        if (j >= 0) { if (nr) { lists[r] = nr; owner[j] = r; } else owner[j] = -1; }
+        lists[q] = insertSorted(ctx, j >= 0 ? removeFrom(lists[q], j) : lists[q], i); owner[i] = q; ver[q] = ++tick;
+        if (j >= 0) { if (nr) { lists[r] = insertSorted(ctx, lists[r], j); owner[j] = r; ver[r] = ++tick; } else owner[j] = -1; }
         open += d;
         openStale = true;
       }
@@ -859,9 +949,8 @@ function coverPass(ctx, owner0, seed, iterations) {
       if (o < 0) continue;
       const q = Math.floor(rng() * P);
       if (q === o || !elig[q][i]) continue;
-      const nq = insertSorted(ctx, lists[q], i);
-      if (!validList(ctx, q, nq)) continue;
-      lists[q] = nq; lists[o] = removeFrom(lists[o], i); owner[i] = q;
+      if (!canTake(q, i)) continue;
+      lists[q] = insertSorted(ctx, lists[q], i); lists[o] = removeFrom(lists[o], i); owner[i] = q; ver[q] = ++tick; ver[o] = ++tick;
     }
     if (open < bestOpen - 1e-9) { bestOpen = open; bestOwner = owner.slice(); }
   }
@@ -949,8 +1038,8 @@ function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000
       const i = free[d];
       for (const q of people) {
         if (!elig[q][i]) continue;
+        if (!validWith(ctx, q, lists[q], i)) continue;
         const nl = insertSorted(ctx, lists[q], i);
-        if (!validList(ctx, q, nl)) continue;
         const old = lists[q]; lists[q] = nl; cur[d] = q;
         dfs(d + 1, o);
         lists[q] = old;
@@ -984,15 +1073,15 @@ function polishPay(ctx, owner0, seed, iterations) {
     if (rng() < 0.5) {
       const q = Math.floor(rng() * P);
       if (q === o || !elig[q][i]) continue;
+      if (!validWith(ctx, q, lists[q], i)) continue;
       const nq = insertSorted(ctx, lists[q], i);
-      if (!validList(ctx, q, nq)) continue;
       const no = removeFrom(lists[o], i), sq = personScore(ctx, q, nq), so = personScore(ctx, o, no);
       if (sq + so < pScore[q] + pScore[o] - 1e-9) { lists[q] = nq; lists[o] = no; pScore[q] = sq; pScore[o] = so; owner[i] = q; }
     } else {
       const j = Math.floor(rng() * S), b = owner[j];
       if (b < 0 || b === o || !elig[o][j] || !elig[b][i]) continue;
+      if (!validWith(ctx, o, lists[o], j, i) || !validWith(ctx, b, lists[b], i, j)) continue;
       const na = insertSorted(ctx, removeFrom(lists[o], i), j), nb = insertSorted(ctx, removeFrom(lists[b], j), i);
-      if (!validList(ctx, o, na) || !validList(ctx, b, nb)) continue;
       const sa = personScore(ctx, o, na), sb = personScore(ctx, b, nb);
       if (sa + sb < pScore[o] + pScore[b] - 1e-9) { lists[o] = na; lists[b] = nb; pScore[o] = sa; pScore[b] = sb; owner[i] = b; owner[j] = o; }
     }
@@ -1243,7 +1332,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
       const i = order[k + a];
       link(src, a, len[i], 0);
       for (let p = 0; p < P; p++) {
-        if (!elig[p][i] || left[p] <= eps || !validList(ctx, p, insertSorted(ctx, lists[p], i))) continue;
+        if (!elig[p][i] || left[p] <= eps || !validWith(ctx, p, lists[p], i)) continue;
         const j = dayAt.get(slots[i].day);
         link(a, pd(p, j), len[i], rate(p, i));
         edge[p].push(i);
@@ -1386,8 +1475,8 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
       const twin = cls[p] + "|" + lists[p].join(",");
       if (seen.has(twin)) continue;
       seen.add(twin);
+      if (!validWith(ctx, p, lists[p], i)) continue;
       const nl = insertSorted(ctx, lists[p], i);
-      if (!validList(ctx, p, nl)) continue;
       opts.push({ p, nl, d: personScore(ctx, p, nl) - personScore(ctx, p, lists[p]) });
     }
     opts.sort((a, b) => a.d - b.d);
@@ -1509,8 +1598,8 @@ export function makeSetPricer(ctx, { maxNodes = 2000000, chainBound = true } = {
       for (let k = x; k < cand.length; k++) {
         const i = cand[k];
         if (used + mins[i] > capMin + 1e-9) continue;
+        if (!validWith(ctx, p, list, i)) continue;
         const nl = insertSorted(ctx, list, i);
-        if (!validList(ctx, p, nl)) continue;
         go(k + 1, nl, val + w[i], used + mins[i]);
         if (!exact) return;
         if (val + bound(k + 1, capMin - used, list) <= bestVal + 1e-9) return;
@@ -1659,8 +1748,8 @@ export function makeScorePricer(ctx, { maxNodes = 2000000, chainBound = true } =
       for (let k = x; k < cand.length; k++) {
         const i = cand[k];
         if (used + mins[i] > capMin + 1e-9) continue;
+        if (!validWith(ctx, p, list, i)) continue;
         const nl = insertSorted(ctx, list, i);
-        if (!validList(ctx, p, nl)) continue;
         go(k + 1, nl, wv + w[i], used + mins[i]);
         if (!exact) return;
         // Sibling cut, as in makeSetPricer: every later sibling, and everything under it, adds shifts from cand[k + 1..] to
@@ -1907,8 +1996,8 @@ function listedOrder(ctx) {
   for (let i = 0; i < ctx.S; i++) {
     for (let p = 0; p < ctx.P; p++) {
       if (!ctx.elig[p][i]) continue;
+      if (!validWith(ctx, p, lists[p], i)) continue;
       const nl = insertSorted(ctx, lists[p], i);
-      if (!validList(ctx, p, nl)) continue;
       owner[i] = p; lists[p] = nl; break;
     }
   }
@@ -3576,7 +3665,7 @@ export const TEMPLATES = {
 export const _paidMinutes = paidMinutes;
 export const _internals = { buildContext, scoreOwner, ownerValid, validList, openHoursFloor, earlyOpenFloor, BIG };
 // Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
-export const _validListPair = { validList, validListSlow, buildContext };
+export const _validListPair = { validList, validListSlow, validWith, insertSorted, buildContext };
 
 // One pasted line into cells. A line with a tab is a spreadsheet paste: split on tabs only, so
 // "1,200" stays one number. Otherwise read it as CSV: a cell that starts with a double quote keeps
