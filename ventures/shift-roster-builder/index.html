@@ -129,12 +129,12 @@
       <div><label for="prove">Check against an exact search (proves the roster is the best one, usually in seconds)</label><select id="prove"><option value="">On</option><option value="0">Off (quick search only)</option></select></div>
       <div><label for="openpref">If some shifts must stay open</label><select id="openpref"><option value="">Standard build</option><option value="hours">Leave the fewest hours open</option><option value="shifts">Leave the fewest shifts open</option></select></div>
       <div><label for="tough">Spread weekend, closing and opening shifts (0–100)</label><input id="tough" inputmode="decimal" value="0"></div>
-      <div><label for="keep">Keep people on the shifts they had last week (when planning several weeks, or after "Carry over last week")</label><select id="keep"><option value="0.1">Yes (never leaves a shift open to do it)</option><option value="0.25">Yes, firmly (may cost a little more pay)</option><option value="0">No</option></select></div>
+      <div><label for="keep">Keep people on their usual shifts when someone is off (plans of several weeks; one week after "Carry over last week")</label><select id="keep"><option value="0.1">Yes (never leaves a shift open to do it)</option><option value="0.25">Yes, firmly (may cost a little more pay)</option><option value="0">No</option></select></div>
     </div>
     <button type="button" id="analyze">Build the roster</button> <button type="button" id="build-stop" class="secondary" hidden>Stop</button>
     <div style="margin:12px 0"><label for="planweeks">Plan several weeks in a row</label> <input id="planweeks" inputmode="numeric" value="4" style="width:4em" aria-label="Number of weeks">
       <button type="button" class="secondary" id="plan-weeks">Plan weeks</button> <button type="button" class="secondary" id="plan-stop" hidden>Stop</button>
-      <span class="note">Each week starts from the one before: rest gaps and who closed lately carry over, dated <code>off:</code> days land in their own week, and (unless "Keep people on the shifts they had" is No) people stay on the shifts they had the week before wherever the time off allows. Uses the settings above and the Monday in "Week starting".</span>
+      <span class="note">Each week starts from the one before: rest gaps and who closed lately carry over, dated <code>off:</code> days land in their own week, and (unless "Keep people on their usual shifts" is No) a day off moves only the shifts it has to, and the week after goes back to the usual rota. Uses the settings above and the Monday in "Week starting".</span>
       <div id="plan-out" aria-live="polite"></div></div>
     <button type="button" class="secondary" id="load-example">Load an example</button>
     <label for="template-pick">or start from a template</label> <select id="template-pick" aria-label="Start from a template"><option value="">Choose a business type</option></select>

@@ -42,9 +42,10 @@ Options:
   --ot-mult <x>       overtime multiplier (default 1.5)
   --balance <0-100>   how hard to even out hours (default 25)
   --tough-balance <0-100>  how hard to even out weekend, closing and opening shifts across weeks (default 0)
-  --keep-shifts <x>   keep people on the shifts they had: each hour someone works the same shift as the week before earns x times
-                      their wage in the score (0.1 is a light hand; never leaves a shift open). With --weeks each week keeps the
-                      one before; on one week it keeps the --last-week CSV. Default 0 (off)
+  --keep-shifts <x>   keep people on their usual shifts: each hour someone works one of them earns x times their wage in the
+                      score (0.1 is a light hand; it never leaves a shift open). With --weeks the usual rota is the week built
+                      with the dated days off left out, so time off moves only what it must and the week after goes back; on
+                      one week the usual shifts are the --last-week CSV. Default 0 (off)
   --week-start <date> Monday of the week, YYYY-MM-DD (lets time-off dates in the staff file apply)
   --last-week <csv>   last week's roster CSV, to carry shift end times into Monday
   --csv | --hours | --json   machine-readable output

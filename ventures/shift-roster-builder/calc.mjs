@@ -2753,14 +2753,29 @@ export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, 
   // at 0 it is left out of the comparison. `sameAs` names the week reused; `reuse: false` rebuilds every week.
   const toughCounts = Number(options.toughBalance) > 0;
   const steady = Number(options.keepValue) > 0;
+  // The usual rota: options.keep when the caller has one (the page's "Carry over last week" CSV), otherwise the week built from
+  // the staff text with the dated days off left out (no week start, so they are skipped) and the bonus off. One extra build.
+  let anchor = null;
+  if (steady) {
+    if (options.keep && Object.keys(options.keep).length) anchor = options.keep;
+    else {
+      const st0 = parseStaff(text);
+      if (!st0.errors.length) {
+        const base = buildRoster(st0.staff, sh.slots, { ...options, keepValue: 0, keep: null });
+        if (!base.error) anchor = keepFrom(base);
+      }
+    }
+  }
   const built = new Map();
   for (let k = 0; k < n; k++) {
     const ws = addWeeks(weekStart, k);
     const st = parseStaff(text, { weekStart: ws });
     if (st.errors.length) return { error: st.errors[0] };
-    // keepValue > 0 ("keep last week's shifts"): each week after the first is built with the week before's shifts as `keep`, so
-    // a dated day off moves the shifts it has to and the rest of the rota stays where people had it.
-    const keep = steady && out.length ? keepFrom(out[out.length - 1].roster) : null;
+    // keepValue > 0 ("keep people on their usual shifts"): every week is built with the usual rota as `keep`, so a dated day off
+    // moves the shifts it has to, the rest stay where people usually have them, and the week after goes back to the usual.
+    // Anchoring on the week before instead (measured 2026-11-12, café sample, Ana and Ben off in week 3) carried week 3's
+    // reshuffle into week 4: 16 changes over the plan against 30 with no bonus, but 5 of them were week 4 not going back.
+    const keep = anchor;
     const key = JSON.stringify([toughCounts ? st.staff : st.staff.map((p) => ({ ...p, toughBefore: 0 })), keep]);
     const prior = reuse ? built.get(key) : null;
     const roster = prior ? { ...prior.roster } : buildRoster(st.staff, sh.slots, keep ? { ...options, keep } : options);

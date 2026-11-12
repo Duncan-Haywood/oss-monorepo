@@ -91,20 +91,29 @@ test("keepFromCsv reads a roster CSV and matches a shift whatever its role", () 
   assert.ok(moved <= 4, `${moved} person-shifts moved against a keep of the same week`);
 });
 
-test("the planner keeps the week before: a day off moves fewer other shifts, with no more hours open", () => {
-  // Two people off on different days of week 3; keep 0.25 against off.
+test("the planner keeps people on their usual shifts: a day off moves fewer other shifts, the week after goes back, no more hours open", () => {
+  // Ana off on Tuesday and Ben on Friday of week 3, default exact check, bonus 0.1 against off.
   const staff = sampleStaff().replace(/^(Ana[^\n]*)$/m, "$1, off: 2026-12-01").replace(/^(Ben[^\n]*)$/m, "$1, off: 2026-12-04");
-  const o = { weeks: 4, weekStart: "2026-11-16", exact: false };
-  const pairs = (w) => new Set(w.roster.assignments.filter((a) => a.person).map((a) => `${a.person}@${slotKey(a.slot)}`));
-  const churn = (p) => p.weeks.slice(1).reduce((t, w, k) => { const a = pairs(p.weeks[k]), b = pairs(w); return t + [...b].filter((x) => !a.has(x)).length + [...a].filter((x) => !b.has(x)).length; }, 0);
-  const off = planWeeks(staff, sampleShifts(), o), on = planWeeks(staff, sampleShifts(), { ...o, keepValue: 0.25 });
+  const o = { weeks: 4, weekStart: "2026-11-16" };
+  const pairs = (r) => new Set(r.assignments.filter((a) => a.person).map((a) => `${a.person}@${slotKey(a.slot)}`));
+  const diff = (a, b) => [...b].filter((x) => !a.has(x)).length + [...a].filter((x) => !b.has(x)).length;
+  const churn = (p) => p.weeks.slice(1).map((w, k) => diff(pairs(p.weeks[k].roster), pairs(w.roster)));
+  const off = planWeeks(staff, sampleShifts(), o), on = planWeeks(staff, sampleShifts(), { ...o, keepValue: 0.1 });
   assert.ok(on.ok && off.ok);
-  assert.ok(on.totalOpenHours <= off.totalOpenHours, `open ${on.totalOpenHours} vs ${off.totalOpenHours}`);
-  assert.ok(churn(on) < churn(off), `churn with keep ${churn(on)}, without ${churn(off)}`);
-  // Reuse still works: a week whose staff and keep repeat is not rebuilt.
-  // With no time off, keep on reuses the same weeks as keep off (the keep map is sorted, so swapped copies give the same week).
+  assert.equal(on.totalOpenHours, off.totalOpenHours);
+  assert.ok(on.weeks.every((w) => ["optimal", "improved"].includes(w.roster.optimality?.status)));
+  // README "Keep people on their usual shifts": 15 changes into week 3 and 15 back without the bonus, 11 and 11 with it.
+  assert.deepEqual(churn(off), [0, 15, 15]);
+  assert.deepEqual(churn(on), [0, 11, 11]);
+  assert.equal(diff(pairs(on.weeks[3].roster), pairs(on.weeks[1].roster)), 0, "week 4 is the usual rota again");
+  // With no time off, the bonus changes nothing and the planner reuses the same weeks.
   const plain = planWeeks(sampleStaff(), sampleShifts(), { ...o, keepValue: 0.25, weeks: 5 });
+  const base = planWeeks(sampleStaff(), sampleShifts(), { ...o, weeks: 5 });
   assert.deepEqual(plain.weeks.map((w) => w.sameAs ?? null), [null, null, 2, 2, 2]);
+  plain.weeks.forEach((w, k) => {
+    assert.equal(diff(pairs(w.roster), pairs(base.weeks[k].roster)), 0, `week ${k + 1}: same people on the same shifts`);
+    assert.equal(w.roster.cost, base.weeks[k].roster.cost);
+  });
 });
 
 test("CLI: --keep-shifts with --last-week keeps last week's people in place", () => {

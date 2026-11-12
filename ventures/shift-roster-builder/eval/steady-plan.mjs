@@ -3,9 +3,10 @@
 // (share of person-days off; no real leave records were reachable from this host, so the rate is swept, not assumed), once
 // with keepValue 0 (the planner before this change) and once per KEEP value. Prints, summed over seeds: weeks reused, weeks
 // proven, open hours, pay, and churn = person-shift pairs that differ between week k-1 and week k (k >= 2; adds plus drops).
-// "forced" counts the drops whose holder is off that day in week k: those must move whatever the setting.
+// "forced" counts the drops whose holder is off that day in week k: those must move whatever the setting. "off usual" counts,
+// over every week, the person-shift pairs that differ from the usual rota (the week built with the dated days off left out).
 //   node eval/steady-plan.mjs [seeds=3] [weeks=4]       RATES=0,0.01,0.02,0.04  KEEP=0.1,0.25  EXACT=auto|off
-import { planWeeks, TEMPLATES, sampleStaff, sampleShifts, slotKey } from "../calc.mjs";
+import { planWeeks, buildRoster, parseStaff, parseShifts, TEMPLATES, sampleStaff, sampleShifts, slotKey } from "../calc.mjs";
 const seeds = Number(process.argv[2] || 3), weeks = Number(process.argv[3] || 4);
 const rates = (process.env.RATES || "0,0.01,0.02,0.04").split(",").map(Number);
 const keeps = [0, ...(process.env.KEEP || "0.1,0.25").split(",").map(Number)];
@@ -30,8 +31,13 @@ function withLeave(staffText, rate, seed) {
   return { text, offByName };
 }
 const pairs = (r) => new Set(r.assignments.filter((a) => a.person).map((a) => `${a.person.toLowerCase()}@${slotKey(a.slot)}`));
-function churn(plan, offByName) {
-  let moved = 0, forced = 0;
+function churn(plan, offByName, usual) {
+  let moved = 0, forced = 0, offUsual = 0;
+  for (const w of plan.weeks) {
+    const b = pairs(w.roster);
+    for (const x of b) if (!usual.has(x)) offUsual++;
+    for (const x of usual) if (!b.has(x)) offUsual++;
+  }
   for (let k = 1; k < plan.weeks.length; k++) {
     const a = pairs(plan.weeks[k - 1].roster), b = pairs(plan.weeks[k].roster);
     for (const x of b) if (!a.has(x)) moved++;
@@ -41,25 +47,26 @@ function churn(plan, offByName) {
       if (offByName.get(name)?.has(iso(7 * k + day))) forced++;
     }
   }
-  return { moved, forced };
+  return { moved, forced, offUsual };
 }
 const cases = [["cafe-sample", sampleStaff(), sampleShifts()], ...Object.entries(TEMPLATES).map(([k, t]) => [k, t.staff(), t.shifts()])];
-const fields = ["weeks", "reused", "proven", "open", "pay", "moved", "forced", "ms"];
+const fields = ["weeks", "reused", "proven", "open", "pay", "moved", "forced", "offUsual", "ms"];
 const blank = () => Object.fromEntries(fields.map((f) => [f, 0]));
-const line = (r) => `weeks ${r.weeks} reused ${String(r.reused).padStart(2)} proven ${String(r.proven).padStart(2)} open ${String(r.open).padStart(4)} h pay $${r.pay.toFixed(2).padStart(9)} churn ${String(r.moved).padStart(4)} (forced ${String(r.forced).padStart(3)}) ${r.ms} ms`;
+const line = (r) => `weeks ${r.weeks} reused ${String(r.reused).padStart(2)} proven ${String(r.proven).padStart(2)} open ${String(r.open).padStart(4)} h pay $${r.pay.toFixed(2).padStart(9)} churn ${String(r.moved).padStart(4)} (forced ${String(r.forced).padStart(3)}) off usual ${String(r.offUsual).padStart(4)} ${r.ms} ms`;
 const sum = new Map();
 for (const rate of rates) for (const [name, st, sh] of cases) {
   const row = new Map(keeps.map((kv) => [kv, blank()]));
   for (let sd = 0; sd < seeds; sd++) {
     const { text, offByName } = withLeave(st, rate, 1000 * sd + Math.round(rate * 1000) + name.length);
+    const usual = pairs(buildRoster(parseStaff(st).staff, parseShifts(sh).slots, page));
     for (const kv of keeps) {
       const t0 = Date.now();
       const p = planWeeks(text, sh, { ...page, weeks, weekStart, keepValue: kv });
       if (p.error) { console.log(`${name} rate ${rate} seed ${sd}: ${p.error}`); continue; }
-      const r = row.get(kv), c = churn(p, offByName);
+      const r = row.get(kv), c = churn(p, offByName, usual);
       r.ms += Date.now() - t0; r.weeks += p.weeks.length; r.reused += p.weeks.filter((w) => w.sameAs).length;
       r.proven += p.weeks.filter((w) => proven(w.roster)).length; r.open += p.totalOpenHours; r.pay += p.totalCost;
-      r.moved += c.moved; r.forced += c.forced;
+      r.moved += c.moved; r.forced += c.forced; r.offUsual += c.offUsual;
     }
   }
   for (const [kv, r] of row) {
