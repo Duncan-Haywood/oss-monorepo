@@ -1,9 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { analyze, sampleSpec } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
+// Every page in the folder: the two hand-kept lists missed the newest page
+// (california-nine-month-residency-presumption.html) by 2026-11-12.
+const PAGES = readdirSync(new URL("./", import.meta.url)).filter((f) => f.endsWith(".html")).sort();
 
 test("index page carries the disclaimer, privacy line, and sponsor link", () => {
   const html = page("index.html");
@@ -18,7 +21,7 @@ test("index page carries the disclaimer, privacy line, and sponsor link", () => 
 });
 
 test("JSON-LD blocks parse and every FAQ question is on the page", () => {
-  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html", "maryland-utah-182-day-limit.html", "nyc-resident-tax-183-day-test.html", "georgia-new-mexico-louisiana-days-only-residency.html", "six-month-residency-nebraska-colorado-arkansas-kansas.html", "over-200-day-residency-oregon-hawaii-idaho.html", "ohio-212-contact-period-safe-harbor.html"]) {
+  for (const name of PAGES) {
     const html = page(name);
     const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
     const faq = blocks.find((b) => b["@type"] === "FAQPage");
@@ -97,7 +100,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
 });
 
 test("related-tool links point at ventures that exist", () => {
-  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html", "maryland-utah-182-day-limit.html", "nyc-resident-tax-183-day-test.html", "georgia-new-mexico-louisiana-days-only-residency.html", "six-month-residency-nebraska-colorado-arkansas-kansas.html", "over-200-day-residency-oregon-hawaii-idaho.html", "ohio-212-contact-period-safe-harbor.html"]) {
+  for (const name of PAGES) {
     for (const m of page(name).matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)) assert.ok(existsSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
   }
 });
