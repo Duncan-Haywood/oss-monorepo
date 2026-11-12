@@ -32,6 +32,10 @@ test("merge: the model may lower contact, never raise it", () => {
   const hot = mergeTriage(triage({ body: "Call me later today, around 3pm. I'm free after lunch." }, T), { category: "not_now" }, T);
   assert.equal(hot.category, "interested");
   assert.equal(hot.modelSaid, "not_now");
+  // Never from a no-draft category to a drafting one, even at the same rank (an away notice read as "not now").
+  const away = mergeTriage(triage({ from: "a@x.example", subject: "Automatic reply: hi", body: "I am out of the office until 3 November with limited access to email." }, T), { category: "not_now" }, T);
+  assert.equal(away.category, "out_of_office");
+  assert.equal(away.modelSaid, "not_now");
   assert.equal(mergeTriage(triage({ body: "ok" }, T), { category: "made_up" }, T).source, "rules");
   const nn = mergeTriage(triage({ body: "hmm" }, T), { category: "not_now", return_date: "2027-02-01" }, T);
   assert.equal(nn.date, "2027-02-01");

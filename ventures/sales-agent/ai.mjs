@@ -48,6 +48,9 @@ export function mergeTriage(rules, model, today) {
   const lower = CATEGORIES[model.category].rank <= CATEGORIES[rules.category].rank;
   const bothDraft = CATEGORIES[rules.category].outbound && CATEGORIES[model.category].outbound;
   if (rules.category !== "unclear" && !lower && !bothDraft) return { ...rules, source: "rules", modelSaid: model.category };
+  // Equal rank is not enough: out_of_office and not_now share rank 2, but only not_now drafts (a reply to an auto-responder).
+  // Fixed 2026-11-12, after a 7B model read four away notices as "not now".
+  if (rules.category !== "unclear" && !CATEGORIES[rules.category].outbound && CATEGORIES[model.category].outbound) return { ...rules, source: "rules", modelSaid: model.category };
   const date = /^\d{4}-\d{2}-\d{2}$/.test(model.return_date || "") && model.return_date >= today ? model.return_date : null;
   return {
     category: model.category,
