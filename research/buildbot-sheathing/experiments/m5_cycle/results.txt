@@ -1,0 +1,94 @@
+# Milestone 5: the whole cycle (buildbot-sheathing)
+20000 sheets a cell, seed 7; edge aim, tacked; reads a sheet: single 5, three 11, dense 53 (3 new studs + 2 edges)
+tool scatter 0.90 mm; no-wait recoil at 4 N s adds 0.37 mm in quadrature -> 0.973 mm
+
+## A. First-pass clean sheets [95% Wilson] and missed nails a sheet
+framing placement                  warp  recoil                       single                       three                       dense
+2x     ledger, s_x 1 mm           low   none     0.4173 [0.411,0.424]  2.16  0.5603 [0.553,0.567]  0.79  0.5833 [0.576,0.590]  0.70
+2x     ledger, s_x 1 mm           low   nowait   0.3790 [0.372,0.386]  2.29  0.4849 [0.478,0.492]  0.96  0.5069 [0.500,0.514]  0.87
+2x     ledger, s_x 1 mm           high  none     0.3136 [0.307,0.320]  4.18  0.3083 [0.302,0.315]  1.96  0.3231 [0.317,0.330]  1.82
+2x     ledger, s_x 1 mm           high  nowait   0.2885 [0.282,0.295]  4.29  0.2600 [0.254,0.266]  2.16  0.2742 [0.268,0.280]  2.03
+2x     ledger, s_x 3 mm           low   none     0.2495 [0.244,0.255]  4.39  0.2950 [0.289,0.301]  3.31  0.3089 [0.303,0.315]  3.20
+2x     ledger, s_x 3 mm           low   nowait   0.2178 [0.212,0.224]  4.59  0.2500 [0.244,0.256]  3.55  0.2591 [0.253,0.265]  3.44
+2x     ledger, s_x 3 mm           high  none     0.1913 [0.186,0.197]  6.10  0.1621 [0.157,0.167]  4.25  0.1743 [0.169,0.180]  4.09
+2x     ledger, s_x 3 mm           high  nowait   0.1694 [0.164,0.175]  6.28  0.1317 [0.127,0.136]  4.49  0.1436 [0.139,0.148]  4.33
+2x     lift-tack 0.25 deg / 5 mm  low   none     0.0785 [0.075,0.082]  8.13  0.0886 [0.085,0.093]  7.51  0.0917 [0.088,0.096]  7.40
+2x     lift-tack 0.25 deg / 5 mm  low   nowait   0.0679 [0.064,0.071]  8.31  0.0734 [0.070,0.077]  7.71  0.0759 [0.072,0.080]  7.60
+2x     lift-tack 0.25 deg / 5 mm  high  none     0.0634 [0.060,0.067]  9.29  0.0457 [0.043,0.049]  7.92  0.0479 [0.045,0.051]  7.81
+2x     lift-tack 0.25 deg / 5 mm  high  nowait   0.0556 [0.052,0.059]  9.44  0.0371 [0.035,0.040]  8.12  0.0393 [0.037,0.042]  8.01
+2x2x   ledger, s_x 1 mm           low   none     0.9997 [0.999,1.000]  0.00  1.0000 [1.000,1.000]  0.00  1.0000 [1.000,1.000]  0.00
+2x2x   ledger, s_x 1 mm           low   nowait   0.9997 [0.999,1.000]  0.00  1.0000 [1.000,1.000]  0.00  1.0000 [1.000,1.000]  0.00
+2x2x   ledger, s_x 1 mm           high  none     0.9382 [0.935,0.941]  0.11  1.0000 [1.000,1.000]  0.00  1.0000 [1.000,1.000]  0.00
+2x2x   ledger, s_x 1 mm           high  nowait   0.9378 [0.934,0.941]  0.11  1.0000 [1.000,1.000]  0.00  1.0000 [1.000,1.000]  0.00
+2x2x   ledger, s_x 3 mm           low   none     0.9982 [0.998,0.999]  0.00  1.0000 [1.000,1.000]  0.00  1.0000 [1.000,1.000]  0.00
+2x2x   ledger, s_x 3 mm           low   nowait   0.9982 [0.998,0.999]  0.00  1.0000 [1.000,1.000]  0.00  1.0000 [1.000,1.000]  0.00
+2x2x   ledger, s_x 3 mm           high  none     0.9326 [0.929,0.936]  0.12  1.0000 [1.000,1.000]  0.00  1.0000 [1.000,1.000]  0.00
+2x2x   ledger, s_x 3 mm           high  nowait   0.9319 [0.928,0.935]  0.12  1.0000 [1.000,1.000]  0.00  1.0000 [1.000,1.000]  0.00
+2x2x   lift-tack 0.25 deg / 5 mm  low   none     0.9775 [0.975,0.979]  0.03  0.9960 [0.995,0.997]  0.01  0.9966 [0.996,0.997]  0.00
+2x2x   lift-tack 0.25 deg / 5 mm  low   nowait   0.9766 [0.974,0.979]  0.03  0.9958 [0.995,0.997]  0.01  0.9961 [0.995,0.997]  0.01
+2x2x   lift-tack 0.25 deg / 5 mm  high  none     0.8717 [0.867,0.876]  0.24  0.9935 [0.992,0.995]  0.01  0.9940 [0.993,0.995]  0.01
+2x2x   lift-tack 0.25 deg / 5 mm  high  nowait   0.8705 [0.866,0.875]  0.24  0.9931 [0.992,0.994]  0.01  0.9931 [0.992,0.994]  0.01
+
+H22: best single-2x first-pass clean (ledger, s_x 1 mm, low warp) = 0.5833 -> held (refuted at >= 0.95)
+H23: two 2x, single read (ledger, s_x 1 mm, low warp) = 0.9997 -> held (refuted below 0.95)
+H26: largest clean-sheet loss from no-wait recoil over 36 pipelines = 7.64 points at ('2x', 'ledger, s_x 1 mm', 'low', 'dense') -> refuted
+
+## B. Seconds a sheet including rework (108 time cells; ledger s_x 1 mm, low warp, recoil waited out; extra joint stud not charged)
+fastest policy, count of cells: 2x: {'single': 0, 'three': 108, 'dense': 0}; 2x2x: {'single': 108, 'three': 0, 'dense': 0}
+  with rework >= 30 s: 2x: {'single': 0, 'three': 72, 'dense': 0}; 2x2x: {'single': 72, 'three': 0, 'dense': 0} of 72
+H24: single read fastest on two 2x in 100% of cells; three/dense fastest on single 2x in 100% of rework >= 30 s cells -> held
+
+examples (seconds: place / sense / nail / rework = total)
+  nail 54, place 30, ledger 10, read 1, fix 30:
+    2x    single  40.0 /   5.0 /  56.4 /  64.8 =  166.2
+    2x    three   40.0 /  11.0 /  56.4 /  23.6 =  131.0
+    2x    dense   40.0 /  53.0 /  56.4 /  21.1 =  170.5
+    2x2x  single  40.0 /   5.0 /  56.4 /   0.0 =  101.4
+    2x2x  three   40.0 /  11.0 /  56.4 /   0.0 =  107.4
+    2x2x  dense   40.0 /  53.0 /  56.4 /   0.0 =  149.4
+  nail 54, place 30, ledger 10, read 3, fix 30:
+    2x    single  40.0 /  15.0 /  56.4 /  64.8 =  176.2
+    2x    three   40.0 /  33.0 /  56.4 /  23.6 =  153.0
+    2x    dense   40.0 / 159.0 /  56.4 /  21.1 =  276.5
+    2x2x  single  40.0 /  15.0 /  56.4 /   0.0 =  111.4
+    2x2x  three   40.0 /  33.0 /  56.4 /   0.0 =  129.4
+    2x2x  dense   40.0 / 159.0 /  56.4 /   0.0 =  255.4
+  nail 121, place 30, ledger 10, read 3, fix 60:
+    2x    single  40.0 /  15.0 / 121.0 / 129.6 =  305.6
+    2x    three   40.0 /  33.0 / 121.0 /  47.2 =  241.2
+    2x    dense   40.0 / 159.0 / 121.0 /  42.2 =  362.2
+    2x2x  single  40.0 /  15.0 / 121.0 /   0.0 =  176.0
+    2x2x  three   40.0 /  33.0 / 121.0 /   0.0 =  194.0
+    2x2x  dense   40.0 / 159.0 / 121.0 /   0.0 =  320.0
+
+## C. Break-even time to frame the extra joint stud: best single-2x seconds minus best two-2x seconds
+all 108 cells: min 17.8 s, median 35.7 s, max 65.2 s
+  rework 15 s: min 17.8, max 29.8 s
+  rework 30 s: min 29.6, max 41.6 s
+  rework 60 s: min 53.2, max 65.2 s
+H25: break-even at rework 30 s, min over 36 cells = 29.6 s -> held (refuted under 20 s)
+  higher warp (unscored): min 33.8, median 67.6, max 129.2 s
+
+## D. Where the seconds go: two 2x, single read (share of the sheet)
+  place     9.9% to  56.6% (median 31.4%)
+  sense     2.4% to  17.4% (median 6.7%)
+  nail     37.2% to  85.8% (median 61.7%)
+  rework    0.0% to   0.0% (median 0.0%)
+H27: nailing the largest stage in 90 of 108 cells -> refuted
+
+two 2x, single read: 76 to 216 s a sheet (median 146); best single 2x: 94 to 281 s (median 183)
+context, nailing only: buildbot-custom gantry 61 s; buildbot-taskbook hand nailing 372 s (author's minutes)
+
+## E. Other placements, two 2x and single 2x, best policy at the middle cell (nail 54, place 30, ledger 10, read 2, fix 30)
+  ledger, s_x 1 mm           2x    low : best three   142.0 s, clean 0.5603
+  ledger, s_x 1 mm           2x    high: best three   177.2 s, clean 0.3083
+  ledger, s_x 1 mm           2x2x  low : best single  106.4 s, clean 0.9997
+  ledger, s_x 1 mm           2x2x  high: best single  109.6 s, clean 0.9382
+  ledger, s_x 3 mm           2x    low : best three   217.6 s, clean 0.2950
+  ledger, s_x 3 mm           2x    high: best three   245.8 s, clean 0.1621
+  ledger, s_x 3 mm           2x2x  low : best single  106.5 s, clean 0.9982
+  ledger, s_x 3 mm           2x2x  high: best single  110.1 s, clean 0.9326
+  lift-tack 0.25 deg / 5 mm  2x    low : best three   333.7 s, clean 0.0886
+  lift-tack 0.25 deg / 5 mm  2x    high: best three   346.1 s, clean 0.0457
+  lift-tack 0.25 deg / 5 mm  2x2x  low : best single   97.4 s, clean 0.9775
+  lift-tack 0.25 deg / 5 mm  2x2x  high: best single  103.5 s, clean 0.8717

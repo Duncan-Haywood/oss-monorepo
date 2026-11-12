@@ -1,5 +1,20 @@
 # buildbot-sheathing research log
 
+## 2026-11-12 · Milestone 5 result: doubled joints and one read a stud give a clean sheet in 76–216 s; single 2x joints cost 18–65 s more in rework, and fire-at-once recoil is not free there
+
+`experiments/m5_cycle/` (results.txt, results.json, figure.png); 20,000 sheets a cell, seed 7; under a minute.
+
+- **H22 held.** On single 2x joints at the lower warp, with a ledger seat (PS 2 panels, 0.5 mm a corner, 1 mm left after the slide), first-pass clean sheets are 0.417 (single read), 0.560 (three), 0.583 (dense); 2.16, 0.79 and 0.70 nails missed a sheet. With 3 mm left after the slide: 0.25–0.31.
+- **H23 held.** On two 2x the same pipeline gives **0.9997** with a single read (1.0000 with three); at the higher warp a single read falls to 0.938 and three reads hold 1.0000.
+- **H24 held.** By seconds a sheet including rework, a single read is fastest on two 2x in all 108 time cells, and three reads are fastest on single 2x in all 108 (dense reads never: 53 reads a sheet cost more than the rework they save).
+- **H25 held.** Before the extra joint stud is charged, the best two-2x pipeline beats the best single-2x one by 17.8–65.2 s a sheet; the place, ledger and nailing times cancel, so the break-even depends only on the read and rework times: 29.6–41.6 s at 30 s of rework, 17.8 s at the cheapest corner (15 s rework, 1 s reads). At the higher warp 33.8–129.2 s.
+- **H26 refuted.** Firing at once after a 4 N s recoil, modelled conservatively as a 0.37 mm Gaussian added to the 0.9 mm tool scatter, costs up to **7.6 points** of clean sheets on single 2x joints (dense, 0.583 to 0.507), though at most 0.12 points on two 2x. `buildbot-nailseq` found no effect on single-2x joints with no panel gap; with the gap, bowed studs and a seated panel the single-2x window is tight enough to feel it. The residual there is a deterministic transient of at most 0.37 mm, so a Gaussian of that size overstates it.
+- **H27 refuted.** In the two-2x single-read pipeline nailing is the largest stage in 90 of 108 cells; placing the sheet (60 s, plus 10–20 s of ledger) is larger in the other 18, all with fast 54 s nailing. Shares: place 10–57%, sensing 2–17%, nailing 37–86%.
+- **Seconds a sheet.** Two 2x with a single read: 76–216 s (median 146). The best single-2x pipeline: 94–281 s (median 183). For scale, nailing alone takes 61 s on the gantry of `buildbot-custom` and 372 s by hand at the taskbook's estimated minutes.
+- **Unplanned: on doubled joints the ledger is optional.** A lift that hangs the sheet to 0.25° and 5 mm (1σ) and tacks it gives 0.978 clean with a single read and 0.996 with three; at the middle time cell that is 97 s against 106 s with the ledger, since no ledger is set. On single 2x the same hang gives 0.08–0.09.
+- **What it means for the programme.** The design choice that moves the cost of a clean sheet is the joint framing, not the robot's sensing or its recoil handling: doubled joints buy back 18–65 s a sheet of rework and let the robot read each stud once. Milestone 7 should price that extra stud (lumber and framing minutes) against these seconds, and milestone 6 should check the clean-sheet rates on a second contact model.
+- **Inputs not sourced:** every stage time except the nailing (itself `buildbot-mobilebase`'s model with swept speeds) is swept: place and slide 15–60 s, ledger 0–20 s, a read 1–3 s, rework 15–60 s a missed nail. Every missed nail is assumed found and re-driven at the same cost; a closed joint window (a bowed stud) is charged the same per nail, where a real fix may need a block or a sister stud.
+
 ## 2026-11-12 · Milestone 5 planned: the whole cycle, in seconds per sheet and clean sheets
 
 Written before any milestone-5 experiment was run.
