@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type DecidedPick, AGREEMENT_Z_PAUSE_BELOW, activeItems, admissionPaused, answerAgreement, FIRST_OPTION_FALLBACK_SHARE, HYBRID_SWITCH_ANSWERS, hybridSwitchAt, INFO_FROM_START_MAX_ITEMS, PairItem, admissionHash, admissionOrder, pairKey, sameCategoryBias, selectNextPair, selectNextPairByInformation, selectNextPairHybrid, surveyConfidence } from "./pairing";
+import { type DecidedPick, AGREEMENT_Z_PAUSE_BELOW, activeItems, admissionPaused, answerAgreement, FIRST_OPTION_FALLBACK_SHARE, HYBRID_SWITCH_ANSWERS, hybridSwitchAt, INFO_FROM_START_MAX_ITEMS, PairItem, admissionHash, admissionOrder, defaultPairSelector, pairKey, resolvePairSelector, sameCategoryBias, selectNextPair, selectNextPairByInformation, selectNextPairHybrid, surveyConfidence } from "./pairing";
 
 function items(n: number, category = "cat"): PairItem[] {
   return Array.from({ length: n }, (_, i) => ({
@@ -219,5 +219,28 @@ describe("answer agreement and the admission pause", () => {
     expect(grown.length).toBeGreaterThan(paused.length);
     expect(paused.length).toBe(15);
     expect(paused.some((i) => i.id === outside)).toBe(true);
+  });
+});
+
+describe("resolvePairSelector: what /api/trials/next runs", () => {
+  it("defaults to staged up to INFO_FROM_START_MAX_ITEMS items and standard above", () => {
+    expect(defaultPairSelector(3)).toBe("staged");
+    expect(defaultPairSelector(INFO_FROM_START_MAX_ITEMS)).toBe("staged");
+    expect(defaultPairSelector(INFO_FROM_START_MAX_ITEMS + 1)).toBe("standard");
+    expect(resolvePairSelector(null, undefined, 30)).toEqual({ selector: "staged", ignored: [] });
+    expect(resolvePairSelector(null, "", 500)).toEqual({ selector: "standard", ignored: [] });
+  });
+
+  it("lets the survey's setting win over the environment, and the environment over the default", () => {
+    expect(resolvePairSelector("standard", "staged", 30).selector).toBe("standard");
+    expect(resolvePairSelector("staged", "standard", 500).selector).toBe("staged");
+    expect(resolvePairSelector(null, "standard", 30).selector).toBe("standard");
+    expect(resolvePairSelector(undefined, "staged", 500).selector).toBe("staged");
+  });
+
+  it("ignores an unknown value instead of reading it as either selector, and reports it", () => {
+    expect(resolvePairSelector("magic", undefined, 30)).toEqual({ selector: "staged", ignored: ["magic"] });
+    expect(resolvePairSelector(null, "Staged", 500)).toEqual({ selector: "standard", ignored: ["Staged"] });
+    expect(resolvePairSelector("magic", "standard", 30)).toEqual({ selector: "standard", ignored: ["magic"] });
   });
 });

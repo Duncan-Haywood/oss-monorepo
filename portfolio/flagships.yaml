@@ -239,27 +239,29 @@ flagships:
       deploy-to-your-own-Vercel button.
     next: >-
       History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
-      docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Latest, 2026-11-12: the
-      insights screen refits each person's answers (btRefit.ts), calls a pick
-      clear only at 1.645 sd (clearPick.ts), and lists "it's between" as a 95%
-      credible set (favouriteSet.ts) drawn at min(own empirical-Bayes prior sd,
-      the survey's stored pooled sd) (surveyPrior.ts, surveyPriorStore.ts;
-      refreshed after the response via next/server after). In a mixed
-      synthetic survey (spreads 0.5/1/2, lapse 0/0.2) min covers 0.954-0.964
-      vs own 0.922-0.943; pooled alone drops to 0.83-0.92 for narrow-spread
-      people ("A stored survey prior"). Pairwise intervals keep the fixed
-      prior. On real PrefLib rankings 2026-11-12 (REAL-RANKINGS.md "The
-      insights card on real people"): clear picks wrong 5 of 860, set holds
-      97-100%, pooled sd at its ceiling in 29 of 36 cells, and the standard
-      selector names a clear pick for 0.5-5.5% of people at 8 answers per item
-      against 35-100% under staged (#1 vs #2 asked 1.9 vs 8.7 times). Next,
-      most valuable first: (a) staged as the server default for lists up to
-      120 items (re-run the careless, position-bias and answer-time sweeps
-      under it first), and a heavier-tailed prior for the pairwise
-      intervals; (b) half-time salience (q = 0.5 still leaks +0.12 to +0.29:
-      does pace see them?); (c) check the answer-time model against the first
-      real survey's msToAnswer; (d) position bias that starts mid-session;
-      (e) the switch rule above 120 items; then real pairwise answers.
+      docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Insights screen
+      (2026-11-12): per-person refit (btRefit.ts), clear pick at 1.645 sd
+      (clearPick.ts), "it's between" as a 95% credible set at min(own EB prior
+      sd, stored survey pooled sd) (favouriteSet.ts, surveyPrior*.ts); on real
+      PrefLib rankings clear picks wrong 5 of 860, set holds 97-100%. Latest,
+      2026-11-12: staged is the server default up to 120 items
+      (defaultPairSelector/resolvePairSelector in pairing.ts; survey setting,
+      then PAIR_SELECTOR, win) after the careless, position-bias and
+      answer-time sweeps were re-run under both selectors
+      (INFORMATION-GAIN-SELECTOR.md "Staged as the default up to 120 items",
+      docs/staged-default-2026-11-12.jsonl): pooled Spearman equal overall
+      (+0.0007 over 80 cells), better on honest panels and slot clickers
+      (up to +0.025), real panels at least standard's in 22 of 25 cells; the
+      one cost is whole-session coin flippers at 40-50% of a panel (-0.006 to
+      -0.025), and salience leaks 0.01-0.03 more. Next, most valuable first:
+      (a) the coin-flip cost under staged: a fix that does not tax camps (the
+      agreement note already flags them; try down-weighting answers on pairs
+      the panel finds clear, or a lapse-aware pool), and a heavier-tailed
+      prior for the pairwise intervals; (b) half-time salience (q = 0.5 still
+      leaks +0.12 to +0.29: does pace see them?); (c) check the answer-time
+      model against the first real survey's msToAnswer; (d) position bias
+      that starts mid-session; (e) the switch rule above 120 items (then make
+      staged the default there too); then real pairwise answers.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
