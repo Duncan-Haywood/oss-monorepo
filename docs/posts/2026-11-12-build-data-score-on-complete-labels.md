@@ -1,8 +1,8 @@
 ---
-title: "Score build-time tails only on labels you can see: a complete-case score reversed our result, and reweighting could not fix it"
+title: "Score build-time tails on labels you can see: a complete-case score reversed our result"
 seo_title: "Right-truncated permit build times: complete-case vs IPCW scoring"
 date: 2026-11-12
-description: "On Seattle permits old enough to be seen in full, a class merge that looked like a 2-day gain at the build-time 0.9 quantile is a 1.7 to 2.5-day loss. IPCW recovers only 10 to 40% of the gap."
+description: "On Seattle permits seen in full, a merge that looked like a 2-day build-time q0.9 gain is a 1.7 to 2.5-day loss; IPCW recovers only 10 to 40% of the gap."
 tags: [research, build-data, construction, evaluation]
 ---
 
