@@ -1,0 +1,246 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/cobra-vs-marketplace-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-12-d",
+  "drawn_by": "sample",
+  "round": 45,
+  "auditor": "agent session (Claude), quality-audit round 45",
+  "status": "audited",
+  "professional": "an ACA-certified navigator or employee-benefits broker who advises people leaving a job; they check first the COBRA election and first-premium clocks (26 CFR 54.4980B-6 Q&A-1, 54.4980B-8 Q&A-5), the marketplace loss-of-coverage SEP and effective dates (45 CFR 155.420), the eligible-vs-enrolled premium tax credit rule (26 CFR 1.36B-2(c)(3)(iv)), and then whether the cost comparison respects deductible resets at the plan-year boundary",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran the CLI on the README example and recomputed it with an independent Python model (scratchpad/cobra/model.py, written from the CFR rules and plain deductible/coinsurance/OOP arithmetic, not from engine.mjs). All five scenario totals match ($4,680/$1,260; $5,660/$3,760; $6,960/$7,460; $10,080/$10,460 x2), the break-even matches the closed form (3420+600-0.8s+... -> $4,875), and the deadline dates match Python date arithmetic (election 2026-12-30, SEP end 2026-12-30, 18-month COBRA end 2028-04-30). Two wrong outputs a user would act on: (1) the 'always' verdict tests only spend=0 (engine.mjs:122), so COBRA $150/mo, $9,000 deductible vs marketplace $400/mo, $1,000 OOP max prints 'COBRA costs no more than the marketplace plan at any level of care' while its own table shows marketplace cheaper at $9,000+ ($10,800 vs $5,800); (2) the model treats the whole 1-18 month period as one accumulator period, but individual-market plans are calendar-year (45 CFR 147.104(f)) and most employer plans reset on Jan 1, so the shipped worked example (coverage ends 2026-10-31, 6 months to April 2027) understates worst cases ($10,460 marketplace shown vs up to $19,660 with a 2027 reset at the same OOP max) and overstates COBRA's carry-over advantage. First-premium date is computed from the election deadline, not the election date. Arithmetic right, two headline outputs wrong: 2.",
+    "completeness": "Checked each README/page claim end to end: five-scenario totals (works), own-estimate row inserted in order (works, test), break-even (works except the 'always' branch), worst case (works within one plan year), COBRA election/first-premium/SEP/no-gap/18-month dates (all produced; CLI and page), JSON output (works), exit 2 on bad input (works: '--cobra-premium abc' -> 2), notes about PTC and SEP (present), guide page and llms.txt (present; served llms.txt and sitemap carry marisstella.app URLs). No stubs or TODOs. 3.",
+    "verification": "node --test '*.test.mjs': 22 pass, 0 fail (engine, page, usage). Six hand-seeded mutations in engine.mjs, each reverted by copying back the saved original (diff confirmed identical): caught 3 (coinsurance halved, first-premium 45->44 days, 18-month cap +1 month); survived 3 (the carried-over OOP-met dropped from oopLeft, the product's core selling point; 'always' boundary <= -> <; break-even scan range cut from +1e6 to +1000). No test covers a plan-year boundary or a case where the 'always' verdict contradicts the scenario rows. 2.",
+    "craft": "Read engine.mjs (158 lines), cli.mjs, index.html script, engine.test.mjs, page.test.mjs. Pure, small, no dependencies, one engine shared by CLI and page (page.test dogfoods the EXAMPLE), escapeHtml on all rendered text, strict YYYY-MM-DD parsing that rejects 2026-02-30. Defects: break-even is a 100-dollar brute-force scan up to ~1e6 with a first-crossing-only search instead of evaluating the piecewise-linear kink points (which would also fix 'always'); no validation that OOP already spent <= OOP max or that deductible met <= OOP met; the 'never' text hard-codes 'COBRA's lower deductible' even when it is equal or higher (engine.mjs:150). 3.",
+    "claims": "Disclaimer on index.html footer, guide footer and README; privacy claim (no network) matches the code (only usage.mjs local counting). FAQ 'holds no subsidy tables, so it cannot go out of date' is true (premium is typed net of PTC). Note text 'while you are enrolled in COBRA you get no premium tax credit' is right per 26 CFR 1.36B-2(c)(3)(iv); 'ending COBRA yourself usually does not open another window' is right per 45 CFR 155.420(e). Unbacked/false: the generated 'COBRA costs no more ... at any level of care' sentence (logic error above); 'first premium due <date>' presented as a fixed date though it is 45 days after the actual election (only right if you elect on the last day); 'pick a plan by <last of month> ... no gap' is only gapless when coverage ends on the last day of a month; the guide's 'Late in the year ... that can make COBRA cheaper' (cobra-election-deadlines-explained.html:63) ignores that the advantage vanishes at the Jan 1 reset. 2.",
+    "fitness": "Walked the job of a person losing job coverage on 2026-10-31 who has met most of the deductible: the tool's answer (COBRA wins above $4,875 of care) is exactly the late-year case where both plans reset on 2027-01-01, so the answer is right for November-December and wrong for January-April; the user cannot enter a plan-year end. No family/embedded-deductible input, no 29-month disability extension, no prompt that 2026 marketplace quotes now have a 400% FPL cliff (Rev. Proc. 2025-25 top band 'at least 300% but not more than 400%' at 9.96%) and that APTC is reconciled on full-year income including pre-layoff wages. The deadline section alone is useful. 2.",
+    "domain": "Compared against 26 CFR 54.4980B-6 Q&A-1 (election ends no earlier than 60 days after the later of loss of coverage or notice: matches), 54.4980B-8 Q&A-1/5 (102% cap not checked against the typed premium, 150% disability extension not modelled; first payment not earlier than 45 days after the election: computed from the deadline instead), 45 CFR 155.420(c)(2), (b)(2)(iv), (d)(1), (e) (60 days after last day of coverage, effective first of month after loss if selected on or before loss, voluntary termination excluded: matches, but the 60-day pre-loss window is not mentioned), 26 CFR 1.36B-2(c)(3)(iv) (enrolled, not eligible, blocks PTC: matches), and 45 CFR 147.104(f) (individual coverage on a calendar-year policy year: not modelled). A navigator would sign off on the deadline rules and reject the cost comparison across a Jan 1 boundary. 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "README example scenario totals and break-even (COBRA $780, ded 3000 met 2400, OOP 8000 met 2600; marketplace $210, ded 5500, OOP 9200; 6 months)",
+      "method": "Independent Python model of deductible -> coinsurance -> OOP cap, plus closed-form break-even on the 600..5500 segment",
+      "command": "python3 -I scratchpad/cobra/model.py; cd ventures/cobra-vs-marketplace-calculator && node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-deductible 3000 --cobra-deductible-met 2400 --cobra-oop-max 8000 --cobra-oop-met 2600 --market-deductible 5500 --market-oop-max 9200 --months 6 --coverage-ended 2026-10-31",
+      "expected": "$6,960 vs $7,460 at $9,000; $10,080 vs $10,460 at $40k/$150k; break-even $4,875",
+      "observed": "$6,960 vs $7,460; $10,080 vs $10,460; 'about $4,875'",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "COBRA election deadline for coverage ending 2026-10-31, no later notice",
+      "method": "26 CFR 54.4980B-6 Q&A-1 (law.cornell.edu): not before 60 days after the later of loss of coverage or notice; Python date arithmetic",
+      "command": "python3 -I scratchpad/cobra/model.py; cd ventures/cobra-vs-marketplace-calculator && node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-deductible 3000 --cobra-deductible-met 2400 --cobra-oop-max 8000 --cobra-oop-met 2600 --market-deductible 5500 --market-oop-max 9200 --months 6 --coverage-ended 2026-10-31",
+      "expected": "2026-12-30",
+      "observed": "2026-12-30",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Marketplace loss-of-coverage SEP end and no-gap effective date for last day of coverage 2026-10-31",
+      "method": "45 CFR 155.420(c)(2), (b)(2)(iv), (d)(1)(i) (law.cornell.edu): 60 days after the last day of coverage; selected on or before loss -> first of next month",
+      "command": "cd ventures/cobra-vs-marketplace-calculator && node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-deductible 3000 --cobra-deductible-met 2400 --cobra-oop-max 8000 --cobra-oop-met 2600 --market-deductible 5500 --market-oop-max 9200 --months 6 --coverage-ended 2026-10-31",
+      "expected": "SEP ends 2026-12-30; coverage 2026-11-01 if picked by 2026-10-31",
+      "observed": "ends 2026-12-30; pick by 2026-10-31 to start 2026-11-01",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "First COBRA premium due date when the person elects on 2026-11-10",
+      "method": "26 CFR 54.4980B-8 Q&A-5: no earlier than 45 days after the election",
+      "command": "python3 -I scratchpad/cobra/model.py; cd ventures/cobra-vs-marketplace-calculator && node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-deductible 3000 --cobra-deductible-met 2400 --cobra-oop-max 8000 --cobra-oop-met 2600 --market-deductible 5500 --market-oop-max 9200 --months 6 --coverage-ended 2026-10-31",
+      "expected": "2026-12-25 (45 days after the actual election); 2027-02-13 only if electing on the deadline",
+      "observed": "always 'first premium due 2027-02-13' (election deadline + 45); no election-date input",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "'always' verdict when COBRA premium is lower but its deductible is far higher (COBRA $150/mo ded 9000 OOP 9200; marketplace $400/mo ded 0 OOP 1000; 12 months)",
+      "method": "Hand computation of both totals at $9,000 of allowed charges",
+      "command": "cd ventures/cobra-vs-marketplace-calculator && node cli.mjs compare --cobra-premium 150 --market-premium 400 --cobra-deductible 9000 --cobra-oop-max 9200 --market-deductible 0 --market-oop-max 1000 --months 12",
+      "expected": "COBRA $10,800 vs marketplace $5,800 at $9,000: marketplace cheaper above a crossover, so no 'always'",
+      "observed": "'COBRA costs no more than the marketplace plan at any level of care' above a table showing marketplace cheaper at $9,000, $40,000, $150,000",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Worst-case marketplace cost for the shipped example, which runs Nov 2026-Apr 2027",
+      "method": "45 CFR 147.104(f) (law.cornell.edu): individual coverage on a calendar-year policy year ending Dec 31, so accumulators reset 2027-01-01; assume the same $9,200 OOP max for 2027",
+      "command": "python3 -I scratchpad/cobra/model.py; cd ventures/cobra-vs-marketplace-calculator && node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-deductible 3000 --cobra-deductible-met 2400 --cobra-oop-max 8000 --cobra-oop-met 2600 --market-deductible 5500 --market-oop-max 9200 --months 6 --coverage-ended 2026-10-31",
+      "expected": "up to $1,260 + $9,200 + $9,200 = $19,660",
+      "observed": "Worst case: marketplace $10,460 (single accumulator period)",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "Premium tax credit: COBRA eligibility vs enrollment",
+      "method": "26 CFR 1.36B-2(c)(3)(iv) (law.cornell.edu): eligible for continuation coverage only for months enrolled",
+      "command": "cd ventures/cobra-vs-marketplace-calculator && node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-deductible 3000 --cobra-deductible-met 2400 --cobra-oop-max 8000 --cobra-oop-met 2600 --market-deductible 5500 --market-oop-max 9200 --months 6 --coverage-ended 2026-10-31",
+      "expected": "eligibility does not block PTC; enrollment does",
+      "observed": "note: 'while you are enrolled in COBRA you get no premium tax credit'; premium input is net of PTC",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "Voluntarily ending COBRA does not open a marketplace SEP",
+      "method": "45 CFR 155.420(e): loss of coverage excludes voluntary termination and non-payment (except (d)(15))",
+      "command": "read cobra-election-deadlines-explained.html FAQ; CLI notes",
+      "expected": "no SEP for voluntary termination; exhausting COBRA is a qualifying loss",
+      "observed": "both stated correctly",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "2026 premium tax credit rules (enhanced credits expired after 2025, 400% FPL cliff back)",
+      "method": "IRS Rev. Proc. 2025-25 (irs.gov/pub/irs-drop/rp-25-25.pdf, fetched 200): 2026 table 2.10%..9.96%, top band 'at least 300% but not more than 400%'",
+      "command": "curl -sS -A Mozilla/5.0 -o rp.pdf https://www.irs.gov/pub/irs-drop/rp-25-25.pdf; pdftotext -layout rp.pdf -",
+      "expected": "tool either applies the 2026 table or warns that above 400% FPL there is no credit and that APTC is reconciled on full-year income",
+      "observed": "tool holds no PTC table (by design; user types net premium); no warning about the cliff or reconciliation of a mid-year job-loss estimate",
+      "result": "partial"
+    },
+    {
+      "dimension": "domain",
+      "what": "COBRA duration and premium cap",
+      "method": "26 CFR 54.4980B-8 Q&A-1: 102% cap, 150% during the disability extension",
+      "command": "cd ventures/cobra-vs-marketplace-calculator && node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-oop-max 8000 --market-oop-max 9200 --months 24",
+      "expected": "18 months for job loss is right; disability extension to 29 months at up to 150% at least mentioned",
+      "observed": "'Months ... must be between 1 and 18, the COBRA maximum for a job loss'; no disability extension, no 102% sanity check",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite",
+      "method": "run",
+      "command": "cd ventures/cobra-vs-marketplace-calculator && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "22 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Served llms.txt and sitemap URLs",
+      "method": "Loaded served files",
+      "command": "curl -sS https://marisstella.app/cobra-vs-marketplace-calculator/llms.txt; curl -sS https://marisstella.app/cobra-vs-marketplace-calculator/sitemap.xml",
+      "expected": "marisstella.app URLs (source has github.io hosts, rewritten at build)",
+      "observed": "marisstella.app URLs on both; page 200",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Bad input exits 2",
+      "method": "run CLI",
+      "command": "cd ventures/cobra-vs-marketplace-calculator && node cli.mjs compare --cobra-premium abc --market-premium 210 --cobra-oop-max 8000 --market-oop-max 9200; echo $?",
+      "expected": "exit 2 with message",
+      "observed": "'cobraPremium must be a non-negative number', exit 2",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:34",
+      "change": "* coinsurance -> * (coinsurance / 2)",
+      "caught": true,
+      "test_cmd": "cd ventures/cobra-vs-marketplace-calculator && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:122",
+      "change": "diffAt(0) <= 0 -> diffAt(0) < 0",
+      "caught": false,
+      "test_cmd": "cd ventures/cobra-vs-marketplace-calculator && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:61",
+      "change": "addDays(election, 45) -> addDays(election, 44)",
+      "caught": true,
+      "test_cmd": "cd ventures/cobra-vs-marketplace-calculator && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:96",
+      "change": "f.cobraOopMax - f.cobraOopMet -> f.cobraOopMax (drop carried-over OOP)",
+      "caught": false,
+      "test_cmd": "cd ventures/cobra-vs-marketplace-calculator && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:124",
+      "change": "+ 1e6 -> + 1000 (break-even scan range)",
+      "caught": false,
+      "test_cmd": "cd ventures/cobra-vs-marketplace-calculator && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:65",
+      "change": "getUTCMonth() + 19, 0 -> + 20, 0 (18-month end)",
+      "caught": true,
+      "test_cmd": "cd ventures/cobra-vs-marketplace-calculator && node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Deductible/OOP accumulators are modelled as one period across all 1-18 months; individual-market plans reset on Jan 1 (45 CFR 147.104(f)) and most employer plans do too, so any period crossing a plan year (including the shipped Oct 31 + 6 months example) understates worst cases (marketplace $10,460 shown vs up to $19,660) and overstates COBRA's carry-over advantage; there is no plan-year-end input.",
+      "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:94",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "high",
+      "what": "'always' verdict only tests spend = 0: when COBRA's premium is lower but its deductible/OOP is higher the tool prints 'COBRA costs no more than the marketplace plan at any level of care' above its own table showing the marketplace cheaper ($10,800 vs $5,800 at $9,000).",
+      "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:122",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "First premium due date is computed from the election deadline, not the election date (26 CFR 54.4980B-8 Q&A-5: 45 days after the election), and is shown as 'first premium due <date>'; someone who elects early is told a date up to 60 days too late.",
+      "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:61",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "The carried-over out-of-pocket amount, the product's core selling point, is untested: dropping it from oopLeft leaves all 22 tests green; the 'always' boundary and the break-even scan range also survive mutation.",
+      "where": "ventures/cobra-vs-marketplace-calculator/engine.test.mjs:16",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "No warning that 2026 marketplace credits follow the restored 400% FPL cliff (Rev. Proc. 2025-25) and that APTC estimated after a mid-year job loss is reconciled on full-year household income including pre-layoff wages; a navigator would raise this before the premium comparison.",
+      "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:141",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "'Pick a plan by the last day of the month to start the 1st with no gap' is only gapless when coverage ends on the last day of a month; for coverage ending 2026-10-15 it still reports pick-by 10-31 / start 11-01 with no gap warning.",
+      "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:63",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Months capped at 18 with no mention of the 29-month disability extension (premium up to 150%, 26 CFR 54.4980B-8 Q&A-1) or 36-month dependent events; no sanity check against the 102% cap.",
+      "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:90",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "No validation that OOP already spent <= OOP max or deductible met <= OOP met; the 'never' sentence hard-codes 'COBRA's lower deductible' even when it is equal or higher (the test case has equal deductibles).",
+      "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:150",
+      "category": "input-handling",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A small, clean COBRA-vs-marketplace comparison whose arithmetic and federal deadline rules check out against the CFR (election 60 days from the later of loss or notice, SEP 60 days after the last day of coverage, enrolled-not-eligible PTC rule, no SEP for voluntary COBRA termination), but two headline outputs are wrong: the 'always cheaper' verdict is decided at zero spend only and can contradict the tool's own table, and the cost model ignores the Jan 1 plan-year reset, which is exactly the late-year job loss its worked example and guide promote. The first-premium date is tied to the election deadline rather than the election. Tests pass (22) but 3 of 6 seeded mutations survive, including dropping the carried-over OOP. Correctness, claims and verification are all 2: does not meet the bar; finished (completeness 3)."
+}
