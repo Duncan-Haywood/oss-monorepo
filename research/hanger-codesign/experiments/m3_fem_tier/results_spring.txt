@@ -1,0 +1,7 @@
+milestone 3a part 3: milestone 2b's spring sheet re-solved by Newton (shear 0.1 EA)
+fabric EA h_mm nodes DC_newton DC_lbfgs_2b diff newton_steps gmax_over_node_weight folds sec
+A 3200 5 2933 0.6222 0.5671 +0.0551 305 8.5e-06 11 259
+A 3200 3.75 5169 0.5178 0.4909 +0.0269 360 1.5e-07 8 610
+D 3200 5 2933 0.6278 0.6362 -0.0084 178 2.5e-06 10 150
+D 3200 3.75 5169 0.6171 0.6254 -0.0083 121 2.7e-07 9 208
+F7 refuted

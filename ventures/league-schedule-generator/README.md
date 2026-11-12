@@ -1013,6 +1013,42 @@ never saw them: 25 teams stayed at 2,889 carry-over with 262 breaks.
 - Not claimed: one seed, one weight, ten sizes; the page's best-of-k tries at weights 10 to 80 run
   this inside each try, but their picks were not re-measured.
 
+## Shift venues carried through the search (2026-11-12)
+
+Three follow-ups to the shift venues above, measured at weight 10 on seeds 1 and 2. One clear gain,
+one small one and one negative.
+
+- **15 and 31 teams: shift starters at the field sizes** (`eval/field-shift.mjs`,
+  `eval/field-shift.txt`). When the league, a bye included, is a power of two, the search starts from
+  the field timetable and never saw a shift candidate. With a bye that left 15 teams at 41 breaks
+  and 31 teams at 245 (7.9 per team). `eval/starter-orient.mjs 30 10 16` and `... 32` climbed
+  starters for both, and the odd ones are now in `STARTERS_SHIFT`. With a break weight the field
+  search keeps one only when it scores strictly lower. 15 teams: 195 / 41 to **195 / 28** (same
+  carry-over; seed 2 was 239 / 35). 31 teams: 899 / 245 to **1,189 / 60** (score 3,349 to 1,789). 7,
+  8, 16 and 32 teams: the climbed starters do not beat the field search, so nothing changes.
+  Carry-over only (weight 0): nothing changes.
+- **Capped shift candidates** (`shiftCapped`, on by default). Each shift candidate is also run
+  through `lowCarryOverCappedRounds` from that start (new `start: { opp, venues }` option): it
+  anneals carry-over with the home/away carried along and the candidate's own breaks as the cap.
+  11 teams: 253 to 237 and 239 (153 / 10 to 137 / 10 and 139 / 10). 13 teams: 373 to 335 (253 / 12
+  to 215 / 12). 39 teams, seed 2: 3,237 to 3,219. Nothing changes at any other size from 9 to 40
+  (`eval/shift-carry.mjs`, `eval/shift-carry.txt`). Each candidate adds about 0.3 s. From 17 teams
+  up the climbed shift starters look like local minima for these moves: with 2 to 16 breaks of
+  slack and four times the effort, only 39 teams moved.
+- **Negative: carrying the starter's hosts through the search's moves** (`carryHosts`, off by
+  default). Every carry-over move keeps the set of pairs, so the starter's shift home/away gives
+  each pair a host (`pairHostsOf`). That gives a valid, equally balanced home/away for whatever
+  timetable the search ends on (`venuesFromHosts`; `starterShiftVenues` builds the shift venues at
+  any step and start). As one more start for the venue search (`carryHosts: "seed"`,
+  `assignVenues(..., { hosts })`), it changed 1 row of 60: 22 teams, seed 2, 66 to 64 breaks. At 19,
+  23 and 26 teams it only tied the shift candidate it already had. Also pricing moves with the
+  carried hosts' breaks (`carryHosts: true`) made 14 teams worse (432 to 462). The search's moves
+  break the shift pattern faster than the venue search can use it, so the shipped default
+  leaves both off.
+- Open: the home-and-away season (`lowCarryOverDoubleRounds`) does not yet score the 16 and 32
+  shift starters or the capped candidates. Sizes 17 to 40 need moves that keep the shift pattern,
+  not a cap on single moves.
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`

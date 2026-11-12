@@ -97,15 +97,6 @@ flagships:
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
   - venture: sales-agent
-    buildable: >-
-      (3c) the pre-registered test (eval/README "A 14B local model on the same replies"): finish
-      Qwen2.5-14B-Instruct Q4_K_M on the other 611 replies (`LLM_PROVIDER=llamacpp node eval/model.mjs
-      eval/fresh-*.jsonl eval/replies.jsonl eval/heldout.jsonl --cache eval/model-answers/qwen2.5-14b-q4km.json`
-      resumes from the committed cache; 21 s a reply on 4 cores, so about 3.5 hours; load the server with
-      `--use_mmap false` or the kernel kills it at 15 GB; start it with nohup), then score whether its closes on
-      rules-unclear replies reach the bar written there (at least 85% right, at most 2 lost silently) and, only if they
-      do, add the opt-in setting. Without a model host: re-score any merge change offline from the committed caches
-      (`--offline`). Any rule change: re-score all eight Enron halves before and after by Message-ID (about 10 min).
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
@@ -123,10 +114,12 @@ flagships:
       real replies to outreach and a real rep's call notes to check the reply rules, prep rules and follow-up
       sorter; (3) M2: Qwen2.5 7B on all 792 replies (alone 86% of fresh vs rules-before-tuning 69%; merged
       735/792, 2 false opt-outs) and Qwen2.5 14B on the first 181 (alone 144 vs 136, merged 146 vs 147, 9 false
-      opt-outs vs 6, closes on rules-unclear replies 7 of 7 right); next the pre-registered test on the other 611
-      (buildable above) and a hosted model; (4) run the self-host server, OAuth and CRM write-back against a real
-      mailbox, Google or Microsoft app and HubSpot or Pipedrive account (all fakes so far); (5) a real HubSpot or
-      Pipedrive export for the research agent (none found public).
+      opt-outs vs 6, and on all 792 merged 732 vs the 7B's 735 with 27 false opt-outs alone vs 10; a
+      pre-registered test of letting its closes act alone failed on the 611 it had not been read on: 2 of 7 right,
+      4 live replies lost); next a hosted model of another family (needs a key), merge limits unchanged; (4) run
+      the self-host server, OAuth and CRM write-back against a real mailbox, Google or Microsoft app and HubSpot
+      or Pipedrive account (all fakes so far); (5) a real HubSpot or Pipedrive export for the research agent (none
+      found public).
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.
@@ -268,23 +261,19 @@ flagships:
       Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up
       CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool,
-      capped breaks, zero-break odd leagues, field start at 4/8/16/32 teams; sampled, annealed and
-      O(p)-climbed starters, 20 and 22 teams at the floor, 24-40 8-21% above it; refilled rounds,
-      12 teams 136 against 120; break-weighted starters; all 2026-11-11). Shift venues 2026-11-11
-      latest (README "Home and away that moves with the starter", eval/starter-orient.mjs,
-      eval/shift-search.txt): a starter's home/away read off the starter has exactly
-      (p-1)(E+1) breaks, or (p-1)E with a bye, least E by a Gray-code walk; scored as a candidate at
-      break weights, plus STARTERS_SHIFT from a climb with breaks in the move: odd leagues 17-39
-      from 4-10 breaks per team to under 2 (23 teams 565/127 to 565/44), 18 of 28 sizes lower at
-      weight 10, none higher. Refill from climbed starters at 13-18 teams: no gain (negative).
-      Shift leg ones for home-and-away seasons 2026-11-11 (README "Shift venues for a home-and-away
-      season", eval/shift-double.txt): 25 teams 2,889/262 to 2,685/117, 9 of 10 sizes lower at
-      weight 10, 26 unchanged. Next, most valuable first: re-measure the page's best-of-k picks
-      with it; seed assignVenues with the shift orientation after the search's moves; a lower bound or a
-      timetable below 136 at 12 (SAT encoding eval/carryover-sat.py, 2026-11-12: 10 teams proved >= 90, 12
-      teams unanswered at 134 after 70 min; next symmetry breaking or cube-and-conquer, README "SAT bounds"); close 24-40 (tabu, longer runs, the literature's starters and
-      terraces); a 20-team leg at 22-30 breaks from a starter timetable; a real league's travel
-      times and unavailable dates; a print check.
+      capped breaks, zero-break odd leagues, field start; sampled, annealed and climbed starters,
+      20 and 22 teams at the floor, 24-40 8-21% above it; break-weighted starters; shift venues for
+      single and home-and-away seasons, odd leagues 17-39 under 2 breaks per team). 2026-11-12
+      (README "Shift venues carried through the search", eval/field-shift.txt, eval/shift-carry.txt):
+      shift starters at the field sizes, 15 teams 195/41 to 195/28, 31 teams 899/245 to 1,189/60;
+      capped shift candidates, 11 teams 253 to 237, 13 teams 373 to 335; carried pair hosts through
+      the search's moves: 1 row of 60 changed (negative, off). Next, most valuable first: the 16/32
+      shift starters and capped candidates in the home-and-away search; re-measure the page's
+      best-of-k picks with all of it; moves that keep the shift pattern for 17-40 teams; a lower
+      bound or a timetable below 136 at 12 (SAT, eval/carryover-sat.py: 10 teams proved >= 90, 12
+      unanswered at 134 after 70 min; next symmetry breaking or cube-and-conquer); close 24-40
+      (tabu, longer runs, the literature's starters); a real league's travel times and unavailable
+      dates; a print check.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

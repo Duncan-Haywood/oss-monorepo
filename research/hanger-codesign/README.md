@@ -31,12 +31,81 @@ for the 3 cm arm: with the shear spring set to measured G, stretch still moves t
 across 40 to 800 N/m, but from 800 N/m up, including the stiffness the same table's tensile LT and WT
 imply, all four fabrics pick +1.0 cm, the 2D chain's answer, with certified margins. The tier
 disagreement belongs to soft cloth, and only the cotton jersey and the shirting, whose low-load
-stiffness lands in the band where the choice flips, still need a measured tensile toe. Milestone 5 proves the margin bound the proposal planned (regret is at most the spread of the paired tier error, not its size) and tests it on those 50 tier pairs: the bound certifies no 2D-chain choice (the paired error still spreads 0.6 to 1.3 cm across widths, against margins of 0.05 to 0.25 cm), though the 2D choice's realised regret is small (mean 0.03 cm); it certifies only a stretch-stiffness guess near the KES-sourced one, so a cheap tier can screen widths but not judge them. Milestone 5b keeps the cheap tier's own penalty term the first bound dropped: the regret is at most max over d of K|d − d^| minus the cheap tier's penalty at d, with K the slope of the paired error around the choice, 2.8 times tighter on the 2D chain (median realised share of the bound 34% against 12%). Used as a loop (three reference runs around the cheap choice, estimate K, run what the bound cannot rule out), it finds the reference optimum in 48 of 50 tier pairs with 3.9 of 7 reference runs on average; the two misses are the softest cloth (EA 40 N/m), whose optimum sits two grid steps away.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
+stiffness lands in the band where the choice flips, still need a measured tensile toe. Milestone 5 proves the margin bound the proposal planned (regret is at most the spread of the paired tier error, not its size) and tests it on those 50 tier pairs: the bound certifies no 2D-chain choice (the paired error still spreads 0.6 to 1.3 cm across widths, against margins of 0.05 to 0.25 cm), though the 2D choice's realised regret is small (mean 0.03 cm); it certifies only a stretch-stiffness guess near the KES-sourced one, so a cheap tier can screen widths but not judge them. Milestone 5b keeps the cheap tier's own penalty term the first bound dropped: the regret is at most max over d of K|d − d^| minus the cheap tier's penalty at d, with K the slope of the paired error around the choice, 2.8 times tighter on the 2D chain (median realised share of the bound 34% against 12%). Used as a loop (three reference runs around the cheap choice, estimate K, run what the bound cannot rule out), it finds the reference optimum in 48 of 50 tier pairs with 3.9 of 7 reference runs on average; the two misses are the softest cloth (EA 40 N/m), whose optimum sits two grid steps away. Milestone 3a builds ARCSim's element model (constant-strain triangles with measured shear, discrete-shell hinges) with a Newton solver: it matches the exact cantilever elastica to within 0.9% of the overhang after extrapolation and ignores stretch stiffness there, but fails the Cusick acceptance test: on the suiting the drape coefficient still climbs 0.016 per mesh refinement and 0.034 from EA 800 to 3200 N/m (40% less than the spring sheet), and on the soft jersey it converges only at EA 150 N/m, near the jersey's sourced tangent stiffness, and locks above it.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
 `research/PROJECTS.md`). Simulation only; nothing here is a measurement of real garments.
 
 **Live page:** https://marisstella.app/research/hanger-codesign/
 
 ![Shape error against arm width offset on fabric D for three model tiers](experiments/m1_kes_fidelity/err_vs_offset_D.svg)
+
+## Milestone 3a: a triangle finite-element tier, checked against the exact cantilever and the Cusick acceptance test
+
+`experiments/m3_fem_tier/` (numpy and scipy). The proposal's top tier is ARCSim or C-IPC, both C++
+builds. This step writes ARCSim's element model in numpy (`fem.py`, without its adaptive
+remeshing): constant-strain triangles with a Saint Venant-Kirchhoff energy, stretch stiffness EA and
+in-plane shear G as separate parameters (G from the same KES table as B and W: 26 N/m per radian
+for the cotton jersey A, 89 for the suiting D), and the discrete-shell hinge bending energy
+(Grinspun, Hirani, Desbrun and Schröder 2003, "Discrete shells", SCA; Bridson, Marino and Fedkiw
+2003, "Simulation of clothing with folds and wrinkles", SCA, whose dihedral-angle gradient `fem.py`
+uses; identifiers not looked up this run) on an equilateral lattice. Two calibration facts, both
+in `tests/test_m3.py`: on a piecewise-flat equilateral lattice a cylinder also folds the edges
+parallel to its curvature, so the hinge constant is B θ²|e|² / (2(A1 + A2)), half the textbook form,
+and with it a cylinder's energy is B k²/2 per area to 0.4% at every axis angle. The solver is a damped
+Newton method with a sparse Hessian from coloured central differences (`newton.py`), because chunked
+L-BFGS, the stopping rule of milestones 1b to 2b, stops 9% of the overhang short on a cantilever.
+Predictions were committed before the first run; a hinge-gradient sign bug and the solver change
+came before any prediction was evaluated (LOG.md).
+
+**Part 1, the exact case.** Peirce's cantilever (ASTM D1388) against the exact heavy elastica
+(`elastica.py`, which reproduces the standard's 41.5° chord at an overhang of 2.000 bending lengths):
+
+| | 8 elements | 16 | 32 | first-order extrapolation |
+|---|---|---|---|---|
+| tip-drop error, % of l (12 cases) | 4.8 to 9.6 | 2.9 to 5.5 | 1.6 to 3.2 | +0.26 to +0.89 |
+
+![Cantilever tip-drop error against elements along the overhang](experiments/m3_fem_tier/cantilever_error_vs_mesh.svg)
+
+**Part 2, the acceptance test.** Milestone 2a's simulated Cusick test (30 cm specimen, 18 cm disc),
+measured G, drape coefficient by lattice side a; `*` marks a solve that hit the 400-step Newton cap
+(residual 8 to 830 node weights), so not an equilibrium:
+
+| fabric, EA (N/m) | 7.5 mm | 5 mm | 3.75 mm | 2.5 mm | spring sheet, 2.5 mm (2b) |
+|---|---|---|---|---|---|
+| A, 150 | 0.220 | 0.184 | 0.166 | 0.161 | 0.155 |
+| A, 800 | 0.507 | 0.356* | 0.193 | 0.175* | 0.226 |
+| A, 3200 | 0.567 | 0.614 | 0.388* | 0.230* | 0.367 |
+| D, 150 | 0.425 | 0.513 | 0.509 | 0.525 | 0.492 |
+| D, 800 | 0.455 | 0.550 | 0.565 | 0.581 | 0.571 |
+| D, 3200 | 0.463 | 0.582 | 0.599 | 0.618* | 0.632 |
+
+| | prediction | outcome |
+|---|---|---|
+| F1 | 32-element cantilever within 1% of l of the elastica | **refuted**: 1.6 to 3.2%, first-order convergence; extrapolated within 0.9% (post hoc) |
+| F2 | EA 150 to 3200 moves the cantilever under 0.5% of l | held: at most 0.31% |
+| F3 | Cusick, EA 3200: 3.75 to 2.5 mm moves DC under 0.03 on both fabrics | **refuted**: A −0.158 (unconverged), D +0.019 |
+| F4 | Cusick, 2.5 mm: DC(3200) − DC(800) under 0.03 on both | **refuted**: A +0.055, D +0.037 (spring sheet +0.141, +0.061) |
+| F5 | with shear tied to 0.1 EA, A's 5 to 2.5 mm change at EA 3200 under half the spring sheet's | **refuted**: the 2.5 mm solve stalled (DC 0.93, residual 1e4 node weights) |
+| F6 | A < D at every EA and mesh | **refuted**: on the 7.5 mm lattice at EA 800 and 3200 |
+| F7 | (part 3) milestone 2b's L-BFGS DC within 0.03 of a Newton solve of the same spring sheet | **refuted** on A at 5 mm (+0.055, a different fold pattern); D within 0.008 |
+
+**Reading.** The element is calibrated and converges on a pure bend, and the cantilever is blind to
+stretch stiffness, as a near-isometric bend should be. The acceptance test fails, and the failure
+is informative. On the suiting (D) every solve up to EA 800 N/m converges; DC still climbs about
+0.016 per refinement after the coarsest grid, and EA 800 to 3200 still adds 0.034 at 3.75 mm, though
+the element cuts the spring sheet's EA dependence by about 40%, and the shear coupling that
+dominated the spring sheet barely moves it here (0.581 with measured G against 0.578 tied). On the
+soft jersey (A) the element converges only at EA 150 N/m, where the mesh sequence settles (0.220,
+0.184, 0.166, 0.161). That is close to the tangent stiffness milestone 1d estimated for this jersey
+at garment load (250 to 370 N/m). At 800 N/m and above the drape depends on the mesh and Newton
+stalls: constant-strain triangles still lock when the cloth is soft in bending and stiff in stretch, the
+problem English and Bridson (2008, "Animating developable surfaces using nonconforming elements",
+*ACM TOG* 27(3); not looked up this run) built edge-midpoint elements to avoid.
+Re-solving milestone 2b's spring sheet by Newton keeps its mesh dependence (A at EA 3200: 0.62 at
+5 mm, 0.52 at 3.75 mm), so that finding was not a stopping-rule artefact. This element is not the top tier.
+
+**Limits.** One seed; lattice aligned with the warp; the same EA in both directions; no clamp-edge
+contact or friction; Newton capped at 400 steps; two solvers or two meshes can settle into different
+fold patterns, so a DC difference mixes convergence with branch selection.
 
 ## Milestone 5b: a regret bound that keeps the cheap tier's penalty, and a screen-and-verify loop
 
@@ -410,13 +479,15 @@ enough to separate the width choices with margin. Testing H1 needs the validated
 EA swept, and bracketed only since milestone 1d (a secant from KES LT and WT at an assumed 500 gf/cm load, and a power-law tangent at the garment load), and, until milestone 2b, shear tied to it at 0.1 EA (2b finds the shear spring, now sourced from KES G, carries most of the "EA" effect on drape; milestone 1c shows it moves the shallow-arm width choice by 1.5 cm across 40 to 800 N/m, and milestone 2a shows the 3D sheet's drape depends on it strongly, through
 membrane locking); the simulated Cusick test has no measured drape to compare with yet; one garment size and one 20 cm strip, not a shirt; one hanger profile for
 the width sweep; no friction; the four fabrics are unfinished and come from a trade-site PDF;
-no validated solver yet; no real garment.
+no validated solver yet (milestone 3a's triangle element fails the Cusick acceptance test); no real garment.
 
 ## Next steps
 
-1. Milestone 3: build an open validated solver (ARCSim or C-IPC) as the top tier and run the
-   same Cusick test on it; it passes only if DC is flat in stretch stiffness and mesh (the test
-   this sheet fails).
+1. Milestone 3: the triangle element of milestone 3a fails the Cusick acceptance test (it locks
+   on the soft jersey above EA 150 N/m and drifts 0.016 per refinement on the suiting). Next
+   candidates: a nonconforming (edge-midpoint) membrane, or ARCSim or C-IPC proper; a continuation in
+   EA (solve at 150, restart at 800, then 3200) to bring the stiff cases to equilibrium; and run
+   fabric A at its sourced tangent stiffness (250 to 370 N/m), where 3a's element already converges.
 2. Place the cotton jersey and the shirting: a published low-load load-extension curve for a
    comparable cotton jersey and shirting, or an owner measurement (a strip, a spring scale, a
    ruler), to find whether their stiffness at a few N/m is above or below the ~800 N/m where the
@@ -439,7 +510,7 @@ no validated solver yet; no real garment.
 
 ```bash
 cd research/hanger-codesign
-python3 -m unittest discover -s tests              # 23 tests, under a minute; needs numpy
+python3 -m unittest discover -s tests              # 37 tests, about a minute; needs numpy (and scipy for test_m3)
 python3 experiments/m1_kes_fidelity/run.py         # about 4 min on 4 cores
 python3 experiments/m1_kes_fidelity/figure.py      # the SVG above, stdlib only
 python3 experiments/m1c_ea_mesh/run.py           # milestone 1c, 70 cases, about 15 min on 4 cores
@@ -453,4 +524,9 @@ python3 experiments/m2b_locking/figure.py          # stdlib only
 python3 experiments/m1d_measured_shear/run.py      # milestone 1d, 126 cases, about 40 min on 4 cores
 python3 experiments/m1d_measured_shear/posthoc_tangent.py  # stdlib only, instant
 python3 experiments/m1d_measured_shear/figure.py   # stdlib only
+python3 experiments/m3_fem_tier/run.py --part cantilever   # milestone 3a, a few minutes; needs scipy
+python3 experiments/m3_fem_tier/run.py --part spring       # 2b's sheet re-solved by Newton, about 10 min
+python3 experiments/m3_fem_tier/run.py --part cusick       # 32 cases, about 95 min on 4 cores
+python3 experiments/m3_fem_tier/posthoc_richardson.py      # stdlib only
+python3 experiments/m3_fem_tier/figure.py                  # stdlib only
 ```
