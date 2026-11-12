@@ -1,9 +1,9 @@
 ---
 title: "Decoding raw photos ten times faster, still with no dependency"
-seo_title: "Fast lossless JPEG (DNG, CR2) decoding in Python with a 40-line C reader via ctypes"
+seo_title: "Fast lossless JPEG (DNG, CR2) decoding in Python with ctypes"
 date: 2026-11-12
 tags: [photography, raw, dng, performance, python, open-source]
-description: "ShootFlow's lossless-JPEG decoder now reads a Canon CR2's 22 million samples in about a second instead of nine, with an optional C Huffman reader compiled on first use. Same samples as LibRaw."
+description: "ShootFlow now decodes a Canon CR2's 22 million raw samples in about a second instead of nine, through an optional C reader. Same samples as LibRaw."
 ---
 
 Most raw photos store their sensor data as lossless JPEG. A phone's DNG does, Adobe's DNG
