@@ -684,3 +684,43 @@ test("a three-digit year is a typo, not the year 202", () => {
   assert.equal(errors[0].line, 1);
   assert.deepEqual(stays.map((s) => [s.start, s.end]), [[toDay(2025, 6, 2), toDay(2025, 6, 5)]]);
 });
+
+// Red-team 2026-11-12: a VA limit of 184 passed every test. Every state's day
+// limit, abode requirement and rule kind is pinned here, so a change to one is
+// a deliberate edit to this table (with its statute) rather than a silent slip.
+test("every state's day limit, abode rule and kind is pinned", () => {
+  const want = {
+    NY: [183, true, "statutory"], NJ: [183, true, "statutory"], CT: [183, true, "statutory"], MA: [183, true, "statutory"],
+    PA: [183, true, "statutory"], MN: [183, true, "statutory"], VA: [183, true, "statutory"], RI: [183, true, "statutory"],
+    MD: [182, true, "statutory"], ME: [183, true, "statutory"], UT: [182, true, "statutory"], MI: [183, true, "statutory"],
+    ID: [270, true, "statutory"], OR: [200, true, "statutory"], NE: [182, true, "statutory"], MO: [183, true, "statutory"],
+    AR: [182, true, "statutory"], ND: [210, true, "statutory"], KS: [182, false, "presumption"], CO: [182, true, "statutory"],
+    IN: [183, true, "statutory"], KY: [183, true, "statutory"], VT: [183, true, "statutory"], GA: [182, false, "statutory"],
+    WV: [183, true, "statutory"], DE: [183, true, "statutory"], NM: [184, false, "statutory"], LA: [182, false, "statutory"],
+    IA: [183, true, "statutory"], DC: [182, true, "statutory"], HI: [200, false, "presumption"], OH: [212, false, "presumption"],
+    NYC: [183, true, "statutory"], CA: [270, false, "presumption"],
+  };
+  const got = Object.fromEntries(Object.entries(RULES).map(([k, v]) => [k, [v.limit, v.requiresAbode, v.kind]]));
+  assert.deepEqual(got, want);
+  // A note that names a day count must agree with the limit: "more than N days" means limit N.
+  for (const [code, r] of Object.entries(RULES)) {
+    const m = r.note.match(/more than (\d+) days/);
+    if (m && !/six months/.test(r.note)) assert.equal(Number(m[1]), r.limit, `${code}: note says more than ${m[1]} days, limit is ${r.limit}`);
+  }
+});
+
+// Red-team 2026-11-12: counting a 2-byte UTF-8 character as 3 octets passed every
+// test. RFC 5545 folds at 75 octets: lines must use the room they have.
+test("deadlinesIcs folds multi-byte text at 75 octets, not earlier, and never splits a character", () => {
+  const r = analyze(spec(["NY 2025-01-01 2025-03-31"], { abode: { NY: true } }));
+  const name = "é".repeat(100);
+  const { ics } = deadlinesIcs(r, { name });
+  const bytes = (s) => Buffer.byteLength(s, "utf8");
+  const physical = ics.split("\r\n");
+  for (const l of physical) assert.ok(bytes(l) <= 75, `line over 75 octets: ${l}`);
+  const start = physical.findIndex((l) => l.startsWith("PRODID:"));
+  assert.ok(bytes(physical[start]) >= 74, `PRODID line folded early at ${bytes(physical[start])} octets`);
+  assert.ok(bytes(physical[start + 1]) >= 74, "continuation line folded early");
+  const unfolded = ics.replace(/\r\n /g, "");
+  assert.ok(unfolded.includes(`PRODID:-//${name}//EN`));
+});
