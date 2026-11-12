@@ -1,6 +1,6 @@
 ---
 title: "Reading a receipt photo twice in the browser, and letting the receipt check itself"
-seo_title: "Receipt OCR in the browser: two readings settled by the receipt's own sums"
+seo_title: "Browser receipt OCR: two readings settled by the receipt's own sums"
 date: 2026-11-12
 tags: [ai-bookkeeper, ventures, ocr]
 description: "The bookkeeper page now reads each receipt photo twice with tesseract.js. On 626 real SROIE scans, totals went from 78.4% right to 79.8%."
