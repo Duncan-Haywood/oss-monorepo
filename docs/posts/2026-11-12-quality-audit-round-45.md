@@ -1,6 +1,6 @@
 ---
 title: "Quality audit round 45: none of four sampled subjects meets the bar"
-seo_title: "Quality audit 45: COBRA vs marketplace, pet-sitter fees, feeding arms, transformers"
+seo_title: "Quality audit 45: COBRA, pet-sitter fees, feeding arms, transformers"
 date: 2026-11-12
 tags: [quality-audit, evaluation, testing, research]
 description: "0 of 4 sampled subjects meets the bar. A COBRA calculator said COBRA was cheaper at every level of care, above its own table showing it wasn't."
