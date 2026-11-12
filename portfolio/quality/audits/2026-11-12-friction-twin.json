@@ -1,0 +1,248 @@
+{
+ "date": "2026-11-12",
+ "subject": "research/friction-twin",
+ "stratum": "research",
+ "seed": "2026-11-12-l",
+ "round": 53,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality-audit subagent",
+ "status": "audited",
+ "professional": "a robotics system-identification / tribology researcher who identifies joint and drivetrain friction. They would check first that the coast-down closed form is right, that the fitted viscous gain's bias is derived correctly, whether Coulomb+viscous regression (the standard practice) is cited, and whether the result says anything beyond a textbook omitted-regressor bias",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Reran experiments/run.py: byte-identical to results.txt. Recomputed without importing the subject (scratchpad/friction/indep.py): stop distance/time by own Simpson quadrature and a separate dt=1e-6 Euler run match to 6 dp; LS gains by hand (k=1+3/13=1.230769 on [1,3]) match all four ranges; crossover 7.3395 and all seven ratios match; minimax k and error on all four ranges match an analytic equioscillation formula I derived (ratio monotone in v0, so k*=(q1+q2)/2). Every printed number is right. Kept at 3, not 4: limit inputs crash (c=0, b=0) and tiny-v0 cancellation reaches 5e-5 relative at 1e-12, and the problem is a closed-form exercise.",
+  "completeness": "Every README and whitepaper number reproduces; 8 tests as stated, under 1 s; live page 200. Next steps (stick-slip, noisy (b,c), Stribeck) not done, as stated.",
+  "verification": "Suite: Ran 8 tests OK. 6 seeded mutants via quality_mutate.py: 2 caught (E[v^2] formula, golden-section direction), 4 survived (twin time formula, last-step distance, abs() in minimax objective, crossover bracket guard). Tests check consistency of the author's own functions; only the RK4 comparison is an independent oracle.",
+  "craft": "Read model.py, test_model.py, run.py. Small, clear, pure Python. Defects: unguarded divisions at c=0/b=0/v1=v2, a vacuous assertion (test line 42), wildcard import in run.py, numeric grid search where a closed form exists.",
+  "claims": "All numeric claims back to results.txt and my recomputation; stylised status and non-affiliation stated in README, paper and live page. One unbacked motivating claim ('default in many simulators'); 'Builds on' names labs without a paper (says so).",
+  "fitness": "Nearest prior work: least-squares friction identification in robot dynamics (Gautier & Khalil; Swevers et al.) with Coulomb and viscous regressors, and vehicle coast-down road-load fits (SAE J2263). The result is sound but not new: an omitted-regressor bias plus a closed-form coast-down. A researcher could use it as a teaching note, not build a paper on it; not part of any PROGRAMMES.md programme.",
+  "domain": "A robotics system-identification researcher would identify Coulomb+viscous (+Stribeck, stiction) jointly from noisy, excitation-designed data, which is the stated repair; the note models none of noise, Stribeck, stiction or asymmetric friction, uses no real data and only one c/b ratio, and does not cite the identification literature that settled this."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "closed-form stop distance D(v0) and time T(v0) for v0=0.1,1,3,10,100 (m=1,b=1,c=0.5)",
+   "method": "own Simpson quadrature of x=m*int_0^v0 v/(bv+c) dv and t=m*int dv/(bv+c) (n=20000), plus a separate time-domain Euler integration dt=1e-6 at v0=3; no subject code imported",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad/friction/indep.py",
+   "expected": "results.txt: D=0.008839/0.450694/2.027045/8.477739/97.348348, T=0.182322/1.098612/1.945910/3.044522/5.303305",
+   "observed": "identical to 6 decimals; Euler v0=3 D=2.027044 T=1.945909",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "least-squares viscous gain k on four speed ranges",
+   "method": "by hand: k=b+c*E[v]/E[v^2], E[v^2]=(v1^2+v1v2+v2^2)/3; [1,3]: E[v]=2, E[v^2]=13/3, k=1+0.5*6/13=1.230769",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad/friction/indep.py",
+   "expected": "1.230769, 1.725806, 1.035714, 3.441860 (results.txt sec. 2)",
+   "observed": "1.230769, 1.725806, 1.035714, 3.441860",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "crossover speed v* and twin/real ratios at v0=0.05..1000 for k fitted on [1,3]",
+   "method": "own linear-scale bisection of v/k - D(v) with D from own quadrature; ratios from textbook Coulomb+viscous coast-down closed form",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad/friction/indep.py",
+   "expected": "v*=7.3395; ratios 17.3248, 5.1159, 1.8028, 1.2025, 0.9584, 0.8346, 0.8156",
+   "observed": "v*=7.3395; ratios identical to 4 dp",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "minimax viscous k and worst relative error on [1,3],[0.2,1],[0.2,10],[0.05,3], and the underestimation margin",
+   "method": "analytic, derived independently: twin/real ratio (v/D(v))/k is strictly decreasing in v (checked on 1e-3..1e4), so the worst error sits at the endpoints and equioscillation gives k*=(q1+q2)/2, err*=(q1-q2)/(q1+q2), q=v/D(v)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad/friction/indep.py",
+   "expected": "k=1.8494/4.2576/3.7380/11.4014, err=0.1997/0.4789/0.6844/0.8702, margin 0.40489/0.21582/5.80252/1.76392",
+   "observed": "identical to every printed digit",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "twin time to slow to 1e-3,1e-6,1e-9 from v0=3",
+   "method": "by hand (m/k) ln(v0/eps) with k=16/13",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/67bd57d3-d405-5f56-9673-f790b946bf15/scratchpad/friction/indep.py",
+   "expected": "6.505, 12.12, 17.73 s",
+   "observed": "6.505, 12.118, 17.730",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "small-speed accuracy of real_stop_distance against the series m v^2/(2c) - m b v^3/(3c^2)",
+   "method": "Taylor series of the textbook closed form",
+   "command": "/usr/bin/python3.13 -I scratchpad/friction/edge.py research/friction-twin/src",
+   "expected": "relative error near machine precision",
+   "observed": "8e-11 at v0=1e-6, 6e-7 at 1e-10, 4.8e-5 at 1e-12 (cancellation in v0-(c/b)log1p)",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments reproduce results.txt byte for byte",
+   "method": "rerun and diff",
+   "command": "PYTHONPATH=src python3 experiments/run.py > scratch/res.txt; diff scratch/res.txt experiments/results.txt",
+   "expected": "no diff",
+   "observed": "IDENTICAL, under 1 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "8 tests pass (README)",
+   "observed": "Ran 8 tests in 0.020s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "seeded mutants in core logic",
+   "method": "platform/ci/quality_mutate.py, 6 mutants",
+   "command": "python3 platform/ci/quality_mutate.py research/friction-twin/src/friction_twin/model.py --old ... --new ... -- env PYTHONPATH=src python3 -m unittest discover -s tests",
+   "expected": "most caught",
+   "observed": "2 of 6 caught; abs() removal in the minimax objective, the twin time formula, the last-step distance and the crossover bracket guard all survive",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "unhandled limit inputs",
+   "method": "direct calls",
+   "command": "/usr/bin/python3.13 -I scratchpad/friction/edge.py research/friction-twin/src",
+   "expected": "pure-viscous limit c=0 returns m v0/b; or a clear error",
+   "observed": "c=0 and b=0 raise ZeroDivisionError; fit_k_closed(2,2,..) ZeroDivisionError; v0<0 ValueError math domain error",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "every number in README and whitepaper",
+   "method": "compared to rerun results.txt and the independent recomputation",
+   "command": "diff + indep.py",
+   "expected": "all match",
+   "observed": "all match (9.4e-9, 1.23/3.44, x1.8/x17, v*=7.34, x0.835, 0.87, 6.5/12.1/17.7 s)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'a viscous-only twin ... is the default in many simulators' (whitepaper line 6)",
+   "method": "look for a citation in the repo; compare with MuJoCo joint frictionloss and ODE/Bullet Coulomb contact friction",
+   "command": "grep -n simulator research/friction-twin/paper/whitepaper.md",
+   "expected": "a cited simulator",
+   "observed": "no citation; common simulators expose dry friction",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page",
+   "method": "load it",
+   "command": "curl -sS -w %{http_code} https://marisstella.app/research/friction-twin/",
+   "expected": "200 with stylised and non-affiliation notes",
+   "observed": "200, 'Stylised: one mass, noiseless logs.' and the non-affiliation note",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work and novelty",
+   "method": "compare with robot dynamic identification (Gautier & Khalil, joint friction Fv*qdot + Fc*sign(qdot) in the LS regressor, since ca. 1990), vehicle coast-down road-load fits (SAE J2263/J1263, F=A+Bv+Cv^2) and omitted-regressor bias",
+   "command": "grep -n -i 'Gautier\\|J2263\\|coast' research/friction-twin/paper/whitepaper.md",
+   "expected": "prior identification practice cited and the delta stated",
+   "observed": "neither is cited; the repair (affine fit) is the standard method and the bias b+c E[v]/E[v^2] is a textbook omitted-variable result",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "research/friction-twin/src/friction_twin/model.py:23",
+   "change": "(m / k) * math.log(v0 / eps) -> (m / k) * math.log10(v0 / eps)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/friction-twin/src/friction_twin/model.py:49",
+   "change": "E[v^2] denominator 3*(v2-v1) -> 2*(v2-v1)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/friction-twin/src/friction_twin/model.py:97",
+   "change": "if f1 < f2: -> if f1 > f2: (golden-section direction)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/friction-twin/src/friction_twin/model.py:36",
+   "change": "return x + 0.5 * v * frac * dt -> return x + v * frac * dt (last-step distance)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/friction-twin/src/friction_twin/model.py:83",
+   "change": "drop abs() in max_rel_error (minimax then ignores underestimation, k runs to the search bound)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/friction-twin/src/friction_twin/model.py:68",
+   "change": "if g(hi) >= 0 or g(lo) <= 0: -> if g(hi) >= 0: (drop bracket guard)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The minimax test compares minimax_k with least squares under the same max_rel_error, so dropping abs() in the objective (minimax then ignores underestimation and k runs to the 1e6 bound, reported error 0) leaves all 8 tests green; no test pins minimax_k to a known value. Same file has a vacuous assertion (twin distance at 0.1 < 1e9).",
+   "where": "research/friction-twin/tests/test_model.py:42",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "twin_time_to_speed is only tested for monotonicity in eps; log -> log10 survives, though the README's 6.5/12.1/17.7 s headline depends on it",
+   "where": "research/friction-twin/tests/test_model.py:24",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Last-step distance interpolation in simulate_coast (0.5*v*frac*dt) can be doubled without any test failing at dt=1e-3, places=6",
+   "where": "research/friction-twin/src/friction_twin/model.py:36",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Prior work on exactly this identification is not cited: robot dynamic identification has fitted Coulomb plus viscous joint friction by least squares since Gautier & Khalil, and vehicle coast-down (SAE J2263) fits A+Bv+Cv^2. The 'repair' is the standard practice and the fitted-gain bias is an omitted-regressor result, so the paper reads as new what is a textbook exercise; well below the research/CLAUDE.md PhD+ bar and not attached to any programme",
+   "where": "research/friction-twin/paper/whitepaper.md:25",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "'is the default in many simulators' is uncited; MuJoCo (frictionloss), ODE/Bullet (Coulomb contact) all model dry friction",
+   "where": "research/friction-twin/paper/whitepaper.md:6",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "c=0 (the pure-viscous limit the tests approach with c=1e-9) and b=0 (pure Coulomb) raise ZeroDivisionError; fit_k_closed(v,v) divides by zero; v0<0 raises a math domain error",
+   "where": "research/friction-twin/src/friction_twin/model.py:14",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Minimax k is found by golden section over a 400-point grid although the ratio is monotone in v0 and a closed form exists (k*=(q1+q2)/2 with q=v/D(v) at the endpoints); the paper calls it 'the best possible' without stating why the endpoints suffice",
+   "where": "research/friction-twin/src/friction_twin/model.py:87",
+   "category": "research-design",
+   "origin": "design"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Does not meet the bar (verification 2). Every number in the README and whitepaper reproduces byte for byte and matches independent recomputation (own quadrature, hand LS, analytic minimax), so the arithmetic is right. But 4 of 6 seeded mutants survive, including removing abs() from the minimax objective, and the work is a correct closed-form exercise whose 'repair' (fit Coulomb plus viscous) is decades-old standard identification practice that the paper does not cite; far from the PhD+ research bar."
+}
