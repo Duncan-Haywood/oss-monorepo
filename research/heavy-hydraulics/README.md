@@ -1,6 +1,6 @@
 # Which open hydraulic circuit gets a small excavator closest to stock energy use for the least money?
 
-**Status: open research programme. Milestones 1 to 5 have landed in steps (2a to 5x); a measured excavator pressure trace (5y) and a flow trace from joint motion (5z) now exist, but no excavator fuel record, so H4 is still open; the paper draft (milestone 6, [`paper/draft.md`](paper/draft.md)) is current to 6a.** The first step was a stdlib energy model
+**Status: open research programme. Milestones 1 to 5 have landed in steps (2a to 5x); a measured excavator pressure trace (5y) and a flow trace from joint motion (5z) now exist, but no excavator fuel record, so H4 is still open; the paper draft (milestone 6, [`paper/draft.md`](paper/draft.md)) is current to 6b.** The first step was a stdlib energy model
 of three excavator hydraulic circuits (fixed open-centre, load-sensing, ideal independent
 metering) over a work cycle (`src/heavy_hydraulics/`, 6 tests) and a first sweep of 2,916 cases
 on an illustrative cycle: load-sensing uses a median **47%** of open-centre pump-shaft energy
@@ -74,6 +74,20 @@ pump efficiency (0.75 to 0.92). None is sourced yet.
 Illustrative cycle written from memory; no dynamics, leakage, line losses or energy recovery;
 no parts cost; references web-searched, not cite_check-ed. Next: a sourced duty cycle (earthmoving equation or a
 public measured cycle), then parts cost with [`heavy-market`](../heavy-market/) (step 1a, used-price depreciation and size scaling from real auction data, landed 2026-11-10).
+
+## Milestone 6b: a smaller fixed pump beats load-sensing on excavator fuel only if the rest of the machine burns under about 2.5 L/h
+
+6a found that on measured excavator motion (Hugging Face `fuxi-robot/excavator-motion`, folder 75, CC BY-NC-SA 4.0, derived statistics only) a fixed open-centre pump of 108 L/min matches load-sensing pump energy for 11% more time. The files carry no fuel signal, so instead of pricing that time with a borrowed rate, 6b asks for the **break-even rate**: how much fuel the rest of the machine may burn per hour of extra working time before load-sensing wins again ([`experiments/excavator_fuel_breakeven.py`](experiments/excavator_fuel_breakeven.py), [results](experiments/excavator_fuel_breakeven_results.txt), 2 s, stdlib; C1 to C5 registered first in [`LOG.md`](LOG.md), four held).
+
+It needs no raw data, because of an identity: a fixed pump runs flat out over the stretched time, so its pumped volume is pump flow times open-centre moving time, and the time ratio is a function of the volume ratio alone, tau = (phi + r mu / q<sub>p</sub>) / (phi + r<sub>LS</sub> mu / 219). It reproduces all 20 of 6a's committed time ratios within 0.0012 ([`measured.time_ratio_from_r`](src/heavy_hydraulics/measured.py), tested against the direct sum). Between 6a's pump sizes the volume ratio is bracketed by convexity.
+
+| Fixed pump (L/min) | 60 | 70 | 80 | 87.6 | 95 | 102 | 107 |
+|---|---|---|---|---|---|---|---|
+| break-even rest-of-machine rate (L/h) | 0.92 to 1.41 | 1.25 to 2.18 | 1.78 to 2.41 | 2.46 | 2.19 | 1.37 to 1.38 | 0.28 |
+
+At a 20 bar margin and 130 bar working pressure the threshold peaks at **2.46 L/h**, with a pump of 0.40 of stock. Over margins of 14 to 25 bar, pressures of 100 to 174 bar, and the loader's fuel slope and pump efficiency swept (0.20 to 0.26 L/kWh, 0.75 to 0.95), it runs from 1.16 to 5.24 L/h. On the loader the same threshold is 0.14 L/h, under a tenth of the loader's lowest measured fuel rate (1.48 L/h), which is why 5x found no winning pump there. At the loader's rest-of-machine rate (5.15 L/h, which includes driving and so overstates an excavator's) the best excavator pump is 100.4 L/min and still burns 0.515 L more per hour than load-sensing.
+
+For a builder: on a peaky excavator duty, whether a cheap fixed pump at about 40% of stock flow beats load-sensing on fuel comes down to one number from the engine maker, the no-load fuel rate at working speed. Below about 2.5 L/h the fixed pump wins; above it, load-sensing does. Limits: fuel slope, efficiency and the break-even rule are the loader's; flow and pressure come from different machines; time is priced in fuel only, and charging operator hours would favour load-sensing.
 
 ## Milestone 5x: open-centre fuel per unit of work on the measured loader is 11 to 13% above load-sensing whatever the pump size
 

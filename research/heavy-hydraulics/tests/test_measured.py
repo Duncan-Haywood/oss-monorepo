@@ -4,6 +4,7 @@ from heavy_hydraulics.measured import (slowed_time, inlet_pressure, load_pressur
                                        pump_torque, linfit, cycle_starts,
                                        stationary_samples, percentile,
                                        moving_by_position, extra_fuel,
+                                       time_ratio_from_r, breakeven_rest_rate, pump_ratio,
                                        W_PER_BAR_LPM)
 
 
@@ -168,3 +169,23 @@ def test_pump_ratio_identity_and_inverse():
     assert pump_for_ratio(q, 2.0) == pytest.approx(30.0)   # above peak: 2 x mean 15
     with pytest.raises(ValueError):
         pump_for_ratio(q, 0.9)
+
+
+def test_time_ratio_from_r_matches_slowed_record():
+    # direct: each sample lasts max(1, q / q_p) dt; still samples (q 0) last dt
+    dem = [0.0, 0.0, 40.0, 80.0, 150.0, 260.0, 90.0, 30.0]
+    mv = [q for q in dem if q > 0]
+    def t(qp):
+        return sum(max(1.0, q / qp) for q in dem)
+    mu, phi = sum(mv) / len(mv), (len(dem) - len(mv)) / len(mv)
+    for qp in (35.0, 100.0, 180.0):
+        tau = time_ratio_from_r(pump_ratio(mv, qp), qp, pump_ratio(mv, 219.0), 219.0, mu, phi)
+        assert tau == pytest.approx(t(qp) / t(219.0))
+
+
+def test_breakeven_rest_rate_zeroes_the_fuel_gap():
+    f = breakeven_rest_rate(20.0, 8.0, 98.0, 1.23, 0.2332, 0.818)
+    gap = 0.2332 * (8.0 - 20.0) * 98.0 / (600 * 0.818) + f * 0.23
+    assert gap == pytest.approx(0.0, abs=1e-12)
+    assert breakeven_rest_rate(20.0, 25.0, 98.0, 1.1, 0.2332, 0.818) is None
+    assert breakeven_rest_rate(20.0, 8.0, 98.0, 1.0, 0.2332, 0.818) is None
