@@ -219,7 +219,9 @@
       "origin": "claims"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15051"
+  ],
   "verdict": "A small, honest, reproducible descriptive study: run.py reproduces results.txt byte for byte, every headline count recomputes from the extract with independent code, and three commits plus the 10-02..10-12 quiet window check out against the GitHub API. It does not meet the bar. The one correctness proxy it reports, a 'lower bound' of 6/234 correction-worded follow-ups, contains a false positive (eiv-twin's 'repair costs'), so the true count is 5/234; the keyword list was never hand-checked although there were only six hits. Its own data holds 5 commits stating a slug was taken by a parallel run, which contradicts the README's 'this data cannot tell them apart'. Tests caught 0 of 5 seeded mutations, two of which move README headlines. Renames are mis-bucketed in extract.py, the extract ref is not recorded, and MSR prior work on fix-commit mining is not cited.",
   "notes": "Interpreter: /usr/bin/python3.13 (from platform/ci/pyenv.py). Mutations run with PYTHONDONTWRITEBYTECODE=1, each reverted with git checkout -- src/swe_backfill/backfill.py; no __pycache__ left. During the audit git status also showed modifications under ventures/coi-expiry-gap-checker and ventures/pool-plaster-bid-calculator that this audit did not make (another session sharing the working tree); they were left untouched."
 }

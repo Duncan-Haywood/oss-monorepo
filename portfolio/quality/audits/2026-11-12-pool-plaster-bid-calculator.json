@@ -146,23 +146,101 @@
     }
   ],
   "mutations": [
-    {"where": "calc.mjs:197", "change": "wallSf = 2*(L+W)*avg -> (L+W)*avg", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:324", "change": "price = cost/(1-m) -> cost*(1+m)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:313", "change": "dumpster only with chip-out -> always", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:225", "change": "freeform volume uses deepFt instead of avgDepth", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:300", "change": "spa hours charged with no spa", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:293", "change": "full chip-out bills shellSf instead of plasterSf", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:322", "change": "overhead on laborCost instead of directCost", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "calc.mjs:314", "change": "water billed without drain-and-refill", "caught": true, "test_cmd": "node --test '*.test.mjs'"}
+    {
+      "where": "calc.mjs:197",
+      "change": "wallSf = 2*(L+W)*avg -> (L+W)*avg",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:324",
+      "change": "price = cost/(1-m) -> cost*(1+m)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:313",
+      "change": "dumpster only with chip-out -> always",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:225",
+      "change": "freeform volume uses deepFt instead of avgDepth",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:300",
+      "change": "spa hours charged with no spa",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:293",
+      "change": "full chip-out bills shellSf instead of plasterSf",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:322",
+      "change": "overhead on laborCost instead of directCost",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:314",
+      "change": "water billed without drain-and-refill",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
   ],
   "defects": [
-    {"severity": "medium", "what": "Freeform plaster takeoff ignores depth: shell = water surface x multiplier, so a 12 ft deep end prices the same plaster as 8.5 ft; shallow/deep are required but only feed the water volume. A 2:1 ellipse of 620 sf at 6 ft average depth is ~1,197 sf of shell against the preset's 1,147.", "where": "ventures/pool-plaster-bid-calculator/calc.mjs:221", "category": "domain-rule", "origin": "spec"},
-    {"severity": "medium", "what": "No crew-days, bag count, bond-coat or start-up/curing line: a replasterer schedules in crew days, orders finish by the 80 lb bag (~20-22 sf each), and bids bond coat and plaster start-up; the tool outputs only total crew-hours and $/sf.", "where": "ventures/pool-plaster-bid-calculator/calc.mjs:245", "category": "scope-gap", "origin": "spec"},
-    {"severity": "medium", "what": "Full chip-out default 0.14 h/sf (178.5 crew-hours on the 1,275 sf pebble preset) is uncited and looks 2-3x trade guides' 2-3 crew-days of prep; the articles' headline 'loss job' gap leans on it.", "where": "ventures/pool-plaster-bid-calculator/calc.mjs:170", "category": "source-data", "origin": "spec"},
-    {"severity": "low", "what": "Shallow depth greater than deep depth is accepted silently; a blank rate field becomes 0 silently (blank wage prices labor at $0).", "where": "ventures/pool-plaster-bid-calculator/calc.mjs:194", "category": "input-handling", "origin": "implementation"},
-    {"severity": "low", "what": "Floor taken as flat L x W; a sloped floor is slightly larger (517 vs 512 sf on the brochure pool), more with a hopper. Not stated as a limit.", "where": "ventures/pool-plaster-bid-calculator/calc.mjs:195", "category": "domain-rule", "origin": "spec"},
-    {"severity": "low", "what": "Article explanations wrong though numbers are right: plaster sf credited to the 'tile band' (vs-flat-rate) and a rectangle's price credited to the 'freeform wall multiplier' (how-much).", "where": "ventures/pool-plaster-bid-calculator/how-much-to-charge-to-replaster-a-pool.html:36", "category": "overclaim", "origin": "claims"}
+    {
+      "severity": "medium",
+      "what": "Freeform plaster takeoff ignores depth: shell = water surface x multiplier, so a 12 ft deep end prices the same plaster as 8.5 ft; shallow/deep are required but only feed the water volume. A 2:1 ellipse of 620 sf at 6 ft average depth is ~1,197 sf of shell against the preset's 1,147.",
+      "where": "ventures/pool-plaster-bid-calculator/calc.mjs:221",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "No crew-days, bag count, bond-coat or start-up/curing line: a replasterer schedules in crew days, orders finish by the 80 lb bag (~20-22 sf each), and bids bond coat and plaster start-up; the tool outputs only total crew-hours and $/sf.",
+      "where": "ventures/pool-plaster-bid-calculator/calc.mjs:245",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Full chip-out default 0.14 h/sf (178.5 crew-hours on the 1,275 sf pebble preset) is uncited and looks 2-3x trade guides' 2-3 crew-days of prep; the articles' headline 'loss job' gap leans on it.",
+      "where": "ventures/pool-plaster-bid-calculator/calc.mjs:170",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Shallow depth greater than deep depth is accepted silently; a blank rate field becomes 0 silently (blank wage prices labor at $0).",
+      "where": "ventures/pool-plaster-bid-calculator/calc.mjs:194",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Floor taken as flat L x W; a sloped floor is slightly larger (517 vs 512 sf on the brochure pool), more with a hopper. Not stated as a limit.",
+      "where": "ventures/pool-plaster-bid-calculator/calc.mjs:195",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Article explanations wrong though numbers are right: plaster sf credited to the 'tile band' (vs-flat-rate) and a rectangle's price credited to the 'freeform wall multiplier' (how-much).",
+      "where": "ventures/pool-plaster-bid-calculator/how-much-to-charge-to-replaster-a-pool.html:36",
+      "category": "overclaim",
+      "origin": "claims"
+    }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15051"
+  ],
   "verdict": "The arithmetic is right: four presets recomputed from first-principles geometry and the margin formula match to the cent, every dollar figure on the three pages matches, and the 128-test suite caught all eight seeded mutations. It meets the bar on correctness, claims and verification. It falls short of what a replastering contractor needs on domain and fitness: the freeform takeoff ignores depth, the chip-out default looks 2-3x high and uncited, and there is no crew-days, bag-count, bond-coat or start-up line, so the contractor still does the scheduling and ordering by hand."
 }

@@ -232,6 +232,8 @@
       "origin": "build"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15051"
+  ],
   "verdict": "Every number reproduces byte-for-byte (results.txt and results.json, 29.8 s), and an independent re-implementation of the world, print tolerance and Hertz line-contact scoring with a hand-written Spearman reproduces the headline to three decimals: Spearman 0.9934, nominal optimum 0.653 -> 0.567 (p5 0.465, worst 0.425), robust optimum 0.623 -> 0.582 (0.501, 0.459). The robust gain is firmer than the README says (+0.010 to +0.023 over 6 CMA-ES seed pairs, all positive). But the headline statistic oversells the transfer: 282 of 600 designs pick almost no fruit, and among the nominal top 10% the rank correlation is 0.838, not 0.993; the 'nominal world' is not codesign-agri's fruit as labelled; 5 of 6 seeded core mutations survive the tests; every shift range is invented; and the transferability and robust-optimisation literature the question belongs to is not cited. Finished as scoped; below the bar on verification, claims, fitness and domain."
 }

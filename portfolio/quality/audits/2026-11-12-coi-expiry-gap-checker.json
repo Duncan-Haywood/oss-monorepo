@@ -282,6 +282,8 @@
       "origin": "implementation"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15051"
+  ],
   "verdict": "A tidy, private, well-disclaimed COI checker whose arithmetic is right: the sample and broken-sample results (days left, shortfalls, umbrella offsets, endorsement errors) match an independent model, and the served page equals the source. It misses the bar on correctness, verification and claims. Renewal gaps are computed with an off-by-one convention that contradicts the 12:01 a.m. policy period, so a next-day renewal (a one-day lapse) shows as continuous and the test suite enforces that; any 'liability' line such as pollution can stand in for CGL and mark a vendor clear; ACORD 25's own headings are rejected; a renewal already on file still produces a chase. 4 of 9 seeded mutations survive. A contractor can use it to spot lapsed and under-limit subs; a broker would not sign off on its gap or line-classification answers."
 }
