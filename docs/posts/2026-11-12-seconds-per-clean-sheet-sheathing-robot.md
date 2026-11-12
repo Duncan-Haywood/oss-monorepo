@@ -3,7 +3,7 @@ title: "What a clean sheet of sheathing costs a robot, in seconds"
 date: 2026-11-12
 tags: [buildbot-sheathing, construction-robotics, tolerance-analysis, cycle-time, simulation]
 seo_title: "How long does a robot take to sheath a wall, including rework?"
-description: "Charging placement, sensing, nailing and rework: doubled joint studs and one read a stud give 99.97% clean sheets in 76–216 s; single 2x joints cost 18–65 s more."
+description: "With placement, sensing, nailing and rework charged, doubled joint studs and one read a stud give 99.97% clean sheets in 76–216 s; single 2x costs 18–65 s more."
 ---
 
 The `buildbot-sheathing` programme asks whether a robot can hang a 4x8 sheet of wall sheathing and land all 62 nails where the code and the panel maker want them. Four earlier steps each looked at one stage: the panel gap, bowed studs, a ledger board that squares the sheet, and how far off the sheet may hang. Each was scored on the share of sheets with every nail on the stud. None asked how long a sheet takes once every stage is counted, including going back for the nails that missed.
