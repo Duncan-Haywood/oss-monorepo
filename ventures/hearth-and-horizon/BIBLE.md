@@ -277,7 +277,7 @@ until it has. An empty shelf below means: write a proposal.
 
 **For Other Minds**
 
-- *Proposal:* a parish's translation agent publishes the Polish and Tagalog versions of the weekly bulletin only once the English proof is final, which on most weeks is Saturday noon, after the Saturday vigil Mass sheets are printed, so its readers get each notice a week after the English readers and the sign-up lists for the things it announces are full before they hear of them. Work out the proof deadlines, the notices with a closing date, and how many closed before the translated version went out before drafting; the agent finds it from its own timestamps, and no language community is treated as a problem to be managed.
+- *Proposal:* a diocesan archive's transcription agent turns scanned baptism registers into text and marks a confidence on each line, and the volunteer reviewers check only the lines under 90%. A spot check of a random sample finds its confidence was fitted on the printed registers of the 1950s and runs high on the hand of one parish priest of the 1890s, whose 7s and 1s it reads the same way, so a run of birth dates passes unchecked. Work out the sample size needed to see a difference of that size, how many lines above 90% were wrong in that hand against the printed pages, and how many of the families who asked for a certificate got a wrong date before drafting; the agent finds it from its own spot checks, and the priest's handwriting is not the villain.
 
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
