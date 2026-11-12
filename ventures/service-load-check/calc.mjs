@@ -25,6 +25,7 @@ export const KINDS = {
   cooling: "Air conditioning or heat pump compressor (cooling)",
   heating: "Electric space heat (furnace strips, baseboard, heat pump in heating)",
   heatpump: "Heat pump: counts in both cooling and heating",
+  storage: "Electric thermal storage or heat that runs at full nameplate",
 };
 
 export const num = (v) => {
@@ -73,6 +74,8 @@ export function calc22083(house, loads) {
     clean.push({ name: String(l.name || `Load ${i + 1}`), kind, va, isNew: Boolean(l.isNew) });
   }
   if (errors.length) return { ok: false, errors };
+  // 220.83 has no storage-heat selection of its own: storage heat is space heat.
+  for (const l of clean) if (l.kind === "storage") l.kind = "heating";
 
   const lighting = sqft * UNIT_LOAD_VA_PER_FT2;
   const circuits = (sa + ld) * SMALL_APPLIANCE_VA;
@@ -163,11 +166,90 @@ export function verdict(totalVa, serviceAmps, volts) {
   return { amps: a, pct, fits: a <= serviceAmps };
 }
 
-export const DEFAULT_HOUSE = { sqft: "", smallApplianceCircuits: "2", laundryCircuits: "1", serviceAmps: "", volts: "240" };
+// NEC 220.82, the optional calculation for a dwelling unit (new or existing)
+// served by a 120/240 V or 208Y/120 V 3-wire service of 100 A or more. It
+// sizes the whole house, so every load counts, existing and new alike.
+export const OPT_FIRST_VA = 10000; // 220.82(B): first 10 kVA at 100%, the rest at 40%
+export const SUPPLEMENTAL = 0.65; // 220.82(C)(3) and (C)(4)
+export const MANY_UNITS = 0.4; // 220.82(C)(5): four or more separately controlled space-heating units
+export const MIN_OPTIONAL_A = 100; // 220.82(A); also 230.79(C) for a one-family dwelling
+// Standard overcurrent device ratings from 100 A to 400 A, NEC 240.6(A).
+export const SERVICE_RATINGS = [100, 110, 125, 150, 175, 200, 225, 250, 300, 350, 400];
+
+/** First 10 kVA at 100%, remainder at 40%. */
+export function demandOfGeneral(va) {
+  if (!(va > 0)) return 0;
+  return Math.min(va, OPT_FIRST_VA) + REMAINDER * Math.max(0, va - OPT_FIRST_VA);
+}
+
+/**
+ * NEC 220.82 for a whole dwelling.
+ * house: { sqft, smallApplianceCircuits, laundryCircuits, heatingUnits?, lockout? }
+ *   heatingUnits: separately controlled space-heating units (blank: one per
+ *   "heating" row); lockout: "yes" when the heat pump compressor cannot run
+ *   while the supplementary heat is on.
+ * loads: as calc22083; isNew is ignored (the whole house counts).
+ */
+export function calc22082(house, loads, volts = 240) {
+  const r = calc22083({ ...house }, (loads || []).map((l) => ({ ...l, isNew: false })));
+  if (!r.ok) return r;
+  // Take the loads again with their own kinds (calc22083 folds storage into heating).
+  const kinds = (loads || []).filter((l) => Number.isFinite(loadVa(l))).map((l) => (Object.hasOwn(KINDS, l.kind) ? l.kind : "other"));
+  const items = r.loads.map((l, i) => ({ ...l, kind: kinds[i] }));
+  const sum = (k) => items.filter((l) => l.kind === k).reduce((s, l) => s + l.va, 0);
+  const general = r.lighting + r.circuits + sum("other");
+  const generalDemand = demandOfGeneral(general);
+  const ac = sum("cooling"), hp = sum("heatpump"), heat = sum("heating"), storage = sum("storage");
+  const rows = items.filter((l) => l.kind === "heating").length;
+  const unitsIn = num(house.heatingUnits);
+  const units = unitsIn >= 0 ? unitsIn : rows;
+  const lockout = String(house.lockout || "").toLowerCase() === "yes";
+  const sel = [
+    { n: 1, label: "Air conditioning and cooling (heat pumps included) at 100%", va: ac + hp, applies: ac + hp > 0 },
+    { n: 2, label: "Heat pump without supplemental electric heat at 100%", va: hp, applies: hp > 0 && heat === 0 },
+    { n: 3, label: (lockout ? "Supplemental heat at 65% (compressor locked out while it runs)" : "Heat pump compressor at 100% plus supplemental heat at 65%"), va: (lockout ? 0 : hp) + SUPPLEMENTAL * heat, applies: hp > 0 && heat > 0 },
+    { n: 4, label: "Electric space heat at 65% (fewer than four separately controlled units)", va: SUPPLEMENTAL * heat, applies: heat > 0 && units < 4 },
+    { n: 5, label: "Electric space heat at 40% (four or more separately controlled units)", va: MANY_UNITS * heat, applies: heat > 0 && units >= 4 },
+    { n: 6, label: "Thermal storage or heat continuous at full nameplate, at 100%", va: storage, applies: storage > 0 },
+  ];
+  let chosen = null;
+  for (const s of sel) if (s.applies && (!chosen || s.va > chosen.va)) chosen = s;
+  const hvac = chosen ? chosen.va : 0;
+  const totalVa = generalDemand + hvac;
+  const a = totalVa / volts;
+  const notes = [];
+  if (heat > 0 && !(unitsIn >= 0)) notes.push(`Counted ${rows} separately controlled heating unit${rows === 1 ? "" : "s"}, one per heating row; enter the number if a row covers several thermostats.`);
+  return {
+    ok: true,
+    method: "220.82",
+    lighting: r.lighting,
+    circuits: r.circuits,
+    general,
+    generalDemand,
+    selections: sel,
+    chosen: chosen ? chosen.n : null,
+    hvac,
+    totalVa,
+    amps: a,
+    minService: minServiceRating(a),
+    units,
+    lockout,
+    loads: items,
+    notes,
+  };
+}
+
+/** Smallest standard rating (240.6(A)) of at least 100 A that covers the amps; null above 400 A. */
+export function minServiceRating(a) {
+  for (const s of SERVICE_RATINGS) if (s >= MIN_OPTIONAL_A && s + 1e-9 >= a) return s;
+  return null;
+}
+
+export const DEFAULT_HOUSE = { sqft: "", smallApplianceCircuits: "2", laundryCircuits: "1", serviceAmps: "", volts: "240", heatingUnits: "", lockout: "no" };
 
 // Placeholder house for the example button. Invented, not a real home or a
 // benchmark: a 2,000 sq ft house on a 100 A service adding a 48 A EV charger.
-export const EXAMPLE_HOUSE = { sqft: "2000", smallApplianceCircuits: "2", laundryCircuits: "1", serviceAmps: "100", volts: "240" };
+export const EXAMPLE_HOUSE = { sqft: "2000", smallApplianceCircuits: "2", laundryCircuits: "1", serviceAmps: "100", volts: "240", heatingUnits: "", lockout: "no" };
 export const EXAMPLE_LOADS = [
   { name: "Range", kind: "other", va: "12000", isNew: false },
   { name: "Dryer", kind: "other", va: "5000", isNew: false },
@@ -176,4 +258,18 @@ export const EXAMPLE_LOADS = [
   { name: "Central air (3 ton)", kind: "cooling", amps: "20", volts: "240", isNew: false },
   { name: "Gas furnace blower", kind: "other", va: "600", isNew: false },
   { name: "EV charger (48 A)", kind: "other", amps: "48", volts: "240", isNew: true },
+];
+
+// Placeholder new house for the 220.82 example. Invented, not a real home:
+// 2,400 sq ft, all electric, a heat pump with 10 kW of backup strips and a 48 A EV charger.
+export const EXAMPLE_NEW_HOUSE = { sqft: "2400", smallApplianceCircuits: "2", laundryCircuits: "1", serviceAmps: "200", volts: "240", heatingUnits: "", lockout: "no" };
+export const EXAMPLE_NEW_LOADS = [
+  { name: "Induction range", kind: "other", va: "12000" },
+  { name: "Dryer", kind: "other", va: "5000" },
+  { name: "Water heater", kind: "other", va: "4500" },
+  { name: "Dishwasher", kind: "other", va: "1200" },
+  { name: "Disposal", kind: "other", va: "800" },
+  { name: "EV charger (48 A)", kind: "other", amps: "48", volts: "240" },
+  { name: "Heat pump (MCA 21 A)", kind: "heatpump", amps: "21", volts: "240" },
+  { name: "Backup heat strips", kind: "heating", va: "10000" },
 ];
