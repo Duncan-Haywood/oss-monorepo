@@ -7,6 +7,7 @@
 //   node eval/best-of-k.mjs --picks    # what "fair", "balanced" and "breaks" keep (eval/best-of-k-picks.txt)
 //   node eval/best-of-k.mjs --page     # the same on the page's own search: 8 weighted + 2 capped tries,
 //                                      # all four choices (eval/best-of-k-page.txt)
+//   node eval/best-of-k.mjs --page --sizes 11,13,15 --seeds 1,2   # odd leagues (no real seasons)
 //
 // Each row is one base seed; "pick" is the trade used to choose among the tries (carry-over +
 // pick x breaks). The same base seeds are used in every setting.
@@ -112,7 +113,7 @@ export function pagePicks({ sizes = [18, 20], seeds = [1, 2, 3, 4, 5], picks: P 
       const breaks = breaksOf(n, best.rounds);
       const t = best.tries[best.chosen];
       if (t.coe !== coe || t.breaks !== breaks) throw new Error(`recount differs at ${n} teams seed ${seed} ${name}: search ${t.coe}/${t.breaks}, recount ${coe}/${breaks}`);
-      const dom = same.filter((q) => coe <= q.coe && breaks <= q.breaks && (coe < q.coe || breaks < q.breaks)).length;
+      const dom = !same.length ? null : same.filter((q) => coe <= q.coe && breaks <= q.breaks && (coe < q.coe || breaks < q.breaks)).length;
       const beatsAll = { coe: same.every((q) => coe < q.coe), breaks: same.every((q) => breaks < q.breaks) };
       const row = { teams: n, seed, pick: name, coe, breaks, chosen: best.chosen, kind: best.chosen >= PAGE.weighted ? "capped" : "weighted", frontier: best.frontier.length, dominates: dom, of: same.length, beatsAll, ms };
       rows.push(row);
@@ -124,13 +125,14 @@ export function pagePicks({ sizes = [18, 20], seeds = [1, 2, 3, 4, 5], picks: P 
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1] && process.argv.includes("--page")) {
   const pad = (s, w) => String(s).padStart(w);
-  const rows = pagePicks({ onRow: (r) => console.log(`${pad(r.teams, 2)} teams seed ${r.seed} ${r.pick.padEnd(9)} carry-over ${pad(r.coe, 5)}  breaks ${pad(r.breaks, 3)}  try ${pad(r.chosen, 2)} ${r.kind.padEnd(8)}  frontier ${pad(r.frontier, 2)}  dominates ${pad(r.dominates, 2)}/${r.of}  ${(r.ms / 1000).toFixed(1)} s`) });
+  const arg = (k) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1].split(",").map(Number) : undefined; };
+  const rows = pagePicks({ sizes: arg("--sizes"), seeds: arg("--seeds"), onRow: (r) => console.log(`${pad(r.teams, 2)} teams seed ${r.seed} ${r.pick.padEnd(9)} carry-over ${pad(r.coe, 5)}  breaks ${pad(r.breaks, 3)}  try ${pad(r.chosen, 2)} ${r.kind.padEnd(8)}  frontier ${pad(r.frontier, 2)}  dominates ${r.of ? `${pad(r.dominates, 2)}/${r.of}` : "  -  "}  ${(r.ms / 1000).toFixed(1)} s`) });
   console.log("\nmeans over the seeds (min-max)");
   const groups = new Map();
   for (const r of rows) { const k = `${r.teams} teams ${r.pick}`; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(r); }
   for (const [k, g] of groups) {
     const m = (f) => (g.reduce((s, r) => s + f(r), 0) / g.length).toFixed(1);
     const mm = (f) => `${Math.min(...g.map(f))}-${Math.max(...g.map(f))}`;
-    console.log(`${k.padEnd(20)} carry-over ${m((r) => r.coe)} (${mm((r) => r.coe)})  breaks ${m((r) => r.breaks)} (${mm((r) => r.breaks)})  dominates ${m((r) => r.dominates)} of ${g[0].of}  capped kept ${g.filter((r) => r.kind === "capped").length}/${g.length}  ${m((r) => r.ms / 1000)} s`);
+    console.log(`${k.padEnd(20)} carry-over ${m((r) => r.coe)} (${mm((r) => r.coe)})  breaks ${m((r) => r.breaks)} (${mm((r) => r.breaks)})  ${g[0].of ? `dominates ${m((r) => r.dominates)} of ${g[0].of}  ` : ""}capped kept ${g.filter((r) => r.kind === "capped").length}/${g.length}  ${m((r) => r.ms / 1000)} s`);
   }
 }
