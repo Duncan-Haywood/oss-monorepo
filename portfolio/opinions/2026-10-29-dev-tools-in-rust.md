@@ -88,8 +88,9 @@ reason than "the existing one is slow".
   `proposal.test.mjs`. A tool that groups copies into families and proposes the shared
   module is the next step beyond detection, and nobody ships one.
   *First slice 2026-11-12:* `dupehound --families` groups clones into
-  families ranked by removable lines (PR #15063); next is marking families a
-  sync test already guards.
+  families ranked by removable lines (PR #15063). *Second slice 2026-11-12:*
+  `--guarded FILE` folds copies a sync test keeps identical into one, so the
+  ranking shows what nobody watches; next is suggesting guard lines.
 
 **Distribution.** `cargo install` from crates.io is the natural channel, and
 publishing there under the portfolio's name is the owner's decision
