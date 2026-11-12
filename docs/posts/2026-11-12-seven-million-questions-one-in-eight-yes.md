@@ -1,9 +1,9 @@
 ---
 title: "Seven million questions, one in eight answered yes"
-seo_title: "Speeding up a shift scheduler's search without changing a single roster"
+seo_title: "Speeding up a shift scheduler's search without changing a roster"
 date: 2026-11-12
 tags: [shift-roster-builder, perf]
-description: "The free shift roster builder asks 7.7 million times per café week whether a person can take one more shift. Asking fewer times, not answering faster, cut its build time by about a sixth."
+description: "A shift roster builder asks 7.7 million times per week whether a person can take one more shift. Asking fewer times cut its build time by about a sixth."
 ---
 
 The free [shift roster builder](https://marisstella.app/shift-roster-builder/) builds a week's roster by search: it tries moving a shift from one person to another, keeps the move if the roster improves, and tries again, hundreds of thousands of times. Every try starts with one question: if this person takes this shift, do they still keep to the rules? That means no overlapping shifts, enough rest between them, and staying under the weekly and daily hour limits and the cap on days in a row.
