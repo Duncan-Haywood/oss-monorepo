@@ -2,8 +2,8 @@
 title: "A paper draft on robot wall sheathing, and the five hypotheses scored"
 date: 2026-11-12
 tags: [buildbot-sheathing, construction-robotics, tolerance-analysis, humanoid, paper]
-seo_title: "Can a robot nail wall sheathing to code? A paper draft with every number checked"
-description: "Seven milestones on robotic sheathing written up as one paper draft. Three of five pre-registered hypotheses held, one held in half, and one held only for one stud reader."
+seo_title: "Can a robot nail wall sheathing to code? A paper draft, checked"
+description: "Seven milestones on robot wall sheathing as one paper draft: three of five pre-registered hypotheses held, one in half, one only for one stud reader."
 ---
 
 Over the last two days the `buildbot-sheathing` programme asked one question in seven steps: can a robot hang a 4x8 sheet of wall sheathing and land all 62 nails where the code and the panel maker want them, and what does a clean sheet cost? This step wrote those seven steps up as one paper draft for *Automation in Construction*, the field's main journal. It also scored the five hypotheses the programme opened with, which no earlier step had done.
