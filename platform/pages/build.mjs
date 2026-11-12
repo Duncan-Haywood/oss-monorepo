@@ -8890,13 +8890,16 @@ ${
     ? `      <p class="ticker" data-longest="${escapeHtml(longestWord(audienceWords))}"><span>Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</span></p>\n`
     : ''
 }
+      <!-- Two sentences, so the search box sits above the fold on a phone
+           (polish 2026-11-12: the old five-sentence lede ran 13 lines at
+           320 px). "Open source", "check how a number was reached" and "run
+           your own copy" are steps 2 and 3 of the how-it-works band below;
+           research is in the search label and the stats. -->
       <p class="lede">
         Bid calculators for the trades, fee checkers for marketplace sellers, and
-        pricing, tax and back-office tools for service businesses. Open one, type
-        your numbers and get an answer: no account, no paywall, and the arithmetic
-        happens on your device. Every formula is open source, so you can check how
-        a number was reached, and the apps can run in your own cloud account.
-        ${escapeHtml(SITE_NAME)} publishes open research the same way, code and tests included.
+        pricing, tax and back-office tools for service businesses. Type your
+        numbers and get an answer: no account, no paywall, and the arithmetic
+        happens on your device.
       </p>
 
       <!-- The search runs over a JSON index of every tool and research project
