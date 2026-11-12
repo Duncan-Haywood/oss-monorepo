@@ -322,3 +322,113 @@ export function slotClickerAdvice(left: number, participants: number): string {
   if (left === 0) return "";
   return `${left} of ${participants} respondents picked the same position on screen (top or bottom) at least ${Math.round(SLOT_CLICK_SHARE * 100)}% of the time over ${SLOT_CLICK_MIN_DECIDED} or more answers. Positions are shuffled, so those picks say nothing about the options, and they are left out of this ranking.`;
 }
+
+/** One answered pick's time on screen (Trial.msToAnswer), null when it was not recorded. */
+export type AnswerTime = { participantId: string; ms: number | null };
+export type RespondentPace = {
+  participantId: string;
+  /** Answers with a usable time. */
+  timed: number;
+  medianMs: number | null;
+  /** Their median time over the panel's median of medians; null when either is missing. */
+  pace: number | null;
+};
+
+/** Timed answers a respondent needs before their pace is judged. */
+export const PACE_MIN_TIMED = 10;
+/** Times at or above this are a respondent who left the tab open, not a pick (the admin overview uses the same cut). */
+export const PACE_MAX_MS = 120_000;
+/**
+ * "Fast": a median time per pick under half the panel's typical median. In the
+ * answer-time sweep this flagged 0-4% of honest respondents (person-to-person
+ * pace spread of 0.4 on the log scale), and dropping them cost a ranking at
+ * most 0.005 Spearman where careless people were no faster than anyone else
+ * (docs/INFORMATION-GAIN-SELECTOR.md, "Answer times").
+ */
+export const FAST_PACE = 0.5;
+
+const medianOf = (v: number[]) => {
+  const s = v.slice().sort((a, b) => a - b);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+};
+
+/**
+ * Each respondent's typical time per pick, relative to the panel's. Relative,
+ * not a fixed number of seconds: a list of short labels is quicker to answer
+ * than a list of paragraphs, for everyone.
+ */
+export function respondentPace(times: AnswerTime[]): RespondentPace[] {
+  const by = new Map<string, number[]>();
+  for (const t of times) {
+    const list = by.get(t.participantId) ?? by.set(t.participantId, []).get(t.participantId)!;
+    if (t.ms !== null && Number.isFinite(t.ms) && t.ms > 0 && t.ms < PACE_MAX_MS) list.push(t.ms);
+  }
+  const rows = [...by].map(([participantId, ms]) => ({ participantId, timed: ms.length, medianMs: ms.length >= PACE_MIN_TIMED ? medianOf(ms) : null }));
+  const judged = rows.filter((r) => r.medianMs !== null).map((r) => r.medianMs!);
+  const panel = judged.length >= AGREEMENT_MIN_RESPONDENTS ? medianOf(judged) : null;
+  return rows
+    .map((r) => ({ ...r, pace: r.medianMs !== null && panel ? r.medianMs / panel : null }))
+    .sort((a, b) => (a.pace ?? Infinity) - (b.pace ?? Infinity) || a.participantId.localeCompare(b.participantId));
+}
+
+/** The respondents whose pace is under FAST_PACE. */
+export function fastAnswerers(paces: RespondentPace[]): Set<string> {
+  return new Set(paces.filter((p) => p.pace !== null && p.pace < FAST_PACE).map((p) => p.participantId));
+}
+
+export type PaceSummary = {
+  /** Respondents with a judged pace. */
+  checked: number;
+  /** Of those, how many answered under FAST_PACE of the panel's typical time. */
+  fast: number;
+  /** Respondents under LOW_AGREEMENT agreement, and how many of them were fast. */
+  lowAgreement: number;
+  lowAndFast: number;
+  /** The panel's typical (median of medians) time per pick, in seconds, or null. */
+  typicalSeconds: number | null;
+  /** One plain paragraph for the survey owner, or "". */
+  advice: string;
+};
+
+/**
+ * A data-quality note from answer times, read beside respondentAgreement.
+ * Agreement alone cannot tell people who pick by something other than the
+ * question from a group with a genuinely different taste; pace can, when the
+ * careless are also quick. In the answer-time sweep, a camp answering at a
+ * normal pace was never told apart from the majority by pace (AUC 0.50-0.56),
+ * while careless people answering at 0.6x or 0.4x the honest pace were (AUC
+ * 0.83-0.98). It never changes the ranking; `?drop=fast` on the ranking route
+ * shows the ranking without the fast answerers, for the owner to compare.
+ */
+export function paceSummary(paces: RespondentPace[], agreements: RespondentAgreement[]): PaceSummary {
+  const judged = paces.filter((p) => p.pace !== null);
+  const fast = fastAnswerers(paces);
+  const low = agreements.filter((a) => a.rho !== null && a.rho < LOW_AGREEMENT);
+  const lowAndFast = low.filter((a) => fast.has(a.participantId)).length;
+  const typical = judged.length ? judged[0].medianMs! / judged[0].pace! : null;
+  const typicalSeconds = typical === null ? null : Math.round(typical / 100) / 10;
+  const base = { checked: judged.length, fast: fast.size, lowAgreement: low.length, lowAndFast, typicalSeconds };
+  if (judged.length < AGREEMENT_MIN_RESPONDENTS || (fast.size === 0 && low.length === 0)) return { ...base, advice: "" };
+  const s = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+  let advice: string;
+  if (fast.size === 0) {
+    advice =
+      `None of the ${judged.length} timed respondents answered unusually fast (the typical pick took ${typicalSeconds} s). ` +
+      `The ${s(low.length, "respondent whose order barely matches", "respondents whose order barely matches")} the rest answered at a normal pace, which looks more like a genuinely different taste than careless clicking. Answer times are a hint, not proof.`;
+  } else {
+    advice =
+      `${s(fast.size, "respondent", "respondents")} of ${judged.length} answered in under half the typical time per pick (typical: ${typicalSeconds} s). ` +
+      (low.length
+        ? `Of the ${s(low.length, "respondent whose order barely matches", "respondents whose order barely matches")} the rest, ${lowAndFast} ${lowAndFast === 1 ? "was" : "were"} among them: fast and out of step is what careless clicking looks like; out of step at a normal pace looks more like a different taste. `
+        : "") +
+      "They are counted in this ranking; compare it with the ranking without them before acting. Answer times are a hint, not proof.";
+  }
+  return { ...base, advice };
+}
+
+/** The ranking route's `drop` parameter: absent, or "fast". Anything else is refused, not ignored. */
+export function parseDrop(value: string | null): { ok: true; fast: boolean } | { ok: false } {
+  if (value === null) return { ok: true, fast: false };
+  return value === "fast" ? { ok: true, fast: true } : { ok: false };
+}

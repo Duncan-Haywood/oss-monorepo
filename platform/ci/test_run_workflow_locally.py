@@ -1361,6 +1361,32 @@ class ChangedPaths(unittest.TestCase):
         self.assertIn("share no commit", str(caught.exception))
         self.assertIn("git fetch", str(caught.exception))
 
+    def test_a_shallow_remote_base_is_fetched_until_it_meets_head(self):
+        import subprocess
+        import tempfile
+        upstream = self.repo
+        self.commit("b.txt")
+        clone = tempfile.mkdtemp(prefix="changed-paths-clone-")
+        self.addCleanup(__import__("shutil").rmtree, clone, True)
+        run = lambda *a: subprocess.run(["git", *a], cwd=clone, check=True,
+                                        capture_output=True, text=True)
+        subprocess.run(["git", "clone", "-q", "--depth=1", f"file://{upstream}",
+                        clone], check=True, capture_output=True)
+        run("config", "user.email", "t@example.invalid")
+        run("config", "user.name", "t")
+        run("checkout", "-q", "-b", "work")
+        with open(os.path.join(clone, "mine.txt"), "w") as fh:
+            fh.write("mine")
+        run("add", "mine.txt")
+        run("commit", "-q", "-m", "mine")
+        self.commit("later.txt")          # main moves on upstream
+        run("fetch", "-q", "--depth=1", "origin", "main")
+        self.assertNotEqual(subprocess.run(
+            ["git", "merge-base", "origin/main", "HEAD"], cwd=clone,
+            capture_output=True).returncode, 0)
+        self.assertEqual(runner.changed_paths("origin/main", repo=clone),
+                         ["mine.txt"])
+
     def test_a_missing_base_says_to_fetch_it(self):
         with self.assertRaises(SystemExit) as caught:
             runner.changed_paths("origin/nope", repo=self.repo)

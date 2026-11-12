@@ -174,6 +174,7 @@ introduces a dated fact.
 | 2049 | Halloran's Landing (invented), Lake Erie shore south of Buffalo, NY: St. Florian's (hall on the bluff), Lakeshore Lane (9 houses, 23 people, lowest doorstep 1.5 m above still water, wall 1.8 m); harbour agent Fetch; SW gale Tue 16 Nov at 27 m/s (1.82 Pa; set-up 3.8 m end to end, 1.89 m here at 22:08); seiche period about 14 h (Merian flat-basin 15.8 h), decay 0.6 per cycle (invented), trough about -1.5 m at 05:00; second front 20 m/s (about 0.8 m) due 11:00 to 15:00 Wed, crude sum floods the lane if it peaks within about 2 h of noon (29 of 40 ensemble members); residents go home in the trough 06:00 to 09:30; peak 1.88 m at 12:25; harbourmaster Teresa Kowalczyk, Walt Bienkowski, chief Gary Nowak, Stan Wróbel, Fr Augustine Mensah | *The Lake Comes Back at Noon* |
 | 2048 | Hrafnvík (invented), Reykjanes south coast: fissure eruption from Thu 13 Feb behind the Hrafnsfell, western barrier (built 2031) turns the main flow; a lobe reaches the 1909 timber church's churchyard Sun 16 Feb; lava model Varða (civil protection); land-based salmon farm Hrafnvík Lax (two 100 L/s bore pumps); eruption ends Sat 22 Feb | *The Stones in the Nave* |
 | 2216 | Chaumerolles (invented), Allier, beside the Forest of Tronçais: church of Saint-Hubert (fir frame 1861, steel-strapped 2081, good to about 2240), communal Bois du Curé (8 ha, 840 oaks planted Tue 11 Jan 2084 by Abbé Thibault Ravel and 26 schoolchildren, deliberation 'à abattre quand la charpente le demandera, et pas avant'); storm night of Fri 19 Jan 2216, 11,000 roofs and 2,300 frames in the Bourbonnais; region builds in oak since spruce and fir were lost; reconstruction timber cell, survey AI Cubage; 279 trees felled from Sat 23 Mar, abbé's oak (68.7 cm) to the Haddad farm at Les Brosses as a ridge beam; next thinning 2226; forester Jeanne Lavergne, carpenter Gaspard Moreau, engineer Solène Martel, mayor Fatou Diallo, Père Vincent Lê | *The Colbert Oaks* |
+| 2130 | Thorsby (invented), West Riding: Our Lady's (built 1958, roof with about ten years in it), Lady Close (2.14 ha, 38 co-op houses, common house of larch 2034), 99-year lease from Lady Day 2031 at a fixed £3,800 renewed from 22 Mar 2130 at the price of 30 t of milling wheat (seven-harvest average), reviews Lady Day 2163 and 2196, a new option for 2229; long winter 2071-73 (gas); Black Sea harvest failure 2096; records assistant Terrier; Agnieszka Wróbel, Dev Mistry, Winifred Asante, Helen Garside, Fr Paul Nkemelu | *Ninety-Nine Years* |
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
 not on this timeline.
@@ -263,7 +264,7 @@ alike. *The Letter in the Wall* (For Other Minds, 2026) and *Ten Percent*
 
 Proposals, not commitments; pick one and say so in the PR. Each needs its
 numbers worked out before drafting. Finished ones live in [DONE.md](DONE.md)
-(323 on 2026-11-11), with the numbers each story used: read it before
+(335 on 2026-11-12), with the numbers each story used: read it before
 proposing. Mark a proposal you finish `*(Done: Title, place, date.)*` here
 or anywhere; `node bible_done.mjs` moves it there, and `node --test` fails
 until it has. An empty shelf below means: write a proposal.
@@ -273,7 +274,7 @@ until it has. An empty shelf below means: write a proposal.
 - *Quarry Nine:* a short sequel, a few years on, in which the new system is
   asked why the old bell is rung (use sparingly; the first story is complete).
 - *The Stave Mill:* a 2100s story at a cooperage in the Cognac country (real: French oak for barrels is split, not sawn, along the grain, and air-dried in stacks for two years or more) where a cooper's AI finds that its drying schedule was fitted on fine-grained staves from a forest that has since grown faster, and wider-ringed oak (in a ring-porous oak, denser, with more latewood) dries more slowly, so staves pass the calendar while still too wet, shrink in the cask and weep. Check ring width against density and drying rate in the literature, then work out stave yield per cubic metre of log, drying time, and how many casks of one year leak before drafting; no real house or forester as the villain.
-- *Ninety-Nine Years:* a 2100s to 2300s story about a parish that leases its land on a 99-year lease and the people who must renew it for strangers they will not meet. Real law of long leases, inflation over a century worked out, no invented legal advice.
+- *The Tithe Barn Ledger:* a 2300s story in which a parish that has kept a corn rent for three centuries (thirty tonnes of wheat a year, reviewed every generation) finds the rent has been read aloud and left unchanged at six reviews running while wheat yields doubled, so the rent has quietly halved in real terms, and the meeting must decide whether a habit of saying "as it was" is consent. Work out three centuries of a slow real-price drift, what each review could have changed (a fifth either way), and how a review clause can fail by courtesy, before drafting; no grasping landlord or tenant as the villain.
 
 **For Other Minds**
 
