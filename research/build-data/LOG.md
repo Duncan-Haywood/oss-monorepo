@@ -1,5 +1,16 @@
 # build-data log
 
+## Session 76, 2026-11-12: is naming demolition what costs cascade2 its i2c q0.9 transfer? (predictions; outcome below when the runs finish)
+
+Why: session 75 found that of cascade2's +3.01-day Seattle i2c 2024 transfer q0.9 cost, demolition rows carry +1.69 (56%, 398 rows), and that demolition is the one class whose source completion tail is longer than Seattle's (q0.9 ratio 1.20). It read this post hoc as: naming a class imports the sources' tail for it. Session 75 suggested dropping source demolition rows. This session tests a cleaner version: `--classes cascade2_nodemo` folds demolition into alteration. The training rows stay the same and only the class feature loses demolition, so any change comes from not naming the class. A second session (this one) independently reran session 75's i2c 2024 and a2i 2023 pairs on a 2026-11-12 pull with the same row counts, and got the same numbers to the printed digit (+3.01 [1.65, 4.39]; -5.56 [-6.46, -4.56]; the same per-class split).
+- New: `transfer.py --classes cascade2_nodemo`. `by_class` groups a folded configuration's rows by their class before the fold, so the demolition rows stay visible (1 test).
+Predictions (written before any run): `python3.13 src/transfer.py DIR --target {i2c,a2i} --seeds 3 --held seattle --test-year 2024 --classes cascade2 cascade2_nodemo type` (paired: nodemo minus cascade2, type minus cascade2).
+- (S1) i2c 2024, transfer q0.9, cascade2_nodemo minus cascade2: 95% interval below zero.
+- (S2) In that difference, the rows cascade2 calls demolition contribute more than half of the total (same sign, negative).
+- (S3) i2c 2024, transfer q0.9, cascade2_nodemo minus type (from the two paired differences): point estimate below +1.5 days, under half of the +3.01 cost.
+- (S4) a2i 2024, transfer q0.9: folding demolition keeps cascade2's gain. cascade2_nodemo minus cascade2 has an interval including zero, or above zero by less than 1 day.
+Each is refuted if its condition fails.
+
 ## Session 75, 2026-11-11: where the cascade2 i2c q0.9 penalty sits, and test year 2023 for the paired run (R1, R2 refuted; Q4 held; the i2c q0.9 cost does not repeat in 2023)
 
 Why: session 74 found that cascade2 makes Seattle i2c transfer worse at q0.9 (+2.19 days [0.90, 3.51]) and read it, untested, as the sources (SF, Austin) giving new construction a completion tail Seattle's new-construction permits do not share; and Q4 (test year 2023) was not run. The Socrata hosts answered at 23:08 UTC; fresh four-feed pull started then.

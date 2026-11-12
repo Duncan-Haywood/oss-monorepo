@@ -41,6 +41,17 @@ class Frame(unittest.TestCase):
         self.assertEqual(list(transfer.frame(p, "a2i")[0].cls), ["other", "electrical", "other"])
         self.assertEqual(list(transfer.frame(p, "a2i", "cascade")[0].cls), ["new_construction", "electrical", "other"])
 
+    def test_nodemo_folds_demolition_into_alteration_and_keeps_the_label(self):
+        """Session 76: cascade2_nodemo merges demolition into alteration, nothing else."""
+        p = self.write(["seattle,1,building,,100,2020-01-01,2020-02-01,,98101,40,other,demolition",
+                        "seattle,2,building,,100,2020-01-01,2020-01-05,,98101,10,other,alteration",
+                        "seattle,3,building,,100,2020-01-01,2020-01-09,,98101,5,other,new_construction"],
+                       ",desc_class,desc_class_v2")
+        self.assertEqual(list(transfer.frame(p, "a2i", "cascade2")[0].cls), ["demolition", "alteration", "new_construction"])
+        d = transfer.frame(p, "a2i", "cascade2_nodemo")[0]
+        self.assertEqual(list(d.cls), ["alteration", "alteration", "new_construction"])
+        self.assertEqual(list(d.cls_unfolded), ["demolition", "alteration", "new_construction"])
+
     def test_cascade_refuses_an_old_pull(self):
         p = self.write(["seattle,1,building,,100,2020-01-01,2020-02-01,,98101,40"])
         with self.assertRaises(SystemExit):
