@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKiu5gKr3qPhNthTuFH",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T18:18:31Z",
+  "ended": "2026-11-12T18:39:01Z",
+  "wall_minutes": 21.71,
+  "tokens_in": 8738702,
+  "tokens_out": 45084,
+  "cost_usd": 3.7853,
+  "tool_calls": 71,
+  "task": "Flagship 9 (league-schedule-generator), next item: seed assignVenues with the shift orientation after the search's moves",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15216",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "Own sanity script used p (E+1) instead of (p-1)(E+1) for the shift-break formula and flagged 58 false mismatches; the code was right, the check was wrong.",
+    "eval/shift-carry.mjs first wrote a 'seed' mode key that overwrote the seed number in its JSON line; renamed to 'seeded' and re-ran for the committed output."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The listed next item (seed assignVenues with the shift orientation after the moves) measured as nothing (1 row of 60 changed); the bigger gap, odd power-of-two sizes 15 and 31 with 41 and 245 breaks, was not on the list and was only visible from the eval table."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The named next item gave no gain, so shipping it as a default would add cost and code paths for nothing.",
+      "did": "Kept it measured but off by default (carryHosts), and shipped two other changes the same measurements surfaced: shift starters at 15/31 teams and capped shift candidates.",
+      "result": "15 teams 605 -> 475, 31 teams 3,349 -> 1,789, 11 teams 253 -> 237, 13 teams 373 -> 335 at weight 10; no size worse; 435/435 venture tests pass."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-league-schedule-31-teams-245-to-60-breaks.md",
+    "ventures/league-schedule-generator/README.md (section 'Shift venues carried through the search')"
+  ],
+  "goal": "Deepen flagship 9: fewer home/away breaks at the balanced setting without raising carry-over elsewhere.",
+  "notes": "Verification: node --test *.test.mjs in ventures/league-schedule-generator: 435 pass, 0 fail (81 s). Measurements: eval/field-shift.txt (7, 8, 15, 16, 31, 32 teams, seeds 1-2), eval/shift-carry.txt (9-40 teams, seeds 1-2, four modes), eval/starter-orient.txt (climb output for 8, 16, 32). Venture preflight run in the background; see the PR summary for its result. No agent doc in docs/reports: the README section and flagships next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "37a0b21b-1952-5be8-b8e7-b3edb0e29844",
+    "transcripts": 1,
+    "first": "2026-11-12T18:18:31Z",
+    "last": "2026-11-12T18:40:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 132,
+        "output": 45084,
+        "thinking": 13803,
+        "cache_read": 8593009,
+        "cache_write_5m": 0,
+        "cache_write_1h": 145561,
+        "api_equivalent_usd": 3.7853,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 132,
+      "output": 45084,
+      "thinking": 13803,
+      "cache_read": 8593009,
+      "cache_write_5m": 0,
+      "cache_write_1h": 145561,
+      "api_equivalent_usd": 3.7853,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 69,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.71,
+      "active_minutes": 21.71,
+      "model_minutes": 8.17,
+      "tool_minutes": 13.54,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an algorithms engineer: climb starters for two sizes, add two search candidates, three measured experiments, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 264.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
