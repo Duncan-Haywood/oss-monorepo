@@ -3,7 +3,7 @@ title: "When to order, and how much: the exact answer is cheap, and the rules of
 seo_title: "Wagner-Whitin vs Silver-Meal and EOQ on a sales forecast"
 date: 2026-11-12
 tags: [demand-forecast-backtester, ventures, operations-research]
-description: "The demand forecast back-tester now plans an order calendar by exact Wagner-Whitin lot sizing. On 6,000 invented cases Silver-Meal came within about 2% on average, but up to 26% worse."
+description: "Exact Wagner-Whitin order calendars for small sellers. On 6,000 invented cases Silver-Meal averaged about 2% over the optimum, but up to 26%."
 ---
 
 The [demand forecast back-tester](https://marisstella.app/demand-forecast-backtester/) already told a small seller how much stock to keep: for each product it replays seven forecasting methods on the seller's own sales, keeps the one that held up, and turns its misses into safety stock and a reorder point. With a stock file it also says what to order today.
