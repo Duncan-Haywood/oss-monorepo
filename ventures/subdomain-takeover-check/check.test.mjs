@@ -79,3 +79,14 @@ test('runCheck passes a custom timeout through to both the lookup and the probe'
   assert.equal(seenLookupTimeout, 1234);
   assert.equal(seenProbeTimeout, 1234);
 });
+
+test('runCheck probes when the provider is mid-chain, not last (S3 internal name, quality audit 2026-11-12)', async () => {
+  let probed = false;
+  const chain = ['assets.example.com', 'gone.s3.amazonaws.com', 's3-1-w.amazonaws.com', 's3-w.us-east-1.amazonaws.com'];
+  const report = await runCheck(['assets.example.com'], {
+    resolveCnameChainFn: fakeChain({ 'assets.example.com': { chain, finalTarget: chain[3], truncated: false, error: null } }),
+    fetchHostnameFn: async () => { probed = true; return { ok: true, status: 404, text: 'NoSuchBucket', error: null }; },
+  });
+  assert.equal(probed, true);
+  assert.equal(report.confirmedCount, 1);
+});

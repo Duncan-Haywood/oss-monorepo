@@ -38,7 +38,7 @@
 // current mitigations, and `vulnerable` is surfaced in the finding only as
 // context for a human reader to weigh.
 
-import { matchProvider } from './fingerprints.mjs';
+import { providerForChain } from './fingerprints.mjs';
 
 /**
  * @param {string} hostname - the hostname checked, for display only
@@ -70,7 +70,7 @@ export function classify(hostname, cname, probe) {
     };
   }
 
-  const provider = matchProvider(cname.finalTarget);
+  const provider = providerForChain(cname.chain);
   if (!provider) {
     return {
       hostname,

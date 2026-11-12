@@ -127,3 +127,10 @@ test('buildReport handles multiple hostnames independently', () => {
   assert.equal(report.hostnamesChecked, 2);
   assert.equal(report.confirmedCount, 1);
 });
+
+test('a provider in the middle of the chain counts: S3 bucket that resolves on to an internal S3 name (quality audit 2026-11-12)', () => {
+  const chain = ['x.example.com', 'gone.s3.amazonaws.com', 's3-1-w.amazonaws.com', 's3-w.us-east-1.amazonaws.com'];
+  const r = classify('x.example.com', { chain, finalTarget: chain[3], truncated: false, error: null },
+    { ok: true, status: 404, text: '<Error><Code>NoSuchBucket</Code></Error>' });
+  assert.equal(r.category, 'dangling-confirmed');
+});

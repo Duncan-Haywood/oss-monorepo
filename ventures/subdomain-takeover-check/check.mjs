@@ -19,7 +19,7 @@
 import { resolveCnameChain } from './lookup.mjs';
 import { fetchHostname } from './probe.mjs';
 import { classify, buildReport } from './analyze.mjs';
-import { matchProvider } from './fingerprints.mjs';
+import { providerForChain } from './fingerprints.mjs';
 
 function formatText(report) {
   const lines = [];
@@ -75,7 +75,7 @@ export async function runCheck(hostnames, { resolveCnameChainFn = resolveCnameCh
   const results = await Promise.all(
     hostnames.map(async (hostname) => {
       const cname = await resolveCnameChainFn(hostname, timeoutMs ? { timeoutMs } : undefined);
-      if (cname.error || !cname.finalTarget || !matchProvider(cname.finalTarget)) {
+      if (cname.error || !cname.finalTarget || !providerForChain(cname.chain)) {
         return classify(hostname, cname, null);
       }
       const probe = await fetchHostnameFn(hostname, timeoutMs ? { timeoutMs } : undefined);

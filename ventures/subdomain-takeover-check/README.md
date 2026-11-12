@@ -1,7 +1,7 @@
 # Subdomain Takeover Checker
 
 A free tool for anyone who manages a DNS zone: follows a hostname's real CNAME chain over public
-DNS-over-HTTPS, matches the final target against 25 known takeover-prone hosting providers (S3,
+DNS-over-HTTPS, matches any target in the chain against 24 known takeover-prone hosting providers (S3,
 Heroku, GitHub Pages, Azure, Fastly, Shopify, and more), and — for a match — sends one live GET
 request checked against that specific provider's own "nothing is claimed at this name" fingerprint
 page.
@@ -52,7 +52,7 @@ the full table and the reasoning behind each entry.
 
 ## Coverage, deliberately partial
 
-25 providers, chosen for how frequently they appear in public subdomain-takeover research and
+24 providers, chosen for how frequently they appear in public subdomain-takeover research and
 write-ups. This is not, and does not claim to be, the complete set of services with this failure
 mode — new hosting providers appear, and existing ones change their "unclaimed" page wording or
 ship mitigations over time. A hostname whose CNAME points somewhere this table doesn't recognise is

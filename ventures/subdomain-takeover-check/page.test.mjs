@@ -146,3 +146,13 @@ test('index links one hop to the caa-record-check sibling', () => {
     'index must link ../caa-record-check/ so crawlers reach the CAA checker in one hop',
   );
 });
+
+test('every provider count on the page, README and VENTURE.yaml equals the fingerprint table (quality audit 2026-11-12)', async () => {
+  const { PROVIDERS } = await import('./fingerprints.mjs');
+  for (const f of ['index.html', 'README.md', 'VENTURE.yaml']) {
+    const src = readFileSync(join(HERE, f), 'utf8');
+    const counts = [...src.matchAll(/(\d+)(?: known|-provider| providers)/g)].map((m) => Number(m[1]));
+    assert.ok(counts.length > 0, f);
+    for (const n of counts) assert.equal(n, PROVIDERS.length, `${f} says ${n}`);
+  }
+});
