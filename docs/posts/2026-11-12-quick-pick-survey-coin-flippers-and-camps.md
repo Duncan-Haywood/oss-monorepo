@@ -2,7 +2,7 @@
 title: "Telling coin flippers from a camp in a pairwise survey, and why it's hard"
 seo_title: "Careless respondents vs real disagreement in pairwise ranking surveys"
 date: 2026-11-12
-description: "On real rankings, 18-46% of honest people disagree with the rest of their panel. A check on each person's own consistency spares them, but adaptive questions blunt it."
+description: "On real rankings, 18-46% of honest people disagree with their panel. A check on each person's own consistency spares them; adaptive questions blunt it."
 tags: [quick-pick-survey, surveys, ranking, statistics, data-quality]
 ---
 

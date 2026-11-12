@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqybqo8hRfXSmCmHVXSc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T16:50:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 8 quick-pick-survey, next: item (a): the coin-flip cost of the staged default without taxing camps",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15190",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "quick-pick-survey item (a) suggested 'down-weighting answers on pairs the panel finds clear', which is pool-based and so cannot be camp-blind by construction; the camp-blind route (a person's own consistency) is the one worth trying first. Rewrote the next: list."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A foreground 'sleep N; tail log' to wait on a background test run is blocked by a hook; the Monitor until-loop the block suggests is not mentioned in cloud-session.md's 'Long commands'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The brief asks for a working slice of the flagship milestone; the slice is a measured, tested library plus two sweep scripts, not a user-facing change, because the measurement says wiring the gate in would risk taxing real camps.",
+      "did": "Landed selfConsistency.ts unwired with the real-panel script that decides it, and a docs decision 'measured, not shipped'.",
+      "result": "The flagship's next: now names the one missing input (noise in real pairwise answers) that decides it."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-quick-pick-survey-coin-flippers-and-camps.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md (new section 'Self-consistency: a coin-flip check that does not tax camps')"
+  ],
+  "goal": "Deepen flagship 8 (quick-pick-survey): find a coin-flip defence under the staged selector that spares real camps.",
+  "notes": "Synthetic: 96 cells over two seed bases (careless-pattern-sweep with --self-z 0.5,1 --self-bf 0). Real: PrefLib breakfast and T-shirt panels, 80 draws, staged and standard, honest lapse 0/0.2/0.35 (coin-flip-gate-real.ts). Key new real-data finding: 18-46% of honest real people fall under the 0.2 agreement line; dropping them costs up to 0.033. Self-consistency under staged: AUC 0.60-0.80 for coin flippers; gate halves the camp tax but depends on real answer noise. Verification: npm run typecheck, lint, vitest (full suite) and build in ventures/quick-pick-survey; results in the PR.",
+  "corrections": [],
+  "redteam": null
+}
