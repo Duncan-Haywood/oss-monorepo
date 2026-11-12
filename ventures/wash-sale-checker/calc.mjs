@@ -24,12 +24,19 @@ export function parseDate(s) {
 export const isoDate = (ms) => new Date(ms).toISOString().slice(0, 10);
 export const money = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const r2 = (x) => Math.round(x * 100) / 100;
+// One amount: "$1,234.50", "(1,200)", "-100", "$-1,200", "USD 500", "100-", "1.5E+04". Anything that is not exactly
+// one number ("12-34", "1.2.3", "5 6") is NaN, so the line is refused rather than read as a different amount.
 const num = (s) => {
   const t = String(s ?? "").trim();
-  if (!t) return NaN;
-  const neg = /^\(.*\)$/.test(t) || t.startsWith("-");
-  const v = parseFloat(t.replace(/[^0-9.]/g, ""));
-  return neg ? -v : v;
+  if (!t || /\d\s+[\d.]/.test(t)) return NaN;
+  const paren = /^\(.*\)$/.test(t);
+  let b = (paren ? t.slice(1, -1) : t).replace(/\u2212/g, "-").replace(/\b(?:USD|US\$)/gi, "").replace(/[$\s,]/g, "");
+  let neg = paren;
+  if (/^[-+]/.test(b)) { neg = neg || b[0] === "-"; b = b.slice(1); }
+  else if (/-$/.test(b)) { neg = true; b = b.slice(0, -1); }
+  if (!/^(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(b)) return NaN;
+  const v = Number(b);
+  return Number.isFinite(v) ? (neg ? -v : v) : NaN;
 };
 
 function splitLine(line, delim) {
