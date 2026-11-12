@@ -3,7 +3,7 @@ title: "The width rule on fresh categories: four new GoEmotions emotions, no pen
 seo_title: "LLM coding audits: the stratify-or-not rule on held-out categories"
 date: 2026-11-12
 tags: [research, llm, statistics, qualitative-coding]
-description: "A pre-registered check on four emotions no rule had seen: the shipped audit rule was at most 0.1% wider than a plain audit in 12 of 12 cells and kept all of the gain."
+description: "A pre-registered check on four emotions no rule had seen: the audit rule was at most 0.1% wider than a plain audit in 12 of 12 cells, gain kept."
 ---
 
 The [llm-coding-inference](../../research/llm-coding-inference/) programme asks how
