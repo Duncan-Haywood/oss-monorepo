@@ -1011,6 +1011,17 @@ How it was checked:
   cases and sensel-for-sensel equal to LibRaw on the CR2. `raw_develop.DECODE_ENGINE`
   (`auto`, `python`, `numpy`) chooses; the Huffman pass is now about 85% of decoding.
 
+- Huffman pass in native code (2026-11-12, `eval/ljpeg-native-huffman-2026-11-12.md`): an
+  optional C reader (`shootflow/ljpeg_native.py`, about 40 lines of C kept as a string,
+  compiled with the system `cc` on first use into `~/.cache/shootflow` and loaded with
+  `ctypes`; no package, nothing downloaded) reads the Huffman differences through one 16-bit
+  prefix table per component. On the Canon CR2 stream the whole decode goes from 8.8-11.7 s to
+  1.2-1.7 s (0.7-1.1 s on the array path `develop` takes; the C call itself 0.48 s), a DNG-shaped
+  256x256-sensel tile from 17 ms to 1.3 ms. Same samples as the pure loop on every encoder case
+  and on the CR2, and still 0 of 22,032,768 sensels different from LibRaw. No compiler, Windows
+  or `SHOOTFLOW_NATIVE=0`: the pure loop runs. `raw_develop.HUFFMAN_ENGINE` (`auto`, `python`,
+  `native`) chooses; an invalid code falls back to the pure loop, which raises as before.
+
 ## Colour for the light the photo was taken in (2026-11-12)
 
 A camera does not respond to colour the same way under tungsten as under daylight, so a DNG

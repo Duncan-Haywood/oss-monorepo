@@ -237,8 +237,10 @@ flagships:
       Adobe-written DNG with ForwardMatrix; an Adobe render of a known frame
       to compare the toned render with (and to settle whether
       `--default-tone-curve always` should be the default); the grade-scope
-      saving on real 4K footage and a long shoot; the Huffman loop (~85% of
-      lossless-JPEG decoding) in native code; reading CR2 directly (needs
+      saving on real 4K footage and a long shoot; the native Huffman reader
+      (landed 2026-11-12, eval/ljpeg-native-huffman-2026-11-12.md: CR2 decode
+      8.8-11.7 s to 1.2-1.7 s, Linux only so far) run on macOS, and the 0.8 s
+      list the public decoder still builds dropped; reading CR2 directly (needs
       per-model colour matrices); a camera- or phone-written lossless-JPEG
       DNG (raw.pixls.us and rawsamples.ch 403 from cloud); a trained blink
       model and a real shoot with a photographer's picks; photos with a real
