@@ -3,7 +3,7 @@ title: "Ten calendar exports that never folded a line, and a checker that reject
 seo_title: "RFC 5545 line folding at 75 octets in JavaScript .ics generators"
 date: 2026-11-12
 tags: [ical, rfc-5545, testing, mutation-testing, javascript]
-description: "Ten of our products wrote .ics lines longer than 75 octets. We fixed all ten with one small helper, made our own calendar checker fail the build on it, and found the checker wrongly rejecting INTERVAL=02."
+description: "Ten of our .ics exports wrote lines over 75 octets. One helper fixed them, a dogfood test now fails on it, and our checker stopped rejecting INTERVAL=02."
 ---
 
 [RFC 5545](https://www.rfc-editor.org/rfc/rfc5545#section-3.1) says a line in
