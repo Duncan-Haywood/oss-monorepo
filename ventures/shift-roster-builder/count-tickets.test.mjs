@@ -87,7 +87,9 @@ test("sales page: a 'Staff to' choice passes count to the plan and the backtest"
   const { readFileSync } = await import("node:fs");
   const html = readFileSync(new URL("./shifts-from-sales.html", import.meta.url), "utf8");
   assert.match(html, /<select id="count">/);
-  assert.equal((html.match(/count: \$\("#count"\)\.value \|\| undefined/g) || []).length, 2);
+  // Both the plan and the backtest take the choice through driver() (count, or a labour standard since 2026-11-12).
+  assert.match(html, /count: c \|\| undefined/);
+  assert.equal((html.match(/\.\.\.driver\(\)/g) || []).length, 2);
 });
 
 test("the backtest's note names the unit counted", () => {

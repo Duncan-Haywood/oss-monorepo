@@ -48,7 +48,7 @@
       "file": "prompts/research/prompt-0.md",
       "why": "Research work stays inside research/, but main's validate check was red (portfolio/flagships.yaml shift-roster-builder next: over the 2000-char cap), failing this PR's CI.",
       "did": "Trimmed two parenthetical README pointers from that next: field (2089 -> under 2000 chars); the detail stays in the venture README.",
-      "result": "portfolio/router/validate.py passes locally."
+      "result": "Passed locally and turned this PR's CI green, but a sibling run fixed the same entry on main meanwhile; the merge conflict was resolved by taking main's version, so the fix did not land (duplicate effort, cheap)."
     }
   ],
   "writeups": [

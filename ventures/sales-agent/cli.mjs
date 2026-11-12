@@ -12,7 +12,8 @@
 //   outcomes without the server. No answer brings the call back the next business day, up to three tries; --prep reads
 //   the same file and lists that person's calls.
 //   A call that slips pushes that person's later steps back by the same business days. [--holidays us|us-business|gb-eng|
-//   gb-sct|gb-nir|2026-11-27,...] keeps retry and moved dates off those days.
+//   gb-sct|gb-nir|ca|ca-on|ca-qc|...|2026-11-27,...] keeps retry and moved dates off those days. A prospect's own
+//   holidays, region (CA-QC) or country (CA, GB, US) column moves a call due on their day off to their next working day.
 // Research: with --web it also reads each account home page title (robots.txt respected, 1 s apart).
 // Research: node cli.mjs --crm crm-export.csv [--icp icp.json] [--prospects p.csv] [--suppression s.txt] [--offer offer.json] [--top 25] [--web]
 //   ranks your CRM export against your ICP and writes accounts.csv (with first-touch drafts), research-left-out.csv and

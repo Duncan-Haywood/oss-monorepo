@@ -43,3 +43,12 @@ test("sales page: the closure score is a box, on by default, passed to the backt
   assert.match(html, /o\.halfLife = autoPick\.halfLife; o\.window = autoPick\.window;/);
   assert.match(html, /the last 4 weeks only on your own file/);
 });
+
+test("sales page: a labour standard option feeds minutes per ticket, sale and item to the engine", () => {
+  const html = readFileSync(new URL("./shifts-from-sales.html", import.meta.url), "utf8");
+  assert.match(html, /<option value="standard">minutes of work/);
+  assert.match(html, /id="std"/);
+  assert.match(html, /\{ standard: \$\("#std"\)\.value \}/);
+  assert.match(html, /record\("sales_labour_standard"\)/);
+  assert.match(html, /Minutes of work per labor hour/);
+});
