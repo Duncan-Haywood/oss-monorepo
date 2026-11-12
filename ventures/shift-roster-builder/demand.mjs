@@ -413,10 +413,12 @@ export function averageSales(entries, o = {}) {
   const hourDates = DAYS.map(() => Array.from({ length: 24 }, () => new Set()));
   const insideDates = DAYS.map(() => Array.from({ length: 24 }, () => new Set())); // dates with a sale (or in-hours work)
   const undatedInside = DAYS.map(() => new Array(24).fill(0));
+  const hasOutside = DAYS.map(() => new Array(24).fill(false)); // the hour carries before-open or after-close work
   let undatedSeen = DAYS.map(() => new Array(24).fill(0));
   for (const e of entries) {
     const w = weightOf(e.key);
     sum[e.day][e.hour] += e.amount * w;
+    if (e.outside) hasOutside[e.day][e.hour] = true;
     if (e.key) { dates[e.day].set(e.key, w); hourDates[e.day][e.hour].add(e.key); if (!e.outside) insideDates[e.day][e.hour].add(e.key); }
     else { undatedSeen[e.day][e.hour] = 1; if (!e.outside) undatedInside[e.day][e.hour] = 1; }
   }
@@ -444,7 +446,9 @@ export function averageSales(entries, o = {}) {
       out.avg[d][h] = div ? sum[d][h] / div : 0;
       out.seen[d][h] = hourDates[d][h].size || undatedSeen[d][h];
       const inside = dates[d].size ? insideDates[d][h].size : undatedInside[d][h];
-      out.outside[d][h] = out.seen[d][h] > 0 && inside * 5 < out.observed[d];
+      // Only an hour that carries shut-door work (2026-11-12 last): before that, any rarely traded hour inside the day
+      // was marked, so minimum staff 2 fell to 1 there with no before-open or after-close work in the standard at all.
+      out.outside[d][h] = hasOutside[d][h] && out.seen[d][h] > 0 && inside * 5 < out.observed[d];
     }
   }
   for (const c of out.closed) out.notes.push(`${WEEKDAY_NAMES[c.day]}: sales on ${c.open} of ${c.of} in the file, so treated as closed (--keep-rare keeps it).`);
