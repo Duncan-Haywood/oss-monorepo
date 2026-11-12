@@ -78,7 +78,7 @@ import{checkRegistrationNumber,transitionalShare}from"./japan.mjs";
 const $=i=>document.getElementById(i);
 const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
 function r(){const v=$("reg").value;if(!v.trim()){$("reg-out").innerHTML="";return}const x=checkRegistrationNumber(v);$("reg-out").innerHTML=x.kind==="corporate"?'<span class="good">Shape and corporate check digit are consistent.</span>':x.kind==="other"?'<span class="bad">Shape is fine. '+esc(x.problems[0])+"</span>":x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
-function d(){const s=transitionalShare($("pd").value);$("pd-out").textContent=s===null?"Enter a date on or after 1 Oct 2023.":s===0?"From 1 Oct 2029: no credit without a qualified invoice.":`Credit on a purchase from an unregistered seller on this date: ${s*100}% of the input tax.`}
+function d(){const s=transitionalShare($("pd").value);$("pd-out").textContent=s===null?"Enter a date on or after 1 Oct 2023.":s===0?"From 1 Oct 2029: no credit without a qualified invoice.":`Credit on a purchase from an unregistered seller on this date: ${+(s*100).toFixed(4)}% of the input tax.`}
 $("reg").addEventListener("input",r);$("pd").addEventListener("input",d);d();
 </script>
 </main>

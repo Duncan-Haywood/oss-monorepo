@@ -130,8 +130,8 @@ export function qsbsExclusionOutcome({
   if (nextTier) {
     findings.push({
       severity: "medium",
-      title: `Next tier: ${nextTier.percent * 100}% at ${nextTier.years} years`,
-      detail: `Your exclusion increases at each holding-period milestone under the new tiered rule. Right now you are excluding ${money(excludedGain)} of ${money(eligibleGain)} eligible gain (${percent * 100}%).`,
+      title: `Next tier: ${+(nextTier.percent * 100).toFixed(4)}% at ${nextTier.years} years`,
+      detail: `Your exclusion increases at each holding-period milestone under the new tiered rule. Right now you are excluding ${money(excludedGain)} of ${money(eligibleGain)} eligible gain (${+(percent * 100).toFixed(4)}%).`,
     });
   }
 

@@ -60,7 +60,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stdi
   const args = parseArgs(argv);
   if (args.help || !args.sub) return { exitCode: args.help ? 0 : 1, output: USAGE };
   if (args.sub === "classes") {
-    const rows = Object.entries(CLASS_TABLE).map(([k, v]) => `${k.padEnd(20)} ${String(v.vcpu).padStart(3)} vCPU ${String(v.memGib).padStart(4)} GiB  $${v.price.toFixed(3)}/hr${v.baseline === null ? "" : `  burstable, baseline ${v.baseline * 100}%`}`);
+    const rows = Object.entries(CLASS_TABLE).map(([k, v]) => `${k.padEnd(20)} ${String(v.vcpu).padStart(3)} vCPU ${String(v.memGib).padStart(4)} GiB  $${v.price.toFixed(3)}/hr${v.baseline === null ? "" : `  burstable, baseline ${+(v.baseline * 100).toFixed(4)}%`}`);
     return { exitCode: 0, output: [`Embedded class table (${PRICES_AS_OF}):`, ...rows].join("\n") };
   }
   if (args.sub !== "analyze") return { exitCode: 2, output: `Unknown subcommand "${args.sub}". Try --help.` };

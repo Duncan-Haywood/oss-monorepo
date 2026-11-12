@@ -259,7 +259,7 @@ export function layoutFoundation(f) {
   }
   const notes = [
     f.cornerBars ? "Horizontal bars run straight along each side with an L-bar at every corner and layer; chairs are not counted." : "Footing bars are one continuous loop (bent at the corners on site); corner L-bars and chairs are not counted.",
-    `Rebar is lapped 40 bar diameters at each joint in ${formatLength(stock)} stock; ${waste * 100}% waste is added to concrete only.`,
+    `Rebar is lapped 40 bar diameters at each joint in ${formatLength(stock)} stock; ${+(waste * 100).toFixed(4)}% waste is added to concrete only.`,
     "Sizes, bar schedules, frost depth and soil bearing are your inputs; nothing here checks them against a code or an engineer's design.",
   ];
   if (lastLoad < 3 && trucks > 1) notes.push(`The last truck carries only ${lastLoad.toFixed(1)} cu yd; most plants charge a short-load fee under about 3 yd, so consider rounding the pour up or splitting it.`);

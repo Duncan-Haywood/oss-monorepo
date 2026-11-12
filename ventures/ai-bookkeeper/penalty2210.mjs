@@ -58,7 +58,7 @@ export function ratePeriods(year, rates = {}) {
     let rate = rates[key] ?? UNDERPAYMENT_RATES[key];
     if (rate === undefined) {
       rate = UNDERPAYMENT_RATES[LAST_ON_FILE];
-      warnings.push(`No IRS underpayment rate on file for ${key.replace("-", " Q")}; ${rate * 100}% (the last one on file, ${LAST_ON_FILE.replace("-", " Q")}) is used. Check irs.gov/payments/quarterly-interest-rates or pass rates.`);
+      warnings.push(`No IRS underpayment rate on file for ${key.replace("-", " Q")}; ${+(rate * 100).toFixed(4)}% (the last one on file, ${LAST_ON_FILE.replace("-", " Q")}) is used. Check irs.gov/payments/quarterly-interest-rates or pass rates.`);
     }
     return { start, end, rate, key };
   });
