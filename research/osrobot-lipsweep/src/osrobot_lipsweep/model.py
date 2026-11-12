@@ -6,7 +6,7 @@ import math, random
 
 DT = 0.002            # s, integration step
 M_TIP = 0.30          # kg, effective moving mass at the spoon (ASSUMED)
-KP, KD = 400.0, 28.0  # N/m, N s/m, tip position loop (ASSUMED; about critically damped for M_TIP)
+KP, KD = 400.0, 28.0  # N/m, N s/m, tip position loop (ASSUMED; damping ratio about 1.3 for M_TIP)
 F_ACT = 20.0          # N, actuator force limit per axis (ASSUMED)
 K_LIP, C_LIP = 800.0, 1.5   # N/m, s/m, lip wall: Hunt-Crossley F = K x (1 + C v), no force step at touch (ASSUMED)
 R_MOUTH = 0.012       # m, opening half-width the spoon must be inside (ASSUMED)
