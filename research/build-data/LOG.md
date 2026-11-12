@@ -1,5 +1,16 @@
 # build-data log
 
+## Session 77, 2026-11-12: a general fold rule, chosen from training-time data only
+
+Why: session 76 showed that folding demolition into alteration removes two thirds of cascade2's Seattle i2c 2024 transfer q0.9 cost, but the fold was picked after seeing session 75's per-class split of that very test year. A rule a practitioner can use must decide the fold before the test year exists. Session 76's suggested rule read the ratio interval on the test year; this one does not.
+- New: `transfer.py --classes cascade2_tailfold`. `tailfold_map()` compares, per cascade2 class, the target's q0.9 among the sources' training rows (years <= Y-2) with the held-out city's own history (years <= Y-2, the rows its own baseline is fitted on). A class with at least 50 rows on each side whose source/held q0.9 ratio has a 95% bootstrap interval entirely above 1 folds into alteration (into "other" if alteration is itself flagged). The fold map and per-class diagnostics are written to the transfer json. 2 tests (flags only the longer source tail; changing every test-year row leaves the fold unchanged; small classes are never flagged).
+Predictions (written before any run with the rule): `python3.13 src/transfer.py DIR --target T --seeds 3 --held H --test-year Y --classes cascade2 cascade2_tailfold` (paired: tailfold minus cascade2).
+- (T1) Seattle i2c 2024: the rule flags demolition, from history alone.
+- (T2) Seattle i2c 2024, transfer q0.9, tailfold minus cascade2: 95% interval below zero.
+- (T3) Seattle i2c 2023: the same difference has a point estimate at or below zero (session 75 found demolition still contributed +0.62 days in 2023, inside an aggregate that spanned zero).
+- (T4) Chicago held out and Austin held out, a2i 2024: wherever the rule flags a class, transfer q0.9 tailfold minus cascade2 has a 95% interval whose upper end is below +1% of the own baseline's q0.9 loss (the fold does not cost). Where it flags nothing, the configurations are identical and T4 is not testable for that city.
+Each is refuted if its condition fails.
+
 ## Session 76, 2026-11-12: naming demolition is what costs cascade2 its i2c q0.9 transfer; folding it into alteration removes two thirds of the cost and keeps the gains (S1 to S4 held)
 
 Why: session 75 found that of cascade2's +3.01-day Seattle i2c 2024 transfer q0.9 cost, demolition rows carry +1.69 (56%, 398 rows), and that demolition is the one class whose source completion tail is longer than Seattle's (q0.9 ratio 1.20). It read this post hoc as: naming a class imports the sources' tail for it. Session 75 suggested dropping source demolition rows. This session tests a cleaner version: `--classes cascade2_nodemo` folds demolition into alteration. The training rows stay the same and only the class feature loses demolition, so any change comes from not naming the class. A second session (this one) independently reran session 75's i2c 2024 and a2i 2023 pairs on a 2026-11-12 pull with the same row counts, and got the same numbers to the printed digit (+3.01 [1.65, 4.39]; -5.56 [-6.46, -4.56]; the same per-class split).
