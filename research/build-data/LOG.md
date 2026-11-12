@@ -10,6 +10,7 @@ Predictions (written before any run): `python3.13 src/censored_eval.py validate 
 - (W3) Austin held out, 2020 and 2022: reference transfer q0.9 nodemo minus cascade2 < 0 (folding demolition helps Austin's tail, as in 2021). Refuted if either year is >= 0.
 - (W4) Austin 2021, reference, transfer q0.9 type minus cascade2: rows in the classes the work-type cascade adds to Austin's building permits (new construction, alteration, demolition) carry more than half of the -15.3-day total. Refuted otherwise.
 - (W5) In all four new city-years, the CC estimate of type minus cascade2 at q0.9 has the same sign as the reference (in SF and Austin under 4% of a cohort is beyond the longest window, against 5 to 8% in Seattle). Refuted if any sign differs.
+- Added after the Austin 2021 class split (W4 refuted: electrical, plumbing and mechanical rows carry 13.2 of the 15.3 days) and before running `src/class_shift.py`: (W6) in each of those three trade classes, at least 95% of Austin's 2021 test rows carry the same class under `type` and `cascade2`, and the source cities' training rows labelled with that class grow by at least 20% under `cascade2` (the cost comes from source rows the description rules move into the trade classes, not from relabelling Austin). Refuted if any class fails either part.
 
 ## Session 79, 2026-11-12: on complete labels the work-type class helps Seattle and SF build-time q0.9 transfer and costs Austin 15 days; session 74's Seattle cost was censoring (V1, V2, V4 held; V3, V5 refuted)
 
