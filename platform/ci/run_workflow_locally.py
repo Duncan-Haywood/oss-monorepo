@@ -378,6 +378,12 @@ TOOLCHAIN_MISSING = (
     re.compile(r"Error \[ERR_MODULE_NOT_FOUND\][^\n]*'([^']+)'"),
     re.compile(r"^(?:.*: )?([\w.@/+-]+): command not found"),
     re.compile(r"command not found: ([\w.@/+-]+)"),
+    # A compiled extension that will not load: PATH's python3 3.11 found a
+    # Pillow built for 3.13, so `from PIL import Image` raised this while
+    # /usr/bin/python3 imported it (photo-editing, run record 2026-11-12).
+    # Only `_private` names, the C-extension convention; `pkg._ext` is what a
+    # working interpreter must import.
+    re.compile(r"cannot import name '(?P<ext>_\w+)' from '(?P<pkg>[\w.]+)'"),
 )
 
 # The same "did not run" class, reached from the other direction: a step whose
@@ -492,8 +498,12 @@ def missing_toolchain(output, cwd: str) -> str | None:
     for line in output:
         for pattern in TOOLCHAIN_MISSING:
             found = pattern.search(line.strip())
-            if found and not _provided_by_repo(found.group(1), cwd):
-                return found.group(1)
+            if not found:
+                continue
+            name = (f"{found['pkg']}.{found['ext']}" if "pkg" in pattern.groupindex
+                    else found.group(1))
+            if not _provided_by_repo(name, cwd):
+                return name
     return None
 
 

@@ -214,9 +214,26 @@ class Selection(unittest.TestCase):
         with mock.patch.object(rvt, "since_slugs") as since, \
                 mock.patch.object(rvt, "has_tests", return_value=False), \
                 mock.patch("sys.stdout"):
-            rvt.main(["--since", "0" * 40])
-            rvt.main(["--since", ""])
+            rvt.main(["--since", "0" * 40, "--no-unwired"])
+            rvt.main(["--since", "", "--no-unwired"])
         since.assert_not_called()
+
+    def test_since_runs_the_checks_no_workflow_names_and_fails_on_a_red_one(self):
+        # 30 of 60 check_*.py ran in no PR; #15195 put a stray </head> on main.
+        import unwired_checks
+        with mock.patch.object(rvt, "since_slugs", return_value=[]), \
+                mock.patch.object(unwired_checks, "unwired", return_value=["check_x.py"]), \
+                mock.patch.object(unwired_checks, "run_all",
+                                  return_value=[("check_x.py", 1, "a.html: stray </head>")]), \
+                mock.patch("builtins.print") as printed:
+            self.assertEqual(rvt.main(["--since", "abc123"]), 1)
+        self.assertIn("stray </head>", " ".join(str(c.args[0]) for c in printed.call_args_list))
+        with mock.patch.object(rvt, "since_slugs", return_value=[]), \
+                mock.patch.object(unwired_checks, "run_all") as ran, \
+                mock.patch("sys.stdout"):
+            self.assertEqual(rvt.main(["--since", "abc123", "--no-unwired"]), 0)
+            self.assertEqual(rvt.main(["someventure-that-is-not-here"]), 0)
+        ran.assert_not_called()
 
     def test_the_biggest_suite_starts_first(self):
         # A fixed worker pool finishes sooner when the longest suite is not
@@ -334,6 +351,20 @@ class Elsewhere(unittest.TestCase):
                                              rvt.ROOT, {}, 10)
         self.assertTrue(ok, out)
         self.assertEqual(asked, [("numpy",), ("numpy", "pytest")])
+
+    def test_a_broken_extension_probes_the_extension_not_the_package(self):
+        # `import PIL` passed on the interpreter whose Pillow would not load.
+        outs = iter([(False, "ImportError: cannot import name '_imaging' from 'PIL' (x)"),
+                     (True, "ok")])
+        asked = []
+        with mock.patch.object(rvt, "run_one", lambda *a, **k: next(outs)), \
+             mock.patch.object(rvt, "interpreter_with",
+                               lambda *m: asked.append(m) or "/usr/bin/python3"):
+            ok, out = rvt.run_elsewhere_step(["bash", "-ec", "python3 -m unittest"],
+                                             rvt.ROOT, {}, 10)
+        self.assertTrue(ok, out)
+        self.assertEqual(asked, [("PIL._imaging",)])
+        self.assertIn("lacks PIL", out)
 
     def test_with_no_interpreter_it_fails_and_says_how_to_get_one(self):
         with mock.patch.object(rvt, "run_one", return_value=(False, "No module named pytest")), \

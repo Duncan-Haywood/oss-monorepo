@@ -37,6 +37,9 @@ pass was not the CI pass (run-record doc friction, 2026-11-12).
 `--no-elsewhere` turns that off; CI never does it, since those workflows run
 there on their own.
 An empty or all-zero `--since` (a new branch, a dispatch) means every venture.
+`--since` also runs every argument-free platform/ci/check_*.py that no
+workflow names (unwired_checks.py; `--no-unwired` skips them): 30 of 60 ran in
+no PR before 2026-11-12, and one let a stray `</head>` reach main (#15195).
 
 Exit 0 when every suite passes (ventures with no tests are skipped), else 1.
 """
@@ -209,15 +212,18 @@ def run_elsewhere_step(argv, cwd, env, timeout):
     import run_workflow_locally as rwl
     env = env or {}
     ok, out = run_one(argv, cwd, timeout, env)
-    lacking, note = [], ""
+    lacking, probes, note = [], [], ""
     # Each retry can surface the next missing module (ig-media-pipeline:
-    # numpy, then pytest), so ask for all of them at once.
+    # numpy, then pytest), so ask for all of them at once. `probes` keeps a
+    # broken extension's full name (PIL._imaging): `import PIL` passed on the
+    # very interpreter whose Pillow would not load (photo-editing, 2026-11-12).
     while not ok and len(lacking) < 4:
         absent = rwl.missing_toolchain(out.splitlines(), str(cwd))
         if not absent or absent.split(".")[0] in lacking:
             break
         lacking.append(absent.split(".")[0])
-        py = interpreter_with(*lacking)
+        probes.append(absent if "._" in absent else absent.split(".")[0])
+        py = interpreter_with(*probes)
         if py is None:
             names = " ".join(lacking)
             return False, (f"{note}{out}\n`{names}` not installed for python3 here, so this suite "
@@ -442,6 +448,8 @@ def main(argv):
                     help="end with the N slowest suites, slowest first")
     ap.add_argument("--no-elsewhere", action="store_true",
                     help="skip the Python test steps a named venture's own workflow runs")
+    ap.add_argument("--no-unwired", action="store_true",
+                    help="with --since, skip the check_*.py scripts no workflow runs (unwired_checks.py)")
     args = ap.parse_args(argv)
 
     if args.since is not None and args.since.strip("0 "):
@@ -502,7 +510,22 @@ def main(argv):
         if ON_ACTIONS:
             for rel, line, lookup in lint:
                 print(f"::error file={rel},line={line},title=inherited key::{lookup} needs Object.hasOwn")
-    return 1 if failed or lint else 0
+    # `--since` is CI's mode (ventures-tests.yml): also run the tree checks no
+    # workflow names, which no PR ran before 2026-11-12 (unwired_checks.py).
+    unwired_red = False
+    if args.since is not None and not args.no_unwired:
+        import unwired_checks
+        results = unwired_checks.run_all(unwired_checks.unwired())
+        bad = unwired_checks.report(results)
+        unwired_red = bool(bad)
+        if bad:
+            print(bad)
+            if ON_ACTIONS:
+                for name, rc, _ in results:
+                    if rc:
+                        print(f"::error title=unwired check failed::platform/ci/{name} (exit {rc})")
+        print(f"{sum(rc == 0 for _, rc, _ in results)}/{len(results)} unwired tree checks pass")
+    return 1 if failed or lint or unwired_red else 0
 
 
 if __name__ == "__main__":
