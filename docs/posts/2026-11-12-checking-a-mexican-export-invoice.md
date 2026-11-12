@@ -2,8 +2,8 @@
 title: "Checking a Mexican export invoice against SAT's own error list"
 seo_title: "Comercio Exterior 2.0 checker: SAT's CCE101 to CCE172 rules, offline"
 date: 2026-11-12
-description: "A Mexican export invoice carries a customs complement with its own error list. We turned SAT's 68 rules into offline checks. The guide's four worked examples pass, and all 208 planted faults are caught."
-tags: [einvoice-preflight, mexico, cfdi, comercio-exterior, exports, e-invoicing]
+description: "SAT lists 68 errors for the export complement of a Mexican e-invoice. As offline checks, the guide's 4 examples pass, 208 of 208 planted faults caught."
+tags: [einvoice-preflight, mexico, cfdi, comercio-exterior, export, e-invoicing]
 ---
 
 When a Mexican company exports goods, its CFDI (the stamped e-invoice) carries a second document inside it, the *complemento para comercio exterior*. Customs reads it at the border, and SAT matches it against the export declaration (the pedimento). It holds the buyer's foreign tax id and address, the tariff code of each item, the quantity in the tariff's own unit, and the value of every item in US dollars. A PAC (the authorised stamping service) rejects the invoice if any of that disagrees with the rest of it.
