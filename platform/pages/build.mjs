@@ -22,7 +22,7 @@
 
 import { verificationHead } from './site-verification.mjs';
 import { promises as fs, existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { loadLastChanged } from './lastmod.mjs';
 import { generateVenturePages } from './generated-pages.mjs';
 import crypto from 'node:crypto';
@@ -30,6 +30,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
+import { promisify } from 'node:util';
 
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
@@ -175,6 +176,7 @@ import {
 import { servedPath } from './served-path.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+const gzipAsync = promisify(zlib.gzip);
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
 
 // The Pages path used before the repository was renamed; it now answers 404.
@@ -4460,8 +4462,20 @@ async function buildResearchPage(outDir, baseUrl) {
     '--base-url', baseUrl,
     '--site-chrome', chrome,
   ];
-  execFileSync('python3', args, {
-    stdio: ['ignore', 'ignore', 'inherit'],
+  // A child process, not `execFileSync`: `buildSiteInner` starts this at the
+  // top and awaits it where the research pages are first read, so the Python
+  // build (about 1.9 s) runs on another core beside the CPU-bound JS passes
+  // in between instead of blocking them
+  // (docs/history/pages-build-perf-2026-11-12-warm-phases.md). Nothing the
+  // JS writes before that await is under `research/`, and the builder reads
+  // only `research/` sources and the chrome file. Same exit semantics: a
+  // non-zero exit fails the build, with Python's stderr passed through.
+  await new Promise((resolve, reject) => {
+    const child = spawn('python3', args, { stdio: ['ignore', 'ignore', 'inherit'] });
+    child.on('error', reject);
+    child.on('close', (code, signal) => (code === 0
+      ? resolve()
+      : reject(new Error(`Command failed: python3 ${args.join(' ')} (exit ${code ?? signal})`))));
   });
 }
 
@@ -11941,25 +11955,26 @@ export async function addOfflineSupport({
   // patch-order-sensitive here the way the old single whole-catalog number
   // was: neither carries a size marker, so nothing this loop reads is a file
   // the patch below is about to rewrite.
-  const gzipBytesOf = async (assets) => {
-    let bytes = 0;
-    for (const asset of assets) {
-      if (asset.endsWith('/')) continue; // directory alias of a page already counted
-      const buf = await fs.readFile(path.join(outDir, asset));
-      bytes += zlib.gzipSync(buf, { level: 9 }).length;
-    }
-    return bytes;
-  };
-  const sharedBytes = await gzipBytesOf(shared);
-  const categorySizes = [];
-  for (const category of categories) {
-    categorySizes.push({
-      id: category.id,
-      title: category.title,
-      assets: category.assets,
-      bundleBytes: sharedBytes + (await gzipBytesOf(category.assets)),
-    });
-  }
+  //
+  // Each file's gzipped size is taken once, on libuv's thread pool, several at
+  // a time: one after another with `gzipSync` this was about 2 s of main
+  // thread on a 17 MB catalogue. The sums are the same numbers in any order
+  // (docs/history/pages-build-perf-2026-11-12-warm-phases.md).
+  const sizeOf = new Map();
+  const sized = [...new Set([shared, ...categories.map((c) => c.assets)].flat())]
+    .filter((asset) => !asset.endsWith('/')); // directory alias of a page already counted
+  await mapLimit(sized, 8, async (asset) => {
+    const buf = await fs.readFile(path.join(outDir, asset));
+    sizeOf.set(asset, (await gzipAsync(buf, { level: 9 })).length);
+  });
+  const gzipBytesOf = (assets) => assets.reduce((sum, asset) => sum + (sizeOf.get(asset) ?? 0), 0);
+  const sharedBytes = gzipBytesOf(shared);
+  const categorySizes = categories.map((category) => ({
+    id: category.id,
+    title: category.title,
+    assets: category.assets,
+    bundleBytes: sharedBytes + gzipBytesOf(category.assets),
+  }));
 
   // Patched into the hub's own copy so the picker's per-category size can
   // never drift from reality: see offlineSizeMarker in offline.mjs for the
@@ -11998,18 +12013,28 @@ export async function buildSite({
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   SITE_COUNTER_URL = normaliseCounterUrl(counterUrl);
   SITE_FEEDBACK_URL = normaliseCounterUrl(feedbackUrl);
+  const pending = {};
   try {
-    return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn });
+    return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn, pending });
   } finally {
+    // The research builder runs beside the JS passes; when one of those throws,
+    // wait for it to stop writing into outDir before the caller cleans up.
+    await pending.research?.catch(() => {});
     SITE_COUNTER_URL = '';
     SITE_FEEDBACK_URL = '';
   }
 }
 
-async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn }) {
+async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn, pending = {} }) {
 
   await fs.rm(outDir, { recursive: true, force: true });
   await fs.mkdir(outDir, { recursive: true });
+  // Started now, awaited before the research directory is read (see
+  // buildResearchPage). The no-op catch keeps an early failure from being an
+  // unhandled rejection; the await below still throws it.
+  const researchBuild = buildResearchPage(outDir, base);
+  pending.research = researchBuild;
+  researchBuild.catch(() => {});
 
   generateVenturePages(venturesDir);
   const discovered = await discoverSurfaces(venturesDir);
@@ -12328,7 +12353,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     await fs.writeFile(path.join(outDir, name), contents);
   }
 
-  await buildResearchPage(outDir, base);
+  await researchBuild;
   const researchSlugs = [];
   for (const entry of await fs.readdir(path.join(outDir, RESEARCH_PATH), { withFileTypes: true })) {
     if (entry.isDirectory() && (await fs.stat(path.join(outDir, RESEARCH_PATH, entry.name, 'index.html')).catch(() => null))) {
