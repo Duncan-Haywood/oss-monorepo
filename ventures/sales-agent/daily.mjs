@@ -24,6 +24,9 @@ const stepKey = (email, step) => `${String(email || "").toLowerCase()}|${String(
  * Sent mail is read two ways. An email touch whose subject you already sent to that address (Re:/Fwd: ignored, any
  * date) is done, and listed in sentMatched. Any other message you sent to the person on or after two days before a
  * due email touch holds that touch: you wrote to them some other way, so a person checks it is not a double touch.
+ * retry (added 2026-11-12): calls that rang out, re-dated by the caller: rows { email, step, on (YYYY-MM-DD), tries,
+ * last } or lines "email|step|YYYY-MM-DD|tries". A matching task is moved to `on` (it is "later" before then, due that
+ * day, overdue after), keeps its plan date as `planned`, and carries `tries` (no-answer calls so far) and `last`.
  * Returns { today, queue, held, dropped, later, stale, sentMatched, summary, brief }.
  */
 export function runDaily(input) {
@@ -33,6 +36,8 @@ export function runDaily(input) {
   const byEmail = new Map(prospects.filter((p) => p.email).map((p) => [p.email.toLowerCase(), p]));
   const suppressedBy = suppressionIndex(input.suppression);
   const done = new Set(String(input.done || "").split(/\n/).map((l) => l.trim()).filter(Boolean).map((l) => { const [e, ...s] = l.split(/[|,]/); return stepKey(e, s.join(",")); }));
+  const retry = new Map((Array.isArray(input.retry) ? input.retry : String(input.retry || "").split(/\n/).map((l) => l.trim()).filter(Boolean).map((l) => { const [email, step, on, tries] = l.split("|"); return { email, step, on, tries }; }))
+    .filter((r) => r && r.email && r.step != null && Number.isFinite(toDay(r.on))).map((r) => [stepKey(r.email, r.step), { on: String(r.on).slice(0, 10), tries: Number(r.tries) || 1, last: r.last || "" }]));
   const maxOverdue = input.maxOverdueDays ?? 5, emailCap = input.emailCap ?? 40;
   const queue = [], held = [], dropped = [], stale = [], sentMatched = [];
   let later = 0, alreadyDone = 0;
@@ -46,6 +51,8 @@ export function runDaily(input) {
 
   for (const r of rows) {
     const t = { date: r.date, channel: (r.channel || "").toLowerCase(), step: r.step, prospect: r.prospect, company: r.company, email: (r.email || "").toLowerCase(), phone: r.phone, call_window: r.call_window, subject: r.subject, body: r.body, voicemail: r.voicemail, issues: r.issues };
+    const rt = retry.get(stepKey(t.email, t.step));
+    if (rt) Object.assign(t, { planned: t.date, date: rt.on, tries: rt.tries, last: rt.last });
     const day = toDay(t.date);
     if (!Number.isFinite(day)) { held.push({ ...t, reason: "no readable date in the task list" }); continue; }
     if (done.has(stepKey(t.email, t.step))) { alreadyDone++; continue; }
@@ -96,7 +103,7 @@ function brief(today, queue, held, dropped, stale, s) {
     const list = queue.filter((q) => q.channel === ch);
     if (!list.length) continue;
     out.push(`## ${{ call: "Calls", email: "Email", linkedin: "LinkedIn", letter: "Letters" }[ch]} (${list.length})`);
-    for (const q of list) out.push(`- ${q.overdue ? "[overdue " + q.date + "] " : ""}${q.prospect || q.email}${q.company ? ", " + q.company : ""} (${q.step})${ch === "call" && q.call_window ? " " + q.call_window : ""}`);
+    for (const q of list) out.push(`- ${q.overdue ? "[overdue " + q.date + "] " : ""}${q.prospect || q.email}${q.company ? ", " + q.company : ""} (${q.step})${ch === "call" && q.call_window ? " " + q.call_window : ""}${q.tries ? ` (try ${q.tries + 1}: no answer ${q.tries === 1 ? "once" : q.tries + " times"}${q.last ? ", last " + q.last : ""})` : ""}`);
     out.push("");
   }
   const section = (title, list) => { if (list.length) { out.push(`## ${title} (${list.length})`); for (const x of list) out.push(`- ${x.prospect || x.email} (${x.step}, ${x.channel}): ${x.reason}`); out.push(""); } };
@@ -114,5 +121,5 @@ export function runMorning(input) {
   return { inbox, daily };
 }
 
-export const csvQueue = (d) => toCsv(d.queue, ["date", "overdue", "channel", "step", "prospect", "company", "email", "phone", "call_window", "subject", "body", "voicemail"]);
+export const csvQueue = (d) => toCsv(d.queue, ["date", "overdue", "channel", "step", "prospect", "company", "email", "phone", "call_window", "subject", "body", "voicemail", "tries"]);
 export const csvLeftOut = (d) => toCsv([...(d.sentMatched || []).map((x) => ({ ...x, outcome: "already sent", reason: `in your sent mail on ${x.sent_on} ("${x.sent_subject}")` })), ...d.dropped.map((x) => ({ ...x, outcome: "dropped" })), ...d.held.map((x) => ({ ...x, outcome: "held" })), ...d.stale.map((x) => ({ ...x, outcome: "too old" }))], ["outcome", "date", "channel", "step", "prospect", "company", "email", "reason"]);

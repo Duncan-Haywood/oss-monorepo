@@ -104,18 +104,19 @@ flagships:
       through the proxy that day, but probe first, it has refused before); a larger
       local model (14B+, about 11 GB RAM) as the Enron reader with
       `eval/model-reader.mjs`, scored for agreement with the agent readers before its
-      labels count. Without a model host: (6) the Today's queue
-      Done button landed 2026-11-12 (README "A Done button for calls and LinkedIn");
-      next on that queue, a call outcome per Done (no answer, voicemail, spoke) that
-      re-queues a no-answer call next business day and feeds prep.mjs, tested on the
-      real cadence builder plan.
+      labels count. Without a model host: (6) call outcomes landed
+      2026-11-12 (README "Call outcomes on the Today's queue": spoke, voicemail, no
+      answer re-queued next business day up to 3 tries, fed to prep.mjs); next on that
+      queue, a no-answer that pushes the cadence's later steps back by the same days
+      (today a third try at the step-3 call lands on the step-4 email's day), and a holiday list
+      for the retry day, both tested on the real cadence builder plan.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
       real replies reliably, keeping consent records, and earning each step of autonomy with measurements.
     next: >-
       History and every measurement: README, eval/README and git (inbox agent, daily run
-      with sent mail as the done list, Today's queue Done button, self-host server with TLS
+      with sent mail as the done list, Today's queue Done button and call outcomes, self-host server with TLS
       and XOAUTH2, research agent, call prep, follow-ups, meeting slots and .ics invites,
       CRM write-back against fake servers only; nineteen agent-written reply sets; .eml and
       .mbox files). Real mail (eval/enron.mjs, Enron): seven rule rounds scored blind on
