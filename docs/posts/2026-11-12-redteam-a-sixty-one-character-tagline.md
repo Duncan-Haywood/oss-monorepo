@@ -3,7 +3,7 @@ title: "A 61-character tagline: sixteen seeded faults in the launch-kit and GitH
 seo_title: "Launch kit drafts now stay inside every venue's length limit"
 date: 2026-11-12
 tags: [testing, mutation-testing, distribution, redteam]
-description: "Sixteen faults seeded into two distribution scripts; nine caught. A manual hunt found the launch kit could write a Product Hunt tagline one character over the limit."
+description: "Sixteen faults seeded into two distribution scripts, eight caught. The launch kit could also write a Product Hunt tagline one character over its limit."
 ---
 
 The [launch kit](../../platform/distribution/launch-kit.mjs) writes drafts the
