@@ -167,6 +167,18 @@ export const HOME_MOTION_CSS = `
                                      padding-bottom: 2px; /* the word's underline */ }
     }
     .ticker b.out { opacity: 0; transform: translateY(-.4em); }
+    /* Phones: the search box is the hub's main control, and it has to be on
+       the first screen. With the 2.3rem headline floor (4 lines at 320 to
+       390 px) the input ended at 629 px on a 375 px iPhone SE-class phone,
+       whose Safari shows about 553 px, and at 730 px on 320 x 640. A 1.85rem
+       headline (3 lines from 360 px) and tighter gaps above the search end it
+       at 538 and 631 px (polish-2026-11-12-hub-short-phones.md). */
+    @media (max-width: 480px) {
+      .hero-inner { padding-top: 24px; }
+      .hero h1 { font-size: 1.85rem; margin-bottom: 12px; }
+      .ticker { margin-bottom: 12px; }
+      .search { margin-top: 20px; }
+    }
     .hero .stats { background: rgba(14, 20, 38, .72); border-color: var(--line); }
     .hero .stats div { border-color: var(--line); }
     .hero .stats dd a { color: var(--ink); }
