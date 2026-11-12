@@ -1,9 +1,9 @@
 ---
 title: "A Mexican postal code knows its municipality, and now the checker asks it"
-seo_title: "CFDI Carta Porte and Comercio Exterior: check municipio, localidad and colonia against the código postal"
+seo_title: "CFDI check: municipio, localidad and colonia vs código postal"
 date: 2026-11-12
 tags: [einvoice-preflight, ventures]
-description: "SAT rejects an export address whose municipality or colonia is not its postal code's. The checker now asks SAT's catalogues; 56 PAC-stamped files raised nothing."
+description: "SAT rejects an export address whose municipality or colonia is not its postal code's. The checker now asks the catalogues; 56 PAC-stamped files raised nothing."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/mexico-cfdi-e-invoice-mandate.html) checks a Mexican CFDI before it goes to a PAC for stamping. Exports (the Comercio Exterior complement) and waybills (Carta Porte) both carry full Mexican addresses, and each part of the address is a SAT catalogue code, not free text:
