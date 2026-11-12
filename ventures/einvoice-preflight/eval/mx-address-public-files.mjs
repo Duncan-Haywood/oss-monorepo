@@ -8,7 +8,7 @@
 // attributes are the same in all of them. Distinct files by content hash. Prints how many
 // addresses carry each field as a code or as a name, and for each kind of disagreement the
 // addresses it fires on, split by stamp: a real PAC's, SAT's test certificate
-// (SAT970701NN3) or a placeholder, or none.
+// (SAT970701NN3) or a placeholder (AAA010101AAA, Odoo's ___ignore___), or none.
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { addressProblems, cpInfo, cpColonias } from "../mx-address.mjs";
@@ -34,7 +34,7 @@ for (const f of files) {
   if (!doms.length) continue;
   tally.files++;
   const pac = /RfcProvCertif="([^"]*)"/.exec(t)?.[1];
-  const stamp = !pac ? "none" : pac === "SAT970701NN3" || /ignore|\{|\$/.test(pac) ? "test" : "PAC";
+  const stamp = !pac ? "none" : ["SAT970701NN3", "AAA010101AAA"].includes(pac) || /ignore|\{|\$/.test(pac) ? "test" : "PAC";
   stamps[stamp]++;
   const mine = [];
   for (const d of doms) {
