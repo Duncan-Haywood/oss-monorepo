@@ -223,6 +223,25 @@ test('job presets cover the three turf types and the pet-yard contrast', () => {
   assert.ok(JOB_PRESETS.some((job) => job.turfType === 'pet' && job.treeWells > 0 && job.sodDemo));
 });
 
+test('each job preset starts from its turf type\'s own base depth, so loading it matches the comparison row', () => {
+  for (const job of JOB_PRESETS) {
+    const typed = compareTurfTypes({ ...COSTS, ...job }).find((row) => row.turfType === job.turfType);
+    const kit = compareTurfTypes({ ...COSTS, ...job, baseDepthIn: '' }).find((row) => row.turfType === job.turfType);
+    assert.equal(typed.price, kit.price, job.label);
+  }
+});
+
+test('checkbox words from a link, CLI or agent mean what they say', () => {
+  const off = bid({ sodDemo: 'no', geotextile: 'off' });
+  assert.equal(off.sodDemo, false);
+  assert.equal(off.geotextile, false);
+  assert.equal(off.price, bid({ sodDemo: false, geotextile: false }).price);
+  const on = bid({ sodDemo: 'Yes', geotextile: ' on ' });
+  assert.equal(on.sodDemo, true);
+  assert.equal(on.geotextile, true);
+  assert.throws(() => bid({ sodDemo: 'maybe' }), /Expected yes or no, got "maybe"/);
+});
+
 test('inputs that would silently produce a nonsense bid are rejected', () => {
   assert.throws(() => bid({ lawnSqFt: 0 }), /Lawn square feet must be greater than zero/);
   assert.throws(() => bid({ turfType: 'astroturf' }), /Unknown turf type/);
