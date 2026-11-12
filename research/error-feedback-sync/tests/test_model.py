@@ -38,6 +38,15 @@ class T(unittest.TestCase):
         self.assertAlmostEqual(sx / ef_var(s, V, 0.6, 8, 0.5), 1.0, delta=0.03)
         self.assertAlmostEqual(se / residual_var(s, V, 0.6, 8, 0.5), 1.0, delta=0.03)
 
+    def test_baselines_at_finite_step_match_hand_closed_forms(self):
+        # By hand (quality audit round 49), s=0.5, V=0.2, alpha=0.5, N=4, rho=0.1:
+        # unbiased: w=9, d=2-0.25-0.25*9/4=1.1875, 0.5*0.2*10/(4*0.5*1.1875)=0.42105263...
+        # dropped: K~Bin(4,0.1), EK=0.4, EK2=0.52, mult=1-0.05+(0.0625**2)*0.52, var=0.125**2*0.4*0.2/(1-mult)
+        self.assertAlmostEqual(unbiased_var(0.5, 0.2, 0.5, 4, 0.1), 0.1 / 0.2375, places=10)
+        mult = 1 - 0.05 + 0.0625 ** 2 * 0.52
+        self.assertAlmostEqual(dropped_var(0.5, 0.2, 0.5, 4, 0.1), 0.125 ** 2 * 0.4 * 0.2 / (1 - mult), places=10)
+        self.assertAlmostEqual(dropped_var(0.5, 0.2, 0.5, 4, 0.1), 0.0260586319218, places=10)
+
     def test_dropped_matches_simulation(self):
         sim = simulate_dense("dropped", s, V, 0.6, 8, 0.25, 200000, 2000, seed=5)
         self.assertAlmostEqual(sim / dropped_var(s, V, 0.6, 8, 0.25), 1.0, delta=0.03)
