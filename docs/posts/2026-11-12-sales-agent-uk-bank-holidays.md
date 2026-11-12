@@ -2,7 +2,7 @@
 title: "Good Friday is not a business day: UK bank holidays in the sales agent, checked against GOV.UK"
 date: 2026-11-12
 tags: [sales-agent, scheduling, holidays, testing]
-description: The sales agent's call retries now skip UK bank holidays in all three divisions. A test against GOV.UK's own file found a bug in the Easter arithmetic and a holiday no rule predicts.
+description: Call retries in the sales agent now skip UK bank holidays. A test against GOV.UK's own file caught an Easter bug and a one-off holiday.
 ---
 
 Earlier today the [sales agent](https://marisstella.app/sales-agent/) learned to bring a missed cold call back the next business day and to skip US holidays when it does. That leaves a UK rep in a bad spot. Miss a call on the Thursday before Easter and it comes back on Good Friday, when nobody is at their desk.
