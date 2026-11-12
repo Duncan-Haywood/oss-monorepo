@@ -52,7 +52,7 @@
     "ventures/shift-roster-builder/README.md (section: The multi-week planner plans in the worker too)"
   ],
   "goal": null,
-  "notes": "Security queue empty; IDEAS.md and website requests empty. allocate.py pointed at shift-roster-builder. Browser check (build-worker.check.mjs, headless Chromium, cafe sample, 4 weeks, exact on): plan main thread 7173 ms / longest frame gap 6233 ms; worker 6365 ms / 17 ms; same table; plan Stop and re-plan ok; existing build checks still pass (worker gap 33 ms). node --test page-worker calc cli page-limits: 195/195 pass. Full venture suite (run_venture_tests.py shift-roster-builder) and venture-preflight run before merge; results appended below.",
+  "notes": "Security queue empty; IDEAS.md and website requests empty. allocate.py pointed at shift-roster-builder. Browser check (build-worker.check.mjs, headless Chromium, cafe sample, 4 weeks, exact on): plan main thread 7173 ms / longest frame gap 6233 ms; worker 6365 ms / 17 ms; same table; plan Stop and re-plan ok; existing build checks still pass (worker gap 33 ms). node --test page-worker calc cli page-limits: 195/195 pass. Full venture suite (run_venture_tests.py shift-roster-builder) and venture-preflight both clean: run_venture_tests.py shift-roster-builder ok (132.2 s, 0 failed); venture-preflight.mjs 'preflight clean for shift-roster-builder'.",
   "corrections": [],
   "redteam": null,
   "usage": {
