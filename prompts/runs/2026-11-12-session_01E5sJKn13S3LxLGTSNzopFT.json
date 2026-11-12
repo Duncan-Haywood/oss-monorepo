@@ -43,6 +43,10 @@
     {
       "file": "platform/ci/run_workflow_locally.py",
       "issue": "--for-changes on a venture + docs/posts diff spent >5 min in portfolio-pages 'Test the site builder' and detached; the venture check itself took 6 s."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Running einvoice-preflight-ci.yml with --force ignores the job-level env (PYTHONPATH: src), so cli-test and examples fail locally with ModuleNotFoundError: einvoice_preflight, which looks like a real failure. With PYTHONPATH=src set, the 21 tests pass."
     }
   ],
   "deviations": [
@@ -57,7 +61,7 @@
     "docs/posts/2026-11-12-a-typo-should-blame-itself.md"
   ],
   "goal": null,
-  "notes": "Two campaigns (pagos20.mjs, cfdi.mjs; 12 mutants each, ~6 s suite). Catch rate 15/24 = 62.5% before, 24/24 after. Guard added: ventures/einvoice-preflight/unreadable-numbers.test.mjs (134 broken-number variants of both fixtures; every finding must point at the broken attribute) - it failed on main's code, both fixtures. run_venture_tests.py einvoice-preflight: ok (6.0s). run_workflow_locally --for-changes: pages.yml 3/3 run steps ok; portfolio-pages site-builder test detached after 100 s, left to CI.",
+  "notes": "Two campaigns (pagos20.mjs, cfdi.mjs; 12 mutants each, ~6 s suite). Catch rate 15/24 = 62.5% before, 24/24 after. Guard added: ventures/einvoice-preflight/unreadable-numbers.test.mjs (134 broken-number variants of both fixtures; every finding must point at the broken attribute) - it failed on main's code, both fixtures. run_venture_tests.py einvoice-preflight: ok (6.0s). run_workflow_locally --for-changes: pages.yml 3/3 run steps ok; portfolio-pages site-builder test detached after 100 s, left to CI. einvoice-preflight-ci.yml by hand: node --test via run_venture_tests ok; PYTHONPATH=src unittest discover -s tests OK.",
   "corrections": [],
   "redteam": {
     "campaigns": [
