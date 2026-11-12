@@ -30,12 +30,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
   "errors": [
-    "One auditor's shell slip created a stray file named '=' under ventures/ (unquoted >= in echo); it deleted it before finishing."
+    "One auditor's shell slip created a stray file named '=' under ventures/ (unquoted >= in echo); it deleted it before finishing.",
+    "CI portfolio-pages test failed once: faq-visible.test.mjs caught that the COI page's visible renewal-gap answer was edited without its FAQPage JSON-LD; fixed in a follow-up commit."
   ],
   "integrity_issues": [],
   "doc_friction": [
