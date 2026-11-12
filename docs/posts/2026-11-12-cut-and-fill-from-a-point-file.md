@@ -2,7 +2,7 @@
 title: "Cut and fill from a surveyor's point file, exactly, in a browser"
 date: 2026-11-12
 tags: [earthwork-cut-fill, construction, site-work, geometry, new-venture]
-description: A new free tool turns PNEZD survey shots into a Delaunay TIN and integrates cut and fill against a pad exactly. Its triangles match Qhull's on every test set; one bug along the way was a sliver the textbook algorithm loses.
+description: A free tool turns PNEZD survey shots into a Delaunay TIN and exact cut and fill. Its triangles match Qhull's; one bug was a sliver Bowyer-Watson loses.
 ---
 
 A small site-work contractor bidding a house pad usually gets a point file from the surveyor: a few hundred lines of point number, northing, easting, elevation and a code. Turning that into "how many yards come off, how many go back, how many trucks" is a job for Civil 3D or Carlson, which most two-truck outfits don't have. So the estimate gets done on a grid on graph paper, or by eye.
