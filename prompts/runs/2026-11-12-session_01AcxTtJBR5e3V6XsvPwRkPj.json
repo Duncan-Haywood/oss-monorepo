@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtJBR5e3V6XsvPwRkPj",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T17:07:13Z",
+  "ended": "2026-11-12T17:18:21Z",
+  "wall_minutes": 11.37,
+  "tokens_in": 10040543,
+  "tokens_out": 105440,
+  "cost_usd": 6.2871,
+  "tool_calls": 127,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15196",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "quality_mutate.py: a test command that cd's to the subject path fails the baseline, because the tool already runs from the subject root in its private copy (cost one retry)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "The quality_mutate.py bullet does not say the test command runs with cwd = the subject root of the private copy; I passed `cd research/friction-twin && ...` and got 'baseline failed'."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a 4-subject quality PR selects 16 workflows (up to 80 min) and detaches; for this track running each subject's own suite is the practical local check."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 says to fix what is small and safe; for qual-hypothesis the headline ratio (7.6x) was wrong but a full rerun with a signed measure is not small",
+      "did": "added a correction note at the top of the README and corrected the project.json summary with the auditor's signed figures, which I reproduced; left the rerun to the project's next run",
+      "result": "the public claim no longer overstates; the README and the page agree with the audit file"
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "PR #15193 already used the default seed 2026-11-12-k for round 52",
+      "did": "used --seed 2026-11-12-l and numbered this round 53",
+      "result": "no subject overlap with #15193"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-quality-audit-round-53.md"
+  ],
+  "goal": null,
+  "notes": "Mode sample, seed 2026-11-12-l, round 53. Subjects: ventures/horse-boarding-stall-profit-calculator, ventures/tender-bid-readiness, research/qual-hypothesis, research/friction-twin. Share meeting the bar this round: 0 of 4; all sampled rounds 31 of 222 (Wilson 95% 10%-19%). Seeded mutations caught 10 of 25. Fixes in PR #15196: tender bond regex (FAR bid guarantee / bid security) + deadline preference + GovWin claim reworded; horse below-break-even warning + hourly pay when losing after wages; friction-twin tests pinning minimax/crossover/twin-time (abs and log10 mutants now caught); qual-hypothesis BH-vs-Bonferroni test (mutant now caught) + headline correction. Spot-checks I reran: friction-twin k=1.2308, ratio 1.8028, minimax 1.8494/0.1997; qual-hypothesis signed probe (0.0129/0.0023 at n=100, 0.0143/0.0139 at n=2000); horse 50%-full profit -947 and 4.6 horses short. Local checks: each subject's suite (horse 23 pass, tender 18 pass, friction-twin 10 OK, qual-hypothesis OK), quality_audit validate (262 files, 0 problems), research/_homepage/build.py ok, check_md_links ok, post front matter/links/similarity ok. run_workflow_locally --for-changes selected 16 workflows and detached; not used as the gate.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "67bd57d3-d405-5f56-9673-f790b946bf15",
+    "transcripts": 5,
+    "first": "2026-11-12T17:07:13Z",
+    "last": "2026-11-12T17:18:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 122,
+        "input": 244,
+        "output": 105440,
+        "thinking": 24005,
+        "cache_read": 9656456,
+        "cache_write_5m": 274899,
+        "cache_write_1h": 108944,
+        "api_equivalent_usd": 6.2871,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 122,
+      "input": 244,
+      "output": 105440,
+      "thinking": 24005,
+      "cache_read": 9656456,
+      "cache_write_5m": 274899,
+      "cache_write_1h": 108944,
+      "api_equivalent_usd": 6.2871,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.962,
+    "tool_calls": 127,
+    "tools": {
+      "Bash": 106,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "ToolSearch": 2,
+      "ScheduleWakeup": 2,
+      "Write": 2,
+      "Read": 2,
+      "WebFetch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.37,
+      "active_minutes": 8.08,
+      "model_minutes": 4.81,
+      "tool_minutes": 3.27,
+      "waiting_on_human_minutes": 3.29,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 17.13
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "four independent expert audits with recomputation plus four small fixes, about 2.5 h each",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 159.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
