@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23245b6e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='17'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ESC%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Synthetic Control Method Online: Did My Intervention Work? Free Causal Impact Tool</title>
+  <meta name="description" content="Free synthetic control calculator (Abadie, Diamond and Hainmueller). Upload a panel CSV of units over time, pick the treated unit and the intervention date, and get donor weights, the counterfactual path, the estimated effect, placebo permutation p-values and leave-one-out checks. Matches R Synth on the West Germany example. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Synthetic control in your browser: did the policy, launch or event change the outcome?">
+  <meta property="og:description" content="Build a weighted twin of one state, country, store or region from untreated peers, then read the effect as the gap after the intervention, with placebo inference. Free and private.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Synthetic Control: did my intervention work?", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Upload a long panel CSV (one row per unit and period), choose the treated unit and the first affected period, and get the synthetic control estimate of Abadie, Diamond and Hainmueller: donor weights, predictor balance, the treated and synthetic paths, the average post-period gap, placebo-in-space permutation p-values with a pre-fit screen, and leave-one-out robustness. Runs in your browser.", "featureList": "synthetic control method online, synthetic control calculator, causal impact of a policy, comparative case study, donor weights, predictor balance table, placebo test, permutation p-value, post/pre RMSPE ratio, leave-one-out robustness, cross-validated V, CSV download", "citation": ["https://doi.org/10.1257/000282803321455188", "https://doi.org/10.1198/jasa.2009.ap08746", "https://doi.org/10.1111/ajps.12116", "https://doi.org/10.1257/jel.20191450"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does the synthetic control method answer?", "acceptedAnswer": {"@type": "Answer", "text": "What would have happened to one treated unit (a state, country, city, store or product line) without the intervention. It builds a weighted average of untreated units that tracks the treated unit before the intervention; the gap afterwards is the estimated effect."}}, {"@type": "Question", "name": "What data do I need?", "acceptedAnswer": {"@type": "Answer", "text": "A long panel: one row per unit and period, with a unit column, a numeric time column and the outcome. You need one treated unit, several untreated comparison units that were not exposed to anything similar, and enough periods before the intervention for a good fit to mean something, ideally ten or more."}}, {"@type": "Question", "name": "How is the p-value computed?", "acceptedAnswer": {"@type": "Answer", "text": "By placebo runs. Every donor is treated as if it had received the intervention, and the ratio of post- to pre-intervention fit error is computed for each. If the real unit has the largest ratio among J donors plus itself, the permutation p-value is 1 / (J + 1). With 16 donors the smallest possible p-value is 1/17, about 0.059."}}, {"@type": "Question", "name": "What is V, and what does cross-validation change?", "acceptedAnswer": {"@type": "Answer", "text": "V says how much each predictor counts when matching the treated unit. By default it is chosen so the synthetic unit tracks the outcome as closely as possible before the intervention. Cross-validation, as in Abadie, Diamond and Hainmueller (2015), chooses V on an earlier training window and judges it on a later one, which guards against overfitting the pre-period."}}, {"@type": "Question", "name": "When should I not trust the result?", "acceptedAnswer": {"@type": "Answer", "text": "When the pre-period fit is poor, when the treated unit lies outside the range of the donors on key predictors, when donors were affected by the same intervention or by spillovers, when another shock hit the treated unit at the same time, or when dropping one donor changes the answer completely."}}, {"@type": "Question", "name": "How is this different from difference-in-differences?", "acceptedAnswer": {"@type": "Answer", "text": "Difference-in-differences compares the treated unit with an equally weighted control group and assumes parallel trends. Synthetic control chooses the weights from the data so the comparison tracks the treated unit before the intervention, and the weights are visible, non-negative and sum to one."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17262c; background: #f1f5f6; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #245b6e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #16404e; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #16404e; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b5d63; }
+    .card { background: #fff; border: 1px solid #d5e1e4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #16404e10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8a92; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    select[multiple] { min-height: 110px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #245b6e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2edf0; color: #16404e; }
+    button:disabled { opacity: .6; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eef0; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4b5d63; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.lead td { background: #eef6f8; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5e1e4; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #6f8a92; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+    .summary { font-size: 1.02rem; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .legend { font-size: .82rem; color: #4b5d63; margin: 4px 0 0; }
+    .sw { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin: 0 4px 0 10px; }
+    pre { background: #f3f7f8; border: 1px solid #dde7ea; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SYNTHETIC CONTROL · ABADIE, DIAMOND &amp; HAINMUELLER · PLACEBO INFERENCE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Did the intervention change the outcome?</h1>
+    <p>One state passed a law, one region got a new store format, one country went through a shock. Upload a panel of that unit and its untreated peers over time. The <strong>synthetic control method</strong> builds a weighted twin from the peers that tracks the treated unit before the intervention, and reads the effect as the gap after it. You get the <strong>donor weights</strong>, a <strong>predictor balance</strong> table, both paths on one chart, the <strong>average post-period gap</strong>, a <strong>placebo permutation p-value</strong> and a <strong>leave-one-out</strong> check, with a plain-language reading.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice, and not medical or policy advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your panel</h2>
+    <label for="csv">Long-format CSV with a header row: one row per unit and period (for example <code>state,year,sales,price</code>)</label>
+    <textarea id="csv" spellcheck="false" placeholder="state,year,sales&#10;California,1980,120.2&#10;Nevada,1980,138.5&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: West German reunification (Abadie, Diamond &amp; Hainmueller 2015)</button>
+    <p class="note" id="data-status">Paste a panel or load the example.</p>
+
+    <div class="grid">
+      <div><label for="unit">Unit column</label><select id="unit"></select></div>
+      <div><label for="time">Time column (numbers)</label><select id="time"></select></div>
+      <div><label for="outcome">Outcome column</label><select id="outcome"></select></div>
+      <div><label for="treated">Treated unit</label><select id="treated"></select></div>
+      <div><label for="at">First period affected</label><input id="at" inputmode="decimal" placeholder="1990"></div>
+      <div><label for="vmethod">Predictor weights V</label><select id="vmethod"><option value="nested" selected>Fit the pre-period outcome (Synth default)</option><option value="cv">Cross-validate on two halves of the pre-period</option><option value="equal">Equal</option></select></div>
+      <div><label for="covariates">Covariates averaged over the pre-period (optional; Ctrl/Cmd-click for several)</label><select id="covariates" multiple></select></div>
+      <div><label for="donors">Donor pool (default: all other units)</label><select id="donors" multiple></select></div>
+      <div><label for="prefilter">Placebo screen: drop placebos whose pre-period MSPE exceeds</label><select id="prefilter"><option value="0">no screen</option><option value="20">20x the treated unit's</option><option value="5" selected>5x the treated unit's</option><option value="2">2x the treated unit's</option></select></div>
+    </div>
+    <p class="note" id="spec-note">With no covariates, the pre-period outcome path itself is matched (every pre-period value is a predictor).</p>
+    <button type="button" id="analyze">Estimate</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div id="warnings"></div>
+    <div class="charts">
+      <div>
+        <div id="path-chart" role="img" aria-label="Outcome of the treated unit and its synthetic control over time, with the intervention marked and leave-one-out synthetic paths in grey"></div>
+        <p class="legend"><span class="sw" style="background:#16404e"></span>treated <span class="sw" style="background:#d1603d"></span>synthetic <span class="sw" style="background:#b9c7cb"></span>leave-one-out</p>
+      </div>
+      <div>
+        <div id="gap-chart" role="img" aria-label="Gap between each unit and its synthetic control over time: the treated unit in colour, placebo donors in grey"></div>
+        <p class="legend"><span class="sw" style="background:#d1603d"></span>treated gap <span class="sw" style="background:#b9c7cb"></span>placebo gaps (screened)</p>
+      </div>
+    </div>
+    <div class="charts">
+      <div>
+        <h3>Donor weights</h3>
+        <div class="scroll"><table id="weights-table"><thead><tr><th>Donor</th><th class="n">Weight</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div>
+        <h3>Predictor balance</h3>
+        <div class="scroll"><table id="balance-table"><thead><tr><th>Predictor</th><th class="n">Treated</th><th class="n">Synthetic</th><th class="n">Donor mean</th><th class="n">V</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+    <h3>Placebo runs, largest post/pre RMSPE ratio first</h3>
+    <div class="scroll"><table id="placebo-table"><thead><tr><th>Unit</th><th class="n">Pre RMSPE</th><th class="n">Post RMSPE</th><th class="n">Ratio</th><th>Screen</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" class="secondary" id="download">Download the paths (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>Let unit 1 be treated from period <em>T</em><sub>0</sub> on and units 2 to <em>J</em>+1 be donors. Collect <em>k</em> pre-intervention predictors (covariate averages and outcome values) in <em>X</em><sub>1</sub> for the treated unit and <em>X</em><sub>0</sub> for the donors, each scaled by its standard deviation. For a diagonal, non-negative <em>V</em> summing to one, the donor weights solve <code>min over W of (X1 - X0 W)' V (X1 - X0 W)</code> with <code>W &gt;= 0</code> and <code>sum W = 1</code> (Abadie &amp; Gardeazabal 2003). <em>V</em> is chosen to minimise the mean squared gap between the treated outcome and <code>Z0 W(V)</code> over the pre-period (the nested problem, solved by Nelder-Mead from equal weights), or by cross-validation: fit <em>V</em> with predictors from an early window against the outcome in a later one, then reuse it with predictors from the later window (Abadie, Diamond &amp; Hainmueller 2015). The inner problem is solved exactly by a primal active-set method.</p>
+    <p>The effect in each post-period is the gap <code>Y1t - sum_j W_j Yjt</code>; the summary reports its average. <strong>Inference</strong> follows Abadie, Diamond &amp; Hainmueller (2010): rerun the whole procedure with each donor as the treated unit (the real treated unit left out of the pool), compute each unit's ratio of post- to pre-period root mean squared prediction error (RMSPE), and report the treated unit's rank. The permutation p-value is rank / (<em>J</em>+1). The screen drops placebos whose pre-period MSPE is more than 20, 5 or 2 times the treated unit's, as in the paper's figures, since a placebo that never fit says nothing. <strong>Leave-one-out</strong> drops each donor with positive weight and refits (Abadie 2021 recommends it as a robustness check).</p>
+    <p>Verified by tests in the source against <strong>pysyncon 1.7.0</strong> (MIT), an independent Python implementation whose own parity tests pin it to R's Synth: on the West Germany example the cross-validated weights agree within 0.01 (Austria 0.41, USA 0.22, Japan 0.16, Switzerland 0.11, Netherlands 0.10), the synthetic path within 0.5% in every year, and the average 1990-2003 gap within 1% (about -1,555 dollars per head). With the same <em>V</em> the inner solve gives pysyncon's weights within 0.002; on the nested and outcome-only fits it reaches a pre-period error at or below pysyncon's. The active-set solver is checked against brute-force enumeration of supports on 200 random problems, and planted-effect panels recover the planted weights and effect exactly.</p>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>One treated unit.</strong> Several treated units need one run each, or a method built for staggered adoption.</li>
+      <li><strong>No interference.</strong> Donors must not have been affected by the intervention, by spillovers or by a similar policy of their own in the window.</li>
+      <li><strong>Convex hull.</strong> Weights are non-negative and sum to one, so a treated unit that is more extreme than every donor on a predictor cannot be matched; the tool warns when that happens.</li>
+      <li><strong>Small-sample inference.</strong> The placebo p-value can be no smaller than 1 / (<em>J</em>+1), and it is a rank, not a sampling-based standard error.</li>
+      <li>Not modelled: bias-corrected or augmented synthetic control (Ben-Michael, Feller &amp; Rothstein 2021), penalised weights, in-time placebos, conformal intervals and covariates measured after the intervention. Times must be numbers.</li>
+    </ul>
+    <h3>BibTeX</h3>
+    <pre>@article{abadie2003economic,
+  author  = {Abadie, Alberto and Gardeazabal, Javier},
+  title   = {The Economic Costs of Conflict: A Case Study of the Basque Country},
+  journal = {American Economic Review},
+  volume  = {93}, number = {1}, pages = {113--132}, year = {2003},
+  doi     = {10.1257/000282803321455188}
+}
+@article{abadie2010synthetic,
+  author  = {Abadie, Alberto and Diamond, Alexis and Hainmueller, Jens},
+  title   = {Synthetic Control Methods for Comparative Case Studies: Estimating the Effect of {California's} Tobacco Control Program},
+  journal = {Journal of the American Statistical Association},
+  volume  = {105}, number = {490}, pages = {493--505}, year = {2010},
+  doi     = {10.1198/jasa.2009.ap08746}
+}
+@article{abadie2015comparative,
+  author  = {Abadie, Alberto and Diamond, Alexis and Hainmueller, Jens},
+  title   = {Comparative Politics and the Synthetic Control Method},
+  journal = {American Journal of Political Science},
+  volume  = {59}, number = {2}, pages = {495--510}, year = {2015},
+  doi     = {10.1111/ajps.12116}
+}
+@article{abadie2021using,
+  author  = {Abadie, Alberto},
+  title   = {Using Synthetic Controls: Feasibility, Data Requirements, and Methodological Aspects},
+  journal = {Journal of Economic Literature},
+  volume  = {59}, number = {2}, pages = {391--425}, year = {2021},
+  doi     = {10.1257/jel.20191450}
+}
+@article{nelder1965simplex,
+  author  = {Nelder, John A. and Mead, Roger},
+  title   = {A Simplex Method for Function Minimization},
+  journal = {The Computer Journal},
+  volume  = {7}, number = {4}, pages = {308--313}, year = {1965},
+  doi     = {10.1093/comjnl/7.4.308}
+}</pre>
+    <p class="note">Example data: GDP per capita and growth predictors for West Germany and 16 OECD countries, 1960-2003, from the replication data of Abadie, Diamond &amp; Hainmueller (2015) as redistributed with pysyncon; provenance in <code>data/SOURCE.md</code>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What does the synthetic control method answer?</h3>
+    <p>What would have happened to one treated unit (a state, country, city, store or product line) without the intervention. It builds a weighted average of untreated units that tracks the treated unit before the intervention; the gap afterwards is the estimated effect.</p>
+    <h3>What data do I need?</h3>
+    <p>A long panel: one row per unit and period, with a unit column, a numeric time column and the outcome. You need one treated unit, several untreated comparison units that were not exposed to anything similar, and enough periods before the intervention for a good fit to mean something, ideally ten or more.</p>
+    <h3>How is the p-value computed?</h3>
+    <p>By placebo runs. Every donor is treated as if it had received the intervention, and the ratio of post- to pre-intervention fit error is computed for each. If the real unit has the largest ratio among J donors plus itself, the permutation p-value is 1 / (J + 1). With 16 donors the smallest possible p-value is 1/17, about 0.059.</p>
+    <h3>What is V, and what does cross-validation change?</h3>
+    <p>V says how much each predictor counts when matching the treated unit. By default it is chosen so the synthetic unit tracks the outcome as closely as possible before the intervention. Cross-validation, as in Abadie, Diamond and Hainmueller (2015), chooses V on an earlier training window and judges it on a later one, which guards against overfitting the pre-period.</p>
+    <h3>When should I not trust the result?</h3>
+    <p>When the pre-period fit is poor, when the treated unit lies outside the range of the donors on key predictors, when donors were affected by the same intervention or by spillovers, when another shock hit the treated unit at the same time, or when dropping one donor changes the answer completely.</p>
+    <h3>How is this different from difference-in-differences?</h3>
+    <p>Difference-in-differences compares the treated unit with an equally weighted control group and assumes parallel trends. Synthetic control chooses the weights from the data so the comparison tracks the treated unit before the intervention, and the weights are visible, non-negative and sum to one.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+</main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician or economist. Results are statistical estimates from the data you enter; they do not establish what caused any outcome, and they are not medical or policy advice. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the pysyncon or Synth projects, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs panel.csv --unit state --time year --outcome sales --treated California --at 1989</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/synthetic-control" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> gives intervals with guaranteed coverage, the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns and anomalies, <a href="../survival-analysis/">survival analysis</a> estimates time to an event, and <a href="../fdr-multiple-testing/">multiple testing correction</a> says which of many results still stand.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv } from "./engine.mjs";
+    import { EXAMPLE_CSV, EXAMPLE_SPEC } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const fmt = (x, d = 2) => (Number.isFinite(x) ? Number(x.toFixed(d)).toLocaleString("en-US", { maximumFractionDigits: d }) : "n/a");
+    let parsed = null;
+    let last = null;
+    let exampleSpec = false;
+
+    const opts = (list, sel = []) => list.map((c) => `<option value="${esc(c)}"${sel.includes(c) ? " selected" : ""}>${esc(c)}</option>`).join("");
+    const chosen = (el) => [...el.selectedOptions].map((o) => o.value);
+    const isNum = (col) => parsed.records.slice(0, 200).filter((r) => r[col] !== "").every((r) => Number.isFinite(Number(String(r[col]).replace(/,/g, ""))));
+
+    function refreshUnits() {
+      if (!parsed) return;
+      const u = $("#unit").value;
+      const units = [...new Set(parsed.records.map((r) => r[u]).filter((x) => x !== undefined && x !== ""))];
+      const prevT = $("#treated").value;
+      $("#treated").innerHTML = opts(units);
+      if (units.includes(prevT)) $("#treated").value = prevT;
+      refreshDonors();
+    }
+    function refreshDonors() {
+      if (!parsed) return;
+      const u = $("#unit").value;
+      const units = [...new Set(parsed.records.map((r) => r[u]).filter((x) => x !== undefined && x !== ""))].filter((x) => x !== $("#treated").value);
+      $("#donors").innerHTML = opts(units);
+    }
+    function refreshColumns() {
+      exampleSpec = false;
+      const text = $("#csv").value;
+      if (!text.trim()) { parsed = null; $("#data-status").textContent = "Paste a panel or load the example."; return; }
+      try { parsed = parseCsv(text); } catch (e) { parsed = null; $("#data-status").textContent = e.message; return; }
+      const h = parsed.header;
+      const numeric = h.filter(isNum);
+      const text1 = h.filter((c) => !numeric.includes(c));
+      const pick = (re, pool, fallback) => pool.find((c) => re.test(c)) || fallback;
+      const prev = { u: $("#unit").value, t: $("#time").value, y: $("#outcome").value };
+      $("#unit").innerHTML = opts(h);
+      $("#time").innerHTML = opts(numeric);
+      $("#outcome").innerHTML = opts(numeric);
+      $("#unit").value = h.includes(prev.u) ? prev.u : pick(/^(unit|state|country|region|city|store|id|name)$/i, h, text1[0] || h[0]);
+      $("#time").value = numeric.includes(prev.t) ? prev.t : pick(/^(year|time|period|date|month|week|t)$/i, numeric, numeric[0] || "");
+      $("#outcome").value = numeric.includes(prev.y) ? prev.y : numeric.find((c) => c !== $("#time").value && c !== $("#unit").value) || "";
+      $("#covariates").innerHTML = opts(numeric.filter((c) => c !== $("#time").value));
+      refreshUnits();
+      const nUnits = $("#treated").options.length;
+      $("#data-status").textContent = `${parsed.records.length} rows, ${h.length} columns, ${nUnits} units.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+    $("#unit").addEventListener("change", () => { exampleSpec = false; refreshUnits(); });
+    $("#treated").addEventListener("change", () => { exampleSpec = false; refreshDonors(); });
+    for (const id of ["#time", "#outcome", "#at", "#vmethod", "#covariates", "#donors"]) $(id).addEventListener("change", () => { exampleSpec = false; });
+
+    function inputs() {
+      const base = { csv: $("#csv").value, preFilter: Number($("#prefilter").value) };
+      if (exampleSpec) return { ...EXAMPLE_SPEC, ...base };
+      return { ...base, unit: $("#unit").value, time: $("#time").value, outcome: $("#outcome").value, treated: $("#treated").value, treatmentTime: $("#at").value, vMethod: $("#vmethod").value, covariates: chosen($("#covariates")), donors: chosen($("#donors")) };
+    }
+
+    function lineChart(el, { times, lines, t0, yLabel }) {
+      const W = 480, H = 300, L = 62, R = 12, T = 12, B = 36;
+      const ys = lines.flatMap((l) => l.values).filter(Number.isFinite);
+      let lo = Math.min(...ys), hi = Math.max(...ys);
+      if (lo === hi) { lo -= 1; hi += 1; }
+      const pad = (hi - lo) * 0.05; lo -= pad; hi += pad;
+      const x = (t) => L + ((t - times[0]) / (times[times.length - 1] - times[0] || 1)) * (W - L - R);
+      const y = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+      const path = (vals) => vals.map((v, i) => (Number.isFinite(v) ? `${x(times[i]).toFixed(1)},${y(v).toFixed(1)}` : null)).filter(Boolean).join(" ");
+      const ticks = 5;
+      let g = "";
+      for (let i = 0; i <= ticks; i++) {
+        const v = lo + ((hi - lo) * i) / ticks;
+        g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#eef3f4"/><text x="${L - 6}" y="${y(v) + 4}" font-size="11" text-anchor="end" fill="#4b5d63">${esc(fmt(v, Math.abs(hi - lo) < 10 ? 2 : 0))}</text>`;
+      }
+      const step = Math.max(1, Math.ceil(times.length / 8));
+      times.forEach((t, i) => { if (i % step === 0) g += `<text x="${x(t)}" y="${H - 14}" font-size="11" text-anchor="middle" fill="#4b5d63">${esc(t)}</text>`; });
+      if (lo < 0 && hi > 0) g += `<line x1="${L}" x2="${W - R}" y1="${y(0)}" y2="${y(0)}" stroke="#8aa0a6"/>`;
+      g += `<line x1="${x(t0)}" x2="${x(t0)}" y1="${T}" y2="${H - B}" stroke="#8aa0a6" stroke-dasharray="4 3"/>`;
+      for (const l of lines) g += `<polyline fill="none" stroke="${l.color}" stroke-width="${l.width || 1.5}" points="${path(l.values)}"/>`;
+      g += `<text x="14" y="${(H - B) / 2}" font-size="11" fill="#4b5d63" transform="rotate(-90 14 ${(H - B) / 2})" text-anchor="middle">${esc(yLabel)}</text>`;
+      el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+    }
+
+    function render(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      $("#warnings").innerHTML = r.notes.map((n) => `<p class="warn">${esc(n)}</p>`).join("");
+      const times = r.series.map((s) => s.time);
+      const loo = (r.leaveOneOut || []).filter((l) => l.synthetic).map((l) => ({ values: l.synthetic, color: "#b9c7cb", width: 1 }));
+      lineChart($("#path-chart"), { times, t0: r.treatmentTime, yLabel: r.outcome, lines: [...loo, { values: r.series.map((s) => s.treated), color: "#16404e", width: 2.2 }, { values: r.series.map((s) => s.synthetic), color: "#d1603d", width: 2.2 }] });
+      const kept = new Set(r.placebo ? r.placebo.screened.kept : []);
+      const placebos = r.placebo ? r.placebo.runs.filter((p) => kept.has(p.unit)).map((p) => ({ values: p.gaps, color: "#b9c7cb", width: 1 })) : [];
+      lineChart($("#gap-chart"), { times, t0: r.treatmentTime, yLabel: `gap in ${r.outcome}`, lines: [...placebos, { values: r.series.map((s) => s.gap), color: "#d1603d", width: 2.4 }] });
+      $("#weights-table").querySelector("tbody").innerHTML = r.weights.filter((w) => w.weight >= 0.0005).map((w) => `<tr><td>${esc(w.unit)}</td><td class="n">${(100 * w.weight).toFixed(1)}%</td></tr>`).join("") + `<tr><td class="note" colspan="2">${r.weights.filter((w) => w.weight < 0.0005).length} donors at zero weight</td></tr>`;
+      $("#balance-table").querySelector("tbody").innerHTML = r.balance.map((b) => `<tr><td>${esc(b.predictor)}</td><td class="n">${fmt(b.treated)}</td><td class="n">${fmt(b.synthetic)}</td><td class="n">${fmt(b.donorMean)}</td><td class="n">${fmt(b.v, 3)}</td></tr>`).join("");
+      const rows = r.placebo ? [{ unit: r.treated, preRMSPE: r.preRMSPE, postRMSPE: r.postRMSPE, ratio: r.ratio, lead: true }, ...r.placebo.runs.filter((p) => Number.isFinite(p.ratio))].sort((a, b) => b.ratio - a.ratio) : [];
+      $("#placebo-table").querySelector("tbody").innerHTML = rows.map((p) => `<tr${p.lead ? ' class="lead"' : ""}><td>${esc(p.unit)}${p.lead ? " (treated)" : ""}</td><td class="n">${fmt(p.preRMSPE)}</td><td class="n">${fmt(p.postRMSPE)}</td><td class="n">${fmt(p.ratio)}</td><td>${p.lead ? "" : kept.has(p.unit) ? "kept" : "dropped"}</td></tr>`).join("");
+    }
+
+    function runAnalysis() {
+      $("#status").textContent = "";
+      try {
+        last = analyze(inputs());
+        render(last);
+        $("#status").textContent = `Done: ${last.donors.length} donors, ${last.placebo ? last.placebo.runs.length + " placebo runs, " : ""}${last.leaveOneOut ? last.leaveOneOut.length + " leave-one-out refits" : ""}.`;
+        return true;
+      } catch (e) {
+        $("#results").hidden = true;
+        $("#status").textContent = e.message;
+        return false;
+      }
+    }
+    $("#analyze").addEventListener("click", () => {
+      $("#analyze").disabled = true;
+      $("#status").textContent = "Fitting the treated unit and every placebo...";
+      setTimeout(() => { if (runAnalysis()) record("analysis_run"); $("#analyze").disabled = false; }, 20);
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      $("#unit").value = EXAMPLE_SPEC.unit; refreshUnits();
+      $("#time").value = EXAMPLE_SPEC.time;
+      $("#outcome").value = EXAMPLE_SPEC.outcome;
+      $("#treated").value = EXAMPLE_SPEC.treated; refreshDonors();
+      $("#at").value = EXAMPLE_SPEC.treatmentTime;
+      $("#vmethod").value = "cv";
+      exampleSpec = true;
+      if (runAnalysis()) { record("example_loaded"); $("#data-status").textContent = "Example: West Germany and 16 OECD countries, 1960-2003, with the paper's predictors (GDP, trade, inflation, industry share, schooling, investment) and its cross-validated V. Change any setting to run your own specification."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const lines = ["time,treated,synthetic,gap", ...last.series.map((s) => [s.time, s.treated, s.synthetic, s.gap].map((v) => (Number.isFinite(v) ? v : "")).join(","))];
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lines.join("\n") + "\n"], { type: "text/csv" }));
+      a.download = "synthetic-control.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

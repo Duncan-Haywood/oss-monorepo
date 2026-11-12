@@ -166,6 +166,22 @@ CHECKS = [
     ("needs 1.42 to 1.54 times the LS pump energy", "spool_floor_results.txt", "OC/LS hydraulic 1.424"),
     ("needs 1.42 to 1.54 times the LS pump energy", "measured_motion_results.txt", "OC/LS hydraulic 1.543"),
     ("within 2.3%", "measured_loader_results.txt", "ratio to measured 1.023"),
+    ("76.7 min in all", "measured_excavator_results.txt", "total 76.7 min"),
+    ("(86.9% of the record)", "measured_excavator_results.txt", "40042 samples, 86.9%"),
+    ("has a median of 174.1 bar", "measured_excavator_results.txt", "pooled median 174.1 bar"),
+    ("167.1 to 180.4 bar)", "measured_excavator_results.txt", "95% bootstrap 167.1 to 180.4 bar"),
+    ("5.28 times", "measured_excavator_results.txt", "ratio to the force model's 33 bar: 5.28"),
+    ("1.30 times the loader's 133.9 bar", "measured_excavator_results.txt", "174.1, ratio 1.30"),
+    ("it is 155.4 bar", "measured_excavator_results.txt", "highest of the others 155.4 bar"),
+    ("0.392 of the machine's top pressure", "measured_excavator_results.txt", "moving median / top 0.392"),
+    ("444.1 bar), or 0.434", "measured_excavator_results.txt", "Measured top (p99.9 of highest live channel) 444.1 bar"),
+    ("444.1 bar), or 0.434", "measured_excavator_results.txt", "share 0.434"),
+    ("a factor of 2.14 to 2.37", "measured_excavator_results.txt", "ratio 2.14"),
+    ("a factor of 2.14 to 2.37", "measured_excavator_results.txt", "ratio to the force model's share 2.37"),
+    ("70.6 to 78.2 bar", "measured_excavator_results.txt", "working pressure of 70.6 bar"),
+    ("70.6 to 78.2 bar", "measured_excavator_results.txt", "at 180 bar 78.2 bar"),
+    ("to 23.8 bar (pressure", "measured_excavator_results.txt", "times 0.78 23.8 bar"),
+    ("or 58.8 bar (absolute", "measured_excavator_results.txt", "times 0.78 = 58.8 bar"),
 
 ]
 

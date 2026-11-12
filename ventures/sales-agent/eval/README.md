@@ -868,6 +868,33 @@ the sets the rules were tuned on) while adding no false opt-outs. It is not a re
 open: a hosted model (needs a key) and a larger local one (14B, about 9 GB) on the same sets; whether the 37 false stops the
 merge still lets through (mostly question to objection or not now) cost anything a person would notice.
 
+## "We are not interested": a veto narrowed with an Enron re-score (2026-11-12)
+
+A probe found that "We are not interested, thanks." went to a person as `unclear`, while "We're not interested, thanks." and
+"I am not interested, thanks." stopped as `not_interested`. The cause was a veto written in the second Enron round for
+someone else's no ("the counterparty is not interested", "tell them you're not interested"): its `are not interested` also
+matched "we are", and "we're" was never in it. So the plainest decline a firm writes depended on whether the writer used
+the contraction. Also caught: "Thanks but we are not interested.", "We are not interested at this time.", "Honestly we are
+not interested in this."
+
+**The change.** One lookbehind: `(?<!\bwe )are not interested` (engine.mjs, `VETO.not_interested`). "They are", "you're",
+"is" and "assume that X is" still veto.
+
+**The re-score.** `eval/enron.mjs --replies --json` on all eight halves (`0*` to `7*`, 76,565 RE: replies), with the old
+and new engine, compared by Message-ID: stops went from 414 to 417. The three new stops are two texts (one is filed twice):
+
+| Half | Text (paraphrased) | Right? |
+|---|---|---|
+| `5*` | "We are not interested in the sofa. Thanks." | Yes: a decline of an offer, exactly the reply this is for |
+| `5*`, `6*` | "We are the plaintiff but we are not interested in pursuing it." (internal note on a lawsuit) | No: a status note, not a decline |
+
+So one new wrong stop in 76,565 replies (0.013 per 1,000, against the 1.8 per 1,000 fresh wrong silent stops the away policy
+left on `7*`), and the cost of that error is a lead paused as "not interested", not suppressed. No stop was lost. Not
+narrowed further: "we are not interested in pursuing it" is also how a prospect declines, and one internal Enron note is not
+enough to tell the two apart. The agent-written sets (`eval/run.mjs`) and the model merge (`eval/model.mjs --offline` with
+the Qwen2.5 7B cache) score the same before and after (728/792 merged): none of their replies uses the phrase, which is why
+no earlier round saw it. Tests: `enron-eval.test.mjs`, "we are not interested is the writer's own decline".
+
 ## Mail files read as the server reads a mailbox (2026-11-11)
 
 `eval/mailfile-enron.mjs <dir>` writes every Enron message under `<dir>` into one mbox (mboxrd escaping), reads it back

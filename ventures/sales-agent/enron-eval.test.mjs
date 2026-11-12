@@ -361,3 +361,15 @@ test("a date that does not suit someone else is scheduling, not a departure (7*,
   const still = triage({ from: "a@example.com", subject: "RE: proposal", body: "Joe doesn't work for us anymore. Please contact Sam." }, "2001-06-01");
   assert.equal(still.category, "left_company");
 });
+
+// 2026-11-12 (eval/README.md "We are not interested"): the third-party veto ("the counterparty is not interested") also
+// matched "we are not interested", so the writer's own firm declining went to a person while "we're not interested" stopped.
+// Enron re-score, all eight halves (76,565 replies): three new stops, two texts, one a real decline ("We are not interested
+// in the sofa"), one internal ("we are the plaintiff but we are not interested in pursuing it").
+test("we are not interested is the writer's own decline; a third party's is still not", () => {
+  for (const body of ["We are not interested, thanks.", "We are not interested.", "Thanks but we are not interested.",
+    "We are not interested at this time.", "Honestly we are not interested in this."]) assert.equal(cat(body), "not_interested", body);
+  assert.notEqual(cat("It is my understanding that the counterparty is not interested in an option."), "not_interested");
+  assert.notEqual(cat("Tell them you're not interested and we will move on."), "not_interested");
+  assert.notEqual(cat("They are not interested in the swap, so we will try another bank."), "not_interested");
+});

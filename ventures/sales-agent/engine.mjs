@@ -522,7 +522,9 @@ const VETO = {
     // "I'll pass on SMU news to Chris", "I will pass it along", "I will pass your comments on", "pass it by your desk".
     /\b(i'?ll|i will|we'?ll|we will) pass (it|this|that|them|your|the) (on|along|to|by)\b|\b(i'?ll|i will|we'?ll|we will) pass (it |this |that |them |your \w+ |the \w+ )?(on|along)\b.{0,60}\bto\b|\bpass (it|this|that) along\b/i,
     // "the counterparty is not interested", "tell them you're not interested", "I will assume that you are not interested".
-    /\b(is|are|you'?re|your|they'?re|he'?s|she'?s|assume (that )?\w+ (is|are)) not interested\b/i,
+    // Not "we are not interested" (2026-11-12): the writer's own firm declining, the most common plain no; "we're" never
+    // matched here, so the two spellings were filed apart.
+    /\b(is|(?<!\bwe )are|you'?re|your|they'?re|he'?s|she'?s|assume (that )?\w+ (is|are)) not interested\b/i,
     // "we are fine with changing", "were fine with it", "we're all set on the language".
     /\b(we'?re|we are|were) (all )?(fine|good) with (?!(our|what we|the (current|one|tool|system|vendor|provider)))|\b(we'?re|we are|were) (all )?set on\b|\b\w+(,| and) \w+,? and \w+ were fine\b|\bwere set up\b/i],
   out_of_office: [DISCLAIMER,
