@@ -1,0 +1,55 @@
+name: semver-range-explainer
+description: >-
+  Free browser tool and CLI for JavaScript developers: explains an npm semver
+  range the way npm resolves it (the comparators ^, ~, x-ranges and hyphen
+  ranges become), gives a reason for every version that matches or misses,
+  including the prerelease rule, picks the version npm would install from a
+  pasted version list, and compares two ranges exactly (covers, overlaps)
+  with a witness version. CLI checks package.json ranges against
+  package-lock.json. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-12 in an explore run. duplicate_check.py: top score 0.18
+# (node-version-drift-check), nothing near the 0.45 bar. node-version-drift-check
+# parses engines.node ranges to compare Node versions across config files; it
+# does not explain prereleases, compare ranges or test arbitrary package
+# versions. npm-lockfile-duplicates-check reads lockfiles for repeated
+# packages. No venture explains a semver range.
+#
+# Why a tool and not a chatbot answer: the prerelease rule, the -0 upper
+# bounds, the bare-* collapse and the 7.7/7.8 corners are exactly where a
+# from-memory answer goes wrong, and "does range A cover range B" needs an
+# exhaustive check, not a guess. This engine is differential-tested against
+# node-semver 7.7.4 and 7.8.5 and gives a witness version for every "no".
+#
+# First visitor: developers searching "semver range not matching prerelease",
+# "npm caret vs tilde", "does ^1.2 include 1.3.0-beta"; volume not measured
+# with an external tool.
+
+hypotheses:
+  - claim: >-
+      Developers puzzled by a range that skips or admits a version will use a
+      paste-in tool that names the failing comparator or the prerelease rule,
+      rather than reading node-semver's README or trial and error with npx semver.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a range and version where the tool's verdict disagrees with npm's node-semver of the selected flavour and the cause is the engine, twice after fixes.
+
+links:
+  production: https://marisstella.app/semver-range-explainer/
+  analytics: null
