@@ -3,7 +3,7 @@ title: "A solar survey boat on one battery for a year: where the payload goes da
 seo_title: "Year-long solar USV mission: payload downtime by latitude, 2024 data"
 date: 2026-11-12
 tags: [research, marine-hull]
-description: "One 10 kWh pack through all of 2024: a 4 m solar survey boat keeps its 30 W payload on all year within 20 degrees of the equator, and loses it for 3 to 7 months poleward of 40."
+description: "One 10 kWh pack through 2024: a 4 m solar survey boat keeps its 30 W payload on all year near the equator, and loses it 3 to 7 months a year past 40 degrees."
 ---
 
 The [month-by-month map](2026-11-12-wave-glider-or-solar-boat-month-by-month.md) said a 4 m solar-powered survey boat out-travels a 2015 Wave Glider in the tropics and loses to it in the winter storm belts. It got there with two shortcuts. In one version the boat ran only on each month's average sunlight, and when that fell short of the payload's 30 W it was simply scored "0 km/day". In the other it started every month with a full battery, which in practice means a port call every month.
