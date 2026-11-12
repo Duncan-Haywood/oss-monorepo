@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKjmSaS8TqKgybai8Qu",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T11:25:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 3 (sales-agent): the offline item in its buildable note, narrowing the Enron veto that sent 'We are not interested' to a person, checked with an Enron re-score",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15107",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "huggingface.co answered 403 (CONNECT refused) through the proxy, so the 14B local-model run (buildable item 3b) could not start",
+      "fix": "took the offline item instead; noted the 403 in flagships.yaml"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "sales-agent buildable note gives a 5-hour 14B model run as the first item; on a run where huggingface.co is refused, only the last sentence is doable offline. Now notes the 403 and gives the Enron before/after recipe."
+    },
+    {
+      "file": "ventures/sales-agent/eval/enron.mjs",
+      "issue": "no before/after mode: re-scoring a rule change means swapping engine.mjs by hand between runs and diffing the --json output by Message-ID yourself."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-we-are-not-interested.md",
+    "ventures/sales-agent/eval/README.md (\"We are not interested\": a veto narrowed with an Enron re-score)"
+  ],
+  "goal": "Every run ships something useful; flagship depth (sales-agent reply reading)",
+  "notes": "Fix: VETO.not_interested third-party pattern `are not interested` gets a `(?<!\\bwe )` lookbehind. Enron re-score on all eight halves (0*-7*, 76,565 RE: replies), old vs new engine, by Message-ID: 414 -> 417 stops; new = 'We are not interested in the sofa. Thanks.' (right) and an internal litigation note filed twice (wrong). No stop lost. eval/run.mjs and eval/model.mjs --offline (Qwen2.5 7B cache) outputs byte-identical before and after (merged 728/792). Local checks: node --test enron-eval.test.mjs 210/210; run_venture_tests.py sales-agent ok; run_workflow_locally.py --for-changes (see PR).",
+  "corrections": [],
+  "redteam": null
+}
