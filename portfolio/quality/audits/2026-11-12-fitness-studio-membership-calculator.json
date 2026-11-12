@@ -62,6 +62,6 @@
     {"severity": "low", "what": "Zero classes a week with typed visits gives 0.0% utilization and 'full at about 0 members' with no warning; projected members are never checked against class capacity.", "where": "ventures/fitness-studio-membership-calculator/calc.mjs:75", "category": "input-handling", "origin": "implementation"},
     {"severity": "low", "what": "The catalogue files this fitness tool under 'food-service' (served breadcrumb 'Restaurant, bar & food truck pricing').", "where": "platform/pages/build.mjs:906", "category": "other", "origin": "build"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15127"],
   "verdict": "A small, clean membership-economics calculator whose numbers are right: an independent cohort-survival and closed-form stock-flow model reproduced LTV, CAC, payback, break-even, capacity, the 12-month projection and all four scenario deltas to the cent. It falls short of the bar on claims and verification: the README sells it as the way to decide between ads and retention, but neither scenario carries a cost and the +5 joins row adds members for free, and 5 of 7 seeded mutations (scenario magnitude, today's profit, every warning threshold) leave the 23 tests green. A studio consultant would use it for a first look at LTV and churn value, then hit single-price, blended-CAC, uncapped-lifetime and no-capacity-constraint limits within the hour. Does not meet the bar (verification 2, claims 2, median 2); finished on what it lists."
 }

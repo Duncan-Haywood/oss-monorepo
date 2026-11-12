@@ -199,6 +199,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15127"],
  "verdict": "The mathematics is right: an independent full-state covariance computation over all 2^N masks reproduces the error-feedback floor, the residual variance, the closed-form stability limit and both baselines to 6-10 digits, and every number in results.txt re-runs byte-identically. It misses the bar on verification and claims. Two of four seeded bugs, both in the baselines that every comparison rests on, leave the tests green. The paper's closing advice ('dropping with a rescaled step is as good' for exchangeable peers) contradicts its own table 3, where at equal speed error feedback has a 3-4x lower floor. No prior work is cited, although the headline 'the floor comes back' is the known EF-SGD result (Stich and Karimireddy 2020) in rate form. What is new is the exact quadratic stationary variance and z_max, and the paper should present it as that."
 }

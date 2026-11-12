@@ -232,6 +232,6 @@
       "origin": "implementation"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15127"],
   "verdict": "A small, honest, correctly-implemented discounted-cash-flow keep-vs-sell calculator: five independent recomputations (keep value, offer value, break-even, one-point value, 81% variant) match to the cent, the page states its model and limits, and privacy holds. It misses the bar on verification (2 of 6 seeded mutations survive, including a 10x error in the headline one-point figure) and falls short of what an agency M&A broker would sign off: the holdback is cut proportionally rather than dollar-for-dollar, the retention test ignores the holdback period, and the sample's uncosted owner labour (75% margin) makes a market-rate 1.5x offer look $309k too low. Finished (completeness 3), not at the bar."
 }
