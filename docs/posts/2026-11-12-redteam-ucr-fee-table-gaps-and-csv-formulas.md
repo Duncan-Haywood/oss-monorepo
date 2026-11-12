@@ -1,9 +1,9 @@
 ---
 title: "A fee table with a hole in it: red-teaming the UCR fee calculator, and 203 CSV exports that run formulas"
-seo_title: "UCR fee calculator: gapped fee tables now error, and a CSV formula-injection guard"
+seo_title: "UCR fee calculator: fee-table gaps and CSV formula injection fixed"
 date: 2026-11-12
 tags: [testing, mutation-testing, trucking, ucr, csv-injection, security, redteam]
-description: "Ten faults seeded into the UCR fee calculator, six caught. A manual hunt found a gapped fee table giving a wrong price jump, hex vehicle counts, and a CSV export that would run a typed formula; 203 other exporters had the same hole."
+description: "Ten faults seeded into the UCR fee calculator, six caught. Also fixed: a gapped fee table gave a wrong price jump, and CSV export ran typed formulas."
 ---
 
 The [UCR fee calculator](../../ventures/ucr-fee-calculator/) works out the

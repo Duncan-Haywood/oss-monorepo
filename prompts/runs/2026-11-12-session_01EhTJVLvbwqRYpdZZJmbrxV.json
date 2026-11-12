@@ -1,0 +1,229 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVLvbwqRYpdZZJmbrxV",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell revenue products)",
+  "input_sha256": "2435d91fc35fafe9bfc0a2c6b60d20877ef9491712743d9a805b500d7e90d515",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T19:56:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ventures/ucr-fee-calculator",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15241",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "rerun treats a red suite as caught (open defect from 2026-11-10), so a fix that changes a mutated line has to wait until after rerun; I held one test back and added it after rerun. Until #14612 lands, the prompt could say: make the suite green before rerun and land line-moving refactors after it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-redteam-ucr-fee-table-gaps-and-csv-formulas.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: all six open entries are control-plane workflow edits with open owner-approval PRs; none fixable outside .github. Campaign: ucr-fee-calculator/calc.mjs, 10 mutants, 6 caught, 3 gaps guarded (edge-sharing overlap, 1-vehicle perVehicle, top-bracket toNext crash), 1 equivalent. Four real defects patched (gapped fee table, hex/exponent counts, Infinity/'1001-+' labels, CSV formula injection). Guard added (4b): platform/ci/check_csv_formula_guard.py, a ratchet over venture toCsv exporters; first run found 203 of 235 unguarded, baselined. Not yet wired into a PR workflow (control plane): add `python3 platform/ci/check_csv_formula_guard.py` and `working-directory: platform/ci` `python3 -m unittest test_check_csv_formula_guard` to portfolio-validate.yml in its own PR; main_health.py already picks it up via check_*.py glob. Verification: node --test calc/page/usage tests 32 pass; unittest test_check_csv_formula_guard OK.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ucr-fee-calculator/calc.mjs",
+        "test": "node --test ventures/ucr-fee-calculator/**/*.test.mjs  (in .)",
+        "seed": 470931910,
+        "commit": "6fed13d0",
+        "sites": 59,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 22,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "const max = m[3] ? Infinity : Number(m[2]);",
+            "after": "const max = m[4] ? Infinity : Number(m[2]);",
+            "line_text": "    const max = m[3] ? Infinity : Number(m[2]);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 27,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let i = 1; i < brackets.length; i++) {",
+            "after": "for (let i = 2; i < brackets.length; i++) {",
+            "line_text": "  for (let i = 1; i < brackets.length; i++) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 28,
+            "col": 24,
+            "operator": "le-to-lt",
+            "before": "if (brackets[i].min <= brackets[i - 1].max) errors.push(`Fee brackets ${brackets[i - 1].min}-${brackets[i - 1].max} and ${brackets[i].min}+ overlap.`);",
+            "after": "if (brackets[i].min < brackets[i - 1].max) errors.push(`Fee brackets ${brackets[i - 1].min}-${brackets[i - 1].max} and ${brackets[i].min}+ overlap.`);",
+            "line_text": "    if (brackets[i].min <= brackets[i - 1].max) errors.push(`Fee brackets ${brackets[i - 1].min}-${brackets[i - 1].max} and ${brackets[i].min}+ overlap.`);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added 'brackets that share an edge overlap'"
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 49,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "out.push({ name: p[0], n, type });",
+            "after": "out.push({ name: p[1], n, type });",
+            "line_text": "    out.push({ name: p[0], n, type });",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 55,
+            "col": 36,
+            "operator": "or-to-and",
+            "before": "const fees = parseFees(input.fees || DEFAULT_FEES_TEXT);",
+            "after": "const fees = parseFees(input.fees && DEFAULT_FEES_TEXT);",
+            "line_text": "  const fees = parseFees(input.fees || DEFAULT_FEES_TEXT);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 67,
+            "col": 84,
+            "operator": "const-plus-one",
+            "before": "if (!b) return { ...e, error: `No bracket covers ${effectiveN} vehicles.`, fee: 0 };",
+            "after": "if (!b) return { ...e, error: `No bracket covers ${effectiveN} vehicles.`, fee: 1 };",
+            "line_text": "    if (!b) return { ...e, error: `No bracket covers ${effectiveN} vehicles.`, fee: 0 };",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "the row's fee is never read when it carries an error: plan() returns only {error: bad.error} as soon as any row has one"
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 72,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "perVehicle: e.n > 0 ? round2(b.fee / e.n) : null,",
+            "after": "perVehicle: e.n > 1 ? round2(b.fee / e.n) : null,",
+            "line_text": "      perVehicle: e.n > 0 ? round2(b.fee / e.n) : null,",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added 'one vehicle has a per-vehicle figure'"
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 72,
+            "col": 41,
+            "operator": "div-to-times",
+            "before": "perVehicle: e.n > 0 ? round2(b.fee / e.n) : null,",
+            "after": "perVehicle: e.n > 0 ? round2(b.fee * e.n) : null,",
+            "line_text": "      perVehicle: e.n > 0 ? round2(b.fee / e.n) : null,",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 73,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "toNext: !lowestOnly && next ? { at: next.min, extra: round2(next.fee - b.fee), headroom: b.max - e.n } : null,",
+            "after": "toNext: !lowestOnly || next ? { at: next.min, extra: round2(next.fee - b.fee), headroom: b.max - e.n } : null,",
+            "line_text": "      toNext: !lowestOnly && next ? { at: next.min, extra: round2(next.fee - b.fee), headroom: b.max - e.n } : null,",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added 'the top bracket has nothing to grow into...': with || a 1001+ carrier reads next.min of null and throws"
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 85,
+            "col": 30,
+            "operator": "and-to-or",
+            "before": "if (r.perVehicle !== null && !r.lowestOnly) advice.push(`${r.name}: that is $${r.perVehicle.toFixed(2)} per vehicle.`);",
+            "after": "if (r.perVehicle !== null || !r.lowestOnly) advice.push(`${r.name}: that is $${r.perVehicle.toFixed(2)} per vehicle.`);",
+            "line_text": "    if (r.perVehicle !== null && !r.lowestOnly) advice.push(`${r.name}: that is $${r.perVehicle.toFixed(2)} per vehicle.`);",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/ucr-fee-calculator/calc.mjs",
+        "issue": "A custom fee table with a gap (0-2, 6-20) parsed clean, so a carrier at 2 vehicles was told 'adding one vehicle moves the fee up $278.00' when no bracket covers 3 vehicles. parseFees now reports the uncovered range.",
+        "patched": true
+      },
+      {
+        "file": "ventures/ucr-fee-calculator/calc.mjs",
+        "issue": "Vehicle counts went through Number(), so '0x10' became 16, '1e3' 1000 and '-0' passed the n < 0 check; counts now must be plain digits (spaces and underscores as separators still allowed).",
+        "patched": true
+      },
+      {
+        "file": "ventures/ucr-fee-calculator/calc.mjs",
+        "issue": "The overlap error printed an open top bracket as '3-Infinity'; it now prints '3+'. The CSV export likewise wrote the open bracket as '1001-+'; it now writes '1001+'.",
+        "patched": true
+      },
+      {
+        "file": "ventures/ucr-fee-calculator/calc.mjs",
+        "issue": "toCsv wrote registrant names as typed, so a name starting =, +, - or @ ran as a formula in Excel/Sheets (CSV injection, CWE-1236). csvCell now prefixes an apostrophe (numbers left alone). The same hole is in 203 other venture toCsv exporters; check_csv_formula_guard.py baselines them and fails on new ones (ratchet).",
+        "patched": true
+      },
+      {
+        "file": ".github/workflows/portfolio-validate.yml",
+        "issue": "check_csv_formula_guard.py (added 2026-11-12) runs in no PR workflow yet. Fix: in the validate job add `python3 platform/ci/check_csv_formula_guard.py` and a `working-directory: platform/ci` step `python3 -m unittest test_check_csv_formula_guard`; add ventures/**/*.mjs to the paths filter if not already covered. Control plane: own PR, owner approval.",
+        "patched": false
+      }
+    ]
+  }
+}
