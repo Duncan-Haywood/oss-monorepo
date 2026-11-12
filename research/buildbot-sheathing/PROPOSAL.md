@@ -217,7 +217,9 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    drive-and-lift base is the cheapest robot below about 500 houses a year and beats the walking H1
    in every draw; it beats a hand crew in 37% of draws at 100 houses a year and 74% at 300. Doubled
    joints never pay in dollars unless a missed nail costs about $6.50 more than its re-drive.
-8. Paper draft in the venue's format.
+8. **Paper draft** (done 2026-11-12, `paper/draft.md`): the article for *Automation in Construction*
+   in its structure, with `paper/check_numbers.py` tying each quoted figure to its results file.
+   Still open: the Elsevier LaTeX template, the unconfirmed citations and authorship.
 
 ## Target venue
 
