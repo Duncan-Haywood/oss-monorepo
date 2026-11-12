@@ -1491,16 +1491,19 @@ export function assignVenuesDouble(opp, n, seed = 1, restarts = 6, initialHost =
  * run the capped search (lowCarryOverCappedRounds; caps from cappedTryBreaks), the fewest-breaks end
  * of the trade the weights do not reach (eval/capped-breaks.txt).
  */
-export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, capped = 0, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
+export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, capped = 0, gap = 0, keep = null, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
   checkBestOfK(tries, pick);
   if (!Number.isInteger(capped) || capped < 0) throw new Error("capped must be a whole number of 0 or more.");
+  if (!Number.isInteger(gap) || gap < 0) throw new Error("gap must be a whole number of 0 or more.");
   const results = [];
-  for (let i = 0; i < tries + capped; i++) {
+  // `gap` more capped tries continue the cap sequence (j = capped, capped + 1, ...) and are only
+  // ever kept when `keep` names one (combineCarryOverTries `among`)
+  for (let i = 0; i < tries + capped + gap; i++) {
     const t = carryOverTry(n, i, { double, seed, weights, effort, weighted: tries });
     results.push(t);
     if (onTry) onTry(i, candidateOf(t, pick));
   }
-  return combineCarryOverTries(results, pick);
+  return combineCarryOverTries(results, pick, { among: tries + capped, keep });
 }
 
 function checkBestOfK(tries, pick) {
@@ -1572,19 +1575,50 @@ function candidateOf(t, pick) {
  * index 0..k-1, in any order). Ties go to the lower index, as in a serial run, so a pool of any
  * size returns exactly what bestCarryOverRounds returns.
  */
-export function combineCarryOverTries(results, pick = 10) {
+export function combineCarryOverTries(results, pick = 10, { among = Infinity, keep = null } = {}) {
   checkBestOfK(Array.isArray(results) ? results.length : 0, pick);
   const byIndex = [...results].sort((a, b) => a.index - b.index);
   byIndex.forEach((t, i) => { if (t.index !== i) throw new Error(`carry-over tries must be numbered 0 to ${byIndex.length - 1}; try ${i} is missing.`); });
   const cands = byIndex.map((t) => candidateOf(t, pick));
+  // `among`: the choice looks only at tries 0 to among - 1, so tries added after them (the gap
+  // tries, CARRY_OVER_GAP) widen the frontier a person picks from without moving the season any
+  // of the four choices keeps. `keep`: the try a person picked from that frontier, which wins.
+  const pool = Math.max(1, Math.min(cands.length, Number.isInteger(among) ? among : cands.length));
   let chosen = 0;
-  for (let i = 1; i < cands.length; i++) if (cands[i].score < cands[chosen].score) chosen = i;
+  for (let i = 1; i < pool; i++) if (cands[i].score < cands[chosen].score) chosen = i;
+  const kept = Number.isInteger(keep) && keep >= 0 && keep < cands.length;
+  if (kept) chosen = keep;
   const frontier = cands
     .map((c, i) => ({ ...c, index: i }))
     .filter((c) => !cands.some((d) => d.coe <= c.coe && d.breaks <= c.breaks && (d.coe < c.coe || d.breaks < c.breaks)))
     .sort((a, b) => a.coe - b.coe || a.breaks - b.breaks);
   const { index, seed, breakWeight, ...best } = byIndex[chosen];
-  return { ...best, tries: cands, chosen, frontier, pick };
+  return { ...best, tries: cands, chosen, frontier, pick, kept, among: pool };
+}
+
+/**
+ * Capped tries the page runs after its 8 weighted + 2 capped ones (cappedTryBreaks j = 2 and 3),
+ * offered only in the list a person picks from (combineCarryOverTries `among`). At 17 to 20 teams
+ * over a home-and-away season the weighted tries stop around 83 to 87 breaks and the two capped
+ * ones start near 48 to 59; these land in between (19 teams: 3,203 / 72 between 1,311 / 87 and
+ * 3,731 / 59; eval/frontier-gap.txt).
+ */
+export const CARRY_OVER_GAP = 2;
+
+/**
+ * A kept frontier pick as the share link stores it: the try's index plus the settings the search
+ * depends on, so a pick made for 20 teams is never applied to 19, another seed or a single round
+ * robin. Returns the index when `text` matches these settings, otherwise null.
+ */
+export function carryOverKeepText(index, { n, double, seed }) {
+  return `${index}@${n}${double ? "d" : "s"}${seed}`;
+}
+export function carryOverKeepIndex(text, { n, double, seed, tries }) {
+  const m = /^(\d{1,3})@(\d+)([ds])(-?\d+)$/.exec(String(text ?? ""));
+  if (!m) return null;
+  const i = Number(m[1]);
+  if (Number(m[2]) !== n || (m[3] === "d") !== Boolean(double) || Number(m[4]) !== Number(seed)) return null;
+  return Number.isInteger(tries) && i >= tries ? null : i;
 }
 
 /**
@@ -1631,5 +1665,7 @@ export function carryOverSummary(best) {
     breaks: best.breaks,
     candidates: best.tries.map((c) => ({ coe: c.coe, breaks: c.breaks, breakWeight: c.breakWeight, ...(c.maxBreaks != null ? { maxBreaks: c.maxBreaks } : {}) })),
     frontier: best.frontier.map((c) => ({ coe: c.coe, breaks: c.breaks, index: c.index })),
+    ...(best.kept ? { kept: true } : {}),
+    ...(Number.isInteger(best.among) && best.among < best.tries.length ? { among: best.among } : {}),
   };
 }

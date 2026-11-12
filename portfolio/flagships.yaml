@@ -279,16 +279,18 @@ flagships:
       20 and 22 teams at the floor, 24-40 8-21% above it; break-weighted starters; shift venues for
       single and home-and-away seasons, odd leagues 17-39 under 2 breaks per team; shift starters and
       capped shift candidates through the search and as home-and-away leg ones, 11 and 13 teams 3-5%
-      lower; README 2026-11-12 sections and eval/shift-*.txt). 2026-11-12 latest (README "The page's
-      four choices, re-measured on its own ten tries", eval/best-of-k-page.txt): 18 teams most even
-      1,355/93 to fewest 2,493/48 (dominates 4 of 6 real seasons), 20 teams 1,460/117 to 5,039/54;
-      at 19 teams 7 of 8 weighted tries are one season, the read-out now folds repeats. Next, most valuable first: fill the gap between "fewer back-to-back" and "fewest" at
-      17-20 teams (19 teams 83 to 48 breaks; duplicate weighted tries could run capped ones at caps in
-      between, behind a versioned share link); moves that keep the shift pattern for 17-40 teams; a lower
-      bound or a timetable below 136 at 12 (SAT, eval/carryover-sat.py: 10 teams proved >= 90, 12
-      unanswered at 134 after 70 min; next symmetry breaking or cube-and-conquer); close 24-40
-      (tabu, longer runs, the literature's starters); a real league's travel times and unavailable
-      dates; a print check.
+      lower; README 2026-11-12 sections and eval/shift-*.txt; best-of-k-page.txt: the page's four
+      choices re-measured). 2026-11-12 latest (README "Pick any season on the frontier", eval/frontier-gap.txt): the page lists every
+      frontier season as a button and keeps the one clicked (share link carryOverKeep, no version
+      needed: the four choices still pick among tries 0-9), plus 2 gap capped tries that join the
+      frontier in 9 of 12 runs at 17-20 teams home and away (19 teams 25 to 13 breaks widest gap).
+      Next, most valuable first: a search that reaches 66-90 breaks at 17-20 teams home and away
+      with low carry-over (the circle-start capped search is poor there and a squeeze from a
+      starter could not cut breaks; a move that cuts breaks while keeping balance, e.g. flipping a
+      whole alternating run); moves that keep the shift pattern for 17-40 teams; a lower bound or a
+      timetable below 136 at 12 (SAT, eval/carryover-sat.py: 10 teams proved >= 90, 12 unanswered at
+      134 after 70 min; next symmetry breaking or cube-and-conquer); close 24-40 (tabu, longer runs,
+      the literature's starters); a real league's travel times and unavailable dates; a print check.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

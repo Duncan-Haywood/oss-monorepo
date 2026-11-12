@@ -117,7 +117,7 @@ test("the page runs the search in a worker, with a main-thread fallback and a tr
   assert.match(html, /new Worker\("\.\/carryover-worker\.mjs", \{ type: "module" \}\)/);
   assert.match(html, /id="carryOverPick"/);
   for (const v of ["balanced", "fair", "breaks"]) assert.match(html, new RegExp(`<option value="${v}"`));
-  assert.match(html, /bestCarryOverRounds\(n,/, "fallback when workers are unavailable");
+  assert.match(html, /carryOverTry\(n, i, \{ double: spec.double, seed: spec.seed, weighted: CARRY_WEIGHTED \}\)/, "fallback when workers are unavailable: the same tries on the page thread");
   const worker = readFileSync(new URL("./carryover-worker.mjs", import.meta.url), "utf8");
   assert.match(worker, /bestCarryOverRounds/);
   assert.match(worker, /type: "done"/);
