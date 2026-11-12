@@ -135,3 +135,28 @@ test("channels parse and export", () => {
   assert.equal(csv.trim().split("\n").length, 3);
   assert.match(blendText(null), /No blend/);
 });
+
+// Quality audit 2026-11-12 (portfolio/quality/audits/2026-11-12-coffee-roaster-margin-calculator.json):
+// five seeded bugs survived and a blank field priced coffee at $0. Expected values worked by hand.
+test("blank or non-numeric green price and roast loss are rejected; a typed 0% roast loss is kept", () => {
+  assert.throws(() => roastedCostPerLb({ greenPerLb: "", shrinkPct: 15 }), /Green coffee price/);
+  assert.throws(() => roastedCostPerLb({ greenPerLb: "abc", shrinkPct: 15 }), /Green coffee price/);
+  assert.throws(() => roastedCostPerLb({ greenPerLb: 5, shrinkPct: "" }), /Roast loss/);
+  assert.equal(roastedCostPerLb({ greenPerLb: 5, shrinkPct: 0 }).total, 5);
+});
+
+test("pounds available are checked in green weight, after roast loss", () => {
+  // 50% Great in 100 lb roasted needs 50 / 0.85 = 58.8 lb green; 55 lb is not enough, 60 lb is.
+  assert.equal(optimizeBlend({ lots: parseLots("Cheap, 3.5, 80\nGreat, 8, 90, 15, 55").lots, targetScore: 85, batchRoastedLb: 100 }).best, null);
+  const ok = optimizeBlend({ lots: parseLots("Cheap, 3.5, 80\nGreat, 8, 90, 15, 60").lots, targetScore: 85, batchRoastedLb: 100 });
+  assert.equal(ok.best.shares.find((s) => s.name === "Great").greenLb, 58.8);
+  assert.equal(ok.best.greenLbPerBatch, 117.6); // 100 / 0.85
+});
+
+test("weekly plan weighs out green after roast loss and rounds sacks up; break-even weeks are 4.345 per month", () => {
+  // 100 x 12 oz = 75 lb roasted; / 0.8 = 93.75 lb green; 4 batches of 30; 4 weeks = 375 lb = 2.34 sacks of 160 -> 3.
+  const p = weeklyPlan({ skus: [{ bags: 100, bagOz: 12 }], shrinkPct: 20, batchGreenLb: 30, minutesPerBatch: 18, greenOnHandLb: 0, targetWeeksCover: 4, sackLb: 160 });
+  assert.deepEqual([p.roastedLb, p.greenLb, p.batches, p.sacksToOrder, p.orderLb], [75, 93.8, 4, 3, 480]);
+  const b = breakEven({ fixedMonthly: 6000, profitPerBag: 7.5, bagOz: 12 });
+  assert.deepEqual([b.bagsPerMonth, b.bagsPerWeek], [800, 184.1]);
+});

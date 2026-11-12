@@ -1,0 +1,258 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/coffee-roaster-margin-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-12-c",
+  "drawn_by": "sample",
+  "round": 44,
+  "auditor": "agent session (Claude), quality-audit round 44",
+  "status": "audited",
+  "professional": "a specialty coffee roastery operations manager / cost accountant; they check first that roast loss is applied as green / (1 - loss) and not green x (1 + loss), then margin vs markup on each channel, then whether wholesale (usually 5 lb bags priced per lb) and retail bags can be costed side by side, then how break-even volume is built",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Independent exact-fraction Python model (scratchpad/coffee/model.py, written from roasting-cost practice, not from calc.mjs) recomputed every page-default output and calc.mjs matches to the cent: roasted cost 5.10/0.85+0.40+0.10 = $6.50/lb, roast-loss share $0.90; four channels (Online 3.96 / 24.8%, Subscription 2.41 / 16.7%, Wholesale 3.82 / 39.8%, Farmers market 9.71 / 60.7%; profit per roasted lb and per 60 lb roasting hour all match); weekly plan 165 roasted lb, 194.1 green, 7 batches, 2.1 h, 0.5 wk cover, 6 sacks; break-even 618 bags. Blend at target 86 with the page lots: my own 1% grid and a hand LP-vertex analysis (the continuous optimum of a 2-constraint LP mixes two lots) both give 75% Colombia / 25% Ethiopia at $6.441 per roasted lb, score 86, saving $2.03 vs Ethiopia alone ($8.471); calc.mjs returns the same. Roast-loss formula is the correct one. Scored 3 not 4: input handling (craft) can turn a blank or mistyped field into a silent $0.",
+    "completeness": "Checked each README/page feature end to end in node: roast-loss cost, bag economics, channel table with fees and postage, profit per roasted lb and per roasting hour, blend optimizer with share limits and pounds available, cost-of-score frontier, weekly plan, break-even, CSV export, usage counters with opt-out (usage.test.mjs). All work. Gaps: the 'Retail price per bag' input (index.html:61) changes nothing, because parseChannels requires a price on every line so channelTable's discountPct/retailPrice path (calc.mjs:65) is unreachable from the page (retail 16 -> 25 leaves every row identical); priceForMargin exists in calc.mjs but is not on the page. No TODOs or stubs.",
+    "verification": "node --test '*.test.mjs': 31 pass, 0 fail. Eight hand-seeded mutations in calc.mjs, each reverted with git checkout: caught 3 (roast loss divide->multiply, unweighted blend score, margin on cost instead of revenue); survived 5 (card fee charged on price instead of price+shipping charged; pounds-available check ignoring roast loss; sacks ceil->round; green lb per batch ignoring roast loss; bagsPerWeek 4.345->4). The core happy-path numbers are pinned, but the pounds-available constraint, the sack order and the green weigh-out the page tells the roaster to use are untested.",
+    "craft": "Read calc.mjs (266 lines), index.html script, calc.test.mjs, page.test.mjs. calc.mjs is pure, short and readable, no dependencies. Defects: num() falls back to 0 for anything non-numeric and Number('') is 0, so a blank green price gives a $0.50 roasted lb and 'abc' gives $0, and a blank roast loss silently means 0% (calc.mjs:9-12,17,19); European '5,10' becomes $510/lb. parseLots splits on commas, so 'Kenya, 1,200, 88' is accepted as $1/lb, score 200, roast loss 88% with no problem reported, and lots get no range checks at all (calc.mjs:96-111) although roastedCostPerLb rejects loss >= 50%. index.html:174 Number(v('shrink'))||15 turns a typed 0% into 15%. Dead code: discountPct/retailPrice path.",
+    "claims": "Disclaimer present on index.html (footer), the guide and README; privacy and usage events match usage.mjs (page.test.mjs checks). Guide worked example ($6.00, $6.50, $4.88, $0.76, $9.46 59.1%, $3.96, $3.82) recomputed and matches. FAQ '$5.10 at 15% -> $6.00' matches. FAQ and README say the optimizer checks 'every blend in 5% steps'; with 7-8 coffees it uses 10% steps (calc.mjs:151), shown in the result note but not in the claim. 'Retail price per bag' label implies an input that does something. llms.txt points at duncan-haywood.github.io, but build_pages_site.py rewrite_base_urls rewrites that host at deploy (source-only, not filed); marisstella.app was refused by the session proxy (403), so the served copy was not loaded.",
+    "fitness": "Walked a micro-roaster's job: costing a 12 oz retail bag and comparing online, subscription and market works, and the postage insight is real. Wholesale is where it breaks: bag size is one global field (calc.mjs:63), so a 5 lb cafe bag cannot be costed beside 12 oz retail (the test's own 'Cafe 5 lb' channel is priced as a 12 oz bag); there is no price-for-target-margin on the page, so 'what do I charge a cafe for 40% margin' cannot be answered ($9.63 from calc.priceForMargin, hidden); break-even assumes every bag sells at the best channel's profit.",
+    "domain": "Compared with standard roastery costing (green / (1 - shrink), margin on revenue, contribution per lb, fixed-cost break-even on a channel mix). Sound: shrink formula, fees on gross including shipping charged, margin on revenue, post-roast blend costing per roasted lb with per-lot loss, green weigh-out. Departures: break-even uses the single best channel's profit per bag (Farmers market $9.71 -> 618 bags/month) rather than a sales mix; at the wholesale $3.82 it would be 1,571, 2.5x more; no per-channel bag size (wholesale per-lb pricing); markup never shown alongside margin; no packing labour per bag or sample/QC loss line (can be folded into packaging by hand)."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Cost per roasted lb at $5.10 green, 15% loss, $0.40 labour, $0.10 energy",
+      "method": "Hand / exact fractions: green / (1 - loss) + labour + energy (standard roastery costing)",
+      "command": "python3 -I scratchpad/coffee/model.py; node scratchpad/coffee/run.mjs",
+      "expected": "$6.50 total, $0.90 of it roast loss",
+      "observed": "total 6.5, shrinkCostPerRoastedLb 0.9",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Four default channels: fees, profit, margin, profit per roasted lb and per 60 lb roasting hour",
+      "method": "Independent Python model, exact fractions",
+      "command": "python3 -I scratchpad/coffee/model.py; node scratchpad/coffee/run.mjs",
+      "expected": "Online 0.764/3.961/24.76%/5.28/316.88; Sub 0.7176/2.4074/16.72%; Wholesale 0/3.825/39.84%/5.10/306; Market 0.516/9.709/60.68%/12.95/776.72",
+      "observed": "Online 0.76/3.96/24.8/5.28/316.8; Sub 0.72/2.41/16.7; Wholesale 0/3.82/39.8/5.1/306; Market 0.52/9.71/60.7/12.95/777",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Cheapest blend at target 86, page lots, 100 roasted lb",
+      "method": "Own 1% grid brute force plus hand LP-vertex analysis (two-lot mixes on the score constraint)",
+      "command": "python3 -I scratchpad/coffee/model.py; node scratchpad/coffee/run.mjs",
+      "expected": "75% Colombia / 25% Ethiopia, $6.441/roasted lb, score 86, saving $2.03 vs Ethiopia alone $8.471",
+      "observed": "75/25 Colombia/Ethiopia, 6.441, score 86, saving 2.03, cheapest single Ethiopia 8.471",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Weekly plan at page defaults (100x12oz, 10x80oz, 20x32oz)",
+      "method": "Hand: roasted lb / (1 - loss), ceil batches, (4 wk x green - on hand) / 132 ceil",
+      "command": "python3 -I scratchpad/coffee/model.py; node scratchpad/coffee/run.mjs",
+      "expected": "165 roasted, 194.1 green, 7 batches, 2.1 h, 0.5 wk, 6 sacks",
+      "observed": "165, 194.1, 7, 2.1, 0.5, 6 (792 lb)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Break-even at $6,000/month fixed",
+      "method": "Hand: ceil(6000 / profit per bag)",
+      "command": "python3 -I scratchpad/coffee/model.py; node scratchpad/coffee/run.mjs",
+      "expected": "618 bags at the $9.709 market bag; 1,571 at the $3.825 wholesale bag",
+      "observed": "618 (best channel only)",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "Guide worked example figures",
+      "method": "Recomputed by hand in model.py",
+      "command": "python3 -I scratchpad/coffee/model.py; grep 'earns' ventures/coffee-roaster-margin-calculator/how-to-price-roasted-coffee.html",
+      "expected": "$6.00, $6.50, $4.88, $0.76, $9.46 (59.1%), ~$3.96, $3.82",
+      "observed": "all present and match",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "FAQ/README: optimizer checks every blend in 5% steps",
+      "method": "Read calc.mjs:151 and ran with 7 lots",
+      "command": "grep -n 'n <= 6 ? 5 : 10' ventures/coffee-roaster-margin-calculator/calc.mjs",
+      "expected": "5% steps always",
+      "observed": "10% steps with 7-8 coffees (stated in the result note only)",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer and privacy on every page",
+      "method": "grep and page.test.mjs",
+      "command": "grep -c 'No warranty' ventures/coffee-roaster-margin-calculator/*.html",
+      "expected": "present on index and guide",
+      "observed": "present on both and README",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Retail price per bag input drives anything",
+      "method": "channelTable with retailPrice 16 vs 25 and page-parsed channels",
+      "command": "node scratchpad/coffee/run.mjs",
+      "expected": "rows change or the field is removed",
+      "observed": "rows identical; field is dead because parseChannels requires a price on every line",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "Input handling: blank, 'abc', '5,10' green price; '1,200' in a lot line; blank roast loss",
+      "method": "Call calc.mjs with page-style strings",
+      "command": "node scratchpad/coffee/run.mjs",
+      "expected": "rejected with a message",
+      "observed": "'' -> $0, 'abc' -> $0, '5,10' -> $600/roasted lb, blank loss -> 0%; 'Kenya, 1,200, 88' -> $1/lb score 200 loss 88%, no problem reported",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite",
+      "method": "run",
+      "command": "cd ventures/coffee-roaster-margin-calculator && node --test '*.test.mjs'",
+      "expected": "pass",
+      "observed": "31 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "Cost a 5 lb wholesale bag next to 12 oz retail and price wholesale for a 40% margin",
+      "method": "Walk the page",
+      "command": "node scratchpad/coffee/run.mjs",
+      "expected": "per-channel bag size and a price-for-margin answer",
+      "observed": "one global bag size; priceForMargin (gives $9.63) not exposed on the page",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "Roast loss applied as green/(1-loss), margin on revenue, fees on price + shipping charged",
+      "method": "Standard roastery cost practice",
+      "command": "python3 -I scratchpad/coffee/model.py",
+      "expected": "divide by (1 - loss); margin = profit / revenue",
+      "observed": "as expected",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:21",
+      "change": "green / (1 - shrink) -> green * (1 + shrink)",
+      "caught": true,
+      "test_cmd": "cd ventures/coffee-roaster-margin-calculator && node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:38",
+      "change": "card fee on revenue -> on price only (shipping charged untaxed by fee)",
+      "caught": false,
+      "test_cmd": "cd ventures/coffee-roaster-margin-calculator && node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:163",
+      "change": "pounds-available check drops / (1 - sh)",
+      "caught": false,
+      "test_cmd": "cd ventures/coffee-roaster-margin-calculator && node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:219",
+      "change": "sacks Math.ceil -> Math.round",
+      "caught": false,
+      "test_cmd": "cd ventures/coffee-roaster-margin-calculator && node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:140",
+      "change": "weighted score -> unweighted mean",
+      "caught": true,
+      "test_cmd": "cd ventures/coffee-roaster-margin-calculator && node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:49",
+      "change": "margin on revenue -> on cost",
+      "caught": true,
+      "test_cmd": "cd ventures/coffee-roaster-margin-calculator && node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:236",
+      "change": "bags / 4.345 -> bags / 4",
+      "caught": false,
+      "test_cmd": "cd ventures/coffee-roaster-margin-calculator && node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:141",
+      "change": "green lb per roasted lb ignores roast loss",
+      "caught": false,
+      "test_cmd": "cd ventures/coffee-roaster-margin-calculator && node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Break-even assumes every bag sells at the single best channel's profit (index.html passes the Farmers market $9.71 bag): 618 bags/month, where a wholesale-heavy roaster needs up to 1,571 (2.5x). No sales-mix input.",
+      "where": "ventures/coffee-roaster-margin-calculator/index.html:159",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "num() returns 0 for blank or non-numeric input and Number('') is 0, so a blank or mistyped green price prices coffee at $0, a blank roast loss means 0%; '5,10' becomes $510/lb. No message.",
+      "where": "ventures/coffee-roaster-margin-calculator/calc.mjs:9",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "parseLots splits on commas and range-checks nothing: 'Kenya, 1,200, 88' is accepted as $1/lb, cup score 200, roast loss 88%; lot roast loss >= 50% is accepted although roastedCostPerLb rejects it.",
+      "where": "ventures/coffee-roaster-margin-calculator/calc.mjs:96",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "One global bag size for every channel, so wholesale 5 lb bags cannot be costed beside 12 oz retail; no price-for-target-margin on the page (priceForMargin exists, unused) and no markup shown.",
+      "where": "ventures/coffee-roaster-margin-calculator/calc.mjs:63",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "5 of 8 seeded mutations survive: pounds-available check without roast loss, sacks rounding, green weigh-out per batch, fee on shipping charged, bags per week.",
+      "where": "ventures/coffee-roaster-margin-calculator/calc.test.mjs:92",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "'Retail price per bag' input is dead: every channel line must carry a price, so the discountPct/retailPrice path is unreachable from the page.",
+      "where": "ventures/coffee-roaster-margin-calculator/index.html:61",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "FAQ and README say the optimizer checks every blend in 5% steps; with 7-8 coffees it uses 10%.",
+      "where": "ventures/coffee-roaster-margin-calculator/index.html:115",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Number(v('shrink')) || 15 turns a typed 0% roast loss into 15% for blend lots without their own loss.",
+      "where": "ventures/coffee-roaster-margin-calculator/index.html:174",
+      "category": "input-handling",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Every number recomputed independently (roasted cost, four channels, blend optimum by own grid and LP vertices, weekly plan, break-even) matches calc.mjs, and the roast-loss and margin formulas are the ones a roastery cost accountant uses. It does not meet the bar: verification is 2 (31 tests pass but 5 of 8 seeded mutations survive, including the pounds-available constraint and the green weigh-out), craft is 2 (blank or mistyped inputs silently become $0 or 0%, lot lines are never range-checked), and fitness and domain are 2 because wholesale cannot be costed in its own bag size, there is no price-for-margin on the page, and break-even assumes every bag sells at the best channel. Finished (completeness 3) at a happy-path level."
+}
