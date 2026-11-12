@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231e3a5f'/%3E%3Cpath%20d='M5%2013h22v4H5z'%20fill='%23fff'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Loading Every Span Is Not the Worst Case | Pattern Live Load on Continuous Beams</title>
+  <meta name="description" content="On a two-span beam, live load on one span gives a 36% bigger sagging moment than live load on both, and lifts the far end. A worked example you can check by hand, and how the calculator finds the worst pattern for every point exactly.">
+  <link rel="canonical" href="./why-pattern-live-load-matters.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Why loading every span is not the worst case","about":"Pattern live loading on continuous beams","author":{"@type":"Organization","name":"Open-source contributors"}}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f24; background: #e9edf1; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 16px; }
+    article { background: #fbfcfd; border: 1px solid #c3ccd5; border-radius: 12px; padding: 22px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); line-height: 1.08; letter-spacing: -.03em; margin: 0 0 12px; }
+    p, li { line-height: 1.55; }
+    pre { background: #eef2f5; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: .82rem; }
+    code { background: #eef2f5; padding: 1px 4px; border-radius: 4px; font-size: .88em; }
+    table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: .9rem; }
+    th, td { border-bottom: 1px solid #c3ccd5; padding: 6px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    footer { margin-top: 20px; font-size: .82rem; color: #4f5964; }
+    a { color: #1e3a5f; }
+  </style>
+</head>
+<body>
+  <article>
+    <p><a href="./">← Continuous beam calculator</a></p>
+    <h1>Why loading every span at once is not the worst case</h1>
+    <p>Take a beam that runs over three posts: two equal spans of 12 ft, carrying 400 lb/ft of live load (people, furniture, snow). The natural check is to put the 400 lb/ft on the whole beam and read off the moments. On a single span that is the worst case. On a continuous beam it is not.</p>
+
+    <h2>Both spans loaded</h2>
+    <p>With the load everywhere, the textbook coefficients for two equal spans give end reactions of 3/8 wL and a middle reaction of 10/8 wL. With w = 400 lb/ft and L = 12 ft, wL is 4,800 lb, so the ends carry 1,800 lb and the middle 6,000 lb. The moment over the middle post is −wL²/8 = −7,200 lb·ft (hogging), and the largest sagging moment, at 3/8 L from each end, is 9/128 wL², which is 4,050 lb·ft.</p>
+    <pre>node cli.mjs --spans 12,12 --supports pin,pin,pin --E 1600000 --I 1000 --udl L:400 --no-pattern
+  +M 4,050 lb·ft at x = 4.50 ft
+  -M -7,200 lb·ft at x = 12.00 ft</pre>
+
+    <h2>One span loaded</h2>
+    <p>Now take the live load off the right span. The left span still bends down, but the right span no longer pushes the middle of the beam down on its side. So the beam rotates more over the middle post, and the moment there drops to −wL²/16 = −3,600 lb·ft. With less hogging to hold it, the left span sags more. Its end reaction rises to 7/16 wL = 2,100 lb, and the sagging moment peaks where the shear is zero, at x = 7/16 L = 5.25 ft:</p>
+    <p style="text-align:center"><code>M = R²/(2w) = 2,100² / 800 = 5,512.5 lb·ft</code></p>
+    <p>That is <strong>36% more</strong> than the 4,050 lb·ft from loading everything. The far end, with no load on its own span, is pulled <strong>up</strong> by wL/16 = 300 lb. Unless something holds it down, that post or hanger is in tension.</p>
+    <pre>node cli.mjs --spans 12,12 --supports pin,pin,pin --E 1600000 --I 1000 --udl L:400
+  Support 1 (pin, x = 0 ft): dead 0, max 2,100, min -300 lb
+  +M 5,513 lb·ft at x = 5.25 ft (live on span 1)
+  -M -7,200 lb·ft at x = 12.00 ft (live on spans 1, 2)</pre>
+
+    <table>
+      <thead><tr><th>Effect</th><th>Both spans live</th><th>Worst pattern</th><th>Pattern</th></tr></thead>
+      <tbody>
+        <tr><td>Largest sagging moment</td><td>4,050 lb·ft</td><td>5,512.5 lb·ft</td><td>span 1 only</td></tr>
+        <tr><td>Moment over the middle post</td><td>−7,200 lb·ft</td><td>−7,200 lb·ft</td><td>both</td></tr>
+        <tr><td>End reaction, largest</td><td>1,800 lb</td><td>2,100 lb</td><td>span 1 only</td></tr>
+        <tr><td>End reaction, smallest</td><td>1,800 lb</td><td>−300 lb (uplift)</td><td>span 2 only</td></tr>
+      </tbody>
+    </table>
+    <p>Dead load (the beam, the joists, the decking) is always there, so it is never patterned. With dead load added, the uplift shrinks or disappears, which is why the uplift figure depends on how much dead load you can count on.</p>
+
+    <h2>How the calculator finds the worst pattern exactly</h2>
+    <p>With n spans there are 2<sup>n</sup> ways to arrange the live load: 1,024 for ten spans. Trying them all is not needed. The beam is elastic, so the effect of live load on several spans is the sum of the effects of each span loaded alone. At any point, the largest sagging moment comes from adding up every span whose own contribution there is sagging, and leaving out every span whose contribution is hogging. The calculator solves the dead load once and each span's live load once (n + 1 solutions from one factorised stiffness matrix). At every point it adds the contributions that make the effect worse, then re-solves the governing pattern to find its exact peak inside each span. A test checks this against all 16 patterns of a four-span beam.</p>
+    <p>Each solution is exact for Euler-Bernoulli bending. The beam is cut at every support and load point, and inside each piece the load varies linearly, so the stiffness method with a consistent load vector gives exact displacements at the cuts. Shear, moment and deflection inside each piece then follow in closed form. An independent solution by Macaulay's method in exact fractions, which uses no stiffness matrix, agrees with it to about one part in 10<sup>11</sup> on 60 random beams with overhangs, fixed ends, point moments and tapered loads.</p>
+
+    <h2>What it does not do</h2>
+    <p>It analyses the beam you type. It does not choose the member, adjust the allowable stresses for load duration, size or moisture, or check lateral-torsional buckling, bearing at the posts, notches, connections, vibration or what is under the supports. Uplift needs a hold-down sized by someone who knows the load path.</p>
+  </article>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. A worked example of elastic beam theory, not engineering advice. Have a licensed engineer check any beam that carries people, and follow your local code and span tables.</p>
+    <p><a href="./">The calculator</a> · <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/continuous-beam-calculator">Source</a> · <a href="LICENSE">MIT licence</a></p>
+  </footer>
+</body>
+</html>

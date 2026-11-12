@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231e3a5f'/%3E%3Cpath%20d='M5%2013h22v4H5z'%20fill='%23fff'/%3E%3Cpath%20d='M8%2017l-3%206h6zM24%2017l-3%206h6zM16%2017l-3%206h6z'%20fill='%23fff'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Continuous Beam Calculator | Multi-Span Moments, Reactions, Deflection, Pattern Live Load</title>
+  <meta name="description" content="Free continuous beam calculator: any number of spans, pinned, fixed or overhanging ends, point loads, moments and partial or tapered loads. Exact moments, shear, reactions, uplift and deflection, with the live load patterned span by span. Runs in your browser.">
+  <meta property="og:title" content="Continuous Beam Calculator">
+  <meta property="og:description" content="Multi-span beams with overhangs and fixed ends: exact moment, shear, reaction and deflection envelopes with live load patterned span by span. Nothing uploaded.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Continuous Beam Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Any number of spans; pinned, fixed or free (overhanging) supports; point loads, point moments, full, partial and tapered distributed loads; dead and live load cases; live load patterned span by span (exact envelope); reactions with uplift; moment, shear and deflection diagrams; deflection ratios with cantilevers on twice the overhang; bending and shear stress against typed allowables; imperial or metric"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is pattern live loading and why does it matter?","acceptedAnswer":{"@type":"Answer","text":"On a beam over three or more supports, loading every span at once does not give the largest moments. The biggest sagging moment in a span comes with live load on that span and every other span, the biggest moment over a support with live load on the two spans beside it, and an overhang loaded on its own can lift the far end. Live load (people, furniture, snow) can be anywhere, so a check should cover every arrangement. This calculator does that exactly: it solves each span's live load on its own and adds, at every point, the spans that make that effect worse."}},{"@type":"Question","name":"How exact is it?","acceptedAnswer":{"@type":"Answer","text":"It is an elastic Euler-Bernoulli analysis with no approximation beyond that theory. The beam is cut at every support and load point, each piece is solved with the exact stiffness method, and moment, shear and deflection inside each piece are integrated in closed form. An independent Macaulay (singularity function) solution in exact fractions agrees to about one part in 10^11 on 60 random beams."}},{"@type":"Question","name":"Which supports can I use?","acceptedAnswer":{"@type":"Answer","text":"Pin (holds the beam up but lets it rotate: a post, a wall, a hanger), fixed (holds it up and stops it rotating: a beam built solidly into a wall or a moment connection) and free (an end with nothing under it, which makes an overhang or cantilever). The beam must be stable: an overhang needs at least two supports or a fixed end."}},{"@type":"Question","name":"Does it size the beam for me?","acceptedAnswer":{"@type":"Answer","text":"No. You type the section and the allowable stresses, and it tells you how hard the beam is working. Allowables are used exactly as typed, so adjust them yourself for load duration, size, wet use or repetitive members. Lateral-torsional buckling, bearing, notches and connections are not checked. Anything that carries people should be checked by a licensed engineer or against your local span tables."}},{"@type":"Question","name":"Why is a cantilever judged on twice its length?","acceptedAnswer":{"@type":"Answer","text":"Building codes commonly allow a cantilever's tip deflection to be judged against twice the overhang, so an L/360 limit on a 2 ft overhang allows 4 ft divided by 360. You can change both limits."}},{"@type":"Question","name":"Is my design uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs in your browser and nothing is sent anywhere. An optional anonymous counter in this browser's local storage records only which features were used and the day."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f24; background: #e9edf1; --accent: #1e3a5f; --ink2: #4f5964; --line: #c3ccd5; --panel: #fbfcfd; --pos: #b42318; --neg: #1d4ed8; --ok: #166534; }
+    [hidden] { display: none !important; }
+    .fields3[hidden] { display: none; }
+    body { max-width: 1180px; margin: 0 auto; padding: 32px 16px; }
+    header { max-width: 800px; margin-bottom: 24px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3rem); line-height: 1.04; margin: 0 0 12px; letter-spacing: -.035em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: var(--accent); margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 18px; align-items: start; }
+    section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    h3 { font-size: 1rem; margin: 16px 0 4px; }
+    .hint { font-size: .83rem; color: var(--ink2); margin: -4px 0 12px; }
+    .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .fields3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    label { display: grid; gap: 5px; font-size: .86rem; font-weight: 650; }
+    input, select, textarea { width: 100%; box-sizing: border-box; border: 1px solid #a9b4bf; border-radius: 7px; padding: 9px; font: inherit; background: #fff; }
+    textarea { font-family: ui-monospace, Menlo, monospace; font-size: .82rem; min-height: 120px; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b4bf; background: #eef2f5; padding: 9px 13px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dfe5eb; }
+    .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .primary:hover { background: #15293f; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+    .muted { color: var(--ink2); font-size: .84rem; }
+    .verdict { font-size: 1.25rem; font-weight: 750; margin: 0 0 8px; }
+    .verdict.ok { color: var(--ok); } .verdict.bad { color: var(--pos); }
+    table { width: 100%; border-collapse: collapse; font-size: .84rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 5px 6px; border-bottom: 1px solid var(--line); }
+    th:first-child, td:first-child { text-align: left; }
+    th { font-size: .76rem; color: var(--ink2); font-weight: 650; }
+    .over { color: var(--pos); font-weight: 700; }
+    .tablewrap { overflow-x: auto; }
+    .warn { font-size: .82rem; background: #fff4e5; border-left: 3px solid #d97706; padding: 6px 9px; margin: 8px 0 0; border-radius: 4px; }
+    .err { color: #b42318; font-size: .88rem; white-space: pre-wrap; }
+    svg { width: 100%; height: auto; display: block; background: #fff; border: 1px solid var(--line); border-radius: 8px; margin-top: 6px; }
+    .legend { display: flex; gap: 14px; font-size: .78rem; color: var(--ink2); margin-top: 4px; flex-wrap: wrap; }
+    .sw { display: inline-block; width: 12px; height: 3px; vertical-align: 3px; margin-right: 4px; }
+    footer { margin-top: 24px; font-size: .82rem; color: var(--ink2); }
+    footer a, header a, main a, section a { color: #1e3a5f; }
+    code { font-size: .85em; background: #eef2f5; padding: 1px 4px; border-radius: 4px; }
+    @media (max-width: 880px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 520px) { .fields, .fields3 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR BUILDERS, DECK AND FRAMING CONTRACTORS, DESIGNERS AND STUDENTS</p>
+    <h1>What does a beam over several posts really carry?</h1>
+    <p>Span tables and simple-span formulas stop at one span. Type a beam over any number of supports, with overhangs or fixed ends, and its loads, and get the exact moments, shears, post reactions (including uplift) and deflections, with the live load moved span by span to find the worst case for every point. Everything runs in your browser.</p>
+    <p><a href="./why-pattern-live-load-matters.html">Why loading every span at once is not the worst case, with a worked two-span example</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>Beam</h2>
+        <div class="fields">
+          <label>Units
+            <select id="units"><option value="imperial">Imperial (ft, lb, psi, in)</option><option value="metric">Metric (m, kN, GPa, mm)</option></select>
+          </label>
+          <label>Live load patterning
+            <select id="pattern"><option value="on">Span by span (worst case)</option><option value="off">All spans at once</option></select>
+          </label>
+        </div>
+        <div class="fields" style="margin-top:12px">
+          <label><span>Span lengths (<span class="uLen">ft</span>), left to right</span><input id="spans" value="1.5, 8, 8, 1.5" inputmode="decimal"></label>
+          <label>Supports, one per end of each span<input id="supports" value="free, pin, pin, pin, free"></label>
+        </div>
+        <p class="hint" style="margin-top:8px">Supports: <code>pin</code> (a post, wall or hanger), <code>fixed</code> (built in, no rotation) or <code>free</code> (an overhang end). Four spans need five.</p>
+      </section>
+
+      <section>
+        <h2>Loads</h2>
+        <p class="hint">One per line. <code>udl L:240</code> is 240 <span class="uDist">lb/ft</span> live over the whole beam; <code>udl D:60@2-10</code> covers 2 to 10 <span class="uLen">ft</span>; <code>udl D:0..300@0-8</code> tapers; <code>point L:900@12</code> is a point load at 12 <span class="uLen">ft</span>; <code>moment D:500@6</code> is a clockwise moment. D is dead, L is live. Positions are from the left end.</p>
+        <label>Loads<textarea id="loads" spellcheck="false">udl D:60   # 10 psf over a 6 ft strip
+udl L:240  # 40 psf over a 6 ft strip</textarea></label>
+        <div class="fields" style="margin-top:12px">
+          <label>Strength factor on dead<input id="fD" value="1" inputmode="decimal"></label>
+          <label>Strength factor on live<input id="fL" value="1" inputmode="decimal"></label>
+        </div>
+        <p class="hint" style="margin-top:8px">1 and 1 for allowable-stress (D + L); 1.2 and 1.6 for LRFD. Deflection always uses unfactored loads.</p>
+      </section>
+
+      <section>
+        <h2>Member</h2>
+        <div class="fields">
+          <label><span>E (<span class="uE">psi</span>)</span><input id="E" value="1400000" inputmode="decimal"></label>
+          <label>Section
+            <select id="secType"><option value="rect">Rectangle (sawn, LVL, glulam)</option><option value="custom">I, S, A typed</option></select>
+          </label>
+        </div>
+        <div class="fields3 rect" style="margin-top:12px">
+          <label><span>Ply width (<span class="uSec">in</span>)</span><input id="b" value="1.5" inputmode="decimal"></label>
+          <label><span>Depth (<span class="uSec">in</span>)</span><input id="d" value="9.25" inputmode="decimal"></label>
+          <label>Plies<input id="plies" value="3" inputmode="numeric"></label>
+        </div>
+        <div class="fields3 custom" style="margin-top:12px" hidden>
+          <label><span>I (<span class="uI">in⁴</span>)</span><input id="I" value="" inputmode="decimal"></label>
+          <label><span>S (<span class="uS">in³</span>)</span><input id="S" value="" inputmode="decimal"></label>
+          <label><span>A for 1.5V/A (<span class="uA">in²</span>, optional)</span><input id="A" value="" inputmode="decimal"></label>
+        </div>
+        <div class="fields" style="margin-top:12px">
+          <label><span>Allowable bending Fb (<span class="uStress">psi</span>)</span><input id="Fb" value="1000" inputmode="decimal"></label>
+          <label><span>Allowable shear Fv (<span class="uStress">psi</span>)</span><input id="Fv" value="175" inputmode="decimal"></label>
+          <label>Live deflection limit, L /<input id="liveLimit" value="360" inputmode="numeric"></label>
+          <label>Total deflection limit, L /<input id="totalLimit" value="240" inputmode="numeric"></label>
+        </div>
+        <p class="hint" style="margin-top:8px">The example figures are for illustration. Take E, Fb and Fv for your species, grade and size from the grade-stamp tables, adjusted as your code requires.</p>
+        <div class="actions">
+          <button class="primary" id="solve" type="button">Analyse</button>
+          <button id="example" type="button">Deck beam example</button>
+          <button id="twospan" type="button">Two-span floor beam</button>
+          <button id="copy" type="button">Copy CLI command</button>
+        </div>
+        <p id="error" class="err" role="alert"></p>
+      </section>
+    </div>
+
+    <div>
+      <section aria-live="polite">
+        <h2>Result</h2>
+        <p id="verdict" class="verdict"></p>
+        <p id="summary" class="muted"></p>
+        <h3>Beam and loads</h3>
+        <svg id="beamSvg" viewBox="0 0 640 160" role="img" aria-label="Beam, supports and loads"></svg>
+        <h3>Bending moment envelope</h3>
+        <svg id="momSvg" viewBox="0 0 640 170" role="img" aria-label="Bending moment envelope"></svg>
+        <div class="legend"><span><span class="sw" style="background:var(--pos)"></span>largest sagging</span><span><span class="sw" style="background:var(--neg)"></span>largest hogging</span></div>
+        <h3>Shear envelope</h3>
+        <svg id="shearSvg" viewBox="0 0 640 150" role="img" aria-label="Shear envelope"></svg>
+        <h3>Deflection envelope (dead + live, down positive)</h3>
+        <svg id="deflSvg" viewBox="0 0 640 130" role="img" aria-label="Deflection envelope"></svg>
+        <h3>Reactions</h3>
+        <div class="tablewrap"><table id="reactTable"><thead><tr><th>Support</th><th>Type</th><th>Dead</th><th>Max</th><th>Min</th></tr></thead></table></div>
+        <h3>Spans</h3>
+        <div class="tablewrap"><table id="spanTable"><thead><tr><th>Span</th><th>+M</th><th>−M</th><th>|V|</th><th>Live Δ</th><th>Total Δ</th><th>fb / Fb</th><th>fv / Fv</th></tr></thead></table></div>
+        <div id="notes"></div>
+      </section>
+    </div>
+  </main>
+
+  <section>
+    <h2>Questions</h2>
+    <h3>What is pattern live loading and why does it matter?</h3>
+    <p>On a beam over three or more supports, loading every span at once does not give the largest moments. The biggest sagging moment in a span comes with live load on that span and every other span, the biggest moment over a support with live load on the two spans beside it, and an overhang loaded on its own can lift the far end. Live load (people, furniture, snow) can be anywhere, so a check should cover every arrangement. This calculator does that exactly: it solves each span's live load on its own and adds, at every point, the spans that make that effect worse.</p>
+    <h3>How exact is it?</h3>
+    <p>It is an elastic Euler-Bernoulli analysis with no approximation beyond that theory. The beam is cut at every support and load point, each piece is solved with the exact stiffness method, and moment, shear and deflection inside each piece are integrated in closed form. An independent Macaulay (singularity function) solution in exact fractions agrees to about one part in 10^11 on 60 random beams.</p>
+    <h3>Which supports can I use?</h3>
+    <p>Pin (holds the beam up but lets it rotate: a post, a wall, a hanger), fixed (holds it up and stops it rotating: a beam built solidly into a wall or a moment connection) and free (an end with nothing under it, which makes an overhang or cantilever). The beam must be stable: an overhang needs at least two supports or a fixed end.</p>
+    <h3>Does it size the beam for me?</h3>
+    <p>No. You type the section and the allowable stresses, and it tells you how hard the beam is working. Allowables are used exactly as typed, so adjust them yourself for load duration, size, wet use or repetitive members. Lateral-torsional buckling, bearing, notches and connections are not checked. Anything that carries people should be checked by a licensed engineer or against your local span tables.</p>
+    <h3>Why is a cantilever judged on twice its length?</h3>
+    <p>Building codes commonly allow a cantilever's tip deflection to be judged against twice the overhang, so an L/360 limit on a 2 ft overhang allows 4 ft divided by 360. You can change both limits.</p>
+    <h3>Is my design uploaded?</h3>
+    <p>No. Every calculation runs in your browser and nothing is sent anywhere. An optional anonymous counter in this browser's local storage records only which features were used and the day.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. An elastic analysis of the figures you type, not engineering advice. It does not choose a member, apply adjustment factors, or check lateral-torsional buckling, bearing, notches, connections, vibration or the load path below the supports. Have a licensed engineer check any beam that carries people, and follow your local code and span tables.</p>
+    <p>Nothing leaves your browser: your beam is analysed here. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/continuous-beam-calculator">Source and CLI</a> · <a href="LICENSE">MIT licence</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a> · Related: <a href="../wall-framing-takeoff/">wall framing takeoff</a>, <a href="../wall-framing-takeoff/deck-lumber-calculator.html">deck lumber calculator</a>, <a href="../shed-designer/">shed designer</a></p>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+  </footer>
+
+  <script type="module">
+    import { run, parseLoadLines, fmt, UNITS } from './beam.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const el = id => document.getElementById(id);
+    const NS = 'http://www.w3.org/2000/svg';
+    function count(event) { try { recordUsage(localStorage, el('usageOptOut').checked, event); } catch { /* storage is optional */ } }
+
+    const PRESETS = {
+      example: { units: 'imperial', spans: '1.5, 8, 8, 1.5', supports: 'free, pin, pin, pin, free', loads: 'udl D:60   # 10 psf over a 6 ft strip\nudl L:240  # 40 psf over a 6 ft strip', E: '1400000', secType: 'rect', b: '1.5', d: '9.25', plies: '3', Fb: '1000', Fv: '175' },
+      twospan: { units: 'imperial', spans: '12, 12', supports: 'pin, pin, pin', loads: 'udl D:105  # 15 psf over 7 ft of joists\nudl L:280  # 40 psf over 7 ft\npoint D:1200@6  # a post from above', E: '1550000', secType: 'rect', b: '1.75', d: '11.875', plies: '3', Fb: '2600', Fv: '285' },
+    };
+
+    function setUnits() {
+      const u = UNITS[el('units').value];
+      const map = { uLen: u.len, uDist: u.dist, uE: u.E, uSec: u.sec, uI: u.I, uS: u.S, uA: u.A, uStress: u.stress };
+      for (const [cls, txt] of Object.entries(map)) document.querySelectorAll('.' + cls).forEach(n => { n.textContent = txt; });
+    }
+    function setSecType() {
+      const custom = el('secType').value === 'custom';
+      document.querySelector('.rect').hidden = custom; document.querySelector('.custom').hidden = !custom;
+    }
+    const num = id => { const v = el(id).value.trim(); return v === '' ? undefined : Number(v); };
+    const list = id => el(id).value.split(/[,\s]+/).filter(Boolean);
+
+    function readInput() {
+      const input = {
+        units: el('units').value,
+        spans: list('spans').map(Number),
+        supports: list('supports'),
+        E: num('E'),
+        loads: parseLoadLines(el('loads').value),
+        pattern: el('pattern').value === 'on',
+        factors: { D: num('fD') ?? 1, L: num('fL') ?? 1 },
+        Fb: num('Fb'), Fv: num('Fv'),
+        liveLimit: num('liveLimit'), totalLimit: num('totalLimit'),
+      };
+      if (el('secType').value === 'rect') input.section = { b: num('b'), d: num('d'), plies: num('plies') ?? 1 };
+      else input.section = { I: num('I'), S: num('S'), A: num('A') };
+      return input;
+    }
+
+    function svgEl(tag, attrs, parent) {
+      const n = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v));
+      if (parent) parent.appendChild(n); return n;
+    }
+    function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+    function text(parent, x, y, s, attrs = {}) { const t = svgEl('text', { x, y, 'font-size': 11, fill: '#4f5964', ...attrs }, parent); t.textContent = s; return t; }
+
+    const PAD = 36, W = 640;
+    const xs = (X, total) => PAD + (W - 2 * PAD) * X / total;
+
+    function drawBeam(out) {
+      const svg = el('beamSvg'); clear(svg);
+      const m = out.result.model, total = m.total, y = 100;
+      svgEl('line', { x1: xs(0, total), y1: y, x2: xs(total, total), y2: y, stroke: '#1b1f24', 'stroke-width': 5 }, svg);
+      let X = 0; const sup = [0]; m.spans.forEach(L => { X += L; sup.push(X); });
+      sup.forEach((sx, k) => {
+        const px = xs(sx, total), t = m.supports[k];
+        if (t === 'pin') svgEl('path', { d: `M${px} ${y + 3}l-9 16h18z`, fill: '#1e3a5f' }, svg);
+        if (t === 'fixed') { svgEl('rect', { x: px - (k === 0 ? 8 : 0), y: y - 18, width: 8, height: 36, fill: '#1e3a5f' }, svg); }
+        text(svg, px, y + 34, `${fmt(sx, 2)}`, { 'text-anchor': 'middle' });
+      });
+      const maxW = Math.max(1e-9, ...m.loads.filter(l => l.type === 'udl').map(l => Math.max(Math.abs(l.w1), Math.abs(l.w2))));
+      let row = 0;
+      for (const l of m.loads) {
+        const color = l.case === 'L' ? '#b42318' : '#4f5964';
+        if (l.type === 'udl') {
+          const top = y - 10 - 4 - row * 0; const h1 = 6 + 18 * Math.abs(l.w1) / maxW, h2 = 6 + 18 * Math.abs(l.w2) / maxW;
+          const off = l.case === 'L' ? 24 : 0;
+          svgEl('path', { d: `M${xs(l.x1, total)} ${top - off}L${xs(l.x1, total)} ${top - off - h1}L${xs(l.x2, total)} ${top - off - h2}L${xs(l.x2, total)} ${top - off}z`, fill: color, 'fill-opacity': .18, stroke: color }, svg);
+        } else if (l.type === 'point') {
+          const px = xs(l.x, total);
+          svgEl('line', { x1: px, y1: y - 52, x2: px, y2: y - 6, stroke: color, 'stroke-width': 2 }, svg);
+          svgEl('path', { d: `M${px} ${y - 4}l-4 -8h8z`, fill: color }, svg);
+          text(svg, px + 4, y - 44 - (row++ % 2) * 10, `${l.case} ${fmt(l.P)}`, { fill: color });
+        } else {
+          const px = xs(l.x, total);
+          svgEl('path', { d: `M${px - 9} ${y - 10}A11 11 0 1 1 ${px + 9} ${y - 10}`, fill: 'none', stroke: color, 'stroke-width': 2 }, svg);
+          text(svg, px + 12, y - 22, `${l.case} ${fmt(l.M)}`, { fill: color });
+        }
+      }
+      text(svg, 6, 14, `Dead load grey, live red. Positions in ${out.u.len}.`);
+    }
+
+    function drawEnvelope(svgId, rows, hiKey, loKey, scaleLabel, opts = {}) {
+      const svg = el(svgId); clear(svg);
+      const H = Number(svg.getAttribute('viewBox').split(' ')[3]);
+      const total = rows[rows.length - 1].X;
+      const vals = rows.flatMap(r => [r[hiKey], r[loKey]]);
+      const vmax = Math.max(1e-12, ...vals.map(Math.abs));
+      const mid = H / 2, amp = H / 2 - 18;
+      // sagging moment and downward deflection are drawn below the axis; shear positive above
+      const yv = v => mid + (opts.downIsPositive ? 1 : -1) * amp * v / vmax;
+      svgEl('line', { x1: xs(0, total), y1: mid, x2: xs(total, total), y2: mid, stroke: '#9aa5b1' }, svg);
+      const path = key => rows.map((r, i) => `${i ? 'L' : 'M'}${xs(r.X, total).toFixed(1)} ${yv(r[key]).toFixed(1)}`).join('');
+      svgEl('path', { d: path(hiKey), fill: 'none', stroke: 'var(--pos)', 'stroke-width': 2 }, svg);
+      svgEl('path', { d: path(loKey), fill: 'none', stroke: 'var(--neg)', 'stroke-width': 2 }, svg);
+      const hi = rows.reduce((b, r) => (r[hiKey] > b[hiKey] ? r : b)), lo = rows.reduce((b, r) => (r[loKey] < b[loKey] ? r : b));
+      if (hi[hiKey] > 0) text(svg, Math.min(xs(hi.X, total) + 4, W - 90), Math.min(Math.max(yv(hi[hiKey]) + (yv(hi[hiKey]) > mid ? 12 : -4), 12), H - 4), `${fmt(hi[hiKey] * (opts.scale ?? 1), opts.dp ?? 0)}`, { fill: 'var(--pos)' });
+      if (lo[loKey] < 0) text(svg, Math.min(xs(lo.X, total) + 4, W - 90), Math.min(Math.max(yv(lo[loKey]) + (yv(lo[loKey]) > mid ? 12 : -4), 12), H - 4), `${fmt(lo[loKey] * (opts.scale ?? 1), opts.dp ?? 0)}`, { fill: 'var(--neg)' });
+      text(svg, 6, 14, scaleLabel);
+    }
+
+    function cell(tr, s, cls, tag = 'td') { const c = document.createElement(tag); c.textContent = s; if (cls) c.className = cls; tr.appendChild(c); return c; }
+    function table(id, head, rows) {
+      const t = el(id); clear(t);
+      const thead = document.createElement('thead'), tr = document.createElement('tr'); head.forEach(h => cell(tr, h, '', 'th')); thead.appendChild(tr); t.appendChild(thead);
+      const tb = document.createElement('tbody');
+      for (const r of rows) { const row = document.createElement('tr'); r.forEach(c => (Array.isArray(c) ? cell(row, c[0], c[1]) : cell(row, c))); tb.appendChild(row); }
+      t.appendChild(tb);
+    }
+
+    function analyse() {
+      el('error').textContent = '';
+      let out;
+      try { out = run(readInput()); } catch (e) { el('error').textContent = e.message; return; }
+      const u = out.u, res = out.result;
+      el('verdict').textContent = out.ok ? 'Passes every check you gave it' : 'Fails at least one check';
+      el('verdict').className = 'verdict ' + (out.ok ? 'ok' : 'bad');
+      el('summary').textContent = `${res.model.spans.length} span${res.model.spans.length > 1 ? 's' : ''}, ${fmt(res.model.total, 2)} ${u.len} long; dead ${fmt(res.totals.dead)} ${u.force}, live ${fmt(res.totals.live)} ${u.force}${res.patterned ? ', live load patterned span by span' : ''}. EI ${fmt(out.EI)} ${u.force}·${u.len}².`;
+      drawBeam(out);
+      drawEnvelope('momSvg', res.envelope, 'Mmax', 'Mmin', `${u.moment}; sagging drawn below the beam (tension side)`, { downIsPositive: true });
+      drawEnvelope('shearSvg', res.envelope, 'Vmax', 'Vmin', `${u.force}`);
+      drawEnvelope('deflSvg', res.envelope.map(r => ({ X: r.X, a: r.DTmax, b: r.DTmin })), 'a', 'b', `${u.defl}, down drawn below`, { downIsPositive: true, scale: u.deflScale, dp: 2 });
+      table('reactTable', ['Support', 'Type', `Dead (${u.force})`, `Max (${u.force})`, `Min (${u.force})`],
+        res.reactions.filter(r => r.type !== 'free').map(r => [`${r.support} at ${fmt(r.x, 2)} ${u.len}`, r.type, fmt(r.dead), fmt(r.max), [fmt(r.min), r.serviceMin < 0 ? 'over' : '']]));
+      table('spanTable', ['Span', `+M (${u.moment})`, `−M (${u.moment})`, `|V| (${u.force})`, `Live Δ (${u.defl})`, `Total Δ (${u.defl})`, 'fb / Fb', 'fv / Fv'],
+        res.spans.map((s, i) => {
+          const c = out.checks[i];
+          const d = v => `${fmt(Math.abs(v) * u.deflScale, 2)}${v < 0 ? ' up' : ''}`;
+          return [
+            `${s.span} (${fmt(s.length, 2)} ${u.len}${s.cantilever ? ', overhang' : ''})`,
+            s.Mpos.value > 1e-9 ? `${fmt(s.Mpos.value)}${s.Mpos.liveOn ? ` [L on ${s.Mpos.liveOn.join(',') || '–'}]` : ''}` : '–',
+            s.Mneg.value < -1e-9 ? `${fmt(s.Mneg.value)}${s.Mneg.liveOn ? ` [L on ${s.Mneg.liveOn.join(',') || '–'}]` : ''}` : '–',
+            fmt(s.Vmax),
+            [`${d(s.defl.live)} (L/${fmt(c.liveRatio)})`, c.liveOk ? '' : 'over'],
+            [`${d(s.defl.total)} (L/${fmt(c.totalRatio)})`, c.totalOk ? '' : 'over'],
+            [c.fbRatio != null ? fmt(c.fbRatio, 2) : (c.fb != null ? `${fmt(c.fb)} ${u.stress}` : '–'), c.fbOk === false ? 'over' : ''],
+            [c.fvRatio != null ? fmt(c.fvRatio, 2) : (c.fv != null ? `${fmt(c.fv)} ${u.stress}` : '–'), c.fvOk === false ? 'over' : ''],
+          ];
+        }));
+      const notes = el('notes'); clear(notes);
+      const all = [...out.notes];
+      if (res.patterned) all.push('[L on …] lists the spans carrying live load when that peak happens. Deflection limits are judged on the span, or on twice the overhang for a cantilever.');
+      for (const n of all) { const p = document.createElement('p'); p.className = 'warn'; p.textContent = n; notes.appendChild(p); }
+      count('beam_solved'); if (res.patterned) count('pattern_on');
+    }
+
+    function load(preset) {
+      const p = PRESETS[preset];
+      for (const [k, v] of Object.entries(p)) el(k).value = v;
+      setUnits(); setSecType(); analyse();
+    }
+
+    function cliCommand() {
+      const i = readInput();
+      const parts = ['node cli.mjs', `--units ${i.units}`, `--spans ${i.spans.join(',')}`, `--supports ${i.supports.join(',')}`, `--E ${i.E}`];
+      if (i.section.b != null) parts.push(`--section ${i.section.b}x${i.section.d}x${i.section.plies}`);
+      else { parts.push(`--I ${i.section.I}`); if (i.section.S) parts.push(`--S ${i.section.S}`); if (i.section.A) parts.push(`--A ${i.section.A}`); }
+      for (const l of i.loads) {
+        if (l.type === 'udl') parts.push(`--udl ${l.case}:${l.w1}${l.w2 !== l.w1 ? '..' + l.w2 : ''}${l.x1 != null ? '@' + l.x1 + (l.x2 != null ? '-' + l.x2 : '') : ''}`);
+        else parts.push(`--${l.type} ${l.case}:${l.type === 'point' ? l.P : l.M}@${l.x}`);
+      }
+      if (i.Fb) parts.push(`--Fb ${i.Fb}`); if (i.Fv) parts.push(`--Fv ${i.Fv}`);
+      if (!i.pattern) parts.push('--no-pattern');
+      if (i.factors.D !== 1 || i.factors.L !== 1) parts.push(`--factors ${i.factors.D},${i.factors.L}`);
+      return parts.join(' ');
+    }
+
+    el('solve').addEventListener('click', analyse);
+    el('example').addEventListener('click', () => load('example'));
+    el('twospan').addEventListener('click', () => load('twospan'));
+    el('copy').addEventListener('click', async () => {
+      try { const c = cliCommand(); await navigator.clipboard.writeText(c); el('error').textContent = ''; } catch (e) { el('error').textContent = `Could not copy: ${e.message}`; }
+    });
+    el('units').addEventListener('change', setUnits);
+    el('secType').addEventListener('change', setSecType);
+    {
+      const u = el('usageOptOut');
+      try { u.checked = readOptOut(localStorage); } catch { /* storage is optional */ }
+      u.addEventListener('change', () => { try { writeOptOut(localStorage, u.checked); } catch { /* storage is optional */ } });
+    }
+    setUnits(); setSecType(); analyse();
+  </script>
+</body>
+</html>
