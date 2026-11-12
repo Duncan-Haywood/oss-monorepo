@@ -209,6 +209,8 @@ function rruleByProblems(r) {
   return out;
 }
 
+// RFC 5545 3.3.10: INTERVAL and COUNT are 1*DIGIT, so leading zeros are allowed; zero is not.
+const posInt = (v) => /^\d+$/.test(v) && /[1-9]/.test(v);
 const F = (severity, line, title, detail, extra = {}) => ({ severity, line, title, detail, ...extra });
 
 export function validate(text) {
@@ -315,8 +317,8 @@ export function validate(text) {
                 if (untilGap < 0) findings.push(F("error", rr.line, `${at}UNTIL is before DTSTART`, "The series ends before it begins."));
               }
             }
-            if (r.INTERVAL && !/^[1-9]\d*$/.test(r.INTERVAL)) findings.push(F("error", rr.line, `${at}bad INTERVAL`, "INTERVAL must be a positive whole number."));
-            if (r.COUNT && !/^[1-9]\d*$/.test(r.COUNT)) findings.push(F("error", rr.line, `${at}bad COUNT`, "COUNT must be a positive whole number."));
+            if (r.INTERVAL && !posInt(r.INTERVAL)) findings.push(F("error", rr.line, `${at}bad INTERVAL`, "INTERVAL must be a positive whole number."));
+            if (r.COUNT && !posInt(r.COUNT)) findings.push(F("error", rr.line, `${at}bad COUNT`, "COUNT must be a positive whole number."));
             for (const msg of rruleByProblems(r)) findings.push(F("error", rr.line, `${at}${msg.title}`, msg.detail));
           }
           for (const name of ["EXDATE", "RDATE"]) {
