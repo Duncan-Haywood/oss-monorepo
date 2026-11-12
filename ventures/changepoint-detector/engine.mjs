@@ -592,11 +592,24 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
     // with ar1, sticky noise widens the scale, so its wandering is not cut into steps that then bend the slope
     return pelt(y, { model: 'mean', penalty: mult * penaltyValue(penalty, n, 'mean'), minSegment, sigma: ar1 ? longRunSd(sd, ar1Rho(y)) : sd }).changepoints;
   };
+  // Every fit starts from the same slope, median(d), on every piece, so its first pass removes the same straight line whatever the
+  // knots (each knot adds (s[j+1] - s[j]) * (t - knot) = 0 exactly): that pass's steps are computed once, not once per fit. A fit is
+  // a pure function of its knots, and the greedy grid, the refinement and the knot-range scan revisit some knot sets, so each set
+  // is fitted once (docs/history/ci-perf-2026-11-12-trend-fit-memo.md).
+  const start = median(d);
+  let firstSteps = null;
+  const fits = new Map();
   const fit = (knots) => {
+    const key = knots.join(',');
+    let f = fits.get(key);
+    if (!f) { f = fitOnce(knots); fits.set(key, f); }
+    return f;
+  };
+  const fitOnce = (knots) => {
     const edges = [0, ...knots.map((k) => k + 1), n];
-    let s = new Array(knots.length + 1).fill(median(d));
+    let s = new Array(knots.length + 1).fill(start);
     for (let k = 0; k < passes; k++) {
-      const cps = segment(detrend(line(s, knots)), 3);
+      const cps = k === 0 ? (firstSteps ??= segment(detrend(line(s, knots)), 3)) : segment(detrend(line(s, knots)), 3);
       const bounds = [0, ...cps, n];
       const next = s.map((v, j) => pooled(bounds, edges[j], edges[j + 1], v));
       const done = next.every((v, j) => Math.abs(v - s[j]) < 1e-9);
