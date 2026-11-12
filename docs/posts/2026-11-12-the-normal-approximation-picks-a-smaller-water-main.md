@@ -1,9 +1,9 @@
 ---
 title: "Sizing house water pipes with Hunter's rule, computed exactly"
-seo_title: "Water supply pipe sizing: Hunter's 99% rule by exact binomial convolution"
+seo_title: "Water supply pipe sizing: Hunter's 99% rule, computed exactly"
 date: 2026-11-12
 tags: [wall-framing-takeoff, plumbing, construction, probability]
-description: A new free page sizes a house's water pipes from Hunter's 99% rule computed exactly. On a two-bath example the normal approximation would pick a 3/4 in main where the exact rule needs 1 in.
+description: Free house water pipe sizing by Hunter's 99% rule, computed exactly. On a two-bath example the normal approximation picks a 3/4 in main; exact needs 1 in.
 ---
 
 If every fixture in a two-bath house ran at once, it would draw 27.2 gallons a minute. Nobody sizes pipe for that. In 1940 Roy Hunter at the National Bureau of Standards treated each fixture as busy a fixed fraction of the peak hour, independently of the others, and sized for the flow that is not exceeded 99% of the time. The fixture-unit tables in plumbing codes descend from that rule.
