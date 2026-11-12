@@ -1,6 +1,6 @@
 ---
 kind: note
-topics: [process, duplicate-work]
+topics: [duplicate-work, routing]
 date: 2026-11-12
 ---
 # Concurrent claims: the PR opened first keeps the item (2026-11-12, process run)
