@@ -2,7 +2,7 @@
 title: "The build-time penalty was demolition, not new construction: four Seattle permit predictions"
 seo_title: "Permit build time across cities: where a work-type label hurts"
 date: 2026-11-12
-description: "A work-type label cuts a transferred permit model's upper-tail issue-time error again in a second year (5.6 days), and its build-time penalty sits mostly in demolition permits."
+description: "A work-type label cuts a permit model's upper-tail issue-time error again in 2023 (5.6 days); its build-time penalty sits in demolition permits."
 tags: [research, build-data, construction]
 ---
 
