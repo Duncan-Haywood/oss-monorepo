@@ -83,8 +83,10 @@ test("under PINT the EU conventions for BIC, payment means and exemption reasons
   const { reports } = await preflightDocuments([{ name: "au.xml", source: au }], { schematron: true });
   const ids = reports[0].errors.map((e) => e.rule);
   assert.ok(!ids.includes("INV-026"), ids.join(" "));
-  // The same branch id on an EU Peppol file is still a malformed BIC.
-  const eu = withText(au, "CustomizationID", "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0");
+  // On an EU Peppol file a six-digit BSB reads as a national clearing code, which BT-86 admits
+  // (bic.mjs, 2026-11-12), but a value that is neither a BIC nor a clearing code is still INV-026.
+  const eu = withText(au, "CustomizationID", "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0")
+    .replace("<cbc:ID>062-000</cbc:ID>", "<cbc:ID>BA11</cbc:ID>");
   const euIds = (await preflightDocuments([{ name: "eu.xml", source: eu }], { schematron: true })).reports[0].errors.map((e) => e.rule);
   assert.ok(euIds.includes("INV-026"), euIds.join(" "));
 });
