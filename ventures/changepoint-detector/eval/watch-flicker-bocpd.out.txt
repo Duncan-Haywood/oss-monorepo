@@ -1,0 +1,15 @@
+The round-5 guards with --detector bocpd (reported after the round, deciding nothing). 31 univariate TCPD series:
+
+  candidate  alerts  at a mark (share)  per 1000 checks  majority-marked reached  alerts dated before the baseline
+  none         193      63 (33%)           30.3         38/52                  10
+  hold         183      61 (33%)           28.7         38/52                  0
+  persist2     188      61 (32%)           29.5         38/52                  10
+  both         178      59 (33%)           27.9         38/52                  0
+
+7 held-out univariate TCPD series:
+
+  candidate  alerts  at a mark (share)  per 1000 checks  majority-marked reached  alerts dated before the baseline
+  none         122      36 (30%)           42.7         11/12                  10
+  hold         112      35 (31%)           39.2         11/12                  0
+  persist2     116      35 (30%)           40.6         11/12                  8
+  both         108      35 (32%)           37.8         11/12                  0

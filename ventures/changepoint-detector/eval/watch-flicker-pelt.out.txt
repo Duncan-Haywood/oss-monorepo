@@ -1,0 +1,15 @@
+The round-5 guards with --detector pelt (reported after the round, deciding nothing). 31 univariate TCPD series:
+
+  candidate  alerts  at a mark (share)  per 1000 checks  majority-marked reached  alerts dated before the baseline
+  none         626     134 (21%)           98.2         52/52                  15
+  hold         611     133 (22%)           95.9         52/52                  0
+  persist2     616     133 (22%)           96.7         52/52                  14
+  both         602     132 (22%)           94.5         52/52                  0
+
+7 held-out univariate TCPD series:
+
+  candidate  alerts  at a mark (share)  per 1000 checks  majority-marked reached  alerts dated before the baseline
+  none         289      50 (17%)          101.2         12/12                  3
+  hold         286      50 (17%)          100.2         12/12                  0
+  persist2     284      50 (18%)           99.5         12/12                  2
+  both         282      50 (18%)           98.8         12/12                  0

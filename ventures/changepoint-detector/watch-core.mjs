@@ -17,7 +17,12 @@ import { analyze, parseSeries, peaks } from './engine.mjs';
 // 15 of the 17 marked TCPD changes the AR(1) pass lost were at the 0.95 clip (eval/watch-rho-why.out.txt). With the cap,
 // 33 of 52 marked changes against 29, 41% of alerts at a mark against 38%, synthetic nulls and steps unchanged; the cost
 // is noise that really is that sticky (AR(1) 0.95: 3.0 false alerts per 1,000 checks against 1.25).
-export const WATCH_DEFAULTS = { confirm: 5, tolerance: 5, window: 1000, detector: 'bocpd-ar1-window', model: 'mean', rhoCap: 0.8 };
+// Round 5 (eval/watch-flicker.out.txt, rule pre-registered in eval/watch-flicker.mjs) added two flicker guards: history the
+// first check could already have confirmed is recorded, not alerted (holdHistory), and a change must be found at two checks
+// in a row (persist 2). TCPD 103 alerts against 115 (43% at a mark against 41%), 32 of 52 marked changes against 33;
+// synthetic nulls 1.25 false alerts per 1,000 checks against 1.44, the same 40 steps; on the 57 data/ series no alert about
+// pre-baseline history (11 before).
+export const WATCH_DEFAULTS = { confirm: 5, tolerance: 5, window: 1000, detector: 'bocpd-ar1-window', model: 'mean', rhoCap: 0.8, holdHistory: true, persist: 2 };
 /** The default detector for a model: the AR(1) pass for the level model, the plain Bayesian pass otherwise. */
 export const defaultDetector = (model = 'mean') => (model === 'mean' ? WATCH_DEFAULTS.detector : 'bocpd');
 
@@ -101,11 +106,13 @@ function locate(a, labelIndex) {
  * { alerts, pending, state, notes }. `changes` from detectChanges on the same series.
  */
 export function advance(state, changes, n, labels, opts = {}) {
-  const { confirm, tolerance } = { ...WATCH_DEFAULTS, ...opts };
+  const { confirm, tolerance, holdHistory: hh, persist: ps } = { ...WATCH_DEFAULTS, ...opts };
   // Flicker guards (eval/watch-flicker.mjs): holdHistory records, without alerting, a change the engine first reads
   // after the baseline check but dated where the baseline check could already have confirmed it (index at most
-  // baselineN - confirm); persist 2 alerts only on a change that the previous check also found (within tolerance).
-  const holdHistory = !!opts.holdHistory, persist = Math.max(1, Math.round(opts.persist ?? 1));
+  // baselineN - confirm); persist 2 alerts only on a change that the previous check also found (within tolerance;
+  // a pending change counts as found, so a change seen while it gathers its --confirm points is not delayed). With no
+  // previous check (the first, or --alert-history on the first) there is nothing to compare and persist does not apply.
+  const holdHistory = !!hh, persist = Math.max(1, Math.round(ps ?? 1));
   const st = state && state.version === STATE_VERSION ? state : emptyState();
   const notes = [];
   if (st.n && n < st.n) notes.push(`The series is shorter than at the last check (${n} points, was ${st.n}): rows were removed or the file was replaced.`);
@@ -127,7 +134,7 @@ export function advance(state, changes, n, labels, opts = {}) {
     if (after < confirm) { pending.push({ ...c, pointsAfter: after }); continue; }
     if (first) baseline.push({ ...c, pointsAfter: after });
     else if (holdHistory && baselineN != null && c.index <= baselineN - confirm) history.push({ ...c, pointsAfter: after });
-    else if (persist > 1 && !(prev && prev.some((k) => Math.abs(k - c.index) <= tolerance))) { pending.push({ ...c, pointsAfter: after, unconfirmed: true }); continue; }
+    else if (persist > 1 && st.n && !(prev && prev.some((k) => Math.abs(k - c.index) <= tolerance))) { pending.push({ ...c, pointsAfter: after, unconfirmed: true }); continue; }
     else alerts.push({ ...c, pointsAfter: after, late: after > 2 * confirm + 1 });
     known.push(c.index);
   }
@@ -207,7 +214,8 @@ export function watchCheck({ csv, state = null, column = null, labelColumn = nul
   const { labels, values } = parsed;
   if (values.length < 4) throw new Error(`Need at least 4 numbers; got ${values.length}.`);
   const clean = Object.fromEntries(Object.entries(opts).filter(([, v]) => v !== undefined && v !== null && v !== ''));
-  const changes = detectChanges(values, labels, clean);
+  const { holdHistory, persist, ...detOpts } = clean;
+  const changes = detectChanges(values, labels, detOpts);
   const res = advance(state, changes, values.length, labels, { ...clean, alertHistory });
   const text = statusText(res, { column: parsed.column, model, confirm: clean.confirm });
   return { column: parsed.column, n: values.length, ...res, text };
@@ -251,18 +259,30 @@ export function replayWatch(values, labels = null, opts = {}) {
   const from = Math.min(n, Math.max(4, Math.round(from0 ?? Math.max(Math.min(20, n), Math.floor(0.2 * n)))));
   const budget = budget0 ?? REPLAY_BUDGET;
   const endsFor = (s) => { const e = []; for (let x = from; x <= n; x += s) e.push(x); if (e[e.length - 1] !== n) e.push(n); return e; };
-  const cost = (e) => e.reduce((t, x) => t + Math.min(x, settings.window) ** 2, 0);
+  // A coarse check with persist > 1 also refits the point before it (see check below), so it costs two refits.
+  const cost = (e) => e.reduce((t, x, i) => t + Math.min(x, settings.window) ** 2 * (i && settings.persist > 1 && x - e[i - 1] > 1 ? 2 : 1), 0);
   let step = Math.max(1, Math.round(step0 ?? 1));
   while (step < n && cost(endsFor(step)) > budget) step = Math.max(step + 1, Math.ceil(step * 1.25));
-  const { confirm, tolerance, ...detOpts } = settings;
+  const { confirm, tolerance, holdHistory, persist, ...detOpts } = settings;
+  const guard = { confirm, tolerance, holdHistory, persist };
   let state = emptyState(), baseline = [], pending = [], checks = 0;
   const alerts = [];
-  const check = (end) => { checks++; const ls = l.slice(0, end); return advance(state, detectChanges(v.slice(0, end), ls, detOpts), end, ls, { confirm, tolerance }); };
+  const at = (end) => { return detectChanges(v.slice(0, end), l.slice(0, end), detOpts); };
+  // With persist > 1 the state remembers the previous check's changes. A coarse check (or a bisection probe) did not
+  // follow the point before it, so it is given that point's changes, as a watch run after every point would have them.
+  let lastEnd = from - 1;
+  const check = (end) => {
+    checks++;
+    const ls = l.slice(0, end);
+    const st = (persist ?? 1) > 1 && state.n && end - 1 > lastEnd ? { ...state, prev: at(end - 1).map((c) => c.index) } : state;
+    return advance(st, at(end), end, ls, guard);
+  };
   const commit = (r, end) => {
     if (end === from) baseline = r.baseline;
     for (const a of r.alerts) alerts.push({ ...a, reportedAt: end - 1, reportedAtLabel: l[end - 1] });
     pending = r.pending;
     state = r.state;
+    lastEnd = end;
   };
   let prev = from - 1;
   for (const end of endsFor(step)) {

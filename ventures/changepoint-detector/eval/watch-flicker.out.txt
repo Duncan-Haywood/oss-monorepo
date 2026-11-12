@@ -1,0 +1,38 @@
+Round 5: flicker guards for the watch. Rule and reasons: header of eval/watch-flicker.mjs. Detector: the round-4 default (bocpd-ar1-window, rho cap 0.8, --confirm 5, --tolerance 5).
+
+Part A: 10 fresh seeds (41-50) per cell, 500 points, baseline check at 100, then one check per point; a step at point 301. False alerts per 1,000 checks, then steps found (median delay in points).
+
+  candidate null iid      null ar1 0.5  null t3       null ar1 0.8  null ar1 0.95 step 1sd iid      step 2sd iid      step 3sd iid      step 2sd ar1 0.5  step 4sd ar1 0.8  
+  none      0.00          1.00          3.75          1.00          4.75          4/10 (6.5)        9/10 (5)          10/10 (5)         7/10 (6)          10/10 (5)         
+  hold      0.00          1.00          3.75          1.00          4.75          4/10 (6.5)        9/10 (5)          10/10 (5)         7/10 (6)          10/10 (5)         
+  persist2  0.00          1.00          3.25          0.75          4.50          4/10 (7.5)        9/10 (5)          10/10 (5)         7/10 (7)          10/10 (5)         
+  both      0.00          1.00          3.25          0.75          4.50          4/10 (7.5)        9/10 (5)          10/10 (5)         7/10 (7)          10/10 (5)         
+
+Part B: 31 univariate TCPD series, watched from 20% of their length, one check per point.
+
+  candidate  alerts  at a mark (share)  per 1000 checks  majority-marked reached  alerts dated before the baseline
+  none         115      47 (41%)           18.0         33/52                  9
+  hold         106      45 (42%)           16.6         33/52                  0
+  persist2     112      46 (41%)           17.6         32/52                  9
+  both         103      44 (43%)           16.2         32/52                  0
+
+Part C (reported, deciding nothing): 7 held-out univariate TCPD series (bitcoin, iceland_tourism, measles, ratner_stock, robocalls, scanline_126007, scanline_42049).
+
+  candidate  alerts  at a mark (share)  per 1000 checks  majority-marked reached  alerts dated before the baseline
+  none          68      26 (38%)           23.8          9/12                  7
+  hold          61      26 (43%)           21.4          9/12                  0
+  persist2      66      25 (38%)           23.1          9/12                  7
+  both          59      25 (42%)           20.7          9/12                  0
+
+Part C, the 57 real series in data/ with 40 to 800 points (no labels): alerts, and alerts about a change dated where the baseline check could already have confirmed it.
+
+  none        141 alerts, 11 dated before the baseline
+  hold        130 alerts, 0 dated before the baseline
+  persist2    134 alerts, 9 dated before the baseline
+  both        125 alerts, 0 dated before the baseline
+
+Rule, against none (mean null false alerts 1.44 per 1,000; 40 steps, median delay 5; TCPD 115 alerts, 33 of 52 marks, 40.9% at a mark):
+  hold: (a) 1.44: pass; (b) 40 steps, delay 5: pass; (c) TCPD 106 alerts, 33 marks, 42.5% at a mark: pass.
+  persist2: (a) 1.25: pass; (b) 40 steps, delay 5: pass; (c) TCPD 112 alerts, 32 marks, 41.1% at a mark: pass.
+  both: (a) 1.25: pass; (b) 40 steps, delay 5: pass; (c) TCPD 103 alerts, 32 marks, 42.7% at a mark: pass.
+Adopted: both becomes the default.

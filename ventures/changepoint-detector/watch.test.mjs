@@ -24,7 +24,8 @@ for (const detector of ['pelt', 'bocpd-window']) {
     assert.equal(reports.length, 1, JSON.stringify(reports));
     // dated from 5 points of data, the first report can be a few points off (pelt: 198 for 201); within --tolerance
     assert.ok(Math.abs(reports[0].index - 200) <= WATCH_DEFAULTS.tolerance);
-    assert.equal(reports[0].pointsAfter, WATCH_DEFAULTS.confirm);
+    // persist 2 (round 5): a change re-dated past the tolerance between two checks waits one more check
+    assert.ok(reports[0].pointsAfter >= WATCH_DEFAULTS.confirm && reports[0].pointsAfter <= WATCH_DEFAULTS.confirm + 1, JSON.stringify(reports));
   });
 }
 
@@ -239,4 +240,46 @@ test('replayWatch: changes before the first check are the baseline, quiet noise 
   assert.ok(q.step > 1, `step ${q.step}`);
   assert.equal(q.alerts.length, 0);
   assert.throws(() => replayWatch([1, 2, 3]), /at least 10/);
+});
+
+// Round 5 guards (eval/watch-flicker.mjs): the ausair pattern, a quiet baseline then old history read as new.
+test('--hold-history: a change dated where the first check could already confirm it is recorded, not alerted', () => {
+  const labels = Array.from({ length: 30 }, (_, i) => String(i + 1));
+  let st = advance(emptyState(), [], 20, labels.slice(0, 20)).state; // quiet baseline at 20 points
+  assert.equal(st.baselineN, 20);
+  const plain = advance(st, [{ index: 9, label: '10' }, { index: 15, label: '16' }], 21, labels.slice(0, 21), { holdHistory: false, persist: 1 });
+  assert.equal(plain.alerts.length, 2, 'without the guard both old changes are alerted');
+  const held = advance(st, [{ index: 9, label: '10' }, { index: 15, label: '16' }], 21, labels.slice(0, 21), { holdHistory: true, persist: 1 });
+  assert.equal(held.alerts.length, 0); // 9 and 15 are both <= 20 - 5, so both are history
+  assert.equal(held.history.length, 2);
+  assert.ok(held.state.alerted.every((a) => a.baseline && a.history));
+  assert.match(held.notes.join(' '), /Re-read in the history/);
+  // a change near the baseline's end had too few points to confirm then, so it is still alerted
+  const late = advance(st, [{ index: 17, label: '18' }], 23, labels.slice(0, 23), { holdHistory: true, persist: 1 });
+  assert.equal(late.alerts.length, 1);
+});
+
+test('--persist 2: a change seen at one check only is not alerted; seen twice, it is, once', () => {
+  const labels = Array.from({ length: 60 }, (_, i) => String(i + 1));
+  let st = advance(emptyState(), [], 40, labels.slice(0, 40), { holdHistory: false, persist: 2 }).state;
+  const once = advance(st, [{ index: 30, label: '31' }], 41, labels.slice(0, 41), { holdHistory: false, persist: 2 });
+  assert.equal(once.alerts.length, 0);
+  assert.equal(once.pending[0].unconfirmed, true);
+  const gone = advance(once.state, [], 42, labels.slice(0, 42), { holdHistory: false, persist: 2 });
+  assert.equal(gone.alerts.length, 0, 'a flicker that vanishes never alerts');
+  const a = advance(gone.state, [{ index: 31, label: '32' }], 43, labels.slice(0, 43), { holdHistory: false, persist: 2 });
+  const b = advance(a.state, [{ index: 32, label: '33' }], 44, labels.slice(0, 44), { holdHistory: false, persist: 2 });
+  assert.equal(a.alerts.length, 0);
+  assert.equal(b.alerts.length, 1, 're-dated by a point within the tolerance still counts as the same change');
+  assert.equal(advance(b.state, [{ index: 32, label: '33' }], 45, labels.slice(0, 45), { holdHistory: false, persist: 2 }).alerts.length, 0);
+});
+
+test('replayWatch on ausair: the round-5 guards drop the two alerts about history the baseline had called quiet', async () => {
+  const { replayWatch } = await import('./watch.mjs');
+  const { parseSeries } = await import('./engine.mjs');
+  const p = parseSeries(readFileSync(new URL('./data/ausair.csv', import.meta.url), 'utf8'), null, null);
+  const before = replayWatch(p.values, p.labels, { holdHistory: false, persist: 1 });
+  assert.deepEqual(before.alerts.map((a) => `${a.label}@${a.reportedAtLabel}`), ['1979@1990', '1985@1990', '1991@2011']);
+  const now = replayWatch(p.values, p.labels);
+  assert.deepEqual(now.alerts.map((a) => `${a.label}@${a.reportedAtLabel}`), ['1991@2011']);
 });

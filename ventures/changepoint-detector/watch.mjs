@@ -42,6 +42,8 @@ Options:
                             fewer false alerts on noise that wanders like a random walk; 0.5 reaches more real changes at
                             about three times the false alerts on sticky noise). README, "Round 4".
   --confirm <k>             report a change once k points are on its far side (default: ${WATCH_DEFAULTS.confirm})
+  --hold-history            after the first check, record (not alert) a change dated where the first check could already have confirmed it
+  --persist <k>             alert only on a change found at k checks in a row (default 1)
   --tolerance <k>           a change within k points of one already reported is the same change (default: ${WATCH_DEFAULTS.tolerance})
   --window <n>              refit only the newest n points (default: ${WATCH_DEFAULTS.window})
   --webhook-env <NAME>      POST each new alert to the URL in environment variable NAME (Slack, Discord, Teams, Mattermost)
@@ -76,6 +78,9 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     else if (a === '--fail-on-alert') failOnAlert = true;
     else if (a === '--dry-run') dry = true;
     else if (a === '--alert-history') o.alertHistory = true;
+    else if (a === '--hold-history') o.holdHistory = true;
+    else if (a === '--no-hold-history') o.holdHistory = false;
+    else if (a === '--persist') { o.persist = num(argv[++i], '--persist'); }
     else if (a === '--json') json = true;
     else if (a.startsWith('-')) throw new Error(`Unknown option ${a} (see --help).`);
     else src = a;
@@ -93,7 +98,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
   const { labels, values, column } = parseSeries(csv, o.column ?? null, o.labelColumn ?? null);
   if (values.length < 4) throw new Error(`Need at least 4 numbers; got ${values.length}.`);
   const state = statePath && existsSync(statePath) ? JSON.parse(await readFile(statePath, 'utf8')) : emptyState();
-  const { column: _c, labelColumn: _l, alertHistory: _h, ...detOpts } = o;
+  const { column: _c, labelColumn: _l, alertHistory: _h, holdHistory: _hh, persist: _p, ...detOpts } = o;
   const changes = detectChanges(values, labels, detOpts);
   const res = advance(state, changes, values.length, labels, o);
   const textOpts = { column, model: o.model || 'mean', confirm: o.confirm };

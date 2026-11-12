@@ -3409,3 +3409,63 @@ is baseline, not alert; quiet noise (seed 22) sends nothing with the budget rais
 points is refused. Page: headless Chromium at 390 px on the Nile example. The card appears after the run,
 the replay reports 1 alert (sent at 1904 for the 1899 change, 6 rows late, level 1,098 to 826, 62%),
 there are no console errors, and the page has no horizontal scroll.
+
+## Round 5: flicker guards (2026-11-12, pre-registered; ships)
+
+The replay above found a fault in the watch itself. Right after a quiet baseline, the engine can read a change into
+history it has just called quiet, and the watch alerts on it at once (`ausair`: changes at 1979 and 1985, alerted in
+1990, gone a check later). Two guards, both in `watch-core.mjs` `advance`:
+
+- **hold history** (`holdHistory`, CLI `--hold-history` / `--no-hold-history`). After the first check, a change dated
+  where the first check could already have confirmed it (row at most baseline length minus `--confirm`) is recorded
+  as history and not alerted. The check's notes say so ("Re-read in the history from before the watch started").
+- **persist 2** (`persist`, CLI `--persist k`). A change is alerted only if the previous check also found one within
+  the tolerance. A change that was pending at the previous check counts as found, so a step that builds up its 5
+  confirming points is not delayed. Only a change that shows up already confirmed, or is re-dated past the
+  tolerance, waits one more check. The state keeps the previous check's change rows (`prev`) and the baseline length
+  (`baselineN`). A state written before round 5 has no `prev`, so its first check after the upgrade alerts nothing new
+  and the check after that does.
+
+**Rule, committed before the first run** (header of `eval/watch-flicker.mjs`, commit `fc68bc9c9`). Candidates `hold`,
+`persist2` and `both`, against `none` (the round-4 default). The detector's changes at every prefix are traced once,
+so all four see the same engine output. To replace `none`, a candidate had to pass three tests: (a) mean false alerts
+over round 4's four nulls no higher, on fresh seeds 41-50; (b) at least as many of the five step cells' steps found,
+median delay at most 1 point longer; (c) on the 31 TCPD series, fewer alerts, marked changes reached at least
+`none`'s minus one, and a share of alerts at an annotated change no lower. Among the candidates that passed, the one
+with the fewest TCPD alerts wins. Output: `eval/watch-flicker.out.txt`.
+
+| guard | null false alerts per 1,000 (mean of 4) | steps (5 cells) | TCPD alerts | at a mark | marked changes reached | alerts dated before the baseline (TCPD / data/) |
+|---|---|---|---|---|---|---|
+| none (round-4 default) | 1.44 | 40, delay 5 | 115 | 47 (41%) | 33 of 52 | 9 / 11 |
+| hold | 1.44 | 40, delay 5 | 106 | 45 (42%) | 33 of 52 | 0 / 0 |
+| persist2 | 1.25 | 40, delay 5 | 112 | 46 (41%) | 32 of 52 | 9 / 9 |
+| **both (default from round 5)** | 1.25 | 40, delay 5 | 103 | 44 (43%) | 32 of 52 | 0 / 0 |
+
+All three passed. Under the rule, `both` won with the fewest TCPD alerts. Persist 2 costs one marked TCPD change: hold
+alone keeps all 33, and the rule's minus-one allowance is what let `both` through. The cost and the next check are in
+`portfolio/flagships.yaml`. Persist added a point of delay in two synthetic cells (1-sd step: 6.5 to 7.5; 2-sd in AR(1)
+0.5: 6 to 7); the median over all steps stayed at 5. The two parts that decided nothing:
+
+- **7 held-out TCPD series** (bitcoin, iceland_tourism, measles, ratner_stock, robocalls, two scanlines; never used
+  by a watch round): 68 alerts down to 59, 26 at a mark down to 25 (38% up to 42%), 9 of 12 marked changes reached
+  either way, alerts about pre-baseline history 7 down to 0.
+- **57 real series in `data/`** (40 to 800 points, no labels): 141 alerts down to 125. All 11 alerts about
+  pre-baseline history are gone. On `ausair` the replay now sends only the 1991 alert (`watch.test.mjs`).
+
+**The page's other two settings, reported after the round and deciding nothing**
+(`eval/watch-flicker-pelt.out.txt`, `eval/watch-flicker-bocpd.out.txt`). These check that the guards, which apply to
+every detector, keep the page's labels true. With Eager (`pelt`): TCPD 626 alerts down to 602, still 52 of 52 marked
+changes; held-out 289 down to 282, 12 of 12. With Middle (`bocpd`): TCPD 193 down to 178, 38 of 52 either way;
+held-out 122 down to 108, 11 of 12 either way.
+
+**The coarse replay agrees more.** Flicker was the main reason a replay that checks every few points disagreed with
+one run after every point. With the guards, `node eval/watch-replay-bisect.mjs` (output
+`eval/watch-replay-bisect-round5.out.txt`; the pre-round file is kept) gives 116 of 125 alerts identical when checking
+every 5 points (93%, was 85%) and 113 of 125 every 15 (90%, was 80%). A coarse check now also refits the point
+before it, so the persist test compares against the previous point as a real daily watch would. The replay's work
+budget counts that second refit.
+
+Off switches: `--no-hold-history --persist 1` (CLI), `{ holdHistory: false, persist: 1 }` (`watchCheck`,
+`replayWatch`). The scripts for rounds 1 to 4 now pass those explicitly, so they still reproduce their own outputs.
+Tests: `watch.test.mjs` (3 new: the ausair pattern held, a one-check flicker dropped and a persisting change alerted
+once, the ausair replay before and after). The page's text says both guards in a sentence.

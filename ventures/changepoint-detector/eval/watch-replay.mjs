@@ -106,7 +106,7 @@ function replay(steps, labels, confirm) {
   let state = emptyState();
   const alerts = [];
   for (const { n, changes } of steps) {
-    const r = advance(state, changes, n, labels.slice(0, n), { confirm, tolerance: TOL });
+    const r = advance(state, changes, n, labels.slice(0, n), { confirm, tolerance: TOL, holdHistory: false, persist: 1 }); // the watch before round 5's guards
     for (const a of r.alerts) alerts.push({ index: a.index, at: n });
     state = r.state;
   }

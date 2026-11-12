@@ -1,6 +1,8 @@
 // Round 5 of the watch: two guards against flicker, the alerts a watch sends about history it had just called quiet.
 //
 //   node eval/watch-flicker.mjs tcpd-data > eval/watch-flicker.out.txt
+//   node eval/watch-flicker.mjs tcpd-data --detector pelt  > eval/watch-flicker-pelt.out.txt   # after the round, reported only
+//   node eval/watch-flicker.mjs tcpd-data --detector bocpd > eval/watch-flicker-bocpd.out.txt  # after the round, reported only
 //
 // Why (README "Replaying the watch on your own history"): on `ausair` (47 points) the baseline check at 20 points
 // sees no change; at 21 points the engine reads changes at rows 9 and 15 and the watch alerts on both, about history
@@ -34,7 +36,9 @@ import { detectChanges, advance, emptyState } from '../watch-core.mjs';
 import { parseSeries } from '../engine.mjs';
 
 const TOL = 5, CONFIRM = 5;
-const CANDS = { none: {}, hold: { holdHistory: true }, persist2: { persist: 2 }, both: { holdHistory: true, persist: 2 } };
+const DI = process.argv.indexOf('--detector'), DET = DI > 0 ? process.argv[DI + 1] : null;
+// Explicit on every candidate: since round 5 adopted 'both', the defaults are the guards, so 'none' must turn them off.
+const CANDS = { none: { holdHistory: false, persist: 1 }, hold: { holdHistory: true, persist: 1 }, persist2: { holdHistory: false, persist: 2 }, both: { holdHistory: true, persist: 2 } };
 
 function rng(seed) {
   let s = seed >>> 0 || 1;
@@ -47,7 +51,7 @@ function rng(seed) {
 function trace(values, start) {
   const labels = values.map((_, i) => String(i + 1));
   const steps = [];
-  for (let n = start; n <= values.length; n++) steps.push({ n, changes: detectChanges(values.slice(0, n), labels.slice(0, n), {}).map((c) => ({ index: c.index, label: c.label })) });
+  for (let n = start; n <= values.length; n++) steps.push({ n, changes: detectChanges(values.slice(0, n), labels.slice(0, n), DET ? { detector: DET } : {}).map((c) => ({ index: c.index, label: c.label })) });
   return { labels, steps };
 }
 
@@ -59,7 +63,7 @@ async function traceAll(jobs) {
   let next = 0, done = 0;
   await new Promise((resolve, reject) => {
     for (let w = 0; w < k; w++) {
-      const worker = new Worker(new URL(import.meta.url));
+      const worker = new Worker(new URL(import.meta.url), { argv: process.argv.slice(2) });
       const feed = () => { if (next < jobs.length) { const id = next++; worker.postMessage({ id, values: jobs[id].values, start: jobs[id].start }); } else worker.terminate(); };
       worker.on('message', (m) => { results[m.id] = m; done++; if (done % 25 === 0) process.stderr.write(`${done}/${jobs.length}\n`); if (done === jobs.length) resolve(); feed(); });
       worker.on('error', reject);
@@ -132,6 +136,16 @@ function printTcpd(tot) {
 
 if (isMainThread) {
   const dir = process.argv[2] || 'tcpd-data';
+  if (DET) {
+    // Reported after round 5, deciding nothing: the guards with the page's other two settings (Middle, Eager).
+    const tcpd = loadTcpd(dir, false), held = loadTcpd(dir, true);
+    const tr = await traceAll([...tcpd, ...held].map((j) => ({ values: j.values, start: j.start })));
+    console.log(`The round-5 guards with --detector ${DET} (reported after the round, deciding nothing). ${tcpd.length} univariate TCPD series:\n`);
+    printTcpd(scoreTcpd(tcpd, tr.slice(0, tcpd.length)));
+    console.log(`\n${held.length} held-out univariate TCPD series:\n`);
+    printTcpd(scoreTcpd(held, tr.slice(tcpd.length)));
+    process.exit(0);
+  }
   const N = 500, START = 100, STEP_AT = 300, SEEDS = 10, SEED0 = 40;
   const ar = (rho, sdInn, step = 0) => (r) => { let e = 0; return Array.from({ length: N }, (_, i) => (i >= STEP_AT ? step : 0) + (e = rho * e + sdInn * r.g())); };
   const SCEN = {
