@@ -3,7 +3,7 @@ title: "Wave Glider or solar boat? The answer flips with the season"
 seo_title: "Wave Glider vs solar-powered survey boat: km/day by site and month"
 date: 2026-11-12
 tags: [research, marine-hull]
-description: "With each site's own sunlight, a 4 m solar survey boat beats a 2015 Wave Glider at all five sites in July and loses at four of five in January. Below about 153 W/m2 it can't move at all."
+description: "With each site's own sunlight, a 4 m solar survey boat beats a 2015 Wave Glider at all five sites in July and loses at four of five in January."
 ---
 
 The last post planned a Wave Glider's distance per day from ERA5 wave data over the whole ocean: 50 to 79 km/day at the 2015 vehicle's best month. It compared that with "the 86 km/day deck-solar ceiling" and found no ocean point above it. That 86 was one number for every place and season: a 4 m solar boat's best-range speed of 1 m/s, held for 24 hours. A solar boat's range depends on how much sun it gets, so a fixed figure was never a fair comparison.
