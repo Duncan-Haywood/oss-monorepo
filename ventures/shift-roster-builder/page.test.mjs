@@ -159,7 +159,7 @@ test("wall-copy print view exists, prints the grid only, and never carries pay",
 test("labor-cost page's figures are what the engine returns for the sample cafe", async () => {
   const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts, laborPercent, dailyLabor } = await import("./calc.mjs");
   const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
-  const r = buildRoster(staff, slots, {});
+  const r = buildRoster(staff, slots, { exact: false, exact: false });
   const html = page("labor-cost-percentage-by-day.html");
   assert.equal(r.cost, 3622);
   assert.equal(laborPercent(r.cost, 14000, 30).pct.toFixed(1), "25.9");
@@ -230,7 +230,7 @@ test("free-alternative page is linked, disclaims affiliation, and states no comp
 test("schedule template page's example grid is what the engine returns for the sample cafe", async () => {
   const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts, DAYS, fmtClock } = await import("./calc.mjs");
   const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
-  const r = buildRoster(staff, slots, {});
+  const r = buildRoster(staff, slots, { exact: false, exact: false });
   const html = page("employee-schedule-template.html");
   assert.equal(r.hours, 216);
   assert.equal(r.cost, 3622);

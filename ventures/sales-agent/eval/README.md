@@ -17,7 +17,7 @@ error (rules too narrow) is what these sets show reliably.
 | `fresh-2026-10-30.jsonl` | 36 | Opt-out and edge cases, agent-written. Scored once before the change (26/36, 4 of 10 opt-outs missed: "take this address off", "cease all correspondence", "struck my name from", a CCPA delete / do-not-sell request), then those four were patched: now 30/36, 10/10 opt-outs. A tuned set |
 | `fresh-2026-11-03.jsonl` | 21 | Opt-out edge cases (16 unsubscribes, agent-written). Scored once before the change (15/21, 5 of 16 opt-outs missed: "remove it immediately", French "ne m'écrivez plus", Italian "non contattarmi più", a GDPR Article 21 objection, "I don't want to hear from you again"), then patched: now 20/21, 16/16. A tuned set; no other set changed |
 | `fresh-2026-11-03b.jsonl` | 50 | Non-opt-out replies (interested, not interested, not now, objections, questions, wrong person, out of office; 1 unsubscribe), agent-written. Scored once before the change (37/50): meeting asks read as questions ("are you free next Tuesday", "set up 20 minutes"), bare "Pass.", "different direction", legal-team and contract objections, "X left the company", and "interested ... so no" read as interested. Patched: now 50/50. A tuned set; the same patch moved 10-24b 36 to 37, 10-25 35 to 36, 10-30 30 to 32, none down |
-| `fresh-2026-11-03c.jsonl` | 30 | 24 opt-outs (court-style, GDPR, "do-not-contact list", "no-solicitation policy", ES/FR/IT/PT/NL/DE) and 6 near-miss non-opt-outs, agent-written. Scored once before the change: 16/30, 10 of 24 opt-outs missed (the legal-risk direction). Patched: all 24 caught, 26/30. The 4 misses are non-opt-outs ("remove the pricing section", "don't contact me until January", "remove Dana from this thread", "do you stop sending data") that stop or hand to a person, the safe direction. A tuned set, not real inboxes |
+| `fresh-2026-11-03c.jsonl` | 30 | 24 opt-outs (court-style, GDPR, "do-not-contact list", "no-solicitation policy", ES/FR/IT/PT/NL/DE) and 6 near-miss non-opt-outs, agent-written. Scored once before the change: 16/30, 10 of 24 opt-outs missed (the legal-risk direction). Patched: all 24 caught, 26/30 (27/30 since 2026-11-12, when a label typed `wrong_person`, not a category, was corrected to `left_company`). The 4 misses are non-opt-outs ("remove the pricing section", "don't contact me until January", "remove Dana from this thread", "do you stop sending data") that stop or hand to a person, the safe direction. A tuned set, not real inboxes |
 | `fresh-2026-11-04.jsonl` | 20 | Quoted footers, signatures and auto-replies, agent-written, scored with `stripQuoted` applied first as production does. 14/20 before: an unsubscribe-link line inside an away notice read as an opt-out, and "I'd rather not get any more of these" was missed; 2 more misses were my own label errors, relabelled. Patched: 20/20. A tuned set |
 | `fresh-2026-11-04b.jsonl` | 30 | Mixed replies (referrals, forwards, pricing and fit questions, not-now, declines, objections, auto-replies, 3 opt-outs), agent-written. Scored once before the change: 23/30, 0 overreach, 0 opt-outs missed, every miss handed to a person. Patched six phrasings ("check in again in six months", "not a priority this half", "isn't something we'd ever need", "drivers won't adopt another app, we tried that", "book me in", "open to a quick intro call / does Friday morning work"): now 28/30. Left on purpose: a forward plus a call ask reads as a handover, and "how did you get my email" goes to a person. A tuned set |
 | `fresh-2026-11-05.jsonl` | 30 | Terse and mobile-style replies across all nine categories ("yes - call me on 555-0142", "Sounds expensive", "I don't trust AI writing my emails", a dead-inbox notice, a non-profit decline), agent-written. Scored once before the change: 21/30, 0 overreach, 0 opt-outs missed. Two misses were my own label errors, relabelled ("take us off your target list" is an unsubscribe; "who's the best person to talk to" is a question), leaving 23/30. Patched the seven others: 30/30. Across the older sets only `fresh-2026-10-30` moved (32/36 to 33/36); none fell. A tuned set, so 30/30 is not a forecast on real mail. |
@@ -774,6 +774,99 @@ LLM_BASE_URL=http://localhost:8080/v1 LLM_MODEL=llama node eval/model-reader.mjs
   --ids eval/enron-labels/eighth.json --out eval/enron-labels/eighth-llama.json   # resumable
 node eval/model-reader.mjs compare eval/enron-labels/eighth.json eval/enron-labels/eighth-llama.json
 ```
+
+## A free local model on every reply set (2026-11-12)
+
+ROADMAP M2 asked for a local model's score with `eval/model.mjs`. **Setup:** Qwen2.5-7B-Instruct, Q4_K_M GGUF
+(bartowski's build on Hugging Face, 4.7 GB), `llama-cpp-python[server]` 0.3.16 built from source in a venv (about 3 min),
+`--n_ctx 4096 --n_threads 4 --chat_format chatml`, CPU only, 4 cores, 15 GB RAM. 9 to 12 s a reply; 792 replies took about
+2.5 hours. The prompt is the product's own `TRIAGE_SYSTEM` (`ai.mjs`), one reply at a time, quoted history stripped as
+`parseReplies` does. Answers (category, subtype, return date; no text) are in `model-answers/qwen2.5-7b-q4km.json`, keyed by a
+hash of subject and body, so any change to the merge can be re-scored offline:
+
+```
+LLM_PROVIDER=llamacpp LLM_MODEL=qwen node eval/model.mjs eval/fresh-*.jsonl eval/replies.jsonl eval/heldout.jsonl \
+  --cache eval/model-answers/qwen2.5-7b-q4km.json            # resumable; retries transport failures
+node eval/model.mjs eval/fresh-*.jsonl --offline --cache eval/model-answers/qwen2.5-7b-q4km.json --misses
+```
+
+`model.mjs` now prints three scores per set on the same replies (rules, model alone, merged as the product runs it) and two
+harms beside overreach and missed opt-outs: **false stops** (a reply read as less contact than it asked for) and **false
+opt-outs** (a live lead that would be suppressed for good). 789 of 792 answers parsed; the other 3 were broken JSON and fall
+back to the rules. 9 more were misspelt labels ("unsubscribed", "unsubcribe", "uninterested"), now mapped by
+`CATEGORY_ALIASES` in `ai.mjs` and re-asked.
+
+| Set | Rules now | Rules before tuning | Model alone | Merged now |
+|---|---|---|---|---|
+| `fresh-2026-10-21` (honest) | 19/40 | 15 | 35 | 33 |
+| `fresh-2026-10-24` (honest) | 30/41 | 27 | 35 | 35 |
+| `fresh-2026-10-24b` | 37/41 | 34 | 36 | 36 |
+| `fresh-2026-10-25` | 39/42 | 25 | 41 | 41 |
+| `fresh-2026-10-30` | 33/36 | 26 | 28 | 32 |
+| `fresh-2026-11-03` | 21/21 | 15 | 21 | 21 |
+| `fresh-2026-11-03b` | 50/50 | 37 | 46 | 49 |
+| `fresh-2026-11-03c` | 27/30 | 16 | 28 | 27 |
+| `fresh-2026-11-04` | 20/20 | 14 | 17 | 19 |
+| `fresh-2026-11-04b` | 29/30 | 23 | 27 | 28 |
+| `fresh-2026-11-05` | 30/30 | 21 | 26 | 29 |
+| `fresh-2026-11-06` | 28/30 | 25 | 27 | 26 |
+| `fresh-2026-11-07` | 29/30 | 26 | 26 | 29 |
+| `fresh-2026-11-08` | 30/30 | 25 | 26 | 28 |
+| `fresh-2026-11-08b` (false opt-out probe) | 17/20 | 15 | 9 | 15 |
+| `fresh-2026-11-08c` (false interested) | 17/20 | 13 | 16 | 17 |
+| `fresh-2026-11-08d` (false bounce, away) | 16/20 | 9 | 11 | 17 |
+| `fresh-2026-11-08e` (false not-now) | 16/20 | 9 | 17 | 18 |
+| `fresh-2026-11-09` | 30/30 | 18 | 29 | 30 |
+| `fresh-2026-11-10` | 31/31 | 26 | 28 | 30 |
+| `fresh-2026-11-11` (false not-now, wrong person) | 18/20 | 9 | 13 | 17 |
+| `fresh-2026-11-12` | 20/20 | 19 | 18 | 20 |
+| `fresh-2026-11-13` | 19/20 | 17 | 18 | 18 |
+| **672 fresh replies** | **606** | **464** | **578** | **615** |
+| `replies` + `heldout` (tuning sets) | 120/120 | (66/72, 24/48) | 106 | 113 |
+
+"Rules before tuning" is each set's first score as recorded in the table at the top of this file (the rules as they stood the
+day the set was written); 11-05's is before its two relabels. It is the fair comparison for a model that was never tuned:
+**578 against 464, 86% against 69%.** The rules as they are now (90%) beat the model alone, because they were patched on
+these very replies. The two honest sets are the only ones neither was tuned on: model 70 of 81, rules 49.
+
+**Where the model goes wrong, it goes wrong in the costly direction.** Over all 792 it read 66 live replies as a stop (the
+rules: 19) and 10 as opt-outs that were not (rules: 2, both in the 11-03c near-miss set). Examples: "Do you handle unsubscribe
+links and suppression lists for us?" and "Can you stop the sequence for one account but keep sending to the rest?" as
+opt-outs; "Can you resend the attachment? It didn't open" and "I got a bounce when I tried your calendar link" as bounces;
+"Call me later today, around 3pm", "Now is actually a perfect time ... Can you do Wednesday at 10?" and "Not a good time this
+week, but I'm very interested. Can we do a call on the 18th?" as not now; four away notices as not now. On the five trap
+probes (100 replies written to bait exactly this) it scored 66, the rules before tuning 55, after 84.
+
+**The merge, before and after** (`ai.mjs`, `mergeTriage`). The old rule let the model lower contact freely, so every one of
+those errors went through: on all 792 the merged triage read 687 (below the rules alone), with 71 false stops and 12 false
+opt-outs. Three changes:
+
+1. A model's `unsubscribe` or `bounce` is a flag, not an action: the rules' answer stands, and `runInbox` adds a task saying
+   what the model read. The lead is paused or already out of the cadence, and nothing is sent without approval.
+2. A model may not move a reply the rules read as `interested`.
+3. A model may not move a no-draft category to a drafting one at the same rank (`out_of_office` to `not_now`). The comment
+   above the merge already said "never from a no-contact category to a drafting one"; equal ranks slipped through.
+
+| All 792 | Right | False stops | False opt-outs | Opt-outs not caught |
+|---|---|---|---|---|
+| Rules | 726 | 19 | 2 | 4 |
+| Model alone | 684 | 66 | 10 | 2 |
+| Merged, old rule | 687 | 71 | 12 | 0 |
+| Merged, now | 728 | 37 | 2 | 4 (all 4 flagged to a person) |
+
+All three were chosen after seeing these answers, so "merged, now" is a tuned figure; changes 2 and 3 were each better on the
+honest pair and on all 792 when compared offline (2: 66 vs 66 right on the honest pair with 6 false stops vs 7, 421 vs 407 of
+the first 472; 3: 68 vs 66 and 584 vs 574 of the first 638). Change 1 is a policy, not a score: on the honest sets it costs
+the four opt-outs the rules missed and the model caught ("Can you please not email this address in future", "we'd prefer not
+to receive further emails", "pls remove from ur list", "If I get one more of these I'm reporting it as spam"); each now pauses
+the lead and reaches a person as "the model reads this reply as a request to stop", where before it went straight to the
+suppression list. Of the 23 stop flags over all 792, 4 are right; a 7B model's stop reading is mostly noise.
+
+**What it means for a user.** A free local 7B model is worth running beside the rules: on unfamiliar replies it reads 86% where
+fresh keyword rules read 69%, and under the merge it adds 19 right answers on the honest pair and 2 over all 792 (it loses 17 on
+the sets the rules were tuned on) while adding no false opt-outs. It is not a replacement for the rules, and its stop readings must not act on their own. Still
+open: a hosted model (needs a key) and a larger local one (14B, about 9 GB) on the same sets; whether the 37 false stops the
+merge still lets through (mostly question to objection or not now) cost anything a person would notice.
 
 ## Mail files read as the server reads a mailbox (2026-11-11)
 

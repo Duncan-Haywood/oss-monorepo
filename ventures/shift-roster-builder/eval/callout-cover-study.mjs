@@ -8,14 +8,14 @@ export function study(text) {
   const slots = parseShifts(sampleShifts()).slots;
   const groups = (ow) => { const m = new Map(); ow.forEach((x, i) => { const k = `${slots[i].day}|${slots[i].start}|${slots[i].label}`; (m.get(k) || m.set(k, []).get(k)).push(x); }); return m; };
   const moved = (a, b) => { const B = groups(b); let n = 0; for (const [k, v] of groups(a)) { const w = [...B.get(k)]; for (const x of v) { const j = w.indexOf(x); if (j >= 0) w.splice(j, 1); } n += w.length; } return n; };
-  const staff = parseStaff(text).staff, r = buildRoster(staff, slots, {});
+  const staff = parseStaff(text).staff, r = buildRoster(staff, slots, { exact: false, exact: false });
   const o = { cases: 0, patched: 0, covered: 0, moves: [] };
   for (let p = 0; p < staff.length; p++) for (let d = 0; d < 7; d++) {
     if (!r.owner.some((x, i) => x === p && slots[i].day === d)) continue;
     o.cases++;
     if (!absencePlan(staff, slots, r, staff[p].name, [d]).open.length) o.patched++;
     const off = text.split("\n").map((l) => (l.startsWith(staff[p].name + ",") ? `${l}, off: ${DAYS[d]}` : l)).join("\n").replace("min hours, availability", "min hours, availability, off");
-    const r2 = buildRoster(parseStaff(off).staff, slots, {});
+    const r2 = buildRoster(parseStaff(off).staff, slots, { exact: false, exact: false });
     if (r2.unfilledHours <= r.unfilledHours) { o.covered++; o.moves.push(moved(r.owner, r2.owner)); }
   }
   return o;

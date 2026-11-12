@@ -9,6 +9,8 @@
 // --rules also runs the whole preflight (built-in checks and the official rule
 // sets on the plain route) on the original, the seeded and the repaired file, and
 // counts repaired files that draw any rule id the original does not.
+// The plain route needs `npm i --no-save slimdom fontoxpath`; without them the
+// official sets report "unavailable" and only the built-in checks are counted.
 //
 // Run of 2026-11-12 on ZATCA's 19 good cases (phive-rules commit dfa902d,
 // phive-rules-zatca/src/test/resources/external/test-files/3.4.6; not copied
@@ -22,6 +24,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { repairUbl } from "../repair-ubl.mjs";
 import { preflightDocuments } from "../report.mjs";
+import { plainAvailable } from "../plain-node.mjs";
 
 const root = process.argv[2];
 if (!root) { console.error("usage: node eval/repair-seeded.mjs <folder> [--delta 7] [--json]"); process.exit(2); }
@@ -65,6 +68,7 @@ export function seedSites(xml) {
 }
 
 const rules = process.argv.includes("--rules");
+if (rules && !plainAvailable()) console.error("warning: slimdom/fontoxpath not installed, so --rules counts the built-in checks only (npm i --no-save slimdom fontoxpath)");
 async function ids(source) {
   const { reports } = await preflightDocuments([{ name: "x.xml", source }], { schematron: true, maxBytes: 5_000_000 });
   return [...new Set((reports[0]?.errors || []).map((e) => e.rule))].sort();
@@ -104,14 +108,15 @@ function numbersOnlyDiffer(a, b) {
 if (process.argv.includes("--json")) { console.log(JSON.stringify(rows, null, 2)); process.exit(0); }
 const byLabel = new Map();
 for (const r of rows) for (const s of r.seeds) {
-  const e = byLabel.get(s.label) || { n: 0, exact: 0, value: 0 };
+  const e = byLabel.get(s.label) || { n: 0, exact: 0, value: 0, caught: 0 };
   e.n++; if (s.restored) e.exact++; else if (s.sameNumbers) e.value++;
+  if (s.seedCaught) e.caught++;
   byLabel.set(s.label, e);
 }
 console.log(`files: ${rows.length}; unchanged when nothing is seeded: ${rows.filter((r) => r.clean_unchanged).length}; reached the tax recompute: ${rows.filter((r) => !r.clean_skipped.some((s) => /not recomputed/.test(s))).length}`);
 let n = 0, ok = 0, val = 0;
 for (const [label, e] of [...byLabel].sort()) {
-  console.log(`  ${label.padEnd(28)} ${e.exact + e.value}/${e.n} restored (${e.exact} byte for byte, ${e.value} same value, other spelling)`);
+  console.log(`  ${label.padEnd(28)} ${e.exact + e.value}/${e.n} restored (${e.exact} byte for byte, ${e.value} same value, other spelling)${rules ? `; seed flagged ${e.caught}/${e.n}` : ""}`);
   n += e.n; ok += e.exact; val += e.value;
 }
 console.log(`seeded faults: ${n}; restored ${ok + val} (${ok} byte for byte, ${val} same values written with two decimals); not restored ${n - ok - val}`);

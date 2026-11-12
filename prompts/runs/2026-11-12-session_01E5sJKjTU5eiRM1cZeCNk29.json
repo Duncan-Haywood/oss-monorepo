@@ -28,17 +28,15 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [
     "First testProblems parser assumed node --test TAP groups by file; Node 22 prints each top-level test at column 0 and names the file only in location:. The seeded e2e run showed the miss (reported as a note, exit 0); rewrote against the real output, then filtered nested TAP lines out of the hits.",
-    "Changed wait_for's timeout message wording, which broke test_main_exit_codes; reverted the wording."
+    "Changed wait_for's timeout message wording, which broke test_main_exit_codes; reverted the wording.",
+    "Duplicate work: PR #15090 (opened 10:23 UTC, merged 10:34) landed the same venture-preflight step from the same friction report; this run's PR #15094 opened 10:28. My open-PR search ran ~10:13, before #15090 existed. Merge conflict resolved by taking main's preflight files whole and dropping my preflight change and its post; only the wait_for fix and this record land.",
+    "First CI run of portfolio-pages 'test' reported 1 failure (1565/1581) not visible in the log tail the MCP tool returns; the same suite passed locally (1581, 0 fail) and on the next push's CI run with no test-relevant change, so treated as a flake."
   ],
   "integrity_issues": [],
   "doc_friction": [
-    {
-      "file": "platform/pages/venture-preflight.mjs",
-      "issue": "Ran none of the platform/pages source-scan tests (faq-visible, secondary-schema, answer-lead), so PR #15023's page passed preflight and failed CI. Fixed here (step 1c, 27 s)."
-    },
     {
       "file": "platform/ci/wait_for.py",
       "issue": "Did not recognise '[exited with code 0]', the harness's last line in a run_in_background task output file; a wait on that file ran its full 110 s after the job had finished. Fixed here."
@@ -46,14 +44,18 @@
     {
       "file": "prompts/process/prompt-1.md",
       "issue": "Critique mode's 'Doc friction by file' table lists newest reports first; the top 3 per file for pick_track, check_post_frontmatter and quality README were already fixed by concurrent runs, so it took several reads to find an unfixed one (the preflight report was 2nd-newest under prompts/ventures/prompt-1.md)."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Two concurrent process runs (#15090, #15094) took the same newest 'Doc friction by file' report within the hour; the open-PR check can't see a run that hasn't opened its PR. Suggest: open a draft PR (or claim file) before coding, or pick by a seeded draw over the last day's reports instead of the newest. Gated path, so not filed in prompts/process/backlog by this run."
     }
   ],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-11-12-the-preflight-that-skipped-the-tests-ci-runs.md"
+    "docs/posts/2026-11-12-two-runs-one-friction-report.md"
   ],
   "goal": null,
-  "notes": "Backlog ids touched: none (only owner rows open; Critique mode). main_health.py: 58/58 pass. Timed every platform/pages test reading ventures: build.test.mjs 247 s, custom-domain.test.mjs 78 s, all others under 7.1 s; the 76 fast files together 27.3 s (1,249 tests, 0 fail). Seeded e2e: an invisible FAQPage question on changepoint-detector/how-do-you-know-if-a-time-series-really-changed.html -> venture-preflight --skip-build exit 1 naming the page; restored -> exit 0 (31 s); ebay-fee-calculator clean. venture-preflight.test.mjs 14/14; test_wait_for 21/21. No agent doc: the post and the file headers carry it.",
+  "notes": "Backlog ids touched: none (only owner rows open; Critique mode). main_health.py: 58/58 pass. Landed: wait_for.py accepts '[exited with code N]' and a '-' after the marker (test_wait_for 21/21; used live on this run's task output files). Dropped as duplicate of #15090: a venture-preflight fast-test step built and verified here (timed every platform/pages test file: build 247 s, custom-domain 78 s, other 76 files 27.3 s together; seeded invisible FAQ on changepoint-detector -> exit 1, restored -> exit 0). Local: full platform/pages suite 1581 tests 0 fail (328 s); promptctl validate ok; unittest discover -s prompts 136 OK.",
   "corrections": [],
   "redteam": null,
   "usage": {

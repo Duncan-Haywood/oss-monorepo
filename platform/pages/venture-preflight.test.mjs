@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, fastTestFiles, launchedProblems, postProblem, SLOW_TESTS, testProblems } from './venture-preflight.mjs';
+import { buildProblem, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, launchedProblems, postProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -68,68 +68,27 @@ test('postProblem is silent on exit 0 and indents the checker output otherwise',
   assert.match(p, /\n {6}a\.md: description is 214/);
 });
 
-const TAP = `TAP version 13
-# Subtest: every authored FAQPage question and answer is visible on its page
-not ok 1 - every authored FAQPage question and answer is visible on its page
-  ---
-  duration_ms: 1612.8
-  type: 'test'
-  location: '/r/platform/pages/faq-visible.test.mjs:124:1'
-  failureType: 'testCodeFailure'
-  error: |-
-    FAQPage markup must be visible to the visitor.
-      tax/how-much.html
-        question of "is it safe" diverges after 2 char(s)
-    + actual - expected
-    + [
-    +   'tax/how-much.html\\n' +
-    - []
-  code: 'ERR_ASSERTION'
-  ...
-# Subtest: tax: lead is sourced
-ok 2 - tax: lead is sourced
-  ---
-  duration_ms: 3.1
-  ...
-# Subtest: every secondary prose page
-    # Subtest: tax-calc
-    not ok 1 - tax-calc
-      ---
-      location: '/r/platform/pages/secondary-schema.test.mjs:50:3'
-      error: 'ventures/tax-calc/why.html has no JSON-LD'
-      ...
-not ok 3 - every secondary prose page
-  ---
-  location: '/r/platform/pages/secondary-schema.test.mjs:43:1'
-  error: '1 subtest failed'
-  ...
-1..3
-`;
-
-test('a failing test is yours only when its failure text names the slug', () => {
-  const r = testProblems(TAP, 'tax');
-  assert.equal(r.failures.length, 1);
-  assert.match(r.failures[0], /^faq-visible\.test\.mjs \(every authored FAQPage/);
-  // The message line once, not again from the actual/expected echo.
-  assert.equal(r.failures[0].split('tax/how-much.html').length, 2);
-  assert.match(r.failures[0], /rerun: node --test /);
-  // tax-calc is a different slug, so that test is a note, and the passing "tax:" test is neither.
-  assert.deepEqual(r.other, ['secondary-schema.test.mjs (every secondary prose page)']);
+test('siteTestFiles is CI\'s glob minus the whole-site builds', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-site-'));
+  await fs.mkdir(path.join(dir, 'cloudflare'));
+  for (const f of ['b.test.mjs', 'a.test.mjs', 'helper.mjs', ...SITE_BUILD_TESTS]) await fs.writeFile(path.join(dir, f), '');
+  await fs.writeFile(path.join(dir, 'cloudflare', 'split.test.mjs'), '');
+  assert.deepEqual(siteTestFiles(dir), ['a.test.mjs', 'b.test.mjs', 'cloudflare/split.test.mjs']);
 });
 
-test('a nested failure that names the slug is found from its parent', () => {
-  const r = testProblems(TAP, 'tax-calc');
-  assert.equal(r.failures.length, 1);
-  assert.match(r.failures[0], /secondary-schema\.test\.mjs.*fails on tax-calc:\n {6}error: 'ventures\/tax-calc\/why\.html/);
+test('the real site-test list keeps faq-visible and drops build.test', () => {
+  const files = siteTestFiles();
+  assert.ok(files.includes('faq-visible.test.mjs'));
+  assert.ok(!files.includes('build.test.mjs'));
 });
 
-test('clean TAP output has no test problems', () => {
-  assert.deepEqual(testProblems('# Subtest: a\nok 1 - a\n  ---\n  ...\n1..1\n', 'tax'), { failures: [], other: [] });
-});
-
-test('fast test files skip the slow ones and include the source scans', () => {
-  const files = fastTestFiles();
-  for (const slow of SLOW_TESTS) assert.ok(!files.some((f) => f.endsWith(`/${slow}`)), slow);
-  assert.ok(files.includes('platform/pages/faq-visible.test.mjs'));
-  assert.ok(files.every((f) => f.startsWith('platform/pages/') && f.endsWith('.test.mjs')));
+test('siteTestProblem is silent on exit 0, lists failing tests and says whether the slug is named', () => {
+  assert.equal(siteTestProblem({ status: 0, stdout: '', stderr: '' }, 'tax'), null);
+  const tap = `ok 1 - fine\nnot ok 2 - FAQ answers are visible\n  ---\n  error: ventures/tax/faq.html\n  location: '/r/platform/pages/faq-visible.test.mjs:124:1'\n  not ok 3 - FAQ answers are visible\n`;
+  const mine = siteTestProblem({ status: 1, stdout: tap, stderr: '' }, 'tax');
+  assert.match(mine, /names tax/);
+  assert.match(mine, /node --test faq-visible\.test\.mjs`/);
+  assert.equal(mine.match(/not ok: FAQ answers are visible/g).length, 1);
+  const other = siteTestProblem({ status: 1, stdout: tap, stderr: '' }, 'ta');
+  assert.match(other, /none of the output names ta;/);
 });

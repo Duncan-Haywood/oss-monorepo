@@ -219,3 +219,38 @@ test("QI-EIN and UND are IRS TIN types; FM, MH and PW are IRS state codes", () =
   assert.ok(!codes(one({ "Recipient TIN Type": "UND", "Recipient TIN": "412345678" })).includes("tin-type"));
   for (const st of ["FM", "MH", "PW"]) assert.ok(STATES.has(st), st);
 });
+
+// Red-team 2026-11-12: five mutants of validate/repair escaped the suite. One test each.
+test("template-order notices the template's first column moved out of place", () => {
+  const { rows } = parseCsv(sampleFile());
+  assert.equal(rows[0].cells[0], TEMPLATE_NEC[0]);
+  const moved = rows.map((r) => [...r.cells.slice(1), r.cells[0]]);
+  assert.ok(!codes(validate(sampleFile())).includes("template-order"));
+  assert.ok(codes(validate(toCsv(moved))).includes("template-order"));
+});
+
+test("a nine-same-digit payer TIN outside the well-known list is a placeholder", () => {
+  const r = one({ "Payer TIN": "222222222" });
+  assert.ok(r.findings.some((f) => f.code === "payer-tin" && /placeholder/.test(f.title)), JSON.stringify(codes(r)));
+});
+
+test("file-level findings, blank lines included, carry line 0", () => {
+  const r = validate(file({}) + "\n\n");
+  const f = r.findings.find((x) => x.code === "blank-lines");
+  assert.ok(f, JSON.stringify(codes(r)));
+  assert.equal(f.line, 0);
+});
+
+test("repair trims an unknown header only when it has spaces, and reports nothing otherwise", () => {
+  const clean = toCsv([[...COLUMNS, "Notes"], [...COLUMNS.map((c) => base[c] ?? ""), "x"]]);
+  assert.ok(!repair(clean).changes.some((c) => /trimmed spaces around header/.test(c)), "no spurious trim");
+  const spaced = toCsv([[...COLUMNS, " Notes "], [...COLUMNS.map((c) => base[c] ?? ""), "Notes"]]);
+  const out = repair(spaced);
+  assert.ok(out.changes.some((c) => c.includes('trimmed spaces around header "Notes"')), JSON.stringify(out.changes));
+  assert.equal(parseCsv(out.text).rows[0].cells.at(-1), "Notes");
+});
+
+test("repair leaves a whitespace-only cell alone instead of logging a trim", () => {
+  const out = repair(file({ "Payer Address": "   " }));
+  assert.ok(!out.changes.some((c) => /stray spaces/.test(c)), JSON.stringify(out.changes));
+});
