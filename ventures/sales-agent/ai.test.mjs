@@ -20,7 +20,22 @@ test("merge: the model may lower contact, never raise it", () => {
   assert.equal(m.category, "not_interested");
   assert.equal(m.modelSaid, "interested");
   assert.equal(mergeTriage(triage({ body: "ok" }, T), { category: "interested", evidence: "ok" }, T).category, "interested");
-  assert.equal(mergeTriage(triage({ body: "Sounds interesting, tell me more" }, T), { category: "unsubscribe" }, T).category, "unsubscribe");
+  // A model's stop is a flag, not an action (2026-11-12): the rules' answer stands and modelSaid carries the model's reading.
+  const flagged = mergeTriage(triage({ body: "Sounds interesting, tell me more" }, T), { category: "unsubscribe", evidence: "tell me more" }, T);
+  assert.equal(flagged.category, "interested");
+  assert.equal(flagged.modelSaid, "unsubscribe");
+  const unclearStop = mergeTriage(triage({ body: "hmm" }, T), { category: "unsubscribe" }, T);
+  assert.equal(unclearStop.category, "unclear");
+  assert.equal(unclearStop.modelSaid, "unsubscribe");
+  assert.equal(mergeTriage(triage({ body: "Can you resend the attachment? It didn't open." }, T), { category: "bounce" }, T).modelSaid, "bounce");
+  // Nor does it pause a reply the rules read as interested (2026-11-12).
+  const hot = mergeTriage(triage({ body: "Call me later today, around 3pm. I'm free after lunch." }, T), { category: "not_now" }, T);
+  assert.equal(hot.category, "interested");
+  assert.equal(hot.modelSaid, "not_now");
+  // Never from a no-draft category to a drafting one, even at the same rank (an away notice read as "not now").
+  const away = mergeTriage(triage({ from: "a@x.example", subject: "Automatic reply: hi", body: "I am out of the office until 3 November with limited access to email." }, T), { category: "not_now" }, T);
+  assert.equal(away.category, "out_of_office");
+  assert.equal(away.modelSaid, "not_now");
   assert.equal(mergeTriage(triage({ body: "ok" }, T), { category: "made_up" }, T).source, "rules");
   const nn = mergeTriage(triage({ body: "hmm" }, T), { category: "not_now", return_date: "2027-02-01" }, T);
   assert.equal(nn.date, "2027-02-01");
@@ -51,4 +66,22 @@ test("a model that returns junk falls back to the rules for that reply", async (
   assert.equal(r.items[0].triage.category, "not_interested");
   assert.equal(r.items[0].triage.source, "rules");
   assert.ok(r.errors.length >= 1);
+});
+
+test("a model's opt-out is a flag for a person, never a suppression by itself", async () => {
+  const replies = "From: a@x.example\nSubject: Re: hi\nDo you handle unsubscribe links and suppression lists for us?\n---\nFrom: b@x.example\nSubject: Re: hi\nhmm";
+  const fetch = anthropic((i) => i < 2 ? '{"category":"unsubscribe","subtype":null,"return_date":null,"evidence":"unsubscribe links"}' : "Hi,\n\nThanks for asking.\n\nSam Ortiz\nReply unsubscribe to stop.");
+  const r = await runInboxWithModel(cfg, { replies, offer: SAMPLE_OFFER, today: T }, { fetch });
+  assert.equal(r.items[0].triage.category, "question");
+  assert.equal(r.items[1].triage.category, "unclear");
+  assert.equal(r.suppression.length, 0);
+  assert.ok(r.prospects.every((p) => p.status !== "unsubscribed"));
+  assert.equal(r.tasks.filter((t) => /model reads this reply as a request to stop/.test(t.task)).length, 2);
+});
+
+test("a misspelt category from a small model is mapped, not thrown away", async () => {
+  const { modelTriage } = await import("./ai.mjs");
+  const t = await modelTriage(cfg, { subject: "Re: hi", body: "We're not interested." }, T, { fetch: anthropic(['{"category":"uninterested","subtype":null,"return_date":null,"evidence":"x"}']) });
+  assert.equal(t.category, "not_interested");
+  await assert.rejects(modelTriage(cfg, { body: "x" }, T, { fetch: anthropic(['{"category":"maybe"}']) }), /unknown category/);
 });

@@ -985,9 +985,14 @@ function search(ctx, restarts, iterations, first = 0) {
 // hours, balance) can reach. Hard rules are monotone (a superset of a broken list is broken), so a branch that breaks one is cut.
 // Seeded with the annealed score as the incumbent. `proven` is true only when the tree was exhausted inside the node and time
 // limits, so the result is then the true optimum and the annealing gap is exact; otherwise `rootBound` is the bound at the root.
-// "auto" runs the exact search by itself on weeks this small, where it finishes in well under a second; 150 random 5-10 shift weeks
-// had the quick search beaten in 38 (each by covering more hours) before this was on by default.
-const EXACT_AUTO_SLOTS = 14;
+// "auto" (the default) runs the exact check on weeks up to this many shift copies, which is every week the parser accepts. It was 14
+// until 2026-11-12 (150 random 5-10 shift weeks had the quick search beaten in 38, each by covering more hours). Raised after
+// eval/auto-exact.mjs (eval/auto-exact.out.txt): on 36 seeded weeks of 6-60 people (18-245 copies) and the four built-in templates
+// the exact check's roster scored better on 22 and the same on the rest, covered more hours on 10 (the café sample 15 h open,
+// not 19), was proven on 38 of 40, and above 60 copies usually finished sooner, because the column generation that proves it also lets the
+// plateau walk be skipped. Below 60 copies it took -0.3 to +1.0 s. The two unproven weeks have over 150 copies and stop on the same
+// 20 s budget either way. `exact: false` (CLI --no-prove, page "Off") turns it off.
+const EXACT_AUTO_SLOTS = MAX_SLOTS;
 // Above this many shift copies the branch-and-bound tree in exactSearch is skipped when the whole-score column generation has run
 // (eval/end-to-end.mjs, 2026-11-12): on two 40-person, 148-149 copy weeks the tree ran 38-68 s against its 8 s limit (each node
 // builds a flow over every shift, and the clock is read every 1,024 nodes) and never proved or improved anything, while column
@@ -1957,7 +1962,7 @@ export function buildRoster(staff, slots, options = {}) {
         if (ps < best.score - 1e-9) best = { owner: po, score: ps };
       }
       mark("coverPass");
-      if ((o.coverRepair ?? (o.exact === true || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
+      if ((o.coverRepair ?? (exactOn || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
         const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: o.coverRepairMs ?? 60000, shiftWeight: o.openShiftWeight ?? 1e-6 });
         const cur = best.owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
         const w = o.openShiftWeight ?? 1e-6;
@@ -1974,7 +1979,10 @@ export function buildRoster(staff, slots, options = {}) {
   // On a big week with the exact check on, the whole-score column generation below finds the best roster itself, so the plateau
   // walk and the repair (about 10 s on a 40-person week) run only if it does not prove one. eval/end-to-end.mjs, 2026-11-12: on
   // three 40-person weeks (148-162 copies) and three 30-person weeks the rosters and proofs were the same with them first or not.
-  const exactOn = o.exact === true || (o.exact === "auto" && ctx.S <= EXACT_AUTO_SLOTS);
+  // "auto" stays off when open shifts are priced (`openShiftWeight` > 0, CLI --open-shift-hours): the exact check scores open hours
+  // only, so it would hand back the roster the weight was set to trade away (sample week 15 h / 5 shifts instead of 19 h / 3).
+  // Read by coverPasses above, which runs after this line.
+  const exactOn = o.exact === true || (o.exact === "auto" && ctx.S <= EXACT_AUTO_SLOTS && !(o.openShiftWeight > 0));
   const bigExact = ctx.S > EXACT_TREE_SLOTS && o.exactTree !== true;
   const deferCover = exactOn && bigExact && o.scoreCG !== false && o.deferCover !== false;
   if (!deferCover) coverPasses();

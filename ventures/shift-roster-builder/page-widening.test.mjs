@@ -15,7 +15,7 @@ test("widening page's table is what the engine returns for the sample cafe with 
   const run = (lines) => {
     const p = parseStaff(lines.join("\n"));
     assert.deepEqual(p.errors, []);
-    const r = buildRoster(p.staff, slots, { minRestHours: 10 });
+    const r = buildRoster(p.staff, slots, { exact: false, minRestHours: 10 });
     return [r.unfilled.length, r.hours, r.cost];
   };
   const any = { Ana: [3, 216, 3622], Ben: [3, 216, 3622], Cleo: [1, 232, 3870], Dev: [3, 216, 3620], Eli: [2, 224, 3736], Fay: [3, 216, 3622], Gus: [3, 216, 3622] };

@@ -106,9 +106,13 @@ costs a lead, while getting the opposite wrong costs a complaint or a fine.
 Anything that would contact a person is a draft with `approval:
 "needs_approval"` (or `"guess_check_first"`). The code has no send path; a test
 fails if one appears. An AI model on your own key works under the same rule:
-`mergeTriage` lets it turn "unclear" into "unsubscribe", or "question" into
+`mergeTriage` lets it turn "unclear" into "not now", or "question" into
 "interested" (both only draft), but never turn an unsubscribe, a no or an
-away message into a drafted reply.
+away message into a drafted reply. Since 2026-11-12 it also may not make a
+permanent stop by itself: an opt-out or a bounce that only the model sees
+becomes a task for you to confirm, not a suppression, and it may not pause a
+reply the rules read as interested ("A free local model on every reply set",
+below).
 
 ## Why use this instead of what you have today
 
@@ -130,6 +134,38 @@ widened and now read all 40, so the set is a regression floor, not an accuracy
 figure. Real reps' notes, with their shorthand, are still unmeasured.
 
 ## How well it reads replies
+
+**A free local model on every reply set, 2026-11-12.** Qwen2.5-7B-Instruct
+(Q4_K_M GGUF, 4.7 GB) on a CPU-only llama.cpp server, 4 cores, about 9 to 12 s a
+reply, read all 792 labelled replies with the product's own triage prompt
+(`LLM_PROVIDER=llamacpp node eval/model.mjs eval/fresh-*.jsonl`). The model
+was never tuned on any of them; the rules were tuned on most.
+
+| On the same replies | Rules | Model alone | Merged, old rule | Merged, now |
+|---|---|---|---|---|
+| Two honest sets (81 replies, never tuned on) | 49 | **70** | 69 | 68 |
+| Five trap probes (100: stop words in live replies) | 84 | 66 | 69 | **84** |
+| All 792 | 726 | 684 | 687 | **728** |
+| False opt-outs, all 792 (a live lead suppressed) | 2 | 10 | 12 | **2** |
+| Live replies read as a stop, all 792 | 19 | 66 | 71 | 37 |
+
+On the 672 fresh replies the model reads 578 (86%), where the rules read 464
+(69%) on the same sets *before* each was tuned on: a free model on a laptop
+reads unfamiliar replies far better than keyword rules do. But it also falls
+for stop words the rules have been taught to ignore: it read "Do you handle
+unsubscribe links?" as an opt-out, "Can you resend the attachment? It didn't
+open" as a bounce, "Call me later today, around 3pm" as not now, and four
+away notices as "not now" (which drafts a reply to an auto-responder). The old
+merge let every one of those through, because each lowers contact. Three
+changes, chosen on these same sets (so the "now" column is tuned): a model's
+opt-out or bounce is a task for a person, never a suppression by itself; a
+model may not move a reply the rules read as interested; and a model may not
+move a no-draft category to a drafting one at the same rank. The cost is
+visible in the first row: the four opt-outs only the model caught (in the
+honest sets) now pause the lead and reach you as a task saying the model reads
+a request to stop, instead of going straight to the suppression list. Details,
+per-set table and commands: `eval/README.md`, "A free local model on every
+reply set".
 
 **Real people's mail, 2026-11-10 (the first large real check).** On 19,153 real
 business replies from the Enron corpus, read through the same path as the self-host
