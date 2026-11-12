@@ -3,7 +3,7 @@ title: "Stale or just slow? Telling a frozen data feed from a series rounded to 
 seo_title: "Repeated values in a time series: stale feed or rounding?"
 date: 2026-11-12
 tags: [changepoint-detector, time-series, data-quality, stale-data, rounding]
-description: "When a series repeats its last value, the feed may be stale or the series may just move less than its recorded precision. A one-line tick check tells them apart, tested on simulated and real data."
+description: "A repeated value can mean a stale feed or a series rounded to its precision. A tick check tells them apart, tested on simulated and real data."
 ---
 
 A value that repeats exactly from one month to the next can mean two
