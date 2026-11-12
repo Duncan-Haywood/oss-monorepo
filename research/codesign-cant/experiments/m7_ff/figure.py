@@ -48,7 +48,7 @@ for k, g in enumerate(("above", "below")):
 ax[0].set_xticks(range(3)); ax[0].set_xticklabels([a[1] for a in arms], fontsize=8)
 ax[0].set_ylabel("late-window (3–6 s) position RMS (m)"); ax[0].set_yscale("log")
 ax[0].set_title("Hurt vs helped axis after the wind step (lever 1)"); ax[0].legend(frameon=False, fontsize=6.5)
-ax[1].set_xscale("log"); ax[1].set_xlabel("feed-forward filter constant τ_ff (s)"); ax[1].set_ylabel("share of held-out episodes diverged")
+ax[1].set_xscale("log"); ax[1].set_xticks([0.2, 0.5, 1, 2]); ax[1].set_xticklabels(["0.2", "0.5", "1", "2"]); ax[1].minorticks_off(); ax[1].set_xlabel("feed-forward filter constant τ_ff (s)"); ax[1].set_ylabel("share of held-out episodes diverged")
 ax[1].set_title("A fast feed-forward destabilises (dotted: no feed-forward)"); ax[1].legend(frameon=False, fontsize=6.5)
 ax[2].axhline(0, color="k", lw=0.6); ax[2].set_xticks([0, 1]); ax[2].set_xticklabels(["minus 6b force-aware\n(cant, no feed-forward)", "minus 6b no cant"], fontsize=8)
 ax[2].set_ylabel("J difference (above 0: feed-forward design better)"); ax[2].set_title("Retrained with the feed-forward (paired by seed)")
