@@ -1,0 +1,18 @@
+EXACT_UP_TO 1500; setting {"kind":"markov","mult":2,"minSegment":20,"minRepeats":10,"slack":9}; seed 20261210
+
+n 4000 null B25  same count 20/20; changes exact 0, grid 0; largest date gap where matched 0 steps
+n 4000 null M40  same count 20/20; changes exact 0, grid 0; largest date gap where matched 0 steps
+n 4000 S1        same count 20/20; changes exact 20, grid 20; largest date gap where matched 0 steps
+n 4000 S4        same count 20/20; changes exact 20, grid 20; largest date gap where matched 0 steps
+n 4000 D         same count 20/20; changes exact 40, grid 40; largest date gap where matched 0 steps
+n 8000 null B25  same count 20/20; changes exact 0, grid 0; largest date gap where matched 0 steps
+n 8000 null M40  same count 20/20; changes exact 0, grid 0; largest date gap where matched 0 steps
+n 8000 S1        same count 20/20; changes exact 20, grid 20; largest date gap where matched 0 steps
+n 8000 S4        same count 20/20; changes exact 20, grid 20; largest date gap where matched 0 steps
+n 8000 D         same count 20/20; changes exact 40, grid 40; largest date gap where matched 0 steps
+
+G1 (same count in >= 18 of 20, every cell): pass
+G2 (grid change inside the exact change's range): 160 of 160 (100.0%), pass
+Verdict: the grid ships
+
+Time (not judged): exact 302.9 s, grid 14.0 s over 200 series

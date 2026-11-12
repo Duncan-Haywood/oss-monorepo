@@ -3049,3 +3049,35 @@ search, the committed verdicts, the juice description and its wording in the CLI
 
 Next: show it beside the other models too (it depends only on the values), and a long series with a
 documented change in collection to check a date against.
+
+## The update-rate check beside every model, and on long series (2026-11-12, later)
+
+The update-rate check above reads only the values, so it now runs beside the level models too, not only
+`--model drift`: `analyze()` adds `updateRateWarning` and `updateRate` (changes and stretches) when it finds
+a change, the CLI prints the line after the likely ranges, and the page's "Read with care" notes and the
+branded report carry it. It reads the values as given, before `--log`. Frozen orange juice with the default
+level model (and meanvar, trend, `--log`) now says the same thing the drift model does: repeats fell from
+60% to 12% of months around 1981-08 (between 1980-09 and 1982-04). The Nile, with no repeats, says nothing.
+Test: `update-rate-everywhere.test.mjs`.
+
+**The check on long series.** Wiring it in exposed a cost: PELT prunes little when changes are few, so the
+exact search grew as n squared (24 s at 20,000 steps, 48 s on a steady series; a 100,000-point series did
+not finish in two minutes). That was already true of `--model drift`. Two changes: the segment cost no
+longer allocates arrays (a constant factor), and above 1,500 steps (`EXACT_UP_TO`; the calibration and
+confirmation sims ran at 100 to 600, so they are unaffected) the search places cuts on a grid of about
+1,500 positions and then moves each cut, neighbours fixed, to its best position anywhere between them,
+repeating until nothing moves.
+
+Checked against the exact search by a rule committed with the code before it ran (`eval/update-rate-long.mjs`,
+`.out.txt`; seed 20261210; 20 series a cell, n 4,000 and 8,000; two no-change cells, a switch, a fixed
+clumped stale feed and a switch and back):
+
+| | result | rule |
+|---|---|---|
+| G1, same number of changes as the exact search, every cell | 20 of 20 in all 10 cells | >= 18 of 20 |
+| G2, grid change inside the exact change's range | 160 of 160, and at the same step every time | >= 95% |
+| time over the 200 series (not judged) | 14.0 s against 302.9 s | |
+
+**Verdict: the grid ships.** A 100,000-point series with one switch now takes about 0.15 s through
+`updateRateChanges` (tested under 8 s, with the switch inside its range). Next: the multi-column and
+`--consensus` outputs, which do not show it yet, and a long series with a documented change in collection.
