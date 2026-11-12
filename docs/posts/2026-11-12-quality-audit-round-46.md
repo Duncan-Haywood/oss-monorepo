@@ -1,9 +1,9 @@
 ---
 title: "Quality audit round 46: one of four sampled subjects meets the bar"
-seo_title: "Quality audit 46: COI renewal gaps, pool replaster bids, gripper transfer, git backfill"
+seo_title: "Quality audit 46: COI gaps, pool bids, gripper transfer, git backfill"
 date: 2026-11-12
 tags: [quality-audit, evaluation, testing, research]
-description: "1 of 4 sampled subjects meets the bar. A certificate-of-insurance checker called a one-day coverage lapse continuous, and a research headline leaned on 282 designs that pick almost no fruit."
+description: "1 of 4 sampled subjects meets the bar: an insurance-certificate checker called a one-day lapse continuous; a research headline leaned on broken designs."
 ---
 
 The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The evidence is in [`portfolio/quality/audits/`](../../portfolio/quality/audits/), in the four `2026-11-12-*` files named below. Each file lists every check and every hand-seeded bug. Every score was given before any fix.
