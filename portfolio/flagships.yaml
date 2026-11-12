@@ -117,8 +117,10 @@ flagships:
       `country` column moves a call off their holiday) landed 2026-11-12 later still
       (README "Provinces, and the prospect's own days off"); next on that queue: `ca`,
       the provinces and `us` against canada.ca, provincial pages and OPM's calendar (all
-      refused this host 2026-11-12: probe first), US state holidays for a `region` like
-      US-TX. Call prep showing the prospect's next days off, and the follow-up flagging a next step on one, landed 2026-11-12 last (README "Their days off in call prep and the follow-up").
+      refused this host 2026-11-12: probe first), and the state lists against the states' own HR calendars (probe first). US state presets (`us-tx` and the other
+      50: state offices' legal holidays) landed 2026-11-12 after that, every weekday 2022-2028 matching python-holidays
+      0.108 but for 50 deliberate dates, and the `us` federal rules now match it too (README "US states, and the federal
+      rules checked at last"); a `region` US-TX still means us-business. Call prep showing the prospect's next days off, and the follow-up flagging a next step on one, landed 2026-11-12 last (README "Their days off in call prep and the follow-up").
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading

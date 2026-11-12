@@ -35,7 +35,7 @@ const stepKey = (email, step) => `${String(email || "").toLowerCase()}|${String(
  * not land on the day-5 email's day. The task keeps its plan date as `planned` and says why in `moved_by`.
  * holidays: "us", "us-business", dates, or a day => boolean (holidays.mjs); retry and shifted dates skip them.
  * Their days off too (added 2026-11-12): a prospect row (or the task row) may carry a `holidays` column in the same
- * form ("ca-qc", "gb-sct", "us, 2026-12-24"), or a `region` ("CA-ON", "GB-SCT") or `country` ("CA", "GB", "US") that names a preset. A
+ * form ("ca-qc", "gb-sct", "us, 2026-12-24"), or a `region` ("CA-ON", "GB-SCT"; "US-TX" means us-business, as "US" does) or `country` ("CA", "GB", "US") that names a preset. A
  * call due on one of the prospect's days off moves to their next working day that is also yours, keeps its plan date
  * as `planned`, and says why in `their_day_off` ({ date, name }). Only calls move: an email waits in the inbox, and a
  * call to a closed office is a wasted try. A column that names no preset is ignored (a country we have no list for).
