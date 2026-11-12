@@ -98,29 +98,18 @@ flagships:
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
   - venture: sales-agent
     buildable: >-
-      (3) the local half of M2: `LLM_PROVIDER=llamacpp node eval/model.mjs
-      eval/fresh-*.jsonl` with a local GGUF model (setup that worked 2026-11-12:
-      eval/README "A third reader from another model family"; huggingface.co answered
-      through the proxy that day, but probe first, it has refused before); a larger
-      local model (14B+, about 11 GB RAM) as the Enron reader with
-      `eval/model-reader.mjs`, scored for agreement with the agent readers before its
-      labels count. Without a model host: (6) call outcomes, later-step
-      shift and holiday-aware retries landed 2026-11-12 (README "A late call moves the
-      rest of the cadence"); the static page's Today's queue got the call buttons, a days-off
-      box and localStorage the same day (README "Call outcomes on the page itself");
-      the self-host page's Days off field and UK presets (gb-eng, gb-sct, gb-nir,
-      280 of 280 GOV.UK dates 2019-2028) landed 2026-11-12 (README "UK bank holidays");
-      `ca` (federal, 85 of 85 dates 2022-2028 on canada-holidays.ca, a second source) and
-      the page's next-five-days-off line landed 2026-11-12 later (README "Canada");
-      provincial presets, all 13 provinces and territories (855 of 855 canada-holidays.ca
-      dates 2022-2028), and the prospect's own days off (a `holidays`, `region` CA-QC or
-      `country` column moves a call off their holiday) landed 2026-11-12 later still
-      (README "Provinces, and the prospect's own days off"); next on that queue: `ca`,
-      the provinces and `us` against canada.ca, provincial pages and OPM's calendar (all
-      refused this host 2026-11-12: probe first), and the state lists against the states' own HR calendars (probe first). US state presets (`us-tx` and the other
-      50: state offices' legal holidays) landed 2026-11-12 after that, every weekday 2022-2028 matching python-holidays
-      0.108 but for 50 deliberate dates, and the `us` federal rules now match it too (README "US states, and the federal
-      rules checked at last"); a `region` US-TX still means us-business. Call prep showing the prospect's next days off, and the follow-up flagging a next step on one, landed 2026-11-12 last (README "Their days off in call prep and the follow-up").
+      (3b) a larger local model on the same 792 replies: Qwen2.5-14B-Instruct Q4_K_M (about 9 GB,
+      fits 15 GB RAM; expect 20-30 s a reply on 4 cores, so about 5 hours: run the two honest sets and
+      the five trap probes first, 181 replies) with `LLM_PROVIDER=llamacpp node eval/model.mjs ...
+      --cache eval/model-answers/<model>.json` (setup that worked 2026-11-12: eval/README "A free
+      local model on every reply set"; probe huggingface.co first; start llama_cpp.server with nohup,
+      not as a tool background task, which is killed at 2 hours). Compare its false stops and false
+      opt-outs with the 7B's, and whether its stop flags (4 of 23 right for the 7B) are good enough to
+      act on. Also (1) the Enron third reader with the same 14B via `eval/model-reader.mjs`. Without a
+      model host: re-score any merge change offline from the committed answer caches (`--offline`);
+      the 37 false stops the merge still lets through are listed by `--misses`; "We are not interested,
+      thanks." goes to a person because an Enron veto (engine.mjs, "is|are ... not interested") also
+      matches "we are": narrow it only with an Enron re-score.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
@@ -140,8 +129,11 @@ flagships:
       an independent reader. Next: (1) a strong second reader from READER.md, a person or a
       larger model of another family, on the 298 stops (`model-reader.mjs compare`);
       (2) real replies to outreach and a real rep's call notes to check the reply rules,
-      prep rules and follow-up sorter; (3) M2: score a hosted and a local model with
-      eval/model.mjs on the fresh sets; (4) run the self-host server, OAuth and CRM
+      prep rules and follow-up sorter; (3) M2: the local half landed 2026-11-12 (Qwen2.5 7B
+      on all 792 replies: alone 86% of fresh vs rules-before-tuning 69%, but 10 false opt-outs; the merge now
+      flags a model's stops for a person, keeps an "interested" and blocks no-draft to drafting at equal rank:
+      728/792, 2 false opt-outs; eval/README "A free local model on every reply set"); next a hosted model and
+      a 14B local one on the same sets; (4) run the self-host server, OAuth and CRM
       write-back against a real mailbox, Google or Microsoft app and HubSpot or Pipedrive
       account (all fakes so far); (5) a real HubSpot or Pipedrive export for the research
       agent (none found public).
