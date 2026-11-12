@@ -253,8 +253,14 @@ flagships:
       synthetic survey (spreads 0.5/1/2, lapse 0/0.2) min covers 0.954-0.964
       vs own 0.922-0.943; pooled alone drops to 0.83-0.92 for narrow-spread
       people ("A stored survey prior"). Pairwise intervals keep the fixed
-      prior. Next, most valuable first: (a) the PrefLib panels through the
-      refit and the set, and a heavier-tailed prior for the pairwise
+      prior. On real PrefLib rankings 2026-11-12 (REAL-RANKINGS.md "The
+      insights card on real people"): clear picks wrong 5 of 860, set holds
+      97-100%, pooled sd at its ceiling in 29 of 36 cells, and the standard
+      selector names a clear pick for 0.5-5.5% of people at 8 answers per item
+      against 35-100% under staged (#1 vs #2 asked 1.9 vs 8.7 times). Next,
+      most valuable first: (a) staged as the server default for lists up to
+      120 items (re-run the careless, position-bias and answer-time sweeps
+      under it first), and a heavier-tailed prior for the pairwise
       intervals; (b) half-time salience (q = 0.5 still leaks +0.12 to +0.29:
       does pace see them?); (c) check the answer-time model against the first
       real survey's msToAnswer; (d) position bias that starts mid-session;

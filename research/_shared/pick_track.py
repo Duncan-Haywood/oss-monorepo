@@ -23,7 +23,8 @@ draw moves on, so the run does not spend its start rediscovering a 403.
 A track with SATURATED or more projects is redrawn automatically among the
 tracks below that size, so a run does not spend its start on a finished chain.
 
-For a track it also lists that track's projects on this checkout (newest commit
+For a track it first names the track's open programmes (track_programmes) with a
+claim check each, or says none exists yet. It also lists that track's projects on this checkout (newest commit
 first), so the "Next steps" of the latest one is one `cat` away when the
 milestones in PROJECTS.md are all done. A stale checkout hides projects other
 runs landed: the WARNING line says when to merge origin/main.
@@ -295,6 +296,30 @@ def programmes():
     return [(slug, (RESEARCH / slug / "PROPOSAL.md").is_file()) for slug in rows]
 
 
+def track_programmes(t, text=None):
+    """Open programmes for track `t`: a row whose "Builds on" names the track ("track 15",
+    "tracks 12 and 20") or whose slug starts with the track's prefix (`sensing-selfcal`).
+
+    Track draws printed milestones and project lists but never the programme the track
+    already has, so runs had to map the draw to a PROGRAMMES.md row by hand, and one took a
+    free milestone while the track's programme had a concrete next step (doc friction
+    2026-11-12, three reports).
+    """
+    if text is None:
+        f = RESEARCH / "PROGRAMMES.md"
+        text = f.read_text() if f.is_file() else ""
+    text = text.split("## Open programmes", 1)[-1]
+    out = []
+    for m in re.finditer(r"^\| *\[?`([\w-]+)`[^|]*\|[^|]*\|([^|]*)\|", text, re.M):
+        slug, builds_on = m.group(1), m.group(2)
+        named = set()
+        for phrase in re.findall(r"\btracks? ([\d ,and]+)", builds_on):
+            named.update(int(n) for n in re.findall(r"\d+", phrase))
+        if t in named or slug.split("-")[0] == PREFIX[t - 1]:
+            out.append(slug)
+    return out
+
+
 def recent_landed(slug, n=3):
     """Newest commits on origin/main that touch research/<slug>, as 'age: subject' lines.
 
@@ -465,6 +490,19 @@ if __name__ == "__main__":
     if t != "free":
         print(f"track runs open a programme in this area or advance one (research/PROGRAMMES.md); "
               "the listed milestones are raw material, not separate projects")
+        progs_here = track_programmes(t)
+        if progs_here:
+            print(f"open programme(s) for track {t}: "
+                  + ", ".join(f"{s} (BLOCKED)" if is_blocked(s) else s for s in progs_here)
+                  + "; advancing one is the default: read research/<slug>/PROPOSAL.md and its "
+                  "newest LOG.md entries, and prefer its next step over a free milestone below")
+            for s in progs_here:
+                if not is_blocked(s):
+                    for line in claim_check(s):
+                        print(f"  {s}: {line}")
+        else:
+            print(f"no open programme in research/PROGRAMMES.md names track {t} or starts with "
+                  f"`{PREFIX[t - 1]}-`: opening one (a PROPOSAL.md and a table row) is the default")
         n, newest = projects(PREFIX[t - 1])
         shallow = is_shallow()
         label = "some (shallow clone: commit dates are flattened, so this is not newest-first)" if shallow else "newest"

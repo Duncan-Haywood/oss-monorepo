@@ -30,6 +30,11 @@ function fill(title: string, items: string) {
 }
 
 describe("SurveyBuilder", () => {
+  it("says what the question order changes on the person's top-pick card", () => {
+    render(<SurveyBuilder />);
+    expect(screen.getByText(/Standard spreads answers across the whole list and almost never/)).toBeTruthy();
+  });
+
   it("posts the form and offers the link and the ranking", async () => {
     const calls = stubFetch({
       "/api/admin/surveys": { status: 201, body: { slug: "lunch", url: "/s/lunch", items: 3 } },

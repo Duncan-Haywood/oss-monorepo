@@ -107,6 +107,16 @@ const SELECTORS: Record<Selector, (input: PairingInput) => [string, string]> = {
  * rows as the survey stores them.
  */
 export function answerAsRespondent(order: number[], budget: number, selector: Selector, rand: () => number, lapse = 0, updateLapse = 0): RatingRow[] {
+  return answerWithHistory(order, budget, selector, rand, lapse, updateLapse).rows;
+}
+
+/**
+ * answerAsRespondent that also returns every answer in order, as the insights
+ * route's refit reads them (winner and loser ids `alt-<i>`). Same draws from
+ * `rand`, so the rows are identical.
+ */
+export function answerWithHistory(order: number[], budget: number, selector: Selector, rand: () => number, lapse = 0, updateLapse = 0): { rows: RatingRow[]; answers: { winner: string; loser: string }[] } {
+  const answers: { winner: string; loser: string }[] = [];
   const n = order.length;
   const position = new Array<number>(n);
   order.forEach((alt, pos) => (position[alt] = pos));
@@ -120,6 +130,7 @@ export function answerAsRespondent(order: number[], budget: number, selector: Se
     const a = Number(aId.slice(4));
     const b = Number(bId.slice(4));
     const firstWins = lapse > 0 && rand() < lapse ? rand() < 0.5 : position[a] < position[b];
+    answers.push(firstWins ? { winner: aId, loser: bId } : { winner: bId, loser: aId });
     const next = applyComparison(state.get(aId)!, state.get(bId)!, firstWins ? "A" : "B", updateLapse);
     state.set(aId, next.a);
     state.set(bId, next.b);
@@ -128,7 +139,7 @@ export function answerAsRespondent(order: number[], budget: number, selector: Se
     recent.push(pairKey(aId, bId));
     if (recent.length > 10) recent.shift();
   }
-  return ids.map((id) => ({ itemId: id, rating: state.get(id)!.rating, rd: state.get(id)!.rd }));
+  return { rows: ids.map((id) => ({ itemId: id, rating: state.get(id)!.rating, rd: state.get(id)!.rd })), answers };
 }
 
 export type PanelScore = {

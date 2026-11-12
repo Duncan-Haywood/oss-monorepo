@@ -28,19 +28,27 @@ directory that holds them: before 2026-11-10 those suites ran nowhere
 workflow-audit's 16, actions-runtime-deprecation-check's 9 and
 local-site-studio's 7, whose workflows named the path but ran no Python
 test step; see test_commands). A venture whose workflow runs its Python
-tests runs them there; when you name one that has no
-`*.test.mjs`, this prints which workflow does, instead of "0 suites run".
+tests runs them there. On a local run that names ventures (slugs or
+`--changed`), those Python steps run here too, read from that
+workflow with its working directory (elsewhere_commands): before 2026-11-12
+a named Python-only venture (photo-editing) printed "skip" and a mixed one
+(einvoice-preflight) printed "ok" for its Node tests alone, so the local
+pass was not the CI pass (run-record doc friction, 2026-11-12).
+`--no-elsewhere` turns that off; CI never does it, since those workflows run
+there on their own.
 An empty or all-zero `--since` (a new branch, a dispatch) means every venture.
 
 Exit 0 when every suite passes (ventures with no tests are skipped), else 1.
 """
 import argparse
 import functools
+import importlib.util
 import os
 import re
 import signal
 import subprocess
 import sys
+import tempfile
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -129,6 +137,95 @@ def python_run_elsewhere(slug):
     """[(workflow name, command)] for steps that run the venture's Python tests."""
     return [(wf.name, cmds[0]) for wf, steps in _workflow_steps(WORKFLOWS)
             if (cmds := test_commands(slug, wf, steps))]
+
+
+def elsewhere_commands(slug):
+    """[(argv, cwd, env, workflow name)] for the Python test steps a
+    venture's own workflows run, so a local run can run them too.
+
+    Steps come from run_workflow_locally.collect, so a step gets the working
+    directory and `env:` Actions would give it (step over job over workflow:
+    einvoice-preflight's job-level `PYTHONPATH: src`); a step with a `${{ }}`
+    expression is left out, as that tool leaves it.
+    """
+    import run_workflow_locally as rwl  # PyYAML: only local runs get here
+    out = []
+    for wf, steps in _workflow_steps(WORKFLOWS):
+        wanted = {c.strip("'\"") for c in test_commands(slug, wf, steps)}
+        if not wanted:
+            continue
+        found, _ = rwl.collect(rwl.load_workflow(str(wf)))
+        for step in found:
+            if step.status != "skipped" and step.run.strip() in wanted:
+                cwd = ROOT / step.workdir
+                if cwd.is_dir():
+                    out.append((["bash", "-ec", step.run], cwd,
+                                {**editable_path(wf, cwd), **step.env}, wf.name))
+    return out
+
+
+def editable_path(wf, cwd):
+    """PYTHONPATH standing in for the workflow's `pip install -e .` of a src
+    layout (vendor-change-watch, ig-media-pipeline), so a local run imports the
+    package from the tree without installing it."""
+    if (cwd / "src").is_dir() and re.search(r"pip install -e \.(\s|$)", wf.read_text(), re.M):
+        return {"PYTHONPATH": os.pathsep.join(filter(None, ["src", os.environ.get("PYTHONPATH")]))}
+    return {}
+
+
+def interpreter_with(*modules):
+    """A python3 here that already imports every one of `modules`, or None.
+    Installs nothing.
+
+    Some session images put a bare python3 first on PATH while pip installs
+    go to another (platform/ci/pyenv.py, "Why"), so a workflow's
+    `python3 -m pytest` can fail on a machine that has pytest.
+    """
+    import pyenv
+    venv = os.environ.get("PYENV_VENV") or os.path.expanduser("~/.cache/pyenv-venv")
+    for py in [*pyenv.candidates(), os.path.join(venv, "bin", "python3")]:
+        if os.path.isfile(py) and pyenv.imports(py, list(modules)):
+            return py
+    return None
+
+
+def shim_dir(py):
+    """A directory whose `python3`, `python` and `pytest` run `py`: put it
+    first on PATH. A bare `pytest` (ubuntu-agent-server-ci.yml) can be a uv
+    tool with its own interpreter, which lacked PyYAML here.
+
+    Wrapper scripts, not symlinks, so a venv interpreter keeps its venv.
+    """
+    d = Path(tempfile.mkdtemp(prefix="venture-python-"))
+    for name, args in (("python3", ""), ("python", ""), ("pytest", " -m pytest")):
+        (d / name).write_text(f'#!/bin/sh\nexec "{py}"{args} "$@"\n')
+        (d / name).chmod(0o755)
+    return str(d)
+
+
+def run_elsewhere_step(argv, cwd, env, timeout):
+    """Run one workflow test step; when python3 here lacks a module the step
+    needs, retry once with an interpreter that has it, else say how to get it."""
+    import run_workflow_locally as rwl
+    env = env or {}
+    ok, out = run_one(argv, cwd, timeout, env)
+    lacking, note = [], ""
+    # Each retry can surface the next missing module (ig-media-pipeline:
+    # numpy, then pytest), so ask for all of them at once.
+    while not ok and len(lacking) < 4:
+        absent = rwl.missing_toolchain(out.splitlines(), str(cwd))
+        if not absent or absent.split(".")[0] in lacking:
+            break
+        lacking.append(absent.split(".")[0])
+        py = interpreter_with(*lacking)
+        if py is None:
+            names = " ".join(lacking)
+            return False, (f"{note}{out}\n`{names}` not installed for python3 here, so this suite "
+                           f"never ran: `python3 platform/ci/pyenv.py {names}` installs it, then run again.")
+        path = shim_dir(py) + os.pathsep + env.get("PATH", os.environ.get("PATH", ""))
+        ok, out = run_one(argv, cwd, timeout, {**env, "PATH": path})
+        note = f"(python3 here lacks {', '.join(lacking)}; ran with {py})\n"
+    return ok, note + out
 
 
 def clear_workflow_caches():
@@ -249,10 +346,11 @@ def commands(slug):
     return cmds
 
 
-def run_one(argv, cwd, timeout):
+def run_one(argv, cwd, timeout, env=None):
     # Its own process group, so a timeout also stops the per-file children
     # `node --test` spawns rather than leaving them running.
-    p = subprocess.Popen(argv, cwd=cwd, stdout=subprocess.PIPE,
+    p = subprocess.Popen(argv, cwd=cwd, env={**os.environ, **(env or {})},
+                         stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT, text=True, start_new_session=True)
     try:
         out, _ = p.communicate(timeout=timeout)
@@ -265,17 +363,23 @@ def run_one(argv, cwd, timeout):
         return False, f"{out}\ntimed out after {SUITE_TIMEOUT}s"
 
 
-def run(slug):
+def run(slug, elsewhere=False):
     start = time.monotonic()
-    cmds = commands(slug)
+    cmds = [(argv, cwd, None, None) for argv, cwd in commands(slug)]
+    if elsewhere:
+        cmds += elsewhere_commands(slug)
     ok, outs = True, []
-    for argv, cwd in cmds:
+    for argv, cwd, env, wf in cmds:
         left = max(1, SUITE_TIMEOUT - (time.monotonic() - start))
-        one_ok, out = run_one(argv, cwd, left)
+        if wf:
+            one_ok, out = run_elsewhere_step(argv, cwd, env, left)
+            out = f"$ {argv[-1]} (in {Path(cwd).relative_to(ROOT)}, from .github/workflows/{wf})\n{out}"
+        else:
+            one_ok, out = run_one(argv, cwd, left)
+            if len(cmds) > 1:
+                name = "node --test" if argv[0] == "node" else "python3 -m unittest"
+                out = f"$ {name} (in {Path(cwd).relative_to(VENTURES / slug)})\n{out}"
         ok = ok and one_ok
-        if len(cmds) > 1:
-            name = "node --test" if argv[0] == "node" else "python3 -m unittest"
-            out = f"$ {name} (in {Path(cwd).relative_to(VENTURES / slug)})\n{out}"
         outs.append(out)
     return slug, ok, "\n".join(outs), time.monotonic() - start
 
@@ -328,6 +432,8 @@ def main(argv):
     ap.add_argument("--jobs", type=int, default=os.cpu_count() or 2)
     ap.add_argument("--slowest", type=int, default=0, metavar="N",
                     help="end with the N slowest suites, slowest first")
+    ap.add_argument("--no-elsewhere", action="store_true",
+                    help="skip the Python test steps a named venture's own workflow runs")
     args = ap.parse_args(argv)
 
     if args.since is not None and args.since.strip("0 "):
@@ -340,20 +446,33 @@ def main(argv):
         slugs = sorted(d.name for d in VENTURES.iterdir() if d.is_dir())
     # Longest suites first: with a fixed worker pool, starting the biggest
     # suite last leaves one worker running it alone after the others finish.
-    if args.slugs or args.changed or args.since:
+    named = bool(args.slugs or args.changed or args.since)
+    # Named slugs and --changed are how a session checks its own work; --since
+    # and a full run are CI's modes, where those workflows run on their own.
+    elsewhere = bool(args.slugs or args.changed) and not ON_ACTIONS and not args.no_elsewhere
+    if elsewhere and importlib.util.find_spec("yaml") is None:
+        # run_workflow_locally reads workflows with PyYAML.
+        print("note: PyYAML is not installed, so own-workflow Python tests are not run here "
+              "(pip install pyyaml)", flush=True)
+        elsewhere = False
+    runs_here = {s for s in slugs if has_tests(s)
+                 or (elsewhere and (VENTURES / s).is_dir() and elsewhere_commands(s))}
+    if named:
         for slug in slugs:
-            if not has_tests(slug):
+            if slug not in runs_here:
                 print(skip_note(slug), flush=True)
     lint_slugs = [s for s in slugs if (VENTURES / s).is_dir()]
-    slugs = sorted((s for s in slugs if has_tests(s)), key=lambda s: (-suite_weight(s), s))
+    slugs = sorted(runs_here, key=lambda s: (-suite_weight(s), s))
 
     failed, times = [], {}
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         # Printed as each finishes, so one slow suite does not hide the rest.
-        for future in as_completed([pool.submit(run, s) for s in slugs]):
+        for future in as_completed([pool.submit(run, s, elsewhere) for s in slugs]):
             slug, ok, out, secs = future.result()
             times[slug] = secs
-            print(f"{'ok  ' if ok else 'FAIL'} {slug} ({secs:.1f}s)", flush=True)
+            also = sorted({c[-1] for c in elsewhere_commands(slug)}) if elsewhere else []
+            print(f"{'ok  ' if ok else 'FAIL'} {slug} ({secs:.1f}s)"
+                  + (f" incl. Python steps of {', '.join(also)}" if also else ""), flush=True)
             if not ok:
                 failed.append(slug)
                 if ON_ACTIONS:
