@@ -42,6 +42,37 @@ test("merge: the model may lower contact, never raise it", () => {
   assert.equal(mergeTriage(triage({ body: "hmm" }, T), { category: "objection", subtype: "weird" }, T).subtype, "need");
 });
 
+test("merge: a model's close of a reply a person would read is a flag, and a question stays a question (2026-11-12)", async () => {
+  // eval/README.md "The 37 false stops, by what a person would see": a 7B model closed "ok" and "Our team is pretty attached
+  // to the spreadsheet" (no draft, no task: lost unread), and turned "What does it cost for a team of 12?" into an objection.
+  for (const [body, said] of [["ok", "not_interested"], ["Our team is pretty attached to the spreadsheet we've used for years.", "not_interested"], ["I'm the wrong person to convince. Our CEO hates cold email tools and will say no.", "left_company"]]) {
+    const rules = triage({ body }, T), m = mergeTriage(rules, { category: said }, T);
+    assert.equal(m.category, rules.category, body);
+    assert.equal(m.modelSaid, said, body);
+  }
+  const obj = triage({ body: "We already have Salesforce and it does everything we need." }, T);
+  assert.equal(obj.category, "objection");
+  assert.equal(mergeTriage(obj, { category: "not_interested" }, T).category, "objection");
+  const q = triage({ body: "What does it cost for a team of 12?" }, T);
+  assert.equal(q.category, "question");
+  const mq = mergeTriage(q, { category: "objection", subtype: "price" }, T);
+  assert.equal(mq.category, "question");
+  assert.equal(mq.modelSaid, "objection");
+  // A close the rules agree with, or one from a category a person does not read, still goes through.
+  assert.equal(mergeTriage(triage({ body: "No thanks." }, T), { category: "left_company" }, T).category, "left_company");
+  // In the inbox run the person sees the model's reading: on an unclear reply as the guess, on an objection as a task.
+  const replies = "From: a@x.example\nSubject: Re: hi\nok\n---\nFrom: b@x.example\nSubject: Re: hi\nWe already have Salesforce and it does everything we need.";
+  const fetch = anthropic(['{"category":"not_interested","subtype":null,"return_date":null,"evidence":"ok"}', '{"category":"not_interested","subtype":null,"return_date":null,"evidence":"We already have Salesforce"}', "Hi,\n\nThanks.\n\nSam Ortiz\nReply unsubscribe to stop."]);
+  const r = await runInboxWithModel(cfg, { replies, offer: SAMPLE_OFFER, today: T }, { fetch });
+  assert.equal(r.items[0].triage.category, "unclear");
+  assert.equal(r.items[0].triage.guess.category, "not_interested");
+  assert.ok(r.tasks.some((t) => t.email === "a@x.example" && /The model reads it as not interested/.test(t.task)));
+  assert.ok(!r.tasks.some((t) => t.email === "a@x.example" && /plain no/.test(t.task)), "one task per reply");
+  assert.equal(r.items[1].triage.category, "objection");
+  assert.ok(r.tasks.some((t) => t.email === "b@x.example" && /plain no/.test(t.task)));
+  assert.equal(r.prospects.find((p) => p.email === "a@x.example").status, "paused");
+});
+
 test("no key: rules run and the result says so", async () => {
   const r = await runInboxWithModel({}, { replies: SAMPLE_REPLIES, prospects: SAMPLE_PROSPECTS, offer: SAMPLE_OFFER, today: T });
   assert.equal(r.source, "rules");

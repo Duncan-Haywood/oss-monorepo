@@ -868,6 +868,68 @@ the sets the rules were tuned on) while adding no false opt-outs. It is not a re
 open: a hosted model (needs a key) and a larger local one (14B, about 9 GB) on the same sets; whether the 37 false stops the
 merge still lets through (mostly question to objection or not now) cost anything a person would notice.
 
+## The 37 false stops, by what a person would see (2026-11-12)
+
+The section above left one question open: whether the 37 false stops the merge still let through cost anything a person
+would notice. No model host answered this run (huggingface.co, registry.ollama.ai and modelscope.cn all 403 through the
+proxy), so this is offline, from the committed 7B answers. The way to answer it is by what each category *does* in
+`runInbox` (`engine.mjs`), not by its rank:
+
+- `not_interested` and `left_company` end the cadence with **no draft and no task**. A live reply that lands there is lost
+  without anyone reading it.
+- `unclear`, `question`, `objection`, `not_now` and `interested` all put the reply in front of a person (a task, a draft to
+  approve, or both). A wrong label among these is seen and fixed when the person reads the draft.
+- `question` and `objection` differ in one way that matters: `question` adds an "Answer their question" task and drafts an
+  answer; `objection` drafts a rebuttal.
+
+Tabulating every merged answer that differed from the rules' answer (`model right` means the model's label matched):
+
+| Rules -> merged | Model right | Model wrong | What the wrong ones cost |
+|---|---|---|---|
+| question -> objection | 3 | 11 | "What does it cost for a team of 12?", "Does it work with Xero?", "Is it GDPR compliant?" get a rebuttal and lose the answer task |
+| unclear -> not_interested | 5 | 6 | "ok", "Noted.", "Lol. Maybe. Sure, whatever, call my assistant.", "attached to the spreadsheet": closed unread |
+| unclear -> left_company | 5 | 2 | "I'm the wrong person to convince. Our CEO hates cold email tools", "he has been here 12 years. What is this about?": closed unread |
+| objection -> not_interested | 1 | 4 | "We already have Salesforce", "We renewed with a competitor", "no budget this year": closed unread |
+| objection -> left_company | 0 | 2 | "We switched to FleetPlan last year": closed unread |
+| unclear -> not_now | 4 | 8 | a draft and a 90-day pause; seen when the draft is read |
+| others (question -> interested, unclear -> objection, between the two closes, ...) | 16 | 10 | drafting categories, seen; or one close for another |
+
+So the replies a person would never see were the **16 lost silently** under the merge (`model.mjs` now counts them; the
+rules alone lose 3), and the costly-but-visible ones were the 11 questions answered as
+objections. The model's closes from a category a person reads were right 11 of 25 times: not reliable enough to act alone.
+
+**Two changes to `mergeTriage`, same shape as the stop flags:**
+
+1. A model's `not_interested` or `left_company` on a reply the rules read as `unclear`, `question` or `objection` is a flag.
+   The rules' answer stands; on an unclear reply the model's reading becomes the guess the person sees ("The model reads it
+   as not interested. Check it before you act."), on an objection it is a task ("The model reads this reply as a plain no").
+2. A model may not turn a rules `question` into an `objection`.
+
+```
+node eval/model.mjs eval/fresh-*.jsonl eval/replies.jsonl eval/heldout.jsonl --offline --cache eval/model-answers/qwen2.5-7b-q4km.json
+```
+
+| | Right | False stops | Lost silently | Overreach | False opt-outs | Close flags (right/wrong) |
+|---|---|---|---|---|---|---|
+| All 792, merge before | 728 | 37 | 16 | 4 | 2 | - |
+| All 792, merge now | 735 | 24 | 3 | 6 | 2 | 11 / 14 |
+| Honest pair (81), before | 68 | 6 | 1 | 1 | 0 | - |
+| Honest pair (81), now | 62 | 5 | 0 | 1 | 0 | 5 / 1 |
+| Rules alone, all 792 | 726 | 19 | 3 | 4 | 2 | - |
+
+**Read it honestly.** On the two honest sets the label score falls from 68 to 62: six correct closes there ("We have
+decided not to proceed. All the best.", "Thank you for reaching out, however this is not something our firm will be
+pursuing", "I'm not the one who decides on this. Our COO, Priya, handles all vendor choices") now wait for a person instead
+of closing on their own. That is the price, and it is paid in reading time: each is one look at a reply with the model's
+reading already written beside it. In return no live reply is closed unread by the model (16 to 3, the 3 being the rules'
+own). The two new overreaches are true "no"s the rules read as objections ("we've decided to build this in-house", "we just
+signed with another vendor"): each now gets a draft that waits for approval, plus a task saying the model reads a plain no,
+and nothing is sent. Both changes were chosen after seeing these answers, so the 735 is a tuned figure; the honest-pair drop
+is the untuned cost. The rules (`triage`) did not change, so the Enron re-score the rules' changes need does not apply here.
+
+Still open: a larger or hosted model, which may close well enough to act alone (a 14B, when a model host answers); and
+whether the 11-of-25 close accuracy holds on real replies.
+
 ## "We are not interested": a veto narrowed with an Enron re-score (2026-11-12)
 
 A probe found that "We are not interested, thanks." went to a person as `unclear`, while "We're not interested, thanks." and

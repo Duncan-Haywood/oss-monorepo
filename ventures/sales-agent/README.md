@@ -112,7 +112,11 @@ away message into a drafted reply. Since 2026-11-12 it also may not make a
 permanent stop by itself: an opt-out or a bounce that only the model sees
 becomes a task for you to confirm, not a suppression, and it may not pause a
 reply the rules read as interested ("A free local model on every reply set",
-below).
+below). Nor may it quietly close a reply you would otherwise read: a model's
+"not interested" or "wrong person" on a reply the rules read as unclear, a
+question or an objection is shown to you with the model's reading, and a
+question stays a question (`eval/README.md`, "The 37 false stops, by what a
+person would see").
 
 ## Why use this instead of what you have today
 
@@ -166,6 +170,18 @@ honest sets) now pause the lead and reach you as a task saying the model reads
 a request to stop, instead of going straight to the suppression list. Details,
 per-set table and commands: `eval/README.md`, "A free local model on every
 reply set".
+
+**What the remaining false stops cost, 2026-11-12.** Sorted by what each
+category does rather than its rank: "not interested" and "wrong person" end the
+cadence with no draft and no task, so a live reply landing there is never read.
+Under the merge above, 16 of the 792 were lost that way, 14 of them by the model
+("ok", "Our team is pretty attached to the spreadsheet", "We already have
+Salesforce"); its closes from a reply a person would read were right 11 of 25
+times. Those closes now reach you as the model's reading, and a model may no
+longer turn "What does it cost for a team of 12?" into an objection (it did 14
+times, right 3). All 792: 735 right, 3 lost silently (the rules' own), 24 read
+as less contact than asked. The cost is on the honest sets, 68 to 62 right:
+six true "no"s now wait for one look instead of closing themselves.
 
 **Real people's mail, 2026-11-10 (the first large real check).** On 19,153 real
 business replies from the Enron corpus, read through the same path as the self-host
