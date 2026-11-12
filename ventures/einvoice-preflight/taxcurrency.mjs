@@ -3,9 +3,10 @@
 // When the VAT accounting currency is the invoice currency (every SAR invoice under
 // ZATCA, which asks for BT-111 in SAR; any UBL or CII file that repeats its tax in
 // its own currency), BT-111 is the same tax written twice, so the two must agree.
-// None of the official rule sets this tool runs compares them: on 2026-11-12 a
-// seeded BT-111 that differed from BT-110 passed every rule in 17 of 17 seeds
-// (README, "BT-111 in the invoice's own currency"). A file whose two figures
+// ZATCA's rule sets (EN 16931 cut and KSA rules, as this tool runs them) do not
+// compare them: on 2026-11-12 a seeded BT-111 that differed from BT-110 passed
+// every rule in 17 of 17 seeds (README, "BT-111 in the invoice's own currency").
+// A file whose two figures
 // disagree is reporting two different VAT totals, and whichever one the receiver
 // books is wrong for one of them.
 //

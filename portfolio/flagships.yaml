@@ -179,9 +179,9 @@ flagships:
       (UBL-SR-53 off ANAF's files) closed 2026-11-12 (README); UBL repair
       on ZATCA line TaxTotals, document and line allowances closed
       2026-11-12 (README, eval/repair-seeded.mjs: seeded faults restored
-      257/258 ZATCA, 270/270 PINT A-NZ); open: a check that a
-      same-currency BT-111 equals BT-110 (17/17 seeds pass every rule
-      today), a 1.3.8 base on the Saxon route; RO_CIUS on a real ANAF
+      257/258 ZATCA, 270/270 PINT A-NZ); INV-059 (same-currency BT-111
+      = BT-110) closed 2026-11-12 (README; ZATCA seeds flagged 241 to
+      258/258); open: a 1.3.8 base on the Saxon route; RO_CIUS on a real ANAF
       file; NLCIUS on a real Dutch file; India's INV-01 check on a real
       IRP payload; mandate dates read from primary sources where pages
       cite guides (IL, DK, CZ, LV, LU; ato.gov.au 403s from cloud);
