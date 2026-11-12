@@ -20,6 +20,10 @@
 // Canada (added 2026-11-12, later): "ca" (or "ca-federal"), the twelve federal holidays; see caFederalHolidays for
 // what is in it and how far it is checked (a second source, not canada.ca). Provinces and territories (added the same
 // day, later): "ca-on", "ca-qc", "ca-bc" and the other ten postal codes; see caProvincialHolidays.
+//
+// US states and DC (added 2026-11-12, last): "us-tx", "us-ny", "us-ca" and the other postal codes, each state's own
+// legal holidays; see usStateHolidays. The federal rules above are now checked too: every weekday federal holiday
+// 2022-2028 matches python-holidays 0.108's list (holidays.test.mjs), a second source, still not opm.gov itself.
 
 const ymd = (y, m, d) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 const dow = (y, m, d) => new Date(Date.UTC(y, m, d)).getUTCDay();
@@ -190,6 +194,101 @@ export function caProvincialHolidays(y, prov) {
   return out.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 }
 
+// US states and DC (added 2026-11-12, last). Each state's legal holidays: the days its own offices close. Private
+// firms mostly keep "us-business"; these are for a prospect at a state agency, a county, a school district or a firm
+// that follows the state's calendar. Written as rules here (not copied), then checked date for date, every weekday of
+// 2022-2028, against python-holidays 0.108 (MIT; fixtures/us-state-holidays-python-holidays-0.108.json), an
+// open-source library, not the states' own pages (comptroller.texas.gov and opm.gov refused this host 2026-11-12).
+// Deliberate differences from that library, each listed in holidays.test.mjs: Susan B. Anthony Day (CA, FL, NY, WI)
+// is left out because it is a day of commemoration, not a closure; Texas's four skeleton-crew days (Confederate
+// Heroes Day, Texas Independence Day, San Jacinto Day, LBJ Day) and its two optional ones (Cesar Chavez Day, Good
+// Friday) are left out because Texas state offices stay open on them. Both readings are from the statutes as commonly
+// published and were not read against the statute text in this session.
+const EOD = (y) => { const w = dow(y, 11, 25); return w === 6 ? 24 : w === 0 ? 26 : 25; }; // Christmas, observed day of December
+const weekdayOnly = (date) => { const [y, m, d] = date.split("-").map(Number); return [1, 2, 3, 4, 5].includes(dow(y, m - 1, d)); };
+// Sunday-only observance (Massachusetts keeps a Saturday holiday on Saturday; Cesar Chavez Day in California).
+const sunToMon = (y, m, d) => shift(y, m, d, dow(y, m, d) === 0 ? 1 : 0);
+// Diwali, which California added as a state holiday from 2026 (AB 268): a lunar date, so a table, taken from
+// python-holidays' own table for 2026-2035 (it has no 2034 entry; nor does this). A year past the table has no Diwali.
+const DIWALI = { 2026: "11-08", 2027: "10-29", 2028: "10-17", 2029: "11-05", 2030: "10-26", 2031: "11-14", 2032: "11-02", 2033: "10-22", 2035: "10-30" };
+const US_STATES = ["ak", "al", "ar", "az", "ca", "co", "ct", "dc", "de", "fl", "ga", "hi", "ia", "id", "il", "in", "ks", "ky", "la", "ma", "md", "me", "mi", "mn", "mo", "ms", "mt", "nc", "nd", "ne", "nh", "nj", "nm", "nv", "ny", "oh", "ok", "or", "pa", "ri", "sc", "sd", "tn", "tx", "ut", "va", "vt", "wa", "wi", "wv", "wy"];
+// States that do not close for Columbus Day (some keep a different day on it, listed below).
+const NO_COLUMBUS = new Set(["ar", "ca", "co", "de", "fl", "hi", "ia", "ks", "ky", "la", "mi", "mn", "ms", "nc", "nd", "nh", "nv", "ok", "or", "sc", "tn", "tx", "vt", "wa", "wi", "wy"]);
+// States that do not close on the third Monday of February (DE, FL), or that move Washington's Birthday to another
+// day: to the day after Thanksgiving (NM), or next to Christmas (GA, IN, by the governor's yearly order).
+const NO_FEB = new Set(["de", "fl", "ga", "in", "nm"]);
+
+/** A US state's (or DC's) legal holidays in year y, as { date, name } (added 2026-11-12, last). st is the postal code
+ * (tx, ca, ny, dc, ...). Weekend days move to Friday or Monday as in federal law, except in Massachusetts, which moves
+ * only a Sunday one. See the note above for what this list is and how far it is checked. */
+export function usStateHolidays(y, st) {
+  const s = String(st || "").toLowerCase();
+  if (!US_STATES.includes(s)) throw new Error(`usStateHolidays: unknown state "${st}"`);
+  const has = (...l) => l.includes(s);
+  const obs = s === "ma" ? sunToMon : observed;
+  const [em, ed] = easter(y);
+  const thanks = nth(y, 10, 4, 4), out = [];
+  const add = (date, name) => out.push({ date, name });
+  // The federal days, less the ones this state does not keep.
+  add(obs(y, 0, 1), "New Year's Day");
+  if (obs(y + 1, 0, 1) < `${y + 1}`) add(obs(y + 1, 0, 1), "New Year's Day (observed)"); // 1 Jan next year on a Saturday
+  add(ymd(y, 0, nth(y, 0, 1, 3)), "Martin Luther King Jr. Day");
+  if (!NO_FEB.has(s)) add(ymd(y, 1, nth(y, 1, 1, 3)), "Washington's Birthday");
+  add(ymd(y, 4, nth(y, 4, 1, -1)), "Memorial Day");
+  if (y >= 2021) add(obs(y, 5, 19), "Juneteenth");
+  add(obs(y, 6, 4), "Independence Day");
+  add(ymd(y, 8, nth(y, 8, 1, 1)), "Labor Day");
+  if (!NO_COLUMBUS.has(s)) add(ymd(y, 9, nth(y, 9, 1, 2)), "Columbus Day");
+  add(obs(y, 10, 11), "Veterans Day");
+  add(ymd(y, 10, thanks), "Thanksgiving Day");
+  add(obs(y, 11, 25), "Christmas Day");
+  // The day after Thanksgiving, under whatever name the state gives it.
+  const dat = { ca: "Day After Thanksgiving", de: "Day After Thanksgiving", fl: "Friday After Thanksgiving", ga: "State Holiday", in: "Lincoln's Birthday", md: "American Indian Heritage Day", mi: "Day After Thanksgiving", nc: "Day After Thanksgiving", nh: "Day After Thanksgiving", nm: "Presidents' Day", nv: "Family Day", ok: "Day After Thanksgiving", pa: "Day After Thanksgiving", tx: "Friday After Thanksgiving", wa: "Native American Heritage Day", wv: "Day After Thanksgiving" }[s];
+  if (dat) add(ymd(y, 10, thanks + 1), dat);
+  if (has("ct", "de", "ga", "in", "ky", "la", "nc", "nj", "tn")) add(shift(y, em, ed, -2), s === "ga" ? "State Holiday" : "Good Friday");
+  if (s === "la") add(shift(y, em, ed, -47), "Mardi Gras");
+  if (has("ct", "ia", "il", "nj", "ny")) add(observed(y, 1, 12), "Lincoln's Birthday");
+  // Election Day, the Tuesday after the first Monday of November: every year in IN and NY, even years elsewhere.
+  const elec = ymd(y, 10, nth(y, 10, 1, 1) + 1);
+  if (has("in", "ny") || (y % 2 === 0 && has("de", "hi", "il", "la", "mi", "mt", "nh", "nj", "wv"))) add(elec, "Election Day");
+  if (s === "in") add(ymd(y, 4, nth(y, 4, 1, 1) + 1), "Primary Election Day");
+  // Christmas Eve: the weekday before the observed Christmas. New Year's Eve: 31 December, or Friday 30th when the
+  // 31st is a Saturday; none when the 31st is a Sunday or is already New Year's Day observed.
+  if (has("ks", "mi", "nc", "tx", "wi")) { const c = EOD(y); add(shift(y, 11, c, dow(y, 11, c) === 1 ? -3 : -1), "Christmas Eve"); }
+  if (has("ky", "mi", "wi")) { const w = dow(y, 11, 31); if (w !== 0 && !(w === 5 && dow(y + 1, 0, 1) === 6)) add(ymd(y, 11, w === 6 ? 30 : 31), "New Year's Eve"); }
+  if (s === "nc") { let d = 26; while ([0, 6].includes(dow(y, 11, d)) || d === EOD(y)) d++; add(ymd(y, 11, d), "Day After Christmas"); }
+  if (s === "tx" && ![0, 6].includes(dow(y, 11, 26)) && EOD(y) !== 26) add(ymd(y, 11, 26), "Day After Christmas");
+  // Georgia and Indiana keep Washington's Birthday next to Christmas: the day after when 25 December is a Monday or a
+  // Thursday, the day before when it is a Tuesday, Wednesday or Friday, and Friday 23rd when it falls on a weekend.
+  if (has("ga", "in")) { const w = dow(y, 11, 25); add(shift(y, 11, 25, { 0: -2, 1: 1, 2: -1, 3: -1, 4: 1, 5: -1, 6: -2 }[w]), "Washington's Birthday"); }
+  // Each state's own days.
+  const own = {
+    ak: () => { add(ymd(y, 2, nth(y, 2, 1, -1)), "Seward's Day"); add(observed(y, 9, 18), "Alaska Day"); },
+    al: () => { add(ymd(y, 3, nth(y, 3, 1, 4)), "Confederate Memorial Day"); add(ymd(y, 5, nth(y, 5, 1, 1)), "Jefferson Davis' Birthday"); },
+    ca: () => { add(sunToMon(y, 2, 31), "Cesar Chavez Day"); if (y >= 2026 && DIWALI[y]) add(`${y}-${DIWALI[y]}`, "Diwali"); },
+    co: () => { add(ymd(y, 2, 31), "Cesar Chavez Day"); add(ymd(y, 9, nth(y, 9, 1, 1)), "Frances Xavier Cabrini Day"); },
+    dc: () => add(observed(y, 3, 16), "Emancipation Day"),
+    hi: () => { add(observed(y, 2, 26), "Prince Jonah Kuhio Kalanianaole Day"); add(observed(y, 5, 11), "Kamehameha Day"); add(ymd(y, 7, nth(y, 7, 5, 3)), "Statehood Day"); },
+    il: () => add(ymd(y, 2, nth(y, 2, 1, 1)), "Casimir Pulaski Day"),
+    ma: () => add(ymd(y, 3, nth(y, 3, 1, 3)), "Patriots' Day"),
+    me: () => add(ymd(y, 3, nth(y, 3, 1, 3)), "Patriots' Day"),
+    md: () => { if ((y - 1789) % 4 === 0) add(sunToMon(y, 0, 20), "Inauguration Day"); },
+    mo: () => add(observed(y, 4, 8), "Truman Day"),
+    ms: () => add(ymd(y, 3, nth(y, 3, 1, -1)), "Confederate Memorial Day"),
+    ne: () => add(ymd(y, 3, nth(y, 3, 5, -1)), "Arbor Day"),
+    nv: () => add(ymd(y, 9, nth(y, 9, 5, -1)), "Nevada Day"),
+    ri: () => add(ymd(y, 7, nth(y, 7, 1, 2)), "Victory Day"),
+    sc: () => add(ymd(y, 3, nth(y, 3, 1, 4)), "Confederate Memorial Day"),
+    ut: () => add(observed(y, 6, 24), "Pioneer Day"),
+    vt: () => { add(ymd(y, 2, nth(y, 2, 2, 1)), "Town Meeting Day"); add(observed(y, 7, 16), "Bennington Battle Day"); },
+    wv: () => add(observed(y, 5, 20), "West Virginia Day"),
+  }[s];
+  if (own) own();
+  // Keep weekdays only (a Saturday holiday is kept on its observed Friday), one entry per date, in date order.
+  const seen = new Set();
+  return out.filter((h) => weekdayOnly(h.date) && !seen.has(h.date) && seen.add(h.date)).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+}
+
 const GB_DIVISIONS = { gb: "eng", uk: "eng", "gb-eng": "eng", "gb-wls": "eng", "gb-sct": "sct", "gb-nir": "nir" };
 
 const BUSINESS = new Set(["New Year's Day", "Memorial Day", "Independence Day", "Labor Day", "Thanksgiving Day", "Christmas Day"]);
@@ -204,7 +303,7 @@ function parseSpec(spec) {
     if (!p) continue;
     if (/^\d{4}-\d{2}-\d{2}$/.test(p)) dates.add(p);
     else if (preset(p)) sets.push(preset(p));
-    else throw new Error(`holidays: "${raw}" is not a date (YYYY-MM-DD), "us", "us-business", "gb-eng", "gb-sct", "gb-nir", "ca" or a province ("ca-on", "ca-qc", ...)`);
+    else throw new Error(`holidays: "${raw}" is not a date (YYYY-MM-DD), "us", "us-business", "gb-eng", "gb-sct", "gb-nir", "ca", a province ("ca-on", "ca-qc", ...) or a US state ("us-tx", "us-ny", ...)`);
   }
   return { dates, sets };
 }
@@ -216,6 +315,8 @@ function preset(p) {
   if (p === "ca" || p === "ca-federal") return caFederalHolidays;
   const pr = p.match(/^ca-([a-z]{2})$/);
   if (pr && PROVINCES.includes(pr[1])) return (y) => caProvincialHolidays(y, pr[1]);
+  const us = p.match(/^us-([a-z]{2})$/);
+  if (us && US_STATES.includes(us[1])) return (y) => usStateHolidays(y, us[1]);
   if (GB_DIVISIONS[p]) { const div = GB_DIVISIONS[p]; return (y) => gbBankHolidays(y, div); }
   return null;
 }
@@ -266,6 +367,8 @@ export function theirDaysOff() {
   // A bare country "US" means the six days most businesses close, not the eleven federal ones (Columbus Day and
   // Veterans Day are working days at most firms); write holidays=us to get the federal list.
   // A region counts only in the two-part form ("CA-QC", "GB-SCT"): a bare region "CA" in a US list is California.
-  const pick = { holidays: (v) => v, region: (v) => (/^[a-z]{2}-[a-z]{2,3}$/i.test(String(v || "").trim()) ? v : ""), country: countryPreset };
+  // A US region ("US-TX") means the six business days too (added 2026-11-12, last): a state's own calendar (us-tx) is
+  // the days its offices close, which most private firms do not keep; write holidays=us-tx for a state agency.
+  const pick = { holidays: (v) => v, region: (v) => { const r = String(v || "").trim(); return /^us-[a-z]{2}$/i.test(r) ? "us-business" : /^[a-z]{2}-[a-z]{2,3}$/i.test(r) ? r : ""; }, country: countryPreset };
   return (row, p) => { for (const src of [row, p]) for (const k of ["holidays", "region", "country"]) { const c = src && tryOne(pick[k](src[k])); if (c) return c; } return null; };
 }
