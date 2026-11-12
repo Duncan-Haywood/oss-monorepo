@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVLx6zHwQPubtQLQySd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo (ventures brief)",
+  "input_sha256": "052b2b4268be1155bdcc864ad19ec85513e8a14ace00093d86abf21127155a97",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T13:02:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship (w): the watch on the page and as an agent tool",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15130",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/page.test.mjs",
+      "issue": "The page test forbade any fetch( on the page; the flagship's 'paste a URL' item needs one. Relaxed to exactly one allowed call (the visitor's own link, GET, credentials omitted)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-a-metric-watch-that-lives-in-a-browser-tab.md"
+  ],
+  "goal": null,
+  "notes": "Allocator row 3 (changepoint-detector). Split watch logic into watch-core.mjs (pure) so the page and platform/agents/tools.mjs can import it; added watchCheck. Verified: node --test *.test.mjs in the venture 578/578 pass, watch-page.test.mjs 4/4, watch.test.mjs 17/17, page.test.mjs, eval/watch-page-browser.mjs 8/8 in headless Chromium, tools.mjs call changepoint-detector watchCheck returns alerts and state, venture-preflight.mjs changepoint-detector: preflight clean. No real Google Sheet read (Playwright answered the CORS link).",
+  "corrections": [],
+  "redteam": null
+}

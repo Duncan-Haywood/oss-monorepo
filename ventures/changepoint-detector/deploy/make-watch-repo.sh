@@ -15,7 +15,7 @@ get() { # get <path in the venture> <destination>
 }
 if [ -e "$DEST" ] && [ -n "$(ls -A "$DEST" 2>/dev/null)" ]; then echo "$DEST exists and is not empty" >&2; exit 1; fi
 mkdir -p "$DEST/.github/workflows" "$DEST/data"
-for f in watch.mjs engine.mjs example-data.mjs slope-breaks.mjs ramps.mjs update-rate.mjs LICENSE; do get "$f" "$DEST/$f"; done
+for f in watch.mjs watch-core.mjs engine.mjs example-data.mjs slope-breaks.mjs ramps.mjs update-rate.mjs LICENSE; do get "$f" "$DEST/$f"; done
 get deploy/watch-metric.yml "$DEST/.github/workflows/watch-metric.yml"
 
 printf '{ "type": "module" }\n' > "$DEST/package.json"
