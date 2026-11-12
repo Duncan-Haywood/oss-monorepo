@@ -4,6 +4,16 @@ them into that same interpreter if none can.
 
     PY=$(python3 platform/ci/pyenv.py pytest numpy) && "$PY" -m pytest ...
     PY=$(python3 platform/ci/pyenv.py pytest -r requirements.txt)   # a project's whole list
+    PY=$(python3 platform/ci/pyenv.py --for research/marine-hull)   # what its .py files import
+
+`--for DIR` reads every .py file under DIR and asks for the third-party modules
+they import (stdlib, relative imports, imports inside `try:` and modules the
+repository itself holds are left out), plus pytest; point it at a subfolder
+(`DIR/tests`) to skip, say, a data fetcher's heavy imports. Only 5 of 1,083
+research projects carry a requirements.txt, and runs kept naming too few
+modules by hand (doc friction 2026-11-12: `pyenv.py pytest` returned an
+interpreter without numpy for marine-hull; `pytest numpy matplotlib` one
+without scikit-learn).
 
 When the pip name and the import name differ and are not in PIP_NAMES, pass
 `pip-name:module` (e.g. `OpenDSSDirect.py:opendssdirect`).
@@ -275,12 +285,76 @@ def read_requirements(path):
     return names
 
 
+SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "site-packages", "build", "dist"}
+
+
+def _local_names(stop):
+    """Module names the repository itself provides: every .py stem and every
+    folder holding a .py file under `stop`. Scripts reach siblings with
+    sys.path.insert (research/_shared/linefig, ../mimic-loop/core), so a name
+    found anywhere in the tree is not a pip package. None of the common
+    third-party names (numpy, scipy, torch, yaml, ...) occur as one (2026-11-12)."""
+    names = set()
+    for root, dirs, files in os.walk(stop):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith(".")]
+        py = [f for f in files if f.endswith(".py")]
+        if py:
+            names.add(os.path.basename(root))
+            names.update(f[:-3] for f in py)
+    return names
+
+
+def project_imports(directory, stop=None):
+    """Third-party top-level modules imported by the .py files under `directory`,
+    sorted. Optional imports (inside a `try:` body) are dropped, as a script that
+    guards an import runs without it."""
+    import ast
+    stop = stop or os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    stdlib = set(getattr(sys, "stdlib_module_names", ())) | {"__future__"}
+    local = _local_names(stop)
+    found = set()
+    for root, dirs, files in os.walk(directory):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith(".")]
+        for f in files:
+            if not f.endswith(".py"):
+                continue
+            try:
+                tree = ast.parse(open(os.path.join(root, f), encoding="utf-8", errors="replace").read())
+            except (SyntaxError, ValueError, OSError):
+                continue
+            guarded = set()
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Try):
+                    for inner in node.body:
+                        guarded.update(id(n) for n in ast.walk(inner))
+            for node in ast.walk(tree):
+                if id(node) in guarded:
+                    continue
+                if isinstance(node, ast.Import):
+                    found.update(a.name.split(".")[0] for a in node.names)
+                elif isinstance(node, ast.ImportFrom) and not node.level and node.module:
+                    found.add(node.module.split(".")[0])
+    return sorted(m for m in found if m not in stdlib and m not in local and not m.startswith("_"))
+
+
 def expand_args(args):
-    """Replace `-r FILE` pairs with the file's names; other `-` args stay."""
+    """Replace `-r FILE` pairs with the file's names and `--for DIR` with what
+    DIR's code imports (plus pytest); other `-` args stay."""
     out, it = [], iter(args)
     for a in it:
         if a == "-r":
             out += read_requirements(next(it, os.devnull))
+        elif a == "--for":
+            d = next(it, None)
+            if not d or not os.path.isdir(d):
+                print(f"pyenv: --for needs a directory, got {d!r}", file=sys.stderr)
+                out.append("--for")
+                continue
+            mods = project_imports(d)
+            print(f"pyenv: {d} imports {', '.join(mods) or 'nothing outside the stdlib'}", file=sys.stderr)
+            for m in ["pytest"] + mods:
+                if m not in out:
+                    out.append(m)
         else:
             out.append(a)
     return out

@@ -4,6 +4,7 @@ import stat
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 import pyenv
@@ -270,6 +271,29 @@ class T(unittest.TestCase):
                              ["scipy", "numpy", "torch", "cadquery", "pytest"])
         finally:
             os.unlink(f.name)
+
+    def test_for_dir_lists_third_party_imports_only(self):
+        # 2026-11-12: runs named too few modules by hand (numpy, scikit-learn missing)
+        with tempfile.TemporaryDirectory() as repo:
+            proj = Path(repo, "research", "proj")
+            (proj / "pkg").mkdir(parents=True)
+            (proj / "pkg" / "__init__.py").write_text("")
+            Path(repo, "research", "_shared").mkdir()
+            Path(repo, "research", "_shared", "linefig.py").write_text("")
+            (proj / "run.py").write_text(
+                "import os, json\nimport numpy as np\nfrom sklearn.linear_model import Ridge\n"
+                "from . import x\nimport pkg.sub\nfrom linefig import write\n"
+                "try:\n    import torch\nexcept ImportError:\n    torch = None\n"
+                "def f():\n    import scipy.stats\n")
+            (proj / "broken.py").write_text("def (:\n")
+            self.assertEqual(pyenv.project_imports(str(proj), stop=repo), ["numpy", "scipy", "sklearn"])
+
+    def test_for_dir_expands_with_pytest_once(self):
+        with tempfile.TemporaryDirectory() as d:
+            Path(d, "t.py").write_text("import pytest\nimport numpy\n")
+            with unittest.mock.patch.object(pyenv, "project_imports", return_value=["numpy", "pytest"]):
+                self.assertEqual(pyenv.expand_args(["--for", d]), ["pytest", "numpy"])
+        self.assertEqual(pyenv.expand_args(["--for", "/no/such/dir"]), ["--for"])
 
     def test_install_starts_with_the_interpreter_missing_fewest(self):
         # 2026-11-10: pip ran on PATH's python3 and 3.12 for 10+ min while 3.13 lacked one module
