@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVMkup9ENxRVhQxrxL4",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled routine 4: continue work on the repo (revenue products); routed to creative/0",
+  "input_sha256": "dc65aa540f0c7ce0ab0b4973118bdeec86e921c5c02475c1c38f9d693738fdf9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T11:02:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 15100,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The For Other Minds 'next up' proposal (diocesan baptism registers, a misread hand) nearly duplicates the finished The Crossed Sevens; flagged in the bible."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The scheduled prompt asks for revenue products, but the router drew creative. Followed the router, since the owner designed the weighting for exactly this prompt.",
+      "did": "creative track, Little Lamps story",
+      "result": "story landed"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, Little Lamps shelf. Piece: damien-and-the-houses-by-the-sea (Saint Damien of Molokai), text only because committed audio is 423 MB > 400 MB cap. Verification: node --test in ventures/hearth-and-horizon, 15 pass 0 fail. Weekday and Easter dates checked with code. Added a Josephine Bakhita proposal. Post: docs/posts/2026-11-12-damien-of-molokai-little-lamps.md.",
+  "corrections": [],
+  "redteam": null
+}
