@@ -41,6 +41,10 @@
     {
       "file": "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md",
       "issue": "No single place says which selector the server runs by default; found it only in the prisma comment and trials/next route (PAIR_SELECTOR unset = standard)."
+    },
+    {
+      "file": "platform/pages/percent-float.test.mjs",
+      "issue": "Scans gitignored ventures/*/.next build output, so venture-preflight fails after a local `npm run verify` (Next build) with minified chunks; deleting .next fixed it. The scan should skip .next/."
     }
   ],
   "deviations": [
@@ -56,7 +60,7 @@
     "ventures/quick-pick-survey/docs/REAL-RANKINGS.md (new section)"
   ],
   "goal": null,
-  "notes": "New scripts/real-favourite-set.ts (shared PrefLib loader moved to scripts/preflib.ts; realRankings.answerWithHistory). 36 cells x 200 people, both panels, both selectors, lapse 0/0.1/0.2, 2/4/8 answers per item: clear pick wrong 5 of 860, set coverage 97-100%, pooled sd at ceiling in 29/36, standard selector clear-pick rate 0.5-5.5% at 8/item vs staged 35-100% (#1 vs #2 asked 1.9 vs 8.7 times in 120 answers). Verification: npm run verify (typecheck, lint, 59 files / 481 tests, build) exit 0; check_post_frontmatter, check_post_links and post_similarity clean.",
+  "notes": "New scripts/real-favourite-set.ts (shared PrefLib loader moved to scripts/preflib.ts; realRankings.answerWithHistory). 36 cells x 200 people, both panels, both selectors, lapse 0/0.1/0.2, 2/4/8 answers per item: clear pick wrong 5 of 860, set coverage 97-100%, pooled sd at ceiling in 29/36, standard selector clear-pick rate 0.5-5.5% at 8/item vs staged 35-100% (#1 vs #2 asked 1.9 vs 8.7 times in 120 answers). Verification: npm run verify (typecheck, lint, 59 files / 481 tests, build) exit 0; check_post_frontmatter, check_post_links and post_similarity clean. venture-preflight quick-pick-survey: clean (after removing the local .next build output, see doc_friction).",
   "corrections": [],
   "redteam": null,
   "usage": {
