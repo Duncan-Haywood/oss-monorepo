@@ -144,6 +144,9 @@ easy failure is grading the README instead of the thing. So:
   not write.
 - **Seed one bug.** Change one comparison or constant in the core logic,
   run the tests, record whether they caught it, revert.
+  On Python, set `PYTHONDONTWRITEBYTECODE=1` (or delete `__pycache__` after
+  reverting): a revert of the same size in the same second leaves the mutated
+  `.pyc` in use, and later runs read the bug, not the file (round 45).
 - **Name the professional.** Write who the senior reviewer is ("a licensed
   structural engineer", "a payroll specialist") and what they would check
   first, then check that.

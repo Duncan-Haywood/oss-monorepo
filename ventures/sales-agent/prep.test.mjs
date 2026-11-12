@@ -69,3 +69,16 @@ test("an unknown address says nothing is on file and invents nothing", () => {
   assert.equal(d.known.length, 0);
   assert.match(d.brief, /Nothing is on file/);
 });
+
+// Red team 2026-11-12: four details of the brief no test pinned.
+test("brief details: the quote starts at their first sentence, call dates drop the time, 'by Q1' is a timeline, and a known person is not 'nothing on file'", () => {
+  const d = run("dana@brightline.example", { calls: [{ email: "dana@brightline.example", step: "3", outcome: "no_answer", date: "2026-10-22T15:04:00Z" }] });
+  assert.match(d.history[0].quote, /^Yes, interested\./);
+  assert.equal(d.calls[0].date, "2026-10-22");
+  assert.match(d.brief, /- 2026-10-22 \(step 3\)/);
+  assert.doesNotMatch(run("dana@brightline.example").brief, /Nothing is on file/, "facts and replies on file, no calls yet");
+  const q1 = THREAD.replace("Our budget is set for Q1.", "We need this running by Q1.");
+  const t = run("dana@brightline.example", { replies: q1 }).known.find((k) => k.field === "Timeline");
+  assert.ok(t, "a Timeline is known from 'by Q1'");
+  assert.match(t.evidence, /by Q1/);
+});

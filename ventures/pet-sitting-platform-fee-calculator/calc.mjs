@@ -54,7 +54,7 @@ export function analyze(raw) {
   const o = { ...DEFAULTS, ...raw };
   const warnings = [];
   for (const k of Object.keys(DEFAULTS)) {
-    if (!Number.isFinite(o[k])) warnings.push(`${k} must be a number.`);
+    if (!Number.isFinite(o[k])) warnings.push(`${k} must be a number (a blank field is not read as 0 or as the example: type 0 for none).`);
     else if (o[k] < 0) warnings.push(`${k} cannot be negative.`);
   }
   if (warnings.length) return { opts: o, warnings, result: null };

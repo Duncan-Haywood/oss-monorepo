@@ -50,12 +50,14 @@ def size(L, D, alpha=0.0, tilt_loss=0.0, kappa_per_d=None, twr=None, actuator="p
     if actuator != "prior":   # per-axis limits from the full four-rotor allocation (allocation.closed_form; checked against a linear programme in tests)
         from .allocation import closed_form
         tau_max, tau_yaw, _ = closed_form(alpha, L, kappa, T_hover, Tmax, actuator)
+    P_hover = 4 * T_hover ** 1.5 / np.sqrt(2 * RHO * np.pi * D ** 2 / 4) / (FM * ETA * (1 - tilt_loss * sa ** 2))   # electrical hover power, W (milestone 2 prices it)
     lag = 0.015 * (D / 0.127) ** 1.5
     cost = 4 * 12.0 * (Tmax / 9.0) ** 1.1 + 0.35 * wh + 60 * (0.05 + 0.8 * L) + 25.0
     area = 0.02 + 0.5 * L ** 2
     feasible = (np.sqrt(2) * L >= 1.05 * D) & (cost <= COST_CAP)
     return dict(mass=m, wh=wh, inertia=inertia, tau_max=tau_max, tau_yaw=tau_yaw, alpha=alpha, lag=lag, cost=cost,
-                area=area, lever=0.05 + 0.3 * L, feasible=feasible, L=L, D=D)
+                area=area, lever=0.05 + 0.3 * L, feasible=feasible, L=L, D=D, power=P_hover, T_hover=T_hover, Tmax=Tmax,
+                kr=L * ca - kappa * sa, ky=L * sa + kappa * ca)
 
 
 def gains_from_unit(u):
@@ -84,8 +86,10 @@ def plant_draw(kind, episodes, seed):
     return {k: rng.uniform(*PLANT_RANGES[kind][k], size=episodes) for k in ("tau", "mass", "lag")}
 
 
-def rollout(sz, gains, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", iz_ratio=None, kappa_scale=1.0, ref_scale=1.0, diag=None):
-    """gains: (N,6) physical PID [kp,kd,ki roll/pitch; kp,kd,ki yaw].
+def rollout(sz, gains, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", iz_ratio=None, kappa_scale=1.0, ref_scale=1.0, diag=None, mixer="box", sat=None):
+    """mixer="box": each axis clipped to its own pure-torque limit (milestones 0-1); "prio" or "prio_free": the request is
+    passed through allocation.mix_priority (one shared thrust polytope, roll and pitch first; collective held or free).
+    gains: (N,6) physical PID [kp,kd,ki roll/pitch; kp,kd,ki yaw].
     Returns combined RMS attitude error over the three axes (deg) per design, and per-axis RMS (N,3)."""
     iz_ratio = IZ_RATIO if iz_ratio is None else iz_ratio
     ref, gust_n, gyro_n, ang_n, u0 = reference(episodes, seed, ref_scale)
@@ -105,6 +109,9 @@ def rollout(sz, gains, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="w
     v = gust_mean + gust_std * u0.T[None, :, :] + np.zeros((N, 1, 1))     # (N,2,E)
     v = np.transpose(v, (0, 2, 1))                                        # (N,E,2)
     a = np.exp(-DT / 0.5)
+    if mixer != "box":
+        from .allocation import mix_priority
+        mix_args = tuple(sz[k][:, None] for k in ("kr", "ky", "T_hover", "Tmax"))
     th = np.zeros((N, E, 3)); om = np.zeros((N, E, 3)); tq = np.zeros((N, E, 3)); integ = np.zeros((N, E, 3))
     th_prev = np.zeros((N, E, 3)); om_prev = np.zeros((N, E, 3))
     sse = np.zeros((N, E, 3)); alive = np.ones((N, E), bool)
@@ -116,7 +123,15 @@ def rollout(sz, gains, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="w
         u = kp * e - kd * gy + ki * integ
         if diag is not None:      # peak share of the plant's torque limit taken by the gyroscopic term, per design
             diag[:] = np.maximum(diag, (np.abs(np.cross(om, I * om)) / tmax).max(axis=(1, 2)))
-        cmd = np.clip(u, -1, 1) * tmax
+        if mixer == "box":
+            cmd = np.clip(u, -1, 1) * tmax
+        else:
+            req = np.clip(u, -1, 1) * tmax_nom[:, None, :]
+            mixed, s_rp, s_y = mix_priority(req, *mix_args, mode="hover" if mixer == "prio" else "free")
+            cmd = mixed * pl["tau"][None, :, None]
+            if sat is not None:   # share of steps with roll/pitch (column 0) or yaw (column 1) scaled down, per design
+                sat[:, 0] += (s_rp < 1 - 1e-9).mean(axis=1) / STEPS
+                sat[:, 1] += (s_y < 1 - 1e-9).mean(axis=1) / STEPS
         tq += (cmd - tq) * (DT / lag)
         tq = np.clip(tq, -tmax, tmax)
         om_prev, th_prev = om, th
@@ -137,7 +152,8 @@ def rollout(sz, gains, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="w
     return np.sqrt((axis ** 2).mean(axis=1)), axis
 
 
-def score(x_design, gains_unit, episodes=8, seed=0, gust_std=4.0, plant="wide", iz_ratio=None, kappa_scale=1.0, ref_scale=1.0, per_axis=False, diag=None, alpha_max=ALPHA_MAX, tilt_loss=0.0, kappa_per_d=None, twr_free=False, twr_max=None, actuator="prior"):
+def score(x_design, gains_unit, episodes=8, seed=0, gust_std=4.0, plant="wide", iz_ratio=None, kappa_scale=1.0, ref_scale=1.0, per_axis=False, diag=None, alpha_max=ALPHA_MAX, tilt_loss=0.0, kappa_per_d=None, twr_free=False, twr_max=None, actuator="prior", mixer="box", lam=0.0, sat=None):
+    """J = -(held-out RMS attitude error, deg) - lam * hover power / 100 W; -99 when infeasible. lam (deg per 100 W) prices energy (milestone 2)."""
     x_design = np.atleast_2d(x_design)
     L = L_RANGE[0] + x_design[:, 0] * (L_RANGE[1] - L_RANGE[0])
     D = D_RANGE[0] + x_design[:, 1] * (D_RANGE[1] - D_RANGE[0])
@@ -147,6 +163,6 @@ def score(x_design, gains_unit, episodes=8, seed=0, gust_std=4.0, plant="wide", 
     sz['twr'] = np.broadcast_to(TWR if twr is None else twr, L.shape)
     g = np.atleast_2d(gains_unit)
     phys = np.concatenate([gains_from_unit(g[:, 0:3]), gains_from_unit(g[:, 3:6])], axis=1)
-    rms, axis = rollout(sz, phys, episodes, seed, gust_std, plant=plant, iz_ratio=iz_ratio, kappa_scale=kappa_scale, ref_scale=ref_scale, diag=diag)
-    J = np.where(sz["feasible"], -rms, -99.0)
+    rms, axis = rollout(sz, phys, episodes, seed, gust_std, plant=plant, iz_ratio=iz_ratio, kappa_scale=kappa_scale, ref_scale=ref_scale, diag=diag, mixer=mixer, sat=sat)
+    J = np.where(sz["feasible"], -rms - lam * sz["power"] / 100.0, -99.0)
     return (J, sz, axis) if per_axis else (J, sz)

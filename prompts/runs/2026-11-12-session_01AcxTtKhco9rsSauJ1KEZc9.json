@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtKhco9rsSauJ1KEZc9",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T05:07:05Z",
+  "ended": "2026-11-12T05:20:26Z",
+  "wall_minutes": 13.74,
+  "tokens_in": 12945305,
+  "tokens_out": 130097,
+  "cost_usd": 7.8982,
+  "tool_calls": 156,
+  "task": "quality round 45 (mode sample, seed 2026-11-12-d)",
+  "projects": [
+    "ventures/pet-sitting-platform-fee-calculator",
+    "ventures/cobra-vs-marketplace-calculator",
+    "research/osrobot-dof",
+    "research/infra-transformer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15012",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 18,
+  "outcome": "success",
+  "errors": [
+    "One auditor's mutation revert left a stale __pycache__ .pyc (same size, same second), so my rerun of its confound script printed tip_mass(2)=0.178 instead of 0.628; cleared the cache and reran everything with PYTHONDONTWRITEBYTECODE=1.",
+    "First push blocked by the post front-matter hook: seo_title 83 > 70 chars; shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "'Seed one bug' did not warn that on Python a same-size revert within one second keeps the mutated .pyc in use; cost a confusing rerun. Added the PYTHONDONTWRITEBYTECODE note."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Says the draw includes one flagship and one platform directory; on the 4th round of the day both strata were empty (7-day / 90-day skips), so rounds shrink to 4 subjects. Not wrong, but the prompt's description no longer matches a typical late-day draw."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-quality-audit-round-45.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-12-d, round 45, mode sample (9 high defects open). Subjects: ventures/pet-sitting-platform-fee-calculator, ventures/cobra-vs-marketplace-calculator, research/osrobot-dof, research/infra-transformer. 0 of 4 meet the bar; sampled share now 28/194 (Wilson 10-20%). Seeded bugs caught 8/25. Fix PR: #15012 (same PR) for all four: COBRA exact break-even verdict (no false 'always cheaper'), plan-year reset note; pet-sitting 5 pinning tests, blank-field error, Wag label; osrobot-dof gain-confound disclosure + pinned closed-form masses; infra-transformer off-rated thermal tests + headline caveat + prior work. Spot-checks by the lead: pet-sitting defaults by hand (32, 39.395, 7.44, 949.37); COBRA both CLI outputs rerun; osrobot closed-form 0.628 and fixed-gain counterfactual 4.00/4.07/4.25 rerun, 4 surviving mutations re-confirmed; infra 171.76 C by hand and the 49 h / 207 C / 92% figure recomputed. Mutations re-run after fixes: pet 2/2 checked now fail; cobra 2/2; osrobot 4/4; infra 4/4 (smart <= still untested). Local checks: node --test in both ventures (28 and 27 pass), unittest osrobot-dof 9 OK, pytest infra-transformer 11 passed, quality_audit validate 0 problems.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "607d6f8f-15aa-5946-acd2-45d53e86ef9e",
+    "transcripts": 5,
+    "first": "2026-11-12T05:07:05Z",
+    "last": "2026-11-12T05:20:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 141,
+        "input": 285,
+        "output": 130097,
+        "thinking": 35350,
+        "cache_read": 12462941,
+        "cache_write_5m": 351359,
+        "cache_write_1h": 130720,
+        "api_equivalent_usd": 7.8982,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 141,
+      "input": 285,
+      "output": 130097,
+      "thinking": 35350,
+      "cache_read": 12462941,
+      "cache_write_5m": 351359,
+      "cache_write_1h": 130720,
+      "api_equivalent_usd": 7.8982,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.963,
+    "tool_calls": 156,
+    "tools": {
+      "Bash": 127,
+      "WebFetch": 13,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "ToolSearch": 3,
+      "WebSearch": 3,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.74,
+      "active_minutes": 11.01,
+      "model_minutes": 7.77,
+      "tool_minutes": 3.24,
+      "waiting_on_human_minutes": 2.73,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 17.53
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "four independent professional audits (~3 h each incl. recomputation) plus fixes and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 177.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

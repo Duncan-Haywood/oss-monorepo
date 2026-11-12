@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKj6Bup9zk1J5sKsoiG",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T05:09:15Z",
+  "ended": "2026-11-12T05:18:18Z",
+  "wall_minutes": 9.38,
+  "tokens_in": 3733259,
+  "tokens_out": 28965,
+  "cost_usd": 2.1049,
+  "tool_calls": 40,
+  "task": "Deepen flagship changepoint-detector: the open 'stale feed moving about one tick' item (rounding vs staleness)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15014",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "Monitor called without loading its schema first (InputValidationError); relied on the background-task notification instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "Each section ends with its own 'Next:' and the flagships.yaml next: repeats them in one long sentence; finding the current open item took reading three sections."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "The landed slice is a pre-registered negative result (two rounds failed), not a user-facing feature.",
+      "did": "Shipped the statistic as a descriptive number, the setting off, both evals, tests and README; did not run a third tuning round.",
+      "result": "The trade-off is now measured (90% power at 5-6% false calls, or 1.5% false at about 80%), and the next run knows not to retry this statistic at n 300."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-is-it-stale-or-just-rounded.md",
+    "ventures/changepoint-detector/README.md (One-tick stale feeds: the catch-up check)"
+  ],
+  "goal": null,
+  "notes": "Round one rule committed in 344f58cb3 before seed 20261213 ran: K1 failed (R3 6.0%, bar 5%). Round two rule committed before calibration seed 2 and confirmation seed 20261214 ran: picked runs 3+/ratio 1.8; K2 failed (T1 79.5%, bar 80%). CATCHUP.ratio = Infinity, so user-facing text is unchanged. Local checks: update-rate-catchup.test.mjs 5/5; full suite via run_venture_tests.py changepoint-detector (result in PR); post frontmatter, links, similarity pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1f63d887-9898-5356-aa57-e2303790061c",
+    "transcripts": 1,
+    "first": "2026-11-12T05:09:15Z",
+    "last": "2026-11-12T05:18:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 74,
+        "output": 28965,
+        "thinking": 6716,
+        "cache_read": 3633351,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99834,
+        "api_equivalent_usd": 2.1049,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 74,
+      "output": 28965,
+      "thinking": 6716,
+      "cache_read": 3633351,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99834,
+      "api_equivalent_usd": 2.1049,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.38,
+      "active_minutes": 9.38,
+      "model_minutes": 5.77,
+      "tool_minutes": 3.61,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, two pre-registered sims, tests and write-up for a statistician",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 285.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVMBoFxVA1o7Rhd9GLv",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (standing ventures brief)",
+  "input_sha256": "8fb852fa69e8fadcd87253901ee86f75fb0c18ee7f97afe19777b4f07d31e01c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T04:56:27Z",
+  "ended": "2026-11-12T05:11:53Z",
+  "wall_minutes": 15.63,
+  "tokens_in": 8129601,
+  "tokens_out": 51290,
+  "cost_usd": 3.7389,
+  "tool_calls": 69,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15011",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First by-hand render test forgot the encoder's [0,1] clip on out-of-gamut sRGB; fixed in the test.",
+    "Post front matter over the preflight's 160/70-character limits on first try; shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The plain route draw sent this scheduled ventures brief to creative; only --task with the brief's text routed it to ventures. The standing scheduled prompt should pass --task by default."
+    },
+    {
+      "file": "ventures/photo-editing/tests/test_workspace_health.py",
+      "issue": "test_unreadable_render_input_is_reported_for_review fails when the suite runs as root (cloud containers), on main as well; it should skip when os.geteuid()==0."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The system ruff (0.16.9) reports 123 errors that the pinned CI ruff (0.15.8) does not, and mypy fails on numpy's stubs unless run in a venv without numpy (CI lint has none). Worth a line on running the pinned versions in a clean venv."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed with --task (the scheduled brief asks for revenue/ventures work) instead of taking the weighted draw's creative track",
+      "did": "ventures/1, flagship photo-editing (allocate.py's pick)",
+      "result": "landed the flagship's BUILDABLE HERE item"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-contrast-curve-that-keeps-hue.md",
+    "ventures/photo-editing/eval/tone-curve-2026-11-12.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: photo-editing suite 603 passed, 1 skipped, 1 pre-existing root-only failure; ruff 0.15.8 and mypy 1.19.1 clean; tools/dcp_check.py on 161 RawTherapee DCPs exit 0; real 5D Mark II frame numpy==python bytes. venture-preflight rerun after front-matter fix.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "454c0038-8508-5501-b42f-bb1f5e5b1aca",
+    "transcripts": 1,
+    "first": "2026-11-12T04:56:27Z",
+    "last": "2026-11-12T05:12:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 121,
+        "output": 51290,
+        "thinking": 12509,
+        "cache_read": 7990157,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139323,
+        "api_equivalent_usd": 3.7389,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 121,
+      "output": 51290,
+      "thinking": 12509,
+      "cache_read": 7990157,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139323,
+      "api_equivalent_usd": 3.7389,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 66,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.63,
+      "active_minutes": 15.63,
+      "model_minutes": 10.14,
+      "tool_minutes": 5.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "spline + hue-preserving tone + numpy port + tests + 161-profile and real-frame evaluation, estimated for a senior imaging engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 267.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

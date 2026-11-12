@@ -369,6 +369,62 @@ def _table_apply(table, r, g, b):
     return np.where(grey, v, ro), np.where(grey, v, go), np.where(grey, v, bo)
 
 
+# dng_colour.rgb_tone's seven orderings, in its order of tests: for each, the
+# (largest, middle, smallest) channel; the middle one is placed between the
+# other two after the curve, except in case 3 (r >= g == b) where it takes the
+# smallest one's value.
+_TONE_ORDER = np.array([(0, 1, 2), (2, 0, 1), (0, 2, 1), (0, 2, 1), (1, 0, 2), (2, 1, 0), (1, 2, 0)])
+
+
+def _tone_lookup(curve, x):
+    """``dng_colour.ToneCurve.__call__`` on an array."""
+
+    table = np.asarray(curve.table, dtype=np.float64)
+    steps = len(table) - 2
+    x = np.clip(x, 0.0, 1.0)
+    y = x * steps
+    i = y.astype(np.int64)
+    np.clip(i, 0, steps, out=i)
+    f = y - i
+    t0 = table[i]
+    return t0 + f * (table[i + 1] - t0)
+
+
+def rgb_tone(curve, r, g, b):
+    """``dng_colour.rgb_tone`` on arrays, case for case."""
+
+    r, g, b = np.broadcast_arrays(np.asarray(r, dtype=np.float64), np.asarray(g, dtype=np.float64), np.asarray(b, dtype=np.float64))
+    case = np.select(
+        [
+            (r >= g) & (g > b),
+            (r >= g) & (b > r),
+            (r >= g) & (b > g),
+            (r >= g),
+            (r >= b),
+            (b > g),
+        ],
+        [0, 1, 2, 3, 4, 5],
+        6,
+    )
+    chans = np.stack([r, g, b])
+    order = _TONE_ORDER[case]  # (..., 3)
+    hi_i, mid_i, lo_i = (np.moveaxis(order, -1, 0)[k][None] for k in range(3))
+    hi = np.take_along_axis(chans, hi_i, 0)[0]
+    mid = np.take_along_axis(chans, mid_i, 0)[0]
+    lo = np.take_along_axis(chans, lo_i, 0)[0]
+    big = _tone_lookup(curve, hi)
+    small = _tone_lookup(curve, lo)
+    span = hi - lo
+    safe = np.where(span > 0, span, 1.0)
+    placed = small + (big - small) * (mid - lo) / safe
+    middle = np.where(case == 3, small, placed)
+    out = np.empty_like(chans)
+    np.put_along_axis(out, lo_i, small[None], 0)
+    np.put_along_axis(out, mid_i, middle[None], 0)
+    np.put_along_axis(out, hi_i, big[None], 0)
+    return out[0], out[1], out[2]
+
+
 def apply_look(look, r, g, b):
     """``dng_colour.ProfileLook.apply`` on arrays."""
 
@@ -379,6 +435,8 @@ def apply_look(look, r, g, b):
     r, g, b = _pin(r), _pin(g), _pin(b)
     if look.look_table is not None:
         r, g, b = _table_apply(look.look_table, r, g, b)
+    if look.tone is not None:
+        r, g, b = rgb_tone(look.tone, r, g, b)
     m = look.out
     return (
         m[0][0] * r + m[0][1] * g + m[0][2] * b,

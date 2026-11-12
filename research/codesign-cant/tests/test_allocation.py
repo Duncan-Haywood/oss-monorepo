@@ -74,3 +74,70 @@ def test_prior_actuator_reproduces_parent_size():
     assert p["tau_yaw"] == pytest.approx(2 * (2 - 1) * (p["mass"] * aero.G / (4 * np.cos(np.deg2rad(20)))) * (0.081 * 0.12 * np.cos(np.deg2rad(20)) + r * np.sin(np.deg2rad(20))))
     assert h["mass"] == pytest.approx(p["mass"]) and h["cost"] == pytest.approx(p["cost"])
     assert h["tau_yaw"] > 2 * p["tau_yaw"]
+
+
+# ---- milestone 2: attitude-priority mixer on the shared thrust polytope ----
+
+def _thrusts(tau, a, L, k, Th, Tm, mode):
+    kr, ky = A.arms(a, L, k)
+    out, s_rp, s_y = A.mix_priority(tau[None], kr, ky, Th, Tm, mode)
+    dT = A.thrust_change(out, kr, ky)[0]
+    if mode == "free":                       # centre the spread inside [0, Tmax]
+        dT = dT - (dT.max() + dT.min()) / 2 + Tm / 2 - Th
+    return out[0], s_rp[0], s_y[0], Th + dT
+
+
+def test_thrust_change_reproduces_layout_rows():
+    for a, L, k, Th, Tm in random_designs(40, seed=3):
+        kr, ky = A.arms(a, L, k)
+        tau = np.random.default_rng(1).normal(size=3)
+        dT = A.thrust_change(tau, kr, ky)
+        B = A.layout(a, L, k)
+        assert B[3:] @ dT == pytest.approx(tau, abs=1e-9)
+        assert B[2] @ dT == pytest.approx(0, abs=1e-9)
+
+
+@pytest.mark.parametrize("mode", ["hover", "free"])
+def test_mixer_respects_thrust_bounds_and_is_maximal(mode):
+    rng = np.random.default_rng(7)
+    for a, L, k, Th, Tm in random_designs(80, seed=5):
+        roll, yaw, _ = A.closed_form(a, L, k, Th, Tm, mode)
+        tau = rng.uniform(-1, 1, 3) * np.array([roll, roll, yaw]) * rng.uniform(0.2, 1.5)
+        out, s_rp, s_y, T = _thrusts(tau, a, L, k, Th, Tm, mode)
+        B = A.layout(a, L, k)
+        assert T.min() >= -1e-9 and T.max() <= Tm + 1e-9
+        assert B[3:] @ T == pytest.approx(out, abs=1e-9)
+        if mode == "hover":
+            assert B[2] @ T == pytest.approx(4 * Th * np.cos(a), rel=1e-9)
+        # maximal: 0.1% more of the scaled-down part leaves the polytope
+        if s_rp < 1:
+            bigger = tau.copy(); bigger[2] = 0; bigger[:2] *= s_rp + 1e-3
+            assert not _feasible(bigger, a, L, k, Th, Tm, mode)
+        if s_y < 1:
+            bigger = out.copy(); bigger[2] = tau[2] * min(s_y + 1e-3, 1.0)
+            assert not _feasible(bigger, a, L, k, Th, Tm, mode)
+
+
+def _feasible(tau, a, L, k, Th, Tm, mode):
+    kr, ky = A.arms(a, L, k)
+    dT = A.thrust_change(tau, kr, ky)
+    if mode == "free":
+        return dT.max() - dT.min() <= Tm + 1e-12
+    return (Th + dT).min() >= -1e-12 and (Th + dT).max() <= Tm + 1e-12
+
+
+def test_pure_axis_requests_at_the_closed_form_limit_pass_unchanged():
+    for a, L, k, Th, Tm in random_designs(40, seed=9):
+        for mode in ("hover", "free"):
+            roll, yaw, _ = A.closed_form(a, L, k, Th, Tm, mode)
+            for tau in (np.array([roll, 0, 0]), np.array([0, -roll, 0]), np.array([0, 0, yaw])):
+                out = _thrusts(tau * (1 - 1e-12), a, L, k, Th, Tm, mode)[0]
+                assert out == pytest.approx(tau, rel=1e-9, abs=1e-12)
+
+
+def test_box_mixer_is_the_milestone_1_simulator():
+    x, g = np.full((3, 3), 0.5), np.full((3, 6), 0.5)
+    for act in ("prior", "hover"):
+        J0, _ = aero.score(x, g, 2, 0, actuator=act)
+        J1, _ = aero.score(x, g, 2, 0, actuator=act, mixer="box", lam=0.0)
+        assert np.array_equal(J0, J1)

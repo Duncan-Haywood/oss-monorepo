@@ -127,3 +127,116 @@ test("CLI --standard accepts fixed work", () => {
   // Monday 10:00 needs 1 + 30 + 60 = 91 minutes, so a second person comes in for the closing hour.
   assert.match(out, /Mon, 9:00, 11:00, 1/); assert.match(out, /Mon, 10:00, 11:00, 1/);
 });
+
+// Before opening and after closing (2026-11-12 later): the hour outside the trading day, doors shut.
+test("parseStandard reads before-open and after-close minutes in several spellings", () => {
+  assert.deepEqual(parseStandard("1/ticket + 20/before-open + 45/after-close"), { ticket: 1, sale: 0, item: 0, beforeOpen: 20, afterClose: 45 });
+  assert.deepEqual(parseStandard("10 min pre open, 30 after closing, 5/post-close, 4/before opening"), { ticket: 0, sale: 0, item: 0, beforeOpen: 14, afterClose: 35 });
+  assert.deepEqual(parseStandard("30/close + 15/after close"), { ticket: 0, sale: 0, item: 0, close: 30, afterClose: 15 });
+  assert.equal(describeStandard(parseStandard("1/ticket + 20/before open + 45/after close")), "1 min a ticket + 20 min in the hour before opening + 45 min in the hour after closing");
+});
+
+test("after-close work lands in the hour after the last trading hour; a day ending at 23:00 keeps it in its last hour", () => {
+  const r = readSales(ITEMS, { standard: "2/ticket + 20/before-open + 45/after-close" });
+  const fixed = r.entries.filter((e) => e.fixed).map((e) => [e.hour, e.amount, e.outside]).sort((a, b) => a[0] - b[0]);
+  assert.deepEqual(fixed, [[7, 20, true], [13, 45, true]]);
+  assert.ok(r.notes.some((n) => /65 of them in the hour before opening or after closing/.test(n)), r.notes.join(" | "));
+  const late = readSales(["date,time,ticket", "2026-11-03,00:30,1", "2026-11-03,23:10,2"].join("\n"), { standard: "1/ticket + 20/before-open + 45/after-close" });
+  assert.deepEqual(late.entries.filter((e) => e.fixed).map((e) => [e.hour, e.amount, e.outside]).sort((a, b) => a[0] - b[0]), [[0, 20, false], [23, 45, false]]);
+  assert.ok(late.notes.some((n) => /on 2 day-ends the day reached 0:00 or midnight/.test(n)));
+});
+
+// Six Mondays trading 9:00-12:59, one ticket an hour.
+const MONDAYS = (() => {
+  const rows = ["date,time,ticket"];
+  for (let w = 0; w < 6; w++) {
+    const d = new Date(Date.UTC(2026, 9, 5 + 7 * w)).toISOString().slice(0, 10);
+    for (const h of [9, 10, 11, 12]) rows.push(`${d},${h}:10,${w}-${h}`);
+  }
+  return rows.join("\n");
+})();
+
+test("the closer stays on and the opener comes in early; /close keeps the same day", () => {
+  const plan = (std, minStaff = 1) => demandShifts(MONDAYS, { standard: std, splh: 60, minStaff, minShift: 1, maxShift: 8, halfLife: "none" }).shiftsText;
+  assert.equal(plan("1/ticket + 45/close"), "Mon, 9:00, 13:00, 1");
+  assert.equal(plan("1/ticket + 45/after-close"), "Mon, 9:00, 14:00, 1");
+  assert.equal(plan("1/ticket + 30/before-open + 45/after-close"), "Mon, 8:00, 14:00, 1");
+  // Minimum staff 2 is for the open shop: the shut hours get the heads their minutes need (1), not 2.
+  assert.equal(plan("1/ticket + 45/close", 2), "Mon, 9:00, 13:00, 2");
+  assert.equal(plan("1/ticket + 30/before-open + 45/after-close", 2), "Mon, 8:00, 14:00, 1\nMon, 9:00, 13:00, 1");
+  // 90 minutes after close is one person staying two hours (13:00 and 14:00), not two people for one (spread, later).
+  assert.equal(plan("1/ticket + 30/before-open + 90/after-close", 2), "Mon, 8:00, 15:00, 1\nMon, 9:00, 13:00, 1");
+});
+
+// Spread over hours, and the shut-hour minimum (2026-11-12, last): 90 minutes after close used to be 2 heads for the hour.
+test("shut-door work spills into the next hour at 60 minutes a person; before-open spills earlier", () => {
+  const r = readSales(MONDAYS, { standard: "1/ticket + 75/before-open + 90/after-close" });
+  const fixed = r.entries.filter((e) => e.fixed && e.key === "2026-10-5").map((e) => [e.hour, e.amount, e.outside]).sort((a, b) => a[0] - b[0]);
+  assert.deepEqual(fixed, [[7, 15, true], [8, 60, true], [13, 60, true], [14, 30, true]]);
+  // A crew of two (the shut-hour minimum) clears 120 minutes an hour: the 90 stays in one hour.
+  const two = readSales(MONDAYS, { standard: "1/ticket + 90/after-close", shutMin: 2 });
+  assert.deepEqual(two.entries.filter((e) => e.fixed && e.key === "2026-10-5").map((e) => [e.hour, e.amount]), [[13, 90]]);
+  // Exact: the minutes added are the minutes asked for, however they spread.
+  const sum = (x) => x.entries.reduce((a, e) => a + e.amount, 0);
+  assert.equal(sum(r) - sum(readSales(MONDAYS, { standard: "1/ticket" })), 6 * 165);
+});
+
+test("a day ending at 22:00 spills after-close work into 23:00 and keeps the rest there", () => {
+  const r = readSales(["date,time,ticket", "2026-11-03,22:10,1"].join("\n"), { standard: "1/ticket + 150/after-close" });
+  assert.deepEqual(r.entries.filter((e) => e.fixed).map((e) => [e.hour, e.amount, e.outside]), [[23, 150, true]]);
+  assert.ok(r.notes.some((n) => /on 1 day-end the day reached 0:00 or midnight/.test(n)), r.notes.join(" | "));
+});
+
+test("shut hours are planned at 60 minutes a person whatever the rate, and --shut-min 2 puts two on to lock up", () => {
+  const plan = (o) => demandShifts(MONDAYS, { standard: "1/ticket + 45/after-close", splh: 30, minShift: 1, maxShift: 8, halfLife: "none", ...o }).shiftsText;
+  // At 30 minutes a labor hour the open hours need 1 (1 ticket-minute); 45 shut-door minutes stay one person, not two.
+  assert.equal(plan({}), "Mon, 9:00, 14:00, 1");
+  assert.equal(plan({ shutMin: 2 }), "Mon, 9:00, 14:00, 1\nMon, 13:00, 14:00, 1");
+  assert.equal(plan({ minStaff: 2 }), "Mon, 9:00, 13:00, 1\nMon, 9:00, 14:00, 1");
+  assert.equal(plan({ minStaff: 2, shutMin: 2 }), "Mon, 9:00, 14:00, 2");
+  assert.equal(plan({ minStaff: 0 }), "Mon, 9:00, 14:00, 1"); // the work still needs someone
+  assert.throws(() => plan({ shutMin: 1.5 }), /doors shut must be a whole number/);
+});
+
+test("the backtest scores shut hours at 60 minutes a person and the shut-hour minimum: a steady shop is never short", () => {
+  for (const [std, shutMin] of [["1/ticket + 90/after-close", undefined], ["1/ticket + 90/after-close", 2], ["1/ticket + 75/before-open + 45/after-close", 2]]) {
+    const b = backtestSales(MONDAYS, { standard: std, splh: 30, minStaff: 1, shutMin, minShift: 1, warmup: 1, shifts: true });
+    assert.ok(b.weeks > 0);
+    assert.equal(b.methods[0].short, 0, `${std} ${shutMin}`); assert.equal(b.methods[0].over, 0, `${std} ${shutMin}`);
+  }
+});
+
+test("the priced cut never drops a shut-hour minimum: two lock up even when a 4-hour shortest shift makes the second closer dear", () => {
+  const plan = (o) => demandShifts(MONDAYS, { standard: "1/ticket + 45/after-close", splh: 60, minShift: 4, maxShift: 8, halfLife: "none", ...o });
+  const heads13 = (r) => r.days[0].shifts.filter(([a, b]) => a <= 13 && b > 13).length;
+  assert.equal(heads13(plan({})), 1);
+  assert.equal(heads13(plan({ shutMin: 2 })), 2);
+  assert.equal(heads13(plan({ shutMin: 2, shortCost: 0.2 })), 2); // even when a short hour is priced cheap
+  const b = backtestSales(MONDAYS, { standard: "1/ticket + 45/after-close", splh: 60, minStaff: 1, shutMin: 2, minShift: 4, warmup: 1, shifts: true });
+  assert.equal(b.methods[0].short, 0);
+});
+
+test("CLI --shut-min puts two on after close", () => {
+  const dir = mkdtempSync(join(tmpdir(), "srb-shut-"));
+  const f = join(dir, "s.csv");
+  writeFileSync(f, MONDAYS);
+  const run = (...a) => execFileSync(process.execPath, ["cli.mjs", "--from-sales", f, "--standard", "1/ticket + 45/after-close", "--min-shift", "1", "--half-life", "none", ...a], { cwd: import.meta.dirname, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  assert.match(run("--shut-min", "2"), /Mon, 13:00, 14:00, 1/);
+  assert.doesNotMatch(run(), /Mon, 13:00, 14:00/);
+});
+
+test("the backtest scores the shut hours the same way: no short or spare hour on a steady shop at minimum staff 2", () => {
+  for (const std of ["1/ticket + 45/after-close", "1/ticket + 30/before-open + 45/after-close"]) {
+    const b = backtestSales(MONDAYS, { standard: std, splh: 60, minStaff: 2, minShift: 1, warmup: 1, shifts: true });
+    assert.ok(b.weeks > 0);
+    assert.equal(b.methods[0].short, 0, std); assert.equal(b.methods[0].over, 0, std);
+  }
+});
+
+test("CLI --standard accepts after-close work", () => {
+  const dir = mkdtempSync(join(tmpdir(), "srb-after-"));
+  const f = join(dir, "s.csv");
+  writeFileSync(f, MONDAYS);
+  const out = execFileSync(process.execPath, ["cli.mjs", "--from-sales", f, "--standard", "1/ticket + 45/after-close", "--min-shift", "1", "--half-life", "none"], { cwd: import.meta.dirname, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  assert.match(out, /Mon, 9:00, 14:00, 1/);
+});

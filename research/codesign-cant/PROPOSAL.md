@@ -80,6 +80,9 @@ side-force costs, with intervals, on two simulators and measured component data.
   the 35 to 40° of the earlier steps. Refuted if the optimum stays above 25° at the median measured κ.
   Milestone 1 evidence (per-axis limits, attitude-only objective): the optimum stays at 31 to 37°, so H1
   is at risk; it is tested properly once the objective prices hover power (milestone 2).
+  Milestone 2 evidence (shared thrust polytope, attitude-priority mixer, hover power priced at 0 to 1 deg per 100 W,
+  best of three CMA-ES starts): the chosen cant stays at 28 to 37° in 9 of 10 seed-arms while hover power falls 5×.
+  H1 is refuted under this objective; it stays open only for a mission objective that prices power more steeply.
 - H2. Cant still lowers held-out attitude error against no cant at equal cost, paired by seed, at
   every measured κ percentile. Refuted if the paired 95% interval includes zero at the median κ.
 - H3. The side force (sin α / (L cos α − κ sin α) per unit roll torque) costs position-hold accuracy
@@ -118,7 +121,7 @@ hover-held, free collective), side force on or off, κ percentile.
 1. Audit the earlier steps' actuator model against the full allocation and rerun their co-design
    with corrected limits (this run).
 2. Attainable-torque polytope for combined commands in the simulator (replace the per-axis box),
-   and a mixer that prioritises attitude.
+   and a mixer that prioritises attitude (done 2026-11-12, with a price on hover power; `LOG.md`).
 3. Motor catalogue data (mass, max thrust with the chosen propeller, price) replacing the fits.
 4. INDI and geometric attitude baselines; 10 seeds per arm.
 5. RotorPy (or equivalent) with canted rotors; re-score the top designs; H5.

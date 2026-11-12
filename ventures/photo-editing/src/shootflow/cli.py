@@ -732,6 +732,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         colour=args.colour,
         dcp=read_dcp(args.dcp) if args.dcp else None,
         profile_tables=not args.no_profile_tables,
+        tone_curve=not args.no_tone_curve,
     )
     sources = [Path(p) for p in args.files]
     out_dir = Path(args.out)
@@ -1230,7 +1231,12 @@ def _build_parser() -> argparse.ArgumentParser:
     develop.add_argument(
         "--no-profile-tables",
         action="store_true",
-        help="Skip the profile's hue/saturation map and look table; matrices only.",
+        help="Skip the profile's hue/saturation map, look table and tone curve; matrices only.",
+    )
+    develop.add_argument(
+        "--no-tone-curve",
+        action="store_true",
+        help="Skip the profile's ProfileToneCurve and use the plain sRGB curve (the tables still apply).",
     )
 
     create_demo = subparsers.add_parser(

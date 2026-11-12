@@ -155,8 +155,8 @@ footer p{margin:.6rem 0}
 <tbody>
 <tr><td><code>INV-024</code></td><td>The payment IBAN is empty or is not text.</td><td>Provide the IBAN as text, or omit <code>payment.iban</code>.</td></tr>
 <tr><td><code>INV-025</code></td><td>The IBAN fails its published country checksum — a transposed digit is the usual cause, and it is the defect most likely to cost you a payment.</td><td>Correct the digits. This is a checksum test, not a bank lookup: a well-formed IBAN can still be the wrong account.</td></tr>
-<tr><td><code>INV-026</code></td><td>The payment BIC is empty or is not text.</td><td>Provide the BIC as text, or omit <code>payment.bic</code>.</td></tr>
-<tr><td><code>INV-027</code></td><td>The BIC's country does not match the IBAN's country.</td><td>Correct whichever is wrong so both agree, or omit the BIC.</td></tr>
+<tr><td><code>INV-026</code></td><td>The bank identifier (BT-86) is neither a BIC nor a national clearing code (3 to 11 digits, or an Indian IFSC), or it is a US routing number whose check digit fails.</td><td>Copy the BIC, sort code or routing number again from the bank's documents, or omit <code>payment.bic</code>.</td></tr>
+<tr><td><code>INV-027</code></td><td>The BIC's country does not match the IBAN's country, or a clearing code (sort code, BLZ, ABI) is not the bank code inside the IBAN.</td><td>Correct whichever is wrong so both agree, or omit the BIC.</td></tr>
 <tr><td><code>INV-030</code></td><td>The invoice names an IBAN but no remittance reference, so a buyer paying it has nothing to quote on the transfer.</td><td>Add <code>payment.remittance</code>, or omit the IBAN if payment is not by transfer.</td></tr>
 <tr><td><code>INV-031</code></td><td>The remittance reference is empty or is not text.</td><td>Provide it as text, or omit it.</td></tr>
 <tr><td><code>INV-044</code></td><td>The payment means code is empty or is not a documented UNCL&nbsp;4461 code.</td><td>Use a published code such as 30, 58, or 10, or omit <code>payment.means</code>.</td></tr>

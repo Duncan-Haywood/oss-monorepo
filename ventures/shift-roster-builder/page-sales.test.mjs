@@ -48,8 +48,11 @@ test("sales page: a labour standard option feeds minutes per ticket, sale and it
   const html = readFileSync(new URL("./shifts-from-sales.html", import.meta.url), "utf8");
   assert.match(html, /<option value="standard">minutes of work/);
   assert.match(html, /id="std"/);
-  assert.match(html, /\{ standard: \$\("#std"\)\.value \}/);
+  assert.match(html, /\{ standard: \$\("#std"\)\.value, shutMin: num\("#shutmin"\) \}/);
+  assert.match(html, /<label for="shutmin">Staff with the doors shut<\/label><input id="shutmin"/); // lone-worker rule
+  assert.match(html, /<code>90\/after-close<\/code> is one person staying two hours/);
   assert.match(html, /record\("sales_labour_standard"\)/);
   assert.match(html, /<code>10\/hour<\/code>[^<]*<code>30\/open<\/code>[^<]*<code>45\/close<\/code>/); // fixed work is explained beside the box
+  assert.match(html, /<code>20\/before-open<\/code>[^<]*<code>45\/after-close<\/code>/); // and work with the doors shut
   assert.match(html, /Minutes of work per labor hour/);
 });

@@ -189,7 +189,10 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
 3. Placement in MuJoCo: the sheet pose a G1/H1 co-hold, a lift and a ledger guide leave. First
    part done 2026-11-12 (`experiments/m3_ledger/`): a released sheet seats on a ledger to 0.0001°
    below a press of about 100 N; then panel squareness (PS 2) leaves 100% clean sheets on doubled
-   joints and at most 84–95% on single 2x. Still open: the humanoid and lift doing it.
+   joints and at most 84–95% on single 2x. Second part done 2026-11-12 (`experiments/m3b_humanoid/`):
+   neither a G1 (8.7 kg) nor an H1 (18.8 kg) can carry the sheet to the wall, both can press it
+   on the ledger (66–110 N, 128–281 N), and at Unitree's stock gains both are soft enough for the
+   ledger to seat it, except an H1 with a rigid clamp. Still open: the dynamic hand-off.
 4. **Tack-then-measure** (done 2026-11-12, `experiments/m4_tack_measure/`): the hang allowed is
    0.03° and 0.4 mm on single 2x joints and 0.54° and 10 mm on doubled ones; re-hanging cannot
    lift single-2x joints to 95%. Run before milestone 3, to give it a target.

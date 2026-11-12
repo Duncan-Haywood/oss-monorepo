@@ -104,6 +104,74 @@ class RecentProgrammeCommitsTest(unittest.TestCase):
         self.assertIsInstance(pick_track.recent_programme_commits("no-such-programme"), list)
 
 
+class ShallowAndRefreshTest(unittest.TestCase):
+    def test_shallow_clone_too_short_is_not_called_clear(self):
+        pick_track._open_pr_titles.cache_clear()
+        lines = ClaimCheckTest._run(None, [(1, "other")], covers=False)
+        self.assertEqual(len(lines), 1)
+        self.assertNotIn("clear", lines[0])
+        self.assertIn("shallow-since", lines[0])
+
+    def test_boundary_commit_is_dropped(self):
+        from unittest import mock
+        log = mock.Mock(returncode=0, stdout="aaa1 aaa 1 hour ago: unrelated venture\nbbb2 bbb 2 hours ago: research/x: 2\n")
+        with mock.patch("subprocess.run", return_value=log) as run, \
+             mock.patch.object(pick_track, "shallow_edge", return_value={"aaa1"}):
+            self.assertEqual(pick_track.recent_programme_commits("x"), ["bbb 2 hours ago: research/x: 2"])
+        # git runs in research/, so a bare "research/x" pathspec meant research/research/x and the
+        # commit check matched nothing (found 2026-11-12).
+        self.assertEqual(run.call_args[0][0][-1], ":(top)research/x")
+
+    def test_real_git_finds_this_files_own_commit(self):
+        import subprocess
+        out = subprocess.run(["git", "log", "-1", "--format=%h", "--", ":(top)research/_shared"],
+                             cwd=pick_track.RESEARCH, capture_output=True, text=True)
+        if out.returncode or not out.stdout.strip():
+            self.skipTest("no git history here")
+        bare = subprocess.run(["git", "log", "-1", "--format=%h", "--", "research/_shared"],
+                              cwd=pick_track.RESEARCH, capture_output=True, text=True)
+        self.assertEqual(bare.stdout.strip(), "", "a cwd-relative pathspec should not match from research/")
+
+    def _fake_git(self, remote, local, fetch_rc=0):
+        from unittest import mock
+        calls = []
+
+        def run(cmd, **kw):
+            calls.append(cmd)
+            if cmd[1] == "ls-remote":
+                return mock.Mock(returncode=0 if remote else 2, stdout=f"{remote}\trefs/heads/main\n" if remote else "")
+            if cmd[1] == "rev-parse":
+                return mock.Mock(returncode=0, stdout=local + "\n")
+            return mock.Mock(returncode=fetch_rc, stdout="")
+        return run, calls
+
+    def test_refresh_skips_fetch_when_current(self):
+        from unittest import mock
+        run, calls = self._fake_git("abc", "abc")
+        with mock.patch.object(pick_track, "history_covers", return_value=True):
+            self.assertIsNone(pick_track.refresh_origin_main(run=run))
+        self.assertFalse(any(c[1] == "fetch" for c in calls))
+
+    def test_refresh_fetches_deep_enough_when_stale_and_shallow(self):
+        from unittest import mock
+        run, calls = self._fake_git("new", "old")
+        with mock.patch.object(pick_track, "history_covers", return_value=False), \
+             mock.patch.object(pick_track, "is_shallow", return_value=True):
+            self.assertIsNone(pick_track.refresh_origin_main(run=run))
+        fetch = [c for c in calls if c[1] == "fetch"]
+        self.assertEqual(len(fetch), 1)
+        self.assertTrue(any(a.startswith("--shallow-since=") for a in fetch[0]))
+
+    def test_refresh_reports_unreachable_origin_and_failed_fetch(self):
+        from unittest import mock
+        run, _ = self._fake_git(None, "abc")
+        self.assertIn("could not reach", pick_track.refresh_origin_main(run=run))
+        run, _ = self._fake_git("new", "old", fetch_rc=128)
+        with mock.patch.object(pick_track, "history_covers", return_value=True), \
+             mock.patch.object(pick_track, "is_shallow", return_value=True):
+            self.assertIn("failed", pick_track.refresh_origin_main(run=run))
+
+
 class OpenPrsTest(unittest.TestCase):
     def test_matches_title_and_survives_errors(self):
         import io, json
@@ -137,11 +205,12 @@ class ClaimCheckTest(unittest.TestCase):
     def tearDown(self):
         pick_track._open_pr_titles.cache_clear()
 
-    def _run(self, titles, recent=(), age=1.0):
+    def _run(self, titles, recent=(), age=1.0, covers=True):
         from unittest import mock
         with mock.patch.object(pick_track, "_open_pr_titles", return_value=titles), \
              mock.patch.object(pick_track, "recent_programme_commits", return_value=list(recent)), \
-             mock.patch.object(pick_track, "origin_main_age_hours", return_value=age):
+             mock.patch.object(pick_track, "origin_main_age_hours", return_value=age), \
+             mock.patch.object(pick_track, "history_covers", return_value=covers):
             return pick_track.claim_check("cell-fidelity")
 
     def test_says_clear_when_nothing_found(self):

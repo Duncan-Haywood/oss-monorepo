@@ -65,3 +65,38 @@ test("num parses money text; CSV has header and five rows", () => {
   assert.match(lines[0], /^direct_share,/);
   assert.equal(lines.length, 6);
 });
+
+// Quality audit round 45 (portfolio/quality/audits/2026-11-12-pet-sitting-platform-fee-calculator.json):
+// five of seven seeded bugs survived. These pin the figures they changed, worked by hand.
+test("headline annual gain and per-hour column are pinned to hand-worked values", () => {
+  const a = analyze({});
+  // all direct: 30 * (45 - 1.305 - 0.30 - 4) - 55 = 1126.85; all platform: 30 * 32 = 960
+  assert.ok(Math.abs(a.annualGain - (1126.85 - 960) * 12) < 1e-6, `annualGain ${a.annualGain}`);
+  // current mix 20% direct: 24 * 32 + 6 * 39.395 - 55 = 949.37 over 30 * 3 = 90 hours
+  assert.ok(Math.abs(a.current.net - 949.37) < 1e-6);
+  assert.ok(Math.abs(a.current.hourly - 949.37 / 90) < 1e-9);
+});
+
+test("break-even is OK only when the needed direct bookings fit in the month", () => {
+  // break-even 55 / 7.395 = 7.44 bookings
+  assert.equal(analyze({ bookingsPerMonth: 8 }).breakEvenOk, true);
+  assert.equal(analyze({ bookingsPerMonth: 7 }).breakEvenOk, false);
+});
+
+test("a direct share above 1 is refused, and a blank field is an error, not a default", () => {
+  assert.equal(analyze({ directShare: 1.5 }).result, null);
+  assert.equal(analyze({ directShare: 20 }).result, null);
+  const blank = analyze({ marketingMonthly: num("") });
+  assert.equal(blank.result, null);
+  assert.match(blank.warnings[0], /marketingMonthly must be a number/);
+});
+
+test("the below-card-cost warning counts the fixed card fee", () => {
+  // 3% fee on a $10 walk: card is 2.9% + $0.30 = 5.9% of $10, so direct earns less per booking
+  assert.ok(analyze({ price: 10, platformFee: 0.03, costPerBooking: 0 }).warnings.some((w) => /below card processing/.test(w)));
+});
+
+test("Wag: the fee comes off what the owner pays, so a $25 walker rate (owner charged 1.67x) keeps about $25", () => {
+  const a = analyze({ price: 25 * 1.67, platformFee: 0.4, costPerBooking: 0 });
+  assert.ok(Math.abs(a.platformNet - 25.05) < 1e-9, `${a.platformNet}`);
+});

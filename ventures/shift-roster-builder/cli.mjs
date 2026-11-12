@@ -73,7 +73,12 @@ Options:
                       per unit of money and per item, blended (any of the three); --splh is then minutes of work per labor hour
                       (default 60, everyone busy every minute; 45 leaves a quarter of each hour for cleaning and restocking).
                       Fixed work joins it as "10/hour" (minutes in every trading hour), "30/open" (the first trading hour of
-                      each day) and "45/close" (the last), e.g. --standard "1.5/ticket + 10/hour + 45/close".
+                      each day) and "45/close" (the last), e.g. --standard "1.5/ticket + 10/hour + 45/close"; "20/before-open"
+                      and "45/after-close" put it in the hours before the first or after the last trading hour (doors shut;
+                      minimum staff does not apply there). That work is planned at 60 minutes a person whatever --splh says,
+                      and spills into the next hour out (90 after close = one person staying 2 hours, not 2 people for 1).
+                      --shut-min <n> sets the fewest people on in those hours (default 1; 2 if nobody may lock up alone):
+                      the crew of n then clears n x 60 minutes an hour.
                       the average of what you sold, not a forecast. --skip-dates 2026-11-26,2026-12-25 leaves those days out (holiday, storm);
                       --half-life <weeks> weights recent weeks more (a day's weight halves every that many weeks back from the newest date);
                       the default, auto, backtests equal weights, half-lives 8, 4 and 2 and the last 4 weeks only on your file and keeps the best (equal
@@ -151,6 +156,7 @@ export function parseArgs(argv) {
     else if (a === "--join") o.demand = { ...o.demand, join: true };
     else if (a === "--warmup") { const v = Number(argv[++i]); if (!Number.isInteger(v) || v < 1) throw new Error("--warmup needs a whole number of weeks, 1 or more"); o.demand = { ...o.demand, warmup: v }; }
     else if (a === "--short-cost") { const v = Number(argv[++i]); if (!(v > 0) || !Number.isFinite(v)) throw new Error("--short-cost needs a positive number (a short person-hour costs that many spare ones; 1 = equal)"); o.demand = { ...o.demand, shortCost: v }; }
+    else if (a === "--shut-min") { const v = Number(argv[++i]); if (!Number.isInteger(v) || v < 0) throw new Error("--shut-min needs a whole number, 0 or more (people on in an hour of before-open or after-close work)"); o.demand = { ...o.demand, shutMin: v }; }
     else if (a === "--last-weeks") { const v = Number(argv[++i]); if (!Number.isInteger(v) || v < 1) throw new Error("--last-weeks needs a whole number of weeks, 1 or more"); o.demand = { ...o.demand, window: v }; }
     else if (a === "--half-life") {
       const t = String(argv[++i]).toLowerCase();

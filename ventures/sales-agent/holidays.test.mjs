@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { usFederalHolidays, usBusinessHolidays, gbBankHolidays, easter, holidayChecker, caFederalHolidays, caProvincialHolidays, upcomingHolidays } from "./holidays.mjs";
+import { usFederalHolidays, usBusinessHolidays, gbBankHolidays, easter, holidayChecker, caFederalHolidays, caProvincialHolidays, upcomingHolidays, theirDaysOff } from "./holidays.mjs";
 import { addBusinessDays, businessDaysBetween } from "./engine.mjs";
 
 // Pinned from the rules (fixed dates moved off weekends; nth-weekday ones counted). 2026: July 4 is a Saturday, so
@@ -102,4 +102,40 @@ test("ca-xx matches the provincial and territorial holidays canada-holidays.ca l
   assert.equal(addBusinessDays("2026-06-23", 1, qc), "2026-06-25");
   assert.throws(() => holidayChecker("ca-xx"), /province/);
   assert.throws(() => caProvincialHolidays(2026, "zz"), /unknown province/);
+});
+
+// Red team 2026-11-12: CRM exports (HubSpot, Apollo, LinkedIn) write the country as a name, and a prospect with
+// country "United States" or "Canada" got no calendar at all, so a call due on Thanksgiving or Canada Day stayed put.
+test("theirDaysOff reads country names as well as codes, and the UK nations as their divisions", () => {
+  const read = theirDaysOff(), spec = (country) => read({ country }, null)?.spec ?? null;
+  for (const c of ["US", "us", "United States", "united states of america", "USA", "U.S.", "U.S.A.", " America "]) assert.equal(spec(c), "us-business", c);
+  for (const c of ["CA", "Canada"]) assert.equal(spec(c), "ca", c);
+  assert.equal(spec("UK"), "uk"); // a code is kept as written; "uk" is the same preset as "gb"
+  for (const c of ["GB", "United Kingdom", "Great Britain", "England", "Wales"]) assert.equal(spec(c), "gb", c);
+  assert.equal(spec("Scotland"), "gb-sct");
+  assert.equal(spec("Northern Ireland"), "gb-nir");
+  for (const c of ["France", "DE", "", "Atlantis"]) assert.equal(spec(c), null, c);
+  // The name maps to the same calendar the code does: Thanksgiving 2026 is off for "United States".
+  assert.ok(read({ country: "United States" }, null).isOff("2026-11-26"));
+  assert.ok(read({ country: "Canada" }, null).isOff("2026-07-01"));
+  assert.ok(read({ country: "Scotland" }, null).isOff("2026-01-02") && !read({ country: "England" }, null).isOff("2026-01-02"));
+  // A holidays column still wins over the country.
+  assert.equal(read({ holidays: "ca-qc", country: "United States" }, null).spec, "ca-qc");
+});
+
+// Red-team 2026-11-12: the 451 term of the Meeus/Jones/Butcher formula is non-zero only in rare years
+// (1954, 1981, 2049, 2076...), so the 2026/2038/2285 checks above could not see a typo in it.
+test("Easter agrees with Oudin's independent algorithm for every Gregorian year to 4099", () => {
+  assert.deepEqual(easter(1981), [3, 19]);
+  assert.deepEqual(easter(2049), [3, 18]);
+  assert.deepEqual(easter(2076), [3, 19]);
+  const oudin = (y) => {
+    const g = y % 19, c = Math.floor(y / 100);
+    const h = (c - Math.floor(c / 4) - Math.floor((8 * c + 13) / 25) + 19 * g + 15) % 30;
+    const i = h - Math.floor(h / 28) * (1 - Math.floor(29 / (h + 1)) * Math.floor((21 - g) / 11));
+    const j = (y + Math.floor(y / 4) + i + 2 - c + Math.floor(c / 4)) % 7;
+    const l = i - j, month = 3 + Math.floor((l + 40) / 44);
+    return [month - 1, l + 28 - 31 * Math.floor(month / 4)];
+  };
+  for (let y = 1583; y <= 4099; y++) assert.deepEqual(easter(y), oudin(y), String(y));
 });

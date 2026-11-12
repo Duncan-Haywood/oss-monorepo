@@ -33,7 +33,7 @@ services:
         sync: false
       - key: SEND_FROM
         sync: false
-      - key: HOLIDAYS          # optional days off for Today's queue: us, us-business, ca, gb, gb-sct, gb-nir, dates; also settable on the page
+      - key: HOLIDAYS          # optional days off for Today's queue: us, us-business, us-tx, ca, ca-qc, gb, gb-sct, gb-nir, dates; also settable on the page
         sync: false
       - key: LLM_PROVIDER
         sync: false

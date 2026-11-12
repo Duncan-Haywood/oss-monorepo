@@ -25,8 +25,8 @@ class FakeVentures(unittest.TestCase):
         wf = mock.patch.object(rvt, "WORKFLOWS", self.wf)
         wf.start()
         self.addCleanup(wf.stop)
-        rvt.python_run_elsewhere.cache_clear()
-        self.addCleanup(rvt.python_run_elsewhere.cache_clear)
+        rvt.clear_workflow_caches()
+        self.addCleanup(rvt.clear_workflow_caches)
 
     OWN_CI = ("jobs:\n  t:\n    defaults:\n      run:\n        working-directory: ventures/own\n"
               "    steps:\n      - run: pip install pytest\n      - run: python3 -m pytest -q\n")
@@ -128,7 +128,7 @@ class FakeVentures(unittest.TestCase):
         (self.wf / "other.yml").write_text(
             "jobs:\n  t:\n    steps:\n      - working-directory: ventures/shared\n"
             "        run: python3 -m unittest discover\n")
-        rvt.python_run_elsewhere.cache_clear()
+        rvt.clear_workflow_caches()
         self.assertFalse(rvt.has_tests("shared"))
 
     def test_pytest_style_files_unittest_cannot_see_are_not_a_failure(self):

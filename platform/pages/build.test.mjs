@@ -41,7 +41,7 @@ import {
   injectChrome,
   isPublishable,
   NO_SLA_PATTERN,
-  listFiles,
+  listFiles as buildListFiles,
   readMeta,
   relatedTools,
   upToRoot,
@@ -152,7 +152,9 @@ const VENTURES = path.join(REPO_ROOT, 'ventures');
 let built;
 function site() {
   if (!built) {
-    built = fs.mkdtemp(path.join(os.tmpdir(), 'pages-build-')).then((outDir) => buildSite({ outDir, baseUrl: BASE }));
+    built = fs.mkdtemp(path.join(os.tmpdir(), 'pages-build-'))
+      .then((outDir) => buildSite({ outDir, baseUrl: BASE }))
+      .then((result) => { sharedOutDir = result.outDir; return result; });
     // Started here so it runs beside the shared build, not after it: see
     // 'an identical build produces an identical cache name'.
     childSite().catch(() => {});
@@ -191,7 +193,39 @@ function childSite() {
   return childBuilt;
 }
 
-const read = async (...parts) => fs.readFile(path.join((await site()).outDir, ...parts), 'utf8');
+// The shared build is read-only once `site()` resolves: no test writes into
+// it (the ones that need a writable tree make their own). So about thirty
+// tests that each re-walked the whole output and re-read every page can share
+// one walk per directory and one read per file. Only paths under the shared
+// build are memoised; every other directory and file is read fresh, as before
+// (docs/history/pages-test-perf-2026-11-12-shared-walk-memo.md).
+let sharedOutDir;
+const underShared = (target) =>
+  sharedOutDir !== undefined && (target === sharedOutDir || target.startsWith(sharedOutDir + path.sep));
+const textMemo = new Map();
+/** `fs.readFile(file, 'utf8')`, read once per file under the shared build. */
+function readText(file) {
+  if (typeof file !== 'string' || !underShared(file)) return fs.readFile(file, 'utf8');
+  if (!textMemo.has(file)) textMemo.set(file, fs.readFile(file, 'utf8'));
+  return textMemo.get(file);
+}
+/**
+ * `walker` with its result memoised per directory under the shared build.
+ * Each call gets its own copy of the list, so a caller that sorts or splices
+ * it cannot change what the next one sees.
+ */
+function memoWalker(walker) {
+  const memo = new Map();
+  return async (dir, ...rest) => {
+    if (!underShared(dir)) return walker(dir, ...rest);
+    const key = JSON.stringify([dir, ...rest]);
+    if (!memo.has(key)) memo.set(key, walker(dir, ...rest));
+    return [...(await memo.get(key))];
+  };
+}
+const listFiles = memoWalker(buildListFiles);
+
+const read = async (...parts) => readText(path.join((await site()).outDir, ...parts));
 
 const BASE_PATH = new URL(BASE).pathname; // "/site/"
 
@@ -234,16 +268,17 @@ const exists = (target) => fs.access(target).then(() => true, () => false);
 const pathOf = (baseUrl) => new URL(baseUrl).pathname.replace(/^\//, '');
 
 /** Every `.html` file in the built site, relative to its root. */
-async function allPages(dir, prefix = '') {
+async function allPagesUncached(dir, prefix = '') {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const pages = [];
   for (const entry of entries) {
     const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
-    if (entry.isDirectory()) pages.push(...(await allPages(path.join(dir, entry.name), relative)));
+    if (entry.isDirectory()) pages.push(...(await allPagesUncached(path.join(dir, entry.name), relative)));
     else if (entry.name.endsWith('.html')) pages.push(relative);
   }
   return pages;
 }
+const allPages = memoWalker(allPagesUncached);
 
 /**
  * Every `<loc>` across the whole sitemap tree — the index and each sitemap it
@@ -257,7 +292,7 @@ async function sitemapUrlPaths() {
   const collect = async (relative) => {
     const file = path.join(outDir, relative);
     if (!(await exists(file))) return;
-    for (const [, loc] of (await fs.readFile(file, 'utf8')).matchAll(/<loc>([^<]+)<\/loc>/g)) {
+    for (const [, loc] of (await readText(file)).matchAll(/<loc>([^<]+)<\/loc>/g)) {
       const urlPath = new URL(loc).pathname.replace(/^\//, '');
       if (urlPath.endsWith('sitemap.xml') || urlPath.endsWith('sitemap-hub.xml')) {
         await collect(urlPath.slice(pathOf(BASE).length));
@@ -302,15 +337,16 @@ test('discovery is deterministic', async () => {
 // Payload hygiene
 // ---------------------------------------------------------------------------
 
-async function walk(dir) {
+async function walkUncached(dir) {
   const out = [];
   for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...(await walk(full)));
+    if (entry.isDirectory()) out.push(...(await walkUncached(full)));
     else out.push(full);
   }
   return out;
 }
+const walk = memoWalker(walkUncached);
 
 test('no test payload, CLI source, or repo bookkeeping is published', async () => {
   const { outDir } = await site();
@@ -355,7 +391,7 @@ test('no page still points at the placeholder origin', async () => {
   for (const file of textFiles) {
     // The origin, not the bare host: a changelog line quoting a merge titled
     // "... example.invalid placeholders" is prose, not a leaked URL.
-    if ((await fs.readFile(file, 'utf8')).includes('https://example.invalid')) {
+    if ((await readText(file)).includes('https://example.invalid')) {
       stale.push(path.relative(outDir, file));
     }
   }
@@ -429,7 +465,7 @@ test('relative links inside each tool resolve', async () => {
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
     for (const file of (await walk(dir)).filter((f) => f.endsWith('.html'))) {
-      const html = stripRawText(await fs.readFile(file, 'utf8'));
+      const html = stripRawText(await readText(file));
       const refs = [...html.matchAll(/(?:href|src)="([^"#?]+)"/g)]
         .map((m) => m[1])
         // tel: is a scheme, not a path: monastery-site's example communities
@@ -496,7 +532,7 @@ test('every published page carries both liability clauses, not just the hub', as
   let checked = 0;
   for (const surface of surfaces) {
     for (const page of await htmlPagesUnder(path.join(outDir, surface.slug))) {
-      const markup = await fs.readFile(page, 'utf8');
+      const markup = await readText(page);
       const relative = path.relative(outDir, page);
       checked += 1;
       if (!warranty.test(markup)) missing.push(`${relative} (no-warranty)`);
@@ -509,15 +545,16 @@ test('every published page carries both liability clauses, not just the hub', as
   assert.deepEqual(missing, [], `pages missing a required clause:\n${missing.join('\n')}`);
 });
 
-async function htmlPagesUnder(dir) {
+async function htmlPagesUnderUncached(dir) {
   const found = [];
   for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) found.push(...(await htmlPagesUnder(full)));
+    if (entry.isDirectory()) found.push(...(await htmlPagesUnderUncached(full)));
     else if (entry.name.endsWith('.html')) found.push(full);
   }
   return found;
 }
+const htmlPagesUnder = memoWalker(htmlPagesUnderUncached);
 
 test('the sponsor ask is optional and does not gate anything', async () => {
   const hub = await read('index.html');
@@ -906,7 +943,7 @@ test('an audience page leads with its fullest tools and their own guide pages, a
   const { outDir, surfaces } = await site();
   let checked = 0;
   for (const { audience, items } of audienceGroups(surfaces)) {
-    const html = await fs.readFile(path.join(outDir, 'c', audiencePageId(audience), 'index.html'), 'utf8');
+    const html = await readText(path.join(outDir, 'c', audiencePageId(audience), 'index.html'));
     const lead = html.match(/<section class="start-here"[\s\S]*?<\/section>/);
     if (items.length < 8) {
       assert.equal(lead, null, `${audience.id} is short enough to need no lead`);
@@ -1478,7 +1515,7 @@ test('every published page links the favicon, not just the site root', async () 
   const missing = [];
   const unresolved = [];
   for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     const href = html.match(/<link[^>]+rel="icon"[^>]+href="([^"]+)"/i)?.[1];
     if (!href) {
       missing.push(path.relative(outDir, file));
@@ -1834,7 +1871,7 @@ test('links that escape the site are repointed at the repository, not left broke
   const repairs = await repairLinks({ publishedDir: destination, sourceDir: siteDir, repoRoot, outDir });
   assert.ok(repairs.length > 0, 'a link to a genuinely unpublished file should be repointed, not left broken');
 
-  const built = await fs.readFile(path.join(destination, 'index.html'), 'utf8');
+  const built = await readText(path.join(destination, 'index.html'));
   assert.ok(
     built.includes(`${SOURCE_URL_PREFIX}ventures/widget-co/cli.py`),
     'the escaping link should point at the file in the repository',
@@ -1914,7 +1951,7 @@ test('every page type carries the one site header, with every nav item', async (
   assert.ok(roofing.indexOf(HEADER_MARKER) < roofing.indexOf('data-pf-jobs-root'), 'the saved-bids band sits above the site header');
   // A deep page inside a tool gets a breadcrumb through its category.
   const deep = (await listFiles(path.join(outDir, 'ebay-fee-calculator'))).find((f) => f.endsWith('.html') && !f.endsWith('index.html'));
-  const html = await fs.readFile(deep, 'utf8');
+  const html = await readText(deep);
   assert.match(html, /aria-label="Breadcrumb"><a href="\.\.\/" data-pf-to="hub">Home<\/a>.*href="\.\.\/c\/marketplace\/".*href="\.\.\/ebay-fee-calculator\/"/s);
 });
 
@@ -1954,7 +1991,7 @@ test('every published venture page routes back to the hub', async () => {
   assert.ok(pages.length > surfaces.length, 'deep SEO pages are included, not just landing pages');
 
   for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     assert.ok(
       html.includes('data-pf-to="hub"'),
       `${path.relative(outDir, file)} ships with no way back to the hub`,
@@ -1967,7 +2004,7 @@ test('every injected link resolves to a page that exists', async () => {
   const pages = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
 
   for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     for (const [, ref] of html.matchAll(/href="([^"]+)"[^>]*data-pf-to=/g)) {
       // 404.html links absolutely: it is served under whatever path was mistyped.
       if (/^https?:/.test(ref)) continue;
@@ -1994,7 +2031,7 @@ test('the deepest published page still reaches the hub', async () => {
     .sort((a, b) => b.split(path.sep).length - a.split(path.sep).length)[0];
 
   assert.ok(path.relative(outDir, deepest).split(path.sep).length > 2, 'the site does nest');
-  const html = await fs.readFile(deepest, 'utf8');
+  const html = await readText(deepest);
   const ref = html.match(/href="([^"]+)"[^>]*data-pf-to="hub"/)[1];
   assert.equal(path.resolve(path.dirname(deepest), ref), outDir);
 });
@@ -2282,7 +2319,7 @@ test('every published page names a canonical that resolves to its own URL', asyn
 
   const wrong = [];
   for (const relative of pages) {
-    const html = await fs.readFile(path.join(outDir, relative), 'utf8');
+    const html = await readText(path.join(outDir, relative));
     const canonical = /<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=["']([^"']+)["']/i.exec(html);
     // 404 and offline are noindex; they are meant to carry none.
     if (!canonical) {
@@ -2303,7 +2340,7 @@ test('every indexable page carries the tags a shared link previews from', async 
 
   const bare = [];
   for (const relative of pages) {
-    const html = await fs.readFile(path.join(outDir, relative), 'utf8');
+    const html = await readText(path.join(outDir, relative));
     if (/<meta name="robots" content="noindex">/.test(html)) continue;
     for (const tag of ['og:url', 'og:image', 'og:title', 'og:description', 'twitter:card']) {
       if (!html.includes(`"${tag}"`)) bare.push(`${relative}: ${tag}`);
@@ -2316,13 +2353,13 @@ test('the share card the pages name is actually published', async () => {
   const { outDir } = await site();
   const card = await fs.readFile(path.join(outDir, SOCIAL_CARD_FILE));
   assert.ok(card.length > 0);
-  const hub = await fs.readFile(path.join(outDir, 'index.html'), 'utf8');
+  const hub = await readText(path.join(outDir, 'index.html'));
   assert.ok(hub.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
 });
 
 test('the 404 body is noindex, so mistyped paths do not index as duplicates', async () => {
   const { outDir } = await site();
-  const html = await fs.readFile(path.join(outDir, '404.html'), 'utf8');
+  const html = await readText(path.join(outDir, '404.html'));
   assert.match(html, /<meta name="robots" content="noindex">/);
 });
 
@@ -3291,7 +3328,7 @@ test('every published page registers the worker and points at the manifest', asy
 
   const missing = [];
   for (const page of pages) {
-    const html = await fs.readFile(page, 'utf8');
+    const html = await readText(page);
     if (!/serviceWorker/.test(html) || !/rel="manifest"/.test(html)) {
       missing.push(path.relative(outDir, page));
     }
@@ -3305,7 +3342,7 @@ test('the worker and manifest resolve from a page at any depth', async () => {
 
   const broken = [];
   for (const page of pages) {
-    const html = await fs.readFile(page, 'utf8');
+    const html = await readText(page);
     const refs = [
       html.match(/register\('([^']+)'\)/)?.[1],
       html.match(/rel="manifest" href="([^"]+)"/)?.[1],
@@ -3570,7 +3607,7 @@ test('the worker can be withdrawn from devices that already have it', async () =
     await fs.writeFile(path.join(outDir, file), '');
   }
   await addOfflineSupport({ outDir, base: BASE, surfaces: [], disableWorker: true });
-  const sw = await fs.readFile(path.join(outDir, 'sw.js'), 'utf8');
+  const sw = await readText(path.join(outDir, 'sw.js'));
 
   assert.match(sw, /registration\.unregister\(\)/);
   assert.match(sw, /caches\.delete/);
@@ -3640,7 +3677,7 @@ test('no canonical tag names an origin other than the one the site was built wit
   const offenders = [];
 
   for (const file of (await walk(outDir)).filter((f) => f.endsWith('.html'))) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     const canonical = /<link\b[^>]*\brel="canonical"[^>]*\bhref="([^"]+)"/i.exec(html);
     if (canonical && /^https?:/i.test(canonical[1]) && !canonical[1].startsWith(BASE)) {
       offenders.push(`${path.relative(outDir, file)} -> ${canonical[1]}`);
@@ -3660,7 +3697,7 @@ const everyToolPage = async () => {
   const out = [];
   for (const surface of surfaces) {
     for (const f of await htmlPagesUnder(path.join(outDir, surface.slug))) {
-      out.push({ rel: path.relative(outDir, f), html: await fs.readFile(f, 'utf8') });
+      out.push({ rel: path.relative(outDir, f), html: await readText(f) });
     }
   }
   return out;
@@ -3890,7 +3927,7 @@ test('every number input on the built site carries an inputmode', async () => {
   const missing = [];
   for (const surface of surfaces) {
     for (const page of await htmlPagesUnder(path.join(outDir, surface.slug))) {
-      const markup = await fs.readFile(page, 'utf8');
+      const markup = await readText(page);
       for (const tag of markup.match(/<input\b[^>]*>/gi) ?? []) {
         if (!/\btype\s*=\s*["']?number\b/i.test(tag)) continue;
         inputs += 1;
@@ -3958,7 +3995,7 @@ test('the saved-bids script is one file the whole site loads, not 234 copies', a
   const pages = (await walk(outDir)).filter((f) => f.endsWith('.html') && !f.endsWith('offline.html'));
   let tagged = 0;
   for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     if (!html.includes('data-pf-jobs-root')) continue;
     tagged += 1;
 
@@ -4014,7 +4051,7 @@ test('every stylesheet and script this build injects is one file, at the right d
 
     let carrying = 0;
     for (const file of pages) {
-      const html = await fs.readFile(file, 'utf8');
+      const html = await readText(file);
       const rel = path.relative(outDir, file);
       if (rel === 'index.html' || rel === '404.html') continue; // the hub is its own document
       // The chrome's own markup, not the bare word: the changelog quotes commit
@@ -4036,7 +4073,7 @@ test('every stylesheet and script this build injects is one file, at the right d
   // And the copies they replaced are gone. A page carrying both would pay for
   // the bytes twice and, for the scripts, run the feature twice.
   for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     const rel = path.relative(outDir, file);
     if (rel === 'index.html' || rel === '404.html') continue;
     assert.ok(!html.includes('<style id="pf-chrome-style">'), `${rel} still inlines the chrome CSS`);
@@ -4099,7 +4136,7 @@ test('the hub names its quietest ink rather than tinting it', async () => {
 
 test('a sideways-scrolling box is given keyboard access, and only when it scrolls', async () => {
   const { outDir } = await site();
-  const pass = await fs.readFile(path.join(outDir, 'pf-site.js'), 'utf8');
+  const pass = await readText(path.join(outDir, 'pf-site.js'));
 
   // Measured, not asserted statically: whether a box overflows depends on the
   // viewport and on how long the numbers rendered, so a `tabindex="0"` in the
@@ -4120,7 +4157,7 @@ test('a sideways-scrolling box is given keyboard access, and only when it scroll
   const pages = (await walk(outDir)).filter((f) => f.endsWith('.html') && !f.endsWith('offline.html'));
   let carrying = 0;
   for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     if (/<script src="[^"]*pf-site\.js"/.test(html)) carrying += 1;
   }
   assert.ok(carrying > 200, `only ${carrying} pages carry the keyboard-scroll pass`);
@@ -4131,7 +4168,7 @@ test('no published page hides a link inside a panel that sets no link colour', a
   const pages = (await walk(outDir)).filter((f) => f.endsWith('.html'));
   const offenders = [];
   for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     // The shape that produced 1.1:1 links: a result panel painting its own dark
     // fill, with no colour for the anchors inside it, so they fall back to the
     // browser default blue on a near-black background.
@@ -4228,7 +4265,7 @@ test('every category gets a landing page at its own URL', async () => {
     const file = path.join(outDir, categoryPagePath(category.id), 'index.html');
     assert.ok(await exists(file), `${category.id} has no landing page`);
 
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     // Every tool in the category, and only tools in the category.
     const linked = new Set([...html.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
     assert.deepEqual(
@@ -4300,7 +4337,7 @@ test('every tool points at a share card of its own, and that card exists', async
   for (const surface of surfaces) {
     const entry = path.join(outDir, surface.slug, 'index.html');
     if (!(await exists(entry))) continue;
-    const html = await fs.readFile(entry, 'utf8');
+    const html = await readText(entry);
     const expected = `${BASE}${toolCardFileFor(surface.slug)}`;
     // A venture that names its own picture (shed-designer's render) keeps it,
     // as injectDiscoveryTags intends; it must be on this site and exist.
@@ -4367,7 +4404,7 @@ test("a deep page inside a tool shares the tool's card, not the site's", async (
       (f) => f.endsWith('.html') && path.relative(outDir, f) !== path.join(surface.slug, 'index.html'),
     );
     if (!deep) continue;
-    const html = await fs.readFile(deep, 'utf8');
+    const html = await readText(deep);
     assert.ok(
       html.includes(`<meta property="og:image" content="${BASE}${toolCardFileFor(surface.slug)}">`),
       `${path.relative(outDir, deep)} does not point at its tool's card`,
@@ -4380,7 +4417,7 @@ test("a deep page inside a tool shares the tool's card, not the site's", async (
 test("a tool page's card alt text names the tool, not just the site", async () => {
   const { outDir, surfaces } = await site();
   const surface = surfaces.find((s) => s.slug === 'ebay-fee-calculator') ?? surfaces[0];
-  const html = await fs.readFile(path.join(outDir, surface.slug, 'index.html'), 'utf8');
+  const html = await readText(path.join(outDir, surface.slug, 'index.html'));
   const alt = html.match(/<meta property="og:image:alt" content="([^"]+)">/);
   assert.ok(alt, `${surface.slug} has no og:image:alt`);
   // The card really does carry these words now, so the alt describing them is
@@ -4391,8 +4428,8 @@ test("a tool page's card alt text names the tool, not just the site", async () =
 
 test('the hub keeps the site-wide card, and About gets its own rather than a category one', async () => {
   const { outDir } = await site();
-  const hub = await fs.readFile(path.join(outDir, 'index.html'), 'utf8');
-  const about = await fs.readFile(path.join(outDir, 'about', 'index.html'), 'utf8');
+  const hub = await readText(path.join(outDir, 'index.html'));
+  const about = await readText(path.join(outDir, 'about', 'index.html'));
   assert.ok(hub.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
   // About belongs to no category, so `share.mjs` draws it a card of its own.
   assert.ok(about.includes(`<meta property="og:image" content="${BASE}about/share-card.png">`));
@@ -4651,7 +4688,7 @@ test('a tool or category with a documented external-call exception gets the exce
 
 test('the manifest description matches whether the site has a documented external-call exception', async () => {
   const { outDir, surfaces } = await site();
-  const manifest = JSON.parse(await fs.readFile(path.join(outDir, 'manifest.webmanifest'), 'utf8'));
+  const manifest = JSON.parse(await readText(path.join(outDir, 'manifest.webmanifest')));
   if (externalCallExceptions(surfaces).length) {
     assert.ok(
       !manifest.description.includes('nothing you type is uploaded'),
@@ -4666,7 +4703,7 @@ test('the hub links every category page, and the sitemap lists them', async () =
   const { outDir, surfaces } = await site();
   const ids = groupByCategory(surfaces).map(({ category }) => category.id);
 
-  const hub = await fs.readFile(path.join(outDir, 'index.html'), 'utf8');
+  const hub = await readText(path.join(outDir, 'index.html'));
   for (const id of ids) {
     assert.ok(hub.includes(`data-category="${id}"`), `the hub does not link ${id}`);
   }
@@ -4819,14 +4856,14 @@ test('the About page is reachable from the hub, the categories and every tool pa
   // The shared chrome is what puts the link on all 164 tool pages; without it
   // the privacy statement is unreachable from the pages that collect input.
   const tool = surfaces[0].slug;
-  const toolHtml = await fs.readFile(path.join(outDir, tool, 'index.html'), 'utf8');
+  const toolHtml = await readText(path.join(outDir, tool, 'index.html'));
   assert.match(toolHtml, /href="\.\.\/about\/"/, `${tool} links About from its chrome footer`);
 });
 
 test('every link the About page makes resolves', async () => {
   const { outDir } = await site();
   const file = path.join(outDir, 'about', 'index.html');
-  const html = await fs.readFile(file, 'utf8');
+  const html = await readText(file);
   const hrefs = [...html.matchAll(/href="([^"#]+)"/g)]
     .map((m) => m[1])
     .filter((href) => !/^(https?:|mailto:|data:)/.test(href))
@@ -5038,7 +5075,7 @@ test('no link to a published venture is repaired out to the private repository',
 
   for (const file of await listFiles(outDir)) {
     if (!file.endsWith('.html')) continue;
-    const html = await fs.readFile(file, 'utf8');
+    const html = await readText(file);
     for (const [, target] of html.matchAll(
       new RegExp(`${SOURCE_URL_PREFIX.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}ventures/([^"'\\s>]+)`, 'g'),
     )) {
@@ -5077,7 +5114,7 @@ test('every DOWNLOADABLE_CLI_FILES entry is published, and no page still links o
 
       for (const file of await listFiles(path.join(outDir, slug))) {
         if (!file.endsWith('.html')) continue;
-        const html = await fs.readFile(file, 'utf8');
+        const html = await readText(file);
         assert.ok(
           !html.includes(`${SOURCE_URL_PREFIX}ventures/${slug}/${name}`),
           `${path.relative(outDir, file)} still links ${name} off-site to the private repo`,
@@ -5188,7 +5225,7 @@ test('the venture tree still has comparison pages, and every one names a product
   assert.ok(entries.length > 100, `only ${entries.length} comparison pages discovered`);
   for (const entry of entries) {
     const surface = surfaces.find((s) => s.slug === entry.slug);
-    const html = await fs.readFile(path.join(surface.sourceDir, entry.file), 'utf8');
+    const html = await readText(path.join(surface.sourceDir, entry.file));
     // Normalised on both sides — see `comparisonText`. `entry.subject` has
     // already had its entities decoded, so `html.includes` was asking the page
     // to carry the heading a second time in raw form.
@@ -5368,7 +5405,7 @@ test('the built tree still has guide pages, and every label is text its own page
   assert.ok(groups.length > 0, 'no guide pages discovered in the first six ventures');
   for (const group of groups) {
     for (const item of group.items) {
-      const html = await fs.readFile(path.join(outDir, group.slug, item.file), 'utf8');
+      const html = await readText(path.join(outDir, group.slug, item.file));
       assert.ok(
         decodeEntities(html.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').includes(item.label),
         `"${item.label}" is not text ${group.slug}/${item.file} contains`,
@@ -5672,17 +5709,17 @@ test('the built site publishes /compare/, links it, and lists it in the sitemap'
   assert.equal(result.comparisons.length, 1, 'both tools compare with one product');
   assert.equal(result.comparisons[0].subject, 'Jobber');
 
-  const compare = await fs.readFile(path.join(dist, COMPARE_PATH, 'index.html'), 'utf8');
+  const compare = await readText(path.join(dist, COMPARE_PATH, 'index.html'));
   assert.ok(compare.includes('href="../alpha-calculator/vs-jobber.html"'));
   assert.ok(compare.includes('href="../beta-calculator/vs-jobber.html"'));
 
-  const hub = await fs.readFile(path.join(dist, 'index.html'), 'utf8');
+  const hub = await readText(path.join(dist, 'index.html'));
   assert.ok(hub.includes(`href="${COMPARE_PATH}"`), 'the hub must link /compare/');
 
-  const hubSitemap = await fs.readFile(path.join(dist, 'sitemap-hub.xml'), 'utf8');
+  const hubSitemap = await readText(path.join(dist, 'sitemap-hub.xml'));
   assert.ok(hubSitemap.includes(`<loc>https://example.test/${COMPARE_PATH}</loc>`));
 
-  const llms = await fs.readFile(path.join(dist, 'llms.txt'), 'utf8');
+  const llms = await readText(path.join(dist, 'llms.txt'));
   assert.ok(llms.includes(`https://example.test/${COMPARE_PATH}`), 'llms.txt must name /compare/');
 });
 
@@ -5692,7 +5729,7 @@ test('the built site publishes /guides/, links it, and lists it in the sitemap',
   // entry a crawler follows, and an llms.txt line an assistant reads.
   const { dist } = await hubFixtureSite();
 
-  const guides = await fs.readFile(path.join(dist, GUIDES_PATH, 'index.html'), 'utf8');
+  const guides = await readText(path.join(dist, GUIDES_PATH, 'index.html'));
   assert.ok(guides.includes('href="../alpha-calculator/how-much-to-charge.html"'));
   assert.ok(guides.includes('How much to charge'), 'the page’s own heading is the entry');
   assert.ok(
@@ -5700,13 +5737,13 @@ test('the built site publishes /guides/, links it, and lists it in the sitemap',
     'a comparison page has /compare/ and must not be listed twice',
   );
 
-  const hub = await fs.readFile(path.join(dist, 'index.html'), 'utf8');
+  const hub = await readText(path.join(dist, 'index.html'));
   assert.ok(hub.includes(`href="${GUIDES_PATH}"`), 'the hub must link /guides/');
 
-  const hubSitemap = await fs.readFile(path.join(dist, 'sitemap-hub.xml'), 'utf8');
+  const hubSitemap = await readText(path.join(dist, 'sitemap-hub.xml'));
   assert.ok(hubSitemap.includes(`<loc>https://example.test/${GUIDES_PATH}</loc>`));
 
-  const llms = await fs.readFile(path.join(dist, 'llms.txt'), 'utf8');
+  const llms = await readText(path.join(dist, 'llms.txt'));
   assert.ok(llms.includes(`https://example.test/${GUIDES_PATH}`), 'llms.txt must name /guides/');
 });
 
@@ -5980,7 +6017,7 @@ test('copyTree rewrites the placeholder in .ics files, even across a folded line
   await fs.writeFile(path.join(src, 'cal.ics'),
     'BEGIN:VCALENDAR\r\nURL:https://example.inv\r\n alid/tool/page.html\r\nEND:VCALENDAR\r\n');
   await copyTree(src, dst, 'https://real.test/');
-  const out = await fs.readFile(path.join(dst, 'cal.ics'), 'utf8');
+  const out = await readText(path.join(dst, 'cal.ics'));
   assert.match(out, /URL:https:\/\/real\.test\/tool\/page\.html/);
   assert.ok(!out.includes('example.invalid'));
 });

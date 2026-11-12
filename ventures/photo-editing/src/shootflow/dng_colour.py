@@ -35,9 +35,25 @@ camera profile) are ``HueSatTable`` and ``ProfileLook`` below: applied in
 linear ProPhoto RGB, the map before the exposure and the look table after it,
 in the specification's order.
 
-Not handled here: ``ColorMatrix3``/``CalibrationIlluminant3`` (DNG 1.6, a
-third illuminant), ``IlluminantData`` (custom illuminant spectra), and
-``ProfileToneCurve``. ``tools/dng_colour_check.py`` compares this module with
+The profile's tone curve (``ProfileToneCurve``, DNG 1.2 onwards) is
+``ToneCurve`` below: the specification's points in linear gamma joined by a
+cubic spline (the natural spline, second derivative zero at both ends, as
+dng_sdk's ``dng_spline_solver`` computes), sampled into a 4096-step table
+read by linear interpolation, and applied after the look table in linear
+ProPhoto RGB by the hue-preserving RGB method (``rgb_tone``): the largest and
+smallest channel go through the curve and the middle one is placed between
+them in the same proportion as before, so HSV hue is unchanged.
+
+DNG 1.6 triple-illuminant profiles (``ColorMatrix3``, ``CalibrationIlluminant3``,
+``CameraCalibration3``, ``ForwardMatrix3``, ``ProfileHueSatMapData3``) blend
+three tag sets by the white's distance to each illuminant in a
+(tint, 1/temperature) plane, as the DNG SDK does (:func:`triple_weights`);
+the as-shot white is the SDK's fixed-point loop on xy. ``IlluminantData1/2/3``
+give the white of an illuminant coded 255 ("other"), as an xy pair or a
+spectrum integrated against the CIE 1931 observer (:mod:`.cie1931`); with two
+illuminants such a white blends by its Robertson temperature.
+``tools/triple_illuminant_check.py`` checks the temperature, tint and
+spectrum parts against colour-science. ``tools/dng_colour_check.py`` compares this module with
 colour-hdri's independent implementation; ``tools/dcp_check.py`` reads real
 camera profiles.
 """
@@ -222,6 +238,231 @@ def bradford(src_xy, dst_xy) -> Matrix:
     return matmul(matmul(inverse(_BRADFORD), diag(ratio)), _BRADFORD)
 
 
+# ------------------------------------------------- temperature and tint (DNG)
+
+# Distance from the Planckian locus in CIE 1960 uv, scaled to the "tint"
+# DNG SDK uses for white balance (same sign and scale as its dng_temperature).
+_TINT_SCALE = -3000.0
+
+
+def temperature_tint(xy) -> tuple[float, float]:
+    """(temperature in kelvin, tint) of white ``xy``, the DNG way.
+
+    The temperature is Robertson's, as :func:`xy_to_cct` (here returned
+    finite: past the table's 0-mired end it is the end line, 1e6/eps);
+    the tint is the signed distance from the locus along the interpolated
+    isotemperature direction, times -3000. This is the parameterisation the
+    DNG SDK (``dng_temperature``) uses for white balance sliders and for the
+    DNG 1.6 triple-illuminant weights. Whites under 2,000 K use the same
+    table (the SDK has an optional low-temperature extension, off by
+    default, that this does not follow).
+    """
+
+    x, y = xy
+    d = 1.5 - x + 6.0 * y
+    u, v = 2.0 * x / d, 3.0 * y / d
+    last_dt = last_du = last_dv = 0.0
+    n = len(_ROBERTSON) - 1
+    for i in range(1, n + 1):
+        mired, ui, vi, ti = _ROBERTSON[i]
+        length = math.sqrt(1.0 + ti * ti)
+        du, dv = 1.0 / length, ti / length
+        uu, vv = u - ui, v - vi
+        dt = -uu * dv + vv * du
+        if dt <= 0.0 or i == n:
+            dt = -min(dt, 0.0)
+            f = 0.0 if i == 1 else dt / (last_dt + dt)
+            m0 = _ROBERTSON[i - 1]
+            mired_at = m0[0] * f + mired * (1.0 - f)
+            temp = 1e6 / mired_at if mired_at > 0 else 1e6 / 1e-6
+            uu = u - (m0[1] * f + ui * (1.0 - f))
+            vv = v - (m0[2] * f + vi * (1.0 - f))
+            du, dv = du * (1.0 - f) + last_du * f, dv * (1.0 - f) + last_dv * f
+            length = math.hypot(du, dv)
+            return temp, (uu * du + vv * dv) / length * _TINT_SCALE
+        last_dt, last_du, last_dv = dt, du, dv
+    raise AssertionError("unreachable")
+
+
+def xy_from_temperature_tint(temperature: float, tint: float = 0.0) -> tuple[float, float]:
+    """White ``xy`` for a (temperature, tint): the inverse of :func:`temperature_tint`."""
+
+    if temperature <= 0:
+        raise ColourError("temperature must be positive")
+    r = 1e6 / temperature
+    offset = tint / _TINT_SCALE
+    for i in range(len(_ROBERTSON) - 1):
+        r1 = _ROBERTSON[i + 1][0]
+        if r < r1 or i == len(_ROBERTSON) - 2:
+            r0, u0, v0, t0 = _ROBERTSON[i]
+            _, u1, v1, t1 = _ROBERTSON[i + 1]
+            f = (r1 - r) / (r1 - r0)
+            u, v = u0 * f + u1 * (1.0 - f), v0 * f + v1 * (1.0 - f)
+            l0, l1 = math.sqrt(1.0 + t0 * t0), math.sqrt(1.0 + t1 * t1)
+            du = (1.0 / l0) * f + (1.0 / l1) * (1.0 - f)
+            dv = (t0 / l0) * f + (t1 / l1) * (1.0 - f)
+            length = math.hypot(du, dv)
+            u += du / length * offset
+            v += dv / length * offset
+            d = u - 4.0 * v + 2.0
+            return 1.5 * u / d, v / d
+    raise AssertionError("unreachable")
+
+
+# DNG 1.6: the white each LightSource code stands for when three calibration
+# illuminants are blended by distance (DNG SDK, dng_illuminant_data). The CIE
+# illuminants at their published chromaticities; daylight, fine weather and
+# flash as D55, cloudy as D65, shade as D75; each fluorescent class as the CIE
+# F lamp the SDK picks (F1, F8, F9, F2, F3, F4). 255 ("other") takes its white
+# from the IlluminantData tag; 0 (unknown) is D50.
+STD_A_XY = (0.4476, 0.4074)
+D55_XY = (0.3324, 0.3474)
+D65_XY = (0.3127, 0.3290)
+D75_XY = (0.2990, 0.3149)
+
+ILLUMINANT_XY: dict[int, tuple[float, float]] = {
+    1: D55_XY, 4: D55_XY, 9: D55_XY, 20: D55_XY,
+    10: D65_XY, 21: D65_XY,
+    11: D75_XY, 22: D75_XY,
+    3: STD_A_XY, 17: STD_A_XY,
+    18: (0.348483, 0.351747),  # B
+    19: (0.310061, 0.316150),  # C
+    23: D50_XY,
+    12: (0.31310, 0.33727),  # daylight fluorescent: F1
+    13: (0.34588, 0.35875),  # day white fluorescent: F8
+    14: (0.37417, 0.37281),  # cool white fluorescent: F9
+    2: (0.37208, 0.37529),  # fluorescent: F2
+    15: (0.40910, 0.39430),  # white fluorescent: F3
+    16: (0.44018, 0.40329),  # warm white fluorescent: F4
+}
+
+LIGHT_OTHER = 255
+
+
+def illuminant_xy(code: int, data_xy=None) -> tuple[float, float]:
+    """The white a calibration illuminant stands for (DNG 1.6 weighting)."""
+
+    code = int(code)
+    if code == LIGHT_OTHER:
+        if data_xy is None:
+            raise ColourError("CalibrationIlluminant is 255 (other) but there is no IlluminantData")
+        return tuple(data_xy)  # type: ignore[return-value]
+    if code == 24:  # ISO studio tungsten: 3200 K on the locus
+        return xy_from_temperature_tint(3200.0, 0.0)
+    xy = ILLUMINANT_XY.get(code, D50_XY)
+    # The SDK stores each white round-tripped through XYZ.
+    return xyz_to_xy(xy_to_xyz(xy))
+
+
+def illuminant_temperature(code: int, data_xy=None) -> float:
+    """Kelvin for blending two illuminants: the table, or IlluminantData's white for 255."""
+
+    if int(code) == LIGHT_OTHER:
+        return temperature_tint(data_xy)[0] if data_xy is not None else 0.0
+    return ILLUMINANT_CCT.get(int(code), 0.0)
+
+
+def _smoothstep(x: float) -> float:
+    return x * x * (3.0 - 2.0 * x)
+
+
+def triple_weights(white_xy, light1_xy, light2_xy, light3_xy) -> tuple[float, float, float]:
+    """DNG 1.6 weights of three calibration illuminants for a white.
+
+    The method of the DNG SDK (``CalculateTripleIlluminantWeights``): each
+    white is placed at (tint / 200, min(1500 / T, 1)), so a step of 200 tint
+    counts as much as going from 1,500 K to infinity; the weights are inverse
+    squared distances (plus 1e-8), normalised, put through a smoothstep, cut
+    below 0.02 (rescaled so 0.02 maps to 0 and 1 to 1) and normalised again.
+    A white on an illuminant gets that illuminant alone; one between two gets
+    mostly those two.
+    """
+
+    def place(xy):
+        t, tint = temperature_tint(xy)
+        return tint / 200.0, min(1500.0 / t, 1.0)
+
+    p = place(white_xy)
+    raw = []
+    for light in (light1_xy, light2_xy, light3_xy):
+        q = place(light)
+        raw.append(1.0 / ((p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + 1e-8))
+    total = sum(raw)
+    cut = 0.02
+    w = [min(max((_smoothstep(v / total) - cut) / (1.0 - cut), 0.0), 1.0) for v in raw]
+    total = sum(w)
+    w1, w2 = w[0] / total, w[1] / total
+    return w1, w2, max(1.0 - w1 - w2, 0.0)
+
+
+def parse_illuminant_data(values, byte_order: str = "<") -> tuple[float, float]:
+    """White ``xy`` from an IlluminantData1/2/3 tag (DNG 1.6, UNDEFINED bytes).
+
+    Type 0 is an xy pair (two RATIONALs); type 1 a spectral power
+    distribution (sample count, first wavelength, spacing, samples), whose
+    white is integrated against the CIE 1931 2-degree observer from 360 to
+    830 nm in 1 nm steps, the spectrum read piecewise-linearly and held at its
+    end values outside its range, as the SDK does.
+    """
+
+    import struct
+
+    raw = bytes(values or b"")
+    if len(raw) < 2:
+        raise ColourError("IlluminantData is empty")
+    end = byte_order
+    kind = struct.unpack_from(end + "H", raw, 0)[0]
+
+    def rational(at):
+        n, d = struct.unpack_from(end + "II", raw, at)
+        if d == 0:
+            raise ColourError("IlluminantData has a zero denominator")
+        return n / d
+
+    if kind == 0:
+        if len(raw) < 18:
+            raise ColourError("IlluminantData xy is too short")
+        x, y = rational(2), rational(10)
+        if not (1e-6 <= x <= 0.999999 and 1e-6 <= y <= 0.999999):
+            raise ColourError(f"IlluminantData xy ({x}, {y}) is out of range")
+        return xyz_to_xy(xy_to_xyz((x, y)))
+    if kind == 1:
+        if len(raw) < 6:
+            raise ColourError("IlluminantData spectrum is too short")
+        count = struct.unpack_from(end + "I", raw, 2)[0]
+        if not 2 <= count <= 2000 or len(raw) < 22 + 8 * count:
+            raise ColourError(f"IlluminantData spectrum has a bad sample count ({count})")
+        lo, step = rational(6), rational(14)
+        if lo <= 0 or step <= 0:
+            raise ColourError("IlluminantData spectrum has a non-positive wavelength or spacing")
+        samples = [rational(22 + 8 * i) for i in range(count)]
+        return spectrum_to_xy(lo, step, samples)
+    raise ColourError(f"IlluminantData type {kind} is not 0 (xy) or 1 (spectrum)")
+
+
+def spectrum_to_xy(first_nm: float, spacing_nm: float, samples) -> tuple[float, float]:
+    """White ``xy`` of a light's spectral power distribution, sampled evenly."""
+
+    from .cie1931 import CIE1931_2DEG_360_830
+
+    last_nm = first_nm + spacing_nm * (len(samples) - 1)
+    sums = [0.0, 0.0, 0.0]
+    obs_sums = [0.0, 0.0, 0.0]
+    for i, cmf in enumerate(CIE1931_2DEG_360_830):
+        lam = min(max(360.0 + i, first_nm), last_nm)
+        pos = (lam - first_nm) / spacing_nm
+        k = min(int(pos), len(samples) - 2)
+        f = pos - k
+        light = samples[k] * (1.0 - f) + samples[k + 1] * f
+        for c in range(3):
+            obs_sums[c] += cmf[c]
+            sums[c] += cmf[c] * light
+    xyz = [sums[c] / obs_sums[c] for c in range(3)]
+    if min(xyz) <= 0:
+        raise ColourError("IlluminantData spectrum gives a white with a non-positive XYZ")
+    return xyz_to_xy(xyz)
+
+
 # ----------------------------------------------------------------- profile
 
 
@@ -242,25 +483,87 @@ class Profile:
     hue_sat_map_1: HueSatTable | None = None
     hue_sat_map_2: HueSatTable | None = None
     look_table: HueSatTable | None = None
+    # DNG 1.6: a third calibration illuminant, and custom illuminant whites
+    # (xy, from IlluminantData1/2/3) for CalibrationIlluminant 255.
+    color_matrix_3: Matrix | None = None
+    illuminant_3: int = 0
+    camera_calibration_3: Matrix | None = None
+    forward_matrix_3: Matrix | None = None
+    hue_sat_map_3: HueSatTable | None = None
+    illuminant_data_1: tuple[float, float] | None = None
+    illuminant_data_2: tuple[float, float] | None = None
+    illuminant_data_3: tuple[float, float] | None = None
 
     def hue_sat_map_at(self, cct: float) -> HueSatTable | None:
-        """The hue/saturation map for a white of ``cct``, blended like the matrices."""
+        """The hue/saturation map for a white of ``cct``, blended like the matrices
+        (two-illuminant blending; :meth:`hue_sat_map_for_white` covers three)."""
 
         m1, m2 = self.hue_sat_map_1, self.hue_sat_map_2
         if m1 is None or m2 is None or self._pair() is None:
             return m1 if m1 is not None else m2
         return m1.blend(m2, self.weight(cct))
 
+    def hue_sat_map_for_white(self, xy) -> HueSatTable | None:
+        """The hue/saturation map for white ``xy``: three-way when the profile is."""
+
+        m1, m2, m3 = self.hue_sat_map_1, self.hue_sat_map_2, self.hue_sat_map_3
+        if self.is_triple() and m1 is not None and m2 is not None and m3 is not None:
+            if m1.dims == m2.dims == m3.dims:
+                return m1.blend3(m2, m3, self.weights_for_white(xy))
+        return self.hue_sat_map_at(xy_to_cct(xy))
+
     def _pair(self):
         """(T1, T2) of the two calibration illuminants, or None when only one counts."""
 
         if self.color_matrix_1 is None or self.color_matrix_2 is None:
             return None
-        t1 = ILLUMINANT_CCT.get(int(self.illuminant_1), 0.0)
-        t2 = ILLUMINANT_CCT.get(int(self.illuminant_2), 0.0)
+        t1 = illuminant_temperature(self.illuminant_1, self.illuminant_data_1)
+        t2 = illuminant_temperature(self.illuminant_2, self.illuminant_data_2)
         if t1 <= 0 or t2 <= 0 or t1 == t2:
             return None
         return t1, t2
+
+    def light_whites(self):
+        """The three calibration illuminants' whites (DNG 1.6 weighting)."""
+
+        return (
+            illuminant_xy(self.illuminant_1, self.illuminant_data_1),
+            illuminant_xy(self.illuminant_2, self.illuminant_data_2),
+            illuminant_xy(self.illuminant_3, self.illuminant_data_3),
+        )
+
+    def triple_problem(self) -> str | None:
+        """Why ColorMatrix3 is present but not used, or None (used, or absent)."""
+
+        if self.color_matrix_3 is None:
+            return None
+        if self._pair() is None:
+            return "ColorMatrix3 ignored: the first two calibration illuminants are not a usable pair"
+        if int(self.illuminant_3) == 0:
+            return "ColorMatrix3 ignored: CalibrationIlluminant3 is missing or unknown"
+        try:
+            w1, w2, w3 = self.light_whites()
+        except ColourError as exc:
+            return f"ColorMatrix3 ignored: {exc}"
+        if w1 == w2 or w1 == w3 or w2 == w3:
+            return "ColorMatrix3 ignored: the three calibration illuminants are not distinct"
+        fms = (self.forward_matrix_1, self.forward_matrix_2, self.forward_matrix_3)
+        if any(m is not None for m in fms) and any(m is None for m in fms):
+            return "ColorMatrix3 ignored: ForwardMatrix is present for some illuminants but not all three"
+        return None
+
+    def is_triple(self) -> bool:
+        """True when the DNG 1.6 three-illuminant model applies."""
+
+        return self.color_matrix_3 is not None and self.triple_problem() is None
+
+    def weights_for_white(self, xy) -> tuple[float, float, float]:
+        """Weights of the illuminant-1, -2 and -3 tags for white ``xy``."""
+
+        if self.is_triple():
+            return triple_weights(xy, *self.light_whites())
+        g = self.weight(xy_to_cct(xy))
+        return g, 1.0 - g, 0.0
 
     def weight(self, cct: float) -> float:
         """Share of the illuminant-1 tags at ``cct`` (1.0 = only set 1)."""
@@ -289,6 +592,37 @@ class Profile:
 
         return self._tags_g(self.weight(cct))
 
+    def tags_for_white(self, xy):
+        """(ColorMatrix, CameraCalibration, ForwardMatrix) for white ``xy``.
+
+        Two illuminants blend by the white's temperature (:meth:`tags_at`);
+        three (DNG 1.6) by :func:`triple_weights`, as weighted sums. An absent
+        CameraCalibration is the identity.
+        """
+
+        if not self.is_triple():
+            return self.tags_at(xy_to_cct(xy))
+        return self._tags_w(self.weights_for_white(xy))
+
+    def _tags_w(self, w):
+        def mix(ms):
+            return tuple(
+                tuple(sum(wk * m[i][j] for wk, m in zip(w, ms)) for j in range(3)) for i in range(3)
+            )
+
+        cm = mix((self.color_matrix_1, self.color_matrix_2, self.color_matrix_3))
+        cc = IDENTITY
+        cals = (self.camera_calibration_1, self.camera_calibration_2, self.camera_calibration_3)
+        if self.use_calibration and any(c is not None for c in cals):
+            cc = mix(tuple(c or IDENTITY for c in cals))
+        fms = (self.forward_matrix_1, self.forward_matrix_2, self.forward_matrix_3)
+        fm = mix(fms) if all(m is not None for m in fms) else None
+        return cm, cc, fm
+
+    def _xyz_to_camera_w(self, w) -> Matrix:
+        cm, cc, _fm = self._tags_w(w)
+        return matmul(matmul(diag(self.analog_balance), cc), cm)
+
     def _tags_g(self, g: float):
         cm = self._blend(self.color_matrix_1, self.color_matrix_2, g)
         if cm is None:
@@ -308,7 +642,31 @@ class Profile:
         return matmul(matmul(diag(self.analog_balance), cc), cm)
 
     def xyz_to_camera(self, xy) -> Matrix:
+        if self.is_triple():
+            return self._xyz_to_camera_w(self.weights_for_white(xy))
         return self._xyz_to_camera_g(self.weight(xy_to_cct(xy)))
+
+    def _neutral_to_xy_triple(self, neutral) -> tuple[float, float]:
+        """The specification's fixed-point loop on the white itself (three illuminants).
+
+        As the DNG SDK's ``NeutralToXY``: start at D50, blend for the white,
+        map the neutral back to a white, until it moves less than 1e-7 in
+        x + y; a loop that has not settled after its last pass (a two-value
+        oscillation, typically) takes the mean of its last two whites. Here
+        the cap is 100 passes, not the SDK's 30.
+        """
+
+        lights = self.light_whites()
+        last = D50_XY
+        for i in range(100):
+            m = self._xyz_to_camera_w(triple_weights(last, *lights))
+            nxt = xyz_to_xy(apply(inverse(m), neutral))
+            if abs(nxt[0] - last[0]) + abs(nxt[1] - last[1]) < 1e-10:
+                return nxt
+            if i == 99:
+                return ((last[0] + nxt[0]) / 2.0, (last[1] + nxt[1]) / 2.0)
+            last = nxt
+        return last
 
     def neutral_to_xy(self, neutral) -> tuple[float, float]:
         """The white chromaticity whose camera response is ``neutral``.
@@ -331,6 +689,8 @@ class Profile:
         def f(g):
             return self.weight(xy_to_cct(white(g)))
 
+        if self.is_triple():
+            return self._neutral_to_xy_triple(neutral)
         if self._pair() is None:
             return white(self.weight(5000.0))
         g = self.weight(xy_to_cct(D50_XY))
@@ -377,7 +737,7 @@ class Profile:
         if white_xy is None:
             white_xy = self.neutral_to_xy(neutral)
         cct = xy_to_cct(white_xy)
-        cm, cc, fm = self.tags_at(cct)
+        cm, cc, fm = self.tags_for_white(white_xy)
         ab_cc = matmul(diag(self.analog_balance), cc)
         if fm is not None:
             ref = apply(inverse(ab_cc), neutral)
@@ -527,6 +887,18 @@ class HueSatTable:
         data = tuple(g * a + (1.0 - g) * b for a, b in zip(self.data, other.data))
         return HueSatTable(*self.dims, data, self.srgb)
 
+    def blend3(self, second: HueSatTable, third: HueSatTable, w) -> HueSatTable:
+        """``w[0]`` of this table, ``w[1]`` of ``second`` and ``w[2]`` of ``third`` (same shape)."""
+
+        w1, w2, w3 = w
+        if second.dims != self.dims or third.dims != self.dims:
+            return self
+        for weight, table in ((w1, self), (w2, second), (w3, third)):
+            if weight >= 1.0:
+                return table
+        data = tuple(w1 * a + w2 * b + w3 * c for a, b, c in zip(self.data, second.data, third.data))
+        return HueSatTable(*self.dims, data, self.srgb)
+
     def is_identity(self) -> bool:
         d = self.data
         return all(d[i] == 0.0 and d[i + 1] == 1.0 and d[i + 2] == 1.0 for i in range(0, len(d), 3))
@@ -590,6 +962,172 @@ class HueSatTable:
         return hsv_to_rgb(h, s, v)
 
 
+# --------------------------------------------------------------------------
+# Profile tone curve (ProfileToneCurve, DNG 1.2+; and .dcp profiles)
+# --------------------------------------------------------------------------
+
+TONE_TABLE_STEPS = 4096
+
+
+def natural_spline_slopes(xs, ys) -> list[float]:
+    """Slopes at each knot of the natural cubic spline through ``(xs, ys)``.
+
+    The spline is C2 with zero second derivative at both ends; between knots
+    it is the cubic Hermite segment with these end slopes. Solved as the
+    usual tridiagonal system on the slopes (Thomas algorithm). Two knots give
+    the straight line.
+    """
+
+    n = len(xs)
+    if n < 2:
+        raise ColourError("a spline needs two points")
+    h = [xs[i + 1] - xs[i] for i in range(n - 1)]
+    d = [(ys[i + 1] - ys[i]) / h[i] for i in range(n - 1)]
+    if n == 2:
+        return [d[0], d[0]]
+    # Row i: sub[i]*s[i-1] + diag[i]*s[i] + sup[i]*s[i+1] = rhs[i]
+    sub = [0.0] * n
+    dia = [0.0] * n
+    sup = [0.0] * n
+    rhs = [0.0] * n
+    dia[0], sup[0], rhs[0] = 2.0, 1.0, 3.0 * d[0]
+    for i in range(1, n - 1):
+        sub[i] = h[i]
+        dia[i] = 2.0 * (h[i - 1] + h[i])
+        sup[i] = h[i - 1]
+        rhs[i] = 3.0 * (h[i] * d[i - 1] + h[i - 1] * d[i])
+    sub[n - 1], dia[n - 1], rhs[n - 1] = 1.0, 2.0, 3.0 * d[n - 2]
+    for i in range(1, n):
+        f = sub[i] / dia[i - 1]
+        dia[i] -= f * sup[i - 1]
+        rhs[i] -= f * rhs[i - 1]
+    s = [0.0] * n
+    s[n - 1] = rhs[n - 1] / dia[n - 1]
+    for i in range(n - 2, -1, -1):
+        s[i] = (rhs[i] - sup[i] * s[i + 1]) / dia[i]
+    return s
+
+
+@dataclass(frozen=True)
+class ToneCurve:
+    """A ``ProfileToneCurve``: points ``(x, y)`` in linear gamma, first (0, 0)
+    and last (1, 1), joined by the natural cubic spline.
+
+    ``table`` samples the spline at ``TONE_TABLE_STEPS + 1`` even steps (plus
+    one guard entry) and ``__call__`` reads it with linear interpolation,
+    clamping the input to [0, 1], the way dng_sdk's ``dng_1d_table`` does.
+    """
+
+    xs: tuple[float, ...]
+    ys: tuple[float, ...]
+    slopes: tuple[float, ...]
+    table: tuple[float, ...]
+
+    @classmethod
+    def from_tags(cls, values) -> ToneCurve:
+        vals = [float(v) for v in (values or ())]
+        if len(vals) < 4 or len(vals) % 2:
+            raise ColourError(f"tone curve holds {len(vals)} values; it needs pairs, at least two points")
+        if any(not math.isfinite(v) for v in vals):
+            raise ColourError("tone curve holds a value that is not finite")
+        xs, ys = vals[0::2], vals[1::2]
+        if abs(xs[0]) > 1e-6 or abs(ys[0]) > 1e-6 or abs(xs[-1] - 1.0) > 1e-6 or abs(ys[-1] - 1.0) > 1e-6:
+            raise ColourError("tone curve must start at (0, 0) and end at (1, 1)")
+        if any(b <= a for a, b in zip(xs, xs[1:])):
+            raise ColourError("tone curve inputs must increase")
+        if any(not -1e-6 <= y <= 1.0 + 1e-6 for y in ys):
+            raise ColourError("tone curve outputs must lie in [0, 1]")
+        return cls.from_points(xs, ys)
+
+    @classmethod
+    def from_points(cls, xs, ys) -> ToneCurve:
+        xs, ys = tuple(float(v) for v in xs), tuple(float(v) for v in ys)
+        slopes = tuple(natural_spline_slopes(xs, ys))
+        curve = cls(xs, ys, slopes, ())
+        steps = TONE_TABLE_STEPS
+        table = [curve.evaluate(i / steps) for i in range(steps + 1)]
+        table.append(table[-1])
+        return cls(xs, ys, slopes, tuple(table))
+
+    @property
+    def points(self) -> int:
+        return len(self.xs)
+
+    def is_identity(self) -> bool:
+        return all(abs(x - y) < 1e-9 for x, y in zip(self.xs, self.ys))
+
+    def evaluate(self, x: float) -> float:
+        """The spline itself at ``x`` (held at the end values outside the knots)."""
+
+        xs, ys, s = self.xs, self.ys, self.slopes
+        if x <= xs[0]:
+            return ys[0]
+        if x >= xs[-1]:
+            return ys[-1]
+        lo, hi = 0, len(xs) - 1
+        while hi - lo > 1:
+            mid = (lo + hi) >> 1
+            if xs[mid] <= x:
+                lo = mid
+            else:
+                hi = mid
+        x0, x1 = xs[lo], xs[hi]
+        a = x1 - x0
+        t = (x - x0) / a
+        u = 1.0 - t
+        # Cubic Hermite basis.
+        return (
+            ys[lo] * (1.0 + 2.0 * t) * u * u
+            + s[lo] * a * t * u * u
+            + ys[hi] * (3.0 - 2.0 * t) * t * t
+            - s[hi] * a * t * t * u
+        )
+
+    def __call__(self, x: float) -> float:
+        if x <= 0.0:
+            return self.table[0]
+        if x >= 1.0:
+            return self.table[TONE_TABLE_STEPS]
+        y = x * TONE_TABLE_STEPS
+        i = int(y)
+        f = y - i
+        t = self.table
+        return t[i] + f * (t[i + 1] - t[i])
+
+
+def rgb_tone(curve: ToneCurve, r: float, g: float, b: float) -> tuple[float, float, float]:
+    """The hue-preserving RGB tone (dng_sdk's ``RefBaselineRGBTone``).
+
+    The largest and smallest channels go through the curve; the middle one
+    keeps its place between them, ``mid' = lo' + (hi' - lo') * (mid - lo) /
+    (hi - lo)``. With two channels equal and the third the largest, the two
+    equal ones both go through the curve. HSV hue is unchanged.
+    """
+
+    if r >= g:
+        if g > b:  # r >= g > b
+            rr, bb = curve(r), curve(b)
+            return rr, bb + (rr - bb) * (g - b) / (r - b), bb
+        if b > r:  # b > r >= g
+            bb, gg = curve(b), curve(g)
+            return gg + (bb - gg) * (r - g) / (b - g), gg, bb
+        if b > g:  # r >= b > g
+            rr, gg = curve(r), curve(g)
+            return rr, gg, gg + (rr - gg) * (b - g) / (r - g)
+        # r >= g == b
+        rr, gg = curve(r), curve(g)
+        return rr, gg, gg
+    if r >= b:  # g > r >= b
+        gg, bb = curve(g), curve(b)
+        return bb + (gg - bb) * (r - b) / (g - b), gg, bb
+    if b > g:  # b > g > r
+        bb, rr = curve(b), curve(r)
+        return rr, rr + (bb - rr) * (g - r) / (b - r), bb
+    # g >= b > r
+    gg, rr = curve(g), curve(r)
+    return rr, gg, rr + (gg - rr) * (b - r) / (g - r)
+
+
 @dataclass(frozen=True)
 class ProfileLook:
     """The profile's tables between the camera matrix and the output space.
@@ -597,14 +1135,16 @@ class ProfileLook:
     The input is linear ProPhoto RGB with the exposure gain already in it (the
     developer folds the gain into its white-balance multipliers). In the
     specification's order: take the gain back out and pin to [0, 1], apply the
-    hue/saturation map, put the exposure back, pin, apply the look table; then
-    ``out`` maps ProPhoto to the output space (linear sRGB in the developer).
+    hue/saturation map, put the exposure back, pin, apply the look table, then
+    the tone curve (hue-preserving RGB tone); then ``out`` maps ProPhoto to
+    the output space (linear sRGB in the developer).
     """
 
     hue_sat_map: HueSatTable | None
     look_table: HueSatTable | None
     gain: float
     out: Matrix
+    tone: ToneCurve | None = None
 
     def apply(self, r: float, g: float, b: float) -> tuple[float, float, float]:
         if self.hue_sat_map is not None:
@@ -614,6 +1154,8 @@ class ProfileLook:
         r, g, b = _pin(r), _pin(g), _pin(b)
         if self.look_table is not None:
             r, g, b = self.look_table.apply(r, g, b)
+        if self.tone is not None:
+            r, g, b = rgb_tone(self.tone, r, g, b)
         m = self.out
         return (
             m[0][0] * r + m[0][1] * g + m[0][2] * b,
