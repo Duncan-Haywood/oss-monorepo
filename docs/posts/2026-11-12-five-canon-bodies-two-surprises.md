@@ -3,7 +3,7 @@ title: "Five Canon bodies, two surprises: a neutral white balance and a clip tha
 seo_title: "Canon CR2 white level and CFA phase on real 350D, 600D, 70D, 7D files"
 date: 2026-11-12
 tags: [photo-editing, shootflow, raw]
-description: "We ran ShootFlow's Canon CR2 reader on four more real camera bodies. One file was refused and one rendered pink highlights. Here is what was wrong and how the file itself gave the fix."
+description: "ShootFlow's CR2 reader on four more real Canon bodies: one file refused, one with pink highlights, and how each file supplied its own fix."
 ---
 
 This morning ShootFlow learned to develop Canon CR2 raw files directly, without Adobe's DNG
