@@ -14,7 +14,7 @@ test("limits page's tables are what the engine returns for the sample cafe, FAQ 
   const cases = [[{}, 3, 216, 3622], [{ maxDailyHours: 12 }, 3, 216, 3622], [{ maxDailyHours: 10 }, 3, 216, 3622], [{ maxDailyHours: 9 }, 4, 209, 3505],
     [{ maxDailyHours: 8 }, 4, 209, 3505], [{ maxDailyHours: 6 }, 27, 15, 261], [{ maxConsecDays: 5 }, 4, 218, 3658], [{ maxConsecDays: 4 }, 5, 220, 3690], [{ maxConsecDays: 3 }, 7, 204, 3402]];
   for (const [o, open, covered, pay] of cases) {
-    const r = buildRoster(staff, slots, o);
+    const r = buildRoster(staff, slots, { exact: false, ...o });
     assert.equal(r.unfilled.length, open, JSON.stringify(o));
     assert.equal(r.hours, covered, JSON.stringify(o));
     assert.equal(r.cost, pay, JSON.stringify(o));
@@ -33,7 +33,7 @@ test("rotation page's eight-week table is what the engine returns for six identi
   const staff = ["name, wage, max hours, min hours, availability", ..."Ana Ben Cleo Dev Eli Fay".split(" ").map((n) => `${n}, 15, 40, 0, any`)].join("\n");
   const html = page("how-to-rotate-closing-and-weekend-shifts-fairly.html");
   for (const [t, most, least, gap] of [[0, 37, 34, 3], [10, 37, 35, 2], [30, 37, 35, 2]]) {
-    const p = planWeeks(staff, sampleShifts(), { weeks: 8, weekStart: "2026-11-02", toughBalance: t });
+    const p = planWeeks(staff, sampleShifts(), { exact: false, weeks: 8, weekStart: "2026-11-02", toughBalance: t });
     const f = planFairness(p);
     assert.equal(f.rows[0].tough, most, `${t} most`);
     assert.equal(f.rows[f.rows.length - 1].tough, least, `${t} least`);
@@ -85,9 +85,9 @@ test("coffee shop page numbers come from the builder", async () => {
   const staff = parseStaff("Maya, 18, 40, 30, Mon-Sun 5-20\nNoah, 16, 32, 20, Mon-Fri 5-20\nPriya, 15, 28, 0, Wed-Sun 6-20\nQuinn, 15, 24, 0, Sat-Sun 6-20\nRosa, 17, 20, 0, Mon-Fri 5-14\nSam, 15, 16, 0, Fri-Sun 8-20").staff;
   const slots = parseShifts("Mon-Fri, 6, 11, 2, Morning rush\nMon-Fri, 11, 16, 1, Midday\nMon-Fri, 16, 20, 1, Evening\nSat-Sun, 7, 15, 2, Weekend brunch\nSat-Sun, 15, 19, 1, Weekend close").slots;
   const html = page("coffee-shop-staff-schedule.html");
-  assert.equal(buildRoster(staff, slots, {}).cost, 2066);
+  assert.equal(buildRoster(staff, slots, { exact: false, exact: false }).cost, 2066);
   assert.ok(html.includes("24 of 26 person-shifts are covered for $2,066"));
-  assert.equal(buildRoster(staff, slots, { minRestHours: 0 }).cost, 2182);
+  assert.equal(buildRoster(staff, slots, { exact: false, minRestHours: 0 }).cost, 2182);
   assert.ok(html.includes("covers all 26 for $2,182"));
   assert.match(page("sitemap.xml"), /coffee-shop-staff-schedule\.html/);
   assert.match(page("index.html"), /coffee-shop-staff-schedule\.html/);
@@ -101,9 +101,9 @@ test("restaurant page numbers come from the builder", async () => {
   const staff = parseStaff("Ana, 18, 40, 32, Tue-Sat 10-23\nBen, 17, 40, 30, Mon-Fri 10-23\nCleo, 16, 32, 20, Wed-Sun 16-23\nDev, 15, 24, 0, Fri-Sun 10-23\nEli, 22, 40, 36, Mon-Sat 9-18\nFay, 21, 36, 24, Tue-Sun 14-23\nGus, 14, 20, 0, Sat-Sun 10-23").staff;
   const slots = parseShifts("Mon-Fri, 10, 15, 2, Lunch service\nMon-Sun, 16, 22, 2, Dinner service\nFri-Sat, 16, 22, 1, Extra dinner cover\nSat-Sun, 10, 15, 2, Weekend brunch").slots;
   const html = page("restaurant-staff-schedule.html");
-  assert.equal(buildRoster(staff, slots, {}).cost, 2800);
+  assert.equal(buildRoster(staff, slots, { exact: false, exact: false }).cost, 2800);
   assert.ok(html.includes("28 of 30 service-shifts are covered for $2,800"));
-  assert.equal(buildRoster(staff, slots, { minRestHours: 0 }).cost, 2886);
+  assert.equal(buildRoster(staff, slots, { exact: false, minRestHours: 0 }).cost, 2886);
   assert.ok(html.includes("covers 29 of 30 for $2,886"));
   assert.match(page("sitemap.xml"), /restaurant-staff-schedule\.html/);
   assert.match(page("index.html"), /restaurant-staff-schedule\.html/);
@@ -118,9 +118,9 @@ test("retail page numbers come from the builder", async () => {
   const staff = parseStaff("Ava, 17, 40, 24, Mon-Sat 9-20\nBen, 15, 30, 0, Thu-Sun 10-20\nChloe, 16, 24, 0, Mon-Fri 9-15; Sat 10-18\nDev, 14, 20, 0, Fri-Sun 10-20").staff;
   const slots = parseShifts("Mon-Fri, 9, 14, 1, Open the floor\nMon-Fri, 14, 19, 1, Afternoon floor\nThu-Fri, 17, 20, 2, Late-night shopping\nSat, 10, 18, 3, Saturday floor\nSun, 11, 17, 2, Sunday floor").slots;
   const html = page("retail-staff-schedule.html");
-  assert.equal(buildRoster(staff, slots, {}).cost, 1445);
+  assert.equal(buildRoster(staff, slots, { exact: false, exact: false }).cost, 1445);
   assert.ok(html.includes("17 of 19 floor-shifts are covered for $1,445"));
-  assert.equal(buildRoster(staff, slots, { minRestHours: 0 }).cost, 1496);
+  assert.equal(buildRoster(staff, slots, { exact: false, minRestHours: 0 }).cost, 1496);
   assert.ok(html.includes("covers 18 of 19 for $1,496"));
   assert.match(page("sitemap.xml"), /retail-staff-schedule\.html/);
   assert.match(page("index.html"), /retail-staff-schedule\.html/);

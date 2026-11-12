@@ -1443,13 +1443,14 @@ test("ownerValid judges a person's shifts in time order, whatever order the slot
   }
 });
 
-test("exact search runs by itself on small weeks and can be switched off", () => {
+test("exact search runs by itself on every week and can be switched off", () => {
   const staff = staffOf("Ana,15,24,0,Mon-Fri 8-18\nBen,12,16,8,Mon-Wed 6-16\nCy,18,40,0,any");
   const small = slotsOf("Mon,8,14,1\nTue,8,16,1\nWed,6,12,2");
   assert.ok(buildRoster(staff, small).optimality, "a 4-shift week is checked without asking");
   assert.equal(buildRoster(staff, small, { exact: false }).optimality, null);
   const big = slotsOf("Mon,8,16,3\nTue,8,16,3\nWed,8,16,3\nThu,8,16,3\nFri,8,16,3");
-  assert.equal(buildRoster(staff, big).optimality, null, "15 shifts is past the automatic limit");
+  assert.ok(buildRoster(staff, big).optimality, "a 15-shift week is checked too (on at every size since 2026-11-12)");
+  assert.equal(buildRoster(staff, big, { exact: false }).optimality, null);
 });
 
 test("exact search treats people who differ only by name as interchangeable: same optimum as brute force, and big twin crews are now proven", () => {
@@ -1599,8 +1600,8 @@ test("reduced-cost fixing keeps the proven optimum and never costs nodes", () =>
 test("coverRepair: exact repair of the open hours covers the sample week's 15-hour optimum that the walk leaves at 16", () => {
   const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
   const open = (r) => r.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0);
-  const off = buildRoster(staff, slots, { minRestHours: 0 });
-  const on = buildRoster(staff, slots, { minRestHours: 0, coverRepair: true });
+  const off = buildRoster(staff, slots, { minRestHours: 0, exact: false });
+  const on = buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, exact: false });
   assert.equal(open(off), 16);
   assert.equal(open(on), 15);
   assert.equal(buildRoster(staff, slots, { minRestHours: 0, exact: true }).unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0), 15);
@@ -1623,7 +1624,7 @@ test("coverRepair: a node budget ends the search, so the roster does not depend 
   const b = buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, coverRepairMs: 600000 });
   assert.equal(JSON.stringify(a.assignments ?? a.unfilled), JSON.stringify(b.assignments ?? b.unfilled));
   assert.equal(open(a), 15);
-  assert.equal(open(buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, coverRepairNodes: 0 })), 16);
+  assert.equal(open(buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, coverRepairNodes: 0, exact: false })), 16);
 });
 
 test("coverRepair: openShiftWeight prices an open shift in hours, so the repair can trade hours for fewer open shifts", () => {

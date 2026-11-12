@@ -49,7 +49,7 @@ Options:
   --open-post                a group message for the shifts left open and who could take each (empty when none)
   --open-shift-hours <h>  when shifts must stay open, count each open shift as <h> hours: 0 leaves the fewest hours open, 100 the fewest shifts
                       (runs the slower exact repair; the plain build leaves it out)
-  --no-prove          skip the exact search (it runs by itself on weeks of up to 14 shifts)
+  --no-prove          skip the exact check (it runs by itself on every week)
   --prove             also run an exact search (small weeks) and say whether the roster is provably the best, or how far off
   --weeks <n>         plan n consecutive weeks (1-8) from the same shifts; needs --week-start so dated time off lands in its week;
                       rest gaps and the tough-shift tally carry over; prints a fairness total. With --csv a "week" column is added

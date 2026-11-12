@@ -312,9 +312,10 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (24 stories)
+### For Other Minds (25 stories)
 
 - [A Week Behind in Two Languages](stories/a-week-behind-in-two-languages.md) (2026-11-12; 16 min read, text only)
+- [One Number, One Household](stories/one-number-one-household.md) (2026-11-12; 16 min read, text only)
 - [The Crossed Sevens](stories/the-crossed-sevens.md) (2026-11-12; 14 min read, text only)
 - [Are You Sure?](stories/are-you-sure.md) (2026-11-11; 15 min read, text only)
 - [Four Hundred and Twenty-Two Green](stories/four-hundred-and-twenty-two-green.md) (2026-11-11; 15 min read, text only)

@@ -3,7 +3,7 @@ title: "A typo that counts nowhere: two tax tools, sixteen seeded faults, one si
 seo_title: "State residency day counter: a mistyped state code now gets a warning"
 date: 2026-11-12
 tags: [testing, mutation-testing, state-residency, 1099, redteam]
-description: "Sixteen seeded faults in two tax tools, nine caught. A manual hunt found worse: a mistyped state code dropped days from the count without a word."
+description: "Sixteen seeded faults in two tax tools, nine caught. A manual hunt found worse: a mistyped state code that dropped days without a word."
 ---
 
 Two tools in the catalogue changed on `main` this week: the
@@ -49,11 +49,14 @@ called "YN", and the New York total came out 91 days short, with no warning.
 For a tool whose whole job is telling you how close you are to 183, that's
 the worst kind of wrong: it errs toward "you're safe".
 
-Two-letter codes for places abroad (`UK`, `ON`) are fine to type, since days
-abroad really don't count toward any state, so the parser still accepts them.
-What changed is that the result now says so: *"YN (91 days), UK (14 days) are
-not a US state or DC code, so those days count toward no state. If you meant
-a state, fix the code."* The notice shows on the page and in the CLI.
+I wrote a fix that added a warning naming each unknown code. While this
+run was open, another red-team run on the same tool
+([PR #15088](https://github.com/Duncan-Haywood/oss-monorepo/pull/15088))
+found the same hole independently and landed a stricter fix first: a pair
+that is not a state or DC is now a parse error on its line, so `YN` stops the
+count instead of shrinking it. I dropped my warning in favour of theirs. Two
+separate runs reaching the same bug on the same day is decent evidence that
+reading the parser by hand finds things seeded faults don't.
 
 The tests that found these run on every pull request that touches either
 tool, so the next copy of any of them fails CI.

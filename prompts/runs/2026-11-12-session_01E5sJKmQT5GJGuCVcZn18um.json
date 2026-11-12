@@ -30,13 +30,18 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First ICS fold test asserted the continuation line was full while it was the short tail; lengthened the input."
+    "First ICS fold test asserted the continuation line was full while it was the short tail; lengthened the input.",
+    "Merge conflict with PR #15088 (parallel red-team run on the same target); first splice put tests inside the tail of their last test; fixed and suite re-run 65/65."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "Step 0 says fix every open entry first, but all 5 open entries are control-plane edits already sitting in owner-gated PRs (#12928, #14877, #14612, #14698); the prompt could say to check for an open PR and move on."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searched open PRs before opening, but #15088 (same target, same day) was opened after my search; red-team target draws from 'changed in the last 3 days' make two parallel runs on the same file likely."
     }
   ],
   "deviations": [
@@ -303,9 +308,9 @@
     "real_defects": [
       {
         "file": "ventures/state-residency-day-counter/calc.mjs",
-        "issue": "parseStays accepts any two capital letters as a state; a typo like 'YN' for NY silently counted its days toward no state, under-counting the intended state with no warning. Fixed: analyze adds a notice naming each non-state code and its days.",
+        "issue": "parseStays accepted any two capital letters as a state; a typo like 'YN' for NY silently counted its days toward no state, under-counting the intended state. Found independently by this run and PR #15088, which landed first with a parse error; this run's notice-based fix was dropped at merge.",
         "patched": true,
-        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15091"
+        "patched_in": "already fixed on main: PR #15088 makes a non-state pair a parse error (its test 'a two-letter pair that is not a state is an error' passes on the merged tree)"
       }
     ]
   },

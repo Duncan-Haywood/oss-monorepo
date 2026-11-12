@@ -1,0 +1,133 @@
+# 2026-11-12, before the change (exact "auto" = up to 14 copies), one 4-core cloud machine, runs one at a time.
+# node eval/auto-exact.mjs P S cases for each size below. Every week here has over 14 copies, so the old "auto" is exact: false.
+# The templates were run after the change with MODES=off,exact ("off" is the old default on these weeks).
+8 people, 22 shift lines, options {}
+week 0: 32 copies
+  auto     2059 ms, open 57 h / 8 shifts, pay $2764.00, score 5703029.59, status none
+  exact    2323 ms, open 57 h / 8 shifts, pay $2764.00, score 5703029.59, status optimal, cg proven true
+week 1: 29 copies
+  auto     2003 ms, open 5 h / 1 shifts, pay $2405.00, score 502412.58, status none
+  exact    1969 ms, open 4 h / 1 shifts, pay $2420.00, score 402429.33, status improved, cg proven true
+week 2: 35 copies
+  auto     1318 ms, open 98 h / 14 shifts, pay $2165.00, score 9802814.98, status none
+  exact    1416 ms, open 98 h / 14 shifts, pay $2165.00, score 9802814.98, status optimal, cg proven true
+10 people, 28 shift lines, options {}
+week 0: 42 copies
+  auto     2445 ms, open 110 h / 16 shifts, pay $2914.00, score 11003601.08, status none
+  exact    2891 ms, open 110 h / 16 shifts, pay $2914.00, score 11003601.08, status optimal, cg proven true
+week 1: 41 copies
+  auto     1812 ms, open 93 h / 16 shifts, pay $2575.00, score 9303007.10, status none
+  exact    1846 ms, open 93 h / 16 shifts, pay $2573.00, score 9303006.78, status improved, cg proven true
+week 2: 39 copies
+  auto     2377 ms, open 57 h / 12 shifts, pay $2263.00, score 5702449.49, status none
+  exact    2976 ms, open 57 h / 12 shifts, pay $2267.00, score 5702448.81, status improved, cg proven true
+15 people, 42 shift lines, options {}
+week 0: 62 copies
+  auto     3406 ms, open 134 h / 21 shifts, pay $4123.00, score 13404750.00, status none
+  exact     404 ms, open 129 h / 21 shifts, pay $4208.00, score 12904795.63, status improved, cg proven true
+week 1: 62 copies
+  auto     4079 ms, open 89 h / 14 shifts, pay $4401.00, score 8904678.88, status none
+  exact     559 ms, open 88 h / 14 shifts, pay $4433.00, score 8804695.90, status improved, cg proven true
+week 2: 55 copies
+  auto     3701 ms, open 38 h / 7 shifts, pay $4190.00, score 3804307.33, status none
+  exact    4667 ms, open 38 h / 7 shifts, pay $4177.00, score 3804304.60, status improved, cg proven true
+20 people, 56 shift lines, options {}
+week 0: 76 copies
+  auto     4892 ms, open 151 h / 25 shifts, pay $5312.00, score 15105870.36, status none
+  exact     923 ms, open 151 h / 25 shifts, pay $5277.00, score 15105833.93, status improved, cg proven true
+week 1: 82 copies
+  auto     4772 ms, open 80 h / 13 shifts, pay $6723.00, score 8006924.59, status none
+  exact     912 ms, open 78 h / 13 shifts, pay $6707.00, score 7806928.96, status improved, cg proven true
+week 2: 75 copies
+  auto     4750 ms, open 48 h / 10 shifts, pay $6717.00, score 4806792.49, status none
+  exact    1015 ms, open 48 h / 10 shifts, pay $6691.00, score 4806773.36, status improved, cg proven true
+30 people, 84 shift lines, options {}
+week 0: 121 copies
+  auto    10139 ms, open 182 h / 28 shifts, pay $9771.00, score 18210392.66, status none
+  exact    6846 ms, open 181 h / 28 shifts, pay $9764.00, score 18110368.89, status improved, cg proven true
+week 1: 122 copies
+  auto     8818 ms, open 143 h / 22 shifts, pay $10612.00, score 14311046.48, status none
+  exact    2186 ms, open 142 h / 22 shifts, pay $10622.00, score 14211054.63, status improved, cg proven true
+week 2: 122 copies
+  auto     9823 ms, open 190 h / 30 shifts, pay $8817.00, score 19009487.61, status none
+  exact    1153 ms, open 189 h / 29 shifts, pay $8836.00, score 18909503.99, status improved, cg proven true
+40 people, 112 shift lines, options {}
+week 0: 149 copies
+  auto    14436 ms, open 170 h / 31 shifts, pay $12210.00, score 17012686.05, status none
+  exact    6126 ms, open 169 h / 32 shifts, pay $12156.00, score 16912612.78, status improved, cg proven true
+week 1: 148 copies
+  auto    12950 ms, open 146 h / 28 shifts, pay $12537.00, score 14612868.59, status none
+  exact    9867 ms, open 146 h / 28 shifts, pay $12480.00, score 14612836.63, status improved, cg proven true
+week 2: 162 copies
+  auto    16539 ms, open 281 h / 46 shifts, pay $11594.00, score 28112559.99, status none
+  exact   21148 ms, open 281 h / 46 shifts, pay $11594.00, score 28112559.99, status bounded, cg proven false
+60 people, 168 shift lines, options {}
+week 0: 245 copies
+  auto    20857 ms, open 300 h / 57 shifts, pay $19119.00, score 30020010.32, status none
+  exact   21419 ms, open 300 h / 57 shifts, pay $19119.00, score 30020010.32, status bounded, cg proven false
+week 1: 238 copies
+  auto    21594 ms, open 308 h / 47 shifts, pay $19028.00, score 30819993.38, status none
+  exact    9277 ms, open 308 h / 49 shifts, pay $19021.00, score 30819981.75, status improved, cg proven true
+6 people, 16 shift lines, options {}
+week 0: 18 copies
+  auto     1054 ms, open 29 h / 6 shifts, pay $1034.00, score 2901097.29, status none
+  exact     796 ms, open 29 h / 6 shifts, pay $1034.00, score 2901097.29, status optimal, cg proven true
+week 1: 20 copies
+  auto     1228 ms, open 17 h / 4 shifts, pay $1797.00, score 1701834.37, status none
+  exact    1375 ms, open 17 h / 4 shifts, pay $1797.00, score 1701834.37, status optimal, cg proven true
+week 2: 21 copies
+  auto      742 ms, open 51 h / 8 shifts, pay $1308.00, score 5101502.67, status none
+  exact     756 ms, open 51 h / 8 shifts, pay $1303.00, score 5101497.67, status improved, cg proven true
+week 3: 21 copies
+  auto      762 ms, open 42 h / 6 shifts, pay $1316.00, score 4201503.94, status none
+  exact     808 ms, open 42 h / 6 shifts, pay $1316.00, score 4201503.94, status optimal, cg proven true
+week 4: 20 copies
+  auto      721 ms, open 23 h / 3 shifts, pay $1763.00, score 2301827.00, status none
+  exact     831 ms, open 23 h / 3 shifts, pay $1763.00, score 2301827.00, status optimal, cg proven true
+week 5: 22 copies
+  auto      999 ms, open 45 h / 7 shifts, pay $1419.00, score 4501667.02, status none
+  exact    1394 ms, open 45 h / 7 shifts, pay $1419.00, score 4501667.02, status optimal, cg proven true
+week 6: 19 copies
+  auto      875 ms, open 31 h / 5 shifts, pay $1754.00, score 3101982.42, status none
+  exact     908 ms, open 31 h / 5 shifts, pay $1754.00, score 3101982.42, status optimal, cg proven true
+week 7: 21 copies
+  auto     1054 ms, open 28 h / 4 shifts, pay $1784.00, score 2801910.95, status none
+  exact     879 ms, open 28 h / 4 shifts, pay $1784.00, score 2801910.95, status optimal, cg proven true
+12 people, 34 shift lines, options {}
+week 0: 48 copies
+  auto     2779 ms, open 121 h / 19 shifts, pay $3247.00, score 12103891.92, status none
+  exact    2617 ms, open 121 h / 19 shifts, pay $3239.00, score 12103874.67, status improved, cg proven true
+week 1: 42 copies
+  auto     1936 ms, open 57 h / 10 shifts, pay $2999.00, score 5703138.34, status none
+  exact    1937 ms, open 57 h / 10 shifts, pay $2999.00, score 5703138.34, status optimal, cg proven true
+week 2: 45 copies
+  auto     2991 ms, open 48 h / 8 shifts, pay $3628.00, score 4803814.03, status none
+  exact    3497 ms, open 48 h / 8 shifts, pay $3628.00, score 4803814.03, status optimal, cg proven true
+week 3: 44 copies
+  auto     3497 ms, open 45 h / 9 shifts, pay $3466.00, score 4503558.89, status none
+  exact    4451 ms, open 45 h / 9 shifts, pay $3469.00, score 4503555.97, status improved, cg proven true
+week 4: 44 copies
+  auto     2546 ms, open 37 h / 8 shifts, pay $3821.00, score 3703895.61, status none
+  exact    2836 ms, open 37 h / 8 shifts, pay $3821.00, score 3703895.61, status optimal, cg proven true
+week 5: 46 copies
+  auto     2857 ms, open 65 h / 11 shifts, pay $3529.00, score 6503728.90, status none
+  exact    2580 ms, open 65 h / 11 shifts, pay $3508.00, score 6503722.30, status improved, cg proven true
+week 6: 48 copies
+  auto     3170 ms, open 49 h / 9 shifts, pay $4227.00, score 4904465.18, status none
+  exact    4201 ms, open 48 h / 8 shifts, pay $4242.00, score 4804477.42, status improved, cg proven true
+week 7: 46 copies
+  auto     2365 ms, open 84 h / 13 shifts, pay $3433.00, score 8403829.07, status none
+  exact    2469 ms, open 84 h / 14 shifts, pay $3425.00, score 8403821.03, status improved, cg proven true
+built-in templates, options {}
+cafe: 7 people, 32 copies
+  off      2746 ms, open 19 h / 3 shifts, pay $3622.00, score 1903692.74, status none
+  exact    2583 ms, open 15 h / 5 shifts, pay $3690.00, score 1503758.95, status optimal, cg proven true
+salon: 5 people, 16 copies
+  off        21 ms, open 0 h / 0 shifts, pay $2054.00, score 2095.75, status none
+  exact      42 ms, open 0 h / 0 shifts, pay $2054.00, score 2095.75, status optimal, cg proven true
+retail: 5 people, 20 copies
+  off        16 ms, open 0 h / 0 shifts, pay $2250.00, score 2251.82, status none
+  exact      82 ms, open 0 h / 0 shifts, pay $2250.00, score 2251.82, status optimal, cg proven true
+clinic: 5 people, 16 copies
+  off       894 ms, open 5 h / 1 shifts, pay $2708.00, score 503235.35, status none
+  exact     935 ms, open 5 h / 1 shifts, pay $2708.00, score 503235.35, status optimal, cg proven true

@@ -17,7 +17,7 @@ test("time-off page's table is what the engine returns for the sample cafe as we
     const text = sampleStaff().split("\n").map((l) => (who.slice(0, n).some((w) => l.startsWith(w + ",")) ? l + ", off: Sat-Sun" : l)).join("\n").replace("min hours, availability", "min hours, availability, off");
     const p = parseStaff(text);
     assert.deepEqual(p.errors, []);
-    const r = buildRoster(p.staff, slots, { minRestHours: 10 });
+    const r = buildRoster(p.staff, slots, { exact: false, minRestHours: 10 });
     assert.equal(r.unfilled.length, open, `${n} open`);
     assert.equal(r.hours, covered, `${n} covered`);
     assert.equal(r.cost, pay, `${n} payroll`);
@@ -41,7 +41,7 @@ test("14-15 year old page's table is what the engine returns for the sample cafe
   for (const [c, e, open, covered, pay, hrs] of [[0, 0, 3, 216, 3622, 36], ["15", 0, 5, 200, 3382, 18], ["15", "14", 7, 184, 3168, 0], ["15 summer", "14 summer", 3, 216, 3632, 32]]) {
     const p = parseStaff(withAges(c, e));
     assert.deepEqual(p.errors, []);
-    const r = buildRoster(p.staff, slots, {});
+    const r = buildRoster(p.staff, slots, { exact: false, exact: false });
     assert.equal(r.unfilled.length, open, "open");
     assert.equal(r.hours, covered, "covered");
     assert.equal(r.cost, pay, "payroll");
@@ -60,7 +60,7 @@ test("overtime page's table is what the engine returns for the sample cafe", asy
   const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
   const html = page("how-to-reduce-overtime-in-a-schedule.html");
   for (const [line, ot, covered, pay] of [[30, 30, 216, 3890], [35, 13, 216, 3739], [40, 0, 216, 3622]]) {
-    const r = buildRoster(staff, slots, { otAfter: line });
+    const r = buildRoster(staff, slots, { exact: false, otAfter: line });
     assert.equal(r.otHours, ot, `${line}h overtime hours`);
     assert.equal(r.hours, covered, `${line}h covered`);
     assert.equal(Math.round(r.cost), pay, `${line}h payroll`);

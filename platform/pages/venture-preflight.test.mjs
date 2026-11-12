@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, launchedProblems, postProblem } from './venture-preflight.mjs';
+import { buildProblem, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, launchedProblems, postProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -66,4 +66,29 @@ test('postProblem is silent on exit 0 and indents the checker output otherwise',
   const p = postProblem(1, 'a.md: description is 214 characters; keep it to 160\n');
   assert.match(p, /check_post_frontmatter\.py/);
   assert.match(p, /\n {6}a\.md: description is 214/);
+});
+
+test('siteTestFiles is CI\'s glob minus the whole-site builds', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-site-'));
+  await fs.mkdir(path.join(dir, 'cloudflare'));
+  for (const f of ['b.test.mjs', 'a.test.mjs', 'helper.mjs', ...SITE_BUILD_TESTS]) await fs.writeFile(path.join(dir, f), '');
+  await fs.writeFile(path.join(dir, 'cloudflare', 'split.test.mjs'), '');
+  assert.deepEqual(siteTestFiles(dir), ['a.test.mjs', 'b.test.mjs', 'cloudflare/split.test.mjs']);
+});
+
+test('the real site-test list keeps faq-visible and drops build.test', () => {
+  const files = siteTestFiles();
+  assert.ok(files.includes('faq-visible.test.mjs'));
+  assert.ok(!files.includes('build.test.mjs'));
+});
+
+test('siteTestProblem is silent on exit 0, lists failing tests and says whether the slug is named', () => {
+  assert.equal(siteTestProblem({ status: 0, stdout: '', stderr: '' }, 'tax'), null);
+  const tap = `ok 1 - fine\nnot ok 2 - FAQ answers are visible\n  ---\n  error: ventures/tax/faq.html\n  location: '/r/platform/pages/faq-visible.test.mjs:124:1'\n  not ok 3 - FAQ answers are visible\n`;
+  const mine = siteTestProblem({ status: 1, stdout: tap, stderr: '' }, 'tax');
+  assert.match(mine, /names tax/);
+  assert.match(mine, /node --test faq-visible\.test\.mjs`/);
+  assert.equal(mine.match(/not ok: FAQ answers are visible/g).length, 1);
+  const other = siteTestProblem({ status: 1, stdout: tap, stderr: '' }, 'ta');
+  assert.match(other, /none of the output names ta;/);
 });

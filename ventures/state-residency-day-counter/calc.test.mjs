@@ -651,6 +651,40 @@ test("stateAt finds a point whose polygon sits where longitude exceeds latitude"
   assert.equal(stateAt(105, 25, rings), "");
 });
 
+test("workdays follow the real calendar in a year that does not start on a Wednesday", () => {
+  // 2025 starts on a Wednesday, so a weekday count mirrored around 1 January still
+  // lands weekends on weekends; 2026 starts on a Thursday and would not.
+  const lines = ["2026-06-06 to 2026-06-07 NJ", "2026-06-08 to 2026-06-12 NY", "2026-06-17 to 2026-06-17 CT"];
+  const r = analyze({ year: 2026, stays: parseStays(lines.join("\n"), 2026).stays, abode: {}, overrides: {} });
+  assert.equal(by(r, "NJ").workdays, 0); // Sat + Sun
+  assert.equal(by(r, "NY").workdays, 5); // Mon .. Fri
+  assert.equal(by(r, "CT").workdays, 1); // a Wednesday
+});
+
+test("a saved setup file says version 1, the format setupFromJson reads", async () => {
+  const { setupToJson } = await import("./calc.mjs");
+  const doc = JSON.parse(setupToJson({ year: "2026" }));
+  assert.equal(doc.kind, "state-residency-day-counter-setup");
+  assert.equal(doc.version, 1);
+  assert.deepEqual(doc.fields, { year: "2026" });
+});
+
+test("a two-letter pair that is not a state is an error, not a state of its own", () => {
+  const { stays, errors } = parseStays(["2025-06-01 to 2025-06-05 XX", "2025-06-06 to 2025-06-07 NU", "2025-06-08 to 2025-06-09 OK", "2025-06-10 to 2025-06-11 AT NY"].join("\n"), Y);
+  assert.deepEqual(errors.map((e) => e.line), [1, 2]);
+  assert.match(errors[0].message, /"XX" is not a US state code/);
+  assert.deepEqual(stays.map((s) => s.state), ["OK", "NY"]);
+  assert.match(validateSpec({ year: Y, stays: [{ state: "XX", start: toDay(Y, 6, 1), end: toDay(Y, 6, 2) }] }).join(" "), /"XX"/);
+  assert.deepEqual(validateSpec({ year: Y, stays: [{ state: "DC", start: toDay(Y, 6, 1), end: toDay(Y, 6, 2) }] }), []);
+});
+
+test("a three-digit year is a typo, not the year 202", () => {
+  const { stays, errors } = parseStays("6/2/202 - 6/5/202 NY\n6/2/25 - 6/5/25 NY", Y);
+  assert.equal(errors.length, 1);
+  assert.equal(errors[0].line, 1);
+  assert.deepEqual(stays.map((s) => [s.start, s.end]), [[toDay(2025, 6, 2), toDay(2025, 6, 5)]]);
+});
+
 // Red-team 2026-11-12: a VA limit of 184 passed every test. Every state's day
 // limit, abode requirement and rule kind is pinned here, so a change to one is
 // a deliberate edit to this table (with its statute) rather than a silent slip.
@@ -689,17 +723,4 @@ test("deadlinesIcs folds multi-byte text at 75 octets, not earlier, and never sp
   assert.ok(bytes(physical[start + 1]) >= 74, "continuation line folded early");
   const unfolded = ics.replace(/\r\n /g, "");
   assert.ok(unfolded.includes(`PRODID:-//${name}//EN`));
-});
-
-// Red-team 2026-11-12 (real defect): a mistyped code such as "YN" for NY was
-// accepted with no word, and its days counted toward no state, so the state the
-// person meant was under-counted silently.
-test("a stay code that is not a US state or DC gets a notice naming it", () => {
-  const r = analyze(spec(["2025-01-01 to 2025-03-31 NY", "2025-04-01 to 2025-06-30 YN", "2025-07-01 to 2025-07-14 UK vacation"], { abode: { NY: true } }));
-  const n = r.notices.find((x) => x.includes("not a US state"));
-  assert.ok(n, JSON.stringify(r.notices));
-  assert.match(n, /YN \(91 days?\)/);
-  assert.match(n, /UK \(14 days?\)/);
-  assert.equal(by(r, "NY").days, 90);
-  assert.ok(!analyze(spec(["2025-01-01 to 2025-03-31 NY"])).notices.some((x) => x.includes("not a US state")));
 });

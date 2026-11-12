@@ -17,13 +17,23 @@
 //      (`check_post_frontmatter.py` on just those files): runs kept learning
 //      the 160-character description and 70-character seo_title limits from
 //      the build five minutes in (three run records on 2026-11-12 alone).
+//   4. The site's own tests, the same `node --test "*.test.mjs"
+//      "cloudflare/*.test.mjs"` glob CI's "Test the site builder" step runs,
+//      minus the two files that build the whole site (SITE_BUILD_TESTS, about
+//      five minutes and more each). The rest are source scans of every
+//      venture page (FAQ markup shown on the page, heading order, schema,
+//      post rules): 1,249 tests in about 35 s on 4 cores. A preflight that
+//      passed while CI failed faq-visible.test.mjs on the new page cost a
+//      ventures run a CI round (run record, 2026-11-12).
 //
 //   node platform/pages/venture-preflight.mjs <slug> [--skip-build]
 //
-// Takes about five minutes (the build is most of it); the cheap checks fail first, in seconds. Exit 0: clean for this
-// slug. Exit 1: a problem names the slug, or the launch date / counts are
-// wrong. Problems from other slugs are printed as notes and do not fail you.
-// `--skip-build` runs steps 1 and 3 only (about 15 s).
+// Takes about six minutes (the build is most of it); the cheap checks fail first, in seconds. Exit 0: clean for this
+// slug. Exit 1: a problem names the slug, the launch date / counts are
+// wrong, or a site test fails (CI runs the same tests on the PR, so a red
+// one fails it whoever caused it; the message says whether it names the slug).
+// Problems check.mjs finds on other slugs are printed as notes and do not fail you.
+// `--skip-build` runs steps 1, 3 and 4 only (under a minute).
 
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -107,6 +117,39 @@ export function checkProblems(checked, slug) {
   return { failures, other };
 }
 
+/** Site tests that build the whole site; the preflight's own build covers that ground. */
+export const SITE_BUILD_TESTS = ['build.test.mjs', 'custom-domain.test.mjs'];
+
+/** CI's site-test glob (`*.test.mjs`, `cloudflare/*.test.mjs` in platform/pages), minus SITE_BUILD_TESTS. */
+export function siteTestFiles(dir = path.join(ROOT, 'platform', 'pages')) {
+  const top = fs.readdirSync(dir).filter((f) => f.endsWith('.test.mjs') && !SITE_BUILD_TESTS.includes(f));
+  const cf = path.join(dir, 'cloudflare');
+  const nested = fs.existsSync(cf)
+    ? fs.readdirSync(cf).filter((f) => f.endsWith('.test.mjs')).map((f) => `cloudflare/${f}`)
+    : [];
+  return [...top, ...nested].sort();
+}
+
+/** null when the site tests passed; else the failing tests (TAP `not ok` lines) and the rerun command. */
+export function siteTestProblem(r, slug) {
+  if (r.status === 0) return null;
+  const output = (r.stdout || '') + (r.stderr || '');
+  const failing = [...new Set(output.split('\n')
+    .map((l) => l.match(/^\s*not ok \d+ - (.+)$/)?.[1]?.trim())
+    .filter(Boolean))];
+  const named = new RegExp(`(^|[^A-Za-z0-9_-])${slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z0-9_-])`).test(output);
+  // TAP puts each failure's `location: '<path>/x.test.mjs:12:1'` in its YAML block.
+  const files = [...new Set([...output.matchAll(/location: '[^']*?((?:cloudflare\/)?[\w.-]+\.test\.mjs):\d+/g)].map((m) => m[1]))];
+  const who = named
+    ? `the output names ${slug}`
+    : `none of the output names ${slug}; if main fails the same way it is not yours, but CI will still be red`;
+  const list = failing.length
+    ? failing.slice(0, 15).map((t) => `      not ok: ${t}`).join('\n')
+    : output.slice(-1500).split('\n').map((l) => `      ${l}`).join('\n');
+  const rerun = `cd platform/pages && node --test ${files.length ? files.join(' ') : '<file>'}`;
+  return `site tests failed (${who}); rerun with \`${rerun}\`:\n${list}`;
+}
+
 async function main(argv) {
   const slug = argv.find((a) => !a.startsWith('--'));
   if (!slug) {
@@ -134,6 +177,14 @@ async function main(argv) {
   if (posts.length) {
     const r = spawnSync('python3', ['platform/ci/check_post_frontmatter.py', ...posts], { cwd: ROOT, encoding: 'utf8' });
     const problem = postProblem(r.status, (r.stdout || '') + (r.stderr || ''));
+    if (problem) failures.push(problem);
+  }
+  if (!failures.length) {
+    console.log(`1c/3 site tests (${siteTestFiles().length} files, CI's glob minus ${SITE_BUILD_TESTS.join(', ')}; about 35 s)`);
+    const r = spawnSync('node', ['--test', '--test-reporter=tap', ...siteTestFiles()], {
+      cwd: path.join(ROOT, 'platform', 'pages'), encoding: 'utf8', maxBuffer: 1 << 28,
+    });
+    const problem = siteTestProblem(r, slug);
     if (problem) failures.push(problem);
   }
   if (failures.length) {
