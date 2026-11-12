@@ -60,6 +60,15 @@ class MilestonesTest(unittest.TestCase):
         self.assertIn("civ-contact", listed)
         self.assertNotIn("civ-contact", free)
 
+    def test_first_run_landed_in_programme_is_not_free(self):
+        listed, free = pick_track.milestones("civ")
+        self.assertIn("civ-culture", listed)  # "(first run landed in civ-levers ...)"
+        self.assertNotIn("civ-culture", free)
+
+    def test_logs_naming_a_milestone_are_found(self):
+        self.assertIn("research/aerolog-scaling/LOG.md", pick_track.mentioned_in_logs("aerolog-sizing"))
+        self.assertEqual(pick_track.mentioned_in_logs("nosuch-milestone-xyz"), [])
+
     def test_unknown_prefix_is_empty(self):
         self.assertEqual(pick_track.milestones("nosuchtrack"), ([], []))
 

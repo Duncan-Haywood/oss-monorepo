@@ -258,8 +258,21 @@ def milestones(prefix):
     pat = r"^\d+\. `(%s-[\w-]+)`([^\n]*)" % re.escape(prefix)
     found = re.findall(pat, m.group(1), re.M)
     listed = [slug for slug, _ in found]
-    marked = {slug for slug, rest in found if re.match(r"\s*\((done|landed)\b", rest)}
+    # "(done ...)", "(landed in X)", and "(first run landed in X ...)": the last
+    # form marks every civ milestone, yet they were all printed as free
+    # (doc_friction 2026-11-11).
+    marked = {slug for slug, rest in found
+              if re.match(r"\s*\((done|landed)\b", rest) or re.match(r"\s*\([^)]*\blanded in\b", rest)}
     return listed, [x for x in listed if x not in marked and not (RESEARCH / x).is_dir()]
+
+
+def mentioned_in_logs(slug):
+    """research/<programme>/LOG.md files that name `slug`: a milestone run
+    inside a programme often leaves no mark in PROJECTS.md (aerolog-sizing
+    landed as aerolog-scaling 10a-10s and was still printed as free;
+    doc_friction 2026-11-11)."""
+    return sorted(str(f.relative_to(RESEARCH.parent)) for f in RESEARCH.glob("*/LOG.md")
+                  if f.parent.name != slug and slug in f.read_text(errors="ignore"))
 
 
 def next_steps(name, width=400):
@@ -387,7 +400,9 @@ if __name__ == "__main__":
         if not listed:
             print("milestones: no list found in PROJECTS.md; take a 'Next steps' item or ask a new question")
         elif free:
-            print(f"milestones: {len(listed) - len(free)}/{len(listed)} on this checkout; next free: {free[0]}")
+            logs = mentioned_in_logs(free[0])
+            seen = f" (named in {', '.join(logs[:3])}: check it has not already run there)" if logs else ""
+            print(f"milestones: {len(listed) - len(free)}/{len(listed)} on this checkout; next free: {free[0]}{seen}")
         else:
             print(f"milestones: all {len(listed)} listed are on this checkout; take a 'Next steps' item or ask a new question")
         if newest:
