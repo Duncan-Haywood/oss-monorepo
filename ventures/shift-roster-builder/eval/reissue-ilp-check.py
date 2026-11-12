@@ -18,7 +18,7 @@ from collections import defaultdict
 import numpy as np
 ALL = '--all' in sys.argv
 from scipy.optimize import milp, LinearConstraint, Bounds
-from scipy.sparse import lil_matrix
+from scipy.sparse import coo_matrix
 
 
 def model(w):
@@ -75,27 +75,41 @@ def model(w):
             if not el[p][s]: ub[X(p, s)] = 0
         for t in range(T): ub[K(p, t)] = posted[p][t]
     integ = np.ones(nv); integ[nx + no + ny + nk:] = 0  # c is continuous: at the optimum it equals the integer max
-    A = lil_matrix((len(rows), nv))
+    ri, ci, vals = [], [], []
     for r, (coefs, _, _) in enumerate(rows):
-        for v, cf in coefs: A[r, v] += cf
+        for v, cf in coefs: ri.append(r); ci.append(v); vals.append(cf)
+    A = coo_matrix((vals, (ri, ci)), shape=(len(rows), nv))  # duplicates sum, as += did
     return dict(A=A.tocsr(), lo=[r[1] for r in rows], hi=[r[2] for r in rows], lb=lb, ub=ub, integ=integ, nv=nv, X=X, O=O, C=C,
                 P=P, S=S, D=D, hours=hours, others=others, rows=rows, sl=sl, days=days, tof=tof, posted=posted, types=types)
 
 
-def solve(w, limit=300):
+LIMIT = float(next((a.split('=')[1] for a in sys.argv if a.startswith('--limit=')), 300))
+
+
+def solve(w, limit=LIMIT, also_at=None):
+    """Least open hours, then the fewest changes at that many open hours. With also_at (open hours above the least, the
+    engine's), also the fewest changes at open hours <= also_at. A stage that stops on the time limit returns its best
+    roster's count with the solver's lower bound: (value, bound, proven)."""
     m = model(w)
     open_cost = np.zeros(m['nv'])
     for s in range(m['S']): open_cost[m['O'](s)] = m['hours'][s]
     t0 = time.time()
-    r1 = milp(open_cost, constraints=LinearConstraint(m['A'], m['lo'], m['hi']), integrality=m['integ'], bounds=Bounds(m['lb'], m['ub']), options={'time_limit': limit})
-    if r1.status != 0: return None, None, r1.status, time.time() - t0
+    A = LinearConstraint(m['A'], m['lo'], m['hi'])
+    r1 = milp(open_cost, constraints=A, integrality=m['integ'], bounds=Bounds(m['lb'], m['ub']), options={'time_limit': limit})
+    if r1.status != 0: return None, None, None, r1.status, time.time() - t0
     best_open = round(r1.fun, 6)
     ch_cost = np.zeros(m['nv'])
     for p in m['others']:
         for d in range(m['D']): ch_cost[m['C'](p, d)] = 1
-    A2 = LinearConstraint(open_cost.reshape(1, -1), -np.inf, best_open + 1e-6)
-    r2 = milp(ch_cost, constraints=[LinearConstraint(m['A'], m['lo'], m['hi']), A2], integrality=m['integ'], bounds=Bounds(m['lb'], m['ub']), options={'time_limit': limit})
-    return best_open, (round(r2.fun, 6) if r2.status == 0 else None), r2.status, time.time() - t0
+
+    def least_changes(cap):
+        r = milp(ch_cost, constraints=[A, LinearConstraint(open_cost.reshape(1, -1), -np.inf, cap + 1e-6)], integrality=m['integ'], bounds=Bounds(m['lb'], m['ub']), options={'time_limit': limit})
+        if r.x is None: return None
+        bound = getattr(r, 'mip_dual_bound', None)
+        return (round(r.fun, 6), round(bound, 6) if bound is not None else None, r.status == 0)
+    at_least = least_changes(best_open)
+    at_engine = least_changes(also_at) if also_at is not None and also_at > best_open + 1e-6 else None
+    return best_open, at_least, at_engine, 0, time.time() - t0
 
 
 def score(w, owner):
@@ -135,9 +149,17 @@ def score(w, owner):
 if __name__ == '__main__':
     W = json.load(open([a for a in sys.argv[1:] if not a.startswith('--')][0]))
     variants = list(W[0]['engine'])
-    tot = defaultdict(float); n_above = defaultdict(int); mismatch = 0; broken_any = 0; least = 0
+    KS = 'keep/shift 1'
+    tot = defaultdict(float); n_above = defaultdict(int); mismatch = 0; broken_any = 0; least = 0; unproven_ilp = 0
+    engine_open_above = 0; at_engine_least = 0; at_engine_n = 0
+    by_status = defaultdict(lambda: [0, 0, 0])  # engine keep/shift 1 status -> [weeks, at the least, changes above the least]
     for w in W:
-        best_open, best_ch, st, secs = solve(w)
+        ks = w['engine'][KS]
+        best_open, at_least, at_engine, st, secs = solve(w, also_at=ks['open'])
+        if best_open is None:
+            print(f'{w["set"]:8} {w["case"]:8} ilp stage 1 status {st} after {secs:.1f}s', flush=True); unproven_ilp += 1; continue
+        best_ch, bound, proven = at_least if at_least else (None, None, False)
+        if not proven: unproven_ilp += 1
         cells = []
         for v in variants:
             e = w['engine'][v]
@@ -145,10 +167,23 @@ if __name__ == '__main__':
             if (not ALL and ch != e['changes']) or abs(o - e['open']) > 1e-6: mismatch += 1
             if broken: broken_any += 1
             tot[v] += ch
-            if best_ch is not None and ch > best_ch + 1e-6: n_above[v] += 1
-            cells.append(f'{v} {e["open"]:g} h {ch:>2}{" (scheduleChanges " + str(e["changes"]) + ")" if not ALL and ch != e["changes"] else ""}')
+            if best_ch is not None and o <= best_open + 1e-6 and ch > best_ch + 1e-6: n_above[v] += 1
+            cells.append(f'{v} {e["open"]:g} h {ch:>2} {e.get("status", "")}{" (scheduleChanges " + str(e["changes"]) + ")" if not ALL and ch != e["changes"] else ""}')
         tot['ilp'] += best_ch if best_ch is not None else float('nan')
-        if best_ch is not None and best_ch + 1e-6 >= score(w, w['engine']['keep/shift 1']['owner'])[1]: least += 1
-        print(f'{w["set"]:6} {w["case"]:8} ilp open {best_open:g} h, least changes {best_ch:g}   ' + '   '.join(cells) + f'   {secs:.1f}s', flush=True)
+        ks_o, ks_ch, _ = score(w, ks['owner'])
+        row = by_status[ks.get('status')]; row[0] += 1
+        if ks_o > best_open + 1e-6:
+            engine_open_above += 1
+            if at_engine:
+                at_engine_n += 1
+                if at_engine[0] + 1e-6 >= ks_ch: at_engine_least += 1
+        elif best_ch is not None:
+            if best_ch + 1e-6 >= ks_ch: least += 1; row[1] += 1
+            else: row[2] += ks_ch - best_ch
+        extra = '' if proven else f' (time limit; bound {bound:g})'
+        if at_engine: extra += f'; at the engine\'s {ks_o:g} h: least {at_engine[0]:g}{"" if at_engine[2] else " (time limit)"}'
+        print(f'{w["set"]:8} {w["case"]:8} ilp open {best_open:g} h, least changes {best_ch:g}{extra}   ' + '   '.join(cells) + f'   {secs:.1f}s', flush=True)
     print(f'{len(W)} weeks{" (the caller counted too)" if ALL else ""}; least changes in total {tot["ilp"]:g}; ' + '; '.join(f'{v} {tot[v]:g} ({n_above[v]} weeks above the least)' for v in variants))
-    print(f'engine change counts differing from the ILP count: {mismatch}; engine rosters breaking an ILP rule: {broken_any}; keep/shift 1 at the least on {least} of {len(W)}')
+    print(f'engine change counts differing from the ILP count: {mismatch}; engine rosters breaking an ILP rule: {broken_any}; ILP stages stopped on the time limit: {unproven_ilp}')
+    print(f'{KS} at the least open hours on {len(W) - engine_open_above} of {len(W)}, and at the least changes there on {least}; above the least open hours on {engine_open_above} (least changes at its own open hours on {at_engine_least} of {at_engine_n})')
+    for k, (n, ok, extra_ch) in by_status.items(): print(f'  engine status {k}: {n} weeks, at the least changes on {ok}, {extra_ch:g} changes above the least in total')
