@@ -128,12 +128,18 @@ A5₀, A5' holds exactly when Anderson's necessary existents' cells form a prope
 (`a5a_iff_closed`), which full property semantics guarantees and a coarse algebra need not. So the
 two necessary-existence axioms are independent, not nested; A5₀'s de re result stands.
 
+**M2 (part), the model counts proved (E16, 2026-11-12).** The closed-form model counts of E13 and
+E14, until now checked by search up to 6 cells, are Lean 4 theorems for any block algebra and any
+domains (`lean/TheismFormal/Models.lean`, `model_iff`, `a5a_iff`, `a5z_iff`): the models of A1,
+A2, A3' are in bijection with the admissible sets of blocks H, and A5' or A5₀ each add that one
+row property is in the algebra and contains H ([results](experiments/e16_model_theorems/results.md)).
+
 ## Layout
 
 - `src/logic.py`: decision procedures (S5 exact, K/T/B/S4 by certified countermodels, monadic first-order exact), minimal inconsistent and maximal consistent subsets.
 - `src/arguments.py`: the 11 arguments, each with its published source.
 - `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
-- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) E12's varying-domain theorems (`TheismFormal/Varying.lean`) E13's actualist ones (`TheismFormal/Actualist.lean`) E14's plain-necessity ones (`TheismFormal/Plain.lean`) and E15's closure condition and 8-cell countermodel (`TheismFormal/Closure.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
+- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) E12's varying-domain theorems (`TheismFormal/Varying.lean`) E13's actualist ones (`TheismFormal/Actualist.lean`) E14's plain-necessity ones (`TheismFormal/Plain.lean`) E15's closure condition and 8-cell countermodel (`TheismFormal/Closure.lean`) and E16's model characterisations (`TheismFormal/Models.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
 - `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`, `experiments/e12_varying_domains/run.py`, `experiments/e13_actualist_necessity/run.py`, `experiments/e14_plain_necessity/run.py`, `experiments/e15_a5z_not_a5/run.py`: these regenerate `results.md` and `results.json`.
 - `test_theism.py`: 23 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
 
