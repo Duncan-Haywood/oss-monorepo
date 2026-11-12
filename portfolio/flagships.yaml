@@ -98,45 +98,35 @@ flagships:
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
   - venture: sales-agent
     buildable: >-
-      (3b) a larger local model on the same 792 replies: Qwen2.5-14B-Instruct Q4_K_M (about 9 GB,
-      fits 15 GB RAM; expect 20-30 s a reply on 4 cores, so about 5 hours: run the two honest sets and
-      the five trap probes first, 181 replies) with `LLM_PROVIDER=llamacpp node eval/model.mjs ...
-      --cache eval/model-answers/<model>.json` (setup that worked 2026-11-12: eval/README "A free
-      local model on every reply set"; probe huggingface.co first; start llama_cpp.server with nohup,
-      not as a tool background task, which is killed at 2 hours). Compare its false stops and false
-      opt-outs with the 7B's, and whether its stop flags (4 of 23 right for the 7B) are good enough to
-      act on. Also (1) the Enron third reader with the same 14B via `eval/model-reader.mjs`. Without a model host: re-score any merge change offline from the committed answer caches (`--offline`). The 37 false stops were sorted by what a person sees on 2026-11-12 (eval/README "The 37 false stops, by what a person would see"): a model's close of an unclear, question or objection reply is now a flag and a question stays a question (lost silently 16 to 3, honest pair 68 to 62 right as six true closes wait for a person); next, whether a 14B's closes (7B: 11 of 25 right) are good enough to act alone. huggingface.co answered
-      403 through the proxy on 2026-11-12 (second run that day), so probe before planning on the 14B.
-      Any rule change: re-score all eight Enron halves before and after by Message-ID, as eval/README
-      "We are not interested" did (76,565 replies, about 10 min with the halves run in parallel).
+      (3c) the pre-registered test (eval/README "A 14B local model on the same replies"): finish
+      Qwen2.5-14B-Instruct Q4_K_M on the other 611 replies (`LLM_PROVIDER=llamacpp node eval/model.mjs
+      eval/fresh-*.jsonl eval/replies.jsonl eval/heldout.jsonl --cache eval/model-answers/qwen2.5-14b-q4km.json`
+      resumes from the committed cache; 21 s a reply on 4 cores, so about 3.5 hours; load the server with
+      `--use_mmap false` or the kernel kills it at 15 GB; start it with nohup), then score whether its closes on
+      rules-unclear replies reach the bar written there (at least 85% right, at most 2 lost silently) and, only if they
+      do, add the opt-in setting. Without a model host: re-score any merge change offline from the committed caches
+      (`--offline`). Any rule change: re-score all eight Enron halves before and after by Message-ID (about 10 min).
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
       real replies reliably, keeping consent records, and earning each step of autonomy with measurements.
     next: >-
-      History and every measurement: README, eval/README and git (inbox agent, daily run
-      with sent mail as the done list, Today's queue Done button and call outcomes, self-host server with TLS
-      and XOAUTH2, research agent, call prep, follow-ups, meeting slots and .ics invites,
-      CRM write-back against fake servers only; nineteen agent-written reply sets; .eml and
-      .mbox files). Real mail (eval/enron.mjs, Enron): seven rule rounds scored blind on
-      unread halves reached the reader's noise; away policy 2026-11-11 (fresh 7* wrong
-      silent stops 3.9 to 1.8 per 1,000); --seen leaves 25 of 7*'s 56 stops; "we are not interested" stops as a decline since
-      2026-11-12 (all eight halves: 414 to 417 stops, one new wrong). Third reader
-      2026-11-12 (eval/README "A third reader from another model family",
-      eval/model-reader.mjs): Llama 3.1 8B on all 298 agent-labelled stops agrees 54-76%
-      (kappa 0.39-0.68) vs 81% (0.71) between two agent readers, Qwen2.5 7B 66-74% on 5*;
-      both side with the rules on many stops the agent calls none, so a 7-8B model is not
-      an independent reader. Next: (1) a strong second reader from READER.md, a person or a
-      larger model of another family, on the 298 stops (`model-reader.mjs compare`);
-      (2) real replies to outreach and a real rep's call notes to check the reply rules,
-      prep rules and follow-up sorter; (3) M2: the local half landed 2026-11-12 (Qwen2.5 7B
-      on all 792 replies: alone 86% of fresh vs rules-before-tuning 69%, but 10 false opt-outs; the merge now
-      flags a model's stops for a person, keeps an "interested" and blocks no-draft to drafting at equal rank:
-      728/792, 2 false opt-outs; eval/README "A free local model on every reply set"); next a hosted model and
-      a 14B local one on the same sets; (4) run the self-host server, OAuth and CRM
-      write-back against a real mailbox, Google or Microsoft app and HubSpot or Pipedrive
-      account (all fakes so far); (5) a real HubSpot or Pipedrive export for the research
-      agent (none found public).
+      History and every measurement: README, eval/README and git (inbox agent, daily run, Today's queue, self-host
+      server with TLS and XOAUTH2, research agent, call prep, follow-ups, meeting slots, CRM write-back against
+      fake servers only; nineteen agent-written reply sets; .eml and .mbox files). Real mail (eval/enron.mjs,
+      Enron): seven blind rule rounds reached the reader's noise; away policy 2026-11-11; "we are not interested"
+      stops as a decline since 2026-11-12. Third readers 2026-11-12 (eval/README "A third reader from another
+      model family" and "A 14B local model on the same replies"): Llama 3.1 8B, Qwen2.5 7B and Qwen2.5 14B all
+      agree with the agent readers less than the agents agree with each other (14B 70-75%, kappa 0.56-0.64 vs 81%,
+      0.71) and all lean toward the rules, so none is an independent reader. Next: (1) a strong second reader from
+      READER.md, a person or a strong model of another family, on the 298 stops (`model-reader.mjs compare`); (2)
+      real replies to outreach and a real rep's call notes to check the reply rules, prep rules and follow-up
+      sorter; (3) M2: Qwen2.5 7B on all 792 replies (alone 86% of fresh vs rules-before-tuning 69%; merged
+      735/792, 2 false opt-outs) and Qwen2.5 14B on the first 181 (alone 144 vs 136, merged 146 vs 147, 9 false
+      opt-outs vs 6, closes on rules-unclear replies 7 of 7 right); next the pre-registered test on the other 611
+      (buildable above) and a hosted model; (4) run the self-host server, OAuth and CRM write-back against a real
+      mailbox, Google or Microsoft app and HubSpot or Pipedrive account (all fakes so far); (5) a real HubSpot or
+      Pipedrive export for the research agent (none found public).
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.

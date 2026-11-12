@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyceprvo9LYwhWkeWK3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T13:39:46Z",
+  "ended": "2026-11-12T15:03:16Z",
+  "wall_minutes": 86.35,
+  "tokens_in": 8057094,
+  "tokens_out": 29119,
+  "cost_usd": 3.0954,
+  "tool_calls": 75,
+  "task": "Deepen (flagship 3) sales-agent: (3b) Qwen2.5 14B local model on the reply sets, and (1) the Enron third reader with the same 14B",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15142",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    {
+      "what": "llama-cpp-python server killed by the kernel (OOM) loading the 14B with mmap on: AMX repack keeps a second copy beside the mapped file",
+      "fix": "--use_mmap false; 10 GB resident"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "sales-agent buildable said huggingface.co answered 403 on 2026-11-12; it answered 200 this run, downloads included. Probe-first advice was right; the stale 403 note would have sent a less careful run elsewhere."
+    },
+    {
+      "file": "ventures/sales-agent/eval/README.md",
+      "issue": "7B setup did not mention --use_mmap; at 14B on this CPU the default load OOMs. Now documented."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "pgrep hook blocks a bracketed pattern if the same word appears elsewhere in the command (e.g. in the nohup line); had to split commands and use a pid file."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The 611-reply 14B run takes about 3.5 h; rather than hold the PR, landed the 181-reply result, the Enron reader result and a pre-registered test first, and left the 611 test as the next buildable item (it continues in a follow-up PR if this session lasts).",
+      "did": "merged interim results with the test pre-registered on main before the held-out answers exist",
+      "result": "pre-registration is on main before the data, which a single end-of-run PR could not show"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-sales-agent-twice-the-model-same-mistakes.md",
+    "ventures/sales-agent/eval/README.md (A 14B local model on the same replies)"
+  ],
+  "goal": null,
+  "notes": "Local checks: node --test in ventures/sales-agent (see PR). Measurements: 181 replies (honest pair + five trap probes): 14B alone 144 vs 7B 136, merged 146 vs 147, false opt-outs alone 9 vs 6, close flags 8/1 vs 8/4; closes on rules-unclear 7/7 vs 7/11. Enron 5* 107 stops: 14B vs agent readers 70%/75% (kappa 0.56/0.64) vs 81%/0.71 between agents; 15 of 53 agreed-none stops called a stop (7B 13).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "27084441-92dc-5bab-9062-20865648fc14",
+    "transcripts": 1,
+    "first": "2026-11-12T13:39:46Z",
+    "last": "2026-11-12T15:06:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 78,
+        "input": 159,
+        "output": 29119,
+        "thinking": 5611,
+        "cache_read": 7941421,
+        "cache_write_5m": 0,
+        "cache_write_1h": 115514,
+        "api_equivalent_usd": 3.0954,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 78,
+      "input": 159,
+      "output": 29119,
+      "thinking": 5611,
+      "cache_read": 7941421,
+      "cache_write_5m": 0,
+      "cache_write_1h": 115514,
+      "api_equivalent_usd": 3.0954,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 68,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__get_job_logs": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 86.35,
+      "active_minutes": 12.96,
+      "model_minutes": 5.24,
+      "tool_minutes": 7.72,
+      "waiting_on_human_minutes": 73.39,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an ML engineer setting up a 14B CPU server, running and scoring 181 replies and 107 Enron stops, writing up and pre-registering a test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 193.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
