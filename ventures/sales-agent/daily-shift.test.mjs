@@ -72,3 +72,26 @@ test("CLI: --calls moves the later steps and --holidays keeps the retry off Than
   assert.match(fri, /Dana Reyes, Brightline Logistics \(3\)[^\n]*try 2/);
   assert.doesNotMatch(fri, /Dana Reyes, Brightline Logistics \(4\)/, "the step-4 email waits for Monday");
 });
+
+// Red team 2026-11-12: hand-made rows that pin the tie rules in laterShifts and the `later` count.
+const row = (step, channel, date) => ({ date, channel, step: String(step), prospect: "Dana Reyes", company: "Brightline Logistics", email: "dana@brightline.example", phone: "303-555-0101", subject: channel === "email" ? `Step ${step}` : "", body: channel === "email" ? "Hi Dana" : "" });
+
+test("two calls that slip the same number of days: the first one is named, and same-date steps run in step order", () => {
+  // Steps 1 and 2 are calls, each ended one business day late; step 3 waits. A tie keeps the first slip.
+  const rows = [row(1, "call", "2026-11-02"), row(2, "call", "2026-11-04"), row(3, "email", "2026-11-06")];
+  const moved = [{ email: "dana@brightline.example", step: "1", on: "2026-11-03" }, { email: "dana@brightline.example", step: "2", on: "2026-11-05" }];
+  const d = runDaily({ tasks: rows, prospects: PROSPECTS, today: "2026-11-09", moved, done: ["dana@brightline.example|1", "dana@brightline.example|2"] });
+  assert.deepEqual(dana(d, 3).moved_by, { days: 1, step: "1" });
+  assert.equal(dana(d, 3).date, "2026-11-09");
+  // Step 2 sits on the same date as step 1 but comes first in the file: plan order is by step, so step 2 is after the
+  // retried call and moves with it.
+  const same = [row(2, "email", "2026-11-03"), row(3, "email", "2026-11-03"), row(1, "call", "2026-11-03"), row(4, "email", "2026-11-03")];
+  const r = runDaily({ tasks: same, prospects: PROSPECTS, today: "2026-11-04", retry: [{ email: "dana@brightline.example", step: "1", on: "2026-11-04", tries: 1 }] });
+  for (const s of [2, 3, 4]) assert.deepEqual(dana(r, s).moved_by, { days: 1, step: "1" }, `step ${s}`);
+});
+
+test("summary.later counts the touches dated after today, and nothing else", () => {
+  const rows = [row(1, "email", "2026-11-02"), row(2, "email", "2026-11-03"), row(3, "email", "2026-11-04")];
+  assert.equal(runDaily({ tasks: rows, prospects: PROSPECTS, today: "2026-11-02" }).summary.later, 2);
+  assert.equal(runDaily({ tasks: rows, prospects: PROSPECTS, today: "2026-11-04" }).summary.later, 0);
+});

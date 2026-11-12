@@ -35,7 +35,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -166,7 +166,7 @@
         const why = [...x.reasons, ...x.notes].map(esc).join("; ");
         return `<tr><td>${esc(x.unit)}</td><td>${esc(x.tenant)}</td><td class="n">${x.pct != null ? x.pct.toFixed(2) + "%" : ""}</td><td class="n">${x.noticeDays != null ? x.noticeDays + (x.mailDays ? "+" + x.mailDays : "") + " d" : ""}</td><td>${esc(x.earliest || "")}</td><td><span class="pill ${cls}">${label}</span>${why}</td></tr>`;
       }).join("");
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill high">${f.severity}</span>${esc(f.title)}</h4></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill high">${f.severity}</span>${esc(f.title)}</h3></div>`).join("");
       report.hidden = false;
       status.textContent = `${s.ok} of ${s.units} units can go out.`;
       report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });

@@ -1,0 +1,18 @@
+French bakery, 600 trading days. 11/before-open + 13/after-close add 14400 minutes, expected 14400: yes.
+
+Plan from the whole file (week); before/after: person-hours before the tickets-only plan's first hour / from its last hour on; late: shift-days ending past it. Backtest: mean person-hours per tested week.
+                                   min  hours   late  before  after    short   over     off
+tickets only (6 min)                 1    184      0       0      0     44.4   29.6   41.7%
++ 45/close                           1    204      0       0      0     40.5   35.4   39.6%
++ 45/after-close                     1    191      7       0      7     44.5   30.6   40.5%
++ 30/open + 45/close                 1    206      0       0      0     41.6   36.1   40.1%
++ 30/before-open + 45/after-close    1    198      7       7      7     44.5   30.6   39.1%
++ 90/after-close                     1    212      7       0      7     39.2   37.6   37.6%
+
+tickets only (6 min)                 2    218      0       0      0     34.5   27.8   29.3%
++ 45/close                           2    218      0       0      0     36.1   27.7   29.9%
++ 45/after-close                     2    229      8       0      8     34.0   30.2   28.9%
++ 30/open + 45/close                 2    218      0       0      0     35.8   28.2   29.9%
++ 30/before-open + 45/after-close    2    236      8       7      8     34.8   30.2   28.4%
++ 90/after-close                     2    229      8       0      8     35.7   29.6   29.4%
+
