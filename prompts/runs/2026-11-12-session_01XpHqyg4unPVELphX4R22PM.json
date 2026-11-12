@@ -353,7 +353,7 @@
         "file": "ventures/*/ (10 .ics generators)",
         "issue": "Ten .ics generators emit SUMMARY/DESCRIPTION lines over 75 octets without folding (RFC 5545 3.1 SHOULD): wedding-day-timeline-builder (235), state-residency-day-counter (217), subscription-audit-from-statement (152), severance-package-calculator (128), patent-maintenance-fee-planner (111), business-insurance-policy-reader (105), vendor-contract-clause-reader (96), saas-renewal-planner (91), coi-expiry-gap-checker (85), commercial-lease-abstract-reader (76). Warning-level only. Fix: fold each output with a fold helper (copy ics-calendar-check/calc.mjs fold(), octet-aware), then tighten ventures/ics-calendar-check/dogfood.test.mjs clean() to also reject the 'longer than 75 octets' warning. Left open: ten products' outputs and tests in one run was too wide after the four checker fixes.",
         "patched": true,
-        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15050"
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15047"
       }
     ]
   },

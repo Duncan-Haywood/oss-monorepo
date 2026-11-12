@@ -270,11 +270,24 @@ export function chaseListCsv(result) {
   return csv(rows);
 }
 
+// RFC 5545 3.1: fold content lines longer than 75 octets (a continuation starts with a space), never inside a UTF-8 character.
+const foldIcs = (text) => text.split("\r\n").map((line) => {
+  const parts = [];
+  let cur = "", len = 0, limit = 75;
+  for (const ch of line) {
+    const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+    if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+    cur += ch; len += n;
+  }
+  parts.push(cur);
+  return parts.join("\r\n ");
+}).join("\r\n");
+
 // All-day calendar events on the day each policy enters its lead time, so the chase happens before the lapse.
 export function expiryCalendar(result, now = "2026-01-01T00:00:00Z") {
   const stamp = new Date(now).toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
   const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//coi-expiry-gap-checker//EN", "CALSCALE:GREGORIAN"];
-  const esc = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  const esc = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
   for (const p of result.policies) {
     if (p.expiry == null || p.expiry < result.asOf) continue;
     const day = Math.max(p.expiry - result.requirements.leadDays, result.asOf);
@@ -285,7 +298,7 @@ export function expiryCalendar(result, now = "2026-01-01T00:00:00Z") {
       `DESCRIPTION:${esc(`${p.carrier ? p.carrier + ". " : ""}${p.policy ? "Policy " + p.policy + ". " : ""}Ask for the renewal certificate and endorsements.`)}`, "END:VEVENT");
   }
   lines.push("END:VCALENDAR");
-  return foldIcs(lines.join("\r\n") + "\r\n");
+  return foldIcs(lines.join("\r\n")) + "\r\n";
 }
 
 export function sampleList() {
@@ -316,22 +329,4 @@ export function sampleBrokenList() {
     "Echo Excavating,Workers comp,Liberty,WC-2,250000,,2026-01-01,2026-12-31,,No",
     "",
   ].join("\n");
-}
-
-// RFC 5545 3.1: fold content lines longer than 75 octets (CRLF plus one space),
-// never splitting a UTF-8 character. Some calendar importers truncate longer lines.
-function foldIcs(text) {
-  const enc = new TextEncoder();
-  return text.split("\r\n").map((line) => {
-    if (enc.encode(line).length <= 75) return line;
-    const parts = [];
-    let cur = "", len = 0, limit = 75;
-    for (const ch of line) {
-      const n = enc.encode(ch).length;
-      if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
-      cur += ch; len += n;
-    }
-    parts.push(cur);
-    return parts.join("\r\n ");
-  }).join("\r\n");
 }

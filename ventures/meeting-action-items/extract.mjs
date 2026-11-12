@@ -350,7 +350,7 @@ export function slackMessage(r, { title = "Meeting" } = {}) {
   return out.join("\n") + "\n";
 }
 
-const icsEsc = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+const icsEsc = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
 // All-day calendar entries for dated actions (one VTODO-free VEVENT each, importable anywhere).
 export function actionsIcs(r, stamp = "20260101T000000Z") {
   const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//meeting-action-items//EN", "CALSCALE:GREGORIAN"];

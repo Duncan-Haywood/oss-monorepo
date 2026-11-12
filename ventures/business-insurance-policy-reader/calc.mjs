@@ -188,6 +188,19 @@ export function summaryText(r, s = {}) {
   return lines.join("\n");
 }
 
+// RFC 5545 3.1: fold content lines longer than 75 octets (a continuation starts with a space), never inside a UTF-8 character.
+const foldIcs = (text) => text.split("\r\n").map((line) => {
+  const parts = [];
+  let cur = "", len = 0, limit = 75;
+  for (const ch of line) {
+    const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+    if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+    cur += ch; len += n;
+  }
+  parts.push(cur);
+  return parts.join("\r\n ");
+}).join("\r\n");
+
 export function calendarIcs(r, name = "Insurance policy") {
   const stamp = "20260101T000000Z";
   const ev = r.calendar.map((c, i) => {
@@ -211,21 +224,3 @@ Defense costs are included within the limits of liability and reduce the amount 
 We may cancel this policy by giving you 10 days written notice. If this policy is not renewed, you may purchase an extended reporting period by request within 60 days after the policy expires. You must notify us of any claim as soon as practicable.`;
 }
 export const SAMPLE_SETTINGS = { expiration: "", premium: "", requiredOccurrence: "1000000", requiredAggregate: "2000000", today: "2027-11-15", insured: "Example Builders LLC" };
-
-// RFC 5545 3.1: fold content lines longer than 75 octets (CRLF plus one space),
-// never splitting a UTF-8 character. Some calendar importers truncate longer lines.
-function foldIcs(text) {
-  const enc = new TextEncoder();
-  return text.split("\r\n").map((line) => {
-    if (enc.encode(line).length <= 75) return line;
-    const parts = [];
-    let cur = "", len = 0, limit = 75;
-    for (const ch of line) {
-      const n = enc.encode(ch).length;
-      if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
-      cur += ch; len += n;
-    }
-    parts.push(cur);
-    return parts.join("\r\n ");
-  }).join("\r\n");
-}

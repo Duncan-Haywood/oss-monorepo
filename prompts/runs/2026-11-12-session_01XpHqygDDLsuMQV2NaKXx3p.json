@@ -35,14 +35,25 @@
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "`redteam.py targets --probe 20 | grep <path>` printed nothing for ventures/ics-calendar-check/calc.mjs, so I passed --target without a probe; the baseline was fine (about 1 s)."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "I searched open PRs for 'ics' before starting, but #15047 (same session prefix, same day) was opened afterwards and merged first; the step 0 open list had no way to show that someone had claimed the entry."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0's ics folding entry was fixed concurrently by #15047; my duplicate fix was dropped in the merge instead of competing with it",
+      "did": "took main's version of all ten generators, the dogfood test and the old record",
+      "result": "no duplicate code; this PR is the checker fix and three tests"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-12-ten-calendar-exports-that-did-not-fold.md"
   ],
   "goal": null,
-  "notes": "Step 0: folded 10 .ics generators, and the dogfood clean() now rejects the checker's 'fold' finding (the guard: any new export that skips folding fails ventures-tests in CI). Campaign: 8 mutants on ics-calendar-check/calc.mjs, catch 5/8 -> 8/8. Real defect: INTERVAL/COUNT leading zeros. Local checks: dogfood 33/33, ics-calendar-check all suites 91/91, each of the 10 venture suites green. Other open entries are control plane (workflows, prompts/) and need owner-approved PRs, so I left them.",
+  "notes": "Step 0: I folded the 10 .ics generators and tightened dogfood clean(), but PR #15047 merged the same fix while this run worked, so the merge of main kept #15047's version and this PR carries none of it. Campaign: 8 mutants on ics-calendar-check/calc.mjs, catch rate 5/8 -> 8/8 (rerun). Real defect: INTERVAL/COUNT with leading zeros were reported as errors (RFC 5545 allows 1*DIGIT); patched with posInt(). Local checks: run_venture_tests.py on the 10 generator ventures and ics-calendar-check, 11 suites ok; ics-calendar-check after the merge with main 95/95; post frontmatter, link and similarity checks clean. run_workflow_locally.py --for-changes hit my 500 s timeout without output. No CI check runs had started on the PR. Remaining open entries are control plane (workflows, prompts/) and need owner-approved PRs.",
   "corrections": [],
   "redteam": {
     "campaigns": [

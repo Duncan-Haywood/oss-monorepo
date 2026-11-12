@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { validate } from "./calc.mjs";
+import { validate, unfold } from "./calc.mjs";
 
 import { taxCalendar, toIcs as bookkeeperIcs } from "../ai-bookkeeper/calendar.mjs";
 import * as babysit from "../babysitting-business-kit/engine.mjs";
@@ -44,13 +44,19 @@ import * as wedding from "../wedding-day-timeline-builder/calc.mjs";
 function clean(ics) {
   assert.equal(typeof ics, "string");
   assert.match(ics, /BEGIN:VEVENT/, "generator produced no events; the input is too thin to test");
-  const findings = validate(ics).findings;
+  const { findings } = validate(ics);
   const errors = findings.filter((f) => f.severity === "error");
   assert.deepEqual(errors, []);
-  // RFC 5545 3.1: lines SHOULD be folded at 75 octets; some importers truncate
-  // longer ones. A warning in the checker, but every generator here folds.
-  const unfolded = findings.filter((f) => f.code === "fold");
-  assert.deepEqual(unfolded, [], "a line is longer than 75 octets: fold the generator's output");
+  // RFC 5545 3.1: lines SHOULD be folded at 75 octets; some importers truncate longer ones.
+  const long = findings.filter((f) => f.code === "fold");
+  assert.deepEqual(long, [], "unfolded line over 75 octets: fold the generator's output");
+  // RFC 5545 3.3.11: ";" and "," in TEXT must be backslash-escaped. In JS, "\;" is just ";",
+  // so an escaper replacing /;/g with that string silently does nothing (eleven generators, 2026-11-12).
+  const bare = unfold(ics).map((l) => l.value)
+    .filter((l) => /^(SUMMARY|DESCRIPTION|LOCATION|COMMENT)[;:]/.test(l))
+    .map((l) => l.slice(l.indexOf(":") + 1))
+    .filter((v) => /(^|[^\\])(\\\\)*[;,]/.test(v));
+  assert.deepEqual(bare, [], "unescaped ';' or ',' in a TEXT value");
 }
 
 test("ai-bookkeeper", () => {
@@ -238,4 +244,27 @@ test("wedding-day-timeline-builder", () => {
   const n = wedding.normalize({ ...f, lat: c.lat, lon: c.lon, offset: wedding.tzOffsetHours(f.date, c.tz) });
   assert.ok(n.ok, (n.errors || []).join());
   clean(wedding.timelineIcs(wedding.buildDay(n.p), n.p, "all", "20261001T000000Z"));
+});
+
+// Source lint for the same footgun outside the generators listed above (vCard, CSV, any new
+// calendar): in JS source, a replacement string of one backslash then ";" or "," is just
+// ";" or ",", so an escaper using it is a no-op. Write two backslashes.
+test("no venture escapes TEXT with a no-op backslash string", async () => {
+  const { readdirSync, statSync } = await import("node:fs");
+  const { join } = await import("node:path");
+  const root = new URL("..", import.meta.url).pathname;
+  const noop = /\.replace\([^)]*,\s*(["'`])\\[;,]\1\s*\)/;
+  const hits = [];
+  const walk = (dir) => {
+    for (const name of readdirSync(dir)) {
+      if (name === "node_modules" || name.startsWith(".")) continue;
+      const p = join(dir, name);
+      if (statSync(p).isDirectory()) walk(p);
+      else if (/\.(mjs|js|cjs|html)$/.test(name)) {
+        readFileSync(p, "utf8").split("\n").forEach((line, i) => { if (noop.test(line)) hits.push(`${p.slice(root.length)}:${i + 1}`); });
+      }
+    }
+  };
+  walk(root);
+  assert.deepEqual(hits, []);
 });

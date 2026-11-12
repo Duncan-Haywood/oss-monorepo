@@ -250,6 +250,19 @@ export function summaryText(r, s = {}) {
   return lines.join("\n");
 }
 
+// RFC 5545 3.1: fold content lines longer than 75 octets (a continuation starts with a space), never inside a UTF-8 character.
+const foldIcs = (text) => text.split("\r\n").map((line) => {
+  const parts = [];
+  let cur = "", len = 0, limit = 75;
+  for (const ch of line) {
+    const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+    if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+    cur += ch; len += n;
+  }
+  parts.push(cur);
+  return parts.join("\r\n ");
+}).join("\r\n");
+
 export function calendarIcs(r, name = "Lease") {
   const stamp = "20260101T000000Z";
   const ev = r.calendar.map((c, i) => {
@@ -271,21 +284,3 @@ export function sampleLease() {
 Tenant has one option to renew for five years, exercisable by written notice not less than 270 days prior to the expiration of the initial term. Any holdover by Tenant shall be at 200% of the Base Rent in effect. A late charge of 10% applies to rent more than three days overdue. Tenant may not assign or sublet without Landlord's consent, which may be withheld in Landlord's sole and absolute discretion. Landlord may relocate Tenant to substitute premises on 60 days notice. The principal of Tenant shall personally guarantee all obligations under this lease. Upon default Landlord may accelerate all rent for the remainder of the term.`;
 }
 export const SAMPLE_SETTINGS = { monthlyRent: "", escalationPct: "", tenant: "Example Bakery LLC", premises: "Suite 4, 100 Main St", today: "2027-01-15" };
-
-// RFC 5545 3.1: fold content lines longer than 75 octets (CRLF plus one space),
-// never splitting a UTF-8 character. Some calendar importers truncate longer lines.
-function foldIcs(text) {
-  const enc = new TextEncoder();
-  return text.split("\r\n").map((line) => {
-    if (enc.encode(line).length <= 75) return line;
-    const parts = [];
-    let cur = "", len = 0, limit = 75;
-    for (const ch of line) {
-      const n = enc.encode(ch).length;
-      if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
-      cur += ch; len += n;
-    }
-    parts.push(cur);
-    return parts.join("\r\n ");
-  }).join("\r\n");
-}

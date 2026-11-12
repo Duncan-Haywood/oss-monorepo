@@ -620,6 +620,19 @@ export function tripImpact(spec, trip) {
   return { trip: { ...trip }, changes, newlyOver: changes.filter((c) => c.crossed).map((c) => c.code), maxSafeDays, tripLimit: tripRule ? tripRule.limit : null };
 }
 
+// RFC 5545 3.1: fold content lines longer than 75 octets (a continuation starts with a space), never inside a UTF-8 character.
+const foldIcs = (text) => text.split("\r\n").map((line) => {
+  const parts = [];
+  let cur = "", len = 0, limit = 75;
+  for (const ch of line) {
+    const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+    if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+    cur += ch; len += n;
+  }
+  parts.push(cur);
+  return parts.join("\r\n ");
+}).join("\r\n");
+
 // Calendar reminders: for each state with a published test that you have not
 // crossed, an all-day event on the last day you can be there and still stay at
 // or under the limit, assuming you are there every day from the as-of date on.
@@ -645,7 +658,7 @@ export function deadlinesIcs(result, { name = "State residency day counter" } = 
     );
   }
   lines.push("END:VCALENDAR");
-  return { ics: foldIcs(lines.join("\r\n") + "\r\n"), count: events.length };
+  return { ics: foldIcs(lines.join("\r\n")) + "\r\n", count: events.length };
 }
 
 // ---- output ------------------------------------------------------------------
@@ -769,22 +782,4 @@ export function setupFromJson(text) {
   const fields = {};
   for (const k of SETUP_FIELDS) if (typeof doc.fields[k] === "string") fields[k] = doc.fields[k].slice(0, 100000);
   return { fields };
-}
-
-// RFC 5545 3.1: fold content lines longer than 75 octets (CRLF plus one space),
-// never splitting a UTF-8 character. Some calendar importers truncate longer lines.
-function foldIcs(text) {
-  const enc = new TextEncoder();
-  return text.split("\r\n").map((line) => {
-    if (enc.encode(line).length <= 75) return line;
-    const parts = [];
-    let cur = "", len = 0, limit = 75;
-    for (const ch of line) {
-      const n = enc.encode(ch).length;
-      if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
-      cur += ch; len += n;
-    }
-    parts.push(cur);
-    return parts.join("\r\n ");
-  }).join("\r\n");
 }

@@ -161,9 +161,22 @@ export function emailDraft(row, opts = {}) {
   return lines.join("\n");
 }
 
-const icsText = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+const icsText = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
 const icsDay = (iso) => iso.replace(/-/g, "");
 const addDay = (iso) => isoDate(parseDate(iso) + DAY);
+
+// RFC 5545 3.1: fold content lines longer than 75 octets (a continuation starts with a space), never inside a UTF-8 character.
+const foldIcs = (text) => text.split("\r\n").map((line) => {
+  const parts = [];
+  let cur = "", len = 0, limit = 75;
+  for (const ch of line) {
+    const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+    if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+    cur += ch; len += n;
+  }
+  parts.push(cur);
+  return parts.join("\r\n ");
+}).join("\r\n");
 
 export function toIcs(p) {
   const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//saas-renewal-planner//EN", "CALSCALE:GREGORIAN"];
@@ -177,23 +190,5 @@ export function toIcs(p) {
     ev("notice", r.noticeDeadline, `${r.vendor}: LAST DAY to give notice`, `Renews ${r.renewsOnIso} at about ${money(r.doNothing)} unless you act.`);
   }
   out.push("END:VCALENDAR");
-  return foldIcs(out.join("\r\n") + "\r\n");
-}
-
-// RFC 5545 3.1: fold content lines longer than 75 octets (CRLF plus one space),
-// never splitting a UTF-8 character. Some calendar importers truncate longer lines.
-function foldIcs(text) {
-  const enc = new TextEncoder();
-  return text.split("\r\n").map((line) => {
-    if (enc.encode(line).length <= 75) return line;
-    const parts = [];
-    let cur = "", len = 0, limit = 75;
-    for (const ch of line) {
-      const n = enc.encode(ch).length;
-      if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
-      cur += ch; len += n;
-    }
-    parts.push(cur);
-    return parts.join("\r\n ");
-  }).join("\r\n");
+  return foldIcs(out.join("\r\n")) + "\r\n";
 }

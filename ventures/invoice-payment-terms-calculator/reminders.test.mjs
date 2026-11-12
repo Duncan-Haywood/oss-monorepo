@@ -41,7 +41,7 @@ test('ics is CRLF, folded to 75 octets, and escapes text', () => {
   assert.match(ics, /DTSTART;VALUE=DATE:20260920/);
   assert.match(ics, /DTSTAMP:20260824T100000Z/);
   const unfolded = ics.replace(/\r\n /g, '');
-  assert.match(unfolded, /SUMMARY:Friendly heads-up — A\\,B\;C/);
+  assert.match(unfolded, /SUMMARY:Friendly heads-up — A\\,B\\;C/);
 });
 
 test('invoice number cannot inject calendar lines', () => {

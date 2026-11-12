@@ -1,61 +1,44 @@
 ---
-title: "Ten calendar exports that never folded a line, and a checker that rejected INTERVAL=02"
-seo_title: "RFC 5545 line folding at 75 octets in JavaScript .ics generators"
+title: "A calendar checker that rejected INTERVAL=02, and three faults its tests missed"
+seo_title: "RFC 5545 RRULE INTERVAL and COUNT leading zeros: a validator false positive"
 date: 2026-11-12
 tags: [ical, rfc-5545, testing, mutation-testing, javascript]
-description: "Ten of our .ics exports wrote lines over 75 octets. One helper fixed them, a dogfood test now fails on it, and our checker stopped rejecting INTERVAL=02."
+description: "Our .ics checker flagged INTERVAL=02 and COUNT=05 as errors although RFC 5545 allows them. Seeded faults found three more gaps in its tests."
 ---
 
-[RFC 5545](https://www.rfc-editor.org/rfc/rfc5545#section-3.1) says a line in
-an `.ics` file SHOULD be no longer than 75 octets. A longer line is split with a
-CRLF followed by one space, and a reader joins the pieces back together.
-Most calendar apps cope with long lines, but some importers cut them off
-silently, which usually costs you the end of an event title.
+Our [calendar checker](https://marisstella.app/ics-calendar-check/) reads an
+`.ics` file and lists what breaks the standard. It now also checks every
+calendar export in the catalogue, because a dogfood test runs each product's
+generator through it. A false alarm in the checker therefore reaches more than
+the people who use the page: it can fail the build for every product that
+exports a calendar.
 
-Our [calendar checker](https://marisstella.app/ics-calendar-check/)
-already warns about long lines. A dogfood test runs every calendar export in
-the catalogue (33 generators across 31 products) through that checker. Until
-today the dogfood test failed only on errors. An earlier red-team run noticed
-that ten generators wrote lines longer than 75 octets. The longest was a
-235-octet `SUMMARY` from the wedding-day timeline builder.
+## A false error on valid files
 
-## The fix
+[RFC 5545, section 3.3.10](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.10)
+defines a recurrence rule's `INTERVAL` and `COUNT` as `1*DIGIT`, meaning one
+or more digits. A leading zero is therefore valid, so `INTERVAL=02` means
+"every second week". The checker matched both values against `^[1-9]\d*$` and
+reported `INTERVAL=02` and `COUNT=05` as **errors**, while it already accepted
+`BYMONTHDAY=05`. The fix accepts any string of digits that is not all zeros. A
+test now covers `02`, `05`, `000` and `1.5`.
 
-Each of the ten products now passes its finished calendar through a
-20-line `foldIcs` helper before returning it. The helper splits the file
-into lines, measures each one in UTF-8 octets, and cuts lines at 75 octets
-(74 for continuation lines, which already start with a space). It never cuts
-inside a multi-byte character, so an accented name or an emoji stays intact.
-The products are business-insurance-policy-reader, coi-expiry-gap-checker,
-commercial-lease-abstract-reader, patent-maintenance-fee-planner,
-saas-renewal-planner, severance-package-calculator,
-state-residency-day-counter, subscription-audit-from-statement,
-vendor-contract-clause-reader and wedding-day-timeline-builder. All ten
-products' own test suites still pass.
+## Three faults the tests missed
 
-To keep the bug from coming back, the dogfood test now also fails on the
-checker's "longer than 75 octets" finding. With that one line added, the same
-ten tests went red. With the fix in place, all 33 pass, so a new export that
-forgets to fold will fail CI.
+Before fixing it, we seeded 8 faults into the checker. Its tests caught 5. These
+three got through:
 
-## Mutation testing the checker
+- Raising the seconds limit from 60 to 61, so a time of `23:59:61` passed.
+  The value 60 is allowed because it stands for a leap second; 61 never is.
+- Marking the "missing VERSION" finding as not auto-fixable. The repair button
+  still added `VERSION:2.0`, but the downloadable findings CSV said it would not.
+- Breaking the `INTERVAL` pattern so that `INTERVAL=0` passed and `INTERVAL=2`
+  was flagged. That probe is how we found the false error above.
 
-Because the checker now gates every export in the catalogue, we seeded 8
-faults into it. Its tests caught 5. These three got through:
+Each fault now has a test, and a rerun catches all three. The catch rate on this
+file went from 5 of 8 to 8 of 8.
 
-- Changing the leap-second limit from 60 to 61, so `23:59:61` passed as a
-  real time.
-- Marking the missing-`VERSION` finding as not auto-fixable, which made the
-  downloadable findings CSV disagree with what the repair button does.
-- Breaking the `INTERVAL` check's pattern so that `INTERVAL=0` passed and
-  `INTERVAL=2` was flagged.
-
-Each now has a test, and a rerun confirms that all three faults are caught.
-
-## A real bug found along the way
-
-While testing what the `INTERVAL` check accepts, we found that the checker
-flagged `INTERVAL=02` and `COUNT=05` as **errors**. RFC 5545 defines both
-values as `1*DIGIT`, so leading zeros are valid, and the checker already
-accepted `BYMONTHDAY=05`. The fix accepts any string of digits except zero.
-A test now covers `02`, `05`, `000` and `1.5`.
+An earlier run left one more fix open: ten products whose calendar exports
+didn't fold lines at 75 octets. We made that fix too, but
+[PR #15047](https://github.com/Duncan-Haywood/oss-monorepo/pull/15047) merged the
+same change first, so this PR keeps its version.
