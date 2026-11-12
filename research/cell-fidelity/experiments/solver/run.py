@@ -211,17 +211,22 @@ def _child(args):
     return simulate(args["x"], args["set"], 100, args["variant"])
 
 
+def uid(r):
+    """A design's identity: bench, set and index (indices repeat across benches, e.g. OKane2022 in cycles and fresh)."""
+    return (r["bench"], r["set"], r["j"])
+
+
 def _key(r):
-    return (r["set"], r["j"], r.get("variant"))
+    return uid(r) + (r.get("variant"),)
 
 
 def _run_jobs(path, jobs, tag):
     done = {_key(r) for r in map(json.loads, path.read_text().splitlines())} if path.exists() else set()
-    jobs = [a for a in jobs if (a["set"], a["j"], a.get("variant")) not in done]
+    jobs = [a for a in jobs if _key(a) not in done]
 
     def go(a):
         r = _spawn(a)
-        return dict(set=a["set"], j=a["j"], variant=a.get("variant"), role=a.get("role"), **r)
+        return dict(bench=a["bench"], set=a["set"], j=a["j"], variant=a.get("variant"), role=a.get("role"), **r)
 
     with ThreadPoolExecutor(WORKERS) as ex, path.open("a") as f:
         for r in ex.map(go, jobs):
@@ -236,13 +241,13 @@ def _run_jobs(path, jobs, tag):
 
 def diag():
     c = json.loads((HERE / "census.json").read_text())
-    jobs = [dict(what="diag", set=r["set"], j=r["j"], x=r["x"], role="failing") for r in c["failing"]]
+    jobs = [dict(what="diag", bench=r["bench"], set=r["set"], j=r["j"], x=r["x"], role="failing") for r in c["failing"]]
     _run_jobs(HERE / "diag.jsonl", jobs, "diag")
 
 
 def bench():
     c = json.loads((HERE / "census.json").read_text())
-    jobs = [dict(what="run", set=r["set"], j=r["j"], x=r["x"], variant=v, role=role)
+    jobs = [dict(what="run", bench=r["bench"], set=r["set"], j=r["j"], x=r["x"], variant=v, role=role)
             for role in ("failing", "control") for r in c[role] for v in VARIANTS]
     _run_jobs(HERE / "bench.jsonl", jobs, "bench")
 
@@ -255,10 +260,10 @@ def _f(v, d=3):
 
 def report():
     c = json.loads((HERE / "census.json").read_text())
-    dg = {(r["set"], r["j"]): r for r in map(json.loads, (HERE / "diag.jsonl").read_text().splitlines())}
+    dg = {uid(r): r for r in map(json.loads, (HERE / "diag.jsonl").read_text().splitlines())}
     rows = {}
     for r in map(json.loads, (HERE / "bench.jsonl").read_text().splitlines()):
-        rows[((r["set"], r["j"]), r["variant"])] = r
+        rows[(uid(r), r["variant"])] = r
     fail = [r for r in c["failing"] if r["kind"] == "fail"]
     stop = [r for r in c["failing"] if r["kind"] == "stop"]
     L = ["cell-fidelity milestone 5d: SPMe's failures and early stops under five solver and mesh variants", ""]
@@ -273,20 +278,20 @@ def report():
             g["by_set"][r["set"]] = g["by_set"].get(r["set"], 0) + 1
         L.append(f"{name}: {len(items)} designs {g['by_set']}")
         for v in VARIANTS:
-            ks = [kind(rows.get(((r['set'], r['j']), v), {})) for r in items]
-            ran = sum(1 for r in items if ((r["set"], r["j"]), v) in rows)
-            cyc = [rows[((r['set'], r['j']), v)].get("ok_cycles", 0) for r in items if ((r["set"], r["j"]), v) in rows]
+            ks = [kind(rows.get((uid(r), v), {})) for r in items]
+            ran = sum(1 for r in items if (uid(r), v) in rows)
+            cyc = [rows[(uid(r), v)].get("ok_cycles", 0) for r in items if (uid(r), v) in rows]
             g["variants"][v] = dict(ran=ran, ok=ks.count("ok"), stop=ks.count("stop"), fail=ks.count("fail"),
                                     median_cycles=sorted(cyc)[len(cyc) // 2] if cyc else None)
             L.append(f"  {v}: ran {ran}, reached 100 cycles {ks.count('ok')}, stopped {ks.count('stop')}, "
                      f"failed {ks.count('fail')}, median cycles {g['variants'][v]['median_cycles']}")
-        any_ok = [r for r in items if rescued(rows, (r["set"], r["j"]))]
+        any_ok = [r for r in items if rescued(rows, uid(r))]
         g["rescued_by_any"] = len(any_ok)
         L.append(f"  rescued by any of V1 to V4: {len(any_ok)} of {len(items)}")
         res = []
         for r in any_ok:
-            vs = rescued(rows, (r["set"], r["j"]))
-            run = rows[((r["set"], r["j"]), vs[0])]
+            vs = rescued(rows, uid(r))
+            run = rows[(uid(r), vs[0])]
             sc = CR.score_at(run, 100, run["mass_kg"])
             gp = rel_gap(sc, r["dfn100"])
             res.append(dict(set=r["set"], j=r["j"], variants=vs, spme100=sc, dfn100=r["dfn100"], gap=gp,
@@ -294,6 +299,8 @@ def report():
             L.append(f"    {r['set']} {r['j']}: by {','.join(vs)}; SPMe@100 {sc:.1f} vs DFN@100 {r['dfn100']:.1f} Wh/kg, "
                      f"gap {gp:+.3f}, r_min {_f(run.get('r_min'))}")
         g["rescued"] = res
+        g["rescued_trusted"] = sum(1 for x in res if not x["untrusted"])
+        L.append(f"  rescued and trusted (within 25% of DFN@100): {g['rescued_trusted']} of {len(res)}")
         L.append("")
         return g
 
@@ -304,7 +311,7 @@ def report():
     L.append("1-cycle diagnostic (default solver): first-discharge unclipped min c_e / c_e0")
     dsum = {}
     for name, items in (("stop", stop), ("fail", fail)):
-        d = [dg.get((r["set"], r["j"]), {}) for r in items]
+        d = [dg.get(uid(r), {}) for r in items]
         neg = sum(1 for x in d if structural(x))
         empty = sum(1 for x in d if x.get("charge_empty"))
         vals = sorted(x["ce1_min_ratio"] for x in d if x.get("ce1_min_ratio") is not None)
@@ -323,7 +330,7 @@ def report():
     for v in VARIANTS[1:]:
         dev, broke = [], 0
         for r in c["control"]:
-            a, b = rows.get(((r["set"], r["j"]), "V0")), rows.get(((r["set"], r["j"]), v))
+            a, b = rows.get((uid(r), "V0")), rows.get((uid(r), v))
             if not a or not b:
                 continue
             sa, sb = CR.score_at(a, 100, a["mass_kg"]), CR.score_at(b, 100, b["mass_kg"])
@@ -336,12 +343,25 @@ def report():
     # V0 reproduces the committed run?
     rep = []
     for r in c["control"] + c["failing"]:
-        a = rows.get(((r["set"], r["j"]), "V0"))
+        a = rows.get((uid(r), "V0"))
         if a:
             rep.append(a.get("ok_cycles", 0) == r["ok_cycles"] if r["kind"] != "fail" or a.get("ok_cycles") else kind(a) == "fail")
     summ["controls"] = ctl
     summ["v0_reproduces"] = dict(n=len(rep), same=sum(rep))
     L.append(f"  V0 reproduces the committed cycle count on {sum(rep)} of {len(rep)} designs")
+    L.append("")
+
+    # extra, after the verdicts: does a variant move completed SPMe scores towards DFN@100? (DFN not re-solved)
+    L.append("Extra, after the verdicts: median |SPMe@100 / DFN@100 - 1| over each set's 8 controls, by variant")
+    ext = {}
+    for s in CONTROL_SETS:
+        ext[s] = {}
+        for v in VARIANTS:
+            g = sorted(abs(CR.score_at(rows[(uid(r), v)], 100, rows[(uid(r), v)]["mass_kg"]) / r["dfn100"] - 1)
+                       for r in c["control"] if r["set"] == s and (uid(r), v) in rows and r["dfn100"] > 0)
+            ext[s][v] = (g[len(g) // 2 - 1] + g[len(g) // 2]) / 2 if g and len(g) % 2 == 0 else (g[len(g) // 2] if g else None)
+        L.append(f"  {s}: " + ", ".join(f"{v} {100 * ext[s][v]:.2f}%" for v in VARIANTS if ext[s][v] is not None))
+    summ["extra_control_gap_to_dfn"] = ext
     L.append("")
 
     # verdicts (LOG.md, milestone 5d plan)
