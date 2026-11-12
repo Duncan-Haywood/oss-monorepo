@@ -27,14 +27,15 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 21,
   "outcome": "success",
   "errors": [
     "First edit script never ran: `git checkout -b` on a branch the harness had already created failed, and the && chain stopped; re-ran on the existing branch.",
     "The full photo-editing suite caught test_dng_opcodes using WarpRectilinear2 as its 'named, not run' example; switched that test to FixBadPixelsConstant in OpcodeList3.",
-    "mypy (CI lint) flagged a variable name reused across branches in warp_source and an untyped parser dict; fixed before merge. mypy under python3.13 fails on numpy's own stubs (environment), so it was run under python3.11 without numpy, as CI's lint job does."
+    "mypy (CI lint) flagged a variable name reused across branches in warp_source and an untyped parser dict; fixed before merge. mypy under python3.13 fails on numpy's own stubs (environment), so it was run under python3.11 without numpy, as CI's lint job does.",
+    "portfolio-validate failed: photo-editing next: grew to 2317 chars (cap 2000) by appending; condensed the history part to a README pointer."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -45,6 +46,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "The harness had already created and checked out the session branch; 'create these branches if needed' plus habit led to a failing `git checkout -b`. Minor."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to rewrite the venture's next: but not that portfolio/router/validate.py caps it at 2000 characters; run validate.py locally after editing flagships.yaml."
     }
   ],
   "deviations": [

@@ -208,23 +208,12 @@ flagships:
       MapTable and Delta/ScalePerRow/Column in OpcodeList1 once the
       raw-value unit is settled (README, 2026-11-12 MapTable section).
     next: >-
-      History and every measurement: README and eval/ (ingest, catalog,
-      proxies, cull, RAW previews; DNG developer with DNG-spec colour, DCP
-      tables, tone curves, triple-illuminant profiles, default tone curve;
-      numpy engine, native Huffman reader; Canon CR2 directly and in the
-      grade stage; five Canon bodies match LibRaw to 0.05-0.19 8-bit steps,
-      eval/cr2-brightness-gap-2026-11-12.md; camera-written DNGs from a
-      Nexus 5X, Leica T and Pentax Q-S1 match LibRaw to 0.02-0.11 steps and
-      the phone's OpcodeList2 GainMap lens shading runs, eval/camera-dngs-
-      2026-11-12.md; WarpRectilinear matches the Leica T's own preview to
-      0.18 px, eval/warp-rectilinear-2026-11-12.md; FixVignetteRadial/MapPolynomial on
-      synthetic files, eval/vignette-polynomial-2026-11-12.md; OpcodeList1
-      FixBadPixels*; WarpFisheye; MapTable, Delta/ScalePerRow/Column;
-      TrimBounds in OpcodeList2/3, tests/test_dng_trim_bounds.py;
-      WarpRectilinear2 with the skip rule from the 1.7.1 spec text; on
-      5,411 rectilinear lensfun profiles the best even-only (WarpRectilinear)
-      fit leaves over 1 px on a 6000 px frame for 17%, which
-      WarpRectilinear2 holds exactly, eval/warp-rectilinear2-2026-11-12.md).
+      History and every measurement: README and eval/ (DNG developer and
+      colour, CR2, every DNG opcode but OpcodeList1 value maps;
+      WarpRectilinear matches the Leica T's preview to 0.18 px;
+      WarpRectilinear2 on synthetic files, and on 5,411 rectilinear lensfun
+      profiles the best even-only fit leaves over 1 px at 6000 px for 17%,
+      eval/warp-rectilinear2-2026-11-12.md).
       Next, most valuable first: lensfun profiles as WarpRectilinear2 for
       files with no correction (buildable); a real DNG carrying any opcode
       run only on synthetic files so far, or the SDK to check them;
