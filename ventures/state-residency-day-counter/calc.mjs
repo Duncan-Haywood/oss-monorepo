@@ -118,6 +118,7 @@ function matchToDay(m, defaultYear) {
   if (m[1]) return toDay(+m[1], +m[2], +m[3]);
   if (m[4]) {
     let y = m[6] ? +m[6] : defaultYear;
+    if (m[6] && m[6].length === 3) return null; // "6/2/202": a typo, not the year 202
     if (m[6] && m[6].length === 2) y += 2000;
     return toDay(y, +m[4], +m[5]);
   }
@@ -140,8 +141,10 @@ function findState(rest) {
   for (const [name, code] of NAME_TO_CODE) {
     if (new RegExp(`\\b${name}\\b`).test(lower)) return code;
   }
-  const m = rest.match(/\b([A-Z]{2})\b/);
-  return m ? m[1] : null;
+  // The first capitalised pair that is a real code: "XX" or a typo like "NU" is not a
+  // state, and counting days against it would silently take them from the real one.
+  for (const m of rest.matchAll(/\b([A-Z]{2})\b/g)) if (STATE_NAMES[m[1]]) return m[1];
+  return null;
 }
 
 // One stay per line: "2025-01-03 to 2025-03-30 FL", "1/3/2025 - 3/30/2025 New York",
@@ -163,7 +166,11 @@ export function parseStays(text, year) {
     const work = !/\b(off|vacation|holiday|pto|not working|no work)\b/i.test(rest);
     const city = CITY_RE.test(rest);
     const state = findState(rest.replace(CITY_RE, " ")) || (city ? "NY" : null);
-    if (!state) return errors.push({ line: i + 1, message: `No state found in "${line}". Use a two-letter code like NY or a name like New York.` });
+    if (!state) {
+      const code = rest.match(/\b([A-Z]{2})\b/);
+      const why = code ? `"${code[1]}" is not a US state code` : "No state found";
+      return errors.push({ line: i + 1, message: `${why} in "${line}". Use a two-letter code like NY or a name like New York.` });
+    }
     if (city && state !== "NY") return errors.push({ line: i + 1, message: `New York City is in New York, but this line says ${state}: "${line}".` });
     const start = days[0];
     const end = days.length === 2 ? days[1] : days[0];
@@ -371,7 +378,7 @@ export function validateSpec(spec) {
   if (!Number.isInteger(spec.year) || spec.year < 1990 || spec.year > 2100) errs.push("Enter a four-digit tax year.");
   if (!Array.isArray(spec.stays) || spec.stays.length === 0) errs.push("Add at least one stay.");
   for (const s of spec.stays || []) {
-    if (!/^[A-Z]{2}$/.test(s.state)) errs.push(`"${s.state}" is not a two-letter state code.`);
+    if (!Object.prototype.hasOwnProperty.call(STATE_NAMES, s.state)) errs.push(`"${s.state}" is not a two-letter state code.`);
     if (!Number.isInteger(s.start) || !Number.isInteger(s.end) || s.end < s.start) errs.push("A stay has an invalid date range.");
   }
   if (spec.wages != null && !(spec.wages >= 0)) errs.push("Wages must be zero or more.");

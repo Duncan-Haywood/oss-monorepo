@@ -650,3 +650,37 @@ test("stateAt finds a point whose polygon sits where longitude exceeds latitude"
   assert.equal(stateAt(105, 12, rings), "ZZ");
   assert.equal(stateAt(105, 25, rings), "");
 });
+
+test("workdays follow the real calendar in a year that does not start on a Wednesday", () => {
+  // 2025 starts on a Wednesday, so a weekday count mirrored around 1 January still
+  // lands weekends on weekends; 2026 starts on a Thursday and would not.
+  const lines = ["2026-06-06 to 2026-06-07 NJ", "2026-06-08 to 2026-06-12 NY", "2026-06-17 to 2026-06-17 CT"];
+  const r = analyze({ year: 2026, stays: parseStays(lines.join("\n"), 2026).stays, abode: {}, overrides: {} });
+  assert.equal(by(r, "NJ").workdays, 0); // Sat + Sun
+  assert.equal(by(r, "NY").workdays, 5); // Mon .. Fri
+  assert.equal(by(r, "CT").workdays, 1); // a Wednesday
+});
+
+test("a saved setup file says version 1, the format setupFromJson reads", async () => {
+  const { setupToJson } = await import("./calc.mjs");
+  const doc = JSON.parse(setupToJson({ year: "2026" }));
+  assert.equal(doc.kind, "state-residency-day-counter-setup");
+  assert.equal(doc.version, 1);
+  assert.deepEqual(doc.fields, { year: "2026" });
+});
+
+test("a two-letter pair that is not a state is an error, not a state of its own", () => {
+  const { stays, errors } = parseStays(["2025-06-01 to 2025-06-05 XX", "2025-06-06 to 2025-06-07 NU", "2025-06-08 to 2025-06-09 OK", "2025-06-10 to 2025-06-11 AT NY"].join("\n"), Y);
+  assert.deepEqual(errors.map((e) => e.line), [1, 2]);
+  assert.match(errors[0].message, /"XX" is not a US state code/);
+  assert.deepEqual(stays.map((s) => s.state), ["OK", "NY"]);
+  assert.match(validateSpec({ year: Y, stays: [{ state: "XX", start: toDay(Y, 6, 1), end: toDay(Y, 6, 2) }] }).join(" "), /"XX"/);
+  assert.deepEqual(validateSpec({ year: Y, stays: [{ state: "DC", start: toDay(Y, 6, 1), end: toDay(Y, 6, 2) }] }), []);
+});
+
+test("a three-digit year is a typo, not the year 202", () => {
+  const { stays, errors } = parseStays("6/2/202 - 6/5/202 NY\n6/2/25 - 6/5/25 NY", Y);
+  assert.equal(errors.length, 1);
+  assert.equal(errors[0].line, 1);
+  assert.deepEqual(stays.map((s) => [s.start, s.end]), [[toDay(2025, 6, 2), toDay(2025, 6, 5)]]);
+});
