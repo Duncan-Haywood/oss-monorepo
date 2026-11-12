@@ -1,12 +1,13 @@
 # Can my existing electrical service take an EV charger, heat pump or induction range?
 
-> Free browser tool for homeowners and electricians: checks an existing home's electrical service for new load by the NEC 220.83 optional calculation (from an appliance list) and by NEC 220.87 measured maximum demand (the highest 15-minute kW in a year of the utility's Green Button interval data, times 125%, plus the new load). Reads Green Button CSV and XML, adds 5-minute readings into 15-minute blocks, flags hourly data, short records, gaps and solar, and shows the largest EV charger setting each method allows. Nothing uploaded.
+> Free browser tool for homeowners and electricians: checks an existing home's electrical service for new load by the NEC 220.83 optional calculation (from an appliance list) and by NEC 220.87 measured maximum demand (the highest 15-minute kW in a year of the utility's Green Button interval data, times 125%, plus the new load). Reads Green Button CSV and XML, adds 5-minute readings into 15-minute blocks, flags hourly data, short records, gaps and solar, and shows the largest EV charger setting each method allows. Also sizes a new or replacement service for the whole house by the NEC 220.82 optional calculation (general loads at 10 kVA + 40%, the largest of the six heating and cooling selections, smallest standard rating that covers it). Nothing uploaded.
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice. The inspector (authority having jurisdiction) and a licensed electrician decide.
 
 ## Pages
 
 - [The tool](https://marisstella.app/service-load-check/)
+- [Guide: what size electrical service a house needs (NEC 220.82, all-electric worked example)](https://marisstella.app/service-load-check/what-size-electrical-service.html)
 - [Guide: adding an EV charger without a panel upgrade (NEC 220.83 vs 220.87, worked example)](https://marisstella.app/service-load-check/ev-charger-without-panel-upgrade.html)
 
 ## Source

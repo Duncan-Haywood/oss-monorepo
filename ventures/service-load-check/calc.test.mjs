@@ -83,3 +83,67 @@ test("a kind that is not one of ours, even a prototype name, is read as an appli
   const r = calc22083(house, [{ name: "x", kind: "constructor", va: "1000" }]);
   assert.equal(r.loads[0].kind, "other");
 });
+
+import { calc22082, minServiceRating, demandOfGeneral, EXAMPLE_NEW_HOUSE, EXAMPLE_NEW_LOADS } from "./calc.mjs";
+
+test("220.82 by hand: 10 kVA at 100%, rest at 40%, plus the largest (C) selection", () => {
+  const r = calc22082(EXAMPLE_NEW_HOUSE, EXAMPLE_NEW_LOADS);
+  assert.equal(r.ok, true);
+  // 2400 x 3 + 3 x 1500 + 12000 + 5000 + 4500 + 1200 + 800 + 11520
+  assert.equal(r.general, 46720);
+  assert.equal(r.generalDemand, 10000 + 0.4 * 36720);
+  // (1) 5040; (3) 5040 + 0.65 x 10000 = 11540; (4) 6500
+  assert.equal(r.chosen, 3);
+  assert.equal(r.hvac, 11540);
+  assert.equal(r.totalVa, 24688 + 11540);
+  assert.ok(Math.abs(r.amps - 36228 / 240) < 1e-9);
+  assert.equal(r.minService, 175);
+});
+
+test("220.82(C)(3): a compressor locked out during strip heat drops out of the heating sum", () => {
+  const r = calc22082({ ...EXAMPLE_NEW_HOUSE, lockout: "yes" }, EXAMPLE_NEW_LOADS);
+  assert.equal(r.hvac, 6500);
+  assert.equal(r.minService, 150);
+});
+
+test("220.82(C): cooling-only, heat pump alone, four heaters, storage heat", () => {
+  const base = { sqft: "1000", smallApplianceCircuits: "2", laundryCircuits: "1" };
+  const ac = calc22082(base, [{ name: "AC", kind: "cooling", va: "4000" }]);
+  assert.equal(ac.chosen, 1);
+  assert.equal(ac.totalVa, 3000 + 4500 + 4000);
+  const hp = calc22082(base, [{ name: "HP", kind: "heatpump", va: "6000" }]);
+  assert.equal(hp.hvac, 6000);
+  assert.ok([1, 2].includes(hp.chosen));
+  const heaters = [1, 2, 3, 4].map((i) => ({ name: "Baseboard " + i, kind: "heating", va: "2000" }));
+  const four = calc22082(base, heaters);
+  assert.equal(four.chosen, 5);
+  assert.equal(four.hvac, 3200);
+  const three = calc22082({ ...base, heatingUnits: "3" }, heaters);
+  assert.equal(three.chosen, 4);
+  assert.equal(three.hvac, 5200);
+  const ets = calc22082(base, [{ name: "ETS", kind: "storage", va: "15000" }, { name: "AC", kind: "cooling", va: "4000" }]);
+  assert.equal(ets.chosen, 6);
+  assert.equal(ets.hvac, 15000);
+});
+
+test("220.82 counts new and existing loads alike; general load uses 10 kVA, not 8", () => {
+  assert.equal(demandOfGeneral(12000), 10000 + 800);
+  const a = calc22082(EXAMPLE_HOUSE, EXAMPLE_LOADS);
+  // other: 6000 + 4500 + 12000 + 5000 + 4500 + 1200 + 600 + 11520 = 45320; AC 4800 in (C)(1)
+  assert.equal(a.general, 45320);
+  assert.equal(a.totalVa, 10000 + 0.4 * 35320 + 4800);
+});
+
+test("minimum service: 100 A floor, standard 240.6(A) steps, null above 400 A", () => {
+  assert.equal(minServiceRating(40), 100);
+  assert.equal(minServiceRating(100), 100);
+  assert.equal(minServiceRating(100.1), 110);
+  assert.equal(minServiceRating(201), 225);
+  assert.equal(minServiceRating(401), null);
+});
+
+test("220.83 reads storage heat as space heat", () => {
+  const r = calc22083(house, [{ name: "ETS", kind: "storage", va: "9000", isNew: true }]);
+  assert.equal(r.method, "B");
+  assert.equal(r.heating, 9000);
+});
