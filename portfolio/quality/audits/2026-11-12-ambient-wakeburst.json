@@ -1,0 +1,209 @@
+{
+  "date": "2026-11-12",
+  "subject": "research/ambient-wakeburst",
+  "stratum": "research",
+  "round": 48,
+  "seed": "2026-11-12-g",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality-audit round 48",
+  "status": "audited",
+  "professional": "an applied statistician of point processes who evaluates wake-word / keyword-spotting false-accept rates (false accepts per hour). They would check first that the simulated wake rate matches the analytic upcrossing rate of the score process, that the drift-driven overdispersion matches the mixed-Poisson (law of total variance) prediction, that the lockout behaves like a non-paralyzable dead-time counter, and whether the extrapolation from 50 wakes per 1,000 s to the deployed ~1 wake a day is right",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Reran experiments/run.py in a scratch copy (/tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/wakeburst/copy): 189 s, output byte-identical to results.txt. Independent checks, no subject import: (1) /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/wakeburst/analytic.py: m=1 upcrossing probability of a stationary Gaussian AR(1), P(X0<th, X1>=th) by the bivariate-normal orthant integral, at th=3.124, rho=0.9 gives 50.28 wakes per 100k frames (results A 50.26, B 50.44). (2) Same script, mixed-Poisson law of total variance with lognormal scale (Gauss-Hermite over z, F0=1.408): predicted Fano 3.41 / 14.80 / 65.01 and mean 51.07 / 55.24 / 70.36 at sigma 0.02/0.05/0.10 vs results 3.365 / 14.483 / 61.673 (65.0 inside the bootstrap interval 56.4-67.4) and means 51.53/56.16/71.86 (within one SE). (3) Non-paralyzable dead-time counter (Feller 1948; Muller 1973): L=1000 predicts kept mean 33.7 and Fano 0.439 vs 32.13 and 0.468; the gap is the m=3 clustering (raw Fano 1.2), confirmed by (4) /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/wakeburst/naive.py, an independent plain-loop simulator (own AR recursion, run-length trigger, dead time, 300 windows): L=1000 kept mean 32.00 (SE 0.22), Fano 0.46 (results 32.13, 0.468); sigma 0.05 m=3 mean 52.81 (SE 1.26), Fano 9.05 (results 53.24, 9.448, CI 8.77-10.20). Every reported number checked is right. Held at 3, not 4, because the one quantitative extrapolation the README makes (README:44, rare-rate Fano) is wrong (see claims).",
+    "completeness": "Everything the README says is built works end to end: 9 tests pass ('9 tests, a few seconds': 9 passed in 1.96 s); run.py reproduces results.txt byte for byte; sections A-E exist; every headline number on README:13-16 matches results.txt (1.05/1.48/1.46; 1.13/2.4/9.4/38, 62, 30, mean +3.9%; L=1000 Fano 0.47 mean 51->32, sigma 0.05 9.8->2.5 and 54->32; L=10-50 mean -5.1 to -10.2%, Fano -8.6 to -20.8%; 9.5/9.5/9.8). Live page https://marisstella.app/research/ambient-wakeburst/ returns 200 with the stylised abstract. figure.py not rerun (keeps the tree clean); fano_vs_drift.svg committed. Stale: README:34 'about 15 minutes' for run.py, measured 189 s. Next steps (persistent drift, rare-event daily counts) are listed as not done, honestly.",
+    "verification": "`cd research/ambient-wakeburst && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests`: 9 passed in 1.96 s. Six seeded mutations in src/ambient_wakeburst/sim.py, each reverted with git checkout: dropping the run-start condition (line 47, every frame of a run >= m counts) caught; AR(1) carry phi**(j+1) -> phi**j (line 36, 0.4% mean shift) survived; lockout >= -> > (line 57) survived; fano ddof=1 -> 0 (line 68) survived; per-window drift replaced by one scale per 40-window group (line 89; m=3 sigma 0.05 Fano 9.38 -> 20.16, the headline doubles) survived; unscaled stationary start w[0] scaled by sqrt(1-phi^2) (line 22) survived. 1 of 6 caught. The surviving lockout, ddof and start mutations are low impact; the drift-granularity one is not: test_scale_drift_inflates_fano only asserts drift > 2x base. Tests do have real anchors (AR moments and lag-1/lag-10 autocorrelation, iid Poisson Fano 0.85-1.2, hand-built trigger and lockout cases).",
+    "craft": "Read sim.py (92 lines), __init__.py, run.py, figure.py, tests/test_sim.py. Clean, vectorised numpy; the chunked AR(1) with an overflow-safe chunk length is correct (checked by the independent simulator). Defects: sim.py:80 docstring says 'windows are simulated independently' but within a 40-window group the windows are contiguous slices of one AR(1) series and the lockout state carries across window boundaries (negligible at phi=0.9, but the docstring is wrong); wake_positions misses a run that reaches m before frame m (edge case, negligible); lockout is a Python loop over wakes (fine at this rate). No dead code, no copied engine.",
+    "claims": "Backed: every headline number (see completeness), the stylised/Gaussian AR(1) disclaimer, AI-assistance note, 'Fano factors ... textbook; nothing claimed as new theory', window-length result explained as a consequence of i.i.d. per-window drift. Failing: README:44 says that at the deployed rate (~1 wake a day) 'the same drift gives a Fano factor nearer 1' because variance ~ mean^2 CV^2. That treats the rate's CV as fixed, but a farther tail is more scale-sensitive (d log rate / d log scale ~ th^2). Computed (rare.py, m=1, phi 0.9, th=5.125 for 1 wake per 8.64e6 frames): sigma 0.05 gives Fano about 6.4 and mean 2.1 a day; sigma 0.10 gives Fano about 146 (vs 62 at 50 per window) and mean 9.5 a day, CV of the rate 3.9. The claim is wrong at sigma 0.10 and misleading at 0.05, and it is the bridge to the deployed case. Minor: README:34 runtime stale; sim.py:80 independence. 2.",
+    "fitness": "A researcher can reuse the simulator (correct, reproducible). But the headline results are closed-form consequences: drift overdispersion is the mixed-Poisson law of total variance (Fano = F0 + Var(lambda)/E(lambda)), which my 0.5 s quadrature reproduces to within the bootstrap interval for m=1 without simulation; window-length invariance follows from i.i.d. drift by construction; the lockout result is the non-paralyzable dead-time counter (Fano -> 1/(1+rL)^2). Nearest prior work, none cited: Greenwood and Yule (1920) / negative-binomial overdispersion of mixed Poisson counts; Rice (1944-45) and Cramer-Leadbetter on level upcrossings; Feller (1948) and Muller (1973) on dead-time counters; keyword-spotting evaluation in false accepts per hour (e.g. the Hey Snips and Google KWS evaluations). The README disclaims new theory, which is honest; the result is sound for its model, not new, and the deployed-rate extrapolation it offers is wrong. 2.",
+    "domain": "Compared against point-process practice (Fano factor, mixed-Poisson, dead time) and KWS false-accept evaluation. Correct: m-consecutive-frame trigger, Fano with ddof=1, percentile bootstrap over windows, bisection threshold calibration giving comparable means, unit-variance AR(1). Departures: no analytic check of the simulation against the upcrossing rate or the mixed-Poisson formula (both available and both agree); drift sigma values assumed, not measured (stated); the rare-rate extrapolation that the deployed question turns on gets the direction wrong at sigma 0.10; the lockout comparison reports burstiness reduction without noting that it is dead-time theory and that it changes the false-accept rate the threshold was calibrated to. 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "rerun experiments/run.py vs committed results.txt",
+      "method": "byte diff in a scratch copy",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/wakeburst/copy && PYTHONPATH=src python3 experiments/run.py > out.txt && diff out.txt experiments/results.txt",
+      "expected": "identical",
+      "observed": "identical, 189 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "m=1 phi=0.9 th=3.124 mean wakes per 100k frames",
+      "method": "bivariate-normal orthant P(X0<th, X1>=th) for a stationary Gaussian AR(1), own quadrature (textbook upcrossing probability)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/wakeburst/analytic.py",
+      "expected": "50.28",
+      "observed": "results A 50.26, B 50.44",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Fano and mean under lognormal drift, m=1, sigma 0.02/0.05/0.10",
+      "method": "mixed-Poisson law of total variance, Fano = F0 + Var_z(lambda)/E_z(lambda), Gauss-Hermite over z",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/wakeburst/analytic.py",
+      "expected": "Fano 3.41/14.80/65.01; mean 51.07/55.24/70.36",
+      "observed": "Fano 3.365/14.483/61.673 (CI at 0.10: 56.4-67.4); mean 51.53/56.16/71.86",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "lockout L=1000 and L=200, sigma 0",
+      "method": "non-paralyzable dead-time counter, kept rate r/(1+rL), Fano 1/(1+rL)^2 (Feller 1948; Muller 1973)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/wakeburst/analytic.py",
+      "expected": "L=1000: 33.7, 0.439; L=200: 46.2, 0.824 (Poisson input; clustered input lowers the mean)",
+      "observed": "32.13, 0.468; 43.20, 0.854 (gap explained by m=3 clustering, see next check)",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "m=3 phi=0.9 lockout L=1000 and drift sigma 0.05",
+      "method": "independent plain-loop simulator: own AR(1) recursion, run-length trigger, dead time, 300 windows",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/wakeburst/naive.py",
+      "expected": "L=1000 mean 32.00 (SE 0.22) Fano 0.46; sigma 0.05 mean 52.81 (SE 1.26) Fano 9.05",
+      "observed": "results C 32.13, 0.468; B 53.24, 9.448 [8.77, 10.20]",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:44 at ~1 wake a day the same drift gives a Fano factor nearer 1",
+      "method": "same mixed-Poisson quadrature at the threshold for 1 wake per 8.64e6 frames (th=5.125)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/wakeburst/rare.py",
+      "expected": "Fano near 1",
+      "observed": "sigma 0.05: Fano ~6.4, mean 2.1/day; sigma 0.10: Fano ~146, mean 9.5/day",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:13-16 headline numbers",
+      "method": "read against rerun results.txt and arithmetic on percentages",
+      "command": "cat research/ambient-wakeburst/experiments/results.txt",
+      "expected": "as quoted",
+      "observed": "all match (mean +3.9% at sigma 0.05; L=10-50 mean -5.1 to -10.2%, Fano -8.6 to -20.8%)",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "'9 tests, a few seconds' and run.py 'about 15 minutes'",
+      "method": "run and time",
+      "command": "PYTHONPATH=src python3 -m pytest -q tests; time PYTHONPATH=src python3 experiments/run.py",
+      "expected": "9 pass in seconds; ~15 min",
+      "observed": "9 passed in 1.96 s; 189 s",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "live page and stylised disclaimer",
+      "method": "curl served page",
+      "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/ambient-wakeburst/",
+      "expected": "200 with stylised note",
+      "observed": "200; 'stylised follow-up to ambient-falsewake. On Gaussian AR(1) frame scores ...'",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "sim.py:80 'windows are simulated independently'",
+      "method": "read simulate_counts: one ar1 series per 40-window group, lockout over the whole group",
+      "command": "sed -n 79,92p research/ambient-wakeburst/src/ambient_wakeburst/sim.py",
+      "expected": "independent windows",
+      "observed": "contiguous slices of one AR(1) series; lockout carries across boundaries (effect negligible at phi 0.9)",
+      "result": "partial"
+    },
+    {
+      "dimension": "fitness",
+      "what": "prior work placement",
+      "method": "grep README for overdispersion, dead time, upcrossing, KWS false-accept literature",
+      "command": "grep -n -i 'dead.time\\|negative binomial\\|overdispers\\|rice\\|false accept' research/ambient-wakeburst/README.md",
+      "expected": "cited",
+      "observed": "no matches; only ambient-falsewake cited, and 'textbook' disclaimed",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/ambient-wakeburst/src/ambient_wakeburst/sim.py:47",
+      "change": "drop `ok &= ~a[:n - m]` (count every frame of a run >= m)",
+      "caught": true,
+      "test_cmd": "cd research/ambient-wakeburst && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m pytest -q -p no:cacheprovider tests"
+    },
+    {
+      "where": "research/ambient-wakeburst/src/ambient_wakeburst/sim.py:89",
+      "change": "s * np.repeat(sc, window) -> s * sc[0] (one drift scale per 40-window group; m=3 sigma 0.05 Fano 9.38 -> 20.16)",
+      "caught": false,
+      "test_cmd": "cd research/ambient-wakeburst && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m pytest -q -p no:cacheprovider tests"
+    },
+    {
+      "where": "research/ambient-wakeburst/src/ambient_wakeburst/sim.py:36",
+      "change": "carry * phi**(j+1) -> carry * phi**j (wrong AR state at chunk joins; mean +0.4%)",
+      "caught": false,
+      "test_cmd": "cd research/ambient-wakeburst && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m pytest -q -p no:cacheprovider tests"
+    },
+    {
+      "where": "research/ambient-wakeburst/src/ambient_wakeburst/sim.py:57",
+      "change": "p - keep[-1] >= L -> > L",
+      "caught": false,
+      "test_cmd": "cd research/ambient-wakeburst && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m pytest -q -p no:cacheprovider tests"
+    },
+    {
+      "where": "research/ambient-wakeburst/src/ambient_wakeburst/sim.py:68",
+      "change": "var(ddof=1) -> var(ddof=0)",
+      "caught": false,
+      "test_cmd": "cd research/ambient-wakeburst && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m pytest -q -p no:cacheprovider tests"
+    },
+    {
+      "where": "research/ambient-wakeburst/src/ambient_wakeburst/sim.py:22",
+      "change": "stationary start w[0] = N(0,1) -> sqrt(1-phi^2)*N(0,1)",
+      "caught": false,
+      "test_cmd": "cd research/ambient-wakeburst && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m pytest -q -p no:cacheprovider tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "The rare-rate limitation is wrong: it says at ~1 wake a day the same drift gives a Fano factor nearer 1 (variance ~ mean^2 CV^2), but the rate's CV grows with the threshold (far tail more scale-sensitive). Mixed-Poisson quadrature at th=5.125 (1 wake per 8.64e6 frames, m=1, phi 0.9): sigma 0.05 Fano ~6.4, mean 2.1/day; sigma 0.10 Fano ~146 (vs 62 at 50 per window), mean 9.5/day",
+      "where": "research/ambient-wakeburst/README.md:44",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "The drift engine behind every headline number is untested beyond 'drift > 2x base': replacing per-window drift with one scale per 40-window group doubles the m=3 sigma 0.05 Fano (9.38 -> 20.16) and all 9 tests pass; the AR(1) chunk-join carry error also survives",
+      "where": "research/ambient-wakeburst/tests/test_sim.py:44",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "No prior work cited for mixed-Poisson overdispersion (Greenwood-Yule, negative binomial), level upcrossings (Rice), dead-time counters (Feller, Muller) or KWS false-accepts-per-hour evaluation; the headline results are closed-form consequences that an analytic check reproduces in 0.5 s (novelty is honestly disclaimed)",
+      "where": "research/ambient-wakeburst/README.md:22",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "README says run.py takes about 15 minutes; it takes 189 s",
+      "where": "research/ambient-wakeburst/README.md:34",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "Docstring says windows are simulated independently; within a 40-window group they are contiguous slices of one AR(1) series and the lockout carries across window boundaries",
+      "where": "research/ambient-wakeburst/src/ambient_wakeburst/sim.py:80",
+      "category": "code-craft",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15117"
+  ],
+  "verdict": "Every number reproduces byte for byte (189 s) and agrees with sources the author did not use: the analytic AR(1) upcrossing rate (50.28 vs 50.26 wakes per window), the mixed-Poisson law of total variance for the drift Fano factors (14.80 vs 14.48 at sigma 0.05, 65.0 vs 61.7 at 0.10, inside the bootstrap interval), and an independent plain-loop simulator for lockout and drift (32.00 vs 32.13, Fano 0.46 vs 0.47). The code is clean and the stylised model is honestly labelled. But the one step toward the deployed question is wrong: the README says at ~1 wake a day drift gives a Fano factor nearer 1, while the same calculation at that threshold gives about 146 at sigma 0.10 and a 9.5x inflated daily mean; the drift engine is untested (a seeded change that doubles the headline Fano passes all 9 tests); and the results are textbook consequences (mixed Poisson, dead time) with no prior work cited. Finished as scoped; below the bar on claims and verification, median 2."
+}

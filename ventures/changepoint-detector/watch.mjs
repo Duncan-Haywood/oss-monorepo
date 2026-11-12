@@ -26,7 +26,11 @@ import { analyze, parseSeries, peaks } from './engine.mjs';
 // the AR(1) Bayesian pass, probability summed over 5 neighbours: mean null false alerts 2.38 per 1,000 against 10.56
 // (AR(1) 0.8: 1.5 against 32.25), 38 steps found against 35. The AR(1) term is for the level model only, so with
 // --model poisson or meanvar the default stays 'bocpd'.
-export const WATCH_DEFAULTS = { confirm: 5, tolerance: 5, window: 1000, detector: 'bocpd-ar1-window', model: 'mean' };
+// Round 4 (eval/watch-replay-round4.out.txt, rule pre-registered in eval/watch-rho.mjs) capped the AR(1) pass's rho at 0.8:
+// 15 of the 17 marked TCPD changes the AR(1) pass lost were at the 0.95 clip (eval/watch-rho-why.out.txt). With the cap,
+// 33 of 52 marked changes against 29, 41% of alerts at a mark against 38%, synthetic nulls and steps unchanged; the cost
+// is noise that really is that sticky (AR(1) 0.95: 3.0 false alerts per 1,000 checks against 1.25).
+export const WATCH_DEFAULTS = { confirm: 5, tolerance: 5, window: 1000, detector: 'bocpd-ar1-window', model: 'mean', rhoCap: 0.8 };
 /** The default detector for a model: the AR(1) pass for the level model, the plain Bayesian pass otherwise. */
 export const defaultDetector = (model = 'mean') => (model === 'mean' ? WATCH_DEFAULTS.detector : 'bocpd');
 
@@ -54,8 +58,9 @@ export function detectBoth(values, labels, opts = {}) {
   const o = { ...WATCH_DEFAULTS, ...opts };
   const off = Math.max(0, values.length - o.window);
   const v = values.slice(off), l = labels.slice(off);
-  const { confirm, tolerance, window, detector, alertHistory, ar1Detectors, ...engine } = o;
-  const r = analyze({ ...engine, values: v, labels: l });
+  const { confirm, tolerance, window, detector, alertHistory, ar1Detectors, rhoCap, ...engine } = o;
+  // With an AR(1) detector chosen and the plain lists not asked for, the plain engine run is skipped (half the time per check).
+  const ar1Only = String(detector).startsWith('bocpd-ar1') && !o.ar1Detectors && (engine.model ?? 'mean') === 'mean';
   const map = (c) => ({
     index: c.index + off,
     label: c.label,
@@ -64,11 +69,12 @@ export function detectBoth(values, labels, opts = {}) {
     ...(c.sdBefore !== undefined ? { sdBefore: c.sdBefore, sdAfter: c.sdAfter } : {}),
     ...(c.probability !== undefined ? { probability: c.probability } : {}),
   });
-  const out = { pelt: r.pelt.changepoints.map(map), ...bayesLists(r, map, '') };
+  let out = {};
+  if (!ar1Only) { const r = analyze({ ...engine, values: v, labels: l }); out = { pelt: r.pelt.changepoints.map(map), ...bayesLists(r, map, '') }; }
   // 'bocpd-ar1' / 'bocpd-ar1-window': the same Bayesian pass with the engine's AR(1) term (--ar1: rho from the
   // window, the conditional AR(1) likelihood in bocpd), for sticky noise. A second engine run, so only on request.
   if ((o.ar1Detectors || String(detector).startsWith('bocpd-ar1')) && (engine.model ?? 'mean') === 'mean') {
-    Object.assign(out, bayesLists(analyze({ ...engine, values: v, labels: l, ar1: true }), map, '-ar1'));
+    Object.assign(out, bayesLists(analyze({ ...engine, values: v, labels: l, ar1: true, ...(rhoCap != null ? { ar1RhoCap: rhoCap } : {}) }), map, '-ar1'));
   }
   return out;
 }
@@ -189,6 +195,9 @@ Options:
                             detections allowing for sticky, autocorrelated noise, probability summed over 5 neighbouring
                             points), bocpd-ar1, bocpd (default for poisson and meanvar), bocpd-window, or pelt (finds
                             smaller steps, e.g. 1 noise sd, at several times the false alerts). README, "Watching a growing series".
+  --rho-cap <x>             upper bound on the AR(1) detectors' rho (default: ${WATCH_DEFAULTS.rhoCap}; 0.95 is the uncapped estimate,
+                            fewer false alerts on noise that wanders like a random walk; 0.5 reaches more real changes at
+                            about three times the false alerts on sticky noise). README, "Round 4".
   --confirm <k>             report a change once k points are on its far side (default: ${WATCH_DEFAULTS.confirm})
   --tolerance <k>           a change within k points of one already reported is the same change (default: ${WATCH_DEFAULTS.tolerance})
   --window <n>              refit only the newest n points (default: ${WATCH_DEFAULTS.window})
@@ -216,6 +225,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     else if (a === '--period') o.period = num(argv[++i], '--period');
     else if (a === '--log') o.log = true;
     else if (a === '--detector') { o.detector = argv[++i]; if (!DETECTORS.includes(o.detector)) throw new Error(`--detector takes ${DETECTORS.join(', ')}.`); }
+    else if (a === '--rho-cap') { o.rhoCap = Number(argv[++i]); if (!(o.rhoCap >= 0 && o.rhoCap <= 0.95)) throw new Error('--rho-cap takes a number from 0 to 0.95.'); }
     else if (a === '--confirm') o.confirm = num(argv[++i], '--confirm');
     else if (a === '--tolerance') o.tolerance = Number(argv[++i]);
     else if (a === '--window') o.window = num(argv[++i], '--window');

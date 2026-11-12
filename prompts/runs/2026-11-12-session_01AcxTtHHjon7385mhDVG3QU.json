@@ -1,0 +1,328 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtHHjon7385mhDVG3QU",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T12:06:45Z",
+  "ended": "2026-11-12T12:07:26Z",
+  "wall_minutes": 10.06,
+  "tokens_in": 2902800,
+  "tokens_out": 18978,
+  "cost_usd": 1.6134,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15119",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First Nelder-Mead guard asserted iterations < 200, but the mutant exits on maxFun (401 calls) at 167 iterations; rerun showed caught_after_fix false, so the guard now asserts fcalls < 200."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 says to pick a file changed on main with `git log --since=3.days --name-only origin/main`, but the clone is shallow (depth 1), so that prints nothing until you `git fetch --depth=30 origin main`."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "All 5 open defects from step 0 are control-plane changes already sitting in owner-approval PRs; `redteam.py open` could list the PR that carries each fix, so runs stop re-checking them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (an automated guard for the class): the two defects are specific to this engine's records path, and a grep found no sibling venture with the same pattern (only 3pl-invoice-audit-checker takes `records`, with a different meaning), so a repo-wide lint would have no class to catch.",
+      "did": "Guarded the instances with tests in the venture suite, which ventures-tests.yml runs on every PR.",
+      "result": "Every gap is caught after the fix; there is no new repo-wide check."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-redteam-unit-one-is-not-in-the-unit-column.md"
+  ],
+  "goal": null,
+  "notes": "Target: ventures/synthetic-control/engine.mjs (new on main today, #15109), suite 1.3 s. 12 mutants: 4 caught, 3 equivalent, 5 gaps, all 5 caught after the new tests (rerun). 2 real defects found by hand, both patched. Local checks: node --test in ventures/synthetic-control (44 pass); run_workflow_locally --for-changes (blog front matter ok; the site-builder test is slow, result in the PR's CI).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/synthetic-control/engine.mjs",
+        "test": "node --test ventures/synthetic-control/**/*.test.mjs  (in .)",
+        "seed": 971445337,
+        "commit": "718e7f38d",
+        "sites": 431,
+        "baseline_seconds": 1.2,
+        "mutants": [
+          {
+            "file": "ventures/synthetic-control/engine.mjs",
+            "line": 142,
+            "col": 26,
+            "operator": "lt-to-le",
+            "before": "for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;",
+            "after": "for (let r = c + 1; r <= n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;",
+            "line_text": "    for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/synthetic-control/engine.mjs",
+            "line": 152,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "for (let r = n - 1; r >= 0; r--) {",
+            "after": "for (let r = n - 2; r >= 0; r--) {",
+            "line_text": "  for (let r = n - 1; r >= 0; r--) {",
+            "caught": true,
+            "seconds": 8.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/synthetic-control/engine.mjs",
+            "line": 172,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < n; i++) if (w[i] > 0) S.push(i);",
+            "after": "for (let i = 0; i <= n; i++) if (w[i] > 0) S.push(i);",
+            "line_text": "  for (let i = 0; i < n; i++) if (w[i] > 0) S.push(i);",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Loop reads w[n], which is undefined; undefined > 0 is false, so S is unchanged."
+          },
+          {
+            "file": "ventures/synthetic-control/engine.mjs",
+            "line": 173,
+            "col": 43,
+            "operator": "div-to-times",
+            "before": "if (!S.length) { w = new Array(n).fill(1 / n); S = [...Array(n).keys()]; }",
+            "after": "if (!S.length) { w = new Array(n).fill(1 * n); S = [...Array(n).keys()]; }",
+            "line_text": "  if (!S.length) { w = new Array(n).fill(1 / n); S = [...Array(n).keys()]; }",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Only reached when the start has no positive entry (never from analyze, whose warm start is a normalised W). The ridge makes the QP strictly convex and the result is the last subproblem's exact solution, renormalised, so the start's scale only changes the path: 200 random problems with an all-zero start gave identical weights under the mutant (scratch check)."
+          },
+          {
+            "file": "ventures/synthetic-control/engine.mjs",
+            "line": 175,
+            "col": 26,
+            "operator": "lt-to-le",
+            "before": "for (let iter = 0; iter < 50 * n + 100; iter++) {",
+            "after": "for (let iter = 0; iter <= 50 * n + 100; iter++) {",
+            "line_text": "  for (let iter = 0; iter < 50 * n + 100; iter++) {",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "One extra pass past the 50n+100 cap; the active-set method on a strictly convex QP terminates in finitely many steps far below the cap, so the cap is never the exit."
+          },
+          {
+            "file": "ventures/synthetic-control/engine.mjs",
+            "line": 186,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "A.push([...new Array(k).fill(1), 0]);",
+            "after": "A.push([...new Array(k).fill(2), 0]);",
+            "line_text": "    A.push([...new Array(k).fill(1), 0]);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/synthetic-control/engine.mjs",
+            "line": 250,
+            "col": 71,
+            "operator": "minus-to-plus",
+            "before": "for (let i = 0; i < N; i++) xs = Math.max(xs, Math.abs(sim[j][i] - sim[0][i]));",
+            "after": "for (let i = 0; i < N; i++) xs = Math.max(xs, Math.abs(sim[j][i] + sim[0][i]));",
+            "line_text": "      for (let i = 0; i < N; i++) xs = Math.max(xs, Math.abs(sim[j][i] - sim[0][i]));",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Test 'Nelder-Mead stops on its tolerance well before the iteration cap'."
+          },
+          {
+            "file": "ventures/synthetic-control/engine.mjs",
+            "line": 348,
+            "col": 16,
+            "operator": "times-to-div",
+            "before": "s += v[r] * (X1s[r] - y) ** 2;",
+            "after": "s += v[r] / (X1s[r] - y) ** 2;",
+            "line_text": "      s += v[r] * (X1s[r] - y) ** 2;",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Test 'result.lossW is the V-weighted predictor misfit'."
+          },
+          {
+            "file": "ventures/synthetic-control/engine.mjs",
+            "line": 412,
+            "col": 58,
+            "operator": "le-to-lt",
+            "before": "const g = series.filter((s) => s.time >= from && s.time <= to && Number.isFinite(s.gap)).map((s) => s.gap * s.gap);",
+            "after": "const g = series.filter((s) => s.time >= from && s.time < to && Number.isFinite(s.gap)).map((s) => s.gap * s.gap);",
+            "line_text": "  const g = series.filter((s) => s.time >= from && s.time <= to && Number.isFinite(s.gap)).map((s) => s.gap * s.gap);",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Test 'post-period RMSPE covers every post period, the last one included'."
+          },
+          {
+            "file": "ventures/synthetic-control/engine.mjs",
+            "line": 422,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "const mid = ts[Math.floor((ts.length - 1) / 2)];",
+            "after": "const mid = ts[Math.floor((ts.length - 1) / 3)];",
+            "line_text": "    const mid = ts[Math.floor((ts.length - 1) / 2)];",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Test 'default spec with covariates lags the outcome at the first, middle and last pre-period'."
+          },
+          {
+            "file": "ventures/synthetic-control/engine.mjs",
+            "line": 497,
+            "col": 40,
+            "operator": "and-to-or",
+            "before": "const vMethod = opts.vMethod === \"cv\" && !spec.train ? \"nested\" : opts.vMethod;",
+            "after": "const vMethod = opts.vMethod === \"cv\" || !spec.train ? \"nested\" : opts.vMethod;",
+            "line_text": "  const vMethod = opts.vMethod === \"cv\" && !spec.train ? \"nested\" : opts.vMethod;",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/synthetic-control/engine.mjs",
+            "line": 498,
+            "col": 19,
+            "operator": "eq-flip",
+            "before": "if (opts.vMethod === \"cv\" && !spec.train) notes.push(\"Cross-validation needs at least four pre-periods (or an explicit training window); V was fitted on the whole pre-period instead.\");",
+            "after": "if (opts.vMethod !== \"cv\" && !spec.train) notes.push(\"Cross-validation needs at least four pre-periods (or an explicit training window); V was fitted on the whole pre-period instead.\");",
+            "line_text": "  if (opts.vMethod === \"cv\" && !spec.train) notes.push(\"Cross-validation needs at least four pre-periods (or an explicit training window); V was fitted on the whole pre-period instead.\");",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Test 'the cross-validation fallback note appears only when cv was asked for and could not run'."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/synthetic-control/engine.mjs",
+        "issue": "analyze({records}) with numeric unit ids (unit: 1, 2, 3) threw 'Treated unit \"1\" is not in the id column' for treated: 1, because buildPanel kept raw numbers while treated/donors were Strings. Fixed: buildPanel stores unit ids as trimmed text.",
+        "patched": true
+      },
+      {
+        "file": "ventures/synthetic-control/engine.mjs",
+        "issue": "A date-like time column (2020-01) silently dropped every row, then reported the treated unit as missing from the unit column. Fixed: a clear error naming the time column when no row has a numeric time.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "aecc8abe-312a-57af-940e-11e1e4a7de0b",
+    "transcripts": 1,
+    "first": "2026-11-12T12:06:45Z",
+    "last": "2026-11-12T12:16:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 67,
+        "output": 18978,
+        "thinking": 4917,
+        "cache_read": 2819008,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83725,
+        "api_equivalent_usd": 1.6134,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 67,
+      "output": 18978,
+      "thinking": 4917,
+      "cache_read": 2819008,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83725,
+      "api_equivalent_usd": 1.6134,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.06,
+      "active_minutes": 10.06,
+      "model_minutes": 4.12,
+      "tool_minutes": 5.94,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "mutation triage of 12 mutants, 7 tests, 2 fixes and a post for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 247.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

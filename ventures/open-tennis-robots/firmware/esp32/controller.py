@@ -58,8 +58,9 @@ class StepperAxis:
     direction. Until 2026-11-12 a closed switch was taken as home at once, so a head left past home (turned by hand,
     or coasting after a power cut) homed up to 5.5 deg off, and a switch wire shorted to ground homed anywhere.
     Faults stop the axis: backing off more than `off_cam_deg` with the switch still closed (a stuck or shorted
-    switch, or a head turned past the end of the gear sector), or creeping more than `search_deg` without finding it
-    (a broken switch must not drive the head into its end stop forever).
+    switch; since 2026-11-12 the hard stops at +-35 deg keep a head from turning past the gear sector's end, cad/README.md
+    "Azimuth hard stops"), or creeping more than `search_deg` without finding it (a broken switch must not drive the
+    head into its end stop forever: at `home_deg_s` the stepper only stalls against the stop's pad).
     """
 
     def __init__(self, steps_per_deg, vmax_deg_s, accel_deg_s2, home_deg, lo_deg, hi_deg,

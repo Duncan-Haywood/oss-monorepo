@@ -31,7 +31,7 @@ A trigger fires after `m` frames in a row at or above a threshold. Its mean fals
 cd research/ambient-wakeburst
 pip install numpy pytest matplotlib
 PYTHONPATH=src python3 -m pytest -q tests                              # 9 tests, a few seconds
-PYTHONPATH=src python3 experiments/run.py > experiments/results.txt    # about 15 minutes
+PYTHONPATH=src python3 experiments/run.py > experiments/results.txt    # about 3 minutes (189 s, 2026-11-12)
 python3 experiments/figure.py                                          # writes experiments/fano_vs_drift.svg
 ```
 
@@ -41,7 +41,7 @@ All numbers are in `experiments/results.txt`: A stationary cells, B drift, C loc
 
 ## Limitations
 
-- **Windows are 1,000 s at about 50 wakes**, not a day at about 1 wake. The deployed target is far rarer; the Fano factor from drift grows with the mean (variance is about `mean^2 * CV^2`), so at 1 a day the same drift gives a Fano factor nearer 1 but a heavy tail in the daily count. I did not simulate that rate.
+- **Windows are 1,000 s at about 50 wakes**, not a day at about 1 wake. The deployed target is far rarer; I did not simulate that rate. An earlier version of this line said the same drift would give a Fano factor "nearer 1" there, holding the rate's coefficient of variation fixed; that is wrong, because a rarer threshold makes the rate more sensitive to the noise scale. By the mixed-Poisson formula (Fano = 1 + Var(rate)/E(rate)) at the threshold that gives 1 wake a day (5.125, m=1), sigma 0.05 gives a Fano factor of about 6 and a mean of about 2.1 wakes a day, and sigma 0.10 about 146 and 9.5 a day (quality audit round 48, [`portfolio/quality/audits/2026-11-12-ambient-wakeburst.json`](../../portfolio/quality/audits/2026-11-12-ambient-wakeburst.json); a calculation, not a simulation). Drift matters more at the deployed rate, not less.
 - **Drift is i.i.d. lognormal per window and applies to the score scale.** Real changes (day and night, a TV on) are autocorrelated and not lognormal; the sigma values are assumed, not measured.
 - **Gaussian AR(1) is a model, not a detector**, and speech-like background is bursty in ways this does not capture (see `ambient-falsewake`).
 - The phi = 0.5 cell needed a different chunk length in the AR(1) generator; a test covers it. Fano estimates of 1.05 to 1.2 for stationary cells are within about 2 bootstrap half-widths of each other, so I do not rank them.

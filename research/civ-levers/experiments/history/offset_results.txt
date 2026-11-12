@@ -1,0 +1,68 @@
+civ-history: is fiscal collapse built into the closure? (run_offset.py; do not edit by hand)
+2500 years, first 500 dropped; deterministic, one run per cell
+
+H1 identity: run(tau 0.3, g 16) vs run(tau 0.45, g 24): max |diff| over N, E, S, psi = 6.55e-15; collapse years identical: True (28 collapses)
+
+Fourth-run grid {'rho': (0.03, 0.06, 0.12), 'm': (0.02, 0.05), 'k': (4, 8), 'g': (2.0, 4.0, 8.0, 16.0), 'lag': (0, 50, 100, 200), 'collapse_thr': (0.1, 0.3, 0.5), 'me': (0.04,)}
+cells that collapse: 330 of 576
+[w25] mean log terms before collapse: elite log(E/E*) -0.951  wage log(s0/w) -0.582  fiscal log(S*/S) -0.475  offset log(g/10tau) +1.000
+[w25] largest of four (H2): 330 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 0 (0.00), fiscal log(S*/S) 17 (0.05), offset log(g/10tau) 313 (0.95)
+[w25] largest dynamic (H3): 330 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 112 (0.34), fiscal log(S*/S) 218 (0.66), offset log(g/10tau) 0 (0.00)
+[w100] mean log terms before collapse: elite log(E/E*) -1.203  wage log(s0/w) -0.615  fiscal log(S*/S) -0.495  offset log(g/10tau) +1.000
+[w100] largest of four (H2): 330 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 0 (0.00), fiscal log(S*/S) 14 (0.04), offset log(g/10tau) 316 (0.96)
+[w100] largest dynamic (H3): 330 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 101 (0.31), fiscal log(S*/S) 229 (0.69), offset log(g/10tau) 0 (0.00)
+By state cost g, [w25] mean log terms before collapse:
+  g    2: collapsing  30 of 144; elite log(E/E*) -1.246  wage log(s0/w) -0.588  fiscal log(S*/S) -0.746  offset log(g/10tau) -0.405
+  g    4: collapsing  62 of 144; elite log(E/E*) -0.830  wage log(s0/w) -0.499  fiscal log(S*/S) -0.416  offset log(g/10tau) +0.288
+  g    8: collapsing 107 of 144; elite log(E/E*) -0.782  wage log(s0/w) -0.531  fiscal log(S*/S) -0.358  offset log(g/10tau) +0.981
+  g   16: collapsing 131 of 144; elite log(E/E*) -1.079  wage log(s0/w) -0.661  fiscal log(S*/S) -0.537  offset log(g/10tau) +1.674
+
+Neutral state (offset 0) grid {'rho': (0.03, 0.06, 0.12), 'm': (0.02, 0.05), 'k': (4, 8), 'g': (3.0,), 'lag': (0, 50, 100, 200), 'collapse_thr': (0.1, 0.3, 0.5), 'me': (0.02, 0.04, 0.08)}
+cells that collapse with no lever: 155 of 432
+[w25] mean log terms before collapse: elite log(E/E*) -0.905  wage log(s0/w) -0.525  fiscal log(S*/S) -0.501  offset log(g/10tau) +0.000
+[w25] largest dynamic (H4): 155 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 57 (0.37), fiscal log(S*/S) 98 (0.63), offset log(g/10tau) 0 (0.00)
+[w100] mean log terms before collapse: elite log(E/E*) -1.150  wage log(s0/w) -0.551  fiscal log(S*/S) -0.529  offset log(g/10tau) +0.000
+[w100] largest dynamic (H4): 155 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 59 (0.38), fiscal log(S*/S) 96 (0.62), offset log(g/10tau) 0 (0.00)
+By elite mortality me, collapsing cells and [w25] largest dynamic:
+  me 0.02: collapsing  48 of 144; 48 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 15 (0.31), fiscal log(S*/S) 33 (0.69), offset log(g/10tau) 0 (0.00)
+  me 0.04: collapsing  48 of 144; 48 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 19 (0.40), fiscal log(S*/S) 29 (0.60), offset log(g/10tau) 0 (0.00)
+  me 0.08: collapsing  59 of 144; 59 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 23 (0.39), fiscal log(S*/S) 36 (0.61), offset log(g/10tau) 0 (0.00)
+By elite lag, collapsing cells and [w25] largest dynamic:
+  lag   0: collapsing  18 of 108; 18 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 1 (0.06), fiscal log(S*/S) 17 (0.94), offset log(g/10tau) 0 (0.00)
+  lag  50: collapsing  27 of 108; 27 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 4 (0.15), fiscal log(S*/S) 23 (0.85), offset log(g/10tau) 0 (0.00)
+  lag 100: collapsing  40 of 108; 40 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 16 (0.40), fiscal log(S*/S) 24 (0.60), offset log(g/10tau) 0 (0.00)
+  lag 200: collapsing  70 of 108; 70 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 36 (0.51), fiscal log(S*/S) 34 (0.49), offset log(g/10tau) 0 (0.00)
+
+Neutral state, levers paired by cell (cells that collapse with no lever) (H5):
+lever       | fewer  same  more | sign p   | cut by >=2 | stopped | started in quiet
+cap0.06     |    35   118     2 |    1e-08 |   28 (0.18) |      12 |     0
+cap0.05     |    54   100     1 |  3.1e-15 |   50 (0.32) |      28 |     0
+cap0.04     |    72    82     1 |  1.6e-20 |   70 (0.45) |      66 |     0
+welfare0.2  |    51    98     6 |  5.7e-10 |   31 (0.20) |      18 |     0
+welfare0.4  |    80    73     2 |  1.4e-21 |   62 (0.40) |      37 |     1
+
+Not pre-registered, added after seeing the above: does the collapse reset sustain itself?
+A collapse resets the lagged stress (plag > 0) to PSI = 1, where psi = 0.5, at or above every
+threshold swept. Variants: psi_reset 0 (memory cleared to calm) and None (memory kept).
+collapsing cells (share of gaps between collapses at the 50-year refractory floor) by lag:
+  fourth-run grid reset 1.0 : total 330 of 576; lag 0: 53 (0.87); lag 50: 75 (0.43); lag 100: 92 (0.64); lag 200: 110 (0.82)
+      by g: g 2 30, g 4 62, g 8 107, g 16 131
+      [w25] largest dynamic: 330 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 112 (0.34), fiscal log(S*/S) 218 (0.66), offset log(g/10tau) 0 (0.00)
+      [w25] mean log terms: elite log(E/E*) -0.951  wage log(s0/w) -0.582  fiscal log(S*/S) -0.475  offset log(g/10tau) +1.000
+  fourth-run grid reset 0.0 : total 258 of 576; lag 0: 53 (0.87); lag 50: 67 (0.42); lag 100: 69 (0.13); lag 200: 69 (0.00)
+      by g: g 2 9, g 4 45, g 8 87, g 16 117
+      [w25] largest dynamic: 258 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 75 (0.29), fiscal log(S*/S) 183 (0.71), offset log(g/10tau) 0 (0.00)
+      [w25] mean log terms: elite log(E/E*) -0.385  wage log(s0/w) -0.290  fiscal log(S*/S) -0.166  offset log(g/10tau) +1.126
+  fourth-run grid reset None: total 309 of 576; lag 0: 53 (0.87); lag 50: 73 (0.35); lag 100: 87 (0.44); lag 200: 96 (0.52)
+      by g: g 2 15, g 4 56, g 8 107, g 16 131
+      [w25] largest dynamic: 309 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 77 (0.25), fiscal log(S*/S) 232 (0.75), offset log(g/10tau) 0 (0.00)
+      [w25] mean log terms: elite log(E/E*) -0.596  wage log(s0/w) -0.455  fiscal log(S*/S) -0.229  offset log(g/10tau) +1.082
+  neutral grid    reset 1.0 : total 155 of 432; lag 0: 18 (0.35); lag 50: 27 (0.60); lag 100: 40 (0.74); lag 200: 70 (0.84)
+      [w25] largest dynamic: 155 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 57 (0.37), fiscal log(S*/S) 98 (0.63), offset log(g/10tau) 0 (0.00)
+      [w25] mean log terms: elite log(E/E*) -0.905  wage log(s0/w) -0.525  fiscal log(S*/S) -0.501  offset log(g/10tau) +0.000
+  neutral grid    reset 0.0 : total  94 of 432; lag 0: 18 (0.35); lag 50: 21 (0.00); lag 100: 26 (0.00); lag 200: 29 (0.00)
+      [w25] largest dynamic: 94 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 1 (0.01), fiscal log(S*/S) 93 (0.99), offset log(g/10tau) 0 (0.00)
+      [w25] mean log terms: elite log(E/E*) -0.066  wage log(s0/w) -0.173  fiscal log(S*/S) +0.079  offset log(g/10tau) +0.000
+  neutral grid    reset None: total 125 of 432; lag 0: 18 (0.35); lag 50: 24 (0.04); lag 100: 32 (0.09); lag 200: 51 (0.43)
+      [w25] largest dynamic: 125 cells: elite log(E/E*) 0 (0.00), wage log(s0/w) 3 (0.02), fiscal log(S*/S) 122 (0.98), offset log(g/10tau) 0 (0.00)
+      [w25] mean log terms: elite log(E/E*) -0.173  wage log(s0/w) -0.272  fiscal log(S*/S) +0.039  offset log(g/10tau) +0.000

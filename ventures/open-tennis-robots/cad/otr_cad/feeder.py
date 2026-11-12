@@ -186,11 +186,12 @@ MAST_NOTCH_R = 115.0  # the head's plates reach below the mast plate's top only 
 
 def _mast_notch(p: Feeder) -> list[tuple[float, float]]:
     """Cut-out at the mast plate's rear: everything beyond MAST_NOTCH_R behind the axis that the head's plates
-    (half-width plate_half_y + plate_t, plus 5 mm) sweep over when it turns +-az_max. Found 2026-11-10 by the
+    (half-width plate_half_y + plate_t, plus 5 mm) sweep over when it turns to a hard stop and squeezes its pad
+    (`az_reach_deg`; +-az_max until 2026-11-12). Found 2026-11-10 by the
     azimuth sweep: nose up 45 deg and turned 15 deg, the guard plate cut 78 mm^3 into the plate's rear edge."""
     w = p.plate_half_y + p.plate_t + 5.0
     rs = [MAST_NOTCH_R + k * 10.0 for k in range(15)]
-    ang = lambda r: math.radians(p.az_max) + math.asin(min(1.0, w / r))  # noqa: E731
+    ang = lambda r: math.radians(p.az_reach_deg) + math.asin(min(1.0, w / r))  # noqa: E731  (az_max until 2026-11-12)
     upper = [(p.head_x - r * math.cos(ang(r)), r * math.sin(ang(r))) for r in rs]
     a0 = ang(MAST_NOTCH_R)
     arc = [(p.head_x - MAST_NOTCH_R * math.cos(a0 * (2 * k / 12 - 1)), MAST_NOTCH_R * math.sin(a0 * (2 * k / 12 - 1)))
@@ -212,6 +213,7 @@ def mast_plate(p: Feeder) -> Part:
             Circle(AZ_BOSS_D / 2, mode=Mode.SUBTRACT)  # azimuth stepper's boss and shaft
         _holes(_az_motor_holes(p), 3.4)
         _holes(_home_bracket_holes(p), 3.4)
+        _holes(_stop_holes(p), 4.4)
     face = s.sketch
     return Part("mast_plate", "laser", "aluminium 5052", 1, extrude(face, p.plate_t),
                 [Location((0, 0, p.mast_top_z))], flat=face, thickness=p.plate_t,
@@ -280,6 +282,68 @@ def home_switch_parts(p: Feeder) -> list[Part]:
         Part("home_switch_lever", "cots", "", 1, lever, [_home_loc(p, h["r_body_out"], z0 + (hz - 3.0) / 2)],
              spec="the switch's roller lever (free position), part of home_switch"),
     ]
+
+
+# ---------------------------------------------------------------- azimuth hard stops (2026-11-12)
+
+STOP_INSERT_DT = 4.0   # the block's two M4 inserts sit this far either side of its tangential centre
+
+
+def _stop_frames(p: Feeder):
+    """(world angle of the pad's contact face, side) per stop: side +1 puts pad and block counter-clockwise of the face
+    (the positive stop, met by the sector's high end), -1 clockwise (the negative stop, met by its low end)."""
+    lo, hi = p.az_stop_world_deg()
+    return [(hi, 1), (lo, -1)]
+
+
+def _stop_xy(p: Feeder, deg: float, radial: float, tangential: float) -> tuple[float, float]:
+    a = math.radians(deg)
+    return (p.head_x + radial * math.cos(a) - tangential * math.sin(a), radial * math.sin(a) + tangential * math.cos(a))
+
+
+def _stop_block_dims(p: Feeder) -> tuple[float, float, float, float]:
+    """(inner radius, outer radius, height, centre's tangential offset from the face) of the printed block."""
+    r0, r1 = p.stop_pad_r
+    return r0 - 1.0, r1 + 2.0, p.bearing_h - p.az_gear_gap_mm, p.stop_pad_t + p.stop_block_depth / 2
+
+
+def _stop_holes(p: Feeder):
+    b0, b1, _, yc = _stop_block_dims(p)
+    return [_stop_xy(p, deg, (b0 + b1) / 2, side * (yc + d)) for deg, side in _stop_frames(p) for d in (-STOP_INSERT_DT, STOP_INSERT_DT)]
+
+
+def az_stop_block(p: Feeder) -> Part:
+    """Printed block on the mast plate in the bearing gap, behind the stop pad. Drawn centred, local x radial, y
+    tangential; two M4 heat-set inserts from below take screws up through the mast plate."""
+    b0, b1, h, yc = _stop_block_dims(p)
+    blk = Box(b1 - b0, p.stop_block_depth, h).moved(Location((0, 0, h / 2)))
+    for d in (-STOP_INSERT_DT, STOP_INSERT_DT):
+        blk = blk - Cylinder(2.8, 6.0).moved(Location((0, d, 3.0)))
+    z0 = p.mast_top_z + p.plate_t
+    locs = []
+    for deg, side in _stop_frames(p):
+        x, y = _stop_xy(p, deg, (b0 + b1) / 2, side * yc)
+        locs.append(Location((x, y, z0), (0, 0, deg)))
+    return Part("az_stop_block", "print", "PETG", 2, blk, locs,
+                notes=f"Azimuth hard stops, one each side, on the mast plate in the gap the gear sector turns in. The "
+                      f"sector's end faces meet their pads at +-{p.az_stop_deg:g} deg (working range +-{p.az_max:g}, "
+                      f"home click {p.az_home_deg:g}). Two M4 heat-set inserts from below; screws up through the mast "
+                      f"plate. 100% infill. Glue a {p.stop_pad_t:g} mm polyurethane pad on the face toward the sector.")
+
+
+def az_stop_pads(p: Feeder) -> Part:
+    r0, r1 = p.stop_pad_r
+    t, hz = p.stop_pad_t, p.stop_pad_h
+    pad = Box(r1 - r0, t, hz).moved(Location((0, 0, hz / 2)))
+    floor = p.mast_top_z + p.plate_t
+    z0 = floor + p.bearing_h / 2 - hz / 2   # centred where the sector (gap to gap + face) overlaps the block (0 to face)
+    locs = []
+    for deg, side in _stop_frames(p):
+        x, y = _stop_xy(p, deg, (r0 + r1) / 2, side * t / 2)
+        locs.append(Location((x, y, z0), (0, 0, deg)))
+    return Part("az_stop_pad", "cots", "", 2, pad, locs,
+                spec=f"Polyurethane sheet, Shore 70A, {t:g} mm, cut {r1 - r0:g} x {hz:g} mm (two); glued to the stop "
+                     f"blocks' faces (modulus about {p.stop_pad_e_mpa:g} MPa assumed: check your sheet)")
 
 
 def _az_motor_holes(p: Feeder):
@@ -359,7 +423,9 @@ def home_cam_radius(p: Feeder, plate_deg: float) -> float:
 def _sector_inner_edge(p: Feeder, a0: float, a1: float) -> list[tuple[float, float]]:
     """(angle rad, radius) along the sector's inner edge from its high end a1 back to a0, with the cam's corners."""
     h = p.home_switch_design()
-    angs = {a1 + (a0 - a1) * k / 24 for k in range(25)} | {math.radians(h["ramp0_deg"]), math.radians(h["ramp1_deg"])}
+    # both ends exactly: a0 recomputed as a1 + (a0 - a1) * 24 / 24 can round below a0 and be dropped, which until
+    # 2026-11-12 slanted the sector's low end face (inner corner 3.3 deg short; the azimuth stop found it)
+    angs = {a0, a1} | {a1 + (a0 - a1) * k / 24 for k in range(1, 24)} | {math.radians(h["ramp0_deg"]), math.radians(h["ramp1_deg"])}
     return [(a, home_cam_radius(p, math.degrees(a))) for a in sorted((a for a in angs if a0 <= a <= a1), reverse=True)]
 
 
@@ -865,7 +931,7 @@ def all_parts(p: Feeder) -> list[Part]:
     return [head_motor_plate(p), head_guard_plate(p), trunnion_cheek(p), trunnion_cheek_elev(p), mast_plate(p), turntable_plate(p),
             base_deck(p), wheel_bracket(p, True), wheel_bracket(p, False),
             cheek_foot(p), az_gear_sector(p), pole_foot(p), pole_elbow(p), camera_clamp(p),
-            feed_floor(p), feed_roof_column(p), feed_shuttle(p), *shuttle_drive_parts(p), home_switch_bracket(p), *home_switch_parts(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
+            feed_floor(p), feed_roof_column(p), feed_shuttle(p), *shuttle_drive_parts(p), home_switch_bracket(p), *home_switch_parts(p), az_stop_block(p), az_stop_pads(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
             *take_up_parts(p), *extrusions(p), *poles(p), *envelopes(p), *elev_actuator_parts(p)]
 
 
@@ -1060,6 +1126,9 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M2 x 10 self-tapping screw", 2, "home switch to its bracket"),
         ("M4 x 12 socket cap screw (azimuth)", 3, "turntable plate down into the gear sector"),
         ("M4 heat-set insert, 5.7 mm long (azimuth)", 3, "gear sector"),
+        ("M4 x 10 socket cap screw (stops)", 4, "mast plate up into the two azimuth stop blocks"),
+        ("M4 heat-set insert, 5.7 mm long (stops)", 4, "azimuth stop blocks"),
+        ("Contact adhesive (polyurethane to PETG)", 1, "stop pads to their blocks"),
         ("608 bearing, 8 x 22 x 7", 2, "idler wheels"),
         ("M8 x 60 bolt + nyloc nut", 2, "idler axles"),
         ("M10 T-nut (levelling foot)", 2, "beam ends"),
@@ -1176,6 +1245,19 @@ def home_switch_line(p: Feeder) -> str:
             f"part-to-part click tolerance {h['tol_deg']:.2f} deg = {h['tol_miss_mm']:.0f} mm: calibrate AZ_HOME_DEG")
 
 
+def az_stop_line(p: Feeder, inertia_kgm2: float) -> str:
+    d = p.az_stop_design(inertia_kgm2)
+    return (f"azimuth hard stops: printed blocks on the mast plate with {p.stop_pad_t:g} mm polyurethane pads; the gear "
+            f"sector's ends meet them at +-{p.az_stop_deg:g} deg ({p.az_stop_deg - p.az_max:g} deg past the working range, "
+            f"{p.az_stop_deg + p.az_home_deg:g} past the home click; the pinion leaves the teeth at "
+            f"+-{d['pinion_off_deg']:.1f}); a runaway at {p.stop_hit_deg_s:g} deg/s ({d['energy_j']:.2f} J, inertia "
+            f"{d['inertia_all_kgm2']:.3f} kg m^2 with the rotor) squeezes a pad {d['pad_x_mm']:.1f} mm "
+            f"({d['pad_strain']:.0%}), {d['force_impact_n']:.0f} N plus {d['force_stall_n']:.0f} N of stepper holding "
+            f"torque; worst sector insert {d['insert_n']:.0f} N (allowed {p.insert_shear_n:g}); stalled, the teeth bend at "
+            f"{d['stall_tooth_mpa']:.1f} MPa; the pad takes up to {d['fastest_hit_deg_s']:.0f} deg/s within "
+            f"{p.stop_pad_strain:.0%}; everything turning clears everything fixed out to +-{p.az_reach_deg:.1f} deg")
+
+
 def elevation_line(p: Feeder, gravity: dict[float, float]) -> str:
     d = p.elevation_drive(gravity)
     g = [gravity[k] for k in sorted(gravity)]
@@ -1198,7 +1280,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     checks = [
         f"design rules: {'pass' if not rules else '; '.join(rules)}",
         f"collisions between parts, with the head at {p.elev_min:+.0f} to {p.elev_max:+.0f} deg elevation, and with it "
-        f"turned +-{p.az_max:g} deg at both elevation ends: "
+        f"turned +-{p.az_max:g} deg at both elevation ends, and to the hard stops' reach (+-{p.az_reach_deg:.1f} deg): "
         f"{'none' if not clash else '; '.join(clash)}",
         f"ground contact (wheels and levelling feet at z=0): {'pass' if ground_ok else contacts}",
         f"launcher: wheel gap {p.wheel_gap:g} mm squeezes a {p.ball_d:g} mm ball by {p.ball_d - p.wheel_gap:.0f} mm; "
@@ -1225,6 +1307,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     if turning is not None:
         checks.insert(-3, azimuth_line(p, turning[0], turning[1] * 9.81))
         checks.insert(-3, home_switch_line(p))
+        checks.insert(-3, az_stop_line(p, turning[0]))
     if gravity is not None:
         checks.insert(-3, elevation_line(p, gravity))
         checks.insert(-3, shuttle_line(p))
@@ -1239,6 +1322,10 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
                         "az_torque_margin": round(d["torque_margin"], 2), "az_fastest_slew_s": round(d["fastest_slew_s"], 2),
                         "az_tooth_stress_mpa": round(d["tooth_stress_mpa"], 2), "az_step_miss_mm": round(d["step_miss_mm"]),
                         "az_hose_torque_nm": round(d["torque_hose_nm"], 3)})
+        sd = p.az_stop_design(turning[0])
+        derived.update({"az_stop_deg": p.az_stop_deg, "az_reach_deg": round(p.az_reach_deg, 2),
+                        "az_stop_force_n": round(sd["force_peak_n"]), "az_stop_pad_strain": round(sd["pad_strain"], 3),
+                        "az_stop_insert_n": round(sd["insert_n"])})
     if gravity is not None:
         e = p.elevation_drive(gravity)
         derived.update({"elev_gravity_nm": {f"{k:+g}": round(v, 2) for k, v in sorted(gravity.items())},

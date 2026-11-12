@@ -2,6 +2,37 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-12 · Milestone 6: does the side force of a canted rotor cost position hold more than cant's yaw gain is worth? (predictions written and committed before `experiments/m6_poshold/run.py` was run)
+
+- Why: H3. A canted rotor makes a horizontal body force whenever the mixer makes roll or pitch torque. `codesign-aero-cant-poshold` tested this with a per-axis torque box, a side force √2 too large (tan α / (L/√2)) and 2 s episodes, too short for drift. Milestone 3 (motor data) stays blocked on sources (see milestone 4's entry), so this run takes milestone 6.
+- Model (`src/codesign_cant/poshold.py`): the side force is derived from the allocation rows, F_y = lat·τ_x and F_x = lat·τ_y with lat = sin α / (L cos α − κ sin α), and yaw torque makes none (tests check it against `allocation.layout` on 100 random designs). It acts on the *delivered* torque, after the attitude-priority mixer (collective at hover) and the motor lag. Episodes are 6 s: start 0.5 m off, yaw steps ±30° every 1.5 s, and the mean wind steps by ±3 m/s per axis at 3 s. Translation, drag and noise are `-poshold`'s (assumed, inherited). J = −sqrt((pos/0.10 m)² + (yaw/10°)²) − 0.03·P_hover/100 W, which is milestone 4's 0.3° per 100 W in composite units.
+- Plan: `experiments/m6_poshold/run.py`, 12-parameter CMA-ES (design, six attitude PID gains, three position gains), 3200 evaluations, 16 training episodes, 6 seeds, two starts per seed (cant at 0.4 and 0.8 of the bound), arms `nocant` (α = 0), `aware` (α ≤ 80°, side force in training) and `unaware` (α ≤ 80°, side force off in training). Held-out: 64 episodes (seed 9999), each design scored with the force on, off, and in calm air (no wind step).
+- A smoke run (32 evaluations, 2 seeds, 4 episodes; not evidence) hinted that the force may *help* the force-aware designs (position RMS on/off 0.80). The predictions below were written after seeing it.
+- Predictions:
+  - Q1 (H3): for `aware` designs, held-out position RMS with the force on is at most 1.2× the same designs with it off (mean ratio over seeds). H3 is refuted if the mean ratio exceeds 1.2.
+  - Q2: `unaware` designs scored with the force on have higher position RMS than `aware` designs in at least 5 of 6 seeds.
+  - Q3: cant lowers held-out yaw RMS against no cant by at least 3°, in at least 5 of 6 seeds (force on).
+  - Q4: cant improves J (force on) against no cant in at least 4 of 6 seeds.
+  - Q5: cant does not buy position: the paired position RMS difference (aware minus no cant, force on) lies within ±0.05 m.
+  - Q6: the chosen cant under position hold has median 25–45° (milestones 2 and 4: 28–37°).
+  - Q7: the wind step costs position: late-window (3–6 s) position RMS is at least 10% higher than in calm air for every arm (mean over seeds).
+- Analysis: per-arm means and per-seed values; paired differences by seed with SD and sign counts. Six seeds, no test beyond the sign count.
+### Outcome (`experiments/m6_poshold/results.txt`, 36 CMA-ES runs of 3200 evaluations, about 55 minutes on 4 cores; simulated)
+- **Q1 held (H3 not refuted in the inherited geometry):** for force-aware designs, position RMS with the side force on is 0.961× the same designs with it off (per seed 0.90, 1.24, 0.89, 0.89, 0.94, 0.91); one seed of six crosses 1.2. After the wind step the force *helps*: 0.714× in the 3–6 s window.
+- **Q2 refuted:** designs trained without the force are worse than force-aware designs once it is switched on in only 2 of 6 seeds by position (mean +0.034 m, SD 0.137), and lose J in 4 of 6 (mean −0.35, SD 1.28). Two seeds carry the difference (0.387 against 0.097 m and 0.232 against 0.316 m go opposite ways). Ignoring the force is not the disaster `-poshold` found (1.07 m), partly because the corrected force is √2 smaller.
+- **Q3 held:** cant lowers yaw RMS by 4.71° (SD 0.96), 6 of 6 seeds (14.88° to 10.18°).
+- **Q4 held, barely:** cant improves J in 4 of 6 seeds, mean +0.06 (SD 0.84): not distinguishable from zero at six seeds.
+- **Q5 held:** cant minus no cant in position is +0.034 m (SD 0.093), cant lower in 4 of 6; one aware seed (0.316 m) carries the mean. Cant buys yaw, not position, as in `-poshold`.
+- **Q6 held:** chosen cant 36–38° (median 38°); the force-ignoring arm picks 33–37°.
+- **Q7 refuted for the canted arms:** the wind step raises late-window position RMS above calm air by 22% without cant, but only 9% (aware) and 5% (unaware) with cant. The position integrator absorbs a 3 m/s step within the 3 s left.
+- Found, not predicted: why the force helps. In the inherited model the gust that pushes the vehicle sideways also makes a roll/pitch torque of fixed sign (centre of pressure on one side of the centre of mass). The attitude loop's steady counter-torque then makes a side force that *opposes* the drag. With lat ≈ 7.8 N per N·m and a centre-of-pressure lever of about 0.1 m, it cancels a large share of the wind push for free. That is a geometric assumption, not a property of cant.
+### Post-hoc check, written after reading the outcome (`experiments/m6_poshold/dist_sign.py`, `dist_sign.txt`; re-scoring only, no retraining)
+- With the gust torque's sign flipped (centre of pressure on the other side, so the counter-torque's side force adds to the drag), the same force-aware designs lose **1.206×** position RMS with the force on (per seed 1.18–1.24, all six at or near the H3 line) and 1.62× in the late window. **H3 is refuted in that geometry** by the proposal's own 20% criterion, though without retraining for it.
+- Cant still wins the composite there, in 6 of 6 seeds (J +0.19), because the 4.7° yaw gain is worth more than the position it costs. The force-ignoring designs lose 1.59× (up to 2.64×).
+- Reading: whether the side force costs position hold depends on where the centre of pressure sits relative to the centre of mass. In one placement the force fights the wind; in the other it adds to the wind push and costs about 20%. Which physical placement maps to which sign of the inherited model has not been derived here; that is the next step. Either way, cant's yaw gain still pays under the composite. Frame designers can control this sign, and it belongs in the paper.
+- Limits: inherited translation, drag and noise model; the gust torque and drag share one wind state; perfect altitude hold; six seeds and two starts; the composite weights (0.1 m ↔ 10°) and λ are choices; no retraining under the flipped sign; no hardware. Preliminary.
+- Next: retrain under the flipped sign and sweep the centre-of-pressure lever; a RotorPy check of the top designs (milestone 5); motor catalogue data (milestone 3) when a source is reachable.
+
 ## 2026-11-12 · Milestone 4: does a stronger attitude law shrink the cant advantage? INDI and geometric control (predictions written and committed before `experiments/m4_controllers/run.py` was run)
 
 - Why: every result so far is for one per-axis PID law. H4 says a stronger law narrows but does not remove the cant advantage, and is refuted if INDI without cant matches PID with cant. A reviewer at RA-L will ask this first: maybe cant only patches a weak controller.

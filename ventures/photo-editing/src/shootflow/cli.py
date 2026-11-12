@@ -734,6 +734,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         profile_tables=not args.no_profile_tables,
         tone_curve=not args.no_tone_curve,
         default_tone=args.default_tone_curve,
+        cfa=args.cfa,
     )
     sources = [Path(p) for p in args.files]
     out_dir = Path(args.out)
@@ -1202,9 +1203,13 @@ def _build_parser() -> argparse.ArgumentParser:
 
     develop = subparsers.add_parser(
         "develop",
-        help="Develop DNG raw files into 16-bit TIFF (or PNG) masters for the grade stage (stdlib only).",
+        help="Develop DNG (or Canon CR2, with --dcp) raw files into 16-bit TIFF (or PNG) masters for the grade stage (stdlib only).",
     )
-    develop.add_argument("files", nargs="+", help="DNG files (convert CR2/CR3/NEF/ARW with Adobe DNG Converter).")
+    develop.add_argument(
+        "files",
+        nargs="+",
+        help="DNG files, or Canon CR2 files with --dcp (convert CR3/NEF/ARW with Adobe DNG Converter).",
+    )
     develop.add_argument("--out", required=True, help="Folder for the masters; existing files are never overwritten.")
     develop.add_argument("--format", choices=("tif", "png", "png16"), default="tif", help="tif (16-bit, default), png (8-bit) or png16.")
     develop.add_argument("--half", action="store_true", help="Half size, no interpolation: 4x fewer pixels, much faster.")
@@ -1227,7 +1232,13 @@ def _build_parser() -> argparse.ArgumentParser:
     develop.add_argument(
         "--dcp",
         help="A .dcp camera profile (Adobe DNG Converter, dcamprof, RawTherapee) used in place of the DNG's "
-        "own profile: its matrices, hue/saturation map and look table. dng colour only.",
+        "own profile: its matrices, hue/saturation map and look table. dng colour only. Required for a CR2, "
+        "which carries no colour matrix (DNG Converter installs one per camera under CameraRaw/CameraProfiles).",
+    )
+    develop.add_argument(
+        "--cfa",
+        choices=("RGGB", "GRBG", "GBRG", "BGGR"),
+        help="A CR2's 2x2 colour filter phase, when the reader cannot tell it from the picture (it says so).",
     )
     develop.add_argument(
         "--no-profile-tables",

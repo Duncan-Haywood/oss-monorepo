@@ -2679,7 +2679,8 @@ function addWeeks(weekStart, k) {
 // over from the week before (the same arithmetic as "carry over last week"), and dated `off:` entries apply in the week
 // they fall in. People who had no shift last week lose a stale `prev:` so it cannot block Monday. Returns one entry per
 // week with its roster and CSV; a parse error stops the plan.
-export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, ...options } = {}) {
+// `onWeek(done, of)` is called after each week is built (the page's worker posts it as progress); it changes nothing.
+export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, onWeek = null, ...options } = {}) {
   const n = Math.max(1, Math.min(8, Math.floor(weeks) || 1));
   const sh = parseShifts(shiftsText);
   if (sh.errors.length) return { error: sh.errors[0] };
@@ -2693,6 +2694,7 @@ export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, 
     if (roster.error) return { error: roster.error };
     const csv = rosterCsv(roster);
     out.push({ week: k + 1, weekStart: ws, roster, csv });
+    if (typeof onWeek === "function") onWeek(k + 1, n);
     if (k < n - 1) {
       const worked = lastShiftEnds(csv);
       const cleaned = text.split(/\r?\n/).map((raw) => {

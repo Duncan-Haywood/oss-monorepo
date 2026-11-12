@@ -28,6 +28,10 @@ export const DRAFT_SYSTEM = [
 
 const parseJson = (text) => { const m = String(text).match(/\{[\s\S]*\}/); if (!m) throw new Error("the model did not return JSON"); return JSON.parse(m[0]); };
 
+// Model readings that end the cadence with no draft and no task, and the rules' readings a person always sees.
+const CLOSES = new Set(["not_interested", "left_company"]);
+const VISIBLE = new Set(["unclear", "question", "objection"]);
+
 /** Combine the rules' triage with the model's. The model may only keep or lower how much contact follows. */
 export function mergeTriage(rules, model, today) {
   if (!model || !CATEGORIES[model.category]) return { ...rules, source: "rules" };
@@ -43,6 +47,15 @@ export function mergeTriage(rules, model, today) {
   // "Now is actually a perfect time ... Wednesday at 10?" as not now. Lower is not always safer; a paused hot lead is lost.
   // Chosen on the scored sets themselves (eval/README.md), so it is a tuned policy: 421/472 vs 407, false stops 26 vs 41.
   if (rules.category === "interested" && model.category !== "interested") return { ...rules, source: "rules", modelSaid: model.category };
+  // Nor does a model close quietly a reply the rules leave in front of a person (2026-11-12, eval/README.md "The 37 false
+  // stops, by what a person would see"). not_interested and left_company end the cadence with no draft and no task, so a
+  // wrong one is a lead lost without anyone reading it; unclear, question and objection all reach a person. On the 792
+  // scored replies the 7B model's closes from those three were right 11 of 25 times. Its close becomes a flag: the rules'
+  // answer stands and runInbox adds a task saying what the model read.
+  if (CLOSES.has(model.category) && VISIBLE.has(rules.category)) return { ...rules, source: "rules", modelSaid: model.category };
+  // Nor does a model turn a question into an objection: that drops the "answer their question" task and drafts a rebuttal
+  // to "What does it cost for a team of 12?". The 7B model did it 14 times over the 792, right 3 times.
+  if (rules.category === "question" && model.category === "objection") return { ...rules, source: "rules", modelSaid: model.category };
   // Allowed: anything from "unclear"; a move to the same or less contact; or a move between two categories that both
   // end in a draft awaiting approval (question -> interested). Never from a no-contact category to a drafting one.
   const lower = CATEGORIES[model.category].rank <= CATEGORIES[rules.category].rank;

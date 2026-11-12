@@ -11,7 +11,7 @@ test("index page carries the disclaimer, privacy line and sponsor link", () => {
   assert.match(html, /Everything runs in your browser/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(html, /<script type="application\/ld\+json">/);
-  assert.match(html, /Not affiliated with any court, housing agency or government body/);
+  assert.match(html, /Not affiliated with the IRS, the Treasury, any broker or any government body/);
 });
 
 test("inputs have labels and nothing can send the list anywhere", () => {
@@ -52,4 +52,10 @@ test("related-tool links point at ventures that exist", () => {
   const links = [...page("index.html").matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)];
   assert.ok(links.length >= 2);
   for (const m of links) assert.ok(existsSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
+});
+
+test("the carryback is described as Form 6781 box D, not Part II (quality audit round 48)", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.doesNotMatch(html, /Form 6781 Part II/);
+  assert.match(html, /box D on Form 6781/);
 });

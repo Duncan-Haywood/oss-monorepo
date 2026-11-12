@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtL6gP3fq8rbm9iZEmn",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T12:06:17Z",
+  "ended": "2026-11-12T12:23:32Z",
+  "wall_minutes": 17.56,
+  "tokens_in": 12960355,
+  "tokens_out": 131835,
+  "cost_usd": 8.2533,
+  "tool_calls": 138,
+  "task": "quality round 48 (mode sample, seed 2026-11-12-g)",
+  "projects": [
+    "ventures/section-1256-futures-tax-calculator",
+    "ventures/eu-price-reduction-claim-checker",
+    "research/free-modelcost",
+    "research/ambient-wakeburst",
+    "prompts/pricing.json"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15117",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 16,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "`git add portfolio/quality/audits/` while auditor agents were still writing committed a half-written audit JSON (free-modelcost) mid-run; harmless here because it was overwritten later, but parallel auditors plus a stop hook demanding untracked files be committed invite it."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes detaches after 100 s and needs repeated wait_for calls; the one real failure (post front matter length) is a 0.2 s check that check_post_frontmatter.py alone would have caught first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "The free-modelcost root cause sits in prompts/pricing.json (control plane), outside the subject.",
+      "did": "Fixed it in a separate control-plane PR #15120 (with a test pinning cache-read multipliers to the pricing page) and wrote a dated correction into the research README instead of re-running its experiment.",
+      "result": "Round PR stays mergeable; pricing fix waits for owner approval."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-quality-audit-round-48.md"
+  ],
+  "goal": "quality audits: measure share of sampled work at the senior-professional bar and fix what is small",
+  "notes": "Seed 2026-11-12-g, round 48. Subjects: ventures/section-1256-futures-tax-calculator, ventures/eu-price-reduction-claim-checker, research/free-modelcost, research/ambient-wakeburst (no flagship/platform eligible). Share meeting the bar: 0 of 4 (cumulative sampled 29 of 206, Wilson 10-20%). Seeded bugs caught 7 of 25. Fix PRs: #15117 (venture fixes for both ventures, free-modelcost correction, ambient-wakeburst README/test), #15120 (control plane: Sonnet 5.5 cache_read 0.20 -> 0.10, Fable/Mythos 5.2 rows). Spot-checks by the session: EU sample prior 69 / 14.49% by hand; 60/40 blended 21.8% by hand; free-modelcost re-pricing rerun (6.53x at 0.20, 8.45x at 0.10) and pricing page row read from the fetched page; ambient-wakeburst 1-a-day Fano recomputed (5.43+1, 145+1). Local checks: venture node tests 33/33 and 27/27, wakeburst pytest 10/10, prompts test_runcost 16/16, quality_audit validate 0 problems, check_post_frontmatter 0. run_workflow_locally --for-changes: 13/15 workflows passed after regenerating research/README.md (readme-live-links failed first on the stale list); pages.yml and portfolio-pages.yml reached no verdict locally (no _site build / budget). GitHub registered no check runs on the PR at merge time.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c7666914-7b3e-532d-a2b8-8bb4f48b758c",
+    "transcripts": 5,
+    "first": "2026-11-12T12:06:17Z",
+    "last": "2026-11-12T12:23:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 132,
+        "input": 269,
+        "output": 131835,
+        "thinking": 33175,
+        "cache_read": 12409894,
+        "cache_write_5m": 422654,
+        "cache_write_1h": 127538,
+        "api_equivalent_usd": 8.2533,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 132,
+      "input": 269,
+      "output": 131835,
+      "thinking": 33175,
+      "cache_read": 12409894,
+      "cache_write_5m": 422654,
+      "cache_write_1h": 127538,
+      "api_equivalent_usd": 8.2533,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.958,
+    "tool_calls": 138,
+    "tools": {
+      "Bash": 123,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "mcp__github__create_pull_request": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Skill": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.56,
+      "active_minutes": 14.01,
+      "model_minutes": 7.06,
+      "tool_minutes": 6.95,
+      "waiting_on_human_minutes": 3.55,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 22.11
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "four expert audits with recomputation (~2.5 h each) plus fixes and tests in two calculators, a research correction and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 169.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

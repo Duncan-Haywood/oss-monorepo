@@ -276,7 +276,7 @@
         card.append(el("strong", "", " " + (it.name || it.from || "Unknown sender") + (it.subject ? " · " + it.subject : "")));
         card.append(el("blockquote", "", it.body.slice(0, 600)));
         if (t.evidence) card.append(el("div", "note", "Decided on: “" + t.evidence + "”" + (t.why ? " (" + t.why + ")" : "")));
-        if (t.guess) card.append(el("div", "warn", "The rules could not read this. Best guess: " + CATEGORIES[t.guess.category].label.toLowerCase() + ". Nothing was done on the guess except pausing."));
+        if (t.guess) card.append(el("div", "warn", "The rules could not read this. " + (t.guess.source === "model" ? "The model reads it as " : "Best guess: ") + CATEGORIES[t.guess.category].label.toLowerCase() + ". Nothing was done on the guess except pausing."));
         if (it.applied.length) { const ul = el("ul", "applied"); for (const a of it.applied) ul.append(el("li", "", "Done: " + a)); card.append(ul); }
         if (it.draft) {
           const id = "d" + it.n;

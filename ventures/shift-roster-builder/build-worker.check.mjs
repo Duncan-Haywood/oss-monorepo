@@ -66,4 +66,55 @@ else console.log(`ok   exact check Off honoured (${off.ms} ms)`);
   await page.waitForSelector("#report:not([hidden])", { timeout: 60000 });
   console.log("ok   builds again after Stop");
 }
+
+// The multi-week planner: same table from the worker and from the main thread, the page keeps drawing, Stop ends it.
+async function planSample({ noWorker = false } = {}) {
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  if (noWorker) await page.addInitScript(() => { delete window.Worker; });
+  await page.goto(url);
+  await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
+  await page.click("#load-example");
+  await page.waitForSelector("#report:not([hidden])", { timeout: 60000 });
+  await page.fill("#planweeks", "4");
+  await page.evaluate(() => {
+    window.__gaps = []; window.__progress = []; let t = performance.now();
+    const tick = (now) => { window.__gaps.push(now - t); t = now; const el = document.querySelector("#plan-progress"); if (el && window.__progress.at(-1) !== el.textContent) window.__progress.push(el.textContent); if (!window.__stopTicks) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  });
+  const t0 = Date.now();
+  await page.click("#plan-weeks");
+  await page.waitForSelector("#plan-out table", { timeout: 120000 });
+  const ms = Date.now() - t0;
+  const out = await page.evaluate(() => { window.__stopTicks = true; return { gap: Math.max(...window.__gaps), table: document.querySelector("#plan-out").textContent, progress: window.__progress, stopHidden: document.querySelector("#plan-stop").hidden }; });
+  await ctx.close();
+  return { ...out, ms, errors };
+}
+const pw = await planSample(), pm = await planSample({ noWorker: true });
+console.log(`plan worker:      ${pw.ms} ms, longest frame gap ${Math.round(pw.gap)} ms, progress seen: ${pw.progress.join(" | ")}`);
+console.log(`plan main thread: ${pm.ms} ms, longest frame gap ${Math.round(pm.gap)} ms`);
+for (const [k, r] of [["plan worker", pw], ["plan main", pm]]) if (r.errors.length) fail(`${k} page errors: ${r.errors.join("; ")}`);
+if (pw.table !== pm.table) fail("plan table differs between worker and main-thread planners");
+if (!pw.stopHidden) fail("plan Stop still showing after the plan");
+if (pw.gap > 250) fail(`worker plan froze the page for ${Math.round(pw.gap)} ms`);
+else console.log("ok   same plan from the worker, page kept drawing");
+{
+  const page = await browser.newPage();
+  await page.goto(url);
+  await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
+  await page.click("#load-example");
+  await page.waitForSelector("#report:not([hidden])", { timeout: 60000 });
+  await page.click("#plan-weeks");
+  await page.waitForSelector("#plan-stop:not([hidden])", { timeout: 5000 });
+  await page.click("#plan-stop");
+  await page.waitForTimeout(2500);
+  const s = await page.evaluate(() => ({ table: !!document.querySelector("#plan-out table"), text: document.querySelector("#plan-out").textContent, stop: document.querySelector("#plan-stop").hidden }));
+  if (s.table || !/Stopped/.test(s.text) || !s.stop) fail("plan Stop did not end the plan: " + JSON.stringify(s));
+  else console.log("ok   plan Stop ends the plan");
+  await page.click("#plan-weeks");
+  await page.waitForSelector("#plan-out table", { timeout: 120000 });
+  console.log("ok   plans again after Stop");
+}
 await browser.close();

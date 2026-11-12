@@ -55,3 +55,24 @@ def test_higher_tax_cuts_collapses_in_a_fiscal_cell():
     base = len(run.collapses)
     run(tau=0.45, **kw)
     assert len(run.collapses) < base
+
+
+def test_tau_and_g_enter_only_as_their_ratio():
+    # e0 = (1 - tau) R* / E* cancels tau from elite income over aspiration, and S relaxes to
+    # tau R / (g E): the closure sees (tau, g) only through tau / g (2026-11-12 fifth run, H1)
+    kw = dict(years=1500, rho=0.03, m=0.05, k=8, lag=200, plag=200, collapse_thr=0.5)
+    a = run(tau=0.3, g=16.0, **kw)
+    ca = list(run.collapses)
+    b = run(tau=0.45, g=24.0, **kw)
+    assert ca == run.collapses and len(ca) > 0
+    for x, y in zip(a[1:], b[1:]):
+        assert np.allclose(x, y, rtol=0, atol=1e-9)
+
+
+def test_psi_reset_default_is_the_old_reset_and_zero_calms():
+    kw = dict(years=1500, rho=0.03, m=0.02, k=4, g=3.0, lag=200, plag=200, collapse_thr=0.3)
+    a = run(**kw)[1]; ca = list(run.collapses)
+    b = run(psi_reset=1.0, **kw)[1]
+    assert (a == b).all() and run.collapses == ca
+    run(psi_reset=0.0, **kw)
+    assert len(run.collapses) <= len(ca)

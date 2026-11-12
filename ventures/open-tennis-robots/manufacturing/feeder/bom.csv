@@ -9,7 +9,7 @@ base_deck,laser,1,aluminium 5052 5 mm,Sits on the rails (M5 and T-nuts); holds t
 drive_bracket,laser,2,aluminium 5052 5 mm,"Gearmotor (37 mm class, M3 on a 31 mm circle) bolts to the inside face. M5 into the side rail's T-slot."
 idler_bracket,laser,2,aluminium 5052 5 mm,"608 bearing in the bore, 8 mm axle bolt. M5 into the side rail's T-slot."
 cheek_foot,print,4,PETG,"M4 heat-set inserts; bolts the cheek to the turntable plate, 4 walls, 40% infill."
-az_gear_sector,print,1,PETG,"Azimuth gear: module 1.5, 150 teeth on the full circle (pitch radius 112.5 mm), 76 deg cut. Bolts under the turntable plate (3 x M4 into heat-set inserts); meshes with the stepper's 15-tooth pinion. Print flat, 100% infill, 0.1 mm layers for the flanks; grease the teeth."
+az_gear_sector,print,1,PETG,"Azimuth gear: module 1.5, 150 teeth on the full circle (pitch radius 112.5 mm), 80 deg cut. Bolts under the turntable plate (3 x M4 into heat-set inserts); meshes with the stepper's 15-tooth pinion. Print flat, 100% infill, 0.1 mm layers for the flanks; grease the teeth."
 pole_foot,print,2,PETG,Sockets a 25 mm vertical pole 40 mm deep; M5 screws and T-nuts into the beam. 6 walls.
 pole_elbow,print,2,PETG,"Joins a vertical pole to the top pole; sockets 40 mm deep. 6 walls, 40% gyroid."
 camera_clamp,print,2,PETG,Clips the top pole and holds the 2020 stereo bar; add an M4 clamp screw each. 6 walls.
@@ -23,6 +23,8 @@ shuttle_servo,cots,1,"Standard-size digital servo, 18 kg cm class (1.75 N m stal
 home_switch_bracket,print,1,PETG,"Azimuth home switch bracket on the mast plate, 45 deg round from the front. Two M3 screws through its radial slots (1.5 mm either way) into the mast plate; set it so the switch clicks with the roller in the middle of the gear sector's cam lobe. M2 pilots 6.5 mm apart for the switch: check against yours. 100% infill."
 home_switch,cots,1,"Subminiature roller-lever microswitch (D2F-01L3 class), about 12.8 x 5.8 x 6.5 mm; normally open, wired to GPIO 22 and GND (firmware AZ_HOME_DEG -32)",
 home_switch_lever,cots,1,"the switch's roller lever (free position), part of home_switch",
+az_stop_block,print,2,PETG,"Azimuth hard stops, one each side, on the mast plate in the gap the gear sector turns in. The sector's end faces meet their pads at +-35 deg (working range +-30, home click -32). Two M4 heat-set inserts from below; screws up through the mast plate. 100% infill. Glue a 5 mm polyurethane pad on the face toward the sector."
+az_stop_pad,cots,2,"Polyurethane sheet, Shore 70A, 5 mm, cut 12 x 6 mm (two); glued to the stop blocks' faces (modulus about 5.5 MPa assumed: check your sheet)",
 hopper_shelf,laser,1,aluminium 5052 5 mm,"Tub shelf, falls 12 deg toward the net so balls roll to the outlet. Posts bolt up through it (M5, end-tapped), the sleeve socket under the outlet hole."
 hopper_spigot,print,1,PETG,"Sleeve socket under the shelf's outlet hole: flange on the sloped shelf (M4 heat-set inserts), a vertical cup 102.5 mm across and 40 mm deep for the sleeve's top end. Print flange down, 6 walls."
 feed_hose,stock,1,"72 mm ID smooth-bore flexible hose (82 mm OD), cut 810 mm",Take-up sleeve's lower end to the column socket (sleeve_take_up_design). Longest chord 1014 mm; bows to 426 mm radius at the closest pose; needs 150. Top end bonded into the take-up collar; a hose clamp at the column socket.
@@ -37,7 +39,7 @@ mast_post,stock,4,"2040 T-slot, cut 445 mm, M5 tapped both ends",Four posts carr
 hopper_post_rear,stock,2,"2040 T-slot, cut 1874 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Braced by the hopper_brace parts."
 hopper_post_front,stock,2,"2040 T-slot, cut 1819 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Braced by the hopper_brace parts."
 hopper_brace_x,stock,2,"2020 T-slot, cut 1600 mm, ends mitred to 9 deg","Outside each side pair of posts, rear foot to front head; a 2020 corner bracket or a gusset at each end (M5), tightened before the tub is filled."
-hopper_brace_y,stock,1,"2020 T-slot, cut 1706 mm, ends mitred to 17 deg","Behind the rear posts, left foot to right head, out of the head's swing (the head's rear reaches x = -560 mm at +45 deg). The shelf, bolted to all four posts, holds the front posts' heads to the rear pair in plan, so one brace braces the frame along the net."
+hopper_brace_y,stock,1,"2020 T-slot, cut 1734 mm, ends mitred to 20 deg","Behind the rear posts, left foot to right head, out of the head's swing (the head's rear reaches x = -560 mm at +45 deg). The shelf, bolted to all four posts, holds the front posts' heads to the rear pair in plan, so one brace braces the frame along the net."
 camera_bar,stock,1,"2020 T-slot, cut 800 mm",Stereo cameras mount on this; widen it for more depth accuracy.
 net_pole_vertical,stock,2,"25 mm OD x 1.5 mm aluminium tube (or fibreglass), cut 2437 mm",Two 1.2 m sections joined by a sleeve if it must fit a car.
 net_pole_top,stock,1,"25 mm OD x 1.5 mm aluminium tube, cut 3020 mm",Two sections joined by a sleeve at the middle.
@@ -70,6 +72,9 @@ M3 x 8 socket cap screw + washer + nut (home switch),cots,2,M3 x 8 socket cap sc
 M2 x 10 self-tapping screw,cots,2,M2 x 10 self-tapping screw,home switch to its bracket
 M4 x 12 socket cap screw (azimuth),cots,3,M4 x 12 socket cap screw (azimuth),turntable plate down into the gear sector
 "M4 heat-set insert, 5.7 mm long (azimuth)",cots,3,"M4 heat-set insert, 5.7 mm long (azimuth)",gear sector
+M4 x 10 socket cap screw (stops),cots,4,M4 x 10 socket cap screw (stops),mast plate up into the two azimuth stop blocks
+"M4 heat-set insert, 5.7 mm long (stops)",cots,4,"M4 heat-set insert, 5.7 mm long (stops)",azimuth stop blocks
+Contact adhesive (polyurethane to PETG),cots,1,Contact adhesive (polyurethane to PETG),stop pads to their blocks
 "608 bearing, 8 x 22 x 7",cots,2,"608 bearing, 8 x 22 x 7",idler wheels
 M8 x 60 bolt + nyloc nut,cots,2,M8 x 60 bolt + nyloc nut,idler axles
 M10 T-nut (levelling foot),cots,2,M10 T-nut (levelling foot),beam ends

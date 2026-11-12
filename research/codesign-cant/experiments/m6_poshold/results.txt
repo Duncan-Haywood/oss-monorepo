@@ -1,0 +1,38 @@
+Milestone 6: position hold, 6 s episodes with a +-3 m/s wind step at 3 s; mixer prio (collective at hover), TWR 2, kappa = 0.081 D,
+lam 0.03 per 100 W; 6 seeds, best of 2 CMA-ES starts x 3200 evaluations; held-out 64 wide-plant episodes (seed 9999)
+J = -sqrt((pos/0.10 m)^2 + (yaw/10 deg)^2) - lam P/100 W. on/off = side force in/out of the held-out rollout; calm = no wind step.
+
+arm      force  pos m (mean; per seed)                       late m  yaw deg  att deg  J       dead   sat rp  sat yaw
+nocant   on     0.113 (0.106, 0.107, 0.146, 0.106, 0.106, 0.106)  0.062   14.88     5.26    -1.98  0.003  0.001   0.251
+nocant   off    0.113 (0.106, 0.107, 0.146, 0.106, 0.106, 0.106)  0.062   14.88     5.26    -1.98  0.003  0.001   0.251
+nocant   calm   0.110 (0.102, 0.103, 0.142, 0.103, 0.103, 0.104)  0.051   14.84     5.19    -1.96  0.003  0.001   0.246
+         design: cant deg (0, 0, 0, 0, 0, 0), median 0; P_hover 364 W; mass 1.29 kg; lat 0.00 N per N m
+aware    on     0.147 (0.098, 0.316, 0.099, 0.099, 0.171, 0.097)  0.087   10.18     4.72    -1.92  0.010  0.012   0.700
+aware    off    0.146 (0.109, 0.256, 0.111, 0.112, 0.181, 0.107)  0.101   10.02     4.49    -1.89  0.008  0.010   0.699
+aware    calm   0.145 (0.096, 0.315, 0.097, 0.097, 0.169, 0.096)  0.080   10.12     4.67    -1.90  0.010  0.012   0.701
+         design: cant deg (36, 36, 38, 38, 38, 38), median 38; P_hover 337 W; mass 1.30 kg; lat 7.82 N per N m
+unaware  on     0.181 (0.171, 0.232, 0.098, 0.098, 0.100, 0.387)  0.122   10.53     5.33    -2.26  0.018  0.019   0.357
+unaware  off    0.154 (0.177, 0.177, 0.105, 0.106, 0.108, 0.249)  0.102   10.09     4.69    -1.98  0.010  0.012   0.350
+unaware  calm   0.180 (0.170, 0.231, 0.097, 0.097, 0.099, 0.386)  0.116   10.49     5.28    -2.25  0.018  0.019   0.356
+         design: cant deg (36, 37, 33, 37, 35, 37), median 36; P_hover 430 W; mass 1.50 kg; lat 7.78 N per N m
+
+H3 (aware designs): position RMS with the side force on vs off, same design and episodes
+  pos on/off ratio: mean 0.961 (per seed 0.899, 1.238, 0.892, 0.886, 0.945, 0.909); late window 0.714; H3 refuted if the rise exceeds 20%: not refuted
+  J with force off minus on: -0.03 (sd 0.27): the side force costs this much composite
+
+Paired by seed, cant (aware) minus no cant, force on (negative = cant better; for J positive = cant better)
+  pos_on   +0.034 (sd 0.093, cant lower in 4 of 6)
+  late_on  +0.025 (sd 0.102, cant lower in 4 of 6)
+  yaw_on   -4.706 (sd 0.962, cant lower in 6 of 6)
+  att_on   -0.540 (sd 1.219, cant lower in 3 of 6)
+  pos_calm +0.036 (sd 0.093, cant lower in 4 of 6)
+  yaw_calm -4.715 (sd 0.957, cant lower in 6 of 6)
+  J_on     +0.06 (sd 0.84, cant better in 4 of 6)
+  yaw gain in composite units +0.47; side-force position cost in composite units +0.01
+
+Ignoring the side force in design: unaware minus aware, both scored with the force on (positive = ignoring it hurts)
+  pos_on   +0.034 (sd 0.137, unaware lower in 4 of 6)
+  late_on  +0.035 (sd 0.145, unaware lower in 4 of 6)
+  yaw_on   +0.356 (sd 1.485, unaware lower in 4 of 6)
+  J_on     -0.35 worse for unaware (sd 1.28, unaware better in 2 of 6)
+  unaware designs, force off vs on: pos 0.154 -> 0.181 m; dead 0.010 -> 0.018
