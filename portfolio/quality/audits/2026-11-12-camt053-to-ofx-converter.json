@@ -256,6 +256,8 @@
       "origin": "maintenance"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15144"
+  ],
   "verdict": "Does not meet the bar (correctness 2, claims 2, verification 2; median 2); finished (completeness 3). The minor-unit arithmetic, CdtDbtInd signs, 0/3-decimal currencies, TxDtls sum check, MT940 C/D/RC/RD handling and FITID uniqueness/stability all recompute exactly on auditor-written camt.053 and MT940 files read back through an independent OFX reader. A bank-integration engineer would not sign it off: a camt reversal (CRDT+RvslInd, e.g. a returned direct debit) is exported with the wrong sign and a reconciling statement is reported as off by twice the amount, contrary to the ISO 20022 RvslInd usage rule and as documented on the page; balance dates are never read, so LEDGERBAL DTASOF is wrong whenever the statement ends after its last entry; a statement without Acct/Ccy becomes EUR silently. Three of seven seeded mutations in core logic left all 43 tests green."
 }

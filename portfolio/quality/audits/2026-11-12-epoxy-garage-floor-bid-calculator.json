@@ -1,271 +1,273 @@
 {
- "date": "2026-11-12",
- "subject": "ventures/epoxy-garage-floor-bid-calculator",
- "stratum": "venture",
- "seed": "2026-11-12-i",
- "drawn_by": "sample",
- "round": 50,
- "auditor": "agent session (Claude), quality-audit round 50",
- "status": "audited",
- "professional": "a senior epoxy / polyaspartic floor-coating contractor who bids residential garages; they check first the material order (gallons per coat from coverage = 1604 x solids / mils, kits, flake bags at 0.15-0.25 lb/sf full broadcast), grind hours for the crew and machine, how many trips the system needs (1-day polyaspartic vs 2-day epoxy flake vs 2-3 day metallic), moisture-barrier and patch labour, and whether margin is taken on price rather than as a markup on cost",
- "scores": {
-  "correctness": 3,
-  "completeness": 3,
-  "verification": 3,
-  "craft": 3,
-  "claims": 2,
-  "fitness": 2,
-  "domain": 2
- },
- "evidence": {
-  "correctness": "Independent Python model (/tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/model.py), written from trade practice not from calc.mjs: grind hours = slab/rate, coat hours per coat, crack hours, travel = miles/mph, loaded wage = wage x (1+burden), material on slab x (1+waste), overhead on direct cost, price = cost/(1-margin). Compared with node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs calling calculateBid with the page defaults (20x20, full flake, full grind 80 sf/h, 20 lf cracks, $45 wage, 22% burden, 30 mi at 35 mph, $0.85/mi, 15% overhead, 35% margin): full flake cost 2,854.70 / price 4,391.84 / 89.6 lb flake; solid epoxy degrease 1,224.53 / 1,883.89; solid full grind 1,439.19 / 2,214.14; polyaspartic 3,345.94 / 5,147.61, all equal to the cent when the model also runs coat hours on the waste-inflated area. Under trade convention (waste is material, not rolled area) the model gives 12.31 h and price 4,328.27 vs the tool's 12.97 h and 4,391.84 (+1.5%), calc.mjs:160. Margin vs markup verified: 35% margin = 53.85% markup on cost; a $1,600 proposal on the default flake job gives -78.42% margin, matching hand arithmetic (1600-2854.70)/1600. Not 4: no coverage/mils model, so the kit line cannot be recomputed from a data sheet.",
-  "completeness": "Claimed features exercised in node or by the shipped tests: presets and custom width/length, four systems and four prep methods, crack and pit lines, moisture barrier, travel, loaded labour, overhead, margin, walk-away price, proposed-price check, three warnings (skip-grind, starved-flake, travel-heavy), copy bid summary, share link (share.mjs), printable proposal (proposal.mjs, proposal-terms.mjs), opt-out usage counter (usage.mjs). All work; no TODOs. Served page https://marisstella.app/epoxy-garage-floor-bid-calculator/ returns 200 and served llms.txt is live. Gaps against what a coater expects are scored under fitness/domain, not here.",
-  "verification": "node --test '*.test.mjs' in the subject dir: 118 tests, 118 pass, 0 fail (326 ms). Six seeded mutations in calc.mjs, each reverted with git checkout: margin->markup caught (3 fail); flake pounds on slab not billable area caught (1); moisture barrier on billable area caught (1); travel hours doubled caught (2); skip-grind severity ignoring flake caught (1); starved-flake boundary < -> <= SURVIVED (118 pass). Most catches rest on a single test, and expected values are the author's own numbers.",
-  "craft": "Read calc.mjs (289 lines), index.html module script (311-420), vs-a-flat-rate-per-square-foot.test.mjs, README. Pure dependency-free core, validates every input and rejects '1,200' and negatives with a message. Defects: coats override changes labour but not material (calc.mjs:154 vs :169, coating cost identical at coats 3 and 4: 1,276.80); waste inflates coat labour (calc.mjs:160); garage.width/length re-parsed after the fact (calc.mjs:212-213).",
-  "claims": "vs-a-flat-rate-per-square-foot.html:68 and :94 (and the FAQ JSON-LD at :13) call $1,743 and $2,073 the 'walk-away price' and say a $1,600 flyer is 'underwater on the one the slab actually needs'. The page's own test (vs-a-flat-rate-per-square-foot.test.mjs:92-93) asserts these against result.price, not breakEvenPrice; the walk-away for that job (solid epoxy, full grind, 0 cracks) is 1,347.30 and for degrease-only 1,132.65, so $1,600 is above walk-away on both and the 'underwater' claim is false. :99 says the job is 'described in its README'; it is not. vs-coatingos.html:13 says the tool models 'flake load and coverage'; coverage is not modelled. Guide checks pass: 400 sf at 80 sf/h = 5.0 h; grind 5.0 h vs coats 6.1 h ('often as many hours'); $1,600 below the default flake walk-away 2,854.70; index FAQ 3 coats/12%/220 vs 2/8%/300 match calc.mjs:25-43. Disclaimer present on every page.",
-  "fitness": "Walked the job: a 2-car full-flake grind bid. A contractor gets a defensible price and walk-away, but cannot get the material order (no gallons, kits or bags of flake: 89.6 lb is shown, gallons are not), and the bid charges one round trip and one person regardless of system, so a 2-day epoxy flake or 3-day metallic is priced with the same travel as a 1-day polyaspartic and a 2-person crew's drive is half-counted. Moisture barrier adds material only, no application hours. Usable as a gut-check, not as the bid sheet.",
-  "domain": "Compared with manufacturer practice: coverage = 1604 x volume solids / mils (100% solids at 10 mils = 160.4 sf/gal), full-broadcast flake 0.15-0.25 lb/sf (Torginol-style guidance; the tool's 0.20/0.18 lb/sf and 0.12 starved threshold agree). Departures: kit cost is a bare $/sf with no solids, mils or coats behind it (calc.mjs:25-62), and the polyaspartic default $4.25/sf is roughly 3x a data-sheet build (2 coats, 8 and 10 mils at ~92% solids on 448 sf = 5.0 gal; at an assumed $120/gal = $605, $1.35/sf); return-trip days per system are not modelled though they are the core of the 1-day polyaspartic pitch the guide makes; moisture barrier has no labour; no crew size. Margin-on-price and overhead-on-direct-cost are correct trade practice."
- },
- "checks": [
-  {
-   "dimension": "correctness",
-   "what": "default 2-car full-flake full-grind bid: hours, flake lb, cost, price",
-   "method": "independent Python model from trade arithmetic (loaded wage, waste on material, overhead on direct cost, price = cost/(1-margin))",
-   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/model.py; node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs",
-   "expected": "12.966 h (code convention); 89.6 lb; cost 2,854.70; price 4,391.84",
-   "observed": "12.966 h; 89.6 lb; cost 2,854.70; price 4,391.84",
-   "result": "pass"
+  "date": "2026-11-12",
+  "subject": "ventures/epoxy-garage-floor-bid-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-12-i",
+  "drawn_by": "sample",
+  "round": 50,
+  "auditor": "agent session (Claude), quality-audit round 50",
+  "status": "audited",
+  "professional": "a senior epoxy / polyaspartic floor-coating contractor who bids residential garages; they check first the material order (gallons per coat from coverage = 1604 x solids / mils, kits, flake bags at 0.15-0.25 lb/sf full broadcast), grind hours for the crew and machine, how many trips the system needs (1-day polyaspartic vs 2-day epoxy flake vs 2-3 day metallic), moisture-barrier and patch labour, and whether margin is taken on price rather than as a markup on cost",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
   },
-  {
-   "dimension": "correctness",
-   "what": "solid epoxy degrease vs full grind, 400 sf, 0 cracks (vs-page example)",
-   "method": "same independent model",
-   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs",
-   "expected": "cost 1,132.65 / price 1,742.53; cost 1,347.30 / price 2,072.78",
-   "observed": "cost 1,132.65 / price 1,742.53; cost 1,347.30 / price 2,072.78",
-   "result": "pass"
+  "evidence": {
+    "correctness": "Independent Python model (/tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/model.py), written from trade practice not from calc.mjs: grind hours = slab/rate, coat hours per coat, crack hours, travel = miles/mph, loaded wage = wage x (1+burden), material on slab x (1+waste), overhead on direct cost, price = cost/(1-margin). Compared with node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs calling calculateBid with the page defaults (20x20, full flake, full grind 80 sf/h, 20 lf cracks, $45 wage, 22% burden, 30 mi at 35 mph, $0.85/mi, 15% overhead, 35% margin): full flake cost 2,854.70 / price 4,391.84 / 89.6 lb flake; solid epoxy degrease 1,224.53 / 1,883.89; solid full grind 1,439.19 / 2,214.14; polyaspartic 3,345.94 / 5,147.61, all equal to the cent when the model also runs coat hours on the waste-inflated area. Under trade convention (waste is material, not rolled area) the model gives 12.31 h and price 4,328.27 vs the tool's 12.97 h and 4,391.84 (+1.5%), calc.mjs:160. Margin vs markup verified: 35% margin = 53.85% markup on cost; a $1,600 proposal on the default flake job gives -78.42% margin, matching hand arithmetic (1600-2854.70)/1600. Not 4: no coverage/mils model, so the kit line cannot be recomputed from a data sheet.",
+    "completeness": "Claimed features exercised in node or by the shipped tests: presets and custom width/length, four systems and four prep methods, crack and pit lines, moisture barrier, travel, loaded labour, overhead, margin, walk-away price, proposed-price check, three warnings (skip-grind, starved-flake, travel-heavy), copy bid summary, share link (share.mjs), printable proposal (proposal.mjs, proposal-terms.mjs), opt-out usage counter (usage.mjs). All work; no TODOs. Served page https://marisstella.app/epoxy-garage-floor-bid-calculator/ returns 200 and served llms.txt is live. Gaps against what a coater expects are scored under fitness/domain, not here.",
+    "verification": "node --test '*.test.mjs' in the subject dir: 118 tests, 118 pass, 0 fail (326 ms). Six seeded mutations in calc.mjs, each reverted with git checkout: margin->markup caught (3 fail); flake pounds on slab not billable area caught (1); moisture barrier on billable area caught (1); travel hours doubled caught (2); skip-grind severity ignoring flake caught (1); starved-flake boundary < -> <= SURVIVED (118 pass). Most catches rest on a single test, and expected values are the author's own numbers.",
+    "craft": "Read calc.mjs (289 lines), index.html module script (311-420), vs-a-flat-rate-per-square-foot.test.mjs, README. Pure dependency-free core, validates every input and rejects '1,200' and negatives with a message. Defects: coats override changes labour but not material (calc.mjs:154 vs :169, coating cost identical at coats 3 and 4: 1,276.80); waste inflates coat labour (calc.mjs:160); garage.width/length re-parsed after the fact (calc.mjs:212-213).",
+    "claims": "vs-a-flat-rate-per-square-foot.html:68 and :94 (and the FAQ JSON-LD at :13) call $1,743 and $2,073 the 'walk-away price' and say a $1,600 flyer is 'underwater on the one the slab actually needs'. The page's own test (vs-a-flat-rate-per-square-foot.test.mjs:92-93) asserts these against result.price, not breakEvenPrice; the walk-away for that job (solid epoxy, full grind, 0 cracks) is 1,347.30 and for degrease-only 1,132.65, so $1,600 is above walk-away on both and the 'underwater' claim is false. :99 says the job is 'described in its README'; it is not. vs-coatingos.html:13 says the tool models 'flake load and coverage'; coverage is not modelled. Guide checks pass: 400 sf at 80 sf/h = 5.0 h; grind 5.0 h vs coats 6.1 h ('often as many hours'); $1,600 below the default flake walk-away 2,854.70; index FAQ 3 coats/12%/220 vs 2/8%/300 match calc.mjs:25-43. Disclaimer present on every page.",
+    "fitness": "Walked the job: a 2-car full-flake grind bid. A contractor gets a defensible price and walk-away, but cannot get the material order (no gallons, kits or bags of flake: 89.6 lb is shown, gallons are not), and the bid charges one round trip and one person regardless of system, so a 2-day epoxy flake or 3-day metallic is priced with the same travel as a 1-day polyaspartic and a 2-person crew's drive is half-counted. Moisture barrier adds material only, no application hours. Usable as a gut-check, not as the bid sheet.",
+    "domain": "Compared with manufacturer practice: coverage = 1604 x volume solids / mils (100% solids at 10 mils = 160.4 sf/gal), full-broadcast flake 0.15-0.25 lb/sf (Torginol-style guidance; the tool's 0.20/0.18 lb/sf and 0.12 starved threshold agree). Departures: kit cost is a bare $/sf with no solids, mils or coats behind it (calc.mjs:25-62), and the polyaspartic default $4.25/sf is roughly 3x a data-sheet build (2 coats, 8 and 10 mils at ~92% solids on 448 sf = 5.0 gal; at an assumed $120/gal = $605, $1.35/sf); return-trip days per system are not modelled though they are the core of the 1-day polyaspartic pitch the guide makes; moisture barrier has no labour; no crew size. Margin-on-price and overhead-on-direct-cost are correct trade practice."
   },
-  {
-   "dimension": "correctness",
-   "what": "1-day polyaspartic same slab",
-   "method": "same independent model, 2 coats at 280 sf/h, 4.25 $/sf, 0.18 lb/sf",
-   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs",
-   "expected": "cost 3,345.94; price 5,147.61; 80.6 lb",
-   "observed": "cost 3,345.94; price 5,147.61; 80.6 lb",
-   "result": "pass"
-  },
-  {
-   "dimension": "correctness",
-   "what": "proposed $1,600 on default flake job: margin",
-   "method": "hand arithmetic (1600-2854.70)/1600",
-   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs",
-   "expected": "-78.42%, belowBreakEven true",
-   "observed": "-78.4186, true",
-   "result": "pass"
-  },
-  {
-   "dimension": "correctness",
-   "what": "coat labour on rolled area vs waste-inflated area",
-   "method": "trade convention: waste is material loss, the crew rolls the slab",
-   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/model.py",
-   "expected": "12.31 h, price 4,328.27",
-   "observed": "12.97 h, price 4,391.84",
-   "result": "partial"
-  },
-  {
-   "dimension": "domain",
-   "what": "kit cost traceable to coverage at mils",
-   "method": "coverage = 1604 x solids / mils (100% solids at 10 mils = 160.4 sf/gal)",
-   "command": "grep -n 'mils\\|gallon\\|solids' ventures/epoxy-garage-floor-bid-calculator/calc.mjs",
-   "expected": "gallons per coat derived from mils and solids",
-   "observed": "no matches: kit is a flat $/sf",
-   "result": "fail"
-  },
-  {
-   "dimension": "domain",
-   "what": "polyaspartic default kit $/sf",
-   "method": "data-sheet build: 2 coats at 8 and 10 mils, ~92% solids, 448 sf = 5.0 gal at assumed $120/gal",
-   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/model.py",
-   "expected": "about $1.35/sf",
-   "observed": "$4.25/sf (calc.mjs:58)",
-   "result": "fail"
-  },
-  {
-   "dimension": "domain",
-   "what": "full-broadcast flake load and starved threshold",
-   "method": "flake manufacturer guidance, full broadcast ~0.15-0.25 lb/sf",
-   "command": "sed -n 36,74p ventures/epoxy-garage-floor-bid-calculator/calc.mjs",
-   "expected": "0.15-0.25 lb/sf",
-   "observed": "0.20 and 0.18 lb/sf; warn under 0.12",
-   "result": "pass"
-  },
-  {
-   "dimension": "domain",
-   "what": "trip count differs by system (1-day poly vs multi-day epoxy/metallic)",
-   "method": "trade practice: epoxy flake recoat overnight = 2 trips",
-   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs",
-   "expected": "travel hours higher for full-flake/metallic than polyaspartic",
-   "observed": "0.857 h travel for every system",
-   "result": "fail"
-  },
-  {
-   "dimension": "claims",
-   "what": "vs-flat-rate page: $1,743 / $2,073 'walk-away' and $1,600 'underwater'",
-   "method": "calculateBid breakEvenPrice on the stated job",
-   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs",
-   "expected": "walk-away above $1,600 on the full-grind job",
-   "observed": "walk-away 1,132.65 and 1,347.30; $1,743/$2,073 are result.price",
-   "result": "fail"
-  },
-  {
-   "dimension": "claims",
-   "what": "epoxy guide: 400 sf at 80 sf/h is five hours; grind often as many hours as coats",
-   "method": "hand arithmetic and run.mjs",
-   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs",
-   "expected": "5.0 h grind, comparable coat hours",
-   "observed": "5.0 h prep, 6.1 h coats",
-   "result": "pass"
-  },
-  {
-   "dimension": "claims",
-   "what": "index FAQ: flake 3 coats, 12% vs 8% waste, 220 vs 300 sf/h, metallic 180",
-   "method": "read against calc.mjs:25-62",
-   "command": "sed -n 25,62p ventures/epoxy-garage-floor-bid-calculator/calc.mjs",
-   "expected": "same figures",
-   "observed": "same figures",
-   "result": "pass"
-  },
-  {
-   "dimension": "claims",
-   "what": "vs-coatingos says tool models 'flake load and coverage'",
-   "method": "read calc.mjs",
-   "command": "grep -n coverage ventures/epoxy-garage-floor-bid-calculator/calc.mjs",
-   "expected": "a coverage input",
-   "observed": "only a comment",
-   "result": "fail"
-  },
-  {
-   "dimension": "verification",
-   "what": "test suite",
-   "method": "run it",
-   "command": "node --test '*.test.mjs'",
-   "expected": "all pass",
-   "observed": "118 pass, 0 fail",
-   "result": "pass"
-  },
-  {
-   "dimension": "completeness",
-   "what": "served page",
-   "method": "curl",
-   "command": "curl -so /dev/null -w '%{http_code}' https://marisstella.app/epoxy-garage-floor-bid-calculator/",
-   "expected": "200",
-   "observed": "200",
-   "result": "pass"
-  }
- ],
- "mutations": [
-  {
-   "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:180",
-   "change": "jobCost / (1 - m) -> jobCost * (1 + m)",
-   "caught": true,
-   "test_cmd": "node --test '*.test.mjs'"
-  },
-  {
-   "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:170",
-   "change": "billableSquareFeet * flakeLb -> squareFeet * flakeLb",
-   "caught": true,
-   "test_cmd": "node --test '*.test.mjs'"
-  },
-  {
-   "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:172",
-   "change": "moisture on squareFeet -> billableSquareFeet",
-   "caught": true,
-   "test_cmd": "node --test '*.test.mjs'"
-  },
-  {
-   "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:195",
-   "change": "flakeLbPerSqFt < STARVED -> <=",
-   "caught": false,
-   "test_cmd": "node --test '*.test.mjs'"
-  },
-  {
-   "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:164",
-   "change": "travel hours x 2",
-   "caught": true,
-   "test_cmd": "node --test '*.test.mjs'"
-  },
-  {
-   "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:191",
-   "change": "drop flakeSystem from skip-grind high severity",
-   "caught": true,
-   "test_cmd": "node --test '*.test.mjs'"
-  }
- ],
- "defects": [
-  {
-   "severity": "high",
-   "what": "vs-flat-rate page labels the bid price ($1,743, $2,073) as the walk-away price and says a $1,600 flyer is underwater on the full-grind job; actual walk-away is $1,132.65 / $1,347.30, so $1,600 clears break-even on both. Repeated in FAQ JSON-LD (:13) and the page test pins result.price, so it locks the mislabel in",
-   "where": "ventures/epoxy-garage-floor-bid-calculator/vs-a-flat-rate-per-square-foot.html:94",
-   "category": "overclaim",
-   "origin": "claims"
-  },
-  {
-   "severity": "medium",
-   "what": "one round trip and one traveller regardless of system: a 2-day epoxy flake or multi-day metallic carries the same travel as a 1-day polyaspartic, so the 1-day advantage the polyaspartic guide sells is never priced; crew size not modelled",
-   "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:164",
-   "category": "scope-gap",
-   "origin": "spec"
-  },
-  {
-   "severity": "medium",
-   "what": "kit cost is a flat $/sf with no solids/mils/coverage, so no gallons or kit count; polyaspartic default $4.25/sf is about 3x a data-sheet build",
-   "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:58",
-   "category": "source-data",
-   "origin": "spec"
-  },
-  {
-   "severity": "medium",
-   "what": "moisture-vapor barrier adds material only, no application hours (it is an extra coat)",
-   "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:172",
-   "category": "scope-gap",
-   "origin": "spec"
-  },
-  {
-   "severity": "low",
-   "what": "coat labour hours computed on the waste-inflated area (+1.5% price on the default job)",
-   "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:160",
-   "category": "logic-error",
-   "origin": "implementation"
-  },
-  {
-   "severity": "low",
-   "what": "coats override changes labour but not coating material",
-   "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:169",
-   "category": "logic-error",
-   "origin": "implementation"
-  },
-  {
-   "severity": "low",
-   "what": "starved-flake 0.12 boundary untested: < -> <= survives",
-   "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:195",
-   "category": "untested-core",
-   "origin": "tests"
-  },
-  {
-   "severity": "low",
-   "what": "vs-coatingos claims the tool models coverage; it does not",
-   "where": "ventures/epoxy-garage-floor-bid-calculator/vs-coatingos.html:13",
-   "category": "overclaim",
-   "origin": "claims"
-  },
-  {
-   "severity": "low",
-   "what": "says the $1,743/$2,073 job is 'described in its README'; the README has no worked example",
-   "where": "ventures/epoxy-garage-floor-bid-calculator/vs-a-flat-rate-per-square-foot.html:99",
-   "category": "overclaim",
-   "origin": "claims"
-  }
- ],
- "fix_prs": [],
- "verdict": "The arithmetic is right: four jobs recomputed by an independent model match to the cent, margin is taken on price, and 118 tests catch 5 of 6 seeded bugs. It misses the bar on claims: the vs-flat-rate page calls the bid price the walk-away price and so says a $1,600 flyer is underwater when the walk-away is $1,347. A senior coater would also miss a material order (no coverage/mils/gallons, a polyaspartic kit about 3x a data-sheet build), trip days per system (the 1-day polyaspartic point), and moisture-barrier labour. A sound gut-check, not yet the bid sheet."
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "default 2-car full-flake full-grind bid: hours, flake lb, cost, price",
+      "method": "independent Python model from trade arithmetic (loaded wage, waste on material, overhead on direct cost, price = cost/(1-margin))",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/model.py; node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs",
+      "expected": "12.966 h (code convention); 89.6 lb; cost 2,854.70; price 4,391.84",
+      "observed": "12.966 h; 89.6 lb; cost 2,854.70; price 4,391.84",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "solid epoxy degrease vs full grind, 400 sf, 0 cracks (vs-page example)",
+      "method": "same independent model",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs",
+      "expected": "cost 1,132.65 / price 1,742.53; cost 1,347.30 / price 2,072.78",
+      "observed": "cost 1,132.65 / price 1,742.53; cost 1,347.30 / price 2,072.78",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "1-day polyaspartic same slab",
+      "method": "same independent model, 2 coats at 280 sf/h, 4.25 $/sf, 0.18 lb/sf",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs",
+      "expected": "cost 3,345.94; price 5,147.61; 80.6 lb",
+      "observed": "cost 3,345.94; price 5,147.61; 80.6 lb",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "proposed $1,600 on default flake job: margin",
+      "method": "hand arithmetic (1600-2854.70)/1600",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs",
+      "expected": "-78.42%, belowBreakEven true",
+      "observed": "-78.4186, true",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "coat labour on rolled area vs waste-inflated area",
+      "method": "trade convention: waste is material loss, the crew rolls the slab",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/model.py",
+      "expected": "12.31 h, price 4,328.27",
+      "observed": "12.97 h, price 4,391.84",
+      "result": "partial"
+    },
+    {
+      "dimension": "domain",
+      "what": "kit cost traceable to coverage at mils",
+      "method": "coverage = 1604 x solids / mils (100% solids at 10 mils = 160.4 sf/gal)",
+      "command": "grep -n 'mils\\|gallon\\|solids' ventures/epoxy-garage-floor-bid-calculator/calc.mjs",
+      "expected": "gallons per coat derived from mils and solids",
+      "observed": "no matches: kit is a flat $/sf",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "polyaspartic default kit $/sf",
+      "method": "data-sheet build: 2 coats at 8 and 10 mils, ~92% solids, 448 sf = 5.0 gal at assumed $120/gal",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/model.py",
+      "expected": "about $1.35/sf",
+      "observed": "$4.25/sf (calc.mjs:58)",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "full-broadcast flake load and starved threshold",
+      "method": "flake manufacturer guidance, full broadcast ~0.15-0.25 lb/sf",
+      "command": "sed -n 36,74p ventures/epoxy-garage-floor-bid-calculator/calc.mjs",
+      "expected": "0.15-0.25 lb/sf",
+      "observed": "0.20 and 0.18 lb/sf; warn under 0.12",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "trip count differs by system (1-day poly vs multi-day epoxy/metallic)",
+      "method": "trade practice: epoxy flake recoat overnight = 2 trips",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs",
+      "expected": "travel hours higher for full-flake/metallic than polyaspartic",
+      "observed": "0.857 h travel for every system",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-flat-rate page: $1,743 / $2,073 'walk-away' and $1,600 'underwater'",
+      "method": "calculateBid breakEvenPrice on the stated job",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs",
+      "expected": "walk-away above $1,600 on the full-grind job",
+      "observed": "walk-away 1,132.65 and 1,347.30; $1,743/$2,073 are result.price",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "epoxy guide: 400 sf at 80 sf/h is five hours; grind often as many hours as coats",
+      "method": "hand arithmetic and run.mjs",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/epoxy/run.mjs",
+      "expected": "5.0 h grind, comparable coat hours",
+      "observed": "5.0 h prep, 6.1 h coats",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "index FAQ: flake 3 coats, 12% vs 8% waste, 220 vs 300 sf/h, metallic 180",
+      "method": "read against calc.mjs:25-62",
+      "command": "sed -n 25,62p ventures/epoxy-garage-floor-bid-calculator/calc.mjs",
+      "expected": "same figures",
+      "observed": "same figures",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-coatingos says tool models 'flake load and coverage'",
+      "method": "read calc.mjs",
+      "command": "grep -n coverage ventures/epoxy-garage-floor-bid-calculator/calc.mjs",
+      "expected": "a coverage input",
+      "observed": "only a comment",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run it",
+      "command": "node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "118 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "served page",
+      "method": "curl",
+      "command": "curl -so /dev/null -w '%{http_code}' https://marisstella.app/epoxy-garage-floor-bid-calculator/",
+      "expected": "200",
+      "observed": "200",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:180",
+      "change": "jobCost / (1 - m) -> jobCost * (1 + m)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:170",
+      "change": "billableSquareFeet * flakeLb -> squareFeet * flakeLb",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:172",
+      "change": "moisture on squareFeet -> billableSquareFeet",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:195",
+      "change": "flakeLbPerSqFt < STARVED -> <=",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:164",
+      "change": "travel hours x 2",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:191",
+      "change": "drop flakeSystem from skip-grind high severity",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "vs-flat-rate page labels the bid price ($1,743, $2,073) as the walk-away price and says a $1,600 flyer is underwater on the full-grind job; actual walk-away is $1,132.65 / $1,347.30, so $1,600 clears break-even on both. Repeated in FAQ JSON-LD (:13) and the page test pins result.price, so it locks the mislabel in",
+      "where": "ventures/epoxy-garage-floor-bid-calculator/vs-a-flat-rate-per-square-foot.html:94",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "one round trip and one traveller regardless of system: a 2-day epoxy flake or multi-day metallic carries the same travel as a 1-day polyaspartic, so the 1-day advantage the polyaspartic guide sells is never priced; crew size not modelled",
+      "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:164",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "kit cost is a flat $/sf with no solids/mils/coverage, so no gallons or kit count; polyaspartic default $4.25/sf is about 3x a data-sheet build",
+      "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:58",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "moisture-vapor barrier adds material only, no application hours (it is an extra coat)",
+      "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:172",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "coat labour hours computed on the waste-inflated area (+1.5% price on the default job)",
+      "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:160",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "coats override changes labour but not coating material",
+      "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:169",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "starved-flake 0.12 boundary untested: < -> <= survives",
+      "where": "ventures/epoxy-garage-floor-bid-calculator/calc.mjs:195",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "vs-coatingos claims the tool models coverage; it does not",
+      "where": "ventures/epoxy-garage-floor-bid-calculator/vs-coatingos.html:13",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "says the $1,743/$2,073 job is 'described in its README'; the README has no worked example",
+      "where": "ventures/epoxy-garage-floor-bid-calculator/vs-a-flat-rate-per-square-foot.html:99",
+      "category": "overclaim",
+      "origin": "claims"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15144"
+  ],
+  "verdict": "The arithmetic is right: four jobs recomputed by an independent model match to the cent, margin is taken on price, and 118 tests catch 5 of 6 seeded bugs. It misses the bar on claims: the vs-flat-rate page calls the bid price the walk-away price and so says a $1,600 flyer is underwater when the walk-away is $1,347. A senior coater would also miss a material order (no coverage/mils/gallons, a polyaspartic kit about 3x a data-sheet build), trip days per system (the 1-day polyaspartic point), and moisture-barrier labour. A sound gut-check, not yet the bid sheet."
 }
