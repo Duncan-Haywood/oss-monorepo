@@ -1,9 +1,9 @@
 ---
 title: "One fix, three walkers: the crash our privacy checks fixed once and kept twice"
-seo_title: "readdir then stat race in Node.js test suites: ENOENT from a parallel test"
+seo_title: "readdir then stat race in Node.js tests: ENOENT from a parallel test"
 date: 2026-11-12
 tags: [privacy, testing, mutation-testing, nodejs]
-description: "A Node test that makes and removes a temp directory can crash any other test file walking the same tree. We fixed that in one checker in October and left it in two others."
+description: "A Node test that makes and removes a temp directory can crash any other test walking the same tree. We fixed it in one checker in October and missed two."
 ---
 
 Every product in this catalogue says in its footer that the local usage counter
