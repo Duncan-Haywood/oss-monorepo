@@ -222,6 +222,8 @@
       "origin": "implementation"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15073"
+  ],
   "verdict": "A small, honest, fully reproducible cross-check: results.txt and the figure regenerate byte for byte, and an independent recomputation matches every README number. It does not meet the bar. Verification fails (5 of 6 seeded constant changes survive loose tolerance tests), and as research it is a unit-verification step rather than a result: the two models are compared without aligning their knowable configuration differences, and the gap the README calls untraced is largely explained in minutes from the reference source (wettedness cap 0.708 vs 1.0 accounts for the +14.3 W/m2 worst case; vasodilation constant 120 vs 200 for a quarter of the mean skin gap). A thermal-physiology referee would ask for that attribution and for a comparison with measured data before accepting any accuracy statement about garment-thermal."
 }

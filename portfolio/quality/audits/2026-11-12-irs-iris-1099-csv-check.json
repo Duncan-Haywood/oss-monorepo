@@ -292,6 +292,8 @@
       "origin": "spec"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15073"
+  ],
   "verdict": "A tidy, private, well-disclaimed browser checker whose filing thresholds (including the 2026 $2,000 changes) and SSN/ITIN/EIN range rules match IRS sources, and whose column layout matches the IRS TY2025 template. But measured against the IRS's own TY2025 IRIS template formatting guidelines (reachable on irs.gov, and cited in the README as read), its field-format rules are wrong where a filer acts on them: the headline 'safe fix' removes TIN dashes the guidelines require, QI-EIN and UND TIN types warn, a Box-2-only record errors, the CF/SF state list warns, FM/MH/PW recipients error, and the name, address and ZIP rules use the wrong charset and limits. 53 tests pass and 6 of 8 seeded mutations were caught, but the tests encode the wrong TIN convention. Finished as described; does not meet the senior bar (correctness, claims and verification below 3)."
 }

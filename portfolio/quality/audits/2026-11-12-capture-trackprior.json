@@ -145,15 +145,60 @@
     }
   ],
   "mutations": [
-    {"where": "research/capture-trackprior/src/capture_trackprior/gated.py:61", "change": "on re-acquisition keep the history (ht + [t], hd + [d]) instead of restarting the line", "caught": false, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
-    {"where": "research/capture-trackprior/src/capture_trackprior/track.py:23", "change": "k_mad=4.0 -> 1.0", "caught": false, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
-    {"where": "research/capture-trackprior/src/capture_trackprior/track.py:32", "change": "len(ts) < 3 -> len(ts) < 2 (two-point line uses MAD rule)", "caught": false, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
-    {"where": "research/capture-trackprior/src/capture_trackprior/track.py:28", "change": "drop the keep=6 history window (fit all estimates)", "caught": false, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
-    {"where": "research/capture-trackprior/src/capture_trackprior/gated.py:59", "change": "p_full > ratio * p_in -> >=", "caught": false, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
-    {"where": "research/capture-trackprior/src/capture_trackprior/gated.py:58", "change": "out-of-lags fallback height p_full -> 0.0", "caught": false, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
-    {"where": "research/capture-trackprior/src/capture_trackprior/track.py:20", "change": "Theil-Sen intercept np.median(d - m*t) -> np.mean", "caught": true, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
-    {"where": "research/capture-trackprior/src/capture_trackprior/track.py:36", "change": "0.1 x drift term in the MAD half-width -> 1.0 x", "caught": true, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"},
-    {"where": "research/capture-trackprior/src/capture_trackprior/track.py:38", "change": "cap min(half, cap_s) -> max", "caught": true, "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"}
+    {
+      "where": "research/capture-trackprior/src/capture_trackprior/gated.py:61",
+      "change": "on re-acquisition keep the history (ht + [t], hd + [d]) instead of restarting the line",
+      "caught": false,
+      "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"
+    },
+    {
+      "where": "research/capture-trackprior/src/capture_trackprior/track.py:23",
+      "change": "k_mad=4.0 -> 1.0",
+      "caught": false,
+      "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"
+    },
+    {
+      "where": "research/capture-trackprior/src/capture_trackprior/track.py:32",
+      "change": "len(ts) < 3 -> len(ts) < 2 (two-point line uses MAD rule)",
+      "caught": false,
+      "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"
+    },
+    {
+      "where": "research/capture-trackprior/src/capture_trackprior/track.py:28",
+      "change": "drop the keep=6 history window (fit all estimates)",
+      "caught": false,
+      "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"
+    },
+    {
+      "where": "research/capture-trackprior/src/capture_trackprior/gated.py:59",
+      "change": "p_full > ratio * p_in -> >=",
+      "caught": false,
+      "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"
+    },
+    {
+      "where": "research/capture-trackprior/src/capture_trackprior/gated.py:58",
+      "change": "out-of-lags fallback height p_full -> 0.0",
+      "caught": false,
+      "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"
+    },
+    {
+      "where": "research/capture-trackprior/src/capture_trackprior/track.py:20",
+      "change": "Theil-Sen intercept np.median(d - m*t) -> np.mean",
+      "caught": true,
+      "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"
+    },
+    {
+      "where": "research/capture-trackprior/src/capture_trackprior/track.py:36",
+      "change": "0.1 x drift term in the MAD half-width -> 1.0 x",
+      "caught": true,
+      "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"
+    },
+    {
+      "where": "research/capture-trackprior/src/capture_trackprior/track.py:38",
+      "change": "cap min(half, cap_s) -> max",
+      "caught": true,
+      "test_cmd": "cd research/capture-trackprior && python -m pytest -q tests"
+    }
   ],
   "defects": [
     {
@@ -213,6 +258,8 @@
       "origin": "maintenance"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15073"
+  ],
   "verdict": "The numbers are exactly right: both experiments rerun byte-identical, and an independent re-implementation (own GCC, Theil-Sen, prior and gate) reproduces all 60 per-clip cells and every quoted aggregate to 3 dp. It misses the bar on verification: 6 of 9 seeded bugs survive, including the gate's line restart, whose removal changes the published gated cell (0.221 -> 0.208). As research it is thin and partly a repeat: capture-aliaswin had already shown a tracked prior is no better than none and locks onto its first estimate, which this project neither cites nor extends with the long-window bootstrap that aliaswin proposed; the gate is a single-hypothesis validation gate tuned on the scored data, no intervals are reported, and the delay-tracking literature (multi-hypothesis and particle filters over GCC peaks) that addresses alias lock-in directly is not cited or used as a baseline."
 }
