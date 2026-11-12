@@ -1,0 +1,18 @@
+Round 4: a cap on the AR(1) watch's rho. Rule and reasons: header of eval/watch-rho.mjs. Part A: 10 fresh seeds (31-40) per cell, 500 points, baseline check at 100, then one check per point; a step at point 301, reported when an alert lies within 5 points. False alerts per 1,000 checks, then steps found.
+
+  candidate             null iid      null ar1 0.5  null t3       null ar1 0.8  null ar1 0.95 step 1sd iid      step 2sd iid      step 3sd iid      step 2sd ar1 0.5  step 4sd ar1 0.8  
+  ar1-window            0.50          0.25          5.25          0.25          1.25          4/10              9/10              10/10             3/10              10/10             
+  ar1-cap0.8-window     0.50          0.25          5.25          0.00          3.00          4/10              9/10              10/10             3/10              10/10             
+  ar1-cap0.5-window     0.50          0.50          5.25          15.00         27.25         4/10              9/10              10/10             4/10              10/10             
+
+Part B: 31 univariate TCPD series, watched from 20% of their length.
+
+  candidate              alerts  marked (share)  per 1000 checks  majority-marked changes reached
+  ar1-window                103      39 (38%)       16.2         29/52
+  ar1-cap0.8-window         115      47 (41%)       18.0         33/52
+  ar1-cap0.5-window         169      66 (39%)       26.5         41/52
+
+Rule, against ar1-window (mean null false alerts 1.56 per 1,000; 36 steps; TCPD 29 of 52 marks, 37.9% of alerts at a mark):
+  ar1-cap0.8-window: (a) mean null false alerts 1.50: pass; (b) steps 36: pass; (c) TCPD 33 marks, 40.9% at a mark: pass.
+  ar1-cap0.5-window: (a) mean null false alerts 5.31: fail; (b) steps 37: pass; (c) TCPD 41 marks, 39.1% at a mark: pass.
+Adopted: ar1-cap0.8-window becomes the default.

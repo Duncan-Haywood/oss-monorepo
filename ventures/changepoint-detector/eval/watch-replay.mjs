@@ -75,7 +75,7 @@ function trace(values, start) {
   for (const name of Object.keys(DETECTORS)) out[name] = [];
   for (let n = start; n <= values.length; n++) {
     const v = values.slice(0, n), l = labels.slice(0, n);
-    const runs = { mean: detectBoth(v, l, { model: 'mean', ar1Detectors: ROUND3 }), meanvar: ROUND2 ? null : detectBoth(v, l, { model: 'meanvar' }) };
+    const runs = { mean: detectBoth(v, l, { model: 'mean', ar1Detectors: ROUND3, rhoCap: null }), meanvar: ROUND2 ? null : detectBoth(v, l, { model: 'meanvar' }) };
     for (const [name, d] of Object.entries(DETECTORS)) out[name].push({ n, changes: runs[d.model][d.detector] });
   }
   return { labels, out };

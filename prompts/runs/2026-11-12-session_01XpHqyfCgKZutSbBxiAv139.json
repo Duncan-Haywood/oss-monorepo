@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyfCgKZutSbBxiAv139",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T11:39:11Z",
+  "ended": "2026-11-12T12:05:07Z",
+  "wall_minutes": 26.27,
+  "tokens_in": 9800270,
+  "tokens_out": 41107,
+  "cost_usd": 3.9089,
+  "tool_calls": 80,
+  "task": "Flagship 4 changepoint-detector, item (w): why the AR(1) watch loses marked TCPD changes, and a pre-registered round 4 on a capped rho",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15111",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {"what": "CI validate: flagships.yaml next: over the 2,000-character cap after the rewrite", "fix": "shortened the (w) item; portfolio/router/validate.py passes"},
+    {
+      "what": "First --why run crashed after 20 min on centralia (15 points, shorter than the 20-point baseline: empty trace)",
+      "fix": "guard for series too short to watch; traces cached to tcpd-data so a rerun skips the replay"
+    },
+    {
+      "what": "venture-preflight failed once on heading-order/podcast site tests while the post was being edited",
+      "fix": "the same tests passed on rerun; preflight rerun on the final tree"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "The round-3 text blamed the lost TCPD recall on 'short smooth series where the estimated rho is high' without a measurement; the per-series rho showed 15 of 17 losses at the 0.95 clip, mostly long wandering series (Brent 500 points, inventories 330), not short ones."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/changepoint-detector/eval/watch-replay.mjs (rounds 1-3 convention)",
+      "why": "Rounds 1-3 let the TCPD series decide nothing; round 4 counts them in the pre-registered rule because the fault only shows on real series and synthetic AR(1) cells cannot represent a wandering level at the rho clip.",
+      "did": "Rule part (c) on TCPD, written and pushed before the run, with synthetic (a) and (b) kept; README and post say 33 of 52 is no longer held out.",
+      "result": "0.8 cap passed all three parts and became the default; 0.5 cap failed (a)."
+    },
+    {
+      "file": "ventures/changepoint-detector/eval/watch-rho.mjs",
+      "why": "The rho-frozen-at-baseline candidate named in flagships next: was dropped from round 4 because the diagnostic showed baseline rho at 0.95 on 20 of 30 series, so it cannot help there.",
+      "did": "Pre-registered caps 0.8 and 0.5 only.",
+      "result": "Saved about a third of the replay time."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-when-stickiness-hits-its-limit-a-metric-watch-goes-deaf.md",
+    "ventures/changepoint-detector/README.md (Watching a growing series: diagnostic and round 4)"
+  ],
+  "goal": "Deepen flagship 4 (watch item w)",
+  "notes": "Diagnostic eval/watch-rho-why.out.txt reproduced round 3 exactly (103 alerts, 39 marked, 29/52) with rho passed explicitly. Round 4 (eval/watch-replay-round4.out.txt): uncapped 29/52, 103 alerts, 38%; cap 0.8 33/52, 115, 41%, synthetic nulls 1.50 vs 1.56 mean, steps 36 vs 36, AR(1) 0.95 null 3.00 vs 1.25; cap 0.5 41/52, 169, 39%, nulls 5.31 (fails a). Verification: python3 platform/ci/run_venture_tests.py changepoint-detector -> ok (192 s); watch.test.mjs 17/17; post front matter, links and similarity checks clean; venture-preflight clean (second run; first failed on site tests mid-edit). Also: the watch skips the plain engine run when an AR(1) detector is chosen (half the per-check time). No post was skipped; no agent doc needed beyond the README section.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f1d4470a-14a5-56fc-a4a5-ae18aa450ae5",
+    "transcripts": 1,
+    "first": "2026-11-12T11:39:11Z",
+    "last": "2026-11-12T12:05:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 152,
+        "output": 41107,
+        "thinking": 9691,
+        "cache_read": 9655744,
+        "cache_write_5m": 0,
+        "cache_write_1h": 144374,
+        "api_equivalent_usd": 3.9089,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 152,
+      "output": 41107,
+      "thinking": 9691,
+      "cache_read": 9655744,
+      "cache_write_5m": 0,
+      "cache_write_1h": 144374,
+      "api_equivalent_usd": 3.9089,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 70,
+      "ToolSearch": 3,
+      "TaskStop": 3,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.27,
+      "active_minutes": 20.88,
+      "model_minutes": 6.58,
+      "tool_minutes": 14.3,
+      "waiting_on_human_minutes": 5.39,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician: diagnose per-series rho, pre-register and run a replay round, wire a CLI option, tests, docs and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 255.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
