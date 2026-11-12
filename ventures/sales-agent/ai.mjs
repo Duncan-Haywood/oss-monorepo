@@ -32,6 +32,13 @@ const parseJson = (text) => { const m = String(text).match(/\{[\s\S]*\}/); if (!
 export function mergeTriage(rules, model, today) {
   if (!model || !CATEGORIES[model.category]) return { ...rules, source: "rules" };
   if (rules.category === "bounce" || rules.category === "unsubscribe") return { ...rules, source: "rules" };
+  // A permanent stop (the suppression list, a dead address) comes from the rules or a person, never from a model alone
+  // (2026-11-12, eval/README.md "A local model on every reply set"): a 7B model read "Do you handle unsubscribe links?" as
+  // an opt-out and "Can you resend the attachment? It didn't open" as a bounce. The rules' answer stands and runInbox
+  // tells the person what the model read; nothing is sent without their approval either way.
+  if (model.category === "unsubscribe" || model.category === "bounce") {
+    return { ...rules, source: "rules", modelSaid: model.category, modelEvidence: String(model.evidence || "").slice(0, 300) };
+  }
   // Allowed: anything from "unclear"; a move to the same or less contact; or a move between two categories that both
   // end in a draft awaiting approval (question -> interested). Never from a no-contact category to a drafting one.
   const lower = CATEGORIES[model.category].rank <= CATEGORIES[rules.category].rank;
