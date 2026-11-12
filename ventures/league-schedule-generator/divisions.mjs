@@ -249,25 +249,43 @@ export function buildDivisions(spec) {
       for (const t of [m.home, m.away]) { const o = tallyOf(`${m.div}/${t}`); n += o[v] - venueList.reduce((a, x) => a + o[x], 0) / venueList.length; }
       return n;
     };
-    const clashCost = (k, c, cells) => {
-      let s = 0;
+    // The annealing below rescores every move with `total`, so its pieces are tabled once per night: trip and fairness cost
+    // per (match, cell) (lastVenue and tally do not change until the night is placed), and the linked pairs as (match,
+    // match, count) with the clash cost per pair of cells. `total` adds the same terms in the same order as scoring each
+    // match directly, so the sums, and with them every accepted move, are unchanged.
+    const nc = open.length;
+    const tripW = new Float64Array(ms.length * nc), fairW = new Float64Array(ms.length * nc);
+    for (let k = 0; k < ms.length; k++) for (let c = 0; c < nc; c++) { tripW[k * nc + c] = W_TRIP * trip(ms[k], c); fairW[k * nc + c] = wFair * unfair(ms[k], c); }
+    const linked = ms.map((mk, k) => {
+      const out = [];
       for (let j = 0; j < ms.length; j++) {
         if (j === k) continue;
-        const cj = cells[j];
-        for (const ta of [ms[k].home, ms[k].away]) {
-          const partners = linkOf.get(`${ms[k].div}/${ta}`);
-          if (!partners) continue;
-          for (const tb of [ms[j].home, ms[j].away]) {
-            if (!partners.has(`${ms[j].div}/${tb}`)) continue;
-            const dt = Math.abs(open[c].ti - open[cj].ti);
-            if (dt === 0) s += W_CLASH;
-            else if (dt === 1 && venueOf(courts[open[c].ci]) !== venueOf(courts[open[cj].ci])) s += 50;
-          }
+        let mult = 0;
+        for (const ta of [mk.home, mk.away]) {
+          const partners = linkOf.get(`${mk.div}/${ta}`);
+          if (partners) for (const tb of [ms[j].home, ms[j].away]) if (partners.has(`${ms[j].div}/${tb}`)) mult++;
         }
+        if (mult) out.push(j, mult);
       }
+      return out;
+    });
+    const anyLink = linked.some((l) => l.length);
+    const pairCost = new Float64Array(anyLink ? nc * nc : 0);
+    if (anyLink) for (let a = 0; a < nc; a++) for (let b = 0; b < nc; b++) {
+      const dt = Math.abs(open[a].ti - open[b].ti);
+      pairCost[a * nc + b] = dt === 0 ? W_CLASH : dt === 1 && venueOf(courts[open[a].ci]) !== venueOf(courts[open[b].ci]) ? 50 : 0;
+    }
+    const clashCost = (k, c, cells) => {
+      const l = linked[k];
+      let s = 0;
+      for (let i = 0; i < l.length; i += 2) s += l[i + 1] * pairCost[c * nc + cells[l[i]]];
       return s;
     };
-    const total = (cells) => cells.reduce((s, c, k) => s + W_TRIP * trip(ms[k], c) + wFair * unfair(ms[k], c) + clashCost(k, c, cells) / 2, 0);
+    const total = (cells) => {
+      let s = 0;
+      for (let k = 0; k < cells.length; k++) { const c = cells[k]; s = s + tripW[k * nc + c] + fairW[k * nc + c] + clashCost(k, c, cells) / 2; }
+      return s;
+    };
     if (optimize) {
       let cur = total(cellOf);
       const iters = (travel ? 6000 : 600) + 40 * ms.length; // a travel table has more to gain from search (measured in divisions.test.mjs)
