@@ -27,13 +27,17 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 5,
   "outcome": "success",
   "errors": [
     {
       "what": "First timing probe of update-rate on 20k-100k points ran past the 120 s tool timeout; it surfaced the n^2 search that this run then fixed",
+      "fixed": true
+    },
+    {
+      "what": "portfolio/router/validate.py: flagships next: 2109 chars over the 2000 cap after appending; shortened the replaced item",
       "fixed": true
     }
   ],
