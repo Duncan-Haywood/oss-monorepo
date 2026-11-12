@@ -3,7 +3,7 @@ title: "Making a changepoint check 20 times faster without changing a single ans
 seo_title: "Fast PELT on long binary series: grid search plus exact refinement"
 date: 2026-11-12
 tags: [changepoint-detector, changepoint-detection, pelt, time-series, performance]
-description: "The Changepoint Detector's update-rate check now runs beside every model. Wiring it in exposed an n-squared search; a grid plus exact refinement matched the exact answer on 200 of 200 long series."
+description: "The update-rate check now runs beside every model. A grid plus exact refinement matched the exact n-squared search on 200 of 200 long series, 20x faster."
 ---
 
 Earlier today the [Changepoint Detector](../../ventures/changepoint-detector/)
