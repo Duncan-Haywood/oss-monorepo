@@ -52,19 +52,25 @@ demosaic, ``w`` x ``h``, still linear):
   centre ``(cx, cy)`` as fractions of the image width and height; a plane past
   ``n`` uses the last plane's terms;
 * for each output pixel, ``(dx, dy)`` is its offset from the optical centre
-  divided by the distance from the centre to the farthest image corner, so
-  ``r = 1`` there; ``r2 = dx*dx + dy*dy`` and
+  divided by ``m``, the distance from the centre to the farthest pixel, so
+  ``r = 1`` at that pixel's centre (the centre is ``x0 + cx (x1 - x0)`` between
+  the top-left and bottom-right pixels, as the specification defines it); ``r2 = dx*dx + dy*dy`` and
   ``f = kr0 + kr1 r2 + kr2 r2^2 + kr3 r2^3``;
 * the pixel takes its value from the source point
   ``centre + m * (f dx + kt0 2 dx dy + kt1 (r2 + 2 dx^2),
-  f dy + kt1 2 dx dy + kt0 (r2 + 2 dy^2))`` (``m`` the corner distance):
+  f dy + kt1 2 dx dy + kt0 (r2 + 2 dy^2))`` (``m`` the distance to the farthest pixel):
   the opcode maps the corrected image back into the distorted one.
 
-Choices the specification leaves open, made here and named so a later check
-against Adobe's output can find them: pixel ``x`` sits at ``x + 0.5`` (pixel
-centres, the image spanning ``0..w``); the source is sampled bilinearly (the
-SDK uses a wider resampling kernel); a source point outside the image takes the
-nearest edge pixel.
+The centre and ``m`` follow the DNG 1.7.1.0 text (read 2026-11-12, pages
+106-110): pixel coordinates of the top-left and bottom-right pixels, so
+``(0.5, 0.5)`` is the middle pixel and ``m`` reaches the farthest pixel, not the
+image corner. Before 2026-11-12 this module measured both from the image edges
+(``cx * w``, corner at ``(w, h)``); on the Leica T's terms the two put a source
+point at most 0.048 px apart. Choices the specification does leave open, named
+so a later check against Adobe's output can find them: the source is sampled
+bilinearly (the SDK uses a wider resampling kernel, and the specification
+recommends one such as a cubic spline); a source point outside the image takes
+the nearest edge pixel.
 
 WarpFisheye (DNG specification 1.4, chapter 7; opcode 2), in the stage-3 image,
 unwraps a fisheye lens's equidistant-style projection into a rectilinear one:
@@ -73,7 +79,7 @@ unwraps a fisheye lens's equidistant-style projection into a rectilinear one:
   ``kr0..kr3`` (float64), then the optical centre ``(cx, cy)`` as fractions of
   the image width and height; a plane past ``n`` uses the last plane's terms;
 * ``(dx, dy)`` and ``r`` are as for WarpRectilinear (``r = 1`` at the farthest
-  corner); ``t = atan(r)`` and ``rd = kr0 t + kr1 t^3 + kr2 t^5 + kr3 t^7``;
+  pixel); ``t = atan(r)`` and ``rd = kr0 t + kr1 t^3 + kr2 t^5 + kr3 t^7``;
 * the pixel takes its value from ``centre + m * (rd / r) * (dx, dy)``, and at
   the centre itself (``r = 0``), where ``rd / r`` tends to ``kr0``, from
   ``centre + m * kr0 * (dx, dy)``, which is the centre.
@@ -90,11 +96,12 @@ stage-2 or stage-3 image:
 * the parameters are ``k0..k4`` and the optical centre ``(cx, cy)`` as
   fractions of the image width and height (seven float64);
 * ``r`` is a pixel's distance from the centre divided by the distance from the
-  centre to the farthest image corner (``r = 1`` there, as for the warp);
+  centre to the farthest pixel (``r = 1`` there; centre and ``m`` as for the
+  warp, from the specification's top-left and bottom-right pixels);
 * the gain is ``1 + k0 r^2 + k1 r^4 + k2 r^6 + k3 r^8 + k4 r^10`` and the
   value becomes ``min(value * gain, 1)``.
 
-Choices: pixel centres at ``x + 0.5`` (as for the warp); the gain is evaluated
+Choices: the gain is evaluated
 at every pixel in float64, where the SDK builds a fixed-point gain mask on a
 coarser grid and interpolates it, so the two can differ in the last few bits.
 
@@ -177,7 +184,7 @@ TrimBounds (DNG specification 1.4, chapter 7; opcode 6), in ``OpcodeList2`` or
   runs;
 * the image is cropped to that rectangle, and its top-left becomes (0, 0): an
   opcode after it in the list sees the smaller image, so its area, its
-  relative map positions and a warp's optical centre and corner distance all
+  relative map positions and a warp's optical centre and ``m`` all
   count from the trimmed frame (Adobe's DNG SDK trims a simple image in place
   and resets its origin, ``dng_simple_image::Trim``);
 * the SDK rejects a rectangle that is empty or does not lie inside the image;
@@ -964,9 +971,21 @@ def apply_plane(maps: list, plane, h: int, w: int, spp: int) -> None:
 
 
 def _vignette_frame(vg: VignetteRadial, w: int, h: int) -> tuple[float, float, float]:
-    cxp, cyp = vg.cx * w, vg.cy * h
-    m = max(math.hypot(x - cxp, y - cyp) for x in (0.0, float(w)) for y in (0.0, float(h)))
-    return cxp, cyp, (m if m > 0 else 1.0)
+    return _spec_frame(vg.cx, vg.cy, w, h)
+
+
+def _spec_frame(cx: float, cy: float, w: int, h: int) -> tuple[float, float, float]:
+    """The optical centre and ``m`` as the DNG specification defines them, in this module's coordinates.
+
+    The specification (1.7.1.0, WarpRectilinear, WarpFisheye, FixVignetteRadial) puts the centre at
+    ``x0 + cx (x1 - x0)`` with ``x0, x1`` the pixel coordinates of the top-left and bottom-right pixels, and
+    ``m = sqrt(mx^2 + my^2)``, ``mx = max(|x0 - cx|, |x1 - cx|)``: the distance to the farthest pixel. Here
+    pixel ``x`` sits at ``x + 0.5``, so the centre is returned as ``cx (w - 1) + 0.5``.
+    """
+
+    ci, cj = cx * (w - 1), cy * (h - 1)
+    m = math.hypot(max(ci, w - 1 - ci), max(cj, h - 1 - cj))
+    return ci + 0.5, cj + 0.5, (m if m > 0 else 1.0)
 
 
 def vignette_gain(vg: VignetteRadial, x: float, y: float, w: int, h: int) -> float:
@@ -1170,11 +1189,9 @@ def run_stage3_planes(ops: list, img, scale=(1.0, 1.0, 1.0)):
 
 
 def _warp_frame(wp: WarpRectilinear, w: int, h: int) -> tuple[float, float, float]:
-    """Optical centre in pixel units and the distance from it to the farthest corner."""
+    """Optical centre (pixel ``x`` at ``x + 0.5``) and the distance from it to the farthest pixel (``_spec_frame``)."""
 
-    cxp, cyp = wp.cx * w, wp.cy * h
-    m = max(math.hypot(x - cxp, y - cyp) for x in (0.0, float(w)) for y in (0.0, float(h)))
-    return cxp, cyp, (m if m > 0 else 1.0)
+    return _spec_frame(wp.cx, wp.cy, w, h)
 
 
 def warp_source(wp, p: int, x: float, y: float, w: int, h: int) -> tuple[float, float]:

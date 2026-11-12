@@ -197,12 +197,14 @@ flagships:
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     buildable: >-
-      WarpRectilinear2 (opcode 14, DNG 1.7: more radial terms and the
-      reciprocal-radial form) in dng_opcodes.py on synthetic DNGs, as
-      tests/test_dng_warp.py does, once its parameter layout is read from the
-      1.7 specification text (not from memory); MapTable and
+      The DNG 1.7.1.0 specification PDF is reachable from a cloud session
+      (helpx.adobe.com URL in eval/opcode-spec-audit-2026-11-12.md): read it, not
+      memory. A cubic-spline (or SDK-like) resampling kernel for the warps, which
+      the specification recommends over bilinear, with both engines byte-identical
+      and the ramp tests extended to quadratics; MapTable and
       Delta/ScalePerRow/Column in OpcodeList1 once the raw-value unit is
-      settled (README, 2026-11-12 MapTable section).
+      settled (README, 2026-11-12 MapTable section). WarpRectilinear2 is PR
+      #15290's (another session, 2026-11-12): help land it, don't redo it.
     next: >-
       History and every measurement: README and eval/ (ingest, catalog,
       proxies, cull, RAW previews; DNG developer with DNG-spec colour, DCP
@@ -216,8 +218,12 @@ flagships:
       0.18 px, eval/warp-rectilinear-2026-11-12.md; FixVignetteRadial/MapPolynomial on
       synthetic files, eval/vignette-polynomial-2026-11-12.md; OpcodeList1
       FixBadPixels*; WarpFisheye; MapTable, Delta/ScalePerRow/Column;
-      TrimBounds in OpcodeList2/3, tests/test_dng_trim_bounds.py).
-      Next, most valuable first: WarpRectilinear2; a real DNG carrying any opcode
+      TrimBounds in OpcodeList2/3, tests/test_dng_trim_bounds.py; every
+      opcode's layout and formula compared with the DNG 1.7.1.0 text, warp and
+      vignette centre now measured between pixels as it defines them,
+      eval/opcode-spec-audit-2026-11-12.md).
+      Next, most valuable first: WarpRectilinear2 (PR #15290); a resampling
+      kernel wider than bilinear; a real DNG carrying any opcode
       run only on synthetic files so far, or the SDK to check them;
       lateral colour measured on a real frame with sharp corner edges; a real Adobe `.dcp` through the profile chooser;
       newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that
