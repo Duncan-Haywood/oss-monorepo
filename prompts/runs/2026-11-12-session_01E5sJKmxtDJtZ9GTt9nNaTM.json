@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKmxtDJtZ9GTt9nNaTM",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T01:22:36Z",
+  "ended": "2026-11-12T01:43:57Z",
+  "wall_minutes": 21.7,
+  "tokens_in": 3692829,
+  "tokens_out": 53624,
+  "cost_usd": 2.8745,
+  "tool_calls": 32,
+  "task": "Creative track: new Hearth & Horizon story The Colbert Oaks (text only)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14958",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "Python's datetime check showed 29 Mar 2216 is not Good Friday (Easter is 7 Apr); the draft's Good Friday and 'Easter week' lines were corrected before commit.",
+    "run_workflow_locally --for-changes first refused (no merge base in the shallow clone); fixed with git fetch --depth=40 origin main."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Length guide says Hearth & Horizon 3,500 to 6,000 words while recent stories (The Bell Tax 6,157 with notes) run longer; this one is about 6,100 body words. Either the range or the habit should move."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes outlasted the 600 s foreground limit on a story-only diff; had to move to background."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "The proposal asked for a cathedral roof; used a village church owned by the commune (1905 law) to avoid inventing a future for a real cathedral.",
+      "did": "Invented church of Saint-Hubert in an invented village.",
+      "result": "Story stands without touching a real cathedral."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio dirs at 423 MB, over the 400 MB cap.",
+      "did": "Text only, no audio, no podcast episode.",
+      "result": "Story and pages land; audio left for after enclosures move."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-colbert-oaks.md"
+  ],
+  "goal": "Ship one finished science fiction story with checked numbers",
+  "notes": "Project hearth-and-horizon, slug the-colbert-oaks (Hearth & Horizon shelf, 2216, Allier). Model in scratchpad oaks.py/plan.py, figures in the story note and DONE.md. node --test in the venture: 15/15 pass. No agent doc in docs/reports: nothing the next run needs beyond the BIBLE row and the new Stave Mill proposal (which I corrected: wide-ringed ring-porous oak is denser, not more porous).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "038d3837-b509-5271-9ce7-c5702d10c290",
+    "transcripts": 1,
+    "first": "2026-11-12T01:22:36Z",
+    "last": "2026-11-12T01:44:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 60,
+        "output": 53624,
+        "thinking": 27775,
+        "cache_read": 3556458,
+        "cache_write_5m": 0,
+        "cache_write_1h": 136311,
+        "api_equivalent_usd": 2.8745,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 60,
+      "output": 53624,
+      "thinking": 27775,
+      "cache_read": 3556458,
+      "cache_write_5m": 0,
+      "cache_write_1h": 136311,
+      "api_equivalent_usd": 2.8745,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.963,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 27,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.7,
+      "active_minutes": 21.7,
+      "model_minutes": 11.19,
+      "tool_minutes": 10.52,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a writer researching and drafting a 6,000-word story with worked forestry numbers",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 417.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
