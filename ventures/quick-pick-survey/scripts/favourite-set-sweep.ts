@@ -8,12 +8,16 @@
  * list is shown. Per selector: how often the list holds the true favourite
  * (coverage), its mean and 90th-percentile length.
  *
- *   npx tsx scripts/favourite-set-sweep.ts [--seeds 60] [--seed-base 1000] [--items 8,15,30] [--per-item 2,4,8] [--lapses 0] [--levels 0.8,0.9,0.95] [--spread 1] [--bottom]
+ * --eb adds the set on each respondent's own empirical-Bayes prior sd (and the
+ * clear-pick rule on it); --pool the set on one prior sd per cell pooled over an
+ * independent panel with the same design (btRefit.ts, pooledPriorPhi).
+ *
+ *   npx tsx scripts/favourite-set-sweep.ts [--eb] [--pool] [--evidence sampled|laplace] [--seeds 60] [--seed-base 1000] [--items 8,15,30] [--per-item 2,4,8] [--lapses 0] [--levels 0.8,0.9,0.95] [--spread 1] [--bottom]
  */
 import { selectNextPair, selectNextPairHybrid } from "../src/lib/pairing";
 import { simulate, type Policy } from "../src/lib/infoGainSim";
 import { GLICKO_SCALE } from "../src/lib/glicko2";
-import { refitRatings, empiricalPriorPhi } from "../src/lib/btRefit";
+import { refitRatings, empiricalPriorPhi, pooledPriorPhi } from "../src/lib/btRefit";
 import { clearPick } from "../src/lib/clearPick";
 import { favouriteSet } from "../src/lib/favouriteSet";
 
@@ -30,7 +34,12 @@ const bottom = argv.includes("--bottom");
 const priorPhis = opt("--prior-phi", "").split(",").filter(Boolean).map(Number);
 const byCell = argv.includes("--by-cell");
 const eb = argv.includes("--eb");
+// --pool: one prior sd per cell, pooled over an independent panel of respondents with the same design (seeds offset by 100000).
+const pool = argv.includes("--pool");
+const evidence = opt("--evidence", "sampled") as "laplace" | "sampled";
+const poolPhis: Record<string, number> = {};
 const ebPhis: number[] = [];
+const clearTally = { all: 0, fixed: 0, fixedWrong: 0, eb: 0, ebWrong: 0 };
 const seeds = Array.from({ length: nSeeds }, (_, i) => seedBase + i * 7);
 const SELECTORS: Record<string, Policy> = {
   shipped: (i) => selectNextPair({ ...i, answerAgreement: undefined }),
@@ -52,6 +61,13 @@ for (const lapse of lapses) {
           tally.set(key, t);
         };
         let shown = 0;
+        const poolPhi = pool
+          ? pooledPriorPhi(seeds.map((s0) => {
+              const r = simulate(SELECTORS[sel], items, k * items, s0 + 100000, lapse, 0, 0, false, undefined, 0, undefined, (_i, d) => d * spread);
+              return { ids: [...r.truth.keys()], answers: r.history.map(({ picked, other }) => ({ winner: picked, loser: other })) };
+            }), { evidence })
+          : 0;
+        if (pool) poolPhis[`${items}x${k}`] = Number(poolPhi.toFixed(2));
         for (const s of seeds) {
           const r = simulate(SELECTORS[sel], items, k * items, s, lapse, 0, 0, false, undefined, 0, undefined, (_i, d) => d * spread);
           const ids = [...r.truth.keys()];
@@ -62,7 +78,19 @@ for (const lapse of lapses) {
           const c = ids.map((id, i) => ({ key: id, rating: fit.rating.get(id)!, i }));
           const sd = (x: (typeof c)[number], y: (typeof c)[number]) =>
             GLICKO_SCALE * Math.sqrt(Math.max(0, fit.cov[x.i * n + x.i] + fit.cov[y.i * n + y.i] - 2 * fit.cov[x.i * n + y.i]));
-          if (clearPick(c, sd, { bottom })!.clear) continue;
+          const fixedPick = clearPick(c, sd, { bottom })!;
+          if (eb) {
+            // The clear-pick rule on every respondent, fixed prior against EB: share it fires for, share of claims wrong.
+            const answers = r.history.map(({ picked, other }) => ({ winner: picked, loser: other }));
+            const g = refitRatings(ids, answers, { priorPhi: empiricalPriorPhi(ids, answers, { evidence }) });
+            const ce = ids.map((id, i) => ({ key: id, rating: g.mu[i], i }));
+            const sdE = (x: (typeof ce)[number], y: (typeof ce)[number]) => Math.sqrt(Math.max(0, g.cov[x.i * n + x.i] + g.cov[y.i * n + y.i] - 2 * g.cov[x.i * n + y.i]));
+            const ebPick = clearPick(ce, sdE, { bottom })!;
+            clearTally.all++;
+            if (fixedPick.clear) { clearTally.fixed++; if (fixedPick.leader.key !== top) clearTally.fixedWrong++; }
+            if (ebPick.clear) { clearTally.eb++; if (ebPick.leader.key !== top) clearTally.ebWrong++; }
+          }
+          if (fixedPick.clear) continue;
           shown++;
           const ranked = [...c].sort((x, y) => (bottom ? x.rating - y.rating : y.rating - x.rating));
           add("highest3", ranked.slice(0, 3).map((x) => x.key), top);
@@ -74,19 +102,20 @@ for (const lapse of lapses) {
           }
           if (eb) {
             const answers = r.history.map(({ picked, other }) => ({ winner: picked, loser: other }));
-            const phi = empiricalPriorPhi(ids, answers);
+            const phi = empiricalPriorPhi(ids, answers, { evidence });
             ebPhis.push(phi);
             const g = refitRatings(ids, answers, { priorPhi: phi });
             for (const level of levels) {
               const f = favouriteSet(g.mu, g.cov, { level, bottom });
               add(`set${level}@eb`, f.members.map((i) => ids[i]), top);
             }
-            // Would the clear-pick rule, run on the EB refit, name the right item?
-            const ce = ids.map((id, i) => ({ key: id, rating: g.mu[i], i }));
-            const sdE = (x: (typeof ce)[number], y: (typeof ce)[number]) => Math.sqrt(Math.max(0, g.cov[x.i * n + x.i] + g.cov[y.i * n + y.i] - 2 * g.cov[x.i * n + y.i]));
-            const pick = clearPick(ce, sdE, { bottom })!;
-            add("ebClear", pick.clear ? ["fired"] : [], "fired");
-            if (pick.clear) add("ebClearRight", [pick.leader.key], top);
+          }
+          if (pool) {
+            const g = refitRatings(ids, r.history.map(({ picked, other }) => ({ winner: picked, loser: other })), { priorPhi: poolPhi });
+            for (const level of levels) {
+              const f = favouriteSet(g.mu, g.cov, { level, bottom });
+              add(`set${level}@pool`, f.members.map((i) => ids[i]), top);
+            }
           }
           for (const phi of priorPhis) {
             const g = refitRatings(ids, r.history.map(({ picked, other }) => ({ winner: picked, loser: other })), { priorPhi: phi });
@@ -114,7 +143,10 @@ for (const lapse of lapses) {
       const at = (p: number) => Number(sorted[Math.floor(p * (sorted.length - 1))].toFixed(2));
       console.log(JSON.stringify({ selector: sel, lapse, spread, ebPhi: { p10: at(0.1), median: at(0.5), p90: at(0.9), atMin: Number((sorted.filter((x) => x <= 0.3001).length / sorted.length).toFixed(3)), atMax: Number((sorted.filter((x) => x >= 2.0147).length / sorted.length).toFixed(3)) } }));
       ebPhis.length = 0;
+      console.log(JSON.stringify({ selector: sel, lapse, spread, clearPick: { ...clearTally } }));
+      Object.assign(clearTally, { all: 0, fixed: 0, fixedWrong: 0, eb: 0, ebWrong: 0 });
     }
+    if (pool) console.log(JSON.stringify({ selector: sel, lapse, spread, poolPhi: { ...poolPhis } }));
     if (byCell) for (const c of cells) console.log(JSON.stringify({ selector: sel, lapse, spread, bottom, items: c.items, perItem: c.perItem, shown: c.shown, of: c.total, ...summarise([c]) }));
     const shown = cells.reduce((a, c) => a + c.shown, 0);
     console.log(JSON.stringify({ selector: sel, lapse, spread, bottom, cell: "all", shown, of: cells.reduce((a, c) => a + c.total, 0), ...summarise(cells), worstCellCoverage: Object.fromEntries([...new Set(cells.flatMap((c) => [...c.tally.keys()]))].map((key) => [key, Math.min(...cells.filter((c) => c.tally.has(key)).map((c) => Number(mean(c.tally.get(key)!.hit).toFixed(3))))])) }));

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { loadRatedItems } from "@/lib/participantRatings";
 import { confidenceInterval95, GLICKO_SCALE } from "@/lib/glicko2";
-import { differenceSd, refitRatings, REFIT_MAX_ITEMS, type RefitResult } from "@/lib/btRefit";
+import { differenceSd, EB_MAX_ITEMS, empiricalPriorPhi, refitRatings, REFIT_MAX_ITEMS, type RefitResult } from "@/lib/btRefit";
 import { clearPick } from "@/lib/clearPick";
 import { contenders } from "@/lib/favouriteSet";
 import { answersUntilNextLevel, INSIGHTS, levelForAnswers } from "@/lib/insights";
@@ -44,6 +44,9 @@ export async function POST(req: NextRequest) {
     // items from the same person's answers are compared with the covariance
     // of their difference, not as if independent (lib/btRefit.ts).
     const fitOf = new WeakMap<RankedItem, { fit: RefitResult; itemId: string }>();
+    // The same answers refitted with the person's own empirical-Bayes prior
+    // sd, used only for the "it's between" set (see below).
+    const setFitOf = new WeakMap<RankedItem, { fit: RefitResult; itemId: string }>();
 
     // Skipped rather than refused, for the same reason as `session/status`:
     // the client sends whatever ids it has, and one that is not the caller's
@@ -86,17 +89,27 @@ export async function POST(req: NextRequest) {
         // refit gets slow, so the stored states are used as before.
         const answeredIds = new Set(decided.flatMap((t) => [t.itemAId, t.itemBId]));
         const valid = decided.filter((t) => t.result === "A" || t.result === "B" || t.result === "EQUAL");
+        const answersForFit = valid.map((t) =>
+          t.result === "B"
+            ? { winner: t.itemBId, loser: t.itemAId }
+            : { winner: t.itemAId, loser: t.itemBId, tie: t.result === "EQUAL" }
+        );
         const fit =
           valid.length > 0 && answeredIds.size <= REFIT_MAX_ITEMS
-            ? refitRatings(
-                [...answeredIds],
-                valid.map((t) =>
-                  t.result === "B"
-                    ? { winner: t.itemBId, loser: t.itemAId }
-                    : { winner: t.itemAId, loser: t.itemBId, tie: t.result === "EQUAL" }
-                )
-              )
+            ? refitRatings([...answeredIds], answersForFit)
             : undefined;
+        // The favourite's credible set is drawn from a refit whose prior sd is
+        // estimated from this person's answers (importance-sampled evidence,
+        // lib/btRefit.ts empiricalPriorPhi). With the fixed sd of 2.0 the set
+        // held the true favourite for 88-92% of synthetic respondents at the
+        // 95% level, and 76-83% with careless answers; with the estimated sd
+        // 93-96% and 90-95% (docs/INFORMATION-GAIN-SELECTOR.md, "An
+        // empirical-Bayes prior"). Not used for the ratings, the intervals or
+        // the clear-pick rule: there the narrower prior undercovers.
+        const setFit =
+          fit && answeredIds.size <= EB_MAX_ITEMS
+            ? refitRatings(fit.ids, answersForFit, { priorPhi: empiricalPriorPhi(fit.ids, answersForFit) })
+            : fit;
         for (const i of items) {
           const fromFit = fit?.rating.has(i.id);
           const rating = fromFit ? fit!.rating.get(i.id)! : i.rating;
@@ -112,7 +125,10 @@ export async function POST(req: NextRequest) {
             hi,
             dimensions: i.dimensions ?? [],
           };
-          if (fromFit) fitOf.set(entry, { fit: fit!, itemId: i.id });
+          if (fromFit) {
+            fitOf.set(entry, { fit: fit!, itemId: i.id });
+            setFitOf.set(entry, { fit: setFit!, itemId: i.id });
+          }
           ranked.push(entry);
         }
         for (const t of decided) {
@@ -172,27 +188,32 @@ export async function POST(req: NextRequest) {
       // 68-74% of synthetic respondents shown the line; the set holds it for
       // 88-92% (docs/INFORMATION-GAIN-SELECTOR.md, "Who it's between").
       // Items from different refits (or stored states) are independent.
+      // Since 2026-11-12 (later) the set is drawn from the empirical-Bayes refit (setFitOf).
       const covariance = (a: RankedItem, b: RankedItem) => {
         if (a === b) {
-          const fa = fitOf.get(a);
+          const fa = setFitOf.get(a);
           if (!fa) return a.rd * a.rd;
           const i = fa.fit.ids.indexOf(fa.itemId), n = fa.fit.ids.length;
           return GLICKO_SCALE * GLICKO_SCALE * fa.fit.cov[i * n + i];
         }
-        const fa = fitOf.get(a), fb = fitOf.get(b);
+        const fa = setFitOf.get(a), fb = setFitOf.get(b);
         if (!fa || !fb || fa.fit !== fb.fit) return 0;
         const n = fa.fit.ids.length;
         return GLICKO_SCALE * GLICKO_SCALE * fa.fit.cov[fa.fit.ids.indexOf(fa.itemId) * n + fa.fit.ids.indexOf(fb.itemId)];
       };
+      const setScore = (x: RankedItem) => {
+        const f = setFitOf.get(x);
+        return f ? f.fit.rating.get(f.itemId)! : x.rating;
+      };
       const top = clearPick(ranked, sd)!;
       content["top-pick"] = top.clear
         ? { ...top.leader, contested: false }
-        : { ...top.leader, contested: true, rivals: contenders(ranked, covariance).map((r) => r.label) };
+        : { ...top.leader, contested: true, rivals: contenders(ranked, covariance, { score: setScore }).map((r) => r.label) };
 
       const bottom = clearPick(ranked, sd, { bottom: true })!;
       content["bottom-pick"] = bottom.clear
         ? { ...bottom.leader, contested: false }
-        : { ...bottom.leader, contested: true, rivals: contenders(ranked, covariance, { bottom: true }).map((r) => r.label) };
+        : { ...bottom.leader, contested: true, rivals: contenders(ranked, covariance, { bottom: true, score: setScore }).map((r) => r.label) };
     }
 
     if (ranked.length >= 5) {

@@ -247,11 +247,17 @@ flagships:
       every item (src/lib/clearPick.ts; the old half-rd rule was wrong in 50-70%
       of its claims). The card's "between X, Y, Z" list is the refit's 95%
       credible set for the favourite since 2026-11-12 (src/lib/favouriteSet.ts;
-      holds the true favourite 88-92% vs 68-74% for the three highest; it
-      undercovers because the prior is wider than the truth). Next, most
-      valuable first: (a) an empirical-Bayes prior sd for the refit (re-measure
-      pairwise intervals and the set), and the PrefLib panels through the
-      refit; (b) half-time salience (q = 0.5 still leaks +0.12 to
+      holds the true favourite 88-92% vs 68-74% for the three highest), drawn
+      since 2026-11-12 (later) from a refit at the person's own empirical-Bayes
+      prior sd (importance-sampled evidence; the Laplace evidence collapses to
+      the floor under staged): 93-96% (90-95% careless) at 7.4-8.7 names vs
+      5-6. Pairwise intervals keep the fixed prior (EB undercovers:
+      own 0.77-0.84, pooled 0.93, careless 0.64-0.75; INFORMATION-GAIN-SELECTOR.md
+      "An empirical-Bayes prior"). Next, most valuable first: (a) a stored
+      per-survey pooled prior sd for the set (pooled sizes 6.9-7.8 at the same
+      coverage; needs a cached survey-level estimate), the PrefLib panels
+      through the refit and the set, and a heavier-tailed prior for the
+      pairwise intervals; (b) half-time salience (q = 0.5 still leaks +0.12 to
       +0.29, only 5-13% fall under 0.2 agreement: does pace see them?);
       (c) check the answer-time model against the first real survey's
       msToAnswer (honest pace spread, slowing on close pairs, whether

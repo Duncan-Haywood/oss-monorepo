@@ -1745,13 +1745,15 @@ three.
 **The set undercovers, and the prior is why.** At spread 1 the 0.95 set
 holds the favourite 88-92% of the time, at spread 2 (stronger likes and
 dislikes) 93-96%. The refit's prior sd (Glicko's 350, 2.0 on the logit
-scale) is wider than the simulated truth (uniform on [-1, 1], sd 0.58), so
+scale) is wider than the simulated truth (uniform on [-1, 1] at slope 2,
+so sd 1.155 on the logit scale; this line said 0.58 until the next section
+caught the missing factor of two), so
 the posterior shrinks the leader too little and is too sure of it, a
 winner's curse that per-pair intervals (previous sections, calibrated) do
 not show because the favourite is a maximum over many items. Refitting with
 a narrower prior only for the set (`--prior-phi`): sd 1.0 gives 0.953-0.968
-at the 0.95 level (size 7.5 / 15), the true sd 0.58 overcovers (0.987-0.994,
-size 9.4-10.5 / 19-20, the Gaussian prior on uniform truth). **Not shipped:**
+at the 0.95 level (size 7.5 / 15), sd 0.58 (half the true spread, see
+above) overcovers (0.987-0.994, size 9.4-10.5 / 19-20). **Not shipped:**
 tuning the prior to the simulator's own truth would calibrate the set to an
 assumption, not to people; an empirical-Bayes prior sd estimated from each
 person's answers is the principled version and the next thing to try.
@@ -1778,3 +1780,126 @@ fewer; no real pairwise answers. Next: an empirical-Bayes prior sd for the
 refit (which would move the pairwise intervals too, so re-measure those);
 the PrefLib panels (`scripts/real-rankings-eval.ts`) through the refit and
 the set.
+
+## An empirical-Bayes prior (2026-11-12, later; shipped for the set only)
+
+The previous section found the favourite's credible set undercovering
+because the refit's prior sd (2.0, Glicko's 350) is wider than the simulated
+truth, and left the fix open: estimate the prior sd from each person's own
+answers rather than tune it to the simulator. This section does that, finds
+the textbook way of doing it fails under the staged selector, and fixes it.
+
+**Method** (`src/lib/btRefit.ts`). Type-II maximum likelihood: the prior sd
+phi that maximises the marginal likelihood (the evidence) of the person's
+answers, searched by golden section on log phi in [0.3, 2.0] (never wider
+than the fixed prior; the floor stops the known collapse to zero on a few
+mixed answers). Two evidence estimates:
+
+- `refitEvidence`, the Laplace form: log-likelihood and log-prior at the
+  mode plus half the log-determinant of the posterior covariance.
+- `sampledEvidence`, importance sampling from the Laplace posterior with
+  its covariance inflated 1.1^2, 2,000 seeded draws (the same seed for
+  every phi, so the search sees smooth noise). Exact on one answer (log 1/2
+  for any phi, by symmetry) and within 0.02 of quadrature on one pair
+  answered four ways (`src/lib/btRefitEb.test.ts`). Inflation matters: at
+  30 items an inflation of 1.5 gave an sd of 0.3 in the log evidence across
+  seeds, 1.1 gives 0.02, since a wider proposal multiplies the weights'
+  variance once per item.
+
+`pooledPriorPhi` sums the evidence over several respondents (one prior sd
+for a survey, each person with their own scores).
+
+**The Laplace evidence fails under the staged selector.** Summed over
+synthetic respondents, the Laplace and sampled log evidence on a grid of
+phi (`scripts/eb-laplace-check.ts`; the true spread is 1.155):
+
+| cell | selector | Laplace peak | sampled peak |
+|---|---|---|---|
+| 8 items x 2 answers, 40 people | shipped | 0.6 | 0.8 |
+| | staged | **0.3** | 1.2 |
+| 15 x 4, 30 people | shipped | 1.0 | 1.0 |
+| | staged | **0.45** | 1.2 |
+| 30 x 4, 20 people | shipped | 1.0 | 1.0 |
+| | staged | **0.45** | 1.2 |
+
+Staged asks pairs the current ratings call even. The posterior of those
+differences is far from Gaussian, and the Laplace curvature then rewards a
+small prior. Pooled over 60 respondents, the Laplace estimate still sat at or
+near the 0.3 floor (0.36 or less) in 4 and 5 of 9 staged cells (two seed
+bases). The sampled one gives 0.99-1.25 and 0.66-1.09 across the honest
+staged cells, and 1.10-1.39 for shipped. Every Laplace-era number is
+kept in `docs/eb-prior-2026-11-12.jsonl` (run names say which).
+
+**Favourite set, sampled evidence** (`scripts/favourite-set-sweep.ts --eb
+--pool`, the previous section's 8/15/30 items x 2/4/8 answers per item, 60
+respondents per cell, counted where the card is shown; coverage / mean size,
+seeds from 1000 then 50000):
+
+| respondent | selector | fixed prior, set 0.95 | own EB prior, set 0.95 | pooled EB prior, set 0.95 |
+|---|---|---|---|---|
+| spread 1 | staged | 0.879 / 5.2, 0.881 / 5.1 | 0.934 / 8.4, 0.955 / 8.7 | 0.949 / 7.1, 0.957 / 7.8 |
+| spread 1 | shipped | 0.896 / 6.1, 0.916 / 6.0 | 0.948 / 7.6, 0.953 / 7.4 | 0.950 / 7.2, 0.951 / 6.9 |
+| spread 2 | staged | 0.934 / 5.0 | 0.948 / 6.4 | 0.934 / 5.0 |
+| spread 2 | shipped | 0.962 / 5.6 | 0.966 / 5.8 | 0.962 / 5.6 |
+| lapse 0.2 | staged | 0.763 / 5.2 | 0.904 / 10.0 | 0.940 / 9.0 |
+| lapse 0.2 | shipped | 0.826 / 6.5 | 0.950 / 9.3 | 0.937 / 8.8 |
+
+(Pooled: one phi per cell, estimated on an independent panel of 60 with the
+same design, seeds + 100000.) At spread 2 the true sd (2.31) is past the
+2.0 ceiling, so the estimate mostly sits there and nothing changes.
+Careless answers look like a narrow spread, so the estimate shrinks and the
+set widens, which is the safe direction for this claim. The cost is length:
+staged lists grow from about 5 names to about 8.5, most of it in long lists
+with few answers (30 items x 2: 11.5 to 18.5 names, coverage 0.83 to 0.92).
+The card names three and counts the rest either way. Worst cells stay at
+0.85-0.92 (30 items x 8 answers under staged: 0.76 fixed, 0.86 own, 0.85
+pooled). Per person, 22-25% of staged respondents hit the 0.3 floor (honest
+answers) and 6-7% of shipped ones.
+
+**Pairwise intervals: not changed.** The same refit's 95% intervals for
+every pair of items (`scripts/refit-coverage-sweep.ts --eb | --pool`, 40
+respondents per cell, 8/15/30 items x 2/4/8 answers; mean over cells,
+full covariance, half-width on the logit scale):
+
+| selector, lapse | fixed prior | own EB prior | pooled EB prior |
+|---|---|---|---|
+| shipped, 0 | 0.967 / 2.41 | 0.835 / 1.78 | 0.934 / 1.88 |
+| staged, 0 | 0.948 / 2.34 | 0.769 / 1.71 | 0.926 / 1.78 |
+| shipped, 0.2 | 0.919 / 2.42 | 0.670 / 1.48 | 0.749 / 1.55 |
+| staged, 0.2 | 0.905 / 2.41 | 0.643 / 1.49 | 0.657 / 1.35 |
+
+At the right prior (pooled, honest) the intervals are 22-24% narrower and
+cover 0.93, slightly under nominal (a Gaussian prior on uniform truth
+over-shrinks the extreme items). One person's own estimate is too noisy for
+intervals (0.77-0.84), and careless answers break both (0.64-0.75), where the
+wide fixed prior keeps 0.90-0.92. Rank accuracy moves by 0.01 at most. The ratings, the intervals and the clear-pick rule keep the fixed prior.
+The clear-pick rule on the EB refit fired for 8 of 540 staged respondents
+(2 wrong) against 12 (2 wrong) on the fixed one.
+
+**Shipped:** the insights route refits each person's answers a second time
+at their own empirical-Bayes prior sd and draws the "it's between" set from
+that refit (`src/app/api/insights/route.ts`; `contenders(..., { score })` in
+`src/lib/favouriteSet.ts`). The rest of the screen is unchanged. The
+search takes about 60 ms at 15 items x 4 answers, 215 ms at 30 x 8 and 600 ms
+at 60 x 8, so past `EB_MAX_ITEMS` (40) answered items the set uses the
+fixed-prior refit as before. The shipped search uses 8 golden-section steps
+(phi within about 4.5%); the tables above ran 14. Pinned by
+`src/lib/btRefitEb.test.ts` (Laplace evidence against a one-pair closed
+form, sampled evidence against quadrature, the search's maximum on a grid,
+floor and ceiling cases, recovery of a known spread, pooling) and a case in
+`src/app/api/insights/clearPick.integration.test.ts` that fails on the old
+route: a six-item round robin where the earlier item wins two answers in
+three; the fixed prior lists four items, the person's prior keeps the fifth.
+
+Why the person's own estimate and not the pooled one, which is calibrated
+at shorter lengths: pooling needs other respondents' answers at request
+time (a survey-level estimate stored and refreshed is the way to do it),
+and its estimate mixes people whose spreads differ. Next: a stored per-survey
+pooled phi, refreshed when answers arrive, as the set's prior (sizes 7.1-7.8
+against 8.4-8.7 here); a heavier-tailed or uniform-aware prior for the
+pairwise intervals; real pairwise answers.
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth; 30 items or
+fewer in the sweeps; 60 respondents per cell, so a coverage differs by about
+0.01 between seed bases; no real pairwise answers.
+
