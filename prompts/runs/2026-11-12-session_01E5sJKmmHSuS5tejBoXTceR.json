@@ -7,33 +7,139 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T04:17:39Z",
   "ended": "2026-11-12T04:19:23Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "wall_minutes": 34.19,
+  "tokens_in": 12175541,
+  "tokens_out": 109615,
+  "cost_usd": 7.346,
+  "tool_calls": 140,
+  "task": "quality-audit round 44 (mode sample)",
+  "projects": [
+    "ventures/coffee-roaster-margin-calculator",
+    "ventures/call-recording-consent-check",
+    "research/selfrep-alurod",
+    "research/capture-detectors"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15000",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "WebFetch to oregon.public.law (and the auditors' statute hosts) failed DNS; marisstella.app returned proxy 403, so served pages were not loaded this round"
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "'Check what ships' says to load https://marisstella.app/<slug>/ before filing URL defects, but the cloud proxy returns 403 for that host; all four auditors could not load it. A fallback (build the page with build_pages_site.py locally) would help."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes with a research and venture diff selected portfolio-pages.yml, which ran out of budget; re-running it by name took over 10 minutes and had to go to the background."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 says each fix goes in its own commit and lists fix PRs; I put all four fixes in this round's PR (one commit per subject) rather than separate PRs.",
+      "did": "one commit per subject in PR #15000, fix_prs set to that PR",
+      "result": "tests pass in each subject; one PR to land instead of five"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-quality-audit-round-44.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Seed 2026-11-12-c, round 44, mode sample. Subjects: ventures/coffee-roaster-margin-calculator (3/3/2/2/3/2/2), ventures/call-recording-consent-check (2/3/3/3/2/2/2), research/selfrep-alurod (3/3/1/2/3/2/2), research/capture-detectors (3/3/2/3/3/2/2). 0 of 4 meet the bar; sampled share 28 of 190 (Wilson 10%-20%). Seeded bugs caught: 3/8, 3/5, 0/5, 2/6. Spot-check by orchestrator: recomputed steel 8 mm sag 0.1919 mm and aluminium 10.438 mm / hardwood 16.918 mm by PL^3/48EI, and coffee $5.10/0.85+0.50=$6.50, matching the auditors. Fixes (PR #15000): Oregon reclassified one-party for phone calls (ORS 165.540(1)(a)), 13 all-party states, PA/HI citations, CT/DE notes; coffee blank inputs rejected and 4 surviving mutations now fail; alurod 4 of 5 surviving mutations now fail, name lookup; capture-detectors 2 of 4 surviving now fail, README bins/limits. Local checks: run_workflow_locally --for-changes 14/16 passed, ventures-tests 5/5 run steps passed; portfolio-pages ran out of budget locally; venture node tests 77 and 34 pass; research tests 8 and 11 pass; quality_audit validate 230 files 0 problems.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f6ef42c6-8012-5d3f-acdc-59680071c426",
+    "transcripts": 5,
+    "first": "2026-11-12T04:17:39Z",
+    "last": "2026-11-12T04:51:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 133,
+        "input": 275,
+        "output": 109615,
+        "thinking": 24005,
+        "cache_read": 11690587,
+        "cache_write_5m": 354330,
+        "cache_write_1h": 130349,
+        "api_equivalent_usd": 7.346,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 133,
+      "input": 275,
+      "output": 109615,
+      "thinking": 24005,
+      "cache_read": 11690587,
+      "cache_write_5m": 354330,
+      "cache_write_1h": 130349,
+      "api_equivalent_usd": 7.346,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.96,
+    "tool_calls": 140,
+    "tools": {
+      "Bash": 119,
+      "ToolSearch": 5,
+      "Agent": 4,
+      "WebFetch": 4,
+      "SubagentHandback": 4,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 34.19,
+      "active_minutes": 29.76,
+      "model_minutes": 8.14,
+      "tool_minutes": 21.62,
+      "waiting_on_human_minutes": 4.43,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 19.53
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "four expert audits (~2.5 h each incl. statute and beam recomputation) plus four fix sets with tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 190.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
