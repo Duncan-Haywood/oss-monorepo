@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { loadRatedItems } from "@/lib/participantRatings";
-import { confidenceInterval95 } from "@/lib/glicko2";
+import { confidenceInterval95, GLICKO_SCALE } from "@/lib/glicko2";
+import { differenceSd, refitRatings, REFIT_MAX_ITEMS, type RefitResult } from "@/lib/btRefit";
+import { clearPick } from "@/lib/clearPick";
 import { answersUntilNextLevel, INSIGHTS, levelForAnswers } from "@/lib/insights";
 import { RANGES } from "@/lib/financialProfiles";
 import { describeDimensions, scoreDimensions } from "@/lib/dimensions";
@@ -37,6 +39,10 @@ export async function POST(req: NextRequest) {
     let fitParams: { name: string; value: number; se: number }[] | null = null;
     let fitNTrials = 0;
     const headToHead: HeadToHead[] = [];
+    // Which refit (one per participant) an entry's rating came from, so two
+    // items from the same person's answers are compared with the covariance
+    // of their difference, not as if independent (lib/btRefit.ts).
+    const fitOf = new WeakMap<RankedItem, { fit: RefitResult; itemId: string }>();
 
     // Skipped rather than refused, for the same reason as `session/status`:
     // the client sends whatever ids it has, and one that is not the caller's
@@ -60,6 +66,8 @@ export async function POST(req: NextRequest) {
             where: { participantId, result: { not: null } },
             select: {
               result: true,
+              itemAId: true,
+              itemBId: true,
               itemA: { select: { dimensions: true } },
               itemB: { select: { dimensions: true } },
             },
@@ -67,18 +75,44 @@ export async function POST(req: NextRequest) {
           }),
         ]);
         totalAnswers += answered;
+        // Ratings and rds from a Bradley-Terry refit of every answer at once
+        // (lib/btRefit.ts): the stored one-game-at-a-time Glicko rds are too
+        // narrow under the information selector (95% intervals held for about
+        // 90% of pairs against 95% for the refit at the same width;
+        // docs/INFORMATION-GAIN-SELECTOR.md, "Per-person intervals from a
+        // refit"). The stored states stay what the pair selector reads; this
+        // screen only reports. Past REFIT_MAX_ITEMS answered items the dense
+        // refit gets slow, so the stored states are used as before.
+        const answeredIds = new Set(decided.flatMap((t) => [t.itemAId, t.itemBId]));
+        const valid = decided.filter((t) => t.result === "A" || t.result === "B" || t.result === "EQUAL");
+        const fit =
+          valid.length > 0 && answeredIds.size <= REFIT_MAX_ITEMS
+            ? refitRatings(
+                [...answeredIds],
+                valid.map((t) =>
+                  t.result === "B"
+                    ? { winner: t.itemBId, loser: t.itemAId }
+                    : { winner: t.itemAId, loser: t.itemBId, tie: t.result === "EQUAL" }
+                )
+              )
+            : undefined;
         for (const i of items) {
-          if (i.rd >= 349) continue; // never actually shown — no signal
-          const [lo, hi] = confidenceInterval95(i.rating, i.rd);
-          ranked.push({
+          const fromFit = fit?.rating.has(i.id);
+          const rating = fromFit ? fit!.rating.get(i.id)! : i.rating;
+          const rd = fromFit ? fit!.rd.get(i.id)! : i.rd;
+          if (rd >= 349) continue; // never actually shown — no signal
+          const [lo, hi] = confidenceInterval95(rating, rd);
+          const entry: RankedItem = {
             label: i.label,
             category: i.category,
-            rating: i.rating,
-            rd: i.rd,
+            rating,
+            rd,
             lo,
             hi,
             dimensions: i.dimensions ?? [],
-          });
+          };
+          if (fromFit) fitOf.set(entry, { fit: fit!, itemId: i.id });
+          ranked.push(entry);
         }
         for (const t of decided) {
           headToHead.push({
@@ -119,21 +153,27 @@ export async function POST(req: NextRequest) {
 
     if (ranked.length >= 2) {
       // A single "#1" is only claimable when the leader is measurably clear
-      // of the runner-up. When it isn't, say who it's between rather than
-      // going silent — the ordering is visible in the top-few card anyway,
-      // so refusing to comment here just reads as a broken card.
-      const [first, second] = ranked;
-      const leaderIsClear = first.rating - second.rating > 0.5 * first.rd;
-      content["top-pick"] = leaderIsClear
-        ? { ...first, contested: false }
-        : { ...first, contested: true, rivals: ranked.slice(0, 3).map((r) => r.label) };
+      // of every other item: ahead by more than 1.645 sd of the difference
+      // (one-sided 95%, lib/clearPick.ts). The rule before 2026-11-12, "ahead
+      // of the runner-up by half the leader's rd", fired for about three
+      // respondents in four and named the wrong item in more than half of
+      // those (docs/INFORMATION-GAIN-SELECTOR.md, "The clear-top-pick claim").
+      // When it isn't clear, say who it's between rather than going silent —
+      // the ordering is visible in the top-few card anyway, so refusing to
+      // comment here just reads as a broken card.
+      const sd = (a: RankedItem, b: RankedItem) => {
+        const fa = fitOf.get(a), fb = fitOf.get(b);
+        return fa && fb && fa.fit === fb.fit ? GLICKO_SCALE * differenceSd(fa.fit, fa.itemId, fb.itemId) : Math.hypot(a.rd, b.rd);
+      };
+      const top = clearPick(ranked, sd)!;
+      content["top-pick"] = top.clear
+        ? { ...top.leader, contested: false }
+        : { ...top.leader, contested: true, rivals: ranked.slice(0, 3).map((r) => r.label) };
 
-      const last = ranked[ranked.length - 1];
-      const penultimate = ranked[ranked.length - 2];
-      const trailerIsClear = penultimate.rating - last.rating > 0.5 * last.rd;
-      content["bottom-pick"] = trailerIsClear
-        ? { ...last, contested: false }
-        : { ...last, contested: true, rivals: ranked.slice(-3).map((r) => r.label) };
+      const bottom = clearPick(ranked, sd, { bottom: true })!;
+      content["bottom-pick"] = bottom.clear
+        ? { ...bottom.leader, contested: false }
+        : { ...bottom.leader, contested: true, rivals: ranked.slice(-3).map((r) => r.label) };
     }
 
     if (ranked.length >= 5) {
