@@ -12,9 +12,9 @@ chapter 6, "Mapping Camera Color Space to CIE XYZ Space"):
 
 * the as-shot white is the one consistent with ``AsShotNeutral``: blend the
   matrices for a white's colour temperature, map the neutral back to XYZ, and
-  that white must come out again (found by bisection on the blend weight
-  rather than the specification's plain iteration, which can crawl; same
-  fixed point); or taken from ``AsShotWhiteXY`` directly;
+  that white must come out again (the specification's iteration, on the
+  blend weight, with bisection when it crawls or cycles); or taken from
+  ``AsShotWhiteXY`` directly;
 * ``ColorMatrix``, ``CameraCalibration`` and ``ForwardMatrix`` are each
   interpolated linearly in inverse colour temperature (mired) between the two
   calibration illuminants, and clamped outside them;
@@ -209,8 +209,9 @@ def bradford(src_xy, dst_xy) -> Matrix:
 
     s = apply(_BRADFORD, xy_to_xyz(src_xy))
     d = apply(_BRADFORD, xy_to_xyz(dst_xy))
-    # Cone ratios bounded as a guard against a degenerate white.
-    ratio = [min(max(d[i] / s[i], 0.1), 10.0) if s[i] > 0 else 1.0 for i in range(3)]
+    if min(s) <= 0 or min(d) <= 0:
+        raise ColourError(f"white {src_xy} or {dst_xy} has a non-positive cone response")
+    ratio = [d[i] / s[i] for i in range(3)]
     return matmul(matmul(inverse(_BRADFORD), diag(ratio)), _BRADFORD)
 
 
@@ -274,7 +275,13 @@ class Profile:
         cm = self._blend(self.color_matrix_1, self.color_matrix_2, g)
         if cm is None:
             raise ColourError("no ColorMatrix")
-        cc = self._blend(self.camera_calibration_1, self.camera_calibration_2, g) if self.use_calibration else None
+        cc = None
+        if self.use_calibration and (self.camera_calibration_1 or self.camera_calibration_2):
+            # An absent CameraCalibration is the identity (DNG default), so a
+            # file with only CameraCalibration1 blends it towards identity.
+            cc1 = self.camera_calibration_1 or IDENTITY
+            cc2 = self.camera_calibration_2 or IDENTITY
+            cc = cc1 if self._pair() is None else self._blend(cc1, cc2, g)
         fm = self._blend(self.forward_matrix_1, self.forward_matrix_2, g)
         return cm, cc or IDENTITY, fm
 
@@ -289,26 +296,45 @@ class Profile:
         """The white chromaticity whose camera response is ``neutral``.
 
         The white and the blend depend on each other. The specification
-        iterates from a guess; with two matrices that differ a lot that
-        fixed-point loop crawls (over 200 steps for some profiles in
-        ``tools/dng_colour_check.py``). Here the unknown is the blend weight
-        ``g`` in [0, 1]: ``h(g) = weight(cct(white(g))) - g`` is >= 0 at 0 and
-        <= 0 at 1, so bisection finds the self-consistent white in 60 steps.
+        iterates: guess a white, blend for its temperature, map the neutral
+        back to XYZ, repeat. Here the unknown is the blend weight ``g`` in
+        [0, 1] (the white follows from it), iterated from the D50 guess the
+        same way. When two matrices differ a lot that loop crawls or cycles
+        (over 200 steps for some profiles in ``tools/dng_colour_check.py``);
+        after 100 steps the root is bracketed and bisected instead, since
+        ``h(g) = f(g) - g`` is >= 0 at 0 and <= 0 at 1. A profile can have
+        more than one self-consistent white; the iteration picks the one the
+        specification's loop reaches, and bisection searches next to it.
         """
 
         def white(g):
             return xyz_to_xy(apply(inverse(self._xyz_to_camera_g(g)), neutral))
 
+        def f(g):
+            return self.weight(xy_to_cct(white(g)))
+
         if self._pair() is None:
             return white(self.weight(5000.0))
-        lo, hi = 0.0, 1.0
-        if self.weight(xy_to_cct(white(lo))) <= lo:
-            return white(lo)
-        if self.weight(xy_to_cct(white(hi))) >= hi:
-            return white(hi)
+        g = self.weight(xy_to_cct(D50_XY))
+        seen = [g]
+        for _ in range(100):
+            nxt = f(g)
+            if abs(nxt - g) < 1e-13:
+                return white(nxt)
+            g = nxt
+            seen.append(g)
+        # Crawling or cycling: bisect on the bracket the last steps span, or
+        # failing a sign change there, on all of [0, 1].
+        lo, hi = min(seen[-4:]), max(seen[-4:])
+        if not (f(lo) - lo >= 0.0 >= f(hi) - hi):
+            lo, hi = 0.0, 1.0
+            if f(lo) <= lo:
+                return white(lo)
+            if f(hi) >= hi:
+                return white(hi)
         for _ in range(60):
             mid = (lo + hi) / 2.0
-            if self.weight(xy_to_cct(white(mid))) > mid:
+            if f(mid) > mid:
                 lo = mid
             else:
                 hi = mid
