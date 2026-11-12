@@ -2,7 +2,7 @@
 title: "Planning a battery design screen: where the cheap model errs matters more than how much"
 date: 2026-11-12
 tags: [cell-fidelity, batteries, simulation, multi-fidelity, theory]
-description: An exact noise-model formula predicts how many full DFN runs a cheap battery-model screen costs. It plans screen against Bayesian optimisation right 14 times in 16, and fails on SPMe.
+description: A noise-model formula predicts how many full DFN runs a cheap battery screen costs. It plans screens right 14 times in 16, and fails on SPMe.
 ---
 
 Yesterday's step of the `cell-fidelity` programme proved a worst-case bound: a cheap battery model used as a screen costs full DFN runs in proportion to its error after the best scale-and-shift fit. The bound held everywhere, but as a planning tool it was a coin toss. Asked whether screening a whole pool of electrode designs beats Bayesian optimisation (GP-EI) on the full model, it was right 8 times in 16, because one large error widens its band for every design.
