@@ -26,8 +26,8 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
-  "ci_failures_before_green": null,
+  "merged": true,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 3,
   "outcome": "success",
@@ -47,7 +47,7 @@
     "docs/history/ci-perf-2026-11-12-page-checks-pool.md"
   ],
   "goal": null,
-  "notes": "Metric: wall time of five portfolio-validate served-page checkers (check_control_labels, check_markup_basics, check_duplicate_ids, check_aria_refs, check_inpage_refs). Before: 5.5+3.5+3.1+3.4+3.2 = 18.7 s; after: 0.54+1.07+0.88+1.07+0.97 = 4.5 s; both taken locally on the 4-core container with date +%s.%N around each script on the clean tree. cProfile before: 9.39 of 9.40 s inside HTMLParser.feed. Change: page_pool.map_pages (order-preserving fork Pool.map) + exact pre-filters for control labels (2,115/3,662 pages skip) and ARIA refs (2,180/3,754 skip). Verification: old vs new scripts on a ventures/ copy with 60 pages carrying 7 seeded faults, stdout cmp-identical and same exit codes; every pre-filter-skipped page parsed in full shows 0 controls / 0 refs; 53 tests OK in the six test modules; the new pool-order test fails under a mutation that returns results unordered. Pool reading: ci_profile --runs 300 showed Portfolio validate at 54 job-min/20 jobs; expect ~14 s per job less on 4-vCPU runners. Local workflow run (run_workflow_locally --for-changes): every portfolio-validate step ok (the five checkers 0.6 to 1.2 s each). The portfolio-pages 'Test the site builder' step failed in that run (172 failures, build child processes erroring) while the container was busy; the same suite rerun alone passed 1572/0, and build.mjs and writing-backlog.mjs both succeed standalone.",
+  "notes": "Metric: wall time of five portfolio-validate served-page checkers (check_control_labels, check_markup_basics, check_duplicate_ids, check_aria_refs, check_inpage_refs). Before: 5.5+3.5+3.1+3.4+3.2 = 18.7 s; after: 0.54+1.07+0.88+1.07+0.97 = 4.5 s; both taken locally on the 4-core container with date +%s.%N around each script on the clean tree. cProfile before: 9.39 of 9.40 s inside HTMLParser.feed. Change: page_pool.map_pages (order-preserving fork Pool.map) + exact pre-filters for control labels (2,115/3,662 pages skip) and ARIA refs (2,180/3,754 skip). Verification: old vs new scripts on a ventures/ copy with 60 pages carrying 7 seeded faults, stdout cmp-identical and same exit codes; every pre-filter-skipped page parsed in full shows 0 controls / 0 refs; 53 tests OK in the six test modules; the new pool-order test fails under a mutation that returns results unordered. Pool reading: ci_profile --runs 300 showed Portfolio validate at 54 job-min/20 jobs; expect ~14 s per job less on 4-vCPU runners. Local workflow run (run_workflow_locally --for-changes): every portfolio-validate step ok (the five checkers 0.6 to 1.2 s each). The portfolio-pages 'Test the site builder' step failed in that run (172 failures, build child processes erroring) while the container was busy; the same suite rerun alone passed 1572/0, and build.mjs and writing-backlog.mjs both succeed standalone. CI after (PR head, Portfolio validate job 131451275164, step times at 1 s resolution): 1+2+2+2+3 = 10 s for the five steps, vs ci_profile medians before of 6+4+4+4+4 = 22 s. CI: one Portfolio Pages 'test' failure on an intermediate commit ('an identical build produces an identical cache name', in-process vs child build hash); did not reproduce on the head commit, where test and build passed; main green; treated as a flake (my diff touches neither build inputs nor hashing beyond adding a post both builds read).",
   "corrections": [],
   "redteam": null,
   "usage": {
