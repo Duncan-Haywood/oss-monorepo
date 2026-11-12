@@ -377,6 +377,12 @@
         "issue": "currencyDecimals() read Intl's maximumFractionDigits (CLDR display digits), not ISO 4217 minor units as its comment said. A correct CFDI 4.0 in COP, HUF, IDR, PKR, LBP, AFN, IRR (ISO 2) or IQD (ISO 3) drew 10 false findings (MX-010 on every amount, then MX-030/033/034/035 from sums rounded to whole units), in invoices and in Pagos 2.0 MonedaP/MonedaDR checks; the answer also varied with the runtime's ICU version. Fixed with a static ISO 4217 table, a failing test first, and a guard test that fails if any einvoice-preflight module reads fraction digits from Intl again.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15132"
+      },
+      {
+        "file": "portfolio/flagships.yaml",
+        "issue": "main red: portfolio/router/validate.py failed because changepoint-detector `next:` was 2120 characters (cap 2000) after #15130. Trimmed the history clause (kept in its README); validate passes.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15132"
       }
     ]
   }
