@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 30,
   "outcome": "success",
@@ -35,7 +35,9 @@
     "Bowyer-Watson with a finite super-triangle lost a convex-hull sliver on one random set (121 of 122 triangles, 0.35 cu ft volume error); caught by a two-TIN closed-form test, fixed with a hull-closing boundary pass and a 40-seed stress test.",
     "Balance sheet showed a phantom truckload from the bisection residual; fixed with a balanced tolerance.",
     "Map coloured whole triangles past the boundary; now draws the clipped pieces.",
-    "Push hook rejected the post description (223 chars > 160); shortened in a separate commit."
+    "Push hook rejected the post description (223 chars > 160); shortened in a separate commit.",
+    "CI ventures-tests: UNITS[input.units] flagged by inherited_keys.py (prototype keys); fixed with Object.hasOwn.",
+    "CI validate: optout-persistence pins the opt-out catalogue count (1311); raised to 1312 with an `earthwork-cut-fill graduated` note."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -46,6 +48,10 @@
     {
       "file": "platform/ci/run_workflow_locally.py",
       "issue": "--for-changes needs a merge-base, so on the fresh shallow clone it refuses until `git fetch --depth=40 origin main`; that step could be automatic."
+    },
+    {
+      "file": "ventures/CLAUDE.md",
+      "issue": "A new venture must bump SWITCHES_IN_THE_CATALOGUE in platform/privacy/optout-persistence.test.mjs and pass inherited_keys.py; neither is in the new-venture guidance, so both surfaced only in CI."
     }
   ],
   "deviations": [

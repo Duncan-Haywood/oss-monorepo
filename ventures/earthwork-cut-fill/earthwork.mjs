@@ -515,7 +515,7 @@ export function gridVolumes(existing, design, spacing) {
  *          boundaryText?, units: 'ft'|'m', strip, shrink, swell, truck, maxEdge, balance }
  */
 export function run(input) {
-  const u = UNITS[input.units] || UNITS.ft;
+  const u = Object.hasOwn(UNITS, input.units) ? UNITS[input.units] : UNITS.ft;
   const warnings = [];
   const ex = parsePoints(input.existingText, { format: input.format || 'auto' });
   if (ex.errors.length) return { error: `Existing ground: ${ex.errors.join(' ')}` };
