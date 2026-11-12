@@ -54,3 +54,11 @@ def test_wind_step_moves_the_late_window_only_after_the_step():
     step = poshold.score(x, 4, 5, parts=True)[2]
     assert not np.allclose(calm["pos_late"], step["pos_late"])
     assert np.all(calm["pos_late"] >= 0) and np.all(step["dead"] >= 0)
+
+
+def test_flipping_the_gust_torque_sign_changes_a_canted_hold():
+    rng = np.random.default_rng(4)
+    x = rng.uniform(0.3, 0.7, (2, 12)); x[:, 2] = 0.5
+    a = poshold.score(x, 4, 1, parts=True)[2]
+    b = poshold.score(x, 4, 1, parts=True, dist_sign=-1.0)[2]
+    assert not np.allclose(a["pos"], b["pos"])

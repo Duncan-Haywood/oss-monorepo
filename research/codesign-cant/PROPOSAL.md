@@ -88,6 +88,10 @@ side-force costs, with intervals, on two simulators and measured component data.
 - H3. The side force (sin α / (L cos α − κ sin α) per unit roll torque) costs position-hold accuracy
   by less than the yaw gain is worth under the composite objective. Refuted if position RMS rises
   by more than 20% with the force on.
+  Milestone 6 evidence (6 s episodes with a wind step, polytope mixer, 6 seeds): not refuted where the gust torque's
+  counter-torque makes the side force oppose the drag (force on/off 0.96×). Refuted, at 1.21×, where the centre of pressure
+  flips that sign (post-hoc re-scoring, no retraining). Cant still wins the composite in both cases (4 of 6 and 6 of 6
+  seeds). The sign of the centre-of-pressure lever decides H3.
 - H4. A stronger attitude law (INDI or geometric control) narrows but does not remove the cant
   advantage. Refuted if INDI without cant matches PID with cant.
   Milestone 4 evidence (10 seeds, polytope mixer, 0.3° per 100 W): INDI narrows the advantage from 5.27° to
@@ -128,7 +132,7 @@ hover-held, free collective), side force on or off, κ percentile.
 3. Motor catalogue data (mass, max thrust with the chosen propeller, price) replacing the fits.
 4. INDI and geometric attitude baselines; 10 seeds per arm (done 2026-11-12: H4 supported; `LOG.md`).
 5. RotorPy (or equivalent) with canted rotors; re-score the top designs; H5.
-6. Position hold with the corrected side force and longer wind-step episodes; H3.
+6. Position hold with the corrected side force and longer wind-step episodes; H3 (done 2026-11-12: depends on the centre-of-pressure sign; `LOG.md`).
 7. Paper draft in `paper/` (RA-L format, 6 to 8 pages) with one command per figure.
 8. Owner steps: print canted motor mounts at 0° and the co-designed angle for one frame; measure
    yaw step response and side force on a load cell.

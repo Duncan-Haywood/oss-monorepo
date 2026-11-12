@@ -1,4 +1,4 @@
-"""Figure for milestone 6: held-out position and yaw error per arm, side force on and off (left, middle); chosen cant (right). Reads results.json."""
+"""Figure for milestone 6: held-out position and yaw error per arm, side force on and off (left, middle); cost of the side force under both gust-torque signs (right). Reads results.json and dist_sign.json."""
 import json, os
 import numpy as np
 import matplotlib
@@ -29,12 +29,18 @@ for ax, key, lab in ((axes[0], "pos", "held-out RMS position error (m)"), (axes[
         ax.set_yscale("log")
 axes[0].legend(frameon=False, fontsize=8); axes[0].set_title("Position hold, 6 s with a wind step (6 seeds)")
 axes[1].set_title("Yaw steps ±30° during the hold")
+ds = json.load(open(os.path.join(HERE, "dist_sign.json")))   # dist_sign.py, post-hoc
 for i, arm in enumerate(("aware", "unaware")):
-    y = sel(arm, "alpha_deg")
-    axes[2].scatter(i + rng.uniform(-0.05, 0.05, len(y)), y, s=16, color="#1f77b4")
-    axes[2].hlines(np.median(y), i - 0.12, i + 0.12, color="k", lw=1.5)
+    rs = sorted((r for r in ds if r["arm"] == arm), key=lambda r: r["seed"])
+    for j, (s, col, lab) in enumerate((("p", "#1f77b4", "gust torque as trained (+1)"), ("m", "#d62728", "gust torque flipped (−1)"))):
+        y = np.array([r[f"pos_{s}_on"] / r[f"pos_{s}_off"] for r in rs]); x = i + (j - 0.5) * 0.3
+        axes[2].scatter(x + rng.uniform(-0.04, 0.04, len(y)), y, s=16, color=col, alpha=0.85, label=lab if i == 0 else None)
+        axes[2].hlines(y.mean(), x - 0.1, x + 0.1, color="k", lw=1.5)
+axes[2].axhline(1.0, color="k", lw=0.6); axes[2].axhline(1.2, color="k", lw=0.8, ls="--")
+axes[2].text(1.55, 1.21, "H3 line (+20%)", ha="right", va="bottom", fontsize=8)
 axes[2].set_xticks(range(2)); axes[2].set_xticklabels([NAMES[a] for a in ("aware", "unaware")]); axes[2].set_xlim(-0.6, 1.6)
-axes[2].set_ylabel("chosen cant (deg)"); axes[2].set_title("Co-designed cant (bars: median)")
+axes[2].set_ylabel("position RMS, side force on / off"); axes[2].legend(frameon=False, fontsize=8, loc="upper left")
+axes[2].set_title("What the side force costs (bars: mean)")
 fig.tight_layout()
 fig.savefig(os.path.join(HERE, "m6_poshold.png"), dpi=150)
 print("wrote m6_poshold.png")
