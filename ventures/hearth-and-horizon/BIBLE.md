@@ -282,7 +282,7 @@ until it has. An empty shelf below means: write a proposal.
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
-- *Katharine Drexel* (3 March, United States calendar): a Philadelphia banker's daughter who, after Pope Leo XIII answered her request for missionaries with "Why not become a missionary yourself?" (check the wording against her biographies before using it), gave her inheritance to found the Sisters of the Blessed Sacrament and schools for Black and Native American children, including Xavier University of Louisiana. Work out the sums she gave only from a cited source; the grown-ups note should name the segregation and hostility the schools met without making any group the villain.
+- *Kateri Tekakwitha* (14 July, United States calendar; 17 April in Canada): a Mohawk woman of the 1670s, scarred by smallpox, baptized at Kahnawake's mission and remembered for her prayer before a cross cut into a tree. The sources are two Jesuit Lives (Chauchetière and Cholenec) written after her death; tell them as their accounts, keep her severe penances for the grown-ups note, and treat Mohawk people and her family with the same specificity and respect as the missionaries.
 
 ## What not to do
 
