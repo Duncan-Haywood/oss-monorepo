@@ -19,7 +19,7 @@ key; the work happens in your browser and nothing you paste is uploaded.
 To run the tests (Node 20 or newer):
 
 ```
-node --test ventures/gtin-list-check/
+node --test 'ventures/gtin-list-check/*.test.mjs'
 ```
 
 ## Files
@@ -40,3 +40,16 @@ This tool is free and as-is. It is not legal, financial, tax or professional
 advice and does not replace a qualified professional. You are responsible for
 checking its output before relying on it. To the maximum extent permitted by
 law, the authors accept no liability for any loss or damage arising from its use.
+
+## Known gaps
+
+From the quality audit of 2026-11-12
+([`portfolio/quality/audits/2026-11-12-gtin-list-check.json`](../../portfolio/quality/audits/2026-11-12-gtin-list-check.json)).
+Fixed in the same PR: scientific notation that lost digits is always reported as unrecoverable (a
+zero-filled guess used to be "confirmed" whenever it happened to pass the check digit, about 1 time in
+10), and prefix rules for a GTIN-14 read the item body, not the indicator digit. Still open:
+
+- About 1 in 10 UPC-E codes also pass as a GTIN-8; those are kept as an 8-digit code starting with 0 with no warning, and their UPC-A form is not matched as a duplicate.
+- The 980 refund-receipt prefix and GTIN-8 codes starting with 0 or 2 are not flagged.
+- European-format scientific notation (`4,006381333931E+12`) is reported as non-digit characters.
+- Repair drops all-empty rows and normalises line endings.
