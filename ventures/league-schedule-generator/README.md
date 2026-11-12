@@ -826,7 +826,8 @@ at or under V. SAT returns a timetable; UNSAT is a proof that none exists.
   the refill search found with all ten playing. The least is 90, 92 or 94. Each step of 2 cost the
   solver 3 to 7 times the last.
 - **12 teams.** A run at 120 (the floor) and one at 134 (below the stored 136) were both stopped after
-  about <!--T12--> with no answer. A descending probe (240 s per value): <!--P12-->. So at 12 teams this
+  about 65 and 70 minutes with no answer. A descending probe (240 s per value): SAT at 170 in 24 s
+  (a timetable at 166), no answer at 160. So at 12 teams this
   encoding does not yet reach the heuristic's 136, let alone prove anything: the open question above
   stays open. Next: symmetry breaking for round reversal (it transposes the matrix and keeps the
   value) and for the remaining relabellings, an incremental solve that tightens V on one solver, or a
@@ -834,7 +835,7 @@ at or under V. SAT returns a timetable; UNSAT is a proof that none exists.
 - **On the page.** `carryOverFromOpponents` now returns `proven` (`PROVEN_LEAST` in `carryover.mjs`)
   for single non-cyclic round robins of 6, 8 and 10 teams, and the schedule's report says when the
   floor is not reachable: at 10 teams, "80 is the floor for this many games, but no 10-team round robin
-  can go below 90 (proved with a SAT solver)". Tests (`carryover.test.mjs`): the 6-team value matches
+  can go below 90; a SAT solver proved it". Tests (`carryover.test.mjs`): the 6-team value matches
   the enumeration, and no search result goes below a proved least.
 - Not claimed: the cyclic value (Russell's definition) was not run; none of this has been checked
   against the published optimisation literature on carry-over, which this run did not read.
