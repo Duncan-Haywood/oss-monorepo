@@ -1,0 +1,224 @@
+{
+ "date": "2026-11-12",
+ "subject": "research/free-lorenzhorizon",
+ "stratum": "research",
+ "seed": "2026-11-12-j",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality audit seed 2026-11-12-j",
+ "status": "audited",
+ "professional": "a dynamical-systems / chaos researcher who works on predictability and model error (the kind who referees for Chaos or Physica D). They would check first that the Lyapunov exponent is right (and the full spectrum sums to -(sigma+1+beta)), that the predictability time follows T ~ ln(tol/d0)/lambda with an O(1) offset, whether state and parameter errors are compared in commensurable units, whether the model-error growth law (linear then exponential) is read correctly, and whether the work cites the predictability literature (Lorenz 1969; Boffetta, Cencini, Falcioni and Vulpiani 2002; Nicolis 2003; Vannitsem and Toth 2002)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Reran `python3 experiments/run.py` (7.7 s): byte-identical to experiments/results.txt. Recomputed independently without importing the subject (/tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/indep.py, numpy, vectorised RK4 at h=0.002, 400 starts from a different seed and spin-up; /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/spec.py tangent-linear + QR full spectrum, T=1000): fixed point C+ = (8.4853, 8.4853, 27), residual 1.4e-14; spectrum (0.897, 0.0016, -14.565) and (0.911, -0.0004, -14.577) for two seeds, sum -13.66667 = -(sigma+1+beta), matching Sprott/Viswanath 0.9056/0/-14.5723 and the subject's 0.9044. State-error horizons 4.44/7.00/9.51/11.98/14.48/17.03 vs subject 4.06/6.42/9.31/11.55/14.42/16.94 (N=40, sd of T about 1.8, so SE about 0.3; differences 0.06 to 0.58, within 2 SE); slope 1.091 vs subject 1.124 vs 1/lambda 1.104. Parameter-error horizons 0.08/0.94/2.85/5.33/7.85 vs subject 0.10/0.95/2.84/5.19/7.81. Every reported number reproduces within sampling error. Not 4: the interpretation of the parameter slope is wrong (see claims), and horizon() silently returns tmax when the twin never diverges (lorenz.py:46; horizon(s, 0.0, 1.0) returns 40.0).",
+  "completeness": "README claims checked: 4 tests (pytest: 4 passed in 0.68 s; unittest: Ran 4 tests OK); run.py writes results.txt (identical rerun); stdlib only (true); Benettin lambda at t=400 (lorenz.py:49-60, run.py:16); 40 seeded starts 1-5 units apart (run.py:7-14); project.json card with theme 'twins', which exists in research/_homepage/projects.json, so platform/pages/research-registry.mjs lists it. Live page https://marisstella.app/research/free-lorenzhorizon/ could not be loaded (egress proxy refused marisstella.app), so not verified. No TODOs or stubs. Everything stated as done runs: 3.",
+  "verification": "`/usr/bin/python3.13 -m pytest -q tests`: 4 passed. Six hand-seeded mutations in lorenz.py, each reverted with git checkout (PYTHONDONTWRITEBYTECODE=1): horizon return (i+1)*h -> (i+10)*h survived; twin integrated with truth params instead of twin_p (lorenz.py:43, which makes experiment B meaningless) survived; BETA 8/3 -> 3 survived (the fixed-point test reads BETA from the module); log(d/d0)*0.94 in Benettin (6% exponent bias) survived (delta 0.05 too loose); lambda*1.05 caught; wrong RK4 weights caught. 4 of 6 survive, including the two that wreck the headline experiments. The tests check the integrator and the exponent loosely, and never the horizon values or the parameter path: 1.",
+  "craft": "Read lorenz.py (60 lines), tests/test_lorenz.py, experiments/run.py. Small, readable, stdlib, docstrings. Defects: horizon() returns tmax on no-crossing, indistinguishable from a crossing at tmax, and run.py averages it silently (none hit tmax in the committed run, but the sd is 1.8 and nothing checks); the least-squares slope is copy-pasted twice in run.py (lines 22-23 and 32-33); run.py is a top-level script with no main; dirn normalisation is untested. Acceptable for a short note: 3.",
+  "claims": "Backed: lambda 0.904 vs 0.9056 (results.txt:1, my QR spectrum); state-error means and slope 1.124 vs 1/lambda 1.106 (results.txt, my 400-start rerun 1.091); '4 tests'; 'stdlib only'; the limits section honestly says means hide spread and the 0.85 explanation is untested; AI-assistance note present. Not backed: README:3 and project.json lede 'a parameter error buys less per e-fold (0.85)' / 'A parameter error ... gains less, 0.85 per e-fold': the 0.85 is a fit-range artefact of the eps=1e-1 point, where the twin leaves tol in 0.10 time units (saturated). On the subject's own numbers the slope is 0.996 over eps 1e-2..1e-5 and 1.079 over 1e-3..1e-5 (my rerun 1.009 and 1.086), i.e. it tends to 1/lambda; the linear early growth shifts the intercept, not the asymptotic slope. README:28 says 'parameter error eps in rho' but the code uses a relative error rho*(1+eps) (run.py:29); read as absolute, every T is off by ln(28)/lambda = 3.7 units. README:23 'about a minute' vs 7.7 s measured. 2.",
+  "fitness": "A researcher wanting a twin-lifetime baseline can rerun it in 8 s, but the result is the textbook predictability-time relation T_p = (1/lambda) ln(Delta/delta0) (Lorenz 1969; Boffetta, Cencini, Falcioni and Vulpiani, Phys. Rep. 356, 2002, sec. 3) on the textbook system, and the model-error part (linear then exponential growth of parameter error) is Nicolis (J. Atmos. Sci. 2003) and Vannitsem and Toth (2002), none cited. Not new; the one apparently new reading (parameter error costs a different slope) is not sound. No distribution, no finite-size Lyapunov exponent, no data assimilation, no comparison with a learned twin (Pathak et al. PRL 2018 valid time). Far from the research/CLAUDE.md PhD bar: 1.",
+  "domain": "Method is standard and correctly implemented: RK4 (4th-order checked), Benettin two-trajectory renormalisation, horizon as first-passage of a Euclidean tolerance. Departures a chaos researcher would flag: state error and relative parameter error compared as if commensurable to answer 'does a parameter error cost less'; the slope of T vs ln(1/eps) fitted across a saturated point and then explained by a mechanism that changes the intercept, not the slope; a single perturbation direction (x) with no average over directions or projection on the covariant Lyapunov vector; tolerance not scanned (the offset depends on it, FSLE practice); means without spread; prior predictability literature not cited. 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Lorenz-63 largest Lyapunov exponent (subject 0.9044, Benettin t=400)",
+   "method": "own tangent-linear RK4 + QR (Shimada-Nagashima) full spectrum, T=1000, two seeds; published Sprott 2003 0.9056, 0, -14.5723",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/spec.py",
+   "expected": "0.9056 (+-0.01 at T=1000); spectrum sum -(sigma+1+beta) = -13.6667",
+   "observed": "0.8965 and 0.9107; lambda2 0.0016/-0.0004; lambda3 -14.565/-14.577; sum -13.66667",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "fixed point C+ = (sqrt(beta(rho-1)), same, rho-1)",
+   "method": "hand formula, Lorenz 1963; vector field evaluated in own code",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/indep.py",
+   "expected": "(8.48528, 8.48528, 27), residual 0",
+   "observed": "8.48528137, residual 1.4e-14",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "state-error mean horizon for d0 = 1e-2..1e-7, tol 1",
+   "method": "own vectorised RK4 h=0.002, 400 starts from a different seed/spin-up, no subject import",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/indep.py",
+   "expected": "subject 4.06, 6.42, 9.31, 11.55, 14.42, 16.94 (N=40, SE about 0.3)",
+   "observed": "4.44, 7.00, 9.51, 11.98, 14.48, 17.03 (sd 1.7-2.0); all within 2 SE",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "state-error slope dT/dln(1/d0) vs 1/lambda",
+   "method": "own rerun, least squares over 6 points; theory T = ln(tol/d0)/lambda + O(1) (Boffetta et al. 2002)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/indep.py",
+   "expected": "about 1/lambda = 1.104; subject 1.124",
+   "observed": "1.091",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "parameter-error mean horizon, rho_twin = 28(1+eps), eps 1e-1..1e-5",
+   "method": "own vectorised RK4, 400 starts",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/indep.py",
+   "expected": "subject 0.10, 0.95, 2.84, 5.19, 7.81",
+   "observed": "0.08, 0.94, 2.85, 5.33, 7.85",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "rerun of experiments/run.py vs committed results.txt",
+   "method": "byte diff",
+   "command": "cd research/free-lorenzhorizon && python3 experiments/run.py && git diff --exit-code experiments/results.txt",
+   "expected": "identical",
+   "observed": "identical, 7.7 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:3 / project.json lede: parameter error buys 0.85 per e-fold, less than state error",
+   "method": "least squares on the subject's own results.txt with the saturated eps=1e-1 point (T=0.10) dropped, and on my 400-start rerun",
+   "command": "python3 -c \"import math;T=[0.10,0.95,2.84,5.19,7.81];x=[math.log(10**k) for k in range(1,6)];sl=lambda x,y:(lambda mx,my:sum((a-mx)*(b-my) for a,b in zip(x,y))/sum((a-mx)**2 for a in x))(sum(x)/len(x),sum(y)/len(y));print(sl(x,T),sl(x[1:],T[1:]),sl(x[2:],T[2:]))\"",
+   "expected": "slope below 1/lambda if the claim holds",
+   "observed": "0.854 with eps=0.1; 0.996 over 1e-2..1e-5; 1.079 over 1e-3..1e-5 (rerun 1.009, 1.086): tends to 1/lambda",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:28 'parameter error eps in rho'",
+   "method": "read run.py:29",
+   "command": "grep -n 'RHO\\*(1+e)' research/free-lorenzhorizon/experiments/run.py",
+   "expected": "absolute error, as the README reads",
+   "observed": "relative: rho*(1+e); stated only in results.txt header",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:22 '4 tests, incl. exponent vs 0.9056 +-0.05'",
+   "method": "run",
+   "command": "cd research/free-lorenzhorizon && /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "4 tests pass",
+   "observed": "4 passed in 0.68s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:23 run.py 'about a minute, stdlib only'",
+   "method": "time the run; read imports",
+   "command": "cd research/free-lorenzhorizon && time python3 experiments/run.py",
+   "expected": "about 60 s, stdlib",
+   "observed": "7.7 s; stdlib only (math, os, random, sys)",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page https://marisstella.app/research/free-lorenzhorizon/",
+   "method": "curl; registry check that project.json theme 'twins' exists",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/free-lorenzhorizon/",
+   "expected": "200",
+   "observed": "egress proxy refused marisstella.app; theme 'twins' present in research/_homepage/projects.json",
+   "result": "partial"
+  },
+  {
+   "dimension": "craft",
+   "what": "horizon() when the twin never leaves tol",
+   "method": "call with d0=0 and exact params",
+   "command": "cd research/free-lorenzhorizon && python3 -c 'import lorenz as L;print(L.horizon(L.spin_up(),0.0,1.0))'",
+   "expected": "a censoring signal (None/inf) or an error",
+   "observed": "40.0 (tmax), averaged silently by run.py",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "research/free-lorenzhorizon/lorenz.py:43",
+   "change": "s_w = rk4(s_w, twin_p, h) -> rk4(s_w, truth, h) (twin ignores its parameters)",
+   "caught": false,
+   "test_cmd": "cd research/free-lorenzhorizon && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "research/free-lorenzhorizon/lorenz.py:45",
+   "change": "return (i + 1) * h -> (i + 10) * h",
+   "caught": false,
+   "test_cmd": "cd research/free-lorenzhorizon && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "research/free-lorenzhorizon/lorenz.py:4",
+   "change": "BETA 8/3 -> 3.0",
+   "caught": false,
+   "test_cmd": "cd research/free-lorenzhorizon && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "research/free-lorenzhorizon/lorenz.py:58",
+   "change": "tot += log(d/d0) -> log(d/d0)*0.94 (6% exponent bias)",
+   "caught": false,
+   "test_cmd": "cd research/free-lorenzhorizon && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "research/free-lorenzhorizon/lorenz.py:60",
+   "change": "return tot/(steps*h) -> 1.05*tot/(steps*h)",
+   "caught": true,
+   "test_cmd": "cd research/free-lorenzhorizon && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "research/free-lorenzhorizon/lorenz.py:20",
+   "change": "RK4 weights (a+2b+2c+d) -> (a+4b+d)",
+   "caught": true,
+   "test_cmd": "cd research/free-lorenzhorizon && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Headline finding 'a parameter error buys less per e-fold (0.85) than a state error' is a fit-range artefact: the eps=1e-1 point is saturated (T=0.10). Excluding it, the slope is 0.996 (eps<=1e-2) and 1.079 (eps<=1e-3) on the subject's own numbers, tending to 1/lambda=1.106; linear early growth shifts the intercept, not the asymptotic slope.",
+   "where": "research/free-lorenzhorizon/README.md:3",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Parameter error is relative (rho*(1+eps)) but the README and project.json describe it as 'eps in rho' and compare it with an absolute state error as if commensurable; read as absolute, every T shifts by ln(28)/lambda = 3.7 units.",
+   "where": "research/free-lorenzhorizon/README.md:28",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests never check horizon values or the twin_p path: twin ignoring its parameters, a 9-step offset in the returned time, beta=3 and a 6% Lyapunov bias all leave the 4 tests green.",
+   "where": "research/free-lorenzhorizon/tests/test_lorenz.py:26",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior predictability literature cited (Lorenz 1969; Boffetta et al. 2002; Nicolis 2003; Vannitsem and Toth 2002); the state-error result is the textbook T_p = ln(Delta/delta0)/lambda and the parameter-error growth law is known; a single tolerance and perturbation direction, no spread reported.",
+   "where": "research/free-lorenzhorizon/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "horizon() returns tmax when the twin never leaves tol, indistinguishable from a crossing at tmax; run.py averages it silently.",
+   "where": "research/free-lorenzhorizon/lorenz.py:46",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "'about a minute' for run.py; it runs in 7.7 s.",
+   "where": "research/free-lorenzhorizon/README.md:23",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15147"
+ ],
+ "verdict": "A small, clean, reproducible Lorenz-63 predictability demo whose numbers are right: an independent tangent-linear QR spectrum gives lambda1 0.897-0.911 (sum exactly -(sigma+1+beta)), and an independent 400-start rerun reproduces every state- and parameter-error horizon within sampling error and the state slope (1.09 vs 1/lambda 1.10). It does not meet the bar. Its one non-textbook conclusion, that a parameter error buys less horizon per e-fold (0.85) than a state error, comes from fitting across a saturated eps=0.1 point; without it the slope is 1.0-1.08 on the author's own numbers and tends to 1/lambda. The parameter error is relative while the text reads absolute, the tests miss 4 of 6 seeded bugs including the twin ignoring its parameters, and the work restates Lorenz (1969) and Boffetta et al. (2002) without citing them. Verification 1, claims 2, fitness 1."
+}

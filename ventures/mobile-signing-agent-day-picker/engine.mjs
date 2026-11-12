@@ -4,9 +4,9 @@
 // Each signing has a price, a print and supply cost, a service time, a window (you
 // cannot start before `earliest`, and must start by `latest`) and a spot on a
 // map in miles east and north of the home base. Driving costs a per-mile amount
-// plus the your hourly cost for the drive minutes; service minutes
+// plus your hourly cost for the drive minutes; service minutes
 // carry the same hourly cost; waiting for a window to open is free (you
-// sits parked). You leaves the home base at shift start and must be back by
+// sit parked). You leave the home base at shift start and must be back by
 // shift end.
 //
 // The exact best day is found by dynamic programming over (set of signings done,
@@ -20,8 +20,8 @@ export const MODEL_NOTE =
   "Drive minutes = straight-line miles x circuity factor / speed. Waiting for a window to open is free. Every figure is your estimate; the plan is the exact best answer for the numbers you supply, not a forecast.";
 
 export const INPUT_NOTES = [
-  { what: "Flat fix,85,18,30,08:00,10:00,3,4", detail: "One signing per row: name,price,print and supply cost,service minutes,window opens,latest start,miles east of home base,miles north of home base[,note]. Dollars as plain numbers; times as 24-hour 13:30 or 1:30pm." },
-  { what: "Window opens / latest start", detail: "You cannot begin before the first time (the customer is not ready, or the shop is closed) and must begin by the second. Use the whole shift for an open-ended signing." },
+  { what: "Refinance - Alvarez,125,14,60,09:00,09:30,4,3", detail: "One signing per row: name,price,print and supply cost,service minutes,window opens,latest start,miles east of home base,miles north of home base[,note]. Dollars as plain numbers; times as 24-hour 13:30 or 1:30pm." },
+  { what: "Window opens / latest start", detail: "You cannot begin before the first time (the borrower is not available, or the documents are not ready) and must begin by the second. Use the whole shift for an open-ended signing." },
   { what: "Miles east / north", detail: "Where the signing is, measured from the home base in miles (negative for west or south). Read them off a map or a distance table; the tool uses straight-line distance times the circuity factor." },
   { what: "Per-mile cost", detail: "Fuel, tires and wear per mile driven. A common starting point is your mileage-method rate, but use your own cost." },
   { what: "Your hourly cost", detail: "What an hour of your time costs you while driving or signing (your target wage, E&O insurance and phone divided by working hours). Waiting is not charged." },
