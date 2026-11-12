@@ -107,11 +107,11 @@ flagships:
       worked in a cloud session; huggingface.co answered 200 through the proxy earlier
       on 2026-11-11 but 403 (CONNECT refused) in a later session that day, as did
       registry.ollama.ai, modelscope.cn and hf-mirror.com (all 000 again in a third
-      session that day): probe first. Without a model host: (6) a "Done" button per
-      call and LinkedIn row in the server's Today's queue (landed 2026-11-11 with the
-      Sent-folder read, README "The self-host server reads your Sent folder too"),
-      kept in state as runDaily's `done` input, since those touches never show in
-      mail, so the done box needs no typing; tested on fake-imap.mjs.
+      session that day): probe first. Without a model host: (6) the Today's queue
+      Done button landed 2026-11-12 (README "A Done button for calls and LinkedIn");
+      next on that queue, a call outcome per Done (no answer, voicemail, spoke) that
+      re-queues a no-answer call next business day and feeds prep.mjs, tested on the
+      real cadence builder plan.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading

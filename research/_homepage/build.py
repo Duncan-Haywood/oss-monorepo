@@ -588,7 +588,7 @@ def build(out, base_url=None, chrome=None):
     for key, val in {
         "FONTS": font_faces(""),
         "THEME_VARS": theme_vars, "MAP": rmap, "CHIPS": chips, "FEATURED": featured, "LOGS": log_section, "SECTIONS": sections,
-        "PROJECT_COUNT": str(len(by_slug)), "TEST_COUNT": f"{sum(tests.values()):,}",
+        "PROJECT_COUNT": f"{len(by_slug):,}", "TEST_COUNT": f"{sum(tests.values()):,}",
         "THEME_COUNT": str(len(data["themes"])), "SOCIAL_META": social_meta(base_url), "REPO_URL": REPO_URL, "REPO": REPO,
     }.items():
         page = page.replace("{{" + key + "}}", val)
@@ -600,7 +600,7 @@ def build(out, base_url=None, chrome=None):
         # The index lists the topics, not every project: each topic page carries its own list.
         page = page.replace("</head>", collection_ld(
             base_url, f"Open research: {len(by_slug)} reproducible projects", "research/",
-            f"{len(by_slug)} open-source research projects in {len(data['themes'])} topics, each with its code, tests and results.",
+            f"{len(by_slug):,} open-source research projects in {len(data['themes'])} topics, each with its code, tests and results.",
             [(text(t["name"]), f"research/{TOPICS_DIR}/{t['id']}/") for t in data["themes"]],
             [("Research", "research/")]) + "</head>", 1)
     if chrome:

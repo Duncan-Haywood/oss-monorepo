@@ -149,6 +149,7 @@ import {
   siteTitle,
 } from './site-nav.mjs';
 import { ASK_PATH, ASSISTANT_LAUNCHER_JS, ASSISTANT_VOICE_CSS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
+import { formatCount } from './count.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
 import {
   HERO_BACKDROP_HTML,
@@ -6071,7 +6072,7 @@ ${questions
 ${cards}
       </ol>
     </section>${answers}
-    <h2 class="all-tools">All ${total} tools${who ? ` for ${escapeHtml(who)}` : ''}</h2>
+    <h2 class="all-tools">All ${formatCount(total)} tools${who ? ` for ${escapeHtml(who)}` : ''}</h2>
 `;
 }
 
@@ -6179,7 +6180,7 @@ ${subgroups
   // nothing; the full list is the markup either way.
   const filter = items.length > 12
     ? `    <p class="filter" id="cat-filter-row" hidden>
-      <label for="cat-filter">Filter these ${items.length} tools</label>
+      <label for="cat-filter">Filter these ${formatCount(items.length)} tools</label>
       <input id="cat-filter" type="search" placeholder="Type a word from the tool's name or job" autocomplete="off">
       <span id="cat-filter-count" aria-live="polite"></span>
     </p>`
@@ -6299,7 +6300,7 @@ ${otherAudiences
       <p class="starting">${escapeHtml(copy.starting)}</p>`
           : ''
       }
-      <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>${countExceptionList}
+      <p class="count">${formatCount(items.length)} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>${countExceptionList}
     </header>
 ${copy.lead ?? ''}${jumps}
 ${filter}
@@ -6479,7 +6480,7 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
   const toRoot = '../';
   const url = `${baseUrl}${CATEGORY_PATH_PREFIX}/`;
   const total = surfaces.length;
-  const title = `All ${total} free tools, by category`;
+  const title = `All ${formatCount(total)} free tools, by category`;
   const description = `Every free tool on ${SITE_NAME}, filed by the job it does: ${groups
     .map(({ category }) => category.title.toLowerCase())
     .join(', ')}. Runs in your browser; no account.`;
@@ -6556,7 +6557,7 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
     <header class="pf-hero">
       <p class="eyebrow">Tools</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">Each section has its own page with every tool in it. Know what you need? <a href="${escapeHtml(`${toRoot}#${SEARCH_ANCHOR}`)}">Search all ${total} tools</a> instead.</p>
+      <p class="lede">Each section has its own page with every tool in it. Know what you need? <a href="${escapeHtml(`${toRoot}#${SEARCH_ANCHOR}`)}">Search all ${formatCount(total)} tools</a> instead.</p>
     </header>
     <main>
       <h2 class="band">By job</h2>
@@ -6694,7 +6695,7 @@ export function renderComparePage({ groups, surfaces, categoryGroups = [], baseU
       (group) => `      <section class="subject" id="${escapeHtml(anchorFor(group))}">
         <h2>${escapeHtml(group.subject)}</h2>
         <p class="note">${escapeHtml(
-          `${group.items.length} tools here have a page comparing themselves with ${group.subject}. Written by the tool's author; not affiliated with ${group.subject}.`,
+          `${formatCount(group.items.length)} tools here have a page comparing themselves with ${group.subject}. Written by the tool's author; not affiliated with ${group.subject}.`,
         )} <a href="${escapeHtml(`${toRoot}${comparisonProductPath(group.key)}`)}">${escapeHtml(
           `${group.subject} on its own page →`,
         )}</a></p>
@@ -6787,7 +6788,7 @@ ${group.items.map(renderCard).join('\n')}
       <p class="eyebrow">Comparisons</p>
       <h1>What each free tool here does that the paid product does not — and what it does not do</h1>
       <p class="lede">Every tool on this site that overlaps with a commercial product has a page saying so plainly: what the product does, what the free tool does, and when the paid one is the right answer. They are written by the tool's author, cite the product's own public documentation, and are not affiliated with, endorsed by, or reviewed by any product named here.</p>
-      <p class="count">${total} comparison page${total === 1 ? '' : 's'} across ${groups.length} product${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
+      <p class="count">${formatCount(total)} comparison page${total === 1 ? '' : 's'} across ${groups.length} product${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
     </header>
 
     <nav class="jump" aria-label="Products with more than one comparison">
@@ -7162,7 +7163,7 @@ export function renderGuidesPage({ groups, surfaces, categoryGroups = [], baseUr
 
   const title = 'Guides: what to charge, and how each price is worked out';
   const description =
-    `${total} plain-English pages from ${groups.length} free calculators — how a price is built up, ` +
+    `${formatCount(total)} plain-English pages from ${groups.length} free calculators — how a price is built up, ` +
     'when one option beats another, and what to do with the answer. Written by each tool\'s author, ' +
     'free, and with the calculator on the same site.';
 
@@ -7189,7 +7190,7 @@ ${group.items
       ({ category, tools }) => `      <section class="subject" id="${escapeHtml(anchorFor(category))}">
         <h2>${escapeHtml(categoryPageCopy(category).title)}</h2>
         <p class="note">${escapeHtml(
-          `${tools.reduce((n, t) => n + t.items.length, 0)} pages across ${tools.length} tool${
+          `${formatCount(tools.reduce((n, t) => n + t.items.length, 0))} pages across ${tools.length} tool${
             tools.length === 1 ? '' : 's'
           } for ${categoryPageCopy(category).audience}.`,
         )} <a href="${escapeHtml(`${toRoot}${categoryPagePath(category.id)}`)}">${escapeHtml(
@@ -7277,7 +7278,7 @@ ${tools.map(renderTool).join('\n')}
       <p class="eyebrow">Guides</p>
       <h1>The question people ask before they know a calculator exists</h1>
       <p class="lede">Every tool on this site ships pages beside the calculator: how a price is actually built up, when one option beats another, what a fee schedule does to a payout, and what to do with the number once you have it. They are written by the tool's author, in plain English, and the calculator that answers the same question with your own figures is one click away from each one.</p>
-      <p class="count">${total} page${total === 1 ? '' : 's'} across ${groups.length} tool${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
+      <p class="count">${formatCount(total)} page${total === 1 ? '' : 's'} across ${groups.length} tool${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
     </header>
 
     <nav class="jump" aria-label="Guides by trade">
@@ -7375,7 +7376,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   const total = surfaces.length;
   const categoryCount = groups.length;
   const title = 'About these tools';
-  const description = `Who makes these ${total} free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).`;
+  const description = `Who makes these ${formatCount(total)} free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).`;
 
   // The one absolute claim below — nothing typed ever leaves the browser —
   // is true for every tool except one this checks for: a tool whose whole
@@ -7391,11 +7392,11 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 
   // The boilerplate a linker copies. Kept as data, not prose, so the numbers in
   // it cannot drift from the catalogue the way hand-written marketing copy does.
-  const shortBoiler = `${total} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.`;
+  const shortBoiler = `${formatCount(total)} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.`;
   const deviceClaim = exceptions.length
     ? `the numbers a user types never leave their device, except on ${listProse(exceptions.map((x) => toolProseName(x.title)))}, where the one thing you paste — the lookup target — goes to the public API it checks (${exceptionHosts}) and nowhere else`
     : `the numbers a user types never leave their device`;
-  const longBoiler = `${SITE_NAME} is a collection of ${total} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — ${deviceClaim}, and each tool keeps working offline once it has been opened. All ${total} are free with no gated features and no paid tier.`;
+  const longBoiler = `${SITE_NAME} is a collection of ${formatCount(total)} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — ${deviceClaim}, and each tool keeps working offline once it has been opened. All ${formatCount(total)} are free with no gated features and no paid tier.`;
 
   // A stand-in slug, not a real one: naming an actual tool here would go stale
   // the day that tool is renamed, and every real snippet is already generated,
@@ -7459,7 +7460,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
     <header class="pf-hero">
       <p class="eyebrow">About</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser and they cost nothing. ${
+      <p class="lede">${formatCount(total)} free calculators and checks for people who run a small business. They run in your browser and they cost nothing. ${
         exceptions.length
           ? `The numbers you type never leave your device, except on the ${exceptions.length} lookup tools listed below, where the one thing you paste goes to the public API that tool checks.`
           : 'The numbers you type never leave your device.'
@@ -7587,7 +7588,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
       <p class="boiler">${escapeHtml(longBoiler)}</p>
       <h3>The facts, if you would rather write your own</h3>
       <ul>
-        <li><strong>${total} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
+        <li><strong>${formatCount(total)} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
         <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics; works offline once opened.${exceptions.length ? ` ${exceptionNames} ${exceptions.length === 1 ? 'is the one documented exception' : 'are the documented exceptions'} — see Privacy above.` : ' No upload.'}</li>
         <li><strong>MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
         <li><strong>Front page:</strong> <a href="${escapeHtml(toRoot)}" data-pf-to="hub">${escapeHtml(baseUrl)}</a></li>
@@ -7600,7 +7601,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 
       <h2>Embedding a tool on your own page</h2>
       <p>
-        Every one of the ${total} tools here can be framed on someone else's
+        Every one of the ${formatCount(total)} tools here can be framed on someone else's
         page — a trade association's resource page, a supplier's blog post, a
         forum's sidebar. Open any tool and scroll to the bottom for a
         ready-made, copyable snippet built from that page's own address and
@@ -7675,7 +7676,7 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
   const url = `${baseUrl}${FEEDBACK_PATH}`;
   const toRoot = '../';
   const title = 'Report a problem or suggest a feature';
-  const description = `Tell us what is wrong with one of these ${surfaces.length} free tools, or what you would like one to do. No account needed.`;
+  const description = `Tell us what is wrong with one of these ${formatCount(surfaces.length)} free tools, or what you would like one to do. No account needed.`;
   const issueBase = `${REPO_URL}/issues/new`;
   const form = feedbackUrl
     ? `
@@ -8608,7 +8609,7 @@ export function renderHub(
   <title>${escapeHtml(SITE_NAME)} | Free Tools, Self-Hostable Apps &amp; Research</title>
   <meta name="description" content="${escapeHtml(
     snippetize(
-      `Free bid calculators, fee checkers and pricing tools for small businesses: ${browserCount} open-source tools that run in your browser, plus self-hostable apps. No sign-up.`,
+      `Free bid calculators, fee checkers and pricing tools for small businesses: ${formatCount(browserCount)} open-source tools that run in your browser, plus self-hostable apps. No sign-up.`,
     ),
   )}">
   <link rel="canonical" href="${escapeHtml(baseUrl)}">${verificationHead()}
@@ -8895,7 +8896,7 @@ ${
            JavaScript the category grid below is the way in: every tool is on
            its category's page. -->
       <form class="search" id="${SEARCH_ANCHOR}" role="search" action="./" method="get">
-        <label for="q">Search ${surfaces.length} tools${researchCount ? ` and ${researchCount} research projects` : ''}</label>
+        <label for="q">Search ${formatCount(surfaces.length)} tools${researchCount ? ` and ${formatCount(researchCount)} research projects` : ''}</label>
         <div class="search-row">
           <input id="q" name="q" type="search" placeholder="eBay fees, roofing bid, freight, VAT, scoring rules…"
                  autocomplete="off" spellcheck="false">
@@ -8910,10 +8911,10 @@ ${
       </form>
 
       <dl class="stats" id="overview">
-        <div><dt>Browser tools</dt><dd><a href="${CATEGORY_PATH_PREFIX}/">${browserCount}</a></dd></div>
-        <div><dt>Self-hostable apps</dt><dd><a href="${escapeHtml(categoryPagePath('apps'))}">${apps.length}</a></dd></div>
-        <div><dt>Command-line tools</dt><dd><a href="${escapeHtml(categoryPagePath('cli'))}">${clis.length}</a></dd></div>
-        <div><dt>Research projects</dt><dd><a href="${RESEARCH_PATH}">${researchCount}</a></dd></div>
+        <div><dt>Browser tools</dt><dd><a href="${CATEGORY_PATH_PREFIX}/">${formatCount(browserCount)}</a></dd></div>
+        <div><dt>Self-hostable apps</dt><dd><a href="${escapeHtml(categoryPagePath('apps'))}">${formatCount(apps.length)}</a></dd></div>
+        <div><dt>Command-line tools</dt><dd><a href="${escapeHtml(categoryPagePath('cli'))}">${formatCount(clis.length)}</a></dd></div>
+        <div><dt>Research projects</dt><dd><a href="${RESEARCH_PATH}">${formatCount(researchCount)}</a></dd></div>
       </dl>
 
       <!-- The open custom development offer, aimed at businesses (owner,
@@ -9009,7 +9010,7 @@ ${audiencePages
     <section class="band" id="browse" aria-labelledby="browse-h">
       <p class="section-eyebrow">Browse</p>
       <h2 id="browse-h">Tools by the job they do</h2>
-      <p class="band-lede">${surfaces.length} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
+      <p class="band-lede">${formatCount(surfaces.length)} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
       <ul class="cats">
 ${categoryTiles}
       </ul>
@@ -10918,7 +10919,7 @@ ${askLine}    <h2>More free tools</h2>
       : 'Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.'
     }</p>
 ${noSla}${isEntry && baseUrl && hasCiChannels(slug) ? renderCiInstall(slug, baseUrl) : ''}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}${forLinks}    <p>
-      <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
+      <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${formatCount(total)} free tools →</a>
       &nbsp;·&nbsp;
       <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About &amp; privacy</a>
       &nbsp;·&nbsp;
@@ -11623,7 +11624,7 @@ ${audiences
   const researchSection = research.themes.length
     ? `## Open research
 
-${researchProjects} research projects, each with its question, code, tests and results, MIT licensed: [the research index](${baseUrl}${RESEARCH_PATH}). By topic:
+${formatCount(researchProjects)} research projects, each with its question, code, tests and results, MIT licensed: [the research index](${baseUrl}${RESEARCH_PATH}). By topic:
 
 ${research.themes
   .map((t) => `- [${oneLine(t.name)}](${baseUrl}${RESEARCH_PATH}topics/${t.id}/): ${t.count} project${t.count === 1 ? '' : 's'}`)
@@ -11647,7 +11648,7 @@ ${full ? `\n${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${ba
 
   return `# ${SITE_NAME}
 
-> ${SITE_NAME} is an open-source lab where AI agents build tools and research in public, all MIT licensed. ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
+> ${SITE_NAME} is an open-source lab where AI agents build tools and research in public, all MIT licensed. ${formatCount(surfaces.length)} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${formatCount(researchProjects)} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
@@ -12415,7 +12416,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     path.join(outDir, SOCIAL_CARD_FILE),
     renderSiteCard({
       address: siteAddress(base),
-      footer: `${surfaces.length} free tools · ${researchProjectCount()} research projects`,
+      footer: `${formatCount(surfaces.length)} free tools · ${formatCount(researchProjectCount())} research projects`,
     }),
   );
   // One card per category, tinted and headlined with the section's own name.

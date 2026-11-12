@@ -137,6 +137,7 @@ import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleS
 import { renderCard } from './sharecard.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
 import { decodeEntities } from './entities.mjs';
+import { formatCount } from './count.mjs';
 // The hub embeds these rather than paraphrasing them, so the tests that used to
 // pin its transcription line by line now compare against the definitions
 // themselves. See "the hub validates a saved bid with the tested definition".
@@ -4722,10 +4723,10 @@ test('the About page ships, carries the disclaimer, and states the real catalogu
   const about = await read('about', 'index.html');
 
   assert.match(about, /no warranty/i, 'About must carry the liability disclaimer like every page');
-  assert.match(about, new RegExp(`${surfaces.length} free calculators`));
+  assert.match(about, new RegExp(`${formatCount(surfaces.length)} free calculators`));
   // The copy-paste boilerplate: its numbers come from `surfaces`, so they
   // cannot drift from the catalogue the way hand-written blurbs do.
-  assert.match(about, new RegExp(`${surfaces.length} free, private calculators`));
+  assert.match(about, new RegExp(`${formatCount(surfaces.length)} free, private calculators`));
   assert.ok(
     about.includes(`<link rel="canonical" href="${BASE}about/">`),
     'About needs its own canonical, not the hub\'s',
@@ -4853,7 +4854,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   const about = await read('about', 'index.html');
 
   assert.match(about, /Embedding a tool on your own page/);
-  assert.match(about, new RegExp(`Every one of the ${surfaces.length} tools here can be framed`));
+  assert.match(about, new RegExp(`Every one of the ${formatCount(surfaces.length)} tools here can be framed`));
   // The illustrated snippet uses the real query param and default height the
   // shipped feature uses, not numbers written by hand that could drift from it.
   assert.match(about, new RegExp(`\\?${EMBED_QUERY_PARAM}=1`));

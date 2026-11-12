@@ -35,6 +35,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { REPO_URL, sponsorsNote, withSiteHeader } from './site-nav.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
+import { formatCount } from './count.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
@@ -509,7 +510,7 @@ export function renderEngineeringPage(model, { baseUrl = '' } = {}) {
   const tiles = [
     tile(
       'Agent sessions, 7 days',
-      String(k.runsWeek),
+      formatCount(k.runsWeek),
       k.runsPrior === null && model.firstRun ? `run records start ${esc(model.firstRun)}` : delta(k.runsWeek, k.runsPrior),
     ),
     tile(
@@ -520,9 +521,9 @@ export function renderEngineeringPage(model, { baseUrl = '' } = {}) {
     tile(
       'Compute, 7 days',
       k.spendMeasuredWeek ? money(k.spendWeek) : '<span class="na">unmeasured</span>',
-      `API-equivalent, measured on ${k.spendMeasuredWeek} of ${k.runsWeek} sessions`,
+      `API-equivalent, measured on ${formatCount(k.spendMeasuredWeek)} of ${formatCount(k.runsWeek)} sessions`,
     ),
-    tile('Sessions ending partial, 7 days', String(k.partialWeek), `of ${k.runsWeek}; the rest recorded success`),
+    tile('Sessions ending partial, 7 days', String(k.partialWeek), `of ${formatCount(k.runsWeek)}; the rest recorded success`),
     tile(
       'Waiting on the owner',
       k.decisions === null ? NOT_AVAILABLE : String(k.decisions),
@@ -557,7 +558,7 @@ export function renderEngineeringPage(model, { baseUrl = '' } = {}) {
     : '';
 
   const trackRows = model.byTrack
-    .map((t) => `<tr><td>${trackPill(t.track)}</td><td class="num">${t.runs}</td><td class="num">${((t.runs / Math.max(1, model.monthRuns)) * 100).toFixed(0)}%</td><td class="num">${t.measured ? money(t.spend) : '<span class="faint">—</span>'}<span class="faint"> (${t.measured}/${t.runs})</span></td><td class="num">${t.partial}</td></tr>`)
+    .map((t) => `<tr><td>${trackPill(t.track)}</td><td class="num">${formatCount(t.runs)}</td><td class="num">${((t.runs / Math.max(1, model.monthRuns)) * 100).toFixed(0)}%</td><td class="num">${t.measured ? money(t.spend) : '<span class="faint">—</span>'}<span class="faint"> (${t.measured}/${t.runs})</span></td><td class="num">${t.partial}</td></tr>`)
     .join('');
 
   const decisionRows = (model.decisions ?? [])
@@ -698,7 +699,7 @@ ${mergeRows}
 <div class="grid2">
 <section>
   <h2>Where the effort goes</h2>
-  <p class="sub">Sessions and compute by track over 30 days (${model.monthRuns} sessions${model.monthMeasured ? `, ${money(model.monthSpend)} measured on ${model.monthMeasured}` : ''}).</p>
+  <p class="sub">Sessions and compute by track over 30 days (${formatCount(model.monthRuns)} sessions${model.monthMeasured ? `, ${money(model.monthSpend)} measured on ${formatCount(model.monthMeasured)}` : ''}).</p>
   <div class="scroll" tabindex="0" role="region" aria-label="Where the effort goes"><table>
     <thead><tr><th>Track</th><th class="num">Sessions</th><th class="num">Share</th><th class="num">Compute (measured)</th><th class="num">Partial</th></tr></thead>
     <tbody>${trackRows || '<tr><td colspan="5" class="faint">No sessions in the window.</td></tr>'}</tbody>
@@ -757,7 +758,7 @@ ${mergeRows}
 </section>
 <section>
   <h2>Research</h2>
-  <p class="sub">${model.research.projects} projects in ${model.research.themes.length} themes, from <code>research/_homepage/projects.json</code>.</p>
+  <p class="sub">${formatCount(model.research.projects)} projects in ${model.research.themes.length} themes, from <code>research/_homepage/projects.json</code>.</p>
   ${barList(model.research.themes.map((t) => [t.name, t.count]))}
   ${model.research.logs.length ? `<h2 style="margin-top:16px">Latest research log entries</h2><ul class="plain">${model.research.logs.map((l) => `<li><span class="faint">${esc(l.date)}</span> <a href="../research/${esc(l.slug)}/">${esc(l.slug)}</a>: ${inlineCode(l.title)}</li>`).join('')}</ul>` : ''}
 </section>
