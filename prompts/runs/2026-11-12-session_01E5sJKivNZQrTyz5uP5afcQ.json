@@ -7,14 +7,16 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T22:18:06Z",
   "ended": "2026-11-12T22:36:04Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 21.74,
+  "tokens_in": 10383486,
+  "tokens_out": 39972,
+  "cost_usd": 3.9654,
+  "tool_calls": 80,
   "task": "Deepen (flagship 4) changepoint-detector: retry persist 2 with end-of-series censoring scored apart (pre-registered)",
   "projects": [
     "changepoint-detector"
@@ -53,7 +55,82 @@
     "ventures/changepoint-detector/README.md (Round 7)"
   ],
   "goal": null,
-  "notes": "Round 7 rule (pre-registered, committed 475ab22a4 before any run) passed all four parts: fresh-seed nulls 2.06 vs 2.13 false alerts/1000, steps 39 vs 39 at median delay 5; TCPD censored 32 of 51 marks for both, 103 vs 105 alerts; held-out 9 of 12 for both, 59 vs 61 alerts. persist 2 is the watch default (WATCH_DEFAULTS, CLI help, page text, llms.txt, watch guide page). Verification: run_venture_tests.py changepoint-detector (results below in the PR); watch.test.mjs 23/23 and watch-workflow.test.mjs 5/5 after the fixes; venture-preflight rerun after the front-matter fix.",
+  "notes": "Round 7 rule (pre-registered, committed 475ab22a4 before any run) passed all four parts: fresh-seed nulls 2.06 vs 2.13 false alerts/1000, steps 39 vs 39 at median delay 5; TCPD censored 32 of 51 marks for both, 103 vs 105 alerts; held-out 9 of 12 for both, 59 vs 61 alerts. persist 2 is the watch default (WATCH_DEFAULTS, CLI help, page text, llms.txt, watch guide page). Verification: run_venture_tests.py changepoint-detector: ok (249 s, 0 failed) after the fixes; watch.test.mjs 23/23 and watch-workflow.test.mjs 5/5 after the fixes; venture-preflight rerun after the front-matter fix. venture-preflight: 'preflight clean for changepoint-detector'.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "80129d64-498c-5ad3-90c2-260134617dca",
+    "transcripts": 1,
+    "first": "2026-11-12T22:18:06Z",
+    "last": "2026-11-12T22:39:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 82,
+        "input": 170,
+        "output": 39972,
+        "thinking": 9572,
+        "cache_read": 10243752,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139564,
+        "api_equivalent_usd": 3.9654,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 82,
+      "input": 170,
+      "output": 39972,
+      "thinking": 9572,
+      "cache_read": 10243752,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139564,
+      "api_equivalent_usd": 3.9654,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 75,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.74,
+      "active_minutes": 11.47,
+      "model_minutes": 8.74,
+      "tool_minutes": 2.73,
+      "waiting_on_human_minutes": 10.27,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "pre-registered evaluation design, 5-min runs twice, default change with 8 test fixes, README/post write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 151.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
