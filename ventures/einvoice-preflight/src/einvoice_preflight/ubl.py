@@ -241,6 +241,13 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     if period:
         invoice["period"] = period
     invoice.update(_commercial_references(root))
+    # BT-24 and the UBL ProfileID: aside.py reads them to spot PINT and ZATCA files.
+    specification = _text(root, "CustomizationID", required=False)
+    if specification:
+        invoice["specification_id"] = specification
+    business_process = _text(root, "ProfileID", required=False)
+    if business_process:
+        invoice["profile_id"] = business_process
     adjustments = _header_adjustments(root)
     if adjustments:
         invoice["adjustments"] = adjustments
