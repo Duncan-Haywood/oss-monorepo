@@ -2094,7 +2094,8 @@ test('the header fits itself inline, before the page below it is laid out', () =
   const out = injectChrome(page, { slug: 'x', toRoot: '../', total: 2, related: [] });
   const after = /<nav class="pf-chrome pf-chrome-top"[\s\S]*?<\/nav>(<script>[\s\S]*?<\/script>)/.exec(out);
   assert.ok(after, 'an inline script follows the header directly');
-  assert.ok(after[1].includes("querySelector('nav.pf-chrome-top[data-pfs-head]')"));
+  assert.ok(after[1].includes("querySelector('nav.pf-chrome.pf-chrome-top')"));
+  assert.equal(out.split(HEADER_MARKER).length - 1, 1, 'still one header marker on the page');
   assert.ok(out.indexOf(after[1]) < out.indexOf('<h1>Tool</h1>'), 'it runs before the venture markup');
   assert.equal(out.match(/<script>/g).length, 1);
   assert.doesNotThrow(() => new Function(after[1].slice(8, -9)));

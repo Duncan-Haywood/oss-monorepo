@@ -455,7 +455,8 @@ export const VENTURE_CHROME_JS = `
 export const VENTURE_CHROME_EARLY_JS = `
 (function(){
   if(typeof document==='undefined'||!document.querySelector||!document.documentElement||!document.body)return;
-  var el=document.querySelector('nav.pf-chrome-top[data-pfs-head]');
+  // By class: the header marker attribute is what tests count headers by.
+  var el=document.querySelector('nav.pf-chrome.pf-chrome-top');
   if(!el)return;
   var els=[el],root=document.documentElement;${CHROME_THEME_JS}${CHROME_FIT_JS}
   try{theme();fit();}catch(e){}

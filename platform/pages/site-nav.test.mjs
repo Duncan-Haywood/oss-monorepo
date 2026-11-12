@@ -202,7 +202,7 @@ test('the inline first fit is the same fit, for the header alone', () => {
   // nothing to change on a page whose box did not move.
   const fitBody = /function fit\(\)\{[\s\S]*?\n  \}/.exec(VENTURE_CHROME_JS)[0];
   assert.ok(VENTURE_CHROME_EARLY_JS.includes(fitBody));
-  assert.match(VENTURE_CHROME_EARLY_JS, /querySelector\('nav\.pf-chrome-top\[data-pfs-head\]'\)/);
+  assert.match(VENTURE_CHROME_EARLY_JS, /querySelector\('nav\.pf-chrome\.pf-chrome-top'\)/);
   assert.doesNotMatch(VENTURE_CHROME_EARLY_JS, /pf-chrome-foot|addEventListener/, 'the footer and the listeners stay in pf-site.js');
   assert.doesNotThrow(() => new Function(VENTURE_CHROME_EARLY_JS));
   assert.doesNotThrow(() => new Function('document', VENTURE_CHROME_EARLY_JS)({}));
