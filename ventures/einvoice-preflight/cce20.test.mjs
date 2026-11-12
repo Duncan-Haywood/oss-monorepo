@@ -106,3 +106,53 @@ test("an approved-exporter number is accepted for an EU destination", () => {
 test("Exportacion 01 without the complement draws nothing from these rules", () => {
   assert.ok(!rules(read("cfdi-4.0-invoice.xml")).some((r) => /^MX-06\d$/.test(r)));
 });
+
+// Red-team round 2026-11-12: each test below failed against a seeded mutant (or, the first,
+// against main) that the suite above let through.
+test("a CFDI dated before CCE 2.0 names the code's start date instead of throwing", () => {
+  // 7801100100 has no VIGENCIA entry, so it runs from 2024-01-18; on main this threw a TypeError.
+  const old = read("cfdi-4.0-cce20-mxn.xml").replace('Fecha="2026-11-10', 'Fecha="2023-12-01');
+  const f = checkCfdi(old).findings.find((x) => /CCE161/.test(x.message));
+  assert.ok(f, "CCE161 expected");
+  assert.match(f.message, /in force 2024-01-18 to now/);
+  // With no date to test against, a listed code counts as in force.
+  assert.ok(fraccionVigente("9503002300"));
+  assert.ok(fraccionVigente("7801100100", ""));
+});
+
+test("Propietario on a type T CFDI with MotivoTraslado 05 is accepted", () => {
+  const t05 = read("cfdi-4.0-cce20-traslado.xml").replace('MotivoTraslado="02"', 'MotivoTraslado="05"');
+  assert.ok(rules(t05).includes("MX-062"));
+  const owned = t05.replace("</cce20:Emisor>", '</cce20:Emisor><cce20:Propietario NumRegIdTrib="987654321" ResidenciaFiscal="USA"/>');
+  assert.deepEqual(rules(owned), []);
+});
+
+test("one line split over two Mercancia nodes needs the customs fields", () => {
+  const tr = read("cfdi-4.0-cce20-traslado.xml").replace(
+    '<cce20:Mercancia NoIdentificacion="LAP-14" FraccionArancelaria="8471300199" ValorDolares="10008.26"/>',
+    '<cce20:Mercancia NoIdentificacion="LAP-14" FraccionArancelaria="8471300199" ValorDolares="5004.13"/><cce20:Mercancia NoIdentificacion="LAP-14" FraccionArancelaria="8471500199" ValorDolares="5004.13"/>');
+  const msgs = checkCfdi(tr).findings.filter((f) => /CCE165/.test(f.message));
+  assert.equal(msgs.length, 2);
+  assert.match(msgs[0].message, /more than one line or Mercancia/);
+});
+
+test("a transfer's ValorUnitario allows 16 integer digits, not 17", () => {
+  const tr = read("cfdi-4.0-cce20-traslado.xml");
+  const has156 = (t) => checkCfdi(t).findings.some((f) => /CCE156/.test(f.message));
+  assert.ok(!has156(tr.replace('ValorUnitario="15240.50"', 'ValorUnitario="1234567890123456.00"')));
+  assert.ok(has156(tr.replace('ValorUnitario="15240.50"', 'ValorUnitario="12345678901234567.00"')));
+});
+
+test("the ValorDolares finding says how the limits were computed for the CFDI's currency", () => {
+  const usd = read("cfdi-4.0-cce20-usd.xml").replace(' ValorDolares="1022424.81"', ' ValorDolares="962500.00"').replace(' TotalUSD="1022424.81"', ' TotalUSD="962500.00"');
+  const f = checkCfdi(usd).findings.find((x) => /CCE158/.test(x.message));
+  assert.ok(f);
+  assert.match(f.message, /Importe \(a CFDI in dollars\)/);
+});
+
+test("a four-digit colonia code is named as not checked", () => {
+  const tr = read("cfdi-4.0-cce20-traslado.xml").replace('NumeroExterior="1203"', 'NumeroExterior="1203" Colonia="0001"');
+  const r = checkCfdi(tr);
+  assert.deepEqual(r.findings, []);
+  assert.ok(r.skipped.some((s) => /^CCE129 \(Emisor colonia 0001\)/.test(s)), r.skipped.join(" | "));
+});
