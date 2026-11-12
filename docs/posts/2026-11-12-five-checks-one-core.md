@@ -3,7 +3,7 @@ title: "Five page checks were using one core out of four"
 seo_title: "Speeding up HTML lint checks with a process pool and exact pre-filters"
 date: 2026-11-12
 tags: [performance, ci, accessibility, python]
-description: "Five accessibility and markup checks each parsed 3,700 pages on one core. A process pool and two exact pre-filters cut them from 18.7 s to 4.5 s with byte-identical output."
+description: "Five page checks parsed 3,700 pages on one core. A process pool and two exact pre-filters cut them from 18.7 s to 4.5 s, same output."
 ---
 
 Every pull request here runs a set of checks over every page we serve: does
