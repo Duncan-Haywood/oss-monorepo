@@ -1658,7 +1658,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     # look tables and the sRGB curve. The white balance and the matrix are
     # linear, so warping after the white balance gives what warping the camera
     # values would.
-    lin_rgb = array("d") if warps else None
+    lin_rgb = array("d")  # filled only when there is a warp
 
     def collect(r: float, g: float, b: float, _out: array) -> None:
         lin_rgb.append(hi if r > hi else (0.0 if r < 0 else r))
@@ -1723,7 +1723,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         lin_rgb = dng_opcodes.warp_rgb(warps, lin_rgb, ow, oh)
         for i in range(0, len(lin_rgb), 3):
             encode(lin_rgb[i], lin_rgb[i + 1], lin_rgb[i + 2], out)
-        lin_rgb = None
+        del lin_rgb
 
     report_w, report_h = ow, oh
     # Default crop (relative to the active area), in output pixels.

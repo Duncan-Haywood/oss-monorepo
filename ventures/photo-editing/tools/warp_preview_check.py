@@ -92,7 +92,8 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("dng")
     args = ap.parse_args(argv)
-    data = open(args.dng, "rb").read()
+    with open(args.dng, "rb") as fh:
+        data = fh.read()
     raw = rd.parse_raw(data)
     prev = preview_jpeg(data)
     if prev is None:
