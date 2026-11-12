@@ -1069,7 +1069,12 @@ Measured on phive-rules commit dfa902d, same seeds, code before and after:
 | PINT AE 2026.5, 32 | 32 to 32 | 286 to **380 of 386** | 0 to **76 of 76** |
 | PINT OM 1.0.1, 49; MY 1.3.1, 26; ZATCA 3.4.6, 19; A-NZ 1.1.3, 24; SG 1.4.1, 16; JP 1.1.3, 9 | unchanged, all | 777/782, 244/300, 257/258, 270/270, 158/164, 116/121, identical | OM 244/248, identical |
 
-(official-rules run pending)
+With `--rules` (the whole preflight with the official PINT AE sets on the plain
+route), the repaired file drew a rule id the original did not in **0 of 386**; before
+the zero-tax grouping fix it was 10, all on the two AE-category allowance files whose
+tax part was skipped. The same run shows the checks' gap: a seeded BTAE-10 drew a
+finding from nothing, ours or the UAE's (**0 of 40**), and a seeded BTAE-08 from
+something in 11 of 36. The repair fixes them when asked; no check says to ask.
 
 Still not restored on UAE (6): the three line `TaxTotal`s outside
 `ItemPriceExtension` on Continuous supplies and the two Exports files (left as

@@ -3,7 +3,7 @@ title: "UAE e-invoices state every line's VAT twice, and our repair button ignor
 seo_title: "PINT UAE BTAE-08 and BTAE-10: repairing line VAT on UAE e-invoices"
 date: 2026-11-12
 tags: [einvoice-preflight, ventures]
-description: "The UAE's PINT e-invoice repeats each line's VAT and amount payable. We planted 76 wrong ones in OpenPeppol's examples. The repair fixed none of them, and now it fixes all 76."
+description: "UAE e-invoices restate each line's VAT and amount payable. Of 76 we planted wrong in OpenPeppol's examples, the repair fixed none; now it fixes all 76."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) checks an e-invoice before it is sent, and its repair button rewrites the arithmetic it can prove. To see how well the repair works, we plant wrong amounts in published example invoices that are known to be correct, one at a time, and count how many it puts back. On OpenPeppol's 32 examples for the UAE (PINT AE 2026.5) it put back 286 of 386. Of the 100 it missed, 76 were the same kind of amount.
