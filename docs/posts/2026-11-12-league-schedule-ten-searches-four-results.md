@@ -3,7 +3,7 @@ title: "Ten searches, four results: re-measuring the league scheduler's carry-ov
 seo_title: "Round-robin carry-over vs home/away breaks: four choices measured"
 date: 2026-11-12
 tags: [league-schedule-generator, ventures, scheduling]
-description: "The league scheduler's four 'spread who you meet next' choices, measured on the page's own ten searches against 20 real top-flight seasons, and why 19 teams gave the same season seven times."
+description: "The league scheduler's four carry-over choices measured on its own ten searches against 20 real top-flight seasons, and why 19 teams got one season 7 times."
 ---
 
 The [league schedule generator](https://marisstella.app/league-schedule-generator/) has a box called "Spread who you meet next". Tick it and the page runs ten searches for a home-and-away season with an even *carry-over*. Carry-over counts how often a team plays someone straight after that someone played the same strong side. The page then keeps one of the ten, chosen by what you said you care about: the most even carry-over, a balance, fewer back-to-back home or away games ("breaks"), or the fewest breaks possible.
