@@ -55,7 +55,8 @@ export function detectBoth(values, labels, opts = {}) {
   const off = Math.max(0, values.length - o.window);
   const v = values.slice(off), l = labels.slice(off);
   const { confirm, tolerance, window, detector, alertHistory, ar1Detectors, ...engine } = o;
-  const r = analyze({ ...engine, values: v, labels: l });
+  // With an AR(1) detector chosen and the plain lists not asked for, the plain engine run is skipped (half the time per check).
+  const ar1Only = String(detector).startsWith('bocpd-ar1') && !o.ar1Detectors && (engine.model ?? 'mean') === 'mean';
   const map = (c) => ({
     index: c.index + off,
     label: c.label,
@@ -64,7 +65,8 @@ export function detectBoth(values, labels, opts = {}) {
     ...(c.sdBefore !== undefined ? { sdBefore: c.sdBefore, sdAfter: c.sdAfter } : {}),
     ...(c.probability !== undefined ? { probability: c.probability } : {}),
   });
-  const out = { pelt: r.pelt.changepoints.map(map), ...bayesLists(r, map, '') };
+  let out = {};
+  if (!ar1Only) { const r = analyze({ ...engine, values: v, labels: l }); out = { pelt: r.pelt.changepoints.map(map), ...bayesLists(r, map, '') }; }
   // 'bocpd-ar1' / 'bocpd-ar1-window': the same Bayesian pass with the engine's AR(1) term (--ar1: rho from the
   // window, the conditional AR(1) likelihood in bocpd), for sticky noise. A second engine run, so only on request.
   if ((o.ar1Detectors || String(detector).startsWith('bocpd-ar1')) && (engine.model ?? 'mean') === 'mean') {
