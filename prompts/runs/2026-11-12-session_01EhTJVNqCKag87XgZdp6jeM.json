@@ -33,7 +33,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Metric: wall time of a scratch workload of the carry-over searches best-of-k.test.mjs and capped-breaks.test.mjs run (hash of every result 2eb5936daff0a1c8 before and after). Before 53.9 s, after 44.8 s (time via Date.now in the script, same container, back to back). Test files (time node --test --test-reporter=dot): best-of-k 59.3 -> 56.2 s, capped-breaks 67.2 -> 61.6 s. Full suite run_venture_tests.py league-schedule-generator: ok 121.0 s. Changes: legTwoHostBreaks (leg one counted once), teamSwapRounds stamped scratch. Next lever: exact incremental carry-over delta in anneal.",
+  "notes": "Metric: wall time of a scratch workload of the carry-over searches best-of-k.test.mjs and capped-breaks.test.mjs run (hash of every result 2eb5936daff0a1c8 before and after). Before 53.9 s, after 44.8 s (time via Date.now in the script, same container, back to back). Test files (time node --test --test-reporter=dot): best-of-k 59.3 -> 56.2 s, capped-breaks 67.2 -> 61.6 s. Full suite run_venture_tests.py league-schedule-generator: ok 121.0 s. Changes: legTwoHostBreaks (leg one counted once), teamSwapRounds stamped scratch. Next lever: exact incremental carry-over delta in anneal. Local CI (no GitHub check runs had started on the PR): run_workflow_locally --for-changes 6/7 workflows passed incl. ventures-tests; portfolio-pages.yml run by name: 'Test the site builder' ok (515.6 s), front-matter check ok; failures only in steps needing CI cache dirs or deploy artifacts/secrets (share-card cache dir, site.tar, Cloudflare deploy). Cross-review bots not run.",
   "corrections": [],
   "redteam": null
 }
