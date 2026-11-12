@@ -1,5 +1,17 @@
 # buildbot-sheathing research log
 
+## 2026-11-12 · Milestone 4 result: on doubled joints a robot may hang the sheet 18x coarser; on single 2x joints re-hanging cannot reach 95%
+
+`experiments/m4_tack_measure/` (results.txt, results.json, figure.png); 20,000 sheets a cell, seed 4; about 100 s.
+
+- **H10 refuted.** On straight single-2x studs with a hang of σx = 1 mm, σθ = 0.1°, tack-measure-reject peaks at **0.87 clean sheets** (re-hang below a 2.0 mm predicted half-window, 2.1 hangs a sheet). A stricter threshold re-hangs more and does worse (0.81 at 2.5 mm, 3.6 hangs), because the fifth hang is nailed whatever it predicts. At the lower published warp the best is 0.66. Even a perfect hang gives only 0.96 (straight) and 0.81 (low warp): the narrow joint has no room left for the hang once sensing and tool scatter are in.
+- **H11 held, by a wide margin.** On two-2x joints at the lower published warp, tacking and aiming from the measured edge allows **σθ = 0.54°** (11 mm at the top nail) and **σx = 10.4 mm** for 95% clean sheets, against 0.029° and 0.37 mm on straight single-2x joints: 18 and 28 times coarser. A 3x allows 0.38° and 7.2 mm. Studs that bow cost almost nothing on wide joints (0.556° straight against 0.537° low warp).
+- **H12 held.** A held sheet that sways under the nail after the edge was measured may sway **0.19 mm** (1σ per nail) on straight single-2x joints and nothing at the lower warp, against **4.1 mm** on two-2x joints and 3.0 mm on a 3x.
+- **Edge aim is worth having only when the hang is coarse.** With three reads per stud, aiming at the design window beats aiming from the measured edge on single-2x joints (0.972 against 0.958 with a perfect hang; 0.44 mm against 0.37 mm of translation allowed), because the 0.5 mm edge reading adds noise the hang does not. On wide joints edge aim nearly doubles the hang allowed (0.29° to 0.54°).
+- **Re-hanging is cheap insurance on wide joints.** A 3x with a hang of 3 mm and 0.3° goes from 0.967 to 0.9996 clean with 1.1 hangs a sheet.
+- **What it means for the programme.** Milestone 3 now has its target: a hang within about **0.5° and 10 mm (1σ)** on doubled joints, or 0.03° and 0.4 mm on single 2x. The first is a placement a guided humanoid or a lift might reach; the second is not plausible for any site robot co-holding a sheet. Tacking matters less than the framing: on wide joints a robot can hold the sheet and nail with millimetres of sway.
+- **Modelling choices, not sourced:** hang and sway errors Gaussian and swept; sway is an independent translation per nail with no rotation; a re-hang is a fresh independent hang (a robot that corrects from its measurement would do better; table A's budget is that residual); the measured edge line has the true slope. Studs, sensing and tool are milestone 2's.
+
 ## 2026-11-12 · Milestone 4 planned: tack, then measure; how coarse may a robot hang the sheet?
 
 Written before any milestone-4 experiment was run. Milestone 3 (placement in MuJoCo) needs a
