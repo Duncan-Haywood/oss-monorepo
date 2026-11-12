@@ -540,14 +540,16 @@ const clock = (h) => `${h === 24 ? "0" : h}:00`.replace(/^(\d):/, "$1:");
 // this way week by week on two real bakeries it was never clearly worse than the plain average in 12 settings and
 // 7.4% better on average, where a fixed half-life 2 was clearly worse in 2 and half-lives 4 and 8 helped less.
 export const AUTO_MIN_WEEKS = 4;
-// With o.scoreClosed the backtest is scored that way and "the last 4 weeks only" is a candidate too. Measured 2026-11-11
+// Scored with a staffed closure as over (the default since 2026-11-12; o.scoreClosed false is the old score), "the last
+// 4 weeks only" is a candidate too. Measured 2026-11-11
 // (eval/window-auto.mjs, README "A 4-week window in half-life auto"), out of sample on three real bakeries: under the
 // default score adding it changed nothing clearly in 18 of 18 settings (mean +0.2%, so it is not offered there); under
 // --score-closed it was clearly better than the four-weighting choice in 6 of 18 and clearly worse in none (mean -16.3%,
 // Bread Basket -47%).
 export function pickHalfLife(text, o = {}) {
   const rc = o.shortCost === undefined ? null : Number(o.shortCost);
-  const ids = o.scoreClosed ? ["hl8", "hl4", "hl2", "last4"] : ["hl8", "hl4", "hl2"];
+  const sc = o.scoreClosed !== false;
+  const ids = sc ? ["hl8", "hl4", "hl2", "last4"] : ["hl8", "hl4", "hl2"];
   const pre = rc === null ? "" : "q-";
   let b;
   try { b = backtestSales(text, { ...o, halfLife: undefined, window: undefined, shifts: true, methods: rc === null ? ids : ["all", ...ids].map((x) => pre + x) }); }
@@ -559,7 +561,7 @@ export function pickHalfLife(text, o = {}) {
   const hl = best.halfLife, win = best.window;
   const what = hl ? `half-life ${hl} weeks` : win ? `the last ${win} weeks only` : "every earlier week weighed the same";
   const gain = base.miss - best.miss;
-  const scored = o.scoreClosed ? " (a staffed closure scored as over)" : "";
+  const scored = sc ? " (a staffed closure scored as over)" : "";
   return { halfLife: hl, window: win, weeks: b.weeks, note: `Half-life auto: ${what}, the weighting with the least short + over on your last ${b.weeks} weeks${scored}${best !== base ? ` (${gain.toFixed(1)} person-hours a week fewer than equal weights)` : ""}. --half-life none turns it off; a number fixes it.` };
 }
 
@@ -661,11 +663,11 @@ export function backtestSales(text, o = {}) {
   // The scorer's view of which weekday-hours are normally shut, from the whole file (hindsight is fine in the score; the
   // plans still learn only from earlier weeks). Fixed whatever rules the plan uses, so --keep-rare and the break rule
   // are scored against the same reference (2026-11-11).
-  let closedRef = null;
-  if (o.scoreClosed) {
-    const ref = averageSales(dated, { keepRare: true });
-    closedRef = ref.seen.map((row, d) => row.map((n) => ref.observed[d] > 0 && n * 5 < ref.observed[d]));
-  }
+  // The default since 2026-11-12 (o.scoreClosed !== false; --score-open-hours turns it off). o.closedFrom "past" builds
+  // the reference for each tested week from the dates before it only, a hindsight-free check (eval/hindsight-closure.mjs).
+  const scoreClosed = o.scoreClosed !== false;
+  const closedOf = (rows) => { const ref = averageSales(rows, { keepRare: true }); return ref.seen.map((row, d) => row.map((n) => ref.observed[d] > 0 && n * 5 < ref.observed[d])); };
+  const closedAll = scoreClosed && o.closedFrom !== "past" ? closedOf(dated) : null;
   // With a short-vs-over weight r, every weighting is also tried with the fractile rule, and a week scores r x short +
   // over; the plain average stays first as the baseline everything is compared with.
   const rc = o.shortCost === undefined ? null : Number(o.shortCost);
@@ -680,6 +682,7 @@ export function backtestSales(text, o = {}) {
     const actual = DAYS.map(() => new Array(24).fill(0));
     const soldOn = DAYS.map(() => new Array(24).fill(false));
     for (const e of byWeek[w]) { actual[e.day][e.hour] += e.amount; if (e.amount > 0) soldOn[e.day][e.hour] = true; }
+    const closedRef = !scoreClosed ? null : closedAll || closedOf(dated.filter((e) => keyMs(e.key) < start));
     for (const res of results) {
       const from = res.window ? start - res.window * 7 * DAY_MS : -Infinity;
       const train = dated.filter((e) => { const t = keyMs(e.key); return t < start && t >= from; });
@@ -723,5 +726,5 @@ export function backtestSales(text, o = {}) {
   const best = methods.reduce((a, b) => (b.miss < a.miss - 1e-9 ? b : a));
   const clear = best.id !== "all" && best.ci[1] < 0;
   notes.push(`Tested on ${tested.length} full week${tested.length === 1 ? "" : "s"} (first ${warmup} used only to learn from), at ${splh} ${r.count && r.count !== "sales" ? r.count : "sales"} per labor hour and ${minStaff} minimum staff${rc === null ? "" : `, a short person-hour costing ${rc} spare ones`}.`);
-  return { weeks: tested.length, methods, best: best.id, clear, shortCost: rc, shifts: !!o.shifts, scoreClosed: !!o.scoreClosed, minShift, maxShift, perWeek, notes };
+  return { weeks: tested.length, methods, best: best.id, clear, shortCost: rc, shifts: !!o.shifts, scoreClosed, closedFrom: scoreClosed ? (o.closedFrom === "past" ? "past" : "file") : null, minShift, maxShift, perWeek, notes };
 }

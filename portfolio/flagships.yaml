@@ -104,18 +104,19 @@ flagships:
       through the proxy that day, but probe first, it has refused before); a larger
       local model (14B+, about 11 GB RAM) as the Enron reader with
       `eval/model-reader.mjs`, scored for agreement with the agent readers before its
-      labels count. Without a model host: (6) the Today's queue
-      Done button landed 2026-11-12 (README "A Done button for calls and LinkedIn");
-      next on that queue, a call outcome per Done (no answer, voicemail, spoke) that
-      re-queues a no-answer call next business day and feeds prep.mjs, tested on the
-      real cadence builder plan.
+      labels count. Without a model host: (6) call outcomes landed
+      2026-11-12 (README "Call outcomes on the Today's queue": spoke, voicemail, no
+      answer re-queued next business day up to 3 tries, fed to prep.mjs); next on that
+      queue, a no-answer that pushes the cadence's later steps back by the same days
+      (today a third try at the step-3 call lands on the step-4 email's day), and a holiday list
+      for the retry day, both tested on the real cadence builder plan.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
       real replies reliably, keeping consent records, and earning each step of autonomy with measurements.
     next: >-
       History and every measurement: README, eval/README and git (inbox agent, daily run
-      with sent mail as the done list, Today's queue Done button, self-host server with TLS
+      with sent mail as the done list, Today's queue Done button and call outcomes, self-host server with TLS
       and XOAUTH2, research agent, call prep, follow-ups, meeting slots and .ics invites,
       CRM write-back against fake servers only; nineteen agent-written reply sets; .eml and
       .mbox files). Real mail (eval/enron.mjs, Enron): seven rule rounds scored blind on
@@ -186,9 +187,10 @@ flagships:
       last 4 weeks under --score-closed only (out of sample: 6 of 18 clearly better, 0 worse, -16%; no gain
       under the default score; README "A 4-week window in half-life auto"), and --last-weeks <n>. A fourth file agreed 2026-11-11 (eval/fourth-file.mjs,
       UCI Online Retail II, pre-registered: 6 of 6 on both tests; auto with the window beats auto without
-      by 5.0-14.5 under the new score). Next: make --score-closed the --backtest and half-life-auto default
-      with the window offered, and put both on the page; a hindsight-free closure reference (earlier weeks
-      only) to test how much of the window's gain is hindsight; close the 100-person gaps (tree,
+      by 5.0-14.5 under the new score). 2026-11-12: the closure score is the --backtest and half-life-auto
+      default with the window offered (--score-open-hours is the old score), and both are on the page; a
+      past-only closure reference kept 77% of the window's gain (eval/hindsight-closure.mjs, pre-registered,
+      6/12/0, -12.5%; README "The closure score is the default"). Next: close the 100-person gaps (tree,
       not pricing); cuts or branching that move the score LP on the 60-person pay week; buildRoster end to
       end on 40-person weeks with exact on; a US POS item export (Square or Toast); a labour standard
       (minutes per ticket vs per euro) or a blend of the two drivers; a real published-schedule export for

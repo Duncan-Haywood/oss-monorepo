@@ -58,7 +58,7 @@ for (const [i, f] of FILES.entries()) texts[f.id] = await load(f, process.argv[2
 const rows = []; // one per file x setting
 for (const f of FILES) {
   for (const splh of f.splhs) for (const minStaff of [1, 2]) {
-    const r = backtestSales(texts[f.id], { splh, minStaff, shifts: true });
+    const r = backtestSales(texts[f.id], { scoreClosed: false, splh, minStaff, shifts: true });
     const per = r.perWeek;
     const autoPlain = online(per, "all"), autoHl4 = online(per, "hl4");
     const cand = { all: per.all, hl8: per.hl8, hl4: per.hl4, hl2: per.hl2, "auto(plain first)": autoPlain.loss, "auto(hl4 first)": autoHl4.loss };

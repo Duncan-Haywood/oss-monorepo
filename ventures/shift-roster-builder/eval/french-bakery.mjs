@@ -30,10 +30,10 @@ console.log(`\nshift lines that span 14:00-16:00: ${span(d.shiftsText)} with the
 for (const splh of [20, 40, 80]) {
   for (const minStaff of [1, 2]) {
     console.log(`\n== --backtest --splh ${splh} --min-staff ${minStaff}`);
-    process.stdout.write(backtestReport(backtestSales(text, { splh, minStaff })));
+    process.stdout.write(backtestReport(backtestSales(text, { scoreClosed: false, splh, minStaff })));
   }
 }
 for (const splh of [20, 40, 80]) {
-  const kr = backtestSales(text, { splh, keepRare: true }).methods[0], df = backtestSales(text, { splh }).methods[0];
+  const kr = backtestSales(text, { scoreClosed: false, splh, keepRare: true }).methods[0], df = backtestSales(text, { scoreClosed: false, splh }).methods[0];
   console.log(`\n== default plan, rules off vs on (splh ${splh}): scheduled ${kr.scheduled.toFixed(2)} vs ${df.scheduled.toFixed(2)}, short ${kr.short.toFixed(2)} vs ${df.short.toFixed(2)}, over ${kr.over.toFixed(2)} vs ${df.over.toFixed(2)} person-hours/week`);
 }

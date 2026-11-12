@@ -9,6 +9,7 @@ Track 21 (`infra`), grid first. Grid dispatch is routinely planned and priced wi
 - **IEEE 39-bus:** the DC cost is 1.0 to 1.5 % below the AC optimum, and the DC dispatch is nearly free in cost terms (within 0.06 %) but **breaks voltage limits**: 15 buses out of band at 0.6 of load, 5 at 0.8, 1 at the case's load (highest 1.079 pu).
 - **IEEE 30-bus:** the DC cost is 1.3 to 2.3 % below; at the case's load the DC dispatch overloads one branch to 111 % and is 0.31 % *cheaper* than the AC optimum, which is the signature of a violated constraint, not a better plan.
 - **PGLib-OPF with published binding ratings (2026-11-11):** on 11 congested (API) benchmark cases the DC OPF's dispatch overloads branches in **every** case when run through an AC power flow (worst 103 to 180 % of rating), finds a median 56 % of the binding lines, and its LMPs correlate with the AC ones at a median r = 0.66; uniform derating or iterated AC correction repairs only 1 of 11. Also: MATPOWER's and PowerModels' DC OPFs differ by up to 2.8 % on these cases ([section below](#with-published-ratings-that-bind-23-pglib-opf-cases-added-2026-11-11-experimentsrun_pglibpy-results_pglibtxt)).
+- **Linearising the AC power flow instead (2026-11-12):** successive linearisation (finite-difference loss factors and apparent-flow sensitivities at each AC point, a QP, a step box) gives an AC-feasible dispatch on **7 of the 11 congested API cases** within 10 rounds, at the AC optimum's own cost, and leaves the other four within 0.012 % of their ratings; one linearisation at the plain DC dispatch clears none, and even the oracle linearisation at the AC optimum clears only 7 ([section below](#linearising-the-ac-power-flow-at-an-ac-point-added-2026-11-12-experimentsrun_aclinpy-results_aclintxt)).
 - **Reading:** the DC model's price error is a loss term of 1 to 3 % here, and the danger of its dispatch is not cost but reactive and voltage limits it never modelled, on the smaller cases. Neither is a large number, and none says DC is wrong for planning.
 
 ![IEEE 118-bus: DC OPF cost error and AC cost of the DC dispatch](experiments/gap_vs_load.svg)
@@ -92,13 +93,34 @@ Next step 2 asked for a usable scheme: `previous_interval_penalty_dc` takes fact
 - A 0.2 upward step (0.8 to 1.0) keeps about 70 % of it (0.703 %); stale factors still beat plain DC, but the sensitivity point matters, consistent with the earlier finding. Stepping down (1.0 to 0.8) costs almost nothing.
 - Limits: one network (case118), a load scale stands in for a real interval (same load shape, no outages or renewables), one solver, one dispatch point per cell.
 
+## Linearising the AC power flow at an AC point (added 2026-11-12, `experiments/run_aclin.py`, `results_aclin.txt`)
+Next step 1: plain DC, derating and `corrected_dc` all leave the API dispatches AC-infeasible. Does a linear model taken from the AC power flow itself do better? At an AC operating point (`src/infra_dcopf/aclin.py`), each generator is moved 1 MW in PYPOWER's AC power flow with the slack compensating, giving its marginal loss factor (d P<sub>slack</sub>/d P<sub>k</sub>, 0.95 to 1.38 MW per MW on case24 API) and the change of the apparent flow |S| at both ends of every rated branch. With the point's own flows as offsets, the model is exact at the point and first order away from it; it carries losses and reactive flow, which the DC model does not. A QP on the case's costs (PYPOWER's PIPS) gives the next dispatch, then the same AC check as above (generator voltages at the AC optimum's schedule). Predictions were logged before the run (`LOG.md`, 2026-11-12); all four were refuted as stated.
+
+| API cases with an AC optimum (11) | clean dispatches | AC cost where clean |
+|---|---|---|
+| plain DC (MATPOWER B) | 0 | n/a |
+| derating, best a in 0.8 to 1 | 1 | +2.7 % |
+| `corrected_dc` (loss and rating feedback) | 1 | see `results_pglib.txt` |
+| **B**: one linearisation at the plain DC dispatch's AC flow | 0 | n/a |
+| **A**: one linearisation at the AC optimum (oracle bound) | 7 | within 0.001 % |
+| **C**: successive linearisation from B, at most 10 rounds | **7** (rounds 2 to 7) | within 0.001 % (case24 −0.47 %, 4 buses out of band) |
+
+- **One shot is not enough, even at the right point.** Linearised at the AC optimum itself, the QP still moves to a cheaper dispatch that the first-order model calls feasible and the AC flow does not (case24, 57, 300 end 0.15 to 3.9 % over), and on case73 a branch whose flow redispatch barely moves leaves the model with no feasible point. Linearised once at the plain DC dispatch (B), nothing is clean: on 5 cases the residual is a curvature hair (worst branch 100.05 to 100.66 %), on 2 the model is infeasible, and on 4 the point is so far off (the DC dispatch's slack 50 to 800 MW outside its limits) that the step lands at 108 to 167 %.
+- **Relinearising closes most of it.** C relinearises at each new dispatch with a per-unit step box (20 % of the unit's range, halved when a step does not lower the infeasibility) and an l1-penalised elastic QP when the model has no feasible point in the box (Fletcher's Sl1QP device). Seven API cases reach a clean dispatch at the AC optimum's cost; the other four (case57, 73, 200, 300) end within **0.012 %** of their ratings and 0.8 MW of the slack's limits after 10 rounds, so a strict-feasibility margin in the last round should finish them (untested). On TYP, C is clean on 7 of 9 that could start (case179 and case300 TYP have no AC power flow at the plain DC point; case240 TYP has no DC solution). Run time 1 to 13 s per case on one CPU, n<sub>gen</sub> power flows per round.
+
+![PGLib API cases with an AC-feasible dispatch after k rounds of successive linearisation](experiments/aclin_rounds.svg)
+
+- **Reading.** The congested cases are not beyond a linear model; they are beyond a linear model taken once. The DC model's error on them is mostly the losses and reactive flows a first-order AC model carries, plus curvature that relinearising removes. This is the successive linear programming idea that AC OPF solvers have used for decades, measured here as a repair for the DC dispatch on today's benchmark set.
+- **Limits, plainly.** C's step rules (the elastic fallback, the 1 ppm tolerance, the box halving) were added after the first runs failed, on these same cases, with no held-out set; its first version cleared 3 of 12. Voltages stay at the AC optimum's schedule, so only the active-power side is tested, and the schedule itself comes from the AC OPF this is meant to avoid. One AC solver (PYPOWER), finite-difference sensitivities, benchmark cases, no N-1.
+
 ## Method (`src/infra_dcopf/dcopf.py`)
 - **Cases.** `case30`, `case39` and `case118` from `pandapower.networks` (MATPOWER cases), with their quadratic generator costs (`poly_cost`).
 - **Two OPFs per condition.** `runopp` (AC, PIPS interior point, voltage and branch loading limits) and `rundcopp` (DC), on the same network with load scaled by 0.6, 0.8, 1.0 and 1.1 (P and Q together).
 - **DC dispatch under AC.** The DC generator set-points are fixed in an AC power flow with the external grid as slack; we count buses outside their voltage limits, branches above their loading limit, and the cost of the resulting dispatch (slack included) with the same cost function (`gen_cost`, checked to match pandapower's `res_cost` to 1e-6).
 - **Tightened limits.** A second sweep scales every line's `max_i_ka` and transformer `sn_mva` by 0.7 and 0.5 to force congestion. Many of those runs have no solution (below).
 
-## Checks (`tests/`, 8)
+## Checks (`tests/`, 24)
+- `tests/test_aclin.py` (5): on case30 API, the linearisation's offsets reproduce the AC power flow at its point, a 5 MW redispatch is predicted to within 0.05 MW of slack and 0.5 MVA of branch flow, the loss factors lie in a physical range, the QP solution satisfies its own linear constraints, and the linearisation at the AC optimum returns an AC-feasible dispatch.
 - `tests/test_pglib.py` (5): the PGLib reader, the parsed BASELINE.md table, the AC OPF against PGLib's published case118 TYP and API objectives (within 0.01 %), and the PowerModels DC convention reproducing the published case14 API DC cost while MATPOWER's B matrix does not.
 A two-bus network with a closed-form answer (DC cost 10x50 + 0.01x50^2 = 525; the AC slack supplies load plus line loss); `gen_cost` equals pandapower's cost on case39; the 118-bus DC dispatch is feasible and costs no less than the AC optimum; the DC cost error lies in 1 to 5 %; case39's DC dispatch breaks voltage limits at light load; the loss-adjusted model's cost on case118 is under half of plain DC's error and the losses it feeds back exceed 50 MW; on the two-bus case its fed-back loss equals the AC loss of its dispatch.
 
@@ -184,7 +206,7 @@ Next step 2 asked for an outage stress test. Penalty factors and loss share are 
 - Limits: one network (case118, whose ratings do not bind at the intact optimum; post-trip line loadings were not reported, and a trip that congests the network is where stale factors are most at risk, to be tested on the PGLib API cases), single-line trips only, one solver, one dispatch per outage, the oracle uses the post-trip AC optimum (a bound, not a scheme).
 
 ## Next steps
-1. Published binding ratings done on 23 PGLib-OPF cases (section above): the DC dispatch is AC-infeasible on all 11 API cases, and derating or iterated AC correction does not repair it. Next: an AC-informed linearisation taken at a nearby AC point (hot-start PTDFs with loss factors and reactive offsets) on the API set; check whether it stays feasible where `corrected_dc` does not; an exact loss/congestion decomposition of the API LMPs from the AC duals.
+1. Published binding ratings done on 23 PGLib-OPF cases, and an AC-informed linearisation on them (sections above): successive linearisation clears 7 of 11 API cases where `corrected_dc` clears 1. Next: PGLib's SAD cases as a held-out test of C's step rules; a 99.9 % rating margin in the last round for the four near-clean cases; analytic Jacobian sensitivities in place of finite differences; a voltage schedule that does not come from the AC optimum; an exact loss/congestion decomposition of the API LMPs from the AC duals.
 2. Previous-interval factors keep ~90 % of the oracle gain for 0.1 load steps, and essentially all of it on two real hourly weeks (above). Ramp and single-line outage stress tests done (above): stale factors beat plain DC on all 80 trips. Next: outages on a case whose ratings bind (PGLib API), a refresh rule driven by the factor change, a DC-based estimate of the point, or a distributed slack.
 3. Done by another route (see "Voltage violations" above). Next: a voltage/Q stage that is not a full AC OPF, and full-load feasibility with a solver that converges.
 
@@ -192,13 +214,15 @@ Next step 2 asked for an outage stress test. Penalty factors and loss share are 
 ```bash
 pip install pytest numpy pandapower
 cd research/infra-dcopf
-python -m pytest -q tests                     # 19 tests, about 35 s
+python -m pytest -q tests                     # 24 tests, about 30 s
 PYTHONPATH=src python experiments/run.py      # about 1 min; writes experiments/results.txt
 PYTHONPATH=src python experiments/run_penalty_acopt.py  # about 3 min; writes results_penalty_acopt.txt
 PYTHONPATH=src python experiments/run_prev_interval.py  # about 2 min; writes results_prev_interval.txt
 PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
 python experiments/run_pglib.py               # PGLib TYP+API, about 3 min; needs pypower; writes results_pglib.txt/.json
 python experiments/figure_pglib.py            # experiments/pglib_overload.svg
+python experiments/run_aclin.py               # AC-informed linearisation, about 2 min; needs pypower; writes results_aclin.txt/.json
+python experiments/figure_aclin.py            # experiments/aclin_rounds.svg
 PYTHONPATH=src python experiments/run_case300_pypower.py  # about 2 min; needs pypower; writes results_case300_pypower.txt
 PYTHONPATH=src python experiments/run_case300.py  # case300 sweep, about 1.5 min; writes results_case300.txt
 PYTHONPATH=src python experiments/run_hourly_profile.py  # about 25 min; writes results_hourly_profile.txt
@@ -216,7 +240,8 @@ python experiments/figure.py                  # experiments/gap_vs_load.svg
 - Stott, B., Jardim, J., Alsac, O. (2009), DC power flow revisited, *IEEE Trans. Power Systems* 24(3), doi:10.1109/TPWRS.2009.2021235.
 
 - Babaeinejadsarookolaee, S. et al. (2019), The Power Grid Library for Benchmarking AC Optimal Power Flow Algorithms, arXiv:1908.02788 (PGLib-OPF; cases v23.07 in `data/pglib/`, CC BY 4.0).
+- Fletcher, R., Sainz de la Maza, E. (1989), Nonlinear programming and nonsmooth optimization by successive linear programming, *Mathematical Programming* 43, 235&ndash;256, doi:10.1007/BF01582292 (the l1-penalised SLP step used in C; DOI, volume and pages checked 2026-11-12 against the publisher's first page via a web search, the resolver being unreachable).
 - Coffrin, C., Bent, R., Sundar, K., Ng, Y., Lubin, M. (2018), PowerModels.jl: An Open-Source Framework for Exploring Power Flow Formulations, *Power Systems Computation Conference (PSCC)*, doi:10.23919/PSCC.2018.8442948.
 
 ## Outside dependencies
-pandapower (and its PYPOWER-derived solvers), the MATPOWER case data it ships, PYPOWER, and PGLib-OPF v23.07 case files (CC BY 4.0, `data/pglib/`).
+pandapower (and its PYPOWER-derived solvers), the MATPOWER case data it ships, PYPOWER, and PGLib-OPF v23.07 case files (CC BY 4.0, `data/pglib/`), and SciPy (sparse matrices for PYPOWER's QP).

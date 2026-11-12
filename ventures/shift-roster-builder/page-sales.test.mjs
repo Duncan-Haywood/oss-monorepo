@@ -35,3 +35,11 @@ test("sales page: the backtest button runs backtestSales and counts its use loca
   assert.match(html, /record\("sales_backtest_run"\)/);
   assert.match(html, /not a promise about the next one/);
 });
+
+test("sales page: the closure score is a box, on by default, passed to the backtest and to auto; auto's window reaches the plan", () => {
+  const html = page("shifts-from-sales.html");
+  assert.match(html, /<input type="checkbox" id="scoreclosed" checked>/);
+  assert.equal((html.match(/scoreClosed: \$\("#scoreclosed"\)\.checked/g) || []).length, 2);
+  assert.match(html, /o\.halfLife = autoPick\.halfLife; o\.window = autoPick\.window;/);
+  assert.match(html, /the last 4 weeks only on your own file/);
+});
