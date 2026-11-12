@@ -57,3 +57,41 @@ test("a fee-sized overpayment is allowed: Monto may exceed what the documents re
   const f = good.replace('Monto="11475.00"', 'Monto="11475.50"').replace('MontoTotalPagos="23205.00"', 'MontoTotalPagos="23205.50"');
   assert.deepEqual(checkCfdi(f).findings, []);
 });
+
+// Red-team guards (2026-11-12): each test below fails with a code mutant that the suite let through.
+test("tax group labels name the tax: ISR and IVA, not the SAT code", () => {
+  const f = good.replace('ImpuestoDR="001"', 'ImpuestoDR="002"').replace('ImpuestoP="001"', 'ImpuestoP="002"');
+  const r = checkCfdi(f).findings;
+  assert.deepEqual(r.map((x) => x.rule), ["MX-049", "MX-049"]);
+  assert.match(r[0].message, /IVA withheld/);
+  assert.match(r[1].message, /ISR withheld/);
+});
+
+test("a peso payment with no TipoCambioP counts at 1 toward MontoTotalPagos", () => {
+  const f = good.replace(' MonedaP="MXN" TipoCambioP="1"', ' MonedaP="MXN"');
+  assert.deepEqual(checkCfdi(f).findings, []);
+  const r = checkCfdi(f.replace('MontoTotalPagos="23205.00"', 'MontoTotalPagos="23300.00"')).findings;
+  assert.deepEqual(r.map((x) => x.rule), ["MX-049"]);
+  assert.match(r[0].message, /23205\.00/);
+});
+
+test("a payment with no Monto is a schema fault, not a crash or a MontoTotalPagos guess", () => {
+  const r = checkCfdi(good.replace(' Monto="11475.00"', ""));
+  assert.deepEqual(r.findings.map((x) => x.rule), ["MX-002"]);
+});
+
+test("Totales tax sums come from the documents too, when ImpuestosP leaves a group out", () => {
+  // Payment 1 drops its IVA row: MX-048 says so, and Totales (which still counts that IVA) is right.
+  const f = good.replace(/<pago20:TrasladosP>\s*<pago20:TrasladoP BaseP="10000\.00"[^>]*\/>\s*<\/pago20:TrasladosP>/, "");
+  const r = checkCfdi(f).findings;
+  assert.deepEqual(r.map((x) => x.rule), ["MX-048"]);
+  assert.match(r[0].message, /leaves out/);
+});
+
+test("an unreadable TipoCambioP skips the Totales tax sums instead of blaming correct totals", () => {
+  for (const tc of ["", ' TipoCambioP="abc"']) {
+    const r = checkCfdi(good.replace(' TipoCambioP="17.25"', tc));
+    assert.deepEqual(r.findings.map((x) => x.rule), [tc ? "MX-003" : "MX-042"], tc);
+    assert.ok(r.skipped.some((s) => /MX-049/.test(s) && /TipoCambioP/.test(s)), tc);
+  }
+});

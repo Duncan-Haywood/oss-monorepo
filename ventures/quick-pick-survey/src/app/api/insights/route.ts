@@ -1,10 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { loadRatedItems } from "@/lib/participantRatings";
 import { confidenceInterval95, GLICKO_SCALE } from "@/lib/glicko2";
 import { differenceSd, EB_MAX_ITEMS, empiricalPriorPhi, refitRatings, REFIT_MAX_ITEMS, type RefitResult } from "@/lib/btRefit";
 import { clearPick } from "@/lib/clearPick";
 import { contenders } from "@/lib/favouriteSet";
+import { setPriorPhi, type StoredPrior } from "@/lib/surveyPrior";
+import { refreshSurveyPrior, storedSurveyPrior } from "@/lib/surveyPriorStore";
 import { answersUntilNextLevel, INSIGHTS, levelForAnswers } from "@/lib/insights";
 import { RANGES } from "@/lib/financialProfiles";
 import { describeDimensions, scoreDimensions } from "@/lib/dimensions";
@@ -52,6 +54,8 @@ export async function POST(req: NextRequest) {
     // the client sends whatever ids it has, and one that is not the caller's
     // should not turn the insights screen into an error page.
     const allowed = await accessibleParticipantIds(entries.map(([, id]) => id));
+    // Each ITEMS survey's stored pooled prior sd for the set (lib/surveyPrior.ts), read once per request.
+    const surveyPriors = new Map<string, StoredPrior>();
 
     for (const [, participantId] of entries) {
       if (!allowed.has(participantId)) continue;
@@ -106,10 +110,25 @@ export async function POST(req: NextRequest) {
         // 93-96% and 90-95% (docs/INFORMATION-GAIN-SELECTOR.md, "An
         // empirical-Bayes prior"). Not used for the ratings, the intervals or
         // the clear-pick rule: there the narrower prior undercovers.
-        const setFit =
-          fit && answeredIds.size <= EB_MAX_ITEMS
-            ? refitRatings(fit.ids, answersForFit, { priorPhi: empiricalPriorPhi(fit.ids, answersForFit) })
-            : fit;
+        //
+        // Since 2026-11-12 (latest) the set uses the narrower of the person's
+        // estimate and the survey's stored pooled one (once that pools at
+        // least 10 respondents; lib/surveyPrior.ts setPriorPhi): in a mixed
+        // synthetic survey that raised coverage from 0.92-0.94 to 0.95-0.96 (two seed bases),
+        // where the pooled value alone held 0.83-0.92 for people whose
+        // likes are close together (docs/INFORMATION-GAIN-SELECTOR.md, "A
+        // stored survey prior"). The stored value is refreshed after this
+        // response is sent.
+        let setFit = fit;
+        if (fit && answeredIds.size <= EB_MAX_ITEMS) {
+          let stored = surveyPriors.get(participant.surveyId);
+          if (!stored) {
+            stored = await storedSurveyPrior(participant.surveyId);
+            surveyPriors.set(participant.surveyId, stored);
+          }
+          const own = empiricalPriorPhi(fit.ids, answersForFit);
+          setFit = refitRatings(fit.ids, answersForFit, { priorPhi: setPriorPhi(own, stored) });
+        }
         for (const i of items) {
           const fromFit = fit?.rating.has(i.id);
           const rating = fromFit ? fit!.rating.get(i.id)! : i.rating;
@@ -148,6 +167,18 @@ export async function POST(req: NextRequest) {
           fitParams = fit.params as { name: string; value: number; se: number }[];
           fitNTrials = fit.nTrials;
         }
+      }
+    }
+
+    // Refresh each survey's pooled prior after the response (a no-op unless
+    // enough answers have arrived since it was stored). `after` needs a
+    // request scope; outside one (unit and integration tests calling the
+    // handler directly) the refresh is skipped, and the stored value stands.
+    for (const surveyId of surveyPriors.keys()) {
+      try {
+        after(() => refreshSurveyPrior(surveyId).catch((e) => console.error("survey prior refresh failed", e)));
+      } catch {
+        // No request scope.
       }
     }
 
