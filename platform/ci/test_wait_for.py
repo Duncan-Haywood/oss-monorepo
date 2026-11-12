@@ -211,5 +211,12 @@ class WaitFor(unittest.TestCase):
             self.assertEqual(e.exception.code, 2)
 
 
+class LongerHint(unittest.TestCase):
+    def test_short_timeouts_name_the_longer_form(self):
+        import wait_for
+        self.assertIn("--timeout 540", wait_for.longer(100))
+        self.assertEqual(wait_for.longer(540), "")
+
+
 if __name__ == "__main__":
     unittest.main()

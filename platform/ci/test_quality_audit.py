@@ -142,5 +142,10 @@ class QualityAuditTest(unittest.TestCase):
         assert not any(p.split("/")[1].startswith("_") for p in pop["research"])
 
 
+class PostLimits(unittest.TestCase):
+    def test_sample_names_the_post_caps(self):
+        self.assertIn("description 60 to 160", q.post_limits())
+
+
 if __name__ == "__main__":
     unittest.main()
