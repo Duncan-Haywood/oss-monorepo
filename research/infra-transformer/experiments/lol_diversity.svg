@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" role="img" aria-label="Bar chart, log scale: annual transformer insulation loss of life for 10 homes all with heat pumps under seven heat-pump control cases, Greensboro and Sand Point, median and range over 20 groups; synchronized night setback with strip heat ages the transformer most">
+<rect width="720" height="420" fill="#fff"/>
+<text x="360.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Transformer loss of life by heat-pump control (100 % heat pumps, loading 0.5)</text>
+<line x1="210.0" x2="210.0" y1="50" y2="360" stroke="#ddd"/><text x="210.0" y="376" text-anchor="middle" font-family="sans-serif" font-size="11">0.01</text>
+<line x1="332.5" x2="332.5" y1="50" y2="360" stroke="#ddd"/><text x="332.5" y="376" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="455.0" x2="455.0" y1="50" y2="360" stroke="#ddd"/><text x="455.0" y="376" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<line x1="577.5" x2="577.5" y1="50" y2="360" stroke="#ddd"/><text x="577.5" y="376" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<line x1="700.0" x2="700.0" y1="50" y2="360" stroke="#ddd"/><text x="700.0" y="376" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<line x1="539.2" x2="539.2" y1="50" y2="360" stroke="#c00" stroke-dasharray="4 3"/><text x="542.2" y="60" font-family="sans-serif" font-size="10" fill="#c00">rated-life rate</text>
+<text x="455.0" y="396" text-anchor="middle" font-family="sans-serif" font-size="12">loss of life, %/yr (log scale; bar = median, line = min to max over 20 ten-home groups)</text>
+<text x="204" y="76.1" text-anchor="end" font-family="sans-serif" font-size="11">coincident (hourly model)</text>
+<rect x="210" y="56.0" width="185.4" height="14.1" fill="#2b6cb0" opacity="0.8"/>
+<line x1="395.4" x2="395.4" y1="63.1" y2="63.1" stroke="#222"/>
+<rect x="210" y="72.1" width="110.4" height="14.1" fill="#dd6b20" opacity="0.8"/>
+<line x1="320.4" x2="320.4" y1="79.2" y2="79.2" stroke="#222"/>
+<text x="204" y="120.4" text-anchor="end" font-family="sans-serif" font-size="11">variable-speed</text>
+<rect x="210" y="100.3" width="126.1" height="14.1" fill="#2b6cb0" opacity="0.8"/>
+<line x1="285.1" x2="423.5" y1="107.4" y2="107.4" stroke="#222"/>
+<rect x="210" y="116.4" width="83.7" height="14.1" fill="#dd6b20" opacity="0.8"/>
+<line x1="255.9" x2="361.7" y1="123.5" y2="123.5" stroke="#222"/>
+<text x="204" y="164.7" text-anchor="end" font-family="sans-serif" font-size="11">single-stage</text>
+<rect x="210" y="144.6" width="120.2" height="14.1" fill="#2b6cb0" opacity="0.8"/>
+<line x1="282.1" x2="413.0" y1="151.6" y2="151.6" stroke="#222"/>
+<rect x="210" y="160.7" width="92.7" height="14.1" fill="#dd6b20" opacity="0.8"/>
+<line x1="263.8" x2="371.5" y1="167.8" y2="167.8" stroke="#222"/>
+<text x="204" y="209.0" text-anchor="end" font-family="sans-serif" font-size="11">SS, setback, staggered 4 h</text>
+<rect x="210" y="188.9" width="280.0" height="14.1" fill="#2b6cb0" opacity="0.8"/>
+<line x1="429.4" x2="594.2" y1="195.9" y2="195.9" stroke="#222"/>
+<rect x="210" y="205.0" width="180.9" height="14.1" fill="#dd6b20" opacity="0.8"/>
+<line x1="335.6" x2="472.9" y1="212.1" y2="212.1" stroke="#222"/>
+<text x="204" y="253.3" text-anchor="end" font-family="sans-serif" font-size="11">SS, setback, synchronized</text>
+<rect x="210" y="233.1" width="307.2" height="14.1" fill="#2b6cb0" opacity="0.8"/>
+<line x1="460.6" x2="615.7" y1="240.2" y2="240.2" stroke="#222"/>
+<rect x="210" y="249.3" width="194.6" height="14.1" fill="#dd6b20" opacity="0.8"/>
+<line x1="354.4" x2="487.4" y1="256.4" y2="256.4" stroke="#222"/>
+<text x="204" y="297.6" text-anchor="end" font-family="sans-serif" font-size="11">SS, setback, strip locked out</text>
+<rect x="210" y="277.4" width="119.9" height="14.1" fill="#2b6cb0" opacity="0.8"/>
+<line x1="287.0" x2="403.7" y1="284.5" y2="284.5" stroke="#222"/>
+<rect x="210" y="293.6" width="126.6" height="14.1" fill="#dd6b20" opacity="0.8"/>
+<line x1="298.8" x2="402.0" y1="300.6" y2="300.6" stroke="#222"/>
+<text x="204" y="341.9" text-anchor="end" font-family="sans-serif" font-size="11">VS, setback, synchronized</text>
+<rect x="210" y="321.7" width="265.1" height="14.1" fill="#2b6cb0" opacity="0.8"/>
+<line x1="419.4" x2="572.7" y1="328.8" y2="328.8" stroke="#222"/>
+<rect x="210" y="337.9" width="138.1" height="14.1" fill="#dd6b20" opacity="0.8"/>
+<line x1="307.8" x2="422.8" y1="344.9" y2="344.9" stroke="#222"/>
+<rect x="220" y="32" width="10" height="10" fill="#2b6cb0"/><text x="234" y="41" font-family="sans-serif" font-size="11">Greensboro, NC</text>
+<rect x="370" y="32" width="10" height="10" fill="#dd6b20"/><text x="384" y="41" font-family="sans-serif" font-size="11">Sand Point, AK</text>
+</svg>
