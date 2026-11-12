@@ -1,9 +1,9 @@
 ---
 title: "A cheap cloth model's error matters only where it varies, and ours varies too much to trust its hanger"
-seo_title: "When can a cheap simulator pick the design? A decision-margin bound for cloth"
+seo_title: "When can a cheap simulator pick the design? A margin bound for cloth"
 date: 2026-11-12
 tags: [research, robotics, cloth-simulation, laundry-robot, digital-twin, multi-fidelity]
-description: "Regret from a cheap simulator is bounded by how much its error varies across designs, not by its size. On 50 hanger tier pairs, that bound certifies no 2D-model choice."
+description: "A cheap simulator's regret is bounded by how much its error varies across designs, not its size. On 50 hanger tier pairs it certifies no 2D choice."
 ---
 
 The [`hanger-codesign`](../../research/hanger-codesign/) programme asks how
