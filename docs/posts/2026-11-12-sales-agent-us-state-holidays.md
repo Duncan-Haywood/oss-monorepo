@@ -1,6 +1,7 @@
 ---
 title: "Texas works Columbus Day: 51 US state holiday calendars in the sales agent, checked against python-holidays"
 date: 2026-11-12
+seo_title: "Texas works Columbus Day: US state holidays in the sales agent"
 tags: [sales-agent, scheduling, holidays, testing]
 description: The sales agent's days-off list now takes all 50 states and DC. Its US federal rules, unchecked until now, match a second source too.
 ---
