@@ -127,3 +127,14 @@ test('BIBLE.md holds no Done entries (run node bible_done.mjs)', async () => {
   const done = appendDone(appendDone('', out.moved), [{ shelf: 'Shelf A', lines: ['- *(Done: Z.)* f'] }]);
   assert.match(done, /## Shelf A\n\n- \*\(Done: X\.\)\* a\n  b\n- \*\(Done: Z\.\)\* f\n\n## Shelf B\n\n- \*\(Done: Y\.\)\* e\n$/);
 });
+
+test('bible_done moves a Done marker written at the end of a proposal', async () => {
+  const { split, leadDone } = await import('./bible_done.mjs');
+  assert.deepEqual(leadDone(['- *Open:* c *(Done: Q, here, 2050.)*']), ['- *(Done: Q, here, 2050.)* *Open:* c']);
+  assert.deepEqual(leadDone(['- *Open:* c', '  d', '  *(Done: R,', '  there.)*']), ['- *(Done: R, there.)* *Open:* c', '  d']);
+  assert.equal(leadDone(['- mark it `*(Done: Title.)*` like this']), null);
+  assert.equal(leadDone(['- *Open:* nothing done']), null);
+  const out = split('## Next up\n\n**Shelf A**\n\n- *Open:* c *(Done: Q.)*\n- *Still:* e\n');
+  assert.equal(out.bible, '## Next up\n\n**Shelf A**\n\n- *Still:* e\n');
+  assert.deepEqual(out.moved, [{ shelf: 'Shelf A', lines: ['- *(Done: Q.)* *Open:* c'] }]);
+});
