@@ -1,5 +1,18 @@
 # buildbot-sheathing research log
 
+## 2026-11-12 · Milestone 3 (second part) result: a stock G1 or H1 can press and let the ledger seat the sheet, but neither can carry it there
+
+`experiments/m3b_humanoid/` (results.txt, results.json, figure.png); deterministic, about 6 min.
+
+- **H18 refuted in part.** The G1 holds at most 2.8–8.7 kg in both hands at 0.6–1.3 m and presses 66–110 N on the ledger, as predicted. The H1 does not carry it either: 12.4–18.8 kg against the sheet's 21.8 kg (elbow torque). It presses 128–281 N. A lift or a person must stand the sheet on the ledger for either robot.
+- **H19 held.** The push height that tips a sliding sheet is W/(2 μ_l) when the press is at the push height, 2.03 m at μ_l 0.3 to 0.87 m at 0.7; MuJoCo's threshold is 0.984–1.007 of the closed form in 14 cases, including a press fixed at 0.6 or 1.2 m (the general form).
+- **H20 held.** At foot friction 0.6 a G1 slides the sheet at μ_l 0.3 with up to 96 N of press, and at μ_l 0.5 with at most 41 N (none above 1.0 m); the H1 manages 105–206 N and 34–141 N. On a foot friction of 0.3 the G1 slips at about 50 N.
+- **Unplanned: not through the palms.** Sliding by palm friction needs F_n ≥ μ_l m g / (μ_h − μ_w), at least 107 N and up to 1.5 kN, and is impossible when the palm grips no better than the wall. The robot has to push the sheet's edge.
+- **H21 refuted.** At Unitree's published gains (G1 arms kp 60 N·m/rad) the sheet's stiffness about the landing corner is 182–1,946 N·m/rad on a G1 against part one's 5,641 at 1°, 2.9 to 31 times under; H1 palm contacts 876–2,740. Only an H1 rigid clamp is too stiff (10,423–613,376; it keeps 0.46–0.99° of a 1° error), because its 4-joint arms cannot turn the forearm end about the wall normal. Releasing a G1's wrist roll changes the stiffness by 0.1–19%.
+- **The catch.** The same softness lets the sheet's own gravity moment turn a stock hold 10–14° (G1) if nothing feeds the weight forward: the ledger carrying the weight is what makes the soft hold work, and a controller has to drop the feedforward at ledger contact.
+- **What it means for the programme.** A stock humanoid is not the hanger; it is the presser and nailer once a lift or a person sets the sheet on a ledger. Milestone 5's cycle should carry that division of labour.
+- **Modelling choices, not sourced:** static whole-body model, forces split 50/50 between hands, PD gains taken as the only compliance, feet rigidly planted, ledger and palm friction swept.
+
 ## 2026-11-12 · Milestone 3 planned (second part): can a stock G1 or H1 work a sheet the ledger carries?
 
 Written before any part-two experiment was run. Part one found a ledger squares the sheet if the
