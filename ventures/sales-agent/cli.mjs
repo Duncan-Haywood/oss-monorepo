@@ -11,6 +11,8 @@
 //   [--calls calls.csv] (email,step,outcome,date; outcome spoke, voicemail, no_answer or done): the self-host page's call
 //   outcomes without the server. No answer brings the call back the next business day, up to three tries; --prep reads
 //   the same file and lists that person's calls.
+//   A call that slips pushes that person's later steps back by the same business days. [--holidays us|us-business|
+//   2026-11-27,...] keeps retry and moved dates off those days.
 // Research: with --web it also reads each account home page title (robots.txt respected, 1 s apart).
 // Research: node cli.mjs --crm crm-export.csv [--icp icp.json] [--prospects p.csv] [--suppression s.txt] [--offer offer.json] [--top 25] [--web]
 //   ranks your CRM export against your ICP and writes accounts.csv (with first-touch drafts), research-left-out.csv and
@@ -85,7 +87,7 @@ if (opt("mail")) {
   console.log(describe(m));
   mailReplies = m.replies; mailSent = m.sent;
 }
-if (!opt("replies") && !opt("tasks") && !opt("mail")) { console.error("usage: node cli.mjs --crm crm.csv [--icp icp.json] | --replies replies.txt | --mail inbox.mbox,reply.eml [--own me@x.com] [--prospects p.csv] [--suppression s.txt] [--offer offer.json] [--tasks cadence-tasks.csv] [--done done.txt] [--calls calls.csv] [--sent sent.csv] [--today YYYY-MM-DD] [--out DIR]"); process.exit(2); }
+if (!opt("replies") && !opt("tasks") && !opt("mail")) { console.error("usage: node cli.mjs --crm crm.csv [--icp icp.json] | --replies replies.txt | --mail inbox.mbox,reply.eml [--own me@x.com] [--prospects p.csv] [--suppression s.txt] [--offer offer.json] [--tasks cadence-tasks.csv] [--done done.txt] [--calls calls.csv] [--holidays us] [--sent sent.csv] [--today YYYY-MM-DD] [--out DIR]"); process.exit(2); }
 const input = { replies: [opt("replies") ? read("replies") : "", mailReplies].filter((x) => x.trim()).join("\n---\n"), prospects: read("prospects"), suppression: read("suppression"), offer: opt("offer") ? JSON.parse(read("offer")) : {}, today: opt("today") || iso(Date.now()) };
 const r = input.replies.trim() || !opt("tasks") ? await runInboxWithModel(configFromEnv(process.env), input) : { ...runInbox(input), source: "none", errors: [] };
 const out = opt("out") || "sales-agent-out";
@@ -113,8 +115,8 @@ if (opt("tasks")) {
   const suppression = [input.suppression, ...r.suppression.map((x) => x.email)].join("\n");
   // Your own sent mail in the --mail files (or a --sent CSV of date,to,subject) is the done list for email touches.
   const sent = [...mailSent, ...(opt("sent") ? [read("sent")] : [])].flatMap((x) => (typeof x === "string" ? parseCsv(x) : [x]));
-  const marks = callMarks(callRows());
-  const d = runDaily({ tasks: read("tasks"), prospects: r.prospects, suppression, done: [read("done"), ...marks.done].filter(Boolean).join("\n"), retry: marks.retry, sent, today: r.today });
+  const marks = callMarks(callRows(), 3, { holidays: opt("holidays") });
+  const d = runDaily({ tasks: read("tasks"), prospects: r.prospects, suppression, done: [read("done"), ...marks.done].filter(Boolean).join("\n"), retry: marks.retry, moved: marks.moved, holidays: opt("holidays"), sent, today: r.today });
   writeFileSync(join(out, "todays-queue.csv"), csvQueue(d));
   writeFileSync(join(out, "left-out.csv"), csvLeftOut(d));
   writeFileSync(join(out, "brief.md"), d.brief);
