@@ -3,6 +3,7 @@
 // it on, that it never leaves a shift open to keep someone in place, and how the planner and the CLI pass it along.
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { parseStaff, parseShifts, buildRoster, planWeeks, keepFrom, keepFromCsv, slotKey, rosterCsv, scoreBoundByColumnGeneration, sampleStaff, sampleShifts, TEMPLATES, _internals } from "./calc.mjs";
 import { run, parseArgs } from "./cli.mjs";
 
@@ -106,6 +107,17 @@ test("the planner keeps people on their usual shifts: a day off moves fewer othe
   assert.deepEqual(churn(off), [0, 15, 15]);
   assert.deepEqual(churn(on), [0, 11, 11]);
   assert.equal(diff(pairs(on.weeks[3].roster), pairs(on.weeks[1].roster)), 0, "week 4 is the usual rota again");
+  // The guide page quotes this plan.
+  const html = readFileSync(new URL("./keep-a-consistent-schedule-when-someone-is-off.html", import.meta.url), "utf8");
+  const cells = (label) => {
+    const m = html.match(new RegExp(`<td>${label}</td><td class="n">([^<]+)</td><td class="n">([^<]+)</td>`));
+    return m ? [m[1], m[2]] : null;
+  };
+  assert.deepEqual(cells("Person-shifts changed going into week 3"), [String(churn(off)[1]), String(churn(on)[1])]);
+  assert.deepEqual(cells("Changed again going back in week 4"), [String(churn(off)[2]), String(churn(on)[2])]);
+  assert.deepEqual(cells("Hours left uncovered, whole month"), [String(off.totalOpenHours), String(on.totalOpenHours)]);
+  assert.deepEqual(cells("Payroll, whole month"), [`$${off.totalCost.toLocaleString("en-US")}`, `$${on.totalCost.toLocaleString("en-US")}`]);
+  for (const f of ["sitemap.xml", "index.html"]) assert.match(readFileSync(new URL(`./${f}`, import.meta.url), "utf8"), /keep-a-consistent-schedule-when-someone-is-off\.html/);
   // With no time off, the bonus changes nothing and the planner reuses the same weeks.
   const plain = planWeeks(sampleStaff(), sampleShifts(), { ...o, keepValue: 0.25, weeks: 5 });
   const base = planWeeks(sampleStaff(), sampleShifts(), { ...o, weeks: 5 });
