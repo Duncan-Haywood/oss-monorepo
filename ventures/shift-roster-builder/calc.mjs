@@ -1853,7 +1853,12 @@ export function buildRoster(staff, slots, options = {}) {
   const tStart = Date.now();
   let budgetHit = false;
   const over = () => { if (budgetMs > 0 && Date.now() - tStart > budgetMs) { budgetHit = true; return true; } return false; };
+  // Milliseconds spent in each stage, returned as `timings` so a slow week says where its time went.
+  const timings = {};
+  let tMark = tStart;
+  const mark = (name) => { const now = Date.now(); timings[name] = (timings[name] || 0) + (now - tMark); tMark = now; };
   let best = search(ctx, o.restarts, iterations);
+  mark("anneal");
   // Covering shifts outranks everything else, so while any shift is open spend as many extra restarts again on finding a roster that
   // covers more. A balance of 50 on the sample week left 8 coverable hours open after four restarts; twelve found them.
   if (scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
@@ -1866,6 +1871,7 @@ export function buildRoster(staff, slots, options = {}) {
     const long = search(ctx, o.restarts, iterations * 5, o.restarts * 7);
     if (long.score < best.score - 1e-9) best = long;
   }
+  mark("anneal");
   if (scoreOwner(ctx, best.owner).unfilled > 0) {
     // A few seeds, each from the best so far: one chain of moves rarely finds the best way to free the hours.
     for (let k = 0; k < 4 && !over(); k++) {
@@ -1874,6 +1880,7 @@ export function buildRoster(staff, slots, options = {}) {
       if (es < best.score - 1e-9) best = { owner: eo, score: es };
     }
   }
+  mark("eject");
   // Still open: walk the coverage plateau (open hours only), then polish pay. Kept only if it covers more.
   if (o.coverPass !== false && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
     for (let k = 0; k < (o.coverPassRuns ?? 12) && !over(); k++) {
@@ -1883,6 +1890,7 @@ export function buildRoster(staff, slots, options = {}) {
       const ps = scoreOwner(ctx, po).total;
       if (ps < best.score - 1e-9) best = { owner: po, score: ps };
     }
+    mark("coverPass");
     if ((o.coverRepair ?? (o.exact === true || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
       const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: o.coverRepairMs ?? 60000, shiftWeight: o.openShiftWeight ?? 1e-6 });
       const cur = best.owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
@@ -1894,6 +1902,7 @@ export function buildRoster(staff, slots, options = {}) {
         if (ps < best.score - 1e-9) best = { owner: po, score: ps };
       }
     }
+    mark("coverRepair");
   }
   // Optional proof: for small problems search exhaustively (with pruning) and say how far the annealed roster is from the best possible.
   let optimality = null;
@@ -1908,6 +1917,7 @@ export function buildRoster(staff, slots, options = {}) {
       try {
         cg = scoreColumnGeneration(ctx, { incumbentScore: best.score, tolerance: o.exactTolerance, nodeLimit: o.scoreCGNodes ?? 20000, ms: o.scoreCGMs ?? o.exactMs, maxNodes: o.scoreCGPricingNodes ?? 200000 });
       } catch { cg = null; } // a solver failure leaves the exact search to do the work alone
+      mark("scoreCG");
       if (cg?.roster) {
         const own = Array.from(cg.roster);
         if (ownerValid(ctx, own)) { const t = scoreOwner(ctx, own).total; if (t < best.score - 1e-9) best = { owner: own, score: t }; }
@@ -1916,6 +1926,7 @@ export function buildRoster(staff, slots, options = {}) {
     const ex = cg?.proven
       ? { proven: true, rootBound: best.score, coverOpen: Math.floor(best.score / BIG + 1e-9), coverNodes: 0, nodes: 0, owner: null }
       : exactSearch(ctx, best.score, { nodeLimit: o.exactNodes, timeLimitMs: o.exactMs, tolerance: o.exactTolerance });
+    mark("exactSearch");
     if (cg && !cg.proven) ex.rootBound = Math.max(ex.rootBound, cg.floor);
     if (ex.owner && ex.score < best.score - 1e-9) best = { owner: ex.owner, score: ex.score };
     const gap = ex.proven ? annealScore - best.score : best.score - Math.min(ex.rootBound, best.score);
@@ -1930,6 +1941,7 @@ export function buildRoster(staff, slots, options = {}) {
   }
   const res = summarise(ctx, best.owner);
   const base = summarise(ctx, listedOrder(ctx));
+  mark("summary");
 
   const unfilled = res.unfilled.map((i) => ({ slot: slots[i], ...whyUnfilled(ctx, res.owner, i) }));
 
@@ -1952,6 +1964,7 @@ export function buildRoster(staff, slots, options = {}) {
     }
     critical.sort((a, b) => b.extraUnfilledHours - a.extraUnfilledHours || a.name.localeCompare(b.name));
   }
+  mark("critical");
 
   // What would one more hire fix? Add a hypothetical person free at any time (per role the open shifts need),
   // rebuild, and report the uncovered hours it would cover and the payroll it adds.
@@ -1969,6 +1982,7 @@ export function buildRoster(staff, slots, options = {}) {
       .map((s) => `${DAYS[s.day]} ${fmtClock(s.startMin)}–${fmtClock(s.endMin)}${s.role ? " [" + s.role + "]" : ""}`);
     if (covered > 1e-9) hireTest = { wage, maxHours, coveredHours: covered, stillUnfilledHours: hres.unfilledHours, extraCost: hres.cost - res.cost, windows };
   }
+  mark("hireTest");
 
   const warnings = [];
   staff.forEach((p, k) => {
@@ -1999,7 +2013,7 @@ export function buildRoster(staff, slots, options = {}) {
     cost: res.cost, hours: res.hours, otHours: res.otHours, unfilledHours: res.unfilledHours, unfilledSlots: res.unfilled.length,
     people: res.people, assignments, grid, unfilled, onlyOne, critical, hireTest, warnings,
     listed: { cost: base.cost, otHours: base.otHours, unfilledHours: base.unfilledHours, unfilledSlots: base.unfilled.length },
-    savingVsListed, score: best.score, owner: res.owner, optimality, budgetHit,
+    savingVsListed, score: best.score, owner: res.owner, optimality, budgetHit, timings,
     filledAll: res.unfilled.length === 0,
   };
 }
