@@ -1,0 +1,47 @@
+Milestone 6y: deck-solar boat against the 2015 Wave Glider at the five corridor sites, January and July 2024
+Solar: NASA POWER daily ALLSKY_SFC_SW_DWN; 54 boats of 5e; Wave Glider: 6x ERA5 plan (best / worst state)
+
+A  site-month: mean / worst-week insolation (W/m2); central 4 m boat km/day (A) sustained, (B) month from full pack, (C) worst week; Wave Glider best / worst; 54-boat (A) median and max
+   1 Equator-Pacific    247   224 |  96.2 115.7  87.2 |  44.7  26.8 |  80.5 145.3
+   1 Florida-Straits    136    90 |   0.0  77.9   0.0 |  54.2  32.5 |   0.0 108.6
+   1 Gulf-of-Maine       57    45 |   0.0   0.0   0.0 |  60.6  36.3 |   0.0  13.2
+   1 North-Sea           22    12 |   0.0   0.0   0.0 |  74.5  44.7 |   0.0   0.0
+   1 Gulf-of-Alaska      14     8 |   0.0   0.0   0.0 |  58.4  35.0 |   0.0   0.0
+   7 Equator-Pacific    175   145 |  57.8  95.0   0.0 |  48.4  29.0 |   9.8 124.4
+   7 Florida-Straits    269   218 | 103.3 120.6  84.6 |  43.5  26.1 |  88.0 150.3
+   7 Gulf-of-Maine      247   204 |  96.2 115.2  77.7 |  45.9  27.6 |  80.5 145.3
+   7 North-Sea          216   140 |  83.4 107.4   0.0 |  54.7  32.8 |  68.5 137.0
+   7 Gulf-of-Alaska     194   167 |  71.6 101.1  49.5 |  45.5  27.3 |  53.6 130.5
+
+B  share of the 54 boats whose (A) beats the Wave Glider (best state / worst state)
+   1 Equator-Pacific  66.7% 68.5%
+   1 Florida-Straits  25.9% 31.5%
+   1 Gulf-of-Maine     0.0%  0.0%
+   1 North-Sea         0.0%  0.0%
+   1 Gulf-of-Alaska    0.0%  0.0%
+   7 Equator-Pacific  42.6% 48.1%
+   7 Florida-Straits  74.1% 74.1%
+   7 Gulf-of-Maine    66.7% 68.5%
+   7 North-Sea        55.6% 61.1%
+   7 Gulf-of-Alaska   51.9% 55.6%
+
+C  which boats beat the best-state Wave Glider, share of the 10 site-months by length and hotel load
+  L 3 m, hotel 20 W: 26.7%
+  L 3 m, hotel 30 W:  1.7%
+  L 3 m, hotel 40 W:  0.0%
+  L 4 m, hotel 20 W: 63.3%
+  L 4 m, hotel 30 W: 41.7%
+  L 4 m, hotel 40 W: 20.0%
+  L 5 m, hotel 20 W: 70.0%
+  L 5 m, hotel 30 W: 66.7%
+  L 5 m, hotel 40 W: 55.0%
+
+Predictions
+P1 central (A) 0 in January at North-Sea and Gulf-of-Alaska: held (0.0, 0.0)
+P2 July: central (A) beats Wave Glider best at >= 4 of 5 sites: held (5)
+P3 January: Wave Glider best beats central (A) at >= 3 of 5 sites: held (4)
+P4 86 km/day above central (A) in >= 7 of 10 site-months: held (7)
+P5 Wave Glider best beats (A) in 40 to 70% of boat-site-months: held (61.7%)
+P6 no (A) above 164 km/day: held (max 150.3)
+P7 (B)/(A) in 1.05 to 1.50 wherever (A) > 0: refuted (range 1.168 to 1.642, 6 site-months)
+P8 (C) more than 20% below (A) in at least half of those: held (3 of 6)
