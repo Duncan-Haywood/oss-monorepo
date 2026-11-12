@@ -174,7 +174,9 @@ model Survey {
   /// For CONJOINED surveys: slug of the ITEMS survey whose ratings supply
   /// the fixed identity utilities (e.g. "combined").
   identitySurveySlug  String?
-  /// How the next pair is chosen: null follows the PAIR_SELECTOR env var,
+  /// How the next pair is chosen: null follows the PAIR_SELECTOR env var, and
+  /// with that unset, "staged" up to 120 items and "standard" above
+  /// (defaultPairSelector in pairing.ts, since 2026-11-12);
   /// "standard" is the shipped selector, "staged" uses the information score
   /// from the first answer on lists up to 120 items and after 120 answers on
   /// longer ones (hybridSwitchAt, docs/INFORMATION-GAIN-SELECTOR.md).
