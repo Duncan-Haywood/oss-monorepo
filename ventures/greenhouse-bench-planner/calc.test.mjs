@@ -88,3 +88,16 @@ test("empty and invalid input report an error and no summary", () => {
   assert.equal(analyze("x, y").errors.length, 1);
   assert.equal(money(-1234.5), "-$1,234");
 });
+
+test("hold and late weeks are capped at a year, so an extra zero cannot hang the page", async () => {
+  const { MAX_SHIFT_WEEKS } = await import("./calc.mjs");
+  const t0 = performance.now();
+  const big = analyze(DEFAULT_CROPS, { maxHoldWeeks: 100000 });
+  assert.ok(performance.now() - t0 < 3000);
+  const capped = analyze(DEFAULT_CROPS, { maxHoldWeeks: MAX_SHIFT_WEEKS });
+  assert.deepEqual(big.rows, capped.rows);
+  assert.ok(big.warnings.some((w) => /capped at 52 weeks; you entered 100000/.test(w.text)));
+  assert.ok(!capped.warnings.some((w) => /capped/.test(w.text)));
+  const late = analyze(DEFAULT_CROPS.replace("92, 3.50, 1.10, 1", "92, 3.50, 1.10, 100000"));
+  assert.ok(late.warnings.some((w) => /Tomato 4in: selling late is capped/.test(w.text)));
+});
