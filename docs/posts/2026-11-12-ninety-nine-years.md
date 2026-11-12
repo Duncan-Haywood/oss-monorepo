@@ -2,7 +2,7 @@
 title: "What is a fixed rent worth after 99 years? A 2130 story about renewing a lease for strangers"
 seo_title: "What happens to a fixed rent over a 99-year lease? A story"
 date: 2026-11-12
-tags: [fiction, hearth-and-horizon, science-fiction, leasehold, inflation, england, parish]
+tags: [fiction, hearth-and-horizon, science-fiction, leasehold, inflation, england, parishes]
 description: "A new story set in Yorkshire in 2130: a parish's 99-year lease at a fixed rent, a co-op that can renew on the same terms, and a rent reckoned in wheat."
 ---
 
