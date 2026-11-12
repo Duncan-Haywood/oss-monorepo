@@ -47,6 +47,12 @@
       "why": "Step 0 open list is all control-plane and already has PRs open awaiting owner approval",
       "did": "Left them; seeded and hunted instead",
       "result": "1 real defect found and fixed in 7 tools"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Control-plane wiring wants its own PR, but this session's harness allows pushing only one branch",
+      "did": "Recorded the wiring as an open real_defect with the exact steps",
+      "result": "Left for the next red-team or process run"
     }
   ],
   "writeups": [
@@ -238,6 +244,11 @@
         "issue": "validDmy accepted day 1-31 for every month, so 02/30/2026 or 31/04 became a 'valid' date and the CSV carried 2026-02-30, which Xero/QuickBooks reject or roll to 2 March; 29 Feb was accepted in non-leap years. Fixed: month lengths, a leap-year check once the year is known (including the this-year fallback), and the unreadable-date error now fires. Same check fixed in quickbooks-import-csv-check, salesforce-lead-import-csv-check, quickbooks-iif-file-check and the three Schedule C/E categorizers.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15299"
+      },
+      {
+        "file": ".github/workflows/portfolio-validate.yml",
+        "issue": "check_calendar_dates.py (extended 2026-11-12 to the d <= 31 shape) runs in no PR workflow; only main_health.py by hand. Fix: in the validate job add `python3 platform/ci/check_calendar_dates.py` and a `working-directory: platform/ci` step `python3 -m unittest test_check_calendar_dates` (needs node; ventures/**/*.mjs and *.js are already in paths). Same PR can carry check_unreachable_exit (open entry from 2026-11-12). Control plane: own PR, owner approval; this session could push only its own branch.",
+        "patched": false
       }
     ]
   },
