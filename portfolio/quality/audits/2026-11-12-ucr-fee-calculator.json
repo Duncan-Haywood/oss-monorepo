@@ -1,0 +1,240 @@
+{
+ "date": "2026-11-12",
+ "subject": "ventures/ucr-fee-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-12-k",
+ "drawn_by": "sample",
+ "round": 52,
+ "auditor": "agent session (Claude), quality-audit round 52",
+ "status": "audited",
+ "professional": "a motor-carrier compliance specialist who files Unified Carrier Registration for carriers, brokers and forwarders; they check first which registration year the fee table is for and whether the amounts match 49 CFR 367 for that year, then the bracket edges, then which entity types pay the flat lowest-bracket fee (brokers and leasing companies only, under 49 U.S.C. 14504a(f)) versus by fleet size (motor carriers, private carriers, freight forwarders), then how the vehicle count is taken (self-propelled CMVs, MCS-150 count or the 12-month period ending June 30 of the prior year, intrastate-only vehicles excluded) and the one-fee rule for an entity that is both a broker and a carrier",
+ "scores": {
+  "correctness": 1,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 1,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran plan() for motor carriers at every bracket edge (0,2,3,5,6,20,21,100,101,1000,1001,5000) via node /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ucr/check.mjs /home/user/oss-monorepo/ventures/ucr-fee-calculator/calc.mjs and compared with reference tables typed independently from the UCR Plan fee-brackets page and FMCSA final rule 2026-17893 (see method; primary hosts blocked by proxy). The tool reproduces the 2025/2026 schedule exactly at all 12 edges (46/138/276/963/4,592/44,836), so the bracket boundaries and lookup are right. But it labels that table the 2027 schedule (calc.mjs:7, index.html:46, :64, :96, README:17), and 2027 registration has been open since 2026-10-01 under the 2026-09-01 final rule raising fees an average 20%: a 2027 filer is told $46/$138/$276/$963/$4,592/$44,836 against $55/$167/$333/$1,163/$5,548/$54,165, every bracket about 17% low (e.g. 5 trucks: $138 vs $167; 1,001+: $9,329 short). Second error: a freight forwarder operating 12 vehicles gets $46 (lowest bracket) where 14504a(f)(1) and the 367 fee table bracket forwarders with motor carriers by vehicle count ($276 under the 2026 table). Brokers and leasing companies at the lowest bracket are right. The headline output for the year now being filed is wrong, hence 1.",
+  "completeness": "README/page features exercised in node: six-bracket lookup, editable fee table (custom table overrides default, overlaps and max<min rejected, gaps reported as 'No bracket covers 4 vehicles'), per-registrant fee, headroom to next bracket and the jump amount, per-vehicle cost, cents-per-mile line, multi-registrant total (sample 230.00), CSV export (toCsv). All work; no TODOs. Not modelled items (state processing fees, applicability, penalties, filing) are stated. Served page https://marisstella.app/ucr-fee-calculator/ could not be loaded from this session (proxy 403), so checked from source only.",
+  "verification": "cd ventures/ucr-fee-calculator && node --test '*.test.mjs': 23 tests, 23 pass, 0 fail (235 ms). Seven seeded mutations via platform/ci/quality_mutate.py: 5 caught (bracket upper bound < instead of <=; leasing dropped from flat-fee list; headroom off by one; 101-1000 fee 4592->5592, caught only by the markup-equals-calc drift test; an inserted 100-100 bracket), 2 survived (per-vehicle fee multiplied instead of divided; cents-per-mile missing the x100). Not 3: the tests pin the author's own numbers (calc.test.mjs:15-19) and so lock in the wrong-year table, the freight-forwarder rule is asserted only for leasing, and no test checks per-vehicle or per-mile outputs.",
+  "craft": "Read calc.mjs (104 lines), index.html module script (lines ~120-167), calc.test.mjs, page.test.mjs. Small, pure, dependency-free; output written through esc() or textContent. Defects: FEE_TABLE_LABEL exported but used nowhere (calc.mjs:7); copied CSS for an hours-of-service tool (tr.drive/.break/.restart, index.html:33-35); '1,200' as a vehicle count splits on the comma and reports 'type must be one of ...' instead of a count error (calc.mjs:45); the default fee table is duplicated in index.html and calc.mjs (kept in sync only by a test).",
+  "claims": "Disclaimer, no-warranty, no-SLA and privacy lines present (index.html footer, README); no fetch/XHR/sendBeacon in the page (page.test.mjs). But the central claim is unbacked: index.html:46 says 'Source: UCR Plan, 2027 fee schedule (plan.ucr.gov), As of 2026-11-03' for amounts that are the 2025/2026 schedule; the 2026-11-03 post docs/posts/2026-11-03-ucr-fees-2027-schedule.md says the 2027 amounts were 'checked on plan.ucr.gov' and that the last two brackets 'moved from $4,588 and $44,797', which matches no published schedule I know of, while FR 2026-17893 raised every 2027 bracket. The FAQ (index.html:12) says freight forwarders pay the lowest bracket, contradicting the statute and the same post's own 'carrier and forwarder fees'. Source llms.txt carries github.io URLs (rewritten at deploy; not filed).",
+  "fitness": "Walked a specialist's job: a client with 5 power units filing for 2027 in November 2026. The tool returns $138; the specialist would bill $167 and has to know to retype the table. It does help with bracket-edge planning once the table is corrected. Missing for the job: guidance on which count to use (MCS-150 versus the 12-month period ending June 30 of the prior year), exclusion of intrastate-only vehicles and trailers in the calculator itself (only the FAQ mentions trailers), the rule that an entity that is both a carrier and a broker pays one fee by its fleet (the tool would add a second $46 line if entered twice), and exempt/non-participating-state cases.",
+  "domain": "Compared with 49 U.S.C. 14504a(f) and 49 CFR 367 (from knowledge and search summaries; primary text blocked). Right: six brackets and their boundaries, brokers and leasing companies at the first-bracket fee, per-entity fee, December 31 / January 1 timing. Departures: freight forwarders treated as flat-fee (calc.mjs:63); the default table is the 2025-2026 one presented as 2027; the vehicle-counting basis is not modelled or explained."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "motor-carrier fee at all 12 bracket edges against the 2025/2026 schedule",
+   "method": "Direct fetches of www.ecfr.gov, www.ucr.gov, plan.ucr.gov, govinfo.gov, federalregister.gov and law.cornell.edu were all refused by this session's egress proxy (CONNECT 403 / ENOTFOUND). Reference amounts taken from web search results summarising plan.ucr.gov/fee-brackets (2025 and 2026: 46/138/276/963/4,592/44,836) and FMCSA final rule FR Doc 2026-17893, 91 FR 56063, published 2026-09-01, effective 2026-10-01 (2027 and later: average +20%, increases $9 to $9,329 per entity; 0-2 $55, 3-5 $167, 6-20 $333, 21-100 $1,163 confirmed by search; 101-1,000 $5,548 from the proposed-rule summary; 1,001+ $54,165 = 44,836 + 9,329, the rule's stated maximum increase).",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ucr/check.mjs /home/user/oss-monorepo/ventures/ucr-fee-calculator/calc.mjs",
+   "expected": "46,46,138,138,276,276,963,963,4592,4592,44836,44836 for n=0,2,3,5,6,20,21,100,101,1000,1001,5000",
+   "observed": "46,46,138,138,276,276,963,963,4592,4592,44836,44836",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "default table labelled '2027 registration year schedule' against the 2027 final rule",
+   "method": "FMCSA final rule FR Doc 2026-17893 (91 FR 56063, 2026-09-01, effective 2026-10-01), via search summaries; see first check for sourcing",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ucr/check.mjs /home/user/oss-monorepo/ventures/ucr-fee-calculator/calc.mjs",
+   "expected": "2027: 55 / 167 / 333 / 1,163 / 5,548 / 54,165",
+   "observed": "46 / 138 / 276 / 963 / 4,592 / 44,836 (the 2025-2026 amounts)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "5-truck motor carrier filing for 2027",
+   "method": "FR 2026-17893: 3-5 bracket $167 for 2027 (+$29 over 2026's $138)",
+   "command": "node -e \"import('/home/user/oss-monorepo/ventures/ucr-fee-calculator/calc.mjs').then(m=>console.log(m.plan({entities:'Fleet, 5, motor-carrier'}).total))\"",
+   "expected": "167",
+   "observed": "138",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "freight forwarder operating 12 vehicles",
+   "method": "49 U.S.C. 14504a(f)(1): fees for motor carriers, motor private carriers and freight forwarders by number of CMVs; brokers and leasing companies at the lowest bracket; 49 CFR 367 fee table columns (from knowledge; eCFR blocked)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ucr/check.mjs /home/user/oss-monorepo/ventures/ucr-fee-calculator/calc.mjs",
+   "expected": "276 (6-20 bracket, 2026 table)",
+   "observed": "46",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "broker and leasing company with 12 vehicles; private carrier with 12",
+   "method": "same statute: brokers/leasing flat first bracket; private carriers by fleet",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ucr/check.mjs /home/user/oss-monorepo/ventures/ucr-fee-calculator/calc.mjs",
+   "expected": "46, 46, 276",
+   "observed": "46, 46, 276",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "cents per mile for $138 over 120,000 miles",
+   "method": "hand arithmetic 138/120000*100",
+   "command": "node -e \"import('/home/user/oss-monorepo/ventures/ucr-fee-calculator/calc.mjs').then(m=>console.log(m.plan({entities:'A, 5',annualMiles:120000}).advice))\"",
+   "expected": "0.115 cents per mile",
+   "observed": "0.115 cents per mile",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/ucr-fee-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "23 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "page source line 'UCR Plan, 2027 fee schedule (plan.ucr.gov), As of 2026-11-03'",
+   "method": "compared with plan.ucr.gov fee-brackets (2026 = 46...44,836) and FR 2026-17893 (2027 raised ~20%), via search",
+   "command": "grep -n 'As of' ventures/ucr-fee-calculator/index.html",
+   "expected": "2027 amounts 55...54,165 or a 2026 label",
+   "observed": "2026 amounts labelled 2027 with a plan.ucr.gov citation",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "FAQ 'brokers and freight forwarders pay the lowest bracket'",
+   "method": "49 U.S.C. 14504a(f)(1)",
+   "command": "grep -n 'freight forwarders pay' ventures/ucr-fee-calculator/index.html",
+   "expected": "only brokers and leasing companies flat",
+   "observed": "freight forwarders included",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, no-upload privacy claim",
+   "method": "read page and page.test.mjs; grep for network calls",
+   "command": "grep -n 'fetch(\\|sendBeacon\\|No warranty' ventures/ucr-fee-calculator/index.html",
+   "expected": "disclaimer present, no network calls",
+   "observed": "disclaimer present; no network calls; usage counts localStorage only",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page",
+   "method": "curl https://marisstella.app/ucr-fee-calculator/",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/ucr-fee-calculator/",
+   "expected": "200",
+   "observed": "proxy CONNECT 403 from this session; not checked",
+   "result": "partial"
+  },
+  {
+   "dimension": "craft",
+   "what": "comma in a vehicle count and a gap in a custom table",
+   "method": "node calls",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ucr/check.mjs /home/user/oss-monorepo/ventures/ucr-fee-calculator/calc.mjs",
+   "expected": "'1,200' rejected as a count, or parsed as 1200",
+   "observed": "'1,200' -> 'type must be one of ...' (misleading); gap -> clear 'No bracket covers 4 vehicles'",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "vehicle-count basis and intrastate exclusion",
+   "method": "UCR Plan counting rule (MCS-150 or 12-month period ending June 30 of the prior year; intrastate-only vehicles excluded), from knowledge",
+   "command": "grep -n 'June 30\\|MCS-150\\|intrastate' ventures/ucr-fee-calculator/*",
+   "expected": "stated or modelled",
+   "observed": "not mentioned; FAQ says only 'self-propelled CMVs in interstate commerce, trailers do not count'",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:33",
+   "change": "n >= b.min && n <= b.max -> n >= b.min && n < b.max",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:63",
+   "change": "leasing removed from the flat-fee type list",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:72",
+   "change": "headroom b.max - e.n -> b.max - e.n + 1",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:71",
+   "change": "perVehicle b.fee / e.n -> b.fee * e.n",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:87",
+   "change": "cents per mile total/miles*100 -> total/miles",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:6",
+   "change": "101-1000 fee 4592 -> 5592 (caught only by the markup/calc drift test)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:6",
+   "change": "21-100 split into 21-99 and 100-100 at 4592",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Default fee table is the 2025/2026 schedule (46/138/276/963/4,592/44,836) but is labelled and cited as the 2027 schedule; FMCSA final rule 2026-17893 (effective 2026-10-01) raised 2027 fees ~20% (55/167/333/1,163/5,548/54,165), so every 2027 filer is under-quoted by about 17%.",
+   "where": "ventures/ucr-fee-calculator/calc.mjs:6",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "Page and blog post claim the 2027 amounts were checked on plan.ucr.gov ('Source: UCR Plan, 2027 fee schedule (plan.ucr.gov), As of 2026-11-03'; post says the top two brackets 'moved from $4,588 and $44,797'); the cited amounts are the prior years' and the stated old values match no schedule found.",
+   "where": "ventures/ucr-fee-calculator/index.html:46",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "high",
+   "what": "Freight forwarders are charged the flat lowest-bracket fee; under 49 U.S.C. 14504a(f)(1) they pay by vehicle count like motor carriers (only brokers and leasing companies are flat). A forwarder with 12 vehicles gets $46 instead of $276 (2026 table). FAQ repeats the error.",
+   "where": "ventures/ucr-fee-calculator/calc.mjs:63",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Vehicle-count basis not modelled or explained: no mention of the MCS-150 count versus the 12-month period ending June 30 of the prior year, the exclusion of intrastate-only vehicles, or that an entity that is both broker and carrier pays one fee by its fleet (entering both lines adds a second fee).",
+   "where": "ventures/ucr-fee-calculator/index.html:12",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests pin the author's fee numbers, so they lock in the wrong-year table; per-vehicle and per-mile outputs are untested (two seeded mutations survived); freight-forwarder treatment is not asserted against the statute.",
+   "where": "ventures/ucr-fee-calculator/calc.test.mjs:15",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "A comma in a vehicle count ('A, 1,200') is split as a field and reported as 'type must be one of ...' rather than a count error; FEE_TABLE_LABEL is exported and unused; hours-of-service CSS rows copied into the page.",
+   "where": "ventures/ucr-fee-calculator/calc.mjs:45",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  15193
+ ],
+ "verdict": "The bracket lookup is mechanically right: at all twelve fleet-size edges it reproduces the 2025/2026 UCR schedule exactly, and brokers and leasing companies correctly pay the first-bracket fee. But it presents that table as the 2027 schedule, with a plan.ucr.gov citation dated 2026-11-03, while 2027 registration (open since 2026-10-01) runs on FMCSA's 2026-09-01 final rule, about 20% higher; every 2027 filer is under-quoted (5 trucks: $138 against $167). It also charges freight forwarders the flat fee though the statute brackets them by fleet. The 23 tests pass but pin the author's numbers, and two of seven seeded mutations survived. It does not meet the bar: correctness and claims are 1 and verification 2. Primary regulatory hosts were blocked from this session; reference amounts come from search summaries of plan.ucr.gov and FR 2026-17893 and should be confirmed against the eCFR text before the fix lands."
+}

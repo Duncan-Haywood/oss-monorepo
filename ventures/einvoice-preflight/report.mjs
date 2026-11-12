@@ -1,12 +1,12 @@
 import { parseIsdocInvoice } from "./isdoc.mjs";
 import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
 import { inspectCreditLinks } from "./creditlink.mjs";
+import { steppedAside } from "./aside.mjs";
 import { inspectXrechnungProfile, inspectPeppolProfile, inspectFrenchProfile } from "./profile.mjs";
 import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
 import { checkPdfEnvelope } from "./pdf-envelope.mjs";
 import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
-import { detectSyntax, matchingProfile } from "./schematron-core.mjs";
 import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
 import { checkFa3, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
@@ -50,52 +50,6 @@ export async function inspectInvoiceSource(name, source) {
 
 export async function parseInvoiceSource(name, source) {
   return (await inspectInvoiceSource(name, source)).invoice;
-}
-
-// The built-in INV-0xx checks assume EU conventions. Where a PINT or ZATCA profile
-// governs the file, these are the ones its own valid invoices trip falsely: local account
-// numbers (not IBANs), non-EU tax ids, and KSA's simplified invoices (no buyer id, a
-// second TaxTotal that repeats the tax with its breakdown). `sets` names the profile
-// (pint-jp-1, zatca, ...): the official runner's, or matchingProfile's from BT-24.
-export function ownProfileDrops(sets, invoice) {
-  // Under PINT and ZATCA: payment.iban holds a local account number (INV-024). Under PINT
-  // also: the branch id (BT-86) carries an Australian BSB or a
-  // Singapore bank code, not a BIC (INV-026); Singapore adds payment means
-  // codes such as Z01 for GIRO (INV-044); and GST categories ZR, NG, OS need no
-  // EU exemption reason (INV-035), PINT's own sets carry those rules.
-  // Measured on OpenPeppol's examples, eval/phive-corpus.mjs (2026-11-11).
-  const drop = new Set(["INV-024"]);
-  if (sets.some((x) => /^pint/.test(x))) ["INV-026", "INV-044", "INV-035"].forEach((r) => drop.add(r));
-  // Japan, Malaysia, the UAE and Oman (OpenPeppol's 113 examples, eval/phive-corpus.mjs,
-  // 2026-11-12): the buyer's tax id (BT-48) is a JP T-number, MY TIN, AE TRN or OM VATIN,
-  // not an EU VAT number (INV-022; SG and A-NZ examples carry none); a debit note is an
-  // Invoice document with code 383, as under ZATCA (INV-034); and the branch id read as
-  // a BIC is a local bank code, so its country is no IBAN's (INV-027, beside INV-026).
-  if (sets.some((x) => /^pint-(jp|my|ae|om)-/.test(x))) ["INV-022", "INV-027", "INV-034"].forEach((r) => drop.add(r));
-  // A seller not registered for Japan's consumption tax states the rate and charges no
-  // tax (JP-NTR, urn:peppol:pint:nontaxinvoice-1@jp-1): its own rules check that.
-  if (sets.includes("pint-jp-ntr-1")) ["INV-018", "INV-038"].forEach((r) => drop.add(r));
-  // The UAE states 5% on a reverse-charge (AE) or margin-scheme (N) row and charges no
-  // tax on it: the buyer accounts for it, or the margin is taxed off the invoice. Six of
-  // OpenPeppol's 32 AE examples do this; PINT AE's own rules check those rows.
-  const zeroAtRate = (row) => ["AE", "N"].includes(String(row?.tax_category || "").toUpperCase()) && Number(row?.tax) === 0 && Number(row?.tax_percent) > 0;
-  if (sets.some((x) => /^pint-ae-/.test(x)) && (invoice?.tax_breakdown || []).some(zeroAtRate)) ["INV-018", "INV-038"].forEach((r) => drop.add(r));
-  // A flat-amount tax with no percentage (Malaysia's tourism tax, 10 MYR a night) cannot
-  // be checked as taxable x rate; PINT MY's rules govern those rows.
-  if ((invoice?.tax_breakdown || []).some((row) => row?.tax_scheme && (row.tax_percent === undefined || row.tax_percent === ""))) ["INV-018", "INV-038"].forEach((r) => drop.add(r));
-  // Under ZATCA also (ZATCA's 19 good-case examples, eval/phive-corpus.mjs --good,
-  // 2026-11-11): a simplified (B2C) invoice names no buyer (INV-006; BR-KSA
-  // rules require one where KSA does); credit and debit notes are Invoice
-  // documents with type code 381 or 383 (INV-034); ZATCA's own cut of EN 16931
-  // leaves out BR-33 (allowance reason, INV-052) and BR-61 (account for a credit
-  // transfer, INV-045). INV-017, INV-018 and INV-038 used to be dropped too; they
-  // came from the reader adding each line's own TaxTotal (KSA-11/12, and the
-  // prepayment lines' KSA-31/32 subtotal) and BT-111's SAR repeat to the document
-  // tax and breakdown. ubl.mjs reads only the root's TaxTotal since 2026-11-12,
-  // so those checks run on KSA files again (19 of 19 good cases still pass).
-  const zatca = sets.some((x) => /^zatca/.test(x));
-  if (zatca) ["INV-022", "INV-005", "INV-006", "INV-034", "INV-045", "INV-052"].forEach((r) => drop.add(r));
-  return drop;
 }
 
 export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES, profile = "", schematron = false } = {}) {
@@ -156,19 +110,14 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         continue;
       }
       const { invoice, envelope, xml, pdfFindings } = await inspectInvoiceSource(name, source);
-      const errors = checkInvoice(invoice);
+      // PINT and ZATCA files: built-in EU-convention rules that fire falsely step aside
+      // on every route, whether or not the official rules run (aside.mjs).
+      const aside = steppedAside(invoice);
+      const errors = checkInvoice(invoice).filter((e) => !aside.has(e.rule));
       errors.push(...pdfFindings);
       if (profile === "xrechnung") errors.push(...inspectXrechnungProfile(invoice));
       if (profile === "peppol") errors.push(...inspectPeppolProfile(invoice));
       if (profile === "france") errors.push(...inspectFrenchProfile(invoice));
-      // A PINT or ZATCA file is not judged by EU conventions even when the official rules
-      // do not run (no --schematron, or no rule files in this copy): OpenPeppol's own PINT JP
-      // example drew INV-022 and INV-035 here, and its SG and A-NZ ones INV-024.
-      const ownProfile = xml ? matchingProfile(xml, detectSyntax(xml)) : null;
-      if (ownProfile) {
-        const drop = ownProfileDrops([ownProfile[0]], invoice);
-        for (let i = errors.length - 1; i >= 0; i--) if (drop.has(errors[i].rule)) errors.splice(i, 1);
-      }
       let schematronStatus = "";
       if (schematron) {
         // The official rules, beside the built-in ones. JSON drafts have no XML to check.
@@ -192,7 +141,47 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         }
         schematronStatus = official.status;
         if (own) {
-          const drop = ownProfileDrops(official.sets || [], invoice);
+          // The built-in INV-0xx checks assume EU conventions. Where a PINT or ZATCA set
+          // governs the file, drop the ones its own invoices trip falsely: local account
+          // numbers (not IBANs), non-EU tax ids, and KSA's simplified invoices (no buyer id,
+          // a second TaxTotal that repeats the tax with its breakdown).
+          const sets = official.sets || [];
+          // Under PINT also: the branch id (BT-86) carries an Australian BSB or a
+          // Singapore bank code, not a BIC (INV-026); Singapore adds payment means
+          // codes such as Z01 for GIRO (INV-044); and GST categories ZR, NG, OS need no
+          // EU exemption reason (INV-035), PINT's own sets carry those rules.
+          // Measured on OpenPeppol's examples, eval/phive-corpus.mjs (2026-11-11).
+          const drop = new Set(["INV-024"]);
+          if (sets.some((x) => /^pint/.test(x))) ["INV-026", "INV-044", "INV-035"].forEach((r) => drop.add(r));
+          // Japan, Malaysia, the UAE and Oman (OpenPeppol's 113 examples, eval/phive-corpus.mjs,
+          // 2026-11-12): the buyer's tax id (BT-48) is a JP T-number, MY TIN, AE TRN or OM VATIN,
+          // not an EU VAT number (INV-022; SG and A-NZ examples carry none); a debit note is an
+          // Invoice document with code 383, as under ZATCA (INV-034); and the branch id read as
+          // a BIC is a local bank code, so its country is no IBAN's (INV-027, beside INV-026).
+          if (sets.some((x) => /^pint-(jp|my|ae|om)-/.test(x))) ["INV-022", "INV-027", "INV-034"].forEach((r) => drop.add(r));
+          // A seller not registered for Japan's consumption tax states the rate and charges no
+          // tax (JP-NTR, urn:peppol:pint:nontaxinvoice-1@jp-1): its own rules check that.
+          if (sets.includes("pint-jp-ntr-1")) ["INV-018", "INV-038"].forEach((r) => drop.add(r));
+          // The UAE states 5% on a reverse-charge (AE) or margin-scheme (N) row and charges no
+          // tax on it: the buyer accounts for it, or the margin is taxed off the invoice. Six of
+          // OpenPeppol's 32 AE examples do this; PINT AE's own rules check those rows.
+          const zeroAtRate = (row) => ["AE", "N"].includes(String(row?.tax_category || "").toUpperCase()) && Number(row?.tax) === 0 && Number(row?.tax_percent) > 0;
+          if (sets.some((x) => /^pint-ae-/.test(x)) && (invoice?.tax_breakdown || []).some(zeroAtRate)) ["INV-018", "INV-038"].forEach((r) => drop.add(r));
+          // A flat-amount tax with no percentage (Malaysia's tourism tax, 10 MYR a night) cannot
+          // be checked as taxable x rate; PINT MY's rules govern those rows.
+          if ((invoice?.tax_breakdown || []).some((row) => row?.tax_scheme && (row.tax_percent === undefined || row.tax_percent === ""))) ["INV-018", "INV-038"].forEach((r) => drop.add(r));
+          // Under ZATCA also (ZATCA's 19 good-case examples, eval/phive-corpus.mjs --good,
+          // 2026-11-11): a simplified (B2C) invoice names no buyer (INV-006; BR-KSA
+          // rules require one where KSA does); credit and debit notes are Invoice
+          // documents with type code 381 or 383 (INV-034); ZATCA's own cut of EN 16931
+          // leaves out BR-33 (allowance reason, INV-052) and BR-61 (account for a credit
+          // transfer, INV-045). INV-017, INV-018 and INV-038 used to be dropped too; they
+          // came from the reader adding each line's own TaxTotal (KSA-11/12, and the
+          // prepayment lines' KSA-31/32 subtotal) and BT-111's SAR repeat to the document
+          // tax and breakdown. ubl.mjs reads only the root's TaxTotal since 2026-11-12,
+          // so those checks run on KSA files again (19 of 19 good cases still pass).
+          const zatca = sets.some((x) => /^zatca/.test(x));
+          if (zatca) ["INV-022", "INV-005", "INV-006", "INV-034", "INV-045", "INV-052"].forEach((r) => drop.add(r));
           const dropped = (e) => drop.has(e.rule);
           for (let i = errors.length - 1; i >= 0; i--) if (dropped(errors[i])) errors.splice(i, 1);
         }

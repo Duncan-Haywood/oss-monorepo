@@ -578,6 +578,9 @@ class Step:
         self.missing_kind = "tool"
         self.seconds = 0.0
         self.tail = []
+        # (count, message) for each distinct error a failed step printed; see
+        # failure_causes.
+        self.causes = []
         # env: entries to add for this step. Populated only from `vars.`
         # expressions resolved to their unset value; see VARS_EXPRESSION.
         self.env = {}
@@ -1113,6 +1116,51 @@ def runner_files() -> dict[str, str]:
     return {k: v for k, v in _RUNNER_FILES.items() if k not in os.environ}
 
 
+# Why a failed step names its distinct errors, not only its last lines. A node
+# test run ends with a TAP summary, so the 12-line tail of portfolio-pages'
+# site-builder suite read "# fail 172" and nothing else. Four sessions on
+# 2026-11-12 reported that count as environmental, "unrelated to the diff",
+# and fell back to CI; it was their own post: loadPosts throws on an
+# over-long description, and 172 tests failed on that one error (measured by
+# seeding the fault, process run 2026-11-12). Grouped, the cause is one line.
+TAP_ERROR = re.compile(r"^\s+error:\s*(.*)$")
+PYTEST_FAILED = re.compile(r"^(?:FAILED|ERROR) \S+ - (.+)$")
+CAUSES_SHOWN = 3
+
+
+def _clean_cause(text: str) -> str:
+    text = text.strip()
+    if len(text) >= 2 and text[0] == text[-1] and text[0] in "'\"":
+        text = text[1:-1]
+    return re.sub(r"^(?:\w*Error|Error): ", "", text).strip()
+
+
+def failure_causes(lines) -> list[tuple[int, str]]:
+    """Distinct error messages in a step's output, most frequent first.
+
+    Reads node's TAP `error:` fields (a `|-` block's first line stands for the
+    block) and pytest's `FAILED test - message` summary lines. Empty when the
+    output has neither, so other tools' reports are unchanged.
+    """
+    counts: dict[str, int] = {}
+    for i, line in enumerate(lines):
+        m = TAP_ERROR.match(line)
+        if m:
+            value = m.group(1).strip()
+            if value in ("|", "|-", ">", ">-", ""):
+                value = next((n for n in lines[i + 1:i + 3] if n.strip()), "")
+        else:
+            m = PYTEST_FAILED.match(line)
+            if not m:
+                continue
+            value = m.group(1)
+        cause = _clean_cause(value)[:240]
+        if cause:
+            counts[cause] = counts.get(cause, 0) + 1
+    # Stable sort: ties keep the order the errors first appeared in.
+    return [(n, c) for c, n in sorted(counts.items(), key=lambda kv: -kv[1])]
+
+
 def execute(step: Step, timeout: int) -> None:
     if step.status == "skipped":
         return
@@ -1148,6 +1196,7 @@ def execute(step: Step, timeout: int) -> None:
     step.seconds = time.monotonic() - start
     output = (done.stdout + done.stderr).strip().splitlines()
     step.tail = output[-12:]
+    step.causes = failure_causes(output) if done.returncode else []
     if done.returncode == 0:
         step.status = "ok"
     elif SETUP.match(step.run):
@@ -1276,6 +1325,14 @@ def report(name, steps, uses_skipped, forced) -> int:
     for step in failed:
         print(f"FAILED  {step.label}  ({step.reason})")
         print(f"        $ {step.run.splitlines()[0]}")
+        if step.causes:
+            total = sum(n for n, _ in step.causes)
+            print(f"        {total} error(s), {len(step.causes)} distinct; "
+                  "the most frequent:")
+            for n, cause in step.causes[:CAUSES_SHOWN]:
+                print(f"          {n} x {cause}")
+            print("        A count this size is often one cause in your diff "
+                  "that many tests share, not the environment.")
         for line in step.tail:
             print(f"        {line}")
         print()

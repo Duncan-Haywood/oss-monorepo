@@ -32,7 +32,8 @@
   "errors": [
     "node --test over all platform/distribution tests timed out at 300 s (ios.test.mjs alone runs >90 s); timed each file separately instead",
     "first post description was 218 chars; hub.test.mjs/loadPost rejects >160",
-    "tag spelled red-team; check_post_frontmatter wants redteam"
+    "tag spelled red-team; check_post_frontmatter wants redteam",
+    "merge conflict with #15200 (duplicate einvoice fix); resolved by taking main's einvoice files"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -43,6 +44,10 @@
     {
       "file": "platform/distribution/",
       "issue": "Adding a *-check venture needs ghaction/nixflake/precommit --write and chmod +x; nothing in the venture checklist says so and no PR CI caught it (PR #15201)."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searched open PRs for 'einvoice' before opening; #15200 was opened and merged by a concurrent red-team session on the same step-0 entry within the same hour. The step-0 open list has no claim marker, so two red-team runs both took it; ~40 min of duplicate work."
     }
   ],
   "deviations": [
@@ -54,10 +59,10 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-12-pint-invoices-judged-by-eu-rules.md"
+    "docs/posts/2026-11-12-three-red-tests-no-job-ran.md"
   ],
   "goal": null,
-  "notes": "Targets: platform/ci/check_social_proof.py (6/8 -> 8/8 after two window-boundary tests; NEAR read from the module adapted to the mutant, so the test pins the documented 120), platform/ci/check_input_bounds.py (8/8). Real defects: einvoice PINT drops only beside official rules (JS default path + Python CLI), patched with ownProfileDrops()/own_profile.py and a JS-parity test that runs report.mjs via node; systemd-unit-hardening-check missing from 3 generated distribution files (red on main), patched; 15 unrun distribution test files, PR #15201 (control plane). Guard added: tests/test_own_profile.py JsParityTest compares the profile table and drop list across languages. Local: run_venture_tests einvoice-preflight ok (12.9 s incl. Python); distribution tests each pass individually except ios (slow, >90 s); writing.test, hub tests, check_post_frontmatter ok.",
+  "notes": "Targets: platform/ci/check_social_proof.py (6/8 -> 8/8 after two window-boundary tests; NEAR read from the module adapted to the mutant, so the test pins the documented 120), platform/ci/check_input_bounds.py (8/8). Real defects: einvoice PINT drops only beside official rules (JS default + Python CLI): fixed and tested here, but #15200 (another session) merged the same fix (aside.mjs/aside.py) first, so this PR took main's version and dropped its own; not counted here. systemd-unit-hardening-check missing from 3 generated distribution files (red on main), patched; 15 unrun distribution test files, PR #15201 (control plane). Guard: PR #15201 (control plane). Local: run_venture_tests einvoice-preflight ok (12.9 s incl. Python); distribution tests each pass individually except ios (slow, >90 s); writing.test, hub tests, check_post_frontmatter ok.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -308,12 +313,6 @@
     ],
     "real_defects": [
       {
-        "file": "ventures/einvoice-preflight/report.mjs",
-        "issue": "The EU-only INV-0xx drops for PINT/ZATCA files ran only when the official rules ran, so the default check (no --schematron, or no plain rule files) flagged our PINT JP example with INV-022/INV-035 and SG/A-NZ ones with INV-024. Fixed: ownProfileDrops() applied from matchingProfile() on BT-24 in every path; test in pint-current.test.mjs.",
-        "patched": true,
-        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15199"
-      },
-      {
         "file": "platform/distribution/actions/systemd-unit-hardening-check",
         "issue": "ventures/systemd-unit-hardening-check landed without its generated GitHub Action, flake.nix package or .pre-commit-hooks.yaml hook, and check.py was not executable: ghaction, nixflake and precommit tests all red on main. Regenerated with ghaction.mjs/nixflake.mjs/precommit.mjs --write and chmod +x.",
         "patched": true,
@@ -321,7 +320,7 @@
       },
       {
         "file": ".github/workflows/distribution-versions-ci.yml",
-        "issue": "15 of 28 platform/distribution/*.test.mjs run in no PR workflow (ghaction, nixflake, precommit, desktop, mcp, vscode, webext, android, attribution, bluesky, citation, devto, hashnode, mastodon, setup, wordpress, ios), which is how three of them went red on main unseen. Fix: add all but ios.test.mjs (its catalogue-wide plan test takes >90 s; give it its own step with a timeout) to the 'Publisher unit tests' step, and add ventures/** paths the generators read. Control plane, own PR, owner approval. Opened as PR #15201.",
+        "issue": "17 of 28 (releases.test.mjs only looked covered: tool-releases.test.mjs contains its name) platform/distribution/*.test.mjs run in no PR workflow (ghaction, nixflake, precommit, desktop, mcp, vscode, webext, android, attribution, bluesky, citation, devto, hashnode, mastodon, setup, wordpress, ios; releases), which is how three of them went red on main unseen. Fix: add all but ios.test.mjs (its catalogue-wide plan test takes >90 s; give it its own step with a timeout) to the 'Publisher unit tests' step, and add ventures/** paths the generators read. Control plane, own PR, owner approval. Opened as PR #15201.",
         "patched": false
       }
     ]

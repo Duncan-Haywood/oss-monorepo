@@ -23,6 +23,7 @@ export function parse(raw) {
   const feed = num(raw.feed), fixedMonth = num(raw.fixedMonth);
   if (!(stalls >= 1 && Number.isInteger(stalls))) errors.push("Enter the number of stalls (a whole number, 1 or more).");
   if (!(occupancy > 0 && occupancy <= 100)) errors.push("Enter average occupancy as a percent (more than 0, at most 100).");
+  else if (occupancy < 1) errors.push(`Occupancy ${occupancy} looks like a fraction. Enter it as a percent, for example ${Math.round(occupancy * 100)} for ${Math.round(occupancy * 100)}% full.`);
   if (!(boardPrice >= 0)) errors.push("Enter the board price per horse per month (0 or more).");
   if (!(feed >= 0)) errors.push("Enter feed and hay cost per horse per month (0 or more).");
   if (!(fixedMonth >= 0)) errors.push("Enter monthly fixed costs: mortgage or lease, insurance, utilities, repairs (0 or more).");

@@ -241,6 +241,13 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     if period:
         invoice["period"] = period
     invoice.update(_commercial_references(root))
+    # BT-24 and the UBL ProfileID: aside.py reads them to spot PINT and ZATCA files.
+    specification = _text(root, "CustomizationID", required=False)
+    if specification:
+        invoice["specification_id"] = specification
+    business_process = _text(root, "ProfileID", required=False)
+    if business_process:
+        invoice["profile_id"] = business_process
     adjustments = _header_adjustments(root)
     if adjustments:
         invoice["adjustments"] = adjustments
@@ -332,12 +339,6 @@ def _tax_breakdown(root: ElementTree.Element) -> list[dict[str, Any]]:
             row["tax"] = _number(tax)
         if tax_id:
             row["tax_category"] = tax_id
-        # A tax other than VAT/GST (Malaysia's tourism tax, scheme AAL) can be a flat amount
-        # with no percentage; the scheme is kept only then, so EU rows read as before (ubl.mjs).
-        scheme = next(iter(_children(category, "TaxScheme")), None) if category is not None else None
-        scheme_id = _text(scheme, "ID", required=False).strip().upper() if scheme is not None else ""
-        if scheme_id and scheme_id not in {"VAT", "GST"}:
-            row["tax_scheme"] = scheme_id
         if row:
             rows.append(row)
     return rows

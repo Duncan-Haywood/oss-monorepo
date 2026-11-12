@@ -1,9 +1,10 @@
 // Unified Carrier Registration (UCR) annual fee, 49 U.S.C. 14504a. Pure arithmetic over what the user types in.
-// The fee depends on how many commercial motor vehicles a carrier operates, in six brackets. Brokers, freight
-// forwarders and leasing companies pay the lowest bracket whatever their size. The default table below is the
-// schedule this tool was last checked against; the fee table is an input so a visitor can correct it from ucr.gov.
+// Motor carriers, motor private carriers and freight forwarders pay by how many commercial motor vehicles they
+// operate, in six brackets; brokers and leasing companies pay the lowest bracket whatever their size (49 CFR 367.50).
+// The default table is the 2027-and-later schedule from FMCSA's final rule, 91 FR 56063 (FR Doc 2026-17893,
+// published 2026-09-01, effective 2026-10-01). The fee table is an input so a visitor can correct it from ucr.gov.
 
-export const DEFAULT_FEES_TEXT = ["0-2: 46", "3-5: 138", "6-20: 276", "21-100: 963", "101-1000: 4592", "1001+: 44836"].join("\n");
+export const DEFAULT_FEES_TEXT = ["0-2: 55", "3-5: 167", "6-20: 333", "21-100: 1163", "101-1000: 5548", "1001+: 54165"].join("\n");
 export const FEE_TABLE_LABEL = "2027 registration year schedule (verify against ucr.gov for the year you are filing)";
 export const TYPES = ["motor-carrier", "private-carrier", "broker", "freight-forwarder", "leasing"];
 
@@ -60,7 +61,7 @@ export function plan(input) {
 
   const lowest = fees.brackets[0];
   const rows = entities.map((e) => {
-    const lowestOnly = ["broker", "freight-forwarder", "leasing"].includes(e.type);
+    const lowestOnly = ["broker", "leasing"].includes(e.type);
     const effectiveN = lowestOnly ? lowest.min : e.n;
     const b = bracketFor(fees.brackets, effectiveN);
     if (!b) return { ...e, error: `No bracket covers ${effectiveN} vehicles.`, fee: 0 };

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pick Path Optimizer: Shortest Pick Routes and Order Batching — Free</title>
+  <meta name="description" content="Free pick route and order batching tool for small warehouses and 3PLs: paste SKU locations and a day of orders, get carts, pick lists in walking order on the provably shortest route, and the walking and wages saved against S-shape picking. Nothing uploaded.">
+  <meta property="og:title" content="Pick path optimizer">
+  <meta property="og:description" content="Shortest pick routes and smarter cart batches for a small warehouse, with the walking saved. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M8 25V8h6v17h6V8h5' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Pick Path Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Shortest pick routes and order batching for small warehouses: paste SKU locations and orders, get carts, pick lists in walking order and the walking saved. Runs in your browser.", "featureList": "Exact shortest pick route (Ratliff-Rosenthal), S-shape and largest-gap comparison, order batching onto carts with totes, pick lists in walking order, route map, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the shortest way to walk a pick list in a warehouse?", "acceptedAnswer": {"@type": "Answer", "text": "In a warehouse with parallel aisles joined by a front and a back cross aisle, the shortest walk can be found exactly with the Ratliff-Rosenthal method, which this tool runs. It usually beats the S-shape rule (walk the whole length of every aisle with a pick) and the largest-gap rule, by an amount that depends on how many picks there are and where."}}, {"@type": "Question", "name": "What is order batching?", "acceptedAnswer": {"@type": "Answer", "text": "Picking several orders on one cart trip, each into its own tote. Orders that need the same aisles share most of the walk. This tool groups your pasted orders onto carts of the size you set so the total walk is short, and gives each cart a pick list in walking order that says which tote each item goes in."}}, {"@type": "Question", "name": "How much walking can batching save?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your orders. On this page's example day (120 placeholder orders of one to four lines in a 10-aisle, 20-bay layout), carts of four grouped by the tool and walked by the shortest route came to about 71% less walking than one order per trip on an S-shape route. Paste your own orders to see your figure."}}, {"@type": "Question", "name": "Do I need a warehouse management system?", "acceptedAnswer": {"@type": "Answer", "text": "No. Paste SKU locations as SKU, aisle, bay and paste orders one per line. A WMS or Shopify export can be reshaped into that with a spreadsheet. Nothing is uploaded."}}, {"@type": "Question", "name": "Is this safety or operations advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is walking distance on the layout you type. Cart capacity, weight, aisle congestion, one-way aisles, reach height and pick accuracy are yours to judge."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;overflow-x:auto}</style>
+</head>
+  <style>
+    svg.route { width: 100%; height: auto; background: #fff; border: 1px solid #d9dfe6; border-radius: 10px; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 14px; }
+    tr.best td { font-weight: 700; }
+  </style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;overflow-x:auto}</style>
+</head>
+<body>
+  <header>
+    <p class="note">PICK PATH OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Walk less to pick the same orders</h1>
+    <p>For small warehouses, 3PLs and online sellers who pick from shelves: paste where each SKU lives and a day of orders. The tool groups the orders onto carts, gives every cart a pick list in walking order on the <strong>provably shortest route</strong> through your aisles, and shows how many feet, hours and wages that saves against picking one order at a time the usual S-shape way.</p>
+    <p class="note">Arithmetic on figures you type. Not business, safety or operations advice. The example layout, SKUs and orders are placeholders, not any business's.</p>
+  </header>
+  <main>
+    <section class="card">
+      <h2>Your warehouse</h2>
+      <p class="note">One block of parallel aisles. Bay 1 is at the front cross aisle, where the dock or pack station is. Distances are walking-line distances.</p>
+      <div class="grid">
+        <div><label for="aisles">Aisles</label><input id="aisles" type="number" step="1" min="0"></div>
+        <div><label for="baysPerAisle">Bays per aisle</label><input id="baysPerAisle" type="number" step="1" min="0"></div>
+        <div><label for="bayLengthFt">Bay length (ft)</label><input id="bayLengthFt" type="number" step="0.5" min="0"></div>
+        <div><label for="aisleSpacingFt">Aisle centre to centre (ft)</label><input id="aisleSpacingFt" type="number" step="0.5" min="0"></div>
+        <div><label for="depotAisle">Dock or pack station in front of aisle (0.5 = left of aisle 1)</label><input id="depotAisle" type="number" step="0.5" min="0"></div>
+        <div><label for="cartOrders">Orders per cart (totes)</label><input id="cartOrders" type="number" step="1" min="0"></div>
+        <div><label for="cartLines">Max lines per cart (0 = no limit)</label><input id="cartLines" type="number" step="1" min="0"></div>
+        <div><label for="walkFtPerMin">Walking speed (ft per minute)</label><input id="walkFtPerMin" type="number" step="10" min="0"></div>
+        <div><label for="wagePerHour">Picker cost per hour ($)</label><input id="wagePerHour" type="number" step="0.5" min="0"></div>
+        <div><label for="daysPerYear">Days a year like this sample</label><input id="daysPerYear" type="number" step="1" min="0"></div>
+        <div><label for="backAisle">Cross aisle at the back?</label><select id="backAisle"><option value="1">Yes, aisles open at both ends</option><option value="0">No, dead-end aisles</option></select></div>
+      </div>
+      <div class="two">
+        <div><label for="locations">SKU locations: SKU, aisle, bay (one per line)</label><textarea id="locations" rows="10" spellcheck="false"></textarea></div>
+        <div><label for="orders">Orders, one per line: ID: SKU, SKU x2, ... (aisle-bay codes such as 4-12 work too)</label><textarea id="orders" rows="10" spellcheck="false"></textarea></div>
+      </div>
+      <button type="button" id="run">Plan the picking</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <p id="busy" class="note" hidden>Working out routes…</p>
+    </section>
+    <section class="card" id="out" hidden aria-live="polite">
+      <h2>Results</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Who this is for</h2>
+      <p>Anyone who sends people down aisles with a pick list: a 3PL with a few thousand square feet of racking, an online shop picking from a rented unit, a parts counter, a pharmacy back room. If your pickers carry one order at a time and walk every aisle end to end, most of their day is walking, and that is the part this cuts.</p>
+      <h3>A worked example</h3>
+      <p>Press <em>Load the example</em>: 160 placeholder SKUs in 10 aisles of 20 four-foot bays, and 120 orders of one to four lines. One order per trip on an S-shape route walks about 29,200 ft. The same orders on the shortest route save about 13%; carts of four in arrival order save about 59%; carts of four grouped by the tool save about 71%, or roughly 1.7 picker-hours a day at 200 ft a minute.</p>
+      <h3>When to use something else</h3>
+      <p>Several blocks of aisles, one-way aisles, zone picking with hand-offs, or more than about 1,500 orders a wave are beyond this page; a warehouse management system with a routing module handles those. To decide which SKUs belong near the dock in the first place, use the <a href="../warehouse-slotting-optimizer/">warehouse slotting optimizer</a>.</p>
+    </section>
+    <section class="card">
+      <h2>How it works</h2>
+      <p>The shortest route is exact, not a rule of thumb: the dynamic programme of Ratliff and Rosenthal (1983) walks the aisles left to right and keeps only what matters about the partial route at each aisle's two ends. The test suite checks it against an exhaustive search on 600 random small layouts. Carts are filled seed-first (the order with the longest walk, then whichever order adds least walking) and then improved by moving and swapping single orders between carts while the total walk falls; every candidate cart is scored by the exact route. The grouping is good, not proven best.</p>
+    </section>
+    <section class="card">
+      <h2>Questions</h2>
+      <h3>What is the shortest way to walk a pick list in a warehouse?</h3>
+      <p>In a warehouse with parallel aisles joined by a front and a back cross aisle, the shortest walk can be found exactly with the Ratliff-Rosenthal method, which this tool runs. It usually beats the S-shape rule (walk the whole length of every aisle with a pick) and the largest-gap rule, by an amount that depends on how many picks there are and where.</p>
+      <h3>What is order batching?</h3>
+      <p>Picking several orders on one cart trip, each into its own tote. Orders that need the same aisles share most of the walk. This tool groups your pasted orders onto carts of the size you set so the total walk is short, and gives each cart a pick list in walking order that says which tote each item goes in.</p>
+      <h3>How much walking can batching save?</h3>
+      <p>It depends on your orders. On this page's example day (120 placeholder orders of one to four lines in a 10-aisle, 20-bay layout), carts of four grouped by the tool and walked by the shortest route came to about 71% less walking than one order per trip on an S-shape route. Paste your own orders to see your figure.</p>
+      <h3>Do I need a warehouse management system?</h3>
+      <p>No. Paste SKU locations as SKU, aisle, bay and paste orders one per line. A WMS or Shopify export can be reshaped into that with a spreadsheet. Nothing is uploaded.</p>
+      <h3>Is this safety or operations advice?</h3>
+      <p>No. It is walking distance on the layout you type. Cart capacity, weight, aisle congestion, one-way aisles, reach height and pick accuracy are yours to judge.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Cart weight and volume, congestion when several pickers share an aisle, pick time at the shelf (the same for every option, so it does not change the saving), sorting at the pack station, order cut-off times, and what the saved hours are worth to you if they cannot be used for other work.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your SKUs and orders are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>picklist_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free and open source (MIT): <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pick-path-optimizer">source code</a>. If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, validateInputs, parseLocations, parseOrders, comparePolicies, pickList, pickListCsv, exampleData } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const num = (v, d = 0) => Number(v).toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d });
+    const read = () => { const o = {}; for (const k of KEYS) o[k] = Number($(k).value); return o; };
+    function fill() {
+      for (const k of KEYS) $(k).value = DEFAULTS[k];
+      const ex = exampleData(DEFAULTS);
+      $("locations").value = ex.locations;
+      $("orders").value = ex.orders;
+    }
+    function svgRoute(inp, plan) {
+      const pad = 24, sx = 8, sy = 4;
+      const W = (inp.aisles - 1) * inp.aisleSpacingFt;
+      const L = inp.baysPerAisle * inp.bayLengthFt;
+      const k = Math.min(sx, 700 / Math.max(W, 1)), ky = Math.min(sy, 360 / L);
+      const X = (x) => pad + x * k, Y = (y) => pad + (L - y) * ky;
+      let s = `<svg class="route" viewBox="0 0 ${X(W) + pad} ${Y(0) + pad + 10}" role="img" aria-label="Map of this cart's route">`;
+      for (let a = 0; a < inp.aisles; a++) s += `<line x1="${X(a * inp.aisleSpacingFt)}" y1="${Y(0)}" x2="${X(a * inp.aisleSpacingFt)}" y2="${Y(L)}" stroke="#d9dfe6" stroke-width="6"/>`;
+      s += `<polyline fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linejoin="round" points="${plan.path.map((p) => X(p.x) + "," + Y(p.y)).join(" ")}"/>`;
+      plan.stops.forEach((st, i) => { const x = X((st.aisle - 1) * inp.aisleSpacingFt), y = Y((st.bay - 0.5) * inp.bayLengthFt); s += `<circle cx="${x}" cy="${y}" r="7" fill="#173da9"/><text x="${x}" y="${y + 3.5}" font-size="9" text-anchor="middle" fill="#fff">${i + 1}</text>`; });
+      const dx = X((inp.depotAisle - 1) * inp.aisleSpacingFt);
+      s += `<rect x="${dx - 9}" y="${Y(0) + 4}" width="18" height="10" fill="#9a3412"/><text x="${dx + 14}" y="${Y(0) + 13}" font-size="10" fill="#9a3412">dock</text></svg>`;
+      return s;
+    }
+    let last = null;
+    function showCart(i) {
+      const { inp, res } = last;
+      const plan = pickList(res.smart[i], res.router);
+      const rows = plan.stops.map((st, j) => `<tr><td>${j + 1}</td><td>Aisle ${st.aisle}, bay ${st.bay}</td><td>${st.items.map((it) => esc(it.sku) + (it.qty > 1 ? " x" + it.qty : "") + " → tote " + it.tote + " (" + esc(it.order) + ")").join("<br>")}</td></tr>`).join("");
+      $("cart").innerHTML = `<p class="stats">Cart ${i + 1}: ${res.smart[i].length} orders, ${plan.stops.length} stop${plan.stops.length === 1 ? "" : "s"}, ${num(plan.length)} ft.</p>` + svgRoute(inp, plan) + `<div class="scroll"><table><thead><tr><th>Stop</th><th>Where</th><th>Pick</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+    function run() {
+      const inp = read();
+      const errs = validateInputs(inp);
+      const locs = parseLocations($("locations").value);
+      const ord = errs.length ? { orders: [], errors: [] } : parseOrders($("orders").value, locs.map, inp);
+      let h = [...errs, ...locs.errors, ...ord.errors].map((e) => `<div class="finding"><span class="pill warn">Check</span> ${esc(e)}</div>`).join("");
+      if (errs.length || !ord.orders.length) { $("result").innerHTML = h || '<div class="finding">Paste at least one order whose SKUs have locations.</div>'; $("out").hidden = false; return; }
+      if (ord.orders.length > 1500) { $("result").innerHTML = h + '<div class="finding"><span class="pill warn">Check</span> Up to 1,500 orders at a time. Split the day into waves.</div>'; $("out").hidden = false; return; }
+      const res = comparePolicies(ord.orders, inp);
+      last = { inp, res };
+      const best = res.rows[res.rows.length - 1];
+      h += `<div class="finding"><h3>${num(best.savingPct)}% less walking: about ${num(res.baseline.hoursPerDay - best.hoursPerDay, 1)} picker-hours a day, $${num(res.baseline.costPerYear - best.costPerYear)} a year</h3><p>${ord.orders.length} orders, ${ord.orders.reduce((s, o) => s + o.lines.length, 0)} lines, compared with ${res.baseline.label.toLowerCase()}.</p></div>`;
+      h += `<div class="scroll"><table><thead><tr><th>How the orders are picked</th><th class="n">Trips</th><th class="n">Feet</th><th class="n">Hours / day</th><th class="n">$ / year</th><th class="n">Less walking</th></tr></thead><tbody>${res.rows.map((r) => `<tr${r === best ? ' class="best"' : ""}><td>${esc(r.label)}</td><td class="n">${r.trips}</td><td class="n">${num(r.feet)}</td><td class="n">${num(r.hoursPerDay, 2)}</td><td class="n">${num(r.costPerYear)}</td><td class="n">${num(r.savingPct, 1)}%</td></tr>`).join("")}</tbody></table></div>`;
+      h += `<div class="finding"><h3>Pick lists</h3><label for="cartpick">Show cart</label><select id="cartpick">${res.smart.map((b, i) => `<option value="${i}">Cart ${i + 1} (${b.map((o) => esc(o.id)).join(", ")})</option>`).join("")}</select><div id="cart"></div><button type="button" class="secondary" id="csv">Download every pick list (CSV)</button></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("cartpick").addEventListener("change", (e) => showCart(Number(e.target.value)));
+      showCart(0);
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([pickListCsv(res.smart, res.router)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "pick-lists.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("picklist_downloaded");
+      });
+      record("plan_run");
+    }
+    const go = () => { $("busy").hidden = false; setTimeout(() => { try { run(); } finally { $("busy").hidden = true; } }, 20); };
+    fill();
+    $("run").addEventListener("click", go);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); go(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
