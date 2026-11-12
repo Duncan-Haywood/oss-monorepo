@@ -2,15 +2,22 @@
 # Make a standalone folder that watches one metric from your own GitHub repository:
 #   sh deploy/make-watch-repo.sh ../my-metric-watch
 #   cd ../my-metric-watch && git init && git add . && git commit -m "watch a metric" && git push ...
+# Without a clone of the repository (about 5 GB), the same script fetches the files it needs:
+#   curl -fsSL https://raw.githubusercontent.com/Duncan-Haywood/oss-monorepo/main/ventures/changepoint-detector/deploy/make-watch-repo.sh | sh -s -- my-metric-watch
 # It copies the engine and watch.mjs (zero dependencies, MIT) and the scheduled workflow. Nothing
-# here talks to us: the runs, the data and the webhook stay in your account.
+# here talks to us after that: the runs, the data and the webhook stay in your account.
 set -eu
 DEST=${1:?usage: sh deploy/make-watch-repo.sh <new-folder>}
-SRC=$(cd "$(dirname "$0")/.." && pwd)
+BASE=${CPD_SOURCE:-https://raw.githubusercontent.com/Duncan-Haywood/oss-monorepo/main/ventures/changepoint-detector}
+SRC=$(cd "$(dirname "$0")/.." 2>/dev/null && pwd || echo /nonexistent)
+get() { # get <path in the venture> <destination>
+  if [ -f "$SRC/watch.mjs" ] && [ -f "$SRC/$1" ]; then cp "$SRC/$1" "$2"; else curl -fsSL "$BASE/$1" -o "$2"; fi
+}
 if [ -e "$DEST" ] && [ -n "$(ls -A "$DEST" 2>/dev/null)" ]; then echo "$DEST exists and is not empty" >&2; exit 1; fi
 mkdir -p "$DEST/.github/workflows" "$DEST/data"
-for f in watch.mjs engine.mjs example-data.mjs slope-breaks.mjs ramps.mjs update-rate.mjs LICENSE; do cp "$SRC/$f" "$DEST/$f"; done
-cp "$SRC/deploy/watch-metric.yml" "$DEST/.github/workflows/watch-metric.yml"
+for f in watch.mjs engine.mjs example-data.mjs slope-breaks.mjs ramps.mjs update-rate.mjs LICENSE; do get "$f" "$DEST/$f"; done
+get deploy/watch-metric.yml "$DEST/.github/workflows/watch-metric.yml"
+
 printf '{ "type": "module" }\n' > "$DEST/package.json"
 cat > "$DEST/README.md" <<'MD'
 # Metric watch

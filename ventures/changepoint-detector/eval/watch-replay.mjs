@@ -11,19 +11,35 @@
 //   Part B, the TCPD series (van den Burg and Williams 2020), is scored once with the chosen
 //   defaults and the others for context, and changes nothing.
 //
+// Round 2 (pre-registered 2026-11-12, after round 1 chose bocpd --confirm 5 and before this round ran):
+//   a unit test found a clear 3-sd step that bocpd never reports, because its probability was split
+//   between neighbouring points (peak 0.36). Candidate 'bocpd-window' sums the probability over 5
+//   neighbouring points. On fresh seeds (11-20), both with --confirm 5, adopt bocpd-window as the default
+//   only if (a) it finds at least as many steps as bocpd in every step cell and strictly more over the
+//   four combined, and (b) its mean false alerts per 1,000 checks over the three nulls is at most 1.0
+//   above bocpd's. TCPD is scored for both and decides nothing.
+//   node eval/watch-replay.mjs tcpd-data --round2 > eval/watch-replay-round2.out.txt
+//
 // usage: node eval/watch-replay.mjs [tcpd-data] > eval/watch-replay.out.txt
 //        (sh eval/tcpd-fetch.sh tcpd-data first for part B; without it part B is skipped)
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { Worker, isMainThread, parentPort } from 'node:worker_threads';
+import { availableParallelism } from 'node:os';
 import { detectBoth, advance, emptyState } from '../watch.mjs';
 
 const TOL = 5;
-const DETECTORS = {
+const ROUND2 = process.argv.includes('--round2');
+const DETECTORS = ROUND2 ? {
+  bocpd: { detector: 'bocpd', model: 'mean' },
+  'bocpd-window': { detector: 'bocpd-window', model: 'mean' },
+} : {
   'pelt-mean': { detector: 'pelt', model: 'mean' },
   'pelt-meanvar': { detector: 'pelt', model: 'meanvar' },
   bocpd: { detector: 'bocpd', model: 'mean' },
 };
-const CONFIRMS = [3, 5, 10];
+const CONFIRMS = ROUND2 ? [5] : [3, 5, 10];
+const SEED0 = ROUND2 ? 10 : 0;
 const median = (a) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const log = (s) => process.stderr.write(s + '\n');
 
@@ -41,10 +57,30 @@ function trace(values, start) {
   for (const name of Object.keys(DETECTORS)) out[name] = [];
   for (let n = start; n <= values.length; n++) {
     const v = values.slice(0, n), l = labels.slice(0, n);
-    const runs = { mean: detectBoth(v, l, { model: 'mean' }), meanvar: detectBoth(v, l, { model: 'meanvar' }) };
+    const runs = { mean: detectBoth(v, l, { model: 'mean' }), meanvar: ROUND2 ? null : detectBoth(v, l, { model: 'meanvar' }) };
     for (const [name, d] of Object.entries(DETECTORS)) out[name].push({ n, changes: runs[d.model][d.detector] });
   }
   return { labels, out };
+}
+
+// The engine runs are the slow part (about 0.15 s per prefix pair at 500 points): they go to a pool of workers.
+if (!isMainThread) {
+  parentPort.on('message', ({ id, values, start }) => parentPort.postMessage({ id, ...trace(values, start) }));
+}
+async function traceAll(jobs) {
+  const results = new Array(jobs.length);
+  const k = Math.max(1, Math.min(jobs.length, availableParallelism()));
+  let next = 0, done = 0;
+  await new Promise((resolve, reject) => {
+    for (let w = 0; w < k; w++) {
+      const worker = new Worker(new URL(import.meta.url), { argv: process.argv.slice(2) });
+      const feed = () => { if (next < jobs.length) { const id = next++; worker.postMessage({ id, values: jobs[id].values, start: jobs[id].start }); } else worker.terminate(); };
+      worker.on('message', (m) => { results[m.id] = m; done++; if (jobs[m.id].tag) log(`${jobs[m.id].tag} done`); if (done === jobs.length) resolve(); feed(); });
+      worker.on('error', reject);
+      feed();
+    }
+  });
+  return results;
 }
 
 // Run the state machine over a trace with one confirm value. Returns the alerts with the n at which each was reported.
@@ -79,19 +115,20 @@ const SCEN = {
 const A = {}; // A[det][confirm][scen] = { detected, total, delays, fa, checks }
 for (const det of Object.keys(DETECTORS)) { A[det] = {}; for (const k of CONFIRMS) { A[det][k] = {}; for (const s of Object.keys(SCEN)) A[det][k][s] = { detected: 0, total: 0, delays: [], fa: 0, checks: 0 }; } }
 const t0 = Date.now();
-for (const [sname, gen] of Object.entries(SCEN)) {
-  const truth = sname.startsWith('step') ? [STEP_AT] : [];
-  for (let seed = 1; seed <= SEEDS; seed++) {
-    const values = gen(rng(seed * 7919 + sname.length));
-    const { labels, out } = trace(values, START);
-    for (const det of Object.keys(DETECTORS)) for (const k of CONFIRMS) {
-      const { alerts, checks } = replay(out[det], labels, k);
-      const sc = score(alerts, truth, checks), cell = A[det][k][sname];
-      cell.detected += sc.detected; cell.total += truth.length; cell.delays.push(...sc.delays); cell.fa += sc.fa; cell.checks += sc.checks;
-    }
+if (isMainThread) {
+const jobsA = [];
+for (const [sname, gen] of Object.entries(SCEN)) for (let seed = 1; seed <= SEEDS; seed++) jobsA.push({ sname, values: gen(rng((seed + SEED0) * 7919 + sname.length)), start: START, tag: seed === SEEDS ? `${sname} (last seed)` : null });
+const tracesA = await traceAll(jobsA);
+log(`part A traced in ${((Date.now() - t0) / 1000).toFixed(0)} s`);
+jobsA.forEach((job, j) => {
+  const truth = job.sname.startsWith('step') ? [STEP_AT] : [];
+  const { labels, out } = tracesA[j];
+  for (const det of Object.keys(DETECTORS)) for (const k of CONFIRMS) {
+    const { alerts, checks } = replay(out[det], labels, k);
+    const sc = score(alerts, truth, checks), cell = A[det][k][job.sname];
+    cell.detected += sc.detected; cell.total += truth.length; cell.delays.push(...sc.delays); cell.fa += sc.fa; cell.checks += sc.checks;
   }
-  log(`${sname} done ${((Date.now() - t0) / 1000).toFixed(0)} s`);
-}
+});
 
 console.log(`Part A: synthetic streams, ${SEEDS} seeds each, ${N} points, first check (the baseline) at ${START}, then one check per new point (${N - START} checks per stream). A step, where there is one, is at point ${STEP_AT + 1}; an alert dated within ${TOL} points of it counts as reporting it. False alerts are all other alerts, per 1,000 checks. Delay = points from the change to the check that reported it.`);
 const nulls = Object.keys(SCEN).filter((s) => s.startsWith('null'));
@@ -111,10 +148,17 @@ if (ok.length) {
   const tied = ok.filter((c) => c.meanFa - ok[0].meanFa <= 0.5).sort((a, b) => a.delay2 - b.delay2);
   pick = tied[0];
 }
-console.log(`\nRule: ${ok.length} of ${cand.length} candidates report at least 90% of the 2-sd steps. ${pick ? `Chosen: ${pick.det} with --confirm ${pick.k} (mean ${pick.meanFa.toFixed(2)} false alerts per 1,000 checks on the nulls; 2-sd steps ${Math.round(pick.power2 * 100)}% found, median delay ${pick.delay2}).` : 'None qualifies.'}`);
+if (ROUND2) {
+  const cells = steps.map((st) => [A.bocpd[5][st].detected, A['bocpd-window'][5][st].detected]);
+  const fa = (d) => nulls.reduce((t, st) => t + (1000 * A[d][5][st].fa) / A[d][5][st].checks, 0) / nulls.length;
+  const a = cells.every(([b, w]) => w >= b) && cells.reduce((t, [b, w]) => t + w - b, 0) > 0;
+  const b = fa('bocpd-window') - fa('bocpd') <= 1.0;
+  console.log(`\nRound 2 rule: (a) bocpd-window finds at least as many steps in every cell and more overall: ${a ? 'yes' : 'no'} (${cells.map(([x, y]) => `${x} vs ${y}`).join(', ')}); (b) null false alerts at most 1.0 per 1,000 above bocpd: ${b ? 'yes' : 'no'} (${fa('bocpd').toFixed(2)} vs ${fa('bocpd-window').toFixed(2)}). ${a && b ? 'Adopted: bocpd-window becomes the default.' : 'Not adopted: bocpd stays the default.'}`);
+}
+if (!ROUND2) console.log(`\nRule (round 1): ${ok.length} of ${cand.length} candidates report at least 90% of the 2-sd steps. ${pick ? `Chosen: ${pick.det} with --confirm ${pick.k} (mean ${pick.meanFa.toFixed(2)} false alerts per 1,000 checks on the nulls; 2-sd steps ${Math.round(pick.power2 * 100)}% found, median delay ${pick.delay2}).` : 'None qualifies.'}`);
 
 // ---------------------------------------------------------------- part B
-const DIR = process.argv[2] || 'tcpd-data';
+const DIR = process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : 'tcpd-data';
 if (!existsSync(join(DIR, 'annotations.json'))) { console.log(`\nPart B skipped: no ${DIR}/annotations.json (sh eval/tcpd-fetch.sh ${DIR}).`); process.exit(0); }
 const ann = JSON.parse(readFileSync(join(DIR, 'annotations.json'), 'utf8'));
 const series = [];
@@ -129,7 +173,8 @@ for (const d of Object.keys(ann).sort()) {
 }
 console.log(`\nPart B: TCPD replay, ${series.length} univariate series that ship in the TCPD repository. Each series is watched from 20% of its length (the baseline check), then checked after every point. An alert is "marked" when an annotator put a change within ${TOL} points of its date. Recall: of the locations a majority of annotators marked after the baseline, how many an alert reached. Delay: points from the nearest marked location to the check that reported it.`);
 const B = {}; for (const det of Object.keys(DETECTORS)) { B[det] = {}; for (const k of CONFIRMS) B[det][k] = { alerts: 0, marked: 0, checks: 0, maj: 0, reached: 0, delays: [], per: [] }; }
-for (const s of series) {
+const tracesB = await traceAll(series.map((s) => ({ values: s.values, start: Math.max(20, Math.floor(0.2 * s.values.length)), tag: `TCPD ${s.name}` })));
+series.forEach((s, si) => {
   const n = s.values.length, start = Math.max(20, Math.floor(0.2 * n));
   const a = Object.values(ann[s.name]), K = a.length;
   const anyMark = [...new Set(a.flat())];
@@ -140,7 +185,7 @@ for (const s of series) {
     if (majority.some((p) => Math.abs(p - l) <= TOL)) continue;
     majority.push(l);
   }
-  const { labels, out } = trace(s.values, start);
+  const { labels, out } = tracesB[si];
   for (const det of Object.keys(DETECTORS)) for (const k of CONFIRMS) {
     const { alerts, checks } = replay(out[det], labels, k);
     const cell = B[det][k];
@@ -149,15 +194,15 @@ for (const s of series) {
     for (const p of majority) { const al = alerts.find((x) => Math.abs(x.index - p) <= TOL); if (al) { cell.reached++; cell.delays.push(al.at - p); } }
     cell.per.push({ name: s.name, n, alerts: alerts.length, marked: marked.length, maj: majority.length });
   }
-  log(`TCPD ${s.name} (${n}) done ${((Date.now() - t0) / 1000).toFixed(0)} s`);
-}
+});
 console.log('\n  detector      confirm  alerts  marked (share)   per 1000 checks  majority locations reached  median delay');
 for (const det of Object.keys(DETECTORS)) for (const k of CONFIRMS) {
   const c = B[det][k];
-  const star = pick && pick.det === det && pick.k === k ? ' *' : '';
+  const star = !ROUND2 && pick && pick.det === det && pick.k === k ? ' *' : '';
   console.log(`  ${(det + star).padEnd(13)} ${String(k).padStart(7)}  ${String(c.alerts).padStart(6)}  ${String(c.marked).padStart(6)} (${c.alerts ? Math.round((100 * c.marked) / c.alerts) : 0}%)${' '.repeat(6)}${((1000 * c.alerts) / c.checks).toFixed(1).padStart(8)}         ${c.reached}/${c.maj}${' '.repeat(22)}${median(c.delays) ?? '-'}`);
 }
-if (pick) {
+if (pick && !ROUND2) {
   console.log(`\nPer series, the chosen setting (${pick.det}, --confirm ${pick.k}): alerts, of which marked; majority locations after the baseline.`);
   for (const p of B[pick.det][pick.k].per) console.log(`  ${p.name.padEnd(20)} n ${String(p.n).padStart(4)}  alerts ${String(p.alerts).padStart(3)}  marked ${String(p.marked).padStart(3)}  majority locations ${p.maj}`);
+}
 }

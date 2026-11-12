@@ -11,19 +11,31 @@ const gauss = (u) => () => Math.sqrt(-2 * Math.log(u())) * Math.cos(2 * Math.PI 
 function stepSeries(n, at, size, seed = 3) { const g = gauss(lcg(seed)); return Array.from({ length: n }, (_, i) => (i >= at ? size : 0) + g()); }
 const csvOf = (values, start = new Date(Date.UTC(2026, 0, 1))) => 'date,orders\n' + values.map((v, i) => `${new Date(start.getTime() + i * 864e5).toISOString().slice(0, 10)},${v.toFixed(3)}`).join('\n') + '\n';
 
-test('a step is reported once, after --confirm points, and not again as it is re-dated', () => {
+for (const detector of ['pelt', 'bocpd-window']) {
+  test(`${detector}: a step is reported once, after --confirm points, and not again as it is re-dated`, () => {
+    const values = stepSeries(260, 200, 3);
+    const labels = values.map((_, i) => String(i + 1));
+    let state = emptyState(), reports = [];
+    for (let n = 150; n <= values.length; n++) {
+      const r = advance(state, detectChanges(values.slice(0, n), labels.slice(0, n), { detector }), n, labels.slice(0, n));
+      for (const a of r.alerts) reports.push({ at: n, index: a.index, pointsAfter: a.pointsAfter });
+      state = r.state;
+    }
+    assert.equal(reports.length, 1, JSON.stringify(reports));
+    // dated from 5 points of data, the first report can be a few points off (pelt: 198 for 201); within --tolerance
+    assert.ok(Math.abs(reports[0].index - 200) <= WATCH_DEFAULTS.tolerance);
+    assert.equal(reports[0].pointsAfter, WATCH_DEFAULTS.confirm);
+  });
+}
+
+test('the default (bocpd) misses this clear step: its probability is split between neighbours (why bocpd-window exists)', () => {
   const values = stepSeries(260, 200, 3);
   const labels = values.map((_, i) => String(i + 1));
-  let state = emptyState(), reports = [];
-  for (let n = 150; n <= values.length; n++) {
-    const r = advance(state, detectChanges(values.slice(0, n), labels.slice(0, n)), n, labels.slice(0, n));
-    for (const a of r.alerts) reports.push({ at: n, index: a.index, pointsAfter: a.pointsAfter });
-    state = r.state;
-  }
-  assert.equal(reports.length, 1, JSON.stringify(reports));
-  // dated from 5 points of data, the first report can be a few points off (here 198 for 201); within --tolerance
-  assert.ok(Math.abs(reports[0].index - 200) <= WATCH_DEFAULTS.tolerance);
-  assert.equal(reports[0].pointsAfter, WATCH_DEFAULTS.confirm);
+  assert.equal(WATCH_DEFAULTS.detector, 'bocpd');
+  assert.deepEqual(detectChanges(values, labels), []);
+  const w = detectChanges(values, labels, { detector: 'bocpd-window' });
+  assert.equal(w.length, 1);
+  assert.ok(w[0].probability >= 0.5 && w[0].shift > 2.5);
 });
 
 test('a change with fewer than --confirm points after it is pending, not alerted', () => {
@@ -84,7 +96,7 @@ test('CLI: baseline, then a new step posts to the webhook once and writes the st
     r = await run([csv, '--state', state, '--webhook-env', 'HOOK', '--fail-on-alert']);
     assert.equal(r.code, 1, r.o);
     assert.equal(posts.length, 1);
-    assert.match(posts[0].text, /orders changed from 2026-05-01: level up from 49\.9 to 54\.9 \(5\.62 noise sd\); 7 points since\./);
+    assert.match(posts[0].text, /orders changed from 2026-05-01: level up from 49\.9 to 54\.9 \(5\.62 noise sd\), Bayesian probability 98%; 7 points since\./);
     r = await run([csv, '--state', state, '--webhook-env', 'HOOK', '--fail-on-alert']);
     assert.equal(r.code, 0);
     assert.equal(posts.length, 1);
@@ -115,4 +127,16 @@ test('deploy/make-watch-repo.sh makes a folder that runs on its own', async () =
   assert.match(out, /First check: 1 change already in the history/);
   assert.match(readFileSync(join(dest, '.github/workflows/watch-metric.yml'), 'utf8'), /--state watch-state\.json/);
   assert.match(readFileSync(join(dest, 'README.md'), 'utf8'), /github\.com\/sponsors/);
+});
+
+test('the defaults are the ones the pre-registered replay chose (eval/watch-replay*.out.txt)', () => {
+  const r1 = readFileSync(new URL('./eval/watch-replay.out.txt', import.meta.url), 'utf8');
+  const r2 = readFileSync(new URL('./eval/watch-replay-round2.out.txt', import.meta.url), 'utf8');
+  assert.match(r1, /Chosen: bocpd with --confirm 5 /);
+  assert.match(r1, /  bocpd \*\s+5\s+193\s+63 \(33%\)\s+30\.3\s+38\/52/);
+  assert.match(r1, /  pelt-mean\s+5\s+626\s+134 \(21%\)\s+98\.2\s+52\/52/);
+  assert.match(r2, /Not adopted: bocpd stays the default\./);
+  assert.match(r2, /  bocpd-window\s+5\s+307\s+85 \(28%\)\s+48\.2\s+46\/52/);
+  assert.equal(WATCH_DEFAULTS.detector, 'bocpd');
+  assert.equal(WATCH_DEFAULTS.confirm, 5);
 });
