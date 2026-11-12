@@ -102,6 +102,14 @@ export function analyze(inputs) {
   if (suggested == null) { warnings.push("Billing fees plus the target margin leave nothing to cover service costs; lower one of them."); return { ok: false, warnings }; }
   const fee = mode === "fixed" ? fixedFee : suggested;
   const base = memberYear(services, p, fee);
+  if (base.fullCost === 0 || p.use === 0) warnings.push("Service cost at this use is $0, so any fee reaches the margin; check the share of the bundle members use and your costs.");
+  // The fee is priced from cost, so the discount members actually get off list follows from it.
+  // Say so when it is far from the discount typed, and give the fee that would match that discount.
+  const discountFee = base.planValue / 12;
+  const impliedDiscount = base.listValue > 0 ? 1 - base.collected / base.listValue : 0;
+  if (base.listValue > 0 && Math.abs(impliedDiscount - p.discount) > 0.05) {
+    warnings.push(`At ${money2(fee)} a month members pay ${(impliedDiscount * 100).toFixed(0)}% below list, not the ${discountPct}% plan discount you entered. A ${discountPct}% discount would be ${money2(discountFee)} a month.`);
+  }
   const lines = services.map((s) => ({ ...s, listTotal: s.qty * s.price, costTotal: s.qty * s.cost, marginPct: s.price > 0 ? (s.price - s.cost) / s.price : 0 }));
   // Utilisation sweep: the risk in a plan is members who use more than priced.
   const sweep = [60, 80, 100, 120].map((u) => {
@@ -124,7 +132,7 @@ export function analyze(inputs) {
   const signupSpend = churned * newMemberCost;
   const annualMargin = base.margin * members - signupSpend;
   return {
-    ok: true, warnings, mode, fee, suggested, base, lines, sweep, breakEvenUse, ladder,
+    ok: true, warnings, mode, fee, suggested, discountFee, impliedDiscount, base, lines, sweep, breakEvenUse, ladder,
     cohort: { members, churned, signupSpend, annualMargin, perMember: members > 0 ? annualMargin / members : 0 },
   };
 }

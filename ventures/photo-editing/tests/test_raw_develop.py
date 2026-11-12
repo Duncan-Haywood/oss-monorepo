@@ -215,6 +215,7 @@ def make_dng(
     extra_raw_tags=(),
     photometric=rd.PHOTOMETRIC_CFA,
     spp=1,
+    colour_tags=None,
 ):
     """A little-endian DNG holding ``sensor`` (row-major ints)."""
 
@@ -276,15 +277,19 @@ def make_dng(
     if linearization:
         raw_tags.append((50712, 3, linearization))
     raw_tags += list(extra_raw_tags)
+    if colour_tags is None:
+        colour_tags = [
+            (50721, 10, CAMERA_MATRIX),
+            (50722, 10, CAMERA_MATRIX),
+            (50778, 3, (17,)),
+            (50779, 3, (21,)),
+            (50728, 5, neutral),
+        ]
     ifd0_tags = [
         (50706, 1, (1, 4, 0, 0)),
         (274, 3, (orientation,)),
-        (50721, 10, CAMERA_MATRIX),
-        (50722, 10, CAMERA_MATRIX),
-        (50778, 3, (17,)),
-        (50779, 3, (21,)),
-        (50728, 5, neutral),
         (50730, 10, (baseline_exposure,)),
+        *colour_tags,
     ]
 
     # Layout: header | chunks | raw IFD (if sub) | IFD0
@@ -361,7 +366,15 @@ class DevelopColourTests(unittest.TestCase):
         ow, oh, px, report = self._develop(blob)
         self.assertEqual((ow, oh), (w, h))
         self.assertEqual(report.cfa, "RGGB")
+        # Both matrices are the same here, so the blend at the D65 white is that matrix.
+        self.assertTrue(report.matrix.startswith("ColorMatrix2 at 650"), report.matrix)
+        self.assertEqual(report.colour, "dng")
+        self.assertAlmostEqual(report.cct, 6504, delta=5)
+        for i, want in enumerate(PATCHES):
+            self.assertColour(read_pixel(ow, px, i * 8 + 4, 4), want)
+        ow, oh, px, report = self._develop(blob, colour="dcraw")
         self.assertEqual(report.matrix, "ColorMatrix2")
+        self.assertEqual(report.colour, "dcraw")
         for i, want in enumerate(PATCHES):
             self.assertColour(read_pixel(ow, px, i * 8 + 4, 4), want)
 
@@ -665,7 +678,8 @@ class DevelopCliTests(unittest.TestCase):
             result = json.loads(out.getvalue())["developed"][0]
             self.assertEqual((result["width"], result["height"]), (24, 4))
             self.assertTrue(Path(result["master"]).is_file())
-            self.assertEqual(result["matrix"], "ColorMatrix2")
+            self.assertTrue(result["matrix"].startswith("ColorMatrix"), result["matrix"])
+            self.assertEqual(result["colour"], "dng")
             # a second run refuses to overwrite and exits 1 with a reason
             out, err = io.StringIO(), io.StringIO()
             code = main(["develop", str(src), "--out", str(Path(tmp) / "masters")], stdout=out, stderr=err)
