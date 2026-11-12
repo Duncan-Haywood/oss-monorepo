@@ -4,6 +4,20 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 **Live page:** https://marisstella.app/research/codesign-cant/
 
+![Left: late-window position error after a wind step on the axis the canted rotor's side force hurts (circles) and the one it helps (squares), without the feed-forward, with it added to milestone 6b's designs, and retrained with it. Middle: share of held-out episodes that diverge against the feed-forward's filter constant; stars are the retrained designs at the filter CMA-ES chose. Right: composite J of the retrained feed-forward designs minus milestone 6b's canted and uncanted designs, paired by seed.](experiments/m7_ff/m7_ff.png)
+
+## Milestone 7: can the flight controller cancel the side force itself? A position-loop feed-forward
+
+**Question.** Milestone 6b found that on a rigid frame the canted rotor's side force hurts position hold along one horizontal axis. The mixer cannot cancel it (four rotors, four commands), but the controller knows lat, its own commanded torque and its nominal motor lag. If the position loop predicts the side force and leans against it, does the penalty go away?
+
+**Headline (`experiments/m7_ff/results.txt`; simulated, 6 seeds, best of two CMA-ES starts, retrained with the feed-forward and its filter constant as a 13th parameter, both rigid geometries).**
+
+- **It evens the axes.** The hurt/helped late-window ratio drops from 1.91 and 3.41 to 1.08 and 1.10; switch the feed-forward off on the same designs and it returns (2.10, 3.33). Median hurt-axis error after the wind step falls from 0.047 to 0.037 m and from 0.040 to 0.030 m.
+- **It does not pay overall.** The term feeds the commanded torque back into the attitude reference through the motor lag, and under plant uncertainty that loop can diverge. Added to milestone 6b's designs, a 0.2 s filter diverges on 16% of held-out episodes (0.5% without the feed-forward); 1 s on 1.3%, 2 s on 0.8%. Retrained, two of six `below` designs chose fast filters (0.17, 0.18 s) and diverge on 4 of 64 episodes each, so J falls by 0.33 against no feed-forward. Above, it is a wash (J +0.009, 5 of 6 seeds better).
+- **The typical design still barely notices the side force** (median on/off 1.01–1.02); the mean is the divergence tail, as in milestone 6b.
+- **Cant still pays:** yaw −5.1° and −7.2° against no cant (6 of 6 seeds each), J better in 5 of 6. Chosen cant 33–34°.
+- For a builder: if you add the feed-forward, filter it slowly (1 s or more). Its gain is about a centimetre of late-window error on one axis.
+- Committed predictions: 4 of 7 held in both geometries; S2 (H3 within 5% with the feed-forward) was refuted in both, by the divergence tail.
 ![Left: held-out composite score J of the 60 milestone-4 designs in RotorPy with canted rotors against the same designs in the stylised simulator, one colour per RotorPy condition; filled markers are canted designs, open ones uncanted. Right: held-out RMS attitude error, cant minus no cant, paired by seed, for PID, INDI and geometric control in the stylised simulator and the four RotorPy conditions.](experiments/m5_rotorpy/m5_rotorpy.png)
 
 ## Milestone 5: do the co-designed quadrotors keep their ranking in RotorPy? (H5)

@@ -85,3 +85,41 @@ def test_scalar_and_pair_dist_sign_agree_and_lever_zero_removes_the_gust_torque(
     z2 = poshold.score(x, 4, 1, parts=True, dist_sign=-1.0, lever_scale=0.0)[2]
     assert np.array_equal(z1["pos"], z2["pos"])
     assert np.all(a["late_x"] >= 0) and np.all(a["late_y"] >= 0)
+
+
+def test_feed_forward_is_inert_without_cant_or_at_zero_gain():
+    rng = np.random.default_rng(5)
+    x = rng.uniform(0.3, 0.7, (3, 12)); x[:, 2] = 0.0
+    a = poshold.score(x, 4, 1, ff=0.0, parts=True)[2]
+    b = poshold.score(x, 4, 1, ff=1.0, parts=True)[2]
+    for k in a:
+        assert np.allclose(a[k], b[k])          # no cant: lat = 0, nothing to predict
+    x[:, 2] = 0.5
+    c = poshold.score(x, 4, 1, ff=0.0, parts=True)[2]
+    d = poshold.score(x, 4, 1, parts=True)[2]
+    for k in c:
+        assert np.array_equal(c[k], d[k])       # the default is milestone 6/6b's controller
+
+
+def test_feed_forward_evens_the_axes_for_milestone_6b_designs():
+    # Milestone 6b's force-aware designs under the rigid geometry they were trained for: the steady counter-torque's side force
+    # adds to the drag on one axis. Leaning against the predicted force (slow filter) brings the two axes together.
+    import json
+    runs = json.load(open(os.path.join(os.path.dirname(__file__), "..", "experiments", "m6b_cop", "results.json")))["runs"]
+    rs = [r for r in runs if r["geom"] == "below" and r["arm"] == "aware" and r["source"] == "retrained"]
+    x = np.array([r["x"] for r in rs])
+    kw = dict(alpha_max=np.deg2rad(80.0), dist_sign=poshold.cop_signs(-1.0), parts=True)
+    off = poshold.score(x, 16, 100, **kw)[2]
+    on = poshold.score(x, 16, 100, ff=1.0, tau_ff=1.0, **kw)[2]
+    ok = (off["dead"] == 0) & (on["dead"] == 0)
+    assert ok.sum() >= 3
+    assert np.median(np.abs(np.log(on["late_x"][ok] / on["late_y"][ok]))) < np.median(np.abs(np.log(off["late_x"][ok] / off["late_y"][ok])))
+
+
+def test_thirteenth_coordinate_sets_the_filter():
+    rng = np.random.default_rng(7)
+    x = rng.uniform(0.3, 0.7, (2, 12)); x[:, 2] = 0.5
+    for u, tau in ((0.0, 0.05), (1.0, 2.0)):
+        a = poshold.score(np.c_[x, np.full(2, u)], 4, 1, ff=1.0, parts=True)[2]
+        b = poshold.score(x, 4, 1, ff=1.0, tau_ff=tau, parts=True)[2]
+        assert np.allclose(a["pos"], b["pos"])
