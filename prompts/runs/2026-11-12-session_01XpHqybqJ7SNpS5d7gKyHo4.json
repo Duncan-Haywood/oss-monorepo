@@ -1,0 +1,156 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqybqJ7SNpS5d7gKyHo4",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T04:38:36Z",
+  "ended": "2026-11-12T05:16:13Z",
+  "wall_minutes": 37.97,
+  "tokens_in": 5406706,
+  "tokens_out": 27617,
+  "cost_usd": 2.3307,
+  "tool_calls": 64,
+  "task": "polish: item 1 of polish-2026-11-12-finding-headings.md (8 pages still drawing .finding h4) and item 2 (the clicker reaches one state per page)",
+  "projects": [
+    "platform/pages",
+    "brand-deal-rate-calculator",
+    "newsletter-sponsorship-rate-calculator",
+    "podcast-sponsorship-rate-calculator",
+    "rent-increase-notice-checker",
+    "str-cleaning-fee-pricing-calculator",
+    "turo-host-payout-calculator",
+    "voiceover-project-rate-calculator",
+    "grant-writer-proposal-price-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15007",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first full varied sweep hung with no output for 17 min: page.evaluate had no timeout and a few pages lock the tab on a 100000 value",
+      "fix": "45 s per-page race, page.close errors ignored, PROGRESS=1 per-page line"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "says build 3 to 20 min; this run's took ~17 min while 'node --test platform/pages/*.test.mjs' ran 11 min, and dist cannot be partially rebuilt for a 2-line page change, so I patched dist copies with the same sed. A --only flag on build.mjs would save a later run the full rebuild."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "the pkill-f hook rejects '[r]endered-headings' when the same word appears anywhere else in the command line; the bracket tip in CLAUDE.md does not mention that"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "did not screenshot hub/flagship/research/stories/post first; the previous polish note's top open item was concrete and the hub fold item is already taken by open PR #15002 (and landed in #14997)",
+      "did": "took the carried-over finding-headings item and the clicker's one-state gap",
+      "result": "8 pages fixed, sweep now reaches states the clicker missed (7/7 vs 0/7 on the old build)"
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "rebuilding the whole site for 2-line edits to 8 pages would cost ~17 min",
+      "did": "applied the identical substitution to the built dist copies, kept the originals as the before build",
+      "result": "before/after measured in Chromium on both"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-finding-you-only-see-when-the-field-is-empty.md",
+    "docs/reports/polish-2026-11-12-finding-headings-varied.md"
+  ],
+  "goal": null,
+  "notes": "node --test 'platform/pages/*.test.mjs': 1562 tests, 1547 pass, 0 fail, 15 skipped. Venture suites for the 8 pages: 0 fail. rendered-headings.mjs on before build: 7/7 skip (one-state clicker found 0); after: 0. Full varied sweep 493 pages ~4 min, 1 new skip (grant-writer, fixed), 5 over budget; 3 of those hang on a 100000 value (dining-room-table-mix-optimizer, greenhouse-bench-planner, u-pick-farm-profit-planner) - next run. Open PR #15002 duplicates the merged hub-lede #14997 (mergeable_state dirty); not touched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7b6efb77-ae5f-501b-bf9f-0172e14b0ce5",
+    "transcripts": 1,
+    "first": "2026-11-12T04:38:36Z",
+    "last": "2026-11-12T05:16:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 117,
+        "output": 27617,
+        "thinking": 4713,
+        "cache_read": 5317291,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89298,
+        "api_equivalent_usd": 2.3307,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 117,
+      "output": 27617,
+      "thinking": 4713,
+      "cache_read": 5317291,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89298,
+      "api_equivalent_usd": 2.3307,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 61,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 37.97,
+      "active_minutes": 37.97,
+      "model_minutes": 4.52,
+      "tool_minutes": 33.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "fix 8 pages by hand with browser checks, extend sweep script, measure, write report and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 171.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
