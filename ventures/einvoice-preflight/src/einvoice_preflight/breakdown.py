@@ -124,7 +124,12 @@ def _check_rows(rows: list[Any], expected: dict[Any, dict[str, Decimal]], with_c
                 f"Set taxable to {group['taxable']} or correct the line nets.",
                 f"{path}/taxable",
             ))
-    for key in expected:
+    for key, group in expected.items():
+        # The mirror of the zero row above: lines whose nets sum to zero at a
+        # rate carry no tax, so no row is needed (ZATCA's prepayment-deduction
+        # line at the advance's old rate: quantity 0, net 0.00).
+        if group is not None and group["taxable"] == 0:
+            continue
         if key not in seen and not unattributed:
             findings.append(_finding(
                 "INV-038",

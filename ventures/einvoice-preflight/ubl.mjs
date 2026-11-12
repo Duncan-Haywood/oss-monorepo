@@ -255,9 +255,24 @@ function taxCategoryFields(category) {
   return extras;
 }
 
+// The document-level TaxTotal elements (BG-22/BG-23): children of the root. A line
+// may carry its own TaxTotal (ZATCA's KSA-11/12 line VAT, and its prepayment lines'
+// KSA-31/32 subtotal at the advance's rate), which is not the document's breakdown.
+// Fall back to every TaxTotal only when none sits at the root.
+function headerTaxTotals(root) {
+  const direct = root.children.filter((child) => child.name === "TaxTotal");
+  return direct.length ? direct : descendants(root, "TaxTotal");
+}
+
+const hasSubtotal = (taxTotal) => taxTotal.children.some((child) => child.name === "TaxSubtotal");
+
+function headerSubtotals(root) {
+  return headerTaxTotals(root).flatMap((total) => total.children.filter((child) => child.name === "TaxSubtotal"));
+}
+
 function taxBreakdown(root) {
   const rows = [];
-  for (const subtotal of descendants(root, "TaxSubtotal")) {
+  for (const subtotal of headerSubtotals(root)) {
     const taxable = textOf(subtotal, "TaxableAmount", false);
     const tax = textOf(subtotal, "TaxAmount", false);
     const category = descendants(subtotal, "TaxCategory")[0];
@@ -281,7 +296,7 @@ function taxBreakdown(root) {
 
 function documentExemption(root) {
   const extras = {};
-  for (const subtotal of descendants(root, "TaxSubtotal")) {
+  for (const subtotal of headerSubtotals(root)) {
     for (const category of descendants(subtotal, "TaxCategory")) {
       const reason = textOf(category, "TaxExemptionReason", false);
       if (reason && !extras.tax_exemption_reason) extras.tax_exemption_reason = reason;
@@ -332,16 +347,20 @@ export function parseUblInvoice(source) {
   const supplier = descendants(root, "AccountingSupplierParty")[0] || root;
   const customer = descendants(root, "AccountingCustomerParty")[0] || root;
   const total = descendants(root, "LegalMonetaryTotal")[0] || root;
-  const taxTotals = descendants(root, "TaxTotal");
+  const taxTotals = headerTaxTotals(root);
   if (taxTotals.length === 0) throw new Error("UBL field TaxAmount is missing");
   // BT-110 is in the document currency; a second TaxTotal in the VAT
   // accounting currency (BT-111) is the same tax again and must not be added.
   const docCurrency = textOf(root, "DocumentCurrencyCode", false);
-  const sameCurrency = taxTotals.filter((item) => {
+  let sameCurrency = taxTotals.filter((item) => {
     const amount = item.children.find((child) => child.name === "TaxAmount");
     const code = amount && amount.attrs ? amount.attrs.currencyID : "";
     return !code || !docCurrency || code === docCurrency;
   });
+  // When the VAT accounting currency is the document currency (ZATCA requires
+  // BT-111 in SAR, so every SAR invoice repeats its tax), the repeat is the
+  // TaxTotal with no TaxSubtotal: BT-110 is the one that carries the breakdown.
+  if (sameCurrency.length > 1 && sameCurrency.some(hasSubtotal)) sameCurrency = sameCurrency.filter(hasSubtotal);
   const taxTotal = (sameCurrency.length ? sameCurrency : taxTotals)
     .reduce((sum, item) => sum + asNumber(textOf(item, "TaxAmount")), 0);
   const dueDate = textOf(root, "DueDate", false);

@@ -159,7 +159,7 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     supplier = next(iter(_children(root, "AccountingSupplierParty")), root)
     customer = next(iter(_children(root, "AccountingCustomerParty")), root)
     total = next(iter(_children(root, "LegalMonetaryTotal")), root)
-    tax_totals = _children(root, "TaxTotal")
+    tax_totals = _header_tax_totals(root)
     if not tax_totals:
         raise ValueError("UBL field TaxAmount is missing")
     # BT-110 is in the document currency; a second TaxTotal in the VAT
@@ -172,6 +172,11 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         return not code or not doc_currency or code == doc_currency
 
     chosen = [item for item in tax_totals if _same_currency(item)] or tax_totals
+    # When the VAT accounting currency is the document currency (ZATCA requires
+    # BT-111 in SAR), the repeat is the TaxTotal with no TaxSubtotal.
+    with_subtotal = [item for item in chosen if _has_subtotal(item)]
+    if len(chosen) > 1 and with_subtotal:
+        chosen = with_subtotal
     tax_total = sum((Decimal(_text(item, "TaxAmount")) for item in chosen), Decimal("0"))
     due_date = _text(root, "DueDate", required=False)
     type_code = (
@@ -257,10 +262,38 @@ def _tax_category_fields(category: ElementTree.Element) -> dict[str, str]:
     return extras
 
 
+def _local(element: ElementTree.Element) -> str:
+    return element.tag.rsplit("}", 1)[-1]
+
+
+def _header_tax_totals(root: ElementTree.Element) -> list[ElementTree.Element]:
+    """Document-level TaxTotal elements (BG-22/BG-23): children of the root.
+
+    A line may carry its own TaxTotal (ZATCA's KSA-11/12 line VAT and its
+    prepayment lines' KSA-31/32 subtotal), which is not the document's
+    breakdown. Fall back to every TaxTotal only when none sits at the root.
+    """
+    direct = [child for child in list(root) if _local(child) == "TaxTotal"]
+    return direct or _children(root, "TaxTotal")
+
+
+def _has_subtotal(total: ElementTree.Element) -> bool:
+    return any(_local(child) == "TaxSubtotal" for child in list(total))
+
+
+def _header_subtotals(root: ElementTree.Element) -> list[ElementTree.Element]:
+    return [
+        child
+        for total in _header_tax_totals(root)
+        for child in list(total)
+        if _local(child) == "TaxSubtotal"
+    ]
+
+
 def _tax_breakdown(root: ElementTree.Element) -> list[dict[str, Any]]:
-    """Map TaxTotal/TaxSubtotal rows into tax_breakdown."""
+    """Map document-level TaxTotal/TaxSubtotal rows into tax_breakdown."""
     rows: list[dict[str, Any]] = []
-    for subtotal in _children(root, "TaxSubtotal"):
+    for subtotal in _header_subtotals(root):
         taxable = _text(subtotal, "TaxableAmount", required=False)
         tax = _text(subtotal, "TaxAmount", required=False)
         category = next(iter(_children(subtotal, "TaxCategory")), None)
@@ -289,7 +322,7 @@ def _tax_breakdown(root: ElementTree.Element) -> list[dict[str, Any]]:
 def _document_exemption(root: ElementTree.Element) -> dict[str, str]:
     """Map TaxSubtotal/TaxCategory exemption reason when present."""
     extras: dict[str, str] = {}
-    for subtotal in _children(root, "TaxSubtotal"):
+    for subtotal in _header_subtotals(root):
         for category in _children(subtotal, "TaxCategory"):
             reason = _text(category, "TaxExemptionReason", required=False)
             if reason and "tax_exemption_reason" not in extras:
