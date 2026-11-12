@@ -2,7 +2,7 @@
 title: "The worst case for a beam over three posts is not every span loaded"
 date: 2026-11-12
 tags: [continuous-beam-calculator, construction, structural, framing, new-venture]
-description: A free continuous beam calculator that patterns live load span by span, exactly, by superposition. On two equal spans, loading one gives 36% more sagging moment than loading both, and lifts the far end.
+description: On two equal spans, live load on one span gives 36% more sagging moment than on both, and lifts the far end. A free tool finds the worst pattern exactly.
 ---
 
 A deck beam set on three posts, or a floor beam that runs over a middle bearing wall, is a *continuous* beam. Span tables and the usual free beam calculators handle one span, maybe with an overhang. The framing checks in this repository's [wall framing takeoff](https://marisstella.app/wall-framing-takeoff/) do the same: every header, trimmer and cantilever check there says "closed-form simple span".
