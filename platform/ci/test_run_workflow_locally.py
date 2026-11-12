@@ -343,6 +343,14 @@ class WorkflowBudget(unittest.TestCase):
         self.assertTrue(all(s.reason.startswith("TIMEOUT") for s in steps))
         self.assertLess(steps[0].seconds, 4)
 
+    def test_a_short_budget_still_runs_its_first_step(self):
+        # The time left was int()-truncated, so 0.99 s read as 0 and a 1 s
+        # budget marked every step UNRUN before any ran.
+        steps = [runner.Step("j", "quick", "true", ".")]
+        with contextlib.redirect_stdout(io.StringIO()):
+            runner.run_steps(steps, 900, budget=1)
+        self.assertEqual(steps[0].status, "ok")
+
     def test_a_budget_cut_workflow_is_not_green_and_not_failed(self):
         steps = [runner.Step("j", "ok", "true", "."),
                  runner.Step("j", "slow", "sleep 5", ".")]
