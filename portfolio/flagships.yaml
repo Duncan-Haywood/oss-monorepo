@@ -272,19 +272,12 @@ flagships:
       CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool,
       capped breaks, zero-break odd leagues, field start; sampled, annealed and climbed starters,
       20 and 22 teams at the floor, 24-40 8-21% above it; break-weighted starters; shift venues for
-      single and home-and-away seasons, odd leagues 17-39 under 2 breaks per team). 2026-11-12
-      (README "Shift venues carried through the search", eval/field-shift.txt, eval/shift-carry.txt):
-      shift starters at the field sizes, 15 teams 195/41 to 195/28, 31 teams 899/245 to 1,189/60;
-      capped shift candidates, 11 teams 253 to 237, 13 teams 373 to 335; carried pair hosts through
-      the search's moves: 1 row of 60 changed (negative, off). 2026-11-12 later (README "Shift
-      candidates in a home-and-away season, part two", eval/shift-double-capped.txt): capped shift
-      leg ones in the home-and-away search, 11 teams 727 to 701 and 719 to 695, 13 teams 1,083 to
-      1,041 and 1,059 to 1,011, nothing at 9-40 otherwise (on up to 16 slots only); 16/32 shift
-      starters at 15 and 31 teams: no change, time doubled (negative, off). 2026-11-12 latest
-      (README "The page's four choices, re-measured on its own ten tries", eval/best-of-k-page.txt):
-      18 teams most even 1,355/93 to fewest 2,493/48 (dominates 4 of 6 real seasons), 20 teams
-      1,460/117 to 5,039/54; at 19 teams 7 of 8 weighted tries are one season, read-out now folds
-      repeats. Next, most valuable first: fill the gap between "fewer back-to-back" and "fewest" at
+      single and home-and-away seasons, odd leagues 17-39 under 2 breaks per team; shift starters and
+      capped shift candidates through the search and as home-and-away leg ones, 11 and 13 teams 3-5%
+      lower; README 2026-11-12 sections and eval/shift-*.txt). 2026-11-12 latest (README "The page's
+      four choices, re-measured on its own ten tries", eval/best-of-k-page.txt): 18 teams most even
+      1,355/93 to fewest 2,493/48 (dominates 4 of 6 real seasons), 20 teams 1,460/117 to 5,039/54;
+      at 19 teams 7 of 8 weighted tries are one season, the read-out now folds repeats. Next, most valuable first: fill the gap between "fewer back-to-back" and "fewest" at
       17-20 teams (19 teams 83 to 48 breaks; duplicate weighted tries could run capped ones at caps in
       between, behind a versioned share link); moves that keep the shift pattern for 17-40 teams; a lower
       bound or a timetable below 136 at 12 (SAT, eval/carryover-sat.py: 10 teams proved >= 90, 12
