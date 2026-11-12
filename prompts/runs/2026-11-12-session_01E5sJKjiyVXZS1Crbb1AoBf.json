@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
@@ -35,6 +35,10 @@
     {
       "what": "First venture preflight failed: the new post's description was 190 characters (limit 160).",
       "fix": "Shortened it to 156 and reran."
+    },
+    {
+      "what": "CI validate failed: flagships.yaml next: was 2,154 characters (cap 2,000); local checks run did not include portfolio/router/validate.py.",
+      "fix": "Folded the earlier 2026-11-12 history into a pointer to the README and reran validate.py."
     }
   ],
   "integrity_issues": [],
