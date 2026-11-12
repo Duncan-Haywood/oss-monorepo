@@ -1138,6 +1138,63 @@ seeds 1 to 3).
   ones at caps in between, but changing what a try does changes the season a share link builds, so
   it needs a versioned share link; the same measurement on single round robins.
 
+## Pick any season on the frontier (2026-11-12, latest)
+
+The page's four choices keep one season each, but the ten tries hold more than four useful ones.
+At 19 teams the read-out above lists 1,311 / 87, 1,517 / 84, 3,731 / 59 and 5,741 / 48: nothing
+between 84 and 59 back-to-back home or away games, and an organiser who wanted about 70 had no
+way to get it. Two changes:
+
+- **The list under the report.** After a carry-over search the page now shows every season on the
+  frontier, meaning every season where no other try has both less carry-over and fewer
+  back-to-back games, as buttons ("1367 carry-over, 83 back-to-back"). A click keeps that season. The
+  read-out then says "Picked from 12 searches" and a "Back to the choice above" button returns to
+  the choice. The pick goes into the share link as `carryOverKeep`, e.g. `11@20d3`: try 11 of a
+  20-team home-and-away search at seed 3. It is applied only when the teams, single or double and
+  seed all match (`carryOverKeepText`, `carryOverKeepIndex`). Change any of them, or the choice,
+  and the pick drops. The tries are cached by teams, single or double and seed, so changing the
+  choice or picking a season needs no new search.
+- **Two gap tries.** `CARRY_OVER_GAP = 2` more capped tries run after the 8 + 2, with caps further
+  along the same sequence (`cappedTryBreaks` j = 2, 3: an even league's minimum plus 8 and 12 a
+  leg, plus 24 and 36 a season). These are the caps between the two capped tries and the weighted
+  ones. The four choices still pick among tries 0 to 9 only (`combineCarryOverTries(..., { among:
+  10 })`). So **every share link made before today builds the same season it always did**, with
+  no version number in the link. The gap tries only add to the list.
+
+What the gap tries add (`node eval/frontier-gap.mjs`, `eval/frontier-gap.txt`; seeds 1 to 3 at 17
+to 20 teams home and away, seeds 1 and 2 elsewhere):
+
+| | Runs where a gap try joins the frontier | Widest break gap, before -> after (examples) |
+|---|---|---|
+| 17-20 teams, home and away | 9 of 12 | 19 teams: 25 -> 13, 19 -> 12; 18 teams: 18 -> 10; 20 teams: 20 -> 16 |
+| 15-20 teams, single round robin | 10 of 10 | 17 teams: 14 -> 6 (both seeds); 19 teams: 16 -> 8 |
+| 11-15 teams, home and away | 5 of 6 | small: the tries already reach 2 to 6 apart |
+
+- At 19 teams (seed 1) the new frontier is 1,311 / 87, 1,517 / 84, **3,203 / 72**, 3,731 / 59 and
+  5,741 / 48. At 17 single it gains 703 / 22 and 653 / 26 between 807 / 18 and 343 / 32.
+- An odd league's capped try also runs a heavy-weight search and keeps whichever has fewer breaks
+  (`carryOverTry`). Sometimes that lands at the far end instead of the gap (11 teams: 1,495 / 9),
+  which is still a new choice but widens the "widest gap" figure (11 teams seed 2: 2 -> 10).
+- Cost: 2 more tries. On a 4-core device the longest queue is 3 tries either way (10 or 12 over 4
+  threads), so the wait is unchanged. On one core it is about a fifth longer (20 teams home and
+  away: about 2 to 3 s a try here).
+- Tried and dropped first: a "squeeze" that starts the capped search from the best weighted try's
+  leg one and walks the cap down, paying carry-over per break over it. From a starter timetable it
+  never got below the start's breaks (18, 19 and 20 teams single, caps 4 to 26 below). Moves that
+  keep the timetable cannot cut breaks, and the venue-flip moves break the home/away balance. Heavier
+  break weights (80 to 640) left the weighted tries on the same starter season (19 teams: 1,459 to
+  1,517 at 79 to 83 breaks).
+- Tests: `frontier-pick.test.mjs` (the four choices unchanged with the gap tries present; a kept
+  try wins; a pick for another size, seed or kind is refused; the schedule's own recount is the
+  kept try's; the share link keeps a valid pick and drops a malformed one).
+  `eval/browser-frontier-pick.mjs` drives the real page in Chromium (12 teams home and away): the
+  list shows, a click keeps that season, the share link reopens on it, and "Back" and changing the
+  choice restore the first season (8 checks, all pass).
+- Open: the frontier still has gaps above 20 breaks at 17 (home and away) and 20 teams where
+  neither the weighted nor the capped search reaches. The capped search from the circle method is
+  poor between about 66 and 90 breaks (20 teams: 2,892 / 78 against 2,396 / 72 from a weighted
+  try).
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`

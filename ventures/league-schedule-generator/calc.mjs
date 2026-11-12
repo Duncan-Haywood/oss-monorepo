@@ -6,7 +6,7 @@
 // assignment by seeded simulated annealing -> outputs (tables, CSV, .ics, text) and an
 // independent validator that re-checks the finished schedule from its output alone.
 
-import { lowCarryOverRounds, lowCarryOverDoubleRounds, bestCarryOverRounds, carryOverSummary, CARRY_OVER_PICK, carryOver } from "./carryover.mjs";
+import { lowCarryOverRounds, lowCarryOverDoubleRounds, bestCarryOverRounds, carryOverSummary, carryOverKeepIndex, CARRY_OVER_PICK, carryOver } from "./carryover.mjs";
 
 export const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const WEEKDAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -338,7 +338,7 @@ export function readSpec(f) {
   return {
     errors,
     spec: {
-      rounds, teams: t.teams, double: Boolean(f.double), carryOver: Boolean(f.carryOver), carryOverPick: Object.hasOwn(CARRY_OVER_PICK, f.carryOverPick) ? CARRY_OVER_PICK[f.carryOverPick] : CARRY_OVER_PICK.balanced, start, weekdays: w.weekdays, skipDays: skip.days,
+      rounds, teams: t.teams, double: Boolean(f.double), carryOver: Boolean(f.carryOver), carryOverPick: Object.hasOwn(CARRY_OVER_PICK, f.carryOverPick) ? CARRY_OVER_PICK[f.carryOverPick] : CARRY_OVER_PICK.balanced, ...(f.carryOverKeep ? { carryOverKeep: String(f.carryOverKeep) } : {}), start, weekdays: w.weekdays, skipDays: skip.days,
       blackouts: b.blackouts, timeLimits: tl.limits, courtLimits: cl.limits, courtClosures: cc.closures, courts: courtNames, times: times.times, seed, minutes,
     },
   };
@@ -663,7 +663,12 @@ export function buildSchedule(spec) {
       plan = plan0.rounds;
       carryOverSearch = plan0.summary || null;
     } else if (Number.isInteger(spec.carryOverTries) && spec.carryOverTries > 1) {
-      const best = bestCarryOverRounds(n, { double: Boolean(spec.double), seed: spec.seed ?? 1, tries: spec.carryOverTries, capped: Number.isInteger(spec.carryOverCapped) && spec.carryOverCapped > 0 ? spec.carryOverCapped : 0, pick: spec.carryOverPick ?? CARRY_OVER_PICK.balanced });
+      // `carryOverGap` more capped tries widen the frontier; `carryOverKeep` (carryOverKeepText)
+      // is a frontier season the organiser picked, applied only when it was made for these settings
+      const capped = Number.isInteger(spec.carryOverCapped) && spec.carryOverCapped > 0 ? spec.carryOverCapped : 0;
+      const gap = Number.isInteger(spec.carryOverGap) && spec.carryOverGap > 0 ? spec.carryOverGap : 0;
+      const keep = carryOverKeepIndex(spec.carryOverKeep, { n, double: Boolean(spec.double), seed: spec.seed ?? 1, tries: spec.carryOverTries + capped + gap });
+      const best = bestCarryOverRounds(n, { double: Boolean(spec.double), seed: spec.seed ?? 1, tries: spec.carryOverTries, capped, gap, keep, pick: spec.carryOverPick ?? CARRY_OVER_PICK.balanced });
       plan = best.rounds;
       carryOverSearch = carryOverSummary(best);
     } else {
@@ -2696,7 +2701,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "officials", "grounds", "linked", "scoring"];
+const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "officials", "grounds", "linked", "scoring"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -2719,7 +2724,7 @@ export function decodeFields(text) {
     const str = (v) => (typeof v === "string" ? v : "");
     const wd = Array.isArray(o.weekdays) ? o.weekdays.filter((d) => WEEKDAYS.includes(d)) : [];
     return {
-      teams: str(o.teams), double: o.double === true, carryOver: o.carryOver === true, carryOverPick: ["fair", "balanced", "breaks", "fewest"].includes(o.carryOverPick) ? o.carryOverPick : "balanced", start: str(o.start), weekdays: wd,
+      teams: str(o.teams), double: o.double === true, carryOver: o.carryOver === true, carryOverPick: ["fair", "balanced", "breaks", "fewest"].includes(o.carryOverPick) ? o.carryOverPick : "balanced", carryOverKeep: /^\d{1,3}@\d{1,3}[ds]-?\d{1,12}$/.test(str(o.carryOverKeep)) ? o.carryOverKeep : "", start: str(o.start), weekdays: wd,
       skip: str(o.skip), blackouts: str(o.blackouts), timeLimits: str(o.timeLimits), courtLimits: str(o.courtLimits), courtClosures: str(o.courtClosures), courts: str(o.courts), times: str(o.times),
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,

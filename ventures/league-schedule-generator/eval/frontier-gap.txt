@@ -1,0 +1,72 @@
+# eval/frontier-gap.mjs, 2026-11-12 (this container, 4 cores, one thread per run)
+# Runs: --sizes 17,18 / 19,20 (double, seeds 1-3); --sizes 11,13,15 --seeds 1,2 (double); --single --sizes 11,13,15,17,18,19,20 --seeds 1,2; each with --extra 4.
+# The page ships CARRY_OVER_GAP = 2, so the table below uses the first two extra tries (j = 2, 3); the raw JSON lines (four extra tries) follow.
+# 'cap null' = an odd league's capped try that kept its heavy-weight search (carryOverTry).
+
+teams kind seed | page frontier | + gap tries j=2,3 (cap) | added | widest break gap page -> with gap tries
+11 double s1 | 481/22 539/21 541/18 699/13 | 579/21 (cap null), 1495/9 (cap null) | 1 | 5 -> 5
+11 double s2 | 485/21 505/19 | 1495/9 (cap null), 573/23 (cap null) | 1 | 2 -> 10
+13 double s1 | 691/33 721/32 761/28 827/27 | 903/28 (cap null), 953/27 (cap null) | 0 | 4 -> 4
+13 double s2 | 701/30 721/29 819/27 2099/21 | 953/29 (cap null), 2665/11 (cap null) | 1 | 6 -> 10
+15 double s1 | 795/67 861/62 933/53 969/48 1169/36 | 971/55 (cap null), 915/58 (cap null) | 1 | 12 -> 12
+15 double s2 | 795/67 947/53 953/48 1195/36 | 929/60 (cap 60), 933/53 (cap null) | 2 | 14 -> 12
+17 double s1 | 1223/75 1229/69 1285/65 1955/54 3133/43 | 1605/66 (cap 66), 1255/70 (cap null) | 0 | 11 -> 11
+17 double s2 | 1249/71 1259/70 1269/69 2381/43 | 2323/65 (cap 66), 1275/72 (cap null) | 1 | 26 -> 22
+17 double s3 | 1239/74 1259/70 1305/66 2247/54 2997/42 | 1757/66 (cap 66), 1249/71 (cap null) | 1 | 12 -> 12
+18 double s1 | 1316/98 1426/88 1582/70 1638/68 1662/58 2496/48 | 1574/72 (cap 72), 1512/82 (cap 84) | 2 | 18 -> 10
+18 double s2 | 1310/94 1426/84 1562/72 1626/70 1800/60 2398/48 | 1624/72 (cap 72), 1488/84 (cap 84) | 0 | 12 -> 12
+18 double s3 | 1426/86 1510/70 1784/60 1966/58 2398/48 | 1610/72 (cap 72), 1548/84 (cap 84) | 0 | 16 -> 16
+19 double s1 | 1311/87 1517/84 3731/59 5741/48 | 3203/72 (cap 72), 6297/49 (cap null) | 1 | 25 -> 13
+19 double s2 | 1311/87 1367/83 4021/60 4651/48 | 4111/72 (cap 72), 1469/81 (cap null) | 1 | 23 -> 21
+19 double s3 | 1311/87 1497/79 4301/60 4879/48 | 3759/72 (cap 72), 1367/83 (cap null) | 2 | 19 -> 12
+20 double s1 | 1460/116 1916/92 2396/72 3802/66 4884/54 | 2892/78 (cap 78), 2590/90 (cap 90) | 0 | 24 -> 24
+20 double s2 | 1460/116 1930/102 1934/86 3784/66 4906/54 | 2978/78 (cap 78), 2648/90 (cap 90) | 1 | 20 -> 16
+20 double s3 | 1460/118 1858/102 1938/100 1962/92 2396/90 2428/88 2782/80 4462/62 5920/54 | 3456/78 (cap 78), 2692/86 (cap 90) | 2 | 18 -> 16
+11 single s1 | 133/10 159/3 | 139/10 (cap null), 747/0 (cap null) | 1 | 7 -> 7
+11 single s2 | 133/10 151/9 231/8 | 747/0 (cap null), 129/10 (cap null) | 2 | 1 -> 8
+13 single s1 | 211/12 385/10 | 215/12 (cap null), 211/12 (cap null) | 0 | 2 -> 2
+13 single s2 | 201/12 225/11 401/10 1005/6 | 231/12 (cap null), 1353/0 (cap null) | 1 | 4 -> 6
+15 single s1 | 195/28 301/16 311/12 | 295/20 (cap 20), 299/24 (cap 24) | 1 | 12 -> 8
+15 single s2 | 195/28 299/16 319/12 | 277/20 (cap 20), 289/24 (cap 24) | 1 | 12 -> 8
+17 single s1 | 343/32 807/18 969/14 | 703/22 (cap 22), 653/26 (cap 26) | 2 | 14 -> 6
+17 single s2 | 343/32 809/18 975/14 | 727/22 (cap 22), 651/26 (cap 26) | 2 | 14 -> 6
+18 single s1 | 348/40 430/30 444/28 468/26 510/20 662/16 | 454/24 (cap 24), 470/28 (cap 28) | 1 | 10 -> 10
+18 single s2 | 348/38 436/32 440/30 452/28 462/26 500/20 674/16 | 454/24 (cap 24), 468/28 (cap 28) | 1 | 6 -> 6
+19 single s1 | 323/36 1141/20 1421/16 | 1079/24 (cap 24), 2749/17 (cap null) | 1 | 16 -> 12
+19 single s2 | 323/36 1197/20 1359/16 | 1079/24 (cap 24), 959/28 (cap 28) | 2 | 16 -> 8
+20 single s1 | 360/52 546/36 576/32 1092/22 1424/18 | 1008/26 (cap 26), 910/30 (cap 30) | 2 | 16 -> 16
+20 single s2 | 360/52 552/42 560/38 566/36 1182/22 1408/18 | 948/26 (cap 26), 976/30 (cap 30) | 1 | 14 -> 10
+
+# raw
+{"teams":11,"double":true,"seed":1,"page":["481/22","539/21","541/18","699/13"],"all":["481/22","539/21","541/18","699/13","1495/9*"],"extra":["579/21 (cap null)","1495/9 (cap null)","557/23 (cap null)","521/22 (cap null)"],"added":1,"gapBefore":5,"gapAfter":5,"distinctPage":10,"unchanged":true,"s":67}
+{"teams":11,"double":true,"seed":2,"page":["485/21","505/19"],"all":["485/21","505/19","1495/9*"],"extra":["1495/9 (cap null)","573/23 (cap null)","573/23 (cap null)","521/20 (cap null)"],"added":1,"gapBefore":2,"gapAfter":10,"distinctPage":10,"unchanged":true,"s":68.7}
+{"teams":13,"double":true,"seed":1,"page":["691/33","721/32","761/28","827/27"],"all":["691/33","721/32","761/28","827/27","879/25*"],"extra":["903/28 (cap null)","953/27 (cap null)","1057/29 (cap null)","879/25 (cap null)"],"added":1,"gapBefore":4,"gapAfter":4,"distinctPage":10,"unchanged":true,"s":76.4}
+{"teams":13,"double":true,"seed":2,"page":["701/30","721/29","819/27","2099/21"],"all":["701/30","721/29","819/27","2099/21","2665/11*"],"extra":["953/29 (cap null)","2665/11 (cap null)","915/29 (cap null)","883/29 (cap null)"],"added":1,"gapBefore":6,"gapAfter":10,"distinctPage":10,"unchanged":true,"s":152.7}
+{"teams":15,"double":true,"seed":1,"page":["795/67","861/62","933/53","969/48","1169/36"],"all":["795/67","861/62","915/58*","919/57*","933/53","969/48","1169/36"],"extra":["971/55 (cap null)","915/58 (cap null)","919/57 (cap null)","933/58 (cap null)"],"added":2,"gapBefore":12,"gapAfter":12,"distinctPage":9,"unchanged":true,"s":19.6}
+{"teams":15,"double":true,"seed":2,"page":["795/67","947/53","953/48","1195/36"],"all":["795/67","889/61*","929/60*","933/53*","953/48","1195/36"],"extra":["929/60 (cap 60)","933/53 (cap null)","889/61 (cap null)","1115/50 (cap null)"],"added":3,"gapBefore":14,"gapAfter":12,"distinctPage":9,"unchanged":true,"s":17.6}
+{"teams":17,"double":true,"seed":1,"page":["1223/75","1229/69","1285/65","1955/54","3133/43"],"all":["1215/70*","1229/69","1285/65","1955/54","3133/43"],"extra":["1605/66 (cap 66)","1255/70 (cap null)","1215/70 (cap null)","1269/70 (cap null)"],"added":1,"gapBefore":11,"gapAfter":11,"distinctPage":10,"unchanged":true,"s":58.8}
+{"teams":17,"double":true,"seed":2,"page":["1249/71","1259/70","1269/69","2381/43"],"all":["1239/73*","1249/71","1259/70","1269/69","2323/65*","2381/43"],"extra":["2323/65 (cap 66)","1275/72 (cap null)","1239/73 (cap null)","1277/70 (cap null)"],"added":2,"gapBefore":26,"gapAfter":22,"distinctPage":10,"unchanged":true,"s":59.1}
+{"teams":17,"double":true,"seed":3,"page":["1239/74","1259/70","1305/66","2247/54","2997/42"],"all":["1233/70*","1305/66","2247/54","2997/42"],"extra":["1757/66 (cap 66)","1249/71 (cap null)","1233/70 (cap null)","1291/70 (cap null)"],"added":1,"gapBefore":12,"gapAfter":12,"distinctPage":10,"unchanged":true,"s":55.4}
+{"teams":18,"double":true,"seed":1,"page":["1316/98","1426/88","1582/70","1638/68","1662/58","2496/48"],"all":["1316/98","1426/88","1512/82*","1574/72*","1582/70","1638/68","1662/58","2496/48"],"extra":["1574/72 (cap 72)","1512/82 (cap 84)","1456/96 (cap 96)","1458/106 (cap 108)"],"added":2,"gapBefore":18,"gapAfter":10,"distinctPage":10,"unchanged":true,"s":96.5}
+{"teams":18,"double":true,"seed":2,"page":["1310/94","1426/84","1562/72","1626/70","1800/60","2398/48"],"all":["1310/94","1426/84","1562/72","1626/70","1800/60","2398/48"],"extra":["1624/72 (cap 72)","1488/84 (cap 84)","1456/96 (cap 96)","1392/106 (cap 108)"],"added":0,"gapBefore":12,"gapAfter":12,"distinctPage":10,"unchanged":true,"s":97.2}
+{"teams":18,"double":true,"seed":3,"page":["1426/86","1510/70","1784/60","1966/58","2398/48"],"all":["1426/86","1510/70","1784/60","1966/58","2398/48"],"extra":["1610/72 (cap 72)","1548/84 (cap 84)","1500/94 (cap 96)","1436/102 (cap 108)"],"added":0,"gapBefore":16,"gapAfter":16,"distinctPage":10,"unchanged":true,"s":50.7}
+{"teams":19,"double":true,"seed":1,"page":["1311/87","1517/84","3731/59","5741/48"],"all":["1311/87","1367/83*","3203/72*","3731/59","5741/48"],"extra":["3203/72 (cap 72)","6297/49 (cap null)","1367/83 (cap null)","1367/83 (cap null)"],"added":2,"gapBefore":25,"gapAfter":13,"distinctPage":4,"unchanged":true,"s":48.1}
+{"teams":19,"double":true,"seed":2,"page":["1311/87","1367/83","4021/60","4651/48"],"all":["1311/87","1367/83","1469/81*","1499/80*","4021/60","4651/48"],"extra":["4111/72 (cap 72)","1469/81 (cap null)","1499/80 (cap null)","1475/81 (cap null)"],"added":2,"gapBefore":23,"gapAfter":20,"distinctPage":5,"unchanged":true,"s":46.7}
+{"teams":19,"double":true,"seed":3,"page":["1311/87","1497/79","4301/60","4879/48"],"all":["1311/87","1361/84*","1367/83*","1497/79","3759/72*","4301/60","4879/48"],"extra":["3759/72 (cap 72)","1367/83 (cap null)","1361/84 (cap null)","1457/83 (cap null)"],"added":3,"gapBefore":19,"gapAfter":12,"distinctPage":5,"unchanged":true,"s":48.9}
+{"teams":20,"double":true,"seed":1,"page":["1460/116","1916/92","2396/72","3802/66","4884/54"],"all":["1460/116","1916/92","2396/72","3802/66","4884/54"],"extra":["2892/78 (cap 78)","2590/90 (cap 90)","2832/96 (cap 102)","2564/106 (cap 114)"],"added":0,"gapBefore":24,"gapAfter":24,"distinctPage":10,"unchanged":true,"s":32.1}
+{"teams":20,"double":true,"seed":2,"page":["1460/116","1930/102","1934/86","3784/66","4906/54"],"all":["1460/116","1930/102","1934/86","2978/78*","3784/66","4906/54"],"extra":["2978/78 (cap 78)","2648/90 (cap 90)","2808/94 (cap 102)","2416/104 (cap 114)"],"added":1,"gapBefore":20,"gapAfter":16,"distinctPage":10,"unchanged":true,"s":46}
+{"teams":20,"double":true,"seed":3,"page":["1460/118","1858/102","1938/100","1962/92","2396/90","2428/88","2782/80","4462/62","5920/54"],"all":["1460/118","1858/102","1938/100","1962/92","2396/90","2428/88","2692/86*","2782/80","3456/78*","4462/62","5920/54"],"extra":["3456/78 (cap 78)","2692/86 (cap 90)","2700/88 (cap 102)","2594/102 (cap 114)"],"added":2,"gapBefore":18,"gapAfter":16,"distinctPage":10,"unchanged":true,"s":104.6}
+{"teams":11,"double":false,"seed":1,"page":["133/10","159/3"],"all":["133/10","139/9*","159/3","747/0*"],"extra":["139/10 (cap null)","747/0 (cap null)","139/9 (cap null)","141/10 (cap null)"],"added":2,"gapBefore":7,"gapAfter":6,"distinctPage":6,"unchanged":true,"s":30.7}
+{"teams":11,"double":false,"seed":2,"page":["133/10","151/9","231/8"],"all":["129/10*","151/9","231/8","747/0*"],"extra":["747/0 (cap null)","129/10 (cap null)","139/10 (cap null)","137/10 (cap null)"],"added":2,"gapBefore":1,"gapAfter":8,"distinctPage":7,"unchanged":true,"s":29.7}
+{"teams":13,"double":false,"seed":1,"page":["211/12","385/10"],"all":["203/12*","385/10"],"extra":["215/12 (cap null)","211/12 (cap null)","203/12 (cap null)","215/12 (cap null)"],"added":1,"gapBefore":2,"gapAfter":2,"distinctPage":7,"unchanged":true,"s":29}
+{"teams":13,"double":false,"seed":2,"page":["201/12","225/11","401/10","1005/6"],"all":["201/12","225/11","401/10","1005/6","1353/0*"],"extra":["231/12 (cap null)","1353/0 (cap null)","231/12 (cap null)","235/12 (cap null)"],"added":1,"gapBefore":4,"gapAfter":6,"distinctPage":9,"unchanged":true,"s":32.4}
+{"teams":15,"double":false,"seed":1,"page":["195/28","301/16","311/12"],"all":["195/28","295/20*","301/16","311/12"],"extra":["295/20 (cap 20)","299/24 (cap 24)","299/26 (cap 28)","195/28 (cap null)"],"added":1,"gapBefore":12,"gapAfter":8,"distinctPage":3,"unchanged":true,"s":7.9}
+{"teams":15,"double":false,"seed":2,"page":["195/28","299/16","319/12"],"all":["195/28","277/20*","299/16","319/12"],"extra":["277/20 (cap 20)","289/24 (cap 24)","195/28 (cap null)","283/27 (cap null)"],"added":1,"gapBefore":12,"gapAfter":8,"distinctPage":3,"unchanged":true,"s":7.7}
+{"teams":17,"double":false,"seed":1,"page":["343/32","807/18","969/14"],"all":["343/32","597/30*","653/26*","703/22*","807/18","969/14"],"extra":["703/22 (cap 22)","653/26 (cap 26)","597/30 (cap 30)","343/32 (cap null)"],"added":3,"gapBefore":14,"gapAfter":4,"distinctPage":3,"unchanged":true,"s":31.3}
+{"teams":17,"double":false,"seed":2,"page":["343/32","809/18","975/14"],"all":["343/32","593/30*","651/26*","727/22*","809/18","975/14"],"extra":["727/22 (cap 22)","651/26 (cap 26)","593/30 (cap 30)","343/32 (cap null)"],"added":3,"gapBefore":14,"gapAfter":4,"distinctPage":3,"unchanged":true,"s":35.6}
+{"teams":18,"double":false,"seed":1,"page":["348/40","430/30","444/28","468/26","510/20","662/16"],"all":["348/40","430/30","444/28","454/24*","510/20","662/16"],"extra":["454/24 (cap 24)","470/28 (cap 28)","444/32 (cap 32)","464/36 (cap 36)"],"added":1,"gapBefore":10,"gapAfter":10,"distinctPage":9,"unchanged":true,"s":83.2}
+{"teams":18,"double":false,"seed":2,"page":["348/38","436/32","440/30","452/28","462/26","500/20","674/16"],"all":["348/38","436/32","440/30","452/28","454/24*","500/20","674/16"],"extra":["454/24 (cap 24)","468/28 (cap 28)","452/32 (cap 32)","436/36 (cap 36)"],"added":1,"gapBefore":6,"gapAfter":6,"distinctPage":10,"unchanged":true,"s":50.3}
+{"teams":19,"double":false,"seed":1,"page":["323/36","1141/20","1421/16"],"all":["323/36","899/32*","1079/24*","1141/20","1421/16"],"extra":["1079/24 (cap 24)","2749/17 (cap null)","899/32 (cap 32)","323/36 (cap null)"],"added":2,"gapBefore":16,"gapAfter":8,"distinctPage":3,"unchanged":true,"s":22.1}
+{"teams":19,"double":false,"seed":2,"page":["323/36","1197/20","1359/16"],"all":["323/36","867/32*","959/28*","1079/24*","1197/20","1359/16"],"extra":["1079/24 (cap 24)","959/28 (cap 28)","867/32 (cap 32)","323/36 (cap null)"],"added":3,"gapBefore":16,"gapAfter":4,"distinctPage":3,"unchanged":true,"s":21.7}
+{"teams":20,"double":false,"seed":1,"page":["360/52","546/36","576/32","1092/22","1424/18"],"all":["360/52","546/36","576/32","910/30*","1008/26*","1092/22","1424/18"],"extra":["1008/26 (cap 26)","910/30 (cap 30)","954/32 (cap 34)","766/38 (cap 38)"],"added":2,"gapBefore":16,"gapAfter":16,"distinctPage":10,"unchanged":true,"s":12.7}
+{"teams":20,"double":false,"seed":2,"page":["360/52","552/42","560/38","566/36","1182/22","1408/18"],"all":["360/52","552/42","560/38","566/36","910/34*","948/26*","1182/22","1408/18"],"extra":["948/26 (cap 26)","976/30 (cap 30)","910/34 (cap 34)","814/38 (cap 38)"],"added":2,"gapBefore":14,"gapAfter":10,"distinctPage":10,"unchanged":true,"s":12.5}
