@@ -27,38 +27,223 @@
     "domain": "Against field-robotics practice: (a) the 'speed law' is a two-point fit across two different robots, crops, cameras and detectors (YOLOX in corn on a tracked platform at 0.2 m/s; a six-wheeled robot at its 'optimal' 0.425 m/s), so the 2.7-point difference is not a speed effect; the README says the points come from two robots but the headline still extrapolates the fitted law to 4 km/h. 'Optimal speed' in the arXiv abstract suggests detection there is not monotone in speed. (b) The time axis assumes the beam treats every weed while driving at up to 4 km/h with a 0.73 s dwell, but the robot that supplies the 86.2% reports 87 s per metre of operating time, and the Frontiers robot aims a 5-DOF arm; neither source robot treats on the move, so the detection rates are paired with a throughput no source robot achieved. (c) Detection rate is per-weed recall here; the papers' definitions were not read. The Frontiers paper also reports an 85% weed dry-weight control efficacy that could have served as a validation point. The laser-safety note (IEC 60825-1) is correct practice."
   },
   "checks": [
-    {"dimension": "correctness", "what": "fitted detector p_max and v_blur", "method": "own log-linear two-point fit by hand (ln p = ln p_max - v/v_blur), no import of the subject", "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/weedsrc/recompute.py", "expected": "p_max 0.914, v_blur 7.19 m/s (README)", "observed": "p_max 0.9145, v_blur 7.190", "result": "pass"},
-    {"dimension": "correctness", "what": "headline: 2 passes at 4 km/h vs 1 pass at 1 km/h kill share", "method": "closed form 1-(1-0.992 p)^n with p from the fit, plus own 200,000-weed Monte Carlo", "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/weedsrc/recompute.py", "expected": "0.952 and 0.875 (README)", "observed": "closed form 0.950 / 0.873; Monte Carlo 0.9504 / 0.8732", "result": "pass"},
-    {"dimension": "correctness", "what": "hidden-share rows at 2 km/h, 3 passes (0, 5, 10, 20, 30% hidden)", "method": "closed form (1-h)(1-(1-0.992 p)^3)", "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/weedsrc/recompute.py", "expected": "0.996, 0.946, 0.897, 0.799, 0.700 (README)", "observed": "0.996, 0.946, 0.896, 0.797, 0.697", "result": "pass"},
-    {"dimension": "correctness", "what": "source detection rates", "method": "paper abstracts via Crossref (doi 10.3389/fpls.2022.1017803) and arXiv API (2512.10319)", "command": "curl -sS https://api.crossref.org/works/10.3389/fpls.2022.1017803 ; curl -sS 'https://export.arxiv.org/api/query?id_list=2512.10319'", "expected": "88.94% at 0.2 m/s; 86.2% at 42.5 cm/s", "observed": "88.94% weeds at 0.2 m/s on flat ground; 86.2% at optimal speed 42.5 cm/s (also 87 s per metre operating time)", "result": "pass"},
-    {"dimension": "correctness", "what": "one-pass time at 1 km/h", "method": "hand bound: 15 lanes x 60 m at 0.278 m/s, 20% mud at half speed, 4 s turns, lane changes", "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/weedsrc/recompute.py", "expected": "68.4 min (results.txt)", "observed": "~67.5 min expected value", "result": "pass"},
-    {"dimension": "correctness", "what": "is 0.842 (1 pass, 2 km/h) noise around the closed form 0.840?", "method": "subject's own model over 200 different seeds", "command": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -c '...run_passes over seeds 100..299...'", "expected": "~0.840", "observed": "0.8393 (20 seeds: 0.8417)", "result": "pass"},
-    {"dimension": "completeness", "what": "experiment regenerates committed results", "method": "rerun and diff", "command": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 experiments/run.py > $S/results_rerun.txt && diff experiments/results.txt $S/results_rerun.txt", "expected": "identical, about 5 s", "observed": "identical, 4.2 s", "result": "pass"},
-    {"dimension": "verification", "what": "test suite", "method": "run", "command": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -m unittest discover -s tests -v", "expected": "6 tests pass (README)", "observed": "Ran 6 tests, OK", "result": "pass"},
-    {"dimension": "claims", "what": "A rows reproduce osrobot-weedpass (0.778 kill, 71.8 min, 2 passes 2 km/h)", "method": "compare with research/osrobot-weedpass/experiments/results.txt", "command": "grep -n '2 pass' research/osrobot-weedpass/experiments/results.txt", "expected": "0.778, 71.8", "observed": "line 49: p_max=0.7 2 pass 0.778 71.8", "result": "pass"},
-    {"dimension": "claims", "what": "density gains of a second pass at 0.3, 1, 3 weeds/m2", "method": "differences of results.txt rows and unrounded rerun", "command": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -c '...avg(d,2)-avg(d,1)...'", "expected": "+0.133, +0.134, +0.134 (README:26)", "observed": "results.txt rows 0.134/0.134/0.134; unrounded 0.1335/0.1341/0.1330", "result": "partial"},
-    {"dimension": "claims", "what": "live page carries the same headline", "method": "load served page", "command": "curl -sS https://marisstella.app/research/osrobot-weedsrc/", "expected": "0.952 in 39.8 min, 6 tests", "observed": "HTTP 200, '0.952 in 39.8', '0.952 in 40 min', '6 tests'", "result": "pass"},
-    {"dimension": "domain", "what": "modelled throughput vs source robot", "method": "arXiv 2512.10319 abstract (87 s per metre at 42.5 cm/s) vs model's on-the-move treatment", "command": "curl -sS 'https://export.arxiv.org/api/query?id_list=2512.10319'", "expected": "source robot treats at a rate compatible with on-the-move 1 to 4 km/h", "observed": "87 s/m operating time; model's 2 passes at 4 km/h take ~1.1 s/m of lane", "result": "fail"},
-    {"dimension": "domain", "what": "speed law identifiable from the two points", "method": "the two points come from different robots, crops and detectors", "command": "read README Params table and both abstracts", "expected": "same robot at two speeds", "observed": "two robots (YOLOX tracked robot in corn; six-wheeled robot), one speed each", "result": "fail"}
+    {
+      "dimension": "correctness",
+      "what": "fitted detector p_max and v_blur",
+      "method": "own log-linear two-point fit by hand (ln p = ln p_max - v/v_blur), no import of the subject",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/weedsrc/recompute.py",
+      "expected": "p_max 0.914, v_blur 7.19 m/s (README)",
+      "observed": "p_max 0.9145, v_blur 7.190",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "headline: 2 passes at 4 km/h vs 1 pass at 1 km/h kill share",
+      "method": "closed form 1-(1-0.992 p)^n with p from the fit, plus own 200,000-weed Monte Carlo",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/weedsrc/recompute.py",
+      "expected": "0.952 and 0.875 (README)",
+      "observed": "closed form 0.950 / 0.873; Monte Carlo 0.9504 / 0.8732",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "hidden-share rows at 2 km/h, 3 passes (0, 5, 10, 20, 30% hidden)",
+      "method": "closed form (1-h)(1-(1-0.992 p)^3)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/weedsrc/recompute.py",
+      "expected": "0.996, 0.946, 0.897, 0.799, 0.700 (README)",
+      "observed": "0.996, 0.946, 0.896, 0.797, 0.697",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "source detection rates",
+      "method": "paper abstracts via Crossref (doi 10.3389/fpls.2022.1017803) and arXiv API (2512.10319)",
+      "command": "curl -sS https://api.crossref.org/works/10.3389/fpls.2022.1017803 ; curl -sS 'https://export.arxiv.org/api/query?id_list=2512.10319'",
+      "expected": "88.94% at 0.2 m/s; 86.2% at 42.5 cm/s",
+      "observed": "88.94% weeds at 0.2 m/s on flat ground; 86.2% at optimal speed 42.5 cm/s (also 87 s per metre operating time)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "one-pass time at 1 km/h",
+      "method": "hand bound: 15 lanes x 60 m at 0.278 m/s, 20% mud at half speed, 4 s turns, lane changes",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a3a7f90a-8376-570c-8a4f-69ce15ac73b5/scratchpad/weedsrc/recompute.py",
+      "expected": "68.4 min (results.txt)",
+      "observed": "~67.5 min expected value",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "is 0.842 (1 pass, 2 km/h) noise around the closed form 0.840?",
+      "method": "subject's own model over 200 different seeds",
+      "command": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -c '...run_passes over seeds 100..299...'",
+      "expected": "~0.840",
+      "observed": "0.8393 (20 seeds: 0.8417)",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "experiment regenerates committed results",
+      "method": "rerun and diff",
+      "command": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 experiments/run.py > $S/results_rerun.txt && diff experiments/results.txt $S/results_rerun.txt",
+      "expected": "identical, about 5 s",
+      "observed": "identical, 4.2 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+      "expected": "6 tests pass (README)",
+      "observed": "Ran 6 tests, OK",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "A rows reproduce osrobot-weedpass (0.778 kill, 71.8 min, 2 passes 2 km/h)",
+      "method": "compare with research/osrobot-weedpass/experiments/results.txt",
+      "command": "grep -n '2 pass' research/osrobot-weedpass/experiments/results.txt",
+      "expected": "0.778, 71.8",
+      "observed": "line 49: p_max=0.7 2 pass 0.778 71.8",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "density gains of a second pass at 0.3, 1, 3 weeds/m2",
+      "method": "differences of results.txt rows and unrounded rerun",
+      "command": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -c '...avg(d,2)-avg(d,1)...'",
+      "expected": "+0.133, +0.134, +0.134 (README:26)",
+      "observed": "results.txt rows 0.134/0.134/0.134; unrounded 0.1335/0.1341/0.1330",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "live page carries the same headline",
+      "method": "load served page",
+      "command": "curl -sS https://marisstella.app/research/osrobot-weedsrc/",
+      "expected": "0.952 in 39.8 min, 6 tests",
+      "observed": "HTTP 200, '0.952 in 39.8', '0.952 in 40 min', '6 tests'",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "modelled throughput vs source robot",
+      "method": "arXiv 2512.10319 abstract (87 s per metre at 42.5 cm/s) vs model's on-the-move treatment",
+      "command": "curl -sS 'https://export.arxiv.org/api/query?id_list=2512.10319'",
+      "expected": "source robot treats at a rate compatible with on-the-move 1 to 4 km/h",
+      "observed": "87 s/m operating time; model's 2 passes at 4 km/h take ~1.1 s/m of lane",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "speed law identifiable from the two points",
+      "method": "the two points come from different robots, crops and detectors",
+      "command": "read README Params table and both abstracts",
+      "expected": "same robot at two speeds",
+      "observed": "two robots (YOLOX tracked robot in corn; six-wheeled robot), one speed each",
+      "result": "fail"
+    }
   ],
   "mutations": [
-    {"where": "research/osrobot-weedsrc/src/osrobot_weedsrc/model.py:203", "change": "rng.random() < TREAT_OK -> rng.random() > TREAT_OK (on-the-move path: a treatment kills 0.8% instead of 99.2%)", "caught": false, "test_cmd": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -m unittest discover -s tests"},
-    {"where": "research/osrobot-weedsrc/src/osrobot_weedsrc/model.py:206", "change": "m.t = t0 + max(m.t - t0, work) -> m.t = t0 + (m.t - t0) (laser queue never limits time)", "caught": false, "test_cmd": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -m unittest discover -s tests"},
-    {"where": "research/osrobot-weedsrc/src/osrobot_weedsrc/model.py:111", "change": "drop 'i not in hidden' (hidden share ignored)", "caught": false, "test_cmd": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -m unittest discover -s tests"},
-    {"where": "research/osrobot-weedsrc/src/osrobot_weedsrc/model.py:93", "change": "exp(-v / V_BLUR) -> exp(-v / (2 * V_BLUR))", "caught": false, "test_cmd": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -m unittest discover -s tests"},
-    {"where": "research/osrobot-weedsrc/src/osrobot_weedsrc/model.py:89", "change": "p1 * math.exp(v1 / v_blur) -> p1 * math.exp(-v1 / v_blur)", "caught": true, "test_cmd": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -m unittest discover -s tests"}
+    {
+      "where": "research/osrobot-weedsrc/src/osrobot_weedsrc/model.py:203",
+      "change": "rng.random() < TREAT_OK -> rng.random() > TREAT_OK (on-the-move path: a treatment kills 0.8% instead of 99.2%)",
+      "caught": false,
+      "test_cmd": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/osrobot-weedsrc/src/osrobot_weedsrc/model.py:206",
+      "change": "m.t = t0 + max(m.t - t0, work) -> m.t = t0 + (m.t - t0) (laser queue never limits time)",
+      "caught": false,
+      "test_cmd": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/osrobot-weedsrc/src/osrobot_weedsrc/model.py:111",
+      "change": "drop 'i not in hidden' (hidden share ignored)",
+      "caught": false,
+      "test_cmd": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/osrobot-weedsrc/src/osrobot_weedsrc/model.py:93",
+      "change": "exp(-v / V_BLUR) -> exp(-v / (2 * V_BLUR))",
+      "caught": false,
+      "test_cmd": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/osrobot-weedsrc/src/osrobot_weedsrc/model.py:89",
+      "change": "p1 * math.exp(v1 / v_blur) -> p1 * math.exp(-v1 / v_blur)",
+      "caught": true,
+      "test_cmd": "cd research/osrobot-weedsrc && PYTHONPATH=src python3 -m unittest discover -s tests"
+    }
   ],
   "defects": [
-    {"severity": "medium", "what": "The on-the-move kill and time path that produces every headline number is untested: inverting the treatment success test (kill 0.8% per treatment), removing the laser-queue time term, or ignoring the hidden share all leave the 6 tests green; no test compares a kill share with the closed form 1-(1-0.992p)^n", "where": "research/osrobot-weedsrc/src/osrobot_weedsrc/model.py:203", "category": "untested-core", "origin": "tests"},
-    {"severity": "medium", "what": "The detection 'speed law' is fitted across two different robots, crops and detectors (one speed each), so the 2.7-point difference is confounded with platform, and the fit is then extrapolated to 4 km/h for the headline; the arXiv source calls 42.5 cm/s its optimal speed, which suggests detection is not monotone in speed there", "where": "research/osrobot-weedsrc/README.md:17", "category": "research-design", "origin": "design"},
-    {"severity": "medium", "what": "The time axis assumes on-the-move treatment at 1 to 4 km/h with a 0.73 s dwell, but the robot supplying the 86.2% detection rate reports 87 s of operating time per metre and the other robot aims a 5-DOF arm; the detection rates are paired with a throughput neither source achieved, and the stated limit ('time savings are an upper bound') does not say how far", "where": "research/osrobot-weedsrc/README.md:43", "category": "domain-rule", "origin": "spec"},
-    {"severity": "low", "what": "No laser-weeding robot or multi-pass weed-control prior work is cited (e.g. Mathiassen et al. 2006; Xiong et al. 2017; on-the-move commercial laser weeders), and with independent detections the kill share is a closed form, which the README does not say", "where": "research/osrobot-weedsrc/README.md:47", "category": "research-design", "origin": "design"},
-    {"severity": "low", "what": "Fitted detector applied by mutating the module global M.V_BLUR from run.py while the module defaults stay detector A's (V_BLUR 2.0, p_max 0.7); importing the model as shipped gives the assumed law, contrary to the module docstring", "where": "research/osrobot-weedsrc/experiments/run.py:32", "category": "code-craft", "origin": "implementation"},
-    {"severity": "low", "what": "Copied model carries unused run_inline and run_scout and unused energy terms", "where": "research/osrobot-weedsrc/src/osrobot_weedsrc/model.py:129", "category": "code-craft", "origin": "implementation"},
-    {"severity": "low", "what": "Density gains quoted as +0.133, +0.134, +0.134; results.txt rows give +0.134, +0.134, +0.134 (unrounded 0.1335, 0.1341, 0.1330)", "where": "research/osrobot-weedsrc/README.md:26", "category": "stale-docs", "origin": "maintenance"},
-    {"severity": "low", "what": "test_fit_values expects v_blur 7.17 +/- 0.05 while the fit is exactly 7.190; the tolerance would admit a wrong fit", "where": "research/osrobot-weedsrc/tests/test_model.py:15", "category": "untested-core", "origin": "tests"},
-    {"severity": "low", "what": "No seed spread or interval is reported; the 20-seed rows sit about +0.002 above the closed form (sampling noise, 200 seeds give 0.8393 for the 0.842 row), the same size as some quoted differences", "where": "research/osrobot-weedsrc/experiments/run.py:6", "category": "research-design", "origin": "design"}
+    {
+      "severity": "medium",
+      "what": "The on-the-move kill and time path that produces every headline number is untested: inverting the treatment success test (kill 0.8% per treatment), removing the laser-queue time term, or ignoring the hidden share all leave the 6 tests green; no test compares a kill share with the closed form 1-(1-0.992p)^n",
+      "where": "research/osrobot-weedsrc/src/osrobot_weedsrc/model.py:203",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "The detection 'speed law' is fitted across two different robots, crops and detectors (one speed each), so the 2.7-point difference is confounded with platform, and the fit is then extrapolated to 4 km/h for the headline; the arXiv source calls 42.5 cm/s its optimal speed, which suggests detection is not monotone in speed there",
+      "where": "research/osrobot-weedsrc/README.md:17",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "The time axis assumes on-the-move treatment at 1 to 4 km/h with a 0.73 s dwell, but the robot supplying the 86.2% detection rate reports 87 s of operating time per metre and the other robot aims a 5-DOF arm; the detection rates are paired with a throughput neither source achieved, and the stated limit ('time savings are an upper bound') does not say how far",
+      "where": "research/osrobot-weedsrc/README.md:43",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "No laser-weeding robot or multi-pass weed-control prior work is cited (e.g. Mathiassen et al. 2006; Xiong et al. 2017; on-the-move commercial laser weeders), and with independent detections the kill share is a closed form, which the README does not say",
+      "where": "research/osrobot-weedsrc/README.md:47",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "Fitted detector applied by mutating the module global M.V_BLUR from run.py while the module defaults stay detector A's (V_BLUR 2.0, p_max 0.7); importing the model as shipped gives the assumed law, contrary to the module docstring",
+      "where": "research/osrobot-weedsrc/experiments/run.py:32",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Copied model carries unused run_inline and run_scout and unused energy terms",
+      "where": "research/osrobot-weedsrc/src/osrobot_weedsrc/model.py:129",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Density gains quoted as +0.133, +0.134, +0.134; results.txt rows give +0.134, +0.134, +0.134 (unrounded 0.1335, 0.1341, 0.1330)",
+      "where": "research/osrobot-weedsrc/README.md:26",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "test_fit_values expects v_blur 7.17 +/- 0.05 while the fit is exactly 7.190; the tolerance would admit a wrong fit",
+      "where": "research/osrobot-weedsrc/tests/test_model.py:15",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "No seed spread or interval is reported; the 20-seed rows sit about +0.002 above the closed form (sampling noise, 200 seeds give 0.8393 for the 0.842 row), the same size as some quoted differences",
+      "where": "research/osrobot-weedsrc/experiments/run.py:6",
+      "category": "research-design",
+      "origin": "design"
+    }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14975"
+  ],
   "verdict": "Every number in results.txt reproduces byte-for-byte, the two-point fit (p_max 0.9145, v_blur 7.190 m/s) and every kill share agree with an independent closed form and Monte Carlo within 0.003 (sampling noise), and both source detection rates are confirmed against the papers' abstracts; the README states its limits honestly. It misses the bar on verification and on the median: only 1 of 5 seeded mutations is caught, and the on-the-move path that produces all headline numbers can be made to kill 0.8% per treatment with all 6 tests green. For a precision-agriculture robotics reviewer the method is weak: the 'speed law' is a slope between two different robots extrapolated to 4 km/h, the robot behind the 86.2% figure reports 87 s per metre while the model treats on the move at up to 4 km/h, and no laser-weeding prior work is cited. The durable point, that correlated (hidden) misses cap what extra passes buy, is sound but rests on a swept, unsourced share."
 }

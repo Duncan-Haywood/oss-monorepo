@@ -238,6 +238,8 @@
       "origin": "claims"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14975"
+  ],
   "verdict": "A small, correct note. Every number in results.txt reproduces exactly on rerun and matches an independent quadrature of the Schervish/Buja weight-function representation (R_eps for six eps, kappa, the 126.58 efficiency and 63x ratio, four crossovers by bisection, the E3 misreport losses). The tests are real: 7 of 8 seeded mutations were caught, and only the unguarded eps domain slipped through. It misses the bar on claims: the paper's statement that the misreport excess saturates at pR_eps is wrong by 4.3x, the 63x and eps=p results are within-family, known-truth comparisons against Brier only, and the paper has no reference list although it re-derives a clipped Schervish weight function that an EC reviewer would recognise at once. Finished as scoped (completeness 3). Fitness and domain are 2: sound, but not new, and not yet placed against the bounded-range scoring-rule literature."
 }
