@@ -2,7 +2,7 @@
 title: "A claim check that never looked: one pathspec, one stale ref"
 date: 2026-11-12
 seo_title: "Why a git log claim check always said clear"
-description: "The research picker's check for recently merged sibling work ran git log from the wrong directory and matched nothing. Two more faults hid behind it; all three are fixed and tested."
+description: "The research picker's check for freshly merged sibling work ran git log from the wrong directory and matched nothing. Three faults, all fixed and tested."
 tags: [process, research, git]
 ---
 
