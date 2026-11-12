@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtJVchnkn44XycW56F1",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T22:07:02Z",
+  "ended": "2026-11-12T22:21:23Z",
+  "wall_minutes": 19.06,
+  "tokens_in": 9012823,
+  "tokens_out": 40434,
+  "cost_usd": 3.551,
+  "tool_calls": 96,
+  "task": "Polish: move the shop-rates and saved-bids bars below the tool heading (item 2/3 of the last polish reports' still-weakest lists)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15275",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "Test assertion bug in my own new toolHeadingEnd test (< where the end index equals <main>'s start); fixed to equality.",
+    "PIL in the system python is broken (_imaging import fails), so the screenshots are committed as PNG instead of WebP (492 KB for 4 images)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/bar-align.test.mjs",
+      "issue": "Browser tests import bare 'playwright' and skip silently in the cloud container; they need PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js to run. Nothing in the polish prompt mentions the env var."
+    },
+    {
+      "file": "platform/pages/build.mjs",
+      "issue": "The chrome CSS comment says the band has a 26px bottom margin, but VENTURE_CHROME_CSS (site-nav.mjs) resets it to 0 with higher specificity, so the documented spacing never applies. It cost a probe to find."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Asks for screenshots of the hub, a flagship, research, Stories and a blog post before choosing. Twelve polish runs today had already done that sweep, and their reports named this item as next, so I went straight to the 174 affected tool pages.",
+      "did": "Measured all 174 bar pages before and after instead of the five-surface sweep.",
+      "result": "One focused change landed, measured on every affected page."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "A second 15-minute full build only to move an insertion point was poor value.",
+      "did": "Patched the built pages in place with the new toolHeadingEnd, regenerated the two bar modules from source, and spliced the CSS rule. The regenerated pf-jobs.js differed from the built one only by the edited line.",
+      "result": "After-measurements reflect the source change; the 1,590 site-build tests and CI cover the build itself."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-tools-name-comes-first-now.md",
+    "docs/reports/polish-2026-11-12-bars-under-heading.md"
+  ],
+  "goal": "impressive sites: first-screen hierarchy on the bid tools",
+  "notes": "Local verification: node --test 'platform/pages/*.test.mjs' with PLAYWRIGHT set: 1590 pass, 0 fail. node platform/pages/check.mjs on the patched build: exit 0, 'looks publishable: 1345 products, 8992 pages, no dead links'. PR CI: build, test, validate, check, coverage and the other checks green. Measured, 174 pages, Chromium: h1 top median 284->156 (390px), 208->127 (1280px); first input +16px median; sideways 0; CLS>0 at 390 went 6->3. Found that the band's 26px bottom margin never applies (site-nav reset); worked around for bar pages only, logged as item 1 for the next run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "42e6fe8d-a117-5466-9e6a-b1d160aae613",
+    "transcripts": 1,
+    "first": "2026-11-12T22:07:02Z",
+    "last": "2026-11-12T22:26:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 166,
+        "output": 40434,
+        "thinking": 7867,
+        "cache_read": 8892260,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120397,
+        "api_equivalent_usd": 3.551,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 166,
+      "output": 40434,
+      "thinking": 7867,
+      "cache_read": 8892260,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120397,
+      "api_equivalent_usd": 3.551,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 96,
+    "tools": {
+      "Bash": 81,
+      "Read": 7,
+      "Edit": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.06,
+      "active_minutes": 19.06,
+      "model_minutes": 9.85,
+      "tool_minutes": 9.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "survey of 174 pages, placement helper and tests across three modules, before/after browser measurements and write-up for a front-end engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 140.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
