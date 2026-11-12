@@ -1,4 +1,8 @@
+import contextlib
+import io
+import tempfile
 import unittest
+from pathlib import Path
 
 import check_se_tax_floor as c
 
@@ -27,6 +31,15 @@ class SeTaxFloorTest(unittest.TestCase):
         self.assertFalse(c.is_candidate("ventures/x/calc.test.mjs"))
         self.assertFalse(c.is_candidate("ventures/x/node_modules/y/a.js"))
         self.assertTrue(c.is_candidate("ventures/x/calc.mjs"))
+
+    def test_main_fails_on_a_finding_with_no_stale_exemption(self):
+        # Red-team 2026-11-12: `if found or stale` as `and` passed a real finding.
+        with tempfile.TemporaryDirectory(dir=c.ROOT / "ventures") as d:
+            bad = Path(d) / "calc.mjs"
+            bad.write_text("export const se = (p) => p * 0.9235 * 0.153;\n", encoding="utf-8")
+            with contextlib.redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(c.main([str(bad)]), 1)
+            self.assertIn("$400", out.getvalue())
 
     def test_tree_is_clean(self):
         self.assertEqual(c.main([]), 0)

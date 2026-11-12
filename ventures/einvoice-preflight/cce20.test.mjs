@@ -156,3 +156,11 @@ test("a four-digit colonia code is named as not checked", () => {
   assert.deepEqual(r.findings, []);
   assert.ok(r.skipped.some((s) => /^CCE129 \(Emisor colonia 0001\)/.test(s)), r.skipped.join(" | "));
 });
+
+test("a transfer's Cantidad may have one, two or three decimals, not four (CCE154)", () => {
+  // Red-team 2026-11-12 (#15134): narrowing the pattern to {2,3} decimals went unseen,
+  // since every fixture writes 12.000.
+  const t = read("cfdi-4.0-cce20-traslado.xml");
+  for (const q of ["12", "12.5", "12.50", "12.500"]) assert.ok(!rules(t.replace('Cantidad="12.000"', `Cantidad="${q}"`)).includes("MX-067"), q);
+  assert.ok(rules(t.replace('Cantidad="12.000"', 'Cantidad="12.5000"')).includes("MX-067"));
+});
