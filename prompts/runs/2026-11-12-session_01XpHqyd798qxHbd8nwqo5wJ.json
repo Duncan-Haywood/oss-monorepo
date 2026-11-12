@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyd798qxHbd8nwqo5wJ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T10:38:50Z",
+  "ended": "2026-11-12T10:48:15Z",
+  "wall_minutes": 9.78,
+  "tokens_in": 5722639,
+  "tokens_out": 28011,
+  "cost_usd": 2.6506,
+  "tool_calls": 52,
+  "task": "heavy-hydraulics milestone 6: paper draft brought up to the measured loader (5v to 5x)",
+  "projects": [
+    "research/heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15095",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "The draw named track 16 and pointed at cell-fidelity's 'Next steps', but cell-fidelity had an open claim PR (#15089) from 20 minutes earlier; the draw output does not search open PRs, so the run found that out by hand and redrew within the focus programmes."
+    },
+    {
+      "file": "research/heavy-hydraulics/README.md",
+      "issue": "The status line still read 'proposal stage, milestone 1 done ... the sourced duty cycle (2) is still open' after 60+ landed steps; updated in this PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "why": "The drawn area's obvious programme (cell-fidelity) was claimed by an open PR; picked heavy-hydraulics in the same focus area instead of a fresh draw, because its paper draft had fallen six steps behind and still carried a claim the data had overturned.",
+      "did": "milestone 6 paper step on heavy-hydraulics",
+      "result": "draft current to 5x, one stale inference corrected, 155 numbers checked"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-what-the-hydraulics-paper-says-now.md",
+    "research/heavy-hydraulics/LOG.md (milestone 6 plan and outcome)"
+  ],
+  "goal": "research: advance an open programme toward a submittable paper",
+  "notes": "Reproduction: Short_Y_cycle_data.mat from Zenodo 10639199 (96,108,872 bytes) downloaded through the proxy in under a minute; measured_breakeven, measured_volume_ratio, measured_pump_size and measured_fuel_time reproduce committed results byte for byte under /usr/bin/python3.13 with numpy+scipy; fuel_time_figure regenerates the committed SVG. Crossref reachable this time: cite_check resolved all 7 DOIs in paper/draft.md and 3 DOIs + 1 arXiv id in PROPOSAL.md. Checks: pytest 46 passed; paper/check_numbers.py 155 claims 0 missing; research/_homepage/build.py ok; research_live_links 0 updates; check_md_links ok; check_post_frontmatter flagged the post description at 178 chars, fixed. No agent doc in docs/reports: LOG.md carries the next-run state for this programme.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "18a29836-a20f-5ba7-9eeb-08daefee9427",
+    "transcripts": 1,
+    "first": "2026-11-12T10:38:50Z",
+    "last": "2026-11-12T10:48:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 97,
+        "output": 28011,
+        "thinking": 5683,
+        "cache_read": 5601326,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121216,
+        "api_equivalent_usd": 2.6506,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 97,
+      "output": 28011,
+      "thinking": 5683,
+      "cache_read": 5601326,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121216,
+      "api_equivalent_usd": 2.6506,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.78,
+      "active_minutes": 9.78,
+      "model_minutes": 4.53,
+      "tool_minutes": 5.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer rerunning four scripts on a 96 MB record, rewriting an abstract and three paper sections, and adding 36 number checks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 226.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
