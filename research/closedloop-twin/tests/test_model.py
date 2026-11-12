@@ -10,6 +10,14 @@ class M(unittest.TestCase):
         self.assertAlmostEqual(RHO, 0.5)
         self.assertAlmostEqual(stationary_var(A, B, K, S, 0.0), 1 / 0.75)
 
+    def test_ols_pole_bound_value(self):
+        # Contrast c = (1, -k2) with k2 = 0.5 and M = [[2, 0.5], [0.5, 1]]:
+        # c'Mc = 2 - 2*0.5*0.5 + 0.25*1 = 1.75, so the bound is
+        # (1 - 1*0.5) + 1.645*sqrt(1.75). Quality audit round 50 found that
+        # dropping the cross-term factor 2 or changing z left every test green.
+        self.assertAlmostEqual(ols_pole_bound(1.0, 1.0, 1.0, (2.0, 0.5, 1.0), 0.5),
+                               0.5 + 1.645 * math.sqrt(1.75))
+
     def test_fit_recovers_with_dither(self):
         ah, bh, s2, _ = fit(log_data(random.Random(1), A, B, K, 0.5, S, 20000))
         self.assertAlmostEqual(ah, A, delta=0.03)

@@ -93,7 +93,7 @@
   <section class="card">
     <h2>The model, and what it leaves out</h2>
     <ul>
-      <li><strong>camt.053 / 052 / 054:</strong> each Stmt, Rpt or Ntfctn is one statement with Acct, Bal (OPBD opening, CLBD closing) and Ntry entries. Credits are positive, debits negative, and a reversal indicator flips the sign. Entries whose status is not BOOK are listed but left out of the balance check.</li>
+      <li><strong>camt.053 / 052 / 054:</strong> each Stmt, Rpt or Ntfctn is one statement with Acct, Bal (OPBD opening, CLBD closing) and Ntry entries. Credits are positive and debits negative. A reversal keeps the sign of its own CRDT/DBIT indicator, as ISO 20022 defines it: a returned direct debit is booked CRDT with RvslInd true, so it adds to the balance. Entries whose status is not BOOK are listed but left out of the balance check.</li>
       <li><strong>MT940:</strong> :20: starts a statement, :25: is the account, :60F:/:60M: the opening balance, :61: an entry (C credit, D debit, RC/RD reversals) with its :86: text, :62F:/:62M: the closing balance. Amounts use a comma. A SWIFT <code>{4:</code> envelope is stripped. German-style <code>?20</code>/<code>?32</code> subfields give the remittance text and counterparty.</li>
       <li><strong>Balance check:</strong> opening + booked entries must equal closing, in whole minor units with no floating point. A difference is an error and names the amount.</li>
       <li><strong>Continuity:</strong> consecutive statements of one account should join: one statement's closing is the next one's opening.</li>

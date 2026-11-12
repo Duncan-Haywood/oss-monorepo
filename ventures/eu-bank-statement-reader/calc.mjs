@@ -124,7 +124,7 @@ function parseCamt(text, add) {
       const minor = toMinor(val(amtEl), cur);
       if (minor === null) { add("error", "AMOUNT", b.line, `Balance ${code || "?"} amount "${val(amtEl)}" is not a decimal number`); continue; }
       const sign = val(kid(b, "CdtDbtInd")) === "DBIT" ? -1 : 1;
-      const rec = { amount: sign * minor, currency: cur, date: camtDay(b), line: b.line, kind: code };
+      const rec = { amount: sign * minor, currency: cur, date: camtDay(kid(b, "Dt")), line: b.line, kind: code };
       if (code === "OPBD" || code === "PRCD") s.opening = s.opening && s.opening.kind === "OPBD" ? s.opening : rec;
       if (code === "CLBD") s.closing = rec;
     }
@@ -150,7 +150,7 @@ function parseCamt(text, add) {
       }
       if (!texts.length && val(kid(n, "AddtlNtryInf"))) texts.push(val(kid(n, "AddtlNtryInf")));
       const e = {
-        line: n.line, bookDate: "", valueDate: "", amount: (credit !== reversal ? 1 : -1) * minor,
+        line: n.line, bookDate: "", valueDate: "", amount: (credit ? 1 : -1) * minor, // ISO 20022: CdtDbtInd is already the reversal entry's own direction
         currency: cur, reversal, status, ref: ref === "NOTPROVIDED" ? "" : ref, bankRef: val(kid(n, "AcctSvcrRef")) || val(kid(n, "NtryRef")), counterparty, text: texts.filter(Boolean).join(" ").replace(/\s+/g, " "),
       };
       e.bookDate = kid(n, "BookgDt") ? camtDay(kid(n, "BookgDt")) : "";

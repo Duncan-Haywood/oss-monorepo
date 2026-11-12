@@ -19,7 +19,6 @@ for n, k in CONFIGS:
         cb, idx, a, y = flow.make_layer(n, k, 1)
         sm = flow.summarise(flow.synth(e, n, k, cb, idx, a))
         row[e] = {"bit_exact_3_seeds": bool(ok_all), "cycles": cyc, **sm,
-                  "stored_bits": (8 * flow.FIN * n) if e == "mac" else (4 * flow.FIN * n if k > 8 else
-                                                                         (3 if k == 8 else 2) * flow.FIN * n) + 8 * k}
+                  "stored_bits": flow.stored_bits(e, n, k)}
     rows.append(row)
 json.dump(rows, open(os.path.join(os.path.dirname(__file__), "results.json"), "w"), indent=1)
