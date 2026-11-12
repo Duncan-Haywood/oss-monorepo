@@ -2,7 +2,7 @@
 bending), checked on an exact case and on the acceptance test milestone 2a set for the top tier.
 
     python3 experiments/m3_fem_tier/run.py           (about an hour on 4 cores; needs numpy)
-    python3 experiments/m3_fem_tier/run.py --part cantilever     (a few minutes)
+    python3 experiments/m3_fem_tier/run.py --part cantilever     (a few minutes; also cusick, spring)
 
 Why: milestones 2a and 2b found the spring sheet's simulated Cusick drape coefficient (DC) moves
 with the stretch stiffness EA and with the grid (fabric A at EA 3200: 0.70, 0.57, 0.49, 0.37 at
@@ -25,6 +25,21 @@ D, EA 150, 800, 3200 N/m with measured G; plus G = 0.1 EA (the spring sheet's co
 and 3200 on 5 and 2.5 mm to compare like with like. Same start (tilt plus seeded noise, seed 0) and
 stopping rule as milestone 2b (chunks of 2000 L-BFGS iterations until DC moves under 0.001, cap
 100,000); same shadow raster.
+
+Solver (amended before any prediction was evaluated; LOG.md says why): the first version used
+milestone 2b's chunked L-BFGS. A pilot on one cantilever showed the strip not moving, which was a
+sign error in the hinge gradient (fixed; the gradient now matches finite differences to 1e-10),
+and also that 3000 L-BFGS iterations stop 9% of l short of the converged drop. Both parts now use
+`newton.py` (damped Newton, sparse Hessian from coloured central differences) to max |g| under
+1e-6 (cantilever) or 1e-5 (Cusick) of the heaviest node's weight, cap 400 steps. One 16-element
+cantilever result (A, L = 2, EA 800: 0.689 against the elastica's 0.641) was seen in that pilot;
+the predictions below were not changed.
+
+Part 3, added with the solver change and before its run: milestones 2a and 2b stopped L-BFGS when
+DC moved under 0.001 in 2000 iterations. Re-solve the spring sheet (`cusick.Specimen`, unchanged)
+with Newton from the same start, fabrics A and D at EA 3200, grids 5 and 3.75 mm (shear tied, as
+in 2b), and compare.
+  F7  Milestone 2b's L-BFGS DC is within 0.03 of the Newton-converged DC in all four cases.
 
 Predictions, written before the first run (LOG.md, 2026-11-12, milestone 3a):
   F1  Calibration: at 32 elements, the cantilever tip drop is within 1% of l of the elastica in
@@ -57,6 +72,7 @@ sys.path.insert(0, str(HERE.parent / "m2b_locking"))
 sys.path.insert(0, str(HERE.parents[2] / "hanger-kes" / "src"))
 import elastica  # noqa: E402
 import fem  # noqa: E402
+import newton  # noqa: E402
 import cusick  # noqa: E402
 from kes_shear import g_si  # noqa: E402
 from hanger_kes.kes import KES  # noqa: E402
@@ -88,14 +104,11 @@ def cant_one(c):
     tip = np.abs(m.P[:, 0] - m.P[:, 0].max()) < 1e-9
     X = m.X0.copy()
     w_node = fem.GRAV * m.mass.max()
-    prev, total = None, 0
-    while total < 60000:
-        X, used = m.solve(X, 2000, tol=1e-7 * w_node)
-        total += used
-        drop = -X[tip, 2].mean() / l
-        if used < 2000 or (prev is not None and abs(drop - prev) < 1e-5):
-            break
-        prev = drop
+    nw = newton.Newton(m.n, [m.T, np.column_stack([m.hu, m.hv, m.ho1, m.ho2])], m.free)
+    v, info = nw.solve(lambda u: m.energy_grad(u, X), X[m.free].ravel(), gtol=1e-6 * w_node, maxit=400)
+    X[m.free] = v.reshape(-1, 3)
+    drop = -X[tip, 2].mean() / l
+    total = info["iters"]
     ref = elastica.cantilever(L)["drop"]
     return c, dict(drop=drop, ref=ref, err=drop - ref, iters=total, sec=time.time() - t)
 
@@ -134,21 +147,36 @@ class Disc(fem.Mesh):
     dc = cusick.Specimen.dc
 
 
-def cus_one(c, seed=0, chunk=2000, tol=0.001, maxit=100000):
+def newton_drape(sp, stencils, seed=0, rel=1e-5, maxit=400):
+    X = sp.start(seed)
+    w_node = fem.GRAV * sp.mass.max()
+    nw = newton.Newton(sp.n, stencils, sp.free)
+    v, info = nw.solve(lambda u: sp.energy_grad(u, X), X[sp.free].ravel(), gtol=rel * w_node, maxit=maxit)
+    X[sp.free] = v.reshape(-1, 3)
+    return X, info, w_node
+
+
+def cus_one(c, seed=0):
     f, ea, a, shear = c
     t = time.time()
     sp = Disc(f, ea, a, shear)
-    X = sp.start(seed)
-    traj, total = [], 0
-    while total < maxit:
-        X, used = sp.solve(X, chunk, tol=1e-7)
-        total += used
-        traj.append(sp.dc(X))
-        if used < chunk or (len(traj) > 1 and abs(traj[-1] - traj[-2]) < tol):
-            break
-    last = abs(traj[-1] - traj[-2]) if len(traj) > 1 else 0.0
-    return c, dict(dc=traj[-1], iters=total, last=last, folds=cusick.nodes(X, sp), n=sp.n,
-                   sec=time.time() - t)
+    X, info, w = newton_drape(sp, [sp.T, np.column_stack([sp.hu, sp.hv, sp.ho1, sp.ho2])], seed)
+    return c, dict(dc=sp.dc(X), iters=info["iters"], gmax=info["gmax"] / w, folds=cusick.nodes(X, sp),
+                   n=sp.n, sec=time.time() - t)
+
+
+SPR = [(f, 3200.0, h) for f in FABRICS for h in (0.005, 0.00375)]
+
+
+def spring_one(c, seed=0):
+    f, ea, h = c
+    _, B, W = KES[f]
+    t = time.time()
+    sp = cusick.Specimen(B, W, ea, h=h)
+    st = [np.column_stack(s[:2]) for s in sp.springs] + [np.column_stack(b[:3]) for b in sp.bends]
+    X, info, w = newton_drape(sp, st, seed)
+    return c, dict(dc=sp.dc(X), iters=info["iters"], gmax=info["gmax"] / w, folds=cusick.nodes(X, sp),
+                   n=sp.n, sec=time.time() - t)
 
 
 def dcv(res, f, ea, a, shear="kes"):
@@ -189,10 +217,10 @@ def main(part):
                 res[c] = r
                 print(c, f"{r['dc']:.4f} {r['iters']} {r['sec']:.0f}s", flush=True)
         out += ["milestone 3a part 2: simulated Cusick DC on the FEM tier",
-                "fabric EA a_mm shear nodes DC iters last_change folds sec"]
+                "fabric EA a_mm shear nodes DC newton_steps gmax_over_node_weight folds sec"]
         for c in CUS:
             r = res[c]
-            out.append(f"{c[0]} {c[1]:g} {c[2]*1000:g} {c[3]} {r['n']} {r['dc']:.4f} {r['iters']} {r['last']:.5f} {r['folds']} {r['sec']:.0f}")
+            out.append(f"{c[0]} {c[1]:g} {c[2]*1000:g} {c[3]} {r['n']} {r['dc']:.4f} {r['iters']} {r['gmax']:.1e} {r['folds']} {r['sec']:.0f}")
         out += ["", "fabric EA (measured G) " + " ".join(f"DC@{a*1000:g}mm" for a in AS)]
         for f in FABRICS:
             for ea in EAS:
@@ -225,6 +253,19 @@ def main(part):
         out.append(f"F6 A < D at every EA and mesh: {'held' if ok else 'refuted'}")
         out.append(f"acceptance (F3 and F4): {'passed' if f3 and f4 else 'failed'}")
         out.append(f"wall {time.time()-t0:.0f}s")
+        out.append("")
+    if part in ("all", "spring"):
+        with mp.Pool() as pool:
+            sr = dict(pool.map(spring_one, SPR))
+        out += ["milestone 3a part 3: milestone 2b's spring sheet re-solved by Newton (shear 0.1 EA)",
+                "fabric EA h_mm nodes DC_newton DC_lbfgs_2b diff newton_steps gmax_over_node_weight folds sec"]
+        v = []
+        for c in SPR:
+            r = sr[c]
+            old = SPRING[(c[0], c[1])][c[2]]
+            v.append(abs(r["dc"] - old) < 0.03)
+            out.append(f"{c[0]} {c[1]:g} {c[2]*1000:g} {r['n']} {r['dc']:.4f} {old:.4f} {r['dc']-old:+.4f} {r['iters']} {r['gmax']:.1e} {r['folds']} {r['sec']:.0f}")
+        out.append(f"F7 {'held' if all(v) else 'refuted'}")
     name = "results.txt" if part == "all" else f"results_{part}.txt"
     (HERE / name).write_text("\n".join(out) + "\n")
     print("\n".join(out))
@@ -232,5 +273,5 @@ def main(part):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--part", default="all", choices=("all", "cantilever", "cusick"))
+    ap.add_argument("--part", default="all", choices=("all", "cantilever", "cusick", "spring"))
     main(ap.parse_args().part)

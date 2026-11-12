@@ -125,11 +125,11 @@ class Mesh:
         q1 = (n1 * n1).sum(1)[:, None]
         q2 = (n2 * n2).sum(1)[:, None]
         eh = e / el[:, None]
-        gc = -el[:, None] * n1 / q1
-        gd = -el[:, None] * n2 / q2
+        gc = el[:, None] * n1 / q1
+        gd = el[:, None] * n2 / q2
         ga = (((c - b) * eh).sum(1)[:, None] * n1 / q1 + ((d - b) * eh).sum(1)[:, None] * n2 / q2)
         gb = -(((c - a) * eh).sum(1)[:, None] * n1 / q1 + ((d - a) * eh).sum(1)[:, None] * n2 / q2)
-        cc = (2 * self.kb * th)[:, None]
+        cc = (-2 * self.kb * th)[:, None]     # d theta = -(ga.da + gb.db + gc.dc + gd.dd)
         acc(gX, self.hu, cc * ga)
         acc(gX, self.hv, cc * gb)
         acc(gX, self.ho1, cc * gc)
