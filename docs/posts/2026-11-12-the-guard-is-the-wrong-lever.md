@@ -1,9 +1,9 @@
 ---
 title: "The guard is the wrong lever: a pre-registered negative on small LLM-coding audits"
-seo_title: "LLM coding audit at small n: raising the negative-cell guard does not help"
+seo_title: "LLM coding audit at small n: a bigger miss guard does not help"
 date: 2026-11-12
 tags: [research, llm, statistics, qualitative-coding]
-description: "Raising the audit's negative-cell guard from 3 to 5 cured two of three small audits that came out wider than a plain random sample, and gave back 28% of the width gain elsewhere. The default stays at 3."
+description: "A miss guard of 5 instead of 3 fixed two of three small LLM-coding audits that ran wider than a random sample, and gave back 28% of the gain elsewhere."
 ---
 
 The [llm-coding-inference](../../research/llm-coding-inference/) programme asks how
