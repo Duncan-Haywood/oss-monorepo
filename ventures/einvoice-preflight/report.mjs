@@ -10,6 +10,7 @@ import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
 import { checkFa3, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
+import { checkNfe, looksLikeNfe } from "./nfe.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
 export const DEFAULT_MAX_FILES = 50;
@@ -23,7 +24,7 @@ export function looksLikeIsdoc(text) {
   return /xmlns(?::\w+)?\s*=\s*["']http:\/\/isdoc\.cz\/namespace\/2013["']/.test(String(text).slice(0, 4096));
 }
 
-export const ISDOC_MESSAGE = "This is an ISDOC invoice (the Czech national format). The checker reads UBL, CII, Factur-X, FatturaPA, FA(3) and CFDI 4.0, not ISDOC, and applies no Czech national rules. Export the invoice from your accounting software as Peppol BIS (UBL) or EN 16931 and check that file instead.";
+export const ISDOC_MESSAGE = "This is an ISDOC invoice (the Czech national format). The checker reads UBL, CII, Factur-X, FatturaPA, FA(3), CFDI 4.0 and NF-e 4.00, not ISDOC, and applies no Czech national rules. Export the invoice from your accounting software as Peppol BIS (UBL) or EN 16931 and check that file instead.";
 
 export async function inspectInvoiceSource(name, source) {
   let payload = source;
@@ -107,6 +108,13 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         // Mexico's CFDI 4.0 is its own schema, not EN 16931: own rules, no UBL/CII reading.
         const mexican = checkCfdi(peek);
         reports.push({ file: name, errors: mexican.findings, envelope: `Read as Mexican CFDI ${mexican.meta.version || ""} (SAT), not EN 16931${mexican.meta.stamped ? "; stamped by a PAC" : "; not stamped"}`, ...(mexican.skipped.length ? { skipped: mexican.skipped } : {}) });
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeNfe(peek)) {
+        // Brazil's NF-e/NFC-e 4.00 is its own schema, not EN 16931: own rules, no UBL/CII reading.
+        const brazilian = checkNfe(peek);
+        const m = brazilian.meta;
+        reports.push({ file: name, errors: brazilian.findings, envelope: `Read as Brazilian ${m.mod === "65" ? "NFC-e" : "NF-e"} ${m.versao || ""} (SEFAZ), not EN 16931${m.authorised ? "; authorised (protocol cStat 100)" : ""}${m.tpAmb === "2" ? "; test environment (tpAmb 2)" : ""}`, ...(brazilian.skipped.length ? { skipped: brazilian.skipped } : {}) });
         continue;
       }
       const { invoice, envelope, xml, pdfFindings } = await inspectInvoiceSource(name, source);
