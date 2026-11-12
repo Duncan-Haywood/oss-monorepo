@@ -99,6 +99,17 @@ Pick what your actuator can report with `ELEV_MODE` in `config.py`:
   so the geometry is applied before the pulse. On a stop the pulse stops and the
   actuator holds.
 
+**Azimuth homing (2026-11-12).** The home switch (GPIO 22 to GND) is held
+closed by a cam on the gear sector at every angle at or below `AZ_HOME_DEG`
+(`cad/README.md`, "Azimuth home switch"). If the switch is closed at power-up
+the axis backs off toward positive angles until it opens, 2 deg more, then
+creeps back and homes on the closing edge, so the home is always taken the same
+way. It faults (`FLAG_AZ_UNHOMED` stays set, nothing moves) if the switch stays
+closed for 12 deg of backing off, which is a stuck or shorted switch or a head
+turned by hand past the sector's end, or if a seek runs 82 deg without a click.
+Set `AZ_HOME_DEG` from your build: aim at a mark straight ahead after homing
+and correct it by the error.
+
 Whatever the mode, the feed gate now waits for the aim: a ball is released only
 when the wheels are within 5% of their speeds **and** both the elevation and
 the azimuth have arrived. Telemetry sets `FLAG_AIM_SETTLING` (128) while either

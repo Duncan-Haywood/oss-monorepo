@@ -447,7 +447,7 @@ class Feeder:
     home_sw_deg: float = 45.0         # world angle of the switch about the turntable axis, from +x (front, toward +y)
     home_sw_body: tuple = (12.8, 6.5, 5.8)  # tangential, radial, vertical (mm), lying flat (assumption)
     home_sw_hole_pitch: float = 6.5   # its two mounting holes (M2 self-tapping into the bracket; assumption)
-    home_sw_lever_mm: float = 4.5     # body front to the roller's outer edge, free (assumption)
+    home_sw_lever_mm: float = 5.0     # body front to the roller's outer edge, free (assumption; at least the roller's diameter)
     home_sw_roller_r: float = 2.4     # roller radius; its axis is vertical, lying flat (assumption)
     home_sw_pretravel_mm: float = 1.2  # roller travel to the click (assumption)
     home_sw_overtravel_mm: float = 1.0  # roller travel past the click before the lever bottoms (assumption)
@@ -1202,6 +1202,8 @@ class Feeder:
         lo, hi = h["travel_window_mm"]
         if not lo <= h["depth_mm"] <= hi:
             bad.append(f"home cam depth {h['depth_mm']:.2f} mm is outside the switch's usable travel {lo:.2f}-{hi:.2f} mm")
+        if self.home_sw_lever_mm < 2 * self.home_sw_roller_r + 0.2:
+            bad.append("home switch roller would sit inside the switch body (lever shorter than the roller)")
         if self.home_sw_free_clear_mm < self.home_runout_mm + 0.2:
             bad.append("home switch roller could rub the sector's plain inner arc")
         if not h["ramp0_deg"] > h["sector_ends_deg"][0] + 2 or h["ramp1_deg"] > h["sector_ends_deg"][1] - 2:

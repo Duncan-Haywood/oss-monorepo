@@ -736,6 +736,56 @@ class FeederGeometryTest(unittest.TestCase):
         self.assertAlmostEqual(bores[0][0], self.p.head_x)
         self.assertAlmostEqual(bores[0][1], self.p.az_centre_dist)
 
+    def test_home_cam_closes_the_switch_exactly_at_and_below_home(self):
+        # the gear sector's cam lobe against the switch's roller lever (drawn free): no contact anywhere in the
+        # working range, first touch where home_switch_design says, the click (pretravel) at az_home_deg, and the
+        # full lobe depth down past where the pinion leaves the teeth
+        from build123d import Axis, Location
+        p, h = self.p, self.p.home_switch_design()
+        sector = next(x for x in self.parts if x.name == "az_gear_sector").placed()[0]
+        body = next(x for x in self.parts if x.name == "home_switch").placed()[0]
+        lever = next(x for x in self.parts if x.name == "home_switch_lever").placed()[0]
+        bracket = next(x for x in self.parts if x.name == "home_switch_bracket").placed()[0]
+        axis = Axis((p.head_x, 0, 0), (0, 0, 1))
+        a = math.radians(p.home_sw_deg)
+
+        def push(az):   # how far the roller is pushed in, by bisection on a radial shift of the free lever
+            s = sector.rotate(axis, az)
+            lo, hi = 0.0, 4.0
+            for _ in range(18):
+                m = (lo + hi) / 2
+                lv = lever.moved(Location((-m * math.cos(a), -m * math.sin(a), 0)))
+                lo, hi = (m, hi) if (s & lv).volume > 1e-6 else (lo, m)
+            return hi if hi < 3.99 else None
+
+        for az in (p.az_max, 0.0, -p.az_max, h["az_contact"] + 0.05):
+            self.assertLess(push(az), 1e-3, az)
+        self.assertGreater(push(h["az_contact"] - 0.1), 0.0)
+        self.assertAlmostEqual(push(p.az_home_deg), p.home_sw_pretravel_mm, delta=0.03)
+        for az in (p.az_home_deg - 1.5, h["az_pinion_off"], h["az_pinion_off"] - 5):
+            self.assertAlmostEqual(push(az), h["depth_mm"], delta=0.05)
+        for az in (p.az_max + 8, 0.0, p.az_home_deg, h["az_pinion_off"] - 5):
+            s = sector.rotate(axis, az)
+            self.assertLess((s & body).volume, 1e-6, az)
+            self.assertLess((s & bracket).volume, 1e-6, az)
+        # the bracket's M3 slots sit over the mast plate's holes
+        mast = next(x for x in self.parts if x.name == "mast_plate")
+        holes = [(e.arc_center.X, e.arc_center.Y) for e in mast.flat.edges()
+                 if e.geom_type == GeomType.CIRCLE and abs(e.radius - 1.7) < 1e-6]
+        for x, y in self.F._home_bracket_holes(p):
+            self.assertTrue(any(math.hypot(x - hx, y - hy) < 0.01 for hx, hy in holes), (x, y))
+
+    def test_home_switch_rules_catch_bad_changes(self):
+        self.assertEqual(self.p.check_home_switch(), [])
+        self.assertTrue(any("working range" in b for b in Feeder(az_home_deg=-30.5).check_home_switch()))
+        self.assertTrue(any("pinion runs off" in b for b in Feeder(az_home_deg=-37.0).check_home_switch()))
+        self.assertTrue(any("usable travel" in b for b in Feeder(home_sw_overtravel_mm=0.4).check_home_switch()))
+        self.assertTrue(any("bearing" in b for b in Feeder(home_sw_lever_mm=8.0).check_home_switch()))
+        h = self.p.home_switch_design()
+        # a click repeats to about 0.03 deg, under one microstep (0.045 deg): the step, not the switch, sets the home
+        self.assertLess(h["repeat_deg"], h["microstep_deg"])
+
+
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class ElevationStopTest(unittest.TestCase):
     def test_head_clears_the_turntable_up_to_elev_clear_max_and_not_beyond(self):

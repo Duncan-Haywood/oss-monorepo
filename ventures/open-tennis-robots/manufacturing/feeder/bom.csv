@@ -3,7 +3,7 @@ head_motor_plate,laser,1,aluminium 5052 5 mm,Both outrunners mount on this plate
 head_guard_plate,laser,1,aluminium 5052 5 mm,Keeps hands and balls off the open side of the wheels; held by four M5 standoffs.
 trunnion_cheek,laser,1,aluminium 5052 5 mm,Motor-side (+y) cheek: holds the head's M8 pivot bolt; a printed foot bolts it to the turntable plate.
 trunnion_cheek_elev,laser,1,aluminium 5052 5 mm,"Guard-side (-y) cheek: holds the pivot bolt, and its rear tab carries the elevation actuator's anchor (M6 shoulder bolt). Same feet as the other cheek."
-mast_plate,laser,1,aluminium 5052 5 mm,Bolts to the end-tapped posts (M5) and to the fixed ring of the turntable bearing; the azimuth stepper hangs under it on four M3 screws.
+mast_plate,laser,1,aluminium 5052 5 mm,Bolts to the end-tapped posts (M5) and to the fixed ring of the turntable bearing; the azimuth stepper hangs under it on four M3 screws; the home switch bracket sits on two M3 screws.
 turntable_plate,laser,1,aluminium 5052 5 mm,Bolts to the rotating ring of the bearing. Trimmed to a 108 mm radius so the azimuth pinion clears it at every angle; the printed gear sector bolts under its +y edge (3 x M4).
 base_deck,laser,1,aluminium 5052 5 mm,Sits on the rails (M5 and T-nuts); holds the battery and electronics.
 drive_bracket,laser,2,aluminium 5052 5 mm,"Gearmotor (37 mm class, M3 on a 31 mm circle) bolts to the inside face. M5 into the side rail's T-slot."
@@ -20,6 +20,9 @@ shuttle_rod,print,1,PETG,"Shuttle pin to crank pin, 120 mm between 5.4 mm holes;
 shuttle_crank,print,1,PETG,"Crank, 47.5 mm throw (95 mm stroke over 180 deg of servo turn); screw it to the servo's round aluminium horn (M3 through the centre hole and two of the horn's own holes, drilled to suit). Print flat, 100% infill."
 shuttle_servo_bracket,print,1,PETG,"Holds the shuttle servo by its tabs outboard of the motor plate; three legs take M4 screws through the plate into heat-set inserts, and two more inserts take the servo's tab screws. Print cradle face down."
 shuttle_servo,cots,1,"Standard-size digital servo, 18 kg cm class (1.75 N m stall), 0.16 s per 60 deg, 180 deg between the gate pulses, metal gears, round aluminium horn (drawn 40.5 x 20 x 40.5 mm, tabs 54 mm)",
+home_switch_bracket,print,1,PETG,"Azimuth home switch bracket on the mast plate, 45 deg round from the front. Two M3 screws through its radial slots (1.5 mm either way) into the mast plate; set it so the switch clicks with the roller in the middle of the gear sector's cam lobe. M2 pilots 6.5 mm apart for the switch: check against yours. 100% infill."
+home_switch,cots,1,"Subminiature roller-lever microswitch (D2F-01L3 class), about 12.8 x 5.8 x 6.5 mm; normally open, wired to GPIO 22 and GND (firmware AZ_HOME_DEG -32)",
+home_switch_lever,cots,1,"the switch's roller lever (free position), part of home_switch",
 hopper_shelf,laser,1,aluminium 5052 5 mm,"Tub shelf, falls 12 deg toward the net so balls roll to the outlet. Posts bolt up through it (M5, end-tapped), the sleeve socket under the outlet hole."
 hopper_spigot,print,1,PETG,"Sleeve socket under the shelf's outlet hole: flange on the sloped shelf (M4 heat-set inserts), a vertical cup 102.5 mm across and 40 mm deep for the sleeve's top end. Print flange down, 6 walls."
 feed_hose,stock,1,"72 mm ID smooth-bore flexible hose (82 mm OD), cut 810 mm",Take-up sleeve's lower end to the column socket (sleeve_take_up_design). Longest chord 1014 mm; bows to 426 mm radius at the closest pose; needs 150. Top end bonded into the take-up collar; a hose clamp at the column socket.
@@ -63,6 +66,8 @@ M4 x 12 socket cap screw,cots,8,M4 x 12 socket cap screw,cheek feet to the turnt
 M4 x 12 socket cap screw (motors),cots,8,M4 x 12 socket cap screw (motors),launcher motors to the motor plate
 M3 x 8 screw,cots,12,M3 x 8 screw,gearmotor faces
 M3 x 10 screw,cots,4,M3 x 10 screw,azimuth stepper to the mast plate (from above)
+M3 x 8 socket cap screw + washer + nut (home switch),cots,2,M3 x 8 socket cap screw + washer + nut (home switch),home switch bracket to the mast plate
+M2 x 10 self-tapping screw,cots,2,M2 x 10 self-tapping screw,home switch to its bracket
 M4 x 12 socket cap screw (azimuth),cots,3,M4 x 12 socket cap screw (azimuth),turntable plate down into the gear sector
 "M4 heat-set insert, 5.7 mm long (azimuth)",cots,3,"M4 heat-set insert, 5.7 mm long (azimuth)",gear sector
 "608 bearing, 8 x 22 x 7",cots,2,"608 bearing, 8 x 22 x 7",idler wheels

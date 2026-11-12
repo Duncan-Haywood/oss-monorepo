@@ -1165,6 +1165,17 @@ def azimuth_line(p: Feeder, inertia_kgm2: float, load_n: float) -> str:
             f"{d['backlash_deg']:.3f} deg = {d['backlash_miss_mm']:.0f} mm")
 
 
+def home_switch_line(p: Feeder) -> str:
+    h = p.home_switch_design()
+    return (f"azimuth home: roller-lever switch on the mast plate at {p.home_sw_deg:g} deg, roller {h['r_roller']:.1f} mm "
+            f"from the axis; a cam lobe on the gear sector ({h['depth_mm']:.1f} mm deep, {p.home_cam_ramp_deg:g} deg ramp) "
+            f"first touches it at {h['az_contact']:.2f} deg, clicks at {p.az_home_deg:g} deg and holds it closed down to "
+            f"{h['az_closed_to']:.1f} deg (the pinion leaves the teeth at {h['az_pinion_off']:.1f}), so the firmware backs "
+            f"off when it starts closed; click repeatability {h['repeat_deg']:.3f} deg = {h['repeat_miss_mm']:.0f} mm at "
+            f"{p.aim_range_m:g} m, under one microstep ({h['microstep_deg']:.3f} deg = {h['microstep_miss_mm']:.0f} mm); "
+            f"part-to-part click tolerance {h['tol_deg']:.2f} deg = {h['tol_miss_mm']:.0f} mm: calibrate AZ_HOME_DEG")
+
+
 def elevation_line(p: Feeder, gravity: dict[float, float]) -> str:
     d = p.elevation_drive(gravity)
     g = [gravity[k] for k in sorted(gravity)]
@@ -1213,6 +1224,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     ]
     if turning is not None:
         checks.insert(-3, azimuth_line(p, turning[0], turning[1] * 9.81))
+        checks.insert(-3, home_switch_line(p))
     if gravity is not None:
         checks.insert(-3, elevation_line(p, gravity))
         checks.insert(-3, shuttle_line(p))
