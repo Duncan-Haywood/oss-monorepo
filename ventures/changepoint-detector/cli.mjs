@@ -156,6 +156,11 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     const { runPanelThreaded } = await import('./consensus-threads.mjs');
     const { consensus: tol, ...rest } = opt;
     const c = mergeConsensus(await runPanelThreaded(rest), { tolerance: tol === true ? null : tol });
+    // The update-rate check reads only the values (before --log), as beside every single model.
+    const { updateRateChanges, updateRateLines } = await import('./update-rate.mjs');
+    const ps = parseSeries(opt.csv ?? DEFAULTS.csv, opt.column ?? null, opt.labelColumn ?? null);
+    const u = updateRateChanges(ps.values);
+    if (u.changes.length) Object.assign(c, { updateRateWarning: updateRateLines(u, ps.labels)[0], updateRate: { changes: u.changes, stretches: u.stretches } });
     out((json ? JSON.stringify(c, null, 2) : consensusText(c)) + '\n');
     return 0;
   }

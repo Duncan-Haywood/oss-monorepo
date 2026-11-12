@@ -3081,3 +3081,49 @@ clumped stale feed and a switch and back):
 **Verdict: the grid ships.** A 100,000-point series with one switch now takes about 0.15 s through
 `updateRateChanges` (tested under 8 s, with the switch inside its range). Next: the multi-column and
 `--consensus` outputs, which do not show it yet, and a long series with a documented change in collection.
+
+## The update-rate check on every output, and repeats from rounding (2026-11-12, last)
+
+**Several columns and `--consensus`.** The two outputs that did not show the update-rate check now do.
+`--columns` (CLI text and JSON `updateRate` / `updateRateWarnings`, the page's several-columns "Read with
+care" notes and the branded multi-column report) runs it on each column alone and names the column. A
+cell the parser carries forward to keep the columns aligned is read as missing, never as a repeat:
+`parseColumns` now lists those cells (`missing`), because a column with scattered blanks would otherwise
+show a change of update rate that is not in the data (tested: 40 scattered blanks from row 40 read as a
+change when carried forward, nothing when read as missing). `--consensus` (text and JSON) reads the
+values before `--log`, as beside every single model.
+
+**What it found on the juice file's second column.** Run on all of `data/frozen-juice.csv`, the check
+also speaks on `ppi`, the producer price index: repeats fell from 33% of months before about 1969-04
+(between 1968-03 and 1974-01) to 8% after. The index was published every month. It is recorded to 0.1,
+and in the 1950s and 1960s it moved less than that in a third of months; half of the months it did move,
+it moved by exactly 0.1. Those repeats are rounding of a slow series, not a stale feed, and the old
+sentence ("this describes how often the data was refreshed ... a stale feed") would have misled.
+The juice `price` column is the other case: when its stickier stretch moved, the median move was 19.5
+ticks, so a repeat there is a month nobody refreshed the figure.
+
+**The rounding sentence** (`eval/update-rate-rounding.mjs`, `.out.txt`; rule in its header, committed
+with the code, run once on seed 20261212 with no retuning; both real columns were seen before the rule
+was written, so they illustrate it and are not evidence for it). For each change, take the stretch with
+more repeats; its tick is its own smallest move between neighbours (to 9 significant digits, so a series
+that later gains a decimal is judged on its own precision). If the median move, among steps that moved,
+is at most 1.5 ticks (`ROUNDING_TICKS`: half the moves are one tick), the change is flagged `rounding` and
+the text says the repeats may only mean the series moved less than its recorded precision.
+
+| 200 series a cell, n 300, switch at 150 | with a change | flagged rounding | rule |
+|---|---|---|---|
+| R1 rounded walk, step sd 0.04 -> 0.40 (tick 0.1) | 200 | 200 | >= 90%, pass |
+| R2 rounded walk, 0.40 -> 0.05 | 200 | 200 | >= 90%, pass |
+| R3 rounded walk, 0.06 -> 1.0 | 200 | 200 | >= 90%, pass |
+| F1 stale feed, walk sd 2.0, carried forward 60% -> 10% | 200 | 0 | <= 5%, pass |
+| F2 stale feed, walk sd 0.5 (5 ticks), 10% -> 60% | 200 | 0 | <= 5%, pass |
+| F3 clumped stale feed fixed, walk sd 2.0 | 183 | 0 | <= 5%, pass |
+
+**Verdict: ships.** The cells are well apart; a stale feed whose moves are themselves about one tick is
+the case it cannot tell apart, and there it says "may". On the real series (`eval/update-rate-real.out.txt`,
+descriptive): children per woman (2 decimals, moving 0.01 a year in its sticky stretches) and every
+switch on scanline 42049 (integer pixel values) are flagged rounding; measles and the juice price are not.
+Test: `update-rate-columns.test.mjs`.
+
+Next: a long series with a documented change in collection to check a date against; a stale feed whose
+moves are about one tick (the case the rounding sentence cannot separate).

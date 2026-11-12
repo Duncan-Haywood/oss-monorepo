@@ -3,7 +3,7 @@ bank                       n   581  repeats  246 ( 42%)  no change of update rat
 brent_spot                 n   500  repeats    2 (  0%)  no change of update rate (under 10 repeats: not run)
 businv                     n   330  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
 centralia                  n    15  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
-children_per_woman         n   301  repeats   75 ( 25%)  2 change(s): 108 [46..119] more often; 255 [236..258] less often
+children_per_woman         n   301  repeats   75 ( 25%)  2 change(s): 108 [46..119] more often (rounding: tick 0.01); 255 [236..258] less often (rounding: tick 0.01)
                             stretches: 1..107 37% | 108..254 5% | 255..300 59%
 co2_canada                 n   215  repeats    7 (  3%)  no change of update rate (under 10 repeats: not run)
 construction               n   319  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
@@ -38,7 +38,7 @@ measles (held out)         n   991  repeats   33 (  3%)  1 change(s): 519 [413..
 ratner_stock (held out)    n   600  repeats  138 ( 23%)  no change of update rate
 robocalls (held out)       n    52  repeats    0 (  0%)  no change of update rate (under 10 repeats: not run)
 scanline_126007 (held out) n   481  repeats   31 (  6%)  no change of update rate
-scanline_42049 (held out)  n   481  repeats  233 ( 49%)  6 change(s): 88 [79..101] less often; 177 [155..179] more often; 281 [277..286] less often; 341 [330..344] more often; 375 [374..377] less often; 455 [446..460] more often
+scanline_42049 (held out)  n   481  repeats  233 ( 49%)  6 change(s): 88 [79..101] less often (rounding: tick 1); 177 [155..179] more often (rounding: tick 1); 281 [277..286] less often (rounding: tick 1); 341 [330..344] more often (rounding: tick 1); 375 [374..377] less often (rounding: tick 1); 455 [446..460] more often (rounding: tick 1)
                             stretches: 1..87 31% | 88..176 80% | 177..280 10% | 281..340 85% | 341..374 9% | 375..454 86% | 455..480 8%
 TCPD: 38 series, run on 6 (10+ repeats), a change of update rate on 3.
 

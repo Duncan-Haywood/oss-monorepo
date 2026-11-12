@@ -1,0 +1,11 @@
+seed 20261212, 200 series a cell, n 300, change at 150
+cell  with a change  within 20 steps  flagged rounding  share
+R1              200              199               200  1.000
+R2              200              197               200  1.000
+R3              200              200               200  1.000
+F1              200              200                 0  0.000
+F2              200              200                 0  0.000
+F3              183              172                 0  0.000
+Q1 (R cells >= 0.90): pass
+Q2 (F cells <= 0.05): pass
+Verdict: the rounding sentence ships
