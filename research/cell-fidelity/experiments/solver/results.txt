@@ -1,0 +1,56 @@
+cell-fidelity milestone 5d: SPMe's failures and early stops under five solver and mesh variants
+
+  V0: IDAKLU defaults (rtol 1e-4, atol 1e-6), default mesh: the committed runs
+  V1: IDAKLU rtol 1e-6, atol 1e-8
+  V2: IDAKLU defaults, robust nonlinear solve (max_nonlinear_iterations 200, max_convergence_failures 1000, max_error_test_failures 100)
+  V3: CasadiSolver mode 'safe', rtol 1e-6, atol 1e-8
+  V4: IDAKLU defaults, every mesh dimension doubled
+
+Early stops (returned fewer than 100 cycles): 6 designs {'Mohtat2020': 6}
+  V0: ran 6, reached 100 cycles 0, stopped 6, failed 0, median cycles 48
+  V1: ran 6, reached 100 cycles 6, stopped 0, failed 0, median cycles 100
+  V2: ran 6, reached 100 cycles 0, stopped 6, failed 0, median cycles 48
+  V3: ran 6, reached 100 cycles 6, stopped 0, failed 0, median cycles 100
+  V4: ran 6, reached 100 cycles 4, stopped 2, failed 0, median cycles 100
+  rescued by any of V1 to V4: 6 of 6
+    Mohtat2020 1: by V1,V3,V4; SPMe@100 188.7 vs DFN@100 188.7 Wh/kg, gap +0.000, r_min 0.773
+    Mohtat2020 10: by V1,V3,V4; SPMe@100 142.7 vs DFN@100 143.0 Wh/kg, gap +0.002, r_min 0.885
+    Mohtat2020 17: by V1,V3,V4; SPMe@100 190.7 vs DFN@100 190.6 Wh/kg, gap -0.000, r_min 0.803
+    Mohtat2020 19: by V1,V3; SPMe@100 186.0 vs DFN@100 186.5 Wh/kg, gap +0.003, r_min 0.647
+    Mohtat2020 41: by V1,V3; SPMe@100 167.8 vs DFN@100 168.0 Wh/kg, gap +0.001, r_min 0.787
+    Mohtat2020 55: by V1,V3,V4; SPMe@100 185.5 vs DFN@100 185.7 Wh/kg, gap +0.001, r_min 0.730
+  rescued and trusted (within 25% of DFN@100): 6 of 6
+
+Outright failures (no cycle returned): 61 designs {'OKane2022': 12, 'NCA_Kim2011': 49}
+  V0: ran 61, reached 100 cycles 0, stopped 0, failed 61, median cycles 0
+  V1: ran 61, reached 100 cycles 1, stopped 0, failed 60, median cycles 0
+  V2: ran 61, reached 100 cycles 0, stopped 0, failed 61, median cycles 0
+  V3: ran 61, reached 100 cycles 4, stopped 0, failed 57, median cycles 0
+  V4: ran 61, reached 100 cycles 0, stopped 0, failed 61, median cycles 0
+  rescued by any of V1 to V4: 4 of 61
+    NCA_Kim2011 14: by V3; SPMe@100 0.0 vs DFN@100 62.2 Wh/kg, gap +1.000, r_min -0.053
+    NCA_Kim2011 19: by V3; SPMe@100 0.0 vs DFN@100 61.5 Wh/kg, gap +1.000, r_min -0.148
+    NCA_Kim2011 55: by V3; SPMe@100 0.0 vs DFN@100 66.9 Wh/kg, gap +1.000, r_min -0.141
+    NCA_Kim2011 62: by V1,V3; SPMe@100 30.6 vs DFN@100 70.4 Wh/kg, gap +0.566, r_min -0.034
+  rescued and trusted (within 25% of DFN@100): 0 of 4
+
+1-cycle diagnostic (default solver): first-discharge unclipped min c_e / c_e0
+  stop: 6 of 6 diagnosed; c_e < 0 in 0; charge step empty in 0; min/median/max 0.647 / 0.787 / 0.885
+  fail: 61 of 61 diagnosed; c_e < 0 in 59; charge step empty in 57; min/median/max -0.148 / -0.082 / 0.156
+
+Controls (SPMe completed at V0): largest |score(variant) / score(V0) - 1| per variant
+  V1: 24 compared, max deviation 0.0217, broke 0
+  V2: 24 compared, max deviation 0.0000, broke 0
+  V3: 24 compared, max deviation 0.0222, broke 0
+  V4: 24 compared, max deviation 0.0820, broke 0
+  V0 reproduces the committed cycle count on 91 of 91 designs
+
+Extra, after the verdicts: median |SPMe@100 / DFN@100 - 1| over each set's 8 controls, by variant
+  Mohtat2020: V0 1.01%, V1 0.50%, V2 1.01%, V3 0.57%, V4 0.56%
+  NCA_Kim2011: V0 1.03%, V1 1.08%, V2 1.03%, V3 1.07%, V4 1.00%
+  OKane2022: V0 5.46%, V1 5.43%, V2 5.46%, V3 5.42%, V4 5.57%
+
+H38 (stops are numerical): best variant brings 6 of 6 early stops to 100 cycles -> supported
+H39 (rescued stops are sound): 0 of 6 rescued designs untrusted -> supported
+H40 (failures are structural): best variant rescues 4 of 61; c_e < 0 in 59 of 61 -> supported
+H41 (stops are not structural): c_e >= 0 in 6 of 6 -> supported
