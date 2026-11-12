@@ -124,7 +124,7 @@ def load():
             inst.append(("mesh", f"1c {cfg if coarse else base}->{base if coarse else cfg} {f}",
                          {k: v[0] for k, v in lo.items()}, {k: v[0] for k, v in hi.items()},
                          max(v[1] for v in list(lo.values()) + list(hi.values()))))
-    kes = {f: max(ea for g, ea in d if g == f) for f, _ in d}
+    kes = {p[0]: float(p[5]) for p in rows("m1d_measured_shear", "0.") if len(p) == 6 and p[0] in "ABCD"}
     for f in "ABCD":
         R = d[(f, kes[f])]
         for ea in (150.0, 800.0, 3200.0):

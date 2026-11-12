@@ -31,12 +31,76 @@ for the 3 cm arm: with the shear spring set to measured G, stretch still moves t
 across 40 to 800 N/m, but from 800 N/m up, including the stiffness the same table's tensile LT and WT
 imply, all four fabrics pick +1.0 cm, the 2D chain's answer, with certified margins. The tier
 disagreement belongs to soft cloth, and only the cotton jersey and the shirting, whose low-load
-stiffness lands in the band where the choice flips, still need a measured tensile toe.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
+stiffness lands in the band where the choice flips, still need a measured tensile toe. Milestone 5 proves the margin bound the proposal planned (regret is at most the spread of the paired tier error, not its size) and tests it on those 50 tier pairs: the bound certifies no 2D-chain choice (the paired error still spreads 0.6 to 1.3 cm across widths, against margins of 0.05 to 0.25 cm), though the 2D choice's realised regret is small (mean 0.03 cm); it certifies only a stretch-stiffness guess near the KES-sourced one, so a cheap tier can screen widths but not judge them.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
 `research/PROJECTS.md`). Simulation only; nothing here is a measurement of real garments.
 
 **Live page:** https://marisstella.app/research/hanger-codesign/
 
 ![Shape error against arm width offset on fabric D for three model tiers](experiments/m1_kes_fidelity/err_vs_offset_D.svg)
+
+## Milestone 5: the decision-margin bound, and what paired designs can certify
+
+`experiments/m5_margin_bound/run.py` (stdlib only; no new simulation, it reads the shape errors
+milestones 1b, 1c and 1d committed). Predictions were committed before the first run.
+
+**The bound.** A cheap tier t and a reference tier T score the same candidates (here the arm-width
+offsets) with s_t and s_T. Let d^ be the cheap tier's choice, d* the reference's, and
+e(d) = s_T(d) − s_t(d) the tier error at design d. Because s_t(d^) ≤ s_t(d*), the reference-tier
+regret of the cheap choice obeys
+
+    r = s_T(d^) − s_T(d*) = e(d^) − e(d*) − [s_t(d*) − s_t(d^)]  ≤  e(d^) − e(d*)  ≤  max e − min e = osc(e).
+
+Only the *variation* of the tier error across designs costs regret; a constant error costs none.
+Two certificates follow. **C1:** if the cheap tier's margin (runner-up minus best) exceeds osc(e),
+the cheap choice is the reference choice. **C2 (cone):** on a 1D design grid with L the largest
+neighbour slope of e, if s_t(d) − s_t(d^) > L |d − d^| for every other d, the choice is certified,
+and in general r ≤ L |d^ − d*|. Both are checked on 3,000 random instances (`tests/test_m5.py`).
+
+**The data.** 50 instances in four families: the 2D chain against the converged 3D sheet (28, from
+1c and 1d), the 3000-iteration 3D solve against the converged one (4, from 1b), a mesh change (4,
+from 1c), and a guessed stretch stiffness or the default sheet against the KES-sourced one (14,
+from 1c and 1d: H3's "uncalibrated against calibrated").
+
+![Cheap tier margin against the spread of the paired tier error, 50 instances](experiments/m5_margin_bound/margin_vs_osc.svg)
+
+| family | instances | regret > 0 | mean / max regret (cm) | C1 | C2 | median osc / 2 max abs(e) | median candidates left (osc, cone) |
+|---|---|---|---|---|---|---|---|
+| 2D chain → 3D sheet | 28 | 16 | 0.030 / 0.198 | 0 | 0 | 0.30 | 5, 4 of 7 |
+| 3000 iterations → converged | 4 | 4 | 0.029 / 0.070 | 0 | 0 | 0.65 | 5, 3.5 of 7 |
+| mesh change | 4 | 0 | 0 / 0 | 0 | 0 | 0.64 | 4, 4 of 7 |
+| guessed EA or default → KES-sourced | 14 | 7 | 0.031 / 0.085 | 2 | 3 | 0.72 | 4, 4.5 of 7 |
+
+| | prediction | outcome |
+|---|---|---|
+| M1 | the inequalities hold and every certificate implies zero regret | held, all 50 |
+| M2 | median osc / (2 max abs(e)) over 2D → 3D at most 0.35 | held: 0.30 |
+| M3 | C1 certifies no 2D → 3D and at most 1 of 4 capped → converged | held: none of either |
+| M4 | the cone C2 certifies more than C1, including a 2D → 3D instance | **refuted**: 3 against 2, but no 2D → 3D |
+| M5 | median 2D → 3D leaves at least 4 of 7 candidates; EA 3200 → KES at most 2 | held: 5, and 1.5 |
+| M6 | the 2D choice costs under 0.05 cm on the 3D sheet at EA 800 and up | held: at most 0.035 cm |
+| M7 | L from three reference evaluations is at least half the true L in 75% | held: 45 of 50 |
+
+**Reading.** The 2D chain's error against the 3D sheet reaches 1.6 to 2.0 cm in every instance, yet its
+spread across widths is a third of that, and the bound charges only the spread. That is still 0.6
+to 1.3 cm, ten times the chain's own margins (0.05 to 0.25 cm), so no 2D choice can be certified from the
+bound, although its realised regret is small (mean 0.03 cm, at most 0.20 cm or 7.6% of the shape
+error, at EA 40 N/m; at most 0.035 cm from 800 N/m up). The bound is loose for a structural reason:
+it drops the cheap tier's own penalty at the reference optimum, and the 2D chain's error curve is
+sharp (0.2 cm per half centimetre) where the 3D sheet's is flat. The realised regret is 1 to 49% of
+the pair bound on 2D → 3D, against 43 to 94% on the parameter family. The cone does not rescue
+cross-model certification: the steepest slope of e is 0.47 to 0.78 cm per cm of width, against the 0.1 to 0.5 cm
+per cm the chain's margins could absorb. Certification works only where the two tiers are the same
+model with nearby parameters: 2 (C1) or 3 (C2) of the 4 EA 3200 → KES instances, and none of the
+rest. For the design loop (H4) this says the cheap tier is a screen, not a judge: it rules out the
+far widths (a median 3 of 7 under the cone, 0 to 4) and the reference tier must still evaluate the rest. Three reference runs
+around the cheap choice estimate the slope L well (within a factor 2 in 45 of 50 instances), so a
+loop can tell cheaply whether it is in the certifiable regime.
+
+**Limits.** The reference tier here is our own converged 3D sheet, not a validated solver (that is
+milestone 3), so this measures the bound's behaviour, not fidelity. One design variable on a 0.5 cm
+grid with 7 candidates; scores carry solver error of up to 0.002 cm per chunk, which the "tol"
+columns add (four times the largest last-chunk change) without changing any certificate. The
+instances overlap (1c's EA 150 base and 1d share 2D scores), so they are not independent samples.
 
 ## Milestone 1d: the shallow-arm width with shear from measured KES G
 
@@ -307,7 +371,12 @@ no validated solver yet; no real garment.
 3. Recheck the shallow arm's mesh at EA 3200 and above (milestone 1d ran one mesh, and locking
    should be worst at high EA); and give the sheet separate warp and weft stiffness, since woven
    fabrics differ by direction (the source table gives one mean per property).
-4. Source a table of drape coefficient with B and W for the same fabrics (the Autex paper
+4. Milestone 6 (H4) with milestone 5's finding built in: use the cheap tier as a screen (drop the
+   candidates outside the cone set), estimate the slope L from three reference runs around its
+   choice, and spend reference runs only on what is left; compare against single-tier CMA-ES.
+   A sharper bound that keeps the cheap tier's own penalty term (it is what makes the 2D bound
+   loose) is the theory step to try first.
+5. Source a table of drape coefficient with B and W for the same fabrics (the Autex paper
    doi:10.2478/aut-2019-0034 with 63 woven fabrics is the first to read) once a session can
    reach it.
 
