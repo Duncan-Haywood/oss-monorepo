@@ -1,0 +1,11 @@
+Round 5's hold-history guard with --detector pelt (the page's Eager setting; reported, deciding nothing). 31 univariate TCPD series:
+
+  candidate  alerts  at a mark (share)  per 1000 checks  majority-marked reached  alerts dated before the baseline
+  now          626     134 (21%)           98.2         52/52                  15
+  hold         611     133 (22%)           95.9         52/52                  0
+
+7 held-out univariate TCPD series:
+
+  candidate  alerts  at a mark (share)  per 1000 checks  majority-marked reached  alerts dated before the baseline
+  now          289      50 (17%)          101.2         12/12                  3
+  hold         286      50 (17%)          100.2         12/12                  0

@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVLRdfdJP9xhAT9ggHS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompt-1 text)",
+  "input_sha256": "dd742258ea88dae8e8c9695677f3733efc1ace4919c159995a5179f64f7b8d14",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T14:12:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 4): changepoint-detector watch item (w), flicker after the baseline; duplicate of #15146, then its follow-ups",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15157",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "allocate.py's 'Start here' picked changepoint-detector for this session and a sibling in the same minute; both opened claim PRs within a minute (#15145, #15146) and ran the same round 5 for an hour. The claim check cannot see a PR opened seconds later; a post-claim re-check (search open PRs naming the slug a few minutes after opening) would have caught it before the compute."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pgrep hook rejects a bracketed pattern when the same word appears anywhere else in the command, so waiting on a background job needs ps/kill -0."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-a-missed-alert-that-was-really-the-end-of-the-data.md"
+  ],
+  "goal": null,
+  "notes": "Ran round 5 (hold history + persist 2) in PR #15145 at the same minute a sibling ran it in #15146 with identical numbers and a stricter rule; #15146 merged first (hold only), so #15145 was closed as superseded. This PR lands what #15146 lacked: hold with --detector pelt/bocpd (TCPD 626->611 alerts 52/52 marks; 193->183, 38/52; no pre-baseline alerts), coarse replay agreement under hold (88% vs 85% at step 5), and the trace of persist 2's lost children_per_woman mark (first detected at the series' last point: end-of-series censoring). Local: node --test watch.test.mjs watch-page.test.mjs 27/27 pass.",
+  "corrections": [],
+  "redteam": null
+}
