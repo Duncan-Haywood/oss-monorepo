@@ -3485,3 +3485,59 @@ is baseline, not alert; quiet noise (seed 22) sends nothing with the budget rais
 points is refused. Page: headless Chromium at 390 px on the Nile example. The card appears after the run,
 the replay reports 1 alert (sent at 1904 for the 1899 change, 6 rows late, level 1,098 to 826, 62%),
 there are no console errors, and the page has no horizontal scroll.
+
+## Round 6: which "How eager" suits this series? A hint from your own history (2026-11-12, pre-registered; ships, narrowly)
+
+Rounds 1-5 chose one default for every series, and the held-out replay showed what that costs: the plain pass
+reached 12 of 12 held-out marks where the quiet default reached 9, while on measles alone the default sent 20 alerts
+and reached none. The one thing the tool knows about a person's series before the watch starts is its history. So:
+replay that history once per setting (quiet `bocpd-ar1-window`, middle `bocpd`, eager `pelt`), count alerts per 100
+daily checks, and suggest the most eager setting that stayed at or under a budget.
+
+**The round** (`eval/watch-eagerness.mjs`, output `eval/watch-eagerness.out.txt`, 101 s on 4 cores; the rule is in the
+script's header, committed in its own commit before the first run). Each univariate TCPD series is cut in half: the
+first half is the history, the second the future. The watch is replayed after every point with the shipped policy
+(confirm 5, tolerance 5, hold). The hint at B = 2 alerts per 100 checks picks a setting from the first half; it is
+scored on the second half only. Rule: (a) more future majority-marked changes reached than fixed quiet, (b) future
+alerts per 1,000 checks at most fixed middle's, (c) share at a mark at most 5 points below quiet's. Series with fewer
+than 30 points of history are skipped (8 of the 31, all short yearly series), leaving 23.
+
+| policy (future halves, 23 TCPD series) | alerts | at a mark | per 1,000 checks | majority-marked reached | picks q/m/e |
+|---|---|---|---|---|---|
+| fixed quiet (default) | 62 | 27 (44%) | 16.0 | 16 of 31 | 23/0/0 |
+| fixed middle | 107 | 35 (33%) | 27.6 | 23 of 31 | |
+| fixed eager | 369 | 80 (22%) | 95.2 | 31 of 31 | |
+| **hint, B = 2 (pre-registered; ships)** | 68 | 28 (41%) | 17.5 | **17 of 31** | 15/6/2 |
+| hint, B = 1 | 62 | 27 (44%) | 16.0 | 16 of 31 | 17/5/1 |
+| hint, B = 5 | 97 | 37 (38%) | 25.0 | 21 of 31 | 7/11/5 |
+
+All three parts passed, so **the hint ships**, but read the margin: one more marked change than quiet (17 against 16)
+for 6 more alerts. It moved 8 of 23 series off quiet: the two airport passenger series, seat belts, US population and four
+quality-control series, where every setting was nearly silent on the history (which series gained the mark was not
+traced). The B = 5 row shows the trade a person can make by hand: 21 of 31 at 25 alerts
+per 1,000, still under fixed middle on both counts.
+
+**Held out** (6 of the 7 held-out series; robocalls is too short; deciding nothing): every series' quiet rate on the
+history was under 2 but middle's and eager's were over, so the hint picked quiet everywhere and changed nothing (6 of 9
+marks at 22.7 per 1,000, the same as the default). B = 5 would have reached 8 of 9 at 39.7 per 1,000.
+
+**The rate as a forecast.** The page shows "on your history it would have sent r alerts per 100 checks". The
+pre-registered bar for showing it was a Spearman correlation of at least 0.5 between history and future rate across
+the scored TCPD series for quiet; it was 0.616 (middle 0.687, eager 0.739), so it ships. On the 6 held-out series it was
+-0.20 for quiet and -0.43 for middle: six series is too few to rank, but it is the wrong sign, so the page words the
+number as what the history would have sent, not a promise. Iceland tourism is the example: quiet sent 3.8 per 100 on
+the history and none on the future.
+
+**Where it is.** `eagernessReplay(values, labels, opts)` and `eagernessText` in `watch-core.mjs` (each setting's
+`replayWatch`, each with its own work budget; for `meanvar` and `poisson` the quiet default is already `bocpd`, so
+there are two settings). On the page, the replay card has a button "Which How eager suits this series?" that runs it
+in the background worker (`analyzeJob` kind `eagerness`), shows a table of the settings, and a button "Use Middle for
+the watch below" that sets the "Keep watching" card's select; counted locally as `watch_eagerness`. Agents:
+`node platform/agents/tools.mjs call changepoint-detector eagernessReplay --module watch-core.mjs --args '[[...values]]'`.
+Tests: `watch-eagerness.test.mjs` (6); `eval/watch-eagerness-browser.mjs` in headless Chromium at 390 px on the Nile
+example (output `eval/watch-eagerness-browser.out.txt`, 8 of 8: Nile suggests Middle, the button sets the select, no
+page errors, no sideways scroll). Not done: the CLI `watch.mjs` has no flag for it yet; no person has used it.
+
+Next for the watch: a second labelled set to test the hint where it matters (only 23 series and 31 future marks
+here); a budget the person sets in plain terms ("about one alert a month at a daily check" is B = 3.3); the drift model as
+the watch for wandering levels.
