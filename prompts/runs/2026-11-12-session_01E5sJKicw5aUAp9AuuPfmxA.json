@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKicw5aUAp9AuuPfmxA",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T00:10:38Z",
+  "ended": "2026-11-12T00:29:03Z",
+  "wall_minutes": 18.75,
+  "tokens_in": 7632273,
+  "tokens_out": 53697,
+  "cost_usd": 3.8418,
+  "tool_calls": 64,
+  "task": "Track 21 draw (infra): infra-dcopf next step 1, an AC-informed linearisation on the 11 congested PGLib-OPF API cases",
+  "projects": [
+    "research/infra-dcopf"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14939",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "pypower's qps_pips fails on dense numpy H/A (compares the array to None); passing scipy sparse matrices fixed it, and it returns a tuple, not a dict",
+    "PIPS stalls on the elastic QP with a 1e5 $/MVA-h penalty; 1e4 works"
+  ],
+  "integrity_issues": [
+    "Method C's step rules (1 ppm row tolerance, elastic fallback, box halving on a non-improving step) were changed after the first runs, on the same 12 API cases, with no held-out set; disclosed in LOG.md, the README and the post, and the first version's 3-of-12 count is reported",
+    "The pre-registered plan said 10 API cases have an AC optimum; there are 11. Corrected in the outcome entry, and the counts are reported of 11"
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py pytest numpy scipy pypower pandapower took about 60 s with no interpreter preinstalled; running it with run_in_background as advised worked"
+    },
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "doi.org and arxiv.org refused through the proxy again (403), so all 6 ids were SKIP; the new Fletcher DOI was checked by a web search instead"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The draw named track 21 with all milestones done; I advanced the infra-dcopf project's README next step 1 rather than opening a new programme proposal, because it is the active real-data line of the track (PGLib benchmark, eight logged steps) and one step lands in a session",
+      "did": "one pre-registered experiment step inside research/infra-dcopf",
+      "result": "landed: a method that clears 7 of 11 congested cases where earlier repairs cleared 1"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-dc-dispatch-needs-a-linear-model-taken-more-than-once.md",
+    "research/infra-dcopf/LOG.md (plan and outcome entries, 2026-11-12)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (no security-alerts branch); IDEAS.md and website requests empty. Route: research/0, track 21. Verification run here: infra-dcopf pytest 24 passed (28 s, /usr/bin/python3.13); research/_homepage/build.py ok (1073 projects); research_live_links.py and check_md_links.py ok; check_post_frontmatter, check_post_links and post_similarity ok; programme_check ok. Results: API cases with an AC optimum (11): plain DC 0 clean, B (one linearisation at the DC point) 0, A (at the AC optimum, oracle) 7, C (successive linearisation, 10 rounds) 7 at the AC optimum's cost; the other four end within 0.012 % of their ratings. Run time 1 to 13 s per case.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "40a1ff4c-1b56-58b1-a8c7-c842a9eb5b68",
+    "transcripts": 1,
+    "first": "2026-11-12T00:10:38Z",
+    "last": "2026-11-12T00:29:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 116,
+        "output": 53697,
+        "thinking": 15458,
+        "cache_read": 7473055,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159102,
+        "api_equivalent_usd": 3.8418,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 116,
+      "output": 53697,
+      "thinking": 15458,
+      "cache_read": 7473055,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159102,
+      "api_equivalent_usd": 3.8418,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 54,
+      "Write": 5,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.75,
+      "active_minutes": 18.75,
+      "model_minutes": 10.5,
+      "tool_minutes": 8.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a power-systems researcher implementing finite-difference AC sensitivities, a QP and an SLP loop, running and writing up 24 benchmark cases",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 260.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
