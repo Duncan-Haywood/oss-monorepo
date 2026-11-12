@@ -51,7 +51,7 @@ test("every input has a label and nothing is sent anywhere", () => {
 
 test("the module script imports only local files and parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./analyze-job.mjs", "./checkout.mjs", "./consensus.mjs", "./drift-report.mjs", "./drift-view.mjs", "./engine.mjs", "./licence.mjs", "./multi-report.mjs", "./multi-view.mjs", "./multivariate.mjs", "./report.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./analyze-job.mjs", "./checkout.mjs", "./consensus.mjs", "./drift-report.mjs", "./drift-view.mjs", "./engine.mjs", "./licence.mjs", "./multi-report.mjs", "./multi-view.mjs", "./multivariate.mjs", "./report.mjs", "./usage.mjs", "./watch.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));
@@ -163,4 +163,10 @@ test("index page has a growth-rate (slope break) box wired to the engine", () =>
   assert.match(html, /slopeBreaks: \$\("#slopeBreaks"\)\.checked/);
   assert.match(html, /id="slopeResult"/);
   assert.match(html, /for="slopeBreaks"/);
+});
+
+test("the page imports watch.mjs without Node: no top-level node: imports (the watch replay card)", () => {
+  const src = page("watch.mjs");
+  assert.doesNotMatch(src, /^import .*from ['"]node:/m);
+  assert.match(page("index.html"), /id="watch-run"/);
 });

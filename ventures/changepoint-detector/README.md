@@ -66,7 +66,7 @@ where it departs from the paper.
 
 ## Verification
 
-`node --test` (343 tests). What they check:
+`node --test` (577 tests on 2026-11-12). What they check:
 
 - **Against an independent PELT:** on 100 seeded cases (60-200 points, 0-3
   planted changes, mean and mean-and-variance models, several penalties) the
@@ -3321,3 +3321,60 @@ Next: the watch on the page (paste a URL, keep the state in the browser) and as 
 deployer's repository run end to end on GitHub Actions; the cap on fresh labelled series from outside TCPD; the
 plain pass's remaining lead (38 against 33 marked changes) is on series whose level wanders, where the drift model
 (`--model drift`) may be the better watch.
+
+## Replaying the watch on your own history (2026-11-12, later)
+
+The question before anyone sets an alert up is "how often would this have pinged me, and how late?".
+`replayWatch(values, labels, opts)` in `watch.mjs` answers it by running the watch's own
+`detectChanges` and `advance` after each new point of a finished series. As a real first run does, the
+first check (default: at 20% of the series, at least 20 points) records the changes already there as the
+baseline. Each later alert comes back with the change's date, the row whose arrival sent it, and its delay
+in rows. On the page it is the card "3. What a daily watch would have sent" after any one-column run. It
+runs in the page's background worker (`analyzeJob` kind `watch`) and is counted as `watch_replay`. Agents
+call `node platform/agents/tools.mjs call changepoint-detector replayWatch --module watch.mjs --args
+'[[...values], [...labels], {"from": 100}]'`. `watch.mjs` no longer imports Node modules at the top (its
+`main` loads `node:fs` itself), so a browser can import it.
+
+**Cost, and a coarse replay.** Each check refits up to `window` points, and the Bayesian pass is about
+quadratic in that: 175 ms for 1,000 points on one core of this session's machine, so replaying a
+1,000-point series after every point took 25 s. A replay is therefore held to a work budget
+(`REPLAY_BUDGET`, 3e7 point-squares, about 5 s here). Series up to about 450 points are checked after
+every point; longer ones are checked every `step` points (2 at 500 points, 12 at 1,000, 48 at 2,000).
+When a coarse check finds an alert, the replay bisects back to the first row whose arrival sends it.
+Timings on synthetic steps: 500 points 5.1 s, 1,000 points 6.5 s, 2,000 points 7.3 s, each step alert
+found and dated 5 or 6 rows late.
+
+**Does the coarse replay give the same alerts?** `node eval/watch-replay-bisect.mjs` (output
+`eval/watch-replay-bisect.out.txt`) ran it on every real series in `data/` with 40 to 800 points (57
+series, default settings, last numeric column). The every-point replay sent 141 alerts. The coarse
+replays compared with it:
+
+| checked every | alerts identical (same change, same row) | sent at another row | missed | extra | checks |
+|---|---|---|---|---|---|
+| 1 point (reference) | 141 | | | | 10,724 |
+| 5 points | 120 (85%) | 9 | 12 | 3 | 2,622 |
+| 15 points | 113 (80%) | 12 | 16 | 3 | 1,398 |
+
+The differences are not bisection errors. They come from detections that flicker: present at one check
+and gone at the next. One example is `ausair` (47 points). The first check at 20 points sees no change.
+At 21 points the engine finds two changes, at rows 9 and 15, both with enough rows after them, so the
+every-point watch alerts on both, about history it had just called quiet. At 22 points both are gone, and
+from 23 on there is one change at row 16. The coarse replay never sees the 21-point check, sends one alert
+(row 16), and then, because row 21 is within the 5-row tolerance of 16 and not of 15, misses a third.
+So a coarse replay undercounts the flicker alerts a real daily watch would send (12 of 141 missed at
+step 5). That is the price of keeping long series to a few seconds in a browser tab. The page checks
+every point up to about 450 points, so most pasted series are replayed exactly. Above that, the
+replay's own text says how often it checked.
+
+**What the replay shows about the watch itself.** The `ausair` case is a weakness of the watch, not
+only of the replay: right after the baseline, a short history can produce alerts about changes well in
+the past, sent the day the engine first finds them. Possible fixes (not built): hold back alerts about
+changes dated before the baseline check, or wait for a detection to persist across two checks. Each
+needs a pre-registered replay like rounds 1 to 4 before it ships.
+
+Tests: `watch.test.mjs` (2 new). A clear 3-sd step at row 200 of 260 is alerted once, 5 to 7 rows late,
+and checking every 7 points with bisection gives the same change and row. A step before the first check
+is baseline, not alert; quiet noise (seed 22) sends nothing with the budget raising the step. Under 10
+points is refused. Page: headless Chromium at 390 px on the Nile example. The card appears after the run,
+the replay reports 1 alert (sent at 1904 for the 1899 change, 6 rows late, level 1,098 to 826, 62%),
+there are no console errors, and the page has no horizontal scroll.
