@@ -168,14 +168,17 @@ function roundTo(x, d) {
 }
 
 /** Decimals SAT allows for a currency. SAT's c_Moneda carries the count; the XSD does
- * not, so this uses ISO 4217's minor units from Intl (MXN, USD, EUR 2; JPY, CLP 0). */
+ * not, so this uses ISO 4217's minor units (MXN, USD, EUR 2; JPY, CLP 0; KWD 3; CLF 4).
+ * Not Intl: its digits are CLDR's display digits, which give COP, HUF, IDR, PKR and IQD 0
+ * (ISO: 2, 2, 2, 2, 3) and change with the runtime's ICU version (red team 2026-11-12). */
+const ISO_MINOR_UNITS = {
+  BIF: 0, CLP: 0, DJF: 0, GNF: 0, ISK: 0, JPY: 0, KMF: 0, KRW: 0, PYG: 0, RWF: 0,
+  UGX: 0, UYI: 0, VND: 0, VUV: 0, XAF: 0, XOF: 0, XPF: 0,
+  BHD: 3, IQD: 3, JOD: 3, KWD: 3, LYD: 3, OMR: 3, TND: 3,
+  CLF: 4, UYW: 4,
+};
 export function currencyDecimals(code) {
-  if (!code || code === "XXX") return 2;
-  try {
-    return new Intl.NumberFormat("en", { style: "currency", currency: code }).resolvedOptions().maximumFractionDigits;
-  } catch {
-    return 2;
-  }
+  return ISO_MINOR_UNITS[code] ?? 2;
 }
 
 /** Lower and upper bounds for a line's Importe from Cantidad x ValorUnitario, each widened
