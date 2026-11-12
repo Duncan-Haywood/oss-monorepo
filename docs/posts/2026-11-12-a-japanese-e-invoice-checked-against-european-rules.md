@@ -1,9 +1,9 @@
 ---
 title: "A Japanese Peppol invoice failed for European reasons, and so did 120 others"
-seo_title: "Peppol PINT JP, MY, AE, OM validation: free offline check of OpenPeppol examples"
+seo_title: "Peppol PINT JP, MY, AE, OM validation: a free offline check"
 date: 2026-11-12
 tags: [einvoice-preflight, ventures]
-description: "Japan, Malaysia, the UAE and Oman each publish their own Peppol PINT rules. Our checker had been testing their invoices against the EU's. Of OpenPeppol's 123 examples for those four countries, 2 passed before the fix and 117 pass after."
+description: "Japanese, Malaysian, UAE and Omani Peppol invoices were being checked against EU rules. OpenPeppol's 123 examples: 2 passed before, 117 after."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) checks an e-invoice on your own machine before you send it. Peppol PINT is the international version of the Peppol invoice. Each country adds its own layer of rules on top, and the invoice names the country in its `CustomizationID`, for example `urn:peppol:pint:billing-1@jp-1` for Japan.
