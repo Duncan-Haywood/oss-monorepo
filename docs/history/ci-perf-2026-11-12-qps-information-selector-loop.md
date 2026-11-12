@@ -85,8 +85,11 @@ calls, ms):
 
 The container ran slower than the 2026-11-08 one (poolCapDeep4000 took 555 s here
 against 406 s there), so read the ratio (3.7x on that file, 4.2x on the suite) rather
-than the seconds. CI's `Simulation tests` step should fall from about 5 to 6 minutes to
-about 1.5. Check the next `ci_profile.py` reading.
+than the seconds. On CI (GitHub-hosted, from the step timestamps of `quick-pick-survey CI` runs): the
+`Simulation tests` step took 337 to 610 s, median about 442 s, over the previous 11
+successful runs on 2026-11-12. One outlier ran 151 s. On this PR (#15076) it took
+**194 s**. That is about 2.3x on CI against 4.2x in the container, so a few more runs
+are needed before the CI figure settles.
 
 ## Not changed (ranked)
 
