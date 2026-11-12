@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
 from shootflow.cli import main
 from shootflow.catalog import load_ingest_manifest, production_assets_from_manifest
@@ -107,11 +108,18 @@ class WorkspaceHealthTests(unittest.TestCase):
             workspace = Path(tmp)
             create_persisted_cli_demo_workspace(workspace)
             input_path = workspace / "graded" / "grade_asset_00000" / "A001.MOV"
-            input_path.chmod(0)
-            try:
+            # Raise the permission error directly instead of chmod 000: root
+            # (every cloud container) ignores permission bits, so a chmod-based
+            # test failed there while passing in CI.
+            real_open = Path.open
+
+            def deny_input(self: Path, *args, **kwargs):
+                if self == input_path:
+                    raise PermissionError(13, "Permission denied", str(self))
+                return real_open(self, *args, **kwargs)
+
+            with mock.patch.object(Path, "open", deny_input):
                 summary = build_workspace_health_summary(workspace)
-            finally:
-                input_path.chmod(0o600)
 
         self.assertTrue(summary.render_tasks.exists)
         self.assertFalse(summary.render_tasks.valid)
