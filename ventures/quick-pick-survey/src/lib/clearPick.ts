@@ -15,7 +15,7 @@
 /** One-sided 95%. */
 export const CLEAR_PICK_Z = 1.645;
 
-export type PickCandidate = { key: string; rating: number };
+export type PickCandidate = { rating: number };
 
 /**
  * Returns the leader (highest rating, or lowest with `bottom`) and whether it

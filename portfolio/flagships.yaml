@@ -244,7 +244,14 @@ flagships:
       docs/CONVERGENCE.md and docs/REAL-RANKINGS.md (survey builder, pooled
       random-effects ranking with rank ranges, information-gain and staged
       selectors, pool cap, lapse and repeat-probe studies; PrefLib real
-      rankings 2026-11-10). Staged uses the information selector up to 120
+      rankings 2026-11-10). 2026-11-12 (INFORMATION-GAIN-SELECTOR.md
+      "Per-person intervals from a refit", "The clear-top-pick claim"):
+      staged's 0.90 per-person coverage fixed for reporting by a Bradley-Terry
+      Laplace refit (0.947 at the same width; shipped and random keep their
+      coverage 8% narrower; not used by the selector or couple bar, whose rd it
+      would slow); the insights clear-pick rule (half the leader's rd, wrong in
+      50-70% of its claims) replaced by 1.645 sd of the refit difference
+      against every item. Staged uses the information selector up to 120
       items (couple bar 8 items under rd 200, 2026-11-10). Measured 2026-11-11, not shipped (INFORMATION-GAIN-SELECTOR.md): careless-answer fallback, Glicko lapse term, per-respondent lapse estimate, anchor pairs and weights. Careless
       patterns that are not random 2026-11-11 (scripts/careless-pattern-sweep.ts,
       section "Careless patterns that are not random"; random, first-slot,
@@ -263,8 +270,9 @@ flagships:
       no other threshold beats it. Next: half-time salience (q = 0.5 still leaks +0.12
       to +0.29 and only 5-13% fall under 0.2 agreement), a signal from outside
       the answers (answer times, msToAnswer is stored) to tell a careless
-      block from a camp; position bias that starts mid-session; staged's 0.90 coverage for honest respondents (close pairs
-      shrink rd too fast); the switch rule above 120 items; then real pairwise
+      block from a camp; position bias that starts mid-session; whether the insights card's "between X, Y, Z" list holds the
+      true favourite (a top-3 credible set from the refit, src/lib/btRefit.ts,
+      to replace "the three highest") and the PrefLib panels through the refit; the switch rule above 120 items; then real pairwise
       answers.
   - venture: league-schedule-generator
     why: >-
