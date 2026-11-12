@@ -1,8 +1,8 @@
 ---
 title: "Red team: an export invoice from last December crashed the checker"
-seo_title: "Mutation testing a Comercio Exterior 2.0 checker: 4 of 10 caught, one crash found"
+seo_title: "Mutation testing a Mexican export invoice checker: one crash found"
 date: 2026-11-12
-description: "Ten seeded faults in einvoice-preflight's new Mexican export checker: the tests caught 4. Reading the code also found a crash on any CFDI dated before 18 January 2024."
+description: "Ten seeded faults in a new Mexican export-invoice checker: its tests caught 4. Reading the code found a crash on any CFDI dated before 18 Jan 2024."
 tags: [redteam, einvoice-preflight, mexico, cfdi, comercio-exterior, mutation-testing]
 ---
 

@@ -1,0 +1,288 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtK5Z8ZNjvzBc5tk6R4",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T13:06:53Z",
+  "ended": "2026-11-12T13:07:34Z",
+  "wall_minutes": 7.08,
+  "tokens_in": 2439595,
+  "tokens_out": 17623,
+  "cost_usd": 1.3818,
+  "tool_calls": 35,
+  "task": "redteam campaign on ventures/einvoice-preflight/cce20.mjs (new on main today)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15135",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 lists 5 open defects that are all control-plane fixes already sitting in owner-approval PRs (#14612, #14877, #14698); `redteam.py open` could show the linked open PR so each run need not search for it again."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets | grep cce20` printed nothing although suite_for accepts the file; the targets listing looked sampled or truncated, so --target was used without a probe (the suite takes 6.6 s)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-redteam-an-export-invoice-from-last-december.md"
+  ],
+  "goal": null,
+  "notes": "Target chosen because it landed on main today (#15129, 424 lines). Campaign: 10 mutants, 4 caught; 6 gaps, each covered by a new test in cce20.test.mjs; rerun 10/10. Real defect: a pre-2024-01-18 CFDI with a code missing from VIGENCIA threw a TypeError (fixed via fraccionVigencia). Guard added: ventures/einvoice-preflight/cfdi-robustness.test.mjs, ~1,500 perturbations of the 9 CFDI fixtures must never throw; on its first run (against main) it found 15 throws, all this bug. Full einvoice suite: 1564 tests, 1500 pass, 0 fail, 64 skipped (ran clean after the fix, so rerun's caught_after_fix is trustworthy despite the open rerun defect).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/cce20.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 61501975,
+        "commit": "f7512e5c6",
+        "sites": 328,
+        "baseline_seconds": 6.1,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 107,
+            "col": 28,
+            "operator": "eq-flip",
+            "before": "const usd = tipoCambioUSD === undefined ? ONE : dec(tipoCambioUSD);",
+            "after": "const usd = tipoCambioUSD !== undefined ? ONE : dec(tipoCambioUSD);",
+            "line_text": "  const usd = tipoCambioUSD === undefined ? ONE : dec(tipoCambioUSD);",
+            "caught": true,
+            "seconds": 6.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 139,
+            "col": 19,
+            "operator": "true-to-false",
+            "before": "if (!day) return true;",
+            "after": "if (!day) return false;",
+            "line_text": "  if (!day) return true;",
+            "caught": false,
+            "seconds": 6.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "fraccionVigente with no day: new assertions fraccionVigente(code) and (code, '') are true."
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 214,
+            "col": 19,
+            "operator": "and-to-or",
+            "before": "if (tipo === \"T\" && motivo === undefined) push(\"MX-062\", \"CCE102\", \"A transfer (type T) with Comercio Exterior names its MotivoTraslado.\", \"Add MotivoTraslado (c_MotivoTraslado: 01 to 05 or 99).\", `${base}/@MotivoTraslado`);",
+            "after": "if (tipo === \"T\" || motivo === undefined) push(\"MX-062\", \"CCE102\", \"A transfer (type T) with Comercio Exterior names its MotivoTraslado.\", \"Add MotivoTraslado (c_MotivoTraslado: 01 to 05 or 99).\", `${base}/@MotivoTraslado`);",
+            "line_text": "  if (tipo === \"T\" && motivo === undefined) push(\"MX-062\", \"CCE102\", \"A transfer (type T) with Comercio Exterior names its MotivoTraslado.\", \"Add MotivoTraslado (c_MotivoTraslado: 01 to 05 or 99).\", `${base}/@MotivoTraslado`);",
+            "caught": true,
+            "seconds": 6.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 217,
+            "col": 36,
+            "operator": "eq-flip",
+            "before": "if (propietarios.length && !(tipo === \"T\" && motivo === \"05\")) push(\"MX-062\", \"CCE117\", \"Propietario is only for a transfer (type T) with MotivoTraslado 05.\", \"Remove the Propietario nodes, or set MotivoTraslado 05 on a type T CFDI.\", `${base}/Propietario`);",
+            "after": "if (propietarios.length && !(tipo !== \"T\" && motivo === \"05\")) push(\"MX-062\", \"CCE117\", \"Propietario is only for a transfer (type T) with MotivoTraslado 05.\", \"Remove the Propietario nodes, or set MotivoTraslado 05 on a type T CFDI.\", `${base}/Propietario`);",
+            "line_text": "  if (propietarios.length && !(tipo === \"T\" && motivo === \"05\")) push(\"MX-062\", \"CCE117\", \"Propietario is only for a transfer (type T) with MotivoTraslado 05.\", \"Remove the Propietario nodes, or set MotivoTraslado 05 on a type T CFDI.\", `${base}/Propietario`);",
+            "caught": false,
+            "seconds": 6.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Valid T/05 CFDI with a Propietario must draw no CCE117; new test."
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 296,
+            "col": 59,
+            "operator": "or-to-and",
+            "before": "const repeated = lines.length > 1 || (mercById.get(id) || []).length > 1;",
+            "after": "const repeated = lines.length > 1 || (mercById.get(id) && []).length > 1;",
+            "line_text": "    const repeated = lines.length > 1 || (mercById.get(id) || []).length > 1;",
+            "caught": false,
+            "seconds": 5.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "One line split over two Mercancia (same NoIdentificacion, different fraccion) needs customs fields (CCE165); new test."
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 296,
+            "col": 73,
+            "operator": "gt-to-ge",
+            "before": "const repeated = lines.length > 1 || (mercById.get(id) || []).length > 1;",
+            "after": "const repeated = lines.length > 1 || (mercById.get(id) || []).length >= 1;",
+            "line_text": "    const repeated = lines.length > 1 || (mercById.get(id) || []).length > 1;",
+            "caught": true,
+            "seconds": 6.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 305,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "if (!/^[0-9]{1,16}(\\.[0-9]{1,4})?$/.test(ca.ValorUnitario || \"\") || decimalsOf(ca.ValorUnitario) > currencyDecimals(moneda)) push(\"MX-067\", \"CCE156\", `Line ${li}: without CantidadAduana on its Mercancia, a transfer's ValorUnitario has at most 4 decimals and no more than ${moneda || \"the currency\"} allows, not ${ca.ValorUnitario}.`, \"Round ValorUnitario, or add the customs fields to the Mercancia.\", `${lp}/@ValorUnitario`);",
+            "after": "if (!/^[0-9]{1,17}(\\.[0-9]{1,4})?$/.test(ca.ValorUnitario || \"\") || decimalsOf(ca.ValorUnitario) > currencyDecimals(moneda)) push(\"MX-067\", \"CCE156\", `Line ${li}: without CantidadAduana on its Mercancia, a transfer's ValorUnitario has at most 4 decimals and no more than ${moneda || \"the currency\"} allows, not ${ca.ValorUnitario}.`, \"Round ValorUnitario, or add the customs fields to the Mercancia.\", `${lp}/@ValorUnitario`);",
+            "line_text": "        if (!/^[0-9]{1,16}(\\.[0-9]{1,4})?$/.test(ca.ValorUnitario || \"\") || decimalsOf(ca.ValorUnitario) > currencyDecimals(moneda)) push(\"MX-067\", \"CCE156\", `Line ${li}: without CantidadAduana on its Mercancia, a transfer's ValorUnitario has at most 4 decimals and no more than ${moneda || \"the currency\"} allows, not ${ca.ValorUnitario}.`, \"Round ValorUnitario, or add the customs fields to the Mercancia.\", `${lp}/@ValorUnitario`);",
+            "caught": false,
+            "seconds": 6.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Boundary: 16 integer digits pass, 17 draw CCE156; new test."
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 369,
+            "col": 27,
+            "operator": "eq-flip",
+            "before": "const how = moneda === \"USD\" ? \"the lines' Importe (a CFDI in dollars)\" : moneda === \"MXN\" ? \"the lines' Importe / TipoCambioUSD\" : \"the lines' Importe x TipoCambio / TipoCambioUSD\";",
+            "after": "const how = moneda !== \"USD\" ? \"the lines' Importe (a CFDI in dollars)\" : moneda === \"MXN\" ? \"the lines' Importe / TipoCambioUSD\" : \"the lines' Importe x TipoCambio / TipoCambioUSD\";",
+            "line_text": "        const how = moneda === \"USD\" ? \"the lines' Importe (a CFDI in dollars)\" : moneda === \"MXN\" ? \"the lines' Importe / TipoCambioUSD\" : \"the lines' Importe x TipoCambio / TipoCambioUSD\";",
+            "caught": false,
+            "seconds": 6.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "User-visible message names how the limits were computed; USD CFDI test now asserts the wording."
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 378,
+            "col": 64,
+            "operator": "neq-flip",
+            "before": "if (totalUSD !== null && vdAll.length && vdAll.every((v) => v !== null)) {",
+            "after": "if (totalUSD !== null && vdAll.length && vdAll.every((v) => v === null)) {",
+            "line_text": "  if (totalUSD !== null && vdAll.length && vdAll.every((v) => v !== null)) {",
+            "caught": true,
+            "seconds": 6.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cce20.mjs",
+            "line": 402,
+            "col": 18,
+            "operator": "neq-flip",
+            "before": "if (d.Colonia !== undefined && /^\\d{4}$/.test(d.Colonia)) skipped.push(`${codes.colonia} (${p.split(\"/\").slice(-2, -1)[0]} colonia ${d.Colonia}): the colonia catalogue by postal code is not in this tool's tables.`);",
+            "after": "if (d.Colonia === undefined && /^\\d{4}$/.test(d.Colonia)) skipped.push(`${codes.colonia} (${p.split(\"/\").slice(-2, -1)[0]} colonia ${d.Colonia}): the colonia catalogue by postal code is not in this tool's tables.`);",
+            "line_text": "    if (d.Colonia !== undefined && /^\\d{4}$/.test(d.Colonia)) skipped.push(`${codes.colonia} (${p.split(\"/\").slice(-2, -1)[0]} colonia ${d.Colonia}): the colonia catalogue by postal code is not in this tool's tables.`);",
+            "caught": false,
+            "seconds": 6.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Four-digit Colonia is reported in skipped as CCE129; new test."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/cce20.mjs",
+        "issue": "checkCfdi threw a TypeError (VIGENCIA[fr][0] on undefined) for any Comercio Exterior 2.0 CFDI dated before 2024-01-18 whose FraccionArancelaria has no VIGENCIA entry (e.g. 7801100100), so the user got no report at all. Fixed with fraccionVigencia(code) supplying the default range; test 'a CFDI dated before CCE 2.0 names the code's start date instead of throwing'.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6c4f0487-3e0f-5592-b1ad-6cd9139224e1",
+    "transcripts": 1,
+    "first": "2026-11-12T13:06:53Z",
+    "last": "2026-11-12T13:13:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 64,
+        "output": 17623,
+        "thinking": 3216,
+        "cache_read": 2370143,
+        "cache_write_5m": 0,
+        "cache_write_1h": 69388,
+        "api_equivalent_usd": 1.3818,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 64,
+      "output": 17623,
+      "thinking": 3216,
+      "cache_read": 2370143,
+      "cache_write_5m": 0,
+      "cache_write_1h": 69388,
+      "api_equivalent_usd": 1.3818,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.08,
+      "active_minutes": 7.08,
+      "model_minutes": 3.6,
+      "tool_minutes": 3.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: mutation triage, 7 tests, fix, sweep, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 289.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
