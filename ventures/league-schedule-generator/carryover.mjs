@@ -1601,6 +1601,26 @@ export function splitCarryOverTries(tries, workers) {
 // minimum (3(n - 2) over an even home-and-away season) and, among equal breaks, the lower carry-over.
 export const CARRY_OVER_PICK = { fair: 0, balanced: 10, breaks: 40, fewest: 1000 };
 
+/**
+ * The tries of a best-of-k search as the page lists them: carry-over/breaks in try order, with a
+ * repeated result folded into its first appearance ("1311/87 x7"). At the field sizes most weighted
+ * tries land on the same season (19 teams: seven of eight give 1,311 / 87, eval/best-of-k-page.txt),
+ * so the plain list read as ten choices when it held four.
+ */
+export function carryOverCandidatesText(candidates) {
+  const seen = new Map();
+  for (const c of candidates || []) {
+    const k = `${c.coe}/${c.breaks}`;
+    seen.set(k, (seen.get(k) || 0) + 1);
+  }
+  return [...seen].map(([k, m]) => (m > 1 ? `${k} \u00d7${m}` : k)).join(", ");
+}
+
+/** How many different carry-over/breaks results the tries reached. */
+export function carryOverDistinct(candidates) {
+  return new Set((candidates || []).map((c) => `${c.coe}/${c.breaks}`)).size;
+}
+
 /** A small, JSON-safe account of a best-of-k search, for the page's read-out and share-safe caching. */
 export function carryOverSummary(best) {
   return {

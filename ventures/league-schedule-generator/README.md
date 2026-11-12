@@ -1084,6 +1084,60 @@ Every figure was recounted from the rounds.
 - Open: moves that keep the shift pattern for 17 to 40 teams; re-measuring the page's best-of-k
   picks with every shift candidate in.
 
+## The page's four choices, re-measured on its own ten tries (2026-11-12, latest)
+
+The best-of-k tables above were measured on 2026-11-11 with four weighted tries and three choices.
+Since then the page runs 8 weighted + 2 capped tries and offers four choices (`CARRY_OVER_PICK`:
+most even 0, balanced 10, fewer back-to-back 40, fewest 1000), and the starters, field start,
+capped breaks, odd-league colouring and shift venues all landed underneath. `node eval/best-of-k.mjs
+--page` now runs exactly that search (`carryOverTry` for tries 0 to 9, `combineCarryOverTries` per
+choice, as the page does), recounts carry-over and breaks from the kept rounds (it throws if the
+search's own figures differ; they never did) and sets 18- and 20-team results against the 20 real
+top-flight seasons (`eval/best-of-k-page.txt`; home-and-away seasons, seeds 1 to 5, odd leagues
+seeds 1 to 3).
+
+| Teams | Most even | Balanced | Fewer back-to-back | Fewest | Real seasons |
+|---|---|---|---|---|---|
+| 18 | 1,355 / 92.8 | 1,467 / 78.0 | 1,803 / 58.8 | 2,493 / 48 | 1,840-4,342 / 48-96 (6) |
+| 20 | 1,460 / 117.2 | 1,460 / 116.4 | 2,102 / 85.6 | 5,039 / 54 | 2,278-2,564 / 70-146 (14) |
+| 11 | 484 / 21.3 | 491 / 20.7 | 578 / 17.0 | 578 / 17.0 | - |
+| 13 | 698 / 31.7 | 704 / 29.7 | 734 / 27.7 | 1,216 / 24.7 | - |
+| 15 | 795 / 67 | 949 / 48.7 | 1,156 / 36 | 1,156 / 36 | - |
+| 17 | 1,237 / 73.7 | 1,252 / 69.3 | 1,286 / 66.7 | 2,837 / 42.7 | - |
+| 19 | 1,311 / 87 | 1,311 / 87 | 1,392 / 83.0 | 5,090 / 48 | - |
+
+(carry-over / breaks a season, means over the seeds.) Read plainly:
+
+- **Everything underneath moved the low end a long way.** On 2026-11-11 the four tries kept 1,498 to
+  1,538 carry-over at 18 teams and 1,678 to 1,820 at 20 on "most even"; now 1,298 to 1,426 and 1,460
+  on every seed (the 20-team floor from the field start). Every 20-team "most even" season is below
+  all 14 real 20-team seasons' carry-over (2,278 and up) and every 18-team one below all six real
+  18-team seasons' (1,840 and up).
+- **Eight + two tries beat the old four on the same code.** Rerunning `--picks` (four weighted tries)
+  on today's code at seeds 1 to 3: 18 teams "fewer back-to-back" 1,638/68, 1,918/60, 1,890/60 against
+  the page's 1,662/58, 1,800/60, 1,784/60; "balanced" at pick 10 scores 2,296, 2,250, 2,296 against
+  2,242, 2,250, 2,210. At 20 teams the gain is one seed (1,952/96 to 1,934/86).
+- **"Fewest" is the only choice with as few breaks as the real seasons' best, and it costs a lot.**
+  At 18 teams it keeps 48 breaks (the Bundesliga's own figure) at 2,398 to 2,638 carry-over and
+  dominates 4 of the 6 real seasons. At 20 teams its 54 breaks are below every real season's (70 and
+  up) but its carry-over (4,542 to 5,920) is twice theirs: it dominates none. At 17 and 19 teams it
+  costs 2.2 and 3.7 times the carry-over of "fewer back-to-back".
+- **At the field sizes most tries are the same season.** At 19 teams seven of the eight weighted tries
+  return 1,311 / 87 whatever the break weight (seed 1; at 20 teams three of eight return 1,460), so
+  "best of ten" there is really four results. The page's read-out now says so: "Best of 10 searches
+  for an even carry-over, 4 different results (... 1311/87 ×7, 1517/84, 5741/48, 3731/59 ...)"
+  (`carryOverCandidatesText`, `carryOverDistinct` in `carryover.mjs`; two tests in
+  `best-of-k.test.mjs`). Nothing about which season is kept changed.
+- **The capped tries are rarely kept at 11 and 13 teams** (0 of 12 choices at 11, 1 of 12 at 13):
+  the weighted tries (capped shift leg ones included, up to 16 slots) already reach 13 to 29 breaks there. At
+  11 teams "fewest" is "fewer back-to-back". At 15, 17, 19 and 20 they are the only low-break points.
+- Time on one thread: 18 teams 33 s, 20 teams 21 s, 11 to 17 teams 28 to 34 s, 15 teams 8 s (the
+  page spreads the ten over up to eight workers).
+- Open: the gap between "fewer back-to-back" and "fewest" at 17 to 20 teams (19 teams: 83 to 48
+  breaks with nothing between but a 3,731 / 59 try): the duplicate weighted tries could run capped
+  ones at caps in between, but changing what a try does changes the season a share link builds, so
+  it needs a versioned share link; the same measurement on single round robins.
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`

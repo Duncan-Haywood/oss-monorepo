@@ -173,3 +173,23 @@ test("a huge typed seed still gives every try its own seed (redteam 2026-11-12)"
   assert.deepEqual([1, 2, 3].map((i) => carryOverTrySeed(1, i)), [112648, 217377, 322106]);
   assert.equal(carryOverTrySeed(2 ** 40, 3), ((2 ** 40 * 7919 + 3 * 104729) % 2147483647) || 1);
 });
+
+test("the read-out folds repeated tries: 19 teams' seven identical weighted tries list once", async () => {
+  const { carryOverCandidatesText, carryOverDistinct } = await import("./carryover.mjs");
+  const c = [[1311, 87], [1311, 87], [1311, 87], [1311, 87], [1311, 87], [1311, 87], [1311, 87], [1517, 84], [5741, 48], [3731, 59]].map(([coe, breaks]) => ({ coe, breaks }));
+  assert.equal(carryOverCandidatesText(c), "1311/87 ×7, 1517/84, 5741/48, 3731/59");
+  assert.equal(carryOverDistinct(c), 4);
+  // all different: the list is exactly the old one
+  const d = [{ coe: 1, breaks: 2 }, { coe: 3, breaks: 4 }];
+  assert.equal(carryOverCandidatesText(d), d.map((x) => x.coe + "/" + x.breaks).join(", "));
+  assert.equal(carryOverDistinct(d), 2);
+  assert.equal(carryOverCandidatesText([]), "");
+  // same carry-over, different breaks are different results
+  assert.equal(carryOverDistinct([{ coe: 5, breaks: 1 }, { coe: 5, breaks: 2 }]), 2);
+});
+
+test("the page's read-out uses the folded list", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /carryOverCandidatesText\(s\.carryOverSearch\.candidates\)/);
+  assert.doesNotMatch(html, /candidates\.map\(\(c\) => c\.coe \+ "\/" \+ c\.breaks\)/);
+});
