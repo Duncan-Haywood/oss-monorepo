@@ -1,9 +1,9 @@
 ---
 title: "Receipt photos from a phone: the wrong answers that said nothing"
-seo_title: "Browser receipt OCR on real phone photos: accuracy and unflagged errors"
+seo_title: "Browser receipt OCR on real phone photos: accuracy and silent errors"
 date: 2026-11-12
 tags: [ai-bookkeeper, ventures, ocr]
-description: "We ran the bookkeeper's in-browser receipt reader on 200 real phone photos. It got about half the totals right. Worse, about 40% came back wrong with no warning. Three changes cut those silent errors on held-out photos from 39 to 12."
+description: "On 200 real phone photos the in-browser receipt reader got half the totals right, and most wrong ones were silent. Now 12 of 95, not 39, are."
 ---
 
 The [AI bookkeeper](https://marisstella.app/ai-bookkeeper/) can read a receipt photo in your browser. The image never leaves the machine. Until today every measurement of that reader used flat scans or text people had already corrected by hand. On the hand-corrected text of CORD, a public set of Indonesian shop and restaurant receipts, it read 95% to 98% of totals right. But nobody uploads hand-corrected text. They upload a photo taken on a phone over a café table.
