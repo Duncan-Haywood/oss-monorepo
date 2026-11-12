@@ -1,0 +1,153 @@
+{
+ "Mohtat2020": {
+  "SPMe": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.6548348289999808,
+   "error": null,
+   "r_min": 0.8198349153274567,
+   "current_A": 9.980525803310611,
+   "copied": [
+    "Exchange-current density for stripping [A.m-2]",
+    "Initial SEI on cracks thickness [m]",
+    "Lithium plating kinetic rate constant [m.s-1]"
+   ],
+   "wh": 23.682715076994395
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.7293029780000211,
+   "error": null,
+   "r_min": 0.8055424197437228,
+   "current_A": 9.980525803310611,
+   "copied": [
+    "Exchange-current density for stripping [A.m-2]",
+    "Initial SEI on cracks thickness [m]",
+    "Lithium plating kinetic rate constant [m.s-1]"
+   ],
+   "wh": 23.597916753834525
+  }
+ },
+ "NCA_Kim2011": {
+  "SPMe": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.8009897499999852,
+   "error": null,
+   "r_min": -0.029292159956172844,
+   "current_A": 1.3631937682570594,
+   "copied": [
+    "Exchange-current density for plating [A.m-2]",
+    "Exchange-current density for stripping [A.m-2]",
+    "Initial SEI on cracks thickness [m]",
+    "Initial plated lithium concentration [mol.m-3]",
+    "Lithium plating kinetic rate constant [m.s-1]",
+    "Lithium plating transfer coefficient",
+    "Typical plated lithium concentration [mol.m-3]"
+   ],
+   "wh": 0.7470604381371492
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.1027140469999495,
+   "error": null,
+   "r_min": -4.740338060694279e-08,
+   "current_A": 1.3631937682570594,
+   "copied": [
+    "Exchange-current density for plating [A.m-2]",
+    "Exchange-current density for stripping [A.m-2]",
+    "Initial SEI on cracks thickness [m]",
+    "Initial plated lithium concentration [mol.m-3]",
+    "Lithium plating kinetic rate constant [m.s-1]",
+    "Lithium plating transfer coefficient",
+    "Typical plated lithium concentration [mol.m-3]"
+   ],
+   "wh": 2.402606314536085
+  }
+ },
+ "Prada2013": {
+  "SPMe": {
+   "ok": false,
+   "cycles": 0,
+   "seconds": null,
+   "error": "process exit 1:  not found. Best matches are ['Positive electrode conductivity [S.m-1]', 'Positive electrode exchange-current density [A.m-2]', 'Positive electrode porosity']\"\n",
+   "r_min": 0.0,
+   "current_A": null,
+   "copied": null,
+   "wh": null
+  },
+  "DFN": {
+   "ok": false,
+   "cycles": 0,
+   "seconds": null,
+   "error": "process exit 1:  not found. Best matches are ['Positive electrode conductivity [S.m-1]', 'Positive electrode exchange-current density [A.m-2]', 'Positive electrode porosity']\"\n",
+   "r_min": 0.0,
+   "current_A": null,
+   "copied": null,
+   "wh": null
+  }
+ },
+ "ORegan2022": {
+  "SPMe": {
+   "ok": false,
+   "cycles": 0,
+   "seconds": 0.08697973400001047,
+   "error": "KeyError: \"Parameter 'Bulk solvent concentration [mol.m-3]' not found. 'Bulk solvent concentration [mol.m-3]' not found. Best matches are ['Typical plated lithium concent",
+   "r_min": 0.0,
+   "current_A": 5.0,
+   "copied": [
+    "Exchange-current density for plating [A.m-2]",
+    "Exchange-current density for stripping [A.m-2]",
+    "Initial SEI on cracks thickness [m]",
+    "Initial SEI thickness [m]",
+    "Initial plated lithium concentration [mol.m-3]",
+    "Lithium plating kinetic rate constant [m.s-1]",
+    "Lithium plating transfer coefficient",
+    "Ratio of lithium moles to SEI moles",
+    "SEI electron conductivity [S.m-1]",
+    "SEI growth activation energy [J.mol-1]",
+    "SEI kinetic rate constant [m.s-1]",
+    "SEI lithium interstitial diffusivity [m2.s-1]",
+    "SEI open-circuit potential [V]",
+    "SEI partial molar volume [m3.mol-1]",
+    "SEI reaction exchange current density [A.m-2]",
+    "SEI resistivity [Ohm.m]",
+    "SEI solvent diffusivity [m2.s-1]",
+    "Typical plated lithium concentration [mol.m-3]"
+   ],
+   "wh": null
+  },
+  "DFN": {
+   "ok": false,
+   "cycles": 0,
+   "seconds": 0.11218421399996714,
+   "error": "KeyError: \"Parameter 'Bulk solvent concentration [mol.m-3]' not found. 'Bulk solvent concentration [mol.m-3]' not found. Best matches are ['Typical plated lithium concent",
+   "r_min": 0.0,
+   "current_A": 5.0,
+   "copied": [
+    "Exchange-current density for plating [A.m-2]",
+    "Exchange-current density for stripping [A.m-2]",
+    "Initial SEI on cracks thickness [m]",
+    "Initial SEI thickness [m]",
+    "Initial plated lithium concentration [mol.m-3]",
+    "Lithium plating kinetic rate constant [m.s-1]",
+    "Lithium plating transfer coefficient",
+    "Ratio of lithium moles to SEI moles",
+    "SEI electron conductivity [S.m-1]",
+    "SEI growth activation energy [J.mol-1]",
+    "SEI kinetic rate constant [m.s-1]",
+    "SEI lithium interstitial diffusivity [m2.s-1]",
+    "SEI open-circuit potential [V]",
+    "SEI partial molar volume [m3.mol-1]",
+    "SEI reaction exchange current density [A.m-2]",
+    "SEI resistivity [Ohm.m]",
+    "SEI solvent diffusivity [m2.s-1]",
+    "Typical plated lithium concentration [mol.m-3]"
+   ],
+   "wh": null
+  }
+ },
+ "chosen": "Mohtat2020"
+}
