@@ -10,21 +10,15 @@
 
 import { roundHalfUpToCents } from "./checks.mjs";
 import { parseXmlTree } from "./ubl.mjs";
-import { calendarDate, checkAgainstSchema } from "./fatturapa-xsd.mjs";
+import { calendarDate, checkAgainstSchema, codesFor } from "./fatturapa-xsd.mjs";
 
-const DOC_TYPES = new Set([
-  "TD01", "TD02", "TD03", "TD04", "TD05", "TD06", "TD07", "TD08", "TD09",
-  "TD16", "TD17", "TD18", "TD19", "TD20", "TD21", "TD22", "TD23", "TD24",
-  "TD25", "TD26", "TD27", "TD28", "TD29",
-]);
-const REGIMES = new Set([
-  "RF01", "RF02", "RF04", "RF05", "RF06", "RF07", "RF08", "RF09", "RF10",
-  "RF11", "RF12", "RF13", "RF14", "RF15", "RF16", "RF17", "RF18", "RF19", "RF20",
-]);
-const NATURE = new Set([
-  "N1", "N2.1", "N2.2", "N3.1", "N3.2", "N3.3", "N3.4", "N3.5", "N3.6", "N4",
-  "N5", "N6.1", "N6.2", "N6.3", "N6.4", "N6.5", "N6.6", "N6.7", "N6.8", "N6.9", "N7",
-]);
+// The code lists come from the Agenzia's XSD 1.2.3 (specification 1.9), read by
+// build-fatturapa-schema.mjs. TD07-TD09 are not in it: they belong to the
+// simplified-invoice schema (FSM10), which a FatturaElettronica file cannot use.
+// Natura N2, N3 and N6 are in it but retired by its own comments from 2021-01-01.
+const DOC_TYPES = new Set(codesFor("TipoDocumentoType"));
+const REGIMES = new Set(codesFor("RegimeFiscaleType"));
+const NATURE = new Set(codesFor("NaturaType"));
 const TOLERANCE = 0.01;
 
 function finding(rule, message, fix, path) {
@@ -154,7 +148,7 @@ function checkBody(body, index, out, skipped, sellerCountry) {
   if (!type) {
     out.push(finding("IT-008", "TipoDocumento is missing.", "Set TipoDocumento, for example TD01 for an invoice or TD04 for a credit note.", `${p}/DatiGenerali/DatiGeneraliDocumento/TipoDocumento`));
   } else if (!DOC_TYPES.has(type)) {
-    out.push(finding("IT-008", "TipoDocumento is not a code this checker knows (TD01-TD09, TD16-TD29).",
+    out.push(finding("IT-008", "TipoDocumento is not a code in the FatturaPA schema 1.2.3 (TD01-TD06, TD16-TD29; TD07-TD09 are simplified-invoice codes).",
       "Use a published TipoDocumento code; newer codes added after this list was built will be flagged until it is updated.", `${p}/DatiGenerali/DatiGeneraliDocumento/TipoDocumento`));
   }
   if (type === "TD29" && sellerCountry && sellerCountry !== "IT") {
@@ -196,7 +190,7 @@ function checkBody(body, index, out, skipped, sellerCountry) {
       out.push(finding("IT-011", "A line charges VAT but also carries a Natura.", "Remove Natura from taxed lines, or set AliquotaIVA to 0.00.", `${lp}/Natura`));
     }
     if (nature && !NATURE.has(nature)) {
-      out.push(finding("IT-011", "Natura is not a known code (N1, N2.1-N2.2, N3.1-N3.6, N4, N5, N6.1-N6.9, N7).",
+      out.push(finding("IT-011", "Natura is not a code in force (N1, N2.1-N2.2, N3.1-N3.6, N4, N5, N6.1-N6.9, N7; the schema retired the bare N2, N3 and N6 from 2021-01-01).",
         "Use a published Natura code; a bare N2, N3 or N6 is no longer accepted.", `${lp}/Natura`));
     }
     if (total !== null && unit !== null && qty !== null) {

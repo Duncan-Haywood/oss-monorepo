@@ -295,7 +295,12 @@ export function completeShareTags(html, { card = '', siteName = 'Maris Stella La
 
   // One logo everywhere: drop an inline data: favicon (a different mark the
   // research index used to carry) and make sure the scalable icon is linked.
-  next = next.replace(/\s*<link\b[^>]*\brel=["'](?:shortcut )?icon["'][^>]*\bhref=["']data:[^"']*["'][^>]*>/gi, '');
+  // The pattern needs `data:`, and its leading `\s*` makes the engine try it
+  // from every whitespace run in the page: about 0.9 s over a full build on
+  // pages that have no data: URI at all. The cheap test first; same result.
+  if (/data:/i.test(next)) {
+    next = next.replace(/\s*<link\b[^>]*\brel=["'](?:shortcut )?icon["'][^>]*\bhref=["']data:[^"']*["'][^>]*>/gi, '');
+  }
   if (!/<link\b[^>]*rel=["'][^"']*\bicon\b[^"']*["'][^>]*favicon\.svg/i.test(next)) {
     tags.push(`<link rel="icon" href="${toRoot}favicon.svg" type="image/svg+xml">`);
   }

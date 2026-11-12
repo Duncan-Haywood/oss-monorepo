@@ -35,7 +35,8 @@
     "First edit script never ran: `git checkout -b` on a branch the harness had already created failed, and the && chain stopped; re-ran on the existing branch.",
     "The full photo-editing suite caught test_dng_opcodes using WarpRectilinear2 as its 'named, not run' example; switched that test to FixBadPixelsConstant in OpcodeList3.",
     "mypy (CI lint) flagged a variable name reused across branches in warp_source and an untyped parser dict; fixed before merge. mypy under python3.13 fails on numpy's own stubs (environment), so it was run under python3.11 without numpy, as CI's lint job does.",
-    "portfolio-validate failed: photo-editing next: grew to 2317 chars (cap 2000) by appending; condensed the history part to a README pointer."
+    "portfolio-validate failed: photo-editing next: grew to 2317 chars (cap 2000) by appending; condensed the history part to a README pointer.",
+    "Merge conflict with PR #15292 (another session, same venture, same hour: opcode audit against 1.7.1.0 and the centre measured between pixel centres). Merged main in; WarpRectilinear2 follows the new frame via _warp_frame; updated test_dng_warp2's independent formula and lensfun_warp_fit's exact check to it (still 1.8e-12 px); suite ok 73.5 s."
   ],
   "integrity_issues": [],
   "doc_friction": [

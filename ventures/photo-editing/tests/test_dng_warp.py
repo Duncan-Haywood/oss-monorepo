@@ -38,14 +38,15 @@ def spec_source(terms, cx, cy, x, y, w, h):
     """The specification's source point for output pixel (x, y), written out independently of the module."""
 
     kr0, kr1, kr2, kr3, kt0, kt1 = terms
-    ox, oy = cx * w, cy * h
-    m = max(math.sqrt((px - ox) ** 2 + (py - oy) ** 2) for px in (0, w) for py in (0, h))
-    u, v = (x + 0.5 - ox) / m, (y + 0.5 - oy) / m
+    # DNG 1.7.1.0: centre x0 + cx (x1 - x0) between the top-left and bottom-right pixels; m to the farthest pixel.
+    ox, oy = cx * (w - 1), cy * (h - 1)
+    m = math.sqrt(max(ox, w - 1 - ox) ** 2 + max(oy, h - 1 - oy) ** 2)
+    u, v = (x - ox) / m, (y - oy) / m
     r2 = u * u + v * v
     f = kr0 + kr1 * r2 + kr2 * r2**2 + kr3 * r2**3
     su = u * f + kt0 * 2 * u * v + kt1 * (r2 + 2 * u * u)
     sv = v * f + kt1 * 2 * u * v + kt0 * (r2 + 2 * v * v)
-    return ox + m * su - 0.5, oy + m * sv - 0.5
+    return ox + m * su, oy + m * sv
 
 
 def ramp(w, h, a=(0.1, 0.2, 0.05), b=(0.004, 0.003, 0.005)):
@@ -100,6 +101,21 @@ class FormulaTests(unittest.TestCase):
         self.assertLess(abs(sy), 0.5)
         cx, cy = do.warp_source(wp, 0, 2472, 1639, 4944, 3278)
         self.assertAlmostEqual(cx, 2472.0 - 0.5 * (1 - terms[0]), places=6)
+
+    def test_centre_and_m_are_the_specifications(self):
+        # DNG 1.7.1.0, WarpRectilinear: "specifying (1, 0) means that the optical center lies at the top-right
+        # pixel", and m is the distance to the farthest pixel, so r = 1 at that pixel's centre.
+        w, h = 40, 30
+        half = do.WarpRectilinear(((0.5, 0, 0, 0, 0, 0),), 1.0, 0.0)
+        self.assertEqual(do.warp_source(half, 0, w - 1, 0, w, h), (w - 1.0, 0.0), "the top-right pixel is the centre")
+        self.assertEqual(do.warp_source(half, 0, 0, h - 1, w, h), ((w - 1) / 2, (h - 1) / 2))
+        # f(r) = 1 + r^2: 2 at r = 1. The farthest pixel from the middle, (0, 0), reads from twice its offset.
+        double = do.WarpRectilinear(((1.0, 1.0, 0, 0, 0, 0),), 0.5, 0.5)
+        sx, sy = do.warp_source(double, 0, 0, 0, w, h)
+        self.assertAlmostEqual(sx, (w - 1) / 2 - 2 * (w - 1) / 2, places=9)
+        self.assertAlmostEqual(sy, (h - 1) / 2 - 2 * (h - 1) / 2, places=9)
+        vg = do.VignetteRadial((0.3, 0, 0, 0, 0), 0.5, 0.5)
+        self.assertAlmostEqual(do.vignette_gain(vg, w - 1, h - 1, w, h), 1.3, places=12)
 
     def test_ramp_gives_the_ramp_at_the_source_point(self):
         w, h = 40, 30

@@ -7,7 +7,7 @@ keeps none of its files) stores most distortion calibrations in the Hugin "ptlen
 
 with r = 1 at half the image height (lensfun libs/lensfun/modifier.cpp, "About coordinate systems"), mapping a corrected
 point r_u to the distorted point r_d it reads from: the direction a DNG warp opcode maps. Rescaled to the DNG's
-r = 1 at the farthest corner (r_lf = s r, s = corner distance / half height), the radial factor is
+r = 1 at the farthest pixel (r_lf = s r, s = that distance / half height), the radial factor is
 
     f(r) = (1 - a - b - c) + c s r + b s^2 r^2 + a s^3 r^3,
 
@@ -111,9 +111,10 @@ def check_exact(width: int, aspect: float, a: float, b: float, c: float) -> floa
     """Largest gap, in pixels, between warp_source on the rescaled WarpRectilinear2 and lensfun's own formula."""
 
     h = int(round(width / aspect))
-    cx, cy = width / 2.0, h / 2.0
-    m = math.hypot(cx, cy)
-    half = h / 2.0
+    # The DNG frame (do._spec_frame: centre between the corner pixels, m to the farthest pixel's centre), with
+    # lensfun's half height measured the same way, between pixel centres (lensfun's Width/Height are size - 1).
+    cx, cy, m = do._spec_frame(0.5, 0.5, width, h)
+    half = (h - 1) / 2.0
     s = m / half
     kr = (1 - a - b - c, c * s, b * s * s, a * s**3) + (0.0,) * 11
     wp = do.WarpRectilinear2((kr + (0.0, 0.0, 0.0, 1.0),), 0.5, 0.5, False)

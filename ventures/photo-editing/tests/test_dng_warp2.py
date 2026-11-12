@@ -50,9 +50,10 @@ def spec_source2(t, cx, cy, reciprocal, x, y, w, h):
     """The specification's source point for output pixel (x, y), written out independently of the module."""
 
     kr, kt0, kt1, lo, hi = t[:15], t[15], t[16], t[17], t[18]
-    ox, oy = cx * w, cy * h
-    m = max(math.sqrt((px - ox) ** 2 + (py - oy) ** 2) for px in (0, w) for py in (0, h))
-    u, v = (x + 0.5 - ox) / m, (y + 0.5 - oy) / m
+    # DNG 1.7.1.0 (as WarpRectilinear): centre x0 + cx (x1 - x0) between the top-left and bottom-right pixels; m to the farthest pixel.
+    ox, oy = cx * (w - 1), cy * (h - 1)
+    m = math.sqrt(max(ox, w - 1 - ox) ** 2 + max(oy, h - 1 - oy) ** 2)
+    u, v = (x - ox) / m, (y - oy) / m
     r = math.sqrt(u * u + v * v)
     rc = min(hi, max(lo, r))
     f = sum(kr[p] * rc**p for p in range(15))
@@ -60,7 +61,7 @@ def spec_source2(t, cx, cy, reciprocal, x, y, w, h):
     r2 = u * u + v * v
     su = ur + kt0 * 2 * u * v + kt1 * (r2 + 2 * u * u)
     sv = vr + kt1 * 2 * u * v + kt0 * (r2 + 2 * v * v)
-    return ox + m * su - 0.5, oy + m * sv - 0.5
+    return ox + m * su, oy + m * sv
 
 
 CASES = [
@@ -141,13 +142,13 @@ class FormulaTests(unittest.TestCase):
         # Past max_valid_radius the radial factor is f(max): the source radius grows linearly from there.
         t = plane((1.0, 0.0, 0.3), hi=0.5)
         wp = do.WarpRectilinear2((t,), 0.5, 0.5, False)
-        w, h = 200, 200
+        w, h = 201, 201  # centre on pixel 100, m to the farthest pixel's centre
         m = math.hypot(100, 100)
-        for x in (150, 180, 199):
-            r = (x + 0.5 - 100) / m
-            sx, _ = do.warp_source(wp, 0, x, 99, w, h)
-            fr = 1.0 + 0.3 * min(math.hypot(r, 0.5 / m), 0.5) ** 2
-            self.assertAlmostEqual((sx + 0.5 - 100) / m, r * fr, places=12)
+        for x in (150, 180, 200):
+            r = (x - 100) / m
+            sx, _ = do.warp_source(wp, 0, x, 100, w, h)
+            fr = 1.0 + 0.3 * min(r, 0.5) ** 2
+            self.assertAlmostEqual((sx - 100) / m, r * fr, places=12)
 
     def test_ramp_gives_the_ramp_at_the_source_point(self):
         w, h = 40, 30

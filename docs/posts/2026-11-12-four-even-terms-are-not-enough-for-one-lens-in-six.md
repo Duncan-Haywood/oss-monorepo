@@ -16,7 +16,7 @@ We read the layout from the DNG 1.7.1 specification (pages 120 to 122) rather th
 
 No camera file using this opcode has turned up yet, so we couldn't check our output against Adobe's. We could ask a different question: do real lenses need odd terms?
 
-[Lensfun](https://lensfun.github.io/) is the open lens database behind darktable, RawTherapee and Hugin. It stores 5,440 distortion calibrations for 1,079 lenses in Hugin's "ptlens" model, `r_d = r_u (a r³ + b r² + c r + 1 − a − b − c)`. That model has a cubic and a linear term, both odd. 4,741 of the calibrations use at least one of them. Rescaled so that r = 1 sits at the frame's corner instead of half its height, the model drops straight into `WarpRectilinear2`'s first four terms. Our check against lensfun's own formula agreed to 0.000000000002 px.
+[Lensfun](https://lensfun.github.io/) is the open lens database behind darktable, RawTherapee and Hugin. It stores 5,440 distortion calibrations for 1,079 lenses in Hugin's "ptlens" model, `r_d = r_u (a r³ + b r² + c r + 1 − a − b − c)`. That model has a cubic and a linear term, both odd. 4,741 of the calibrations use at least one of them. Rescaled so that r = 1 sits at the frame's farthest pixel instead of half its height, the model drops straight into `WarpRectilinear2`'s first four terms. Our check against lensfun's own formula agreed to 0.000000000002 px.
 
 The old opcode can only approximate these profiles. For each profile we fitted its four even terms over a 6,000 px wide frame and measured the largest shift left over:
 

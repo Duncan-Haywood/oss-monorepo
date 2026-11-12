@@ -18,7 +18,7 @@ from Adobe's help site, not taken from memory:
 
 So `4 + 152 N + 20` bytes. With `f(r) = sum kr_p rc^p` and `rc = clamp(r, min, max)`, the
 radial source offset is `f * (dx, dy)`, or `(dx, dy) / f` when reciprocal; the tangential part and
-everything else (centre, `r = 1` at the farthest corner, the resampling) are WarpRectilinear's.
+everything else (centre, `r = 1` at the farthest pixel, the resampling) are WarpRectilinear's.
 
 **The skip rule** (spec p. 105 and 121): a reader that applies a WarpRectilinear2 marked optional
 skips the opcode right after it if that is a WarpRectilinear or WarpFisheye, the fallback a writer
@@ -62,7 +62,7 @@ Hugin's ptlens model over 1,079 lenses:
     r_d = r_u (a r_u^3 + b r_u^2 + c r_u + 1 - a - b - c),  r = 1 at half the image height
 
 (lensfun `libs/lensfun/modifier.cpp`, "About coordinate systems"). Like a DNG warp it maps a
-corrected point to the distorted point it reads from. With `s` the corner distance over half the
+corrected point to the distorted point it reads from. With `s` the distance to the farthest pixel over half the
 height (1.80 on 3:2), it is a WarpRectilinear2 exactly: `kr0 = 1 - a - b - c, kr1 = c s,
 kr2 = b s^2, kr3 = a s^3`. The script checks that `warp_source` with those terms lands where
 lensfun's formula, written in lensfun's own units, says: the largest gap over 200 entries at six
