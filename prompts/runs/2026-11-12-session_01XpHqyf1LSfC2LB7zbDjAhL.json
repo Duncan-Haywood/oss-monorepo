@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 17,
   "outcome": "success",
@@ -35,6 +35,10 @@
     {
       "what": "first verify failed typecheck: clearPick's PickCandidate required a `key` field RankedItem lacks",
       "fix": "dropped the unused field"
+    },
+    {
+      "what": "CI validate failed: flagships.yaml quick-pick-survey next: was 2613 characters (cap 2000) after I prepended this run's result",
+      "fix": "rewrote next: as a short history pointer plus a lettered open list (1152 characters)"
     }
   ],
   "integrity_issues": [],
