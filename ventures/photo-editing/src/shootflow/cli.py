@@ -1272,7 +1272,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--no-opcodes",
         action="store_true",
         help=(
-            "Skip the DNG's opcode lists (GainMap lens shading as phones write it, WarpRectilinear "
+            "Skip the DNG's opcode lists (GainMap lens shading as phones write it, WarpRectilinear and WarpRectilinear2 "
             "lens distortion, WarpFisheye, FixVignetteRadial, MapPolynomial); by default they run."
         ),
     )

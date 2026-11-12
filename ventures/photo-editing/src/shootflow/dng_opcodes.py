@@ -90,6 +90,31 @@ proportional to the angle off axis) becomes a pinhole image (radius
 proportional to its tangent). Sampling, pixel centres and the edge are as for
 WarpRectilinear, and both warps run through the same resampler.
 
+WarpRectilinear2 (DNG specification 1.7.1, chapter 7; opcode 14, DNG 1.6), in
+the stage-3 image, is WarpRectilinear with a longer radial polynomial:
+
+* the parameters are a plane count ``n`` and, per plane, the radial terms
+  ``kr0..kr14``, the tangential terms ``kt0, kt1`` and ``min_valid_radius``,
+  ``max_valid_radius`` (19 float64), then the optical centre ``(cx, cy)`` and a
+  LONG ``reciprocalRadial``; a plane past ``n`` uses the last plane's terms;
+* ``(dx, dy)``, ``r`` and the distance ``m`` to the farthest pixel are as for WarpRectilinear;
+  ``f = kr0 + kr1 rc + kr2 rc^2 + ... + kr14 rc^14`` with
+  ``rc = clamp(r, min_valid_radius, max_valid_radius)``: odd and even powers of
+  ``r`` itself, where WarpRectilinear's ``kr1..kr3`` multiply ``r^2, r^4, r^6``
+  (so its ``kr1`` is this opcode's ``kr2``);
+* the radial part of the source offset is ``f * (dx, dy)``, or with
+  ``reciprocalRadial`` non-zero ``(dx, dy) / f``; the tangential part is
+  WarpRectilinear's, on the unclamped ``(dx, dy)`` ("the meaning of the other
+  parameters is the same as WarpRectilinear");
+* skip rule: when a WarpRectilinear2 marked optional is applied, a
+  WarpRectilinear or WarpFisheye immediately after it in the same list is the
+  fallback for older readers and is skipped.
+
+The specification asks for ``0 <= min_valid_radius < max_valid_radius <= 1``;
+a file outside that, or a reciprocal ``f`` that reaches zero on the valid
+range (checked at 1,025 points), is named and skipped. Sampling, pixel centres
+and the edge are as for WarpRectilinear.
+
 FixVignetteRadial (DNG specification 1.4, chapter 7), on every plane of the
 stage-2 or stage-3 image:
 
@@ -212,6 +237,7 @@ from __future__ import annotations
 import math
 import struct
 from dataclasses import dataclass, field
+from typing import Callable
 
 TAG_OPCODE_LIST_1 = 51008
 TAG_OPCODE_LIST_2 = 51009
@@ -237,6 +263,7 @@ OPCODE_NAMES = {
 GAIN_MAP = 9
 WARP_RECTILINEAR = 1
 WARP_FISHEYE = 2
+WARP_RECTILINEAR_2 = 14
 FIX_VIGNETTE_RADIAL = 3
 MAP_POLYNOMIAL = 8
 FIX_BAD_PIXELS_CONSTANT = 4
@@ -324,6 +351,17 @@ class WarpFisheye:
     cy: float
 
     def plane_terms(self, p: int) -> tuple[float, float, float, float]:
+        return self.terms[min(p, len(self.terms) - 1)]
+
+
+@dataclass(frozen=True)
+class WarpRectilinear2:
+    terms: tuple[tuple[float, ...], ...]  # per plane: kr0..kr14, kt0, kt1, min_valid_radius, max_valid_radius
+    cx: float
+    cy: float
+    reciprocal: bool
+
+    def plane_terms(self, p: int) -> tuple[float, ...]:
         return self.terms[min(p, len(self.terms) - 1)]
 
 
@@ -530,6 +568,40 @@ def parse_warp_rectilinear(op: Opcode) -> WarpRectilinear:
     return WarpRectilinear(terms, cx, cy)
 
 
+def _wr2_radial(kr: tuple[float, ...], rc: float) -> float:
+    """WarpRectilinear2's ``f(rc) = sum kr[p] rc^p`` (Horner, highest power first; the numpy path repeats it)."""
+
+    f = kr[14]
+    for k in kr[13::-1]:
+        f = f * rc + k
+    return f
+
+
+def parse_warp_rectilinear2(op: Opcode) -> WarpRectilinear2:
+    p = op.params
+    if len(p) < 4:
+        raise OpcodeError("WarpRectilinear2 parameters shorter than their plane count")
+    (n,) = struct.unpack_from(">I", p, 0)
+    if n < 1:
+        raise OpcodeError("WarpRectilinear2 with no planes")
+    if len(p) < 4 + 152 * n + 20:
+        raise OpcodeError(f"WarpRectilinear2 holds fewer than its {n} planes of terms, a centre and its reciprocal flag")
+    terms = tuple(struct.unpack_from(">19d", p, 4 + 152 * i) for i in range(n))
+    cx, cy = struct.unpack_from(">2d", p, 4 + 152 * n)
+    (recip,) = struct.unpack_from(">I", p, 4 + 152 * n + 16)
+    if not all(math.isfinite(v) and abs(v) < 1e6 for t in terms for v in t) or not (0.0 <= cx <= 1.0 and 0.0 <= cy <= 1.0):
+        raise OpcodeError("WarpRectilinear2 with terms out of range")
+    for t in terms:
+        lo, hi = t[17], t[18]
+        if not (0.0 <= lo < hi <= 1.0):
+            raise OpcodeError(f"WarpRectilinear2 valid radius {lo}..{hi} outside 0 <= min < max <= 1")
+        if recip:
+            vals = [_wr2_radial(t[:15], lo + (hi - lo) * i / 1024) for i in range(1025)]
+            if not (all(v > 0.0 for v in vals) or all(v < 0.0 for v in vals)):
+                raise OpcodeError("WarpRectilinear2 reciprocal radial term reaches zero on its valid radius")
+    return WarpRectilinear2(terms, cx, cy, bool(recip))
+
+
 def parse_warp_fisheye(op: Opcode) -> WarpFisheye:
     p = op.params
     if len(p) < 4:
@@ -615,7 +687,7 @@ class Plan:
 
     gain_maps: list[GainMap]
     notes: list[str]
-    warps: list[WarpRectilinear | WarpFisheye] = field(default_factory=list)
+    warps: list[WarpRectilinear | WarpRectilinear2 | WarpFisheye] = field(default_factory=list)
     stage2: list = field(default_factory=list)
     stage3: list = field(default_factory=list)
     stage1: list = field(default_factory=list)  # FixBadPixelsConstant / FixBadPixelsList, for ``run_stage1``
@@ -634,7 +706,8 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
     """
 
     gain_maps: list[GainMap] = []
-    warps: list[WarpRectilinear | WarpFisheye] = []
+    warps: list[WarpRectilinear | WarpRectilinear2 | WarpFisheye] = []
+    fallbacks_skipped = 0
     stage1: list = []
     stage2: list = []
     stage3: list = []
@@ -654,8 +727,14 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
             notes.append(f"{label} unreadable and skipped: {exc}")
             continue
         skipped: dict[str, int] = {}
+        after_optional_wr2 = False
         for op in ops:
+            # The skip rule (WarpRectilinear2): only the opcode right after an applied optional one.
+            fallback, after_optional_wr2 = after_optional_wr2, False
             if op.preview_only:
+                continue
+            if fallback and op.id in (WARP_RECTILINEAR, WARP_FISHEYE):
+                fallbacks_skipped += 1
                 continue
             if tag == TAG_OPCODE_LIST_2 and op.id == GAIN_MAP and cfa:
                 try:
@@ -666,14 +745,15 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
                 gain_maps.append(gm)
                 stage2.append(gm)
                 continue
-            if tag == TAG_OPCODE_LIST_3 and op.id in (WARP_RECTILINEAR, WARP_FISHEYE):
+            if tag == TAG_OPCODE_LIST_3 and op.id in _WARP_PARSERS:
                 try:
-                    wp = parse_warp_rectilinear(op) if op.id == WARP_RECTILINEAR else parse_warp_fisheye(op)
+                    wp = _WARP_PARSERS[op.id](op)
                 except OpcodeError as exc:
                     notes.append(f"{label} {op.name} unreadable and skipped: {exc}")
                     continue
                 warps.append(wp)
                 stage3.append(wp)
+                after_optional_wr2 = op.id == WARP_RECTILINEAR_2 and op.optional
                 continue
             if tag == TAG_OPCODE_LIST_1 and op.id in (FIX_BAD_PIXELS_CONSTANT, FIX_BAD_PIXELS_LIST) and cfa:
                 try:
@@ -704,14 +784,26 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
     n_rect = sum(isinstance(wp, WarpRectilinear) for wp in warps)
     if n_rect:
         notes.append(f"OpcodeList3: {n_rect} WarpRectilinear applied (lens distortion)")
-    if len(warps) - n_rect:
-        notes.append(f"OpcodeList3: {len(warps) - n_rect} WarpFisheye applied (fisheye unwrap)")
+    n_rect2 = sum(isinstance(wp, WarpRectilinear2) for wp in warps)
+    if n_rect2:
+        notes.append(f"OpcodeList3: {n_rect2} WarpRectilinear2 applied (lens distortion, higher order)")
+    if len(warps) - n_rect - n_rect2:
+        notes.append(f"OpcodeList3: {len(warps) - n_rect - n_rect2} WarpFisheye applied (fisheye unwrap)")
+    if fallbacks_skipped:
+        notes.append(
+            f"OpcodeList3: {fallbacks_skipped} fallback warp skipped after an optional WarpRectilinear2 (DNG skip rule)"
+        )
     for (label, name) in dict.fromkeys(applied):
         what = _WHAT.get(name, "value mapping")
         notes.append(f"{label}: {applied.count((label, name))} {name} applied ({what})")
     return Plan(gain_maps, notes, warps, stage2, stage3, stage1)
 
 
+_WARP_PARSERS: dict[int, Callable[[Opcode], WarpRectilinear | WarpRectilinear2 | WarpFisheye]] = {
+    WARP_RECTILINEAR: parse_warp_rectilinear,
+    WARP_RECTILINEAR_2: parse_warp_rectilinear2,
+    WARP_FISHEYE: parse_warp_fisheye,
+}
 _STAGE23_PARSERS = {
     FIX_VIGNETTE_RADIAL: parse_vignette_radial,
     MAP_POLYNOMIAL: parse_map_polynomial,
@@ -1143,7 +1235,7 @@ def run_stage3_rgb(ops: list, rgb, w: int, h: int, scale=(1.0, 1.0, 1.0)):
                 s = (y * w + op.left) * 3
                 rgb[s : s + op.width * 3] = sub[i * op.width * 3 : (i + 1) * op.width * 3]
             continue
-        if isinstance(op, (WarpRectilinear, WarpFisheye)):
+        if isinstance(op, (WarpRectilinear, WarpRectilinear2, WarpFisheye)):
             rgb = warp_rgb([op], rgb, w, h)
         elif isinstance(op, VignetteRadial):
             for y in range(h):
@@ -1171,7 +1263,7 @@ def run_stage3_planes(ops: list, img, scale=(1.0, 1.0, 1.0)):
             sl = (slice(op.top, op.top + op.height), slice(op.left, op.left + op.width))
             img[sl] = run_stage3_planes([op.op], img[sl].copy(), scale)
             continue
-        if isinstance(op, (WarpRectilinear, WarpFisheye)):
+        if isinstance(op, (WarpRectilinear, WarpRectilinear2, WarpFisheye)):
             img = warp_planes([op], img)
             continue
         flat = np.ascontiguousarray(img).reshape(h, w * 3)
@@ -1197,12 +1289,25 @@ def _warp_frame(wp: WarpRectilinear, w: int, h: int) -> tuple[float, float, floa
 def warp_source(wp, p: int, x: float, y: float, w: int, h: int) -> tuple[float, float]:
     """Where output pixel (x, y) of plane p reads from, in pixel-index units (pure Python, the reference).
 
-    ``wp`` is a ``WarpRectilinear`` or a ``WarpFisheye``.
+    ``wp`` is a ``WarpRectilinear``, a ``WarpRectilinear2`` or a ``WarpFisheye``.
     """
 
     cxp, cyp, m = _warp_frame(wp, w, h)
     dx = (x + 0.5 - cxp) / m
     dy = (y + 0.5 - cyp) / m
+    if isinstance(wp, WarpRectilinear2):
+        terms = wp.plane_terms(p)
+        kt0, kt1, lo, hi = terms[15], terms[16], terms[17], terms[18]
+        r2 = dx * dx + dy * dy
+        rc = min(max(math.sqrt(r2), lo), hi)
+        f = _wr2_radial(terms, rc)
+        if wp.reciprocal:
+            sx, sy = dx / f, dy / f
+        else:
+            sx, sy = f * dx, f * dy
+        sx = sx + (kt0 * (2.0 * dx * dy) + kt1 * (r2 + 2.0 * dx * dx))
+        sy = sy + (kt1 * (2.0 * dx * dy) + kt0 * (r2 + 2.0 * dy * dy))
+        return cxp + m * sx - 0.5, cyp + m * sy - 0.5
     if isinstance(wp, WarpFisheye):
         k0, k1, k2, k3 = wp.plane_terms(p)
         r = math.sqrt(dx * dx + dy * dy)
@@ -1274,6 +1379,8 @@ def warp_planes(warps: list, img, band: int = 256):
                 src = img[..., p]
                 if fisheye:
                     sx, sy = _np_fisheye(wp.plane_terms(p), geo)
+                elif isinstance(wp, WarpRectilinear2):
+                    sx, sy = _np_rect2(np, wp, p, dx, dy)
                 else:
                     kr0, kr1, kr2, kr3, kt0, kt1 = wp.plane_terms(p)
                     r2 = dx * dx + dy * dy
@@ -1317,6 +1424,26 @@ def _np_fisheye(terms, geo):
     t2 = t * t
     ratio = np.where(zero, k0, t * (k0 + t2 * (k1 + t2 * (k2 + t2 * k3))) / np.where(zero, 1.0, r))
     return ratio * dx, ratio * dy
+
+
+def _np_rect2(np, wp: WarpRectilinear2, p: int, dx, dy):
+    """WarpRectilinear2's normalised source offsets for one plane, the same operations in the same order as ``warp_source``."""
+
+    t = wp.plane_terms(p)
+    kt0, kt1, lo, hi = t[15], t[16], t[17], t[18]
+    dx, dy = np.broadcast_arrays(dx, dy)
+    r2 = dx * dx + dy * dy
+    rc = np.minimum(np.maximum(np.sqrt(r2), lo), hi)
+    f = np.full(rc.shape, t[14])
+    for k in t[13::-1]:
+        f = f * rc + k
+    if wp.reciprocal:
+        sx, sy = dx / f, dy / f
+    else:
+        sx, sy = f * dx, f * dy
+    sx = sx + (kt0 * (2.0 * dx * dy) + kt1 * (r2 + 2.0 * dx * dx))
+    sy = sy + (kt1 * (2.0 * dx * dy) + kt0 * (r2 + 2.0 * dy * dy))
+    return sx, sy
 
 
 def _np_split(np, v, n: int):
