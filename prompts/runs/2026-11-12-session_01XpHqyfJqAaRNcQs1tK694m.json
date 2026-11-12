@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 1,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
@@ -39,6 +39,10 @@
     {
       "what": "portfolio-validate failed: flagships next: 2060 chars over the 2000 cap",
       "fix": "shortened the appended line; validate.py passes"
+    },
+    {
+      "what": "end-to-end.test.mjs asserted the exactSearch stage took 0 ms; CI measured 1 ms",
+      "fix": "dropped the timing assertion; the node count (0) already shows the tree was skipped"
     }
   ],
   "integrity_issues": [],
