@@ -5,9 +5,10 @@ from pathlib import Path
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE / 'src'))
 _sp = importlib.util.spec_from_file_location('m3_period_mixture', HERE / 'experiments' / 'm3_period_mixture' / 'run.py')
 pm = importlib.util.module_from_spec(_sp); sys.modules['m3_period_mixture'] = pm; _sp.loader.exec_module(pm)
-from dpmpm import DPMPM  # noqa: E402  (src/ is on the path after the driver loads)
+from dpmpm import DPMPM  # noqa: E402
 
 
 def test_period_codes_decade_and_half():
