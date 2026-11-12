@@ -291,6 +291,11 @@ flagships:
       terraces); a 20-team leg at 22-30 breaks from a starter timetable; a real league's travel
       times and unavailable dates; a print check.
   - venture: open-tennis-robots
+    buildable: >-
+      CAD and firmware with no outside input (build123d installs from pypi in a
+      venv, about 2 min): a hard stop past the gear sector's ends (+-37.5 deg);
+      the servo's 5-6 V supply and the cable runs to the turntable; the netting
+      trough that rolls balls to the hopper inlet.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
