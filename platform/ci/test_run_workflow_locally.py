@@ -10,6 +10,7 @@ import sys
 import textwrap
 import time
 import unittest
+from unittest import mock
 
 import run_workflow_locally as runner
 import yaml
@@ -372,6 +373,40 @@ class WorkflowBudget(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(runner.report("wf.yml", steps[:2], [], False),
                              runner.AFTER_SKIP)
+
+    def test_standalone_checks_run_before_a_budget_spending_step(self):
+        # portfolio-pages: job `test` (300 s suite) came first in file order
+        # and starved job `build`'s 1 s front-matter check (2026-11-12).
+        steps = [runner.Step("test", "slow", "sleep 5", "."),
+                 runner.Step("build", "fm", "python3 platform/ci/check_post_frontmatter.py", "."),
+                 runner.Step("build", "after", "true", ".")]
+        order = []
+        with mock.patch.object(runner, "execute",
+                               side_effect=lambda s, t: (order.append(s.name), setattr(s, "status", "ok"))), \
+                contextlib.redirect_stdout(io.StringIO()) as out:
+            runner.run_steps(steps, 900, budget=60)
+        self.assertEqual(order, ["fm", "slow", "after"])
+        self.assertIn("1 standalone check(s) first", out.getvalue())
+
+    def test_only_argument_free_ci_checks_count_as_standalone(self):
+        S = runner.Step
+        self.assertTrue(runner.standalone(S("j", "n", "python3 platform/ci/check_x.py", ".")))
+        self.assertTrue(runner.standalone(S("j", "n", "python3 check_x.py", "platform/ci")))
+        for step in (S("j", "n", "python3 platform/ci/check_x.py --base main", "."),
+                     S("j", "n", "python3 check_x.py", "."),
+                     S("j", "n", "python3 platform/ci/check_built_site.py", "."),
+                     S("j", "n", "python3 -m unittest test_check_x", "platform/ci")):
+            self.assertFalse(runner.standalone(step), step.run)
+
+    def test_no_budget_keeps_file_order(self):
+        steps = [runner.Step("a", "first", "true", "."),
+                 runner.Step("b", "fm", "python3 platform/ci/check_x.py", ".")]
+        order = []
+        with mock.patch.object(runner, "execute",
+                               side_effect=lambda s, t: (order.append(s.name), setattr(s, "status", "ok"))), \
+                contextlib.redirect_stdout(io.StringIO()):
+            runner.run_steps(steps, 900)
+        self.assertEqual(order, ["first", "fm"])
 
     def test_no_budget_runs_normally(self):
         steps = [runner.Step("j", "ok", "true", ".")]
