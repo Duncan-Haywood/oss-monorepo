@@ -485,7 +485,7 @@ export function sniffBank(rows) {
     if (/^posted date\|transaction date\|transaction type\|check\/serial #\|/.test(h)) return "truist";
     if (/^date\|bank rtn\|account number\|transaction type\|description\|debit\|credit\|/.test(h)) return "td-bank";
     if (/^posted date\|reference number\|payee\|address\|amount/.test(h)) return "bank-of-america-card";
-    // Debit/Credit/Balance layouts, headers from memory (no real export tried): Navy Federal, Truist, TD Bank.
+    // The 2026-11-04 Debit/Credit/Balance headers from memory (no real file has matched them yet), kept in case a variant exists.
     if (/^transaction date\|posting date\|description\|debit\|credit\|balance/.test(h)) return "navy-federal";
     if (/^date\|description\|check number\|debit\|credit\|balance/.test(h)) return "truist";
     if (/^date\|check no\|description\|debit\|credit\|balance/.test(h)) return "td-bank";
