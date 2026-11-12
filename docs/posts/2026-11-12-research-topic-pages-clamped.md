@@ -3,7 +3,7 @@ title: "164 Projects on One Topic Page: Cutting 68,000 Pixels Without Hiding a R
 seo_title: "Research Topic Pages: Two-Line Results, a Filter and Two Columns"
 date: 2026-11-12
 tags: [polish, research, mobile, web-design]
-description: "The open research topic pages printed every project's full result. Twins was 68,158 px on a phone. Two-line results that open in place, a word filter and two desktop columns cut all 31 topic pages by 38% on phones and 49% on desktop."
+description: "Research topic pages printed every full result; twins was 68,158 px on a phone. Two-line results, a filter and two columns cut 38% on phones, 49% on desktops"
 ---
 
 Each of the 31 [research topics](/research/) has its own page listing every project in it. The

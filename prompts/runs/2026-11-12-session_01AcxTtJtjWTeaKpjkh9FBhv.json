@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtJtjWTeaKpjkh9FBhv",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T14:06:54Z",
+  "ended": "2026-11-12T14:13:21Z",
+  "wall_minutes": 8.8,
+  "tokens_in": 4202709,
+  "tokens_out": 21718,
+  "cost_usd": 1.9452,
+  "tool_calls": 51,
+  "task": "polish: research topic pages too long on phones (item 2 of polish-2026-11-12-research-index-length.md)",
+  "projects": [
+    "research/_homepage"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15149",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-12-research-index-length.md",
+      "issue": "Said twins had 145 projects and 'every abstract'; it has 164 and the abstract was already folded in <details>. The height was the full lede on each card. Measure before trusting a report's cause (the previous report made the same point about its own predecessor)."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Re-building only the research pages (build.py --out dist/research --site-chrome <json>) takes a second against a 3-20 min full build; the prompt names only the full build. The chrome JSON lives in /tmp/pf-research-chrome-*/ after a full build, which nothing documents."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-research-topic-pages-clamped.md",
+    "docs/reports/polish-2026-11-12-topic-pages.md"
+  ],
+  "goal": "impressive sites (polish track): research topic pages",
+  "notes": "All 31 topic pages, Chromium, 390/1280 px: sum 513,054 -> 318,372 and 309,795 -> 157,911; twins 68,158 -> 38,413 (390) and 41,216 -> 18,650 (1280); no sideways scroll. Browser behaviour checked: clamp 46 px, open 116 px; filter 'slosh' 2 of 164; no-JS form hidden, 164 cards. python3 -m unittest test_research_homepage_publish test_research_live_links: 22 OK. node --test platform/pages/*.test.mjs: see PR verification commit.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ba77886d-0cb7-5154-bd4a-6fc447bb2b1b",
+    "transcripts": 1,
+    "first": "2026-11-12T14:06:54Z",
+    "last": "2026-11-12T14:15:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 91,
+        "output": 21718,
+        "thinking": 4669,
+        "cache_read": 4116722,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85896,
+        "api_equivalent_usd": 1.9452,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 91,
+      "output": 21718,
+      "thinking": 4669,
+      "cache_read": 4116722,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85896,
+      "api_equivalent_usd": 1.9452,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 42,
+      "Edit": 3,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.8,
+      "active_minutes": 8.8,
+      "model_minutes": 4.62,
+      "tool_minutes": 4.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "measure 31 pages, redesign topic card CSS, filter script, test, screenshots, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 205.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
