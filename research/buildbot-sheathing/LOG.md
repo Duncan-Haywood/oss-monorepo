@@ -1,5 +1,18 @@
 # buildbot-sheathing research log
 
+## 2026-11-12 · Milestone 6 result: on Drake the ledger still seats the sheet and clean sheets move by 0.06 points at most; the bowed-edge rock and a soft held wrist depend on the contact model
+
+`experiments/m6_drake/` (results.txt, results.json, figure.png); Drake 1.51.1 SAP against MuJoCo 4.0.1; 404 s on 4 CPUs.
+
+- **H35 (H-E) held, by a wide margin.** Over 2,000 seats on the same random draws, Drake leaves a seated residual of 0.00142° (1σ; 0.0047° at most) against MuJoCo's 0.00001°. Both are far under the 0.03° a sheet may hang on single 2x joints, so the 24 ledger pipelines of milestone 5 keep their first-pass clean sheets within **0.06 points** of each other (bar 10).
+- **H32 held.** The press at which wall friction holds a 1° error is 0.965–0.998 of the closed form on corner contacts in Drake, against 0.872–0.987 in MuJoCo; the worst Drake/MuJoCo gap is 12.7% (μ 0.5). In MuJoCo wall friction holds the sheet from a little less press than rigid Coulomb friction predicts (the cautious side for a press limit); Drake is closer to the closed form. The 6 of 200 released-seat cells where the two disagree all sit at the threshold.
+- **H33 held.** At 50 N or less and wall friction 0.3–0.5, Drake leaves 0.0025° at most (bar 0.005°).
+- **H34 refuted.** 70% of held-wrist cells are within max(0.005°, 10%) of the closed form, bar 90%. Where the closed form keeps an error the simulators agree within 0.07°; where it predicts none (soft wrists, 300–3,000 N·m/rad) Drake keeps 0.001–0.016° and MuJoCo nothing. Small against a hang budget of 0.03°, but not zero, and a released holder (the policy milestone 5 uses) avoids it.
+- **H36 held.** The push height that tips a sliding sheet is 0.995–1.007 of W / (2 μ_l) in Drake.
+- **Not scored, and the one that matters next: the bowed bottom edge.** A sheet resting on its bowed middle rocks 0.107–0.123° in Drake and 0.139–0.145° in MuJoCo, both under the 2 s / W = 0.149° milestone 3 charged. On its middle foot the sheet is balanced, so how far it rocks is set by friction and the approach, not by statics: the full rock milestones 3 and 5 used is the conservative side, and the two engines disagree by 0.02–0.03°, the size of the single-2x budget. A flexible sheet (`buildbot-mjsheet`) or a mock-up would settle it.
+- **Drake's own settings** (stiffness 10^5–10^7 N/m, dissipation 0.5–50 s/m, 0.5–2 ms, SAP, TAMSI, lagged) move the μ 0.4 threshold over 187.5–199.7 N and a released seat by 0.003° at most, except the softest contact (0.023°).
+- **What it means for the programme.** The ledger results the cycle and cost milestones rest on are not a MuJoCo artefact. Milestone 8 (the paper draft) can report H-E as held, with the bowed edge as the open, model-dependent term.
+
 ## 2026-11-12 · Milestone 6 planned: do the MuJoCo results hold on a second contact model?
 
 Written before any milestone-6 experiment was run.
