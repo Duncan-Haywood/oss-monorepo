@@ -1,4 +1,8 @@
 const finite = (value, name) => {
+  // Number('') and Number('  ') are 0, so a field cleared mid-edit would
+  // otherwise compute as $0: a blank current price reads as "100.0% maximum
+  // churn before revenue falls", in green. A blank is a missing answer.
+  if (value === undefined || value === null || String(value).trim() === '') throw new Error(`Enter ${name.toLowerCase()}`);
   const number = Number(value);
   if (!Number.isFinite(number) || number < 0) throw new Error(`${name} must be a non-negative number`);
   return number;

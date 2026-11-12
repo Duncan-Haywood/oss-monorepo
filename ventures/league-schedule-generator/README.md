@@ -1049,6 +1049,41 @@ one small one and one negative.
   shift starters or the capped candidates. Sizes 17 to 40 need moves that keep the shift pattern,
   not a cap on single moves.
 
+## Shift candidates in a home-and-away season, part two (2026-11-12, later)
+
+The open item above, measured on seeds 1 and 2 at weight 10 for every size from 9 to 40
+(`node eval/shift-double-capped.mjs`, `eval/shift-double-capped.txt`). Each season was checked as
+valid (every ordered pair once, the two meetings in different legs, every team n - 1 home games).
+Every figure was recounted from the rounds.
+
+- **Capped shift leg ones** (`withShiftLegOnes`, `shiftCapped`). Each built-in starter with shift
+  venues was already a leg one. Now the capped version is one too: that start annealed on
+  carry-over with its home/away carried and its breaks as the cap (`lowCarryOverCappedRounds` with
+  `start`, as the single search does). Leg two is searched against it as usual. The gains are at 11
+  and 13 teams, on both seeds, and carry-over and breaks both drop:
+
+  | Teams | Seed | Before | Now | Score |
+  |---|---|---|---|---|
+  | 11 | 1 | 497 / 23 | **481 / 22** | 727 -> 701 |
+  | 11 | 2 | 509 / 21 | **505 / 19** | 719 -> 695 |
+  | 13 | 1 | 733 / 35 | **721 / 32** | 1,083 -> 1,041 |
+  | 13 | 2 | 739 / 32 | **721 / 29** | 1,059 -> 1,011 |
+
+  Nothing changed at any other size from 9 to 40, and the extra leg-two searches added 30 to 40% to
+  the run time there. So the default (`shiftCapped: "small"`) uses capped leg ones only up to 16
+  slots (11 to 16 teams). From 17 teams up the time is the same as before. `true` runs them at every
+  size and `false` turns them off.
+- **Negative: the 16 and 32 shift starters at 15 and 31 teams** (`fieldShift`, off by default).
+  A field-size league now tries each shift starter, plain and capped, as a leg one. On both seeds
+  nothing changed (15 teams 795 / 67, 31 teams 4,341 / 161 and 4,337 / 167), and the run time
+  doubled. Two reasons. The field search's leg one already comes from the single search, which takes
+  the 31-team shift starter when it wins (README "Shift venues carried through the search"). And a
+  field leg one played twice is perfectly balanced, so its plain mirror is hard to beat.
+- Carry-over only (weight 0): nothing changes. The capped leg ones are not used with a season
+  cap (`maxBreaks`) either.
+- Open: moves that keep the shift pattern for 17 to 40 teams; re-measuring the page's best-of-k
+  picks with every shift candidate in.
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`

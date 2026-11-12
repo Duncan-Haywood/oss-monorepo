@@ -52,6 +52,17 @@ CITES: list[tuple[str, str]] = [
     (r"Arrinda et al\., Zenodo 18862594", "Arrinda et al.\x02" + C("arrinda2026")),
     (r"Zenodo 18862594", C("arrinda2026")),
     (r"(`fuxi-robot/excavator-motion` dataset on Hugging Face)", "\\1\x02" + C("fuxi_excavator_motion")),
+    (r"Juza and Hermanek \(2023, doi:10\.17221/77/2021-RAE\)", "Juza and Hermanek (2023)\x02" + C("juza2023")),
+    (r"Williamson \(Purdue PhD thesis, 2010\)", "Williamson (Purdue PhD thesis, 2010)\x02" + C("williamson2010")),
+    (r"Briganti \(Politecnico di Torino MSc thesis, 2021/22\)", "Briganti (Politecnico di Torino MSc thesis, 2021/22)\x02" + C("briganti2022")),
+    (r"Open Source Ecology\)", "Open Source Ecology\x02" + C("ose_gvcs") + ")"),
+    (r"Reece's earthmoving equation", "Reece's earthmoving equation\x02" + C("reece1964")),
+    (r"Salami VD8A sectional-valve catalogue \(", "Salami VD8A sectional-valve catalogue\x02" + C("salami_vd8a") + " ("),
+    (r"Rexroth Canada's A10VO manual \(Module 3A, s\. 7\.2\)", "Rexroth Canada's A10VO manual (Module 3A, s. 7.2)\x02" + C("rexroth_a10vo")),
+    (r"Danfoss's PVG 32 Technical Information \(BC152886483664, rev\. May 2021, p\. 16\)",
+     "Danfoss's PVG 32 Technical Information (p. 16)\x02" + C("danfoss_pvg32_2021")),
+    (r"the manual's July 2024 revision \(p\. 99,", "the manual's July 2024 revision\x02" + C("danfoss_pvg32_2024") + " (p. 99,"),
+    (r"published cylinders of the XCMG XE80E \(", "published cylinders of the XCMG XE80E\x02" + C("xcmg_xe80e") + " ("),
     # generic fallbacks for the same records cited in another wording
     (r"doi:10\.3390/en10050687", C("vukovic2017")),
     (r"doi:10\.1243/09596518JSCE1111", C("eriksson2011")),
@@ -59,9 +70,12 @@ CITES: list[tuple[str, str]] = [
     (r"doi:10\.1109/ACCESS\.2022\.3179591", C("khadim2022")),
     (r"doi:10\.47191/ijcsrr/V8-i11-43", C("halim2025")),
     (r"doi:10\.5281/zenodo\.10639199", C("linjama2024")),
+    (r"doi:10\.17221/77/2021-RAE", C("juza2023")),
 ]
 
 TOKEN = re.compile(r"(?:doi:|arXiv:)\S+")
+# '*Figure N (source): caption.*' on one line, right after its image
+FIGCAP = re.compile(r"^\*Figure (\d+) \((.+?)\): (.+)\*$")
 
 
 def escape(s: str) -> str:
@@ -178,10 +192,23 @@ def convert(md: str) -> tuple[str, list[str]]:
         if m:
             src = (DRAFT.parent / m.group(2)).resolve()
             figures.append(src)
+            caption, label = inline(m.group(1)), ""
+            j = i + 1
+            while j < len(lines) and not lines[j].strip():
+                j += 1
+            fm = FIGCAP.match(lines[j]) if j < len(lines) else None
+            if fm:
+                # the draft's own caption replaces the alt text; its number must be the next one
+                if int(fm.group(1)) != len(figures):
+                    raise ValueError(f"draft figure {fm.group(1)} is image {len(figures)}: number them in order")
+                text = fm.group(3)
+                caption = inline(text[:1].upper() + text[1:]) + " Source: " + inline(fm.group(2)) + "."
+                label = r"\label{fig:" + fm.group(1) + "}"
+                i = j
             body.append("\n".join([
                 r"\begin{figure}[t]\centering",
                 r"\includegraphics[width=\linewidth]{fig/" + src.stem + "}",
-                r"\caption{" + inline(m.group(1)) + "}",
+                r"\caption{" + caption + "}" + label,
                 r"\end{figure}",
             ]))
             i += 1

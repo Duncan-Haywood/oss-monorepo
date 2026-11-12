@@ -145,6 +145,8 @@ try {
 }
 const page = await browser.newPage({ viewport: { width: WIDTH, height: HEIGHT } });
 const failures = [];
+// Longer than the chrome's 60 ms resize debounce, with room for its layout.
+const RESIZE_SETTLE_MS = 150;
 
 let done = 0;
 for (const rel of pages) {
@@ -161,7 +163,25 @@ for (const rel of pages) {
         // Let the resize lay out before measuring.
         await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => r())));
       }
-      const verdict = await page.evaluate((width) => {
+      let verdict = await page.evaluate(measure, width);
+      // A narrowing resize: the venture chrome re-fits its header and footer
+      // to the window on a 60 ms debounced `resize` (VENTURE_CHROME_JS in
+      // site-nav.mjs), so one frame after it they still have the old width.
+      // Measured 2026-11-12: WIDTH=1040,600,700,1100 flagged 6,228 such
+      // pairs, every one gone after the debounce. Re-measure once it has
+      // fired, only when something overflows, so a clean run pays nothing.
+      if (verdict && width !== WIDTH) {
+        await page.waitForTimeout(RESIZE_SETTLE_MS);
+        verdict = await page.evaluate(measure, width);
+      }
+      if (verdict) failures.push({ rel, width, ...verdict });
+    }
+  } catch (error) {
+    failures.push({ rel, error: String(error).split('\n')[0] });
+  }
+}
+
+function measure(width) {
         const over = document.documentElement.scrollWidth - width;
         // One pixel of slack: a sub-pixel layout rounds up and is not a defect
         // anybody can see or scroll to.
@@ -206,12 +226,6 @@ for (const rel of pages) {
           }
         }
         return { over: Math.round(over), widest };
-      }, width);
-      if (verdict) failures.push({ rel, width, ...verdict });
-    }
-  } catch (error) {
-    failures.push({ rel, error: String(error).split('\n')[0] });
-  }
 }
 
 await browser.close();

@@ -315,3 +315,56 @@ export function replayText(res, { column = 'the series', model = 'mean' } = {}) 
   for (const p of res.pending) lines.push(`Still watching at the end: a possible change from ${p.label}, ${p.pointsAfter} point${p.pointsAfter === 1 ? '' : 's'} after it (reported at ${res.settings.confirm}).`);
   return lines.join('\n');
 }
+
+/** The page's three "How eager" settings, quietest first. For the volatility and counts models the quiet default is
+ * already `bocpd`, so those models have two settings. */
+export function eagerSettings(model = 'mean') {
+  const q = defaultDetector(model);
+  return [{ key: 'quiet', detector: q }, ...(q === 'bocpd' ? [] : [{ key: 'middle', detector: 'bocpd' }]), { key: 'eager', detector: 'pelt' }];
+}
+
+/**
+ * Replay the person's own history once per "How eager" setting and report, for each, the alerts it would have sent,
+ * the daily checks after the baseline, alerts per 100 of them and the median delay (README "Round 6"). opts: as replayWatch (detector
+ * is ignored). Each replay keeps its own work budget, so a long series takes up to three times one replay.
+ * suggest: the most eager setting whose rate is at most `budget` alerts per 100 checks (default HINT_BUDGET, 2),
+ * else quiet; the rule round 6 pre-registered and passed, narrowly, on TCPD (eval/watch-eagerness.out.txt).
+ * Returns { n, from, model, budget, suggest, settings: [{ key, detector, alerts, checks, step, per100, medianDelay }] }.
+ */
+export function eagernessReplay(values, labels = null, opts = {}) {
+  const { detector: _d, budget: b0, ...rest } = opts;
+  const budget = b0 ?? HINT_BUDGET;
+  const model = rest.model ?? 'mean';
+  let n = 0, from = 0;
+  const settings = eagerSettings(model).map(({ key, detector }) => {
+    const r = replayWatch(values, labels, { ...rest, detector });
+    n = r.n; from = r.from;
+    const d = r.alerts.map((a) => a.pointsAfter).sort((x, y) => x - y), m = d.length >> 1;
+    // Per daily check after the baseline (n - from), as a watch run after every row would count them, not the
+    // replay's own coarse and bisection checks.
+    const daily = r.n - r.from;
+    return { key, detector, alerts: r.alerts.length, checks: daily, step: r.step, per100: daily ? (100 * r.alerts.length) / daily : 0, medianDelay: d.length ? (d.length % 2 ? d[m] : (d[m - 1] + d[m]) / 2) : null };
+  });
+  const suggest = [...settings].reverse().find((x) => x.per100 <= budget)?.key ?? 'quiet';
+  return { n, from, model, budget, suggest, settings };
+}
+
+/** Round 6's pre-registered alert budget for the eagerness suggestion: alerts per 100 daily checks. */
+export const HINT_BUDGET = 2;
+
+const EAGER_NAMES = { quiet: 'Quiet', middle: 'Middle', eager: 'Eager' };
+const eagerName = (k) => (Object.hasOwn(EAGER_NAMES, k) ? EAGER_NAMES[k] : String(k));
+
+/** Plain sentences for an eagerness replay, for the page and an agent's answer. */
+export function eagernessText(res, { column = 'the series' } = {}) {
+  const lines = [`On the history of ${column} (a watch started at point ${res.from} of ${res.n}, then ${res.n - res.from} daily checks):`];
+  for (const s of res.settings) lines.push(`  ${eagerName(s.key)} (${s.detector}): ${s.alerts} alert${s.alerts === 1 ? '' : 's'}, ${s.per100.toFixed(1)} per 100 checks${s.medianDelay !== null ? `, median ${s.medianDelay} rows late` : ''}.`);
+  const pick = res.settings.find((s) => s.key === res.suggest);
+  lines.push(res.suggest === 'quiet'
+    ? (pick.per100 > res.budget
+      ? `Suggested: Quiet. Even Quiet would have sent ${pick.per100.toFixed(1)} alerts per 100 checks, above ${res.budget}; a level that wanders all the time keeps alerting, so consider watching its daily change instead.`
+      : `Suggested: Quiet. The more eager settings would have sent more than ${res.budget} alerts per 100 checks on this history.`)
+    : `Suggested: ${eagerName(res.suggest)}, the most eager setting that stayed at or under ${res.budget} alerts per 100 checks on this history.`);
+  lines.push('A suggestion from one past, not a promise: on 23 labelled series it reached 17 of 31 later marked changes against the default\'s 16, at 17.5 alerts per 1,000 checks against 16.0, and on 6 held-out series it changed nothing.');
+  return lines.join('\n');
+}

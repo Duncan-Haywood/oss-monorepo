@@ -363,3 +363,27 @@ test("field sizes with a bye: 15 and 31 teams take a shift starter with a break 
   assert.deepEqual(lowCarryOverRounds(15, { effort: 0.3 }).rounds, lowCarryOverRounds(15, { effort: 0.3, shift: false }).rounds);
   assert.equal(lowCarryOverRounds(16, { breakWeight: 10, effort: 0.3 }).start, undefined);
 });
+
+test("home-and-away season: capped shift leg ones are kept only when strictly better (11 teams gains), and give a valid season", () => {
+  const SCORE = (r) => r.coe + 1000 * r.repeats + 10 * r.breaks;
+  const n = 11;
+  const off = lowCarryOverDoubleRounds(n, { breakWeight: 10, shiftCapped: false });
+  const on = lowCarryOverDoubleRounds(n, { breakWeight: 10 });
+  assert.ok(SCORE(on) < SCORE(off), `${SCORE(on)} vs ${SCORE(off)}`);
+  assert.match(on.start, /shift venues, capped$/);
+  const legOf = new Map(), home = new Array(n).fill(0);
+  for (const rd of on.rounds) for (const [h, a] of rd.matches) { assert.ok(!legOf.has(`${h}>${a}`)); legOf.set(`${h}>${a}`, rd.leg); home[h]++; }
+  assert.equal(legOf.size, n * (n - 1));
+  for (const [k, leg] of legOf) { const [h, a] = k.split(">"); assert.notEqual(legOf.get(`${a}>${h}`), leg); }
+  assert.ok(home.every((x) => x === n - 1));
+  // carry-over only: unchanged
+  assert.ok(!String(lowCarryOverDoubleRounds(n, { effort: 0.2 }).start).includes("shift venues"));
+});
+
+test("home-and-away season at a field size with a bye (15 teams): the 16-team shift starters, when asked for, are never worse", () => {
+  const SCORE = (r) => r.coe + 1000 * r.repeats + 10 * r.breaks;
+  const off = lowCarryOverDoubleRounds(15, { effort: 0.2, breakWeight: 10 });
+  const on = lowCarryOverDoubleRounds(15, { effort: 0.2, breakWeight: 10, fieldShift: true });
+  assert.ok(SCORE(on) <= SCORE(off));
+  if (on.start !== "field") assert.ok(SCORE(on) < SCORE(off));
+});
