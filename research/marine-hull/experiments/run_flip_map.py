@@ -89,7 +89,7 @@ def waves():
 
 
 def daily_sun(point, month):
-    """Daily kWh/m2 for one 2024 month, date order: transect from power_flip_2024.json, corridor from 5's files."""
+    """Daily kWh/m2 for one 2024 month, date order: transect from sun_flip_2024.json, corridor from 5's files."""
     if point in y.CORRIDOR:
         return y.insolation(point, month)
     p = SUN[point]["daily"]
@@ -104,7 +104,7 @@ SUN = {}
 
 
 def load_sun():
-    SUN.update(json.load(open(D + "power_flip_2024.json")))
+    SUN.update(json.load(open(D + "sun_flip_2024.json")))
 
 
 def name(mer, lat):

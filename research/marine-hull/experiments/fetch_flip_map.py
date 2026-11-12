@@ -12,7 +12,7 @@ milestone 5, experiments/data/daily_<site>.json), public domain per NASA's data 
 Outputs:
   experiments/data/era5_flip_2024.csv: point, lat, lon (grid point used), month, n, n_month, hs_med, tm_med,
     q01..q20 (the 2.5, 7.5, ..., 97.5th percentiles of q = hs / tm over the month's hours, as 6x's grid file)
-  experiments/data/power_flip_2024.json: {point: {"lat", "lon", "daily": {YYYYMMDD: kWh/m2/day}}} for the transect
+  experiments/data/sun_flip_2024.json: {point: {"lat", "lon", "daily": {YYYYMMDD: kWh/m2/day}}} for the transect
 Run: python3 experiments/fetch_flip_map.py   (about 70 requests, a few minutes; retried on the API's rate errors)"""
 import calendar
 import csv
@@ -110,7 +110,7 @@ def main():
         p = o["properties"]["parameter"]["ALLSKY_SFC_SW_DWN"]
         sun[name] = {"lat": pos[0], "lon": pos[1], "daily": p}
         print(name, "sun", len(p), "days, min", min(p.values()), flush=True)
-    with open(D + "power_flip_2024.json", "w") as f:
+    with open(D + "sun_flip_2024.json", "w") as f:
         json.dump(sun, f, separators=(",", ":"), sort_keys=True)
 
 
