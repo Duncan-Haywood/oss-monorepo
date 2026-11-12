@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtKuVRKuYHXAyXfBpqS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T00:06:28Z",
+  "ended": "2026-11-12T00:12:07Z",
+  "wall_minutes": 6.0,
+  "tokens_in": 4010194,
+  "tokens_out": 22448,
+  "cost_usd": 2.0651,
+  "tool_calls": 41,
+  "task": "changepoint-detector flagship: why the 5-sd step goes missing in a sticky walk under repeat handling",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14937",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pgrep hook rejects a bracketed pattern if the same word appears elsewhere in the command line (e.g. an output path); used kill -0 <pid> instead."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "changepoint-detector next: listed a zero-inflated shared stale-probability term as the next item; algebra shows it is the same partition as repeats 'missing', so the item was a no-op (now rewritten)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Did not build the listed zero-inflated observation term: with one shared stale probability it adds the same constant to every partition's cost, so it cannot change any result.",
+      "did": "Recorded the algebra in the eval header and README and replaced the item with a per-segment stale probability and a pre-registered 4 log n test.",
+      "result": "Saved a run's worth of work on an item that could not move the cell."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-sticky-series-the-step-the-data-hides.md",
+    "ventures/changepoint-detector/README.md (Why the step goes missing)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered eval/drift-sticky-why.mjs (commit df9935fdb before the run; seed 20261113, 120 series a cell). P1-P3 held: found 0.91 at reveal gap 1, 0.34 at >=3; 39 of 43 misses at gap >=2; fitted omega 0.917. Matched-false-alarm rule for offering --drift-repeats missing FAILED (40%: shipped m2 82/120 vs missing 77 at 1.35 cuts; 20%: shipped ahead), so nothing changes for users. Lead: shipped drift at 4 log n on sticky series, needs its own pre-registration. Verification: node --test drift-sticky-why.test.mjs 2/2; run_venture_tests.py changepoint-detector (see PR). No user-facing surface changed, so no venture-preflight run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9c254176-bd46-5397-aac9-1eb49449f1f8",
+    "transcripts": 1,
+    "first": "2026-11-12T00:06:28Z",
+    "last": "2026-11-12T00:12:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 79,
+        "output": 22448,
+        "thinking": 6705,
+        "cache_read": 3905781,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104334,
+        "api_equivalent_usd": 2.0651,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 79,
+      "output": 22448,
+      "thinking": 6705,
+      "cache_read": 3905781,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104334,
+      "api_equivalent_usd": 2.0651,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 34,
+      "Write": 2,
+      "ToolSearch": 2,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.0,
+      "active_minutes": 6.0,
+      "model_minutes": 5.01,
+      "tool_minutes": 0.99,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, run and write up one pre-registered simulation study with a README section and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 290.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

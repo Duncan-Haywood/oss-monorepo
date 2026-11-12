@@ -2871,3 +2871,61 @@ step-in-a-sticky-walk cell. Its rule passed (TCPD 0.764 / 0.585 with the penalty
 matching the 0.764 / 0.590 above), and it was not merged once this section's verdict was on `main`.
 A benchmark guard alone would have shipped an option that misses real shocks. Test:
 `frozen-juice-sticky.test.mjs`.
+
+### Why the step goes missing: the repeats hide when it happened (2026-11-12, pre-registered)
+
+The open question from the sections above: on the sticky walk (step sd 1, noise 0.1, 40% of points a
+stale repeat) a 5-unit level step is found 60 of 60 times by the shipped `--model drift` and 46 by
+repeats `missing`. `eval/drift-sticky-why.mjs` (`.out.txt`; predictions and rule in its header, committed
+before it ran, fresh seed, 120 series a cell) asks why, and whether the rule that declined `missing`
+compared the two at the same false-alarm rate.
+
+**Why.** Under `missing` the step is seen only at the first new value at or after it, and the jump there
+also carries k steps of wander, k the steps since the last new value before it. Its chi-square is about
+25 / k against a penalty of 2 log 300 = 11.4. All three predictions held:
+
+| reveal gap k | series | found | share | median z^2 of the jump |
+|---|---|---|---|---|
+| 1 (no repeat at the step) | 43 | 39 | 0.91 | 22.9 |
+| 2 | 36 | 24 | 0.67 | 15.2 |
+| 3 | 26 | 9 | 0.35 | 5.7 |
+| 4 or more | 15 | 5 | 0.33 | 4.4 |
+
+39 of the 43 misses have k of 2 or more, and the fitted wander is not inflated by the step (median 0.917
+on the step cell, 0.891 with no step; true 1). So the step is not absorbed by a bad estimate. It is
+hidden by the data. Once repeats cover the step, nothing in the series says it was one jump rather than
+k ordinary steps of wander, and no model of the repeats can get that back.
+
+**What that means for the next idea.** A zero-inflated observation with one stale probability p for the
+whole series (the flagship's next item) adds -2 [r log p + (n - 1 - r) log(1 - p)] to every partition's
+cost, r the number of repeats. That is the same constant for every partition, so it picks exactly the
+partition `missing` picks. It cannot change this cell, so it was not built. Only a stale probability
+per segment, where a change in stickiness is itself a change, could add anything. That is a different
+question.
+
+**The operating point.** Mean false cuts on the walk with no step (F) and steps found (G), by penalty
+multiplier m on the default 2 log n:
+
+| 40% repeats | m 0.5 | 1 | 2 | 4 |
+|---|---|---|---|---|
+| shipped: F cuts / G found | 89.9 / 120 | 34.8 / 117 | **1.35 / 82** | 0.03 / 17 |
+| `missing`: F cuts / G found | 29.5 / 114 | **1.35 / 77** | 0.00 / 33 | 0.00 / 0 |
+
+| 20% repeats | m 0.5 | 1 | 2 | 4 |
+|---|---|---|---|---|
+| shipped | 61.7 / 120 | 7.76 / 118 | 0.28 / 85 | 0.00 / 9 |
+| `missing` | 35.9 / 119 | 1.52 / 100 | 0.02 / 56 | 0.00 / 0 |
+
+At 40% repeats the shipped model at twice its penalty has exactly the false-cut rate of `missing` at the
+default (1.35 a series), and finds the step 82 times against 77. So most of the "power loss" behind the
+declines was an operating-point difference: shipped's 60 of 60 was bought with 35 false cuts. But
+`missing` is not more powerful at any matched rate, and at 20% repeats the shipped model is ahead
+(0.28 cuts and 85 found at m 2, against 0.02 and 56 for `missing` at m 2). **The pre-registered rule
+(missing at least as powerful at no more false cuts, at every shipped m and both shares) fails, so
+nothing changes for users.**
+
+**A lead, not a finding.** On a sticky series, the shipped model with a doubled penalty behaves about as
+well as any repeat model tried here, and it needs no new code: `--penalty` with 4 log n. Seen after the
+rule was written, so it needs its own pre-registration, on TCPD's four sticky series and on frozen orange
+juice (where it must still find the big freezes), before the sticky-series warning can suggest it. Test:
+`drift-sticky-why.test.mjs`.
