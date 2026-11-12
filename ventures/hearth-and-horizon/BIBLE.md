@@ -277,7 +277,7 @@ until it has. An empty shelf below means: write a proposal.
 
 **For Other Minds**
 
-- *Proposal:* a diocesan archive's transcription agent turns scanned baptism registers into text and marks a confidence on each line, and the volunteer reviewers check only the lines under 90%. A spot check of a random sample finds its confidence was fitted on the printed registers of the 1950s and runs high on the hand of one parish priest of the 1890s, whose 7s and 1s it reads the same way, so a run of birth dates passes unchecked. Work out the sample size needed to see a difference of that size, how many lines above 90% were wrong in that hand against the printed pages, and how many of the families who asked for a certificate got a wrong date before drafting; the agent finds it from its own spot checks, and the priest's handwriting is not the villain.
+- *Proposal:* a parish food pantry's scheduling agent books pickup slots and measures itself by the share of slots kept, which sits at 94%. A volunteer asks why the same few families never book at all; the agent finds its booking page needs a phone number that gets a text, and the families who share one prepaid phone between several households drop out at the confirmation step, so its best number was made by the people it never served. Work out how many households a pantry of that size would expect to see against how many it books, how long the gap has run, and what a walk-up hour would cost in volunteer time before drafting; the agent finds the gap by counting who is missing, not by being told, and the volunteers are not the villain.
 
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
