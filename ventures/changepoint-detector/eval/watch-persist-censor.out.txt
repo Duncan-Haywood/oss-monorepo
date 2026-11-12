@@ -1,0 +1,57 @@
+Round 7: persist 2 retried with end-of-series censoring scored apart. Rule and reasons: header of eval/watch-persist-censor.mjs. Detector: bocpd-ar1-window, rho cap 0.8, --confirm 5, --tolerance 5; only the advance policy differs.
+
+Part A: 10 fresh seeds (51-60) per cell, 500 points, baseline check at 100, then one check per point; a step at point 301. False alerts per 1,000 checks, then steps found and median delay.
+
+  policy           null iid       null ar1 0.5   null t3        null ar1 0.8   null ar1 0.95  step 1sd iid      step 2sd iid      step 3sd iid      step 2sd ar1 0.5  step 4sd ar1 0.8  
+  now              0.00           0.25           7.00           1.25           2.50           1/10 d5           10/10 d5          10/10 d5          8/10 d5           10/10 d5          
+  hold             0.00           0.25           7.00           1.25           2.50           1/10 d5           10/10 d5          10/10 d5          8/10 d5           10/10 d5          
+  persist2         0.00           0.25           7.00           1.00           2.00           1/10 d6           10/10 d6          10/10 d5          8/10 d5.5         10/10 d5          
+  hold+persist2    0.00           0.25           7.00           1.00           2.00           1/10 d6           10/10 d6          10/10 d5          8/10 d5.5         10/10 d5          
+
+Part B: 31 univariate TCPD series (shipped), watched from 20% of their length.
+
+  raw scoring (as round 5):
+  policy           alerts  at a mark (share)  majority-marked reached  end-pending at the last check
+  now                 106         45 (42.5%)          33/52             0
+  hold                106         45 (42.5%)          33/52             0
+  persist2            103         44 (42.7%)          32/52             1
+  hold+persist2       103         44 (42.7%)          32/52             1
+
+  censored scoring, 'hold' against 'hold+persist2' (header): censored marks 1 (children_per_woman row 145)
+  hold                105         44 (41.9%)          32/51  alerts set apart: 1
+  hold+persist2       103         44 (42.7%)          32/51  alerts set apart: 0
+
+  per series where the two differ (raw alerts / marked / reached of majority; end-pending):
+    children_per_woman     hold 6/1/1 of 2   hold+persist2 4/0/0 of 2; end-pending rows 142
+    quality_control_4      hold 11/3/1 of 1   hold+persist2 10/3/1 of 1; end-pending none
+
+Part C: the 7 held-out TCPD series (seen by round 5's report, not by its rule).
+
+  raw scoring (as round 5):
+  policy           alerts  at a mark (share)  majority-marked reached  end-pending at the last check
+  now                  61         26 (42.6%)           9/12             0
+  hold                 61         26 (42.6%)           9/12             0
+  persist2             59         25 (42.4%)           9/12             0
+  hold+persist2        59         25 (42.4%)           9/12             0
+
+  censored scoring, 'hold' against 'hold+persist2' (header): censored marks 0
+  hold                 61         26 (42.6%)           9/12  alerts set apart: 0
+  hold+persist2        59         25 (42.4%)           9/12  alerts set apart: 0
+
+  per series where the two differ (raw alerts / marked / reached of majority; end-pending):
+    iceland_tourism        hold 3/0/0 of 0   hold+persist2 2/0/0 of 0; end-pending none
+    scanline_126007        hold 17/15/1 of 1   hold+persist2 16/14/1 of 1; end-pending none
+
+Part D, deciding nothing: 57 series in data/ (no labels), watched from 20% of their length.
+
+  now              alerts  130   series ending with a change waiting on its second check: 0
+  hold             alerts  130   series ending with a change waiting on its second check: 0
+  persist2         alerts  125   series ending with a change waiting on its second check: 0
+  hold+persist2    alerts  125   series ending with a change waiting on its second check: 0
+
+Rule, 'hold+persist2' against 'hold':
+  (a) mean null false alerts 2.06 vs 2.13: pass
+  (b) steps 39 vs 39, median delay 5 vs 5: pass
+  (c) TCPD censored: reached 32 vs 32 of 51, alerts 103 vs 105, at a mark 42.7% vs 41.9%: pass
+  (d) held out censored: reached 9 vs 9 of 12, alerts 59 vs 61: pass
+Adopted: 'hold+persist2' becomes the watch's default.

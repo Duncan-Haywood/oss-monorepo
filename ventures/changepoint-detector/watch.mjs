@@ -56,8 +56,8 @@ Options:
   --window <n>              refit only the newest n points (default: ${WATCH_DEFAULTS.window})
   --alert-old-history       also alert on a change found later but dated inside the history the first check called quiet
                             (default since round 5: record it as held, not alerted)
-  --persist <k>             alert only on a change also found at the previous check (k 2; default ${WATCH_DEFAULTS.persist ?? 1}, alert at once).
-                            Both are flicker guards: README, "Round 5".
+  --persist <k>             2 (the default since round 7): alert only on a change also found at the previous check, one
+                            check later; 1: alert at once. Both are flicker guards: README, "Round 5" and "Round 7".
   --webhook-env <NAME>      POST each new alert to the URL in environment variable NAME (Slack, Discord, Teams, Mattermost)
   --fail-on-alert           exit 1 when there is a new alert (a CI run then fails and its owner is emailed)
   --alert-history           on the first check, alert on the changes already in the history too (default: record them as the baseline)

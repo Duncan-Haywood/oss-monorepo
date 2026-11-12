@@ -58,9 +58,13 @@ import { parseSeries } from '../engine.mjs';
 
 const TOL = 5, CONFIRM = 5;
 export const POLICIES = {
-  now: {},
-  hold: { holdHistory: true },
-  persist2: { persist: 2 },
+  // Every option explicit (fixed after round 7's run): advance() fills gaps from WATCH_DEFAULTS, so once round 5
+  // made hold the default, `{}` meant hold, not the old default, and once round 7 made persist 2 the default, `hold`
+  // would have meant hold+persist2. The decision pairs (round 5: now vs the rest; round 7: hold vs hold+persist2)
+  // are unchanged by this; only the meaning of the names in later reruns is pinned.
+  now: { holdHistory: false, persist: 1 },
+  hold: { holdHistory: true, persist: 1 },
+  persist2: { holdHistory: false, persist: 2 },
   'hold+persist2': { holdHistory: true, persist: 2 },
 };
 const shipped = (v, l) => detectBoth(v, l, { model: 'mean', detector: 'bocpd-ar1-window', rhoCap: 0.8 })['bocpd-ar1-window'];
