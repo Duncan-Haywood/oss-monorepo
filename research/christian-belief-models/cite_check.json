@@ -1,7 +1,19 @@
 {
+ "arxiv:2311.01453": {
+  "checked": "2026-11-12",
+  "title": "PPI++: Efficient Prediction-Powered Inference (2023)"
+ },
+ "doi:10.1007/978-1-4612-4378-6": {
+  "checked": "2026-11-12",
+  "title": "Model Assisted Survey Sampling (1992)"
+ },
  "doi:10.1017/CBO9781139035613": {
   "checked": "2026-11-12",
   "title": "Density Ratio Estimation in Machine Learning (2012)"
+ },
+ "doi:10.1126/science.adi6000": {
+  "checked": "2026-11-12",
+  "title": "Prediction-powered inference (2023)"
  },
  "doi:10.1198/016214501750332758": {
   "checked": "2026-11-12",
