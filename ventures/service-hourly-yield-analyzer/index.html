@@ -32,7 +32,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -179,7 +179,7 @@
       const s = a.summary, w = a.whatIf, c = a.capacity;
       $("#big").innerHTML = [[dash(s.yield, usd), "revenue per booked hour"], [usd(s.revenue), `revenue over ${s.hours} booked hours`], [dash(s.avgPrice, usd), `average booking (${s.avgMinutes ?? "–"} min)`], [s.noShowHours + " h", "empty chair time from no-shows"]].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
       $("#report-stats").textContent = `${s.firstDay} to ${s.lastDay} (${s.spanDays} days). ${s.completed} completed booking(s), ${s.usedInYield} with both a price and a length. ${s.noShows} no-show, ${s.leftOut} cancelled or open and left out.` + (n.hasStatus ? "" : " The file has no status column, so every row was treated as completed.");
-      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
       $("#what-if").innerHTML = w.flagged.length ? `Your assumptions: raise ${esc(w.flagged.join(", "))} by ${w.priceUpPct}% and lose ${w.volumeLossPct}% of their bookings. On ${usd(w.flaggedRevenue)} of revenue over ${w.flaggedHours} hours that changes revenue by <strong>${w.gain < 0 ? "-" : "+"}${usd(Math.abs(w.gain))}</strong> over the period in the file, about <strong>${usd(w.gainPerYear)} a year</strong>, and frees ${w.freedHours} hours you could fill with higher-yield work. These are your assumptions, not a forecast.` : `No service with enough bookings earns under ${w.lowYieldPct}% of your average per hour, so there is nothing to flag. Raise the threshold to flag more.`;
       $("#capacity").textContent = c ? `${c.heldPerWeek} booked hours a week against ${c.openHours} open (${c.utilizationPct.toFixed(0)}%)` + (c.overCapacity ? ". That is above your open hours, so check the hours you typed or whether the file covers more than one chair." : `, about ${c.idlePerWeek} idle hours a week. At your average of ${usd(s.yield ?? 0)} an hour, each extra hour filled per week is worth about ${usd(c.valuePerFilledHourYear ?? 0)} a year.`) : "Type the hours you are open per week above to see utilisation and the value of idle hours.";
       fill("#by-service", a.byService, "No services.");

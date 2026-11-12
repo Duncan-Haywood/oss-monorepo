@@ -34,7 +34,7 @@
     td.wet { background: #dbeaf3; font-weight: 600; }
     .finding { border-bottom: 1px solid #e6edf0; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #f8dcd6; color: #7a1f10; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -186,7 +186,7 @@
         [`R-${a.rTotalIP.toFixed(1)}`, "layers only, IP"],
       ];
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
       const row = a.worstRow || a.coldest;
       $("#chart-title").textContent = `Pressure profile in ${row.name} (outdoor ${temp(row.tOut)}, indoor ${temp(row.tIn)})`;
       $("#chart").innerHTML = chart(a, row);

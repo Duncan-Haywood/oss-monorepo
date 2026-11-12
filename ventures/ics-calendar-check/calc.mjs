@@ -75,6 +75,31 @@ function validYMD(y, m, d) {
 }
 
 // Returns { kind: "date"|"datetime", utc, ms, value } or { error }.
+// The UTC instant of a wall-clock time in an IANA zone, or null when the zone is not one Intl knows
+// (a custom VTIMEZONE name, for example). Two passes settle the offset across a DST change.
+export function zonedToUtcMs(wallMs, tzid) {
+  let fmt;
+  try { fmt = new Intl.DateTimeFormat("en-US", { timeZone: tzid, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }); }
+  catch { return null; }
+  const wallOf = (ms) => {
+    const p = Object.fromEntries(fmt.formatToParts(new Date(ms)).map((x) => [x.type, x.value]));
+    return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second);
+  };
+  let guess = wallMs;
+  for (let i = 0; i < 2; i++) guess = wallMs - (wallOf(guess) - guess);
+  return guess;
+}
+
+// Compare DTSTART and DTEND as instants. Same zone (or both UTC, or both floating): wall clocks compare directly.
+// Different zones: convert each to UTC; if either zone is unknown, return null (not comparable, so no finding).
+function instantCompare(s, sTz, e, eTz) {
+  const zs = s.utc ? "Z" : (sTz || ""), ze = e.utc ? "Z" : (eTz || "");
+  if (zs === ze) return e.ms - s.ms;
+  const toUtc = (t, z) => (z === "Z" ? t.ms : z === "" ? null : zonedToUtcMs(t.ms, z));
+  const a = toUtc(s, zs), b = toUtc(e, ze);
+  return a == null || b == null ? null : b - a;
+}
+
 export function parseTime(value) {
   let m = DATE_RE.exec(value);
   if (m) {
@@ -251,7 +276,8 @@ export function validate(text) {
             if (e.error) findings.push(F("error", de.line, `${at}bad DTEND`, e.error));
             else {
               if (e.kind !== s.kind) findings.push(F("error", de.line, `${at}DTSTART and DTEND are different types`, `DTSTART is a ${s.kind} and DTEND is a ${e.kind}. They must match.`));
-              else if (e.ms < s.ms) findings.push(F("error", de.line, `${at}ends before it starts`, `DTEND ${de.value} is earlier than DTSTART ${ds.value}. Often a swapped pair, or an end time typed without the next day.`));
+              else if (s.kind === "datetime" && (instantCompare(s, ds.params.TZID, e, de.params.TZID) ?? 0) < 0) findings.push(F("error", de.line, `${at}ends before it starts`, `DTEND ${de.value} is earlier than DTSTART ${ds.value}. Often a swapped pair, or an end time typed without the next day.`));
+              else if (s.kind === "date" && e.ms < s.ms) findings.push(F("error", de.line, `${at}ends before it starts`, `DTEND ${de.value} is earlier than DTSTART ${ds.value}. Often a swapped pair, or an end time typed without the next day.`));
               else if (e.ms === s.ms && s.kind === "date") findings.push(F("warning", de.line, `${at}all-day event with zero length`, "For all-day events DTEND is the day after the last day (exclusive). With DTEND equal to DTSTART the event has no duration and may not display. DTEND moved forward one day automatically.", { fixable: true, code: "allday-end", ev: ev.line }));
             }
           }

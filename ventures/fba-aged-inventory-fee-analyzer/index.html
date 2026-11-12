@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -163,7 +163,7 @@
       last = a;
       const s = a.summary;
       $("#report-stats").innerHTML = `${s.skus} SKU(s), ${s.units} unit(s), ${s.aged} of them 181+ days old. Holding everything costs about <strong>$${money(s.holdFees)}</strong> in fees over ${s.horizonMonths} month(s) ($${money(s.holdStorage)} storage, $${money(s.holdSurcharge)} aged surcharge). Following the best option per SKU improves projected profit by about <strong>$${money(s.gain)}</strong> across ${s.actions} SKU(s).`;
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#by-sku").innerHTML = a.rows.map((x) => `<tr><th scope="row">${esc(x.sku)}${x.title ? `<br><span class="note">${esc(x.title)}</span>` : ""}</th><td class="n">${x.units}</td><td class="n">${x.aged}</td><td class="n">${x.velocity}</td><td class="n">${money(x.margin)}</td><td class="n">${money(x.holdFees)}</td><td class="n">${esc(x.bestLabel)}</td><td class="n">${money(x.gain)}</td></tr>`).join("");
       $("#action-sku").innerHTML = a.rows.map((x) => `<option value="${esc(x.sku)}">${esc(x.sku)}</option>`).join("");
       const showOptions = () => { const x = a.rows.find((q) => q.sku === $("#action-sku").value); $("#options").innerHTML = x ? x.options.map((o) => `<tr><th scope="row">${esc(o.label)}${o.label === x.bestLabel ? " ✓" : ""}</th><td class="n">${money(o.fees)}</td><td class="n">${money(o.profit)}</td></tr>`).join("") : ""; };

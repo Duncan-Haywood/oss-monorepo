@@ -1,4 +1,4 @@
-# CI perf, 2026-11-12: carry-over search, 17% less CPU, same schedules
+# CI perf, 2026-11-12: carry-over search, `teamSwapRounds` scratch marks (6% on top of PR #14961)
 
 Perf track, prompt 0. Both open perf backlog items (P063, P064) touch
 `.github/workflows/`, which CODEOWNERS holds for the owner. This run took item 1
@@ -34,6 +34,14 @@ longest test files. No open PR touches `carryover.mjs`.
 | `coeCost` | 3.4 s |
 | `within` (inlined `hostBreaks`) | 1.3 s |
 
+## Overlap with PR #14961
+
+A parallel perf session landed PR #14961 while this one was open: its
+`legTwoScorer` does what change 1 below did for the leg-two breaks and also
+reuses leg one's carry-over counts, so it supersedes change 1. On merging `main`
+this branch took #14961's version and kept change 2 only. Numbers for what landed
+are under "After the merge".
+
 ## Change (`ventures/league-schedule-generator/carryover.mjs`)
 
 1. **`hostBreaks` became `legTwoHostBreaks`.** Its three callers (the double
@@ -57,6 +65,12 @@ longest test files. No open PR touches `carryover.mjs`.
   league-schedule-generator`): ok, 121.0 s (128 s on 2026-11-12 before this run,
   same container type).
 
+### After the merge (what landed)
+
+Same workload script, `main` with #14961 against `main` plus change 2, two runs
+each, back to back: 44.1 s / 43.8 s against **42.5 s / 39.9 s** (about 6%),
+hash `2eb5936daff0a1c8` for all four, the same as before either PR.
+
 The test files gain less than the workload because their single-leg 8-team
 tries spend most of their time in `mixed` (carry-over plus the greedy breaks
 pass), which this run did not touch. The same search runs in the browser worker
@@ -64,7 +78,8 @@ behind the page's "best of k" button, so the CPU saved there is a visitor's too.
 
 ## Not changed, ranked for the next run
 
-1. **An incremental carry-over delta inside `anneal`.** Carry-over is an integer
+1. **An incremental carry-over delta inside `anneal`** (check #14961's
+   history doc first: it already reuses leg one's counts). Carry-over is an integer
    (a sum of squared counts), so a delta over the rows a move touches would be
    exact, unlike the float costs in `divisions.mjs`. It needs the cost closures
    split into a carry-over part and a breaks part; `greedyBreaks` and

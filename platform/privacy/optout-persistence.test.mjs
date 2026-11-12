@@ -1732,7 +1732,8 @@ const RELATIVE_SELF = relative(
 // +1: `fdr-multiple-testing` graduated.
 // +1: `gitignore-explainer` graduated.
 // +1: `semver-range-explainer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1311;
+// +1: `earthwork-cut-fill` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1312;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.

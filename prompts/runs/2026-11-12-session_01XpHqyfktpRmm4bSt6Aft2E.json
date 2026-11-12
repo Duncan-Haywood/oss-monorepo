@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyfktpRmm4bSt6Aft2E",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T01:39:09Z",
+  "ended": "2026-11-12T01:51:39Z",
+  "wall_minutes": 12.78,
+  "tokens_in": 5447314,
+  "tokens_out": 66608,
+  "cost_usd": 3.4654,
+  "tool_calls": 56,
+  "task": "explore: new venture earthwork-cut-fill (survey points to exact TIN cut and fill)",
+  "projects": [
+    "ventures/earthwork-cut-fill"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14962",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 2,
+  "review_findings": null,
+  "tests_added": 30,
+  "outcome": "success",
+  "errors": [
+    "Bowyer-Watson with a finite super-triangle lost a convex-hull sliver on one random set (121 of 122 triangles, 0.35 cu ft volume error); caught by a two-TIN closed-form test, fixed with a hull-closing boundary pass and a 40-seed stress test.",
+    "Balance sheet showed a phantom truckload from the bisection residual; fixed with a balanced tolerance.",
+    "Map coloured whole triangles past the boundary; now draws the clipped pieces.",
+    "Push hook rejected the post description (223 chars > 160); shortened in a separate commit.",
+    "CI ventures-tests: UNITS[input.units] flagged by inherited_keys.py (prototype keys); fixed with Object.hasOwn.",
+    "CI validate: optout-persistence pins the opt-out catalogue count (1311); raised to 1312 with an `earthwork-cut-fill graduated` note.",
+    "Local site-builder tests: earthwork-cut-fill landed in the catch-all section, FAQ JSON-LD not visible on page, no launch date; filed under the trades section in build.mjs, rendered the FAQ visibly, ran launched.mjs --write.",
+    "CI portfolio-pages test: trades tool needed a SUBCATEGORY_RULES keyword (added earthwork- to trades-site). Local full site-builder suite then: 1553 pass, 1 fail -> fixed, targeted rerun 4/4."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The post front-matter description limit (160 chars) is enforced by a push hook but not mentioned where posts are asked for; cost one extra commit."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes needs a merge-base, so on the fresh shallow clone it refuses until `git fetch --depth=40 origin main`; that step could be automatic."
+    },
+    {
+      "file": "ventures/CLAUDE.md",
+      "issue": "A new venture must bump SWITCHES_IN_THE_CATALOGUE in platform/privacy/optout-persistence.test.mjs and pass inherited_keys.py; neither is in the new-venture guidance, so both surfaced only in CI. Same for the site builder's section list (build.mjs), visible-FAQ rule and launched.json; the semver-range-explainer run hit the FAQ one too."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "why": "'Calculators are a poor use of a run' \u2014 built a new venture that is calculator-shaped but whose core (Delaunay TIN from a survey file, exact two-surface overlay, balance search) is not something a chatbot reply gives.",
+      "did": "Built earthwork-cut-fill with a Qhull differential check instead of deepening a flagship.",
+      "result": "Merged-quality tool with exact, independently verified volumes; demand untested."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-cut-and-fill-from-a-point-file.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: earthwork cut/fill from survey point files (construction direction). Verification: node tests 30/30; check/differential.py identical triangle sets to SciPy Qhull on 5x800-point state-plane sets, volumes within 6e-14; Chromium smoke (example, balance, no console errors, 380px no overflow); siblings.mjs --check 0 orphans. No agent doc written: README carries Next steps (breaklines, daylight slopes). CI all green on 3547dc0c after three fix rounds (inherited-keys guard, opt-out count, catch-all section/FAQ/launch date, trades sub-group).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d2ba6081-3f6f-55a9-88ea-e7ed346e6feb",
+    "transcripts": 1,
+    "first": "2026-11-12T01:39:09Z",
+    "last": "2026-11-12T01:51:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 91,
+        "output": 66608,
+        "thinking": 9669,
+        "cache_read": 5313453,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133770,
+        "api_equivalent_usd": 3.4654,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 91,
+      "output": 66608,
+      "thinking": 9669,
+      "cache_read": 5313453,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133770,
+      "api_equivalent_usd": 3.4654,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 44,
+      "Write": 7,
+      "Edit": 2,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.78,
+      "active_minutes": 12.78,
+      "model_minutes": 9.57,
+      "tool_minutes": 3.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "engineer building a Delaunay TIN, exact two-surface volume overlay, balance search, page, explainer and Qhull differential check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 461.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

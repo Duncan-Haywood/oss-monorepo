@@ -97,6 +97,12 @@ test("capped double: two legs, return game at the other ground, no back-to-back 
   }
 });
 
+// The six 12-team tries tests 5 and 8 both read: a try does not depend on the pick, so they are
+// searched once and each test combines its own copy (bestCarryOverRounds is combineCarryOverTries
+// over these by construction, and test 6 pins that a pool returns the serial result).
+let twelve = null;
+const twelveTries = () => (twelve ??= [0, 1, 2, 3, 4, 5].map((i) => carryOverTry(12, i, { double: true, seed: 1, effort: 0.3, weighted: 4 })));
+
 test("capped tries reach the few-breaks end: at 12 teams fewer breaks than every weighted try", () => {
   const r = bestCarryOverRounds(12, { double: true, seed: 1, tries: 4, capped: 2, effort: 0.3, pick: 0 });
   assert.equal(r.tries.length, 6);
@@ -105,7 +111,9 @@ test("capped tries reach the few-breaks end: at 12 teams fewer breaks than every
   r.tries.slice(4).forEach((c) => assert.ok(c.breaks <= c.maxBreaks));
   const weightedFewest = Math.min(...r.tries.slice(0, 4).map((c) => c.breaks));
   assert.ok(Math.min(...r.tries.slice(4).map((c) => c.breaks)) < weightedFewest, JSON.stringify(r.tries));
-  const few = combineCarryOverTries(r.tries.map((_, i) => carryOverTry(12, i, { double: true, seed: 1, effort: 0.3, weighted: 4 })), 1e6);
+  const all = twelveTries();
+  assert.deepEqual(combineCarryOverTries(structuredClone(all), 0).rounds, r.rounds, "the tries are the search's own");
+  const few = combineCarryOverTries(structuredClone(all), 1e6);
   assert.ok(few.tries[few.chosen].maxBreaks != null, "a large trade keeps a capped try");
   assert.ok(carryOverSummary(few).candidates.slice(4).every((c) => Number.isInteger(c.maxBreaks)));
 });
@@ -138,7 +146,7 @@ test("the 'fewest' choice survives a share link and keeps the capped minimum", a
   const f = { teams: "A\nB\nC\nD\nE\nF", start: "2026-01-05", weekdays: ["Mon"], carryOver: true, carryOverPick: "fewest", skip: "", blackouts: "" };
   assert.equal(decodeFields(encodeFields(f)).carryOverPick, "fewest");
   assert.equal(readSpec(f).spec.carryOverPick, CARRY_OVER_PICK.fewest);
-  const r = bestCarryOverRounds(12, { double: true, seed: 1, tries: 4, capped: 2, effort: 0.3, pick: CARRY_OVER_PICK.fewest });
+  const r = combineCarryOverTries(structuredClone(twelveTries()), CARRY_OVER_PICK.fewest);
   assert.equal(r.breaks, Math.min(...r.tries.map((c) => c.breaks)));
   assert.equal(r.breaks, 3 * (12 - 2), "the mirrored minimum 3(n - 2)");
 });

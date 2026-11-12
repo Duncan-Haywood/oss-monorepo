@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -177,7 +177,7 @@
       $("#report-stats").innerHTML = `${s.firstMonth} to ${s.lastMonth}: <strong>${money(s.currentMrr)} MRR</strong> across ${s.currentCustomers} active subscriptions (average ${money(s.arpa)}). Last 3 complete months (${esc(s.windowLabel)}): logo churn <strong>${pct(s.logoChurn)}</strong>/month, revenue churn ${pct(s.revenueChurn)}/month`
         + (s.lifetimeMonths ? `, implied lifetime ${s.lifetimeMonths.toFixed(1)} months, revenue LTV ${money(s.revenueLtv)}` : "")
         + (s.quickRatio ? `, quick ratio ${s.quickRatio.toFixed(1)}` : "") + ".";
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#waterfall").innerHTML = r.months.map((m) => `<tr><th scope="row">${m.key}</th><td class="n">${money(m.startMrr)}</td><td class="n">${money(m.newMrr)}</td><td class="n">${money(-m.churnedMrr)}</td><td class="n">${money(m.endMrr)}</td><td class="n">${m.endCustomers}</td><td class="n">${m.startCustomers ? pct(m.churnedCustomers / m.startCustomers) : "–"}</td></tr>`).join("");
       const maxK = Math.max(...r.cohorts.map((c) => c.logo.length));
       $("#cohort-head").innerHTML = `<tr><th scope="col">Cohort</th><th class="n" scope="col">Subs</th>${Array.from({ length: maxK }, (_, k) => `<th class="n" scope="col">M${k}</th>`).join("")}</tr>`;

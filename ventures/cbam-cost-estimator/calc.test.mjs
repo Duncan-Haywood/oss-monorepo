@@ -48,9 +48,26 @@ test("under 50 tonnes is flagged as likely outside CBAM", () => {
   assert.equal(compute(base()).underThreshold, false);
 });
 
-test("hydrogen mass does not count toward the threshold", () => {
-  const r = compute(base({ lines: [{ good: "hydrogen", tonnes: "500", intensity: "", benchmark: "" }] }));
+test("hydrogen is never exempt under the 50 t threshold (Regulation 2025/2083)", () => {
+  const r = compute(base({ lines: [{ good: "hydrogen", tonnes: "10", intensity: "", benchmark: "" }] }));
+  assert.equal(r.underThreshold, false);
+  assert.equal(r.massCounted, 0);
+  assert.match(r.findings[0].title, /Hydrogen imports are not covered/);
+});
+
+test("exactly 50 t does not exceed the threshold", () => {
+  const r = compute(base({ lines: [{ good: "steel-bf", tonnes: "50", intensity: "", benchmark: "" }] }));
   assert.equal(r.underThreshold, true);
+  assert.equal(compute(base({ lines: [{ good: "steel-bf", tonnes: "50.1", intensity: "", benchmark: "" }] })).underThreshold, false);
+});
+
+test("a comma thousands separator is not read as a decimal comma", () => {
+  assert.equal(num("1,200"), 1200);
+  assert.equal(num("12,500,000"), 12500000);
+  assert.equal(num("1,5"), 1.5);
+  assert.equal(num("1 200"), 1200);
+  const r = compute(base({ lines: [{ good: "steel-bf", tonnes: "1,200", intensity: "", benchmark: "" }] }));
+  assert.equal(r.underThreshold, false);
 });
 
 test("blank intensity falls back to the preset and says so", () => {

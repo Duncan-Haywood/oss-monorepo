@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -174,7 +174,7 @@
       const s = r.summary, cur = s.currency ? `${esc(s.currency)} ` : "";
       const span = s.from !== null ? `${dateStr(s.from)} to ${dateStr(s.to)}. ` : "";
       $("#report-stats").innerHTML = `${span}${s.sold} units sold, ${s.refundUnits} refunded (${pct(s.refundRate)}), ${s.netUnits} net: <strong>net royalty ${cur}${money(s.royalty)}</strong>${s.kenp ? `, ${s.kenp.toLocaleString("en-US")} KENP pages${s.kenpValue !== null ? ` worth ${cur}${money(s.kenpValue)} at your rate` : " (not valued)"}` : ""}, <strong>total ${cur}${money(s.total)}</strong>, ${rate(s.royaltyPerUnit)} per net unit.`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#by-title").innerHTML = r.byTitle.map((t) => `<tr><th scope="row">${esc(t.label)}</th><td class="n">${t.sold}</td><td class="n">${t.refundUnits}</td><td class="n">${pct(t.refundRate)}</td><td class="n">${t.netUnits}</td><td class="n">${money(t.royalty)}</td><td class="n">${rate(t.royaltyPerUnit)}</td><td class="n">${t.kenp.toLocaleString("en-US")}</td><td class="n">${rate(t.kenpValue)}</td><td class="n">${money(t.total)}</td><td class="n">${pct(t.share)}</td></tr>`).join("");
       $("#by-market").innerHTML = r.byMarket.map((m) => `<tr><th scope="row">${esc(m.label)}</th><td class="n">${m.netUnits}</td><td class="n">${money(m.royalty)}</td><td class="n">${m.kenp.toLocaleString("en-US")}</td><td class="n">${money(m.total)}</td><td class="n">${pct(m.share)}</td></tr>`).join("");
       $("#by-format").innerHTML = r.byFormat.map((m) => `<tr><th scope="row">${esc(m.label)}</th><td class="n">${m.netUnits}</td><td class="n">${money(m.royalty)}</td><td class="n">${rate(m.royaltyPerUnit)}</td><td class="n">${pct(m.share)}</td></tr>`).join("");

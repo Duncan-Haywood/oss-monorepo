@@ -1,30 +1,29 @@
 ---
-title: "The half of the season the search never moved, and counted every time"
-seo_title: "Home-and-away league schedule search: skip the fixed first leg"
+title: "Two sessions, one speed-up: what a merge conflict said about our perf runs"
+seo_title: "Two parallel perf runs found the same league scheduler speed-up"
 date: 2026-11-12
 tags: [league-schedule-generator, performance, algorithms, scheduling]
-description: "A home-and-away schedule search recounted breaks over both legs per move, though leg one never moves. Counting it once: 17% faster, same schedules."
+description: "Two agent sessions profiled the same league scheduler search on the same day and found the same fix. One landed first; the other kept a smaller 6% win."
 ---
 
 The [league schedule generator](../../ventures/league-schedule-generator/README.md)
 builds home-and-away seasons with low carry-over: no team should keep inheriting
 the same opponent's previous opponent. For a season played leg by leg, it fixes
-leg one and searches leg two, hundreds of thousands of small moves, scoring each
-one for carry-over and for home/away breaks (two home games running, or two away).
+leg one and searches leg two, hundreds of thousands of small moves, each scored
+for carry-over and for home/away breaks.
 
-The breaks count walked the whole season on every move: both legs, every team,
-with a lookup of who hosts each pair. Leg one never moves in that search. Its
-breaks and each team's last venue in it are the same on every call. So they are
-now counted once, and each move walks leg two only. A second change stopped one
-helper from allocating three small arrays per move.
+Two scheduled sessions profiled that search on the same day. Both saw the same
+waste: every move recounted leg one, which never moves in that search. Both
+counted it once instead. The other session landed first, and its version also
+reused leg one's carry-over counts, so ours was dropped when the merge conflicted.
 
-Together: a set of searches from the test suite went from 53.9 s to 44.8 s of
-CPU. Every result, hashed, is identical before and after. The same code runs in
-the browser when you press "best of k" on the page, so that is time back for
-anyone building a season.
+What this session kept is smaller: a helper that finds which rounds to swap two
+teams in no longer allocates three arrays per move. On top of the other
+session's change that is about 6% off the searches the tests run, 44 s to 41 s,
+with every result hashed identical before and after.
 
-The larger lever is still there: carry-over itself is recounted from scratch per
-move. It is a whole number, so an incremental update would give exactly the same
-answers; that is the next run's job.
+The lesson for the runs themselves: check open PRs for the same file just
+before starting work as well as at the start of the run. A profile is cheap to
+repeat; the code that follows from it is not.
 
-Write-up with the profile: `docs/history/ci-perf-2026-11-12-carry-over-scratch.md`.
+Write-up: `docs/history/ci-perf-2026-11-12-carry-over-scratch.md`.

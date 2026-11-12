@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -157,7 +157,7 @@
       last = a;
       const tiles = [[usd(a.deduction), "deduction, Schedule 1"], [usd(a.taxSaved), "income tax saved"], [usd(a.afterTaxCost), "premiums after tax"], [usd(a.eligiblePremiums), "premiums that qualify"], [usd(a.limit), "profit ceiling"], [usd(a.notDeducted), "not deducted here"]];
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#scen-table tbody").innerHTML = a.scenarios.map((s) => `<tr class="${s.label.startsWith("100") ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.income)}</td><td class="n">${usd(s.limit)}</td><td class="n">${usd(s.deduction)}</td><td class="n">${usd(s.taxSaved)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done (" + TAX_YEAR + " figures). Scroll down for the result.";

@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -168,7 +168,7 @@
       const tiles = [[usd(a.firstOnTime), "first RMD, year " + a.first.year], [String(a.start), "your RMD start age"], [usd(a.totalRmd), "RMDs through age " + a.throughAge]];
       if (a.totalTax > 0) tiles.push([usd(a.totalTax), "estimated federal tax on RMDs"]);
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#proj-table tbody").innerHTML = a.rows.map((r) => `<tr><td>${r.year}</td><td>${r.age}</td><td class="n">${r.factor}</td><td class="n">${r.delayed ? "April 1 next year" : usd(r.rmd)}</td><td class="n">${usd(r.qcd)}</td><td class="n">${usd(r.taxable)}</td><td class="n">${usd(r.tax)}</td><td class="n">${usd(r.end)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";

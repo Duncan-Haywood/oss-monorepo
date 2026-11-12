@@ -984,10 +984,13 @@ function assignVenuesOnce(opp, n, seed, { start = null, runs = true } = {}) {
     return b;
   };
   const PEN = 50;
+  // tb[t]: team t's breaks now, kept current by both moves, so a run move recounts only the
+  // touched teams after the flip, not before it too
+  const tb = new Int32Array(N);
   let cost = 0;
-  for (let t = 0; t < n; t++) cost += teamBreaks(venues, opp, t, n) + PEN * imb(t);
+  for (let t = 0; t < n; t++) { tb[t] = teamBreaks(venues, opp, t, n); cost += tb[t] + PEN * imb(t); }
   const iters = Math.max(5000, 60 * R * N);
-  const teamCost = (x) => teamBreaks(venues, opp, x, n) + PEN * imb(x);
+  const after = new Int32Array(R + 1);
   const flipMatch = (q, x) => {
     const y = opp[q][x], hx = venues[q][x];
     venues[q][x] = hx ? 0 : 1; venues[q][y] = hx ? 1 : 0;
@@ -1011,21 +1014,21 @@ function assignVenuesOnce(opp, n, seed, { start = null, runs = true } = {}) {
       const touched = [t];
       for (let q = a; q <= b; q++) touched.push(opp[q][t]);
       let before = 0;
-      for (const x of touched) before += teamCost(x);
+      for (const x of touched) before += tb[x] + PEN * imb(x);
       for (let q = a; q <= b; q++) flipMatch(q, t);
-      let after = 0;
-      for (const x of touched) after += teamCost(x);
-      const d = after - before;
-      if (d <= 0 || rand() < Math.exp(-d / T)) cost += d;
+      let d = -before;
+      for (let i = 0; i < touched.length; i++) { const x = touched[i]; after[i] = teamBreaks(venues, opp, x, n); d += after[i] + PEN * imb(x); }
+      if (d <= 0 || rand() < Math.exp(-d / T)) { cost += d; for (let i = 0; i < touched.length; i++) tb[touched[i]] = after[i]; }
       else for (let q = a; q <= b; q++) flipMatch(q, t);
     } else {
-      const before = local(r, t) + local(r, u) + PEN * (imb(t) + imb(u));
+      const lt = local(r, t), lu = local(r, u);
+      const before = lt + lu + PEN * (imb(t) + imb(u));
       const ht = venues[r][t];
       venues[r][t] = ht ? 0 : 1; venues[r][u] = ht ? 1 : 0;
       homeCount[t] += ht ? -1 : 1; homeCount[u] += ht ? 1 : -1;
-      const after = local(r, t) + local(r, u) + PEN * (imb(t) + imb(u));
-      const d = after - before;
-      if (d <= 0 || rand() < Math.exp(-d / T)) cost += d;
+      const lt2 = local(r, t), lu2 = local(r, u);
+      const d = lt2 + lu2 + PEN * (imb(t) + imb(u)) - before;
+      if (d <= 0 || rand() < Math.exp(-d / T)) { cost += d; tb[t] += lt2 - lt; tb[u] += lu2 - lu; }
       else { venues[r][t] = ht; venues[r][u] = ht ? 0 : 1; homeCount[t] += ht ? 1 : -1; homeCount[u] += ht ? -1 : 1; }
     }
     // the legacy search returned where it ended; the run search keeps the best it saw
@@ -1043,45 +1046,22 @@ function assignVenuesOnce(opp, n, seed, { start = null, runs = true } = {}) {
 // so every team has n - 1 home and n - 1 away games. The value is counted over the whole season,
 // including the step from the last game of leg one to the first of leg two.
 
-/**
- * Breaks over the whole season when `host` (who hosts each pair in leg one; the second meeting is
- * at the other ground) sets every venue, for searches that move leg two only (leg one's rows are
- * never touched). Each team's leg-one breaks and its last venue there are counted once, and the
- * hosts are read from a table hosts[t * N + u] = 1 when t hosts u, so each call walks leg two alone
- * (it used to walk the whole season with a min/max lookup per game: ci-perf-2026-11-12-carry-over-scratch).
- */
-function legTwoHostBreaks(leg1, n, R, host) {
-  const N = leg1[0].length;
-  const hosts = new Uint8Array(N * N);
-  for (let t = 0; t < N; t++) for (let u = 0; u < N; u++) if (t !== u && host[Math.min(t, u) * N + Math.max(t, u)] === t) hosts[t * N + u] = 1;
-  const lastOne = new Int8Array(n);
-  let base = 0;
+/** Breaks over the whole season when `host` (who hosts each pair in leg one) sets every venue. */
+function hostBreaks(opp, n, R, host) {
+  const N = opp[0].length;
+  let b = 0;
   for (let t = 0; t < n; t++) {
     let last = -1;
-    for (let r = 0; r < R; r++) {
-      const u = leg1[r][t];
+    for (let r = 0; r < opp.length; r++) {
+      const u = opp[r][t];
       if (u >= n) { last = -1; continue; }
-      const h = hosts[t * N + u];
-      if (h === last) base++;
+      const h1 = host[Math.min(t, u) * N + Math.max(t, u)] === t ? 1 : 0;
+      const h = r < R ? h1 : 1 - h1;
+      if (h === last) b++;
       last = h;
     }
-    lastOne[t] = last;
   }
-  return (opp) => {
-    let b = base;
-    const rows = opp.length;
-    for (let t = 0; t < n; t++) {
-      let last = lastOne[t];
-      for (let r = R; r < rows; r++) {
-        const u = opp[r][t];
-        if (u >= n) { last = -1; continue; }
-        const h = 1 - hosts[t * N + u];
-        if (h === last) b++;
-        last = h;
-      }
-    }
-    return b;
-  };
+  return b;
 }
 
 /**
@@ -1163,19 +1143,19 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
       const turned = leg1.map((o) => o.slice());
       [turned[0], turned[R - 1]] = [turned[R - 1], turned[0]];
       const starts = [opp.slice(R), mirror, turned].map((leg) => [...leg1.map((o) => o.slice()), ...leg.map((o) => o.slice())]);
-      const seasonBreaks = legTwoHostBreaks(leg1, n, R, host);
-      const fewest = Math.min(...starts.map((o) => seasonBreaks(o) + REPEAT_PENALTY * repeatsAcross(o, n, R)));
+      const fewest = Math.min(...starts.map((o) => hostBreaks(o, n, R, host) + REPEAT_PENALTY * repeatsAcross(o, n, R)));
       const cap = Math.max(maxBreaks, fewest);
-      const startCost = (o) => { const b = seasonBreaks(o); return coeCost(o) + (b > cap ? 1e9 : 0); };
+      const startCost = (o) => { const b = hostBreaks(o, n, R, host); return coeCost(o) + (b > cap ? 1e9 : 0); };
       opp = starts.reduce((a, b) => (startCost(b) < startCost(a) ? b : a));
-      const within = (o) => { const b = seasonBreaks(o); return coeCost(o) + (b > cap ? 1e9 : 0); };
+      const leg2 = legTwoScorer(leg1, n, host);
+      const within = (o) => { const b = leg2.breaks(o); return leg2.coe(o) + REPEAT_PENALTY * repeatsAcross(o, n, R) + (b > cap ? 1e9 : 0); };
       ({ bestOpp: opp } = anneal(opp, within, { iterations, T0, rand, stopAt: -Infinity, blocks: [[R, 2 * R]] }));
     } else if (breakWeight > 0) {
       // Leg one keeps the rounds and home/away the single search chose for it (already traded for
       // breaks); only leg two moves, and its venues follow from leg one, so the breaks in the cost
       // are exact rather than estimated.
-      const seasonBreaks = legTwoHostBreaks(leg1, n, R, host);
-      const exact = (o) => coeCost(o) + breakWeight * seasonBreaks(o);
+      const leg2 = legTwoScorer(leg1, n, host);
+      const exact = (o) => leg2.coe(o) + REPEAT_PENALTY * repeatsAcross(o, n, R) + breakWeight * leg2.breaks(o);
       ({ bestOpp: opp } = anneal(opp, exact, { iterations, T0, rand, stopAt: -Infinity, blocks: [[R, 2 * R]] }));
     } else {
       ({ bestOpp: opp } = anneal(opp, coeCost, { iterations, T0, rand, stopAt: lb, blocks }));
@@ -1217,6 +1197,66 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
 }
 
 const REPEAT_PENALTY = 1000;
+
+/**
+ * coeOf(o, n, false) and hostBreaks(o, n, R, host) for a season whose leg one is fixed (the two
+ * annealing passes that move leg two only): leg one's carry-over counts, its breaks and where each
+ * team stands at its end are counted once here, so each call walks leg two alone, about half the
+ * work. The values are the same integers the full counts give.
+ */
+function legTwoScorer(leg1, n, host) {
+  const R = leg1.length, N = leg1[0].length;
+  const base = new Int32Array(N * N);
+  const lastOpp = new Int32Array(N).fill(-1), lastHome = new Int32Array(N).fill(-1), breaks1 = new Int32Array(N);
+  let baseCoe = 0, baseBreaks = 0;
+  for (let k = 0; k < n; k++) {
+    let prev = -1, last = -1;
+    for (let r = 0; r < R; r++) {
+      const o = leg1[r][k];
+      if (o >= n) { last = -1; continue; }
+      if (prev >= 0) { const idx = prev * N + o; baseCoe += 2 * base[idx] + 1; base[idx]++; }
+      prev = o;
+      const h = host[Math.min(k, o) * N + Math.max(k, o)] === k ? 1 : 0;
+      if (h === last) breaks1[k]++;
+      last = h;
+    }
+    lastOpp[k] = prev; lastHome[k] = last; baseBreaks += breaks1[k];
+  }
+  let stamp = new Uint32Array(N * N), count = new Int32Array(N * N), gen = 0;
+  const coe = (opp) => {
+    if (++gen > 0xfffffffe) { stamp.fill(0); gen = 1; }
+    let value = baseCoe;
+    for (let k = 0; k < n; k++) {
+      let prev = lastOpp[k];
+      for (let r = R; r < opp.length; r++) {
+        const o = opp[r][k];
+        if (o >= n) continue;
+        if (prev >= 0) {
+          const idx = prev * N + o;
+          if (stamp[idx] !== gen) { stamp[idx] = gen; count[idx] = base[idx]; }
+          value += 2 * count[idx] + 1; count[idx]++;
+        }
+        prev = o;
+      }
+    }
+    return value;
+  };
+  const breaks = (opp) => {
+    let b = baseBreaks;
+    for (let t = 0; t < n; t++) {
+      let last = lastHome[t];
+      for (let r = R; r < opp.length; r++) {
+        const u = opp[r][t];
+        if (u >= n) { last = -1; continue; }
+        const h = host[Math.min(t, u) * N + Math.max(t, u)] === t ? 0 : 1;
+        if (h === last) b++;
+        last = h;
+      }
+    }
+    return b;
+  };
+  return { coe, breaks };
+}
 
 /** Teams whose last opponent in leg one is their first in leg two (byes skipped), plus a back-to-back bye. */
 function repeatsAcross(opp, n, R) {
@@ -1280,8 +1320,11 @@ export function assignVenuesDouble(opp, n, seed = 1, restarts = 6, initialHost =
       if (t < u) host[t * N + u] = k === 0 && initialHost ? initialHost[t * N + u] : (k <= 1 ? start[r][t] : rand() < 0.5) ? t : u;
     }
     const v = build(host);
+    // each team's cost reads only its own column, and a flip touches only t and u, so the cost
+    // before a move is the cached one (recounting it doubled the work of every move)
+    const tc = new Int32Array(N);
     let cost = 0;
-    for (let t = 0; t < n; t++) cost += teamCost(v, t);
+    for (let t = 0; t < n; t++) { tc[t] = teamCost(v, t); cost += tc[t]; }
     const iters = Math.max(8000, 80 * R * N);
     // the given host is already good: search it cold so it is only improved on
     const hot = k === 0 && initialHost ? 0.3 : 1.5;
@@ -1290,11 +1333,11 @@ export function assignVenuesDouble(opp, n, seed = 1, restarts = 6, initialHost =
       const r1 = Math.floor(rand() * R), t = Math.floor(rand() * N), u = opp[r1][t];
       if (t >= n || u >= n) continue;
       const r2 = round2[t * N + u];
-      const before = teamCost(v, t) + teamCost(v, u);
-      const flip = () => { for (const r of [r1, r2]) { v[r][t] ^= 1; v[r][u] ^= 1; } };
-      flip();
-      const d = teamCost(v, t) + teamCost(v, u) - before;
-      if (d <= 0 || rand() < Math.exp(-d / T)) cost += d; else flip();
+      v[r1][t] ^= 1; v[r1][u] ^= 1; v[r2][t] ^= 1; v[r2][u] ^= 1;
+      const ct = teamCost(v, t), cu = teamCost(v, u);
+      const d = ct + cu - tc[t] - tc[u];
+      if (d <= 0 || rand() < Math.exp(-d / T)) { cost += d; tc[t] = ct; tc[u] = cu; }
+      else { v[r1][t] ^= 1; v[r1][u] ^= 1; v[r2][t] ^= 1; v[r2][u] ^= 1; }
     }
     if (cost < bestCost) { bestCost = cost; best = v.map((x) => x.slice()); }
   }

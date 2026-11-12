@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -170,7 +170,7 @@
       const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
       const span = s.from !== null ? `${dateStr(s.from)} to ${dateStr(s.to)}. ` : "";
       $("#report-stats").innerHTML = `${span}${s.orders} orders${s.tips ? ` and ${s.tips} tips` : ""}: order value ${cur}${money(s.gross)}, fee ${cur}${money(s.fee)} (<strong>${pct(s.feeRate)} observed</strong>), net ${cur}${money(s.net)}, refunds ${cur}${money(s.refundNet)}, withdrawal costs ${cur}${money(s.moveFees)}, your costs ${cur}${money(s.orderCosts)}, <strong>take-home ${cur}${money(s.takeHome)}</strong>, which is <strong>${rate(s.takeHomePerOrder)} per order</strong> against an average order value of ${rate(s.avgOrderGross)}.`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const be = r.breakEven;
       $("#by-product").innerHTML = r.byProduct.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${g.orders}</td><td class="n">${money(g.gross)}</td><td class="n">${money(g.fee)}</td><td class="n">${pct(g.feeRate)}</td><td class="n">${money(g.net)}</td><td class="n">${money(g.refundNet)}</td><td class="n">${money(g.takeHome)}</td><td class="n">${rate(g.takeHomePerOrder)}</td><td class="n">${rate(g.netPerHour)}</td><td class="n">${be ? money(be.priceWithRefunds) : "–"}</td></tr>`).join("");
       $("#by-month").innerHTML = r.byMonth.length ? r.byMonth.map((m) => `<tr><th scope="row">${esc(m.label)}</th><td class="n">${m.orders}</td><td class="n">${money(m.gross)}</td><td class="n">${money(m.fee)}</td><td class="n">${money(m.net)}</td><td class="n">${money(m.takeHome)}</td></tr>`).join("") : `<tr><td colspan="6">The file has no dates.</td></tr>`;

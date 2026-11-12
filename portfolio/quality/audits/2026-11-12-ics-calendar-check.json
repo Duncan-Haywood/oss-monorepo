@@ -1,0 +1,282 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/ics-calendar-check",
+  "stratum": "venture",
+  "seed": "2026-11-12",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a senior engineer who maintains a published iCalendar feed (booking or events platform) and owns its interop with Google Calendar, Outlook and Apple Calendar; first checks: are valid files passed (no false errors that break CI), are RFC 5545 MUSTs caught, does the fixer keep every byte it does not mean to change, and is folding octet-correct for multibyte UTF-8",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Built 27 hand-made .ics files (scratchpad/ics/run.mjs writes them) and judged each against the RFC 5545 text fetched from rfc-editor.org (scratchpad/ics/rfc5545.txt), with Python icalendar 7.3.0 as a second parser. Right: missing UID/DTSTAMP, COUNT+UNTIL (3.3.10), numbered BYDAY in WEEKLY (3.3.10), BYMONTHDAY in WEEKLY, BYDAY=MONDAY, zero-length all-day, TZID without VTIMEZONE, LF endings, BEGIN/END mismatch, escaped \\, and \\; values (no false positive; icalendar decodes LOCATION to 'Room 1, Floor 2'). Folding is octet-correct: a 95-char DESCRIPTION of e-acute and CJK refolds to max 74 octets per physical line and icalendar reads back the identical string. Wrong: a legal NRT-HNL flight (DTSTART;TZID=Asia/Tokyo 20:00, DTEND;TZID=Pacific/Honolulu 08:30 same day, 7.5 h by zoneinfo) is reported as an ERROR 'ends before it starts' and the CLI exits 1, because DTSTART/DTEND are compared as naive wall-clock times across different zones (calc.mjs:254). Missed RFC MUSTs: DTSTAMP not in UTC (3.8.7.2), a DATE value without VALUE=DATE (3.2.20), BYWEEKNO outside YEARLY and BYYEARDAY in MONTHLY (3.3.10), BYSECOND=99, TRIGGER:P accepted as a duration (3.3.6 grammar), DURATION:1H not checked, DTSTART and SUMMARY each given twice (single-occurrence) pass silently, UTC UNTIL on a floating DTSTART, TZID on a UTC time (3.2.19). 13 of 25 non-clean probes fully right; a false error on a valid file is the worst kind for a CI linter.",
+    "completeness": "Every README/VENTURE.yaml claimed check fired on a file built to trigger it: UID, DTSTAMP, VERSION, PRODID, ends-before-start, zero-length all-day, COUNT+UNTIL, mismatched/non-UTC UNTIL, BYDAY/BYMONTHDAY/BYMONTH ranges, EXDATE/RDATE type, TZID without VTIMEZONE, duplicate UIDs, long lines, LF endings, line numbers. CLI: check file, check directory (--json listing all .ics under scratchpad/ics), --strict (LF-only file exits 1 vs 0 without), fix writes .fixed.ics and the fixed files re-validate with 0 errors/0 warnings and parse in icalendar. URL fetch path read, not exercised against a live feed. Served page https://marisstella.app/ics-calendar-check/ returns 200. VTODO/VJOURNAL are not checked (a VTODO with no UID passes), not claimed either.",
+    "verification": "cd ventures/ics-calendar-check && node --test '*.test.mjs': 46 pass, 0 fail (190 ms). Seeded 13 mutations in calc.mjs, each reverted with git checkout: 8 caught (fold continuation limit 74->75, MAX_OCTETS 76, BY* zero allowed, ends-before tolerance 1 h, all-day fix +2 days, UNTIL utc test inverted, VTIMEZONE presence ignored, duplicate-UID check off); 5 survived (METHOD exemption for missing DTSTART removed, BYSETPOS=0 allowed, BYDAY ordinal limit 53->99, multi-VCALENDAR threshold 1->2, second 61 accepted). Core paths are covered with hand-written expected values; secondary branches are not. No test has a DTSTART and DTEND in different zones, which is why the false error ships.",
+    "craft": "Read calc.mjs (390 lines), cli.mjs (123), calc.test.mjs, cli.test.mjs, page.test.mjs. Pure functions, injectable now and I/O deps, deterministic UID, BOM/UTF-16 decoding, quoted-colon parameter parsing. Defects: repair rebuilds DTEND parameters without re-quoting, so DTEND;VALUE=DATE;X-NOTE=\"see: room 1\":20260210 becomes DTEND;VALUE=DATE;X-NOTE=see: room 1:20260211, which the tool itself then reports as 'bad DTEND' (calc.mjs:336); get() silently takes the first of duplicated single-occurrence properties (calc.mjs:134); one wrong END cascades into four errors including 'END:VCALENDAR without a matching BEGIN' when there is one (calc.mjs:127); unused physLen field; long one-line conditionals. Acceptable for its size.",
+    "claims": "README and index.html carry the no-warranty, not-affiliated and privacy text; page.test.mjs asserts no fetch/XHR/beacon in the page and calc.mjs; 'Not checked' list discloses iTIP, attachments, alarms in detail, and says rules are 'Read from memory of RFC 5545; confirm against the current standard'. VENTURE.yaml: stage prototype, volume not measured. Weak spots: 'every provable fix applied' while a missing VALUE=DATE (provable) is not fixed; llms.txt reuses the calculator line 'Results are estimates from the numbers typed in', which does not fit a file checker. The github.io link in source llms.txt is rewritten to marisstella.app on the served file (checked), so not a defect.",
+    "fitness": "Job walked: a feed maintainer adds `node cli.mjs check public/ --strict` to CI. On single-zone or UTC feeds it works and the fixer is safe. On any feed with cross-zone events (flights, trains, travel itineraries, webinars stored with organiser zone for start and attendee zone for end) it raises a false error and fails the build, and it will not catch DTSTAMP-not-UTC or DATE-without-VALUE, two of the most common generator bugs. No RFC 7986 (NAME, COLOR, REFRESH-INTERVAL) or VTODO checks for task feeds.",
+    "domain": "Compared against RFC 5545 sections 3.1 (folding), 3.2.19 (TZID), 3.2.20 (VALUE), 3.3.6 (duration grammar), 3.3.10 (RECUR rule-part restrictions), 3.6.1 (VEVENT property cardinality), 3.8.2.4, 3.8.7.2 (DTSTAMP UTC). Rules were written from memory (calc.mjs header) and never reconciled with the text: several MUST/MUST NOT rules are absent and time comparison is not time-zone aware. RFC 7986 properties are not considered. A calendar interop engineer would use it as a smoke test, not sign it off as a validator."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Cross-zone event: NRT-HNL flight, DTSTART;TZID=Asia/Tokyo:20260106T200000, DTEND;TZID=Pacific/Honolulu:20260106T083000",
+      "method": "RFC 5545 3.6.1/3.8.2.2 allow DTSTART and DTEND in different zones; actual duration from Python zoneinfo (7.5 h, positive)",
+      "command": "node ventures/ics-calendar-check/cli.mjs check scratchpad/ics/flight.ics",
+      "expected": "no 'ends before it starts' error (only the two VTIMEZONE warnings), exit 0",
+      "observed": "error line 8: Flight NRT-HNL: ends before it starts; exit=1",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "DTSTAMP given as floating local time (DTSTAMP:20260101T000000) and as a DATE",
+      "method": "RFC 5545 3.8.7.2: 'The value MUST be specified in the UTC time format'",
+      "command": "node ventures/ics-calendar-check/cli.mjs check scratchpad/ics/dtstamp_floating.ics",
+      "expected": "an error or warning that DTSTAMP must be UTC",
+      "observed": "0 errors, 0 warnings, exit 0 (dtstamp_date.ics likewise)",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "All-day event written DTSTART:20260210 with no VALUE=DATE",
+      "method": "RFC 5545 3.2.20: when the default type (DATE-TIME) is overridden 'this parameter MUST be specified'",
+      "command": "node ventures/ics-calendar-check/cli.mjs check scratchpad/ics/date_no_value.ics",
+      "expected": "finding: DATE value without VALUE=DATE (provably fixable)",
+      "observed": "0 errors, 0 warnings",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "RRULE restrictions: COUNT+UNTIL, numbered BYDAY in WEEKLY, BYMONTHDAY in WEEKLY, BYDAY=MONDAY, BYWEEKNO in MONTHLY, BYYEARDAY in MONTHLY, BYSECOND=99",
+      "method": "RFC 5545 3.3.10 text (lines 2262-2329 of rfc5545.txt)",
+      "command": "node scratchpad/ics/run.mjs scratchpad/ics",
+      "expected": "all seven flagged",
+      "observed": "first four flagged correctly; BYWEEKNO-in-MONTHLY, BYYEARDAY-in-MONTHLY and BYSECOND=99 pass silently",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Folding of a long DESCRIPTION of 60 e-acute plus 35 CJK characters",
+      "method": "RFC 5545 3.1 (75 octets excluding CRLF, no split inside a UTF-8 sequence) and round trip through Python icalendar 7.3.0",
+      "command": "node scratchpad/ics/fold.mjs && venv/bin/python -I scratchpad/ics/py.py long_utf8.fixed.ics",
+      "expected": "every physical line <= 75 octets; icalendar reads back the same DESCRIPTION",
+      "observed": "max 74 octets; DESCRIPTION identical (cmp equal); 0 findings after fix",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Escaped comma and semicolon in SUMMARY and LOCATION",
+      "method": "RFC 5545 3.3.11 TEXT escaping; Python icalendar decodes LOCATION",
+      "command": "node scratchpad/ics/run.mjs scratchpad/ics (case escaped)",
+      "expected": "no false finding; icalendar gives 'Room 1, Floor 2'",
+      "observed": "no finding from the tool; icalendar 'Room 1, Floor 2'. But the file also carried two SUMMARY lines (a single-occurrence property, 3.6.1) and the tool did not flag it",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Repair output parses in an independent parser",
+      "method": "Python icalendar 7.3.0 Calendar.from_ical on the .fixed.ics files",
+      "command": "venv/bin/python -I scratchpad/ics/py.py missing_uid_dtstamp.fixed.ics lf_only.fixed.ics allday_zero.fixed.ics",
+      "expected": "parse, UID present, DTEND moved to 20260211",
+      "observed": "all parse; generated UID baa9e47188d34167@ics-calendar-check; re-validate 0 errors 0 warnings",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "VALARM TRIGGER:P and DURATION:1H",
+      "method": "RFC 5545 3.3.6 dur-value grammar requires a dur-date, dur-time or dur-week after P",
+      "command": "node scratchpad/ics/run.mjs scratchpad/ics (cases trigger_P, duration_bad)",
+      "expected": "both reported as bad durations",
+      "observed": "neither reported",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "Repair of a zero-length all-day DTEND whose parameter needs quoting",
+      "method": "node probe of repair() then validate() on the output",
+      "command": "node scratchpad/ics/q.mjs",
+      "expected": "DTEND;VALUE=DATE;X-NOTE=\"see: room 1\":20260211",
+      "observed": "DTEND;VALUE=DATE;X-NOTE=see: room 1:20260211, then 'bad DTEND' on the fixed file",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "CLI check of a directory, --json, --strict exit codes, fix writes .fixed.ics",
+      "method": "ran the CLI on scratchpad/ics",
+      "command": "node cli.mjs check scratchpad/ics --json; node cli.mjs check lf_only.ics --strict",
+      "expected": "JSON for every .ics; LF-only exits 0 normally, 1 under --strict",
+      "observed": "as expected",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite as shipped",
+      "method": "node --test",
+      "command": "cd ventures/ics-calendar-check && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "46 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer, not-affiliated, privacy and 'no network calls' claim",
+      "method": "grep index.html; page.test.mjs asserts no fetch/XHR/sendBeacon",
+      "command": "grep -n 'No warranty\\|Not affiliated\\|never uploaded' index.html",
+      "expected": "present and tested",
+      "observed": "present (index.html:125-128), asserted by page.test.mjs:20-21",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Served llms.txt host and wording",
+      "method": "loaded https://marisstella.app/ics-calendar-check/llms.txt",
+      "command": "curl -sS https://marisstella.app/ics-calendar-check/llms.txt",
+      "expected": "marisstella.app link; wording fits a file checker",
+      "observed": "link rewritten to marisstella.app (source github.io is source-only); wording says 'Results are estimates from the numbers typed in'",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:37",
+      "change": "fold continuation limit MAX_OCTETS - 1 -> MAX_OCTETS",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:5",
+      "change": "MAX_OCTETS 75 -> 76",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:152",
+      "change": "drop the non-zero check on BY* parts",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:254",
+      "change": "e.ms < s.ms -> e.ms < s.ms - 3600000",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:336",
+      "change": "all-day DTEND fix +1 day -> +2 days",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:269",
+      "change": "&& !u.utc -> && u.utc",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:220",
+      "change": "ignore whether the VTIMEZONE is defined",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:233",
+      "change": "duplicate-UID check disabled",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:241",
+      "change": "METHOD exemption for a missing DTSTART removed",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:161",
+      "change": "BYSETPOS allows 0",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:166",
+      "change": "BYDAY ordinal limit 53 -> 99",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:202",
+      "change": "multi-VCALENDAR warning threshold 1 -> 2",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:89",
+      "change": "seconds > 60 -> > 61",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "DTSTART and DTEND in different zones (or one UTC, one TZID) are compared as naive wall-clock times, so a valid cross-zone event (NRT-HNL flight, 7.5 h) is reported as an error 'ends before it starts' and the CLI exits 1, failing a CI build on a valid feed; the reverse case (a real negative duration across zones) is missed",
+      "where": "ventures/ics-calendar-check/calc.mjs:254",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Missed RFC 5545 MUSTs common in generated feeds: DTSTAMP not UTC (3.8.7.2), DATE value without VALUE=DATE (3.2.20), single-occurrence properties given twice such as DTSTART or SUMMARY (3.6.1; get() takes the first silently), DURATION syntax not validated",
+      "where": "ventures/ics-calendar-check/calc.mjs:237",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "RRULE rule-part restrictions incomplete: BYWEEKNO outside YEARLY, BYYEARDAY in DAILY/WEEKLY/MONTHLY, BYSECOND range, UTC UNTIL with floating DTSTART, TZID on a UTC time are not flagged; TRIGGER regex accepts 'P' and 'PT'",
+      "where": "ventures/ics-calendar-check/calc.mjs:171",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "repair() rebuilds DTEND parameters without re-quoting, so a quoted parameter value containing ':' or ';' produces a broken line that the tool then reports as 'bad DTEND'",
+      "where": "ventures/ics-calendar-check/calc.mjs:336",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "5 of 13 seeded mutations survive on secondary branches (METHOD exemption, BYSETPOS zero, BYDAY ordinal bound, multi-VCALENDAR, leap-second bound); no test with mixed-zone DTSTART/DTEND",
+      "where": "ventures/ics-calendar-check/calc.test.mjs:54",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "One wrong END cascades into four errors, including 'END:VCALENDAR without a matching BEGIN' when the BEGIN exists",
+      "where": "ventures/ics-calendar-check/calc.mjs:127",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt carries the calculator boilerplate 'Results are estimates from the numbers typed in', which does not describe a file checker; README says 'every provable fix' while a missing VALUE=DATE is provable and not fixed",
+      "where": "ventures/ics-calendar-check/llms.txt:5",
+      "category": "overclaim",
+      "origin": "claims"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14965"
+  ],
+  "verdict": "ICS Calendar Check is a tidy, private, well-tested smoke test for .ics files: every check its README claims fires, the fixer's output is octet-correct for multibyte UTF-8 and parses in Python icalendar, 46 tests pass and 8 of 13 seeded mutations are caught. It does not meet the bar on correctness: it compares DTSTART and DTEND across different time zones as naive wall-clock times, so a valid NRT-HNL flight event is an error and fails a CI build, and it misses several RFC 5545 MUSTs that real generators break (DTSTAMP not UTC, DATE without VALUE=DATE, duplicated single-occurrence properties, RRULE part restrictions, duration grammar). The rules were written from memory and never reconciled with the RFC text. Finished (completeness 3), median 3, but correctness, fitness and domain are 2."
+}

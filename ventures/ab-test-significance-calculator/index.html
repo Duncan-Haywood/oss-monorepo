@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -206,7 +206,7 @@
         [pct(b.probBBeatsA, 1), "Chance variant beats control"],
         [s.significant ? "Yes" : "Not yet", "Significant when peeking is allowed"],
       ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
       const cl = Math.round((1 - a.alpha) * 100);
       const rows = [
         ["Control rate", pct(a.p1), `${a.c1} of ${a.n1} visitors`],
@@ -272,7 +272,7 @@
         [signedPct(r.conversionChange), "Change in conversion"],
         [pct(r.breakEvenRate), "Conversion B needs to break even"],
       ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#price-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#price-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
       const rows = [
         ["Revenue per visitor, A", money(r.rpv1), `${pct(r.p1)} conversion at ${money(r.price1)}`],
         ["Revenue per visitor, B", money(r.rpv2), `${pct(r.p2)} conversion at ${money(r.price2)}`],
@@ -294,7 +294,7 @@
       const r = parsed.error ? parsed : multiTest({ arms: parsed.arms, alpha: Number($("#alpha").value) });
       if (r.error) { ms.textContent = r.error; $("#multi-findings").innerHTML = ""; tbl.hidden = true; return false; }
       ms.textContent = `${r.rows.length} variants against ${r.control.name}.`;
-      $("#multi-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#multi-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
       const row = (n, rate, lift, p, ph, best) => `<tr><td>${esc(n)}</td><td class="n">${pct(rate)}</td><td class="n">${lift}</td><td class="n">${p}</td><td class="n">${ph}</td><td class="n">${pct(best, 1)}</td></tr>`;
       tbl.querySelector("tbody").innerHTML = row(r.control.name, r.control.rate, "control", "", "", r.control.probBest) +
         r.rows.map((x) => row(x.name, x.rate, signedPct(x.lift), x.p.toFixed(4), x.pHolm.toFixed(4) + (x.significant ? " *" : ""), x.probBest)).join("");

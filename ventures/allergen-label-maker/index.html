@@ -49,7 +49,7 @@
   </style>
   <style>
     .label { border: 2px solid #111; padding: .6rem .8rem; margin: .6rem 0; max-width: 26rem; background: #fff; color: #111; break-inside: avoid; }
-    .label h4 { margin: 0 0 .3rem; font-size: 1.05rem; color: #111; }
+    .label h3 { margin: 0 0 .3rem; font-size: 1.05rem; color: #111; }
     .label p { margin: .2rem 0; font-size: .9rem; color: #111; }
     td.mark, th.mark { text-align: center; }
     @media print { body * { visibility: hidden; } #labels, #labels * { visibility: visible; } #labels { position: absolute; left: 0; top: 0; } }
@@ -143,7 +143,7 @@
         for (const r of a.results) {
           const lines = [...why(r.declared, labelsFor(region)), ...why(r.check, labelsFor(region)).map((x) => x + " (check)")];
           if (!lines.length && !r.advisories.length) continue;
-          h += `<div class="finding"><h4>${esc(r.name)}</h4>`;
+          h += `<div class="finding"><h3>${esc(r.name)}</h3>`;
           if (lines.length) h += `<ul>${lines.map((x) => `<li>${x}</li>`).join("")}</ul>`;
           for (const adv of r.advisories) h += `<p class="note">${esc(adv)}</p>`;
           h += "</div>";
@@ -155,7 +155,7 @@
       const biz = $("business").value.trim();
       $("labels").innerHTML = a.results.filter((r) => !r.errors.length).map((r) => {
         const l = labelFor(r, region);
-        return `<div class="label"><h4>${esc(l.name)}</h4><p><strong>Ingredients:</strong> ${l.ingredientsHtml}</p>${l.contains.length ? `<p><strong>Contains:</strong> ${l.contains.map(esc).join(", ")}</p>` : ""}${l.may.length ? `<p>May also contain ${l.may.map((x) => esc(x.toLowerCase())).join(", ")}.</p>` : ""}${r.checkKeys.length ? `<p class="note">Confirm before printing: ${r.checkKeys.map((k) => esc(labelsFor(region)[k])).join(", ")}</p>` : ""}${biz ? `<p>${esc(biz)}</p>` : ""}</div>`;
+        return `<div class="label"><h3>${esc(l.name)}</h3><p><strong>Ingredients:</strong> ${l.ingredientsHtml}</p>${l.contains.length ? `<p><strong>Contains:</strong> ${l.contains.map(esc).join(", ")}</p>` : ""}${l.may.length ? `<p>May also contain ${l.may.map((x) => esc(x.toLowerCase())).join(", ")}.</p>` : ""}${r.checkKeys.length ? `<p class="note">Confirm before printing: ${r.checkKeys.map((k) => esc(labelsFor(region)[k])).join(", ")}</p>` : ""}${biz ? `<p>${esc(biz)}</p>` : ""}</div>`;
       }).join("");
       $("out").hidden = false;
       record("analysis_run");

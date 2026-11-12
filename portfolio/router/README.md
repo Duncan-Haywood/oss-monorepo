@@ -10,8 +10,10 @@ A flagship marked `inputs_only:` (every listed item needs a real outside
 input) ranks after the buildable flagships, with an "Inputs only" task.
 An optional `buildable:` line (what a cloud session can do now with no
 outside input) leads the row's task as "BUILDABLE HERE", and the table opens
-with a "Start here" line naming the first Deepen flagship with no PR opened
-in the last 24 h.
+with a "Start here" line naming a Deepen flagship with no PR opened
+in the last 24 h: the first one, or, inside a harness session, one of the
+first three picked by a hash of the session id, so sessions started minutes
+apart (before either opens a PR) usually get different rows.
 The table cuts each flagship's `next:` at 500 characters;
 `allocate.py --venture <slug>` prints one row in full, with the open PRs
 naming it and when work on it last landed on main.

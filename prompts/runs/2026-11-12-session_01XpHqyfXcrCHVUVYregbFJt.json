@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyfXcrCHVUVYregbFJt",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T01:38:05Z",
+  "ended": "2026-11-12T01:43:45Z",
+  "wall_minutes": 5.86,
+  "tokens_in": 3763687,
+  "tokens_out": 30923,
+  "cost_usd": 2.2034,
+  "tool_calls": 40,
+  "task": "Deepen (flagship 3) sales-agent: holiday presets (CA) and the self-host Days off field",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": 14959,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Duplicate work: PR #14960 (another session) landed the UK presets and the self-host Days off field while this run built the same thing. Found as a merge conflict at merge time.",
+      "fix": "Reset onto main and kept only what #14960 lacked: the ca preset, upcomingHolidays and the page's next-days-off line, and HOLIDAYS in the deploy files. My UK version was dropped; it matched the same 280 GOV.UK dates."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two sessions started the same 'BUILDABLE HERE' item for sales-agent within minutes of each other. 'No PR opened in the last 24 h' can't see a session that hasn't pushed yet, so the buildable item collided. Opening a draft PR right after the first push (or a claim file) would make this visible sooner."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The item asked for checks 'against each government's own list'. gov.uk answered, but canada.ca timed out and opm.gov returned 403."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "canada.ca was unreachable, and the other session had held Canada back for that reason.",
+      "did": "Shipped ca checked against canada-holidays.ca (a second source) and labelled it that way in the code, README, fixture and post. The canada.ca check stays in next:.",
+      "result": "85 of 85 dates for 2022-2028 match"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-canada-day-on-a-saturday.md"
+  ],
+  "goal": null,
+  "notes": "Rebased onto #14960. holidays.test.mjs 7 + self-host/days-off.test.mjs 3 pass; run_venture_tests.py sales-agent ok; venture-preflight sales-agent was clean on the earlier version of this branch (same pages). A headless Chromium click-through of the page's next-days-off line (on load and after a build with 'ca, 2026-10-30') showed no page errors. The first version's CI run was all green.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b631f6d0-249d-533f-883b-2c3a3a483f06",
+    "transcripts": 1,
+    "first": "2026-11-12T01:38:05Z",
+    "last": "2026-11-12T01:43:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 72,
+        "output": 30923,
+        "thinking": 6826,
+        "cache_read": 3656955,
+        "cache_write_5m": 0,
+        "cache_write_1h": 106660,
+        "api_equivalent_usd": 2.2034,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 72,
+      "output": 30923,
+      "thinking": 6826,
+      "cache_read": 3656955,
+      "cache_write_5m": 0,
+      "cache_write_1h": 106660,
+      "api_equivalent_usd": 2.2034,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 37,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.86,
+      "active_minutes": 5.86,
+      "model_minutes": 4.66,
+      "tool_minutes": 1.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "rules for 4 holiday presets with a gov.uk-checked fixture, server endpoint, page field, tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 272.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

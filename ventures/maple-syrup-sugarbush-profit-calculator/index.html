@@ -35,7 +35,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -172,7 +172,7 @@
       const s = r.summary;
       $("#report-stats").innerHTML = `<strong>${Math.round(s.syrupGal).toLocaleString("en-US")} gallons</strong> of syrup · revenue ${money(s.revenue)} · before your labour <strong>${money(s.beforeLabor)}</strong> (${money2(s.perHour)} an hour for ${Math.round(s.hours).toLocaleString("en-US")} hours) · after labour ${money(s.profit)}, ${money2(s.perTap)} a tap · all-in cost ${money2(s.costPerGal)} a gallon against ${money2(s.avgPricePerGal)} average price`;
       $("#report-note").textContent = r.errors.length ? `${r.errors.length} line${r.errors.length === 1 ? "" : "s"} skipped: ${r.errors.slice(0, 3).join(" ")}` : "";
-      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h4><span class="pill ${w.level === "high" ? "high" : w.level === "medium" ? "medium" : "info"}">${w.level === "info" ? "note" : "check"}</span></h4><p>${esc(w.text)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h3><span class="pill ${w.level === "high" ? "high" : w.level === "medium" ? "medium" : "info"}">${w.level === "info" ? "note" : "check"}</span></h3><p>${esc(w.text)}</p></div>`).join("");
       $("#season-rows").innerHTML = r.seasons.map((x) => `<tr><td>${esc(x.label)}</td><td class="n">${Math.round(x.syrupGal).toLocaleString("en-US")}</td><td class="n">${money(x.revenue)}</td><td class="n">${money(x.beforeLabor)}</td><td class="n">${money(x.profit)}</td><td class="n">${money2(x.perTap)}</td><td class="n">${Math.round(x.hours).toLocaleString("en-US")}</td></tr>`).join("");
       $("#ro-rows").innerHTML = [["Without reverse osmosis", s.without], ["With reverse osmosis", s.withRo]].map(([l, x]) => `<tr><td>${l}</td><td class="n">${money(x.fuel)}</td><td class="n">${Math.round(x.hours).toLocaleString("en-US")}</td><td class="n">${money(x.roCost)}</td><td class="n">${money(x.beforeLabor)}</td><td class="n">${money(x.profit)}</td></tr>`).join("");
       $("#channel-rows").innerHTML = r.parts.map((p) => `<tr><td>${esc(p.name)}</td><td class="n">${p.gal.toFixed(0)}</td><td class="n">${money(p.revenue)}</td><td class="n">${money(p.net)}</td><td class="n">${money2(p.netPerGal)}</td></tr>`).join("");

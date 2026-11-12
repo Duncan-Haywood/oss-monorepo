@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -167,7 +167,7 @@
       const s = r.summary;
       const errs = s.errors, warns = s.warnings;
       $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.version ? esc(s.version) : "unrecognised message"} · ${s.transactions} transaction${s.transactions === 1 ? "" : "s"} in ${s.groups.length} block${s.groups.length === 1 ? "" : "s"}${s.total === null ? "" : ` · total ${formatScaled(s.total)} EUR`}`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4>${f.path ? `<p class="path">${esc(f.path)}</p>` : ""}${f.cause ? `<p><strong>Cause:</strong> ${esc(f.cause)}</p>` : ""}${f.fix ? `<p class="fix"><strong>Fix:</strong> ${esc(f.fix)}</p>` : ""}</div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h3>${f.path ? `<p class="path">${esc(f.path)}</p>` : ""}${f.cause ? `<p><strong>Cause:</strong> ${esc(f.cause)}</p>` : ""}${f.fix ? `<p class="fix"><strong>Fix:</strong> ${esc(f.fix)}</p>` : ""}</div>`).join("") || `<p>Nothing flagged.</p>`;
       $("#groups").innerHTML = s.groups.map((g) => `<tr><td>${g.line}</td><td>${esc(g.id)}</td><td>${esc(g.date || "")}</td><td class="n">${g.txs}</td><td class="n">${esc(g.declaredNb ?? "-")}</td><td class="n">${formatScaled(g.sum)}</td><td class="n">${esc(g.declaredSum ?? "-")}</td></tr>`).join("") || `<tr><td colspan="7">No payment block found.</td></tr>`;
       const shown = s.txList.slice(0, 200);
       $("#txs").innerHTML = shown.map((t) => `<tr><td>${t.line}</td><td>${esc(t.e2e)}</td><td>${esc(t.name)}</td><td>${esc(t.iban)}</td><td class="n">${esc(t.amount ?? "")} ${esc(t.ccy)}</td></tr>`).join("") || `<tr><td colspan="5">No transactions found.</td></tr>`;

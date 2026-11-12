@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -148,7 +148,7 @@
       last = r;
       const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
       $("#report-stats").innerHTML = `${s.rows} rows, ${dateStr(s.from)} to ${dateStr(s.to)}. Earned ${cur}${money(s.gross)}, fees ${cur}${money(s.feeTotal)}, refunds ${cur}${money(s.refunds)}, <strong>kept ${cur}${money(s.net)} (${pct(s.keepRate)})</strong>` + (s.netPerHour !== null ? ` — <strong>${cur}${money(s.netPerHour)} per hour</strong> net over ${s.hours.toFixed(1)} recorded hours` : "") + ".";
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const share = (v) => (s.gross > 0 ? pct(v / s.gross) : "–");
       const lines = [["Service fee", s.fees.service], ["Connects", s.fees.connects], ["Membership", s.fees.membership], ["Withdrawal fees", s.fees.withdrawal], ["Other fees", s.fees.other], ["Refunds and reversals", s.refunds]];
       $("#breakdown").innerHTML = lines.map(([l, v]) => `<tr><th scope="row">${l}</th><td class="n">${money(v)}</td><td class="n">${share(v)}</td></tr>`).join("");
