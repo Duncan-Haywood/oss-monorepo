@@ -1,5 +1,18 @@
 # buildbot-sheathing research log
 
+## 2026-11-12 · Milestone 6 planned: do the MuJoCo results hold on a second contact model?
+
+Written before any milestone-6 experiment was run.
+
+- **Why.** Every result the cycle and cost milestones lean on that came out of a simulator came out of one: MuJoCo's soft, convex contact with an elliptic cone, `impratio` 10 and 20 no-slip iterations (milestones 3 and 3b). Soft contact can creep under static friction, and the ledger's whole job is a friction question (does the sheet rotate onto the ledger, or does wall friction hold it at the holder's error?). H-E of the proposal asks that clean-sheet rates agree within 10 points on a second contact model.
+- **Second model.** Drake (Toyota Research Institute; `pip install drake`, 1.51.1) `MultibodyPlant`, discrete at 1 ms, point contact with the SAP solver (Castro et al. 2022, convex and near-rigid, with a regularised Coulomb cone) and, as a third check, Drake's TAMSI solver (Castro et al. 2020, Stribeck-regularised friction). Same sheet, same contact points (spheres on the back face at the corners or the stud lines, feet on the bottom edge), same holder law, applied as an external wrench each step. Contact stiffness and dissipation are Drake's per-geometry `point_contact_stiffness` and `hunt_crossley_dissipation`, swept by a decade either side.
+- **H32 (press threshold).** The least press that leaves over half of a 1° holder error, corner contacts, wall friction 0.2–0.7: Drake SAP within 25% of the closed form m g W / (2 mu r_bar) at every friction, and within 15% of MuJoCo's. Refuted on any friction.
+- **H33 (a light press seats).** Released at a press of 50 N or less with wall friction 0.3–0.5 and a holder error of 0.25–2°, Drake SAP leaves at most 0.005° (milestone 3's H13 on the second model). Refuted on any cell.
+- **H34 (held wrist).** A wrist that keeps its stiffness leaves the closed-form tilt within max(0.005°, 10%) in at least 90% of milestone 3's section C cells in Drake SAP.
+- **H35 (H-E, clean sheets).** Draw 2,000 seats per simulator with the holder error uniform in ±1°, friction uniform 0.3–0.5 and press uniform 5–50 N; add each simulator's seated residual to milestone 5's ledger tilt draw; the first-pass clean rate of every milestone-5 ledger pipeline (framing, s_x, warp, sensing policy; 24 cells, 20,000 sheets) agrees between MuJoCo and Drake within 10 points. Refuted on any cell.
+- **H36 (slide and tip, milestone 3b).** The push height that tips a sliding sheet in Drake is within 10% of the closed form W / (2 mu_l) in each of milestone 3b's ten pushed-at-the-press cases.
+- **Also reported, not scored:** the bowed bottom edge (section E), creep under a stuck press, the SAP against TAMSI difference, and the run time per seat.
+
 ## 2026-11-12 · Milestone 7 result: a G1 on a lift base is the cheapest robot below about 500 houses a year, the walking H1 never wins, and the extra joint stud does not pay in dollars
 
 `experiments/m7_cost/` (results.txt, results.json, figure.png); 4,000 draws, seed 11, common random numbers; under a second.
