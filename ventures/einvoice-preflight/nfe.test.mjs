@@ -110,3 +110,20 @@ test("the main report routes an NF-e to these checks", async () => {
   assert.match(r.reports[0].envelope, /Brazilian NF-e 4\.00/);
   assert.deepEqual(r.reports[0].errors.map((f) => f.rule), ["BR-030"]);
 });
+
+test("an authorised import NF-e whose vNF leaves the duty inside vProd passes (eval/nfe-corpus)", () => {
+  const sc = readFileSync(new URL("./eval/nfe-corpus/nfelib/42210775277525000178550030000266631762885493-procNFe.xml", import.meta.url), "utf8");
+  assert.deepEqual(checkNfe(sc).findings, []);
+  // Make.php's reading, with vII added, passes too; anything else is BR-030.
+  assert.deepEqual(rules(sc.replace("<vNF>95700.68", "<vNF>109621.95")), []);
+  assert.deepEqual(rules(sc.replace("<vNF>95700.68", "<vNF>95700.69")), ["BR-030"]);
+});
+
+test("the open-source corpus: 17 clean files, every seeded fault caught", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const out = JSON.parse(execFileSync(process.execPath, [new URL("./eval/nfe-corpus.mjs", import.meta.url).pathname, "--json"], { encoding: "utf8" }));
+  assert.equal(out.files.length, 35);
+  assert.equal(out.files.filter((f) => !f.rules.length).length, 17);
+  for (const m of out.mutations) assert.equal(m.caught, m.applied, m.mutation);
+  assert.equal(out.mutations.reduce((s, m) => s + m.caught, 0), 153);
+});

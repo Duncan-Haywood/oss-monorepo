@@ -262,7 +262,12 @@ function checkSums(inf, ide, out) {
     + g("vFrete") + g("vSeg") + g("vOutro") + g("vII") + g("vIPI") + g("vIPIDevol") + vServ + (acc.vPISST || 0) + (acc.vCOFINSST || 0);
   const vNF = g("vNF");
   const veic = dets.some((d) => txt(descend(d, "prod", "veicProd"), "tpOp") === "2");
-  if (!Number.isNaN(vNF) && !Number.isNaN(want) && vNF !== want && !veic) {
+  // Import duty: Make.php adds vII, but an authorised Santa Catarina import NF-e in nfelib's
+  // samples (eval/nfe-corpus/nfelib/42210775..., cStat 100, tpAmb 1, vII R$ 13,921.27) has
+  // vNF = vProd + vIPI + vOutro, the duty already inside vProd; SEFAZ accepted it, so vNF
+  // passes with or without vII (eval/nfe-corpus.mjs, 2026-11-12).
+  const withoutII = want - g("vII");
+  if (!Number.isNaN(vNF) && !Number.isNaN(want) && vNF !== want && !(g("vII") && vNF === withoutII) && !veic) {
     out.push(finding("BR-030", `vNF is ${money(vNF)} but its parts give ${money(want)} (vProd - vDesc${deduzDeson ? " - vICMSDeson" : ""} + vST + vFCPST + vFrete + vSeg + vOutro + vII + vIPI + vIPIDevol + vServ${acc.vPISST || acc.vCOFINSST ? " + PIS/COFINS-ST" : ""}; SEFAZ cStat 610).`,
       "Recompute vNF from the totals, or correct the total that is off.", `${T}/vNF`));
   }
