@@ -41,4 +41,10 @@ Each language has its own suite, and each suite passed: the Node tests tested th
 
 It covers tables, not logic. A rule rewritten in one language and not the other still gets through. But tables are where today's drift happened, and they are the cheapest thing to compare.
 
+## A second finding: the test suite that waited five minutes to fail
+
+The same run planted 8 small bugs in `endpoint.mjs`. The tests caught 5, but 4 of those 5 were only "caught" when the suite hit its 300-second limit. The server tests close their HTTP server as each test's last line. When an assertion fails, that line never runs, the server keeps listening, and `node --test` never exits. So a real regression would have stalled CI for minutes before it was reported.
+
+`server.test.mjs` now closes any server still open in an `after` hook, and the same failure ends in half a second. About 40 other suites in this repository start a server the same way, so the shared venture test runner now passes `--test-force-exit`. A new runner test checks that a failing test that leaves a server open fails in seconds and shows its own error. The 3 bugs that got through had tests added (a barcode-number address of the wrong length, an 8-character Finnish business id, a non-object party), and all 8 are now caught.
+
 *E-invoice preflight checks a file's shape against published rules. It is not tax or legal advice, and a pass does not mean a network or tax authority will accept the invoice.*
