@@ -2,8 +2,9 @@
 
 Milestone 3 of the programme ([`PROPOSAL.md`](PROPOSAL.md)). Part 1 (2026-11-11): which part of a cheap
 model's error costs DFN calls in screen-then-verify, with a bound checked on the cached benchmark
-(`experiments/theory/`). Part 2 (the trust test derived from the SPMe expansion, and why the SPMe correction
-under-scores salt-depleted designs) is still to come; the data for it are in H13 below. Written with AI
+(`experiments/theory/`). Part 2a (2026-11-12, below "Limits" of part 1): an exact average-case formula for the
+same cost, and a planner built on it. Part 2b (the trust test derived from the SPMe expansion, and why the SPMe
+correction under-scores salt-depleted designs) is still to come; the data for it are in H13 below. Written with AI
 assistance (Claude Code).
 
 ## Setting
@@ -74,3 +75,53 @@ Hypotheses were logged before the run (`LOG.md`, milestone 3 plan). 11 screen ce
 One parameter set (`OKane2022`), one benchmark of 128 designs, pools drawn from it (seeds share designs).
 The theorem itself is general and elementary; its value here is the decomposition it licenses (affine
 error is free, residual error is not) and the measured residuals, not the proof.
+
+## Part 2a: an average-case formula (2026-11-12)
+
+Plan and H15 to H17 logged before the run (`LOG.md`); results in `experiments/average/results.txt`.
+
+**Proposition (independent residual).** Write the affine-mapped screen as s'(x) = f(x) + e(x), with the e(x)
+independent across designs, and let T = {x : f(x) >= (1 - tau) f\*}. STV's first verified design within tolerance is
+the highest-s' member of T, and every design run before it is outside T and has a larger s' than every member of T.
+So R = 1 + #{x not in T : s'(x) > max over y in T of s'(y)}, and by linearity of expectation
+
+E[R] = 1 + sum over x not in T of P(s'(x) > max over y in T of s'(y)).
+
+For Gaussian e with standard deviation sigma each term is the one-dimensional integral of
+phi((t - f(x))/sigma)/sigma times the product over y in T of Phi((t - f(y))/sigma) dt, so E[R] is exact up to
+quadrature (`experiments/average/run.py`, `expected_calls_gauss`; checked against a closed form for two designs,
+Monte Carlo, and the random-order limit (N + 1)/(|T| + 1) in `tests/test_average.py`). Unlike part 1's bound, a
+single large residual contributes one term, not a band. The quantity that matters is sigma against the spacing of f
+near the top: designs more than a few sigma below (1 - tau) f\* contribute nothing.
+
+**What the data say.**
+
+- **H15, refuted as registered:** with sigma = the RMS residual over the whole design space, E[R] ranks the 11
+  screens by their observed mean calls at Spearman 0.51 and is within a factor of 2 on 7 of 11. The miss is SPMe:
+  its whole-space sigma (about 20 Wh/kg) comes from solver failures and badly under-scored designs in the middle and
+  bottom of the space, so the formula predicts about 10 calls for every SPMe cell, while SPMe@10 needs 1.0 and
+  SPMe@100 14.0.
+- **The local residual ranks the screens (an extra, no verdict):** with sigma fitted on part 1's top set (the top
+  25% by screen and by target), Spearman is 0.86, the same lesson as H11 (kappa_q beat kappa_all). It is still only
+  within a factor of 2 on 7 of 11: it under-predicts SPMe@30 and SPMe@100 by 3.6 and 4.4 times, because there the
+  large residuals sit on the DFN-best designs themselves.
+- **H17, refuted:** resampling each cell's own residuals independently of the design (model B) predicts 10.4 calls
+  for SPMe@100 against 14.0 observed (ratio 0.74), not the factor of 2 under-prediction registered. The independent
+  model with SPMe's *whole-space* residual distribution lands near the observed cost; the per-cell table shows why
+  that is partly luck: the same model predicts 10 for SPMe@10, which needs 1.
+- **H16, supported:** for planning, R simulated under the Gaussian model on pools of N drawn from the 128, plus the
+  screening cost N c_s, calls screen against GP-EI right on 14 of 16 (screen, pool size) pairs (part 1's worst-case
+  corollary: 8 of 16), median relative error in T1 0.24. Both misses are at 96 designs (SPM@2, DFN@2 predicted to
+  win, observed to lose by 20 and 32 s), and the planner is optimistic for SPM@2 throughout (70 against 168 s at
+  N = 64), whose residual is design-linked (Spearman(e, f) +0.50).
+
+**Reading.** For a screen whose residual is roughly independent of the design (the DFN cells, SPM at 100 cycles),
+a two-number summary (sigma near the top, and how crowded the top 1% of the space is) predicts the DFN budget of
+screen-then-verify. For a screen whose residual concentrates on particular designs, here SPMe on salt-depleted
+designs, no independent-noise model is reliable, in either direction: whether the large residuals fall on the best
+designs (SPMe@100) or below them (SPMe@10) decides the cost. That is the case for deriving the residual's location
+from the physics (part 2b) rather than its size from data. Caveat on Spearman(e, f): for a weak screen e is close
+to f minus its mean, so the +0.96 for SPMe is partly mechanical and is reported, not interpreted.
+
+**Limits (part 2a).** Every prediction uses the same 128 designs the observations come from (not blind; a planner in
+practice would estimate sigma and the top density from a pilot sample). One parameter set; pools overlap.

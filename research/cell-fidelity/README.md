@@ -6,7 +6,11 @@ Research programme, track 16 (energy), opened 2026-11-11. Proposal: [`PROPOSAL.m
 
 **Question.** Electrode design searches (thickness, porosity, N/P ratio) are cheap with a reduced electrochemical model (SPM, SPMe) and expensive with the full porous-electrode model (DFN). Which designs does the reduced model mis-score, can that be told from the reduced model's own output before any DFN call, and how much DFN budget does a search save by using that?
 
-**Latest headline, milestone 3 theory (2026-11-11): what kind of battery-model error actually costs you full simulations.** A screen-then-verify search uses only the cheap model's *order*, so any error that is a scale and shift of the full model's score is free. We prove ([`THEORY.md`](THEORY.md)) that the number of full DFN runs needed is bounded by the screen's **residual after the best affine fit** (kappa), and checked the bound on all 330 (screen, pool) cases of the cached benchmark with no violation. Across 11 cheap screens, **this residual ranks the DFN calls they need at Spearman 0.72, while the raw error ranks them at -0.07**. It explains milestone 2's surprise: SPM and SPMe have similar raw errors (7.1 and 9.5 Wh/kg), but SPM's residual is a quarter of SPMe's (11.0 against 42.8 Wh/kg), and **SPMe's residual tracks its own minimum salt concentration (Spearman -0.82)**: the SPMe correction under-scores salt-depleted designs. The worst-case cost formula built on the bound is refuted as a planning tool (8 of 16 screen-versus-GP-EI calls right).
+**Latest headline, milestone 3 theory part 2a (2026-11-12): how many full DFN runs will a cheap screen cost you? A noise model answers for SPM and DFN screens, not for SPMe.** Treating a cheap battery model's error (after the best scale-and-shift fit) as independent noise gives an exact formula for the expected number of full DFN runs a screen-then-verify search needs ([`THEORY.md`](THEORY.md), part 2a). Used as a planner, it **calls whether screening the whole pool beats Bayesian optimisation (GP-EI) on DFN right on 14 of 16 (screen, pool size) cases**, where part 1's worst-case formula managed 8 of 16 (median T1 error 24%). But it cannot rank the screens with a single whole-space noise level (Spearman 0.51, refuted), because SPMe's large errors sit on particular designs: at 100 cycles on the DFN-best ones (14 DFN runs needed, 3 predicted from the top-of-space noise), at 10 cycles below them (1 needed, 10 predicted from the whole space). Where a reduced model errs matters more than how much.
+
+![Predicted against observed DFN calls for 11 cheap screens under two noise levels](experiments/average/average.svg)
+
+**Milestone 3 theory part 1 (2026-11-11): what kind of battery-model error actually costs you full simulations.** A screen-then-verify search uses only the cheap model's *order*, so any error that is a scale and shift of the full model's score is free. We prove ([`THEORY.md`](THEORY.md)) that the number of full DFN runs needed is bounded by the screen's **residual after the best affine fit** (kappa), and checked the bound on all 330 (screen, pool) cases of the cached benchmark with no violation. Across 11 cheap screens, **this residual ranks the DFN calls they need at Spearman 0.72, while the raw error ranks them at -0.07**. It explains milestone 2's surprise: SPM and SPMe have similar raw errors (7.1 and 9.5 Wh/kg), but SPM's residual is a quarter of SPMe's (11.0 against 42.8 Wh/kg), and **SPMe's residual tracks its own minimum salt concentration (Spearman -0.82)**: the SPMe correction under-scores salt-depleted designs. The worst-case cost formula built on the bound is refuted as a planning tool (8 of 16 screen-versus-GP-EI calls right).
 
 ![Each cheap screen's residual after an affine fit against the median DFN calls it needs](experiments/theory/theory.svg)
 
@@ -25,6 +29,26 @@ Research programme, track 16 (energy), opened 2026-11-11. Proposal: [`PROPOSAL.m
 **Milestone 1 headline (2026-11-11).** On the 49 designs of [`energy-cell-dfn`](../energy-cell-dfn), SPMe's own minimum electrolyte salt concentration from a **2-cycle** run flags the designs whose 100-cycle SPMe score is more than 25% below DFN's with **ROC AUC 0.997** (95% bootstrap 0.980 to 1.000; 7 untrusted of 49). A flag at 10% of the initial salt concentration catches all 7 with one false flag. But the cost model the programme assumed is wrong: a 2-cycle run takes **SPMe 1.2 s and DFN 1.3 s**, and at 100 cycles **SPMe 3.9 s and DFN 27.9 s**. Cutting the cycle count saves 21x on DFN, swapping DFN for SPMe saves 7x, so the cheapest trustworthy screen may be a short DFN run rather than a reduced model.
 
 ![SPMe minimum salt concentration against the SPMe-DFN score gap](experiments/trust/trust.svg)
+
+## Milestone 3 (theory, part 2a): an average-case formula and planner
+Hypotheses H15 to H17 logged before the run (`LOG.md`); proposition and proof in [`THEORY.md`](THEORY.md), part 2a; no new PyBaMM runs (`experiments/average/run.py`, about a minute).
+
+| Hypothesis | Pre-registered test | Result |
+|---|---|---|
+| H15 Gaussian residual (whole-space sigma) predicts mean DFN calls | Spearman >= 0.8 and within 2x on >= 8 of 11 | **0.51, 7 of 11**: refuted (top-of-space sigma, an extra: 0.86, 7 of 11) |
+| H16 the formula plans screen vs GP-EI | >= 13 of 16 calls right | **14 of 16**: supported (worst-case corollary: 8) |
+| H17 a design-independent residual under-predicts SPMe@100 by 2x | ratio <= 0.5 | **0.74**: refuted |
+
+| Screen | sigma whole / top, Wh/kg | observed mean R | predicted (whole sigma) | predicted (top sigma) |
+|---|---|---|---|---|
+| SPM@2 | 7.4 / 6.8 | 6.6 | 3.3 | 2.9 |
+| SPM@100 | 6.9 / 6.7 | 3.7 | 3.0 | 2.9 |
+| SPMe@10 | 20.4 / 5.6 | 1.0 | 10.1 | 2.4 |
+| SPMe@100 | 21.0 / 7.2 | 14.0 | 10.3 | 3.2 |
+| DFN@2 | 7.1 / 3.4 | 2.9 | 3.1 | 1.5 |
+| DFN@10 | 5.6 / 2.6 | 1.1 | 2.4 | 1.3 |
+
+All 11 cells and the 16 planning calls are in `experiments/average/results.txt`. The predictions use the same 128 designs as the observations, so this is a consistency check, not a blind forecast.
 
 ## Milestone 3 (theory, part 1): the affine-residual bound
 Hypotheses C1 and H11 to H14 logged before the run (`LOG.md`); theorem and proof in [`THEORY.md`](THEORY.md); no new PyBaMM runs (`experiments/theory/run.py`, about 2 s).
@@ -47,7 +71,7 @@ Hypotheses C1 and H11 to H14 logged before the run (`LOG.md`); theorem and proof
 | DFN@10 | 4.3 | 1 | 0 |
 | DFN@30 | 3.9 | 1 | 0 |
 
-All 11 cells are in `experiments/theory/results.txt`. The bound is worst-case, and one large residual widens the band for every design, so its cost corollary calls SPM screens losers even where they win; an average-case version is the next step.
+All 11 cells are in `experiments/theory/results.txt`. The bound is worst-case, and one large residual widens the band for every design, so its cost corollary calls SPM screens losers even where they win; part 2a's average-case formula (above) replaces it for planning.
 
 ## Milestone 4: search comparison on the cached benchmark
 Hypotheses H7 to H10 logged before the run (`LOG.md`). No new PyBaMM runs: each seed draws a pool of 64 of the 128 Sobol designs, and every method is replayed on the committed per-cycle scores, each evaluation charged the median fresh-run wall time of its (model, cycles) cell on the baseline design (DFN@100 24.5 s, DFN@10 3.6 s, DFN@2 1.35 s, SPM@100 1.05 s, SPM@2 0.33 s, SPMe@100 3.7 s). T1 is the charged time until a design within 1% of the pool's best 100-cycle DFN score has been run at 100-cycle DFN. 30 seeds, paired.
