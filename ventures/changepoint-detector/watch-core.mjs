@@ -136,7 +136,8 @@ export function advance(state, changes, n, labels, opts = {}) {
     if (after < confirm) { pending.push({ ...c, pointsAfter: after }); continue; }
     if (first) baseline.push({ ...c, pointsAfter: after });
     else if (holdHistory && c.index <= quietAt) held.push({ ...c, pointsAfter: after });
-    else if (persist > 1 && !seen.some((k) => Math.abs(k - c.index) <= tolerance)) { pending.push({ ...c, pointsAfter: after, unconfirmed: true }); continue; }
+    // Only once there was a previous check: a first check with --alert-history has nothing to compare with.
+    else if (persist > 1 && st.n && !seen.some((k) => Math.abs(k - c.index) <= tolerance)) { pending.push({ ...c, pointsAfter: after, unconfirmed: true }); continue; }
     else alerts.push({ ...c, pointsAfter: after, late: after > 2 * confirm + 1 });
     known.push(c.index);
   }

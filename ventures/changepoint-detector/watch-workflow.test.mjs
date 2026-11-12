@@ -74,7 +74,10 @@ test('a data commit pushed while the run is in progress does not lose the state 
   const vars = { METRIC_CSV: 'data/metric.csv' };
   assert.ok(runWorkflow({ workflow: r.workflow, remote: r.remote, vars }).ok);
   let i = 60;
-  for (; i < 76; i++) r.addRow(i); // the step at 70 is now 6 points old
+  for (; i < 75; i++) r.addRow(i); // the step at 70 is now 5 points old
+  // persist 2 (the default since round 7): this check finds it and waits for the next one to find it too
+  assert.ok(runWorkflow({ workflow: r.workflow, remote: r.remote, vars }).ok);
+  r.addRow(i++); // 6 points old
   // another job appends tomorrow's row between the check and the save
   const run = runWorkflow({ workflow: r.workflow, remote: r.remote, vars, beforeStep: (name) => { if (name === 'Save what was reported') r.addRow(i); } });
   assert.equal(run.ok, false, 'the new level turns the run red');

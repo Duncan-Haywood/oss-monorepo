@@ -24,7 +24,9 @@ for (const detector of ['pelt', 'bocpd-window']) {
     assert.equal(reports.length, 1, JSON.stringify(reports));
     // dated from 5 points of data, the first report can be a few points off (pelt: 198 for 201); within --tolerance
     assert.ok(Math.abs(reports[0].index - 200) <= WATCH_DEFAULTS.tolerance);
-    assert.equal(reports[0].pointsAfter, WATCH_DEFAULTS.confirm);
+    // persist 2 (the default since round 7): sent at the 5th point if the previous check already saw it (while it
+    // was pending), else one check later
+    assert.ok(reports[0].pointsAfter >= WATCH_DEFAULTS.confirm && reports[0].pointsAfter <= WATCH_DEFAULTS.confirm + WATCH_DEFAULTS.persist - 1, String(reports[0].pointsAfter));
   });
 }
 
@@ -59,9 +61,9 @@ test('the first check records the history as the baseline; --alert-history repor
 
 test('a rolling file that drops its oldest rows keeps the alerted change by its label', () => {
   const labels = Array.from({ length: 100 }, (_, i) => `d${i}`);
-  const st = advance({ ...emptyState(), n: 99 }, [{ index: 60, label: 'd60' }], 100, labels).state;
+  const st = advance({ ...emptyState(), n: 99 }, [{ index: 60, label: 'd60' }], 100, labels, { persist: 1 }).state;
   // 30 rows dropped from the front: the same change is now at index 30
-  const later = advance(st, [{ index: 31, label: 'd61' }], 70, labels.slice(30));
+  const later = advance(st, [{ index: 31, label: 'd61' }], 70, labels.slice(30), { persist: 1 });
   assert.equal(later.alerts.length, 0);
   assert.match(later.notes[0], /shorter/);
 });
@@ -245,26 +247,26 @@ test('replayWatch: changes before the first check are the baseline, quiet noise 
 import { advance as adv5, emptyState as empty5, replayWatch as replay5, statusText as status5 } from './watch-core.mjs';
 test('holdHistory: a change dated inside the quiet baseline is held, not alerted; a later one still alerts', () => {
   const labels = Array.from({ length: 60 }, (_, i) => `d${i}`);
-  let r = adv5(null, [], 20, labels.slice(0, 20), { holdHistory: true });
+  let r = adv5(null, [], 20, labels.slice(0, 20), { holdHistory: true, persist: 1 });
   assert.equal(r.baseline.length, 0);
   assert.deepEqual(r.state.quietUntil, { index: 15, label: 'd15' });
   // ausair's case: at the next check the engine finds old changes at rows 9 and 15.
-  r = adv5(r.state, [{ index: 9, label: 'd9' }, { index: 15, label: 'd15' }], 21, labels.slice(0, 21), { holdHistory: true });
+  r = adv5(r.state, [{ index: 9, label: 'd9' }, { index: 15, label: 'd15' }], 21, labels.slice(0, 21), { holdHistory: true, persist: 1 });
   assert.equal(r.alerts.length, 0);
   assert.equal(r.held.length, 2);
   assert.match(status5(r), /Held, not alerted: a change from d9/);
   // It is the default since round 5; switched off, the same check alerts on both (what the replay found before).
   const dflt = adv5(adv5(null, [], 20, labels.slice(0, 20)).state, [{ index: 9, label: 'd9' }], 21, labels.slice(0, 21));
   assert.equal(dflt.held.length, 1);
-  const off = { holdHistory: false };
+  const off = { holdHistory: false, persist: 1 };
   const r0 = adv5(adv5(null, [], 20, labels.slice(0, 20), off).state, [{ index: 9, label: 'd9' }, { index: 15, label: 'd15' }], 21, labels.slice(0, 21), off);
   assert.equal(r0.alerts.length, 2);
   // A change after the quiet history alerts as usual.
-  const r2 = adv5(r.state, [{ index: 30, label: 'd30' }], 36, labels.slice(0, 36), { holdHistory: true });
+  const r2 = adv5(r.state, [{ index: 30, label: 'd30' }], 36, labels.slice(0, 36), { holdHistory: true, persist: 1 });
   assert.equal(r2.alerts.length, 1);
   // A rolling file that drops the quiet row's label holds nothing.
   const rolled = labels.slice(25, 45);
-  const r3 = adv5({ ...r.state, alerted: [] }, [{ index: 2, label: 'd27' }], 20, rolled, { holdHistory: true });
+  const r3 = adv5({ ...r.state, alerted: [] }, [{ index: 2, label: 'd27' }], 20, rolled, { holdHistory: true, persist: 1 });
   assert.equal(r3.alerts.length, 1);
 });
 
@@ -304,7 +306,7 @@ test('replayWatch passes the guards through; persist on a coarse replay dates th
 test('ausair: the old-history alerts the replay found are held by default', () => {
   const csv = readFileSync(new URL('./data/ausair.csv', import.meta.url), 'utf8').trim().split('\n').slice(1).map((r) => r.split(','));
   const v = csv.map((r) => Number(r[r.length - 1])), l = csv.map((r) => r[0]);
-  const old = replay5(v, l, { holdHistory: false }), now = replay5(v, l);
+  const old = replay5(v, l, { holdHistory: false, persist: 1 }), now = replay5(v, l);
   assert.ok(old.alerts.length > now.alerts.length, `${old.alerts.length} vs ${now.alerts.length}`);
   assert.ok(now.held.length >= 1);
   assert.ok(now.held.every((h) => h.index <= now.from - 5));
