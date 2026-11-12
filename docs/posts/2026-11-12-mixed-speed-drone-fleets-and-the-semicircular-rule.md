@@ -1,5 +1,6 @@
 ---
 title: "Mixed-speed drone fleets: the semicircular rule still wins, but overtaking costs it most"
+seo_title: "Mixed-speed drone fleets and the semicircular altitude rule"
 date: 2026-11-12
 tags: [aerolog-scaling, drones, airspace, uam, simulation, theory]
 description: With four delivery operators at 12 to 28 m/s, the semicircular altitude rule still leaves 57% fewer conflicts than an outbound/inbound split, down from 68%.
