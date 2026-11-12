@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyeAgzboP5oHh1kbisi",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T09:37:50Z",
+  "ended": "2026-11-12T09:44:54Z",
+  "wall_minutes": 16.37,
+  "tokens_in": 7062918,
+  "tokens_out": 35921,
+  "cost_usd": 3.0473,
+  "tool_calls": 66,
+  "task": "dupehound --guarded: fold clone-family copies that a sync test keeps identical",
+  "projects": [
+    "ventures/dupehound"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15081",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "git checkout -b failed because the harness had already created the branch; the && chain skipped the commit and the first push sent an empty branch. Re-committed and pushed.",
+    "First post description was 200 characters; check_post_frontmatter.py caps it at 160. Fixed before merge."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/dupehound/README.md",
+      "issue": "The 'Next' bullet said 'families that a sync test guards' as if a yes/no flag were enough; on real data that rule matched 0 of 3,305 families, because strays chain into every vendored family."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to 'branch first' but the cloud harness has already checked out the named branch, so git checkout -b fails; the line could say to check git branch --show-current first."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-copies-a-test-already-watches.md",
+    "ventures/dupehound/README.md (Guarded copies section)"
+  ],
+  "goal": null,
+  "notes": "Explore idea: dupehound --guarded (the README's next step after --families). The first rule, 'every copy guarded', found 0 of 3,305 families on 11,360 .mjs files, so it folds guarded copies into one occurrence and re-ranks. Summed lower estimate 396,673 -> 283,122 lines; proposal families from ranks 2/3 to 568/645; three calc.mjs copies of proposal.mjs's number() validator stay visible as unwatched strays. Same 0.8-1.0 s. Checks run here: cargo fmt/clippy/test (26 pass), node dupehound tests (all pass), run_workflow_locally --for-changes: dupehound-ci 6/6; portfolio-pages front matter fixed; the 172 site-builder failures in the budgeted local run were the time limit, not the change: run alone, platform/pages node --test gave 1,562 pass, 0 fail.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "912ccf7d-32eb-5b5e-bad8-eff11960e5b7",
+    "transcripts": 1,
+    "first": "2026-11-12T09:37:50Z",
+    "last": "2026-11-12T09:54:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 124,
+        "output": 35921,
+        "thinking": 8374,
+        "cache_read": 6945380,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117414,
+        "api_equivalent_usd": 3.0473,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 124,
+      "output": 35921,
+      "thinking": 8374,
+      "cache_read": 6945380,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117414,
+      "api_equivalent_usd": 3.0473,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 62,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.37,
+      "active_minutes": 16.37,
+      "model_minutes": 5.85,
+      "tool_minutes": 10.52,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "Rust CLI feature with glob matcher, refactor, 6 tests, docs and post; a senior engineer's estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 196.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

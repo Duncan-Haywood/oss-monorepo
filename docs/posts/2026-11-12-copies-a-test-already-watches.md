@@ -1,7 +1,7 @@
 ---
 title: "Copies a test already watches count as one"
 date: 2026-11-12
-description: "dupehound --guarded folds vendored copies that a sync test keeps identical into one. On this repo that drops the duplication estimate from 396,673 to 283,122 lines and turns up three unwatched strays."
+description: "dupehound --guarded counts vendored copies a sync test keeps identical as one. On this repo the duplication estimate drops from 396,673 to 283,122 lines."
 tags: [rust, dupehound, dev-tools]
 ---
 
