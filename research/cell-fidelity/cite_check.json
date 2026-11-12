@@ -1,7 +1,19 @@
 {
+ "arxiv:1603.06288": {
+  "checked": "2026-11-12",
+  "title": "Multi-fidelity Gaussian Process Bandit Optimisation (2016)"
+ },
+ "doi:10.1007/s00158-005-0587-0": {
+  "checked": "2026-11-12",
+  "title": "Sequential kriging optimization using multiple-fidelity evaluations (2006)"
+ },
  "doi:10.1039/D2CP00417H": {
   "checked": "2026-11-11",
   "title": "Lithium-ion battery degradation: how to model it (2022)"
+ },
+ "doi:10.1093/biomet/87.1.1": {
+  "checked": "2026-11-12",
+  "title": "Predicting the output from a complex computer code when fast approximations are available (2000)"
  },
  "doi:10.1149/1.2221597": {
   "checked": "2026-11-11",

@@ -171,7 +171,7 @@ flagships:
       (AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit them: which
       validator does AT run?); Poland's FA(3) on a KSeF test-environment file and
       a real correction, advance or settlement file; the rules and a repair on a
-      real ERP or Factur-X export; PINT SG and A-NZ: current releases (billing-1@sg-1/@aunz-1) added and run on OpenPeppol's 40 examples 2026-11-11 (README, eval/phive-corpus.mjs: 0 to 39 pass); open: a real business's PINT file, PINT JP/MY/AE/OM; NL/RO/PT/ZATCA good cases scored 2026-11-11 (README `--good`; 4 fixes); open: UBL-SR-53 on RO empty TaxScheme, INV-026 on clearing codes in BT-86, ZATCA rate-change row;
+      real ERP or Factur-X export; PINT SG and A-NZ: current releases (billing-1@sg-1/@aunz-1) added and run on OpenPeppol's 40 examples 2026-11-11 (README, eval/phive-corpus.mjs: 0 to 39 pass); open: a real business's PINT file, PINT JP/MY/AE/OM; NL/RO/PT/ZATCA good cases scored 2026-11-11 (README `--good`; 4 fixes); BT-86 clearing codes closed 2026-11-12 (README); open: UBL-SR-53 on RO empty TaxScheme, ZATCA rate-change row;
       RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
       check on a real IRP payload; mandate dates read from primary sources where
       pages cite guides (Israel, Denmark, Czech, Latvia; Luxembourg; ato.gov.au
@@ -212,9 +212,11 @@ flagships:
       speed-ups; DNG-spec colour checked against colour-hdri,
       eval/dng-colour-2026-11-12.md; HueSatMap/LookTable and `--dcp`,
       eval/dcp-tables-2026-11-12.md; ProfileToneCurve with hue-preserving
-      RGB tone, eval/tone-curve-2026-11-12.md, all 2026-11-12).
-      Next, most valuable first: DNG 1.6 ColorMatrix3 and triple-illuminant
-      tables, BUILDABLE HERE as code against synthetic tags; a default tone
+      RGB tone, eval/tone-curve-2026-11-12.md; DNG 1.6 triple-illuminant
+      profiles and IlluminantData, eval/triple-illuminant-2026-11-12.md, all
+      2026-11-12). Next, most valuable first: a real DNG 1.6 three-light
+      profile or DNG, and the SDK's own triple weights on a grid of whites
+      (compiling it was blocked here); a default tone
       curve for profiles with none (68 RawTherapee profiles share one
       8,192-point curve; check what it is before adopting it), BUILDABLE
       HERE; a tungsten-lit colour chart (real DNG, known patches) to say

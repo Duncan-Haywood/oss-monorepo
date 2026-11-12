@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtKANbprrLqQ7Ph9k7m",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T06:06:33Z",
+  "ended": "2026-11-12T06:23:36Z",
+  "wall_minutes": 17.34,
+  "tokens_in": 8461566,
+  "tokens_out": 52752,
+  "cost_usd": 3.9716,
+  "tool_calls": 63,
+  "task": "cell-fidelity milestone 4b: co-kriging multi-fidelity BO (augmented EI, MF-UCB) against whole-pool screens and GP-EI on the cached benchmark, with per-design costs",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15027",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First smoke test of the co-kriging fitted rho and the low-rung length scale on the edges of the hyperparameter grid; held-out RMSE showed it, the grid was widened and the change logged in LOG.md before the outcome run."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/cell-fidelity/README.md",
+      "issue": "Reproduce said the tests are stdlib only, but test_average.py already imported numpy; corrected."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "Default wait is 100 s, under the run's ~15 minutes; needed --timeout, which research/CLAUDE.md does not mention."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "After the planned result (co-kriging loses), ran an unplanned cheap-start variant to answer the obvious objection that the random start causes the loss.",
+      "did": "Added it as a separately labelled exploratory extra that never enters the hypothesis tests or the H19 variant pick; reported it as a lead needing a pre-registered replication.",
+      "result": "It ties the best screen at every pool size; the README, LOG and post all mark it as exploratory."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-multi-fidelity-bo-loses-at-the-start.md",
+    "research/cell-fidelity/LOG.md (plan and outcome entries)"
+  ],
+  "goal": null,
+  "notes": "Routed by weighted draw to research; pick_track drew track 16 (energy); advanced the open cell-fidelity programme (no open PR on it). Local checks: pytest research/cell-fidelity/tests 41 passed; research/_homepage/build.py ok; programme_check ok; research_live_links ok; check_md_links ok; cite_check 8/8 resolved. References reproduce milestone 4 exactly (GP-EI 220.4, SPM@2 168.2, SPM@100 153.2, DFN@2 159.6 s on pools of 64). Results: H18 refuted, H19 refuted, H20 supported; the exploratory cheap-start variant ties the best screen at 16/32/64/96.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f90601d4-15f6-5915-8f2a-3a67fffde894",
+    "transcripts": 1,
+    "first": "2026-11-12T06:06:33Z",
+    "last": "2026-11-12T06:23:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 117,
+        "output": 52752,
+        "thinking": 14065,
+        "cache_read": 8304552,
+        "cache_write_5m": 0,
+        "cache_write_1h": 156897,
+        "api_equivalent_usd": 3.9716,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 117,
+      "output": 52752,
+      "thinking": 14065,
+      "cache_read": 8304552,
+      "cache_write_5m": 0,
+      "cache_write_1h": 156897,
+      "api_equivalent_usd": 3.9716,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 58,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.34,
+      "active_minutes": 17.34,
+      "model_minutes": 9.82,
+      "tool_minutes": 7.52,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a research engineer implementing co-kriging with two fidelity rules, running the replay and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 302.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
