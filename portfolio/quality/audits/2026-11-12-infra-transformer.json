@@ -1,299 +1,301 @@
 {
- "date": "2026-11-12",
- "subject": "research/infra-transformer",
- "stratum": "research",
- "round": 45,
- "seed": "2026-11-12-d",
- "drawn_by": "sample",
- "auditor": "agent session (Claude), quality-audit round 45",
- "status": "audited",
- "professional": "a utility distribution planning engineer / transformer thermal specialist who applies IEEE C57.91 to pole-top and pad-mount units. They would check first that the clause 7 equations and FAA are implemented right (110 C at rated load and 30 C ambient, 180,000 h distribution-transformer life), whether the rise/R/n/m/tau constants are typical ONAN distribution values, whether the headline loss-of-life figures come from hours inside the hot-spot limits the guide sets for loading beyond nameplate (120-140 C planned/long-term emergency, 180 C short-time), and whether the load model (diversity, power factor, heat-pump capacity and backup heat) is realistic for 10 services on one transformer",
- "scores": {
-  "correctness": 3,
-  "completeness": 3,
-  "verification": 1,
-  "craft": 3,
-  "claims": 2,
-  "fitness": 2,
-  "domain": 2
- },
- "evidence": {
-  "correctness": "Ran `cd research/infra-transformer && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py` (19.7 s real, README says about 35 s): `git diff --stat` empty afterwards, so the committed experiments/results.txt is byte-identical to a fresh run. Then recomputed without importing the subject, in my own scripts written from the C57.91 clause 7 form (/tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/indep.py and /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/ev_indep.py; top oil integrated with 60 one-minute Euler substeps per hour instead of the subject's exact per-hour exponential, 3 cyclic warm-up years instead of 2, csv module instead of numpy.genfromtxt): FAA(110 C) = 1.0; doubling interval ln2/(15000/383^2) = 6.78 K and FAA(117)/FAA(110) = 2.02; 8760/180000 = 4.867 %/yr; steady state at K=1, 30 C: top oil 85 C, hot spot 110 C; steady state at K=1.5, 30 C: 171.76 C (subject simulate(): 171.76 C). Annual loss of life from data/inputs.csv at loading 0.5 (45.45 kVA): Greensboro base 0.001868 %/yr (results.txt 0.00187), HP 100% 0.3348 (0.334); Sand Point base 0.000222 (0.000222), HP 100% 0.0828 (0.0827); Miami base 0.00391 (0.0039), HP 100% 0.00392 (0.00392); with my own uncoordinated-EV builder on the documented arrival draw, Greensboro EV 100% uncoord 0.03551 (0.0354) and HP+EV 100% uncoord 5.628 (5.6). COP line: 3.2 at 8.3 C, 2.30 at -8.3 C, 1.94 at -15 C; heat-pump draw at -8.3 C 4.4305 kW per home both ways. EV energy 36,400 kWh = 10 cars x 10 kWh x 364 nights in both modes. Every recomputed output matches to the reported precision (the 0.3-0.5% residual on the EV rows is my Euler integration). Not 4: the arithmetic is right but the transformer constants remain unsourced (the author's own recollection; I could not verify them against the paywalled standard either).",
-  "completeness": "README claims checked: '8 tests' (8 passed in 0.29 s with /usr/bin/python3.13 -m pytest -q tests); run.py writes results.txt identical to the committed one; every headline number in README.md:7 and Results bullets A-F is in results.txt (see checks); figure.py and lol.svg present (figure not rerun, to keep the tree clean); data/make_inputs.py present (needs pvlib/demandlib, not rerun; data/inputs.csv committed, 8,760 rows). Live page https://marisstella.app/research/infra-transformer/ returns 200 with the abstract, the same headline numbers and the AI-assistance/stylised disclaimer. Next steps 1-4 (source C57.91 tables, diversity, extreme-weather sequences, feeder) are listed as not done, not claimed. Everything stated as done works: 3.",
-  "verification": "`cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests`: 8 passed. Seeded seven mutations in src/infra_transformer/model.py, each reverted with git checkout: (1) hot-spot gradient K^(2m) -> K^m (line 56) survived; (2) ultimate top-oil rise (K^2 R + 1) -> (K R + 1) (line 55) survived; (3) uncoordinated EV charging starts 3 h after arrival (line 103) survived; (4) smart-charging availability arr <= h -> arr < h (line 112) survived; (5) growth multiplier not applied to the EV load (line 130) survived; (6) top-oil time constant x1.3 (line 57) caught by test_step_response_time_constant; (7) COP reference temperature 8.3 -> 0 (line 81) caught by the COP-floor test. A further change to _plugged (line 86) also left the tests green but that function is dead code, so it is not counted. 5 of 7 core mutations survive. The two survivors in the thermal model are the heart of the method: the tests exercise the load functions only at K = 1, where any exponent gives 1, plus an ordinal monotonicity test; nothing pins a value at K != 1 or a number from results.txt. `git status --short research/` clean afterwards.",
-  "craft": "Read src/infra_transformer/model.py (135 lines), experiments/run.py (119), experiments/figure.py, tests/test_model.py, data/make_inputs.py. Small, readable, dataclasses for parameters, vectorised where it matters, deterministic seed. Defects: `_plugged` (model.py:85) is dead code (never called; smart charging recomputes availability inline at line 112); `from dataclasses import replace` unused in model.py:9; run.py imports `simulate` mid-file (after section A) and the section C header (run.py:56) says 'loading 0.7' while the loop prints both 0.5 and 0.7; simulate() is a Python double loop over 8,760 x warm_years hours (fine at this size). No silent fallbacks or unhandled input in the paths used. Acceptable to a senior reviewer with small fixes: 3.",
-  "claims": "Numeric claims are all backed by results.txt (headline 0.0075/0.21/5.6 and 0.0025/0.035/1.07 %/yr vs F rows 0.007524/0.2073/5.605 and 0.002547/0.03545/1.068; ~5x = 5.25; 18 and 93 years = 100/5.605 and 100/1.068; doubling 1.16-1.28x and 3.1x vs D; 2.4 pu vs B 2.42; sensitivity factors 1.7-25 and 1.8-6.1 vs E, max transformer-row uncoord 0.0231 < 0.025). Limits and disclaimer are unusually candid (constants recalled, swept; coincident heat pumps; TMY; perfect-foresight smart charging). But the headline 'about 18 years to end of life' (README.md:7, also in project.json summary and on the live page) is read from a regime the model and the guide do not support: with the subject's own code, the HP+EV 100% uncoordinated case at loading 0.5 peaks at 2.38 pu and 207 C, spends 49 h above 140 C and 4 h above 180 C, and 92.3% of its annual loss of life comes from those 49 h above 140 C ({S}/ev_indep.py companion one-liner in checks). README.md:42 admits 'the 100 % result is dominated by the overload so its exact figure does not' survive, but the headline and abstract state the end-of-life figure without that caveat beside it. 'Smart charging recovers an EV alone completely' (README.md:7): 0.0026 vs 0.0019 baseline is +40%, immaterial in absolute terms but not 'completely'. The project page abstract says 'at 0.7 per unit every heat-pump case fails', true only for Greensboro (Sand Point HP 100% is 44 %/yr, Miami 0.011). Numbers backed, interpretation of the headline overreaches: 2.",
-  "fitness": "A researcher could clone this, reproduce every number in 20 s and swap in sourced constants, which is real value. But the nearest prior work is not cited and the result is not new: Hilshey, Hines, Rezaei and Dowds, 'Estimating the impact of electric vehicle smart charging on distribution transformer aging', IEEE Trans. Smart Grid 4(2), 2013, did the same C57.91 hot-spot/FAA model with ambient temperature and compared uncoordinated against smart EV charging on a residential pole-top transformer; Gong et al., 'Study of PEV charging on residential distribution transformer life', IEEE Trans. Smart Grid 3(1), 2012, likewise; Navarro-Espinosa and Ochoa (IEEE Trans. Power Syst. 2016) and Protopapadaki and Saelens (Applied Energy 2017) assessed heat-pump plus EV impacts on LV networks with realistic diversity. The qualitative finding (smart charging removes EV ageing, coincident heat-pump peaks remain) is consistent with that literature and sound within its assumptions, but the README's 'Builds on' (README.md:9) cites only the standard and the data, so a reader cannot tell what is added. The load model (one diversified BDEW H0 group shape for 10 homes, fully coincident heat pumps with no capacity limit or backup heat, PF 1) and the unsourced constants mean the quantitative thresholds (50 %, 65 %) are not transferable to a real feeder without the next steps. 2.",
-  "domain": "Compared against IEEE C57.91 clause 7 and the guide's loading practice. Right: the clause 7 equations (ultimate top-oil rise with R and n, hot-spot gradient with m, exponential top-oil lag, FAA with 15000/383), the 110 C reference at 30 C ambient for 65 C-rise thermally upgraded paper (30 + 80 K = 110), and the 180,000 h life, which is the guide's benchmark from distribution-transformer functional life tests and the appropriate one for this class. Constants (55 K top oil, 25 K gradient, R 3.2, n = m = 0.8, tau 3 h) are within the range I would expect for ONAN distribution units (n = m = 0.8 for ONAN; 80 K hot-spot rise is the 65 C-rise design limit, so 55/25 is the conservative end), but neither I nor the author verified them against the standard; the sensitivity sweep is a reasonable mitigation. Departures a specialist would raise: (a) no check of the hot-spot and top-oil limits the guide uses for loading beyond nameplate; the headline case breaches 140 C for 49 h and 180 C for 4 h, where a planner calls the unit overloaded regardless of LOL; (b) only thermally upgraded insulation (110 C reference); much legacy pole-top stock is 55 C-rise with a 95 C reference (FAA with 15000/368), which would roughly multiply ageing by e^(15000/368-15000/383)= ~4.9 at the same hot spot and is not offered as a parameter; (c) hourly mean load and a diversified German group profile under-represent the 10-service coincident peak; (d) heat pumps without capacity derate or resistance backup, which in a cold snap sets the real peak; (e) PF 1. (a) and (b) are the kind of gaps a planner hits in the first hour: 2."
- },
- "checks": [
-  {
-   "dimension": "correctness",
-   "what": "FAA at 110 C hot spot and ageing doubling interval",
-   "method": "IEEE C57.91 clause 7 FAA form, own script",
-   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/indep.py research/infra-transformer/data/inputs.csv",
-   "expected": "FAA(110)=1; ln2/(15000/383^2)=6.78 K; README 'about 7 K'",
-   "observed": "1.0; 6.78 K; FAA(117)/FAA(110)=2.02",
-   "result": "pass"
+  "date": "2026-11-12",
+  "subject": "research/infra-transformer",
+  "stratum": "research",
+  "round": 45,
+  "seed": "2026-11-12-d",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality-audit round 45",
+  "status": "audited",
+  "professional": "a utility distribution planning engineer / transformer thermal specialist who applies IEEE C57.91 to pole-top and pad-mount units. They would check first that the clause 7 equations and FAA are implemented right (110 C at rated load and 30 C ambient, 180,000 h distribution-transformer life), whether the rise/R/n/m/tau constants are typical ONAN distribution values, whether the headline loss-of-life figures come from hours inside the hot-spot limits the guide sets for loading beyond nameplate (120-140 C planned/long-term emergency, 180 C short-time), and whether the load model (diversity, power factor, heat-pump capacity and backup heat) is realistic for 10 services on one transformer",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 1,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
   },
-  {
-   "dimension": "correctness",
-   "what": "rated-life rate 8760/180000",
-   "method": "hand arithmetic against the C57.91 180,000 h distribution-transformer benchmark",
-   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/indep.py research/infra-transformer/data/inputs.csv",
-   "expected": "4.867 %/yr",
-   "observed": "4.867 (results.txt 4.87; test_lol_at_rated_is_life_fraction)",
-   "result": "pass"
+  "evidence": {
+    "correctness": "Ran `cd research/infra-transformer && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py` (19.7 s real, README says about 35 s): `git diff --stat` empty afterwards, so the committed experiments/results.txt is byte-identical to a fresh run. Then recomputed without importing the subject, in my own scripts written from the C57.91 clause 7 form (/tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/indep.py and /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/ev_indep.py; top oil integrated with 60 one-minute Euler substeps per hour instead of the subject's exact per-hour exponential, 3 cyclic warm-up years instead of 2, csv module instead of numpy.genfromtxt): FAA(110 C) = 1.0; doubling interval ln2/(15000/383^2) = 6.78 K and FAA(117)/FAA(110) = 2.02; 8760/180000 = 4.867 %/yr; steady state at K=1, 30 C: top oil 85 C, hot spot 110 C; steady state at K=1.5, 30 C: 171.76 C (subject simulate(): 171.76 C). Annual loss of life from data/inputs.csv at loading 0.5 (45.45 kVA): Greensboro base 0.001868 %/yr (results.txt 0.00187), HP 100% 0.3348 (0.334); Sand Point base 0.000222 (0.000222), HP 100% 0.0828 (0.0827); Miami base 0.00391 (0.0039), HP 100% 0.00392 (0.00392); with my own uncoordinated-EV builder on the documented arrival draw, Greensboro EV 100% uncoord 0.03551 (0.0354) and HP+EV 100% uncoord 5.628 (5.6). COP line: 3.2 at 8.3 C, 2.30 at -8.3 C, 1.94 at -15 C; heat-pump draw at -8.3 C 4.4305 kW per home both ways. EV energy 36,400 kWh = 10 cars x 10 kWh x 364 nights in both modes. Every recomputed output matches to the reported precision (the 0.3-0.5% residual on the EV rows is my Euler integration). Not 4: the arithmetic is right but the transformer constants remain unsourced (the author's own recollection; I could not verify them against the paywalled standard either).",
+    "completeness": "README claims checked: '8 tests' (8 passed in 0.29 s with /usr/bin/python3.13 -m pytest -q tests); run.py writes results.txt identical to the committed one; every headline number in README.md:7 and Results bullets A-F is in results.txt (see checks); figure.py and lol.svg present (figure not rerun, to keep the tree clean); data/make_inputs.py present (needs pvlib/demandlib, not rerun; data/inputs.csv committed, 8,760 rows). Live page https://marisstella.app/research/infra-transformer/ returns 200 with the abstract, the same headline numbers and the AI-assistance/stylised disclaimer. Next steps 1-4 (source C57.91 tables, diversity, extreme-weather sequences, feeder) are listed as not done, not claimed. Everything stated as done works: 3.",
+    "verification": "`cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests`: 8 passed. Seeded seven mutations in src/infra_transformer/model.py, each reverted with git checkout: (1) hot-spot gradient K^(2m) -> K^m (line 56) survived; (2) ultimate top-oil rise (K^2 R + 1) -> (K R + 1) (line 55) survived; (3) uncoordinated EV charging starts 3 h after arrival (line 103) survived; (4) smart-charging availability arr <= h -> arr < h (line 112) survived; (5) growth multiplier not applied to the EV load (line 130) survived; (6) top-oil time constant x1.3 (line 57) caught by test_step_response_time_constant; (7) COP reference temperature 8.3 -> 0 (line 81) caught by the COP-floor test. A further change to _plugged (line 86) also left the tests green but that function is dead code, so it is not counted. 5 of 7 core mutations survive. The two survivors in the thermal model are the heart of the method: the tests exercise the load functions only at K = 1, where any exponent gives 1, plus an ordinal monotonicity test; nothing pins a value at K != 1 or a number from results.txt. `git status --short research/` clean afterwards.",
+    "craft": "Read src/infra_transformer/model.py (135 lines), experiments/run.py (119), experiments/figure.py, tests/test_model.py, data/make_inputs.py. Small, readable, dataclasses for parameters, vectorised where it matters, deterministic seed. Defects: `_plugged` (model.py:85) is dead code (never called; smart charging recomputes availability inline at line 112); `from dataclasses import replace` unused in model.py:9; run.py imports `simulate` mid-file (after section A) and the section C header (run.py:56) says 'loading 0.7' while the loop prints both 0.5 and 0.7; simulate() is a Python double loop over 8,760 x warm_years hours (fine at this size). No silent fallbacks or unhandled input in the paths used. Acceptable to a senior reviewer with small fixes: 3.",
+    "claims": "Numeric claims are all backed by results.txt (headline 0.0075/0.21/5.6 and 0.0025/0.035/1.07 %/yr vs F rows 0.007524/0.2073/5.605 and 0.002547/0.03545/1.068; ~5x = 5.25; 18 and 93 years = 100/5.605 and 100/1.068; doubling 1.16-1.28x and 3.1x vs D; 2.4 pu vs B 2.42; sensitivity factors 1.7-25 and 1.8-6.1 vs E, max transformer-row uncoord 0.0231 < 0.025). Limits and disclaimer are unusually candid (constants recalled, swept; coincident heat pumps; TMY; perfect-foresight smart charging). But the headline 'about 18 years to end of life' (README.md:7, also in project.json summary and on the live page) is read from a regime the model and the guide do not support: with the subject's own code, the HP+EV 100% uncoordinated case at loading 0.5 peaks at 2.38 pu and 207 C, spends 49 h above 140 C and 4 h above 180 C, and 92.3% of its annual loss of life comes from those 49 h above 140 C ({S}/ev_indep.py companion one-liner in checks). README.md:42 admits 'the 100 % result is dominated by the overload so its exact figure does not' survive, but the headline and abstract state the end-of-life figure without that caveat beside it. 'Smart charging recovers an EV alone completely' (README.md:7): 0.0026 vs 0.0019 baseline is +40%, immaterial in absolute terms but not 'completely'. The project page abstract says 'at 0.7 per unit every heat-pump case fails', true only for Greensboro (Sand Point HP 100% is 44 %/yr, Miami 0.011). Numbers backed, interpretation of the headline overreaches: 2.",
+    "fitness": "A researcher could clone this, reproduce every number in 20 s and swap in sourced constants, which is real value. But the nearest prior work is not cited and the result is not new: Hilshey, Hines, Rezaei and Dowds, 'Estimating the impact of electric vehicle smart charging on distribution transformer aging', IEEE Trans. Smart Grid 4(2), 2013, did the same C57.91 hot-spot/FAA model with ambient temperature and compared uncoordinated against smart EV charging on a residential pole-top transformer; Gong et al., 'Study of PEV charging on residential distribution transformer life', IEEE Trans. Smart Grid 3(1), 2012, likewise; Navarro-Espinosa and Ochoa (IEEE Trans. Power Syst. 2016) and Protopapadaki and Saelens (Applied Energy 2017) assessed heat-pump plus EV impacts on LV networks with realistic diversity. The qualitative finding (smart charging removes EV ageing, coincident heat-pump peaks remain) is consistent with that literature and sound within its assumptions, but the README's 'Builds on' (README.md:9) cites only the standard and the data, so a reader cannot tell what is added. The load model (one diversified BDEW H0 group shape for 10 homes, fully coincident heat pumps with no capacity limit or backup heat, PF 1) and the unsourced constants mean the quantitative thresholds (50 %, 65 %) are not transferable to a real feeder without the next steps. 2.",
+    "domain": "Compared against IEEE C57.91 clause 7 and the guide's loading practice. Right: the clause 7 equations (ultimate top-oil rise with R and n, hot-spot gradient with m, exponential top-oil lag, FAA with 15000/383), the 110 C reference at 30 C ambient for 65 C-rise thermally upgraded paper (30 + 80 K = 110), and the 180,000 h life, which is the guide's benchmark from distribution-transformer functional life tests and the appropriate one for this class. Constants (55 K top oil, 25 K gradient, R 3.2, n = m = 0.8, tau 3 h) are within the range I would expect for ONAN distribution units (n = m = 0.8 for ONAN; 80 K hot-spot rise is the 65 C-rise design limit, so 55/25 is the conservative end), but neither I nor the author verified them against the standard; the sensitivity sweep is a reasonable mitigation. Departures a specialist would raise: (a) no check of the hot-spot and top-oil limits the guide uses for loading beyond nameplate; the headline case breaches 140 C for 49 h and 180 C for 4 h, where a planner calls the unit overloaded regardless of LOL; (b) only thermally upgraded insulation (110 C reference); much legacy pole-top stock is 55 C-rise with a 95 C reference (FAA with 15000/368), which would roughly multiply ageing by e^(15000/368-15000/383)= ~4.9 at the same hot spot and is not offered as a parameter; (c) hourly mean load and a diversified German group profile under-represent the 10-service coincident peak; (d) heat pumps without capacity derate or resistance backup, which in a cold snap sets the real peak; (e) PF 1. (a) and (b) are the kind of gaps a planner hits in the first hour: 2."
   },
-  {
-   "dimension": "correctness",
-   "what": "steady-state top oil / hot spot at rated load and at 1.5 pu, 30 C ambient",
-   "method": "closed form of C57.91 clause 7 ultimate rises with the default constants",
-   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/indep.py research/infra-transformer/data/inputs.csv",
-   "expected": "85 / 110 C at K=1; 171.76 C at K=1.5",
-   "observed": "subject simulate(): 85.0 / 110.0 C; 171.76 C",
-   "result": "pass"
-  },
-  {
-   "dimension": "correctness",
-   "what": "annual loss of life, Greensboro base and HP 100% at loading 0.5, from data/inputs.csv",
-   "method": "own thermal model (1-min Euler top-oil integration, 3 warm-up years), not importing the subject",
-   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/indep.py research/infra-transformer/data/inputs.csv",
-   "expected": "own: base 0.001868, HP100 0.3348 %/yr",
-   "observed": "results.txt: 0.00187, 0.334",
-   "result": "pass"
-  },
-  {
-   "dimension": "correctness",
-   "what": "annual loss of life, Sand Point and Miami base and HP 100% at loading 0.5",
-   "method": "same own implementation",
-   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/indep.py research/infra-transformer/data/inputs.csv",
-   "expected": "own: SP 0.000222 / 0.0828; Miami 0.00391 / 0.00392",
-   "observed": "results.txt: 0.000222 / 0.0827; 0.0039 / 0.00392",
-   "result": "pass"
-  },
-  {
-   "dimension": "correctness",
-   "what": "EV 100% and HP+EV 100% uncoordinated LOL, Greensboro loading 0.5",
-   "method": "own EV builder (10 kWh at 7.2 kW from arrival, documented N(18,1.5) draw clipped 16-22, 364 nights) plus own thermal loop",
-   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/ev_indep.py research/infra-transformer/data/inputs.csv",
-   "expected": "own: 0.03551 and 5.628 %/yr",
-   "observed": "results.txt: 0.0354 and 5.6 (residual 0.3-0.5% from Euler integration)",
-   "result": "pass"
-  },
-  {
-   "dimension": "correctness",
-   "what": "COP line and heat-pump draw",
-   "method": "hand arithmetic of README formula COP=3.2+0.054(T-8.3), UA 0.42, balance 16 C",
-   "command": "cd research/infra-transformer && PYTHONPATH=src python3 -c 'from infra_transformer import *; import numpy as np; print(heat_pump_kw(np.array([-8.3]),Params()))'",
-   "expected": "COP 2.304 at -8.3 C; 0.42*24.3/2.304 = 4.4305 kW",
-   "observed": "4.4305 kW",
-   "result": "pass"
-  },
-  {
-   "dimension": "correctness",
-   "what": "EV energy conservation in both charging modes",
-   "method": "10 cars x 10 kWh x 364 nights",
-   "command": "cd research/infra-transformer && PYTHONPATH=src python3 -c 'ev_kw(...).sum()'",
-   "expected": "36,400 kWh",
-   "observed": "36,400.0 uncoordinated; 36,400.0 smart; own builder 36,400",
-   "result": "pass"
-  },
-  {
-   "dimension": "correctness",
-   "what": "fresh run of experiments/run.py vs committed results.txt",
-   "method": "byte comparison via git diff",
-   "command": "cd research/infra-transformer && PYTHONPATH=src python3 experiments/run.py && git diff --stat .",
-   "expected": "identical",
-   "observed": "identical (19.7 s)",
-   "result": "pass"
-  },
-  {
-   "dimension": "domain",
-   "what": "IEEE constants are typical ONAN distribution values",
-   "method": "comparison with C57.91 practice as reproduced in the open literature (n=m=0.8 ONAN; 80 K hot-spot rise for 65 C rise; 180,000 h distribution benchmark); standard itself not available",
-   "command": "read src/infra_transformer/model.py:21-27",
-   "expected": "typical published values",
-   "observed": "plausible and conservative (55/25 K = the 80 K design limit), unverified by author or auditor; swept in section E",
-   "result": "partial"
-  },
-  {
-   "dimension": "domain",
-   "what": "headline case stays inside C57.91 hot-spot loading limits",
-   "method": "subject simulate() on HP+EV 100% uncoordinated, Greensboro, loading 0.5; limits 140 C long-term emergency / 180 C short-time",
-   "command": "cd research/infra-transformer && PYTHONPATH=src python3 -c '... simulate(scenario_load(inp,\"greensboro\",P,hp_frac=1,ev_frac=1),...)'",
-   "expected": "hot spot within limits if LOL is to be read as years of life",
-   "observed": "peak 2.38 pu, 207 C; 49 h > 140 C, 4 h > 180 C; 92.3% of annual LOL from h > 140 C",
-   "result": "fail"
-  },
-  {
-   "dimension": "claims",
-   "what": "headline numbers in README.md:7 match results.txt",
-   "method": "compare with section F/A/D",
-   "command": "read experiments/results.txt",
-   "expected": "0.0075/0.21/5.6 and 0.0025/0.035/1.07 %/yr; 18 and 93 years; 1.16-1.28x; 3.1x",
-   "observed": "0.007524/0.2073/5.605, 0.002547/0.03545/1.068; 17.8 and 93.6 years; 1.160-1.275x; 3.12x",
-   "result": "pass"
-  },
-  {
-   "dimension": "claims",
-   "what": "sensitivity claims (all 30 rows smart < uncoord, factor 1.7-25, transformer rows 1.8-6.1, no transformer row > 0.025)",
-   "method": "ratios computed from section E",
-   "command": "read experiments/results.txt section E",
-   "expected": "as stated",
-   "observed": "1.68-24.7; transformer rows 1.85 (d_h_r 15) to 6.08 (d_h_r 35); max 0.0231",
-   "result": "pass"
-  },
-  {
-   "dimension": "claims",
-   "what": "'smart charging recovers an EV alone completely'",
-   "method": "section A",
-   "command": "read experiments/results.txt",
-   "expected": "smart EV ~= baseline",
-   "observed": "0.00262 vs 0.00187 (+40%), immaterial absolutely",
-   "result": "partial"
-  },
-  {
-   "dimension": "claims",
-   "what": "page abstract 'at 0.7 per unit every heat-pump case fails'",
-   "method": "section A all climates",
-   "command": "curl -s https://marisstella.app/research/infra-transformer/",
-   "expected": "all HP cases > 100 %/yr at 0.7",
-   "observed": "true for Greensboro only; Sand Point HP 100% 44.2, Miami 0.011",
-   "result": "partial"
-  },
-  {
-   "dimension": "completeness",
-   "what": "README '8 tests'",
-   "method": "run",
-   "command": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests",
-   "expected": "8 pass",
-   "observed": "8 passed in 0.29 s",
-   "result": "pass"
-  },
-  {
-   "dimension": "completeness",
-   "what": "live page",
-   "method": "HTTP GET",
-   "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/infra-transformer/",
-   "expected": "200 with abstract and disclaimer",
-   "observed": "200; headline numbers and AI-assistance/stylised disclaimer present",
-   "result": "pass"
-  },
-  {
-   "dimension": "fitness",
-   "what": "prior work cited and novelty placed",
-   "method": "README 'Builds on' vs Hilshey et al. 2013 IEEE TSG, Gong et al. 2012 IEEE TSG, Navarro-Espinosa & Ochoa 2016 IEEE TPWRS",
-   "command": "read research/infra-transformer/README.md:9",
-   "expected": "nearest EV/HP transformer-ageing studies cited",
-   "observed": "only the standard, demandlib and pvlib cited",
-   "result": "fail"
-  },
-  {
-   "dimension": "verification",
-   "what": "tests pin the thermal load function away from K=1",
-   "method": "read tests/test_model.py and seed exponent mutations",
-   "command": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests",
-   "expected": "a test fails when K^(2m) or K^2 is changed",
-   "observed": "both mutations survive",
-   "result": "fail"
-  }
- ],
- "mutations": [
-  {
-   "where": "research/infra-transformer/src/infra_transformer/model.py:56",
-   "change": "dh = d_h_r * k**(2m) -> d_h_r * k**m",
-   "caught": false,
-   "test_cmd": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests"
-  },
-  {
-   "where": "research/infra-transformer/src/infra_transformer/model.py:55",
-   "change": "(k*k*r + 1) -> (k*r + 1) in ultimate top-oil rise",
-   "caught": false,
-   "test_cmd": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests"
-  },
-  {
-   "where": "research/infra-transformer/src/infra_transformer/model.py:103",
-   "change": "uncoordinated charging starts at t0 + a -> t0 + a + 3",
-   "caught": false,
-   "test_cmd": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests"
-  },
-  {
-   "where": "research/infra-transformer/src/infra_transformer/model.py:112",
-   "change": "smart availability (arr <= h) -> (arr < h)",
-   "caught": false,
-   "test_cmd": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests"
-  },
-  {
-   "where": "research/infra-transformer/src/infra_transformer/model.py:130",
-   "change": "growth * (base + ev) -> growth * base + ev",
-   "caught": false,
-   "test_cmd": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests"
-  },
-  {
-   "where": "research/infra-transformer/src/infra_transformer/model.py:57",
-   "change": "exp(-1/tau_to) -> exp(-1/(1.3 tau_to))",
-   "caught": true,
-   "test_cmd": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests"
-  },
-  {
-   "where": "research/infra-transformer/src/infra_transformer/model.py:81",
-   "change": "COP reference temperature 8.3 -> 0.0",
-   "caught": true,
-   "test_cmd": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests"
-  }
- ],
- "defects": [
-  {
-   "severity": "medium",
-   "what": "The thermal load functions are tested only at K = 1, where any exponent gives 1: changing the hot-spot gradient K^(2m) to K^m or the top-oil term K^2 R to K R leaves all 8 tests green, as do changes to EV start time, smart availability and the growth multiplier (5 of 7 core mutations survive). No test pins a value at K != 1 (closed form at K=1.5, 30 C: 171.76 C) or a number from results.txt.",
-   "where": "research/infra-transformer/tests/test_model.py:7",
-   "category": "untested-core",
-   "origin": "tests"
-  },
-  {
-   "severity": "medium",
-   "what": "Headline 'about 18 years to end of life' (5.6 %/yr, HP+EV 100% uncoordinated, loading 0.5) is computed from a case that peaks at 2.38 pu and 207 C, spends 49 h above 140 C and 4 h above 180 C, with 92% of its annual loss of life from those 49 h; at those hot spots C57.91 loading limits, not cumulative LOL, govern and the model is outside its range. The caveat is at README.md:42 but not beside the headline, in project.json or on the live page.",
-   "where": "research/infra-transformer/README.md:7",
-   "category": "overclaim",
-   "origin": "claims"
-  },
-  {
-   "severity": "medium",
-   "what": "No prior work cited: Hilshey et al. 2013 (IEEE Trans. Smart Grid, C57.91 ageing under uncoordinated vs smart EV charging), Gong et al. 2012, and the LV heat-pump/EV impact literature (Navarro-Espinosa & Ochoa 2016) cover the same question; the README does not say what is new relative to them.",
-   "where": "research/infra-transformer/README.md:9",
-   "category": "research-design",
-   "origin": "design"
-  },
-  {
-   "severity": "medium",
-   "what": "Only thermally upgraded 65 C-rise insulation (110 C reference, 383 K) is modelled and no hot-spot limit is checked; legacy 55 C-rise pole-top stock uses a 95 C reference (FAA with 368 K, ~4.9x faster ageing at the same hot spot), the case a planner meets first on old streets.",
-   "where": "research/infra-transformer/src/infra_transformer/model.py:47",
-   "category": "scope-gap",
-   "origin": "spec"
-  },
-  {
-   "severity": "low",
-   "what": "'Smart charging recovers an EV alone completely': 0.0026 vs 0.0019 %/yr baseline is +40% (immaterial in absolute terms); and the project.json/page abstract 'at 0.7 per unit every heat-pump case fails' holds for Greensboro only (Sand Point HP 100% 44 %/yr, Miami 0.011).",
-   "where": "research/infra-transformer/project.json:5",
-   "category": "overclaim",
-   "origin": "claims"
-  },
-  {
-   "severity": "low",
-   "what": "Dead code `_plugged` (never called) and unused `from dataclasses import replace`.",
-   "where": "research/infra-transformer/src/infra_transformer/model.py:85",
-   "category": "code-craft",
-   "origin": "implementation"
-  },
-  {
-   "severity": "low",
-   "what": "Section C header printed into results.txt says 'loading 0.7' while the rows cover loadings 0.5 and 0.7.",
-   "where": "research/infra-transformer/experiments/run.py:56",
-   "category": "stale-docs",
-   "origin": "maintenance"
-  }
- ],
- "fix_prs": [],
- "verdict": "Every number reproduces: a fresh run is byte-identical to results.txt, and an independent C57.91 clause 7 implementation from data/inputs.csv gives Greensboro base 0.001868 and HP-100% 0.3348 %/yr at loading 0.5 (reported 0.00187, 0.334), Sand Point and Miami likewise, EV-100% uncoordinated 0.0355 (0.0354), the 110 C / 85 C rated point, 171.76 C at 1.5 pu, the 6.78 K doubling interval and the 4.87 %/yr rated-life rate. The equations, the 110 C/30 C basis and the 180,000 h distribution-transformer life are applied correctly, and the limits section is candid that the constants are recalled and swept. It does not meet the bar: the tests touch the thermal load function only at K = 1, so 5 of 7 seeded core mutations (including both rise exponents) survive (verification 1); the headline 'about 18 years to end of life' comes from a case with 49 h above 140 C and a 207 C peak, where loading limits rather than loss of life govern (claims 2); and the nearest prior work (Hilshey et al. 2013 and others on EV smart charging and transformer ageing) is not cited, so the result, consistent with that literature, is not placed as new (fitness 2). Finished: everything the README says is done works."
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "FAA at 110 C hot spot and ageing doubling interval",
+      "method": "IEEE C57.91 clause 7 FAA form, own script",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/indep.py research/infra-transformer/data/inputs.csv",
+      "expected": "FAA(110)=1; ln2/(15000/383^2)=6.78 K; README 'about 7 K'",
+      "observed": "1.0; 6.78 K; FAA(117)/FAA(110)=2.02",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "rated-life rate 8760/180000",
+      "method": "hand arithmetic against the C57.91 180,000 h distribution-transformer benchmark",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/indep.py research/infra-transformer/data/inputs.csv",
+      "expected": "4.867 %/yr",
+      "observed": "4.867 (results.txt 4.87; test_lol_at_rated_is_life_fraction)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "steady-state top oil / hot spot at rated load and at 1.5 pu, 30 C ambient",
+      "method": "closed form of C57.91 clause 7 ultimate rises with the default constants",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/indep.py research/infra-transformer/data/inputs.csv",
+      "expected": "85 / 110 C at K=1; 171.76 C at K=1.5",
+      "observed": "subject simulate(): 85.0 / 110.0 C; 171.76 C",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "annual loss of life, Greensboro base and HP 100% at loading 0.5, from data/inputs.csv",
+      "method": "own thermal model (1-min Euler top-oil integration, 3 warm-up years), not importing the subject",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/indep.py research/infra-transformer/data/inputs.csv",
+      "expected": "own: base 0.001868, HP100 0.3348 %/yr",
+      "observed": "results.txt: 0.00187, 0.334",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "annual loss of life, Sand Point and Miami base and HP 100% at loading 0.5",
+      "method": "same own implementation",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/indep.py research/infra-transformer/data/inputs.csv",
+      "expected": "own: SP 0.000222 / 0.0828; Miami 0.00391 / 0.00392",
+      "observed": "results.txt: 0.000222 / 0.0827; 0.0039 / 0.00392",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "EV 100% and HP+EV 100% uncoordinated LOL, Greensboro loading 0.5",
+      "method": "own EV builder (10 kWh at 7.2 kW from arrival, documented N(18,1.5) draw clipped 16-22, 364 nights) plus own thermal loop",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/607d6f8f-15aa-5946-acd2-45d53e86ef9e/scratchpad/xfmr/ev_indep.py research/infra-transformer/data/inputs.csv",
+      "expected": "own: 0.03551 and 5.628 %/yr",
+      "observed": "results.txt: 0.0354 and 5.6 (residual 0.3-0.5% from Euler integration)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "COP line and heat-pump draw",
+      "method": "hand arithmetic of README formula COP=3.2+0.054(T-8.3), UA 0.42, balance 16 C",
+      "command": "cd research/infra-transformer && PYTHONPATH=src python3 -c 'from infra_transformer import *; import numpy as np; print(heat_pump_kw(np.array([-8.3]),Params()))'",
+      "expected": "COP 2.304 at -8.3 C; 0.42*24.3/2.304 = 4.4305 kW",
+      "observed": "4.4305 kW",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "EV energy conservation in both charging modes",
+      "method": "10 cars x 10 kWh x 364 nights",
+      "command": "cd research/infra-transformer && PYTHONPATH=src python3 -c 'ev_kw(...).sum()'",
+      "expected": "36,400 kWh",
+      "observed": "36,400.0 uncoordinated; 36,400.0 smart; own builder 36,400",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "fresh run of experiments/run.py vs committed results.txt",
+      "method": "byte comparison via git diff",
+      "command": "cd research/infra-transformer && PYTHONPATH=src python3 experiments/run.py && git diff --stat .",
+      "expected": "identical",
+      "observed": "identical (19.7 s)",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "IEEE constants are typical ONAN distribution values",
+      "method": "comparison with C57.91 practice as reproduced in the open literature (n=m=0.8 ONAN; 80 K hot-spot rise for 65 C rise; 180,000 h distribution benchmark); standard itself not available",
+      "command": "read src/infra_transformer/model.py:21-27",
+      "expected": "typical published values",
+      "observed": "plausible and conservative (55/25 K = the 80 K design limit), unverified by author or auditor; swept in section E",
+      "result": "partial"
+    },
+    {
+      "dimension": "domain",
+      "what": "headline case stays inside C57.91 hot-spot loading limits",
+      "method": "subject simulate() on HP+EV 100% uncoordinated, Greensboro, loading 0.5; limits 140 C long-term emergency / 180 C short-time",
+      "command": "cd research/infra-transformer && PYTHONPATH=src python3 -c '... simulate(scenario_load(inp,\"greensboro\",P,hp_frac=1,ev_frac=1),...)'",
+      "expected": "hot spot within limits if LOL is to be read as years of life",
+      "observed": "peak 2.38 pu, 207 C; 49 h > 140 C, 4 h > 180 C; 92.3% of annual LOL from h > 140 C",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "headline numbers in README.md:7 match results.txt",
+      "method": "compare with section F/A/D",
+      "command": "read experiments/results.txt",
+      "expected": "0.0075/0.21/5.6 and 0.0025/0.035/1.07 %/yr; 18 and 93 years; 1.16-1.28x; 3.1x",
+      "observed": "0.007524/0.2073/5.605, 0.002547/0.03545/1.068; 17.8 and 93.6 years; 1.160-1.275x; 3.12x",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "sensitivity claims (all 30 rows smart < uncoord, factor 1.7-25, transformer rows 1.8-6.1, no transformer row > 0.025)",
+      "method": "ratios computed from section E",
+      "command": "read experiments/results.txt section E",
+      "expected": "as stated",
+      "observed": "1.68-24.7; transformer rows 1.85 (d_h_r 15) to 6.08 (d_h_r 35); max 0.0231",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'smart charging recovers an EV alone completely'",
+      "method": "section A",
+      "command": "read experiments/results.txt",
+      "expected": "smart EV ~= baseline",
+      "observed": "0.00262 vs 0.00187 (+40%), immaterial absolutely",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "page abstract 'at 0.7 per unit every heat-pump case fails'",
+      "method": "section A all climates",
+      "command": "curl -s https://marisstella.app/research/infra-transformer/",
+      "expected": "all HP cases > 100 %/yr at 0.7",
+      "observed": "true for Greensboro only; Sand Point HP 100% 44.2, Miami 0.011",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README '8 tests'",
+      "method": "run",
+      "command": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests",
+      "expected": "8 pass",
+      "observed": "8 passed in 0.29 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "live page",
+      "method": "HTTP GET",
+      "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/infra-transformer/",
+      "expected": "200 with abstract and disclaimer",
+      "observed": "200; headline numbers and AI-assistance/stylised disclaimer present",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "prior work cited and novelty placed",
+      "method": "README 'Builds on' vs Hilshey et al. 2013 IEEE TSG, Gong et al. 2012 IEEE TSG, Navarro-Espinosa & Ochoa 2016 IEEE TPWRS",
+      "command": "read research/infra-transformer/README.md:9",
+      "expected": "nearest EV/HP transformer-ageing studies cited",
+      "observed": "only the standard, demandlib and pvlib cited",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "tests pin the thermal load function away from K=1",
+      "method": "read tests/test_model.py and seed exponent mutations",
+      "command": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests",
+      "expected": "a test fails when K^(2m) or K^2 is changed",
+      "observed": "both mutations survive",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/infra-transformer/src/infra_transformer/model.py:56",
+      "change": "dh = d_h_r * k**(2m) -> d_h_r * k**m",
+      "caught": false,
+      "test_cmd": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests"
+    },
+    {
+      "where": "research/infra-transformer/src/infra_transformer/model.py:55",
+      "change": "(k*k*r + 1) -> (k*r + 1) in ultimate top-oil rise",
+      "caught": false,
+      "test_cmd": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests"
+    },
+    {
+      "where": "research/infra-transformer/src/infra_transformer/model.py:103",
+      "change": "uncoordinated charging starts at t0 + a -> t0 + a + 3",
+      "caught": false,
+      "test_cmd": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests"
+    },
+    {
+      "where": "research/infra-transformer/src/infra_transformer/model.py:112",
+      "change": "smart availability (arr <= h) -> (arr < h)",
+      "caught": false,
+      "test_cmd": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests"
+    },
+    {
+      "where": "research/infra-transformer/src/infra_transformer/model.py:130",
+      "change": "growth * (base + ev) -> growth * base + ev",
+      "caught": false,
+      "test_cmd": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests"
+    },
+    {
+      "where": "research/infra-transformer/src/infra_transformer/model.py:57",
+      "change": "exp(-1/tau_to) -> exp(-1/(1.3 tau_to))",
+      "caught": true,
+      "test_cmd": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests"
+    },
+    {
+      "where": "research/infra-transformer/src/infra_transformer/model.py:81",
+      "change": "COP reference temperature 8.3 -> 0.0",
+      "caught": true,
+      "test_cmd": "cd research/infra-transformer && /usr/bin/python3.13 -m pytest -q tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "The thermal load functions are tested only at K = 1, where any exponent gives 1: changing the hot-spot gradient K^(2m) to K^m or the top-oil term K^2 R to K R leaves all 8 tests green, as do changes to EV start time, smart availability and the growth multiplier (5 of 7 core mutations survive). No test pins a value at K != 1 (closed form at K=1.5, 30 C: 171.76 C) or a number from results.txt.",
+      "where": "research/infra-transformer/tests/test_model.py:7",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Headline 'about 18 years to end of life' (5.6 %/yr, HP+EV 100% uncoordinated, loading 0.5) is computed from a case that peaks at 2.38 pu and 207 C, spends 49 h above 140 C and 4 h above 180 C, with 92% of its annual loss of life from those 49 h; at those hot spots C57.91 loading limits, not cumulative LOL, govern and the model is outside its range. The caveat is at README.md:42 but not beside the headline, in project.json or on the live page.",
+      "where": "research/infra-transformer/README.md:7",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "No prior work cited: Hilshey et al. 2013 (IEEE Trans. Smart Grid, C57.91 ageing under uncoordinated vs smart EV charging), Gong et al. 2012, and the LV heat-pump/EV impact literature (Navarro-Espinosa & Ochoa 2016) cover the same question; the README does not say what is new relative to them.",
+      "where": "research/infra-transformer/README.md:9",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Only thermally upgraded 65 C-rise insulation (110 C reference, 383 K) is modelled and no hot-spot limit is checked; legacy 55 C-rise pole-top stock uses a 95 C reference (FAA with 368 K, ~4.9x faster ageing at the same hot spot), the case a planner meets first on old streets.",
+      "where": "research/infra-transformer/src/infra_transformer/model.py:47",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "'Smart charging recovers an EV alone completely': 0.0026 vs 0.0019 %/yr baseline is +40% (immaterial in absolute terms); and the project.json/page abstract 'at 0.7 per unit every heat-pump case fails' holds for Greensboro only (Sand Point HP 100% 44 %/yr, Miami 0.011).",
+      "where": "research/infra-transformer/project.json:5",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Dead code `_plugged` (never called) and unused `from dataclasses import replace`.",
+      "where": "research/infra-transformer/src/infra_transformer/model.py:85",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Section C header printed into results.txt says 'loading 0.7' while the rows cover loadings 0.5 and 0.7.",
+      "where": "research/infra-transformer/experiments/run.py:56",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15012"
+  ],
+  "verdict": "Every number reproduces: a fresh run is byte-identical to results.txt, and an independent C57.91 clause 7 implementation from data/inputs.csv gives Greensboro base 0.001868 and HP-100% 0.3348 %/yr at loading 0.5 (reported 0.00187, 0.334), Sand Point and Miami likewise, EV-100% uncoordinated 0.0355 (0.0354), the 110 C / 85 C rated point, 171.76 C at 1.5 pu, the 6.78 K doubling interval and the 4.87 %/yr rated-life rate. The equations, the 110 C/30 C basis and the 180,000 h distribution-transformer life are applied correctly, and the limits section is candid that the constants are recalled and swept. It does not meet the bar: the tests touch the thermal load function only at K = 1, so 5 of 7 seeded core mutations (including both rise exponents) survive (verification 1); the headline 'about 18 years to end of life' comes from a case with 49 h above 140 C and a 207 C peak, where loading limits rather than loss of life govern (claims 2); and the nearest prior work (Hilshey et al. 2013 and others on EV smart charging and transformer ageing) is not cited, so the result, consistent with that literature, is not placed as new (fitness 2). Finished: everything the README says is done works."
 }

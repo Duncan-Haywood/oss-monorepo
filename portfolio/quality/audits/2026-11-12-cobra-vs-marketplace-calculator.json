@@ -241,6 +241,8 @@
       "origin": "implementation"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15012"
+  ],
   "verdict": "A small, clean COBRA-vs-marketplace comparison whose arithmetic and federal deadline rules check out against the CFR (election 60 days from the later of loss or notice, SEP 60 days after the last day of coverage, enrolled-not-eligible PTC rule, no SEP for voluntary COBRA termination), but two headline outputs are wrong: the 'always cheaper' verdict is decided at zero spend only and can contradict the tool's own table, and the cost model ignores the Jan 1 plan-year reset, which is exactly the late-year job loss its worked example and guide promote. The first-premium date is tied to the election deadline rather than the election. Tests pass (22) but 3 of 6 seeded mutations survive, including dropping the carried-over OOP. Correctness, claims and verification are all 2: does not meet the bar; finished (completeness 3)."
 }

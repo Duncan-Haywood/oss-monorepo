@@ -217,6 +217,8 @@
       "origin": "spec"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15012"
+  ],
   "verdict": "A small, correct calculator: every output recomputed from an independent model built on Stripe's published 2.9% + 30c and the platforms' 20% / 60-40 splits matches calc.mjs to the cent on three input sets, the served page and llms.txt are right, and the fee claims are consistent with the sources reachable (Rover's own help centre returned 403). It misses the bar on verification: 5 of 7 seeded bugs survive, including the annual-gain headline and the per-hour column. A pet sitter on Rover can use it as is; a Wag walker can be misled because the 40% is on the owner price, not the walker's rate, and the page does not say which price to type. Blank fields silently become example values."
 }
