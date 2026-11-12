@@ -385,7 +385,7 @@ const DEFAULTS = {
   splitPremium: 0, splitGap: 1, // split-shift premium: dollars owed on each day a person's shifts have a gap over splitGap hours (0 = off)
   diffWhen: "", diffPerHour: 0, diffPct: 0, // pay differential: extra $/hour and/or % of wage for hours inside the diffWhen windows ("Sat-Sun; 10pm-6am"; none = off)
   burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
-  exact: "auto", exactNodes: 400000, exactMs: 8000, exactTolerance: 0.5, balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0, longPass: true,
+  exact: "auto", exactNodes: 400000, exactMs: 8000, exactTolerance: 0.5, balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, keep: null, keepValue: 0, seed: 1, restarts: 4, iterations: 0, longPass: true,
 };
 
 function qualified(person, slot) {
@@ -415,7 +415,34 @@ export function buildContext(staff, slots, options = {}) {
   const capSum = caps.reduce((a, b) => a + b, 0) || 1;
   const target = staff.map((_, i) => (totalHours * caps[i]) / capSum);
   const avgWage = staff.length ? staff.reduce((t, p) => t + p.wage, 0) / staff.length : 0;
-  return { o, staff, slots, P, S, elig, target, avgWage, totalHours, restMin: Math.max(0, o.minRestHours) * 60, diffMin: differentialMinutes(o, slots) };
+  return { o, staff, slots, P, S, elig, target, avgWage, totalHours, restMin: Math.max(0, o.minRestHours) * 60, diffMin: differentialMinutes(o, slots), keep: keepSets(o, staff, slots) };
+}
+
+// "Keep last week's shifts": `keep` maps a person's name (any case) to the shifts they worked before, each written as
+// slotKey(slot) (day, start, end, role). Each hour of such a shift they work again earns keepValue x their wage, the same way
+// a prefer: hour does, so it flows through the search and every exact bound; it is far below BIG, so it never leaves a shift open,
+// and it trades at most keepValue x wage an hour of pay for a steadier rota. Copies of one shift share a key. null when off.
+export const slotKey = (s) => `${s.day}|${s.startMin}|${s.endMin}|${s.role || ""}`;
+function keepSets(o, staff, slots) {
+  if (!o.keep || !(o.keepValue > 0)) return null;
+  const by = new Map(Object.entries(o.keep).map(([n, keys]) => [n.toLowerCase(), new Set(keys)]));
+  const keys = slots.map(slotKey), anyRole = slots.map((s) => slotKey({ ...s, role: "*" }));
+  const sets = staff.map((p) => {
+    const ks = by.get(p.name.toLowerCase());
+    if (!ks) return null;
+    const set = new Set();
+    keys.forEach((k, i) => { if (ks.has(k) || ks.has(anyRole[i])) set.add(i); });
+    return set.size ? set : null;
+  });
+  return sets.some(Boolean) ? sets : null;
+}
+// Dollars of prefer: and keep bonus for person p working shift i (0 for most pairs).
+function slotBonus(ctx, p, i) {
+  const person = ctx.staff[p];
+  let h = 0;
+  if (person.prefer) h += (avoidMinutes(person, ctx.slots[i], "prefer") / 60) * ctx.o.preferValue;
+  if (ctx.keep && ctx.keep[p] && ctx.keep[p].has(i)) h += ((ctx.slots[i].end - ctx.slots[i].start) / 60) * ctx.o.keepValue;
+  return h * Math.max(person.wage, 1);
 }
 
 // Minutes of each shift inside the differential windows, written like availability: "Sat-Sun; Mon-Fri 22-24; Tue-Sat 0-6".
@@ -606,11 +633,12 @@ function avoidPenalty(ctx, p, list) {
   return (m / 60) * ctx.o.avoidValue * Math.max(ctx.staff[p].wage, 1);
 }
 // Each hour inside a person's prefer: window earns preferValue x their wage. Smaller than the avoid cost and far below BIG.
+// Plus the keep bonus (slotBonus) when the plan asks to keep last week's shifts.
 function preferBonus(ctx, p, list) {
-  if (!ctx.staff[p].prefer || !list) return 0;
-  let m = 0;
-  for (const i of list) m += avoidMinutes(ctx.staff[p], ctx.slots[i], "prefer");
-  return (m / 60) * ctx.o.preferValue * Math.max(ctx.staff[p].wage, 1);
+  if (!list || (!ctx.staff[p].prefer && !(ctx.keep && ctx.keep[p]))) return 0;
+  let v = 0;
+  for (const i of list) v += slotBonus(ctx, p, i);
+  return v;
 }
 function personScore(ctx, p, list) {
   const h = hoursOf(ctx, list);
@@ -1026,7 +1054,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     sufCheap[k] = sufCheap[k + 1] + cheapest[i];
     for (let p = 0; p < P; p++) {
       sufHours[k][p] = sufHours[k + 1][p] + (elig[p][i] ? len[i] : 0);
-      sufPrefer[k][p] = sufPrefer[k + 1][p] + (elig[p][i] && staff[p].prefer ? avoidMinutes(staff[p], slots[i], "prefer") / 60 : 0);
+      sufPrefer[k][p] = sufPrefer[k + 1][p] + (elig[p][i] ? slotBonus(ctx, p, i) : 0);
     }
   }
   // Smallest value of the convex hours terms (shortfall + balance) for hours anywhere in [h0, h1].
@@ -1040,7 +1068,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   };
   // Symmetry: people who differ only by name (same wage, limits, availability, preferences, history) are interchangeable, so when
   // two of them hold exactly the same shifts, giving the next shift to either leads to mirror-image subtrees and only one is tried.
-  const cls = staff.map((p, q) => JSON.stringify([{ ...p, name: 0 }, elig[q], ctx.target[q]]));
+  const cls = staff.map((p, q) => JSON.stringify([{ ...p, name: 0 }, elig[q], ctx.target[q], ctx.keep && ctx.keep[q] ? [...ctx.keep[q]] : 0]));
   const lists = Array.from({ length: P }, () => []);
   const owner = new Array(S).fill(-1);
   let minOpenH = 0; // least hours that must stay open, once the coverage pass has proven it
@@ -1057,11 +1085,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
       const g0 = gMin(p, h, h1);
       gSum += g0;
       let lo = pay + avoidPenalty(ctx, p, L) + toughPenalty(ctx, p, L) + g0;
-      if (staff[p].prefer) {
-        let pm = 0;
-        for (const i of L) pm += avoidMinutes(staff[p], slots[i], "prefer");
-        lo -= (pm / 60 + sufPrefer[k][p]) * o.preferValue * Math.max(staff[p].wage, 1);
-      }
+      if (staff[p].prefer || (ctx.keep && ctx.keep[p])) lo -= preferBonus(ctx, p, L) + sufPrefer[k][p];
       lb += lo;
       capacity += Math.max(0, Math.min(staff[p].maxHours, h + sufHours[k][p]) - h);
       hoursLeft[p] = Math.max(0, staff[p].maxHours - h);
@@ -1910,7 +1934,20 @@ export function optimalityText(opt) {
   return `Exact search ran out of time before it could prove anything. The best roster it found is shown; the true best could still be better by up to ${num(opt.gapPct)}% of the score by a loose bound, so treat this as a good roster, not a proven one.`;
 }
 
+// With a keep bonus on and no proof, the quick search can land on a roster that leaves more open than it would without the
+// bonus (café sample, dated days off, exact check off: week 3 left 27 h open with the bonus, 22 h without; eval/steady-plan.mjs).
+// A proven roster cannot (open hours cost BIG, the bonus is a fraction of a wage), so only an unproven one is checked against
+// a build without the bonus, and the one with fewer open hours is kept (the kept one on a tie). `keepChecked` says which won.
 export function buildRoster(staff, slots, options = {}) {
+  const r = buildRosterOnce(staff, slots, options);
+  if (r.error || !(options.keepValue > 0) || !options.keep || !Object.keys(options.keep).length) return r;
+  if (["optimal", "improved"].includes(r.optimality?.status)) return r;
+  const plain = buildRosterOnce(staff, slots, { ...options, keepValue: 0 });
+  if (!plain.error && plain.unfilledHours < r.unfilledHours - 1e-9) return { ...plain, keepChecked: "dropped: it left more hours open" };
+  return { ...r, keepChecked: "kept" };
+}
+
+function buildRosterOnce(staff, slots, options = {}) {
   const ctx = buildContext(staff, slots, options);
   if (!ctx.P) return { error: "Add at least one person." };
   if (!ctx.S) return { error: "Add at least one shift to cover." };
@@ -2680,6 +2717,28 @@ function addWeeks(weekStart, k) {
 // they fall in. People who had no shift last week lose a stale `prev:` so it cannot block Monday. Returns one entry per
 // week with its roster and CSV; a parse error stops the plan.
 // `onWeek(done, of)` is called after each week is built (the page's worker posts it as progress); it changes nothing.
+// The shifts each person worked in a roster, as a `keep` map for the next week's build.
+export function keepFrom(roster) {
+  const keep = {};
+  for (const a of (roster && roster.assignments) || []) {
+    if (!a.person) continue;
+    (keep[a.person.toLowerCase()] ||= []).push(slotKey(a.slot));
+  }
+  for (const k of Object.keys(keep)) keep[k].sort();
+  return keep;
+}
+
+// The same map from a roster CSV (last week's, as the page and --last-week read it). The CSV carries no role, so its keys
+// match a shift at that day and time whatever its role ("*").
+export function keepFromCsv(csv) {
+  const keep = {};
+  for (const r of parseRosterCsv(csv)) {
+    const base = r.day * 1440;
+    (keep[r.person.toLowerCase()] ||= []).push(slotKey({ day: r.day, startMin: r.start - base, endMin: r.end - base, role: "*" }));
+  }
+  return keep;
+}
+
 export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, onWeek = null, reuse = true, ...options } = {}) {
   const n = Math.max(1, Math.min(8, Math.floor(weeks) || 1));
   const sh = parseShifts(shiftsText);
@@ -2692,14 +2751,18 @@ export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, 
   // `tough:` tally keeps changing, but it only enters the search when the spread setting (toughBalance) is above 0, so
   // at 0 it is left out of the comparison. `sameAs` names the week reused; `reuse: false` rebuilds every week.
   const toughCounts = Number(options.toughBalance) > 0;
+  const steady = Number(options.keepValue) > 0;
   const built = new Map();
   for (let k = 0; k < n; k++) {
     const ws = addWeeks(weekStart, k);
     const st = parseStaff(text, { weekStart: ws });
     if (st.errors.length) return { error: st.errors[0] };
-    const key = JSON.stringify(toughCounts ? st.staff : st.staff.map((p) => ({ ...p, toughBefore: 0 })));
+    // keepValue > 0 ("keep last week's shifts"): each week after the first is built with the week before's shifts as `keep`, so
+    // a dated day off moves the shifts it has to and the rest of the rota stays where people had it.
+    const keep = steady && out.length ? keepFrom(out[out.length - 1].roster) : null;
+    const key = JSON.stringify([toughCounts ? st.staff : st.staff.map((p) => ({ ...p, toughBefore: 0 })), keep]);
     const prior = reuse ? built.get(key) : null;
-    const roster = prior ? { ...prior.roster } : buildRoster(st.staff, sh.slots, options);
+    const roster = prior ? { ...prior.roster } : buildRoster(st.staff, sh.slots, keep ? { ...options, keep } : options);
     if (roster.error) return { error: roster.error };
     if (!prior) built.set(key, { week: k + 1, roster });
     const csv = rosterCsv(roster);

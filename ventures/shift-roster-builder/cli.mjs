@@ -26,6 +26,7 @@ import { demandShifts, backtestSales, parseStandard, shutMinDays } from "./deman
 import {
   parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
+  keepFromCsv,
 } from "./calc.mjs";
 
 const USAGE = `Build a weekly roster that respects availability, hour limits and rest, covers as many shifts as it can, and avoids overtime.
@@ -41,6 +42,9 @@ Options:
   --ot-mult <x>       overtime multiplier (default 1.5)
   --balance <0-100>   how hard to even out hours (default 25)
   --tough-balance <0-100>  how hard to even out weekend, closing and opening shifts across weeks (default 0)
+  --keep-shifts <x>   keep people on the shifts they had: each hour someone works the same shift as the week before earns x times
+                      their wage in the score (0.1 is a light hand; never leaves a shift open). With --weeks each week keeps the
+                      one before; on one week it keeps the --last-week CSV. Default 0 (off)
   --week-start <date> Monday of the week, YYYY-MM-DD (lets time-off dates in the staff file apply)
   --last-week <csv>   last week's roster CSV, to carry shift end times into Monday
   --csv | --hours | --json   machine-readable output
@@ -129,7 +133,7 @@ const FLAGS = {
   "--ot-mult": "otMult", "--balance": "balance", "--tough-balance": "toughBalance", "--open-shift-hours": "openShiftWeight",
   "--burden": "burdenPct", "--daily-ot-after": "dailyOtAfter", "--daily-dt-after": "dailyDtAfter", "--dt-mult": "dtMult",
   "--split-premium": "splitPremium", "--split-gap": "splitGap", "--diff-per-hour": "diffPerHour", "--diff-pct": "diffPct",
-  "--meal-after": "mealAfter", "--meal-min": "mealMin",
+  "--meal-after": "mealAfter", "--meal-min": "mealMin", "--keep-shifts": "keepValue",
 };
 
 export function parseArgs(argv) {
@@ -384,7 +388,9 @@ export function run(staffText, shiftsText, opts = {}) {
   const sh = parseShifts(shiftsText);
   const errors = [...st.errors, ...sh.errors];
   if (errors.length) return { code: 2, out: errors.join("\n") + "\n" };
-  const r = buildRoster(st.staff, sh.slots, opts.options || {});
+  // --keep-shifts with --last-week: last week's shifts earn the keep bonus, so the new week stays close to the posted one.
+  const bo = opts.options || {};
+  const r = buildRoster(st.staff, sh.slots, opts.lastWeekCsv && bo.keepValue > 0 ? { ...bo, keep: keepFromCsv(opts.lastWeekCsv) } : bo);
   if (r.error) return { code: 2, out: r.error + "\n" };
   const open = r.unfilledSlots > 0;
   const code = opts.check && open ? 1 : 0;
