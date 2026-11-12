@@ -2,7 +2,7 @@
 //!
 //! The page allocates a buffer with `dh_alloc`, fills it with files as
 //! `u32 path_len, path, u32 src_len, src` (little-endian, repeated), calls
-//! `dh_analyze`, and reads `dh_result_len()` bytes of JSON at the pointer
+//! `dh_analyze` (a non-zero last argument adds the clone families), and reads `dh_result_len()` bytes of JSON at the pointer
 //! it returns. Rayon has no threads here and runs on the calling thread.
 
 use crate::*;
@@ -64,6 +64,7 @@ pub unsafe extern "C" fn dh_analyze(
     min_tokens: u32,
     min_lines: u32,
     normalize: u32,
+    families: u32,
 ) -> *const u8 {
     let buf = std::slice::from_raw_parts(ptr, len);
     let files = parse(buf, normalize != 0);
@@ -74,7 +75,12 @@ pub unsafe extern "C" fn dh_analyze(
     };
     let clones = detect(&files, opts);
     let st = stats(&files, &clones);
-    let out = json_report(&files, &clones, &st, opts, 0.0).into_bytes();
+    let out = if families != 0 {
+        json_report_with_families(&files, &clones, &st, opts, 0.0)
+    } else {
+        json_report(&files, &clones, &st, opts, 0.0)
+    }
+    .into_bytes();
     let r = &mut *std::ptr::addr_of_mut!(RESULT);
     *r = out;
     r.as_ptr()
