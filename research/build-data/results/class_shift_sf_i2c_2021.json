@@ -1,0 +1,168 @@
+{
+ "held_out": "sf",
+ "target": "i2c",
+ "test_year": 2021,
+ "sources": [
+  "austin",
+  "seattle"
+ ],
+ "note": "per cascade2 class; src rows are the transfer model's training rows (years <= Y-2)",
+ "classes": {
+  "alteration": {
+   "n_test": 18381,
+   "test_q90": 646.0,
+   "share_test_same_under_type": 1.0,
+   "n_src_type": 0,
+   "n_src_cascade2": 271672,
+   "src_q90_type": null,
+   "src_q90_cascade2": 482.0,
+   "share_src_cascade2_from_same_type": 0.0
+  },
+  "demolition": {
+   "n_test": 55,
+   "test_q90": 1289.8000000000002,
+   "share_test_same_under_type": 1.0,
+   "n_src_type": 7422,
+   "n_src_cascade2": 20789,
+   "src_q90_type": 1053.0,
+   "src_q90_cascade2": 759.0,
+   "share_src_cascade2_from_same_type": 0.3570157294723171
+  },
+  "new_construction": {
+   "n_test": 53,
+   "test_q90": 1732.6000000000004,
+   "share_test_same_under_type": 1.0,
+   "n_src_type": 0,
+   "n_src_cascade2": 255982,
+   "src_q90_type": null,
+   "src_q90_cascade2": 453.0,
+   "share_src_cascade2_from_same_type": 0.0
+  },
+  "other": {
+   "n_test": 11,
+   "test_q90": 1756.0,
+   "share_test_same_under_type": 1.0,
+   "n_src_type": 557900,
+   "n_src_cascade2": 15392,
+   "src_q90_type": 482.0,
+   "src_q90_cascade2": 731.0,
+   "share_src_cascade2_from_same_type": 1.0
+  },
+  "sign": {
+   "n_test": 209,
+   "test_q90": 338.40000000000003,
+   "share_test_same_under_type": 1.0,
+   "n_src_type": 0,
+   "n_src_cascade2": 525,
+   "src_q90_type": null,
+   "src_q90_cascade2": 2186.2,
+   "share_src_cascade2_from_same_type": 0.0
+  }
+ },
+ "by_source": {
+  "austin": {
+   "alteration": {
+    "n_test": 18381,
+    "test_q90": null,
+    "share_test_same_under_type": 1.0,
+    "n_src_type": 0,
+    "n_src_cascade2": 220879,
+    "src_q90_type": null,
+    "src_q90_cascade2": 397.0,
+    "share_src_cascade2_from_same_type": 0.0
+   },
+   "demolition": {
+    "n_test": 55,
+    "test_q90": null,
+    "share_test_same_under_type": 1.0,
+    "n_src_type": 0,
+    "n_src_cascade2": 12385,
+    "src_q90_type": null,
+    "src_q90_cascade2": 661.6000000000004,
+    "share_src_cascade2_from_same_type": 0.0
+   },
+   "new_construction": {
+    "n_test": 53,
+    "test_q90": null,
+    "share_test_same_under_type": 1.0,
+    "n_src_type": 0,
+    "n_src_cascade2": 244031,
+    "src_q90_type": null,
+    "src_q90_cascade2": 413.0,
+    "share_src_cascade2_from_same_type": 0.0
+   },
+   "other": {
+    "n_test": 11,
+    "test_q90": null,
+    "share_test_same_under_type": 1.0,
+    "n_src_type": 485488,
+    "n_src_cascade2": 7448,
+    "src_q90_type": 412.0,
+    "src_q90_cascade2": 465.90000000000055,
+    "share_src_cascade2_from_same_type": 1.0
+   },
+   "sign": {
+    "n_test": 209,
+    "test_q90": null,
+    "share_test_same_under_type": 1.0,
+    "n_src_type": 0,
+    "n_src_cascade2": 502,
+    "src_q90_type": null,
+    "src_q90_cascade2": 2286.6000000000004,
+    "share_src_cascade2_from_same_type": 0.0
+   }
+  },
+  "seattle": {
+   "alteration": {
+    "n_test": 18381,
+    "test_q90": null,
+    "share_test_same_under_type": 1.0,
+    "n_src_type": 0,
+    "n_src_cascade2": 50793,
+    "src_q90_type": null,
+    "src_q90_cascade2": 571.0,
+    "share_src_cascade2_from_same_type": 0.0
+   },
+   "demolition": {
+    "n_test": 55,
+    "test_q90": null,
+    "share_test_same_under_type": 1.0,
+    "n_src_type": 7422,
+    "n_src_cascade2": 8404,
+    "src_q90_type": 1053.0,
+    "src_q90_cascade2": 1034.499999999999,
+    "share_src_cascade2_from_same_type": 0.8831508805330794
+   },
+   "new_construction": {
+    "n_test": 53,
+    "test_q90": null,
+    "share_test_same_under_type": 1.0,
+    "n_src_type": 0,
+    "n_src_cascade2": 11951,
+    "src_q90_type": null,
+    "src_q90_cascade2": 903.0,
+    "share_src_cascade2_from_same_type": 0.0
+   },
+   "other": {
+    "n_test": 11,
+    "test_q90": null,
+    "share_test_same_under_type": 1.0,
+    "n_src_type": 72412,
+    "n_src_cascade2": 7944,
+    "src_q90_type": 676.0,
+    "src_q90_cascade2": 818.0,
+    "share_src_cascade2_from_same_type": 1.0
+   },
+   "sign": {
+    "n_test": 209,
+    "test_q90": null,
+    "share_test_same_under_type": 1.0,
+    "n_src_type": 0,
+    "n_src_cascade2": 23,
+    "src_q90_type": null,
+    "src_q90_cascade2": 538.0,
+    "share_src_cascade2_from_same_type": 0.0
+   }
+  }
+ }
+}
