@@ -96,7 +96,7 @@
     <ul>
       <li><strong>Required:</strong> VCALENDAR with VERSION:2.0 and PRODID; every VEVENT with UID, DTSTAMP and DTSTART (unless it is a scheduling message with METHOD).</li>
       <li><strong>Times:</strong> dates must be real (no 30 February), DTEND not before DTSTART, DTSTART and DTEND the same type, never both DTEND and DURATION. For all-day events DTEND is the day after the last day.</li>
-      <li><strong>Recurrence:</strong> FREQ required, COUNT and UNTIL not together, UNTIL the same type as DTSTART and in UTC when DTSTART has a time zone.</li>
+      <li><strong>Recurrence:</strong> FREQ required, COUNT and UNTIL not together, UNTIL the same type as DTSTART and in UTC when DTSTART has a time zone, UNTIL not before DTSTART (compared as instants across time zones), BY* parts in range, and no BY part the frequency forbids (BYWEEKNO outside yearly rules, BYYEARDAY in daily, weekly or monthly ones, BYSETPOS on its own).</li>
       <li><strong>Time zones:</strong> a TZID with no VTIMEZONE is warned about. Floating times (no Z, no TZID) are noted, not condemned.</li>
       <li><strong>Fixed automatically:</strong> missing VERSION and PRODID, a stable UID and a DTSTAMP for events without them, a zero-length all-day DTEND, lines refolded at 75 octets, CRLF line endings.</li>
       <li><strong>Never guessed:</strong> which of two clashing end times is right, VTIMEZONE rules, which duplicate UID to keep.</li>
