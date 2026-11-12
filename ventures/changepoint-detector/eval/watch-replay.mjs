@@ -20,6 +20,19 @@
 //   above bocpd's. TCPD is scored for both and decides nothing.
 //   node eval/watch-replay.mjs tcpd-data --round2 > eval/watch-replay-round2.out.txt
 //
+// Round 3 (pre-registered 2026-11-12, after round 2 and before this round ran): sticky noise is where
+//   round 2's windowed probability lost (AR(1) 0.5 nulls: 7.0 to 15.0 false alerts per 1,000), and the engine's
+//   Bayesian pass already has an AR(1) term (rho estimated from the window, the conditional AR(1) likelihood).
+//   Candidates, each with --confirm 5: 'bocpd-ar1' (that pass) and 'bocpd-ar1-window' (that pass, probability
+//   summed over 5 neighbouring points), against the default 'bocpd'. Fresh seeds 21-30. Two cells are added to
+//   the round-1 seven: 'null ar1 0.8' and 'step 4sd ar1 0.8' (step 4 marginal sd, i.e. 2.4 innovation sd).
+//   Rule: a candidate replaces bocpd as the default only if (a) its mean false alerts per 1,000 checks over the
+//   four nulls is at or below bocpd's, and (b) it finds at least as many steps as bocpd summed over the five
+//   step cells. If both candidates pass, the one finding more steps (then fewer false alerts). A candidate that
+//   passes (a) with fewer false alerts on both AR(1) nulls but fails (b) is offered as an option for sticky series,
+//   with the lost power stated. TCPD is scored for all three and decides nothing.
+//   node eval/watch-replay.mjs tcpd-data --round3 > eval/watch-replay-round3.out.txt
+//
 // usage: node eval/watch-replay.mjs [tcpd-data] > eval/watch-replay.out.txt
 //        (sh eval/tcpd-fetch.sh tcpd-data first for part B; without it part B is skipped)
 import { readFileSync, existsSync } from 'node:fs';
@@ -29,8 +42,13 @@ import { availableParallelism } from 'node:os';
 import { detectBoth, advance, emptyState } from '../watch.mjs';
 
 const TOL = 5;
-const ROUND2 = process.argv.includes('--round2');
-const DETECTORS = ROUND2 ? {
+const ROUND3 = process.argv.includes('--round3');
+const ROUND2 = ROUND3 || process.argv.includes('--round2');
+const DETECTORS = ROUND3 ? {
+  bocpd: { detector: 'bocpd', model: 'mean' },
+  'bocpd-ar1': { detector: 'bocpd-ar1', model: 'mean' },
+  'bocpd-ar1-win': { detector: 'bocpd-ar1-window', model: 'mean' },
+} : ROUND2 ? {
   bocpd: { detector: 'bocpd', model: 'mean' },
   'bocpd-window': { detector: 'bocpd-window', model: 'mean' },
 } : {
@@ -39,7 +57,7 @@ const DETECTORS = ROUND2 ? {
   bocpd: { detector: 'bocpd', model: 'mean' },
 };
 const CONFIRMS = ROUND2 ? [5] : [3, 5, 10];
-const SEED0 = ROUND2 ? 10 : 0;
+const SEED0 = ROUND3 ? 20 : ROUND2 ? 10 : 0;
 const median = (a) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const log = (s) => process.stderr.write(s + '\n');
 
@@ -57,7 +75,7 @@ function trace(values, start) {
   for (const name of Object.keys(DETECTORS)) out[name] = [];
   for (let n = start; n <= values.length; n++) {
     const v = values.slice(0, n), l = labels.slice(0, n);
-    const runs = { mean: detectBoth(v, l, { model: 'mean' }), meanvar: ROUND2 ? null : detectBoth(v, l, { model: 'meanvar' }) };
+    const runs = { mean: detectBoth(v, l, { model: 'mean', ar1Detectors: ROUND3 }), meanvar: ROUND2 ? null : detectBoth(v, l, { model: 'meanvar' }) };
     for (const [name, d] of Object.entries(DETECTORS)) out[name].push({ n, changes: runs[d.model][d.detector] });
   }
   return { labels, out };
@@ -112,6 +130,11 @@ const SCEN = {
   'step 3sd iid': (r) => Array.from({ length: N }, (_, i) => (i >= STEP_AT ? 3 : 0) + r.g()),
   'step 2sd ar1 0.5': (r) => { let e = 0; return Array.from({ length: N }, (_, i) => (i >= STEP_AT ? 2 : 0) + (e = 0.5 * e + Math.sqrt(0.75) * r.g())); },
 };
+if (ROUND3) {
+  // marginal sd 1: innovation sd sqrt(1 - 0.64) = 0.6, so a 4-sd step is 6.7 innovation sd and (1 - rho) of it, 2.4 per step of the differences
+  SCEN['null ar1 0.8'] = (r) => { let e = 0; return Array.from({ length: N }, () => (e = 0.8 * e + 0.6 * r.g())); };
+  SCEN['step 4sd ar1 0.8'] = (r) => { let e = 0; return Array.from({ length: N }, (_, i) => (i >= STEP_AT ? 4 : 0) + (e = 0.8 * e + 0.6 * r.g())); };
+}
 const A = {}; // A[det][confirm][scen] = { detected, total, delays, fa, checks }
 for (const det of Object.keys(DETECTORS)) { A[det] = {}; for (const k of CONFIRMS) { A[det][k] = {}; for (const s of Object.keys(SCEN)) A[det][k][s] = { detected: 0, total: 0, delays: [], fa: 0, checks: 0 }; } }
 const t0 = Date.now();
@@ -148,7 +171,17 @@ if (ok.length) {
   const tied = ok.filter((c) => c.meanFa - ok[0].meanFa <= 0.5).sort((a, b) => a.delay2 - b.delay2);
   pick = tied[0];
 }
-if (ROUND2) {
+if (ROUND3) {
+  const fa = (d) => nulls.reduce((t, st) => t + (1000 * A[d][5][st].fa) / A[d][5][st].checks, 0) / nulls.length;
+  const faAt = (d, st) => (1000 * A[d][5][st].fa) / A[d][5][st].checks;
+  const found = (d) => steps.reduce((t, st) => t + A[d][5][st].detected, 0);
+  const res = ['bocpd-ar1', 'bocpd-ar1-win'].map((d) => ({ d, fa: fa(d), found: found(d), a: fa(d) <= fa('bocpd'), b: found(d) >= found('bocpd'), sticky: ['null ar1 0.5', 'null ar1 0.8'].every((st) => faAt(d, st) < faAt('bocpd', st)) }));
+  console.log(`\nRound 3 rule, against bocpd (mean null false alerts ${fa('bocpd').toFixed(2)} per 1,000, ${found('bocpd')} steps found):`);
+  for (const c of res) console.log(`  ${c.d}: (a) mean null false alerts ${c.fa.toFixed(2)}, at or below: ${c.a ? 'yes' : 'no'}; (b) steps found ${c.found}, at least as many: ${c.b ? 'yes' : 'no'}; fewer false alerts on both AR(1) nulls: ${c.sticky ? 'yes' : 'no'}.`);
+  const win = res.filter((c) => c.a && c.b).sort((x, y) => y.found - x.found || x.fa - y.fa)[0];
+  const opt = res.filter((c) => c.a && !c.b && c.sticky).map((c) => c.d);
+  console.log(win ? `Adopted: ${win.d} becomes the default.` : `Not adopted: bocpd stays the default.${opt.length ? ` Offered as an option for sticky series: ${opt.join(', ')}.` : ''}`);
+} else if (ROUND2) {
   const cells = steps.map((st) => [A.bocpd[5][st].detected, A['bocpd-window'][5][st].detected]);
   const fa = (d) => nulls.reduce((t, st) => t + (1000 * A[d][5][st].fa) / A[d][5][st].checks, 0) / nulls.length;
   const a = cells.every(([b, w]) => w >= b) && cells.reduce((t, [b, w]) => t + w - b, 0) > 0;

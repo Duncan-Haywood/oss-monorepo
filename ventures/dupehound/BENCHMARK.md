@@ -86,3 +86,41 @@ against 36,830 clones and 40.55% without it (2.77 s in that run). jscpd has no
 equivalent mode, so there is no second tool to compare with, and no one has
 labelled these matches: the extra 20 points are matches of shape, not
 confirmed duplication.
+
+## Families (2026-11-12)
+
+`--families` groups the pairwise clones into families (see the README). Run
+on commit `afb29ed4f`, 4-core cloud container, `dupehound --ext mjs --json
+[--families] ventures/`, three runs each through `tests/bench/rss.py`:
+
+| Mode | Wall time | Peak memory |
+|---|---|---|
+| `--json` | 1.22, 1.09, 1.26 s | 576, 572, 573 MB |
+| `--json --families` | 1.22, 1.27, 1.14 s | 575, 575, 574 MB |
+
+The grouping costs nothing measurable at this size. What it found: 11,023
+files, 1,439,855 lines, 39,263 clones, 553,342 duplicated lines (38.43%),
+which fold into **3,214 families** (12.2 pairs a family). 1,950 families are
+a single pair; 224 have ten or more copies and hold 336,924 of the 394,293
+lower-estimate removable lines. 2,469 families have every copy in a file of
+the same name, most often `calc.mjs` (735 families), `page.test.mjs` (414)
+and `calc.test.mjs` (406). 2,252 families are wholly token-identical.
+
+The largest five, by lower-estimate removable lines:
+
+| Copies | Identical | Lines | Removable (low to high) | Same file name | Example |
+|---|---|---|---|---|---|
+| 1,025 | 1,006 | 10 to 76 | 76,380 to 77,060 | `usage.mjs` | `1099-vendor-csv-checker/usage.mjs:5-80` |
+| 123 | 121 | 16 to 482 | 57,840 to 57,872 | no | `appliance-repair-quote-calculator/proposal.test.mjs:1-482` |
+| 124 | 121 | 12 to 457 | 54,840 to 54,878 | no | `appliance-repair-quote-calculator/proposal.mjs:36-492` |
+| 137 | 37 | 7 to 498 | 16,704 to 33,888 | no | `artificial-turf-bid-calculator/share.test.mjs:1-464` |
+| 180 | 180 | 82 | 14,678 | `usage.test.mjs` | `1099k-reconciliation-worksheet/usage.test.mjs:24-105` |
+
+The removable figures say what a shared module could save, not that it
+should exist. Here the top families are deliberate: each venture is published
+as its own directory, so it cannot import across the tree, and the copies
+are vendored. `proposal.mjs` is held to its source by
+`platform/proposal/sync.test.mjs` and `usage.mjs` by
+`platform/ci/usage_contract.mjs`. That is why "guarded" is the next column
+the report wants.
+
