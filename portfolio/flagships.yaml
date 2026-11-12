@@ -187,9 +187,10 @@ flagships:
       cite guides (IL, DK, CZ, LV, LU; ato.gov.au 403s from cloud);
       Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages
       (excerpts; Taiwan, Oman dates disagree); Mexico CFDI 4.0 reader
-      landed 2026-11-12 (README "Mexico: CFDI 4.0", 3,666/3,666 vs
-      xmllint): open: Pagos 2.0 sums, a PAC rejection compared, the
-      regime-to-use table; Brazil NF-e XSD, NFS-e; refresh the Bulgaria
+      and Pagos 2.0 payments landed 2026-11-12 (README "Mexico: CFDI
+      4.0", "Mexico: payments"; 202/202 seeded, 1,446/1,446 vs
+      xmllint): open: a PAC rejection compared, the regime-to-use
+      table, nómina 1.2; Brazil NF-e XSD, NFS-e; refresh the Bulgaria
       page when its draft passes. A run that lands a slice replaces its
       item here; keep this under 2,000 characters.
 

@@ -9,14 +9,16 @@
 //      rounded to the currency's decimals the way CfdiUtils (MIT) recomputes them;
 //   3. a handful of well-known 4.0 consistency rules (general public and foreign
 //      receivers, PPD with payment form 99, MXN exchange rate, T and P documents).
+// A type P (payment) CFDI's Pagos 2.0 complement is read by pagos20.mjs (MX-040..MX-049).
 // A check that depends on something this reader does not model (local taxes in the
-// implocal complement, payment complements) is skipped and named in `skipped`. An
+// implocal complement) is skipped and named in `skipped`. An
 // offline observation, not SAT's or a PAC's acceptance, and not tax advice. Findings
 // never repeat an RFC.
 
 import { ELEMENTS, TYPES } from "./cfdi-xsd-data.mjs";
 import { checkRfc } from "./mexico.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
+import { checkPagos } from "./pagos20.mjs";
 
 export { parseCfdiXml };
 
@@ -79,18 +81,23 @@ export function typeProblem(typeIn, raw) {
   return "";
 }
 
-function checkNode(node, path, out, def) {
+// `ctx` says which schema the node belongs to: its namespace, the XSD named in fixes, and
+// the prefix to drop from `path` to reach the ELEMENTS key (the Pagos complement's keys
+// start at "Pagos").
+const CFDI_CTX = { ns: "http://www.sat.gob.mx/cfd/4", xsd: "cfdv40.xsd", strip: "" };
+
+function checkNode(node, path, out, def, ctx = CFDI_CTX) {
   const where = "/" + path;
   // attributes
   const known = new Set(def.attrs.map((a) => a.n));
   for (const a of def.attrs) {
     const v = node.attrs[a.n];
     if (v === undefined) {
-      if (a.req) out.push(finding("MX-002", `${path.split("/").pop()} is missing the required attribute ${a.n}.`, `Add ${a.n} (required by cfdv40.xsd).`, `${where}/@${a.n}`));
+      if (a.req) out.push(finding("MX-002", `${path.split("/").pop()} is missing the required attribute ${a.n}.`, `Add ${a.n} (required by ${ctx.xsd}).`, `${where}/@${a.n}`));
       continue;
     }
     const why = typeProblem(a.type, v);
-    if (why) out.push(finding("MX-003", `${a.n} on ${path.split("/").pop()} ${why}.`, `Correct ${a.n} to a value cfdv40.xsd accepts.`, `${where}/@${a.n}`));
+    if (why) out.push(finding("MX-003", `${a.n} on ${path.split("/").pop()} ${why}.`, `Correct ${a.n} to a value ${ctx.xsd} accepts.`, `${where}/@${a.n}`));
     if (a.fixed !== undefined && v !== a.fixed) out.push(finding("MX-003", `${a.n} must be "${a.fixed}".`, `Set ${a.n}="${a.fixed}".`, `${where}/@${a.n}`));
   }
   for (const k of Object.keys(node.attrs)) {
@@ -104,7 +111,7 @@ function checkNode(node, path, out, def) {
   let pos = 0;
   const counts = {};
   for (const c of kids) {
-    const idx = c.ns === CFDI_NS ? order.indexOf(c.name) : -1;
+    const idx = c.ns === ctx.ns ? order.indexOf(c.name) : -1;
     if (idx < 0) {
       out.push(finding("MX-005", `${path.split("/").pop()} contains an element the schema does not allow there: ${c.prefix ? c.prefix + ":" : ""}${c.name}.`, "Remove it, or move it into Complemento (complements) or Addenda (anything else).", `${where}/${c.name}`));
       continue;
@@ -114,11 +121,11 @@ function checkNode(node, path, out, def) {
     }
     pos = Math.max(pos, idx);
     counts[c.name] = (counts[c.name] || 0) + 1;
-    checkNode(c, `${path}/${c.name}`, out, ELEMENTS[`${schemaPath(path)}/${c.name}`]);
+    checkNode(c, `${path}/${c.name}`, out, ELEMENTS[`${schemaPath(path).slice(ctx.strip.length)}/${c.name}`], ctx);
   }
   for (const s of def.seq) {
     const n = counts[s.el] || 0;
-    if (!def.choice && n < s.min) out.push(finding("MX-006", `${path.split("/").pop()} is missing the required element ${s.el}.`, `Add ${s.el} (required by cfdv40.xsd).`, `${where}/${s.el}`));
+    if (!def.choice && n < s.min) out.push(finding("MX-006", `${path.split("/").pop()} is missing the required element ${s.el}.`, `Add ${s.el} (required by ${ctx.xsd}).`, `${where}/${s.el}`));
     if (s.max !== -1 && n > s.max) out.push(finding("MX-006", `${s.el} appears ${n} times inside ${path.split("/").pop()}; the schema allows ${s.max}.`, `Keep at most ${s.max} ${s.el}.`, `${where}/${s.el}`));
   }
   if (def.choice && kids.length === 0 && def.seq.length) {
@@ -261,7 +268,8 @@ export function checkCfdi(text) {
   if (r.Rfc === "XAXX010101000" || r.Rfc === "XEXX010101000") {
     const foreign = r.Rfc === "XEXX010101000";
     const who = foreign ? "a foreign receiver (XEXX010101000)" : "the general public (XAXX010101000)";
-    if (r.UsoCFDI && r.UsoCFDI !== "S01") findings.push(finding("MX-014", `For ${who} UsoCFDI is S01 (sin efectos fiscales), not ${r.UsoCFDI}.`, "Set UsoCFDI=\"S01\".", "/Comprobante/Receptor/@UsoCFDI"));
+    // A payment (type P) uses CP01 whoever the receiver is; pagos20.mjs checks that.
+    if (r.UsoCFDI && r.UsoCFDI !== "S01" && tipo !== "P") findings.push(finding("MX-014", `For ${who} UsoCFDI is S01 (sin efectos fiscales), not ${r.UsoCFDI}.`, "Set UsoCFDI=\"S01\".", "/Comprobante/Receptor/@UsoCFDI"));
     if (r.RegimenFiscalReceptor && r.RegimenFiscalReceptor !== "616") findings.push(finding("MX-014", `For ${who} RegimenFiscalReceptor is 616 (sin obligaciones fiscales), not ${r.RegimenFiscalReceptor}.`, "Set RegimenFiscalReceptor=\"616\".", "/Comprobante/Receptor/@RegimenFiscalReceptor"));
     if (r.DomicilioFiscalReceptor && a.LugarExpedicion && r.DomicilioFiscalReceptor !== a.LugarExpedicion) findings.push(finding("MX-014", `For ${who} DomicilioFiscalReceptor repeats LugarExpedicion (the issuer's postal code).`, "Set DomicilioFiscalReceptor to the LugarExpedicion value.", "/Comprobante/Receptor/@DomicilioFiscalReceptor"));
     if (foreign && !r.ResidenciaFiscal) findings.push(finding("MX-014", "A foreign receiver (XEXX010101000) needs ResidenciaFiscal, the country of tax residence.", "Add ResidenciaFiscal (c_Pais, for example USA) and NumRegIdTrib, the receiver's tax id there.", "/Comprobante/Receptor/@ResidenciaFiscal"));
@@ -398,6 +406,6 @@ export function checkCfdi(text) {
     if (hours < 0) findings.push(finding("MX-036", "FechaTimbrado is earlier than Fecha.", "Check the issuing system's clock.", "/Comprobante/@Fecha"));
     meta.uuid = tfd.attrs.UUID;
   }
-  if (complements.some((c) => c.name === "Pagos")) skipped.push("Pagos 2.0 complement: payment amounts and related documents are not checked.");
+  Object.assign(meta, checkPagos(root, { findings, skipped, checkNode, ELEMENTS, currencyDecimals, taxBounds, CFDI_NS }));
   return { findings, skipped, meta };
 }
