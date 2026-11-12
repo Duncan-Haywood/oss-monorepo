@@ -1,0 +1,285 @@
+{
+ "date": "2026-11-12",
+ "subject": "ventures/dj-gig-profit-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-12-m",
+ "drawn_by": "sample",
+ "round": 54,
+ "auditor": "agent session (Claude), quality-audit round 54",
+ "status": "audited",
+ "professional": "a bookkeeper or CPA for self-employed wedding and mobile DJs (Schedule C filers). What they check first: whether 'take-home' means before or after self-employment and income tax; whether the price floor really reaches the hourly target once overhead is spread over the hours the DJ actually books; whether vehicle cost per mile is near the IRS standard mileage rate for the year; whether gear is costed as wear per gig; and whether the guide's suggested price is anywhere near what the market pays (The Knot's average for a wedding DJ is about $1,700 to $1,800).",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed by hand, then compared with the engine output from node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/dj/check.mjs /home/user/oss-monorepo/ventures/dj-gig-profit-calculator. Package table: for the sample 'Wedding reception (5h)' (1800, 5 h, $120 cost, setup 2 + prep 1, 3% card fee, $1,100/mo overhead, 25 h/wk x 50 wk), overhead/hour = 13,200/1,250 = 10.56, contribution = 1,746 - 120 = 1,626, /8 = 203.25, profit/hour 192.69, floor ((40+10.56)x8+120)/0.97 = 540.70. Engine: 10.5600 / 192.6900 / 540.7010. Weekly mix (monthly revenue 14,700 x 12/50 = 3,528): own 2,910.96, lead 2,381.76, agency 1,534.80; +10% raise break-even loss 342.216/3,517.176 = 9.7299%, weekly change at 90% retention -9.50. All match. Quote builder: costs 40+10+15+28 = 93, profit 1,071, 107.10/h, break-even 93/0.97 = 95.88, target 693/0.97 = 714.43, overtime floor 60/0.97 = 61.86; annual plan need 60,000+1,500+60x68 = 65,580 / (0.97 x 67) = 1,009.08 off, 1,210.89 peak; ladder 775/925/1,100 with profit 643.75/739.25/759. All match the engine and the guide. Arithmetic is right throughout. Two outputs mislead, kept to 3 not 2 because the page states both limits: the 'price for target' does not reach the target at real utilisation (the sample mix priced at every floor earns $37.15 per hour worked against $40, since overhead is spread over 25 bookable hours and only 19.68 are used). And an add-on line with a quoted '$1,200' is silently split into price 1, cost 200, hours 150 (quote.mjs:45). The package parser was fixed for this on 2026-11-11 and the add-on parser was not.",
+  "completeness": "Claimed features exercised in node: package parsing (header, tab paste, quoted $1,200), profit per hour worked, price for target, three-model comparison, raise break-even with the 100% cap, CSV export (reportCsv output checked, 8 columns), quote builder, deposit schedule summing to revenue, good/better/best ladder rounded to $25, annual plan with peak/off split, overtime floor, local-only usage counter with an opt-out (usage.test.mjs). All work; no TODOs or stubs. The four related-tool links resolve to existing ventures/ directories. Served page https://marisstella.app/dj-gig-profit-calculator/ could not be loaded (curl: CONNECT tunnel 403; WebFetch: ENOTFOUND, host not in this session's allowed network). The DOM wiring was checked from source only, through the quote.test.mjs field/default wiring test.",
+  "verification": "cd ventures/dj-gig-profit-calculator && node --test '*.test.mjs': 39 tests, 39 pass, 0 fail (227 ms). Eleven seeded mutations via platform/ci/quality_mutate.py: 10 caught (break-even-loss denominator, overhead denominator 52 vs weeksPerYear, agency overhead share, meetsTarget threshold, atRetention baseline, annual-plan per-gig fixed share, peak uplift /1000, mileage halved, deposit on revenue instead of price, default add-on tier). 1 survived: the retention multiplier applied twice to gig costs (calc.mjs:99), because the atRetention tests use zero gig costs. The guide's numbers are tied to the engine by a test (quote.test.mjs:117), which is good practice. Gap: the tests pin the author's hand calculations; there is no test of quoted/comma money in parseAddons and no aggregate test that pricing at the floor yields the target.",
+  "craft": "Read calc.mjs (165 lines), quote.mjs (186), index.html module script, calc.test.mjs, quote.test.mjs, page.test.mjs. Pure, small, dependency-free; output goes through esc() or textContent; input validated with clear errors. Defects: num(), money(), money2() and the line parser are copied between calc.mjs and quote.mjs. The copy drifted: splitCells' quoted-comma fix (calc.mjs:148) was never applied to parseAddons (quote.mjs:45). A missing gigs-per-month field silently defaults to 1 (calc.mjs:36).",
+  "claims": "Backed: disclaimer, no-warranty, no-SLA and 'Not affiliated' lines on both pages (page.test.mjs, quote.test.mjs:123); no network calls (grep plus tests); the formulas in 'How it is calculated' match calc.mjs; every guide number matches the engine (test plus my recomputation); the page and guide assert no market price, so there is no rate claim to falsify. Unbacked or contradicted: (1) 'Take-home' labels (index.html:79,117,120,263; guide :45,:62,:71) name pre-tax Schedule C profit. On the guide's $60,000 goal, SE tax alone is 60,000 x 0.9235 x 0.153 = $8,477.73, so about $69,873 of profit is needed to keep $60,000 after SE tax. The page's 'Not modelled' line and the README mention SE tax, but the guide never does. (2) The page's 'Not modelled: ... deposits and cancellations, overtime clauses, ... seasonality' (index.html:161) and README:21 contradict the same page's quote builder, which models a deposit schedule, overtime and a peak/off-season split. Source llms.txt carries github.io URLs, which the deploy rewrites (source-only, not filed).",
+  "fitness": "Walked a wedding DJ's job: price a 5-hour reception and set an annual plan. The tool gives a clear bottom-up break-even and target price and makes unpaid hours visible, which is the core insight. Gaps a bookkeeper hits in the first hour: (a) no tax set-aside, so the annual goal is pre-tax; (b) the guide titled 'How much should a wedding DJ charge' lands its example at a $714 target. That is about 40% of The Knot's reported national average of roughly $1,700 to $1,800 (theknot.com/content/average-cost-wedding-band-dj, via search), and the guide gives no market anchor or warning that its example is far below typical; (c) lead marketplaces are modelled only as a percent of each booked gig, though The Knot and WeddingWire listings are mostly flat subscriptions and Thumbtack charges per lead; (d) quote-builder overhead is only insurance and software (no marketing, website, phone, music-pool split, vehicle insurance).",
+  "domain": "Compared with standard cost-plus pricing and Schedule C practice. Right: units-of-production gear wear (6,000/150 = $40 per gig), fees grossed up as /(1-f), break-even loss with fixed overhead, unpaid-hours accounting. Departures: overhead is allocated over capacity, not expected booked hours, so the floor price under-recovers overhead whenever utilisation is below 100% (documented in the FAQ, but the price is still labelled 'price that hits your hourly target'). There is no SE-tax (15.3% on 92.35%) or income-tax set-aside. The default vehicle cost of $0.70/mile equals the 2025 IRS business standard mileage rate; the 2026 rate is 72.5 cents (IR-2025-128, Notice 2026-10), raised to 76 cents from 2026-07-01 (Announcement 2026-11, via secondary sources). The field is labelled 'what the vehicle really costs you', not as the IRS rate, so this is low severity."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Wedding reception (5h) package line: overhead/hour, profit/hour, price for target",
+   "method": "hand arithmetic from the formulas in standard cost-plus pricing: overhead 1,100x12/(25x50)=10.56; (1800x0.97-120)/8-10.56=192.69; ((40+10.56)x8+120)/0.97=540.70",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/dj/check.mjs /home/user/oss-monorepo/ventures/dj-gig-profit-calculator",
+   "expected": "10.56 / 192.69 / 540.70",
+   "observed": "10.5600 / 192.6900 / 540.7010",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "weekly model comparison and +10% raise break-even on the sample mix",
+   "method": "hand: weekly revenue 14,700x12/50=3,528, costs 247.20, contribution 3,174.96; own 3,174.96-264; lead 3,528x0.85-105.84-247.2-264; agency 3,528x0.55-247.2-158.4; loss 342.216/3,517.176",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/dj/check.mjs /home/user/oss-monorepo/ventures/dj-gig-profit-calculator",
+   "expected": "own 2910.96, lead 2381.76, agency 1534.80, loss 0.097299, change at 90% -9.5016",
+   "observed": "own:2910.96 lead:2381.76 agency:1534.80, 0.097299, -9.5016",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "quote defaults: profit, effective hourly, break-even, target, overtime floor",
+   "method": "hand: costs 6000/150+600/60+900/60+40x0.70=93; 1200x0.97-93=1071; /10=107.10; 93/0.97=95.88; (60x10+93)/0.97=714.43; 60/0.97=61.86",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/dj/check.mjs /home/user/oss-monorepo/ventures/dj-gig-profit-calculator",
+   "expected": "1071 / 107.1 / 95.88 / 714.43 / 61.86",
+   "observed": "1071 / 107.1 / 95.8763 / 714.4330 / 61.8557",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "annual plan off/peak price for a $60,000 goal and the tier ladder",
+   "method": "hand: (60000+1500+60x68)/(0.97x(25+35x1.2))=1009.08, x1.2=1210.89; good (630+108)/0.97=760.82->775, better (720+158)/0.97=905.15->925, best (750+308)/0.97=1090.72->1100",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/dj/check.mjs /home/user/oss-monorepo/ventures/dj-gig-profit-calculator",
+   "expected": "1009.08 / 1210.89; ladder 775/925/1100",
+   "observed": "1009.0783 / 1210.8940; [[775,643.75,61.3095],[925,739.25,61.6042],[1100,759,60.72]]",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "does pricing every package at its 'price for target' reach the $40 target per hour worked?",
+   "method": "hand: at floor each slot hour contributes 40+10.56; weekly 19.68x50.56=995.02 less overhead 264 = 731.02 / 19.68 h = 37.15",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/dj/check.mjs /home/user/oss-monorepo/ventures/dj-gig-profit-calculator",
+   "expected": "40.00 per hour worked (the label's promise)",
+   "observed": "every line 'meets', but direct-clients per hour worked 37.15",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "SE tax on the guide's $60,000 'take-home' goal",
+   "method": "IRS Schedule SE: 15.3% on 92.35% of net earnings (below the SS wage base); 60,000x0.9235x0.153",
+   "command": "python3 -c \"print(60000*0.9235*0.153, 60000/(1-0.9235*0.153))\"",
+   "expected": "take-home after SE tax ~$51,522; $69,873 profit needed to keep $60,000",
+   "observed": "tool treats $60,000 pre-tax profit as take-home (8477.73 SE tax unmodelled; 69872.70 needed)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "default vehicle cost per mile vs IRS business standard mileage rate",
+   "method": "IRS IR-2025-128 / Notice 2026-10: 72.5 cents for 2026; 76 cents from 2026-07-01 (Announcement 2026-11, secondary sources); 2025 was 70 cents. irs.gov blocked by proxy (403), rates via web search",
+   "command": "grep -n 'q_mileageRate' ventures/dj-gig-profit-calculator/index.html",
+   "expected": "0.725 or 0.76 if meant as the IRS rate",
+   "observed": "0.7 (2025 rate), labelled 'Vehicle cost per mile', not as the IRS rate",
+   "result": "partial"
+  },
+  {
+   "dimension": "craft",
+   "what": "add-on with a quoted comma price",
+   "method": "node call; same input class fixed in calc.mjs splitCells on 2026-11-11",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/dj/check.mjs /home/user/oss-monorepo/ventures/dj-gig-profit-calculator",
+   "expected": "price 1200, cost 150, hours 0.5, tier best",
+   "observed": "price 1, cost 200, hours 150, tier better (silent)",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/dj-gig-profit-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "39 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "guide numbers vs engine",
+   "method": "recomputed by hand (checks above) and quote.test.mjs:117",
+   "command": "grep -n '\\$714\\|\\$1,009\\|\\$61.86' ventures/dj-gig-profit-calculator/how-much-should-a-wedding-dj-charge.html",
+   "expected": "$714, $1,009, $1,211, $61.86, ladder 775/925/1,100",
+   "observed": "all present and equal to the recomputation",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Not modelled: deposits and cancellations, overtime clauses, seasonality'",
+   "method": "compare with quote.mjs features on the same page",
+   "command": "grep -n 'Not modelled' ventures/dj-gig-profit-calculator/index.html; grep -n 'deposits and' ventures/dj-gig-profit-calculator/README.md",
+   "expected": "list matches what is modelled",
+   "observed": "deposit schedule, overtime and peak/off season are modelled by quote.mjs; the line predates it",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, independence and no-upload privacy",
+   "method": "read pages; grep for fetch/XHR/sendBeacon; page.test.mjs",
+   "command": "grep -n 'No warranty\\|Not affiliated\\|fetch(' ventures/dj-gig-profit-calculator/index.html ventures/dj-gig-profit-calculator/how-much-should-a-wedding-dj-charge.html",
+   "expected": "present on both, no network calls",
+   "observed": "present on both; no network calls",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "market-rate claims in page and guide",
+   "method": "read both pages; The Knot average wedding DJ ~$1,700-1,800 (theknot.com/content/average-cost-wedding-band-dj, via search)",
+   "command": "grep -n 'market price\\|town' ventures/dj-gig-profit-calculator/how-much-should-a-wedding-dj-charge.html",
+   "expected": "no unbacked market figures",
+   "observed": "no market figures asserted; 'Nothing here is a market price' stated. The example target $714 is far below the national average, with no warning",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page",
+   "method": "curl and WebFetch https://marisstella.app/dj-gig-profit-calculator/",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/dj-gig-profit-calculator/",
+   "expected": "200",
+   "observed": "CONNECT tunnel 403 (curl), ENOTFOUND (WebFetch); not checked",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:97",
+   "change": ": extra / (contribution + extra); -> : extra / contribution;",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:59",
+   "change": "overhead denominator bookableHoursPerWeek * weeksPerYear -> bookableHoursPerWeek * 52",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:88",
+   "change": "agency: overheadWeekly * (agencyOverheadPct / 100) -> overheadWeekly",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:99",
+   "change": "newContribution: (... - costs) * keep -> (... - costs * keep) * keep",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:100",
+   "change": "atRetention newContribution - contribution -> newContribution - contribution * keep",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:69",
+   "change": "meetsTarget >= target - 1e-9 -> > target + 1",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "quote.mjs:172",
+   "change": "atQuote = q.profit - insurance - software -> q.profit",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "quote.mjs:162",
+   "change": "uplift 1 + peakUpliftPct/100 -> /1000",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "quote.mjs:75",
+   "change": "mileage miles * rate -> miles * rate / 2",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "quote.mjs:110",
+   "change": "deposit = price * pct -> revenue * pct",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "quote.mjs:49",
+   "change": "default add-on tier better -> good",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Add-on parser splits on every comma: 'Photo booth,\"$1,200\",150,0.5,best' becomes price 1, cost 200, hours 150, tier better, with no warning. This is the same input class fixed in calc.mjs splitCells on 2026-11-11; the copied parser in quote.mjs was not updated.",
+   "where": "ventures/dj-gig-profit-calculator/quote.mjs:45",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "'Price for target' allocates overhead over bookable capacity (25 h/wk), not booked hours. When utilisation is below 100%, pricing every package at its floor misses the target: on the sample mix (79% used), $37.15 per hour worked against $40, while every line shows 'meets'. The allocation is documented in the FAQ, but the label promises the target.",
+   "where": "ventures/dj-gig-profit-calculator/calc.mjs:59",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "'Take-home' labels (per-hour target, annual goal, 'Take-home profit' row, guide's $60,000 example) are pre-tax Schedule C profit. SE tax alone is $8,477.73 on $60,000 (15.3% x 92.35%), so keeping $60,000 after SE tax needs about $69,873. The guide never mentions tax.",
+   "where": "ventures/dj-gig-profit-calculator/index.html:120",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "The 'Not modelled' list on the page and README says deposits, overtime clauses and seasonality are not modelled, while the quote builder on the same page models a deposit schedule, overtime and a peak/off-season split.",
+   "where": "ventures/dj-gig-profit-calculator/index.html:161",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "The guide 'How much should a wedding DJ charge' ends its worked example at a $714 target for a 5-hour reception, about 40% of The Knot's reported national average (~$1,700-1,800), with no market anchor or warning that the invented inputs are low. Lead marketplaces are modelled only as a percent of booked gigs, though The Knot/WeddingWire listings are mostly flat subscriptions and Thumbtack is pay-per-lead.",
+   "where": "ventures/dj-gig-profit-calculator/how-much-should-a-wedding-dj-charge.html:47",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "The atRetention tests use zero gig costs, so a mutant applying retention twice to costs survives.",
+   "where": "ventures/dj-gig-profit-calculator/calc.test.mjs:58",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Default vehicle cost $0.70/mile is the 2025 IRS business rate; the 2026 rate is 72.5 cents (76 cents from 2026-07-01). The field is labelled as real vehicle cost, not the IRS rate, but no source or year is given.",
+   "where": "ventures/dj-gig-profit-calculator/quote.mjs:11",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "num/money/money2 and the line parser are copied between calc.mjs and quote.mjs (the cause of the add-on comma bug). A missing gigs-per-month field silently defaults to 1.",
+   "where": "ventures/dj-gig-profit-calculator/calc.mjs:36",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The arithmetic is right. Every output I recomputed by hand matches the engine to the cent: the sample wedding line (192.69/h, floor 540.70), the three-model weekly comparison, the raise break-even, the quote (1,071, 107.10/h, break-even 96, target 714, overtime 61.86), the annual plan (1,009/1,211) and the 775/925/1,100 ladder. The 39 tests pass and catch 10 of 11 seeded mutations, and the guide's numbers are tied to the engine by a test. It does not meet the bar, because claims scores 2. 'Take-home' everywhere means pre-tax profit (the $60,000 goal loses $8,478 to SE tax alone). The page's 'Not modelled' list contradicts its own quote builder. The 'price for target' misses the target whenever the DJ books less than full capacity ($37.15 against $40 on the sample). An add-on typed as \"$1,200\" silently becomes a $1 price. A DJ's bookkeeper would also want a tax set-aside, a market anchor in the wedding-pricing guide (its example lands at ~40% of The Knot's ~$1,700-1,800 average) and subscription-style marketplace costs. The served page could not be loaded from this session (proxy 403 / ENOTFOUND)."
+}
