@@ -94,12 +94,67 @@ test("old layouts and non-NF-e roots are named, not read", () => {
   assert.deepEqual(rules("<foo/>"), ["BR-001"]);
 });
 
-test("reform groups (IBSCBS) are skipped and named", () => {
-  const t = swap("<COFINS><COFINSAliq><CST>01</CST><vBC>260.00</vBC>", "<COFINS><COFINSAliq><CST>01</CST><vBC>260.00</vBC>")
-    .replace("</COFINS>\n      </imposto>", "</COFINS><IBSCBS><CST>000</CST></IBSCBS>\n      </imposto>");
-  const r = checkNfe(t);
+const reform = readFileSync(new URL("./fixtures/nfe-4.00-reform.xml", import.meta.url), "utf8");
+const rswap = (from, to) => { assert.ok(reform.includes(from), from); return reform.replace(from, to); };
+
+test("schema: PL_010_V1.30, the reform layout, is the table read", async () => {
+  const { PACKAGE } = await import("./nfe-xsd-data.mjs");
+  assert.equal(PACKAGE, "PL_010_V1.30");
+  assert.ok(COMPLEX.TTribNFe && COMPLEX.TCIBS_NFe && COMPLEX.TIBSCBSMonoTot);
+});
+
+test("the made-up reform fixture (IBS 0.1%, CBS 0.9%, the 2026 test rates) is clean", () => {
+  const r = checkNfe(reform);
   assert.deepEqual(r.findings, []);
-  assert.match(r.skipped.join(" "), /IBSCBS/);
+  assert.doesNotMatch(r.skipped.join(" "), /IBSCBS|reform/);
+});
+
+test("reform groups are read against the schema now, not skipped", () => {
+  // CST of IBS/CBS is three digits; an out-of-order group is a schema error.
+  assert.deepEqual(rules(rswap("<IBSCBS><CST>000</CST>", "<IBSCBS><CST>00</CST>")), ["BR-004"]);
+  assert.deepEqual(rules(rswap("<vIBS>0.26</vIBS><gCBS>", "<gCBS>")), ["BR-002"]);
+  assert.deepEqual(rules(rswap("</gIBSCBS></IBSCBS>", "</gIBSCBS><gFoo/></IBSCBS>")), ["BR-002"]);
+});
+
+test("BR-050: an item's vIBS is vIBSUF + vIBSMun", () => {
+  // the total is still right, so only the item is named
+  const t = rswap("<vIBS>0.26</vIBS>", "<vIBS>0.27</vIBS>");
+  assert.deepEqual(rules(t), ["BR-050"]);
+  assert.match(checkNfe(t).findings[0].message, /0\.26/);
+});
+
+test("BR-051: every IBSCBSTot field is the sum of the items", () => {
+  for (const [from, to, path] of [
+    ["<vBCIBSCBS>319.97", "<vBCIBSCBS>319.98", "vBCIBSCBS"],
+    ["<vIBSUF>0.32</vIBSUF>", "<vIBSUF>0.33</vIBSUF>", "gIBS/gIBSUF/vIBSUF"],
+    ["<vIBS>0.32</vIBS>", "<vIBS>0.31</vIBS>", "gIBS/vIBS"],
+    ["<vCBS>2.88</vCBS>", "<vCBS>2.87</vCBS>", "gCBS/vCBS"],
+    ["<gIBSMun><vDif>0.00</vDif>", "<gIBSMun><vDif>0.01</vDif>", "gIBS/gIBSMun/vDif"],
+  ]) {
+    const f = checkNfe(rswap(from, to)).findings;
+    assert.deepEqual(f.map((x) => x.rule), ["BR-051"], path);
+    assert.equal(f[0].path, `/NFe/infNFe/total/IBSCBSTot/${path}`);
+  }
+  // an item that is off is caught at the total too
+  assert.deepEqual(rules(rswap("<vCBS>0.54</vCBS>", "<vCBS>0.55</vCBS>")), ["BR-051"]);
+});
+
+test("BR-051: ISTot is the sum of the items' Imposto Seletivo", () => {
+  const is = "<IS><CSTIS>000</CSTIS><cClassTribIS>000001</cClassTribIS><vBCIS>59.97</vBCIS><pIS>10.0000</pIS><vIS>6.00</vIS></IS>";
+  const t = reform.replace("</COFINS>\n        <IBSCBS><CST>000</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>59.97", `</COFINS>\n        ${is}<IBSCBS><CST>000</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>59.97`);
+  assert.notEqual(t, reform);
+  const withTot = (v) => t.replace("<IBSCBSTot>", `<ISTot><vIS>${v}</vIS></ISTot><IBSCBSTot>`);
+  // vItem and vNFTot are left as they were: IS is not added to vItem in 2026 here
+  assert.deepEqual(rules(withTot("6.00")), []);
+  assert.deepEqual(rules(withTot("6.01")), ["BR-051"]);
+});
+
+test("BR-052: vNFTot is the sum of vItem over the items with indTot 1", () => {
+  assert.deepEqual(rules(rswap("<vNFTot>335.72", "<vNFTot>335.71")), ["BR-052"]);
+  assert.deepEqual(rules(rswap("<vItem>62.97", "<vItem>62.98")), ["BR-052"]);
+  // an item outside the total (indTot 0) leaves vNFTot alone; vProd/vNF then disagree (BR-021/BR-030)
+  const off = rswap("<vProd>59.97</vProd><cEANTrib>SEM GTIN</cEANTrib><uTrib>UN</uTrib><qTrib>3.0000</qTrib><vUnTrib>19.9900000000</vUnTrib><indTot>1", "<vProd>59.97</vProd><cEANTrib>SEM GTIN</cEANTrib><uTrib>UN</uTrib><qTrib>3.0000</qTrib><vUnTrib>19.9900000000</vUnTrib><indTot>0");
+  assert.ok(rules(off).includes("BR-052"));
 });
 
 test("the main report routes an NF-e to these checks", async () => {

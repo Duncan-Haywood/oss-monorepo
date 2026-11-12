@@ -5,7 +5,9 @@
 // nfephp-org/sped-nfe docs/cStat.md, MIT). Layers:
 //   1. the schema (BR-002..BR-005): each element's children against the content model,
 //      attributes, and each value's enumerations, patterns and lengths, read from
-//      leiauteNFe_v4.00.xsd and tiposBasico_v4.00.xsd (PL_009_V4) by build-nfe-schema.mjs;
+//      leiauteNFe_v4.00.xsd, tiposBasico_v4.00.xsd and DFeTiposBasicos_v1.00.xsd (package
+//      PL_010_V1.30, the tax-reform layout, which also accepts PL_009_V4 files) by
+//      build-nfe-schema.mjs;
 //   2. the access key (BR-010..BR-012): the Id's 44 digits, its check digit, and each part
 //      against ide and emit;
 //   3. identifiers (BR-013): CNPJ and CPF check digits (brazil.mjs);
@@ -14,16 +16,17 @@
 //      totals it, and an NFC-e's payments against vNF;
 //   5. consistency (BR-040..BR-042): cUF against the issuer's state and city, CFOP's first
 //      digit against tpNF and idDest.
-// The reform groups (IBSCBS, IS, IBSCBSTot) postdate PL_009_V4; a file carrying them has
-// those groups skipped and named in `skipped`. An offline observation, not SEFAZ's
-// authorisation, and not tax advice.
+//   6. the tax-reform sums (BR-050..BR-052, NT 2025.002-RTC): each item's vIBS against
+//      vIBSUF + vIBSMun, every IBSCBSTot and ISTot total against the items, and vNFTot
+//      against the items' vItem. No SEFAZ rejection code for these was read, so none is
+//      named; the sums follow the schema's own field notes and sped-nfe's totaliser.
+// An offline observation, not SEFAZ's authorisation, and not tax advice.
 
 import { COMPLEX, SIMPLE } from "./nfe-xsd-data.mjs";
 import { checkBrazilId } from "./brazil.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 
 export const NFE_NS = "http://www.portalfiscal.inf.br/nfe";
-const REFORM = new Set(["IBSCBS", "IS", "IBSCBSTot", "ISTot", "gCompraGov", "gPagAntecipado", "vItem", "DFeReferenciado", "gCredPresIBSZFM", "IBSCBSTot"]);
 
 function finding(rule, message, fix, path) {
   return { rule, message, fix, path };
@@ -54,7 +57,7 @@ export function valueProblem(id, v, name = "") {
   if (!id || id.startsWith("#")) return "";
   const t = SIMPLE[id];
   if (!t) return "";
-  // The alphanumeric CNPJ (NT 2025.001, from July 2026) postdates PL_009_V4's digit-only
+  // The alphanumeric CNPJ (NT 2025.001, from July 2026) postdates the schema's digit-only
   // patterns: accept its shape in a CNPJ, and in an access key's CNPJ positions.
   if (/CNPJ/.test(name) && ALNUM_CNPJ.test(v)) return "";
   if (/^(chNFe|refNFe|refNFeSig)$/.test(name) && ALNUM_KEY.test(v)) return "";
@@ -88,9 +91,7 @@ function checkComplex(node, typeId, path, out, skipped) {
     out.push(finding("BR-003", `${label} carries an attribute the schema does not define: ${k}.`, `Remove ${k} or check its spelling.`, `${path}/@${k}`));
   }
   const kids = named(node.children);
-  const reform = kids.filter((c) => REFORM.has(c.name) && !def.kids[c.name]);
-  for (const r of reform) skipped.push(`${path}/${r.name}: a tax-reform group (NT 2025.002-RTC) newer than the PL_009_V4 schema this checker reads; not checked`);
-  const counted = kids.filter((c) => !reform.includes(c));
+  const counted = kids;
   const unknown = counted.filter((c) => !def.kids[c.name] || c.ns !== NFE_NS && c.name !== "Signature");
   for (const c of unknown) out.push(finding("BR-002", `${label} contains an element the NF-e 4.00 schema does not allow there: ${c.name}.`, "Remove it or check its spelling and namespace (element names are case-sensitive).", `${path}/${c.name}`));
   if (!unknown.length) {
@@ -282,6 +283,91 @@ function checkSums(inf, ide, out) {
   }
 }
 
+// ---------- tax reform (IBS, CBS, IS) ----------
+
+// Sum of every element named `name` under `node` (any depth), in cents; null when none.
+function sumDeep(node, name) {
+  let total = null;
+  (function walk(n) {
+    for (const c of n?.children || []) {
+      if (!c.name) continue;
+      if (c.name === name && !named(c.children).length) { const v = cents(c.text); if (!Number.isNaN(v)) total = (total ?? 0) + v; }
+      else walk(c);
+    }
+  })(node);
+  return total;
+}
+
+// Each IBSCBSTot (or ISTot) field: [path under the total, how to read one item's part].
+// The item side follows the schema's field notes ("Valor total do IBS", "Total do
+// Diferimento" and so on, DFeTiposBasicos_v1.00.xsd) and sped-nfe's totaliser
+// (TraitTagDetIBSCBS.php: vBCIBSCBS, gIBSUF, gIBSMun and gCBS add up each item's gIBSCBS,
+// and gIBS/vIBS adds vIBSUF + vIBSMun; the credit, monophase and reversal groups add up
+// their item groups the same way).
+const REFORM_SUMS = [
+  ["vBCIBSCBS", (g) => sumDeep(g.ibscbs, "vBC")],
+  ["gIBS/gIBSUF/vDif", (g) => sumDeep(kid(g.ibscbs, "gIBSUF"), "vDif")],
+  ["gIBS/gIBSUF/vDevTrib", (g) => sumDeep(kid(g.ibscbs, "gIBSUF"), "vDevTrib")],
+  ["gIBS/gIBSUF/vIBSUF", (g) => sumDeep(kid(g.ibscbs, "gIBSUF"), "vIBSUF")],
+  ["gIBS/gIBSMun/vDif", (g) => sumDeep(kid(g.ibscbs, "gIBSMun"), "vDif")],
+  ["gIBS/gIBSMun/vDevTrib", (g) => sumDeep(kid(g.ibscbs, "gIBSMun"), "vDevTrib")],
+  ["gIBS/gIBSMun/vIBSMun", (g) => sumDeep(kid(g.ibscbs, "gIBSMun"), "vIBSMun")],
+  ["gIBS/vIBS", (g) => g.ibscbs ? (sumDeep(kid(g.ibscbs, "gIBSUF"), "vIBSUF") ?? 0) + (sumDeep(kid(g.ibscbs, "gIBSMun"), "vIBSMun") ?? 0) : null],
+  ["gIBS/vCredPres", (g) => sumDeep(kid(g.credPres, "gIBSCredPres"), "vCredPres")],
+  ["gIBS/vCredPresCondSus", (g) => sumDeep(kid(g.credPres, "gIBSCredPres"), "vCredPresCondSus")],
+  ["gCBS/vDif", (g) => sumDeep(kid(g.ibscbs, "gCBS"), "vDif")],
+  ["gCBS/vDevTrib", (g) => sumDeep(kid(g.ibscbs, "gCBS"), "vDevTrib")],
+  ["gCBS/vCBS", (g) => sumDeep(kid(g.ibscbs, "gCBS"), "vCBS")],
+  ["gCBS/vCredPres", (g) => sumDeep(kid(g.credPres, "gCBSCredPres"), "vCredPres")],
+  ["gCBS/vCredPresCondSus", (g) => sumDeep(kid(g.credPres, "gCBSCredPres"), "vCredPresCondSus")],
+  ...["vIBSMono", "vCBSMono", "vIBSMonoReten", "vCBSMonoReten", "vIBSMonoRet", "vCBSMonoRet"].map((k) => [`gMono/${k}`, (g) => sumDeep(g.mono, k)]),
+  ["gEstornoCred/vIBSEstCred", (g) => sumDeep(g.estorno, "vIBSEstCred")],
+  ["gEstornoCred/vCBSEstCred", (g) => sumDeep(g.estorno, "vCBSEstCred")],
+];
+
+function checkReform(inf, out) {
+  const dets = kidsOf(inf, "det");
+  const groups = dets.map((det) => {
+    const imp = kid(det, "imposto"), t = kid(imp, "IBSCBS");
+    return { det, is: kid(imp, "IS"), ibscbs: kid(t, "gIBSCBS"), credPres: kid(t, "gCredPresOper"), mono: kid(t, "gIBSCBSMono"), estorno: kid(t, "gEstornoCred") };
+  });
+  // Item: vIBS = vIBSUF + vIBSMun (sped-nfe's "vIBS = vIBSUF + vIBSMun").
+  groups.forEach((g, i) => {
+    if (!g.ibscbs || !kid(g.ibscbs, "vIBS")) return;
+    const uf = cents(txt(kid(g.ibscbs, "gIBSUF"), "vIBSUF")), mun = cents(txt(kid(g.ibscbs, "gIBSMun"), "vIBSMun")), v = cents(txt(g.ibscbs, "vIBS"));
+    if ([uf, mun, v].some(Number.isNaN) || v === uf + mun) return;
+    out.push(finding("BR-050", `Item ${g.det.attrs.nItem || i + 1}: gIBSCBS/vIBS is ${txt(g.ibscbs, "vIBS")} but vIBSUF ${money(uf)} + vIBSMun ${money(mun)} = ${money(uf + mun)}.`,
+      "Set vIBS to the state part plus the municipal part.", `/NFe/infNFe/det[${i + 1}]/imposto/IBSCBS/gIBSCBS/vIBS`));
+  });
+  const total = kid(inf, "total");
+  const tot = kid(total, "IBSCBSTot");
+  if (tot) {
+    for (const [path, read] of REFORM_SUMS) {
+      const el = path.split("/").reduce((n, k) => kid(n, k), tot);
+      if (!el) continue;
+      const have = cents(el.text);
+      const want = groups.reduce((s, g) => s + (read(g) ?? 0), 0);
+      if (Number.isNaN(have) || have === want) continue;
+      out.push(finding("BR-051", `IBSCBSTot/${path} is ${el.text.trim()} but the items add up to ${money(want)}.`,
+        `Set ${path.split("/").pop()} to the sum of the items' values, or correct the item that is off.`, `/NFe/infNFe/total/IBSCBSTot/${path}`));
+    }
+  }
+  const isTot = kid(kid(total, "ISTot"), "vIS");
+  if (isTot) {
+    const have = cents(isTot.text), want = groups.reduce((s, g) => s + (cents(txt(g.is, "vIS")) || 0), 0);
+    if (!Number.isNaN(have) && have !== want) out.push(finding("BR-051", `ISTot/vIS is ${isTot.text.trim()} but the items' Imposto Seletivo adds up to ${money(want)}.`,
+      "Set ISTot/vIS to the sum of the items' IS/vIS, or correct the item that is off.", "/NFe/infNFe/total/ISTot/vIS"));
+  }
+  // vNFTot: "A soma dos itens deverá corresponder ao total da nota" (vItem, leiauteNFe).
+  const vNFTot = kid(total, "vNFTot");
+  if (vNFTot && dets.some((d) => kid(d, "vItem"))) {
+    const have = cents(vNFTot.text);
+    const want = dets.filter((d) => txt(kid(d, "prod"), "indTot") === "1").reduce((s, d) => s + (cents(txt(d, "vItem")) || 0), 0);
+    if (!Number.isNaN(have) && have !== want) out.push(finding("BR-052", `vNFTot is ${vNFTot.text.trim()} but the vItem of the items that count toward the total (indTot 1) add up to ${money(want)}.`,
+      "Set vNFTot to the sum of vItem, or correct the item that is off.", "/NFe/infNFe/total/vNFTot"));
+  }
+}
+
 // ---------- consistency ----------
 
 function checkConsistency(inf, ide, emit, dest, out) {
@@ -356,6 +442,7 @@ export function checkNfe(text) {
     }
   }
   checkSums(inf, ide, findings);
+  checkReform(inf, findings);
   checkConsistency(inf, ide, emit, dest, findings);
   return { findings, skipped, meta };
 }

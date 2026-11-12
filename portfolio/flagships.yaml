@@ -155,7 +155,7 @@ flagships:
       (excerpts; Taiwan, Oman dates disagree); Mexico CFDI 4.0 and three complements landed 2026-11-12 (README "Mexico: ..."):
       open: a real payroll or export file, a PAC rejection compared,
       Carta Porte, postal code to municipality/colonia;
-      Brazil NF-e 4.00 landed 2026-11-12 (README "Brazil: NF-e"; 35 real files, vII fix); open: PL_010 IBS/CBS groups, a real SEFAZ rejection, NFS-e; refresh the Bulgaria
+      Brazil NF-e 4.00 landed 2026-11-12 (README "Brazil: NF-e"; 35 real files, vII fix); PL_010_V1.30 reform layout and IBS/CBS/IS sums (BR-050..052, 4,987/4,987 vs xmllint) landed 2026-11-12; open: a real reform NF-e from a SEFAZ test environment, cClassTrib/rate tables, a real SEFAZ rejection, NFS-e; refresh the Bulgaria
       page when its draft passes. A run that lands a slice replaces its
       item here; keep this under 2,000 characters.
 
