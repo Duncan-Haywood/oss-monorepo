@@ -1356,6 +1356,34 @@ the warp on they drop to 0.18 px, the same as the matcher's noise across the rad
 also checked exactly on synthetic ramps (13 tests) and agrees with darktable's reading of the same
 opcode. Details, choices and what is not checked: `eval/warp-rectilinear-2026-11-12.md`.
 
+## Higher-order lens distortion from the DNG: WarpRectilinear2 (2026-11-12)
+
+`WarpRectilinear2` (opcode 14, DNG 1.6) now runs in `OpcodeList3` beside WarpRectilinear. Its
+radial polynomial has 15 terms on every power of `r` up to `r^14`, odd as well as even, where
+WarpRectilinear has four even ones. It can also divide by the polynomial instead of multiplying,
+and it clamps `r` to a valid range before the polynomial. The layout and formula were read from
+the DNG 1.7.1.0 specification text (pages 120-122), not from memory. The specification's skip rule
+is in too: a writer can put an optional WarpRectilinear2 first and a plain WarpRectilinear or
+WarpFisheye after it for older readers, and a reader that applies the first skips the second.
+`plan()` does that and says so in the notes. If the WarpRectilinear2 can't be read, the fallback
+runs. Both engines give the same bytes, and `--no-opcodes` turns it off.
+
+Why it matters, measured: lensfun's 5,440 ptlens calibrations (1,079 lenses) carry exactly as a
+WarpRectilinear2 (kr0..kr3 from `a, b, c`; checked to 1.8e-12 px against lensfun's formula). 4,741
+of them have an odd term that WarpRectilinear can't hold. Even with its four terms chosen as well
+as possible (a minimax fit), WarpRectilinear leaves more than 1 px on a 6,000 px wide frame for
+17% of rectilinear profiles, and more than 0.5 px for 38%. A plain least-squares fit leaves more
+than 1 px for 52%. `tools/lensfun_warp_fit.py` runs it.
+
+What is checked: 21 tests (`tests/test_dng_warp2.py`). The source point is checked against the
+specification's formula, written out separately in the test, for odd terms, clamping, `r^14` and
+the division form. An even-only WarpRectilinear2 gives WarpRectilinear's points. The skip rule is
+checked on the specification's three worked examples. numpy and pure Python give the same bytes.
+What is not: no camera- or converter-written file carrying it has been tried. One gap found in
+passing: `plan()` skips any opcode flagged "preview quality" (flag bit 1) in every develop, but the
+specification says a full-quality develop still needs it. That is left for its own change.
+Details: `eval/warp-rectilinear2-2026-11-12.md`.
+
 ## Value tables and row/column fixes from the DNG: MapTable, Delta/Scale per row and column (2026-11-12)
 
 Five more opcodes now run in `OpcodeList2` and `OpcodeList3`, in list order with the others:
