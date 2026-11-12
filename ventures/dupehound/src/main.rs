@@ -20,8 +20,11 @@ OPTIONS:
     --no-gitignore     read files .gitignore would skip
     --normalize        match renamed copies: identifiers, strings and numbers
                        hash by kind (keywords stay)
+    --families         group clones into families (every place one block was
+                       pasted), largest first, with the lines a shared module
+                       could remove; with --json, adds a \"families\" array
     --json             print a JSON report instead of text
-    --top N            clones to list in the text report   [default: 20]
+    --top N            clones (or families) to list         [default: 20]
     --threshold PCT    exit 1 if duplicated lines exceed PCT percent
     -h, --help         this help
     -V, --version      print version
@@ -34,6 +37,7 @@ struct Args {
     opts: Options,
     walk: WalkOptions,
     json: bool,
+    families: bool,
     top: usize,
     threshold: Option<f64>,
 }
@@ -57,6 +61,7 @@ fn parse_args() -> Result<Option<Args>, String> {
         opts: Options::default(),
         walk: WalkOptions::default(),
         json: false,
+        families: false,
         top: 20,
         threshold: None,
     };
@@ -94,6 +99,7 @@ fn parse_args() -> Result<Option<Args>, String> {
                 a.walk.normalize = true
             }
             "--json" => a.json = true,
+            "--families" => a.families = true,
             "--top" => a.top = num(val(&arg)?, &arg)? as usize,
             "--threshold" => {
                 let v = val(&arg)?;
@@ -114,6 +120,63 @@ fn parse_args() -> Result<Option<Args>, String> {
     Ok(Some(a))
 }
 
+fn print_families(files: &[SourceFile], fams: &[Family], top: usize) {
+    for f in fams.iter().take(top) {
+        let n = f.occurrences.len();
+        let whole = f.occurrences.iter().filter(|x| x.whole_file).count();
+        // Show an exact copy when there are several: it is the block to extract.
+        let first = f.occurrences[f.identical_first].span;
+        let (a, b) = span_line_range(files, first);
+        let lines = if f.shortest_lines == f.longest_lines {
+            format!("{} lines", f.shortest_lines)
+        } else {
+            format!("{}-{} lines", f.shortest_lines, f.longest_lines)
+        };
+        let what = match &f.common_name {
+            Some(name) => format!("every copy in a file named {name}"),
+            None => "in differently named files".to_string(),
+        };
+        let whole = if whole > 0 {
+            format!(", {whole} whole-file")
+        } else {
+            String::new()
+        };
+        let ident = if f.identical_copies > 1 {
+            format!(
+                "; {} identical ({} lines)",
+                f.identical_copies, f.identical_lines
+            )
+        } else {
+            String::new()
+        };
+        println!(
+            "{:>7} to {:<7} removable  {n} copies of {lines}{whole}{ident}, {what}",
+            f.removable_lines, f.removable_lines_max
+        );
+        println!(
+            "                     first {}:{a}-{b}; shared home: {}/",
+            files[first.file as usize].path,
+            if f.common_dir.is_empty() {
+                "."
+            } else {
+                &f.common_dir
+            }
+        );
+    }
+    if fams.len() > top {
+        println!(
+            "... and {} more families (--top N or --json for all)",
+            fams.len() - top
+        );
+    }
+    let lo: u64 = fams.iter().map(|f| f.removable_lines).sum();
+    let hi: u64 = fams.iter().map(|f| f.removable_lines_max).sum();
+    println!(
+        "\n{} families; moving each family's block to one shared module would remove {lo} to {hi} lines (before import and call lines; families can overlap).",
+        fams.len()
+    );
+}
+
 fn main() -> ExitCode {
     let args = match parse_args() {
         Ok(Some(a)) => a,
@@ -129,8 +192,24 @@ fn main() -> ExitCode {
     let st = stats(&files, &clones);
     let secs = t0.elapsed().as_secs_f64();
 
-    if args.json {
+    if args.json && args.families {
+        println!(
+            "{}",
+            json_report_with_families(&files, &clones, &st, args.opts, secs)
+        );
+    } else if args.json {
         println!("{}", json_report(&files, &clones, &st, args.opts, secs));
+    } else if args.families {
+        print_families(&files, &families(&files, &clones), args.top);
+        println!(
+            "\n{} files, {} lines: {} clones, {} duplicated lines ({:.2}%). {:.2}s",
+            st.files,
+            st.lines,
+            st.clones,
+            st.duplicated_lines,
+            st.duplicated_percent(),
+            t0.elapsed().as_secs_f64()
+        );
     } else {
         let mut by_size: Vec<&Clone_> = clones.iter().collect();
         by_size.sort_by_key(|c| std::cmp::Reverse(c.tokens()));

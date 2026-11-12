@@ -59,7 +59,9 @@ been measured yet.
   version built on oxc's parser is plausible. Check first whether oxc or
   biome already ships the check.
 - *yamllint*: Python, run on every YAML file in a repository (this one has
-  550 workflow files). Check first for an existing Rust port.
+  550 workflow files). *Checked 2026-11-12: taken.* `ryl` and `yamllint-rs`
+  are Rust ports of yamllint on crates.io already; skip unless a measured
+  gap shows up.
 - *License scanners* (licensee, scancode): scancode is thorough and slow.
   askalono is a Rust licence-text matcher already; the gap, if any, is the
   whole-tree scan and report.
@@ -85,6 +87,9 @@ reason than "the existing one is slow".
   the 1,283 ventures that ship a `usage.mjs`, and in all 121 that ship a
   `proposal.test.mjs`. A tool that groups copies into families and proposes the shared
   module is the next step beyond detection, and nobody ships one.
+  *First slice 2026-11-12:* `dupehound --families` groups clones into
+  families ranked by removable lines (PR #15063); next is marking families a
+  sync test already guards.
 
 **Distribution.** `cargo install` from crates.io is the natural channel, and
 publishing there under the portfolio's name is the owner's decision

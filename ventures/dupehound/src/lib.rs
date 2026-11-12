@@ -762,3 +762,303 @@ pub fn json_report(
     o.push_str("]}");
     o
 }
+
+// ---------------------------------------------------------------------------
+// Clone families: from pairs to "this block lives in N places".
+// ---------------------------------------------------------------------------
+
+/// One place a family's block occurs: a file and a token range in it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Occurrence {
+    pub span: Span,
+    /// The occurrence covers every token of its file (a whole-file copy).
+    pub whole_file: bool,
+}
+
+/// A clone family (a "clone class"): every place one block of code was
+/// pasted, found by joining pairwise clones whose spans substantially overlap.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Family {
+    /// Sorted by file path order, then position; the first is the earliest copy.
+    pub occurrences: Vec<Occurrence>,
+    /// Lines of the shortest and longest occurrence. A spread means some
+    /// copies were edited after pasting (or grew extra shared code around them).
+    pub shortest_lines: u32,
+    pub longest_lines: u32,
+    /// The largest set of occurrences that are token-for-token identical
+    /// (same tokens after whitespace and comments are dropped), and the
+    /// lines of one of them. 1 when no two occurrences are identical.
+    pub identical_copies: usize,
+    pub identical_lines: u32,
+    /// Index into `occurrences` of the first of those identical copies.
+    pub identical_first: usize,
+    /// Lower estimate of the lines a shared module would remove: the larger
+    /// of `(occurrences - 1) * shortest_lines` (every copy holds at least the
+    /// shortest one's worth of shared code) and
+    /// `(identical_copies - 1) * identical_lines` (exact copies, all but one
+    /// can go). Import and call lines that replace them are not subtracted.
+    pub removable_lines: u64,
+    /// Upper estimate: every occurrence's lines except the longest one's.
+    /// Reached only if every copy is a slice of the longest.
+    pub removable_lines_max: u64,
+    /// The file name every occurrence shares (`usage.mjs`), if they all do:
+    /// a strong sign of a template copied into each project.
+    pub common_name: Option<String>,
+    /// The deepest directory that holds every occurrence (`""` for the root):
+    /// the natural home for a shared module.
+    pub common_dir: String,
+}
+
+fn uf_find(p: &mut [u32], mut x: u32) -> u32 {
+    while p[x as usize] != x {
+        p[x as usize] = p[p[x as usize] as usize];
+        x = p[x as usize];
+    }
+    x
+}
+
+fn uf_union(p: &mut [u32], a: u32, b: u32) {
+    let (ra, rb) = (uf_find(p, a), uf_find(p, b));
+    if ra != rb {
+        // The smaller id wins, so roots (and output order) are deterministic.
+        let (lo, hi) = if ra < rb { (ra, rb) } else { (rb, ra) };
+        p[hi as usize] = lo;
+    }
+}
+
+/// Two spans in one file belong to the same block when they share at least
+/// half of the shorter one's tokens. Plain overlap would chain unrelated
+/// blocks that merely touch (the tail of one pasted function and the head
+/// of the next) into one sprawling family.
+fn substantial_overlap(a: Span, b: Span) -> bool {
+    let lo = a.start.max(b.start);
+    let hi = a.end.min(b.end);
+    if hi <= lo {
+        return false;
+    }
+    let shorter = (a.end - a.start).min(b.end - b.start);
+    2 * (hi - lo) >= shorter
+}
+
+fn dir_of(path: &str) -> &str {
+    path.rfind('/').map_or("", |i| &path[..i])
+}
+
+fn name_of(path: &str) -> &str {
+    path.rfind('/').map_or(path, |i| &path[i + 1..])
+}
+
+/// Group pairwise clones into families, largest `removable_lines` first.
+///
+/// Each clone joins its two sides; within a file, spans that substantially
+/// overlap join too. Because `detect` pairs every window with its first
+/// occurrence, the N copies of a block all point at one earliest copy, so
+/// they meet there and form one family of N. Inside a family, a file's spans
+/// that overlap at all are merged into one occurrence.
+pub fn families(files: &[SourceFile], clones: &[Clone_]) -> Vec<Family> {
+    let n = clones.len() * 2;
+    let mut parent: Vec<u32> = (0..n as u32).collect();
+    let span_of = |node: u32| {
+        let c = &clones[node as usize / 2];
+        if node & 1 == 0 {
+            c.first
+        } else {
+            c.second
+        }
+    };
+    for k in 0..clones.len() as u32 {
+        uf_union(&mut parent, 2 * k, 2 * k + 1);
+    }
+
+    // Spans by file, sorted by (start, end). Identical spans join directly
+    // and only one of them takes part in the overlap sweep, which keeps the
+    // common case (one earliest copy, a thousand pastes) linear.
+    let mut by_file: Vec<Vec<(u32, u32, u32)>> = vec![Vec::new(); files.len()];
+    for node in 0..n as u32 {
+        let s = span_of(node);
+        by_file[s.file as usize].push((s.start, s.end, node));
+    }
+    for spans in &mut by_file {
+        spans.sort_unstable();
+        let mut reps: Vec<(u32, u32, u32)> = Vec::with_capacity(spans.len());
+        for &(s, e, node) in spans.iter() {
+            match reps.last() {
+                Some(&(ls, le, ln)) if ls == s && le == e => uf_union(&mut parent, ln, node),
+                _ => reps.push((s, e, node)),
+            }
+        }
+        for i in 0..reps.len() {
+            let (s, e, a) = reps[i];
+            for &(s2, e2, b) in &reps[i + 1..] {
+                if s2 >= e {
+                    break;
+                }
+                let sa = Span {
+                    file: 0,
+                    start: s,
+                    end: e,
+                };
+                let sb = Span {
+                    file: 0,
+                    start: s2,
+                    end: e2,
+                };
+                if substantial_overlap(sa, sb) {
+                    uf_union(&mut parent, a, b);
+                }
+            }
+        }
+    }
+
+    // Collect each component's spans, then merge a file's overlapping spans
+    // into occurrences.
+    let mut groups: std::collections::BTreeMap<u32, Vec<Span>> = Default::default();
+    for node in 0..n as u32 {
+        let r = uf_find(&mut parent, node);
+        groups.entry(r).or_default().push(span_of(node));
+    }
+    let mut out: Vec<Family> = groups
+        .into_values()
+        .filter_map(|mut spans| {
+            spans.sort_unstable_by_key(|s| (s.file, s.start, s.end));
+            let mut merged: Vec<Span> = Vec::new();
+            for s in spans {
+                match merged.last_mut() {
+                    Some(m) if m.file == s.file && s.start < m.end => m.end = m.end.max(s.end),
+                    _ => merged.push(s),
+                }
+            }
+            if merged.len() < 2 {
+                return None; // a block repeated within its own span
+            }
+            let occurrences: Vec<Occurrence> = merged
+                .iter()
+                .map(|&s| Occurrence {
+                    span: s,
+                    whole_file: s.start == 0
+                        && s.end as usize == files[s.file as usize].tokens.len(),
+                })
+                .collect();
+            let lines: Vec<u32> = merged.iter().map(|&s| span_lines(files, s)).collect();
+            let shortest = *lines.iter().min().unwrap();
+            let longest = *lines.iter().max().unwrap();
+            // Group occurrences by their exact token sequence.
+            let mut ident: std::collections::HashMap<(u32, u64), (usize, u32, usize)> =
+                Default::default();
+            for (k, &s) in merged.iter().enumerate() {
+                let toks = &files[s.file as usize].tokens[s.start as usize..s.end as usize];
+                let h = toks
+                    .iter()
+                    .fold(0u64, |h, t| h.wrapping_mul(BASE).wrapping_add(t.hash));
+                let e = ident
+                    .entry((s.end - s.start, h))
+                    .or_insert((0, lines[k], k));
+                e.0 += 1;
+            }
+            let (identical_copies, identical_lines, identical_first) = ident
+                .into_values()
+                .max_by_key(|&(c, l, k)| ((c as u64 - 1) * l as u64, c, l, std::cmp::Reverse(k)))
+                .unwrap();
+            let paths: Vec<&str> = merged
+                .iter()
+                .map(|s| files[s.file as usize].path.as_str())
+                .collect();
+            let name = name_of(paths[0]);
+            let common_name = paths
+                .iter()
+                .all(|p| name_of(p) == name)
+                .then(|| name.to_string());
+            let mut dir: Vec<&str> = dir_of(paths[0]).split('/').collect();
+            for p in &paths[1..] {
+                let keep = dir
+                    .iter()
+                    .zip(dir_of(p).split('/'))
+                    .take_while(|(a, b)| *a == b)
+                    .count();
+                dir.truncate(keep);
+            }
+            let total: u64 = lines.iter().map(|&l| l as u64).sum();
+            Some(Family {
+                removable_lines: ((occurrences.len() as u64 - 1) * shortest as u64)
+                    .max((identical_copies as u64 - 1) * identical_lines as u64),
+                removable_lines_max: total - longest as u64,
+                identical_copies,
+                identical_lines,
+                identical_first,
+                occurrences,
+                shortest_lines: shortest,
+                longest_lines: longest,
+                common_name,
+                common_dir: dir.join("/"),
+            })
+        })
+        .collect();
+    out.sort_by(|a, b| {
+        b.removable_lines
+            .cmp(&a.removable_lines)
+            .then(b.occurrences.len().cmp(&a.occurrences.len()))
+            .then(a.occurrences[0].span.file.cmp(&b.occurrences[0].span.file))
+            .then(
+                a.occurrences[0]
+                    .span
+                    .start
+                    .cmp(&b.occurrences[0].span.start),
+            )
+    });
+    out
+}
+
+/// The `"families":[...]` member of the JSON report.
+pub fn json_families(files: &[SourceFile], fams: &[Family]) -> String {
+    let mut o = String::from("\"families\":[");
+    for (i, f) in fams.iter().enumerate() {
+        if i > 0 {
+            o.push(',');
+        }
+        let _ = write!(
+            o,
+            "{{\"occurrences\":{},\"whole_file\":{},\"shortest_lines\":{},\"longest_lines\":{},\"identical_copies\":{},\"identical_lines\":{},\"identical_first\":{},\"removable_lines\":{},\"removable_lines_max\":{},\"common_name\":",
+            f.occurrences.len(),
+            f.occurrences.iter().filter(|x| x.whole_file).count(),
+            f.shortest_lines,
+            f.longest_lines,
+            f.identical_copies,
+            f.identical_lines,
+            f.identical_first,
+            f.removable_lines,
+            f.removable_lines_max
+        );
+        match &f.common_name {
+            Some(n) => json_str(&mut o, n),
+            None => o.push_str("null"),
+        }
+        o.push_str(",\"common_dir\":");
+        json_str(&mut o, &f.common_dir);
+        o.push_str(",\"spans\":[");
+        for (j, x) in f.occurrences.iter().enumerate() {
+            if j > 0 {
+                o.push(',');
+            }
+            json_span(&mut o, files, x.span);
+        }
+        o.push_str("]}");
+    }
+    o.push(']');
+    o
+}
+
+/// `json_report` with a `families` member added before the closing brace.
+pub fn json_report_with_families(
+    files: &[SourceFile],
+    clones: &[Clone_],
+    st: &Stats,
+    opts: Options,
+    secs: f64,
+) -> String {
+    let mut o = json_report(files, clones, st, opts, secs);
+    o.pop(); // the final '}'
+    o.push(',');
+    o.push_str(&json_families(files, &families(files, clones)));
+    o.push('}');
+    o
+}
