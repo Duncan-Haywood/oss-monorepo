@@ -1,9 +1,9 @@
 ---
 title: "Someone called out. Rebuild the week, but don't move the people who showed up"
-seo_title: "Rebuilding a posted staff schedule after a call-out without reshuffling everyone"
+seo_title: "Rebuild a posted staff schedule after a call-out, keep everyone else"
 date: 2026-11-12
 tags: [shift-roster-builder, product, optimisation, scheduling]
-description: "A free rebuild of a posted week moved twice as many other people's shifts as it had to. Holding the shifts already worked and scoring each kept posted shift halved the late changes and the premium, with the same shifts left open."
+description: "After a call-out, a rebuild that keeps the posted shifts made half the late changes of a free rebuild: premiums halved, same hours left open."
 ---
 
 A manager posts the week's schedule. On Tuesday evening someone texts that they can't make Wednesday. The [shift roster builder](https://marisstella.app/shift-roster-builder/) gives two ways to handle it. One finds a person who can take the shift as it stands. The other marks the caller off and builds the week again.
