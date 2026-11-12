@@ -230,6 +230,7 @@ from __future__ import annotations
 import math
 import struct
 from dataclasses import dataclass, field
+from typing import Callable
 
 TAG_OPCODE_LIST_1 = 51008
 TAG_OPCODE_LIST_2 = 51009
@@ -791,7 +792,7 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
     return Plan(gain_maps, notes, warps, stage2, stage3, stage1)
 
 
-_WARP_PARSERS = {
+_WARP_PARSERS: dict[int, Callable[[Opcode], WarpRectilinear | WarpRectilinear2 | WarpFisheye]] = {
     WARP_RECTILINEAR: parse_warp_rectilinear,
     WARP_RECTILINEAR_2: parse_warp_rectilinear2,
     WARP_FISHEYE: parse_warp_fisheye,
@@ -1278,11 +1279,11 @@ def warp_source(wp, p: int, x: float, y: float, w: int, h: int) -> tuple[float, 
     dx = (x + 0.5 - cxp) / m
     dy = (y + 0.5 - cyp) / m
     if isinstance(wp, WarpRectilinear2):
-        t = wp.plane_terms(p)
-        kt0, kt1, lo, hi = t[15], t[16], t[17], t[18]
+        terms = wp.plane_terms(p)
+        kt0, kt1, lo, hi = terms[15], terms[16], terms[17], terms[18]
         r2 = dx * dx + dy * dy
         rc = min(max(math.sqrt(r2), lo), hi)
-        f = _wr2_radial(t, rc)
+        f = _wr2_radial(terms, rc)
         if wp.reciprocal:
             sx, sy = dx / f, dy / f
         else:
