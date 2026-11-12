@@ -77,7 +77,8 @@ def fano_ci(counts, seed=0, reps=1000):
 
 
 def simulate_counts(theta, phi, m, window, n_windows, seed, scale_sigma=0.0, L=0):
-    """Wake counts per window. Each window has its own scale exp(scale_sigma*z); windows are simulated independently."""
+    """Wake counts per window. Each window has its own scale exp(scale_sigma*z). The windows of one group
+    (4e6 frames) share one continuous AR(1) series, and the lockout carries across their boundaries."""
     rng = np.random.default_rng(seed)
     counts = np.zeros(n_windows, dtype=int)
     group = max(1, 4_000_000 // window)

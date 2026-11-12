@@ -51,3 +51,20 @@ def test_lockout_cuts_the_mean():
     a = simulate_counts(2.0, 0.9, 3, 50_000, 40, seed=3)
     b = simulate_counts(2.0, 0.9, 3, 50_000, 40, seed=3, L=200)
     assert b.mean() < a.mean()
+
+
+def test_ar1_matches_a_plain_loop_across_chunk_boundaries():
+    """Quality audit round 48: the chunk-join carry was untested (phi**(j+1) -> phi**j survived)."""
+    import math
+    phi, n = 0.9, 3000
+    s = ar1(phi, n, np.random.default_rng(7))
+    rng = np.random.default_rng(7)
+    chunk = max(8, min(1024, int(230 / -math.log(phi))))
+    nch = -(-n // chunk)
+    w = math.sqrt(1 - phi * phi) * rng.standard_normal(nch * chunk)
+    w[0] = rng.standard_normal()
+    y = np.empty(n)
+    y[0] = w[0]
+    for t in range(1, n):
+        y[t] = phi * y[t - 1] + w[t]
+    assert np.max(np.abs(s - y)) < 1e-9
