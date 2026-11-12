@@ -35,6 +35,16 @@ POS_SCALE_M, YAW_SCALE_DEG = 0.10, 10.0  # composite C = sqrt((pos / 0.10 m)^2 +
 DEAD_POS = 5.0
 
 
+def cop_signs(h):
+    """Per-axis gust-torque signs (roll, pitch) for `rollout(dist_sign=...)` of a rigid body whose centre of pressure sits a height h
+    above (h > 0) or below (h < 0) the centre of mass, z up. The drag F = (Fx, Fy, 0) acting at r = (0, 0, h) gives tau = r x F =
+    (-h Fy, h Fx, 0); in `rollout` the roll torque goes with Fy and the pitch torque with Fx, each as +kg v|v| times its sign, so
+    a rigid body has signs (-sign h, +sign h). The inherited model's (+1, +1) and its flip (-1, -1) are not rigid bodies: each puts
+    the centre of pressure below the centre of mass on one axis and above it on the other (tests/test_poshold.py)."""
+    s = float(np.sign(h))
+    return np.array([-s, s])
+
+
 def lateral_per_torque(alpha, L, kappa):
     """Body horizontal force per unit roll (or pitch) torque for the canted X layout of `allocation` (closed form of its rows)."""
     return np.sin(alpha) / (L * np.cos(alpha) - kappa * np.sin(alpha))
@@ -55,13 +65,15 @@ def reference(episodes, seed):
     return yaw, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign
 
 
-def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0):
+def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0):
     """gains (N,9) physical: attitude PID roll/pitch kp, kd, ki; yaw kp, kd, ki; position kp, kd, ki.
     Hold the origin from a random offset while yaw steps +-30 deg and the mean wind steps at 3 s. Roll and pitch references come from
     the position loop; every torque request passes the attitude-priority mixer with the collective held at hover.
     couple=False switches the side force off (an ablation; the real vehicle cannot do this).
     dist_sign=-1 flips the gust's disturbance torque relative to its drag force (centre of pressure on the other side of the
     centre of mass); the inherited model fixes it at +1, which makes the steady counter-torque's side force oppose the drag.
+    dist_sign may also be a pair (roll, pitch); `cop_signs` gives the pair for a rigid centre-of-pressure offset. lever_scale
+    multiplies the inherited centre-of-pressure lever (0.05 + 0.3 L, ASSUMED) and so the gust torque.
     Returns per design: RMS position error (m) over the episode, over the last 3 s (after the wind step), RMS yaw error (deg),
     RMS roll/pitch tracking error (deg), and the share of episodes that diverged."""
     yaw_ref, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign = reference(episodes, seed)
@@ -76,7 +88,8 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     tmax_nom = np.stack([sz["tau_max"], sz["tau_max"], sz["tau_yaw"]], 1)
     tmax = tmax_nom[:, None, :] * pl["tau"][None, :, None]
     lag = (sz["lag"][:, None] * pl["lag"][None, :])[:, :, None]
-    kg = (0.5 * A.RHO * sz["area"] * sz["lever"])[:, None, None]
+    kg = (0.5 * A.RHO * sz["area"] * sz["lever"] * lever_scale)[:, None, None]
+    dsg = np.broadcast_to(np.asarray(dist_sign, float), (2,))
     kf = (0.5 * A.RHO * sz["area"] * CD_A)[:, None, None]
     mass = sz["mass"][:, None] * pl["mass"][None, :]
     lat = (lateral_per_torque(sz["alpha"], sz["L"], kappa) * (1.0 if couple else 0.0))[:, None]
@@ -88,7 +101,7 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     th = np.zeros((N, E, 3)); om = np.zeros((N, E, 3)); tq = np.zeros((N, E, 3)); integ = np.zeros((N, E, 3))
     th_prev = np.zeros((N, E, 3)); om_prev = np.zeros((N, E, 3))
     pos = np.zeros((N, E, 2)) + off[None]; vel = np.zeros((N, E, 2)); pint = np.zeros((N, E, 2))
-    s_pos = np.zeros((N, E)); s_late = np.zeros((N, E)); s_yaw = np.zeros((N, E)); s_att = np.zeros((N, E))
+    s_ax = np.zeros((N, E, 2)); s_pos = np.zeros((N, E)); s_late = np.zeros((N, E)); s_yaw = np.zeros((N, E)); s_att = np.zeros((N, E))
     alive = np.ones((N, E), bool)
     for t in range(STEPS):
         m_t = gust_mean if t < k_step else mean_after
@@ -114,7 +127,7 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         tq += (mixed * pl["tau"][None, :, None] - tq) * (A.DT / lag)
         tq = np.clip(tq, -tmax, tmax)
         om_prev, th_prev = om, th
-        dist = np.zeros((N, E, 3)); dist[:, :, :2] = dist_sign * kg * v * np.abs(v)
+        dist = np.zeros((N, E, 3)); dist[:, :, :2] = dsg * kg * v * np.abs(v)
         om = om + (tq + dist - np.cross(om, I * om)) / I * A.DT
         phi, tht, psi = th[:, :, 0], th[:, :, 1], th[:, :, 2]
         p, q, r = om[:, :, 0], om[:, :, 1], om[:, :, 2]
@@ -133,11 +146,14 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         p2 = np.where(dead, DEAD_POS ** 2, (pos ** 2).sum(axis=2))
         s_pos += p2
         if t >= k_step:
+            s_ax += np.where(dead[:, :, None], DEAD_POS ** 2 / 2, pos ** 2)
+        if t >= k_step:
             s_late += p2
         s_yaw += np.where(dead, np.deg2rad(60.0) ** 2, (yaw_ref[:, t][None] - th[:, :, 2]) ** 2)
         s_att += np.where(dead, np.deg2rad(60.0) ** 2, ((rp_ref - th[:, :, :2]) ** 2).mean(axis=2))
     return dict(pos=np.sqrt(s_pos / STEPS).mean(1), pos_late=np.sqrt(s_late / (STEPS - k_step)).mean(1),
-                yaw=np.rad2deg(np.sqrt(s_yaw / STEPS)).mean(1), att=np.rad2deg(np.sqrt(s_att / STEPS)).mean(1), dead=(~alive).mean(1))
+                yaw=np.rad2deg(np.sqrt(s_yaw / STEPS)).mean(1), att=np.rad2deg(np.sqrt(s_att / STEPS)).mean(1), dead=(~alive).mean(1),
+                late_x=np.sqrt(s_ax[:, :, 0] / (STEPS - k_step)).mean(1), late_y=np.sqrt(s_ax[:, :, 1] / (STEPS - k_step)).mean(1))
 
 
 def phys_gains(g):
@@ -145,7 +161,7 @@ def phys_gains(g):
     return np.concatenate([A.ctrl_gains(g[:, :6], "pid"), 10 ** (POS_LO + np.clip(g[:, 6:9], 0, 1) * (POS_HI - POS_LO))], axis=1)
 
 
-def score(x, episodes=8, seed=0, alpha_max=np.deg2rad(80.0), kappa_per_d=0.081, lam=0.03, couple=True, gust_std=4.0, wind_step=WIND_STEP, parts=False, sat=None, dist_sign=1.0):
+def score(x, episodes=8, seed=0, alpha_max=np.deg2rad(80.0), kappa_per_d=0.081, lam=0.03, couple=True, gust_std=4.0, wind_step=WIND_STEP, parts=False, sat=None, dist_sign=1.0, lever_scale=1.0):
     """x (N,12): arm length, propeller diameter, cant (unit cube), six attitude PID gains, three position gains (unit cube).
     J = -C - lam * P_hover / 100 W with C = sqrt((pos/0.10 m)^2 + (yaw/10 deg)^2); lam = 0.03 per 100 W is milestone 4's 0.3 deg per
     100 W, since one unit of C is 10 deg of yaw error. -99 when infeasible ($300 cap, propellers clear)."""
@@ -154,7 +170,7 @@ def score(x, episodes=8, seed=0, alpha_max=np.deg2rad(80.0), kappa_per_d=0.081, 
     D = A.D_RANGE[0] + x[:, 1] * (A.D_RANGE[1] - A.D_RANGE[0])
     alpha = alpha_max * np.clip(x[:, 2], 0, 1)
     sz = A.size(L, D, alpha, kappa_per_d=kappa_per_d, actuator="hover")
-    out = rollout(sz, phys_gains(x[:, 3:12]), kappa_per_d * D, episodes, seed, gust_std, couple=couple, wind_step=wind_step, sat=sat, dist_sign=dist_sign)
+    out = rollout(sz, phys_gains(x[:, 3:12]), kappa_per_d * D, episodes, seed, gust_std, couple=couple, wind_step=wind_step, sat=sat, dist_sign=dist_sign, lever_scale=lever_scale)
     C = np.sqrt((out["pos"] / POS_SCALE_M) ** 2 + (out["yaw"] / YAW_SCALE_DEG) ** 2)
     J = np.where(sz["feasible"], -C - lam * sz["power"] / 100.0, -99.0)
     return (J, sz, out) if parts else (J, sz)

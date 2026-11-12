@@ -4,6 +4,22 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 **Live page:** https://marisstella.app/research/codesign-cant/
 
+![Left: position RMS with the canted rotor's side force on divided by off, for force-aware designs retrained with the centre of pressure above (blue) or below (red) the centre of mass, against the centre-of-pressure lever; dashed: H3's 20% line. Middle: late-window position error on the axis the side force hurts and the one it helps. Right: composite J, cant minus no cant, paired by seed.](experiments/m6b_cop/m6b_cop.png)
+
+## Milestone 6b: which way does the side force push on a real frame? One axis hurt, one helped
+
+**Question.** Milestone 6 found that H3 depends on the sign of the gust's disturbance torque. Which sign does a real, rigid frame have?
+
+**Headline (`experiments/m6b_cop/results.txt`; simulated, 6 seeds, best of two CMA-ES starts, retrained under each geometry).**
+
+- **Neither.** Drag acting at a centre of pressure r = (0, 0, h) gives τ = r × F = (−h F_y, h F_x, 0): opposite signs on roll and pitch. Milestone 6's inherited signs (+1, +1) and its flip (−1, −1) each put the centre of pressure below the centre of mass on one axis and above it on the other. The canted layout's side-force map (F_y = lat·τ_x, F_x = lat·τ_y) is a reflection. So in a rigid frame the steady counter-torque's side force **opposes the drag on one horizontal axis and adds to it on the other, whichever side the centre of pressure is on.** A test checks the signs against `np.cross`.
+- **The hurt axis holds position 1.9–3.4× worse after a wind step** than the helped axis (late window, retrained force-aware designs; without cant the axes match at 0.96×). With the force switched off the same axis drops from 0.054 to 0.030 m (above) and from 0.057 to 0.021 m (below).
+- **Averaged over both axes, the typical design barely notices it:** median on/off 1.03× in both geometries. The mean is 1.14× (above) and 1.26× (below) because one seed in six diverges on 1–2 of 64 episodes. H3's 20% line is crossed by the mean in one geometry, not by the typical design.
+- **No gust torque, no cost:** with the lever at zero the side force costs nothing (1.00×, 12 of 12). The whole cost runs through the counter-torque to the gust.
+- **Cant still pays for a rigid frame:** yaw RMS −5.1° and −7.7° (6 of 6 seeds each), composite better in 5 of 6 and 6 of 6. Chosen cant 31–33°.
+- At twice the lever, side-force cost rises in 5 of 6 seeds per geometry, but designs trained at the inherited lever start to diverge (6–27% of episodes, with or without cant).
+- Predictions committed before the run: 6 of 7 held. R2 failed in one geometry, on one seed's divergences.
+
 ![Left: held-out RMS position error of the co-designed vehicles in 6 s position-hold episodes with a wind step, with the canted rotor's side force on (blue) and switched off as an ablation (grey). Middle: RMS yaw error during the same episodes. Right: position RMS with the side force on divided by off, for the gust torque sign the designs were trained under (blue) and flipped (red); the dashed line is H3's 20% refutation line.](experiments/m6_poshold/m6_poshold.png)
 
 ## Milestone 6: does a canted rotor's side force cost position hold? (H3)
@@ -62,6 +78,8 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ## Method
 
+**Milestone 6b.** `poshold.cop_signs(h)` gives the per-axis gust-torque signs of a rigid centre-of-pressure offset, `rollout(dist_sign=(roll, pitch), lever_scale=...)` takes them, and `rollout` reports late-window position RMS per world axis. `experiments/m6b_cop/run.py` retrains milestone 6's `aware` and `nocant` arms under both rigid geometries (48 CMA-ES runs, same budget and seeds), then scores every design, and milestone 6's designs, on the 64 held-out episodes with the force on and off at lever 0, 0.5, 1 and 2 times the inherited value.
+
 **Milestone 6.** `src/codesign_cant/poshold.py` adds translation to the attitude model: perfect altitude hold, drag from the same gust that drives the disturbance torque, GNSS-class position and velocity noise, an outer PID that sets roll and pitch references, and the side force from the delivered (mixed, lagged, saturated) torque. All of these are inherited from `codesign-aero-cant-poshold` and assumed. Joint CMA-ES runs over arm, propeller, cant, six attitude and three position gains, with 3200 evaluations on 16 training episodes. J = −sqrt((pos/0.10 m)² + (yaw/10°)²) − 0.03·P_hover/100 W, which is milestone 4's power price in composite units. Each design is held-out scored on 64 episodes with the force on, off and in calm air. `dist_sign.py` re-scores the same designs with the gust torque's sign flipped.
 
 **Milestone 4.** `aero.rollout(ctrl=...)` adds two attitude laws next to the PID law; all three read the same noisy, one-step-old angles and rates and send their torque request through the same mixer. `indi`: an attitude P loop gives a rate demand, a rate P loop gives a desired angular acceleration ν, and the torque command is the filtered estimate of the delivered torque plus g·I_nom·(ν − filtered angular acceleration); the estimate runs the command through the design's nominal lag and limits, so the plant's randomised torque scale, inertia and lag stay unknown to it; gyro and estimate share a tuned two-pole filter. `geo`: τ = I_nom(−k_R e_R − k_Ω Ω − k_I ∫e_R) + Ω × I_nom Ω with e_R = vee(R_dᵀR − RᵀR_d)/2. Each law has six tuned parameters, searched jointly with arm, propeller and cant. `experiments/m4_controllers/run.py` runs law {PID, INDI, geo} × cant bound {0, 80°}, 10 seeds, three CMA-ES starts (cant started at 4, 32, 64°), 1920 evaluations each, best training score kept (180 runs), and scores the chosen designs on 64 held-out episodes and at twice the gust intensity. Tests (`tests/test_controllers.py`) check the rotation and SO(3) error against closed forms, the gain maps, step tracking on the nominal plant and INDI's disturbance rejection.
@@ -76,7 +94,7 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 ```bash
 cd research/codesign-cant
 PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
-"$PY" -m pytest -q tests                        # 27 tests
+"$PY" -m pytest -q tests                        # 29 tests
 "$PY" experiments/m1_allocation/run.py          # about 9 minutes on 4 cores; results.txt, results.json
 "$PY" experiments/m1_allocation/figure.py       # m1_allocation.png
 "$PY" experiments/m2_polytope/run.py            # about 20 minutes on 4 cores
@@ -87,6 +105,8 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
 "$PY" experiments/m6_poshold/run.py             # about 55 minutes on 4 cores
 "$PY" experiments/m6_poshold/dist_sign.py       # under a minute; post-hoc sign check
 "$PY" experiments/m6_poshold/figure.py          # m6_poshold.png
+"$PY" experiments/m6b_cop/run.py                # about 75 minutes on 4 cores; SMOKE=1 for a 1-minute pipeline check
+"$PY" experiments/m6b_cop/figure.py             # m6b_cop.png
 ```
 
 ## Limitations
@@ -94,12 +114,12 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
 - Milestone 1's arms use a per-axis torque box. Milestone 2's polytope mixer has TWR fixed at 2, where a hover-held mixer has the least room. The power price λ is a modelling choice, swept from 0 to 1° per 100 W, not a measured mission value.
 - Under the polytope mixer the search landscape is multimodal, so single-start results are unreliable. Three starts were used only for four arms.
 - Milestone 4 uses one power price and TWR 2; its INDI has no adaptive effectiveness estimation, and the geometric law no feed-forward (the references are steps).
-- Milestone 6's translation model (drag, noise, perfect altitude hold, one wind state driving both the drag and the disturbance torque) is inherited and assumed. The centre-of-pressure sign that decides H3 has not been derived for a real frame, and the designs were not retrained under the flipped sign. Six seeds, two starts.
+- Milestone 6's translation model (drag, noise, perfect altitude hold, one wind state driving both the drag and the disturbance torque) is inherited and assumed. Milestone 6b derives the rigid-frame signs and retrains under them, but the centre-of-pressure lever is still assumed (0.05 + 0.3 L, swept 0–2×), the gust torque goes from world-frame wind straight to body axes, and lever 2 was not retrained. Six seeds, two starts.
 - Attitude steps only (milestones 1–4), 2 s episodes, five seeds (ten in milestone 4), one κ. The mass, cost and motor fits and the plant ranges are inherited assumptions, not catalogue data. No hardware.
 
 ## Next steps
 
-Milestone 6 follow-up: retrain under the flipped gust-torque sign and sweep the centre-of-pressure lever. Then derive which sign a real frame has. Milestone 3: motor catalogue data replacing the inherited fits, with TWR free under the polytope mixer. It needs a source this session could not reach (T-Motor's thrust tables are images and its store blocks the proxy); a transcription of a dozen datasheets with the source of each row would unblock it. Then a RotorPy check of the top designs (milestone 5) and the paper draft (milestone 7) (`PROPOSAL.md`, "Milestones").
+Milestone 6b follow-up: a mixer feed-forward that cancels the counter-torque's side force (the mixer knows lat), or a cant pattern whose side-force map is a rotation, so neither axis is singled out; a measured centre-of-pressure height for a real frame (wind-tunnel or CFD literature) to pin the lever. Milestone 3: motor catalogue data replacing the inherited fits, with TWR free under the polytope mixer. It needs a source this session could not reach (T-Motor's thrust tables are images and its store blocks the proxy); a transcription of a dozen datasheets with the source of each row would unblock it. Then a RotorPy check of the top designs (milestone 5) and the paper draft (milestone 7) (`PROPOSAL.md`, "Milestones").
 
 ## Owner steps
 

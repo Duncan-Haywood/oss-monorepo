@@ -62,3 +62,26 @@ def test_flipping_the_gust_torque_sign_changes_a_canted_hold():
     a = poshold.score(x, 4, 1, parts=True)[2]
     b = poshold.score(x, 4, 1, parts=True, dist_sign=-1.0)[2]
     assert not np.allclose(a["pos"], b["pos"])
+
+
+def test_cop_signs_match_r_cross_f_for_a_rigid_offset():
+    # rollout: roll torque = sign[0] * kg * v0|v0| goes with Fy = kf * v0|v0|; pitch torque = sign[1] * kg * v1|v1| with Fx.
+    for h in (0.1, -0.07):
+        r = np.array([0.0, 0.0, h])
+        tx = np.cross(r, [0.0, 1.0, 0.0])[0] / abs(h)    # roll torque per unit Fy, per unit lever
+        ty = np.cross(r, [1.0, 0.0, 0.0])[1] / abs(h)    # pitch torque per unit Fx
+        assert np.allclose(poshold.cop_signs(h), [tx, ty])
+    # the inherited (+1, +1) is not a rigid body: no h reproduces it
+    assert not any(np.array_equal(poshold.cop_signs(h), [1.0, 1.0]) for h in (1.0, -1.0))
+
+
+def test_scalar_and_pair_dist_sign_agree_and_lever_zero_removes_the_gust_torque():
+    rng = np.random.default_rng(5)
+    x = rng.uniform(0.3, 0.7, (2, 12)); x[:, 2] = 0.5
+    a = poshold.score(x, 4, 1, parts=True, dist_sign=-1.0)[2]
+    b = poshold.score(x, 4, 1, parts=True, dist_sign=np.array([-1.0, -1.0]))[2]
+    assert np.array_equal(a["pos"], b["pos"])
+    z1 = poshold.score(x, 4, 1, parts=True, dist_sign=1.0, lever_scale=0.0)[2]
+    z2 = poshold.score(x, 4, 1, parts=True, dist_sign=-1.0, lever_scale=0.0)[2]
+    assert np.array_equal(z1["pos"], z2["pos"])
+    assert np.all(a["late_x"] >= 0) and np.all(a["late_y"] >= 0)
