@@ -1,16 +1,16 @@
 ---
-title: "Romania's e-invoices are checked against a 2022 rulebook, and ours was newer"
+title: "Romania's e-invoices are checked against an older rulebook than ours"
 date: 2026-11-12
 tags: [einvoice-preflight, romania, cius-ro, en16931, ubl, e-invoicing]
 seo_title: "CIUS-RO, EN 16931 validation 1.3.8 and the UBL-SR-53 false positive"
-description: Romania's CIUS-RO 1.0.9 is built on EN 16931 validation 1.3.8. A rule added in 1.3.14, UBL-SR-53, rejected ANAF's own non-VAT buyers in our checker. Running the right base fixed 4 of 10 good cases.
+description: "Romania's CIUS-RO 1.0.9 is built on EN 16931 1.3.8, so a newer rule, UBL-SR-53, rejected ANAF's own good examples. Running the right base fixed it."
 ---
 
 `einvoice-preflight` checks an e-invoice before it is sent. For a Romanian file it runs the EU base rules (EN 16931) and then Romania's national rules (CIUS-RO, published by ANAF). We test it on the good-case examples that the `phive-rules` project ships for each country. These are files the rule authors say must pass.
 
 Four of ANAF's ten examples failed one EU rule, UBL-SR-53: "CompanyID must be stated when providing the PartyTaxScheme/TaxScheme/ID". As written, the test also fails any `PartyTaxScheme` that has no `TaxScheme/ID` at all. CIUS-RO uses exactly that shape for a buyer that is not VAT registered: the fiscal code (CUI) goes in a `PartyTaxScheme` with an empty `TaxScheme`. So a valid Romanian invoice was blocked by a rule its receiver never runs.
 
-Our README called this "an EU-base rule that later releases drop". That was backwards. We read the `validation-1.3.11` to `1.3.17` branches of the EN 16931 rules: UBL-SR-51 to 59 are absent up to 1.3.13 and present from 1.3.14 on. Then we checked what Romania actually runs. `phive-rules` registers CIUS-RO 1.0.9 as built on EN 16931 **1.3.8**. ANAF's own bundled stylesheet in the same package carries none of the nine rules either. Two independent sources agree: Romania validates on top of a 2022 base.
+Our README called this "an EU-base rule that later releases drop". That was backwards. We read the `validation-1.3.11` to `1.3.17` branches of the EN 16931 rules: UBL-SR-51 to 59 are absent up to 1.3.13 and present from 1.3.14 on. Then we checked what Romania actually runs. `phive-rules` registers CIUS-RO 1.0.9 as built on EN 16931 **1.3.8**. ANAF's own bundled stylesheet in the same package carries none of the nine rules either. Two independent sources agree: Romania validates on top of an older base than the current one.
 
 The fix is to run the base the national rules were written against. The tool now ships a second compiled EU set, 1.3.8 (977 checks, against 982 in the current one). A national add-on can name its base, and a Romanian file gets 1.3.8 under CIUS-RO, in the browser and on the server.
 
