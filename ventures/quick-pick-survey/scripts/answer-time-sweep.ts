@@ -41,9 +41,9 @@
  *   loo-slope    leave out rho < 0.2 AND slope < `--slope-min`
  *   oracle-drop  leave out the careless (for dissent: the camp; a ceiling only)
  *
- *   npx tsx scripts/answer-time-sweep.ts [--items 15,30] [--per-item 4] [--respondents 20] [--careless 0.25,0.4,0.5] [--patterns salience,random,dissent] [--ratio 1,0.6,0.4] [--gamma 0.6] [--careless-gamma 0] [--person-sd 0.4] [--pace-min 0.6] [--slope-min 0.05] [--surveys 20] [--seed-base 4000]
+ *   npx tsx scripts/answer-time-sweep.ts [--items 15,30] [--per-item 4] [--respondents 20] [--careless 0.25,0.4,0.5] [--patterns salience,random,dissent] [--ratio 1,0.6,0.4] [--gamma 0.6] [--careless-gamma 0] [--person-sd 0.4] [--pace-min 0.6] [--slope-min 0.05] [--surveys 20] [--seed-base 4000] [--selector staged|standard]
  */
-import { selectNextPairHybrid, type PairingInput } from "../src/lib/pairing";
+import { selectNextPair, selectNextPairHybrid, type PairingInput } from "../src/lib/pairing";
 import { DEFAULT_GLICKO_STATE } from "../src/lib/glicko2";
 import { simulate, spearman, type Chooser, type Policy } from "../src/lib/infoGainSim";
 import { groupRanking, type RatingRow } from "../src/lib/groupRanking";
@@ -86,9 +86,14 @@ function normal(rand: () => number): number {
   return Math.sqrt(-2 * Math.log(1 - rand())) * Math.cos(2 * Math.PI * rand());
 }
 
-/** The staged selector with the route's slot shuffle (src/app/api/trials/next/route.ts). */
+/** `--selector staged|standard`: which pair selector everyone runs (staged unless named). */
+const selectorName = opt("--selector", "staged");
+if (selectorName !== "staged" && selectorName !== "standard") throw new Error(`--selector must be staged or standard, got ${selectorName}`);
+const choose = selectorName === "standard" ? selectNextPair : selectNextPairHybrid;
+
+/** The chosen selector with the route's slot shuffle (src/app/api/trials/next/route.ts). */
 const routeStaged: Policy = (input: PairingInput) => {
-  const [a, b] = selectNextPairHybrid({ ...input, answerAgreement: undefined });
+  const [a, b] = choose({ ...input, answerAgreement: undefined });
   return (input.rand ?? Math.random)() < 0.5 ? [a, b] : [b, a];
 };
 
