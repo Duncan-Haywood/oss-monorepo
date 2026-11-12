@@ -47,7 +47,12 @@ at world 1, and every function of type `Unit → Fin 2 → Prop` counts as a pro
 of Anderson's system holds, including A4a and A5. Yet world 0 can see itself, and nothing
 God-like exists there. The file has no `sorry` and builds with no warnings.
 
-**Checked against the search.** RESULTS_PLACEHOLDER
+**Checked against the search.** We reused the earlier step's exact model enumeration,
+unchanged, on every frame up to 3 worlds and 2 individuals: 6,884,324 frames. Of the 71,002
+stage-III models whose algebra is separating, none fails either step, in any frame class. Every
+failure the earlier search found is in a non-separating algebra: 648 in K and 1,512 in K4 for
+GodIsEssential, and 1,164 in K4 for the other step. In each of the 5,256 failing cases, an
+accessible world has a second God-like individual that exists there, as point 4 says.
 
 **What it means.** E19's result stands: of S5's three conditions, the argument's conclusion
 needs symmetry and nothing else. This step adds that the frame-condition picture for the middle

@@ -171,6 +171,17 @@ individual. Proved in Lean 4 for any frame, domains and property collection
 `domain_nonempty_symm`). So the modal premise Anderson's argument rests on is the B axiom, as for
 the Hartshorne–Plantinga argument (H2) ([results](experiments/e19_afp_anderson/results.md)).
 
+**M2 (part), the middle steps need an algebra that separates individuals, not a frame condition (E20, 2026-11-12).**
+Once the properties include "is x", its complement and existence (true under full semantics),
+GodIsEssential holds in every Kripke frame from A1a, A2 and T2, and GodExistenceImpliesNecExistence
+from A2 and T2 alone: no reflexivity, symmetry or rigid positivity. Proved in Lean 4
+(`lean/TheismFormal/AndersonFull.lean`: `essential_any`, `geine_any`, `god_unique`). In any
+algebra, a failure of GodIsEssential needs a second God-like individual at an accessible world
+(`essential_failure`). Over 6,884,324 frames up to 3 worlds × 2 individuals, 0 of 71,002
+separating stage-III models fail either step, and all of E19's failures are in non-separating
+algebras. The conclusion still needs symmetry: `cm_s4_full` is a Lean-certified S4 countermodel
+under full semantics, 2 worlds and 1 individual ([results](experiments/e20_full_semantics/results.md)).
+
 ## Layout
 
 - `src/logic.py`: decision procedures (S5 exact, K/T/B/S4 by certified countermodels, monadic first-order exact), minimal inconsistent and maximal consistent subsets.

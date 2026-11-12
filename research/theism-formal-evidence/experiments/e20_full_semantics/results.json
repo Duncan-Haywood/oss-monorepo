@@ -1,0 +1,176 @@
+{
+ "frames": 6884324,
+ "table": {
+  "GodIsEssential|II|separating|S5": [
+   0,
+   2066
+  ],
+  "GodIsEssential|III|separating|S5": [
+   0,
+   2066
+  ],
+  "GodExistenceImpliesNecExistence|III|separating|S5": [
+   0,
+   2066
+  ],
+  "GodIsEssential|II|not separating|S5": [
+   0,
+   26940
+  ],
+  "GodIsEssential|III|not separating|S5": [
+   0,
+   20464
+  ],
+  "GodExistenceImpliesNecExistence|III|not separating|S5": [
+   0,
+   20464
+  ],
+  "GodIsEssential|II|not separating|K4": [
+   2304,
+   179005
+  ],
+  "GodIsEssential|III|not separating|K4": [
+   1512,
+   140365
+  ],
+  "GodExistenceImpliesNecExistence|III|not separating|K4": [
+   1164,
+   140365
+  ],
+  "GodIsEssential|II|separating|K4": [
+   0,
+   23229
+  ],
+  "GodIsEssential|III|separating|K4": [
+   0,
+   23229
+  ],
+  "GodExistenceImpliesNecExistence|III|separating|K4": [
+   0,
+   23229
+  ],
+  "GodIsEssential|II|separating|KB": [
+   0,
+   3054
+  ],
+  "GodIsEssential|III|separating|KB": [
+   0,
+   3054
+  ],
+  "GodExistenceImpliesNecExistence|III|separating|KB": [
+   0,
+   3054
+  ],
+  "GodIsEssential|II|not separating|KB": [
+   0,
+   21984
+  ],
+  "GodIsEssential|II|not separating|S4": [
+   0,
+   176600
+  ],
+  "GodIsEssential|II|separating|S4": [
+   0,
+   14810
+  ],
+  "GodIsEssential|III|separating|S4": [
+   0,
+   14810
+  ],
+  "GodExistenceImpliesNecExistence|III|separating|S4": [
+   0,
+   14810
+  ],
+  "GodIsEssential|III|not separating|KB": [
+   0,
+   7636
+  ],
+  "GodExistenceImpliesNecExistence|III|not separating|KB": [
+   0,
+   7636
+  ],
+  "GodIsEssential|III|not separating|S4": [
+   0,
+   100128
+  ],
+  "GodExistenceImpliesNecExistence|III|not separating|S4": [
+   0,
+   100128
+  ],
+  "GodIsEssential|II|not separating|K": [
+   792,
+   147891
+  ],
+  "GodIsEssential|III|not separating|K": [
+   648,
+   69177
+  ],
+  "GodExistenceImpliesNecExistence|III|not separating|K": [
+   0,
+   69177
+  ],
+  "GodIsEssential|II|separating|K": [
+   0,
+   22623
+  ],
+  "GodIsEssential|III|separating|K": [
+   0,
+   22623
+  ],
+  "GodExistenceImpliesNecExistence|III|separating|K": [
+   0,
+   22623
+  ],
+  "GodIsEssential|II|not separating|T": [
+   0,
+   33978
+  ],
+  "GodIsEssential|II|separating|T": [
+   0,
+   4950
+  ],
+  "GodIsEssential|III|separating|T": [
+   0,
+   4950
+  ],
+  "GodExistenceImpliesNecExistence|III|separating|T": [
+   0,
+   4950
+  ],
+  "GodIsEssential|II|not separating|B": [
+   0,
+   1515
+  ],
+  "GodIsEssential|II|separating|B": [
+   0,
+   270
+  ],
+  "GodIsEssential|III|separating|B": [
+   0,
+   270
+  ],
+  "GodExistenceImpliesNecExistence|III|separating|B": [
+   0,
+   270
+  ],
+  "GodIsEssential|III|not separating|T": [
+   0,
+   12810
+  ],
+  "GodExistenceImpliesNecExistence|III|not separating|T": [
+   0,
+   12810
+  ],
+  "GodIsEssential|III|not separating|B": [
+   0,
+   333
+  ],
+  "GodExistenceImpliesNecExistence|III|not separating|B": [
+   0,
+   333
+  ]
+ },
+ "h24d_failures_with_second_god": 5256,
+ "h24d_failures_without": 0,
+ "seconds": 1301.0
+}
