@@ -64,8 +64,18 @@ def parts(r, masks, drops, p_neutral, q_sb=0.0, sl=slice(None)):
     D = float((q_oc[oc_mv] * (poc[oc_mv] - pin[oc_mv])).sum() * k)
     I = float((q_fix[~oc_mv] * p_neutral).sum() * k)
     S = S_oc - A
-    return {"m": (S + D + I) / B, "A": A, "S": S, "D": D, "I": I, "B": B, "OC": S_oc + D + I,
-            "dm_ddrop": float(q_oc[oc_mv].sum() * k) / B, "dm_dpn": float(q_fix[~oc_mv].sum() * k) / B}
+    q_mv = float(q_oc[oc_mv].sum() * k)
+    out = {"m": (S + D + I) / B, "A": A, "S": S, "D": D, "I": I, "B": B, "OC": S_oc + D + I,
+           "dm_ddrop": q_mv / B, "dm_dpn": float(q_fix[~oc_mv].sum() * k) / B}
+    # 5u/5v split (same algebra as breakeven.trace_breakeven): open-centre moving implies LS moving
+    V_on = float(q_tot[oc_mv].sum() * k)
+    if V_on > 0:
+        A_on = float((q_tot[oc_mv] * pl[oc_mv]).sum() * k)
+        r_, p_Q, p_q, d_bar, beta = q_mv / V_on, S_oc / q_mv, A_on / V_on, D / q_mv, V_on / B
+        out.update(r=r_, p_Q=p_Q, p_q=p_q, d_bar=d_bar, beta=beta, A_off=A - A_on,
+                   main=beta * (r_ - 1) * p_q, cov=beta * r_ * (p_Q - p_q), drop=beta * r_ * d_bar,
+                   idle=(I - (A - A_on)) / B, rule2=(r_ - 1) * p_q + r_ * d_bar)
+    return out
 
 
 def orifice_drop(q, row):
