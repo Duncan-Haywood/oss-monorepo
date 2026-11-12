@@ -1128,6 +1128,49 @@ def rgb_tone(curve: ToneCurve, r: float, g: float, b: float) -> tuple[float, flo
     return rr, gg, rr + (gg - rr) * (b - r) / (g - r)
 
 
+# The default tone curve: what Adobe's raw converters apply when a profile
+# carries no ProfileToneCurve (the "ACR3 default", a 1,025-entry table in the
+# DNG SDK; 68 of RawTherapee's 161 profiles embed it resampled to 8,192
+# points). These 20 knots are shootflow's own least-squares natural-spline
+# fit to that curve, not a copy of the table: worst error 5.1e-4 linear,
+# 0.077 of an 8-bit sRGB step; 0.18 goes to 0.3880 (the curve: 0.3881).
+# tools/default_tone_fit.py reproduces them; eval/default-tone-curve-2026-11-12.md.
+DEFAULT_TONE_KNOTS: tuple[tuple[float, float], ...] = (
+    (0.0, 0.0),
+    (0.000304, 0.000234),
+    (0.002048, 0.00169),
+    (0.006245, 0.004911),
+    (0.013775, 0.012502),
+    (0.025445, 0.029788),
+    (0.042009, 0.060673),
+    (0.064187, 0.108125),
+    (0.092667, 0.176327),
+    (0.128113, 0.267448),
+    (0.17117, 0.368928),
+    (0.222463, 0.472411),
+    (0.282603, 0.572086),
+    (0.352186, 0.664338),
+    (0.431797, 0.747679),
+    (0.52201, 0.820984),
+    (0.623387, 0.883752),
+    (0.736482, 0.934679),
+    (0.861841, 0.974077),
+    (1.0, 1.0),
+)
+
+_DEFAULT_TONE: ToneCurve | None = None
+
+
+def default_tone_curve() -> ToneCurve:
+    """The default tone curve (``DEFAULT_TONE_KNOTS``), built once."""
+
+    global _DEFAULT_TONE
+    if _DEFAULT_TONE is None:
+        xs, ys = zip(*DEFAULT_TONE_KNOTS)
+        _DEFAULT_TONE = ToneCurve.from_points(xs, ys)
+    return _DEFAULT_TONE
+
+
 @dataclass(frozen=True)
 class ProfileLook:
     """The profile's tables between the camera matrix and the output space.

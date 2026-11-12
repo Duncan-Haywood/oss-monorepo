@@ -1144,7 +1144,44 @@ How it was checked (`eval/tone-curve-2026-11-12.md`):
   pure Python 40 s, half size).
 
 Still open: whether the curve brings the render closer to Adobe's own (needs an Adobe render
-of a known frame), and Adobe's default curve for profiles with none.
+of a known frame). Adobe's default curve for profiles with none landed later the same day
+(next section).
+
+## The default tone curve, for profiles with none (2026-11-12)
+
+The shared 8,192-point curve above turned out to be **Adobe's "ACR3 default" curve**, the one
+Adobe's raw converters fall back to when a profile carries no tone curve: resampled from the
+1,025-entry table that RawTherapee (`rtengine/dcp.cc`) and Adobe's DNG SDK carry, it matches
+within 4.5e-7 linear on 4,097 points; two RawTherapee profiles carry the 1,025-point original.
+So 35 of RawTherapee's profiles, and any DNG whose embedded profile has no curve, rendered
+flatter here than in Lightroom or RawTherapee.
+
+shootflow now has that curve as **20 knots of its own** (`dng_colour.DEFAULT_TONE_KNOTS`), a
+weighted least-squares natural-spline fit, not a copy of the table: worst error 5.1e-4 linear
+and 0.077 of an 8-bit sRGB step; mid-grey 0.18 goes to 0.3880 (the curve: 0.3881).
+`tools/default_tone_fit.py` re-derives the knots from any profile that embeds the curve.
+
+```
+shootflow develop IMG_0001.dng --out masters/ --default-tone-curve always   # Adobe's behaviour
+shootflow develop IMG_0001.dng --out masters/ --default-tone-curve never    # plain sRGB curve
+```
+
+`auto` (the default) applies it only when the profile has no curve and its
+`ProfileToneCopyright` names Adobe, which is RawTherapee's rule; `always` applies it to every
+profile without one. A profile's own curve, even a straight line, always wins. The report's
+`profile` field says `default ToneCurve (ACR3 fit)` when it ran.
+
+How it was checked (`eval/default-tone-curve-2026-11-12.md`):
+
+- `tests/test_default_tone_curve.py` (12 tests): the knots pass the tag checks and the table
+  never falls; the curve's published landmarks within 6e-4; auto, always and never; a
+  profile's own curve (and a straight line) wins; after the tables; the off switches; a `.dcp`
+  with an Adobe copyright; numpy byte-identical to pure Python. With
+  `SHOOTFLOW_DEFAULT_TONE_DCP` naming a profile that embeds the curve, it is also checked
+  point by point (passes on RawTherapee's `Canon EOS 100D.dcp`, 1,025 points).
+- A real Canon 5D Mark II frame at half size: the fitted default against the embedded
+  8,192-point curve differs by a mean 0.014 8-bit steps, p99 0.68, max 0.81; no pixel moves
+  a whole step. The curve itself against no curve: mean 6.9 steps, max 205.
 
 
 ## Three calibration lights: DNG 1.6 profiles (2026-11-12)
