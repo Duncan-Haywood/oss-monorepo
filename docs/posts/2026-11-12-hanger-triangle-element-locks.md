@@ -1,9 +1,9 @@
 ---
 title: "A better cloth element passes the cantilever and still fails the drape test"
-seo_title: "Triangle FEM cloth: exact on the cantilever, locked on the Cusick drape test"
+seo_title: "Triangle FEM cloth: exact on the cantilever, locked in drape"
 date: 2026-11-12
 tags: [research, robotics, cloth-simulation, laundry-robot, digital-twin, finite-elements]
-description: "ARCSim's triangle element, written in numpy with a Newton solver, matches the exact cantilever elastica to 0.9% but its simulated drape still moves with mesh and stretch stiffness."
+description: "ARCSim's triangle element with a Newton solver matches the exact cantilever to 0.9%, yet its simulated drape still moves with mesh and stretch stiffness."
 ---
 
 The [`hanger-codesign`](../../research/hanger-codesign/) programme asks how
