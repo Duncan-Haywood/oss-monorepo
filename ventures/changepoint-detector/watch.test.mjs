@@ -185,3 +185,15 @@ test('--detector bocpd-ar1 runs from the CLI and refuses the count and volatilit
   assert.equal(await main([f, '--dry-run', '--alert-history', '--model', 'poisson'], { out: (s) => { text += s; } }), 0);
   assert.match(text, /rate up/);
 });
+
+test('a fixed rho (ar1Rho) replaces the estimate in the AR(1) pass, clipped to [0, 0.95]', async () => {
+  const { analyze } = await import('./engine.mjs');
+  const values = stepSeries(200, 120, 3);
+  assert.equal(analyze({ values, ar1: true, ar1Rho: 0.3 }).ar1.rho, 0.3);
+  assert.equal(analyze({ values, ar1: true, ar1Rho: 2 }).ar1.rho, 0.95);
+  // with an AR(1) detector, the plain engine run is skipped: only the AR(1) lists come back
+  const labels = values.map((_, i) => String(i + 1));
+  const d = detectChanges(values, labels);
+  assert.equal(d.length, 1);
+  assert.ok(Math.abs(d[0].index - 120) <= 2);
+});
