@@ -181,8 +181,8 @@ flagships:
       (excerpts; Taiwan, Oman dates disagree); Mexico CFDI 4.0 reader
       and Pagos 2.0 payments landed 2026-11-12 (README "Mexico: CFDI
       4.0", "Mexico: payments"; 202/202 seeded, 1,446/1,446 vs
-      xmllint): open: a PAC rejection compared, the regime-to-use
-      table, nómina 1.2; Brazil NF-e XSD, NFS-e; refresh the Bulgaria
+      xmllint), regime/use checks (MX-015..017, README "Mexico:
+      regimes") too: open: a PAC rejection compared, nómina 1.2; Brazil NF-e XSD, NFS-e; refresh the Bulgaria
       page when its draft passes. A run that lands a slice replaces its
       item here; keep this under 2,000 characters.
 
