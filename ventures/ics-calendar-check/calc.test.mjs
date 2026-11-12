@@ -205,3 +205,66 @@ test("VALARM problems are reported", () => {
   const ok = bad(["ACTION:DISPLAY", "TRIGGER:-P1DT2H", "DESCRIPTION:Reminder"]);
   assert.equal(ok.findings.length, 0);
 });
+
+// Red-team 2026-11-12: guards for escaped mutants and real defects.
+test("two overrides of one series, at different RECURRENCE-IDs, are not duplicates", () => {
+  const ov = (d) => vevent(`DTSTART:${d}T090000Z`, `RECURRENCE-ID:${d}T090000Z`, "SUMMARY:x");
+  assert.ok(!has(validate(cal(ov("20260106"), ov("20260113"))), /UID repeats/));
+  assert.ok(has(validate(cal(ov("20260106"), ov("20260106"))), /UID repeats/));
+});
+
+test("findings of one severity are listed in line order", () => {
+  // TZID warnings are pushed before the events they sit in, so the line-6 one is found before the line-4 event's.
+  const r = validate(["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//t//EN", "BEGIN:VEVENT", "UID:a@t", "DTSTART;TZID=Custom/Zone:20260106T150000", "SUMMARY:x", "END:VEVENT", "BEGIN:VEVENT", "UID:b@t", "DTSTART;TZID=Other/Zone:20260106T150000", "SUMMARY:y", "END:VEVENT", "END:VCALENDAR", ""].join("\r\n"));
+  const lines = r.findings.filter((f) => f.severity === "warning").map((f) => f.line);
+  assert.ok(lines.length >= 2);
+  assert.deepEqual(lines, [...lines].sort((a, b) => a - b));
+});
+
+test("an empty duration is not a valid VALARM TRIGGER", () => {
+  const al = (t) => validate(cal(vevent("DTSTART:20260106T150000Z", "DTEND:20260106T160000Z", "SUMMARY:x", "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:x", t, "END:VALARM")));
+  for (const t of ["TRIGGER:P", "TRIGGER:-PT", "TRIGGER:-P", "TRIGGER:PT"]) assert.ok(has(al(t), /bad VALARM TRIGGER/), t);
+  for (const t of ["TRIGGER:-PT15M", "TRIGGER:P1D", "TRIGGER:-P2W", "TRIGGER:PT0S"]) assert.ok(!has(al(t), /bad VALARM TRIGGER/), t);
+});
+
+test("enumerated values are case-insensitive (RFC 5545 2.1)", () => {
+  const r = validate(cal(vevent("DTSTART:20260106T150000Z", "DTEND:20260106T160000Z", "SUMMARY:x", "RRULE:freq=monthly;byday=2tu")));
+  assert.equal(r.findings.length, 0, titles(r).join("; "));
+  assert.ok(has(validate(cal(vevent("DTSTART;VALUE=date:20260106T150000Z", "DTEND:20260106T160000Z", "SUMMARY:x"))), /VALUE=DATE with a time/));
+  assert.ok(has(validate(cal(vevent("DTSTART:20260106T150000Z", "SUMMARY:x", "RRULE:freq=weekly;byday=2tu"))), /BYDAY 2TU needs FREQ=MONTHLY/));
+});
+
+test("an event DURATION must be a positive duration", () => {
+  const d = (v) => validate(cal(vevent("DTSTART:20260106T150000Z", "SUMMARY:x", `DURATION:${v}`)));
+  for (const v of ["1 hour", "PT", "-PT1H", "P1H"]) assert.ok(has(d(v), /bad DURATION/), v);
+  for (const v of ["PT1H", "P1D", "+PT30M", "P1W", "P1DT2H"]) assert.equal(d(v).findings.length, 0, v);
+});
+
+test("repair keeps quoted parameter values quoted when it rewrites DTEND", () => {
+  const src = cal(vevent("SUMMARY:x", "DTSTART;VALUE=DATE:20260106", 'DTEND;VALUE=DATE;X-NOTE="a:b":20260106'));
+  const out = repair(src).text;
+  assert.match(out, /DTEND;VALUE=DATE;X-NOTE="a:b":20260107/);
+  assert.equal(validate(out).findings.length, 0, titles(validate(out)).join("; "));
+});
+
+test("unfold drops only the final empty line a trailing CRLF leaves", () => {
+  assert.deepEqual(unfold("A:1\r\nB:2\r\n").map((l) => l.value), ["A:1", "B:2"]);
+  assert.deepEqual(unfold("A:1\r\n\r\n").map((l) => l.value), ["A:1", ""]);
+});
+
+const calOf = (...ev) => ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//t//EN", ...ev.flat(), "END:VCALENDAR", ""].join("\r\n");
+const evOf = (uid, extra) => ["BEGIN:VEVENT", `UID:${uid}`, "DTSTAMP:20260101T000000Z", ...extra, "SUMMARY:x", "END:VEVENT"];
+
+test("BYHOUR=0 (midnight) is a valid RRULE value", () => {
+  const r = validate(calOf(evOf("a@t", ["DTSTART:20260105T000000Z", "RRULE:FREQ=DAILY;BYHOUR=0"])));
+  assert.deepEqual(r.findings.filter((f) => /BYHOUR/.test(f.title)), []);
+  const bad = validate(calOf(evOf("a@t", ["DTSTART:20260105T000000Z", "RRULE:FREQ=DAILY;BYHOUR=24"])));
+  assert.ok(bad.findings.some((f) => /bad BYHOUR/.test(f.title)));
+});
+
+test("findings sort errors, then warnings, then info, whatever the line", () => {
+  const r = validate(calOf(evOf("a@t", ["DTSTART:20260105T090000"]), evOf("b@t", ["DTSTART:20260105T090000Z", "DESCRIPTION:" + "x".repeat(120)])));
+  const sev = r.findings.map((f) => f.severity);
+  assert.ok(sev.includes("warning") && sev.includes("info"), sev.join());
+  assert.deepEqual(sev, [...sev].sort((a, b) => ["error", "warning", "info"].indexOf(a) - ["error", "warning", "info"].indexOf(b)));
+});

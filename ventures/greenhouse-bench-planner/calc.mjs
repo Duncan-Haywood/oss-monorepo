@@ -5,6 +5,10 @@ const DAY = 864e5;
 const WEEK = 7 * DAY;
 const MONDAY0 = Date.UTC(1970, 0, 5);
 
+// Holding a finished crop, or selling it late, for more than a year has no planning meaning, and each extra week adds a
+// candidate the scheduler scans week by week, so an extra zero (100000) used to hang the page. Both are capped here.
+export const MAX_SHIFT_WEEKS = 52;
+
 export const DEFAULTS = { benchSqft: 400, germSqft: 30, germDensity: 60, maxHoldWeeks: 2, holdCost: 0.5, latePenaltyPct: 10 };
 
 export function money(n) {
@@ -57,6 +61,7 @@ export function parseCrops(text) {
       : !(c.survival > 0 && c.survival <= 100) ? "survival must be between 1 and 100" : !(c.price >= 0) || !(c.cost >= 0) || !(c.flex >= 0) ? "price, cost and flex weeks cannot be negative" : "";
     if (bad) { errors.push(`Line ${i + 1} (${f[0] || "blank"}): ${bad}.`); return; }
     c.germ = Math.ceil(c.germ); c.grow = Math.ceil(c.grow); c.flex = Math.floor(c.flex);
+    if (c.flex > MAX_SHIFT_WEEKS) { c.flexCapped = c.flex; c.flex = MAX_SHIFT_WEEKS; }
     c.id = crops.length;
     crops.push(c);
   });
@@ -126,6 +131,8 @@ export function analyze(text, options = {}) {
   if (!(o.benchSqft > 0)) o.benchSqft = DEFAULTS.benchSqft;
   if (!(o.germSqft > 0)) o.germSqft = DEFAULTS.germSqft;
   if (!(o.germDensity > 0)) o.germDensity = DEFAULTS.germDensity;
+  const holdCapped = o.maxHoldWeeks > MAX_SHIFT_WEEKS ? o.maxHoldWeeks : 0;
+  o.maxHoldWeeks = Math.min(Math.floor(o.maxHoldWeeks), MAX_SHIFT_WEEKS);
   const { crops, errors } = parseCrops(text);
   if (!crops.length) return { summary: null, rows: [], weeks: [], warnings: [], errors: errors.length ? errors : ["No crops found. Use lines of crop, sale date, units, germination weeks, growing weeks, units per sq ft."], sweep: [], economics: [] };
 
@@ -150,6 +157,8 @@ export function analyze(text, options = {}) {
   }
 
   const warnings = [];
+  if (holdCapped) warnings.push({ level: "info", text: `Holding a finished crop is capped at ${MAX_SHIFT_WEEKS} weeks; you entered ${holdCapped}.` });
+  for (const c of crops) if (c.flexCapped) warnings.push({ level: "info", text: `${c.name}: selling late is capped at ${MAX_SHIFT_WEEKS} weeks; you entered ${c.flexCapped}.` });
   for (const r of base.rows) {
     if (r.short > 0) warnings.push({ level: "high", text: `${r.crop}: only ${r.sold} of ${r.units} units fit by ${r.target}. ${r.short} cannot be grown with the space you entered.` });
     if (r.early) warnings.push({ level: "medium", text: `${r.crop}: sown ${r.early} week${r.early === 1 ? "" : "s"} early and held on the bench to free the weeks around it.` });

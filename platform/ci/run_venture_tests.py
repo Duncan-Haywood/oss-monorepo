@@ -81,7 +81,7 @@ def node_tests(slug):
 TEST_RUN = re.compile(r"^\s*-?\s*run:\s*(.*\b(?:pytest|unittest)\b.*)$")
 
 
-def test_commands(slug, wf):
+def test_commands(slug, wf, steps=None):
     """The pytest/unittest steps of workflow `wf` that run inside the venture.
 
     All of them for the venture's own `<slug>*.yml`; in a shared workflow only
@@ -91,24 +91,50 @@ def test_commands(slug, wf):
     named by a workflow, in a trigger filter or a node step, that never ran
     their Python tests.
     """
-    lines = wf.read_text().splitlines()
-    own = wf.name.startswith((f"{slug}-", f"{slug}."))
-    cmds = []
+    if steps is None:
+        steps = _test_steps(wf.read_text())
+    if wf.name.startswith((f"{slug}-", f"{slug}.")):
+        return [cmd for cmd, _ in steps]
+    where = re.compile(rf"working-directory:\s*['\"]?ventures/{re.escape(slug)}\b")
+    needle = f"ventures/{slug}"
+    return [cmd for cmd, near in steps if needle in near and where.search(near)]
+
+
+def _test_steps(text):
+    """[(command, the lines around it)] for each pytest/unittest step in a workflow."""
+    lines = text.splitlines()
+    out = []
     for i, line in enumerate(lines):
         m = TEST_RUN.match(line)
         if not m or re.match(r"(pip|uv|python3? -m pip)\b", m.group(1)):
             continue
-        near = " ".join(lines[max(0, i - 3):i + 2])
-        if own or re.search(rf"working-directory:\s*['\"]?ventures/{re.escape(slug)}\b", near):
-            cmds.append(m.group(1).strip())
-    return cmds
+        out.append((m.group(1).strip(), " ".join(lines[max(0, i - 3):i + 2])))
+    return out
+
+
+@functools.lru_cache(maxsize=None)
+def _workflow_steps(workflows):
+    """[(workflow file, its test steps)], read once per run, not once per venture.
+
+    Asking every venture (a full run, or a push that creates a branch) used to
+    re-read and re-scan all ~130 workflows per venture: 1,348 x 129 parses,
+    about 20 s before any suite started (docs/history/ci-perf-2026-11-12-venture-runner-workflow-scan.md).
+    """
+    return [(wf, steps) for wf in sorted(workflows.glob("*.y*ml"))
+            if wf.name != "ventures-tests.yml" and (steps := _test_steps(wf.read_text()))]
 
 
 @functools.lru_cache(maxsize=None)
 def python_run_elsewhere(slug):
     """[(workflow name, command)] for steps that run the venture's Python tests."""
-    return [(wf.name, cmds[0]) for wf in sorted(WORKFLOWS.glob("*.y*ml"))
-            if wf.name != "ventures-tests.yml" and (cmds := test_commands(slug, wf))]
+    return [(wf.name, cmds[0]) for wf, steps in _workflow_steps(WORKFLOWS)
+            if (cmds := test_commands(slug, wf, steps))]
+
+
+def clear_workflow_caches():
+    """Forget what the workflows said (tests rewrite them between calls)."""
+    python_run_elsewhere.cache_clear()
+    _workflow_steps.cache_clear()
 
 
 def python_test_dirs(slug):

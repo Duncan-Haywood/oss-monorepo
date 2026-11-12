@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 115 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 116 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -63,6 +63,13 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   difference -3.63 to -0.41 points. All six predictions held. It can hurt where routed delay sits far below the period: on an
   earlier, already seen table it sent barrel128 relaxed from 0.00% to 19.2%:
   [`experiments/clip_score/`](experiments/clip_score/results.txt).
+- **The switch's routed pilot cannot tell when to clip (milestone 116, flow run, negative).** A guard that keeps the clip only
+  when the timing pilot's routed delay is at least 0.9 of the period, fixed by mechanism before five blind designs ran (1,200
+  flow runs): the pilot share does separate barrel shifters (0.41 to 0.59) from multipliers and squarers (1.00), but the clip
+  helped on two of three blind relaxed barrels (barrel192 8.21% to 0.00%, barrel256 8.66% to 0.00%) and hurt on one (barrel96,
+  3.18% to 9.42%). Blind mean regret: unguarded clip 2.69%, guarded 3.76%, plain switch 5.58%, equal-cost random 3.28%. Over
+  all 124 cells of milestones 110 to 116 the unguarded clip has 1.02% against 1.87% for the plain switch and 2.36% for random
+  routing, so it stays the rule: [`experiments/pilot_clip/`](experiments/pilot_clip/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 

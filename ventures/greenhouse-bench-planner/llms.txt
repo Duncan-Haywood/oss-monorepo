@@ -8,6 +8,10 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/greenhouse-bench-planner/)
 
+## Limits
+
+- Holding a finished crop, and selling one late, are each capped at 52 weeks; the plan says so when it caps an entry.
+
 ## Source
 
 - [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/greenhouse-bench-planner): MIT licensed.

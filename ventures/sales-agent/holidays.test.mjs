@@ -122,3 +122,20 @@ test("theirDaysOff reads country names as well as codes, and the UK nations as t
   // A holidays column still wins over the country.
   assert.equal(read({ holidays: "ca-qc", country: "United States" }, null).spec, "ca-qc");
 });
+
+// Red-team 2026-11-12: the 451 term of the Meeus/Jones/Butcher formula is non-zero only in rare years
+// (1954, 1981, 2049, 2076...), so the 2026/2038/2285 checks above could not see a typo in it.
+test("Easter agrees with Oudin's independent algorithm for every Gregorian year to 4099", () => {
+  assert.deepEqual(easter(1981), [3, 19]);
+  assert.deepEqual(easter(2049), [3, 18]);
+  assert.deepEqual(easter(2076), [3, 19]);
+  const oudin = (y) => {
+    const g = y % 19, c = Math.floor(y / 100);
+    const h = (c - Math.floor(c / 4) - Math.floor((8 * c + 13) / 25) + 19 * g + 15) % 30;
+    const i = h - Math.floor(h / 28) * (1 - Math.floor(29 / (h + 1)) * Math.floor((21 - g) / 11));
+    const j = (y + Math.floor(y / 4) + i + 2 - c + Math.floor(c / 4)) % 7;
+    const l = i - j, month = 3 + Math.floor((l + 40) / 44);
+    return [month - 1, l + 28 - 31 * Math.floor(month / 4)];
+  };
+  for (let y = 1583; y <= 4099; y++) assert.deepEqual(easter(y), oudin(y), String(y));
+});

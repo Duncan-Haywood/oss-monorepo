@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtKVfDFoP2d5ndUFcPW",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T07:06:02Z",
+  "ended": "2026-11-12T07:25:02Z",
+  "wall_minutes": 19.41,
+  "tokens_in": 8269647,
+  "tokens_out": 53838,
+  "cost_usd": 3.9487,
+  "tool_calls": 67,
+  "task": "research programme cell-fidelity, milestone 3 theory part 2b (drawn by pick_track.py)",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15041",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py found /usr/bin/python3.13 with pybamm already installed (returned in seconds), while bare python3 lacks numpy; the doc's 20 s to 2 min warning did not apply this time. Harmless, but the line saying to check other interpreters first saved the wait."
+    },
+    {
+      "file": "research/cell-fidelity (milestone 4)",
+      "issue": "milestone 4's search replay never ran plain short-SPMe screens (SPMe@2, SPMe@10), though milestone 2 had already shown SPMe@10 with R = 1. This run found them to be the fastest method by accident. A replay's method list should cover every cached cell as a plain screen."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/cell-fidelity/LOG.md (this run's plan)",
+      "why": "H24 passed its registered bar, but the correction did nothing (every feature, including none, gave the same T1). Reporting it as plainly supported would mislead.",
+      "did": "Reported it as 'supported by its bar, empty in substance' and added a clearly labelled post-hoc section (plain SPMe screens, leave-the-best-design-out) instead of headlining the registered win",
+      "result": "The post-hoc section found the run's most useful lead (the 10-cycle SPMe screen), labelled exploratory throughout"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-short-spme-run-beats-correcting-a-long-one.md",
+    "research/cell-fidelity/THEORY.md (part 2b)",
+    "research/cell-fidelity/LOG.md"
+  ],
+  "goal": null,
+  "notes": "One new PyBaMM pass: 128 SPMe 100-cycle runs, which reproduce bench.jsonl exactly. H21 supported, H22 refuted, H23 refuted, H24 supported but inert. Post hoc: SPMe@10 plain screen gives 123 s at 64 and 172 s at 96 vs GP-EI 220 s; SPMe@100's cost comes from one salt-depleted design. Local checks: cell-fidelity pytest 49 passed; research/_homepage/build.py ok; check_md_links ok; cite_check ok; programme_check ok; post frontmatter, links and similarity ok; run_workflow_locally --for-changes (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6f22b0a2-b004-5667-974f-02350cc1a157",
+    "transcripts": 1,
+    "first": "2026-11-12T07:06:02Z",
+    "last": "2026-11-12T07:25:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 124,
+        "output": 53838,
+        "thinking": 17398,
+        "cache_read": 8113427,
+        "cache_write_5m": 0,
+        "cache_write_1h": 156096,
+        "api_equivalent_usd": 3.9487,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 124,
+      "output": 53838,
+      "thinking": 17398,
+      "cache_read": 8113427,
+      "cache_write_5m": 0,
+      "cache_write_1h": 156096,
+      "api_equivalent_usd": 3.9487,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 61,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.41,
+      "active_minutes": 19.41,
+      "model_minutes": 10.54,
+      "tool_minutes": 8.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a PhD student: derive the overpotential scaling, rerun 128 SPMe cycles, write the replay and tests, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 303.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

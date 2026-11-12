@@ -155,7 +155,7 @@ flagships:
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
       History and every measurement: README and git (TCPD benchmark: consensus F1 0.702 shipped / 0.711 held out, binseg 0.714/0.727; several columns on CLI, page and report; `--model drift` on the page and agent tool, step-robust omega, heavy-tail check; update-rate check).
-      Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments measured and not offered, all failing the frozen-juice bar (README "A stale probability per segment"); 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check on every output with a rounding sentence (README "The update-rate check on every output"); next: a documented collection change to date. One-tick stale feed vs rounding: catch-up ratio failed two pre-registered rounds (README "One-tick stale feeds", not offered); next: its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
+      Next, most valuable first: (w) watch mode (README "Watching a growing series"): next an AR(1) Bayesian candidate, the watch on the page and as an agent tool; (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments measured and not offered, all failing the frozen-juice bar (README "A stale probability per segment"); 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check on every output with a rounding sentence (README "The update-rate check on every output"); next: a documented collection change to date. One-tick stale feed vs rounding: catch-up ratio failed two pre-registered rounds (README "One-tick stale feeds", not offered); next: its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
       Open: (0) drift model: heavy-tailed level increments (t-walk), biweight where the check says noise on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
@@ -163,23 +163,35 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History (country tax-id checks wired into vat.mjs, each pinned on published
-      numbers with the authority's text unread; pages read or from excerpts):
-      README and git. Open: ZATCA rules on a real sandbox invoice and credit or
-      debit note, built-in INV-0xx checks beside PINT/ZATCA sets (INV-024/022/005/017/018 dropped there 2026-11-10; the rest still run); VAT differential vs python-stdnum both ways 2026-11-11 and IBAN structure plus BE/ES/ME/NO check digits 2026-11-10 (README), BE/CZ/RO/IT/LV prefix rules closed 2026-11-10 (README), rest closed (FR letter keys; TR differences are deliberate TCKN acceptance); FatturaPA code lists (TD29, RF20) and
-      tolerances against the primary spec 1.9 text; Portugal's CIUS-PT add-on
-      (AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit them: which
-      validator does AT run?); Poland's FA(3) on a KSeF test-environment file and
-      a real correction, advance or settlement file; the rules and a repair on a
-      real ERP or Factur-X export; PINT SG and A-NZ: current releases (billing-1@sg-1/@aunz-1) added and run on OpenPeppol's 40 examples 2026-11-11 (README, eval/phive-corpus.mjs: 0 to 39 pass); open: a real business's PINT file, PINT JP/MY/AE/OM; NL/RO/PT/ZATCA good cases scored 2026-11-11 (README `--good`; 4 fixes); BT-86 clearing codes closed 2026-11-12 (README); open: UBL-SR-53 on RO empty TaxScheme, ZATCA rate-change row;
-      RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
-      check on a real IRP payload; mandate dates read from primary sources where
-      pages cite guides (Israel, Denmark, Czech, Latvia; Luxembourg; ato.gov.au
-      403 from cloud); Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages
-      (excerpts; Taiwan, Oman dates disagree); Latin American, Spain and Brazil
-      pages (open: CFDI, NF-e XSD, NFS-e); refresh the Bulgaria page when its
-      draft passes. A run that lands a slice replaces its item here; keep this
-      under 2,000 characters.
+      History: README and git. Open: ZATCA rules on a real sandbox invoice and
+      credit or debit note, built-in INV-0xx checks beside PINT/ZATCA sets
+      (INV-024/022/005/017/018 dropped there 2026-11-10; the rest still run);
+      VAT differential vs python-stdnum both ways 2026-11-11 and IBAN
+      structure plus BE/ES/ME/NO check digits 2026-11-10 (README),
+      BE/CZ/RO/IT/LV prefix rules closed 2026-11-10 (README), rest closed (FR
+      letter keys; TR differences are deliberate TCKN acceptance); FatturaPA
+      code lists (TD29, RF20) and tolerances against the primary spec 1.9
+      text; Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18
+      though AMA's rules admit them: which validator does AT run?); Poland's
+      FA(3) on a KSeF test-environment file and a real correction, advance or
+      settlement file; the rules and a repair on a real ERP or Factur-X
+      export; PINT SG and A-NZ: current releases (billing-1@sg-1/@aunz-1)
+      added and run on OpenPeppol's 40 examples 2026-11-11 (README,
+      eval/phive-corpus.mjs: 0 to 39 pass); open: a real business's PINT file,
+      PINT JP/MY/AE/OM; NL/RO/PT/ZATCA good cases scored 2026-11-11 (README
+      `--good`; 4 fixes); BT-86 clearing codes and line-level TaxTotal (ZATCA
+      19/19, INV-017/018/038 back on KSA files) closed 2026-11-12 (README);
+      open: UBL-SR-53 on RO empty TaxScheme, repair-ubl on line-level
+      TaxTotal; RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file;
+      India's INV-01 check on a real IRP payload; mandate dates read from
+      primary sources where pages cite guides (Israel, Denmark, Czech, Latvia;
+      Luxembourg; ato.gov.au 403 from cloud); Nigeria, Thailand, Taiwan, Oman,
+      Pakistan and Jordan pages (excerpts; Taiwan, Oman dates disagree);
+      Mexico CFDI 4.0 reader landed 2026-11-12 (README "Mexico: CFDI 4.0",
+      3,666/3,666 vs xmllint): open: Pagos 2.0 sums, a PAC rejection compared,
+      the regime-to-use table; Brazil NF-e XSD, NFS-e; refresh the Bulgaria
+      page when its draft passes. A run that lands a slice replaces its item
+      here; keep this under 2,000 characters.
 
   - venture: shift-roster-builder
     why: >-
@@ -194,10 +206,11 @@ flagships:
       with the 4-week window, lunch breaks, --short-cost, priced cut, --count tickets, labour standard with fixed work
       (`/hour`, `/open`, `/close`) and, 2026-11-12 later, `/before-open` and `/after-close` in the shut hours with
       minimum staff off there (README "Closing work after the last sale hour": one closer, 45 min after close +7 h a
-      week vs +20 h in the last hour; two closers, 0 vs +11). Next: close the 100-person gaps (tree, not pricing);
-      cuts or branching that move the score LP on the 60-person pay week; buildRoster end to end on 40-person weeks
-      with exact on; after-close work spread over part of an hour (90 minutes as one person, not two heads) and a
-      shut-hour minimum (lone-worker rules may want two at close); a real Square or Toast item export (columns read,
+      week vs +20 h in the last hour; two closers, 0 vs +11); 2026-11-12 last, shut-door work spreads at 60 min a
+      person into the next hour and `--shut-min` is a floor the priced cut never drops (README "One person staying
+      two hours, or two people locking up"). Next: close the 100-person gaps (tree, not pricing); cuts or branching
+      that move the score LP on the 60-person pay week; buildRoster end to end on 40-person weeks with exact on; a
+      shut-hour minimum by weekday (two closers on late Fridays only); a real Square or Toast item export (columns read,
       made-up rows only); a real published-schedule export for --import-shifts; whether the priced cut's r = 1
       default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing

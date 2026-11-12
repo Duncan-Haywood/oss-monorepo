@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtLubQcDrp6fsRnQ3cB",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T06:06:01Z",
+  "ended": "2026-11-12T06:48:58Z",
+  "wall_minutes": 43.22,
+  "tokens_in": 8656296,
+  "tokens_out": 33965,
+  "cost_usd": 3.4239,
+  "tool_calls": 77,
+  "task": "perf: offlineCacheName reads the built site synchronously (platform/pages/build.mjs)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15029",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first deliverable (memoised walks/reads in build.test.mjs) was a duplicate of PR #15026, which merged while mine was in CI",
+      "cause": "two perf sessions took item 2 of the same 'Not changed' list within the same hour; #15026 was not yet open when I searched open PRs",
+      "fix": "reset my branch to main, reused PR #15029 for the next item (offlineCacheName)"
+    },
+    {
+      "what": "a timing run of build.test.mjs had 1 failure (search-results test)",
+      "cause": "I added a post to docs/posts/ while that run's build was already going",
+      "fix": "wrote the second post before starting the verification suite; 323/323 pass"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "'Search open PRs for the item's id first' does not stop two concurrent perf sessions from taking the same 'Not changed' item: both read the same newest history note within minutes. A claim (e.g. a draft PR opened before measuring, or a note's item marked taken) would have saved about an hour."
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "Writing a new docs/posts/ file while the build suite runs fails the search-results test for that run. Write the post before starting the suite."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "'Duplicate PRs' says to extend or consolidate; my PR duplicated a merged one, so I replaced its contents (force-push on my own branch) with new work instead of closing it and opening another",
+      "did": "force-pushed the branch from origin/main with the offlineCacheName change, retitled PR #15029",
+      "result": "one PR, no duplicate code on main"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-slow-part-was-the-promise-not-the-hash.md",
+    "docs/history/pages-build-perf-2026-11-12-cache-name-sync-reads.md"
+  ],
+  "goal": "faster Pages build and build tests, same output",
+  "notes": "Metric: offlineCacheName wall over the test's shared build (26,184 files, 1.1 GB), scratch script, 4 cores. Before: 3 serial calls 12.3 s (concurrent 12.1 s); split: fs.promises.readFile x32 in flight 2.95-2.98 s, readFileSync 0.53 s, hash-only 1.02 s, old read+hash 3.77-3.78 s, sync read+hash 1.40-1.44 s; crypto.subtle no faster. After: 3 calls 5.4 s, same cache names (portfolio-760c20693adb / portfolio-0548a0d8acaf). Per build: about 4 s to about 1.5 s. Test 'changing the worker itself changes the cache name' 17.6 s to 7.2 s. Verification: node --test build.test.mjs offline.test.mjs 323/323 pass (296 s). The earlier memo work this session (identical to #15026: other tests summed 109.6 s to 59 s) was dropped as a duplicate.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6ab6b4d9-ca57-5b28-b1a8-3a7a57178add",
+    "transcripts": 1,
+    "first": "2026-11-12T06:06:01Z",
+    "last": "2026-11-12T06:49:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 146,
+        "output": 33965,
+        "thinking": 8290,
+        "cache_read": 8526302,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129848,
+        "api_equivalent_usd": 3.4239,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 146,
+      "output": 33965,
+      "thinking": 8290,
+      "cache_read": 8526302,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129848,
+      "api_equivalent_usd": 3.4239,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 63,
+      "mcp__github__pull_request_read": 4,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 43.22,
+      "active_minutes": 34.26,
+      "model_minutes": 7.76,
+      "tool_minutes": 26.49,
+      "waiting_on_human_minutes": 8.96,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.5,
+      "basis": "two perf investigations (one dropped as duplicate), profiling, three full-suite runs, notes and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 250.0
+    },
+    "leverage": 73.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
