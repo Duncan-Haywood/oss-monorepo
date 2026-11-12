@@ -7,14 +7,16 @@
   "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T21:38:49Z",
   "ended": "2026-11-12T21:45:15Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 27.18,
+  "tokens_in": 9007069,
+  "tokens_out": 37740,
+  "cost_usd": 3.4954,
+  "tool_calls": 87,
   "task": "Polish: checkboxes and radios squashed on phones by the reflow min-width:0 rule",
   "projects": [
     "platform/pages"
@@ -27,15 +29,116 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": "partial",
-  "errors": [],
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First before/after layout script measured before pages settled after a resize; a no-op rule showed phantom moves up to 220 px. Fixed by polling until two readings agree.",
+    "Full platform/pages suite: 1 failure ('an identical build produces an identical cache name') because I wrote the run record into the tree mid-build; passes alone."
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-12-wide-tablet-sweep.md",
+      "issue": "Suggested a shared input{min-width:0} at all widths; measuring it showed it squashes checkboxes in flex labels, and the existing phone-only version already did, on 287 pages. The suggestion needed a checkbox/radio exclusion."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Build start line `cmd > build.log; echo DONE >> build.log` wrapped in `( ... ) &` under run_in_background detaches, so the task notifies at once; plain run_in_background without & is right."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/reports/polish-2026-11-12-wide-tablet-sweep.md",
+      "why": "Did not ship the suggested all-widths input min-width:0; it squashed checkboxes.",
+      "did": "Fixed the live phone-width checkbox squashing it revealed instead, and left the mid-width rule for a re-measure.",
+      "result": "423 to 2 (false positive) squashed boxes at 320 px, 172 to 2 at 390 px."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-checkbox-that-gave-way.md",
+    "docs/reports/polish-2026-11-12-squashed-checkboxes.md"
+  ],
   "goal": null,
-  "notes": "In progress: catalogue count running.",
+  "notes": "Catalogue count: 8,984 pages built locally, Chromium at 320/390, checkbox/radio squashed if width < height - 0.5. After measured with patched built pf-chrome.css/pf-site.css on the 287 flagged pages; sideways: none at 390, 4 pre-existing at 320 (same with original CSS). reflow.test.mjs 22/22; platform/pages suite 1560 pass, 1 fail (mid-run edit, passes alone), 25 skipped.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f7a34fc9-7dd5-5fe5-90de-2b23a7d40656",
+    "transcripts": 1,
+    "first": "2026-11-12T21:38:49Z",
+    "last": "2026-11-12T22:06:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 82,
+        "input": 162,
+        "output": 37740,
+        "thinking": 9257,
+        "cache_read": 8886580,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120327,
+        "api_equivalent_usd": 3.4954,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 82,
+      "input": 162,
+      "output": 37740,
+      "thinking": 9257,
+      "cache_read": 8886580,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120327,
+      "api_equivalent_usd": 3.4954,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 68,
+      "Edit": 5,
+      "Write": 4,
+      "Read": 4,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.18,
+      "active_minutes": 15.58,
+      "model_minutes": 6.81,
+      "tool_minutes": 8.77,
+      "waiting_on_human_minutes": 11.6,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "front-end dev: catalogue-wide Playwright measurement, CSS fix, tests, screenshots and write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 114.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }

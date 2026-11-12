@@ -296,6 +296,11 @@ export const REFLOW_CSS = `
    squashed-checkboxes.md). */
 @media (max-width:640px){
   :where(input:not([type=checkbox]):not([type=radio]),select,textarea){min-width:0;max-width:100%}
+  /* A venture's own zero minimum on every input still reaches checkboxes,
+     and it outranks :where(). flex-shrink is a property no venture sets on them, so
+     this keeps the box whole beside a long caption anyway: the site footer's
+     usage opt-out was 11px wide at 320px on five such pages. */
+  :where(input[type=checkbox],input[type=radio]){flex-shrink:0}
   :where(*:has(input,select,textarea,.${TABLE_SCROLL_CLASS})){min-width:0}
   /* And the page's own layout columns, which is where a two-column
      desktop layout meets a one-column phone. Freeing a box is not the same

@@ -224,6 +224,9 @@ test('checkboxes and radios keep their automatic minimum on a phone', () => {
     if (!/\binput\b/.test(line)) continue;
     assert.ok(line.includes(':not([type=checkbox])') && line.includes(':not([type=radio])'), `squashes checkboxes: ${line.trim()}`);
   }
+  // A venture's own input{min-width:0} outranks :where(), so the flex case is
+  // held by a property ventures do not set on these: flex-shrink.
+  assert.match(block, /:where\(input\[type=checkbox\],input\[type=radio\]\)\{flex-shrink:0\}/);
 });
 
 test('site-owned pages get the reflow rules too, not only venture pages', async () => {
