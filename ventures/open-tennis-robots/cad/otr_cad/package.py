@@ -124,23 +124,34 @@ def elevation_sweep(p: Feeder, steps: int = 4) -> list[str]:
     return out
 
 
+# At the hard stops the sector is meant to press into its pad and onto the home switch's lever (both drawn free).
+REACH_CONTACTS = {("az_gear_sector", "az_stop_pad"), ("az_gear_sector", "home_switch_lever")}
+
+
 def azimuth_sweep(p: Feeder) -> list[str]:
     """Clashes between what turns and what stays put, with the turntable at both ends of its range and the head at
-    both ends of its elevation range (the elevation sweep covers azimuth 0)."""
+    both ends of its elevation range (the elevation sweep covers azimuth 0). Since 2026-11-12 also at the hard stops'
+    reach (`az_reach_deg`: a stop with its pad squeezed), at three elevations, since a runaway or a hand can turn the
+    head that far: there only the sector's own contacts with its pad and the home lever are expected."""
     out = []
-    for e in (p.elev_min, p.elev_max):
-        for az in (-p.az_max, p.az_max):
-            moving, fixed = F.turned_solids(p, e, az)
-            fb = [(n, s, s.bounding_box()) for n, s in fixed]
-            for na, a in moving:
-                ba = a.bounding_box()
-                for nb, b, bb in fb:
-                    if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
-                            or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):
-                        continue
-                    v = (a & b).volume
-                    if v > 1.0:
-                        out.append(f"at {e:+.0f} deg turned {az:+.0f} deg: {na} x {nb}: {v:.0f} mm^3")
+    poses = [(e, az) for e in (p.elev_min, p.elev_max) for az in (-p.az_max, p.az_max)]
+    poses += [(e, az) for e in (p.elev_min, (p.elev_min + p.elev_max) / 2 + 10.0, p.elev_max)
+              for az in (-p.az_reach_deg, p.az_reach_deg)]
+    for e, az in poses:
+        reach = abs(az) > p.az_max
+        moving, fixed = F.turned_solids(p, e, az)
+        fb = [(n, s, s.bounding_box()) for n, s in fixed]
+        for na, a in moving:
+            ba = a.bounding_box()
+            for nb, b, bb in fb:
+                if reach and (na.split("[")[0], nb.split("[")[0]) in REACH_CONTACTS:
+                    continue
+                if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
+                        or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):
+                    continue
+                v = (a & b).volume
+                if v > 1.0:
+                    out.append(f"at {e:+.0f} deg turned {az:+.1f} deg: {na} x {nb}: {v:.0f} mm^3")
     return out
 
 
@@ -242,6 +253,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
             rules = rules + [f"turning inertia from the CAD is {turning[0]:.4f} kg m^2, above the "
                              f"{p.az_inertia_kgm2:g} the azimuth check assumed: raise az_inertia_kgm2"]
         rules = rules + [r for r in p.check_azimuth(turning[0]) if r not in rules]
+        rules = rules + [r for r in p.check_az_stops(turning[0]) if r not in rules]
         gravity = F.gravity_table(p)
         rules = rules + p.check_elevation(gravity)
         rules = rules + p.check_shuttle_drive(F.shuttle_kg(p))
