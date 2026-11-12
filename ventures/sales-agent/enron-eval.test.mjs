@@ -354,3 +354,10 @@ test("seventh round: the real asks still stop", () => {
   // Still a request that scopes work: "is it ok to cancel ... please send a new confirm".
   assert.ok(!["not_interested"].includes(re("we do not need the extra night - is it ok to cancel and please send a new confirm")));
 });
+
+test("a date that does not suit someone else is scheduling, not a departure (7*, 2026-11-11)", () => {
+  const t = triage({ from: "a@example.com", subject: "RE: meeting", body: "Lay asked me to let you know that these dates don't work for him, either." }, "2001-06-01");
+  assert.notEqual(t.category, "left_company");
+  const still = triage({ from: "a@example.com", subject: "RE: proposal", body: "Joe doesn't work for us anymore. Please contact Sam." }, "2001-06-01");
+  assert.equal(still.category, "left_company");
+});

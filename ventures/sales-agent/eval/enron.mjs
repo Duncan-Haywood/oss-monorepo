@@ -37,14 +37,14 @@ export function readAsServer(raw) {
 
 const day = (d) => { const t = Date.parse(d || ""); return Number.isFinite(t) ? new Date(t).toISOString().slice(0, 10) : "2001-06-01"; };
 
-function* walk(dir) {
+export function* walk(dir) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name), st = fs.statSync(p); // follows symlinks, so a dir of links to sample folders works
     if (st.isDirectory()) yield* walk(p);
     else if (st.isFile() && !(p.endsWith(".xz") && fs.existsSync(p.slice(0, -3)))) yield p; // `xz -dk` leaves both; read the plain one
   }
 }
-const read = (p) => (p.endsWith(".xz") ? execFileSync("xz", ["-dc", p], { maxBuffer: 1 << 26 }) : fs.readFileSync(p)).toString("latin1");
+export const read = (p) => (p.endsWith(".xz") ? execFileSync("xz", ["-dc", p], { maxBuffer: 1 << 26 }) : fs.readFileSync(p)).toString("latin1");
 
 // Messages that are machine notices by their own headers or subject, for the recall check (not used by the rules).
 // Subjects only an auto-responder writes, never with a reply or forward prefix ("Vacation" subjects are people asking for days off).
