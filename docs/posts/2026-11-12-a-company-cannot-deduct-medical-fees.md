@@ -1,6 +1,6 @@
 ---
 title: "A Mexican company can't claim medical fees: checking CFDI use against the tax regime"
-seo_title: "CFDI 4.0 UsoCFDI vs RegimenFiscalReceptor: which uses each regime allows"
+seo_title: "CFDI 4.0 UsoCFDI vs RegimenFiscalReceptor: which uses a regime allows"
 date: 2026-11-12
 tags: [einvoice-preflight, ventures]
 description: "SAT allows 245 of the 483 regime and CFDI-use pairs a receiver could write. The XSD can't tell which ones; E-invoice preflight now checks all of them."
