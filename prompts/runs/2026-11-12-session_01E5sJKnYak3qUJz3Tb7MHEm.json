@@ -1,0 +1,293 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKnYak3qUJz3Tb7MHEm",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T19:18:57Z",
+  "ended": "2026-11-12T19:20:03Z",
+  "wall_minutes": 5.17,
+  "tokens_in": 2939266,
+  "tokens_out": 16519,
+  "cost_usd": 1.5147,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15230",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list held 6 entries, all control-plane edits with open PRs awaiting the owner; the prompt says to fix them first, but none can be fixed in a non-control-plane run. `redteam.py open` could mark entries that have an open PR as waiting."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "rerun leaves a mutant on a line the real fix rewrote at caught_after_fix: null without printing 'line changed' clearly. The prompt covers this, but writing the fix before the rerun is the natural test-first order."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for a guard that runs without a red-team run; the defect class (a message or skipped note that is wrong, while the rule code is right) can't be expressed in the nfe-corpus eval, which compares rule codes only.",
+      "did": "Relied on the new unit tests, which ventures-tests runs on every PR touching the venture; no new platform lint.",
+      "result": "The guard covers this file only."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-an-unsigned-nfe-is-not-always-just-unsigned.md"
+  ],
+  "goal": null,
+  "notes": "Target: ventures/einvoice-preflight/nfe.mjs (changed in #15221). 10 mutants, 7 caught; 3 gaps fixed with tests -> 10/10. 1 real defect patched (unsigned NFe + duplicate infNFe reported only as missing Signature). Step 0: 6 open entries, all control plane with PRs pending owner approval; none actionable here. Verify: run_venture_tests.py einvoice-preflight passes in 6.5 s; nfe.test.mjs 24/24. run_workflow_locally --for-changes: 8/9 workflows passed (ventures-tests incl.); portfolio-pages.yml ran out of budget (site build) and pages.yml had no verdict after the skipped build; blog front-matter check passed. Merged with CI still queued (runners busy).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/nfe.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 234032263,
+        "commit": "1263dff3",
+        "sites": 299,
+        "baseline_seconds": 6.2,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/nfe.mjs",
+            "line": 62,
+            "col": 24,
+            "operator": "and-to-or",
+            "before": "if (/CNPJ/.test(name) && ALNUM_CNPJ.test(v)) return \"\";",
+            "after": "if (/CNPJ/.test(name) || ALNUM_CNPJ.test(v)) return \"\";",
+            "line_text": "  if (/CNPJ/.test(name) && ALNUM_CNPJ.test(v)) return \"\";",
+            "caught": false,
+            "seconds": 6.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test put a CNPJ-shaped value in a non-CNPJ field; new test 'the alphanumeric CNPJ shape is accepted in CNPJ fields only'"
+          },
+          {
+            "file": "ventures/einvoice-preflight/nfe.mjs",
+            "line": 102,
+            "col": 61,
+            "operator": "and-to-or",
+            "before": "if (missing.length === 1 && missing[0] === \"Signature\" && new RegExp(`^${def.model}$`).test(tokens + \"<Signature>\")) {",
+            "after": "if (missing.length === 1 && missing[0] === \"Signature\" || new RegExp(`^${def.model}$`).test(tokens + \"<Signature>\")) {",
+            "line_text": "      if (missing.length === 1 && missing[0] === \"Signature\" && new RegExp(`^${def.model}$`).test(tokens + \"<Signature>\")) {",
+            "caught": false,
+            "seconds": 6.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test had an unsigned NFe with another root fault; new test 'an unsigned NF-e with another root fault...' (also exposed the real defect below) [rerun: line changed; triage by hand]. rerun reported the line as changed (the fix rewrote it); re-applied by hand as `onlySignature || new RegExp(...)` and the new test fails, 23/24."
+          },
+          {
+            "file": "ventures/einvoice-preflight/nfe.mjs",
+            "line": 135,
+            "col": 56,
+            "operator": "eq-flip",
+            "before": "const kid = (n, name) => n?.children.find((c) => c.name === name);",
+            "after": "const kid = (n, name) => n?.children.find((c) => c.name !== name);",
+            "line_text": "const kid = (n, name) => n?.children.find((c) => c.name === name);",
+            "caught": true,
+            "seconds": 6.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/nfe.mjs",
+            "line": 150,
+            "col": 24,
+            "operator": "div-to-times",
+            "before": "const money = (c) => (c / 100).toFixed(2);",
+            "after": "const money = (c) => (c * 100).toFixed(2);",
+            "line_text": "const money = (c) => (c / 100).toFixed(2);",
+            "caught": true,
+            "seconds": 6.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/nfe.mjs",
+            "line": 184,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "[\"issuer CNPJ/CPF\", key.slice(6, 20), (txt(emit, \"CNPJ\") || (txt(emit, \"CPF\") ? \"000\" + txt(emit, \"CPF\") : \"\")), \"emit/CNPJ\"],",
+            "after": "[\"issuer CNPJ/CPF\", key.slice(7, 20), (txt(emit, \"CNPJ\") || (txt(emit, \"CPF\") ? \"000\" + txt(emit, \"CPF\") : \"\")), \"emit/CNPJ\"],",
+            "line_text": "    [\"issuer CNPJ/CPF\", key.slice(6, 20), (txt(emit, \"CNPJ\") || (txt(emit, \"CPF\") ? \"000\" + txt(emit, \"CPF\") : \"\")), \"emit/CNPJ\"],",
+            "caught": true,
+            "seconds": 6.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/nfe.mjs",
+            "line": 271,
+            "col": 25,
+            "operator": "and-to-or",
+            "before": "if (!Number.isNaN(vNF) && !Number.isNaN(want) && vNF !== want && !(g(\"vII\") && vNF === withoutII) && !veic) {",
+            "after": "if (!Number.isNaN(vNF) || !Number.isNaN(want) && vNF !== want && !(g(\"vII\") && vNF === withoutII) && !veic) {",
+            "line_text": "  if (!Number.isNaN(vNF) && !Number.isNaN(want) && vNF !== want && !(g(\"vII\") && vNF === withoutII) && !veic) {",
+            "caught": true,
+            "seconds": 5.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/nfe.mjs",
+            "line": 271,
+            "col": 78,
+            "operator": "and-to-or",
+            "before": "if (!Number.isNaN(vNF) && !Number.isNaN(want) && vNF !== want && !(g(\"vII\") && vNF === withoutII) && !veic) {",
+            "after": "if (!Number.isNaN(vNF) && !Number.isNaN(want) && vNF !== want && !(g(\"vII\") || vNF === withoutII) && !veic) {",
+            "line_text": "  if (!Number.isNaN(vNF) && !Number.isNaN(want) && vNF !== want && !(g(\"vII\") && vNF === withoutII) && !veic) {",
+            "caught": true,
+            "seconds": 6.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/nfe.mjs",
+            "line": 315,
+            "col": 81,
+            "operator": "const-plus-one",
+            "before": "[\"gIBS/vIBS\", (g) => g.ibscbs ? (sumDeep(kid(g.ibscbs, \"gIBSUF\"), \"vIBSUF\") ?? 0) + (sumDeep(kid(g.ibscbs, \"gIBSMun\"), \"vIBSMun\") ?? 0) : null],",
+            "after": "[\"gIBS/vIBS\", (g) => g.ibscbs ? (sumDeep(kid(g.ibscbs, \"gIBSUF\"), \"vIBSUF\") ?? 1) + (sumDeep(kid(g.ibscbs, \"gIBSMun\"), \"vIBSMun\") ?? 0) : null],",
+            "line_text": "  [\"gIBS/vIBS\", (g) => g.ibscbs ? (sumDeep(kid(g.ibscbs, \"gIBSUF\"), \"vIBSUF\") ?? 0) + (sumDeep(kid(g.ibscbs, \"gIBSMun\"), \"vIBSMun\") ?? 0) : null],",
+            "caught": false,
+            "seconds": 6.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test had an item without gIBSUF; new test 'BR-051: an item with no gIBSUF adds nothing to gIBS/vIBS'"
+          },
+          {
+            "file": "ventures/einvoice-preflight/nfe.mjs",
+            "line": 357,
+            "col": 69,
+            "operator": "plus-to-minus",
+            "before": "const have = cents(isTot.text), want = groups.reduce((s, g) => s + (cents(txt(g.is, \"vIS\")) || 0), 0);",
+            "after": "const have = cents(isTot.text), want = groups.reduce((s, g) => s - (cents(txt(g.is, \"vIS\")) || 0), 0);",
+            "line_text": "    const have = cents(isTot.text), want = groups.reduce((s, g) => s + (cents(txt(g.is, \"vIS\")) || 0), 0);",
+            "caught": true,
+            "seconds": 6.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/nfe.mjs",
+            "line": 365,
+            "col": 66,
+            "operator": "eq-flip",
+            "before": "const want = dets.filter((d) => txt(kid(d, \"prod\"), \"indTot\") === \"1\").reduce((s, d) => s + (cents(txt(d, \"vItem\")) || 0), 0);",
+            "after": "const want = dets.filter((d) => txt(kid(d, \"prod\"), \"indTot\") !== \"1\").reduce((s, d) => s + (cents(txt(d, \"vItem\")) || 0), 0);",
+            "line_text": "    const want = dets.filter((d) => txt(kid(d, \"prod\"), \"indTot\") === \"1\").reduce((s, d) => s + (cents(txt(d, \"vItem\")) || 0), 0);",
+            "caught": true,
+            "seconds": 6.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/nfe.mjs",
+        "issue": "An unsigned NF-e whose root also has another fault (e.g. two infNFe) was reported only as 'NFe is missing the required element Signature'; signing it would still fail the schema (cStat 225). Now reports the order/number fault. Test: nfe.test.mjs 'an unsigned NF-e with another root fault names that fault, not just the signature'.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2a7fdb6f-5992-5377-8e9d-8e87868a4f88",
+    "transcripts": 1,
+    "first": "2026-11-12T19:18:57Z",
+    "last": "2026-11-12T19:24:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 74,
+        "output": 16519,
+        "thinking": 5801,
+        "cache_read": 2862755,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76437,
+        "api_equivalent_usd": 1.5147,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 74,
+      "output": 16519,
+      "thinking": 5801,
+      "cache_read": 2862755,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76437,
+      "api_equivalent_usd": 1.5147,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.17,
+      "active_minutes": 5.17,
+      "model_minutes": 2.82,
+      "tool_minutes": 2.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "seed and triage 10 mutants, reproduce and fix one defect, three tests, a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 198.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

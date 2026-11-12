@@ -1036,6 +1036,14 @@ export function boundedKnapsack(weights, values, bounds, cap) {
  * order of `caps`.
  */
 export function boundedKnapsackMulti(weights, values, bounds, caps) {
+  // Every weight is a multiple of g, so only multiples of g are reachable and best[c] is a
+  // step function of floor(c / g): fill the table on weights / g and look each capacity up at
+  // floor(cap / g). The same additions run in the same order, so values and counts are
+  // identical; the table is g times shorter (g is 2 when every piece is a whole number of
+  // eighths and the kerf is 1/8 in, the default).
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  const g = weights.reduce(gcd, 0) || 1;
+  if (g > 1) return boundedKnapsackMulti(weights.map((w) => w / g), values, bounds, caps.map((c) => Math.floor(c / g)));
   const top = Math.max(...caps);
   const chunks = [];
   weights.forEach((w, i) => {
@@ -1047,22 +1055,26 @@ export function boundedKnapsackMulti(weights, values, bounds, caps) {
     }
   });
   const best = new Float64Array(top + 1);
-  const keep = chunks.map(() => new Uint8Array(top + 1));
-  chunks.forEach((ch, k) => {
-    if (ch.v <= 0) return;
-    for (let c = top; c >= ch.w; c--) {
-      const cand = best[c - ch.w] + ch.v;
+  // A chunk with no positive value never improves best[], so it gets no keep row.
+  const keep = chunks.map((ch) => (ch.v > 0 ? new Uint8Array(top + 1) : null));
+  for (let k = 0; k < chunks.length; k++) {
+    const row = keep[k];
+    if (!row) continue;
+    const w = chunks[k].w;
+    const v = chunks[k].v;
+    for (let c = top; c >= w; c--) {
+      const cand = best[c - w] + v;
       if (cand > best[c] + 1e-12) {
         best[c] = cand;
-        keep[k][c] = 1;
+        row[c] = 1;
       }
     }
-  });
+  }
   return caps.map((cap) => {
     const counts = new Array(weights.length).fill(0);
     let c = cap;
     for (let k = chunks.length - 1; k >= 0; k--) {
-      if (keep[k][c]) {
+      if (keep[k] && keep[k][c]) {
         counts[chunks[k].i] += chunks[k].n;
         c -= chunks[k].w;
       }

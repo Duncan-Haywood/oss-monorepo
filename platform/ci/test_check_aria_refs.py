@@ -61,5 +61,13 @@ class AriaRefs(unittest.TestCase):
         self.assertEqual(scan(ROOT), [])
 
 
+    def test_prefilter_sees_any_case_and_label_tags(self):
+        from check_aria_refs import REF_HINT
+        self.assertTrue(REF_HINT.search('<div ARIA-DESCRIBEDBY="x">'))
+        self.assertTrue(REF_HINT.search('<LABEL for="x">'))
+        self.assertTrue(REF_HINT.search('<i aria-activedescendant="x">'))
+        self.assertFalse(REF_HINT.search('<p for="x" aria-label="y">'))
+
+
 if __name__ == "__main__":
     unittest.main()

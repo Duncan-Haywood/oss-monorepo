@@ -99,9 +99,12 @@ function checkComplex(node, typeId, path, out, skipped) {
     if (!new RegExp(`^${def.model}$`).test(tokens)) {
       const have = new Set(counted.map((c) => c.name));
       const missing = (def.req || []).filter((n) => !have.has(n));
-      if (missing.length === 1 && missing[0] === "Signature" && new RegExp(`^${def.model}$`).test(tokens + "<Signature>")) {
+      // Unsigned is only "skipped" when signing would make the file fit; a missing signature
+      // on top of another fault (two infNFe, say) is reported as that fault, not as unsigned.
+      const onlySignature = missing.length === 1 && missing[0] === "Signature";
+      if (onlySignature && new RegExp(`^${def.model}$`).test(tokens + "<Signature>")) {
         skipped.push("signature: the NF-e is not signed yet (no ds:Signature); SEFAZ needs it signed, and the signature itself is never checked here");
-      } else if (missing.length) out.push(finding("BR-002", `${label} is missing the required element${missing.length > 1 ? "s" : ""} ${missing.join(", ")}.`, "Add it (required by leiauteNFe_v4.00.xsd); SEFAZ rejects a file that fails the schema (cStat 225).", `${path}/${missing[0]}`));
+      } else if (missing.length && !onlySignature) out.push(finding("BR-002", `${label} is missing the required element${missing.length > 1 ? "s" : ""} ${missing.join(", ")}.`, "Add it (required by leiauteNFe_v4.00.xsd); SEFAZ rejects a file that fails the schema (cStat 225).", `${path}/${missing[0]}`));
       else out.push(finding("BR-002", `The elements inside ${label} are not in the order or number the NF-e 4.00 schema allows (found ${counted.map((c) => c.name).join(", ") || "none"}; the schema's order is ${Object.keys(def.kids).join(", ")}, some of them alternatives).`, "Reorder or remove elements to fit the schema; SEFAZ rejects a file that fails the schema (cStat 225).", path));
     }
   }

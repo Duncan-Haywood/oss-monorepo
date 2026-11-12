@@ -1191,6 +1191,51 @@ test("a door wider than 4 ft on the default jacks and kings gets a note; explici
   assert.ok(!layoutWall(plan, mk({}, 36)).notes.some((n) => /wider than 4 ft/.test(n)));
 });
 
+// The table is filled on weights / gcd (2026-11-12 perf pass). Pin it against the plain DP on
+// the original weights, values and counts both, including caps that are not multiples of the gcd.
+function referenceKnapsack(weights, values, bounds, caps) {
+  const top = Math.max(...caps);
+  const chunks = [];
+  weights.forEach((w, i) => {
+    let left = Math.min(bounds[i], Math.floor(top / w));
+    for (let k = 1; left > 0; k *= 2) {
+      const take = Math.min(k, left);
+      chunks.push({ i, n: take, w: w * take, v: values[i] * take });
+      left -= take;
+    }
+  });
+  const best = new Float64Array(top + 1);
+  const keep = chunks.map(() => new Uint8Array(top + 1));
+  chunks.forEach((ch, k) => {
+    if (ch.v <= 0) return;
+    for (let c = top; c >= ch.w; c--) {
+      const cand = best[c - ch.w] + ch.v;
+      if (cand > best[c] + 1e-12) { best[c] = cand; keep[k][c] = 1; }
+    }
+  });
+  return caps.map((cap) => {
+    const counts = new Array(weights.length).fill(0);
+    let c = cap;
+    for (let k = chunks.length - 1; k >= 0; k--) if (keep[k][c]) { counts[chunks[k].i] += chunks[k].n; c -= chunks[k].w; }
+    return { value: best[cap], counts };
+  });
+}
+
+test("boundedKnapsackMulti on weights with a common factor matches the unscaled table exactly", async () => {
+  const { boundedKnapsackMulti } = await import("./engine.mjs");
+  let s = 11;
+  const r = () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+  for (let t = 0; t < 300; t++) {
+    const g = 1 + Math.floor(r() * 4);
+    const n = 1 + Math.floor(r() * 10);
+    const w = Array.from({ length: n }, () => g * (1 + Math.floor(r() * 200)));
+    const v = Array.from({ length: n }, () => (r() < 0.1 ? -r() : r() * 3));
+    const b = Array.from({ length: n }, () => 1 + Math.floor(r() * 5));
+    const caps = Array.from({ length: 1 + Math.floor(r() * 3) }, () => 100 + Math.floor(r() * 1500));
+    assert.deepEqual(boundedKnapsackMulti(w, v, b, caps), referenceKnapsack(w, v, b, caps), `case ${t}, gcd ${g}`);
+  }
+});
+
 test("boundedKnapsackMulti equals one knapsack per capacity", async () => {
   const { boundedKnapsack, boundedKnapsackMulti } = await import("./engine.mjs");
   let s = 42;

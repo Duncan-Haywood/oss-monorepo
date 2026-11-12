@@ -130,7 +130,7 @@ flagships:
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
       History and every measurement: README and git (TCPD consensus F1 0.702 shipped / 0.711 held out, binseg 0.714/0.727).
-      Next, most valuable first: (w) watch (README "Watching a growing series" and "Round 5": rho cap 0.8 held on 7 held-out series; old-history hold ships): the plain pass reaches 12 of 12 held-out marks at 161 alerts against the default's 9 at 68, and measles alone gives the default 20 alerts with no mark, so next is a per-series eagerness hint from the replay (alerts per 100 checks on the user's own history) or the drift model as the watch for wandering levels (the plain pass's 38-vs-33 lead is there); persist 2's lost mark was end-of-series censoring (README): pre-register a retry scoring end-pending apart; a real deployer's repository run on GitHub Actions; (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check: date a documented collection change. One-tick stale feeds (README): next its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
+      Next, most valuable first: (w) watch (README "Watching a growing series", "Round 5" and "Round 6"): per-series eagerness hint ships (round 6: 17 vs 16 of 31 future marks; held out it changed nothing, rate rank corr. -0.20), so next is a fresh labelled set to test the hint where it matters, a person-set budget in plain terms, the hint in the CLI watch.mjs, or the drift model as the watch for wandering levels (the plain pass's 38-vs-33 lead is there); persist 2's lost mark was end-of-series censoring (README): pre-register a retry scoring end-pending apart; a real deployer's repository run on GitHub Actions; (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check: date a documented collection change. One-tick stale feeds (README): next its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
       Open: (0) drift model: t-walk increments, biweight on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks: date and test the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
@@ -152,9 +152,10 @@ flagships:
       IRP payload; mandate dates read from primary sources where pages
       cite guides (IL, DK, CZ, LV, LU; ato.gov.au 403s from cloud);
       Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages
-      (excerpts; Taiwan, Oman dates disagree); Mexico CFDI 4.0 and three complements landed 2026-11-12 (README "Mexico: ..."):
-      open: a real payroll or export file, a PAC rejection compared,
-      Carta Porte, postal code to municipality/colonia;
+      (excerpts; Taiwan, Oman dates disagree); Mexico CFDI 4.0 and four complements landed 2026-11-12, Carta Porte 3.1 last
+      (README "Mexico: waybills"; 314/314 xmllint on public files):
+      open: SAT's CP error matrix to map MX-070..079 to CP codes (omawww refused the proxy),
+      a real payroll or export file, a PAC rejection compared, postal code to municipality/colonia;
       Brazil NF-e 4.00 landed 2026-11-12 (README "Brazil: NF-e"; 35 real files, vII fix); PL_010_V1.30 reform layout and IBS/CBS/IS sums (BR-050..052, 4,987/4,987 vs xmllint) landed 2026-11-12; open: a real reform NF-e from a SEFAZ test environment, cClassTrib/rate tables, a real SEFAZ rejection, NFS-e; refresh the Bulgaria
       page when its draft passes. A run that lands a slice replaces its
       item here; keep this under 2,000 characters.
@@ -170,8 +171,8 @@ flagships:
       every size"). Forecast side (--from-sales, four real files): backtest, closure score, half-life auto, priced cut,
       tickets, labour standard, shut-door work (README, 2026-11-12 sections). Planner: worker, week reuse, keeps
       usual shifts (README "Keep people on their usual shifts"). Posted weeks: a call-out rebuild holds started shifts
-      and keeps posted ones (README "Reissue a posted week without reshuffling it": late changes 190 to 91 on 41). Next: whether 91
-      is the least (a change-count ILP, or score changes rather than kept shifts so a same-day move counts once); the
+      and keeps posted ones (README "Reissue a posted week without reshuffling it": late changes 190 to 91 on 41); a change-count ILP shows the default is the least on 41/41 when the caller's
+      changes count (153), 88 vs 91 only when they are all free (README "Is 91 the least?"). Next: the
       same reissue on the four templates and 20-60 person weeks; close the 100-person
       gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person pay week ($1.22 open); the
       60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held); the open-hours row now goes into the first
@@ -187,10 +188,9 @@ flagships:
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     buildable: >-
-      FixVignetteRadial and MapPolynomial in dng_opcodes.py on synthetic DNGs
-      (closed-form answers, as tests/test_dng_warp.py does for the warp), then
-      look for a camera DNG carrying them in metadata-extractor-images on
-      raw.githubusercontent.com.
+      WarpFisheye in dng_opcodes.py on synthetic DNGs with closed-form
+      answers, as tests/test_dng_vignette_poly.py and test_dng_bad_pixels.py
+      do; MapTable and Delta/ScalePerRow/Column are smaller and the same shape.
     next: >-
       History and every measurement: README and eval/ (ingest, catalog,
       proxies, cull, RAW previews; DNG developer with DNG-spec colour, DCP
@@ -202,8 +202,11 @@ flagships:
       the phone's OpcodeList2 GainMap lens shading runs, eval/camera-dngs-
       2026-11-12.md; OpcodeList3 WarpRectilinear runs and matches the Leica
       T's own preview to 0.18 px against 4.2 px uncorrected, eval/warp-
-      rectilinear-2026-11-12.md). Next, most valuable first: the other
-      opcodes (FixVignetteRadial, MapPolynomial, FixBadPixels, WarpFisheye);
+      rectilinear-2026-11-12.md; FixVignetteRadial/MapPolynomial on
+      synthetic files, eval/vignette-polynomial-2026-11-12.md; OpcodeList1
+      FixBadPixels*, eval/bad-pixels-2026-11-12.md).
+      Next, most valuable first: WarpFisheye, MapTable, Delta/ScalePerRow/
+      Column; a real DNG carrying FixVignetteRadial or OpcodeList1 bad pixels;
       lateral colour measured on a real frame with sharp corner edges; a real Adobe `.dcp` through the profile chooser;
       newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that
       collection under their plain names) and the DJI DNG (name unknown
@@ -215,10 +218,9 @@ flagships:
       tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
       Adobe render of a known frame (settles `--default-tone-curve always`);
       the grade-scope saving on real 4K footage; the native Huffman reader on
-      macOS and the 0.8 s list the public decoder still builds dropped; a
-      camera-written lossless-JPEG DNG; a trained blink model and a real shoot
-      with a photographer's picks; photos with a real horizon and human tilt
-      labels.
+      macOS; a camera-written lossless-JPEG DNG; a trained blink model and a
+      real shoot with a photographer's picks; photos with a real horizon and
+      human tilt labels.
 
   - venture: quick-pick-survey
     why: >-

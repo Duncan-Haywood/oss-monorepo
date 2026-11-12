@@ -383,12 +383,9 @@ aside.pf-chrome.pf-chrome-foot>details.pf-embed-offer{max-width:1080px;margin:0 
  * `overflow:hidden` on a wrapper, say); the bar is then exactly as it was.
  * It also closes a small gap above the header left by a body's top margin.
  */
-export const VENTURE_CHROME_JS = `
-(function(){
-  if(typeof document==='undefined'||!document.querySelectorAll||!document.documentElement)return;
-  var els=[].slice.call(document.querySelectorAll('nav.pf-chrome-top[data-pfs-head],aside.pf-chrome-foot'));
-  if(!els.length)return;
-  var root=document.documentElement;
+// The two halves both scripts share: pick the palette from the host's
+// background, and stretch one bar to the window's width (see above).
+const CHROME_THEME_JS = `
   function bg(node){
     for(;node&&node.nodeType===1;node=node.parentElement){
       var m=/rgba?\\(([\\d.]+),\\s*([\\d.]+),\\s*([\\d.]+)(?:,\\s*([\\d.]+))?/.exec(getComputedStyle(node).backgroundColor||'');
@@ -400,8 +397,9 @@ export const VENTURE_CHROME_JS = `
     var c=bg(document.body),l=function(v){v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);};
     var dark=0.2126*l(c[0])+0.7152*l(c[1])+0.0722*l(c[2])<0.18;
     els.forEach(function(el){if(dark)el.setAttribute('data-pfs-theme','dark');else el.removeAttribute('data-pfs-theme');});
-  }
-  try{theme();var mq=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)');if(mq&&mq.addEventListener)mq.addEventListener('change',function(){setTimeout(theme,50);});}catch(e){}
+  }`;
+
+const CHROME_FIT_JS = `
   function reset(el){el.style.marginLeft='';el.style.marginRight='';el.style.width='';el.style.maxWidth='';el.style.marginTop='';el.style.paddingLeft='';el.style.paddingRight='';}
   function fit(){
     var before=root.scrollWidth>root.clientWidth;
@@ -421,12 +419,47 @@ export const VENTURE_CHROME_JS = `
       var r3=el.getBoundingClientRect();
       if(Math.abs(r3.left)>=1||(!before&&root.scrollWidth>root.clientWidth))reset(el);
     });
-  }
+  }`;
+
+export const VENTURE_CHROME_JS = `
+(function(){
+  if(typeof document==='undefined'||!document.querySelectorAll||!document.documentElement)return;
+  var els=[].slice.call(document.querySelectorAll('nav.pf-chrome-top[data-pfs-head],aside.pf-chrome-foot'));
+  if(!els.length)return;
+  var root=document.documentElement;${CHROME_THEME_JS}
+  try{theme();var mq=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)');if(mq&&mq.addEventListener)mq.addEventListener('change',function(){setTimeout(theme,50);});}catch(e){}${CHROME_FIT_JS}
   var t;
   function soon(){clearTimeout(t);t=setTimeout(fit,60);}
   fit();
   addEventListener('load',fit);
   addEventListener('resize',soon);
+})();
+`;
+
+/**
+ * The header's first fit, inline right after the `<nav>` it fits.
+ *
+ * `VENTURE_CHROME_JS` lives in `pf-site.js`, a classic script at the end of
+ * the body, so the browser could paint the header in the venture's own box
+ * (1,060 px at x = 110 on a 1,280 px window) and then watch it jump to full
+ * width when the script ran. That jump was every layout shift traced on the
+ * tool pages (polish-2026-11-12-bar-align.md: 120 to 136 of 336 loads
+ * shifted). Run here, while the parser is still at the top of the body, the
+ * same measurement settles the header's width and palette before anything
+ * below it is laid out, so the first paint is the fitted one. The end-of-body
+ * script still runs, on load and on resize, for the footer and for anything
+ * that moved the header's box later (a scrollbar appearing, a late stylesheet).
+ * It is the same code, so a second run that finds nothing to change changes
+ * nothing.
+ */
+export const VENTURE_CHROME_EARLY_JS = `
+(function(){
+  if(typeof document==='undefined'||!document.querySelector||!document.documentElement||!document.body)return;
+  // By class: the header marker attribute is what tests count headers by.
+  var el=document.querySelector('nav.pf-chrome.pf-chrome-top');
+  if(!el)return;
+  var els=[el],root=document.documentElement;${CHROME_THEME_JS}${CHROME_FIT_JS}
+  try{theme();fit();}catch(e){}
 })();
 `;
 

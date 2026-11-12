@@ -1,0 +1,79 @@
+// Round 6: the "How eager" comparison on a person's own history (watch-core.mjs eagernessReplay; README "Round 6").
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { eagernessReplay, eagernessText, eagerSettings, replayWatch, HINT_BUDGET } from './watch-core.mjs';
+import { analyzeJob } from './analyze-job.mjs';
+
+function rng(seed) {
+  let s = seed >>> 0 || 1;
+  const u = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return (s + 0.5) / 4294967296; };
+  return () => Math.sqrt(-2 * Math.log(u())) * Math.cos(2 * Math.PI * u());
+}
+const series = (n, f, seed) => { const g = rng(seed); return Array.from({ length: n }, (_, i) => f(i) + g()); };
+
+test('the shipped budget is the one round 6 pre-registered, and the round passed', () => {
+  const out = readFileSync(new URL('./eval/watch-eagerness.out.txt', import.meta.url), 'utf8');
+  assert.equal(HINT_BUDGET, 2);
+  assert.match(out, /hint, B = 2 \(pre-registered\)\s+68\s+28 \(41%\)\s+17\.5\s+17\/31/);
+  assert.match(out, /The hint SHIPS\. Forecast claim \(quiet Spearman >= 0\.5\): 0\.616 SHIPS/);
+});
+
+test('each setting is the replay with that detector; the rate is per daily check after the baseline', () => {
+  const v = series(160, (i) => (i >= 100 ? 3 : 0), 7);
+  const r = eagernessReplay(v);
+  assert.deepEqual(r.settings.map((s) => s.key), ['quiet', 'middle', 'eager']);
+  for (const s of r.settings) {
+    const one = replayWatch(v, null, { detector: s.detector });
+    assert.equal(s.alerts, one.alerts.length);
+    assert.equal(s.checks, one.n - one.from);
+    assert.equal(s.per100, (100 * s.alerts) / s.checks);
+  }
+  assert.ok(r.settings.every((s) => s.alerts >= 1), 'a 3-sd step is alerted by every setting');
+});
+
+test('suggest: the most eager setting at or under the budget, else quiet', () => {
+  const v = series(160, (i) => (i >= 100 ? 3 : 0), 7);
+  const r = eagernessReplay(v);
+  const within = r.settings.filter((s) => s.per100 <= HINT_BUDGET).map((s) => s.key);
+  assert.equal(r.suggest, within.length ? within[within.length - 1] : 'quiet');
+  const none = eagernessReplay(v, null, { budget: -1 });
+  assert.equal(none.suggest, 'quiet');
+  assert.match(eagernessText(none, { column: 'orders' }), /Suggested: Quiet\. Even Quiet would have sent/);
+  const all = eagernessReplay(v, null, { budget: 100 });
+  assert.equal(all.suggest, 'eager');
+  assert.match(eagernessText(all), /Suggested: Eager/);
+  assert.match(eagernessText(all), /not a promise/);
+});
+
+test('a wandering level: even quiet is over the budget, and the text says to watch the daily change', () => {
+  let x = 0;
+  const g = rng(3);
+  const v = Array.from({ length: 300 }, () => (x += g()));
+  const r = eagernessReplay(v);
+  if (r.settings[0].per100 > HINT_BUDGET) assert.match(eagernessText(r), /daily change/);
+  assert.ok(r.settings[2].alerts >= r.settings[0].alerts, 'eager sends at least as many alerts as quiet on a random walk');
+});
+
+test('volatility and counts models have two settings (their quiet default is already bocpd)', () => {
+  assert.deepEqual(eagerSettings('meanvar').map((s) => s.detector), ['bocpd', 'pelt']);
+  assert.deepEqual(eagerSettings('mean').map((s) => s.detector), ['bocpd-ar1-window', 'bocpd', 'pelt']);
+  const counts = series(120, (i) => (i >= 70 ? 20 : 8), 5).map((y) => Math.max(0, Math.round(y)));
+  const r = eagernessReplay(counts, null, { model: 'poisson' });
+  assert.deepEqual(r.settings.map((s) => s.key), ['quiet', 'eager']);
+});
+
+test('the page runs it in the worker job and offers to set the watch card', () => {
+  const v = series(80, (i) => (i >= 50 ? 4 : 0), 9);
+  const csv = ['t,y', ...v.map((y, i) => `${i},${y.toFixed(3)}`)].join('\n');
+  const out = analyzeJob({ kind: 'eagerness', csv, column: 'y', opts: {} });
+  assert.equal(out.result.column, 'y');
+  assert.equal(out.result.settings.length, 3);
+  assert.match(analyzeJob({ kind: 'eagerness', csv: 't,y\n1,2', opts: {} }).error, /.+/);
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(html, /id="eager-run"/);
+  assert.match(html, /kind: "eagerness"/);
+  assert.match(html, /\$\("#watch-detector"\)\.value = \$\("#eager-use"\)\.dataset\.value/);
+  assert.match(html, /record\("watch_eagerness"\)/);
+  assert.match(html, /<code>watch_eagerness<\/code>/);
+});

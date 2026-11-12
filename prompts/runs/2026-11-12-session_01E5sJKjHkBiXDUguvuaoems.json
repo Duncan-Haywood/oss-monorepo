@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKjHkBiXDUguvuaoems",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T19:18:46Z",
+  "ended": "2026-11-12T19:34:34Z",
+  "wall_minutes": 16.19,
+  "tokens_in": 18452902,
+  "tokens_out": 61913,
+  "cost_usd": 6.8086,
+  "tool_calls": 107,
+  "task": "Deepen flagship shift-roster-builder: is the posted-week reissue's 91 late changes the least? (change-count ILP)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15233",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "Started einvoice-preflight Carta Porte 3.1 (allocate.py's pick), pushed and opened draft PR #15231, then claim_check showed PR #15229 opened 4 minutes earlier for the same item, already near-complete; closed #15231 as superseded and moved to shift-roster-builder. About 30 minutes spent on the duplicate.",
+    "A git reset --mixed onto a newer origin/main left newer main files looking deleted in the working tree; recovered by saving my diff against the old base as a patch, checking out origin/main and re-applying."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two sessions starting minutes apart both got einvoice-preflight's Carta Porte as the obvious next slice; the claim is only visible once a draft PR exists, so the second session lost ~30 min before claim_check could warn. Opening the draft PR before any research (an empty claim commit) would avoid it, but CLAUDE.md discourages empty commits."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "omawww.sat.gob.mx (fetched by earlier einvoice runs) and cdn.taecel.com did not resolve or were refused by the proxy this session; a mirror of SAT's Carta Porte matrix was only findable via gh api search/code."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The allocator's pick (einvoice-preflight) was already claimed by an earlier PR (#15229).",
+      "did": "Yielded per claim_check and took the next pick, shift-roster-builder.",
+      "result": "No duplicate merged; one change-count result landed instead."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new node test: the result is an eval (ILP needs scipy, the export takes ~40 s), like the existing eval/callout-ilp-check.py.",
+      "did": "Committed the export, the ILP check and both outputs; the ILP cross-checks its change count against scheduleChanges on all 123 engine rosters.",
+      "result": "Venture test suite unchanged and green."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-shift-roster-is-91-changes-the-least.md",
+    "ventures/shift-roster-builder/README.md (Is 91 the least? A change-count ILP)"
+  ],
+  "goal": "Deepen a flagship with a hard engineering result",
+  "notes": "ILP (HiGHS via scipy 1.x, python3.13): 41 weeks, least changes 88 caller-exempt (engine keepShift 1: 91, above on 3) and 153 with the caller counted (engine 153, 41/41). Engine open hours equal the ILP's least on 41/41. A same-day keep bonus (keepDay) was tried in calc.mjs and changed none of the 41 rosters; reverted. Venture tests: python3 platform/ci/run_venture_tests.py shift-roster-builder (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0fd1104d-f6e4-5e50-87d5-061db56acfeb",
+    "transcripts": 1,
+    "first": "2026-11-12T19:18:46Z",
+    "last": "2026-11-12T19:34:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 102,
+        "input": 195,
+        "output": 61913,
+        "thinking": 21323,
+        "cache_read": 18211812,
+        "cache_write_5m": 0,
+        "cache_write_1h": 240895,
+        "api_equivalent_usd": 6.8086,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 102,
+      "input": 195,
+      "output": 61913,
+      "thinking": 21323,
+      "cache_read": 18211812,
+      "cache_write_5m": 0,
+      "cache_write_1h": 240895,
+      "api_equivalent_usd": 6.8086,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 107,
+    "tools": {
+      "Bash": 97,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "WebSearch": 1,
+      "WebFetch": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.19,
+      "active_minutes": 16.19,
+      "model_minutes": 10.43,
+      "tool_minutes": 5.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an OR engineer writing an independent two-stage change-count ILP, the export and cross-checks, diagnosing the 3-week gap and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 146.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

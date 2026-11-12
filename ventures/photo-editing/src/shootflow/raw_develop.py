@@ -25,8 +25,10 @@ Scope, stated plainly:
   ``BaselineExposure``, the IFD0 orientation, the ``GainMap`` opcodes in
   ``OpcodeList2`` (lens shading, as phones write it; ``dng_opcodes``) and
   ``WarpRectilinear`` in ``OpcodeList3`` (lens distortion and lateral colour,
-  run on the linear image after demosaic). Other opcodes are named in the
-  report, not run.
+  run on the linear image after demosaic), and ``FixVignetteRadial`` and
+  ``MapPolynomial`` in either list, in list order, and ``FixBadPixelsConstant``
+  and ``FixBadPixelsList`` in ``OpcodeList1`` (bad sensels on the stored CFA
+  values). Other opcodes are named in the report, not run.
 * Colour (default ``colour="dng"``, since 2026-11-12): the DNG
   specification's model in ``dng_colour``: the as-shot white found from
   ``AsShotNeutral`` (or ``AsShotWhiteXY``), ``ColorMatrix``,
@@ -1093,8 +1095,8 @@ class DevelopSettings:
     # cannot tell it from the picture; ignored for DNG (its CFAPattern rules).
     cfa: str | None = None
     # Run the DNG opcode lists' GainMap (lens shading; every Android phone
-    # DNG carries one) and WarpRectilinear (lens distortion); other opcodes
-    # are named in the report, not run.
+    # DNG carries one), WarpRectilinear (lens distortion), FixVignetteRadial
+    # and MapPolynomial; other opcodes are named in the report, not run.
     opcodes: bool = True
 
 
@@ -1570,9 +1572,12 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     if raw.source == "dng":
         op_plan = dng_opcodes.plan(ifd, ifd0, cfa=not linear_raw)
         if settings.opcodes:
-            gain_maps = op_plan.gain_maps
-            warps = op_plan.warps
+            gain_maps = op_plan.stage2  # GainMap, FixVignetteRadial, MapPolynomial, in list order
+            warps = op_plan.stage3  # WarpRectilinear, FixVignetteRadial, MapPolynomial, in list order
             notes.extend(op_plan.notes)
+            if op_plan.stage1 and spp == 1:
+                # FixBadPixels in OpcodeList1, on the stored values (a copy) before anything reads them.
+                vals = dng_opcodes.run_stage1(op_plan.stage1, vals, rw, raw.height, notes)
         elif op_plan.notes:
             notes.append("opcode lists not run (opcodes off)")
     # Normalised 0..1 sample for active-area pixel (y, x), sample s.
@@ -1720,7 +1725,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             _bilinear(norm_row, w, h, pat, mults, emit, out)
 
     if warps:
-        lin_rgb = dng_opcodes.warp_rgb(warps, lin_rgb, ow, oh)
+        lin_rgb = dng_opcodes.run_stage3_rgb(warps, lin_rgb, ow, oh, (wbr, wbg, wbb))
         for i in range(0, len(lin_rgb), 3):
             encode(lin_rgb[i], lin_rgb[i + 1], lin_rgb[i + 2], out)
         del lin_rgb

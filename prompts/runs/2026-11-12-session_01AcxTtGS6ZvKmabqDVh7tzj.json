@@ -1,0 +1,262 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtGS6ZvKmabqDVh7tzj",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T20:07:00Z",
+  "ended": "2026-11-12T20:07:38Z",
+  "wall_minutes": 2.78,
+  "tokens_in": 1850932,
+  "tokens_out": 10178,
+  "cost_usd": 1.0822,
+  "tool_calls": 25,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15242",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list is six control-plane entries that each already have a PR waiting on the owner (#12928, #14877, #14612, #14808, #14698, #15201); `redteam.py open` could print the open PR per entry so a run doesn't re-check them by hand every time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for an automated guard. A lint for 'Number(value) without a blank check' would flag many calculators where blank-as-zero is intended (MRR components, defaults via ??), so it would be noisy, not a guard.",
+      "did": "Fixed the instance with a test and wrote down which siblings were read and why they were left alone (cloud-egress and kdp-royalty named for a later read).",
+      "result": "No new CI guard this run."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-blank-price-is-not-a-free-plan.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/subscription-price-impact/share.mjs (random draw). Venture suite 42/42 after the fix; new calc test fails on the old calc.mjs (5 pass, 1 fail).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/subscription-price-impact/share.mjs",
+        "test": "node --test ventures/subscription-price-impact/**/*.test.mjs  (in .)",
+        "seed": 307628312,
+        "commit": "e1609c4e1",
+        "sites": 11,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/subscription-price-impact/share.mjs",
+            "line": 24,
+            "col": 19,
+            "operator": "or-to-and",
+            "before": "if (value === '' || value === null || value === undefined) return null;",
+            "after": "if (value === '' && value === null || value === undefined) return null;",
+            "line_text": "  if (value === '' || value === null || value === undefined) return null;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/share.mjs",
+            "line": 24,
+            "col": 28,
+            "operator": "eq-flip",
+            "before": "if (value === '' || value === null || value === undefined) return null;",
+            "after": "if (value === '' || value !== null || value === undefined) return null;",
+            "line_text": "  if (value === '' || value === null || value === undefined) return null;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/share.mjs",
+            "line": 24,
+            "col": 46,
+            "operator": "eq-flip",
+            "before": "if (value === '' || value === null || value === undefined) return null;",
+            "after": "if (value === '' || value === null || value !== undefined) return null;",
+            "line_text": "  if (value === '' || value === null || value === undefined) return null;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/share.mjs",
+            "line": 26,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "if (!Number.isFinite(result) || result < 0) return null;",
+            "after": "if (!Number.isFinite(result) && result < 0) return null;",
+            "line_text": "  if (!Number.isFinite(result) || result < 0) return null;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/share.mjs",
+            "line": 26,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "if (!Number.isFinite(result) || result < 0) return null;",
+            "after": "if (!Number.isFinite(result) || result < 1) return null;",
+            "line_text": "  if (!Number.isFinite(result) || result < 0) return null;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "usableNumber's result < 0 bound: < 1 silently drops a $0 fixed-cost or a $0.99 price from the share link, so the recipient opens on the page defaults. New test in share.test.mjs round-trips 0 and sub-dollar values."
+          },
+          {
+            "file": "ventures/subscription-price-impact/share.mjs",
+            "line": 41,
+            "col": 14,
+            "operator": "neq-flip",
+            "before": "if (value !== null) params.set(id, String(value));",
+            "after": "if (value === null) params.set(id, String(value));",
+            "line_text": "    if (value !== null) params.set(id, String(value));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/share.mjs",
+            "line": 54,
+            "col": 20,
+            "operator": "neq-flip",
+            "before": "if (typeof source !== 'string') return {};",
+            "after": "if (typeof source === 'string') return {};",
+            "line_text": "  if (typeof source !== 'string') return {};",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subscription-price-impact/share.mjs",
+            "line": 60,
+            "col": 14,
+            "operator": "neq-flip",
+            "before": "if (value !== null) inputs[id] = value;",
+            "after": "if (value === null) inputs[id] = value;",
+            "line_text": "    if (value !== null) inputs[id] = value;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/subscription-price-impact/calc.mjs",
+        "issue": "Number('') is 0, so clearing a field computed as $0 instead of erroring: a blank current price showed a green '100.0% maximum churn before revenue falls' headline; a whitespace proposed price showed 0% and a $2,000 revenue drop. finite() now rejects blank/whitespace/null with 'Enter <field>'; typed 0 still accepted. Test: calc.test.mjs 'a cleared field is an error'.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4c4b3c8c-fcf7-5cfa-a682-5c0d916dafd4",
+    "transcripts": 1,
+    "first": "2026-11-12T20:07:00Z",
+    "last": "2026-11-12T20:09:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 24,
+        "input": 47,
+        "output": 10178,
+        "thinking": 2103,
+        "cache_read": 1785719,
+        "cache_write_5m": 0,
+        "cache_write_1h": 65166,
+        "api_equivalent_usd": 1.0822,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 24,
+      "input": 47,
+      "output": 10178,
+      "thinking": 2103,
+      "cache_read": 1785719,
+      "cache_write_5m": 0,
+      "cache_write_1h": 65166,
+      "api_equivalent_usd": 1.0822,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 25,
+    "tools": {
+      "Bash": 22,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.78,
+      "active_minutes": 2.78,
+      "model_minutes": 2.08,
+      "tool_minutes": 0.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "seed and triage 8 mutants, reproduce and fix one input bug, write a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 184.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtJJ3gSZ9V8Y77wT9Jf",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T19:06:51Z",
+  "ended": "2026-11-12T19:16:41Z",
+  "wall_minutes": 10.11,
+  "tokens_in": 3824713,
+  "tokens_out": 21732,
+  "cost_usd": 1.871,
+  "tool_calls": 53,
+  "task": "perf: wall-framing-takeoff mutation sweep (item 2 of the 2026-11-11 ranked list)",
+  "projects": [
+    "wall-framing-takeoff",
+    "open-house-plans"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15228",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First post description was 214 chars; check_post_frontmatter.py (via run_workflow_locally) caught it, shortened to 154."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both backlog perf items (P063, P064) are still owner-gated CI paths, so step 1 is a dead end again; the prompt already says so, which saved time."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-every-lumber-length-was-even.md",
+    "docs/history/ci-perf-2026-11-12-knapsack-gcd.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall-framing-takeoff mutation-sweep.test.mjs wall time. Before 12.07/11.90/11.94 s, after 8.73/8.61/8.47 s (-28%); `node --test mutation-sweep.test.mjs`, same 4-core container, nothing else running, before = copy of the venture with the HEAD engine.mjs. Profile (node --cpu-prof): boundedKnapsackMulti 6.4 s self of ~12 s, then 4.2 s after the gcd step. All 76 knapsack calls on takeoff(samplePlan()) had gcd 2. takeoff(samplePlan()) median of 10 warm: 15.9 -> 15.0 ms. Equivalence: 20,000 random knapsacks and 814 takeoff outputs old vs new, 0 differences; new test pins it against the old DP, seeded floor->ceil mutant caught. run_venture_tests.py wall-framing-takeoff open-house-plans: 2 suites, 0 failed (33.3 s). open-house-plans re-vendored with vendor-framing.mjs. Per-file serial survey of the suite: 78.6 s total; cli-sweep (12.6 s, process spawns) is now the slowest file, ranked next in the history note. Local sweep (run_workflow_locally --for-changes): 6/8 workflows passed, ventures-tests 5/5; Test the site builder hit the sweep's 300 s budget (UNRUN, not a pass), as did several validate steps after it, so those rest on PR CI; the only FAIL was the post front matter, fixed and re-checked (check_post_frontmatter.py rc 0). The sweep reported UNSTABLE CHECKOUT because I fixed the post while it ran. Not run locally: agent-cross-review, portfolio-pages gate/deploy, the site build (contains a ${{ }} expression).",
+  "corrections": [
+    "An earlier draft of these notes said Test the site builder was ok; the log shows it hit the 300 s budget unrun. Corrected before merge."
+  ],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c2802f3d-32c7-5a47-916c-fb870d2f9c55",
+    "transcripts": 1,
+    "first": "2026-11-12T19:06:51Z",
+    "last": "2026-11-12T19:16:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 90,
+        "output": 21732,
+        "thinking": 3873,
+        "cache_read": 3738588,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86035,
+        "api_equivalent_usd": 1.871,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 90,
+      "output": 21732,
+      "thinking": 3873,
+      "cache_read": 3738588,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86035,
+      "api_equivalent_usd": 1.871,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 47,
+      "Write": 2,
+      "Monitor": 1,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.11,
+      "active_minutes": 10.11,
+      "model_minutes": 4.75,
+      "tool_minutes": 5.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile, equivalence harness and write-up for one solver change, by a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 160.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
