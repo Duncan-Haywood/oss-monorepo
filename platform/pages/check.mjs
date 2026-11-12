@@ -36,6 +36,7 @@ import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import { SITE_COUNT_PAGES, ungroupedCounts } from './count.mjs';
 import { checkPageIdentity, loadPages } from './page-identity.mjs';
 import { mapLimit } from './share.mjs';
 import { servedPath } from './served-path.mjs';
@@ -818,6 +819,20 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       if (hubHtml !== null && !/href="engineering\/"/.test(hubHtml)) {
         problems.push(`${ENGINEERING_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
       }
+    }
+  }
+
+  // Counts a reader sees on the site's own index pages are grouped the same
+  // way everywhere ("1,073 projects"), via `formatCount` in count.mjs. Until
+  // 2026-11-11 the research index printed "1073 research projects" beside
+  // "8,985 unit tests"; a template that interpolates a bare `.length` again
+  // shows up here instead of on the page.
+  for (const relative of SITE_COUNT_PAGES) {
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    if (html === null) continue;
+    const found = ungroupedCounts(html);
+    if (found.length) {
+      problems.push(`${relative}: count written without a thousands separator (use formatCount): ${[...new Set(found)].slice(0, 3).join('; ')}`);
     }
   }
 

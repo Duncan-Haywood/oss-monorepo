@@ -21,6 +21,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { parseUtterance } from './assistant/fill.mjs';
+import { formatCount } from './count.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -169,7 +170,7 @@ export function renderAskPage({ baseUrl, siteName, chrome, toolCount }) {
   const url = `${baseUrl}${ASK_PATH}`;
   const toRoot = '../';
   const title = 'Ask: a private assistant for every tool, by voice or chat';
-  const description = `Fill any of ${toolCount} free calculators by voice or a typed sentence, find the right tool, hear the result. Private, in your browser.`;
+  const description = `Fill any of ${formatCount(toolCount)} free calculators by voice or a typed sentence, find the right tool, hear the result. Private, in your browser.`;
   const { all, rounds, formCount } = scoreEvals();
   const latest = rounds[rounds.length - 1] || { cases: 0, passed: 0, wrong_writes: 0 };
   const faq = [

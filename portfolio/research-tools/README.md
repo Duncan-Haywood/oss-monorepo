@@ -72,6 +72,7 @@ for the browser-extension, iOS and Android packagers.
 | [`conformal-prediction-intervals`](../../ventures/conformal-prediction-intervals/) | Lei et al. 2018; Romano, Patterson & Candès 2019 | How wide must a prediction interval be to cover 90% of new cases, with no distributional assumption? |
 | [`matrix-profile-explorer`](../../ventures/matrix-profile-explorer/) | Yeh et al. 2016; Zhu et al. 2016 | Which stretch of this series repeats (motif), and which is unlike anything else (discord)? |
 | [`survival-analysis`](../../ventures/survival-analysis/) | Kaplan & Meier 1958; Mantel 1966; Cox 1972; Efron 1977; Grambsch & Therneau 1994 | How long until the event, do groups differ, and by what hazard ratio once covariates are adjusted for? |
+| [`fdr-multiple-testing`](../../ventures/fdr-multiple-testing/) | Benjamini & Hochberg 1995; Benjamini & Yekutieli 2001; Benjamini, Krieger & Yekutieli 2006; Storey 2002; Wang & Ramdas 2022 | I ran many tests: which results still stand, at a chosen false discovery rate or family-wise error rate? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the
@@ -85,4 +86,5 @@ transport (Cuturi 2013) for comparing distributions; Gaussian-process
 regression with marginal-likelihood fitting (Rasmussen & Williams 2006);
 isolation forest (Liu, Ting & Zhou 2008); robust PCA by principal component
 pursuit (Candès et al. 2011); STL decomposition (Cleveland et al. 1990);
-Benjamini-Hochberg and e-value multiple testing (1995; Vovk & Wang 2021).
+online FDR control (Javanmard & Montanari 2018) for tests that arrive over time;
+p-to-e calibrators (Vovk & Wang 2021) so e-BH in `fdr-multiple-testing` can take p-values.

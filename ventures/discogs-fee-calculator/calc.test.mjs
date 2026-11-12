@@ -132,3 +132,15 @@ test('crate: blank input is empty, not an error', () => {
   const { rows, problems, totals } = calculateBatch('  \n# comment\n');
   assert.deepEqual([rows.length, problems.length, totals.orders], [0, 0, 0]);
 });
+
+test('batch: a numeric label (an order number) is a label, and extra values are refused (red team 2026-11-11)', () => {
+  const { rows, problems } = calculateBatch('1001, 25, 5, 10\nA, 25, 5, 10\n1, 2, 3, 4, 5');
+  assert.equal(rows.length, 2);
+  assert.deepEqual([rows[0].label, rows[0].itemPrice, rows[0].buyerShipping, rows[0].itemCost], ['1001', 25, 5, 10]);
+  assert.deepEqual([rows[1].label, rows[1].itemPrice, rows[1].buyerShipping, rows[1].itemCost], ['A', 25, 5, 10]);
+  assert.equal(problems.length, 1);
+  assert.equal(problems[0].line, 3);
+  assert.match(problems[0].message, /expected "label, price, shipping, cost"/);
+  // a named row with too many values is refused too
+  assert.equal(calculateBatch('A, 25, 5, 10, 99').problems.length, 1);
+});
