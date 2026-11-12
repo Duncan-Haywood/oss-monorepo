@@ -116,7 +116,7 @@ export function compute(input) {
   if (salary > ADDITIONAL_THRESHOLD) findings.push({ severity: "info", title: `Income above ${money(ADDITIONAL_THRESHOLD)} is taxed at the 48% top rate in Scotland, against 45% elsewhere in the UK, and you have no personal allowance.` });
   if (marginal >= 60) findings.push({ severity: "high", title: `If you earned GBP 1,000 more you would keep about ${money(1000 - marginal * 10)}: a marginal rate of ${marginal}%.` });
   else findings.push({ severity: "info", title: `If you earned GBP 1,000 more you would keep about ${money(1000 - marginal * 10)}: a marginal rate of ${marginal}% including National Insurance and any loan.` });
-  if (plan !== "none" && a.sl > 0) findings.push({ severity: "info", title: `${PLANS[plan].label} takes ${PLANS[plan].rate * 100}% of pay over ${money(PLANS[plan].threshold)} (2025/26 threshold; it changes each April). It is collected through payroll but is a loan repayment, and the balance is written off at the end of its term.` });
+  if (plan !== "none" && a.sl > 0) findings.push({ severity: "info", title: `${PLANS[plan].label} takes ${+(PLANS[plan].rate * 100).toFixed(4)}% of pay over ${money(PLANS[plan].threshold)} (2025/26 threshold; it changes each April). It is collected through payroll but is a loan repayment, and the balance is written off at the end of its term.` });
   if (method === "sacrifice") findings.push({ severity: "medium", title: "Salary sacrifice cuts your contractual pay. That saves tax and National Insurance, but it can lower mortgage affordability figures and statutory pay, and your employer must keep you above the National Minimum Wage. A cap on the NI saving has been announced for later years; check the current rules." });
   if (method === "ras") findings.push({ severity: "medium", title: "With relief at source your pension provider claims 20% basic rate relief. In Scotland that is the relief rate even though your starter and basic bands are 19% and 20%; any extra relief at 21% or more is claimed through Self Assessment, so cash arrives later." });
   if (method === "netpay") findings.push({ severity: "info", title: "A net pay arrangement takes the contribution before tax but after National Insurance, so you get income tax relief at your top Scottish rate but no NI saving." });
@@ -133,7 +133,7 @@ export const SAMPLE = { salary: 45000, pensionPct: 5, method: "sacrifice", plan:
 
 export function summaryText(r) {
   const L = ["Scottish income tax and take-home pay (2026/27 Scottish bands)", "", `Gross salary: ${money(r.salary)}`, `Pension: ${r.pensionPct}% by ${r.methodLabel}`, `Student loan: ${r.planLabel}${r.pgl ? " plus Postgraduate Loan" : ""}`, "",
-    ...r.bands.map((b) => `${b.name} rate ${b.rate * 100}% on ${money(b.amount)}: ${money(b.tax)}`),
+    ...r.bands.map((b) => `${b.name} rate ${+(b.rate * 100).toFixed(4)}% on ${money(b.amount)}: ${money(b.tax)}`),
     `Income tax: ${money(r.tax)}`, `National Insurance: ${money(r.ni)}`, `Student loan: ${money(r.sl)}`, `Postgraduate loan: ${money(r.pg)}`, `Pension paid from your pay: ${money(r.pensionFromPay)}`, "",
     `Take-home pay per year: ${money(r.takeHome)}`, `Per month: ${money(r.monthly)}`, `Per week: ${money(r.weekly)}`, `Marginal rate on the next pound: ${r.marginal}%`,
     `Same salary in the rest of the UK: income tax ${money(r.rukTax)}, take-home ${money(r.rukTakeHome)}`];

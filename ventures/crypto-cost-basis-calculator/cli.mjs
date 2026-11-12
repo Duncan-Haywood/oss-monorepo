@@ -141,7 +141,7 @@ export function render({ result, formats, notes }, opts = {}) {
   const s = result.summary, t = totalsLine(result);
   out.push("", `Sales in ${result.year}, ${METHOD_LABELS[result.method]}${opts.perWallet ? ", per wallet" : ""}`);
   out.push(`  short-term ${usd(s.shortGain)}   long-term ${usd(s.longGain)}   total ${usd(s.totalGain)}   income received ${usd(result.income)}`);
-  out.push(`  estimated tax ${usd(result.tax)} at ${(opts.shortRate ?? 0.24) * 100}% short / ${(opts.longRate ?? 0.15) * 100}% long`);
+  out.push(`  estimated tax ${usd(result.tax)} at ${+((opts.shortRate ?? 0.24) * 100).toFixed(4)}% short / ${+((opts.longRate ?? 0.15) * 100).toFixed(4)}% long`);
   if (t) out.push(`  ${t}`);
   if (result.carryChain.length) {
     out.push("", `Loss limit and carryforward (${usd(opts.lossLimit || 3000)} a year; years chained from the first sale in the file):`);

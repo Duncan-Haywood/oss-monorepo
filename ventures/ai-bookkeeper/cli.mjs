@@ -848,7 +848,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   try {
     const r = bNoticeDates(rest[0], { received: flag("--received") ?? null, second: has("--second"), firstNotice: flag("--first-notice") ?? null, bNoticeSent: flag("--b-notice-sent") ?? null });
     if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
-    console.log(`CP2100 ${r.second ? "(second notice) " : ""}counted from ${r.base}\n  mail the ${r.second ? "Second" : "First"} B Notice by ${r.mailBNoticeBy}, enclosing ${r.enclose}\n  start ${r.rate * 100}% backup withholding by ${r.startWithholdingBy} unless a signed W-9 arrives first (stop within ${r.stopWithholdingWithinDays} calendar days of receiving it)${r.disregard ? "\n  Pub. 1281 Q17: this second CP2100 is in the same calendar year as the first, so you may disregard it" : ""}\n  ${r.note}\n  Worksheet dates from the IRS B-program pages, not tax advice.`);
+    console.log(`CP2100 ${r.second ? "(second notice) " : ""}counted from ${r.base}\n  mail the ${r.second ? "Second" : "First"} B Notice by ${r.mailBNoticeBy}, enclosing ${r.enclose}\n  start ${+(r.rate * 100).toFixed(4)}% backup withholding by ${r.startWithholdingBy} unless a signed W-9 arrives first (stop within ${r.stopWithholdingWithinDays} calendar days of receiving it)${r.disregard ? "\n  Pub. 1281 Q17: this second CP2100 is in the same calendar year as the first, so you may disregard it" : ""}\n  ${r.note}\n  Worksheet dates from the IRS B-program pages, not tax advice.`);
   } catch (e) { console.error(e.message); process.exit(2); }
 } else if (cmd === "contractors") {
   const yr = flag("--year"), th = flag("--threshold");

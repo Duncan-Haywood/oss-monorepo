@@ -60,6 +60,8 @@ test("2026 uses the IRS quarterly rates (6% in Q2) and flags the 2027 Q1 rate th
   assert.deepEqual(periods.map((p) => p.rate), [0.06, 0.07, 0.07, 0.07]);
   assert.equal(warnings.length, 1);
   assert.match(warnings[0], /2027 Q1/);
+  // 0.07 * 100 is 7.000000000000001 in floating point; the warning must print "7%".
+  assert.match(warnings[0], /; 7% \(the last one on file, 2026 Q4\)/);
   assert.equal(ratePeriods(2026, { "2027-1": 0.05 }).periods[3].rate, 0.05);
   assert.deepEqual(ratePeriods(2024).periods.map((p) => p.rate), [0.08, 0.08, 0.08, 0.07]);
 });

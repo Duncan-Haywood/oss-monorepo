@@ -191,7 +191,7 @@ export function schedule(input) {
   const rawActs = /** @type {Activity[]} */ ((input?.activities || []).map(withNb));
   if (nbErrors.length) return { ok: false, errors: nbErrors };
   const hasMonthly = Object.keys(input?.weatherRate || {}).length > 0;
-  let acts = /** @type {Activity[]} */ (rawActs.map((/** @type {any} */ a) => !hasMonthly && wl && a.exposed && a.days > 0 ? { ...a, days: a.days + Math.ceil(a.days * wl - 1e-9), derived: `${a.derived ? a.derived + "; " : ""}+${Math.ceil(a.days * wl - 1e-9)}d weather allowance (${wl * 100}% of ${a.days}d)` } : a));
+  let acts = /** @type {Activity[]} */ (rawActs.map((/** @type {any} */ a) => !hasMonthly && wl && a.exposed && a.days > 0 ? { ...a, days: a.days + Math.ceil(a.days * wl - 1e-9), derived: `${a.derived ? a.derived + "; " : ""}+${Math.ceil(a.days * wl - 1e-9)}d weather allowance (${+(wl * 100).toFixed(4)}% of ${a.days}d)` } : a));
   if (input?.rateErrors?.length) return { ok: false, errors };
   if (!acts.length) return { ok: false, errors: ["The schedule has no activities."] };
   const ids = new Set();
