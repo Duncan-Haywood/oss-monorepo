@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtKE8pSn4iV8gqfHZ9y",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T18:07:08Z",
+  "ended": "2026-11-12T18:56:31Z",
+  "wall_minutes": 50.53,
+  "tokens_in": 6002134,
+  "tokens_out": 24460,
+  "cost_usd": 2.638,
+  "tool_calls": 54,
+  "task": "build-data session 79: cascade2 vs type at i2c q0.9 on mature (complete-label) cohorts, Seattle 2020-2022, SF and Austin 2021",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": 15211,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py returned /usr/bin/python3.13 after installing; a direct python3.13 call before that lacked lightgbm, so session 78's 'python3.13 src/...' commands in LOG.md only work after pyenv has run once."
+    },
+    {
+      "file": "research/build-data/src/censored_eval.py",
+      "issue": "result file name ignored --classes, so any non-default class list would have overwritten session 78's committed results; fixed with out_name()."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/build-data/LOG.md",
+      "why": "session 78's Next listed three items; ran the first two (mature-cohort cascade2 vs type, other held-out cities) in one step because the same runs answer both",
+      "did": "one --classes cascade2 type cascade2_nodemo call per city/year",
+      "result": "5 runs in 33 min; both questions answered"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-build-data-work-type-tail-by-city.md",
+    "research/build-data/LOG.md (session 79)"
+  ],
+  "goal": "advance research programme build-data",
+  "notes": "Five pre-registered predictions: V1, V2, V4 held; V3 (Seattle q0.5) and V5 (Austin) refuted. Fresh SF/Austin/Seattle pull 18:08-18:21 UTC, counts equal session 78's. Tests: 104 passed, 2 skipped (build-data). research/_homepage/build.py ok; check_md_links ok; research_live_links no change; cite_check 0 ids.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0b951fe9-7f36-592b-93ff-eac6c1ce07be",
+    "transcripts": 1,
+    "first": "2026-11-12T18:07:08Z",
+    "last": "2026-11-12T18:57:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 102,
+        "output": 24460,
+        "thinking": 4794,
+        "cache_read": 5880499,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121533,
+        "api_equivalent_usd": 2.638,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 102,
+      "output": 24460,
+      "thinking": 4794,
+      "cache_read": 5880499,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121533,
+      "api_equivalent_usd": 2.638,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 50.53,
+      "active_minutes": 50.53,
+      "model_minutes": 5.27,
+      "tool_minutes": 45.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "data pull, five validation runs, analysis and write-up for a PhD student familiar with the codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 227.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

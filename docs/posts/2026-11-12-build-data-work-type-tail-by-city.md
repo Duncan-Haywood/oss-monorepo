@@ -1,8 +1,8 @@
 ---
 title: "A work-type feature helps one city's build-time forecast and costs another's 15 days"
-seo_title: "Cross-city permit build-time transfer: work-type class effect by city on complete labels"
+seo_title: "Permit build-time transfer: a work-type feature differs by city"
 date: 2026-11-12
-description: "On permit cohorts old enough to be seen in full, a work-type class cuts Seattle's and San Francisco's build-time q0.9 transfer loss by 3 to 16 days and raises Austin's by 15."
+description: "On permit cohorts seen in full, a work-type class cuts Seattle's and San Francisco's build-time q0.9 transfer loss by 3 to 16 days and raises Austin's by 15."
 tags: [research, build-data, construction, evaluation]
 ---
 
