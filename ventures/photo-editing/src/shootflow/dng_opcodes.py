@@ -1,4 +1,4 @@
-"""DNG opcode lists: read them all, run ``GainMap`` and ``WarpRectilinear``, name the rest.
+"""DNG opcode lists: read them all; run ``GainMap``, ``WarpRectilinear``, ``FixVignetteRadial`` and ``MapPolynomial``; name the rest.
 
 DNG 1.3 added three opcode lists, each a tag holding a big-endian byte blob:
 ``OpcodeList1`` (51008) runs on the raw values as stored, ``OpcodeList2``
@@ -13,8 +13,12 @@ per Bayer position, and leaves the sensor data uncorrected, so a reader that
 ignores them shows the dark, often tinted corners the phone's own JPEG never
 has. ``GainMap`` (opcode 9) is run here, and so is ``WarpRectilinear``
 (opcode 1, lens distortion and lateral colour in ``OpcodeList3``, as cameras
-with corrected lenses write it: the Leica T marks it required). Every other
-opcode is named in the report and left undone.
+with corrected lenses write it: the Leica T marks it required).
+``FixVignetteRadial`` (opcode 3, a radial brightness fall-off) and
+``MapPolynomial`` (opcode 8, a tone or linearisation polynomial) run in
+``OpcodeList2`` and ``OpcodeList3``, in the order the list gives them. Every
+other opcode, and anything in ``OpcodeList1``, is named in the report and left
+undone.
 
 GainMap, as the DNG specification (1.4, chapter 7) and Adobe's DNG SDK
 (``dng_gain_map_interpolator``) define it, in the stage-2 image (the active
@@ -57,6 +61,37 @@ against Adobe's output can find them: pixel ``x`` sits at ``x + 0.5`` (pixel
 centres, the image spanning ``0..w``); the source is sampled bilinearly (the
 SDK uses a wider resampling kernel); a source point outside the image takes the
 nearest edge pixel.
+
+FixVignetteRadial (DNG specification 1.4, chapter 7), on every plane of the
+stage-2 or stage-3 image:
+
+* the parameters are ``k0..k4`` and the optical centre ``(cx, cy)`` as
+  fractions of the image width and height (seven float64);
+* ``r`` is a pixel's distance from the centre divided by the distance from the
+  centre to the farthest image corner (``r = 1`` there, as for the warp);
+* the gain is ``1 + k0 r^2 + k1 r^4 + k2 r^6 + k3 r^8 + k4 r^10`` and the
+  value becomes ``min(value * gain, 1)``.
+
+Choices: pixel centres at ``x + 0.5`` (as for the warp); the gain is evaluated
+at every pixel in float64, where the SDK builds a fixed-point gain mask on a
+coarser grid and interpolates it, so the two can differ in the last few bits.
+
+MapPolynomial (DNG specification 1.4, chapter 7), over an area, planes and
+pitches laid out as GainMap's:
+
+* the parameters are ``top, left, bottom, right, plane, planes, row_pitch,
+  col_pitch`` (uint32), the degree ``d`` (uint32, at most 8) and ``d + 1``
+  float64 coefficients ``c0..cd``;
+* the value ``x`` becomes ``c0 + c1 x + ... + cd x^d``, pinned to ``0..1`` (as
+  the SDK pins it).
+
+In stage 3 this module holds white-balanced values (``develop`` keeps them that
+way for the warp), so each plane is divided by its white-balance scale before
+the polynomial and multiplied back after, and the vignette's ``1`` becomes that
+scale: the opcodes see the 0..1 camera values the specification describes. An
+area given in full-size pixels is clamped to the image, so on a half-size
+develop a MapPolynomial with a partial area lands on the wrong rows; cameras
+write it over the whole frame.
 """
 
 from __future__ import annotations
@@ -88,6 +123,8 @@ OPCODE_NAMES = {
 
 GAIN_MAP = 9
 WARP_RECTILINEAR = 1
+FIX_VIGNETTE_RADIAL = 3
+MAP_POLYNOMIAL = 8
 
 
 class OpcodeError(ValueError):
@@ -145,6 +182,54 @@ class WarpRectilinear:
 
     def plane_terms(self, p: int) -> tuple[float, float, float, float, float, float]:
         return self.terms[min(p, len(self.terms) - 1)]
+
+
+@dataclass(frozen=True)
+class VignetteRadial:
+    k: tuple[float, float, float, float, float]
+    cx: float
+    cy: float
+
+
+@dataclass(frozen=True)
+class MapPolynomial:
+    top: int
+    left: int
+    bottom: int
+    right: int
+    plane: int
+    planes: int
+    row_pitch: int
+    col_pitch: int
+    coeffs: tuple[float, ...]  # c0..cd
+
+
+def parse_vignette_radial(op: Opcode) -> VignetteRadial:
+    p = op.params
+    if len(p) < 56:
+        raise OpcodeError("FixVignetteRadial parameters shorter than 56 bytes")
+    vals = struct.unpack_from(">7d", p, 0)
+    k, cx, cy = vals[:5], vals[5], vals[6]
+    if not all(math.isfinite(v) and abs(v) < 1e6 for v in k) or not (0.0 <= cx <= 1.0 and 0.0 <= cy <= 1.0):
+        raise OpcodeError("FixVignetteRadial with terms out of range")
+    return VignetteRadial(tuple(k), cx, cy)
+
+
+def parse_map_polynomial(op: Opcode) -> MapPolynomial:
+    p = op.params
+    if len(p) < 36:
+        raise OpcodeError("MapPolynomial parameters shorter than 36 bytes")
+    top, left, bottom, right, plane, planes, rp, cp, degree = struct.unpack_from(">9I", p, 0)
+    if degree > 8:
+        raise OpcodeError(f"MapPolynomial of degree {degree} (at most 8)")
+    if len(p) < 36 + 8 * (degree + 1):
+        raise OpcodeError(f"MapPolynomial holds fewer than its {degree + 1} coefficients")
+    if rp < 1 or cp < 1 or bottom <= top or right <= left or planes < 1:
+        raise OpcodeError("MapPolynomial with an empty area or zero pitch")
+    coeffs = struct.unpack_from(f">{degree + 1}d", p, 36)
+    if not all(math.isfinite(c) and abs(c) < 1e6 for c in coeffs):
+        raise OpcodeError("MapPolynomial with coefficients out of range")
+    return MapPolynomial(top, left, bottom, right, plane, planes, rp, cp, tuple(coeffs))
 
 
 def parse_warp_rectilinear(op: Opcode) -> WarpRectilinear:
@@ -222,14 +307,22 @@ def _axis_index(pos: int, size: int, origin: float, spacing: float, points: int)
 
 @dataclass
 class Plan:
-    """What a raw image's opcode lists hold, and the gain maps this module will run."""
+    """What a raw image's opcode lists hold, and the opcodes this module will run.
+
+    ``stage2`` and ``stage3`` are the runnable opcodes of ``OpcodeList2`` and
+    ``OpcodeList3`` in list order (what ``apply_row``/``apply_plane`` and
+    ``run_stage3_rgb``/``run_stage3_planes`` take); ``gain_maps`` and
+    ``warps`` are the GainMap and WarpRectilinear among them.
+    """
 
     gain_maps: list[GainMap]
     notes: list[str]
     warps: list[WarpRectilinear] = field(default_factory=list)
+    stage2: list = field(default_factory=list)
+    stage3: list = field(default_factory=list)
 
     def __bool__(self) -> bool:
-        return bool(self.gain_maps or self.warps)
+        return bool(self.gain_maps or self.warps or self.stage2 or self.stage3)
 
 
 def plan(ifd, ifd0, cfa: bool = True) -> Plan:
@@ -243,6 +336,9 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
 
     gain_maps: list[GainMap] = []
     warps: list[WarpRectilinear] = []
+    stage2: list = []
+    stage3: list = []
+    applied: list[tuple[str, str]] = []
     notes: list[str] = []
     for tag, label in (
         (TAG_OPCODE_LIST_1, "OpcodeList1"),
@@ -268,12 +364,26 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
                     notes.append(f"{label} GainMap unreadable and skipped: {exc}")
                     continue
                 gain_maps.append(gm)
+                stage2.append(gm)
                 continue
             if tag == TAG_OPCODE_LIST_3 and op.id == WARP_RECTILINEAR:
                 try:
-                    warps.append(parse_warp_rectilinear(op))
+                    wp = parse_warp_rectilinear(op)
                 except OpcodeError as exc:
                     notes.append(f"{label} WarpRectilinear unreadable and skipped: {exc}")
+                    continue
+                warps.append(wp)
+                stage3.append(wp)
+                continue
+            if tag != TAG_OPCODE_LIST_1 and op.id in (FIX_VIGNETTE_RADIAL, MAP_POLYNOMIAL):
+                parser = parse_vignette_radial if op.id == FIX_VIGNETTE_RADIAL else parse_map_polynomial
+                try:
+                    parsed = parser(op)
+                except OpcodeError as exc:
+                    notes.append(f"{label} {op.name} unreadable and skipped: {exc}")
+                    continue
+                (stage2 if tag == TAG_OPCODE_LIST_2 else stage3).append(parsed)
+                applied.append((label, op.name))
                 continue
             key = op.name + ("" if op.optional else " (required)")
             skipped[key] = skipped.get(key, 0) + 1
@@ -283,7 +393,10 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
         notes.append(f"OpcodeList2: {len(gain_maps)} GainMap applied (lens shading)")
     if warps:
         notes.append(f"OpcodeList3: {len(warps)} WarpRectilinear applied (lens distortion)")
-    return Plan(gain_maps, notes, warps)
+    for (label, name) in dict.fromkeys(applied):
+        what = "lens vignetting" if name == "FixVignetteRadial" else "value mapping"
+        notes.append(f"{label}: {applied.count((label, name))} {name} applied ({what})")
+    return Plan(gain_maps, notes, warps, stage2, stage3)
 
 
 def _row_entries(gm: GainMap, y: int, h: int, p: int) -> list[float]:
@@ -299,10 +412,16 @@ def _rows_cols(gm: GainMap, h: int, w: int):
     return rows, cols
 
 
-def apply_row(maps: list[GainMap], y: int, row: list[float], h: int, w: int, spp: int) -> None:
-    """Run the gain maps on one normalised active-area row, in place (pure Python)."""
+def apply_row(maps: list, y: int, row: list[float], h: int, w: int, spp: int) -> None:
+    """Run the stage-2 opcodes (``Plan.stage2``) on one normalised active-area row, in place (pure Python)."""
 
     for gm in maps:
+        if isinstance(gm, VignetteRadial):
+            _vignette_row(gm, y, row, 0, h, w, spp, None)
+            continue
+        if isinstance(gm, MapPolynomial):
+            _poly_row(gm, y, row, 0, h, w, spp, None)
+            continue
         rows, cols = _rows_cols(gm, h, w)
         if y not in rows:
             continue
@@ -316,12 +435,18 @@ def apply_row(maps: list[GainMap], y: int, row: list[float], h: int, w: int, spp
                 row[k] = 1.0 if v > 1.0 else v
 
 
-def apply_plane(maps: list[GainMap], plane, h: int, w: int, spp: int) -> None:
-    """Run the gain maps on the normalised (h, w * spp) float64 plane, in place (numpy)."""
+def apply_plane(maps: list, plane, h: int, w: int, spp: int) -> None:
+    """Run the stage-2 opcodes (``Plan.stage2``) on the normalised (h, w * spp) float64 plane, in place (numpy)."""
 
     import numpy as np
 
     for gm in maps:
+        if isinstance(gm, VignetteRadial):
+            _vignette_plane(gm, plane, h, w, spp, None)
+            continue
+        if isinstance(gm, MapPolynomial):
+            _poly_plane(gm, plane, h, w, spp, None)
+            continue
         rows, cols = _rows_cols(gm, h, w)
         if not len(rows) or not len(cols):
             continue
@@ -344,6 +469,130 @@ def apply_plane(maps: list[GainMap], plane, h: int, w: int, spp: int) -> None:
             xs = np.array(list(cols), dtype=np.int64) * spp + p
             sub = plane[ys[:, None], xs[None, :]] * g
             plane[ys[:, None], xs[None, :]] = np.where(sub > 1.0, 1.0, sub)
+
+
+# --- FixVignetteRadial and MapPolynomial ----------------------------------------------------------------------------
+#
+# Each runs on a flat buffer of ``h`` rows of ``w * spp`` samples: the stage-2
+# row (offset 0) or the interleaved stage-3 RGB image (offset ``y * w * 3``).
+# ``scale`` is None in stage 2; in stage 3 it is the per-plane white-balance
+# scale the values carry (module docstring). The pure and numpy paths repeat
+# the same float64 operations in the same order, so both give the same bytes.
+
+
+def _vignette_frame(vg: VignetteRadial, w: int, h: int) -> tuple[float, float, float]:
+    cxp, cyp = vg.cx * w, vg.cy * h
+    m = max(math.hypot(x - cxp, y - cyp) for x in (0.0, float(w)) for y in (0.0, float(h)))
+    return cxp, cyp, (m if m > 0 else 1.0)
+
+
+def vignette_gain(vg: VignetteRadial, x: float, y: float, w: int, h: int) -> float:
+    """The FixVignetteRadial gain at pixel (x, y) of a ``w`` x ``h`` image (the reference)."""
+
+    k0, k1, k2, k3, k4 = vg.k
+    cxp, cyp, m = _vignette_frame(vg, w, h)
+    dx = (x + 0.5 - cxp) / m
+    dy = (y + 0.5 - cyp) / m
+    r2 = dx * dx + dy * dy
+    return 1.0 + r2 * (k0 + r2 * (k1 + r2 * (k2 + r2 * (k3 + r2 * k4))))
+
+
+def _vignette_row(vg: VignetteRadial, y: int, buf, off: int, h: int, w: int, spp: int, scale) -> None:
+    for x in range(w):
+        g = vignette_gain(vg, x, y, w, h)
+        for p in range(spp):
+            k = off + x * spp + p
+            cap = 1.0 if scale is None else scale[p]
+            v = buf[k] * g
+            buf[k] = cap if v > cap else v
+
+
+def _vignette_plane(vg: VignetteRadial, plane, h: int, w: int, spp: int, scale) -> None:
+    import numpy as np
+
+    k0, k1, k2, k3, k4 = vg.k
+    cxp, cyp, m = _vignette_frame(vg, w, h)
+    dx = ((np.arange(w, dtype=np.float64) + 0.5 - cxp) / m)[None, :]
+    dy = ((np.arange(h, dtype=np.float64) + 0.5 - cyp) / m)[:, None]
+    r2 = dx * dx + dy * dy
+    g = 1.0 + r2 * (k0 + r2 * (k1 + r2 * (k2 + r2 * (k3 + r2 * k4))))
+    for p in range(spp):
+        cap = 1.0 if scale is None else scale[p]
+        v = plane[:, p::spp] * g
+        plane[:, p::spp] = np.where(v > cap, cap, v)
+
+
+def _poly(coeffs: tuple[float, ...], x: float) -> float:
+    acc = coeffs[-1]
+    for c in reversed(coeffs[:-1]):
+        acc = acc * x + c
+    return 0.0 if acc < 0.0 else (1.0 if acc > 1.0 else acc)
+
+
+def _poly_row(mp: MapPolynomial, y: int, buf, off: int, h: int, w: int, spp: int, scale) -> None:
+    rows, cols = _rows_cols(mp, h, w)
+    if y not in rows:
+        return
+    for p in range(mp.plane, min(mp.plane + mp.planes, spp)):
+        for x in cols:
+            k = off + x * spp + p
+            if scale is None:
+                buf[k] = _poly(mp.coeffs, buf[k])
+            else:
+                buf[k] = _poly(mp.coeffs, buf[k] / scale[p]) * scale[p]
+
+
+def _poly_plane(mp: MapPolynomial, plane, h: int, w: int, spp: int, scale) -> None:
+    import numpy as np
+
+    rows, cols = _rows_cols(mp, h, w)
+    if not len(rows) or not len(cols):
+        return
+    rsl = slice(rows.start, rows.stop, rows.step)
+    for p in range(mp.plane, min(mp.plane + mp.planes, spp)):
+        csl = slice(cols.start * spp + p, cols.stop * spp, cols.step * spp)
+        v = plane[rsl, csl]
+        if scale is not None:
+            v = v / scale[p]
+        acc = np.full(v.shape, mp.coeffs[-1], dtype=np.float64)
+        for c in reversed(mp.coeffs[:-1]):
+            acc = acc * v + c
+        acc = np.where(acc < 0.0, 0.0, np.where(acc > 1.0, 1.0, acc))
+        plane[rsl, csl] = acc if scale is None else acc * scale[p]
+
+
+def run_stage3_rgb(ops: list, rgb, w: int, h: int, scale=(1.0, 1.0, 1.0)):
+    """Run ``Plan.stage3`` in order on interleaved linear RGB (``array('d')``); returns the result (pure Python)."""
+
+    for op in ops:
+        if isinstance(op, WarpRectilinear):
+            rgb = warp_rgb([op], rgb, w, h)
+        elif isinstance(op, VignetteRadial):
+            for y in range(h):
+                _vignette_row(op, y, rgb, y * w * 3, h, w, 3, scale)
+        else:
+            for y in range(h):
+                _poly_row(op, y, rgb, y * w * 3, h, w, 3, scale)
+    return rgb
+
+
+def run_stage3_planes(ops: list, img, scale=(1.0, 1.0, 1.0)):
+    """Run ``Plan.stage3`` in order on a linear (h, w, 3) float64 image; returns the result (numpy, same bytes)."""
+
+    import numpy as np
+
+    h, w = img.shape[0], img.shape[1]
+    for op in ops:
+        if isinstance(op, WarpRectilinear):
+            img = warp_planes([op], img)
+            continue
+        flat = np.ascontiguousarray(img).reshape(h, w * 3)
+        if isinstance(op, VignetteRadial):
+            _vignette_plane(op, flat, h, w, 3, scale)
+        else:
+            _poly_plane(op, flat, h, w, 3, scale)
+        img = flat.reshape(h, w, 3)
+    return img
 
 
 # --- WarpRectilinear -------------------------------------------------------------------------------------------------
