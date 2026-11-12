@@ -3,7 +3,7 @@ title: "The same line whatever the knots: a quarter off our trend-bend search"
 seo_title: "Speeding up a piecewise-linear trend search without changing an answer"
 date: 2026-11-12
 tags: [changepoint-detector, performance, time-series, open-source]
-description: "Every candidate fit in our trend-bend search started by removing the same straight line. Computing that pass once, and each knot set once, made the search about a quarter faster with byte-identical output."
+description: "Every fit in our trend-bend search began by removing the same line. Doing that once, and each knot set once, cut a quarter of the time with identical output."
 ---
 
 The [changepoint detector](../../ventures/changepoint-detector/) can look for
