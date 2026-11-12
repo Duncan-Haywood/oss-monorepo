@@ -97,6 +97,11 @@ flagships:
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
   - venture: sales-agent
+    inputs_only: >-
+      a strong second reader (a person or a hosted model of another family, which needs a key), real
+      outreach replies and call notes, a real mailbox with a Google or Microsoft app, a HubSpot or
+      Pipedrive account, or a real CRM export (four runs on 2026-11-12, PRs 15025, 15116, 15244 and
+      15247, were sent here and found nothing buildable)
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
