@@ -9,9 +9,9 @@ const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8
 
 test("call-out page's table is what the engine returns for the sample cafe", () => {
   const a = study(SAMPLE());
-  assert.deepEqual([a.cases, a.patched, a.covered, Math.min(...a.moves), Math.max(...a.moves)], [29, 0, 24, 2, 19]);
+  assert.deepEqual([a.cases, a.patched, a.covered, Math.min(...a.moves), Math.max(...a.moves)], [27, 0, 15, 2, 15]);
   const html = page("how-to-cover-a-shift-when-someone-calls-out.html");
-  for (const t of ["29", "2 to 19", "24 of 29", "No warranty", "not legal, tax or financial advice"]) assert.ok(html.includes(t), t);
+  for (const t of ["27", "2 to 15", "15 of 27", "No warranty", "not legal, tax or financial advice"]) assert.ok(html.includes(t), t);
   assert.match(page("sitemap.xml"), /how-to-cover-a-shift-when-someone-calls-out\.html/);
   assert.match(page("index.html"), /how-to-cover-a-shift-when-someone-calls-out\.html/);
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);

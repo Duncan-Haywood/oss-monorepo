@@ -682,3 +682,24 @@ Measured in headless Chromium, café sample, four weeks, exact check on (`build-
 Same table text from both. Stop ends a plan mid-run ("Stopped…", no table) and the next plan works. `page-worker.test.mjs` checks that the worker's plan equals a direct `planWeeks` call (timings aside), that it posts exactly one progress message per week, that `planFairness` reads the same from the structured-clone copy, and that the page's click handler no longer calls `planWeeks` itself.
 
 Not claimed: one machine, one sample, four weeks. The per-week exact budget stays 4 s, so plans are the same as before; with the freeze gone a longer budget could prove more weeks, not yet measured.
+
+## The guide pages re-derived with the exact check on (2026-11-12)
+
+The 14 guide and trade pages quoted the quick search (`exact: false`), with a note that the builder's default had since moved to the exact check, so a reader who tried the same week in the builder saw different numbers (the café: 15 hours open, not 19). Every table is now re-derived from the default build, and the tests that pin those figures (`page.test.mjs`, `page-limits`, `page-posted`, `page-timeoff`, `page-widening`, `page-callout*`) run the default and, for the café tables and the rotation plan, assert that each roster is proven (`optimality.status` "optimal" or "improved"). `eval/callout-cover-study.mjs` and `eval/callout-churn-bench.mjs` take `exact` (default "auto"; `EXACT=off` on the command line for the old figures).
+
+What the proof changed in what the pages say, not only in the digits:
+
+| page | quick search said | proven roster says |
+|---|---|---|
+| clopening | 8-12 h rest gap leaves one more shift open; 14 h covers more than 12 h | up to 10 h costs nothing (220 h, $3,690 either way); 12 and 14 h both cost 2 h |
+| days in a row | 5 days costs a shift; 4 days covers more than 6 | 6, 5 and 4 days all cost nothing; 3 days costs 16 h |
+| time off | the second weekend request costs a shift | the first two are free; the third costs 8 h |
+| rotation (6 identical staff, 8 weeks) | spread setting narrows the tough-shift gap 3 to 2 | setting 10 makes it 0 (36 each), same $28,200 |
+| widening | freeing Eli or lifting Ben or Fay closes one shift | each closes two (+6 h); Cleo still the big one (232 h) |
+| call-out | rebuilds cover 24 of 29 call-outs; a spare part-timer doesn't help | 15 of 27; with the spare 20 of 32 |
+| posted schedule | rebuild leaves the caller's shift open in 3 of 5 cases, moving 4-10 others | rebuild covers every case but moves 3-15 others |
+| overtime, labor cost, template, 14-15, coffee | | new figures; worst labour day Tue 37.8% becomes Mon 36.5%; coffee $2,066 to $2,060 |
+
+Restaurant, retail, salon, daycare and the hiring test were already the same under both. The five open shifts on the proven café week are the weekday 11:00-14:00 lunches (everyone free then is at their weekly limit), so the pages now say which shifts and why.
+
+Not claimed: the call-out and posted-schedule studies' individual rebuilds are not each asserted proven (about 60 builds); the 8-week rotation and the café rows are. The exact check runs under a time budget above 60 copies; every week here is 16-32 shifts and proves in 0.3-2.6 s on one cloud machine, so the figures should not depend on machine speed, but a much slower machine could in principle stop early. The guide page tests now take longer (the `page*.test.mjs` files took 89 s together on one 4-core cloud machine, all 50 passing).
