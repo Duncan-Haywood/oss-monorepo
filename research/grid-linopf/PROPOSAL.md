@@ -120,7 +120,8 @@ versus non-oracle voltage schedule.
 
 1. Held-out SAD test of the API-tuned repair, frozen and with angle rows (2026-11-12, `infra-dcopf`, `results_sad.txt`).
 2. Analytic sensitivities from the Jacobian; same results to 1e-4, fewer power flows.
-3. A voltage schedule not taken from the AC optimum; re-run TYP, API, SAD.
+3. A voltage schedule not taken from the AC optimum; re-run TYP, API, SAD (2026-11-12, `infra-dcopf`, `results_vsched.txt`: at 1.0 pu the repair is clean on 2 of 11 API and SAD, 6 and 7 at the oracle schedule).
+3b. Generator voltage setpoints as decision variables in the linearisation, from the case-file start.
 4. LPAC and a one-shot optimised linearisation as baselines on all three sets.
 5. Load-perturbed copies for intervals; paired tests.
 6. Larger PGLib cases (500 to 2,000 buses) as the second held-out set.
