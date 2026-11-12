@@ -13,6 +13,7 @@ license = { text = "MIT" }
 [project.optional-dependencies]
 figure = ["matplotlib"]
 sim = ["mujoco"]
+drake = ["drake"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

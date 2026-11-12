@@ -794,6 +794,52 @@ the annealing search from both starts. `eval/round-refill.mjs` searches all roun
 - Open: 12 teams at 136 against 120 (a lower bound, or a 12-team timetable below 136); the refill
   from the climbed starters at 14 to 18 teams; refilling the second leg of a season.
 
+## SAT bounds: 10 teams cannot go below 90 (2026-11-12)
+
+The searches above can only find timetables; they cannot say a value is impossible.
+`eval/carryover-sat.py` asks a SAT solver (CaDiCaL 1.9.5 through python-sat, MIT; the eval needs it,
+the tool does not) whether any single round robin of n teams, all playing, has non-cyclic carry-over
+at or under V. SAT returns a timetable; UNSAT is a proof that none exists.
+
+- **Encoding.** x[r,i,j]: i meets j in round r (each pair once, each team once a round; teams labelled
+  so team 0 meets team r + 1 in round r, which any round robin allows). p[t,r,a,b] is forced true when
+  t meets a in round r and b in round r + 1, and each carry-over cell counts its p's with a
+  totalizer. The cells always sum to n(n - 2), so value = n(n - 2) + 2E with E = sum of C(c, 2) over the
+  cells; E is held to (V - n(n - 2)) / 2 by a second totalizer. Cells are capped at 4, which never binds
+  when C(5, 2) = 10 > E (the script says when it does). A found timetable is re-scored from its
+  opponents alone.
+- **Checked against what was already known.** 6 teams: UNSAT at 40, SAT at 42, the same least value
+  as the enumeration of all 720 ordered 1-factorizations above. 8 teams: SAT at the floor, 48.
+- **10 teams** (all playing, CaDiCaL, one core each, this container):
+
+  | Asked: value <= | Answer | Time |
+  |---|---|---|
+  | 80 (the floor) | UNSAT | 0.9 s |
+  | 82 | UNSAT | 10.8 s |
+  | 84 | UNSAT | 78 s |
+  | 86 | UNSAT | 387 s |
+  | 88 | UNSAT | 1,302 s |
+  | 90 | no answer, stopped | 69 min |
+  | 92 | no answer, stopped | 98 min |
+
+  So no 10-team round robin has non-cyclic carry-over below 90 (values are even), against 94, the best
+  the refill search found with all ten playing. The least is 90, 92 or 94. Each step of 2 cost the
+  solver 3 to 7 times the last.
+- **12 teams.** A run at 120 (the floor) and one at 134 (below the stored 136) were both stopped after
+  about 65 and 70 minutes with no answer. A descending probe (240 s per value): SAT at 170 in 24 s
+  (a timetable at 166), no answer at 160. So at 12 teams this
+  encoding does not yet reach the heuristic's 136, let alone prove anything: the open question above
+  stays open. Next: symmetry breaking for round reversal (it transposes the matrix and keeps the
+  value) and for the remaining relabellings, an incremental solve that tightens V on one solver, or a
+  cube-and-conquer split over the second team's round order, before longer runs.
+- **On the page.** `carryOverFromOpponents` now returns `proven` (`PROVEN_LEAST` in `carryover.mjs`)
+  for single non-cyclic round robins of 6, 8 and 10 teams, and the schedule's report says when the
+  floor is not reachable: at 10 teams, "80 is the floor for this many games, but no 10-team round robin
+  can go below 90; a SAT solver proved it". Tests (`carryover.test.mjs`): the 6-team value matches
+  the enumeration, and no search result goes below a proved least.
+- Not claimed: the cyclic value (Russell's definition) was not run; none of this has been checked
+  against the published optimisation literature on carry-over, which this run did not read.
+
 ## Starters picked with their breaks (2026-11-11, latest)
 
 The open item above was "pick the start by carry-over + weight x breaks when a weight is set". Two

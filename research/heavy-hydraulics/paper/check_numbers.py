@@ -195,6 +195,17 @@ CHECKS = [
     ('(70.0 bar at the lowest p95 ratio)', "measured_excavator_flow_results.txt", 'at the lowest r p95: 70.0 bar'),
     ('the synthetic r alone gives 43.8 bar', "measured_excavator_flow_results.txt", 'r 1.43: m* ~ 43.8 bar'),
     ('a fixed pump at the p99 of demand delivers 2.38 times', "measured_excavator_flow_results.txt", 'r p99 2.38'),
+    ('which slows 3.9% of moving samples', "measured_excavator_pump_size_results.txt", 'load-sensing at 219 L/min slows 3.9% of moving samples'),
+    ('from 2.175 to 1.209', "measured_excavator_pump_size_results.txt", '0.50      109.5   1.209     21.1       1.108'),
+    ('from 2.175 to 1.209', "measured_excavator_pump_size_results.txt", ' 1.00      219.0   2.175    118.8       1.000'),
+    ('from 118.8 bar to 21.1 bar, for 1.108 times', "measured_excavator_pump_size_results.txt", '0.50      109.5   1.209     21.1       1.108'),
+    ('the equal-energy pump is 108.0 L/min, 0.450 of the p99 demand, at 1.114 times', "measured_excavator_pump_size_results.txt", '   20.0    130  1.198       108.0     0.450     0.493       1.114'),
+    ('(per file 1.093 to 1.126)', "measured_excavator_pump_size_results.txt", 'time ratio 1.093 to 1.126'),
+    ('it costs 1.069 to 1.191 times', "measured_excavator_pump_size_results.txt", '   14.0    174  1.103        92.9     0.387     0.424       1.191'),
+    ('it costs 1.069 to 1.191 times', "measured_excavator_pump_size_results.txt", '   25.0    100  1.321       124.1     0.518     0.567       1.069'),
+    ('over the 384 geometry cases 1.046 to 1.686 (median 1.197)', "measured_excavator_pump_size_results.txt", 'time ratio at q_eq 1.046 to 1.686 (median 1.197)'),
+    ('buys 33.80 bar of break-even per percent of time', "measured_excavator_pump_size_results.txt", '(33.80 bar per %)'),
+    ('the last full step (131.4 to 109.5 L/min) 3.32', "measured_excavator_pump_size_results.txt", '131.4 ->  109.5 L/min:   17.4 bar for  5.22% time (3.32 bar per %)'),
 ]
 
 

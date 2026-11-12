@@ -79,11 +79,11 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable
-      first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): first-seen 68.7% right, 15.6% wrong; card MCC (README): first-seen right 41% to 66% (Scotland), 61% to 75% (Toronto year, 16 divisions 55-84%); wanted: a firm's own labelled bank books; (1) AI layer on real lines (README "A year of Toronto"): local Qwen 7B right on 35 of 140, 14B on 24 (abstains 32), rules 43; fill keeps the guess (48 either model); split-category plurality measured, off; next: a hosted model (needs a key), real bank text; (2) the bank readers on real US bank exports (six layouts pinned on made-up rows); (3) Adyen's sample read (README); open: a real merchant's payout export, a real 1099-K; (4) a real supplier's terms letter
+      first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): first-seen 68.7% right, 15.6% wrong; card MCC (README): first-seen right 41% to 66% (Scotland), 61% to 75% (Toronto year, 16 divisions 55-84%); wanted: a firm's own labelled bank books; (1) AI layer on real lines (README "A year of Toronto"): local Qwen 7B right on 35 of 140, 14B on 24 (abstains 32), rules 43; fill keeps the guess (48 either model); split-category plurality measured, off; next: a hosted model (needs a key), real bank text; (2) bank readers: 22 public US exports all read (README); open: WF, US Bank, Chase downloads, a business account; (3) Adyen's sample read (README); open: a real merchant's payout export, a real 1099-K; (4) a real supplier's terms letter
       checked against the fee and discount rules, and one named lender's own
       schedule against the loan register (`loan check`); (5) receipts
-      through real OCR (SROIE totals: CLI 77.9% two-pass, page 79.8%
-      reading twice, README; next: phone photos, real paper); (6) payroll (941, Schedule B, 940,
+      through real OCR (SROIE page 80.8%; CORD phone photos 50.5%, unwarned
+      wrong 12 of 95, README; next: a US thermal photo); (6) payroll (941, Schedule B, 940,
       deposits, `payroll reconcile`): a real Gusto or ADP report; (7) IRIS
       NEC and MISC rents files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
       return` (page card; no-sales-tax states warn): due dates read from the
@@ -158,8 +158,8 @@ flagships:
       2026-11-12, OM 49/49, README "Baisa line nets"); PINT repair
       closed 2026-11-12 (README "PINT Oman, UAE and Malaysia": OM seeded 657/658,
       AE and MY correct files 32/32 and 26/26, AE reverse charge kept at 0); open:
-      repair of UAE BTAE-08 and MY ItemPriceExtension amounts (0/40, 0/42 seeded),
-      AE volume-discount credit note, a real business's PINT file; BT-86, ZATCA line
+      a check flagging a wrong UAE BTAE-10 (no rule does, 0/40) or BTAE-08 (11/36;
+      repair done, README "UAE line VAT"); AE volume-discount credit note, a real business's PINT file; BT-86, ZATCA line
       TaxTotal, CIUS-RO 1.3.8 base, ZATCA/A-NZ repair (257/258,
       270/270) and INV-059 closed 2026-11-12 (README); open: a 1.3.8 base on the Saxon route; RO_CIUS on a real ANAF
       file; NLCIUS on a real Dutch file; India's INV-01 check on a real
@@ -181,45 +181,49 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and every measurement are in the README and eval/*. Exact side: branch-and-price (bnp.mjs)
-      proves least open hours on every bench and 20-80 person week; column generation proves 40-person weeks in
-      6-12 s; since 2026-11-12 the exact check is on by default at every size (README "The exact check on by
-      default, every size": 40 seeded and template weeks never worse, better on 22, proven on 38; café sample 19 h
-      to 15 h open; off under --open-shift-hours). Forecast side (--from-sales, four real files): backtest,
-      closure score, half-life auto, priced cut, --count tickets, labour standard with fixed and shut-door work,
-      --shut-min by weekday (README, 2026-11-12 sections). Next: close the 100-person gaps (tree, not pricing);
-      cuts or branching that move the score LP on the 60-person pay week ($1.22 open); the 60x168 end-to-end
-      week 0 (root LP 275.2 h vs 300 h held); the call-out and posted-schedule studies'
-      rebuilds asserted proven like the café guide rows (guide pages re-derived with the exact check on 2026-11-12, README); now that the page's build and the multi-week planner both run in the
-      worker (README "The multi-week planner plans in the worker too", 4-week plan freeze 6.2 s to 17 ms); a longer
-      per-week budget than 4 s proved no more planned weeks (32 of 32 at 4, 8 and 16 s), and repeated weeks now reuse
-      their roster (README "The planner stops rebuilding the same week": 4-week plans 2x faster, same rosters); next
-      there, a plan with real dated leave through the month (how often weeks still repeat); a real Square or Toast item export (columns read, made-up rows only); a real
-      published-schedule export for --import-shifts; whether the priced cut's r = 1 default suits a real
-      manager; a manager's real task list for the fixed minutes.
+      Landed work and every measurement are in the README and eval/*. Exact side: branch-and-price and column generation
+      prove 20-80 person weeks; the exact check is on by default at every size (README "The exact check on by default,
+      every size"). Forecast side (--from-sales, four real files): backtest, closure score, half-life auto, priced cut,
+      tickets, labour standard, shut-door work (README, 2026-11-12 sections). Planner: runs in the worker, reuses
+      repeated weeks, and since 2026-11-12 keeps people on their usual shifts (README "Keep people on their usual
+      shifts": week-to-week changes -56-72% at the same open hours, leave swept at 2-8%). Next: close the 100-person
+      gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person pay week ($1.22 open); the
+      60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held); a knapsack row (open hours at least the lifted floor) in
+      bnp.mjs's master LP (README "Open hours come in whole shifts"), then re-measure the 20-60 person benches; the
+      keep-usual-shifts sweep with the exact check off (stopped unfinished) and on real dated leave records; a manager's
+      read on whether the steadier plan is the one they would post; a real Square or Toast item export; a real
+      published-schedule export for --import-shifts; whether the priced cut's r = 1 default suits a real manager; a
+      manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
+    buildable: >-
+      WarpRectilinear (OpcodeList3) on the real Leica T DNG, fetched from
+      raw.githubusercontent.com (eval/camera-dngs-2026-11-12.md "Reproduce").
     next: >-
       History and every measurement: README and eval/ (ingest, catalog,
       proxies, cull, RAW previews; DNG developer with DNG-spec colour, DCP
       tables, tone curves, triple-illuminant profiles, default tone curve;
-      numpy engine and native lossless-JPEG Huffman reader; Canon CR2 directly
-      and in the grade stage; five real Canon bodies against LibRaw,
-      eval/cr2-five-bodies-2026-11-12.md; the "3-9% brighter" gap was the
-      check's own LibRaw call, eval/cr2-brightness-gap-2026-11-12.md: data
-      matches LibRaw to 0.05-0.19 8-bit steps, the rest is the DNG colour
-      model, 0.07 near D65 to 0.88 at 4,700 K). Next, most valuable first: a
-      real Adobe `.dcp` through the profile chooser; newer
-      CR2s (ColorData8-11: 5D Mark IV, 80D, 90D) and the four camera-written
-      DNGs (DJI, Nexus 5X, Leica T, Pentax QS1; uncompressed, develop as RGGB,
-      not yet compared with LibRaw), all from drewnoakes/metadata-extractor-
-      images on raw.githubusercontent.com, which answers from cloud (its NEF,
-      ARW and ORF folders would serve a NEF/ARW reader); a real DNG 1.6 three-
+      numpy engine, native Huffman reader; Canon CR2 directly and in the
+      grade stage; five Canon bodies match LibRaw to 0.05-0.19 8-bit steps,
+      eval/cr2-brightness-gap-2026-11-12.md; camera-written DNGs from a
+      Nexus 5X, Leica T and Pentax Q-S1 match LibRaw to 0.02-0.11 steps and
+      the phone's OpcodeList2 GainMap lens shading runs, eval/camera-dngs-
+      2026-11-12.md). Next, most valuable first: WarpRectilinear (OpcodeList3
+      lens distortion; the Leica T DNG from drewnoakes/metadata-extractor-
+      images on raw.githubusercontent.com carries one marked required, so it
+      is buildable here, checked against the spec's formula and the frame's
+      straight edges) and the other opcodes (FixBadPixels, MapPolynomial,
+      FixVignetteRadial); a real Adobe `.dcp` through the profile chooser;
+      newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that
+      collection under their plain names) and the DJI DNG (name unknown
+      without a directory listing; its NEF, ARW and ORF folders would serve
+      a NEF/ARW reader); a phone DNG with the phone's own JPEG of the same
+      frame (to check the corrected corners); a real DNG 1.6 three-
       light profile and the SDK's triple weights; a tungsten-lit colour chart
       to say which colour model is closer (the 70D frame, 4,700 K and green-
-      tinted, is where they part most), and a DNG with ForwardMatrix; an
+      tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
       Adobe render of a known frame (settles `--default-tone-curve always`);
       the grade-scope saving on real 4K footage; the native Huffman reader on
       macOS and the 0.8 s list the public decoder still builds dropped; a
@@ -248,15 +252,19 @@ flagships:
       (+0.0007 over 80 cells), better on honest panels and slot clickers
       (up to +0.025), real panels at least standard's in 22 of 25 cells; the
       one cost is whole-session coin flippers at 40-50% of a panel (-0.006 to
-      -0.025), and salience leaks 0.01-0.03 more. Next, most valuable first:
-      (a) the coin-flip cost under staged: a fix that does not tax camps (the
-      agreement note already flags them; try down-weighting answers on pairs
-      the panel finds clear, or a lapse-aware pool), and a heavier-tailed
-      prior for the pairwise intervals; (b) half-time salience (q = 0.5 still
-      leaks +0.12 to +0.29: does pace see them?); (c) check the answer-time
-      model against the first real survey's msToAnswer; (d) position bias
-      that starts mid-session; (e) the switch rule above 120 items (then make
-      staged the default there too); then real pairwise answers.
+      -0.025), and salience leaks 0.01-0.03 more. Coin-flip fix tried
+      2026-11-12, not shipped (INFORMATION-GAIN-SELECTOR.md "Self-consistency"):
+      selfConsistency.ts is camp-blind but near a coin under staged; as a gate
+      on the agreement drop it halves the camp tax, but on real panels it
+      depends on real answer noise; 18-46% of real people sit under the 0.2
+      agreement line with nobody careless. Next, most
+      valuable first: (a) a heavier-tailed prior for the pairwise intervals;
+      (b) half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace
+      see them?); (c) the first real survey's answers: msToAnswer against the
+      answer-time model, and how noisy real pairwise answers are, which
+      decides the self-consistency gate (scripts/coin-flip-gate-real.ts
+      --honest-lapse); (d) position bias that starts mid-session; (e) the
+      switch rule above 120 items (then make staged the default there too).
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
@@ -279,7 +287,8 @@ flagships:
       season", eval/shift-double.txt): 25 teams 2,889/262 to 2,685/117, 9 of 10 sizes lower at
       weight 10, 26 unchanged. Next, most valuable first: re-measure the page's best-of-k picks
       with it; seed assignVenues with the shift orientation after the search's moves; a lower bound or a
-      timetable below 136 at 12; close 24-40 (tabu, longer runs, the literature's starters and
+      timetable below 136 at 12 (SAT encoding eval/carryover-sat.py, 2026-11-12: 10 teams proved >= 90, 12
+      teams unanswered at 134 after 70 min; next symmetry breaking or cube-and-conquer, README "SAT bounds"); close 24-40 (tabu, longer runs, the literature's starters and
       terraces); a 20-team leg at 22-30 breaks from a starter timetable; a real league's travel
       times and unavailable dates; a print check.
   - venture: open-tennis-robots

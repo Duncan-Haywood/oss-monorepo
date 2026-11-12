@@ -1395,8 +1395,10 @@ alpha reliability. Check each before citing it.
    a human codebook on the same corpus: coverage, redundancy, and agreement when each is applied.
 5. `qual-features` (done 2026-10-21): qualitative codes and LLM-scored dimensions as features next to numeric ones
    in a predictive model, against embeddings and bag-of-words at the same labelling budget.
-6. `qual-hypothesis` (done 2026-10-20): LLM-proposed, human-readable hypotheses about what separates two sets of
-   documents, scored on held-out data, with a check for hypotheses that merely restate the label.
+6. `qual-hypothesis` (partly done 2026-10-20): LLM-proposed, human-readable hypotheses about what separates two sets of
+   documents, scored on held-out data, with a check for hypotheses that merely restate the label. Built: the
+   held-out check with a word-counting proposer and a word-list restatement flag; not built: the LLM proposer and a
+   real restatement check (quality audit round 53, `portfolio/quality/audits/2026-11-12-qual-hypothesis.json`).
 7. `qual-regression` (done 2026-10-20): extend the correction from means to regression coefficients (DSL, PPI++)
    and to multi-class codes.
 

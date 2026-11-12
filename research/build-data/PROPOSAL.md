@@ -42,6 +42,8 @@ Uncertainty and scoring
 8. Angelopoulos and Bates (2021), "A Gentle Introduction to Conformal Prediction and Distribution-Free Uncertainty Quantification", arXiv:2107.07511. Coverage definitions and diagnostics we report.
 9. Gneiting and Raftery (2007), "Strictly Proper Scoring Rules, Prediction, and Estimation", *JASA* 102(477), doi:10.1198/016214506000001437. Why we score with pinball loss and CRPS, not RMSE.
 10. Koenker and Bassett (1978), "Regression Quantiles", *Econometrica* 46(1), doi:10.2307/1913643. The quantile loss under the interval models.
+13. Graf, Schmoor, Sauerbrei and Schumacher (1999), "Assessment and comparison of prognostic classification schemes for survival data", *Statistics in Medicine* 18(17-18), doi:10.1002/(SICI)1097-0258(19990915/30)18:17/18<2529::AID-SIM274>3.0.CO;2-5. Inverse-probability-of-censoring weighting of a score (the Brier score) under right censoring; session 78 applies the same weighting to pinball loss.
+14. Robins and Rotnitzky (1992), "Recovery of Information and Adjustment for Dependent Censoring Using Surrogate Markers", in *AIDS Epidemiology*, Birkhäuser, doi:10.1007/978-1-4757-1229-2_14. The IPCW estimator.
 
 Attribution and data practice
 11. Lundberg and Lee (2017), "A Unified Approach to Interpreting Model Predictions", arXiv:1705.07874. Field attribution for "which fields carry the signal"; we add a permutation test because SHAP is not a causal claim.

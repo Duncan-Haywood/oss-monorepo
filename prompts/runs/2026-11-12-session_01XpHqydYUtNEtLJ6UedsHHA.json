@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqydYUtNEtLJ6UedsHHA",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T16:39:02Z",
+  "ended": "2026-11-12T16:54:39Z",
+  "wall_minutes": 15.77,
+  "tokens_in": 7710433,
+  "tokens_out": 52246,
+  "cost_usd": 3.7991,
+  "tool_calls": 67,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15189",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '2514/40 runs toward the next review' and drew research; either the review counter is broken or the review is badly overdue and review_when_due is not firing."
+    },
+    {
+      "file": "research/buildbot-sheathing/README.md",
+      "issue": "Reproduce said 'tested with mujoco 3' while milestone 3's results.json records mujoco 4.0.1; corrected in this PR."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No note that pybullet is sdist-only on PyPI (a long compile) while drake ships wheels and installs in about a minute; a second-simulator milestone should know to pick Drake."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-sheathing-robot-ledger-second-physics-engine.md",
+    "research/buildbot-sheathing/LOG.md (milestone 6 planned and result entries)"
+  ],
+  "goal": null,
+  "notes": "Milestone 6 of buildbot-sheathing: the ledger seat and slide rebuilt in Drake 1.51.1 (SAP), compared with MuJoCo 4.0.1. H-E held (clean sheets within 0.06 points over 24 pipelines); H32, H33, H36 held; H34 refuted (soft held wrist keeps up to 0.016 deg in Drake). Bowed-edge rock is model-dependent (0.107-0.123 vs 0.139-0.145 deg). Local checks: tests 21 passed with drake (test_drake_seat, test_cycle, test_ledger), 8 passed + 4 skipped without drake; research/_homepage/build.py ok; check_md_links ok; research_live_links ok; programme_check ok; cite_check ok on all 7 DOIs and 5 arXiv ids; post front matter and similarity checks ok. Experiment wall time 404 s on 4 CPUs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a2d0aa37-c430-5de3-b012-dcae827fbdf6",
+    "transcripts": 1,
+    "first": "2026-11-12T16:39:02Z",
+    "last": "2026-11-12T16:54:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 114,
+        "output": 52246,
+        "thinking": 12017,
+        "cache_read": 7554981,
+        "cache_write_5m": 0,
+        "cache_write_1h": 155338,
+        "api_equivalent_usd": 3.7991,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 114,
+      "output": 52246,
+      "thinking": 12017,
+      "cache_read": 7554981,
+      "cache_write_5m": 0,
+      "cache_write_1h": 155338,
+      "api_equivalent_usd": 3.7991,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 60,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.77,
+      "active_minutes": 15.77,
+      "model_minutes": 8.04,
+      "tool_minutes": 7.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a robotics PhD student porting a MuJoCo contact scene to Drake, running the comparison grids and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 315.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

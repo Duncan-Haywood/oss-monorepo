@@ -106,3 +106,18 @@ test('weeklyIncomeGap says whether a week of inspections clears the target and b
   assert.ok(!zeroProfit.meetsTarget);
   assert.equal(zeroProfit.additionalJobsNeeded, null);
 });
+
+// Added after the 2026-11-12 quality audit: seeded changes to the small-home floor and to the
+// weekly-goal comparison both left the suite green.
+test('a small slab home hits the 1.25-hour floor', () => {
+  const r = calculateQuote({ ...DEFAULTS, squareFootage: 500, stories: 1, foundationType: 'slab', homeAgeYears: 0 });
+  assert.equal(r.onSiteHours, 1.25); // 500*0.00125 = 0.625, below the floor
+  // cost = 125 labor + 14 travel (20 mi x 0.70) + 35 overhead = 174; price = 174 / 0.75
+  assert.equal(r.finalPrice.toFixed(2), '232.00');
+});
+
+test('profit exactly at the weekly target meets it', () => {
+  const r = weeklyIncomeGap(2000, 400, 5);
+  assert.equal(r.meetsTarget, true);
+  assert.equal(r.additionalJobsNeeded, 0);
+});

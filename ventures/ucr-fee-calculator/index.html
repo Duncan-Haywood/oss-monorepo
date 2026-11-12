@@ -9,7 +9,7 @@
   <meta property="og:description" content="Unified Carrier Registration fee by fleet size, with the cost of the next bracket.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UCR Fee Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free Unified Carrier Registration fee calculator for truckers, brokers and fleets: fee bracket by vehicle count, what the next bracket costs, and cost per vehicle and per mile."}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much is the UCR fee?", "acceptedAnswer": {"@type": "Answer", "text": "The Unified Carrier Registration fee depends on fleet size: six brackets from 0-2 vehicles up to 1,001 or more. Each year's amounts are set by the UCR Board and published at ucr.gov. This tool defaults to the 2027 schedule and lets you edit the table."}}, {"@type": "Question", "name": "Who has to pay UCR?", "acceptedAnswer": {"@type": "Answer", "text": "Motor carriers, motor private carriers, brokers, freight forwarders and leasing companies that operate in interstate or international commerce, and are based in a participating state. Check the UCR Plan rules for your operation."}}, {"@type": "Question", "name": "Do brokers and freight forwarders pay by fleet size?", "acceptedAnswer": {"@type": "Answer", "text": "No. Brokers, freight forwarders and leasing companies pay the lowest bracket regardless of how much freight or how many vehicles they handle."}}, {"@type": "Question", "name": "Which vehicles count toward the bracket?", "acceptedAnswer": {"@type": "Answer", "text": "Self-propelled commercial motor vehicles used in interstate commerce. Trailers do not count on their own. Confirm the definition with your state UCR office."}}, {"@type": "Question", "name": "When is UCR due?", "acceptedAnswer": {"@type": "Answer", "text": "Registration for a year opens in the fall and the fee is due by December 31 so you are covered when enforcement starts on January 1. Your base state may add a processing fee and its own deadline."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this legal or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a planning estimate from numbers you enter. Verify the fee and your obligation at ucr.gov or with your state UCR office. It does not file or pay anything."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much is the UCR fee?", "acceptedAnswer": {"@type": "Answer", "text": "The Unified Carrier Registration fee depends on fleet size: six brackets from 0-2 vehicles up to 1,001 or more. Each year's amounts are set by the UCR Board and published at ucr.gov. This tool defaults to the 2027 schedule and lets you edit the table."}}, {"@type": "Question", "name": "Who has to pay UCR?", "acceptedAnswer": {"@type": "Answer", "text": "Motor carriers, motor private carriers, brokers, freight forwarders and leasing companies that operate in interstate or international commerce, and are based in a participating state. Check the UCR Plan rules for your operation."}}, {"@type": "Question", "name": "Do brokers and freight forwarders pay by fleet size?", "acceptedAnswer": {"@type": "Answer", "text": "Brokers and leasing companies do not: they pay the lowest bracket regardless of how much freight or how many vehicles they handle. Freight forwarders pay by the number of commercial motor vehicles they operate, like motor carriers (49 CFR 367.50)."}}, {"@type": "Question", "name": "Which vehicles count toward the bracket?", "acceptedAnswer": {"@type": "Answer", "text": "Self-propelled commercial motor vehicles used in interstate commerce. Trailers do not count on their own. Confirm the definition with your state UCR office."}}, {"@type": "Question", "name": "When is UCR due?", "acceptedAnswer": {"@type": "Answer", "text": "Registration for a year opens in the fall and the fee is due by December 31 so you are covered when enforcement starts on January 1. Your base state may add a processing fee and its own deadline."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this legal or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a planning estimate from numbers you enter. Verify the fee and your obligation at ucr.gov or with your state UCR office. It does not file or pay anything."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -43,7 +43,7 @@
   <header>
     <p class="note">UCR FEE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
     <h1>How much is your UCR fee, and what does one more truck cost?</h1>
-    <p class="answer-source" data-answer-lead>The 2027 Unified Carrier Registration fee for a motor carrier depends on fleet size: $46 for 0 to 2 vehicles, $138 for 3 to 5, $276 for 6 to 20, $963 for 21 to 100, $4,592 for 101 to 1,000 and $44,836 for 1,001 or more. Source: UCR Plan, 2027 fee schedule (plan.ucr.gov), As of 2026-11-03. Confirm at ucr.gov for the year you file.</p>
+    <p class="answer-source" data-answer-lead>The 2027 Unified Carrier Registration fee for a motor carrier depends on fleet size: $55 for 0 to 2 vehicles, $167 for 3 to 5, $333 for 6 to 20, $1,163 for 21 to 100, $5,548 for 101 to 1,000 and $54,165 for 1,001 or more. Source: FMCSA final rule, 91 FR 56063 (2026-09-01), 49 CFR 367.50, As of 2026-11-12. Confirm at ucr.gov for the year you file.</p>
     <p>List each registrant (a carrier, a broker, a leasing company) with its number of commercial motor vehicles. You get <strong>the UCR fee bracket, the fee, how many more trucks fit before the fee jumps, and the cost per vehicle and per mile</strong>, so you can budget before December 31 and think twice before a 21st truck costs you the 6-to-20 discount.</p>
     <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not a registration.</p>
   </header>
@@ -55,12 +55,12 @@
     <label for="entities">Registrants</label>
     <textarea id="entities" rows="4" spellcheck="false">My Trucking LLC, 3, motor-carrier</textarea>
     <label for="fees">Fee table (edit if ucr.gov lists different amounts)</label>
-    <textarea id="fees" rows="6" spellcheck="false">0-2: 46
-3-5: 138
-6-20: 276
-21-100: 963
-101-1000: 4592
-1001+: 44836</textarea>
+    <textarea id="fees" rows="6" spellcheck="false">0-2: 55
+3-5: 167
+6-20: 333
+21-100: 1163
+101-1000: 5548
+1001+: 54165</textarea>
     <p class="note">Default: 2027 registration year schedule. Fees change by year; verify against ucr.gov for the year you are filing.</p>
     <div class="grid">
       <div><label for="annualMiles">Fleet miles per year (optional, for cost per mile)</label><input type="number" id="annualMiles" min="0" step="1000" value="0"></div>
@@ -84,7 +84,7 @@
     <h2>The rules this applies, and what it leaves out</h2>
     <ul>
       <li>The fee depends on the number of <strong>commercial motor vehicles</strong> in six brackets (0-2, 3-5, 6-20, 21-100, 101-1,000, 1,001+), set each year by the UCR Board (49 U.S.C. 14504a).</li>
-      <li><strong>Brokers, freight forwarders and leasing companies pay the lowest bracket</strong> whatever their size.</li>
+      <li><strong>Brokers and leasing companies pay the lowest bracket</strong> whatever their size; freight forwarders pay by vehicle count, like carriers.</li>
       <li>Due by December 31 for operations starting January 1; your base state may add a processing fee.</li>
       <li><strong>Not modelled:</strong> state processing fees, whether you are required to register at all, penalties for late or missing registration, and the actual filing. The default fee table may be out of date: check ucr.gov.</li>
     </ul>
@@ -97,7 +97,7 @@
     <h3>Who has to pay UCR?</h3>
     <p>Motor carriers, motor private carriers, brokers, freight forwarders and leasing companies that operate in interstate or international commerce, and are based in a participating state. Check the UCR Plan rules for your operation.</p>
     <h3>Do brokers and freight forwarders pay by fleet size?</h3>
-    <p>No. Brokers, freight forwarders and leasing companies pay the lowest bracket regardless of how much freight or how many vehicles they handle.</p>
+    <p>Brokers and leasing companies do not: they pay the lowest bracket regardless of how much freight or how many vehicles they handle. Freight forwarders pay by the number of commercial motor vehicles they operate, like motor carriers (49 CFR 367.50).</p>
     <h3>Which vehicles count toward the bracket?</h3>
     <p>Self-propelled commercial motor vehicles used in interstate commerce. Trailers do not count on their own. Confirm the definition with your state UCR office.</p>
     <h3>When is UCR due?</h3>

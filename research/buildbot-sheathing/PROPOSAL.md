@@ -94,6 +94,13 @@ robot's repeatability.
 *Simulation and control the later milestones use.*
 - Todorov, Erez and Tassa (2012), "MuJoCo: a physics engine for model-based control", IROS
   (doi:10.1109/IROS.2012.6386109). The simulator of every `buildbot-*` project.
+- Castro, Permenter and Han (2023), "An unconstrained convex formulation of compliant contact",
+  *IEEE Transactions on Robotics* (arXiv:2110.10107; checked by `cite_check.py`
+  2026-11-12). Drake's SAP solver; the second contact model of milestone 6.
+- Castro, Qu, Kuppuswamy, Alspach and Sherman (2020), "A transition-aware method for the
+  simulation of compliant contact with regularized friction", *IEEE Robotics and Automation
+  Letters* (arXiv:1909.05700; checked by `cite_check.py` 2026-11-12). Drake's TAMSI solver,
+  the third check of milestone 6.
 - Zakka et al. (2025), "MuJoCo Playground" (arXiv:2502.08844). GPU training of locomotion and
   manipulation policies, including Unitree G1 locomotion; the route to a learned hang-and-hold
   policy.
@@ -201,7 +208,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    read a stud: 0.9997 clean, 76–216 s a sheet; the best single-2x pipeline (three reads) 0.56
    clean and 18–65 s slower, which is what the extra joint stud may cost. Still open: a measured
    time for each stage.
-6. Sim-to-sim on a second contact model.
+6. **Sim-to-sim on a second contact model** (done 2026-11-12, `experiments/m6_drake/`): the
+   ledger seat and slide rebuilt in Drake (SAP). Clean sheets of all 24 ledger pipelines agree
+   within 0.06 points (H-E held); Drake's press thresholds sit at 97–100% of the closed form,
+   MuJoCo's at 87–99%. Still open: how far a bowed bottom edge rocks the sheet (0.11–0.15°,
+   model-dependent).
 7. **Cost per clean sheet by robot class** (done 2026-11-12, `experiments/m7_cost/`): the G1 on a
    drive-and-lift base is the cheapest robot below about 500 houses a year and beats the walking H1
    in every draw; it beats a hand crew in 37% of draws at 100 houses a year and 74% at 300. Doubled
