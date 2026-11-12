@@ -1052,6 +1052,56 @@ says the state is not yet checked. Results:
   text. Utah, Tennessee, Arkansas, Rhode Island, Colorado, Maine, Massachusetts and Ohio
   refused the connection. Not tax advice: your own notice decides your date.
 
+**Vendor discounts read on the states' own pages (2026-11-12).** Before this, `--state`
+applied a timely-filing discount for IL, TX, FL, OH and GA only. Nineteen more states were
+read the same way: the official form instructions, publication, FAQ or statute was saved,
+and every quoted sentence was checked against the saved text. `stateDiscounts` now carries
+15 more, each pinned in `salestaxreturn.test.mjs` with a hand-worked figure:
+
+| State | Rule applied to the "<ST> state" line | Source |
+|---|---|---|
+| AL | 5% of the first $100 of tax, 2% of the rest, at most $400 a month | revenue.alabama.gov due-date calendar |
+| AZ | 1.2% (e-filed; 1% on paper); yearly cap not tracked | A.R.S. 42-5017 |
+| KY | 1.75% of the first $1,000, 1.5% of the rest, at most $50 a return | KRS 139.570 |
+| LA | 0.84% (state tax plus excess collected), at most $750 a month from 2025 | R-1029 instructions, rev. 06/01/26 |
+| MO | 2%, no cap | RSMo 144.140; Form 53-1 |
+| MS | 2%, at most $50 (per return assumed) | dor.ms.gov business FAQ |
+| ND | 1.5%, at most $110 a return | N.D.C.C. 57-39.2-12.1 |
+| NE | 2.5% of state and local sales tax, at most $75 on the return | Neb. Rev. Stat. 77-2708; Form 10 1-2026 |
+| PA | 1%, at most $25 monthly, $75 quarterly, $150 semiannual | pa.gov Sales Tax Discount Q&A |
+| SC | 3% if the return's tax is under $100, else 2% of the whole; fiscal-year cap not tracked | Code 12-36-2610; ST-3 |
+| WI | 0.75%, at least the lesser of $10 or the tax, at most $8,000 a period | Publication 201 |
+| WY | 1.95%, at most $500 a period, only if postmarked by the 15th | Return 41 instructions, rev. 7.10.24 |
+| FL, TX | unchanged (2.5% of the first $1,200, max $30, electronic only; 0.5%) | DR-15 instructions; comptroller.texas.gov |
+
+Two new discount shapes: `steps` (one rate on the whole tax, picked by the return's tax, for
+South Carolina) and `min` (a floor of the lesser of `min` and the tax, for Wisconsin).
+`stateDiscountNote` adds what the preset leaves out to the CLI worksheet and the page's sales
+tax card. That covers the Wyoming 15th, Arizona and South Carolina's yearly caps, Florida's
+electronic-only rule and Texas's 1.25% prepayment discount. It also explains why no discount
+is applied for Michigan (a greater-of rule on the 4% part with monthly limits, MCL 205.54),
+Indiana (the rate depends on the prior July-June liability), Virginia (statute only; the
+rates in force not confirmed on tax.virginia.gov), Oklahoma (STS-20002-C has no discount
+line) and New Mexico (TRD-41413 has none). Local-tax discounts are not applied; add them
+with `--discount "<label>=..."`.
+
+**Found on the way, fixed: the CLI read some flags only once.** `cli.mjs`'s `flag()` removes
+what it reads, and a few commands read the same flag twice, so the second read was always
+empty:
+
+- `salestax return --state` reached only the discount, so the due day, NY/PA/DC periods and
+  every state note fell back to the defaults. Wyoming's month-end returns showed the 20th, and
+  New York's quarters were calendar quarters.
+- `receipts --min 50` used no minimum.
+- `paybills --terms FILE` failed to read its file.
+- `schedulec --meals 100` deducted meals at 0%. Without the flag it was correct at 50%.
+- `scorp --salary-pct` read as 0.
+- `estimate` without `--eitc-children` added the no-child earned income credit nobody asked
+  for, and `--eitc-children 2` counted 0 children.
+
+The page was not affected. Each flag is now read once. `cli-flags-once.test.mjs` runs the CLI
+for the sales tax, `estimate` and `schedulec` cases, and fails on the old code.
+
 **Refunds and write-offs.** A bank line for the exact amount left on a credit
 note nobody applied (money out for a customer's credit, money in for a
 supplier's), with the credit's number or the party's name in the description,

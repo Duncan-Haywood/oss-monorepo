@@ -488,7 +488,7 @@
     import { estimatedTax } from "./estimatedtax.mjs";
     import { annualizedInstallments } from "./annualized.mjs";
     import { scorpFromBooks } from "./scorp.mjs";
-    import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
+    import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote, stateDiscountNote, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
     import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
     import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
     import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
@@ -967,6 +967,8 @@
         const t = salesTaxReturn(books, { frequency: freq, endMonth: st ? stateEndMonth(st, freq) : null, dueDay: st ? stateDueDay(st, freq) : 20, rates: parseRateSpecs(lines("#str-rate")), discounts: { ...stateDiscounts(st), ...parseDiscountSpecs(lines("#str-disc")) }, asOf: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
         const note = stateFilingNote(st, freq);
         if (note) t.warnings.push(note);
+        const dnote = stateDiscountNote(st);
+        if (dnote) t.warnings.push(dnote);
         const rows = [];
         for (const p of t.periods) {
           for (const r of p.rows) rows.push([p.period, r.jurisdiction, fmt(r.taxableSales), fmt(r.tax), r.rate == null ? "-" : (r.rate * 100).toFixed(2) + "%", r.due, r.discount ? fmt(r.discount) : ""]);

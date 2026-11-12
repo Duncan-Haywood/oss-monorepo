@@ -506,3 +506,46 @@ test("a frequency the state's own page does not offer gets a note naming the one
   assert.match(stateFilingNote("MI", "quarterly"), /February 28/);
   assert.match(stateFilingNote("AZ", "monthly"), /accrue from the 20th/);
 });
+
+// Vendor discounts read on the states' own sites 2026-11-12; each figure worked by hand from the quoted rule.
+test("vendor discounts read 2026-11-12: tiers, caps, steps and floors per state", async () => {
+  const { stateDiscounts, stateDiscountNote } = await import("./salestaxreturn.mjs");
+  const mk = (st, cents) => addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-03-01,X,1.00\n", "1000").books,
+    `type,number,date,due,party,amount,account,description\ninvoice,1,2026-03-10,,A Co,100000.00,4000,Goods\ninvoice,1,2026-03-10,,A Co,${(cents / 100).toFixed(2)},2100,${st} state\n`).books;
+  const run = (st, cents, frequency = "monthly") => salesTaxReturn(mk(st, cents), { frequency, discounts: stateDiscounts(st) }).periods[0].rows.find((x) => x.jurisdiction === `${st} state`).discount;
+  assert.equal(run("AL", 50000), 500 + 800);           // 5% of $100 + 2% of $400
+  assert.equal(run("AL", 5000000), 40000);             // $5 + $998 = $1,003, capped at $400 a month
+  assert.equal(run("AL", 20000000, "quarterly"), 120000); // $5 + $3,998 capped at three months of $400
+  assert.equal(run("KY", 200000), 1750 + 1500);        // 1.75% of $1,000 + 1.5% of $1,000 = $32.50
+  assert.equal(run("KY", 1000000), 5000);              // $17.50 + $135 = $152.50, capped at $50 a return
+  assert.equal(run("LA", 10000000), 75000);            // 0.84% of $100,000 = $840, capped at $750 a month
+  assert.equal(run("LA", 100000), 840);
+  assert.equal(run("MS", 100000), 2000);               // 2% of $1,000
+  assert.equal(run("MS", 1000000), 5000);              // $200 capped at $50
+  assert.equal(run("NE", 200000), 5000);               // 2.5% of $2,000
+  assert.equal(run("NE", 400000), 7500);               // $100 capped at $75
+  assert.equal(run("ND", 500000), 7500);               // 1.5% of $5,000
+  assert.equal(run("ND", 1000000), 11000);             // $150 capped at $110
+  assert.equal(run("PA", 100000), 1000);               // 1% of $1,000
+  assert.equal(run("PA", 1000000), 2500);              // $100 capped at $25 monthly
+  assert.equal(run("PA", 1000000, "quarterly"), 7500); // $75 quarterly
+  assert.equal(run("PA", 5000000, "semiannual"), 15000); // $150 semiannual
+  assert.equal(run("SC", 9900), 297);                  // under $100: 3% of $99
+  assert.equal(run("SC", 10000), 200);                 // $100 or more: 2% of the whole $100
+  assert.equal(run("WI", 50000), 1000);                // 0.75% of $500 = $3.75, floor $10
+  assert.equal(run("WI", 500), 500);                   // floor is the lesser of $10 and the $5 tax
+  assert.equal(run("WI", 10000000), 75000);            // 0.75% of $100,000
+  assert.equal(run("WI", 200000000), 800000);          // $15,000 capped at $8,000 a period
+  assert.equal(run("MO", 100000), 2000);               // 2%, no cap
+  assert.equal(run("WY", 100000), 1950);               // 1.95% of $1,000
+  assert.equal(run("WY", 5000000), 50000);             // $975 capped at $500
+  assert.equal(run("AZ", 100000), 1200);               // 1.2% e-filed
+  assert.equal(run("FL", 100000), 2500);               // 2.5% of $1,000
+  assert.equal(run("FL", 200000), 3000);               // 2.5% of the first $1,200 = $30 at most
+  assert.equal(run("TX", 100000), 500);                // 0.5%
+  for (const st of ["MI", "IN", "VA", "OK", "NM"]) assert.deepEqual(stateDiscounts(st), {}, st);
+  assert.match(stateDiscountNote("OK"), /no vendor discount line/);
+  assert.match(stateDiscountNote("wy"), /postmarked by the 15th/);
+  assert.equal(stateDiscountNote("CA"), null);
+  assert.throws(() => salesTaxReturn(mk("SC", 100), { discounts: { "SC state": { rate: 0.02, steps: [{ rate: 3 }] } } }));
+});
