@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyd7NH5WxE4JRF9NRxW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T20:37:45Z",
+  "ended": "2026-11-12T20:45:28Z",
+  "wall_minutes": 7.96,
+  "tokens_in": 4574199,
+  "tokens_out": 25815,
+  "cost_usd": 2.2429,
+  "tool_calls": 47,
+  "task": "Deepen flagship 4 (changepoint-detector, allocate.py row picked by session): the How eager hint in the CLI watch and a budget in plain terms",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15252",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "First test draft asserted a plain-budget phrase ('0.6 a month') the formatter renders as '7.3 a year'; fixed the test and help text to match the formatter.",
+    "First preflight failed on the new post's front matter (description 196 > 160, seo_title 81 > 70); fixed and reran."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to start long commands with run_in_background but not how to wait for them; a foreground `sleep` to wait is hook-blocked. One line ('end the turn; the background notification wakes you') would save a try."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Preflight runs check_post_frontmatter.py first; running that one script on the new post before starting the 5-minute preflight would have saved a rerun. Worth one line in the post guidance."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-one-alert-a-month-as-a-setting.md",
+    "ventures/changepoint-detector/README.md (section 'The hint in the CLI watch, and a budget in plain terms')"
+  ],
+  "goal": null,
+  "notes": "Landed watch.mjs --suggest, --detector auto (pick stored in state.choice, carried by advance), --alerts-per <n>/week|month|year, --check-every, --budget; budgetFromPlain/plainBudgetText/chooseDetector in watch-core.mjs. Round 6 eval re-run with WATCH_BUDGETS=1.6427,3.2854,14.2857 reproduced every original row exactly; 1/month reached 19 of 31 future marks at 19.6 per 1,000 (45% at a mark), held out 6 of 9 at 30.6 vs 22.7; deciding nothing, default stays B=2. Verification: run_venture_tests.py changepoint-detector ok (201 s); watch-auto.test.mjs 5/5; post frontmatter/links/similarity clean; venture-preflight rerun (see PR). No agent doc in docs/reports: README and flagships next carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0f5f549f-f61c-5d09-8f53-6ad24154caa1",
+    "transcripts": 1,
+    "first": "2026-11-12T20:37:45Z",
+    "last": "2026-11-12T20:45:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 83,
+        "output": 25815,
+        "thinking": 3930,
+        "cache_read": 4470082,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104034,
+        "api_equivalent_usd": 2.2429,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 83,
+      "output": 25815,
+      "thinking": 3930,
+      "cache_read": 4470082,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104034,
+      "api_equivalent_usd": 2.2429,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.96,
+      "active_minutes": 5.84,
+      "model_minutes": 4.09,
+      "tool_minutes": 1.75,
+      "waiting_on_human_minutes": 2.12,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "CLI flags, state persistence, tests, eval re-run and write-up for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 267.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
