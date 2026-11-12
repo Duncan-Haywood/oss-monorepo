@@ -27,12 +27,32 @@ class T(unittest.TestCase):
         self.assertLess(base, steel)
 
     def test_substitution_table_restored(self):
-        before = alu.rd.SUBS[4]
+        before = alu.rd.SUBS[alu.rod_sub_index()]
         alu.design_with("aluminium", .01)
-        self.assertIs(alu.rd.SUBS[4], before)
+        self.assertIs(alu.rd.SUBS[alu.rod_sub_index()], before)
 
     def test_closure_rises_with_diameter(self):
         self.assertLess(alu.closure("aluminium", .008), alu.closure("aluminium", .012))
+
+
+    def test_published_numbers_at_the_0p2_mm_spec(self):
+        # Pins README "Results" (quality audit 2026-11-12, portfolio/quality/audits/2026-11-12-selfrep-alurod.json):
+        # all five seeded bugs survived the earlier tests, which never checked a published number.
+        d = b.min_diameter("aluminium", 2e-4, .42, 5.0)
+        w = b.min_diameter("hardwood", 2e-4, .42, 5.0)
+        al, wood, steel = alu.design_with("aluminium", d), alu.design_with("hardwood", w), alu.rd.design(())
+        self.assertEqual(round(alu.imported_stock_g(al)), 2360)
+        self.assertEqual(round(alu.imported_stock_g(wood)), 2190)
+        self.assertEqual(round(alu.vitamin_mass_g(al)), 3608)
+        self.assertEqual(round(1000 * alu.closure("aluminium", d)), 395)
+        self.assertEqual(round(b.rod_set_mass_g("aluminium", d) / 6, 1), 88.7)
+        self.assertTrue(alu.fits(d))
+        self.assertFalse(alu.fits(b.min_diameter("aluminium", 1e-4, .42, 5.0)))  # 12.3 mm
+
+    def test_rod_substitution_found_by_name(self):
+        self.assertEqual(alu.rd.SUBS[alu.rod_sub_index()].name, "wood-smooth-rods")
+        with self.assertRaises(LookupError):
+            alu.rod_sub_index("no-such-substitution")
 
 
 if __name__ == "__main__":
