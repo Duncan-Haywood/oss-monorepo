@@ -40,3 +40,13 @@ def test_correct_focal_selfcal_matches_fixed():
 
 def test_deterministic():
     assert run_trial(seed=1, n_feat=100)["fixed"] == run_trial(seed=1, n_feat=100)["fixed"]
+
+
+def test_k1_is_recovered_and_helps():
+    # quality audit 2026-11-12: k1 estimation (section D) had no test.
+    # Per-seed k1 scatters with sd ~0.04, so check the 6-seed mean and every seed's direction.
+    rs = [run_trial(focal_err=0.0, k1_true=-0.2, est_k1=True, seed=s) for s in range(6)]
+    ks = [r["k1_est"] for r in rs]
+    assert abs(np.mean(ks) + 0.2) < 0.03
+    assert all(-0.3 < k < -0.1 for k in ks)
+    assert all(r["selfcal"] < r["fixed"] for r in rs)

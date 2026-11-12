@@ -1,0 +1,237 @@
+{
+ "date": "2026-11-12",
+ "subject": "research/sensing-bafocal",
+ "stratum": "research",
+ "seed": "2026-11-12-j",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality-audit subagent, seed 2026-11-12-j",
+ "status": "audited",
+ "professional": "a senior photogrammetrist / computer-vision researcher in camera self-calibration and structure from motion (someone who maintains a bundle-adjustment library or reviews for ISPRS/ICCV). They would check first: whether the focal length is identifiable on this rig at all (a fixating orbit is a known near-critical configuration for focal estimation), whether the solver converged rather than stopped at the 60-evaluation cap, whether the focal error is near the Cramer-Rao bound, and whether the result goes beyond what Bundler/COLMAP already do (EXIF focal as the start, f and k1/k2 refined in BA)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Venv /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/bafocal/venv (python3.13, numpy, scipy 1.18.1, opencv-python-headless 5.0.0; system python lacks scipy). Reran `PYTHONPATH=src python experiments/run.py` in a scratch copy (/tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/bafocal/copy): 46.6 s, results.txt byte-identical to the committed file. Independent checks without the subject's code paths: (1) project_k vs OpenCV cv2.projectPoints with distCoeffs (k1,0,0,0,0) on 12 orbit cameras x 300 points, k1 in 0/-0.1/-0.3: max difference 2.8e-13 px; hand point cam0 X0: x=-0.227458, y=0.058596, r2=0.055170, u=800*x*(1-0.3*r2)+320=141.0457, v=286.1011, code identical. (2) triangulate_f vs cv2.triangulatePoints on the 29 two-view points, at f and at 1.05 f: max difference 1.3e-14. (3) Cramer-Rao bound on the shared focal from my own residual and central-difference Jacobian with a pseudo-inverse for the 7-dof gauge (/tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/bafocal/crlb.py), E|f_err| = sqrt(2/pi)*sd: 12 views 0.5 px 0.0021 (reported 0.0032, 6 seeds, SE of the mean about 0.0007), 0.1 px 0.0004 (0.0006), 4 views 0.0255 (0.0240), 24 views 0.0013 (0.0017), f and k1 free 0.0073 (0.0085). The estimator behaves as near-efficient and every reported f_err is within 1.6x of the bound. (4) Convergence (/tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/bafocal/check_conv.py): max_nfev 60 vs 2000 gives identical cells at err +-0.2, +0.05, 4 views and k1=-0.3; every least_squares call ends with status 2 (ftol) after at most 41 evaluations, so the cap never binds. Numbers are right; held at 3, not 4, because none is reported with an uncertainty.",
+  "completeness": "Every claimed artefact works end to end: 6 tests pass (README says 6); run.py reproduces results.txt byte-identically; figure.py regenerates error_vs_focal_error.svg byte-identically (cmp) from results.txt via research/_shared/linefig.py; project.json lede and research/README.md:1082 entry match results.txt. One stale item: README:23 'about 2 min' for run.py, measured 46.6 s. No stubs or TODOs. The live page could not be loaded (curl through the proxy: CONNECT 403), so the page was not checked.",
+  "verification": "`cd research/sensing-bafocal && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/bafocal/venv/bin/python -m pytest -q -p no:cacheprovider tests`: 6 passed in 1.29 s. Six hand-seeded mutations in src/sensing_bafocal/bafocal.py, each reverted with git checkout (git status clean after each): solver r^2 -> x^2 in the residual's distortion factor (line 71) SURVIVED; returned focal f0 instead of f0*g[0] (line 105) caught; f_err against f0 instead of F_PX (line 132) caught; oracle adjusted at f0 instead of F_PX (line 136) caught; rendering sign 1+k1 -> 1-k1 in project_k (line 30) caught; solver sign 1+k1 -> 1-k1 (line 71) survived but is an equivalent mutant (k1_est flips sign), so not counted. Four of five non-equivalent mutants caught, but everything in section D (k1 estimated, half the headline) has no test: the only k1 test is that rendering pulls points inward. All focal assertions are ordinal thresholds on one seed; nothing pins a value from results.txt.",
+  "craft": "Read bafocal.py (138 lines), tests/test_bafocal.py (42), experiments/run.py (58), figure.py (24). Compact and readable: sparse Jacobian pattern, focal parametrised as a ratio for scaling, rig/scoring imported from sensing-ba and sensing-recon rather than copied, figure reads results.txt rather than retyped numbers. Defects: bafocal.py:20 inserts a sibling project on sys.path at import time (works only inside this tree; pyproject declares no dependency on sensing-ba/sensing-recon); bafocal.py:127 computes 'true_pose' (an extra triangulation per trial) that nothing reads; bafocal.py:135-137 scores oracle on a different triangulated subset (idx_t) than fixed/selfcal (idx), a small confound in the fixed-vs-oracle comparison; line 134 comment is garbled; `{0: 0, 1: 1, 2: 2}[mode]` (line 87) is an identity map. None changes a number.",
+  "claims": "Checked every number in the README headline, Results bullets and project.json lede against results.txt: all match after rounding (ratios 1.0/1.2-1.3/1.7-1.8/2.7-3.4, 0.0078/0.0078/0.0068 at 4 views, f_err 0.0006-0.0265, k1_est within 0.005: -0.049/-0.098/-0.196/-0.295, f_err 0.0085 in section D). 'Same threshold as sensing-ba found for poses' is backed by sensing-ba README:31. Limits section is unusually honest (synthetic, fit law = render law, shared focal, swept not sourced ranges, identical f_err explained). Weak spots: README:5 'It is a new question (self-calibration)' is new to this repository only; refining an EXIF-initialised focal and k1 in BA is standard practice (Snavely et al. 2006; COLMAP), uncited. README:3 headline quotes the +20% side (2.7x) not the -20% side (3.4x) - an understatement, not an overclaim. README:28 '0.012 whatever the focal' spans 0.0116-0.0144. README:23 runtime stale. Synthetic-only stated in title, lede and limits.",
+  "fitness": "A vision researcher could build on the code (it is small, reproducible, fast) but the finding is the textbook expectation: Triggs et al. (2000) and Hartley & Zisserman ch. 18-19 treat intrinsics as BA unknowns; Fraser (1997, ISPRS J. Photogramm. 52:149) 'Digital camera self-calibration' established self-calibrating BA with radial terms in photogrammetry; Snavely, Seitz & Szeliski (2006, Photo Tourism / Bundler) initialise f from EXIF and solve f, k1, k2 per camera in BA, and COLMAP (Schonberger & Frahm 2016) refines focal and distortion by default. Nearest prior work is therefore Bundler/COLMAP practice, and the result (focal free removes a wrong-EXIF penalty; needs enough views and low noise) is sound but not new. What would be new - when the fixating orbit becomes critical, model mismatch (render k1,k2, fit k1), per-camera focal, real data with a known calibration - is listed under Next steps, not done. The repository's own programme sensing-selfcal (PROGRAMMES.md:118) is the natural home and is not linked.",
+  "domain": "Method matches standard practice (Levenberg-Marquardt/TRF BA with shared intrinsics, Brown one-term radial on normalised coordinates, verified against OpenCV's model). Departures a photogrammetrist would flag: (a) no uncertainty - 6 seeds, means only, no SE, CI or comparison to the Cramer-Rao bound (which I computed: reported f_err sits at 1.2-1.6x of it); (b) the rig has every camera fixating the origin, a configuration the critical-motion literature (Sturm 1997 CVPR; Kahl, Triggs & Astrom 2000 IJCV; Bougnoux 1998 for two views) identifies as degenerate or near-degenerate for focal estimation, and it is not discussed, so the 4-view failure and the f-distance trade-off ('free poses absorb most of a wrong focal') are not explained by the theory that predicts them; (c) section D compares fixed vs f-and-k1-free with no k1-only arm, and the distortion range (k1 to -0.3, ~30 px at the corner) is not tied to any lens; (d) render law = fit law. A sign-off as a correct teaching experiment, not as a research result."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "project_k with k1 in {0,-0.1,-0.3} on 12 cameras x 300 points",
+   "method": "OpenCV 5.0.0 cv2.projectPoints with K and distCoeffs (k1,0,0,0,0) (Brown-Conrady model)",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/bafocal && PYTHONPATH=<sensing-ba/src>:<sensing-recon/src> venv/bin/python check_cv.py research/sensing-bafocal",
+   "expected": "identical pixels",
+   "observed": "max |diff| 2.8e-13 px",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "one distorted projection by hand, camera 0, point 0, k1=-0.3",
+   "method": "x_d = x(1 + k1 r^2), u = f x_d + cx (Brown 1966 one radial term)",
+   "command": "check_cv.py (hand line)",
+   "expected": "u=141.0457, v=286.1011 (x=-0.227458, y=0.058596, r2=0.055170)",
+   "observed": "141.0457, 286.1011",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "triangulate_f on the two-view points at f and 1.05 f",
+   "method": "OpenCV cv2.triangulatePoints with K_f [R|t]",
+   "command": "check_cv.py",
+   "expected": "same 3-D points",
+   "observed": "29 points, max |diff| 1.3e-14",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "mean |f_err| of selfcal in 5 cells vs the Cramer-Rao bound",
+   "method": "my own residual and central-difference Jacobian, pinv(J^T J) sigma^2 with 7-dof gauge, E|e| = sqrt(2/pi) sd, 3 scenes averaged",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/bafocal && venv/bin/python crlb.py research/sensing-recon",
+   "expected": "reported within ~1.6x of bound (6 seeds): 0.0021 (12v), 0.0004 (0.1 px), 0.0255 (4v), 0.0013 (24v), 0.0073 (k1 free)",
+   "observed": "0.0032, 0.0006, 0.0240, 0.0017, 0.0085",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "does the 60-evaluation cap bind (fixed could be under-converged, inflating its cost)",
+   "method": "rerun cells with max_nfev 2000 and record least_squares status",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/ee592c89-eed2-56cf-9c77-6f2da2b195c8/scratchpad/bafocal && venv/bin/python check_conv.py research/sensing-bafocal",
+   "expected": "identical cells, status 2/1 not 0",
+   "observed": "identical to 4 d.p.; all status 2, max 41 evaluations",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py reproduces results.txt",
+   "method": "rerun in scratch copy, diff",
+   "command": "PYTHONPATH=src python experiments/run.py; diff",
+   "expected": "identical",
+   "observed": "byte-identical, 46.6 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure.py regenerates the committed SVG",
+   "method": "rerun in scratch copy, cmp",
+   "command": "python experiments/figure.py; cmp",
+   "expected": "identical",
+   "observed": "byte-identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "pytest",
+   "command": "PYTHONPATH=src python -m pytest -q tests",
+   "expected": "6 tests pass (README)",
+   "observed": "6 passed in 1.29 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README ratios and ranges (1.0x/1.2-1.3x/1.7-1.8x/2.7-3.4x; 0.0039-0.0049 at +-20%; k1 within 0.005; f within 0.4% from 6 views)",
+   "method": "recomputed from results.txt by hand",
+   "expected": "match",
+   "observed": "all match",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:23 run.py 'about 2 min'",
+   "method": "timed rerun",
+   "command": "time python experiments/run.py",
+   "expected": "about 2 min",
+   "observed": "46.6 s",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:28 triangulation '0.012 whatever the focal'",
+   "method": "results.txt section A tri column",
+   "expected": "~0.012 throughout",
+   "observed": "0.0116 to 0.0144",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Same threshold as sensing-ba found for poses' (4 views no gain)",
+   "method": "research/sensing-ba/README.md:31",
+   "expected": "sensing-ba reports no gain at 4 views",
+   "observed": "0.0106 -> 0.0119 at 4 views",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "README:5 'a new question (self-calibration)'",
+   "method": "nearest prior work: Snavely et al. 2006 (Bundler), Schonberger & Frahm 2016 (COLMAP), Fraser 1997",
+   "expected": "new result or cited prior practice",
+   "observed": "established practice, uncited",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page",
+   "method": "curl https://marisstella.app/research/sensing-bafocal/",
+   "command": "curl -sS -o page.html -w '%{http_code}'",
+   "expected": "200",
+   "observed": "proxy CONNECT 403; not checked",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "research/sensing-bafocal/src/sensing_bafocal/bafocal.py:71",
+   "change": "solver distortion factor 1 + k1*(xn^2 + yn^2) -> 1 + k1*xn^2",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python -m pytest -q tests"
+  },
+  {
+   "where": "research/sensing-bafocal/src/sensing_bafocal/bafocal.py:105",
+   "change": "returned focal f0*g[0] -> f0",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python -m pytest -q tests"
+  },
+  {
+   "where": "research/sensing-bafocal/src/sensing_bafocal/bafocal.py:132",
+   "change": "f_err abs(fe - F_PX) -> abs(fe - f0)",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python -m pytest -q tests"
+  },
+  {
+   "where": "research/sensing-bafocal/src/sensing_bafocal/bafocal.py:136",
+   "change": "oracle adjustment at F_PX -> f0",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python -m pytest -q tests"
+  },
+  {
+   "where": "research/sensing-bafocal/src/sensing_bafocal/bafocal.py:30",
+   "change": "rendering 1 + k1 r^2 -> 1 - k1 r^2",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "No test covers k1 estimation (section D, half the headline): breaking the solver's r^2 to x^2 leaves all 6 tests green. Add a test: run_trial(focal_err=0, k1_true=-0.2, est_k1=True, seed=0, n_feat=150) asserts |k1_est + 0.2| < 0.02 and selfcal < fixed.",
+   "where": "research/sensing-bafocal/tests/test_bafocal.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work uncited and novelty overstated: refining an EXIF-initialised focal and k1/k2 in BA is what Bundler (Snavely et al. 2006) and COLMAP (Schonberger & Frahm 2016) do by default, and Fraser (1997) established self-calibrating BA; README calls it 'a new question' and cites only Triggs 2000 and Brown 1966.",
+   "where": "research/sensing-bafocal/README.md:5",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "No uncertainty on any cell: 6 seeds, means only, no SE/CI and no Cramer-Rao comparison (auditor's CRLB puts reported f_err at 1.2-1.6x the bound), so small effects like the 1.1-1.2x gains cannot be judged.",
+   "where": "research/sensing-bafocal/experiments/run.py:16",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Every camera fixates the origin, a near-critical configuration for focal estimation in the critical-motion literature (Sturm 1997; Kahl, Triggs & Astrom 2000; Bougnoux 1998); not discussed, so the f-distance trade and 4-view failure are left unexplained and may not transfer to forward or non-fixating motion.",
+   "where": "research/sensing-bafocal/README.md:39",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Oracle is scored on a different triangulated subset (idx_t, from F_PX) than fixed/selfcal (idx, from f0), and 'true_pose' is computed and discarded.",
+   "where": "research/sensing-bafocal/src/sensing_bafocal/bafocal.py:127",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Library inserts a sibling project's src on sys.path at import; pyproject.toml declares no dependency on sensing-ba/sensing-recon, so `pip install` of the package alone fails on import.",
+   "where": "research/sensing-bafocal/src/sensing_bafocal/bafocal.py:20",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "README says run.py takes about 2 min; it takes 46.6 s. README:28 '0.012 whatever the focal' spans 0.0116-0.0144.",
+   "where": "research/sensing-bafocal/README.md:23",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, clean, fully reproducible synthetic experiment whose numbers are right: projection and triangulation match OpenCV to 1e-13, results.txt and the SVG regenerate byte-identically, the solver converges well inside its cap, and the recovered focal errors sit within 1.6x of a Cramer-Rao bound computed independently. Claims match the results file and the limits are honest. It misses the bar on verification (the k1-estimation path has no test; a seeded r^2 bug in the solver survives) and falls short as research: it confirms standard Bundler/COLMAP practice without citing it, reports no uncertainty, and does not engage the critical-motion theory that explains its own fixating-orbit results. Finished, correct, not new."
+}
