@@ -29,7 +29,7 @@ console.log(`${ids.length} scans, ${todo.length} to read, ${nw} workers`);
 let next = 0, done = 0;
 const t0 = Date.now();
 async function run() {
-  const w = await T.createWorker("eng", 1, { langPath, cacheMethod: "none" });
+  const w = await T.createWorker("eng", 1, { langPath, cacheMethod: "none", errorHandler: () => {} });
   try {
     while (next < todo.length) {
       const id = todo[next++];
@@ -37,7 +37,11 @@ async function run() {
         const f = join(out, m, `${id}.txt`);
         if (existsSync(f)) continue;
         await w.setParameters({ tessedit_pageseg_mode: psm });
-        writeFileSync(f, (await w.recognize(join(dir, "img", `${id}.jpg`))).data.text);
+        // a scan the reader cannot decode is written empty (scored as no total),
+        // as the page now skips such a photo and reads the rest
+        let text = "";
+        try { text = (await w.recognize(join(dir, "img", `${id}.jpg`))).data.text; } catch (e) { console.log(`${id}: ${e.message}`); }
+        writeFileSync(f, text);
       }
       if (++done % 25 === 0) console.log(`${done}/${todo.length} in ${Math.round((Date.now() - t0) / 1000)} s`);
     }

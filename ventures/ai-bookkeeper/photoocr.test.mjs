@@ -24,9 +24,13 @@ test("non-images and empty reads are skipped with a reason; no image means the e
   assert.deepEqual(r.skipped.map((s) => s.name).sort(), ["blank.png", "n.txt"]);
 });
 
-test("the engine is closed even when a photo throws; reader files come only from jsDelivr", async () => {
-  const e = { closed: false, recognize: async () => { throw new Error("bad image"); }, close() { this.closed = true; } };
-  await assert.rejects(readPhotos([png("x.png")], { loadEngine: async () => e }), /bad image/);
+test("a photo the reader cannot open is skipped and the rest are read; reader files come only from jsDelivr", async () => {
+  // SROIE has one scan with a corrupt JPEG; tesseract.js rejects it ("Error attempting to read image")
+  const e = { closed: false, recognize: async (f) => { if (f.name === "x.png") throw new Error("Error: Error attempting to read image."); return "Cafe\nTotal 5.00"; }, close() { this.closed = true; } };
+  const r = await readPhotos([png("x.png"), png("ok.png")], { loadEngine: async () => e });
+  assert.equal(r.read, 1);
+  assert.equal(r.text, "Cafe\nTotal 5.00");
+  assert.deepEqual(r.skipped, [{ name: "x.png", why: "could not be read (Error attempting to read image.)" }]);
   assert.ok(e.closed);
   for (const u of Object.values(OCR_URLS)) assert.match(u, /^https:\/\/cdn\.jsdelivr\.net\/npm\/(@[^/]+\/)?[^/]+@\d/);
 });

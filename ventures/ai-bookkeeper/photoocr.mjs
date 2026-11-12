@@ -30,6 +30,9 @@ export async function loadEngine(onProgress = () => {}) {
   const worker = await globalThis.Tesseract.createWorker("eng", 1, {
     workerPath: OCR_URLS.worker, corePath: OCR_URLS.core, langPath: OCR_URLS.lang,
     logger: (m) => onProgress(m),
+    // without a handler tesseract.js 5 also throws the error it rejects with,
+    // uncaught; the rejection is enough (readPhotos skips that photo)
+    errorHandler: () => {},
   });
   return {
     // psm: tesseract's page-segmentation mode, "6" (one block, tesseract.js's
@@ -90,7 +93,9 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, onProgr
     for (const [i, f] of images.entries()) {
       onProgress({ status: "reading", index: i, total: images.length, name: f.name });
       const readings = [];
-      for (const psm of passes) readings.push(await engine.recognize(f, { psm }));
+      // one photo the reader cannot open is skipped; the others are still read
+      try { for (const psm of passes) readings.push(await engine.recognize(f, { psm })); }
+      catch (e) { skipped.push({ name: f.name, why: `could not be read (${String(e?.message ?? e).replace(/^Error: /, "")})` }); continue; }
       const { text, note } = settleReadings(readings);
       if (text) { blocks.push(text); if (note) notes.push({ name: f.name, note }); }
       else skipped.push({ name: f.name, why: "no text found in the photo" });
