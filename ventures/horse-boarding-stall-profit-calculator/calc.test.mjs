@@ -75,3 +75,39 @@ test("summary and dollars format", () => {
   const s = summaryText(compute(raw()));
   assert.match(s, /Horse boarding: 20 stalls, 85% full/);
 });
+
+// Added by quality audit round 53 (portfolio/quality/audits/2026-11-12-horse-boarding-stall-profit-calculator.json):
+// the occupancy table, the hourly-pay finding and the warning thresholds had no test.
+test("the occupancy table's row at today's occupancy equals the headline profit, and other rows follow the rule", () => {
+  const r = compute(raw());
+  const row = r.sweep.find((x) => x.occ === 85);
+  assert.equal(row.profit, r.profit);
+  // 50% full: 10 horses x 205.30 margin - 3000 fixed = -947.00 (hand-computed)
+  assert.equal(r.sweep.find((x) => x.occ === 50).profit, -947);
+  assert.equal(r.sweep.find((x) => x.occ === 100).revenue, 20 * 572.3);
+});
+
+test("the hourly-pay finding is profit plus labour over care hours", () => {
+  const r = compute(raw());
+  // labour 17 x 152 = 2584, profit 490.10, hours 17 x 20 x 30.4 / 60 = 172.27 -> $17.85 an hour
+  const f = r.findings.find((x) => /pays you about/.test(x.title));
+  assert.match(f.title, /\$17\.85 an hour for 172 hours/);
+});
+
+test("the thin-margin warning fires within 10 points of break-even, not beyond", () => {
+  // margin 205.30 a horse; fixed 3000 -> 14.61 horses = 73.1% break-even
+  const near = compute(raw({ occupancy: "80" }));
+  assert.ok(near.findings.some((f) => /A couple of empty stalls/.test(f.title)));
+  const far = compute(raw({ occupancy: "85" })); // 11.9 points above
+  assert.ok(!far.findings.some((f) => /A couple of empty stalls/.test(f.title)));
+});
+
+test("the unpaid-board note starts at exactly 5 percent", () => {
+  assert.ok(compute(raw({ badDebt: "5" })).findings.some((f) => /unpaid board costs/.test(f.title)));
+  assert.ok(!compute(raw({ badDebt: "4.9" })).findings.some((f) => /unpaid board costs/.test(f.title)));
+});
+
+test("an occupancy typed as a fraction is rejected with a hint", () => {
+  const r = compute(raw({ occupancy: "0.85" }));
+  assert.match(r.errors.join(" "), /looks like a fraction.*85/);
+});
