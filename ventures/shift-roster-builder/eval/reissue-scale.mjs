@@ -6,15 +6,20 @@
 // scheduleChanges against the posted roster (336 h window, 1 hour of pay per short-notice change, the caller exempt).
 // On the seeded weeks CAP limits the call-outs per day (every k-th posted person, deterministic) to keep the run short.
 //   node eval/reissue-scale.mjs templates
-//   node eval/reissue-scale.mjs P S [cases=2] [cap=4]
+//   node eval/reissue-scale.mjs P S [cases=2] [cap=4] [first=0]   (weeks below `first` are generated and skipped)
+// DAYS=2,3 limits the call-out days (0 = Monday); OPTS='{...}' merges extra buildRoster options into every build.
 // VARIANTS="rebuild,keep/shift 1" picks variants (default: rebuild, keep/h 0.1, keep/shift 1).
 import { parseStaff, parseShifts, buildRoster, TEMPLATES, DAYS } from "../calc.mjs";
 import { reissue, VARIANTS } from "./reissue-posted.mjs";
 
 const pick = (process.env.VARIANTS || "rebuild,keep/h 0.1,keep/shift 1").split(",");
 const variants = Object.fromEntries(pick.map((k) => [k, VARIANTS[k]]));
+const extraOpts = process.env.OPTS ? JSON.parse(process.env.OPTS) : {};
+const onlyDays = process.env.DAYS ? process.env.DAYS.split(",").map(Number) : null;
 
 export function studyWeek(staffText, shiftsText, { days = [2, 3, 4, 5, 6], cap = Infinity, base = { minRestHours: 10 }, onCase = null } = {}) {
+  if (onlyDays) days = days.filter((d) => onlyDays.includes(d));
+  base = { ...base, ...extraOpts };
   const staff = parseStaff(staffText).staff, slots = parseShifts(shiftsText).slots;
   const t0 = Date.now();
   const posted = buildRoster(staff, slots, base);
@@ -78,13 +83,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     for (const [k, t] of Object.entries(TEMPLATES)) report(k, studyWeek(t.staff(), t.shifts()), all);
     sum("ALL", all);
   } else {
-    const P = Number(process.argv[2] || 20), S = Number(process.argv[3] || 56), cases = Number(process.argv[4] || 2), cap = Number(process.argv[5] || 4);
+    const P = Number(process.argv[2] || 20), S = Number(process.argv[3] || 56), cases = Number(process.argv[4] || 2), cap = Number(process.argv[5] || 4), first = Number(process.argv[6] || 0);
     const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
     let seed = Number(process.env.SEED || 20261022) + P * 100 + S;
     const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
     for (let c = 0; c < cases; c++) {
       const st = ["name, wage, max hours, min hours, availability", ...Array.from({ length: P }, (_, p) => `P${p},${10 + rnd(12)},${12 + rnd(5) * 6},0,${days[rnd(3)]}-Fri ${6 + rnd(4)}-${16 + rnd(8)}`)].join("\n");
       const sh = ["day, start, end, people needed", ...Array.from({ length: S }, () => { const a = 6 + rnd(9); return `${days[rnd(5)]},${a},${a + 4 + rnd(6)},${1 + rnd(2)}`; })].join("\n");
+      if (c < first) continue;
       report(`${P}x${S} week ${c}`, studyWeek(st, sh, { days: [2, 3, 4], cap }), all);
     }
     sum(`${P}x${S}`, all);

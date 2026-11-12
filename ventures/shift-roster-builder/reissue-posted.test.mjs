@@ -119,3 +119,22 @@ test("on the salon and retail templates the kept reissue never opens more hours 
     assert.ok(t["keep/shift 1"].changes < t.rebuild.changes, `${k}: ${t["keep/shift 1"].changes} vs ${t.rebuild.changes}`);
   }
 });
+
+test("with a keep map and nothing changed, the kept start hands back the kept roster on a 20-person week (the annealer alone moves 3 shifts)", () => {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+  const P = 20, S = 56;
+  let seed = 20261022 + P * 100 + S; // eval/reissue-scale.mjs 20 56, week 0
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  const st = Array.from({ length: P }, (_, p) => `P${p},${10 + rnd(12)},${12 + rnd(5) * 6},0,${days[rnd(3)]}-Fri ${6 + rnd(4)}-${16 + rnd(8)}`).join("\n");
+  const sh = Array.from({ length: S }, () => { const a = 6 + rnd(9); return `${days[rnd(5)]},${a},${a + 4 + rnd(6)},${1 + rnd(2)}`; }).join("\n");
+  const staff = parseStaff(st).staff, slots = parseShifts(sh).slots;
+  const posted = buildRoster(staff, slots, { exact: false, seed: 5 });
+  const csv = rosterCsv(posted);
+  const count = (keptStart) => {
+    const r = buildRoster(staff, slots, { exact: false, keep: keepFromCsv(csv), keepShift: 1, keptStart });
+    assert.equal(r.unfilledHours, posted.unfilledHours);
+    return scheduleChanges(csv, rosterCsv(r), { changedAt: 0 }).changes.length;
+  };
+  assert.equal(count(true), 0);
+  assert.ok(count(false) > 0, "the annealer alone should not reproduce the posted roster here");
+});
