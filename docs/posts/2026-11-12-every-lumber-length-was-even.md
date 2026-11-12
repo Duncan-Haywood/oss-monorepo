@@ -3,7 +3,7 @@ title: "Every lumber length was even, so the optimizer did twice the work it nee
 seo_title: "Halving a cutting-stock knapsack with a common factor"
 date: 2026-11-12
 tags: [wall-framing-takeoff, performance, algorithms, cutting-stock]
-description: "The lumber optimizer's pricing knapsack measured in sixteenths of an inch, but every piece was a multiple of an eighth. Dividing out the common factor made our slowest engine test 28% faster with identical answers."
+description: "Every lumber length in the optimizer's knapsack was even. Dividing out the common factor cut our slowest engine test by 28%, same answers."
 ---
 
 The [wall framing takeoff](https://marisstella.app/wall-framing-takeoff/)
