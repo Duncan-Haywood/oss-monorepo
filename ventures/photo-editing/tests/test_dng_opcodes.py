@@ -186,14 +186,16 @@ class GainMapDevelopTests(unittest.TestCase):
     def test_other_opcodes_are_named_not_run(self):
         sensor = self.scene()
         tags = [
-            list_tag([(1, 0, b"\0" * 8)], do.TAG_OPCODE_LIST_3),
+            list_tag([(3, 0, b"\0" * 8), (1, 0, b"\0" * 8)], do.TAG_OPCODE_LIST_3),
             list_tag([(4, 1, b"\0" * 8)], do.TAG_OPCODE_LIST_1),
         ]
         plain = develop(make_dng(sensor, self.W, self.H), engine="python")
         got = develop(make_dng(sensor, self.W, self.H, extra_raw_tags=tags), engine="python")
         self.assertEqual(got[2].tobytes(), plain[2].tobytes())
         self.assertIn("OpcodeList1: 1 x FixBadPixelsConstant not applied", got[3].notes)
-        self.assertIn("OpcodeList3: 1 x WarpRectilinear (required) not applied", got[3].notes)
+        self.assertIn("OpcodeList3: 1 x FixVignetteRadial (required) not applied", got[3].notes)
+        # A WarpRectilinear too short for its terms is noted and skipped, not run on garbage.
+        self.assertTrue(any(n.startswith("OpcodeList3 WarpRectilinear unreadable") for n in got[3].notes), got[3].notes)
 
     def test_unreadable_list_is_noted_and_skipped(self):
         sensor = self.scene()
