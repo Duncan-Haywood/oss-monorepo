@@ -610,8 +610,71 @@ def _default_dir(node, inherited: str) -> str:
     return run.get("working-directory", inherited)
 
 
+# A local sweep stands in for a pull request's CI, so a step or job whose
+# `if:` is false on a pull request is one CI would not run either. Running it
+# anyway was not harmless: portfolio-pages' "Add the development dashboard"
+# polls ten minutes for a file its (skipped) background step never writes.
+# Only `&&` chains are judged, and only by their `github.event_name` terms;
+# anything else (`||`, step outputs, `needs.`) still runs as before.
+EVENT_TERM = re.compile(
+    r"^github\.event_name\s*(==|!=)\s*'([a-z_]+)'$")
+
+
+def false_on_pull_request(condition) -> bool:
+    """True when an `if:` cannot hold on a `pull_request` event."""
+    if not isinstance(condition, str):
+        return False
+    text = condition.strip()
+    if text.startswith("${{") and text.endswith("}}"):
+        text = text[3:-2].strip()
+    if "||" in text:
+        return False
+    for term in text.split("&&"):
+        hit = EVENT_TERM.match(term.strip())
+        if hit and (hit.group(1) == "==") != (hit.group(2) == "pull_request"):
+            return True
+    return False
+
+
+# Actions' own cap for a job that declares no `timeout-minutes`.
+DEFAULT_JOB_MINUTES = 360
+
+
+def job_order(jobs: dict) -> list[str]:
+    """Job ids in an order that honours `needs:`, cheapest declared job first.
+
+    File order put portfolio-pages' `test` job (a 300+ s site-builder suite)
+    ahead of `build`, whose second step is the seconds-long blog front-matter
+    check. The sweep's per-workflow budget ran out inside `test`, so the one
+    check a post-only diff could fail came back UNRUN and sessions found it
+    in the YAML by hand (five doc-friction reports, 2026-11-12). Jobs with no
+    `needs:` between them are independent in CI too, so running the one its
+    author capped lowest first loses nothing and reaches cheap gates sooner.
+    Ties keep file order; a `needs:` cycle or unknown name falls back to it.
+    """
+    ids = list(jobs)
+    def minutes(job_id):
+        try:
+            return float((jobs[job_id] or {}).get("timeout-minutes",
+                                                   DEFAULT_JOB_MINUTES))
+        except (TypeError, ValueError):  # an expression: unknown cost
+            return float(DEFAULT_JOB_MINUTES)
+    def needs(job_id):
+        raw = (jobs[job_id] or {}).get("needs") or []
+        return {raw} if isinstance(raw, str) else set(raw)
+    done, order = set(), []
+    while len(order) < len(ids):
+        ready = [j for j in ids if j not in done and needs(j) <= done]
+        if not ready:
+            return ids
+        pick = min(ready, key=lambda j: (minutes(j), ids.index(j)))
+        done.add(pick)
+        order.append(pick)
+    return order
+
+
 def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[str]]:
-    """Every `run:` step in file order, plus a note for each skipped step.
+    """Every `run:` step in job order (`job_order`), plus a note for each skipped step.
 
     Returned separately because a skipped step is not a passing step, and a
     report that quietly omits them would overstate what was verified.
@@ -625,14 +688,22 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
     # succeeds against the wrong thing: `unittest discover` finds a different
     # set of tests from the repository root and reports them green.
     top_dir = _default_dir(workflow, ".")
-    for job_id, job in (workflow.get("jobs") or {}).items():
+    jobs = workflow.get("jobs") or {}
+    for job_id in job_order(jobs):
+        job = jobs[job_id] or {}
         if only is not None and job_id not in only:
+            continue
+        if false_on_pull_request(job.get("if")):
+            skipped.append(f"{job_id}: job's if: is false on a pull request")
             continue
         job_dir = _default_dir(job, top_dir)
         for raw in job.get("steps") or []:
             name = raw.get("name") or raw.get("uses") or "(unnamed)"
             if "run" not in raw:
                 skipped.append(f"{job_id} / {name}: uses: step, not run:")
+                continue
+            if false_on_pull_request(raw.get("if")):
+                skipped.append(f"{job_id} / {name}: if: is false on a pull request")
                 continue
             command = raw["run"].strip()
             workdir = raw.get("working-directory", job_dir)
@@ -1452,7 +1523,7 @@ def _run_selected(args, selected, held, absent=()) -> int:
     for name, workflow, allowed in selected:
         steps, uses_skipped = collect(workflow, only=allowed)
         print(f"\nRunning {name} locally "
-              f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)",
+              f"({len(steps)} run: step(s), {len(uses_skipped)} uses: or non-PR step(s) skipped)",
               flush=True)
         run_steps(steps, args.timeout, getattr(args, "workflow_timeout", 0))
         code = report(name, steps, uses_skipped, False)
@@ -1676,7 +1747,7 @@ def _main(argv=None) -> int:
         return 0
 
     print(f"Running {name} locally "
-          f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)",
+          f"({len(steps)} run: step(s), {len(uses_skipped)} uses: or non-PR step(s) skipped)",
           flush=True)
     run_steps(steps, args.timeout)
 

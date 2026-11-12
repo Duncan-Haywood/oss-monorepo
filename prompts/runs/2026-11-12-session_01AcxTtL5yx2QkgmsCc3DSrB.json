@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtL5yx2QkgmsCc3DSrB",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T09:07:05Z",
+  "ended": "2026-11-12T09:16:51Z",
+  "wall_minutes": 10.01,
+  "tokens_in": 4292217,
+  "tokens_out": 19362,
+  "cost_usd": 1.9388,
+  "tool_calls": 55,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15074",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "A log ending in my own 'DONE-EXIT 3' marker was not recognised as done (it wants 'DONE' followed by a space or 'DONE exit'); I switched to the 'DONE exit N' spelling the tool prints."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Started with run_in_background, it still detaches after 100 s (CLAUDECODE is set and stdout is not a tty), so the background task exits 3 and you must wait on a second log; --foreground is needed inside run_in_background."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-the-cheap-check-went-last.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode: no agent-owned backlog item was open. Lens: the doc-friction table (measure --section 'doc friction'). Five 2026-11-12 reports said --for-changes left check_post_frontmatter UNRUN behind portfolio-pages' 300 s site-builder suite. Fixes in run_workflow_locally.py: (1) job_order runs jobs in needs: order, lowest timeout-minutes first, so build (20 min) runs before test (30 min); (2) false_on_pull_request skips steps and jobs whose if: cannot hold on a pull request (&& chains with a github.event_name term only). That also removed a 10-minute hang in 'Add the development dashboard', which waited for a file from a skipped background step; I found the hang while checking the new order end to end. Verification: test_run_workflow_locally passes 140 tests (5 new); main_health 58/58 green before the change. In a by-name portfolio-pages run (--foreground) the front-matter check passed at 0.2 s, the build job finished in about 9 s, and the whole run took about 100 s. The site-builder suite failed 164 of 1577 tests in this container. Another run today reported the same container-only failure (171 of 1572), and this diff does not touch platform/pages, so CI's test job is the judge. Metric for a later Verify: doc_friction entries saying a cheap check went UNRUN behind the site-builder suite, baseline 5 on 2026-11-12 before this change. No backlog ids touched (the backlog lives under gated /prompts/).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "67233ec2-a5de-51fb-bd84-254611c95e6a",
+    "transcripts": 1,
+    "first": "2026-11-12T09:07:05Z",
+    "last": "2026-11-12T09:17:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 94,
+        "output": 19362,
+        "thinking": 5156,
+        "cache_read": 4203314,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88809,
+        "api_equivalent_usd": 1.9388,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 94,
+      "output": 19362,
+      "thinking": 5156,
+      "cache_read": 4203314,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88809,
+      "api_equivalent_usd": 1.9388,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 47,
+      "Edit": 4,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.01,
+      "active_minutes": 10.01,
+      "model_minutes": 4.58,
+      "tool_minutes": 5.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "diagnose the ordering fault from friction reports, two small runner changes with tests, end-to-end run, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 154.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
