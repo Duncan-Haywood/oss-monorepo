@@ -230,6 +230,10 @@ class LocalPipelineTests(unittest.TestCase):
     def test_selected_grade_scope_masters_only_the_picked_clip(self) -> None:
         # Two 46 s takes of the same shot: the hero reel keeps one per scene and
         # the 45 s variants fit neither, so exactly one clip is ever rendered.
+        # A001's 1 s audio track only makes the takes differ; the container
+        # still runs 46 s (the video's length). A 46 s AAC track cost about
+        # 1.4 s per encode of it (ffmpeg's native AAC encoder) for nothing the
+        # test checks (docs/history/ci-perf-2026-11-12-photo-editing-fixture-audio.md).
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
             card = base / "card" / "DCIM"
@@ -237,7 +241,7 @@ class LocalPipelineTests(unittest.TestCase):
             for name, audio in (("A001.MOV", True), ("A002.MOV", False)):
                 _run(
                     "-f", "lavfi", "-i", "testsrc2=size=1280x720:rate=1:duration=46",
-                    *(("-f", "lavfi", "-i", "sine=duration=46", "-c:a", "aac", "-shortest") if audio else ()),
+                    *(("-f", "lavfi", "-i", "sine=duration=1", "-c:a", "aac") if audio else ()),
                     "-c:v", "libx264", "-pix_fmt", "yuv420p", str(card / name),
                 )
             _make_photo(card / "IMG_0001.JPG", color="red")
