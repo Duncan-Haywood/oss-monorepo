@@ -260,8 +260,16 @@ flagships:
       selfConsistency.ts is camp-blind but near a coin under staged; as a gate
       on the agreement drop it halves the camp tax, but on real panels it
       depends on real answer noise; 18-46% of real people sit under the 0.2
-      agreement line with nobody careless. Next, most
-      valuable first: (a) a heavier-tailed prior for the pairwise intervals;
+      agreement line with nobody careless. Heavier-tailed prior tried
+      2026-11-12, not shipped (INFORMATION-GAIN-SELECTOR.md "A heavier-tailed
+      prior for the pairwise intervals"): Student-t priors (df 1, 3, 7, scale
+      by pooled sampled evidence) narrow the pairwise intervals but cover less
+      than the Gaussian under uniform, normal and Laplace truths alike, and
+      the evidence picks the Gaussian in 90 of 108 honest cells; priorDf stays
+      in btRefit.ts, unwired. Next, most valuable first: (a) why the pooled
+      Gaussian collapses toward the 0.3 floor under staged with many answers
+      per item (one cell 0.33, intervals 0.39), and intervals from posterior
+      draws rather than Laplace curvature, before the intervals may narrow;
       (b) half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace
       see them?); (c) the first real survey's answers: msToAnswer against the
       answer-time model, and how noisy real pairwise answers are, which
