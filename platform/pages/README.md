@@ -1959,6 +1959,15 @@ The default is 360 because that is the phone this audience carries. `WIDTH=320`
 is the width the standard names and is also clean; run it before believing a
 narrow-viewport change.
 
+The default is now `360,820` (2026-11-12). 820 is a tablet or a half-screen
+laptop window: above a page's single-column breakpoint, where its two columns
+have the least room. A `1fr` grid track never shrinks below its content's
+min-content width, even when that content is a scroll box, so a row of
+default-width inputs or a wide table pushed 5 of 8,679 pages sideways by 115 to
+477 px there while all of them passed at 360. `minmax(0,1fr)` fixes it.
+`WIDTH` takes a comma list (`WIDTH=360,820,1040`); each page is loaded once and
+resized in place for the later widths.
+
 Not in CI, for the same reason as the five above.
 
 ### Checking the floating mic on every tool page

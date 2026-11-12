@@ -137,3 +137,14 @@ test('index links one hop to the freelance-retainer-calculator sibling', () => {
     'index must link ../freelance-retainer-calculator/ so crawlers reach the retainer calculator in one hop',
   );
 });
+
+test('the two-column layout cannot be pushed wider than a 761-1,000 px window', () => {
+  // Regression, 2026-11-12: with `1fr 360px` and a `1fr 1fr` field grid, each
+  // input's default width (about 244 px) set the first column's minimum to
+  // 543 px, so the page scrolled sideways by up to 174 px between the 760 px
+  // breakpoint and about 950 px. minmax(0,1fr) lets the column shrink, and the
+  // inputs fill their cell instead of keeping the browser's default size.
+  assert.match(page, /\.layout\{display:grid;grid-template-columns:minmax\(0,1fr\) 360px/);
+  assert.doesNotMatch(page, /\.fields\{display:grid;grid-template-columns:1fr 1fr/);
+  assert.match(page, /input\{[^}]*min-width:0;width:100%;box-sizing:border-box/);
+});
