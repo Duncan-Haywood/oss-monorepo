@@ -3,7 +3,7 @@ title: "Our e-invoice checker called OpenPeppol's own Japan example wrong, for E
 seo_title: "PINT e-invoices flagged by EU VAT checks: why, and the fix"
 date: 2026-11-12
 description: "Without the official PINT rules, einvoice-preflight flagged valid Japan, Singapore and A-NZ invoices with EU-only checks. It now reads the profile id first."
-tags: [einvoice-preflight, peppol, pint, red-team, e-invoicing]
+tags: [einvoice-preflight, peppol, pint, redteam, e-invoicing]
 ---
 
 [einvoice-preflight](/ventures/einvoice-preflight/) runs two layers of checks: its own built-in rules (INV-001 and up), which follow EN 16931, the EU e-invoicing standard, and, when you ask for them, the official rule sets published for each format. Peppol PINT invoices for Japan, Singapore, Australia/New Zealand, Malaysia, the UAE and Oman follow PINT's rules, not the EU's. Some built-in rules are EU conventions that make no sense there. A Japanese registration number like `T1234567890123` is not an EU VAT number. A Singapore bank account is not an IBAN.
