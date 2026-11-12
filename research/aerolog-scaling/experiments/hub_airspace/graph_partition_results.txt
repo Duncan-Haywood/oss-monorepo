@@ -1,0 +1,89 @@
+# Milestone 11f: graph-partition layer assignment for 8 operators. 20000 NYC destinations within 10 km of 11a's hub.
+# Lambda 240/h for the city, R 50 m, r_t 250 m, h 60 s, 5 km service discs. Hubs: 0 (-663, -2564); 1 (830, 1131); 2 (3444, -4065); 3 (2683, 3517); 4 (851, -7574); 5 (-4175, -1181); 6 (-1646, -4181); 7 (-573, -679)
+# Hub separations km: 0-1 4.0, 0-2 4.4, 0-3 6.9, 0-4 5.2, 0-5 3.8, 0-6 1.9, 0-7 1.9, 1-2 5.8, 1-3 3.0, 1-4 8.7, 1-5 5.5, 1-6 5.9, 1-7 2.3, 2-3 7.6, 2-4 4.4, 2-5 8.1, 2-6 5.1, 2-7 5.3, 3-4 11.2, 3-5 8.3, 3-6 8.8, 3-7 5.3, 4-5 8.1, 4-6 4.2, 4-7 7.0, 5-6 3.9, 5-7 3.6, 6-7 3.7
+# 127 non-trivial bipartitions (35 balanced), 2795 partitions into <= 4 groups
+
+## G0: shares 0.125 0.125 0.125 0.125 0.125 0.125 0.125 0.125; speeds 20 20 20 20 20 20 20 20 m/s
+semi alone, en route per flight: in-sample 0.0355, fresh 0.0359, closed form 0.0324; counts in-sample 10640
+  cross-operator share of semi's en-route conflicts (in-sample): 0.983
+semi+inout alone, en route per flight: in-sample 0.0165, fresh 0.0160, closed form 0.0154
+pair weights under semi, en-route conflicts per city flight x1000, sim (cf):
+  0-1 1.97 (1.78); 0-2 1.67 (1.50); 0-3 0.15 (0.15); 0-4 0.47 (0.42); 0-5 1.86 (1.82); 0-6 3.20 (2.74); 0-7 4.74 (4.42); 1-2 0.70 (0.72); 1-3 1.71 (1.69); 1-4 0.04 (0.02); 1-5 0.94 (0.77); 1-6 0.38 (0.31); 1-7 3.18 (2.76); 2-3 0.06 (0.05); 2-4 1.61 (1.38); 2-5 0.07 (0.06); 2-6 1.27 (1.18); 2-7 0.45 (0.40); 3-4 0.00 (0.00); 3-5 0.02 (0.03); 3-6 0.02 (0.00); 3-7 0.34 (0.35); 4-5 0.06 (0.04); 4-6 2.43 (2.29); 4-7 0.26 (0.17); 5-6 3.12 (2.91); 5-7 1.99 (1.87); 6-7 2.15 (1.91)
+(2) Pearson r 0.998; cross total sim/cf 1.099
+bipartitions (semi + group bit, 4 layers), en-route conflicts per flight: in-sample, fresh, closed form; terminal fresh
+  cf       00110011  0.0102  0.0103  0.0094  term 0.0411  vs semi 0.286
+  oracle   00110011  0.0102  0.0103  0.0094  term 0.0411  vs semi 0.286
+  dist     00110011  0.0102  0.0103  0.0094  term 0.0411  vs semi 0.286
+  overlap  01001101  0.0134  0.0136  0.0119  term 0.0411  vs semi 0.380
+  mean balanced 0.0158; mean all 0.0181; best fresh 0.0103; worst fresh 0.0333
+(1) direct semi+cf en-route count 3070 against pairwise sum 3070: equal
+(8) Kendall tau over 127 bipartitions, cf vs in-sample sim: 0.965
+(9) eight layers, fresh: semi + cf 4-way 01223213 0.0016 (cf 0.0013; oracle 4-way 01223213 0.0016); semi+inout + cf bipartition 0.0037 (cf 0.0037)
+    all conflicts per flight, fresh: semi + cf 4-way 0.0427; semi+inout + cf bipartition 0.0330
+
+## G1: shares 0.125 0.125 0.125 0.125 0.125 0.125 0.125 0.125; speeds 12 14 16 18 22 24 26 28 m/s
+semi alone, en route per flight: in-sample 0.0473, fresh 0.0476, closed form 0.0441; counts in-sample 14179
+  cross-operator share of semi's en-route conflicts (in-sample): 0.988
+semi+inout alone, en route per flight: in-sample 0.0215, fresh 0.0219, closed form 0.0204
+pair weights under semi, en-route conflicts per city flight x1000, sim (cf):
+  0-1 3.38 (3.08); 0-2 2.57 (2.31); 0-3 0.52 (0.40); 0-4 0.72 (0.69); 0-5 2.78 (2.63); 0-6 6.20 (5.88); 0-7 6.88 (6.50); 1-2 1.09 (0.96); 1-3 2.90 (2.58); 1-4 0.04 (0.03); 1-5 1.13 (1.03); 1-6 1.06 (0.87); 1-7 5.36 (4.81); 2-3 0.05 (0.06); 2-4 1.46 (1.54); 2-5 0.13 (0.11); 2-6 1.39 (1.31); 2-7 0.50 (0.51); 3-4 0.00 (0.00); 3-5 0.04 (0.03); 3-6 0.02 (0.01); 3-7 0.64 (0.72); 4-5 0.03 (0.03); 4-6 2.00 (1.97); 4-7 0.17 (0.15); 5-6 2.36 (2.34); 5-7 1.63 (1.47); 6-7 1.62 (1.45)
+(2) Pearson r 0.999; cross total sim/cf 1.074
+bipartitions (semi + group bit, 4 layers), en-route conflicts per flight: in-sample, fresh, closed form; terminal fresh
+  cf       00110011  0.0129  0.0129  0.0122  term 0.0438  vs semi 0.271
+  oracle   00110011  0.0129  0.0129  0.0122  term 0.0438  vs semi 0.271
+  dist     00110011  0.0129  0.0129  0.0122  term 0.0438  vs semi 0.271
+  overlap  01001101  0.0197  0.0196  0.0181  term 0.0438  vs semi 0.411
+  speed    00001111  0.0189  0.0188  0.0175  term 0.0438  vs semi 0.395
+  mean balanced 0.0207; mean all 0.0239; best fresh 0.0129; worst fresh 0.0433
+(1) direct semi+cf en-route count 3873 against pairwise sum 3873: equal
+(1) direct semi+speed en-route count 5673 against pairwise sum 5673: equal
+(8) Kendall tau over 127 bipartitions, cf vs in-sample sim: 0.968
+(9) eight layers, fresh: semi + cf 4-way 01223213 0.0020 (cf 0.0019; oracle 4-way 01223213 0.0020); semi+inout + cf bipartition 0.0046 (cf 0.0044)
+    all conflicts per flight, fresh: semi + cf 4-way 0.0458; semi+inout + cf bipartition 0.0362
+
+## G2: shares 0.368 0.184 0.123 0.092 0.074 0.061 0.053 0.046; speeds 12 14 16 18 22 24 26 28 m/s
+semi alone, en route per flight: in-sample 0.0579, fresh 0.0570, closed form 0.0535; counts in-sample 17375
+  cross-operator share of semi's en-route conflicts (in-sample): 0.973
+semi+inout alone, en route per flight: in-sample 0.0250, fresh 0.0248, closed form 0.0237
+pair weights under semi, en-route conflicts per city flight x1000, sim (cf):
+  0-1 14.61 (13.28); 0-2 7.33 (6.90); 0-3 1.11 (1.02); 0-4 1.16 (1.18); 0-5 3.93 (3.73); 0-6 7.80 (7.44); 0-7 7.46 (6.86); 1-2 1.66 (1.45); 1-3 3.23 (2.74); 1-4 0.07 (0.03); 1-5 0.78 (0.73); 1-6 0.69 (0.56); 1-7 2.99 (2.63); 2-3 0.03 (0.03); 2-4 0.88 (0.89); 2-5 0.06 (0.05); 2-6 0.51 (0.53); 2-7 0.25 (0.17); 3-4 0.00 (0.00); 3-5 0.02 (0.01); 3-6 0.00 (0.00); 3-7 0.22 (0.16); 4-5 0.02 (0.01); 4-6 0.47 (0.47); 4-7 0.02 (0.03); 5-6 0.53 (0.46); 5-7 0.30 (0.26); 6-7 0.21 (0.22)
+(2) Pearson r 1.000; cross total sim/cf 1.087
+bipartitions (semi + group bit, 4 layers), en-route conflicts per flight: in-sample, fresh, closed form; terminal fresh
+  cf       01100111  0.0118  0.0113  0.0110  term 0.0998  vs semi 0.199
+  oracle   01100111  0.0118  0.0113  0.0110  term 0.0998  vs semi 0.199
+  dist     01101111  0.0121  0.0116  0.0112  term 0.0998  vs semi 0.203
+  overlap  01111110  0.0180  0.0175  0.0165  term 0.0998  vs semi 0.307
+  speed    00001111  0.0311  0.0304  0.0286  term 0.0998  vs semi 0.532
+  mean balanced 0.0253; mean all 0.0290; best fresh 0.0113; worst fresh 0.0546
+(1) direct semi+cf en-route count 3551 against pairwise sum 3551: equal
+(1) direct semi+speed en-route count 9331 against pairwise sum 9331: equal
+(8) Kendall tau over 127 bipartitions, cf vs in-sample sim: 0.987
+(9) eight layers, fresh: semi + cf 4-way 01221233 0.0019 (cf 0.0020; oracle 4-way 01221233 0.0019); semi+inout + cf bipartition 0.0036 (cf 0.0034)
+    all conflicts per flight, fresh: semi + cf 4-way 0.1017; semi+inout + cf bipartition 0.0649
+
+## Prediction checks
+G0: (2) r 0.998 >= 0.9 True; total sim/cf 1.099 within 25% True
+    (3) cf / oracle 1.000 <= 1.05 True
+    (4) better heuristic / cf 1.000; dist/cf 1.000, overlap/cf 1.328
+    (6) cf / semi 0.286 in [0.30, 0.60] False
+    (7) cf / mean balanced 0.651 <= 0.75 True
+    (8) tau 0.965 >= 0.8 True
+    (9) semi+cf 4-way / semi+inout+cf 0.421 < 1 True
+G1: (2) r 0.999 >= 0.9 True; total sim/cf 1.074 within 25% True
+    (3) cf / oracle 1.000 <= 1.05 True
+    (4) better heuristic / cf 1.000; dist/cf 1.000, overlap/cf 1.515
+    (5) speed / cf 1.459 >= 1.25 True
+    (6) cf / semi 0.271 in [0.30, 0.60] False
+    (7) cf / mean balanced 0.622 <= 0.75 True
+    (8) tau 0.968 >= 0.8 True
+    (9) semi+cf 4-way / semi+inout+cf 0.440 < 1 True
+G2: (2) r 1.000 >= 0.9 True; total sim/cf 1.087 within 25% True
+    (3) cf / oracle 1.000 <= 1.05 True
+    (4) better heuristic / cf 1.022; dist/cf 1.022, overlap/cf 1.545
+    (5) speed / cf 2.676 >= 1.25 True
+    (6) cf / semi 0.199 in [0.30, 0.60] False
+    (7) cf / mean balanced 0.449 <= 0.75 True
+    (8) tau 0.987 >= 0.8 True
+    (9) semi+cf 4-way / semi+inout+cf 0.528 < 1 True
+
+# runtime 120 s
