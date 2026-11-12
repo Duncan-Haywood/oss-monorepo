@@ -1182,13 +1182,15 @@ function hostBreaks(opp, n, R, host) {
  * at `legBreaks` (default a third of the season cap) and leg two moves on carry-over alone without
  * the season going over `maxBreaks` (or over the fewest its starts allow, if that is more).
  */
-export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null, field = true, fromStarter = false, weightedStarter = true, shift = true, shiftCapped = true, leg1: givenLeg1 = null } = {}) {
+export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null, field = true, fromStarter = false, weightedStarter = true, shift = true, shiftCapped = "small", fieldShift = false, leg1: givenLeg1 = null } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
   const doubleScore = (r) => r.coe + REPEAT_PENALTY * r.repeats + breakWeight * r.breaks;
-  if (field && !fromStarter && !givenLeg1 && maxBreaks == null && fieldApplies(N) && breakWeight > 0 && shift && shiftStarts(N, n).length) {
+  if (fieldShift && field && !fromStarter && !givenLeg1 && maxBreaks == null && fieldApplies(N) && breakWeight > 0 && shift && shiftStarts(N, n).length) {
     // 15 and 31 teams (16 and 32 with a bye): the field-start season, and the 16 and 32 shift
-    // starters (STARTERS_SHIFT) as leg ones, as the single search has had since 2026-11-12
+    // starters (STARTERS_SHIFT) as leg ones. Off by default: on seeds 1 and 2 at weight 10 it
+    // changed nothing (the field search's leg one already takes a shift starter when it wins) and
+    // doubled the time (README "Shift candidates in a home-and-away season, part two")
     const best = { ...lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, shift: false }), start: "field" };
     return withShiftLegOnes(best, N, n, { seed, effort, breakWeight, field, shiftCapped, score: doubleScore });
   }
@@ -1314,9 +1316,13 @@ const REPEAT_PENALTY = 1000;
  * season is kept only when strictly lower on the search's own score.
  */
 function withShiftLegOnes(best, N, n, { seed, effort, breakWeight, field, shiftCapped, score }) {
+  // "small" (the default): capped leg ones only up to 16 slots (11 to 16 teams), the only sizes where
+  // they gained in the single or the double search; from 17 teams up the climbed shift starters are
+  // local minima for these moves and the extra leg-two searches only added 30-40% to the time
+  const capped = shiftCapped === "small" ? N <= 16 : Boolean(shiftCapped);
   for (const c of shiftStarts(N, n)) {
     const legOnes = [[finish(c.opp, n, false, best.circleCoe, best.lowerBound, 0, seed, c.venues), `${c.which}, shift venues`]];
-    if (shiftCapped) legOnes.push([lowCarryOverCappedRounds(n, { seed, effort, start: c }), `${c.which}, shift venues, capped`]);
+    if (capped) legOnes.push([lowCarryOverCappedRounds(n, { seed, effort, start: c }), `${c.which}, shift venues, capped`]);
     for (const [legOne, label] of legOnes) {
       const st = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, fromStarter: "shift", leg1: legOne });
       if (score(st) < score(best)) best = { ...st, start: label };

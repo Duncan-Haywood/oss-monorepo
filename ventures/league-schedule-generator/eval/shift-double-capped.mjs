@@ -7,8 +7,9 @@
 //
 //   node eval/shift-double-capped.mjs [weight] [seeds,] [sizes...]   # eval/shift-double-capped.txt
 //
-// "Before" is what main did: at field sizes (8, 15, 16, 31, 32) the season with `shift: false`,
-// which there equals the old path; elsewhere `shiftCapped: false`, which is the old path. Every
+// "Before" is what main did: at field sizes (8, 15, 16, 31, 32) the default (the field branch,
+// `fieldShift`, is off by default) against `fieldShift: true`; elsewhere `shiftCapped: false`
+// against `shiftCapped: true` (every size; the shipped default, "small", caps only up to 16 slots). Every
 // season is checked as valid and every figure recounted from the rounds.
 import { lowCarryOverDoubleRounds, carryOver, fieldApplies } from "../carryover.mjs";
 
@@ -57,11 +58,12 @@ console.log("| Teams | Seed | Before | Now | Score | Start | Time before / now |
 console.log("|---|---|---|---|---|---|---|");
 for (const n of sizes) for (const seed of seeds) {
   const N = n % 2 ? n + 1 : n;
-  const old = fieldApplies(N) ? { shift: false } : { shiftCapped: false };
+  const field = fieldApplies(N);
+  const old = field ? {} : { shiftCapped: false }, now = field ? { fieldShift: true } : { shiftCapped: true };
   let t0 = Date.now();
   const a = lowCarryOverDoubleRounds(n, { seed, breakWeight: weight, ...old });
   const ta = (Date.now() - t0) / 1000; t0 = Date.now();
-  const b = lowCarryOverDoubleRounds(n, { seed, breakWeight: weight });
+  const b = lowCarryOverDoubleRounds(n, { seed, breakWeight: weight, ...now });
   const tb = (Date.now() - t0) / 1000;
   check(n, a.rounds); check(n, b.rounds);
   const sc = (r) => { const c = coeOf(n, r.rounds), k = breaksOf(n, r.rounds), p = repeatsOf(n, r.rounds); return { c, k, p, s: c + 1000 * p + weight * k }; };
