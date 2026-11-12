@@ -82,11 +82,11 @@ export function packStrip(rects, width) {
  * One marker for a ratio of sizes, e.g. { S: 1, M: 2, L: 1 }.
  * Pieces of all sizes in the ratio are packed together.
  */
-export function markerFor(garment, ratio, { fit = "regular", sizeChart = BODY_CHEST_CM, fabricWidthCm = 150, edgeCm = 1.5, seam = SEAM_ALLOWANCE_CM, nested = false, rib = false, only = null } = {}) {
+export function markerFor(garment, ratio, { fit = "regular", sizeChart = BODY_CHEST_CM, fabricWidthCm = 150, edgeCm = 1.5, seam = SEAM_ALLOWANCE_CM, nested = false, rib = false, only = null, searchSteps = 0 } = {}) {
   const usable = fabricWidthCm - 2 * edgeCm;
   // nested: lay the real drafted outlines (nest.mjs) instead of rectangles; only for the drafted garments, up to 20 of a size
   if (nested && DRAFTED.includes(garment) && Object.values(ratio).every(n => !(n > 0) || (Number.isInteger(n) && n <= 20))) {
-    const r = nestRatio(garment, Object.fromEntries(Object.entries(ratio).filter(([, n]) => n > 0)), { fit, widthCm: fabricWidthCm, edgeCm, endLossCm: 0, only, draftOpts: { sizeChart, ...(rib ? { rib: true } : {}) } });
+    const r = nestRatio(garment, Object.fromEntries(Object.entries(ratio).filter(([, n]) => n > 0)), { fit, widthCm: fabricWidthCm, edgeCm, endLossCm: 0, only, improve: searchSteps, draftOpts: { sizeChart, ...(rib ? { rib: true } : {}) } });
     if (r.ok) return { ok: true, markerLengthCm: r.lengthCm, usableWidthCm: usable, utilisationPct: round1(r.efficiencyPct), pieces: r.pieces.length, edgeCm, nested: r };
     // a piece wider than the cloth etc.: fall through to rectangles, which report the same limits in their own words
   }
@@ -117,7 +117,7 @@ export function markerFor(garment, ratio, { fit = "regular", sizeChart = BODY_CH
  * @param {Record<string, number>} counts  pieces wanted per size
  * @param {{fit?:string, sizeChart?:object, fabricWidthCm?:number, maxPlies?:number, maxMarkerCm?:number, endLossCm?:number, nestingGainPct?:number, maxSparePct?:number}} [opts]
  */
-export function cuttingPlan(garment, counts, { fit = "regular", sizeChart = BODY_CHEST_CM, fabricWidthCm = 150, maxPlies = 60, maxMarkerCm = 1000, endLossCm = 6, nestingGainPct = 0, maxSparePct = 5, seam = SEAM_ALLOWANCE_CM, nested = false, rib = null, ribWidthCm = 150 } = {}) {
+export function cuttingPlan(garment, counts, { fit = "regular", sizeChart = BODY_CHEST_CM, fabricWidthCm = 150, maxPlies = 60, maxMarkerCm = 1000, endLossCm = 6, nestingGainPct = 0, maxSparePct = 5, seam = SEAM_ALLOWANCE_CM, nested = false, rib = null, ribWidthCm = 150, searchSteps = 0 } = {}) {
   // rib: null (none), "self" (bands cut from the body cloth) or "separate" (bands laid on their own rib knit, ribWidthCm wide); crewneck and hoodie, nested lays only
   if (rib) {
     if (!["self", "separate"].includes(rib)) return { ok: false, error: "rib must be \"self\" or \"separate\"." };
@@ -176,7 +176,7 @@ export function cuttingPlan(garment, counts, { fit = "regular", sizeChart = BODY
   // Lays and plies are chosen on the fast rectangle packing; with `nested` each chosen marker is then re-laid from the real outlines
   // (a raster nest costs seconds, far too many to run for every lays x plies candidate).
   if (nested) {
-    const re = chosen.solved.map(g => markerFor(garment, g.ratio, { fit, sizeChart, fabricWidthCm, seam, nested: true, rib: !!rib, only: rib === "separate" ? "body" : null }));
+    const re = chosen.solved.map(g => markerFor(garment, g.ratio, { fit, sizeChart, fabricWidthCm, seam, nested: true, rib: !!rib, only: rib === "separate" ? "body" : null, searchSteps }));
     if (re.every(m => m.ok && m.nested)) {
       chosen.solved.forEach((g, i) => { g.m = re[i]; g.metres = g.lays * g.plies * (re[i].markerLengthCm * gain + endLossCm) / 100; });
       chosen.metres = chosen.solved.reduce((a, g) => a + g.metres, 0);
@@ -184,7 +184,7 @@ export function cuttingPlan(garment, counts, { fit = "regular", sizeChart = BODY
   }
   let ribPlan = null;
   if (rib === "separate") {
-    const rr = chosen.solved.map(g => markerFor(garment, g.ratio, { fit, sizeChart, fabricWidthCm: ribWidthCm, seam, nested: true, rib: true, only: "rib" }));
+    const rr = chosen.solved.map(g => markerFor(garment, g.ratio, { fit, sizeChart, fabricWidthCm: ribWidthCm, seam, nested: true, rib: true, only: "rib", searchSteps }));
     const bad = rr.find(r => !r.ok || !r.nested);
     if (bad) return { ok: false, error: `The rib bands do not fit a ${ribWidthCm} cm wide rib knit (the hem band of an XL hoodie is about 118 cm long and lies across the width): ${bad.error || "try a wider knit or lay them in the body cloth (rib: self)."}` };
     const lens = rr.map((r, i) => chosen.solved[i].lays * chosen.solved[i].plies * (r.markerLengthCm + endLossCm) / 100);

@@ -98,7 +98,7 @@ function rasterise(rings, g) {
 }
 
 class Strip {
-  constructor(widthCells) { this.w = widthCells; this.rows = []; this.pref = []; }
+  constructor(widthCells) { this.w = widthCells; this.rows = []; this.pref = []; this.firstOpen = 0; }
   ensure(y) { while (this.rows.length <= y) { this.rows.push(new Uint8Array(this.w)); const p = new Int32Array(this.w + 1); this.pref.push(p); } }
   fits(r, x, y) {
     if (x < 0 || x + r.W > this.w) return false;
@@ -109,11 +109,36 @@ class Strip {
     }
     return true;
   }
+  /**
+   * Leftmost x where raster r fits with its top at row y, or -1. When a span is
+   * blocked it jumps x past the rightmost busy cell under that span (found by
+   * binary search on the row's running count), so a crowded row costs a few
+   * jumps instead of one test per column. Same answer as testing every x.
+   */
+  firstFit(r, y) {
+    this.ensure(y + r.H);
+    let x = 0;
+    const lim = this.w - r.W;
+    outer: while (x <= lim) {
+      for (const s of r.spans) {
+        const p = this.pref[y + s.dy], a = x + s.x0, b = x + s.x1;
+        if (p[b] - p[a] === 0) continue;
+        // rightmost busy cell in [a, b): smallest k in (a, b] with p[k] === p[b], minus one
+        let lo = a + 1, hi = b;
+        while (lo < hi) { const m = (lo + hi) >> 1; if (p[m] === p[b]) hi = m; else lo = m + 1; }
+        x = lo - s.x0; // busy cell lo - 1 now sits just left of the span
+        continue outer;
+      }
+      return x;
+    }
+    return -1;
+  }
   put(r, x, y) {
     this.ensure(y + r.H);
     const touched = new Set();
     for (const s of r.spans) { const row = this.rows[y + s.dy]; for (let c = x + s.x0; c < x + s.x1; c++) row[c] = 1; touched.add(y + s.dy); }
     for (const t of touched) { const p = this.pref[t], row = this.rows[t]; for (let c = 0; c < this.w; c++) p[c + 1] = p[c] + row[c]; }
+    while (this.firstOpen < this.rows.length && this.pref[this.firstOpen][this.w] === this.w) this.firstOpen++;
   }
 }
 
@@ -129,10 +154,11 @@ function placeAll(shapes, order, widthCm, g, oneWay) {
     for (const o of sh.orients) {
       if (o.r.W > wc) continue;
       // scan rows from the top of the marker; stop when no later row can beat the best end row
-      for (let y = 0; ; y++) {
+      // rows above the first row with a free cell are full, so the piece's first busy row cannot sit there
+      const dyMin = o.r.spans.length ? o.r.spans[0].dy : 0;
+      for (let y = Math.max(0, strip.firstOpen - dyMin); ; y++) {
         if (best && y + o.r.H - 2 > best.end) break;
-        let hit = -1;
-        for (let x = 0; x + o.r.W <= wc; x++) { if (strip.fits(o.r, x, y)) { hit = x; break; } }
+        const hit = strip.firstFit(o.r, y);
         if (hit >= 0) {
           const end = y + o.r.H;
           if (!best || end < best.end || (end === best.end && (y < best.y || (y === best.y && hit < best.x)))) best = { o, x: hit, y, end };
@@ -156,11 +182,12 @@ function placeAll(shapes, order, widthCm, g, oneWay) {
  * @param {{widthCm:number, edgeCm?:number, gridCm?:number, tries?:number, oneWay?:boolean, seed?:number}} opt
  * widthCm is the cloth width; edgeCm is lost at each selvedge.
  */
-export function nest(shapes, { widthCm = 150, edgeCm = 1.5, gridCm = 0.5, tries = 12, oneWay = false, seed = 1 } = {}) {
+export function nest(shapes, { widthCm = 150, edgeCm = 1.5, gridCm = 0.5, tries = 12, oneWay = false, seed = 1, improve = 0 } = {}) {
   if (!shapes.length) return { ok: false, error: "No pieces to nest." };
   if (!(widthCm > 10 && widthCm <= 400)) return { ok: false, error: "Fabric width must be from 10 to 400 cm." };
   if (!(edgeCm >= 0 && edgeCm * 2 < widthCm / 2)) return { ok: false, error: "Selvedge loss is too large for this width." };
   if (!(gridCm >= 0.2 && gridCm <= 2)) return { ok: false, error: "Grid must be from 0.2 to 2 cm." };
+  if (!(Number.isInteger(improve) && improve >= 0 && improve <= 5000)) return { ok: false, error: "Search steps must be a whole number from 0 to 5000." };
   const usable = widthCm - 2 * edgeCm;
   const prepared = shapes.map(s => {
     const orients = [{ rot: 0, rings: s.rings }];
@@ -187,25 +214,58 @@ export function nest(shapes, { widthCm = 150, edgeCm = 1.5, gridCm = 0.5, tries 
     orders.push(head.concat(tail));
   }
   let bestRun = null, rowsTried = 0;
-  for (const ord of orders) {
+  const run = ord => {
     const placed = placeAll(prepared, ord, usable, gridCm, oneWay);
     rowsTried++;
-    if (!placed) continue;
+    if (!placed) return null;
     const len = Math.max(...placed.map(p => (p.y + p.o.r.H - 1) * gridCm));
-    if (!bestRun || len < bestRun.len) bestRun = { len, placed };
+    // tie-break on how far down the cloth the pieces end in total, so a move that
+    // packs the tail tighter without yet shortening the marker still counts
+    let sink = 0; for (const p of placed) sink += p.y + p.o.r.H;
+    return { len, sink, placed, ord };
+  };
+  const better = (a, b) => !b || a.len < b.len - 1e-9 || (Math.abs(a.len - b.len) < 1e-9 && a.sink < b.sink);
+  for (const ord of orders) {
+    const r = run(ord);
+    if (r && better(r, bestRun)) bestRun = r;
   }
   if (!bestRun) return { ok: false, error: "No layout found." };
+  const startRun = bestRun;
+  // Local search over the placement order (the bottom-left placer stays greedy):
+  // swap two pieces or move one to another place in the order; keep the result
+  // when it is no worse. Seeded, so the same inputs give the same marker.
+  let accepted = 0;
+  if (improve > 0 && prepared.length > 1) {
+    let cur = bestRun;
+    const n = prepared.length;
+    for (let it = 0; it < improve; it++) {
+      const ord = [...cur.ord];
+      const i = Math.floor(rnd() * n);
+      // mostly near moves (a few places apart), sometimes anywhere
+      let j = rnd() < 0.7 ? i + 1 + Math.floor(rnd() * Math.min(6, n - 1)) : Math.floor(rnd() * n);
+      j = ((j % n) + n) % n; if (j === i) j = (i + 1) % n;
+      if (rnd() < 0.5) { [ord[i], ord[j]] = [ord[j], ord[i]]; }
+      else { const [v] = ord.splice(i, 1); ord.splice(j, 0, v); }
+      const r = run(ord);
+      if (!r) continue;
+      if (!better(cur, r)) { cur = r; accepted++; }
+      if (better(r, bestRun)) bestRun = r;
+    }
+  }
   // transform the real outlines to marker coordinates (cm): x from the left usable edge, y along the cloth
-  const out = bestRun.placed.map(p => {
+  const toMarker = run => run.placed.map(p => {
     const o = p.o, bb = o.r.bb;
     const dx = edgeCm + p.x * gridCm - (bb.minX - gridCm), dy = p.y * gridCm - (bb.minY - gridCm);
     const rings = o.rings.map(r => r.map(([x, y]) => [r2(x + dx), r2(y + dy)]));
     return { name: prepared[p.idx].name, label: prepared[p.idx].label, rot: o.rot, rings, areaCm2: prepared[p.idx].areaCm2 };
   });
-  const lengthCm = r2(Math.max(...out.flatMap(p => p.rings.flat().map(pt => pt[1]))) - Math.min(0, ...out.flatMap(p => p.rings.flat().map(pt => pt[1]))));
+  const lengthOf = ps => r2(Math.max(...ps.flatMap(p => p.rings.flat().map(pt => pt[1]))) - Math.min(0, ...ps.flatMap(p => p.rings.flat().map(pt => pt[1]))));
+  const out = toMarker(bestRun);
+  const lengthCm = lengthOf(out), lengthBeforeSearchCm = lengthOf(toMarker(startRun));
   const pieceArea = out.reduce((a, p) => a + p.areaCm2, 0);
   return {
     ok: true, widthCm, usableCm: r2(usable), edgeCm, lengthCm, pieces: out, ordersTried: rowsTried,
+    searchSteps: improve, searchAccepted: accepted, lengthBeforeSearchCm,
     pieceAreaCm2: r2(pieceArea), efficiencyPct: r2(100 * pieceArea / (lengthCm * widthCm)),
     efficiencyUsablePct: r2(100 * pieceArea / (lengthCm * usable)),
   };
@@ -285,3 +345,6 @@ export function nestSvg(res, { pxPerCm = 4 } = {}) {
   }).join("");
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${r2(W)} ${r2(L)}" width="${r2(W * pxPerCm)}" height="${r2(L * pxPerCm)}" role="img" aria-label="Marker ${r2(W)} cm wide and ${r2(L)} cm long, ${res.pieces.length} pieces, ${res.efficiencyPct} percent of the cloth used"><rect x="0" y="0" width="${r2(W)}" height="${r2(L)}" fill="#fff" stroke="#999" stroke-width="0.2"/><rect x="0" y="0" width="${res.edgeCm}" height="${r2(L)}" fill="#eee"/><rect x="${r2(W - res.edgeCm)}" y="0" width="${res.edgeCm}" height="${r2(L)}" fill="#eee"/>${body}</svg>`;
 }
+
+/** For tests only: the occupancy strip and the rasteriser. */
+export const _internals = { Strip, rasterise };

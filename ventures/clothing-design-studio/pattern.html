@@ -65,6 +65,7 @@
     <div class="row"><div><label for="nw">Fabric width cm</label><input id="nw" type="number" min="60" max="300" step="1" value="150"></div>
     <div><label for="nn">Garments in this size</label><input id="nn" type="number" min="1" max="10" step="1" value="2"></div></div>
     <label><input id="now" type="checkbox"> One-way fabric (nap or print): no turning</label>
+    <label for="nsteps">Search steps (0 = greedy only; each step tries a new piece order, about 2 to 5% shorter at 100)</label><input id="nsteps" type="number" min="0" max="1000" step="10" value="100">
     <p><button id="nest-go" type="button">Nest pieces</button></p>
     <output id="nested" aria-live="polite"></output>
   </section>
@@ -120,10 +121,10 @@
     });
     $("#nest-go").addEventListener("click", () => {
       const n = Math.round(Number($("#nn").value)), w = Number($("#nw").value);
-      const r = nestRatio($("#garment").value, { [$("#size").value]: n }, { fit: $("#fit").value, widthCm: w, oneWay: $("#now").checked, draftOpts: opts() });
+      const r = nestRatio($("#garment").value, { [$("#size").value]: n }, { fit: $("#fit").value, widthCm: w, oneWay: $("#now").checked, improve: Math.min(1000, Math.max(0, Math.round(Number($("#nsteps").value) || 0))), draftOpts: opts() });
       if (!r.ok) { $("#nested").innerHTML = `<p class="placeholder">${esc(r.error)}</p>`; return; }
       const v = verifyNest(r);
-      $("#nested").innerHTML = `<p><strong>${r.lengthCm} cm</strong> of marker for ${r.garments} garment${r.garments > 1 ? "s" : ""}, ${r.efficiencyPct}% of the cloth is pattern. About <strong>${r.metresPerGarment} m per garment</strong> with ${r.endLossCm} cm end loss. Exact overlap check: ${v.ok ? "passed" : esc(v.problems.join("; "))}.</p><div style="overflow:auto;max-width:100%">${nestSvg(r, { pxPerCm: 3 })}</div><p class="placeholder">A cautious estimate: a factory's CAD marker tilts pieces and tunes gaps. Its own consumption figure wins.</p>`;
+      $("#nested").innerHTML = `<p><strong>${r.lengthCm} cm</strong> of marker for ${r.garments} garment${r.garments > 1 ? "s" : ""}, ${r.efficiencyPct}% of the cloth is pattern. About <strong>${r.metresPerGarment} m per garment</strong> with ${r.endLossCm} cm end loss.${!r.searchSteps ? "" : r.lengthCm < r.lengthBeforeSearchCm ? ` The order search took it from ${r.lengthBeforeSearchCm} cm in ${r.searchSteps} steps.` : ` The order search found nothing shorter in ${r.searchSteps} steps.`} Exact overlap check: ${v.ok ? "passed" : esc(v.problems.join("; "))}.</p><div style="overflow:auto;max-width:100%">${nestSvg(r, { pxPerCm: 3 })}</div><p class="placeholder">A cautious estimate: a factory's CAD marker places pieces more cleverly than this greedy one and tunes gaps. Its own consumption figure wins.</p>`;
       recordUsage("pattern_nest");
     });
     document.querySelectorAll("section select, section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("pattern_check"); }));

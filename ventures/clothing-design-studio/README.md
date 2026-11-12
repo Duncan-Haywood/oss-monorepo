@@ -197,6 +197,26 @@ Measured 2026-11-09, 150 cm cloth: one tee M 85.1 cm (77.5% of the cloth is patt
 
 `cuttingPlan(..., { nested: true })` (a checkbox on `fit.html`) picks lays and plies on the fast rectangle packing, then re-lays each chosen marker from the drafted outlines with `nest.mjs` and quotes those lengths; the lay drawings become the nested outlines. Tee, long sleeve and crewneck only (hoodies fall back to rectangles). Measured: S20 M60 L50 XL20 XXL6 tees, 150 cm cloth, 149.1 m by rectangles, 144.5 m nested (78.1% covered), 6.8 s. Seconds per plan, hence the checkbox. `node --test marker.test.mjs` (nested plan is shorter, same lays and plies, draws, hoodie falls back). Headless Chromium on `fit.html`. Not a factory marker; a real consumption figure still wins.
 
+## A search over the piece order, and a placer 10x faster (2026-11-12)
+
+The nest above is greedy: pieces go down bottom-left in one of 15 fixed orders. `nest(shapes, { improve: n })` (and `nestRatio`, `markerFor`/`cuttingPlan` as `searchSteps`) now runs `n` steps of local search on the best order: swap two pieces or move one elsewhere in the order (mostly a few places apart), re-place, keep the change when the marker is no longer, with ties broken by how far down the cloth the pieces end in total. Seeded, so the same inputs give the same marker; the result reports `lengthBeforeSearchCm`, `searchSteps` and `searchAccepted`, and `verifyNest` re-checks it exactly. `pattern.html` has a "Search steps" field (default 100); `fit.html` uses 60 steps when nesting is ticked.
+
+To afford the search the placer got faster with the same answers: a blocked span now jumps past the rightmost busy cell under it (binary search on the row's running count) instead of trying every column, and rows that are already full are skipped. Every marker length below is unchanged at 0 steps; a test compares the jump against testing every column on 40 random strips.
+
+Measured 2026-11-12, 150 cm cloth, greedy against 100 search steps (300 in brackets):
+
+| marker | greedy | 100 steps | change |
+| --- | --- | --- | --- |
+| tee S+2M+L | 341.5 cm | 334.2 cm (328.5) | -2.1% (-3.8%) |
+| crewneck 2S+3M+3L+2XL | 1,087.6 cm, 12.5 s before / 1.2 s now | 1,037.6 cm in 8.3 s (1,036.6) | -4.6% |
+| hoodie 4M | 570.4 cm | 551.9 cm (544.4) | -3.2% (-4.6%) |
+| long sleeve S+2M+L | 381.8 cm | 381.8 cm (381.7) | 0 |
+| tee M, long sleeve M (one garment) | 85.1, 144.7 cm | same | 0 |
+
+Cutting plan, S20 M60 L50 XL20 XXL6 tees nested: 144.54 m to buy greedy, 143.14 m at 40 steps, 142.83 m at 100 steps (5.9 s, faster than the greedy plan took before). Long sleeves do not move: their 83 cm sleeves are locked to the grain.
+
+Tried and not shipped: letting pieces tilt 1 to 3 degrees off grain (a CAD marker's grain tolerance) as extra orientations. With the greedy placer choosing a tilt piece by piece it helped the crewneck by about 2% but made the long-sleeve run longer at 1 degree (393.3 against 381.8 cm), and with the search it was worse than the search alone (crewneck 1,047.8 against 1,037.6 cm). A tilt chosen by the search rather than the placer may still pay; not tried. Still a greedy raster marker, so a factory's CAD marker and its consumption figure win.
+
 ## Hoodie: hood and kangaroo pocket drafted (2026-11-09)
 
 `pattern.mjs` now drafts a `hoodie`: the crewneck body and sleeve, a two-piece hood (cut two, one reversed) and a kangaroo pocket. The hood's neck edge is a straight line as long as the body's neck seam (front neck + back neck, one side), reported as `hoodNeckEdgeCm` against `neckSeamCm`; the face opening and forehead are one smooth curve (a hard corner made the seam allowance loop), the face edge carries the deeper hem allowance for a drawcord casing, and the centre seam over the crown the seam allowance. The pocket is wider at the bottom, with the slanted hand openings at a slightly larger allowance. `offsetRing` now blends allowances at near-parallel joins where they change (it used to throw the point far out). `nest.mjs` and `cuttingPlan(..., {nested:true})` take the hoodie: 4 hoodies M, 150 cm cloth, 5.76 m nested against 6.17 m by rectangles. Checked by `pattern.test.mjs` (hood edge equals neck seam for XS, M, XXL; independent walk of the stitch ring; every piece simple; sizes grow; grading monotone), `nest.test.mjs`, `marker.test.mjs` and a headless-Chromium load of `pattern.html` (hoodie selected, no console errors). Not checked against a real hood block or a sewn sample; no rib at hem or cuffs; hood height 33 to 48 cm and depth 26 to 37 cm across XS to XXL are typed ratios. Next: a real hoodie measured against these pieces; hem and cuff rib bands; a zip front.
