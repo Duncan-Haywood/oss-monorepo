@@ -61,6 +61,7 @@ from operator import add
 from pathlib import Path
 
 from shootflow import dng_colour as dc
+from shootflow import dng_opcodes
 
 # --------------------------------------------------------------------------
 # TIFF / DNG container
@@ -1087,6 +1088,9 @@ class DevelopSettings:
     # A Canon CR2's 2x2 CFA phase (RGGB, GRBG, GBRG, BGGR) when the reader
     # cannot tell it from the picture; ignored for DNG (its CFAPattern rules).
     cfa: str | None = None
+    # Run the DNG opcode lists' GainMap (lens shading; every Android phone
+    # DNG carries one); other opcodes are named in the report, not run.
+    opcodes: bool = True
 
 
 @dataclass
@@ -1556,6 +1560,14 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     spp = raw.samples_per_pixel
     vals = raw.values
     rw = raw.width
+    gain_maps: list = []
+    if raw.source == "dng":
+        op_plan = dng_opcodes.plan(ifd, ifd0, cfa=not linear_raw)
+        if settings.opcodes:
+            gain_maps = op_plan.gain_maps
+            notes.extend(op_plan.notes)
+        elif op_plan.notes:
+            notes.append("opcode lists not run (opcodes off)")
     # Normalised 0..1 sample for active-area pixel (y, x), sample s.
     # Each CFA position's black is subtracted and its own span to white scaled
     # to 1, so per-channel blacks do not tint the picture.
@@ -1598,6 +1610,9 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                 sx = sp[x % rc]
                 for s in range(spp):
                     out[x * spp + s] = (row[x * spp + s] - bx[s] - dvy - dhx) * sx[s]
+        if gain_maps:
+            out = [0.0 if v < 0.0 else (1.0 if v > 1.0 else v) for v in out]
+            dng_opcodes.apply_row(gain_maps, y, out, h, w, spp)
         nonlocal clipped
         clipped += sum(1 for v, c in zip(out, caps) if v >= c)
         return [0.0 if v < 0.0 else (c if v > c else v) for v, c in zip(out, caps)]
@@ -1641,7 +1656,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             vals=vals, rw=rw, top=top, left=left, w=w, h=h, spp=spp, lin=lin, black_=black, span=span,
             dh=dh, dv=dv, rr=rr, rc=rc, caplines=caplines, linear_raw=linear_raw, pat=pat,
             half=settings.half, mults=(wbr, wbg, wbb), hi=hi, m=m, curve=curve, lut_size=lut_size,
-            look=look,
+            look=look, gain_maps=gain_maps,
         )
 
     out = array("H")
@@ -1674,6 +1689,10 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                         acc[2] / cnt[2] * mults[2],
                         out,
                     )
+            if h % 2:
+                # The odd last row is not binned, but its clipped sensels count,
+                # as on the numpy engine (which normalises every row).
+                norm_row(h - 1)
         else:
             ow, oh = w, h
             _bilinear(norm_row, w, h, pat, mults, encode, out)

@@ -737,6 +737,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         tone_curve=not args.no_tone_curve,
         default_tone=args.default_tone_curve,
         cfa=args.cfa,
+        opcodes=not args.no_opcodes,
     )
     sources = [Path(p) for p in args.files]
     out_dir = Path(args.out)
@@ -1266,6 +1267,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="For a profile with no ProfileToneCurve: 'always' applies the default curve (a fit to Adobe's ACR3 "
         "default, what Adobe's converters use), 'auto' only when the profile's tone copyright names Adobe "
         "(RawTherapee's rule), 'never' keeps the plain sRGB curve.",
+    )
+    develop.add_argument(
+        "--no-opcodes",
+        action="store_true",
+        help="Skip the DNG's OpcodeList2 GainMap (the lens shading map phones write); by default it runs.",
     )
 
     create_demo = subparsers.add_parser(
