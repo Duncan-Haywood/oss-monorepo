@@ -759,6 +759,17 @@ test("dailyLabor: hours and base-wage cost per day, labor share where sales are 
   assert.ok(Math.abs(dailyLabor(b, staff, "").days[0].cost - 88) < 1e-9);
 });
 
+test("dailyLabor: '$2,400' is one day's sales, not two (red team 2026-11-12)", () => {
+  const staff = staffOf("Ann,10,40,0,any");
+  const slots = slotsOf("Mon,8,12,1\nMon,13,17,1\nWed,9,13,1");
+  const r = buildRoster(staff, slots, { minRestHours: 0 });
+  const d = dailyLabor(r, staff, "$2,000 $1,000 $1,000");
+  assert.deepEqual(d.days.slice(0, 3).map((x) => x.sales), [2000, 1000, 1000]);
+  assert.ok(Math.abs(d.days[0].pct - 4) < 1e-9);
+  assert.ok(Math.abs(d.days[2].pct - 4) < 1e-9);
+  assert.deepEqual(dailyLabor(r, staff, "2000,1000;1,000").days.slice(0, 3).map((x) => x.sales), [2000, 1000, 1000]);
+});
+
 test("an unpaid meal break lowers pay on long shifts only, never the hours a person is scheduled", () => {
   const staff = staffOf("Ana, $20, 40");
   const slots = slotsOf("Mon, 9am, 5pm, 1, Open\nTue, 9am, 1pm, 1, Short");

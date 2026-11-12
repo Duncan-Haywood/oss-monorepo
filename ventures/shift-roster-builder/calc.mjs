@@ -2788,7 +2788,15 @@ export function budgetCheck(r, budget) {
 export function dailyLabor(r, staff, salesText = "") {
   const wage = new Map(staff.map((p) => [p.name, p.wage]));
   const burden = 1 + ((r.options && r.options.burdenPct) || 0) / 100;
-  const sales = String(salesText).split(/[,\s;]+/).filter((t) => t !== "").map((t) => Number(t.replace(/[$]/g, "")));
+  // "$2,400 $3,100" is two days of sales, not four: a whitespace- or semicolon-separated
+  // "2,400" is one number; commas separate only ungrouped numbers ("400,0,100").
+  const sales = [];
+  for (const raw of String(salesText).split(/[\s;]+/)) {
+    const tok = raw.replace(/^,+|,+$/g, "");
+    if (!tok) continue;
+    if (/^\$?\d{1,3}(,\d{3})+(\.\d+)?$/.test(tok)) { sales.push(Number(tok.replace(/[$,]/g, ""))); continue; }
+    for (const part of tok.split(",")) sales.push(part === "" ? NaN : Number(part.replace(/[$]/g, "")));
+  }
   const days = DAYS.map((d, i) => ({ day: d, hours: 0, cost: 0, sales: sales[i] > 0 ? sales[i] : null, pct: null }));
   for (const a of r.assignments || []) {
     if (!a.person) continue;

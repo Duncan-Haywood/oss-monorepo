@@ -93,8 +93,22 @@ export function lognormalPopulation(customers, median, p90ratio) {
   return { usage, weight: customers / GRID };
 }
 
+// "1,200" is one amount; "1200,3400" is a list. A comma part that only makes sense as a
+// thousands group ("1,000,2,000" -> "000") is kept as a bad token, not read as zero.
+const GROUPED = /^[$]?\d{1,3}(,\d{3})+(\.\d+)?$/;
+function amountTokens(text) {
+  const out = [];
+  for (const raw of String(text || "").split(/[\s;]+/)) {
+    const tok = raw.replace(/^,+|,+$/g, "");
+    if (!tok) continue;
+    if (GROUPED.test(tok)) { out.push(tok.replace(/,/g, "")); continue; }
+    for (const part of tok.split(",")) out.push(/^[$]?0\d/.test(part) || part === "" ? `${part}?` : part);
+  }
+  return out;
+}
+
 export function parseUsageList(text) {
-  const vals = String(text || "").split(/[\s,;]+/).filter(Boolean).map((t) => Number(t.replace(/[$,]/g, "")));
+  const vals = amountTokens(text).map((t) => Number(t.replace(/[$,]/g, "")));
   const bad = vals.filter((v) => !Number.isFinite(v) || v < 0).length;
   const usage = vals.filter((v) => Number.isFinite(v) && v >= 0).sort((x, y) => x - y);
   return { usage, weight: 1, bad };
