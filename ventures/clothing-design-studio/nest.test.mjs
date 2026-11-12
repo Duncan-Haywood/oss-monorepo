@@ -71,3 +71,38 @@ test("svg names the cloth and pieces", () => {
   const s = nestSvg(r);
   assert.match(s, /^<svg/); assert.match(s, /front/); assert.match(s, /percent of the cloth/);
 });
+
+test("order search: never longer than greedy, shorter on a size run, deterministic, verified", () => {
+  const g = nestRatio("tee", { S: 1, M: 2, L: 1 }, { widthCm: 150 });
+  const s = nestRatio("tee", { S: 1, M: 2, L: 1 }, { widthCm: 150, improve: 100 });
+  assert.ok(s.ok && verifyNest(s).ok, (verifyNest(s).problems || []).join("; "));
+  assert.equal(s.lengthBeforeSearchCm, g.lengthCm);
+  assert.ok(s.lengthCm < g.lengthCm, `${s.lengthCm} vs greedy ${g.lengthCm}`);
+  assert.equal(s.searchSteps, 100);
+  const s2 = nestRatio("tee", { S: 1, M: 2, L: 1 }, { widthCm: 150, improve: 100 });
+  assert.equal(s2.lengthCm, s.lengthCm);
+  const one = nestRatio("hoodie", { M: 2 }, { widthCm: 150, improve: 30 });
+  assert.ok(one.ok && one.lengthCm <= nestRatio("hoodie", { M: 2 }, { widthCm: 150 }).lengthCm);
+  assert.equal(nest([sh("a", 5, 5)], { improve: -1 }).ok, false);
+  assert.equal(nest([sh("a", 5, 5)], { improve: 1.5 }).ok, false);
+});
+
+test("firstFit's jump search finds the same leftmost x as testing every column (random strips and shapes)", async () => {
+  const { _internals: { Strip, rasterise } } = await import("./nest.mjs");
+  let seed = 7; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const tri = [[0, 0], [12, 0], [0, 9]], ell = [[0, 0], [10, 0], [10, 3], [3, 3], [3, 8], [0, 8]];
+  for (let trial = 0; trial < 40; trial++) {
+    const st = new Strip(60);
+    for (let k = 0; k < 25; k++) { // scatter blocks
+      const b = rasterise([rect(1 + rnd() * 6, 1 + rnd() * 6)], 1), x = Math.floor(rnd() * 55), y = Math.floor(rnd() * 20);
+      if (st.fits(b, x, y)) st.put(b, x, y);
+    }
+    for (const shape of [rect(5, 4), tri, ell]) {
+      const r = rasterise([shape], 1);
+      for (let y = 0; y < 22; y++) {
+        let brute = -1; for (let x = 0; x + r.W <= 60; x++) if (st.fits(r, x, y)) { brute = x; break; }
+        assert.equal(st.firstFit(r, y), brute, `trial ${trial} row ${y}`);
+      }
+    }
+  }
+});
