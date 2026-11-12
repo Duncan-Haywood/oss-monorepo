@@ -1356,6 +1356,31 @@ the warp on they drop to 0.18 px, the same as the matcher's noise across the rad
 also checked exactly on synthetic ramps (13 tests) and agrees with darktable's reading of the same
 opcode. Details, choices and what is not checked: `eval/warp-rectilinear-2026-11-12.md`.
 
+## Value tables and row/column fixes from the DNG: MapTable, Delta/Scale per row and column (2026-11-12)
+
+Five more opcodes now run in `OpcodeList2` and `OpcodeList3`, in list order with the others:
+`MapTable` (opcode 7) sends each value through a table of up to 65,536 16-bit entries (a sensor's
+non-linear response, or a converter's tone map); `DeltaPerRow` and `DeltaPerColumn` (10, 11) add
+one offset per row or column, the fix for the banding a sensor's readout leaves; `ScalePerRow` and
+`ScalePerColumn` (12, 13) multiply by one gain per row or column. Each takes the same area, plane
+range and pitches as `MapPolynomial`; results are pinned to 0..1, and in stage 3 the white-balance
+scale is taken off and put back. The table is indexed as the DNG SDK indexes 16-bit data:
+`floor(x * 65535 + 0.5)`, a short table's last entry serving every larger value. A per-row or
+per-column list whose length does not match its area's steps is named and skipped, as the SDK
+rejects it. Both engines give the same bytes (numpy: 0.15-0.34 s per opcode on a 12 MP plane);
+`--no-opcodes` turns them off. `OpcodeList1` still runs only the bad-pixel fixes: there the SDK's
+float view of a raw value is `value / 65535` whatever the white level, and no file has shown which
+unit a camera means, so these five stay named there.
+
+What is checked: 16 tests (`tests/test_dng_table_per_line.py`) against the formulas written out in
+the test. A raw file with its rows darkened by known gains, a fixed offset added per column, or
+its values squared develops back to the clean scene with `ScalePerRow`, `DeltaPerColumn` or a
+square-root `MapTable` (within 3, 3 and 8 8-bit steps; off, more than 10); tables of 1 to 65,536
+entries match the lookup exactly; area, plane and pitch select exactly the named samples; numpy
+and pure Python agree byte for byte in both stages, full and half size. What is not: no camera- or
+converter-written file carrying any of the five has been tried. Details:
+`eval/table-per-line-2026-11-12.md`.
+
 ## Fisheye unwrapping from the DNG: WarpFisheye (2026-11-12)
 
 `WarpFisheye`, the DNG's other warp, now runs in `OpcodeList3` beside `WarpRectilinear`, in list
