@@ -68,3 +68,31 @@ test('cnamePattern anchors on the target ending, not a substring anywhere', () =
   // (attacker-controlled subdomain trickery) must not match.
   assert.equal(matchProvider('herokuapp.com.evil.example'), null);
 });
+
+// Red-team gaps 2026-11-12: the `vulnerable` read is the context a finding
+// shows a human, and nothing pinned it, so a flipped flag passed every test.
+// Change a provider's read here and in fingerprints.mjs in the same commit,
+// with its `note` saying why.
+test('each provider keeps its recorded vulnerable read', () => {
+  const expected = {
+    'aws-s3': true, heroku: true, 'github-pages': true, 'azure-websites': true, 'azure-blob': true,
+    'azure-trafficmanager': true, fastly: null, shopify: false, unbounce: true, tumblr: true,
+    'wordpress-com': true, zendesk: true, statuspage: true, surge: true, helpjuice: true,
+    'helpscout-docs': true, cargocollective: true, uservoice: true, ghost: null, webflow: null,
+    netlify: false, vercel: false, pantheon: true, bitbucket: true,
+  };
+  assert.deepEqual(Object.fromEntries(PROVIDERS.map((p) => [p.id, p.vulnerable])), expected);
+});
+
+test('a provider read as anything but claimable says why in its note', () => {
+  for (const p of PROVIDERS.filter((x) => x.vulnerable !== true)) {
+    assert.ok(typeof p.note === 'string' && p.note.length > 20, `${p.id}: vulnerable ${p.vulnerable} needs a note`);
+  }
+});
+
+test('matchProvider finds S3 website endpoints in regions with any digit', () => {
+  for (const host of ['b.s3-website-us-west-2.amazonaws.com', 'b.s3-website.eu-central-1.amazonaws.com',
+    'b.s3-website-ap-southeast-3.amazonaws.com', 'b.s3-website-ca-west-9.amazonaws.com']) {
+    assert.equal(matchProvider(host)?.id, 'aws-s3', host);
+  }
+});

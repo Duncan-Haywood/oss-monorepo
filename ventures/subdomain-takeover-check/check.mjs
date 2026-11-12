@@ -18,10 +18,10 @@
 
 import { resolveCnameChain } from './lookup.mjs';
 import { fetchHostname } from './probe.mjs';
-import { classify, buildReport } from './analyze.mjs';
+import { classify, buildReport, verdictFor } from './analyze.mjs';
 import { providerForChain } from './fingerprints.mjs';
 
-function formatText(report) {
+export function formatText(report) {
   const lines = [];
   lines.push(`Hostnames checked: ${report.hostnamesChecked}`);
   lines.push('');
@@ -54,7 +54,7 @@ function formatText(report) {
   return lines.join('\n');
 }
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const hostnames = [];
   let json = false;
   let timeoutMs;
@@ -85,7 +85,7 @@ export async function runCheck(hostnames, { resolveCnameChainFn = resolveCnameCh
   return buildReport(hostnames, results);
 }
 
-async function main() {
+export async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.hostnames.length === 0) {
     console.error('Usage: node check.mjs <hostname> [<hostname> ...] [--json] [--timeout <ms>]');
@@ -100,7 +100,7 @@ async function main() {
   } else {
     console.log(formatText(report));
   }
-  process.exit(report.ok ? 0 : 1);
+  process.exit(verdictFor(report).exitCode);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

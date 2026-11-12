@@ -156,3 +156,8 @@ test('every provider count on the page, README and VENTURE.yaml equals the finge
     for (const n of counts) assert.equal(n, PROVIDERS.length, `${f} says ${n}`);
   }
 });
+
+test('the page verdict comes from analyze.mjs verdictFor, so a failed lookup is never shown as clean', () => {
+  assert.match(html, /verdictFor\(report\)/);
+  assert.doesNotMatch(html, /verdict \$\{report\.ok \?/);
+});
