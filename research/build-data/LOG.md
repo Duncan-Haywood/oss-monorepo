@@ -10,6 +10,7 @@ Predictions (written before any run): `python3.13 src/censored_eval.py validate 
 - (U3) Real 2024: transfer q0.9, nodemo minus cascade2, scored by IPCW, has a 95% interval that includes zero (CC, session 76: -1.98 [-2.70, -1.24]).
 - (U4) Real 2024: cascade2 transfer minus own baseline at q0.5 keeps a negative point estimate under IPCW (the programme's finding that SF and Austin transfer beats Seattle's own baseline at the i2c median).
 Each is refuted if its condition fails.
+- Added after the 2021 validation and before running it (U5): in test years 2020 (pseudo-pull 2022-11-12) and 2022 (pseudo-pull 2024-11-12) too, the reference (all rows) transfer q0.9 nodemo minus cascade2 has a point estimate >= 0, and the CC estimate on the pseudo-pull rows is below the reference. Refuted if either fails in either year.
 
 ## Session 77, 2026-11-12: a fold rule chosen from history helps Chicago and hurts Austin, and the demolition tail gap of sessions 75 and 76 is right-censoring of the test year (T1, T4 Austin refuted; T5, T6, T4 Chicago held)
 

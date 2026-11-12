@@ -136,8 +136,21 @@ def fit(data_dir, held, test_year, seeds, classes):
     return R
 
 
+def bins(y, c, seen, edges=(0, 681, 800, 900, 1046)):
+    """Per build-time bin: rows, share seen, and mean G(y) (the IPCW's estimate of that share).
+    Only meaningful in `validate`, where unseen rows are known."""
+    g = survival(c[seen & (y <= c.min())])
+    out = []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        b = (y > lo) & (y <= hi)
+        if b.any():
+            out.append(dict(lo=lo, hi=hi, n=int(b.sum()), share_seen=float(seen[b].mean()), mean_g=float(g(y[b]).mean())))
+    return out
+
+
 def summary(y, c, w, seen):
     return dict(n=int(len(y)), n_seen=int(seen.sum()), window_min=float(c.min()), window_max=float(c.max()),
+                share_beyond_window_max=float((y > c.max()).mean()),
                 ess_ipcw=ess(w[seen]), max_weight=float(w.max()),
                 q90_all=float(np.quantile(y, .9)), q90_cc=float(np.quantile(y[seen], .9)),
                 q90_ipcw=weighted_quantile(y[seen], w[seen], .9),
@@ -153,7 +166,6 @@ def validate(data_dir, held, test_year, pull_date, pseudo_pull, seeds, classes, 
     seen = y <= c
     w = ipcw_weights(y, c, floor)
     d = contrasts(R, classes)
-    allm = np.ones(len(y), bool)
     ref = {n: {str(t): dict(zip(("diff", "lo", "hi"), wblock_boot(v, np.ones(len(y)), weeks)))
                for t, v in per.items()} for n, per in d.items()}
     est = score(d, weeks, w, seen)
@@ -166,10 +178,10 @@ def validate(data_dir, held, test_year, pull_date, pseudo_pull, seeds, classes, 
     real_c = windows(x["start"], pull_date)
     return dict(mode="validate", held_out=held, target="i2c", test_year=test_year, pull_date=pull_date.isoformat(),
                 pseudo_pull=pseudo_pull.isoformat(), seeds=seeds, classes=classes, weight_floor=floor,
-                labels=summary(y, c, w, seen), reference_window_min=float(real_c.min()),
+                labels=summary(y, c, w, seen), bins=bins(y, c, seen), reference_window_min=float(real_c.min()),
                 note="reference = all test rows (windows >= reference_window_min days); cc/ipcw = rows the "
                      "pseudo-pull would have seen; days of mean pinball loss, negative = first term better",
-                contrasts=est, _all=allm.sum())
+                contrasts=est)
 
 
 def rescore(data_dir, held, test_year, pull_date, seeds, classes, floor):
@@ -205,7 +217,6 @@ if __name__ == "__main__":
         if a.pseudo_pull is None:
             raise SystemExit("validate needs --pseudo-pull")
         res = validate(a.data_dir, a.held, a.test_year, a.pull_date, a.pseudo_pull, a.seeds, a.classes, a.floor)
-        res.pop("_all")
     else:
         res = rescore(a.data_dir, a.held, a.test_year, a.pull_date, a.seeds, a.classes, a.floor)
     tag = "" if a.mode == "rescore" else "_pp" + a.pseudo_pull.isoformat()[:4]

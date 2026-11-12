@@ -54,6 +54,13 @@ class IPCW(unittest.TestCase):
         self.assertEqual(float(d["transfer:b-a"][0.9][0]), 10.0)
         self.assertEqual(float(d["a:transfer-own_baseline"][0.5][0]), 1.0)
 
+    def test_bins_compare_seen_share_with_g(self):
+        y = np.array([100.0, 700.0, 700.0, 950.0])
+        c = np.array([681.0, 1000.0, 690.0, 1000.0])
+        b = ce.bins(y, c, y <= c)
+        self.assertEqual([x["n"] for x in b], [1, 2, 1])
+        self.assertEqual(b[1]["share_seen"], 0.5)
+
 
 if __name__ == "__main__":
     unittest.main()
