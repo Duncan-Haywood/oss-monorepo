@@ -2,7 +2,7 @@
 title: "A battery-model trust test moved to two new cells: the ranking holds, the cut-off does not"
 date: 2026-11-12
 tags: [cell-fidelity, batteries, simulation, multi-fidelity, transfer]
-description: SPMe's own salt depletion still finds the designs it mis-scores on two new PyBaMM cells (AUC 0.995), but the cut-off tuned on the first cell misclassifies 20% on the second.
+description: "On two new PyBaMM cells, SPMe's salt depletion still finds the designs it mis-scores (AUC 0.995), but the first cell's cut-off misclassifies 20%."
 ---
 
 Until today the `cell-fidelity` programme had one cell. Every result came from PyBaMM's `OKane2022` parameter set: the trust flag (SPMe's own minimum salt ratio marks the electrode designs it mis-scores), the cut-off of 0.07, and the finding that 10 cycles of SPMe rank designs better than 100. The proposal's H2 asked whether the cut-off comes from the physics, which would make it carry over to other cells unchanged, or from this one cell.
