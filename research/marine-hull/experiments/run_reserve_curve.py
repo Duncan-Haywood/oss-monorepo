@@ -7,7 +7,8 @@ an idle vehicle with the same panel and pack (P-30 76 against 54 days, P+30 16 a
 while its foresight plan (F) matched the idle minimum exactly at every point. The gap is a pack that enters the dark
 season part-empty because (Y) keeps only a 0.5 C buffer all year. A planner cannot know next winter's sun, but can
 know the climatology. This milestone tests a reservoir-style rule curve (the storage target that hydropower and water
-supply reservoirs follow through the year, e.g. Loucks and van Beek 2017, ch. 11) built from that climatology.
+supply reservoirs follow through the year; Loucks and van Beek 2017, Water Resource Systems Planning and
+Management, Springer, open access) built from that climatology.
 
 Data: NASA POWER daily ALLSKY_SFC_SW_DWN, public domain. 2024 transect: 6z's experiments/data/sun_flip_2024.json;
 2015 to 2023 transect: experiments/data/sun_transect_2015_2023.json (fetch_sun_years.py, fetched after this file was
@@ -44,6 +45,7 @@ Descriptive (no prediction): per |lat| band, excess dark hours and km for (Y), (
   day it peaks.
 
 Run (from research/marine-hull): PYTHONPATH=src python3 experiments/run_reserve_curve.py > experiments/results_reserve_curve.txt
+(about 4 minutes; post_hoc() was added after the first run, run alone and appended, and main() now calls it)
 (stdlib, deterministic)"""
 import calendar
 import datetime
@@ -258,7 +260,27 @@ def main():
           f"{'held' if not miss else 'refuted'} (exceptions: {miss or 'none'}; "
           + ", ".join(f"{p} {R[(p, 2024)]['Y'][1]}->{R[(p, 2024)]['R'][1]} (idle {R[(p, 2024)]['idle'][0]})" for p in gap)
           + ")")
+    post_hoc()
     return R
+
+
+def post_hoc(year=2024):
+    """Written after reading P1 to P8: (R) and (R1) give the same km and dark hours at every point at 40 degrees or more,
+    and the reserve peaks there run to 45 to 340 kWh against a 10 kWh pack. Is the curve then just "keep the pack
+    full"? For each point, the climatological mean harvest (W) of the `year` test, the deepest winter deficit the pack
+    would have to bridge (the largest run of cumulative shortfall below the hotel load, one pass, kWh), and the share
+    of days on which (R)'s target is the full pack."""
+    print("\nPost hoc (after reading the predictions): when the reserve curve is simply 'keep the pack full'")
+    print("   point             lat | clim mean harvest W | winter shortfall kWh | days at T = C")
+    for p in yp.points():
+        hc = climatology_wh(p, year)
+        run, worst = 0.0, 0.0
+        for e in hc + hc:
+            run = max(0.0, run + HOTEL * 24.0 - e)
+            worst = max(worst, run)
+        T = target_from_reserve(reserve(hc))
+        print(f"   {p:16s} {yp.lat_of(p):4d} | {st.fmean(hc) / 24.0:19.1f} | {worst / 1000.0:20.1f} | "
+              f"{sum(t >= C for t in T):4d} of {len(T)}")
 
 
 if __name__ == "__main__":

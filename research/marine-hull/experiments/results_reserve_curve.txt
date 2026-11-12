@@ -1,0 +1,86 @@
+Milestone 6zk: a climatology reserve curve for a deck-solar boat's pack, ten one-year missions 2015 to 2024
+central boat (4.0, 30.0, 0.2, 0.85), pack 10000 Wh, hotel 30 W, launch full on 1 January each year; 30 points x 10 years = 300 point-years
+
+A  per point, sums over ten years: excess dark hours over the idle vehicle (Y, E, R, R1) and km (Y, R, F);
+   idle down days per year (min / median / max, and 2024); reserve-curve peak (Wh, 2024 test year) and day
+   point             lat | excess dark h:   (Y)    (E)    (R)   (R1) |   (Y) km   (R) km   (F) km | idle dn min med max 2024 | R peak day
+   P-60              -60 |                 1705   1705    158    158 |    46210    24592    56079 |         203  210  220  214 | 342099  39
+   P-50              -50 |                 1805   1805    185    185 |    89677    69220   104388 |         154  170  174  170 | 184950  60
+   P-40              -40 |                 1824   1710    200    200 |   141614   130228   157210 |         107  118  123  119 |  46631  85
+   P-30              -30 |                 1806    724    182    168 |   183215   174496   203844 |          45   50   63   54 |  19966 111
+   P-20              -20 |                    0      0      0      0 |   266446   266446   313985 |           0    0    0    0 |      0   1
+   P-10              -10 |                    0      0      0      0 |   361647   361647   371541 |           0    0    0    0 |      0   1
+   P+0                 0 |                    0      0      0      0 |   385236   385236   390723 |           0    0    0    0 |      0   1
+   P+10               10 |                    0      0      0      0 |   298307   298307   324945 |           0    0    0    0 |      0   1
+   P+20               20 |                    0      0      0      0 |   316446   316446   343380 |           0    0    0    0 |      0   1
+   P+30               30 |                 1253     59     64     48 |   222575   213043   259471 |           0    0   14    0 |  14623 309
+   P+40               40 |                 1919   1541    106    106 |   118060    99253   130698 |          79   91  103  102 |  54341 275
+   P+50               50 |                 1858   1691    123    123 |    39632    20132    31267 |         138  150  169  153 | 216148   1
+   P+60               60 |                 1981   1815    195    195 |    60838    44192    66203 |         167  175  209  172 | 272281   1
+   A-50              -50 |                 1784   1784    170    170 |    73398    52291    88638 |         169  177  185  177 | 217333  58
+   A-40              -40 |                 1776   1590    139    139 |   141914   130946   157648 |         109  118  133  133 |  50413  87
+   A-30              -30 |                 1781    373    293    212 |   187845   177676   212103 |          16   29   42   30 |  13433 121
+   A-20              -20 |                    0      0      0      0 |   333340   333340   351258 |           0    0    0    0 |      0   1
+   A-10              -10 |                    0      0      0      0 |   368498   368498   376679 |           0    0    0    0 |      0   1
+   A+0                 0 |                    0      0      0      0 |   346797   346797   358401 |           0    0    0    0 |      0   1
+   A+10               10 |                    0      0      0      0 |   314593   314593   334293 |           0    0    0    0 |      0   1
+   A+20               20 |                    0      0      0      0 |   325004   325004   343961 |           0    0    0    0 |      0   1
+   A+30               30 |                  566      0     97     37 |   253857   245030   300537 |           0    0    0    0 |   8045 315
+   A+40               40 |                 1961   1367    143    143 |   155394   148402   164825 |          72   82   89   83 |  44941 280
+   A+50               50 |                 1915   1749    139    139 |    52309    30738    56243 |         137  154  162  137 | 217428   1
+   A+60               60 |                 1775   1608    161    161 |    30615    13417    24194 |         184  191  206  190 | 327891   1
+   Equator-Pacific     0 |                    0      0      0      0 |   320307   320307   334088 |           0    0    0    0 |      0   1
+   Florida-Straits    25 |                   57      0     57     57 |   266194   266194   312710 |           0    0    0    0 |   1519 330
+   Gulf-of-Maine      42 |                 1973   1517    184    184 |   142613   133492   154360 |          72   82   98   77 |  49624 274
+   North-Sea          55 |                 1960   1794    164    164 |    99651    83008   107187 |         142  150  162  153 | 163768 248
+   Gulf-of-Alaska     60 |                 1964   1798    176    176 |    67302    51534    70717 |         161  180  194  183 | 263227   1
+
+B  by |lat| band (all point-years in the band): mean excess dark hours per year, and km relative to (Y)
+   |lat|  0-20 (110 point-years): excess dark h/yr (Y)    0.0, (E)    0.0, (R)    0.0, (R1)    0.0 | km / (Y) km (E) 0.978, (R) 1.000, (R1) 1.000, (F) 1.057
+   |lat| 25-35 ( 50 point-years): excess dark h/yr (Y)  109.3, (E)   23.1, (R)   13.9, (R1)   10.4 | km / (Y) km (E) 0.920, (R) 0.967, (R1) 0.967, (F) 1.157
+   |lat| 40-45 ( 50 point-years): excess dark h/yr (Y)  189.1, (E)  154.5, (R)   15.4, (R1)   15.4 | km / (Y) km (E) 0.968, (R) 0.918, (R1) 0.924, (F) 1.093
+   |lat| 50-55 ( 50 point-years): excess dark h/yr (Y)  186.4, (E)  176.4, (R)   15.6, (R1)   15.6 | km / (Y) km (E) 0.992, (R) 0.720, (R1) 0.720, (F) 1.093
+   |lat| 60-60 ( 40 point-years): excess dark h/yr (Y)  185.6, (E)  173.1, (R)   17.3, (R1)   17.3 | km / (Y) km (E) 0.985, (R) 0.652, (R1) 0.652, (F) 1.060
+
+Predictions
+P1 (R) summed excess dark h <= 0.5 x (Y)'s: held ((R) 2937, (Y) 31664, ratio 0.093)
+P2 (R) no down day where idle has none, in >= 95% of 137 point-years: held (134 of 137; points with a miss: ['A+30', 'Florida-Straits'])
+P3 (R) km within 1% of (Y) within 20 deg, every year (110 point-years): held (max deviation 0.0000)
+P4 (E) summed excess dark h > (R)'s: held ((E) 24630, (R) 2937)
+P5 median (R) km / (Y) km at |lat| >= 30 (180 point-years) >= 0.90: refuted (median 0.840)
+P6 (R) summed excess <= 2 x (R1)'s: held ((R) 2937, (R1) 2767)
+P7 (R) within 24 dark h of idle at |lat| >= 40 in >= 80% of 140 point-years: held (119 of 140)
+P8 2024: (R) fewer down days than (Y) wherever (Y) has >= 10 more than idle (18 pts): held (exceptions: none; P-60 231->216 (idle 214), P-50 188->172 (idle 170), P-40 137->121 (idle 119), P-30 76->58 (idle 54), P+30 16->0 (idle 0), P+40 121->102 (idle 102), P+50 177->155 (idle 153), P+60 192->174 (idle 172), A-50 192->178 (idle 177), A-40 148->133 (idle 133), A-30 68->33 (idle 30), A+30 13->4 (idle 0), A+40 110->86 (idle 83), A+50 154->137 (idle 137), A+60 206->191 (idle 190), Gulf-of-Maine 101->79 (idle 77), North-Sea 170->154 (idle 153), Gulf-of-Alaska 200->186 (idle 183))
+
+Post hoc (after reading the predictions): when the reserve curve is simply 'keep the pack full'
+   point             lat | clim mean harvest W | winter shortfall kWh | days at T = C
+   P-60              -60 |                17.5 |                232.4 |  366 of 366
+   P-50              -50 |                24.3 |                135.1 |  366 of 366
+   P-40              -40 |                32.0 |                 46.6 |  226 of 366
+   P-30              -30 |                37.8 |                 20.0 |  120 of 366
+   P-20              -20 |                43.6 |                  0.0 |    0 of 366
+   P-10              -10 |                50.9 |                  0.0 |    0 of 366
+   P+0                 0 |                54.1 |                  0.0 |    0 of 366
+   P+10               10 |                43.8 |                  0.0 |    0 of 366
+   P+20               20 |                46.6 |                  0.0 |    0 of 366
+   P+30               30 |                40.8 |                 14.6 |   75 of 366
+   P+40               40 |                29.5 |                 49.9 |  326 of 366
+   P+50               50 |                21.8 |                144.1 |  366 of 366
+   P+60               60 |                19.7 |                181.5 |  366 of 366
+   A-50              -50 |                22.7 |                153.5 |  366 of 366
+   A-40              -40 |                31.7 |                 50.4 |  232 of 366
+   A-30              -30 |                39.0 |                 13.4 |   70 of 366
+   A-20              -20 |                48.7 |                  0.0 |    0 of 366
+   A-10              -10 |                51.9 |                  0.0 |    0 of 366
+   A+0                 0 |                48.5 |                  0.0 |    0 of 366
+   A+10               10 |                44.9 |                  0.0 |    0 of 366
+   A+20               20 |                46.5 |                  0.0 |    0 of 366
+   A+30               30 |                43.2 |                  8.0 |    0 of 366
+   A+40               40 |                33.0 |                 44.9 |  207 of 366
+   A+50               50 |                21.7 |                145.0 |  366 of 366
+   A+60               60 |                17.6 |                218.6 |  366 of 366
+   Equator-Pacific     0 |                45.4 |                  0.0 |    0 of 366
+   Florida-Straits    25 |                43.1 |                  1.5 |    0 of 366
+   Gulf-of-Maine      42 |                31.8 |                 49.6 |  230 of 366
+   North-Sea          55 |                23.8 |                109.4 |  366 of 366
+   Gulf-of-Alaska     60 |                20.0 |                175.5 |  366 of 366
