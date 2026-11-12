@@ -103,9 +103,9 @@ export function parseDuration(v) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let m = s.match(/^(\d+):(\d{2}):(\d{2})$/);
-  if (m) return +m[1] * 3600 + +m[2] * 60 + +m[3];
+  if (m) return +m[2] > 59 || +m[3] > 59 ? null : +m[1] * 3600 + +m[2] * 60 + +m[3];
   m = s.match(/^(\d+):(\d{2})$/);
-  if (m) return +m[1] * 60 + +m[2];
+  if (m) return +m[2] > 59 ? null : +m[1] * 60 + +m[2];
   m = s.match(/^(\d+(?:\.\d+)?)\s*min/i);
   if (m) return Math.round(+m[1] * 60);
   const n = parseNumber(s);

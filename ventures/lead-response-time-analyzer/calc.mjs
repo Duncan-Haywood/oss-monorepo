@@ -33,7 +33,7 @@ export function parseMinutes(s) {
   const t = String(s).trim().toLowerCase();
   if (t === "" || /^(never|none|no reply|no response|unanswered|n\/a|na|-)$/.test(t)) return Infinity;
   let m = t.match(/^(\d+):(\d{1,2})$/);
-  if (m) return Number(m[1]) * 60 + Number(m[2]);
+  if (m) return Number(m[2]) > 59 ? NaN : Number(m[1]) * 60 + Number(m[2]);
   m = t.match(/^(?:(\d+(?:\.\d+)?)\s*d(?:ays?)?)?\s*(?:(\d+(?:\.\d+)?)\s*h(?:ours?|rs?)?)?\s*(?:(\d+(?:\.\d+)?)\s*m(?:in(?:ute)?s?)?)?$/);
   if (m && (m[1] || m[2] || m[3])) return Number(m[1] || 0) * 1440 + Number(m[2] || 0) * 60 + Number(m[3] || 0);
   if (/^\d+(\.\d+)?$/.test(t)) return Number(t);

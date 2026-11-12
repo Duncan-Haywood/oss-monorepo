@@ -187,3 +187,10 @@ test("the synthetic example reads cleanly and produces a losing car", () => {
   assert.ok(r.summary.losingCars >= 1);
   near(r.byCar.reduce((s, c) => s + c.net, 0), r.summary.net, 1e-6);
 });
+
+test("parseMinutes refuses a clock duration past :59 instead of stretching it", async () => {
+  const { parseMinutes } = await import("./calc.mjs");
+  assert.equal(parseMinutes("1:30"), 90);
+  assert.ok(Number.isNaN(parseMinutes("1:75")));
+  assert.ok(Number.isNaN(parseMinutes("0:30:60")));
+});

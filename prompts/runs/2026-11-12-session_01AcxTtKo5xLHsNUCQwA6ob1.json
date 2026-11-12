@@ -1,0 +1,280 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtKo5xLHsNUCQwA6ob1",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T14:06:51Z",
+  "ended": "2026-11-12T14:07:38Z",
+  "wall_minutes": 5.51,
+  "tokens_in": 3756730,
+  "tokens_out": 21034,
+  "cost_usd": 1.8204,
+  "tool_calls": 43,
+  "task": "redteam campaign on client-profitability-time-analyzer; H:MM duration sweep",
+  "projects": [
+    "client-profitability-time-analyzer",
+    "turo-earnings-report-analyzer",
+    "gig-driver-earnings-report-analyzer",
+    "lead-response-time-analyzer",
+    "crew-dispatch-optimizer",
+    "service-hourly-yield-analyzer",
+    "youtube-revenue-rpm-analyzer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15148",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix the open list first, but all five open entries are control-plane edits and four already have waiting PRs (#14612, #14877, #14808, #14698); redteam.py open could show the PR that claims each entry so runs don't re-check."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for a guard that runs without a red-team run. The natural one, a cross-venture test that every exported H:MM parser rejects '1:75', needs a workflow edit to run (platform/ci tests are listed by name), and about ten control-plane PRs already wait for approval.",
+      "did": "Guarded each of the 7 copies with a per-venture test instead (ventures-tests runs them); the probe script is described in notes for a later run to turn into a CI check.",
+      "result": "7 copies guarded; a new copy in a new venture would still get through."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-one-seventy-five-is-not-a-duration.md"
+  ],
+  "goal": null,
+  "notes": "Target drawn by the campaign tool. Sweep: a node script imported every ventures/*/calc.mjs exporting parse(Duration|Minutes|Hours|Time)* and called it on '1:30' and '1:75'; 7 accepted '1:75' (the target and 6 siblings), and all 7 now return null/NaN. Verification: run_venture_tests.py on the 7 ventures: 7 suites, 0 failed. Each new sibling test fails against HEAD's calc.mjs (checked by swapping the old file in). Not fixed: turo and gig-driver parseMinutes also read '1,5' as 15 (the same decimal-comma class), left because those exports are US-only.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/client-profitability-time-analyzer/calc.mjs",
+        "test": "node --test ventures/client-profitability-time-analyzer/**/*.test.mjs  (in .)",
+        "seed": 732640144,
+        "commit": "d28b5e0c8",
+        "sites": 372,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/client-profitability-time-analyzer/calc.mjs",
+            "line": 85,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "const tm = rest.match(/(\\d{1,2}):(\\d{2})(?::\\d{2})?\\s*([ap]\\.?m\\.?)?/i);",
+            "after": "const tm = rest.match(/(\\d{2,2}):(\\d{2})(?::\\d{2})?\\s*([ap]\\.?m\\.?)?/i);",
+            "line_text": "  const tm = rest.match(/(\\d{1,2}):(\\d{2})(?::\\d{2})?\\s*([ap]\\.?m\\.?)?/i);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: one-digit 12-hour times ('9:30 pm') went unparsed; test 'parseWhen reads 12-hour times...'"
+          },
+          {
+            "file": "ventures/client-profitability-time-analyzer/calc.mjs",
+            "line": 87,
+            "col": 40,
+            "operator": "true-to-false",
+            "before": "hh = +tm[1]; mm = +tm[2]; hasTime = true;",
+            "after": "hh = +tm[1]; mm = +tm[2]; hasTime = false;",
+            "line_text": "    hh = +tm[1]; mm = +tm[2]; hasTime = true;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: hasTime is part of exported parseWhen's return value and was never asserted; same parseWhen test"
+          },
+          {
+            "file": "ventures/client-profitability-time-analyzer/calc.mjs",
+            "line": 100,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "const m = String(v ?? \"\").trim().match(/^(\\d{1,2})[/.-](\\d{1,2})[/.-]\\d{2,4}/);",
+            "after": "const m = String(v ?? \"\").trim().match(/^(\\d{1,2})[/.-](\\d{2,2})[/.-]\\d{2,4}/);",
+            "line_text": "    const m = String(v ?? \"\").trim().match(/^(\\d{1,2})[/.-](\\d{1,2})[/.-]\\d{2,4}/);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: day-first detection with a one-digit month ('13/5/2026') untested; test 'day-first dates are detected...'"
+          },
+          {
+            "file": "ventures/client-profitability-time-analyzer/calc.mjs",
+            "line": 114,
+            "col": 20,
+            "operator": "and-to-or",
+            "before": "if (at !== -1 && !Object.values(cols).includes(at)) { cols[field] = at; break; }",
+            "after": "if (at !== -1 || !Object.values(cols).includes(at)) { cols[field] = at; break; }",
+            "line_text": "      if (at !== -1 && !Object.values(cols).includes(at)) { cols[field] = at; break; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/client-profitability-time-analyzer/calc.mjs",
+            "line": 206,
+            "col": 162,
+            "operator": "const-plus-one",
+            "before": "items.push({ line: lineNo, client, project: get(line, \"project\"), date: when ? when.t : null, hours, billable, amount: amount === null ? 0 : Math.max(amount, 0), amountKnown: amount !== null });",
+            "after": "items.push({ line: lineNo, client, project: get(line, \"project\"), date: when ? when.t : null, hours, billable, amount: amount === null ? 0 : Math.max(amount, 1), amountKnown: amount !== null });",
+            "line_text": "    items.push({ line: lineNo, client, project: get(line, \"project\"), date: when ? when.t : null, hours, billable, amount: amount === null ? 0 : Math.max(amount, 0), amountKnown: amount !== null });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/client-profitability-time-analyzer/calc.mjs",
+            "line": 238,
+            "col": 65,
+            "operator": "neq-flip",
+            "before": "const unpricedHours = sum(c.entries.filter((e) => e.billable !== false && !e.amountKnown).map((e) => e.hours));",
+            "after": "const unpricedHours = sum(c.entries.filter((e) => e.billable === false && !e.amountKnown).map((e) => e.hours));",
+            "line_text": "    const unpricedHours = sum(c.entries.filter((e) => e.billable !== false && !e.amountKnown).map((e) => e.hours));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: unpriced-billable-hours count and its finding were untested; test 'billable entries with no amount...'"
+          },
+          {
+            "file": "ventures/client-profitability-time-analyzer/calc.mjs",
+            "line": 239,
+            "col": 28,
+            "operator": "gt-to-ge",
+            "before": "const effective = hours > 0 ? revenue / hours : null;",
+            "after": "const effective = hours >= 0 ? revenue / hours : null;",
+            "line_text": "    const effective = hours > 0 ? revenue / hours : null;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/client-profitability-time-analyzer/calc.mjs",
+            "line": 248,
+            "col": 27,
+            "operator": "minus-to-plus",
+            "before": "const mid = a + (b - a) / 2;",
+            "after": "const mid = a + (b + a) / 2;",
+            "line_text": "        const mid = a + (b - a) / 2;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/client-profitability-time-analyzer/calc.mjs",
+        "issue": "parseDuration read a decimal-comma duration '1,5' as 15 hours in any comma or tab file (decimalComma was only switched on for semicolon files), a silent 10x on European exports. Fixed: a comma followed by one or two digits is always a decimal comma (thousands groups have three).",
+        "patched": true
+      },
+      {
+        "file": "ventures/client-profitability-time-analyzer/calc.mjs",
+        "issue": "parseDuration accepted clock durations past :59 ('1:75' -> 2.25 h, '0:30:60'). Fixed: unreadable, so the row is listed as skipped with a reason.",
+        "patched": true
+      },
+      {
+        "file": "ventures/{turo-earnings-report-analyzer,gig-driver-earnings-report-analyzer,lead-response-time-analyzer,crew-dispatch-optimizer}/calc.mjs",
+        "issue": "Same H:MM class in four siblings: minutes (and seconds) past 59 were added as-is ('1:75' -> 135 min). Fixed in each with a test; crew-dispatch now refuses the job row with its 'hours on site' error.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "be676e9b-2e34-5837-92dd-e147923272b8",
+    "transcripts": 1,
+    "first": "2026-11-12T14:06:51Z",
+    "last": "2026-11-12T14:12:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 84,
+        "output": 21034,
+        "thinking": 4725,
+        "cache_read": 3673560,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83086,
+        "api_equivalent_usd": 1.8204,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 84,
+      "output": 21034,
+      "thinking": 4725,
+      "cache_read": 3673560,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83086,
+      "api_equivalent_usd": 1.8204,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.51,
+      "active_minutes": 5.51,
+      "model_minutes": 4.12,
+      "tool_minutes": 1.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "mutation triage, 2 parser fixes, 6-file sweep with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 219.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

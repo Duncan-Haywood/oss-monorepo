@@ -127,16 +127,19 @@ export const pct = (x) => Math.round(x * 100) + "%";
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
 const sum = (xs) => xs.reduce((s, x) => s + x, 0);
 
-// "1:30:00", "01:30", "1h 30m", "90m", "1.5", "1,5" -> hours, or NaN. A bare
+// "1:30:00", "01:30", "1h 30m", "90m", "1.5", "1,5" -> hours, or NaN ("1:75"
+// too: a clock duration past :59 is a typo, not 2.25 hours). A bare
 // number is hours unless the column is a minutes column.
 export function parseDuration(v, { minutes = false, decimalComma = false } = {}) {
   const s = String(v ?? "").trim().toLowerCase();
   if (!s) return NaN;
   let m = s.match(/^(\d+):(\d{1,2})(?::(\d{1,2}))?$/);
-  if (m) return +m[1] + +m[2] / 60 + (m[3] ? +m[3] / 3600 : 0);
+  if (m) return +m[2] > 59 || (m[3] && +m[3] > 59) ? NaN : +m[1] + +m[2] / 60 + (m[3] ? +m[3] / 3600 : 0);
   m = s.match(/^(?:(\d+(?:[.,]\d+)?)\s*h(?:ours?|rs?)?)?\s*(?:(\d+(?:[.,]\d+)?)\s*m(?:in(?:ute)?s?)?)?$/);
   if (m && (m[1] || m[2])) return (m[1] ? Number(m[1].replace(",", ".")) : 0) + (m[2] ? Number(m[2].replace(",", ".")) / 60 : 0);
-  const n = parseNumber(s, decimalComma);
+  // A comma followed by one or two digits ("1,5", "0,25") is a decimal comma
+  // whatever the delimiter: a thousands group always has three digits.
+  const n = parseNumber(s, decimalComma || /^\d+,\d{1,2}$/.test(s));
   return Number.isFinite(n) ? (minutes ? n / 60 : n) : NaN;
 }
 

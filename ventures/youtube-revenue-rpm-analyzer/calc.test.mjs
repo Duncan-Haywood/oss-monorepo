@@ -107,3 +107,9 @@ test("zero-revenue files are reported plainly", () => {
   const { r } = run("Video title,Views,Estimated revenue (USD)\nA,100,0\nB,200,0");
   assert.equal(r.findings[0].title, "No revenue in this file");
 });
+
+test("a duration with minutes or seconds past 59 is unreadable, not stretched", () => {
+  assert.equal(parseDuration("12:34"), 754);
+  assert.equal(parseDuration("1:75"), null);
+  assert.equal(parseDuration("1:60:00"), null);
+});
