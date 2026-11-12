@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKkyQgqbCK8TBfQ5myF",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T04:18:10Z",
+  "ended": "2026-11-12T04:20:59Z",
+  "wall_minutes": 3.0,
+  "tokens_in": 1687489,
+  "tokens_out": 9424,
+  "cost_usd": 0.993,
+  "tool_calls": 24,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15001",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner/blocked rows again; the 'Doc friction by file' table is dominated by CODEOWNERS-gated files, so finding an ungated fix meant reading the latest run records' friction and errors by hand (errors, not friction, gave the evidence here)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/check_post_frontmatter.py friction reports",
+      "why": "Reports asked for the 160/70 limits to be stated in the post guidance (gated, always-read files); a check in the command those runs already use costs no reading",
+      "did": "added the check to venture-preflight's pre-build step instead of adding prose",
+      "result": "bad draft caught in 3.8 s with --skip-build"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-venture-preflight-checks-post-front-matter.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode. Evidence: three 2026-11-12 run records' errors name a first venture-preflight failing on post description/seo_title length. Verification: node --test platform/pages/venture-preflight.test.mjs 10/10; end-to-end --skip-build on sales-agent with a 200-char description failed in 3.8 s, clean after fix; main_health.py 57/57 pass. Metric for a later Verify: records from 2026-11-13 whose errors name a preflight failing on post length. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "aa1a9bc1-a836-524b-9722-17bdb79d7317",
+    "transcripts": 1,
+    "first": "2026-11-12T04:18:10Z",
+    "last": "2026-11-12T04:21:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 23,
+        "input": 46,
+        "output": 9424,
+        "thinking": 1890,
+        "cache_read": 1627588,
+        "cache_write_5m": 0,
+        "cache_write_1h": 59855,
+        "api_equivalent_usd": 0.993,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 23,
+      "input": 46,
+      "output": 9424,
+      "thinking": 1890,
+      "cache_read": 1627588,
+      "cache_write_5m": 0,
+      "cache_write_1h": 59855,
+      "api_equivalent_usd": 0.993,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 24,
+    "tools": {
+      "Bash": 22,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.0,
+      "active_minutes": 3.0,
+      "model_minutes": 2.44,
+      "tool_minutes": 0.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "locate friction, small tool change with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 151.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
