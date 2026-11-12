@@ -129,6 +129,26 @@ correlation ±0.58), both unsourced.
 
 ![Dollars per clean sheet by robot class and house volume; which way is cheapest](experiments/m7_cost/figure.png)
 
+**Milestone 6 headline: do the MuJoCo results survive a second physics engine? Yes for clean
+sheets: Drake moves no ledger pipeline by more than 0.06 points.** Every simulated number above
+came from one contact model, MuJoCo's soft contact. Milestone 6 rebuilt the ledger seat and the
+ledger slide in **Drake** (Toyota Research Institute's `MultibodyPlant`, point contact, the SAP
+solver of Castro et al. 2022) with the same sheet, contacts and holder law. A sheet released
+under a light press seats in both: Drake leaves **0.0014° (1σ, 0.0047° at most)** over 2,000
+random seats, a hundred times MuJoCo's 0.00001° but twenty times under the 0.03° a sheet may hang
+on single 2x joints, so all 24 of milestone 5's ledger pipelines keep their clean-sheet rates
+within **0.06 points** (the bar was 10). The press at which wall friction stops the ledger working
+is **97–100%** of the closed form m g W / (2 μ r̄) in Drake and **87–99%** in MuJoCo: in MuJoCo wall
+friction starts holding the sheet at up to 13% less press, the cautious side for a press limit. The
+push height that tips a sliding sheet matches W / (2 μ_l) within 0.7% in Drake (1.6% in MuJoCo). Two things do depend on
+the contact model: a soft held wrist (300–3,000 N·m/rad) keeps up to **0.016°** in Drake where
+MuJoCo and the closed form give zero, and a bottom edge bowed 1/16 in rocks the sheet **0.107–0.123°**
+in Drake and **0.139–0.145°** in MuJoCo, both under the 0.149° milestone 3 charged. A sheet on its
+bowed middle is balanced, so how far it rocks is set by friction and approach, not by statics:
+milestone 3's full rock is the conservative side.
+
+![Press threshold by wall friction in MuJoCo, Drake and the closed form; clean sheets with each simulator's seated residual; push height that tips a sliding sheet](experiments/m6_drake/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -306,6 +326,26 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
   and a perfect hang only the tool scatter is left (> 0.97 clean); the two-2x three-read ledger
   cell reproduces milestone 3's 1.0000.
 
+## Milestone 6 method (`src/buildbot_sheathing/drake_seat.py`)
+- **Second contact model.** Drake 1.51.1 `MultibodyPlant`, discrete at 1 ms, point contact
+  (stiffness 10^6 N/m, Hunt-Crossley dissipation 5 s/m) solved by SAP (Castro et al. 2022,
+  arXiv:2110.10107), a convex formulation whose stiction is near-rigid. MuJoCo
+  (milestone 3) solves soft contact with an elliptic cone, `impratio` 10 and no-slip iterations.
+- **Same scene, line for line.** The sheet's only collision geometry is 2 mm spheres at the wall
+  contacts and feet, filtered as in the MuJoCo model (wall contacts touch only the wall, feet only
+  the ledger); the holder impedance, its release over 0.5 s, the press and the slide's pushing
+  spring are copied from `ledger.seat` and `humanoid.slide_sim` and applied as one external wrench
+  a step.
+- **Checks.** Milestone 3's grids (200 released seats, ten press thresholds by bisection, 30
+  held-wrist cells, the bowed edge, creep under a stuck press) and milestone 3b's ten tip heights,
+  against the closed forms and the stored MuJoCo results. **H-E:** 2,000 seats on the same random
+  draws in both simulators (holder error U(−1°, 1°), wall friction U(0.3, 0.5), press U(5, 50 N),
+  seed 13); each simulator's seated residuals are resampled into milestone 5's ledger tilt draw
+  (`cycle.clean_cell(residual=...)`) and the 24 ledger pipelines rerun (20,000 sheets, seed 7).
+- **Drake's own settings.** Contact stiffness 10^5 and 10^7 N/m, dissipation 0.5 and 50 s/m,
+  time step 0.5 and 2 ms, and Drake's TAMSI (Castro et al. 2020, arXiv:1909.05700; deprecated in
+  Drake) and lagged solvers, on one seat and the μ 0.4 threshold.
+
 ## Milestone 7 method (`src/buildbot_sheathing/cost.py`)
 - **Classes.** *Hand crew*: `buildbot-taskbook` S1 carry 0.8, S2 hold and square 1.5 and S4 nail
   62 x 0.1 person-minutes a sheet, times its one-third-to-three-times sweep (log-uniform); its own
@@ -340,7 +380,7 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 47 tests; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models
+python -m pytest -q tests                                    # 53 tests; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -351,11 +391,14 @@ python experiments/m5_cycle/run.py > experiments/m5_cycle/results.txt           
 python experiments/m5_cycle/figure.py
 python experiments/m7_cost/run.py > experiments/m7_cost/results.txt                     # under a second, seed 11; reads m5's results.json
 python experiments/m7_cost/figure.py
-pip install mujoco                                           # milestone 3; tested with mujoco 3
+pip install mujoco                                           # milestone 3; results made with mujoco 4.0.1
 python experiments/m3_ledger/run.py > experiments/m3_ledger/results.txt                 # ~95 s, seed 5
 python experiments/m3_ledger/figure.py
 python experiments/m3b_humanoid/run.py > experiments/m3b_humanoid/results.txt          # ~6 min; clones Menagerie G1/H1 once
 python experiments/m3b_humanoid/figure.py
+pip install drake                                            # milestone 6; results made with drake 1.51.1 (Python 3.11)
+python experiments/m6_drake/run.py > experiments/m6_drake/results.txt                   # ~7 min on 4 CPUs; seeds 13 and 7
+python experiments/m6_drake/figure.py
 ```
 
 ## Milestone 1 results (`experiments/m1_gap_placement/results.txt`)
@@ -501,6 +544,32 @@ python experiments/m3b_humanoid/figure.py
   (fire-at-once recoil costs up to 7.6 points on single 2x, at most 0.12 on two 2x); **H27
   refuted** (placing the sheet outweighs fast nailing in 18 of 108 cells).
 
+## Milestone 6 results (`experiments/m6_drake/results.txt`)
+- **A. Released seats** (200 cells): Drake seats every cell MuJoCo seats except where the press is
+  within a few percent of the threshold (6 of 200 cells differ, all at the boundary, all in the
+  direction of Drake's higher threshold). Below the threshold Drake leaves up to 0.016° (at
+  100–300 N; 0.0056° at 50 N or less), MuJoCo 0.0001°.
+- **B. Press threshold** (N, Drake / MuJoCo / closed form): corners μ 0.2 394 / 380 / 408, μ 0.4
+  199 / 189 / 204, μ 0.7 117 / 115 / 117; Drake/closed 0.965–0.998 on corners, 0.964–1.030 on stud
+  contacts; Drake/MuJoCo 1.011–1.127.
+- **C. Held wrist:** where the closed form keeps an error (k ≥ 10,000 N·m/rad, or 3,000 at
+  100 N and 2°) Drake and MuJoCo agree within 0.07°; where it predicts none, Drake keeps
+  0.001–0.016°.
+- **D. Drake settings:** the μ 0.4 threshold stays at 187.5–199.7 N across stiffness, dissipation,
+  time step and solver; the released seat stays within 0.003° except at the softest contact
+  (10^5 N/m, 0.023°).
+- **E. Bowed edge** (1/16 in): Drake 0.107–0.123°, MuJoCo 0.139–0.145°, bound 0.149°. **Tilted
+  ledger** (1–3 mm over the sheet): the sheet follows it within 0.004° (Drake) and 0.0000°
+  (MuJoCo). **Creep** under a stuck 400 N press: 4×10⁻⁵ °/s in Drake, 4×10⁻⁸ in MuJoCo.
+- **F. H-E:** seated residual sd 0.00142° (Drake) against 0.00001° (MuJoCo); the 24 ledger
+  pipelines' first-pass clean sheets differ by at most **0.06 points**. Cost: 0.11 s a Drake
+  seat, 0.025 s a MuJoCo seat (four processes).
+- **G. Tip height:** Drake/closed form 0.995–1.007, MuJoCo 0.984–1.007.
+- **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H32 held (worst Drake/MuJoCo 12.7% at
+  μ 0.5); H33 held (0.0025° at most, bar 0.005°); **H34 refuted** (70% of held-wrist cells within
+  max(0.005°, 10%), bar 90%: the misses are Drake's 0.005–0.016° where the closed form says
+  zero); H35 held (0.06 points, bar 10); H36 held.
+
 ## Milestone 7 results (`experiments/m7_cost/results.txt`)
 - **A. Dollars per clean sheet** (median [5%, 95%]) at 10 / 30 / 100 / 300 / 1,000 houses a year.
   Walking H1: 151.73 / 52.07 / 17.23 / 7.26 / 4.02. Base: 54.43 / 19.28 / 7.03 [4.52, 11.03] /
@@ -542,6 +611,9 @@ python experiments/m3b_humanoid/figure.py
   the uniform shapes are assumptions, and real panels are probably far inside the limits, which
   is what decides the single-2x case. The bowed edge is modelled at the bottom only; a bowed
   vertical edge would also bend the measured edge line.
+- **Second model (milestone 6).** Drake and MuJoCo are both compliant, regularised contact
+  models run on the same rigid point-contact sheet; agreeing with each other does not make
+  either a real sheet on real framing. A real check needs a framed mock-up.
 - **Humanoid (milestone 3, second part).** Static only: no walking, no balance controller, no
   dynamics of the press or slide, and a 50/50 force split between the hands, where pushing the
   sheet's edge would load one hand. The PD stiffness takes the joint gains at face value (no
@@ -574,7 +646,9 @@ each stage (a lift cycle, a stud read, a re-drive) would pin it, and milestone 7
 joint stud against the 18–65 s it saves (it does not pay unless a missed nail costs about $6.50 more
 than its re-drive). A time study of a crew's sheathing, a quote for a drive-and-lift base and a
 nailing bridge, and the cost of a missed nail found at inspection would replace milestone 7's
-widest sweeps. Milestone 6 (a second contact model) is next. A measured sample of real panels' squareness and edge
+widest sweeps. Milestone 6 found the ledger results hold on Drake; how far a bowed bottom edge
+rocks the sheet depends on the contact model (0.11–0.15°), so a flexible sheet and a measured rock
+on a mock-up would pin it. Milestone 8, the paper draft, is next. A measured sample of real panels' squareness and edge
 bow would settle the single-2x case. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
@@ -583,5 +657,5 @@ None needed. A hardware check needs a framed mock-up wall, a nailer on an arm, a
 grid and a risk assessment.
 
 ## Outside dependencies (vitamins)
-NumPy, Matplotlib (figure), pytest, MuJoCo (Apache-2.0, milestone 3). Reads `../buildbot-studfind` in one test, and `../buildbot-payload` and `../buildbot-fasten` (the whole-body model) in milestone 3's second part, which clones the Unitree G1 and H1 models (BSD-3-Clause) from MuJoCo Menagerie at a pinned commit. No group in
+NumPy, Matplotlib (figure), pytest, MuJoCo (Apache-2.0, milestone 3), Drake (BSD-3-Clause, milestone 6). Reads `../buildbot-studfind` in one test, and `../buildbot-payload` and `../buildbot-fasten` (the whole-body model) in milestone 3's second part, which clones the Unitree G1 and H1 models (BSD-3-Clause) from MuJoCo Menagerie at a pinned commit. No group in
 `prompt.md` covers construction, and none is claimed.
