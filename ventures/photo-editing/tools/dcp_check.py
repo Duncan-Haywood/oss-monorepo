@@ -18,7 +18,9 @@ that greys stay grey through the tables, that hue is continuous across the
 0/360 wrap, and (with numpy) that the numpy engine's table code gives the
 pure-Python bytes on random ProPhoto colours. It reports how far each
 profile moves hue and saturation on saturated colours, so a reader can see
-what "applying the camera profile" changes.
+what "applying the camera profile" changes. For each ProfileToneCurve it checks
+the curve loads, its table never falls, the spline equals scipy's natural
+cubic spline, hue survives the RGB tone and numpy gives the same floats.
 """
 
 from __future__ import annotations
@@ -109,7 +111,53 @@ def check_profile(path: Path, samples: int, rng: random.Random, np_mod) -> dict:
                 if (float(rr[i]), float(gg[i]), float(bb[i])) != want:
                     mismatches += 1
         out["numpy_mismatches"] = mismatches
+    check_tone(ifd, out, colours, np_mod)
     return out
+
+
+def check_tone(ifd, out: dict, colours, np_mod) -> None:
+    """ProfileToneCurve: loads, monotone, agrees with scipy's natural spline,
+    the table reads the spline, hue survives the RGB tone, numpy gives the
+    same floats."""
+
+    values = ifd.get(rd.TAG_PROFILE_TONE_CURVE)
+    if not values:
+        return
+    try:
+        curve = dc.ToneCurve.from_tags(values)
+    except dc.ColourError as exc:
+        out["tone_error"] = str(exc)
+        return
+    tone: dict = {"points": curve.points, "identity": curve.is_identity()}
+    steps = [b - a for a, b in zip(curve.table, curve.table[1:])]
+    tone["min_step"] = min(steps)
+    grid = [i / 20000 for i in range(20001)]
+    tone["table_vs_spline"] = max(abs(curve(x) - curve.evaluate(x)) for x in grid)
+    try:
+        from scipy.interpolate import CubicSpline
+
+        sp = CubicSpline(curve.xs, curve.ys, bc_type="natural")
+        tone["vs_scipy"] = max(abs(curve.evaluate(x) - float(sp(x))) for x in grid)
+    except ImportError:
+        pass
+    tone["mid_grey"] = curve(0.18)
+    tone["slope_at_mid_grey"] = (curve(0.19) - curve(0.17)) / 0.02
+    worst_hue = 0.0
+    for rgb in colours:
+        toned = dc.rgb_tone(curve, *rgb)
+        h0, _ = _hue_deg(rgb)
+        h1, s1 = _hue_deg(toned)
+        if s1 > 1e-6:
+            worst_hue = max(worst_hue, abs((h1 - h0 + 180.0) % 360.0 - 180.0))
+    tone["worst_hue_change_deg"] = worst_hue
+    if np_mod is not None:
+        from shootflow import raw_develop_np as rnp
+
+        arr = np_mod.asarray(colours, dtype=np_mod.float64)
+        got = np_mod.stack(rnp.rgb_tone(curve, arr[:, 0], arr[:, 1], arr[:, 2]), axis=1)
+        want = np_mod.asarray([dc.rgb_tone(curve, *rgb) for rgb in colours])
+        tone["numpy_mismatches"] = int(np_mod.count_nonzero(np_mod.any(got != want, axis=1)))
+    out["tone"] = tone
 
 
 def main(argv=None) -> int:
@@ -142,7 +190,25 @@ def main(argv=None) -> int:
         print(f"  {k}: {v}")
     with_tables = [r for r in results if "hue_shift_deg" in r]
     print(f"with tables: {len(with_tables)}; notes on {sum(1 for r in results if r['notes'])}")
-    print(f"tone curves: {sum(1 for r in results if r['tone_curve_points'])} (not applied by the developer)")
+    print(f"tone curves: {sum(1 for r in results if r['tone_curve_points'])}")
+    toned = [r for r in results if "tone" in r]
+    tone_errors = [r for r in results if "tone_error" in r]
+    for r in tone_errors:
+        print("  tone curve REFUSED", r["file"], r["tone_error"])
+    if toned:
+        tv = [r["tone"] for r in toned]
+        pts = sorted(t["points"] for t in tv)
+        print(f"  loaded {len(toned)}; points per curve: median {statistics.median(pts):.0f}, range {pts[0]}-{pts[-1]}; identity {sum(t['identity'] for t in tv)}")
+        print(f"  non-decreasing tables: {sum(t['min_step'] >= 0 for t in tv)} of {len(tv)} (lowest step {min(t['min_step'] for t in tv):.3g})")
+        print(f"  worst table vs spline: {max(t['table_vs_spline'] for t in tv):.3g}")
+        if all("vs_scipy" in t for t in tv):
+            print(f"  worst spline vs scipy CubicSpline(natural): {max(t['vs_scipy'] for t in tv):.3g}")
+        mg = sorted(t["mid_grey"] for t in tv)
+        sl = sorted(t["slope_at_mid_grey"] for t in tv)
+        print(f"  linear 0.18 -> median {statistics.median(mg):.3f} (range {mg[0]:.3f}-{mg[-1]:.3f}); slope there median {statistics.median(sl):.2f} (range {sl[0]:.2f}-{sl[-1]:.2f})")
+        print(f"  worst hue change through the RGB tone: {max(t['worst_hue_change_deg'] for t in tv):.3g} deg")
+        if np_mod is not None:
+            print(f"  numpy rgb_tone vs pure path: {sum(t.get('numpy_mismatches', 0) for t in tv)} mismatching colours")
     print(f"worst grey spread through the tables: {max(r['grey_spread'] for r in results):.3g}")
     print(f"worst jump across the hue wrap: {max(r['wrap_gap'] for r in results):.3g}")
     if with_tables:
@@ -167,7 +233,12 @@ def main(argv=None) -> int:
         print(f"numpy engine vs pure path: {mism} mismatching colours over {len(with_tables)} profiles")
     if args.json:
         Path(args.json).write_text(json.dumps({"results": results, "failures": failures}, indent=1))
-    bad = failures or any(r["grey_spread"] > 1e-12 for r in results) or any(r.get("numpy_mismatches") for r in results)
+    bad = (
+        failures
+        or any(r["grey_spread"] > 1e-12 for r in results)
+        or any(r.get("numpy_mismatches") for r in results)
+        or any(r.get("tone", {}).get("numpy_mismatches") for r in results)
+    )
     return 1 if bad else 0
 
 

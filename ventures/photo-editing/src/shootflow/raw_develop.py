@@ -998,6 +998,9 @@ class DevelopSettings:
     dcp: Ifd | None = None
     # Apply the profile's ProfileHueSatMap and ProfileLookTable (dng colour).
     profile_tables: bool = True
+    # Apply the profile's ProfileToneCurve (with profile_tables on); off keeps
+    # the plain sRGB curve.
+    tone_curve: bool = True
 
 
 @dataclass
@@ -1205,14 +1208,35 @@ def _dng_colour(profile: dc.Profile, neutral_hat, white_xy, notes: list[str]):
 _PROPHOTO_TO_SRGB = dc.matmul(_XYZ_D50_TO_SRGB, dc.PROPHOTO_TO_XYZ_D50)
 
 
+def _tone_curve(src: Ifd, settings: DevelopSettings, notes: list[str]):
+    """(ToneCurve or None, report label part or None) for the profile's ProfileToneCurve."""
+
+    values = src.get(TAG_PROFILE_TONE_CURVE)
+    if not values:
+        return None, None
+    try:
+        tone = dc.ToneCurve.from_tags(values)
+    except dc.ColourError as exc:
+        notes.append(f"ProfileToneCurve ignored: {exc}")
+        return None, None
+    label = f"ToneCurve {tone.points} points"
+    if not settings.tone_curve:
+        notes.append("ProfileToneCurve present but not applied (tone_curve off)")
+        return None, label + " off"
+    if tone.is_identity():
+        return None, label + " (identity)"
+    return tone, label
+
+
 def _profile_look(profile: dc.Profile, settings: DevelopSettings, ifd0: Ifd, cct, gain: float, notes: list[str]):
-    """(ProfileLook or None, report label) for the profile's tables."""
+    """(ProfileLook or None, report label) for the profile's tables and tone curve."""
 
     hsm = profile.hue_sat_map_at(cct) if cct else profile.hue_sat_map_1
     lt = profile.look_table
     src = settings.dcp if settings.dcp is not None else ifd0
     name = _text(src.get(TAG_PROFILE_NAME)) or ("camera profile" if settings.dcp is not None else "embedded profile")
-    if hsm is None and lt is None:
+    has_tone = bool(src.get(TAG_PROFILE_TONE_CURVE))
+    if hsm is None and lt is None and not has_tone:
         return None, (name if settings.dcp is not None else None)
     if not settings.profile_tables:
         notes.append("profile tables present but not applied (profile_tables off)")
@@ -1226,12 +1250,18 @@ def _profile_look(profile: dc.Profile, settings: DevelopSettings, ifd0: Ifd, cct
         parts.append("LookTable {}x{}x{}".format(*lt.dims))
         if lt.is_identity():
             lt = None
-    if src.get(TAG_PROFILE_TONE_CURVE):
-        notes.append("ProfileToneCurve not applied (the sRGB curve is used)")
+    tone, tone_label = _tone_curve(src, settings, notes)
+    if tone_label:
+        parts.append(tone_label)
+    if not parts:
+        return None, (name if settings.dcp is not None else None)
     label = f"{name}: " + ", ".join(parts)
-    if hsm is None and lt is None:
-        return None, label + " (identity)"
-    return dc.ProfileLook(hsm, lt, gain, _PROPHOTO_TO_SRGB), label
+    if hsm is None and lt is None and tone is None:
+        # Nothing left to apply: every table is the identity, and the tone
+        # curve is absent, the identity or switched off.
+        tone_off = tone_label is not None and tone_label.endswith(" off")
+        return None, label + ("" if tone_off else " (identity)")
+    return dc.ProfileLook(hsm, lt, gain, _PROPHOTO_TO_SRGB, tone), label
 
 
 def _levels(raw: RawImage, top: int, left: int, h: int, w: int, colours: int):

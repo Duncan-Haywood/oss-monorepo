@@ -35,9 +35,17 @@ camera profile) are ``HueSatTable`` and ``ProfileLook`` below: applied in
 linear ProPhoto RGB, the map before the exposure and the look table after it,
 in the specification's order.
 
+The profile's tone curve (``ProfileToneCurve``, DNG 1.2 onwards) is
+``ToneCurve`` below: the specification's points in linear gamma joined by a
+cubic spline (the natural spline, second derivative zero at both ends, as
+dng_sdk's ``dng_spline_solver`` computes), sampled into a 4096-step table
+read by linear interpolation, and applied after the look table in linear
+ProPhoto RGB by the hue-preserving RGB method (``rgb_tone``): the largest and
+smallest channel go through the curve and the middle one is placed between
+them in the same proportion as before, so HSV hue is unchanged.
+
 Not handled here: ``ColorMatrix3``/``CalibrationIlluminant3`` (DNG 1.6, a
-third illuminant), ``IlluminantData`` (custom illuminant spectra), and
-``ProfileToneCurve``. ``tools/dng_colour_check.py`` compares this module with
+third illuminant) and ``IlluminantData`` (custom illuminant spectra). ``tools/dng_colour_check.py`` compares this module with
 colour-hdri's independent implementation; ``tools/dcp_check.py`` reads real
 camera profiles.
 """
@@ -590,6 +598,172 @@ class HueSatTable:
         return hsv_to_rgb(h, s, v)
 
 
+# --------------------------------------------------------------------------
+# Profile tone curve (ProfileToneCurve, DNG 1.2+; and .dcp profiles)
+# --------------------------------------------------------------------------
+
+TONE_TABLE_STEPS = 4096
+
+
+def natural_spline_slopes(xs, ys) -> list[float]:
+    """Slopes at each knot of the natural cubic spline through ``(xs, ys)``.
+
+    The spline is C2 with zero second derivative at both ends; between knots
+    it is the cubic Hermite segment with these end slopes. Solved as the
+    usual tridiagonal system on the slopes (Thomas algorithm). Two knots give
+    the straight line.
+    """
+
+    n = len(xs)
+    if n < 2:
+        raise ColourError("a spline needs two points")
+    h = [xs[i + 1] - xs[i] for i in range(n - 1)]
+    d = [(ys[i + 1] - ys[i]) / h[i] for i in range(n - 1)]
+    if n == 2:
+        return [d[0], d[0]]
+    # Row i: sub[i]*s[i-1] + diag[i]*s[i] + sup[i]*s[i+1] = rhs[i]
+    sub = [0.0] * n
+    dia = [0.0] * n
+    sup = [0.0] * n
+    rhs = [0.0] * n
+    dia[0], sup[0], rhs[0] = 2.0, 1.0, 3.0 * d[0]
+    for i in range(1, n - 1):
+        sub[i] = h[i]
+        dia[i] = 2.0 * (h[i - 1] + h[i])
+        sup[i] = h[i - 1]
+        rhs[i] = 3.0 * (h[i] * d[i - 1] + h[i - 1] * d[i])
+    sub[n - 1], dia[n - 1], rhs[n - 1] = 1.0, 2.0, 3.0 * d[n - 2]
+    for i in range(1, n):
+        f = sub[i] / dia[i - 1]
+        dia[i] -= f * sup[i - 1]
+        rhs[i] -= f * rhs[i - 1]
+    s = [0.0] * n
+    s[n - 1] = rhs[n - 1] / dia[n - 1]
+    for i in range(n - 2, -1, -1):
+        s[i] = (rhs[i] - sup[i] * s[i + 1]) / dia[i]
+    return s
+
+
+@dataclass(frozen=True)
+class ToneCurve:
+    """A ``ProfileToneCurve``: points ``(x, y)`` in linear gamma, first (0, 0)
+    and last (1, 1), joined by the natural cubic spline.
+
+    ``table`` samples the spline at ``TONE_TABLE_STEPS + 1`` even steps (plus
+    one guard entry) and ``__call__`` reads it with linear interpolation,
+    clamping the input to [0, 1], the way dng_sdk's ``dng_1d_table`` does.
+    """
+
+    xs: tuple[float, ...]
+    ys: tuple[float, ...]
+    slopes: tuple[float, ...]
+    table: tuple[float, ...]
+
+    @classmethod
+    def from_tags(cls, values) -> ToneCurve:
+        vals = [float(v) for v in (values or ())]
+        if len(vals) < 4 or len(vals) % 2:
+            raise ColourError(f"tone curve holds {len(vals)} values; it needs pairs, at least two points")
+        if any(not math.isfinite(v) for v in vals):
+            raise ColourError("tone curve holds a value that is not finite")
+        xs, ys = vals[0::2], vals[1::2]
+        if abs(xs[0]) > 1e-6 or abs(ys[0]) > 1e-6 or abs(xs[-1] - 1.0) > 1e-6 or abs(ys[-1] - 1.0) > 1e-6:
+            raise ColourError("tone curve must start at (0, 0) and end at (1, 1)")
+        if any(b <= a for a, b in zip(xs, xs[1:])):
+            raise ColourError("tone curve inputs must increase")
+        if any(not -1e-6 <= y <= 1.0 + 1e-6 for y in ys):
+            raise ColourError("tone curve outputs must lie in [0, 1]")
+        return cls.from_points(xs, ys)
+
+    @classmethod
+    def from_points(cls, xs, ys) -> ToneCurve:
+        xs, ys = tuple(float(v) for v in xs), tuple(float(v) for v in ys)
+        slopes = tuple(natural_spline_slopes(xs, ys))
+        curve = cls(xs, ys, slopes, ())
+        steps = TONE_TABLE_STEPS
+        table = [curve.evaluate(i / steps) for i in range(steps + 1)]
+        table.append(table[-1])
+        return cls(xs, ys, slopes, tuple(table))
+
+    @property
+    def points(self) -> int:
+        return len(self.xs)
+
+    def is_identity(self) -> bool:
+        return all(abs(x - y) < 1e-9 for x, y in zip(self.xs, self.ys))
+
+    def evaluate(self, x: float) -> float:
+        """The spline itself at ``x`` (held at the end values outside the knots)."""
+
+        xs, ys, s = self.xs, self.ys, self.slopes
+        if x <= xs[0]:
+            return ys[0]
+        if x >= xs[-1]:
+            return ys[-1]
+        lo, hi = 0, len(xs) - 1
+        while hi - lo > 1:
+            mid = (lo + hi) >> 1
+            if xs[mid] <= x:
+                lo = mid
+            else:
+                hi = mid
+        x0, x1 = xs[lo], xs[hi]
+        a = x1 - x0
+        t = (x - x0) / a
+        u = 1.0 - t
+        # Cubic Hermite basis.
+        return (
+            ys[lo] * (1.0 + 2.0 * t) * u * u
+            + s[lo] * a * t * u * u
+            + ys[hi] * (3.0 - 2.0 * t) * t * t
+            - s[hi] * a * t * t * u
+        )
+
+    def __call__(self, x: float) -> float:
+        if x <= 0.0:
+            return self.table[0]
+        if x >= 1.0:
+            return self.table[TONE_TABLE_STEPS]
+        y = x * TONE_TABLE_STEPS
+        i = int(y)
+        f = y - i
+        t = self.table
+        return t[i] + f * (t[i + 1] - t[i])
+
+
+def rgb_tone(curve: ToneCurve, r: float, g: float, b: float) -> tuple[float, float, float]:
+    """The hue-preserving RGB tone (dng_sdk's ``RefBaselineRGBTone``).
+
+    The largest and smallest channels go through the curve; the middle one
+    keeps its place between them, ``mid' = lo' + (hi' - lo') * (mid - lo) /
+    (hi - lo)``. With two channels equal and the third the largest, the two
+    equal ones both go through the curve. HSV hue is unchanged.
+    """
+
+    if r >= g:
+        if g > b:  # r >= g > b
+            rr, bb = curve(r), curve(b)
+            return rr, bb + (rr - bb) * (g - b) / (r - b), bb
+        if b > r:  # b > r >= g
+            bb, gg = curve(b), curve(g)
+            return gg + (bb - gg) * (r - g) / (b - g), gg, bb
+        if b > g:  # r >= b > g
+            rr, gg = curve(r), curve(g)
+            return rr, gg, gg + (rr - gg) * (b - g) / (r - g)
+        # r >= g == b
+        rr, gg = curve(r), curve(g)
+        return rr, gg, gg
+    if r >= b:  # g > r >= b
+        gg, bb = curve(g), curve(b)
+        return bb + (gg - bb) * (r - b) / (g - b), gg, bb
+    if b > g:  # b > g > r
+        bb, rr = curve(b), curve(r)
+        return rr, rr + (bb - rr) * (g - r) / (b - r), bb
+    # g >= b > r
+    gg, rr = curve(g), curve(r)
+    return rr, gg, rr + (gg - rr) * (b - r) / (g - r)
+
+
 @dataclass(frozen=True)
 class ProfileLook:
     """The profile's tables between the camera matrix and the output space.
@@ -597,14 +771,16 @@ class ProfileLook:
     The input is linear ProPhoto RGB with the exposure gain already in it (the
     developer folds the gain into its white-balance multipliers). In the
     specification's order: take the gain back out and pin to [0, 1], apply the
-    hue/saturation map, put the exposure back, pin, apply the look table; then
-    ``out`` maps ProPhoto to the output space (linear sRGB in the developer).
+    hue/saturation map, put the exposure back, pin, apply the look table, then
+    the tone curve (hue-preserving RGB tone); then ``out`` maps ProPhoto to
+    the output space (linear sRGB in the developer).
     """
 
     hue_sat_map: HueSatTable | None
     look_table: HueSatTable | None
     gain: float
     out: Matrix
+    tone: ToneCurve | None = None
 
     def apply(self, r: float, g: float, b: float) -> tuple[float, float, float]:
         if self.hue_sat_map is not None:
@@ -614,6 +790,8 @@ class ProfileLook:
         r, g, b = _pin(r), _pin(g), _pin(b)
         if self.look_table is not None:
             r, g, b = self.look_table.apply(r, g, b)
+        if self.tone is not None:
+            r, g, b = rgb_tone(self.tone, r, g, b)
         m = self.out
         return (
             m[0][0] * r + m[0][1] * g + m[0][2] * b,
