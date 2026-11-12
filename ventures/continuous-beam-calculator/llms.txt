@@ -1,0 +1,27 @@
+# Continuous beam calculator
+
+> Free, open-source continuous beam analysis: any number of spans with pinned, fixed or free (overhanging) supports, point loads, point moments and full, partial or tapered distributed loads in dead and live cases. The live load is patterned span by span and the envelope is exact (superposition of each span's live load, then the governing pattern re-solved for its exact peak). Returns reactions with uplift, moment, shear and deflection envelopes, deflection ratios (cantilevers judged on twice the overhang) and bending and shear stress against typed allowables. Imperial or metric. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). An elastic Euler-Bernoulli analysis of typed figures, not engineering advice: it does not choose a member, adjust allowables, or check lateral-torsional buckling, bearing, notches or connections.
+
+## Pages
+
+- [The tool](https://marisstella.app/continuous-beam-calculator/)
+- [Why loading every span at once is not the worst case, with a worked two-span example](https://marisstella.app/continuous-beam-calculator/why-pattern-live-load-matters.html)
+
+## Inputs
+
+- Spans (lengths, left to right) and one support per node: pin, fixed or free.
+- Loads, one per line: `udl L:240` (whole beam), `udl D:60@2-10` (partial), `udl D:0..300@0-8` (tapered), `point L:900@12`, `moment D:500@6` (clockwise). D is dead, L is live; positions from the left end.
+- Member: E, and a rectangular section (ply width, depth, plies) or typed I, S and A; allowable Fb and Fv; live and total deflection limits (L/360 and L/240 by default).
+- Optional strength factors on D and L (1 and 1 for ASD, 1.2 and 1.6 for LRFD); deflection always uses unfactored loads.
+- Units: imperial (ft, lb, lb/ft, psi, in⁴; deflection in inches) or metric (m, kN, kN/m, GPa, mm⁴; deflection in mm).
+
+## How it is checked
+
+- `beam.test.mjs`: textbook cases (simple, cantilever, propped, fixed-fixed, two and three equal spans with pattern coefficients 49/512 and 0.10125, the three-moment equation with unequal I), equilibrium and continuity on a mixed beam, and the envelope against brute force over all 16 live patterns of a four-span beam.
+- `check/differential.py`: an independent Macaulay solution in exact fractions agrees on moment, deflection and reactions to about 1e-11 on 60 random beams (`check/RESULT.txt`).
+
+## Source
+
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/continuous-beam-calculator): MIT licensed. `node cli.mjs --spans 8,8 --supports pin,pin,pin --E 1400000 --section 1.5x9.25x3 --udl D:60 --udl L:240 --Fb 1000 --Fv 175`, or `--json beam.json`, or `--example`.
