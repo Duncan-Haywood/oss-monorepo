@@ -10,6 +10,12 @@ from pathlib import Path
 P = Path(__file__).resolve().parent
 EXP = P.parent / "experiments"
 CHECKS = [
+    ("within 0.0012", "excavator_fuel_breakeven_results.txt", "max |diff| 0.0012 over 20 rows"),
+    ("peaks at 2.46 L/h for a pump of 87.6 L/min", "excavator_fuel_breakeven_results.txt", "f_t,max central: 2.46 to 2.46 L/h, at q_p 87.6"),
+    ("runs 1.16 to 5.24 L/h", "excavator_fuel_breakeven_results.txt", "upper bound 1.16 to 5.24 L/h"),
+    ("threshold, from 3.6f's committed numbers, is 0.14 L/h", "excavator_fuel_breakeven_results.txt", "f_t* there is 0.14 L/h"),
+    ("100.4 L/min and burns 0.515 L", "excavator_fuel_breakeven_results.txt", "minimum +0.515 L/h at q_p 100.4 L/min"),
+    ("(100.9 L/min)", "excavator_fuel_breakeven_results.txt", "mu 100.9 L/min"),
     ("within 0.075 bar", "breakeven_closed_form_results.txt", "largest gap 0.075"),
     ("27.97 against 28.0", "breakeven_closed_form_results.txt", "constant 6 bar (2n): 27.97 (28.0)"),
     ("23.00 against 23.0", "breakeven_closed_form_results.txt", "envelope, orifice: 23.00 (23.0)"),

@@ -1,0 +1,75 @@
+Milestone 6b: break-even rest-of-machine fuel rate on the measured excavator
+(from the committed 5z and 6a results; fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; no raw data read)
+
+inputs: mean moving demand mu 100.9 L/min; still/moving time phi 0.0256; r(219) 2.175; mean demand over load-sensing time 98.18 L/min
+borrowed from the loader (not measured on this machine): b 0.2332 L/kWh (5n), eta 0.818 (5x); m* = 0.78 (r - 1) p, central p 130 bar, margin 20 bar
+
+C1, identity tau = (phi + r mu / q_p) / (phi + r(219) mu / 219) against 6a's committed time ratios:
+  sweep  q_p  219.0  r 2.175  6a 1.000  identity 1.0000  diff +0.0000
+  sweep  q_p  197.1  r 1.970  6a 1.006  identity 1.0062  diff +0.0002
+  sweep  q_p  175.2  r 1.769  6a 1.016  identity 1.0163  diff +0.0003
+  sweep  q_p  153.3  r 1.572  6a 1.031  identity 1.0317  diff +0.0007
+  sweep  q_p  131.4  r 1.380  6a 1.056  identity 1.0560  diff +0.0000
+  sweep  q_p  109.5  r 1.209  6a 1.108  identity 1.1089  diff +0.0009
+  sweep  q_p   98.5  r 1.136  6a 1.156  identity 1.1572  diff +0.0012
+  sweep  q_p   87.6  r 1.077  6a 1.232  identity 1.2320  diff -0.0000
+  q_eq   q_p  105.3  r 1.179  6a 1.124  identity 1.1242  diff +0.0002  (m 14.0, p 100)
+  q_eq   q_p   99.0  r 1.139  6a 1.154  identity 1.1545  diff +0.0005  (m 14.0, p 130)
+  q_eq   q_p   92.9  r 1.103  6a 1.191  identity 1.1906  diff -0.0004  (m 14.0, p 174)
+  q_eq   q_p  116.0  r 1.256  6a 1.088  identity 1.0880  diff -0.0000  (m 20.0, p 100)
+  q_eq   q_p  108.0  r 1.198  6a 1.114  identity 1.1140  diff -0.0000  (m 20.0, p 130)
+  q_eq   q_p  100.4  r 1.147  6a 1.146  identity 1.1466  diff +0.0006  (m 20.0, p 174)
+  q_eq   q_p  124.0  r 1.319  6a 1.069  identity 1.0693  diff +0.0003  (m 24.9, p 100)
+  q_eq   q_p  114.7  r 1.246  6a 1.092  identity 1.0915  diff -0.0005  (m 24.9, p 130)
+  q_eq   q_p  105.9  r 1.183  6a 1.122  identity 1.1217  diff -0.0003  (m 24.9, p 174)
+  q_eq   q_p  124.1  r 1.321  6a 1.069  identity 1.0700  diff +0.0010  (m 25.0, p 100)
+  q_eq   q_p  114.8  r 1.247  6a 1.092  identity 1.0914  diff -0.0006  (m 25.0, p 130)
+  q_eq   q_p  106.0  r 1.184  6a 1.121  identity 1.1216  diff +0.0006  (m 25.0, p 174)
+  max |diff| 0.0012 over 20 rows (inputs rounded to 3 decimals in r, 0.1 in mu and moving %)
+
+bracket check: tangent/chord lower bound at the known points never exceeds the known r (ok); width at 50/70/100 L/min 0.0439/0.0615/0.0000
+
+Break-even rest-of-machine rate f_t*(q_p), central (L/h; open-centre wins only below it):
+ q_p L/min       r lo..hi           tau        m* bar      f_t* L/h
+      40.0  1.000..1.035   2.479..2.566    0.0..3.6      0.49..0.63
+      60.0  1.000..1.053   1.661..1.748    0.0..5.3      0.92..1.41
+      70.0  1.000..1.062   1.427..1.514    0.0..6.2      1.25..2.18
+      80.0  1.043..1.070   1.304..1.338    4.3..7.1      1.78..2.41
+      87.6  1.077..1.077   1.232..1.232    7.8..7.8      2.46..2.46
+      95.0  1.115..1.115   1.178..1.178   11.7..11.7     2.19..2.19
+      98.5  1.136..1.136   1.157..1.157   13.7..13.7     1.86..1.86
+     102.0  1.157..1.157   1.139..1.139   15.9..15.9     1.37..1.38
+     105.0  1.177..1.177   1.125..1.126   17.9..17.9     0.78..0.79
+     107.0  1.191..1.191   1.118..1.118   19.3..19.3     0.28..0.28
+f_t,max central: 2.46 to 2.46 L/h, at q_p 87.6 to 87.5 L/min (0.40 to 0.40 of 219)
+
+Sweep of f_t,max (upper bound, L/h) over margin x pressure x b x eta:
+  m 14.0 bar, p 100 bar: lower bound min 1.19, upper bound max 1.99 L/h (at 81.4 L/min)
+  m 14.0 bar, p 130 bar: lower bound min 0.92, upper bound max 1.91 L/h (at 70.7 L/min)
+  m 14.0 bar, p 174 bar: lower bound min 0.53, upper bound max 1.91 L/h (at 70.7 L/min)
+  m 20.0 bar, p 100 bar: lower bound min 2.16, upper bound max 3.56 L/h (at 92.9 L/min)
+  m 20.0 bar, p 130 bar: lower bound min 1.81, upper bound max 2.99 L/h (at 87.5 L/min)
+  m 20.0 bar, p 174 bar: lower bound min 1.42, upper bound max 2.74 L/h (at 72.3 L/min)
+  m 24.9 bar, p 100 bar: lower bound min 3.16, upper bound max 5.20 L/h (at 100.4 L/min)
+  m 24.9 bar, p 130 bar: lower bound min 2.62, upper bound max 4.31 L/h (at 92.9 L/min)
+  m 24.9 bar, p 174 bar: lower bound min 2.15, upper bound max 3.58 L/h (at 82.6 L/min)
+  m 25.0 bar, p 100 bar: lower bound min 3.18, upper bound max 5.24 L/h (at 100.4 L/min)
+  m 25.0 bar, p 130 bar: lower bound min 2.64, upper bound max 4.34 L/h (at 92.9 L/min)
+  m 25.0 bar, p 174 bar: lower bound min 2.16, upper bound max 3.60 L/h (at 82.8 L/min)
+  over all 108 cases: upper bound 1.16 to 5.24 L/h
+
+At f_t 5.15 L/h (the loader's rest-of-machine rate, borrowed), central: open-centre minus load-sensing fuel, L per hour of load-sensing work
+  r upper: minimum +0.515 L/h at q_p 100.4 L/min; at 219 +4.606; at q_eq 108.0 +0.587
+  r lower: minimum +0.515 L/h at q_p 100.4 L/min; at 219 +4.606; at q_eq 108.0 +0.587
+  reference rate (loader, 5x) low: 1.48 L/h
+  reference rate (loader, 5x) rest of machine: 5.15 L/h
+  reference rate (loader, 5x) still: 5.99 L/h
+
+Loader comparison (5x committed numbers): at 25 cc open-centre saved 8.7 mL of pump-energy fuel per record for 669.0 - 444.6 s more time, so f_t* there is 0.14 L/h
+
+Predictions (LOG.md 6b):
+  C1 identity within 0.002 on all 20 rows: held (max 0.0012)
+  C2 f_t,max central in 1.5 to 4 L/h: held (2.46 to 2.46)
+  C3 f_t,max below 5.15 L/h in every case: refuted (max upper bound 5.24)
+  C4 maximising pump below 98.5 L/min: held (87.6 to 87.5)
+  C5 at 5.15 L/h best pump within 10% of 108.0 and gap under 0.7 L/h: held (100.4 L/min, +0.515, 100.4 L/min, +0.515)

@@ -225,3 +225,30 @@ def pump_for_ratio(demand, r_target, tol=1e-9):
         else:
             hi = mid
     return 0.5 * (lo + hi)
+
+
+def time_ratio_from_r(r_p, q_p, r_ls, q_ls, mu, phi):
+    """Open-centre over load-sensing record time from volume ratios alone (6b).
+
+    Under the slowing rule a fixed pump of q_p runs flat out over the stretched moving time, so its
+    pumped volume is q_p T_OC,moving = r_p V_d, and T_OC = T_still + r_p V_d / q_p. Load-sensing,
+    capped at its own pump q_ls, is the same with r_ls. Divided by the moving time T_mv:
+    tau = (phi + r_p mu / q_p) / (phi + r_ls mu / q_ls), with mu = V_d / T_mv (mean moving demand)
+    and phi = T_still / T_mv."""
+    if min(q_p, q_ls, mu) <= 0 or phi < 0:
+        raise ValueError("need positive flows and phi >= 0")
+    return (phi + r_p * mu / q_p) / (phi + r_ls * mu / q_ls)
+
+
+def breakeven_rest_rate(m, m_star, q_ls_mean, tau, b, eta):
+    """Rest-of-machine fuel rate (L/h) at which open-centre and load-sensing burn the same fuel (6b).
+
+    Per hour of load-sensing work the difference is b (m* - m) Q / (600 eta) + f_t (tau - 1), with Q
+    the mean demand over load-sensing time (L/min) and (m* - m) Q / 600 the pump power gap in kW.
+    Returns the f_t that zeroes it, or None where open-centre saves no pump energy (m* >= m) or no
+    time is lost (tau <= 1)."""
+    if not 0 < eta <= 1:
+        raise ValueError("eta must be in (0, 1]")
+    if m_star >= m or tau <= 1:
+        return None
+    return b * (m - m_star) * q_ls_mean / (600.0 * eta * (tau - 1))
