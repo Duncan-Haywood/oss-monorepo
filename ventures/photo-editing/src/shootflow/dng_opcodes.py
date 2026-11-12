@@ -423,18 +423,18 @@ def _parse_area(op: Opcode, name: str) -> tuple[int, ...]:
 
 
 def parse_map_table(op: Opcode) -> MapTable:
-    *area, n = _parse_area(op, "MapTable")
+    top, left, bottom, right, plane, planes, rp, cp, n = _parse_area(op, "MapTable")
     if not 1 <= n <= 65536:
         raise OpcodeError(f"MapTable of {n} entries (1 to 65536)")
     if len(op.params) < 36 + 2 * n:
         raise OpcodeError(f"MapTable holds fewer than its {n} entries")
-    return MapTable(*area, struct.unpack_from(f">{n}H", op.params, 36))
+    table = struct.unpack_from(f">{n}H", op.params, 36)
+    return MapTable(top, left, bottom, right, plane, planes, rp, cp, table)
 
 
 def parse_per_line(op: Opcode) -> PerLine:
     kind, axis = PER_LINE_KINDS[op.id]
-    *area, n = _parse_area(op, op.name)
-    top, left, bottom, right, _plane, _planes, rp, cp = area
+    top, left, bottom, right, plane, planes, rp, cp, n = _parse_area(op, op.name)
     steps = (bottom - top + rp - 1) // rp if axis == "row" else (right - left + cp - 1) // cp
     if n != steps:
         raise OpcodeError(f"{op.name} with {n} entries for {steps} {axis}s of its area")
@@ -443,7 +443,7 @@ def parse_per_line(op: Opcode) -> PerLine:
     values = struct.unpack_from(f">{n}f", op.params, 36)
     if not all(math.isfinite(v) and abs(v) < 1e6 for v in values):
         raise OpcodeError(f"{op.name} with entries out of range")
-    return PerLine(*area, kind, axis, values)
+    return PerLine(top, left, bottom, right, plane, planes, rp, cp, kind, axis, values)
 
 
 def parse_warp_rectilinear(op: Opcode) -> WarpRectilinear:
@@ -765,7 +765,7 @@ def _row_entries(gm: GainMap, y: int, h: int, p: int) -> list[float]:
     return [(1.0 - rf) * gm.gain(i1, j, p) + rf * gm.gain(i2, j, p) for j in range(gm.points_h)]
 
 
-def _rows_cols(gm: "GainMap | MapPolynomial", h: int, w: int):
+def _rows_cols(gm: "GainMap | MapPolynomial | MapTable | PerLine", h: int, w: int):
     rows = range(max(gm.top, 0), min(gm.bottom, h), gm.row_pitch)
     cols = range(max(gm.left, 0), min(gm.right, w), gm.col_pitch)
     return rows, cols
@@ -940,19 +940,19 @@ def _area_row(op: "MapTable | PerLine", y: int, buf, off: int, h: int, w: int, s
     rows, cols = _rows_cols(op, h, w)
     if y not in rows:
         return
-    table = isinstance(op, MapTable)
-    if not table:
-        add = op.kind == "delta"
-        rowwise = op.axis == "row"
-        rv = op.values[(y - op.top) // op.row_pitch] if rowwise else 0.0
+    table: tuple[int, ...] = op.table if isinstance(op, MapTable) else ()
+    values: tuple[float, ...] = () if isinstance(op, MapTable) else op.values
+    add = isinstance(op, PerLine) and op.kind == "delta"
+    rowwise = isinstance(op, PerLine) and op.axis == "row"
+    rv = values[(y - op.top) // op.row_pitch] if rowwise else 0.0
     for p in range(op.plane, min(op.plane + op.planes, spp)):
         for x in cols:
             k = off + x * spp + p
             v = buf[k] if scale is None else buf[k] / scale[p]
             if table:
-                v = _table_value(op.table, v)
+                v = _table_value(table, v)
             else:
-                d = rv if rowwise else op.values[(x - op.left) // op.col_pitch]
+                d = rv if rowwise else values[(x - op.left) // op.col_pitch]
                 v = v + d if add else v * d
                 v = 0.0 if v < 0.0 else (1.0 if v > 1.0 else v)
             buf[k] = v if scale is None else v * scale[p]
