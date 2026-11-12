@@ -2,7 +2,7 @@
 title: A quieter metric watch, and what it now misses
 date: 2026-11-12
 tags: [changepoint-detector, time-series, alerts, open-source]
-description: "The changepoint watch now allows for sticky noise. False alerts on very sticky series fell from 32 to 1.5 per 1,000 checks, but on labelled real series it reaches 29 of 52 marked changes, down from 38."
+description: "Allowing for sticky noise cut false alerts from 32 to 1.5 per 1,000 checks, but the watch now reaches 29 of 52 marked real changes, down from 38."
 ---
 
 The [changepoint watch](https://marisstella.app/changepoint-detector/watch-a-metric-for-changes.html) checks a daily metric and messages you once when its level has moved for good. Its first default had a weak spot: noise that is sticky, where today's value leans on yesterday's. Most business metrics are like that. On noise that sticky (lag-1 correlation 0.8) and with no change at all, it sent 32 false alerts per 1,000 checks.
