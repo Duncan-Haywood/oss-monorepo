@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKnmEG7Zn9fh1iLsn6c",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T15:19:08Z",
+  "ended": "2026-11-12T15:28:26Z",
+  "wall_minutes": 11.46,
+  "tokens_in": 11960860,
+  "tokens_out": 51353,
+  "cost_usd": 4.7226,
+  "tool_calls": 91,
+  "task": "Deepen flagship 5 einvoice-preflight: repair writes 3-decimal Oman line nets and line VAT (allocate.py start-here row)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15169",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 17,
+  "outcome": "success",
+  "errors": [
+    "First --rules background run was started with an early version of the code and had to be killed and rerun; its output file name differed from the one I grepped (rules-om vs rules-pint-om), costing a few minutes.",
+    "One rules run (PINT AE) wrote nothing and disappeared; not rerun."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/repair-seeded.mjs",
+      "issue": "Line amounts inside PINT ItemPriceExtension (Oman BTOM-016) were labelled 'KSA-11 line VAT', and ItemPriceExtension/Amount (BTOM-017) was never seeded, so the earlier README numbers mixed Oman line VAT into a ZATCA label. Relabelled and added this run."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The einvoice next: item named only Oman; scoring the repair on the other PINT sets (not done by earlier runs) showed it edited 16 correct UAE/Malaysia files, a worse bug. The repair evals should run over every PINT set by default."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took the named Oman item but widened scope to the UAE reverse-charge, PINT decimals, LHDN base-quantity and XML-comment faults found while measuring, since a repair that edits correct files is worse than the item asked for.",
+      "did": "Fixed all five in repair-ubl.mjs with tests and before/after numbers on every PINT set.",
+      "result": "Correct PINT examples left unchanged: AE 20->32/32, MY 22->26/26; OM seeded 461->657/658; ZATCA, SG, A-NZ, JP unchanged."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-einvoice-repair-pint-uae-reverse-charge.md",
+    "ventures/einvoice-preflight/README.md (PINT Oman, UAE and Malaysia)"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok (35.9s); node --test repair-pint/baisa/repair-ubl/repair tests 51+ pass; eval/repair-seeded.mjs on phive-rules dfa902d (ZATCA 3.4.6, PINT OM/AE/MY/SG/A-NZ/JP) before/after in README; repo examples per-file identical before/after. --rules (official sets on repaired files) on PINT MY surfaced the comment/per-unit bug, fixed in the second commit.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8c6e1fef-df5d-53eb-a4f1-1b5dbfaf4b67",
+    "transcripts": 1,
+    "first": "2026-11-12T15:19:08Z",
+    "last": "2026-11-12T15:30:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 169,
+        "output": 51353,
+        "thinking": 10154,
+        "cache_read": 11793673,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167018,
+        "api_equivalent_usd": 4.7226,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 169,
+      "output": 51353,
+      "thinking": 10154,
+      "cache_read": 11793673,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167018,
+      "api_equivalent_usd": 4.7226,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 91,
+    "tools": {
+      "Bash": 85,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.46,
+      "active_minutes": 11.46,
+      "model_minutes": 8.4,
+      "tool_minutes": 3.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: read PINT OM/AE/MY rules, fix 5 repair faults, seeded evals across 7 sets, 17 tests, README and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 211.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
