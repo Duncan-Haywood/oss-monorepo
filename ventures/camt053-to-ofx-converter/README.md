@@ -18,7 +18,7 @@ key; the work happens in your browser and nothing you paste is uploaded.
 To run the tests (Node 20 or newer):
 
 ```
-node --test ventures/camt053-to-ofx-converter/
+node --test 'ventures/camt053-to-ofx-converter/*.test.mjs'
 ```
 
 ## Files
