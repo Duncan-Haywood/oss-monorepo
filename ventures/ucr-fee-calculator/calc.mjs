@@ -25,10 +25,16 @@ export function parseFees(text) {
   });
   brackets.sort((a, b) => a.min - b.min);
   for (let i = 1; i < brackets.length; i++) {
-    if (brackets[i].min <= brackets[i - 1].max) errors.push(`Fee brackets ${brackets[i - 1].min}-${brackets[i - 1].max} and ${brackets[i].min}+ overlap.`);
+    if (brackets[i].min <= brackets[i - 1].max) errors.push(`Fee brackets ${span(brackets[i - 1])} and ${brackets[i].min}+ overlap.`);
+  }
+  for (let i = 1; i < brackets.length; i++) {
+    const from = brackets[i - 1].max + 1;
+    if (brackets[i].min > from) errors.push(`Fee table has a gap: no bracket covers ${from}-${brackets[i].min - 1} vehicles.`);
   }
   return { brackets, errors };
 }
+
+const span = (b) => (b.max === Infinity ? `${b.min}+` : `${b.min}-${b.max}`);
 
 export function bracketFor(brackets, n) {
   return brackets.find((b) => n >= b.min && n <= b.max) ?? null;
@@ -42,7 +48,8 @@ export function parseEntities(text) {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
     const p = line.split(",").map((s) => s.trim());
-    const n = Number((p[1] ?? "").replace(/[ _]/g, ""));
+    const digits = (p[1] ?? "").replace(/[ _]/g, "");
+    const n = /^\d+$/.test(digits) ? Number(digits) : NaN; // no hex, exponents, signs or decimals
     const type = (p[2] || "motor-carrier").toLowerCase().replace(/\s+/g, "-");
     if (!p[0] || !(p[1] ?? "") || !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need "name, number of vehicles, type".`);
     if (!TYPES.includes(type)) return errors.push(`Line ${i + 1}: type must be one of ${TYPES.join(", ")}.`);
@@ -98,8 +105,16 @@ export function sampleInput() {
   };
 }
 
+// A name starting =, +, - or @ runs as a formula when the CSV opens in Excel or Sheets (CSV injection), so it
+// gets a leading apostrophe; plain numbers are left alone.
+export function csvCell(c) {
+  let s = String(c);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
 export function toCsv(r) {
   const head = "registrant,type,vehicles,bracket,fee,per_vehicle";
-  const lines = r.rows.map((x) => [x.name, x.type, x.n, `${x.bracket.min}-${x.bracket.max === Infinity ? "+" : x.bracket.max}`, x.fee.toFixed(2), x.perVehicle === null ? "" : x.perVehicle.toFixed(2)].map((c) => (/[",\n]/.test(String(c)) ? `"${String(c).replace(/"/g, '""')}"` : c)).join(","));
+  const lines = r.rows.map((x) => [x.name, x.type, x.n, span(x.bracket), x.fee.toFixed(2), x.perVehicle === null ? "" : x.perVehicle.toFixed(2)].map(csvCell).join(","));
   return [head, ...lines, `total,,,,${r.total.toFixed(2)},`].join("\n") + "\n";
 }
