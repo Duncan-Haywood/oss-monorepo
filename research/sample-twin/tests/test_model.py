@@ -55,5 +55,19 @@ class T(unittest.TestCase):
         self.assertEqual(settle_time(kp, kd, 1.5, 100), math.inf)
 
 
+    def test_overshoot_exact_inter_sample(self):
+        # exact parabola-vertex value, recomputed independently with numpy (quality audit 2026-11-12)
+        kp, kd = gains(1.0, 0.7)
+        self.assertAlmostEqual(overshoot(kp, kd, 1.2, 20000), 0.2343, places=4)
+        self.assertAlmostEqual(overshoot(kp, kd, 1.4, 20000), 0.4852, places=4)
+
+    def test_settle_times(self):
+        kp, kd = gains(1.0, 0.7)
+        self.assertAlmostEqual(settle_time(kp, kd, 1.3, 20000), 14.3, places=6)
+        self.assertAlmostEqual(settle_time(kp, kd, 1.0, 20000), 4.0, places=6)
+        self.assertAlmostEqual(settle_time(*gains(10.0, 0.7), 0.1, 20000), 0.4, places=6)
+        self.assertAlmostEqual(settle_time(*gains(14.0, 0.7), 0.1, 20000), 5.2, places=6)
+
+
 if __name__ == "__main__":
     unittest.main()
