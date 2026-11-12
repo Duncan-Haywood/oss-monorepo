@@ -217,6 +217,8 @@
    "origin": "maintenance"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15147"
+ ],
  "verdict": "A small, clean, reproducible Lorenz-63 predictability demo whose numbers are right: an independent tangent-linear QR spectrum gives lambda1 0.897-0.911 (sum exactly -(sigma+1+beta)), and an independent 400-start rerun reproduces every state- and parameter-error horizon within sampling error and the state slope (1.09 vs 1/lambda 1.10). It does not meet the bar. Its one non-textbook conclusion, that a parameter error buys less horizon per e-fold (0.85) than a state error, comes from fitting across a saturated eps=0.1 point; without it the slope is 1.0-1.08 on the author's own numbers and tends to 1/lambda. The parameter error is relative while the text reads absolute, the tests miss 4 of 6 seeded bugs including the twin ignoring its parameters, and the work restates Lorenz (1969) and Boffetta et al. (2002) without citing them. Verification 1, claims 2, fitness 1."
 }

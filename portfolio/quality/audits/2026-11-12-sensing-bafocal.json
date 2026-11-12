@@ -230,8 +230,17 @@
    "where": "research/sensing-bafocal/README.md:23",
    "category": "stale-docs",
    "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "README section D said solving for k1 'estimates k1 to within 0.005'; that is the 6-seed mean. Single seeds at k1=-0.2 scatter -0.156 to -0.259 (sd 0.040, SE of the mean ~0.016), found by the round-51 session while writing the k1 test (run_trial(focal_err=0, k1_true=-0.2, est_k1=True, seed=0..5)).",
+   "where": "research/sensing-bafocal/README.md:31",
+   "category": "overclaim",
+   "origin": "claims"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15147"
+ ],
  "verdict": "A small, clean, fully reproducible synthetic experiment whose numbers are right: projection and triangulation match OpenCV to 1e-13, results.txt and the SVG regenerate byte-identically, the solver converges well inside its cap, and the recovered focal errors sit within 1.6x of a Cramer-Rao bound computed independently. Claims match the results file and the limits are honest. It misses the bar on verification (the k1-estimation path has no test; a seeded r^2 bug in the solver survives) and falls short as research: it confirms standard Bundler/COLMAP practice without citing it, reports no uncertainty, and does not engage the critical-motion theory that explains its own fixating-orbit results. Finished, correct, not new."
 }
