@@ -1,0 +1,386 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKmQT5GJGuCVcZn18um",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T10:17:57Z",
+  "ended": "2026-11-12T10:20:02Z",
+  "wall_minutes": 6.4,
+  "tokens_in": 3251560,
+  "tokens_out": 17116,
+  "cost_usd": 1.584,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15091",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First ICS fold test asserted the continuation line was full while it was the short tail; lengthened the input."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix every open entry first, but all 5 open entries are control-plane edits already sitting in owner-gated PRs (#12928, #14877, #14612, #14698); the prompt could say to check for an open PR and move on."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 open defects are all control plane with existing open PRs awaiting owner approval; fixing them again would duplicate those PRs.",
+      "did": "Left them open, noted the PRs.",
+      "result": "No duplicate PRs; time went to the campaign and a real defect."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-redteam-a-typo-that-counts-nowhere.md"
+  ],
+  "goal": null,
+  "notes": "Targets picked from git log --since=3.days (both changed this week, suites <1 s). Guard added: a table test pinning every RULES entry plus a note/limit consistency check (class guard for the residency rules). Lowercase 'ny' rejection is deliberate (avoids matching words like 'or', 'in', 'me'), not a defect. Local: run_venture_tests.py state-residency-day-counter irs-iris-1099-csv-check -> 2 suites, 0 failed.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/state-residency-day-counter/calc.mjs",
+        "test": "node --test ventures/state-residency-day-counter/**/*.test.mjs  (in .)",
+        "seed": 509231208,
+        "commit": "440f29919",
+        "sites": 700,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 37,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "VA: { limit: 183, requiresAbode: true, kind: \"statutory\", note: \"Resident for tax if you keep a place of abode and spend more than 183 days.\" },",
+            "after": "VA: { limit: 184, requiresAbode: true, kind: \"statutory\", note: \"Resident for tax if you keep a place of abode and spend more than 183 days.\" },",
+            "line_text": "  VA: { limit: 183, requiresAbode: true, kind: \"statutory\", note: \"Resident for tax if you keep a place of abode and spend more than 183 days.\" },",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "VA limit 183 -> 184 passed: no test pinned VA. Guard: a table test pins every state's limit, abode rule and kind, and checks 'more than N days' notes agree with the limit."
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 39,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "MD: { limit: 182, requiresAbode: true, kind: \"statutory\", note: \"Statutory resident: a place of abode kept for more than six months plus physical presence for 183 days or more (Tax-General 10-101), so the limit here is 182 and 183 days crosses it. A vacation home alone does not count unless you are present 183 days or more.\" },",
+            "after": "MD: { limit: 183, requiresAbode: true, kind: \"statutory\", note: \"Statutory resident: a place of abode kept for more than six months plus physical presence for 183 days or more (Tax-General 10-101), so the limit here is 182 and 183 days crosses it. A vacation home alone does not count unless you are present 183 days or more.\" },",
+            "line_text": "  MD: { limit: 182, requiresAbode: true, kind: \"statutory\", note: \"Statutory resident: a place of abode kept for more than six months plus physical presence for 183 days or more (Tax-General 10-101), so the limit here is 182 and 183 days crosses it. A vacation home alone does not count unless you are present 183 days or more.\" },",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 60,
+            "col": 35,
+            "operator": "true-to-false",
+            "before": "DC: { limit: 182, requiresAbode: true, kind: \"statutory\", note: \"Statutory resident: you keep a place of abode in the District for an aggregate of 183 days or more of the tax year, whether or not you are domiciled there (D.C. Code 47-1801.04), so the limit here is 182 and 183 days crosses it. Temporary absences are generally counted toward the 183 days.\" },",
+            "after": "DC: { limit: 182, requiresAbode: false, kind: \"statutory\", note: \"Statutory resident: you keep a place of abode in the District for an aggregate of 183 days or more of the tax year, whether or not you are domiciled there (D.C. Code 47-1801.04), so the limit here is 182 and 183 days crosses it. Temporary absences are generally counted toward the 183 days.\" },",
+            "line_text": "  DC: { limit: 182, requiresAbode: true, kind: \"statutory\", note: \"Statutory resident: you keep a place of abode in the District for an aggregate of 183 days or more of the tax year, whether or not you are domiciled there (D.C. Code 47-1801.04), so the limit here is 182 and 183 days crosses it. Temporary absences are generally counted toward the 183 days.\" },",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 271,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (ring[i + 1] < y0) y0 = ring[i + 1];",
+            "after": "if (ring[i + 2] < y0) y0 = ring[i + 1];",
+            "line_text": "    if (ring[i + 1] < y0) y0 = ring[i + 1];",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 298,
+            "col": 22,
+            "operator": "lt-to-le",
+            "before": "for (let k = 0; k < list.length; k++) {",
+            "after": "for (let k = 0; k <= list.length; k++) {",
+            "line_text": "    for (let k = 0; k < list.length; k++) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 516,
+            "col": 40,
+            "operator": "times-to-div",
+            "before": "remoteDays: Math.round(pulledDays * 100) / 100,",
+            "after": "remoteDays: Math.round(pulledDays / 100) / 100,",
+            "line_text": "      remoteDays: Math.round(pulledDays * 100) / 100,",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 628,
+            "col": 67,
+            "operator": "const-plus-one",
+            "before": "const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;",
+            "after": "const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 3 : cp < 0x10000 ? 3 : 4;",
+            "line_text": "    const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "2-byte UTF-8 counted as 3 octets folded ICS lines early; no test used multi-byte text. Guard: a fold test with 100 x '\u00e9' asserts lines use 74-75 octets and unfold to the original."
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 779,
+            "col": 84,
+            "operator": "neq-flip",
+            "before": "if (!doc || doc.kind !== \"state-residency-day-counter-setup\" || typeof doc.fields !== \"object\" || doc.fields === null) {",
+            "after": "if (!doc || doc.kind !== \"state-residency-day-counter-setup\" || typeof doc.fields === \"object\" || doc.fields === null) {",
+            "line_text": "  if (!doc || doc.kind !== \"state-residency-day-counter-setup\" || typeof doc.fields !== \"object\" || doc.fields === null) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/irs-iris-1099-csv-check/calc.mjs",
+        "test": "node --test ventures/irs-iris-1099-csv-check/**/*.test.mjs  (in .)",
+        "seed": 273049648,
+        "commit": "440f29919",
+        "sites": 503,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/irs-iris-1099-csv-check/calc.mjs",
+            "line": 298,
+            "col": 99,
+            "operator": "const-plus-one",
+            "before": "const order = header.map((h) => want.findIndex((c) => NORM(c) === NORM(h))).filter((i) => i >= 0);",
+            "after": "const order = header.map((h) => want.findIndex((c) => NORM(c) === NORM(h))).filter((i) => i >= 1);",
+            "line_text": "    const order = header.map((h) => want.findIndex((c) => NORM(c) === NORM(h))).filter((i) => i >= 0);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "order filter dropped template column 0, so moving Form Type went unflagged. Guard: rotate the sample's first column to the end."
+          },
+          {
+            "file": "ventures/irs-iris-1099-csv-check/calc.mjs",
+            "line": 357,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "if (/^(\\d)\\1{8}$/.test(pt.digits) || WELL_KNOWN.has(pt.digits)) add(\"error\", \"payer-tin\", line, \"Payer TIN is an obvious placeholder\", \"All-same-digit and sequential numbers are not real TINs.\");",
+            "after": "if (/^(\\d)\\1{9}$/.test(pt.digits) || WELL_KNOWN.has(pt.digits)) add(\"error\", \"payer-tin\", line, \"Payer TIN is an obvious placeholder\", \"All-same-digit and sequential numbers are not real TINs.\");",
+            "line_text": "      if (/^(\\d)\\1{8}$/.test(pt.digits) || WELL_KNOWN.has(pt.digits)) add(\"error\", \"payer-tin\", line, \"Payer TIN is an obvious placeholder\", \"All-same-digit and sequential numbers are not real TINs.\");",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "nine-same-digit payer TINs outside WELL_KNOWN were untested. Guard: Payer TIN 222222222."
+          },
+          {
+            "file": "ventures/irs-iris-1099-csv-check/calc.mjs",
+            "line": 358,
+            "col": 52,
+            "operator": "const-plus-one",
+            "before": "else if (!EIN_PREFIXES.has(pt.digits.slice(0, 2))) add(\"warning\", \"payer-tin-prefix\", line, `Payer TIN prefix ${pt.digits.slice(0, 2)} is not one the IRS assigns to EINs`, \"From memory of the published prefix list; check against your IRS notice (an SSN is acceptable for a sole proprietor).\");",
+            "after": "else if (!EIN_PREFIXES.has(pt.digits.slice(0, 3))) add(\"warning\", \"payer-tin-prefix\", line, `Payer TIN prefix ${pt.digits.slice(0, 2)} is not one the IRS assigns to EINs`, \"From memory of the published prefix list; check against your IRS notice (an SSN is acceptable for a sole proprietor).\");",
+            "line_text": "      else if (!EIN_PREFIXES.has(pt.digits.slice(0, 2))) add(\"warning\", \"payer-tin-prefix\", line, `Payer TIN prefix ${pt.digits.slice(0, 2)} is not one the IRS assigns to EINs`, \"From memory of the published prefix list; check against your IRS notice (an SSN is acceptable for a sole proprietor).\");",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/irs-iris-1099-csv-check/calc.mjs",
+            "line": 387,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "if (!EIN_PREFIXES.has(rdigits.slice(0, 2))) add(\"warning\", \"recipient-ein-prefix\", line, `EIN prefix ${rdigits.slice(0, 2)} is not one the IRS assigns`, \"From memory of the published prefix list; check the number with the recipient's W-9.\");",
+            "after": "if (!EIN_PREFIXES.has(rdigits.slice(0, 3))) add(\"warning\", \"recipient-ein-prefix\", line, `EIN prefix ${rdigits.slice(0, 2)} is not one the IRS assigns`, \"From memory of the published prefix list; check the number with the recipient's W-9.\");",
+            "line_text": "        if (!EIN_PREFIXES.has(rdigits.slice(0, 2))) add(\"warning\", \"recipient-ein-prefix\", line, `EIN prefix ${rdigits.slice(0, 2)} is not one the IRS assigns`, \"From memory of the published prefix list; check the number with the recipient's W-9.\");",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/irs-iris-1099-csv-check/calc.mjs",
+            "line": 519,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "if (blankLines) add(\"info\", \"blank-lines\", 0, `${blankLines} blank line${blankLines === 1 ? \"\" : \"s\"} in the file`, \"Blank rows are usually ignored; delete them anyway.\");",
+            "after": "if (blankLines) add(\"info\", \"blank-lines\", 1, `${blankLines} blank line${blankLines === 1 ? \"\" : \"s\"} in the file`, \"Blank rows are usually ignored; delete them anyway.\");",
+            "line_text": "  if (blankLines) add(\"info\", \"blank-lines\", 0, `${blankLines} blank line${blankLines === 1 ? \"\" : \"s\"} in the file`, \"Blank rows are usually ignored; delete them anyway.\");",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "blank-lines line number is shown in the findings list and CSV; untested. Guard: assert line 0."
+          },
+          {
+            "file": "ventures/irs-iris-1099-csv-check/calc.mjs",
+            "line": 558,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "else if (rows[0].cells[i] !== h) { changes.push(`Line 1: trimmed spaces around header \"${h}\".`); rows[0].cells[i] = h; }",
+            "after": "else if (rows[1].cells[i] !== h) { changes.push(`Line 1: trimmed spaces around header \"${h}\".`); rows[0].cells[i] = h; }",
+            "line_text": "    else if (rows[0].cells[i] !== h) { changes.push(`Line 1: trimmed spaces around header \"${h}\".`); rows[0].cells[i] = h; }",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "else branch compared the header to row 1's cell: spurious 'trimmed spaces' and missed trims for unknown headers. Guard: clean and spaced 'Notes' headers."
+          },
+          {
+            "file": "ventures/irs-iris-1099-csv-check/calc.mjs",
+            "line": 573,
+            "col": 81,
+            "operator": "and-to-or",
+            "before": "for (const col of Object.keys(idx)) { const v = val(col); if (v !== v.trim() && v.trim() !== \"\") set(col, v.trim(), \"stray spaces trimmed\"); }",
+            "after": "for (const col of Object.keys(idx)) { const v = val(col); if (v !== v.trim() || v.trim() !== \"\") set(col, v.trim(), \"stray spaces trimmed\"); }",
+            "line_text": "    for (const col of Object.keys(idx)) { const v = val(col); if (v !== v.trim() && v.trim() !== \"\") set(col, v.trim(), \"stray spaces trimmed\"); }",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "&& -> || clears whitespace-only cells and logs a trim. Guard: whitespace-only Payer Address stays and logs nothing."
+          },
+          {
+            "file": "ventures/irs-iris-1099-csv-check/calc.mjs",
+            "line": 581,
+            "col": 32,
+            "operator": "neq-flip",
+            "before": "if (want !== null && want !== v) set(col, want, `written in the IRS format for ${val(typeCol).trim().toUpperCase()}`);",
+            "after": "if (want !== null && want === v) set(col, want, `written in the IRS format for ${val(typeCol).trim().toUpperCase()}`);",
+            "line_text": "      if (want !== null && want !== v) set(col, want, `written in the IRS format for ${val(typeCol).trim().toUpperCase()}`);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/state-residency-day-counter/calc.mjs",
+        "issue": "parseStays accepts any two capital letters as a state; a typo like 'YN' for NY silently counted its days toward no state, under-counting the intended state with no warning. Fixed: analyze adds a notice naming each non-state code and its days.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15091"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ca9e311d-5db8-55c7-8ed4-f996b3cc33b7",
+    "transcripts": 1,
+    "first": "2026-11-12T10:17:57Z",
+    "last": "2026-11-12T10:24:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 80,
+        "output": 17116,
+        "thinking": 3508,
+        "cache_read": 3175698,
+        "cache_write_5m": 0,
+        "cache_write_1h": 75782,
+        "api_equivalent_usd": 1.584,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 80,
+      "output": 17116,
+      "thinking": 3508,
+      "cache_read": 3175698,
+      "cache_write_5m": 0,
+      "cache_write_1h": 75782,
+      "api_equivalent_usd": 1.584,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.4,
+      "active_minutes": 6.4,
+      "model_minutes": 4.56,
+      "tool_minutes": 1.84,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "16 mutants triaged, 8 tests, one parser fix and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 252.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
