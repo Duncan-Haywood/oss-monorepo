@@ -869,3 +869,25 @@ Outputs: `eval/reissue-ilp-check.out.txt` and `eval/reissue-ilp-check.all.txt` (
 
 Not claimed: two invented cafés and 41 call-outs; the hard rules are the ILP's own transcription (cross-checked, not proven equal to the engine on every input); the second stage has no pay or fairness terms, so a least-change roster can cost more.
 
+
+## The reissue on the templates and 20-60 person weeks, and a kept start (2026-11-12)
+
+The posted-week reissue above was measured on two invented cafés. `node eval/reissue-scale.mjs templates` runs the same study on the page's four built-in templates (every person posted Wednesday to Sunday calling out that day, change at 5pm the evening before, started shifts pinned, 336 h window, 1 hour of pay per change, the caller exempt), and `node eval/reissue-scale.mjs P S 2 4` on two seeded weeks of each size from `eval/auto-exact.mjs` (Mon-Fri weeks, so call-outs Wednesday to Friday, every k-th posted person so 4 a day: 24 call-outs a size). Default options, exact check on, one 4-core cloud machine with up to two benches running at once.
+
+**What the first run found.** On the templates and the 20-30 person weeks the kept reissue cut changes to other people by 55-90% at the same open hours. On the 40 and 60 person weeks it still cut them, but less than it should have: four Wednesday reissues on the second 40 x 112 week stopped on the time limit unproven and kept rosters with 37-39 changes against 7-8 on their neighbours, and on 60 x 168 three reissues made more changes than a free rebuild. The cause: the annealer builds every roster from scratch, so on a big week its start is far from the posted one, and when the exact stages run out of time nothing pulls the roster back.
+
+**What changed.** With a keep map (`keep` with `keepValue` or `keepShift`, so the planner's keep-usual-shifts as well as a posted week's reissue), the builder also starts from the kept roster itself (`keptStart` in calc.mjs): in start order each shift goes to someone who held it when the hard rules allow, every shift still open goes to whoever adds the least score, then the pay polish runs from there, and the better of that and the annealer's roster goes on to every later stage. `keptStart: false` turns it off.
+
+| call-outs (changes to other people) | free rebuild | keepShift 1, before | keepShift 1, kept start | open hours |
+|---|---|---|---|---|
+| 4 templates (56) | 162 | 73 | 73 | same in all columns |
+| 20 x 56, 2 weeks (24) | 253 | 26 | 26 | same |
+| 30 x 84, 2 weeks (24) | 507 | 50 | 50 | same |
+| 40 x 112, 2 weeks (24) | 603 | 124 | **40** | same |
+| 60 x 168, 2 weeks (24) | 1,623 | 973 (3 above the free rebuild) | **76** (none above) | same |
+
+Outputs: `eval/reissue-scale.*.txt` (after) and `eval/reissue-scale.*.before.txt`. Below 40 people every kept reissue was already proven, so the kept start changes nothing there (same rosters on the templates and the 20-30 person weeks). On the 40 x 112 Wednesday reissues above it took the four unproven ones from 91 changes to 7, still unproven (the exact search runs out of time either way) but with the same open hours and $136 less pay. On 60 x 168 changes fell from 973 to 76 and payroll from $458,342 to $457,472, below the free rebuild's $457,562. Premiums follow changes: on 40 x 112, $2,050 before and $745 after against $9,565 for a free rebuild; on 60 x 168, $14,642 before and $1,208 after against $24,615. Time is unchanged (the kept start is one pay polish; the exact stages' time limits dominate on these weeks). With the kept start, keepShift 1 made fewer changes than keepValue 0.1 at 40 and 60 people (40 vs 44, 76 vs 129).
+
+Tests (`reissue-posted.test.mjs`): on the salon and retail templates the kept reissue never opens more hours and never makes more changes than a free rebuild, with fewer changes in total; on the seeded 20-person week, a keep map of a posted roster with nothing changed gives the posted roster back with the kept start (0 changes) and moves 3 shifts without it.
+
+Not claimed: seeded synthetic weeks and invented templates; 4 call-outs a day sampled on the seeded weeks, not every one; the unproven big-week reissues depend on machine speed. The kept start also runs in the planner's keep-usual-shifts (`--keep-shifts`); its tests pass unchanged, but the sweep in "Keep people on their usual shifts" was not re-run. Half the 60-person reissues and a sixth of the 40-person ones are still unproven, and whether their remaining changes are needed at the least open hours is not checked (the change-count ILP above was run on the cafés only).

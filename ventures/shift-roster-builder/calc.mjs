@@ -1058,6 +1058,36 @@ function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000
   return { owner, open: open - TIE * shifts, openShifts: shifts };
 }
 
+// A starting roster from the keep map (2026-11-12): in start order, each shift goes to someone who held it before when the hard
+// rules allow it (a pinned shift's eligibility already names only its holder), then every shift still open goes to whoever adds
+// the least score, as the annealer's first pass does. A seed for polishPay, not a search of its own.
+function keptStart(ctx) {
+  const { P, S, slots, elig, keep } = ctx;
+  const owner = new Array(S).fill(-1);
+  const lists = Array.from({ length: P }, () => []);
+  const order = [...Array(S).keys()].sort((a, b) => slots[a].start - slots[b].start || a - b);
+  for (const i of order) {
+    for (let p = 0; p < P; p++) {
+      if (!keep[p] || !keep[p].has(i) || !elig[p][i]) continue;
+      const nl = insertSorted(ctx, lists[p], i);
+      if (validList(ctx, p, nl)) { owner[i] = p; lists[p] = nl; break; }
+    }
+  }
+  for (const i of order) {
+    if (owner[i] >= 0) continue;
+    let best = -1, bestD = Infinity, bestList = null;
+    for (let p = 0; p < P; p++) {
+      if (!elig[p][i]) continue;
+      const nl = insertSorted(ctx, lists[p], i);
+      if (!validList(ctx, p, nl)) continue;
+      const d = personScore(ctx, p, nl) - personScore(ctx, p, lists[p]);
+      if (d < bestD) { bestD = d; best = p; bestList = nl; }
+    }
+    if (best >= 0) { owner[i] = best; lists[best] = bestList; }
+  }
+  return owner;
+}
+
 // Single moves and swaps that lower the score and never leave a shift open that was covered.
 function polishPay(ctx, owner0, seed, iterations) {
   const { P, S, elig } = ctx;
@@ -2108,6 +2138,13 @@ function buildRosterOnce(staff, slots, options = {}) {
   let tMark = tStart;
   const mark = (name) => { const now = Date.now(); timings[name] = (timings[name] || 0) + (now - tMark); tMark = now; };
   let best = search(ctx, o.restarts, iterations);
+  // With a keep map, also start from the kept roster itself (keptStart): the annealer builds from scratch and lands far from it
+  // on big weeks, and when the exact stages then run out of time, the reissue keeps that far roster (eval/reissue-scale.mjs).
+  if (ctx.keep && o.keptStart !== false) {
+    const ko = polishPay(ctx, keptStart(ctx), o.seed + 6151, Math.max(20000, ctx.S * 1000));
+    const ks = scoreOwner(ctx, ko).total;
+    if (ks < best.score - 1e-9) best = { owner: ko, score: ks };
+  }
   mark("anneal");
   // Covering shifts outranks everything else, so while any shift is open spend as many extra restarts again on finding a roster that
   // covers more. A balance of 50 on the sample week left 8 coverable hours open after four restarts; twelve found them.

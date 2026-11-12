@@ -1,0 +1,110 @@
+40x112 week 0 posted: 40 people, 149 copies, pay $12156, 169 h open, improved, 4900 ms; 12 call-outs
+40x112 week 0 P0 off Wed (1 shifts)
+  rebuild        169 h open  39 changes (22 people) owed $ 613.00 pay $12180.00 improved 2410 ms
+  keep/h 0.1     169 h open   1 changes (1 people) owed $  20.00 pay $12180.00 optimal 6279 ms
+  keep/shift 1   169 h open   1 changes (1 people) owed $  20.00 pay $12180.00 optimal 4398 ms
+40x112 week 0 P7 off Wed (1 shifts)
+  rebuild        169 h open  41 changes (25 people) owed $ 639.00 pay $12213.00 improved 2286 ms
+  keep/h 0.1     169 h open   2 changes (2 people) owed $  38.00 pay $12213.00 improved 4904 ms
+  keep/shift 1   169 h open   2 changes (2 people) owed $  38.00 pay $12213.00 improved 2312 ms
+40x112 week 0 P21 off Wed (1 shifts)
+  rebuild        169 h open  27 changes (17 people) owed $ 426.00 pay $12157.00 improved 2935 ms
+  keep/h 0.1     169 h open   1 changes (1 people) owed $  20.00 pay $12166.00 optimal 5557 ms
+  keep/shift 1   169 h open   1 changes (1 people) owed $  20.00 pay $12166.00 optimal 2378 ms
+40x112 week 0 P33 off Wed (1 shifts)
+  rebuild        169 h open  35 changes (21 people) owed $ 593.00 pay $12176.00 improved 2265 ms
+  keep/h 0.1     169 h open   1 changes (1 people) owed $  20.00 pay $12216.00 optimal 8881 ms
+  keep/shift 1   169 h open   1 changes (1 people) owed $  20.00 pay $12216.00 optimal 4145 ms
+40x112 week 0 P0 off Thu (1 shifts)
+  rebuild        173 h open  20 changes (17 people) owed $ 334.00 pay $12112.00 improved 863 ms
+  keep/h 0.1     173 h open   2 changes (2 people) owed $  37.00 pay $12101.00 improved 1018 ms
+  keep/shift 1   173 h open   2 changes (2 people) owed $  37.00 pay $12101.00 improved 905 ms
+40x112 week 0 P10 off Thu (1 shifts)
+  rebuild        173 h open  16 changes (15 people) owed $ 281.00 pay $12091.00 improved 1074 ms
+  keep/h 0.1     173 h open   1 changes (1 people) owed $  19.00 pay $12092.00 improved 1283 ms
+  keep/shift 1   173 h open   1 changes (1 people) owed $  19.00 pay $12092.00 improved 1088 ms
+40x112 week 0 P21 off Thu (1 shifts)
+  rebuild        173 h open  14 changes (12 people) owed $ 200.00 pay $12083.00 improved 922 ms
+  keep/h 0.1     173 h open   1 changes (1 people) owed $  19.00 pay $12085.00 improved 1604 ms
+  keep/shift 1   173 h open   1 changes (1 people) owed $  19.00 pay $12085.00 improved 1245 ms
+40x112 week 0 P31 off Thu (1 shifts)
+  rebuild        173 h open  26 changes (21 people) owed $ 403.00 pay $12140.00 improved 1657 ms
+  keep/h 0.1     173 h open   2 changes (2 people) owed $  40.00 pay $12140.00 improved 1198 ms
+  keep/shift 1   173 h open   2 changes (2 people) owed $  40.00 pay $12140.00 improved 1455 ms
+40x112 week 0 P0 off Fri (1 shifts)
+  rebuild        169 h open   4 changes (4 people) owed $  68.00 pay $12180.00 optimal 454 ms
+  keep/h 0.1     169 h open   1 changes (1 people) owed $  21.00 pay $12186.00 optimal 557 ms
+  keep/shift 1   169 h open   1 changes (1 people) owed $  21.00 pay $12186.00 optimal 486 ms
+40x112 week 0 P9 off Fri (1 shifts)
+  rebuild        175 h open   4 changes (3 people) owed $  76.00 pay $12054.00 improved 557 ms
+  keep/h 0.1     175 h open   2 changes (1 people) owed $  42.00 pay $12054.00 optimal 479 ms
+  keep/shift 1   175 h open   2 changes (1 people) owed $  42.00 pay $12054.00 optimal 484 ms
+40x112 week 0 P21 off Fri (1 shifts)
+  rebuild        169 h open   3 changes (3 people) owed $  50.00 pay $12168.00 improved 457 ms
+  keep/h 0.1     169 h open   1 changes (1 people) owed $  21.00 pay $12168.00 optimal 487 ms
+  keep/shift 1   169 h open   1 changes (1 people) owed $  21.00 pay $12168.00 optimal 499 ms
+40x112 week 0 P34 off Fri (1 shifts)
+  rebuild        169 h open   5 changes (5 people) owed $  84.00 pay $12170.00 optimal 457 ms
+  keep/h 0.1     169 h open   2 changes (2 people) owed $  40.00 pay $12176.00 improved 459 ms
+  keep/shift 1   169 h open   2 changes (2 people) owed $  40.00 pay $12176.00 improved 478 ms
+TOTAL 40x112 week 0 rebuild       open 2050 h, changes to others 234, premiums $3767.00, pay $145724.00, proven 12/12, 16.3 s
+TOTAL 40x112 week 0 keep/h 0.1    open 2050 h, changes to others 17, premiums $337.00, pay $145777.00, proven 12/12, 32.7 s
+TOTAL 40x112 week 0 keep/shift 1  open 2050 h, changes to others 17, premiums $337.00, pay $145777.00, proven 12/12, 19.9 s
+CMP 40x112 week 0 keep/shift 1 vs rebuild: fewer changes 12, same 0, more 0; open hours up 0, down 0
+40x112 week 1 posted: 40 people, 148 copies, pay $12480, 146 h open, improved, 7908 ms; 12 call-outs
+40x112 week 1 P0 off Wed (1 shifts)
+  rebuild        151 h open  55 changes (29 people) owed $ 848.00 pay $12385.00 improved 3569 ms
+  keep/h 0.1     151 h open   0 changes (0 people) owed $   0.00 pay $12385.00 bounded 20923 ms
+  keep/shift 1   151 h open   0 changes (0 people) owed $   0.00 pay $12385.00 bounded 19253 ms
+40x112 week 1 P10 off Wed (1 shifts)
+  rebuild        151 h open  55 changes (29 people) owed $ 860.00 pay $12389.00 improved 3279 ms
+  keep/h 0.1     151 h open   6 changes (6 people) owed $  99.00 pay $12408.00 bounded 22736 ms
+  keep/shift 1   151 h open   5 changes (5 people) owed $  81.00 pay $12432.00 bounded 29823 ms
+40x112 week 1 P20 off Wed (1 shifts)
+  rebuild        151 h open  55 changes (30 people) owed $ 846.00 pay $12389.00 improved 3050 ms
+  keep/h 0.1     151 h open   1 changes (1 people) owed $  14.00 pay $12413.00 bounded 26238 ms
+  keep/shift 1   151 h open   1 changes (1 people) owed $  14.00 pay $12413.00 bounded 20182 ms
+40x112 week 1 P30 off Wed (1 shifts)
+  rebuild        151 h open  54 changes (28 people) owed $ 835.00 pay $12392.00 improved 2825 ms
+  keep/h 0.1     151 h open   2 changes (1 people) owed $  24.00 pay $12402.00 improved 11303 ms
+  keep/shift 1   151 h open   1 changes (1 people) owed $  19.00 pay $12392.00 bounded 21298 ms
+40x112 week 1 P1 off Thu (1 shifts)
+  rebuild        146 h open  25 changes (17 people) owed $ 402.00 pay $12485.00 improved 1131 ms
+  keep/h 0.1     146 h open   2 changes (2 people) owed $  35.00 pay $12476.00 improved 3046 ms
+  keep/shift 1   146 h open   1 changes (1 people) owed $  19.00 pay $12486.00 optimal 1956 ms
+40x112 week 1 P13 off Thu (1 shifts)
+  rebuild        146 h open  28 changes (21 people) owed $ 442.00 pay $12501.00 improved 1737 ms
+  keep/h 0.1     146 h open   3 changes (2 people) owed $  43.00 pay $12517.00 improved 2384 ms
+  keep/shift 1   146 h open   3 changes (2 people) owed $  43.00 pay $12517.00 improved 1672 ms
+40x112 week 1 P24 off Thu (1 shifts)
+  rebuild        146 h open  31 changes (21 people) owed $ 489.00 pay $12480.00 improved 2063 ms
+  keep/h 0.1     146 h open   3 changes (2 people) owed $  57.00 pay $12485.00 improved 2126 ms
+  keep/shift 1   146 h open   3 changes (2 people) owed $  57.00 pay $12485.00 improved 1814 ms
+40x112 week 1 P35 off Thu (1 shifts)
+  rebuild        146 h open  23 changes (16 people) owed $ 361.00 pay $12497.00 improved 2823 ms
+  keep/h 0.1     146 h open   2 changes (2 people) owed $  35.00 pay $12490.00 improved 2831 ms
+  keep/shift 1   146 h open   2 changes (2 people) owed $  35.00 pay $12490.00 improved 1078 ms
+40x112 week 1 P1 off Fri (1 shifts)
+  rebuild        146 h open  13 changes (13 people) owed $ 207.00 pay $12494.00 optimal 452 ms
+  keep/h 0.1     146 h open   3 changes (3 people) owed $  59.00 pay $12492.00 improved 476 ms
+  keep/shift 1   146 h open   3 changes (3 people) owed $  59.00 pay $12492.00 improved 475 ms
+40x112 week 1 P15 off Fri (1 shifts)
+  rebuild        146 h open   7 changes (7 people) owed $ 115.00 pay $12536.00 improved 397 ms
+  keep/h 0.1     146 h open   2 changes (2 people) owed $  39.00 pay $12532.00 optimal 521 ms
+  keep/shift 1   146 h open   1 changes (1 people) owed $  21.00 pay $12544.00 optimal 463 ms
+40x112 week 1 P28 off Fri (1 shifts)
+  rebuild        146 h open  10 changes (10 people) owed $ 175.00 pay $12528.00 improved 457 ms
+  keep/h 0.1     146 h open   1 changes (1 people) owed $  21.00 pay $12534.00 optimal 486 ms
+  keep/shift 1   146 h open   1 changes (1 people) owed $  21.00 pay $12534.00 optimal 482 ms
+40x112 week 1 P36 off Fri (1 shifts)
+  rebuild        146 h open  13 changes (13 people) owed $ 218.00 pay $12530.00 improved 467 ms
+  keep/h 0.1     146 h open   2 changes (2 people) owed $  39.00 pay $12528.00 improved 449 ms
+  keep/shift 1   146 h open   2 changes (2 people) owed $  39.00 pay $12528.00 optimal 521 ms
+TOTAL 40x112 week 1 rebuild       open 1772 h, changes to others 369, premiums $5798.00, pay $149606.00, proven 12/12, 22.3 s
+TOTAL 40x112 week 1 keep/h 0.1    open 1772 h, changes to others 27, premiums $465.00, pay $149662.00, proven 9/12, 93.5 s
+TOTAL 40x112 week 1 keep/shift 1  open 1772 h, changes to others 23, premiums $408.00, pay $149698.00, proven 8/12, 99.0 s
+CMP 40x112 week 1 keep/shift 1 vs rebuild: fewer changes 12, same 0, more 0; open hours up 0, down 0
+TOTAL 40x112 rebuild       open 3822 h, changes to others 603, premiums $9565.00, pay $295330.00, proven 24/24, 38.6 s
+TOTAL 40x112 keep/h 0.1    open 3822 h, changes to others 44, premiums $802.00, pay $295439.00, proven 21/24, 126.2 s
+TOTAL 40x112 keep/shift 1  open 3822 h, changes to others 40, premiums $745.00, pay $295475.00, proven 20/24, 118.9 s
+CMP 40x112 keep/shift 1 vs rebuild: fewer changes 24, same 0, more 0; open hours up 0, down 0

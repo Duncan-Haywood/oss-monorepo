@@ -1,0 +1,248 @@
+cafe posted: 7 people, 32 copies, pay $3690, 15 h open, optimal, 1717 ms; 19 call-outs
+cafe Ana off Wed (1 shifts)
+  rebuild         15 h open   4 changes (1 people) owed $  64.00 pay $3690.00 optimal 203 ms
+  keep/h 0.1      15 h open   2 changes (1 people) owed $  32.00 pay $3690.00 optimal 357 ms
+  keep/shift 1    15 h open   2 changes (1 people) owed $  32.00 pay $3690.00 optimal 176 ms
+cafe Dev off Wed (1 shifts)
+  rebuild         15 h open   7 changes (3 people) owed $ 125.00 pay $3690.00 optimal 95 ms
+  keep/h 0.1      15 h open   2 changes (1 people) owed $  32.00 pay $3690.00 improved 116 ms
+  keep/shift 1    15 h open   2 changes (1 people) owed $  32.00 pay $3690.00 improved 127 ms
+cafe Fay off Wed (1 shifts)
+  rebuild         15 h open   8 changes (3 people) owed $ 134.00 pay $3690.00 optimal 757 ms
+  keep/h 0.1      15 h open   4 changes (2 people) owed $  66.00 pay $3690.00 optimal 765 ms
+  keep/shift 1    15 h open   4 changes (2 people) owed $  66.00 pay $3690.00 optimal 643 ms
+cafe Gus off Wed (1 shifts)
+  rebuild         15 h open   6 changes (4 people) owed $  95.00 pay $3690.00 optimal 96 ms
+  keep/h 0.1      15 h open   4 changes (2 people) owed $  66.00 pay $3690.00 improved 111 ms
+  keep/shift 1    15 h open   4 changes (2 people) owed $  66.00 pay $3690.00 improved 117 ms
+cafe Ana off Thu (1 shifts)
+  rebuild         15 h open   5 changes (2 people) owed $  89.00 pay $3690.00 optimal 77 ms
+  keep/h 0.1      15 h open   5 changes (2 people) owed $  89.00 pay $3690.00 optimal 485 ms
+  keep/shift 1    15 h open   5 changes (2 people) owed $  89.00 pay $3690.00 optimal 559 ms
+cafe Ben off Thu (1 shifts)
+  rebuild         23 h open   1 changes (1 people) owed $  18.00 pay $3562.00 optimal 78 ms
+  keep/h 0.1      23 h open   0 changes (0 people) owed $   0.00 pay $3562.00 optimal 80 ms
+  keep/shift 1    23 h open   0 changes (0 people) owed $   0.00 pay $3562.00 optimal 79 ms
+cafe Dev off Thu (1 shifts)
+  rebuild         15 h open   7 changes (3 people) owed $ 125.00 pay $3690.00 optimal 598 ms
+  keep/h 0.1      15 h open   3 changes (1 people) owed $  57.00 pay $3690.00 improved 97 ms
+  keep/shift 1    15 h open   3 changes (1 people) owed $  57.00 pay $3690.00 optimal 81 ms
+cafe Fay off Thu (1 shifts)
+  rebuild         15 h open   9 changes (5 people) owed $ 152.00 pay $3690.00 optimal 650 ms
+  keep/h 0.1      15 h open   7 changes (3 people) owed $ 123.00 pay $3690.00 optimal 74 ms
+  keep/shift 1    15 h open   7 changes (3 people) owed $ 123.00 pay $3690.00 optimal 76 ms
+cafe Ana off Fri (1 shifts)
+  rebuild         23 h open   1 changes (1 people) owed $  19.00 pay $3538.00 optimal 58 ms
+  keep/h 0.1      23 h open   0 changes (0 people) owed $   0.00 pay $3546.00 optimal 59 ms
+  keep/shift 1    23 h open   0 changes (0 people) owed $   0.00 pay $3546.00 optimal 62 ms
+cafe Ben off Fri (1 shifts)
+  rebuild         23 h open   1 changes (1 people) owed $  19.00 pay $3562.00 optimal 58 ms
+  keep/h 0.1      23 h open   0 changes (0 people) owed $   0.00 pay $3562.00 optimal 86 ms
+  keep/shift 1    23 h open   0 changes (0 people) owed $   0.00 pay $3562.00 optimal 58 ms
+cafe Dev off Fri (1 shifts)
+  rebuild         23 h open   1 changes (1 people) owed $  19.00 pay $3538.00 optimal 71 ms
+  keep/h 0.1      23 h open   1 changes (1 people) owed $  19.00 pay $3538.00 optimal 71 ms
+  keep/shift 1    23 h open   0 changes (0 people) owed $   0.00 pay $3554.00 optimal 88 ms
+cafe Gus off Fri (1 shifts)
+  rebuild         23 h open   2 changes (1 people) owed $  34.00 pay $3538.00 optimal 61 ms
+  keep/h 0.1      23 h open   0 changes (0 people) owed $   0.00 pay $3538.00 optimal 85 ms
+  keep/shift 1    23 h open   0 changes (0 people) owed $   0.00 pay $3538.00 optimal 73 ms
+cafe Ben off Sat (1 shifts)
+  rebuild         23 h open   0 changes (0 people) owed $   0.00 pay $3562.00 optimal 56 ms
+  keep/h 0.1      23 h open   0 changes (0 people) owed $   0.00 pay $3562.00 optimal 62 ms
+  keep/shift 1    23 h open   0 changes (0 people) owed $   0.00 pay $3562.00 optimal 64 ms
+cafe Cleo off Sat (1 shifts)
+  rebuild         25 h open   4 changes (2 people) owed $  72.00 pay $3540.00 optimal 62 ms
+  keep/h 0.1      25 h open   0 changes (0 people) owed $   0.00 pay $3540.00 optimal 67 ms
+  keep/shift 1    25 h open   0 changes (0 people) owed $   0.00 pay $3540.00 optimal 59 ms
+cafe Eli off Sat (1 shifts)
+  rebuild         25 h open   5 changes (3 people) owed $  87.00 pay $3550.00 optimal 62 ms
+  keep/h 0.1      25 h open   0 changes (0 people) owed $   0.00 pay $3550.00 optimal 59 ms
+  keep/shift 1    25 h open   0 changes (0 people) owed $   0.00 pay $3550.00 optimal 61 ms
+cafe Gus off Sat (1 shifts)
+  rebuild         15 h open   2 changes (1 people) owed $  34.00 pay $3690.00 optimal 39 ms
+  keep/h 0.1      15 h open   2 changes (1 people) owed $  34.00 pay $3690.00 optimal 42 ms
+  keep/shift 1    15 h open   2 changes (1 people) owed $  34.00 pay $3690.00 optimal 42 ms
+cafe Cleo off Sun (1 shifts)
+  rebuild         23 h open   1 changes (1 people) owed $  14.00 pay $3570.00 optimal 39 ms
+  keep/h 0.1      23 h open   0 changes (0 people) owed $   0.00 pay $3570.00 optimal 41 ms
+  keep/shift 1    23 h open   0 changes (0 people) owed $   0.00 pay $3570.00 optimal 47 ms
+cafe Dev off Sun (1 shifts)
+  rebuild         23 h open   0 changes (0 people) owed $   0.00 pay $3554.00 optimal 99 ms
+  keep/h 0.1      23 h open   0 changes (0 people) owed $   0.00 pay $3554.00 optimal 60 ms
+  keep/shift 1    23 h open   0 changes (0 people) owed $   0.00 pay $3554.00 optimal 55 ms
+cafe Eli off Sun (1 shifts)
+  rebuild         23 h open   0 changes (0 people) owed $   0.00 pay $3578.00 optimal 39 ms
+  keep/h 0.1      23 h open   0 changes (0 people) owed $   0.00 pay $3578.00 optimal 67 ms
+  keep/shift 1    23 h open   0 changes (0 people) owed $   0.00 pay $3578.00 optimal 73 ms
+TOTAL cafe rebuild       open 377 h, changes to others 64, premiums $1100.00, pay $68612.00, proven 19/19, 3.2 s
+TOTAL cafe keep/h 0.1    open 377 h, changes to others 30, premiums $518.00, pay $68620.00, proven 19/19, 2.8 s
+TOTAL cafe keep/shift 1  open 377 h, changes to others 29, premiums $499.00, pay $68636.00, proven 19/19, 2.5 s
+CMP cafe keep/shift 1 vs rebuild: fewer changes 14, same 5, more 0; open hours up 0, down 0
+salon posted: 5 people, 16 copies, pay $2054, 0 h open, optimal, 15 ms; 14 call-outs
+salon Mia off Wed (1 shifts)
+  rebuild          0 h open   4 changes (2 people) owed $  82.00 pay $2054.00 optimal 12 ms
+  keep/h 0.1       0 h open   2 changes (1 people) owed $  44.00 pay $2054.00 optimal 16 ms
+  keep/shift 1     0 h open   2 changes (1 people) owed $  44.00 pay $2054.00 optimal 15 ms
+salon Orla off Wed (1 shifts)
+  rebuild          0 h open   8 changes (4 people) owed $ 167.00 pay $2116.00 optimal 11 ms
+  keep/h 0.1       0 h open   4 changes (3 people) owed $  83.00 pay $2116.00 optimal 16 ms
+  keep/shift 1     0 h open   4 changes (3 people) owed $  83.00 pay $2116.00 optimal 16 ms
+salon Mia off Thu (1 shifts)
+  rebuild          5 h open   2 changes (2 people) owed $  38.00 pay $1934.00 optimal 76 ms
+  keep/h 0.1       5 h open   0 changes (0 people) owed $   0.00 pay $1934.00 optimal 60 ms
+  keep/shift 1     5 h open   0 changes (0 people) owed $   0.00 pay $1934.00 optimal 58 ms
+salon Noah off Thu (1 shifts)
+  rebuild          5 h open   2 changes (2 people) owed $  40.00 pay $1944.00 optimal 53 ms
+  keep/h 0.1       5 h open   0 changes (0 people) owed $   0.00 pay $1944.00 optimal 60 ms
+  keep/shift 1     5 h open   0 changes (0 people) owed $   0.00 pay $1944.00 optimal 61 ms
+salon Orla off Thu (1 shifts)
+  rebuild          5 h open   5 changes (4 people) owed $ 101.00 pay $1984.00 optimal 79 ms
+  keep/h 0.1       5 h open   1 changes (1 people) owed $  15.00 pay $1984.00 optimal 68 ms
+  keep/shift 1     5 h open   0 changes (0 people) owed $   0.00 pay $1954.00 optimal 61 ms
+salon Paz off Thu (1 shifts)
+  rebuild          5 h open   2 changes (2 people) owed $  46.00 pay $1974.00 optimal 49 ms
+  keep/h 0.1       5 h open   0 changes (0 people) owed $   0.00 pay $1974.00 optimal 70 ms
+  keep/shift 1     5 h open   0 changes (0 people) owed $   0.00 pay $1974.00 optimal 63 ms
+salon Mia off Fri (1 shifts)
+  rebuild          5 h open   1 changes (1 people) owed $  22.00 pay $1934.00 optimal 45 ms
+  keep/h 0.1       5 h open   0 changes (0 people) owed $   0.00 pay $1934.00 optimal 49 ms
+  keep/shift 1     5 h open   0 changes (0 people) owed $   0.00 pay $1934.00 optimal 54 ms
+salon Noah off Fri (1 shifts)
+  rebuild          5 h open   0 changes (0 people) owed $   0.00 pay $1944.00 optimal 50 ms
+  keep/h 0.1       5 h open   0 changes (0 people) owed $   0.00 pay $1944.00 optimal 51 ms
+  keep/shift 1     5 h open   0 changes (0 people) owed $   0.00 pay $1944.00 optimal 48 ms
+salon Orla off Fri (1 shifts)
+  rebuild          5 h open   3 changes (3 people) owed $  61.00 pay $1984.00 optimal 49 ms
+  keep/h 0.1       5 h open   1 changes (1 people) owed $  15.00 pay $1984.00 optimal 59 ms
+  keep/shift 1     5 h open   0 changes (0 people) owed $   0.00 pay $1954.00 optimal 61 ms
+salon Paz off Fri (1 shifts)
+  rebuild          5 h open   1 changes (1 people) owed $  22.00 pay $1974.00 optimal 47 ms
+  keep/h 0.1       5 h open   0 changes (0 people) owed $   0.00 pay $1974.00 optimal 53 ms
+  keep/shift 1     5 h open   0 changes (0 people) owed $   0.00 pay $1974.00 optimal 55 ms
+salon Noah off Sat (1 shifts)
+  rebuild          0 h open   1 changes (1 people) owed $  24.00 pay $2070.00 optimal 4 ms
+  keep/h 0.1       0 h open   1 changes (1 people) owed $  24.00 pay $2070.00 optimal 5 ms
+  keep/shift 1     0 h open   1 changes (1 people) owed $  24.00 pay $2070.00 optimal 5 ms
+salon Paz off Sat (1 shifts)
+  rebuild          0 h open   1 changes (1 people) owed $  24.00 pay $2118.00 optimal 4 ms
+  keep/h 0.1       0 h open   1 changes (1 people) owed $  24.00 pay $2118.00 optimal 5 ms
+  keep/shift 1     0 h open   1 changes (1 people) owed $  24.00 pay $2118.00 optimal 11 ms
+salon Quin off Sat (1 shifts)
+  rebuild          0 h open   1 changes (1 people) owed $  24.00 pay $2126.00 optimal 3 ms
+  keep/h 0.1       0 h open   1 changes (1 people) owed $  24.00 pay $2126.00 optimal 5 ms
+  keep/shift 1     0 h open   1 changes (1 people) owed $  24.00 pay $2126.00 optimal 5 ms
+salon Quin off Sun (1 shifts)
+  rebuild          0 h open   1 changes (1 people) owed $  20.00 pay $2084.00 optimal 3 ms
+  keep/h 0.1       0 h open   1 changes (1 people) owed $  20.00 pay $2084.00 optimal 2 ms
+  keep/shift 1     0 h open   1 changes (1 people) owed $  20.00 pay $2084.00 optimal 3 ms
+TOTAL salon rebuild       open 40 h, changes to others 32, premiums $671.00, pay $28240.00, proven 14/14, 0.5 s
+TOTAL salon keep/h 0.1    open 40 h, changes to others 12, premiums $249.00, pay $28240.00, proven 14/14, 0.5 s
+TOTAL salon keep/shift 1  open 40 h, changes to others 10, premiums $219.00, pay $28180.00, proven 14/14, 0.5 s
+CMP salon keep/shift 1 vs rebuild: fewer changes 9, same 5, more 0; open hours up 0, down 0
+retail posted: 5 people, 20 copies, pay $2250, 0 h open, optimal, 20 ms; 14 call-outs
+retail Ruth off Wed (1 shifts)
+  rebuild          0 h open   2 changes (1 people) owed $  32.00 pay $2250.00 optimal 9 ms
+  keep/h 0.1       0 h open   2 changes (1 people) owed $  32.00 pay $2250.00 optimal 12 ms
+  keep/shift 1     0 h open   2 changes (1 people) owed $  32.00 pay $2250.00 optimal 11 ms
+retail Tess off Wed (1 shifts)
+  rebuild          0 h open   9 changes (3 people) owed $ 155.00 pay $2244.00 optimal 10 ms
+  keep/h 0.1       0 h open   3 changes (2 people) owed $  49.00 pay $2247.00 optimal 14 ms
+  keep/shift 1     0 h open   3 changes (2 people) owed $  49.00 pay $2247.00 optimal 14 ms
+retail Vic off Wed (1 shifts)
+  rebuild          0 h open   6 changes (3 people) owed $  98.00 pay $2250.00 optimal 10 ms
+  keep/h 0.1       0 h open   2 changes (1 people) owed $  32.00 pay $2250.00 optimal 11 ms
+  keep/shift 1     0 h open   2 changes (1 people) owed $  32.00 pay $2250.00 optimal 11 ms
+retail Ruth off Thu (1 shifts)
+  rebuild          0 h open   2 changes (1 people) owed $  34.00 pay $2250.00 optimal 6 ms
+  keep/h 0.1       0 h open   2 changes (1 people) owed $  34.00 pay $2250.00 optimal 9 ms
+  keep/shift 1     0 h open   2 changes (1 people) owed $  34.00 pay $2250.00 optimal 9 ms
+retail Sam off Thu (1 shifts)
+  rebuild          0 h open   4 changes (3 people) owed $  68.00 pay $2247.00 optimal 7 ms
+  keep/h 0.1       0 h open   2 changes (1 people) owed $  34.00 pay $2247.00 optimal 10 ms
+  keep/shift 1     0 h open   2 changes (1 people) owed $  34.00 pay $2247.00 optimal 9 ms
+retail Tess off Thu (1 shifts)
+  rebuild          0 h open   4 changes (3 people) owed $  68.00 pay $2244.00 optimal 8 ms
+  keep/h 0.1       0 h open   2 changes (1 people) owed $  34.00 pay $2244.00 optimal 9 ms
+  keep/shift 1     0 h open   2 changes (1 people) owed $  34.00 pay $2244.00 optimal 10 ms
+retail Sam off Fri (1 shifts)
+  rebuild          0 h open   3 changes (2 people) owed $  53.00 pay $2241.00 optimal 5 ms
+  keep/h 0.1       0 h open   1 changes (1 people) owed $  19.00 pay $2268.00 optimal 9 ms
+  keep/shift 1     0 h open   1 changes (1 people) owed $  19.00 pay $2268.00 optimal 14 ms
+retail Tess off Fri (1 shifts)
+  rebuild          0 h open   4 changes (3 people) owed $  70.00 pay $2238.00 optimal 6 ms
+  keep/h 0.1       0 h open   3 changes (2 people) owed $  53.00 pay $2238.00 optimal 10 ms
+  keep/shift 1     0 h open   3 changes (2 people) owed $  53.00 pay $2238.00 optimal 8 ms
+retail Vic off Fri (1 shifts)
+  rebuild          0 h open   5 changes (3 people) owed $  85.00 pay $2244.00 optimal 6 ms
+  keep/h 0.1       0 h open   1 changes (1 people) owed $  19.00 pay $2262.00 optimal 8 ms
+  keep/shift 1     0 h open   1 changes (1 people) owed $  19.00 pay $2262.00 optimal 7 ms
+retail Ruth off Sat (1 shifts)
+  rebuild          6 h open   3 changes (2 people) owed $  47.00 pay $2124.00 optimal 341 ms
+  keep/h 0.1       6 h open   3 changes (2 people) owed $  45.00 pay $2124.00 optimal 320 ms
+  keep/shift 1     6 h open   3 changes (2 people) owed $  45.00 pay $2124.00 optimal 375 ms
+retail Uma off Sat (1 shifts)
+  rebuild          6 h open   2 changes (1 people) owed $  30.00 pay $2160.00 optimal 339 ms
+  keep/h 0.1       6 h open   2 changes (1 people) owed $  30.00 pay $2160.00 optimal 371 ms
+  keep/shift 1     6 h open   2 changes (1 people) owed $  30.00 pay $2160.00 optimal 323 ms
+retail Vic off Sat (1 shifts)
+  rebuild          0 h open   4 changes (3 people) owed $  66.00 pay $2250.00 optimal 4 ms
+  keep/h 0.1       0 h open   2 changes (1 people) owed $  32.00 pay $2250.00 optimal 6 ms
+  keep/shift 1     0 h open   2 changes (1 people) owed $  32.00 pay $2250.00 optimal 5 ms
+retail Sam off Sun (1 shifts)
+  rebuild          6 h open   2 changes (1 people) owed $  30.00 pay $2151.00 optimal 341 ms
+  keep/h 0.1       6 h open   2 changes (1 people) owed $  30.00 pay $2151.00 optimal 325 ms
+  keep/shift 1     6 h open   2 changes (1 people) owed $  30.00 pay $2151.00 optimal 388 ms
+retail Uma off Sun (1 shifts)
+  rebuild          6 h open   2 changes (1 people) owed $  30.00 pay $2160.00 optimal 286 ms
+  keep/h 0.1       6 h open   2 changes (1 people) owed $  30.00 pay $2160.00 optimal 307 ms
+  keep/shift 1     6 h open   2 changes (1 people) owed $  30.00 pay $2160.00 optimal 402 ms
+TOTAL retail rebuild       open 24 h, changes to others 52, premiums $866.00, pay $31053.00, proven 14/14, 1.4 s
+TOTAL retail keep/h 0.1    open 24 h, changes to others 29, premiums $473.00, pay $31101.00, proven 14/14, 1.4 s
+TOTAL retail keep/shift 1  open 24 h, changes to others 29, premiums $473.00, pay $31101.00, proven 14/14, 1.6 s
+CMP retail keep/shift 1 vs rebuild: fewer changes 8, same 6, more 0; open hours up 0, down 0
+clinic posted: 5 people, 16 copies, pay $2708, 5 h open, optimal, 441 ms; 9 call-outs
+clinic Wen off Wed (1 shifts)
+  rebuild         10 h open   3 changes (3 people) owed $  85.00 pay $2640.00 optimal 255 ms
+  keep/h 0.1      10 h open   0 changes (0 people) owed $   0.00 pay $2538.00 optimal 237 ms
+  keep/shift 1    10 h open   0 changes (0 people) owed $   0.00 pay $2538.00 optimal 231 ms
+clinic Xia off Wed (1 shifts)
+  rebuild         10 h open   2 changes (2 people) owed $  52.00 pay $2641.00 optimal 236 ms
+  keep/h 0.1      10 h open   0 changes (0 people) owed $   0.00 pay $2543.00 optimal 275 ms
+  keep/shift 1    10 h open   0 changes (0 people) owed $   0.00 pay $2543.00 optimal 258 ms
+clinic Yan off Wed (1 shifts)
+  rebuild         10 h open   3 changes (2 people) owed $  97.00 pay $2641.00 optimal 371 ms
+  keep/h 0.1      10 h open   1 changes (1 people) owed $  34.00 pay $2655.00 improved 324 ms
+  keep/shift 1    10 h open   1 changes (1 people) owed $  34.00 pay $2655.00 improved 313 ms
+clinic Wen off Thu (1 shifts)
+  rebuild          5 h open   2 changes (2 people) owed $  64.00 pay $2693.00 optimal 238 ms
+  keep/h 0.1       5 h open   1 changes (1 people) owed $  31.00 pay $2693.00 optimal 235 ms
+  keep/shift 1     5 h open   1 changes (1 people) owed $  31.00 pay $2693.00 optimal 217 ms
+clinic Xia off Thu (1 shifts)
+  rebuild          5 h open   1 changes (1 people) owed $  31.00 pay $2698.00 optimal 213 ms
+  keep/h 0.1       5 h open   1 changes (1 people) owed $  31.00 pay $2698.00 optimal 224 ms
+  keep/shift 1     5 h open   1 changes (1 people) owed $  31.00 pay $2698.00 optimal 208 ms
+clinic Yan off Thu (1 shifts)
+  rebuild          5 h open   2 changes (2 people) owed $  65.00 pay $2810.00 optimal 240 ms
+  keep/h 0.1       5 h open   1 changes (1 people) owed $  31.00 pay $2798.00 optimal 237 ms
+  keep/shift 1     5 h open   1 changes (1 people) owed $  31.00 pay $2798.00 optimal 207 ms
+clinic Wen off Fri (1 shifts)
+  rebuild         10 h open   0 changes (0 people) owed $   0.00 pay $2538.00 optimal 20 ms
+  keep/h 0.1      10 h open   0 changes (0 people) owed $   0.00 pay $2538.00 optimal 20 ms
+  keep/shift 1    10 h open   0 changes (0 people) owed $   0.00 pay $2538.00 optimal 20 ms
+clinic Yan off Fri (1 shifts)
+  rebuild         10 h open   1 changes (1 people) owed $  34.00 pay $2655.00 optimal 24 ms
+  keep/h 0.1      10 h open   1 changes (1 people) owed $  34.00 pay $2655.00 optimal 24 ms
+  keep/shift 1    10 h open   1 changes (1 people) owed $  34.00 pay $2655.00 optimal 29 ms
+clinic Abe off Sat (1 shifts)
+  rebuild         10 h open   0 changes (0 people) owed $   0.00 pay $2553.00 optimal 19 ms
+  keep/h 0.1      10 h open   0 changes (0 people) owed $   0.00 pay $2553.00 optimal 21 ms
+  keep/shift 1    10 h open   0 changes (0 people) owed $   0.00 pay $2553.00 optimal 20 ms
+TOTAL clinic rebuild       open 75 h, changes to others 14, premiums $428.00, pay $23869.00, proven 9/9, 1.6 s
+TOTAL clinic keep/h 0.1    open 75 h, changes to others 5, premiums $161.00, pay $23671.00, proven 9/9, 1.6 s
+TOTAL clinic keep/shift 1  open 75 h, changes to others 5, premiums $161.00, pay $23671.00, proven 9/9, 1.5 s
+CMP clinic keep/shift 1 vs rebuild: fewer changes 5, same 4, more 0; open hours up 0, down 0
+TOTAL ALL rebuild       open 516 h, changes to others 162, premiums $3065.00, pay $151774.00, proven 56/56, 6.7 s
+TOTAL ALL keep/h 0.1    open 516 h, changes to others 76, premiums $1401.00, pay $151632.00, proven 56/56, 6.3 s
+TOTAL ALL keep/shift 1  open 516 h, changes to others 73, premiums $1352.00, pay $151588.00, proven 56/56, 6.1 s
+CMP ALL keep/shift 1 vs rebuild: fewer changes 36, same 20, more 0; open hours up 0, down 0
