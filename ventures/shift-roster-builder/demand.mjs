@@ -28,6 +28,17 @@ const QTY = ["quantity", "qty", "units", "quantity sold", "units sold", "items s
 // A ticket, order or receipt number: with o.count "tickets" (or no sales column at all) each distinct number is one
 // customer served, so staffing follows how many people came through, not how much they spent.
 const TICKET = ["ticket", "ticket number", "ticket no", "ticket id", "transaction", "transaction id", "transaction number", "transaction no", "order id", "order number", "order no", "receipt", "receipt number", "receipt no", "receipt id", "check number", "check no", "check id", "bill number", "bill no", "invoice", "invoice number", "invoice no", "invoice id", "sale id", "sale number"];
+// A void flag column (Toast's item export has "Void?", true on a line rung in and then voided): a voided line was never
+// sold, though its price is positive, so it is left out and counted (2026-11-12).
+const VOID = ["void", "voided", "is void", "void flag", "voided item", "is voided", "void status"];
+const TRUTHY = /^(?:true|yes|y|1|voided|void|x)$/i;
+// An event or status column (Square's item export has "Event Type": Payment or Refund): a refund, return, void or
+// cancellation row is left out even when its amount is written positive.
+const EVENT = ["event type", "transaction type", "transaction status", "order status", "payment status", "line type", "sale type", "status"];
+const UNSOLD = /^(?:void|voided|refund|refunded|return|returned|cancel|cancelled|canceled|deleted)$/i;
+// Net before gross: Square's item export has "Gross Sales" ahead of "Net Sales" (gross is before discounts), and the
+// first column that matched used to win (2026-11-12).
+const NET_FIRST = ["sales", "net sales", "net amount", "net price", "net total", "net revenue", "net sale", "sales amount", "total sales"];
 const PRICE = ["unit price", "price", "item price", "price each", "selling price", "sale price", "unit price eur", "unit price euro"];
 const isoKey = (k) => String(k).trim().replace(/^(\d{4})-(\d{1,2})-(\d{1,2})$/, (_, y, m, d) => `${y}-${+m}-${+d}`);
 const DAYNAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
@@ -112,13 +123,18 @@ export function readSales(text, o = {}) {
   const skip = new Set((o.skipDates || []).map(isoKey));
   // Excel writes "sep=," as a first line when it saves a CSV for another locale; it is not a header.
   const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim()).filter((l, i) => !(i === 0 && /^"?sep=.?"?\s*$/i.test(l.trim())));
-  const out = { entries: [], rows: 0, skipped: [], notes: [], blank: 0, undated: 0, dayFirst: false, ambiguous: false, skippedDays: new Set(), refunds: { n: 0, amount: 0 } };
+  const out = { entries: [], rows: 0, skipped: [], notes: [], blank: 0, undated: 0, dayFirst: false, ambiguous: false, skippedDays: new Set(), refunds: { n: 0, amount: 0 }, voids: { n: 0, amount: 0 } };
   if (lines.length < 2) { out.notes.push("Needs a header row and at least one row of sales."); return out; }
   const sep = lines[0].includes("\t") ? "\t" : lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
   // "Net Sales (USD)" and "Sales [GBP]" are the column "Net Sales": a bracketed unit is dropped from a header.
   const head = splitCsvRow(lines[0], sep).map((h) => norm(String(h).replace(/[(\[][^)\]]*[)\]]/g, " ")));
   const find = (k) => head.findIndex((h) => SYN[k].includes(h));
-  const ix = { stamp: find("stamp"), day: find("day"), sales: find("sales"), clock: -1 };
+  const net = head.findIndex((h) => NET_FIRST.includes(h));
+  const ix = { stamp: find("stamp"), day: find("day"), sales: net >= 0 ? net : find("sales"), clock: -1 };
+  const voidCol = head.findIndex((h) => VOID.includes(h)), eventCol = head.findIndex((h) => EVENT.includes(h));
+  // -> "void" for a voided line, "refund" for a refund/return/cancel event row, "" for a sale.
+  const unsold = (c) => voidCol >= 0 && TRUTHY.test(String(c[voidCol] ?? "").trim()) ? "void"
+    : eventCol >= 0 && UNSOLD.test(String(c[eventCol] ?? "").trim()) ? (/^void/i.test(String(c[eventCol]).trim()) ? "void" : "refund") : "";
   // A separate date column and time column ("Date,Time,Net Sales" is how many POS exports come): join them into one stamp.
   const dateCol = head.findIndex((h) => ["date", "day date", "business date", "sale date", "order date", "invoice date"].includes(h));
   const timeCol = head.findIndex((h, i) => i !== dateCol && ["time", "hour", "sale time", "order time", "start time", "interval", "period"].includes(h));
@@ -168,7 +184,10 @@ export function readSales(text, o = {}) {
     const c = splitCsvRow(line, sep);
     // A row of empty cells (",,,,," at the end of a real bakery export, 233 of them) is not a sale and not an error.
     if (c.every((x) => String(x ?? "").trim() === "")) { out.blank++; return; }
+    const un = unsold(c);
     if (mode !== "sales") {
+      // A voided or refunded line is not a customer served (an order whose only line was voided is not counted).
+      if (un) { out[un === "void" ? "voids" : "refunds"].n++; return; }
       const st = readStamp(stampOf(c), ix.day >= 0 ? c[ix.day] : undefined, dayFirst);
       if (!st) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${stampOf(c) || ""}"`); return; }
       if (mode === "tickets") {
@@ -191,7 +210,8 @@ export function readSales(text, o = {}) {
     if (!st) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${stampText || ""}"`); return; }
     if (!Number.isFinite(amount) || String(c[ix.sales] || "").trim() === "" || (ix.qty !== undefined && String(c[ix.qty] || "").trim() === "")) { out.skipped.push(`row ${i + 2}: could not read the sales "${ix.qty !== undefined ? `${c[ix.qty] || ""} x ${c[ix.price] || ""}` : c[ix.sales] || ""}"`); return; }
     // A refund or void line is counted, not listed: the French bakery file has 1,294 of them, one "skipped" line each before.
-    if (amount < 0) { out.refunds.n++; out.refunds.amount += amount; return; }
+    if (un === "void") { out.voids.n++; out.voids.amount += Math.abs(amount); return; }
+    if (amount < 0 || un) { out.refunds.n++; out.refunds.amount -= Math.abs(amount); return; }
     if (st.key && skip.has(isoKey(st.key))) { out.skippedDays.add(st.key); return; }
     out.entries.push({ ...st, amount });
     if (!st.key) out.undated++;
@@ -415,6 +435,7 @@ export function hourlySales(text, o = {}) {
   Object.assign(out, { avg: a.avg, observed: a.observed, seen: a.seen, closed: a.closed, heads: a.heads, tail: a.tail });
   if (a.heads) out.notes.push(`Short-vs-over weight ${+o.shortCost}: a short person-hour counted as ${+o.shortCost} times a spare one, so each hour is staffed for ${Math.round(shortCostShare(o.shortCost) * 100)}% of its past dates, not for the average.`);
   if (r.refunds.n) out.notes.push(`${r.refunds.n} row${r.refunds.n === 1 ? "" : "s"} with negative sales (refunds or voids, ${Math.round(-r.refunds.amount * 100) / 100} in all) left out: the plan follows what was rung up.`);
+  if (r.voids.n) out.notes.push(`${r.voids.n} voided line${r.voids.n === 1 ? "" : "s"}${r.voids.amount ? ` (${Math.round(r.voids.amount * 100) / 100} in all)` : ""} left out: marked void in the file, so never sold.`);
   if (r.blank) out.notes.push(`${r.blank} empty row${r.blank === 1 ? "" : "s"} ignored.`);
   if (r.skippedDays.size) out.notes.push(`${r.skippedDays.size} day${r.skippedDays.size === 1 ? "" : "s"} left out (--skip-dates): ${[...r.skippedDays].sort().join(", ")}.`);
   if (o.halfLife) out.notes.push(`Recent weeks weigh more: a day's weight halves every ${o.halfLife} week${+o.halfLife === 1 ? "" : "s"} back from the newest date.`);

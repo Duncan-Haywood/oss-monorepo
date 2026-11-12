@@ -1,6 +1,6 @@
 # Tangent log
 
-Stdlib-only Python. Log score gives verifiers strong incentives on rare faults but its payment is unbounded, so stakes and slashing cannot cover it. Extending the log generator past `[ε,1−ε]` by its second-order Taylor polynomial gives a strictly proper score that equals log up to a constant on `[ε,1−ε]`, with worst-case payment exactly `R_ε = ln((1−ε)/ε) + 1/(1−ε)`. Per unit of payment range it has 63× Brier's curvature at a rare-fault truth `p=10⁻³`, is worse than Brier for `p` above a closed-form crossover (≈0.07 at ε=10⁻³), and `ε=p` is the best cutoff for a truth `p`. See `paper/whitepaper.md`.
+Stdlib-only Python. Log score gives verifiers strong incentives on rare faults but its payment is unbounded, so stakes and slashing cannot cover it. Extending the log generator past `[ε,1−ε]` by its second-order Taylor polynomial gives a strictly proper score that equals log up to a constant on `[ε,1−ε]`, with worst-case payment exactly `R_ε = ln((1−ε)/ε) + 1/(1−ε)`. Per unit of payment range it has 63× Brier's curvature at a rare-fault truth `p=10⁻³`, is worse than Brier for `p` between a closed-form crossover (≈0.07 at ε=10⁻³) and one minus it, and `ε=p` is the best cutoff for a truth `p`. See `paper/whitepaper.md`.
 
 **Live page:** https://marisstella.app/research/tangent-log/
 

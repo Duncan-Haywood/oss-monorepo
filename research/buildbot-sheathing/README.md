@@ -40,6 +40,18 @@ cell). Twist costs 1–2 points; plate layout lean of 1.6 mm costs 8.
 
 ![Clean sheets by stud sensing and joint framing, culling bowed studs, and plate lean](experiments/m2_asbuilt_studs/figure.png)
 
+**Milestone 4 headline: how coarsely may a robot hang the sheet? On doubled joints, about 18
+times coarser.** A robot can tack the sheet with two nails in the field studs, measure where its
+edge actually landed, and aim the joint nails from that, or re-hang the sheet if the window looks
+too tight. On **single-2x** joints this does not rescue a coarse hang: the sheet must still hang
+to about **0.03° and 0.4 mm (1σ)** for 95% clean sheets, re-hanging a 1 mm / 0.1° hang tops out at
+**87%** (2.1 hangs a sheet), and a held sheet may sway only 0.19 mm under the nail. On **two 2x
+fastened at the joint**, tack-then-measure allows **0.54° and 10 mm** (11 mm at the top nail) at
+the lower published stud warp, and a held sheet may sway 4.1 mm. That is the placement target
+for the humanoid and lift experiments of milestone 3.
+
+![Hang allowed by joint framing and aim, clean sheets against sway of a held sheet, and re-hanging on single 2x joints](experiments/m4_tack_measure/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
@@ -109,15 +121,35 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
 | Plate layout error at each stud end | 0, 0.8, 1.6, 3.2 mm | **not sourced**: swept |
 | Stud read, edge line, tool | 0.5, 0.5, 0.9 mm | as milestone 1 (read and edge swept there; read swept in table E here) |
 
+## Milestone 4 method (`src/buildbot_sheathing/tack.py`)
+- **Hang.** On milestone 2's as-built studs (three reads at 0.5 mm, edge line 0.5 mm, tool
+  0.9 mm, gap centred on each joint stud's estimated range), the sheet hangs off by a translation
+  x and a rotation θ about its centre, both Gaussian and swept.
+- **Aim.** *Edge*: each joint nail at the middle of the window between the measured edge line
+  (+3/8 in) and the estimated far side of the stud. *Nominal*: as if the sheet hung where intended.
+- **Hold or tack.** *Tacked*: the pose is frozen before the edge is measured (a shift while
+  tacking folds into the hang). *Held*: each nail also sees an independent sway of the sheet
+  along the wall, after the edge was measured.
+- **Re-hang.** After measuring, the robot predicts each joint nail's half-window from its measured
+  edge and stud estimate; below a threshold (swept 1–2.5 mm) it re-hangs, at most five hangs a
+  sheet, the last nailed whatever it predicts. A re-hang is a fresh, independent hang.
+- **Checks** (`tests/test_tack.py`, 6 tests): with no hang error it reproduces milestone 2 within
+  0.012; translation-only and rotation-only results match closed forms for edge aim (|x| ≤ 2h,
+  |θ| ≤ 2h/(H/2 − 3/8 in)) and nominal aim (|x| ≤ h); re-hanging matches the geometric hang count
+  and the 1 − (1 − p)<sup>5</sup> clean rate; sway on straight studs matches a numerical
+  integral (it moves only the edge side of the window); wider joints allow a coarser hang.
+
 ## Reproduce
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 14 tests; one uses ../buildbot-studfind
+python -m pytest -q tests                                    # 20 tests; one uses ../buildbot-studfind
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
 python experiments/m2_asbuilt_studs/figure.py
+python experiments/m4_tack_measure/run.py > experiments/m4_tack_measure/results.txt     # ~100 s, seed 4
+python experiments/m4_tack_measure/figure.py
 ```
 
 ## Milestone 1 results (`experiments/m1_gap_placement/results.txt`)
@@ -174,6 +206,26 @@ python experiments/m2_asbuilt_studs/figure.py
   refuted** (three reads give 0.80, not ≥ 0.95, on single-2x joints); H9 held (twist costs 1.4
   points, under 3).
 
+## Milestone 4 results (`experiments/m4_tack_measure/results.txt`)
+- **A. Hang allowed for 95% clean sheets** (tacked, 1σ; translation alone, rotation alone).
+  Single 2x, straight studs: nominal aim 0.44 mm / 0.032°, edge aim 0.37 mm / 0.029°; at the
+  lower published warp nothing (0.83 and 0.81 clean with a perfect hang). 3x, low warp: nominal
+  3.8 mm / 0.21°, edge 7.2 mm / 0.38°. Two 2x, low warp: nominal 5.4 mm / 0.29°, edge
+  **10.4 mm / 0.54°**; straight studs 10.8 mm / 0.56°. With three reads per stud, aiming from the
+  edge loses a little on single 2x joints (its 0.5 mm reading adds noise a near-perfect hang does
+  not) and nearly doubles the hang allowed on wide ones.
+- **B. Grid** (low warp, edge aim). Single 2x: 0.81 clean with a perfect hang, 0.52 at
+  1 mm / 0.1°, 0.23 at 2 mm / 0.2°. Two 2x: ≥ 0.9999 up to 4 mm / 0.2°, 0.983 at 6 mm / 0.3°.
+- **C. Sway of a held sheet** allowed for 95%: 0.19 mm (single 2x, straight), none (single 2x,
+  low warp), 3.1 / 3.0 mm (3x), 4.2 / 4.1 mm (two 2x).
+- **D. Re-hang** (max 5). Single 2x, straight, hang 1 mm / 0.1°: 0.70 without, 0.77 / 0.82 /
+  **0.87** / 0.81 at thresholds 1.0 / 1.5 / 2.0 / 2.5 mm, with 1.2 / 1.4 / 2.1 / 3.6 hangs a
+  sheet; low warp best 0.66 (1.5 mm, 2.2 hangs). Coarser hangs do worse (best 0.66 at 2 mm /
+  0.2°, 0.47 at 3 mm / 0.3°). 3x at 3 mm / 0.3°: 0.967 without, 0.9996 at 2.5 mm with 1.1 hangs.
+- **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): **H10 refuted** (re-hanging peaks at 0.87,
+  not ≥ 0.95, on single 2x); H11 held (0.54°, 10.4 mm against ≥ 0.2°, ≥ 4 mm); H12 held (sway
+  0.19 mm against 4.1 mm).
+
 ## Limitations
 - **Gaussian, independent, swept.** Stud, edge, gauge and width errors are swept, not measured;
   real errors have bias and heavy tails. The stud estimate includes the layout scatter
@@ -183,6 +235,10 @@ python experiments/m2_asbuilt_studs/figure.py
   the plates and twist is linear, both as the free piece warped, though nailing, blocking and
   the sheathing itself pull a stud partly straight (which would help) and studs keep moving as
   they dry in place (which would not). Crook, sheet bow and wall racking are not modelled.
+- **Hang and sway (milestone 4).** Gaussian and swept, not measured on any robot; sway is an
+  independent translation per nail, with no rotation and no recoil coupling; a re-hang is a
+  fresh draw, which understates a robot that corrects from its measurement; the measured edge
+  line is taken to have the true slope.
 - **Plate nails** see only the tool scatter: the sheet's vertical placement is not modelled.
 - **Strict pass/fail.** One nail outside its window fails the sheet; the nails missed are
   reported beside it, and real practice may accept a near miss or re-drive it.
@@ -193,7 +249,8 @@ python experiments/m2_asbuilt_studs/figure.py
 Milestone 2 left two checks: measured stud profiles (the Adel et al. 2024 data set, or a scan of
 real studs in a wall) in place of means and assumed shapes, and how far sheathing nails pull a
 bowed stud straight. Milestone 3: the sheet pose a G1/H1 co-hold, a lift or a ledger guide leaves
-in MuJoCo, against the ~0.03° found here. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+in MuJoCo, scored against milestone 4's targets: about 0.5° and 10 mm (1σ) on doubled joints,
+0.03° and 0.4 mm on single 2x. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps
