@@ -18,7 +18,7 @@ import { Imap, parseMessage, replyBlocks, findSentBox } from "./imap.mjs";
 import { headerMap, splitHead } from "../mime.mjs";
 import { sentRecord } from "../mailfile.mjs";
 import { runDaily, csvQueue, csvLeftOut } from "../daily.mjs";
-import { parseReplies, csv, iso, toCsv } from "../engine.mjs";
+import { parseReplies, parseCsv, csv, iso, toCsv } from "../engine.mjs";
 import { runInboxWithModel } from "../ai.mjs";
 import { configFromEnv } from "../byok.mjs";
 import { buildMessage, sendMail } from "./smtp.mjs";
@@ -44,6 +44,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
   const stateFile = join(dir, "state.json"), auditFile = join(dir, "audit.jsonl");
   const state = existsSync(stateFile) ? JSON.parse(readFileSync(stateFile, "utf8")) : { lastUid: 0, seen: [], items: [], prospects: [], suppression: [], lastPoll: null, lastError: null };
   state.sent ||= []; state.sentBox ||= null; state.tasks ||= ""; // added 2026-11-11: older state files lack them
+  state.done ||= []; // added 2026-11-12: touches marked done on the page ({ email, step, channel, at })
   const crm = crmFromEnv(env, { fetchImpl: fetchImpl || fetch }); // M8a write-back, off unless PIPEDRIVE_API_TOKEN or HUBSPOT_TOKEN is set
   const offer = env.OFFER_JSON && existsSync(env.OFFER_JSON) ? JSON.parse(readFileSync(env.OFFER_JSON, "utf8")) : {};
   const audit = (event, data = {}) => appendFileSync(auditFile, JSON.stringify({ at: new Date(now()).toISOString(), event, ...data }) + "\n");
@@ -132,10 +133,29 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
   function daily({ tasks, done, today, maxOverdueDays } = {}) {
     if (tasks != null) { state.tasks = String(tasks).slice(0, 2e6); save(); }
     if (!state.tasks.trim()) return { error: "send { tasks: <cadence task list CSV> } once; it is kept for later runs" };
+    done = [String(done || ""), ...state.done.map((x) => `${x.email}|${x.step}`)].filter(Boolean).join("\n");
     const own = state.items.filter((x) => x.sentAt && x.draft).map((x) => ({ date: x.sentAt.slice(0, 10), to: [String(x.from).toLowerCase()], subject: x.draft.subject || (x.outbound || /^re:/i.test(x.subject) ? x.subject : "Re: " + x.subject) }));
     const d = runDaily({ tasks: state.tasks, prospects: state.prospects, suppression: state.suppression.map((s) => s.email).join("\n"), done: done || "", sent: [...state.sent, ...own], today: today || iso(now()), ...(Number.isFinite(Number(maxOverdueDays)) && maxOverdueDays !== "" && maxOverdueDays != null ? { maxOverdueDays: Number(maxOverdueDays) } : {}) });
     audit("daily", { due: d.summary.due, alreadySent: d.summary.alreadySent, held: d.summary.held, dropped: d.summary.dropped, sentRead: d.summary.sentRead, sentBox: state.sentBox?.name || null });
-    return { ...d, sentBox: state.sentBox?.name || null, sentError: state.sentError || null, queueCsv: csvQueue(d), leftOutCsv: csvLeftOut(d) };
+    const day = d.today;
+    return { ...d, doneToday: state.done.filter((x) => String(x.at || "").startsWith(day)), sentBox: state.sentBox?.name || null, sentError: state.sentError || null, queueCsv: csvQueue(d), leftOutCsv: csvLeftOut(d) };
+  }
+
+  /** A call, LinkedIn touch or letter never shows in mail, so the Sent folder cannot tick it off: the page's Done button
+   * does, here. Only a step that is in the kept task list can be marked; undo removes the mark. Kept in state and fed to
+   * runDaily as its done input on every later run, so the step is not queued again. */
+  function markDone({ email, step, undo } = {}) {
+    const e = String(email || "").trim().toLowerCase(), s = String(step || "").trim();
+    if (!e || !s) return { error: "send { email, step }" };
+    if (/[\n|]/.test(e) || /\n/.test(s)) return { error: "bad email or step" };
+    const row = parseCsv(state.tasks).find((r) => String(r.email || "").trim().toLowerCase() === e && String(r.step || "").trim().toLowerCase() === s.toLowerCase());
+    if (!row) return { error: "no such step in the kept task list" };
+    const same = (x) => x.email === e && x.step.toLowerCase() === s.toLowerCase();
+    const had = state.done.some(same);
+    if (undo) { state.done = state.done.filter((x) => !same(x)); if (had) audit("touch_undone", { email: e, step: row.step }); }
+    else if (!had) { state.done.push({ email: e, step: String(row.step).trim(), channel: String(row.channel || "").toLowerCase(), at: new Date(now()).toISOString() }); state.done = state.done.slice(-20000); audit("touch_done", { email: e, step: row.step, channel: row.channel }); }
+    save();
+    return { ok: true, done: !undo, changed: undo ? had : !had };
   }
 
   async function poll() {
@@ -247,6 +267,12 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     if (req.method === "GET" && url.pathname === "/api/prospects.csv") { res.writeHead(200, { "content-type": "text/csv" }); return res.end(toCsv(state.prospects, ["email", "first_name", "company", "status", "stage", "paused_until", "last_reply"])); }
     if (req.method === "GET" && url.pathname === "/api/suppression.csv") { res.writeHead(200, { "content-type": "text/csv" }); return res.end(toCsv(state.suppression, ["email", "reason", "date", "evidence"])); }
     if (req.method === "GET" && url.pathname === "/api/audit") { res.writeHead(200, { "content-type": "application/x-ndjson" }); return res.end(existsSync(auditFile) ? readFileSync(auditFile) : ""); }
+    if (req.method === "POST" && url.pathname === "/api/daily/done") {
+      let raw = ""; for await (const ch of req) { raw += ch; if (raw.length > 10000) return json(res, 413, { error: "too large" }); }
+      let b; try { b = JSON.parse(raw); } catch { return json(res, 400, { error: "bad json" }); }
+      const r = markDone(b);
+      return json(res, r.error ? 422 : 200, r);
+    }
     if (url.pathname === "/api/daily" && (req.method === "GET" || req.method === "POST")) {
       let b = {};
       if (req.method === "POST") { let raw = ""; for await (const ch of req) { raw += ch; if (raw.length > 2e6) return json(res, 413, { error: "too large" }); } try { b = JSON.parse(raw || "{}"); } catch { return json(res, 400, { error: "bad json" }); } }
@@ -297,7 +323,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     }
     json(res, 404, { error: "not found" });
   });
-  return { server, state, poll, ingest, daily, readSent, queueResearch, prep, followUp, decide, send, moveDeal, invite, audit };
+  return { server, state, poll, ingest, daily, markDone, readSent, queueResearch, prep, followUp, decide, send, moveDeal, invite, audit };
 }
 
 function page(state, token, canSend, canMove) {
@@ -318,10 +344,10 @@ ${it.decision === "pending" ? `<button data-d="approved">Approve</button> <butto
 <style>body{font:16px/1.5 system-ui;max-width:760px;margin:0 auto;padding:16px;color:#1b1f23;background:#fff}@media(prefers-color-scheme:dark){body{background:#14171a;color:#e6e8ea}blockquote{background:#1d2226}}article{border:1px solid #8884;border-radius:8px;padding:12px 16px;margin:16px 0}blockquote{margin:8px 0;padding:8px 12px;background:#f3f4f6;border-radius:6px}textarea{width:100%;box-sizing:border-box}.tag{font-size:12px;border:1px solid #8886;border-radius:10px;padding:1px 8px}.re{opacity:.7;margin:0}button{padding:6px 14px;margin-right:6px}small{opacity:.7;font-weight:400}</style>
 <h1>Approval queue</h1><p>Last poll: ${esc(state.lastPoll || "never")}${state.lastError ? ` <b>Error: ${esc(state.lastError)}</b>` : ""}. <button id="poll">Poll now</button> <a href="/api/audit?token=${t}">Audit log</a> · <a href="/api/prospects.csv?token=${t}">Prospects CSV</a> · <a href="/api/suppression.csv?token=${t}">Suppression CSV</a></p>
 <p>${canSend ? "Approving a draft does not send it. Press Send on an approved draft to send it from your mailbox, once, with an unsubscribe header." : "Sending is off (no SMTP_HOST). Approving marks a draft approved in the audit log and gives you a link to send it yourself."}</p>${rows}
-<section id="today"><h2>Today's queue</h2><p>Paste the task list from Sales Cadence Builder once (it is kept). The queue drops anyone who stopped, bounced or is suppressed, and any email step already in your Sent folder${state.sentBox ? ` (<b>${esc(state.sentBox.name)}</b>, ${state.sent.length} messages read)` : ""}${state.sentError ? ` <b>Sent folder: ${esc(state.sentError)}</b>` : ""}. Nothing is sent.</p>
+<section id="today"><h2>Today's queue</h2><p>Paste the task list from Sales Cadence Builder once (it is kept). Press Done on a call, LinkedIn touch or letter when you have made it (those never show in mail), and it leaves the queue for good; Undo puts it back. The queue drops anyone who stopped, bounced or is suppressed, and any email step already in your Sent folder${state.sentBox ? ` (<b>${esc(state.sentBox.name)}</b>, ${state.sent.length} messages read)` : ""}${state.sentError ? ` <b>Sent folder: ${esc(state.sentError)}</b>` : ""}. Nothing is sent.</p>
 <textarea id="dq-tasks" rows="4" placeholder="${state.tasks ? "Task list kept; paste a new one to replace it" : "date,channel,step,prospect,company,email,subject,body"}"></textarea>
 <p><button id="dq-run">Build today's queue</button> <a href="/api/daily?format=queue.csv&amp;token=${t}">queue.csv</a> · <a href="/api/daily?format=left-out.csv&amp;token=${t}">left-out.csv</a></p>
-<p id="dq-status" role="status"></p><pre id="dq-out" hidden style="white-space:pre-wrap"></pre></section>
+<p id="dq-status" role="status"></p><ul id="dq-list" hidden></ul><p id="dq-donetoday" hidden></p><pre id="dq-out" hidden style="white-space:pre-wrap"></pre></section>
 <section id="calldesk"><h2>Call desk</h2><p>Before a call, prepare a brief from what this agent already holds on the person (their replies, the prospects table, the suppression list). After it, paste or dictate your notes and draft a follow-up. Nothing is sent.</p>
 <p><input id="cd-email" type="email" placeholder="their email" size="32"> <button id="cd-prep">Prepare the call</button></p>
 <textarea id="cd-notes" rows="6" placeholder="Call notes, one point per line"></textarea>
@@ -329,7 +355,13 @@ ${it.decision === "pending" ? `<button data-d="approved">Approve</button> <butto
 <p id="cd-status" role="status"></p><pre id="cd-out" hidden style="white-space:pre-wrap"></pre>
 <p id="cd-voice" hidden style="font-size:14px;opacity:.8">Voice is optional and uses your browser's own speech tools; in Chrome and Edge dictation sends audio to the browser maker's speech service. Say "next point" for a new line. This page records and stores nothing.</p></section>
 <script>const T=${JSON.stringify(token)};const H={authorization:"Bearer "+T,"content-type":"application/json"};
-document.getElementById("dq-run").onclick=async()=>{const v=document.getElementById("dq-tasks").value;const r=await fetch("/api/daily",{method:"POST",headers:H,body:JSON.stringify(v.trim()?{tasks:v}:{})});const j=await r.json();const o=document.getElementById("dq-out");if(!r.ok){document.getElementById("dq-status").textContent=j.error;return}o.textContent=j.brief;o.hidden=false;document.getElementById("dq-status").textContent=j.summary.due+" due, "+j.summary.alreadySent+" already sent. Nothing was sent."};
+const dqEl=(tag,text,attrs)=>{const e=document.createElement(tag);if(text!=null)e.textContent=text;for(const k in attrs||{})e.setAttribute(k,attrs[k]);return e};
+const dqMark=async(email,step,undo)=>{const r=await fetch("/api/daily/done",{method:"POST",headers:H,body:JSON.stringify({email,step,undo})});if(!r.ok){alert((await r.json()).error);return}dqBuild()};
+const dqBuild=async(tasks)=>{const r=await fetch("/api/daily",{method:"POST",headers:H,body:JSON.stringify(tasks?{tasks}:{})});const j=await r.json();const o=document.getElementById("dq-out");if(!r.ok){document.getElementById("dq-status").textContent=j.error;return}
+const L=document.getElementById("dq-list");L.replaceChildren();for(const q of j.queue){const li=dqEl("li",(q.overdue?"[overdue "+q.date+"] ":"")+q.channel+": "+(q.prospect||q.email)+(q.company?", "+q.company:"")+" ("+q.step+")"+(q.channel==="call"&&q.call_window?" "+q.call_window:"")+" ");if(q.email){const b=dqEl("button","Done",{"data-done":"1"});b.onclick=()=>{b.disabled=true;dqMark(q.email,q.step,false)};li.append(b)}L.append(li)}L.hidden=!j.queue.length;
+const D=document.getElementById("dq-donetoday");D.replaceChildren();if(j.doneToday.length){D.append("Marked done today: ");j.doneToday.forEach((x,i)=>{if(i)D.append("; ");D.append(x.email+" ("+x.step+") ");const u=dqEl("button","Undo",{"data-undo":"1"});u.onclick=()=>dqMark(x.email,x.step,true);D.append(u)})}D.hidden=!j.doneToday.length;
+o.textContent=j.brief;o.hidden=false;document.getElementById("dq-status").textContent=j.summary.due+" due, "+j.summary.alreadySent+" already sent, "+(j.summary.alreadyDone-j.summary.alreadySent)+" marked done. Nothing was sent."};
+document.getElementById("dq-run").onclick=()=>dqBuild(document.getElementById("dq-tasks").value.trim());
 document.getElementById("poll").onclick=async()=>{await fetch("/api/poll",{method:"POST",headers:H});location.reload()};
 document.querySelectorAll("article button[data-move]").forEach(b=>b.onclick=async()=>{b.disabled=true;const a=b.closest("article");const r=await fetch("/api/crm-stage",{method:"POST",headers:H,body:JSON.stringify({id:a.dataset.id})});const j=await r.json();if(!r.ok){alert(j.error);b.disabled=false}else{alert(j.results.map(x=>x.crm+": "+(x.moved?"moved":x.error||x.reason)).join("\\n"));location.reload()}});
 document.querySelectorAll("article button[data-send]").forEach(b=>b.onclick=async()=>{b.disabled=true;const a=b.closest("article");const r=await fetch("/api/send",{method:"POST",headers:H,body:JSON.stringify({id:a.dataset.id})});if(!r.ok){alert((await r.json()).error);b.disabled=false}else location.reload()});
