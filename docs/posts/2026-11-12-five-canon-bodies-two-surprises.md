@@ -42,6 +42,8 @@ median gap between their brightest and dimmest channel falls from 8% to 1.5%. Fr
 
 **What's still open.** With the same colour matrix, ShootFlow's renders come out 3-9% brighter
 than LibRaw's on every body. The sensor values, levels and balance all match, so the gap is in
-the colour model. It is the next thing to check, on a frame with a known grey. The full
+the colour model. *(Update, same day: it wasn't. The gap was in how our check called LibRaw;
+see [the follow-up post](2026-11-12-the-gap-was-in-the-ruler.md). The data matches LibRaw to
+a fifth of an 8-bit step.)* It is the next thing to check, on a frame with a known grey. The full
 measurements are in the venture's `eval/cr2-five-bodies-2026-11-12.md`. ShootFlow is MIT
 licensed and runs on your own machine: `shootflow develop IMG_0001.CR2 --dcp PROFILE.dcp --out masters`.

@@ -1092,9 +1092,21 @@ LibRaw's. Two bodies needed changes:
 
 The other three frames have no pile at the clip, so their white level stays 16,383 (4,095 on
 the 12-bit 350D, whose pile sits at full scale). Rendered against LibRaw with LibRaw's matrix,
-the median difference is 3.0-5.6 8-bit steps on these brighter daylight frames (0.6 on the dim
-5D Mark II), with ShootFlow 3-9% brighter in every channel on every body: the DNG colour model
-against dcraw's, not a reader fault, and left as found. Speed with numpy: read 0.3-0.7 s.
+the median difference first measured 3.0-5.6 8-bit steps, with ShootFlow 3-9% brighter in every
+channel. That gap was the check's own fault (next section). Speed with numpy: read 0.3-0.7 s.
+
+## The CR2 brightness gap was the check (2026-11-12)
+
+`tools/cr2_develop_check.py` passed LibRaw the white level with black included, but LibRaw's
+`user_sat` is black-subtracted, so every LibRaw render was darker by white / (white - black):
+predicted 1.067-1.193 in linear light, measured the same. It also binned the 350D on a 2x2 grid
+one row off LibRaw's, and compared the 70D one pixel out of place. With all three fixed, the
+median difference is 0.07-0.88 steps (was 0.6-5.6). Re-rendered through dcraw's own matrix,
+ShootFlow's data matches LibRaw to 0.05-0.19 steps on all five bodies. The rest is the DNG colour
+model against dcraw's, which grows with the as-shot white's distance from D65 (0.07 on the 7D
+near D65, 0.88 on the 70D at about 4,700 K, tinted green). ShootFlow keeps the DNG model; a
+colour chart under that light would say which is closer. Details:
+`eval/cr2-brightness-gap-2026-11-12.md`.
 
 ## CR2 in the pipeline (2026-11-12)
 
