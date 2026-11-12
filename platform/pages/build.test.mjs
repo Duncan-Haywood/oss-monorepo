@@ -146,6 +146,34 @@ import { normalizeBid, normalizeOutcome, stripForInjection } from './jobs.mjs';
 const BASE = 'https://example.test/site/';
 const VENTURES = path.join(REPO_ROOT, 'ventures');
 
+// The suite builds from the live checkout, so a file written under docs/ or
+// ventures/ while it runs (a post drafted beside a 4-minute run) lands in one
+// build and not the other, and a test fails with a cache-name or search-index
+// mismatch that says nothing about the edit (run records 2026-11-12T06:48 and
+// 12:48). Called only once a comparison has already failed, it names the files
+// changed since the suite started, so the failure reads as "re-run" rather
+// than as a builder bug.
+const SUITE_START = Date.now();
+async function editedDuringRun() {
+  let out;
+  try {
+    ({ stdout: out } = await promisify(execFile)('git', ['status', '--porcelain', '-uall', '--', 'docs', 'ventures'],
+      { cwd: REPO_ROOT, maxBuffer: 1 << 26 }));
+  } catch {
+    return '';
+  }
+  const changed = [];
+  for (const line of out.split('\n').filter(Boolean)) {
+    const rel = line.slice(3).split(' -> ').pop();
+    const stat = await fs.stat(path.join(REPO_ROOT, rel)).catch(() => null);
+    if (!stat || stat.mtimeMs >= SUITE_START) changed.push(rel);
+  }
+  if (!changed.length) return '';
+  return `\n${changed.length} file(s) under docs/ or ventures/ changed while the suite ran ` +
+    `(${changed.slice(0, 5).join(', ')}${changed.length > 5 ? ', ...' : ''}): ` +
+    'the builds read different trees; re-run without editing before treating this as a builder fault';
+}
+
 // Memoise the promise, not the result: when the build throws (a post with a
 // 164-character description did this on 2026-11-01), every later test awaits
 // the same rejection at once instead of each re-running a ~10 s build.
@@ -1297,7 +1325,7 @@ test("a tool's guide pages and the blog's posts are their own search results", a
   assert.deepEqual(jobber, [], 'a vs page its compare/ page gathers is not listed again');
   for (const item of index.items.filter((i) => i.k === 'post')) {
     assert.equal(index.cats[item.c], 'Blog');
-    assert.ok(await exists(path.join(outDir, item.u, 'index.html')), `${item.u} did not ship`);
+    if (!(await exists(path.join(outDir, item.u, 'index.html')))) assert.fail(`${item.u} did not ship${await editedDuringRun()}`);
   }
   // Listed after every tool, so the tie-break never puts a guide above a tool.
   const lastTool = index.items.findLastIndex((i) => ['tool', 'app', 'cli'].includes(i.k));
@@ -3384,7 +3412,10 @@ test('an identical build produces an identical cache name', async () => {
   // on neither build order, process nor output path.
   const [a, b] = await Promise.all([site(), childSite()]);
   assert.notEqual(a.outDir, b.outDir);
-  assert.equal(a.offline.cacheName, b.cacheName, 'the hash must not depend on build order or paths');
+  if (a.offline.cacheName !== b.cacheName) {
+    assert.fail(`the hash must not depend on build order or paths: ${a.offline.cacheName} vs ${b.cacheName}` +
+      (await editedDuringRun()));
+  }
 });
 
 test('the worker only ever touches same-origin GETs', async () => {

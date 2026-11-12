@@ -1,0 +1,1486 @@
+{
+ "failing": [
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 7,
+   "x": [
+    140.64700538292527,
+    0.2691702337935567,
+    0.2164777284488082,
+    1.0589431066066026
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is",
+   "r_min": 0.0,
+   "dfn100": 136.55745817783574
+  },
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 16,
+   "x": [
+    125.13003638014197,
+    0.3432759763672948,
+    0.20025369562208653,
+    1.2415906481444836
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is",
+   "r_min": 0.0,
+   "dfn100": 147.09801371077378
+  },
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 23,
+   "x": [
+    144.48954770341516,
+    0.201181404478848,
+    0.25751727633178234,
+    1.2538338635116815
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is",
+   "r_min": 0.0,
+   "dfn100": 142.21219302834368
+  },
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 63,
+   "x": [
+    136.31408028304577,
+    0.21285539735108616,
+    0.24238882809877396,
+    0.9410146579146386
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is",
+   "r_min": 0.0,
+   "dfn100": 125.49761316177306
+  },
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 71,
+   "x": [
+    143.03305335342884,
+    0.22236517593264582,
+    0.3090970400720835,
+    1.1645897556096316
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is",
+   "r_min": 0.0,
+   "dfn100": 144.22731498756914
+  },
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 83,
+   "x": [
+    121.34223114699125,
+    0.20343102011829617,
+    0.22136825527995826,
+    1.2032600216567517
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is",
+   "r_min": 0.0,
+   "dfn100": 140.004796772094
+  },
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 119,
+   "x": [
+    149.77701790630817,
+    0.23118470665067437,
+    0.2047985963523388,
+    1.1328024484217167
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is",
+   "r_min": 0.0,
+   "dfn100": 125.6289337203678
+  },
+  {
+   "bench": "fresh/bench.jsonl",
+   "set": "OKane2022",
+   "j": 1,
+   "x": [
+    138.4755739942193,
+    0.23034076597541572,
+    0.203873541764915,
+    1.1401498284190894
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is",
+   "r_min": 0.0,
+   "dfn100": 129.92270022304754
+  },
+  {
+   "bench": "fresh/bench.jsonl",
+   "set": "OKane2022",
+   "j": 37,
+   "x": [
+    121.3727100752294,
+    0.2123157074674964,
+    0.219522288069129,
+    1.2659022871404888
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is",
+   "r_min": 0.0,
+   "dfn100": 143.15721323273965
+  },
+  {
+   "bench": "fresh/bench.jsonl",
+   "set": "OKane2022",
+   "j": 97,
+   "x": [
+    141.7355283163488,
+    0.20927919577807189,
+    0.28858990464359524,
+    1.2224734622985125
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is",
+   "r_min": 0.0,
+   "dfn100": 146.4035431063156
+  },
+  {
+   "bench": "fresh/bench.jsonl",
+   "set": "OKane2022",
+   "j": 102,
+   "x": [
+    136.88797280192375,
+    0.31593471076339485,
+    0.2006002662703395,
+    1.283710312843323
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is",
+   "r_min": 0.0,
+   "dfn100": 140.99649852320147
+  },
+  {
+   "bench": "fresh/bench.jsonl",
+   "set": "OKane2022",
+   "j": 113,
+   "x": [
+    148.9107775501907,
+    0.2522802293300629,
+    0.21818761788308622,
+    1.0426450412720443
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is",
+   "r_min": 0.0,
+   "dfn100": 131.39565093169196
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "Mohtat2020",
+   "j": 1,
+   "x": [
+    89.54839566722512,
+    0.24476456567645075,
+    0.3649452609941364,
+    1.1212055951356887
+   ],
+   "kind": "stop",
+   "ok_cycles": 43,
+   "error": null,
+   "r_min": 0.7733072517087415,
+   "dfn100": 188.73213121272332
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "Mohtat2020",
+   "j": 10,
+   "x": [
+    63.42214001342654,
+    0.3146373096853495,
+    0.3850402254611254,
+    1.0302369710057975
+   ],
+   "kind": "stop",
+   "ok_cycles": 48,
+   "error": null,
+   "r_min": 0.88528287812107,
+   "dfn100": 143.0280986350938
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "Mohtat2020",
+   "j": 17,
+   "x": [
+    95.85675522685051,
+    0.27592141758650546,
+    0.33622040003538134,
+    1.019195991754532
+   ],
+   "kind": "stop",
+   "ok_cycles": 37,
+   "error": null,
+   "r_min": 0.8026084410750991,
+   "dfn100": 190.61424731814128
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "Mohtat2020",
+   "j": 19,
+   "x": [
+    134.6089167520404,
+    0.21983499210327864,
+    0.3764281937852502,
+    0.9059451293200255
+   ],
+   "kind": "stop",
+   "ok_cycles": 3,
+   "error": null,
+   "r_min": 0.6473673557087395,
+   "dfn100": 186.5354470617978
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "Mohtat2020",
+   "j": 41,
+   "x": [
+    82.65545079484582,
+    0.22953209225088358,
+    0.3211681697517634,
+    0.9368260324001313
+   ],
+   "kind": "stop",
+   "ok_cycles": 80,
+   "error": null,
+   "r_min": 0.7868120632200724,
+   "dfn100": 167.97251640812556
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "Mohtat2020",
+   "j": 55,
+   "x": [
+    104.49660019949079,
+    0.23448141254484656,
+    0.39134782124310735,
+    1.0591860681772232
+   ],
+   "kind": "stop",
+   "ok_cycles": 90,
+   "error": null,
+   "r_min": 0.7301306166410422,
+   "dfn100": 185.71747483344845
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 0,
+   "x": [
+    119.94058797135949,
+    0.30693845283240084,
+    0.2840643854811788,
+    1.0550176423043012
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 52.165043414004984
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 1,
+   "x": [
+    89.54839566722512,
+    0.24476456567645075,
+    0.3649452609941364,
+    1.1212055951356887
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 69.28562559207317
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 2,
+   "x": [
+    62.087451573461294,
+    0.3880370883271098,
+    0.22819053158164027,
+    0.9698305517435074
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 65.80282288539765
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 3,
+   "x": [
+    128.42339044436812,
+    0.2507876671850682,
+    0.32240616865456106,
+    1.2032550256699324
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 48.999759282747846
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 4,
+   "x": [
+    141.4510941132903,
+    0.35249646417796615,
+    0.39868378005921845,
+    1.251476275548339
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 66.76877735413474
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 5,
+   "x": [
+    73.50969221442938,
+    0.28955057803541423,
+    0.25540704578161244,
+    0.922397504746914
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 64.23415046971094
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 7,
+   "x": [
+    106.96209371089935,
+    0.20845193061977627,
+    0.20733805987983944,
+    1.0028474327176808
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 37.738971270278114
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 9,
+   "x": [
+    84.99085577204823,
+    0.2713862331584096,
+    0.2218193205073476,
+    1.2788657423108818
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 44.7524984408317
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 11,
+   "x": [
+    145.48106892034411,
+    0.22739790547639133,
+    0.26592578515410425,
+    1.196864376962185
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 37.56678217746951
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 12,
+   "x": [
+    133.86320564895868,
+    0.3258840342983603,
+    0.24266416281461717,
+    1.1486011654138566
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 44.891221669666166
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 14,
+   "x": [
+    98.16506765782833,
+    0.3698723739013076,
+    0.29459075424820186,
+    1.2259631674736737
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 62.227621948144694
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 15,
+   "x": [
+    117.77244322001934,
+    0.2818424686789513,
+    0.35129407700151205,
+    0.9972261935472488
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 65.36159882287144
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 16,
+   "x": [
+    113.80387917160988,
+    0.362890749424696,
+    0.2178948398679495,
+    1.1545735906809569
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 47.365973903218226
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 17,
+   "x": [
+    95.85675522685051,
+    0.27592141758650546,
+    0.33622040003538134,
+    1.019195991754532
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 67.9289304598145
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 19,
+   "x": [
+    134.6089167520404,
+    0.21983499210327864,
+    0.3764281937852502,
+    0.9059451293200255
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 61.480434783715125
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 20,
+   "x": [
+    147.7655573748052,
+    0.32134885136038066,
+    0.30248188097029927,
+    0.9518226172775031
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 52.59718401832771
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 21,
+   "x": [
+    67.36688008531928,
+    0.23358901850879193,
+    0.24655217956751585,
+    1.2243093982338906
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 53.807639672760054
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 23,
+   "x": [
+    100.59879207983613,
+    0.26459992788732056,
+    0.29070273824036125,
+    1.1000596191734076
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 54.72486601985912
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 24,
+   "x": [
+    112.49307431280613,
+    0.3395131917670369,
+    0.3735695585608483,
+    1.245351256430149
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 69.81541207971681
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 25,
+   "x": [
+    78.82286496460438,
+    0.2025338489562273,
+    0.28012754283845426,
+    0.9806769754737616
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 62.17320465834707
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 27,
+   "x": [
+    139.14294261485338,
+    0.2964359644800425,
+    0.23212737496942282,
+    1.0939759030938148
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 41.78241076422302
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 28,
+   "x": [
+    127.70131854340434,
+    0.39472717940807345,
+    0.2592827005311847,
+    1.0480564534664154
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 53.97189408869337
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 30,
+   "x": [
+    91.83304505422711,
+    0.3008250519633293,
+    0.20346240587532521,
+    0.9269931625574828
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 47.91091255915996
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 31,
+   "x": [
+    123.88548897579312,
+    0.23799970205873253,
+    0.3475280188024044,
+    1.2998217403888703
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 50.445731628995944
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 33,
+   "x": [
+    93.44009878113866,
+    0.25614843070507054,
+    0.26549340263009075,
+    1.063248350843787
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 52.292118754542216
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 35,
+   "x": [
+    126.08798397704959,
+    0.2496608540415764,
+    0.22215478587895632,
+    0.9624848023056984
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 40.545457482720714
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 36,
+   "x": [
+    137.53649834543467,
+    0.3481469947844744,
+    0.2989412421360612,
+    0.9079654753208161
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 59.22207897664668
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 37,
+   "x": [
+    71.15139458328485,
+    0.20941518265753986,
+    0.35478024985641243,
+    1.268343074247241
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 70.40919364040681
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 38,
+   "x": [
+    80.43523542582989,
+    0.35463455952703954,
+    0.2384105443954468,
+    1.0165897082537412
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 61.359252703490164
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 39,
+   "x": [
+    110.87668798863888,
+    0.2908302711322904,
+    0.3074742626398802,
+    1.1566057860851289
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 55.18880176753421
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 40,
+   "x": [
+    102.21443036571145,
+    0.315920914337039,
+    0.22784145250916482,
+    1.2893911313265563
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 45.09478614831053
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 41,
+   "x": [
+    82.65545079484582,
+    0.22953209225088358,
+    0.3211681697517634,
+    0.9368260324001313
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 66.52063539773418
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 43,
+   "x": [
+    149.37277948483825,
+    0.27305749449878935,
+    0.3660863427445293,
+    1.0376376461237669
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 57.15482094172476
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 44,
+   "x": [
+    136.2215032801032,
+    0.37476627957075836,
+    0.3425096860155463,
+    1.0921028044074774
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 64.90583725763325
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 45,
+   "x": [
+    54.11407705396414,
+    0.28603075072169304,
+    0.2115811163559556,
+    1.131777085363865
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 61.899635774245105
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 47,
+   "x": [
+    115.41415303945541,
+    0.21743440404534342,
+    0.25106707215309143,
+    1.243464782461524
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 38.891237875491925
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 48,
+   "x": [
+    116.15606732666492,
+    0.33599489033222196,
+    0.31724362913519144,
+    1.0109716758131981
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 64.29492053045837
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 49,
+   "x": [
+    99.77744854986668,
+    0.2248021384701133,
+    0.23645344879478217,
+    1.165050446614623
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 41.781070785001894
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 51,
+   "x": [
+    132.25672412663698,
+    0.28120502885431053,
+    0.2758983384817839,
+    1.2596116051077844
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 43.91253093896385
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 52,
+   "x": [
+    143.8677447848022,
+    0.37949623186141257,
+    0.2030056092888117,
+    1.207436016201973
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 44.007403088197556
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 54,
+   "x": [
+    86.5978722460568,
+    0.32309335339814427,
+    0.25964257996529344,
+    1.1176105421036482
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 58.15891026443073
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 55,
+   "x": [
+    104.49660019949079,
+    0.23448141254484656,
+    0.39134782124310735,
+    1.0591860681772232
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 66.92328722213529
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 56,
+   "x": [
+    108.57238098978996,
+    0.35937932673841716,
+    0.27411773707717657,
+    0.9889562290161849
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 61.0806329018094
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 58,
+   "x": [
+    71.89348172396421,
+    0.3408661285415292,
+    0.21353045217692854,
+    1.086581614613533
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 59.17465019103194
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 59,
+   "x": [
+    143.06364636868238,
+    0.20459870360791685,
+    0.33274798393249516,
+    1.140318588539958
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 43.8071813157022
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 60,
+   "x": [
+    130.03062596544623,
+    0.30611257478594783,
+    0.3586559630930424,
+    1.1924400087445974
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 59.201151782300684
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 61,
+   "x": [
+    60.478131379932165,
+    0.24257530700415375,
+    0.2903780732303858,
+    1.0336737379431724
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 69.63645400083968
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 62,
+   "x": [
+    87.93523693457246,
+    0.3996967114508152,
+    0.3035985486581922,
+    1.282313548028469
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 70.35304596257686
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 63,
+   "x": [
+    121.55619198456407,
+    0.26108849328011274,
+    0.24697371404618026,
+    0.9406861420720816
+   ],
+   "kind": "fail",
+   "ok_cycles": 0,
+   "error": "SolverError: All steps in the cycle ('Discharge at 1.36319 A until 2.7 V', 'Charge at 1.36319 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. sk",
+   "r_min": 0.0,
+   "dfn100": 45.35947463478066
+  }
+ ],
+ "control": [
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "Mohtat2020",
+   "j": 0,
+   "x": [
+    119.94058797135949,
+    0.30693845283240084,
+    0.2840643854811788,
+    1.0550176423043012
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.7586791916003766,
+   "dfn100": 216.83538306297498,
+   "spme100": 218.03389413668467
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "Mohtat2020",
+   "j": 2,
+   "x": [
+    62.087451573461294,
+    0.3880370883271098,
+    0.22819053158164027,
+    0.9698305517435074
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.8343006669828947,
+   "dfn100": 139.95473747546401,
+   "spme100": 137.08280458794354
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "Mohtat2020",
+   "j": 3,
+   "x": [
+    128.42339044436812,
+    0.2507876671850682,
+    0.32240616865456106,
+    1.2032550256699324
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.6775867238854132,
+   "dfn100": 229.95746110875746,
+   "spme100": 229.0385779234609
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "Mohtat2020",
+   "j": 4,
+   "x": [
+    141.4510941132903,
+    0.35249646417796615,
+    0.39868378005921845,
+    1.251476275548339
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.7723958569978707,
+   "dfn100": 215.0059284308296,
+   "spme100": 214.1338546464483
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "Mohtat2020",
+   "j": 5,
+   "x": [
+    73.50969221442938,
+    0.28955057803541423,
+    0.25540704578161244,
+    0.922397504746914
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.8318057903740108,
+   "dfn100": 170.59877701654517,
+   "spme100": 167.56033691056777
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "Mohtat2020",
+   "j": 6,
+   "x": [
+    78.07694524526596,
+    0.3464733507484198,
+    0.3389648145064712,
+    1.1741623386740685
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.8672772410775281,
+   "dfn100": 168.4976836510946,
+   "spme100": 165.09541896007696
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "Mohtat2020",
+   "j": 7,
+   "x": [
+    106.96209371089935,
+    0.20845193061977627,
+    0.20733805987983944,
+    1.0028474327176808
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.6641839403348649,
+   "dfn100": 220.8713330264149,
+   "spme100": 223.8114535804785
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "Mohtat2020",
+   "j": 8,
+   "x": [
+    106.10613347962499,
+    0.3835516352206469,
+    0.3276083691045642,
+    0.9450994715094566
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.8314811542749492,
+   "dfn100": 189.27667868893406,
+   "spme100": 187.95843872471383
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 6,
+   "x": [
+    78.07694524526596,
+    0.3464733507484198,
+    0.3389648145064712,
+    1.1741623386740685
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.04895195751850215,
+   "dfn100": 73.97830698510259,
+   "spme100": 74.90135709517196
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 8,
+   "x": [
+    106.10613347962499,
+    0.3835516352206469,
+    0.3276083691045642,
+    0.9450994715094566
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": -0.04467441534366931,
+   "dfn100": 68.72943000933557,
+   "spme100": 39.48927988742841
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 10,
+   "x": [
+    63.42214001342654,
+    0.3146373096853495,
+    0.3850402254611254,
+    1.0302369710057975
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.19659196707787652,
+   "dfn100": 68.18373358870492,
+   "spme100": 68.10735252411952
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 13,
+   "x": [
+    50.199481286108494,
+    0.21292813122272491,
+    0.31105735264718537,
+    1.077725712582469
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": -0.06445044168406891,
+   "dfn100": 68.92778640716978,
+   "spme100": 25.95641803078254
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 18,
+   "x": [
+    55.730253271758556,
+    0.33187985196709635,
+    0.2698502665385604,
+    1.2709612071514131
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.012415347187670138,
+   "dfn100": 73.49686997859612,
+   "spme100": 74.16829503563656
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 22,
+   "x": [
+    84.26857525482774,
+    0.3774352887645364,
+    0.3598695479333401,
+    1.0729339733719825
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.1263409292758476,
+   "dfn100": 72.86094243212415,
+   "spme100": 73.38807533113604
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 26,
+   "x": [
+    69.54128909856081,
+    0.35848931539803747,
+    0.3137818703427911,
+    1.1289140488952398
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.09981923519458168,
+   "dfn100": 73.87718789228462,
+   "spme100": 74.72861855791864
+  },
+  {
+   "bench": "calibrate/bench.jsonl",
+   "set": "NCA_Kim2011",
+   "j": 29,
+   "x": [
+    56.58031878992915,
+    0.256975837610662,
+    0.3901205750182271,
+    1.1756215523928404
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.0714605748911126,
+   "dfn100": 69.20598700543333,
+   "spme100": 69.0453078570452
+  },
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 0,
+   "x": [
+    135.05854671820998,
+    0.38627320099622015,
+    0.2725435180589557,
+    1.045820064097643
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.18460938490167986,
+   "dfn100": 149.48645080086095,
+   "spme100": 128.52728942826622
+  },
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 1,
+   "x": [
+    94.20024938881397,
+    0.2977768860757351,
+    0.3272047583013773,
+    1.2697037260979416
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.35209288008889167,
+   "dfn100": 142.12190394407853,
+   "spme100": 133.56656543738538
+  },
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 2,
+   "x": [
+    50.764063745737076,
+    0.30785599146038295,
+    0.23079568333923817,
+    0.9890332352370024
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.5465768045132737,
+   "dfn100": 88.18187731503122,
+   "spme100": 85.79787614583316
+  },
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 3,
+   "x": [
+    116.18094397708774,
+    0.2197503000497818,
+    0.36983140688389543,
+    1.1143821336328983
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.11666284655352904,
+   "dfn100": 123.02178045301717,
+   "spme100": 116.10918720828558
+  },
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 4,
+   "x": [
+    109.71338795498013,
+    0.33720841556787495,
+    0.3130316933616996,
+    1.1779192853718996
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.3405962242546851,
+   "dfn100": 146.67614264526085,
+   "spme100": 134.7733063970396
+  },
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 5,
+   "x": [
+    68.85556783527136,
+    0.2475889587774873,
+    0.286447935923934,
+    0.9001045539975167
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.4752019968297932,
+   "dfn100": 88.69456280198006,
+   "spme100": 86.50822305844883
+  },
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 6,
+   "x": [
+    75.22964868694544,
+    0.35918031707406045,
+    0.3836855869740248,
+    1.2319723114371302
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.5703779256473744,
+   "dfn100": 112.22355945403643,
+   "spme100": 109.98297458723255
+  },
+  {
+   "bench": "cycles/bench.jsonl",
+   "set": "OKane2022",
+   "j": 8,
+   "x": [
+    148.43846429139376,
+    0.32332081459462647,
+    0.389102453365922,
+    0.9492064103484154
+   ],
+   "kind": "ok",
+   "ok_cycles": 100,
+   "error": null,
+   "r_min": 0.2830939537514874,
+   "dfn100": 119.1966720893819,
+   "spme100": 112.88171413610505
+  }
+ ]
+}
