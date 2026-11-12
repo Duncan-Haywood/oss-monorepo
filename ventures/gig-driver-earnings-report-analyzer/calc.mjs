@@ -73,9 +73,9 @@ export function parseMinutes(v) {
   const s = String(v ?? "").trim().toLowerCase();
   if (!s) return NaN;
   let m = s.match(/^(\d+):(\d{1,2}):(\d{1,2})$/);
-  if (m) return +m[1] * 60 + +m[2] + +m[3] / 60;
+  if (m) return +m[2] > 59 || +m[3] > 59 ? NaN : +m[1] * 60 + +m[2] + +m[3] / 60;
   m = s.match(/^(\d+):(\d{1,2})$/);
-  if (m) return +m[1] * 60 + +m[2];
+  if (m) return +m[2] > 59 ? NaN : +m[1] * 60 + +m[2];
   m = s.match(/^(?:(\d+(?:\.\d+)?)\s*h(?:ours?|rs?)?)?\s*(?:(\d+(?:\.\d+)?)\s*m(?:in(?:ute)?s?)?)?$/);
   if (m && (m[1] || m[2])) return (m[1] ? +m[1] * 60 : 0) + (m[2] ? +m[2] : 0);
   const n = Number(s.replace(/,/g, ""));

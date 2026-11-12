@@ -57,7 +57,7 @@ function parseHours(s) {
   const t = String(s ?? "").trim().toLowerCase();
   if (t === "") return NaN;
   const hm = t.match(/^(\d+):(\d{1,2})$/);
-  if (hm) return Number(hm[1]) + Number(hm[2]) / 60;
+  if (hm) return Number(hm[2]) > 59 ? NaN : Number(hm[1]) + Number(hm[2]) / 60;
   const n = Number(t.replace(/\s*(h|hr|hrs|hours?)$/, ""));
   return Number.isFinite(n) ? n : NaN;
 }

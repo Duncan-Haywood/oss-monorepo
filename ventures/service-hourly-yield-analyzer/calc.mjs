@@ -218,8 +218,8 @@ function findColumns(header) {
 export function parseDuration(text, hoursColumn = false) {
   const s = String(text ?? "").trim().toLowerCase();
   if (!s) return null;
-  let m = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
-  if (m) return +m[1] * 60 + +m[2];
+  let m = s.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+  if (m) return +m[2] > 59 || +(m[3] ?? 0) > 59 ? null : +m[1] * 60 + +m[2];
   m = s.match(/^(?:(\d+(?:\.\d+)?)\s*(?:h|hr|hrs|hour|hours))?\s*(?:(\d+(?:\.\d+)?)\s*(?:m|min|mins|minute|minutes))?$/);
   if (m && (m[1] !== undefined || m[2] !== undefined)) return Math.round((m[1] ? parseFloat(m[1]) * 60 : 0) + (m[2] ? parseFloat(m[2]) : 0));
   m = s.match(/^\d+(?:\.\d+)?$/);

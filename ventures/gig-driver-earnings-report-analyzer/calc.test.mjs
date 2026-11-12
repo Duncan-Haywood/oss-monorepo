@@ -180,3 +180,9 @@ test("the sample file parses, reconciles and produces findings", () => {
   assert.ok(r.findings.length >= 3);
   assert.equal(sampleCsv(), sampleCsv());
 });
+
+test("parseMinutes refuses a clock duration past :59 instead of stretching it", () => {
+  assert.equal(parseMinutes("1:30"), 90);
+  assert.ok(Number.isNaN(parseMinutes("1:75")));
+  assert.ok(Number.isNaN(parseMinutes("0:30:60")));
+});
