@@ -3,7 +3,7 @@ title: "What our hydraulics paper says now: a measured loader leads, and one sta
 seo_title: "Load-sensing vs open-centre: what the measured wheel loader shows"
 date: 2026-11-12
 tags: [research, heavy-equipment, hydraulics, load-sensing, open-centre, wheel-loader, reproducibility]
-description: "Folding six measured-loader results into one paper draft caught a stale inference, reran byte for byte from Zenodo, and now checks 155 quoted numbers against their results files."
+description: "Folding six measured-loader results into one paper draft caught a stale guess, reran byte for byte from Zenodo, and checks 155 quoted numbers."
 ---
 
 The [`heavy-hydraulics`](../../research/heavy-hydraulics/README.md) programme
