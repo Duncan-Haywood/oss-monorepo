@@ -1516,6 +1516,90 @@ unshuffled form so its 2026-10-28 numbers reproduce; the tables above replace
 its reading. Reproduce: `npx tsx scripts/position-bias-shuffled-sweep.ts
 --seeds 60 [--seed0 50000] [--out rows.jsonl]` (about 10 minutes per seed set).
 
+## Answer times: telling a careless block from a camp (2026-11-12)
+
+The careless-pattern section ended on a gap: leave-one-out agreement cannot
+tell people who pick by a shared wrong reason from a camp with a genuine
+second taste, and a careless majority is invisible in the answers. Every
+answer's `Trial.msToAnswer` is stored, so this measures whether time per pick
+can say which is which (`scripts/answer-time-sweep.ts`; raw rows
+`docs/answer-time-2026-11-12.jsonl`, 171 cells).
+
+**Setup.** The careless-pattern sweep's panels (staged selector behind the
+slot shuffle, 15 and 30 items, 4 answers per item, 20 respondents, 40
+surveys per cell; 60 respondents and 30 surveys for the stress cells), with
+patterns `salience`, `random` and `dissent` (the honest camp, the control) at
+25%, 40% and 50% of the panel. Answer times are **simulated, and every part of
+the timing model is an assumption**, so the assumptions are swept, not trusted:
+
+- each person has their own pace, 2.5 s times exp(0.4 N) (0.6 in the stress cells);
+- an honest answer takes that pace times (1 + gamma x closeness), closeness =
+  exp(-|own taste gap| / 0.25), times exp(0.35 N) noise; gamma 0 (no slowing
+  on hard pairs) or 0.6;
+- a careless answer takes the pace times `ratio` (1: no faster than honest;
+  0.6; 0.4), with no slowing on hard pairs (the stress cells let salience
+  pickers slow on pairs close in salience, gamma 0.6).
+
+Two signals: **pace** (a person's median time over the panel's median of
+medians) and **slope** (Spearman of a person's times with how close each
+pair is in everyone else's pool). Pool schemes, each a paired Spearman
+difference from shipped: `pace-drop` (leave out pace < 0.6, or 0.5), `loo-drop`
+(rho < 0.2), `loo-pace` and `loo-slope` (rho < 0.2 and fast or flat),
+`oracle-drop` (leave out the careless; for dissent, the camp).
+
+| pattern, share | careless ratio | pace AUC | slope AUC (gamma 0.6) | pace-drop 0.5 | oracle-drop | honest flagged by pace 0.5 |
+|---|---|---|---|---|---|---|
+| salience, 25-50% | 1 | 0.50-0.56 | 0.60-0.86 | +0.002 to +0.013 | +0.065 to +0.331 | 1-2% |
+| salience, 25-50% | 0.6 | 0.83-0.90 | 0.60-0.86 | +0.027 to +0.067 | same | 0-1% |
+| salience, 25-50% | 0.4 | 0.95-0.98 | 0.60-0.86 | +0.053 to +0.151 | same | 0-1% |
+| random, 25-50% | 0.4 | 0.95-0.98 | 0.74-0.90 | +0.016 to +0.021 | +0.022 to +0.067 | 0-1% |
+| dissent (camp), 25-50% | n/a | **0.50-0.56** | **0.47-0.84** | **-0.002 to -0.005** | -0.043 to -0.298 | 3-4% |
+
+Stress cells (person pace spread 0.6, threshold 0.6, panels of 20 and 60):
+14-19% of honest respondents fall under the threshold when the careless are no faster (4-15% when they are, since they pull the panel median down); leaving them out costs
+a camp panel 0.005 to 0.019 and a salience panel where the careless are no
+faster up to 0.005, and still gains +0.03 to +0.20 where they are.
+
+What it shows:
+
+- **Pace separates careless from honest exactly as far as the careless are
+  quicker, and never mistakes a camp for them.** A camp answering at a normal
+  pace scores AUC 0.50-0.56 against the majority in every cell: pace has no
+  view on taste. That is the property agreement lacked.
+- **The answer-time slope is not a camp detector.** Honest people slow down on
+  pairs the *panel* finds close, but a camp's hard pairs are close in its own
+  taste, so the camp looks flat too (AUC up to 0.84 at 25%): the same confusion
+  as agreement. Not shipped.
+- **Pace reaches where agreement cannot.** At 50% salience pickers, agreement
+  flags 1-5% of them (they are the consensus) and `loo-drop` costs -0.011 to
+  -0.015; dropping fast people recovers +0.10 to +0.23 when the careless are at
+  0.4-0.6x pace.
+- **Dropping by pace has a price when the assumption fails.** When careless
+  people are no faster, or a panel's natural paces spread widely, `pace-drop`
+  removes fast honest people and costs up to 0.019.
+
+**Decision.** Shipped a note and a comparison, not a default:
+
+1. `respondentPace`, `fastAnswerers` and `paceSummary` in `groupRanking.ts`:
+   a respondent with 10+ timed answers (times at or above 120 s ignored) has a
+   pace against the panel's median of medians (5+ respondents needed);
+   under `FAST_PACE` = 0.5 is fast. The ranking route returns `pace`, and the
+   builder and report show its note: how many answered in under half the
+   typical time, and how many of the out-of-step respondents (agreement under
+   0.2) were among them; when none were, it says the out-of-step answered at a
+   normal pace, which looks like a different taste. Slot clickers, already
+   left out, are not timed.
+2. `?drop=fast` on the ranking route (parsed by `parseDrop`, anything else is a
+   400), the builder's "Rank without the fast answerers" button: the ranking
+   without them, with `leftOut.fast` and a sentence saying so. The default
+   ranking keeps everyone, because the cost when the assumption fails is real
+   and the gain depends on an assumption nobody has measured on this product.
+
+Caveats: the timing model is invented; no real answer times from this
+product exist yet. The first real survey's `msToAnswer` should be checked
+against it: the spread of honest paces (the 0.4 and 0.6 here), whether people
+slow on close pairs, and whether out-of-step respondents are in fact quicker.
+
 
 ## Per-person intervals from a refit (2026-11-12, shipped on the insights screen)
 
