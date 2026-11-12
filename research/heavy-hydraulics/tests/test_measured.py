@@ -3,7 +3,7 @@ import pytest
 from heavy_hydraulics.measured import (slowed_time, inlet_pressure, load_pressure, energies,
                                        pump_torque, linfit, cycle_starts,
                                        stationary_samples, percentile,
-                                       moving_by_position,
+                                       moving_by_position, extra_fuel,
                                        W_PER_BAR_LPM)
 
 
@@ -108,3 +108,15 @@ def test_slowed_time_stretches_only_short_samples():
     assert 10 * (2 * 0.5) == pytest.approx(20 * 0.5)
     with pytest.raises(ValueError):
         slowed_time([(1, 0)], 0.1)
+
+
+def test_extra_fuel_splits_energy_and_time():
+    # 3.6 MJ more hydraulic at eta 0.5 and 0.25 L/kWh -> 0.5 L; 360 s more at 5 L/h -> 0.5 L
+    h, t = extra_fuel(4.6e6, 1.0e6, 1360.0, 1000.0, 0.25, 0.5, 5.0)
+    assert h == pytest.approx(0.5)
+    assert t == pytest.approx(0.5)
+    # equal energy and time cost nothing; a faster open-centre is a credit
+    assert extra_fuel(1.0, 1.0, 10.0, 10.0, 0.2, 0.8, 4.0) == (0.0, 0.0)
+    assert extra_fuel(1.0, 1.0, 9.0, 10.0, 0.2, 0.8, 3.6)[1] == pytest.approx(-0.001)
+    with pytest.raises(ValueError):
+        extra_fuel(1, 1, 1, 1, 0.2, 0.0, 1)
