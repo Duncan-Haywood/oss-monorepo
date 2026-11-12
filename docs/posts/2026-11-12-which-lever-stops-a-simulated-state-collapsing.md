@@ -1,8 +1,8 @@
 ---
 title: "Which lever stops a simulated civilization from collapsing? Pair the cells before you pool them"
-seo_title: "Structural-demographic model: tax, elite cap and welfare levers tested cell by cell"
+seo_title: "Tax, elite cap or welfare: which lever stops a simulated collapse?"
 date: 2026-11-12
-description: "In a toy Turchin-style civilization, a pooled average said no policy lever changes collapses. Paired cell by cell, a higher tax share cuts them in 207 of 330 settings."
+description: "A pooled average said no policy lever changes collapses in a toy Turchin-style model. Paired by setting, a higher tax share cuts them in 207 of 330."
 tags: [research, civ-levers, simulation, structural-demographic-theory, methods]
 ---
 
