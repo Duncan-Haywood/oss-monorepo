@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyfXQhBWrEZGkkhW77s",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T09:54:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: profile buildSite warm (item 1 of the last perf run's Not changed) and fix the top own-code hotspots",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15083",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first timing wrapper used /usr/bin/time, which this container lacks; reran with date stamps (one wasted cold build, ~2 min)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "step 1 sends every run to the backlog first, but both perf items (P063, P064) have been owner-gated for days; the useful pointer was the previous run's Not changed list, which the prompt does not mention"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-the-same-map-3700-times.md",
+    "docs/history/pages-build-perf-2026-11-12-writing-per-page-memos.md"
+  ],
+  "goal": "faster Pages build and build.test.mjs shared build",
+  "notes": "Metric: wall time of `node platform/pages/build.mjs --out=<dir>`, warm caches, this container (4 cores). Before/after taken interleaved old/new/old/new by swapping writing.mjs: 108.9, 97.7, 115.3, 104.2 s; mean 112.1 -> 100.9 s (-10%). Profiled (--cpu-prof) 106.9 -> 91.6 s wall, busy CPU 53.9 -> 39.5 s (self time summed per function). Output byte-identical across 26,332 files except version.json built_at (diff -rq, two pairs). writing.test.mjs + writing-backlog.test.mjs 41/41 pass. Local checks: see PR.",
+  "corrections": [],
+  "redteam": null
+}

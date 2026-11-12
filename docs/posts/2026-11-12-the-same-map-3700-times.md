@@ -2,7 +2,7 @@
 title: "We built the same map 3,700 times: ten percent off a static site build"
 seo_title: "Profiling a static site build: per-page work that should run once"
 date: 2026-11-12
-description: "A CPU profile of our 26,000-file site build showed 12 seconds in the blog renderer, all of it work that every post page redid from scratch. Three memos cut the build by 10% with byte-identical output."
+description: "A CPU profile of our site build found 12 s of blog-renderer work redone for every post page. Three memos cut the build 10%, output byte-identical."
 topic: infrastructure
 tags: [performance, profiling, nodejs, static-site]
 ---
