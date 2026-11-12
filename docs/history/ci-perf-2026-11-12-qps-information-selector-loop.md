@@ -50,15 +50,16 @@ So almost all of it was building a key string for each of the 125k pairs per ste
   coarse ratings so the tie-breaker decides, recent keys, over-cap pools). Each case runs
   twice, the second time with the winner marked recent. The test checks the same pair and
   the same next `rand()` value, so the draw count matches. A fixed case also pins the penalty
-  between 0.038 and 0.08. Mutations caught: penalty 0.1 and 0.03, the `gSq` index swapped,
-  the tie-break noise scale changed, and a wrong key format. One mutation passes, and should:
-  dropping the `inRecent[j]` pre-check changes speed only.
+  between 0.0493 and 0.0512. Ten mutations that change behaviour, all caught: penalty 0.5,
+  0.1, 0.06, 0.04 and 0.03, the `gSq` index swapped, the tie-break noise scale changed,
+  the wrong key format, the conflict bonus ignored, and coverage dropped. One mutation
+  passes, and should: dropping the `inRecent[j]` pre-check changes speed only.
 - Full simulation suite (`npx vitest run --config vitest.simulations.config.ts
   --reporter=json`, 4-core container, `MEASURE_OUT` set): the 14 MEASURE lines are
   **byte-identical** before and after, and 41/41 tests pass both times.
   `pooling.simulation.test.ts` needs the generated Prisma client, so I ran it on its own
   after `npx prisma generate`: 13/13 pass on both versions.
-- `npm run verify` (typecheck, lint, test, build): see the run record's notes.
+- `npm run verify` (typecheck, lint, test, build): exit 0, 58 files and 470/470 tests, build compiled.
 
 ## Numbers
 

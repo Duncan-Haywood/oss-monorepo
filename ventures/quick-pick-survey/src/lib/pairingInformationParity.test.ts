@@ -103,8 +103,8 @@ describe("selectNextPairByInformation matches the per-pair form", () => {
   }
 
   it("a recent pair's score is cut to 0.05", () => {
-    // x0-x1 scores best; x2, far off in rating, scores about 0.08 of it at
-    // +1100 and 0.038 at +1300, so the penalty must sit between the two.
+    // x0-x1 scores best; x2, far off in rating, scores 0.0512 of it at +1220
+    // and 0.0493 at +1230, so the penalty must sit between the two.
     const pick = (offset: number) => {
       const items: PairItem[] = [
         { id: "x0", rating: 1500, rd: 350 },
@@ -115,7 +115,7 @@ describe("selectNextPairByInformation matches the per-pair form", () => {
       expect(selectNextPairByInformation(input)).toEqual(reference(input));
       return selectNextPairByInformation(input);
     };
-    expect(pick(1100)).toEqual(["x0", "x2"]);
-    expect(pick(1300)).toEqual(["x0", "x1"]);
+    expect(pick(1220)).toEqual(["x0", "x2"]);
+    expect(pick(1230)).toEqual(["x0", "x1"]);
   });
 });

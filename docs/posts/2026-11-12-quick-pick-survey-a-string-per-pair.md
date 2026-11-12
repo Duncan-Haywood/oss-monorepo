@@ -43,7 +43,8 @@ We did not take that on faith:
 - A new test keeps the old loop word for word and compares it with the new one. It runs
   hundreds of random pools with deliberately coarse ratings, so ties (and the random
   tie-breaker) decide often, and checks the next random draw too. We broke the new code
-  on purpose six ways, and the test caught every break that changes behaviour.
+  on purpose ten ways that change its behaviour, and the test caught all ten. An
+  eleventh change, which only affects speed, passed, as it should.
 - The simulation suite writes its measurements to a file. Before and after, the
   file is byte-identical.
 
