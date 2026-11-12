@@ -1,9 +1,9 @@
 ---
 title: "Careless or just different? Answer times can tell, if the careless are quick"
-seo_title: "Using answer times to separate careless respondents from a real minority in a pairwise survey"
+seo_title: "Answer times: careless respondents vs a real minority in a survey"
 date: 2026-11-12
 tags: [quick-pick-survey, pairwise-comparison, survey-quality, response-time, simulation]
-description: "In simulation, a respondent's pace never mistook a genuine minority taste for careless clicking, and caught careless people as far as they were faster. We ship it as a note and a comparison, not a default."
+description: "In simulation, answer pace never mistook a genuine minority for careless clickers, and caught them as far as they were quicker. Shipped as a note."
 ---
 
 [Quick Pick Survey](../../ventures/quick-pick-survey/) ranks a list by asking
