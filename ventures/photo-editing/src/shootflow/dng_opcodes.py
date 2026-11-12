@@ -277,7 +277,7 @@ def parse_bad_pixels_list(op: Opcode) -> BadPixelsList:
     points = tuple((flat[2 * i], flat[2 * i + 1]) for i in range(npts))
     flat = struct.unpack_from(f">{4 * nrects}I", p, 12 + 8 * npts)
     rects = tuple(tuple(flat[4 * i : 4 * i + 4]) for i in range(nrects))
-    if any(b <= t or r <= l for t, l, b, r in rects):
+    if any(b <= t or r <= lf for t, lf, b, r in rects):
         raise OpcodeError("FixBadPixelsList with an empty rectangle")
     return BadPixelsList(phase, points, rects)
 
@@ -576,9 +576,9 @@ def run_stage1(ops: list, vals, w: int, h: int, notes: list[str]):
             name = "FixBadPixelsConstant"
         else:
             bad = [r * w + c for r, c in op.points if r < h and c < w]
-            for t, l, b, r in op.rects:
+            for t, lf, b, r in op.rects:
                 for y in range(t, min(b, h)):
-                    bad.extend(range(y * w + l, y * w + min(r, w)))
+                    bad.extend(range(y * w + lf, y * w + min(r, w)))
             done, left = repair_bad_pixels(out, w, h, bad, op.bayer_phase)
             name = "FixBadPixelsList"
         msg = f"OpcodeList1: {name} applied ({done} bad sensels repaired"

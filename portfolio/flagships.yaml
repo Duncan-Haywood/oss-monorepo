@@ -203,9 +203,8 @@ flagships:
       2026-11-12.md; OpcodeList3 WarpRectilinear runs and matches the Leica
       T's own preview to 0.18 px against 4.2 px uncorrected, eval/warp-
       rectilinear-2026-11-12.md; FixVignetteRadial/MapPolynomial on
-      synthetic files, eval/vignette-polynomial-2026-11-12.md;
-      OpcodeList1 FixBadPixelsConstant/List on synthetic files, exact on a
-      plane, eval/bad-pixels-2026-11-12.md).
+      synthetic files, eval/vignette-polynomial-2026-11-12.md; OpcodeList1
+      FixBadPixels*, eval/bad-pixels-2026-11-12.md).
       Next, most valuable first: WarpFisheye, MapTable, Delta/ScalePerRow/
       Column; a real DNG carrying FixVignetteRadial or OpcodeList1 bad pixels;
       lateral colour measured on a real frame with sharp corner edges; a real Adobe `.dcp` through the profile chooser;

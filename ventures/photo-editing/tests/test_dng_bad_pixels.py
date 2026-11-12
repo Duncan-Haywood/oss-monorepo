@@ -34,8 +34,8 @@ def list_params(points=(), rects=(), phase=0):
     out = struct.pack(">3I", phase, len(points), len(rects))
     for r, c in points:
         out += struct.pack(">2I", r, c)
-    for t, l, b, r in rects:
-        out += struct.pack(">4I", t, l, b, r)
+    for t, lf, b, r in rects:
+        out += struct.pack(">4I", t, lf, b, r)
     return out
 
 
@@ -179,8 +179,8 @@ class PlaneTests(unittest.TestCase):
         pts = [(0, 0), (0, self.W - 1), (self.H - 1, 5), (7, 7), (7, 8), (8, 7)]
         rects = [(3, 15, 6, 19), (12, 2, 16, 3)]
         bad = [r * self.W + c for r, c in pts]
-        for t, l, b, r in rects:
-            bad += [y * self.W + x for y in range(t, b) for x in range(l, r)]
+        for t, lf, b, r in rects:
+            bad += [y * self.W + x for y in range(t, b) for x in range(lf, r)]
         for phase in range(4):
             got, _ = self.run_list(img, pts, rects, phase)
             self.assertEqual(list(got), list(reference(img, self.W, self.H, bad, phase)), phase)
