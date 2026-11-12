@@ -42,6 +42,11 @@ Predictions:
   P7  Within 20 degrees, (S) closes at least half of (L)'s km gap to (Fh).
 Descriptive: per |lat| band, km / (L) for every policy, spill and end-pack shares, and eta; excess dark hours.
 
+Correction (after the first run, before any write-up): the committed code mapped (S) and (OS) to (O)'s power
+  estimate (rule[0] of "S" is not "L"), so (S) printed (O)'s numbers. The fix maps (S) to (L) and (OS) to (O); the
+  predictions, rules and every other policy are unchanged, and the first run's other numbers are identical.
+  P3, P4 and P7 below are from the fixed code (the buggy run read all three as refuted; with the fix P4 holds).
+
 Run (from research/marine-hull): PYTHONPATH=src python3 experiments/run_speed_timing.py > experiments/results_speed_timing.txt
 (stdlib, deterministic; uses up to 4 processes)"""
 import os
@@ -63,6 +68,8 @@ YEARS = rc.YEARS
 LEAD = 45
 RULES = ("L", "P", "O", "S", "OS")
 POLICIES = ("Y",) + RULES + ("F", "Fh")
+# Post hoc (written after reading P1 to P7 of the first run; see post_hoc()): smoother causal power estimates.
+POST = {"L30": ("L30", 10), "K": ("K", 10), "K30": ("K", 30), "K60": ("K", 60)}
 BANDS = ((0, 20), (25, 35), (40, 45), (50, 55), (60, 60))
 V_MAX_PROP = yp.speed_for_prop_wh(yp.MAX_PROP_WH)
 
@@ -75,22 +82,27 @@ def prop_wh(v, hotel=HOTEL):
     return (yp.load_w(v, hotel) - hotel) * 24.0 if v > 0 else 0.0
 
 
-def run_rule(sun, T, rule, cap=C, hotel=HOTEL):
+def run_rule(sun, T, rule, cap=C, hotel=HOTEL, hc=None, tau=10):
     """A causal (or one-day oracle) speed rule with energy accounting: dict km, down, dark, spill, end, hotel_wh."""
     h = [yp.harvest_wh(k) for k in sun]
     hd = hotel * 24.0
     soc, km, down, dark, spill, hotel_wh = cap, 0.0, 0, 0.0, 0.0, 0.0
-    base = rule[0]
+    base = {"S": "L", "OS": "O"}.get(rule, rule)
     recapture = rule in ("S", "OS")
     for d, e in enumerate(h):
         if base in ("L", "Y"):
             past = h[max(0, d - 7):d]
             f = st.fmean(past) / 24.0 if past else hotel
+        elif base == "L30":
+            past = h[max(0, d - 30):d]
+            f = st.fmean(past) / 24.0 if past else hotel
+        elif base == "K":
+            f = hc[d] / 24.0
         elif base == "P":
             f = h[d - 1] / 24.0 if d else hotel
         else:  # "O"
             f = e / 24.0
-        p = hotel if f < hotel else f + (soc - T[d]) / (10 * 24.0)
+        p = hotel if f < hotel else f + (soc - T[d]) / (tau * 24.0)
         avail = soc + e
         if avail < hd:
             hotel_wh += avail
@@ -181,9 +193,11 @@ def one(key):
     r["Y"] = run_rule(sun, [0.5 * C] * n, "Y")
     for rule in RULES:
         r[rule] = run_rule(sun, T, rule)
+    for k, (base, tau) in POST.items():
+        r[k] = run_rule(sun, T, base, hc=hc, tau=tau)
     r["F"] = foresight_acct(sun, table)
     r["Fh"] = foresight_acct(sun, table, end_min=0.5 * C)
-    for k in POLICIES:
+    for k in POLICIES + tuple(POST):
         r[k]["P"] = prop_energy(r[k])
         r[k]["K"] = even_km(r[k]["P"], n)
     return key, r
@@ -275,6 +289,33 @@ def main():
     eq = [x for x in keys if abs(R[x]["lat"]) <= 20]
     s7 = share(R, "S", keys=eq)
     print(f"P7 within 20 deg, (S) closes >= half of (L)->(Fh): {'held' if s7 >= 0.5 else 'refuted'} ({s7:.3f})")
+    post_hoc(R)
+
+
+def post_hoc(R):
+    """Written after reading P1 to P7 (first run, with the (S) dispatch bug; the pattern held after the fix). The gap
+    to (F) is not energy: (F) spends about the same propulsion energy as (L) (Fh: 0.5% more) and goes 10% further
+    because it spends it more evenly (eta 0.82 against 0.75; 0.99 against 0.95 within 20 degrees). Every rule that
+    follows the sun more closely ((P), (O)) went less far. So the fix is the opposite of "spend on sunny days": make
+    the power estimate smoother. Variants, all with the same target and pack feedback: (L30) a 30-day trailing mean;
+    (K) the leave-one-year-out climatological harvest for today (the curve the target is built from, so no
+    weather enters the power estimate except through the pack); (K30), (K60) the same with a 30- and 60-day pack
+    feedback time constant instead of 10. Four variants, scored on the same 300 point-years: in sample."""
+    keys = list(R)
+    print("\nPost hoc (written after reading P1 to P7): smoother power estimates; in sample, 4 variants")
+    print("   policy |        km | km / (L) | km / (Fh) | excess dark h | spill MWh | end pack MWh | eta | "
+          "share of (L)->(Fh) closed")
+    for k in ("L",) + tuple(POST) + ("Fh",):
+        km = tot(R, k, "km")
+        print(f"   {k:>6} | {km:9.0f} | {km / tot(R, 'L', 'km'):8.4f} | {km / tot(R, 'Fh', 'km'):9.4f} | "
+              f"{ex(R, k):13.0f} | {tot(R, k, 'spill') / 1e6:9.3f} | {tot(R, k, 'end') / 1e6:12.3f} | "
+              f"{km / tot(R, k, 'K'):.4f} | {share(R, k):.3f}")
+    for lo, hi in BANDS:
+        ks = [x for x in keys if lo <= abs(R[x]["lat"]) <= hi]
+        base = tot(R, "L", "km", ks)
+        print(f"   |lat| {lo:2d}-{hi:2d}: km / (L) " + ", ".join(
+            f"({k}) {tot(R, k, 'km', ks) / base:.4f}" for k in tuple(POST) + ("Fh",))
+            + "; mean excess dark h/yr " + ", ".join(f"({k}) {ex(R, k, ks) / len(ks):.1f}" for k in ("L",) + tuple(POST)))
 
 
 if __name__ == "__main__":

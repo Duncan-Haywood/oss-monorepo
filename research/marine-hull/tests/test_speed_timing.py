@@ -68,5 +68,24 @@ class ForesightAccountingTests(unittest.TestCase):
         self.assertGreaterEqual(r["end"], 0.5 * sp.C - 1e-6)
 
 
+
+class DispatchTests(unittest.TestCase):
+    """The first run dispatched (S) and (OS) to (O)'s power estimate; these pin the fix."""
+
+    def test_recapture_rules_use_their_own_base(self):
+        sun = rc.year_sun(POINT, YEAR)
+        hc = rc.climatology_wh(POINT, YEAR)
+        T = sp.target(hc)
+        L, S, O = (sp.run_rule(sun, T, k) for k in ("L", "S", "O"))
+        self.assertNotAlmostEqual(S["km"], O["km"], places=3)
+        self.assertGreaterEqual(S["km"], L["km"] - 1e-6)
+
+    def test_climatology_rule_needs_hc(self):
+        sun = rc.year_sun(POINT, YEAR)
+        hc = rc.climatology_wh(POINT, YEAR)
+        r = sp.run_rule(sun, sp.target(hc), "K", hc=hc)
+        self.assertGreater(r["km"], 0.0)
+
+
 if __name__ == "__main__":
     unittest.main()
