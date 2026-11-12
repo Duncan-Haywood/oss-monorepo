@@ -1,0 +1,273 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/cbam-cost-estimator",
+  "stratum": "venture",
+  "seed": "2026-11-12",
+  "drawn_by": "sample",
+  "round": 42,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a customs / CBAM compliance consultant who prepares authorised-declarant applications and annual CBAM declarations for EU importers of steel, aluminium, cement, fertilisers and hydrogen",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Wrote an independent Python model (scratchpad/cbam/ind.py) from Regulation 2023/956 Art 21/22/31 and the ETS Directive Art 10a(1a) phase-out (free allocation remaining 97.5, 95, 90, 77.5, 51.5, 39, 26.5, 14, 0%), not from calc.mjs. The certificate arithmetic matches compute() exactly: 1,000 t steel at 2.0/1.37, 2026, EUR 80 -> 664.25 certificates, EUR 53,140; a 2030 aluminium + clinker mix with EUR 10 paid abroad -> 3,914.733 certificates, EUR 313,178.64; 2034 ladder EUR 160,000. CBAM_FACTOR equals the Art 10a(1a) schedule. But four outputs a user acts on are wrong: (1) hydrogen-only imports (10 t) report 'under the 50 t threshold, so you are likely outside CBAM obligations' although Regulation 2025/2083 excludes hydrogen and electricity from the de minimis exemption, so every hydrogen import is in scope; (2) exactly 50 t reports 'over the 50 t threshold' though the exemption covers mass that does not exceed 50 t; (3) fertilisers with Commission default values get the 10/20/30% mark-up where Implementing Regulation 2025/2621 sets 1% for fertilisers (300 t ammonia 2028 at EUR 70: EUR 35,847 vs 21,231, 69% over); (4) tonnes typed '1,200' parse as 1.2 t and flip the threshold verdict to 'outside CBAM'.",
+    "completeness": "Every feature the README and page list runs end to end on node: certificates, euro cost, cost per tonne, % of goods value, 50 t flag, 2026-2034 ladder, 50-150% price ladder, origin carbon price deduction, default-value mark-up, summary text and CSV download (sample test passes). The page's 'Not decided' list discloses CN coverage, precursors, indirect emissions, electricity and declarant deadlines. No stubs or dead links; served page https://marisstella.app/cbam-cost-estimator/ returns 200. The features are present; their domain errors are scored under correctness and domain.",
+    "verification": "Ran cd ventures/cbam-cost-estimator && node --test '*.test.mjs': 26 pass, 0 fail. Seeded 6 mutations in calc.mjs, each reverted with git checkout (git diff --stat -- ventures/ clean afterwards): removing the hydrogen filter (84) and removing the origin-deduction cap (93) were caught; threshold < -> <= (85), CBAM factor 2030 0.485 -> 0.5 (9), mark-up after 2027 0.30 -> 0.20 (16), and the year ladder using the selected year's factor instead of each year's (109) all survived. 4 of 6 survived: tests pin only 2026 and 2034 factors, check ladder monotonicity rather than values, and one test asserts the wrong hydrogen rule.",
+    "craft": "Read calc.mjs (163 lines), calc.test.mjs, page.test.mjs, index.html. Pure functions, one validate path, clear formula comments. Defects: num() replaces only the first comma with a dot, so '1,200' becomes 1.2 and '1.200,5' is rejected; the ladder re-implements the per-line cost loop instead of reusing it; dates.quarterlyHolding is guarded by year >= 2026, always true; an exempt importer still sees 'Estimated CBAM cost for 2026: EUR 1,288.32' headline (20 t steel) next to the 'likely outside CBAM' finding; the hydrogen 'mass' shows as 'Total mass 0 t'.",
+    "claims": "Disclaimer, not-advice clause, 'Everything runs in your browser' and illustrative-preset labels are present and asserted by page.test.mjs; no network calls in index.html or calc.mjs (grep). Dates on the page match the Omnibus as reported by secondary sources: certificate sales from 1 February 2027, declaration and surrender by 30 September of the next year, 50% quarterly holding from 2027. Two claims are not backed by the code: the page promises 'whether you are under the 50-tonne threshold' and gets it wrong for hydrogen and at exactly 50 t; the defaults option says it 'adds the mark-up' but applies the steel/aluminium mark-up to fertilisers. llms.txt source links the github.io host, but the served llms.txt links marisstella.app (curl), so that is source-only, not counted.",
+    "fitness": "An importer finance lead can type tonnes and supplier intensities and get an order-of-magnitude cost and ramp in two minutes, which is the job the page states. A CBAM consultant could not hand it to a client as is: a hydrogen importer is told they are probably exempt, a fertiliser importer on default values sees a cost about 30% too high in 2028, there are no CN codes, no precursor emissions, no Commission default values by country, and the free-allocation benchmarks are not the CBAM benchmarks the definitive period uses.",
+    "domain": "Method (embedded emissions x (1 + mark-up) minus benchmark x remaining free allocation, times price, less origin carbon price) is the Art 21/22/31 shape and the phase-out table is right. Departures: hydrogen de minimis rule inverted; threshold boundary (does not exceed 50 t) off by one; fertiliser mark-up 1% (2025/2621) not modelled; benchmark presets mix vintages: steel 1.328, EAF 0.283, aluminium 1.514, clinker 0.766, ammonia 1.619, nitric 0.302 are the 2013-2020 ETS product benchmarks (Decision 2011/278), hydrogen 6.84 is the 2021-2025 value, and none is the definitive-period CBAM benchmark from the December 2025 implementing act; the origin deduction applies the foreign price to certificates rather than to the emissions actually priced abroad net of rebates (disclosed as an approximation). Sources: Regulation 2023/956 and 2025/2083 as summarised by PwC, EY, Mayer Brown and Clifford Chance (web search 2026-11-12), 2025/2621 mark-ups from secondary guides; the Official Journal text was not fetched, and benchmark values are cited from the auditor's knowledge of the ETS benchmark decisions."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "1,000 t blast-furnace steel, intensity 2.0, benchmark 1.37, 2026, EUR 80: certificates and cost",
+      "method": "Independent Python model from Reg 2023/956 Art 31 and ETS Directive Art 10a(1a) phase-out (97.5% free allocation remaining in 2026)",
+      "command": "python3 scratchpad/cbam/ind.py vs node scratchpad/cbam/run.mjs (case A)",
+      "expected": "664.25 certificates, EUR 53,140.00; 2034: EUR 160,000",
+      "observed": "664.25, 53140, ladder 2034 160000",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "2030 mix: 200 t primary aluminium (8, 1.464) + 5,000 t clinker (0.85, 0.693), EUR 90, EUR 10 paid abroad",
+      "method": "Independent Python model, 51.5% free allocation remaining in 2030",
+      "command": "python3 scratchpad/cbam/ind.py vs node scratchpad/cbam/run.mjs (case B)",
+      "expected": "3,914.733 certificates, EUR 313,178.64",
+      "observed": "3914.733, 313178.64",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "CBAM factor table 2026-2034",
+      "method": "ETS Directive 2003/87 Art 10a(1a) as amended by 2023/959: free allocation 97.5/95/90/77.5/51.5/39/26.5/14/0%",
+      "command": "grep -n CBAM_FACTOR -A3 ventures/cbam-cost-estimator/calc.mjs",
+      "expected": "0.025, 0.05, 0.10, 0.225, 0.485, 0.61, 0.735, 0.86, 1",
+      "observed": "0.025, 0.05, 0.10, 0.225, 0.485, 0.61, 0.735, 0.86, 1",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Hydrogen-only importer (10 t, 2026) threshold verdict",
+      "method": "Regulation (EU) 2025/2083 new Art 2a: the 50 t mass exemption does not apply to hydrogen or electricity (PwC, EY, Mayer Brown summaries, web search 2026-11-12)",
+      "command": "node scratchpad/cbam/run.mjs (case H: hydrogen, tonnes 10)",
+      "expected": "in scope regardless of mass; declarant status needed",
+      "observed": "underThreshold true: 'Total mass 0 t is under the 50 t annual threshold, so you are likely outside CBAM obligations'",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Importer at exactly 50 t of steel",
+      "method": "Regulation 2025/2083 Art 2a: exempt where cumulative net mass does not exceed 50 t per year",
+      "command": "node scratchpad/cbam/run.mjs (case F50: steel-bf, tonnes 50)",
+      "expected": "exempt (at or below 50 t)",
+      "observed": "'Total mass 50 t is over the 50 t annual threshold: you need authorised CBAM declarant status'",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Fertiliser (ammonia 300 t, 2.4/1.57, 2028, EUR 70) with Commission default values",
+      "method": "Implementing Regulation (EU) 2025/2621 default-value mark-ups: 10/20/30% for steel, aluminium, cement, hydrogen; 1% for fertilisers (secondary guides and a Luxembourg authority webinar, web search 2026-11-12)",
+      "command": "python3 scratchpad/cbam/ind.py (case C at 1% and 30%) vs node scratchpad/cbam/run.mjs (case C)",
+      "expected": "303.3 certificates, EUR 21,231 (1% mark-up)",
+      "observed": "512.1 certificates, EUR 35,847 (30% mark-up applied)",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Benchmark presets against EU ETS product benchmarks",
+      "method": "Commission Decision 2011/278 (2013-2020) and Implementing Regulation 2021/447 (2021-2025) benchmark values, from auditor's knowledge (not fetched)",
+      "command": "grep -n 'benchmark:' ventures/cbam-cost-estimator/calc.mjs",
+      "expected": "one consistent vintage, ideally the definitive-period CBAM benchmarks",
+      "observed": "hot metal 1.328, EAF 0.283, aluminium 1.514, clinker 0.766, ammonia 1.619, nitric 0.302 (2013-2020); hydrogen 6.84 (2021-2025); labelled illustrative",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Tonnes typed with an English thousands separator",
+      "method": "node probe of compute()",
+      "command": "node scratchpad/cbam/run.mjs (case K: tonnes '1,200')",
+      "expected": "1,200 t or a validation error",
+      "observed": "1.2 t, underThreshold true, 'likely outside CBAM obligations'",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Year ladder, price ladder, summary text, CSV, origin deduction, default mark-up all run",
+      "method": "node run of SAMPLE and cases A-C",
+      "command": "cd ventures/cbam-cost-estimator && node --test '*.test.mjs'",
+      "expected": "outputs for every listed feature",
+      "observed": "all produced; CSV has 10 lines",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite as shipped",
+      "method": "node --test",
+      "command": "cd ventures/cbam-cost-estimator && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "26 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Seeded mutations caught",
+      "method": "6 sed edits to calc.mjs, each reverted",
+      "command": "node --test '*.test.mjs'",
+      "expected": "each mutation fails a test",
+      "observed": "2 of 6 caught; threshold boundary, 2030 factor, post-2027 mark-up and ladder factor survived",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer, not-advice clause, privacy line, no network calls",
+      "method": "page.test.mjs plus grep of index.html and calc.mjs",
+      "command": "grep -n 'No warranty\\|Everything runs in your browser\\|fetch(' ventures/cbam-cost-estimator/index.html",
+      "expected": "present; no fetch",
+      "observed": "present; no fetch/XHR/beacon",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Dates: certificate sales 1 Feb 2027, declaration by 30 September of next year, 50% quarterly holding from 2027",
+      "method": "Regulation 2025/2083 as summarised by EY, Mayer Brown, Clifford Chance (web search 2026-11-12; one CMS note gives a different first date)",
+      "command": "grep -n 'quarterlyHolding' ventures/cbam-cost-estimator/calc.mjs",
+      "expected": "1 Feb 2027; 30 Sept 2027 for 2026 imports; 50%",
+      "observed": "matches",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Page claim 'whether you are under the 50-tonne threshold' and 'adds the mark-up'",
+      "method": "compared with cases H, F50 and C above",
+      "command": "node scratchpad/cbam/run.mjs",
+      "expected": "threshold and mark-up right for every listed good",
+      "observed": "wrong for hydrogen, for exactly 50 t, and for fertiliser mark-up",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "llms.txt tool link host",
+      "method": "load served file (build rewrites hosts)",
+      "command": "curl -sS https://marisstella.app/cbam-cost-estimator/llms.txt",
+      "expected": "marisstella.app link",
+      "observed": "served file links https://marisstella.app/cbam-cost-estimator/; source has github.io (source-only)",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "Exempt importer headline",
+      "method": "node probe (20 t steel, 2026) and read of index.html:175",
+      "command": "node scratchpad/cbam/run.mjs (case S)",
+      "expected": "headline cost 0 or marked as not owed when under threshold",
+      "observed": "totalCost 1288.32 shown as 'Estimated CBAM cost for 2026' beside the 'likely outside CBAM' finding",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/cbam-cost-estimator/calc.mjs:85",
+      "change": "massCounted < DE_MINIMIS_TONNES -> massCounted <= DE_MINIMIS_TONNES (also the regulation-correct form)",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/cbam-cost-estimator/calc.mjs:9",
+      "change": "CBAM_FACTOR 2030: 0.485 -> 0.5",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/cbam-cost-estimator/calc.mjs:84",
+      "change": "filter l.sector !== 'hydrogen' -> true",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/cbam-cost-estimator/calc.mjs:93",
+      "change": "Math.min(l.grossCost, l.certificates * originPrice) -> l.certificates * originPrice",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/cbam-cost-estimator/calc.mjs:16",
+      "change": "?? 0.30 -> ?? 0.20 (mark-up from 2028)",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/cbam-cost-estimator/calc.mjs:109",
+      "change": "ladder free allocation (1 - f) -> (1 - factor), the selected year's factor for every year",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Hydrogen is excluded from the mass count, so a hydrogen-only importer is told they are 'likely outside CBAM obligations'; under Regulation 2025/2083 the 50 t exemption does not apply to hydrogen (or electricity), so any hydrogen import is in scope. calc.test.mjs:52 asserts the wrong rule.",
+      "where": "ventures/cbam-cost-estimator/calc.mjs:85",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "high",
+      "what": "Default-value mark-up 10/20/30% is applied to fertilisers; Implementing Regulation 2025/2621 sets 1% for fertilisers, so a fertiliser importer on defaults sees cost up to about 30% too high (EUR 35,847 vs 21,231 in the 2028 ammonia case)",
+      "where": "ventures/cbam-cost-estimator/calc.mjs:16",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "num() replaces only the first comma with a dot, so '1,200' tonnes becomes 1.2 t (flipping the threshold verdict) and '1.200,5' is rejected",
+      "where": "ventures/cbam-cost-estimator/calc.mjs:48",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Benchmark presets mix 2013-2020 ETS benchmarks (steel 1.328, aluminium 1.514, clinker 0.766, ammonia 1.619) with a 2021-2025 one (hydrogen 6.84), uncited, and none is the definitive-period CBAM benchmark; presets understate certificates if left in",
+      "where": "ventures/cbam-cost-estimator/calc.mjs:25",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Exactly 50 t is reported as over the threshold; the exemption covers mass that does not exceed 50 t ('Total mass 50 t is over the 50 t')",
+      "where": "ventures/cbam-cost-estimator/calc.mjs:85",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "4 of 6 seeded mutations survive: tests pin only the 2026 and 2034 factors, check the year ladder for monotonicity not values, and never test the post-2027 mark-up or the threshold boundary",
+      "where": "ventures/cbam-cost-estimator/calc.test.mjs:23",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "An importer under the threshold still gets a non-zero 'Estimated CBAM cost' headline; quarterlyHolding is guarded by year >= 2026, always true",
+      "where": "ventures/cbam-cost-estimator/index.html:175",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt source links the old github.io host; the served file links marisstella.app",
+      "where": "ventures/cbam-cost-estimator/llms.txt:9",
+      "category": "source-only",
+      "origin": "audit"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "CBAM Cost Estimator does the certificate arithmetic right: two independent cases match to the cent and the 2026-2034 phase-out table equals the ETS Directive schedule. It does not meet the bar. A CBAM consultant checking the 2026 rules would find that a hydrogen importer is told they are probably exempt (the 50 t exemption excludes hydrogen, it does not exempt it), exactly 50 t is called over the threshold, fertilisers on default values get the 10/20/30% mark-up instead of 1%, and '1,200' tonnes reads as 1.2 t. The benchmark presets are a mix of stale ETS vintages. 26 tests pass but 4 of 6 seeded mutations survive, and one test asserts the wrong hydrogen rule. Correctness, claims, verification and the median are all 2."
+}
