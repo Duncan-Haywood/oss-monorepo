@@ -61,8 +61,8 @@ nearest edge pixel.
 
 from __future__ import annotations
 
-import struct
 import math
+import struct
 from dataclasses import dataclass, field
 
 TAG_OPCODE_LIST_1 = 51008
@@ -158,7 +158,7 @@ def parse_warp_rectilinear(op: Opcode) -> WarpRectilinear:
         raise OpcodeError(f"WarpRectilinear holds fewer than its {n} planes of terms and a centre")
     terms = tuple(struct.unpack_from(">6d", p, 4 + 48 * i) for i in range(n))
     cx, cy = struct.unpack_from(">2d", p, 4 + 48 * n)
-    if not all(v == v and abs(v) < 1e6 for t in terms for v in t) or not (0.0 <= cx <= 1.0 and 0.0 <= cy <= 1.0):
+    if not all(math.isfinite(v) and abs(v) < 1e6 for t in terms for v in t) or not (0.0 <= cx <= 1.0 and 0.0 <= cy <= 1.0):
         raise OpcodeError("WarpRectilinear with terms out of range")
     return WarpRectilinear(terms, cx, cy)
 
