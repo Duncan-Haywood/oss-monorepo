@@ -617,7 +617,7 @@ export function cutShifts(profile, minShift = 4, maxShift = 8, cost = null) {
       while (e < 24 && profile[e] >= k) e++;
       const runEnd = e;
       let len = e - h, s = h;
-      if (len < minShift && cost && k > (cost.minStaff || 0) && hasTail(cost, h, e)) {
+      if (len < minShift && cost && aboveFloor(cost, k, h, e) && hasTail(cost, h, e)) {
         const c = cheapestStretch(profile, staffed, h, e, minShift, cost);
         if (!c) { dropped.push([h, e, k]); h = e; continue; }
         [s, e] = c; len = e - s;
@@ -665,7 +665,7 @@ function joinLevel(profile, staffed, k, minShift, maxShift, cost) {
   const R = runs.length;
   const pc = [0], ps = [0];
   for (let t = 0; t < 24; t++) { pc.push(pc[t] + shiftCost(cost, profile, t, staffed[t] + 1)); ps.push(ps[t] + (profile[t] === 0 ? 1 : 0)); }
-  const droppable = runs.map(([a, b]) => b - a < minShift && k > (cost.minStaff || 0) && hasTail(cost, a, b));
+  const droppable = runs.map(([a, b]) => b - a < minShift && aboveFloor(cost, k, a, b) && hasTail(cost, a, b));
   const better = (x, y) => {
     if (!y) return true;
     if (Math.abs(x.v - y.v) > 1e-12) return x.v < y.v;
@@ -708,6 +708,11 @@ function joinLevel(profile, staffed, k, minShift, maxShift, cost) {
   return best;
 }
 
+// The fewest heads hour t must have whatever the price: cost.floor[t] when given (minimum staff in open hours, the
+// shut-hour minimum in before-open and after-close hours, 2026-11-12 last), else cost.minStaff. A run at or below the
+// floor in any of its hours is never dropped: --shut-min 2 for a lone-worker rule is a rule, not a cost to weigh.
+const floorAt = (cost, t) => (cost.floor ? cost.floor[t] : cost.minStaff || 0);
+const aboveFloor = (cost, k, a, b) => { for (let t = a; t < b; t++) if (k <= floorAt(cost, t)) return false; return true; };
 const hasTail = (cost, a, b) => { for (let t = a; t < b; t++) if (!cost.tail[t]) return false; return true; };
 
 // Expected change in r x short + over from adding one person at hour t when c - 1 are already there: on the share q of
@@ -716,7 +721,7 @@ const hasTail = (cost, a, b) => { for (let t = a; t < b; t++) if (!cost.tail[t])
 // quiet hours it covers; minimum staff counts as needed only in open hours, as in the backtest.
 export function shiftCost(cost, profile, t, c) {
   const tl = cost.tail[t];
-  const q = profile[t] > 0 && c <= (cost.minStaff || 0) ? 1 : tl && c < tl.length ? tl[c] : 0;
+  const q = profile[t] > 0 && c <= floorAt(cost, t) ? 1 : tl && c < tl.length ? tl[c] : 0;
   return (1 - q) - cost.r * q;
 }
 
@@ -793,7 +798,9 @@ export function demandShifts(text, o = {}) {
   // The cut is priced with dated rows whether or not --short-cost is given; without it a short and a spare hour weigh
   // the same (r = 1), the weight the plain backtest scores at.
   const rCut = o.shortCost === undefined ? 1 : Number(o.shortCost);
-  const cutCost = (d) => (s.tail && o.costCut !== false ? { tail: s.tail[d], r: rCut, minStaff, join: o.join === true } : null);
+  const shutMin = shutMinOf(o);
+  const floorOf = (out) => (out ? out.map((v) => (v ? shutMin : minStaff)) : null);
+  const cutCost = (d) => (s.tail && o.costCut !== false ? { tail: s.tail[d], r: rCut, minStaff, floor: floorOf(s.outside && s.outside[d]), join: o.join === true } : null);
   const dropped = [];
   const days = prof.map((p, d) => {
     const shifts = cutShifts(p, minShift, maxShift, cutCost(d));
@@ -902,7 +909,7 @@ export function backtestSales(text, o = {}) {
       // a short-cost weight, the runs the cost-aware cut leaves unstaffed) show up in short and over.
       const plan = !o.shifts ? prof : prof.map((p, d) => {
         // Every row's cut is priced at the weight the week is scored at (rc, or 1), average rows included (2026-11-11).
-        const cost = a.tail && o.costCut !== false ? { tail: a.tail[d], r: rc === null ? 1 : rc, minStaff, join: o.join === true } : null;
+        const cost = a.tail && o.costCut !== false ? { tail: a.tail[d], r: rc === null ? 1 : rc, minStaff, floor: a.outside ? a.outside[d].map((v) => (v ? shutMin : minStaff)) : null, join: o.join === true } : null;
         const row = new Array(24).fill(0);
         for (const [x, y] of cutShifts(p, minShift, maxShift, cost)) for (let t = x; t < y; t++) row[t]++;
         return row;

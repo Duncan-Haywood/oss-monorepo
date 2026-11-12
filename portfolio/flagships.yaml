@@ -194,10 +194,11 @@ flagships:
       with the 4-week window, lunch breaks, --short-cost, priced cut, --count tickets, labour standard with fixed work
       (`/hour`, `/open`, `/close`) and, 2026-11-12 later, `/before-open` and `/after-close` in the shut hours with
       minimum staff off there (README "Closing work after the last sale hour": one closer, 45 min after close +7 h a
-      week vs +20 h in the last hour; two closers, 0 vs +11). Next: close the 100-person gaps (tree, not pricing);
-      cuts or branching that move the score LP on the 60-person pay week; buildRoster end to end on 40-person weeks
-      with exact on; after-close work spread over part of an hour (90 minutes as one person, not two heads) and a
-      shut-hour minimum (lone-worker rules may want two at close); a real Square or Toast item export (columns read,
+      week vs +20 h in the last hour; two closers, 0 vs +11); 2026-11-12 last, shut-door work spreads at 60 min a
+      person into the next hour and `--shut-min` is a floor the priced cut never drops (README "One person staying
+      two hours, or two people locking up"). Next: close the 100-person gaps (tree, not pricing); cuts or branching
+      that move the score LP on the 60-person pay week; buildRoster end to end on 40-person weeks with exact on; a
+      shut-hour minimum by weekday (two closers on late Fridays only); a real Square or Toast item export (columns read,
       made-up rows only); a real published-schedule export for --import-shifts; whether the priced cut's r = 1
       default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing

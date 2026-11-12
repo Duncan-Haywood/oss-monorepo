@@ -206,6 +206,16 @@ test("the backtest scores shut hours at 60 minutes a person and the shut-hour mi
   }
 });
 
+test("the priced cut never drops a shut-hour minimum: two lock up even when a 4-hour shortest shift makes the second closer dear", () => {
+  const plan = (o) => demandShifts(MONDAYS, { standard: "1/ticket + 45/after-close", splh: 60, minShift: 4, maxShift: 8, halfLife: "none", ...o });
+  const heads13 = (r) => r.days[0].shifts.filter(([a, b]) => a <= 13 && b > 13).length;
+  assert.equal(heads13(plan({})), 1);
+  assert.equal(heads13(plan({ shutMin: 2 })), 2);
+  assert.equal(heads13(plan({ shutMin: 2, shortCost: 0.2 })), 2); // even when a short hour is priced cheap
+  const b = backtestSales(MONDAYS, { standard: "1/ticket + 45/after-close", splh: 60, minStaff: 1, shutMin: 2, minShift: 4, warmup: 1, shifts: true });
+  assert.equal(b.methods[0].short, 0);
+});
+
 test("CLI --shut-min puts two on after close", () => {
   const dir = mkdtempSync(join(tmpdir(), "srb-shut-"));
   const f = join(dir, "s.csv");
