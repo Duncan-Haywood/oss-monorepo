@@ -3,7 +3,7 @@ title: "Checking our Gödel-argument results against the published Isabelle proo
 seo_title: "Fitting's Gödel argument: 21 Isabelle claims reproduced in K and S5"
 date: 2026-11-12
 tags: [research, theism-formal-evidence]
-description: "All 21 claims of the Archive of Formal Proofs formalisation of Fitting's ontological argument reproduce in our finite models. Rigid positivity matters only in modal logic K."
+description: "All 21 claims of the AFP Isabelle formalisation of Fitting's ontological argument reproduce in our finite models; rigid positivity matters only in K."
 ---
 
 For two weeks this programme has studied variants of Gödel's ontological argument by
