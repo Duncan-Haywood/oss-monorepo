@@ -146,3 +146,25 @@ test("replayDead revives only dead events, oldest first, optionally per route", 
   assert.equal(s.events[c].status, "delivered");
   assert.deepEqual(replayDead(s, T0 + 9), []);
 });
+
+test("idempotencyKey: each provider's event-id header works on its own", () => {
+  for (const name of ["webhook-id", "x-github-delivery", "x-shopify-webhook-id", "x-gitlab-event-uuid", "x-wc-webhook-delivery-id", "linear-delivery", "idempotency-key", "x-idempotency-key"]) {
+    assert.equal(idempotencyKey("r", { [name]: "id_1" }, "not json"), "r:id_1", name);
+  }
+});
+
+test("humanDuration: one hour reads as 1h, not 60m", () => {
+  assert.equal(humanDuration(3600), "1h");
+  assert.equal(humanDuration(60), "1m");
+  assert.equal(humanDuration(59), "59s");
+});
+
+test("an empty Stripe-shaped id is no key, so distinct events are never absorbed as duplicates", () => {
+  assert.equal(idempotencyKey("r", {}, JSON.stringify({ id: "", type: "x.y" })), null);
+  assert.equal(idempotencyKey("r", {}, JSON.stringify({ id: "  ", type: "x.y" })), null);
+  const s = newState();
+  const a = mk(s, JSON.stringify({ id: "", type: "x.y", n: 1 }), {});
+  const b = mk(s, JSON.stringify({ id: "", type: "x.y", n: 2 }), {});
+  assert.notEqual(a.id, b.id);
+  assert.equal(Object.keys(s.events).length, 2);
+});
