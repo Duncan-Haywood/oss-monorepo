@@ -1,0 +1,261 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/camt053-to-ofx-converter",
+  "stratum": "venture",
+  "seed": "2026-11-12-i",
+  "drawn_by": "sample",
+  "round": 50,
+  "auditor": "agent session (Claude), quality-audit round 50",
+  "status": "audited",
+  "professional": "a treasury / bank-integration engineer (or senior bookkeeper) who loads camt.053 and MT940 statements into QuickBooks, Quicken and Xero; they check first that each entry's sign follows CdtDbtInd and the ISO 20022 RvslInd usage rule, that opening plus booked entries equals CLBD in minor units, that OFX TRNAMT/DTPOSTED/FITID/CURDEF/LEDGERBAL are right per OFX 1.0.2, that FITIDs are unique and stable on re-import, and that currencies with 0 or 3 decimals survive",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Auditor-written camt.053.001.02/.08 files and MT940 text with hand-worked balances, read back through an independent OFX SGML reader (/tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/camt/probe.mjs). Right: overdraft opening (OPBD DBIT 1,000.00) + 2,500.00 - 1,234.56 - 0.44 = 265.00 CRDT reconciles; sum of OFX TRNAMT + opening = BALAMT 265.00; DBIT entries are TRNTYPE DEBIT with negative TRNAMT, DTPOSTED YYYYMMDDHHMMSS; KWD 3-decimal (-350.750) and JPY 0-decimal (-1234, BALAMT 8766) amounts exact; a 3-TxDtls batch whose parts add to 350.700 vs 350.750 is flagged SPLIT; MT940 D500,00 +C1200,00 -D99,99 +RD10,00 = C610,01 reconciles; 2,000 entries with heavy duplication give 2,000 unique FITIDs (max 18 chars); FITIDs for the same entries are identical in a daily and a monthly statement. Wrong: (1) a camt entry CdtDbtInd=CRDT with RvslInd=true (a returned direct debit, money coming back) is written as TRNTYPE DEBIT TRNAMT -100.00 and the statement whose bank CLBD is 1,100.00 is reported as a BALANCE error 'off by 200.00'; ISO 20022 says CdtDbtInd already gives the direction of the reversal booking. (2) camt Bal/Dt is a choice element (<Dt><Dt>..</Dt></Dt>); camtDay reads the outer Dt's empty text, so every balance date is lost and LEDGERBAL DTASOF is the last entry date (20261003) instead of the CLBD date (20261031). (3) A CHF statement without the optional Acct/Ccy gets CURDEF EUR with no warning.",
+    "completeness": "Claimed features run end to end via calc.mjs: camt.053/052/054 and MT940 read (pass), balance check naming the difference (pass), continuity (tests pass), IBAN mod-97 (tests pass), OFX/QBO (OFX 1.02 SGML), QIF, Xero CSV writers (pass), stable FITIDs with sequence suffix (pass), one file per statement (pass), account masking by default (XXXX3000 in ACCTID, pass), pending excluded unless asked (pass). Served page https://marisstella.app/camt053-to-ofx-converter/ returns 200, served calc.mjs md5 equals the source, served llms.txt points at marisstella.app. No stubs or TODOs. README test command fails on Node 22. Reversal handling, which the page lists as a feature, is wrong for camt.",
+    "verification": "node --test '*.test.mjs' in ventures/camt053-to-ofx-converter: 43 pass, 0 fail, 0.18 s. Seven seeded mutations, each reverted with git checkout: Bal DBIT sign removed (calc.mjs:128) survived; LEDGERBAL from opening (calc.mjs:400) caught; FITID sequence suffix removed (calc.mjs:365) caught; amount dropped from the FITID hash (calc.mjs:362) survived; MT940 RD sign +1 -> -1 (calc.mjs:211) survived although the test title says 'RD raises it' (calc.test.mjs:53 only tests RC); DTPOSTED time and TRNTYPE edge (calc.mjs:397) caught; toMinor exponent fixed at 2 (calc.mjs:45) caught. 3 of 7 survived. The camt reversal test (calc.test.mjs:90-92) asserts the wrong behaviour (DBIT+RvslInd -> +3550), and the DTASOF assertion (calc.test.mjs:135) uses a sample whose CLBD date equals the last entry date, masking the Bal-date bug.",
+    "craft": "Read calc.mjs (479 lines), calc.test.mjs, page.test.mjs, index.html. Pure, dependency-free functions with minor-unit integer arithmetic, a small line-tracking XML reader, tests against the shipped module. Defects: camtDay applied to Bal reads the wrong Dt level (calc.mjs:129 via 101-103); MEMO is escaped then sliced to 255, cutting an entity ('aaa&am') (calc.mjs:396-397); currency silently defaults to EUR (calc.mjs:120); very long one-line expressions (calc.mjs:156, 235) and a duplicated .pill.high CSS rule (index.html:40,50). Acceptable to a senior JS reviewer apart from these.",
+    "claims": "Checked: 'never uploaded' backed by page.test.mjs:18-30 (no fetch/XHR/beacon, local imports) and grep finds no network calls - pass. Disclaimer, independence, financial-data and 'read from memory, no live import' notes present (index.html:60, 139-141; VENTURE.yaml) - pass. 'a reversal indicator flips the sign' (index.html:105) - fail: documents behaviour contrary to ISO 20022 RvslInd usage. 'opening plus entries must equal closing' - pass on 3 hand-worked statements. 'stable transaction ID ... same statement always yields the same IDs' (index.html:109,130) - pass. Test title 'the same statement from camt and MT940 gives the same entries and IDs' (calc.test.mjs:138) - fail: second entry's FITIDs differ (2026100301TCNH5 vs 202610031V62L0N); the test compares only date and amount. README 'node --test ventures/camt053-to-ofx-converter/' (README.md:20) - fail on Node 22.23 (Cannot find module). Masking claim - pass.",
+    "fitness": "Walked the job of a German/Dutch bookkeeper converting a month's camt.053 to QBO: ordinary credits and debits convert, reconcile and download correctly, FITIDs dedupe overlapping daily/monthly downloads. In the first hour they hit returned direct debits (Ruecklastschriften, booked CRDT with RvslInd true), common on business accounts: each one produces a false balance error and a wrong-sign transaction that QuickBooks would import as money out. A Swiss bank file that omits Acct/Ccy becomes an EUR OFX. Every fee/charge is TRNTYPE DEBIT (BkTxCd ignored). Nothing has been tried in a live QuickBooks/Xero import (stated on the page).",
+    "domain": "Compared with ISO 20022 camt.053 message definition (Ntry/RvslInd usage: 'If CdtDbtInd is CRDT and RvslInd is Yes, the original operation was a debit entry'; Bal/Dt is DateAndDateTime2Choice) and OFX 1.0.2 (STMTTRN, LEDGERBAL DTASOF, CURDEF, BANKTRANLIST DTSTART/DTEND). Right: CdtDbtInd signs, OPBD/PRCD and CLBD choice, BOOK status in both the 001.02 and 001.08 Sts forms, TxDtls sum check, MT940 C/D/RC/RD per SWIFT (code), :86: ?-subfields, minor-unit arithmetic, OFX SGML header. Departures: camt reversal sign flipped a second time; LEDGERBAL DTASOF not the balance date; DTSTART/DTEND taken from entry dates instead of the statement period (FrToDt or OPBD/CLBD dates); TRNTYPE ignores BkTxCd (no FEE/SRVCHG/INT/DIRECTDEBIT); currency defaulted rather than taken from Bal/Ntry Amt@Ccy."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "hand-worked balance: OPBD 1,000.00 DBIT + 2,500.00 - 1,234.56 - 0.44 vs CLBD 265.00 CRDT, then opening + sum(OFX TRNAMT) vs BALAMT",
+      "method": "hand arithmetic; independent OFX SGML reader written by the auditor",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/camt/probe.mjs",
+      "expected": "no findings; 265.00 = BALAMT 265.00",
+      "observed": "1.findings [] ; [265,\"265.00\",...]",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "camt CRDT entry with RvslInd=true (returned direct debit), OPBD 1,000.00, CLBD 1,100.00",
+      "method": "ISO 20022 camt.053 RvslInd usage rule: CdtDbtInd gives the direction of the reversal booking",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/camt/probe.mjs",
+      "expected": "no BALANCE finding; TRNTYPE CREDIT TRNAMT 100.00",
+      "observed": "BALANCE error off by 200.00; [\"DEBIT\",\"-100.00\"]",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "LEDGERBAL DTASOF for a CLBD dated 2026-10-31 with entries on 2026-10-03",
+      "method": "OFX 1.0.2 LEDGERBAL DTASOF = balance date; camt Bal/Dt/Dt",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/camt/probe.mjs",
+      "expected": "DTASOF 20261031120000",
+      "observed": "20261003120000",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "KWD 3-decimal batch entry and JPY 0-decimal entry",
+      "method": "ISO 4217 minor units; hand arithmetic 1000.000-350.750=649.250, 10000-1234=8766",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/camt/probe.mjs",
+      "expected": "TRNAMT -350.750, -1234; BALAMT 8766; no findings",
+      "observed": "[\"-350.750\",...]; [[],[\"-1234\"],\"8766\"]",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "MT940 D500,00 +C1200,00 -D99,99 +RD10,00 vs 62F C610,01",
+      "method": "SWIFT MT940 field 61 mark C/D/RC/RD; hand arithmetic",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/camt/probe.mjs",
+      "expected": "clean; TRNAMT 1200.00, -99.99, 10.00; BALAMT 610.01",
+      "observed": "[[],[[\"CREDIT\",\"1200.00\",...],[\"DEBIT\",\"-99.99\",...],[\"CREDIT\",\"10.00\",...]],\"610.01\",...]",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "CHF statement without optional Acct/Ccy",
+      "method": "camt.053 Acct/Ccy is optional; currency is on every Amt@Ccy",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/camt/probe.mjs",
+      "expected": "CURDEF CHF (or a warning)",
+      "observed": "[\"EUR\",\"EUR\"], no findings",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "batch Ntry whose 3 TxDtls amounts add to 350.700 vs booked 350.750",
+      "method": "hand arithmetic",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/camt/probe.mjs",
+      "expected": "SPLIT warning",
+      "observed": "SPLIT: Entry amount 350.750 but its 3 transaction details add to 350.700",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "FITID uniqueness over 2,000 heavily duplicated entries and stability daily vs monthly statement",
+      "method": "OFX FITID must be unique per account and stable on re-import",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/camt/probe.mjs",
+      "expected": "2000 unique; same ids in both files",
+      "observed": "[2000,2000,18]; identical arrays",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "node --test '*.test.mjs' (from ventures/camt053-to-ofx-converter)",
+      "expected": "all pass",
+      "observed": "43 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README test command",
+      "method": "run on Node 22.23.4",
+      "command": "node --test ventures/camt053-to-ofx-converter/",
+      "expected": "tests run",
+      "observed": "Error: Cannot find module '/home/user/oss-monorepo/ventures/camt053-to-ofx-converter'",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "test title 'same statement from camt and MT940 gives the same entries and IDs'",
+      "method": "compare exportEntries fitids of sampleCamt and sampleMt940",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/camt/probe.mjs",
+      "expected": "equal FITIDs",
+      "observed": "[202610030GG98T6, 202610031V62L0N] vs [202610030GG98T6, 2026100301TCNH5]",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "no-upload claim",
+      "method": "page.test.mjs:18-30 plus grep for fetch/XMLHttpRequest/sendBeacon/WebSocket",
+      "command": "grep -nE 'fetch|XMLHttp|sendBeacon|WebSocket' index.html calc.mjs usage.mjs",
+      "expected": "no matches",
+      "observed": "no matches",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "served page and served calc.mjs",
+      "method": "curl the live site",
+      "command": "curl -sS https://marisstella.app/camt053-to-ofx-converter/calc.mjs | md5sum",
+      "expected": "200 and md5 equals source",
+      "observed": "200; a96e370f8e1b2f60cd83df853fbad3a3 both",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "MEMO longer than 255 with an escaped &",
+      "method": "SGML entity integrity",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/camt/probe.mjs",
+      "expected": "no truncated entity",
+      "observed": "MEMO ends 'aaa&am'",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/camt053-to-ofx-converter/calc.mjs:128",
+      "change": "Bal CdtDbtInd DBIT ? -1 : 1 -> ? 1 : 1",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/camt053-to-ofx-converter/calc.mjs:400",
+      "change": "LEDGERBAL BALAMT from closing -> opening amount",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/camt053-to-ofx-converter/calc.mjs:365",
+      "change": "FITID sequence suffix removed",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/camt053-to-ofx-converter/calc.mjs:362",
+      "change": "e.amount dropped from the FITID hash input",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/camt053-to-ofx-converter/calc.mjs:211",
+      "change": "MT940 RD sign +1 -> -1",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/camt053-to-ofx-converter/calc.mjs:397",
+      "change": "TRNTYPE amount < 0 -> <= 0 and DTPOSTED 120000 -> 000000",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/camt053-to-ofx-converter/calc.mjs:45",
+      "change": "toMinor 10 ** e -> 10 ** 2",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "camt reversal sign flipped a second time: amount = (credit !== reversal ? 1 : -1). Per ISO 20022 CdtDbtInd already states the direction of the reversal booking, so a CRDT+RvslInd returned direct debit is exported as a -100.00 DEBIT and a statement that reconciles at the bank is reported as a BALANCE error off by twice the amount. The page (index.html:105) and test (calc.test.mjs:90-92) enshrine it; eu-bank-statement-reader/calc.mjs has the same line.",
+      "where": "ventures/camt053-to-ofx-converter/calc.mjs:155",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Balance dates are never read: Bal/Dt is a choice wrapper (<Dt><Dt>2026-10-31</Dt></Dt>) and camtDay(b) reads the outer element's empty text, so LEDGERBAL DTASOF falls back to the last entry date (20261003 instead of 20261031).",
+      "where": "ventures/camt053-to-ofx-converter/calc.mjs:129",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Statement currency defaults to EUR when the optional Acct/Ccy is absent, even when every Bal and Ntry Amt carries Ccy=\"CHF\"; the OFX gets CURDEF EUR and no warning is raised (the currency check compares against the opening balance's CHF).",
+      "where": "ventures/camt053-to-ofx-converter/calc.mjs:120",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "3 of 7 seeded mutations survived: no test has a DBIT balance, RD is never tested despite the title 'RD raises it', and FITID hash inputs are untested; the DTASOF assertion uses a sample where balance date equals entry date.",
+      "where": "ventures/camt053-to-ofx-converter/calc.test.mjs:53",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "MEMO is XML-escaped and then sliced to 255 characters, which can cut an entity in half ('&am'), producing malformed SGML.",
+      "where": "ventures/camt053-to-ofx-converter/calc.mjs:397",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "TRNTYPE is only CREDIT/DEBIT; BkTxCd (e.g. ACMT/MDOP/CHRG fees, PMNT/IDDT direct debits, interest) is ignored, and DTSTART/DTEND come from entry dates, not the statement period.",
+      "where": "ventures/camt053-to-ofx-converter/calc.mjs:393",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Test title claims camt and MT940 give the same IDs; it compares only date and amount, and the FITIDs of the NOTPROVIDED/NONREF entry differ.",
+      "where": "ventures/camt053-to-ofx-converter/calc.test.mjs:138",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "README test command 'node --test ventures/camt053-to-ofx-converter/' fails on Node 22 (Cannot find module); use node --test 'ventures/camt053-to-ofx-converter/*.test.mjs'.",
+      "where": "ventures/camt053-to-ofx-converter/README.md:20",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Does not meet the bar (correctness 2, claims 2, verification 2; median 2); finished (completeness 3). The minor-unit arithmetic, CdtDbtInd signs, 0/3-decimal currencies, TxDtls sum check, MT940 C/D/RC/RD handling and FITID uniqueness/stability all recompute exactly on auditor-written camt.053 and MT940 files read back through an independent OFX reader. A bank-integration engineer would not sign it off: a camt reversal (CRDT+RvslInd, e.g. a returned direct debit) is exported with the wrong sign and a reconciling statement is reported as off by twice the amount, contrary to the ISO 20022 RvslInd usage rule and as documented on the page; balance dates are never read, so LEDGERBAL DTASOF is wrong whenever the statement ends after its last entry; a statement without Acct/Ccy becomes EUR silently. Three of seven seeded mutations in core logic left all 43 tests green."
+}
