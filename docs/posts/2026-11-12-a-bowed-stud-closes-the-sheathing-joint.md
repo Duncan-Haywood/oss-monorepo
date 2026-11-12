@@ -2,7 +2,8 @@
 title: "A bowed stud closes the sheathing joint, and a better robot can't reopen it"
 date: 2026-11-12
 tags: [buildbot-sheathing, construction-robotics, tolerance-analysis, lumber, simulation]
-description: At published 2x4 warp, a nailing robot that reads each stud three times gets 80% clean sheets. Even perfect sensing gets 87%. A 3x or doubled stud at the joints gets 100%.
+seo_title: "A bowed stud closes the sheathing joint for a nailing robot"
+description: At published 2x4 warp a nailing robot reading each stud three times gets 80% clean sheets, perfect sensing 87%; a 3x or doubled joint stud gets 100%.
 ---
 
 Yesterday's step of the `buildbot-sheathing` programme found that a sheathing robot has about ±3.1 mm to land each of the 34 joint nails on a 4x8 sheet. The joint nail has to sit 3/8 in in from a sheet edge that already sits 1/16 in past the stud's centre line, and still have its shank on a 1.5 in stud face. That model treated the studs as straight. Today's step lets them warp the way real lumber does.
