@@ -91,6 +91,9 @@ export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'ch
   const split = events.some((e) => e.type === 'note' && e.voice);
   const sings = (voice, keep) => voice === 'all' || (typeof voice === 'string' && voice.split('+').includes(keep));
   const baritones = split && events.some((e) => e.type === 'note' && sings(e.voice, 'baritone') && e.voice !== 'all');
+  // With second tenors (voices like 'tenor2+baritone') a Second tenors track (channel 7) follows
+  // the first tenors' track, which is then named First tenors.
+  const tenors2 = split && events.some((e) => e.type === 'note' && sings(e.voice, 'tenor2') && e.voice !== 'all');
   const section = (keep, ch, name) => {
     const tl = [[0, meta(0x03, [...new TextEncoder().encode(name)])], [0, [0xc0 | ch, 52]]];
     let tt = 0;
@@ -105,7 +108,7 @@ export function eventsToMidi(events, { bpm = 124, pulsesPerBeat = 2, title = 'ch
     return track(tl);
   };
   const tracks = split
-    ? [track(conductor), section('tenor', 0, 'Tenors'), ...(baritones ? [section('baritone', 5, 'Baritones')] : []), section('bass', 4, 'Basses')]
+    ? [track(conductor), section('tenor', 0, tenors2 ? 'First tenors' : 'Tenors'), ...(tenors2 ? [section('tenor2', 6, 'Second tenors')] : []), ...(baritones ? [section('baritone', 5, 'Baritones')] : []), section('bass', 4, 'Basses')]
     : [track(conductor), track(choir)];
   if (drone && lastMidi !== null && end > 0) {
     const d = lastMidi - 12;

@@ -104,6 +104,10 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   a section joins a passage only when it sings more than N notes. The premise was weak: octave-wide, a section that
   enters sings a median of 19 notes (1 of 238 entrances under 4 notes). Cost 8 cuts changes of singer 484 to 435
   for 1.3% more section-notes left out (eval/entrance-cost-report.md). Default 0. Not tried with singers.
+- 2026-11-13, latest: `--second-tenors` (README "Four sections"): TTBB, 15 section sets, same exact DP. Octave-wide,
+  second tenors a tone under the tenors: 65 of 67 files fit (64 with three), one-section notes 29.9% to 13.7%, changes
+  of singer 484 to 569 (eval/four-sections-report.md). A section added on top gains nothing; textbook ranges gain
+  nothing. Studio page option too. Not tried with singers.
 
 ## Next
 

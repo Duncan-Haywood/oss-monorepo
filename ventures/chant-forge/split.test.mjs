@@ -466,3 +466,120 @@ test('CLI --entrance-cost: passes through to the split and is checked', () => {
   assert.equal(run([f, '--entrance-cost', '4']).code, 2);
   assert.equal(run([f, '--split-voices', '--entrance-cost', 'x']).code, 2);
 });
+
+// ---- Four sections (TTBB): second tenors (2026-11-13) ----
+const OCTAVE4 = { tenor: { low: 52, high: 64 }, tenor2: { low: 50, high: 62 }, baritone: { low: 48, high: 60 }, bass: { low: 45, high: 57 } };
+const SECTIONS4 = { tenor: TENOR_RANGE, tenor2: { low: 48, high: 67 }, baritone: BARITONE, bass: BASS_RANGE };
+
+test('four sections: every note is in the range of every section that sings it, on all 67 files and both range sets', () => {
+  for (const secs of [SECTIONS4, OCTAVE4]) {
+    for (const f of files) {
+      const r = splitVoices(load(f), { ...secs, overlap: true });
+      if (!r.fits) continue;
+      assert.deepEqual(r.sections, ['tenor', 'tenor2', 'baritone', 'bass']);
+      assert.equal(Object.values(r.voiceNotes).reduce((a, b) => a + b, 0), r.notes, f);
+      for (const e of r.events.filter((x) => x.type === 'note')) {
+        const g = rangeOf(e.voice, secs);
+        assert.ok(e.midi >= g.low && e.midi <= g.high, `${f}: ${e.midi} for ${e.voice}`);
+      }
+    }
+  }
+});
+
+test('four sections: octave-wide TTBB fits 65 of 67 files (3407.gabc gained), and fewer notes are left to one section', () => {
+  const fits = files.filter((f) => splitVoices(load(f), OCTAVE4).fits);
+  assert.equal(fits.length, 65);
+  assert.ok(fits.some((f) => f.endsWith('3407.gabc')));
+  assert.equal(splitVoices(load(fits.find((f) => f.endsWith('3407.gabc'))), { ...OCTAVE4, tenor2: null }).fits, false);
+  // eval/four-sections-report.md: one section alone on 29.9% of notes with three, 13.7% with four
+  let lone3 = 0, lone4 = 0, n = 0;
+  for (const f of files) {
+    const e = load(f);
+    const a = splitVoices(e, { ...OCTAVE4, tenor2: null, overlap: true }), b = splitVoices(e, { ...OCTAVE4, overlap: true });
+    if (!a.fits || !b.fits) continue;
+    n++;
+    const lone = (r) => Object.entries(r.voiceNotes).filter(([v]) => v !== 'all' && !v.includes('+')).reduce((s, [, x]) => s + x, 0);
+    lone3 += lone(a); lone4 += lone(b);
+  }
+  assert.equal(n, 64);
+  assert.ok(lone4 * 2 < lone3, `${lone4} vs ${lone3}`);
+});
+
+test('four sections: the DP is exact (brute force over every assignment of 120 random small chants)', () => {
+  let seed = 11;
+  const rnd = (k) => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed % k; };
+  const names = Object.keys(OCTAVE4);
+  const sets = [];
+  for (let m = 1; m < 16; m++) sets.push(m === 15 ? 'all' : names.filter((_, k) => m & (1 << k)).join('+'));
+  for (let t = 0; t < 120; t++) {
+    const phr = 1 + rnd(4);
+    const spec = [];
+    for (let k = 0; k < phr; k++) {
+      const n = 1 + rnd(3);
+      for (let j = 0; j < n; j++) spec.push(String(44 + rnd(22)));
+      if (k < phr - 1) spec.push('|');
+    }
+    const e = ev(spec.join(' '));
+    const r = splitVoices(e, { ...OCTAVE4, shift: 0, words: 'never' });
+    const ps = phrasesOf(e);
+    let best = null;
+    const walk = (k, acc, missing, changes) => {
+      if (k === ps.length) { if (!best || missing < best[0] || (missing === best[0] && changes < best[1])) best = [missing, changes]; return; }
+      for (const v of sets) {
+        const g = rangeOf(v, OCTAVE4);
+        if (g.low > g.high || ps[k].lo < g.low || ps[k].hi > g.high) continue;
+        const size = v === 'all' ? 4 : v.split('+').length;
+        walk(k + 1, v, missing + (4 - size) * ps[k].notes, changes + (k && v !== acc ? 1 : 0));
+      }
+    };
+    walk(0, null, 0, 0);
+    assert.equal(r.fits, best !== null, spec.join(' '));
+    if (!best) continue;
+    const missing = r.events.filter((x) => x.type === 'note').reduce((a, x) => a + 4 - (x.voice === 'all' ? 4 : x.voice.split('+').length), 0);
+    assert.deepEqual([missing, r.changes], best, spec.join(' '));
+  }
+});
+
+test('four sections: describeSplit names first and second tenors', () => {
+  // 68-69 is above the second tenors (C3-G4) and the baritones: first tenors alone
+  const r = splitVoices(ev('50 52 55 | 68 69 | 52 50'), { ...SECTIONS4, shift: 0 });
+  assert.deepEqual(r.phrases.map((p) => p.voice), ['all', 'tenor', 'all']);
+  assert.match(describeSplit(r), /first tenors alone on phrase 2 \(2 notes\)/);
+  // 66-67: both tenor sections, and the list reads "first tenors and second tenors"
+  const s = splitVoices(ev('50 52 55 | 66 67 | 52 50'), { ...SECTIONS4, shift: 0 });
+  assert.equal(s.phrases[1].voice, 'tenor+tenor2');
+  assert.match(describeSplit(s), /first tenors and second tenors together on phrase 2/);
+  assert.equal(s.tenor2Notes, 0);
+  assert.deepEqual(s.sectionNotes, { tenor: 7, tenor2: 7, baritone: 5, bass: 5 });
+});
+
+test('CLI --second-tenors: a Second tenors track, T1/T2 who column, flag checks', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cf-split4-'));
+  const mid = join(dir, 'd.mid'), cues = join(dir, 'd.txt');
+  const f = join(corpus, 'dies-irae.gabc');
+  const base = [f, '--split-voices', '--baritones', '--tenor', '52-64', '--tenor2', '50-62', '--baritone', '48-60', '--bass', '45-57'];
+  const r = run([...base, '--fit', '8', '-o', mid, '--cues', cues, '--json']);
+  assert.equal(r.code, 0, r.text);
+  const v = JSON.parse(r.text).voices;
+  const m = parseMidi(readFileSync(mid));
+  const byCh = (ch) => m.notes.filter((n) => n.ch === ch).length;
+  assert.equal(byCh(0), v.sectionNotes.tenor);
+  assert.equal(byCh(6), v.sectionNotes.tenor2);
+  assert.equal(byCh(5), v.sectionNotes.baritone);
+  assert.equal(byCh(4), v.sectionNotes.bass);
+  assert.ok(v.sectionNotes.tenor2 > 0);
+  assert.match(v.line, /second tenors/);
+  const tracks = readFileSync(mid).toString('latin1');
+  assert.ok(tracks.includes('First tenors') && tracks.includes('Second tenors'));
+  const who = readFileSync(cues, 'utf8').split('\n').filter((l) => l && !l.startsWith('--')).slice(1).map((l) => l.trim().split(/\s+/)[5]);
+  const ok = /^(all|((T1|T2|Bar|B)(\+(T2|Bar|B))*))$/;
+  assert.ok(who.every((w) => ok.test(w)), who.find((w) => !ok.test(w)));
+  assert.ok(who.some((w) => w.includes('T2')));
+  assert.ok(!who.some((w) => /(^|\+)T(\+|$)/.test(w)), 'plain T is T1 once second tenors sing');
+  assert.equal(run([f, '--second-tenors']).code, 2);
+  assert.equal(run([f, '--split-voices', '--tenor2', '60-40']).code, 2);
+  // three sections: the default (no second tenors) output is unchanged
+  const three = JSON.parse(run([f, '--split-voices', '--baritones', '--json']).text).voices;
+  assert.equal(three.tenor2Notes, undefined);
+  assert.ok(!('tenor2' in three.sectionNotes));
+});

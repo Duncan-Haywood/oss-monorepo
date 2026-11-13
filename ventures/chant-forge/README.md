@@ -446,6 +446,43 @@ If the changes of singer are a problem for real singers, the lever is the ranges
 penalty. `split.test.mjs` (4 new tests, 27 in all) covers the tie at N, the brute-force check, the corpus count and
 the CLI flag. Not tried with singers.
 
+## Four sections: first and second tenors (TTBB, 2026-11-13, latest)
+
+Most men's choral writing is in four parts, TTBB. `--second-tenors` (with `--split-voices`, usually with
+`--baritones`) splits the tenors into first and second tenors; `--tenor` is then the first tenors' range and
+`--tenor2 LOW-HIGH` (default C3-G4, MIDI 48-67, a rule of thumb; it implies `--second-tenors`) the second tenors'.
+The DP is the same one: a phrase or word goes to any of the 15 sets of four sections whose common range holds it,
+leaving out as few section-notes as possible, then with as few changes of singer (brute-forced against every
+assignment on 120 random chants). Without the flag every one-, two- and three-section result is unchanged. The MIDI
+gets a Second tenors track (channel 7) after a track now named First tenors; the cue sheet's `who` column says `T1`,
+`T2`, `T1+T2+Bar` and so on; the studio page has a "First and second tenors, baritones and basses (TTBB)" choice.
+
+```
+node cli.mjs corpus/dies-irae.gabc --split-voices --baritones --second-tenors --tenor 52-64 --tenor2 50-62 --baritone 48-60 --bass 45-57
+```
+
+`eval/four-sections.mjs` (report: `eval/four-sections-report.md`) measured TTBB against the three-section choirs of
+`eval/three-sections.mjs` on the corpus, building the fourth section two ways: **split** (the same tenors divided, the
+second tenors two semitones lower at the top, so the choir's compass is unchanged) and **higher** (a first-tenor
+section a minor third above the old tenors). Ranges are assumptions. Because a full choir of four is harder to reach
+than one of three, the fair comparison is the share of the choir singing an average note, not the full-choir share.
+
+- **A fourth section helps in the middle, not on top.** Octave-wide sections, split: 65 of 67 files fit instead of 64
+  (`3407.gabc` gained); notes one section carries alone fall from 29.9% to 13.7%, notes with three or more sections
+  rise from 10.2% to 49.8%, and the share of the choir per note moves from 59.9% to 61.4%. The cost is changes of
+  singer, 484 to 569, and entrances, 319 to 487. Octave-wide, higher: nothing gained (64 files) and the share falls to
+  47.3%, because the new top section reaches few of the chant's notes once the line sits for the lower three.
+- **With wide ranges there is nothing to buy.** Textbook ranges fit all 67 files with three sections at 99.8% of the
+  choir per note; TTBB is the same (99.7%) with 17 changes of singer instead of 14. Amateur ranges, split: three or
+  more sections on 87.6% of notes instead of 74.4%, the same share of the choir (90.7% against 91.0%) and the same
+  280 changes, but 223 entrances instead of 160.
+
+So for a chant, TTBB is a texture choice rather than a range fix: it puts more sections on each note when the
+sections are narrow, and it never makes a chant singable that three sections at textbook ranges cannot sing. A
+director with an octave-wide amateur choir gains most from it. `split.test.mjs` (5 new tests, 32 in all) checks every
+note against the ranges of every section singing it on all 67 files under two TTBB range sets, the corpus counts, the
+brute-force check, the MIDI tracks against per-section counts and the T1/T2 cue column. Not tried with singers.
+
 ## Mix and master check
 
 ```sh
