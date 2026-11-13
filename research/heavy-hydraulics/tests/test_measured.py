@@ -367,3 +367,27 @@ def test_gear_pump_point_recovers_a_known_pump():
         raise AssertionError("expected ValueError")
     except ValueError:
         pass
+
+
+def test_gear_pump_point_skip_short_drops_a_curve_not_drawn_at_the_speed():
+    from heavy_hydraulics.measured import gear_pump_point
+    V, eta_hm, drag = 44.0, 0.85, 1.2
+    rows = []
+    for n in (700, 800, 900, 1000, 1100, 2100):
+        for p in (7, 250):
+            rows.append((44, "flow", p, n, V * n / 1000 - 0.03 * p))
+        for p in (100, 150, 250):
+            if p == 250 and n < 1000:            # the rated curve starts at 1000 r/min, as Danfoss draws it
+                continue
+            rows.append((44, "power", p, n, drag * n / 2100 + V * n / 1000 * p / 600 / eta_hm))
+    try:
+        gear_pump_point(rows, 44, 850)
+        raise AssertionError("expected ValueError")
+    except ValueError:
+        pass
+    _, power = gear_pump_point(rows, 44, 850, skip_short=True)
+    assert abs(power(0) - drag * 850 / 2100) < 1e-9
+    assert abs(power(250) - (drag * 850 / 2100 + V * 0.85 * 250 / 600 / eta_hm)) < 1e-9
+    _, p_full = gear_pump_point(rows, 44, 2100)
+    _, p_skip = gear_pump_point(rows, 44, 2100, skip_short=True)
+    assert p_full(180) == p_skip(180)

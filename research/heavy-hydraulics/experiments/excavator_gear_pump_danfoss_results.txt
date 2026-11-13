@@ -1,0 +1,117 @@
+Milestone 6m: excavator break-even with a second gear-pump maker (Danfoss GearMe Group 3, SNP3) as the fixed pump
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps: Danfoss BC319661777599en-000202 (2023) pp. 6 and 19-21, ISO VG46 at 50 C; Casappa KAPPA K 05 T A (2012) pp. 4 and 9-11, 50 C; both read from vector paths)
+
+Danfoss SNP3 at 2100 r/min, from the technical-information curves:
+  size  V cm3/r  Q20 L/min  Q7/(Vn) at 2000  eta_v(150)  eta_t(100)  eta_t(150)  eta_t(hi)  hi bar  P(0) kW  drag bar  drag(LSQ) bar
+    22    22.1      44.81            0.966       0.945       0.837       0.841      0.826     250     0.34      4.55           1.55
+    26    26.2      52.54            0.955       0.934       0.845       0.855      0.846     250     0.65      7.37           4.55
+    33    33.1      68.38            0.984       0.963       0.787       0.802      0.791     250     1.11      9.74           5.08
+    38    37.9      76.95            0.968       0.947       0.814       0.862      0.797     250     2.91     22.70          -6.03
+    44    44.1      90.66            0.979       0.959       0.836       0.839      0.930     250     0.57      3.77          29.96
+    48    48.3      95.19            0.937       0.912       0.704       0.751      0.801     230     4.87     30.72          37.81
+    55    55.1     113.28            0.982       0.941       0.831       0.857      0.910     230     3.02     15.97          28.06
+    63    63.4     128.96            0.971       0.937       0.815       0.832      0.890     210     2.59     12.04          28.39
+    75    74.4     153.13            0.982       0.954       0.806       0.823      0.834     180     2.84     11.11          13.72
+    90    88.2     182.63            0.991       0.940       0.467       0.496      0.492     140    14.59     47.92          47.92
+  (eta_v(150) is over the page 6 displacement; Q7/(Vn) checks the drawing against that table)
+  overall efficiency at 150 bar over the ten sizes: 0.496 to 0.862, median 0.835
+  q_nom range: Danfoss 44.8 to 182.6 L/min, Casappa 55.8 to 157.3; over the shared 55.8 to 157.3, Danfoss minus Casappa eta_t: 100 bar median +0.066 (range -0.055 to +0.114); 150 bar median +0.068 (range -0.014 to +0.130); 200 bar median +0.073 (range -0.020 to +0.118)
+  Danfoss over Casappa at 150 bar: median ratio 1.089 (range 0.982 to 1.182); 6k's sign flip sits near 1.09
+  piston pump (6g table, 60 C, full stroke): eta 0.840 at 150 bar; zero-stroke drag k0 7.86 bar of full-stroke flow (6h)
+
+Idle power, kW (PVG32 neutral, working speed): q_p 60: Danfoss 2.16 / Casappa 2.23, 80: Danfoss 4.21 / Casappa 3.35, 100: Danfoss 6.93 / Casappa 4.10, 150: Danfoss 7.38 / Casappa 6.81
+  Danfoss idle power equals load-sensing standby (2.96 kW) at q_p 69.6 L/min (Casappa 6k: 75.6; piston 6j: 83.4)
+
+check: the Casappa variant reproduces 6k at S = 0.38: central 1.884 (6k 1.884), share 9.9% (6k 9.9%)
+central geometry, fixed-pump efficiency at q_p 85 L/min (p + m* = 136.2 bar): danfoss 0.844, danfoss8 0.844, casappa 0.759, piston 0.839
+central geometry, fixed-pump efficiency at q_p 101 L/min (p + m* = 144.8 bar): danfoss 0.782, danfoss8 0.782, casappa 0.770, piston 0.840
+median Danfoss minus Casappa full-stroke efficiency over pump sizes, per geometry: median +0.074 (range +0.063 to +0.078); piston minus Danfoss -0.002 (-0.003 to +0.007)
+
+danfoss, central setting (PVG32 neutral, standby 2 L/min, working speed):
+  record only (S = s0): central 6.060 L/h at q_p 113.5; median 4.85 (p10 3.35, p90 8.47); beats 3.986: 77.9%, 5.056: 47.7%; median maximising q_p 77.0
+  S = 0.20: central 5.135 L/h at q_p 90.5; median 4.67 (p10 3.32, p90 8.75); beats 3.986: 70.6%, 5.056: 44.0%; median maximising q_p 80.0
+  S = 0.30: central 5.145 L/h at q_p 90.5; median 4.66 (p10 3.33, p90 8.93); beats 3.986: 69.5%, 5.056: 42.7%; median maximising q_p 90.5
+  S = 0.38: central 5.156 L/h at q_p 90.5; median 4.73 (p10 3.37, p90 9.22); beats 3.986: 70.1%, 5.056: 44.0%; median maximising q_p 90.5
+  S = 0.40: central 5.159 L/h at q_p 90.5; median 4.76 (p10 3.38, p90 9.34); beats 3.986: 70.1%, 5.056: 44.3%; median maximising q_p 90.5
+  S = 0.50: central 5.179 L/h at q_p 90.5; median 4.91 (p10 3.51, p90 9.81); beats 3.986: 75.0%, 5.056: 46.6%; median maximising q_p 90.5
+
+danfoss without 090, central setting (PVG32 neutral, standby 2 L/min, working speed):
+  record only (S = s0): central 6.060 L/h at q_p 113.5; median 4.85 (p10 3.35, p90 8.47); beats 3.986: 77.9%, 5.056: 47.7%; median maximising q_p 77.0
+  S = 0.20: central 5.135 L/h at q_p 90.5; median 4.67 (p10 3.32, p90 8.75); beats 3.986: 70.6%, 5.056: 44.0%; median maximising q_p 80.0
+  S = 0.30: central 5.145 L/h at q_p 90.5; median 4.66 (p10 3.33, p90 8.93); beats 3.986: 69.5%, 5.056: 42.7%; median maximising q_p 90.5
+  S = 0.38: central 5.156 L/h at q_p 90.5; median 4.73 (p10 3.37, p90 9.22); beats 3.986: 70.1%, 5.056: 44.0%; median maximising q_p 90.5
+  S = 0.40: central 5.159 L/h at q_p 90.5; median 4.76 (p10 3.38, p90 9.34); beats 3.986: 70.1%, 5.056: 44.3%; median maximising q_p 90.5
+  S = 0.50: central 5.179 L/h at q_p 90.5; median 4.91 (p10 3.51, p90 9.81); beats 3.986: 75.0%, 5.056: 46.6%; median maximising q_p 90.5
+
+danfoss moving, casappa idle, central setting (PVG32 neutral, standby 2 L/min, working speed):
+  record only (S = s0): central 6.115 L/h at q_p 113.5; median 4.89 (p10 3.36, p90 8.57); beats 3.986: 78.9%, 5.056: 48.2%; median maximising q_p 77.0
+  S = 0.20: central 5.153 L/h at q_p 113.5; median 4.85 (p10 3.35, p90 8.79); beats 3.986: 75.5%, 5.056: 46.6%; median maximising q_p 77.0
+  S = 0.30: central 4.776 L/h at q_p 90.5; median 4.81 (p10 3.34, p90 8.97); beats 3.986: 73.7%, 5.056: 45.3%; median maximising q_p 77.0
+  S = 0.38: central 4.628 L/h at q_p 90.5; median 4.74 (p10 3.30, p90 9.14); beats 3.986: 72.7%, 5.056: 45.8%; median maximising q_p 77.0
+  S = 0.40: central 4.585 L/h at q_p 90.5; median 4.74 (p10 3.31, p90 9.23); beats 3.986: 72.7%, 5.056: 45.6%; median maximising q_p 77.0
+  S = 0.50: central 4.324 L/h at q_p 89.5; median 4.76 (p10 3.32, p90 9.58); beats 3.986: 72.7%, 5.056: 46.1%; median maximising q_p 77.0
+
+casappa (6k), central setting (PVG32 neutral, standby 2 L/min, working speed):
+  record only (S = s0): central 2.239 L/h at q_p 89.0; median 1.68 (p10 1.00, p90 3.19); beats 3.986: 3.9%, 5.056: 0.5%; median maximising q_p 71.5
+  S = 0.20: central 2.087 L/h at q_p 87.5; median 1.75 (p10 1.07, p90 3.53); beats 3.986: 5.7%, 5.056: 0.8%; median maximising q_p 70.5
+  S = 0.30: central 1.981 L/h at q_p 86.0; median 1.84 (p10 1.13, p90 3.79); beats 3.986: 8.6%, 5.056: 2.3%; median maximising q_p 70.0
+  S = 0.38: central 1.884 L/h at q_p 84.5; median 1.89 (p10 1.20, p90 3.96); beats 3.986: 9.9%, 5.056: 3.4%; median maximising q_p 69.0
+  S = 0.40: central 1.876 L/h at q_p 77.5; median 1.91 (p10 1.23, p90 4.02); beats 3.986: 10.9%, 5.056: 3.4%; median maximising q_p 69.0
+  S = 0.50: central 1.870 L/h at q_p 74.5; median 2.04 (p10 1.34, p90 4.44); beats 3.986: 14.3%, 5.056: 6.8%; median maximising q_p 68.0
+
+piston (6j), central setting (PVG32 neutral, standby 2 L/min, working speed):
+  record only (S = s0): central 5.605 L/h at q_p 101.0; median 4.66 (p10 3.38, p90 8.74); beats 3.986: 66.9%, 5.056: 44.5%; median maximising q_p 76.0
+  S = 0.20: central 5.367 L/h at q_p 99.0; median 4.84 (p10 3.48, p90 9.16); beats 3.986: 69.5%, 5.056: 44.3%; median maximising q_p 75.0
+  S = 0.30: central 5.209 L/h at q_p 97.5; median 4.77 (p10 3.49, p90 9.55); beats 3.986: 72.1%, 5.056: 47.1%; median maximising q_p 74.8
+  S = 0.38: central 5.070 L/h at q_p 96.0; median 4.79 (p10 3.52, p90 9.88); beats 3.986: 74.0%, 5.056: 47.9%; median maximising q_p 74.5
+  S = 0.40: central 5.034 L/h at q_p 95.5; median 4.82 (p10 3.53, p90 10.02); beats 3.986: 74.7%, 5.056: 47.4%; median maximising q_p 74.5
+  S = 0.50: central 4.843 L/h at q_p 93.0; median 4.97 (p10 3.54, p90 10.85); beats 3.986: 78.4%, 5.056: 48.4%; median maximising q_p 73.5
+
+Danfoss, all settings at S = 0.38 (reading, standby flow L/min, idle speed ratio; at ratio 0.5 a power curve not drawn down to 1050 r/min is left out):
+  PVG32        q_sb 2 n_r 1.0: central 5.156 L/h at q_p 90.5; median 4.73 (p10 3.37, p90 9.22); beats 3.986: 70.1%, 5.056: 44.0%; median maximising q_p 90.5
+  PVG32        q_sb 0 n_r 1.0: central 5.114 L/h at q_p 90.5; median 4.66 (p10 3.34, p90 9.08); beats 3.986: 68.8%, 5.056: 43.0%; median maximising q_p 90.5
+  PVG32        q_sb 0 n_r 0.5: central 6.194 L/h at q_p 113.5; median 4.69 (p10 3.38, p90 8.48); beats 3.986: 72.9%, 5.056: 43.2%; median maximising q_p 90.5
+  PVG32        q_sb 2 n_r 0.5: central 6.286 L/h at q_p 113.5; median 4.77 (p10 3.46, p90 8.58); beats 3.986: 75.5%, 5.056: 44.8%; median maximising q_p 90.5
+  PVG32        q_sb 5 n_r 1.0: central 5.219 L/h at q_p 90.5; median 4.85 (p10 3.42, p90 9.50); beats 3.986: 73.7%, 5.056: 46.6%; median maximising q_p 90.5
+  PVG32        q_sb 5 n_r 0.5: central 6.424 L/h at q_p 113.5; median 4.90 (p10 3.53, p90 8.76); beats 3.986: 78.1%, 5.056: 48.4%; median maximising q_p 90.5
+  Salami-text  q_sb 0 n_r 1.0: central 5.458 L/h at q_p 90.5; median 5.35 (p10 3.64, p90 10.59); beats 3.986: 85.9%, 5.056: 56.0%; median maximising q_p 90.5
+  Salami-text  q_sb 0 n_r 0.5: central 7.200 L/h at q_p 113.5; median 5.61 (p10 3.81, p90 10.21); beats 3.986: 88.0%, 5.056: 62.0%; median maximising q_p 90.5
+  Salami-text  q_sb 2 n_r 1.0: central 5.500 L/h at q_p 90.5; median 5.45 (p10 3.68, p90 10.74); beats 3.986: 86.5%, 5.056: 56.2%; median maximising q_p 90.5
+  Salami-text  q_sb 2 n_r 0.5: central 7.292 L/h at q_p 113.5; median 5.67 (p10 3.91, p90 10.36); beats 3.986: 88.8%, 5.056: 64.8%; median maximising q_p 90.5
+  Salami-text  q_sb 5 n_r 1.0: central 5.563 L/h at q_p 90.5; median 5.56 (p10 3.79, p90 11.02); beats 3.986: 87.0%, 5.056: 58.9%; median maximising q_p 90.5
+  Salami-text  q_sb 5 n_r 0.5: central 7.430 L/h at q_p 113.5; median 5.81 (p10 4.03, p90 10.84); beats 3.986: 90.4%, 5.056: 68.5%; median maximising q_p 90.5
+  Salami-curve q_sb 0 n_r 1.0: central 5.344 L/h at q_p 90.5; median 5.19 (p10 3.59, p90 10.23); beats 3.986: 83.6%, 5.056: 51.6%; median maximising q_p 90.5
+  Salami-curve q_sb 0 n_r 0.5: central 7.145 L/h at q_p 113.5; median 5.59 (p10 3.78, p90 10.16); beats 3.986: 88.0%, 5.056: 60.7%; median maximising q_p 90.5
+  Salami-curve q_sb 2 n_r 1.0: central 5.386 L/h at q_p 90.5; median 5.26 (p10 3.62, p90 10.39); beats 3.986: 85.7%, 5.056: 53.9%; median maximising q_p 90.5
+  Salami-curve q_sb 2 n_r 0.5: central 7.237 L/h at q_p 113.5; median 5.65 (p10 3.87, p90 10.31); beats 3.986: 88.3%, 5.056: 63.3%; median maximising q_p 90.5
+  Salami-curve q_sb 5 n_r 1.0: central 5.449 L/h at q_p 90.5; median 5.34 (p10 3.67, p90 10.70); beats 3.986: 86.5%, 5.056: 56.0%; median maximising q_p 90.5
+  Salami-curve q_sb 5 n_r 0.5: central 7.375 L/h at q_p 113.5; median 5.77 (p10 3.99, p90 10.80); beats 3.986: 90.1%, 5.056: 68.2%; median maximising q_p 90.5
+  share beating 3.986 L/h over the 18 settings: 68.8% to 90.4%
+  Danfoss moving with Casappa idle, over the 18 settings: 71.9% to 93.5%
+
+danfoss: moving efficiency scaled by c, idle as read, S = 0.38, central setting:
+  c 0.94: central 3.327 L/h; median 2.99; beats 3.986: 29.9%
+  c 0.95: central 3.648 L/h; median 3.15; beats 3.986: 34.1%
+  c 0.96: central 3.962 L/h; median 3.36; beats 3.986: 39.8%
+  c 0.97: central 4.270 L/h; median 3.69; beats 3.986: 43.8%
+  c 0.98: central 4.571 L/h; median 4.04; beats 3.986: 50.5%
+  c 1.00: central 5.156 L/h; median 4.73; beats 3.986: 70.1%
+  c 1.05: central 6.521 L/h; median 6.96; beats 3.986: 99.7%
+danfoss moving, casappa idle: moving efficiency scaled by c, idle as read, S = 0.38, central setting:
+  c 0.94: central 2.971 L/h; median 3.29; beats 3.986: 34.4%
+  c 0.95: central 3.230 L/h; median 3.51; beats 3.986: 40.1%
+  c 0.96: central 3.497 L/h; median 3.78; beats 3.986: 44.5%
+  c 0.97: central 3.771 L/h; median 4.01; beats 3.986: 50.3%
+  c 0.98: central 4.051 L/h; median 4.24; beats 3.986: 56.8%
+  c 1.00: central 4.628 L/h; median 4.74; beats 3.986: 72.7%
+  c 1.05: central 6.802 L/h; median 6.21; beats 3.986: 96.9%
+
+Predictions (LOG.md 6m):
+  GD1 SNP3 044 and 048 eta_t at 150 bar, 2100 r/min in 0.80-0.90: refuted (0.839, 0.751)
+  GD2 median Danfoss minus Casappa eta_t at 150 bar >= +0.03: held (+0.068)
+  GD3 Q7/(Vn) at 2000 r/min within 0.97-1.03 for every size: refuted (0.937 to 0.991)
+  GD4 SNP3 044 drag below Casappa KP 30.43's 8.21: held (3.77; sizes 3.77 to 47.92)
+  GD5 share above 3.986 L/h at S 0.38 < 50%: refuted (70.1%)
+  GD6 central f_t,max at S 0.38 within 1 L/h of 6k's 1.88: refuted (5.156)
+
+Sources: fuxi-robot/excavator-motion (CC BY-NC-SA 4.0; derived statistics only); Kauranne 2022 Fig. 13 (CC BY 4.0); Danfoss GearMe Group 3 technical information (2023), pp. 6 and 19-21; Casappa KAPPA catalogue K 05 T A (2012), pp. 4 and 9-11; PVG 32 and Salami neutral curves; Moore 2020 (idle shares).

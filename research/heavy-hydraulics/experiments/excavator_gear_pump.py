@@ -44,23 +44,24 @@ def gear_rows():
 
 
 class Gear:
-    """The KP 30 family at one speed ratio, interpolated in 20-bar flow at working speed."""
+    """A gear-pump family (default the KP 30) at one speed ratio, interpolated in 20-bar flow at working speed."""
 
-    def __init__(self, rows, n_r=1.0):
-        self.pts = {s: gear_pump_point(rows, s, N_W * n_r) for s in SIZES}
-        self.work = {s: gear_pump_point(rows, s, N_W) for s in SIZES}
-        self.qn = np.array([self.work[s][0](20.0) for s in SIZES])
+    def __init__(self, rows, n_r=1.0, sizes=SIZES, skip_short=False):
+        self.sizes = tuple(sizes)
+        self.pts = {s: gear_pump_point(rows, s, N_W * n_r, skip_short) for s in self.sizes}
+        self.work = {s: gear_pump_point(rows, s, N_W) for s in self.sizes}
+        self.qn = np.array([self.work[s][0](20.0) for s in self.sizes])
         self.n_r = n_r
 
     def _blend(self, q, f):
         qn = self.qn
         if q <= qn[0]:
-            return f(SIZES[0])
+            return f(self.sizes[0])
         if q >= qn[-1]:
-            return f(SIZES[-1])
+            return f(self.sizes[-1])
         j = int(np.searchsorted(qn, q))
         w = (q - qn[j - 1]) / (qn[j] - qn[j - 1])
-        return (1 - w) * f(SIZES[j - 1]) + w * f(SIZES[j])
+        return (1 - w) * f(self.sizes[j - 1]) + w * f(self.sizes[j])
 
     def eta(self, q, p):
         def e(s):
@@ -70,7 +71,7 @@ class Gear:
 
     def idle(self, q, pn):
         """Absorbed power (kW) of a q L/min gear pump at speed ratio n_r against the neutral pressure pn."""
-        return q * self._blend(q, lambda s: self.pts[s][1](pn) / self.qn[SIZES.index(s)])
+        return q * self._blend(q, lambda s: self.pts[s][1](pn) / self.qn[self.sizes.index(s)])
 
 
 def gear_powers(gear, coef, reading, q_sb, n_r):
