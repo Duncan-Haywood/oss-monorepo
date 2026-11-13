@@ -5,6 +5,7 @@
     python experiments/prescreen/run.py probe    # baseline design, SPMe and DFN for 2 cycles at each chosen condition -> probe.json
     python experiments/prescreen/run.py bench    # 64 Sobol (seed 8) designs x SPMe(V0)/DFN@100 per kept condition, V1 re-solves (resumable)
     python experiments/prescreen/run.py report   # results.txt, summary.json (stdlib plus pybamm for r_kt)
+    python experiments/prescreen/run.py bound    # post hoc: thermodynamic energy bound against DFN@100 -> bound.jsonl (pybamm, minutes)
 
 The pre-screen procedure, the condition choice and hypotheses H70 to H73 are fixed in ../../LOG.md (milestone 5j plan)
 before the bench. Simulation, design mapping, protocol, solver variants, the 5e rule, 5g's iterate answer and 5h's band
@@ -81,7 +82,12 @@ def evaluate(rows, rkt, t_pred):
     nb = sum(bad)
     t_ps = t_pred + sum(r["t_spme"] for i, r in enumerate(rows) if i not in pre_s) + sum(rows[i]["t_dfn"] for i in ver)
     sus = [G.suspect(r) for r in rows]
-    return dict(e, ps_gap=(best - rows[pick]["dfn"]) / best, ps_calls=len(ver), n_pre=len(pre),
+    b = max(range(len(rows)), key=lambda i: (rows[i]["dfn"], -i))
+    unflagged = [i for i in range(len(rows)) if i not in pre_s]
+    discard_gap = (best - max(rows[i]["dfn"] for i in unflagged)) / best if unflagged else 1.0
+    return dict(e, best_rkt=rkt[b], best_flagged=b in pre_s, discard_gap=discard_gap,
+                agree=sum(1 for i in range(len(rows)) if sus[i] == (i in pre_s)) / len(rows),
+                rkt_min=min(rkt), rkt_max=max(rkt), ps_gap=(best - rows[pick]["dfn"]) / best, ps_calls=len(ver), n_pre=len(pre),
                 pre_share=len(pre) / len(rows), t_ps=t_ps, t_pred=t_pred,
                 ps_recall=(sum(1 for i in ver if bad[i]) / nb) if nb else None,
                 pre_wrong_sound=sum(1 for i in pre if not sus[i]), pre_missed_suspect=sum(1 for i, s in enumerate(sus) if s and i not in pre_s),
@@ -89,16 +95,13 @@ def evaluate(rows, rkt, t_pred):
 
 
 def verdicts(C):
+    """H70 to H73 as registered in the 5j plan (LOG.md)."""
     v = R.verdict
-    ratios = [c["t_ps"] / c["t_band"] for c in C.values()]
-    h71 = "untestable" if not ratios else (
-        "refuted" if statistics.median(ratios) > 1.0 or max(ratios) > 1.10 else
-        "supported" if statistics.median(ratios) <= 0.90 and max(ratios) <= 1.02 else "mixed")
     return dict(
         H70=v([c["ps_gap"] for c in C.values()], lambda x: x <= 0.01, lambda x: x > 0.02),
-        H71=h71,
-        H72=v([c["t_ps"] / c["t_all"] for c in C.values()], lambda x: x <= 1.0, lambda x: x > 1.15),
-        H73=v([c["ps_recall"] for c in C.values()], lambda x: x >= 0.9, lambda x: x < 0.8))
+        H71=v([c["t_ps"] / c["t_band"] for c in C.values()], lambda x: 0.90 <= x <= 1.10, lambda x: x < 0.85 or x > 1.15),
+        H72=v([c["best_rkt"] for c in C.values()], lambda x: -0.15 <= x <= 0.65, lambda x: not -0.30 <= x <= 0.80),
+        H73=v([c["agree"] for c in C.values()], lambda x: x >= 0.95, lambda x: x < 0.90))
 
 
 # ---------- r_kt for a pool ----------
@@ -127,7 +130,9 @@ def _line(name, c):
             f"  pre-screen: gap {c['ps_gap']:.4f} at {c['ps_calls']} DFN calls, recall {R._fmt(c['ps_recall'], 2)},"
             f" wall / all-DFN {c['t_ps'] / c['t_all']:.2f}, / band {c['t_ps'] / c['t_band']:.2f} (SPMe saved {c['spme_saved']:.0f} s, r_kt {c['t_pred']:.1f} s)\n"
             f"  band (5h): gap {c['band_gap']:.4f} at {c['band_calls']} calls, wall / all-DFN {c['t_band'] / c['t_all']:.2f};"
-            f" iterate (5g): gap {c['iter_gap']:.4f}, wall / all-DFN {c['t_iter'] / c['t_all']:.2f}")
+            f" iterate (5g): gap {c['iter_gap']:.4f}, wall / all-DFN {c['t_iter'] / c['t_all']:.2f}\n"
+            f"  DFN best's r_kt {c['best_rkt']:+.2f} ({'flagged' if c['best_flagged'] else 'not flagged'}; pool {c['rkt_min']:+.2f} to {c['rkt_max']:+.2f});"
+            f" discarding flagged designs misses by {c['discard_gap']:.4f}; flag agrees with SPMe's suspect label on {c['agree']:.3f}")
 
 
 def dev():
@@ -176,6 +181,34 @@ def choose():
     print("chosen:", kept)
 
 
+def bound():
+    """Post hoc (after the plan): PyBaMM's thermodynamic energy (calculate_theoretical_energy, SOC 1 to 0, of the design's
+    parameter values) over the stack mass, against every committed and fresh design's DFN@100 score -> bound.jsonl."""
+    import pybamm
+    from energy_cell import cell
+    from pybamm.models.full_battery_models.lithium_ion.electrode_soh import calculate_theoretical_energy
+    pybamm.set_logging_level("ERROR")
+    TR = G.TR
+    conds = dict(_sand().committed_conditions())
+    for r in R._load(HERE / "bench.jsonl"):
+        conds.setdefault(r["cond"], {})[(r["j"], r["what"])] = r
+    cache, out = {}, []
+    for c, runs in conds.items():
+        s, _ = G._parse(c)
+        rows, _ = G.pool(runs)
+        for r in rows:
+            x = cell.clip(_sand()._x(runs, r["j"]))
+            key = (s, tuple(round(v, 12) for v in x))
+            if key not in cache:
+                pv, _, _ = TR.params(x, s)
+                cache[key] = calculate_theoretical_energy(pv) / TR.stack_mass(x, pv)
+            out.append(dict(cond=c, j=r["j"], u=cache[key], dfn=r["dfn"], spme=r["score"]))
+    (HERE / "bound.jsonl").write_text("".join(json.dumps(o) + "\n" for o in out))
+    rat = sorted(o["u"] / o["dfn"] for o in out if o["dfn"] > 0)
+    print(len(out), "designs; violations", sum(1 for x in rat if x < 1), "; U/DFN min", round(rat[0], 2),
+          "median", round(statistics.median(rat), 2), "max", round(rat[-1], 2))
+
+
 def _chosen():
     return tuple(G._parse(c) for c in json.loads((HERE / "choose.json").read_text())["chosen"])
 
@@ -217,5 +250,7 @@ if __name__ == "__main__":
         (G.probe if cmd == ["probe"] else G.bench)()
     elif cmd == ["report"]:
         report()
+    elif cmd == ["bound"]:
+        bound()
     else:
         print(__doc__)
