@@ -232,6 +232,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    to 0.71 (low warp) and 0.31 to 0.68 (high), but not to 95%: on straight studs the same pipeline
    gives 0.74, so the sheet's pose, not bow, is the remaining cap. Still open: a mock-up push to
    pin the end restraint, and whether a pushed stud stays put between sheets.
+10. **What the straight-stud ceiling is made of** (done 2026-11-13, `experiments/m10_ceiling/`):
+   by Shapley share the tool's 0.9 mm scatter carries 45–47% of single 2x's misses on straight
+   studs, the pose 39–44% and the reads the rest, and neither group misses alone. Sliding the sheet
+   to centre its gap and shimming it plumb before tacking lift the ceiling from 0.74–0.81 to
+   0.92–0.94; 95% then needs a tool held to about 0.8 mm. Still open: the slide and shim as
+   mechanisms, and a measured tool scatter.
 
 ## Target venue
 

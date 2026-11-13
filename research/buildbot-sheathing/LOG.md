@@ -1,5 +1,17 @@
 # buildbot-sheathing research log
 
+## 2026-11-13 · Milestone 10 result: the tool carries half the single-2x ceiling, the pose the rest; a slide and a shim lift it to 0.92–0.94, not 95%
+
+`experiments/m10_ceiling/` (run.py, results.txt, results.json, figure.png); `src/buildbot_sheathing/ceiling.py`; about a minute on one CPU.
+
+- **H45 held.** Tool scatter alone gives 0.9838 clean in Monte Carlo against 0.9833 from the product of the 62 nails' normal probabilities.
+- **H46 refuted; milestone 9's reading was half right.** On straight studs the Shapley shares of −ln(clean) are tool **44.6% / 46.9%** (three-foot / smooth rock), stud read 7.0 / 8.4, edge read 5.0 / 6.1, slide 17.5 / 21.7, ledger 4.1 / 5.9, panel 21.9 / 11.0: pose **43.5% / 38.6%**. The more useful number: no group misses alone. Pose alone is 0.995 / 1.000 clean, tool and reads alone 0.957, tool and pose 0.805 / 0.874. The window is ±3.14 mm and a sheet off by d shrinks one side's half by d/2, so a tool tail that would land and an offset that would be harmless combine into a miss.
+- **H47 held.** Sliding the sheet along the ledger to centre its gap on the read studs (0.5 mm residual) adds **6.1 and 5.8 points** on straight studs (0.737→0.798, 0.811→0.869). A slide that leaves 1 mm is no better than the 1 mm slide already assumed.
+- **H48 refuted.** Slide and shim (0.5 mm each) with a mid push give **0.893** at low warp (bar 0.95); 0.916 at 0.25 mm, 0.922 with dense reads. On straight studs the same remedies give 0.918 (0.938 at 0.25 mm). Once the shim plumbs the sheet, the three-foot and smooth rock models give the same result.
+- **What 95% takes.** With slide and shim at 0.5 mm, the tool must hold **0.84 mm** (straight studs) or **0.79 mm** (pushed low-warp studs) 1σ, against the 0.9 mm `buildbot-fasten` used; without them, 0.41–0.66 mm. So single 2x reaches 95% only with a pose fix and a tool about 10% tighter than assumed. Doubled joints, at 0.9994–1.000 with no fix, stay the recommendation.
+- **What it means for the programme.** The paper's section 5.2 should say the single-2x cap is a joint budget shared by the tool and the pose, not the pose alone. The tool's scatter is now the single input the single-2x case depends on most, and it comes from one source; a measured scatter for a nailer on an arm is the next number worth getting.
+- **Inputs not sourced:** the slide and shim residuals (swept 0.25–1 mm); the shim as a mechanism.
+
 ## 2026-11-13 · Milestone 10 planned: what is the straight-stud ceiling made of, and can placement lift single 2x to 95%?
 
 Written before any milestone-10 experiment was run.
