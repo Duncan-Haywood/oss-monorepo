@@ -216,6 +216,7 @@
   }
  ],
  "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569",
   "https://github.com/Duncan-Haywood/oss-monorepo/pull/15570"
  ],
  "verdict": "A small, honest, reproducible study. Every headline number reproduces on rerun and independently: my own PAVA leave-one-year-out fit gives the same 32/37/21 of 40 agreement and weekly diffs, an LP confirms the cheapest-quarter charging rule is optimal for its window problem, and bisection matches the break-even prices. Limitations are candid. It does not meet the bar on verification (2): the leave-one-year-out split, the property the whole study rests on, can be removed without a test failing, and the tie band is unpinned. Fitness and domain are 2: no prior work is cited (Sioshansi et al. 2009 already shows model-scheduled storage captures most perfect-foresight value), and the store-versus-pump comparison prices the store on year-round cheapest hours against a heating-season pump with constant COP, a mismatch of the same size as the weekly margin under study. One small wrong count: README line 15 'against two in the real series' should be one (plus a tie). Finished: yes; meets the bar: no."

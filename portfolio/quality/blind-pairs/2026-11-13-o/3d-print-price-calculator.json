@@ -245,6 +245,7 @@
   }
  ],
  "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569",
   "https://github.com/Duncan-Haywood/oss-monorepo/pull/15570"
  ],
  "verdict": "The arithmetic is right: every output I recomputed by hand for the default print and for the failed-print page's 5%/25% table matches to the cent, the fee-solved price is the correct algebra, Cura length-to-grams matches PLA's published 1.24 g/cm3 (336 m/kg), and a realistic two-extruder PrusaSlicer footer reads correctly. It does not meet the bar because claims and verification are 2: the README says nothing is saved though the page has a localStorage Save button, the comparison page says the tool does not read your slicer though it imports G-code, the counted-event list is incomplete, and three of eight seeded mutations survive (otherFixedCost can be dropped from the total with all 77 tests green). The domain gap a print-shop seller would hit first is the uncited 8.5% default fee with no fixed part: on Etsy's US schedule the suggested price earns 29.4%, not the 35% it promises. Correctness, completeness, craft and fitness 3; verification, claims and domain 2."

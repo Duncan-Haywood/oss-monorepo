@@ -229,6 +229,7 @@
   }
  ],
  "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569",
   "https://github.com/Duncan-Haywood/oss-monorepo/pull/15570"
  ],
  "verdict": "A small, clean, honest tool whose aggregate-accounting arithmetic reproduces 12 CFR 1024 Appendix E exactly (needed start balance $1,040, all twelve month-end balances) and applies the 1/6 cushion, the one-month shortage threshold and the $50 / 30-day / current-borrower surplus rule correctly. It misses the bar on one rule a RESPA escrow analyst checks first: it treats any projected negative low point as a 'deficiency', whereas Reg X 1024.17(b) defines deficiency as an actual negative account balance. As a result its headline 'shortage collected faster than 12 months' check stays silent in the most common heavy-shortage case (start balance $200, $840 shortage at $140/month: no finding), the page's deficiency definition is wrong, and the test suite pins the misreading. Two of five seeded mutations survived. Scores: correctness 2, completeness 3, verification 2, craft 3, claims 2, fitness 3, domain 2; does not meet the bar. The fix is small: deficiency = max(0, -startBalance), drop the deficiencyCents gate on the spread check, correct index.html:146, and replace the test at calc.test.mjs:109 with an Appendix E test."

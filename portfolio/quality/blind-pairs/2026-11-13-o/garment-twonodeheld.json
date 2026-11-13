@@ -213,6 +213,7 @@
   }
  ],
  "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569",
   "https://github.com/Duncan-Haywood/oss-monorepo/pull/15570"
  ],
  "verdict": "Computationally correct and honestly written: every number in the README reproduces byte-identically, an independent re-implementation of the gate, score, grid search and oracle and my own two-node model match to 3-4 dp, and the 'ref' model matches pythermalcomfort 4.6.1 to 1e-4 C. It does not meet the bar because verification is 2 (no test pins a headline number; 3 of 5 seeded mutants survive), and fitness and domain are 2: the 'tuned band carries over to held-out rooms' result is close to guaranteed by a zero-lag, zero-cost hysteresis gate scored on distance of its own sensed variable from the set point (the optimum sits at the grid boundary), and the fixed 33.7 C target departs from the ISO 7730 activity-dependent comfortable skin temperature. Finished (completeness 3). A lag-5/10 retune I ran shows the held-out advantage persists, which would strengthen the next step."
