@@ -301,29 +301,29 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): the servo's 5-6 V supply and the cable runs to the
-      turntable (they must clear the head out to the hard stops' 36.4 deg
-      reach, not just +-30); the netting trough that rolls balls to the hopper
-      inlet; a lower tub if the 2.3 m rim is too high.
+      venv, about 2 min): the netting trough that rolls balls to the hopper
+      inlet; a lower, rear-mounted tub if the 2.3 m rim is too high to fill;
+      the deck-side cable run and the stepper's driver mount.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
       simulator. Unbuilt hardware, long payoff.
     next: >-
       History and every measurement: cad/README.md (feeder CAD package; azimuth and elevation drives; shuttle
-      drive; home switch; hard stops; collision sweeps) and the README ("Running a drill on the machine", "Wheel
-      speed loop"). Latest, 2026-11-12: azimuth hard stops (cad/README.md "Azimuth hard stops"): printed blocks
-      with polyurethane pads meet the gear sector's ends at +-35 deg (spare teeth 8 to 10 deg for full mesh
-      there); a 60 deg/s runaway squeezes a pad 44%; turned that far the head hit the hopper and mast posts first
-      at 31.6-32.3 deg, so they moved out (y 245 to 290, 130 to 160) and the build sweeps to the 36.4 deg reach.
-      Same day: the home switch and cam lobe (-32 deg click, firmware homes from either side). Next, needing a
-      person: log a real wheel's tach on spin-up and rerun tests/wheel_loop_sweep.py with its lag; weigh the head
-      and measure the hose's torque, the stepper's pull-out, the actuator's real lengths, the column's load on the
-      shuttle and the servo's loaded stroke time; click the home switch on a printed sector to calibrate
-      AZ_HOME_DEG; push a sector into a stop with a scale and measure a pad's stiffness; hang a real hose from a
-      tube. Buildable: the servo's supply and the cable runs (clear of the head out to the 36.4 deg reach); the
-      netting trough that rolls balls to the hopper inlet; consider a lower, rear-mounted tub if the 2.3 m rim is
-      too high to fill.
+      drive; home switch; hard stops; cables; collision sweeps) and the README ("Running a drill on the machine",
+      "Wheel speed loop"). Latest, 2026-11-13: cables to the head (cad/README.md "Cables to the head"): the
+      bundle twists on the turntable axis (145 deg/m at the 36.4 deg reach), and a 376 mm loop runs behind the
+      pivot from a turntable gland to a clip on the rear lower standoff, fitting every pose of the actuator's
+      whole travel (-30.3 to +45.8 deg; 353-398 mm window) and swept clear at the hard stops. A clip under the
+      pivot cannot work (about 8 mm of slack possible, 13 needed). Servo: 6 V buck on the deck, 20 AWG leads
+      (26 AWG lifts the servo's ground 0.56 V at stall). Next, needing a person: log a real wheel's tach on
+      spin-up and rerun tests/wheel_loop_sweep.py with its lag; weigh the head and measure the hose's torque, the
+      stepper's pull-out, the actuator's real lengths, the column's load on the shuttle and the servo's loaded
+      stroke time and stall current; click the home switch on a printed sector to calibrate AZ_HOME_DEG; push a
+      sector into a stop with a scale; hang a real hose from a tube; bend a built cable loop through the
+      actuator's travel. Buildable: the netting trough that rolls balls to the hopper inlet; a lower,
+      rear-mounted tub if the 2.3 m rim is too high to fill; the deck-side cable run (deck edge to the axis
+      clamp) and the stepper driver's mount.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to
