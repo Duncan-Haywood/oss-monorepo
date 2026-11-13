@@ -25,11 +25,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 11,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "flagships next: went over the 2,000-char cap after merging main (caught by local validate.py, trimmed before CI)",
+    "locations CLI test used a cwd-relative cli.mjs path; failed when run from the repo root; fixed"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -42,14 +45,14 @@
       "file": "portfolio/router/claim_check.py",
       "why": "claim_check said YIELD to PR #15484 (opened 4 min before mine) on the same flagship. That PR works on a different open item (the 60-person week-0 open-hours gap, solver side); mine touches the sales reader, CLI flag and sales page, already finished when the check ran. Yielding would have thrown away a finished, disjoint slice.",
       "did": "kept the PR; resolve any README/flagships conflict at merge",
-      "result": "see merge"
+      "result": "kept; main merged in with no conflict"
     }
   ],
   "writeups": [
     "docs/posts/2026-11-13-two-shops-one-sales-file.md"
   ],
   "goal": "Owners with two or more sites get one shift plan per site from one POS export instead of a blended week.",
-  "notes": "Real-data finding: one real Square export (Highland-wear shop) writes O'Toole as 'O&#039,Toole', shifting every later column one place; its row reads Location 'Payment'. Cell counts don't catch it (30 cells like every row, trailing empty gone), so a rare location value beside a cell exactly naming a busier site is moved to that site. eval/real-pos-exports.out.txt now prints location counts: all four real files read as one site each (Highland: 50 rows, 1 shifted). Demo (eval/two-site-demo.mjs): pooled plan 180 person-hours/week against 168+24=192 per site. Checks: locations.test.mjs 10/10, page-sales.test.mjs 6/6, headless Chromium of the picker (no page errors).",
+  "notes": "Real-data finding: one real Square export (Highland-wear shop) writes O'Toole as 'O&#039,Toole', shifting every later column one place; its row reads Location 'Payment'. Cell counts don't catch it (30 cells like every row, trailing empty gone), so a rare location value beside a cell exactly naming a busier site is moved to that site. eval/real-pos-exports.out.txt now prints location counts: all four real files read as one site each (Highland: 50 rows, 1 shifted). Demo (eval/two-site-demo.mjs): pooled plan 180 person-hours/week against 168+24=192 per site. Checks: locations.test.mjs 10/10, page-sales.test.mjs 6/6, headless Chromium of the picker (no page errors). GitHub CI on 80a4d318: all checks green (changed-ventures, validate, build, test, page-integrity, ...). Local: run_venture_tests 0 failed, venture-preflight clean, router tests OK.",
   "corrections": [],
   "redteam": null
 }
