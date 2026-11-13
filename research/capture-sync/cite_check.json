@@ -1,0 +1,86 @@
+{
+ "arxiv:2001.11482": {
+  "checked": "2026-11-13",
+  "title": "Continuous speech separation: dataset and analysis (2020)"
+ },
+ "arxiv:2107.07511": {
+  "checked": "2026-11-13",
+  "title": "A Gentle Introduction to Conformal Prediction and Distribution-Free Uncertainty Quantification (2021)"
+ },
+ "arxiv:2210.07055": {
+  "checked": "2026-11-13",
+  "title": "Sparse in Space and Time: Audio-visual Synchronisation with Trainable Selectors (2022)"
+ },
+ "arxiv:2308.10682": {
+  "checked": "2026-11-13",
+  "title": "LibriWASN: A Data Set for Meeting Separation, Diarization, and Recognition with Asynchronous Recording Devices (2023)"
+ },
+ "doi:10.1007/978-3-319-54427-4_19": {
+  "checked": "2026-11-13",
+  "title": "Out of Time: Automated Lip Sync in the Wild (2017)"
+ },
+ "doi:10.1007/s11042-015-2641-2": {
+  "checked": "2026-11-13",
+  "title": "ViComp: composition of user-generated videos (2015)"
+ },
+ "doi:10.1016/j.sigpro.2014.09.015": {
+  "checked": "2026-11-13",
+  "title": "Blind compensation of interchannel sampling frequency mismatch for ad hoc microphone array based on maximum likelihood estimation (2015)"
+ },
+ "doi:10.1109/89.486067": {
+  "checked": "2026-11-13",
+  "title": "Performance of time-delay estimation in the presence of room reverberation (1996)"
+ },
+ "doi:10.1109/ASPAA.2003.1285842": {
+  "checked": "2026-11-13",
+  "title": "On the importance of exact synchronization for distributed audio signal processing (2003)"
+ },
+ "doi:10.1109/ICASSP.2008.4518172": {
+  "checked": "2026-11-13",
+  "title": "Why does PHAT work well in lownoise, reverberative environments? (2008)"
+ },
+ "doi:10.1109/ICASSP.2014.6854474": {
+  "checked": "2026-11-13",
+  "title": "Temporal synchronization of multiple audio signals (2014)"
+ },
+ "doi:10.1109/ICASSP43922.2022.9746284": {
+  "checked": "2026-11-13",
+  "title": "On Synchronization of Wireless Acoustic Sensor Networks in the Presence of Time-Varying Sampling Rate Offsets and Speaker Changes (2022)"
+ },
+ "doi:10.1109/ICASSP48485.2024.10448489": {
+  "checked": "2026-11-13",
+  "title": "Synchformer: Efficient Synchronization From Sparse Cues (2024)"
+ },
+ "doi:10.1109/ICCV.2015.381": {
+  "checked": "2026-11-13",
+  "title": "Panoptic Studio: A Massively Multiview System for Social Motion Capture (2015)"
+ },
+ "doi:10.1109/TASLP.2016.2647713": {
+  "checked": "2026-11-13",
+  "title": "Blind Sampling Rate Offset Estimation for Wireless Acoustic Sensor Networks Through Weighted Least-Squares Coherence Drift Estimation (2017)"
+ },
+ "doi:10.1109/TASSP.1976.1162830": {
+  "checked": "2026-11-13",
+  "title": "The generalized correlation method for estimation of time delay (1976)"
+ },
+ "doi:10.1109/TASSP.1982.1163992": {
+  "checked": "2026-11-13",
+  "title": "Time delay estimation via cross-correlation in the presence of large estimation errors (1982)"
+ },
+ "doi:10.1109/TASSP.1983.1164061": {
+  "checked": "2026-11-13",
+  "title": "Fundamental limitations in passive time delay estimation--Part I: Narrow-band systems (1983)"
+ },
+ "doi:10.1145/1291233.1291367": {
+  "checked": "2026-11-13",
+  "title": "Synchronization of multi-camera video recordings based on audio (2007)"
+ },
+ "doi:10.1561/2200000101": {
+  "checked": "2026-11-13",
+  "title": "Conformal Prediction: A Gentle Introduction (2023)"
+ },
+ "doi:10.5281/zenodo.10952434": {
+  "checked": "2026-11-13",
+  "title": "LibriWASN (2024)"
+ }
+}
