@@ -1,5 +1,17 @@
 # buildbot-sheathing research log
 
+## 2026-11-13 · Milestone 6b planned: is the bowed-edge rock a property of the sheet or of three feet?
+
+Written before any milestone-6b experiment was run.
+
+- **Why.** Milestones 3, 5 and 6 model a bottom edge bowed outward by s as three feet (the two corners and one at mid-width, s lower). On its middle foot the sheet is an inverted pendulum, so it must fall onto a corner: milestone 5 charges a rock of 2 s / W (0.149° at PS 2's 1/16 in), and milestone 6 found the two engines disagree on it by 0.02–0.03°, the size of the whole single-2x hang budget. A real bow is a smooth curve, not a point. A smooth convex edge of radius R under a body whose centre of mass sits h0 = H/2 + s above it is a rocker: rolling by θ raises the centre of mass by (R − h0) θ²/2, so the sheet is *stable* about level whenever R > h0. A parabolic 1/16 in bow over 48 in has R = W²/(8 s) = 117 m against h0 = 1.22 m. If so, gravity rolls the sheet back to level and only wall friction can keep a tilt: at most θ_s = μ F_n r̄ / (m g (R − h0)), with r̄ the mean distance of the wall contacts from the mid-width contact (1.56 m on corner contacts). That is 0.005–0.009° at a 5 N press and 0.054–0.090° at 50 N (μ 0.3–0.5), against the 0.149° charged. A kink (a point, a chip, grit on the ledger) has R → 0 and keeps the full rock.
+- **Model.** The bottom edge as n feet (2 mm spheres) on the profile z = −s (1 − |2y/W|^p): p = 2 a parabola (the smooth bow), p = 1 a tent (a kink at mid-width), 1.5 and 4 in between; n = 25, 49, 97. Same sheet, holder, release and press as `ledger.seat`; both engines (MuJoCo 4.0.1 and Drake 1.51.1 SAP).
+- **H37 (a smooth bow rocks back).** p = 2, s of 1/32 and 1/16 in, holder error ±0.25 and ±1°, wall friction 0.3 and 0.5, press 5, 20 and 50 N: the seated |θ| is at most θ_s + 0.005° in every cell, in both engines. Refuted on any cell.
+- **H38 (a kink keeps the rock).** p = 1, s = 1/16 in, press 5 N: |θ| at least 0.8 × 2 s / W in every cell (the three-foot result). Refuted otherwise.
+- **H39 (the discretisation does not decide it).** p = 2: the seated tilt moves by under 0.005° between n = 25 and n = 97 in every cell of a 12-cell subset.
+- **H40 (clean sheets).** Charging milestone 5's ledger pipelines with the smooth-bow residual (drawn from the simulated seats, press U(5, 50) N) instead of 2 s / W raises the best single-2x pipeline (s_x 1 mm, low warp, three reads; 0.56) by at least 2 points, and moves every two-2x pipeline by under 0.5 points. Refuted otherwise.
+- **Also reported, not scored:** p = 1.5 and 4; grit (a 1 mm sphere on the ledger at a random point under a straight edge); and whether a light press after seating (5 N) is a placement rule worth stating.
+
 ## 2026-11-12 · Milestone 8: the paper draft, and what writing it changed
 
 `paper/draft.md`, `paper/references.bib`, `paper/check_numbers.py` (70 checks, all ok; run by `tests/test_paper.py`).
