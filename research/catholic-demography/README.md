@@ -34,6 +34,17 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Did immigrants' contribution to the Catholic share really collapse after 2018? (milestone 5b, 2026-11-13)
+
+Mostly not: the collapse came from the web interviews. m5h found the first-generation contribution to the adult Catholic share
+falling from 3.37 points (2010-18) to 1.98 (2021-24), a change of -1.38 [-2.05, -0.72]. Rerunning the same accounting on the
+2022 and 2024 in-person respondents gives **-0.44 [-1.38, +0.49]**, and on the randomised face-to-face-first arm -0.63
+[-1.46, +0.21]. Neither can be told apart from zero. Web respondents are the reason: 20.9% of Catholics who answered by web are
+foreign-born, against 28.9% of those interviewed in person (+8.0 points [+3.6, +12.5]). The randomised arms are balanced on
+nativity (-0.2 [-4.0, +3.6]), so this is who completes by web, not an effect of the arm. Dropping the all-web 2021 wave alone
+moves the change by +0.51 [+0.14, +0.85]. The fertility channel does not move across samples (within 0.1 points), and H4
+(1990-99 to 2010-18, no web interviews) is unaffected. Code `experiments/m5k_inperson/run.py`, table `t31`, details in `LOG.md`.
+
 ## Can reweighting on demographics fix the 2021-24 web respondents? (milestone 5b, 2026-11-11)
 
 Mostly not. In the 2016-20 panel, everyone's first interview was in person, so the 11.1-point attendance gap between
@@ -62,8 +73,8 @@ reweighting (`experiments/m5h_fertility/`) gives first-generation immigrants **+
 the higher fertility of Catholic mothers **-0.37 [-0.69, -0.02]**: fertility added about 1 point to the level in both
 decades (1.17 in the 1990s, 0.81 in 2010-18; Catholic mothers born 1925-60 had about 1.1 times the children of other
 mothers), but that boost was shrinking, while immigrants added 2.3 then 3.4 points. Hypothesis H4 is supported and the
-result survives every sensitivity tried. From 2010-18 to 2021-24 the immigrant contribution fell (-1.38), the larger
-channel in the recent drop. Limits: survivors' fertility, religion at interview, children assumed to take the mother's
+result survives every sensitivity tried. From 2010-18 to 2021-24 the all-mode series shows the immigrant contribution falling
+(-1.38). **Corrected 2026-11-13 (m5k):** most of that fall is the web slice; in person it is -0.44 [-1.38, +0.49]. Limits: survivors' fertility, religion at interview, children assumed to take the mother's
 religion. The model under-explains the share raised Catholic by 2-4 points for cohorts born 1925-69; crediting all of
 that to fertility lifts the fertility level to about 2.2 points, but flat across decades, so its share of the 1990-2018
 change stays about zero (details in `LOG.md`).
@@ -108,6 +119,7 @@ python3 experiments/m3b_randomised/run.py     # randomised mode arms, 2022 and 2
 python3 experiments/m5h_fertility/run.py      # fertility vs immigration channel (H4); about 10 min with the bootstrap
 python3 experiments/m5i_panel/run.py          # panels: test-retest of upbringing, web vs phone attendance; about 1 min
 python3 experiments/m5j_reweight/run.py       # demographic raking of web respondents, panel check + 2022-24; about 6 min
+python3 experiments/m5k_inperson/run.py       # m5h accounting with 2021-24 in person / by randomised arm / web; about 10 min
 PY=$(python3 platform/ci/pyenv.py pytest numpy pandas)   # bare python3 lacks all three; scipy is not needed
 "$PY" -m pytest -q research/catholic-demography/test_cathdem.py   # from the repo root; no download needed
 ```
