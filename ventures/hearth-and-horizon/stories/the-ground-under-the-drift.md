@@ -120,7 +120,7 @@ At the gate there was no drift to dig through, only ten centimetres of hard, win
 
 Frank had come down the lane to look into the second hole. He looked at it for a while and then looked back up at the trees.
 
-"His father planted those," he said. "Len's dad. Nineteen thirty-seven. The government gave out the trees after the dust, and the farmers planted them along the section lines to hold the soil. Len told me he carried the water for them in a cream can when he was four. The cemetery row was just the end of the belt where it ran out to the road."
+"His granddad planted those," he said. "Len's granddad. Nineteen thirty-seven. The government gave out the trees after the dust, and the farmers planted them along the section lines to hold the soil. Len told me his dad carried the water for them in a cream can when he was four. The cemetery row was just the end of the belt where it ran out to the road."
 
 *I didn't know that,* said Hollis. *It isn't in any of the records I have.*
 
