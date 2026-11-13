@@ -431,6 +431,16 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_social_proof
 
+      # A venture toCsv that writes a typed cell starting =, +, -, @ as-is runs
+      # it as a formula in Excel/Sheets (CSV injection). Ratchet: 203
+      # unguarded exporters are baselined; new ones fail (redteam 2026-11-12).
+      - name: Check CSV exporters defuse spreadsheet formulas
+        run: python3 platform/ci/check_csv_formula_guard.py
+
+      - name: CSV formula-guard checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_csv_formula_guard
+
       # A page with no rel=icon makes the browser request /favicon.ico from the
       # origin root (404 on GitHub Pages) and shows a blank tab.
       # `python3 platform/ci/favicons.py --fix` inserts the missing icons.
