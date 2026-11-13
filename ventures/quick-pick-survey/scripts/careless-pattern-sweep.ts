@@ -47,7 +47,7 @@
  * the rank ranges call clear. Detection: the AUC of leave-one-out rho for
  * honest over careless people, and the first-flag rates.
  *
- *   npx tsx scripts/careless-pattern-sweep.ts [--items 15,30] [--per-item 4] [--respondents 20,60] [--careless 0.1,0.25,0.4] [--patterns random,first,favourite,salience] [--q 1] [--surveys 20] [--spread 0.25] [--loo-min 0.2] [--seed-base 2000] [--selector staged|standard]
+ *   npx tsx scripts/careless-pattern-sweep.ts [--items 15,30] [--per-item 4] [--respondents 20,60] [--careless 0.1,0.25,0.4] [--patterns random,first,favourite,salience] [--q 1] [--surveys 20] [--spread 0.25] [--loo-min 0.2] [--seed-base 2000] [--selector staged|standard] [--switch-at n]
  */
 import { selectNextPair, selectNextPairHybrid, type PairingInput } from "../src/lib/pairing";
 import { DEFAULT_GLICKO_STATE } from "../src/lib/glicko2";
@@ -89,7 +89,9 @@ function normal(rand: () => number): number {
 /** `--selector staged|standard`: which pair selector everyone runs (staged unless named). */
 const selectorName = opt("--selector", "staged");
 if (selectorName !== "staged" && selectorName !== "standard") throw new Error(`--selector must be staged or standard, got ${selectorName}`);
-const choose = selectorName === "standard" ? selectNextPair : selectNextPairHybrid;
+/** `--switch-at n`: staged hands over after n answers instead of hybridSwitchAt(items) (scripts/long-list-switch-sweep.ts). */
+const switchAtArg = argv.includes("--switch-at") ? Number(opt("--switch-at", "0")) : undefined;
+const choose = selectorName === "standard" ? selectNextPair : (i: PairingInput) => selectNextPairHybrid(i, switchAtArg === undefined ? {} : { switchAt: switchAtArg });
 
 /** The chosen selector with the route's slot shuffle (src/app/api/trials/next/route.ts). */
 const routeStaged: Policy = (input: PairingInput) => {
