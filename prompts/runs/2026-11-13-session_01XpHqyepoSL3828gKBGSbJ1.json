@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyepoSL3828gKBGSbJ1",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5",
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T12:39:28Z",
+  "ended": "2026-11-13T12:57:58Z",
+  "wall_minutes": 18.95,
+  "tokens_in": 4539423,
+  "tokens_out": 35915,
+  "cost_usd": 3.6401,
+  "tool_calls": 48,
+  "task": "research/christian-belief-models milestone 6 (part): how to split a fixed calibration budget across subgroups asked a rotated item, and whether Fay-Herriot shrinkage toward the transferred model beats the difference estimator",
+  "projects": [
+    "research/christian-belief-models"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15499",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The hook that blocks unbracketed pkill -f also rejects a bracketed pattern when the same string appears elsewhere in the command line (here, a restart of the same script in the next clause). Worth a line: split the kill and the restart into separate Bash calls."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says multiprocess GP/BLAS experiments need OMP_NUM_THREADS=1, but the same applies to scikit-learn HistGradientBoosting under ProcessPoolExecutor: a first run of this experiment made no progress for ~11 minutes on 4 cores and finished in under a minute with OMP_NUM_THREADS=1. The warning could name sklearn/HistGradientBoosting explicitly."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py (via the push hook)",
+      "issue": "The 160-character description limit is only discovered when the push hook rejects it; the hook message is clear and told me to fix in a separate call, which worked, but a note in the posts guidance would save a round trip."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-splitting-a-calibration-budget-across-subgroups.md",
+    "research/christian-belief-models/LOG.md (2026-11-13 entry, predictions before the run then outcome)"
+  ],
+  "goal": "advance an open research programme with a pre-registered experiment on real data",
+  "notes": "Routed by weighted draw to research/0; pick_track.py drew christian-belief-models, claim check clear. New experiments/m6_allocation (run.py, summarise.py) over the GSS 1972-2024 cumulative file (NORC R3a, downloaded and checksum-verified): 73 families of 2-4 subgroups sharing an item, 13 items, 300 subsample draws per family x budget, budgets 50/100/200/400 per group, under a minute on 4 cores with OMP_NUM_THREADS=1. Predictions written to LOG.md and committed before the GSS run. Results: Neyman allocation changes group-average loss by under 1% (prediction 1 held); oracle composite 0.26 of D_eq at nbar=50 but still 0.56 at 400 (prediction 2 half held, oracle better than predicted at large budgets); Fay-Herriot shrinkage with tau2 from other items 0.50/0.69/0.80/0.89 (prediction 3 mostly held, narrowly missed at nbar=100: 0.685 vs 0.675); family-estimated tau2 costs 0.16 at nbar=50 and is worse than no shrinkage from 200 (prediction 4 held); pilot-then-water-fill 2-3% worse than equal-split shrinkage (prediction 5 held); worst-group RMSE ratio 0.75 not >1 (prediction 6 refuted, shrinkage helps the worst group too). Verification run here: 20 pytest tests pass (test_allocation 9 new, test_calibration, test_shift_bound); research/_homepage/build.py prints ok (1078 projects); check_md_links.py ok; research_live_links.py no changes; cite_check.py resolves all DOIs/arXiv ids including the two new ones (Neyman 1934, Fay-Herriot 1979).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1c99db35-086c-574a-9a14-095f97f41ee1",
+    "transcripts": 1,
+    "first": "2026-11-13T12:39:28Z",
+    "last": "2026-11-13T12:58:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 72,
+        "output": 30960,
+        "thinking": 9938,
+        "cache_read": 3255140,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94893,
+        "api_equivalent_usd": 2.0297,
+        "fast_requests": 0
+      },
+      "claude-opus-5": {
+        "requests": 10,
+        "input": 20,
+        "output": 4955,
+        "thinking": 0,
+        "cache_read": 1095426,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93872,
+        "api_equivalent_usd": 1.6104,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 92,
+      "output": 35915,
+      "thinking": 9938,
+      "cache_read": 4350566,
+      "cache_write_5m": 0,
+      "cache_write_1h": 188765,
+      "api_equivalent_usd": 3.6401,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.958,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 46,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.95,
+      "active_minutes": 18.95,
+      "model_minutes": 6.33,
+      "tool_minutes": 12.61,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
