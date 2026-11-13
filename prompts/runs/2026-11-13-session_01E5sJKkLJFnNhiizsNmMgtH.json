@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKkLJFnNhiizsNmMgtH",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T00:23:17Z",
+  "ended": "2026-11-13T00:31:54Z",
+  "wall_minutes": 22.24,
+  "tokens_in": 3876769,
+  "tokens_out": 21749,
+  "cost_usd": 1.8978,
+  "tool_calls": 42,
+  "task": "Flagship 4 changepoint-detector, open item (3): GARCH segment prune false alarms",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15309",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "eval/meanvar-garch-segments.mjs (2026-11-02) passed changepoint objects where indexes were needed; every likelihood was NaN and the README table it produced measured nothing. Table withdrawn and re-measured; type guard and test added."
+  ],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "analyze().pelt.changepoints returns objects while engine pelt() returns indexes; nothing says so, which is how the GARCH prune bug went unnoticed for 11 days."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-a-table-that-measured-nothing.md",
+    "ventures/changepoint-detector/README.md (GARCH prune section rewritten)",
+    "ventures/changepoint-detector/eval/meanvar-garch-segments-prereg-2026-11-13.md"
+  ],
+  "goal": null,
+  "notes": "Corrected prune: pen 1.5 ln n -> GARCH null FA 9% at n=200 (bootstrap 16%), sd break partly absorbed. Pre-registered a+b<=0.9 cap on fresh seeds fails 2 of 4 lines (55% vs 74%; 74% vs 80%). Not shipped. Grepped other eval scripts for the same objects-vs-indexes mix: none found (raw pelt() returns indexes). Verification: node --test garch-prune.test.mjs 3/3; run_venture_tests.py changepoint-detector (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "70866758-a173-5961-879d-12a33ab107d5",
+    "transcripts": 1,
+    "first": "2026-11-13T00:23:17Z",
+    "last": "2026-11-13T00:45:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 83,
+        "output": 21749,
+        "thinking": 6154,
+        "cache_read": 3788590,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88096,
+        "api_equivalent_usd": 1.8978,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 83,
+      "output": 21749,
+      "thinking": 6154,
+      "cache_read": 3788590,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88096,
+      "api_equivalent_usd": 1.8978,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.24,
+      "active_minutes": 22.24,
+      "model_minutes": 5.71,
+      "tool_minutes": 16.52,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "debug a silent NaN in an eval script, re-run sweeps, write a pre-registration and README section",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 263.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
