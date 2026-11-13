@@ -1,5 +1,17 @@
 # buildbot-sheathing research log
 
+## 2026-11-13 · Milestone 12 result: per-nail reads and the mid push both survive measured studs; together with slide and shim they reach 0.77, not 0.90
+
+`experiments/m12_remedies/` (run.py, results.txt, results.json, figure.py, figure.png); `tack.simulate` gains a `local` read policy and a mid push on any stud shape; `measured.model_profiles` holds milestone 11's profile variants; `ceiling.clean` takes `profiles`; `tests/test_remedies.py` (5 tests). 39 s to run. Milestone 11's three cells reproduce to four decimals (0.4253, 0.4707, 0.5792).
+
+- **A bug in the first run, fixed before any result was used.** Milestone 11's profiles are measured about each stud's least-squares line, not the chord through its ends; the first run took the push from the least-squares line, so the push moved a stud by a third of its bow in the wrong place and made things worse (three reads 0.425 to 0.428; the end-chord RMS of five studs went up). The registered model says "offset from its chord" and the push is physically pinned at the plates, so the push now uses the end chord (`test_push_is_measured_from_the_end_chord`). The results below are from the fixed code only; the parabola and straight cells were unaffected (their profiles are zero at the ends).
+- **H53 held: most of the measured-stud loss is the estimate.** Reading the stud at every nail height and aiming at each read gives 0.530 on measured studs (ledger, no push), above the 0.502 bar; the waviness cost falls from 15.4 points (three reads) and 12.5 (dense parabola) to 4.7. On the parabola and straight studs per-nail reads gain nothing (0.577 and 0.813 against 0.579 and 0.811): their only use is waviness.
+- **H54 held: the push still pays.** A mid push (three reads, ledger) lifts measured studs from 0.425 to 0.552 (+12.6 points; bar +10), against +16.3 on their own parabolas (0.579 to 0.742). Pushed onto the end chord, four of the six studs straighten (end-chord RMS 0.83–3.49 mm to 0.45–1.20) and the most leaning end stud gets worse (0.94 to 1.56), because its shape is not a bow. Forces 10–72 N at a mean Stud-grade E, inside milestone 9's range.
+- **H55 refuted: the remedies stack, but to 0.77.** Per-nail reads, the mid push and a 0.5 mm slide plus shim give 0.771 on measured studs (0.796 with the common part removed), against 0.860 on their own parabolas and 0.92 on straight studs. 95% then needs a tool held to 0.61 mm (1σ; 0.63 with the common part removed) against 0.84 mm on straight studs; three reads with the push need 0.27 mm.
+- **H56 held.** Doubled joints give 1.0000 in all six estimate-placement cells on measured studs.
+- **What it means for the programme.** The single-2x route is now: read at every nail (a line laser along the stud, not three spots), push the joint stud to its end chord, slide and shim the sheet, and hold the tool to about 0.6 mm. Each step is needed and none is enough alone. Doubled joints still need none of it. The paper's single-2x recommendation narrows accordingly.
+- **Inputs not sourced:** the slide and shim residuals (0.5 mm, milestone 10's sweep), the push error (= the 0.5 mm read), linear superposition of the push on the scanned shape, and the length-squared scaling from 2,220 mm.
+
 ## 2026-11-13 · Milestone 12 planned: do the single-2x remedies survive measured studs?
 
 Written before any milestone-12 pipeline was run. Inputs are milestone 11's committed `profiles.json` and its 110 mm running mean.
