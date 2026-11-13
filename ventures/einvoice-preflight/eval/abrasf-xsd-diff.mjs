@@ -24,7 +24,7 @@ import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { checkAbrasf, ABRASF_NS } from "../abrasf.mjs";
 import { parseCfdiXml } from "../cfdi-xml.mjs";
-import { VERSIONS, rootsOf, PROVIDER_LAYOUTS, providerSameAs } from "../abrasf-xsd.mjs";
+import { VERSIONS, rootsOf, PROVIDER_LAYOUTS, providerSameAs, providerMulti, multiFor } from "../abrasf-xsd.mjs";
 import { readdirSync } from "node:fs";
 import { UF_CODE } from "../nfe.mjs";
 const UF_BY_CODE = Object.fromEntries(Object.entries(UF_CODE).map(([k, v]) => [v, k]));
@@ -43,10 +43,21 @@ for (;;) {
   else break;
 }
 const XSD = Object.fromEntries(VERSIONS.filter((v) => !only || only.has(v)).map((v) => [v, join(dir, `${v}/nfse_v${v.replace(".", "")}.xsd`)]));
+// A multi-file provider layout (Ginfes 1.00, WebISS 1.00) has one schema per message: the
+// file to validate against is the one that declares the root element at top level.
+const MULTI_XSD = {};
 if (providers) for (const key of PROVIDER_LAYOUTS) {
   if (providerSameAs(key)) continue; // checked as the ABRASF layout it is identical to
   const [name, ver] = key.split(" ");
   const d = join(providers, name, ver);
+  if (providerMulti(key)) {
+    MULTI_XSD[key] = {};
+    for (const f of readdirSync(d).filter((x) => /^(servico_|tipos).*\.xsd$/.test(x) && (key !== "Ginfes 1.00" || /_v03\.xsd$/.test(x)))) {
+      for (const el of parseCfdiXml(readFileSync(join(d, f), "utf8")).root.children) if (el.name === "element") MULTI_XSD[key][el.attrs.name] = join(d, f);
+    }
+    XSD[key] = true;
+    continue;
+  }
   const f = readdirSync(d).find((x) => /^nfse.*\.xsd$/.test(x));
   XSD[key] = join(d, f);
 }
@@ -66,6 +77,7 @@ const clone = (n) => ({ ...n, attrs: { ...n.attrs }, children: n.children.map(cl
 const ROOTS = new Set(VERSIONS.flatMap(rootsOf));
 function abrasfRoot(n) {
   if (n.ns === ABRASF_NS && ROOTS.has(n.name)) return n;
+  if (providers && multiFor(n.name, n.ns).length) return n;
   for (const c of n.children) { if (!c.name) continue; const r = abrasfRoot(c); if (r) return r; }
   return null;
 }
@@ -111,7 +123,13 @@ const tmp = mkdtempSync(join(tmpdir(), "abrasf-diff-"));
 const xmllintValid = (text, v) => {
   const f = join(tmp, "m.xml");
   writeFileSync(f, text);
-  return spawnSync("xmllint", ["--noout", "--schema", XSD[v], f], { encoding: "utf8" }).status === 0;
+  let xsd = XSD[v];
+  if (MULTI_XSD[v]) {
+    const root = /<([A-Za-z]+)[\s>]/.exec(text.replace(/^<\?xml[^>]*\?>/, ""))[1];
+    xsd = MULTI_XSD[v][root];
+    if (!xsd) throw new Error(`${v}: no schema file declares ${root}`);
+  }
+  return spawnSync("xmllint", ["--noout", "--schema", xsd, f], { encoding: "utf8" }).status === 0;
 };
 const ours = (text) => checkAbrasf(text);
 
