@@ -19,8 +19,10 @@ const tiles = (plan) => plan.every((s, i) => i === 0 || s.start === plan[i - 1].
 test('a six-verse hymn gives one section per verse, starting on the verse downbeats', () => {
   const ev = fitStretch(transposeToFinal(corpus('pange-lingua-full.gabc').events, 52), 8);
   const plan = sectionPlan({ events: ev, intro: 2, outro: 2 });
-  const chant = plan.filter((s) => s.energy === 'verse' || s.energy === 'drop');
+  const chant = plan.filter((s) => ['verse', 'breakdown', 'drop'].includes(s.energy));
   assert.equal(chant.length, 6);
+  assert.equal(chant.at(-2).energy, 'breakdown', 'the verse before the last drop is the breakdown');
+  assert.equal(chant.at(-2).name, 'Breakdown');
   assert.equal(plan[0].energy, 'intro');
   assert.equal(plan.at(-1).energy, 'outro');
   assert.equal(chant[0].energy, 'verse');
@@ -37,6 +39,21 @@ test('a six-verse hymn gives one section per verse, starting on the verse downbe
   assert.deepEqual(chant.map((s) => s.start - 2), starts);
   // every section leading into a drop ends on a build; drops never do
   for (let i = 0; i < plan.length - 1; i++) assert.equal(plan[i].build, plan[i + 1].energy === 'drop' && plan[i].energy !== 'drop');
+  // breakdown: false keeps the old plan, a verse there
+  const plain = sectionPlan({ events: ev, intro: 2, outro: 2, breakdown: false });
+  assert.deepEqual(plain.map((s) => s.energy), plan.map((s) => (s.energy === 'breakdown' ? 'verse' : s.energy)));
+  assert.ok(!plain.some((s) => s.energy === 'breakdown'));
+});
+
+test('only pieces with four or more chant sections get a breakdown', () => {
+  const kyrie = (n) => parseGabc(`name:T;\nmode:1;\n%%\n(c4) ${Array.from({ length: n }, () => 'Ky(f)ri(g)e(f) e(g)lei(f)son(e) Ky(f)ri(g)e(f) e(g)lei(f)son(e) (::)').join(' ')}\n`).events;
+  for (const [n, want] of [[2, 0], [3, 0], [4, 1], [5, 1]]) {
+    const p = sectionPlan({ events: fitToBars(kyrie(n), 2), minBars: 1 });
+    const chant = p.filter((s) => s.energy !== 'intro' && s.energy !== 'outro');
+    assert.equal(chant.length, n, JSON.stringify(p));
+    assert.equal(p.filter((s) => s.energy === 'breakdown').length, want, `${n} sections`);
+    if (want) assert.ok(chant.at(-2).energy === 'breakdown' && chant.at(-2).build);
+  }
 });
 
 test('short sections merge, so a 28-double-bar Te Deum does not flicker', () => {
@@ -85,6 +102,14 @@ for (const genre of ['deep-house', 'edm', 'hard-rock', 'metal']) {
     assert.ok(gaps.every((g, i) => i === 0 || g <= gaps[i - 1]), `gaps ${gaps}`);
     assert.ok(roll.every((n, i) => i === 0 || n.vel >= roll[i - 1].vel));
     assert.deepEqual(inBar(a.drums, 5).filter((n) => n.note === KICK).map((n) => n.tick - 5 * BAR), [0, PPQ]);
+    // build bar: the bass changes root on beat 3, and a riser climbs and swells above the chords
+    const bassStarts = inBar(a.bass, 5).map((n) => n.tick - 5 * BAR);
+    assert.deepEqual(bassStarts, [0, 2 * PPQ]);
+    assert.notEqual(inBar(a.bass, 5)[0].note, inBar(a.bass, 5)[1].note);
+    const riser = inBar(a.chords, 5).filter((n) => n.len < PPQ / 2); // eighths; the chords are held
+    assert.ok(riser[0].note >= 50 + 12, 'the riser starts an octave above the final');
+    assert.equal(riser.length, 7, JSON.stringify(riser));
+    assert.ok(riser.every((n, i) => i === 0 || (n.note > riser[i - 1].note && n.vel > riser[i - 1].vel)), 'riser climbs and swells');
     const air = 6 * BAR - PPQ / 2;
     for (const k of ['drums', 'bass', 'chords']) {
       for (const n of inBar(a[k], 5)) assert.ok(n.tick < air && n.tick + n.len <= air, `${k} sounds in the air gap`);
@@ -101,6 +126,43 @@ for (const genre of ['deep-house', 'edm', 'hard-rock', 'metal']) {
     assert.deepEqual(a.sections.map((s) => s.tick), [0, 2 * BAR, 6 * BAR, 10 * BAR]);
   });
 }
+
+const bdPlan = [
+  { name: 'Verse 1', energy: 'verse', start: 0, bars: 4, build: true },
+  { name: 'Drop 1', energy: 'drop', start: 4, bars: 4, build: false },
+  { name: 'Breakdown', energy: 'breakdown', start: 8, bars: 4, build: true },
+  { name: 'Drop 2', energy: 'drop', start: 12, bars: 4, build: false },
+];
+
+for (const genre of ['deep-house', 'edm', 'hard-rock', 'metal']) {
+  test(`${genre}: the breakdown has no drums or bass, one soft held chord a bar, then a build`, () => {
+    const a = arrange({ genre, mode: 1, final: 50, bars: 16, fills: true, sections: bdPlan });
+    const dropVel = Math.max(...inBar(a.chords, 12).map((n) => n.vel));
+    for (const bar of [8, 9, 10]) {
+      assert.equal(inBar(a.drums, bar).length, 0, `breakdown bar ${bar} has drums`);
+      assert.equal(inBar(a.bass, bar).length, 0, `breakdown bar ${bar} has bass`);
+      const c = inBar(a.chords, bar);
+      assert.equal(c.length, 3);
+      assert.ok(c.every((n) => n.tick === bar * BAR && n.len >= BAR - 60), 'held for the bar');
+      assert.ok(c.every((n) => n.vel < dropVel), 'softer than the drop');
+    }
+    assert.ok(inBar(a.drums, 11).some((n) => n.note === SNARE), 'the breakdown still builds');
+    assert.ok(a.drums.some((n) => n.note === CRASH && n.tick === 12 * BAR));
+  });
+}
+
+test('rendered, the breakdown is the quietest chant section', () => {
+  const a = arrange({ genre: 'edm', mode: 1, final: 50, bars: 16, sections: bdPlan });
+  const wav = renderMidi(eventsToMidi([{ type: 'bar', kind: 'full', pulses: 8 * 16 }], { bpm: 120, backing: a }), { targetPeak: 0.8 });
+  const L = wav.channels[0], rate = 44100, barSec = 2;
+  const rms = (b0, b1) => {
+    let s = 0, n = 0;
+    for (let i = Math.floor(b0 * barSec * rate); i < Math.floor(b1 * barSec * rate); i++) { s += L[i] * L[i]; n++; }
+    return Math.sqrt(s / n);
+  };
+  const verse = rms(0, 3), breakdown = rms(8, 11);
+  assert.ok(breakdown < verse * 0.5, `breakdown ${breakdown.toFixed(4)} verse ${verse.toFixed(4)}`);
+});
 
 test('without sections the backing is unchanged', () => {
   const a = arrange({ genre: 'metal', mode: 3, final: 52, bars: 9, fills: true });

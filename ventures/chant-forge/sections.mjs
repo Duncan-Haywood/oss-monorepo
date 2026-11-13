@@ -10,14 +10,22 @@
 // counted back from the last. A section
 // that leads into a drop ends on a one-bar "build" (genre.mjs writes it).
 //
+// A long piece (four or more chant sections, so a strophic hymn or a --repeat run) turns
+// the verse before the last drop into a "breakdown": drums and bass out, the choir alone
+// over a held pad, then the build, so the last drop lands after the quietest moment
+// rather than after one more verse like the others. Pass `breakdown: false` to keep it a verse.
+//
 // Pure function, no dependencies. Bars are counted from 0 at the start of the file.
 
-export const ENERGIES = ['intro', 'verse', 'drop', 'outro'];
+export const ENERGIES = ['intro', 'verse', 'breakdown', 'drop', 'outro'];
 
-// sectionPlan({ events, pulsesPerBar, intro, outro, minBars }) -> [{ name, energy, start, bars, build }]
+// Fewest chant sections that get a breakdown before the last drop.
+export const BREAKDOWN_MIN_SECTIONS = 4;
+
+// sectionPlan({ events, pulsesPerBar, intro, outro, minBars, breakdown }) -> [{ name, energy, start, bars, build }]
 // `events` are the chant events as cli.mjs passes them (after --fit, --halftime, --repeat,
 // but WITHOUT the intro and outro rest bars; give those as counts).
-export function sectionPlan({ events, pulsesPerBar = 8, intro = 0, outro = 0, minBars = 4 }) {
+export function sectionPlan({ events, pulsesPerBar = 8, intro = 0, outro = 0, minBars = 4, breakdown = true }) {
   if (!(pulsesPerBar > 0)) throw new Error('pulsesPerBar must be positive');
   for (const [k, v] of [['intro', intro], ['outro', outro]]) {
     if (!Number.isInteger(v) || v < 0) throw new Error(`${k} must be a whole number of bars, got ${v}`);
@@ -61,7 +69,8 @@ export function sectionPlan({ events, pulsesPerBar = 8, intro = 0, outro = 0, mi
     // the last chant section is a drop and (with two or more) the first a verse; counting
     // back from the last, the ones between alternate drop / verse, so an odd count opens
     // on two verses rather than dropping straight out of the intro
-    const energy = i === n - 1 ? 'drop' : i === 0 ? 'verse' : (n - 1 - i) % 2 === 0 ? 'drop' : 'verse';
+    let energy = i === n - 1 ? 'drop' : i === 0 ? 'verse' : (n - 1 - i) % 2 === 0 ? 'drop' : 'verse';
+    if (breakdown && n >= BREAKDOWN_MIN_SECTIONS && i === n - 2) energy = 'breakdown';
     out.push({ name: '', energy, start: intro + sp.start, bars: sp.end - sp.start, build: false });
   });
   if (outro > 0) out.push({ name: 'Outro', energy: 'outro', start: intro + chantBars, bars: outro, build: false });
@@ -71,6 +80,7 @@ export function sectionPlan({ events, pulsesPerBar = 8, intro = 0, outro = 0, mi
   for (let i = 0; i < out.length; i++) {
     const s = out[i];
     if (s.energy === 'verse' || s.energy === 'drop') s.name = `${s.energy === 'verse' ? 'Verse' : 'Drop'} ${++count[s.energy]}`;
+    if (s.energy === 'breakdown') s.name = 'Breakdown';
     const next = out[i + 1];
     s.build = Boolean(next && next.energy === 'drop' && s.energy !== 'drop' && s.bars >= 2);
   }

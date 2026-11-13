@@ -151,12 +151,15 @@ export function fillBar(t0, bar) {
 // energies are made from it by taking parts away, so every genre gets them for free.
 //   intro  no kick, snare, clap or crash; no bass; chords softer
 //   verse  no crash; drums and bass a little softer; no chord part (the choir carries it)
+//   breakdown  no drums and no bass: the choir alone over one soft held chord a bar
 //   drop   the genre's bar as written, with a crash on the section's first downbeat
 //   outro  hats, ride and chords only, softer; the last bar is one held chord and a crash
 // A section with `build` ends on a build bar instead of its own last bar: kicks on beats
 // 1 and 2, a snare roll that speeds up (quarters, eighths, then sixteenths) and swells, the
-// bass and chords held under it, and the last eighth left empty for every part (the
-// "air" before the drop lands).
+// bass and chords on the bar's chord for two beats and then on the chord a fifth above
+// the final (the mode's own "dominant"; a fourth when the bar already sits there), a riser
+// of eighth notes climbing the mode an octave above the chords and swelling, and the last
+// eighth left empty for every part (the "air" before the drop lands).
 const PERCUSSION_ONLY = new Set([D.closedHat, D.openHat, D.ride]);
 const soften = (list, k) => list.map((n) => ({ ...n, vel: Math.max(1, Math.round(n.vel * k)) }));
 
@@ -166,6 +169,10 @@ function shapeBar(part, energy) {
   }
   if (energy === 'verse') {
     return { drums: soften(part.drums.filter((n) => n.note !== D.crash), 0.85), bass: soften(part.bass, 0.9), chords: [] };
+  }
+  if (energy === 'breakdown') {
+    const held = part.chords.length ? Math.round(part.chords.reduce((m, n) => m + n.vel, 0) / part.chords.length * 0.7) : 50;
+    return { drums: [], bass: [], chords: [], pad: held };
   }
   if (energy === 'outro') {
     return { drums: soften(part.drums.filter((n) => PERCUSSION_ONLY.has(n.note)), 0.7), bass: [], chords: soften(part.chords, 0.75) };
@@ -178,9 +185,25 @@ export function buildBar({ t0, scale, degree, final }) {
   const hits = [0, PPQ, PPQ * 1.5, ...Array.from({ length: 6 }, (_, i) => PPQ * 2 + i * step)]; // stops before the last eighth
   hits.forEach((tick, i) => drums.push(e(t0 + tick, D.snare, step, Math.min(127, 60 + i * 8))));
   const air = BAR - PPQ / 2; // the bar's last eighth stays empty
-  const bass = [e(t0, rootNote(scale, degree, final - 24), air - 20, 90)];
-  const chords = chordTones(scale, degree, final).map((n) => e(t0, n, air - 20, 70));
+  const lift = degree === 4 ? 3 : 4; // the chord the build turns to on beat 3
+  const half = PPQ * 2;
+  const bass = [
+    e(t0, rootNote(scale, degree, final - 24), half - 20, 90),
+    e(t0 + half, rootNote(scale, lift, final - 24), air - half - 20, 100),
+  ];
+  const chords = [
+    ...chordTones(scale, degree, final).map((n) => e(t0, n, half - 20, 70)),
+    ...chordTones(scale, lift, final).map((n) => e(t0 + half, n, air - half - 20, 80)),
+  ];
+  // the riser: seven eighths up the mode from the final, an octave above the chords, swelling
+  const steps = air / (PPQ / 2);
+  for (let i = 0; i < steps; i++) chords.push(e(t0 + i * (PPQ / 2), final + 12 + scale[i % 7] + 12 * Math.floor(i / 7), PPQ / 2 - 20, 50 + i * 9));
   return { drums, bass, chords };
+}
+
+// The breakdown's bar: one held chord of the bar's degree at `vel`, nothing else.
+export function padBar({ t0, scale, degree, final }, vel) {
+  return { drums: [], bass: [], chords: chordTones(scale, degree, final).map((n) => e(t0, n, BAR - 40, vel)) };
 }
 
 export function outroLastBar({ t0, scale, final }) {
@@ -214,13 +237,14 @@ export function arrange({ genre, mode, final, bars, fills = false, sections = nu
       part = GENRES[genre].bar(ctx);
       if (sec) {
         part = shapeBar(part, sec.energy);
+        if (part.pad !== undefined) part = padBar(ctx, part.pad);
         if (sec.energy === 'drop' && bar === sec.start && !part.drums.some((n) => n.note === D.crash && n.tick === ctx.t0)) {
           part.drums.push(e(ctx.t0, D.crash, PPQ, 110));
         }
       }
     }
     for (const k of ['drums', 'bass', 'chords']) out[k].push(...part[k]);
-    const quiet = sec && (sec.energy === 'intro' || sec.energy === 'outro' || (last && sec.build));
+    const quiet = sec && (sec.energy === 'intro' || sec.energy === 'outro' || sec.energy === 'breakdown' || (last && sec.build));
     if (fills && bar < bars - 1 && !quiet) out.drums.push(...fillBar(bar * BAR, bar));
   }
   return out;

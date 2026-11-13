@@ -63,6 +63,15 @@ for (const p of pieces.filter(Boolean)) {
     ok(/Sections: Intro bar 1-2.*Outro/.test(t) && !(await page.locator("#dlmid").isDisabled()), `sections ${p} + ${g}: ${(t.match(/Sections: .*/) || ["none"])[0].slice(0, 70)}`);
   }
 }
+// a long hymn gets a breakdown before its last drop (sections.mjs, four or more sections)
+await page.selectOption("#piece", "Pange lingua, all six verses");
+await page.waitForFunction(() => document.querySelector("#src").value.length > 2000);
+await page.selectOption("#genre", "edm");
+await page.click("#go");
+{
+  const t = await out();
+  ok(/Drop 2 bar [^;]*; Breakdown bar [^;]*\(build\); Drop 3/.test(t), `six-verse hymn has a breakdown before the last drop: ${(t.match(/Sections: .*/) || ["none"])[0].slice(-90)}`);
+}
 await page.selectOption("#sections", "");
 // errors
 await page.fill("#src", "hello");

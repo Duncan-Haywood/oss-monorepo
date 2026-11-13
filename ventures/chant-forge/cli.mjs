@@ -13,7 +13,7 @@ import { sectionPlan } from './sections.mjs';
 const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--outro N] [--json]
   --genre   add drums, bass and chords in the chant's mode: ${GENRE_NAMES.join(', ')}
   --fills   with --genre: a snare roll on the last beat of every fourth bar (not the final bar)
-  --sections  with --genre: song sections from the chant's double bars (intro, verse, build, drop, outro); the backing changes energy between them
+  --sections  with --genre: song sections from the chant's double bars (intro, verse, build, drop, outro; a breakdown before the last drop from four sections on); the backing changes energy between them
   --outro   N bars after the chant (the backing winds down under them; with --sections it ends on a held chord)
   --bpm     tempo; one chant note is an eighth note (default 124, deep house)
   --fit     pad each full bar so the next phrase starts on a downbeat (8 = one 4/4 bar)

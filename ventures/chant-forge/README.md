@@ -126,6 +126,42 @@ opens on a crash, the outro ends on a held three-note chord, every pitched note 
 `--sections` the backing is byte-for-byte what it was; rendered, intro < verse < drop; markers in the file; the CLI
 flags. `eval/browser-e2e.mjs` adds 20 checks (every sample with every genre and sections on): 58, all pass.
 
+### Breakdown and riser (2026-11-13)
+
+A long piece (four or more chant sections: a strophic hymn or a `--repeat` run) now turns the verse before the last
+drop into a **Breakdown**: drums and bass out, the choir alone over one soft held chord a bar (70% of the bar's chord
+velocity), then the usual build into the last drop. The six-verse Pange lingua now reads Verse, Drop, Verse, Drop,
+Breakdown, Drop:
+
+```
+sections: Intro bar 1-2; Verse 1 bar 3-11 (build); Drop 1 bar 12-20; Verse 2 bar 21-29 (build); Drop 2 bar 30-38; Breakdown bar 39-47 (build); Drop 3 bar 48-56; Outro bar 57-58
+```
+
+The **build bar** no longer holds one chord under the snare roll. The bass and chords sit on the bar's chord for two
+beats, then turn to the chord a fifth above the final (a fourth when the bar is already there), and a riser of seven
+eighth notes climbs the mode from an octave above the final, swelling from velocity 50 to 104, before the empty last
+eighth. Every note stays in the mode. Pieces with two or three sections are unchanged;
+`sectionPlan({ ..., breakdown: false })` keeps the old plan.
+
+Measured the same way as the table above (six-verse Pange lingua, backing only, preview renderer, mean power per
+section; build bars measured alone, without their silent last eighth):
+
+| genre | verse | breakdown | drop | build bar |
+|---|---|---|---|---|
+| deep house, 124 BPM | -21.0 dB | -30.5 dB | -19.3 dB | -18.3 dB |
+| EDM, 140 BPM | -22.2 dB | -33.5 dB | -20.5 dB | -20.4 dB |
+| hard rock, 140 BPM | -21.0 dB | -29.0 dB | -17.4 dB | -18.0 dB |
+| metal, 170 BPM | -19.3 dB | -31.7 dB | -16.9 dB | -21.0 dB |
+
+So the breakdown sits 8 to 12 dB under the verses and 12 to 15 dB under the drop that follows it, the widest step in
+the arrangement. Whether a pad that quiet still carries the choir, and whether the riser reads as a lift rather than a
+scale exercise, are ear questions nobody has answered. Tests (`sections.test.mjs`, now 17): the breakdown appears only
+from four sections on and always builds; per genre, breakdown bars have no drums or bass and one held three-note chord
+softer than the drop's; the build's bass changes root on beat 3 and its riser climbs and swells; rendered, the breakdown
+is under half the verse's level.
+The studio page now lists the six-verse Pange lingua and seven-verse Veni Creator as samples, so the breakdown can be
+heard there; `eval/browser-e2e.mjs` checks that the six-verse hymn shows it (77 checks, all pass).
+
 ## Mix and master check
 
 ```sh

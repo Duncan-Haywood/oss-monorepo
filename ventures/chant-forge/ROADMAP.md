@@ -65,6 +65,10 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   build, drop and outro from the chant's double bars; each energy made from the genre's bar; build bar with an
   accelerating snare roll and an empty last eighth; a marker per section; a studio-page switch. Rendered, drops sit
   1.7-3.5 dB above verses on all four genres. Not listened to.
+- 2026-11-13: breakdown and riser (`sections.mjs`, `genre.mjs`, `sections.test.mjs` now 17 tests): pieces with four or
+  more chant sections turn the verse before the last drop into a breakdown (drums and bass out, one soft held chord a
+  bar); the build bar turns to the chord a fifth above the final on beat 3 and carries a seven-eighth riser up the
+  mode. Rendered, the breakdown sits 8-12 dB under the verses. Not listened to.
 
 ## Next
 
