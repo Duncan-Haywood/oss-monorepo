@@ -49,6 +49,9 @@ from typing import Optional
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from claim_check import claim_recipe  # noqa: E402
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES_DIR = REPO_ROOT / "ventures"
 LEDGER_DIR = REPO_ROOT / "portfolio" / "ledger"
@@ -985,11 +988,12 @@ def print_table(ventures: list[Venture], queue: list[dict],
             "prints its full `next:`; a BUILDABLE HERE note says what a session can do with "
             "no outside input; if every item needs a key, account, person or blocked host, add "
             "`inputs_only:` to its portfolio/flagships.yaml row in your PR and take the next "
-            "row, so later runs are not sent there). Open your draft PR with the slug in its title as soon as "
-            "you pick: that title is the claim the next session's table reads. Then run "
+            "row, so later runs are not sent there). Open your draft PR with the slug in its title "
+            "before you read further: that title is the claim the next session's table reads. Then run "
             f"`python3 portfolio/router/claim_check.py {first[1]}`: two sessions that opened "
             "in the same minute both see this row free, and the PR opened first keeps it."
         )
+        print(claim_recipe(first[1]))
     print()
     print(
         f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}{'merit':>7}"

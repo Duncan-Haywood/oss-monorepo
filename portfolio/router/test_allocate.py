@@ -982,3 +982,12 @@ class ClaimCheckTest(unittest.TestCase):
         prs = [self.pr(1, "x: theirs", "2026-11-12T14:00:00Z")]
         self.assertEqual(self.decide(prs, "x")["verdict"], "YIELD")
         self.assertEqual(self.decide([], "x")["verdict"], "HOLD")
+
+    def test_no_pr_of_mine_prints_the_empty_commit_claim(self):
+        from claim_check import report
+        now = self.NOW
+        lines = report(self.decide([], "x"), "x", now, 24)
+        self.assertTrue(any("--allow-empty" in l and "'x'" in l for l in lines), lines)
+        mine = [self.pr(3, "x: mine", "2026-11-12T14:05:00Z")]
+        lines = report(self.decide(mine, "x", mine=3), "x", now, 24)
+        self.assertFalse(any("--allow-empty" in l for l in lines), lines)
