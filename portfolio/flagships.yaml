@@ -226,25 +226,24 @@ flagships:
       rectilinear lensfun profiles the best even-only fit leaves over 1 px at
       6000 px for 17%, eval/warp-rectilinear2-2026-11-12.md).
       Lensfun distortion, TCA and vignetting for files with none (--lens-db;
-      eval/lensfun-*-2026-11-13.md).
-      Next, most valuable first: a real evenly lit frame shot wide open
+      eval/lensfun-*-2026-11-13.md); in the grade stage from color/lens-profiles/ since 2026-11-13 (eval/lens-pipeline-grade-2026-11-13.md).
+      Next, most valuable first: a real DNG and a vignetting-calibrated lens through the pipeline's lens stage;
+      a real evenly lit frame shot wide open
       (corners level after lensfun's vignetting?); a second
-      maker-against-lensfun DNG pair (a zoom at several focal lengths); the
-      grade stage reading a workspace lens database; a
+      maker-against-lensfun DNG pair (a zoom at several focal lengths);  a
       real DNG carrying any opcode
       run only on synthetic files so far, or the SDK to check them;
       lateral colour measured on a real frame with sharp corner edges; a real Adobe `.dcp` through the profile chooser;
       newer CR2s (ColorData8-11: 5D Mark IV, 80D, 90D; not found in that
       collection under their plain names); the DJI Phantom 4 DNG's vignette
       lift against DJI's own render (eval/opcode-quality-flag-2026-11-13.md);
-      a real DNG with opcode flag bit 1 set; a phone DNG with the phone's own JPEG of the same
-      frame (to check the corrected corners); a real DNG 1.6 three-
+      a real DNG with opcode flag bit 1 set; a phone DNG with its own JPEG of the frame (corrected corners); a real DNG 1.6 three-
       light profile and the SDK's triple weights; a tungsten-lit colour chart
       to say which colour model is closer (the 70D frame, 4,700 K and green-
       tinted, is where they part most; the Nexus 5X carries ForwardMatrix); an
       Adobe render of a known frame (settles `--default-tone-curve always`);
       the grade-scope saving on real 4K footage; the native Huffman reader on
-      macOS; a camera-written lossless-JPEG DNG; a trained blink model and a
+      macOS;  a trained blink model and a
       real shoot with a photographer's picks; photos with a real horizon and
       human tilt labels.
 

@@ -8,9 +8,15 @@ and the same profile (expected bit-identical: grading with no LUT adds no loss).
 
 Usage (from ``ventures/photo-editing``, rawpy and numpy in a scratch venv)::
 
-    PYTHONPATH=src:tests VENV/bin/python tools/real_cr2_pipeline.py FILE.CR2 WORKDIR
+    PYTHONPATH=src:tests VENV/bin/python tools/real_cr2_pipeline.py FILE.CR2 WORKDIR [--lens-db DIR]
 
-Results: ``eval/cr2-pipeline-grade-2026-11-12.md``.
+With ``--lens-db DIR`` (lensfun's ``data/db``), its XML files are copied into the workspace's
+``color/lens-profiles/`` first, so the grade stage corrects the lens; the master is then compared
+with ``shootflow develop --dcp --lens-db`` on the same file, and the report carries the master's
+``.lens.json`` note.
+
+Results: ``eval/cr2-pipeline-grade-2026-11-12.md``; with ``--lens-db``,
+``eval/lens-pipeline-grade-2026-11-13.md``.
 """
 
 from __future__ import annotations
@@ -26,6 +32,7 @@ from pathlib import Path
 import numpy as np
 
 from shootflow.camera_profiles import CAMERA_PROFILES_DIR, camera_of
+from shootflow.lens_profiles import LENS_PROFILES_DIR
 from shootflow.cli import main as shootflow
 from shootflow.ingest import execute_copy_plan, plan_import
 from shootflow.local_pipeline import run_local_pipeline
@@ -65,6 +72,11 @@ def _rgb48(path: Path) -> bytes:
 def main(argv: list[str]) -> int:
     import rawpy
 
+    lens_db = None
+    if "--lens-db" in argv:
+        i = argv.index("--lens-db")
+        lens_db = Path(argv[i + 1])
+        argv = argv[:i] + argv[i + 2 :]
     cr2, base = Path(argv[0]), Path(argv[1])
     camera = camera_of(cr2)
     with rawpy.imread(str(cr2)) as raw:
@@ -85,6 +97,10 @@ def main(argv: list[str]) -> int:
     right = _profile(matrix, camera, "LibRaw matrix (check only)")
     (profiles / "libraw-check.dcp").write_bytes(right)
     (profiles / "decoy.dcp").write_bytes(_profile(np.asarray(matrix) * 0.5, "Canon EOS 7D", "decoy"))
+    if lens_db is not None:
+        (ws / LENS_PROFILES_DIR).mkdir(parents=True)
+        for xml in sorted(lens_db.glob("*.xml")):
+            (ws / LENS_PROFILES_DIR / xml.name).write_bytes(xml.read_bytes())
     now = [datetime(2026, 11, 12, tzinfo=timezone.utc)]
 
     def clock() -> datetime:
@@ -99,7 +115,8 @@ def main(argv: list[str]) -> int:
     alone = base / "alone.dcp"
     alone.write_bytes(right)
     out = io.StringIO()
-    code = shootflow(["develop", str(cr2), "--out", str(base / "dev"), "--dcp", str(alone)], stdout=out, stderr=sys.stderr)
+    lens_args = ["--lens-db", str(lens_db)] if lens_db is not None else []
+    code = shootflow(["develop", str(cr2), "--out", str(base / "dev"), "--dcp", str(alone), *lens_args], stdout=out, stderr=sys.stderr)
     if code:
         return code
     ours = np.frombuffer(_rgb48(master), "<u2").astype(np.int64)
@@ -116,6 +133,8 @@ def main(argv: list[str]) -> int:
         "master_vs_develop_max_difference": int(np.abs(ours - direct).max()) if ours.shape == direct.shape else "shape differs",
         "proxy": _probe(next((ws / "proxies").glob("*/IMG_0001.CR2.jpg"))),
         "analysis_method": still["analysis_method"],
+        "lens_note": json.loads(Path(str(master) + ".lens.json").read_text()) if lens_db is not None else None,
+        "develop_lens": json.loads(out.getvalue().splitlines()[-1])["developed"][0]["lens"] if lens_db is not None else None,
         "deliverables": sorted(str(p.relative_to(ws)) for p in (ws / "deliverables").rglob("*") if p.is_file()),
     }
     print(json.dumps(report, indent=1))
