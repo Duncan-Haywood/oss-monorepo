@@ -1,0 +1,298 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/lemonsqueezy-payout-to-journal",
+ "stratum": "venture",
+ "seed": "2026-11-13-r-1b81",
+ "drawn_by": "sample",
+ "round": 72,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a bookkeeper who closes the month for indie software and digital-product sellers and reconciles Lemon Squeezy payouts (Lemon Squeezy as merchant of record) into Xero or QuickBooks through a clearing account; they check first that the tool reads the CSV Lemon Squeezy actually emails from Orders > Export, that sales, discounts and the Lemon Squeezy platform fee land on their own lines while the VAT/sales tax Lemon Squeezy remits stays off the seller's books, and that the journals sum to the twice-monthly payout net of any payout fee",
+ "scores": {
+  "correctness": 1,
+  "completeness": 1,
+  "verification": 1,
+  "craft": 2,
+  "claims": 0,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "Ran the calculator (/tmp/claude-0/ls/scripts/run.mjs) on inputs built from Lemon Squeezy's own docs. (1) The real Orders export, with the exact columns listed at docs.lemonsqueezy.com/help/orders/exporting-orders (identifier, order_number, product_name, variant_name, ..., subtotal, discount_total, tax, total, tax_name, tax_rate, tax_number, date_utc), is refused outright: 'Missing column: net total. In Lemon Squeezy open Insights / Payouts...'. The export has no fee, net, refund or payout-id column at all, so no output is produced for the one file the page tells users to paste. (2) With a net column added by hand, amounts the docs define as USD cents ('2000' = $20) are read as dollars: sales Cr 2,000.00 instead of 20.00 (100x), plus a spurious uncategorised line and an undated warning because date_utc is not aliased. (3) The docs' own worked example (France, $20 + 20% VAT, card: platform fee $2.06, net $17.94) typed in the tool's own invented format gives sales Cr 20.00, fees Dr 2.06, clearing 17.94, tax kept off the books: pass. (4) A discounted order (subtotal 20, discount 5, fee 1.25, net 13.75) books the $5 discount to uncategorised with an error. (5) A payout with Lemon Squeezy's documented 1% non-US payout fee (rows 1,000.00, deposit 990.00) is flagged 'Do not post'. (6) The sample's 342.70 deposit recomputes by hand. Arithmetic is right on hand-built input; on the real export it produces nothing, so 1.",
+  "completeness": "Claimed features checked: reads the Lemon Squeezy Orders or Payouts export (fails: real Orders columns rejected; no Payouts CSV schema exists in the code beyond Patreon aliases); splits sales/shipping/tax/fees/refunds (works on hand-built CSV; shipping does not exist for digital Lemon Squeezy orders; the real export has no fee column to split); proves rows add to the payout (works only if the user supplies a payout id or deposit; the export has neither, and payout fees break it); month split (works, mutant at calc.mjs:221 caught); Xero/QBO/IIF/plain CSV export (produce balanced files in tests; never imported, as the page admits); account mapping (works). The core input path is broken, so most features are unreachable end to end.",
+  "verification": "cd ventures/lemonsqueezy-payout-to-journal && node --test '*.test.mjs': 40 pass, 0 fail. Every fixture uses the Patreon schema (Pledge Amount, Tier, Platform Fee + Processing Fee, Payout ID, 'Insights / Payouts' pointer asserted at calc.test.mjs:105); none uses a Lemon Squeezy column, so the suite cannot see the main defect. Four seeded mutants via quality_mutate.py: tax sign flip (calc.mjs:166) caught; month-end dating (calc.mjs:221) caught; a $1 tolerance on the payout check (calc.mjs:203) survived; ignoring a partial refunded_amount (calc.mjs:168) survived. 2 of 4 survive in core reconciliation logic.",
+  "craft": "Read calc.mjs (353 lines), index.html, calc.test.mjs, page.test.mjs. calc.mjs is a find-and-replace copy of ventures/patreon-payout-to-journal/calc.mjs: after normalising the platform name the diff is 20 lines (5 changed lines: a comment, two labels, the subtotal and product aliases). Patreon leftovers stay in code and copy: 'pledge amount' in the missing-column error (calc.mjs:129), 'patron'/'tier'/'pledge' aliases, sample tiers 'Supporter tier'/'Patron tier'/'Postcard reward' with shipping (calc.mjs:335-341), duplicate aliases ('product' twice at calc.mjs:124; 'lemon-squeezy-fee(s)' added twice in effect). The deposit box on the page parses with parseFloat(value.replace(',', '.')) (index.html:164), so '1,262.00' becomes 1.26 (node: 126 cents) although calc.mjs exports a correct parseAmount. Otherwise the module is tidy integer-cents code with no network access.",
+  "claims": "Loaded the served page https://marisstella.app/lemonsqueezy-payout-to-journal/: its eyebrow reads 'PATREON PAYOUT TO JOURNAL' (index.html:57) and the paste placeholder is Patreon's header 'Charge ID,Tier,Date,Pledge Amount,Platform Fee,Processing Fee,...' (index.html:70). The title, meta description, README, VENTURE.yaml and llms.txt claim it reads the Lemon Squeezy Orders/Payouts export: false (real columns rejected). They claim it splits 'tax you collected' and 'Lemon Squeezy platform and processing fees': Lemon Squeezy is merchant of record and charges one platform fee (docs fees page); the seller collects no tax. The error message's export pointer 'Insights / Payouts ... Export / Download CSV' does not match the documented flow (Orders page Export button, CSV emailed). The 'Load an example' fees (e.g. $15.40 on $149) are about double Lemon Squeezy's published 5% + 50c ($7.95). Footer says 'Lemon Squeezy, Inc.'; the docs footer says 'Lemon Squeezy, LLC'. Backed: disclaimer, no-upload (page.test asserts no fetch), the 'read from memory' caveat. The page claims something it does not do: 0.",
+  "fitness": "Walked the job: a bookkeeper exports orders from the Lemon Squeezy dashboard (CSV emailed), pastes it, and gets an error. To use the tool they would have to compute each order's platform fee themselves (5% + 50c of total, +1.5% international, +1.5% PayPal, +0.5% subscription, per the fees page), convert cents to dollars, invent a net column, drop the tax column's meaning, and assign each order to a payout by the 1st/15th schedule with its 13-day hold, all of which is the actual reconciliation work. Once that is done the clearing-account journal is fine. As shipped they cannot finish the job: 1.",
+  "domain": "Compared against Lemon Squeezy's published docs (fees, getting paid, merchant of record, exporting orders) and standard clearing-account practice. The clearing-account, gross-up and month-split method is sound bookkeeping, and the tax-in-net test does keep MoR-remitted tax off the books for the docs' France example. Departures: the model is Patreon's (pledges, two fee columns, shipping, payout-id rows); no discount line although discount_total is a documented export column; no payout fee line though Lemon Squeezy deducts 1% (non-US bank) or $0.50/3% (PayPal) from the payout; no awareness that export amounts are USD cents in all currencies; payout grouping relies on a payout id the export never carries, instead of the 1st/15th schedule. A practitioner would not sign this off: 1."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "real Lemon Squeezy Orders export (documented columns, one $20 + $4 VAT order) is read",
+   "method": "column list from docs.lemonsqueezy.com/help/orders/exporting-orders (fetched 2026-11-13)",
+   "command": "node /tmp/claude-0/ls/scripts/run.mjs",
+   "expected": "one journal: sales 20.00, fee and net derived or a clear request for them",
+   "observed": "error 'Missing column: net total. In Lemon Squeezy open Insights / Payouts...', no journal",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "export amounts in USD cents (subtotal '2000' = $20)",
+   "method": "docs exporting-orders: 'in USD cents (e.g. $10 will be \"1000\")'",
+   "command": "node /tmp/claude-0/ls/scripts/run.mjs",
+   "expected": "sales Cr 20.00",
+   "observed": "sales Cr 2,000.00 (200000 cents), uncategorised Dr 206.00, row undated (date_utc not aliased)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Lemon Squeezy docs worked example: France, $20 + 20% VAT, card",
+   "method": "docs.lemonsqueezy.com/help/getting-started/fees example table: fee $2.06, net $17.94 (total - tax - fee)",
+   "command": "cd ventures/lemonsqueezy-payout-to-journal && node --input-type=module -e 'import {validate} from \"./calc.mjs\"; const r=validate(\"Order ID,Date,Subtotal,Tax,Fee,Net,Payout ID\\n1001,2026-10-04,20.00,4.00,2.06,17.94,PO-1\\n\",{expected:1794}); console.log(r.journals[0].clearing)'",
+   "expected": "1794 (sales Cr 20.00, fees Dr 2.06, no tax line)",
+   "observed": "1794; sales Cr 2000, fees Dr 206, no tax line, agrees true",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "sample deposit 342.70 recomputed by hand",
+   "method": "independent arithmetic over the six sample rows (price + shipping - fee; refunded row -fee)",
+   "command": "node /tmp/claude-0/ls/scripts/run.mjs",
+   "expected": "34270",
+   "observed": "34270; journals Sep clearing 175.55, Oct 167.15",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "discounted order: subtotal 20, discount 5, fee 1.25 (5% of 15 + 0.50), net 13.75",
+   "method": "Lemon Squeezy fee formula from the pricing page (5% + 50c of total) and discount_total column from the export docs",
+   "command": "node /tmp/claude-0/ls/scripts/run.mjs",
+   "expected": "sales 20.00 less discount 5.00 (or net sales 15.00), fee 1.25, clearing 13.75, no error",
+   "observed": "discount booked to uncategorised Dr 5.00 with error 'Parts do not add up'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "payout with Lemon Squeezy's 1% non-US Stripe payout fee (rows 1,000.00, deposit 990.00)",
+   "method": "docs fees page, 'Payout fees': 1% per payout for bank accounts outside the US",
+   "command": "node /tmp/claude-0/ls/scripts/run.mjs",
+   "expected": "payout fee line Dr 10.00, clearing agrees with 990.00",
+   "observed": "error 'rows add up to 1,000.00 USD but the payout is 990.00 USD ... Do not post'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "sample fees against Lemon Squeezy's rate card",
+   "method": "lemonsqueezy.com/pricing: 5% + 50c per transaction",
+   "command": "node /tmp/claude-0/ls/scripts/run.mjs",
+   "expected": "$29 -> 1.95, $149 -> 7.95, $19 -> 1.45",
+   "observed": "sample uses 3.70, 15.40, 2.35 split 70/30 into invented platform and processing fees",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "partial refund via refunded amount (order 20, fee 1.50, refunded 5.00, net 13.50)",
+   "method": "by-hand double entry",
+   "command": "node /tmp/claude-0/ls/scripts/run.mjs",
+   "expected": "refunds Dr 5.00, fees Dr 1.50, clearing 13.50",
+   "observed": "refunds Dr 5.00, fees Dr 1.50, clearing 13.50",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/lemonsqueezy-payout-to-journal && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "40 pass, 0 fail; every fixture uses Patreon columns",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page eyebrow names the right platform",
+   "method": "load https://marisstella.app/lemonsqueezy-payout-to-journal/",
+   "command": "curl -sSL https://marisstella.app/lemonsqueezy-payout-to-journal/ | grep -c 'PATREON PAYOUT'",
+   "expected": "0",
+   "observed": "1",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'reads the Lemon Squeezy Orders or Payouts export' (title, meta, README, llms.txt, VENTURE.yaml)",
+   "method": "run against documented export columns",
+   "command": "node /tmp/claude-0/ls/scripts/run.mjs",
+   "expected": "accepted",
+   "observed": "rejected",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'tax you collected' and 'platform and processing fees'",
+   "method": "docs merchant-of-record and fees pages: Lemon Squeezy collects and remits tax; one platform fee",
+   "command": "curl -sSL https://docs.lemonsqueezy.com/help/getting-started/fees",
+   "expected": "page describes MoR tax and a single platform fee",
+   "observed": "page headline copy says the seller collected tax and pays two fees; only the 'Not checked' bullet mentions MoR",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "no-upload / no network claim",
+   "method": "page.test.mjs regex for fetch/XHR/sendBeacon; read index.html script",
+   "command": "cd ventures/lemonsqueezy-payout-to-journal && node --test page.test.mjs",
+   "expected": "no network calls",
+   "observed": "none; usage counters local only",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer and 'read from memory' limitation present",
+   "method": "read index.html footer and header note",
+   "command": "grep -n 'No warranty\\|read from memory' ventures/lemonsqueezy-payout-to-journal/index.html",
+   "expected": "present",
+   "observed": "present (index.html:60, 134, 135)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "deposit box accepts a US-formatted bank amount '1,262.00'",
+   "method": "the page's own parse expression run in node",
+   "command": "node -e 'console.log(Math.round(parseFloat(\"1,262.00\".replace(\",\", \".\"))*100))'",
+   "expected": "126200",
+   "observed": "126",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "engine copied from patreon-payout-to-journal",
+   "method": "diff after normalising platform names",
+   "command": "cd ventures && diff <(sed 's/Patreon/X/g;s/patreon/x/g' patreon-payout-to-journal/calc.mjs) <(sed 's/Lemon Squeezy/X/g;s/lemonsqueezy/x/g;s/lemon-squeezy/x/g' lemonsqueezy-payout-to-journal/calc.mjs) | wc -l",
+   "expected": "an engine written for Lemon Squeezy's export",
+   "observed": "20 diff lines; 5 changed lines",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:166",
+   "change": "if (taxInNet) push(\"tax\", amts.tax); -> if (taxInNet) push(\"tax\", -amts.tax);",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:203",
+   "change": "else if (s.stated !== sum) findings.push -> else if (Math.abs(s.stated - sum) > 100) findings.push",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:221",
+   "change": "month-end journal date -> payout date for every month",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:168",
+   "change": "refunds use amts.refundAmt || full price -> always full price (partial refunds ignored)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The real Lemon Squeezy Orders export (columns per docs.lemonsqueezy.com/help/orders/exporting-orders) has no net, fee, refund or payout column, so the parser refuses it ('Missing column: net total'). The tool cannot read the file it tells users to paste.",
+   "where": "ventures/lemonsqueezy-payout-to-journal/calc.mjs:128",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "Export amounts are integer USD cents ('2000' = $20) but parseAmount reads them as dollars, so any row that gets past the column check is 100x (sales Cr 2,000.00 for a $20 order).",
+   "where": "ventures/lemonsqueezy-payout-to-journal/calc.mjs:75",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "Served page eyebrow reads 'PATREON PAYOUT TO JOURNAL' and the paste placeholder is Patreon's header (Pledge Amount, Tier, Platform Fee, Processing Fee).",
+   "where": "ventures/lemonsqueezy-payout-to-journal/index.html:57",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "high",
+   "what": "Title, meta description, README, llms.txt and VENTURE.yaml claim it reads the Lemon Squeezy Orders/Payouts export and splits 'tax you collected' and 'platform and processing fees'; it does not read the export, Lemon Squeezy is merchant of record (seller collects no tax) and charges a single platform fee.",
+   "where": "ventures/lemonsqueezy-payout-to-journal/index.html:59",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Missing-column error says 'pledge amount' and points to 'Insights / Payouts ... Export / Download CSV' (Patreon's menu); Lemon Squeezy's export is the Export button on the Orders page, emailed as CSV. The test at calc.test.mjs:105 pins the wrong pointer.",
+   "where": "ventures/lemonsqueezy-payout-to-journal/calc.mjs:131",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "medium",
+   "what": "Example fees (3.70 on $29, 15.40 on $149, 2.35 on $19) are about double Lemon Squeezy's published 5% + 50c and split 70/30 into invented platform/processing fees; the worked example misstates what Lemon Squeezy costs.",
+   "where": "ventures/lemonsqueezy-payout-to-journal/calc.mjs:336",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "discount_total (a documented export column) is not modelled: a discounted order's discount goes to uncategorised with an error.",
+   "where": "ventures/lemonsqueezy-payout-to-journal/calc.mjs:115",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Lemon Squeezy payout fees (1% non-US bank, $0.50 US / 3% capped $30 non-US PayPal, deducted from the payout) have no category; a correct payout is reported as off and 'Do not post'.",
+   "where": "ventures/lemonsqueezy-payout-to-journal/calc.mjs:203",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Deposit box parses with parseFloat(value.replace(',', '.')): '1,262.00' becomes 1.26; calc.mjs already exports parseAmount which reads it correctly.",
+   "where": "ventures/lemonsqueezy-payout-to-journal/index.html:164",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "The export's date column date_utc is not among the created-date aliases, so every real row would be undated and placed in the payout's final month.",
+   "where": "ventures/lemonsqueezy-payout-to-journal/calc.mjs:113",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Seeded mutants survive: a $1 tolerance on the payout check (calc.mjs:203) and ignoring a partial refunded amount (calc.mjs:168); all fixtures use Patreon's schema so no test exercises a Lemon Squeezy column.",
+   "where": "ventures/lemonsqueezy-payout-to-journal/calc.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "calc.mjs is a sed copy of ventures/patreon-payout-to-journal/calc.mjs (20-line diff) with Patreon aliases, tiers and shipping left in and duplicated aliases ('product' twice).",
+   "where": "ventures/lemonsqueezy-payout-to-journal/calc.mjs:124",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Footer names 'Lemon Squeezy, Inc.'; Lemon Squeezy's own docs footer says 'Lemon Squeezy, LLC'.",
+   "where": "ventures/lemonsqueezy-payout-to-journal/index.html:135",
+   "category": "overclaim",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15600"
+ ],
+ "verdict": "A find-and-replace clone of the Patreon payout tool relabelled for Lemon Squeezy. The clearing-account journal engine is sound and its arithmetic checks out on hand-built input (Lemon Squeezy's own France VAT example gives fee 2.06 and clearing 17.94 exactly), but the file Lemon Squeezy actually exports (Orders > Export: subtotal, discount_total, tax, total in USD cents, date_utc; no fee, net, refund or payout columns) is rejected outright, and would be read 100x if it were not. The served page still says 'PATREON PAYOUT TO JOURNAL', the copy promises 'tax you collected' and two fee types that a merchant-of-record platform does not have, the sample fees are double the published 5% + 50c, and discounts and payout fees are not modelled. 40 tests pass but all use Patreon's schema; 2 of 4 seeded mutants survive. Fails the bar on correctness, claims and verification; not finished."
+}
