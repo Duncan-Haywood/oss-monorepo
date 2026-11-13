@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
@@ -37,6 +37,9 @@
     },
     {
       "what": "First eval copied scoreClosed:false from french-bakery.mjs, which is not the CLI default; fixed to print both scores."
+    },
+    {
+      "what": "Appended to flagships.yaml next: and went over its 2000-char cap; CI validate (portfolio/router/validate.py) failed once; rewrote next: to the open items. Running validate.py locally before pushing would have caught it."
     }
   ],
   "integrity_issues": [],
