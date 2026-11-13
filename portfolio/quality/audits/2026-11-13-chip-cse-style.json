@@ -1,0 +1,218 @@
+{
+  "date": "2026-11-13",
+  "subject": "research/chip-cse-style",
+  "stratum": "research",
+  "seed": "2026-11-13-l",
+  "drawn_by": "sample",
+  "round": 66,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a computer-arithmetic / logic-synthesis researcher reviewing for a workshop such as IWLS or ARITH. They would first ask which adder architecture each text style becomes after the Yosys front end, check that the 'smaller' claims are area and not an area-delay product, ask for a prefix-adder baseline and the carry-select literature (Bedrij 1962; Tyagi 1993 reduced-area carry-select; Ramkumar and Kittur 2012 BEC carry-select; Zimmermann 1997 carry-increment adders), and check that the result holds across ABC scripts",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 1,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Installed Yosys 0.33 (git sha1 2584903a060, the version results.txt records) and Icarus with apt. Rerun in a scratch copy: `cd <copy> && python3 experiments/run.py` (2.5 s); results.txt is byte-identical to the committed one. Independent recomputation in /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/chip/indep.py, which imports nothing from the package: Verilog for each style written by hand in a different text form (explicit zero-extension, concatenated output), my own Yosys invocation ending in write_json, and cell count and longest path computed by my own graph walk over the JSON netlist instead of `stat`/`ltp`. It reproduces every product it covers: plus 2542/1540/1620, explicit (= gen) 2090/1232/1665, right 2268/1024/1300, cin 2387/2136/2225. The percentages are right as arithmetic: right vs gen -16.9% (dch_map), -21.9% (resyn2_map), +8.5% (yosys_default). Equivalence was checked independently of the Yosys miter: an Icarus testbench (sim/tb.v) ran all six shipped styles against the integer sum on 300,000 vectors (4 corners plus random), 0 mismatches. The mechanism was confirmed with `dump t:$alu` after alumacc: gen is a shared a+b $alu plus a +1 incrementer per block, and right is two $alu cells per block with CI=0 and CI=1. Not 4: score() silently returns 0 cells or depth if the regex misses (flow.py:40), and only one tool version was used.",
+    "completeness": "README promises: six styles (all generated, gens.py), each proved equivalent before scoring (run.py prints True for all six), three ABC scripts (present), the tests 'under a second' (3 OK in 0.23 s), and `python3 experiments/run.py` regenerating results.txt in seconds (2.5 s, byte-identical). The results table at README.md:22-29 matches results.txt exactly. The live page https://marisstella.app/research/chip-cse-style/ could not be loaded from this session (proxy 403; WebFetch reports the host as outside the allowed domains), so it is unchecked. Nothing claimed as done is a stub. Next steps (SKY130, LLM proposer) are labelled future work.",
+    "verification": "`python3 -m unittest discover -s tests -v`: 3 tests OK in 0.23 s. The tests cover the equivalence gate well: a miter proof for each style and a negative test that a broken style is rejected. They pin no score: the only score assertion is cells > 0 for `plus`. Of four seeded mutants (platform/ci/quality_mutate.py), 2 were caught (carry-select mux arms swapped in gens.py:36; `sat -verify` removed in flow.py:47, so the miter would pass anything) and 2 survived: depth + 1 in flow.py:40, which changes every product in results.txt, and dch_map's script replaced by `strash; map` in flow.py:14, which changes the headline column. A fifth mutant (right's y regrouped to (A+B)+1, gens.py:33) survived but turned out equivalent in effect (identical scores 2268/1024/1300), so it is not counted. Every headline number can drift with no test failing.",
+    "craft": "Read src/chip_cse_style/flow.py (48 lines), gens.py (40), tests/test_gens.py, experiments/run.py. Small, stdlib only, readable. Defects: flow.py is a verbatim copy of the sibling projects' wrapper (README.md:7 says 'copied unchanged'), one of several copies across research/chip-*, so a fix to one never reaches the others; score() falls back silently to 0 when the `stat`/`ltp` regex misses (flow.py:40), which would give a perfect-looking score of 0; no check of the Yosys version, although results depend on it; files opened without close (ResourceWarning in the test run, test_gens.py:19, run.py:21); `equivalent` hides Yosys's stderr, so a parse error and a real inequivalence look the same. A senior reviewer would ask for these fixes before accepting it.",
+    "claims": "Checked: README.md:22-29 table = results.txt (pass); README.md:31 'hand-written sharing is a no-op' (pass: identical counts, and the $alu dump shows the same shared structure); README.md:32 '17% (dch_map) and 22% (resyn2_map) lower ... 9% higher under yosys_default' (pass as cells x depth). Unbacked or misleading: (1) the title (README.md:1) and the research index (research/README.md:305) say the regrouped sum is '17-22% smaller'. In cells, right is 14.3% (dch_map) and 17.1% (resyn2_map) LARGER than gen. It wins only on depth (27-33% shallower), so 'smaller' describes the area-delay product, not size. (2) 'under ABC's optimising scripts' (README.md:1, 32): under dc2_map, the third optimising script defined in flow.py:13, right scores 2268 against gen's 2156, 5% worse; only dch_map and strash_map favour it. (3) gen is called a 'carry-select' adder (README.md:10, gens.py:4), but after opt_merge it synthesises as a shared adder plus incrementer, the carry-increment / BEC architecture; only 'right' is a true carry-select adder. Limits, 'stylised', AI assistance and MIT are stated.",
+    "fitness": "Could a researcher build on it? The harness (generate, miter-prove, score under several ABC scripts) is reproducible and runs in seconds. The result itself is a rediscovery: once the netlists are identified, 'sharing' versus 'regrouping' is the textbook choice between a carry-increment / add-one (BEC) carry-select adder (smaller, slower) and a classic dual-adder carry-select adder (larger, faster). Tyagi (IEEE Trans. Computers 1993, 'A reduced-area scheme for carry-select adders'), Ramkumar and Kittur (IEEE TVLSI 2012, BEC-based carry-select) and Zimmermann (ETH thesis 1997, carry-increment adders) cover this trade-off, and none is cited. 'Hand CSE is a no-op' just restates that opt_merge is structural hashing, which Yosys documents. The only prior work cited is the author's own sibling projects and ABC. The README never names the architectures, so the reported effect reads as a front-end text quirk rather than a known area-delay trade-off. One 16-bit adder, one tool version. A researcher would have to reframe it before it says anything new.",
+    "domain": "Sound practice: formal equivalence (miter + SAT) before scoring, several ABC scripts, a plain a+b baseline (Yosys maps it to a Brent-Kung prefix adder, techmap.v:233), and the tool version recorded. I added a hand Kogge-Stone baseline (ks.py, 0 mismatches in 200k vectors), which scores 2600/1476/1947, so right's ordering holds against it. Departures: the architectures the styles become are not identified, which is the first thing an arithmetic reviewer checks; the area-delay product with unit-weight generic gates (a MUX counts the same as an AND) is reported as 'smaller'; the result depends on the script (wins under dch/resyn2/strash, loses under default/dc2) without saying why (depth-oriented versus area-oriented scripts); n = 1 design. A reviewer would not sign off on the framing as it stands."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "cells x depth for plus, gen/explicit, right, cin under yosys_default, dch_map, resyn2_map",
+      "method": "independent hand-written Verilog, own Yosys script ending in write_json, own cell count and longest-path walk over the JSON netlist (not stat/ltp, not the package)",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/chip && python3 indep.py",
+      "expected": "results.txt: plus 2542/1540/1620, gen 2090/1232/1665, right 2268/1024/1300, cin 2387/2136/2225",
+      "observed": "plus 82/31/2542 110/14/1540 108/15/1620; explicit 2090/1232/1665; right 2268/1024/1300; cin 2387/2136/2225",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "headline percentages right vs gen",
+      "method": "ratios from independently recomputed products and counts",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/chip && python3 indep.py | tail -3",
+      "expected": "-17% dch_map, -22% resyn2_map, +9% yosys_default (README.md:32)",
+      "observed": "product -16.9% / -21.9% / +8.5%; cells +14.3% / +17.1% / -11.6%; depth -27.3% / -33.3% / +22.7%",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "all six shipped styles compute a+b",
+      "method": "Icarus Verilog simulation against the integer sum, 4 corners + random vectors, independent of the Yosys miter",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/chip && iverilog -o sim/t sim/tb.v sim/gen.v sim/explicit.v sim/inc.v sim/right.v sim/cin.v sim/plus.v && vvp sim/t",
+      "expected": "0 mismatches",
+      "observed": "vectors=300000 mismatches=0",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "mechanism: gen shares a+b, right does not",
+      "method": "dump $alu cells after alumacc and compare connections",
+      "command": "yosys -p \"read_verilog sim/gen.v; hierarchy -top add16_gen; proc; opt; wreduce; alumacc; opt; dump t:\\$alu\"",
+      "expected": "gen: one a+b ALU + incrementer per block; right: two ALUs with CI=0/1",
+      "observed": "gen: a+b ALU then (1 + x_k) ALU; right: two a+b ALUs per block with CI 1'0 and 1'1",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "committed command regenerates results.txt",
+      "method": "rerun in scratch copy and diff",
+      "command": "cd <scratch copy of research/chip-cse-style> && python3 experiments/run.py >/dev/null && diff experiments/results.txt /home/user/oss-monorepo/research/chip-cse-style/experiments/results.txt",
+      "expected": "identical",
+      "observed": "identical, 2.5 s, Yosys 0.33 (git sha1 2584903a060)",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run the documented command",
+      "command": "cd research/chip-cse-style && python3 -m unittest discover -s tests -v",
+      "expected": "passes under a second",
+      "observed": "Ran 3 tests in 0.225s OK (ResourceWarning unclosed file)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "title/index: regrouped sum is '17-22% smaller'",
+      "method": "compare cell counts, not the product",
+      "command": "grep -E '^(gen|right) ' research/chip-cse-style/experiments/results.txt",
+      "expected": "right has fewer cells than gen under dch_map and resyn2_map",
+      "observed": "right 128 vs gen 112 cells (dch_map), 130 vs 111 (resyn2_map): 14-17% larger; better only in depth and product",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'under ABC's optimising scripts' right beats gen",
+      "method": "score gen and right under the two scripts defined in flow.py but not reported",
+      "command": "python3 -c (score(f,'add16',sc) for sc in strash_map, dc2_map) in a scratch copy",
+      "expected": "right lower than gen under every optimising script",
+      "observed": "strash_map right 1024 vs gen 1500 (better); dc2_map right 2268 vs gen 2156 (5% worse)",
+      "result": "partial"
+    },
+    {
+      "dimension": "domain",
+      "what": "stronger baseline than plain a+b (Brent-Kung via Yosys techmap)",
+      "method": "hand-written 16-bit Kogge-Stone adder, simulated (0/200k mismatches) and scored with the same flow",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/chip && python3 ks.py",
+      "expected": "the ordering of right holds or not",
+      "observed": "KS 2600/1476/1947, worse than right's 2268/1024/1300 in all three",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "nearest prior work cited (carry-select vs carry-increment/BEC adders)",
+      "method": "read README 'Builds on' against Tyagi 1993, Ramkumar-Kittur 2012, Zimmermann 1997",
+      "command": "grep -rn 'Tyagi\\|Kittur\\|BEC\\|Zimmermann\\|carry-increment' research/chip-cse-style",
+      "expected": "the adder-architecture literature cited and the styles identified as those architectures",
+      "observed": "no matches; only sibling projects and ABC cited",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "live page",
+      "method": "load served page",
+      "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/chip-cse-style/",
+      "expected": "200",
+      "observed": "proxy CONNECT 403 from this session; not checked",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/chip_cse_style/gens.py:36",
+      "change": "{c} ? y{k} : x{k} -> {c} ? x{k} : y{k}",
+      "caught": true,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/chip_cse_style/flow.py:47",
+      "change": "sat -verify -prove trigger 0 -> sat -prove trigger 0",
+      "caught": true,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/chip_cse_style/flow.py:40",
+      "change": "\"depth\": int(d.group(1)) if d else 0 -> \"depth\": int(d.group(1)) + 1 if d else 0",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/chip_cse_style/flow.py:14",
+      "change": "\"dch_map\": \"strash; dch; map\" -> \"dch_map\": \"strash; map\"",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Title says the regrouped ('right') sum is '17-22% smaller' under ABC's optimising scripts; it has 14-17% MORE cells (128 vs 112, 130 vs 111) and wins only on depth and the cells x depth product",
+      "where": "research/chip-cse-style/README.md:1",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "Research index repeats '17-22% smaller under ABC's optimising scripts'",
+      "where": "research/README.md:305",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "Nearest prior work missing: the styles are the textbook carry-increment / add-one (BEC) carry-select adder (gen/explicit/inc after opt_merge) and the classic dual-adder carry-select adder (right). Tyagi 1993, Ramkumar-Kittur 2012 and Zimmermann 1997 cover this area-delay trade-off and none is cited, so a known trade-off is presented as a finding about rewrite style",
+      "where": "research/chip-cse-style/README.md:7",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "'gen' is labelled carry-select but synthesises as a shared adder plus incrementer (carry-increment); only 'right' is a carry-select netlist",
+      "where": "research/chip-cse-style/src/chip_cse_style/gens.py:4",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "'Under ABC's optimising scripts' generalises from dch_map and resyn2_map; under dc2_map (defined in flow.py, not reported) right is 5% worse than gen (2268 vs 2156)",
+      "where": "research/chip-cse-style/README.md:32",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "No test pins any score: depth + 1 and replacing the dch_map script both survive, so every number in results.txt can drift with the suite green",
+      "where": "research/chip-cse-style/tests/test_gens.py:33",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "score() silently returns 0 cells/depth when the stat/ltp regex misses (e.g. a Yosys output-format change), which would look like a perfect score",
+      "where": "research/chip-cse-style/src/chip_cse_style/flow.py:40",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "flow.py is a verbatim copy of the sibling chip-abc-* wrapper (README says 'copied unchanged'), so fixes do not propagate; the Yosys version is not checked although results depend on it",
+      "where": "research/chip-cse-style/src/chip_cse_style/flow.py:1",
+      "category": "code-craft",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15517"
+  ],
+  "verdict": "Reproducible and numerically right, but small and framed wrongly. With Yosys 0.33 installed, the committed command regenerates results.txt byte for byte. My own Verilog, Yosys script and JSON-netlist depth walk reproduce every cells x depth product. Icarus simulation confirms all six styles equal a+b (300k vectors, 0 mismatches), and a hand Kogge-Stone baseline does not beat the best style. It misses the bar on verification, claims and fitness. The 3 tests guard the equivalence gate (2 of 4 mutants caught) but pin no score, so a depth off-by-one or a changed ABC script passes. The title's '17-22% smaller' is the area-delay product: the regrouped adder has 14-17% more cells and is only faster, and under dc2_map it loses. Most of all, 'shared sum' versus 'regrouped sum' is the textbook carry-increment (BEC) versus dual-adder carry-select trade-off (Tyagi 1993, Ramkumar-Kittur 2012, Zimmermann 1997). The project neither names these architectures nor cites that work, so it reports a known area-delay trade-off as a finding about how a rewrite is written."
+}

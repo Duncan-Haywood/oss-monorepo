@@ -333,3 +333,15 @@ test("summaryText lists every finding with its severity and category", () => {
   assert.match(text, /\[HIGH\] alg-none: no signature/);
   assert.match(text, /never verifies a signature/);
 });
+
+test("the RFC 7519 6.1 unsecured token is reported as alg:none, not as a broken token (quality audit 2026-11-13)", () => {
+  const token = "eyJhbGciOiJub25lIn0.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ.";
+  const cats = analyzeJwt(token).findings.map((f) => f.category);
+  assert.ok(cats.includes("alg-none"), cats.join(","));
+  assert.ok(!cats.includes("invalid-structure"), cats.join(","));
+});
+
+test("a token whose exp equals now is expired (RFC 7519 4.1.4)", () => {
+  const findings = checkTimingClaims({ exp: NOW / 1000 }, NOW);
+  assert.ok(findings.some((f) => f.category === "expired"));
+});

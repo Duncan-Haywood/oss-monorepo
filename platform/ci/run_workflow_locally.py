@@ -1982,7 +1982,7 @@ def wants_handoff(argv, environ=None, isatty=None) -> bool:
     isatty = sys.stdout.isatty if isatty is None else isatty
     if environ.get(CHILD_ENV) or not environ.get("CLAUDECODE"):
         return False
-    if "--foreground" in argv or "--list" in argv or "-h" in argv or "--help" in argv:
+    if "--foreground" in argv or "--list" in argv or "--dry-run" in argv or "-h" in argv or "--help" in argv:
         return False
     try:
         return not isatty()
@@ -2068,7 +2068,9 @@ def _main(argv=None) -> int:
                          "tree as it stands, ignoring the diff -- answers "
                          "'is this checkout green?' where --for-changes "
                          "answers 'is my diff sound?'")
-    ap.add_argument("--list", action="store_true",
+    # --dry-run is the spelling a run reached for and did not find (friction
+    # 2026-11-13: "No --dry-run to list what --for-changes would run").
+    ap.add_argument("--list", "--dry-run", dest="list", action="store_true",
                     help="print the steps (or, with no workflow named, the "
                          "workflows --for-changes would select) and run nothing")
     ap.add_argument("--force", action="store_true",
