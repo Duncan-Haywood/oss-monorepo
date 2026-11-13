@@ -210,10 +210,11 @@ flagships:
       since 2026-11-13);
       the whole numpy develop runs in threaded bands and packed raws unpack in numpy
       since 2026-11-13 (eval/threaded-develop-2026-11-13.md: same bytes at every thread
-      count and band height); next on speed: the lossless-JPEG decode of compressed DNGs
-      and CR2s in bands of restart intervals or tiles across threads (tiles are
-      independent; check byte-identical at every thread count), and the serial
-      _normalised_plane (about 0.2 s);
+      count and band height); lossless-JPEG DNG tiles decode on a thread pool since
+      2026-11-13 (eval/pixel3-lossless-tiles-2026-11-13.md: a real Pixel 3 XL lossless DNG,
+      0 of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs, capped by the
+      GIL-held de-stuffing and word packing, so next on speed: move the de-stuffing into the
+      C reader), and the serial _normalised_plane (about 0.2-0.4 s);
       MapTable and Delta/ScalePerRow/Column in OpcodeList1 once the raw-value
       unit is settled (README, 2026-11-12 MapTable section).
     next: >-
