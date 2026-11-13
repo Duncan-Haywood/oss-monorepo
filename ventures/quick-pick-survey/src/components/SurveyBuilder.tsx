@@ -6,7 +6,7 @@ import { CHECKOUT_URL } from "@/lib/checkout";
 import { buyLink } from "@/lib/licence";
 
 type Ranking = { title: string; participants: number; ranking: RankedItem[]; coverage?: Coverage; agreement?: AgreementSummary; pace?: PaceSummary; leftOut?: { slotClickers: number; fast?: number; fastAnswers?: number; advice: string } };
-type Drop = "" | "fast" | "fast-answers";
+type Drop = "" | "fast" | "fast-answers" | "fast-blocks";
 
 const INPUT =
   "rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-amber-500 dark:border-neutral-700 dark:bg-neutral-900";
@@ -123,6 +123,12 @@ export function SurveyBuilder() {
             // Answers, not people: someone careless on only some picks keeps a normal typical time but not on those picks.
             <button type="button" aria-pressed={drop === "fast-answers"} onClick={() => showRanking(created.slug, drop === "fast-answers" ? "" : "fast-answers")} className="font-semibold underline underline-offset-2">
               {drop === "fast-answers" ? "Count every answer again" : "Rank without the fast answers"}
+            </button>
+          )}
+          {result && (result.pace?.checked ?? 0) >= 5 && (
+            // People who answered properly, then turned quick partway through: their later answers, read against everyone's time at that point.
+            <button type="button" aria-pressed={drop === "fast-blocks"} onClick={() => showRanking(created.slug, drop === "fast-blocks" ? "" : "fast-blocks")} className="font-semibold underline underline-offset-2">
+              {drop === "fast-blocks" ? "Count every answer again" : "Rank without answers after someone sped up"}
             </button>
           )}
           <a href={`/api/admin/surveys/${created.slug}/ranking?format=csv`} className="font-semibold underline underline-offset-2">↓ CSV</a>

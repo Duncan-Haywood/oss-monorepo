@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FIRST_OPTION_FALLBACK_SHARE, FIRST_OPTION_MIN_DECIDED } from "./pairing";
-import { AGREEMENT_MIN_OPTIONS, agreementSummary, coverage, FAST_PACE, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
+import { AGREEMENT_MIN_OPTIONS, agreementSummary, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
 import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "./glicko2";
 
 // Small seeded PRNG so the coverage check is reproducible.
@@ -283,11 +283,12 @@ describe("paceSummary", () => {
 });
 
 describe("parseDrop", () => {
-  it("accepts only absent, exactly \"fast\" or exactly \"fast-answers\"", () => {
-    expect(parseDrop(null)).toEqual({ ok: true, fast: false, fastAnswers: false });
-    expect(parseDrop("fast")).toEqual({ ok: true, fast: true, fastAnswers: false });
-    expect(parseDrop("fast-answers")).toEqual({ ok: true, fast: false, fastAnswers: true });
-    for (const bad of ["", "Fast", "slot", "fast,slot", "fast-answer", "fast,fast-answers"]) expect(parseDrop(bad)).toEqual({ ok: false });
+  it("accepts only absent, exactly \"fast\", \"fast-answers\" or \"fast-blocks\"", () => {
+    expect(parseDrop(null)).toEqual({ ok: true, fast: false, fastAnswers: false, fastBlocks: false });
+    expect(parseDrop("fast")).toEqual({ ok: true, fast: true, fastAnswers: false, fastBlocks: false });
+    expect(parseDrop("fast-answers")).toEqual({ ok: true, fast: false, fastAnswers: true, fastBlocks: false });
+    expect(parseDrop("fast-blocks")).toEqual({ ok: true, fast: false, fastAnswers: false, fastBlocks: true });
+    for (const bad of ["", "Fast", "slot", "fast,slot", "fast-answer", "fast,fast-answers", "fast-block", "Fast-blocks"]) expect(parseDrop(bad)).toEqual({ ok: false });
   });
 });
 
@@ -329,6 +330,57 @@ describe("ratingsWithoutFastAnswers", () => {
   });
   it("refuses a result that is not A, B or EQUAL rather than guessing", () => {
     expect(() => ratingsWithoutFastAnswers([ans("p", "x", "y", "a", 3000)], 1)).toThrow(/A, B or EQUAL/);
+  });
+});
+
+describe("fastBlockSplit", () => {
+  it("finds where a sequence turns faster, and nothing in a flat one", () => {
+    const flat = Array.from({ length: 30 }, (_, i) => (i % 2 ? 0.1 : -0.1));
+    expect(fastBlockSplit(flat)).toBeNull();
+    const block = flat.map((v, i) => (i >= 18 ? v - 1 : v));
+    expect(fastBlockSplit(block)).toBe(18);
+  });
+  it("ignores a slow-down, a small speed-up and a sequence too short for two FAST_BLOCK_MIN_SEG sides", () => {
+    const flat = Array.from({ length: 30 }, (_, i) => (i % 2 ? 0.1 : -0.1));
+    expect(fastBlockSplit(flat.map((v, i) => (i >= 15 ? v + 1 : v)))).toBeNull();
+    expect(fastBlockSplit(flat.map((v, i) => (i >= 15 ? v - (FAST_BLOCK_MIN_LOG - 0.1) : v)))).toBeNull();
+    expect(fastBlockSplit(flat.slice(0, 2 * FAST_BLOCK_MIN_SEG - 1).map((v, i) => (i >= FAST_BLOCK_MIN_SEG ? v - 1 : v)))).toBeNull();
+  });
+});
+
+describe("fastBlockStarts", () => {
+  // Deterministic jitter so the t statistic is finite.
+  const jitter = (i: number, p: number) => Math.exp(0.15 * Math.sin(i * 1.7 + p * 2.3));
+  const panel = (people: number, n: number, ms: (p: number, i: number) => number | null): AnswerTime[] =>
+    Array.from({ length: n }, (_, i) => Array.from({ length: people }, (_, p) => ({ participantId: `p${p}`, ms: ms(p, i) }))).flat();
+  it("flags the one person who turns quick halfway, at the answer they did", () => {
+    const out = fastBlockStarts(panel(8, 40, (p, i) => 3000 * jitter(i, p) * (p === 0 && i >= 20 ? 0.4 : 1)));
+    expect([...out]).toEqual([["p0", 20]]);
+  });
+  it("does not take a warm-up or a learning curve everyone shares for a block", () => {
+    // Everyone's first ten answers take twice as long and everyone speeds up 50% over the session: read against
+    // their own start every one of them would be flagged; read against the panel at the same point, none is.
+    const out = fastBlockStarts(panel(8, 40, (p, i) => 3000 * jitter(i, p) * (i < 10 ? 2 : 1) * Math.exp(-0.7 * (i / 39))));
+    expect(out.size).toBe(0);
+    expect(fastBlockSplit(Array.from({ length: 40 }, (_, i) => Math.log(3000 * jitter(i, 0) * (i < 10 ? 2 : 1) * Math.exp(-0.7 * (i / 39)))))).not.toBeNull();
+  });
+  it("skips untimed answers in the reading but reports the person's own answer index", () => {
+    const out = fastBlockStarts(panel(8, 42, (p, i) => (p === 0 && i < 2 ? null : 3000 * jitter(i, p) * (p === 0 && i >= 22 ? 0.4 : 1))));
+    expect(out.get("p0")).toBe(22);
+  });
+  it("needs AGREEMENT_MIN_RESPONDENTS people with enough timed answers", () => {
+    expect(fastBlockStarts(panel(4, 40, (p, i) => 3000 * jitter(i, p) * (p === 0 && i >= 20 ? 0.4 : 1))).size).toBe(0);
+  });
+});
+
+describe("ratingsWithoutAnswers", () => {
+  it("counts each respondent's answers from 0, so a block start leaves out exactly their later answers", () => {
+    const a = (participantId: string, itemAId: string, itemBId: string): ReplayAnswer => ({ participantId, itemAId, itemBId, result: "A", ms: 2000 });
+    const answers = [a("p", "x", "y"), a("q", "x", "y"), a("p", "y", "z"), a("q", "y", "z"), a("p", "x", "z")];
+    const out = ratingsWithoutAnswers(answers, (ans, i) => ans.participantId === "p" && i >= 1);
+    expect(out).toMatchObject({ dropped: 2, people: 1 });
+    expect(out.rows.filter((r) => r.participantId === "p").map((r) => r.itemId).sort()).toEqual(["x", "y"]);
+    expect(out.rows.filter((r) => r.participantId === "q")).toHaveLength(3);
   });
 });
 

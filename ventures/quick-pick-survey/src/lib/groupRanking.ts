@@ -441,13 +441,17 @@ export function paceSummary(paces: RespondentPace[], agreements: RespondentAgree
 
 /**
  * The ranking route's `drop` parameter: absent, "fast" (leave out fast
- * respondents) or "fast-answers" (keep everyone, leave out their fast answers).
+ * respondents), "fast-answers" (keep everyone, leave out their fast answers) or
+ * "fast-blocks" (keep everyone, leave out what they answered after turning
+ * quick partway through; fastBlockStarts).
  * Anything else is refused, not ignored.
  */
-export function parseDrop(value: string | null): { ok: true; fast: boolean; fastAnswers: boolean } | { ok: false } {
-  if (value === null) return { ok: true, fast: false, fastAnswers: false };
-  if (value === "fast") return { ok: true, fast: true, fastAnswers: false };
-  if (value === "fast-answers") return { ok: true, fast: false, fastAnswers: true };
+export function parseDrop(value: string | null): { ok: true; fast: boolean; fastAnswers: boolean; fastBlocks: boolean } | { ok: false } {
+  const none = { ok: true as const, fast: false, fastAnswers: false, fastBlocks: false };
+  if (value === null) return none;
+  if (value === "fast") return { ...none, fast: true };
+  if (value === "fast-answers") return { ...none, fastAnswers: true };
+  if (value === "fast-blocks") return { ...none, fastBlocks: true };
   return { ok: false };
 }
 
@@ -482,12 +486,24 @@ export function fastAnswerCutMs(paces: RespondentPace[]): number | null {
  * second taste 0.002-0.019, the price of the honest answers it also drops.
  */
 export function ratingsWithoutFastAnswers(answers: ReplayAnswer[], cutMs: number): { rows: ParticipantRatingRow[]; dropped: number; people: number } {
+  return ratingsWithoutAnswers(answers, (a) => a.ms !== null && Number.isFinite(a.ms) && a.ms > 0 && a.ms < cutMs);
+}
+
+/**
+ * Each respondent's ratings rebuilt from their answers, in order, leaving out
+ * the answers `drop` names (`index` counts that respondent's own answers from
+ * 0). With nothing left out it reproduces what the answer route stored.
+ */
+export function ratingsWithoutAnswers(answers: ReplayAnswer[], drop: (a: ReplayAnswer, index: number) => boolean): { rows: ParticipantRatingRow[]; dropped: number; people: number } {
   const states = new Map<string, Map<string, GlickoState>>();
+  const seen = new Map<string, number>();
   const touched = new Set<string>();
   let dropped = 0;
   for (const a of answers) {
     if (a.result !== "A" && a.result !== "B" && a.result !== "EQUAL") throw new Error(`answer result must be A, B or EQUAL, got ${JSON.stringify(a.result)}`);
-    if (a.ms !== null && Number.isFinite(a.ms) && a.ms > 0 && a.ms < cutMs) {
+    const index = seen.get(a.participantId) ?? 0;
+    seen.set(a.participantId, index + 1);
+    if (drop(a, index)) {
       dropped++;
       touched.add(a.participantId);
       continue;
@@ -501,4 +517,99 @@ export function ratingsWithoutFastAnswers(answers: ReplayAnswer[], cutMs: number
   const rows: ParticipantRatingRow[] = [];
   for (const [participantId, mine] of states) for (const [itemId, st] of mine) rows.push({ participantId, itemId, rating: st.rating, rd: st.rd });
   return { rows, dropped, people: touched.size };
+}
+
+/** Each side of a fast block's split holds at least this many timed answers. */
+export const FAST_BLOCK_MIN_SEG = 8;
+/** The later side is at least this much faster, on the log scale (0.5: 40% quicker). */
+export const FAST_BLOCK_MIN_LOG = 0.5;
+/** And the split's t statistic is at least this (it is the best of many splits, so well above 2). */
+export const FAST_BLOCK_T = 4;
+
+/** Passes over the panel's curve in fastBlockStarts (each leaves out the blocks the last found). */
+export const FAST_BLOCK_PASSES = 3;
+
+/**
+ * Where a sequence of log-time residuals turns faster: the single split with
+ * the largest t between the earlier and later means (each side at least
+ * `minSeg` long), returned when the later side is at least `minLog` faster
+ * and t >= `tMin`; otherwise null.
+ */
+export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog = FAST_BLOCK_MIN_LOG, tMin = FAST_BLOCK_T): number | null {
+  const n = x.length;
+  if (n < 2 * minSeg) return null;
+  const pre = [0], pre2 = [0];
+  for (const v of x) { pre.push(pre[pre.length - 1] + v); pre2.push(pre2[pre2.length - 1] + v * v); }
+  let best: { t: number; at: number; gap: number } | null = null;
+  for (let k = minSeg; k <= n - minSeg; k++) {
+    const m1 = pre[k] / k, m2 = (pre[n] - pre[k]) / (n - k);
+    const ss = pre2[k] - k * m1 * m1 + (pre2[n] - pre2[k]) - (n - k) * m2 * m2;
+    const t = (m1 - m2) / Math.sqrt(Math.max(ss / (n - 2), 1e-12) * (1 / k + 1 / (n - k)));
+    if (!best || t > best.t) best = { t, at: k, gap: m1 - m2 };
+  }
+  return best && best.t >= tMin && best.gap >= minLog ? best.at : null;
+}
+
+/**
+ * Respondents who turned quick partway through, and the answer (counting their
+ * own answers from 0, in order) from which they did: a bored or tired person
+ * who answers properly at first and then clicks through.
+ *
+ * Each timed answer is read against the panel's median time at the same point
+ * in the session (a running median over five positions), not against the
+ * person's own start: everyone's first pairs are slow while they read the
+ * instructions, and everyone speeds up as they learn the screen, and a split
+ * against their own start takes either for a block. In the answer-time sweep
+ * (docs/INFORMATION-GAIN-SELECTOR.md, "Carelessness that starts mid-session")
+ * a person-relative split cost a ranking up to 0.30 Spearman (0.40 against a
+ * camp with a second taste) when everyone's first ten answers took twice as
+ * long. Read against the panel it cost at most 0.0004 in every cell, flagged
+ * at most 0.2% of honest respondents, and, for people who turned careless
+ * halfway at 0.4x the honest time, recovered 87-105% of what leaving out
+ * exactly their careless answers would (the per-answer cut: 0-93%). At 0.6x
+ * it recovers 88-101% of the ceiling when a quarter of the panel has a block,
+ * but only 34-90% when 40% turn quick at the same point. It sees
+ * nothing of carelessness spread through a session (`?drop=fast-answers` is
+ * for that) or of careless answers that are no faster. A comparison, not
+ * the default, until real answer times are in (flagship item c).
+ *
+ * Needs AGREEMENT_MIN_RESPONDENTS respondents with timed answers; otherwise
+ * returns an empty map. Untimed answers are skipped in the reading and never
+ * start a block.
+ */
+export function fastBlockStarts(answers: AnswerTime[]): Map<string, number> {
+  const by = new Map<string, { index: number; ms: number }[]>();
+  const seen = new Map<string, number>();
+  for (const a of answers) {
+    const index = seen.get(a.participantId) ?? 0;
+    seen.set(a.participantId, index + 1);
+    const list = by.get(a.participantId) ?? by.set(a.participantId, []).get(a.participantId)!;
+    if (a.ms !== null && Number.isFinite(a.ms) && a.ms > 0 && a.ms < PACE_MAX_MS) list.push({ index, ms: a.ms });
+  }
+  const out = new Map<string, number>();
+  const people = [...by].filter(([, l]) => l.length >= 2 * FAST_BLOCK_MIN_SEG);
+  if (people.length < AGREEMENT_MIN_RESPONDENTS) return out;
+  const longest = Math.max(...people.map(([, l]) => l.length));
+  // Up to FAST_BLOCK_PASSES passes: each rebuilds the panel's curve without the blocks the last one found, so
+  // a large share turning quick at about the same point cannot drag the curve down and hide themselves.
+  const splits = new Map<string, number>();
+  for (let pass = 0; pass < FAST_BLOCK_PASSES; pass++) {
+    const atPos: number[] = [];
+    for (let i = 0; i < longest; i++) {
+      const v = people.filter(([id, l]) => l.length > i && i < (splits.get(id) ?? Infinity)).map(([, l]) => Math.log(l[i].ms));
+      atPos.push(v.length ? medianOf(v) : NaN);
+    }
+    const curve = atPos.map((_, i) => medianOf(atPos.slice(Math.max(0, i - 2), i + 3).filter(Number.isFinite)));
+    const next = new Map<string, number>();
+    for (const [participantId, list] of people) {
+      const split = fastBlockSplit(list.map((x, i) => Math.log(x.ms) - curve[i]));
+      if (split !== null) next.set(participantId, split);
+    }
+    const same = next.size === splits.size && [...next].every(([id, k]) => splits.get(id) === k);
+    splits.clear();
+    for (const [id, k] of next) splits.set(id, k);
+    if (same) break;
+  }
+  for (const [participantId, list] of people) if (splits.has(participantId)) out.set(participantId, list[splits.get(participantId)!].index);
+  return out;
 }
