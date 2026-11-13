@@ -47,6 +47,7 @@
       <div><label for="acap">First verse (with sections)</label><select id="acap"><option value="">With the band</option><option value="1">A cappella: choir alone until the first build</option></select></div>
       <div><label for="lift">Last drop (with sections)</label><select id="lift"><option value="0">Same key</option><option value="2">Up a whole tone</option><option value="1">Up a semitone</option></select></div>
       <div><label for="drone">Drone</label><select id="drone"><option value="">No</option><option value="1">Organ drone on the final</option></select></div>
+      <div><label for="markers">Phrase markers</label><select id="markers"><option value="">No</option><option value="1">A DAW locator at each phrase</option></select></div>
     </div>
     <button id="go" type="submit">Convert</button>
     <button id="play" type="button" disabled>Play preview</button>
@@ -55,6 +56,7 @@
     <button id="dlwav" type="button" disabled>Download preview WAV</button>
     <button id="dlcues" type="button" disabled>Download singer's cue sheet</button>
     <button id="dllrc" type="button" disabled>Download timed lyrics (LRC)</button>
+    <button id="dlstems" type="button" disabled>Download stems (ZIP of WAVs)</button>
   </form>
   <pre id="out" aria-live="polite">Press Convert.</pre>
 
@@ -66,6 +68,7 @@
     <li><strong>Arranges:</strong> deep house, EDM, hard rock or metal drums, bass and chords in the chant's mode.</li>
     <li><strong>Exports:</strong> a MIDI file with lyrics, plus a plain synthesised WAV to hear tempo and range. The preview is not a release master and the "choir" is a synthesiser.</li>
     <li><strong>Cues the singers:</strong> a plain-text cue sheet with the bar, beat, time, note and syllable of every sung note, and timed lyrics (LRC) for a lyric display. With song sections on, a line above each section says what the band does under it, the first note to pitch from and how far it is from the last one, when the band comes in after an a cappella verse, and the new key's first note after a key lift. The same sheet as the command line's <code>--cues</code>.</li>
+    <li><strong>Hands the session to a DAW:</strong> with phrase markers on, the MIDI carries a locator at the start of each phrase (and at each song section), and the stems download is one WAV per part (choir, bass, chords, drums, organ drone) in a ZIP. The stems sum to the preview mix, so they line up from one start point. The same files as the command line's <code>--markers</code> and <code>render-cli.mjs --stems</code>.</li>
   </ol>
 
   <h2>Questions</h2>
@@ -93,6 +96,7 @@
     import { sectionPlan, liftEvents } from "./sections.mjs";
     import { cueSheet, sectionCues } from "./cues.mjs";
     import { lrc } from "./lrc.mjs";
+    import { wavBytes, zipStored } from "./files.mjs";
 
     const $ = (id) => document.getElementById(id);
     const SAMPLE = `name: Dies irae (first line only);
@@ -116,15 +120,6 @@ mode: 1;
       a.href = URL.createObjectURL(new Blob([bytes], { type }));
       a.download = name; a.click();
     };
-    function wavBytes({ rate, channels }) {
-      const n = channels[0].length, c = channels.length, b = new DataView(new ArrayBuffer(44 + n * c * 2));
-      const s = (o, t) => [...t].forEach((ch, i) => b.setUint8(o + i, ch.charCodeAt(0)));
-      s(0, "RIFF"); b.setUint32(4, 36 + n * c * 2, true); s(8, "WAVEfmt "); b.setUint32(16, 16, true); b.setUint16(20, 1, true);
-      b.setUint16(22, c, true); b.setUint32(24, rate, true); b.setUint32(28, rate * c * 2, true); b.setUint16(32, c * 2, true); b.setUint16(34, 16, true);
-      s(36, "data"); b.setUint32(40, n * c * 2, true);
-      for (let i = 0; i < n; i++) for (let k = 0; k < c; k++) b.setInt16(44 + (i * c + k) * 2, Math.max(-32768, Math.min(32767, Math.round(channels[k][i] * 32767))), true);
-      return new Uint8Array(b.buffer);
-    }
     function stop() { if (node) { try { node.stop(); } catch {} node = null; } $("stop").disabled = true; }
 
     function convert() {
@@ -181,7 +176,7 @@ mode: 1;
       }
       const len = summarize({ ...parsed, events }, { bpm, pulsesPerBar: 8 }); // with any intro and outro bars
       sum.bars = len.bars; sum.seconds = len.seconds;
-      midi = eventsToMidi(events, { bpm, title: parsed.header.name || "chant", drone: !!$("drone").value && !lift, backing });
+      midi = eventsToMidi(events, { bpm, title: parsed.header.name || "chant", drone: !!$("drone").value && !lift, backing, markers: Boolean($("markers").value) });
       if ($("drone").value && lift) lines.push("Note: the drone holds one note under the whole piece, so it is left out when the last drop changes key.");
       wav = renderMidi(midi);
       // the singer's sheet and timed lyrics, from the same events as the MIDI (intro and outro bars included)
@@ -197,7 +192,7 @@ mode: 1;
       if (guides.length) lines.push("", "Singer cues (also in the cue sheet download):", ...guides.map((c) => `${c.section}, bar ${c.bar}, ${c.seconds.toFixed(2)} s: ${c.text}`));
       return lines.join("\n");
     }
-    const BUTTONS = ["play", "dlmid", "dlwav", "dlcues", "dllrc"];
+    const BUTTONS = ["play", "dlmid", "dlwav", "dlcues", "dllrc", "dlstems"];
     $("go").onclick = () => {
       stop();
       try { $("out").textContent = convert(); for (const id of BUTTONS) $(id).disabled = false; }
@@ -218,6 +213,14 @@ mode: 1;
     $("dlwav").onclick = () => wav && download(wavBytes(wav), "chant-preview.wav", "audio/wav");
     $("dlcues").onclick = () => cues && download(new TextEncoder().encode(cues), "chant-cues.txt", "text/plain");
     $("dllrc").onclick = () => lyrics && download(new TextEncoder().encode(lyrics), "chant.lrc", "text/plain");
+    // one WAV per voice (choir, bass, chords, drums, organ), rendered on demand from the same MIDI as the
+    // preview; they sum to the preview mix, so drop them all on one DAW start point. The same files as
+    // `node render-cli.mjs chant.mid -o chant.wav --stems DIR`.
+    $("dlstems").onclick = () => {
+      if (!midi) return;
+      const r = renderMidi(midi, { stems: true });
+      download(zipStored(Object.entries(r.stems).map(([v, w]) => ({ name: `chant-${v}.wav`, bytes: wavBytes(w) }))), "chant-stems.zip", "application/zip");
+    };
   </script>
 </body>
 </html>
