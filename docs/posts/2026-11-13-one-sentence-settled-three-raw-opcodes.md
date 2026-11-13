@@ -3,7 +3,7 @@ title: "One sentence in the DNG spec settled three raw-file opcodes, and left th
 seo_title: "DNG OpcodeList1 MapTable and ScalePerRow on stored raw values"
 date: 2026-11-13
 tags: [ventures, photo-editing, raw, dng]
-description: "ShootFlow now runs MapTable and per-row and per-column gains on a DNG's stored raw values. The specification's integer range for OpcodeList1 decides how; the offsets still have no unit."
+description: "ShootFlow runs MapTable and row and column gains on DNG stored raw values: the spec's integer range for OpcodeList1 decides how."
 ---
 
 A DNG file can carry three lists of processing steps, called opcodes. The
