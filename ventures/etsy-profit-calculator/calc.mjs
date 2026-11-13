@@ -1,3 +1,10 @@
+// Etsy's standard US seller fees, the calculator's defaults and the figures
+// the page's answer-first lead states. Checked 2026-11-13 on Etsy's Help
+// Center: "Etsy Fee Basics" (listing $0.20, transaction 6.5% of the order
+// total including shipping and gift wrap) and "What are Payment Processing
+// Fees for Selling on Etsy" (United States: 3% + $0.25 USD).
+export const ETSY_US_FEES = { listingFee: 0.2, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25 };
+
 export function calculateOrder(input) {
   const number = (value, name) => {
     const result = Number(value);
@@ -6,10 +13,10 @@ export function calculateOrder(input) {
   };
   const price = number(input.price, 'Price');
   const shippingCharged = number(input.shippingCharged ?? 0, 'Shipping charged');
-  const listingFee = number(input.listingFee ?? 0.2, 'Listing fee');
-  const transactionRate = number(input.transactionRate ?? 6.5, 'Transaction rate');
-  const paymentRate = number(input.paymentRate ?? 3, 'Payment rate');
-  const paymentFixed = number(input.paymentFixed ?? 0.25, 'Payment fixed fee');
+  const listingFee = number(input.listingFee ?? ETSY_US_FEES.listingFee, 'Listing fee');
+  const transactionRate = number(input.transactionRate ?? ETSY_US_FEES.transactionRate, 'Transaction rate');
+  const paymentRate = number(input.paymentRate ?? ETSY_US_FEES.paymentRate, 'Payment rate');
+  const paymentFixed = number(input.paymentFixed ?? ETSY_US_FEES.paymentFixed, 'Payment fixed fee');
   const offsiteAdRate = number(input.offsiteAdRate ?? 0, 'Offsite ad rate');
   const shippingCost = number(input.shippingCost ?? 0, 'Shipping cost');
   const materialCost = number(input.materialCost ?? 0, 'Material cost');
