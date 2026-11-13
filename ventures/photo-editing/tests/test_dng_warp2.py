@@ -221,9 +221,13 @@ class SkipRuleTests(unittest.TestCase):
         self.assertEqual([type(op).__name__ for op in p.stage3], ["WarpRectilinear"])
         self.assertTrue(any("WarpRectilinear2 unreadable and skipped" in n for n in p.notes))
 
-    def test_preview_only_wr2_is_not_processed_so_keeps_the_fallback(self):
-        preview = (do.WARP_RECTILINEAR_2, 3, WR2_OPT[2])  # optional and preview-only: this module skips it
-        self.assertEqual(self.kinds([preview, WR]), ["WarpRectilinear"])
+    def test_full_quality_only_wr2_skipped_at_preview_keeps_the_fallback(self):
+        # Optional and flagged full-quality-only (flag bit 1): a preview-quality render skips it, so the
+        # fallback runs; a full-quality render applies it and the skip rule drops the fallback.
+        flagged = (do.WARP_RECTILINEAR_2, 3, WR2_OPT[2])
+        tag = {do.TAG_OPCODE_LIST_3: bytes(list_tag([flagged, WR], do.TAG_OPCODE_LIST_3)[2])}
+        self.assertEqual([type(op).__name__ for op in do.plan(tag, {}, preview=True).stage3], ["WarpRectilinear"])
+        self.assertEqual(self.kinds([flagged, WR]), ["WarpRectilinear2"])
 
 
 class DevelopTests(unittest.TestCase):

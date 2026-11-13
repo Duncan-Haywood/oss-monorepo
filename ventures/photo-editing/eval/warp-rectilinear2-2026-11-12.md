@@ -24,8 +24,8 @@ everything else (centre, `r = 1` at the farthest pixel, the resampling) are Warp
 skips the opcode right after it if that is a WarpRectilinear or WarpFisheye, the fallback a writer
 leaves for pre-1.6 readers. `plan()` does this and says so in the notes. Two choices the text leaves
 open, made here: a WarpRectilinear2 that fails to parse does not trigger the rule (the fallback
-then runs, better than no correction), and neither does one this module skips for its
-preview-quality flag (see below).
+then runs, better than no correction), and neither does one a preview-quality render skips for
+its flag bit 1 (see below; before 2026-11-13 every render skipped those).
 
 **Checks the parser enforces**: `0 <= min_valid_radius < max_valid_radius <= 1` (the spec's
 inequality), finite terms, the centre inside the frame, and for the reciprocal form an `f` that
@@ -113,7 +113,7 @@ with `--minimax`).
 - No real DNG carrying WarpRectilinear2; the formula is checked against the specification's text
   only. A camera or converter file (Adobe's DNG Converter writes warp opcodes from its lens
   profiles) would settle the reading, as the Leica T did for WarpRectilinear.
-- The preview-quality flag: `plan()` skips any opcode with flag bit 1 in every develop, but the
-  1.7.1 text (p. 105) says such an opcode "can be skipped when doing preview quality processing,
-  and only needs to be applied when doing full quality processing", so a full develop should run
-  it. Left as it was here, as its own change, since it touches every opcode.
+- The preview-quality flag: `plan()` skipped any opcode with flag bit 1 in every develop, but the
+  1.7.1 text (p. 104) says such an opcode "can be skipped when doing preview quality processing,
+  and only needs to be applied when doing full quality processing". Fixed 2026-11-13: a develop is
+  full quality unless asked otherwise (`eval/opcode-quality-flag-2026-11-13.md`).
