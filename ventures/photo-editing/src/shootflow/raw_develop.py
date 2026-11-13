@@ -1127,6 +1127,11 @@ class DevelopSettings:
     lens_fill: bool = True
     # Correct the lens's lateral colour (lensfun TCA) with its distortion, per colour plane.
     lens_tca: bool = True
+    # Correct the lens's vignetting (lensfun pa) as a FixVignetteRadial before the warp; aperture and subject
+    # distance from EXIF unless given (distance 1000 m when the file has none).
+    lens_vignetting: bool = True
+    lens_aperture: float | None = None
+    lens_distance: float | None = None
 
 
 @dataclass
@@ -1619,12 +1624,13 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                 corr = lens_profiles.correction_for(
                     settings.lens_db, lens_profiles.shot_info(ifd0, raw.exif), w, h,
                     lens_name=settings.lens_name, focal=settings.lens_focal, crop=settings.lens_crop,
-                    fill=settings.lens_fill, tca=settings.lens_tca,
+                    fill=settings.lens_fill, tca=settings.lens_tca, vignetting=settings.lens_vignetting,
+                    aperture=settings.lens_aperture, distance=settings.lens_distance,
                 )
             except lens_profiles.LensProfileError as exc:
                 notes.append(f"no lens correction: {exc}")
             else:
-                warps = list(warps) + [corr.warp]
+                warps = list(warps) + corr.opcodes()
                 notes.extend(corr.notes)
     # TrimBounds: each opcode after a trim runs on its frame, and the output is cropped to the last one.
     half_f = 0.5 if (settings.half and not linear_raw) else 1.0
