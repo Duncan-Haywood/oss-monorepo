@@ -10,8 +10,11 @@
 //
 //   f[r + 1](y) = min over x of f[r](x) + #teams playing in both rounds at the same ground,
 //
-// with the ground mask of a state precomputed as a bitmask of the teams at home, so one transition
-// is one xor and one popcount. 20 teams: 19 rounds x 1,024 x 1,024 states, about 20 M popcounts.
+// computed without the 2^k x 2^k double loop (minPlusStep): a team plays one match a round, so the
+// cost couples each host bit of round r to at most two of round r + 1, and eliminating round r's
+// bits one at a time along those paths and cycles takes about k * 2^(k + 2) additions. 20 teams:
+// 19 rounds x some 40 thousand, where the double loop took 19 x 1,024 x 1,024 popcounts
+// (2026-11-13, README "A faster break floor").
 //
 // The programme ignores the balance rule (each team's home and away games within one); the least it
 // finds is therefore a floor for the tool's own rules. A seeded depth-first walk back over its table
@@ -56,6 +59,77 @@ function homeMasks(ms) {
 }
 
 /**
+ * One step of the programme, g[y] = min over x of fr[x] + #teams playing in both rounds at the same
+ * ground, for the matches A of round r (fr indexed by their host choice x) and B of round r + 1,
+ * without the 2^|A| x 2^|B| double loop. A team plays one match a round, so each of A's host bits
+ * meets at most two of B's, and the bits form paths and cycles. Eliminating A's bits one at a time
+ * along them keeps a table over the bits not yet eliminated and B's bits met so far, at most
+ * 2^(|A| + 1) or so entries: about |A| * 2^(|A| + 2) additions in all, where the double loop took
+ * 4^|A| popcounts (12 matches: some 200 thousand against 16.7 million). Same numbers exactly
+ * (orient.test.mjs checks it against the double loop).
+ */
+export function minPlusStep(fr, A, B) {
+  const kA = A.length, kB = B.length;
+  const inB = new Map();
+  B.forEach(([c, d], j) => { inB.set(c, [j, 1]); inB.set(d, [j, 0]); });
+  // edges[i]: [j, flip] per team of A's match i that plays in B's match j; the team breaks when
+  // x_i ^ y_j ^ flip is 0 (flip: the team is the lower in one match and not in the other)
+  const edges = A.map(([a, b]) => {
+    const e = [];
+    for (const [t, ra] of [[a, 1], [b, 0]]) { const q = inB.get(t); if (q) e.push([q[0], ra ^ q[1]]); }
+    return e;
+  });
+  const yAdj = Array.from({ length: kB }, () => []);
+  edges.forEach((e, i) => { for (const [j] of e) yAdj[j].push(i); });
+  // elimination order: walk each path from an end, each cycle from anywhere
+  const order = [], seen = new Uint8Array(kA);
+  const visit = (s) => {
+    const st = [s];
+    while (st.length) {
+      const i = st.pop();
+      if (seen[i]) continue;
+      seen[i] = 1; order.push(i);
+      for (const [j] of edges[i]) for (const i2 of yAdj[j]) if (!seen[i2]) st.push(i2);
+    }
+  };
+  const ends = (i) => { const ys = new Set(edges[i].map((q) => q[0])); let m = 0; for (const j of ys) m += yAdj[j].length - 1; return m; };
+  for (let i = 0; i < kA; i++) if (!seen[i] && ends(i) < 2) visit(i);
+  for (let i = 0; i < kA; i++) if (!seen[i]) visit(i);
+  // the table's bits, low to high: A's bits not yet eliminated (the next one at bit 0), then B's
+  // bits in the order they were met
+  let T = new Int32Array(1 << kA);
+  for (let x = 0; x < T.length; x++) { let z = 0; for (let p = 0; p < kA; p++) z |= ((x >>> order[p]) & 1) << p; T[z] = fr[x]; }
+  const yPos = new Int32Array(kB).fill(-1);
+  let Lx = kA, Ly = 0;
+  for (let p = 0; p < kA; p++) {
+    const e = edges[order[p]];
+    let add = 0;
+    for (const [j] of e) if (yPos[j] < 0) yPos[j] = Ly + add++;
+    const lx = Lx - 1, ly = Ly + add, xm = (1 << lx) - 1, ym = (1 << Ly) - 1;
+    const N = new Int32Array(1 << (lx + ly));
+    const e0 = e.length > 0 ? yPos[e[0][0]] : -1, f0 = e.length > 0 ? e[0][1] : 0;
+    const e1 = e.length > 1 ? yPos[e[1][0]] : -1, f1 = e.length > 1 ? e[1][1] : 0;
+    // the bits of z that hold the y bits of this x's edges; a team breaks at x = 0 when its y bit
+    // equals its flip, else at x = 1
+    const b0 = e0 >= 0 ? 1 << (e0 + lx) : 0, b1 = e1 >= 0 ? 1 << (e1 + lx) : 0;
+    const v0 = f0 ? b0 : 0, v1 = f1 ? b1 : 0;
+    for (let z = 0; z < N.length; z++) {
+      const base = ((z & xm) << 1) | (((z >>> lx) & ym) << Lx);
+      let c0 = T[base], c1 = T[base | 1];
+      if (b0) { if ((z & b0) === v0) c0++; else c1++; }
+      if (b1) { if ((z & b1) === v1) c0++; else c1++; }
+      N[z] = c0 < c1 ? c0 : c1;
+    }
+    T = N; Lx = lx; Ly = ly;
+  }
+  // B's bits no A bit met (a match of two teams that both sat out round r) are free
+  for (let j = 0; j < kB; j++) if (yPos[j] < 0) yPos[j] = Ly++;
+  const g = new Int32Array(1 << kB);
+  for (let y = 0; y < g.length; y++) { let z = 0; for (let j = 0; j < kB; j++) z |= ((y >>> j) & 1) << yPos[j]; g[y] = T[z & (T.length - 1)]; }
+  return g;
+}
+
+/**
  * Least breaks for the timetable `opp` (opp[r][t] = t's opponent in round r, >= n a bye), the
  * hosts free per match. Returns { floor, least, proved, breaks, venues, balanced, steps } or null
  * when a round has more than `maxMatches` matches or n > 32. floor: least breaks with every match
@@ -73,19 +147,7 @@ export function leastBreaks(opp, n, { maxMatches = ORIENT_MAX_MATCHES, span = op
   const plays = opp.map((o) => { let p = 0; for (let t = 0; t < n; t++) if (o[t] < n) p |= 1 << t; return p >>> 0; });
   // f[r][x]: least breaks in rounds 0..r with round r's hosts x
   const f = [new Int32Array(H[0].length)];
-  for (let r = 0; r + 1 < R; r++) {
-    const A = H[r], B = H[r + 1], both = (plays[r] & plays[r + 1]) >>> 0, fr = f[r];
-    const g = new Int32Array(B.length).fill(0x3fffffff);
-    for (let x = 0; x < A.length; x++) {
-      const fx = fr[x], ax = A[x];
-      for (let y = 0; y < B.length; y++) {
-        // same ground in both rounds = not (home xor home), among teams playing both
-        const c = fx + popcount(~(ax ^ B[y]) & both);
-        if (c < g[y]) g[y] = c;
-      }
-    }
-    f.push(g);
-  }
+  for (let r = 0; r + 1 < R; r++) f.push(minPlusStep(f[r], M[r], M[r + 1]));
   const last = f[R - 1];
   let floor = Infinity;
   for (let y = 0; y < last.length; y++) if (last[y] < floor) floor = last[y];
@@ -223,30 +285,20 @@ export function relaxedBreakFloor(opp, n, opts = {}) {
 export function floorTable(opp, n) {
   const R = opp.length;
   if (n > 32 || roundMatches(opp, n).some((ms) => ms.length > ORIENT_MAX_MATCHES)) return null;
-  const masks = (r) => homeMasks(roundMatches([opp[r]], n)[0]);
   const playsOf = (r) => { let p = 0; for (let t = 0; t < n; t++) if (opp[r][t] < n) p |= 1 << t; return p >>> 0; };
-  // g[y] = min over x of f[x] + #teams in both rounds at the same ground
-  const step = (fr, A, B, both) => {
-    const g = new Int32Array(B.length).fill(0x3fffffff);
-    for (let x = 0; x < A.length; x++) {
-      const fx = fr[x], ax = A[x];
-      for (let y = 0; y < B.length; y++) { const c = fx + popcount(~(ax ^ B[y]) & both); if (c < g[y]) g[y] = c; }
-    }
-    return g;
-  };
-  let H = [], plays = [], fwd = [], pending = null;
+  let H = [], plays = [], fwd = [], ms = [], pending = null;
   const run = (lo) => {
-    const h = H.slice(0, lo), p = plays.slice(0, lo), f = fwd.slice(0, lo);
+    const h = H.slice(0, lo), p = plays.slice(0, lo), f = fwd.slice(0, lo), m = ms.slice(0, lo);
     for (let r = lo; r < R; r++) {
-      h[r] = masks(r); p[r] = playsOf(r);
-      f[r] = r === 0 ? new Int32Array(h[0].length) : step(f[r - 1], h[r - 1], h[r], (p[r - 1] & p[r]) >>> 0);
+      m[r] = roundMatches([opp[r]], n)[0]; h[r] = homeMasks(m[r]); p[r] = playsOf(r);
+      f[r] = r === 0 ? new Int32Array(h[0].length) : minPlusStep(f[r - 1], m[r - 1], m[r]);
     }
     let best = Infinity;
     for (const v of f[R - 1]) if (v < best) best = v;
-    pending = { h, p, f };
+    pending = { h, p, f, m };
     return best;
   };
-  const commit = () => { if (pending) { H = pending.h; plays = pending.p; fwd = pending.f; pending = null; } };
+  const commit = () => { if (pending) { H = pending.h; plays = pending.p; fwd = pending.f; ms = pending.m; pending = null; } };
   // the least balanced host choice of the last trial's timetable (or the committed one), at most
   // `maxBreaks` breaks, by balancedWalk over its table: no programme to rerun. null when none is
   // within maxBreaks or the walk ran out of `budget` steps (then { least: null, proved: false }).

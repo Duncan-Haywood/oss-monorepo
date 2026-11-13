@@ -1,7 +1,8 @@
 // The exact break programme (orient.mjs): the least breaks a fixed timetable allows, in the page.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { leastBreaks, countBreaks, relaxedBreakFloor } from "./orient.mjs";
+import { leastBreaks, countBreaks, relaxedBreakFloor, minPlusStep } from "./orient.mjs";
+import { mulberry32 } from "./calc.mjs";
 import { carryOverTry, polishSeasonVenues, circleOpp } from "./carryover.mjs";
 
 function oppOf(rounds, n) {
@@ -104,4 +105,44 @@ test("polishSeasonVenues reaches 18 teams' 348 / 38 and 20 teams' 360 / 50, prov
     assert.equal(p.coe, coe);
     assert.equal(p.leastProved, true);
   }
+});
+
+// the programme's step by the double loop it replaced (README "A faster break floor")
+function stepByDoubleLoop(fr, A, B) {
+  const masks = (ms) => Array.from({ length: 1 << ms.length }, (_, x) => ms.reduce((h, m, k) => h | (1 << ((x >>> k) & 1 ? m[0] : m[1])), 0));
+  const HA = masks(A), HB = masks(B);
+  const playsIn = (ms) => ms.reduce((p, [a, b]) => p | (1 << a) | (1 << b), 0);
+  const both = playsIn(A) & playsIn(B);
+  const g = new Int32Array(HB.length).fill(0x3fffffff);
+  for (let x = 0; x < HA.length; x++) for (let y = 0; y < HB.length; y++) {
+    let c = fr[x], s = ~(HA[x] ^ HB[y]) & both;
+    while (s) { s &= s - 1; c++; }
+    if (c < g[y]) g[y] = c;
+  }
+  return g;
+}
+
+test("minPlusStep equals the double loop: byes, repeated pairs, any table to come", () => {
+  const rand = mulberry32(11);
+  const roundOf = (n, sitOut) => {
+    const ts = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [ts[i], ts[j]] = [ts[j], ts[i]]; }
+    const ms = [];
+    for (let i = sitOut; i + 1 < n; i += 2) ms.push([Math.min(ts[i], ts[i + 1]), Math.max(ts[i], ts[i + 1])]);
+    return ms;
+  };
+  for (let it = 0; it < 300; it++) {
+    const n = 4 + Math.floor(rand() * 13);
+    const A = roundOf(n, Math.floor(rand() * 3)), B = it % 7 === 0 ? A.slice() : roundOf(n, Math.floor(rand() * 3));
+    const fr = Int32Array.from({ length: 1 << A.length }, () => Math.floor(rand() * 25));
+    assert.deepEqual(minPlusStep(fr, A, B), stepByDoubleLoop(fr, A, B), `n ${n} A ${JSON.stringify(A)} B ${JSON.stringify(B)}`);
+  }
+});
+
+test("a 24-team break floor in seconds, not minutes (12 matches a round)", () => {
+  const tries = carryOverTry(24, 0, { seed: 1, weighted: 8 });
+  const t = Date.now();
+  const r = leastBreaks(oppOf(tries.rounds, 24), 24, { budget: 0 });
+  assert.ok(r && Number.isInteger(r.floor) && r.floor >= 0);
+  assert.ok(Date.now() - t < 5000, `took ${Date.now() - t} ms`);
 });
