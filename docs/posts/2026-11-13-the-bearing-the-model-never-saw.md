@@ -3,7 +3,7 @@ title: "The bearing the model never saw: what 99% on the CWRU dataset measures"
 seo_title: "CWRU bearing dataset: 99% accuracy vs an unseen bearing"
 date: 2026-11-13
 tags: [research, sensing, condition-monitoring, machine-learning, benchmarks]
-description: "On the CWRU bearing fault data, spectrum classifiers score 100% on random and time splits and 55-71% when the test fault comes from a bearing absent from training."
+description: "On the CWRU bearing fault data, spectrum classifiers score 100% on random and time splits and 55-71% when the test fault is from a bearing never seen."
 ---
 
 The Case Western Reserve University bearing data is the dataset most papers on vibration-based fault diagnosis test on, and the accuracies reported on it sit at 99 to 100%. I wanted to know what that number means for someone who will point a model at a bearing it was not trained on, which is every bearing on a real machine.
