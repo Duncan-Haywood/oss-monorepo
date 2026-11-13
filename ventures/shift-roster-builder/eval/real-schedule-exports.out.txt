@@ -1,0 +1,68 @@
+# A: retail store, first-published vs final week
+
+import (default): 120 rows read -> 64 shift lines, 120 shifts, 1062.0 h a week; skipped 0
+  parseShifts errors: 0
+  note: This file has Final, Initial shift columns; read Final (order of preference: rostered, final, plain, first draft, worked); pick another to compare.
+  note: 77 rows had no Final shift (only Initial) and were left out.
+  note: Columns not used: locationid, initial tm employee id, initial tm first name, initial tm last name, initial tm job title, final tm employee id, final tm first name, final tm last name, final tm job title, initial equals f ...
+  note: Check the people-needed counts: a published schedule shows who was scheduled, not who was needed.
+  hours by position: selling bookable 304.0 h; tailor - 3-day alterations 279.0 h; sales support 193.5 h; management 135.0 h; selling non-bookable 60.5 h; back of house 45.0 h; tailor - 30-minute alterations 45.0 h
+
+import (initial): 160 rows read -> 102 shift lines, 160 shifts, 1246.0 h a week; skipped 0
+  parseShifts errors: 0
+  note: This file has Final, Initial shift columns; read Initial.
+  note: 37 rows had no Initial shift (only Final) and were left out.
+  note: Columns not used: locationid, initial tm employee id, initial tm first name, initial tm last name, initial tm job title, final tm employee id, final tm first name, final tm last name, final tm job title, initial equals f ...
+  note: Check the people-needed counts: a published schedule shows who was scheduled, not who was needed.
+  hours by position: selling bookable 436.0 h; tailor - 3-day alterations 239.0 h; selling non-bookable 188.0 h; sales support 160.0 h; management 105.5 h; back of house 64.0 h; tailor - 30-minute alterations 53.5 h
+
+rows 197: first-published shifts 160 (1246.0 h, 35 with nobody on them), final shifts 120 (1062.0 h, 1 open)
+of the 160 first-published shifts: kept as published 3 of 160 (2%); same person, new times 80 of 160 (50%); same times, another person 0 of 160 (0%); both changed 0 of 160 (0%); no final shift on that row 77 of 160 (48%) (35 of them first published with nobody on them)
+rows with both: 83; same date on both sides 83, same person on both sides 83, so a row pairs one person's day; position changed on 19
+shifts in the final week that were not in the first: 37 of 120 (31%)
+the file's own "Initial equals Final" column says Yes on 3 rows
+
+# B: Deputy timesheets with the rostered shift beside each
+
+import (default): 401 rows read -> 163 shift lines, 187 shifts, 1296.3 h a week; skipped 0
+  parseShifts errors: 0
+  note: This file has Schedule, Timesheet shift columns; read Schedule (order of preference: rostered, final, plain, first draft, worked); pick another to compare.
+  note: 41 leave rows left out (time off, not a shift).
+  note: 9 discarded rows left out.
+  note: 49 rows had no Schedule shift (only Timesheet) and were left out.
+  note: The file has 42 locations (NSN: 583 Motueka (Nelson): 65; NSN: Parking Warden Blenheim SO: 38; NSC: After Hours Rosterer: 30; CHC: Greymouth Patrol 591: 25; NSN: 587: 24; NSN: 586 Tasman: 23; ...); they were planned as o ...
+  note: Dates were read day first (the file has dates such as 13/05).
+  note: The file covers 5 weeks: each shift's people-needed is the most scheduled in any one week.
+  note: Employee names were not used: this tool assigns people itself.
+  note: Columns not used: payroll id, timesheet unpaid break total, timesheet total time, timesheet cost, timesheet rest or meal break total, timesheet unpaid break scheduled, timesheet unpaid break duration only, timesheet rest ...
+  note: Check the people-needed counts: a published schedule shows who was scheduled, not who was needed.
+import (timesheet): 450 rows read -> 231 shift lines, 255 shifts, 1725.9 h a week; skipped 0
+  parseShifts errors: 0
+  note: This file has Schedule, Timesheet shift columns; read Timesheet.
+  note: 41 leave rows left out (time off, not a shift).
+  note: 9 discarded rows left out.
+  note: The file has 42 locations (NSN: 583 Motueka (Nelson): 65; NSN: Parking Warden Blenheim SO: 38; NSC: After Hours Rosterer: 30; CHC: Greymouth Patrol 591: 25; NSN: 587: 24; NSN: 586 Tasman: 23; ...); they were planned as o ...
+  note: Dates were read day first (the file has dates such as 13/05).
+  note: The file covers 5 weeks: each shift's people-needed is the most scheduled in any one week.
+  note: Employee names were not used: this tool assigns people itself.
+  note: Columns not used: payroll id, timesheet unpaid break total, timesheet total time, timesheet cost, timesheet rest or meal break total, timesheet unpaid break scheduled, timesheet unpaid break duration only, timesheet rest ...
+  note: Check the people-needed counts: a published schedule shows who was scheduled, not who was needed.
+import (busiest location only, 65 rows): 63 rows read -> 21 shift lines, 21 shifts, 17.5 h a week; skipped 0
+  parseShifts errors: 0
+  note: This file has Schedule, Timesheet shift columns; read Schedule (order of preference: rostered, final, plain, first draft, worked); pick another to compare.
+  note: 41 leave rows left out (time off, not a shift).
+  note: 9 discarded rows left out.
+  note: Only NSN: 583 Motueka (Nelson): 387 rows at other locations left out.
+  note: Dates were read day first (the file has dates such as 13/05).
+  note: The file covers 4 weeks: each shift's people-needed is the most scheduled in any one week.
+  note: Employee names were not used: this tool assigns people itself.
+  note: Columns not used: payroll id, timesheet unpaid break total, timesheet total time, timesheet cost, timesheet rest or meal break total, timesheet unpaid break scheduled, timesheet unpaid break duration only, timesheet rest ...
+  note: Check the people-needed counts: a published schedule shows who was scheduled, not who was needed.
+
+rows 500: discarded 9; leave 41 of 491 (8%); work rows 450, of which worked with no rostered shift 49 of 450 (11%)
+leave types: LWOP WK2+ 11; ACC NWK WEEK2+ 8; Annual Leave (Vacation) 6; Sick (Personal/Carer's) Leave 5; Statutory Day 5; Offered 3; DNU Please submit Leave via Younity 2; ALT HOLIDAY TAKEN (LIEU) 1
+rostered and worked both present: 401
+  start (worked - rostered, minutes): median 0; exactly on time 371 of 401 (93%); within 15 min 385 of 401 (96%); started over 15 min early 11, over 15 min late 5
+  end: median 0; exactly 381 of 401 (95%); within 15 min 391 of 401 (98%); left over 15 min early 8, stayed over 15 min late 2
+  span hours (before breaks): rostered 2777.8, worked 2773.7 (-0.1%); per shift median 0 min
+  locations 42; positions (Area Name) 21

@@ -73,6 +73,8 @@ Options:
   --rest-under <h>    list every pair of one person's shifts with less than <h> hours between them (a close then an open) and the premium
                       on your numbers: --premium-hours (default 1 hour of pay each) and --exempt "Ben" (they asked for it). Arithmetic, not a statement of any law
   --import-shifts <csv> convert a published-schedule export (date, start, end, position rows) to shift lines on stdout; notes on stderr
+    --location <name>   with --import-shifts: only that location's rows, when the export has several (the notes list them)
+    --use <family>      with --import-shifts: read schedule, final, initial, timesheet or plain columns when the export has more than one version of each shift
   --from-sales <csv>  build the shift lines from an hourly sales export (date-time and sales columns) at --splh <$> sales per labor hour (required):
                       the average of each weekday-hour sets the heads needed (at least --min-staff, default 1), cut into shifts of --min-shift to
                       --max-shift hours (default 4 to 8), inside the hours with sales or --open/--close (0-24). Shift lines on stdout, summary on stderr;
@@ -154,6 +156,8 @@ export function parseArgs(argv) {
     else if (a === "--open-post") o.mode = "open-post";
     else if (a === "--person") { o.person = argv[++i]; if (!o.person) throw new Error("--person needs a name"); }
     else if (a === "--import-shifts") { o.importShifts = argv[++i]; if (!o.importShifts) throw new Error("--import-shifts needs a CSV file"); }
+    else if (a === "--location") { o.importLocation = argv[++i]; if (!o.importLocation) throw new Error("--location needs a location name from the export"); }
+    else if (a === "--use") { o.importUse = argv[++i]; if (!["schedule", "final", "initial", "timesheet", "plain"].includes(o.importUse)) throw new Error("--use takes schedule, final, initial, timesheet or plain"); }
     else if (a === "--from-sales") { o.fromSales = argv[++i]; if (!o.fromSales) throw new Error("--from-sales needs a CSV file"); }
     else if (a === "--skip-dates") { o.demand = { ...o.demand, skipDates: String(argv[++i] || "").split(/[,\s]+/).filter(Boolean) }; if (!o.demand.skipDates.length) throw new Error("--skip-dates needs dates like 2026-11-26,2026-12-25"); }
     else if (a === "--backtest") o.backtest = true;
@@ -558,7 +562,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const o = parseArgs(process.argv.slice(2));
     if (o.help) { process.stdout.write(USAGE); process.exit(0); }
     if (o.importShifts) {
-      const r = importShiftsCsv(await readFile(o.importShifts, "utf8"));
+      const r = importShiftsCsv(await readFile(o.importShifts, "utf8"), { location: o.importLocation, use: o.importUse });
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.rows) process.exit(1);
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);
