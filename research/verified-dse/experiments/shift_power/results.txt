@@ -17,4 +17,59 @@ lzcnorm96 | 1743 | 0.461 | 96 | True | True
 muxshl128 | 1800 | 0.854 | 0 | False | True
 muxshl64 | 775 | 0.828 | 0 | False | True
 
-## Blind test: no table yet
+## Blind test (milestone 120 flow run): 12 cells
+
+clock | design | routed/r2 | routed delay/period | skip-r1 % | clipped skip-r1 % | random % | SWC % | SWS(64) % | SWG %
+relaxed | alignsh128 | 4.02 | 0.575 | 1.03 | 9.34 | 5.32 | 9.34 | 5.32 | 5.32
+tight | alignsh128 | 4.09 | 0.856 | 7.11 | 7.11 | 5.43 | 7.11 | 5.43 | 5.43
+relaxed | alignsh64 | 2.85 | 0.766 | 13.77 | 13.77 | 13.20 | 13.20 | 13.20 | 13.20
+tight | alignsh64 | 3.22 | 0.977 | 13.77 | 13.77 | 13.70 | 13.77 | 13.70 | 13.70
+relaxed | lzcnorm128 | 3.43 | 0.228 | 0.00 | 0.00 | 11.37 | 0.00 | 11.37 | 11.37
+tight | lzcnorm128 | 3.41 | 0.340 | 0.00 | 0.00 | 11.83 | 0.00 | 11.83 | 11.83
+relaxed | lzcnorm96 | 2.62 | 0.317 | 0.00 | 0.00 | 4.75 | 4.75 | 4.75 | 4.75
+tight | lzcnorm96 | 2.59 | 0.476 | 0.00 | 0.00 | 2.30 | 2.30 | 2.30 | 2.30
+relaxed | muxshl128 | 3.52 | 0.224 | 13.87 | 19.68 | 2.99 | 19.68 | 19.68 | 2.99
+tight | muxshl128 | 3.55 | 0.336 | 12.14 | 17.85 | 2.37 | 17.85 | 17.85 | 2.37
+relaxed | muxshl64 | 2.47 | 0.393 | 0.00 | 34.90 | 6.88 | 6.88 | 6.88 | 6.88
+tight | muxshl64 | 2.45 | 0.595 | 0.00 | 34.90 | 5.72 | 5.72 | 5.72 | 5.72
+
+blind mean regret %: SW 6.73, SWC 8.38, SWS(64) 9.84, SWG 7.16, random 7.16
+
+blind SWS(64) vs random: better 0, worse 2, tied 10; sign p = 0.500; design bootstrap 95% interval of mean (SWS(64) - random) +0.00 to +8.04 points
+blind SWG vs random: better 0, worse 0, tied 12; sign p = 1.000; design bootstrap 95% interval of mean (SWG - random) +0.00 to +0.00 points
+blind SWS(64) vs SWC: better 3, worse 2, tied 7; sign p = 1.000; design bootstrap 95% interval of mean (SWS(64) - SWC) -1.42 to +5.79 points
+blind SWC vs random: better 2, worse 5, tied 5; sign p = 0.453; design bootstrap 95% interval of mean (SWC - random) -5.32 to +8.05 points
+
+## Blind cells by family (descriptive)
+
+family | cells | ladder branch | SWC % | SWS(64) % | SWG % | random %
+alignsh | 4 | 3 | 10.86 | 9.41 | 9.41 | 9.41
+lzcnorm | 4 | 2 | 1.76 | 7.56 | 7.56 | 7.56
+muxshl | 4 | 2 | 12.53 | 12.53 | 4.49 | 4.49
+
+## Milestones 119 and 120 blind cells together (24 cells, 12 designs)
+
+mean regret %: SWC 6.83, SWS(64) 6.93, SWG 5.59, random 5.97
+
+SWG vs random: better 3, worse 0, tied 21; sign p = 0.250; design bootstrap 95% interval of mean (SWG - random) -0.93 to +0.00 points
+SWS(64) vs random: better 3, worse 2, tied 19; sign p = 1.000; design bootstrap 95% interval of mean (SWS(64) - random) -0.82 to +3.85 points
+SWG vs SWC: better 8, worse 2, tied 14; sign p = 0.109; design bootstrap 95% interval of mean (SWG - SWC) -4.76 to +1.93 points
+
+(1) blind SWS(64) below SWC: False
+(2) blind SWG below random and no higher than SWS(64): False
+(3) muxshl cells, SWC above random: True (12.53% against 4.49%)
+(4) at least 2 of 4 muxshl cells on the ladder branch: True (2)
+(5) at least 2 SWS-flagged cells on the ladder branch, SWC above random there: False (5 cells; 6.04% against 9.53%)
+(6) 24 blind cells, SWG better than random in more cells than worse: True (3 better, 0 worse)
+(7) 24 blind cells, SWG - random interval below 0: False (-0.93 to +0.00)
+
+Flagged but below the cost threshold (SWC routes randomly anyway; skip-r1 shows what the ladder would have done): relaxed alignsh64 skip-r1 13.77% against random 13.20%; relaxed lzcnorm96 skip-r1 0.00% against random 4.75%; tight lzcnorm96 skip-r1 0.00% against random 2.30%
+
+## Post hoc (written after the blind table; descriptive, not tests)
+
+SWB (mux-share band alone): seen 1.94%, blind 5.70%, milestones 119 and 120 blind 5.49%, all 160 cells 2.23%; seen designs it flags: barrel128, barrel16, barrel192, barrel256, barrel32, barrel64, barrel96, rotmix64, sbox
+SWB vs random on the 24 blind cells: SWB vs random: better 5, worse 6, tied 13; sign p = 1.000; design bootstrap 95% interval of mean (SWB - random) -3.02 to +1.67 points
+leading-zero normaliser (milestones 119 and 120, 8 cells), ladder (clipped skip-r1) against random: relaxed lzcnorm32 0.00% against 1.90% (routed/r2 1.85); tight lzcnorm32 0.00% against 1.95% (routed/r2 2.01); relaxed lzcnorm64 0.00% against 10.71% (routed/r2 2.39); tight lzcnorm64 0.00% against 10.80% (routed/r2 2.38); relaxed lzcnorm128 0.00% against 11.37% (routed/r2 3.43); tight lzcnorm128 0.00% against 11.83% (routed/r2 3.41); relaxed lzcnorm96 0.00% against 4.75% (routed/r2 2.62); tight lzcnorm96 0.00% against 2.30% (routed/r2 2.59)
+unclipped against clipped skip-r1 on blind ladder-branch cells with routed delay/period below 0.6: relaxed alignsh128 1.03% against 9.34%; relaxed lzcnorm128 0.00% against 0.00%; tight lzcnorm128 0.00% against 0.00%; relaxed muxshl128 13.87% against 19.68%; tight muxshl128 12.14% against 17.85%
+
+Also (not a test; seen and blind together, 160 cells): SWG 1.76%, SWS(64) 1.96%, SWC 2.44%, random 2.91%

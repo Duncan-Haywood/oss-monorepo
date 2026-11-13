@@ -56,7 +56,14 @@ holds a data shifter of 64 bits or more, was then tested blind on three
 more new families. It has 4.03\% against 5.27\% for the clipped rule and
 4.79\% for random routing, better than random in 3 cells and worse in
 none. It acts on only 3 of 12 cells, so the interval (-1.58 to +0.00
-points) does not yet exclude zero.
+points) does not yet exclude zero. A second blind test refutes the
+operator check as the mechanism. A barrel written as explicit mux stages
+has no shift operator, escapes the guard and costs the rule 18 to 20\%
+against 2 to 3\% for random routing. A 128-bit leading-zero normaliser
+that the guard flags is where the ladder reaches 0.00\% against 11\% for
+random routing. Shifters whose amount comes straight from an input
+defeat the mapped rung; a shifter whose amount comes out of deep logic
+does not.
 \end{abstract}
 \textbf{Draft for MLCAD (6 pages when typeset); not submitted.}
 Programme \texttt{verified-dse}, milestone 7. Written with AI assistance
@@ -885,6 +892,30 @@ prediction, an across-design interval below zero, fails at -1.58 to
 because both lzcnorm designs sit below the cost threshold, where the
 switch already routes randomly.
 
+\textbf{The structural guard on a second blind test (milestone 120; flow
+run).} Six designs were fixed, with seven predictions, before 1,440 flow
+runs (\texttt{experiments/\allowbreak{}shift\_\allowbreak{}power/\allowbreak{}}). They were wider normalisers
+(\texttt{lzcnorm96}, \texttt{lzcnorm128}), an alignment shifter with
+sticky bit (\texttt{alignsh64}, \texttt{alignsh128}) and a barrel
+shifter written as explicit mux stages with no shift operator
+(\texttt{muxshl64}, \texttt{muxshl128}), which a SAT miter proves equal
+to \texttt{barrel\_\allowbreak{}w}. A second guard, SWG, adds a gate-level band (0.75
+\textless= mux share \textless{} 0.9) to SWS(64). It was fixed by
+mechanism and equals SWS(64) on all 148 seen cells. Three predictions
+held and four failed. The hand-built barrel defeats the operator check:
+the clipped switch loses on muxshl128 (19.7\% and 17.9\% against 3.0\%
+and 2.4\% for random routing), and only SWG flags it. The operator check
+also flags the 128-bit normaliser, where the ladder reaches 0.00\% at
+both clocks against 11.4\% and 11.8\% for random routing. Blind mean
+regret is 9.84\% for SWS(64), 7.16\% for SWG, 7.16\% for random and
+8.38\% for SWC. Over the 24 blind cells of milestones 119 and 120, SWG
+is better than random in 3 cells and worse in none (interval -0.93 to
++0.00 points). Post hoc, the ladder wins on all 8 normaliser cells of
+both milestones. Our reading is that the failure belongs to shifters
+whose amount comes straight from an input, which are wire-dominated, not
+to shift operators as such. A normaliser's amount comes out of a
+priority encoder, and the mapped rung sees that logic.
+
 \textbf{Pilot-side certificate and its limits} (milestones 35 to 43,
 moved here from the to-do list). A proof or counterexample for the
 top-vs-all coverage, or a conformal pilot statistic with a theorem
@@ -1015,13 +1046,13 @@ and page limit still need checking against the call for papers.
 \setcounter{enumi}{5}
 \tightlist
 \item
-  A blind test of the structural shifter guard with power. Milestone
-  119's guard (route randomly on RTL with a data shifter of 64 bits or
-  more) held on three new families, but it acted on only 3 of 12 cells
-  (interval -1.58 to +0.00 points). It still needs shifters where
-  routing is dear, a 32-to-64-bit shifter that reaches the ladder (the
-  threshold is untested from below), and a hand-built mux-tree shifter
-  (the feature's blind spot).
+  A structural guard that separates the two kinds of shifter. Milestone
+  120 found that the RTL operator check misses a hand-built barrel and
+  wrongly flags a leading-zero normaliser, where the ladder wins. The
+  next candidate is the logic depth in front of the shift amount. It
+  should be chosen on the 160 cells seen so far and tested blind on a
+  barrel whose amount comes from an adder and on a normaliser whose
+  amount is an input.
 \end{enumerate}
 
 The headline is split by cost. On small designs, where a routed point

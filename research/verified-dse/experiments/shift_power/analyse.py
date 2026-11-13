@@ -36,6 +36,8 @@ Predictions, written in this file before the blind table existed (checked in mai
  (6) over milestone 119's and 120's blind cells together (24 cells, 12 designs), SWG is better than random in more cells than worse;
  (7) over the same 24 cells, the design-bootstrap 95% interval of the mean of (SWG - random) lies below 0 (2,000 resamples, seed 120).
 Reported, not predicted: whether SWC fails on the flagged-but-cheap cells, the family split, seen + blind together.
+Post hoc (written after the blind table, labelled in the output, not tests): SWB, the mux-share band alone (0.75 <= mux_share < 0.9,
+no shift_width term), on the seen, blind and pooled cells; and the leading-zero normaliser's record across milestones 119 and 120.
 """
 import importlib.util
 import json
@@ -68,6 +70,14 @@ def flag_s(d):
 
 def flag_g(d):
     return flag_s(d) or 0.75 <= FEAT[d]["mux_share"] < 0.9
+
+
+def flag_b(d):
+    return 0.75 <= FEAT[d]["mux_share"] < 0.9
+
+
+def swb(c):
+    return c["rand"] if flag_b(c["design"]) else swc(c)
 
 
 def sws(c):
@@ -159,6 +169,17 @@ def main(dst):
             "", "Flagged but below the cost threshold (SWC routes randomly anyway; skip-r1 shows what the ladder would have done): "
             + "; ".join(f"{c['clock']} {c['design']} skip-r1 {c['skip']:.2f}% against random {c['rand']:.2f}%"
                         for c in fs if c["ratio"] <= score.THETA),
+            "", "## Post hoc (written after the blind table; descriptive, not tests)", "",
+            f"SWB (mux-share band alone): seen {mean(seen, swb):.2f}%, blind {mean(blind, swb):.2f}%, milestones 119 and 120 blind "
+            f"{mean(both, swb):.2f}%, all {len(seen) + len(blind)} cells {mean(seen + blind, swb):.2f}%; seen designs it flags: "
+            + ", ".join(sorted({c['design'] for c in seen if flag_b(c['design'])})),
+            "SWB vs random on the 24 blind cells: " + compare_lines(both, ((swb, rand, "SWB", "random"),))[0],
+            "leading-zero normaliser (milestones 119 and 120, 8 cells), ladder (clipped skip-r1) against random: "
+            + "; ".join(f"{c['clock']} {c['design']} {c['clip'][nf.ALPHA]:.2f}% against {c['rand']:.2f}% (routed/r2 {c['ratio']:.2f})"
+                        for c in both if fam(c) == "lzcnorm"),
+            "unclipped against clipped skip-r1 on blind ladder-branch cells with routed delay/period below 0.6: "
+            + "; ".join(f"{c['clock']} {c['design']} {c['skip']:.2f}% against {c['clip'][nf.ALPHA]:.2f}%"
+                        for c in blind if c["ratio"] > score.THETA and c["share"] < 0.6),
             "", f"Also (not a test; seen and blind together, {len(seen) + len(blind)} cells): SWG {mean(seen + blind, swg):.2f}%, "
             f"SWS(64) {mean(seen + blind, sws):.2f}%, SWC {mean(seen + blind, swc):.2f}%, random {mean(seen + blind, rand):.2f}%"]
     Path(dst).write_text("\n".join(out) + "\n")
