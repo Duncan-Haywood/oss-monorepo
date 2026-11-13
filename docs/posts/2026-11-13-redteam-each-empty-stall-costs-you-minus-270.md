@@ -1,9 +1,9 @@
 ---
 title: "\"Each empty stall costs you -$270\": red-teaming six calculators that only knew how to win"
-seo_title: "Profit calculator wording when the margin is negative: six fixed, one lint"
+seo_title: "Negative margins in profit calculators: six fixed, one lint"
 date: 2026-11-13
 tags: [testing, mutation-testing, redteam, calculators, wording, ci]
-description: "Sixteen faults seeded into the Turo earnings analyzer and the horse boarding calculator, eight caught. Reading the code found a sentence template that turns a loss into a gain, in six calculators."
+description: "Sixteen faults seeded, eight caught. Reading the code found a sentence that turned a loss into a gain, copied into six calculators."
 ---
 
 Today's red-team run seeded faults into two calculators with

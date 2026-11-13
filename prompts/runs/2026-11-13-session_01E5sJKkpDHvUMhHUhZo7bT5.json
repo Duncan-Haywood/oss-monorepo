@@ -1,0 +1,423 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKkpDHvUMhHUhZo7bT5",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T20:18:16Z",
+  "ended": "2026-11-13T20:20:28Z",
+  "wall_minutes": 21.09,
+  "tokens_in": 7478004,
+  "tokens_out": 34423,
+  "cost_usd": 3.1346,
+  "tool_calls": 73,
+  "task": "redteam: campaigns on turo-earnings-report-analyzer and horse-boarding calc.mjs; signed gain wording class fix",
+  "projects": [
+    "turo-earnings-report-analyzer",
+    "horse-boarding-stall-profit-calculator",
+    "campground-site-profit-calculator",
+    "pet-waste-removal-route-calculator",
+    "self-serve-dog-wash-profit-calculator",
+    "ice-cream-shop-seasonal-profit-calculator",
+    "str-arbitrage-lease-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15606",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 17,
+  "outcome": "success",
+  "errors": [
+    "A Bash heredoc containing JS template backticks was refused by the harness rm-safety parser (no rm in it); wrote the file with Write instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`redteam.py targets` prints only a ~20-line random sample, not the 5240 guarded files, so `targets | grep <venture>` to check a candidate returns nothing; I briefly thought wash-sale-checker was unguarded. Say it samples, or add --all."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 with all 10 open entries being control-plane edits already in owner-approval PRs costs a read of the open PR list each run; `redteam.py open` could print the PR already open for each entry."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-redteam-each-empty-stall-costs-you-minus-270.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: 10 open entries, all control-plane workflow wiring already in open owner-approval PRs; none actionable here. Campaigns: turo 5/8 caught (2 equivalent, 1 gap), horse-boarding 3/8 (5 gaps); rerun: all 6 gaps caught_after_fix. Guard added: platform/ci/check_signed_gain_wording.py + signed_gain_wording.mjs + test_check_signed_gain_wording.py; probes 128 calculators in ~3 s; first run on pre-fix tree flagged 6 ventures (3 found by reading, 3 new); exit 0 after fixes; runs on venture PRs via unwired_checks.py (listed by `unwired_checks.py --list`). Verification: node --test passes for all 7 touched ventures; new venture tests fail against the stashed pre-fix calc.mjs; python3 -m unittest test_check_signed_gain_wording OK (5 tests).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/turo-earnings-report-analyzer/calc.mjs",
+        "test": "node --test ventures/turo-earnings-report-analyzer/**/*.test.mjs  (in .)",
+        "seed": 333598015,
+        "commit": "2006a1ced",
+        "sites": 572,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/turo-earnings-report-analyzer/calc.mjs",
+            "line": 44,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < src.length; i++) {",
+            "after": "for (let i = 1; i < src.length; i++) {",
+            "line_text": "  for (let i = 0; i < src.length; i++) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/turo-earnings-report-analyzer/calc.mjs",
+            "line": 84,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "if (m) return +m[2] > 59 ? NaN : +m[1] * 60 + +m[2];",
+            "after": "if (m) return +m[2] > 59 ? NaN : +m[1] * 61 + +m[2];",
+            "line_text": "  if (m) return +m[2] > 59 ? NaN : +m[1] * 60 + +m[2];",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/turo-earnings-report-analyzer/calc.mjs",
+            "line": 86,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "if (m && (m[1] || m[2])) return (m[1] ? +m[1] * 60 : 0) + (m[2] ? +m[2] : 0);",
+            "after": "if (m && (m[1] || m[2])) return (m[1] ? +m[1] * 60 : 1) + (m[2] ? +m[2] : 0);",
+            "line_text": "  if (m && (m[1] || m[2])) return (m[1] ? +m[1] * 60 : 0) + (m[2] ? +m[2] : 0);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/turo-earnings-report-analyzer/calc.mjs",
+            "line": 108,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;",
+            "after": "if (mo < 1 || mo > 12 || d < 2 || d > 31) return null;",
+            "line_text": "  if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/turo-earnings-report-analyzer/calc.mjs",
+            "line": 112,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "hh = +tm[1]; mm = +tm[2]; hasTime = true;",
+            "after": "hh = +tm[1]; mm = +tm[3]; hasTime = true;",
+            "line_text": "    hh = +tm[1]; mm = +tm[2]; hasTime = true;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/turo-earnings-report-analyzer/calc.mjs",
+            "line": 203,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "const feeRaw = hasFee && !isBlank(get(line, \"fee\")) ? parseNumber(get(line, \"fee\"), decimalComma) : null;",
+            "after": "const feeRaw = hasFee || !isBlank(get(line, \"fee\")) ? parseNumber(get(line, \"fee\"), decimalComma) : null;",
+            "line_text": "    const feeRaw = hasFee && !isBlank(get(line, \"fee\")) ? parseNumber(get(line, \"fee\"), decimalComma) : null;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "When the file has no fee column, get(line,\"fee\") returns \"\" and isBlank(\"\") is true, so `hasFee || !isBlank(...)` is false exactly when `hasFee && !isBlank(...)` is: feeRaw stays null either way."
+          },
+          {
+            "file": "ventures/turo-earnings-report-analyzer/calc.mjs",
+            "line": 443,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "if (wd.length >= 2) {",
+            "after": "if (wd.length >= 3) {",
+            "line_text": "  if (wd.length >= 2) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test had exactly two weekdays with five or more trips. Added \"two weekdays with five trips each are ranked against each other\"."
+          },
+          {
+            "file": "ventures/turo-earnings-report-analyzer/calc.mjs",
+            "line": 483,
+            "col": 102,
+            "operator": "const-plus-one",
+            "before": "const len = rnd() < 0.5 ? 1 + Math.floor(rnd() * 2) : rnd() < 0.7 ? 3 + Math.floor(rnd() * 3) : 7;",
+            "after": "const len = rnd() < 0.5 ? 1 + Math.floor(rnd() * 2) : rnd() < 0.7 ? 3 + Math.floor(rnd() * 3) : 8;",
+            "line_text": "      const len = rnd() < 0.5 ? 1 + Math.floor(rnd() * 2) : rnd() < 0.7 ? 3 + Math.floor(rnd() * 3) : 7;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "sampleCsv is the made-up \"Load an example\" file; a 7- or 8-day long trip is equally valid example data and no figure is checked against it. Pinning the constant would test nothing a user relies on."
+          }
+        ]
+      },
+      {
+        "target": "ventures/horse-boarding-stall-profit-calculator/calc.mjs",
+        "test": "node --test ventures/horse-boarding-stall-profit-calculator/**/*.test.mjs  (in .)",
+        "seed": 93608315,
+        "commit": "2006a1ced",
+        "sites": 120,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/horse-boarding-stall-profit-calculator/calc.mjs",
+            "line": 26,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "else if (occupancy < 1) errors.push(`Occupancy ${occupancy} looks like a fraction. Enter it as a percent, for example ${Math.round(occupancy * 100)} for ${Math.round(occupancy * 100)}% full.`);",
+            "after": "else if (occupancy < 2) errors.push(`Occupancy ${occupancy} looks like a fraction. Enter it as a percent, for example ${Math.round(occupancy * 100)} for ${Math.round(occupancy * 100)}% full.`);",
+            "line_text": "  else if (occupancy < 1) errors.push(`Occupancy ${occupancy} looks like a fraction. Enter it as a percent, for example ${Math.round(occupancy * 100)} for ${Math.round(occupancy * 100)}% full.`);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Occupancy 1 to 2 percent was untested. Added \"occupancy from 1 percent up is a percent, not a fraction\"."
+          },
+          {
+            "file": "ventures/horse-boarding-stall-profit-calculator/calc.mjs",
+            "line": 27,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "if (!(boardPrice >= 0)) errors.push(\"Enter the board price per horse per month (0 or more).\");",
+            "after": "if (!(boardPrice >= 1)) errors.push(\"Enter the board price per horse per month (0 or more).\");",
+            "line_text": "  if (!(boardPrice >= 0)) errors.push(\"Enter the board price per horse per month (0 or more).\");",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Board price between 0 and 1 was untested. Added \"board price may be zero or a fraction of a dollar\"."
+          },
+          {
+            "file": "ventures/horse-boarding-stall-profit-calculator/calc.mjs",
+            "line": 31,
+            "col": 89,
+            "operator": "const-plus-one",
+            "before": "const wage = opt(raw.wage, 0), badDebt = opt(raw.badDebt, 0), target = opt(raw.target, 0);",
+            "after": "const wage = opt(raw.wage, 0), badDebt = opt(raw.badDebt, 0), target = opt(raw.target, 1);",
+            "line_text": "  const wage = opt(raw.wage, 0), badDebt = opt(raw.badDebt, 0), target = opt(raw.target, 0);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Blank target default was untested. Added \"a blank profit target is zero: target price equals break-even price\"."
+          },
+          {
+            "file": "ventures/horse-boarding-stall-profit-calculator/calc.mjs",
+            "line": 54,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "const breakEvenHorses = margin > 0 ? p.fixedMonth / margin : null;",
+            "after": "const breakEvenHorses = margin > 1 ? p.fixedMonth / margin : null;",
+            "line_text": "  const breakEvenHorses = margin > 0 ? p.fixedMonth / margin : null;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Margin between 0 and 1 was untested. Added \"a small positive margin still has a break-even\"."
+          },
+          {
+            "file": "ventures/horse-boarding-stall-profit-calculator/calc.mjs",
+            "line": 55,
+            "col": 74,
+            "operator": "div-to-times",
+            "before": "const breakEvenOcc = breakEvenHorses === null ? null : (breakEvenHorses / p.stalls) * 100;",
+            "after": "const breakEvenOcc = breakEvenHorses === null ? null : (breakEvenHorses * p.stalls) * 100;",
+            "line_text": "  const breakEvenOcc = breakEvenHorses === null ? null : (breakEvenHorses / p.stalls) * 100;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/horse-boarding-stall-profit-calculator/calc.mjs",
+            "line": 57,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "const breakEvenPrice = priceFor(0), targetPrice = priceFor(p.target);",
+            "after": "const breakEvenPrice = priceFor(1), targetPrice = priceFor(p.target);",
+            "line_text": "  const breakEvenPrice = priceFor(0), targetPrice = priceFor(p.target);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/horse-boarding-stall-profit-calculator/calc.mjs",
+            "line": 66,
+            "col": 19,
+            "operator": "eq-flip",
+            "before": "if (breakEvenOcc === null) findings.push({ severity: \"high\", title: `Each horse costs more to keep than it brings in (${dollars(margin)} a month), so filling more stalls loses more. Price or feed cost has to change before occupancy helps.` });",
+            "after": "if (breakEvenOcc !== null) findings.push({ severity: \"high\", title: `Each horse costs more to keep than it brings in (${dollars(margin)} a month), so filling more stalls loses more. Price or feed cost has to change before occupancy helps.` });",
+            "line_text": "  if (breakEvenOcc === null) findings.push({ severity: \"high\", title: `Each horse costs more to keep than it brings in (${dollars(margin)} a month), so filling more stalls loses more. Price or feed cost has to change before occupancy helps.` });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/horse-boarding-stall-profit-calculator/calc.mjs",
+            "line": 69,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "if (profit >= 0 && p.wage > 0 && p.careMin > 0) {",
+            "after": "if (profit >= 0 && p.wage > 0 && p.careMin > 1) {",
+            "line_text": "  if (profit >= 0 && p.wage > 0 && p.careMin > 0) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "careMin between 0 and 1 was untested. Added \"half a minute of care a day still gets the hourly-pay finding\"."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/horse-boarding-stall-profit-calculator/calc.mjs",
+        "issue": "With a negative per-horse margin the findings said 'Each extra boarded horse adds about -$270.00 a month; each empty stall costs you that' (an empty stall saves it); at exactly $0.00 margin they said each horse 'costs more to keep than it brings in'. Fixed: loss worded as a loss, zero margin gets its own sentence, gain line only when margin > 0.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15606"
+      },
+      {
+        "file": "ventures/campground-site-profit-calculator/calc.mjs",
+        "issue": "Same template as horse-boarding: 'Each extra occupied night adds about -$3.00; each night a site sits empty costs you that' and 'costs more than it brings in ($0.00)'. Fixed the same way.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15606"
+      },
+      {
+        "file": "ventures/pet-waste-removal-route-calculator/calc.mjs",
+        "issue": "'Each client adds about -$19.11 a month', 'Each client leaves -$19.11', and 'Each visit costs more than it brings in ($0.00)' at zero margin. Fixed.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15606"
+      },
+      {
+        "file": "ventures/self-serve-dog-wash-profit-calculator/calc.mjs",
+        "issue": "'Full-service dogs add -$N a year' when the full-service price does not cover staff time. Now 'lose $N'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15606"
+      },
+      {
+        "file": "ventures/ice-cream-shop-seasonal-profit-calculator/calc.mjs",
+        "issue": "'After the loan the shop leaves -$N a year against your owner draw target'. Now 'loses $N'. Found by the new scan.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15606"
+      },
+      {
+        "file": "ventures/str-arbitrage-lease-calculator/calc.mjs",
+        "issue": "Loss branch said 'the lease nets -$N'. Now 'loses $N'. Found by the new scan.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15606"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "88618fd0-dee9-527a-ab8b-50a8fe705546",
+    "transcripts": 1,
+    "first": "2026-11-13T20:18:16Z",
+    "last": "2026-11-13T20:39:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 137,
+        "output": 34423,
+        "thinking": 6690,
+        "cache_read": 7356069,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121798,
+        "api_equivalent_usd": 3.1346,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 137,
+      "output": 34423,
+      "thinking": 6690,
+      "cache_read": 7356069,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121798,
+      "api_equivalent_usd": 3.1346,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 68,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.09,
+      "active_minutes": 21.09,
+      "model_minutes": 5.62,
+      "tool_minutes": 15.47,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "two mutation campaigns with triage, 17 tests, six calculator wording fixes, a new CI scan with its suite, and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 191.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
