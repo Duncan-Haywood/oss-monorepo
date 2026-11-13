@@ -1011,3 +1011,40 @@ At the extra-shift rate the firm showed, a free rebuild tells about 6 people a w
 Tests (`real-rate-week.test.mjs`): the draw is deterministic and covers Tuesday to Sunday; a quiet week changes nothing; a call-out from someone not working that day is not a reissue; an extra copy is covered or left open; on the salon template one Wednesday call-out under the kept reissue makes no more changes than a free rebuild at the same open hours. Time: 5.7-129 s per setting on one 4-core cloud machine, with the venture's test suite running beside it for part of the run.
 
 Not claimed: the rates come from one security firm's five weeks, applied to invented teams; call-outs are independent per person-day (real sickness clusters); sick leave rows may not all be short notice, and the 8.4% includes leave a manager knew of in advance; an extra shift is modelled as one more copy of a posted shift, the same times, announced the evening before, where the real unrostered rows had their own times and notice is unknown; the premium rule is invented. The cheapest-taker patch from "Reissue a posted week" is not played here.
+
+## Which of the tied best rosters holds up to a call-out? (2026-11-13)
+
+"A whole week of call-outs" (above) left open whether a schedule could keep slack for later call-outs. A first try handed future shifts to other people whenever that left someone free behind them, at a price per change. It moved nothing: on the sample café nearly every shift Tuesday to Sunday had nobody free to take it single-handed, so there was no slack to make. The slack is in a choice the search already makes blindly. Several rosters often tie at the best score: seeds 1-6 gave 6 distinct rosters on the café, retail and clinic templates and 5 on the salon, every one with the same score and the same payroll. The search hands back whichever it meets first.
+
+`calloutExposure(staff, slots, roster)` scores a roster by playing every person-day worked Tuesday to Sunday as one call-out, handled the way the product handles a reissue: announced 5pm the evening before, started shifts pinned (`pinStarted`), the rest rebuilt with the roster kept (`keepShift 1`). The open hours each adds, summed, are the exposure; times a per-person-day call-out rate it is, to first order, the open hours a week of call-outs costs. `steadyRoster` (CLI `--steady`, `--json` carries `steady`) builds seeds 1-6, keeps the rosters at the best score and posts the least exposed. Score, payroll and the manager's settings do not move by construction. The cost is time: one rebuild per person-day per tied roster (café 34 s, retail 10 s, clinic 15 s, salon 3 s on one cloud core).
+
+Exposure by seed on the templates: café 92 / 100 / 100 / 116 / 132 / 140 h; retail 24 / 24 / 24 / 30 / 30 / 30; clinic 30 / 30 / 30 / 30 / 45 / 45; salon 56 on all five; the spare-part-timer café has one best roster. Seed 1 is already the least exposed on every template, so nothing changes there; on someone's own week it need not be.
+
+**Does exposure predict real loss?** `node eval/steady-for-callouts.mjs` (`eval/steady-for-callouts.out.txt`) posts each tied roster and plays the 40 seeded weeks of "A whole week of call-outs" against it, same draws, kept reissues, at the four rate settings (call-outs 1.0% or 8.4% per person-day, extra copies 0 or 10.9%). Open hours the week's events add (final open hours minus posted), 40 weeks per cell:
+
+| team, setting | least exposed | average tie | most exposed | changes to others: least / average / most |
+|---|---|---|---|---|
+| café, 1.0% | **32** | 42.7 | 56 | 20 / 17 / 5 |
+| café, 1.0% + extras | 815 | 807 | 805 | 25 / 22 / 20 |
+| café, 8.4% | **291** | 318.8 | 356 | 116 / 100 / 65 |
+| café, 8.4% + extras | **1,051** | 1,073.8 | 1,099 | 131 / 96 / 47 |
+| retail, 1.0% | 10 | 10 | 10 | 18 / 16.5 / 15 |
+| retail, 1.0% + extras | **196** | 211.5 | 227 | 174 / 147 / 119 |
+| retail, 8.4% | **54** | 56 | 58 | 86 / 86 / 86 |
+| retail, 8.4% + extras | **282** | 296.5 | 311 | 212 / 202 / 193 |
+| clinic, 1.0% | **20** | 21.7 | 25 | 6 / 5 / 3 |
+| clinic, 1.0% + extras | **155** | 170 | 200 | 59 / 47 / 23 |
+| clinic, 8.4% | **85** | 90 | 100 | 52 / 40 / 17 |
+| clinic, 8.4% + extras | **313** | 324.7 | 348 | 72 / 58 / 31 |
+| total | **3,304** | 3,423 | 3,595 | 970 / 837 / 624 |
+
+The least-exposed roster added fewer open hours than the average tie on 10 of the 12 cells, the same on 1 and more on 1 (the café with extra shifts, where the extra copies swamp the call-outs). In total it cut added open hours by 3.5% against a random pick among the ties and 8.1% against the worst one. The first-order forecast holds on the café at the sick-only rate: exposure 92 x 0.01 x 40 weeks predicts 37 h, played 32; exposure 140 predicts 56, played 56. The salon is a control: five tied rosters, equal exposure, identical results in every cell.
+
+**The trade is changes.** The steadier roster leaves people free where a call-out lands, and the kept reissue then uses them, so it tells more people of a change: 970 changes to others in total against 837 for the average tie (+16%) and 624 for the most exposed. At 1 hour of pay per change that is the manager's call, which is why `--steady` is opt-in and the report says which call-outs would still leave hours open.
+
+**How much any lookahead could win.** The hindsight floor in the same run builds each week from scratch knowing every call-out and extra copy at the start; the seed-1 kept policy's final roster is one such roster, so no once-a-day policy facing those call-outs can end below it. On the café at 8.4% the kept reissue added 291 h against a floor of 182 h, so up to 109 h was avoidable with foresight, and the steady pick recovers about 28 h of that against the average tie. On the clinic at 8.4% the floor equals the kept policy (85 h): nothing was there to win. On the salon the floor equals every policy in every cell.
+
+Tests (`steady.test.mjs`): a one-person week loses every call-out's shift; a free second person makes exposure 0; on the café seeds 3 and 1 tie and the steady pick takes seed 1 (exposure 92 against 140) at the same score and payroll; a week with one best roster comes back unchanged; the CLI prints the call-out check and `--json` carries it.
+
+Not claimed: one call-out at a time (exposure is first order; two call-outs on one day interact); ties only come from varying the search seed, so a week whose best rosters the six seeds never meet is not searched for more; invented teams with rates from one firm's file; the seeds-1-6 choice is arbitrary. Not tried: exposure as a term inside the search (a slack price against payroll), which would trade score for steadiness instead of choosing among ties.
+

@@ -190,7 +190,7 @@ flagships:
       keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
       would post; a real 7shifts, When I Work or Homebase schedule export (a Deputy export and a retail WFM tool's
       initial/final week are read since 2026-11-13, README "Two real schedule exports"; search public repos by header row as
-      those were found); a reissue that keeps slack for later call-outs (lookahead at those rates; README, same section); a real multi-location Square or Toast export (planned as one shop today); whether the
+      those were found); slack for later call-outs: `--steady` (2026-11-13, README "Which of the tied best rosters holds up to a call-out?") picks the least-exposed of the tied best rosters, 3.5% fewer added open hours than an average tie at 16% more changes; next is exposure as a priced term inside the search (trade score for steadiness, not only choose among ties), the steady pick at each reissue and not only at posting, and the page's checkbox for it; a real multi-location Square or Toast export (planned as one shop today); whether the
       priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
