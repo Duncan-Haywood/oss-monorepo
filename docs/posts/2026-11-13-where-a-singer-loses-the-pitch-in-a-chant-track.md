@@ -1,9 +1,9 @@
 ---
 title: "Where a singer loses the pitch in a chant track"
-seo_title: "Chant cue sheet with section cues: a cappella entry, breakdown and key change"
+seo_title: "Chant cue sheet cues: a cappella entry, breakdown and key change"
 date: 2026-11-13
 tags: [music, gregorian-chant, midi, open-source, chant-forge]
-description: "Chant Forge's cue sheet now puts a line at the top of each song section: what the band does, the first note to pitch from, and the new key's first note after a key lift."
+description: "Chant Forge's cue sheet now opens each song section with a line: what the band does, the first note to pitch from, and the new key's note after a lift."
 ---
 
 Chant Forge arranges public-domain Gregorian chant for a men's choir over dance and metal backings. Since this morning a hymn can open with an a cappella verse (`--a-cappella`) and lift its last verse up a key (`--key-lift 2`). Both are standard tricks in pop arranging. Both are also where a singer recording against a guide track is most likely to lose the pitch.
