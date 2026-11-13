@@ -163,6 +163,80 @@ The studio page lists the six-verse Pange lingua and seven-verse Veni Creator as
 one-section pieces, so a breakdown could only be heard on pasted GABC); `eval/browser-e2e.mjs` checks the six-verse
 hymn shows a breakdown before its last drop: 77 checks, all pass.
 
+### A cappella first verse and a key lift (2026-11-13, latest)
+
+Two moves pop and dance arrangers reach for, now options on `--sections`:
+
+- `--a-cappella`: the first verse is the choir alone. No drums, bass or chords until that verse's last bar, where
+  the build's kick and snare roll bring the band in for the first drop. A chant with one section (no inner double
+  bar) is refused, since no drop follows.
+- `--key-lift N`: the last drop and the outro go up N semitones (2 = a whole tone, the "truck driver's" key change of
+  a final chorus). The build bar into that drop is already in the new key, so its approach chord resolves there. With
+  a whole-tone lift that chord stands on the old final: in Mixolydian it is the old tonic chord itself, in Dorian
+  the old tonic with a major third. The choir's line before the lift ends on the old final, so it sits on that root.
+  `--drone` (one note under everything) is refused with a lift.
+
+The lift is the one change here that can push singers out of their range, so it is checked. `--final` still names the
+song's key (the last drop sounds N higher); the lifted notes must stay inside the singing range, E2-E4 by default or
+`--range LOW-HIGH` in MIDI numbers, or the command stops and names the highest key that fits. `--suggest-final` and
+`--auto-final` count the lifted drop when `--key-lift` is given. To make that possible, the pitch choice now happens
+after bar fitting, half time and repeats (none of them change a pitch); seven sample commands without the new flags
+give byte-identical MIDI and text to before.
+
+```
+node cli.mjs corpus/pange-lingua-full.gabc --fit 8 --stretch --genre deep-house --sections --key-lift 2 --final 57 -o p.mid
+--key-lift 2 puts the last drop up to A4, above E4; use --final 52 or lower, --auto-final, a smaller lift, or --range
+node cli.mjs corpus/pange-lingua-full.gabc --fit 8 --stretch --genre deep-house --sections --key-lift 2 --suggest-final
+finals that fit E2-E4 with the last drop lifted 2: F#2 to E3; recommended --final 47 (B2)
+node cli.mjs corpus/pange-lingua-full.gabc --auto-final --fit 8 --stretch --genre deep-house --sections --intro 2 --outro 2 --a-cappella --key-lift 2 -o p.mid
+sections: Intro bar 1-2; Verse 1 (a cappella) bar 3-11 (build); Drop 1 bar 12-20; Verse 2 bar 21-29 (build); Drop 2 bar 30-38; Breakdown bar 39-47 (build); Drop 3 bar 48-56 (key up 2); Outro bar 57-58
+```
+
+Measured by `node eval/key-lift-check.mjs` (`eval/key-lift-check.md`): the rendered bass fundamental in each bar of
+the lifted Drop 3 against the Drop 2 bar at the same place in the loop, expected ratio 2^(2/12) = 1.1225:
+
+| genre | bars | median ratio | min | max | a cappella verse backing peak, bars after the first |
+|---|---|---|---|---|---|
+| deep house | 8 | 1.1216 | 1.1194 | 1.1222 | 0 (silent) |
+| EDM | 8 | 1.1239 | 1.1194 | 1.1239 | 0 (silent) |
+| hard rock | 8 | 1.1239 | 1.1194 | 1.1239 | 0 (silent) |
+| metal | 8 | 1.1203 | 1.1169 | 1.1236 | 0 (silent) |
+
+The spread is the autocorrelation's whole-sample lag at 22.05 kHz. The a cappella verse's first bar carries the
+intro's release tail (peak 0.008-0.09), which is a fade rather than a cut. The full lifted arrangement, rendered
+with `--lufs -14 --limit`, passes `master-cli.mjs`: -14.0 LUFS, -1.05 dBTP. `lift.test.mjs` (6 tests): the a cappella
+bars are empty in every genre and its build has kicks; with the lift, every bar before the build is unchanged,
+drums never move, bass and chords from the build on are exactly 2 semitones up; the lifted build chord's root is
+the old final; `liftEvents` raises exactly the last verse's notes; the CLI refusal's bound equals
+`--suggest-final`'s highest key and one semitone above it is refused; `--auto-final` keeps every note in E2-E4 for
+three multi-section pieces at lifts of 1-3. The studio page has "First verse" and "Last drop" switches (a
+one-section chant gets a note instead of an error); `eval/browser-e2e.mjs`: 82 checks, all pass. Whether a whole
+tone sounds like a lift or a lurch at these tempos, and whether singers can hold the lifted last verse after five
+others, are questions for a person and a choir.
+
+### Singer guidance in the cue sheet (2026-11-13)
+
+A singer learning the line against the guide track loses the pitch in three places: an a cappella verse with
+nothing under it, a breakdown where the drums and bass drop out, and the key change into the last drop. With
+`--sections`, `--cues FILE` now writes a guidance line above the first note of each section (`cues.mjs`
+`sectionCues`): what the band does under it, the first note and its interval from the last note sung, when the band
+comes in after an a cappella verse or comes back after a breakdown, and, for the lifted drop, the new key's first
+note next to the one it would have been. Without `--sections` the sheet is byte-for-byte what it was.
+
+```
+node cli.mjs corpus/pange-lingua-full.gabc --auto-final --fit 8 --stretch --genre deep-house --sections --intro 2 --outro 2 --a-cappella --key-lift 2 --cues cues.txt
+-- Verse 1 (a cappella), bar 3, 3.87 s: Choir alone, no backing. Come in after the 2-bar intro; first note B2 on "Pan": take it from a pitch pipe or the guide track. The band comes in on the build at bar 11 (19.35 s): hold your pitch, it will not move.
+-- Breakdown, bar 39, 73.55 s: Drums and bass drop out; you carry it over a held chord. First note B2 on "Tan", the same as your last note. The band is back at bar 48 (90.97 s).
+-- Drop 3, bar 48, 90.97 s: Full band, key up 2 semitones. First note C#3 on "Ge", a whole tone up from your last note (B2). In the old key it would be B2; the build bar before it plays the approach into the new key, so pitch from that.
+```
+
+The whole sheet is `eval/cues-sections-pange-lingua.txt` (318 note rows, 6 guidance lines). A section's line goes
+on the first note after the double bar that opens it, the same note `liftEvents` starts the lift on, so the last note
+of a verse that shares a bar with the next section stays under its own verse. `cues.test.mjs` (4 new tests, 8 in
+all): interval names, an unchanged sheet without a plan, one line per sung section with the drop's line on exactly
+the first lifted note, and the CLI sheet's rows unchanged in count with the line above bar 48. Whether singers find
+the lines useful, or would rather see them in a separate column, is for a choir to say.
+
 ## Mix and master check
 
 ```sh

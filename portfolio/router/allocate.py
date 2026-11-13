@@ -49,6 +49,9 @@ from typing import Optional
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from claim_check import claim_recipe  # noqa: E402
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES_DIR = REPO_ROOT / "ventures"
 LEDGER_DIR = REPO_ROOT / "portfolio" / "ledger"
@@ -475,6 +478,16 @@ MAINTAIN_TASK = (
 NO_HYPOTHESIS_PREFIX = "Explore: no hypothesis recorded"
 NO_HYPOTHESIS_ROWS = 3
 FLAGSHIP_NEXT_CHARS = 500
+# validate.py's FLAGSHIP_NEXT_MAX (test_allocate pins the two together). The
+# task line prints the current length against it: nothing a flagship run read
+# named the cap, and runs that appended to a full `next:` learned it from CI
+# (three run records on 2026-11-13).
+FLAGSHIP_NEXT_MAX = 2000
+
+
+def next_budget(v: "Venture") -> str:
+    """'1986 of 2000 characters' for a flagship's `next:`."""
+    return f"{len(v.flagship_next or '')} of {FLAGSHIP_NEXT_MAX} characters"
 
 
 def next_task(v: Venture) -> str:
@@ -497,7 +510,8 @@ def next_task(v: Venture) -> str:
             milestone = f"BUILDABLE HERE: {v.flagship_buildable} -- Context: {milestone}"
         return (
             f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
-            "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml."
+            "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml "
+            f"(now {next_budget(v)}, validate.py's cap: replace what you landed, don't append)."
         )
     if not v.measured:
         claim = v.untested_hypothesis
@@ -903,7 +917,8 @@ def venture_report(name: str, ventures: list[Venture],
                      + (f", inputs only: {v.flagship_inputs_only}" if v.flagship_inputs_only else ""))
         if v.flagship_buildable:
             lines.append("buildable here: " + v.flagship_buildable)
-        lines.append("next:")
+        lines.append(f"next: ({next_budget(v)}; portfolio/router/validate.py fails a longer one, "
+                     "so replace the item you land rather than appending)")
         lines.append(v.flagship_next or "(none written)")
     else:
         lines.append("task: " + next_task(v))
@@ -973,11 +988,12 @@ def print_table(ventures: list[Venture], queue: list[dict],
             "prints its full `next:`; a BUILDABLE HERE note says what a session can do with "
             "no outside input; if every item needs a key, account, person or blocked host, add "
             "`inputs_only:` to its portfolio/flagships.yaml row in your PR and take the next "
-            "row, so later runs are not sent there). Open your draft PR with the slug in its title as soon as "
-            "you pick: that title is the claim the next session's table reads. Then run "
+            "row, so later runs are not sent there). Open your draft PR with the slug in its title "
+            "before you read further: that title is the claim the next session's table reads. Then run "
             f"`python3 portfolio/router/claim_check.py {first[1]}`: two sessions that opened "
             "in the same minute both see this row free, and the PR opened first keeps it."
         )
+        print(claim_recipe(first[1]))
     print()
     print(
         f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}{'merit':>7}"

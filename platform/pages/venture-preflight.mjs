@@ -24,6 +24,10 @@
 //      preflight skips, and a slug in the catch-all section is printed as a
 //      note. New-venture runs met all three only in CI (run records
 //      2026-11-11 explore #14822, 2026-11-12 explore #14962).
+//      Also `portfolio/router/validate.py` (3 s) when the branch edits
+//      portfolio/flagships.yaml or a VENTURE.yaml: a flagship `next:` over its
+//      2000-character cap failed CI for runs that appended to it (three run
+//      records on 2026-11-13).
 //   4. The site's own tests, the same `node --test "*.test.mjs"
 //      "cloudflare/*.test.mjs"` glob CI's "Test the site builder" step runs,
 //      minus the two files that build the whole site (SITE_BUILD_TESTS, about
@@ -88,12 +92,29 @@ export function changedPostPaths(...outputs) {
   return [...seen].sort();
 }
 
-function changedPosts() {
+/** Paths under `pathspecs` this branch adds or edits, as diff + untracked text. */
+function changedText(...pathspecs) {
   const git = (args) => spawnSync('git', args, { cwd: ROOT, encoding: 'utf8' });
-  let diff = git(['diff', '--name-only', '--diff-filter=AM', 'origin/main', '--', 'docs/posts']);
-  if (diff.status !== 0) diff = git(['diff', '--name-only', '--diff-filter=AM', 'HEAD', '--', 'docs/posts']);
-  const untracked = git(['ls-files', '--others', '--exclude-standard', '--', 'docs/posts']);
-  return changedPostPaths(diff.stdout, untracked.stdout).filter((p) => fs.existsSync(path.join(ROOT, p)));
+  let diff = git(['diff', '--name-only', '--diff-filter=AM', 'origin/main', '--', ...pathspecs]);
+  if (diff.status !== 0) diff = git(['diff', '--name-only', '--diff-filter=AM', 'HEAD', '--', ...pathspecs]);
+  const untracked = git(['ls-files', '--others', '--exclude-standard', '--', ...pathspecs]);
+  return [diff.stdout, untracked.stdout];
+}
+
+function changedPosts() {
+  return changedPostPaths(...changedText('docs/posts')).filter((p) => fs.existsSync(path.join(ROOT, p)));
+}
+
+/** Whether the diff text names portfolio/flagships.yaml or a ventures/<slug>/VENTURE.yaml. */
+export function touchesRouterInputs(...outputs) {
+  return outputs.some((out) => (out || '').split('\n').some((line) =>
+    /^(portfolio\/flagships\.yaml|ventures\/[^/]+\/VENTURE\.yaml)$/.test(line.trim())));
+}
+
+/** null when validate.py passed; else its output. */
+export function routerProblem(status, output) {
+  if (status === 0) return null;
+  return `portfolio/router/validate.py (flagships.yaml / VENTURE.yaml):\n${output.trim().split('\n').map((l) => `      ${l}`).join('\n')}`;
 }
 
 export function postProblem(status, output) {
@@ -202,7 +223,7 @@ async function main(argv) {
 
   // The count checks take seconds and the build takes minutes, so answer
   // them first and stop early.
-  console.log('1b/3 hand-written counts (--check), inherited keys, section placement, changed posts\' front matter');
+  console.log('1b/3 hand-written counts (--check), inherited keys, section placement, changed posts\' front matter, router inputs');
   for (const check of COUNT_CHECKS) {
     const r = spawnSync('python3', [check.script, '--check'], { cwd: ROOT, encoding: 'utf8' });
     const problem = countProblem(check, r.status);
@@ -222,6 +243,11 @@ async function main(argv) {
   if (posts.length) {
     const r = spawnSync('python3', ['platform/ci/check_post_frontmatter.py', ...posts], { cwd: ROOT, encoding: 'utf8' });
     const problem = postProblem(r.status, (r.stdout || '') + (r.stderr || ''));
+    if (problem) failures.push(problem);
+  }
+  if (touchesRouterInputs(...changedText('portfolio/flagships.yaml', 'ventures/*/VENTURE.yaml'))) {
+    const r = spawnSync('python3', ['portfolio/router/validate.py'], { cwd: ROOT, encoding: 'utf8' });
+    const problem = routerProblem(r.status, (r.stdout || '') + (r.stderr || ''));
     if (problem) failures.push(problem);
   }
   if (!failures.length) {
