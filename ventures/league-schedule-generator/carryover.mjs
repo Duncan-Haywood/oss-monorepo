@@ -2014,6 +2014,66 @@ export function carryOverPolish(n, results, { seed = 1, count = CARRY_OVER_POLIS
 export const CARRY_OVER_POLISH = 4;
 
 /**
+ * Every way to re-deal the matches of rounds rs = [r, s, t] of a single round robin into three
+ * rounds, as [[pr, ps, pt], ...] partner arrays (pr[x] the team x meets in round r). The three
+ * rounds' matches form a cubic graph; a perfect matching of it is round r's, the rest is a union of
+ * cycles (one with an odd cycle cannot be split, so it is skipped), and each even cycle's two
+ * alternate halves go one to round s and one to round t, so the list is complete: every ordered 1-factorisation, the current one included. Stops at `cap`.
+ * The neighbourhood behind "round re-solves" (README "Re-dealing three rounds at once").
+ */
+export function threeRoundDeals(opp, rs, cap = 20000) {
+  const N = opp[0].length;
+  const adj = Array.from({ length: N }, (_, x) => rs.map((q) => opp[q][x]));
+  const out = [];
+  const m = new Int32Array(N).fill(-1);
+  const deal = () => {
+    // the rest: each vertex has two unused neighbours; walk the cycles
+    const ps = new Int32Array(N).fill(-1), pt = new Int32Array(N).fill(-1);
+    const cycles = [], seen = new Uint8Array(N);
+    for (let v = 0; v < N; v++) {
+      if (seen[v]) continue;
+      const cyc = [v]; seen[v] = 1;
+      let prev = -1, x = v;
+      for (;;) {
+        const nb = adj[x].filter((y) => y !== m[x]);
+        const nx = nb[0] !== prev ? nb[0] : nb[1];
+        if (nx === v) break;
+        if (seen[nx]) break;
+        seen[nx] = 1; cyc.push(nx); prev = x; x = nx;
+      }
+      if (cyc.length % 2) return; // an odd cycle cannot split into two rounds
+      cycles.push(cyc);
+    }
+    const c = cycles.length;
+    for (let mask = 0; mask < 1 << c && out.length < cap; mask++) {
+      for (let k = 0; k < c; k++) {
+        const cyc = cycles[k], L = cyc.length, flip = (mask >> k) & 1;
+        for (let i = 0; i < L; i++) {
+          const a = cyc[i], b = cyc[(i + 1) % L];
+          const toS = (i % 2 === 0) !== !!flip;
+          if (toS) { ps[a] = b; ps[b] = a; } else { pt[a] = b; pt[b] = a; }
+        }
+      }
+      out.push([Int32Array.from(m), Int32Array.from(ps), Int32Array.from(pt)]);
+    }
+  };
+  const walk = () => {
+    if (out.length >= cap) return;
+    let v = 0;
+    while (v < N && m[v] >= 0) v++;
+    if (v === N) { deal(); return; }
+    for (const u of adj[v]) {
+      if (m[u] >= 0 || u === v) continue;
+      m[v] = u; m[u] = v;
+      walk();
+      m[v] = -1; m[u] = -1;
+    }
+  };
+  walk();
+  return out;
+}
+
+/**
  * A single round robin's timetable searched with its breaks priced exactly (README "Pricing the
  * break floor"). squeezeSingleRounds moves the timetable with every match's ground carried along, so
  * a timetable move that would need other grounds looks worse than it is. Here the grounds are not
@@ -2030,7 +2090,7 @@ export const CARRY_OVER_POLISH = 4;
  * Returns the shape squeezeSingleRounds does, plus { floor, leastProved, floorPriced: true }, or null
  * when no balanced choice was found for any kept timetable.
  */
-export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 60, iterations = 3000, timeMs = Infinity, keep = 6 } = {}) {
+export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 60, iterations = 3000, timeMs = Infinity, keep = 6, deals = 0, dealFloors = 3 } = {}) {
   if (!Number.isInteger(n) || n < 4 || n > 25) throw new Error("A floor-priced season needs 4 to 25 teams.");
   if (!Number.isInteger(maxBreaks) || maxBreaks < 0) throw new Error("maxBreaks must be a whole number of 0 or more.");
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
@@ -2055,10 +2115,45 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
   remember();
   const T0 = Math.max(2, coe / (N * 16));
   const t0 = Date.now();
-  let floors = 0, it = 0;
+  let floors = 0, it = 0, dealt = 0;
   for (; it < iterations; it++) {
     if ((it & 15) === 0 && Date.now() - t0 > timeMs) break;
     const T = T0 * (1 - it / iterations) + 0.05;
+    if (deals && rand() < deals) {
+      // re-deal three rounds' matches (threeRoundDeals): every other deal is scored on carry-over,
+      // the `dealFloors` least under the acceptance line are priced on the floor, the cheapest
+      // within the line is taken
+      const rs = [];
+      while (rs.length < 3) { const q = Math.floor(rand() * R); if (!rs.includes(q)) rs.push(q); }
+      const line = cur - T * Math.log(rand() || 1e-12);
+      const was = rs.map((q) => opp[q].slice());
+      const put = (d) => { for (let j = 0; j < 3; j++) opp[rs[j]].set(d[j]); };
+      const scored = [];
+      for (const d of threeRoundDeals(opp, rs)) {
+        if (d.every((p, j) => p.every((y, x) => y === was[j][x]))) continue;
+        put(d);
+        const nc = coeOf(opp, n, false);
+        if (nc <= line) scored.push({ d, nc });
+      }
+      put(was);
+      scored.sort((a, b) => a.nc - b.nc);
+      const lo = Math.min(...rs);
+      let take = null;
+      for (const c of scored.slice(0, dealFloors)) {
+        put(c.d);
+        const nf = table.trial(lo); floors++;
+        const v = costOf(c.nc, nf);
+        if (v <= line && (!take || v < take.v)) take = { ...c, nf, v };
+        put(was);
+      }
+      if (take) {
+        put(take.d); table.trial(lo); table.commit();
+        cur = take.v; coe = take.nc; fl = take.nf; dealt++;
+        remember();
+        if (fl < fallback.fl || (fl === fallback.fl && coe < fallback.coe)) fallback = { coe, fl, opp: opp.map((o) => o.slice()) };
+      }
+      continue;
+    }
     const r = Math.floor(rand() * R);
     let s = Math.floor(rand() * (R - 1)); if (s >= r) s++;
     const k = rand();
@@ -2115,7 +2210,7 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
   });
   let breaks = 0;
   for (let t = 0; t < n; t++) breaks += teamBreaks(x.venues, c.opp, t, n);
-  return { rounds, coe: c.coe, circleCoe: start.circleCoe, lowerBound: start.lowerBound, breaks, floor: x.floor, leastProved: x.proved, maxBreaks, iterations: it, floors, floorPriced: true };
+  return { rounds, coe: c.coe, circleCoe: start.circleCoe, lowerBound: start.lowerBound, breaks, floor: x.floor, leastProved: x.proved, maxBreaks, iterations: it, floors, dealt, floorPriced: true };
 }
 
 /** Floor-priced seasons the page adds after its regrounded ones, at most (carryOverFloorPriced). */

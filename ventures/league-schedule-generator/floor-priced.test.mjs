@@ -3,7 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { floorTable, leastBreaks, countBreaks } from "./orient.mjs";
-import { floorPricedSingleRounds, carryOverTry, carryOver, circleOpp } from "./carryover.mjs";
+import { floorPricedSingleRounds, threeRoundDeals, carryOverTry, carryOver, circleOpp } from "./carryover.mjs";
 import { mulberry32 } from "./calc.mjs";
 
 const coeOf = (rounds, n) => carryOver({ teams: Array.from({ length: n }, (_, i) => i), rounds }).value;
@@ -123,4 +123,80 @@ test("bestCarryOverRounds keeps its choice with floor-priced seasons, and buildS
   assert.deepEqual(validateSchedule(s).errors, []);
   assert.equal(s.carryOverSearch.chosen, at);
   assert.equal(s.stats.carryOver.value, listed.coe);
+});
+
+// Re-dealing three rounds at once (README "Re-dealing three rounds at once", threeRoundDeals).
+
+test("threeRoundDeals lists every way to re-deal three rounds, the current one included", () => {
+  for (const N of [6, 8, 10, 12]) {
+    const opp = circleOpp(N).map((o) => Int16Array.from(o));
+    const R = opp.length, rand = mulberry32(N * 31 + 5);
+    for (let i = 0; i < 8; i++) {
+      const rs = [];
+      while (rs.length < 3) { const q = Math.floor(rand() * R); if (!rs.includes(q)) rs.push(q); }
+      const deals = threeRoundDeals(opp, rs);
+      assert.ok(deals.length >= 1, `${N} teams, rounds ${rs}: no deal`);
+      const was = rs.map((q) => opp[q]);
+      const keys = new Set();
+      for (const d of deals) {
+        assert.equal(d.length, 3);
+        for (const p of d) {
+          for (let x = 0; x < N; x++) {
+            assert.equal(p[p[x]], x, "a partner array pairs both ways");
+            assert.notEqual(p[x], x, "nobody plays themselves");
+          }
+        }
+        // every team keeps its three opponents of these rounds, one in each round
+        for (let x = 0; x < N; x++) {
+          const got = [d[0][x], d[1][x], d[2][x]].slice().sort((a, b) => a - b);
+          const had = rs.map((q) => opp[q][x]).sort((a, b) => a - b);
+          assert.deepEqual(got, had, `${N} teams, team ${x}`);
+        }
+        keys.add(d.map((p) => p.join(",")).join(";"));
+      }
+      assert.equal(keys.size, deals.length, "no deal listed twice");
+      assert.ok(keys.has(was.map((p) => [...p].join(",")).join(";")), "the rounds as they are are one of the deals");
+    }
+  }
+});
+
+test("threeRoundDeals keeps a valid round robin, and its cap holds", () => {
+  const n = 10, opp = circleOpp(n).map((o) => Int16Array.from(o));
+  const rs = [0, 4, 7];
+  const deals = threeRoundDeals(opp, rs);
+  for (const d of deals.slice(0, 20)) {
+    const trial = opp.map((o) => Int16Array.from(o));
+    for (let j = 0; j < 3; j++) trial[rs[j]].set(d[j]);
+    const seen = new Set();
+    for (const rd of trial) for (let x = 0; x < n; x++) if (x < rd[x]) seen.add(`${x}-${rd[x]}`);
+    assert.equal(seen.size, (n * (n - 1)) / 2, "every pair still meets exactly once");
+  }
+  assert.ok(threeRoundDeals(opp, rs, 3).length <= 3, "the cap stops the list");
+});
+
+test("floorPricedSingleRounds with re-deals stays valid and seeded", () => {
+  const n = 12, start = carryOverTry(n, 0, { seed: 1, weighted: 8 });
+  const opts = { seed: 4, maxBreaks: 20, iterations: 300, deals: 0.2 };
+  const a = floorPricedSingleRounds(n, start, opts);
+  const b = floorPricedSingleRounds(n, start, opts);
+  assert.ok(a, "a season came back");
+  assert.deepEqual(JSON.stringify(b.rounds), JSON.stringify(a.rounds), "same seed, same season");
+  const seen = new Set();
+  for (const rd of a.rounds) {
+    const played = new Set();
+    for (const [h, v] of rd.matches) {
+      assert.ok(!played.has(h) && !played.has(v), "nobody plays twice in a round");
+      played.add(h); played.add(v);
+      seen.add([h, v].sort((x, y) => x - y).join("-"));
+    }
+  }
+  assert.equal(seen.size, (n * (n - 1)) / 2, "every pair meets once");
+  const home = new Array(n).fill(0), away = new Array(n).fill(0);
+  for (const rd of a.rounds) for (const [h, v] of rd.matches) { home[h]++; away[v]++; }
+  for (let t = 0; t < n; t++) assert.ok(Math.abs(home[t] - away[t]) <= 1, `team ${t} balanced`);
+  assert.equal(a.coe, coeOf(a.rounds, n), "carry-over recounted");
+  const oppA = oppOf(a.rounds, n);
+  const venA = a.rounds.map((rd) => { const v = new Uint8Array(n); for (const [h] of rd.matches) v[h] = 1; return v; });
+  assert.equal(a.breaks, countBreaks(venA, oppA, n), "breaks recounted");
+  assert.ok(a.dealt > 0, "some moves were re-deals");
 });
