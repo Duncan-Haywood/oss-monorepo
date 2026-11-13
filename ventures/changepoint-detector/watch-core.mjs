@@ -3,6 +3,7 @@
 // watch.mjs adds the state file, the CSV URL, the webhook and the exit code around it.
 
 import { analyze, parseSeries, peaks } from './engine.mjs';
+import { driftLevel } from './drift-level.mjs';
 
 // Defaults chosen on synthetic streams only (eval/watch-replay.mjs, eval/watch-replay.out.txt), then
 // scored once on the TCPD series without changing them (same file, "TCPD replay").
@@ -30,7 +31,10 @@ export const WATCH_DEFAULTS = { confirm: 5, tolerance: 5, window: 1000, detector
 export const defaultDetector = (model = 'mean') => (model === 'mean' ? WATCH_DEFAULTS.detector : 'bocpd');
 
 const STATE_VERSION = 1;
-export const DETECTORS = ['bocpd', 'bocpd-window', 'bocpd-ar1', 'bocpd-ar1-window', 'pelt'];
+// 'drift': jumps on a wandering level (drift-level.mjs, `--model drift`: a local-level model whose random-walk wander and
+// noise are estimated from the window, jumps placed by penalised likelihood). For a series whose level drifts all the time,
+// where the level detectors alert on the wander itself. Round 8 (eval/watch-drift.mjs, rule pre-registered there).
+export const DETECTORS = ['bocpd', 'bocpd-window', 'bocpd-ar1', 'bocpd-ar1-window', 'pelt', 'drift'];
 
 export function emptyState() {
   return { version: STATE_VERSION, alerted: [], n: 0, lastLabel: null };
@@ -42,7 +46,8 @@ export function emptyState() {
  */
 export function detectChanges(values, labels, opts = {}) {
   const d = opts.detector ?? defaultDetector(opts.model ?? 'mean');
-  if (d.startsWith('bocpd-ar1') && (opts.model ?? 'mean') !== 'mean') throw new Error(`--detector ${d} is for the level model (--model mean) only.`);
+  if ((d.startsWith('bocpd-ar1') || d === 'drift') && (opts.model ?? 'mean') !== 'mean') throw new Error(`--detector ${d} is for the level model (--model mean) only.`);
+  if (d === 'drift') return detectDrift(values, labels, opts);
   const all = detectBoth(values, labels, { ...opts, detector: d });
   if (!all[d]) throw new Error(`Unknown detector ${d}.`);
   return all[d];
@@ -72,6 +77,22 @@ export function detectBoth(values, labels, opts = {}) {
     Object.assign(out, bayesLists(analyze({ ...engine, values: v, labels: l, ar1: true, ...(rhoCap != null ? { ar1RhoCap: rhoCap } : {}) }), map, '-ar1'));
   }
   return out;
+}
+
+/** The drift detector's jumps in the newest `window` points, with the smoothed level on each side (meanBefore/After). */
+export function detectDrift(values, labels, opts = {}) {
+  const { window, log, penalty } = { ...WATCH_DEFAULTS, ...opts };
+  const off = Math.max(0, values.length - window);
+  let v = values.slice(off);
+  if (log) { if (v.some((x) => !(x > 0))) throw new Error('--log needs every value above zero.'); v = v.map(Math.log); }
+  if (v.length < 10) return [];
+  const r = driftLevel(v, { noise: 'ml', ...(typeof penalty === 'number' ? { penalty } : {}) });
+  const back = (x) => (log ? Math.exp(x) : x);
+  return r.changes.map((c) => ({
+    index: c.index + off, label: labels[c.index + off],
+    meanBefore: back(c.before), meanAfter: back(c.after), shift: back(c.after) - back(c.before),
+    ...(Number.isFinite(c.jumpSd) ? { shiftInNoiseSd: c.jumpSd } : {}),
+  }));
 }
 
 // The Bayesian detections of one engine run, with the levels on each side, as { bocpd<suffix>, bocpd<suffix>-window }.
