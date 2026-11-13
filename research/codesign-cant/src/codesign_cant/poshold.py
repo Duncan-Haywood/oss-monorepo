@@ -67,7 +67,7 @@ def reference(episodes, seed):
     return yaw, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign
 
 
-def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF):
+def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd"):
     """gains (N,9) physical: attitude PID roll/pitch kp, kd, ki; yaw kp, kd, ki; position kp, kd, ki.
     Hold the origin from a random offset while yaw steps +-30 deg and the mean wind steps at 3 s. Roll and pitch references come from
     the position loop; every torque request passes the attitude-priority mixer with the collective held at hover.
@@ -81,6 +81,10 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     does in `aero`), turns it into the side force lat * tau, low-passes it with time constant tau_ff and subtracts it from the
     horizontal acceleration the tilt has to make: the vehicle leans against its own side force. It uses only the previous step's
     command (causal) and the nominal plant (the randomised mass, lag and torque scale are unknown to it). ff = 0 is milestones 6/6b.
+    ff_mode="integ" (milestone 7b) feeds forward only the steady part: the attitude integrator's torque ki * integ * tau_max_nom
+    (the controller's own estimate of the gust torque it is holding off), from the previous step, with no filter (tau_ff unused).
+    The proportional and derivative torque, which follow the tilt reference within the motor lag, are left out, so no fast loop
+    "tilt reference -> torque -> side force -> tilt reference" closes.
     Returns per design: RMS position error (m) over the episode, over the last 3 s (after the wind step), RMS yaw error (deg),
     RMS roll/pitch tracking error (deg), and the share of episodes that diverged."""
     yaw_ref, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign = reference(episodes, seed)
@@ -122,6 +126,9 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         c, s_ = np.cos(psi), np.sin(psi)
         ab_x = c * acc[:, :, 0] + s_ * acc[:, :, 1]
         ab_y = -s_ * acc[:, :, 0] + c * acc[:, :, 1]
+        if ff and ff_mode == "integ":
+            tq_i = np.clip(ki * integ, -1, 1) * tmax_nom[:, None, :]
+            f_ff = np.stack([lat * tq_i[:, :, 1], lat * tq_i[:, :, 0]], -1)
         if ff:
             ab_x = ab_x - ff * f_ff[:, :, 0] / m_nom
             ab_y = ab_y - ff * f_ff[:, :, 1] / m_nom
@@ -136,7 +143,7 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         if sat is not None:
             sat[:, 0] += (s_rp < 1 - 1e-9).mean(axis=1) / STEPS
             sat[:, 1] += (s_y < 1 - 1e-9).mean(axis=1) / STEPS
-        if ff:
+        if ff and ff_mode == "cmd":
             tq_hat = np.clip(tq_hat + (mixed - tq_hat) * (A.DT / lag_nom), -tmax_nom[:, None, :], tmax_nom[:, None, :])
             f_ff += (np.stack([lat * tq_hat[:, :, 1], lat * tq_hat[:, :, 0]], -1) - f_ff) * b_ff
         tq += (mixed * pl["tau"][None, :, None] - tq) * (A.DT / lag)
@@ -176,19 +183,19 @@ def phys_gains(g):
     return np.concatenate([A.ctrl_gains(g[:, :6], "pid"), 10 ** (POS_LO + np.clip(g[:, 6:9], 0, 1) * (POS_HI - POS_LO))], axis=1)
 
 
-def score(x, episodes=8, seed=0, alpha_max=np.deg2rad(80.0), kappa_per_d=0.081, lam=0.03, couple=True, gust_std=4.0, wind_step=WIND_STEP, parts=False, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF):
+def score(x, episodes=8, seed=0, alpha_max=np.deg2rad(80.0), kappa_per_d=0.081, lam=0.03, couple=True, gust_std=4.0, wind_step=WIND_STEP, parts=False, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd"):
     """x (N,12): arm length, propeller diameter, cant (unit cube), six attitude PID gains, three position gains (unit cube);
     an optional 13th coordinate sets tau_ff log-uniformly on TAU_FF_RANGE (milestone 7).
     J = -C - lam * P_hover / 100 W with C = sqrt((pos/0.10 m)^2 + (yaw/10 deg)^2); lam = 0.03 per 100 W is milestone 4's 0.3 deg per
     100 W, since one unit of C is 10 deg of yaw error. -99 when infeasible ($300 cap, propellers clear)."""
     x = np.atleast_2d(x)
-    if x.shape[1] == 13:                # milestone 7: the 13th coordinate is the feed-forward filter constant, log-uniform
+    if x.shape[1] == 13 and ff_mode == "cmd":                # milestone 7: the 13th coordinate is the feed-forward filter constant, log-uniform
         tau_ff = TAU_FF_RANGE[0] * (TAU_FF_RANGE[1] / TAU_FF_RANGE[0]) ** np.clip(x[:, 12], 0, 1)
     L = A.L_RANGE[0] + x[:, 0] * (A.L_RANGE[1] - A.L_RANGE[0])
     D = A.D_RANGE[0] + x[:, 1] * (A.D_RANGE[1] - A.D_RANGE[0])
     alpha = alpha_max * np.clip(x[:, 2], 0, 1)
     sz = A.size(L, D, alpha, kappa_per_d=kappa_per_d, actuator="hover")
-    out = rollout(sz, phys_gains(x[:, 3:12]), kappa_per_d * D, episodes, seed, gust_std, couple=couple, wind_step=wind_step, sat=sat, dist_sign=dist_sign, lever_scale=lever_scale, ff=ff, tau_ff=tau_ff)
+    out = rollout(sz, phys_gains(x[:, 3:12]), kappa_per_d * D, episodes, seed, gust_std, couple=couple, wind_step=wind_step, sat=sat, dist_sign=dist_sign, lever_scale=lever_scale, ff=ff, tau_ff=tau_ff, ff_mode=ff_mode)
     C = np.sqrt((out["pos"] / POS_SCALE_M) ** 2 + (out["yaw"] / YAW_SCALE_DEG) ** 2)
     J = np.where(sz["feasible"], -C - lam * sz["power"] / 100.0, -99.0)
     return (J, sz, out) if parts else (J, sz)

@@ -4,9 +4,24 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 **Live page:** https://marisstella.app/research/codesign-cant/
 
-![Left: late-window position error after a wind step on the axis the canted rotor's side force hurts (circles) and the one it helps (squares), without the feed-forward, with it added to milestone 6b's designs, and retrained with it. Middle: share of held-out episodes that diverge against the feed-forward's filter constant; stars are the retrained designs at the filter CMA-ES chose. Right: composite J of the retrained feed-forward designs minus milestone 6b's canted and uncanted designs, paired by seed.](experiments/m7_ff/m7_ff.png)
+![Left: late-window position error after a wind step on the axis the canted rotor's side force hurts (circles) and the one it helps (squares), for milestone 6b's designs without a feed-forward, milestone 7's commanded-torque feed-forward, the integrator feed-forward added to 6b's designs, and designs retrained with it. Middle: diverged held-out episodes (6 seeds of 64) at lever 1 and 2. Right: composite J of the retrained integrator feed-forward designs minus milestone 6b, milestone 7 and no cant, paired by seed.](experiments/m7b_integ/m7b_integ.png)
+
+## Milestone 7b: a side-force feed-forward from the attitude integrator alone
+
+**Question.** Milestone 7's feed-forward predicted the side force from the whole commanded torque and diverged on a few flights, because the proportional and derivative torque closed a fast loop through the motor lag. The steady side force comes from the steady counter-torque to the gust, which the attitude integrator already estimates. Does a feed-forward from the integrator alone (`poshold.rollout(ff_mode="integ")`, no filter, no new sensor) keep the fix and drop the divergences?
+
+**Headline (`experiments/m7b_integ/results.txt`; simulated, 6 seeds, best of two CMA-ES starts, retrained with it, both rigid geometries; 9 predictions committed first).**
+
+- **Centre of pressure above the centre of mass: yes.** Retrained with it, no held-out episode diverges at lever 0 or 1 (milestones 6b and 7: one each), the hurt/helped late-window ratio is 0.83 (2.06 with it switched off on the same designs), and at lever 2 15 of 384 episodes diverge against 23 (6b) and 19 (milestone 7). Mean J −1.58 against −1.68 and −1.67, though by sign only 2 and 1 of 6 seeds are better: the mean gain is the rare divergence the others had.
+- **Below: nearly inert, and harmless.** Those designs barely use their integrator (ki/kp 0.05–0.28 per s against 3.7–12.6 above; `experiments/m7b_integ/diag.txt`), so it sees little of the side force: ratio 2.04 against 3.01 off. No more divergences than without it, and 2 against milestone 7's 8.
+- **Never bolt it onto an existing tune.** Added to milestone 6b's integrator-heavy `above` designs without retraining, it diverges on 23% of held-out episodes even with no gust torque: the integrator path also closes a loop, slowly. A simple quasi-steady runaway criterion did not explain which designs diverge; ki/kp did (post hoc).
+- **Cant still pays:** yaw −5.2° and −7.7° against no cant, J better in 6 of 6 seeds in both geometries; chosen cant 31–33°.
+- Predictions: T6 and T7 held in both geometries, T4 held on means only; T2, T3, T8 and T9 held above and failed below; T1 failed in both and T5 failed above.
+
 
 ## Milestone 7: can the flight controller cancel the side force itself? A position-loop feed-forward
+
+![Left: late-window position error after a wind step on the axis the canted rotor's side force hurts (circles) and the one it helps (squares), without the feed-forward, with it added to milestone 6b's designs, and retrained with it. Middle: share of held-out episodes that diverge against the feed-forward's filter constant; stars are the retrained designs at the filter CMA-ES chose. Right: composite J of the retrained feed-forward designs minus milestone 6b's canted and uncanted designs, paired by seed.](experiments/m7_ff/m7_ff.png)
 
 **Question.** Milestone 6b found that on a rigid frame the canted rotor's side force hurts position hold along one horizontal axis. The mixer cannot cancel it (four rotors, four commands), but the controller knows lat, its own commanded torque and its nominal motor lag. If the position loop predicts the side force and leans against it, does the penalty go away?
 
@@ -125,7 +140,7 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 ```bash
 cd research/codesign-cant
 PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
-"$PY" -m pytest -q tests                        # 38 tests; the 9 in test_rotorpy_twin.py skip without RotorPy
+"$PY" -m pytest -q tests                        # 32 tests; the ones in test_rotorpy_twin.py skip without RotorPy
 "$PY" experiments/m1_allocation/run.py          # about 9 minutes on 4 cores; results.txt, results.json
 "$PY" experiments/m1_allocation/figure.py       # m1_allocation.png
 "$PY" experiments/m2_polytope/run.py            # about 20 minutes on 4 cores
@@ -142,6 +157,11 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
 "$PY" experiments/m5_rotorpy/run.py             # about 60 minutes on 4 cores; M5_EP=4 M5_ONLY=0,10 for a smoke run
 "$PY" experiments/m5_rotorpy/noise_ceiling.py   # under a minute; post-hoc self-agreement of the stylised simulator
 "$PY" experiments/m5_rotorpy/figure.py          # m5_rotorpy.png
+"$PY" experiments/m7_ff/run.py                  # about 40 minutes on 4 cores; SMOKE=1 for a pipeline check
+"$PY" experiments/m7_ff/figure.py               # m7_ff.png
+"$PY" experiments/m7b_integ/run.py              # about 50 minutes on 4 cores; SMOKE=1 for a pipeline check (never the held-out seed)
+"$PY" experiments/m7b_integ/diag.py             # seconds; post-hoc gain diagnostic, diag.txt
+"$PY" experiments/m7b_integ/figure.py           # m7b_integ.png
 ```
 
 ## Limitations
@@ -149,13 +169,14 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
 - Milestone 1's arms use a per-axis torque box. Milestone 2's polytope mixer has TWR fixed at 2, where a hover-held mixer has the least room. The power price λ is a modelling choice, swept from 0 to 1° per 100 W, not a measured mission value.
 - Under the polytope mixer the search landscape is multimodal, so single-start results are unreliable. Three starts were used only for four arms.
 - Milestone 4 uses one power price and TWR 2; its INDI has no adaptive effectiveness estimation, and the geometric law no feed-forward (the references are steps).
+- Milestones 7 and 7b use a feed-forward of fixed gain 1. Milestone 7b's explanation of which designs diverge (the integral-to-proportional gain ratio) is post hoc and rests on two design families; no stability analysis of the full loop was done.
 - Milestone 6's translation model (drag, noise, perfect altitude hold, one wind state driving both the drag and the disturbance torque) is inherited and assumed. Milestone 6b derives the rigid-frame signs and retrains under them, but the centre-of-pressure lever is still assumed (0.05 + 0.3 L, swept 0–2×), the gust torque goes from world-frame wind straight to body axes, and lever 2 was not retrained. Six seeds, two starts.
 - Milestone 5 re-scores designs without retuning them in RotorPy; its aerodynamic coefficients are the Hummingbird's scaled by momentum-theory exponents, not measured for these propellers; the altitude loop is assumed; 32 episodes.
 - Attitude steps only (milestones 1–4), 2 s episodes, five seeds (ten in milestone 4), one κ. The mass, cost and motor fits and the plant ranges are inherited assumptions, not catalogue data. No hardware.
 
 ## Next steps
 
-Milestone 6b follow-up: a mixer feed-forward that cancels the counter-torque's side force (the mixer knows lat), or a cant pattern whose side-force map is a rotation, so neither axis is singled out; a measured centre-of-pressure height for a real frame (wind-tunnel or CFD literature) to pin the lever. Milestone 3: motor catalogue data replacing the inherited fits, with TWR free under the polytope mixer. It needs a source this session could not reach (T-Motor's thrust tables are images and its store blocks the proxy); a transcription of a dozen datasheets with the source of each row would unblock it. Milestone 5 follow-up: retune the top designs inside RotorPy to separate model mismatch from overfitting to the stylised simulator, and give INDI a speed-lag actuator model. Then the paper draft (milestone 7) (`PROPOSAL.md`, "Milestones").
+Milestone 7b follow-up: a linearised stability analysis of the attitude-plus-position loop with the integrator feed-forward, giving a ki/kp ceiling as a function of lat and motor lag that can be checked against the 36 designs here; training with a divergence penalty. Milestone 6b follow-up: a mixer feed-forward that cancels the counter-torque's side force (the mixer knows lat), or a cant pattern whose side-force map is a rotation, so neither axis is singled out; a measured centre-of-pressure height for a real frame (wind-tunnel or CFD literature) to pin the lever. Milestone 3: motor catalogue data replacing the inherited fits, with TWR free under the polytope mixer. It needs a source this session could not reach (T-Motor's thrust tables are images and its store blocks the proxy); a transcription of a dozen datasheets with the source of each row would unblock it. Milestone 5 follow-up: retune the top designs inside RotorPy to separate model mismatch from overfitting to the stylised simulator, and give INDI a speed-lag actuator model. Then the paper draft (milestone 7) (`PROPOSAL.md`, "Milestones").
 
 ## Owner steps
 
