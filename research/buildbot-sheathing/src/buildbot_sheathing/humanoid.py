@@ -218,6 +218,24 @@ def max_press(rob, d0, hand_xz, mu_l=None, mu_w=0.4, carry_kg=0.0, mu_foot=0.6, 
     return lo, why
 
 
+def max_side_push(rob, d0, hand_xz, f_n=0.0, mu_foot=0.6, hi=1500.0, tol=1.0):
+    """Largest force (N) the hands can push along the wall (the robot's y), while pressing f_n
+    into it, at hand_xz (milestone 9: pushing a bowed stud onto its line). Returns (F or None,
+    limiting reason)."""
+    ok, why, q, _ = hold(rob, d0, hand_xz, [-f_n, 0.0, 0.0], 0.0, mu_foot)
+    if not ok:
+        return None, why
+    lo = 0.0
+    while hi - lo > tol:
+        mid = (lo + hi) / 2
+        ok2, w2, q2, _ = hold(rob, d0, hand_xz, [-f_n, -mid, 0.0], 0.0, mu_foot, q)
+        if ok2:
+            lo, q = mid, q2
+        else:
+            hi, why = mid, w2
+    return lo, why
+
+
 def gains(rob, scale=1.0, released=()):
     """kp per dof (base dofs = 0) from GAINS by joint-name keyword; `released` keywords get 0."""
     import mujoco

@@ -225,6 +225,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
 8. **Paper draft** (done 2026-11-12, `paper/draft.md`): the article for *Automation in Construction*
    in its structure, with `paper/check_numbers.py` tying each quoted figure to its results file.
    Still open: the Elsevier LaTeX template, the unconfirmed citations and authorship.
+9. **Straighten the joint stud instead of doubling it** (done 2026-11-13, `experiments/m9_straighten/`):
+   a mid-height push onto the line takes 48 E I b / L³, a median of 28 N and a 99th percentile of
+   126 N at the published warp (376 N at the grade limit), which a stock G1 can just manage
+   (81–88 N sideways, covering 93% of low-warp studs). It lifts single-2x clean sheets from 0.56
+   to 0.71 (low warp) and 0.31 to 0.68 (high), but not to 95%: on straight studs the same pipeline
+   gives 0.74, so the sheet's pose, not bow, is the remaining cap. Still open: a mock-up push to
+   pin the end restraint, and whether a pushed stud stays put between sheets.
 
 ## Target venue
 

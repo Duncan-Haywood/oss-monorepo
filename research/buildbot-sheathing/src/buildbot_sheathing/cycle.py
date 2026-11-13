@@ -86,11 +86,13 @@ def ledger_draw(s_corner=0.5 * MM, panel_frac=1.0, residual=None, rock_draw=None
 
 def clean_cell(framing="2x2x", policy="single", placement="ledger", warp="low", recoil="none",
                s_x=1 * MM, s_theta=math.radians(0.25), s_corner=0.5 * MM, panel_frac=1.0,
-               trials=20000, seed=7, s_read=0.5 * MM, s_edge=0.5 * MM, residual=None, rock_draw=None):
-    """First-pass clean sheets and missed nails for one pipeline (milestone 4's model)."""
+               trials=20000, seed=7, s_read=0.5 * MM, s_edge=0.5 * MM, residual=None, rock_draw=None,
+               straighten=None):
+    """First-pass clean sheets and missed nails for one pipeline (milestone 4's model);
+    ``straighten`` (milestone 9) pushes both joint studs toward their line first."""
     kw = dict(trials=trials, seed=seed, policy=policy, band=band(), joint_band=band(FRAMING[framing]),
               s_robot=tool_scatter(recoil), s_read=s_read, s_edge=s_edge, s_x=s_x, aim="edge",
-              **WARP[warp])
+              straighten=straighten, **WARP[warp])
     if placement == "ledger":
         kw["theta_draw"] = ledger_draw(s_corner, panel_frac, residual, rock_draw)
     elif placement == "lift-tack":

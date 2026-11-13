@@ -13,6 +13,7 @@ corresponding author are left for the owner to fill in before any submission.*
 - Doubled joint studs give 99.97% clean sheets with one read a stud, in 76–216 s a sheet.
 - A ledger seats a released sheet in MuJoCo and Drake; clean sheets agree within 0.06 points.
 - A G1 on a lift base beats a walking H1 in every draw, but a hand crew in only 37% at 100 houses.
+- Pushing a bowed joint stud straight takes 28–126 N and lifts single-2x joints only to 71%.
 
 ## Abstract
 
@@ -149,7 +150,7 @@ where they matter.
 **Checks.** With no gap the model reproduces `buildbot-studfind`'s quadrature within 0.01 at
 three error settings; translation-only and rotation-only results match their closed forms within
 0.01; edge aim with perfect sensing passes exactly while the shifted window is non-empty; a row of
-exactly trimmed panels does not drift (`tests/`, 55 tests in all).
+exactly trimmed panels does not drift (`tests/`, 69 test functions in all).
 
 ## 4. Methods
 
@@ -225,6 +226,26 @@ stud is a 92 5/8 in precut 2x4 at $3.41–5.56 (retail listings) plus 60–120 s
 Prices: G1 $13,500–21,600, H1 $90,000–150,000, base and lift $10,000–40,000 and gantry
 $40,000–600,000; the last two are **not sourced** and are swept wide. 4,000 draws with common
 random numbers across classes.
+
+### 4.8 Straightening a bowed joint stud (milestone 9)
+
+A carpenter pushes a bowed stud onto the line and nails it there; once the first sheet's joint
+nails hold it, it stays straight for the next sheet. We model the stud as a linear
+Euler–Bernoulli beam bending flatwise (I = 3.5 × 1.5³/12 = 0.984 in⁴) over the 92 5/8 in clear
+span, its stress-free shape the parabolic bow of Section 3, with the plates holding its ends
+either pinned (end-nailed; the realistic case) or fixed (the stiff bound). A push is a
+displacement imposed at a point, solved on a cubic-Hermite finite-element beam of 192 elements
+and checked against the closed form c E I b / L³ for a mid push (c = 48 pinned, 192 fixed, with a
+residual shape of b u (1 − 2u)² and 4 b u (1 − 2u)²). The modulus E is drawn lognormal about the
+NDS reference values for Stud grade (Douglas Fir-Larch 1.4, Hem-Fir 1.2, Spruce-Pine-Fir 1.2,
+Southern Pine 1.3 million psi) with the coefficient of variation 0.25 the NDS uses for visually
+graded lumber. Three push policies are scored: one push at mid-height; a push at each joint-nail
+height in turn, bottom up, each held by its nail once driven; and a simultaneous three-point push
+at u = 1/6, 1/2, 5/6. The push is set from the robot's own three-read estimate of the bow, so the
+stud is straightened as if its bow were b + N(0, 0.5 mm) and the robot believes the residual its
+policy leaves. Clean sheets then come from the cycle model of Section 4.5 with both joint studs
+replaced by their straightened shape. Whether a robot can supply the force is checked in the
+static whole-body model of Section 4.3, pushing along the wall with both hands at 1.0–1.3 m.
 
 ### 4.7 A second contact model (milestone 6)
 
@@ -376,6 +397,31 @@ re-drive, about ten loaded person-minutes.
 
 ![Figure 3. Dollars per clean sheet by robot class and house volume; which class is cheapest (milestone 7).](../experiments/m7_cost/figure.png)
 
+### 5.8 Straightening the stud removes the bow, not the cap (milestone 9)
+
+The finite-element beam reproduces the closed forms exactly (c = 48.000 and 192.000; residual
+0.07407 b and 0.29630 b at u = 1/6). A mid-height push on a pinned-end Stud-grade 2x4 takes a
+median of 28 N and a 99th percentile of 126 N at the lower published warp, 53 and 232 N at the
+higher, and 376 N for a grade-limit stud (3/4 in over 8 ft) at Douglas Fir-Larch's 95th-percentile
+modulus. The static whole-body model gives a stock G1 81–88 N of sideways push at stud mid-height
+(ankle roll binding) and an H1 120–123 N, covering 93% and 99% of low-warp studs and 69% and 86%
+of high-warp ones. Order matters: pushing each nail's point onto the line after the nails below it
+are driven turns the stud into a short beam and needs up to 1,258 N (99th percentile, higher
+warp), against 355 N at the lower warp, so a robot should straighten the stud before it starts
+nailing rather than nail by nail.
+
+Straightening removes most of what bow costs. On the best single-2x pipeline (ledger, three reads,
+lower warp) first-pass clean sheets rise from 0.5602 to 0.7095, and at the higher warp from 0.3071
+to 0.6773 — 15 and 37 points. It does not reach 95%, because the same pipeline on perfectly
+straight studs gives 0.7370: with bow removed, the sheet's own pose on the ledger is what closes
+the window. The three push policies land within 0.4 points of each other, while fixed ends cost up
+to 5 points at the higher warp, since they leave four times the residual. In dollars (G1 on a lift
+base, 100 houses a year) straightening costs about what it saves at the lower warp — cheaper than
+not pushing in 10% of draws — and pays at the higher (92%), and the median draw favours it over the
+extra stud until about 925 s of pushing a sheet. Doubled joint studs therefore remain the only
+route to 95% first-pass clean sheets; the push is the cheap fallback for a robot that cannot get
+one, and it reframes the single-2x question as a placement question rather than a lumber question.
+
 ## 6. Discussion
 
 **What decides a clean sheet.** The robot's sensing matters only where the framing leaves room
@@ -383,7 +429,9 @@ for it. On single-2x joints an as-built wall closes the window under a straight 
 enough places that perfect sensing reaches 87% clean sheets; on doubled joints a single read a
 stud suffices. For a robot maker, this means the specification to chase is not a sub-millimetre
 stud reader but a frame the robot can nail into, and a placement system that delivers a sheet
-seated on a ledger.
+seated on a ledger. Section 5.8 separates the two caps: pushing the bowed stud onto its line
+(28–126 N, within a stock G1's reach) recovers 15–37 points but stops at 0.7370, the straight-stud
+ceiling of the same pipeline, so bow and sheet pose each cap single-2x joints on their own.
 
 **What it means for robot choice.** A stock humanoid is the wrong carrier for a 21.8 kg sheet but
 a usable presser: the work splits between a lift (or a person) that carries and a robot that
@@ -431,14 +479,15 @@ the budget and studs bowed as real lumber is, single-2x joints cap a perfectly s
 hang the sheet 18 times more coarsely. A ledger board seats a released sheet in two physics
 engines, so the placement problem reduces to carrying the sheet there, which no stock humanoid
 can do. On cost, a G1 on a drive-and-lift base is the best robot below panel-plant volumes, but it
-beats a two-person crew only above about 100 houses a year. The open terms are measured: stud
-profiles, panel squareness, stage times, the cost of a missed nail, and a mock-up to check the
-whole chain.
+beats a two-person crew only above about 100 houses a year. Pushing the bowed joint stud straight, which a stock G1 can just
+manage, buys back 15–37 points but leaves single-2x joints at the straight-stud ceiling of 74%.
+The open terms are measured: stud profiles, panel squareness, stage times, the cost of a missed
+nail, and a mock-up to check the whole chain.
 
 ## Data and code availability
 
 All code, results files and figures are MIT licensed in this directory: `src/buildbot_sheathing/`
-(models), `experiments/m*/run.py` (each milestone, with seeds), `tests/` (55 tests), and
+(models), `experiments/m*/run.py` (each milestone, with seeds), `tests/` (69 test functions), and
 `README.md`, "Reproduce". MuJoCo 4.0.1 and Drake 1.51.1 produced the simulated results.
 
 ## Declaration of generative AI use
