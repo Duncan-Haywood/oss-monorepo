@@ -62,7 +62,8 @@ test("the module scripts import only local files, and the inline script parses",
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   // calc.mjs imports one sibling module only (the carry-over search), never a package or URL
   assert.deepEqual([...page("calc.mjs").matchAll(/^\s*import .* from "([^"]+)"/gm)].map((m) => m[1]), ["./carryover.mjs"]);
-  assert.doesNotMatch(page("carryover.mjs"), /from "(?!\.\/calc\.mjs")/);
+  assert.doesNotMatch(page("carryover.mjs"), /from "(?!\.\/(calc|orient)\.mjs")/);
+  assert.doesNotMatch(page("orient.mjs"), /from "(?!\.\/calc\.mjs")/);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));
 });
