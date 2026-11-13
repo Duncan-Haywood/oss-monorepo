@@ -479,3 +479,36 @@ function* logPhiSearch(min: number, max: number, steps: number): Generator<numbe
   candidates.sort((p, q) => q[1] - p[1]);
   return Math.exp(candidates[0][0]);
 }
+
+/** Log-evidence drop that bounds the likelihood interval on phi: half the chi-square(1) 95% point, 3.84 / 2. */
+export const PHI_INTERVAL_DROP = 1.92;
+
+/**
+ * The pooled prior sd and the upper end of its likelihood interval: the
+ * largest phi in [best, max] whose summed evidence is within `drop` of the
+ * best (bisection on log phi, `bisect` steps). The evidence is concave
+ * enough in log phi on every panel measured that the drop crosses once.
+ *
+ * Why (docs/INFORMATION-GAIN-SELECTOR.md, "Why the pooled sd collapsed"):
+ * under the staged selector the pooled evidence is 20 to 50 times flatter
+ * than under the shipped one (its close pairs say little about spread), so
+ * its maximum can sit anywhere on a plateau; on one panel in 13 it fell to
+ * 0.33 though the true spread was 1.155. The upper end says how wide a prior
+ * the answers still allow, which is the safe side for an interval: a prior
+ * too narrow makes intervals falsely sure, one too wide only makes them wide.
+ */
+export function pooledPriorPhiUpper(people: readonly { ids: readonly string[]; answers: readonly RefitAnswer[] }[], { min = EB_PHI_MIN, max = REFIT_PRIOR_PHI, steps = 8, drop = PHI_INTERVAL_DROP, bisect = 8 } = {}): { phi: number; upper: number } {
+  const used = people.filter((p) => p.answers.length > 0);
+  const phi = pooledPriorPhi(used, { min, max, steps });
+  if (used.length === 0) return { phi, upper: max };
+  const ev = (f: number) => used.reduce((s, p) => s + sampledEvidence(p.ids, p.answers, f), 0);
+  const target = ev(phi) - drop;
+  if (ev(max) >= target) return { phi, upper: max };
+  let lo = Math.log(phi), hi = Math.log(max);
+  for (let i = 0; i < bisect; i++) {
+    const mid = (lo + hi) / 2;
+    if (ev(Math.exp(mid)) >= target) lo = mid;
+    else hi = mid;
+  }
+  return { phi, upper: Math.exp(lo) };
+}
