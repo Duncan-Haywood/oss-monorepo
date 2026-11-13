@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2317324d'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E1%3C/text%3E%3C/svg%3E">
+  <title>Benford Audit: Free Benford's Law Test for Ledgers, Expenses and Invoices</title>
+  <meta name="description" content="Free private Benford's law analysis of a ledger, expense or invoice CSV: Nigrini's first-digit, second-digit and first-two-digits tests with MAD verdicts, plus just-under-limit, duplicate-amount and per-vendor tests.">
+  <meta property="og:title" content="Benford Audit"><meta property="og:description" content="Run Nigrini's Benford's-law test suite on a ledger CSV in your browser, with a ranked list of records to look at.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Benford Audit","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Private browser tool that runs Benford's-law digit tests (first digit, second digit, first two digits, last two digits, summation, number duplication), a just-under-approval-limit test and a per-vendor ranking on a ledger CSV."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a failed Benford test mean fraud?","acceptedAnswer":{"@type":"Answer","text":"No. A digit test says where the numbers differ from what Benford's law predicts, not why. Price lists, fixed fees, caps, a few vendors that bill the same amount every month, or a narrow range of amounts all fail the tests with nothing wrong. Use the results to choose which records to look at, then look at them."}},{"@type":"Question","name":"How many records do I need?","acceptedAnswer":{"@type":"Answer","text":"About 300 amounts for the first-digit test and about 1,000 for the first-two-digits test, which is the most useful one. The page says so when a file is smaller, and the per-vendor ranking only includes vendors with at least 50 amounts by default."}},{"@type":"Question","name":"What is MAD and why is it the headline?","acceptedAnswer":{"@type":"Answer","text":"MAD is the mean absolute deviation between the observed and expected digit proportions. Mark Nigrini proposed it as the conformity measure for Benford tests because chi-square rejects almost any large file for trivial differences. The verdict bands (close, acceptable, marginally acceptable, nonconformity) are his, from Benford's Law (Wiley, 2012)."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The CSV is read in your browser and never leaves your device. The optional usage counter stores only that an audit ran, in your own browser, and contains no amounts or names."}}]}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#182230;background:#f4f1eb;line-height:1.45;--accent:#17324d;--warm:#af6035;--muted:#5d6973;--card:#fff;--line:#d8d2c8}
+    body{max-width:1040px;margin:auto;padding:2rem 1rem}header{border-bottom:3px solid var(--warm);padding-bottom:1.2rem}h1{font-size:clamp(2rem,6vw,3.6rem);line-height:1.05;margin:.2rem 0;color:var(--accent)}h2{color:var(--accent);margin-top:0}h3{margin-bottom:.3rem}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.2rem;margin-top:1rem;box-shadow:0 3px 12px #17324d12}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem}
+    label{display:block;font-weight:700;margin:.6rem 0 .25rem}input,select,button{font:inherit;padding:.55rem;border-radius:7px;border:1px solid #aaa;box-sizing:border-box}input,select{width:100%}
+    button{background:var(--warm);color:#fff;border:0;font-weight:700;cursor:pointer}button.secondary{background:var(--accent)}button.linklike{background:none;color:var(--accent);text-decoration:underline;padding:0;font-weight:700}
+    .hint,small{color:var(--muted)}.error{color:#a52d2d;font-weight:700}
+    .stats{display:flex;gap:.8rem;flex-wrap:wrap}.stat{background:#eef3f4;padding:.7rem .9rem;border-radius:8px;min-width:140px}.stat strong{display:block;font-size:1.3rem;color:var(--accent)}
+    .verdict-close{color:#1f6b35}.verdict-acceptable{color:#3d6b1f}.verdict-marginally{color:#8a5a00}.verdict-nonconformity{color:#a52d2d}
+    .warn{background:#fff6e5;border-left:4px solid #d08a00;padding:.6rem .8rem;margin:.4rem 0;border-radius:4px}
+    table{width:100%;border-collapse:collapse;margin-top:.6rem;font-size:.92rem}th,td{text-align:left;border-bottom:1px solid #ddd;padding:.4rem}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+    .chart svg{width:100%;height:auto;display:block}.chart .bar{fill:#9db4c8}.chart .bar.hot{fill:var(--warm)}.chart .exp{fill:none;stroke:var(--accent);stroke-width:2}.chart text{font-size:10px;fill:#4d5963}
+    .tablewrap{overflow-x:auto}
+    footer{margin-top:2rem;font-size:.9rem;color:#4d5963}
+    @media print{header p,.noprint,footer .support{display:none}.card{box-shadow:none;break-inside:avoid}}
+  </style>
+</head>
+<body>
+  <header>
+    <p>PRIVATE, LOCAL-FIRST FORENSIC ANALYTICS</p>
+    <h1>Benford's-law tests on your ledger, in your browser.</h1>
+    <p>Choose a CSV of payments, expense claims, invoices or journal entries. The page runs Mark Nigrini's Benford test suite (first digit, second digit, first two digits, last two digits, summation, number duplication), checks for amounts piling up just under an approval limit, ranks vendors or employees by how far their amounts stray, and gives you a list of records to pull. The file never leaves your device.</p>
+  </header>
+
+  <main>
+  <section class="card noprint">
+    <h2>1. Your data</h2>
+    <input id="file" type="file" aria-label="Ledger CSV" accept=".csv,.tsv,.txt,text/csv">
+    <p class="hint">Any CSV with an amount column. Comma, semicolon or tab separated; <code>$1,234.56</code>, <code>(1,234.56)</code> and <code>1.234,56</code> all read. A vendor, employee or card-holder column turns on the per-group ranking. No export handy? <button type="button" id="loadExample" class="linklike">Load a worked example</button>: 2,565 made-up expenses with three planted problems.</p>
+    <div class="grid">
+      <div><label for="amountCol">Amount column</label><select id="amountCol"></select></div>
+      <div><label for="groupCol">Group by (optional)</label><select id="groupCol"></select></div>
+      <div><label for="sign">Which amounts</label><select id="sign"><option value="positive">Positive only (Nigrini's default)</option><option value="negative">Negative only (credits, refunds)</option><option value="both">Both, as absolute values</option></select></div>
+      <div><label for="minAmount">Ignore amounts under</label><input id="minAmount" type="number" min="0" step="any" value="10"></div>
+      <div><label for="thresholds">Approval limits to check</label><input id="thresholds" type="text" value="5000, 10000" placeholder="e.g. 2500, 5000"></div>
+      <div><label for="groupMin">Smallest group to rank</label><input id="groupMin" type="number" min="10" step="1" value="50"></div>
+    </div>
+    <p><button id="run" type="button">Run the tests</button> <span class="hint" id="fileInfo"></span></p>
+    <p id="message" class="error" role="alert"></p>
+  </section>
+
+  <div id="results" aria-live="polite" hidden>
+    <section class="card">
+      <h2>2. Summary</h2>
+      <div class="stats">
+        <div class="stat"><strong id="nTested">0</strong>amounts tested</div>
+        <div class="stat"><strong id="firstMad">-</strong>first-digit MAD</div>
+        <div class="stat"><strong id="firstTwoMad">-</strong>first-two-digits MAD</div>
+        <div class="stat"><strong id="nFlagged">0</strong>records to look at</div>
+      </div>
+      <p id="summary"></p>
+      <div id="warnings"></div>
+      <p class="hint">A misfit says where to look, not that anything is wrong. Fixed fees, price lists, caps and recurring bills fail these tests honestly.</p>
+      <p class="noprint"><button id="download" type="button" class="secondary">Download flagged records CSV</button> <button id="print" type="button" class="secondary">Print or save as PDF</button></p>
+    </section>
+
+    <section class="card">
+      <h2>3. First-two-digits test</h2>
+      <p class="hint">The most informative test. Bars are what your data shows; the line is Benford's expectation. Orange bars are over-represented with |z| above 1.96. A spike here (say at 49 or 99) often means amounts held just under a limit or a recurring invented figure. With 90 bins, four or five will cross 1.96 by chance alone even in clean data, so read a lone small spike as noise.</p>
+      <div class="chart" id="chartFirstTwo"></div>
+      <p id="firstTwoStats"></p>
+    </section>
+
+    <section class="card">
+      <h2>4. First- and second-digit tests</h2>
+      <div class="grid"><div class="chart" id="chartFirst"></div><div class="chart" id="chartSecond"></div></div>
+      <div class="tablewrap" id="firstTable"></div>
+    </section>
+
+    <section class="card">
+      <h2>5. Just under an approval limit</h2>
+      <p class="hint">For each limit, the amounts within 10% below it against those within 10% above. With smooth, Benford-shaped data a little over half should fall below (about 52.5%); many more than that is the pattern left by split purchases and limit-shaving. Flagged when p &lt; 0.01 with at least 10 amounts in the window.</p>
+      <div class="tablewrap" id="thresholdTable"></div>
+    </section>
+
+    <section class="card">
+      <h2>6. By vendor, employee or card</h2>
+      <p class="hint">First-digit test for each group with enough amounts, ranked. <em>Excess MAD</em> subtracts the MAD sampling noise alone would give at that group's size, so small groups are not punished for being small. <em>q</em> is the p-value corrected for testing many groups at once (Benjamini-Hochberg); q &lt; 0.05 is flagged.</p>
+      <div class="tablewrap" id="groupTable"></div>
+    </section>
+
+    <section class="card">
+      <h2>7. Repeated amounts, round numbers and last two digits</h2>
+      <div class="grid"><div class="tablewrap" id="dupTable"></div><div id="roundStats"></div></div>
+    </section>
+
+    <section class="card">
+      <h2>8. Summation test</h2>
+      <p class="hint">Sums the amounts in each first-two-digits bin. Each bin should hold about 1.1% of the total; a bin with twice that or more is carried by a few large amounts, listed here.</p>
+      <div class="tablewrap" id="sumTable"></div>
+    </section>
+
+    <section class="card">
+      <h2>9. Records to look at</h2>
+      <p class="hint">Every record caught by at least one test, most-caught first. Row numbers match your spreadsheet (the header is row 1). Showing the first 200; the download has them all.</p>
+      <div class="tablewrap" id="flaggedTable"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does a failed Benford test mean fraud?</h3>
+    <p>No. A digit test says where the numbers differ from what Benford's law predicts, not why. Price lists, fixed fees, caps, a few vendors that bill the same amount every month, or a narrow range of amounts all fail the tests with nothing wrong. Use the results to choose which records to look at, then look at them.</p>
+    <h3>How many records do I need?</h3>
+    <p>About 300 amounts for the first-digit test and about 1,000 for the first-two-digits test, which is the most useful one. The page says so when a file is smaller, and the per-vendor ranking only includes vendors with at least 50 amounts by default.</p>
+    <h3>What is MAD and why is it the headline?</h3>
+    <p>MAD is the mean absolute deviation between the observed and expected digit proportions. Mark Nigrini proposed it as the conformity measure for Benford tests because chi-square rejects almost any large file for trivial differences. The verdict bands (close, acceptable, marginally acceptable, nonconformity) are his, from <cite>Benford's Law</cite> (Wiley, 2012). Chi-square and its p-value are shown too.</p>
+    <h3>Which data fits Benford's law?</h3>
+    <p>Amounts that arise from many independent transactions and span several orders of magnitude: vendor payments, expense claims, invoice lines, journal entries, sales. Not assigned numbers (invoice or check numbers, ZIP codes), not amounts bounded by a rule (a $50 meal cap), and not a price list. The applicability notes under the summary check the range and skew of your file.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. The CSV is read in your browser and never leaves your device. The optional usage counter stores only that an audit ran, in your own browser, and contains no amounts or names.</p>
+    <p>Who this is for, a worked example and when to use something else: <a href="for-auditors.html">Benford's-law testing for internal auditors, fraud examiners and bookkeepers</a>. Looking for the same invoice paid twice rather than unusual digits? The <a href="../duplicate-payment-audit/">duplicate payment audit</a> pairs up likely double vendor payments, also in your browser.</p>
+  </section>
+
+  </main>
+
+  <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, accounting or audit advice, and it does not replace a qualified professional. It does not determine that any record is fraudulent, wrong or improper: it compares the digits of your own data with a statistical expectation, and many honest data sets do not follow that expectation. <strong>You are responsible for reviewing and verifying its output</strong> against source documents before drawing any conclusion about anyone. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<br><br>Everything runs in your browser. Files are never uploaded. Anonymous feature counts are local-only, can be disabled here, and contain no financial data. <label><input id="usage" type="checkbox" checked> Count anonymous local usage</label>
+    <p>Source, command-line version and method: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/benford-audit" rel="noopener">GitHub</a>.</p>
+    <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p></footer>
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>

@@ -1951,6 +1951,9 @@ const CATEGORY_RULES = [
       // compliance paperwork, like the filings in this section. `stranded-branch-finder` went to `ci`.
       || slug === 'vsme-report-builder'
       || slug === 'nacha-file-validator'
+      // `benford-audit` joined 2026-11-13 on its first commit: Benford's-law digit tests on the AP or expense ledger a
+      // bookkeeper already exports -- the same after-the-fact ledger review as `duplicate-payment-audit`, which it cross-links.
+      || slug === 'benford-audit'
       // `w2-efw2-file-validator` joined 2026-10-04 on its first commit: it checks the W-2 wage file a payroll
       // preparer exports before it goes to SSA -- the same back-office payroll job as the deposit-penalty calculator.
       || slug === 'w2-efw2-file-validator'
