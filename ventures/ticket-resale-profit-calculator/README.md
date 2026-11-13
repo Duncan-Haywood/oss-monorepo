@@ -18,5 +18,5 @@ cat sales.csv | node cli.mjs log -
 
 Arithmetic: payout, profit, ROI, break-even list price, effective fee rate. Assumptions you set: the chance a
 listing sells and what an unsold ticket is worth. Fee presets (about 10% / 10% / 10% / 15%) are typical seller
-rates as last checked; marketplaces change them, so overwrite them with what your listing screen shows. Buyer
+rough typical rates, not taken from a dated fee page; marketplaces change them, so overwrite them with what your listing screen shows. Buyer
 fees, tax and chargebacks are not modelled.
