@@ -3229,7 +3229,8 @@ answer counts in `leftOut`. It is a comparison, not the default. It is the
 cheapest of the three time views by a wide margin, and the first candidate for
 a default once a real panel's times exist (item c): whether real people's
 blocks exist, how often and how quick they are decides that. The slot-shuffle
-seed in `ranking.integration.test.ts` was re-picked too. Since the staged
-selector became the default (PR #15431), the old seed made an honest
-respondent pick the top slot 11 times in 40, so five of the file's tests
-failed on main. They were not part of the default `npm test`.
+seed in `ranking.integration.test.ts` was re-picked too. Against a local
+`scripts/test-db.sh` database, the old seed made an honest respondent pick the
+top slot 11 times in 40, and five of the file's tests failed, although CI
+passed with it. Why the two differ is not known. Under the new seed, both
+pass.

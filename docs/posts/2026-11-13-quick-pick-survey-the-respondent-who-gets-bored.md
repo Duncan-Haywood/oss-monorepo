@@ -69,11 +69,11 @@ this one costs least, so it is the first candidate for a default. That waits
 on a real panel's answer times, because only real data can say whether
 blocks happen and how quick they are.
 
-Along the way, five integration tests for the ranking endpoint turned out to
-be failing on main. Under a fixed random seed, an honest simulated respondent
-picked the top slot 11 times in 40, which the slot-clicker rule flags. The
-seed predates a change to the question order, and the suite is not part of
-the default test run. The seed was re-picked, and all nine tests pass.
+Along the way, five integration tests for the ranking endpoint failed on a
+local test database, though they passed in CI. Under the file's fixed random
+seed, an honest simulated respondent picked the top slot 11 times in 40,
+which the slot-clicker rule flags. Why the local run and CI differ is still
+unexplained. The seed was re-picked, and all nine tests now pass in both.
 
 The details, the full table and the raw rows are in the project's
 `docs/INFORMATION-GAIN-SELECTOR.md` ("Carelessness that starts mid-session")

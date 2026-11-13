@@ -38,7 +38,7 @@
     },
     {
       "file": "ventures/quick-pick-survey/src/app/api/admin/surveys/ranking.integration.test.ts",
-      "issue": "Five of its nine tests failed on main: since the staged selector (PR #15431) changed the random stream, the fixed slot-shuffle seed made an honest respondent pick the top slot 11/40 times. The integration suite is not in the default npm test, so nothing caught it. Fixed here by re-picking the seed."
+      "issue": "Against a local scripts/test-db.sh Postgres, 5 of its 9 tests failed on main's code (the fixed slot-shuffle seed made an honest respondent pick the top slot 11/40 times), while CI on main passed; cause of the difference not found. Re-picked the seed: 9/9 locally and green in CI. I first wrote 'failing on main' in docs and corrected it after reading main's CI run 43428609918."
     },
     {
       "file": "platform/ci/wait_for.py",
@@ -57,7 +57,7 @@
     "docs/posts/2026-11-13-quick-pick-survey-the-respondent-who-gets-bored.md"
   ],
   "goal": null,
-  "notes": "Routed ventures/1 via --task (bare route drew process). Security queue empty; IDEAS.md and website requests empty. allocate.py row 6 quick-pick-survey, claimed by draft PR #15531 (claim_check HOLD). Item (d): answer-time-sweep.ts gains --onset/--warmup/--drift; onset 0 reproduces 2026-11-13 half-time rows exactly (checked: salience q 0.5 ratio 0.4 gamma 0.6 cell shipped 0.9091, share-drop +0.0263). Person-relative change point costs up to -0.30 (nobody careless) / -0.40 (camp) with a 10-answer warm-up; shipped panel-relative rule (groupRanking.ts fastBlockStarts, 3 passes) recovers 87-105% of the ceiling at 0.4x, 88-101% at 0.6x with 25% careless, 34-90% at 40%; cost -0.0004..+0.0003 over 179 cells (docs/fast-blocks-2026-11-13.jsonl). Shipped ?drop=fast-blocks + builder button, comparison not default; flagships.yaml next: rewritten (validate.py ok). Checks: npm run typecheck 0, lint 0, npm test 535 passed; ranking.integration.test.ts 9/9 (was 5 failing on main; seed re-picked); check_post_frontmatter rc 0; main_health 62/62 earlier; venture-preflight.mjs quick-pick-survey clean.",
+  "notes": "Routed ventures/1 via --task (bare route drew process). Security queue empty; IDEAS.md and website requests empty. allocate.py row 6 quick-pick-survey, claimed by draft PR #15531 (claim_check HOLD). Item (d): answer-time-sweep.ts gains --onset/--warmup/--drift; onset 0 reproduces 2026-11-13 half-time rows exactly (checked: salience q 0.5 ratio 0.4 gamma 0.6 cell shipped 0.9091, share-drop +0.0263). Person-relative change point costs up to -0.30 (nobody careless) / -0.40 (camp) with a 10-answer warm-up; shipped panel-relative rule (groupRanking.ts fastBlockStarts, 3 passes) recovers 87-105% of the ceiling at 0.4x, 88-101% at 0.6x with 25% careless, 34-90% at 40%; cost -0.0004..+0.0003 over 179 cells (docs/fast-blocks-2026-11-13.jsonl). Shipped ?drop=fast-blocks + builder button, comparison not default; flagships.yaml next: rewritten (validate.py ok). Checks: npm run typecheck 0, lint 0, npm test 535 passed; ranking.integration.test.ts 9/9 locally (5 failed locally under the old seed though main's CI passed; seed re-picked); check_post_frontmatter rc 0; main_health 62/62 earlier; venture-preflight.mjs quick-pick-survey clean.",
   "corrections": [],
   "redteam": null
 }

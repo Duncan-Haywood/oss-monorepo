@@ -49,8 +49,9 @@ describe("admin survey ranking", () => {
   beforeEach(async () => {
     // The routes shuffle slots with Math.random; seed it so an honest respondent's
     // slot share (1.7% of 40-answer runs reach 0.7 by chance) cannot flake the slot-clicker checks.
-    // Re-picked 2026-11-13: the staged selector (PR #15431) draws differently, and under 20261111 an
-    // honest respondent picked the top slot 11 of 40 times, so five tests here failed on main.
+    // Re-picked 2026-11-13: under 20261111, against a local scripts/test-db.sh database, an honest
+    // respondent picked the top slot 11 of 40 times and five tests here failed (CI passed with it;
+    // why the two differ is not known). Both pass under this seed.
     let seed = 20261113;
     vi.spyOn(Math, "random").mockImplementation(() => {
       seed = (seed + 0x6d2b79f5) | 0;
