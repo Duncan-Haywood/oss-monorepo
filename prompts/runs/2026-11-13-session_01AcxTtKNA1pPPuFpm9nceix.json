@@ -43,7 +43,7 @@
     "ventures/photo-editing/README.md (Preview-quality opcodes section)"
   ],
   "goal": null,
-  "notes": "Flagship 7 item: DNG opcode flag bit 1. Spec text confirmed from DNG_Spec_1_7_1_0.pdf ch.6 p.104. plan() now runs bit-1 opcodes by default, skips with preview=True / --preview-quality; half-size proxy develop uses preview mode. Real DNGs checked: Nexus 5X GainMaps flags 1, Leica T WarpRectilinear flags 0, Pentax Q-S1 none; output unchanged on all three. Verification: run_venture_tests.py photo-editing ok (78.3s); 98 DNG opcode tests OK with numpy under python3.13.",
+  "notes": "Flagship 7 item: DNG opcode flag bit 1. Spec text confirmed from DNG_Spec_1_7_1_0.pdf ch.6 p.104. plan() now runs bit-1 opcodes by default, skips with preview=True / --preview-quality; half-size proxy develop uses preview mode. Real DNGs checked: Nexus 5X GainMaps flags 1, Leica T WarpRectilinear flags 0, Pentax Q-S1 none; output unchanged on all three. Verification: run_venture_tests.py photo-editing ok (78.3s); 98 DNG opcode tests OK with numpy under python3.13. GitHub registered no check runs on the PR (starved/none), so verified locally: venture-preflight.mjs photo-editing clean (site tests 83 files, build + check.mjs); run_workflow_locally --for-changes: 11/12 passed, portfolio-pages 'Test the site builder' hit the 300 s sweep budget (covered by preflight's site tests), pages.yml no verdict (needs _site from a skipped build step); cross-review and deploy jobs not run.",
   "corrections": [],
   "redteam": null,
   "usage": {
