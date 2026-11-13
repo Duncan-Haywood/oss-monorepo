@@ -287,6 +287,8 @@ until it has. An empty shelf below means: write a proposal.
 
 - *Proposal* (2026-11-12 note: close to the finished *The Crossed Sevens*, also a diocesan archive, baptism registers and a hand the model misreads; find a different setting or angle before drafting): a diocesan archive's transcription agent is handed a run of nineteenth-century baptism registers by a predecessor whose handoff note reports 99% character accuracy, measured on a sample of pages in the first parish clerk's clear hand. Half-way through the run the hand changes to a second clerk's, and the accuracy figure carries on being quoted though nobody has measured it since. A family historian writes that her great-grandmother's surname is wrong. Work out before drafting how large a check sample in the new hand would need to be to tell 99% from, say, 96% at a useful confidence, how many entries (and surnames) a 3-point drop would touch over the run, and what re-checking costs in volunteer hours; the agent rewrites the handoff note so the figure carries the hand and the pages it was measured on, and the predecessor is not the villain.
 
+- *Proposal* (2026-11-13): a mountain-rescue or lifeboat station's logging agent reports mean call-out time to the regional board, and the mean is pulled by three long night searches; the median and the spread tell the volunteers' story. Check against DONE.md's median entries first and find a different angle (for example, censored data: searches still open at the reporting date that the agent silently dropped, so the reported mean is too short). Work out the Kaplan-Meier median on an invented but consistent log before drafting.
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
