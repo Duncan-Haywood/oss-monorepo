@@ -201,10 +201,12 @@ flagships:
     buildable: >-
       The DNG 1.7.1.0 specification PDF is reachable from a cloud session
       (helpx.adobe.com URL in eval/opcode-spec-audit-2026-11-12.md): read it, not
-      memory. Lens correction for files that carry none: a lensfun ptlens
-      profile (raw.githubusercontent.com; CC BY-SA data read at run time, not
-      vendored) is an exact WarpRectilinear2 (kr0..kr3 = 1-a-b-c, c s, b s^2,
-      a s^3; tools/lensfun_warp_fit.py), chosen by lens model and focal length;
+      memory. Lensfun's TCA (lateral colour; per-plane poly3/linear in its
+      data/db XML, which git clone --sparse reaches from a cloud session) as a
+      per-plane WarpRectilinear2 beside the distortion one landed 2026-11-13
+      (src/shootflow/lens_profiles.py, eval/lensfun-correction-2026-11-13.md),
+      ported from lensfun's mod-subpix.cpp, not memory; Canon's maker-note lens
+      number mapped to a name for CR2s with no LensModel (350D, 7D);
       the preview-quality flag (opcode flag bit 1): plan() skips such opcodes in
       every develop, though the spec says full quality needs them; a
       cubic-spline resampling kernel for the warps, both engines byte-identical;
@@ -218,8 +220,13 @@ flagships:
       matches the Leica T's preview to 0.18 px; WarpRectilinear2: on 5,411
       rectilinear lensfun profiles the best even-only fit leaves over 1 px at
       6000 px for 17%, eval/warp-rectilinear2-2026-11-12.md).
-      Next, most valuable first: lensfun profiles as WarpRectilinear2 for
-      files with no correction; a resampling kernel wider than bilinear; a
+      Lens correction from lensfun for files with none (2026-11-13,
+      --lens-db; within 1e-7 px of lensfun's pipeline; all 6,500 calibrations
+      build; a real 600D CR2 corrected; on a Leica X Vario at 46 mm lensfun and
+      the maker's own warp differ by up to 8 px, eval/lensfun-correction-2026-11-13.md).
+      Next, most valuable first: lensfun TCA and vignetting; a second
+      maker-against-lensfun DNG pair (a zoom at several focal lengths); the
+      grade stage reading a workspace lens database; a resampling kernel wider than bilinear; a
       real DNG carrying any opcode
       run only on synthetic files so far, or the SDK to check them;
       lateral colour measured on a real frame with sharp corner edges; a real Adobe `.dcp` through the profile chooser;
