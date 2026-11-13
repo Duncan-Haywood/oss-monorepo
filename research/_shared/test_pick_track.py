@@ -365,3 +365,13 @@ class TrackProgrammesTest(unittest.TestCase):
     def test_real_table_names_some_programme(self):
         # Every row that says "track N" in the live table maps back to it.
         self.assertIn("sensing-selfcal", pick_track.track_programmes(15))
+
+
+class FreeChoiceTest(unittest.TestCase):
+    def test_free_choice_says_where_the_work_goes(self):
+        lines = pick_track.free_choice_lines([("a-prog", True), ("b-prog", True)])
+        text = "\n".join(lines)
+        self.assertIn('"programme": "none"', text)
+        self.assertIn("why_standalone", text)
+        self.assertIn("PROPOSAL.md", text)
+        self.assertIn("2 open programme(s)", text)

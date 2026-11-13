@@ -321,6 +321,23 @@ def track_programmes(t, text=None):
     return out
 
 
+def free_choice_lines(progs):
+    """What a free-choice draw means and where its work goes.
+
+    The draw printed only "draw 0.022 -> free-choice", with no pointer to the
+    rules for where free work lives (doc friction 2026-11-13,
+    prompts/research/prompt-0.md)."""
+    open_ = [s for s, _ in progs if not is_blocked(s)]
+    return [
+        "free choice (about 1 run in 20, prompts/research/prompt-0.md): work on the question you find most "
+        "worth a session; the integrity rules and the bar are unchanged",
+        "  where it goes: a step of any open programme (research/<slug>/experiments/<step>/, LOG.md first), or a new "
+        "programme (PROPOSAL.md + a row in research/PROGRAMMES.md), or a standalone project whose project.json "
+        'says "programme": "none", "why_standalone": "<reason>" (PROGRAMMES.md, step 3; programme_check.py enforces it)',
+        f"  {len(open_)} open programme(s) not BLOCKED; `--new` draws again",
+    ]
+
+
 def recent_landed(slug, n=3):
     """Newest commits on origin/main that touch research/<slug>, as 'age: subject' lines.
 
@@ -484,6 +501,9 @@ if __name__ == "__main__":
         if open_tracks:
             old, t = t, random.Random(r).choice(open_tracks)
             print(f"track {old} has {SATURATED}+ projects; redrawn -> track {t}")
+    if t == "free":
+        for line in free_choice_lines(programmes()):
+            print(line)
     behind = commits_behind()
     if behind:
         print(f"WARNING: this checkout is {behind} commit(s) behind origin/main, so the lists below may "
