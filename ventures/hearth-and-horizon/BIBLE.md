@@ -273,6 +273,12 @@ alike. *The Letter in the Wall* (For Other Minds, 2026) and *Ten Percent*
    in 12 longer stories, and most were dialogue that had drifted from the
    note, not a wrong model
    (`docs/reports/hearth-and-horizon-revision-2026-11-13.md`).
+   The third pass (32 slips in 15 stories,
+   `docs/reports/hearth-and-horizon-revision-2026-11-13b.md`) adds three
+   checks: compute Easter for any "week of Lent" or feast claim; write
+   down every named character's birth year and test it against each
+   relative and dated event they mention; and make sure no scene quotes a
+   result from a trial, flood or event that the plot places later.
 9. Render audio (`render_audio.py`), regenerate (`node generate.mjs`), and run
    `node --test`. Audio size is checked first (`prompts/creative/prompt-0.md`).
 

@@ -8,11 +8,11 @@ summary: Near Miranda's south pole the Sun is about to set for some forty years,
 
 Rosa Achterberg was eighty-four, and she was the only person at Southfold who had seen the Sun come up.
 
-She had been born under it, in the last summer, but that did not count; she had been five months old when it went down, and what she remembered of her childhood was lamps. Then, at forty, on a morning in 2384 that she could still describe to the minute, she had stood on the plain north of the depot with two hundred other people and watched a point of light, too bright to look at, come up out of the ground beside Uranus. She had cried, she said, like a fool, and so had everyone else, and the Sun had stayed up, more or less, for the next forty years.
+She had been born under it, in the last summer, but that did not count; she had been five months old when it went down, and what she remembered of her childhood was lamps. Then, at forty, on a morning in 2384 that she could still describe to the minute, she had stood on the plain north of the depot with two hundred other people and watched a point of light, too bright to look at, come up out of the ground beside Uranus. She had cried, she said, like a fool, and so had everyone else, and the Sun had stayed up, more or less, for the next forty-five years.
 
-Now it was going down again, for about as long, and she wanted to be there.
+Now it was going down again, for about forty, and she wanted to be there.
 
-"I would like to see it out," she said to Father Ignatius, after Compline, on the third Sunday of January. "That's all. I saw it in. I'd like to see it out, and then say the Nunc dimittis, and mean it."
+"I would like to see it out," she said to Father Ignatius, after Compline, on the second Sunday of January. "That's all. I saw it in. I'd like to see it out, and then say the Nunc dimittis, and mean it."
 
 Father Ignatius Mwale had been the priest at Southfold for six years. He was from Zomba, in Malawi, and he had come to the edge of the solar system because the bishop on the skimmer platform had asked him to and because, he said, he had always wanted to see whether God was as large as he had been told. He was a careful man with old people, because he had buried a great many of them.
 
@@ -52,7 +52,7 @@ It took a while, because there were people at the table who had been born at Sou
 
 Miranda keeps one face to Uranus, as the Moon does to Earth. Southfold was built on that face, close to the south pole, and from the plain outside the depot Uranus did not rise or set. It stood in the north, always in the same place, a pale blue-green disc nearly twenty-three degrees across, so large that if you held out your hand at arm's length you could not cover it with both fists. Its centre was five degrees above the horizon, and its lower edge was below the ground. The children called it the Lamp, though most of the time it gave less light than the depot did.
 
-The Sun went round. Miranda took a little under thirty-four hours to turn once, which was also how long it took to go round Uranus, and in that time the Sun made one circle of the sky. In the long summer it had circled well clear of the ground. But Uranus lies on its side, tipped over ninety-eight degrees, so that its moons, which orbit in line with its equator, share its absurd seasons: for about forty years the south pole looks at the Sun, and then for about forty years it looks away. For forty years the Sun's circle had been sinking, a few degrees every year. Now it had sunk so far that it touched the ground for most of every circle and lifted a little above it only for the hour or two either side of the moment when it stood due north.
+The Sun went round. Miranda took a little under thirty-four hours to turn once, which was also how long it took to go round Uranus, and in that time the Sun made one circle of the sky. In the long summer it had circled well clear of the ground. But Uranus lies on its side, tipped over ninety-eight degrees, so that its moons, which orbit in line with its equator, share its absurd seasons: for about forty years the south pole looks at the Sun, and then for about forty years it looks away. For twenty years the Sun's circle had been sinking, a few degrees every year. Now it had sunk so far that it touched the ground for most of every circle and lifted a little above it only for the hour or two either side of the moment when it stood due north.
 
 "And due north," said Gonzalo, "it passes behind Uranus. Every day. You've seen it. It's noon."
 
@@ -106,7 +106,7 @@ Hugo looked at the speaker for a long moment.
 
 They watched it in the canteen on Monday the twenty-second of January, on the big screen, from the camera thirty metres up on the comms mast, with the urn going and about forty people who had wandered in to see what the fuss was.
 
-It was a strange thing to look at, if you had not grown up with it. Uranus filled the left side of the screen, a smooth curve of cold blue-green without a single feature on it, lit on one side, dark on the other. Beside its dark edge, low above a horizon of grey ice and black dust, was the Sun.
+It was a strange thing to look at, if you had not grown up with it. Uranus filled the right side of the screen, a smooth curve of cold blue-green without a single feature on it, lit on one side, dark on the other. Beside its lit edge, low above a horizon of grey ice and black dust, was the Sun.
 
 It was not a disc. At nineteen times Earth's distance it was too small to have a shape, a point you could not look at, white and hard. It gave a little over a three-hundred-and-seventieth of the light that Earth gets, which was still something like a thousand full moons, enough to throw a shadow across the canteen floor if it had come through a window; and it was no dimmer to the eye where it fell than it would have been at home. That was the rule every Southfold child had drummed into them: the Sun out here is small, not weak. Don't look.
 
@@ -258,9 +258,9 @@ After eight minutes it reached the edge of the planet. It went down into it, slo
 
 * * *
 
-They went in for an hour and three quarters and she drank a cup of tea in the airlock lobby with her helmet on her knee, not saying much. Father Ignatius sat with her and did not say much either. Tomás went and stood at the south window and looked at nothing, because there was nothing, until it was time.
+They went in for an hour and a half and she drank a cup of tea in the airlock lobby with her helmet on her knee, not saying much. Father Ignatius sat with her and did not say much either. Tomás went and stood at the south window and looked at nothing, because there was nothing, until it was time.
 
-At ten past six they went out again, and up the ramp, more slowly this time, and clipped her into the chair.
+At six they went out again, and up the ramp, more slowly this time, and clipped her into the chair.
 
 The second piece came out of Uranus's right-hand edge at seventeen minutes past six: a spark on the rim of the black disc, then a bead, then the hard white point, sliding clear of the planet and along the edge of the ground. The plain lit again. The shadows came back, running the other way now, south and a little west. And as the Sun cleared Uranus, the edge of the planet behind it lit along its rim in a crescent so thin it was barely a line, and the line was blue.
 
