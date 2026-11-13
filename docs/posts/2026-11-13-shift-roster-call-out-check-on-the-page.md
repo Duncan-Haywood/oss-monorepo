@@ -3,7 +3,7 @@ title: "Skipping the rebuilds a call-out doesn't need"
 seo_title: "A faster call-out check for staff schedules"
 date: 2026-11-13
 tags: [shift-roster-builder, product, performance]
-description: "The call-out check played every single call-out against every tied schedule, one rebuild each. Two exact short cuts and pruning cut 419 rebuilds to 243 with the same pick, and the check is now on the page."
+description: "Two exact short cuts and early stopping cut the call-out check from 419 rebuilds to 243 with the same schedule picked, so it now runs on the page."
 ---
 
 This morning [Shift Roster Builder](https://marisstella.app/shift-roster-builder/) learned to [pick, among equally good schedules, the one a call-out hurts least](2026-11-13-shift-roster-which-tied-roster-holds-up.md). It does that by playing every possible single call-out against each tied schedule. For each one it rebuilds the rest of the week. On the sample café that took 30 seconds, so it stayed a command-line flag.
