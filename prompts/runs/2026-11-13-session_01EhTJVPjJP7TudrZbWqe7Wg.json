@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVPjJP7TudrZbWqe7Wg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T02:15:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship einvoice-preflight: ABRASF municipal NFS-e checker (schema 2.03/2.04, IBGE codes, ISS sums)",
+  "projects": [
+    "ventures/einvoice-preflight"
+  ],
+  "pr": 15339,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First python edit of abrasf.mjs dropped the not-found return block (syntax error)",
+      "fix": "restored before any commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Primary ABRASF manual hosts (abrasf.org.br, municipal and vendor PDFs) are blocked from the cloud proxy; only GitHub raw/code search answered, so formulas came from search-quoted secondary manuals and were validated on real files instead."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-city-hall-nfs-e-files.md"
+  ],
+  "goal": null,
+  "notes": "run_venture_tests.py einvoice-preflight: ok (after guarding one object-map lookup flagged by inherited_keys.py). eval/abrasf-xsd-diff.mjs on 316 public ABRASF files: verdicts 132/134 agree with xmllint (2 differ only inside ds:Signature), mutants 3447/3447 agree. 15 real city-hall files (95 NFS-e, six cities): no value/identifier findings. venture-preflight einvoice-preflight: clean (EXIT 0, build + check.mjs passed).",
+  "corrections": [],
+  "redteam": null
+}
