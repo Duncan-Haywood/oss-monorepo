@@ -16,8 +16,21 @@ M1, M2, M3, M3B, M4, M5, M6, M7, M6B = (E + d + "/results.txt" for d in (
 M9 = E + "m9_straighten/results.txt"
 M10 = E + "m10_ceiling/results.txt"
 M11 = E + "m11_measured/results.txt"
+M12 = E + "m12_remedies/results.txt"
 
 CHECKS = [
+    # 5.11 the single-2x remedies on measured studs (milestone 12)
+    (M12, "measured three no push ledger 0.4253", "from 0.4253 to 0.5303 clean sheets"),
+    (M12, "measured local no push ledger 0.5303", "from 0.4253 to 0.5303 clean sheets"),
+    (M12, "own parabola three no push ledger 0.5792", "against 0.5792 for their own"),
+    (M12, "(bow costs 23.2, waviness 15.4)", "falls from 15.4 points to 4.7"),
+    (M12, "(bow costs 23.6, waviness 4.7)", "falls from 15.4 points to 4.7"),
+    (M12, "measured three mid push ledger 0.5516", "0.4253 to 0.5516"),
+    (M12, "measured local mid push slide+shim 0.5 mm 0.7707", "reach 0.7707"),
+    (M12, "measured, common removed local mid push slide+shim 0.5 mm 0.7960", "(0.7960 with the scan's"),
+    (M12, "own parabola local mid push slide+shim 0.5 mm 0.8600", "against 0.8600 on their own"),
+    (M12, "measured local mid push 0.606 mm", "held to 0.606 mm"),
+    (M12, "straight three no push 0.839 mm", "against 0.839 mm on straight"),
     # 5.10 measured studs (milestone 11)
     (M11, "median |bow| at 8 ft 0.106 in, largest 0.283 in", "of 0.106 in and a largest of 0.283 in"),
     (M11, "RMS residual [0.9, 0.66, 0.59, 0.94] mm", "0.59–0.94 mm RMS remains"),

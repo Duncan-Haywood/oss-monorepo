@@ -16,6 +16,8 @@ Coordinates: the wall plane is fitted to the scan's front surface; u runs along 
 wall, w out of the wall toward the scanner. Units: millimetres inside this module (the scan's own);
 ``to_model`` converts profiles to the metres the Monte Carlo uses.
 """
+import math
+
 import numpy as np
 
 FACE_MM = 38.1           # dressed 1.5 in face
@@ -207,3 +209,64 @@ def calibrate(bows=(0.0, 1.0, 3.0, 6.0), phases=8, seed=0, **kw):
             wid.append(float(np.median(pr["width"])))
         out.append({"bow": b, "recovered": rec, "r2": r2, "rms_res": res, "width": wid})
     return out
+
+
+# ---------------------------------------------------------------- milestone 11's model profiles
+SMOOTH = 11                      # slices (110 mm) in the running mean used for the pipeline
+
+
+def smooth(x, k=SMOOTH):
+    """Running mean over k slices, ends padded with the end values."""
+    x = np.asarray(x, float)
+    pad = np.r_[np.full(k // 2, x[0]), x, np.full(k // 2, x[-1])]
+    return np.convolve(pad, np.ones(k) / k, mode="valid")
+
+
+def _s_of(m):
+    v = np.array(m["v"], float)
+    return (v - v[0]) / (v[-1] - v[0]), float(v[-1] - v[0])
+
+
+def common_part(members):
+    """Mean across every member (vertical, and inclined projected by cos of its lean) of its
+    110 mm-smoothed centreline minus its own chord-plus-parabola fit: milestone 11's post hoc
+    estimate of what the scan adds to every member at the same heights."""
+    res = []
+    for m in members:
+        s, L = _s_of(m)
+        ang = 0.0 if m["kind"] == "vertical" else math.atan((m["u_top"] - m["u_bot"]) / L)
+        c = smooth(np.array(m["centre"]) * math.cos(ang))
+        A = np.c_[np.ones_like(s), s, 4 * s * (1 - s)]
+        res.append(c - A @ np.linalg.lstsq(A, c, rcond=None)[0])
+    return np.mean(res, axis=0)
+
+
+def model_profiles(members, kind, stud_len_m, n=201):
+    """(g, D, PHI) for ``tack.simulate(profiles=...)`` from the vertical studs of a profiles.json:
+    kind "smooth" (110 mm mean), "raw", "parabola" (each stud's own chord-plus-parabola, linear
+    twist), "common removed" (smooth minus ``common_part``) or "no twist". As milestone 11's run."""
+    vert = [m for m in members if m["kind"] == "vertical"]
+    cm = common_part(members) if kind == "common removed" else None
+    g = np.linspace(0, 1, n)
+    Ds, Ps = [], []
+    for m in vert:
+        s, L = _s_of(m)
+        c = np.array(m["centre"], float)
+        phi = np.arctan(np.array(m["slope"], float))
+        if kind == "raw":
+            dev = chord_fit(s, c)["dev"]
+        elif kind == "smooth":
+            dev, phi = chord_fit(s, smooth(c))["dev"], smooth(phi)
+        elif kind == "parabola":
+            dev = 4 * chord_fit(s, c)["bow"] * s * (1 - s)
+            phi = np.polyval(np.polyfit(s, phi, 1), s)
+        elif kind == "common removed":
+            dev, phi = chord_fit(s, smooth(c) - cm)["dev"], smooth(phi)
+        elif kind == "no twist":
+            dev, phi = chord_fit(s, smooth(c))["dev"], np.zeros_like(s)
+        else:
+            raise ValueError(kind)
+        _, d = to_model(s, dev, stud_len_m, L, n=n)
+        Ds.append(d)
+        Ps.append(np.interp(g, s, phi))
+    return g, np.array(Ds), np.array(Ps)

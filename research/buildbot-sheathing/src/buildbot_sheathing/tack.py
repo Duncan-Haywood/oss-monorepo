@@ -33,6 +33,7 @@ import numpy as np
 from .asbuilt import (BOW_LIMIT, READ_U, TWIST_LIMIT, U_FIELD, U_JOINT, Band, _fit,
                       draw_magnitude, to_wall_bow, to_wall_twist_angle)
 from .budget import EDGE, GAP, HEIGHT, N_NAILS, R, Z_JOINT, plate_halves
+from .straighten import shape as shape_mid
 
 ZC = Z_JOINT - HEIGHT / 2           # joint-nail heights about the sheet centre
 TOP = HEIGHT / 2 - EDGE             # lever arm of the top and bottom joint nails
@@ -51,10 +52,13 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
     theta_draw     optional callable (rng, n) -> n rotations (rad), replacing the Gaussian s_theta
                    draw (milestone 3: the tilt a ledger and the panel's geometry leave)
     straighten     optional ``straighten.Straightener`` (milestone 9): both joint studs are pushed
-                   toward the line through the robot's estimate of their ends before nailing. The
+                   toward the line through the robot's estimate of their ends before nailing (on
+                   measured profiles or local reads: a mid push by superposition, milestone 12). The
                    push is set from a read, so the stud is straightened as if its bow were
                    b + N(0, s_push) (s_push defaults to s_read); the robot believes the shape the
                    policy leaves for its own estimate of the bow. Needs the three or dense policy.
+    policy "local" (milestone 12) reads each stud at every nail height (17 joint, 7 field) and
+                   aims each nail at its own read, with no fitted shape
     profiles       optional measured studs (milestone 11): a tuple (g, D, PHI) with g the n_g
                    points of u in [0, 1], D (n_prof, n_g) each stud's face line about its chord (m)
                    and PHI (n_prof, n_g) its section rotation (rad). Each of the four studs is
@@ -103,14 +107,38 @@ def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0
         def phi(u):
             return T[..., None] * (np.asarray(u)[None, None, :] - 0.5)
 
-    ur = READ_U[policy]
-    reads = line(ur) + (rng.normal(0, s_read, (t, 4, len(ur))) if s_read > 0 else 0.0)
-    est_j = _fit(policy, ur, reads, U_JOINT)
-    est_f = _fit(policy, ur, reads, U_FIELD)
+    if policy == "local":
+        # milestone 12: read the stud at every nail height and aim each nail at its own read
+        nj = len(U_JOINT)
+        ur = np.concatenate([U_JOINT, U_FIELD])
+        reads = line(ur) + (rng.normal(0, s_read, (t, 4, len(ur))) if s_read > 0 else 0.0)
+        est_j, est_f = reads[..., :nj].copy(), reads[..., nj:]
+    else:
+        ur = READ_U[policy]
+        reads = line(ur) + (rng.normal(0, s_read, (t, 4, len(ur))) if s_read > 0 else 0.0)
+        est_j = _fit(policy, ur, reads, U_JOINT)
+        est_f = _fit(policy, ur, reads, U_FIELD)
     true_j, true_f = line(U_JOINT), line(U_FIELD)
-    if straighten is not None:
-        if profiles is not None:
-            raise ValueError("straightening is modelled on parabolic bows only")
+    if straighten is not None and (profiles is not None or policy == "local"):
+        # milestone 12: a mid push on any stud shape, by superposition. The stud's mid-height
+        # point moves by its offset from its own chord plus N(0, s_push), times the pinned (or
+        # fixed) point-load shape; the robot believes its estimate moved by its own estimated
+        # offset (a parabola through its reads) times the same shape.
+        if straighten.policy != "mid":
+            raise ValueError("measured studs and local reads support the mid push only")
+        sp = s_read if s_push is None else s_push
+        w = shape_mid(U_JOINT, straighten.ends)[None, :]
+        rj = reads[..., :len(U_JOINT)] if policy == "local" else None
+        pol, uu, rr = ("dense", U_JOINT, rj) if policy == "local" else (policy, ur, reads)
+        e01 = _fit(pol, uu, rr, [0.0, 1.0])
+        b_hat = _fit(pol, uu, rr, [0.5])[..., 0] - (e01[..., 0] + e01[..., 1]) / 2
+        ends_ = line([0.0, 1.0])                                         # pinned at the plates
+        mid_true = line([0.5])[..., 0] - (ends_[..., 0] + ends_[..., 1]) / 2
+        for k in (0, 3):
+            d = mid_true[:, k] + (rng.normal(0, sp, t) if sp > 0 else 0.0)
+            true_j[:, k] = true_j[:, k] - d[:, None] * w
+            est_j[:, k] = est_j[:, k] - b_hat[:, k, None] * w
+    elif straighten is not None:
         if policy not in ("three", "dense"):
             raise ValueError("straightening needs a bow estimate: policy three or dense")
         sp = s_read if s_push is None else s_push

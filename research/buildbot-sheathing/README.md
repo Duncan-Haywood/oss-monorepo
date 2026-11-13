@@ -537,6 +537,22 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
   running mean, the 110 mm mean less the part common to all eleven members (post hoc, see
   results), twist off, and each stud's own fitted parabola with a linear twist.
 
+## Milestone 12 method (`tack.simulate`, `local` policy and the push on any shape)
+- **Question.** Do milestones 9 and 10's single-2x remedies (a mid push, a slide and a shim) still
+  work on milestone 11's measured studs, and is their loss the robot's estimate (a fitted
+  parabola) or the geometry (a straight edge on a wavy face)?
+- **Per-nail reads (`policy="local"`).** The robot reads each stud at every nail height (17 on a
+  joint stud, 7 on a field stud, 0.5 mm each) and aims each nail at its own read, with no fitted
+  shape.
+- **Mid push on any shape.** By superposition on the scanned shape: the stud's mid-height point
+  moves by its offset from the chord through its ends plus N(0, 0.5 mm), times the pinned
+  point-load shape; the robot believes its estimate moved by its own estimated offset times the
+  same shape. On a parabola this is milestone 9's push.
+- **Grid.** Single 2x, Drake smooth-rock seats, 0.9 mm tool, 20,000 sheets, seed 7; studs
+  measured (110 mm mean), measured less the common part, each stud's own parabola, and straight;
+  three, dense or per-nail reads; push or not; milestone 9's ledger or milestone 10's slide and
+  shim (0.5 mm). Doubled joints on measured studs; the tool scatter that gives 95% (bisection).
+
 ## Reproduce
 ```bash
 pip install numpy matplotlib pytest
@@ -570,6 +586,8 @@ python experiments/m10_ceiling/figure.py
 python experiments/m11_measured/extract.py                   # downloads the 54 MB data set once (CC BY 4.0), writes profiles.json
 python experiments/m11_measured/run.py > experiments/m11_measured/results.txt         # ~15 s, seed 7; reads profiles.json and m6b's results.json
 python experiments/m11_measured/figure.py
+python experiments/m12_remedies/run.py > experiments/m12_remedies/results.txt         # ~40 s, seed 7; reads m11 profiles.json and m6b's results.json
+python experiments/m12_remedies/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 ```
 
@@ -842,6 +860,26 @@ python paper/check_numbers.py                                # every number the 
   0.59–0.94 mm); **H52 refuted** (measured 0.425 against parabola 0.579, 15 points; doubled
   joints 1.000).
 
+## Milestone 12 results (`experiments/m12_remedies/results.txt`)
+
+![Clean sheets on single 2x joints for straight, parabolic and measured studs, by remedy](experiments/m12_remedies/figure.png)
+
+- **Per-nail reads close most of the waviness gap.** Measured studs, ledger, no push: three reads
+  0.425, dense parabola 0.474, per-nail reads 0.530 (each stud's own parabola 0.579). The waviness
+  cost falls from 15.4 points to 4.7. On parabolic and straight studs per-nail reads gain nothing.
+- **The push still pays.** Three reads: 0.425 to 0.552 with a mid push (+12.6 points; +16.3 on
+  parabolas). Per-nail reads and the push: 0.650. Forces 10–72 N; four of six studs straighten,
+  the most leaning end stud does not (its shape is not a bow).
+- **Stacked.** Per-nail reads, push, and slide plus shim: **0.771** (0.796 with the common part
+  removed), against 0.860 on parabolas and 0.889–0.937 on straight studs. 95% then needs a tool
+  held to 0.61 mm (1σ), against 0.84 mm on straight studs.
+- **Doubled joints:** 1.0000 in every cell.
+- **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H53 held (0.530 against a 0.502 bar);
+  H54 held (+12.6 points against +10); **H55 refuted** (0.771 against 0.90); H56 held.
+- **A bug caught before use.** The first run measured the push from each profile's
+  least-squares line instead of its end chord; fixed and tested, and only the fixed run is reported
+  ([`LOG.md`](LOG.md)).
+
 ## Limitations
 - **Measured studs (milestone 11).** One wall of six studs, of unstated grade and species, built
   by robots that shorten members to fit, scanned from one side with a profile every 2 mm along
@@ -927,7 +965,10 @@ the end restraint. A measured sample of
 real panels' squareness and edge bow would settle the single-2x case. Milestone 11 measured six installed studs from a public
 scan and found the parabola flatters single 2x by 11–15 points; the next measured check is a
 scan with finer profile pitch (or a scan along the studs) of framer-built walls, to separate
-the wood's waviness from the scanner's and to give a population, not one wall. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+the wood's waviness from the scanner's and to give a population, not one wall. Milestone 12
+found that reading each stud at every nail height recovers most of that loss, and that per-nail
+reads, a mid push and a slide and shim together reach 0.77 on the measured studs (95% needs a
+0.6 mm tool); a line-laser stud read on a real robot, and its time, is the next measured input. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps
