@@ -1,4 +1,4 @@
-# A clear-air lidar twin overstates range by exp(αr): closed-form detection range in fog, how far a mis-set extinction moves it, and why a policy trained on the mean fog is unsafe half the time
+# A clear-air lidar twin overstates range by exp(αr): closed-form detection range in fog, how far a mis-set extinction moves it, and why a policy trained on the median fog is unsafe half the time (and on the mean fog, 34% of the time)
 
 ## Question
 Lidar simulators usually render returns without atmospheric loss. In fog, rain or dust the real sensor loses range. How wrong is the clear-air twin, how accurately must the twin's extinction be set, and what should a twin that is used to choose a driving speed assume when fog density changes from episode to episode or varies along the beam?
