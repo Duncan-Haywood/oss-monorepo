@@ -74,7 +74,8 @@
     $("#simp").value = SIMPLIFIED_EUR;
     function addRow(line = "tee-men", units = 1000) {
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td><select>${opts}</select></td><td><input type="number" min="0" step="1" value="${units}"></td><td><input type="number" min="0" step="0.0001" placeholder="example"></td><td><button type="button">Remove</button></td>`;
+      const n = document.querySelectorAll("#rows tbody tr").length + 1;
+      tr.innerHTML = `<td><select aria-label="Product line, row ${n}">${opts}</select></td><td><input type="number" min="0" step="1" value="${units}" aria-label="Pieces, row ${n}"></td><td><input type="number" min="0" step="0.0001" placeholder="example" aria-label="EUR per piece, row ${n}"></td><td><button type="button" aria-label="Remove row ${n}">Remove</button></td>`;
       tr.querySelector("select").value = line;
       tr.querySelector("button").addEventListener("click", () => { tr.remove(); render(); });
       $("#rows tbody").append(tr);

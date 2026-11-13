@@ -98,7 +98,7 @@
       const rows = marketPrices({ landed: +$("#landed").value, quantity: Math.max(1, +$("#qty").value), currencyRates: rates, vat, ending: +$("#ending").value, audience: $("#aud").value }, plan, cur);
       $("#result").innerHTML = `<table><tr><th>Market</th><th>VAT %</th><th>Shelf price</th><th>Net of tax</th><th>Profit / sale</th><th>Margin</th></tr>${rows.map(r => r.error
         ? `<tr><td>${esc(r.label || r.market)}</td><td colspan="5" class="placeholder">${esc(r.error)}</td></tr>`
-        : `<tr><td>${esc(r.label)}</td><td><input data-m="${r.market}" type="number" min="0" max="40" step="0.5" value="${r.vatPct}" ${MARKETS[r.market].tax === "excluded" ? "disabled" : ""}></td><td class="num"><b>${esc(money(r.shelfPrice, r.currency))}</b></td><td class="num">${esc(money(r.netOfTax, r.currency))}</td><td class="num">${esc(money(r.profitPerSale, r.currency))}</td><td class="num">${r.marginPct}%</td></tr>`).join("")}</table>`;
+        : `<tr><td>${esc(r.label)}</td><td><input data-m="${r.market}" aria-label="VAT % for ${esc(r.label)}" type="number" min="0" max="40" step="0.5" value="${r.vatPct}" ${MARKETS[r.market].tax === "excluded" ? "disabled" : ""}></td><td class="num"><b>${esc(money(r.shelfPrice, r.currency))}</b></td><td class="num">${esc(money(r.netOfTax, r.currency))}</td><td class="num">${esc(money(r.profitPerSale, r.currency))}</td><td class="num">${r.marginPct}%</td></tr>`).join("")}</table>`;
       $("#result").querySelectorAll("input[data-m]").forEach(i => i.addEventListener("change", () => { vat[i.dataset.m] = +i.value; render(); }));
     }
     function renderOss() {
