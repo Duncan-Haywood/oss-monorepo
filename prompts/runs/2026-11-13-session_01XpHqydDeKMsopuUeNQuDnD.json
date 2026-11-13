@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
@@ -76,6 +76,9 @@
   "corrections": [
     {
       "what": "ventures/isolation-forest/index.html:296 rounds the contamination percentage (percent-float test red on main since #15447)"
+    },
+    {
+      "what": "platform/pages/check.mjs SERVED_EXTENSIONS gains .data. isolation-forest's UCI fixtures made the Portfolio Pages build fail on main since #15447, which blocked the deploy. Found when PR 15450's pages build went red; check.mjs on the local dist passes after the change."
     }
   ],
   "redteam": null,
