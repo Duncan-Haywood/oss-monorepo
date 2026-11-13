@@ -26,7 +26,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 5,
@@ -49,7 +49,7 @@
     "ventures/chant-forge/eval/three-sections-report.md"
   ],
   "goal": "Deepen a flagship (owner, 2026-10-20)",
-  "notes": "voicefit.splitVoices generalised from {all,tenor,bass} to every non-empty set of sections (bitmask), cost = section-notes left out; equal to the old cost for two sections so all 18 earlier split tests pass unchanged. CLI --baritones/--baritone, MIDI Baritones track (ch 6), cue who column T+Bar etc, studio page option. Verification: run_venture_tests.py chant-forge ok (155 tests); eval/browser-e2e.mjs all 98 checks passed (3 new); eval/three-sections.mjs: octave-wide ranges 56->64 of 67 files fit, one-section notes 89.4%->29.9%, changes of singer 166->484; amateur 25.4%->2.5%. Not tried with singers. venture-preflight.mjs chant-forge: clean (after merging main and syncing SWITCHES_IN_THE_CATALOGUE 1322->1323 for sprinkler-hydraulic-calc, drift that came from main, not this change).",
+  "notes": "voicefit.splitVoices generalised from {all,tenor,bass} to every non-empty set of sections (bitmask), cost = section-notes left out; equal to the old cost for two sections so all 18 earlier split tests pass unchanged. CLI --baritones/--baritone, MIDI Baritones track (ch 6), cue who column T+Bar etc, studio page option. Verification: run_venture_tests.py chant-forge ok (155 tests); eval/browser-e2e.mjs all 98 checks passed (3 new); eval/three-sections.mjs: octave-wide ranges 56->64 of 67 files fit, one-section notes 89.4%->29.9%, changes of singer 166->484; amateur 25.4%->2.5%. Not tried with singers. venture-preflight.mjs chant-forge: clean (after merging main and syncing SWITCHES_IN_THE_CATALOGUE 1322->1323 for sprinkler-hydraulic-calc, drift that came from main, not this change). PR had 0 check runs after push (starved/not started), so merged on local checks: run_workflow_locally.py --for-changes 11/13 workflows passed; the one FAIL (test_no_dead_pages_base) read the gitignored platform/pages/dist the local preflight build left behind and passes with it moved aside; pytest-only steps and portfolio-pages deploy/review bot jobs not run.",
   "corrections": [],
   "redteam": null,
   "usage": {
