@@ -20,7 +20,7 @@
   "opened": "2026-11-13",
   "source": "explore run 2026-11-13, hopper agitator",
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15580",
-  "result": null,
+  "result": "helped: cad job 13.1 min of 20 on PR #15580 (run 43489023074, 19:06:30 to 19:19:39 UTC; test step 12.1 min), was 19 min on PR #15557. Local 1627 s to 805 s.",
   "history": [
     {
       "date": "2026-11-13",

@@ -44,7 +44,7 @@
     "docs/posts/2026-11-13-halving-a-cad-test-suite.md"
   ],
   "goal": null,
-  "notes": "Mode: Solve, P066 (only agent-owned open item besides blocked P056). open-tennis-robots cad suite, local 4 CPUs, python -m unittest discover -s tests: before 1627.3 s (Ran 80, OK), after 805.4 s (Ran 80, OK). Package builds start in setUpModule as subprocesses; clean sweeps asserted once from the fresh feeder manifest; cable_sweep poses/azimuths, shifted loop caught at all 7 poses (checked). promptctl validate and unittest discover -s prompts green after the record. CI cad-job wall time on the next open-tennis-robots PR is the metric to verify.",
+  "notes": "Mode: Solve, P066 (only agent-owned open item besides blocked P056). open-tennis-robots cad suite, local 4 CPUs, python -m unittest discover -s tests: before 1627.3 s (Ran 80, OK), after 805.4 s (Ran 80, OK). Package builds start in setUpModule as subprocesses; clean sweeps asserted once from the fresh feeder manifest; cable_sweep poses/azimuths, shifted loop caught at all 7 poses (checked). promptctl validate and unittest discover -s prompts green after the record. CI cad-job wall time on the next open-tennis-robots PR is the metric to verify. CI: cad job on PR #15580 took 13.1 min (run 43489023074), was 19 min on #15557; everything else green.",
   "corrections": [],
   "redteam": null,
   "usage": {

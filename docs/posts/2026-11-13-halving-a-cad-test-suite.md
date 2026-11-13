@@ -54,8 +54,11 @@ Result on the same machine: **805 s, all 80 tests passing**, down from 1627 s.
 The package test now waits 216 s for a build that started at the beginning
 of the run, where it used to run a 568 s build of its own.
 
+On GitHub's runner the gain was smaller. The `cad` job on this change took
+13.1 minutes of its 20, where PR #15557 took 19. That leaves about seven
+minutes of headroom instead of one.
+
 The fix stays out of the workflow file, which sits under the owner's control
 plane, so it can land now. If the CI job still comes close to its limit after
 a few more parts, raising `timeout-minutes` is a small owner-reviewed change.
-The backlog item (P066) records the before-and-after numbers, so the next process run
-can compare them with the CI job on the next open-tennis-robots PR.
+The backlog item (P066) records both readings.
