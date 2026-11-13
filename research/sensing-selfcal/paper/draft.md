@@ -179,6 +179,16 @@ threshold no longer travels: false alarms are 11.1% on the left camera and 0.0% 
 the jackknife now overstates the spread by different factors on the two cameras (the cameras' own
 99th percentiles of z<sub>f</sub>² are 3.56 and 1.03).
 
+Can a unit set its own threshold from the views it already has? Splitting each old set of 7 views
+into 4 + 3 in all 35 ways and scaling the halves' focal-length spread by 1/n (3,168 more solves, so
+every 3- and 4-view subset is solved) gives a test that is quiet (0.6% / 0.0% false alarms) but deaf:
+it catches a ±2% change in 0.8% of splits. The halves overstate the real old-to-new spread 2.9× and
+5.2× (predicted sd 1.94% / 2.62% against a real 0.67% / 0.50%). The reason is that f's spread does
+not shrink as 1/n below 5 views: per view, after removing the views a subset shares with the
+all-view set, it is 3.29% / 5.21% at 3 views, 2.15% / 2.17% at 4 and 1.55% / 0.95% at 7 (5×5
+corners, left / right). A per-unit scale needs halves of at least 5 views, so about 10 views in the
+old calibration.
+
 ## 8. Recommendations
 
 1. **Gate on a view-level jackknife, not the solver's covariance.** The reported covariance and a
@@ -191,7 +201,8 @@ the jackknife now overstates the spread by different factors on the two cameras 
    of at least one window. The tutorial 11×11 window on this board is worth more focal-length error
    (+0.6–0.9%) than the self-calibration itself (0.15–0.24%).
 4. **Do not borrow one sibling's threshold.** Pool it over several units or estimate each unit's own
-   tail at commissioning; one borrowed unit gave 11% false alarms.
+   tail at commissioning; one borrowed unit gave 11% false alarms. A tail from 4 + 3 split-halves
+   of a 7-view old set is not enough: it overstates the spread 3–5×.
 
 ## 9. Limitations
 

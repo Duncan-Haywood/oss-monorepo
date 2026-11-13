@@ -179,7 +179,7 @@ planar vs non-planar scenes, mismatch rate.
    done 2026-11-11, see `LOG.md`); (b) natural features: SIFT matches on an openly
    licensed multi-view set with a known calibration; H5.
 4. The accept/reject test and its false-accept rate across milestones 1–3
-   **(done 2026-11-12, H18–H22; 4b, a jackknife covariance and SB corners, H23–H27; 4c, its reference distribution, H28–H32; 4d, on unbiased 5×5 corners, H38–H42, see `LOG.md`)**.
+   **(done 2026-11-12, H18–H22; 4b, a jackknife covariance and SB corners, H23–H27; 4c, its reference distribution, H28–H32; 4d, on unbiased 5×5 corners, H38–H42; 4e, a per-unit threshold from split-halves, H43–H47, see `LOG.md`)**.
 5. Unmodelled lens terms (k2, principal point) on real data, tying to
    `sensing-bak2` and `sensing-bapp`.
    Milestone 6 and 6b (done 2026-11-11 and 2026-11-13; see `LOG.md`) took the corner
