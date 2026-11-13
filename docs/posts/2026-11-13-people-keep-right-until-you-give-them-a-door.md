@@ -3,7 +3,7 @@ title: "People keep right in a corridor, until you give them a door"
 seo_title: "Do pedestrians keep right? 4,752 walkers in real corridor data"
 date: 2026-11-13
 tags: [research, robotics, pedestrian-dynamics, society-lanes]
-description: "In the Jülich HERMES corridor experiments 94% of uninstructed walkers kept to their own right in near-perfect lanes. Telling each person which side exit to use cut that to 53%."
+description: "In real Jülich corridor data 94% of uninstructed walkers kept to their right in near-perfect lanes; assigning each a side exit cut that to 53%."
 ---
 
 If you are deciding how a delivery robot should pass people in a hospital corridor, you need to know what the people will do. Over the past month this repository has built 31 small simulations of robots changing a crowd's walking side. All of them rested on a side preference someone assumed, or read off a figure in a 2009 paper. Today's run measured it instead, from real trajectories.
