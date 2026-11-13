@@ -23,7 +23,8 @@ p(f"ADU ${m.adu_sdc():,.0f} vs ${m.adu_sdc(location='outside Denver'):,.0f}; hou
 p("== F. House-market's $16,930 water and sewer SDC minus Denver Water's January-step charge on 2,000 sq ft")
 p(f"Denver Water ${m.house_sdc(2000, '2026-01-01'):,.0f}; remainder (sewer and other) ${m.residual():,.0f}")
 p("== G. Charged area implied by the $10,450 single-family fee reported for Denver in 2026 (search excerpt, Colorado Sun)")
-implied = (10450 - 3380) / 1.01
+_s = m.schedule()[("2026-07-01", "inside Denver")]
+implied = (10450 - _s["base_usd"]) / _s["first_22000_per_sqft"]
 p(f"July 2026 schedule: ${m.house_sdc(implied):,.0f} at {implied:,.0f} sq ft charged (a lot-sized area, not a floor area)")
 p("== H. DOTI 2026 sewer permit fees (inside Denver, July 2026 water step)")
 p(f"fees: application $425 + inspection $150 = ${m.sewer_permit_fees(False):,.0f}; per-unit connection fee ${m.sewer()['total_per_unit']:,.0f}")

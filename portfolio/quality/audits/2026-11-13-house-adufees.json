@@ -1,238 +1,240 @@
 {
- "date": "2026-11-13",
- "subject": "research/house-adufees",
- "stratum": "research",
- "seed": "2026-11-13-l",
- "drawn_by": "sample",
- "round": 66,
- "auditor": "agent session (Claude), see run record",
- "status": "audited",
- "professional": "a municipal water/wastewater rate consultant who prepares capacity-charge (SDC) studies under AWWA M1, reviewing alongside a housing-policy economist who studies ADU development fees (Terner Center style). They would check first how the utility defines the charged area for a single-family tap (lot or floor area), whether an ADU that shares the main house's meter owes the ADU charge, whether the dollar figures match the adopted schedule, and whether the fee comparison is the one a homeowner actually faces (a house on a typical Denver lot, not a house 'charged on 2,000 sq ft').",
- "scores": {
-  "correctness": 2,
-  "completeness": 3,
-  "verification": 2,
-  "craft": 2,
-  "claims": 1,
-  "fitness": 1,
-  "domain": 2
- },
- "evidence": {
-  "correctness": "Arithmetic reproduces and the Denver Water inputs are corroborated; the headline house comparison uses a charged area that the utility's own worked example contradicts. Rerun in a private copy (run.py writes into the tree, so not run in place): `cp -r research/house-adufees research/_shared /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/copy/research/ && cd /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/copy/research/house-adufees && python3 experiments/run.py && diff experiments/results.txt <repo>/research/house-adufees/experiments/results.txt` -> identical; figure.py regenerates a byte-identical SVG. Independent script `/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/indep.py` (imports nothing from the package; schedule constants typed from search-engine excerpts of Denver Water's 2026 SDC page and the Denver Gazette, not from data/sdc.csv): house on 2,000 sq ft Jul $5,400 / Jan $4,925, ADU saving 59.8%, step +5.60% ADU / +9.64% house, $4.52 vs $2.70 per sq ft, 6,000 sq ft $9,440/$8,365, slope over 22,000 $0.50, sewer totals $575/$9,225/$12,455, residual $12,005 and $5,525: all match results.txt. Provenance: denverwater.org, denvergov.org and marisstella.app are blocked by the session proxy (curl CONNECT 403; WebFetch ENOTFOUND), so no source page was read directly. Web-search excerpts of denverwater.org confirm base $3,380 + $1.01/sq ft (first 22,000) + $0.50 inside Denver from 1 July 2026, the January step $3,205 + $0.86, and ADU $2,055/$2,170 inside and $2,870/$3,030 outside: the SDC data are real, not invented. DOTI's $410 SAFE + $6,070 METRO, $425 and $150 could not be corroborated (search did not surface the PDF); not verified, not shown false. The defect: a Denver Water news item (search excerpt, denverwater.org/tap/fees-connect-denver-waters-system-increase) says a new single-family home 'on a 7,000 sq ft lot' goes to $10,450 after the phase-in, which is exactly 3,380 + 1.01 x 7,000. So the per-sq-ft rate is charged on lot area, and the headline '$5,400 for a house charged on 2,000 sq ft' and 'per floor sq ft the ADU is dearer ($4.52 vs $2.70)' answer a case no homeowner meets. On a Denver standard 50x125 ft lot (6,250 sq ft) a 2,000 sq ft house pays $9,692.50, $4.85 per floor sq ft, more than the ADU's $4.52; the per-sq-ft finding reverses for any lot over 5,606 sq ft, and the ADU saving is 77.6%, not 60%. Not 3: correct arithmetic on a wrong-reading input gives outputs a user would act on wrongly.",
-  "completeness": "README claims checked: 11 tests (ran: 11 passed in 0.02 s); run.py writes results.txt (byte-identical in a private copy); figure.py writes sdc_vs_area.svg (byte-identical); every number in the README tables appears in results.txt (sections A-H); data/sources.csv cites four sources with URLs and read dates. Live page https://marisstella.app/research/house-adufees/ could not be loaded (host blocked in this session), so not checked. Stale: README:3 says 'A 40-line stdlib model', model.py is 88 lines; model.py:54 residual docstring says 'no sewer schedule was read' though sewer.csv was added. Everything the README says is done runs end to end, within its narrow scope; the follow-up the parent project asked for (price house-open-design's ADU under Colorado's fee schedules) is done for two fees out of the five or more the README itself names (linkage, plan review, impact, school not found).",
-  "verification": "`cd research/house-adufees && /usr/bin/python3.13 -m pytest -q tests`: 11 passed in 0.02 s. Tests pin some absolute values (5,400; 2,170; 575; 2,745; 9,225; 12,005; 5,525) but the derived headline numbers are only range-checked. Five mutants via platform/ci/quality_mutate.py: 1 caught (over-22,000 offset 22000->22001, model.py:26), 4 survived: the 22,000 sq ft tier cap changed to 20,000 (model.py:25; no test between 20,000 and 22,000), adu_discount using the outside-Denver ADU charge (model.py:36; the 60% headline is tested only as 0<x<1), step_increase off by 0.05 (model.py:47; the house +9.6% headline is untested, the ADU one only as 0<x<0.2), and the charge_unit_fee override removed (model.py:73; never exercised). run.py's section G hard-codes 3380 and 1.01 (run.py:26) outside any test.",
-  "craft": "Read src/house_adufees/model.py (88 lines), tests/test_adufees.py (56), experiments/run.py (35), experiments/figure.py (23), data/*.csv, pyproject.toml. Stdlib, small functions, schedule in CSV so a new step is one edit, figure parsed from results.txt. Defects: dead constant SEWER_AND_OTHER_2000 = None 'computed in residual()' (model.py:14), which it is not; run.py:26 hard-codes the July base and rate ((10450 - 3380) / 1.01) instead of reading the schedule, so a schedule edit silently desyncs section G; schedule() and sewer() re-read the CSV on every call; no input validation (negative or zero area accepted, unknown step raises a bare KeyError); module docstring (model.py:4) says the rate is charged on 'the *lot* area' while the README headline charges a house on 2,000 sq ft and calls it floor area; run.py writes into the source tree on every run; stale docstring at model.py:54. A senior Python reviewer would accept after small fixes; a senior analyst would not accept the docstring/README contradiction on the key modelling choice.",
-  "claims": "Checked: '$2,170 ADU inside Denver from 1 July 2026, $2,055 before, $3,030 outside' (sdc.csv, corroborated by search excerpts) pass; 'house pays $3,380 + $1.01 per sq ft' pass; 'ADU pays 60% less than that house' arithmetic pass, but framed on a 2,000 sq ft charged area that the utility's own example shows is lot area, so the comparison a reader takes away (ADU 60% less than a house) understates it (77.6% on a 6,250 sq ft lot); 'Per floor sq ft the ADU is dearer ... $2.70 per sq ft if 2,000 is its floor area' fails: the 'if' is false per Denver Water's worked example, and on any lot over 5,606 sq ft the house is dearer per floor sq ft. 'The page does not say whether the per-sq-ft rate applies to lot or floor area' (README:16) and the Next step 'check the lot-or-floor reading against ... a worked example' (README:57): Denver Water published that worked example (7,000 sq ft lot -> $10,450), and the README even quotes the $10,450 figure from the Colorado Sun (README:38) yet treats it as a probe. '40-line model' (README:3) false (88). Sewer numbers: cited to DOTI PDFs, unreachable here; their framing as an 'upper-bound reading' is honest. Disclaimer 'Not advice, not a quote' present (README:16); AI assistance stated; MIT. The research index (research/README.md:710) repeats the 2,000 sq ft headline.",
-  "fitness": "Could a researcher build on it? As a data point, partly: the Denver Water ADU and single-family SDC table is correctly transcribed and cited, and the sewer-fee split is a careful, hedged reading. As research, no: it is a fee-table lookup with subtraction, far below the PhD-level bar research/CLAUDE.md sets, with no question beyond one utility's tariff. Nearest prior work, none cited: Terner Center (UC Berkeley) 'It All Adds Up: The Cost of Housing Development Fees in Seven California Cities' (Mawhorter, Garcia and Raetz, 2018) and its ADU work (Chapple et al., 'Jumpstarting the Market for ADUs', 2017; later ADU fee/cost reports), which set the method for comparing fees per unit and per sq ft across unit types; California's 2019 ADU laws (AB 68, AB 881, SB 13; Gov. Code 65852.2(f), now 66324) that bar impact fees on ADUs under 750 sq ft and require proportional fees above, the obvious policy benchmark for 'should a 480 sq ft ADU pay a flat $2,170'; Colorado's own 2024 ADU law (HB24-1152) and its fee-reduction grant programme; local fee studies (HBA of Metro Denver development fee study, Common Sense Institute's cost-of-homebuilding report, which is the house-market $16,930 source) and AWWA M1 capacity-charge methodology (equivalent residential units by meter size or demand, which is why a flat ADU charge exists). Not new; sound in arithmetic but its central comparison uses the wrong charged area.",
-  "domain": "Against standard SDC practice (AWWA M1: capacity charges scale with expected demand; Denver Water's single-family charge scales with lot area as a proxy for irrigation demand, as its 7,000 sq ft lot example shows): the schedule is transcribed right and the tier logic (first 22,000 sq ft, lower rate above) is right. Departures a rate consultant would flag first: (1) leaves lot-vs-floor open and headlines the floor reading, though the utility's own example settles it and irrigation-driven lot pricing is the known rationale; (2) compares the ADU to a house charged on 2,000 sq ft rather than to the marginal fee of adding an ADU to an existing lot, which is the homeowner's real choice; (3) does not settle whether an ADU on the house's existing meter owes the ADU charge (Denver Water says an ADU needs a water supply license and owes an additional SDC 'to run water service to the ADU', search excerpt), which drives the $2,745 'shared tap' total. The sewer side is handled with appropriate caution."
- },
- "checks": [
-  {
-   "dimension": "correctness",
-   "what": "house SDC on 2,000 sq ft, both 2026 steps, and the ADU saving",
-   "method": "Denver Water 2026 SDC schedule as given in web-search excerpts of denverwater.org and the Denver Gazette (base, per-sq-ft rate), independent code",
-   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/indep.py",
-   "expected": "$5,400 (Jul), $4,925 (Jan), ADU 60% less (README:8)",
-   "observed": "5400.0, 4925.0, 59.8%",
-   "result": "pass"
+  "date": "2026-11-13",
+  "subject": "research/house-adufees",
+  "stratum": "research",
+  "seed": "2026-11-13-l",
+  "drawn_by": "sample",
+  "round": 66,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a municipal water/wastewater rate consultant who prepares capacity-charge (SDC) studies under AWWA M1, reviewing alongside a housing-policy economist who studies ADU development fees (Terner Center style). They would check first how the utility defines the charged area for a single-family tap (lot or floor area), whether an ADU that shares the main house's meter owes the ADU charge, whether the dollar figures match the adopted schedule, and whether the fee comparison is the one a homeowner actually faces (a house on a typical Denver lot, not a house 'charged on 2,000 sq ft').",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 1,
+    "fitness": 1,
+    "domain": 2
   },
-  {
-   "dimension": "correctness",
-   "what": "1 July 2026 step increase",
-   "method": "ratio of ADU charges 2170/2055 and house charges from the excerpted schedule",
-   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/indep.py",
-   "expected": "ADU +5.6%, house +9.6% (README:10)",
-   "observed": "+5.60%, +9.64%",
-   "result": "pass"
+  "evidence": {
+    "correctness": "Arithmetic reproduces and the Denver Water inputs are corroborated; the headline house comparison uses a charged area that the utility's own worked example contradicts. Rerun in a private copy (run.py writes into the tree, so not run in place): `cp -r research/house-adufees research/_shared /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/copy/research/ && cd /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/copy/research/house-adufees && python3 experiments/run.py && diff experiments/results.txt <repo>/research/house-adufees/experiments/results.txt` -> identical; figure.py regenerates a byte-identical SVG. Independent script `/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/indep.py` (imports nothing from the package; schedule constants typed from search-engine excerpts of Denver Water's 2026 SDC page and the Denver Gazette, not from data/sdc.csv): house on 2,000 sq ft Jul $5,400 / Jan $4,925, ADU saving 59.8%, step +5.60% ADU / +9.64% house, $4.52 vs $2.70 per sq ft, 6,000 sq ft $9,440/$8,365, slope over 22,000 $0.50, sewer totals $575/$9,225/$12,455, residual $12,005 and $5,525: all match results.txt. Provenance: denverwater.org, denvergov.org and marisstella.app are blocked by the session proxy (curl CONNECT 403; WebFetch ENOTFOUND), so no source page was read directly. Web-search excerpts of denverwater.org confirm base $3,380 + $1.01/sq ft (first 22,000) + $0.50 inside Denver from 1 July 2026, the January step $3,205 + $0.86, and ADU $2,055/$2,170 inside and $2,870/$3,030 outside: the SDC data are real, not invented. DOTI's $410 SAFE + $6,070 METRO, $425 and $150 could not be corroborated (search did not surface the PDF); not verified, not shown false. The defect: a Denver Water news item (search excerpt, denverwater.org/tap/fees-connect-denver-waters-system-increase) says a new single-family home 'on a 7,000 sq ft lot' goes to $10,450 after the phase-in, which is exactly 3,380 + 1.01 x 7,000. So the per-sq-ft rate is charged on lot area, and the headline '$5,400 for a house charged on 2,000 sq ft' and 'per floor sq ft the ADU is dearer ($4.52 vs $2.70)' answer a case no homeowner meets. On a Denver standard 50x125 ft lot (6,250 sq ft) a 2,000 sq ft house pays $9,692.50, $4.85 per floor sq ft, more than the ADU's $4.52; the per-sq-ft finding reverses for any lot over 5,606 sq ft, and the ADU saving is 77.6%, not 60%. Not 3: correct arithmetic on a wrong-reading input gives outputs a user would act on wrongly.",
+    "completeness": "README claims checked: 11 tests (ran: 11 passed in 0.02 s); run.py writes results.txt (byte-identical in a private copy); figure.py writes sdc_vs_area.svg (byte-identical); every number in the README tables appears in results.txt (sections A-H); data/sources.csv cites four sources with URLs and read dates. Live page https://marisstella.app/research/house-adufees/ could not be loaded (host blocked in this session), so not checked. Stale: README:3 says 'A 40-line stdlib model', model.py is 88 lines; model.py:54 residual docstring says 'no sewer schedule was read' though sewer.csv was added. Everything the README says is done runs end to end, within its narrow scope; the follow-up the parent project asked for (price house-open-design's ADU under Colorado's fee schedules) is done for two fees out of the five or more the README itself names (linkage, plan review, impact, school not found).",
+    "verification": "`cd research/house-adufees && /usr/bin/python3.13 -m pytest -q tests`: 11 passed in 0.02 s. Tests pin some absolute values (5,400; 2,170; 575; 2,745; 9,225; 12,005; 5,525) but the derived headline numbers are only range-checked. Five mutants via platform/ci/quality_mutate.py: 1 caught (over-22,000 offset 22000->22001, model.py:26), 4 survived: the 22,000 sq ft tier cap changed to 20,000 (model.py:25; no test between 20,000 and 22,000), adu_discount using the outside-Denver ADU charge (model.py:36; the 60% headline is tested only as 0<x<1), step_increase off by 0.05 (model.py:47; the house +9.6% headline is untested, the ADU one only as 0<x<0.2), and the charge_unit_fee override removed (model.py:73; never exercised). run.py's section G hard-codes 3380 and 1.01 (run.py:26) outside any test.",
+    "craft": "Read src/house_adufees/model.py (88 lines), tests/test_adufees.py (56), experiments/run.py (35), experiments/figure.py (23), data/*.csv, pyproject.toml. Stdlib, small functions, schedule in CSV so a new step is one edit, figure parsed from results.txt. Defects: dead constant SEWER_AND_OTHER_2000 = None 'computed in residual()' (model.py:14), which it is not; run.py:26 hard-codes the July base and rate ((10450 - 3380) / 1.01) instead of reading the schedule, so a schedule edit silently desyncs section G; schedule() and sewer() re-read the CSV on every call; no input validation (negative or zero area accepted, unknown step raises a bare KeyError); module docstring (model.py:4) says the rate is charged on 'the *lot* area' while the README headline charges a house on 2,000 sq ft and calls it floor area; run.py writes into the source tree on every run; stale docstring at model.py:54. A senior Python reviewer would accept after small fixes; a senior analyst would not accept the docstring/README contradiction on the key modelling choice.",
+    "claims": "Checked: '$2,170 ADU inside Denver from 1 July 2026, $2,055 before, $3,030 outside' (sdc.csv, corroborated by search excerpts) pass; 'house pays $3,380 + $1.01 per sq ft' pass; 'ADU pays 60% less than that house' arithmetic pass, but framed on a 2,000 sq ft charged area that the utility's own example shows is lot area, so the comparison a reader takes away (ADU 60% less than a house) understates it (77.6% on a 6,250 sq ft lot); 'Per floor sq ft the ADU is dearer ... $2.70 per sq ft if 2,000 is its floor area' fails: the 'if' is false per Denver Water's worked example, and on any lot over 5,606 sq ft the house is dearer per floor sq ft. 'The page does not say whether the per-sq-ft rate applies to lot or floor area' (README:16) and the Next step 'check the lot-or-floor reading against ... a worked example' (README:57): Denver Water published that worked example (7,000 sq ft lot -> $10,450), and the README even quotes the $10,450 figure from the Colorado Sun (README:38) yet treats it as a probe. '40-line model' (README:3) false (88). Sewer numbers: cited to DOTI PDFs, unreachable here; their framing as an 'upper-bound reading' is honest. Disclaimer 'Not advice, not a quote' present (README:16); AI assistance stated; MIT. The research index (research/README.md:710) repeats the 2,000 sq ft headline.",
+    "fitness": "Could a researcher build on it? As a data point, partly: the Denver Water ADU and single-family SDC table is correctly transcribed and cited, and the sewer-fee split is a careful, hedged reading. As research, no: it is a fee-table lookup with subtraction, far below the PhD-level bar research/CLAUDE.md sets, with no question beyond one utility's tariff. Nearest prior work, none cited: Terner Center (UC Berkeley) 'It All Adds Up: The Cost of Housing Development Fees in Seven California Cities' (Mawhorter, Garcia and Raetz, 2018) and its ADU work (Chapple et al., 'Jumpstarting the Market for ADUs', 2017; later ADU fee/cost reports), which set the method for comparing fees per unit and per sq ft across unit types; California's 2019 ADU laws (AB 68, AB 881, SB 13; Gov. Code 65852.2(f), now 66324) that bar impact fees on ADUs under 750 sq ft and require proportional fees above, the obvious policy benchmark for 'should a 480 sq ft ADU pay a flat $2,170'; Colorado's own 2024 ADU law (HB24-1152) and its fee-reduction grant programme; local fee studies (HBA of Metro Denver development fee study, Common Sense Institute's cost-of-homebuilding report, which is the house-market $16,930 source) and AWWA M1 capacity-charge methodology (equivalent residential units by meter size or demand, which is why a flat ADU charge exists). Not new; sound in arithmetic but its central comparison uses the wrong charged area.",
+    "domain": "Against standard SDC practice (AWWA M1: capacity charges scale with expected demand; Denver Water's single-family charge scales with lot area as a proxy for irrigation demand, as its 7,000 sq ft lot example shows): the schedule is transcribed right and the tier logic (first 22,000 sq ft, lower rate above) is right. Departures a rate consultant would flag first: (1) leaves lot-vs-floor open and headlines the floor reading, though the utility's own example settles it and irrigation-driven lot pricing is the known rationale; (2) compares the ADU to a house charged on 2,000 sq ft rather than to the marginal fee of adding an ADU to an existing lot, which is the homeowner's real choice; (3) does not settle whether an ADU on the house's existing meter owes the ADU charge (Denver Water says an ADU needs a water supply license and owes an additional SDC 'to run water service to the ADU', search excerpt), which drives the $2,745 'shared tap' total. The sewer side is handled with appropriate caution."
   },
-  {
-   "dimension": "correctness",
-   "what": "charged area is lot area, and its effect on the headline",
-   "method": "Denver Water news item (search excerpt): new single-family home on a 7,000 sq ft lot -> $10,450 after phase-in; recompute a 2,000 sq ft house on a 6,250 sq ft (50x125 ft) Denver lot",
-   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/indep.py",
-   "expected": "if the README's floor reading held, a 2,000 sq ft house pays $5,400 and $2.70/floor sq ft, below the ADU's $4.52",
-   "observed": "7,000 sq ft lot gives exactly $10,450 (lot reading confirmed); 6,250 lot: $9,692.50, $4.85/floor sq ft > ADU $4.52, ADU saving 77.6%; break-even lot 5,606 sq ft",
-   "result": "fail"
-  },
-  {
-   "dimension": "correctness",
-   "what": "sewer totals and residual (section H, F)",
-   "method": "hand sum of DOTI fee components as quoted in README (DOTI PDFs unreachable through the proxy) and house-market facts.csv:72",
-   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/indep.py",
-   "expected": "$575, $9,225, $12,455, $12,005, $5,525",
-   "observed": "575, 9225, 12455.0, 12005.0, 5525.0",
-   "result": "pass"
-  },
-  {
-   "dimension": "claims",
-   "what": "Denver Water SDC and ADU figures are from the real schedule, not invented",
-   "method": "web search of denverwater.org (direct fetch blocked: CONNECT 403 / ENOTFOUND)",
-   "command": "WebSearch 'Denver Water accessory dwelling unit system development charge 2026 $2,170'",
-   "expected": "ADU $2,055/$2,870 Jan, $2,170/$3,030 Jul; base $3,380 + $1.01",
-   "observed": "excerpts give the same values",
-   "result": "pass"
-  },
-  {
-   "dimension": "claims",
-   "what": "DOTI 2026 sewer fees ($410 SAFE + $6,070 METRO, $425, $150)",
-   "method": "fetch cited PDFs; web search",
-   "command": "curl -sSL https://www.denvergov.org/files/assets/public/v/1/doti/documents/permits/sudp/2026-sewer-permit-fees.pdf",
-   "expected": "the four amounts",
-   "observed": "CONNECT tunnel 403; search did not surface the schedule. Unverified, not shown false",
-   "result": "partial"
-  },
-  {
-   "dimension": "claims",
-   "what": "'Per floor sq ft the ADU is dearer' (README:9) and 'the page does not say whether ... lot or floor area' (README:16)",
-   "method": "compare with Denver Water's 7,000 sq ft lot worked example",
-   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/indep.py",
-   "expected": "headline holds for a real house",
-   "observed": "reverses for any lot > 5,606 sq ft; utility's own example settles lot area",
-   "result": "fail"
-  },
-  {
-   "dimension": "completeness",
-   "what": "experiments reproduce committed results and figure",
-   "method": "rerun in a private copy, diff",
-   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/copy/research/house-adufees && python3 experiments/run.py >/dev/null && diff experiments/results.txt /home/user/oss-monorepo/research/house-adufees/experiments/results.txt && python3 experiments/figure.py",
-   "expected": "identical",
-   "observed": "results.txt and sdc_vs_area.svg byte-identical",
-   "result": "pass"
-  },
-  {
-   "dimension": "verification",
-   "what": "test suite",
-   "method": "run the documented command",
-   "command": "cd research/house-adufees && /usr/bin/python3.13 -m pytest -q tests",
-   "expected": "11 tests (README:22)",
-   "observed": "11 passed in 0.02s",
-   "result": "pass"
-  },
-  {
-   "dimension": "completeness",
-   "what": "README size claim and docstrings current",
-   "method": "wc -l and read",
-   "command": "wc -l research/house-adufees/src/house_adufees/model.py",
-   "expected": "'A 40-line stdlib model' (README:3)",
-   "observed": "88 lines; model.py:14 dead constant, model.py:54 says no sewer schedule was read",
-   "result": "fail"
-  },
-  {
-   "dimension": "fitness",
-   "what": "nearest prior work cited",
-   "method": "grep README for Terner, AB 68, SB 13, HB24-1152, AWWA",
-   "command": "grep -in 'terner\\|AB 68\\|SB 13\\|1152\\|AWWA' research/house-adufees/README.md",
-   "expected": "prior ADU-fee studies and fee-waiver laws positioned",
-   "observed": "no matches",
-   "result": "fail"
-  },
-  {
-   "dimension": "claims",
-   "what": "live page",
-   "method": "load served page",
-   "command": "curl -sS https://marisstella.app/research/house-adufees/",
-   "expected": "200",
-   "observed": "CONNECT tunnel 403 (host blocked in this session); not checked",
-   "result": "partial"
-  }
- ],
- "mutations": [
-  {
-   "where": "src/house_adufees/model.py:26",
-   "change": "max(area_sqft - 22000, 0) -> max(area_sqft - 22001, 0)",
-   "caught": true,
-   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
-  },
-  {
-   "where": "src/house_adufees/model.py:25",
-   "change": "first = min(area_sqft, 22000) -> first = min(area_sqft, 20000)",
-   "caught": false,
-   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
-  },
-  {
-   "where": "src/house_adufees/model.py:36",
-   "change": "adu_sdc(step, location) -> adu_sdc(step, \"outside Denver\") in adu_discount",
-   "caught": false,
-   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
-  },
-  {
-   "where": "src/house_adufees/model.py:47",
-   "change": "house step ratio - 1 -> - 1.05",
-   "caught": false,
-   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
-  },
-  {
-   "where": "src/house_adufees/model.py:73",
-   "change": "unit = separate_tap if charge_unit_fee is None else charge_unit_fee -> unit = separate_tap",
-   "caught": false,
-   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
-  }
- ],
- "defects": [
-  {
-   "severity": "high",
-   "what": "Headline compares the ADU to a house 'charged on 2,000 sq ft' and concludes the ADU is dearer per floor sq ft ($4.52 vs $2.70), but Denver Water's own worked example (7,000 sq ft lot -> $10,450 = 3,380 + 1.01 x 7,000) shows the per-sq-ft rate is on lot area; on a 6,250 sq ft Denver lot a 2,000 sq ft house pays $9,692.50 ($4.85/floor sq ft) and the ADU saves 77.6%, not 60%; the per-sq-ft finding reverses for any lot over 5,606 sq ft",
-   "where": "research/house-adufees/README.md:9",
-   "category": "domain-rule",
-   "origin": "spec"
-  },
-  {
-   "severity": "medium",
-   "what": "README says the page does not settle lot vs floor area and treats the $10,450 figure as an unverified 'consistency probe', while the utility publishes that example for a 7,000 sq ft lot; the module docstring (model.py:4) says lot area, contradicting the README framing; research/README.md:710 repeats the 2,000 sq ft headline",
-   "where": "research/house-adufees/README.md:16",
-   "category": "overclaim",
-   "origin": "claims"
-  },
-  {
-   "severity": "medium",
-   "what": "No prior work positioned: Terner Center ADU and development-fee studies, California AB 68/SB 13 (ADUs under 750 sq ft exempt from impact fees, proportional above), Colorado HB24-1152, AWWA M1 capacity-charge method; the project is a single tariff lookup well below the research bar",
-   "where": "research/house-adufees/README.md:14",
-   "category": "research-design",
-   "origin": "design"
-  },
-  {
-   "severity": "medium",
-   "what": "Headline derived numbers untested: 4 of 5 seeded mutants survive (22,000 tier cap, adu_discount location, house step_increase, charge_unit_fee override); the 60% and 9.6% headlines are only range-checked or not tested",
-   "where": "research/house-adufees/tests/test_adufees.py:30",
-   "category": "untested-core",
-   "origin": "tests"
-  },
-  {
-   "severity": "low",
-   "what": "Whether an ADU on the house's existing water service owes the ADU SDC is not settled, yet it drives the $2,745 'shared tap' total",
-   "where": "research/house-adufees/README.md:11",
-   "category": "scope-gap",
-   "origin": "spec"
-  },
-  {
-   "severity": "low",
-   "what": "Section G hard-codes the July base and rate ((10450 - 3380) / 1.01) instead of reading the schedule",
-   "where": "research/house-adufees/experiments/run.py:26",
-   "category": "code-craft",
-   "origin": "implementation"
-  },
-  {
-   "severity": "low",
-   "what": "Dead constant SEWER_AND_OTHER_2000 = None claims to be 'computed in residual()'; residual docstring says no sewer schedule was read, stale since sewer.csv was added",
-   "where": "research/house-adufees/src/house_adufees/model.py:14",
-   "category": "code-craft",
-   "origin": "implementation"
-  },
-  {
-   "severity": "low",
-   "what": "'A 40-line stdlib model' but model.py is 88 lines",
-   "where": "research/house-adufees/README.md:3",
-   "category": "stale-docs",
-   "origin": "maintenance"
-  },
-  {
-   "severity": "low",
-   "what": "Sewer fee inputs ($410 SAFE, $6,070 METRO, $425, $150) could not be checked against the cited DOTI PDFs (host blocked); README dates its reading but stores no excerpt or hash of the PDF",
-   "where": "research/house-adufees/data/sewer.csv:2",
-   "category": "source-data",
-   "origin": "spec"
-  }
- ],
- "fix_prs": [],
- "verdict": "A small, honest tariff lookup with correct arithmetic and real data, whose headline comparison is framed on the wrong charged area. Every number reproduces (rerun byte-identical, 11 tests pass), and the Denver Water SDC and ADU figures match search excerpts of the utility's own page, so nothing is invented; the DOTI sewer fees could not be reached through the proxy. But Denver Water's own example prices a home on a 7,000 sq ft lot at $10,450, which is exactly the schedule on lot area, so the README's open 'lot or floor' question is already answered and its second headline ('per floor sq ft the ADU is dearer') reverses for any lot over 5,606 sq ft; the ADU saving on a standard 6,250 sq ft Denver lot is 77.6%, not 60%. Four of five seeded mutants survive, no prior work (Terner Center fee studies, California AB 68/SB 13, Colorado HB24-1152, AWWA M1) is cited, and as research it is a single-schedule lookup far below the PhD-level bar. Does not meet the bar."
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "house SDC on 2,000 sq ft, both 2026 steps, and the ADU saving",
+      "method": "Denver Water 2026 SDC schedule as given in web-search excerpts of denverwater.org and the Denver Gazette (base, per-sq-ft rate), independent code",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/indep.py",
+      "expected": "$5,400 (Jul), $4,925 (Jan), ADU 60% less (README:8)",
+      "observed": "5400.0, 4925.0, 59.8%",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "1 July 2026 step increase",
+      "method": "ratio of ADU charges 2170/2055 and house charges from the excerpted schedule",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/indep.py",
+      "expected": "ADU +5.6%, house +9.6% (README:10)",
+      "observed": "+5.60%, +9.64%",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "charged area is lot area, and its effect on the headline",
+      "method": "Denver Water news item (search excerpt): new single-family home on a 7,000 sq ft lot -> $10,450 after phase-in; recompute a 2,000 sq ft house on a 6,250 sq ft (50x125 ft) Denver lot",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/indep.py",
+      "expected": "if the README's floor reading held, a 2,000 sq ft house pays $5,400 and $2.70/floor sq ft, below the ADU's $4.52",
+      "observed": "7,000 sq ft lot gives exactly $10,450 (lot reading confirmed); 6,250 lot: $9,692.50, $4.85/floor sq ft > ADU $4.52, ADU saving 77.6%; break-even lot 5,606 sq ft",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "sewer totals and residual (section H, F)",
+      "method": "hand sum of DOTI fee components as quoted in README (DOTI PDFs unreachable through the proxy) and house-market facts.csv:72",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/indep.py",
+      "expected": "$575, $9,225, $12,455, $12,005, $5,525",
+      "observed": "575, 9225, 12455.0, 12005.0, 5525.0",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Denver Water SDC and ADU figures are from the real schedule, not invented",
+      "method": "web search of denverwater.org (direct fetch blocked: CONNECT 403 / ENOTFOUND)",
+      "command": "WebSearch 'Denver Water accessory dwelling unit system development charge 2026 $2,170'",
+      "expected": "ADU $2,055/$2,870 Jan, $2,170/$3,030 Jul; base $3,380 + $1.01",
+      "observed": "excerpts give the same values",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "DOTI 2026 sewer fees ($410 SAFE + $6,070 METRO, $425, $150)",
+      "method": "fetch cited PDFs; web search",
+      "command": "curl -sSL https://www.denvergov.org/files/assets/public/v/1/doti/documents/permits/sudp/2026-sewer-permit-fees.pdf",
+      "expected": "the four amounts",
+      "observed": "CONNECT tunnel 403; search did not surface the schedule. Unverified, not shown false",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Per floor sq ft the ADU is dearer' (README:9) and 'the page does not say whether ... lot or floor area' (README:16)",
+      "method": "compare with Denver Water's 7,000 sq ft lot worked example",
+      "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/indep.py",
+      "expected": "headline holds for a real house",
+      "observed": "reverses for any lot > 5,606 sq ft; utility's own example settles lot area",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "experiments reproduce committed results and figure",
+      "method": "rerun in a private copy, diff",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5b35c5c9-389a-5954-9742-ad2b53d8c6ff/scratchpad/adu/copy/research/house-adufees && python3 experiments/run.py >/dev/null && diff experiments/results.txt /home/user/oss-monorepo/research/house-adufees/experiments/results.txt && python3 experiments/figure.py",
+      "expected": "identical",
+      "observed": "results.txt and sdc_vs_area.svg byte-identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run the documented command",
+      "command": "cd research/house-adufees && /usr/bin/python3.13 -m pytest -q tests",
+      "expected": "11 tests (README:22)",
+      "observed": "11 passed in 0.02s",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README size claim and docstrings current",
+      "method": "wc -l and read",
+      "command": "wc -l research/house-adufees/src/house_adufees/model.py",
+      "expected": "'A 40-line stdlib model' (README:3)",
+      "observed": "88 lines; model.py:14 dead constant, model.py:54 says no sewer schedule was read",
+      "result": "fail"
+    },
+    {
+      "dimension": "fitness",
+      "what": "nearest prior work cited",
+      "method": "grep README for Terner, AB 68, SB 13, HB24-1152, AWWA",
+      "command": "grep -in 'terner\\|AB 68\\|SB 13\\|1152\\|AWWA' research/house-adufees/README.md",
+      "expected": "prior ADU-fee studies and fee-waiver laws positioned",
+      "observed": "no matches",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "live page",
+      "method": "load served page",
+      "command": "curl -sS https://marisstella.app/research/house-adufees/",
+      "expected": "200",
+      "observed": "CONNECT tunnel 403 (host blocked in this session); not checked",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/house_adufees/model.py:26",
+      "change": "max(area_sqft - 22000, 0) -> max(area_sqft - 22001, 0)",
+      "caught": true,
+      "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+    },
+    {
+      "where": "src/house_adufees/model.py:25",
+      "change": "first = min(area_sqft, 22000) -> first = min(area_sqft, 20000)",
+      "caught": false,
+      "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+    },
+    {
+      "where": "src/house_adufees/model.py:36",
+      "change": "adu_sdc(step, location) -> adu_sdc(step, \"outside Denver\") in adu_discount",
+      "caught": false,
+      "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+    },
+    {
+      "where": "src/house_adufees/model.py:47",
+      "change": "house step ratio - 1 -> - 1.05",
+      "caught": false,
+      "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+    },
+    {
+      "where": "src/house_adufees/model.py:73",
+      "change": "unit = separate_tap if charge_unit_fee is None else charge_unit_fee -> unit = separate_tap",
+      "caught": false,
+      "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Headline compares the ADU to a house 'charged on 2,000 sq ft' and concludes the ADU is dearer per floor sq ft ($4.52 vs $2.70), but Denver Water's own worked example (7,000 sq ft lot -> $10,450 = 3,380 + 1.01 x 7,000) shows the per-sq-ft rate is on lot area; on a 6,250 sq ft Denver lot a 2,000 sq ft house pays $9,692.50 ($4.85/floor sq ft) and the ADU saves 77.6%, not 60%; the per-sq-ft finding reverses for any lot over 5,606 sq ft",
+      "where": "research/house-adufees/README.md:9",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "README says the page does not settle lot vs floor area and treats the $10,450 figure as an unverified 'consistency probe', while the utility publishes that example for a 7,000 sq ft lot; the module docstring (model.py:4) says lot area, contradicting the README framing; research/README.md:710 repeats the 2,000 sq ft headline",
+      "where": "research/house-adufees/README.md:16",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "No prior work positioned: Terner Center ADU and development-fee studies, California AB 68/SB 13 (ADUs under 750 sq ft exempt from impact fees, proportional above), Colorado HB24-1152, AWWA M1 capacity-charge method; the project is a single tariff lookup well below the research bar",
+      "where": "research/house-adufees/README.md:14",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Headline derived numbers untested: 4 of 5 seeded mutants survive (22,000 tier cap, adu_discount location, house step_increase, charge_unit_fee override); the 60% and 9.6% headlines are only range-checked or not tested",
+      "where": "research/house-adufees/tests/test_adufees.py:30",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Whether an ADU on the house's existing water service owes the ADU SDC is not settled, yet it drives the $2,745 'shared tap' total",
+      "where": "research/house-adufees/README.md:11",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Section G hard-codes the July base and rate ((10450 - 3380) / 1.01) instead of reading the schedule",
+      "where": "research/house-adufees/experiments/run.py:26",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Dead constant SEWER_AND_OTHER_2000 = None claims to be 'computed in residual()'; residual docstring says no sewer schedule was read, stale since sewer.csv was added",
+      "where": "research/house-adufees/src/house_adufees/model.py:14",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "'A 40-line stdlib model' but model.py is 88 lines",
+      "where": "research/house-adufees/README.md:3",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "Sewer fee inputs ($410 SAFE, $6,070 METRO, $425, $150) could not be checked against the cited DOTI PDFs (host blocked); README dates its reading but stores no excerpt or hash of the PDF",
+      "where": "research/house-adufees/data/sewer.csv:2",
+      "category": "source-data",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15517"
+  ],
+  "verdict": "A small, honest tariff lookup with correct arithmetic and real data, whose headline comparison is framed on the wrong charged area. Every number reproduces (rerun byte-identical, 11 tests pass), and the Denver Water SDC and ADU figures match search excerpts of the utility's own page, so nothing is invented; the DOTI sewer fees could not be reached through the proxy. But Denver Water's own example prices a home on a 7,000 sq ft lot at $10,450, which is exactly the schedule on lot area, so the README's open 'lot or floor' question is already answered and its second headline ('per floor sq ft the ADU is dearer') reverses for any lot over 5,606 sq ft; the ADU saving on a standard 6,250 sq ft Denver lot is 77.6%, not 60%. Four of five seeded mutants survive, no prior work (Terner Center fee studies, California AB 68/SB 13, Colorado HB24-1152, AWWA M1) is cited, and as research it is a single-schedule lookup far below the PhD-level bar. Does not meet the bar."
 }
