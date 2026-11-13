@@ -640,9 +640,14 @@ export function pageShopRateFields(html, slug = '') {
  * Same contract the calculators enforce on input, and the same reason: a
  * prefilled value the tool would reject is a page that opens broken.
  */
+const DECIMAL = /^\s*[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?\s*$/;
+
 function usableRate(field, value) {
   if (value === '' || value === null || value === undefined) return null;
-  const result = typeof value === 'number' ? value : Number(String(value).trim());
+  // Only a number or a plain decimal string: Number() reads ' ' and [] as 0
+  // and '0x10' as 16, and storage can hold what this file never wrote.
+  if (typeof value !== 'number' && !(typeof value === 'string' && DECIMAL.test(value))) return null;
+  const result = typeof value === 'number' ? value : Number(value.trim());
   if (!Number.isFinite(result) || result < 0) return null;
   if (typeof field.max === 'number' && result > field.max) return null;
   return result;
@@ -929,7 +934,8 @@ ${BAR_ALIGN_JS}
   // wage that then prices the next trade at nothing and looks deliberate.
   var usable = function(raw, max){
     if (raw === '' || raw === null || raw === undefined) return null;
-    var value = typeof raw === 'number' ? raw : Number(String(raw).trim());
+    if (typeof raw !== 'number' && !(typeof raw === 'string' && /^\\s*[+-]?(\\d+\\.?\\d*|\\.\\d+)([eE][+-]?\\d+)?\\s*$/.test(raw))) return null;
+    var value = typeof raw === 'number' ? raw : Number(raw.trim());
     if (!isFinite(value) || value < 0 || value > max) return null;
     return value;
   };

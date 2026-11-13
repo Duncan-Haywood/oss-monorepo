@@ -210,6 +210,13 @@ class WaitFor(unittest.TestCase):
                 main(argv + ["--timeout", "0"])
             self.assertEqual(e.exception.code, 2)
 
+    def test_pid_one_is_the_smallest_accepted_pid(self):
+        # Red team 2026-11-13: `pid <= 0` -> `pid <= 1` survived, which would
+        # refuse pid 1 (the container's entry process, a real thing to wait
+        # on) with an argparse error. Pin the boundary at 1, not 0 or 2.
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(main(["--pid", "1", "--timeout", "0"]), 1)
+
 
 class PidProbe(unittest.TestCase):
     """Red team 2026-11-12: three mutants of the pid and progress probes escaped."""
