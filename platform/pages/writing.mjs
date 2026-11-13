@@ -331,17 +331,23 @@ const STYLE = `
   footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
   [hidden] { display:none !important; }
   .finder { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin:0 0 18px; }
-  .finder input[type=search] { width:100%; font:inherit; font-size:1rem; padding:9px 12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink); }
-  .finder .row { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; margin:10px 0 0; font-size:.85rem; color:var(--muted); }
-  .finder select { font:inherit; padding:4px 6px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--ink); max-width:100%; }
+  .finder input[type=search] { width:100%; font:inherit; font-size:1rem; height:42px; padding:0 12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink); }
+  /* One control row: Tag and Sort share the search box's height, radius and border, labels above their menus; Clear sits on the count line. */
+  .finder .row { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px 10px; margin:12px 0 0; font-size:.75rem; font-weight:600; letter-spacing:.03em; color:var(--muted); }
+  @media (min-width:640px) { .finder .row { grid-template-columns:minmax(0,16rem) minmax(0,12rem); } }
+  .finder .row label { display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .finder select { font:inherit; font-size:.875rem; font-weight:400; letter-spacing:normal; height:42px; padding:0 8px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink); width:100%; min-width:0; }
+  .finder input[type=search], .finder select { box-sizing:border-box; }
+  .finder input[type=search]:focus-visible, .finder select:focus-visible, .finder button:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
   .chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 0; }
   .chips button { font:inherit; font-size:.8rem; padding:3px 11px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; }
   .chips button[aria-pressed=true] { background:var(--accent); border-color:var(--accent); color:var(--bg); }
   .chips button span { margin-left:4px; font-variant-numeric:tabular-nums; }
-  .finder #clear { font:inherit; font-size:.8rem; padding:3px 11px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; }
+  .finder .foot { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:10px 0 0; }
+  .finder #clear { font:inherit; font-size:.8rem; min-height:32px; padding:0 12px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; flex:none; }
   .posts h3 { font-size:1.12rem; margin:0 0 .3em; line-height:1.3; } .posts h3 a { color:inherit; text-decoration:none; } .posts h3 a:hover { color:var(--accent); }
   section[id^="topic-"] { scroll-margin-top:16px; }
-  #count { margin:10px 0 0; font-size:.85rem; color:var(--muted); }
+  #count { margin:0; font-size:.85rem; color:var(--muted); }
   .topic { display:inline-block; font-size:.78rem; font-weight:600; padding:2px 9px; border-radius:999px; border:1px solid var(--accent); color:var(--accent); }
   .meta a.tag, .meta a.topic { text-decoration:none; }
   .pager { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; margin:2em 0 0; font-size:.92rem; }
@@ -537,9 +543,8 @@ function renderFinder(posts) {
 <div class="row">
 <label>Tag <select id="tag"><option value="">Any tag</option>${tags.map(([t, n]) => `<option value="${esc(t)}">${esc(t)} (${n})</option>`).join('')}</select></label>
 <label>Sort <select id="sort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="short">Shortest read</option><option value="long">Longest read</option></select></label>
-<button type="button" id="clear">Clear</button>
 </div>
-<p id="count" aria-live="polite">${formatCount(posts.length)} posts</p>
+<div class="foot"><p id="count" aria-live="polite">${formatCount(posts.length)} posts</p><button type="button" id="clear">Clear filters</button></div>
 </form>`;
 }
 
