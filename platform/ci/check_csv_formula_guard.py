@@ -8,12 +8,19 @@ link plus "Download CSV" puts `=HYPERLINK(...)` in front of someone else. The
 fix is one line: prefix such a cell with an apostrophe
 (`if (/^[=+\\-@\\t\\r]/.test(s)) s = "'" + s;`).
 
-A file counts as an exporter when it defines `toCsv`; it counts as guarded when
+A file counts as an exporter when it defines `toCsv` or exports a function whose
+name ends in `Csv` (`ratingsCsv`, `reportCsv`, `findingsCsv`...), leaving out
+readers and fixtures (`parse*`, `split*`, `read*`, `load*`, `import*`,
+`sample*`, `example*`). It counts as guarded when
 it contains a leading-formula-character test (`/^[=`, `/^[=+`, `^[=@]`) or
 names the risk ("formula injection", "CSV injection"). On 2026-11-12, 203 of
 235 exporters had no guard. They are listed in
 `csv_formula_guard_baseline.txt`, a ratchet: a new unguarded exporter fails,
 and so does a listed file that is now guarded or gone, so the list only shrinks.
+On 2026-11-13 the exporter test was widened from `toCsv` alone (a red-team run
+found tournament-pairing-manager's `ratingsCsv` and `standingsCsv` writing
+player names unguarded, both invisible to the old test) and the baseline was
+rewritten once to take in the exporters it newly sees.
 
     python3 platform/ci/check_csv_formula_guard.py [--root DIR] [--write-baseline]
 """
@@ -24,7 +31,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 BASELINE = Path(__file__).with_name("csv_formula_guard_baseline.txt")
-EXPORTER = re.compile(r"(function\s+toCsv\b|\btoCsv\s*=\s*(\(|function|async))")
+EXPORTER = re.compile(
+    r"(function\s+toCsv\b|\btoCsv\s*=\s*(\(|function|async)"
+    r"|export\s+(async\s+)?function\s+(?!parse|split|read|load|import|sample|example)[a-z]\w*Csv\s*\()")
 GUARD = re.compile(r"/\^\[=|\^\[=@\]|\^\[=\+|formula[- ]injection|csv[- ]injection", re.I)
 SKIP_PARTS = {"node_modules", "dist", "build", ".git", "vendor"}
 
@@ -80,7 +89,7 @@ def main(argv=None):
         return 0
     new, stale = compare(found, read_baseline(a.baseline))
     for f in new:
-        print(f"{f}: toCsv has no spreadsheet formula-injection guard. Prefix cells starting "
+        print(f"{f}: CSV exporter has no spreadsheet formula-injection guard. Prefix cells starting "
               "=, +, -, @, tab or CR with an apostrophe (see ventures/ucr-fee-calculator/calc.mjs csvCell).")
     for f in stale:
         print(f"{f}: listed in {a.baseline.name} but now guarded or gone; delete its line.")

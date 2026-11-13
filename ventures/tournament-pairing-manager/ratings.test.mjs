@@ -141,3 +141,45 @@ test("parsePlayers reads an optional RD and volatility, and saved files keep the
   assert.equal(back[1].rd, 120);
   assert.equal(back[1].vol, 0.07);
 });
+
+test("a bracket match against a bye is not a game, whichever side the bye is on", () => {
+  const bracket = { matches: [{ id: "m1" }, { id: "m2" }, { id: "m3" }, { id: "m4" }] };
+  const states = new Map([
+    ["m1", { status: "done", a: BYE, b: "p1", winner: "p1" }],
+    ["m2", { status: "done", a: "p2", b: BYE, winner: "p2" }],
+    ["m3", { status: "done", a: "p3", b: null, winner: "p3" }],
+    ["m4", { status: "done", a: "p4", b: "p5", winner: "p5" }],
+  ]);
+  assert.deepEqual(gamesFromBracket(bracket, { states }, BYE), [{ a: "p4", b: "p5", s: 0 }]);
+});
+
+test("rating CSVs carry the numbers rounded to one decimal", () => {
+  const players = [{ id: "a", name: "A", rating: 1600 }, { id: "b", name: "B", rating: 1400 }];
+  const elo = ratingsCsv(eloRatings(players, [{ a: "a", b: "b", s: 1 }], { k: 20 }), "elo").split("\r\n");
+  const change = 20 * (1 - 1 / (1 + 10 ** -0.5));
+  assert.equal(elo[1], `A,1600,1,1,1,0.76,${Math.round(change * 10) / 10},${Math.round((1600 + change) * 10) / 10}`);
+  const rows = glickoRatings(players.map((p) => ({ ...p, rd: 80 })), [{ a: "a", b: "b", s: 0 }]);
+  const cells = ratingsCsv(rows, "glicko2").split("\r\n")[1].split(",");
+  assert.equal(cells[1], "1600");
+  assert.equal(cells[8], String(Math.round(rows[0].after * 10) / 10));
+  assert.equal(cells[9], String(Math.round(rows[0].rdAfter * 10) / 10));
+});
+
+test("rating and standings CSVs neutralise names that would run as spreadsheet formulas", async () => {
+  const { standingsCsv, swissStandings } = await import("./calc.mjs");
+  const evil = '=HYPERLINK("http://example.invalid","Win")';
+  const players = [{ id: "a", name: evil, rating: 1500 }, { id: "b", name: "+1 Bo", rating: 1600 }, { id: "c", name: "-Cy", rating: 1550 }, { id: "d", name: "@Di", rating: 1450 }];
+  const games = [{ a: "a", b: "b", s: 1 }, { a: "c", b: "d", s: 0 }];
+  const csvs = [ratingsCsv(eloRatings(players, games), "elo"), ratingsCsv(glickoRatings(players, games), "glicko2"), standingsCsv(swissStandings(players, []))];
+  for (const csv of csvs) {
+    for (const line of csv.trim().split("\r\n").slice(1)) {
+      for (const cell of line.match(/("([^"]|"")*"|[^,]*)/g).filter((c, i, all) => c !== "" || all[i - 1] === undefined)) {
+        const v = cell.startsWith('"') ? cell.slice(1, -1).replace(/""/g, '"') : cell;
+        assert.ok(!/^[=+@]/.test(v) && !/^-(?!\d+(\.\d+)?$)/.test(v), `cell ${v} in ${line}`);
+      }
+    }
+    assert.ok(csv.includes(`"'=HYPERLINK(""http://example.invalid"",""Win"")"`), "the name is kept, prefixed with an apostrophe");
+  }
+  const elo = ratingsCsv(eloRatings(players, games), "elo");
+  assert.match(elo, /,-\d+(\.\d)?,/, "a negative rating change stays a plain number");
+});
