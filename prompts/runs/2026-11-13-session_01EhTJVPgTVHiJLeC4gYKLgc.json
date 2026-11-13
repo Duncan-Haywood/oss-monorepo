@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVPgTVHiJLeC4gYKLgc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (owner's standing ventures brief)",
+  "input_sha256": "ab838dcdaa366e9a871897ade0296bc3024049aa8fb7f554a6b72a674dcf5c17",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T05:06:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 4): changepoint-detector watch, drift model as the watch for wandering levels",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15378",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The router's weighted draw picked explore although the scheduled brief is the ventures brief; --task had to be passed by hand to reach ventures."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-a-watch-for-a-level-that-wanders.md",
+    "ventures/changepoint-detector/README.md (Round 8)"
+  ],
+  "goal": null,
+  "notes": "Round 8 pre-registered in eval/watch-drift.mjs (first commit, before any run). Rule passed: (a) 0.75 vs 4.50 false alerts per 1,000 checks on walk nulls; (b) 40/40 jumps both, delay 5 vs 5. TCPD (deciding nothing): drift 44/52 marks at 202 alerts vs default 32/52 at 103; the written prediction that the default would reach more was wrong. Shipped as opt-in 'Wandering level' setting (page, CLI --detector drift, agent watchCheck). Found and fixed: deploy/make-watch-repo.sh had to copy drift-level.mjs since watch-core.mjs now imports it (watch-workflow.test.mjs runs that folder). Local checks: 70/70 across watch-drift, watch, watch-page, watch-auto, watch-eagerness, watch-workflow and page tests; eval/watch-drift-browser.mjs 5/5 in headless Chromium; agent tool call watchCheck with detector drift ran.",
+  "corrections": [],
+  "redteam": null
+}

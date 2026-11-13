@@ -3,7 +3,7 @@ title: "A watch for a level that wanders"
 seo_title: "Alerting on jumps in a drifting metric, not the drift"
 date: 2026-11-13
 tags: [changepoint-detector, monitoring, time-series, pre-registered]
-description: "The changepoint detector's daily watch now has a setting for prices and stock levels that drift all the time. Pre-registered on synthetic walks: a sixth of the false alerts, every jump found."
+description: "The daily watch now has a setting for prices and stock levels that drift. Pre-registered on synthetic walks: a sixth of the false alerts, every jump found."
 ---
 
 The [changepoint detector](https://marisstella.app/changepoint-detector/)'s watch looks at a daily metric and sends a message once it is sure the metric has really shifted, not on every odd day. It has been tuned over seven rounds, each with its rule written down before the run. One kind of series still beat it: a level that wanders all the time, like a price, an inventory count or a balance. Detectors built for steps on a flat level read that slow wander as a run of small steps, and they keep alerting.
