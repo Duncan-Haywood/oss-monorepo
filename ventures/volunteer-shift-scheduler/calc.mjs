@@ -179,6 +179,7 @@ export function parseVolunteers(text, { slotKeys = [], defaultMax = null } = {})
     seen.add(name.toLowerCase());
     let max = defaultMax;
     const noRoles = [];
+    const awayDays = [];
     const tokens = [];
     let any = false;
     let sawAvail = false;
@@ -188,8 +189,21 @@ export function parseVolunteers(text, { slotKeys = [], defaultMax = null } = {})
       if (!s) continue;
       let m = s.match(/^max(?:imum)?\s*(?:shifts?)?\s*[:=]?\s*(\d+)\s*(?:shifts?)?$/i);
       if (m) { max = Number(m[1]); if (max < 1) { errors.push(`${tag}: max must be at least 1. Leave the person off the list instead.`); bad = true; } continue; }
-      m = s.match(/^(?:no|not|cannot|can't|cant|except|avoid)\b\s*:?\s*(.*)$/i);
-      if (m) { for (const r of m[1].split(",")) if (r.trim()) noRoles.push(r.trim().toLowerCase()); continue; }
+      // "except 2026-10-24" or "away 10/24/2026" is a date the person is away, not a
+      // role: before quality audit round 65 it was read as a role named "2026-10-24"
+      // and the person was still rostered that day.
+      m = s.match(/^(?:no|not|cannot|can't|cant|except|avoid|away)\b\s*:?\s*(.*)$/i);
+      if (m) {
+        for (const r of m[1].split(",")) {
+          const item = r.trim();
+          if (!item) continue;
+          const d = parseDate(item);
+          if (d !== null) awayDays.push(d);
+          else if (/^\d/.test(item)) { errors.push(`${tag}: "${item}" is not a date. Use 2026-10-24 or month/day/year like 10/24/2026.`); bad = true; }
+          else noRoles.push(item.toLowerCase());
+        }
+        continue;
+      }
       sawAvail = true;
       for (const part of s.replace(/^(?:avail(?:able|ability)?|can do)\s*:?\s*/i, "").split(",")) {
         const c = compileToken(part, slotKeys);
@@ -200,7 +214,7 @@ export function parseVolunteers(text, { slotKeys = [], defaultMax = null } = {})
     }
     if (bad) return;
     if (!sawAvail || (!tokens.length && !any)) any = true;
-    volunteers.push({ name, max, avail: { any, tokens }, noRoles });
+    volunteers.push({ name, max, avail: { any, tokens }, noRoles, awayDays });
   });
   if (volunteers.length > LIMITS.volunteers) errors.push(`That is ${volunteers.length} volunteers; the limit is ${LIMITS.volunteers}.`);
   return { volunteers, errors };
@@ -214,6 +228,7 @@ function tokenMatches(t, s) {
 }
 export function canDo(v, s) {
   if (v.noRoles.includes(s.role.toLowerCase())) return false;
+  if (v.awayDays && v.awayDays.includes(s.day)) return false;
   return v.avail.any || v.avail.tokens.some((t) => tokenMatches(t, s));
 }
 // Two shifts clash when they are the same slot on the same day, or their times overlap.
