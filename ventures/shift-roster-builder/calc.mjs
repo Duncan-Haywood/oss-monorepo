@@ -2355,9 +2355,11 @@ function buildRosterOnce(staff, slots, options = {}) {
   // "auto" stays off when open shifts are priced (`openShiftWeight` > 0, CLI --open-shift-hours): the exact check scores open hours
   // only, so it would hand back the roster the weight was set to trade away (sample week 15 h / 5 shifts instead of 19 h / 3).
   // Read by coverPasses above, which runs after this line.
+  // `deferCover: true` asks for that order on a small week too (calloutExposure does: README "Call-out rebuilds, column generation
+  // first"); `false` turns it off on big ones.
   const exactOn = o.exact === true || (o.exact === "auto" && ctx.S <= EXACT_AUTO_SLOTS && !(o.openShiftWeight > 0));
   const bigExact = ctx.S > EXACT_TREE_SLOTS && o.exactTree !== true;
-  const deferCover = exactOn && bigExact && o.scoreCG !== false && o.deferCover !== false;
+  const deferCover = exactOn && o.scoreCG !== false && (o.deferCover === true || (bigExact && o.deferCover !== false));
   // The clique LP's open-hours floor (cliqueOpenFloor, 2026-11-13), before the cover passes so the plateau walk can stop at it.
   // About 1.2 s on a 60-person week (245 copies), where it proves the 300 open hours the engine holds (the column generation's
   // root had reached 275 after 34 s). It is not given to the whole-score column generation as its open-hours row by default: on
@@ -3962,7 +3964,11 @@ export function calloutExposure(staff, slots, roster, options = {}, { fromDay = 
         continue;
       }
     }
-    const r = buildRoster(st, pinned, { ...options, keep, keepShift: 1 });
+    // deferCover: column generation before the plateau walk (as on big weeks). Only open hours are read from the rebuild, and on
+    // 570 call-outs (five teams x six seeds) they came out the same as the default order's in every case, 71 s -> 31 s in all:
+    // the walk ran its twelve full runs on rebuilds the column generation proves at once (README "Call-out rebuilds, column
+    // generation first"; eval/callout-rebuild-order.mjs). The roster it lands on can differ at the same score; none is posted.
+    const r = buildRoster(st, pinned, { ...options, keep, keepShift: 1, deferCover: options.deferCover ?? true });
     if (r.error) return { error: r.error };
     rebuilt++;
     const added = Math.max(0, r.unfilledHours - roster.unfilledHours);
