@@ -155,6 +155,9 @@ class FeederHw:
         self.gate_open_until = 0      # forward stroke ends (the ball is at the wheels)
         self.gate_ready_at = 0        # back stroke ends and the next ball has dropped into the pocket
         self.gate_out = False
+        # Ball lift (cad/README.md, "Ball lift"): a gearmotor on a MOSFET (GPIO 16, PWM) runs on after each ball fed.
+        self.lift_pwm = PWM(Pin(16), freq=20000, duty_u16=0)
+        self.lift = controller.LiftRun(getattr(config, "LIFT_RUN_ON_MS", 16000), getattr(config, "LIFT_DUTY", 1.0))
         self.arm()
 
     def arm(self):
@@ -177,6 +180,8 @@ class FeederHw:
             self.gate_ready_at = time.ticks_ms() + self.gate_back_ms
         self.azim.stop()
         self.elev.stop()
+        self.lift.stop()
+        self.lift_pwm.duty_u16(0)
         if self.elev.mode == controller.ELEV_RC:
             self.elev_out.pwm.duty_u16(0)     # no pulse: the actuator holds where it is
         else:
@@ -269,6 +274,7 @@ class FeederHw:
                 self.gate.frac(0)
                 self.gate_out = False
                 self.fed += 1
+                self.lift.kick(now)
                 self.gate_ready_at = now + self.gate_back_ms
         elif self.feeding and ok and now >= self.gate_ready_at:
             self.gate.frac(1)
@@ -277,6 +283,7 @@ class FeederHw:
             self.feeding -= 1
         else:
             self.gate.frac(0)             # hold the shuttle retracted (also from power-up)
+        self.lift_pwm.duty_u16(int(self.lift.update(now) * 65535))
 
 
 class CollectorHw:

@@ -998,9 +998,11 @@ class TroughParamsTest(unittest.TestCase):
     def test_run_drop_speed_and_the_lift_it_leaves(self):
         p = Feeder()
         d = p.trough_design()
-        self.assertAlmostEqual(d["drop_mm"], 1440 * math.tan(math.radians(3)), places=6)
+        self.assertAlmostEqual(d["drop_mm"], p.trough_run_len * math.tan(math.radians(3)), places=6)
+        self.assertAlmostEqual(sum(d["runs_mm"]), p.net_w - 2 * p.sump_half)
+        self.assertGreater(d["runs_mm"][0], d["runs_mm"][1])   # the sump sits off centre, at the lift's foot (+y)
         # energy: g h = (1 + k) v^2 / 2 + g crr L cos a, per unit mass
-        L = 1.44 / math.cos(math.radians(3))
+        L = p.trough_run_len / 1000 / math.cos(math.radians(3))
         lhs = 9.81 * d["drop_mm"] / 1000
         rhs = (1 + p.ball_inertia_k) * d["end_speed_m_s"] ** 2 / 2 + 9.81 * p.trough_crr * L * math.cos(math.radians(3))
         self.assertAlmostEqual(lhs, rhs, places=9)
@@ -1019,7 +1021,7 @@ class TroughParamsTest(unittest.TestCase):
         self.assertTrue(any("net plane" in r for r in Feeder(trough_x0=20.0).check_trough()))
         self.assertTrue(any("near the court" in r for r in Feeder(trough_end_z=110.0).check_trough()))
         self.assertTrue(any("under the net beam" in r for r in Feeder(sump_out_z=90.0).check_trough()))
-        self.assertTrue(any("off the gutter run" in r for r in Feeder(trough_hanger_y=(80.0,)).check_trough()))
+        self.assertTrue(any("off the gutter run" in r for r in Feeder(trough_hanger_y=(190.0,)).check_trough()))
         self.assertIn(Feeder(trough_w=90.0).check_trough()[0], Feeder(trough_w=90.0).check())
 
 
@@ -1042,18 +1044,21 @@ class TroughCadTest(unittest.TestCase):
         self.assertLess(self.p.tub_rim_z[0], self.p.tub_rim_z[1])
 
     def test_gutter_runs_follow_the_design(self):
-        a, b = self._solids("trough_gutter")
-        for g, sgn in ((a, 1), (b, -1)):
+        a, b = self._solids("trough_gutter_a")[0], self._solids("trough_gutter_b")[0]
+        p = self.p
+        for g, sgn, run in ((a, -1, p.trough_runs[0]), (b, 1, p.trough_runs[1])):
             bb = g.bounding_box()
-            self.assertAlmostEqual(bb.min.X, self.p.trough_x0, places=3)
-            self.assertAlmostEqual(min(abs(bb.min.Y), abs(bb.max.Y)), self.p.sump_half, places=3)
-            self.assertAlmostEqual(bb.min.Z, self.p.trough_bottom_z(self.p.sump_half) - self.p.trough_wall, delta=0.5)
-            self.assertAlmostEqual(bb.max.Z, self.p.trough_end_z + self.p.trough_w / 2, delta=4.0)
-            self.assertEqual(sgn > 0, bb.min.Y > 0)
-        self.assertAlmostEqual(a.volume, b.volume, places=3)
+            self.assertAlmostEqual(bb.min.X, p.trough_x0, places=3)
+            inner = bb.min.Y if sgn > 0 else bb.max.Y
+            self.assertAlmostEqual(inner, p.sump_y + sgn * p.sump_half, places=3)
+            self.assertAlmostEqual(abs((bb.max.Y if sgn > 0 else bb.min.Y)), p.net_w / 2, delta=5.0)  # tilted end face
+            self.assertAlmostEqual(bb.min.Z, p.trough_low_z - p.trough_wall, delta=0.5)
+            self.assertAlmostEqual(bb.max.Z, p.trough_z_at(p.sump_half + run) + p.trough_w / 2, delta=4.0)
+        self.assertAlmostEqual(p.trough_z_at(p.sump_half + p.trough_runs[0]), p.trough_end_z)
+        self.assertGreater(a.volume, b.volume)
 
     def test_gutter_rests_in_every_saddle_without_clashing(self):
-        gutters = self._solids("trough_gutter")
+        gutters = self._solids("trough_gutter_a") + self._solids("trough_gutter_b")
         holders = [n for n in self.parts if n.startswith("trough_hanger_")] + ["trough_sump"]
         self.assertEqual(len(holders), len(self.p.trough_hanger_y) + 1)
         for n in holders:
@@ -1080,14 +1085,146 @@ class TroughCadTest(unittest.TestCase):
         self.assertAlmostEqual(bb.min.X, -self.p.rail_w, places=3)
         self.assertGreaterEqual(bb.min.Z, self.p.ground_min_mm)
         self.assertLess((sump & beam).volume, 1.0)
-        # a ball-sized probe at the outlet's floor slides through the stub without touching it
+        # a ball-sized probe on the outlet's falling floor slides through the stub without touching it
         from build123d import Location, Sphere
         r = self.p.ball_d / 2
-        for x in (-self.p.rail_w, 0.0, self.p.trough_x0 + self.p.sump_wall - r):
-            probe = Sphere(r).moved(Location((x, 0, self.p.sump_out_z + r + 0.5)))
+        xa = self.p.trough_x0 + self.p.sump_wall
+        for x in (-self.p.rail_w + r, 0.0, xa - r):
+            z = self.F._inlet_floor(self.p, xa - x)
+            probe = Sphere(r).moved(Location((x, self.p.sump_y, z + r + 0.5)))
             self.assertLess((probe & sump).volume, 1.0, x)
         _, deg = self.F.sump_floor_rise(self.p)
         self.assertGreater(deg, 10.0)
+
+
+class LiftParamsTest(unittest.TestCase):
+    def test_lift_design_numbers(self):
+        p = Feeder()
+        d = p.lift_design()
+        self.assertEqual(p.check_lift(), [])
+        self.assertAlmostEqual(d["belt_mm"], d["belt_teeth"] * p.lift_belt_pitch)
+        self.assertLess(abs(d["belt_mm"] - (2 * d["centre_mm"] + math.pi * p.lift_pd)), p.lift_belt_pitch)
+        self.assertAlmostEqual(d["flights"] * d["flight_pitch_mm"], d["belt_mm"])
+        self.assertAlmostEqual(d["speed_m_s"], math.pi * p.lift_pd / 1000 * p.lift_motor_rpm / 60)
+        # roll-in from rest over a ball's diameter: d = a t^2 / 2
+        a = math.atan(p.lift_inlet_slope)
+        acc = 9.81 * (math.sin(a) - p.trough_crr * math.cos(a)) / (1 + p.ball_inertia_k)
+        self.assertAlmostEqual(acc * d["roll_in_s"] ** 2 / 2, p.ball_d / 1000)
+        self.assertGreaterEqual(d["flights_per_ball"] * d["flight_interval_s"], d["roll_in_s"] + d["clear_s"])
+        self.assertLess((d["flights_per_ball"] - 1) * d["flight_interval_s"], d["roll_in_s"] + d["clear_s"])
+        self.assertGreaterEqual(d["rate_per_min"], p.lift_rate_min)
+        # the lift spans the gap the trough left: floor near the outlet, chute end over the rim
+        self.assertGreater(d["chute_end"][2] - d["floor_z"], p.trough_design()["lift_mm"] - p.tub_drop_clear_mm)
+        self.assertAlmostEqual(d["chute_end"][2], d["rim_at_end_z"] + p.tub_drop_clear_mm + p.sump_wall)
+        self.assertAlmostEqual(d["boot_bottom_z"], p.lift_ground_mm)
+        self.assertGreaterEqual(p.lift_floor_z, p.lift_z_bottom + p.lift_finger_t / 2)
+        self.assertGreater(d["torque_margin"], p.lift_torque_factor)
+        self.assertLess(d["power_w"], 10.0)
+        # the sump's straight outlet plus the turn ends against the belt
+        self.assertAlmostEqual(-p.rail_w - p.lift_turn_r, p.lift_x_belt + p.ball_d / 2)
+
+    def test_lift_rules_catch_bad_changes(self):
+        self.assertTrue(any("inlet falls" in r for r in Feeder(lift_finger_l=26.0).check_lift()))
+        self.assertTrue(any("do not hold" in r for r in Feeder(lift_finger_l=8.0).check_lift()))
+        self.assertTrue(any("balls a minute" in r for r in Feeder(lift_motor_rpm=60.0).check_lift()))
+        self.assertTrue(any("N m" in r for r in Feeder(lift_motor_nm=0.2).check_lift()))
+        self.assertTrue(any("front mast rail" in r for r in Feeder(lift_x=-70.0).check_lift()))
+        self.assertTrue(any("rear mast rail" in r for r in Feeder(lift_x=-110.0).check_lift()))
+        self.assertTrue(any("over the tub" in r for r in Feeder(chute_target=(-360.0, 160.0)).check_lift()))
+        self.assertTrue(any("hood" in r for r in Feeder(lift_hood_deg=80.0).check_lift()))
+        self.assertIn(Feeder(lift_motor_nm=0.2).check_lift()[0], Feeder(lift_motor_nm=0.2).check())
+
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class LiftCadTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from otr_cad import feeder as F
+        cls.F = F
+        cls.p = Feeder()
+        cls.parts = {q.name: q for q in F.all_parts(cls.p)}
+
+    def _solids(self, name):
+        q = self.parts[name]
+        return [q.shape.moved(loc) for loc in q.placements]
+
+    def _fixed(self):
+        return [s for n in ("lift_boot", "lift_base_plate", "lift_spine", "lift_rod", "lift_clip", "lift_head",
+                            "lift_chute", "trough_sump", "net_beam", "mast_rail") for s in self._solids(n)]
+
+    def test_a_ball_rolls_from_the_sump_round_the_inlet_to_the_belt(self):
+        from build123d import Location, Sphere
+        r = self.p.ball_d / 2
+        fixed = self._fixed()
+        for x, y, z in self.F._inlet_path(self.p, 8):
+            ball = Sphere(r - 0.5).moved(Location((x, y, z + r + 0.5)))
+            hits = [round((ball & s).volume) for s in fixed if (ball & s).volume > 1.0]
+            self.assertEqual(hits, [], (x, y, z))
+        # where it waits: on the floor, against the belt's back, at the channel's +y wall
+        x, y, z = self.F._inlet_path(self.p, 8)[-1]
+        self.assertAlmostEqual(z, self.p.lift_floor_z)
+        self.assertAlmostEqual(x - r, self.p.lift_x_belt)
+        self.assertAlmostEqual(y + r, self.p.lift_y + self.p.lift_depth / 2)
+
+    def test_a_ball_on_a_finger_rises_clear_up_the_channel(self):
+        from build123d import Location, Sphere
+        r = self.p.ball_d / 2
+        fixed = self._fixed()
+        x = self.p.lift_x_belt + self.p.lift_gap + r - 0.5          # pushed against the front rod
+        z0 = self.p.lift_floor_z + r + 2.0
+        z1 = self.p.lift_z_top
+        for k in range(13):
+            z = z0 + (z1 - z0) * k / 12
+            ball = Sphere(r - 0.5).moved(Location((x, self.p.lift_y, z)))
+            hits = [round((ball & s).volume) for s in fixed if (ball & s).volume > 1.0]
+            self.assertEqual(hits, [], z)
+        # and the front rod is there to push against
+        rod = min(self._solids("lift_rod"), key=lambda s: -s.bounding_box().max.X)
+        self.assertAlmostEqual(rod.bounding_box().min.X, self.p.lift_x_front, places=3)
+
+    def test_a_ball_rides_over_the_top_and_down_the_chute_into_the_tub(self):
+        from build123d import Location, Sphere
+        p = self.p
+        r = p.ball_d / 2
+        fixed = self._fixed()
+        rc = p.lift_r_out + r + 0.5
+        for deg in range(-90, int(p.lift_hood_deg) + 1, 15):
+            a = math.radians(deg)
+            c = (p.lift_x_pulley - rc * math.sin(a), p.lift_y, p.lift_z_top + rc * math.cos(a))
+            ball = Sphere(r - 0.5).moved(Location(c))
+            hits = [round((ball & s).volume) for s in fixed if (ball & s).volume > 1.0]
+            self.assertEqual(hits, [], deg)
+        d = p.lift_design()
+        (sx, sy, sz), (ex, ey, ez) = d["chute_start"], d["chute_end"]
+        for k in range(7):
+            t = k / 6
+            c = (sx + (ex - sx) * t, sy + (ey - sy) * t, sz + (ez - sz) * t + r + 0.5)
+            ball = Sphere(r - 0.5).moved(Location(c))
+            hits = [round((ball & s).volume) for s in fixed if (ball & s).volume > 1.0]
+            self.assertEqual(hits, [], t)
+        # the chute ends over the tub's opening, its floor clear of the rim
+        tub = self._solids("hopper_tub")[0].bounding_box()
+        self.assertTrue(tub.min.Y + r < ey < tub.max.Y - r)
+        xr, xf = p.tub_opening_x()
+        self.assertTrue(xr < ex < xf)
+        self.assertGreater(ez, p.tub_rim_at(ex) + p.tub_drop_clear_mm)
+
+    def test_belt_and_flights_clear_the_boot_head_spine_and_floor(self):
+        belt = self._solids("lift_belt")[0]
+        for n in ("lift_boot", "lift_head", "lift_spine", "lift_pulley", "lift_clip", "lift_base_plate", "lift_rod"):
+            for s in self._solids(n):
+                self.assertLess((belt & s).volume, 1.0, n)
+        bb = belt.bounding_box()
+        self.assertGreaterEqual(bb.min.Z - self.p.lift_wall, self.p.lift_ground_mm - 1e-6)
+
+    def test_lift_stands_outside_the_head_and_turntable_at_every_pose(self):
+        from otr_cad.package import clashes
+        p = self.p
+        lift = [(f"{n}[{i}]", s) for n in self.F.LIFT_PARTS for i, s in enumerate(self._solids(n))]
+        for elev in (p.elev_min, 0.0, p.elev_max):
+            for az in (-p.az_reach_deg, 0.0, p.az_reach_deg):
+                moving, _ = self.F.turned_solids(p, elev, az)
+                self.assertEqual(clashes(moving + lift), [c for c in clashes(lift)], (elev, az))
 
 
 if __name__ == "__main__":
