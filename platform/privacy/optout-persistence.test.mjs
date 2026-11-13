@@ -1740,7 +1740,8 @@ const RELATIVE_SELF = relative(
 // +1: `fuzzy-dedupe` graduated.
 // +1: `spc-control-charts` graduated.
 // +1: `isolation-forest` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1319;
+// +1: `water-supply-sizing` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1320;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.
