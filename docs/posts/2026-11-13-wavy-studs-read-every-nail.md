@@ -3,7 +3,7 @@ title: "Wavy studs: a sheathing robot should read the stud at every nail, not fi
 date: 2026-11-13
 tags: [buildbot-sheathing, construction-robotics, lumber, sensing, real-data]
 seo_title: "Robot nailing on wavy 2x4 studs: per-nail sensing vs curve fitting"
-description: "On six laser-scanned 2x4 studs, aiming each nail at its own stud reading recovers most of the loss a fitted curve causes. Every fix together reaches 77% clean sheets on single-stud joints, and doubled joints still reach 100%."
+description: "On six scanned 2x4 studs, aiming each nail at its own stud reading beats a fitted curve; all fixes together give 77% clean sheets, doubled joints 100%."
 ---
 
 This morning's step of the `buildbot-sheathing` programme found that real studs are not parabolas. Six installed 2x4s from a public laser scan of a robot-built wall bow by the published amount, but each has about a millimetre of waviness. On single-stud joints, that waviness cut the robot's clean-sheet rate (sheets with all 62 nails on wood) from 58% to 43%. The same step found that 17 reads per stud didn't help much, which looked like bad news for sensing.
