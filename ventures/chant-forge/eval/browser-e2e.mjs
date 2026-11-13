@@ -185,7 +185,21 @@ await page.click("#go");
   const [dqm] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
   const mid4 = fs.readFileSync(await dqm.path());
   ok(mid4.equals(fs.readFileSync(path.join(tmp, "q.mid"))) && mid4.includes("Second tenors"), `four-section MIDI equals the CLI's (${mid4.length} bytes, Second tenors track)`);
+  // a named choir: octave-wide sections, three of them; equals the CLI's --choir octave --baritones
+  await page.selectOption("#choir", "octave");
+  await page.selectOption("#final", "split3");
+  await page.click("#go");
+  ok(/Voices: full choir on 7 of 613 notes \(E3-A3\)/.test(await out()), "octave choir, three sections: summary on the Dies irae");
+  execFileSync(process.execPath, [path.join(root, "cli.mjs"), path.join(root, "corpus/dies-irae.gabc"), "--choir", "octave", "--split-voices", "--baritones", "--fit", "8", "--stretch", "-o", path.join(tmp, "o.mid"), "--cues", path.join(tmp, "o.txt")]);
+  const [doc] = await Promise.all([page.waitForEvent("download"), page.click("#dlcues")]);
+  ok(fs.readFileSync(await doc.path(), "utf8") === fs.readFileSync(path.join(tmp, "o.txt"), "utf8"), "octave-choir cue sheet equals the CLI's --choir octave --baritones --cues");
+  const [dom] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
+  ok(fs.readFileSync(await dom.path()).equals(fs.readFileSync(path.join(tmp, "o.mid"))), "octave-choir MIDI equals the CLI's");
+  // unison with a named choir that cannot sing it: the note names the fewest sections that can
   await page.selectOption("#final", "auto");
+  await page.click("#go");
+  ok(/more than E3-A3; left as written\. The octave choir can sing it as tenors, baritones and basses/.test(await out()), "octave choir, unison: names the fewest sections");
+  await page.selectOption("#choir", "");
   // back to the state the next check expects
   await page.selectOption("#genre", "edm"); await page.selectOption("#sections", "1");
   await page.selectOption("#acap", "1"); await page.selectOption("#lift", "2");
