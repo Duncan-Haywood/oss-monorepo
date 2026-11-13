@@ -57,7 +57,12 @@ been measured yet.
 - *Import-graph and cycle checkers* (madge, dependency-cruiser): JavaScript
   tools that parse every module. On a large monorepo they are slow; a Rust
   version built on oxc's parser is plausible. Check first whether oxc or
-  biome already ships the check.
+  biome already ships the check. *Done 2026-11-13:* `ventures/cyclehound`
+  (no oxc; a lexer is enough for imports). madge 8.0.0 took 14 to 18 s on
+  11,422 `.mjs` files, dependency-cruiser 52 s and 2.3 GB; cyclehound 0.2 s
+  and 20 MB, with madge's graph matched edge for edge
+  ([`ventures/cyclehound/BENCHMARK.md`](../../ventures/cyclehound/BENCHMARK.md)).
+  Next: tsconfig `paths` aliases, then a CI gate.
 - *yamllint*: Python, run on every YAML file in a repository (this one has
   550 workflow files). *Checked 2026-11-12: taken.* `ryl` and `yamllint-rs`
   are Rust ports of yamllint on crates.io already; skip unless a measured

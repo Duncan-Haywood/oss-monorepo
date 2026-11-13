@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d5c63'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EC%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>cyclehound: Find Circular Imports in JavaScript and TypeScript, Fast (Rust, Runs in Your Browser)</title>
+  <meta name="description" content="Pick a project folder and see every circular import, with the file and line of each import on the loop. A Rust import-graph checker compiled to WebAssembly; nothing is uploaded. Same graph as madge on 11,422 files, in 0.2 s instead of 14 s.">
+  <meta property="og:title" content="Find circular imports, fast">
+  <meta property="og:description" content="An import-graph and circular-dependency checker written in Rust: the same engine runs as a CLI and in your browser. On 11,422 JavaScript files it built the same graph as madge, edge for edge, in 0.2 s instead of 14 s.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"cyclehound","applicationCategory":"DeveloperApplication","operatingSystem":"Linux, macOS, Windows, any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","description":"Import-graph and circular-dependency checker for JavaScript and TypeScript, written in Rust. Runs as a command-line tool and, compiled to WebAssembly, in the browser with nothing uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is my code uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The folder you pick is read by this browser tab and handed to a WebAssembly module loaded from this site. The page makes no network requests of its own after it loads."}}, {"@type": "Question", "name": "Is a circular import a bug?", "acceptedAnswer": {"@type": "Answer", "text": "Not by itself. ES modules allow cycles, and code that only uses the imported names inside functions works. A cycle breaks when a module uses an imported value while the files are still loading, which depends on which file loads first, so it can pass every test and fail when someone adds a new entry point. Cycles are worth knowing about and usually worth removing."}}, {"@type": "Question", "name": "How is this different from madge?", "acceptedAnswer": {"@type": "Answer", "text": "On 11,422 .mjs files madge 8.0.0 took 14 to 18 seconds and about 350 MB; cyclehound took 0.2 seconds and 20 MB and produced the same graph, edge for edge, once its require() edges were switched off. madge draws graph images, has many configuration options and reads webpack and TypeScript path aliases; cyclehound does not."}}, {"@type": "Question", "name": "Why does it list fewer cycles than madge?", "acceptedAnswer": {"@type": "Answer", "text": "It groups files into components first: every file in a component can reach every other through imports. Then it lists a shortest cycle through each file. Every file on any cycle appears, but the list stays short; the number of distinct cycles in a tangled component can grow very fast."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #172123; background: #f1f5f5; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #123f44; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #123f44; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a5c; }
+    .card { background: #fff; border: 1px solid #d3dfe0; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #123f4410; margin: 18px 0; }
+    @media (max-width: 680px) { body { padding: 16px; } }
+    label { display: block; font-size: .82rem; font-weight: 700; color: #123f44; margin-bottom: 4px; }
+    label.inline { display: inline; font-weight: 400; color: inherit; font-size: .86rem; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a9bcbe; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .opts { display: flex; gap: 18px; flex-wrap: wrap; margin: 10px 0; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5c63; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e2ecec; color: #123f44; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #123f44; }
+    table { width: 100%; border-collapse: collapse; font-size: .86rem; margin: 10px 0 20px; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #e3ebeb; vertical-align: top; }
+    th { color: #4c5a5c; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    ol.cycle { margin: 4px 0 14px; padding-left: 22px; }
+    ol.cycle li { font: 13px ui-monospace, monospace; }
+    .kind { font: 11px system-ui, sans-serif; background: #e2ecec; border-radius: 4px; padding: 1px 5px; margin-left: 4px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dfe0; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    pre.cmd { background: #f6f9f9; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CYCLEHOUND · CIRCULAR IMPORT CHECKER · RUST + WEBASSEMBLY · RUNS IN YOUR BROWSER</p>
+    <h1>Which of your files import each other in a circle?</h1>
+    <p>Pick a JavaScript or TypeScript project folder and cyclehound draws its import graph, then lists every loop in it: which files, and the file and line of each import that closes the loop. A loop works until the day a module uses something it imported while the files are still loading; this shows you the loops before that day.</p>
+    <p class="note">Nothing is uploaded. Your files are read by this tab and given to a WebAssembly module from this site; the page makes no network requests of its own after it loads.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Pick a folder, or paste a few files</h2>
+    <label for="folder">Project folder</label>
+    <input type="file" id="folder" webkitdirectory multiple>
+    <p class="note">Reads <code>.js .mjs .cjs .jsx .ts .mts .cts .tsx</code> files and skips <code>node_modules</code>, <code>.git</code> and <code>target</code>. Imports that point outside the folder you pick show up as unresolved, because the page cannot see those files.</p>
+    <details>
+      <summary>Or paste files</summary>
+      <label for="paste">Files, each starting with a <code>// file: name</code> line</label>
+      <textarea id="paste" spellcheck="false"></textarea>
+      <button type="button" class="secondary" id="example">Load an example</button>
+    </details>
+    <div class="opts">
+      <label class="inline"><input type="checkbox" id="types" checked> Count TypeScript <code>import type</code></label>
+      <label class="inline"><input type="checkbox" id="dynamic" checked> Count <code>import()</code></label>
+      <label class="inline"><input type="checkbox" id="require" checked> Count <code>require()</code></label>
+    </div>
+    <p class="note">Untick all three to see only the loops that run when the files load: type imports are erased before the code runs, and <code>import()</code> waits until it is called.</p>
+    <button type="button" id="run">Find circular imports</button>
+    <p id="status" class="note" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>2. What imports what in a circle</h2>
+    <p class="verdict" id="verdict"></p>
+    <p class="note" id="summary"></p>
+    <div id="comps"></div>
+    <h3 id="unresHead">Relative imports that point at no file</h3>
+    <div class="tableWrap"><table>
+      <thead><tr><th>File</th><th>Line</th><th>Import</th></tr></thead>
+      <tbody id="unresRows"></tbody>
+    </table></div>
+    <button type="button" class="secondary" id="download">Download the JSON report</button>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <ol>
+      <li><strong>Read the imports</strong> of every file with a small lexer that skips comments, strings, template literals and regular expressions, so <code>"import x from './y'"</code> inside a string is not an import. It finds <code>import ... from</code>, <code>import "x"</code>, <code>export ... from</code>, <code>import("x")</code> and <code>require("x")</code>, each with its line number.</li>
+      <li><strong>Resolve</strong> each relative import the way bundlers and TypeScript do: the exact file, then each extension, then <code>index</code> in a folder, and <code>./x.js</code> written for a file that is really <code>x.ts</code>. Package imports are left out.</li>
+      <li><strong>Group</strong> the files into strongly connected components (Tarjan's algorithm): sets in which every file can reach every other through imports. Every circular import lives inside one.</li>
+      <li><strong>List</strong> a shortest loop through each file of each component, with duplicates removed, so every file on a loop is shown and each loop is as short as it can be.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>Measured, not promised</h2>
+    <p>On the <code>ventures/</code> folder of this project's own repository (11,422 <code>.mjs</code> files reached, 9,417 imports between them), on a 4-core cloud container, 2026-11-13:</p>
+    <div class="tableWrap"><table>
+      <thead><tr><th>Tool</th><th>Time</th><th>Peak memory</th><th>Graph</th></tr></thead>
+      <tbody>
+        <tr><td>madge 8.0.0 (Node 22), <code>--circular</code></td><td>14.1 to 17.8 s</td><td>327 to 363 MB</td><td>reference</td></tr>
+        <tr><td>dependency-cruiser 16.10.4, every module type</td><td>51.8 s</td><td>2,272 MB</td><td>same edges, plus CSS imports</td></tr>
+        <tr><td>cyclehound CLI (native, 4 threads)</td><td>0.19 to 0.26 s</td><td>17 to 20 MB</td><td>identical to madge's</td></tr>
+      </tbody>
+    </table></div>
+    <p>With <code>--no-require</code>, cyclehound's graph equals madge's exactly: the same 11,422 files and the same 9,417 edges. By default it also counts two <code>require()</code> calls inside <code>.mjs</code> test files that madge's ES-module reader skips. Against dependency-cruiser, with type-only imports left out (its default), every edge cyclehound found was in its graph too, and the only edges it had that cyclehound did not were 11 imports of CSS files, which cyclehound does not treat as modules. The method, the commands and where the tools differ are in the <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/cyclehound/BENCHMARK.md" rel="noopener">benchmark write-up</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>On the command line</h2>
+    <pre class="cmd">git clone --depth 1 --filter=blob:none --sparse https://github.com/duncan-haywood/oss-monorepo
+cd oss-monorepo &amp;&amp; git sparse-checkout set ventures/cyclehound
+cargo install --path ventures/cyclehound
+
+cyclehound src/                                  # every loop; exit 1 if there is one (a CI gate)
+cyclehound --no-type --no-dynamic src/           # only loops that run at load time
+cyclehound --json src/ &gt; cycles.json              # components, loops, edges with line numbers
+cyclehound --graph --json src/ &gt; graph.json       # the whole graph, in madge's --json shape
+cyclehound --unresolved src/                     # relative imports that point at no file
+cyclehound --orphans src/                        # files nothing imports</pre>
+    <p class="note">Needs a Rust toolchain (<code>rustup</code>). Respects <code>.gitignore</code>. <code>cyclehound --help</code> lists every option.</p>
+  </section>
+
+  <section class="card">
+    <h2>When to use something else</h2>
+    <ul>
+      <li><strong><a href="https://github.com/pahen/madge" rel="noopener">madge</a></strong> when you want a picture of the graph, or your imports go through webpack, Vite or TypeScript path aliases (<code>@/lib/x</code>): madge reads those settings and cyclehound does not.</li>
+      <li><strong><a href="https://github.com/sverweij/dependency-cruiser" rel="noopener">dependency-cruiser</a></strong> when you want rules beyond cycles: which folders may import which, banned packages, orphans by pattern, and its many report formats.</li>
+      <li><strong>Your linter's import rules</strong> (for example <code>import/no-cycle</code> in eslint-plugin-import) when you want the warning in your editor as you type.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Is my code uploaded?</h3>
+    <p>No. The folder you pick is read by this browser tab and handed to a WebAssembly module loaded from this site. The page makes no network requests of its own after it loads.</p>
+    <h3>Is a circular import a bug?</h3>
+    <p>Not by itself. ES modules allow cycles, and code that only uses the imported names inside functions works. A cycle breaks when a module uses an imported value while the files are still loading, which depends on which file loads first, so it can pass every test and fail when someone adds a new entry point. Cycles are worth knowing about and usually worth removing.</p>
+    <h3>How is this different from madge?</h3>
+    <p>On 11,422 <code>.mjs</code> files madge 8.0.0 took 14 to 18 seconds and about 350 MB; cyclehound took 0.2 seconds and 20 MB and produced the same graph, edge for edge, once its <code>require()</code> edges were switched off. madge draws graph images, has many configuration options and reads webpack and TypeScript path aliases; cyclehound does not.</p>
+    <h3>Why does it list fewer cycles than madge?</h3>
+    <p>It groups files into components first: every file in a component can reach every other through imports. Then it lists a shortest cycle through each file. Every file on any cycle appears, but the list stays short; the number of distinct cycles in a tangled component can grow very fast.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a code review or a security audit, and it does not replace a qualified engineer's judgement. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, install the CLI from the repo and run it yourself.</p>
+    <p>Everything runs in your browser. Your files are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Copied code rather than tangled imports: <a href="../dupehound/">dupehound</a> finds copy-pasted blocks with the same kind of Rust engine.</p>
+    <p>madge, dependency-cruiser and eslint-plugin-import are their authors' projects; cyclehound is not affiliated with or endorsed by any of them.</p>
+    <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { load } from "./web/cyclehound.mjs";
+
+    const EXT = new Set(["js", "mjs", "cjs", "jsx", "ts", "mts", "cts", "tsx"]);
+    const SKIP_DIR = /(^|\/)(node_modules|\.git|target)\//;
+    const $ = (id) => document.getElementById(id);
+    let engine = null, lastReport = null;
+
+    async function getEngine() {
+      if (!engine) engine = await load(new URL("./web/cyclehound.wasm", import.meta.url));
+      return engine;
+    }
+
+    async function readFolder(list) {
+      const out = [];
+      for (const f of list) {
+        // Paths relative to the picked folder, so "proj/src/a.js" is "src/a.js".
+        const full = f.webkitRelativePath || f.name;
+        const p = full.includes("/") ? full.slice(full.indexOf("/") + 1) : full;
+        const ext = p.split(".").pop().toLowerCase();
+        if (!EXT.has(ext) || SKIP_DIR.test("/" + p) || f.size > 2 * 1024 * 1024) continue;
+        out.push({ path: p, text: await f.text() });
+      }
+      return out;
+    }
+
+    function readPaste(text) {
+      const out = [];
+      let cur = null;
+      for (const line of text.split("\n")) {
+        const m = line.match(/^\s*\/\/\s*file:\s*(\S+)\s*$/);
+        if (m) { cur = { path: m[1].replace(/^\.\//, ""), text: "" }; out.push(cur); }
+        else if (cur) cur.text += line + "\n";
+      }
+      return out;
+    }
+
+    function esc(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    }
+
+    function show(r) {
+      $("results").hidden = false;
+      const onCycle = r.components.reduce((n, c) => n + c.files.length, 0);
+      $("verdict").textContent = r.components.length === 0
+        ? "No circular imports."
+        : `${onCycle.toLocaleString("en-US")} file${onCycle === 1 ? "" : "s"} in ${r.components.length.toLocaleString("en-US")} circular group${r.components.length === 1 ? "" : "s"}`;
+      $("summary").textContent = `${r.files.toLocaleString("en-US")} files and ${r.edges.toLocaleString("en-US")} imports between them read.`;
+      $("comps").innerHTML = r.components.slice(0, 100).map((c, ci) => {
+        const edge = (a, b) => c.edges.find((e) => e.from === a && e.to === b);
+        const loops = c.cycles.map((cy) => `<ol class="cycle">${cy.map((f, i) => {
+          const e = edge(f, cy[(i + 1) % cy.length]);
+          const kind = e && e.kind !== "static" ? `<span class="kind">${esc(e.kind)}</span>` : "";
+          return `<li>${esc(f)}${e ? `:${e.line}` : ""} imports ${esc(cy[(i + 1) % cy.length])}${kind}</li>`;
+        }).join("")}</ol>`).join("");
+        return `<h3>Group ${ci + 1}: ${c.files.length} file${c.files.length === 1 ? "" : "s"}</h3>${loops}`;
+      }).join("") + (r.components.length > 100 ? `<p class="note">First 100 of ${r.components.length} groups shown; the JSON report has all of them.</p>` : "");
+      $("unresRows").innerHTML = r.unresolved.slice(0, 200).map((u) =>
+        `<tr><td><code>${esc(u.file)}</code></td><td>${u.line}</td><td><code>${esc(u.spec)}</code></td></tr>`).join("")
+        || `<tr><td colspan="3" class="note">None: every relative import points at a file.</td></tr>`;
+    }
+
+    $("run").addEventListener("click", async () => {
+      $("status").textContent = "Reading files...";
+      try {
+        const picked = $("folder").files;
+        const files = picked && picked.length ? await readFolder(picked) : readPaste($("paste").value);
+        if (!files.length) { $("status").textContent = "Pick a folder, or paste files that each start with a // file: line."; return; }
+        const ch = await getEngine();
+        $("status").textContent = `Reading imports in ${files.length.toLocaleString("en-US")} files...`;
+        await new Promise((r) => setTimeout(r));
+        const t = performance.now();
+        lastReport = ch.analyze(files, { types: $("types").checked, dynamic: $("dynamic").checked, require: $("require").checked });
+        $("status").textContent = `Done in ${((performance.now() - t) / 1000).toFixed(2)} s.`;
+        show(lastReport);
+        record("scan_run");
+      } catch (e) {
+        $("status").innerHTML = `<span class="error">${esc(e && e.message || e)}</span>`;
+      }
+    });
+
+    $("example").addEventListener("click", () => {
+      $("paste").value = [
+        "// file: src/cart.js",
+        "import { priceOf } from './pricing.js';",
+        "export const total = (items) => items.reduce((s, i) => s + priceOf(i), 0);",
+        "// file: src/pricing.js",
+        "import { discountFor } from './discounts';",
+        "export const priceOf = (item) => item.price - discountFor(item);",
+        "// file: src/discounts/index.js",
+        "import { total } from '../cart.js';",
+        "export const discountFor = (item) => (item.bulk ? 1 : 0);",
+        "export const cartDiscount = (items) => (total(items) > 100 ? 10 : 0);",
+        "// file: src/report.js",
+        "import { total } from './cart.js';",
+        "export const lazy = () => import('./report.js');",
+      ].join("\n");
+      $("folder").value = "";
+      record("example_loaded");
+    });
+
+    $("download").addEventListener("click", () => {
+      if (!lastReport) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(lastReport, null, 2)], { type: "application/json" }));
+      a.download = "cyclehound-report.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+
+    $("optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = $("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>
