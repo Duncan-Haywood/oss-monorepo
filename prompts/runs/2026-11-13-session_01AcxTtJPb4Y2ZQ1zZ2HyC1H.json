@@ -7,33 +7,148 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T02:05:36Z",
   "ended": "2026-11-13T02:23:26Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "wall_minutes": 21.31,
+  "tokens_in": 16069651,
+  "tokens_out": 68888,
+  "cost_usd": 6.2029,
+  "tool_calls": 111,
+  "task": "Deepen (flagship 7) photo-editing: lensfun vignetting (pa) as a FixVignetteRadial",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15340",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "tests_added": 16,
+  "outcome": "success",
+  "errors": [
+    "First pick (einvoice-preflight cClassTrib, row 3) duplicated PR #15333 opened 2 minutes earlier by another session; claim_check said YIELD after I had built the data module. Closed my PR #15337 and moved to photo-editing.",
+    "git reset --hard origin/main used a stale local origin/main ref (clone-time, ~2,000 commits old) and briefly reset the branch to it; refetched main and reset again.",
+    "portfolio/ledger/supersede_check.py ran 'git fetch --deepen=200 origin' over all refs (2.6M objects), held .git/shallow.lock past the 120 s tool timeout; stopped it and removed the lock."
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Its 'Start here' pick (row 3, einvoice-preflight) was free when read but another session claimed the same item within 2 minutes; the advice to open the draft PR first is right, but the claim only works if the PR is opened before any building, which I did not do."
+    },
+    {
+      "file": "portfolio/ledger/supersede_check.py",
+      "issue": "Deepens history for every ref ('git fetch --deepen=200 origin'), which on this shallow clone pulls millions of objects and blocks other git commands via shallow.lock; closing a 3-file PR superseded by a merged one did not need it."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'git reset --hard origin/main' after a shallow clone uses whatever origin/main the clone left; the guide could say to 'git fetch --depth=5 origin main' first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took flagship photo-editing (row 5) instead of the router's row 3 pick, because row 3's buildable item was landed by PR #15333 during this run.",
+      "did": "Built photo-editing's first BUILDABLE item, lensfun vignetting.",
+      "result": "Landed in PR 15340."
+    },
+    {
+      "file": "portfolio/ledger/supersede_check.py",
+      "why": "Stopped it mid-run (see errors); the superseding PR #15333 had already merged, so the check could add nothing.",
+      "did": "Closed PR #15337 with a note naming #15333.",
+      "result": "No loss."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-a-darker-corner-in-five-terms.md",
+    "ventures/photo-editing/eval/lensfun-vignetting-2026-11-13.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Verification: tests/test_lens_vignetting.py 16 pass; lens tests (profiles, TCA, released) 45 pass; run_venture_tests.py photo-editing: 1 suite, 0 failed (53.6 s, python3.13). Seeded faults: 9 of 9 caught. tools/lensfun_vignetting_check.py on lensfun master data/db 52cf1a7b0e82: 54,108 cases on 717 lenses, fit median 0.0036%, p99 1.1%, max 10% (refusal bound), 396 refused (0.7%); pixel check within 5.5e-10 of the reported bound; corner gain median +0.46 EV, 18% over a stop.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b9b99f49-477b-521c-b112-5e8b31ecc1d4",
+    "transcripts": 1,
+    "first": "2026-11-13T02:05:36Z",
+    "last": "2026-11-13T02:26:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 105,
+        "input": 207,
+        "output": 68888,
+        "thinking": 17395,
+        "cache_read": 15862980,
+        "cache_write_5m": 0,
+        "cache_write_1h": 206464,
+        "api_equivalent_usd": 6.2029,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 105,
+      "input": 207,
+      "output": 68888,
+      "thinking": 17395,
+      "cache_read": 15862980,
+      "cache_write_5m": 0,
+      "cache_write_1h": 206464,
+      "api_equivalent_usd": 6.2029,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 111,
+    "tools": {
+      "Bash": 99,
+      "Write": 4,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.31,
+      "active_minutes": 20.6,
+      "model_minutes": 13.92,
+      "tool_minutes": 6.68,
+      "waiting_on_human_minutes": 0.71,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "porting lensfun's vignetting interpolation and units from source, a polynomial fit with a minimax refit, 16 tests, a whole-database check, docs and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 257.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
