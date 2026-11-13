@@ -339,7 +339,8 @@ def solve(ppc, lin, ptrust=None, vtrust=None, elastic=None, margin=None, screen=
     and repeat. Each screened QP is a relaxation of the full one, so a solution that breaks no
     left-out row is the full QP's optimum (in the elastic form the left-out rows' slacks are zero),
     and an infeasible screened QP means the full one is infeasible too. If SCREEN_MAX passes do not
-    settle, the full QP is solved instead."""
+    settle, the full QP is solved instead. solver="clarabel" with screen=True (milestone 6) runs the
+    same constraint generation with Clarabel on each pass; without screen, Clarabel solves the full QP."""
     mg = margin or {}
     lay = lin["lay"]
     g, bus = ppc["gen"], ppc["bus"]
@@ -371,7 +372,8 @@ def solve(ppc, lin, ptrust=None, vtrust=None, elastic=None, margin=None, screen=
                            elastic=elastic, ng=ng))
     QP_STATS["calls"] += 1
     QP_STATS["rows_full"] += m
-    if solver == "clarabel":
+    qpf = _qp_clarabel if solver == "clarabel" else _qp
+    if solver == "clarabel" and not screen:
         QP_STATS["rows_used"] += m
         QP_STATS["passes"] += 1
         x, ok = _qp_clarabel(H, c, A, u, a_eq, b_eq, xmin, xmax, x0, elastic)
@@ -390,7 +392,7 @@ def solve(ppc, lin, ptrust=None, vtrust=None, elastic=None, margin=None, screen=
     use[np.argsort(slack0)[:min(m, ng + nv)]] = True
     for _ in range(SCREEN_MAX):
         QP_STATS["passes"] += 1
-        x, ok = _qp(H, c, A[use], u[use], a_eq, b_eq, xmin, xmax, x0, elastic)
+        x, ok = qpf(H, c, A[use], u[use], a_eq, b_eq, xmin, xmax, x0, elastic)
         if not ok:
             QP_STATS["rows_used"] += int(use.sum())
             return x[:ng], x[ng:], False
@@ -401,7 +403,7 @@ def solve(ppc, lin, ptrust=None, vtrust=None, elastic=None, margin=None, screen=
         use |= broken
     QP_STATS["fallback"] += 1
     QP_STATS["rows_used"] += m
-    x, ok = _qp(H, c, A, u, a_eq, b_eq, xmin, xmax, x0, elastic)
+    x, ok = qpf(H, c, A, u, a_eq, b_eq, xmin, xmax, x0, elastic)
     return x[:ng], x[ng:], ok
 
 

@@ -7,7 +7,9 @@ Per case (TYP, API, SAD of the eight cases in HELDOUT), frozen arms as in run_pe
   AC     PIPS AC OPF, the cost reference (a case without one is excluded and counted);
   S      plain DC dispatch at the case file's setpoints;
   S+R    milestone 3's reactive stage on S's dispatch;
-  J      J-m-a (vlin.slp, margin=vlin.MARGIN, analytic, Clarabel), ROUNDS = 20;
+  J      J-m-a (vlin.slp, margin=vlin.MARGIN, analytic, Clarabel), ROUNDS = 20, QPs screened by
+         constraint generation (screen=True; with the full dense QP no case with an AC optimum finished in
+         25 min, every worker inside Clarabel; gated on the 34 development cases, results_vlin_margin_analytic_screen_clarabel.txt);
   J10    J's first 10 rounds (the loop is deterministic and stops at its first clean round, so this is
          the 10-round run; its best point is best_of over rounds 1 to 10);
   J+R    the reactive stage on J's best point when J is not fully clean (and J10+R likewise).
@@ -79,7 +81,7 @@ def run_case(job):
     rs = reactive_stage(ppc, start)
     out["SR"] = None if rs is None else strip(vlin.check(ppc, rs[0], rs[1]))
     t1 = time.time()
-    hist = vlin.slp(ppc, start, vf, rounds=ROUNDS, margin=vlin.MARGIN, analytic=True, solver="clarabel")
+    hist = vlin.slp(ppc, start, vf, rounds=ROUNDS, margin=vlin.MARGIN, analytic=True, solver="clarabel", screen=True)
     out["J_secs"] = time.time() - t1
     clean_at = next((x["it"] for x in hist if x.get("clean")), None)
     base = ppc["baseMVA"]
