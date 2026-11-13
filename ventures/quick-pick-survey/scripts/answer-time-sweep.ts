@@ -88,7 +88,7 @@ import { fastBlockSplit, fastBlockStarts, groupRanking, type RatingRow } from ".
 
 const argv = process.argv;
 const opt = (name: string, d: string) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : d);
-const nums = (s: string) => s.split(",").map(Number);
+const nums = (s: string) => (s === "" ? [] : s.split(",").map(Number));
 const itemCounts = nums(opt("--items", "15,30"));
 const perItem = nums(opt("--per-item", "4"));
 const panels = nums(opt("--respondents", "20"));
@@ -112,6 +112,8 @@ const warmup = Number(opt("--warmup", "0"));
 const minSeg = Number(opt("--min-seg", "8"));
 const shiftMin = Number(opt("--shift-min", "0.5"));
 const shiftT = Number(opt("--shift-t", "4"));
+const curveQs = nums(opt("--curve-q", "")).filter((x) => x > 0 && x < 1);
+const onsetSpread = Number(opt("--onset-spread", "0"));
 const LOO_MIN = 0.2;
 
 /** Person-relative split (each person's log times against their own start), kept to show why the shipped rule reads against the panel. */
@@ -149,7 +151,7 @@ const routeStaged: Policy = (input: PairingInput) => {
 
 type Shown = { a: string; b: string; ms: number; careless: boolean };
 type Answer = { picked: string; other: string };
-type Person = { blockAt: number | null; ownBlockAt: number | null; careless: boolean; rows: RatingRow[]; shown: Shown[]; answers: Answer[]; loo: number; pace: number; slope: number; fastShare: number; selfFastShare: number; ownMedian: number };
+type Person = { qBlockAt: Record<string, number | null>; blockAt: number | null; ownBlockAt: number | null; careless: boolean; rows: RatingRow[]; shown: Shown[]; answers: Answer[]; loo: number; pace: number; slope: number; fastShare: number; selfFastShare: number; ownMedian: number };
 
 /** Each item's Glicko state from the kept answers, replayed in order from the default (what the route stores, minus the dropped answers). */
 function replay(ids: string[], answers: Answer[], keep: (i: number) => boolean): RatingRow[] {
@@ -209,6 +211,7 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
               const sig = { paceH: [] as number[], paceC: [] as number[], slopeH: [] as number[], slopeC: [] as number[], shareH: [] as number[], shareC: [] as number[], selfH: [] as number[], selfC: [] as number[] };
               let replayMismatch = 0;
               const blocks = { h: [] as boolean[], c: [] as boolean[] };
+              const qBlocks: Record<string, { h: boolean[]; c: boolean[] }> = {};
               const answerFlags: Record<string, { h: number; hn: number; c: number; cn: number }> = {};
               const flags: Record<string, { h: boolean[]; c: boolean[] }> = {};
               for (let sv = 0; sv < nSurveys; sv++) {
@@ -240,7 +243,9 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                   // q < 1 draws as the careless-pattern sweep's `--q` does; q = 1 draws nothing extra, so the 2026-11-12 rows reproduce.
                   const qChooser: Chooser | undefined = !pick ? undefined : q >= 1 ? pick : (a, b, p, rand) => (rand() < q ? pick(a, b, p, rand) : undefined);
                   // Onset: honest for the first share `onset` of answers (no draw, so onset 0 reproduces earlier rows).
-                  const careChooser: Chooser | undefined = !qChooser || onset <= 0 ? qChooser : (a, b, p, rand) => (shown.length < onset * budget ? undefined : qChooser(a, b, p, rand));
+                  // `--onset-spread s`: each person's onset drawn uniform on onset +- s (from a stream of its own, so s = 0 draws nothing).
+                  const myOnset = onsetSpread > 0 && onset > 0 ? Math.min(0.95, Math.max(0.05, onset + onsetSpread * (2 * mulberry32(seed ^ 0x1b873593)() - 1))) : onset;
+                  const careChooser: Chooser | undefined = !qChooser || myOnset <= 0 ? qChooser : (a, b, p, rand) => (shown.length < myOnset * budget ? undefined : qChooser(a, b, p, rand));
                   const chooser: Chooser = (a, b, p, rand) => {
                     const ia = idx.get(a)!, ib = idx.get(b)!;
                     const out = careChooser?.(a, b, p, rand);
@@ -263,12 +268,18 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                     const back = new Map(replay(ids, answers, () => true).map((x) => [x.itemId, x]));
                     if (rows.some((x) => Math.abs(back.get(x.itemId)!.rating - x.rating) > 1e-6)) replayMismatch++;
                   }
-                  people.push({ blockAt: null, ownBlockAt: null, careless, rows, shown, answers, loo: NaN, pace: NaN, slope: NaN, fastShare: NaN, selfFastShare: NaN, ownMedian: NaN });
+                  people.push({ qBlockAt: {}, blockAt: null, ownBlockAt: null, careless, rows, shown, answers, loo: NaN, pace: NaN, slope: NaN, fastShare: NaN, selfFastShare: NaN, ownMedian: NaN });
                 }
                 const medians = people.map((p) => median(p.shown.map((s) => s.ms)));
                 // The shipped reading (groupRanking.ts fastBlockStarts): each answer against the panel's time at that point in the session.
                 const starts = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))));
                 people.forEach((p, i) => (p.blockAt = starts.get(`p${i}`) ?? null));
+                // `--curve-q`: the same reading against an upper quantile of the panel's times at each position, which a
+                // large share turning quick at once drags down less than the median.
+                for (const cq of curveQs) {
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), cq);
+                  people.forEach((p, i) => (p.qBlockAt[`shift-drop-q${Math.round(cq * 100)}`] = st.get(`p${i}`) ?? null));
+                }
                 const panelPace = median(medians);
                 for (let i = 0; i < people.length; i++) {
                   const p = people[i];
@@ -306,7 +317,16 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                   "shift-or-fast": (p, s) => s.ms < fastAt * panelPace || (p.blockAt !== null && p.shown.indexOf(s) >= p.blockAt),
                   "oracle-answers": (_p, s) => s.careless,
                 };
+                for (const cq of curveQs) {
+                  const key = `shift-drop-q${Math.round(cq * 100)}`;
+                  answerRules[key] = (p, s) => p.qBlockAt[key] != null && p.shown.indexOf(s) >= p.qBlockAt[key]!;
+                }
                 for (const p of people) (p.careless ? blocks.c : blocks.h).push(p.blockAt !== null);
+                for (const cq of curveQs) {
+                  const key = `shift-drop-q${Math.round(cq * 100)}`;
+                  const b = (qBlocks[key] ??= { h: [], c: [] });
+                  for (const p of people) (p.careless ? b.c : b.h).push(p.qBlockAt[key] != null);
+                }
                 const add = (name: string, s: { rho: number; clear: number; wrong: number }) => {
                   acc[name] ??= { rho: [], clear: 0, wrong: 0 };
                   acc[name].rho.push(s.rho);
@@ -330,7 +350,7 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                 }
               }
               if (replayMismatch) throw new Error(`replay did not reproduce simulate's states (${replayMismatch} people)`);
-              const cell: Record<string, unknown> = { pattern, q: pattern === "dissent" ? null : q, onset: pattern === "dissent" ? null : onset, drift, warmup, ratio, gamma, carelessGamma, personSd, items, perItem: k, respondents: nResp, careless: frac, surveys: nSurveys };
+              const cell: Record<string, unknown> = { pattern, q: pattern === "dissent" ? null : q, onset: pattern === "dissent" ? null : onset, ...(onsetSpread > 0 ? { onsetSpread } : {}), drift, warmup, ratio, gamma, carelessGamma, personSd, items, perItem: k, respondents: nResp, careless: frac, surveys: nSurveys };
               const base = acc["shipped"].rho;
               for (const [name, a] of Object.entries(acc)) {
                 const d = a.rho.map((x, i) => x - base[i]);
@@ -352,6 +372,7 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                 // Fast-answer share: higher means faster, so careless over honest.
                 blockFoundHonest: share(blocks.h),
                 blockFoundCareless: share(blocks.c),
+                ...Object.fromEntries(Object.entries(qBlocks).flatMap(([k, b]) => [[`${k}FoundHonest`, share(b.h)], [`${k}FoundCareless`, share(b.c)]])),
                 fastShareAuc: Number(auc(sig.shareC, sig.shareH).toFixed(3)),
                 selfFastShareAuc: Number(auc(sig.selfC, sig.selfH).toFixed(3)),
                 fastShareHonestMedian: Number(median(sig.shareH).toFixed(3)),

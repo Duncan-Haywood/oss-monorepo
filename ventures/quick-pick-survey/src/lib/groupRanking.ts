@@ -365,6 +365,13 @@ const medianOf = (v: number[]) => {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 };
 
+/** The q-quantile of v, linear between order statistics (q = 0.5 is the median). */
+const quantileOf = (v: number[], q: number) => {
+  const s = v.slice().sort((a, b) => a - b);
+  const h = (s.length - 1) * q, lo = Math.floor(h);
+  return lo + 1 < s.length ? s[lo] + (h - lo) * (s[lo + 1] - s[lo]) : s[lo];
+};
+
 /**
  * Each respondent's typical time per pick, relative to the panel's. Relative,
  * not a fixed number of seconds: a list of short labels is quicker to answer
@@ -526,6 +533,9 @@ export const FAST_BLOCK_MIN_LOG = 0.5;
 /** And the split's t statistic is at least this (it is the best of many splits, so well above 2). */
 export const FAST_BLOCK_T = 4;
 
+/** Which quantile of the panel's log times at each position fastBlockStarts reads against (0.5: the median). */
+export const FAST_BLOCK_CURVE_Q = 0.5;
+
 /** Passes over the panel's curve in fastBlockStarts (each leaves out the blocks the last found). */
 export const FAST_BLOCK_PASSES = 3;
 
@@ -577,7 +587,8 @@ export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog 
  * returns an empty map. Untimed answers are skipped in the reading and never
  * start a block.
  */
-export function fastBlockStarts(answers: AnswerTime[]): Map<string, number> {
+export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q): Map<string, number> {
+  if (!(curveQ > 0 && curveQ < 1)) throw new Error(`curveQ must be between 0 and 1, got ${curveQ}`);
   const by = new Map<string, { index: number; ms: number }[]>();
   const seen = new Map<string, number>();
   for (const a of answers) {
@@ -597,7 +608,7 @@ export function fastBlockStarts(answers: AnswerTime[]): Map<string, number> {
     const atPos: number[] = [];
     for (let i = 0; i < longest; i++) {
       const v = people.filter(([id, l]) => l.length > i && i < (splits.get(id) ?? Infinity)).map(([, l]) => Math.log(l[i].ms));
-      atPos.push(v.length ? medianOf(v) : NaN);
+      atPos.push(v.length ? quantileOf(v, curveQ) : NaN);
     }
     const curve = atPos.map((_, i) => medianOf(atPos.slice(Math.max(0, i - 2), i + 3).filter(Number.isFinite)));
     const next = new Map<string, number>();
