@@ -63,7 +63,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const [stf, shf] = all[name];
     const staff = parseStaff(stf).staff, slots = parseShifts(shf).slots;
     const t0 = Date.now();
-    const st = steadyRoster(staff, slots, BASE);
+    const st = steadyRoster(staff, slots, BASE, { prune: false }); // every tie scored in full
     const rosters = st.steady.tied.map((c) => ({ seed: c.seed, exposure: c.exposure, r: buildRoster(staff, slots, { ...BASE, seed: c.seed }) }));
     console.log(`TIES ${name}: ${rosters.length} distinct rosters at score ${st.score.toFixed(2)}, payroll $${st.cost.toFixed(2)}, posted open ${st.unfilledHours} h; exposure by seed ${rosters.map((x) => `${x.seed}:${x.exposure}`).join(" ")} over ${st.steady.personDays} person-days (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
     if (rosters.length < 2) continue;
