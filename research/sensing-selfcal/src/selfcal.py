@@ -16,13 +16,14 @@ PATTERN = (9, 6)  # inner corners of OpenCV's samples/data board
 
 
 def detect(path, pattern=PATTERN, method="subpix11"):
-    """Sub-pixel checkerboard corners of one image, (N, 2) float64, or None.
+    """Sub-pixel checkerboard corners of one image (a path or a grey uint8 array),
+    (N, 2) float64, or None.
 
     method: "subpix11" (milestones 1-5: findChessboardCorners, then cornerSubPix with an
     11x11 half-window), "subpix5" (a 5x5 half-window), or "sb" (findChessboardCornersSB
     with CALIB_CB_ACCURACY, Duda and Frese 2018), re-ordered to subpix11's corner order
     by nearest neighbour so corner i is the same physical corner whatever the detector."""
-    img = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+    img = path if isinstance(path, np.ndarray) else cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
     ok, c = cv2.findChessboardCorners(img, pattern)
     if not ok:
         return None, img.shape[::-1]
