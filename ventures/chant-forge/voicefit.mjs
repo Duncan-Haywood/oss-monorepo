@@ -110,10 +110,15 @@ export function wordsOf(events, phrases = phrasesOf(events)) {
 // handoff wins the full choir more than wordCost notes (a section taking one word and
 // handing back is two handoffs, so it must win more than 2 * wordCost). Every order is exact:
 // the DP minimises it over all splits at word boundaries and all finals.
-const orderFor = (words, wordCost) => ({
-  never: (c) => [c.mid, c.missing, c.changes],
-  needed: (c) => [c.mid, c.missing, c.changes],
-  prefer: (c) => [c.missing + wordCost * c.mid, c.changes, c.mid],
+// entranceCost (2026-11-13): each time a section starts singing after the first note it is
+// charged this many section-notes, in the same currency as missing. A section that joins
+// for a passage and leaves again then has to sing more than entranceCost notes there to
+// be worth bringing in, so short entrances are traded back for fewer changes of singer.
+// 0 (the default) keeps the earlier behaviour exactly.
+const orderFor = (words, wordCost, entranceCost = 0) => ({
+  never: (c) => [c.mid, c.missing + entranceCost * c.entrances, c.changes],
+  needed: (c) => [c.mid, c.missing + entranceCost * c.entrances, c.changes],
+  prefer: (c) => [c.missing + wordCost * c.mid + entranceCost * c.entrances, c.changes, c.mid],
 })[words];
 const less = (a, b) => {
   for (let k = 0; k < a.length; k++) if (a[k] !== b[k]) return a[k] < b[k];
@@ -122,10 +127,11 @@ const less = (a, b) => {
 
 // missing counts section-notes not sung: a note sung by one of three sections misses two.
 // With two sections it is the number of notes the full choir does not sing, as before.
-export function splitVoices(events, { tenor = TENOR_RANGE, bass = BASS_RANGE, baritone = null, shift = null, words = 'needed', wordCost = 3, overlap = false } = {}) {
+export function splitVoices(events, { tenor = TENOR_RANGE, bass = BASS_RANGE, baritone = null, shift = null, words = 'needed', wordCost = 3, overlap = false, entranceCost = 0 } = {}) {
   for (const r of [tenor, bass, ...(baritone ? [baritone] : [])]) if (!(r.low < r.high)) throw new Error('low must be below high');
   if (!['never', 'needed', 'prefer'].includes(words)) throw new Error(`words must be never, needed or prefer, not ${words}`);
   if (!(Number.isInteger(wordCost) && wordCost >= 0)) throw new Error('wordCost must be a whole number of notes, 0 or more');
+  if (!(Number.isInteger(entranceCost) && entranceCost >= 0)) throw new Error('entranceCost must be a whole number of notes, 0 or more');
   const sections = [['tenor', tenor], ...(baritone ? [['baritone', baritone]] : []), ['bass', bass]];
   const S = sections.length;
   const both = { low: Math.max(...sections.map((x) => x[1].low)), high: Math.min(...sections.map((x) => x[1].high)) };
@@ -137,7 +143,7 @@ export function splitVoices(events, { tenor = TENOR_RANGE, bass = BASS_RANGE, ba
   if (!phrases.length) throw new Error('no notes');
   // the units the DP walks: whole phrases, or words when a handoff inside a phrase is allowed
   const units = words === 'never' ? phrases.map((p, k) => ({ ...p, phrase: k })) : wordsOf(events, phrases);
-  const order = orderFor(words, wordCost);
+  const order = orderFor(words, wordCost, entranceCost);
   const lo = Math.min(...phrases.map((p) => p.lo));
   const hi = Math.max(...phrases.map((p) => p.hi));
   const fin = events.filter((e) => e.type === 'note').at(-1).midi;
@@ -161,11 +167,12 @@ export function splitVoices(events, { tenor = TENOR_RANGE, bass = BASS_RANGE, ba
       for (const v of VOICES) {
         if (!fits(p, s, v)) continue;
         const own = (S - byLabel[v].size) * p.notes;
-        if (!prev) { cur[v] = { mid: 0, missing: own, changes: 0 }; from[v] = null; continue; }
+        if (!prev) { cur[v] = { mid: 0, missing: own, changes: 0, entrances: 0 }; from[v] = null; continue; }
         let pick = null;
         for (const u of Object.keys(prev)) {
           const moved = u === v ? 0 : 1;
-          const c = { mid: prev[u].mid + (samePhrase ? moved : 0), missing: prev[u].missing + own, changes: prev[u].changes + moved };
+          const joined = popcount(byLabel[v].mask & ~byLabel[u].mask);
+          const c = { mid: prev[u].mid + (samePhrase ? moved : 0), missing: prev[u].missing + own, changes: prev[u].changes + moved, entrances: prev[u].entrances + joined };
           if (!pick || less(order(c), order(pick[0]))) pick = [c, u];
         }
         cur[v] = pick[0];
@@ -265,6 +272,7 @@ export function splitVoices(events, { tenor = TENOR_RANGE, bass = BASS_RANGE, ba
     voiceNotes,
     sectionNotes,
     changes: best.cost.changes,
+    entrances: best.cost.entrances,
     handoffs: best.cost.mid,
     ...(overlap ? { overlaps, breaks } : {}),
     phrases: out,

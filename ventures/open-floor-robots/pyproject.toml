@@ -24,7 +24,7 @@ serial = ["pyserial"]
 floorbots = "floorbots.cli:main"
 
 [project.urls]
-Homepage = "https://duncan-haywood.github.io/monorepo-projects/open-floor-robots/"
+Homepage = "https://marisstella.app/open-floor-robots/"
 Source = "https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-floor-robots"
 
 [tool.setuptools.packages.find]

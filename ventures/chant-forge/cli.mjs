@@ -11,7 +11,7 @@ import { arrange, barsFor, bpmRange, GENRE_NAMES } from './genre.mjs';
 import { sectionPlan, liftEvents } from './sections.mjs';
 import { noteName } from './gabc.mjs';
 
-const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--a-cappella] [--key-lift N] [--range LOW-HIGH] [--split-voices] [--split-words] [--word-cost N] [--overlap] [--baritones] [--tenor LOW-HIGH] [--baritone LOW-HIGH] [--bass LOW-HIGH] [--outro N] [--json]
+const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--a-cappella] [--key-lift N] [--range LOW-HIGH] [--split-voices] [--split-words] [--word-cost N] [--entrance-cost N] [--overlap] [--baritones] [--tenor LOW-HIGH] [--baritone LOW-HIGH] [--bass LOW-HIGH] [--outro N] [--json]
   --genre   add drums, bass and chords in the chant's mode: ${GENRE_NAMES.join(', ')}
   --fills   with --genre: a snare roll on the last beat of every fourth bar (not the final bar)
   --sections  with --genre: song sections from the chant's double bars (intro, verse, build, drop, outro); the backing changes energy between them
@@ -21,6 +21,7 @@ const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULS
   --range   singing range as MIDI numbers LOW-HIGH for --suggest-final, --auto-final and the --key-lift check (default 40-64, E2-E4)
   --split-voices  tenors and basses take turns by phrase: the full choir sings every phrase both sections can reach, the rest go to the section that can; picks the final itself unless --final is given; the MIDI gets a Tenors and a Basses track and the cue sheet a who-sings column
   --split-words  with --split-voices: also hand over inside a phrase, at a word, when each handoff wins the full choir more than --word-cost notes (by default a phrase is handed over at a word only when no whole-phrase split fits, as few times as possible)
+  --entrance-cost N  with --split-voices: charge each section entrance N notes, so a section that joins for a passage and leaves again comes in only when it sings more than N notes there (default 0; on the corpus, 8 cuts changes of singer about 10% with three octave-wide sections, eval/entrance-cost-report.md)
   --overlap  with --split-voices: where tenors hand straight to basses (or back) inside a phrase, both sections sing the note at the seam if it is in both ranges, so the line does not break; the summary counts the handoffs where no such note exists
   --word-cost  a handoff inside a phrase must win the full choir more than this many notes, for --split-words (default 3)
   --baritones  with --split-voices: a third section between tenors and basses; a phrase or word can go to all three, to two of them (tenors and baritones, baritones and basses) or to one, as many sections as can reach it; the MIDI gets a Baritones track too
@@ -63,6 +64,7 @@ export function run(argv) {
     else if (a === '--split-voices') args.split = true;
     else if (a === '--split-words') args.splitWords = true;
     else if (a === '--word-cost') args.wordCost = argv[++i];
+    else if (a === '--entrance-cost') args.entranceCost = argv[++i];
     else if (a === '--overlap') args.overlap = true;
     else if (a === '--tenor') args.tenor = argv[++i];
     else if (a === '--bass') args.bass = argv[++i];
@@ -109,6 +111,9 @@ export function run(argv) {
   if ((args.tenor !== undefined || args.bass !== undefined) && !args.split) return { code: 2, text: '--tenor and --bass need --split-voices' };
   if (args.baritones && !args.split) return { code: 2, text: '--baritones and --baritone need --split-voices' };
   if ((args.splitWords || args.wordCost !== undefined) && !args.split) return { code: 2, text: '--split-words and --word-cost need --split-voices' };
+  if (args.entranceCost !== undefined && !args.split) return { code: 2, text: '--entrance-cost needs --split-voices' };
+  const entranceCost = args.entranceCost === undefined ? 0 : Number(args.entranceCost);
+  if (!(Number.isInteger(entranceCost) && entranceCost >= 0)) return { code: 2, text: '--entrance-cost must be a whole number of notes, 0 or more' };
   if (args.overlap && !args.split) return { code: 2, text: '--overlap needs --split-voices' };
   if (args.wordCost !== undefined && !args.splitWords) return { code: 2, text: '--word-cost needs --split-words' };
   const wordCost = args.wordCost === undefined ? 3 : Number(args.wordCost);
@@ -171,7 +176,7 @@ export function run(argv) {
   if (args.split && hasNotes) {
     const fin = events.filter((e) => e.type === 'note').at(-1).midi;
     try {
-      split = splitVoices(events, { tenor, bass, baritone, words: args.splitWords ? 'prefer' : 'needed', wordCost, overlap: !!args.overlap, shift: args.final !== null ? args.final + lift - fin : null });
+      split = splitVoices(events, { tenor, bass, baritone, words: args.splitWords ? 'prefer' : 'needed', wordCost, entranceCost, overlap: !!args.overlap, shift: args.final !== null ? args.final + lift - fin : null });
     } catch (err) {
       return { code: 2, text: err.message };
     }
@@ -205,6 +210,7 @@ export function run(argv) {
       tenorPhrases: who('tenor'),
       bassPhrases: who('bass'),
       changes: split.changes,
+      entrances: split.entrances,
       handoffs: split.handoffs,
       ...(args.overlap ? { overlaps: split.overlaps.length, breaks: split.breaks } : {}),
       sharedPhrases: split.phrases.map((p, k) => (p.voice === 'mixed' ? k + 1 : 0)).filter(Boolean),

@@ -65,7 +65,8 @@ From the 2026-11-13 quality audit ([`portfolio/quality/audits/2026-11-13-3d-prin
 Everything runs in your browser. Your costs and prices are never uploaded,
 there is no account, and nothing is saved when you close the tab unless you
 choose to save it (the Save button keeps your inputs in this browser only). We count anonymous local feature events
-only (`price-calculated`, `price-checked`, `gcode_imported`), with a visible opt-out. Do Not
+only (`price-calculated`, `price-checked`, `gcode_imported`, `scenario_saved`, `link_copied`,
+`sponsor_link_clicked`), with a visible opt-out. Do Not
 Track and Global Privacy Control disable counting automatically. No costs or
 prices are recorded. The counter is not sent to the maintainers.
 
