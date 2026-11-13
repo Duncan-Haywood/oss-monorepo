@@ -2,6 +2,24 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-13 · Milestone 7b: feed forward only the integrator's torque, so no fast loop closes (predictions written and committed before the full `experiments/m7b_integ/run.py` run)
+
+- Why: milestone 7's commanded-torque feed-forward evened the two horizontal axes but fed the proportional and derivative torque back into the tilt reference, closing a loop with the motor lag inside it; under lag and torque uncertainty that added a divergence tail (`below`: two of six seeds diverged on 4 of 64 held-out episodes each, J −0.33 against milestone 6b). Its first listed next step: feed forward only the steady part.
+- Method (`poshold.rollout(ff_mode="integ")`): the side force that hurts one axis comes from the steady counter-torque to the gust, and the attitude PID already holds an estimate of that torque in its integrator. The position loop subtracts lat · ki · integ · τ_max,nom / m_nominal (previous step, unfiltered, gain 1) from the acceleration the tilt must make. The P and D torque, which follow the tilt reference within the motor lag, are left out. In steady state the attitude error returns to zero whatever the reference shift, so the integrator is pinned by torque balance and the added loop can only act through the slow integrator. Same numbers as milestone 7 (geometry, the controller's own state), no filter constant: 12 coordinates as in milestones 6/6b.
+- Pre-check: none on held-out data. A smoke run (64 evaluations, 2 seeds, 8 episodes of a different test seed, 4242; not evidence) checked the pipeline, and its output was deleted.
+- Plan: `experiments/m7b_integ/run.py`. Retrain the force-aware arm with the integrator feed-forward on under both rigid geometries (`above`, `below`), milestone 6/6b/7's CMA-ES, budget (3200), 16 training episodes, 6 seeds, two starts: 24 runs. Score on the 64 held-out episodes (seed 9999) at lever 0, 1 and 2, side force on and off; also with the feed-forward off (ablation); milestone 6b's force-aware designs with the integrator feed-forward added (no retraining); milestone 7's retrained designs with their commanded-torque feed-forward, re-scored.
+- Predictions (lever 1 unless stated):
+  - T1 (6b designs + integrator feed-forward, not retrained): late-window hurt/helped axis ratio at most 1.3 (mean) in both geometries (against 1.91 and 3.41 without), and no more diverged episodes in total than the same designs without it.
+  - T2 (H3, retrained): mean on/off position ratio at most 1.05 in both geometries (milestone 7: 1.13 and 1.60).
+  - T3 (the point of the change): retrained with the integrator feed-forward, no seed diverges on more than 1 of 64 held-out episodes in either geometry, and the total diverged episodes are at most milestone 7's in each geometry (milestone 7: 1 above, 8 below).
+  - T4: retrained against milestone 7's retrained designs: mean J better in both geometries.
+  - T5: retrained against milestone 6b's force-aware designs: J better in at least 4 of 6 seeds and whole-episode position RMS lower in at least 4 of 6, both geometries.
+  - T6: retrained against no cant (milestone 6b's `nocant`): yaw RMS at least 3° lower in 6 of 6 seeds and J better in at least 5 of 6, both geometries.
+  - T7: chosen cant median 30–45° in both geometries.
+  - T8 (lever 2, out of distribution): retrained designs diverge on a smaller mean share of episodes than milestone 6b's force-aware designs, in both geometries (milestone 7 failed this below: 13.0% against 8.6%).
+  - T9: the late-window hurt/helped ratio of the retrained designs is at most 1.3 in both geometries, and switching their feed-forward off raises it above 1.5 in both (the controller term, not the airframe, evens the axes).
+- Analysis: per-arm means and per-seed values, paired differences by seed with sign counts; six seeds, no test beyond the sign count.
+
 ## 2026-11-12 · Milestone 7: can the controller cancel the side force with numbers it already has? A position-loop feed-forward (predictions written and committed before the full `experiments/m7_ff/run.py` run)
 
 - Why: milestone 6b found that on a rigid frame the attitude loop's steady counter-torque to the gust makes a side force (lat·τ) that adds to the wind push on one horizontal axis: that axis holds position 1.9–3.4× worse after a wind step, and one seed in six diverges on 1–2 of 64 episodes. Its first listed next step was a feed-forward that cancels it.
