@@ -1525,6 +1525,38 @@ whole list of 12 tries, 4 squeezes and 4 regrounded seasons, then the floor-pric
   `bestCarryOverRounds` keeps its choice and `buildSchedule` rebuilds a kept floor-priced season;
   20 teams seed 1 from 360 to a cap of 48 gives 410 / 48, proved.
 
+## Print check: every printed output rendered to PDF (2026-11-13)
+
+Organisers print this tool's output for the clubhouse wall and the scorer's table, and six outputs
+said "printed layout not checked on paper". `node eval/print-check.mjs [--out dir]` renders each of
+them to PDF in headless Chromium, on Letter and A4 at the browser's default margins: the one-league
+score sheets (10 teams; 20 teams on five courts with six officials), the downloadable league page,
+the branded print pack, the multi-division score sheets and team sheets, and both pages' own
+"Print" after building a league through the real form. It checks, on the laid-out page and on the
+PDF's text (`pdftotext`; without it the page checks are skipped and said so):
+
+- nothing is wider than the printable width;
+- short labels (12 characters or fewer: a time, "Court 2", "Round 4", a date) stay on one line;
+- no column is printed with a header and nothing under it (score boxes excepted);
+- no blank page, and no heading left as the last line of a page with its table on the next;
+- score sheets print one sheet per page; the pages' forms and buttons are not printed.
+
+**What it found** (first run, 12 failures; all fixed):
+
+- "Court 1" broke over two lines in every output and both pages ("Round 4" too in the main page's
+  team view): the time, court, round and official cells now never wrap (`.s{white-space:nowrap}` in
+  the generated files, a print rule on `#rounds-table` and `#byteam`).
+- One-league score sheets always printed an empty Official column, taking width from the team names;
+  it now appears only when someone is assigned.
+- The league page left "Round 6 Tue 10 Nov 2026" at the foot of page 2 with its games on page 3:
+  rounds are now kept whole and headings stay with what follows.
+- 20 teams with officials ran 3 px past A4's printable width: print padding is 0.35 rem.
+- Also: the scorekeeper and notes lines are two lines rather than one that wrapped mid-rule, a
+  venue's table on the multi-division sheets is not split, and the last sheet has no page break after it.
+
+After: 82 checks, 0 failures (`node eval/print-check.mjs`). Pinned by `print.test.mjs` (3 tests).
+Not checked: a real printer and paper, printers' own margins, and the browser's dark-mode print.
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`
