@@ -101,7 +101,7 @@ const less = (a, b) => {
   return false;
 };
 
-export function splitVoices(events, { tenor = TENOR_RANGE, bass = BASS_RANGE, shift = null, words = 'needed', wordCost = 3 } = {}) {
+export function splitVoices(events, { tenor = TENOR_RANGE, bass = BASS_RANGE, shift = null, words = 'needed', wordCost = 3, overlap = false } = {}) {
   for (const r of [tenor, bass]) if (!(r.low < r.high)) throw new Error('low must be below high');
   if (!['never', 'needed', 'prefer'].includes(words)) throw new Error(`words must be never, needed or prefer, not ${words}`);
   if (!(Number.isInteger(wordCost) && wordCost >= 0)) throw new Error('wordCost must be a whole number of notes, 0 or more');
@@ -190,8 +190,33 @@ export function splitVoices(events, { tenor = TENOR_RANGE, bass = BASS_RANGE, sh
       ...(voice === 'mixed' ? { parts: mine.map((r) => ({ voice: r.voice, notes: r.notes, low: noteName(r.lo + best.shift), high: noteName(r.hi + best.shift), text: r.text.trim() })) } : {}),
     };
   });
+  // Overlap: where tenors hand straight to basses (or back) inside a phrase, the line breaks
+  // between two words. If a note at the seam is in both ranges, both sections sing it: first
+  // the incoming section joins on the outgoing section's last note (it takes its pitch from
+  // the singers it relieves), else the outgoing section holds on for the incoming's first note.
+  const overlaps = [];
+  let breaks = 0;
+  if (overlap) {
+    const inBoth = (i) => events[i].midi + best.shift >= both.low && events[i].midi + best.shift <= both.high;
+    const noteIdx = (r, which) => {
+      if (which === 'last') { for (let i = r.last; i >= r.first; i--) if (events[i].type === 'note') return i; }
+      else for (let i = r.first; i <= r.last; i++) if (events[i].type === 'note') return i;
+      return -1;
+    };
+    for (let k = 1; k < runs.length; k++) {
+      const a = runs[k - 1], b = runs[k];
+      if (a.phrase !== b.phrase || a.voice === 'all' || b.voice === 'all' || a.voice === b.voice) continue;
+      const early = noteIdx(a, 'last'), hold = noteIdx(b, 'first');
+      const at = inBoth(early) ? [early, 'joins early'] : inBoth(hold) ? [hold, 'holds on'] : null;
+      if (!at) { breaks++; continue; }
+      voiceAt.set(at[0], 'all');
+      const e = events[at[0]];
+      overlaps.push({ phrase: a.phrase, index: at[0], note: noteName(e.midi + best.shift), syllable: e.syllable || '', from: a.voice, to: b.voice, how: at[1] });
+    }
+  }
   const tagged = events.map((e, i) => (e.type === 'note' ? { ...e, midi: e.midi + best.shift, voice: voiceAt.get(i) } : e));
-  const count = (v) => runs.filter((r) => r.voice === v).reduce((a, r) => a + r.notes, 0);
+  // counted note by note, so an overlapped note counts once, for the full choir
+  const count = (v) => tagged.filter((e) => e.type === 'note' && e.voice === v).length;
   return {
     fits: true,
     shift: best.shift,
@@ -205,6 +230,7 @@ export function splitVoices(events, { tenor = TENOR_RANGE, bass = BASS_RANGE, sh
     bassNotes: count('bass'),
     changes: best.cost.changes,
     handoffs: best.cost.mid,
+    ...(overlap ? { overlaps, breaks } : {}),
     phrases: out,
     events: tagged,
   };
@@ -225,5 +251,12 @@ export function describeSplit(r) {
     return `${whoName(v)} alone on ${where} (${notesOf(v)} notes)`;
   });
   const shared = mixed.map(([p, n]) => `phrase ${n} handed over at a word: ${p.parts.map((x) => `${whoName(x.voice)} "${x.text}"`).join(', ')}`);
-  return [`full choir on ${r.allNotes} of ${r.notes} notes (${r.unison.join('-')})`, ...alone, ...shared, `final ${r.finalName}`].join('; ');
+  const over = (r.overlaps || []).map((o) => {
+    const at = `${o.note}${o.syllable ? ` ("${o.syllable}")` : ''}`;
+    return o.how === 'joins early'
+      ? `phrase ${o.phrase + 1}: ${whoName(o.to)} join ${whoName(o.from)} on ${at} and take over`
+      : `phrase ${o.phrase + 1}: ${whoName(o.from)} hold on with ${whoName(o.to)} for ${at}`;
+  });
+  const broken = r.breaks ? [`${r.breaks} handoff${r.breaks === 1 ? '' : 's'} with no note both sections can sing (the line breaks there)`] : [];
+  return [`full choir on ${r.allNotes} of ${r.notes} notes (${r.unison.join('-')})`, ...alone, ...shared, ...over, ...broken, `final ${r.finalName}`].join('; ');
 }
