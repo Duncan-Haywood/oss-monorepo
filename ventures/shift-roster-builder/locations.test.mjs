@@ -7,6 +7,7 @@ import { spawnSync } from "node:child_process";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { readSales, demandShifts, backtestSales } from "./demand.mjs";
 
 const SQUARE_HEAD = "Date,Time,Time Zone,Category,Item,Qty,Price Point Name,SKU,Modifiers Applied,Gross Sales,Discounts,Net Sales,Tax,Transaction ID,Payment ID,Device Name,Notes,Details,Event Type,Location,Dining Option,Customer ID,Customer Name,Customer Reference ID,Unit,Count,Itemization Type";
@@ -106,17 +107,18 @@ test("no location column: a picked location says so and the whole file is read",
 });
 
 test("CLI: --location plans one site, --each-location one plan per site under # Location headers", () => {
+  const CLI = fileURLToPath(new URL("./cli.mjs", import.meta.url));
   const dir = mkdtempSync(join(tmpdir(), "loc-")), f = join(dir, "sales.csv");
   writeFileSync(f, twoShops());
-  const one = spawnSync(process.execPath, ["cli.mjs", "--from-sales", f, "--splh", "60", "--location", "Harbour", "--half-life", "none"], { encoding: "utf8" });
+  const one = spawnSync(process.execPath, [CLI, "--from-sales", f, "--splh", "60", "--location", "Harbour", "--half-life", "none"], { encoding: "utf8" });
   assert.equal(one.status, 0, one.stderr);
   assert.match(one.stdout, /^Fri\/Sat\/Sun, 11:00, 19:00, 1$/m);
   assert.doesNotMatch(one.stdout, /Mon/);
-  const each = spawnSync(process.execPath, ["cli.mjs", "--from-sales", f, "--splh", "60", "--each-location", "--half-life", "none"], { encoding: "utf8" });
+  const each = spawnSync(process.execPath, [CLI, "--from-sales", f, "--splh", "60", "--each-location", "--half-life", "none"], { encoding: "utf8" });
   assert.equal(each.status, 0, each.stderr);
   const blocks = each.stdout.split(/^# Location: /m).filter(Boolean);
   assert.deepEqual(blocks.map((b) => b.split("\n")[0]), ["Main St", "Harbour"]);
   assert.match(each.stderr, /^\[Harbour\] Only Harbour: 112 rows/m);
-  const bad = spawnSync(process.execPath, ["cli.mjs", "--from-sales", f, "--splh", "60", "--each-location", "--location", "Harbour"], { encoding: "utf8" });
+  const bad = spawnSync(process.execPath, [CLI, "--from-sales", f, "--splh", "60", "--each-location", "--location", "Harbour"], { encoding: "utf8" });
   assert.equal(bad.status, 2);
 });
