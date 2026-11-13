@@ -253,36 +253,29 @@ flagships:
       Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
       deploy-to-your-own-Vercel button.
     next: >-
-      History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
-      docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Insights screen
-      (2026-11-12): per-person refit (btRefit.ts), clear pick at 1.645 sd
-      (clearPick.ts), "it's between" as a 95% credible set at min(own EB prior
-      sd, stored survey pooled sd) (favouriteSet.ts, surveyPrior*.ts); on real
-      PrefLib rankings clear picks wrong 5 of 860, set holds 97-100%. Staged
-      (information selector from the first answer) is the server default at
-      every list length since 2026-11-13 (doc section "Lists over 120 items:
-      the switch rule"; scripts/long-list-switch-sweep.ts, 150-500 items). Pooled-prior
-      narrowing of the pairwise intervals is closed from the choices alone
-      (2026-11-13, doc sections "A lapse gate for the upper end", "Anchor
-      pairs as the gate's detector", "A pooled spread that models the lapse"):
-      gates select on spread, and a lapse-modelled pool sits on a spread-lapse
-      ridge (safe at the ceiling, or unsafe with a tight lapse prior); it now
-      needs a careless signal from outside the choices, (c). The sparse long-list overclaim
-      (f) was the sweep harness, not the ranking (2026-11-13, doc section "The
-      sparse long-list overclaim was the harness"; scripts/sparse-pool-overclaim.ts):
-      the sweeps' rd cap at 349 counted never-answered rows as raters; the
-      shipped pool calls 0-0.4% of clear pairs wrong at 150 items, and a
-      joint Bradley-Terry fit is no more honest and calls 20-54% fewer pairs.
-      Next, most valuable first: (g) the "Careless patterns" table's
-      weighted columns (loo-w, gate-w, self-w) at 8 and 60 respondents were
-      run under the cap; 20-respondent cells are re-run
-      (docs/careless-pattern-uncapped-2026-11-13.jsonl: loo-w gains and camp
-      costs both larger), the rest are not; (b) half-time salience (q = 0.5 still leaks +0.12 to
-      +0.29: does pace see them?); (c) the first real survey's answers:
-      msToAnswer against the answer-time model (and as a careless detector for
-      the pooled prior), and how noisy real pairwise answers are, which decides
-      the self-consistency gate (scripts/coin-flip-gate-real.ts
-      --honest-lapse); (d) position bias that starts mid-session.
+      History and every measurement: README,
+      docs/INFORMATION-GAIN-SELECTOR.md, docs/CONVERGENCE.md and
+      docs/REAL-RANKINGS.md. Insights screen, staged-by-default at every list
+      length, and the closed pooled-prior work are all written up there.
+      Pooled-prior narrowing from the choices alone is closed: it needs a
+      careless signal from outside the choices, (c). The sparse long-list
+      overclaim (f) was the sweep harness, not the ranking (2026-11-13, doc
+      section "The sparse long-list overclaim was the harness";
+      scripts/sparse-pool-overclaim.ts): the sweeps' rd cap at 349 counted
+      never-answered rows as raters; the shipped pool calls 0-0.4% of clear
+      pairs wrong at 150 items, and a joint Bradley-Terry fit is no more
+      honest while calling 20-54% fewer pairs. Next, most valuable first:
+      (g) the "Careless patterns" table's weighted columns (loo-w, gate-w,
+      self-w) at 8 and 60 respondents were run under that cap and are not
+      re-run (20-respondent cells are:
+      docs/careless-pattern-uncapped-2026-11-13.jsonl, where loo-w gains and
+      camp costs are both larger); (b) half-time salience (q = 0.5 still
+      leaks +0.12 to +0.29: does pace see them?); (c) the first real survey's
+      answers: msToAnswer against the answer-time model (and as a careless
+      detector for the pooled prior), and how noisy real pairwise answers
+      are, which decides the self-consistency gate
+      (scripts/coin-flip-gate-real.ts --honest-lapse); (d) position bias that
+      starts mid-session.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
