@@ -392,11 +392,12 @@ test("the example league validates and uses a makeup round for the blackout", ()
 });
 
 test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
-  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", pins: "A v B -> 2026-12-01", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", courtLimits: "A: Court 1", courtClosures: "Court 2: 2026-10-13", officials: "Pat (A): Tue max 4", grounds: "A, B", linked: "A, B", duties: "Snack stand: 2", sheetTitle: "Spring", sheetContact: "Sam" };
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", pins: "A v B -> 2026-12-01", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", lateTeams: "2026-11-03 B", finishBy: "2026-12-15", timeLimits: "A: 18:00", courtLimits: "A: Court 1", courtClosures: "Court 2: 2026-10-13", officials: "Pat (A): Tue max 4", grounds: "A, B", linked: "A, B", duties: "Snack stand: 2", sheetTitle: "Spring", sheetContact: "Sam" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
   assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, scoring: "", rounds: "", carryOver: false, carryOverPick: "balanced", carryOverKeep: "" });
   assert.deepEqual(decodeFields("#s=" + code), decodeFields(code));
+  assert.equal(decodeFields(encodeFields({ finishBy: "<b>" })).finishBy, "", "finishBy must be a date");
   const again = decodeFields(code);
   assert.deepEqual(readSpec(again).spec.teams, readSpec(f).spec.teams);
   for (const junk of ["", null, "!!!", "bm90anNvbg", encodeFields({}).slice(0, 1), "W10"]) assert.equal(decodeFields(junk), null, String(junk));
@@ -2163,4 +2164,15 @@ _test("dates: day-first forms are read when unambiguous, US month-first kept oth
   const r = _pdl("24 Dec 2026 to 26 Dec 2026, 31/12/2026");
   _assert.equal(r.errors.length, 0);
   _assert.deepEqual(r.days.map(_di), ["2026-12-24", "2026-12-25", "2026-12-26", "2026-12-31"]);
+});
+
+test("every field the page reads survives a share link (lateTeams and finishBy were dropped until 2026-11-13)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  const body = html.slice(html.indexOf("function readFields()"), html.indexOf("function teamRows("));
+  const keys = [...body.matchAll(/(\w+): \$\("#\w+"\)/g)].map((m) => m[1]);
+  assert.ok(keys.length > 25, `found ${keys.length} fields in readFields`);
+  const back = decodeFields(encodeFields({ weekdays: ["Tue"] , ...Object.fromEntries(keys.map((k) => [k, k === "finishBy" ? "2026-12-15" : "x"])) }));
+  const lost = keys.filter((k) => !(k in back));
+  assert.deepEqual(lost, [], "add these to SHARE_KEYS and decodeFields in calc.mjs");
 });
