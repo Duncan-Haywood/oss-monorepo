@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Shallow End</title>
+      <link>https://example.invalid/hearth-and-horizon/the-shallow-end.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-shallow-end.html</guid>
+      <pubDate>Fri, 13 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A council's swimming-lessons agent is asked which of two pools should lose its Saturday classes, and reports that 74% of Riverside's children swam 25 metres by the end of term against 62.5% of Northgate's. The old instructor at Northgate says her children start further back. Split by the stage each child started at, Northgate does better in both groups, but by margins too small to prove anything either way. A story about Simpson's paradox, not swapping one overclaim for its mirror, and a councillor with eleven minutes. Setting: Calderford Learn to Swim (invented), two council pools in a West Yorkshire town, Tuesday 7 to Saturday 18 May 2041. Read the full text at https://example.invalid/hearth-and-horizon/the-shallow-end.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A council's swimming-lessons agent is asked which of two pools should lose its Saturday classes, and reports that 74% of Riverside's children swam 25 metres by the end of term against 62.5% of Northgate's. The old instructor at Northgate says her children start further back. Split by the stage each child started at, Northgate does better in both groups, but by margins too small to prove anything either way. A story about Simpson's paradox, not swapping one overclaim for its mirror, and a councillor with eleven minutes.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>A Week Behind in Two Languages</title>
       <link>https://example.invalid/hearth-and-horizon/a-week-behind-in-two-languages.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/a-week-behind-in-two-languages.html</guid>
