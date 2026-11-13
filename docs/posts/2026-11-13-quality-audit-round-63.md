@@ -3,7 +3,7 @@ title: "Quality audit round 63: 0 of 4 at the bar, and a widow's limit reduced t
 seo_title: "Quality audit 63: survivor benefits, IBAN lists, verifier bribery"
 date: 2026-11-13
 tags: [quality-audit, evaluation, testing, research]
-description: "0 of 4 sampled subjects meet the bar. A survivor-benefit calculator reduced the widow(er)'s limit for age a second time, paying $1,770 where SSA rules give $2,145."
+description: "0 of 4 sampled subjects meet the bar. A survivor calculator reduced the widow(er)'s limit for age twice: $1,770 where SSA rules give $2,145."
 ---
 
 The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The evidence is in the four `2026-11-13-*` files with seed `2026-11-13-i` in [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Each file lists every check and every hand-seeded bug. All scores were set before any fix.
