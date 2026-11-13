@@ -86,7 +86,7 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     The proportional and derivative torque, which follow the tilt reference within the motor lag, are left out, so no fast loop
     "tilt reference -> torque -> side force -> tilt reference" closes.
     Returns per design: RMS position error (m) over the episode, over the last 3 s (after the wind step), RMS yaw error (deg),
-    RMS roll/pitch tracking error (deg), and the share of episodes that diverged."""
+    RMS roll/pitch tracking error (deg), the share of episodes that diverged, and (dead_ep, (N, E)) which ones, with each episode's position RMS (pos_ep, (N, E))."""
     yaw_ref, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign = reference(episodes, seed)
     N, E = gains.shape[0], episodes
     kp = np.stack([gains[:, 0], gains[:, 0], gains[:, 3]], 1)[:, None, :]
@@ -174,7 +174,7 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         s_yaw += np.where(dead, np.deg2rad(60.0) ** 2, (yaw_ref[:, t][None] - th[:, :, 2]) ** 2)
         s_att += np.where(dead, np.deg2rad(60.0) ** 2, ((rp_ref - th[:, :, :2]) ** 2).mean(axis=2))
     return dict(pos=np.sqrt(s_pos / STEPS).mean(1), pos_late=np.sqrt(s_late / (STEPS - k_step)).mean(1),
-                yaw=np.rad2deg(np.sqrt(s_yaw / STEPS)).mean(1), att=np.rad2deg(np.sqrt(s_att / STEPS)).mean(1), dead=(~alive).mean(1),
+                yaw=np.rad2deg(np.sqrt(s_yaw / STEPS)).mean(1), att=np.rad2deg(np.sqrt(s_att / STEPS)).mean(1), dead=(~alive).mean(1), dead_ep=~alive, pos_ep=np.sqrt(s_pos / STEPS),
                 late_x=np.sqrt(s_ax[:, :, 0] / (STEPS - k_step)).mean(1), late_y=np.sqrt(s_ax[:, :, 1] / (STEPS - k_step)).mean(1))
 
 

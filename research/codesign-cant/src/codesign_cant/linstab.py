@@ -35,6 +35,7 @@ def step(x, d):
     acc = d["kpp"] * ep - d["kdp"] * ev + d["kip"] * pint
     if d["mode"] == "integ":
         fff = d["lam"] * d["ki"] * integ * d["tmax"]
+        tqh = 0.0 * tqh                            # unused in this mode; held, it would add a spurious eigenvalue of exactly 1
     ab = acc - d["ff"] * fff / d["m_nom"]
     ref = ab / A.G
     e = ref - thp
@@ -91,6 +92,11 @@ def radius(dp, tau_s, mass_s, lag_s, ff=1.0, mode="integ", axis_sign=1.0):
     return np.abs(np.linalg.eigvals(matrix(d, shape))).max(-1)
 
 
+def growth_rate(rho):
+    """Continuous-time growth rate (1/s) of the slowest-decaying mode, ln(rho) / DT: > 0 grows, e-fold time 1 / rate."""
+    return np.log(rho) / A.DT
+
+
 def worst_radius(dp, ff=1.0, mode="integ", plants=None):
     """Largest spectral radius over both axes and the plant set (default: the eight corners of the `wide` randomisation)."""
     t, m, l = (np.array(v) for v in zip(*(plants or PLANT_CORNERS)))
@@ -99,13 +105,14 @@ def worst_radius(dp, ff=1.0, mode="integ", plants=None):
 
 def ki_ceiling(dp, ff=1.0, mode="integ", plants=None, hi=4.0, iters=40):
     """Per design, the largest multiple s of its attitude ki for which every plant corner and both axes stay stable (bisection on
-    s in [0, hi]; returns 0 if the design is unstable even at ki = 0, hi if still stable at hi). Times kp gives the ki/kp ceiling."""
+    s in [0, hi]; returns 0 if the design is unstable even at ki = 1e-3 x its own (at exactly ki = 0 the unused attitude integrator
+    is a held state with eigenvalue 1, so the lower bracket is checked just above it), hi if still stable at hi). Times kp gives the ki/kp ceiling."""
     N = len(dp["kp"]); lo_s, hi_s = np.zeros(N), np.full(N, hi)
     base = dp["ki"].copy()
     def ok(s):
         q = dict(dp); q["ki"] = base * s
         return worst_radius(q, ff, mode, plants) < 1.0
-    st0, sth = ok(np.zeros(N)), ok(hi_s)
+    st0, sth = ok(np.full(N, 1e-3)), ok(hi_s)
     for _ in range(iters):
         mid = 0.5 * (lo_s + hi_s)
         good = ok(mid)

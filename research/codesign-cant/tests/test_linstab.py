@@ -84,3 +84,13 @@ def test_ki_ceiling_brackets_the_boundary():
             lo["ki"] = dp["ki"] * s[k] * 0.98; hi["ki"] = dp["ki"] * s[k] * 1.02
             sub = lambda q: {kk: (v[k:k + 1] if isinstance(v, np.ndarray) else v) for kk, v in q.items()}
             assert S.worst_radius(sub(lo))[0] < 1.0 <= S.worst_radius(sub(hi))[0]
+
+
+def test_integrator_mode_has_no_held_state():
+    """In ff_mode="integ" the torque estimate and filter states are unused; they must not sit at eigenvalue 1 (milestone 7c's first
+    run counted that spurious unit eigenvalue as marginal instability for every design)."""
+    dp = S.design_params(np.array([_m7_design()]))
+    d = dict(kp=dp["kp"][0], kd=dp["kd"][0], ki=0.0, kpp=0.0, kdp=0.0, kip=0.0, lam=dp["lat"][0], tmax=dp["tmax"][0], I=dp["I0"][0],
+             m=dp["m_nom"][0], m_nom=dp["m_nom"][0], lag=dp["lag_nom"][0], lag_nom=dp["lag_nom"][0], tau_s=1.0, ff=1.0, mode="integ", b_ff=0.1)
+    M = S.matrix(d, ())
+    assert np.allclose(M[:, 9], 0) and np.allclose(M[:, 10], 0)
