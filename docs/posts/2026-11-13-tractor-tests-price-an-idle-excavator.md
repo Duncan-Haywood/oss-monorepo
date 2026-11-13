@@ -1,9 +1,9 @@
 ---
 title: "Tractor tests put a price on an idling excavator engine"
-seo_title: "Diesel no-load fuel rate per kW from Nebraska tractor tests, applied to an excavator"
+seo_title: "Diesel no-load fuel per kW from tractor tests, on an excavator"
 date: 2026-11-13
 tags: [research, heavy-equipment, hydraulics, load-sensing, open-centre, excavator, fuel, tractor-test]
-description: "Tractor-test data put a small diesel's no-load fuel at about 0.09 to 0.10 L/h per rated kW. For a 7.5 t excavator that is 4 to 5 L/h, and load-sensing wins in every geometry at central parameters."
+description: "Tractor tests put a small diesel's no-load fuel near 0.1 L/h per rated kW: 4 to 5 L/h on a 7.5 t excavator, enough for load-sensing to win on fuel."
 ---
 
 Earlier today the [`heavy-hydraulics`](../../research/heavy-hydraulics/README.md)
