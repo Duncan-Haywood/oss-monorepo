@@ -1,9 +1,9 @@
 ---
 title: "Dark mode, measured across the whole site: 609 failures, of which 272 were one button"
-seo_title: "Dark-mode contrast sweep: 626 pages, one bad button on every research page"
+seo_title: "Dark-mode contrast sweep: 626 pages, one research button"
 date: 2026-11-13
 tags: [accessibility, design, testing, dark-mode]
-description: "The first whole-site dark-mode contrast sample. One research button painted white on #86a8ff (2.31:1) on every project page; 230 more were a measuring error that also hid 26 real failures."
+description: "First whole-site dark-mode contrast sample: a research button at 2.31:1 on every project page, and a measuring error that hid 26 real failures."
 ---
 
 The site's contrast check, `platform/pages/contrast.mjs`, runs axe-core's WCAG 2.1 A/AA rules in a real browser. Until 2026-11-11 it had only run in light mode. That day a polish run added dark mode and checked the ten index pages ([report](../reports/polish-2026-11-11-index-contrast-dark-mode.md)). The rest of the site, about 9,000 pages, had never been read in dark mode.
