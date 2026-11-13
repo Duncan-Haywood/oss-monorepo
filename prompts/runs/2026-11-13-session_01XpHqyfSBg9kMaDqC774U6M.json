@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyfSBg9kMaDqC774U6M",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T11:01:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "flagship 9 league-schedule-generator: timetable search priced on the proved break floor (top next: item)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15468",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "First incremental floor (forward + backward tables, rebuilt on every accept) was slower than the plain programme (62 s vs 36 s for 6,000 moves at 20 teams): accepts are frequent, so the 2R-transition commit dominated. Replaced with a forward-only table rerun from the first changed round, committed for free (32 s).",
+    "Blog front matter first failed the preflight (description 175 > 160, seo_title 88 > 70); shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "venture-preflight checks post front matter lengths but nothing earlier says the limits (title <= 110, description 60-160, seo_title <= 70); a line in goals.md 'Write about the work' or the post template would save a 5-minute preflight rerun."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/league-schedule-generator/carryover.mjs",
+      "why": "The flagship next: suggested scoring a starter climb or squeeze move on leastBreaks floor; I built a separate timetable-only annealer instead, because squeeze moves carry grounds and the floor makes grounds irrelevant during search.",
+      "did": "floorPricedSingleRounds + carryOverFloorPriced on the page worker",
+      "result": "20 teams 412-440 at 48 breaks where the list had 546-552; 15 seasons join over 18 runs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-league-schedule-pricing-the-break-floor.md",
+    "ventures/league-schedule-generator/README.md (Pricing the break floor)"
+  ],
+  "goal": "Deepen flagship: close the 20-team single round robin frontier gap",
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
