@@ -118,6 +118,7 @@ introduces a dated fact.
 | 2044 | Teddy and Remedios marry at Our Lady of Remedies, Malate | *Slowest Bell* |
 | 2060s | Saltwater flooding in the Mekong Delta resettles people inland | *NOTES.md* |
 | 2051 | The only recompression chamber in the Faroes (invented hospital at Gjógv á Ytstoy, built 2039) treats a salmon-farm diver and a seven-year-old with carbon monoxide poisoning together on a gale night; its log system is called Vakt | *The Second Gas* |
+| 2051 | Sgarbhaigh (invented), Outer Hebrides: island hospital with a two-lock recompression chamber (bought 2040 for the scallop divers; operator Donnie MacInnes, inside attendant Catriona Morrison, control AI Gauge); Fri 17 Nov, helicopter grounded, diver Tomasz Wróbel (Table 6) and Ealasaid MacPhee, 7 (carbon monoxide), treated together, 21:51 to 02:36 | *Two Metres* |
 | 2060 | Holy Year (25 July is a Sunday); heatwave on the Castilian Meseta; Fraternity of the Way (invented) runs water caches and a logistics AI, Aljibe; Valdeceniza (invented village) rings its harvest bell at 03:30 for pilgrims | *The Bell at Half Past Three* |
 | 2071 | Registry relay of 41 or more AI instances links flooded parish registers to land claims in Cần Thơ | *NOTES.md* |
 | 2089 | Shackleton Ridge Works, lunar south pole: 38 people, an operations AI called Quarry replaced by Quarry Nine; the first bell on the Moon is cast | *Slowest Bell* |
