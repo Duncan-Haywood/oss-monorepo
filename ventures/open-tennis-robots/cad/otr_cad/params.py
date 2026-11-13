@@ -677,6 +677,19 @@ class Feeder:
     chute_slope_deg: float = 8.0      # chute from the head to the tub (a bought tube, the take-up sleeve's size)
     chute_target: tuple = (-360.0, 120.0)  # plan point over the tub where the chute ends
     lift_strut_z: float = 1700.0      # 2020 strut from the spine to the +y front hopper post
+    # Top pulley's tensioner (2026-11-13): the head slides on the spine in vertical slots and two M5 jack screws in it
+    # push down on the top rod clip, so the head can be lowered to put the belt on and raised to tension it
+    # (`lift_tension_design`). Belt stiffness, mass and length tolerance are assumptions: read your belt's sheet.
+    lift_belt_kg_m: float = 0.085     # AT5 25 mm PU belt with steel cords, kg per metre (assumption)
+    lift_belt_cspec_n: float = 60000.0  # its force per unit strain (assumption: the sheet's c_spec x width)
+    lift_belt_len_tol_mm: float = 2.0  # welded endless length, +- this (assumption: ask the welder)
+    lift_tooth_h: float = 1.2         # AT5 tooth height
+    lift_install_mm: float = 5.0      # head lowered this far under the shortest belt's free length to slip the belt on
+    lift_tension_factor: float = 1.0  # static tension at the drive pulley over the lift's pull: the slack strand keeps half
+    lift_top_kg: float = 0.65         # head (0.51 kg of PETG at the package's infill), top pulley, axle and bearings
+    lift_jack_y: float = 28.0         # jack screws stand this far either side of the ball line, in the head's side walls
+    lift_jack_nut_n: float = 200.0    # load one captive M5 nut in a printed PETG pocket takes (assumption)
+    lift_clip_slip_n: float = 150.0   # load one M5 + T-nut holds a clip on the spine by friction (assumption)
 
     # ---- derived -----------------------------------------------------------
     @property
@@ -2180,9 +2193,26 @@ class Feeder:
     def lift_clip_z(self) -> list[float]:
         """Rod clips' bottom faces: one on the base plate, then evenly up to just under the head."""
         z0 = self.rail_top + self.plate_t
-        z1 = self.lift_head_z0 - 12.0
+        z1 = self.lift_clip_top_z - 12.0                                # the top one: the jack screws stand on it
         n = max(1, math.ceil((z1 - z0) / self.lift_clip_max_mm))
         return [z0 + k * (z1 - z0) / n for k in range(n + 1)]
+
+    LIFT_JACK_K = 3.5                  # M5 hex head's height: it sits between the top clip and the head
+    LIFT_HEAD_BOLT_Z = (45.0, 62.0)    # head's M5s into the spine's +-y slots, above the head's underside
+
+    @property
+    def lift_clip_top_z(self) -> float:
+        """Top face of the top rod clip: under the head's lowest position by a jack screw's head and 1 mm."""
+        return self.lift_head_z0 + self.lift_head_lowest() - self.LIFT_JACK_K - 1.0
+
+    @property
+    def lift_spine_top_z(self) -> float:
+        """The spine stops under the top pulley's tooth tips with the head at its lowest."""
+        return self.lift_z_top + self.lift_head_lowest() - self.lift_r_in - 3.0
+
+    def lift_head_lowest(self) -> float:
+        """How far below its CAD position the head must come down to put the belt on (negative)."""
+        return self.lift_tension_design()["off_lo_mm"]
 
     @property
     def lift_head_z0(self) -> float:
@@ -2247,6 +2277,48 @@ class Feeder:
             "run_on_s": self.trough_design()["run_time_s"] + transit + 2.0,
         }
 
+    def lift_tension_design(self) -> dict:
+        """Tension, take-up travel and setting figures for the top pulley.
+
+        Tension: the bottom pulley drives, so the down strand is the slack one there. With a static tension T0 at the
+        drive pulley the strands carry T0 +- pull / 2; `lift_tension_factor` = 1 keeps half the pull in the slack strand
+        (a 16-tooth pulley has only 8 teeth in mesh, so it must not go slack). Each strand also hangs its own weight from
+        the top pulley, so the top pulley carries 2 (T0 + strand weight).
+
+        Travel (head offsets from the CAD position, + up): the belt's free centre distance is (length - pi d) / 2 for
+        its welded length +- `lift_belt_len_tol_mm`; the tension stretches it by length x mean tension / c_spec, which
+        adds half that to the centre distance. The head must come down to the shortest belt's free centre less
+        `lift_install_mm` (the belt slips on with the head there) and up to the longest belt's tensioned centre.
+
+        Setting it: a strand of length L, mass m per metre and tension T rings at f = sqrt(T / m) / (2 L); pushed
+        sideways at mid-span with a force P it moves P L / (4 T).
+        """
+        d = self.lift_design()
+        g = 9.81
+        pull = d["pull_n"]
+        t0 = self.lift_tension_factor * pull
+        span = d["centre_mm"] / 1000
+        w_strand = self.lift_belt_kg_m * span * g
+        t_mean = t0 + w_strand / 2                       # mean along a strand, tight and slack averaged
+        stretch_mm = d["belt_mm"] * t_mean / self.lift_belt_cspec_n
+        c_free = (d["belt_mm"] - math.pi * self.lift_pd) / 2
+        tol = self.lift_belt_len_tol_mm / 2
+        off_lo = c_free - tol - d["centre_mm"] - self.lift_install_mm
+        off_hi = c_free + tol + stretch_mm / 2 - d["centre_mm"]
+        off_set = c_free + stretch_mm / 2 - d["centre_mm"]        # the belt as ordered, tensioned
+        top_n = 2 * (t0 + w_strand)
+        jack_n = top_n + self.lift_top_kg * g                     # the two jack screws hold the head up off the clip
+        t_top = t0 + w_strand                                     # tension at the top of a strand (it hangs from there)
+        return {
+            "t0_n": t0, "slack_n": t0 - pull / 2, "tight_n": t0 + pull / 2, "strand_weight_n": w_strand,
+            "stretch_mm": stretch_mm, "free_centre_mm": c_free, "off_lo_mm": off_lo, "off_hi_mm": off_hi,
+            "off_set_mm": off_set, "travel_mm": off_hi - off_lo, "top_load_n": top_n, "jack_n": jack_n,
+            "jack_each_n": jack_n / 2, "clip_n": jack_n,
+            "ring_hz": math.sqrt(t0 / self.lift_belt_kg_m) / (2 * span),
+            "ring_hz_top": math.sqrt(t_top / self.lift_belt_kg_m) / (2 * span),
+            "push_1n_mm": 1.0 * span * 1000 / (4 * t0),
+        }
+
     def check_lift(self) -> list[str]:
         bad = []
         d = self.lift_design()
@@ -2279,6 +2351,16 @@ class Feeder:
             bad.append("lift head's drop floor is too flat to turn a finger's push toward the chute")
         if self.chute_slope_deg < math.degrees(math.atan(self.trough_slope_factor * self.trough_crr)):
             bad.append("chute is too flat for a stopped ball to start again")
+        t = self.lift_tension_design()
+        if t["slack_n"] <= 0:
+            bad.append(f"lift belt's slack strand goes slack ({t['slack_n']:.1f} N): raise lift_tension_factor over 0.5")
+        if t["off_lo_mm"] > -self.lift_tooth_h:
+            bad.append("lift head cannot come down far enough to slip the belt over the top pulley's teeth")
+        if t["jack_each_n"] > self.lift_jack_nut_n:
+            bad.append(f"lift tensioner's jack screws take {t['jack_each_n']:.0f} N each, over a printed nut's "
+                       f"{self.lift_jack_nut_n:g} N")
+        if t["clip_n"] > 2 * self.lift_clip_slip_n:
+            bad.append(f"lift tensioner pushes the top clip down with {t['clip_n']:.0f} N, more than its two T-nuts hold")
         return bad
 
     def check_feed(self) -> list[str]:
