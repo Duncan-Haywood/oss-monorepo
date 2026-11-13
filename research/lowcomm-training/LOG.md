@@ -11,6 +11,14 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **H6r-i** (prior 55%): the paired excess at omega 31 falls inside the hinge band, +0.108 to +0.205. **H6r-ii** (prior 75%): it is below +0.27, the lower edge of the power band (power form refuted). **H6r-iii** (prior 80%): it is above +0.074, the upper edge of the linear band. Each is refuted if it fails as stated. A diverged run (non-finite loss) counts against H6r-i and for H6r-iii, and is reported as such, not dropped.
 - Not tested: other H, other widths, a compressor other than rand-k.
 
+### Outcome of 6r (`experiments/gpt_scale/keep32_6r.py`, `keep32_6r.txt`, `run_keep32.out`; 4 runs, about 18 min each in parallel on 4 cores, torch 2.15.0+cpu as in 6q)
+- Paired excess at omega 31: **+0.1321** (se 0.0041; per seed +0.1406, +0.1212, +0.1318, +0.1349). No run diverged. The H = 64 curve is now -0.0068 (omega 3), -0.0016 (7), +0.0167 (11), +0.0440 (15), +0.1321 (31).
+- **H6r-i held:** inside the hinge band (+0.108 to +0.205), 0.020 below its median +0.152. **H6r-ii held:** far below the power band (lower edge +0.27; the power fit's median was +0.68). **H6r-iii held:** well above the linear band (upper edge +0.074).
+- Five-cell refit (chi-square, 3 degrees of freedom each): hinge 3.24 (w0 = 7.75, slope 0.0057 per omega), power 17.3 (exponent drops to 1.75), linear 124.5. The hinge is the only form consistent with all five cells. The cost of rand-k compression at size 2, H = 64 is zero up to about omega 8 (keep about 1/9) and then rises linearly at about 0.006 nats per unit of omega.
+- What it does not settle: whether the knee moves with H or width (one H, one width); whether the slope above the knee matches the size-1 omega-linear slope (not compared yet); the knee's location is fitted on a 0.25 grid, not given an interval with the fifth cell.
+- Limits: four seeds per new cell; cells treated as independent; the hinge was chosen in 6p after seeing three cells, so this run is the first out-of-sample test of it, at one point.
+- Next: the knee at a second H (H = 16, keep 1/8 and 1/32) to ask whether w0 depends on H; update `paper/section_compression.md` item 8 (done in this step).
+
 ## 2026-11-10 · Milestone 6q (H6 scale-up): keep 1/12 (omega 11) at H = 64, four seeds (planned before running)
 
 - Why: 6p's "Next". The cells at omega 3, 7, 15 cannot separate a hinge (knee near omega 7) from a steep power law. Keep 1/12 sits between 7 and 15 and splits them.
