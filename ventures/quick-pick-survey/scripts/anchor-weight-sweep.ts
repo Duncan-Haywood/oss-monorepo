@@ -131,9 +131,13 @@ function score(items: string[], truth: number[], people: { rows: RatingRow[]; w:
   for (const p of people) {
     if (p.w <= 0) continue;
     const scale = 1 / Math.sqrt(Math.max(p.w, 0.05));
-    for (const r of p.rows) rows.push({ ...r, rd: Math.min(r.rd * scale, 349) });
+    // Never-answered rows (rd 350) are left out here, and down-weighted rows keep
+    // their scaled rd: the old cap at 349 let the never-answered rows in as
+    // real ones and capped every weight near 0.7 (docs/INFORMATION-GAIN-SELECTOR.md,
+    // "The sparse long-list overclaim was the harness").
+    for (const r of p.rows) if (r.rd < DEFAULT_GLICKO_STATE.rd - 1e-9) rows.push({ ...r, rd: r.rd * scale });
   }
-  const ranked = groupRanking(items.map((id) => ({ id, label: id })), rows);
+  const ranked = groupRanking(items.map((id) => ({ id, label: id })), rows, "overlap", { answeredOnly: true });
   const byId = new Map(ranked.map((r) => [r.itemId, r]));
   const est = items.map((id) => byId.get(id)!.rating);
   let clear = 0, wrong = 0;

@@ -293,7 +293,7 @@
         return `<tr><td class="n">${t.rank}</td><td>${esc(t.label)}${t.flagged ? ` <span class="flag">flagged</span>` : ""}</td><td class="n">${t.score.toFixed(3)}</td><td>${why}</td></tr>`;
       }).join("");
       const p = r.params;
-      $("#settings-line").textContent = `Features: ${r.features.join(", ")}. ${p.trees} trees, ${p.sampleSize} rows each, height limit ${p.heightLimit}, seed ${p.seed}; flagged ${p.contamination === "auto" ? "above 0.5" : `top ${p.contamination * 100}%`}.`;
+      $("#settings-line").textContent = `Features: ${r.features.join(", ")}. ${p.trees} trees, ${p.sampleSize} rows each, height limit ${p.heightLimit}, seed ${p.seed}; flagged ${p.contamination === "auto" ? "above 0.5" : `top ${+(p.contamination * 100).toFixed(4)}%`}.`;
     }
 
     function run() {

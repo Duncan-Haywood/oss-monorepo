@@ -596,6 +596,10 @@ export const SERVED_EXTENSIONS = new Map([
   // dupehound's browser build (WebAssembly); mime.types lists application/wasm wasm (nginx 1.21+),
   // and GitHub Pages serves it as application/wasm.
   ['.wasm', 'stock'],
+  // isolation-forest's UCI benchmark fixtures (data/*.data, comma-separated text) that its tests read and its
+  // page never fetches. mime-db has no .data entry, so a visitor who opens one directly downloads it, harmless for
+  // a fixture (added 2026-11-13 after PR #15447 broke the pages check).
+  ['.data', 'stock'],
 ]);
 
 /**

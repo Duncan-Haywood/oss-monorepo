@@ -74,11 +74,21 @@ export function clearlyAbove(a: { rating: number; se: number; low: number; high:
   return a.rating - b.rating > Z95 * Math.sqrt(a.se * a.se + b.se * b.se);
 }
 
-export function groupRanking(items: ItemMeta[], rows: RatingRow[], rule: RangeRule = "overlap"): RankedItem[] {
+/**
+ * `answeredOnly`: the caller has already left out the rows nobody answered
+ * about, so every row counts whatever its rd. A weighting scheme that
+ * down-weights a person by scaling their rd needs it: without it a row scaled
+ * past DEFAULT_RD reads as never answered and vanishes, and a cap below
+ * DEFAULT_RD instead lets the never-answered rows (rating 1500, rd 350) in as
+ * real ones. The sweeps did the latter until 2026-11-13, which made sparse long
+ * lists look overconfident (docs/INFORMATION-GAIN-SELECTOR.md, "The sparse
+ * long-list overclaim was the harness").
+ */
+export function groupRanking(items: ItemMeta[], rows: RatingRow[], rule: RangeRule = "overlap", { answeredOnly = false }: { answeredOnly?: boolean } = {}): RankedItem[] {
   const byItem = new Map<string, RatingRow[]>();
   for (const r of rows) {
     // A rating still at the default deviation was never answered about.
-    if (r.rd >= DEFAULT_RD - 1e-9) continue;
+    if (!answeredOnly && r.rd >= DEFAULT_RD - 1e-9) continue;
     const list = byItem.get(r.itemId);
     if (list) list.push(r);
     else byItem.set(r.itemId, [r]);
