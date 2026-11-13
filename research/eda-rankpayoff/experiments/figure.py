@@ -22,7 +22,7 @@ def main():
     sy = lambda v: H - B - (v - y0) / (y1 - y0) * (H - B - T)
     col = {"sweep": "#9aa5b1", "named": "#c0392b", "none": "#1f6fb2"}
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" aria-labelledby="t d" font-family="sans-serif" font-size="12">',
-         '<title id="t">Rank agreement does not predict screen payoff</title>',
+         '<title id="t">Screens with the same rank agreement pay off very differently (k = 3)</title>',
          '<desc id="d">Each dot is a cheap screen for the mapped latency of 40 MAC engines. Horizontal: Spearman rank agreement with the truth. Vertical: probability the best design of a random pool of 20 is among the 3 the screen sends to the mapper.</desc>',
          f'<rect width="{W}" height="{H}" fill="#fff"/>']
     for v in (0.5, 0.6, 0.7, 0.8, 0.9, 1.0):

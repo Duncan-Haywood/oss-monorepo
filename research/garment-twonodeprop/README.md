@@ -33,6 +33,15 @@ Held-out "between" / "outside" cost, "ours" choice set; prop minus on/off in the
 - **Softness costs comfort in this model.** Forcing the band to be at least 1.4 C wide adds 0.05 to 0.07 C ("between") and 0.02 to 0.04 C ("outside"), "ours", at lag 0 and 10 min; 3.0 C wide adds up to 0.14 C. Full rows, including "ref", are in `results.txt`.
 - **Why (hypothesis, not tested here):** a skin-temperature error of a few tenths of a degree already calls for nearly full actuation, so the useful gain is very high; and in this model switching has no cost (this project sets no penalty). With a per-switch cost or a wear model proportional control might help; that is the open question, not an answer from this run.
 
+## Known gaps (quality audit round 61)
+
+From [`portfolio/quality/audits/2026-11-13-garment-twonodeprop.json`](../../portfolio/quality/audits/2026-11-13-garment-twonodeprop.json):
+
+- **The open question is cheap to answer.** `garment-twonodelag`'s switch-penalty sweep, run on these gates, has proportional control winning all four "ours" cells at lag 0 and 10 by 0.011 to 0.033 C at 0.01 C per switch; the narrow on/off gate switches 14 and 24 times in the 20 C held-out rooms. That comparison, with an agreed switch count for a continuous actuator, is the next step.
+- **Prior work.** That near-on/off control wins when switching is free, and that a wide proportional band leaves a steady offset, is textbook control theory (Åström and Murray, *Feedback Systems*; Åström and Hägglund on PID), not cited here.
+- **"5 of 16"** counts one cell printed as -0.000; at printed precision there are 4 strict wins and a tie.
+- **The lag** is a 1-minute forward-Euler step inherited from upstream, slightly faster than a true first-order lag (0.730 vs 0.712 of the step after 10 min at lag 5).
+
 ## Limitations
 Stylised and preliminary. One person, one clothing level, constant room and humidity, two assumed transmittances, six training and eight held-out scenarios that are close relatives. The proportional law is a linear ramp; other laws (PI, with a derivative term) are untested. No actuator power, wear or switching cost enters the score. The grid is coarse. Simulated comfort is not a claim about any real garment.
 

@@ -80,6 +80,7 @@ function buildNotes(i, rows, worst, best, losing, routePerHour) {
   else n.push(`${below.length} of ${rows.length} locations earn less than your target of ${money(i.targetHourly)} an hour. Furthest below: ${worst.name} at ${money(worst.perHour)} an hour.`);
   for (const r of below) {
     if (r.maxCommissionPct >= 0) n.push(`${r.name}: asking for a commission of ${r.maxCommissionPct.toFixed(1)}% or less (now ${r.commissionPct}%) would reach your target.`);
+    else if (r.breakEvenTake == null) n.push(`${r.name}: prizes, card fees and the current ${r.commissionPct}% commission take all of the gross, so no weekly take reaches your target; lower the commission or the prize cost.`);
     else n.push(`${r.name}: no commission reaches your target at this take, even at 0%. It needs ${cents(r.breakEvenTake)} a week per machine at the current commission, or fewer visits and miles.`);
   }
   if (losing.length) n.push(`${losing.length} location${losing.length > 1 ? "s lose" : " loses"} money before paying you anything: ${losing.map((r) => r.name).join(", ")}.`);
