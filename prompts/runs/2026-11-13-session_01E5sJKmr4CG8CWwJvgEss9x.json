@@ -34,7 +34,8 @@
   "errors": [
     "Fix found before merge: the first scikit-learn comparison failed only for RationalQuadratic. scikit-learn orders that kernel's theta alphabetically (alpha before length_scale), so the engine's order was swapped to match.",
     "Fix found before merge: the venture test runner's inherited-keys lint caught KERNELS[name] lookups, and --kernel constructor would have passed validation and crashed. Fixed with Object.hasOwn and covered by a test.",
-    "Fix found before merge: the local run of sibling-links-ci failed because no sibling page linked the new tool (1 orphan, budget 0). Footer links were added from stl-decomposition and isolation-forest, with page.test assertions."
+    "Fix found before merge: the local run of sibling-links-ci failed because no sibling page linked the new tool (1 orphan, budget 0). Footer links were added from stl-decomposition and isolation-forest, with page.test assertions.",
+    "Fix found before merge: the platform/pages suite (run on its own after the local 300 s budget ran out) failed 2 of 1,639 tests because the new tool had no date in platform/pages/launched.json. The date was added and launched.test.mjs passes 23/23."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -45,6 +46,10 @@
     {
       "file": "platform/agents/README.md",
       "issue": "The 20-second child-process timeout for call_tool is easy to miss. A compute-heavy engine (a seven-kernel GP fit on 200 points takes about 15 s in Node) is close to it; the limit could be listed in portfolio/research-tools/README.md's definition of done."
+    },
+    {
+      "file": "platform/pages/launched.mjs",
+      "issue": "Its header says new tools get a launch date 'the first time someone runs it after they land', but launched.test.mjs fails the PR that adds a tool until the date is committed. A new tool's PR must add the entry itself; portfolio/research-tools/README.md's definition of done could say so."
     }
   ],
   "deviations": [
@@ -60,7 +65,7 @@
     "ventures/gaussian-process-regression/README.md"
   ],
   "goal": null,
-  "notes": "Explore idea: Gaussian-process regression (Rasmussen & Williams 2006), the eleventh research-algorithms tool, taken from the research-tools candidate list. It has seven kernels, a constant or linear mean (vague prior, R&W 2.7), closed-form LOO, a projected L-BFGS optimiser with seeded restarts, a page with a Web Worker, a CLI and an agent call. Verification against scikit-learn 1.9.1 on NOAA Mauna Loa CO2 2010-2026 (201 months): LML, gradient, predictive mean and SD agree to ~1e-12 for all 7 kernels (tests use 1e-9). From scikit-learn's start and bounds, the fit reaches the same optimum in 5 kernels and a higher one in quasiperiodic (329.47 vs 328.62). For the periodic kernel it stops at the all-noise KKT corner (-285.21 vs scikit-learn's -58.37); that is documented and tested. Finding: a held-out 36-month forecast (fit 2010-01..2023-09) gave RMSE 2.47 ppm / 6% band coverage with a constant mean and 1.08 ppm / 42% with a linear mean, against 1.07 ppm for seasonal naive; leave-one-out coverage inside the data was 96%. The default is a linear mean. Browser smoke test (Playwright, 1280 and 390 px): example fit in about 18 s, no console errors, no horizontal scroll. Local checks: run_venture_tests.py gaussian-process-regression ok (23 s); check_post_links 0 broken; check_post_frontmatter ok; run_workflow_locally --for-changes: 10/12 workflows passed. sibling-links failed and was then fixed (siblings --check 0 orphans; siblings.test 20/20). pages.yml and portfolio-validate gave no verdict because a step was skipped locally (no built site, no base ref, no pytest), and portfolio-pages 'Test the site builder' ran out of the 300 s local budget.",
+  "notes": "Explore idea: Gaussian-process regression (Rasmussen & Williams 2006), the eleventh research-algorithms tool, taken from the research-tools candidate list. It has seven kernels, a constant or linear mean (vague prior, R&W 2.7), closed-form LOO, a projected L-BFGS optimiser with seeded restarts, a page with a Web Worker, a CLI and an agent call. Verification against scikit-learn 1.9.1 on NOAA Mauna Loa CO2 2010-2026 (201 months): LML, gradient, predictive mean and SD agree to ~1e-12 for all 7 kernels (tests use 1e-9). From scikit-learn's start and bounds, the fit reaches the same optimum in 5 kernels and a higher one in quasiperiodic (329.47 vs 328.62). For the periodic kernel it stops at the all-noise KKT corner (-285.21 vs scikit-learn's -58.37); that is documented and tested. Finding: a held-out 36-month forecast (fit 2010-01..2023-09) gave RMSE 2.47 ppm / 6% band coverage with a constant mean and 1.08 ppm / 42% with a linear mean, against 1.07 ppm for seasonal naive; leave-one-out coverage inside the data was 96%. The default is a linear mean. Browser smoke test (Playwright, 1280 and 390 px): example fit in about 18 s, no console errors, no horizontal scroll. Local checks: run_venture_tests.py gaussian-process-regression ok (23 s); check_post_links 0 broken; check_post_frontmatter ok; run_workflow_locally --for-changes: 10/12 workflows passed. sibling-links failed and was then fixed (siblings --check 0 orphans; siblings.test 20/20). pages.yml and portfolio-validate gave no verdict because a step was skipped locally (no built site, no base ref, no pytest), and portfolio-pages 'Test the site builder' ran out of the 300 s local budget. platform/pages node --test: 1,637/1,639 at first, then the launched.json fix took launched.test.mjs to 23/23.",
   "corrections": [],
   "redteam": null,
   "usage": {
