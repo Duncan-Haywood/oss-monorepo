@@ -119,7 +119,8 @@ versus non-oracle voltage schedule.
 ## Milestones
 
 1. Held-out SAD test of the API-tuned repair, frozen and with angle rows (2026-11-12, `infra-dcopf`, `results_sad.txt`).
-2. Analytic sensitivities from the Jacobian; same results to 1e-4, fewer power flows.
+2. Analytic sensitivities from the Jacobian; same results to 1e-4, fewer power flows (2026-11-13, `infra-dcopf`, `results_sens.txt`, `results_vlin_margin_analytic.txt`: matches central differences to 1.3e-5 scaled, J-m 19 of 34 against 18, 29 against 28 with the reactive stage; 2 power flows per round, but only 1.1x faster because the QP dominates; finished-repair cost path-dependent by up to 3.08 pp).
+2b. A sparse or screened QP (rows near their bounds only) so the repair scales to milestone 6's cases; a post-feasibility phase that keeps optimising cost while staying clean.
 3. A voltage schedule not taken from the AC optimum; re-run TYP, API, SAD (2026-11-12, `infra-dcopf`, `results_vsched.txt`: at 1.0 pu the repair is clean on 2 of 11 API and SAD, 6 and 7 at the oracle schedule).
 3b. Generator voltage setpoints as decision variables in the linearisation, from the case-file start (2026-11-12, `infra-dcopf`, `results_vlin.txt`, `results_vlin_margin.txt`: as planned 5 of 34 fully clean; with interior margins, a post-hoc variant, 18 of 34, and 28 of 34 with the reactive stage, at +0.17 to +0.34 % mean cost; held-out check owed).
 4. LPAC and a one-shot optimised linearisation as baselines on all three sets.

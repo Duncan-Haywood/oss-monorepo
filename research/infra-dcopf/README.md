@@ -163,14 +163,30 @@ Milestone 3b of [`grid-linopf`](../grid-linopf/PROPOSAL.md). `src/infra_dcopf/vl
 - **Cost.** n_gen + n_vbus power flows per round, up to 10 rounds; 26 min for all 36 cases on 4 processes, of which case300 API (no QP solution in 10 rounds) takes 10 min.
 - **Limits.** J-m's margins were chosen after seeing J on the same cases, so 28 of 34 is a tuning-set figure until the frozen rules run on held-out cases. PIPS only; one load point per case; no LPAC baseline yet. Not repaired: case300 TYP and API, case179 TYP, case73 API, case118 API, case240 SAD.
 
+## Analytic sensitivities from the power-flow Jacobian (added 2026-11-13, `experiments/check_sens.py`, `results_sens.txt`, `run_vlin.py --margin --analytic`, `results_vlin_margin_analytic.txt`)
+Milestone 2 of [`grid-linopf`](../grid-linopf/PROPOSAL.md). `vlin.jacobian_sens` takes every sensitivity J-m uses (slack P, |S| at both branch ends, angle differences, PQ-bus voltages, unit Q; with respect to unit P and generator voltage setpoints) from the Newton Jacobian at the base power flow, by the implicit function theorem: one sparse LU and one solve per round, instead of n_gen + n_vbus extra power flows. Plan and predictions logged before the run.
+
+| | finite differences (FD) | analytic (A) |
+|---|---|---|
+| agreement with central differences (scaled, worst of 34 cases) | | 1.3e-5 (2.3e-6 on 32 of 34) |
+| J-m fully clean, of 34 | 18 | **19** |
+| J-m then reactive stage, of 34 | 28 | **29** |
+| AC power flows per round | n_gen + n_vbus + 2 (up to 251) | **2** |
+| repair time, summed over 34 cases | 1,491 s | 1,353 s (1.1x) |
+| mean cost over the AC optimum, fully clean J-m (TYP / API / SAD) | +0.20 / +0.37 / +0.28 % | +0.08 / +0.42 / +0.69 % |
+
+- **The outcome counts are robust to the derivative source** (same verdict on 31 of 34).
+- **The power flows were never the bottleneck.** PIPS's QP takes 98 to 99 % of the repair (`experiments/profile_vlin.py`: 74.3 of 75.1 s on case118 API, 190.5 of 192.0 s on case240 SAD); it has 758 to 2,452 inequality rows per round, and the elastic QP adds a slack per row.
+- **The cost of a finished repair is path-dependent.** The method stops at its first fully clean round; on 6 of 17 cases both finish, the cost moves by more than 0.05 points, worst 3.08 (case14 SAD: +0.77 % with FD, +3.85 % with A). A post-feasibility phase, not better derivatives, is what the cost claim needs.
+
 ## Method (`src/infra_dcopf/dcopf.py`)
 - **Cases.** `case30`, `case39` and `case118` from `pandapower.networks` (MATPOWER cases), with their quadratic generator costs (`poly_cost`).
 - **Two OPFs per condition.** `runopp` (AC, PIPS interior point, voltage and branch loading limits) and `rundcopp` (DC), on the same network with load scaled by 0.6, 0.8, 1.0 and 1.1 (P and Q together).
 - **DC dispatch under AC.** The DC generator set-points are fixed in an AC power flow with the external grid as slack; we count buses outside their voltage limits, branches above their loading limit, and the cost of the resulting dispatch (slack included) with the same cost function (`gen_cost`, checked to match pandapower's `res_cost` to 1e-6).
 - **Tightened limits.** A second sweep scales every line's `max_i_ka` and transformer `sn_mva` by 0.7 and 0.5 to force congestion. Many of those runs have no solution (below).
 
-## Checks (`tests/`, 37)
-- `tests/test_vlin.py` (5): the joint check is clean at the AC optimum and returns its cost, per-bus setpoints round-trip to per-unit VG, a 0.004 pu setpoint move is predicted to first order, the bound-shrinking helper stops at the midpoint, and the method repairs case14 API from 1.0 pu at the optimum's cost (within 0.1 %).
+## Checks (`tests/`, 40)
+- `tests/test_vlin.py` (8): the analytic sensitivities match central finite differences to 1e-4 (scaled) on case14 API and case30 SAD, and an analytic linearisation runs one power flow; the joint check is clean at the AC optimum and returns its cost, per-bus setpoints round-trip to per-unit VG, a 0.004 pu setpoint move is predicted to first order, the bound-shrinking helper stops at the midpoint, and the method repairs case14 API from 1.0 pu at the optimum's cost (within 0.1 %).
 - `tests/test_vsched.py` (4): the reference dict carries a schedule to every generator bus, PGLib's file schedule is flat 1.0 pu, pinning holds every non-slack unit within 0.02 MW, and the reactive stage at the AC optimum's dispatch returns the optimum's cost.
 - `tests/test_aclin.py` (5): on case30 API, the linearisation's offsets reproduce the AC power flow at its point, a 5 MW redispatch is predicted to within 0.05 MW of slack and 0.5 MVA of branch flow, the loss factors lie in a physical range, the QP solution satisfies its own linear constraints, and the linearisation at the AC optimum returns an AC-feasible dispatch.
 - `tests/test_pglib.py` (5): the PGLib reader, the parsed BASELINE.md table, the AC OPF against PGLib's published case118 TYP and API objectives (within 0.01 %), and the PowerModels DC convention reproducing the published case14 API DC cost while MATPOWER's B matrix does not.
@@ -258,7 +274,7 @@ Next step 2 asked for an outage stress test. Penalty factors and loss share are 
 - Limits: one network (case118, whose ratings do not bind at the intact optimum; post-trip line loadings were not reported, and a trip that congests the network is where stale factors are most at risk, to be tested on the PGLib API cases), single-line trips only, one solver, one dispatch per outage, the oracle uses the post-trip AC optimum (a bound, not a scheme).
 
 ## Next steps
-1. Published binding ratings done on 23 PGLib-OPF cases, and an AC-informed linearisation on them (sections above): successive linearisation clears 7 of 11 API cases where `corrected_dc` clears 1. SAD held-out test done (C-ang clean on 7 of 11, same rules). Voltage schedule not from the AC optimum done (clean on 2 of 11 API and SAD at 1.0 pu; section above). Voltage setpoints as decision variables done (with interior margins, 28 of 34 fully clean with the reactive stage; tuned on these cases). Next, as milestones of the programme [`grid-linopf`](../grid-linopf/PROPOSAL.md): the frozen J-m on held-out (larger) PGLib cases; LPAC and optimised-linearisation baselines; analytic Jacobian sensitivities in place of finite differences; an exact loss/congestion decomposition of the API LMPs from the AC duals.
+1. Published binding ratings done on 23 PGLib-OPF cases, and an AC-informed linearisation on them (sections above): successive linearisation clears 7 of 11 API cases where `corrected_dc` clears 1. SAD held-out test done (C-ang clean on 7 of 11, same rules). Voltage schedule not from the AC optimum done (clean on 2 of 11 API and SAD at 1.0 pu; section above). Voltage setpoints as decision variables done (with interior margins, 28 of 34 fully clean with the reactive stage; tuned on these cases). Analytic sensitivities done (19 and 29 of 34; the QP is the bottleneck). Next: a sparse or screened QP and a post-feasibility cost phase; Next, as milestones of the programme [`grid-linopf`](../grid-linopf/PROPOSAL.md): the frozen J-m on held-out (larger) PGLib cases; LPAC and optimised-linearisation baselines; an exact loss/congestion decomposition of the API LMPs from the AC duals.
 2. Previous-interval factors keep ~90 % of the oracle gain for 0.1 load steps, and essentially all of it on two real hourly weeks (above). Ramp and single-line outage stress tests done (above): stale factors beat plain DC on all 80 trips. Next: outages on a case whose ratings bind (PGLib API), a refresh rule driven by the factor change, a DC-based estimate of the point, or a distributed slack.
 3. Done by another route (see "Voltage violations" above). Next: a voltage/Q stage that is not a full AC OPF, and full-load feasibility with a solver that converges.
 
@@ -266,7 +282,7 @@ Next step 2 asked for an outage stress test. Penalty factors and loss share are 
 ```bash
 pip install pytest numpy pandapower
 cd research/infra-dcopf
-python -m pytest -q tests                     # 37 tests, about 30 s
+python -m pytest -q tests                     # 40 tests, about 30 s
 PYTHONPATH=src python experiments/run.py      # about 1 min; writes experiments/results.txt
 PYTHONPATH=src python experiments/run_penalty_acopt.py  # about 3 min; writes results_penalty_acopt.txt
 PYTHONPATH=src python experiments/run_prev_interval.py  # about 2 min; writes results_prev_interval.txt
@@ -274,6 +290,9 @@ python experiments/run_sad.py                 # about 80 s, needs pypower; write
 OMP_NUM_THREADS=1 python experiments/run_vsched.py  # about 6 min on 4 processes, needs pypower; writes results_vsched.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_vlin.py    # about 29 min on 4 processes, needs pypower; writes results_vlin.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_vlin.py --margin  # variant J-m, about 26 min; writes results_vlin_margin.txt/.json
+OMP_NUM_THREADS=1 python experiments/run_vlin.py --margin --analytic  # J-m, Jacobian sensitivities, about 24 min; writes results_vlin_margin_analytic.txt/.json
+python experiments/check_sens.py              # analytic vs central differences, about 2 min; writes results_sens.txt
+python experiments/profile_vlin.py case118_ieee api  # where the repair's time goes
 PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
 python experiments/run_pglib.py               # PGLib TYP+API, about 3 min; needs pypower; writes results_pglib.txt/.json
 python experiments/figure_pglib.py            # experiments/pglib_overload.svg
