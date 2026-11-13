@@ -156,3 +156,19 @@ test("a provider's known extension keeps its finding and says whose it is", () =
   // An unknown element gets the plain fix.
   assert.doesNotMatch(checkAbrasf(lote202.replace("<Competencia>", "<Nota>x</Nota><Competencia>")).findings[0].fix, /extension/);
 });
+
+test("a stated layout the file does not follow is named beside the findings", () => {
+  // The 2.04 NFS-e fixture relabelled 2.01: 2.01 has no TomadorServico and wants
+  // IdentificacaoPrestador; under 2.04 it is clean.
+  const stale = nfse.replaceAll('versao="2.04"', 'versao="2.01"');
+  const r = checkAbrasf(stale);
+  assert.deepEqual(r.findings.map((x) => x.rule).sort(), ["ABR-002", "ABR-004"]);
+  assert.ok(r.skipped.some((x) => /states 2\.01 and draws 2 schema findings under it, but none under ABRASF 2\.04/.test(x)), r.skipped.join("\n"));
+  // A clean file gets no such note.
+  assert.ok(!checkAbrasf(nfse).skipped.some((x) => /^layout:/.test(x)));
+  // A file no other layout fits better gets none either.
+  const both = stale.replace("<Numero>77</Numero>", "<Numero>77</Numero><Nota>x</Nota>");
+  const b = checkAbrasf(both);
+  assert.equal(b.findings.length, 3);
+  assert.ok(!b.skipped.some((x) => /^layout:/.test(x)), b.skipped.join("\n"));
+});
