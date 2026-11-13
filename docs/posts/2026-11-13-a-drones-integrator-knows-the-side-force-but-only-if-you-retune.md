@@ -2,8 +2,8 @@
 title: "A drone's attitude integrator can cancel a canted rotor's side force, but only with a retune"
 date: 2026-11-13
 tags: [codesign-cant, quadrotor, co-design, feed-forward, position-control, pid, research]
-description: Feeding forward only the attitude integrator's torque cancelled a canted quadrotor's side force with no extra crashes, on frames whose integrator carries the gust torque. Added to an existing tune, it ran away.
-seo_title: "Cancelling canted quadrotor side force with the PID integrator: does it work?"
+description: "Feeding forward a quadrotor's attitude integrator cancelled its canted rotors' side force with no extra crashes, but only after a retune."
+seo_title: "Can the PID integrator cancel canted quadrotor side force?"
 ---
 
 Canted motors give a quadrotor much more yaw authority. They also push the body sideways whenever the attitude controller makes roll or pitch torque. On a rigid frame in a steady wind, that side force adds to the wind push on one horizontal axis. In the `codesign-cant` simulations, the hurt axis held position 1.9 to 3.4 times worse than the other after a wind step.
