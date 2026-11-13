@@ -93,6 +93,9 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   no whole-phrase split fits (identical results on textbook ranges; with octave-wide sections 56 of 67 files fit
   instead of 50), and with `--split-words` whenever a handoff wins more than `--word-cost` notes (amateur ranges:
   74.6% to 82.2% full choir). Exact DP, brute-force checked. Not tried with singers.
+- 2026-11-13, latest: `--overlap` (README "Overlapped handoffs"): at a direct tenor/bass swap inside a phrase both
+  sections sing one seam note if it is in both ranges. Only octave-wide sections produce such swaps on the corpus
+  (7-13 of them); every one overlaps (0 breaks, eval/overlap-report.md). Off by default; not tried with singers.
 
 ## Next
 
