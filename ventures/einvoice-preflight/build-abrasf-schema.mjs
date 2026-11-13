@@ -235,6 +235,20 @@ const MULTI_FILES = {
   // unqualified. 1.01 adds CodigoServico to the RPS. dsf.mjs reads these files.
   "ISSDSF 1.00": { dir: "ISSDSF/1.00", home: "Tipos.xsd" },
   "ISSDSF 1.01": { dir: "ISSDSF/1.01", home: "Tipos.xsd" },
+  // Single-file 1.0x layouts (ABRASF's 1.00 model, one schema for every message): the
+  // capitals' own systems and the providers OpenAC.Net.NFSe's city list names. Most use
+  // ABRASF 1.00's namespace (www.abrasf.org.br/ABRASF/arquivos/nfse.xsd), so the same root
+  // name in the same namespace fits several of them; the city decides which (abrasf.mjs).
+  // BHISS and DSF 1.00 put 1.00 in ABRASF 2.x's namespace (www.abrasf.org.br/nfse.xsd);
+  // ISSIntegra keeps ABRASF/1.00's misspelt "http:/www.abrasf.org.br/nfse.xsd".
+  ...Object.fromEntries([
+    ["ISSRio 1.00", "ISSRio/1.00/nfse.xsd"], ["ISSSalvador 1.00", "ISSSalvador/1.00/nfse.xsd"],
+    ["BHISS 1.00", "BHISS/1.00/nfse.xsd"], ["DSF 1.00", "DSF/1.00/nfse.xsd"],
+    ["ISSCuritiba 1.00", "ISSCuritiba/1.00/nfse.xsd"], ["SimplISS 1.00", "SimplISS/1.00/nfse_3.xsd"],
+    ["DBSeller 1.00", "DBSeller/1.00/nfse.xsd"], ["Pronim 1.00", "Pronim/1.00/nfse.xsd"],
+    ["MetropolisWeb 1.00", "MetropolisWeb/1.00/nfse.xsd"], ["Thema 1.00", "Thema/1.00/nfse.xsd"],
+    ["ISSIntegra 1.00", "ISSIntegra/1.00/nfse.xsd"], ["Abaco 1.00", "Abaco/1.00/nfse_v2010.xsd"],
+  ].map(([k, rel]) => [k, { dir: rel.slice(0, rel.lastIndexOf("/")), home: rel.slice(rel.lastIndexOf("/") + 1), single: true }])),
 };
 const DSF_FILES = ["Tipos.xsd", "ConsultaSeqRps.xsd", "RetornoConsultaSeqRps.xsd", ...["CancelamentoNFSe", "ConsultaLote", "ConsultaNFSeRPS", "ConsultaNotas"].flatMap((m) => [`Req${m}.xsd`, `Retorno${m}.xsd`]), "ReqEnvioLoteRPS.xsd", "RetornoEnvioLoteRPS.xsd"];
 // The file lists, as at the pinned commit (the mirror has no directory listing).
@@ -251,7 +265,7 @@ const MULTI_LIST = {
 };
 for (const [key, spec] of Object.entries(MULTI_FILES)) {
   try {
-    let names = MULTI_LIST[key];
+    let names = spec.single ? [spec.home] : MULTI_LIST[key];
     if (!names && process.env.OPENAC_SCHEMAS) names = readdirSync(join(process.env.OPENAC_SCHEMAS, spec.dir)).filter((f) => spec.files.test(f)).sort();
     if (!names) { console.log(`skip ${key}: no file list (set OPENAC_SCHEMAS)`); continue; }
     names = [spec.home, ...names.filter((f) => f !== spec.home)];

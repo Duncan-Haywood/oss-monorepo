@@ -234,7 +234,9 @@ test("Ginfes 1.00 and WebISS 1.00 are compiled from their schema sets, roots in 
   assert.equal(providerMulti("WebISS 1.00").files, 16);
   assert.equal(providerMulti("ISSNet 2.04"), null);
   assert.deepEqual(multiFor("EnviarLoteRpsEnvio", GINFES_ENVIO), ["Ginfes 1.00"]);
-  assert.deepEqual(multiFor("EnviarLoteRpsEnvio", "http://www.abrasf.org.br/nfse.xsd"), []);
+  // BHISS 1.00 and DSF 1.00 write the 1.00 model in ABRASF 2.x's namespace (a 2.x root
+  // there is still read as 2.x first; the city decides, see the Belo Horizonte test).
+  assert.deepEqual(multiFor("EnviarLoteRpsEnvio", "http://www.abrasf.org.br/nfse.xsd"), ["BHISS 1.00", "DSF 1.00"]);
   assert.equal(cityProvider("3518800").key, "Ginfes 1.00"); // Guarulhos
 });
 
@@ -358,4 +360,61 @@ test("Betha 1.00: a default xmlns every child inherits is refused once per child
   assert.deepEqual(f.map((x) => x.rule), ["ABR-002", "ABR-002"], JSON.stringify(f));
   assert.equal(f[0].message, `Prestador inside ConsultarLoteRpsEnvio is in namespace ${BETHA_NS}, but this layout's schema (elementFormDefault unqualified) puts every element below the message root in no namespace.`);
   assert.match(f[0].fix, /add xmlns="" to each of its direct children \(<Prestador xmlns="">/);
+});
+
+// ---------- single-file 1.0x layouts (2026-11-13) ----------
+// A made-up batch in ABRASF 1.00's namespace, xmllint-valid against ISSRio/1.00/nfse.xsd and
+// DBSeller/1.00/nfse.xsd as written (service city Salvador, 2927408).
+const LOTE_10 = '<EnviarLoteRpsEnvio xmlns="http://www.abrasf.org.br/ABRASF/arquivos/nfse.xsd"><LoteRps Id="L1"><NumeroLote>1</NumeroLote><Cnpj>11222333000181</Cnpj><InscricaoMunicipal>12345</InscricaoMunicipal><QuantidadeRps>1</QuantidadeRps><ListaRps><Rps><InfRps Id="R1"><IdentificacaoRps><Numero>1</Numero><Serie>A</Serie><Tipo>1</Tipo></IdentificacaoRps><DataEmissao>2026-11-02T10:00:00</DataEmissao><NaturezaOperacao>1</NaturezaOperacao><OptanteSimplesNacional>2</OptanteSimplesNacional><IncentivadorCultural>2</IncentivadorCultural><Status>1</Status><Servico><Valores><ValorServicos>100.00</ValorServicos><IssRetido>2</IssRetido><ValorIss>5.00</ValorIss><BaseCalculo>100.00</BaseCalculo><Aliquota>0.05</Aliquota><ValorLiquidoNfse>100.00</ValorLiquidoNfse></Valores><ItemListaServico>0107</ItemListaServico><Discriminacao>Suporte tecnico</Discriminacao><CodigoMunicipio>2927408</CodigoMunicipio></Servico><Prestador><Cnpj>11222333000181</Cnpj><InscricaoMunicipal>12345</InscricaoMunicipal></Prestador></InfRps></Rps></ListaRps></LoteRps></EnviarLoteRpsEnvio>';
+const A10_NS = "http://www.abrasf.org.br/ABRASF/arquivos/nfse.xsd";
+
+test("single-file 1.0x layouts are compiled: the capitals' own systems and the providers the city list names", () => {
+  for (const k of ["ISSRio 1.00", "ISSSalvador 1.00", "BHISS 1.00", "DSF 1.00", "ISSCuritiba 1.00", "SimplISS 1.00", "DBSeller 1.00", "Pronim 1.00", "MetropolisWeb 1.00", "Thema 1.00", "ISSIntegra 1.00", "Abaco 1.00"]) {
+    assert.equal(providerMulti(k)?.files, 1, k);
+    assert.ok(rootsOf(k).includes("EnviarLoteRpsEnvio"), k);
+  }
+  assert.deepEqual(multiFor("EnviarLoteRpsEnvio", A10_NS), ["ISSRio 1.00", "ISSSalvador 1.00", "DBSeller 1.00", "Pronim 1.00", "MetropolisWeb 1.00", "Thema 1.00"]);
+  assert.equal(cityProvider("3304557").key, "ISSRio 1.00");
+  assert.equal(cityProvider("4106902").key, "ISSCuritiba 1.00");
+  assert.ok(looksLikeAbrasf('<ConsultarNfseEnvio xmlns="http://isscuritiba.curitiba.pr.gov.br/iss/nfse.xsd"/>'));
+  assert.ok(looksLikeAbrasf('<ConsultarNfseEnvio xmlns="http://www.sistema.com.br/Nfse/arquivos/nfse_3.xsd"/>'));
+});
+
+test("ABRASF 1.00's shared namespace: the issuing city's own system is taken (Salvador writes id, not Id)", () => {
+  const r = checkAbrasf(LOTE_10);
+  assert.equal(r.meta.version, "ISSSalvador 1.00");
+  assert.match(r.skipped.join("\n"), /city: Salvador\/BA \(Servico\/CodigoMunicipio 2927408\) runs ISSSalvador 1\.00 .*the layout the file is in/);
+  const f = r.findings.filter((x) => x.rule === "ABR-006");
+  assert.equal(f.length, 2);
+  assert.equal(f[0].message, "LoteRps carries Id, but this layout's schema spells the attribute id (names are case-sensitive).");
+  // OpenAC.Net.NFSe's Salvador copy (at the pinned commit) requires the reform's NBS and cClassTrib.
+  assert.ok(r.findings.some((x) => x.rule === "ABR-004" && /NBS is required in Servico/.test(x.message)));
+});
+
+test("the same batch for Rio de Janeiro is clean against ISSRio 1.00 (xmllint agrees)", () => {
+  const r = checkAbrasf(LOTE_10.replace("2927408", "3304557"));
+  assert.deepEqual(r.findings, []);
+  assert.equal(r.meta.version, "ISSRio 1.00");
+});
+
+test("with no city among the namespace's systems, the best-fitting one is taken and the others named", () => {
+  const q = `<ConsultarLoteRpsEnvio xmlns="${A10_NS}"><Prestador><Cnpj>11222333000181</Cnpj><InscricaoMunicipal>12345</InscricaoMunicipal></Prestador><Protocolo>123</Protocolo></ConsultarLoteRpsEnvio>`;
+  const r = checkAbrasf(q);
+  assert.deepEqual(r.findings, []);
+  assert.match(r.skipped.join("\n"), /is used by 6 city systems \(ISSRio 1\.00, .*\); with no city among them named in the file, it is checked against ISSRio 1\.00, which it fits best \(0 schema findings/);
+});
+
+test("Belo Horizonte: BHISS 1.00 writes the 1.00 model in ABRASF 2.x's namespace; the city's schema applies", () => {
+  const bh = LOTE_10.replaceAll("EnviarLoteRpsEnvio", "GerarNfseEnvio").replace(A10_NS, "http://www.abrasf.org.br/nfse.xsd").replace("2927408", "3106200").replace('<LoteRps Id="L1">', '<LoteRps Id="L1" versao="1.00">');
+  const r = checkAbrasf(bh); // xmllint-valid against BHISS/1.00/nfse.xsd
+  assert.deepEqual(r.findings, []);
+  assert.equal(r.meta.version, "BHISS 1.00");
+  assert.match(r.skipped.join("\n"), /Belo Horizonte\/MG .* runs BHISS 1\.00 .*single schema file writes the 1\.00 model in this same namespace.*0 schema findings/);
+  assert.ok(!r.skipped.some((x) => /^schema: the file states layout/.test(x)));
+  const noVersao = checkAbrasf(bh.replace(' versao="1.00"', ""));
+  assert.deepEqual(noVersao.findings.map((x) => x.message), ["LoteRps is missing its required attribute versao."]);
+  // A file stating a 2.x layout is checked as that layout, and the city's 1.00 schema is named.
+  const stated = checkAbrasf(bh.replace('versao="1.00"', 'versao="2.04"'));
+  assert.equal(stated.meta.version, "2.04");
+  assert.match(stated.skipped.join("\n"), /but the file states layout 2\.04, so it is checked against ABRASF 2\.04; BHISS 1\.00's own schema would draw 0 schema findings/);
 });
