@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validate, repair, render, readMap, splitUrl, sampleFile, sampleBrokenFile, findingsCsv, decodeBuffer, parseCsv } from "./calc.mjs";
+import { validate, repair, render, apacheExact, readMap, splitUrl, sampleFile, sampleBrokenFile, findingsCsv, decodeBuffer, parseCsv } from "./calc.mjs";
 
 const csv = (...pairs) => "Redirect from,Redirect to\n" + pairs.map((p) => p.join(",")).join("\n") + "\n";
 const codes = (r) => r.findings.map((f) => f.code);
@@ -105,7 +105,7 @@ test("render: each format", () => {
   const flat = [{ from: "/a", to: "/b", status: 301 }, { from: "/g", to: "", status: 410 }, { from: "/q\"x", to: "/z", status: 308 }];
   assert.equal(render(flat, "shopify"), "Redirect from,Redirect to\r\n/a,/b\r\n/q\"\"x,/z\r\n".replace('/q""x', '"/q""x"'));
   assert.match(render(flat, "netlify"), /^\/a {2}\/b {2}301!\n\/g {2}\/410\.html {2}410!/);
-  assert.match(render(flat, "apache"), /Redirect 301 \/a \/b\nRedirect gone \/g\nRedirect 308/);
+  assert.match(render(flat, "apache"), /RedirectMatch 301 \^\/a\$ \/b\nRedirectMatch gone \^\/g\$\nRedirectMatch 308/);
   const nginx = render(flat, "nginx");
   assert.match(nginx, /"\/a" "\/b";/);
   assert.match(nginx, /"\/q\\"x" "\/z";/);
@@ -143,4 +143,17 @@ test("findings CSV and samples", () => {
 test("flags targets on staging, preview or local hosts, not the live site", () => {
   const r = validate(csv(["/a", "https://staging.example.com/a"], ["/b", "http://localhost:3000/b"], ["/c", "https://shop.myshopify.com/c"], ["/d", "https://www.example.com/d"], ["/e", "https://partner.org/e"]), { site: "example.com" });
   assert.deepEqual(r.findings.filter((f) => f.code === "staging-target").map((f) => f.line), [2, 3, 4]);
+});
+
+test("apache: exact-match rules, so a parent or / row cannot catch other URLs (round 64 audit)", () => {
+  const out = render([{ from: "/", to: "/home", status: 301 }, { from: "/blog", to: "/news", status: 301 }, { from: "/a.b%20c", to: "/x", status: 301 }], "apache");
+  assert.equal(out, "RedirectMatch 301 ^/$ /home\nRedirectMatch 301 ^/blog$ /news\nRedirectMatch 301 ^/a\\.b\\x20c$ /x\n");
+  const re = new RegExp(apacheExact("/blog").replace("\\x20", " "));
+  assert.ok(re.test("/blog") && !re.test("/blog/post-1"));
+});
+
+test("repair says when temporary rows are written as 301", () => {
+  const r = repair("from,to,status\n/sale,/promo,302\n", { format: "csv" });
+  assert.match(r.text, /\/sale,\/promo,301/);
+  assert.ok(r.changes.some((c) => /temporary .* as 301/.test(c)));
 });

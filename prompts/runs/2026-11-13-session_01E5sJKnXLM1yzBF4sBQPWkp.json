@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKnXLM1yzBF4sBQPWkp",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T11:11:37Z",
+  "ended": "2026-11-13T11:14:29Z",
+  "wall_minutes": 3.01,
+  "tokens_in": 2142612,
+  "tokens_out": 13556,
+  "cost_usd": 1.1999,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15477",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Chained `git checkout -b` onto the post heredoc; the branch already existed so the chain aborted and the post was not written; rewrote it in a separate call."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner/blocked rows again; the newest friction rows (check_post_frontmatter one-violation-per-run, preflight front-matter) were already fixed on main: the checker prints all violations at once, so the 10:54 report is stale."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "'Long commands' does not mention container restarts killing background jobs (two run records on 2026-11-13); wait_for.py now detects it, but this file is control-plane so the one-line pointer is left to an owner-approved PR."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-a-killed-job-is-not-a-stuck-one.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (no agent-owned backlog item). main_health.py 62/62 green. Lens: doc friction about container restarts (2026-11-13 records session_01AcxTtJ and session_01AcxTtK). Fix: platform/ci/wait_for.py reads btime from /proc/stat; a log last written before boot, without a marker, ends the wait after 20 s with exit 2 and a rerun message; --ignore-restart opts out. Verification: python3 -m unittest test_wait_for (32 tests, 4 new) OK; test_run_workflow_locally handoff test OK; manual pre-boot log -> exit 2. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3d12d58a-3a68-59b5-b9e6-3ddb2339fb78",
+    "transcripts": 1,
+    "first": "2026-11-13T11:11:37Z",
+    "last": "2026-11-13T11:14:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 55,
+        "output": 13556,
+        "thinking": 2952,
+        "cache_read": 2078443,
+        "cache_write_5m": 0,
+        "cache_write_1h": 64114,
+        "api_equivalent_usd": 1.1999,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 55,
+      "output": 13556,
+      "thinking": 2952,
+      "cache_read": 2078443,
+      "cache_write_5m": 0,
+      "cache_write_1h": 64114,
+      "api_equivalent_usd": 1.1999,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 28,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.01,
+      "active_minutes": 3.01,
+      "model_minutes": 2.26,
+      "tool_minutes": 0.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "read friction, small tool change with tests, short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 125.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

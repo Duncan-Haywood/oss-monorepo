@@ -153,12 +153,31 @@ export function fillBar(t0, bar) {
 //   verse  no crash; drums and bass a little softer; no chord part (the choir carries it)
 //   drop   the genre's bar as written, with a crash on the section's first downbeat
 //   outro  hats, ride and chords only, softer; the last bar is one held chord and a crash
+//   breakdown  drums and bass out: the choir alone for the first half, then a soft held chord
+//          per bar that swells towards the build (the "breather" before the last drop)
 // A section with `build` ends on a build bar instead of its own last bar: kicks on beats
 // 1 and 2, a snare roll that speeds up (quarters, eighths, then sixteenths) and swells, the
 // bass and chords held under it, and the last eighth left empty for every part (the
-// "air" before the drop lands).
+// "air" before the drop lands). The build's harmony moves to the mode's approach chord
+// (APPROACH below) so the drop's first chord, on the final, resolves it, and a riser climbs
+// the mode in eighths an octave above the chords, getting louder, up to the air gap.
 const PERCUSSION_ONLY = new Set([D.closedHat, D.openHat, D.ride]);
 const soften = (list, k) => list.map((n) => ({ ...n, vel: Math.max(1, Math.round(n.vel * k)) }));
+
+// The chord that leads back to the final in each mode: bVII in Dorian and Mixolydian, bII in
+// Phrygian (its characteristic cadence), II in Lydian. Scale degrees, so every note stays in mode.
+export const APPROACH = { dorian: 6, phrygian: 1, lydian: 1, mixolydian: 6 };
+
+// A breakdown bar: no drums, no bass. `k` is the bar's place in the section (0-based) of
+// `n` bars before the build; the first half is the choir alone, the second a held chord
+// whose velocity rises bar by bar.
+export function breakdownBar({ t0, scale, degree, final }, k, n) {
+  const half = Math.floor(n / 2);
+  if (k < half) return { drums: [], bass: [], chords: [] };
+  const span = Math.max(1, n - half);
+  const vel = Math.round(40 + (25 * (k - half + 1)) / span);
+  return { drums: [], bass: [], chords: chordTones(scale, degree, final).map((x) => e(t0, x, BAR - 40, vel)) };
+}
 
 function shapeBar(part, energy) {
   if (energy === 'intro') {
@@ -173,13 +192,18 @@ function shapeBar(part, energy) {
   return part;
 }
 
-export function buildBar({ t0, scale, degree, final }) {
+export function buildBar({ t0, scale, degree, final }, approach = null) {
+  if (approach !== null) degree = approach;
   const drums = [e(t0, D.kick, step, 110), e(t0 + PPQ, D.kick, step, 110)];
   const hits = [0, PPQ, PPQ * 1.5, ...Array.from({ length: 6 }, (_, i) => PPQ * 2 + i * step)]; // stops before the last eighth
   hits.forEach((tick, i) => drums.push(e(t0 + tick, D.snare, step, Math.min(127, 60 + i * 8))));
   const air = BAR - PPQ / 2; // the bar's last eighth stays empty
   const bass = [e(t0, rootNote(scale, degree, final - 24), air - 20, 90)];
   const chords = chordTones(scale, degree, final).map((n) => e(t0, n, air - 20, 70));
+  if (approach !== null) {
+    // the riser: seven eighths up the mode from the final an octave above the chords, louder each step
+    for (let i = 0; i < 7; i++) chords.push(e(t0 + i * (PPQ / 2), final + 12 + scale[i], PPQ / 2 - 20, 50 + i * 10));
+  }
   return { drums, bass, chords };
 }
 
@@ -208,11 +232,12 @@ export function arrange({ genre, mode, final, bars, fills = false, sections = nu
     const sec = sectionOf(bar);
     const last = sec && bar === sec.start + sec.bars - 1;
     let part;
-    if (sec && last && sec.build) part = buildBar(ctx);
+    if (sec && last && sec.build) part = buildBar(ctx, APPROACH[name]);
     else if (sec && last && sec.energy === 'outro' && bar === bars - 1) part = outroLastBar(ctx);
     else {
       part = GENRES[genre].bar(ctx);
-      if (sec) {
+      if (sec && sec.energy === 'breakdown') part = breakdownBar(ctx, bar - sec.start, sec.bars - (sec.build ? 1 : 0));
+      else if (sec) {
         part = shapeBar(part, sec.energy);
         if (sec.energy === 'drop' && bar === sec.start && !part.drums.some((n) => n.note === D.crash && n.tick === ctx.t0)) {
           part.drums.push(e(ctx.t0, D.crash, PPQ, 110));
@@ -220,7 +245,7 @@ export function arrange({ genre, mode, final, bars, fills = false, sections = nu
       }
     }
     for (const k of ['drums', 'bass', 'chords']) out[k].push(...part[k]);
-    const quiet = sec && (sec.energy === 'intro' || sec.energy === 'outro' || (last && sec.build));
+    const quiet = sec && (sec.energy === 'intro' || sec.energy === 'outro' || sec.energy === 'breakdown' || (last && sec.build));
     if (fills && bar < bars - 1 && !quiet) out.drums.push(...fillBar(bar * BAR, bar));
   }
   return out;

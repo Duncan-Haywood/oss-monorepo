@@ -80,3 +80,10 @@ def test_charge_price_picks_cheapest_hours_per_window():
     assert ns["charge_price"](day * 365, 4) == pytest.approx(0.0)
     # 24 h is cycled 83 times a year, so its window is 105 h (4.4 days) and holds 17.5 zero-price hours of 24 needed
     assert 0.0 < ns["charge_price"](day * 365, 24) < 100.0
+
+
+def test_pumped_hydro_site_class_spread_is_applied():
+    # round 64 audit: zeroing this spread left every test green, yet it drives the 8 h win share
+    a = alternatives(td, atb)["pumped hydro"]
+    assert a["p"] == pytest.approx((0.441, 1.148), abs=0.002)
+    assert a["e"] == a["p"]

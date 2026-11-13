@@ -29,9 +29,15 @@ on one ran its full 110 s past that line, 2026-11-12), and a `-` after the
 marker (`DONE-EXIT 3`, friction 2026-11-12).
 
 Exit 0 and the log's last lines once the marker line appears; exit 1 on timeout
-(the job may still run: call again). The default stays under the 120 s tool limit.
+(the job may still run: call again); exit 2 when a restart killed it. The default stays under the 120 s tool limit.
 For a job of many minutes, start wait_for itself with `run_in_background --timeout 3600`;
 the harness wakes you when it exits.
+A container restart kills every background job, mid-line and without a marker,
+and reads like a hang: three restarts in one run on 2026-11-13 were taken for a
+stuck build, `uptime` being the only tell. So a log last written before the
+machine booted, with no marker, ends the wait at once (exit 2): the job that
+wrote it is gone and must be started again (results it already saved survive).
+
 Do not pipe it (`| tail`) or chain `&& echo DONE`: a pipe hides the exit 1 and the chained echo fires falsely
 (friction 2026-10-29); read the log file afterwards instead.
 """
@@ -54,8 +60,26 @@ def is_marker(line, marker):
 DEFAULT_MARKERS = ("DONE", "EXIT", "[exited with code")
 
 
-def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.sleep):
-    end = clock() + timeout
+def boot_time(stat="/proc/stat"):
+    """When this machine (the session's container) booted, as a Unix time; None if unknown."""
+    try:
+        with open(stat) as f:
+            for line in f:
+                if line.startswith("btime "):
+                    return float(line.split()[1])
+    except (OSError, ValueError, IndexError):
+        pass
+    return None
+
+
+def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.sleep,
+         boot=None, grace=20.0):
+    """(True, lines) once a marker line appears; (False, []) on timeout; (None, lines)
+    when the log was last written before `boot` (the machine's boot time) and stays
+    so for `grace` seconds: the job died in a restart. The grace covers a job
+    started after the boot that appends (`>>`) and has not written yet."""
+    start = clock()
+    end = start + timeout
     while True:
         if os.path.exists(path):
             with open(path, errors="replace") as f:
@@ -63,6 +87,8 @@ def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.m
             markers = (marker,) if isinstance(marker, str) else marker
             if any(is_marker(l, m) for l in lines for m in markers):
                 return True, lines
+            if boot is not None and os.stat(path).st_mtime < boot and clock() - start >= min(grace, timeout):
+                return None, lines
         if clock() >= end:
             return False, []
         nap(interval)
@@ -143,6 +169,8 @@ def main(argv=None):
     ap.add_argument("--marker", "--pattern", dest="marker",
                     help="line (or first word) that means done; default DONE or EXIT")
     ap.add_argument("--timeout", type=float, default=100.0)
+    ap.add_argument("--ignore-restart", action="store_true",
+                    help="keep waiting on a log last written before the container booted")
     a = ap.parse_args(argv)
     # An empty marker matches the first blank line, a false "done"; os.kill(-1, 0)
     # probes every process and os.kill(0, 0) the process group, so neither ends.
@@ -164,7 +192,17 @@ def main(argv=None):
         return 1
     if not a.log:
         ap.error("give a log file, --until or --pid")
-    ok, lines = wait(a.log, a.marker or DEFAULT_MARKERS, a.timeout)
+    boot = None if a.ignore_restart else boot_time()
+    ok, lines = wait(a.log, a.marker or DEFAULT_MARKERS, a.timeout, boot=boot)
+    if ok is None:
+        last = next((l for l in reversed(lines) if l.strip()), "(empty)")[:120]
+        when = time.strftime("%H:%M:%S UTC", time.gmtime(boot))
+        written = time.strftime("%H:%M:%S UTC", time.gmtime(os.stat(a.log).st_mtime))
+        print(f"wait_for: the container restarted at {when}, after {a.log} was last written ({written}), "
+              f"and the log has no '{a.marker or 'DONE'}' line: the job that wrote it was killed, not stuck. "
+              f"Start it again (files it already saved are still there). Last line: {last!r}. "
+              f"(--ignore-restart waits anyway.)", file=sys.stderr)
+        return 2
     if not ok:
         shown = a.marker or "DONE' or 'EXIT"
         print(f"wait_for: no '{shown}' line in {a.log} after {a.timeout:.0f}s; {progress(a.log)}{longer(a.timeout)}", file=sys.stderr)

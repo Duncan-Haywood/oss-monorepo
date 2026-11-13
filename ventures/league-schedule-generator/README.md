@@ -1457,6 +1457,74 @@ a valid but loose floor (19 teams' 1,311 timetable: 74, where MaxSAT proves 85),
 regrounding stays with the annealing. The next step the floor makes cheap is a timetable search that
 scores its moves on the proved break floor (30 ms per timetable at 20 teams).
 
+## Pricing the break floor: timetables searched on their proved least breaks (2026-11-13, latest)
+
+The last two sections showed that the frontier's widest gaps are in the timetables (20 teams, one
+leg: 360 carry-over at 50 breaks, then nothing until about 546 at 36 to 44) and gave the page an
+exact solver for the fewest breaks of one timetable. The squeezes could not cross that gap: they move
+the timetable with every match's ground carried along, so a timetable that would be good with
+*other* grounds looks bad to them, and walked down from 360 / 52 they never got under 50.
+
+**`floorPricedSingleRounds(n, start, { maxBreaks })`** searches the timetable alone and prices every
+move on carry-over + 60 per break of the timetable's **proved break floor** above the cap (the fewest
+breaks any host choice allows, `orient.mjs`), then picks the grounds exactly at the end with
+`leastBreaks` (balanced, proved). Two things make that affordable:
+
+- **An incremental floor.** `floorTable(opp, n)` keeps the programme's forward table; a move that
+  changes rounds from `lo` on reruns only rounds `lo` to the end, about half the programme on a
+  random move (tested equal to the full programme after every swap, `floor-priced.test.mjs`).
+- **Refusing before pricing.** The annealing draws its acceptance line first; the floor's penalty is
+  never negative, so a move whose carry-over alone is over the line is refused with no floor to
+  compute. At 20 teams 3,000 moves need 60 to 800 floors.
+
+The floor ignores the balance rule (home and away games within one), so the least balanced choice can
+be a break or two above it; the six best timetables within the cap are kept and the one with the least
+carry-over whose balanced least is within the cap wins.
+
+**In the page** (`carryOverFloorPriced`, `CARRY_OVER_FLOOR_PRICED = 2`, single round robins of 6 to 21
+teams): after the regrounded seasons, the widest gap of 4 or more breaks on the list's frontier is
+searched from the season above it at caps of its breaks - 2, - 4 (3 searches at most); a result
+nothing beats joins the list (`floorPricedFrom` names its source), never the four choices, so every
+older share link builds the same season; one picked from the list rebuilds from its link
+(`bestCarryOverRounds(n, { floorPriced })`, spec field `carryOverFloorPriced`). It runs on the same
+worker as the squeezes, after them.
+
+What it adds (`node eval/floor-priced.mjs <teams> <seed> --page`, `eval/floor-priced.txt`; the page's
+whole list of 12 tries, 4 squeezes and 4 regrounded seasons, then the floor-priced searches):
+
+| Teams, seed | Gap on the list | Floor-priced seasons | Least carry-over within the new budget |
+|---|---|---|---|
+| 20, s1 | 360 / 50 .. 546 / 36 | 440 / 48, 516 / 46 | 48 breaks: 546 -> 440 (19%) |
+| 20, s2 | 360 / 50 .. 552 / 42 | 414 / 48, 434 / 46 | 48: 552 -> 414 (25%); 46: 552 -> 434 |
+| 20, s3 | 360 / 50 .. 550 / 44 | 412 / 48, 460 / 46 | 48: 550 -> 412 (25%) |
+| 18, s1-s3 | 348 / 38 .. 426-434 / 30-32 | 392 / 36, 418 / 34; 370 / 36, 428 / 34; 408 / 36 | 36: 430 -> 392, 434 -> 370, 426 -> 408 |
+| 17, s1-s3 | 343 / 32 .. 539-623 / 26-27 | 379 / 31; 385 / 29; 369 / 30 | up to 41% at one budget |
+
+- Over 18 runs (14, 16, 17, 18, 19 and 20 teams, seeds 1 to 3) **15 seasons join the frontier in 10
+  runs**; the least carry-over at a break budget falls 1.1% on average over the whole frontier and
+  3.6 to 17% inside the gap at 17, 18 and 20 teams. Nothing at 14 teams (the gaps are 2 breaks),
+  nothing at 19 (the gap under 323 / 36 is 4 to 6 breaks wide and every search found 36 or more).
+- Time on the worker: 0 to 26 s, 4 to 21 s at 17 to 20 teams; 19 teams seed 3 spends 26 s and adds
+  nothing (three searches that end above their cap). The list grows while the page is usable.
+- **The wider sweep** (`node eval/floor-priced.mjs <teams> <seed>`, every cap across the gap from the
+  season above it and from the season under it, 3,000 moves each, 21 runs including 22 teams) finds
+  the same picture: the season above the gap, 2 to 4 breaks down, is where it pays (20 teams: 408 to
+  426 at 48 breaks on every seed); starting under the gap helps at 16 and 17 teams (16 s2: 266 / 22
+  and 300 / 20 against 316 / 18), rarely at 20. **22 teams** gain too (s2: 512 / 56 and 586 / 56
+  inside a 440 / 58 .. 690 / 48 gap; 6 to 7% inside the gap on s2 and s3, 1.5% on s1), but one search
+  takes 22 to 86 s (2,048 states a round), so the page stops at 21; the function takes up to 25.
+- **Not reached.** The middle of the 20-team gap (40 to 44 breaks) stays at about 516 to 550: the
+  best found there are 524 / 40, 530 / 40 and 530 / 44 from the sweep, 1 to 4% under the list. The
+  floor prices breaks exactly but the timetable moves are still small; a bigger neighbourhood (round
+  re-solves, or a starter family built for breaks) is the next step.
+- Tests: `floor-priced.test.mjs`, 10: the incremental floor equals the programme after every move at
+  5, 6, 9, 10, 13 and 14 teams; too-big timetables refused; at 8, 9, 12 and 13 teams a floor-priced
+  season is valid (every pair once, nobody twice a round, balanced), its breaks and carry-over match a
+  recount, and its grounds are the proved least for its timetable; seeded; `carryOverFloorPriced`
+  lists only frontier seasons numbered after the results and nothing for home and away;
+  `bestCarryOverRounds` keeps its choice and `buildSchedule` rebuilds a kept floor-priced season;
+  20 teams seed 1 from 360 to a cap of 48 gives 410 / 48, proved.
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`
