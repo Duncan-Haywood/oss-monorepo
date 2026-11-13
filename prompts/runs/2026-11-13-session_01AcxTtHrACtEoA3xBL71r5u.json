@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtHrACtEoA3xBL71r5u",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T11:05:43Z",
+  "ended": "2026-11-13T11:09:03Z",
+  "wall_minutes": 30.56,
+  "tokens_in": 7650306,
+  "tokens_out": 31316,
+  "cost_usd": 3.2131,
+  "tool_calls": 70,
+  "task": "Flagship 8 (quick-pick-survey) item (g): re-run the careless-pattern sweep's weighted columns (loo-w, gate-w, self-w) at 8 and 60 respondents without the rd cap at 349",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15472",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First 60-respondent run launched as one process per seed over 50 cells each; ~4 min a cell under contention, would have taken 3+ h",
+      "fix": "killed it after the 8-person cells finished and split the remaining 60-person cells into 8 processes over a trimmed share grid; done in ~10 min"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook refuses a bracketed pattern if the unbracketed word appears anywhere else in the same command line (e.g. a later script path); CLAUDE.md only says to bracket the first letter."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes runs pages.yml, but naming pages.yml directly refuses without --force; and the site-builder step exceeds the 300 s per-workflow budget locally, so it ends UNRUN."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Venture preflight (venture-preflight.mjs) not run: the change is docs and raw data only, with no page, route or code change",
+      "did": "ran run_workflow_locally --for-changes and the post front-matter/link checks",
+      "result": "all ran checks pass except the two Postgres-backed quick-pick steps (no DB in the container) and the site builder timing out locally; CI judges those"
+    },
+    {
+      "file": "ventures/quick-pick-survey/AGENTS.md",
+      "why": "'npm run verify' not run: no source change",
+      "did": "relied on CI",
+      "result": "see PR checks"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quick-pick-survey-down-weighting-a-camp-makes-it-wrong.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md section 'The weighted schemes at 8 and 60 respondents, uncapped'"
+  ],
+  "goal": null,
+  "notes": "188 cells (8 and 60 respondents; 15/30 items; random, first, favourite, salience, dissent; seed bases 2000 and 50000; 40 surveys each). Shipped, first-flag, drop schemes and oracle-drop match the capped files in all 69 + 48 overlapping cells. Uncapped loo-w: camp tax -0.017 to -0.052 (8) and -0.020 to -0.059 (60, 25-40% camps), was about half; gains up to +0.114 vs coin flippers. New: at 60 people loo-w makes a 25-40% camp's pool call 0.9-1.7% of clear pairs wrong (shipped 0-0.03%). Decision unchanged: agreement stays a note. Local checks: run_workflow_locally --for-changes: front matter OK after a fix (description was 184 chars), ventures-tests 5/5, simulations OK; quick-pick integration and migration parity fail for want of Postgres; site builder UNRUN (300 s budget).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0f898155-9840-58be-b415-a5f57b2fb038",
+    "transcripts": 1,
+    "first": "2026-11-13T11:05:43Z",
+    "last": "2026-11-13T11:36:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 130,
+        "output": 31316,
+        "thinking": 6808,
+        "cache_read": 7514762,
+        "cache_write_5m": 0,
+        "cache_write_1h": 135414,
+        "api_equivalent_usd": 3.2131,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 130,
+      "output": 31316,
+      "thinking": 6808,
+      "cache_read": 7514762,
+      "cache_write_5m": 0,
+      "cache_write_1h": 135414,
+      "api_equivalent_usd": 3.2131,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 30.56,
+      "active_minutes": 30.56,
+      "model_minutes": 6.78,
+      "tool_minutes": 23.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "re-running and comparing a 188-cell simulation sweep against two earlier result files and writing it up, for a statistician familiar with the code",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 186.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
