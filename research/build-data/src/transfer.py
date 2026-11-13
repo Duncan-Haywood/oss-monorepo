@@ -158,15 +158,18 @@ def run(frames, held, test_year, seeds, keep_rows=False, select=False):
                class_share_source_train={c: float((tr.cls == c).mean()) for c in CLASSES})
     P = {"transfer": {t: [] for t in TAUS}, "own_boosted": {t: [] for t in TAUS}}
     S = {t: [] for t in TAUS}  # session 83: transfer predictions on the held-out city's year Y-1 (selection year)
+    S2 = {t: [] for t in TAUS}  # session 84: and on its year Y-2 (also never read by the transfer model)
+    o2 = otr[otr.year == test_year - 2]
     for s in range(seeds):
         for name, (a, b) in (("transfer", (tr, ca)), ("own_boosted", (otr, oca))):
-            xt = pd.concat([feats(te), feats(oca)]) if (select and name == "transfer") else feats(te)
+            xt = pd.concat([feats(te), feats(oca), feats(o2)]) if (select and name == "transfer") else feats(te)
             pr, _, _, _ = boosted.fit_predict(feats(a), a.y.to_numpy(float), feats(b), b.y.to_numpy(float),
                                               xt, seed=s)
             for t in TAUS:
                 P[name][t].append(pr[t][:len(te)])
                 if select and name == "transfer":
-                    S[t].append(pr[t][len(te):])
+                    S[t].append(pr[t][len(te):len(te) + len(oca)])
+                    S2[t].append(pr[t][len(te) + len(oca):])
     res["pinball"] = {"own_baseline": {str(t): float(boosted.pin(yte, bq[t], t).mean()) for t in TAUS}}
     for name in P:
         res["pinball"][name] = {str(t): float(np.mean([boosted.pin(yte, p, t).mean() for p in P[name][t]]))
@@ -190,7 +193,11 @@ def run(frames, held, test_year, seeds, keep_rows=False, select=False):
         ys = oca.y.to_numpy(float)
         res["_select"] = dict(loss={t: np.mean([boosted.pin(ys, p, t) for p in S[t]], axis=0) for t in TAUS},
                               weeks=np.array(["%d-%02d" % harness.week(x) for x in oca.start]),
-                              permit_id=oca.permit_id.to_numpy())
+                              permit_id=oca.permit_id.to_numpy(), y=ys, start=oca.start.to_numpy())
+        y2 = o2.y.to_numpy(float)  # session 84: year Y-2, for selection sets a deployment could score
+        res["_select2"] = dict(loss={t: np.mean([boosted.pin(y2, p, t) for p in S2[t]], axis=0) for t in TAUS},
+                               weeks=np.array(["%d-%02d" % harness.week(x) for x in o2.start]),
+                               permit_id=o2.permit_id.to_numpy(), y=y2, start=o2.start.to_numpy())
     if keep_rows:  # per-row seed-mean losses for paired(); not written to json
         rows["own_baseline"] = {t: boosted.pin(yte, bq[t], t) for t in TAUS}
         res["_rows"] = dict(loss=rows, y=yte, weeks=wk, permit_id=te.permit_id.to_numpy(), start=te.start.to_numpy(),

@@ -1,5 +1,57 @@
 # build-data log
 
+## Session 84, 2026-11-13: scored on the labels a deployment would have on 1 January, the per-city class selector's mean regret rises from 0.05 days to 0.58 at best, and in Seattle's tail the truncated year reverses the class contrast with an interval below zero (P1, P4, P5 held; P2, P3 refuted)
+
+Why: session 83's selector scored the target city's year Y-1 on complete labels from today's pull. A model shipped on 1 January of the test year sees only the Y-1 permits already completed by then, which removes the long builds that carry Austin's q0.9 advantage for the plain permit type (sessions 77 and 78). Its "Next" asked whether the picks survive that truncation.
+- New: `transfer.run(select=True)` also returns the held-out city's year Y-2 (`_select2`; the transfer model trains on the sources' years <= Y-2 and never reads the target), and both selection years now carry labels and issue days. `src/select_deploy.py` scores six selection sets with session 83's two rules (argmin; gated, which keeps cascade2 unless a candidate wins with a 95% week-block interval below zero): full1 and full2 (years Y-1 and Y-2, every row; oracles, as in session 83), cc1 and cc2 (only rows completed by the decision date D = 1 January Y, unweighted), ipcw1 and ipcw2 (the same rows weighted 1/G(y), floor 0.05). G(t) is the share of that year's rows issued at least t days before D, read from every row's issue day: at D the feed lists every issued permit, completed or not, so this uses no future information (rows never completed by today are absent, a small gap). Test year scored on all rows (the reference), regret as session 83. 5 tests (one in `test_transfer.py`).
+Design (fixed before any run): candidates cascade2, type, cascade2_minsupdrop1000 (as session 83); `python3.13 src/select_deploy.py DIR --held H --test-year Y` for H = austin, sf, seattle and Y = 2021, 2022; q0.5 and q0.9: 12 cells. Fresh pull of all three cities.
+Predictions (written before any run):
+- (P1) Austin q0.9: cc1's argmin fails to pick type in at least one of 2021 and 2022 (truncation hides the long builds that carry type's advantage).
+- (P2) ipcw1's argmin has lower mean regret over the 12 cells than cc1's.
+- (P3) cc2's and ipcw2's argmin each have mean regret <= 1 day and below always cascade2's.
+- (P4) ipcw2's gated rule has mean regret <= 1 day (the rule to ship).
+- (P5) full1's argmin repeats session 83's argmin pick in at least 10 of the 12 cells (pull drift check).
+Refuted if any part fails.
+
+Outcome. Fresh pull 2026-11-13 17:40 to 17:49 UTC, one city per process: SF 1,298,286, Austin 2,385,260, Seattle 194,248 rows, the same counts as session 83's pull. Runs one after another with `/usr/bin/python3.13`, 17:49 to 18:26 UTC, 5 to 10 minutes each. Outputs: `results/select_deploy_{austin,sf,seattle}_i2c_{2021,2022}.json`, `results/select_deploy_summary.json` (`python3.13 src/select_deploy.py --summarise ...`). full1's selection-year losses repeat session 83's to the printed digit (Austin 2021 q0.5: 78.96 / 70.62 / 78.71).
+- What a deployment sees on 1 January Y: 28 to 61% of the target's Y-1 permits have completed (Seattle 28 to 30%, SF 49 to 50%, Austin 56 to 61%), and their q0.9 build time is 182 to 240 days against 428 to 945 on all rows. Of Y-2, 74 to 94% have completed (Seattle 74 to 78%); Seattle's Y-2 q0.9 on all rows (739 to 902 days) is beyond the longest window (730).
+- Regret over the 12 cells (days of mean pinball loss on all test-year rows; picked minus best of three candidates):
+
+| selection set | argmin mean (max) | gated mean (max) | gated cells <= 1 day | argmin agrees with full1 |
+|---|---|---|---|---|
+| full1 (oracle; session 83's set) | 0.07 (0.64) | 0.05 (0.38) | 12 | 12 |
+| full2 (oracle) | 0.03 (0.22) | 0.06 (0.25) | 12 | 10 |
+| cc1 | 1.62 (6.50) | 1.10 (6.50) | 10 | 7 |
+| ipcw1 | 1.62 (6.50) | 1.61 (6.50) | 9 | 7 |
+| cc2 | 1.07 (6.26) | 1.07 (6.26) | 10 | 9 |
+| ipcw2 | 1.09 (6.26) | **0.58 (6.26)** | 11 | 8 |
+| always cascade2 / drop / type | 2.77 / 1.70 / 6.62 | | 9 / 8 / 6 | |
+
+- Where the deployable sets go wrong (selection-year contrast against cascade2, days [95% week-block interval]):
+
+| cell | set | type minus cascade2 | drop minus cascade2 | pick | regret |
+|---|---|---|---|---|---|
+| Austin 2022 q0.9 | full1 | -17.91 [-18.66, -17.06] | -14.22 [-15.29, -13.15] | type | 0 |
+| | cc1 | -28.02 [-28.50, -27.53] | -29.73 [-30.26, -29.15] | drop | 6.50 |
+| | ipcw2 | -24.97 [-27.07, -22.45] | -23.32 [-26.09, -20.06] | type | 0 |
+| Seattle 2022 q0.9 | full1 | +7.39 [5.37, 9.42] | +0.45 [0.11, 0.79] | cascade2 | 0 |
+| | full2 | +4.78 [3.18, 6.60] | +0.47 [0.21, 0.73] | cascade2 | 0 |
+| | cc1 | -1.06 [-1.84, -0.18] | +0.53 | type | 6.26 |
+| | ipcw2 | -1.42 [-2.77, -0.05] | +0.51 | type (gated too) | 6.26 |
+| Seattle 2021 q0.9 | full1 | +4.06 [2.43, 5.79] | -0.27 [-0.69, 0.06] | drop / gated cascade2 | 0.03 / 0 |
+| | cc2 | -2.45 [-3.22, -1.67] | +0.40 | type (gated too) | 6.18 |
+| | ipcw2 | -0.93 [-3.33, 1.89] | +0.40 | type / gated cascade2 | 6.18 / 0 |
+
+- (P1) Held: cc1 picks the drop fold, not type, for Austin 2022 q0.9 (regret 6.50 days); 2021 still picks type.
+- (P2) Refuted: ipcw1's argmin regret equals cc1's (1.62); IPCW changes no Y-1 argmin pick. Gated, it is worse (1.61 vs 1.10): weighting widened no interval enough to stop Seattle 2021's wrong switch.
+- (P3) Refuted: cc2 1.07 and ipcw2 1.09 days, over the 1-day bar (both below always cascade2's 2.77).
+- (P4) Held: ipcw2 gated 0.58 days, within 1 day in 11 of 12 cells. Its one large miss is Seattle 2022 q0.9 (6.26).
+- (P5) Held: full1 repeats session 83's argmin pick in 12 of 12 cells (same row counts).
+- Why: the information the selector needs sits in the long builds. Seattle's work-type class wins its q0.9 on permits that take years; on the permits a deployment can already see, the plain permit type is better, and that reversal comes with an interval below zero (Seattle 2022 cc1, cc2 and ipcw2; session 79 saw the same sign flip on test years scored complete-case). A significance gate guards against noise, not against this bias. IPCW cannot repair it: up to a quarter of Seattle's Y-2 cohort, and its whole q0.9 tail, lies past the longest window, where no row is seen and the weight has nothing to scale. The oracle full2 (0.03 days) is as good as full1, so the loss is all truncation, not staleness: an older selection year scored on complete labels would do.
+- Practical rule, revised: pick the class configuration from the target's own year Y-2 with IPCW and the significance gate (0.58 days mean regret, 2.9 to 11.4 times smaller than any fixed class), and treat a q0.9 pick that rests on cohorts less than three years old as provisional where the target's build-time tail exceeds two years (Seattle).
+- Limits: the transfer model's early stopping still uses the sources' complete Y-1 labels (unchanged since session 78; only the selection set is made deployable here); G is the year's issue-day distribution, assuming build time does not depend on issue day within the year (session 79 found that fails in Austin); 3 cities, 2 test years, 3 candidates, 3 seeds; no interval on regret. The rule above was read off these 12 cells after the run (post hoc), not tested.
+Next: a selection set from the target's year Y-3, nearly complete at the decision date (windows of 2 to 3 years), scored with a transfer model whose sources' early-stopping year is also truncated as a deployment would see it; pre-register "regret <= 0.2 days in 12 of 12 cells".
+
 ## Session 83, 2026-11-13: choosing the class configuration per target city from the target's own previous year lands within 0.65 days of the best of three candidates in all 12 city-year-quantile cells (mean regret 0.07 days vs 1.7 to 6.6 for any fixed choice; S1 to S5 held)
 
 Why: session 82 closed with "the class configuration has to be chosen per target city" after three source-count fold rules failed. Its "Next" asked for a choice made from the target city's own history, fixed before the test year.
