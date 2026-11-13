@@ -17,7 +17,7 @@
 // people told of a change, premiums, the final week's open hours and payroll, and the changes between the first posted
 // roster and the last (net churn, callers exempt).
 // Arithmetic on invented teams, rates from one real file, and an invented premium rule; not a statement of any ordinance.
-//   node eval/real-rate-week.mjs [seeds=20]          SETS=cafe,spare,salon,retail,clinic,templatecafe  CALL=0.01,0.084  EXTRA=0,0.109
+//   node eval/real-rate-week.mjs [seeds=40]          SETS=cafe,spare,salon,retail,clinic  CALL=0.01,0.084  EXTRA=0,0.109
 import { parseStaff, parseShifts, buildRoster, rosterCsv, scheduleChanges, keepFromCsv, pinStarted, addTimeOff, sampleStaff, sampleShifts, TEMPLATES, DAYS } from "../calc.mjs";
 
 const BASE = { minRestHours: 10 };
@@ -78,12 +78,12 @@ export function playWeek(staffText, shiftsText, events, { keepShift = 0, base = 
 
 export function sets() {
   const out = { cafe: [sampleStaff(), sampleShifts()], spare: [sampleStaff() + "\nHal, 15, 24, 0, any", sampleShifts()] };
-  for (const [k, v] of Object.entries(TEMPLATES)) out[k === "cafe" ? "templatecafe" : k] = [v.staff(), v.shifts()];
+  for (const [k, v] of Object.entries(TEMPLATES)) if (k !== "cafe") out[k] = [v.staff(), v.shifts()]; // the café template is the sample café
   return out;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const seeds = Number(process.argv[2] || 20);
+  const seeds = Number(process.argv[2] || 40);
   const all = sets();
   const pick = (process.env.SETS || Object.keys(all).join(",")).split(",");
   const calls = (process.env.CALL || "0.01,0.084").split(",").map(Number);
