@@ -1,5 +1,18 @@
 # build-data log
 
+## Session 83, 2026-11-13: choosing the class configuration per target city from its own year Y-1 (pre-registered; results below)
+
+Why: session 82 closed with "the class configuration has to be chosen per target city" after three source-count fold rules failed. Its "Next" asked for a choice made from the target city's own history, fixed before the test year.
+- New: `src/select_class.py` and `transfer.run(..., select=True)`. The transfer model for test year Y never reads the held-out city (it trains on the sources' years <= Y-2, early-stops on their Y-1), so the held-out city's own year Y-1 is a clean selection set: the rows own_boosted already early-stops on. For each candidate the transfer model's seed-mean pinball loss on those rows is computed per quantile. Rules: **argmin** (lowest selection-year loss; ties to cascade2) and **gated** (keep cascade2 unless a candidate beats it on Y-1 with a 95% week-block interval below zero). Test-year scoring on all rows (reference, as sessions 81 and 82); regret = picked candidate's test loss minus the best candidate's. 7 tests (a check that select=True leaves every test-row loss unchanged).
+Design (fixed before any run): candidates cascade2, type, cascade2_minsupdrop1000 (session 82's best fold; k carried, no tuning). `python3.13 src/select_class.py DIR --held H --test-year Y` for H = austin, sf, seattle and Y = 2021, 2022; q0.5 and q0.9: 12 cells.
+Predictions (written before any run):
+- (S1) Austin q0.9: argmin picks type in 2021 and 2022.
+- (S2) SF q0.9: neither rule picks type in 2021 or 2022.
+- (S3) argmin's mean regret over the 12 cells is lower than each fixed policy's (always cascade2, always type, always minsupdrop).
+- (S4) argmin's regret is <= 1 day in at least 10 of the 12 cells.
+- (S5) gated's mean regret is no higher than argmin's (a significance gate costs nothing).
+Refuted if any part fails.
+
 ## Session 82, 2026-11-13: folding thin classes to missing removes Austin's median cost but gives back its build-time tail, because the sources' thin rows still train the missing branch; dropping them recovers the tail, yet the plain permit type still wins in Austin (N4, N5, D1 held; N1, N2, N3, D2, D3 refuted)
 
 Why: session 81's minimum-support rule (k = 1000) won back half of Austin's build-time q0.9 transfer cost but cost Austin 4 to 9 days at the median, likely because the folded trade permits joined the sources' "other" rows instead of staying unseen. Its "Next" asked for a fold to missing.

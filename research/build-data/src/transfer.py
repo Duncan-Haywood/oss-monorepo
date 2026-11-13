@@ -140,7 +140,7 @@ def feats(d):
     return x
 
 
-def run(frames, held, test_year, seeds, keep_rows=False):
+def run(frames, held, test_year, seeds, keep_rows=False, select=False):
     src = [c for c in CITIES if c != held and c in frames]
     tr = pd.concat([frames[c][frames[c].year <= test_year - 2] for c in src])
     ca = pd.concat([frames[c][frames[c].year == test_year - 1] for c in src])
@@ -157,12 +157,16 @@ def run(frames, held, test_year, seeds, keep_rows=False):
                class_share_test={c: float((te.cls == c).mean()) for c in CLASSES},
                class_share_source_train={c: float((tr.cls == c).mean()) for c in CLASSES})
     P = {"transfer": {t: [] for t in TAUS}, "own_boosted": {t: [] for t in TAUS}}
+    S = {t: [] for t in TAUS}  # session 83: transfer predictions on the held-out city's year Y-1 (selection year)
     for s in range(seeds):
         for name, (a, b) in (("transfer", (tr, ca)), ("own_boosted", (otr, oca))):
+            xt = pd.concat([feats(te), feats(oca)]) if (select and name == "transfer") else feats(te)
             pr, _, _, _ = boosted.fit_predict(feats(a), a.y.to_numpy(float), feats(b), b.y.to_numpy(float),
-                                              feats(te), seed=s)
+                                              xt, seed=s)
             for t in TAUS:
-                P[name][t].append(pr[t])
+                P[name][t].append(pr[t][:len(te)])
+                if select and name == "transfer":
+                    S[t].append(pr[t][len(te):])
     res["pinball"] = {"own_baseline": {str(t): float(boosted.pin(yte, bq[t], t).mean()) for t in TAUS}}
     for name in P:
         res["pinball"][name] = {str(t): float(np.mean([boosted.pin(yte, p, t).mean() for p in P[name][t]]))
@@ -181,6 +185,12 @@ def run(frames, held, test_year, seeds, keep_rows=False):
         cov = [float(np.mean((P[name][.1][s] <= yte) & (yte <= P[name][.9][s]))) for s in range(seeds)]
         res["h4"][name]["coverage_80"] = float(np.mean(cov))
     res["coverage_80_own_baseline"] = float(np.mean((bq[.1] <= yte) & (yte <= bq[.9])))
+    if select:  # session 83: per-row seed-mean transfer loss on the held-out city's year Y-1, which the
+        # transfer model never reads (it trains and early-stops on the sources only); not written to json
+        ys = oca.y.to_numpy(float)
+        res["_select"] = dict(loss={t: np.mean([boosted.pin(ys, p, t) for p in S[t]], axis=0) for t in TAUS},
+                              weeks=np.array(["%d-%02d" % harness.week(x) for x in oca.start]),
+                              permit_id=oca.permit_id.to_numpy())
     if keep_rows:  # per-row seed-mean losses for paired(); not written to json
         rows["own_baseline"] = {t: boosted.pin(yte, bq[t], t) for t in TAUS}
         res["_rows"] = dict(loss=rows, y=yte, weeks=wk, permit_id=te.permit_id.to_numpy(), start=te.start.to_numpy(),
