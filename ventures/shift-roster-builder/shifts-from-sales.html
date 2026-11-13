@@ -38,6 +38,7 @@
     <textarea id="csv" placeholder="datetime,sales&#10;2026-10-05 09:00,120.50"></textarea>
     <input id="file" type="file" multiple accept=".csv,.txt,text/csv,text/plain" aria-label="Load one or more CSV files">
     <button type="button" id="sample">Try a made-up fortnight</button>
+    <p id="locpick" class="note" hidden><label for="loc">Location</label> <select id="loc"></select> Your export has several shops in it (a Location, Store or Site column, as Square and Toast exports have). Plan them as one, or pick one to plan it alone.</p>
     <div class="row2">
       <div><label for="count">Staff to</label><select id="count"><option value="">sales (money taken)</option><option value="tickets">customers (count each ticket, order or receipt number once)</option><option value="rows">rows (count each row as one customer)</option><option value="standard">minutes of work (a labour standard)</option></select></div>
       <div id="stdbox" hidden><label for="std">Minutes of work per ticket, sale and item, plus fixed work</label><input id="std" value="1.5/ticket + 0.3/item" aria-describedby="stdnote"><p class="note" id="stdnote">Blend any of the three, e.g. <code>2/ticket + 0.05/sale</code>: the minutes a ticket takes at the till, a unit of money (bigger orders, more to pack) and an item (each thing picked). The rate is then minutes of work per labor hour: 60 is someone busy every minute, 45 leaves a quarter of each hour for cleaning and restocking. Work that does not grow with customers can be added as fixed minutes: <code>10/hour</code> in every hour you trade, <code>30/open</code> to set up in the first hour of the day and <code>45/close</code> to clean down in the last. If that work happens with the doors shut, write <code>20/before-open</code> or <code>45/after-close</code>: it goes in the hour before you open or after you close, so the opener comes in early or the closer stays on, and minimum staff does not apply to that hour. With the doors shut nobody waits on a customer, so that work is planned at 60 minutes a person and runs on into the next hour: <code>90/after-close</code> is one person staying two hours, not two people for one.</p><label for="shutmin">Staff with the doors shut</label><input id="shutmin" value="1" aria-describedby="shutnote"><p class="note" id="shutnote">The fewest people on in an hour of before-open or after-close work. Put 2 if nobody may open or lock up alone; the two then share the work. It can differ by weekday: <code>1, Fri/Sat=2</code> is one closer most nights and two on late Fridays and Saturdays.</p></div>
@@ -106,7 +107,7 @@
         const o = {
           splh: num("#splh"), minStaff: num("#minstaff"), minShift: num("#minshift"), maxShift: num("#maxshift"),
           skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: num("#shortcost"),
-          ...driver(), scoreClosed: $("#scoreclosed").checked,
+          ...driver(), scoreClosed: $("#scoreclosed").checked, location: $("#loc").value || undefined,
         };
         const half = $("#half").value.trim().toLowerCase();
         let autoNote = null;
@@ -118,6 +119,7 @@
         } else o.halfLife = num("#half");
         r = demandShifts($("#csv").value, o);
         if (autoNote) r.notes.push(autoNote);
+        fillLocations(r.locations || []);
         problem.hidden = true;
       } catch (e) { problem.hidden = false; problem.textContent = e.message; $("#out").textContent = ""; $("#summary").textContent = ""; $("#table").innerHTML = ""; return; }
       if (!r.rows && $("#csv").value.trim()) {
@@ -131,6 +133,17 @@
       const notes = [...r.notes.map(pageNote), ...r.skipped.slice(0, 5)];
       $("#summary").innerHTML = r.rows ? `${r.needed} labor hours needed, ${r.scheduled} scheduled (${r.extra >= 0 ? `${r.extra} extra from minimum shift length` : `${-r.extra} fewer: short runs left unstaffed: a whole shift there costs more than it saves at your short cost (1 when blank)`}).<br>${notes.map(esc).join("<br>")}` : notes.map(esc).join("<br>");
       $("#table").innerHTML = r.rows ? `<table><tr><th>Day</th><th>${r.count === "minutes" ? "Avg minutes of work" : r.count && r.count !== "sales" ? `Avg ${r.count}` : "Avg sales"}</th><th>Hours needed</th><th>Hours scheduled</th></tr>${r.days.map((d) => `<tr><td>${d.day}</td><td>${r.count && r.count !== "sales" ? "" : "$"}${Math.round(d.sales).toLocaleString("en-US")}</td><td>${d.needed}</td><td>${d.scheduled}</td></tr>`).join("")}</table>` : "";
+    }
+    // The location picker lists the sites the file names (before any pick), keeping the choice while it is still there.
+    function fillLocations(locs) {
+      const sel = $("#loc"), was = sel.value, key = locs.map((l) => `${l.name}|${l.rows}`).join("\n");
+      if (sel.dataset.key !== key) {
+        sel.dataset.key = key;
+        sel.innerHTML = [`<option value="">All ${locs.length} locations as one shop</option>`, ...locs.map((l) => `<option value="${esc(l.name)}">${esc(l.name)} (${l.rows} rows)</option>`)].join("");
+        sel.value = locs.some((l) => l.name === was) ? was : "";
+        if (locs.length > 1) record("sales_locations");
+      }
+      $("#locpick").hidden = locs.length < 2;
     }
     // The rate box's label follows what is counted.
     const labelFor = () => { const c = $("#count").value; $("#stdbox").hidden = c !== "standard"; $("#splhlabel").textContent = c === "tickets" ? "Customers (tickets) per labor hour" : c === "rows" ? "Rows per labor hour" : c === "standard" ? "Minutes of work per labor hour" : "Sales per labor hour ($)"; };
@@ -147,7 +160,7 @@
       const out = $("#btout");
       let b;
       const rc = num("#shortcost");
-      try { b = backtestSales($("#csv").value, { splh: num("#splh"), minStaff: num("#minstaff"), minShift: num("#minshift"), maxShift: num("#maxshift"), skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: rc, shifts: true, ...driver(), scoreClosed: $("#scoreclosed").checked }); }
+      try { b = backtestSales($("#csv").value, { splh: num("#splh"), minStaff: num("#minstaff"), minShift: num("#minshift"), maxShift: num("#maxshift"), skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: rc, shifts: true, ...driver(), scoreClosed: $("#scoreclosed").checked, location: $("#loc").value || undefined }); }
       catch (e) { out.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
       if (!b.weeks) { out.innerHTML = `<p class="err">${b.notes.map(esc).join(" ")}</p>`; return; }
       record("sales_backtest_run");
