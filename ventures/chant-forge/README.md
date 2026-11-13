@@ -302,18 +302,56 @@ voices: full choir on 600 of 613 notes (C3-E4); tenors alone on phrase 54 (13 no
 
 In every one of the seven, a single phrase goes to one section and the full choir sings the rest (two changes of
 singer). The more common fix, a falsetto top note or a basses-only low note inside a phrase, is not what this does:
-the split is always at a bar, where singers breathe. Not checked: the ranges are textbook ranges, not measured on
+by default the split is at a bar, where singers breathe (see "Handing over at a word" below for when it is not). Not checked: the ranges are textbook ranges, not measured on
 real singers, and the preview renderer sums unison notes from both tracks, so full-choir phrases sound about 6 dB
 louder than solo-section ones in the preview WAV. Real sections would add about 3 dB.
 `split.test.mjs` (7 tests): every note of all 67 files is in its singers' range and exactly 7 files split; a
 synthetic line gives a high phrase to tenors and a low one to basses; a phrase wider than both sections and an out-of-reach
 `--final` are refused; phrases are cut at every bar kind; the Dies irae MIDI has 613 tenor and 600 bass notes; the cue
 sheet's who column counts 13 T and 600 all; without the flag the choir line is unchanged. `eval/browser-e2e.mjs`
-(92 checks) finds the page's split MIDI and cue sheet byte-equal to the CLI's.
+(95 checks since the word split) finds the page's split MIDI and cue sheet byte-equal to the CLI's, with and without `--split-words`.
 
 **Fixed on the way:** the CLI judged "final matches the mode" after `--final` or `--auto-final` had moved the line,
 so a Dies irae moved to F3 said "check the transcription". It now judges the final as written, as the studio page
 already did.
+
+## Handing over at a word (2026-11-13, later)
+
+A phrase is the smallest unit `--split-voices` used to hand over. That fails when one phrase is wider than either
+section can sing, and it gives a whole phrase to one section when only one word in it is out of the shared band.
+`splitVoices` now walks **words** (a new word starts at a syllable that begins one) and can hand over between two words
+of a phrase, never inside a word. Three settings, each an exact minimum over every split at word boundaries and every
+final (a dynamic programme; `split.test.mjs` checks it against brute force on 300 random lines):
+
+- **default:** hand over inside a phrase only when no whole-phrase split fits, and then as few times as possible. On
+  the textbook ranges this gives byte-identical results to the bar-only split on all 67 files (tested).
+- **`--split-words`:** also hand over at a word when each handoff wins the full choir **more than** `--word-cost`
+  notes (default 3; a section taking one word and handing back is two handoffs, so it must win more than 6).
+- `words: 'never'` in the API keeps the bar-only behaviour.
+
+The Dies irae's phrase 54 needed the tenors only for its first word:
+
+```
+node cli.mjs corpus/dies-irae.gabc --split-voices --split-words -o dies.mid
+voices: full choir on 607 of 613 notes (C3-E4); tenors alone on part of one shared phrase (6 notes); phrase 54 handed over at a word: tenors "Judicándus", all "homo reus:"; final F3
+```
+
+`eval/word-split.mjs` (report: `eval/word-split-report.md`) runs the corpus under three pairs of section ranges. The
+ranges are assumptions, not measured singers:
+
+| ranges | bar-only: files that fit | default: files that fit (handoffs) | full choir, bars / `--split-words` |
+|---|---|---|---|
+| textbook, T C3-A4, B E2-E4 | 67 | 67 (0) | 99.1% / 99.2% |
+| amateur, T D3-F4, B G2-C4 | 67 | 67 (0) | 74.6% / 82.2% (129 handoffs in 43 files) |
+| octave, T E3-E4, B A2-A3 | 50 | 56 (7 handoffs in 6 files) | 12.3%* / 27.0% |
+
+\* over the 50 files that fit at bars; the 56 that fit with words give 10.5% by default. The corpus's widest phrase is
+14 semitones, so with real men's sections (21 and 24 semitones) the default never needs a word; words matter for
+narrow or beginner sections, and `--split-words` matters most for the amateur pair, where 7.6 points more of the notes
+go to the full choir for about three handoffs per file. Whether a handoff between two words sounds better to a
+congregation than a whole phrase sung by one section is a question for singers, not this measurement. A word wider than
+both ranges, or one that straddles the gap between them at every final, is still refused, and the message names the
+widest word. The cue sheet's `who` column and the two MIDI tracks already work note by note, so they needed no change.
 
 ## Mix and master check
 
