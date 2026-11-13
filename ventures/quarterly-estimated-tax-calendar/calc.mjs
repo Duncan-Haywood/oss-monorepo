@@ -330,7 +330,7 @@ export function computeSchedule(input = {}) {
       id: "high-income-safe-harbor",
       severity: "info",
       title: "110% safe harbor applies",
-      detail: `Last year's AGI was above $${(input.marriedFilingSeparately ? HIGH_INCOME_THRESHOLD_MFS : HIGH_INCOME_THRESHOLD_OTHER).toLocaleString()}, so the prior-year safe harbor is 110% of last year's tax rather than 100%.`,
+      detail: `Last year's AGI was above $${(input.marriedFilingSeparately ? HIGH_INCOME_THRESHOLD_MFS : HIGH_INCOME_THRESHOLD_OTHER).toLocaleString('en-US')}, so the prior-year safe harbor is 110% of last year's tax rather than 100%.`,
     });
   } else if (!input.priorYearAGI && nonNegNumber(input.priorYearTax) > 0) {
     findings.push({

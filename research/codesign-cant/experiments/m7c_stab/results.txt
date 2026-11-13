@@ -1,0 +1,83 @@
+Milestone 7c: linear stability (spectral radius rho of the 11-state linearised axis map, worst of the two axes) against held-out divergence.
+Held-out 64 episodes (seed 9999), each with its own plant draw; 'unstable' = rho >= 1 at that episode's plant.
+ceil = largest multiple of the design's attitude ki stable at all 8 plant corners and both axes (4.00 = still stable at 4x; 0 = unstable at ki 0).
+pred = share of held-out plants with rho >= 1; dead L0/L1 = diverged held-out episodes at lever 0 / 1 (of 64).
+
+[above, 6b aware] ff 0 (integ)
+  ki/kp 11.10, 10.08, 9.08, 11.86, 11.76, 12.56; ceil 0.37, 0.37, 0.44, 0.32, 0.36, 0.29; ceiling ki/kp 4.10, 3.71, 3.95, 3.82, 4.24, 3.67
+  worst-corner rho 0.9995, 0.9997, 0.9996, 1.0000, 0.9998, 1.0003; max rho over held-out plants 0.9995, 0.9997, 0.9996, 0.9996, 0.9998, 0.9996
+  pred 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; dead L0 [0, 0, 0, 0, 0, 0]; dead L1 [0, 0, 0, 0, 0, 1]
+  growth rate at worst held-out plant (1/s) -0.26, -0.13, -0.20, -0.19, -0.10, -0.21; median episode pos RMS at lever 0 (m) 0.10, 0.10, 0.10, 0.10, 0.10, 0.10
+[above, 6b+integ] ff 1 (integ)
+  ki/kp 11.10, 10.08, 9.08, 11.86, 11.76, 12.56; ceil 0.37, 0.37, 0.44, 0.32, 0.36, 0.29; ceiling ki/kp 4.10, 3.71, 3.95, 3.82, 4.24, 3.67
+  worst-corner rho 1.0091, 1.0100, 1.0086, 1.0125, 1.0107, 1.0156; max rho over held-out plants 1.0084, 1.0094, 1.0079, 1.0118, 1.0101, 1.0149
+  pred 1.00, 1.00, 1.00, 1.00, 1.00, 1.00; dead L0 [7, 8, 10, 20, 11, 28]; dead L1 [9, 8, 8, 24, 12, 29]
+  growth rate at worst held-out plant (1/s) 4.20, 4.66, 3.91, 5.88, 5.01, 7.41; median episode pos RMS at lever 0 (m) 0.17, 0.18, 0.16, 0.20, 0.17, 0.23
+[above, integ retrained] ff 1 (integ)
+  ki/kp 4.42, 4.10, 3.74, 3.96, 4.00, 3.96; ceil 1.04, 1.00, 1.01, 1.05, 1.11, 0.88; ceiling ki/kp 4.59, 4.09, 3.77, 4.15, 4.46, 3.50
+  worst-corner rho 0.9997, 1.0000, 0.9999, 0.9998, 1.0000, 1.0018; max rho over held-out plants 0.9997, 1.0000, 0.9997, 0.9998, 1.0000, 1.0000
+  pred 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; dead L0 [0, 0, 0, 0, 0, 0]; dead L1 [0, 0, 0, 0, 0, 0]
+  growth rate at worst held-out plant (1/s) -0.14, -0.00, -0.13, -0.12, -0.00, -0.00; median episode pos RMS at lever 0 (m) 0.10, 0.10, 0.10, 0.10, 0.10, 0.10
+[above, integ retrained, ff off] ff 0 (integ)
+  ki/kp 4.42, 4.10, 3.74, 3.96, 4.00, 3.96; ceil 1.04, 1.00, 1.01, 1.05, 1.11, 0.88; ceiling ki/kp 4.59, 4.09, 3.77, 4.15, 4.46, 3.50
+  worst-corner rho 0.9997, 1.0000, 0.9997, 0.9998, 1.0000, 1.0000; max rho over held-out plants 0.9997, 1.0000, 0.9997, 0.9998, 1.0000, 1.0000
+  pred 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; dead L0 [0, 0, 0, 0, 0, 0]; dead L1 [0, 0, 0, 0, 0, 0]
+  growth rate at worst held-out plant (1/s) -0.14, -0.00, -0.13, -0.12, -0.00, -0.00; median episode pos RMS at lever 0 (m) 0.10, 0.10, 0.10, 0.10, 0.10, 0.10
+[above, m7 cmd-ff] ff 1 (cmd)
+  ki/kp 12.00, 10.32, 10.58, 10.64, 9.60, 11.52; ceil 1.02, 1.11, 1.11, 1.11, 1.14, 0.90; ceiling ki/kp 12.23, 11.48, 11.72, 11.78, 10.94, 10.42
+  worst-corner rho 0.9999, 1.0000, 1.0000, 0.9999, 1.0000, 1.0011; max rho over held-out plants 0.9997, 1.0000, 1.0000, 0.9999, 1.0000, 0.9998
+  pred 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; dead L0 [0, 0, 0, 0, 0, 0]; dead L1 [0, 0, 0, 0, 0, 1]
+  growth rate at worst held-out plant (1/s) -0.13, -0.01, -0.00, -0.07, -0.01, -0.08; median episode pos RMS at lever 0 (m) 0.10, 0.10, 0.10, 0.10, 0.10, 0.10
+[above, 6b+integ, ki 0.8x ceiling] ff 1 (integ)
+  ki/kp 3.28, 2.96, 3.16, 3.05, 3.39, 2.94; ceil 0.37, 0.37, 0.44, 0.32, 0.36, 0.29; ceiling ki/kp 4.10, 3.71, 3.95, 3.82, 4.24, 3.67
+  worst-corner rho 0.9995, 0.9997, 0.9996, 0.9996, 0.9998, 0.9996; max rho over held-out plants 0.9995, 0.9997, 0.9996, 0.9996, 0.9998, 0.9996
+  pred 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; dead L0 [0, 0, 0, 0, 0, 0]; dead L1 [0, 0, 0, 0, 0, 0]
+  growth rate at worst held-out plant (1/s) -0.26, -0.13, -0.20, -0.19, -0.10, -0.21; median episode pos RMS at lever 0 (m) 0.10, 0.10, 0.10, 0.10, 0.10, 0.10
+[above, 6b+integ, ki 1.25x ceiling] ff 1 (integ)
+  ki/kp 5.12, 4.63, 4.94, 4.77, 5.30, 4.59; ceil 0.37, 0.37, 0.44, 0.32, 0.36, 0.29; ceiling ki/kp 4.10, 3.71, 3.95, 3.82, 4.24, 3.67
+  worst-corner rho 1.0013, 1.0014, 1.0016, 1.0015, 1.0015, 1.0017; max rho over held-out plants 1.0010, 1.0011, 1.0012, 1.0012, 1.0012, 1.0013
+  pred 0.98, 0.97, 0.80, 0.98, 1.00, 1.00; dead L0 [0, 0, 0, 0, 0, 0]; dead L1 [0, 0, 0, 0, 0, 0]
+  growth rate at worst held-out plant (1/s) 0.50, 0.55, 0.62, 0.58, 0.59, 0.66; median episode pos RMS at lever 0 (m) 0.11, 0.11, 0.11, 0.11, 0.11, 0.11
+
+[below, 6b aware] ff 0 (integ)
+  ki/kp 0.11, 0.05, 0.06, 0.10, 0.12, 0.14; ceil 4.00, 0.00, 4.00, 4.00, 4.00, 4.00; ceiling ki/kp 0.44, 0.00, 0.24, 0.41, 0.49, 0.57
+  worst-corner rho 0.9999, 1.0003, 0.9999, 1.0000, 1.0000, 1.0000; max rho over held-out plants 0.9999, 0.9999, 0.9999, 1.0000, 1.0000, 1.0000
+  pred 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; dead L0 [0, 0, 0, 0, 0, 0]; dead L1 [0, 2, 0, 0, 0, 0]
+  growth rate at worst held-out plant (1/s) -0.04, -0.03, -0.06, -0.01, -0.01, -0.00; median episode pos RMS at lever 0 (m) 0.11, 0.11, 0.11, 0.11, 0.11, 0.11
+[below, 6b+integ] ff 1 (integ)
+  ki/kp 0.11, 0.05, 0.06, 0.10, 0.12, 0.14; ceil 4.00, 0.00, 4.00, 4.00, 4.00, 4.00; ceiling ki/kp 0.44, 0.00, 0.24, 0.41, 0.49, 0.57
+  worst-corner rho 0.9999, 1.0003, 0.9999, 1.0000, 1.0000, 1.0000; max rho over held-out plants 0.9999, 0.9999, 0.9999, 1.0000, 1.0000, 1.0000
+  pred 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; dead L0 [0, 0, 0, 0, 0, 0]; dead L1 [0, 2, 0, 0, 0, 0]
+  growth rate at worst held-out plant (1/s) -0.04, -0.03, -0.06, -0.01, -0.01, -0.00; median episode pos RMS at lever 0 (m) 0.11, 0.11, 0.11, 0.11, 0.11, 0.11
+[below, integ retrained] ff 1 (integ)
+  ki/kp 0.17, 0.22, 0.11, 0.21, 0.16, 0.28; ceil 4.00, 0.37, 4.00, 4.00, 4.00, 2.37; ceiling ki/kp 0.67, 0.08, 0.46, 0.82, 0.65, 0.66
+  worst-corner rho 1.0000, 1.0002, 1.0000, 1.0000, 1.0000, 0.9999; max rho over held-out plants 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 0.9999
+  pred 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; dead L0 [0, 0, 0, 0, 0, 0]; dead L1 [0, 2, 0, 0, 0, 0]
+  growth rate at worst held-out plant (1/s) -0.01, -0.02, -0.02, -0.00, -0.00, -0.03; median episode pos RMS at lever 0 (m) 0.11, 0.11, 0.11, 0.11, 0.11, 0.11
+[below, integ retrained, ff off] ff 0 (integ)
+  ki/kp 0.17, 0.22, 0.11, 0.21, 0.16, 0.28; ceil 4.00, 0.37, 4.00, 4.00, 4.00, 2.37; ceiling ki/kp 0.67, 0.08, 0.46, 0.82, 0.65, 0.66
+  worst-corner rho 1.0000, 1.0001, 1.0000, 1.0000, 1.0000, 0.9999; max rho over held-out plants 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 0.9999
+  pred 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; dead L0 [0, 0, 0, 0, 0, 0]; dead L1 [0, 1, 0, 0, 0, 0]
+  growth rate at worst held-out plant (1/s) -0.01, -0.02, -0.02, -0.00, -0.00, -0.03; median episode pos RMS at lever 0 (m) 0.11, 0.11, 0.11, 0.11, 0.11, 0.11
+[below, m7 cmd-ff] ff 1 (cmd)
+  ki/kp 0.08, 0.06, 0.06, 0.06, 0.06, 0.11; ceil 0.00, 0.00, 4.00, 4.00, 4.00, 0.00; ceiling ki/kp 0.00, 0.00, 0.26, 0.24, 0.23, 0.00
+  worst-corner rho 1.0001, 1.0018, 0.9999, 1.0000, 0.9999, 1.0022; max rho over held-out plants 0.9999, 1.0009, 0.9999, 1.0000, 0.9999, 1.0013
+  pred 0.00, 0.06, 0.00, 0.00, 0.00, 0.09; dead L0 [0, 3, 0, 0, 0, 5]; dead L1 [0, 4, 0, 0, 0, 4]
+  growth rate at worst held-out plant (1/s) -0.07, 0.44, -0.04, -0.00, -0.06, 0.66; median episode pos RMS at lever 0 (m) 0.11, 0.12, 0.11, 0.11, 0.11, 0.11
+
+7b design-conditions (48 x 64), lever 0: unstable&dead 84, unstable&alive 300, stable&dead 0, stable&alive 2688; accuracy 0.902, sensitivity 1.000
+7b design-conditions (48 x 64), lever 1: unstable&dead 90, unstable&alive 294, stable&dead 8, stable&alive 2680; accuracy 0.902, sensitivity 0.918
+m7 cmd-ff designs (12 x 64), lever 0: unstable&dead 7, unstable&alive 3, stable&dead 1, stable&alive 757; accuracy 0.995, sensitivity 0.875
+m7 cmd-ff designs (12 x 64), lever 1: unstable&dead 7, unstable&alive 3, stable&dead 2, stable&alive 756; accuracy 0.993, sensitivity 0.778
+new rescaled designs (24 x 64), lever 0: unstable&dead 0, unstable&alive 367, stable&dead 0, stable&alive 401; accuracy 0.522, sensitivity 0.000
+new rescaled designs (24 x 64), lever 1: unstable&dead 0, unstable&alive 367, stable&dead 0, stable&alive 401; accuracy 0.522, sensitivity 0.000
+
+Post hoc (written after the first full run was read): 'failed hold' = episode position RMS > 0.3 m (3x the typical 0.10 m), dead or not.
+  7b, lever 0: unstable&failed 84, unstable&held 300, stable&failed 0, stable&held 2688; accuracy 0.902, sensitivity 1.000
+  7b, lever 1: unstable&failed 92, unstable&held 292, stable&failed 8, stable&held 2680; accuracy 0.902, sensitivity 0.920
+  m7 cmd-ff, lever 0: unstable&failed 7, unstable&held 3, stable&failed 1, stable&held 757; accuracy 0.995, sensitivity 0.875
+  m7 cmd-ff, lever 1: unstable&failed 7, unstable&held 3, stable&failed 2, stable&held 756; accuracy 0.993, sensitivity 0.778
+  new rescaled, lever 0: unstable&failed 0, unstable&held 367, stable&failed 0, stable&held 401; accuracy 0.522, sensitivity 0.000
+  new rescaled, lever 1: unstable&failed 0, unstable&held 367, stable&failed 0, stable&held 401; accuracy 0.522, sensitivity 0.000
+
+U6 check: largest (pred - observed share at lever 1) over all design-conditions: +1.000 (6b+integ, ki 1.25x ceiling, above, seed 5)

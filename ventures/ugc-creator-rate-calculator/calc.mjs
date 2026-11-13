@@ -161,7 +161,7 @@ export function quoteText(input, result) {
   const fmt = find(FORMATS, input.format);
   const out = [];
   out.push(`UGC quote: ${result.videos} x ${fmt.label.toLowerCase()}`);
-  out.push(`Fee: $${result.low.toLocaleString()} to $${result.high.toLocaleString()} (open at the upper figure)`);
+  out.push(`Fee: $${result.low.toLocaleString('en-US')} to $${result.high.toLocaleString('en-US')} (open at the upper figure)`);
   out.push("Includes:");
   out.push(`- Concept, filming and editing, ${INCLUDED_REVISIONS} revision rounds`);
   out.push(`- ${usage.label}`);

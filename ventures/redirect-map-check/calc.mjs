@@ -204,7 +204,7 @@ export function validate(input, options = {}) {
   if (read.notes.includes("bom")) add("info", "bom", "File starts with a UTF-8 byte-order mark", "Harmless to most importers; the cleaned file drops it.", 1);
   if (read.delim !== ",") add("warning", "delimiter", `The file is ${delimName(read.delim)}-separated`, read.delim === " " ? "Read as one 'old new' pair per line. Importers want a CSV or a platform's own syntax; the cleaned output is written in the format you pick." : `Importers expect commas (Shopify) or their own syntax. The cleaned output is written in the format you pick.`, 1);
   if (read.notes.includes("guessed-header")) add("warning", "header", "No old/new URL headers recognised", "The first row was treated as a header and the first two columns as old URL and new URL. Name them Redirect from and Redirect to if that is wrong.", 1);
-  if (read.rows.length > LIMITS.rows) add("error", "too-many", `${read.rows.length.toLocaleString()} rows`, `Shopify's URL-redirect limit is 100,000 (from memory of its help pages); most hosts cap rules far lower. Split or collapse the map.`, 0);
+  if (read.rows.length > LIMITS.rows) add("error", "too-many", `${read.rows.length.toLocaleString('en-US')} rows`, `Shopify's URL-redirect limit is 100,000 (from memory of its help pages); most hosts cap rules far lower. Split or collapse the map.`, 0);
 
   // 1. Per-row parse and shape checks.
   const items = [];
@@ -357,7 +357,7 @@ export function validate(input, options = {}) {
       const finalPath = res && res.final && !res.loop ? res.final : key(it.to.path);
       if (!have.has(noSlash(finalPath))) {
         summary.missingTargets++;
-        add("error", "target-missing", "Target is not in your new-site URL list", `${it.from.path} ends at ${finalPath}, which is not among the ${newList.length.toLocaleString()} URLs you pasted. That is a redirect to a 404.`, it.line);
+        add("error", "target-missing", "Target is not in your new-site URL list", `${it.from.path} ends at ${finalPath}, which is not among the ${newList.length.toLocaleString('en-US')} URLs you pasted. That is a redirect to a 404.`, it.line);
       }
     }
   }
@@ -372,8 +372,8 @@ export function validate(input, options = {}) {
       if (!covered.has(k)) missing.push(s.path);
     }
     summary.uncovered = missing.length;
-    if (missing.length) add("warning", "uncovered", `${missing.length.toLocaleString()} of ${oldList.length.toLocaleString()} old URLs have no redirect`, `Each will 404 after launch unless the new site serves it. First few: ${missing.slice(0, 8).join(", ")}${missing.length > 8 ? ", …" : ""}.`, 0);
-    else add("info", "covered", `All ${oldList.length.toLocaleString()} old URLs have a rule`, "Every URL in your old-site list appears as a source.", 0);
+    if (missing.length) add("warning", "uncovered", `${missing.length.toLocaleString('en-US')} of ${oldList.length.toLocaleString('en-US')} old URLs have no redirect`, `Each will 404 after launch unless the new site serves it. First few: ${missing.slice(0, 8).join(", ")}${missing.length > 8 ? ", …" : ""}.`, 0);
+    else add("info", "covered", `All ${oldList.length.toLocaleString('en-US')} old URLs have a rule`, "Every URL in your old-site list appears as a source.", 0);
   }
 
   // Flattened output.

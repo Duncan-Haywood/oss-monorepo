@@ -215,7 +215,7 @@
       if (h.error) { status.textContent = h.error; return; }
       $("#rows").value = h.csv;
       $("#notices").innerHTML = "";
-      status.textContent = `${name}: ${h.orders.toLocaleString()} rows over ${h.dateCount} days (${h.from} to ${h.to}) became average ${h.unit} per hour. ${h.warnings.join(" ")} Set "one person handles" for ${h.unit === "sales" ? "sales per hour" : "orders per hour"}, then click the button.`;
+      status.textContent = `${name}: ${h.orders.toLocaleString('en-US')} rows over ${h.dateCount} days (${h.from} to ${h.to}) became average ${h.unit} per hour. ${h.warnings.join(" ")} Set "one person handles" for ${h.unit === "sales" ? "sales per hour" : "orders per hour"}, then click the button.`;
       record("history_loaded");
     }
     $("#history").addEventListener("change", (e) => {

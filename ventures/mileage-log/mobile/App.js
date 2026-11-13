@@ -145,7 +145,7 @@ export default function App() {
           const sug = suggestFor(p);
           return (
             <View key={p.id} style={st.card}>
-              <Text>{new Date(p.startedAt).toLocaleString()} · {p.miles} mi</Text>
+              <Text>{new Date(p.startedAt).toLocaleString('en-US')} · {p.miles} mi</Text>
               <Text style={st.route}>{d.from || "Unnamed place"} → {d.to || "Unnamed place"}</Text>
               {d.unnamed.map((end) => (
                 <View key={end} style={st.row}>

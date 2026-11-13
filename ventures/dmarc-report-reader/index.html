@@ -92,10 +92,10 @@
 <record><row><source_ip>192.0.2.99</source_ip><count>25</count><policy_evaluated><disposition>none</disposition><dkim>fail</dkim><spf>fail</spf></policy_evaluated></row><identifiers><header_from>example.com</header_from></identifiers><auth_results><spf><domain>example.com</domain><result>fail</result></spf></auth_results></record></feedback>`;
     function show(reports) {
       const s = summarize(reports); last = s;
-      $("title").textContent = `${s.domain || "Domain"}: ${s.reports} report${s.reports === 1 ? "" : "s"}, ${s.total.toLocaleString()} messages`;
-      $("stats").innerHTML = [["Aligned", (s.passRate * 100).toFixed(1) + "%"], ["Failing messages", s.failVolume.toLocaleString()], ["Failing senders", s.failingSources.length], ["Policy", esc(s.policies.join(", "))]].map(([k, v]) => `<div class="stat"><b>${v}</b>${k}</div>`).join("");
+      $("title").textContent = `${s.domain || "Domain"}: ${s.reports} report${s.reports === 1 ? "" : "s"}, ${s.total.toLocaleString('en-US')} messages`;
+      $("stats").innerHTML = [["Aligned", (s.passRate * 100).toFixed(1) + "%"], ["Failing messages", s.failVolume.toLocaleString('en-US')], ["Failing senders", s.failingSources.length], ["Policy", esc(s.policies.join(", "))]].map(([k, v]) => `<div class="stat"><b>${v}</b>${k}</div>`).join("");
       $("verdict").textContent = s.recommendation;
-      $("rows").innerHTML = s.sources.map((x) => `<tr><td><code>${esc(x.ip)}</code></td><td>${x.count.toLocaleString()}</td><td>${x.pass.toLocaleString()}</td><td>${x.fail.toLocaleString()}</td><td class="${x.status}">${x.status}</td><td>${[...x.hints, x.fragile].filter(Boolean).map((h) => `<p class="hint">${esc(h)}</p>`).join("")}</td></tr>`).join("");
+      $("rows").innerHTML = s.sources.map((x) => `<tr><td><code>${esc(x.ip)}</code></td><td>${x.count.toLocaleString('en-US')}</td><td>${x.pass.toLocaleString('en-US')}</td><td>${x.fail.toLocaleString('en-US')}</td><td class="${x.status}">${x.status}</td><td>${[...x.hints, x.fragile].filter(Boolean).map((h) => `<p class="hint">${esc(h)}</p>`).join("")}</td></tr>`).join("");
       $("out").hidden = false;
     }
     async function load(items) {
