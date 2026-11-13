@@ -183,6 +183,22 @@ class GainMapDevelopTests(unittest.TestCase):
         )
         self.assertEqual(row, [1.0] * 8)
 
+    def test_preview_flagged_gain_map_runs_at_full_quality_only(self):
+        # Flag bit 1: "can be skipped when doing preview quality processing, and only
+        # needs to be applied when doing full quality processing" (DNG 1.7.1.0, ch. 6).
+        sensor = self.scene()
+        dark = shaded(sensor, self.W, self.BLACK, lambda x, y: 0.5)
+        ops = [(9, 2, gain_map_params([2.0] * 4, 2, 2))]  # preview-skippable, not optional
+        blob = make_dng(dark, self.W, self.H, extra_raw_tags=[list_tag(ops)])
+        want = develop(make_dng(sensor, self.W, self.H), engine="python")
+        full = develop(blob, engine="python")
+        prev = develop(blob, engine="python", preview_quality=True)
+        self.assertIn("OpcodeList2: 1 GainMap applied (lens shading)", full[3].notes)
+        self.assertLessEqual(max(abs(a - b) for a, b in zip(full[2], want[2])), 3 * 257)
+        self.assertIn("OpcodeList2: 1 preview-skippable opcode(s) skipped (preview quality)", prev[3].notes)
+        self.assertFalse(any("GainMap applied" in n for n in prev[3].notes), prev[3].notes)
+        self.assertGreater(max(abs(a - b) for a, b in zip(prev[2], want[2])), 40 * 257)
+
     def test_other_opcodes_are_named_not_run(self):
         sensor = self.scene()
         tags = [
@@ -231,6 +247,31 @@ class GainMapCliTests(unittest.TestCase):
                 notes.append(json.loads(out.getvalue())["developed"][0]["notes"])
         self.assertIn("OpcodeList2: 1 GainMap applied (lens shading)", notes[0])
         self.assertIn("opcode lists not run (opcodes off)", notes[1])
+
+    def test_preview_quality_flag_skips_preview_flagged_opcodes(self):
+        import io
+        import json
+        import tempfile
+        from pathlib import Path
+
+        from shootflow.cli import main
+
+        ops = [(9, 2, gain_map_params([2.0] * 4, 2, 2))]
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp) / "phone.dng"
+            src.write_bytes(make_dng(patch_sensor(24, 8), 24, 8, extra_raw_tags=[list_tag(ops)]))
+            notes = []
+            for i, extra in enumerate(([], ["--preview-quality"])):
+                out = io.StringIO()
+                code = main(
+                    ["develop", str(src), "--out", str(Path(tmp) / f"m{i}"), "--half", *extra],
+                    stdout=out,
+                    stderr=io.StringIO(),
+                )
+                self.assertEqual(code, 0)
+                notes.append(json.loads(out.getvalue())["developed"][0]["notes"])
+        self.assertIn("OpcodeList2: 1 GainMap applied (lens shading)", notes[0])
+        self.assertIn("OpcodeList2: 1 preview-skippable opcode(s) skipped (preview quality)", notes[1])
 
 
 @unittest.skipUnless(HAVE_NUMPY, "numpy not installed")

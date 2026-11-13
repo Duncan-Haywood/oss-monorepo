@@ -5,7 +5,10 @@ DNG 1.3 added three opcode lists, each a tag holding a big-endian byte blob:
 (51009) after they are mapped to linear values (black subtracted, scaled to
 0..1, cropped to the active area) and ``OpcodeList3`` (51022) after demosaic.
 Each opcode has an id, a DNG version, flags (bit 0: optional, so a reader may
-skip it; bit 1: preview only) and a parameter block.
+skip it; bit 1: preview quality, so it may be skipped for a preview-quality
+render but is needed at full quality, DNG 1.7.1.0 chapter 6) and a parameter
+block. ``plan`` runs such opcodes by default (full quality) and skips them only
+when asked for a preview (``plan(..., preview=True)``, ``--preview-quality``).
 
 Phones are the reason this matters. Android's camera API writes the lens
 shading map it measured into ``OpcodeList2`` as four ``GainMap`` opcodes, one
@@ -698,13 +701,20 @@ class Plan:
         return bool(self.gain_maps or self.warps or self.stage1 or self.stage2 or self.stage3)
 
 
-def plan(ifd, ifd0, cfa: bool = True) -> Plan:
+def plan(ifd, ifd0, cfa: bool = True, preview: bool = False) -> Plan:
     """Read the three opcode lists from the raw IFD (or IFD0) and decide what runs.
 
     ``GainMap`` in ``OpcodeList2`` on CFA data runs, and ``WarpRectilinear`` in
     ``OpcodeList3`` (on any image: it runs after demosaic). Everything else is
     named in the notes, and a required (non-optional) opcode left undone says
     so, since the DNG specification expects a reader to run it.
+
+    An opcode with flag bit 1 set "can be skipped when doing 'preview quality'
+    processing, and only needs to be applied when doing 'full quality'
+    processing" (DNG 1.7.1.0, chapter 6). So it runs here like any other unless
+    ``preview`` is true, when it is skipped and counted in the notes. A skipped
+    optional WarpRectilinear2 was not applied, so the fallback warp after it is
+    kept (the skip rule names an applied one).
     """
 
     gain_maps: list[GainMap] = []
@@ -729,11 +739,13 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
             notes.append(f"{label} unreadable and skipped: {exc}")
             continue
         skipped: dict[str, int] = {}
+        preview_skipped = 0
         after_optional_wr2 = False
         for op in ops:
             # The skip rule (WarpRectilinear2): only the opcode right after an applied optional one.
             fallback, after_optional_wr2 = after_optional_wr2, False
-            if op.preview_only:
+            if op.preview_only and preview:
+                preview_skipped += 1
                 continue
             if fallback and op.id in (WARP_RECTILINEAR, WARP_FISHEYE):
                 fallbacks_skipped += 1
@@ -781,6 +793,8 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
             skipped[key] = skipped.get(key, 0) + 1
         for key, n in skipped.items():
             notes.append(f"{label}: {n} x {key} not applied")
+        if preview_skipped:
+            notes.append(f"{label}: {preview_skipped} preview-skippable opcode(s) skipped (preview quality)")
     if gain_maps:
         notes.append(f"OpcodeList2: {len(gain_maps)} GainMap applied (lens shading)")
     n_rect = sum(isinstance(wp, WarpRectilinear) for wp in warps)
