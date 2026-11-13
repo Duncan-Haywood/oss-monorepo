@@ -1,0 +1,103 @@
+# water-leaks step 11: sensitivity-based localisation on the nominal L-TOWN.inp (WNTR, EPANET, 24 h from 00:00, hourly)
+# signature: 24 h mean pressure change at the 33 sensors for a constant leak of q m3/h at each of 782 junctions
+# residual: mean (pressure - D1 no-flow prediction) over the 24 h from the localisation hour; model fitted on days [d-21, d-7)
+# estimate: argmax Pearson correlation (primary) or cosine; error = along-pipe distance to the leak pipe midpoint; rule 300 m
+# chance: a uniformly drawn junction; p_i = share of junctions within 300 m of leak i; Poisson-binomial tail
+
+signature size (max |dp| over junctions and sensors, m): q=5: 0.321, q=1: 0.042, q=20: 2.824
+junctions within 300 m of a leak pipe (share), median over leak pipes: 0.043
+
+## detector-timed, D1-F (2019 new leaks it detected, at its alarm hour): 13 leaks
+  pipe   year localised at       +h  peak  | model (Pearson) err m | cosine err m | most-affected sensor err m | alarm sensor err m | p_chance  best-of-top-10 m
+   p523 2019 2019-01-16T21       22  28.4 |  n132      22 |  n123     130 |  n506      86 |  n506      86 | 0.046       22
+   p827 2019 2019-01-30T20      146  26.5 |  n674     948 |  n663     941 |  n726     229 |  n726     229 | 0.033      777
+   p280 2019 2019-02-14T21      104   5.3 |  n357     299 |    n1     775 |    n4     457 |  n410    1085 | 0.059      224
+   p514 2019 2019-04-05T23       75  15.6 |  n164     331 |  n164     331 |  n613    1005 |  n644    1557 | 0.070      331
+   p331 2019 2019-04-23T09       71  10.9 |  n392     469 |  n392     469 |  n410     277 |  n410     277 | 0.026      184
+   p193 2019 2019-05-29T02      197  10.4 |  n671     949 |  n675    1140 |  n410    2536 |  n114    3321 | 0.033      898
+   p142 2019 2019-06-16T16       93  27.0 |  n583     201 |  n583     201 |  n613     281 |  n613     281 | 0.058      113
+   p680 2019 2019-07-10T19       11   5.4 |  n658     747 |  n241     778 |  n229     109 |  n215     288 | 0.045      646
+   p800 2019 2019-08-21T07      105  21.9 |  n549    2411 |  n172    2300 |  n549    2411 |  n549    2411 | 0.041     2222
+   p123 2019 2019-09-22T01      154   9.2 |  n314    2166 |  n111     738 |  n296    1925 |  n114    1113 | 0.068     2029
+   p455 2019 2019-10-06T14       35  11.1 |  n115     573 |  n111     643 |  n215    2541 |  n752    3157 | 0.041      380
+   p426 2019 2019-10-30T15      122  13.6 |  n776     120 |  n340      74 |   n54     705 |  n429     387 | 0.024       25
+   p879 2019 2019-12-05T14      341  10.9 |  n645    1395 |  n660     986 |  n288    1132 |  n114    3203 | 0.031     1292
+  chance: expected 0.57 of 13 within 300 m
+  model (Pearson)       within 300 m:  4/13 (  31%), P(chance >=) 0.0019; median error   573 m (range 22 to 2411)
+  model (cosine)        within 300 m:  3/13 (  23%), P(chance >=) 0.0173; median error   738 m (range 74 to 2300)
+  most-affected sensor  within 300 m:  5/13 (  38%), P(chance >=) 0.0001; median error   705 m (range 86 to 2541)
+  alarm sensor          within 300 m:  5/13 (  38%), P(chance >=) 0.0001; median error  1085 m (range 86 to 3321)
+  descriptive: nearest of the model's top 10 junctions within 300 m for 5/13; median 380 m
+  paired, 300 m hits: model only 2, most-affected sensor only 3, exact sign test P = 1.000
+  paired errors: model closer on 8, sensor closer on 5, ties 0
+  stability in q: same junction at q = 1, 5 and 20 for 23% of leaks (q=1: 54%, q=20: 38%)
+
+## detector-timed, LILA-auto (2019 new leaks it detected, at its alarm hour): 14 leaks
+  pipe   year localised at       +h  peak  | model (Pearson) err m | cosine err m | most-affected sensor err m | alarm sensor err m | p_chance  best-of-top-10 m
+   p523 2019 2019-01-16T01        2  28.4 |  n132      22 |  n123     130 |  n506      86 |  n506      86 | 0.046       22
+   p827 2019 2019-01-30T08      134  26.5 |  n289     280 |  n674     948 |  n726     229 |  n726     229 | 0.033       25
+   p280 2019 2019-02-16T03      134   5.3 |   n14     224 |  n111    1324 |    n4     457 |   n31      73 | 0.059      186
+   p710 2019 2019-03-27T15       73   5.6 |  n223     229 |  n223     229 |  n644     141 |  n644     141 | 0.045       28
+   p514 2019 2019-04-11T00      196  15.6 |  n539     244 |  n539     244 |  n613    1005 |  n332      77 | 0.070      115
+   p331 2019 2019-04-26T08      142  10.9 |  n392     469 |  n392     469 |  n410     277 |  n410     277 | 0.026      130
+   p277 2019 2019-06-12T09      254   7.4 |  n613    1645 |  n200    1599 |  n613    1645 |  n752    2789 | 0.043     1599
+   p680 2019 2019-07-10T10        2   5.4 |  n240     797 |  n658     747 |  n229     109 |  n215     288 | 0.045      646
+   p721 2019 2019-08-07T01       94  13.2 |   n54    1452 |   n54    1452 |   n54    1452 |   n31    1760 | 0.032     1345
+   p800 2019 2019-08-24T15      185  21.9 |  n549    2411 |  n549    2411 |  n549    2411 |  n549    2411 | 0.041     2356
+   p455 2019 2019-10-06T02       23  11.1 |    n1    2201 |  n111     643 |  n215    2541 |  n215    2541 | 0.041     1725
+   p762 2019 2019-10-22T22      301  15.7 |  n461    1160 |  n408    1787 |   n54    1840 |   n31    2148 | 0.059     1111
+   p426 2019 2019-11-05T11      262  13.6 |  n632     467 |  n632     467 |  n429     387 |  n429     387 | 0.024      332
+   p879 2019 2019-11-29T10      193  10.9 |  n324     405 |  n327     448 |  n288    1132 |  n288    1132 | 0.031      339
+  chance: expected 0.59 of 14 within 300 m
+  model (Pearson)       within 300 m:  5/14 (  36%), P(chance >=) 0.0002; median error   468 m (range 22 to 2411)
+  model (cosine)        within 300 m:  3/14 (  21%), P(chance >=) 0.0193; median error   695 m (range 130 to 2411)
+  most-affected sensor  within 300 m:  5/14 (  36%), P(chance >=) 0.0002; median error   731 m (range 86 to 2541)
+  alarm sensor          within 300 m:  7/14 (  50%), P(chance >=) 0.0000; median error   338 m (range 73 to 2789)
+  descriptive: nearest of the model's top 10 junctions within 300 m for 6/14; median 335 m
+  paired, 300 m hits: model only 2, most-affected sensor only 2, exact sign test P = 1.000
+  paired errors: model closer on 7, sensor closer on 6, ties 1
+  stability in q: same junction at q = 1, 5 and 20 for 21% of leaks (q=1: 50%, q=20: 29%)
+
+## oracle-timed (scored new leaks of 2018 and 2019, at the first hour of half-peak flow): 32 leaks
+  pipe   year localised at       +h  peak  | model (Pearson) err m | cosine err m | most-affected sensor err m | p_chance  best-of-top-10 m
+   p232 2018 2018-02-02T15       60  26.1 |  n577     157 |  n577     157 |  n613     404 | 0.055       37
+   p673 2018 2018-03-05T16        1  28.4 |  n623      22 |  n233     150 |  n229      66 | 0.038       22
+   p461 2018 2018-03-09T04     1061  30.5 |  n233    2164 |  n233    2164 |  n229    2080 | 0.049     2125
+   p427 2018 2018-04-18T21     1481   5.1 |    n6    1214 |  n111    1484 |    n4    1328 | 0.023     1095
+   p628 2018 2018-05-12T08      230  35.4 |  n197      28 |  n197      28 |  n613     399 | 0.043       28
+   p538 2018 2018-05-18T09        1  32.8 |  n160     266 |  n160     266 |  n613     989 | 0.061      215
+   p866 2018 2018-06-01T09        0  20.6 |  n296     198 |  n111    2813 |  n296     198 | 0.049       19
+    p31 2018 2018-07-23T18      593  16.2 |  n343     275 |  n387     203 |   n54     302 | 0.043      106
+   p183 2018 2018-08-07T03        1  16.5 |  n305      31 |  n306      87 |  n752     128 | 0.063       31
+   p654 2018 2018-08-26T14     1205   5.5 |  n314    2017 |  n111    1265 |  n752    1965 | 0.028     1900
+   p810 2018 2018-10-05T14     1604   6.9 |  n681     438 |  n769     639 |  n644     918 | 0.040       71
+   p158 2018 2018-10-06T03        1  24.8 |  n644      83 |  n644      83 |  n644      83 | 0.050       31
+   p369 2018 2018-10-26T02        0  21.1 |  n410     435 |  n410     435 |  n410     435 | 0.027      379
+   p523 2019 2019-01-15T23        0  28.4 |  n132      22 |  n123     130 |  n506      86 | 0.046       22
+   p827 2019 2019-01-24T19        1  26.5 |  n661     893 |  n668     837 |  n726     229 | 0.033      836
+   p280 2019 2019-02-10T13        0   5.3 |    n7     460 |  n111    1324 |    n1     775 | 0.059      299
+   p710 2019 2019-03-24T14        0   5.6 |  n240     128 |  n244     295 |  n644     141 | 0.045       78
+   p514 2019 2019-04-02T21        1  15.6 |  n539     244 |  n160     281 |  n332      77 | 0.070      157
+   p653 2019 2019-04-07T12      820  18.3 |  n164     662 |  n164     662 |  n613     227 | 0.029      431
+   p331 2019 2019-04-20T10        0  10.9 |   n76     799 |   n76     799 |  n410     277 | 0.026      731
+   p142 2019 2019-06-12T20        1  27.0 |  n614     289 |  n614     289 |  n613     281 | 0.058      131
+   p193 2019 2019-07-05T22     1105  10.4 |  n335    1811 |  n629    1756 |   n54    2682 | 0.033     1646
+   p680 2019 2019-07-10T09        1   5.4 |  n223     439 |  n223     439 |  n229     109 | 0.045      439
+   p277 2019 2019-07-21T22     1203   7.4 |  n314    2788 |  n111    1350 |  n215    2223 | 0.043     2671
+   p586 2019 2019-08-18T21      547  20.5 |  n172      82 |  n549     193 |  n549     193 | 0.052       27
+   p800 2019 2019-09-01T10      372  21.9 |  n627     991 |  n632     898 |   n54    2070 | 0.041      848
+   p721 2019 2019-09-08T03      864  13.2 |  n271     875 |  n271     875 |  n296    1140 | 0.032      773
+   p426 2019 2019-10-25T13        0  13.6 |  n462      25 |  n462      25 |   n54     705 | 0.024       25
+   p123 2019 2019-11-07T22     1279   9.2 |  n776    1033 |  n335     987 |   n54     599 | 0.068      877
+   p762 2019 2019-11-17T03      906  15.7 |  n335     969 |  n629     914 |   n54    1840 | 0.059      777
+   p455 2019 2019-11-24T22     1219  11.1 |  n632    2001 |  n632    2001 |   n54    1309 | 0.041     1855
+   p879 2019 2019-12-19T21      684  10.9 |  n740     195 |  n111    3026 |    n4    3086 | 0.031      195
+  chance: expected 1.40 of 32 within 300 m
+  model (Pearson)       within 300 m: 15/32 (  47%), P(chance >=) 0.0000; median error   436 m (range 22 to 2788)
+  model (cosine)        within 300 m: 13/32 (  41%), P(chance >=) 0.0000; median error   650 m (range 25 to 3026)
+  most-affected sensor  within 300 m: 13/32 (  41%), P(chance >=) 0.0000; median error   420 m (range 66 to 3086)
+  descriptive: nearest of the model's top 10 junctions within 300 m for 17/32; median 257 m
+  paired, 300 m hits: model only 6, most-affected sensor only 4, exact sign test P = 0.754
+  paired errors: model closer on 19, sensor closer on 12, ties 1
+  stability in q: same junction at q = 1, 5 and 20 for 12% of leaks (q=1: 62%, q=20: 19%)
+
