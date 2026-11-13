@@ -1,5 +1,16 @@
 # buildbot-sheathing research log
 
+## 2026-11-13 · Milestone 13 result: the remedies cost 32 cents a clean sheet; the doubled joint stud costs $5.13 and still loses every draw
+
+`experiments/m13_price/` (run.py, results.txt, results.json, figure.py, figure.png); `src/buildbot_sheathing/price.py`; `tests/test_price.py` (5 tests). 5 s to run. One new Monte Carlo cell (doubled joints, single read, measured studs: 1.0000 clean, 0 missed); everything else reuses milestone 12's clean sheets and milestone 7's 4,000 cost draws.
+
+- **H57 held.** At 100 houses a year the per-draw cheapest single-2x pipeline beats doubled joints in 1.000 of draws (bar 0.90), and also at 300 and 1,000; the median saving is $5.13 a sheet. Doubled joints are the fastest pipeline (145 s against 198–304 s) but the stud and a framer's time are 44% of their $12.17.
+- **H58 held.** The full stack (per-nail reads by line laser, mid push, slide and shim; 0.771 clean) costs a median $7.42 per clean sheet against $7.10 for three reads on the ledger (0.425 clean), and is the cheapest pipeline in none of the 4,000 draws. Interpretation note: the plan said "the cheapest single-2x pipeline"; since a per-draw minimum can never be beaten by one of its members, it was scored against the lowest-median pipeline. Three reads on the ledger is cheapest in 52% of draws, per-nail reads by line laser on the ledger in 26%, three reads with slide and shim in 14%.
+- **H59 refuted.** The extra cost a missed nail must carry for doubled joints to tie is a median $5.51 [5–95%: $3.91, $8.55] (8.8 loaded person-minutes), down from milestone 7's $6.51 but above the $5.00 bar; $5.83 with the common part removed. It fell less than the missed nails rose (0.79 to 1.095) because in about half the draws the cheapest single-2x pipeline is one that misses fewer nails (per-nail reads, 0.765; slide and shim, 0.726), which shrinks the denominator: the median saving over 1.095 alone would give $4.68.
+- **Also found.** Below the base's capacity, seconds cost only supervision, so the price of first-pass quality is flat up to 0.77 (the cheapest pipeline at 0.40, 0.50, 0.60 and 0.75 first-pass clean costs $7.10, $7.14, $7.24 and $7.42) and then jumps to $12.17 for 1.000. A line laser beats three point reads at per-nail resolution above about 0.23 m/s; per-nail reads by point cost 15 cents and 31 s more than three reads.
+- **What it means for the programme.** In dollars, the paper's question about framing is now a question about missed nails: if a missed nail found at inspection (or not found) costs more than about $5.50 beyond its re-drive, double the joint; otherwise run single 2x with whichever remedies the line allows, since they are nearly free. The next input to get is that cost and the detection rate of a missed nail, not more sensing.
+- **Inputs not sourced:** the slide-and-shim time, the sweep speed and the push time (all swept); every missed nail assumed found.
+
 ## 2026-11-13 · Milestone 13 planned: what the single-2x remedies cost, and whether doubling pays on measured studs
 
 Written before any milestone-13 pipeline was priced. Inputs are milestone 12's committed `results.json` (clean sheets and missed nails for the 12 single-2x cells on measured studs and the 12 with the common part removed) and milestone 7's cost model and 4,000 draws (seed 11).

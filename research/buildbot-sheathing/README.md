@@ -553,11 +553,27 @@ re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 1506
   three, dense or per-nail reads; push or not; milestone 9's ledger or milestone 10's slide and
   shim (0.5 mm). Doubled joints on measured studs; the tool scatter that gives 95% (bisection).
 
+## Milestone 13 method (`src/buildbot_sheathing/price.py`)
+- **Question.** Which single-2x pipeline is cheapest per clean sheet on milestone 11's measured
+  studs once each remedy's seconds are charged, and does the doubled joint stud now pay?
+- **Model.** Milestone 7's G1 on a drive-and-lift base and its 4,000 draws (seed 11), at 100, 300
+  and 1,000 houses a year; every missed nail is found and re-driven. Clean sheets and missed nails
+  from milestone 12's 12 single-2x cells on measured studs (and the common-removed bracket); a new
+  20,000-sheet cell for doubled joints with a single read.
+- **Seconds charged.** Point reads at t_read U(1, 3) s each: three reads 9 a sheet, dense 51, per-nail
+  31 (17 on the new joint stud, 7 on each new field stud), plus 2 edge reads. Or, for dense and
+  per-nail reads, a line laser swept along the three new studs, 3 × 2.353 m / v, v log-uniform
+  0.05–0.5 m/s (unsourced; ISO 10218-1's 250 mm/s reduced speed sits inside it). Mid push U(10, 40) s
+  (milestone 9); slide and shim U(5, 30) s plus 2 edge reads (unsourced). Seed 29.
+- **Break-even.** The extra dollars a missed nail must carry, beyond its re-drive, for doubled joints
+  to tie the per-draw cheapest single-2x pipeline: (cost doubled − cost single) / (missed single −
+  missed doubled).
+
 ## Reproduce
 ```bash
 pip install numpy matplotlib pytest
 cd research/buildbot-sheathing
-python -m pytest -q tests                                    # 78 test functions (79 cases); one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake
+python -m pytest -q tests                                    # 88 test functions; one uses ../buildbot-studfind, seven need mujoco, two the Menagerie models, four drake
 python experiments/m1_gap_placement/run.py > experiments/m1_gap_placement/results.txt   # ~12 s, writes results.json
 python experiments/m1_gap_placement/figure.py
 python experiments/m2_asbuilt_studs/run.py > experiments/m2_asbuilt_studs/results.txt   # ~40 s, seed 3
@@ -588,6 +604,8 @@ python experiments/m11_measured/run.py > experiments/m11_measured/results.txt   
 python experiments/m11_measured/figure.py
 python experiments/m12_remedies/run.py > experiments/m12_remedies/results.txt         # ~40 s, seed 7; reads m11 profiles.json and m6b's results.json
 python experiments/m12_remedies/figure.py
+python experiments/m13_price/run.py > experiments/m13_price/results.txt               # ~5 s; reads m12's results.json, m11 profiles.json, m6b's results.json
+python experiments/m13_price/figure.py
 python paper/check_numbers.py                                # every number the paper quotes, against its results file
 ```
 
@@ -880,6 +898,30 @@ python paper/check_numbers.py                                # every number the 
   least-squares line instead of its end chord; fixed and tested, and only the fixed run is reported
   ([`LOG.md`](LOG.md)).
 
+## Milestone 13 results (`experiments/m13_price/results.txt`)
+
+![Median dollars per clean sheet against first-pass clean sheets for every single-2x pipeline and doubled joints, measured studs](experiments/m13_price/figure.png)
+
+- **First-pass quality is cheap up to 0.77.** At 100 houses a year, three reads on the ledger cost
+  a median **$7.10** per clean sheet (0.425 first-pass clean, 198 s); the full stack (per-nail reads
+  by line laser, mid push, slide and shim) **$7.42** (0.771, 248 s). Below the machine's capacity,
+  extra seconds cost only supervision, so 35 points of first-pass quality cost 32 cents.
+- **The doubled joint stud still does not pay.** Doubled joints give 1.000 in 145 s but cost
+  **$12.17**: the stud and a framer's time are 44% of it. The per-draw cheapest single-2x pipeline is
+  cheaper in **every** draw at 100, 300 and 1,000 houses a year (median saving $5.13).
+- **Break-even.** Doubling pays only if a missed nail costs a median **$5.51** more than its re-drive
+  [5–95%: $3.91, $8.55], 8.8 loaded person-minutes ($5.83 with the common part removed). Measured
+  studs lower milestone 7's $6.51 (the three-read pipeline now misses 1.095 nails a sheet, not
+  0.79), but less than that rise suggests: in about half the draws the cheapest pipeline is one that
+  misses fewer nails.
+- **Line laser or point reads.** Per-nail reads by point (31 + 2 a sheet) cost 15 cents more than
+  three reads; by line laser they tie three reads at about **0.23 m/s** sweep speed and win above it.
+- **Pre-registered hypotheses** ([`LOG.md`](LOG.md)): H57 held (1.000 of draws against a 0.90 bar);
+  H58 held (the full stack is never the cheapest pipeline); **H59 refuted** ($5.51 against a $5.00 bar).
+- **Reading it.** The dollar case for doubling rests entirely on what an escaped or late-found missed
+  nail costs, which this model does not price: every miss is assumed found. A shear-wall nailing
+  defect found at inspection, or not found, is the number a builder would supply.
+
 ## Limitations
 - **Measured studs (milestone 11).** One wall of six studs, of unstated grade and species, built
   by robots that shorten members to fit, scanned from one side with a profile every 2 mm along
@@ -968,7 +1010,11 @@ scan with finer profile pitch (or a scan along the studs) of framer-built walls,
 the wood's waviness from the scanner's and to give a population, not one wall. Milestone 12
 found that reading each stud at every nail height recovers most of that loss, and that per-nail
 reads, a mid push and a slide and shim together reach 0.77 on the measured studs (95% needs a
-0.6 mm tool); a line-laser stud read on a real robot, and its time, is the next measured input. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
+0.6 mm tool); a line-laser stud read on a real robot, and its time, is the next measured input. Milestone 13
+priced those remedies: they cost 32 cents a clean sheet for 35 points of first-pass quality, while
+the doubled joint stud costs $5.13 more and pays only if a missed nail costs about $5.51 beyond its
+re-drive; the cost and detection rate of a missed nail at inspection is now the input that decides
+the framing. The full plan is in [`PROPOSAL.md`](PROPOSAL.md),
 "Milestones".
 
 ## Owner steps
