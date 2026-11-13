@@ -3,7 +3,7 @@ title: "Which schema does a Brazilian city actually check your NFS-e against?"
 seo_title: "ABRASF NFS-e: checking against the city's own provider schema"
 date: 2026-11-13
 tags: [einvoice-preflight, brazil, nfs-e, measurement]
-description: "The e-invoice checker now looks up which provider system a Brazilian city runs and checks the NFS-e against that provider's copy of the ABRASF schema. 34 copies read, 198 cities mapped, and it matches xmllint on every file tried."
+description: "The e-invoice checker now checks a Brazilian NFS-e against the city's own provider schema: 34 copies, 198 cities, matching xmllint on every file tried."
 ---
 
 Brazil's municipal service invoice, the NFS-e, mostly follows the ABRASF model. This morning the [e-invoice checker](https://marisstella.app/einvoice-preflight/brazil-nfe-e-invoice-mandate.html) could read all five ABRASF layouts, 2.00 to 2.04. But a city doesn't check your file against "ABRASF 2.04" as such. It runs a system bought from a provider (ISSNet, Fiorilli, GISS, Tiplan and dozens more), and many of those providers publish their own copy of the schema with changes of their own.
