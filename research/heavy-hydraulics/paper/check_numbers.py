@@ -10,6 +10,14 @@ from pathlib import Path
 P = Path(__file__).resolve().parent
 EXP = P.parent / "experiments"
 CHECKS = [
+    ("f_t,max 2.462 L/h at 87.5 L/min", "excavator_breakeven_geometry_results.txt", "f_t,max 2.462 L/h at q_p 87.5 L/min"),
+    ("median of 1.00 L/h (p10 0.42, p90 1.71, range 0.33 to 3.00)", "excavator_breakeven_geometry_results.txt", "f_t,max min 0.33, p10 0.42, median 1.00, p90 1.71, max 3.00 L/h"),
+    ("in 18.2% of cases", "excavator_breakeven_geometry_results.txt", "low rate 1.48 L/h: 18.2%"),
+    ("maximum is 6.67 L/h and 0.1% exceed", "excavator_breakeven_geometry_results.txt", "max 6.67 L/h; share above 5.15 L/h 0.1%"),
+    ("the median is 0.49 L/h", "excavator_breakeven_geometry_results.txt", "swing share: 0: 0.49"),
+    ("&minus;0.726 with r at 219", "excavator_breakeven_geometry_results.txt", "Spearman(r(219), f_t,max) -0.726"),
+    ("&minus;0.589 with p99", "excavator_breakeven_geometry_results.txt", "Spearman(peakiness, f_t,max) -0.589"),
+    ("0.207 to 0.470 of each", "excavator_breakeven_geometry_results.txt", "min 0.207, median 0.316, max 0.470"),
     ("within 0.0012", "excavator_fuel_breakeven_results.txt", "max |diff| 0.0012 over 20 rows"),
     # figure captions (milestone 6 references step)
     ("crosses 1 at 19.3, 23.9 and 28.4 bar", "ranking_map_results.txt", "p_n  1.44 bar: monotone=True; break-even dp_ls = 19.3 bar"),
