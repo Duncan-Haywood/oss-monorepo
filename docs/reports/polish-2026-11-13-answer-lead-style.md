@@ -1,3 +1,7 @@
+---
+kind: polish
+date: 2026-11-13
+---
 # Polish, 2026-11-13: one shared style for answer-first leads
 
 **What was weak.** 55 tool pages open with an answer-first lead
