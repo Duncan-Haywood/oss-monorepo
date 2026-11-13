@@ -1048,3 +1048,26 @@ Tests (`steady.test.mjs`): a one-person week loses every call-out's shift; a fre
 
 Not claimed: one call-out at a time (exposure is first order; two call-outs on one day interact); ties only come from varying the search seed, so a week whose best rosters the six seeds never meet is not searched for more; invented teams with rates from one firm's file; the seeds-1-6 choice is arbitrary. Not tried: exposure as a term inside the search (a slack price against payroll), which would trade score for steadiness instead of choosing among ties.
 
+**A quicker call-out check, and on the page (2026-11-13 later).** The check rebuilt the week once per person-day per tied roster: 30 s on the café, too slow to offer on the page. Three changes cut it without changing what it posts:
+
+- **Outright cover.** When the person has one shift that day and someone else can take it with every hard rule holding (`coverOptions`, the "who can take it" list on the page), that roster leaves exactly the open hours it had, so the case adds 0 with no rebuild.
+- **Hand-over chain.** Failing that, a chain of up to 3 hand-overs (`coverChain`) where everyone outside the chain keeps their shifts proves the same. Shifts already started are pinned, and pinned shifts are only eligible for their holder, so no chain moves one.
+- **Pruning.** Tied rosters are checked in seed order; a later one stops as soon as its sum reaches the best so far (it cannot win, ties go to the earlier seed) and is reported as "at least" that. Its cases run in order of what the same person-day cost on the rosters already checked, so a loser hits the bound early.
+
+Checked case by case against rebuilding every case on the five teams x six seeds (`eval/steady-speed.out.txt`): every one of the 570 cases gives the same added hours. The short cuts fire on retail (9-12 of 17 cases) and the clinic (3-5 of 12), never on the café or the spare-part-timer café, where nobody can take a called-out shift without a bigger reshuffle. `node eval/steady-speed.mjs`, the whole `--steady` pick:
+
+| team | first version | now | rebuilds | same roster posted |
+|---|---|---|---|---|
+| café | 30.1 s | 20.5 s | 138 to 101 | yes |
+| spare | 6.6 s | 6.3 s | 27 to 27 | yes (one best roster) |
+| salon | 3.3 s | 3.2 s | 80 to 50 | yes |
+| retail | 11.5 s | 8.7 s | 102 to 28 | yes |
+| clinic | 15.2 s | 6.8 s | 72 to 37 | yes |
+| total | 66.7 s | 45.5 s | 419 to 243 | |
+
+What is left is mostly the six builds themselves (each runs the exact check). `eval/steady-for-callouts.mjs` passes `prune: false` so its every-tie readings stay as they were.
+
+On the page, "When several rosters tie at the best score" now offers "Post the one a call-out hurts least". It runs in the build worker with progress ("roster 2 of 6, call-out 14 of 23") and the Stop button, and the call-out check's two lines lead the notices. Like the CLI it applies to a fresh week, not a reissue of a posted one, which already keeps the posted roster. Tests: `steady.test.mjs` (retail case by case with both short cuts firing; stopAt; the pruned pick equals the full one on café seeds 1-3; the worker runs the check and posts progress; the page has the setting and shows the text).
+
+Not claimed: the timings are one machine; a phone will be slower (the café's 20 s could be a minute). The chain search is capped at 3 hand-overs, so a case that needs more falls back to a rebuild, which is correct, only slower.
+

@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKia4BsQ9kkSCUGpDcc",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T03:17:41Z",
+  "ended": "2026-11-13T03:23:51Z",
+  "wall_minutes": 6.5,
+  "tokens_in": 4743458,
+  "tokens_out": 23024,
+  "cost_usd": 2.3098,
+  "tool_calls": 51,
+  "task": "process critique: a records-based 'what did recent runs of my track do' tool (platform/ci/recent_runs.py)",
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15358",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again. The top live friction candidates I checked were all fixed already: check_post_frontmatter (reports every problem and exits 1), cite_check ancestor caches, run_workflow_locally standalone-checks-first, pick_track's claimed-programme skip. Took ~6 checks to find an unfixed one. The measure table could hide reports older than the newest commit touching that file."
+    },
+    {
+      "file": "prompts/goals.md",
+      "issue": "~25 run records on 2026-11-12/13 say post front-matter caps (title 110, description 60-160, seo_title 70) are learned only by failing a check. `check_post_frontmatter.py --limits` exists, but no always-read file names it. Every place a run is told to write a post is control plane (goals.md 'Write about the work', CLAUDE.md), so this PR could not fix it."
+    },
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "Its recent-ideas check (and creative/prompt-0.md's git log -15 spread check) should point at `platform/ci/recent_runs.py --track <t>`. That is a control-plane edit, so it is left to an owner-approved PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Critique mode suggests filing new problems in prompts/process/backlog/, but that directory is control plane and would hold this PR for owner approval.",
+      "did": "Recorded the gated findings (front-matter caps line, prompt pointers to recent_runs.py) in doc_friction instead.",
+      "result": "PR stays mergeable without the owner."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-ask-the-records-not-the-shallow-clone.md"
+  ],
+  "goal": null,
+  "notes": "Critique lens: duplicate work and the shallow-clone recency checks. Main health 62/62 green. Measured over 3 days: 858 records, 35 same-track pairs on one project within 20 min (ventures 24, polish 4, creative 3, research 2, perf 1, quality 1), an upper bound on duplicate work. The first recent_runs reading found #15319/#15320, two creative runs on one proposal 2 min apart. Review stall (2674/40 counter) is the known stale-claim issue; owner-gated PR #14686 fixes it. Backlog ids touched: none (all open rows are owner-owned).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f22972e1-5401-54d2-9003-c60898423022",
+    "transcripts": 1,
+    "first": "2026-11-13T03:17:41Z",
+    "last": "2026-11-13T03:24:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 89,
+        "output": 23024,
+        "thinking": 8167,
+        "cache_read": 4627947,
+        "cache_write_5m": 0,
+        "cache_write_1h": 115422,
+        "api_equivalent_usd": 2.3098,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 89,
+      "output": 23024,
+      "thinking": 8167,
+      "cache_read": 4627947,
+      "cache_write_5m": 0,
+      "cache_write_1h": 115422,
+      "api_equivalent_usd": 2.3098,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 45,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.5,
+      "active_minutes": 6.5,
+      "model_minutes": 5.4,
+      "tool_minutes": 1.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "survey friction, write and test a 150-line CLI, measure, write post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 86.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -25,7 +25,7 @@ test("both made-up files are clean (both validated by xmllint against nfse_v204.
 });
 
 test("both layouts are compiled with their document elements", () => {
-  assert.deepEqual(VERSIONS, ["2.03", "2.04"]);
+  assert.deepEqual(VERSIONS, ["2.00", "2.01", "2.02", "2.03", "2.04"]);
   for (const v of VERSIONS) for (const r of ["GerarNfseEnvio", "EnviarLoteRpsEnvio", "CompNfse", "ConsultarNfseRpsResposta"]) assert.ok(rootsOf(v).includes(r), `${v} ${r}`);
 });
 
@@ -101,7 +101,7 @@ test("1.00 files (fraction rates, InfRps) skip the schema and still check values
   const old = `<CompNfse xmlns="http://www.abrasf.org.br/nfse.xsd"><Nfse><InfNfse versao="1.00"><Numero>1</Numero><Servico><Valores><ValorServicos>200.00</ValorServicos><ValorDeducoes>0</ValorDeducoes><IssRetido>2</IssRetido><ValorIss>4.00</ValorIss><BaseCalculo>200.00</BaseCalculo><Aliquota>0.02</Aliquota><ValorLiquidoNfse>200.00</ValorLiquidoNfse></Valores></Servico></InfNfse></Nfse></CompNfse>`;
   const r = checkAbrasf(old);
   assert.deepEqual(r.findings, []);
-  assert.match(r.skipped.join(" "), /states layout 1\.00; only ABRASF 2\.03 and 2\.04 are read/);
+  assert.match(r.skipped.join(" "), /states layout 1\.00; only ABRASF 2\.00 to 2\.04 are read/);
   assert.deepEqual(rules(old.replace("<ValorIss>4.00", "<ValorIss>5.00")), ["ABR-021"]);
 });
 
@@ -127,4 +127,48 @@ test("the report reads an ABRASF file as a municipal NFS-e, not EN 16931", async
   assert.deepEqual(out.reports[0].errors, []);
   const bad = await preflightDocuments([{ name: "nota.xml", source: swap("<BaseCalculo>850.00</BaseCalculo>", "<BaseCalculo>900.00</BaseCalculo>") }]);
   assert.deepEqual(bad.reports[0].errors.map((e) => e.rule), ["ABR-020"]);
+});
+
+const lote202 = readFileSync(new URL("./fixtures/abrasf-lote-202.xml", import.meta.url), "utf8");
+
+test("layouts 2.00-2.02: a 2.02 batch is checked against the 2.02 schema (validated by xmllint)", () => {
+  const r = checkAbrasf(lote202);
+  assert.deepEqual(r.findings, []);
+  assert.equal(r.meta.version, "2.02");
+  assert.equal(r.meta.stated, "2.02");
+  assert.deepEqual(r.skipped, []);
+  // The 2.04 name for the buyer is not allowed in 2.02, and 2.02's is not allowed in 2.04.
+  const renamed = lote202.replace(/<Tomador>/, "<TomadorServico>").replace(/<\/Tomador>/, "</TomadorServico>");
+  assert.deepEqual(rules(renamed), ["ABR-002"]);
+  // 2.04 also moved the batch's provider into a Prestador group.
+  assert.ok(checkAbrasf(lote202.replace('versao="2.02"', 'versao="2.04"')).findings.some((f) => /Tomador is not allowed/.test(f.message)));
+  // 2.00 writes DataEmissao and Competencia as date-times; 2.01 onward as dates.
+  const as200 = checkAbrasf(lote202.replace('versao="2.02"', 'versao="2.00"')).findings;
+  assert.ok(as200.some((f) => f.rule === "ABR-005" && /DataEmissao is not a date and time/.test(f.message)));
+});
+
+test("a provider's known extension keeps its finding and says whose it is", () => {
+  const f = checkAbrasf(lote202.replace("<Competencia>", "<DataPagamento>2026-11-10</DataPagamento><Competencia>")).findings;
+  assert.deepEqual(f.map((x) => x.rule), ["ABR-002"]);
+  assert.match(f[0].fix, /Fintel extension/);
+  const tok = checkAbrasf(lote202.replace("<NumeroLote>", "<Token>abc</Token><NumeroLote>")).findings;
+  assert.match(tok[0].fix, /AVMB extension/);
+  // An unknown element gets the plain fix.
+  assert.doesNotMatch(checkAbrasf(lote202.replace("<Competencia>", "<Nota>x</Nota><Competencia>")).findings[0].fix, /extension/);
+});
+
+test("a stated layout the file does not follow is named beside the findings", () => {
+  // The 2.04 NFS-e fixture relabelled 2.01: 2.01 has no TomadorServico and wants
+  // IdentificacaoPrestador; under 2.04 it is clean.
+  const stale = nfse.replaceAll('versao="2.04"', 'versao="2.01"');
+  const r = checkAbrasf(stale);
+  assert.deepEqual(r.findings.map((x) => x.rule).sort(), ["ABR-002", "ABR-004"]);
+  assert.ok(r.skipped.some((x) => /states 2\.01 and draws 2 schema findings under it, but none under ABRASF 2\.04/.test(x)), r.skipped.join("\n"));
+  // A clean file gets no such note.
+  assert.ok(!checkAbrasf(nfse).skipped.some((x) => /^layout:/.test(x)));
+  // A file no other layout fits better gets none either.
+  const both = stale.replace("<Numero>77</Numero>", "<Numero>77</Numero><Nota>x</Nota>");
+  const b = checkAbrasf(both);
+  assert.equal(b.findings.length, 3);
+  assert.ok(!b.skipped.some((x) => /^layout:/.test(x)), b.skipped.join("\n"));
 });

@@ -1,4 +1,4 @@
-cell-fidelity milestone 5f: skip SPMe when >= 4 of the first 8 designs are suspect (SPMe fails or r_min <= 0.1); otherwise 5e's rule with the iterate answer step
+cell-fidelity milestone 5g: skip SPMe when >= 4 of the first 8 designs are suspect (SPMe fails or r_min <= 0.1); otherwise 5e's rule with the iterate answer step
 
 Probe (baseline design, 2 cycles): OKane2022@2x ok, Chen2020@2x ok, Marquis2019@2x ok, Ecker2015@2x ok, Mohtat2020@2x ok, Ai2020@0.5x ok
 
@@ -33,7 +33,7 @@ Ai2020@0.5x: 64 designs (0 dropped: []); suspect share 0.31; gate saw 2 of 8 sus
   answer gap to pool DFN best 121.2 Wh/kg: gated 0.0320, rule+iterate 0.0320, 5e's pre-registered answer 0.0320
   extra, after the verdicts: same-fidelity answer gap 0.0000 at 64 calls (rule/all 1.13); cost-aware gate predicts rule/all 0.38 -> rule, right: True; affine-corrected answer gap 0.0217 at 41 calls
 
-Verdicts: H46 refuted, H47 supported, H48 supported, H49 refuted, H50 supported
+Verdicts: H51 refuted, H52 supported, H53 supported, H54 refuted, H55 supported
 
 Post hoc: the gate on the seven committed 1x cells it was read off (no verdicts):
 OKane2022@1x: 128 designs (0 dropped: []); suspect share 0.18; gate saw 1 of 8 suspect -> run the rule

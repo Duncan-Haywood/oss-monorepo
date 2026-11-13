@@ -1,10 +1,10 @@
-"""Milestone 5f: a skip-SPMe gate and the verified-answer rule, tested at C-rates no number has been seen for.
+"""Milestone 5g: a skip-SPMe gate and the verified-answer rule, tested at C-rates no number has been seen for.
 
     python experiments/gate/run.py probe     # baseline design, SPMe and DFN for 2 cycles at each condition -> probe.json
     python experiments/gate/run.py bench     # 64 Sobol (seed 5) designs x SPMe(V0)/DFN@100 per kept condition, then V1 re-solves of stops (resumable)
     python experiments/gate/run.py report    # results.txt, summary.json (stdlib only)
 
-The gate, the answer step, the labels and hypotheses H46 to H50 are fixed in ../../LOG.md (milestone 5f plan) before
+The gate, the answer step, the labels and hypotheses H51 to H55 are fixed in ../../LOG.md (milestone 5g plan) before
 the bench. A condition is a parameter set and a multiple of milestone 5b's areal current density (48.7 A/m2, the
 OKane2022 cell's 5 A over 0.1027 m2). The design mapping, protocol and degradation keys are milestone 5b's
 (../transfer/run.py), the SPMe solver variants milestone 5d's (../solver/run.py) and the rule milestone 5e's
@@ -31,7 +31,7 @@ WORKERS = int(os.environ.get("WORKERS", "4"))
 GATE_N = 8          # designs the gate reads, in Sobol index order
 GATE_K = 4          # skip SPMe when at least this many of them are suspect
 R_SUSPECT = 0.10    # milestone 2's flag: whole-run r_min at or below this
-TIE = 0.05          # H46 ignores conditions where rule and all-DFN wall times are within 5%
+TIE = 0.05          # H51 ignores conditions where rule and all-DFN wall times are within 5%
 # committed 1x suspect shares (V0 fail or r_min <= 0.1 over the whole pool; computed before this plan)
 SHARE_1X = {"OKane2022": 0.18, "Chen2020": 0.25, "Marquis2019": 0.00, "Ecker2015": 0.06, "Mohtat2020": 0.00, "Ai2020": 0.72}
 
@@ -168,11 +168,11 @@ def verdicts(C):
         base = SHARE_1X[c["set"]]
         h50.append(c["suspect_share"] - base if c["rate"] > 1 else base - c["suspect_share"])
     return dict(
-        H46=h46,
-        H47=v([c["gated_ratio"] for c in C.values()], lambda x: x <= 1.15, lambda x: x > 1.30),
-        H48=v([c["recall"] if (not c["skip"] and c["n_bad"]) else None for c in C.values()], lambda x: x >= 0.9, lambda x: x < 0.8),
-        H49=v([c["gated_pick_gap"] for c in C.values()], lambda x: x <= 0.01, lambda x: x > 0.02),
-        H50=v(h50, lambda x: x >= -0.05, lambda x: x < -0.10))
+        H51=h46,
+        H52=v([c["gated_ratio"] for c in C.values()], lambda x: x <= 1.15, lambda x: x > 1.30),
+        H53=v([c["recall"] if (not c["skip"] and c["n_bad"]) else None for c in C.values()], lambda x: x >= 0.9, lambda x: x < 0.8),
+        H54=v([c["gated_pick_gap"] for c in C.values()], lambda x: x <= 0.01, lambda x: x > 0.02),
+        H55=v(h50, lambda x: x >= -0.05, lambda x: x < -0.10))
 
 
 # ---------- simulation (pybamm) ----------
@@ -301,7 +301,7 @@ def report():
     by = {}
     for r in R._load(HERE / "bench.jsonl"):
         by.setdefault(r["cond"], {})[(r["j"], r["what"])] = r
-    L = [f"cell-fidelity milestone 5f: skip SPMe when >= {GATE_K} of the first {GATE_N} designs are suspect (SPMe fails or r_min <= {R_SUSPECT});"
+    L = [f"cell-fidelity milestone 5g: skip SPMe when >= {GATE_K} of the first {GATE_N} designs are suspect (SPMe fails or r_min <= {R_SUSPECT});"
          " otherwise 5e's rule with the iterate answer step", "",
          "Probe (baseline design, 2 cycles): " + ", ".join(f"{cid(s, r)} {'ok' if cid(s, r) in kept else 'fails'}" for s, r in CONDITIONS), ""]
     summ = dict(kept=kept, conditions={}, committed={})

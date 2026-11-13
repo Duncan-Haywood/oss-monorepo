@@ -55,9 +55,9 @@ def test_verdicts_h46_counts_wrong_calls_and_h50_direction():
          "b": dict(base, gate_right=True, set="Ai2020", rate=0.5, suspect_share=0.70),
          "c": dict(base, gate_right=None, set="Marquis2019", rate=2.0, suspect_share=0.0)}
     v = run.verdicts(C)
-    assert v["H46"] == "mixed" and v["H50"] == "mixed" and v["H47"] == "supported" and v["H48"] == "untestable"
+    assert v["H51"] == "mixed" and v["H55"] == "mixed" and v["H52"] == "supported" and v["H53"] == "untestable"
     C["b"]["gate_right"] = False
-    assert run.verdicts(C)["H46"] == "refuted"
+    assert run.verdicts(C)["H51"] == "refuted"
 
 
 def test_same_fidelity_answer_compares_screen_with_screen():

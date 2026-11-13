@@ -135,8 +135,8 @@ flagships:
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
       History and every measurement: README and git (TCPD consensus F1 0.702 shipped / 0.711 held out, binseg 0.714/0.727).
-      Next, most valuable first: (w) watch (README "Watching a growing series", "Round 5", "Round 6" and "Round 7"): eagerness hint on the page and in the CLI, with a plain-terms budget box on the page (README "Round 6", "The hint in the CLI watch", "A budget box on the page"), so next is a fresh labelled set to test the hint where it matters, or the drift model as the watch for wandering levels (the plain pass's 38-vs-33 lead is there); round 6's HINT_BUDGET re-checked under persist 2, the default since round 7: passes, budget stays 2 (README "Round 6 again, under persist 2"); a real deployer's repository on GitHub Actions (the emulated run is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check: date a documented collection change. One-tick stale feeds (README): next its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
-      Open: (0) drift model: t-walk increments, biweight on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks: `--hinge-test` on more series, a hinge-residual guard, a second hinge; a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH prune (fixed 2026-11-13) loses sd breaks; (4) driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a yearly term.
+      Next, most valuable first: (w) watch (README "Watching a growing series", "Round 5", "Round 6" and "Round 7"): eagerness hint on the page and in the CLI, with a plain-terms budget box on the page (README "Round 6", "The hint in the CLI watch", "A budget box on the page"), so next is a fresh labelled set to test the hint where it matters, or the drift model as the watch for wandering levels (the plain pass's 38-vs-33 lead is there); a real deployer's repository on GitHub Actions (the emulated run is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check: date a documented collection change. One-tick stale feeds (README): next its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
+      Open: (0) drift model: t-walk increments, biweight on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks: `--hinge-test` on more series, a hinge-residual guard, a second hinge; a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) `--garch` shipped 2026-11-13 (README): next a range from the GARCH fit, or a t-GARCH for heavy-tailed returns; (4) driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -167,8 +167,9 @@ flagships:
       environment, the cCredPres table, a real SEFAZ rejection for a
       cClassTrib; national NFS-e landed 2026-11-12 (README): open: a
       national-system rejection compared, municipal rates; ABRASF municipal
-      NFS-e 2.03/2.04 landed 2026-11-13 (README): open: ISS retained on a real
-      file, city variants (ISSNet, GINFES, Betha), 2.01/2.02 schemas; refresh
+      NFS-e 2.00-2.04 landed 2026-11-13 (README; provider extensions named):
+      open: ISS retained on a real file, the providers' own XSDs (ISSNet,
+      WebISS, Fiorilli, GINFES in OpenAC.Net.NFSe) chosen by city; refresh
       the Bulgaria page when its draft passes. A run that lands a slice
       replaces its item here; keep this under 2,000 characters.
   - venture: shift-roster-builder
@@ -191,7 +192,7 @@ flagships:
       keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
       would post; a real 7shifts, When I Work or Homebase schedule export (a Deputy export and a retail WFM tool's
       initial/final week are read since 2026-11-13, README "Two real schedule exports"; search public repos by header row as
-      those were found); call-out exposure as a priced term inside the search, and `--steady` at each reissue and on the page (it picks among tied rosters at posting since 2026-11-13, README "Which of the tied best rosters"); a real multi-location Square or Toast export (planned as one shop today); whether the
+      those were found); call-out exposure as a priced term inside the search, and `--steady` at each reissue and with fewer builds (on the page since 2026-11-13, README "A quicker call-out check": the café's 20 s is mostly its six exact builds); a real multi-location Square or Toast export (planned as one shop today); whether the
       priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
@@ -200,10 +201,10 @@ flagships:
     buildable: >-
       The DNG 1.7.1.0 specification PDF is reachable from a cloud session
       (helpx.adobe.com URL in eval/opcode-spec-audit-2026-11-12.md): read it, not
-      memory. Lensfun vignetting landed 2026-11-13 (eval/lensfun-vignetting-2026-11-13.md);
-      its formula is written out, not run from liblensfun: lensfunpy (pypi) bundles
-      liblensfun 0.3.4, so a check of `apply_color_modification` against
-      build_vignette, as tools/lensfun_released_check.py does for distortion; Canon's maker-note lens number (CameraSettings
+      memory. Lensfun vignetting landed 2026-11-13 and matches the compiled
+      liblensfun 0.3.4 (eval/lensfun-vignetting-released-2026-11-13.md); next on it:
+      the SSE path (four-component float32 images through lensfunpy, if it allows them)
+      and a 16-bit fixed-point output check; Canon's maker-note lens number (CameraSettings
       index 22) mapped to a name for CR2s whose maker note gives no usable name
       (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095 are read
       since 2026-11-13);
@@ -262,14 +263,20 @@ flagships:
       real answer noise) and a Student-t prior for the pairwise intervals ("A
       heavier-tailed prior for the pairwise intervals": narrower but covers
       less than the Gaussian under uniform, normal and Laplace truths;
-      priorDf in btRefit.ts, unwired). Next, most valuable first: (a) why the
-      pooled Gaussian sd collapses toward the 0.3 floor under staged with many
-      answers per item (one cell 0.33, intervals 0.39), and intervals from
-      posterior draws rather than Laplace curvature; (b) half-time salience
-      (q = 0.5 still leaks +0.12 to +0.29: does pace see them?); (c) the first
-      real survey's answers: msToAnswer against the answer-time model, and how
-      noisy real pairwise answers are, which decides the self-consistency gate
-      (scripts/coin-flip-gate-real.ts --honest-lapse); (d) position bias that
+      priorDf in btRefit.ts, unwired). 2026-11-13: the pooled sd's collapse
+      to 0.33 is a flat evidence surface under staged (5-13 nats from 0.3 to
+      1.2 over 40 people vs 281 shipped), not the sampler; the likelihood
+      interval's upper end (pooledPriorPhiUpper, unwired) holds 0.955 honest
+      coverage at 15% less width than fixed, but 0.72-0.76 worst with
+      careless answers ("Why the pooled sd collapsed"). Next, most valuable
+      first: (a) the upper end for respondents lapseEstimate calls honest
+      only: store it beside setPriorPhi and sweep a mixed honest/careless
+      panel, then wire it into the pairwise intervals if it holds; (b)
+      half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace see
+      them?); (c) the first real survey's answers: msToAnswer against the
+      answer-time model, and how noisy real pairwise answers are, which
+      decides the self-consistency gate (scripts/coin-flip-gate-real.ts
+      --honest-lapse); (d) position bias that
       starts mid-session; (e) the switch rule above 120 items (then make staged
       the default there too).
   - venture: league-schedule-generator

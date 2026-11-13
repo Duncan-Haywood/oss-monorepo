@@ -1,4 +1,4 @@
-// Differential of the ABRASF schema layer (ABR-002..ABR-006, from the 2.03 and 2.04 XSDs
+// Differential of the ABRASF schema layer (ABR-002..ABR-006, from the 2.00 to 2.04 XSDs
 // read by build-abrasf-schema.mjs) against xmllint on the same schemas.
 //   1. Verdicts on the files as they are: each file's ABRASF element (the one abrasf.mjs
 //      checks, unwrapped from SOAP or a reply) is validated by xmllint against the layout
@@ -7,10 +7,11 @@
 //      ds:Signature (as eval/nfse-xsd-diff.mjs: a value deleted, emptied, given junk,
 //      lengthened, made negative or over-precise, padded with a space; an element deleted,
 //      duplicated or swapped with its next sibling; an unknown element inserted).
-// xmllint needs the two XSDs with xmldsig beside them; nfse_v204.xsd as published puts
+// xmllint needs each XSD with xmldsig beside it, one directory per layout (2.00/nfse_v200.xsd
+// ... 2.04/nfse_v204.xsd; the mirror names 2.00-2.02 "nfse v200.xsd", so rename them); nfse_v204.xsd as published puts
 // minOccurs/maxOccurs on the global CompNfse element, which xmllint refuses to compile, so
 // strip those two attributes from that line in your copy (they mean nothing there).
-//   node eval/abrasf-xsd-diff.mjs <dir with 2.03/nfse_v203.xsd and 2.04/nfse_v204.xsd> [--per N] file.xml ...
+//   node eval/abrasf-xsd-diff.mjs <dir with 2.00/ ... 2.04/> [--per N] [--only 2.01,2.02] file.xml ...
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -23,8 +24,13 @@ import { VERSIONS, rootsOf } from "../abrasf-xsd.mjs";
 const args = process.argv.slice(2);
 const dir = args.shift();
 let per = 60;
-if (args[0] === "--per") { args.shift(); per = Number(args.shift()); }
-const XSD = { "2.03": join(dir, "2.03/nfse_v203.xsd"), "2.04": join(dir, "2.04/nfse_v204.xsd") };
+let only = null;
+for (;;) {
+  if (args[0] === "--per") { args.shift(); per = Number(args.shift()); }
+  else if (args[0] === "--only") { args.shift(); only = new Set(args.shift().split(",")); }
+  else break;
+}
+const XSD = Object.fromEntries(VERSIONS.filter((v) => !only || only.has(v)).map((v) => [v, join(dir, `${v}/nfse_v${v.replace(".", "")}.xsd`)]));
 const SCHEMA = new Set(["ABR-001", "ABR-002", "ABR-003", "ABR-004", "ABR-005", "ABR-006"]);
 
 let seed = 20261113;
@@ -90,6 +96,7 @@ const xmllintValid = (text, v) => {
 };
 const ours = (text) => checkAbrasf(text);
 
+const byLayout = {};
 const verdicts = { files: 0, bothValid: 0, bothInvalid: 0, onlyXmllint: 0, onlyUs: 0 };
 const disagree = [];
 const seeds = [];
@@ -106,15 +113,16 @@ for (const file of args) {
   seen.add(h);
   const r = ours(text);
   const v = r.meta.version;
-  if (!XSD[v]) continue; // a layout this tool does not read (1.00, 2.00-2.02)
+  if (!XSD[v]) continue; // a layout this tool does not read (1.00), or one left out by --only
   verdicts.files++;
+  byLayout[v] = (byLayout[v] ?? 0) + 1;
   const xs = xmllintValid(text, v);
   const us = !r.findings.some((f) => SCHEMA.has(f.rule));
   if (xs && us) { verdicts.bothValid++; seeds.push({ root: parseCfdiXml(text).root, v }); }
   else if (!xs && !us) verdicts.bothInvalid++;
   else { verdicts[xs ? "onlyUs" : "onlyXmllint"]++; disagree.push(`${xs ? "this tool only" : "xmllint only"}: ${file} (${v})`); }
 }
-console.log(JSON.stringify({ verdicts }));
+console.log(JSON.stringify({ verdicts, byLayout }));
 for (const d of disagree) console.log(`  ${d}`);
 
 const tally = { both: 0, neither: 0, onlyXsd: 0, onlyUs: 0 };
