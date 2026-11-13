@@ -586,6 +586,8 @@ export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog 
 export const FAST_BLOCK_AUTO_FLOOR = 0.3;
 /** Which quantile of the panel's mirrored (slow-turn) gaps FAST_BLOCK_AUTO reads. */
 export const FAST_BLOCK_AUTO_Q = 0.9;
+/** The highest per-survey gap threshold FAST_BLOCK_AUTO may pick. */
+export const FAST_BLOCK_AUTO_CAP = FAST_BLOCK_MIN_LOG;
 
 /**
  * A per-survey gap threshold for fastBlockSplit, from the panel's own residual
@@ -598,7 +600,7 @@ export const FAST_BLOCK_AUTO_Q = 0.9;
  * keeps the fixed 0.5. Null when fewer than AGREEMENT_MIN_RESPONDENTS
  * sequences are long enough.
  */
-export function autoFastBlockMinLog(residuals: number[][], q = FAST_BLOCK_AUTO_Q, floor = FAST_BLOCK_AUTO_FLOOR, cap = FAST_BLOCK_MIN_LOG): number | null {
+export function autoFastBlockMinLog(residuals: number[][], q = FAST_BLOCK_AUTO_Q, floor = FAST_BLOCK_AUTO_FLOOR, cap = FAST_BLOCK_AUTO_CAP): number | null {
   const gaps = residuals.map((x) => bestFastSplit(x.map((v) => -v))).filter((b) => b !== null).map((b) => Math.max(0, b!.gap));
   if (gaps.length < AGREEMENT_MIN_RESPONDENTS) return null;
   return Math.min(cap, Math.max(floor, quantileOf(gaps, q)));
