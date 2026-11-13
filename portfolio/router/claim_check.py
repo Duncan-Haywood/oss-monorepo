@@ -4,7 +4,8 @@
     python3 portfolio/router/claim_check.py <keyword> [--pr N] [--hours 24]
 
 Run it right after you open your draft PR (title naming the slug, milestone
-or target), and again before you merge. It lists the open same-repo PRs whose
+or target), and again before you merge. Open that PR before exploring, not
+after the first real commit: an empty commit is enough (`claim_recipe`). It lists the open same-repo PRs whose
 title names <keyword> as a whole word, opened in the last --hours, and says
 who keeps the item: **the PR opened first**. Ties on the second go to the
 lower number.
@@ -119,11 +120,27 @@ def _line(r: dict, now: datetime) -> str:
     return f"#{r['number']} (opened {r['created']}, {age_s} ago): {r['title']}"
 
 
+def claim_recipe(keyword: str) -> str:
+    """How to open a claim PR before there is anything to commit.
+
+    A PR needs a commit, so sessions explored for 20 to 40 minutes before
+    their claim became visible, and two sessions sent to the same flagship
+    both built it: four ventures runs on 2026-11-13 alone lost 10 to 40
+    minutes each that way (doc_friction on allocate.py: einvoice-preflight,
+    chant-forge, league-schedule-generator, quick-pick-survey), and quality
+    runs committed placeholder posts to claim a seed. An empty commit is
+    enough to open the PR, and the squash merge drops it."""
+    return (f"No diff yet? Claim now: `git commit --allow-empty -m \"{keyword}: claim\"`, "
+            f"push, and open a draft PR whose title names '{keyword}' (the squash merge "
+            f"drops the empty commit), then `python3 portfolio/router/claim_check.py {keyword}`.")
+
+
 def report(result: dict, keyword: str, now: datetime, hours: float) -> list[str]:
     me, older, newer = result["mine"], result["older"], result["newer"]
     lines = []
     if me is None:
         lines.append(f"Your PR: none found (pass --pr N, or open your draft PR naming '{keyword}' first).")
+        lines.append(claim_recipe(keyword))
     else:
         lines.append("Your PR: " + _line(me, now))
     if older:
