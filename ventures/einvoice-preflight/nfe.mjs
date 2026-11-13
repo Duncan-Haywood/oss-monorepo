@@ -20,11 +20,17 @@
 //      vIBSUF + vIBSMun, every IBSCBSTot and ISTot total against the items, and vNFTot
 //      against the items' vItem. No SEFAZ rejection code for these was read, so none is
 //      named; the sums follow the schema's own field notes and sped-nfe's totaliser.
+//   7. the classification (BR-053..BR-057): each item's CST and cClassTrib against the
+//      published IBS/CBS table (cclasstrib.mjs): the code exists and belongs to the CST
+//      (BR-053), is allowed on this model (BR-054), is valid on dhEmi (BR-055), the item
+//      groups are ones the CST and code take (BR-056), and gRed/pRedAliq is the code's
+//      reduction and pAliqEfet the rate less it (BR-057).
 // An offline observation, not SEFAZ's authorisation, and not tax advice.
 
 import { COMPLEX, SIMPLE } from "./nfe-xsd-data.mjs";
 import { checkBrazilId } from "./brazil.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
+import { checkClassTrib } from "./cclasstrib.mjs";
 
 export const NFE_NS = "http://www.portalfiscal.inf.br/nfe";
 
@@ -328,6 +334,47 @@ const REFORM_SUMS = [
   ["gEstornoCred/vCBSEstCred", (g) => sumDeep(g.estorno, "vCBSEstCred")],
 ];
 
+// BR-053..BR-057: each item's CST and cClassTrib against the classification table
+// (cclasstrib.mjs).
+const CT_RULE = { unknown: "BR-053", cst: "BR-053", doc: "BR-054", date: "BR-055", group: "BR-056", red: "BR-057" };
+function checkClassification(inf, ide, out) {
+  const doc = txt(ide, "mod") === "65" ? "nfce" : "nfe";
+  const date = txt(ide, "dhEmi").slice(0, 10);
+  kidsOf(inf, "det").forEach((det, i) => {
+    const t = kid(kid(det, "imposto"), "IBSCBS");
+    if (!t) return;
+    const g = kid(t, "gIBSCBS");
+    const parts = { IBSUF: kid(g, "gIBSUF"), IBSMun: kid(g, "gIBSMun"), CBS: kid(g, "gCBS") };
+    const red = {}, taxed = [];
+    for (const [k, node] of Object.entries(parts)) {
+      if (!node) continue;
+      taxed.push(k);
+      const r = kid(node, "gRed");
+      if (!r) continue;
+      red[k] = txt(r, "pRedAliq");
+      // pAliqEfet = rate x (1 - pRedAliq/100): TRed's notes ("Percentual de redução",
+      // "Aliquota Efetiva que será aplicada a Base de Calculo (em percentual)"), as
+      // Unimake's RTC samples write it (0.1000 less 60.0000% = 0.0400). A government
+      // purchase (gCompraGov) applies its own reducer, which is not read.
+      const rate = txt(node, `p${k}`), ef = txt(r, "pAliqEfet");
+      if (!rate || !ef || !red[k] || kid(ide, "gCompraGov")) continue;
+      const want = Number(rate) * (1 - Number(red[k]) / 100);
+      if (Number.isFinite(want) && Number.isFinite(Number(ef)) && Math.abs(Number(ef) - want) > 0.00005) {
+        out.push(finding("BR-057", `Item ${det.attrs.nItem || i + 1}: g${k} pAliqEfet is ${ef}%, but p${k} ${rate}% less the ${red[k]}% reduction (pRedAliq) is ${Number(want.toFixed(4))}%.`,
+          `Set pAliqEfet to ${want.toFixed(4)} and recompute v${k}, or check pRedAliq.`, `/NFe/infNFe/det[${i + 1}]/imposto/IBSCBS/gIBSCBS/g${k}/gRed/pAliqEfet`));
+      }
+    }
+    const groups = named(t.children).map((c) => c.name).filter((n) => !["CST", "cClassTrib", "indDoacao"].includes(n));
+    const base = `/NFe/infNFe/det[${i + 1}]/imposto/IBSCBS`;
+    for (const p of checkClassTrib({ cst: txt(t, "CST"), code: txt(t, "cClassTrib"), doc, date, groups, red, taxed })) {
+      const path = p.kind === "group" ? `${base}/${p.group}` : p.kind === "red" ? `${base}/gIBSCBS/g${p.part}` : p.kind === "date" ? "/NFe/infNFe/ide/dhEmi" : `${base}/cClassTrib`;
+      const rule = Object.hasOwn(CT_RULE, p.kind) ? CT_RULE[p.kind] : null;
+      if (!rule) continue;
+      out.push(finding(rule, `Item ${det.attrs.nItem || i + 1}: ${p.message}`, p.fix, path));
+    }
+  });
+}
+
 function checkReform(inf, out) {
   const dets = kidsOf(inf, "det");
   const groups = dets.map((det) => {
@@ -446,6 +493,7 @@ export function checkNfe(text) {
   }
   checkSums(inf, ide, findings);
   checkReform(inf, findings);
+  checkClassification(inf, ide, findings);
   checkConsistency(inf, ide, emit, dest, findings);
   return { findings, skipped, meta };
 }

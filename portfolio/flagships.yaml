@@ -162,12 +162,11 @@ flagships:
       Porte 3.1 landed (README): open: SAT's CP error matrix to map
       MX-070..080 to CP codes (omawww blocked), a real payroll or export file,
       a PAC rejection compared; postal codes (MX-080) landed (README); Brazil
-      NF-e 4.00 landed 2026-11-12 (README "Brazil: NF-e"; 35 real files, vII
-      fix); PL_010_V1.30 reform layout and IBS/CBS/IS sums (BR-050..052,
-      4,987/4,987 vs xmllint) landed 2026-11-12; open: a real reform NF-e from
-      a SEFAZ test environment, cClassTrib/rate tables, a real SEFAZ
-      rejection; national NFS-e landed 2026-11-12 (README "Brazil: national
-      NFS-e"): open: a national-system rejection compared, municipal rates,
+      NF-e 4.00, PL_010 reform sums and the cClassTrib table (BR-053..057,
+      NFSE-034..036, 2026-11-13) landed (README); open: a real reform NF-e
+      from a SEFAZ test environment, the cCredPres table, a real SEFAZ
+      rejection for a cClassTrib; national NFS-e landed 2026-11-12 (README
+      "Brazil: national NFS-e"): open: a national-system rejection compared, municipal rates,
       ABRASF layouts; refresh the Bulgaria page when its draft passes. A run
       that lands a slice replaces its item here; keep this under 2,000
       characters.
@@ -182,15 +181,16 @@ flagships:
       files incl. real Square and Toast exports, 2026-11-13: eval/real-pos-exports.mjs): backtest, closure score,
       half-life auto, priced cut, tickets, labour standard, shut-door work, multi-file pastes. Posted weeks: call-out
       reissues hold started and posted shifts; change-count ILP and eject moves leave only score trades above the least
-      (README "Is 91 the least?" to "Giving up two clashing shifts"). Next: whether a real manager would set keepShift
+      (README "Is 91 the least?" to "Giving up two clashing shifts"); a whole week at the Deputy file's rates (README "A whole
+      week of call-outs at a real roster's rates", 2026-11-13): kept reissues cut changes 56-66%, open hours path-dependent
+      both ways. Next: whether a real manager would set keepShift
       above 1; close the 100-person gaps (tree, not pricing); cuts or branching that move the score LP on the 60-person
       pay week ($1.22 open); the 60x168 end-to-end week 0 (root LP 275.2 h vs 300 h held); a floor above 60 copies needs
       something stronger than the coverage LP (README "The open-hours row from the first pass"); re-run the
       keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
       would post; a real 7shifts, When I Work or Homebase schedule export (a Deputy export and a retail WFM tool's
       initial/final week are read since 2026-11-13, README "Two real schedule exports"; search public repos by header row as
-      those were found); the Deputy file's rostered-vs-worked pairs (93% exact starts, 11% of work unrostered) as the
-      call-out and extra-shift rates in the reissue benches; a real multi-location Square or Toast export (planned as one shop today); whether the
+      those were found); a reissue that keeps slack for later call-outs (lookahead at those rates; README, same section); a real multi-location Square or Toast export (planned as one shop today); whether the
       priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-

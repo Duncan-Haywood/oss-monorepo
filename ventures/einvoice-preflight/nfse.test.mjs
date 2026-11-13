@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { checkNfse, looksLikeNfse } from "./nfse.mjs";
 import { COMPLEX, PACKAGE } from "./nfse-xsd-data.mjs";
+import { CODES } from "./cclasstrib-data.mjs";
 import { preflightDocuments } from "./report.mjs";
 
 const clean = readFileSync(new URL("./fixtures/nfse-nacional.xml", import.meta.url), "utf8");
@@ -119,9 +120,33 @@ test("IBS/CBS sums (NFSE-030..033)", () => {
   const y27 = clean.replaceAll("2026-11-10", "2027-01-11").replace("2611", "2701");
   const r = checkNfse(y27).findings.map((f) => f.rule);
   assert.ok(r.includes("NFSE-030") && r.includes("NFSE-033"), r.join());
-  // a stated reduction is skipped and said
+  // a stated reduction is a percentage: 0.10 less 60% is 0.04, and cClassTrib 000001 has none
   const red = swap("<pIBSUF>0.10</pIBSUF>", "<pIBSUF>0.10</pIBSUF><pRedAliqUF>60.00</pRedAliqUF>");
-  assert.match(checkNfse(red).skipped.join(" "), /rate reduction/);
+  assert.deepEqual(rules(red).sort(), ["NFSE-031", "NFSE-036"]);
+  assert.match(checkNfse(red).findings.find((f) => f.rule === "NFSE-031").message, /less the pRedAliqUF 60\.00% reduction is 0\.04%/);
+});
+
+test("classification against the cClassTrib table (NFSE-034..036)", () => {
+  // a 60% reduction code of CST 200 that the table marks for NFS-e, written as Unimake's sample writes it
+  const e200 = Object.entries(CODES).find(([, c]) => c.cst === "200" && c.nfse && c.pRedIBS === 60 && c.pRedCBS === 60)[0];
+  const ok = clean.replace(/<CST>000<\/CST>(\s*)<cClassTrib>000001</, `<CST>200</CST>$1<cClassTrib>${e200}<`)
+    .replace(/<pIBSUF>0\.10<\/pIBSUF>(\s*)<pAliqEfetUF>0\.10</, "<pIBSUF>0.10</pIBSUF>$1<pRedAliqUF>60.00</pRedAliqUF><pAliqEfetUF>0.04<")
+    .replace("<pIBSMun>0.00</pIBSMun>", "<pIBSMun>0.00</pIBSMun><pRedAliqMun>60.00</pRedAliqMun>")
+    .replace(/<pCBS>0\.90<\/pCBS>(\s*)<pAliqEfetCBS>0\.90</, "<pCBS>0.90</pCBS>$1<pRedAliqCBS>60.00</pRedAliqCBS><pAliqEfetCBS>0.36<");
+  assert.ok(ok.includes(e200) && ok.includes("<pAliqEfetCBS>0.36"));
+  const r = rules(ok).filter((x) => /NFSE-03[4-6]/.test(x));
+  assert.deepEqual(r, []);
+  // the reduction left off the CBS: the table wants 60%
+  const noCbs = ok.replace("<pRedAliqCBS>60.00</pRedAliqCBS><pAliqEfetCBS>0.36<", "<pAliqEfetCBS>0.90<");
+  assert.ok(rules(noCbs).includes("NFSE-036"));
+  // CST 101 (Unimake's NACIONAL sample) is not a CST of the table: 000001 is CST 000's
+  const c101 = clean.replace("<CST>000</CST>", "<CST>101</CST>");
+  assert.deepEqual(rules(c101), ["NFSE-034"]);
+  assert.match(checkNfse(c101).findings[0].message, /belongs to CST 000/);
+  // a code the table does not have, and one it does not allow on an NFS-e
+  assert.deepEqual(rules(clean.replace("<cClassTrib>000001</cClassTrib>", "<cClassTrib>000099</cClassTrib>")), ["NFSE-034"]);
+  const notNfse = Object.entries(CODES).find(([, c]) => c.cst === "000" && !c.nfse)[0];
+  assert.deepEqual(rules(clean.replace("<cClassTrib>000001</cClassTrib>", `<cClassTrib>${notNfse}</cClassTrib>`)), ["NFSE-035"]);
 });
 
 test("the report routes a national NFS-e to its own rules", async () => {
