@@ -22,7 +22,7 @@ From [`results.txt`](experiments/results.txt).
 | nb x3.0 | 0.741 | 0.300 | 0.900 | 0.184 |
 | nb x4.0 | 0.987 | 0.250 | 1.000 | 0.000 |
 
-Width of the 95% interval, 200 audited items:
+Width of the 95% interval, 200 audited items (but nb x4.0 has only 40 coder-negatives and the draw does not move the leftover budget, so its 0.3 and 0.5 cells audited 180 and 140 items; quality audit 2026-11-13):
 
 | negative share | 0.02 | 0.05 | 0.1 | 0.2 | 0.3 | 0.5 |
 |---|---:|---:|---:|---:|---:|---:|
@@ -32,7 +32,7 @@ Width of the 95% interval, 200 audited items:
 
 1. **The best share tracks recall.** The oracle (Neyman) negative share falls from 0.43 to 0.18 to 0 as recall rises, and the empirical optimum follows: 50%, 20%, 2% or lower. This is the direction `qual-lowrate` could not test.
 2. **No gain over a plain random audit.** Random audit of 200 items: width 0.1195 (100: 0.169, 400: 0.0845). The best coder-assisted cell is 0.115 to 0.119 in every case, a difference of at most 4%. A coder with 0.30 precision tells the audit little about which items hold positives.
-3. **Coverage still fails at low shares unless recall is near-perfect.** Worst-coder coverage at 200 items: 0.48 (2%), 0.77 (5%), 0.91 (10%), 0.94 (20%). The recall 1.00 coder is fine (0.95–0.97) because its negative stratum holds no positives at all, but it codes 98.7% of items positive, so it is a coder in name only.
+3. **Coverage still fails at low shares unless recall is near-perfect.** Worst-coder coverage at 200 items: 0.48 (2%), 0.77 (5%), 0.91 (10%), 0.94 (20%). The recall 1.00 coder is fine (0.94–0.97) because its negative stratum holds no positives at all, but it codes 98.7% of items positive, so it is a coder in name only.
 4. **Bias is gone in every cell with at least one audited negative** (within ±0.005), as in `qual-lowrate`; only the positives-only audit is biased (−0.070, −0.025, 0.000 by coder).
 
 ## Limitations
@@ -40,6 +40,8 @@ Width of the 95% interval, 200 audited items:
 - Real high recall here is bought with low precision by moving the cut-off of a weak classifier; an LLM with both high recall and high precision would shrink the positive stratum's variance as well, which this does not test. No LLM was called.
 - One code, one corpus, one split; Wald intervals only (the Wilson stratum interval is still open); finite-population correction ignored.
 - Three coders, so "the best share" is read off a coarse grid.
+- No proportional-allocation baseline (the textbook comparison, Cochran 1977 ch. 5). Against it the recall-0.90 coder's gain is about 1.5% (width 0.117 vs 0.115–0.116), not the gap to a 50% share. The widths follow Cochran's closed form to within 0.003, so the simulation confirms the formula rather than finding something new; prediction-powered inference (Angelopoulos et al. 2023) is the nearest recent work and is not yet compared ([audit](../../portfolio/quality/audits/2026-11-13-qual-highrecall.json)).
+- The test reads the committed `results.txt`; it does not run `experiments/run.py`, so a bug in the run would not fail it.
 
 ## Next steps
 

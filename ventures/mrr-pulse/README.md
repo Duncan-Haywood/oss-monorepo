@@ -30,9 +30,10 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
 ## What it counts
 
 - **MRR**: active and past-due subscriptions; every price normalised to a
-  month (yearly / 12, weekly × 4.35, interval counts and seat quantities
+  month (yearly / 12, weekly × 4.348 (30.4375 / 7), interval counts and seat quantities
   applied); percent-off coupons netted.
-- **Not counted**: trials, paused subscriptions, metered usage, fixed-amount
+- **Not counted**: trials, paused subscriptions, metered usage, tiered
+  (graduated or volume) prices, fixed-amount
   coupons. (`COUNT_PAST_DUE=false` also drops past-due.)
 - **Movements**: new, expansion, contraction, churned and reactivated MRR,
   from the difference between consecutive syncs. A customer who was seen
@@ -103,6 +104,21 @@ restricted Stripe key. Nothing runs on the author's accounts. The same
 Dockerfile runs on Fly.io, Railway or any VPS.
 
 Serve it over HTTPS only (Render does); the dashboard uses HTTP Basic auth.
+
+## Known gaps
+
+Found by the [quality audit of 2026-11-13](../../portfolio/quality/audits/2026-11-13-mrr-pulse.json); not fixed yet:
+
+- **Subscriptions, not customers.** Logo churn, the Customers tile and the
+  movements count subscriptions. A customer who drops an add-on shows as
+  churn; one who swaps a 5,000 plan for an 8,000 plan shows as churn plus new
+  rather than 3,000 of expansion.
+- **Tiered prices count as 0.** Graduated and volume prices have no
+  `unit_amount`, so they add nothing to MRR.
+- **Zero-decimal currencies** (JPY, KRW) display 100 times too small.
+- **Cancel at period end** in a CSV with both "Canceled At" and "Ended At"
+  columns is dated at the request, not the end.
+- NRR is a one-month figure; a 12-month NRR is the usual benchmark.
 
 ## Disclaimer
 
