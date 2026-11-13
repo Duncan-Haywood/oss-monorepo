@@ -1,9 +1,9 @@
 ---
 title: "The fallback that only fails when it is rare"
-seo_title: "LLM coding audits: why a guard-first fallback undercovers at large audits"
+seo_title: "LLM coding audits: why a guard-first fallback undercovers when rare"
 date: 2026-11-13
 tags: [research, llm, statistics, qualitative-coding]
-description: "Pre-registered on 45 audit cells: a guard-first fallback adds 20% to the width gain but undercovers where it rarely fires, because the pilot that chose the design is reused in the estimate."
+description: "Pre-registered on 45 audit cells: a guard-first fallback adds 20% width gain but undercovers where it is rare, since the pilot that chose the design is reused."
 ---
 
 The [llm-coding-inference](../../research/llm-coding-inference/) programme asks how

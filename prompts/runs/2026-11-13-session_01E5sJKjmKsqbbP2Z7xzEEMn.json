@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKjmKsqbbP2Z7xzEEMn",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T02:18:09Z",
+  "ended": "2026-11-13T02:29:49Z",
+  "wall_minutes": 14.6,
+  "tokens_in": 6740139,
+  "tokens_out": 34422,
+  "cost_usd": 3.1949,
+  "tool_calls": 57,
+  "task": "research programme llm-coding-inference, milestone 7an (guard-first fallback), drawn by pick_track.py",
+  "projects": [
+    "research/llm-coding-inference"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15341",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "huggingface.co and download.pytorch.org return 403 through the proxy, so no new LLM scoring was possible; the fresh good-coder cells use the repo's word-presence logistic coder instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "The torch install advice assumes download.pytorch.org may be reachable; this run it 403'd, and huggingface.co (model weights) did too, so LLM-coder milestones are blocked regardless of torch. One probe line for both hosts at the start would save the planning."
+    },
+    {
+      "file": "experiments/h7am_pseudo_guard.py (pattern)",
+      "issue": "The draw scripts import NaijaSenti helpers that need numpy, so even the stdlib GoEmotions cells fail under bare python3; pyenv.py numpy (about 20 s here) was needed before the 7am replay."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/llm-coding-inference/LOG.md (7am Next)",
+      "why": "7am asked for a fresh good-coder category. With HF blocked an LLM coder was impossible.",
+      "did": "Used GoEmotions amusement and love with the repo's logistic word-presence coder, chosen before any draw or coder statistic",
+      "result": "The fresh cells were informative (J 0.59 and 0.76) and confirmed both the gain and the large-n undercoverage"
+    },
+    {
+      "file": "experiments/h7an_guard_first.py",
+      "why": "P1 failed, and the mechanism needed measuring, not guessing",
+      "did": "Added a post hoc 'conditional' mode after the pre-registered summary was read, labelled post hoc in the docstring, LOG, README, paper and post",
+      "result": "Located the failure in rare fallback draws (42 to 63% coverage) and found the mirror image in the shipped rule's guard-pass draws"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-fallback-that-only-fails-when-it-is-rare.md",
+    "research/llm-coding-inference/LOG.md (7an entry)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered 7an (commit 0970a2c9) before any draw. 45 cells x 5 rules x 1,000 draws in 5 min on 4 cores. P0, P3, P4, P5 supported; P1 refuted (92.4/92.5% at n 2,000); P2 refuted by MC noise (lexicon 2% n 600, 1.011, 0% cells). Default unchanged (FALLBACK_PSEUDO None). Local checks: test_llmci.py 32 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok. No agent doc in docs/reports: the LOG entry's Next line is the hand-off the next run reads.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a00f01f6-e7a4-50ce-ad9e-2eb139bd1b70",
+    "transcripts": 1,
+    "first": "2026-11-13T02:18:09Z",
+    "last": "2026-11-13T02:32:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 104,
+        "output": 34422,
+        "thinking": 8761,
+        "cache_read": 6591570,
+        "cache_write_5m": 0,
+        "cache_write_1h": 148465,
+        "api_equivalent_usd": 3.1949,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 104,
+      "output": 34422,
+      "thinking": 8761,
+      "cache_read": 6591570,
+      "cache_write_5m": 0,
+      "cache_write_1h": 148465,
+      "api_equivalent_usd": 3.1949,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 51,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.6,
+      "active_minutes": 14.6,
+      "model_minutes": 7.51,
+      "tool_minutes": 7.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician designing, pre-registering, running and writing up a 45-cell simulation milestone with a library change",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 313.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
