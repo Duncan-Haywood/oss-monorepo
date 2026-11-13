@@ -47,10 +47,21 @@ def preview_jpeg(data: bytes) -> Image.Image | None:
     return Image.open(io.BytesIO(best[1])).convert("L")
 
 
-def render_gray(raw, opcodes: bool, size: tuple[int, int]) -> np.ndarray:
-    w, h, px, _ = rd.develop(raw, rd.DevelopSettings(engine="numpy", half=True, opcodes=opcodes))
+def render_gray(raw, opcodes: bool, size: tuple[int, int], lens_db=None) -> np.ndarray:
+    settings = rd.DevelopSettings(engine="numpy", half=True, opcodes=opcodes, lens_db=lens_db, lens_fill=False)
+    w, h, px, report = rd.develop(raw, settings)
+    if lens_db is not None:
+        print("lensfun render: " + "; ".join(n for n in report.notes if "lens" in n))
     rgb = (np.frombuffer(px.tobytes(), dtype=np.uint16).reshape(h, w, 3) >> 8).astype(np.uint8)
+    turns = _UNROTATE.get(raw.ifd0.one(TAG_ORIENTATION, 1), 0)  # develop applies Orientation; the preview does not
+    if turns:
+        rgb = np.ascontiguousarray(np.rot90(rgb, turns))
     return np.asarray(Image.fromarray(rgb, "RGB").convert("L").resize(size, Image.BOX), dtype=np.float64)
+
+
+TAG_ORIENTATION = 274
+# np.rot90 turns (counter-clockwise) that undo the 90-degree EXIF orientations: 6 is shown turned clockwise, 8 the other way.
+_UNROTATE = {6: 1, 8: 3, 3: 2}
 
 
 def _ncc(a: np.ndarray, b: np.ndarray) -> float:
@@ -91,6 +102,10 @@ def match(ref: np.ndarray, img: np.ndarray, patch: int = 32, step: int = 24, sea
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("dng")
+    ap.add_argument(
+        "--lens-db",
+        help="lensfun XML folder: also match a render with lensfun's correction in place of the file's (opcodes off)",
+    )
     args = ap.parse_args(argv)
     with open(args.dng, "rb") as fh:
         data = fh.read()
@@ -109,6 +124,10 @@ def main(argv=None) -> int:
     rows = {}
     for on in (True, False):
         rows[on] = match(ref, render_gray(raw, on, (pw, ph)))
+    if args.lens_db:
+        from shootflow import lens_profiles
+
+        rows["lensfun"] = match(ref, render_gray(raw, False, (pw, ph), lens_profiles.load_db(args.lens_db)))
     # Predicted shift with the warp off: the opcode moves a pixel at radius r (green plane) to r * f(r), so the uncorrected
     # render shows the preview's feature at its source point. In preview pixels, centred on the preview.
     wp = plan.warps[0]
@@ -132,17 +151,26 @@ def main(argv=None) -> int:
             line.append(f"{np.median(pred):6.2f}")
         print("   ".join(line))
     # Radial fit: shift = a + b * radial unit vector component, i.e. the radial part of the shift as a fraction of radius.
-    for on in (True, False):
+    for on in rows:
         r = np.array(rows[on])
         if not len(r):
             continue
         ux, uy = r[:, 0] - cx, r[:, 1] - cy
         rad = (r[:, 2] * ux + r[:, 3] * uy) / np.maximum(np.hypot(ux, uy), 1e-9)
         tan = (-r[:, 2] * uy + r[:, 3] * ux) / np.maximum(np.hypot(ux, uy), 1e-9)
+        # The same radial shifts once the single zoom that best explains them (shift = z * radius) is taken out:
+        # what is left is distortion, not framing.
+        rr = np.hypot(ux, uy)
+        z = float((rad * rr).sum() / max((rr * rr).sum(), 1e-9))
+        left = rad - z * rr
         print(
-            f"warp {'on ' if on else 'off'}: {len(r)} patches, radial shift median {np.median(rad):+.2f} px, "
+            f"warp {on if on == 'lensfun' else ('on ' if on else 'off')}: {len(r)} patches, radial shift median {np.median(rad):+.2f} px, "
             f"mean |radial| {np.mean(np.abs(rad)):.2f}, mean |tangential| {np.mean(np.abs(tan)):.2f}, "
             f"mean NCC {np.mean(r[:, 4]):.4f}"
+        )
+        print(
+            f"  after the best zoom ({1 + z:.5f}): mean |radial| {np.mean(np.abs(left)):.2f} px, "
+            f"max {np.max(np.abs(left)):.2f}"
         )
     return 0
 
