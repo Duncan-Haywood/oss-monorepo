@@ -1,2 +1,2 @@
-import { self } from './self.mjs';
-export const self = 1;
+import * as me from './self.mjs';
+export const self = () => me;

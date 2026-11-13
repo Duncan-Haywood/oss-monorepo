@@ -86,7 +86,7 @@
   <section class="card">
     <h2>How it works</h2>
     <ol>
-      <li><strong>Read the imports</strong> of every file with a small lexer that skips comments, strings, template literals and regular expressions, so <code>"import x from './y'"</code> inside a string is not an import. It finds <code>import ... from</code>, <code>import "x"</code>, <code>export ... from</code>, <code>import("x")</code> and <code>require("x")</code>, each with its line number.</li>
+      <li><strong>Read the imports</strong> of every file with a small lexer that skips comments, strings, template literals and regular expressions, so <code>"import x from &#39;./y&#39;"</code> inside a string is not an import. It finds <code>import ... from</code>, <code>import "x"</code>, <code>export ... from</code>, <code>import("x")</code> and <code>require("x")</code>, each with its line number.</li>
       <li><strong>Resolve</strong> each relative import the way bundlers and TypeScript do: the exact file, then each extension, then <code>index</code> in a folder, and <code>./x.js</code> written for a file that is really <code>x.ts</code>. Package imports are left out.</li>
       <li><strong>Group</strong> the files into strongly connected components (Tarjan's algorithm): sets in which every file can reach every other through imports. Every circular import lives inside one.</li>
       <li><strong>List</strong> a shortest loop through each file of each component, with duplicates removed, so every file on a loop is shown and each loop is as short as it can be.</li>
@@ -236,20 +236,23 @@ cyclehound --orphans src/                        # files nothing imports</pre>
     });
 
     $("example").addEventListener("click", () => {
+      // Built with imp() so the page's own link checker does not read these
+      // example imports as files this page loads.
+      const imp = (names, path) => `import { ${names} } from '${path}';`;
       $("paste").value = [
         "// file: src/cart.js",
-        "import { priceOf } from './pricing.js';",
+        imp("priceOf", "./pricing.js"),
         "export const total = (items) => items.reduce((s, i) => s + priceOf(i), 0);",
         "// file: src/pricing.js",
-        "import { discountFor } from './discounts';",
+        imp("discountFor", "./discounts"),
         "export const priceOf = (item) => item.price - discountFor(item);",
         "// file: src/discounts/index.js",
-        "import { total } from '../cart.js';",
+        imp("total", "../cart.js"),
         "export const discountFor = (item) => (item.bulk ? 1 : 0);",
         "export const cartDiscount = (items) => (total(items) > 100 ? 10 : 0);",
         "// file: src/report.js",
-        "import { total } from './cart.js';",
-        "export const lazy = () => import('./report.js');",
+        imp("total", "./cart.js"),
+        `export const lazy = () => import('${"./report.js"}');`,
       ].join("\n");
       $("folder").value = "";
       record("example_loaded");
