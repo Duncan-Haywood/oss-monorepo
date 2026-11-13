@@ -3,7 +3,7 @@ title: "The choir's changes of singer were not cameos"
 seo_title: "Penalising short section entrances in a chant choir split"
 date: 2026-11-13
 tags: [music, gregorian-chant, choir, algorithms, open-source, chant-forge]
-description: "A three-section chant split had three times the changes of singer. A cost per entrance was meant to cut the short ones. On 67 chants, there were almost no short ones."
+description: "A three-section chant split tripled changes of singer. A cost per entrance was meant to cut the short ones; on 67 chants there were almost none."
 ---
 
 Chant Forge splits a wide Gregorian chant between the sections of a men's choir: each phrase goes to every section that can sing it. Earlier today it gained a third section, baritones, and with deliberately narrow (octave-wide) ranges the notes one section carries alone fell from 89% to 30%. The price was changes of singer: 484 across the corpus where two sections had 166.
