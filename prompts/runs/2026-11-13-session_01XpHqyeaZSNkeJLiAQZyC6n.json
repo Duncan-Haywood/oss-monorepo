@@ -27,13 +27,17 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
   "errors": [
     {
       "what": "First full run of platform/pages tests: 158 failures, all from the new post's description (170 chars). I had already shortened it, but the suite read the file before the edit. A rerun after the fix was clean.",
+      "fixed": true
+    },
+    {
+      "what": "CI changed-ventures failed: the new docs/reports note had no `kind` front matter (doc_index.py check). No pull-request workflow runs that check, so it surfaced only in the unwired tree checks. Added the front matter.",
       "fixed": true
     }
   ],
@@ -46,6 +50,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "The front-matter checker is platform/ci/check_post_frontmatter.py. I guessed check_post_front_matter.py first, because no guide names the script; the writing guide could link it."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "The prompt asks for a docs/reports note but doesn't say it needs `kind`/`date` front matter (docs/reports/README.md). CI caught it after the push."
     }
   ],
   "deviations": [
