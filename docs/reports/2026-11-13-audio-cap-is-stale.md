@@ -1,7 +1,7 @@
 ---
 kind: analysis
 subjects: [hearth-and-horizon, saints-by-candlelight]
-topics: [audio, hosting, creative]
+topics: [hosting, guidance-system, run-records]
 date: 2026-11-13
 title: The creative track's 400 MB audio cap guards a limit the site no longer has
 description: Audio left the deploy artifact on 2026-10-24, but 444 of 539 creative runs still shipped text only under a cap written for GitHub Pages.
