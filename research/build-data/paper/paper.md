@@ -378,6 +378,30 @@ time against a predicted 55%). For a practitioner the result is a check, not a r
 feature helps a borrowed model's build-time tail must be measured per target city, on cohorts old
 enough to be seen in full.
 
+Sessions 80 to 82 asked where that per-city difference comes from and whether a rule read from the
+source cities alone can remove it (`../src/class_shift.py`, `../src/censored_eval.py` with
+`--classes`; `../results/minsup_summary.json`, `../results/minsupna_summary.json`; five predictions
+written before the runs in each session, plus one post-hoc check marked as such). The work-type class
+fills San Francisco's alteration class, 98% of its permits, with 271,672 source rows, and fills
+Austin's electrical, mechanical and plumbing classes, 76% of its permits and 77 to 86% of its cost,
+with only 42 to 480 Seattle rows whose q0.9 build times are 1.6 to 2.7 times Austin's own. Three fold
+rules were then tried on test years 2021 and 2022, each fixed on source data only, each scored on all
+rows of cohorts old enough to be seen in full. Folding a class with fewer than k = 1,000 source
+training rows into "other" (k chosen on 2020 from 100, 1,000 and 10,000) wins back 9.3 and 4.6 days of
+Austin's q0.9 cost and costs 8.5 and 4.4 days at the median. Folding the same classes to a missing
+category instead reverses that trade: the median cost goes (+1.0 and -1.8 days) and the tail gain goes
+with it (-1.2 and +1.1). The reason is that a missing category is not an unseen one. The sources' 721
+and 752 thin-class rows still carry the missing label in training, so they train the branch LightGBM
+routes both missing and never-seen categories down. Dropping those source rows recovers the tail
+(-13.0 and -5.4 days, 11.8 and 6.5 better than the missing fold, both intervals below zero) and
+returns the median cost (+4.6 and +5.6). Elsewhere all three rules are neutral: San Francisco keeps
+its whole 15.7-to-22.7-day gain (changes of at most 0.4 days) and Seattle does not move. Across all
+four treatments of Austin's thin classes, including leaving them out of the class vocabulary
+altogether, the plain permit-type class beats every fold rule in Austin at both quantiles in both
+years, so the cost is not confined to the thin classes: naming work types also changes which source
+rows sit beside the target city's remaining permits. A rule read from source counts alone has now
+failed three ways, and the class configuration has to be chosen per target city.
+
 Agreement beyond chance (Cohen's kappa, `python3 ../src/desc_eval.py kappa`) is 0.79 in Chicago and
 0.90 in Seattle on the held-out year for the revised rules, against 0.47 and 0.58 for the original.
 

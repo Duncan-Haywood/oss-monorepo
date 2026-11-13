@@ -250,6 +250,24 @@ files byte-for-byte equal (324 lines with 6 guidance lines; 37 LRC lines). Witho
 note rows only. `browser-safe.test.mjs` checks both modules run without `Buffer`. Whether singers use the sheet is
 still for a choir to say.
 
+### Phrase markers and stems on the studio page (2026-11-13, later)
+
+The page now has a "Phrase markers" option and a "Download stems (ZIP of WAVs)" button, so the whole DAW hand-off
+the command line offers is in the browser. Markers put a MIDI marker (meta 0x06) at each phrase start, beside the
+section locators the MIDI already carried. The stems button renders the page's MIDI once more with
+`renderMidi(midi, { stems: true })` (only when clicked: a second render costs about as much as the preview) and zips
+one 16-bit WAV per part as `chant-<voice>.wav`. The ZIP writer is the new browser-safe `files.mjs`: stored entries
+(WAV barely deflates), CRC-32, UTF-8 names and a fixed date, so the same stems give the same archive; the page's WAV
+writer moved there too. `files.test.mjs` (4 tests) checks the WAV bytes against `render.mjs`'s `encodeWav`, the CRC
+against Node's zlib, the archive against Python's `zipfile` and `unzip -t`, and that the module needs no `Buffer`.
+
+`eval/browser-e2e.mjs` (89 checks, all pass) drives it in headless Chromium on the six-verse Pange lingua over EDM
+with sections, an a cappella first verse and a whole-tone lift: the downloaded MIDI equals
+`cli.mjs ... --markers -o` byte for byte (16,673 bytes, 36 phrase markers); the ZIP's four stems (bass, choir, chords,
+drums) equal `render-cli.mjs chant.mid --stems DIR` file for file; and the stems sum to the downloaded preview WAV to
+within 2 steps of 32,767 at every sample (each file rounds to 16 bits on its own). Whether the markers land where a
+producer wants them and whether the stems import cleanly is for someone with a DAW to say.
+
 ## Mix and master check
 
 ```sh

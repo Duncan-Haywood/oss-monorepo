@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVLpHCVJbMwsexJBmmk",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on revenue-generating software products (ventures)",
+  "input_sha256": "eb680dc30141837f2bb5c16614eda8dee2ce5ebee56854eea5c51e75e778ed26",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T13:20:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "chant-forge (flagship 11): phrase markers and a stems ZIP as studio-page downloads",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15501",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-stems-from-a-browser-tab.md"
+  ],
+  "goal": "Close the last buildable gap between chant-forge's studio page and its CLI, so a producer can take a chant to a DAW from the browser.",
+  "notes": "New browser-safe files.mjs (WAV + stored-ZIP writer, no Buffer/zlib); index.html gained a 'Phrase markers' select and a 'Download stems (ZIP of WAVs)' button. Verified here: node --test files.test.mjs browser-safe.test.mjs (8 pass); python3 platform/ci/run_venture_tests.py chant-forge -> ok (26.0s), 1 suite, 0 failed; node eval/browser-e2e.mjs -> all 89 checks passed, including the three new ones (page MIDI == cli.mjs --markers byte for byte, 16673 bytes/36 markers; the ZIP's four stems == render-cli.mjs --stems file for file; stems sum to the preview WAV within 2 of 32767). flagships.yaml `next:` rewritten: the landed item removed, a cli.mjs --stems option added in its place. llms.txt updated.",
+  "corrections": [],
+  "redteam": null
+}

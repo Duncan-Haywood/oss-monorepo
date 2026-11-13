@@ -82,6 +82,9 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
 - 2026-11-13, last: the studio page offers the cue sheet and timed lyrics (LRC) as downloads beside MIDI/WAV and
   shows the section guidance lines under the summary; `eval/browser-e2e.mjs` (86 checks) finds the page's files
   byte-for-byte equal to the CLI's `--cues`/`--lrc` for the same options.
+- 2026-11-13, later: phrase markers and a stems ZIP on the studio page (`files.mjs`: browser-safe WAV and stored ZIP
+  writer, 4 tests); `eval/browser-e2e.mjs` (89 checks) finds the MIDI equal to `--markers` and the stems equal to
+  `render-cli.mjs --stems`, summing to the preview within 2 steps of 32,767.
 
 ## Next
 
