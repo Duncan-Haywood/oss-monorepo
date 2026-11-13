@@ -85,7 +85,10 @@ class FakeVentures(unittest.TestCase):
             "import test from 'node:test'; import http from 'node:http';"
             "test('t', async () => { const s = http.createServer(); await new Promise((r) => s.listen(0, r));"
             " throw new Error('assertion that skips the close'); s.close(); });"})
-        with mock.patch.object(rvt, "SUITE_TIMEOUT", 20):
+        # FAIL_QUIET is 10 s in CI; 1 s here exercises the same stop and kept
+        # this test from being half of the file's 22 s (perf run 2026-11-13).
+        with mock.patch.object(rvt, "SUITE_TIMEOUT", 20), \
+                mock.patch.object(rvt, "FAIL_QUIET", 1):
             _, ok, out, secs = rvt.run("srv")
         self.assertFalse(ok)
         self.assertNotIn("timed out", out)
