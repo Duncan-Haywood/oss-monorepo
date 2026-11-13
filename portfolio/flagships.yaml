@@ -256,22 +256,23 @@ flagships:
       closed pooled-prior work, the sparse long-list overclaim (f), the
       uncapped weighted schemes (g), half-time salience (b), mid-session
       blocks (d), the upper-quantile panel curve, the per-survey
-      threshold with the step test and the later-pass median curve (d4)
-      are written up there. Latest (2026-11-13, "A later-pass curve that
-      drift cannot lift"; docs/fast-blocks-later-q-2026-11-13.jsonl):
-      ?drop=fast-blocks reads passes 2-3 against the median of people
-      not yet flagged (FAST_BLOCK_LATER_Q); under 0.6 log personal drift
-      honest flags 7.5% to 4.8% (careless cells 8.3% to 5.2%), same
-      ceiling share; no change at drift 0. Next, most valuable first:
-      (c) the first real survey's answers: msToAnswer against the
-      answer-time model, the spread of each person's own log-time slope
-      (decides how much of the 4.8% is real and step test alone vs the
-      shipped pair), whether real people have warm-ups, blocks or
-      spread-out carelessness, and how noisy real pairwise answers are
-      (scripts/coin-flip-gate-real.ts --honest-lapse); (d5) the
-      remaining drift flags come from one person's own noisy drift: a
-      per-person test (e.g. a step-vs-line likelihood with a minimum
-      step share) that a 40-answer random walk cannot pass; (d3)
+      threshold with the step test, the later-pass median curve (d4) and
+      the net-step test (d5) are written up there. Latest (2026-11-13,
+      "A step net of the person's own trend";
+      docs/fast-blocks-net-step-2026-11-13.jsonl): a block must leave a
+      step of at least the gap threshold on top of the person's own
+      line (FAST_BLOCK_NET_SHARE); under 0.6 log drift honest flags 5.4%
+      to 2.0%, same ceiling share; drift 0 keeps 97% vs 99%. A pace that
+      wanders as a random walk still fools it (--person-walk 0.08: 20%
+      honest flagged). Next, most valuable first: (c) the first real
+      survey's answers: msToAnswer against the answer-time model, how
+      much each person's own pace drifts or wanders (decides whether
+      fast-blocks should be offered at all), whether real people have
+      warm-ups, blocks or spread-out carelessness, and how noisy real
+      pairwise answers are (scripts/coin-flip-gate-real.ts
+      --honest-lapse); (d6) a block test a random-walk pace cannot pass
+      (e.g. a change-point model against a local-level model, or a
+      sup-F threshold set from each panel's own slow turns); (d3)
       position bias that starts mid-session; (h) share-drop beat both
       pace cuts at q = 1 but taxes a camp by up to 0.030: decide on a
       real panel's times.
