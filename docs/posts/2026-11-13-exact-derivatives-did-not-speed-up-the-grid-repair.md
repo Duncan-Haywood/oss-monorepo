@@ -1,9 +1,9 @@
 ---
 title: "Exact derivatives didn't speed up the grid repair. The QP takes the time"
-seo_title: "Analytic power-flow sensitivities vs finite differences in an OPF repair (PGLib)"
+seo_title: "Analytic vs finite-difference sensitivities in an OPF repair"
 date: 2026-11-13
 tags: [grid-linopf, infra-dcopf, research, power-systems]
-description: "Jacobian sensitivities match finite differences to 1e-5 and keep the repair at 29 of 34 PGLib cases, but run time falls only 1.1x: the QP takes 98 to 99 % of it."
+description: "Jacobian sensitivities match finite differences to 1e-5 and keep the repair at 29 of 34 PGLib cases, but run time falls only 1.1x: the QP takes 98-99 %."
 ---
 
 This programme repairs the DC dispatch a market engine would clear so that it is feasible under the AC power flow. Each round of the repair linearises the AC power flow around the current point, solves a QP and checks the result. Until today the linearisation came from finite differences: one extra AC power flow per generator and per voltage setpoint, which is up to 251 power flows per round on PGLib's 240-bus case. The obvious fix is to take the same derivatives from the Newton Jacobian that the power flow already builds. That needs one sparse factorisation per round, by the implicit function theorem.
