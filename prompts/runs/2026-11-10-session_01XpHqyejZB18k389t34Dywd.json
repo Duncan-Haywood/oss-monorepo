@@ -25,7 +25,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 19,
@@ -55,7 +55,7 @@
     "portfolio/quality/reflections/2026-11-10-where-quality-drops-off.md"
   ],
   "goal": null,
-  "notes": "Mode: reflect (first reflection). Seed: none (no subjects drawn). Corpus: 183 audit files, 158 subjects, 901 defects. Sampled share meeting bar: 25 of 147 (12%-24%). Findings: 69 of 130 below-bar subjects one point short on claims or verification; 65% of audits found a surviving seeded mutation; 12 of 183 audits list a fix PR; 37% of defects reappear; 6.6% of 2,423 subjects ever audited; taxonomy rules agree with 60 hand labels 75%. Verified: test_quality_metrics.py 18 OK, test_quality_audit.py OK, quality_audit.py validate 0 problems, check_post_frontmatter ok. CI on PR 14430: validate red on (a) this record before it was filled, (b) portfolio/flagships.yaml next: over 2000 chars for changepoint-detector and open-tennis-robots, pre-existing on main and untouched here. run_workflow_locally --for-changes ran the many workflows platform/ci paths trigger; einvoice-preflight cli-test failed locally only because the package is not pip-installed in this container (CI installs it). Control-plane follow-up (routing quality 0.05->0.20, prompt rewrite with modes, backlog P066-P069) goes in a second PR awaiting owner approval.",
+  "notes": "Mode: reflect (first reflection). Seed: none (no subjects drawn). Corpus: 183 audit files, 158 subjects, 901 defects. Sampled share meeting bar: 25 of 147 (12%-24%). Findings: 69 of 130 below-bar subjects one point short on claims or verification; 65% of audits found a surviving seeded mutation; 12 of 183 audits list a fix PR; 37% of defects reappear; 6.6% of 2,423 subjects ever audited; taxonomy rules agree with 60 hand labels 75%. Verified: test_quality_metrics.py 18 OK, test_quality_audit.py OK, quality_audit.py validate 0 problems, check_post_frontmatter ok. CI on PR 14430: validate red on (a) this record before it was filled, (b) portfolio/flagships.yaml next: over 2000 chars for changepoint-detector and open-tennis-robots, pre-existing on main and untouched here. run_workflow_locally --for-changes ran the many workflows platform/ci paths trigger; einvoice-preflight cli-test failed locally only because the package is not pip-installed in this container (CI installs it). Control-plane follow-up (routing quality 0.05->0.20, prompt rewrite with modes, backlog P066-P069) goes in a second PR awaiting owner approval. Update after merge: the local --for-changes sweep is void (its own UNSTABLE CHECKOUT warning: HEAD moved during the run); GitHub CI on the final head 89a1ffe was all green and PR 14430 merged as 157cb12a. Two main-red fixes rode along: flagships.yaml next: caps (main later landed its own trim, kept) and check_post_frontmatter's crash under prompts-ci's sparse checkout (main landed an equivalent fix, kept). Control-plane PR follows: routing quality 0.05->0.20 (ventures and research 0.27->0.20, process 0.09->0.08), prompts/quality/prompt-0.md rewritten for the four modes, prompt.md track line, backlog P066-P069.",
   "corrections": [],
   "redteam": null
 }

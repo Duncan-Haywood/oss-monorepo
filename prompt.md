@@ -79,8 +79,9 @@ the last review (`review_when_due`). If an open pull request titled `prompts: re
 exists, another run has claimed that review; route again with `--skip-review`.
 
 `explore` (free choice), `creative` (stories, podcasts), `polish` (design, SEO
-and AEO, until a set date), `perf` (performance) and `quality` (seeded-random
-audits of finished work against a senior professional's bar, `portfolio/quality/`)
+and AEO, until a set date), `perf` (performance) and `quality` (audits of finished
+work against a senior professional's bar, a full-repository census, fixes from
+the open-defect queue and weekly reflections on the process, `portfolio/quality/`)
 each get a share of runs.
 
 ## 2. Work, and land it

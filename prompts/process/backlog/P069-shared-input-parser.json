@@ -1,0 +1,24 @@
+{
+  "id": "P069",
+  "title": "One tested input parser for the calculator template instead of a copy per venture",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "133 input-handling defects: blank fields silently replaced by the example value, '1,200' split on the comma, quoted CSV ignored, month-first dates assumed. The same bug recurs across calculators, a sign of copied template code.",
+  "evidence": [
+    "input-handling defects: 133 of 901 (python3 platform/ci/quality_audit.py metrics --md, 2026-11-10)"
+  ],
+  "change": "A platform module (thousands separators, blanks as errors not defaults, quoted CSV, explicit date order) with tests, used by the venture template and adopted by existing calculators when touched.",
+  "touches": [
+    "platform/",
+    "ventures/"
+  ],
+  "metric": "input-handling defects in new audits",
+  "baseline": "133 of 901",
+  "opened": "2026-11-10",
+  "source": "portfolio/quality/reflections/2026-11-10-where-quality-drops-off.md",
+  "pr": null,
+  "result": null,
+  "history": []
+}

@@ -1,0 +1,27 @@
+{
+  "id": "P066",
+  "title": "Definition of done: a pinned-number test against an outside source and one seeded mutation before merge",
+  "status": "open",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "Tests check what the author believed. In 103 of 158 audits (65%, Wilson 57-72%) at least one hand-seeded bug in core logic survived the subject's own tests; untested-core is the largest named defect category (155). Verification fails for 49 of 64 sampled research projects.",
+  "evidence": [
+    "audits with a surviving seeded mutation: 103 of 158 (python3 platform/ci/quality_audit.py metrics --md, 2026-11-10)",
+    "verification gate failures among below-bar subjects: 84 of 130"
+  ],
+  "change": "Add to the venture and research definition of done: each headline output has a test pinning one value from a source the author did not write (publication table, standard's worked example, hand calculation shown in the test), named in the README; and before merge, seed one mutation in core logic (a small wrapper over prompts/redteam.py --target on the subject's core file) and record whether a test failed in the run record.",
+  "touches": [
+    "PRODUCT_PLAYBOOK.md",
+    "ventures/CLAUDE.md",
+    "research/CLAUDE.md",
+    "prompts/redteam.py"
+  ],
+  "metric": "share of audits with a surviving seeded mutation",
+  "baseline": "65% (103 of 158)",
+  "opened": "2026-11-10",
+  "source": "portfolio/quality/reflections/2026-11-10-where-quality-drops-off.md",
+  "pr": null,
+  "result": null,
+  "history": []
+}
