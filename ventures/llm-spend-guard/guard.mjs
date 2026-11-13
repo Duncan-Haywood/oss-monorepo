@@ -164,8 +164,10 @@ export function costUsd(price, usage = {}) {
 /**
  * A deliberately high input-token estimate: UTF-8 bytes / 3 of the JSON the
  * request sends. Real tokenisers average nearer 4 bytes per token for English,
- * so the hold errs toward refusing a call that would just fit, never toward
- * letting one through that would not.
+ * so for text the hold errs toward refusing a call that would just fit. It
+ * counts only the JSON bytes: an image or a document sent by URL or file id
+ * is a few dozen bytes here and thousands of tokens upstream, so such a call
+ * can cost more than its hold (quality audit round 62).
  */
 export function estimateInputTokens(input) {
   if (input == null) return 0;

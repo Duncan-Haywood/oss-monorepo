@@ -100,6 +100,12 @@ export function createHandler({ guard, upstreams = {}, proxyTokens = [], adminTo
     }
 
     const d0 = describeRequest(provider, body);
+    // OpenAI bills completion tokens for every one of n choices, and the hold
+    // covers one; refuse n > 1 rather than let a call cost n times its hold.
+    if (provider === 'openai' && body && body.n != null && body.n !== 1) {
+      log({ type: 'refused', provider, model: d0.model, status: 400, reasons: ['multiple-choices'] });
+      return send(res, 400, blockedBody(provider, { reasons: [{ code: 'multiple-choices', message: 'n other than 1 is not supported: the hold covers one choice, and OpenAI bills output for each' }] }), { 'x-guard-blocked': 'multiple-choices' });
+    }
     const scope = {
       user: req.headers['x-guard-user'],
       feature: req.headers['x-guard-feature'],

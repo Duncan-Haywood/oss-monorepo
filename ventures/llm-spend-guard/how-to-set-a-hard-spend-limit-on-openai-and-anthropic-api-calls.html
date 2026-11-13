@@ -37,7 +37,7 @@
   </table>
 
   <h2>Hold the worst case, then settle the real cost</h2>
-  <p>A guard that counts spend after responses come back is too late under concurrency: twenty parallel calls all see the same remaining budget. LLM Spend Guard prices each call's worst case before it is sent: a deliberately high input estimate (bytes of the request divided by three) plus the full output cap. It holds that amount against every budget the call belongs to. The real cost from the response's <code>usage</code> then replaces the hold. A call that never reports back is charged at its hold, never at zero.</p>
+  <p>A guard that counts spend after responses come back is too late under concurrency: twenty parallel calls all see the same remaining budget. LLM Spend Guard prices each call's worst case before it is sent: a deliberately high input estimate (bytes of the request divided by three) plus the full output cap. It holds that amount against every budget the call belongs to. The real cost from the response's <code>usage</code> then replaces the hold. A call that never reports back is charged at its hold, never at zero. This holds for text input. Images and documents (above all ones sent by URL or file id), server-side tool fees such as web search, and long-context or one-hour-cache price tiers are not in the estimate, so a call carrying them can cost more than its hold.</p>
 
   <h2>Budgets: scope × window</h2>
   <p>Each budget has a <strong>scope</strong> (<code>global</code>, <code>user</code>, <code>feature</code>, <code>key</code>, <code>run</code>), a <strong>window</strong> (UTC <code>minute</code>, <code>hour</code>, <code>day</code>, <code>month</code>, or <code>total</code>) and a dollar limit, a call limit or both. A per-run <code>total</code> call limit is a step cap for an agent. Calls with no user still count, in one shared <code>(none)</code> bucket, so anonymous traffic cannot slip past a per-user cap.</p>
@@ -80,7 +80,7 @@
     <h3>Is the provider's own spend limit enough?</h3>
     <p>Keep it on: it is the backstop that works even when your code is wrong. But it sees the whole organisation or project, not one user, feature or agent run, and depending on the provider and setting it may alert rather than refuse, or act after usage is counted. A guard in your own path can refuse one runaway user or run while everyone else keeps working.</p>
     <h3>Why reserve the worst case before a call?</h3>
-    <p>Counting spend after responses arrive lets every concurrent call see the same remaining budget, so twenty parallel calls can all start under a limit that only one of them fits. Holding each call's worst case (input estimate plus full output cap) first means the budget is never promised twice.</p>
+    <p>Counting spend after responses arrive lets every concurrent call see the same remaining budget, so twenty parallel calls can all start under a limit that only one of them fits. Holding each call's worst case (input estimate plus full output cap) first means the budget is never promised twice for text calls; the estimate does not see images, documents or server-side tool fees.</p>
     <h3>What should a first policy look like?</h3>
     <p>A global daily and monthly dollar cap, a smaller per-user daily cap, a per-run total and step cap for agents, an output-token ceiling, a repeat breaker per run, and a calls-per-minute breaker globally. Start it in observe mode for a week, read what it would have refused, then switch to enforce.</p>
   </section>

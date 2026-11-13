@@ -181,3 +181,31 @@ test('unknown routes and bad bodies', async () => {
     assert.equal(bad.status, 400);
   } finally { h.close(); }
 });
+
+// Quality audit round 62 (portfolio/quality/audits/2026-11-13-llm-spend-guard.json).
+test('openai n > 1 is refused before upstream: the hold covers one choice', async () => {
+  const h = await harness({ budgets: [{ id: 'd', limitUsd: 1 }] }, anthropicOk);
+  try {
+    const res = await post(`${h.base}/openai/v1/chat/completions`, { model: 'gpt-test', n: 4, max_completion_tokens: 100, messages: [{ role: 'user', content: 'x' }] }, { authorization: 'Bearer sk-c' });
+    assert.equal(res.status, 400);
+    assert.equal(res.headers.get('x-guard-blocked'), 'multiple-choices');
+    assert.equal((await res.json()).error.code, 'multiple-choices');
+    assert.equal(h.up.seen.length, 0);
+  } finally { h.close(); }
+});
+
+test('a stream the provider cuts off is charged its whole hold, not the partial usage', async () => {
+  const h = await harness({ budgets: [{ id: 'd', limitUsd: 1 }] }, (body, res) => {
+    res.writeHead(200, { 'content-type': 'text/event-stream' });
+    res.write('data: {"choices":[],"usage":{"prompt_tokens":10,"completion_tokens":1}}\n\n');
+    setTimeout(() => res.socket.destroy(), 20);
+  });
+  try {
+    const res = await post(`${h.base}/openai/v1/chat/completions`, { model: 'gpt-test', stream: true, max_completion_tokens: 500, messages: [{ role: 'user', content: 'x' }] }, { authorization: 'Bearer sk-c' });
+    await res.text().catch(() => {});
+    await new Promise((r) => setTimeout(r, 50));
+    const b = h.guard.status().budgets[0];
+    // Partial usage would be 10 x $1 + 1 x $4 per million = $0.000014; the hold covers 500 output tokens.
+    assert.ok(b.spentUsd >= 500 * 4 / 1e6, `spent ${b.spentUsd}`);
+  } finally { h.close(); }
+});

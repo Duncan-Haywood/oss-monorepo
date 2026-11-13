@@ -23,8 +23,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: With worst-case holds, calls in flight at the same time can never together spend past a dollar budget (guard.test.mjs, "holds count against the budget").
-    status: supported
-    checked: 2026-10-16
+    # True for text input. Quality audit round 62 (portfolio/quality/audits/2026-11-13-llm-spend-guard.json):
+    # 20 concurrent calls with a PDF sent by URL each held about $0.016 and together spent $15.31 against a $1 budget.
+    status: refuted
+    checked: 2026-11-13
     evidence: in-repo
   - claim: Agent builders will adopt the per-run repeat breaker as the cheapest guard against stuck tool-call loops.
     status: untested
