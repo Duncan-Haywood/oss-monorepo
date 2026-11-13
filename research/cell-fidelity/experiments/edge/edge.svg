@@ -1,0 +1,217 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 350" width="940" height="350" font-family="sans-serif" font-size="12">
+<style>text{fill:#222} .s{font-size:11px;fill:#555} @media (prefers-color-scheme: dark){text{fill:#ddd} .s{fill:#aaa}}</style>
+<text x="12" y="22" style="font-weight:600">Where the DFN@100 best sits: thermodynamic energy U against the salt number r_kt (fresh, Sobol seed 9)</text>
+<text class="s" x="12" y="40">darker = higher DFN Wh/kg at cycle 100; ring = first (U, r_kt) Pareto layer; star = pool best; dashed = r_kt 0.10 flag</text>
+<rect x="60" y="60" width="250" height="220" fill="none" stroke="#888"/>
+<line x1="135.0" y1="60" x2="135.0" y2="280" stroke="#c4473a" stroke-dasharray="4 3"/>
+<circle cx="153.1" cy="125.2" r="4" fill="rgb(46,46,76)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="148.5" cy="213.5" r="4" fill="rgb(109,109,139)"/>
+<circle cx="211.0" cy="267.7" r="4" fill="rgb(174,174,204)"/>
+<circle cx="101.2" cy="136.1" r="4" fill="rgb(119,119,149)"/>
+<circle cx="77.3" cy="87.8" r="4" fill="rgb(220,220,250)"/>
+<circle cx="286.5" cy="250.1" r="4" fill="rgb(161,161,191)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="150.1" cy="144.1" r="4" fill="rgb(49,49,79)"/>
+<circle cx="215.9" cy="171.8" r="4" fill="rgb(40,40,70)"/>
+<circle cx="108.7" cy="120.7" r="4" fill="rgb(84,84,114)"/>
+<circle cx="189.9" cy="178.2" r="4" fill="rgb(48,48,78)"/>
+<circle cx="187.9" cy="236.1" r="4" fill="rgb(140,140,170)"/>
+<circle cx="131.5" cy="141.6" r="4" fill="rgb(49,49,79)"/>
+<circle cx="122.5" cy="124.6" r="4" fill="rgb(46,46,76)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="197.6" cy="233.0" r="4" fill="rgb(117,117,147)"/>
+<circle cx="169.7" cy="159.6" r="4" fill="rgb(51,51,81)"/>
+<circle cx="105.4" cy="91.9" r="4" fill="rgb(101,101,131)"/>
+<circle cx="112.8" cy="94.6" r="4" fill="rgb(38,38,68)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="202.3" cy="168.7" r="4" fill="rgb(59,59,89)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="193.0" cy="183.1" r="4" fill="rgb(65,65,95)"/>
+<circle cx="97.8" cy="151.2" r="4" fill="rgb(141,141,171)"/>
+<circle cx="103.6" cy="79.5" r="4" fill="rgb(111,111,141)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="292.7" cy="267.7" r="4" fill="rgb(164,164,194)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="109.5" cy="98.8" r="4" fill="rgb(101,101,131)"/>
+<circle cx="171.9" cy="166.6" r="4" fill="rgb(53,53,83)"/>
+<circle cx="107.3" cy="125.3" r="4" fill="rgb(106,106,136)"/>
+<circle cx="226.8" cy="183.3" r="4" fill="rgb(69,69,99)"/>
+<circle cx="201.8" cy="181.6" r="4" fill="rgb(85,85,115)"/>
+<circle cx="148.2" cy="132.5" r="4" fill="rgb(42,42,72)"/>
+<circle cx="103.4" cy="100.1" r="4" fill="rgb(67,67,97)"/>
+<circle cx="167.4" cy="224.9" r="4" fill="rgb(121,121,151)"/>
+<circle cx="210.2" cy="194.5" r="4" fill="rgb(92,92,122)"/>
+<circle cx="133.8" cy="181.7" r="4" fill="rgb(77,77,107)"/>
+<circle cx="87.8" cy="75.8" r="4" fill="rgb(198,198,228)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="232.6" cy="171.3" r="4" fill="rgb(68,68,98)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="212.6" cy="210.4" r="4" fill="rgb(96,96,126)"/>
+<circle cx="191.6" cy="150.5" r="4" fill="rgb(50,50,80)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="113.0" cy="101.7" r="4" fill="rgb(68,68,98)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="168.4" cy="270.0" r="4" fill="rgb(152,152,182)"/>
+<circle cx="164.6" cy="186.9" r="4" fill="rgb(87,87,117)"/>
+<circle cx="113.0" cy="152.7" r="4" fill="rgb(91,91,121)"/>
+<circle cx="175.1" cy="154.0" r="4" fill="rgb(30,30,60)"/>
+<circle cx="166.9" cy="161.4" r="4" fill="rgb(59,59,89)"/>
+<circle cx="203.9" cy="197.0" r="4" fill="rgb(111,111,141)"/>
+<circle cx="96.0" cy="119.4" r="4" fill="rgb(138,138,168)"/>
+<circle cx="106.9" cy="88.9" r="4" fill="rgb(75,75,105)"/>
+<circle cx="246.6" cy="198.6" r="4" fill="rgb(99,99,129)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="146.0" cy="139.0" r="4" fill="rgb(90,90,120)"/>
+<circle cx="167.7" cy="184.1" r="4" fill="rgb(59,59,89)"/>
+<circle cx="108.2" cy="82.5" r="4" fill="rgb(84,84,114)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="265.1" cy="229.9" r="4" fill="rgb(103,103,133)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="184.7" cy="160.3" r="4" fill="rgb(86,86,116)"/>
+<circle cx="115.8" cy="141.8" r="4" fill="rgb(64,64,94)"/>
+<circle cx="95.4" cy="76.7" r="4" fill="rgb(108,108,138)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="291.6" cy="257.7" r="4" fill="rgb(176,176,206)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="174.5" cy="141.5" r="4" fill="rgb(33,33,63)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="108.6" cy="152.3" r="4" fill="rgb(105,105,135)"/>
+<circle cx="133.9" cy="154.2" r="4" fill="rgb(80,80,110)"/>
+<circle cx="104.9" cy="180.4" r="4" fill="rgb(131,131,161)"/>
+<circle cx="255.9" cy="234.7" r="4" fill="rgb(146,146,176)"/>
+<circle cx="113.4" cy="145.9" r="4" fill="rgb(75,75,105)"/>
+<circle cx="94.1" cy="98.9" r="4" fill="rgb(158,158,188)"/>
+<circle cx="245.1" cy="228.2" r="4" fill="rgb(114,114,144)"/>
+<circle cx="121.0" cy="141.2" r="4" fill="rgb(75,75,105)"/>
+<circle cx="198.3" cy="159.4" r="4" fill="rgb(52,52,82)" stroke="#2f7d4f" stroke-width="2"/>
+<text x="169.1" y="147.0" style="fill:#d08a00;font-size:16px">&#9733;</text>
+<text x="60" y="54" style="font-weight:600">Ecker2015@1.5x</text>
+<text class="s" x="60" y="296">-0.12</text><text class="s" x="282" y="296">0.60</text>
+<text class="s" x="173.0" y="312">r_kt</text>
+<text class="s" x="56" y="70" text-anchor="end">442</text><text class="s" x="56" y="280" text-anchor="end">263</text>
+<rect x="350" y="60" width="250" height="220" fill="none" stroke="#888"/>
+<line x1="462.5" y1="60" x2="462.5" y2="280" stroke="#c4473a" stroke-dasharray="4 3"/>
+<circle cx="512.6" cy="152.1" r="4" fill="rgb(52,52,82)"/>
+<circle cx="514.0" cy="186.8" r="4" fill="rgb(141,141,171)"/>
+<circle cx="529.9" cy="273.5" r="4" fill="rgb(177,177,207)"/>
+<circle cx="450.5" cy="109.3" r="4" fill="rgb(61,61,91)"/>
+<circle cx="367.1" cy="72.5" r="4" fill="rgb(117,117,147)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="585.6" cy="257.3" r="4" fill="rgb(185,185,215)"/>
+<circle cx="515.5" cy="129.3" r="4" fill="rgb(81,81,111)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="552.8" cy="153.0" r="4" fill="rgb(84,84,114)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="446.6" cy="158.0" r="4" fill="rgb(65,65,95)"/>
+<circle cx="539.3" cy="146.6" r="4" fill="rgb(87,87,117)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="541.2" cy="216.0" r="4" fill="rgb(199,199,229)"/>
+<circle cx="500.8" cy="108.2" r="4" fill="rgb(45,45,75)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="465.6" cy="146.4" r="4" fill="rgb(30,30,60)"/>
+<circle cx="543.2" cy="205.2" r="4" fill="rgb(170,170,200)"/>
+<circle cx="517.6" cy="151.9" r="4" fill="rgb(104,104,134)"/>
+<circle cx="458.6" cy="117.2" r="4" fill="rgb(79,79,109)"/>
+<circle cx="452.4" cy="120.0" r="4" fill="rgb(33,33,63)"/>
+<circle cx="545.6" cy="165.7" r="4" fill="rgb(115,115,145)"/>
+<circle cx="532.5" cy="164.9" r="4" fill="rgb(120,120,150)"/>
+<circle cx="424.1" cy="129.4" r="4" fill="rgb(107,107,137)"/>
+<circle cx="451.0" cy="117.1" r="4" fill="rgb(64,64,94)"/>
+<circle cx="589.6" cy="233.8" r="4" fill="rgb(207,207,237)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="469.3" cy="140.4" r="4" fill="rgb(83,83,113)"/>
+<circle cx="528.4" cy="140.6" r="4" fill="rgb(86,86,116)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="474.6" cy="107.8" r="4" fill="rgb(71,71,101)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="555.4" cy="185.9" r="4" fill="rgb(122,122,152)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="540.8" cy="192.0" r="4" fill="rgb(146,146,176)"/>
+<circle cx="503.3" cy="149.6" r="4" fill="rgb(31,31,61)"/>
+<circle cx="418.9" cy="131.0" r="4" fill="rgb(36,36,66)"/>
+<circle cx="528.5" cy="201.3" r="4" fill="rgb(169,169,199)"/>
+<circle cx="541.2" cy="211.9" r="4" fill="rgb(102,102,132)"/>
+<circle cx="504.1" cy="148.5" r="4" fill="rgb(82,82,112)"/>
+<circle cx="399.4" cy="73.9" r="4" fill="rgb(106,106,136)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="562.6" cy="188.5" r="4" fill="rgb(111,111,141)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="555.3" cy="187.6" r="4" fill="rgb(152,152,182)"/>
+<circle cx="534.3" cy="167.2" r="4" fill="rgb(54,54,84)"/>
+<circle cx="472.7" cy="133.5" r="4" fill="rgb(37,37,67)"/>
+<circle cx="530.4" cy="237.3" r="4" fill="rgb(199,199,229)"/>
+<circle cx="499.0" cy="205.4" r="4" fill="rgb(88,88,118)"/>
+<circle cx="482.3" cy="130.0" r="4" fill="rgb(81,81,111)"/>
+<circle cx="518.3" cy="144.4" r="4" fill="rgb(69,69,99)"/>
+<circle cx="522.7" cy="149.1" r="4" fill="rgb(102,102,132)"/>
+<circle cx="531.2" cy="216.7" r="4" fill="rgb(155,155,185)"/>
+<circle cx="421.8" cy="96.3" r="4" fill="rgb(74,74,104)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="455.1" cy="124.6" r="4" fill="rgb(44,44,74)"/>
+<circle cx="564.1" cy="210.4" r="4" fill="rgb(139,139,169)"/>
+<circle cx="511.1" cy="173.6" r="4" fill="rgb(116,116,146)"/>
+<circle cx="525.5" cy="145.9" r="4" fill="rgb(77,77,107)"/>
+<circle cx="469.9" cy="109.5" r="4" fill="rgb(53,53,83)"/>
+<circle cx="578.5" cy="196.2" r="4" fill="rgb(150,150,180)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="536.1" cy="191.0" r="4" fill="rgb(120,120,150)"/>
+<circle cx="488.1" cy="110.8" r="4" fill="rgb(49,49,79)"/>
+<circle cx="360.4" cy="103.6" r="4" fill="rgb(88,88,118)"/>
+<circle cx="587.8" cy="262.8" r="4" fill="rgb(220,220,250)"/>
+<circle cx="524.7" cy="146.8" r="4" fill="rgb(73,73,103)"/>
+<circle cx="468.4" cy="134.1" r="4" fill="rgb(101,101,131)"/>
+<circle cx="482.9" cy="182.3" r="4" fill="rgb(60,60,90)"/>
+<circle cx="464.8" cy="158.9" r="4" fill="rgb(116,116,146)"/>
+<circle cx="566.2" cy="245.8" r="4" fill="rgb(171,171,201)"/>
+<circle cx="477.5" cy="116.2" r="4" fill="rgb(61,61,91)"/>
+<circle cx="421.5" cy="81.7" r="4" fill="rgb(73,73,103)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="567.1" cy="201.9" r="4" fill="rgb(167,167,197)"/>
+<circle cx="483.6" cy="127.8" r="4" fill="rgb(90,90,120)"/>
+<circle cx="540.8" cy="175.5" r="4" fill="rgb(66,66,96)"/>
+<text x="459.6" y="139.4" style="fill:#d08a00;font-size:16px">&#9733;</text>
+<text x="350" y="54" style="font-weight:600">Mohtat2020@3x</text>
+<text class="s" x="350" y="296">-0.44</text><text class="s" x="572" y="296">0.76</text>
+<text class="s" x="463.0" y="312">r_kt</text>
+<text class="s" x="346" y="70" text-anchor="end">287</text><text class="s" x="346" y="280" text-anchor="end">140</text>
+<rect x="640" y="60" width="250" height="220" fill="none" stroke="#888"/>
+<line x1="772.0" y1="60" x2="772.0" y2="280" stroke="#c4473a" stroke-dasharray="4 3"/>
+<circle cx="840.6" cy="123.4" r="4" fill="rgb(58,58,88)"/>
+<circle cx="789.4" cy="206.1" r="4" fill="rgb(56,56,86)"/>
+<circle cx="873.8" cy="262.5" r="4" fill="rgb(138,138,168)"/>
+<circle cx="761.6" cy="167.6" r="4" fill="rgb(103,103,133)"/>
+<circle cx="647.6" cy="124.3" r="4" fill="rgb(220,220,250)"/>
+<circle cx="878.3" cy="243.2" r="4" fill="rgb(115,115,145)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="824.9" cy="155.5" r="4" fill="rgb(39,39,69)"/>
+<circle cx="860.9" cy="172.5" r="4" fill="rgb(56,56,86)"/>
+<circle cx="820.1" cy="120.9" r="4" fill="rgb(65,65,95)"/>
+<circle cx="792.0" cy="247.5" r="4" fill="rgb(96,96,126)"/>
+<circle cx="823.8" cy="160.6" r="4" fill="rgb(70,70,100)"/>
+<circle cx="849.1" cy="121.9" r="4" fill="rgb(74,74,104)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="820.7" cy="249.2" r="4" fill="rgb(48,48,78)"/>
+<circle cx="847.2" cy="163.9" r="4" fill="rgb(32,32,62)"/>
+<circle cx="752.0" cy="84.9" r="4" fill="rgb(119,119,149)"/>
+<circle cx="839.9" cy="93.2" r="4" fill="rgb(61,61,91)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="836.0" cy="170.8" r="4" fill="rgb(45,45,75)"/>
+<circle cx="858.8" cy="189.9" r="4" fill="rgb(30,30,60)"/>
+<circle cx="695.0" cy="178.0" r="4" fill="rgb(173,173,203)"/>
+<circle cx="772.2" cy="82.4" r="4" fill="rgb(108,108,138)"/>
+<circle cx="882.4" cy="270.2" r="4" fill="rgb(78,78,108)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="779.8" cy="99.9" r="4" fill="rgb(88,88,118)"/>
+<circle cx="830.5" cy="182.2" r="4" fill="rgb(40,40,70)"/>
+<circle cx="768.4" cy="148.9" r="4" fill="rgb(87,87,117)"/>
+<circle cx="851.6" cy="169.5" r="4" fill="rgb(56,56,86)"/>
+<circle cx="843.3" cy="167.0" r="4" fill="rgb(52,52,82)"/>
+<circle cx="855.7" cy="129.5" r="4" fill="rgb(81,81,111)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="829.3" cy="99.5" r="4" fill="rgb(70,70,100)"/>
+<circle cx="791.4" cy="244.7" r="4" fill="rgb(63,63,93)"/>
+<circle cx="870.0" cy="190.3" r="4" fill="rgb(74,74,104)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="810.6" cy="175.5" r="4" fill="rgb(51,51,81)"/>
+<circle cx="668.1" cy="96.7" r="4" fill="rgb(195,195,225)"/>
+<circle cx="860.5" cy="166.8" r="4" fill="rgb(55,55,85)"/>
+<circle cx="837.9" cy="224.8" r="4" fill="rgb(30,30,60)"/>
+<circle cx="852.4" cy="147.7" r="4" fill="rgb(75,75,105)"/>
+<circle cx="820.7" cy="102.4" r="4" fill="rgb(77,77,107)"/>
+<circle cx="791.3" cy="263.3" r="4" fill="rgb(42,42,72)"/>
+<circle cx="862.3" cy="182.7" r="4" fill="rgb(74,74,104)"/>
+<circle cx="775.1" cy="179.4" r="4" fill="rgb(77,77,107)"/>
+<circle cx="864.9" cy="137.0" r="4" fill="rgb(51,51,81)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="814.7" cy="169.5" r="4" fill="rgb(56,56,86)"/>
+<circle cx="866.8" cy="190.8" r="4" fill="rgb(65,65,95)"/>
+<circle cx="729.2" cy="148.4" r="4" fill="rgb(138,138,168)"/>
+<circle cx="812.4" cy="89.8" r="4" fill="rgb(71,71,101)"/>
+<circle cx="875.7" cy="191.8" r="4" fill="rgb(67,67,97)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="782.9" cy="138.0" r="4" fill="rgb(96,96,126)"/>
+<circle cx="795.9" cy="76.4" r="4" fill="rgb(74,74,104)"/>
+<circle cx="876.5" cy="233.7" r="4" fill="rgb(56,56,86)"/>
+<circle cx="818.9" cy="157.7" r="4" fill="rgb(71,71,101)"/>
+<circle cx="816.2" cy="166.0" r="4" fill="rgb(62,62,92)"/>
+<circle cx="816.8" cy="75.6" r="4" fill="rgb(84,84,114)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="868.5" cy="250.1" r="4" fill="rgb(125,125,155)"/>
+<circle cx="852.9" cy="127.2" r="4" fill="rgb(44,44,74)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="744.7" cy="173.3" r="4" fill="rgb(120,120,150)"/>
+<circle cx="846.4" cy="153.2" r="4" fill="rgb(70,70,100)"/>
+<circle cx="727.9" cy="176.3" r="4" fill="rgb(128,128,158)"/>
+<circle cx="878.2" cy="227.8" r="4" fill="rgb(99,99,129)" stroke="#2f7d4f" stroke-width="2"/>
+<circle cx="792.6" cy="170.4" r="4" fill="rgb(78,78,108)"/>
+<circle cx="723.0" cy="126.3" r="4" fill="rgb(142,142,172)"/>
+<circle cx="853.6" cy="235.9" r="4" fill="rgb(46,46,76)"/>
+<circle cx="805.5" cy="156.9" r="4" fill="rgb(47,47,77)"/>
+<circle cx="862.8" cy="155.3" r="4" fill="rgb(68,68,98)"/>
+<text x="852.8" y="182.9" style="fill:#d08a00;font-size:16px">&#9733;</text>
+<text x="640" y="54" style="font-weight:600">Ai2020@0.375x</text>
+<text class="s" x="640" y="296">-0.77</text><text class="s" x="862" y="296">0.88</text>
+<text class="s" x="753.0" y="312">r_kt</text>
+<text class="s" x="636" y="70" text-anchor="end">338</text><text class="s" x="636" y="280" text-anchor="end">199</text>
+<text class="s" x="12" y="170.0" transform="rotate(-90 12 170.0)">U, Wh/kg (stack)</text>
+</svg>
