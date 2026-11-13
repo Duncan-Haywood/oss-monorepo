@@ -615,6 +615,143 @@ function nextPlayDay(from, weekdaySet, skipSet) {
 }
 
 /**
+ * Puts the plan's rounds on real dates: each play day takes the remaining round of the current leg with the fewest
+ * matches a blackout blocks; blocked matches and any over the open court slots go to makeup rounds after the regular
+ * season. Pure: returns { placed[{day, leg, bye, matches[{home, away}], makeup}], notices[], displaced, lastDay }.
+ */
+export function placeRounds(plan, { start, weekdaySet, skipSet, isBlocked, capacityOn, quiet = false }) {
+  const notices = [];
+  const remaining = plan.map((r, i) => ({ ...r, order: i }));
+  const placed = [];
+  const pool = [];
+  let day = start;
+  let scanned = 0;
+  while (remaining.length) {
+    day = nextPlayDay(day, weekdaySet, skipSet);
+    if (day === null || scanned++ > MAX_SCAN_DAYS) throw new Error("Could not find enough playable dates. Check the weekdays, skip dates and blackouts.");
+    const leg = Math.min(...remaining.map((r) => r.leg));
+    let best = null;
+    let bestConf = Infinity;
+    for (const r of remaining) {
+      if (r.leg !== leg) continue;
+      const conf = r.matches.filter(([h, a]) => isBlocked(h, day) || isBlocked(a, day)).length;
+      if (conf < bestConf) { best = r; bestConf = conf; }
+      if (conf === 0) break;
+    }
+    const playable = best.matches.filter(([h, a]) => !isBlocked(h, day) && !isBlocked(a, day));
+    const open = capacityOn(day);
+    if (open === 0) playable.length = 0;
+    else if (playable.length > open) {
+      const over = playable.splice(open);
+      pool.push(...over);
+      if (!quiet) notices.push(`${dayLabel(day)}: only ${open} court slot(s) are open, so ${over.length} match(es) moved to makeup rounds.`);
+    }
+    if (!playable.length && best.matches.length) {
+      if (!quiet) notices.push(open === 0 ? `${dayLabel(day)}: every court is closed, so that date is unused.` : `${dayLabel(day)}: no round could be played because of team blackouts, so that date is unused.`);
+      day++;
+      continue;
+    }
+    for (const [h, a] of best.matches) if (isBlocked(h, day) || isBlocked(a, day)) pool.push([h, a]);
+    placed.push({ day, leg: best.leg, bye: best.bye, matches: playable.map(([h, a]) => ({ home: h, away: a })), makeup: false });
+    remaining.splice(remaining.indexOf(best), 1);
+    day++;
+  }
+  const displaced = pool.length;
+  // matches displaced by a blackout are packed into makeup rounds after the regular season
+  let guard = 0;
+  while (pool.length) {
+    day = nextPlayDay(day, weekdaySet, skipSet);
+    if (day === null || guard++ > MAX_SCAN_DAYS) throw new Error("Could not find dates for the makeup matches. Check the blackouts.");
+    const used = new Set();
+    const matches = [];
+    for (let i = 0; i < pool.length && matches.length < capacityOn(day); i++) {
+      const [h, a] = pool[i];
+      if (used.has(h) || used.has(a) || isBlocked(h, day) || isBlocked(a, day)) continue;
+      used.add(h); used.add(a);
+      matches.push({ home: h, away: a });
+      pool.splice(i, 1);
+      i--;
+    }
+    if (matches.length) placed.push({ day, leg: 1, bye: null, matches, makeup: true });
+    day++;
+  }
+  const lastDay = placed.length ? placed[placed.length - 1].day : start;
+  return { placed, notices, displaced, lastDay };
+}
+
+/** The plan with team t renamed perm[t] everywhere (pairings, venues and byes); an isomorphic round robin. */
+export function relabelPlan(plan, perm) {
+  return plan.map((r) => ({ ...r, matches: r.matches.map(([h, a]) => [perm[h], perm[a]]), bye: r.bye === null || r.bye === undefined ? r.bye : perm[r.bye] }));
+}
+
+/**
+ * Searches team relabellings of `plan` (a hill climb on pair swaps with sideways moves, seeded) for the one whose
+ * `placeRounds` season displaces the fewest matches, then ends earliest, then has the fewest home/away breaks. Relabelling keeps every team's home/away
+ * sequence, breaks and carry-over counts (they move with the label), so only who-meets-whom-when changes.
+ * The identity is the starting point, so the result is never worse than the plan as given.
+ * Returns { plan, perm, summary: { displacedBefore, displacedAfter, lastDayBefore, lastDayAfter, evals } }.
+ */
+export function fitPlanToBlackouts(plan, n, { start, weekdaySet, skipSet, isBlocked, capacityOn, seed = 1, evals } = {}) {
+  // a work budget, not a clock, so a share link rebuilds the same season: one evaluation costs about rounds^2 x matches
+  const work = plan.length * plan.length * Math.max(1, Math.floor(n / 2));
+  const budget = Number.isInteger(evals) && evals >= 0 ? evals : Math.max(300, Math.min(4000, 40 * n * n, Math.floor(8e6 / work)));
+  const ctx = { start, weekdaySet, skipSet, isBlocked, capacityOn, quiet: true };
+  // home/away breaks of the dated season (makeups included; a bye or a night off resets the run)
+  const breaksOf = (placed) => {
+    const last = new Array(n).fill(null);
+    let b = 0;
+    for (const p of placed) {
+      const today = new Array(n).fill(null);
+      for (const m of p.matches) { today[m.home] = 1; today[m.away] = 0; }
+      for (let t = 0; t < n; t++) { if (today[t] !== null && today[t] === last[t]) b++; last[t] = today[t]; }
+    }
+    return b;
+  };
+  const score = (perm) => {
+    const r = placeRounds(relabelPlan(plan, perm), ctx);
+    return [r.displaced, r.lastDay, breaksOf(r.placed)];
+  };
+  const better = (a, b) => a[0] < b[0] || (a[0] === b[0] && (a[1] < b[1] || (a[1] === b[1] && a[2] < b[2])));
+  const same = (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+  // only swaps that move a team with a blackout can change the season; two clear teams trading places do nothing
+  const blocked = [];
+  for (let t = 0; t < n; t++) {
+    let any = false;
+    for (let d = start; d < start + 7 * 104 && !any; d++) if (isBlocked(t, d)) any = true;
+    if (any) blocked.push(t);
+  }
+  // the season with no blackouts at all is the target (its end date is a floor): stop once it is matched
+  const free = placeRounds(plan, { ...ctx, isBlocked: () => false });
+  const floorDay = free.lastDay;
+  const floorBreaks = breaksOf(free.placed);
+  // perm[p] = the team that takes plan position p
+  const perm = Array.from({ length: n }, (_, i) => i);
+  const s0 = score(perm);
+  let cur = s0, best = s0, bestPerm = perm.slice();
+  const rand = mulberry32((seed >>> 0) * 2246822519 + 7);
+  let used = 1;
+  while (used < budget && blocked.length && (best[0] > 0 || best[1] > floorDay || best[2] > floorBreaks)) {
+    const pa = perm.indexOf(blocked[Math.floor(rand() * blocked.length)]);
+    let pb = Math.floor(rand() * (n - 1));
+    if (pb >= pa) pb++;
+    [perm[pa], perm[pb]] = [perm[pb], perm[pa]];
+    const sc = score(perm);
+    used++;
+    if (better(sc, cur) || same(sc, cur)) {
+      cur = sc;
+      if (better(sc, best)) { best = sc; bestPerm = perm.slice(); }
+    } else {
+      [perm[pa], perm[pb]] = [perm[pb], perm[pa]];
+    }
+  }
+  return {
+    plan: relabelPlan(plan, bestPerm),
+    perm: bestPerm,
+    summary: { displacedBefore: s0[0], displacedAfter: best[0], lastDayBefore: s0[1], lastDayAfter: best[1], breaksBefore: s0[2], breaksAfter: best[2], evals: used },
+  };
+}
+
+/**
  * spec: { teams[], double, start (day), weekdays[], skipDays[], blackouts{teamIndex: days[]},
  *         courts[], times[] ("HH:MM"), seed, minutes }
  * Returns { teams, config, rounds[], notices[], stats }.
@@ -688,60 +825,27 @@ export function buildSchedule(spec) {
     plan = plan.slice(0, spec.rounds);
     notices.push(`Shorter season: ${spec.rounds} of ${roundRobin(n, { double: Boolean(spec.double) }).length} rounds, so each team plays ${n % 2 ? `${spec.rounds - 1}-${spec.rounds}` : spec.rounds} game(s) and not every pair meets.`);
   }
-  const remaining = plan.map((r, i) => ({ ...r, order: i }));
   const isBlocked = (t, day) => blackSet[t].has(day);
-  const placed = [];
-  const pool = [];
-  let day = spec.start;
-  let scanned = 0;
-  while (remaining.length) {
-    day = nextPlayDay(day, weekdaySet, skipSet);
-    if (day === null || scanned++ > MAX_SCAN_DAYS) throw new Error("Could not find enough playable dates. Check the weekdays, skip dates and blackouts.");
-    const leg = Math.min(...remaining.map((r) => r.leg));
-    let best = null;
-    let bestConf = Infinity;
-    for (const r of remaining) {
-      if (r.leg !== leg) continue;
-      const conf = r.matches.filter(([h, a]) => isBlocked(h, day) || isBlocked(a, day)).length;
-      if (conf < bestConf) { best = r; bestConf = conf; }
-      if (conf === 0) break;
+  // Blackout fit (2026-11-13): which team takes which position of the round-robin plan is free, and
+  // home/away breaks, carry-over and every pairing's leg are unchanged by it, so search the relabellings
+  // for the one whose dated season displaces the fewest matches into makeup rounds and ends earliest.
+  let blackoutFit = null;
+  const anyBlackout = blackSet.some((s) => s.size);
+  if (anyBlackout && spec.blackoutFit !== false) {
+    const fit = fitPlanToBlackouts(plan, n, { start: spec.start, weekdaySet, skipSet, isBlocked, capacityOn, seed: spec.seed ?? 1, evals: spec.blackoutFitEvals });
+    plan = fit.plan;
+    blackoutFit = fit.summary;
+    const f = fit.summary;
+    if (f.displacedAfter < f.displacedBefore || f.lastDayAfter < f.lastDayBefore || f.breaksAfter < f.breaksBefore) {
+      const parts = [];
+      if (f.displacedAfter !== f.displacedBefore) parts.push(`${f.displacedAfter} match(es) need a makeup date instead of ${f.displacedBefore}`);
+      if (f.lastDayAfter !== f.lastDayBefore) parts.push(`the season ends ${dayLabel(f.lastDayAfter)} instead of ${dayLabel(f.lastDayBefore)}`);
+      if (f.breaksAfter !== f.breaksBefore) parts.push(`${f.breaksAfter} home/away break(s) instead of ${f.breaksBefore}`);
+      notices.push(`Blackout fit: teams were given the places in the round robin that suit their blackout dates, so ${parts.join(", ")}.`);
     }
-    const playable = best.matches.filter(([h, a]) => !isBlocked(h, day) && !isBlocked(a, day));
-    const open = capacityOn(day);
-    if (open === 0) playable.length = 0;
-    else if (playable.length > open) {
-      const over = playable.splice(open);
-      pool.push(...over);
-      notices.push(`${dayLabel(day)}: only ${open} court slot(s) are open, so ${over.length} match(es) moved to makeup rounds.`);
-    }
-    if (!playable.length && best.matches.length) {
-      notices.push(open === 0 ? `${dayLabel(day)}: every court is closed, so that date is unused.` : `${dayLabel(day)}: no round could be played because of team blackouts, so that date is unused.`);
-      day++;
-      continue;
-    }
-    for (const [h, a] of best.matches) if (isBlocked(h, day) || isBlocked(a, day)) pool.push([h, a]);
-    placed.push({ day, leg: best.leg, bye: best.bye, matches: playable.map(([h, a]) => ({ home: h, away: a })), makeup: false });
-    remaining.splice(remaining.indexOf(best), 1);
-    day++;
   }
-  // matches displaced by a blackout are packed into makeup rounds after the regular season
-  let guard = 0;
-  while (pool.length) {
-    day = nextPlayDay(day, weekdaySet, skipSet);
-    if (day === null || guard++ > MAX_SCAN_DAYS) throw new Error("Could not find dates for the makeup matches. Check the blackouts.");
-    const used = new Set();
-    const matches = [];
-    for (let i = 0; i < pool.length && matches.length < capacityOn(day); i++) {
-      const [h, a] = pool[i];
-      if (used.has(h) || used.has(a) || isBlocked(h, day) || isBlocked(a, day)) continue;
-      used.add(h); used.add(a);
-      matches.push({ home: h, away: a });
-      pool.splice(i, 1);
-      i--;
-    }
-    if (matches.length) placed.push({ day, leg: 1, bye: null, matches, makeup: true });
-    day++;
-  }
+  const { placed, notices: placeNotices } = placeRounds(plan, { start: spec.start, weekdaySet, skipSet, isBlocked, capacityOn });
+  notices.push(...placeNotices);
   let regular = 0;
   let makeupN = 0;
   const rounds = placed.map((p) => {
@@ -796,6 +900,7 @@ export function buildSchedule(spec) {
     slotCost: cost,
   };
   if (carryOverSearch) schedule.carryOverSearch = carryOverSearch;
+  if (blackoutFit) schedule.blackoutFit = blackoutFit;
   for (const e of validateSchedule(schedule).errors) if (e.includes("only plays at") || e.includes("only plays on")) notices.push(e.replace(/^Round \d+: |^Makeup \d+: /, ""));
   schedule.stats = scheduleStats(schedule);
   return schedule;
