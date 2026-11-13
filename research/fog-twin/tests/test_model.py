@@ -55,6 +55,12 @@ class T(unittest.TestCase):
         self.assertLess(r, 100.0)
         self.assertGreater(r, range_uniform(0.05, 100.0))
 
+    def test_bank_range_pinned(self):
+        # Quality audit 2026-11-13: pins headline result 4. Root of ln(r/100) + 0.05 (r - 40) = 0,
+        # checked by hand: ln(0.52778) = -0.63907 and 0.05 x 12.778 = 0.63891.
+        self.assertAlmostEqual(range_bank(0.05, 40.0, 100.0), 52.78, places=2)
+        self.assertAlmostEqual(range_bank(0.05, 40.0, 45.0), 41.58, places=2)
+
     def test_quantile_matches_monte_carlo(self):
         rng = random.Random(1)
         med, sg, r0 = 0.02, 0.8, 100.0

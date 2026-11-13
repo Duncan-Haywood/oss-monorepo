@@ -187,7 +187,8 @@ planar vs non-planar scenes, mismatch rate.
    end squares bias the 11×11 window's f by +0.6–0.9% and SB's by −0.1 to −0.4%.
 6. Owner capture (owner step): a phone or machine-vision camera, a board and
    several scenes, to test across cameras.
-7. Paper draft.
+7. Paper draft. **(first full draft 2026-11-13: `paper/draft.md`, numbers checked by
+   `paper/check_numbers.py`; see `LOG.md`)**
 
 ## Target venue
 

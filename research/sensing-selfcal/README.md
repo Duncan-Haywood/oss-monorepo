@@ -8,6 +8,11 @@ point and lens distortion by bundle adjustment from the features it tracks, with
 calibration target, and testing whether the solver's own uncertainty is honest enough for a
 field robot to accept or reject the update.
 
+**Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
+RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (82 of 82)
+and a list of what a submission still needs.
+
 **Milestone 1 headline, on two real cameras** (OpenCV's stereo calibration photos, 13 views
 each): withholding the checkerboard's geometry and solving for the 54 corners as free 3-D
 points, bundle adjustment started 30% off lands **within 0.15% (left) and 0.24% (right) of
@@ -711,6 +716,7 @@ python3 experiments/m6b_render/outer.py        # ~3 min; outer.json
 python3 experiments/m6b_render/analyse.py      # summary.json, render.png
 python3 experiments/m6b_render/crops.py        # seconds; ring_crops.png
 python3 -m pytest tests
+python3 paper/check_numbers.py             # seconds; the draft's numbers against the stored results
 ```
 
 ## Limitations

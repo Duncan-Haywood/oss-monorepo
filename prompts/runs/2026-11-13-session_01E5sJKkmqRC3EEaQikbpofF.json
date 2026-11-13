@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKkmqRC3EEaQikbpofF",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T15:54:05Z",
+  "ended": "2026-11-13T15:58:42Z",
+  "wall_minutes": 4.8,
+  "tokens_in": 2765976,
+  "tokens_out": 21303,
+  "cost_usd": 1.6353,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15529",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again; the first three live-looking friction reports I checked (pyenv cv2 pip name, wait_for timeout cap, pyenv pyproject/-r and infra-dcopf eager import) were all fixed already. Fixed the cause in friction_rank.py (--live); the prompt's Critique bullet could point at `friction_rank.py --live` (control plane, not edited here)."
+    },
+    {
+      "file": "platform/ci/friction_rank.py",
+      "issue": "In a shallow clone, git log --name-only lists the boundary commit as adding every file, so any 'changed since' check over history marks everything touched; now dropped here, worth knowing for other tools that read git log in cloud clones."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Did not edit the process prompt or promptctl measure to point at the new flag: both are control plane and would hold the PR for owner approval",
+      "did": "documented the flag in docs/reports/2026-11-03-routine-measures.md and the tool docstring",
+      "result": "tool landed; discoverability depends on a later control-plane PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-half-the-friction-was-already-fixed.md",
+    "docs/reports/2026-11-03-routine-measures.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode; no backlog ids touched (only owner/blocked rows). main_health.py 62/62 pass. friction_rank --days 3: 64 of 130 clusters touched since their last report; sample of 10 touches after excluding data files/boundary commits/ambiguous basenames: 9 were fixes to that tool. pytest test_friction_rank 8 passed; promptctl validate ok; unittest prompts OK; check_post_frontmatter rc 0.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b4eb52ce-ef8a-505a-bf97-8fc95473c459",
+    "transcripts": 1,
+    "first": "2026-11-13T15:54:05Z",
+    "last": "2026-11-13T15:58:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 62,
+        "output": 21303,
+        "thinking": 5911,
+        "cache_read": 2681832,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84082,
+        "api_equivalent_usd": 1.6353,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 62,
+      "output": 21303,
+      "thinking": 5911,
+      "cache_read": 2681832,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84082,
+      "api_equivalent_usd": 1.6353,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 31,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.8,
+      "active_minutes": 4.8,
+      "model_minutes": 3.51,
+      "tool_minutes": 1.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "engineer extending a git-backed CLI with tests and a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 183.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
