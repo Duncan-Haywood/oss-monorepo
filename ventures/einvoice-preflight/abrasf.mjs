@@ -21,13 +21,14 @@
 //      on the real files described there, which is where the tolerance rules come from.
 // An offline observation, not the municipality's acceptance, and not tax advice.
 
-import { checkAgainstAbrasf, rootsOf, ABRASF_NS, VERSIONS, SOURCE } from "./abrasf-xsd.mjs";
+import { checkAgainstAbrasf, rootsOf, ABRASF_NS, VERSIONS, SOURCE, cityProvider, providerSameAs, providerBase, CITY_COUNT } from "./abrasf-xsd.mjs";
 import { checkBrazilId } from "./brazil.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { UF_CODE } from "./nfe.mjs";
 import { GAPS, CHECK_DIGIT_EXCEPTIONS, COUNT } from "./ibge-municipios-data.mjs";
 
 export { ABRASF_NS, SOURCE };
+const SCHEMA_RULES = new Set(["ABR-002", "ABR-003", "ABR-004", "ABR-005", "ABR-006"]);
 const finding = (rule, message, fix, path) => ({ rule, message, fix, path });
 
 export function looksLikeAbrasf(text) {
@@ -111,6 +112,23 @@ function statedVersion(root) {
     if (n.name === "versaoDados") return n.text.trim();
   }
   return "";
+}
+
+// The city whose web service takes the file: on an issued NFS-e the issuing body
+// (OrgaoGerador) or the provider's address; on an RPS, which carries no provider address,
+// the service's CodigoMunicipio (in practice the provider's city: an RPS is sent to the
+// provider's own city hall).
+function issuerCity(root) {
+  const order = [["OrgaoGerador", "CodigoMunicipio"], ["PrestadorServico", "Endereco"], ["Servico", "CodigoMunicipio"]];
+  for (const [parent, child] of order) {
+    for (const [n, p] of walk(root, `/${root.name}`)) {
+      if (n.name !== parent) continue;
+      const holder = child === "Endereco" ? kid(n, "Endereco") : n;
+      const code = txt(holder, "CodigoMunicipio");
+      if (/^\d{7}$/.test(code)) return { code, path: `${p}${child === "Endereco" ? "/Endereco" : ""}/CodigoMunicipio` };
+    }
+  }
+  return null;
 }
 
 // ---------- identifiers ----------
@@ -265,6 +283,30 @@ export function checkAbrasf(text) {
     if (stated && own.length) {
       const best = VERSIONS.filter((v) => v !== version).map((v) => [v, checkAgainstAbrasf(root, v).length]).sort((a, b) => a[1] - b[1] || (a[0] < b[0] ? 1 : -1))[0];
       if (best && (best[1] === 0 || best[1] * 2 <= own.length - 2)) skipped.push(`layout: the file states ${version} and draws ${own.length} schema finding${own.length === 1 ? "" : "s"} under it, but ${best[1] === 0 ? "none" : best[1]} under ABRASF ${best[0]}: if the city's web service runs ${best[0]}, set versao to ${best[0]} (or build the file to ${version})`);
+    }
+  }
+  // The city's own system. OpenAC.Net.NFSe's municipality list says which provider and
+  // layout each city it supports runs; where that provider publishes its own copy of the
+  // ABRASF schema (read by build-abrasf-schema.mjs), that copy is what the city's web service
+  // validates against, so it replaces the ABRASF layout for the schema layer and the note
+  // says how many findings each would draw.
+  const city = !offNs && !other ? issuerCity(root) : null;
+  const run = city && cityProvider(city.code);
+  if (run) {
+    const where = `${run.city} (${city.path.slice(city.path.lastIndexOf("/", city.path.lastIndexOf("/") - 1) + 1)} ${city.code})`;
+    const layoutOfListed = run.listed.split(" ").pop();
+    if (!run.key) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities; that provider's own schema is not read here${version ? `, so the file is checked against ABRASF ${version}` : ""}`);
+    else if (!rootsOf(run.key).includes(root.name)) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, whose schema does not declare ${root.name} as a document${version ? `; checked against ABRASF ${version}` : ""}`);
+    else if (!version && stated && /^1\./.test(stated) !== /^1\./.test(layoutOfListed)) skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities, but the file states layout ${stated}: check which layout the city's web service takes before sending`);
+    else {
+      const same = providerSameAs(run.key);
+      const theirs = checkAgainstAbrasf(root, run.key);
+      const ours = version ? findings.filter((f) => SCHEMA_RULES.has(f.rule)) : [];
+      if (version) findings.splice(0, findings.length, ...findings.filter((f) => !SCHEMA_RULES.has(f.rule)));
+      findings.push(...theirs);
+      const copy = same ? `its copy of the schema is ABRASF ${same} as published${same !== layoutOfListed ? ` (not ${layoutOfListed}, the layout its name gives)` : ""}` : `its own copy of the schema (ABRASF ${providerBase(run.key)} with its additions)`;
+      skipped.push(`city: ${where} runs ${run.listed} per OpenAC.Net.NFSe's list of ${CITY_COUNT} cities; ${copy}, so the schema layer checks against it: ${theirs.length} schema finding${theirs.length === 1 ? "" : "s"}${version && run.key !== version ? ` (ABRASF ${version}${stated === version ? ", the layout the file states," : ""} would draw ${ours.length})` : ""}. If the file goes to another city, its system may differ`);
+      version = same || run.key;
     }
   }
   checkIds(root, base, findings);

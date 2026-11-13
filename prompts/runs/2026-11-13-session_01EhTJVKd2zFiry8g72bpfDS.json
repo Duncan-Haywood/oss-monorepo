@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVKd2zFiry8g72bpfDS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (full text in the routine)",
+  "input_sha256": "6e608beff98c703655b0485aaa987ffbbf6bf105a53c90b0a51b7dce5d1f368c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T07:56:12Z",
+  "ended": "2026-11-13T08:18:14Z",
+  "wall_minutes": 22.23,
+  "tokens_in": 11822746,
+  "tokens_out": 46378,
+  "cost_usd": 4.5977,
+  "tool_calls": 80,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15424",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Post description was 229 characters; check_post_frontmatter caught it in the local sweep (172 site-builder test failures all traced to it); shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The bare route drew the research track although the scheduled prompt asks for revenue products; route --task picked ventures. The routine's stored prompt could pass --task by default."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Committing during the detached sweep voided four workflows (HEAD moved); the warning says not to edit, but committing alone (no file change) also counts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The weighted draw sent the run to research; the scheduled prompt explicitly asks for revenue-product work, so I routed with --task (ventures) as prompt.md allows.",
+      "did": "ventures/1, flagship einvoice-preflight as allocate.py assigned",
+      "result": "A buildable flagship item landed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-which-schema-does-a-brazilian-city-check.md",
+    "ventures/einvoice-preflight/README.md (city provider schemas section)"
+  ],
+  "goal": null,
+  "notes": "einvoice-preflight: 34 ABRASF provider schema copies + 198-city provider list from OpenAC.Net.NFSe (MIT, pinned cac2bb13) compiled; abrasf.mjs checks the schema layer against the city's provider copy with a city: note. xmllint differential: 101/101 files, 8,425/8,425 mutants (fixtures retargeted to 12 providers; Unimake/Uninfe MIT samples for Fiorilli 2.01, ISSNet 2.04, SimplISS 2.03, Tiplan 2.03). Venture tests pass (run_venture_tests.py einvoice-preflight); local sweep: portfolio-validate, sibling-links, ventures-tests, einvoice-preflight-ci passed; agent-cross-review and deploy jobs not run locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "21543b0e-8fa2-5c60-b707-e7023bd63b87",
+    "transcripts": 1,
+    "first": "2026-11-13T07:56:12Z",
+    "last": "2026-11-13T08:18:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 166,
+        "output": 46378,
+        "thinking": 11543,
+        "cache_read": 11655273,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167307,
+        "api_equivalent_usd": 4.5977,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 166,
+      "output": 46378,
+      "thinking": 11543,
+      "cache_read": 11655273,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167307,
+      "api_equivalent_usd": 4.5977,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 75,
+      "ToolSearch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.23,
+      "active_minutes": 16.21,
+      "model_minutes": 9.54,
+      "tool_minutes": 6.67,
+      "waiting_on_human_minutes": 6.01,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "compile 34 provider XSD copies, city mapping, checker routing, two differential corpora, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 261.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
