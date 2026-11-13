@@ -275,10 +275,10 @@ export function run(argv) {
   // the mode check is about the transcription, so judge the final as written, before --final moves it
   if ('modeFinalMatches' in summary) summary.modeFinalMatches = summarize(parsed).modeFinalMatches;
   if (singers) summary.singers = { file: args.singers, count: singers.singers.length, assigned: sc.assigned, sitOut, sections: sc.report, unison: sc.unisonReport.empty ? null : sc.unisonReport.range, sittingOut: sitOutNotes(events, sc) };
+  else if (choir) summary.choir = args.choir;
   // a sit-out that silences one singer for a quarter of the piece is a different choice from a
   // few extreme notes: say so, the director may rather move them or change the final
   if (singers) for (const t of summary.singers.sittingOut) if (t.notes * 4 >= t.of) summary.warnings.push(`${t.name} sits out ${t.notes} of their ${t.of} notes (${t.pitches}): more than a few extreme notes; a different --final or another section for them may serve better`);
-  else if (choir) summary.choir = args.choir;
   if (split) {
     const who = (v) => split.phrases.map((p, k) => (p.voice === v ? k + 1 : 0)).filter(Boolean);
     summary.voices = {
