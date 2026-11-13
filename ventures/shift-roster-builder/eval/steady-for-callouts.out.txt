@@ -1,0 +1,22 @@
+TIES cafe: 6 distinct rosters at score 1503758.95, payroll $3690.00, posted open 15 h; exposure by seed 1:92 2:100 6:100 4:116 5:132 3:140 over 23 person-days (34.4 s)
+PLAY call 0.01 extra 0 cafe seed 1 exposure 92: 12 disrupted weeks, open hours added 32, changes to others 20, premiums $344.00, proven 9/9
+PLAY call 0.01 extra 0 cafe seed 2 exposure 100: 12 disrupted weeks, open hours added 24, changes to others 25, premiums $420.00, proven 9/9
+PLAY call 0.01 extra 0 cafe seed 6 exposure 100: 12 disrupted weeks, open hours added 40, changes to others 21, premiums $345.00, proven 10/10
+PLAY call 0.01 extra 0 cafe seed 4 exposure 116: 12 disrupted weeks, open hours added 48, changes to others 21, premiums $372.00, proven 10/10
+PLAY call 0.01 extra 0 cafe seed 5 exposure 132: 12 disrupted weeks, open hours added 56, changes to others 10, premiums $176.00, proven 11/11
+PLAY call 0.01 extra 0 cafe seed 3 exposure 140: 12 disrupted weeks, open hours added 56, changes to others 5, premiums $87.00, proven 9/9
+FLOOR call 0.01 extra 0 cafe: hindsight adds 4 h over the seed-1 callers' weeks (proven 12/12)
+PLAY call 0.01 extra 0.109 cafe seed 1 exposure 92: 40 disrupted weeks, open hours added 815, changes to others 25, premiums $419.00, proven 97/97
+PLAY call 0.01 extra 0.109 cafe seed 2 exposure 100: 40 disrupted weeks, open hours added 799, changes to others 26, premiums $434.00, proven 97/97
+PLAY call 0.01 extra 0.109 cafe seed 6 exposure 100: 40 disrupted weeks, open hours added 815, changes to others 26, premiums $432.00, proven 98/98
+PLAY call 0.01 extra 0.109 cafe seed 4 exposure 116: 40 disrupted weeks, open hours added 805, changes to others 19, premiums $335.50, proven 96/96
+PLAY call 0.01 extra 0.109 cafe seed 5 exposure 132: 40 disrupted weeks, open hours added 803, changes to others 18, premiums $307.50, proven 95/95
+PLAY call 0.01 extra 0.109 cafe seed 3 exposure 140: 40 disrupted weeks, open hours added 805, changes to others 20, premiums $337.50, proven 98/98
+FLOOR call 0.01 extra 0.109 cafe: hindsight adds 777 h over the seed-1 callers' weeks (proven 40/40)
+PLAY call 0.084 extra 0 cafe seed 1 exposure 92: 40 disrupted weeks, open hours added 291, changes to others 116, premiums $1973.00, proven 62/62
+PLAY call 0.084 extra 0 cafe seed 2 exposure 100: 40 disrupted weeks, open hours added 290, changes to others 101, premiums $1703.00, proven 59/59
+PLAY call 0.084 extra 0 cafe seed 6 exposure 100: 40 disrupted weeks, open hours added 331, changes to others 103, premiums $1718.00, proven 60/60
+PLAY call 0.084 extra 0 cafe seed 4 exposure 116: 40 disrupted weeks, open hours added 283, changes to others 143, premiums $2572.00, proven 63/63
+PLAY call 0.084 extra 0 cafe seed 5 exposure 132: 40 disrupted weeks, open hours added 362, changes to others 71, premiums $1248.00, proven 62/62
+PLAY call 0.084 extra 0 cafe seed 3 exposure 140: 40 disrupted weeks, open hours added 356, changes to others 65, premiums $1125.00, proven 62/62
+FLOOR call 0.084 extra 0 cafe: hindsight adds 182 h over the seed-1 callers' weeks (proven 40/40)
