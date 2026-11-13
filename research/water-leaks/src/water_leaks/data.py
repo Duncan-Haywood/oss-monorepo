@@ -16,13 +16,16 @@ import numpy as np
 
 RECORD = "https://zenodo.org/api/records/4017659/files/{name}/content"
 
-# SHA-256 of the files as downloaded on 2026-11-12.
+# SHA-256 of the files as downloaded on 2026-11-12 (the two Demands files on 2026-11-13; the
+# GitHub mirrors below do not carry them, so they come from Zenodo only).
 SHA256 = {
     "2018_Leakages.csv": "e1abd9d549a18880d8ae704dc90c06c8a3d5aecbd2541fa091548ef392084ba6",
+    "2018_SCADA_Demands.csv": "713d9f03ff94128f44c7d8036a032cc1d7eebcbbc94fda9def2bbc3efc047dd5",
     "2018_SCADA_Flows.csv": "7f7e8625c9d92b083ee079a54cffb9ef803876de1e35017c1da0455968daf3ff",
     "2018_SCADA_Levels.csv": "a1fc5f0229448a620b6220f4d079b3162a255b3070acdce448608fbfc760903c",
     "2018_SCADA_Pressures.csv": "7782d890a7195699be94ddc01cba392da7ca285908afff619065a9616e04dcae",
     "2019_Leakages.csv": "b2ffe56b6c2f3b6cdb6aae9aeb30b9c425ba911fff8e3716ae543a56ff7576cd",
+    "2019_SCADA_Demands.csv": "004266aa039833b5ae0f37740487db4d90216d2ee947f14871c5d5d3f89b4151",
     "2019_SCADA_Flows.csv": "c709ea5ecc03197e1fe70cf4c2de7225f71015acb50a7445ed7765b5029f7f15",
     "2019_SCADA_Levels.csv": "00624e97b72e63233beeccb48db528d43e59a87b116d0295d5c2a206ee0e75a8",
     "2019_SCADA_Pressures.csv": "a4af6616059cc9b366bbab76d880b2c772df544970c6ff4d4a29a58704ce05b1",
@@ -91,7 +94,7 @@ def parse_scada(text: str):
 
 
 def load(kind: str, year: int):
-    """kind in {'Pressures', 'Flows', 'Levels', 'Leakages'}; returns parse_scada output."""
+    """kind in {'Pressures', 'Flows', 'Levels', 'Demands', 'Leakages'}; returns parse_scada output."""
     name = f"{year}_Leakages.csv" if kind == "Leakages" else f"{year}_SCADA_{kind}.csv"
     return parse_scada(fetch(name).read_text())
 
