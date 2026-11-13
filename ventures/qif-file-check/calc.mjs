@@ -28,7 +28,7 @@ export function normalizeAmount(raw) {
   if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); }
   if (/-$/.test(s)) { neg = !neg; s = s.slice(0, -1); }
   if (/^-/.test(s)) { neg = !neg; s = s.slice(1); } else if (/^\+/.test(s)) s = s.slice(1);
-  s = s.replace(/^[A-Za-z]{0,3}\s*[$€£¥]?\s*/, "").replace(/\s*[A-Za-z]{3}$/, "").replace(/\s/g, "");
+  s = s.replace(/^(?:[A-Z]{3}\s*)?[$€£¥]?\s*/, "").replace(/\s*[A-Za-z]{3}$/, "").replace(/\s/g, "");
   let digits;
   if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) digits = s.replace(/,/g, "");
   else if (/^\d{1,3}(\.\d{3})+,\d{1,2}$/.test(s)) digits = s.replace(/\./g, "").replace(",", ".");
@@ -39,7 +39,10 @@ export function normalizeAmount(raw) {
 }
 
 // Lines -> records. A record is everything up to a "^" line. Split lines (S category, E memo, $ amount) are
-// kept on the record as `splits`.
+// kept on the record as `splits`. A full Quicken export also carries list sections (!Type:Cat, !Type:Class,
+// !Type:Memorized, the !Account blocks that name each account, ...): those records are returned in `lists`,
+// not `records`, so a category description is never checked as a date or an account type as an amount.
+export const LIST_TYPES = new Set(["cat", "class", "memorized", "security", "prices", "payee", "tag", "account"]);
 export function parseQif(text) {
   const lines = String(text).replace(/^﻿/, "").split(/\r\n|\n|\r/);
   const records = [], headers = [];
@@ -50,6 +53,7 @@ export function parseQif(text) {
     if (raw[0] === "!") {
       headers.push({ line, text: raw.trim() });
       if (/^!Type:/i.test(raw)) type = raw.trim().slice(6).trim();
+      else if (/^!Account\s*$/i.test(raw.trim())) type = "Account";
       return;
     }
     if (raw.trim() === "^") { if (rec) records.push(rec); rec = null; return; }
@@ -60,7 +64,9 @@ export function parseQif(text) {
     else if (c === "$" && rec.splits.length) { const sp = rec.splits[rec.splits.length - 1]; sp.amount = v; sp.amountLine = line; }
     else if (!(c in rec.fields)) { rec.fields[c] = v; rec.lines[c] = line; }
   });
-  return { records, headers, unterminated: rec, lines, ...(rec ? { records: [...records, rec] } : {}) };
+  const all = rec ? [...records, rec] : records;
+  const isList = (r) => LIST_TYPES.has(String(r.type ?? "").toLowerCase());
+  return { records: all.filter((r) => !isList(r)), lists: all.filter(isList), headers, unterminated: rec, lines };
 }
 
 // "03/04/2024", "3/4/24", "1/ 5'24", "31.12.2024" -> { a, b, y } (a, b are the first and second numbers).
