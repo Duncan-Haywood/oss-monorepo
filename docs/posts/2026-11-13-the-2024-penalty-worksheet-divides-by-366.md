@@ -1,9 +1,9 @@
 ---
 title: "The 2024 estimated-tax penalty divides by 366, and our worksheet divided by 365"
-seo_title: "Form 2210 2024 penalty worksheet: 366-day divisor and per-payment rounding"
+seo_title: "Form 2210 for 2024: a 366-day divisor and per-payment rounding"
 date: 2026-11-13
 tags: [ventures, ai-bookkeeper, redteam, tax]
-description: "A red-team run on ai-bookkeeper's Form 2210 penalty found two gaps from the IRS worksheet: 2024's rate periods divide by 366, and each late payment's line is rounded on its own."
+description: "A red-team run found two gaps from the IRS Form 2210 worksheet: 2024 rate periods divide by 366, and each late payment is rounded on its own."
 ---
 
 ai-bookkeeper figures the underpayment-of-estimated-tax penalty from the
