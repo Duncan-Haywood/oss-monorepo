@@ -236,6 +236,8 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15362"
+ ],
  "verdict": "Correct, reproducible, small. Every number I recomputed from sources the author did not write matches: Feller's gambler's-ruin duration, an independent belief-space DP for all 12 E2 values, binomial majority-vote errors for E4, hand-derived participation floors, and a 180-case grid confirming the threshold policy. The rerun is byte-identical and the 8 tests pass in 0.7 s. It misses the bar on claims and verification. The paper's policy takeaway, that the log score buys the same accuracy for a 2.7-7x smaller stake, comes from comparing two scores with different additive constants; at equal delivered error the log score's payment range is wider than Brier's (41.5 vs 38.9). The closest prior paper (Neyman-Noarov-Weinberg 2021) is not cited, and threshold optimality, a classical Arrow-Blackwell-Girshick result, is presented as solved here from six numerical cases. Two of four seeded mutants survive: the cost term in the fixed-sample utility and the log score's units. A sound technical note on a textbook problem, not yet a result a researcher could cite as new."
 }
