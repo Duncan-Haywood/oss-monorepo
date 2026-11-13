@@ -2,6 +2,19 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-13 · Milestone 7e: train with milestone 7c's linear stability margin as a CMA-ES constraint (predictions written and committed before `experiments/m7e_margin/run.py` was run at full budget)
+
+- Why: milestone 7c's second next step. Left alone, CMA-ES put the `integ` designs' attitude integrator gain on the linear stability boundary (ceiling multiples 0.88-1.11), with nothing between the design and the edge of the plant set. 7c's advice to a builder, "stay at about 0.8x the ceiling", was checked only by rescaling designs after training. Here the margin is a training constraint: does a design trained inside it lose cost, and does it diverge less?
+- Setup (`experiments/m7e_margin/run.py`): milestone 7b's `integ` arm (12 coordinates; milestone 6's CMA-ES, 3200 evaluations, 16 training episodes, 6 seeds, 2 starts; both rigid geometries). A candidate is feasible if `linstab.worst_radius` (both axes, the eight `wide` plant corners) is below 1 at its own ki and at 1.25x its ki, i.e. ki <= 0.8x ceiling and the rest of the loop stable at every corner. Infeasible candidates are not simulated and score -100 - 10 min(rho - 1, 10). Held-out: 64 episodes, seed 9999, lever 0, 1, 2, side force on; compared, seed for seed, with milestone 7b's unconstrained `integ retrained` designs re-scored by the same function.
+- Looked at before writing these: a 64-evaluation smoke run (training seeds only, held-out seed untouched; too short to converge, its numbers are not evidence); 4% of uniform random designs are feasible and the CMA-ES start point is not (rho 1.029); the slowest mode of every design sits at rho 0.9997-1.0002, so feasibility is decided by a slow mode; of the 7b designs cut to 0.8x ki, 10 of 12 would pass the test (`above` seeds 1 and 5 fail; `below` seed 1 is unstable at a corner even with ki cut).
+- Predictions:
+  - E5 (prior 90%): every seed's best design is feasible (no best score at or below -100).
+  - E1 (prior 70%): the constraint binds in `above`: ceiling multiple between 1.25 and 1.45 in at least 4 of 6 seeds.
+  - E2 (prior 60%): the price is small: mean paired held-out J (constrained minus unconstrained) at lever 0 is at least -0.05 in both geometries.
+  - E3 (prior 70%): no held-out divergence at lever 1 in any of the 12 constrained designs (unconstrained: 2, `below` seed 1).
+  - E4 (prior 35%): at lever 2 (outside the training range) the constrained designs diverge on fewer held-out episodes in total than the unconstrained ones, in both geometries (unconstrained: 15 `above`, 42 `below`). Low prior: milestone 7c found divergence there is saturation-limited, which the linear test does not see.
+- Analysis: paired per-seed differences, mean and se, counts of diverged episodes; no test beyond the counts with six seeds.
+
 ## 2026-11-13 · Milestone 7c: a linear stability test for the side-force feed-forward, checked against the 36 milestone-7b designs (predictions written and committed before `experiments/m7c_stab/run.py` was run)
 
 - Why: milestone 7b found that the integrator feed-forward runs away when bolted onto designs whose attitude integrator is strong, and a post-hoc quasi-steady criterion failed to separate the diverging designs. Its first listed next step: a linearised stability analysis of the full attitude-plus-position loop, to give a design rule that can be checked against those designs.
