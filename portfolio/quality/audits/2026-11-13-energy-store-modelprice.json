@@ -1,0 +1,266 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/energy-store-modelprice",
+ "stratum": "research",
+ "seed": "2026-11-13-o",
+ "drawn_by": "sample",
+ "round": 69,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior energy-systems economist who reviews storage and power-to-heat valuation for Energy Economics / Applied Energy / IEEE Trans. Power Systems. They would check first that the store's electricity bill is accounted per cycle correctly (heat bought vs heat delivered, round-trip and standby losses), that the charging rule is the optimal price-taker dispatch for the stated charger size, that the heat pump and the store face prices for the same hours of heat demand, whether the 'model price' result is a real forecast or in-sample, and whether the nearest prior work on arbitrage value under imperfect price forecasts (Sioshansi, Denholm, Jenkin & Weiss 2009, Energy Economics 31:269; Walawalkar, Apt & Mancini 2007, Energy Policy 35:2558; Mokrian & Stephen 2006; residual-load price models such as Kallabis, Pape & Weber 2016, Energy Policy 95:280; power-to-heat reviews such as Bloess, Schill & Zerrahn 2018, Applied Energy 212:1611) is cited",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every price-side headline number recomputes from the raw CSVs with code I wrote. Rerun: copied research/energy-* and _shared to /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/esm and ran `/usr/bin/python3.11 experiments/run.py` (42 s): byte-identical to experiments/results.txt. Under python3.13 (48 s) 4 lines differ by 1e-4 (2016 real weekly cheapest quarter 0.0182 vs 0.0183): the exact value is 0.01825 (checked with fractions.Fraction), a rounding boundary where Python 3.12+'s compensated float sum() rounds the other way. Independent script /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/indep/indep.py (numpy only, reads energy-thermal-real/data/price*.csv, energy-mix-years/data/de*.csv and capacity.csv; own pool-adjacent-violators isotonic fit, own leave-one-year-out, own window ranking): (1) section A, all 20 year x source rows of q_daily, q_weekly, hp_p and mean, equal the committed table to 4 dp (the 2016 0.0182/0.0183 boundary aside). (2) Sections D/E executed-charging gaps: resid daily +0.0006/+0.0004/+0.0007/+0.0011/+0.0009 mean +0.0007, weekly mean +0.0009, merit +0.0041 / +0.0143, identical. (3) An LP (/tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/indep/lp.py, scipy HiGHS: min sum p_t x_t, one fill per window, charger cap = E/k) gives 0.02645 for 2019 daily and 0.02757 for 2018 weekly, equal to the cheapest-quarter heuristic (0.0265, 0.0276), so the rule is the optimal price-taker dispatch for the stated charger. (4) Heat-pump capital part from params.csv with my own annuity (5 kW x 1135.43 EUR/kW x (annuity(4%,18)+3.0014%) / 10 MWh) = 0.06189 EUR/kWh; fitting store cost = A + B q to the 40 house daily/weekly cells of section B leaves residuals <= 0.0006 (table rounding) with B = 1.604 daily and 2.084 weekly, matching the package's 1/(0.99 x delivered_per_in) = 1.607 and 2.102. (5) House verdict agreement recounted from table B with my own tie rule: resid 15/20, resid+ 18/20, merit 11/20, consistent with section G and the 32/37/21 of 40 (district cells are not printed, so taken from G). Not 4: the stored numbers are right for the model as written, but the model's per-cycle heat purchase is wrong (see domain).",
+  "completeness": "README promises checked: results.txt reproduces (yes on 3.11; 4 cells off by 1e-4 on 3.13), '~20 s' (measured 42 s on 3.11, 48 s on 3.13), figure.py regenerates weekly.svg byte-identically from results.txt, 6 tests (6 passed in 1.12 s with pytest), sections A to H all present, live page https://marisstella.app/research/energy-store-modelprice/ HTTP 200 with the project title, index line in research/README.md:971. All claimed analyses exist and run end to end. Next steps 1-3 (fuel/carbon regressor, cost CI, true 2015-2018 -> 2019 forecast) are open and labelled. `python3 -m unittest discover -s tests` runs no tests (ImportError, then NO TESTS RAN with PYTHONPATH=src: they are pytest functions), and research-ci.yml does not run project tests at all.",
+  "verification": "`cd research/energy-store-modelprice && /usr/bin/python3.13 -m pytest tests -q`: 6 passed in 1.12 s. Six mutants via platform/ci/quality_mutate.py, 2 caught, 4 survived: removing the leave-one-year-out holdout so the fit trains on the test year (model.py:24 `if y != test_year` -> `if True`) SURVIVED, though it is the paper's central design choice; changing the flat merit price 0.0546 -> 0.0564 (model.py:29) SURVIVED; scaling the heat-pump price by 1.1 inside case_costs (model.py:49) SURVIVED because the energy-thermal-real regression test only brackets the daily diff in (-0.028, -0.011); using cycles instead of windows for the store price in run.py diff() (run.py:27) SURVIVED: no test touches experiments/run.py, where the agreement counts are made. Caught: executed_cheapest_mean ranking by actual instead of plan (model.py:40) and tie band 0.002 -> 0.0002 (model.py:53). No test pins a committed results.txt number.",
+  "craft": "Read src/energy_store_modelprice/model.py (57 lines), tests/test_model.py, experiments/run.py, experiments/figure.py and the imported energy-thermal-cost/cost.py, energy-thermal-hourly/prices.py, energy-thermal-real/prices.py, energy-price-residual/model.py. Small, readable, stdlib only, reuses sibling packages instead of copying them, figure parsed from results.txt. Defects: model.py mutates sys.path at import (parents[3]) so the package only works inside the monorepo layout; run.py is module-level script code that recomputes diff() for the same cells three times (sections B, G, H), the main cause of the 42-48 s; price_sources reloads all five years for every call (5x); output depends on the Python version at a rounding boundary; tests need pytest although the repo convention is unittest; a 24-hour tail is silently dropped by `n // windows` for weekly windows (8736 of 8760 h).",
+  "claims": "Checked against results.txt: 32/40, 21/40, 30 of 30 (sum of G daily/monthly/seasonal resid), weekly real -0.004..+0.011, modelled +0.008..-0.010, 0 of 5 and 2 of 5, resid means 0.036-0.040 vs real 0.029-0.035, resid+ 4 of 5, break-even 0.038-0.039 vs 0.037-0.039, cheap-quarter errors +0.005..+0.010 and -0.008..-0.005, executed gaps 0.0004-0.0011 and 0.0006-0.0010, merit +0.0041 / +0.0143 and +0.007..+0.051: all backed. Wrong or unbacked: README:15 'the pump wins in all five years, against two in the real series' - the real series has the pump winning one year (2018 P; 2019 is a tie at -0.0005); project.json:5 lede and research/README.md:971 'wrong in sign in 5 of 5 years' - 2019 real -0.0005 and modelled -0.0097 have the same sign (4 of 5 are opposite sign; the fifth is a tie miss); README:10 and :37 'about 20 s' vs 42-48 s measured. The 'real margin is only -0.005 to +0.011' is stated as a property of real prices, but it is a property of a cost model that overbuys heat by 22.5% per cycle (domain), which no limitation mentions. No prior literature is cited. Limitations section is otherwise honest (LOYO is not a forecast, wholesale only, correlated cells, tie band chosen).",
+  "fitness": "Job: a researcher or planner asking whether a fundamental price model is good enough to value a heat store against a heat pump. The code is runnable and reusable within the repo, and the qualitative split (a model can schedule a store but cannot decide a margin smaller than its level error) is useful. As research it is a small step: the scheduling result restates the known finding that arbitrage value is robust to imperfect price forecasts because ranking hours matters more than level (Sioshansi et al. 2009 recover most of perfect-foresight value with simple backcasts; Walawalkar et al. 2007; Mokrian & Stephen 2006), and the level-error point is the standard limit of residual-load / merit-order fundamental models (Kallabis et al. 2016); none is cited, though the README does not claim novelty explicitly. The 'modelled price' is in-sample for later years (LOYO), so it is not the forecast a decision would use; the true forecast is left to Next step 3. Five correlated years, no significance. Not in any programme in research/PROGRAMMES.md.",
+  "domain": "Departures a reviewer would flag: (a) the store pays for heat from ambient (10 C) to 500 C every cycle (energy-thermal-cost/cost.py:96,101, used 'exactly' per README:22), but it only discharges to the 100 C cut, so the 10-100 C heat is re-bought each cycle; recharge from the cut needs usable_full_kwh = 0.816 x heat_in_kwh, so the energy bill is overstated 22.5%. Recomputed with that correction (B x 400/490 on the fitted linear cost), the house weekly real-price diff becomes -0.012/-0.012/-0.013/+0.001/-0.009 instead of -0.004/-0.005/-0.005/+0.011/-0.000: the store wins weekly cycling in 4 of 5 years with a tie in 2018, and the resid model then agrees in 2 of 5 (not 0); daily stays 5/5. The headline's 'weekly margin -0.005 to +0.011' is mostly this accounting. (b) Constant COP 3.6 for an air-source pump paid at the flat Nov-Mar mean, no temperature dependence or hourly load weighting (favours the pump in cold hours, and ignores that the pump could also shift load). (c) The store buys the cheapest quarter of every window of the year while heat is wanted in winter; from the raw prices the Nov-Mar daily cheapest quarter differs from the year-round one by -0.0036 to +0.0008 (2018 -0.0036), comparable with the weekly margin. (d) Price-taker only, wholesale, no levies or network charges, stated. The dispatch rule itself is the LP optimum for the stated charger (checked)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "section A: q_daily, q_weekly, hp_p, mean for 5 years x 4 price sources (incl. leave-one-year-out isotonic fit)",
+   "method": "own PAV isotonic regression and window ranking in numpy from raw OPSD CSVs, no repo imports",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/indep/indep.py /home/user/oss-monorepo/research",
+   "expected": "results.txt section A, e.g. 2015 resid 0.0290 0.0257 0.0389 0.0375",
+   "observed": "all 80 values equal to 4 dp; 2016 real weekly 0.0182 vs committed 0.0183 (exact 0.01825, a rounding boundary)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "sections D/E: executed-charging gap over perfect foresight, resid and merit, daily and weekly",
+   "method": "own stable argsort by plan, pay real price; independent script",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/indep/indep.py /home/user/oss-monorepo/research",
+   "expected": "resid +0.0007/+0.0009, merit +0.0041/+0.0143; per-year rows of section D",
+   "observed": "identical per year and in mean",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "cheapest-quarter charging equals the optimal price-taker dispatch for the stated charger size",
+   "method": "LP (scipy HiGHS): min sum p_t x_t, sum over each window = k, 0<=x<=1",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/indep/lp.py /home/user/oss-monorepo/research",
+   "expected": "0.0265 (2019 daily), 0.0276 (2018 weekly)",
+   "observed": "0.02645, 0.02757",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "heat-pump capital part and linearity of section B diffs in the store price",
+   "method": "own annuity from params.csv; least-squares fit of diff + hc + hp/3.6 = A + B q over 20 cells per case",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/indep/linear.py research/energy-store-modelprice/experiments/results.txt",
+   "expected": "residuals within table rounding (0.0005); B equal to the package's 1/(0.99 delivered_per_in)",
+   "observed": "hc 0.06189; max residual 0.00063/0.00050; B 1.604/2.084 vs 1.607/2.102",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "house verdict agreement counts",
+   "method": "recount from table B with my own tie rule",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/indep/linear.py research/energy-store-modelprice/experiments/results.txt",
+   "expected": "resid 15/20, merit 11/20 (house rows of G)",
+   "observed": "resid 15, resid+ 18, merit 11 of 20",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiment reproduces committed results.txt",
+   "method": "rerun in a scratch copy of research/energy-* and diff",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/esm/research/energy-store-modelprice && /usr/bin/python3.11 experiments/run.py > out311.txt && diff out311.txt /home/user/oss-monorepo/research/energy-store-modelprice/experiments/results.txt",
+   "expected": "no diff, about 20 s",
+   "observed": "no diff on 3.11 in 42 s; on 3.13 (48 s) 4 lines differ by 1e-4",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure regenerates from results.txt",
+   "method": "rerun figure.py in the copy and diff",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/esm/research/energy-store-modelprice && /usr/bin/python3.13 experiments/figure.py && diff experiments/weekly.svg /home/user/oss-monorepo/research/energy-store-modelprice/experiments/weekly.svg",
+   "expected": "identical",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite, pytest and the repo's unittest convention",
+   "method": "run both",
+   "command": "cd research/energy-store-modelprice && /usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider; python3 -m unittest discover -s tests",
+   "expected": "6 tests pass under either",
+   "observed": "pytest: 6 passed in 1.12 s; unittest: ImportError / NO TESTS RAN; research-ci.yml runs no project tests",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/energy-store-modelprice/",
+   "expected": "200",
+   "observed": "200, title 'Does the sand-store versus heat-pump verdict...'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:15 merit scheduling: 'the pump wins in all five years, against two in the real series'",
+   "method": "read verdicts in results.txt section B (real weekly: S S S P T)",
+   "command": "grep -n '^weekly' research/energy-store-modelprice/experiments/results.txt",
+   "expected": "two pump wins in the real series",
+   "observed": "one (2018); 2019 is a tie at -0.0005",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "project.json:5 lede / research/README.md:971 'wrong in sign in 5 of 5 years'",
+   "method": "section H signs",
+   "command": "sed -n 113,119p research/energy-store-modelprice/experiments/results.txt",
+   "expected": "opposite sign in all 5 years",
+   "observed": "4 of 5 opposite; 2019 real -0.0005 and resid -0.0097 are both negative (a tie miss, not a sign error)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:10/:37 run time 'about 20 s'",
+   "method": "time the rerun",
+   "command": "time /usr/bin/python3.11 experiments/run.py",
+   "expected": "about 20 s",
+   "observed": "42 s (3.11), 48 s (3.13)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "per-cycle heat purchase of the sand store (cost model used 'exactly')",
+   "method": "energy balance: recharge from the 100 C cut needs usable_full = 400/490 of heat_in; refit diffs with B x 400/490",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/indep/linear.py research/energy-store-modelprice/experiments/results.txt",
+   "expected": "store bills heat bought per cycle = delivered + standby loss",
+   "observed": "bills heat from 10 C each cycle (+22.5%); corrected house weekly real diff -0.012/-0.012/-0.013/+0.001/-0.009 (store wins 4 of 5) vs committed -0.004/-0.005/-0.005/+0.011/-0.000",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "store and pump priced over the same heat-demand hours",
+   "method": "raw prices: daily cheapest quarter over Nov-Mar days vs all days",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/indep/indep.py /home/user/oss-monorepo/research",
+   "expected": "negligible difference if the year-round window is harmless",
+   "observed": "-0.0017/-0.0007/+0.0008/-0.0036/-0.0002 EUR/kWh, comparable with the weekly margin",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work on arbitrage under imperfect price forecasts and residual-load price models cited",
+   "method": "grep README for the literature",
+   "command": "grep -n -i 'sioshansi\\|walawalkar\\|kallabis\\|et al' research/energy-store-modelprice/README.md",
+   "expected": "cited, with how the result differs",
+   "observed": "no matches; only in-repo projects are cited",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/energy_store_modelprice/model.py:24",
+   "change": "if y != test_year for r -> if True for r (fit trains on the held-out year)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  },
+  {
+   "where": "src/energy_store_modelprice/model.py:29",
+   "change": "[0.0546] -> [0.0564] (flat merit price)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  },
+  {
+   "where": "src/energy_store_modelprice/model.py:49",
+   "change": "hp_lcoh(TD, scale, SCALES[scale], hp_price) -> hp_lcoh(..., hp_price * 1.1)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  },
+  {
+   "where": "experiments/run.py:27",
+   "change": "cheapest_mean(SRC[y][k], case[2], 0.25) -> cheapest_mean(SRC[y][k], case[1], 0.25)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  },
+  {
+   "where": "src/energy_store_modelprice/model.py:40",
+   "change": "key=lambda j: plan[j] -> key=lambda j: actual[j]",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  },
+  {
+   "where": "src/energy_store_modelprice/model.py:53",
+   "change": "tol=0.002 -> tol=0.0002",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The inherited cost model bills the store for heat from ambient (10 C) to 500 C every cycle although it only discharges to the 100 C cut, overstating the store's electricity per cycle by 22.5% (usable_full/heat_in = 0.816). Corrected, the house weekly real-price margin is -0.013 to +0.001 (store wins 4 of 5) rather than -0.005 to +0.011, so the headline weekly finding mostly reflects this accounting; not disclosed in Limitations",
+   "where": "research/energy-thermal-cost/src/energy_thermal_cost/cost.py:96",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Core logic untested: 4 of 6 seeded mutants survive, including removing the leave-one-year-out holdout (the design choice the paper rests on), the merit constant, the heat-pump price path, and the run.py store-price window; no test covers experiments/run.py or pins any results.txt number",
+   "where": "research/energy-store-modelprice/tests/test_model.py:21",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work uncited: arbitrage value under imperfect price forecasts (Sioshansi et al. 2009; Walawalkar et al. 2007; Mokrian & Stephen 2006) already shows ranking-hours robustness, and residual-load fundamental price models (Kallabis et al. 2016) are known to miss the level; the scheduling result is presented without that context, and the LOYO 'model' is in-sample for later years",
+   "where": "research/energy-store-modelprice/README.md:15",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "'the pump wins in all five years, against two in the real series': the real series has one pump win (2018) and one tie (2019)",
+   "where": "research/energy-store-modelprice/README.md:15",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Lede 'wrong in sign in 5 of 5 years': 2019 real -0.0005 and modelled -0.0097 share a sign; 4 of 5 are opposite-sign, the fifth a tie miss (also research/README.md:971)",
+   "where": "research/energy-store-modelprice/project.json:5",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Run time 'about 20 s' / '20 s'; measured 42 s (3.11) and 48 s (3.13); and results differ by 1e-4 in 4 lines on Python >= 3.12 (exact 0.01825 rounding boundary under compensated sum())",
+   "where": "research/energy-store-modelprice/README.md:10",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Tests are pytest-only and need the pyproject pythonpath; `python3 -m unittest discover -s tests` runs nothing and research CI runs no project tests, so no check ever runs them",
+   "where": "research/energy-store-modelprice/tests/test_model.py:1",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "Store priced on the cheapest quarter of every window of the year while the pump pays the Nov-Mar mean; the heat is wanted in winter. Nov-Mar-only daily cheapest quarter differs by -0.0036 to +0.0008, comparable with the weekly margin; constant COP 3.6 with no temperature dependence",
+   "where": "research/energy-store-modelprice/experiments/run.py:27",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569"
+ ],
+ "verdict": "A tidy, reproducible follow-on whose stored numbers are right for the model as written: the experiment reproduces byte-for-byte on Python 3.11 (4 cells off by 1e-4 on 3.13 at an exact rounding boundary), and my own isotonic fit, window ranking, LP dispatch and annuity reproduce sections A, D, E, the heat-pump cost and the house verdict counts. It misses the bar on verification (4 of 6 seeded mutants survive, including removing the leave-one-year-out holdout) and on claims (two small misstatements of its own table and a stale run time). The worst problem is inherited: the cost model bills the sand store for heat from 10 C each cycle though it only discharges to 100 C, overstating its electricity by 22.5%; corrected, the store wins weekly cycling in 4 of 5 years, so the 'marginal weekly verdict' at the heart of the headline is largely an accounting artefact. The scheduling finding is the known robustness of arbitrage to forecast error (Sioshansi et al. 2009), uncited."
+}
