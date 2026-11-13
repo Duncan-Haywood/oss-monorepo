@@ -42,6 +42,16 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          # P063: the steps below need platform/, .github/, docs/ and
+          # portfolio/ plus only the ventures the change touches (added in
+          # "Check out the touched ventures"). The full tree is 51k files,
+          # a median 22.7 s of checkout. A sparse checkout also makes the
+          # action clone with --filter=blob:none.
+          sparse-checkout: |
+            platform
+            .github
+            docs
+            portfolio
       # Every step below only diffs BASE against HEAD, which needs the two
       # commits' trees, not the history between them. A full clone (5.3 GB)
       # was a median 95s of a 107s job; depth 1 plus this one-commit fetch is
@@ -61,6 +71,10 @@ jobs:
               git fetch --quiet --no-tags origin "$BASE" || echo "::warning::could not fetch base $BASE"
             fi
           fi
+      - name: Check out the touched ventures
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: bash platform/ci/sparse_ventures.sh "${BASE:-}"
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
