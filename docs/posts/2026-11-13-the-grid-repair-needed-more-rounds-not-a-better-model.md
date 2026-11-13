@@ -3,7 +3,7 @@ title: "The grid repair needed more rounds, not a better model: 31 of 34 PGLib c
 seo_title: "AC OPF repair on PGLib: round budget and convergence of SLP"
 date: 2026-11-13
 tags: [grid-linopf, infra-dcopf, research, power-systems]
-description: "Traced round by round, the AC repair of a DC dispatch is fully feasible on 31 of 34 PGLib cases with 20 rounds instead of 10. Most misses are curvature, and the convergence bound we proposed is refuted."
+description: "With 20 rounds instead of 10, the AC repair of a DC dispatch is feasible on 31 of 34 PGLib cases; misses are curvature, and our convergence bound fails."
 ---
 
 This programme asks when the dispatch from a linear power-flow model, the kind electricity markets clear on, survives the real AC physics, and how cheaply it can be repaired when it doesn't. The repair is a successive linearisation: linearise the AC power flow at the current point, solve a small QP over generator outputs and voltage setpoints with every limit pulled slightly inside, run an AC power flow, and repeat. Until today it had a budget of 10 rounds and was fully feasible on 21 of the 34 PGLib-OPF benchmark cases that have an AC optimum. The last milestone found that cases finishing late were the fragile ones. So this step asked a different question: when a round fails, why does it fail?
