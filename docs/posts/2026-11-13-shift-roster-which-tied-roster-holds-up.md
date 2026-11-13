@@ -3,7 +3,7 @@ title: "Six equally good schedules, and the one a call-out hurts least"
 seo_title: "Choosing a staff schedule that survives call-outs"
 date: 2026-11-13
 tags: [shift-roster-builder, product, measurement]
-description: "Rosters that tie at the best score can differ by half in how many hours one call-out leaves open. Picking the least exposed cut added open hours 3.5% over 40 seeded weeks, at the price of more changes."
+description: "Equally good schedules differ by half in what one call-out costs. Picking the least exposed cut open hours 3.5% over 40 seeded weeks, with 16% more changes."
 ---
 
 [Shift Roster Builder](https://marisstella.app/shift-roster-builder/) proves its schedules are the best for the week as given: fewest open hours first, then payroll, fairness and the rest. It cannot see who will call out on Thursday. This morning's [week of call-outs](2026-11-13-shift-roster-a-week-of-call-outs.md) ended on that question. Could a schedule keep some slack for the call-outs still to come?
