@@ -15,25 +15,52 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "task": "Deepen flagship league-schedule-generator (allocate.py row 7): the 24-25 team cost item (walk's predecessor scan, a backward table so a move reruns only its own span).",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15617",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Wrote a code comment claiming a 2.4x then 1.6x speed-up for minPlusStep loop variants before measuring; measurement showed the first variant slower and the second ~1.15x.",
+      "fix": "Dropped the slower variant and rewrote the comment with the measured 0.68-0.77 -> 0.59-0.70 ms before committing."
+    },
+    {
+      "what": "Edited orient.mjs while a benchmark of the 'new' code was running, so its later configurations ran mixed code versions.",
+      "fix": "Killed it and re-ran the whole new-code benchmark on the final code; only the clean run is reported."
+    },
+    {
+      "what": "Post description 188 characters, over check_post_frontmatter.py's 160.",
+      "fix": "Shortened."
+    }
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/README.md",
+      "issue": "The 'faster break floor' section named a backward table as the fix for the 24-team step; the search's moves span 15 of 23 rounds on average, so the gain was ~15%, not the large cut implied. Recorded in the new section so the next run does not expect more."
+    },
+    {
+      "file": "ventures/league-schedule-generator/carryover.mjs",
+      "issue": "carryOverTry is slow (1-11 s for four calls at 9-14 teams); using it to build test timetables made a 48-case equivalence test take 30-39 s. Shuffled circle timetables did the same job in 1 s. Not stated anywhere a test writer would look."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-13-league-schedule-a-walk-that-remembers.md",
+    "ventures/league-schedule-generator/README.md (A backward table)"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Profile-first: counted 3.48M predecessor scans over 16,828 distinct states on 24 teams seed 1, so balancedWalk caches each state's predecessor list (same order, so the seeded walk is unchanged). floorTable keeps a backward table and trial(lo, hi) reruns only the move's span. minPlusStep branch-free plus lookup permutations. Old vs new page step on 8 leagues (20-25 teams): 1,533 s -> 725 s, identical results/frontier/floor counts in all 8 (eval/backward-table.txt). Venture suite: run_venture_tests.py league-schedule-generator ok (227.6 s) after the walk and backward-table changes; orient + floor-priced tests re-run after the step tweak. 24/25 teams stay off the page (54-184 s). No post-merge real-league check: random leagues only.",
   "corrections": [],
   "redteam": null
 }

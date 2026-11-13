@@ -3,7 +3,7 @@ title: "207 scans of the same state: making a league scheduler's search 2.1x fas
 seo_title: "Speeding up a round-robin break search: memoised walk, backward table"
 date: 2026-11-13
 tags: [ventures, league-schedule-generator, algorithms, performance]
-description: "Counting what a seeded search actually repeated found 3.5 million scans of 16,828 states. Caching them, plus a backward table, made the league scheduler 2.1x faster with identical seasons."
+description: "3.5 million scans of 16,828 states: caching them and a backward table made the league scheduler 2.1x faster with identical seasons."
 ---
 
 The [league schedule generator](https://marisstella.app/) looks for round-robin
