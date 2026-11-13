@@ -56,6 +56,29 @@ def match(alarm_times, events, window=np.timedelta64(30, "D")):
     return matched, false
 
 
+def gate_events(events, carried, flow_at, phi):
+    """Step 8: flow-gated events. Each event's onset is replaced by its gate, the first hour whose
+    hourly-mean leak flow is at least `phi` m3/h; `flow_at(pipe)` returns (hours, flows) for that
+    pipe over both years. phi = 0 keeps the onsets (today's rule). Events that never reach phi are
+    dropped. Returns (gated events, carried indices remapped, true onsets, dropped pipe names)."""
+    out, car, onsets, dropped = [], set(), [], []
+    for i, e in enumerate(events):
+        if phi <= 0:
+            g = e[1]
+        else:
+            h, q = flow_at(e[0])
+            ok = np.nonzero((q >= phi) & (h >= e[1].astype("datetime64[h]")))[0]
+            if not len(ok):
+                dropped.append(e[0])
+                continue
+            g = max(h[ok[0]].astype("datetime64[m]"), e[1])
+        if i in carried:
+            car.add(len(out))
+        out.append((e[0], g) + tuple(e[2:]))
+        onsets.append(e[1])
+    return out, car, onsets, dropped
+
+
 def volume_before(ts, cols, L, pipe, onset, until):
     """Leak volume (m3) of one pipe from onset up to (not including) `until`."""
     j = cols.index(pipe)

@@ -4,7 +4,11 @@
 
 export const VERIFY = "Your my Social Security account (ssa.gov/myaccount) or an SSA representative (1-800-772-1213), who can see the deceased worker's actual record, and a fee-only planner for the tax side";
 
-export const SURVIVOR_FLOOR = 0.825; // widow(er) limit: 82.5% of the worker's PIA when the worker claimed early
+// Widow(er)'s limit (RIB-LIM, Social Security Act s.202(e)(2)(D), POMS RS 00615.320): when the worker was entitled to a
+// reduced retirement benefit before death, the survivor's age-reduced benefit is capped at the larger of that reduced
+// benefit and 82.5% of the worker's PIA. It is a cap on the survivor benefit, not a new base to reduce again.
+export const SURVIVOR_LIMIT = 0.825;
+export const SURVIVOR_FLOOR = SURVIVOR_LIMIT; // old name, kept for importers
 export const SURVIVOR_AT_60 = 0.715; // survivor benefit at age 60 is 71.5% of the base amount
 
 // Retirement full retirement age in months, from the birth year (SSA table).
@@ -35,10 +39,21 @@ export function survivorFactor(claim, sfra) {
   return SURVIVOR_AT_60 + (1 - SURVIVOR_AT_60) * (claim - 720) / (sfra - 720);
 }
 
-// What the deceased worker was (or would have been) paid: the base for the survivor benefit.
-export function survivorBase(pia, dFra, dClaim) {
-  const own = pia * ownFactor(dClaim, dFra);
-  return dClaim < dFra ? Math.max(own, SURVIVOR_FLOOR * pia) : own;
+// The survivor benefit claimed at `claim` months (survivor FRA `sfra`), before any own-benefit comparison.
+// claimed = false: the worker died without ever claiming, so no widow(er)'s limit applies; dClaim is the age at death
+// (delayed credits earned up to a death after full retirement age pass to the survivor).
+export function survivorAmount(pia, dFra, dClaim, claim, sfra, claimed = true) {
+  if (dClaim >= dFra) return pia * ownFactor(dClaim, dFra) * survivorFactor(claim, sfra);
+  const reduced = pia * survivorFactor(claim, sfra);
+  if (!claimed) return reduced;
+  return Math.min(reduced, Math.max(pia * ownFactor(dClaim, dFra), SURVIVOR_LIMIT * pia));
+}
+
+// The survivor benefit at survivor full retirement age: the most the survivor can be paid on this record.
+export function survivorBase(pia, dFra, dClaim, claimed = true) {
+  if (dClaim >= dFra) return pia * ownFactor(dClaim, dFra);
+  if (!claimed) return pia;
+  return Math.max(pia * ownFactor(dClaim, dFra), SURVIVOR_LIMIT * pia);
 }
 
 export function parse(input) {
@@ -56,12 +71,15 @@ export function parse(input) {
   const ownPia = num("ownPia", "your own primary insurance amount (PIA) per month in dollars, from your my Social Security statement at full retirement age (0 if you have no work record)", { max: 20000 });
   const deceasedPia = num("deceasedPia", "the deceased spouse's PIA per month in dollars", { min: 1, max: 20000 });
   const deceasedBirthYear = num("deceasedBirthYear", "the deceased spouse's birth year", { min: 1900, max: 1990 });
-  const deceasedClaimAge = num("deceasedClaimAge", "the age (in years, decimals allowed) the deceased spouse started benefits, or was when they died if they never claimed", { min: 62, max: 70 });
+  const deceasedClaimed = !(i.deceasedClaimed === false || i.deceasedClaimed === "no");
+  const deceasedClaimAge = deceasedClaimed
+    ? num("deceasedClaimAge", "the age (in years, decimals allowed) the deceased spouse started benefits", { min: 62, max: 70 })
+    : num("deceasedClaimAge", "the deceased spouse's age at death (in years, decimals allowed)", { min: 18, max: 110 });
   const survivorFraYears = num("survivorFraYears", "your survivor full retirement age in years (SSA publishes the table; 67 if you were born in 1962 or later)", { min: 60, max: 67 });
   const planAge = num("planAge", "the age to plan to", { min: 70, max: 105 });
   const spousePia = num("spousePia", "a living spouse's PIA per month in dollars for the spousal-benefit check (0 to skip)", { max: 20000 });
   const spousalClaimAge = num("spousalClaimAge", "the age you would claim the spousal benefit", { min: 62, max: 70 });
-  return { errors, birthYear, ownPia, deceasedPia, deceasedBirthYear, deceasedClaimAge, survivorFraYears, planAge, spousePia, spousalClaimAge };
+  return { errors, birthYear, ownPia, deceasedPia, deceasedBirthYear, deceasedClaimed, deceasedClaimAge, survivorFraYears, planAge, spousePia, spousalClaimAge };
 }
 
 export const money = (v) => (v < 0 ? "-$" : "$") + Math.abs(Math.round(v)).toLocaleString("en-US");
@@ -88,8 +106,9 @@ export function compute(input) {
   const sFra = Math.round(p.survivorFraYears * 12);
   const dClaim = Math.round(p.deceasedClaimAge * 12);
   const planMonths = Math.round(p.planAge * 12);
-  const base = survivorBase(p.deceasedPia, dFra, dClaim);
-  const survivorAmt = (c) => base * survivorFactor(c, sFra);
+  const dAge = Math.min(dClaim, 840); // delayed credits stop at 70
+  const base = survivorBase(p.deceasedPia, dFra, dAge, p.deceasedClaimed);
+  const survivorAmt = (c) => survivorAmount(p.deceasedPia, dFra, dAge, c, sFra, p.deceasedClaimed);
   const ownAmt = (c) => p.ownPia * ownFactor(c, oFra);
 
   const table = [];
@@ -117,18 +136,21 @@ export function compute(input) {
   const bestNamed = { label: "Highest total to age " + p.planAge, sa: best.sa, oa: best.oa, total: best.total };
 
   const findings = [];
-  findings.push({ severity: "high", title: `Survivor benefit is ${money(survivorAmt(sFra))} a month at your survivor full retirement age (${ageLabel(sFra)}) and ${money(survivorAmt(720))} at 60. It is based on ${money(base)}, what the deceased was paid or would have been.` });
+  findings.push({ severity: "high", title: `Survivor benefit is ${money(survivorAmt(sFra))} a month at your survivor full retirement age (${ageLabel(sFra)}) and ${money(survivorAmt(720))} at 60. The most it can be is ${money(base)}.` });
   if (p.ownPia > 0) {
     const crossed = ownAmt(840) > survivorAmt(sFra);
     findings.push({ severity: "high", title: `Your own benefit would be ${money(ownAmt(840))} at 70 and ${money(ownAmt(Math.max(oFra, 744)))} at full retirement age. ${crossed ? "Because your own benefit at 70 is larger, a common move is to take the survivor benefit first and switch to your own at 70." : "Your survivor benefit is larger than your own even at 70, so you would normally collect the survivor benefit and let your own add nothing."}` });
   }
   findings.push({ severity: "medium", title: `Highest total to age ${p.planAge} in this model: survivor at ${ageLabel(best.sa)}, own at ${ageLabel(best.oa)} for about ${money(best.total)} (today's dollars, no COLA). A single total hides longevity risk, so read the monthly table too.` });
-  if (dClaim < dFra) findings.push({ severity: "info", title: `The deceased claimed before full retirement age, so the survivor benefit is the larger of their reduced benefit and 82.5% of their PIA (${money(SURVIVOR_FLOOR * p.deceasedPia)}). This tool used ${money(base)}.` });
-  if (dClaim > dFra) findings.push({ severity: "info", title: `The deceased claimed after full retirement age, so their delayed credits pass to the survivor.` });
+  if (dClaim < dFra && p.deceasedClaimed) findings.push({ severity: "info", title: `The deceased claimed before full retirement age, so the widow(er)'s limit applies: your age-reduced survivor benefit is capped at the larger of their reduced benefit and 82.5% of their PIA, here ${money(base)}.` });
+  if (dClaim < dFra && !p.deceasedClaimed) findings.push({ severity: "info", title: `The deceased died before full retirement age without claiming, so no widow(er)'s limit applies and the survivor benefit is figured from their full PIA.` });
+  if (dClaim > dFra) findings.push({ severity: "info", title: `The deceased ${p.deceasedClaimed ? "claimed" : "died"} after full retirement age, so their delayed credits pass to the survivor.` });
   let spousal = null;
   if (p.spousePia > 0) {
     const claim = Math.round(p.spousalClaimAge * 12);
-    const excess = Math.max(p.spousePia * spousalFactor(claim, oFra) - p.ownPia, 0);
+    // The excess (half the spouse's PIA less your own PIA) is reduced for age, not the half before subtracting
+    // (20 CFR 404.410; POMS RS 00615.020).
+    const excess = Math.max(p.spousePia / 2 - p.ownPia, 0) * spousalFactor(claim, oFra) * 2;
     spousal = { claim, excess, total: ownAmt(Math.max(claim, 744)) + excess, ownPart: ownAmt(Math.max(claim, 744)) };
     findings.push({ severity: spousal.excess > 0 ? "high" : "info", title: spousal.excess > 0 ? `As a spouse you could add a spousal top-up of about ${money(spousal.excess)} a month on top of your own benefit when claiming at ${ageLabel(claim)}, if your spouse has filed. Total about ${money(spousal.total)}.` : `Your own benefit is large enough that no spousal top-up is payable at ${ageLabel(claim)}.` });
   }
@@ -138,7 +160,7 @@ export function compute(input) {
 }
 
 export const SAMPLE = {
-  birthYear: 1962, ownPia: 2400, deceasedPia: 3200, deceasedBirthYear: 1960, deceasedClaimAge: 67,
+  birthYear: 1962, ownPia: 2400, deceasedPia: 3200, deceasedBirthYear: 1960, deceasedClaimed: "yes", deceasedClaimAge: 67,
   survivorFraYears: 67, planAge: 90, spousePia: 3200, spousalClaimAge: 67,
 };
 

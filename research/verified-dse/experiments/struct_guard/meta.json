@@ -1,0 +1,68 @@
+{
+ "base_period_ns": {
+  "maxtree32x16": 10.05,
+  "rotmask128": 3.22,
+  "maxtree16x16": 7.89,
+  "rotmask64": 1.83,
+  "lzcnorm64": 15.8,
+  "lzcnorm32": 6.99
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "designs": {
+  "rotmask64": [
+   "rotmask_w",
+   "rotmask_w",
+   {
+    "W": 64,
+    "SW": 6
+   },
+   ""
+  ],
+  "rotmask128": [
+   "rotmask_w",
+   "rotmask_w",
+   {
+    "W": 128,
+    "SW": 7
+   },
+   ""
+  ],
+  "lzcnorm32": [
+   "lzcnorm_w",
+   "lzcnorm_w",
+   {
+    "W": 32,
+    "LW": 6
+   },
+   ""
+  ],
+  "lzcnorm64": [
+   "lzcnorm_w",
+   "lzcnorm_w",
+   {
+    "W": 64,
+    "LW": 7
+   },
+   ""
+  ],
+  "maxtree16x16": [
+   "maxtree_w",
+   "maxtree_w",
+   {
+    "N": 16,
+    "W": 16
+   },
+   ""
+  ],
+  "maxtree32x16": [
+   "maxtree_w",
+   "maxtree_w",
+   {
+    "N": 32,
+    "W": 16
+   },
+   ""
+  ]
+ }
+}

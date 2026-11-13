@@ -36,12 +36,16 @@ LABEL = {"chi2": "χ²₃ (milestone 4b)", "F": "Satterthwaite–Hotelling F", "
          "U": "W or f alone, both transferred (exploratory)"}
 
 
-def main():
-    with gzip.open(os.path.join(ROOT, "experiments", "m4b_viewcov", "results.json.gz"), "rt") as fh:
-        res = json.load(fh)
+SCEN = [("S0", 1.0, 0.0)] + [("S1", s, 0.0) for s in S_LIST] + [("S2", 1.0, du) for du in DU_LIST] + [("S3", 1.0, 0.0)]
+
+
+def score(res, methods=METHODS):
+    """Every k >= 4 decision of milestone 4b's splits, with W, z_f^2, the references and the rule
+    applied. `res` is a milestone-4b-format results dict (solutions for every method in `methods`).
+    Returns (rows, q), q the S0 99th percentiles per (method, camera). Milestone 4d reuses it."""
     sols = {(r["method"], r["cam"], tuple(r["views"])): r["sol"] for r in res["solutions"]}
     size = {cam: res["cams"][cam]["size"] for cam in CAMS}
-    truth = {(m, cam): theta(sols[(m, cam, tuple(range(13)))]) for m in METHODS for cam in CAMS}
+    truth = {(m, cam): theta(sols[(m, cam, tuple(range(13)))]) for m in methods for cam in CAMS}
 
     def jk(m, cam, views):
         s = sols[(m, cam, tuple(views))]
@@ -54,9 +58,9 @@ def main():
         n = int(np.all(np.isfinite(loo), axis=1).sum())
         return theta(s), jackknife_cov(loo), n, np.sqrt(np.array(s["cov_intr"])[0, 0])
 
-    scen = [("S0", 1.0, 0.0)] + [("S1", s, 0.0) for s in S_LIST] + [("S2", 1.0, du) for du in DU_LIST] + [("S3", 1.0, 0.0)]
+    scen = SCEN
     rows = []
-    for m in METHODS:
+    for m in methods:
         for cam in CAMS:
             for sp in res["splits"]:
                 if sp["k"] < 4:
@@ -85,14 +89,14 @@ def main():
                         continue
                     zf2 = float(d[0] ** 2 / C[0, 0])
                     nu = satterthwaite_nu(Jo[0, 0], s * s * Jn[0, 0], mo, mn)
-                    rows.append(dict(m=m, cam=cam, k=sp["k"], i=sp["i"], scen=name, s=s, du=du, W=W, zf2=zf2, nu=nu,
+                    rows.append(dict(m=m, cam=cam, k=sp["k"], i=sp["i"], scen=name, s=s, du=du, W=W, zf2=zf2, nu=nu, df=float(d[0]),
                                      crit_F=hotelling_crit(3, nu), crit_F1=hotelling_crit(1, nu),
                                      sf_rep=s * sf_rep0, f_new=float(thn[0]),
                                      e_old=abs(tho[0] - t_true[0]) / t_true[0], e_new=abs(thn[0] - t_true[0]) / t_true[0]))
 
     # Empirical S0 99th percentiles per detector and camera (k >= 4 pooled)
     q = {}
-    for m in METHODS:
+    for m in methods:
         for cam in CAMS:
             s0 = [r for r in rows if r["m"] == m and r["cam"] == cam and r["scen"] == "S0"]
             q[(m, cam)] = (float(np.quantile([r["W"] for r in s0], 0.99)), float(np.quantile([r["zf2"] for r in s0], 0.99)),
@@ -109,6 +113,14 @@ def main():
             # milestone 4's rule: adopt iff detected and the reported sigma_f of the new set <= 0.5% of f
             dec = decide(1.0 if fired else 0.0, r["sf_rep"], r["f_new"], crit=0.5)
             r["harmful"][k] = bool(dec == "adopt" and r["e_new"] - r["e_old"] > 0.005)
+    return rows, q
+
+
+def main():
+    with gzip.open(os.path.join(ROOT, "experiments", "m4b_viewcov", "results.json.gz"), "rt") as fh:
+        res = json.load(fh)
+    rows, q = score(res)
+    scen = SCEN
 
     def sel(**kw):
         out = rows

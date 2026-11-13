@@ -1,0 +1,34 @@
+Milestone 7e follow-up: tilt-command clip widened; diverged held-out episodes per seed (of 64), mean position RMS and mean J.
+
+tilt cap   20 deg, lever 0, above unconstrained: diverged   0 of 384 [0, 0, 0, 0, 0, 0]; pos 0.105 m; J -1.56
+tilt cap   20 deg, lever 0, above constrained  : diverged   0 of 384 [0, 0, 0, 0, 0, 0]; pos 0.105 m; J -1.57
+tilt cap   20 deg, lever 0, below unconstrained: diverged   0 of 384 [0, 0, 0, 0, 0, 0]; pos 0.112 m; J -1.58
+tilt cap   20 deg, lever 0, below constrained  : diverged   0 of 384 [0, 0, 0, 0, 0, 0]; pos 0.113 m; J -1.58
+tilt cap   20 deg, lever 1, above unconstrained: diverged   0 of 384 [0, 0, 0, 0, 0, 0]; pos 0.107 m; J -1.58
+tilt cap   20 deg, lever 1, above constrained  : diverged   0 of 384 [0, 0, 0, 0, 0, 0]; pos 0.107 m; J -1.59
+tilt cap   20 deg, lever 1, below unconstrained: diverged   2 of 384 [0, 2, 0, 0, 0, 0]; pos 0.125 m; J -1.72
+tilt cap   20 deg, lever 1, below constrained  : diverged   0 of 384 [0, 0, 0, 0, 0, 0]; pos 0.104 m; J -1.52
+tilt cap   30 deg, lever 0, above unconstrained: diverged   2 of 384 [0, 0, 0, 0, 0, 2]; pos 0.122 m; J -1.71
+tilt cap   30 deg, lever 0, above constrained  : diverged   0 of 384 [0, 0, 0, 0, 0, 0]; pos 0.103 m; J -1.56
+tilt cap   30 deg, lever 0, below unconstrained: diverged   2 of 384 [0, 2, 0, 0, 0, 0]; pos 0.134 m; J -1.78
+tilt cap   30 deg, lever 0, below constrained  : diverged   0 of 384 [0, 0, 0, 0, 0, 0]; pos 0.112 m; J -1.57
+tilt cap   30 deg, lever 1, above unconstrained: diverged   2 of 384 [0, 0, 0, 0, 0, 2]; pos 0.124 m; J -1.74
+tilt cap   30 deg, lever 1, above constrained  : diverged   0 of 384 [0, 0, 0, 0, 0, 0]; pos 0.105 m; J -1.58
+tilt cap   30 deg, lever 1, below unconstrained: diverged   6 of 384 [0, 4, 1, 0, 1, 0]; pos 0.172 m; J -2.15
+tilt cap   30 deg, lever 1, below constrained  : diverged   5 of 384 [1, 1, 1, 1, 0, 1]; pos 0.163 m; J -2.03
+tilt cap   45 deg, lever 0, above unconstrained: diverged  13 of 384 [1, 1, 2, 1, 1, 7]; pos 0.257 m; J -2.96
+tilt cap   45 deg, lever 0, above constrained  : diverged   0 of 384 [0, 0, 0, 0, 0, 0]; pos 0.103 m; J -1.56
+tilt cap   45 deg, lever 0, below unconstrained: diverged   2 of 384 [0, 2, 0, 0, 0, 0]; pos 0.135 m; J -1.78
+tilt cap   45 deg, lever 0, below constrained  : diverged   1 of 384 [0, 1, 0, 0, 0, 0]; pos 0.122 m; J -1.66
+tilt cap   45 deg, lever 1, above unconstrained: diverged  13 of 384 [0, 1, 4, 0, 0, 8]; pos 0.259 m; J -3.03
+tilt cap   45 deg, lever 1, above constrained  : diverged   0 of 384 [0, 0, 0, 0, 0, 0]; pos 0.105 m; J -1.58
+tilt cap   45 deg, lever 1, below unconstrained: diverged   6 of 384 [0, 4, 1, 0, 1, 0]; pos 0.172 m; J -2.15
+tilt cap   45 deg, lever 1, below constrained  : diverged   6 of 384 [1, 2, 1, 1, 0, 1]; pos 0.175 m; J -2.14
+tilt cap   59 deg, lever 0, above unconstrained: diverged  13 of 384 [1, 1, 2, 1, 1, 7]; pos 0.257 m; J -2.96
+tilt cap   59 deg, lever 0, above constrained  : diverged   0 of 384 [0, 0, 0, 0, 0, 0]; pos 0.103 m; J -1.56
+tilt cap   59 deg, lever 0, below unconstrained: diverged   2 of 384 [0, 2, 0, 0, 0, 0]; pos 0.135 m; J -1.78
+tilt cap   59 deg, lever 0, below constrained  : diverged   1 of 384 [0, 1, 0, 0, 0, 0]; pos 0.122 m; J -1.66
+tilt cap   59 deg, lever 1, above unconstrained: diverged  13 of 384 [0, 1, 4, 0, 0, 8]; pos 0.259 m; J -3.03
+tilt cap   59 deg, lever 1, above constrained  : diverged   0 of 384 [0, 0, 0, 0, 0, 0]; pos 0.105 m; J -1.58
+tilt cap   59 deg, lever 1, below unconstrained: diverged   6 of 384 [0, 4, 1, 0, 1, 0]; pos 0.172 m; J -2.15
+tilt cap   59 deg, lever 1, below constrained  : diverged   6 of 384 [1, 2, 1, 1, 0, 1]; pos 0.175 m; J -2.14

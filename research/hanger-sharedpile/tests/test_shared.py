@@ -27,6 +27,14 @@ class T(unittest.TestCase):
         self.assertGreater(b, 0)
         self.assertGreater(w, 0)
 
+    def test_waiting_is_added_to_the_blocked_picks(self):
+        # Picks draw from the RNG in the same order whatever the clearance, so the blocked run's pick times are the
+        # unblocked run's plus exactly the seconds waited (round 63 audit: `t += 0.0` survived every test).
+        free, _, _ = shared_sequence(25, "pinch", PP, 7, 2, 0.0)
+        held, b, w = shared_sequence(25, "pinch", PP, 7, 2, 0.30)
+        self.assertGreater(b, 0)
+        self.assertAlmostEqual(sum(t for t, _ in held), sum(t for t, _ in free) + w, places=6)
+
     def test_blocking_cannot_raise_output(self):
         cp = replace(CP, arms=2)
         free = replicate(cp, "see", PP, 40, sep=0.0)["done_per_hour"]

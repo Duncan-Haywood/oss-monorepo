@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 118 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 119 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -84,6 +84,13 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   the design-bootstrap interval is -1.68 to +5.55 points. Without the two shifter families (post hoc) it is 0.79% against
   2.59%, interval -2.53 to -1.03. A 4-point rank-agreement guard halves the funnel loss but does not fix it:
   [`experiments/new_families/`](experiments/new_families/results.txt).
+- **A guard that reads the RTL for a wide data shifter fixes the shifter failure, run blind (milestone 119, flow run).** SWS(64)
+  is the clipped switch, except that it routes randomly when the RTL has a data shifter of 64 bits or more. It was chosen on 136
+  seen cells (1.08% against 1.67% for SWC). On three families no table had run (rotate-and-mask, leading-zero normaliser,
+  maximum tree), it has 4.03% blind regret against 5.27% for SWC and 4.79% for equal-cost random routing. It is better than
+  random in 3 cells and worse in none. It acts on only 3 of the 12 cells, so the interval is -1.58 to +0.00 points. The max-tree
+  decoy, mux-heavy but no shifter, stays on the ladder and wins (0.73% against 2.99%):
+  [`experiments/struct_guard/`](experiments/struct_guard/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 
