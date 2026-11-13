@@ -1,7 +1,7 @@
 {
   "id": "P066",
   "title": "open-tennis-robots-ci: the cad job ran 19 min of its 20 min timeout; the next CAD slice will time it out",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 1,
@@ -19,7 +19,12 @@
   "baseline": "19 min of 20 (PR #15557, 2026-11-13)",
   "opened": "2026-11-13",
   "source": "explore run 2026-11-13, hopper agitator",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15580",
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-11-13",
+      "note": "Fixed in the tests, not the workflow (no control-plane PR): the collector and feeder package builds start as subprocesses in setUpModule and run beside the other tests; the clean-design sweeps the feeder build already runs (elevation, azimuth, feed stroke, cable loop) are asserted once from its manifest instead of re-run by four geometry tests; cable_sweep takes poses/azimuths so the shifted-loop failure case checks 1 pose of 21. Local, 4 CPUs, same machine: 1627 s before, 805 s after, all tests OK. CI wall time not yet measured: compare the cad job on the next open-tennis-robots PR against the 19 min baseline."
+    }
+  ]
 }
