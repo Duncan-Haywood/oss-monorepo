@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
@@ -35,6 +35,10 @@
     {
       "what": "First GARCH-vs-t sanity test asserted equality at large nu with GARCH on; the shipped Gaussian path is under-converged by ~0.27 LL per segment",
       "fix": "Test now asserts the bounded difference; the bias is stated in the pre-registration and README"
+    },
+    {
+      "what": "CI validate: flagships.yaml changepoint-detector next: over the 2000-character cap",
+      "fix": "Shortened the item to one line; history is in the README"
     }
   ],
   "integrity_issues": [],
