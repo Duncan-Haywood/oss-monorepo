@@ -286,7 +286,7 @@ flagships:
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up CSVs,
       duty rota, team sheets; carry-over on 20 real seasons; starters, capped breaks, frontier picker,
       squeezes, MaxSAT proof that the gaps are timetable-bound, exact break floor, three-round re-deals,
-      balanced least priced, faster break floor (22 teams in the page): README 2026-11-11 to 2026-11-13
+      balanced least priced, faster break floor (22 teams in the page), exact home-and-away breaks: README 2026-11-11 to 2026-11-13
       sections). 2026-11-13 latest: blackout fit on both pages (README "Blackout fit" and "Blackout fit on
       the multi-division page"): teams take the round-robin places that suit their blackout dates; one
       league, 640 random leagues: makeups -28%; several divisions, 192 random leagues: matches moved -30%
@@ -295,8 +295,9 @@ flagships:
       four-round re-deals or a longer run, now 3.8x cheaper; or a starter family climbed with the floor
       as its score); 24 and 25 teams in the page (152-426 s: the step is still 87 s of a 24-team run and
       the walk's 4,096-state predecessor scan 37 s; a backward table so a move reruns only its own span);
-      a tighter home-and-away floor that breaks the flip symmetry (branch on a few pairs, or the
-      mirrored-leg DP when leg two repeats leg one); a lower bound or a timetable below 136 at 12
+      home-and-away breaks exact since 2026-11-13 (pairLeastBreaks, 79 of 84 proved, 0 off MaxSAT;
+      eval/pair-exact.txt): next, a floor-priced home-and-away timetable search on it, and its cost at
+      18-20 teams (26-76 s, PAIR_EXACT_NODES) cut; a lower bound or a timetable below 136 at 12
       (eval/carryover-sat.py); close 24-40 (tabu, the literature's starters); a real league's travel and
       blackout list; printed sheets on a real printer and paper.
   - venture: open-tennis-robots
