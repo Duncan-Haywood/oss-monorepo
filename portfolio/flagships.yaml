@@ -259,20 +259,28 @@ flagships:
       (clearPick.ts), "it's between" as a 95% credible set at min(own EB prior
       sd, stored survey pooled sd) (favouriteSet.ts, surveyPrior*.ts); on real
       PrefLib rankings clear picks wrong 5 of 860, set holds 97-100%. Staged
-      is the server default up to 120 items (pairing.ts). Pooled-prior
+      (information selector from the first answer) is the server default at
+      every list length since 2026-11-13 (doc section "Lists over 120 items:
+      the switch rule"; scripts/long-list-switch-sweep.ts, 150-500 items). Pooled-prior
       narrowing of the pairwise intervals is closed from the choices alone
       (2026-11-13, doc sections "A lapse gate for the upper end", "Anchor
       pairs as the gate's detector", "A pooled spread that models the lapse"):
       gates select on spread, and a lapse-modelled pool sits on a spread-lapse
       ridge (safe at the ceiling, or unsafe with a tight lapse prior); it now
       needs a careless signal from outside the choices, (c). Next, most
-      valuable first: (b) half-time salience (q = 0.5 still leaks +0.12 to
+      valuable first: (f) the pooled ranking overclaims on sparse long lists
+      (150 items, half to one answer per item per person: 5.4-14.3% of
+      "clearly above" pairs are the wrong way round under both selectors,
+      against 0.5% on 15-30 items; same doc section): find out whether it is
+      per-person Glicko ratings off a common scale or the DerSimonian-Laird
+      spread from one or two people per item, then fix the ranges
+      (groupRanking.ts; careless-pattern-sweep.ts --items 150 --no-self
+      reproduces it); (b) half-time salience (q = 0.5 still leaks +0.12 to
       +0.29: does pace see them?); (c) the first real survey's answers:
       msToAnswer against the answer-time model (and as a careless detector for
       the pooled prior), and how noisy real pairwise answers are, which decides
       the self-consistency gate (scripts/coin-flip-gate-real.ts
-      --honest-lapse); (d) position bias that starts mid-session; (e) the
-      switch rule above 120 items (then make staged the default there too).
+      --honest-lapse); (d) position bias that starts mid-session.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot

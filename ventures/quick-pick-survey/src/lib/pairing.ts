@@ -507,45 +507,51 @@ export function selectNextPairByInformation(
 
 /**
  * Staged hybrid: the shipped selector while `answeredCount` is below
- * `switchAt` (by default `hybridSwitchAt(items.length)`: 0 up to 120 items,
- * so short lists use the information selector throughout), the information
- * selector after. On long lists the shipped one gets a few items under rd 150
+ * `switchAt` (by default `hybridSwitchAt(items.length)`: 0 at every length
+ * since 2026-11-13, so the information selector runs throughout unless a
+ * caller passes a switch point), the information selector after. On long lists the shipped one gets a few items under rd 150
  * sooner when there are fewer than about three answers per item; the
  * information one wins on rank accuracy and on items under rd 150 once there
  * are enough answers, and on the couple screen's own bar (8 items under rd
  * 200) at every length measured. Measured in
  * `infoGainPairing.simulation.test.ts` and `scripts/couple-bar-sweep.ts`.
+ * `HYBRID_SWITCH_ANSWERS` is the switch point lists over 120 items used until
+ * 2026-11-13; it is no longer anyone's default, and callers may still pass it.
  */
 export const HYBRID_SWITCH_ANSWERS = 120;
 
 /**
- * Lists up to this many items use the information selector from the first
- * answer. On 8 to 120 synthetic items (scripts/couple-bar-sweep.ts, 30
- * respondents each, 2026-11-10) it reaches the couple screen's bar (8 items
- * under rd 200, `couples.ts`) in a median 19 to 35 answers against 26 to 40
- * for the shipped selector, with a tighter spread (p90 20 to 36 against 31 to
- * 45), and ranks better at 2, 4 and 8 answers per item. Waiting for 120
- * answers meant a respondent on a short list never reached it at all. Longer
- * lists keep the 120-answer switch: they were not measured here.
+ * Lists up to this many items used the information selector from the first
+ * answer from 2026-11-10 to 2026-11-13 (scripts/couple-bar-sweep.ts, 8 to 120
+ * items: the couple screen's bar in a median 19 to 35 answers against 26 to 40
+ * for the shipped selector, and better ranks at 2, 4 and 8 answers per item).
+ * Longer lists kept the 120-answer warm-up until scripts/long-list-switch-sweep.ts
+ * measured them (150 to 500 items, 60 seeds, 2026-11-13): from the first
+ * answer the per-person rank is ahead of the warm-up at every budget up to 120
+ * answers (+0.003 to +0.021), level with it after (-0.015 to +0.014), ahead of
+ * the shipped selector in 55 of 56 cells, and reaches the couple bar in 35
+ * answers against 38 to 40. So since 2026-11-13 the length no longer matters:
+ * `hybridSwitchAt` is 0 at every length. Kept for the tests and sweeps that
+ * name the old boundary.
  */
 export const INFO_FROM_START_MAX_ITEMS = 120;
 
-/** Where the staged selector hands over, by list length (docs/INFORMATION-GAIN-SELECTOR.md). */
+/** Where the staged selector hands over, by list length: the first answer at every length since 2026-11-13 (docs/INFORMATION-GAIN-SELECTOR.md, "Lists over 120 items"). */
 export function hybridSwitchAt(itemCount: number): number {
-  return itemCount <= INFO_FROM_START_MAX_ITEMS ? 0 : HYBRID_SWITCH_ANSWERS;
+  void itemCount;
+  return 0;
 }
 
 /**
- * Which selector `/api/trials/next` runs when nothing names one. Since
- * 2026-11-12 a survey of up to `INFO_FROM_START_MAX_ITEMS` items gets "staged"
- * (the information selector from the first answer); longer lists keep
- * "standard", where staged's 120-answer warm-up and the switch rule above 120
- * items are not yet measured against it. The careless-pattern, position-bias
- * and answer-time sweeps were re-run under both selectors before the switch
- * (docs/INFORMATION-GAIN-SELECTOR.md, "Staged as the default up to 120 items").
+ * Which selector `/api/trials/next` runs when nothing names one: "staged" at
+ * every length since 2026-11-13. From 2026-11-12 it was staged up to
+ * `INFO_FROM_START_MAX_ITEMS` items and "standard" above, until the switch
+ * rule there was measured (docs/INFORMATION-GAIN-SELECTOR.md, "Staged as the
+ * default up to 120 items" and "Lists over 120 items").
  */
 export function defaultPairSelector(itemCount: number): "standard" | "staged" {
-  return itemCount <= INFO_FROM_START_MAX_ITEMS ? "staged" : "standard";
+  void itemCount;
+  return "staged";
 }
 
 /**
