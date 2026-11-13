@@ -6,7 +6,7 @@ import {
   thresholdTest, expectedMad, applicability, parseLimitList,
 } from '../benford.mjs';
 import { rng, exampleCsv } from '../example.mjs';
-import { readLedger, parseCsv, flaggedToCsv, sniffDelimiter } from '../csv.mjs';
+import { readLedger, parseCsv, flaggedToCsv, sniffDelimiter, csvCell } from '../csv.mjs';
 
 const close = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ''} ${a} vs ${b}`);
 const sum = (o) => Object.values(o).reduce((s, v) => s + v, 0);
@@ -174,4 +174,11 @@ test('limit lists keep thousands separators', () => {
   assert.deepEqual(parseLimitList('$2,500; $5,000 25000'), [2500, 5000, 25000]);
   assert.deepEqual(parseLimitList('1,234,567'), [1234567]);
   assert.deepEqual(parseLimitList(''), []);
+});
+
+test('exported cells cannot start a spreadsheet formula, but negative numbers stay numbers', () => {
+  assert.equal(csvCell('=HYPERLINK("x")'), '"\'=HYPERLINK(""x"")"');
+  assert.equal(csvCell('@SUM(A1)'), "'@SUM(A1)");
+  assert.equal(csvCell(-12.5), '-12.5');
+  assert.equal(csvCell('Acme'), 'Acme');
 });

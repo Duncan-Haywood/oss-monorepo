@@ -94,8 +94,11 @@ export function readLedger(text, { amountColumn, groupColumn } = {}) {
   return { header, records, amountColumn: a, groupColumn: g };
 }
 
-function csvCell(v) {
-  const s = String(v ?? '');
+// Formula-injection guard: a vendor name like "=HYPERLINK(...)" from the
+// user's own file must not run when the export is opened in a spreadsheet.
+export function csvCell(v) {
+  let s = String(v ?? '');
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
