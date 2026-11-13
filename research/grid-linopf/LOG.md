@@ -1,5 +1,12 @@
 # Research log
 
+## 2026-11-13 · Milestone 7 (empirical half): a 30-round budget clears 31 of 34; misses are curvature, one stall is local infeasibility; H4 as written refuted
+- Frozen J-m-a traced round by round with a 30-round budget on the 36 PGLib cases (pre-registered; plan and outcome in `research/infra-dcopf/LOG.md`, numbers in `research/infra-dcopf/experiments/results_converge.txt`). First 10 rounds reproduce the nominal run exactly.
+- **Budget:** fully clean on **31 of 34** within 20 rounds (10 rounds: 21), the ten late finishers at +0.41 % mean cost over the AC optimum. The repair alone matches what repair-then-voltage-stage got at 10 rounds.
+- **Mechanism:** 168 of 224 misses in rounds 1 to 10 are curvature failures (hard QP, remainder above the margin), on thermal and Q rows; the one-step finishing condition (Proposition 1: a row breaks only if its second-order remainder exceeds its margin) holds on all 190 hard misses.
+- **H4 as written refuted:** its bound 1 + k* + &phi;<sub>0</sub>/&delta;<sub>min</sub> is within 10x of the observed rounds on 6 of 31 finishers (up to 55,000x off), the curvature estimate varies by more than 10x along the path on half the cases, and case73 API stalls with a nonsingular Jacobian at a point of local infeasibility (all 30 QPs elastic, merit flat from round 14). The theory needs a hard-QP-feasibility assumption and a step-based, not decrease-based, statement.
+- Next: milestone 6 with the budget frozen at 20 rounds; the convergence statement rewritten (theory half of milestone 7); per-row curvature-scaled margins, held-out only.
+
 ## 2026-11-13 · Milestone 5: load-perturbed copies. The counts hold on feasible copies; 101 of 360 copies have no AC optimum
 - 360 copies of the 36 PGLib cases (seeds 0 to 9, every bus's load x U[0.9, 1.1], constant power factor), frozen arms, pre-registered (plan and outcome in `research/infra-dcopf/LOG.md`; numbers in `research/infra-dcopf/experiments/results_perturb.txt`).
 - On the 244 scored copies of the 34 base cases: J-m-a fully clean **0.660** (cluster bootstrap over base cases 0.52 to 0.79; nominal 0.62), with the reactive stage **0.906** (0.83 to 0.97; nominal 0.91). Nominal verdict = majority verdict on 30 of 34 cases. J+R beats the reactive stage on the plain DC dispatch on 29 cases and loses none (sign test P = 3.7e-9). Mean cost of clean points +0.08 / +0.23 / +0.69 % (TYP / API / SAD). All five predictions held.
