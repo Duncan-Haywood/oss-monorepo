@@ -9,9 +9,20 @@ import numpy as np
 EXP = Path(__file__).resolve().parents[1] / "experiments"
 sys.path.insert(0, str(EXP / "m3_fem_tier"))
 
+# run.py does `import run as m3` for milestone 3a's script; other test files put their own "run" in
+# sys.modules first, so bind 3a's explicitly while loading it, then restore whatever was there.
+_saved = sys.modules.get("run")
+_s3 = importlib.util.spec_from_file_location("run", EXP / "m3_fem_tier" / "run.py")
+_m3 = importlib.util.module_from_spec(_s3)
+sys.modules["run"] = _m3
+_s3.loader.exec_module(_m3)
 spec = importlib.util.spec_from_file_location("m3c_run", EXP / "m3c_branches" / "run.py")
 m3c = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m3c)
+if _saved is not None:
+    sys.modules["run"] = _saved
+else:
+    del sys.modules["run"]
 
 
 class TestM3c(unittest.TestCase):
