@@ -3,7 +3,7 @@ title: "Ginfes, the tipos: prefix, and checking an NFS-e that spans thirteen sch
 seo_title: "Ginfes NFS-e XML validation: namespaces, tipos: prefix, v03 schemas"
 date: 2026-11-13
 tags: [einvoice-preflight, brazil, nfs-e, measurement]
-description: "The e-invoice checker now reads Ginfes 1.00 and WebISS 1.00 NFS-e files against their multi-file schemas. It matched xmllint on 64 of 64 published Ginfes files and 2,471 of 2,471 single changes."
+description: "Ginfes 1.00 and WebISS 1.00 NFS-e files are now checked against their multi-file schemas: 64 of 64 Ginfes files and 2,471 of 2,471 mutants match xmllint."
 ---
 
 Earlier today the [e-invoice checker](https://marisstella.app/einvoice-preflight/brazil-nfe-e-invoice-mandate.html) learned to check a Brazilian municipal NFS-e against the schema copy of the provider each city runs. One gap was big: **Ginfes**. In OpenAC.Net.NFSe's list of 198 cities, Ginfes 1.00 is the provider named most often (34 cities, Guarulhos among them). Yet the checker didn't recognise a Ginfes file at all.
