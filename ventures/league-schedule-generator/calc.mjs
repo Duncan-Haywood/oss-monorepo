@@ -1880,7 +1880,7 @@ export function leaguePageHtml(schedule, { title = "League schedule", table = nu
   const teams = schedule.teams;
   const t = htmlEsc(title);
   const rounds = schedule.rounds.map((r) => {
-    const rows = r.matches.map((m) => `<tr data-t="${m.home} ${m.away}"><td>${htmlEsc(m.time)}</td><td>${htmlEsc(m.court)}</td><td>${htmlEsc(m.homeName)}</td><td>${htmlEsc(m.awayName)}</td>${m.official !== undefined ? `<td>${htmlEsc(m.official)}</td>` : ""}</tr>`);
+    const rows = r.matches.map((m) => `<tr data-t="${m.home} ${m.away}"><td class="s">${htmlEsc(m.time)}</td><td class="s">${htmlEsc(m.court)}</td><td>${htmlEsc(m.homeName)}</td><td>${htmlEsc(m.awayName)}</td>${m.official !== undefined ? `<td>${htmlEsc(m.official)}</td>` : ""}</tr>`);
     if (r.bye !== null && r.bye !== undefined) rows.push(`<tr data-t="${r.bye}" class="bye"><td colspan="4">Bye: ${htmlEsc(teams[r.bye])}</td></tr>`);
     return `<section class="round"><h3>${htmlEsc(r.label)} <span>${htmlEsc(dayLabel(r.day))}</span></h3><table><thead><tr><th>Time</th><th>Court</th><th>Home</th><th>Away</th>${r.matches.some((m) => m.official !== undefined) ? "<th>Official</th>" : ""}</tr></thead><tbody>${rows.join("")}</tbody></table></section>`;
   }).join("\n");
@@ -1890,7 +1890,7 @@ export function leaguePageHtml(schedule, { title = "League schedule", table = nu
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${t}</title>
-<style>body{font:16px/1.5 system-ui,sans-serif;max-width:46rem;margin:0 auto;padding:1rem;color:#1a1a1a;background:#fff}table{border-collapse:collapse;width:100%;margin-bottom:1rem}th,td{text-align:left;padding:.3rem .5rem;border-bottom:1px solid #ddd}h3 span{font-weight:400;color:#555}select{font:inherit;padding:.3rem}.bye td{color:#555;font-style:italic}pre{background:#f5f5f5;padding:.75rem;overflow:auto}footer{color:#555;font-size:.85rem;margin-top:2rem}@media print{select,label{display:none}}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#333}pre{background:#1c1c1c}h3 span,.bye td,footer{color:#aaa}}</style></head>
+<style>body{font:16px/1.5 system-ui,sans-serif;max-width:46rem;margin:0 auto;padding:1rem;color:#1a1a1a;background:#fff}table{border-collapse:collapse;width:100%;margin-bottom:1rem}th,td{text-align:left;padding:.3rem .5rem;border-bottom:1px solid #ddd}h3 span{font-weight:400;color:#555}select{font:inherit;padding:.3rem}.bye td{color:#555;font-style:italic}pre{background:#f5f5f5;padding:.75rem;overflow:auto}footer{color:#555;font-size:.85rem;margin-top:2rem}.s{white-space:nowrap}@media print{select,label{display:none}.round{break-inside:avoid}h2,h3{break-after:avoid}}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#333}pre{background:#1c1c1c}h3 span,.bye td,footer{color:#aaa}}</style></head>
 <body><h1>${t}</h1>
 <p><label>Show only <select id="f"><option value="">Everyone</option>${opts}</select></label></p>
 ${rounds}
@@ -1910,15 +1910,17 @@ ${brk}
  */
 export function scoreSheetsHtml(schedule, { title = "League score sheets" } = {}) {
   const t = htmlEsc(title);
+  // An Official column only when someone is assigned: an empty column takes width from the team names.
+  const withOfficial = schedule.rounds.some((r) => r.matches.some((m) => m.official));
   const pages = schedule.rounds.map((r) => {
-    const rows = r.matches.map((m) => `<tr><td>${htmlEsc(m.time)}</td><td>${htmlEsc(m.court)}</td><td class="n">${htmlEsc(m.homeName)}</td><td class="b"></td><td class="b"></td><td class="n">${htmlEsc(m.awayName)}</td><td class="f">&#9744;</td><td>${htmlEsc(m.official ?? "")}</td></tr>`);
+    const rows = r.matches.map((m) => `<tr><td class="s">${htmlEsc(m.time)}</td><td class="s">${htmlEsc(m.court)}</td><td class="n">${htmlEsc(m.homeName)}</td><td class="b"></td><td class="b"></td><td class="n">${htmlEsc(m.awayName)}</td><td class="f">&#9744;</td>${withOfficial ? `<td class="s">${htmlEsc(m.official ?? "")}</td>` : ""}</tr>`);
     const bye = r.bye !== null && r.bye !== undefined ? `<p class="bye">Bye: ${htmlEsc(schedule.teams[r.bye])}</p>` : "";
-    return `<section class="sheet"><h2>${htmlEsc(r.label)} <span>${htmlEsc(dayLabel(r.day))}</span></h2><table><thead><tr><th>Time</th><th>Court</th><th>Home</th><th colspan="2">Score</th><th>Away</th><th>Forfeit</th><th>Official</th></tr></thead><tbody>${rows.join("")}</tbody></table>${bye}<p class="sig">Scorekeeper: ____________________ &nbsp; Notes (injuries, protests, rainouts): ______________________________________</p></section>`;
+    return `<section class="sheet"><h2>${htmlEsc(r.label)} <span>${htmlEsc(dayLabel(r.day))}</span></h2><table><thead><tr><th>Time</th><th>Court</th><th>Home</th><th colspan="2">Score</th><th>Away</th><th>Forfeit</th>${withOfficial ? "<th>Official</th>" : ""}</tr></thead><tbody>${rows.join("")}</tbody></table>${bye}<p class="sig">Scorekeeper: ____________________________</p><p class="sig">Notes (injuries, protests, rainouts): ______________________________________</p></section>`;
   }).join("\n");
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${t}</title>
-<style>body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:56rem;padding:1rem;color:#1a1a1a;background:#fff}h2 span{font-weight:400;color:#555}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:.5rem;text-align:left}td.b{width:3.5rem;height:2.4rem}td.n{font-weight:600}td.f{text-align:center;font-size:1.3rem}.sheet{page-break-after:always;margin-bottom:2rem}.sig{margin-top:1.5rem}.bye{color:#555;font-style:italic}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#666}h2 span,.bye{color:#aaa}}@media print{body{background:#fff;color:#000}}</style></head>
+<style>body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:56rem;padding:1rem;color:#1a1a1a;background:#fff}h2 span{font-weight:400;color:#555}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:.5rem;text-align:left}td.b{width:3.5rem;height:2.4rem}td.n{font-weight:600}td.f{text-align:center;font-size:1.3rem}.s{white-space:nowrap}.sheet{page-break-after:always;margin-bottom:2rem}.sheet:last-child{page-break-after:auto}.sig{margin-top:1.5rem}.bye{color:#555;font-style:italic}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#666}h2 span,.bye{color:#aaa}}@media print{body{background:#fff;color:#000;padding:0}th,td{padding:.4rem .35rem}}</style></head>
 <body><h1>${t}</h1>
 ${pages}
 </body></html>
