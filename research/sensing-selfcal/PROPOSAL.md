@@ -182,6 +182,9 @@ planar vs non-planar scenes, mismatch rate.
    **(done 2026-11-12, H18–H22; 4b, a jackknife covariance and SB corners, H23–H27; 4c, its reference distribution, H28–H32, see `LOG.md`)**.
 5. Unmodelled lens terms (k2, principal point) on real data, tying to
    `sensing-bak2` and `sensing-bapp`.
+   Milestone 6 and 6b (done 2026-11-11 and 2026-11-13; see `LOG.md`) took the corner
+   localiser apart: renders with a known camera at the real poses show the board's half-width
+   end squares bias the 11×11 window's f by +0.6–0.9% and SB's by −0.1 to −0.4%.
 6. Owner capture (owner step): a phone or machine-vision camera, a board and
    several scenes, to test across cameras.
 7. Paper draft.
