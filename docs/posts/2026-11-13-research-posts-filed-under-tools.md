@@ -23,19 +23,21 @@ buildbot-sheathing and heavy-hydraulics, and the rest from 13 other projects.
 that names a research project files the post under Research findings; a tag that names a
 venture files it under Tools, ahead of the generic "agents" or "CI" tags. No post had to be
 retagged. 1,077 research slugs and 1,352 venture slugs share no name, so the rule is never
-ambiguous. Four posts moved the other way: a CLI alert setting for changepoint-detector and
-two posts about the continue-on-error GitHub Action are tools rather than CI plumbing, and
-the sales-agent call-prep brief is a tool rather than a post about agents. Two process posts
-about the Hearth & Horizon README would have moved too; they now say `topic: agents` in
-their front matter, which is the override the blog already had.
+ambiguous. Nine more posts moved into Tools from other topics. Three are tools rather than CI
+plumbing (a CLI alert setting for changepoint-detector, two posts about the continue-on-error
+GitHub Action). Six were under "Building with AI agents" only because they carried an
+`ai-agents` or `process` tag: the sales-agent call-prep brief, two form fixes in the clothing
+studio and the wall-framing takeoff, and three Hearth & Horizon stories. Two process posts about
+the Hearth & Horizon README would have moved too; they now say `topic: agents` in their front
+matter, which is the override the blog already had.
 
 Counts over the 4,042 posts that existed before this one:
 
 | topic | before | after |
 |---|---|---|
 | Research findings | 745 | 855 |
-| Tools and projects | 2,970 | 2,871 |
-| Building with AI agents | 165 | 157 |
+| Tools and projects | 2,970 | 2,869 |
+| Building with AI agents | 165 | 159 |
 | Hosting and infrastructure | 40 | 37 |
 
 The topic also goes into the Atom feed as a `<category>` and into each post's "More in ..."
