@@ -153,6 +153,7 @@ export function fillBar(t0, bar) {
 //   verse  no crash; drums and bass a little softer; no chord part (the choir carries it)
 //   drop   the genre's bar as written, with a crash on the section's first downbeat
 //   outro  hats, ride and chords only, softer; the last bar is one held chord and a crash
+//   acappella  nothing: the choir alone (an a cappella first verse); its build bar brings the band in
 //   breakdown  drums and bass out: the choir alone for the first half, then a soft held chord
 //          per bar that swells towards the build (the "breather" before the last drop)
 // A section with `build` ends on a build bar instead of its own last bar: kicks on beats
@@ -225,18 +226,21 @@ export function arrange({ genre, mode, final, bars, fills = false, sections = nu
   const scale = SCALES[name];
   const prog = PROGRESSION[name];
   const out = { drums: [], bass: [], chords: [], mode: name, progression: prog };
-  if (sections) out.sections = sections.map((s) => ({ name: s.name, energy: s.energy, start: s.start, bars: s.bars, tick: s.start * BAR }));
+  if (sections) out.sections = sections.map((s) => ({ name: s.lift && s.energy === 'drop' ? `${s.name} (key up ${s.lift})` : s.name, energy: s.energy, start: s.start, bars: s.bars, tick: s.start * BAR }));
   const sectionOf = (bar) => (sections || []).find((s) => bar >= s.start && bar < s.start + s.bars) || null;
   for (let bar = 0; bar < bars; bar++) {
-    const ctx = { t0: bar * BAR, scale, degree: prog[bar % prog.length], final, bar };
     const sec = sectionOf(bar);
     const last = sec && bar === sec.start + sec.bars - 1;
+    // a key lift (sections.mjs keyLift) moves the lifted sections and the build into them up
+    const lift = sec ? (sec.lift || 0) || (last && sec.build ? sec.buildLift || 0 : 0) : 0;
+    const ctx = { t0: bar * BAR, scale, degree: prog[bar % prog.length], final: final + lift, bar };
     let part;
     if (sec && last && sec.build) part = buildBar(ctx, APPROACH[name]);
     else if (sec && last && sec.energy === 'outro' && bar === bars - 1) part = outroLastBar(ctx);
     else {
       part = GENRES[genre].bar(ctx);
-      if (sec && sec.energy === 'breakdown') part = breakdownBar(ctx, bar - sec.start, sec.bars - (sec.build ? 1 : 0));
+      if (sec && sec.energy === 'acappella') part = { drums: [], bass: [], chords: [] };
+      else if (sec && sec.energy === 'breakdown') part = breakdownBar(ctx, bar - sec.start, sec.bars - (sec.build ? 1 : 0));
       else if (sec) {
         part = shapeBar(part, sec.energy);
         if (sec.energy === 'drop' && bar === sec.start && !part.drums.some((n) => n.note === D.crash && n.tick === ctx.t0)) {
@@ -245,7 +249,7 @@ export function arrange({ genre, mode, final, bars, fills = false, sections = nu
       }
     }
     for (const k of ['drums', 'bass', 'chords']) out[k].push(...part[k]);
-    const quiet = sec && (sec.energy === 'intro' || sec.energy === 'outro' || sec.energy === 'breakdown' || (last && sec.build));
+    const quiet = sec && (sec.energy === 'intro' || sec.energy === 'acappella' || sec.energy === 'outro' || sec.energy === 'breakdown' || (last && sec.build));
     if (fills && bar < bars - 1 && !quiet) out.drums.push(...fillBar(bar * BAR, bar));
   }
   return out;

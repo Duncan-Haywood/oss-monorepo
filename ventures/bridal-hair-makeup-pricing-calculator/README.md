@@ -15,7 +15,7 @@ Open `index.html` directly, or serve this directory with `python3 -m http.server
 
 - **Total contract value**, decomposed into service revenue, the early-start fee, travel, any top-up to your service minimum, and any extra-artist fee.
 - **The wedding-day balance due**, separate from the trial fee already collected and any credit applied to it.
-- **Whether the artists booked can finish the group in time**, and if not, exactly how many additional artists the schedule needs, what billing them costs the client, and what paying them out costs the artist.
+- **Whether the artists booked can finish the group in time**, and if not, how many additional artists a schedule needs, with each artist doing whole looks inside the window, what billing them costs the client, and what paying them out costs the artist.
 - **Whether any one look is longer than the prep window.** Pooled minutes can fit while the bride's own look alone outlasts the window; one artist does each look, so no number of extra artists finishes it, and the page says so instead of reporting the booking as on time.
 - **Two informational flags**: a group below your usual headcount minimum, and a booking that needed a top-up to reach your dollar minimum.
 
@@ -34,6 +34,14 @@ Everything runs in your browser. Your prices, headcounts, and fees are never upl
 ## Related tools in this portfolio
 
 - [Appointment deposit calculator](../appointment-deposit-calculator/) — sets a deposit amount and drafts a cancellation policy for the trial or the wedding-day booking itself.
+
+## Known gaps
+
+From the round-65 quality audit ([`portfolio/quality/audits/2026-11-13-bridal-hair-makeup-pricing-calculator.json`](../../portfolio/quality/audits/2026-11-13-bridal-hair-makeup-pricing-calculator.json)):
+
+- The early-start fee and travel are charged once per booking; many artists charge them per stylist. There is no free-mileage radius, retainer, gratuity or touch-up hours, and no way to staff a separate hair stylist and makeup artist.
+- The default timings (60 min a look, 90 for the bride) sit below the 75 to 90 min per bridesmaid and 2 to 3 hours for a bride that wedding guides suggest; set your own.
+- The artist count comes from a longest-look-first schedule, which is always achievable but can be one above the true minimum on awkward parties.
 
 ## Tests
 

@@ -1425,6 +1425,10 @@ What it shows:
   dissent cells, up in none) and backfired at 50% salience (-0.03 to -0.11), where the
   careless are the majority view. Agreement cannot tell a careless block from
   a camp: both score about the same.
+  (These `loo-w` figures came from a sweep that capped weights near 0.7.
+  Uncapped, both the gains and the camp tax are about twice as large, and at
+  60 people the weighting makes a camp's pool call 0.9-1.7% of clear pairs
+  the wrong way: "The weighted schemes at 8 and 60 respondents, uncapped".)
 - **Half-time carelessness (q = 0.5) is quieter and mostly invisible.** People
   who flip a coin on half their answers cost nothing (oracle-drop -0.010 to
   +0.012), as the lapse sections found. People who pick by salience on half
@@ -2915,8 +2919,8 @@ costs a genuine camp more (-0.029 to -0.057, was -0.018 to -0.027); `gate-w
 z<1` the same way (+0.026 to +0.057 against salience, -0.005 to -0.023 for a
 camp). Each decision that rested on those columns (agreement is a note, not a
 weight; the self-consistency gate is not shipped) holds, and holds more
-strongly on the camp side. The 8- and 60-person cells of the "Careless
-patterns" table were not re-run.
+strongly on the camp side. The 8- and 60-person cells are re-run in the
+next section.
 
 **Fixed.** Both sweeps now leave out never-answered rows themselves and pass
 weighted rows uncapped; `groupRanking` takes `{ answeredOnly: true }` for a
@@ -2926,3 +2930,105 @@ filter). The route does not pass it.
 
 Caveats: synthetic Bradley-Terry respondents with uniform truth and person
 spread 0.25; no real panel with more than 15 items exists here.
+
+## The weighted schemes at 8 and 60 respondents, uncapped (2026-11-13, last; no change to the ranking)
+
+The section above fixed the sweep's rd cap and re-ran the 20-person cells.
+The 8- and 60-person cells of "Careless patterns that are not random" and
+"Self-consistency" still had their weighted columns (`loo-w`, `gate-w`,
+`self-w`) from the capped harness. Re-run here with the fixed sweep:
+
+    careless-pattern-sweep.ts --surveys 40 --items 15,30 --respondents 8 \
+      --careless 0,0.1,0.25,0.4,0.5 --patterns random,first,favourite,salience,dissent
+    (plus --q 0.5 --careless 0.25,0.5 --patterns random,salience at 8, and at 60:
+     every pattern at 0-50%, first/favourite/salience at 25/40/50%, dissent at 10-50%)
+
+Both seed bases (2000 and 50000), 188 cells, raw rows tagged with their seed
+base: `docs/careless-pattern-uncapped-panels-2026-11-13.jsonl`. The shipped
+pool, `first-flag`, every drop scheme and `oracle-drop` match the capped
+files exactly in all 69 cells the 2026-11-11 file holds and all 48 the
+2026-11-12 self-consistency file holds (they never scaled an rd). Only the
+weighted columns move. Paired difference from shipped (Spearman with the
+target, range over 15/30 items and both seed sets, 4 cells a row; "capped" is
+the same column in the old files where they hold that cell; up/down counts
+cells beyond 2 SE):
+
+| panel | pattern, share | shipped rho | oracle-drop | loo-w uncapped (up/down) | loo-w capped | gate-w z<1 uncapped | gate-w z<1 capped | self-w uncapped |
+|---|---|---|---|---|---|---|---|---|
+| 8 | honest only (20) | 0.935-0.944 | 0 | -0.002 to +0.002 (0/0) | -0.002 to +0.002 | -0.003 (0/5) | -0.003 to -0.002 | -0.017 to -0.003 (0/15) |
+| 8 | random, 25% | 0.889-0.903 | +0.026 to +0.038 | +0.023 to +0.036 (4/0) | +0.021 to +0.023 | +0.005 to +0.022 | +0.004 to +0.020 | -0.023 to -0.002 |
+| 8 | random, 50% | 0.770-0.803 | +0.101 to +0.134 | +0.079 to +0.114 (4/0) | +0.080 to +0.083 | +0.016 to +0.057 | +0.020 to +0.054 | -0.029 to +0.006 |
+| 8 | first, 50% | 0.837-0.859 | +0.046 to +0.065 | +0.044 to +0.055 (4/0) | +0.037 to +0.047 | +0.034 to +0.047 | +0.034 to +0.038 | +0.021 to +0.031 |
+| 8 | salience, 25% | 0.871-0.876 | +0.049 to +0.059 | +0.039 to +0.054 (4/0) | +0.040 to +0.043 | +0.015 to +0.036 | +0.011 to +0.024 | -0.013 to +0.002 |
+| 8 | salience, 40% | 0.772-0.792 | +0.124 to +0.146 | +0.082 to +0.113 (4/0) | +0.062 to +0.088 | +0.022 to +0.049 | +0.016 to +0.042 | -0.010 to +0.017 |
+| 8 | salience, 50% | 0.613-0.653 | +0.251 to +0.292 | **-0.081 to -0.048** (0/3) | -0.030 to -0.017 | -0.030 to +0.002 | -0.013 to -0.012 | -0.019 to +0.019 |
+| 8 | dissent, 25% | 0.904-0.923 | -0.034 to -0.027 | **-0.023 to -0.017** (0/4) | -0.014 to -0.011 | -0.014 to -0.008 | -0.011 to -0.006 | -0.019 to -0.007 |
+| 8 | dissent, 40% | 0.892-0.911 | -0.109 to -0.100 | **-0.052 to -0.041** (0/4) | -0.026 to -0.021 | -0.037 to -0.019 | -0.028 to -0.019 | -0.022 to -0.013 |
+| 8 | dissent, 50% | 0.888-0.902 | -0.261 to -0.229 | **-0.039 to -0.022** (0/4) | -0.020 to -0.009 | -0.056 to -0.038 | -0.039 to -0.019 | -0.019 to -0.013 |
+| 60 | honest only (4) | 0.981-0.987 | 0 | -0.001 to +0.001 (0/0) | -0.001 to -0.000 | -0.003 to +0.001 | | -0.003 to -0.001 |
+| 60 | random, 50% | 0.943-0.954 | +0.026 to +0.032 | +0.024 to +0.029 (4/0) | | +0.013 to +0.019 | | -0.001 to +0.001 |
+| 60 | first, 50% | 0.959-0.970 | +0.009 to +0.016 | +0.009 to +0.012 (4/0) | | +0.008 to +0.011 | | +0.005 to +0.006 |
+| 60 | salience, 25% | 0.906-0.927 | +0.057 to +0.073 | +0.048 to +0.060 (4/0) | +0.055 | +0.026 to +0.035 | | -0.003 to +0.008 |
+| 60 | salience, 40% | 0.778-0.807 | +0.170 to +0.197 | +0.086 to +0.115 (4/0) | +0.070 | +0.036 to +0.061 | | -0.004 to +0.015 |
+| 60 | salience, 50% | 0.647-0.672 | +0.302 to +0.333 | **-0.102 to -0.020** (0/3) | | -0.035 to +0.002 | | -0.002 to +0.029 |
+| 60 | dissent, 25% | 0.975-0.983 | -0.055 to -0.051 | **-0.034 to -0.020** (0/4) | -0.024 to -0.019 | -0.010 to -0.009 | | -0.006 to -0.001 |
+| 60 | dissent, 40% | 0.972-0.982 | -0.166 to -0.147 | **-0.059 to -0.036** (0/4) | -0.032 to -0.020 | -0.011 to -0.007 | | -0.002 to -0.001 |
+| 60 | dissent, 50% | 0.972-0.979 | -0.288 to -0.267 | -0.015 to -0.006 (0/4) | -0.010 to -0.002 | -0.008 to -0.003 | | -0.007 to -0.001 |
+
+Favourite pickers move nothing at either size (`loo-w` -0.004 to +0.002);
+10% shares and the q = 0.5 cells sit between honest and 25% as before.
+
+Wrong-way share among clear pairs, the column that decides whether a scheme
+is honest about its uncertainty:
+
+| panel | pattern, share | shipped | loo-w uncapped | gate-w z<1 |
+|---|---|---|---|---|
+| 8 | dissent, 25-50% | 0.00-0.25% | 0.00-0.35% | 0.25-0.67% |
+| 60 | dissent, 25-40% | 0.00-0.03% | **0.90-1.69%** | 0.03-0.18% |
+| 60 | salience, 25% | 1.34-1.97% | 0.01-0.23% | 0.61-0.83% |
+| 60 | salience, 40% | 7.55-8.54% | 2.01-3.79% | 4.45-6.71% |
+| 60 | salience, 50% | 15.16-16.33% | **16.48-21.10%** | 14.58-17.68% |
+| 8 | salience, 50% | 3.98-5.22% | 3.66-7.54% | 5.21-7.33% |
+
+What it shows:
+
+- **Uncapped, agreement weighting taxes a real camp about twice as hard as
+  the capped table said**, at both panel sizes: -0.017 to -0.052 at 8 people
+  (was -0.009 to -0.026) and -0.020 to -0.059 at 60 for 25-40% camps (was -0.019 to -0.032),
+  down beyond 2 SE in all 24 camp cells from 25% up. At 20 people the
+  previous section found the same direction (-0.029 to -0.057).
+- **At 60 people it also makes the camp's pool confidently wrong.** With a
+  quarter to 40% of the panel holding a second taste, `loo-w` calls 2-8% more
+  pairs clear than shipped and 0.9-1.7% of them are the wrong way round
+  against the panel's average taste, where shipped calls 0-0.03% wrong. A
+  big panel shrinks the intervals around the majority's order, and weighting
+  the minority down is the same as pretending it is not there.
+- **Its gains against careless minorities grow too**: up to +0.114 against
+  half-panel coin flippers at 8 (85% of oracle-drop; was +0.083) and +0.113
+  against 40% salience (was +0.088); at 60, +0.086 to +0.115 against 40%
+  salience (was +0.070), cutting the wrong-way share there from about 8% to
+  2-4%. Neither side of the trade changed sign; both got bigger.
+- **It backfires harder where the careless are the majority.** At 50%
+  salience `loo-w` costs -0.048 to -0.081 at 8 and -0.020 to -0.102 at 60
+  (8 people capped: -0.017 to -0.030), and at 60 people the pool's wrong-way share rises
+  from 15-16% to 16-21%. Shipped is already 15-16% wrong there: a 60-person
+  panel where half pick by a shared wrong reason is confidently wrong under
+  every scheme, which no answer-only defence can fix ("Careless patterns",
+  caveats).
+- **`gate-w z<1` costs a 60-person camp less than `loo-w`** (-0.007 to -0.011
+  against -0.036 to -0.059, with almost no wrong calls). The likely reason, not
+  measured here: on a 60-person panel the self-consistency gate passes more
+  camp members, so fewer of them are weighted by agreement. At 8 it costs as much as `loo-w` (-0.008 to
+  -0.056) and recovers less. `self-w` alone stays a small loss on honest
+  panels (-0.003 to -0.017 at 8), as it was.
+
+**Decision.** No change. Every decision the capped columns supported holds,
+and the camp side is stronger: agreement stays a note, never a weight
+(`respondentAgreement`), and the self-consistency gate stays unshipped. The
+first real survey's answer noise (item (c)) is still what would decide the
+gate.
+
+Caveats: the same synthetic Bradley-Terry panels as the two sections it
+re-runs (uniform truth, person spread 0.25, one salience trait at taste's
+strength); 40 surveys a cell; the 60-person grid skips 10% for first,
+favourite and salience and 0% except under random.

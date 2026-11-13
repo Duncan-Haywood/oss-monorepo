@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem } from './venture-preflight.mjs';
+import { buildProblem, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -113,4 +113,12 @@ test('placementProblems fails a trade tool in the trades catch-all and notes the
   assert.equal(more.category, 'more');
   assert.deepEqual(more.failures, []);
   assert.match(more.notes[0], /CATEGORY_RULES/);
+});
+
+test('router inputs: validate.py runs only when flagships.yaml or a VENTURE.yaml changed', () => {
+  assert.equal(touchesRouterInputs('portfolio/flagships.yaml\n', ''), true);
+  assert.equal(touchesRouterInputs('', 'ventures/chant-forge/VENTURE.yaml\n'), true);
+  assert.equal(touchesRouterInputs('ventures/chant-forge/README.md\nventures/a/b/VENTURE.yaml\n'), false);
+  assert.equal(routerProblem(0, 'All valid.'), null);
+  assert.match(routerProblem(1, 'flagships.yaml: x `next:` is 2050 characters (cap 2000).'), /2050 characters/);
 });

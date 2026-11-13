@@ -48,6 +48,10 @@
     {
       "file": "README/clone state",
       "issue": "origin/main in this container pointed at a 2-day-old commit (f6f7e4c) while HEAD was today's main; comparing against the stale origin/main gave a 5451-file diff until I ran git fetch --depth=50 origin main."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "A concurrent process run (#15485) fixed the same supersede_check --deepen problem in the same hour; both searched open PRs first, but neither had opened one yet. Resolved by merging main and keeping both: their ref-scoped deepening and twin search, plus this run's FETCH_HEAD fix, depth-1 PR fetch, non-truncating depth and merge-tree proof."
     }
   ],
   "deviations": [],
@@ -55,7 +59,7 @@
     "docs/posts/2026-11-13-a-duplicate-check-that-read-the-wrong-pull-request.md"
   ],
   "goal": null,
-  "notes": "Critique mode (backlog held only owner/blocked rows). Lens: the doc-friction rows for portfolio/ledger/supersede_check.py. No backlog ids touched. Verification: unittest test_supersede_check + test_verification_status, 71 OK; main_health.py 62/62; real timings #15460 171->32 s (--no-fetch), unfetched #15482 36 s end to end. Remaining 27 s is base_contains' git archive of main; next to cut if it matters.",
+  "notes": "Critique mode (backlog held only owner/blocked rows). Lens: the doc-friction rows for portfolio/ledger/supersede_check.py. No backlog ids touched. Verification: unittest test_supersede_check + test_verification_status, 72 OK after merging main (#15485); main_health.py 62/62; real timings #15460 171->29 s (--no-fetch, after merging #15485), unfetched #15482 36 s end to end. Remaining 27 s is base_contains' git archive of main; next to cut if it matters.",
   "corrections": [],
   "redteam": null,
   "usage": {

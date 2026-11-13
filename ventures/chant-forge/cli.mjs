@@ -6,15 +6,19 @@ import { parseGabc, fitToBars, fitStretch, halfTime, transposeToFinal, summarize
 import { eventsToMidi } from './midi.mjs';
 import { lrc } from './lrc.mjs';
 import { cueSheet } from './cues.mjs';
-import { suggestFinal } from './voicefit.mjs';
+import { suggestFinal, MENS_RANGE } from './voicefit.mjs';
 import { arrange, barsFor, bpmRange, GENRE_NAMES } from './genre.mjs';
-import { sectionPlan } from './sections.mjs';
+import { sectionPlan, liftEvents } from './sections.mjs';
+import { noteName } from './gabc.mjs';
 
-const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--outro N] [--json]
+const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULSES_PER_BAR] [--stretch] [--halftime] [--repeat N] [--final MIDI] [--drone] [--genre NAME] [--fills] [--sections] [--no-breakdown] [--a-cappella] [--key-lift N] [--range LOW-HIGH] [--outro N] [--json]
   --genre   add drums, bass and chords in the chant's mode: ${GENRE_NAMES.join(', ')}
   --fills   with --genre: a snare roll on the last beat of every fourth bar (not the final bar)
   --sections  with --genre: song sections from the chant's double bars (intro, verse, build, drop, outro); the backing changes energy between them
   --no-breakdown  with --sections: keep the verse before the last drop a verse (by default a piece with four or more sections turns it into a breakdown: drums and bass out, choir alone, then a swelling chord)
+  --a-cappella  with --sections: the first verse is the choir alone (no backing); the band comes in on its build bar
+  --key-lift  with --sections: raise the last drop (and the outro) N semitones, 2 = a whole tone; refused if the lifted line leaves the singing range
+  --range   singing range as MIDI numbers LOW-HIGH for --suggest-final, --auto-final and the --key-lift check (default 40-64, E2-E4)
   --outro   N bars after the chant (the backing winds down under them; with --sections it ends on a held chord)
   --bpm     tempo; one chant note is an eighth note (default 124, deep house)
   --fit     pad each full bar so the next phrase starts on a downbeat (8 = one 4/4 bar)
@@ -23,7 +27,7 @@ const USAGE = `usage: node cli.mjs piece.gabc [-o out.mid] [--bpm N] [--fit PULS
   --repeat  play the whole chant N times in a row (a 1-minute chant becomes a 3-minute track; backing and cues follow)
   --final   transpose so the last note is this MIDI number (50 = D3, a low men's choir final)
   --drone   add a held drone on the final, an octave below
-  --cues    write a singer's cue sheet (bar, beat, seconds, note, syllable) to this file
+  --cues    write a singer's cue sheet (bar, beat, seconds, note, syllable) to this file; with --sections, a guidance line opens each section (backing, first note to pitch from, the band's entry, the lifted key)
   --lrc     write timed lyrics (LRC, one line per phrase) to this file
   --suggest-final  print the finals that keep the whole chant in E2-E4 (a men's unison range) and exit
   --auto-final  transpose to the recommended final from --suggest-final (a chant wider than E2-E4 is refused)
@@ -47,6 +51,9 @@ export function run(argv) {
     else if (a === '--fills') args.fills = true;
     else if (a === '--sections') args.sections = true;
     else if (a === '--no-breakdown') args.breakdown = false;
+    else if (a === '--a-cappella') args.acappella = true;
+    else if (a === '--key-lift') args.keyLift = Number(argv[++i]);
+    else if (a === '--range') args.range = argv[++i];
     else if (a === '--outro') args.outro = Number(argv[++i]);
     else if (a === '--markers') args.markers = true;
     else if (a === '--cues') args.cues = argv[++i];
@@ -68,39 +75,80 @@ export function run(argv) {
 
   if (args.intro !== undefined && (!Number.isInteger(args.intro) || args.intro < 1 || args.intro > 16)) return { code: 2, text: '--intro must be a whole number of bars from 1 to 16' };
 
-  const parsed = parseGabc(readFileSync(args.file, 'utf8'));
-  let events = parsed.events;
-  if (args.suggest) {
-    if (!events.some((e) => e.type === 'note')) return { code: 2, text: 'no notes' };
-    const r = suggestFinal(events);
-    if (args.json) return { code: 0, text: JSON.stringify(r, null, 2) };
-    if (!r.fits) return { code: 1, text: `ambitus ${r.ambitus} semitones is ${r.over} wider than ${r.range.join('-')}; split between voices or accept a falsetto/low pedal` };
-    return { code: 0, text: `finals that fit ${r.range.join('-')}: ${r.finals.lowestName} to ${r.finals.highestName}; recommended --final ${r.recommended.final} (${r.recommended.name})` };
+  if (args.keyLift !== undefined && (!Number.isInteger(args.keyLift) || args.keyLift < 1 || args.keyLift > 7)) return { code: 2, text: '--key-lift must be a whole number of semitones from 1 to 7' };
+  let range = MENS_RANGE;
+  if (args.range !== undefined) {
+    const m = /^(\d{1,3})-(\d{1,3})$/.exec(args.range || '');
+    if (!m || Number(m[1]) >= Number(m[2]) || Number(m[2]) > 127) return { code: 2, text: '--range must be two MIDI numbers LOW-HIGH, low first (40-64 is E2-E4)' };
+    range = { low: Number(m[1]), high: Number(m[2]) };
   }
-  if (args.auto) {
-    if (args.final !== null) return { code: 2, text: '--auto-final and --final both set the final; use one' };
-    if (!events.some((e) => e.type === 'note')) return { code: 2, text: 'no notes' };
-    const r = suggestFinal(events);
-    if (!r.fits) return { code: 1, text: `--auto-final: ambitus ${r.ambitus} semitones is ${r.over} wider than ${r.range.join('-')}; use --final to choose` };
-    args.final = r.recommended.final;
-  }
-  if (args.final !== null) events = transposeToFinal(events, args.final);
+  if (args.auto && args.final !== null) return { code: 2, text: '--auto-final and --final both set the final; use one' };
   if (args.fills && !args.genre) return { code: 2, text: '--fills needs --genre' };
   if (args.sections && !args.genre) return { code: 2, text: '--sections needs --genre' };
   if (args.breakdown === false && !args.sections) return { code: 2, text: '--no-breakdown needs --sections' };
+  if (args.acappella && !args.sections) return { code: 2, text: '--a-cappella needs --sections' };
+  if (args.keyLift && !args.sections) return { code: 2, text: '--key-lift needs --sections' };
+  if (args.keyLift && args.drone) return { code: 2, text: '--drone holds one note under the whole piece, so it cannot follow --key-lift; use one' };
   if (args.stretch && !args.fit) return { code: 2, text: '--stretch needs --fit' };
+
+  const parsed = parseGabc(readFileSync(args.file, 'utf8'));
+  let events = parsed.events;
+  const hasNotes = events.some((e) => e.type === 'note');
+  if ((args.suggest || args.auto) && !hasNotes) return { code: 2, text: 'no notes' };
+  // Timing first (bar fitting, half time and repeats never change a pitch), then the section
+  // plan, then the key lift, then the pitch choice: so the range check sees the lifted line.
   if (args.fit) events = args.stretch ? fitStretch(events, args.fit) : fitToBars(events, args.fit);
   if (args.halftime) events = halfTime(events);
   if (args.repeat > 1) events = Array.from({ length: args.repeat }, () => events).flat().map((e) => ({ ...e }));
   const ppb = 8; // the backing's bar is always 4/4 at two pulses a beat (genre.mjs BAR), whatever --fit says
   const chantPulses = events.reduce((s, e) => s + e.pulses, 0);
   const chantBars = Math.max(1, Math.ceil(chantPulses / ppb - 1e-9));
-  const plan = args.sections ? sectionPlan({ events, pulsesPerBar: ppb, intro: args.intro || 0, outro: args.outro || 0, breakdown: args.breakdown === false ? false : 'auto' }) : null;
+  let plan = null;
+  if (args.sections && hasNotes) {
+    try {
+      plan = sectionPlan({ events, pulsesPerBar: ppb, intro: args.intro || 0, outro: args.outro || 0, breakdown: args.breakdown === false ? false : 'auto', acappella: Boolean(args.acappella), keyLift: args.keyLift || 0 });
+    } catch (err) {
+      return { code: 2, text: err.message };
+    }
+  }
+  const lift = args.keyLift || 0;
+  if (lift) events = liftEvents(events, plan, { pulsesPerBar: ppb, intro: args.intro || 0 });
+  // --final names the song's key, the final before any lift; the last note sounds `lift` higher
+  const keyOf = (r) => r.final - lift;
+  if (args.suggest) {
+    const r = suggestFinal(events, range);
+    if (args.json) {
+      if (lift && r.fits) {
+        r.keyLift = lift;
+        r.recommended = { ...r.recommended, final: keyOf(r.recommended), name: noteName(keyOf(r.recommended)) };
+        r.finals = { ...r.finals, lowest: r.finals.lowest - lift, highest: r.finals.highest - lift, lowestName: noteName(r.finals.lowest - lift), highestName: noteName(r.finals.highest - lift) };
+      }
+      return { code: 0, text: JSON.stringify(r, null, 2) };
+    }
+    const withLift = lift ? ` with the last drop lifted ${lift}` : '';
+    if (!r.fits) return { code: 1, text: `ambitus ${r.ambitus} semitones${withLift} is ${r.over} wider than ${r.range.join('-')}; split between voices or accept a falsetto/low pedal` };
+    return { code: 0, text: `finals that fit ${r.range.join('-')}${withLift}: ${noteName(r.finals.lowest - lift)} to ${noteName(r.finals.highest - lift)}; recommended --final ${keyOf(r.recommended)} (${noteName(keyOf(r.recommended))})` };
+  }
+  if (args.auto) {
+    const r = suggestFinal(events, range);
+    if (!r.fits) return { code: 1, text: `--auto-final: ambitus ${r.ambitus} semitones${lift ? ` with the last drop lifted ${lift}` : ''} is ${r.over} wider than ${r.range.join('-')}; use --final to choose` };
+    args.final = keyOf(r.recommended);
+  }
+  if (args.final !== null && hasNotes) events = transposeToFinal(events, args.final + lift);
+  if (lift) {
+    // the lift is the part this option adds, so check it: the lifted notes must stay in range
+    const lifted = events.filter((e) => e.type === 'note' && e.lifted).map((e) => e.midi);
+    const top = Math.max(...lifted);
+    if (top > range.high) {
+      const fin = [...events].reverse().find((e) => e.type === 'note').midi - lift;
+      return { code: 1, text: `--key-lift ${lift} puts the last drop up to ${noteName(top)}, above ${noteName(range.high)}; use --final ${fin - (top - range.high)} or lower, --auto-final, a smaller lift, or --range` };
+    }
+  }
   if (args.outro) events = [...events, { type: 'bar', kind: 'full', pulses: chantBars * ppb - chantPulses + ppb * args.outro }];
   if (args.intro) events = [{ type: 'bar', kind: 'full', pulses: 8 * args.intro }, ...events];
   const summary = summarize({ ...parsed, events }, { bpm: args.bpm, pulsesPerBar: args.fit || 8 });
   if (args.cues) {
-    writeFileSync(args.cues, cueSheet(events, { bpm: args.bpm, pulsesPerBar: args.fit || 8 }));
+    writeFileSync(args.cues, cueSheet(events, { bpm: args.bpm, pulsesPerBar: args.fit || 8, plan }));
     summary.cues = args.cues;
   }
   if (args.lrc) {
@@ -116,7 +164,7 @@ export function run(argv) {
       const mode = Number(parsed.header.mode);
       if (!mode) return { code: 2, text: '--genre needs a mode header in the GABC file (mode: 1;)' };
       try {
-        backing = arrange({ genre: args.genre, mode, final: fin.midi, bars: plan ? plan.reduce((m, s) => Math.max(m, s.start + s.bars), 0) : barsFor(events), fills: args.fills, sections: plan });
+        backing = arrange({ genre: args.genre, mode, final: fin.midi - lift, bars: plan ? plan.reduce((m, s) => Math.max(m, s.start + s.bars), 0) : barsFor(events), fills: args.fills, sections: plan });
       } catch (err) {
         return { code: 2, text: err.message };
       }
@@ -125,7 +173,7 @@ export function run(argv) {
     }
     writeFileSync(args.out, eventsToMidi(events, { bpm: args.bpm, title, drone: args.drone, backing, markers: args.markers }));
     summary.wrote = args.out;
-    if (plan) summary.sections = plan.map((s) => `${s.name} bar ${s.start + 1}-${s.start + s.bars}${s.build ? ' (build)' : ''}`);
+    if (plan) summary.sections = plan.map((s) => `${s.name} bar ${s.start + 1}-${s.start + s.bars}${s.build ? ' (build)' : ''}${s.lift && s.energy === 'drop' ? ` (key up ${s.lift})` : ''}`);
   }
   const text = args.json
     ? JSON.stringify(summary, null, 2)

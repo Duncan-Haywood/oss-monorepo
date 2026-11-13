@@ -2,7 +2,7 @@
 
 Free, browser-only volunteer schedule maker for church, school PTA, food bank,
 youth sports and event coordinators. Paste the volunteers (days they can do,
-maximum shifts, roles they cannot do), list the shifts (date, slot, role, how
+maximum shifts, roles they cannot do, dates they are away), list the shifts (date, slot, role, how
 many people), and it builds a roster that never double-books anyone, never
 exceeds a maximum and respects availability and excluded roles. Unfilled places
 are listed with the reason, and over- or under-loaded volunteers are flagged.
@@ -33,3 +33,12 @@ A share link contains the names you typed, so send it only to people who should
 see them.
 
 MIT licence, see `LICENSE`.
+
+## Known gaps
+
+From the round-65 quality audit ([`portfolio/quality/audits/2026-11-13-volunteer-shift-scheduler.json`](../../portfolio/quality/audits/2026-11-13-volunteer-shift-scheduler.json)):
+
+- Roles can only be excluded, not required: a new volunteer is eligible for a safeguarded role (children, driving) until someone adds `not:` for them. A "cleared for" list per role is the safer default.
+- Slash dates are read as month/day/year only; 05/11/2026 is 11 May. Use 2026-11-05 to be unambiguous.
+- The one-move repair pass can leave a fillable place empty on large sparse rosters (2.6 to 5.3% of random 10 to 50 shift rosters in the audit); the unfilled reason then reads as if the gap were unavoidable.
+- Calendar UIDs change when a shift or volunteer is added, and long lines are folded by characters rather than octets.
