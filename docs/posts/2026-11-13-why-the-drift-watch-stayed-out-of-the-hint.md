@@ -3,7 +3,7 @@ title: "Why the wandering-level watch stayed out of the alert hint: a pre-regist
 seo_title: "Changepoint watch hint: adding a drift model lost 2 of 17 marks"
 date: 2026-11-13
 tags: [changepoint-detection, monitoring, alerting, pre-registration, negative-result]
-description: "Pre-registered on 23 real series: adding a drift-model setting to the changepoint watch's alert hint reached 15 future changes against 17. It was quiet for the wrong reason."
+description: "Pre-registered on 23 real series: adding a drift setting to the changepoint watch hint reached 15 future changes, not 17. It was quiet for the wrong reason."
 ---
 
 The [changepoint detector](https://marisstella.app/changepoint-detector/) can watch a growing series and alert once when it changes. It has four "How eager" settings: Quiet (the default), Middle, Eager, and, since this morning, "Wandering level", a drift model for prices and stock levels that move all the time. A hint button replays your own history under each setting and suggests the most eager one that would have stayed under a budget of 2 alerts per 100 checks, about 7 a year on a daily check.
