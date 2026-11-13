@@ -748,6 +748,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         cfa=args.cfa,
         opcodes=not args.no_opcodes,
         preview_quality=args.preview_quality,
+        warp_kernel=args.warp_kernel,
         lens_db=_load_lens_db(args.lens_db) if args.lens_db else None,
         lens_name=args.lens,
         lens_focal=args.lens_focal,
@@ -1306,6 +1307,16 @@ def _build_parser() -> argparse.ArgumentParser:
         help=(
             "Skip the DNG's opcode lists (GainMap lens shading as phones write it, WarpRectilinear and WarpRectilinear2 "
             "lens distortion, WarpFisheye, FixVignetteRadial, MapPolynomial); by default they run."
+        ),
+    )
+    develop.add_argument(
+        "--warp-kernel",
+        choices=("bilinear", "cubic"),
+        default="bilinear",
+        help=(
+            "How lens warps (the DNG's WarpRectilinear/WarpRectilinear2/WarpFisheye, or --lens-db) sample the "
+            "image: 'bilinear' (default) or 'cubic', the Catmull-Rom spline the DNG specification recommends "
+            "(sharper; same bytes on both engines)."
         ),
     )
     develop.add_argument(

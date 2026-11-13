@@ -1122,6 +1122,10 @@ class DevelopSettings:
     # needed only at full quality (flag bit 1) are skipped. Off by default, so a
     # develop is full quality; the half-size review still (``still_for_review``) sets it.
     preview_quality: bool = False
+    # How the warps (WarpRectilinear, WarpRectilinear2, WarpFisheye, lensfun's) sample their
+    # source: "bilinear" (2 x 2) or "cubic" (the 4 x 4 Catmull-Rom spline the DNG
+    # specification recommends; sharper, clipped at edges). Both engines give the same bytes.
+    warp_kernel: str = "bilinear"
     # Lens distortion from a lensfun database (``lens_profiles.load_db``) for files whose opcode lists
     # carry no warp of their own (or with opcodes off): lens and focal length from EXIF unless given.
     lens_db: "LensDb | None" = None
@@ -1750,7 +1754,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             vals=vals, rw=rw, top=top, left=left, w=w, h=h, spp=spp, lin=lin, black_=black, span=span,
             dh=dh, dv=dv, rr=rr, rc=rc, caplines=caplines, linear_raw=linear_raw, pat=pat,
             half=settings.half, mults=(wbr, wbg, wbb), hi=hi, m=m, curve=curve, lut_size=lut_size,
-            look=look, gain_maps=gain_maps, warps=warps, trim=trim,
+            look=look, gain_maps=gain_maps, warps=warps, trim=trim, warp_kernel=settings.warp_kernel,
         )
 
     out = array("H")
@@ -1792,7 +1796,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             _bilinear(norm_row, w, h, pat, mults, emit, out)
 
     if warps:
-        lin_rgb = dng_opcodes.run_stage3_rgb(warps, lin_rgb, ow, oh, (wbr, wbg, wbb))
+        lin_rgb = dng_opcodes.run_stage3_rgb(warps, lin_rgb, ow, oh, (wbr, wbg, wbb), settings.warp_kernel)
         for i in range(0, len(lin_rgb), 3):
             encode(lin_rgb[i], lin_rgb[i + 1], lin_rgb[i + 2], out)
         del lin_rgb

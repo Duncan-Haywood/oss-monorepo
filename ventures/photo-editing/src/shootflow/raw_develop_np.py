@@ -168,12 +168,12 @@ def _clip(v, hi):
     return np.where(v > hi, hi, np.where(v < 0, 0.0, v))
 
 
-def _encode_warped(img, warps, hi, m, curve, lut_size, look, mults=(1.0, 1.0, 1.0)):
+def _encode_warped(img, warps, hi, m, curve, lut_size, look, mults=(1.0, 1.0, 1.0), kernel="bilinear"):
     """Run the OpcodeList3 opcodes on a clipped linear (h, w, 3) image (``dng_opcodes.run_stage3_planes``), then encode it band by band."""
 
     from shootflow import dng_opcodes
 
-    img = dng_opcodes.run_stage3_planes(warps, img, tuple(mults))
+    img = dng_opcodes.run_stage3_planes(warps, img, tuple(mults), kernel)
     out = np.empty(img.shape, dtype=np.uint16)
     for y0 in range(0, img.shape[0], _BAND_ROWS):
         band = img[y0 : y0 + _BAND_ROWS]
@@ -197,7 +197,7 @@ def _half(norm, w, h, pat, mults, hi, m, curve, lut_size, look):
 
 def render(
     *, vals, rw, top, left, w, h, spp, lin, black, span, dh, dv, rr, rc, caplines,
-    linear_raw, pat, half, mults, hi, m, curve, lut_size, look=None, gain_maps=(), warps=(),
+    linear_raw, pat, half, mults, hi, m, curve, lut_size, look=None, gain_maps=(), warps=(), warp_kernel="bilinear",
 ):
     """Returns ``(pixels uint16 (oh, ow, 3), ow, oh, clipped)``."""
 
@@ -223,7 +223,7 @@ def render(
             lin = np.empty((h, w, 3), dtype=np.float64)
             _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, sink=lin)
         del norm
-        return _encode_warped(lin, warps, hi, m, curve, lut_size, look, mults), ow, oh, clipped
+        return _encode_warped(lin, warps, hi, m, curve, lut_size, look, mults, warp_kernel), ow, oh, clipped
     if linear_raw:
         img = norm.reshape(h, w, 3)
         out = _encode(img[..., 0] * mults[0], img[..., 1] * mults[1], img[..., 2] * mults[2], hi, m, curve, lut_size, look)

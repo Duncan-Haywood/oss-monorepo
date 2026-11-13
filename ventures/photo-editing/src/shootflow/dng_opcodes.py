@@ -69,9 +69,14 @@ image corner. Before 2026-11-12 this module measured both from the image edges
 (``cx * w``, corner at ``(w, h)``); on the Leica T's terms the two put a source
 point at most 0.048 px apart. Choices the specification does leave open, named
 so a later check against Adobe's output can find them: the source is sampled
-bilinearly (the SDK uses a wider resampling kernel, and the specification
-recommends one such as a cubic spline); a source point outside the image takes
-the nearest edge pixel.
+bilinearly by default, or, with ``kernel="cubic"`` (``develop --warp-kernel
+cubic``, since 2026-11-13), by the Catmull-Rom cubic spline (Keys' cubic
+convolution with a = -0.5, 4 x 4 taps), the kind of kernel the specification
+recommends ("a suitable resampling kernel, such as a cubic spline", 1.7.1.0
+p. 107); the SDK's own kernel and its constant are not checked here. A cubic
+can overshoot at an edge, so its result is clipped to the plane's range, as the
+specification clips after every opcode. A source point outside the image takes
+the nearest edge pixel, and so does a cubic tap past the edge.
 
 WarpFisheye (DNG specification 1.4, chapter 7; opcode 2), in the stage-3 image,
 unwraps a fisheye lens's equidistant-style projection into a rectilinear one:
@@ -1234,8 +1239,11 @@ def _area_plane(op: "MapTable | PerLine", plane, h: int, w: int, spp: int, scale
         plane[rsl, csl] = out if scale is None else out * scale[p]
 
 
-def run_stage3_rgb(ops: list, rgb, w: int, h: int, scale=(1.0, 1.0, 1.0)):
-    """Run ``Plan.stage3`` in order on interleaved linear RGB (``array('d')``); returns the result (pure Python)."""
+def run_stage3_rgb(ops: list, rgb, w: int, h: int, scale=(1.0, 1.0, 1.0), kernel: str = "bilinear"):
+    """Run ``Plan.stage3`` in order on interleaved linear RGB (``array('d')``); returns the result (pure Python).
+
+    ``kernel`` is how the warps sample their source: ``"bilinear"`` or ``"cubic"`` (``WARP_KERNELS``).
+    """
 
     for op in ops:
         if isinstance(op, TrimBounds):
@@ -1247,13 +1255,13 @@ def run_stage3_rgb(ops: list, rgb, w: int, h: int, scale=(1.0, 1.0, 1.0)):
             for y in range(op.top, op.top + op.height):
                 s = (y * w + op.left) * 3
                 sub.extend(rgb[s : s + op.width * 3])
-            sub = run_stage3_rgb([op.op], sub, op.width, op.height, scale)
+            sub = run_stage3_rgb([op.op], sub, op.width, op.height, scale, kernel)
             for i, y in enumerate(range(op.top, op.top + op.height)):
                 s = (y * w + op.left) * 3
                 rgb[s : s + op.width * 3] = sub[i * op.width * 3 : (i + 1) * op.width * 3]
             continue
         if isinstance(op, (WarpRectilinear, WarpRectilinear2, WarpFisheye)):
-            rgb = warp_rgb([op], rgb, w, h)
+            rgb = warp_rgb([op], rgb, w, h, kernel, scale)
         elif isinstance(op, VignetteRadial):
             for y in range(h):
                 _vignette_row(op, y, rgb, y * w * 3, h, w, 3, scale)
@@ -1266,7 +1274,7 @@ def run_stage3_rgb(ops: list, rgb, w: int, h: int, scale=(1.0, 1.0, 1.0)):
     return rgb
 
 
-def run_stage3_planes(ops: list, img, scale=(1.0, 1.0, 1.0)):
+def run_stage3_planes(ops: list, img, scale=(1.0, 1.0, 1.0), kernel: str = "bilinear"):
     """Run ``Plan.stage3`` in order on a linear (h, w, 3) float64 image; returns the result (numpy, same bytes)."""
 
     import numpy as np
@@ -1278,10 +1286,10 @@ def run_stage3_planes(ops: list, img, scale=(1.0, 1.0, 1.0)):
         if isinstance(op, Framed):
             img = np.array(img, dtype=np.float64)  # own, writable copy
             sl = (slice(op.top, op.top + op.height), slice(op.left, op.left + op.width))
-            img[sl] = run_stage3_planes([op.op], img[sl].copy(), scale)
+            img[sl] = run_stage3_planes([op.op], img[sl].copy(), scale, kernel)
             continue
         if isinstance(op, (WarpRectilinear, WarpRectilinear2, WarpFisheye)):
-            img = warp_planes([op], img)
+            img = warp_planes([op], img, kernel=kernel, scale=scale)
             continue
         flat = np.ascontiguousarray(img).reshape(h, w * 3)
         if isinstance(op, VignetteRadial):
@@ -1352,13 +1360,75 @@ def _clamp_split(v: float, n: int) -> tuple[int, int, float]:
     return i, i + 1, v - i
 
 
-def warp_rgb(warps: list, rgb, w: int, h: int):
-    """Run the warps on an interleaved linear RGB image (``array('d')``, h * w * 3); returns a new array (pure Python)."""
+WARP_KERNELS = ("bilinear", "cubic")
+_CR_A = -0.5  # Keys' cubic convolution constant: -0.5 is the Catmull-Rom spline (interpolating, exact on quadratics)
+
+
+def _cubic_weights(t):
+    """Catmull-Rom weights of the taps at offsets -1, 0, 1, 2 for a fraction ``t`` in [0, 1).
+
+    Only arithmetic, so the same operations in the same order run on a float (pure Python) or an array (numpy),
+    and the two engines give the same bytes. Keys (1981): inner ``(a+2)|x|^3 - (a+3)|x|^2 + 1`` for |x| < 1, outer
+    ``a|x|^3 - 5a|x|^2 + 8a|x| - 4a`` for 1 <= |x| < 2; the four weights sum to 1.
+    """
+
+    a = _CR_A
+    u = 1.0 - t
+    o0 = 1.0 + t
+    o3 = 2.0 - t
+    w0 = ((a * o0 - 5.0 * a) * o0 + 8.0 * a) * o0 - 4.0 * a
+    w1 = ((a + 2.0) * t - (a + 3.0)) * t * t + 1.0
+    w2 = ((a + 2.0) * u - (a + 3.0)) * u * u + 1.0
+    w3 = ((a * o3 - 5.0 * a) * o3 + 8.0 * a) * o3 - 4.0 * a
+    return w0, w1, w2, w3
+
+
+def _cubic_taps(v: float, n: int) -> tuple[tuple[int, int, int, int], float]:
+    """The four tap indices (clamped to the image) and the fraction for a source coordinate ``v``."""
+
+    v = 0.0 if v <= 0.0 else (n - 1.0 if v >= n - 1 else v)
+    i = int(v)
+    t = v - i
+    return (max(i - 1, 0), i, min(i + 1, n - 1), min(i + 2, n - 1)), t
+
+
+def warp_rgb(warps: list, rgb, w: int, h: int, kernel: str = "bilinear", scale=None):
+    """Run the warps on an interleaved linear RGB image (``array('d')``, h * w * 3); returns a new array (pure Python).
+
+    ``kernel="cubic"`` samples a 4 x 4 Catmull-Rom neighbourhood instead of 2 x 2 and clips the result to
+    ``[0, scale[p]]`` (``[0, 1]`` with no ``scale``).
+    """
 
     from array import array
 
+    if kernel not in WARP_KERNELS:
+        raise ValueError(f"warp kernel must be one of {WARP_KERNELS}, not {kernel!r}")
     for wp in warps:
         out = array("d", bytes(8 * len(rgb)))
+        if kernel == "cubic":
+            for p in range(3):
+                cap = 1.0 if scale is None else scale[p]
+                for y in range(h):
+                    base = y * w
+                    for x in range(w):
+                        sx, sy = warp_source(wp, p, x, y, w, h)
+                        xs, tx = _cubic_taps(sx, w)
+                        ys, ty = _cubic_taps(sy, h)
+                        wx0, wx1, wx2, wx3 = _cubic_weights(tx)
+                        wy = _cubic_weights(ty)
+                        acc = 0.0
+                        for j in range(4):
+                            r = ys[j] * w
+                            row = (
+                                wx0 * rgb[(r + xs[0]) * 3 + p]
+                                + wx1 * rgb[(r + xs[1]) * 3 + p]
+                                + wx2 * rgb[(r + xs[2]) * 3 + p]
+                                + wx3 * rgb[(r + xs[3]) * 3 + p]
+                            )
+                            acc = acc + wy[j] * row
+                        out[(base + x) * 3 + p] = 0.0 if acc < 0.0 else (cap if acc > cap else acc)
+            rgb = out
+            continue
         for p in range(3):
             for y in range(h):
                 base = y * w
@@ -1375,11 +1445,13 @@ def warp_rgb(warps: list, rgb, w: int, h: int):
     return rgb
 
 
-def warp_planes(warps: list, img, band: int = 256):
+def warp_planes(warps: list, img, band: int = 256, kernel: str = "bilinear", scale=None):
     """Run the warps (WarpRectilinear or WarpFisheye) on a linear (h, w, 3) float64 image; returns a new array (numpy, same bytes as ``warp_rgb``)."""
 
     import numpy as np
 
+    if kernel not in WARP_KERNELS:
+        raise ValueError(f"warp kernel must be one of {WARP_KERNELS}, not {kernel!r}")
     h, w = img.shape[0], img.shape[1]
     for wp in warps:
         cxp, cyp, m = _warp_frame(wp, w, h)
@@ -1406,6 +1478,10 @@ def warp_planes(warps: list, img, band: int = 256):
                     sy = f * dy + kt1 * (2.0 * dx * dy) + kt0 * (r2 + 2.0 * dy * dy)
                 sx = cxp + m * sx - 0.5
                 sy = cyp + m * sy - 0.5
+                if kernel == "cubic":
+                    cap = 1.0 if scale is None else scale[p]
+                    out[y0:y1, :, p] = _np_cubic(np, src, sx, sy, w, h, cap)
+                    continue
                 xi0, xi1, fx = _np_split(np, sx, w)
                 yi0, yi1, fy = _np_split(np, sy, h)
                 a = src[yi0, xi0]
@@ -1461,6 +1537,31 @@ def _np_rect2(np, wp: WarpRectilinear2, p: int, dx, dy):
     sx = sx + (kt0 * (2.0 * dx * dy) + kt1 * (r2 + 2.0 * dx * dx))
     sy = sy + (kt1 * (2.0 * dx * dy) + kt0 * (r2 + 2.0 * dy * dy))
     return sx, sy
+
+
+def _np_cubic_taps(np, v, n: int):
+    """``_cubic_taps`` on an array: four clamped index arrays and the fraction."""
+
+    v = np.where(v <= 0.0, 0.0, np.where(v >= n - 1, n - 1.0, v))
+    i = np.floor(v).astype(np.int64)  # v >= 0 here, so floor is int()
+    t = v - i
+    return (np.maximum(i - 1, 0), i, np.minimum(i + 1, n - 1), np.minimum(i + 2, n - 1)), t
+
+
+def _np_cubic(np, src, sx, sy, w: int, h: int, cap: float):
+    """Catmull-Rom samples of one plane at (sx, sy), the same operations in the same order as ``warp_rgb``."""
+
+    sx, sy = np.broadcast_arrays(sx, sy)
+    xs, tx = _np_cubic_taps(np, sx, w)
+    ys, ty = _np_cubic_taps(np, sy, h)
+    wx0, wx1, wx2, wx3 = _cubic_weights(tx)
+    wy = _cubic_weights(ty)
+    acc = np.zeros(sx.shape)
+    for j in range(4):
+        r = ys[j]
+        row = wx0 * src[r, xs[0]] + wx1 * src[r, xs[1]] + wx2 * src[r, xs[2]] + wx3 * src[r, xs[3]]
+        acc = acc + wy[j] * row
+    return np.where(acc < 0.0, 0.0, np.where(acc > cap, cap, acc))
 
 
 def _np_split(np, v, n: int):
