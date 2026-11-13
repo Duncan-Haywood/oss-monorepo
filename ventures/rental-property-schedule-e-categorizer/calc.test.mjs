@@ -212,3 +212,26 @@ test("csv report escapes and neutralises spreadsheet formulas; summary carries t
 test("no network or storage code in the module", () => {
   assert.doesNotMatch(readFileSync(new URL("./calc.mjs", import.meta.url), "utf8"), /fetch\(|XMLHttpRequest|sendBeacon|localStorage/);
 });
+
+test("credits that only contain 'unit', 'lease' or 'rental' inside another word are not rent", () => {
+  const a = run(H + "01/02/2024,UNITED AIRLINES REFUND,300\n01/03/2024,COMMUNITY BANK INTEREST,12\n01/04/2024,ESCROW SURPLUS RELEASE,90\n01/05/2024,RENTAL CAR REFUND,80\n01/06/2024,UNIT 4B RENT JAN,1200\n01/07/2024,UNIT B,1100\n01/08/2024,LEASE PAYMENT 12 OAK,1000\n01/09/2024,RENTAL INCOME OAK ST,950");
+  assert.deepEqual(a.rows.map((r) => r.key), ["uncategorised", "uncategorised", "uncategorised", "uncategorised", "rent", "rent", "rent", "rent"]);
+  near(a.properties[0].income, 4250);
+});
+
+test("a credit that mentions 'security' but is not a deposit stays out of deposits", () => {
+  const a = run(H + "01/02/2024,SECURITY CAMERA REFUND,120");
+  assert.equal(a.rows[0].key, "uncategorised");
+  near(a.properties[0].depositsNet, 0);
+});
+
+test("income on the report is rent plus other income such as late fees", () => {
+  const a = run(H + "01/02/2024,ZELLE RENT,1000\n01/05/2024,LATE FEE TENANT,50");
+  const p = a.properties[0];
+  near(p.rents, 1000); near(p.otherIncome, 50); near(p.income, 1050); near(p.net, 1050);
+});
+
+test("dollar amounts in the summary round to cents", () => {
+  const a = run(H + "01/02/2024,HOME DEPOT,-150\n01/03/2024,ZELLE RENT,1000", { safeHarbor: 100.004 });
+  assert.ok(a.rows.some((r) => r.flags.includes("over $100.00")), JSON.stringify(a.rows.map((r) => r.flags)));
+});
