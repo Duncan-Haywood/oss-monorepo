@@ -268,6 +268,53 @@ drums) equal `render-cli.mjs chant.mid --stems DIR` file for file; and the stems
 within 2 steps of 32,767 at every sample (each file rounds to 16 bits on its own). Whether the markers land where a
 producer wants them and whether the stems import cleanly is for someone with a DAW to say.
 
+## Tenors and basses by phrase (2026-11-13)
+
+`--split-voices` is for a chant that a full men's choir cannot sing in unison. The E2-E4 range above is the textbook
+**bass** range. With the textbook tenor range (C3-A4), the band where both sections can sing is C3-E4, 16 semitones.
+Of the 67 corpus files (the 59-file 1908 Graduale batch and the 8 pieces), 60 fit that band and **7 do not**: each
+spans 17 semitones, one more than the band holds. None is wider than E2-E4, so `--auto-final` never refused one
+(the ROADMAP's "none needs it" was about E2-E4).
+
+`splitVoices` (`voicefit.mjs`) picks one final and, for each phrase (the notes between two bars of any kind), who
+sings it: the full choir when every note is in C3-E4, otherwise the tenors or the basses alone. Two half-choirs
+trading phrases is the old *alternatim* habit. It maximises the notes the full choir sings, then keeps changes of
+singer to a minimum, then centres the line. With `--final` it keeps your final and refuses if a phrase is out of
+both ranges. `--tenor L-H` and `--bass L-H` change the ranges. The MIDI then has a **Tenors** track and a **Basses** track
+(channels 1 and 5, both Choir Aahs, lyrics on each). Unison notes appear in both tracks, so each section's part is
+complete on its own. The cue sheet gets a `who` column (`all`, `T`, `B`). The studio page has it as the Final note
+option "Tenors and basses by phrase".
+
+```
+node cli.mjs corpus/dies-irae.gabc --split-voices --fit 8 --cues dies.txt -o dies.mid
+voices: full choir on 600 of 613 notes (C3-E4); tenors alone on phrase 54 (13 notes); final F3
+```
+
+| file | piece | final | full choir | alone |
+|---|---|---|---|---|
+| gregobase-1908/3407 | Benedictus Dominus (Alleluia) | E3 | 198 of 219 (90.4%) | basses, 21 notes, B2-B3 |
+| gregobase-1908/3422 | Confiteantur tibi (Gradual) | F3 | 243 of 254 (95.7%) | tenors, 11 notes, A3-F4 |
+| gregobase-1908/3432 | Solemnitas (Alleluia) | F3 | 184 of 216 (85.2%) | tenors, 15 notes, Bb3-F4 |
+| gregobase-1908/3444 | Constitues eos principes (Gradual) | E3 | 214 of 236 (90.7%) | basses, 22 notes, B2-A3 |
+| gregobase-1908/3445 | Sapientia aedificavit (Gradual) | E3 | 199 of 215 (92.6%) | basses, 16 notes, B2-B3 |
+| dies-irae | Dies irae (Sequence) | F3 | 600 of 613 (97.9%) | tenors, 13 notes, F3-F4 |
+| salve-regina | Salve Regina (Antiphon) | E3 | 227 of 231 (98.3%) | basses, 4 notes, B2-E3 |
+
+In every one of the seven, a single phrase goes to one section and the full choir sings the rest (two changes of
+singer). The more common fix, a falsetto top note or a basses-only low note inside a phrase, is not what this does:
+the split is always at a bar, where singers breathe. Not checked: the ranges are textbook ranges, not measured on
+real singers, and the preview renderer sums unison notes from both tracks, so full-choir phrases sound about 6 dB
+louder than solo-section ones in the preview WAV. Real sections would add about 3 dB.
+`split.test.mjs` (7 tests): every note of all 67 files is in its singers' range and exactly 7 files split; a
+synthetic line gives a high phrase to tenors and a low one to basses; a phrase wider than both sections and an out-of-reach
+`--final` are refused; phrases are cut at every bar kind; the Dies irae MIDI has 613 tenor and 600 bass notes; the cue
+sheet's who column counts 13 T and 600 all; without the flag the choir line is unchanged. `eval/browser-e2e.mjs`
+(92 checks) finds the page's split MIDI and cue sheet byte-equal to the CLI's.
+
+**Fixed on the way:** the CLI judged "final matches the mode" after `--final` or `--auto-final` had moved the line,
+so a Dies irae moved to F3 said "check the transcription". It now judges the final as written, as the studio page
+already did.
+
 ## Mix and master check
 
 ```sh
