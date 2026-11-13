@@ -48,6 +48,10 @@
     .tableWrap { overflow-x: auto; }
     .warn-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #files:empty{min-height:221px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>
