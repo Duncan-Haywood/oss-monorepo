@@ -263,9 +263,15 @@ flagships:
       with careless ones). 2026-11-13 later ("A lapse gate for the upper
       end"): a perfect careless detector would make it safe (honest
       0.957-0.961 at 10-12% less width), but the answers' lapse estimates
-      reach AUC 0.58-0.69 under staged and a rank gate buys only 1-4%. Next, most valuable first: (a) a better careless
-      detector to revive the gate: anchor pairs or msToAnswer, measured as
-      AUC in the gated sweep; (b)
+      reach AUC 0.58-0.69 under staged and a rank gate buys only 1-4%. Anchor pairs as the
+      detector (2026-11-13, latest, "Anchor pairs as the gate's detector"):
+      AUC 0.85-0.88 at 1 in 5, but gating on consistency selects
+      wide-spread people (consistent half of an all-honest panel pools to
+      1.71-1.94 vs 1.27-1.40), so gates are closed. Next, most valuable
+      first: (a) a pooled spread fit that carries each person's lapse share
+      in the likelihood (p = e/2 + (1 - e) sigma(d), e integrated on the
+      grid) instead of a gate, scored with scripts/gated-upper-sweep.ts's
+      mixed panels against the oracle; (b)
       half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace see
       them?); (c) the first real survey's answers: msToAnswer against the
       answer-time model, and how noisy real pairwise answers are, which

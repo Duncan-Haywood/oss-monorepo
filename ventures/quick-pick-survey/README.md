@@ -227,3 +227,8 @@ pooled out), but the estimates the answers give tell careless from honest at AUC
 the staged selector, and a careless half of the panel drags everyone's upper end down (staged worst
 cell 0.68). A rank gate (the more consistent half) is safe but only 1-4% narrower than the fixed
 prior, so nothing is wired: docs/INFORMATION-GAIN-SELECTOR.md, "A lapse gate for the upper end".
+Anchor pairs as that detector (2026-11-13, latest) lift its AUC to 0.85-0.88 at one question in five,
+but the gate still buys only 4-10% against the oracle's 10-18%: ranking people by consistency selects
+the ones whose items are far apart (the more consistent half of an all-honest panel pools to 1.71-1.94
+against 1.27-1.40 for everyone), so gating is closed and the next step is a pooled fit that models each
+person's lapse instead: docs/INFORMATION-GAIN-SELECTOR.md, "Anchor pairs as the gate's detector".
