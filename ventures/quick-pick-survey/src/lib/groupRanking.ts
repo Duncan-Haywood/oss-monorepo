@@ -557,6 +557,17 @@ export const FAST_BLOCK_CURVE_Q = 0.75;
  */
 export const FAST_BLOCK_LATER_Q = 0.5;
 
+/**
+ * A split's step, net of the person's own straight-line trend (stepNetOfTrend), must be at least this share of the
+ * gap threshold; 0 turns the test off. The step-over-line test (FAST_BLOCK_TREND_F) asks whether a step fits better
+ * than a line, which a steady speed-up with a small bump in it passes; this asks whether what is left on top of the
+ * line is still a block. In the answer-time sweep with each person's own drift at 0.6 log it cut honest flags from
+ * 5.4% to 2.0% with a careless share and from 4.9% to 1.6% without, at the same share of the ceiling (66% against
+ * 65%); with no drift it kept 97% of the ceiling against 99% (docs/INFORMATION-GAIN-SELECTOR.md, "A step net of the
+ * person's own trend", 2026-11-13).
+ */
+export const FAST_BLOCK_NET_SHARE = 1;
+
 /** Passes over the panel's curve in fastBlockStarts (each leaves out the blocks the last found). */
 export const FAST_BLOCK_PASSES = 3;
 
@@ -587,10 +598,56 @@ export function bestFastSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG): { at: n
  * `minSeg` long), returned when the later side is at least `minLog` faster
  * and t >= `tMin`; otherwise null.
  */
-export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog = FAST_BLOCK_MIN_LOG, tMin = FAST_BLOCK_T, trendF = 0): number | null {
+export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog = FAST_BLOCK_MIN_LOG, tMin = FAST_BLOCK_T, trendF = 0, netShare = 0): number | null {
   const best = bestFastSplit(x, minSeg);
   if (!best || best.t < tMin || best.gap < minLog) return null;
-  return trendF > 0 && stepOverTrend(x, best.at) < trendF ? null : best.at;
+  if (trendF > 0 && stepOverTrend(x, best.at) < trendF) return null;
+  return netShare > 0 && stepNetOfTrend(x, best.at) < netShare * minLog ? null : best.at;
+}
+
+/**
+ * The size of a step at `at` once the person's own straight-line trend is fitted alongside it: least squares of the
+ * sequence on a constant, the position and a step from `at` on, returning the step's coefficient with its sign flipped
+ * (earlier minus later, so positive when the later side is faster, as bestFastSplit's gap). stepOverTrend asks whether
+ * a step fits better than a line; this asks how big a step is left on top of the line. Someone who speeds up steadily
+ * leaves a step near zero whatever the line's slope; a bored respondent who also drifts keeps their whole step.
+ * Zero when the three columns are collinear (a split at either end).
+ */
+export function stepNetOfTrend(x: number[], at: number): number {
+  const n = x.length;
+  if (at <= 0 || at >= n) return 0;
+  // Centre the position and the step, then solve the 2x2 normal equations for their coefficients.
+  const tBar = (n - 1) / 2, sBar = (n - at) / n, yBar = x.reduce((a, b) => a + b, 0) / n;
+  let tt = 0, ss = 0, ts = 0, ty = 0, sy = 0;
+  x.forEach((v, i) => {
+    const t = i - tBar, s = (i >= at ? 1 : 0) - sBar, y = v - yBar;
+    tt += t * t; ss += s * s; ts += t * s; ty += t * y; sy += s * y;
+  });
+  const det = tt * ss - ts * ts;
+  if (!(det > 1e-9 * tt * ss)) return 0;
+  return -(tt * sy - ts * ty) / det;
+}
+
+/**
+ * stepNetOfTrend's t statistic: the step's coefficient over its standard error in the same three-column fit
+ * (residual variance on n - 3 degrees of freedom). Positive when the later side is faster. Zero for a split at
+ * either end or a sequence of three or fewer.
+ */
+export function stepNetOfTrendT(x: number[], at: number): number {
+  const n = x.length;
+  if (at <= 0 || at >= n || n <= 3) return 0;
+  const tBar = (n - 1) / 2, sBar = (n - at) / n, yBar = x.reduce((a, b) => a + b, 0) / n;
+  let tt = 0, ss = 0, ts = 0, ty = 0, sy = 0, yy = 0;
+  x.forEach((v, i) => {
+    const t = i - tBar, s = (i >= at ? 1 : 0) - sBar, y = v - yBar;
+    tt += t * t; ss += s * s; ts += t * s; ty += t * y; sy += s * y; yy += y * y;
+  });
+  const det = tt * ss - ts * ts;
+  if (!(det > 1e-9 * tt * ss)) return 0;
+  const bT = (ss * ty - ts * sy) / det, bS = (tt * sy - ts * ty) / det;
+  const sse = Math.max(yy - bT * ty - bS * sy, 0);
+  const se = Math.sqrt(Math.max(sse / (n - 3), 1e-12) * (tt / det));
+  return -bS / se;
 }
 
 /**
@@ -685,11 +742,18 @@ export function autoFastBlockMinLog(residuals: number[][], q = FAST_BLOCK_AUTO_Q
  * not the upper quantile, which spread growing over the session lifts: with
  * each person's own pace drifting 0.6 log, honest flags fell by about a third.
  *
+ * Since 2026-11-13 (latest), a split must also leave a step of at least the gap
+ * threshold once the person's own straight-line trend is fitted alongside it
+ * (`netShare`, FAST_BLOCK_NET_SHARE, stepNetOfTrend): under 0.6 log personal
+ * drift honest flags fell from about 5% to about 2%. A pace that wanders as a
+ * random walk can still hold a step of its own and is flagged more often.
+ *
  * Needs AGREEMENT_MIN_RESPONDENTS respondents with timed answers; otherwise
  * returns an empty map. Untimed answers are skipped in the reading and never
  * start a block.
  */
-export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = "auto", trendF = FAST_BLOCK_TREND_F, laterQ = FAST_BLOCK_LATER_Q): Map<string, number> {
+export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = "auto", trendF = FAST_BLOCK_TREND_F, laterQ = FAST_BLOCK_LATER_Q, netShare = FAST_BLOCK_NET_SHARE): Map<string, number> {
+  if (!(netShare >= 0)) throw new Error(`netShare must be 0 or more, got ${netShare}`);
   if (!(curveQ > 0 && curveQ < 1)) throw new Error(`curveQ must be between 0 and 1, got ${curveQ}`);
   if (!(laterQ > 0 && laterQ < 1)) throw new Error(`laterQ must be between 0 and 1, got ${laterQ}`);
   if (minLog !== "auto" && !(minLog > 0)) throw new Error(`minLog must be a positive number or "auto", got ${minLog}`);
@@ -719,7 +783,7 @@ export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE
     const gapMin = minLog === "auto" ? (autoFastBlockMinLog(residuals) ?? FAST_BLOCK_MIN_LOG) : minLog;
     const next = new Map<string, number>();
     people.forEach(([participantId], j) => {
-      const split = fastBlockSplit(residuals[j], FAST_BLOCK_MIN_SEG, gapMin, FAST_BLOCK_T, trendF);
+      const split = fastBlockSplit(residuals[j], FAST_BLOCK_MIN_SEG, gapMin, FAST_BLOCK_T, trendF, netShare);
       if (split !== null) next.set(participantId, split);
     });
     const same = next.size === splits.size && [...next].every(([id, k]) => splits.get(id) === k);

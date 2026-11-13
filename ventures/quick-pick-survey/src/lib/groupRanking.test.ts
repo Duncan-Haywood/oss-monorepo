@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FIRST_OPTION_FALLBACK_SHARE, FIRST_OPTION_MIN_DECIDED } from "./pairing";
-import { AGREEMENT_MIN_OPTIONS, agreementSummary, autoFastBlockMinLog, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
+import { AGREEMENT_MIN_OPTIONS, agreementSummary, autoFastBlockMinLog, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, stepNetOfTrend, stepNetOfTrendT, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
 import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "./glicko2";
 
 // Small seeded PRNG so the coverage check is reproducible.
@@ -361,6 +361,28 @@ describe("stepOverTrend", () => {
   });
 });
 
+describe("stepNetOfTrend", () => {
+  const noise = (i: number) => 0.1 * Math.sin(i * 1.7);
+  it("is near zero for a steady slope and recovers a step's size on top of any slope", () => {
+    const slope = (d: number) => Array.from({ length: 60 }, (_, i) => noise(i) - d * (i / 59));
+    for (const d of [-1.2, 0, 0.6, 1.2]) {
+      const x = slope(d);
+      expect(Math.abs(stepNetOfTrend(x, 30))).toBeLessThan(0.1);
+      const stepped = x.map((v, i) => (i >= 40 ? v - 0.5 : v));
+      expect(stepNetOfTrend(stepped, 40)).toBeCloseTo(0.5, 1);
+      expect(stepNetOfTrendT(stepped, 40)).toBeGreaterThan(5);
+    }
+    // A slow turn reads negative, as bestFastSplit's gap does.
+    expect(stepNetOfTrend(slope(0).map((v, i) => (i >= 20 ? v + 0.5 : v)), 20)).toBeCloseTo(-0.5, 1);
+  });
+  it("is zero for a split at either end", () => {
+    const x = Array.from({ length: 20 }, (_, i) => noise(i));
+    expect(stepNetOfTrend(x, 0)).toBe(0);
+    expect(stepNetOfTrend(x, 20)).toBe(0);
+    expect(stepNetOfTrendT(x, 0)).toBe(0);
+  });
+});
+
 describe("autoFastBlockMinLog", () => {
   const seq = (k: number) => Array.from({ length: 30 }, (_, i) => (i % 2 ? 0.05 : -0.05) * (1 + k / 10));
   it("sits at the floor for a quiet panel, at FAST_BLOCK_MIN_LOG for one whose people slow down by 0.5 or more, and in between otherwise", () => {
@@ -416,11 +438,23 @@ describe("fastBlockStarts", () => {
     // slow down also lift the panel's curve and so widen everyone else's gaps.
     expect(() => fastBlockStarts(panel(8, 40, ms), undefined, 0)).toThrow();
   });
+  it("asks a split for a step net of the person's own line, so a speed-up with a small bump in it is not a block", () => {
+    // p0 speeds up steadily by 0.5 log over the session and turns 0.3 log (26%) quicker at answer 20: the split sees a
+    // gap well over the threshold, and a step fits that better than a line does, but on top of their own line only
+    // 0.3 is left, under the 0.4 the quiet panel sets. p1 turns 0.55x quick at answer 20 with no trend. Without the
+    // net-step test (netShare 0, the rule before 2026-11-13, latest) both are flagged; with it, only p1.
+    const ms = (step: number) => (p: number, i: number) => 3000 * jitter(i, p) * (p === 0 ? Math.exp(-0.5 * (i / 39) - (i >= 20 ? step : 0)) : 1) * (p === 1 && i >= 20 ? 0.55 : 1);
+    expect([...fastBlockStarts(panel(10, 40, ms(0.3)), undefined, "auto", undefined, undefined, 0)].sort()).toEqual([["p0", 20], ["p1", 20]]);
+    expect([...fastBlockStarts(panel(10, 40, ms(0.3)))]).toEqual([["p1", 20]]);
+    // A step of 0.45 on top of the same line is still a block.
+    expect([...fastBlockStarts(panel(10, 40, ms(0.45)))].sort()).toEqual([["p0", 20], ["p1", 20]]);
+    expect(() => fastBlockStarts(panel(10, 40, ms(0.3)), undefined, "auto", undefined, undefined, -1)).toThrow();
+  });
   it("does not take one person's steady speed-up over the whole session for a block", () => {
     // p0 gets steadily quicker, to 0.3x by the last answer: a split finds a gap over 0.5 with a large t, but a line fits
-    // as well as a step, so the default (FAST_BLOCK_TREND_F) flags nobody; without the test p0 is flagged.
+    // as well as a step, so the default (FAST_BLOCK_TREND_F) flags nobody; without it (or the net-step test) p0 is flagged.
     const ms = (p: number, i: number) => 3000 * jitter(i, p) * (p === 0 ? Math.exp(-1.2 * (i / 39)) : 1);
-    expect(fastBlockStarts(panel(8, 40, ms), undefined, FAST_BLOCK_MIN_LOG, 0).has("p0")).toBe(true);
+    expect(fastBlockStarts(panel(8, 40, ms), undefined, FAST_BLOCK_MIN_LOG, 0, undefined, 0).has("p0")).toBe(true);
     expect(fastBlockStarts(panel(8, 40, ms)).size).toBe(0);
   });
   it("reads its later passes against the median of the people not yet flagged, which spread growing over the session cannot lift", () => {

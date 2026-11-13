@@ -3522,3 +3522,97 @@ default ranking.
 Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --later-q 0.5,0.6
 --surveys 40 --person-drift 0.6 --patterns salience,random --careless 0.25,0.4
 --ratio 0.6 --onset 0.25,0.5,0.75` (a few minutes on 4 CPUs).
+
+## A step net of the person's own trend (2026-11-13, latest; shipped)
+
+Item (d5) on the flagship list. After the later-pass median, `?drop=fast-blocks`
+still flagged about 5% of honest respondents when each person's own pace drifts
+by 0.6 log over the session. Those flags come from one person's sequence, so no
+panel curve can remove them. The split search finds a large gap in a steady
+speed-up. The step-over-line test (`FAST_BLOCK_TREND_F`) then asks whether a step
+fits better than a line. A steady speed-up with a small bump in it, which honest
+noise makes often, passes both.
+
+**The idea.** Ask the question the other way round: fit the person's own straight
+line *and* a step at the split together (least squares on a constant, the
+position and the step), and require what is left of the step to be a block on
+its own. `stepNetOfTrend` returns that coefficient (earlier minus later, so
+positive when the later side is faster). `fastBlockSplit` and `fastBlockStarts`
+take `netShare`: the split also needs a net step of at least `netShare` times
+the gap threshold. A bored respondent who also drifts keeps their whole step on
+top of the line. Someone who only drifts keeps whatever bump noise put there.
+
+A first check outside the panel, on bare sequences of 60 with N(0, 0.35)
+noise, a line drawn N(0, 0.6), and the shipped split, t, gap (0.45) and step
+tests: 4.3% of lines were flagged, and those flagged had a median net step of
+0.40. The flags were noise-made steps riding on a line, not the line itself.
+Requiring a net step of at least the gap cut lines flagged to 1.1% and kept 87%
+of the true 0.51-log steps the old rule found. The step's t in the same
+three-column fit (`stepNetOfTrendT`, kept for later work) at 2.5 or 3 cut more
+false flags but kept only 76-91% of true steps, so the size test was carried
+forward.
+
+**Grid.** `scripts/answer-time-sweep.ts --net-share 0.75,1,1.25` adds a
+`shift-drop-nNN` scheme per value. The sweep also gained `--person-walk sd`:
+each person's pace wanders as a random walk with N(0, sd) log per answer, which
+(unlike a straight line) can hold a step of its own. Cells, at person drift
+0, 0.3 and 0.6 and at walk 0.04 and 0.08: salience and random patterns, 25% and
+40% careless at 0.6x with onsets 0.25, 0.5 and 0.75; both patterns at 0.4x with
+a five-answer warm-up and a shared 0.7 learning curve (not run for the walk);
+cost cells with nobody careless and a 25-40% camp with a second taste. Panels of
+20 on 15 and 30 items, 4 answers per item, 40 surveys per cell. Raw rows:
+`docs/fast-blocks-net-step-2026-11-13.jsonl`, 204 cells; in that file
+`shift-drop` is the rule as it shipped before this change (no net-step test).
+
+Means over cells; "ceiling" is the share of `oracle-answers` recovered (cells
+where it is above 0.003), "found" the share of careless people found, "honest"
+the share of honest respondents flagged (mean / worst cell).
+
+| cells | before (no net test) | net 0.75 | **net 1 (shipped)** | net 1.25 |
+|---|---|---|---|---|
+| careless, drift 0 (32) | 99%, found 0.96, honest 0.0 / 0.2% | 99%, 0.96, 0.0 / 0.2% | **97%, 0.92, 0.0 / 0.2%** | 81%, 0.78, 0.0 / 0.0% |
+| careless, drift 0.3 (32) | 86%, 0.86, 3.4 / 5.2% | 87%, 0.85, 3.0 / 4.0% | **85%, 0.81, 1.6 / 2.8%** | 70%, 0.67, 0.5 / 1.0% |
+| careless, drift 0.6 (32) | 65%, 0.67, 5.4 / 7.1% | 66%, 0.67, 4.8 / 6.3% | **66%, 0.61, 2.0 / 3.3%** | 53%, 0.48, 0.4 / 1.0% |
+| no one careless or a camp, drift 0 (8) | Spearman 0.0000, 0.0 / 0.1% | 0.0000, 0.0 / 0.1% | **0.0000, 0.0 / 0.1%** | 0.0000, 0.0 / 0.1% |
+| same, drift 0.3 (8) | -0.0010, 2.6 / 3.6% | -0.0008, 2.3 / 3.3% | **-0.0004, 1.2 / 1.7%** | -0.0001, 0.4 / 0.7% |
+| same, drift 0.6 (8) | -0.0014, 4.9 / 6.3% | -0.0012, 3.7 / 5.5% | **-0.0006, 1.6 / 2.6%** | -0.0001, 0.3 / 0.7% |
+| careless, walk 0.04 (24) | 63%, 0.68, 7.3 / 13.2% | 62%, 0.67, 6.8 / 12.2% | **59%, 0.60, 4.5 / 7.8%** | 50%, 0.45, 1.8 / 4.7% |
+| no one careless or a camp, walk 0.04 (8) | -0.0015, 10.4 / 16.6% | -0.0014, 9.7 / 15.4% | **-0.0013, 5.5 / 8.7%** | -0.0006, 2.8 / 4.8% |
+| careless, walk 0.08 (24) | 23%, 0.52, 21.7 / 30.5% | 24%, 0.51, 21.2 / 29.7% | **29%, 0.47, 17.1 / 26.5%** | 30%, 0.38, 10.9 / 18.3% |
+| no one careless or a camp, walk 0.08 (8) | -0.0052, 25.1 / 31.4% | -0.0052, 24.6 / 30.5% | **-0.0043, 19.6 / 24.6%** | -0.0023, 12.6 / 18.6% |
+
+What it shows:
+
+- **Under straight-line drift, honest flags fall by more than half** (0.6 log:
+  5.4% to 2.0% with a careless share, 4.9% to 1.6% without; 0.3: 3.4% to 1.6%
+  and 2.6% to 1.2%) at the same share of the ceiling (66% against 65%, 85%
+  against 86%). The Spearman cost to an honest panel halves.
+- **It costs a little where nobody drifts**: 97% of the ceiling against 99%, and
+  0.92 of careless people found against 0.96. A careless block that starts late
+  has a short tail, and some of its step is taken by the line.
+- **1.25 goes too far**: it removes nearly every honest flag but loses 18 to 30
+  points of the ceiling with no drift. 0.75 barely differs from no test.
+- **A wandering pace is still the open case.** At walk 0.04 (about 0.3 log of
+  wander over 60 answers) the shipped value halves honest flags, 10.4% to 5.5%,
+  for 4 points of the ceiling. At walk 0.08 the detector does more harm than good
+  under any setting tried (20-25% of honest people flagged, a Spearman cost of
+  0.004-0.005 for nobody careless), because a random walk is a sequence of small
+  steps and a 40-60-answer walk can hold one as large as a bored person's.
+  Whether real people's pace wanders that much is for the first real survey
+  (item c); if it does, this view should not be offered.
+
+**Decision.** `FAST_BLOCK_NET_SHARE = 1` ships as the default `netShare` of
+`fastBlockStarts`; the sweep's `autoBlockStarts` copy follows it, and its check
+against the library still passes. The `--curve-q`, `--trend-f` and `--later-q`
+schemes pass `netShare` 0, so their earlier rows reproduce. A new unit test
+pins a case where it matters: one of ten people speeds up steadily by 0.5 log
+and turns 0.3 log quicker at answer 20, another turns 0.55x quick at answer 20
+with no trend. With `netShare` 0 both are flagged; with the default only the
+second, and a 0.45 step on the same line is still flagged. It fails with
+`FAST_BLOCK_NET_SHARE` set to 0. The view stays a comparison, not the default
+ranking.
+
+Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --net-share
+0.75,1,1.25 --surveys 40 --items 15,30 --person-drift 0.6 --patterns
+salience,random --careless 0.25,0.4 --ratio 0.6 --onset 0.25,0.5,0.75` (a few
+minutes on 4 CPUs).

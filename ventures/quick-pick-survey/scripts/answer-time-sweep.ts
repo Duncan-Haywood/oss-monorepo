@@ -87,6 +87,8 @@
  *   shift-drop-tfNN `--trend-f f`: the fixed 0.5 gap with the step-over-line test at f
  *   `--person-drift sd`: each person's own speed-up or slow-down over the session, N(0, sd) log
  *   shift-drop-lNN `--later-q 0.NN`: the shipped reading with passes after the first at the 0.NN quantile
+ *   shift-drop-nNN `--net-share 0.NN`: the shipped reading whose split must also leave a step net of the person's own line (stepNetOfTrend) of at least 0.NN x the gap threshold
+ *   `--person-walk sd`: each person's pace also wanders as a random walk, N(0, sd) log per answer
  *
  * `--onset-spread s` (2026-11-13): each careless person's onset is drawn
  * uniform on onset +- s (clamped to 0.05-0.95), as real ones may be spread out.
@@ -97,7 +99,7 @@
 import { selectNextPair, selectNextPairHybrid, type PairingInput } from "../src/lib/pairing";
 import { DEFAULT_GLICKO_STATE, applyComparison, type GlickoState } from "../src/lib/glicko2";
 import { simulate, spearman, type Chooser, type Policy } from "../src/lib/infoGainSim";
-import { autoFastBlockMinLog, FAST_BLOCK_LATER_Q, FAST_BLOCK_AUTO_CAP, FAST_BLOCK_AUTO_FLOOR, FAST_BLOCK_AUTO_Q, FAST_BLOCK_TREND_F, FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, fastBlockSplit, fastBlockStarts, groupRanking, type RatingRow } from "../src/lib/groupRanking";
+import { autoFastBlockMinLog, FAST_BLOCK_LATER_Q, FAST_BLOCK_NET_SHARE, FAST_BLOCK_AUTO_CAP, FAST_BLOCK_AUTO_FLOOR, FAST_BLOCK_AUTO_Q, FAST_BLOCK_TREND_F, FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, fastBlockSplit, fastBlockStarts, groupRanking, type RatingRow } from "../src/lib/groupRanking";
 
 const argv = process.argv;
 const opt = (name: string, d: string) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : d);
@@ -138,6 +140,9 @@ const autos = opt("--auto", "").split(",").filter(Boolean).map((x) => {
 // `--person-drift sd`: each person also speeds up or slows down on their own over the session, by exp(-d x progress) with
 // d ~ N(0, sd) per person (a stream of its own; 0 draws nothing). The panel curve cannot remove it; a fixed gap guards against it.
 const personDrift = Number(opt("--person-drift", "0"));
+// `--person-walk sd` (2026-11-13, flagship item d5): each person's pace also wanders as a random walk, adding N(0, sd) log
+// at every answer (a stream of its own; 0 draws nothing). Unlike a straight-line drift it can hold a step of its own.
+const personWalk = Number(opt("--person-walk", "0"));
 // `--trend-f f,...`: a shift-drop-tfNN scheme per value, the shipped reading but a split must also fit as a step at least f
 // (stepOverTrend) better than a straight line, so a steady personal speed-up is not taken for a block.
 const trendFs = nums(opt("--trend-f", "")).filter((x) => x > 0);
@@ -145,12 +150,15 @@ const trendFs = nums(opt("--trend-f", "")).filter((x) => x > 0);
 // gap, step test) whose second and third passes read the q quantile of the people the last pass did not flag. 0.5 ships
 // (FAST_BLOCK_LATER_Q), so shift-drop-l50 is shift-drop since; rows before it read 0.75 in every pass.
 const laterQs = nums(opt("--later-q", "")).filter((x) => x > 0 && x < 1);
+// `--net-share s,...` (2026-11-13, flagship item d5): a shift-drop-nNN scheme per value, the shipped reading whose split must
+// also leave a step net of the person's own straight-line trend (stepNetOfTrend) of at least s x the gap threshold.
+const netShares = nums(opt("--net-share", "")).filter((x) => x >= 0);
 const LOO_MIN = 0.2;
 
 /** Person-relative split (each person's log times against their own start), kept to show why the shipped rule reads against the panel. */
 const ownBlockStart = (ms: number[]) => fastBlockSplit(ms.map((v) => Math.log(v)), minSeg, shiftMin, shiftT);
 
-const variantKeys = [...curveQs.map((cq) => `shift-drop-q${Math.round(cq * 100)}`), ...autos.map((a) => a.key), ...trendFs.map((f) => `shift-drop-tf${Math.round(f * 10)}`), ...laterQs.map((lq) => `shift-drop-l${Math.round(lq * 100)}`)];
+const variantKeys = [...curveQs.map((cq) => `shift-drop-q${Math.round(cq * 100)}`), ...autos.map((a) => a.key), ...trendFs.map((f) => `shift-drop-tf${Math.round(f * 10)}`), ...laterQs.map((lq) => `shift-drop-l${Math.round(lq * 100)}`), ...netShares.map((ns) => `shift-drop-n${Math.round(ns * 100)}`)];
 
 /**
  * fastBlockStarts with a per-survey gap threshold, for people who all answered in order with every answer timed (as
@@ -171,7 +179,7 @@ function autoBlockStarts(seqs: number[][], q: number, floor: number, cap: number
     const curve = atPos.map((_, i) => median(atPos.slice(Math.max(0, i - 2), i + 3).filter(Number.isFinite)));
     const res = seqs.map((s) => s.map((ms, i) => Math.log(ms) - curve[i]));
     minLog = autoFastBlockMinLog(res, q, floor, cap) ?? FAST_BLOCK_MIN_LOG;
-    const next = res.map((x) => fastBlockSplit(x, 8, minLog, 4, trendF));
+    const next = res.map((x) => fastBlockSplit(x, 8, minLog, 4, trendF, FAST_BLOCK_NET_SHARE));
     const same = next.every((k, j) => k === splits[j]);
     next.forEach((k, j) => (splits[j] = k));
     if (same) break;
@@ -294,6 +302,8 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                   const own = (careless && pattern === "dissent" ? camp : common).map((m) => m + spread * normal(pr));
                   const base = 2500 * Math.exp(personSd * normal(tr));
                   const myDrift = personDrift > 0 ? personDrift * normal(mulberry32(seed ^ 0x68e31da4)) : 0;
+                  const walkRand = personWalk > 0 ? mulberry32(seed ^ 0x3c6ef372) : null;
+                  let myWalk = 0;
                   const shown: Shown[] = [];
                   const pick: Chooser | undefined = !isCareless
                     ? undefined
@@ -319,7 +329,8 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                     }
                     const progress = budget > 1 ? shown.length / (budget - 1) : 0;
                     const warm = shown.length < warmup ? 2 : 1; // the first `--warmup` answers take twice as long (reading the instructions)
-                    shown.push({ a, b, ms: warm * ms * Math.exp(0.35 * normal(tr) - (drift + myDrift) * progress), careless: out !== undefined });
+                    if (walkRand && shown.length > 0) myWalk += personWalk * normal(walkRand);
+                    shown.push({ a, b, ms: warm * ms * Math.exp(0.35 * normal(tr) - (drift + myDrift) * progress + myWalk), careless: out !== undefined });
                     return out;
                   };
                   const res = simulate(routeStaged, items, budget, seed, 0, 0, 0, false, undefined, 0, undefined, (i) => own[i], chooser);
@@ -339,16 +350,20 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                 // `--curve-q`: the same reading against an upper quantile of the panel's times at each position, which a
                 // large share turning quick at once drags down less than the median.
                 for (const cq of curveQs) {
-                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), cq, FAST_BLOCK_MIN_LOG, 0, cq);
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), cq, FAST_BLOCK_MIN_LOG, 0, cq, 0);
                   people.forEach((p, i) => (p.qBlockAt[`shift-drop-q${Math.round(cq * 100)}`] = st.get(`p${i}`) ?? null));
                 }
                 for (const f of trendFs) {
-                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, f, FAST_BLOCK_CURVE_Q);
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, f, FAST_BLOCK_CURVE_Q, 0);
                   people.forEach((p, i) => (p.qBlockAt[`shift-drop-tf${Math.round(f * 10)}`] = st.get(`p${i}`) ?? null));
                 }
                 for (const lq of laterQs) {
-                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, "auto", FAST_BLOCK_TREND_F, lq);
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, "auto", FAST_BLOCK_TREND_F, lq, 0);
                   people.forEach((p, i) => (p.qBlockAt[`shift-drop-l${Math.round(lq * 100)}`] = st.get(`p${i}`) ?? null));
+                }
+                for (const ns of netShares) {
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, "auto", FAST_BLOCK_TREND_F, FAST_BLOCK_LATER_Q, ns);
+                  people.forEach((p, i) => (p.qBlockAt[`shift-drop-n${Math.round(ns * 100)}`] = st.get(`p${i}`) ?? null));
                 }
                 for (const a of autos) {
                   const st = autoBlockStarts(people.map((p) => p.shown.map((s) => s.ms)), a.q, a.f, a.c, a.tf);
@@ -428,7 +443,7 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                 }
               }
               if (replayMismatch) throw new Error(`replay did not reproduce simulate's states (${replayMismatch} people)`);
-              const cell: Record<string, unknown> = { pattern, q: pattern === "dissent" ? null : q, onset: pattern === "dissent" ? null : onset, ...(onsetSpread > 0 ? { onsetSpread } : {}), ...(personDrift > 0 ? { personDrift } : {}), drift, warmup, ratio, gamma, carelessGamma, personSd, items, perItem: k, respondents: nResp, careless: frac, surveys: nSurveys };
+              const cell: Record<string, unknown> = { pattern, q: pattern === "dissent" ? null : q, onset: pattern === "dissent" ? null : onset, ...(onsetSpread > 0 ? { onsetSpread } : {}), ...(personDrift > 0 ? { personDrift } : {}), ...(personWalk > 0 ? { personWalk } : {}), drift, warmup, ratio, gamma, carelessGamma, personSd, items, perItem: k, respondents: nResp, careless: frac, surveys: nSurveys };
               const base = acc["shipped"].rho;
               for (const [name, a] of Object.entries(acc)) {
                 const d = a.rho.map((x, i) => x - base[i]);
