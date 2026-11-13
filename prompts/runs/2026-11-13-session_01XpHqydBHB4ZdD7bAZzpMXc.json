@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqydBHB4ZdD7bAZzpMXc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T07:39:15Z",
+  "ended": "2026-11-13T08:01:14Z",
+  "wall_minutes": 22.39,
+  "tokens_in": 15500036,
+  "tokens_out": 57174,
+  "cost_usd": 5.8508,
+  "tool_calls": 105,
+  "task": "Flagship 7 photo-editing: the grade stage reading a workspace lens database (after yielding league-schedule-generator to PR #15421)",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15423",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "Spent about 25 minutes on the allocator's row (league-schedule-generator, exact least breaks per timetable) before claim_check.py showed PR #15421, opened 4 minutes before this session's PR, doing the same thing with the same method; yielded and removed the files.",
+    "RC2 (python-sat, core-guided MaxSAT) did not finish one 20-team single round robin in 100 s; a linear SAT-UNSAT search with glucose4 found no fewer breaks than the tool in 5 s on any of 16 seasons but proved only the 4 lowest-break ones. At 12 teams every listed season's breaks were already the proven least. Not landed (PR #15421 owns it); recorded here for that session."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "'Start here' named league-schedule-generator, but another session had already been sent there and opened its draft PR 4 minutes earlier; the claim is only visible after both sessions have explored. Running claim_check.py before any exploration (right after picking) would have saved ~25 minutes; the allocator output says to open the draft PR first, which I did only after starting the measurement."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The allocator's Start here row (league-schedule-generator) was already claimed by PR #15421 with the identical item; took the next Deepen flagship with no PR in 24 h and a buildable item (photo-editing, 'the grade stage reading a workspace lens database') instead of the BUILDABLE HERE speed item (C de-stuffing), whose profile showed about 0.07 s of GIL-held work on a 0.25 s read: little user value.",
+      "did": "Shipped lens correction in the overnight pipeline with a real-file check",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-lens-correction-in-the-overnight-pipeline.md",
+    "ventures/photo-editing/eval/lens-pipeline-grade-2026-11-13.md"
+  ],
+  "goal": null,
+  "notes": "Real check: RAW_CANON_5DMARK2_PREPROD.CR2 (rawpy test file) + lensfun data/db at 52cf1a7b0e82 (56 files) through tools/real_cr2_pipeline.py --lens-db: rendered, master 5616x3744 rgb48le, max difference 0 against shootflow develop --dcp --lens-db, 92.2% of samples differ from the uncorrected master, 14.1 s vs 10.9 s. tests/test_lens_pipeline.py 8 passed (18 s); 3 seeded faults each caught. run_venture_tests.py photo-editing: ok (84.4 s). Pixel 3 read profile (for the C de-stuffing item, not pursued): 0.378 s on 1 thread, 0.250 s on 4; bytes.replace 0.031 s, regex 0.012 s, byteswap 0.008 s, lut16 0.016 s, serial _blit 0.062 s of a 0.54 s profiled read.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9ed15475-36fe-5899-beff-4f8f9612b97f",
+    "transcripts": 1,
+    "first": "2026-11-13T07:39:15Z",
+    "last": "2026-11-13T08:01:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 98,
+        "input": 186,
+        "output": 57174,
+        "thinking": 14192,
+        "cache_read": 15293874,
+        "cache_write_5m": 0,
+        "cache_write_1h": 205976,
+        "api_equivalent_usd": 5.8508,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 98,
+      "input": 186,
+      "output": 57174,
+      "thinking": 14192,
+      "cache_read": 15293874,
+      "cache_write_5m": 0,
+      "cache_write_1h": 205976,
+      "api_equivalent_usd": 5.8508,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 105,
+    "tools": {
+      "Bash": 95,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.39,
+      "active_minutes": 22.39,
+      "model_minutes": 9.1,
+      "tool_minutes": 13.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior engineer: wire a lens database into a batch raw pipeline with caching, sidecar notes, refusals, 8 tests and a real-file check, ~1.5 days; plus a half-day exact-SAT eval abandoned as duplicate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 170.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
