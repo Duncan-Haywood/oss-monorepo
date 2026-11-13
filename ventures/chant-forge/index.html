@@ -53,6 +53,8 @@
     <button id="stop" type="button" disabled>Stop</button>
     <button id="dlmid" type="button" disabled>Download MIDI</button>
     <button id="dlwav" type="button" disabled>Download preview WAV</button>
+    <button id="dlcues" type="button" disabled>Download singer's cue sheet</button>
+    <button id="dllrc" type="button" disabled>Download timed lyrics (LRC)</button>
   </form>
   <pre id="out" aria-live="polite">Press Convert.</pre>
 
@@ -63,6 +65,7 @@
     <li><strong>Fits the bar:</strong> pads or stretches phrases so each starts on a downbeat over a drum grid.</li>
     <li><strong>Arranges:</strong> deep house, EDM, hard rock or metal drums, bass and chords in the chant's mode.</li>
     <li><strong>Exports:</strong> a MIDI file with lyrics, plus a plain synthesised WAV to hear tempo and range. The preview is not a release master and the "choir" is a synthesiser.</li>
+    <li><strong>Cues the singers:</strong> a plain-text cue sheet with the bar, beat, time, note and syllable of every sung note, and timed lyrics (LRC) for a lyric display. With song sections on, a line above each section says what the band does under it, the first note to pitch from and how far it is from the last one, when the band comes in after an a cappella verse, and the new key's first note after a key lift. The same sheet as the command line's <code>--cues</code>.</li>
   </ol>
 
   <h2>Questions</h2>
@@ -88,6 +91,8 @@
     import { arrange, barsFor, bpmRange, GENRE_NAMES } from "./genre.mjs";
     import { renderMidi } from "./render.mjs";
     import { sectionPlan, liftEvents } from "./sections.mjs";
+    import { cueSheet, sectionCues } from "./cues.mjs";
+    import { lrc } from "./lrc.mjs";
 
     const $ = (id) => document.getElementById(id);
     const SAMPLE = `name: Dies irae (first line only);
@@ -105,7 +110,7 @@ mode: 1;
       try { $("src").value = await (await fetch(PIECES[k])).text(); } catch { $("out").textContent = "Could not load that sample here; paste GABC instead."; }
     };
 
-    let midi = null, wav = null, ctx = null, node = null;
+    let midi = null, wav = null, cues = null, lyrics = null, ctx = null, node = null;
     const download = (bytes, name, type) => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([bytes], { type }));
@@ -179,16 +184,24 @@ mode: 1;
       midi = eventsToMidi(events, { bpm, title: parsed.header.name || "chant", drone: !!$("drone").value && !lift, backing });
       if ($("drone").value && lift) lines.push("Note: the drone holds one note under the whole piece, so it is left out when the last drop changes key.");
       wav = renderMidi(midi);
+      // the singer's sheet and timed lyrics, from the same events as the MIDI (intro and outro bars included)
+      const title = parsed.header.name || "chant";
+      cues = cueSheet(events, { bpm, pulsesPerBar: 8, plan });
+      lyrics = lrc(events, { bpm }, title);
+      const guides = plan ? sectionCues(events, { bpm, pulsesPerBar: 8, plan }) : [];
       lines.unshift(`${sum.name || "Chant"}: ${sum.notes} notes, ${sum.lowest}-${sum.highest} (ambitus ${sum.ambitus} semitones), final ${sum.final}`,
         `Mode ${sum.mode ?? "not given"}${modeOk === false ? " (the final does not match the mode: check the transcription)" : ""}`,
         `${sum.bars.toFixed(2)} bars, ${sum.seconds.toFixed(1)} s at ${bpm} BPM`);
       lines.push(...sum.warnings.map((w) => "Warning: " + w));
+      // where a singer loses the pitch: one line per section, the same lines the cue sheet carries
+      if (guides.length) lines.push("", "Singer cues (also in the cue sheet download):", ...guides.map((c) => `${c.section}, bar ${c.bar}, ${c.seconds.toFixed(2)} s: ${c.text}`));
       return lines.join("\n");
     }
+    const BUTTONS = ["play", "dlmid", "dlwav", "dlcues", "dllrc"];
     $("go").onclick = () => {
       stop();
-      try { $("out").textContent = convert(); for (const id of ["play", "dlmid", "dlwav"]) $(id).disabled = false; }
-      catch (e) { $("out").textContent = e.message; for (const id of ["play", "dlmid", "dlwav"]) $(id).disabled = true; midi = wav = null; }
+      try { $("out").textContent = convert(); for (const id of BUTTONS) $(id).disabled = false; }
+      catch (e) { $("out").textContent = e.message; for (const id of BUTTONS) $(id).disabled = true; midi = wav = cues = lyrics = null; }
     };
     $("play").onclick = () => {
       if (!wav) return;
@@ -203,6 +216,8 @@ mode: 1;
     $("stop").onclick = stop;
     $("dlmid").onclick = () => midi && download(midi, "chant.mid", "audio/midi");
     $("dlwav").onclick = () => wav && download(wavBytes(wav), "chant-preview.wav", "audio/wav");
+    $("dlcues").onclick = () => cues && download(new TextEncoder().encode(cues), "chant-cues.txt", "text/plain");
+    $("dllrc").onclick = () => lyrics && download(new TextEncoder().encode(lyrics), "chant.lrc", "text/plain");
   </script>
 </body>
 </html>

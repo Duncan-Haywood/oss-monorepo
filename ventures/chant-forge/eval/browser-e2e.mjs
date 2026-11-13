@@ -4,6 +4,8 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
+import os from "node:os";
+import { execFileSync } from "node:child_process";
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
@@ -45,6 +47,9 @@ const wav = fs.readFileSync(await d2.path());
 ok(wav.subarray(0, 4).toString() === "RIFF" && wav.subarray(8, 12).toString() === "WAVE" && wav.length > 100000, `WAV download ${wav.length} bytes, RIFF/WAVE`);
 let peak = 0; for (let i = 44; i + 1 < wav.length; i += 2) peak = Math.max(peak, Math.abs(wav.readInt16LE(i)));
 ok(peak > 1000, `WAV is not silent (peak ${peak}/32767)`);
+const [d3] = await Promise.all([page.waitForEvent("download"), page.click("#dlcues")]);
+const plain = fs.readFileSync(await d3.path(), "utf8");
+ok(/^bar  beat  time\(s\)  note  beats  syllable\n/.test(plain) && !/\n-- /.test(plain) && plain.split("\n").length > 5, `cue sheet without sections has no guidance lines (${plain.split("\n").length - 2} note rows)`);
 // playback
 await page.click("#play");
 await page.waitForTimeout(300);
@@ -83,6 +88,21 @@ await page.click("#go");
   const [lo, hi] = t.match(/notes, (\S+)-(\S+) \(ambitus/).slice(1);
   ok(/[23]$/.test(lo) && (/[23]$/.test(hi) || /^(C|C#|D|Eb|E)4$/.test(hi)), `range with the lift inside E2-E4: ${lo}-${hi}`);
   ok(!(await page.locator("#dlwav").isDisabled()), "lifted arrangement renders");
+}
+// the cue sheet download is the CLI's --cues sheet for the same options, byte for byte
+{
+  const t = await out();
+  ok(/Singer cues \(also in the cue sheet download\):\nVerse 1 \(a cappella\), bar 3, [\d.]+ s: Choir alone/.test(t) && /\nDrop 3, bar \d+, [\d.]+ s: Full band, key up 2 semitones\./.test(t), "singer cue lines shown under the summary");
+  const [d] = await Promise.all([page.waitForEvent("download"), page.click("#dlcues")]);
+  const sheet = fs.readFileSync(await d.path(), "utf8");
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "cues-"));
+  execFileSync(process.execPath, [path.join(root, "cli.mjs"), path.join(root, "corpus/pange-lingua-full.gabc"), "--auto-final", "--fit", "8", "--stretch", "--genre", "edm", "--sections", "--intro", "2", "--outro", "2", "--a-cappella", "--key-lift", "2", "--cues", path.join(tmp, "c.txt"), "--lrc", path.join(tmp, "l.lrc")]);
+  const cli = fs.readFileSync(path.join(tmp, "c.txt"), "utf8");
+  const guides = sheet.split("\n").filter((l) => l.startsWith("-- ")).length;
+  ok(sheet === cli && guides >= 5, `cue sheet download equals the CLI's --cues (${sheet.split("\n").length - 2} lines, ${guides} guidance lines, ${d.suggestedFilename()})`);
+  const [d2] = await Promise.all([page.waitForEvent("download"), page.click("#dllrc")]);
+  const l = fs.readFileSync(await d2.path(), "utf8");
+  ok(l === fs.readFileSync(path.join(tmp, "l.lrc"), "utf8") && /^\[ti:/.test(l), `LRC download equals the CLI's --lrc (${l.split("\n").length - 1} lines)`);
 }
 // one-section piece: the options are left out with a note, not an error
 await page.selectOption("#piece", "Pange lingua");
