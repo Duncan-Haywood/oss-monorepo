@@ -1,0 +1,257 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/cloudflare-bill-estimator",
+ "stratum": "venture",
+ "seed": "2026-11-13-d",
+ "drawn_by": "sample",
+ "round": 58,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a platform / FinOps engineer who budgets an account's Cloudflare developer-platform spend; they check first that the total matches how Cloudflare actually invoices (the $5 Workers Paid subscription plus metered overage, R2 billed on its own), that every product they run (Workers, KV incl. storage/deletes/lists, R2 Standard and Infrequent Access, Durable Objects, D1, Queues) is on the sheet, and that each savings lever follows Cloudflare's metering rules (e.g. whether a cached response is still billed as a Worker request)",
+ "scores": {
+  "correctness": 1,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 1,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Rate constants checked against developers.cloudflare.com (WebFetch, 2026-11-13, both pages reached): Workers requests 10M incl + $0.30/M, CPU 30M ms incl + $0.02/M ms, KV reads 10M + $0.50/M, writes 1M + $5/M, R2 Standard $0.015/GB-month (10 GB free), Class A $4.50/M (1M free), Class B $0.36/M (10M free): all seven match engine.mjs:19-25, and every per-line figure I recomputed matches (R2-only 1000 GB / 0.5M A / 20M B: hand 18.45, engine 18.45). The totals do not. engine.mjs:96 treats $5 as a floor (total = max(5, usage)); Cloudflare's own pricing page Example 1 (15M requests at 7 ms CPU) is 'Subscription $5.00 + requests $1.50 + CPU $1.50 = Total $8.00', and `node scratchpad/cf/check.mjs engine.mjs` prints 'ex1 hand 8.00 engine 5.00'. The page's worked example comes out 181.00 where the subscription-plus-usage model gives 186.00; an R2-only account storing 100 GB (no Workers Paid needed; R2 page: free tier 'applies regardless of your Workers plan') is shown $5.00 where it pays $1.35. The third-ranked lever is also wrong: Cloudflare says cache hits 'are billed at the same per-request rate as requests that invoke the Worker' and only CPU is saved, so 'cache-at-the-edge' on the worked example saves 4.24 (CPU only) not the 17.44 the tool prints (engine.mjs:121 removes 40% of requests too). 1: two of the three headline outputs (monthly total, lever savings) disagree with the vendor's published method.",
+  "completeness": "Everything README/index/llms.txt says works end to end: `node cli.mjs template`, `estimate` from a file and from stdin, `--set`, `--json`, `--prices`, `--assume`, `--minimum`, `--top`, `--budget` gate (exit 1 over, 2 on bad input: all exercised by cli.test.mjs and by hand), CSV paste with header/comments/'=' separators, seven levers ranked, editable prices, allowances and assumptions in the browser. Served page https://marisstella.app/cloudflare-bill-estimator/ returns 200 (31,988 bytes) with the same calculator. No TODOs or stubs. Gaps (not claimed as done) are in fitness/domain: no Durable Objects, D1, Queues, KV storage/deletes/lists, R2 Infrequent Access.",
+  "verification": "cd ventures/cloudflare-bill-estimator && node --test '*.test.mjs' on Node v22.23.4: 29 tests, 29 pass, 0 fail (187 ms). Six mutations via platform/ci/quality_mutate.py: 2 caught (total = minimum + usage, i.e. the correct Cloudflare model, is caught because engine.test.mjs:42-52 enshrines the floor; KV writes allowance 1 -> 0), 4 survived: lever-reporting threshold 0.005 -> 0.5 (engine.mjs:117), cache-at-the-edge no longer cutting CPU time (engine.mjs:121; only `> 0` is asserted at engine.test.mjs:62), budget gate > -> >= (engine.mjs:141), assumption clamp to 100% removed (engine.mjs:111; a 150% assumption yields negative usage). No test checks a total against any Cloudflare-published example.",
+  "craft": "Read engine.mjs (152 lines, pure, editable price table, deterministic lever sort), cli.mjs (106 lines, injectable readFile/stdin for tests, clear exit codes), index.html module script (lines 129-211, output escaped via escapeHtml, prices/assumptions editable). Clean and small. Defects: index.html:6 <title> says 'Estimate Your Monthly Postgres Bill' (copied from the neon sibling, also on the served page); browser readUsage (index.html:153) turns a negative or non-numeric field into 0 silently via normalizeUsage, while the CLI rejects the same input; rankLevers' keep() clamp is the only guard on assumptions and is untested.",
+  "claims": "Backed: 'KV writes cost ten times a read' (5/0.5), 'Class A ... more than twelve times a read' (4.5/0.36 = 12.5), worked-example savings $22 (KV writes), $15 (KV reads), ~$24 (R2 reads 23.76) and 'more than any Workers-side change' (17.44 < 22) all reproduce from engine.mjs; no-upload privacy, DNT/GPC opt-out and no-warranty present (usage.mjs, page.test.mjs). Not backed / wrong: index.html:6 title says Postgres; how-to-reduce-your-cloudflare-bill.html:56 and index.html:141 'the bill never falls below [the minimum]' describes $5 as a floor where Cloudflare's examples bill it as a subscription on top of usage (guide line 25 even says 'a monthly minimum plus separately metered usage', contradicting the tool); how-to...html:27 and engine.mjs:120 'Cache API or CDN so the Worker never runs': a Worker that calls the Cache API has run, and Workers cache hits are still billed as requests; README/llms.txt 'developer-platform bill' while only Workers, KV reads/writes and R2 Standard are modelled. Source llms.txt lists duncan-haywood.github.io URLs but the served llms.txt is rewritten to marisstella.app (source-only, not a defect).",
+  "fitness": "Walked the FinOps job: budget next month's Cloudflare spend for an account running Workers + KV + R2 + a Durable Object and a D1 database, and gate it in CI. The CLI and --budget gate are the right shape and the per-line rates are right, but the total is low by up to $5 for every Workers Paid account (by $3 on Cloudflare's own Example 1), wrong the other way for R2-only accounts, Durable Objects/D1/Queues/KV storage/deletes/lists/R2 IA/Workers Logs cannot be entered at all (unknown products are silently ignored in the CLI), and the cache lever would steer them toward a change that saves a quarter of what it promises. A solo dev with only Workers+KV+R2 over the free allowances gets a usable ballpark.",
+  "domain": "Compared against developers.cloudflare.com/workers/platform/pricing and /r2/pricing (fetched). Right: all seven list rates and allowances, R2 egress free, levers named after real practices (KV write de-duplication, R2 lifecycle, CDN in front of R2 public buckets). Departs: $5 modelled as a floor rather than the subscription it is billed as; R2 folded under the Workers minimum though it is billed independently of the Workers plan; cache lever assumes cached requests are not billed, contrary to Cloudflare's 'billed at the same per-request rate'; static-asset requests (free) not distinguished; Durable Objects, D1, Queues, KV storage/deletes/lists and R2 Infrequent Access absent. PRICES_AS_OF says '2025' with no specific date or URL per product."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Cloudflare pricing page Example 1: 15M requests, 7 ms CPU each",
+   "method": "developers.cloudflare.com/workers/platform/pricing (WebFetch 2026-11-13): Subscription $5.00 + requests $1.50 + CPU $1.50 = $8.00",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/cf/check.mjs /home/user/oss-monorepo/ventures/cloudflare-bill-estimator/engine.mjs",
+   "expected": "8.00",
+   "observed": "5.00",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Seven list rates and allowances in DEFAULT_PRICES",
+   "method": "Workers and R2 pricing pages (WebFetch 2026-11-13)",
+   "command": "sed -n 19,25p ventures/cloudflare-bill-estimator/engine.mjs",
+   "expected": "0.30/10M, 0.02/30M, 0.50/10M, 5.00/1M, 0.015/10GB, 4.50/1M, 0.36/10M",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "R2-only bill: 1000 GB, 0.5M Class A, 20M Class B",
+   "method": "by hand from the R2 pricing page: 990*0.015 + 0 + 10*0.36",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/cf/check.mjs /home/user/oss-monorepo/ventures/cloudflare-bill-estimator/engine.mjs",
+   "expected": "18.45",
+   "observed": "18.45",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "R2-only small bill: 100 GB stored, no Workers",
+   "method": "R2 page: free tier 'applies regardless of your Workers plan'; 90*0.015",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/cf/check.mjs /home/user/oss-monorepo/ventures/cloudflare-bill-estimator/engine.mjs",
+   "expected": "1.35",
+   "observed": "5.00",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Page worked example total (110M req, 530M CPU-ms, 60M/11M KV, 510 GB, 6M A, 110M B)",
+   "method": "by hand: usage 181.00 + $5 subscription per Cloudflare's examples",
+   "command": "node /home/user/oss-monorepo/ventures/cloudflare-bill-estimator/cli.mjs estimate big.csv (scratchpad/cf)",
+   "expected": "186.00 (line items 30, 10, 25, 50, 7.50, 22.50, 36)",
+   "observed": "181.00 (line items all match)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "cache-at-the-edge saving on the worked example",
+   "method": "Workers pricing page: cache hits 'billed at the same per-request rate'; CPU only billed on miss: (500-288)*0.02",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/cf/check.mjs /home/user/oss-monorepo/ventures/cloudflare-bill-estimator/engine.mjs",
+   "expected": "4.24",
+   "observed": "17.44",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/cloudflare-bill-estimator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "29 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "CLI end to end: estimate, stdin, --budget exit codes, --minimum top-up",
+   "method": "run it",
+   "command": "node cli.mjs estimate a.csv; node cli.mjs estimate big.csv (scratchpad/cf)",
+   "expected": "report with lines, top-up, levers; exit 0",
+   "observed": "as expected; a.csv shows $3.00 + $0.20 + $1.80 top-up = $5.00",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "index.html <title>",
+   "method": "read source and served page",
+   "command": "curl -sS https://marisstella.app/cloudflare-bill-estimator/ | grep -o '<title>[^<]*'",
+   "expected": "a Cloudflare title",
+   "observed": "'Estimate Your Monthly Postgres Bill and the Levers That Cut It'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Workers Paid carries a monthly minimum, so the bill never falls below it' / minimum as a floor",
+   "method": "Workers pricing page examples (Subscription $5.00 line added to usage)",
+   "command": "grep -n 'never falls below' ventures/cloudflare-bill-estimator/*.html",
+   "expected": "$5 subscription plus usage",
+   "observed": "floor model at how-to...html:56 and index.html:141; guide line 25 says 'minimum plus separately metered usage'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'KV writes cost ten times a read'; 'Class A ... more than twelve times a read'; worked-example savings $22/$15/~$24",
+   "method": "ratios from the pricing pages; savings from cli.mjs output",
+   "command": "node cli.mjs estimate big.csv (scratchpad/cf)",
+   "expected": "10x, >12x, 22.00, 15.00, ~24",
+   "observed": "10x, 12.5x, 22.00, 15.00, 23.76",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'serve repeat requests from the Cache API or CDN so the Worker never runs'",
+   "method": "Workers pricing page caching section",
+   "command": "grep -n 'never runs' ventures/cloudflare-bill-estimator/engine.mjs ventures/cloudflare-bill-estimator/how-to-reduce-your-cloudflare-bill.html",
+   "expected": "cached hits still billed as requests",
+   "observed": "claimed to remove requests entirely",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page and llms.txt host",
+   "method": "curl",
+   "command": "curl -sS -o served.html -w '%{http_code}' https://marisstella.app/cloudflare-bill-estimator/",
+   "expected": "200; llms.txt on marisstella.app",
+   "observed": "200, 31,988 bytes; served llms.txt rewritten to marisstella.app",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "products a platform team runs: Durable Objects, D1, Queues, KV storage/deletes/lists, R2 IA",
+   "method": "Workers pricing page product list",
+   "command": "grep -c 'durable\\|d1_\\|queues\\|kv_storage' ventures/cloudflare-bill-estimator/engine.mjs",
+   "expected": "modelled or flagged",
+   "observed": "0; CLI ignores unknown products with a note",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "engine.mjs:96",
+   "change": "const total = round2(Math.max(minimumUsd, usageCharges)); -> const total = round2(minimumUsd + usageCharges);",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:22",
+   "change": "kv_writes_m included: 1 -> 0",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:117",
+   "change": "if (saving > 0.005) -> if (saving > 0.5)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:121",
+   "change": "cache-at-the-edge no longer scales workers_cpu_m_ms",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:141",
+   "change": "overBudget: estimate.total > budget -> >= budget",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:111",
+   "change": "keep(): drop Math.min(100, ...) clamp",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The $5 Workers Paid charge is modelled as a floor (total = max(5, usage)) instead of the subscription Cloudflare adds to metered usage; Cloudflare's own Example 1 is $8.00, the tool says $5.00; every Workers Paid total is low by up to $5, and R2-only accounts (billed regardless of the Workers plan) are topped up to $5 they do not pay. engine.test.mjs:42-52 enshrines the floor, so the correct model fails the suite.",
+   "where": "ventures/cloudflare-bill-estimator/engine.mjs:96",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "'Cache at the edge ... so the Worker never runs' removes 40% of Worker requests, but Cloudflare bills cached hits at the per-request rate and only CPU is saved; on the worked example the lever shows $17.44 where the vendor rule gives $4.24, and it ranks third instead of near the bottom.",
+   "where": "ventures/cloudflare-bill-estimator/engine.mjs:121",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "<title> reads 'Estimate Your Monthly Postgres Bill and the Levers That Cut It', copied from the neon sibling; it ships on the served page and is what search results show.",
+   "where": "ventures/cloudflare-bill-estimator/index.html:6",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Guide and price table state the bill 'never falls below' the minimum (floor model), contradicting Cloudflare's subscription-plus-usage examples and the guide's own line 25 ('a monthly minimum plus separately metered usage').",
+   "where": "ventures/cloudflare-bill-estimator/how-to-reduce-your-cloudflare-bill.html:56",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Sold as a 'developer-platform bill' estimator but Durable Objects, D1, Queues, KV storage/deletes/lists, R2 Infrequent Access and Workers Logs cannot be entered; the CLI silently drops them as unknown products.",
+   "where": "ventures/cloudflare-bill-estimator/engine.mjs:18",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Four of six seeded mutations survive 29 tests: lever threshold, cache lever's CPU term (only `> 0` asserted), budget gate > vs >=, and the 100% assumption clamp; no test compares a total to a Cloudflare-published example.",
+   "where": "ventures/cloudflare-bill-estimator/engine.test.mjs:62",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Browser form turns a negative or non-numeric usage field into 0 silently (normalizeUsage), while the CLI rejects the same input with exit 2.",
+   "where": "ventures/cloudflare-bill-estimator/index.html:153",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "PRICES_AS_OF is 'approximate ... 2025' with one URL; no per-product source or verification date for the KV and R2 rates.",
+   "where": "ventures/cloudflare-bill-estimator/engine.mjs:13",
+   "category": "source-data",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15362"
+ ],
+ "verdict": "Every per-product rate and allowance matches Cloudflare's published Workers, KV and R2 pricing (fetched 2026-11-13), and each line item recomputes to the cent. The totals and one key lever are still wrong. The $5 Workers Paid charge is treated as a floor rather than the subscription it is, so Cloudflare's own Example 1 comes out $5.00 instead of $8.00, the page's worked example $181 instead of $186, and a 100 GB R2-only account $5.00 instead of $1.35. The tests lock that model in: the correct formula fails the suite. 'Cache at the edge so the Worker never runs' assumes cached hits are not billed, but Cloudflare bills them as requests, which overstates that saving about fourfold ($17.44 against $4.24). The page title says 'Postgres', and Durable Objects, D1, Queues and KV storage are missing from a 'developer-platform' estimator. Four of six seeded mutations survive. The CLI, budget gate and code are tidy. It does not meet the bar: correctness, verification and claims are 1, fitness and domain 2, completeness and craft 3."
+}

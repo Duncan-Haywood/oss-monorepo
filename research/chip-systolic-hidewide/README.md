@@ -33,7 +33,7 @@ All 8 array configurations matched the NumPy reference and the cycle formula.
 - **Negative result.** At both F the best MAC engine beats the best array, by 27 to 30% in cells x cycles per vector.
 - Against `chip-systolic-hidden` (H = 8; ratios 1.22 at F = 16 and 1.20 at F = 32) the gap is slightly larger here. Different arrays and lane counts were swept, the weights differ, and there is one seed, so this is not isolated as an effect of H.
 - At F = 32 the best MAC engine is P = 16, the largest tried, ahead of P = 8 by 3% (360932 against 372045), so its optimum may lie further out. At F = 16 the optimum is P = 8 (P = 16: 217548).
-- At F = 32 the best array is 2x8 (458345), ahead of 1x8 (477106); at F = 16 the best is 1x4 (245106) and 2x8 (268037) is behind 1x8 (274762) too. Wider rows or R > 2 were not tried.
+- At F = 32 the best array is 2x8 (458345), ahead of 1x8 (477106); at F = 16 the best is 1x4 (245106) and 2x8 (268037) is ahead of 1x8 (274762) (lower is better). Wider rows or R > 2 were not tried.
 
 ## Limitations
 - One network family and seed; H = 16 only; training data and weights differ at each F.
@@ -41,6 +41,7 @@ All 8 array configurations matched the NumPy reference and the cycle formula.
 - MAC-engine cell counts are from synthesis, and its cycles from the formula. Its RTL was checked against NumPy only in the unit tests at the F and P values listed in Method, not at F = 32 or for every P in the table.
 - Gate counts only: no clock period, power, memory or layout (see `chip-pnr`). Nothing here describes a fabricated chip.
 - The sweep does not show that no systolic design wins.
+- Research design (quality audit, [`portfolio/quality/audits/2026-11-13-chip-systolic-hidewide.json`](../../portfolio/quality/audits/2026-11-13-chip-systolic-hidewide.json)): with weights compiled into fixed logic and no memory, the array's data reuse never enters the score, and the 1xC "arrays" are pipelines paying C-1 fill cycles per tile against a MAC engine that broadcasts its input. The MAC engine's win is start-up overhead on tiny layers, which the TPU v1 paper (Jouppi et al., ISCA 2017) and SCALE-Sim already cover; neither is cited here, nor Timeloop/Accelergy or Eyeriss. No test or input reaches the hidden-layer saturation clip, and no simulation uses more than 2 rows.
 
 ## Next steps
 Weight-stationary dataflow; a RAM-based weight store; simulate the MAC engine at H = 16 against NumPy; P = 32 at F = 32; R = 4.

@@ -25,8 +25,13 @@ export const DEFAULT_PRICES = {
   r2_class_b_m: { label: "R2 Class B operations: reads (per million)", unit: "M operations", rate: 0.36, per: 1, included: 10 },
 };
 
-// Workers Paid carries a monthly minimum; the bill is never below it.
-export const DEFAULT_MINIMUM_USD = 5;
+// Workers Paid is a flat monthly subscription billed ON TOP of usage above the
+// included allowances (Cloudflare's own pricing example: 15 M requests at 7 ms
+// CPU each = $5 + $1.50 + $1.50 = $8). It is not a floor that usage counts
+// toward. Set it to 0 for an account that only uses R2 (R2 needs no Workers Paid).
+export const DEFAULT_SUBSCRIPTION_USD = 5;
+/** @deprecated old name, kept for imports; same value. */
+export const DEFAULT_MINIMUM_USD = DEFAULT_SUBSCRIPTION_USD;
 
 // What each lever *assumes*. A saving is "if you did this much of it", so
 // every assumption is shown next to the dollar figure and can be overridden.
@@ -79,8 +84,8 @@ export function normalizeUsage(partial = {}) {
   return u;
 }
 
-/** Line items and total for a usage record. The plan minimum is a floor on the total. */
-export function estimateBill(usageIn, prices = DEFAULT_PRICES, minimumUsd = DEFAULT_MINIMUM_USD) {
+/** Line items and total for a usage record. The subscription is added to the metered usage. */
+export function estimateBill(usageIn, prices = DEFAULT_PRICES, subscriptionUsd = DEFAULT_SUBSCRIPTION_USD) {
   const u = normalizeUsage(usageIn);
   const items = [];
   for (const [key, p] of Object.entries(prices)) {
@@ -93,9 +98,9 @@ export function estimateBill(usageIn, prices = DEFAULT_PRICES, minimumUsd = DEFA
     });
   }
   const usageCharges = round2(items.reduce((n, i) => n + i.monthly, 0));
-  const total = round2(Math.max(minimumUsd, usageCharges));
-  const minimumTopUp = round2(Math.max(0, minimumUsd - usageCharges));
-  return { usage: u, items, usageCharges, minimumTopUp, total, annual: round2(total * 12) };
+  const subscription = round2(Math.max(0, Number(subscriptionUsd) || 0));
+  const total = round2(subscription + usageCharges);
+  return { usage: u, items, usageCharges, subscription, total, annual: round2(total * 12) };
 }
 
 /**
@@ -104,15 +109,15 @@ export function estimateBill(usageIn, prices = DEFAULT_PRICES, minimumUsd = DEFA
  * under the stated assumption. Levers overlap (edge caching and CPU trimming
  * act on the same Worker CPU time), so the savings are NOT additive.
  */
-export function rankLevers(usageIn, prices = DEFAULT_PRICES, assumptions = DEFAULT_ASSUMPTIONS, minimumUsd = DEFAULT_MINIMUM_USD) {
+export function rankLevers(usageIn, prices = DEFAULT_PRICES, assumptions = DEFAULT_ASSUMPTIONS, subscriptionUsd = DEFAULT_SUBSCRIPTION_USD) {
   const u = normalizeUsage(usageIn);
-  const base = estimateBill(u, prices, minimumUsd).total;
+  const base = estimateBill(u, prices, subscriptionUsd).total;
   const A = { ...DEFAULT_ASSUMPTIONS, ...assumptions };
   const keep = (n) => 1 - Math.min(100, Math.max(0, n)) / 100;
   const levers = [];
   const scale = (keys, k) => Object.fromEntries(keys.map((key) => [key, u[key] * k]));
   const push = (id, title, assumption, change) => {
-    const next = estimateBill({ ...u, ...change }, prices, minimumUsd).total;
+    const next = estimateBill({ ...u, ...change }, prices, subscriptionUsd).total;
     const saving = round2(base - next);
     if (saving > 0.005) levers.push({ id, title, assumption, saving, after: round2(next), pctOfBill: base ? round2((saving / base) * 100) : 0 });
   };

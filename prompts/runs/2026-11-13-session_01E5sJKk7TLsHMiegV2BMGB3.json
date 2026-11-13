@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKk7TLsHMiegV2BMGB3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T03:09:01Z",
+  "ended": "2026-11-13T03:28:44Z",
+  "wall_minutes": 20.22,
+  "tokens_in": 7627394,
+  "tokens_out": 37967,
+  "cost_usd": 3.2884,
+  "tool_calls": 67,
+  "task": "Deepen flagship shift-roster-builder: `--steady` call-out check on the page, made quicker",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15352",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First page wiring attempt bundled a pkill with an edit in one command; the pkill hook blocked the whole command, so the edit had to be re-run.",
+    "Post description was 205 chars; venture-preflight's front-matter check caught it (limit 160).",
+    "CI validate: flagships.yaml next: went over the 2000-char cap after my edit; shortened it. portfolio/router/validate.py was not in the local checks I ran."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill-bracketing note does not say the hook also rejects the whole command when the pattern text appears elsewhere on the line (e.g. a later `cat t2.mjs`); split such commands."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "AGENTS.md / prompts/goals.md (marketing page default)",
+      "why": "No new marketing page: the change is a setting on the existing tool page and is covered by llms.txt, the README and the post.",
+      "did": "Updated llms.txt and the README; no new HTML page.",
+      "result": "Kept the PR to the feature and its write-up."
+    },
+    {
+      "file": "docs/reports (agent doc default)",
+      "why": "The README section and flagships.yaml `next:` carry what the next run needs.",
+      "did": "Rewrote the flagship next: item instead of a separate report.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-shift-roster-call-out-check-on-the-page.md",
+    "ventures/shift-roster-builder/README.md (A quicker call-out check)"
+  ],
+  "goal": null,
+  "notes": "Exact short cuts (outright cover via coverOptions, hand-over chains up to 3 via coverChain) agreed with full rebuilds on all 570 cases (5 teams x 6 seeds). steadyRoster prunes tied rosters at the best sum with hinted case order: 66.7 s -> 45.5 s total, 419 -> 243 rebuilds, same roster posted on all five teams (eval/steady-speed.out.txt). Page: new 'When several rosters tie at the best score' setting, runs in the worker with progress; checked in headless Chromium on the salon template (progress line, notices, no console errors). Local: run_venture_tests.py shift-roster-builder ok (187 s); steady+cli tests 37 pass after the final wording change; venture-preflight rerun after fixing the post description.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d6eff53d-950d-5b78-8fc9-439692dbf937",
+    "transcripts": 1,
+    "first": "2026-11-13T03:09:01Z",
+    "last": "2026-11-13T03:29:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 124,
+        "output": 37967,
+        "thinking": 9015,
+        "cache_read": 7498672,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128598,
+        "api_equivalent_usd": 3.2884,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 124,
+      "output": 37967,
+      "thinking": 9015,
+      "cache_read": 7498672,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128598,
+      "api_equivalent_usd": 3.2884,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.22,
+      "active_minutes": 20.22,
+      "model_minutes": 8.6,
+      "tool_minutes": 11.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: design and prove two exact short cuts, pruning, page wiring, measurement and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 182.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

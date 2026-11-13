@@ -3806,34 +3806,72 @@ export function splitCells(line) {
 // started by then is pinned (pinStarted), and the week is rebuilt with the roster kept (keepShift 1). `added` is the open
 // hours that leaves beyond the roster's own. The sum over the cases is the exposure; times a per-person-day call-out rate
 // it is the expected open hours one week of independent call-outs adds, to first order. One rebuild per case.
-export function calloutExposure(staff, slots, roster, options = {}, { fromDay = 1, noticeMin = 420 } = {}) {
+// Two short cuts (2026-11-13 later), so the check is quick enough for the page:
+//  - outright cover: when the person has one shift that day and coverOptions finds someone who can take it with every
+//    hard rule holding and everyone else keeping their shifts, that roster leaves exactly the roster's own open hours,
+//    so a rebuild that covers the most hours first adds 0. The case is scored 0 without the rebuild (`outright: true`).
+//    Failing that, a hand-over chain (coverChain, up to `chainMoves` shifts changing hands, people outside the chain
+//    keeping theirs; shifts already started are pinned, so no chain moves them) proves the same. `moves` says which.
+//    Measured against rebuilding every case: README "A quicker call-out check".
+//  - `stopAt`: stop as soon as the sum reaches it and return `stopped: true` with the sum so far, a lower bound. Used by
+//    steadyRoster, which only needs to know a roster cannot beat the best one found.
+// `onCase(done, of)` is called after each case.
+export function calloutExposure(staff, slots, roster, options = {}, { fromDay = 1, noticeMin = 420, outright = true, chainMoves = 3, stopAt = Infinity, onCase = null, hint = null } = {}) {
   if (!roster || !roster.assignments) return { error: "Build a roster first." };
   const csv = rosterCsv(roster);
   const keep = keepFromCsv(csv);
-  const cases = [];
+  const plan = [];
   for (let d = fromDay; d < 7; d++) {
     const working = [...new Set(roster.assignments.filter((a) => a.person && a.slot.day === d).map((a) => a.person))].sort();
-    if (!working.length) continue;
-    const { slots: pinned } = pinStarted(slots, csv, d * 1440 - noticeMin);
-    for (const name of working) {
-      const st = staff.map((p) => (p.name === name ? { ...p, days: p.days.map((w, k) => (k === d ? [] : w)) } : p));
-      const r = buildRoster(st, pinned, { ...options, keep, keepShift: 1 });
-      if (r.error) return { error: r.error };
-      cases.push({ person: name, day: d, openAfter: r.unfilledHours, added: Math.max(0, r.unfilledHours - roster.unfilledHours) });
-    }
+    for (const name of working) plan.push({ d, name });
   }
-  return { cases, exposure: cases.reduce((t, c) => t + c.added, 0), personDays: cases.length };
+  // With `hint` (person|day -> open hours that call-out added on another roster), the likeliest costly cases go first, so
+  // a roster that cannot win reaches `stopAt` early. Order changes nothing else: every case is still played unless stopped.
+  if (hint) plan.sort((x, y) => (hint.get(y.name + "|" + y.d) ?? 0) - (hint.get(x.name + "|" + x.d) ?? 0));
+  const cases = [];
+  let sum = 0, rebuilt = 0;
+  const pins = new Map();
+  for (const { d, name } of plan) {
+    if (!pins.has(d)) pins.set(d, pinStarted(slots, csv, d * 1440 - noticeMin).slots);
+    const pinned = pins.get(d);
+    const p = staff.findIndex((q) => q.name === name);
+    const st = staff.map((q) => (q.name === name ? { ...q, days: q.days.map((w, k) => (k === d ? [] : w)) } : q));
+    const mine = roster.owner ? pinned.map((s, i) => i).filter((i) => roster.owner[i] === p && pinned[i].day === d) : [];
+    if (outright && mine.length === 1) {
+      const c = coverOptions(st, pinned, roster, mine[0], options);
+      const ch = !c.error && !c.fits.length && chainMoves > 1 ? coverChain(st, pinned, roster, mine[0], options, { maxMoves: chainMoves, limit: 1 }) : null;
+      const moves = !c.error && c.fits.length ? 1 : ch && !ch.error && ch.chains.length ? ch.chains[0].moves : 0;
+      if (moves) {
+        cases.push({ person: name, day: d, openAfter: roster.unfilledHours, added: 0, outright: true, moves });
+        if (onCase) onCase(cases.length, plan.length);
+        continue;
+      }
+    }
+    const r = buildRoster(st, pinned, { ...options, keep, keepShift: 1 });
+    if (r.error) return { error: r.error };
+    rebuilt++;
+    const added = Math.max(0, r.unfilledHours - roster.unfilledHours);
+    cases.push({ person: name, day: d, openAfter: r.unfilledHours, added });
+    sum += added;
+    if (onCase) onCase(cases.length, plan.length);
+    if (sum >= stopAt && cases.length < plan.length) return { cases, exposure: sum, personDays: plan.length, rebuilt, stopped: true };
+  }
+  return { cases, exposure: sum, personDays: plan.length, rebuilt };
 }
 
 // Among the rosters that tie at the best score over `seeds` (the search's seed is the only thing varied, so every candidate
 // has the same score, the managers' own settings untouched), post the one with the least call-out exposure. Costs nothing
 // in the score by construction; costs one calloutExposure per distinct tied roster in time. The first seed's roster wins
 // ties, so a week with one best roster is unchanged. `steady` on the result says what was compared.
-export function steadyRoster(staff, slots, options = {}, { seeds = [1, 2, 3, 4, 5, 6], fromDay = 1, noticeMin = 420 } = {}) {
+export function steadyRoster(staff, slots, options = {}, { seeds = [1, 2, 3, 4, 5, 6], fromDay = 1, noticeMin = 420, prune = true, outright = true, onProgress = null } = {}) {
   const base = options.seed ?? 1;
   const list = [...new Set([base, ...seeds])];
-  const built = list.map((seed) => ({ seed, r: buildRoster(staff, slots, { ...options, seed }) }));
-  if (built[0].r.error) return built[0].r;
+  const built = [];
+  for (const seed of list) {
+    built.push({ seed, r: buildRoster(staff, slots, { ...options, seed }) });
+    if (onProgress) onProgress({ stage: "build", done: built.length, of: list.length });
+    if (built[0].r.error) return built[0].r;
+  }
   const best = Math.min(...built.map((b) => b.r.score));
   const seen = new Map();
   for (const b of built) {
@@ -3841,9 +3879,37 @@ export function steadyRoster(staff, slots, options = {}, { seeds = [1, 2, 3, 4, 
     const k = rosterCsv(b.r);
     if (!seen.has(k)) seen.set(k, b);
   }
-  const cands = [...seen.values()].map((b) => ({ ...b, x: calloutExposure(staff, slots, b.r, options, { fromDay, noticeMin }) }));
-  cands.sort((a, b) => a.x.exposure - b.x.exposure || list.indexOf(a.seed) - list.indexOf(b.seed));
+  // With `prune`, a later roster stops being checked once its sum reaches the best so far: it cannot win (ties go to
+  // the earlier seed), and its exposure is reported as at least that sum (`stopped`). `prune: false` scores every tie.
+  const ties = [...seen.values()];
+  const cands = [], hint = new Map();
+  let bestX = Infinity;
+  for (const [i, b] of ties.entries()) {
+    const x = calloutExposure(staff, slots, b.r, options, { fromDay, noticeMin, outright, stopAt: prune ? bestX : Infinity, hint: prune ? hint : null,
+      onCase: onProgress ? (done, of) => onProgress({ stage: "callouts", roster: i + 1, rosters: ties.length, done, of }) : null });
+    if (x.error) return { ...built[0].r, steady: { error: x.error } };
+    cands.push({ ...b, x });
+    for (const c of x.cases) hint.set(c.person + "|" + c.day, Math.max(hint.get(c.person + "|" + c.day) ?? 0, c.added));
+    if (!x.stopped) bestX = Math.min(bestX, x.exposure);
+  }
+  cands.sort((a, b) => (!!a.x.stopped - !!b.x.stopped) || a.x.exposure - b.x.exposure || list.indexOf(a.seed) - list.indexOf(b.seed));
   const pick = cands[0];
   const first = cands.find((c) => c.seed === base);
-  return { ...pick.r, steady: { chosenSeed: pick.seed, exposure: pick.x.exposure, firstSeedExposure: first ? first.x.exposure : null, personDays: pick.x.personDays, tied: cands.map((c) => ({ seed: c.seed, exposure: c.x.exposure })), worst: pick.x.cases.filter((c) => c.added > 0) } };
+  return { ...pick.r, steady: { chosenSeed: pick.seed, exposure: pick.x.exposure, firstSeedExposure: first && !first.x.stopped ? first.x.exposure : null, personDays: pick.x.personDays,
+    tied: cands.map((c) => ({ seed: c.seed, exposure: c.x.exposure, ...(c.x.stopped ? { atLeast: true } : {}) })), rebuilt: cands.reduce((t, c) => t + c.x.rebuilt, 0),
+    worst: pick.x.cases.filter((c) => c.added > 0) } };
+}
+
+// The call-out check in words (CLI --steady and the page).
+export function steadyText(s) {
+  if (!s) return "";
+  if (s.error) return `Call-out check: ${s.error}`;
+  const rest = s.tied.filter((t) => t.seed !== s.chosenSeed);
+  // A tie stopped at the best sum is "at least as many": the check stops there because it can no longer win.
+  const others = rest.every((t) => t.atLeast && t.exposure === s.exposure) ? `the other${rest.length > 1 ? "s" : ""} at least as many`
+    : `the others ${rest.map((t) => (t.atLeast ? "at least " : "") + num(t.exposure)).join(", ")} h`;
+  const head = s.tied.length < 2 ? "Call-out check: only one roster ties at the best score, so there was nothing to choose between."
+    : `Call-out check: ${s.tied.length} rosters tie at the best score; this one adds the fewest open hours if someone calls out (${num(s.exposure)} h summed over ${s.personDays} person-days, ${others}).`;
+  const worst = s.worst.slice().sort((a, b) => b.added - a.added).slice(0, 5).map((c) => `${c.person} on ${DAYS[c.day]} (+${num(c.added)} h)`);
+  return `${head}\n${worst.length ? `Call-outs that would still leave hours open: ${worst.join(", ")}${s.worst.length > 5 ? ` and ${s.worst.length - 5} more` : ""}.` : "No single call-out Tue-Sun leaves an hour open."}`;
 }

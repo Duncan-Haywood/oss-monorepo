@@ -29,6 +29,7 @@ import {
   keepFromCsv,
   pinStarted,
   steadyRoster,
+  steadyText,
 } from "./calc.mjs";
 
 const USAGE = `Build a weekly roster that respects availability, hour limits and rest, covers as many shifts as it can, and avoids overtime.
@@ -461,16 +462,9 @@ export function run(staffText, shiftsText, opts = {}) {
       }, null, 2) + "\n",
     };
   }
-  return { code, out: reportText(r) + (r.steady ? steadyText(r.steady) : "") };
+  return { code, out: reportText(r) + (r.steady ? "\n" + steadyText(r.steady) + "\n" : "") };
 }
 
-function steadyText(s) {
-  const others = s.tied.filter((t) => t.seed !== s.chosenSeed).map((t) => num(t.exposure));
-  const head = s.tied.length < 2 ? "Call-out check: only one roster ties at the best score, so there was nothing to choose between."
-    : `Call-out check: ${s.tied.length} rosters tie at the best score; this one adds the fewest open hours if someone calls out (${num(s.exposure)} h summed over ${s.personDays} person-days, the others ${others.join(", ")} h).`;
-  const worst = s.worst.slice().sort((a, b) => b.added - a.added).slice(0, 5).map((c) => `${c.person} on ${DAYS[c.day]} (+${num(c.added)} h)`);
-  return `\n${head}\n${worst.length ? `Call-outs that would still leave hours open: ${worst.join(", ")}${s.worst.length > 5 ? ` and ${s.worst.length - 5} more` : ""}.\n` : "No single call-out Tue-Sun leaves an hour open.\n"}`;
-}
 
 // --cover "Tue 17:00[-22:00]": find the shift, then who can take it outright (coverOptions) or, failing that, the shortest hand-over chains (coverChain).
 const hm = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;

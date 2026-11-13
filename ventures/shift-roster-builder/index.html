@@ -131,6 +131,7 @@
       <div><label for="openpref">If some shifts must stay open</label><select id="openpref"><option value="">Standard build</option><option value="hours">Leave the fewest hours open</option><option value="shifts">Leave the fewest shifts open</option></select></div>
       <div><label for="tough">Spread weekend, closing and opening shifts (0–100)</label><input id="tough" inputmode="decimal" value="0"></div>
       <div><label for="keep">Keep people on their usual shifts when someone is off (plans of several weeks; one week after "Carry over last week")</label><select id="keep"><option value="0.1">Yes (never leaves a shift open to do it)</option><option value="0.25">Yes, firmly (may cost a little more pay)</option><option value="0">No</option></select></div>
+      <div><label for="steady">When several rosters tie at the best score</label><select id="steady"><option value="">Post the first one found</option><option value="1">Post the one a call-out hurts least (slower: rebuilds the week for each call-out)</option></select></div>
     </div>
     <button type="button" id="analyze">Build the roster</button> <button type="button" id="build-stop" class="secondary" hidden>Stop</button>
     <div style="margin:12px 0"><label for="planweeks">Plan several weeks in a row</label> <input id="planweeks" inputmode="numeric" value="4" style="width:4em" aria-label="Number of weeks">
@@ -288,7 +289,7 @@
     import { staffPackHtml } from "./staffpack.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
-    import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seniorityClaims, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, coverChain, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, keepFromCsv, pinStarted, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seniorityClaims, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, steadyRoster, steadyText, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, coverChain, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, keepFromCsv, pinStarted, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -415,7 +416,12 @@
     // start a module worker (an old browser, a file:// page), the build runs here as before.
     let worker = null, buildId = 0, workerBroken = false;
     function stopWorker() { if (worker) { worker.terminate(); worker = null; } $("#build-stop").hidden = true; report.removeAttribute("aria-busy"); }
-    function buildHere(staff, slots, options) { try { return { staff, slots, roster: buildRoster(staff, slots, options) }; } catch (e) { return { staff, slots, roster: { error: "The roster could not be built: " + e.message } }; } }
+    function buildHere(staff, slots, options) { try { const { steady, ...o } = options; return { staff, slots, roster: steady ? steadyRoster(staff, slots, o) : buildRoster(staff, slots, o) }; } catch (e) { return { staff, slots, roster: { error: "The roster could not be built: " + e.message } }; } }
+    // The call-out check's progress, from the worker (2026-11-13).
+    function steadyProgress(p) {
+      return p.stage === "build" ? `Call-out check: building tied roster ${p.done} of ${p.of}… Stop ends it.`
+        : `Call-out check: roster ${p.roster} of ${p.rosters}, call-out ${p.done} of ${p.of}… Stop ends it.`;
+    }
     function buildInBackground(staff, slots, options) {
       stopWorker();
       const id = ++buildId;
@@ -426,7 +432,7 @@
         catch (e) { workerBroken = true; resolve(buildHere(staff, slots, options)); return; }
         worker = w;
         $("#build-stop").hidden = false; report.setAttribute("aria-busy", "true");
-        w.onmessage = (e) => { if (e.data.id !== id) return; stopWorker(); resolve(e.data); };
+        w.onmessage = (e) => { if (e.data.id !== id) return; if (e.data.progress) { status.textContent = steadyProgress(e.data.progress); return; } stopWorker(); resolve(e.data); };
         w.onerror = (e) => { e.preventDefault(); if (worker !== w) return; stopWorker(); workerBroken = true; resolve(buildHere(staff, slots, options)); };
         w.onmessageerror = w.onerror;
         // Stop, or a newer build, resolves this one as cancelled so its caller renders nothing.
@@ -460,6 +466,8 @@
         ...($("#prove").value === "0" ? { exact: false } : {}),
         ...(lastWeekCsv && Number($("#keep").value) > 0 ? { keepValue: Number($("#keep").value), keep: keepFromCsv(lastWeekCsv) } : {}),
         ...(kp > 0 ? { keepShift: kp, keep: keepFromCsv(postedCsv) } : {}),
+        // A posted week is reissued with the posted roster kept, so the tie-break applies to a fresh week only (as in the CLI).
+        ...($("#steady").value === "1" && !postedCsv ? { steady: true } : {}),
       });
       if (!built) return false; // stopped, or replaced by a newer build
       // The worker's copies of the staff and shifts travel in the same message as the roster, so their shared
@@ -492,6 +500,7 @@
       if (brk.length) flagMsgs.push("Suggested meal breaks (30 min, before the 5th hour, staggered so others stay on): " + brk.map((x) => `${x.person} ${x.dayName} ${fmtClock(x.startMin)}${x.alone ? " (nobody else on)" : ""}`).join("; ") + ".");
       const rb = placeRestBreaks(r, { restEvery: val("restevery", 0), restMin: val("restmin", 10), mealAfter: val("mealafter", 0) > 0 ? val("mealafter", 0) : 5, mealMin: val("mealmin", 30) });
       if (rb.length) flagMsgs.push(`Suggested paid rest breaks (${num(val("restmin", 10))} min, one per ${num(val("restevery", 0))} hours worked straight, staggered so others stay on): ` + rb.map((x) => `${x.person} ${x.dayName} ${fmtClock(x.startMin)}${x.alone ? " (nobody else on)" : ""}`).join("; ") + ".");
+      if (r.steady) flagMsgs.unshift(...steadyText(r.steady).split("\n"));
       if (r.optimality) flagMsgs.unshift(optimalityText(r.optimality));
       $("#notices").innerHTML = r.warnings.concat(st.notes, flagMsgs).map((w) => `<div class="warn">${esc(w)}</div>`).join("");
       const big = [
@@ -565,7 +574,7 @@
       const p = OT_PRESETS[$("#otrule").value] || [0, 0];
       $("#dotafter").value = String(p[0]); $("#ddtafter").value = String(p[1]); persist();
     });
-    $("#analyze").addEventListener("click", async () => { if (await run()) { record("roster_built"); noteWeek(); } });
+    $("#analyze").addEventListener("click", async () => { if (await run()) { record("roster_built"); if (last && last.steady) record("steady_check_run"); noteWeek(); } });
     $("#template-pick").insertAdjacentHTML("beforeend", Object.entries(TEMPLATES).map(([k, t]) => `<option value="${k}">${esc(t.label)}</option>`).join(""));
     $("#template-pick").addEventListener("change", async (e) => {
       const t = TEMPLATES[e.target.value]; if (!t) return;

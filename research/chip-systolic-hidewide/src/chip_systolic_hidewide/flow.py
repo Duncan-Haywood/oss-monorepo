@@ -83,6 +83,11 @@ def _yosys(src):
     return {"cells": cells, "ff": ff, "depth": int(m.group(1)) if m else 0}
 
 
+def metric(cells, cycles, r):
+    """The headline score: cells x cycles per input vector (an R-row array serves R vectors per pass). Lower is better."""
+    return cells * cycles // r
+
+
 def score(q, c, r):
     return _yosys(gen.verilog(q, c, r))
 

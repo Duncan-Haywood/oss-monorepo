@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyfv2jupqYdMyhDWvsB",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T03:38:06Z",
+  "ended": "2026-11-13T03:52:55Z",
+  "wall_minutes": 17.84,
+  "tokens_in": 12349255,
+  "tokens_out": 130532,
+  "cost_usd": 7.9634,
+  "tool_calls": 140,
+  "task": "quality audit round 58 (mode sample, seed 2026-11-13-d)",
+  "projects": [
+    "ventures/qif-file-check",
+    "ventures/cloudflare-bill-estimator",
+    "research/stopping-scores",
+    "research/chip-systolic-hidewide"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15362",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The stop hook demands untracked files be committed while parallel auditors are still writing audit files; the audit files had to be committed one by one as they landed."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-quality-audit-round-58.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-13-d, round 58, mode sample. Subjects: ventures/qif-file-check, ventures/cloudflare-bill-estimator, research/stopping-scores, research/chip-systolic-hidewide. Meeting the bar: 0 of 4 (all sampled: 31 of 246, Wilson 95% 9%-17%). Seeded bugs caught: 8 of 23. Spot-checks run by the orchestrator: Cloudflare Example 1 on the shipped engine (5 before, 8 after the fix); QIF three-section export (4 errors and 3 transactions before, 0 and 1 after); stopping-scores indep.py and liab.py (E2 rows; payment spread 41.5 vs 38.9); chip indep.py (ALL MATCH). Fix PR: #15362, which carries all fixes: Cloudflare subscription billed on top of usage, page title, and copy; QIF list sections and amount-prefix stripping; stopping-scores log-cost claim withdrawn, two pinning tests, and a prior-work citation; chip metric function and test, README comparison, pyproject name, and design limit. Old code fails the new tests: QIF 2 of 2, Cloudflare 4 of engine tests. Venture suites: run_venture_tests.py qif-file-check cloudflare-bill-estimator: 2 suites, 0 failed. stopping-scores pytest: 9 passed. chip pytest: 7 passed in 29.5 s; full experiment re-run after the metric refactor: results.txt byte-identical (git diff --quiet exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "01e5da05-ab88-5d76-a2fd-1c01bbfb65e9",
+    "transcripts": 5,
+    "first": "2026-11-13T03:38:06Z",
+    "last": "2026-11-13T03:55:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 135,
+        "input": 281,
+        "output": 130532,
+        "thinking": 34390,
+        "cache_read": 11825312,
+        "cache_write_5m": 400915,
+        "cache_write_1h": 122747,
+        "api_equivalent_usd": 7.9634,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 135,
+      "input": 281,
+      "output": 130532,
+      "thinking": 34390,
+      "cache_read": 11825312,
+      "cache_write_5m": 400915,
+      "cache_write_1h": 122747,
+      "api_equivalent_usd": 7.9634,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.958,
+    "tool_calls": 140,
+    "tools": {
+      "Bash": 117,
+      "Agent": 4,
+      "ToolSearch": 4,
+      "Read": 4,
+      "SubagentHandback": 4,
+      "Write": 3,
+      "WebFetch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.84,
+      "active_minutes": 8.69,
+      "model_minutes": 5.19,
+      "tool_minutes": 3.49,
+      "waiting_on_human_minutes": 9.15,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 23.47
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "four independent audits with recomputation and mutation testing plus four small fixes, about 2.5 h each for a senior reviewer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 125.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

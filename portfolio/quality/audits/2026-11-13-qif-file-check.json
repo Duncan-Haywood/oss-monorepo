@@ -1,0 +1,268 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/qif-file-check",
+ "stratum": "venture",
+ "seed": "2026-11-13-d",
+ "drawn_by": "sample",
+ "round": 58,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a bookkeeper migrating client data between accounting packages via QIF (Quicken to QuickBooks, Xero, YNAB or GnuCash); they check first that a real Quicken export, including its !Account and !Type:Cat lists and any investment account, passes without false alarms, that every amount is read exactly or refused, and that the date order the tool reports is the one the importer will need",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/qif/check.mjs /home/user/oss-monorepo/ventures/qif-file-check/calc.mjs runs hand-crafted QIF written from the Quicken QIF format (header types, field codes D T U C N P M L S E $ ^, Invst N/Y/I/Q/O, !Account list N/T/D, !Option:AutoSwitch, M/D'YY dates). Right: a Quicken-style bank export with 'D1/ 5'24', U and T both present, CX and C* flags gives 0 errors and proves month/day from 12/31'23; balanced splits written with US thousands commas pass; 12/31/99 -> 1999 and 1/5'00 -> 2000; repair rewrites -1.234,56 -> -1234.56 and (18.00) -> -18.00, adds the closing ^ and converts 01/13/24 -> 13/01/2024 in a proven mdy file; an unsplit S line with no $ is an error; a same-day same-amount repeat warns. Wrong: a valid full Quicken export (a !Type:Cat list with two categories, an !Option:AutoSwitch !Account list, one real bank transaction) reports 10 errors and 5 warnings and counts 6 transactions, because validate treats every category and account record as a bank transaction (Cat 'DFood and household' -> 'Date not readable', account 'TBank' -> 'Amount not readable'); an Invst ShrsIn record with Q but no T is an error and every Invst record warns 'No payee or memo' (Invst uses Y, not P); 'Tl2.50' (a lower-case L typed for 1) is read as 2.50 and repair writes T2.50, because normalizeAmount strips up to three leading letters (calc.mjs:31), so 'DR12.50' also loses its sign; 02/30/2024 in a month/day file is not flagged (only day > 31 is checked, calc.mjs:126). Held at 2: the single-account bank path is right, but the multi-account export the page says it handles is wrong on most of its records.",
+  "completeness": "Each feature on index.html/README checked end to end in node: no !Type header (error, line 1), missing final ^ (error, record line, repaired), date order proven/unknown/mixed, comma-decimal and bracket amounts (warned, repaired), US thousands commas left alone, unbalanced splits, duplicate rows, line numbers, CSV of findings (findingsCsv), date rewrite to four-digit year in proven or chosen order, refusal to convert mixed files, CRLF kept, OFX detected and refused. All work for a single-account bank or card file. Not working: the AutoSwitch / !Account multi-account case the info message says is 'checked as part of one file' (calc.mjs:110), and the README's test command 'node --test ventures/qif-file-check/' fails on Node 22.23.4 ('Cannot find module .../ventures/qif-file-check', 1 fail). Served page https://marisstella.app/qif-file-check/ loads (200, 30,290 bytes) and carries the same rules section. No TODOs or stubs.",
+  "verification": "cd ventures/qif-file-check && node --test '*.test.mjs': 30 tests, 30 pass, 0 fail (118 ms). Six mutations via platform/ci/quality_mutate.py: 2 caught (future-date comparison > -> <, day-first proof threshold 12 -> 13), 4 survived: month-first proof threshold > 12 -> >= 12 (calc.mjs:83), split balance compared in dimes instead of cents (calc.mjs:89, so a split off by up to 4 cents passes), two-digit-year pivot 70 -> 50 (calc.mjs:71), payee dropped from the duplicate key (calc.mjs:158, so two different payees on the same date and amount would be flagged). No test feeds a !Account, !Type:Cat or !Type:Invst block, and none covers an amount with letters in it.",
+  "craft": "Read calc.mjs (265 lines, pure functions, no I/O), the index.html module script, usage.mjs, calc.test.mjs and page.test.mjs. Good: output escaped with esc() before innerHTML, file decoded with a UTF-16 BOM and windows-1252 fallback (tested), repair idempotent on a clean file, CRLF preserved. Defects: parseQif records each record's type (calc.mjs:56) but validate never reads it, so list sections are checked as transactions; normalizeAmount's prefix strip /^[A-Za-z]{0,3}\\s*[$€£¥]?/ (calc.mjs:31) accepts any one to three letters, not only currency codes, then repair rewrites the line; '$-12.50' is refused while '-$12.50' is read; repeat fields (a second A or a second D) are silently kept as the first only (calc.mjs:61) with no finding.",
+  "claims": "Backed: disclaimer, no-warranty and independence footer (page.test.mjs:128); 'a test in the code asserts there are no network calls' (page.test.mjs:141 checks fetch/XHR/sendBeacon/WebSocket in index.html and calc.mjs); usage counted only in localStorage with DNT/GPC honoured and an opt-out (usage.mjs); related-tool links resolve (page.test.mjs:172); every feature in the hero sentence works on a bank file. Not backed: 'Never guessed: ... a garbled amount' (index.html:107) while 'l2.50' is guessed as 2.50 and rewritten; 'Each !Account section is checked as part of one file' (calc.mjs:110) while account records raise 'Amount not readable'; 'Every change is listed with the line it was made on' (index.html:123) while date rewrites are listed as a count with no lines (calc.mjs:200); README:21 test command fails on Node 22; llms.txt:5 says 'Results are estimates from the numbers typed in', boilerplate that does not fit a file checker. The served llms.txt has its host rewritten to marisstella.app, so the github.io URL in the source is source-only, not a defect.",
+  "fitness": "Walked the bookkeeper's job: a client moving off Quicken sends a full .qif export (categories, account list, checking, a card and a brokerage account). The tool reports a wall of errors on the category and account lists and on investment records, counts list entries as transactions, and its 'X errors in N transactions' status is wrong, so the bookkeeper cannot tell real faults from false ones without knowing QIF already. For the narrower first visitor in VENTURE.yaml, one bank's single-account .qif download, it does the job: it proves or refuses the date order, finds unbalanced splits, the missing ^ and double downloads, and writes a usable repaired file.",
+  "domain": "Compared against the Quicken QIF format (Quicken's published QIF appendix as reproduced by GnuCash's QIF importer docs and Wikipedia's QIF article, from memory; the calc.mjs header itself says the rules are 'read from memory'). Right: header types, ^ terminator, field codes D T U C N P M L, splits S/E/$ summing to T, C flags * c X R, M/D'YY with apostrophe for 2000+, no transaction ID so duplicates matter, no declared date order. Departures: !Type:Cat/Class/Memorized/Prices and !Account are accepted as valid headers (TYPES, calc.mjs:7) but their records are validated with bank-transaction rules; Invst action records (N action, Y security, Q quantity, no T on ShrsIn/ShrsOut) are not modelled; calendar validity is not checked beyond day <= 31; amounts with arbitrary letter prefixes are accepted."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Quicken-style bank export with M/D'YY dates, U and T lines, CX and C* flags",
+   "method": "Quicken QIF format: D in M/D'YY, U duplicates T in Quicken 2005+, C is blank/*/c/X/R; hand-crafted file",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/qif/check.mjs /home/user/oss-monorepo/ventures/qif-file-check/calc.mjs",
+   "expected": "0 errors, 0 warnings, 2 transactions, month/day proven by 12/31'23",
+   "observed": "errors=0 warnings=0 tx=2, 'Dates are month/day/year'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "full Quicken export: !Type:Cat list (2 categories), !Option:AutoSwitch !Account list (2 accounts), !Clear:AutoSwitch, one bank transaction",
+   "method": "Quicken QIF format: Cat records use N/D(description)/I/E/T(tax flag), Account records use N/T(type)/D(description); neither is a transaction",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/qif/check.mjs /home/user/oss-monorepo/ventures/qif-file-check/calc.mjs",
+   "expected": "0 errors, 1 transaction",
+   "observed": "errors=10 warnings=5 tx=6 ('Date not readable' on DFood and household, 'Amount not readable' on TBank)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Invst account: a Buy with T and an ShrsIn with Q and no T",
+   "method": "Quicken QIF Invst fields N action, Y security, I price, Q quantity, O commission, T optional on share transfers",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/qif/check.mjs /home/user/oss-monorepo/ventures/qif-file-check/calc.mjs",
+   "expected": "no errors; no 'No payee' warning on records that name a security",
+   "observed": "1 error 'Record has no amount (T)' on ShrsIn, 2 'No payee or memo' warnings",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "balanced splits written with US thousands commas (T-1,200.00 = -1,000.00 + -200.00)",
+   "method": "by hand: QIF split $ lines must sum to T",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/qif/check.mjs /home/user/oss-monorepo/ventures/qif-file-check/calc.mjs",
+   "expected": "no split error",
+   "observed": "errors=0 warnings=0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "repair: -1.234,56 and (18.00), missing final ^, convert to DD/MM/YYYY in a file proven month/day by 01/13/24",
+   "method": "by hand",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/qif/check.mjs /home/user/oss-monorepo/ventures/qif-file-check/calc.mjs",
+   "expected": "T-1234.56, T-18.00, D13/01/2024, D03/02/2024, trailing ^",
+   "observed": "T-1234.56, T-18.00, D13/01/2024, D03/02/2024, ^ added; 4 changes listed",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "a garbled amount 'Tl2.50' (lower-case L for 1)",
+   "method": "page rule 'Never guessed: a garbled amount' (index.html:107)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/qif/amt.mjs /home/user/oss-monorepo/ventures/qif-file-check/calc.mjs",
+   "expected": "error 'Amount not readable', no rewrite",
+   "observed": "read as 2.50, warning only, repair writes T2.50; 'DR12.50' read as +12.50",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "02/30/2024 in a file proven month/day",
+   "method": "Gregorian calendar",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/qif/check.mjs /home/user/oss-monorepo/ventures/qif-file-check/calc.mjs",
+   "expected": "'Impossible date' on line 7",
+   "observed": "errors=0",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "two-digit years: 12/31/99 and 1/5'00",
+   "method": "QIF convention: apostrophe marks 2000+, slash two-digit years are 19xx in old exports",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/qif/check.mjs /home/user/oss-monorepo/ventures/qif-file-check/calc.mjs",
+   "expected": "1999 and 2000",
+   "observed": "1999 and 2000",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/qif-file-check && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "30 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:21 test command",
+   "method": "run it on Node 22.23.4",
+   "command": "node --test ventures/qif-file-check/",
+   "expected": "tests run",
+   "observed": "Error: Cannot find module '/home/user/oss-monorepo/ventures/qif-file-check', fail 1",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'a test in the code asserts there are no network calls'",
+   "method": "read page.test.mjs:138-143",
+   "command": "grep -n 'doesNotMatch' ventures/qif-file-check/page.test.mjs",
+   "expected": "an assertion over index.html and calc.mjs",
+   "observed": "present for fetch/XMLHttpRequest/sendBeacon/WebSocket/EventSource",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "AutoSwitch: 'Each !Account section is checked as part of one file'",
+   "method": "full Quicken export above",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/qif/check.mjs /home/user/oss-monorepo/ventures/qif-file-check/calc.mjs",
+   "expected": "account sections checked without false errors",
+   "observed": "account records reported as transactions with unreadable amounts",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Every change is listed with the line it was made on'",
+   "method": "repair output in check 8",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/01e5da05-ab88-5d76-a2fd-1c01bbfb65e9/scratchpad/qif/check.mjs /home/user/oss-monorepo/ventures/qif-file-check/calc.mjs",
+   "expected": "a line per change",
+   "observed": "amounts and ^ have lines; date rewrites are one count line with no line numbers",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page and llms.txt",
+   "method": "curl",
+   "command": "curl -sS -o served.html -w '%{http_code} %{size_download}' https://marisstella.app/qif-file-check/ && curl -sS https://marisstella.app/qif-file-check/llms.txt",
+   "expected": "200, same tool, served host in llms.txt",
+   "observed": "200 30290; llms.txt links https://marisstella.app/qif-file-check/",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "output escaping and decoding",
+   "method": "read index.html module script and calc.mjs:9-15; test at calc.test.mjs:119",
+   "command": "grep -n 'esc(' ventures/qif-file-check/index.html",
+   "expected": "file text escaped before innerHTML; windows-1252 fallback",
+   "observed": "every interpolated string passes esc(); Café decodes",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "list and investment sections modelled",
+   "method": "Quicken QIF format: !Type:Cat, !Account, !Type:Invst have their own field meanings",
+   "command": "grep -n 'type' ventures/qif-file-check/calc.mjs",
+   "expected": "validate branches on record type",
+   "observed": "rec.type stored at calc.mjs:56, never read by validate",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:83",
+   "change": "else if (d.b > 12) mdy++ -> else if (d.b >= 12) mdy++",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:89",
+   "change": "const cents = (n) => Math.round(n * 100) -> Math.round(n * 10)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:71",
+   "change": "(y < 70 ? 2000 : 1900) -> (y < 50 ? 2000 : 1900)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:158",
+   "change": "duplicate key `${f.D.trim()}|${amt}|${keyName(f.P)}` -> `${f.D.trim()}|${amt}`",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:131",
+   "change": "dt > now -> dt < now (future-date count)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:83",
+   "change": "if (d.a > 12) dmy++ -> if (d.a > 13) dmy++",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "validate ignores the record's section type, so a valid full Quicken export (!Type:Cat list, !Option:AutoSwitch !Account list) is reported broken: on a file with one real transaction it gives 10 errors and 5 warnings and counts 6 transactions ('Date not readable' on a category description, 'Amount not readable' on account type TBank). The bookkeeper moving a client off Quicken, the user VENTURE.yaml names, gets false errors on most records.",
+   "where": "ventures/qif-file-check/calc.mjs:118",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "normalizeAmount strips any one to three leading letters, not only currency codes: 'Tl2.50' (L typed for 1) is read as 2.50 and repair rewrites it to T2.50; 'DR12.50' loses its debit sign. The page says a garbled amount is never guessed.",
+   "where": "ventures/qif-file-check/calc.mjs:31",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Investment (Invst) records are checked with bank rules: an ShrsIn/ShrsOut with Q and no T is an error, and every Invst record warns 'No payee or memo' because the security is in Y, not P.",
+   "where": "ventures/qif-file-check/calc.mjs:140",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Four of six seeded mutations survive 30 passing tests: the month-first proof threshold, the split-balance precision (a split off by up to 4 cents would pass), the two-digit-year pivot and the payee in the duplicate key are all unasserted; no test feeds an !Account, !Type:Cat or !Type:Invst section.",
+   "where": "ventures/qif-file-check/calc.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Calendar validity is not checked: 02/30/2024 in a proven month/day file raises nothing (only day > 31 is tested).",
+   "where": "ventures/qif-file-check/calc.mjs:126",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "README's test command 'node --test ventures/qif-file-check/' fails on Node 22 with 'Cannot find module'; the working form is node --test '*.test.mjs' from inside the directory.",
+   "where": "ventures/qif-file-check/README.md:21",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Page says every change is listed with its line; date rewrites are reported as a single count with no line numbers. llms.txt says results are 'estimates from the numbers typed in', boilerplate that does not describe a file checker.",
+   "where": "ventures/qif-file-check/calc.mjs:200",
+   "category": "overclaim",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15362"
+ ],
+ "verdict": "On the file it was built for, a single-account bank or card .qif, it is right: a Quicken-style export with M/D'YY dates, U and T lines and cleared flags passes clean, balanced splits with thousands commas pass, two-digit years resolve to 1999 and 2000 correctly, and repair rewrites comma-decimal and bracket amounts, adds the missing ^ and converts dates in a proven order exactly as computed by hand. It does not meet the bar. A valid full Quicken export with its category and account lists is reported as 10 errors on one transaction because validate never looks at the section type, though the page says AutoSwitch sections are checked; investment records get false errors; a garbled 'l2.50' is silently read as 2.50 and rewritten, against the page's 'never guessed'; and four of six seeded mutations survive the 30 tests. Completeness 3; correctness, craft, claims, fitness and domain 2; verification 1."
+}
