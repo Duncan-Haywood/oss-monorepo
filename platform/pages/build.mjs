@@ -7866,7 +7866,7 @@ const FEEDBACK_STYLE = `
     #fb textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 10px 12px;
                    border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
     #fb button { margin-top: 12px; font: inherit; font-weight: 600; padding: 9px 18px; border-radius: 9px;
-                 border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+                 border: 1px solid var(--accent); background: var(--accent); color: var(--bg); cursor: pointer; }
     #fb button:disabled { opacity: .6; cursor: progress; }
     #fb-status { min-height: 1.5em; margin-top: 10px; }
     .fb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
@@ -8369,13 +8369,13 @@ const CUSTOM_DEV_STYLE = `
     .cd-mic-row { margin: 4px 0 10px; }
     .cd-mic-row[hidden], #cdf-mic-note[hidden] { display: none; }
     #cdf .cd-mic { font: inherit; font-size: .9em; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; }
-    #cdf .cd-mic[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+    #cdf .cd-mic[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--bg); }
     #cdf select { width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
     #cdf .cd-check { font-weight: 400; color: var(--ink); display: flex; gap: 8px; align-items: flex-start; }
     .cd-filter { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
     .cd-filter[hidden] { display: none; }
     .cd-filter button { font: inherit; font-size: .88em; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; text-transform: capitalize; }
-    .cd-filter button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .cd-filter button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--bg); }
     .cd-filter input { font: inherit; padding: 5px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
     #cd-shown { color: var(--muted); font-size: .88em; }
     @media (max-width: 700px) { .cd-steps { grid-template-columns: 1fr 1fr; } }

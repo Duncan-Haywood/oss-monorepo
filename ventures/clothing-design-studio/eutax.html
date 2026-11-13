@@ -80,7 +80,8 @@
     $("#home").innerHTML = opts; $("#home").value = "DE"; $("#noneu").textContent = nonEuNote;
     function addRow(c = "FR", sales = 0, plan = 0) {
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td><select>${opts}</select></td><td><input type="number" min="0" step="1" value="${sales}"></td><td><input type="number" min="0" step="1" value="${plan}"></td><td><input type="number" min="0" max="99" step="0.1" placeholder="standard"></td><td><button type="button">Remove</button></td>`;
+      const n = document.querySelectorAll("#rows tbody tr").length + 1;
+      tr.innerHTML = `<td><select aria-label="Country, row ${n}">${opts}</select></td><td><input type="number" min="0" step="1" value="${sales}" aria-label="Sales in EUR, row ${n}"></td><td><input type="number" min="0" step="1" value="${plan}" aria-label="Planned more sales, row ${n}"></td><td><input type="number" min="0" max="99" step="0.1" placeholder="standard" aria-label="VAT rate %, row ${n}"></td><td><button type="button" aria-label="Remove row ${n}">Remove</button></td>`;
       tr.querySelector("select").value = c;
       tr.querySelector("button").addEventListener("click", () => { tr.remove(); render(); });
       $("#rows tbody").append(tr);

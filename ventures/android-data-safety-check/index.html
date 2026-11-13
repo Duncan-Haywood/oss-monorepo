@@ -80,6 +80,16 @@
   footer p { margin: 0.6rem 0; }
   .summary-ok { color: #1a7f37; }
   .summary-bad { color: #b42318; }
+  /* Dark-mode ink: the light-mode greys and status colours measured 2.5 to 3.9:1
+     on the browser's dark canvas (contrast sweep, 2026-11-13). Each below is at least 6:1 on #121212. */
+  @media (prefers-color-scheme: dark) {
+    .link-button { color: #58a6ff; }
+    footer { color: #a8a8a8; border-top-color: #444; }
+    .status-declared, .status-ok, .summary-ok { color: #3fb950; }
+    .status-undeclared, .status-bad, .summary-bad { color: #ff7b72; }
+    .status-declared-but-not-detected { color: #d29922; }
+    .status-not-detected { color: #9ea7b3; }
+  }
 </style>
 </head>
 <body>
