@@ -1736,7 +1736,8 @@ const RELATIVE_SELF = relative(
 // +1: `continuous-beam-calculator` graduated.
 // +1: `synthetic-control` graduated.
 // +1: `pick-path-optimizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1315;
+// +1: `stl-decomposition` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1316;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.

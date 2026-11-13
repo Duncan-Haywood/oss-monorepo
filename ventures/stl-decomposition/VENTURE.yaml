@@ -1,0 +1,62 @@
+name: stl-decomposition
+description: >-
+  Free browser tool, CLI and agent call for analysts, small-business owners,
+  energy and operations teams and students: paste a time series with dates
+  and split it into trend, seasonal pattern and remainder with STL
+  (seasonal-trend decomposition by loess, Cleveland et al. 1990). Shows the
+  seasonally adjusted series, the strength of trend and seasonality, the
+  seasonal profile and the points that stand out; robust mode for outliers.
+  Checked against statsmodels. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-13 on an explore run, as the seventh tool of "research
+# algorithms as tools" (portfolio/research-tools/README.md listed STL,
+# Cleveland et al. 1990, as a candidate). Implemented from the paper's
+# description; no third-party code was ported. statsmodels was used only to
+# produce eval/reference.json, which the tests check against. Example data:
+# NOAA GML monthly CO2 at Mauna Loa; source in data/SOURCE.md.
+#
+# First visitor: searches such as "stl decomposition online", "seasonal
+# decomposition calculator", "deseasonalize data online", "seasonally adjust
+# sales data", "time series decomposition tool"; analysts and students
+# without R or Python; shop owners asking whether a good month was the
+# season or growth. Volume not measured with an external tool.
+#
+# Alternatives: R's stl() and the feasts package, Python's statsmodels STL
+# (need an environment and code), Excel add-ins and spreadsheet templates
+# (classical decomposition, not STL; not surveyed for this entry), official
+# X-13ARIMA-SEATS (agencies' method, heavier). Differentiators here: no
+# install, the period read from the dates, robust mode, the strength
+# measures and the seasonal profile in words, tests pinned to statsmodels.
+#
+# Liability: statistical output from supplied data, not financial advice;
+# the page states the limits (even spacing, one period, additive, not a
+# forecast). Data never leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Analysts, students and small-business owners who want to separate a
+      seasonal pattern from a trend will use a no-install STL tool that reads
+      the period from their dates and explains the result in words.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a decomposition that disagrees with R's stl() or statsmodels STL on the same data and settings, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/stl-decomposition/
+  analytics: null

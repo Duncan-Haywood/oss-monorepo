@@ -42,9 +42,15 @@ after both parameters were fixed, it has 1.60\% mean routed regret
 against 2.91\% for equal-cost random routing (better in 18 of 24 cells,
 sign p = 0.011; design-bootstrap 95\% interval of the difference -2.45
 to +0.22 points). The same switch without the clip does not beat random
-routing on the 20 designs it had not seen (2.71\% against 2.80\%), and
-wide barrel shifters, where mapped delay does not predict routed delay,
-remain its failure.
+routing on the 20 designs it had not seen (2.71\% against 2.80\%). A
+further blind test on three new families (funnel shifters, FIR tap sums,
+CORDIC stages) refutes the claim that the rule beats random routing in
+general. A 128-bit funnel shifter's routed-best point ranks 70th of 103
+on the mapped score, so the rule costs it 39 to 51\%. Over all 36 test
+cells the rule has 3.85\% against 2.77\% (better in 22, worse in 11;
+interval -1.68 to +5.55 points). Shifters, where mapped delay carries no
+routed-delay information, are the rule's failure; on the 26 non-shifter
+test cells it has 0.79\% against 2.59\% (a split chosen after the fact).
 \end{abstract}
 \textbf{Draft for MLCAD (6 pages when typeset); not submitted.}
 Programme \texttt{verified-dse}, milestone 7. Written with AI assistance
@@ -808,6 +814,41 @@ cells. So the clip, not the cost-ratio switch alone, is what beats
 random routing out of sample, and the margin across designs is not yet
 significant at 95\% (\texttt{experiments/\allowbreak{}switch\_\allowbreak{}pooled/\allowbreak{}results.txt}).
 
+\textbf{A blind test on three new families, and shifters as the failure
+(milestone 118; flow run).} Six designs from three families no table had
+run were fixed, with eight predictions, before 1,440 flow runs
+(\texttt{experiments/\allowbreak{}new\_\allowbreak{}families/\allowbreak{}}): a funnel shifter
+(\texttt{funnel64}, \texttt{funnel128}), an 8-tap constant-coefficient
+FIR sum (\texttt{fir8x12}, \texttt{fir8x16}) and unrolled CORDIC
+rotation stages (\texttt{cordic8x16}, \texttt{cordic12x16}). Ten of the
+12 cells take the ladder branch (routed/r2 3.1 to 8.4). The clipped
+switch has 8.34\% blind mean regret against 2.48\% for equal-cost random
+routing and 9.19\% for the plain switch. It is better than random in 4
+cells and worse in 6, so predictions (1), (2), (6) and (8) are refuted.
+One design carries the loss. On \texttt{funnel128} the routed-best point
+ranks 70.5 of 103 on r2 at both clocks, and mapped delay is unrelated to
+routed delay (Kendall tau-b -0.16 relaxed, -0.06 tight), so any top-8
+mapped ladder misses it: skip-r1 costs 50.8\% relaxed and 39.1\% tight
+against 6.4\% for random routing, and the clip barely moves it (45.8\%,
+39.1\%). Mapped area still ranks routed area almost perfectly (tau-b
+0.99). It is the delay term that fails, at both clocks, so this is not
+the relaxed-clock saturation the clip was built for. FIR wins both of
+its ladder cells, and CORDIC splits 2 to 2. A rank-agreement guard
+registered with the test (route 4 probes, keep whichever of the clipped
+and unclipped mapped scores orders more of their pairs correctly, route
+its best 5) halves the funnel loss (14.1\% against 22.8\% over the
+family) but stays far above random routing. Over the clipped switch's
+whole test set (36 cells, 18 designs, milestones 115, 116 and 118) it
+has 3.85\% against 2.77\% for random routing: better in 22, worse in 11
+(sign p = 0.080), design-bootstrap interval -1.68 to +5.55 points. It
+still beats the plain switch (better in 11, worse in 1, p = 0.006; -2.86
+to -0.75). Without the two shifter families (post hoc: the split was
+chosen after milestones 116 and 118) the 26 remaining cells give 0.79\%
+against 2.59\%, better in 19 and worse in 4 (p = 0.003), interval -2.53
+to -1.03 points. On the 10 shifter cells it has 11.80\% against 3.22\%.
+The rule needs a structural exclusion for wire-dominated shifter logic,
+and that exclusion has not yet been tested blind.
+
 \textbf{Pilot-side certificate and its limits} (milestones 35 to 43,
 moved here from the to-do list). A proof or counterexample for the
 top-vs-all coverage, or a conformal pilot statistic with a theorem
@@ -938,11 +979,13 @@ and page limit still need checking against the call for papers.
 \setcounter{enumi}{5}
 \tightlist
 \item
-  A blind test of the clipped switch large enough to settle its margin
-  over random routing: on its 24 test cells the design-bootstrap
-  interval still includes zero (-2.45 to +0.22 points), and wide barrel
-  shifters, where mapped delay does not predict routed delay, need a
-  score or a guard of their own (milestone 117).
+  A guard for shifter-like logic that needs no routed point, tested on a
+  family no table has run. Milestone 118's blind test on three new
+  families made the clipped switch's margin over random routing worse,
+  not settled: the interval over its 36 test cells is -1.68 to +5.55
+  points, driven by a funnel shifter whose mapped delay carries no
+  routed-delay information. Without shifters (post hoc) it is -2.53 to
+  -1.03.
 \end{enumerate}
 
 The headline is split by cost. On small designs, where a routed point
@@ -950,9 +993,11 @@ costs under about 3 mapped scores, cheap rungs did not pay, and a pilot
 gate that detects when they will not has not been shown to pay for
 itself on the 30 designs it was replayed on (20 in milestone 16, five
 each in milestones 27 and 28). Where routing is dear, the clipped switch
-beat equal-cost random routing in 18 of 24 cells on designs run blind,
-at about half its mean regret, with the barrel shifters as the open
-failure.
+beat equal-cost random routing in 22 of 36 cells on designs run blind,
+but not on the mean. Shifter families (barrel and funnel) cost it 11.8\%
+against 3.2\% for random routing; on the other 26 cells it has about a
+third of random routing's regret (0.79\% against 2.59\%, a split chosen
+after the fact).
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 \end{document}

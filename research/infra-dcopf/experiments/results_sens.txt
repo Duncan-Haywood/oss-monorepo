@@ -1,0 +1,40 @@
+Analytic (vlin.jacobian_sens) vs central finite differences at the DC-MP start, 1.0 pu setpoints.
+Scaled error = max |A - CD| / column max |CD|. Steps 1e-3 MW, 1e-5 pu (refined: 1e-6 pu).
+case               kind  rows  cols       err  err refined     A s    CD s
+case14_ieee        typ     75    10  2.87e-09                0.005    0.08
+case14_ieee        api     75    10  6.70e-10                0.004    0.08
+case14_ieee        sad     75    10  2.87e-09                0.003    0.07
+case24_ieee_rts    typ    161    44  9.21e-07                0.004    0.26
+case24_ieee_rts    api    161    44  4.24e-08                0.005    0.33
+case24_ieee_rts    sad    161    44  9.21e-07                0.004    0.36
+case30_ieee        typ    154    12  5.00e-08                0.004    0.09
+case30_ieee        api    154    12  1.94e-09                0.004    0.09
+case30_ieee        sad    154    12  5.00e-08                0.004    0.09
+case39_epri        typ    178    20  3.06e-07                0.004    0.14
+case39_epri        api    178    20  3.65e-09                0.004    0.14
+case39_epri        sad    178    20  3.06e-07                0.004    0.14
+case57_ieee        typ    298    14  1.53e-07                0.004    0.10
+case57_ieee        api    298    14  2.07e-08                0.004    0.11
+case57_ieee        sad    298    14  4.68e-08                0.004    0.12
+case73_ieee_rts    typ    500   132  1.18e-06                0.007    1.03
+case73_ieee_rts    api    500   132  1.56e-06                0.005    1.07
+case73_ieee_rts    sad    500   132  1.18e-06                0.006    1.11
+case118_ieee       typ    677   108  1.26e-03     1.26e-05   0.008    1.02
+case118_ieee       api    677   108  3.24e-07                0.008    0.97
+case118_ieee       sad    677   108  1.26e-03     1.26e-05   0.006    0.89
+case162_ieee_dtc   typ   1015    24  1.68e-06                0.006    0.27
+case162_ieee_dtc   api   1015    24  7.88e-08                0.006    0.24
+case162_ieee_dtc   sad   1015    24  1.14e-07                0.006    0.25
+case179_goc        typ    969    58  2.93e-08                0.009    0.68
+case179_goc        api    969    58  3.70e-08                0.006    0.60
+case179_goc        sad    969    58  2.94e-08                0.007    0.58
+case200_activ      typ    947    87  2.12e-06                0.011    0.83
+case200_activ      api    947    87  8.88e-08                0.008    0.78
+case200_activ      sad    947    87  2.12e-06                0.008    0.83
+case240_pserc      typ   1675   196  6.95e-07                0.015    2.16
+case240_pserc      api   1675   196  4.30e-07                0.017    2.44
+case240_pserc      sad   1675   196  6.95e-07                0.016    2.42
+case300_ieee       typ  no AC power flow at the start point
+case300_ieee       api   1534   138  2.32e-06                0.013    1.80
+case300_ieee       sad  no AC power flow at the start point
+Worst over 34 cases (refined where needed): 1.26e-05

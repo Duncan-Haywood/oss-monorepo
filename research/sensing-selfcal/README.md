@@ -92,6 +92,21 @@ f against the **99th percentile measured on the other camera** detects a **2% fo
 of splits and 4% in 78–85%** with 6 new views (0–5% false alarms), nearly what the oracle gets.
 Four of five pre-registered predictions held; the f-only power figure was not pre-registered.
 
+**Milestone 6b headline** (which corner localiser is right; 26 renders of the real views from a
+known camera, 1,200 fits): **the printed board's end squares are only half as wide as the rest**
+(they reach 0.49–0.53 of the corner spacing past the last corner, against 0.94–0.97 on the other
+sides), and that alone explains the localiser puzzle. On renders with full squares all three
+localisers find the corners to 0.04–0.06 px and the focal length to 0.04%. With half-width end
+squares the **11×11 `cornerSubPix` window is pulled up to 9.6 px towards the board's edge and
+biases Zhang's f by +0.4% to +1.5%** (real images: +0.64% / +0.91% against the 5×5 window), and
+**`findChessboardCornersSB` is biased the other way, −0.3% to −0.4%** (real: −0.12% / −0.39%).
+The **5×5 window is unaffected**, so its focal lengths (532.9 / 536.2 px) are the best estimates
+here. One of five pre-registered predictions held; the cause was found after the first failed.
+
+![focal-length bias by corner localiser on renders with full and half-width end squares, against the real images; outer-ring corner error](experiments/m6b_render/render.png)
+
+![the six real corners where the 11x11 window and SB disagree most, magnified: the 11x11 corner sits off the visible corner, towards the board's edge](experiments/m6b_render/ring_crops.png)
+
 ![share of splits where the jackknife update test fires against the focal change, five references, two detectors](experiments/m4c_reference/power.png)
 
 ![share of splits where the χ² update test fires against the focal change, for four covariances and two corner detectors](experiments/m4b_viewcov/power.png)
@@ -398,6 +413,63 @@ is dominated by something the residuals do not carry (the remaining smooth corre
 lens or board terms the model omits, or the data's few views), so the honest error bar has
 to come from outside the fit, as milestone 3's jackknife did.
 
+## Milestone 6b: which corner localiser is right? Renders with a known camera
+
+Pre-registered in `LOG.md` before any image was rendered (H33–H37); results in
+`experiments/m6b_render/summary.json`. Milestone 6 found that the localiser alone moves the
+focal length by about 1% and that no ground truth said which one was right. Here every real
+view is rendered again from a known camera at its real pose, and each localiser is scored
+against the exact projections.
+
+**Renderer** (`src/render.py`). The true camera of each side is its all-view flat-board Zhang
+fit (k1 + k2), and the 13 poses are that fit's poses. Each 640×480 pixel averages 4×4 rays,
+each undistorted, intersected with the board plane and shaded (10×7 squares, a white margin, a
+uniform background), then Gaussian blur, noise, 8-bit rounding and JPEG (quality 90). The
+**matched setting** is calibrated so the renders' own statistics equal the real images'
+(`measure.py`): edge σ from an erf fit across every inner edge, 0.948 / 0.957 px on the real
+images and 0.949 / 0.960 on the renders; noise from a Laplacian in flat squares, 0.52 / 0.61
+real and 0.54 / 0.63 rendered; grey levels from the squares (about 23 and 236). Also swept:
+half and double blur, zero and double noise, 20 seeds each.
+
+| Hypothesis | Prediction | Result |
+|---|---|---|
+| H33 | renders reproduce the real ring disagreement (> 1 px) | **refuted**: max 11×11–SB gap 0.19 / 0.36 px (real 7.7 / 5.6) |
+| H34 | SB has the lowest corner error | **refuted**: all three 0.035–0.060 px rms; 11×11 lowest on the ring |
+| H35 | SB's f within 0.2% of the truth, 11×11 worse | **refuted**: every localiser within 0.04% |
+| H36 | target-free σ honest on renders (rms z ≤ 1.5) | **refuted**: 1.55 / 1.80, from a fixed 0.02–0.04% bias; the spread alone is 0.4–0.5σ |
+| H37 | no column correlation on an ideal pattern (< 0.2) | **held**: −0.09 to +0.08 (real 0.32–0.56) |
+
+**What the real board has that the renders did not** (unscored, found after H33 failed).
+Magnified, the real corners where 11×11 and SB disagree most show the 11×11 corner 4–8 px off
+the visible corner, towards the board's edge (second figure above), and every such corner is in
+grid column 0 or 8. Measured outward along the grid lines (`outer.py`), the end squares of those
+columns reach only **0.49–0.53 of the corner spacing** past the last corner (10–90%:
+0.35–0.59); the other two sides reach 0.94–0.97, and full-square renders read 0.95–1.01. The
+23 px window around such a corner takes in the edge between the cut-short square, the white
+margin and whatever lies beyond. Rendered with half-width end squares (`ablate.py`, 5 seeds):
+
+| Render (5 seeds) | 11×11 f error | 5×5 f error | SB f error | 11×11 ring corners > 1 px |
+|---|---|---|---|---|
+| full end squares, any surround | 0.00 / +0.03% | −0.01 / +0.04% | −0.02 / +0.03% | 0 |
+| half-width, margin 0.5 square, grey beyond | +0.43 / +0.69% | −0.01 / +0.04% | −0.32 / −0.35% | 13 / 18 |
+| half-width, margin 0.15, grey beyond | +0.75 / +1.01% | −0.01 / +0.04% | not detected / −0.43% | 13 / 18 |
+| half-width, margin 0.15, dark beyond | +1.20 / +1.47% | −0.01 / +0.04% | not detected | 12 / 15 |
+| **real images, f minus 5×5's f** | **+0.64 / +0.91%** | 0 | **−0.12 / −0.39%** | 22 / 30 (vs SB) |
+
+(left / right camera.) So the localiser bias is a property of the printed board, not of the
+image noise or blur: a window that reaches past a cut-short end square is pulled towards the
+board's edge, and SB's model of the pattern is pulled the other way. The 5×5 window stays inside
+the squares and is unbiased in every case, so **Zhang on 5×5 corners, 532.9 px (left) and
+536.2 px (right), is the best focal length for this rig**; milestones 1–5 (11×11 corners) carry
+a +0.6–0.9% bias, and milestones 4b–4c (SB corners) a −0.1 to −0.4% one. For practice: print
+full end squares with a margin wider than the corner window, or size the window below the
+shortest end square in the image.
+
+Limits: the renders leave out the bend (milestones 5–6), the clipboard and clutter, vignetting
+and the sensor's own noise; the ablation fixes the end-square reach at 0.5 where the real one
+varies; the reach measurement and the ablation were not pre-registered. The truth camera is the
+11×11 fit only to place the board; any camera near it would do.
+
 ## Milestone 4c: the jackknife test's reference distribution
 
 Pre-registered in `LOG.md` (2026-11-12) before any number was computed. Code:
@@ -573,6 +645,12 @@ python3 experiments/m4_accept/analyse.py   # summary.json, power.png
 OMP_NUM_THREADS=1 python3 experiments/m4b_viewcov/run.py  # ~25 min on 4 cores; results.json.gz
 python3 experiments/m4b_viewcov/analyse.py  # summary.json, power.png
 python3 experiments/m4c_reference/analyse.py  # seconds, no new solve; summary.json, power.png
+python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
+OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
+OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
+python3 experiments/m6b_render/outer.py        # ~3 min; outer.json
+python3 experiments/m6b_render/analyse.py      # summary.json, render.png
+python3 experiments/m6b_render/crops.py        # seconds; ring_crops.png
 python3 -m pytest tests
 ```
 
@@ -597,8 +675,9 @@ python3 -m pytest tests
   corners by up to 6–8 px here (milestone 6). Their relative comparisons (subsets against
   the all-view fit, σ estimators against each other) used the same corners throughout, but their
   absolute intrinsics, the c<sub>y</sub> gap and the bend's depth are detector-dependent.
-  There is no ground truth for which localiser is right; SB and 5×5 agree with each other
-  to 0.15 px median and 1.7 px at worst.
+  Milestone 6b supplies the missing ground truth from renders: on this board, whose end
+  squares are half width, the 5×5 window is unbiased and the other two are not (11×11 f
+  about +0.6–0.9%, SB −0.1 to −0.4%). That rests on renders, not on a second, measured camera.
 - Milestone 4 splits 13 views, so the 60 splits per k and camera reuse views heavily and
   are not independent; the Wilson intervals treat them as independent and are too narrow.
   It uses the milestone 1–5 corners (11×11 `cornerSubPix`); the focal and shift changes are
@@ -616,7 +695,9 @@ After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on S
 (does the jackknife stay honest when σ is this much smaller?); find the smooth 2-D residual
 field that survives every localiser (tangential or thin-prism lens terms, or a per-view
 board deformation); and synthetic renders with a known camera to say which localiser is
-right. Milestone 3b: natural features (SIFT) on an openly licensed multi-view set with a target
+right (done in milestone 6b: the 5×5 window; the board's half-width end squares bias the other two). After
+milestone 6b: redo the milestone 4c threshold test and milestone 3's jackknife on 5×5 corners, and
+render the bend and the clipboard into the twin to see how much of the 2× σ gap they explain. Milestone 3b: natural features (SIFT) on an openly licensed multi-view set with a target
 calibration of the same camera (H5). After milestone 4b (done: SB corners and a jackknife Σ): calibrate the test's threshold to the
 jackknife's heavier tails (done in milestone 4c: an F reference is too strict; a sibling unit's 99th percentile on f alone works);
 pool the update over several capture sessions to buy back power; find what drives the right camera's

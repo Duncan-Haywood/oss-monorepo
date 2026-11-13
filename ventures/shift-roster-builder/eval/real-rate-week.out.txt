@@ -1,0 +1,699 @@
+call 0.01 extra 0 cafe seed 3: Wed[Fay] | rebuild 8 ch $134 open 15 | keep 4 ch $66 open 15
+call 0.01 extra 0 cafe seed 7: Thu[Ben] | rebuild 1 ch $18 open 23 | keep 0 ch $0 open 23
+call 0.01 extra 0 cafe seed 12: Tue[Ben] Thu[Cleo] Sat[Dev] | rebuild 0 ch $0 open 15 | keep 0 ch $0 open 15
+call 0.01 extra 0 cafe seed 14: Wed[Gus] | rebuild 6 ch $95 open 15 | keep 4 ch $66 open 15
+call 0.01 extra 0 cafe seed 17: Thu[Dev] | rebuild 7 ch $125 open 15 | keep 3 ch $57 open 15
+call 0.01 extra 0 cafe seed 19: Fri[Dev] | rebuild 1 ch $19 open 23 | keep 0 ch $0 open 23
+call 0.01 extra 0 cafe seed 22: Fri[Cleo] | rebuild 0 ch $0 open 15 | keep 0 ch $0 open 15
+call 0.01 extra 0 cafe seed 25: Sun[Dev] | rebuild 0 ch $0 open 23 | keep 0 ch $0 open 23
+call 0.01 extra 0 cafe seed 26: Thu[Fay] | rebuild 9 ch $152 open 15 | keep 7 ch $123 open 15
+call 0.01 extra 0 cafe seed 33: Tue[Dev] | rebuild 9 ch $159 open 15 | keep 2 ch $32 open 15
+call 0.01 extra 0 cafe seed 35: Thu[Gus] Fri[Eli] | rebuild 0 ch $0 open 15 | keep 0 ch $0 open 15
+call 0.01 extra 0 cafe seed 36: Fri[Ben] Sat[Fay] | rebuild 1 ch $19 open 23 | keep 0 ch $0 open 23
+TOTAL call 0.01 extra 0 cafe rebuild reissues 9 (callers 9, extra copies 0), changes to others 42, people told 21, premiums $721.00, net changes 42, final open 212 h, pay $43736.00, proven 9/9, 2.5 s
+TOTAL call 0.01 extra 0 cafe keep    reissues 9 (callers 9, extra copies 0), changes to others 20, people told 9, premiums $344.00, net changes 20, final open 212 h, pay $43752.00, proven 9/9, 1.7 s
+CMP call 0.01 extra 0 cafe: 12 disrupted weeks (28 of 40 quiet); keep fewer changes 8, same 4, more 0; keep open hours up 0, down 0
+call 0.01 extra 0 spare seed 3: Wed[Eli] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0 spare seed 7: Sat[Gus] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0 spare seed 12: Tue[Ben] Thu[Ana] | rebuild 21 ch $353 open 0 | keep 5 ch $75 open 3
+call 0.01 extra 0 spare seed 14: Wed[Fay] | rebuild 15 ch $245 open 0 | keep 7 ch $118 open 0
+call 0.01 extra 0 spare seed 17: Thu[Ben] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0 spare seed 19: Fri[Ana] | rebuild 2 ch $29 open 3 | keep 0 ch $0 open 3
+call 0.01 extra 0 spare seed 23: Wed[Gus] | rebuild 12 ch $197 open 0 | keep 4 ch $66 open 0
+call 0.01 extra 0 spare seed 26: Thu[Dev] | rebuild 4 ch $64 open 3 | keep 0 ch $0 open 3
+call 0.01 extra 0 spare seed 31: Sun[Dev] | rebuild 3 ch $52 open 3 | keep 2 ch $38 open 3
+call 0.01 extra 0 spare seed 33: Tue[Dev] Fri[Fay] | rebuild 14 ch $230 open 0 | keep 3 ch $45 open 0
+call 0.01 extra 0 spare seed 35: Thu[Eli] Fri[Ben] | rebuild 4 ch $65 open 3 | keep 2 ch $36 open 3
+call 0.01 extra 0 spare seed 36: Sat[Ben] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0 spare seed 37: Sat[Dev] | rebuild 4 ch $67 open 3 | keep 2 ch $38 open 3
+TOTAL call 0.01 extra 0 spare rebuild reissues 10 (callers 10, extra copies 0), changes to others 79, people told 41, premiums $1302.00, net changes 67, final open 15 h, pay $50298.00, proven 10/10, 1.1 s
+TOTAL call 0.01 extra 0 spare keep    reissues 10 (callers 10, extra copies 0), changes to others 25, people told 12, premiums $416.00, net changes 23, final open 18 h, pay $50239.00, proven 10/10, 1.8 s
+CMP call 0.01 extra 0 spare: 13 disrupted weeks (27 of 40 quiet); keep fewer changes 9, same 4, more 0; keep open hours up 1, down 0
+call 0.01 extra 0 salon seed 3: Thu[Paz] | rebuild 2 ch $46 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0 salon seed 5: Wed[Noah] Sat[Paz] | rebuild 1 ch $24 open 0 | keep 1 ch $24 open 0
+call 0.01 extra 0 salon seed 7: Fri[Orla] | rebuild 3 ch $61 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0 salon seed 12: Tue[Noah] Fri[Paz] | rebuild 5 ch $102 open 13 | keep 0 ch $0 open 13
+call 0.01 extra 0 salon seed 14: Thu[Quin] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0 salon seed 17: Fri[Quin] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0 salon seed 25: Wed[Noah] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0 salon seed 27: Fri[Mia] | rebuild 1 ch $22 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0 salon seed 28: Sat[Orla] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0 salon seed 33: Tue[Paz] Sun[Quin] | rebuild 1 ch $20 open 0 | keep 1 ch $20 open 0
+call 0.01 extra 0 salon seed 35: Sun[Mia] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0 salon seed 36: Wed[Noah] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+TOTAL call 0.01 extra 0 salon rebuild reissues 7 (callers 7, extra copies 0), changes to others 13, people told 11, premiums $275.00, net changes 10, final open 28 h, pay $24216.00, proven 7/7, 0.3 s
+TOTAL call 0.01 extra 0 salon keep    reissues 7 (callers 7, extra copies 0), changes to others 2, people told 2, premiums $44.00, net changes 2, final open 28 h, pay $24186.00, proven 7/7, 0.3 s
+CMP call 0.01 extra 0 salon: 12 disrupted weeks (28 of 40 quiet); keep fewer changes 4, same 8, more 0; keep open hours up 0, down 0
+call 0.01 extra 0 retail seed 3: Thu[Sam] | rebuild 4 ch $68 open 0 | keep 2 ch $34 open 0
+call 0.01 extra 0 retail seed 5: Wed[Ruth] Sat[Uma] | rebuild 4 ch $62 open 6 | keep 4 ch $62 open 6
+call 0.01 extra 0 retail seed 7: Fri[Sam] | rebuild 3 ch $53 open 0 | keep 1 ch $19 open 0
+call 0.01 extra 0 retail seed 12: Tue[Sam] Fri[Tess] | rebuild 4 ch $70 open 0 | keep 3 ch $53 open 0
+call 0.01 extra 0 retail seed 14: Thu[Tess] | rebuild 4 ch $68 open 0 | keep 2 ch $34 open 0
+call 0.01 extra 0 retail seed 17: Fri[Uma] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0 retail seed 23: Thu[Uma] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0 retail seed 25: Wed[Ruth] | rebuild 2 ch $32 open 0 | keep 2 ch $32 open 0
+call 0.01 extra 0 retail seed 28: Sat[Tess] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0 retail seed 33: Tue[Uma] Sun[Vic] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0 retail seed 35: Sun[Ruth] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0 retail seed 36: Wed[Ruth] | rebuild 2 ch $32 open 0 | keep 2 ch $32 open 0
+TOTAL call 0.01 extra 0 retail rebuild reissues 8 (callers 8, extra copies 0), changes to others 23, people told 15, premiums $385.00, net changes 23, final open 6 h, pay $26880.00, proven 8/8, 0.4 s
+TOTAL call 0.01 extra 0 retail keep    reissues 8 (callers 8, extra copies 0), changes to others 16, people told 9, premiums $266.00, net changes 16, final open 6 h, pay $26907.00, proven 8/8, 0.5 s
+CMP call 0.01 extra 0 retail: 12 disrupted weeks (28 of 40 quiet); keep fewer changes 4, same 8, more 0; keep open hours up 0, down 0
+call 0.01 extra 0 clinic seed 3: Thu[Xia] | rebuild 1 ch $31 open 5 | keep 1 ch $31 open 5
+call 0.01 extra 0 clinic seed 5: Wed[Wen] Sat[Zed] | rebuild 3 ch $85 open 10 | keep 0 ch $0 open 10
+call 0.01 extra 0 clinic seed 7: Fri[Xia] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0 clinic seed 12: Tue[Xia] Fri[Yan] | rebuild 5 ch $141 open 10 | keep 4 ch $107 open 10
+call 0.01 extra 0 clinic seed 14: Thu[Yan] | rebuild 2 ch $65 open 5 | keep 1 ch $31 open 5
+call 0.01 extra 0 clinic seed 17: Fri[Zed] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0 clinic seed 19: Sun[Xia] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0 clinic seed 22: Sun[Wen] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0 clinic seed 23: Thu[Zed] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0 clinic seed 25: Wed[Wen] | rebuild 3 ch $85 open 10 | keep 0 ch $0 open 10
+call 0.01 extra 0 clinic seed 28: Sat[Yan] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0 clinic seed 33: Tue[Zed] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0 clinic seed 35: Sun[Yan] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0 clinic seed 36: Wed[Wen] | rebuild 3 ch $85 open 10 | keep 0 ch $0 open 10
+TOTAL call 0.01 extra 0 clinic rebuild reissues 7 (callers 7, extra copies 0), changes to others 17, people told 16, premiums $492.00, net changes 15, final open 90 h, pay $37737.00, proven 7/7, 1.3 s
+TOTAL call 0.01 extra 0 clinic keep    reissues 7 (callers 7, extra copies 0), changes to others 6, people told 5, premiums $169.00, net changes 4, final open 90 h, pay $37419.00, proven 7/7, 1.3 s
+CMP call 0.01 extra 0 clinic: 14 disrupted weeks (26 of 40 quiet); keep fewer changes 5, same 9, more 0; keep open hours up 0, down 0
+call 0.01 extra 0.109 cafe seed 0: Tue[ +1] Fri[ +1] | rebuild 8 ch $144 open 21 | keep 0 ch $0 open 21
+call 0.01 extra 0.109 cafe seed 1: Thu[ +2] Fri[ +1] Sun[ +1] | rebuild 11 ch $198 open 47 | keep 0 ch $0 open 47
+call 0.01 extra 0.109 cafe seed 2: Tue[ +1] Wed[ +1] Fri[ +1] | rebuild 11 ch $195 open 34 | keep 0 ch $0 open 34
+call 0.01 extra 0.109 cafe seed 3: Tue[Ana] Wed[ +1] Sat[ +1] Sun[ +1] | rebuild 32 ch $523 open 41 | keep 3 ch $49 open 41
+call 0.01 extra 0.109 cafe seed 4: Tue[Gus] Thu[ +2] | rebuild 14 ch $231 open 31 | keep 4 ch $66 open 31
+call 0.01 extra 0.109 cafe seed 5: Wed[ +1] Thu[Fay +1] Sat[ +1] | rebuild 14 ch $229 open 41 | keep 7 ch $123 open 41
+call 0.01 extra 0.109 cafe seed 6: Wed[ +2] Fri[ +1] Sun[ +1] | rebuild 13 ch $206 open 42 | keep 0 ch $0 open 42
+call 0.01 extra 0.109 cafe seed 7: Wed[ +1] Thu[Eli +1] Sat[ +1] Sun[ +1] | rebuild 16 ch $262 open 47 | keep 0 ch $0 open 47
+call 0.01 extra 0.109 cafe seed 8: Thu[ +1] Fri[Dev] | rebuild 1 ch $19 open 26 | keep 0 ch $0 open 26
+call 0.01 extra 0.109 cafe seed 9: Thu[ +1] Fri[ +1] Sat[ +1] | rebuild 0 ch $0 open 39 | keep 0 ch $0 open 39
+call 0.01 extra 0.109 cafe seed 10: Wed[ +1] Sat[ +1] Sun[ +1] | rebuild 7 ch $110 open 39 | keep 0 ch $0 open 39
+call 0.01 extra 0.109 cafe seed 11: Thu[Ben +1] Fri[Eli +1] | rebuild 6 ch $111 open 39 | keep 0 ch $0 open 39
+call 0.01 extra 0.109 cafe seed 12: Fri[ +1] Sat[ +1] | rebuild 0 ch $0 open 28 | keep 0 ch $0 open 28
+call 0.01 extra 0.109 cafe seed 13: Wed[ +1] Sat[ +1] | rebuild 6 ch $96 open 33 | keep 0 ch $0 open 33
+call 0.01 extra 0.109 cafe seed 14: Thu[ +1] | rebuild 0 ch $0 open 23 | keep 0 ch $0 open 23
+call 0.01 extra 0.109 cafe seed 15: Tue[Gus] Sat[ +1] | rebuild 7 ch $106 open 25 | keep 4 ch $66 open 25
+call 0.01 extra 0.109 cafe seed 16: Tue[ +1] Thu[ +1] Fri[Gus +1] | rebuild 24 ch $411 open 34 | keep 0 ch $0 open 42
+call 0.01 extra 0.109 cafe seed 17: Wed[ +1] | rebuild 4 ch $64 open 23 | keep 0 ch $0 open 23
+call 0.01 extra 0.109 cafe seed 18: Thu[ +1] Sat[ +2] | rebuild 12 ch $212 open 41 | keep 0 ch $0 open 41
+call 0.01 extra 0.109 cafe seed 19: Fri[ +1] Sun[ +1] | rebuild 6 ch $105 open 31 | keep 0 ch $0 open 31
+call 0.01 extra 0.109 cafe seed 20: Wed[ +1] Sat[ +1] Sun[ +1] | rebuild 5 ch $72 open 36 | keep 0 ch $0 open 36
+call 0.01 extra 0.109 cafe seed 21: Wed[ +1] Sun[ +1] | rebuild 10 ch $163 open 31 | keep 0 ch $0 open 31
+call 0.01 extra 0.109 cafe seed 22: Sat[ +1] | rebuild 0 ch $0 open 25 | keep 0 ch $0 open 25
+call 0.01 extra 0.109 cafe seed 23: Tue[ +1] Sat[ +1] | rebuild 13 ch $220 open 31 | keep 0 ch $0 open 31
+call 0.01 extra 0.109 cafe seed 24: Tue[ +1] Sun[ +1] | rebuild 7 ch $119 open 31 | keep 0 ch $0 open 31
+call 0.01 extra 0.109 cafe seed 25: Fri[ +1] Sat[Ben +1] | rebuild 9 ch $157 open 39 | keep 0 ch $0 open 39
+call 0.01 extra 0.109 cafe seed 26: Sat[ +1] Sun[Eli +1] | rebuild 0 ch $0 open 39 | keep 0 ch $0 open 39
+call 0.01 extra 0.109 cafe seed 27: Tue[Ana] Fri[ +1] Sat[ +2] Sun[ +1] | rebuild 20 ch $328 open 47 | keep 3 ch $49 open 47
+call 0.01 extra 0.109 cafe seed 28: Tue[Ben] Wed[ +2] Thu[Gus] Fri[ +1] Sat[Cleo+Gus] | rebuild 14 ch $226 open 50 | keep 2 ch $34 open 44
+call 0.01 extra 0.109 cafe seed 29: Thu[ +1] Fri[ +1] | rebuild 0 ch $0 open 21 | keep 0 ch $0 open 21
+call 0.01 extra 0.109 cafe seed 30: Tue[ +1] Thu[ +1] Sun[ +1] | rebuild 13 ch $230 open 39 | keep 0 ch $0 open 39
+call 0.01 extra 0.109 cafe seed 31: Thu[ +2] Sat[ +2] | rebuild 0 ch $0 open 51 | keep 0 ch $0 open 51
+call 0.01 extra 0.109 cafe seed 32: Thu[ +1] Sat[ +1] | rebuild 12 ch $212 open 33 | keep 0 ch $0 open 33
+call 0.01 extra 0.109 cafe seed 33: Wed[ +1] Thu[ +1] | rebuild 17 ch $288 open 26 | keep 0 ch $0 open 26
+call 0.01 extra 0.109 cafe seed 34: Wed[ +1] Fri[ +1] Sat[ +1] | rebuild 10 ch $162 open 41 | keep 0 ch $0 open 41
+call 0.01 extra 0.109 cafe seed 35: Wed[ +1] Thu[ +2] Sat[ +1] | rebuild 21 ch $361 open 47 | keep 0 ch $0 open 47
+call 0.01 extra 0.109 cafe seed 36: Wed[ +2] Thu[Ben] | rebuild 9 ch $154 open 31 | keep 0 ch $0 open 39
+call 0.01 extra 0.109 cafe seed 37: Wed[Dev] Thu[ +1] Fri[ +1] Sat[ +1] | rebuild 14 ch $252 open 34 | keep 2 ch $32 open 34
+call 0.01 extra 0.109 cafe seed 38: Wed[ +1] Thu[ +2] Sat[ +1] | rebuild 12 ch $202 open 37 | keep 0 ch $0 open 37
+call 0.01 extra 0.109 cafe seed 39: Fri[ +2] | rebuild 1 ch $19 open 31 | keep 0 ch $0 open 31
+TOTAL call 0.01 extra 0.109 cafe rebuild reissues 96 (callers 13, extra copies 101), changes to others 379, people told 205, premiums $6387.00, net changes 184, final open 1405 h, pay $146828.00, proven 96/96, 29.4 s
+TOTAL call 0.01 extra 0.109 cafe keep    reissues 97 (callers 14, extra copies 101), changes to others 25, people told 13, premiums $419.00, net changes 25, final open 1415 h, pay $146666.00, proven 97/97, 13.2 s
+CMP call 0.01 extra 0.109 cafe: 40 disrupted weeks (0 of 40 quiet); keep fewer changes 33, same 7, more 0; keep open hours up 2, down 1
+call 0.01 extra 0.109 spare seed 0: Tue[ +1] | rebuild 15 ch $258 open 3 | keep 3 ch $53 open 3
+call 0.01 extra 0.109 spare seed 1: Wed[ +1] Thu[ +2] Fri[ +2] | rebuild 17 ch $276 open 28 | keep 10 ch $168 open 26
+call 0.01 extra 0.109 spare seed 2: Tue[ +1] Wed[ +1] Thu[ +1] Sat[ +1] Sun[ +1] | rebuild 39 ch $656 open 28 | keep 13 ch $210 open 28
+call 0.01 extra 0.109 spare seed 3: Tue[Ana] Wed[ +1] Sat[Fay +1] | rebuild 37 ch $628 open 12 | keep 9 ch $146 open 14
+call 0.01 extra 0.109 spare seed 4: Tue[Gus] Thu[ +2] Fri[ +1] Sun[ +2] | rebuild 33 ch $559 open 23 | keep 11 ch $181 open 23
+call 0.01 extra 0.109 spare seed 5: Thu[Dev +1] Sat[ +1] Sun[ +2] | rebuild 12 ch $202 open 25 | keep 3 ch $55 open 25
+call 0.01 extra 0.109 spare seed 6: Wed[ +1] Sun[Fay] | rebuild 10 ch $165 open 3 | keep 2 ch $36 open 3
+call 0.01 extra 0.109 spare seed 7: Wed[ +2] Thu[Cleo] | rebuild 13 ch $215 open 9 | keep 5 ch $85 open 9
+call 0.01 extra 0.109 spare seed 8: Fri[Ana] Sat[ +1] | rebuild 4 ch $67 open 6 | keep 2 ch $38 open 6
+call 0.01 extra 0.109 spare seed 9: Wed[ +2] Fri[Eli] | rebuild 14 ch $230 open 9 | keep 5 ch $85 open 9
+call 0.01 extra 0.109 spare seed 10: Wed[ +1] Thu[ +1] Sat[ +1] | rebuild 24 ch $387 open 14 | keep 9 ch $148 open 14
+call 0.01 extra 0.109 spare seed 11: Wed[ +1] Fri[Ben +2] | rebuild 13 ch $215 open 22 | keep 3 ch $55 open 22
+call 0.01 extra 0.109 spare seed 12: Sun[ +2] | rebuild 4 ch $68 open 11 | keep 2 ch $38 open 11
+call 0.01 extra 0.109 spare seed 13: Tue[ +1] Wed[ +1] Thu[ +1] Sat[Fay +1] | rebuild 26 ch $434 open 25 | keep 10 ch $171 open 23
+call 0.01 extra 0.109 spare seed 14: Sun[ +1] | rebuild 2 ch $38 open 3 | keep 2 ch $38 open 3
+call 0.01 extra 0.109 spare seed 15: Tue[Gus] Fri[ +1] Sat[ +1] Sun[Hal] | rebuild 26 ch $426 open 9 | keep 13 ch $221 open 9
+call 0.01 extra 0.109 spare seed 16: Fri[Dev+Eli] Sun[ +1] | rebuild 6 ch $105 open 9 | keep 4 ch $74 open 9
+call 0.01 extra 0.109 spare seed 17: Wed[ +1] Thu[ +1] Fri[ +1] | rebuild 19 ch $308 open 9 | keep 8 ch $137 open 9
+call 0.01 extra 0.109 spare seed 18: Wed[ +2] Thu[ +1] Sat[ +1] Sun[ +1] | rebuild 20 ch $328 open 33 | keep 5 ch $85 open 33
+call 0.01 extra 0.109 spare seed 19: Fri[ +1] Sat[ +1] | rebuild 4 ch $67 open 6 | keep 2 ch $38 open 6
+call 0.01 extra 0.109 spare seed 20: Wed[ +1] Fri[ +1] Sat[ +2] | rebuild 18 ch $296 open 25 | keep 5 ch $89 open 25
+call 0.01 extra 0.109 spare seed 21: Wed[ +1] Thu[ +1] Fri[ +2] | rebuild 19 ch $312 open 17 | keep 3 ch $55 open 15
+call 0.01 extra 0.109 spare seed 22: Wed[ +1] Fri[ +2] | rebuild 12 ch $199 open 17 | keep 3 ch $55 open 17
+call 0.01 extra 0.109 spare seed 23: Sun[ +1] | rebuild 2 ch $38 open 3 | keep 2 ch $38 open 3
+call 0.01 extra 0.109 spare seed 24: Tue[ +1] Wed[ +1] Fri[ +3] | rebuild 33 ch $556 open 30 | keep 11 ch $180 open 28
+call 0.01 extra 0.109 spare seed 25: Fri[ +1] Sat[ +1] | rebuild 5 ch $84 open 6 | keep 3 ch $55 open 6
+call 0.01 extra 0.109 spare seed 26: Sat[ +1] | rebuild 5 ch $84 open 3 | keep 3 ch $55 open 3
+call 0.01 extra 0.109 spare seed 27: Tue[Ana +1] Fri[ +1] Sun[ +1] | rebuild 20 ch $341 open 17 | keep 5 ch $83 open 17
+call 0.01 extra 0.109 spare seed 28: Tue[Ben] Wed[Gus +1] Thu[Eli] Fri[ +1] Sat[Cleo] Sun[ +1] | rebuild 26 ch $440 open 25 | keep 10 ch $164 open 25
+call 0.01 extra 0.109 spare seed 29: Wed[ +1] Thu[ +1] | rebuild 15 ch $246 open 9 | keep 5 ch $87 open 9
+call 0.01 extra 0.109 spare seed 30: Tue[ +1] Thu[ +1] Sun[ +1] | rebuild 27 ch $462 open 12 | keep 10 ch $159 open 14
+call 0.01 extra 0.109 spare seed 31: Thu[ +2] Sat[ +1] | rebuild 14 ch $235 open 15 | keep 12 ch $206 open 15
+call 0.01 extra 0.109 spare seed 32: Thu[ +1] | rebuild 5 ch $89 open 6 | keep 5 ch $83 open 6
+call 0.01 extra 0.109 spare seed 34: Wed[ +1] Thu[ +1] Fri[ +1] Sun[ +1] | rebuild 20 ch $325 open 17 | keep 12 ch $197 open 15
+call 0.01 extra 0.109 spare seed 35: Wed[ +1] Thu[ +2] Sat[ +2] | rebuild 23 ch $375 open 33 | keep 9 ch $153 open 33
+call 0.01 extra 0.109 spare seed 36: Wed[ +2] Thu[ +1] | rebuild 18 ch $301 open 12 | keep 5 ch $87 open 12
+call 0.01 extra 0.109 spare seed 37: Wed[Cleo] Thu[ +1] Fri[ +1] Sun[Fay +1] | rebuild 17 ch $291 open 17 | keep 6 ch $106 open 17
+call 0.01 extra 0.109 spare seed 38: Wed[ +1] Thu[Hal +3] Sat[ +1] Sun[ +2] | rebuild 23 ch $378 open 49 | keep 10 ch $174 open 52
+call 0.01 extra 0.109 spare seed 39: Fri[ +1] | rebuild 2 ch $36 open 6 | keep 2 ch $36 open 6
+TOTAL call 0.01 extra 0.109 spare rebuild reissues 97 (callers 11, extra copies 112), changes to others 642, people told 339, premiums $10720.00, net changes 411, final open 606 h, pay $155578.00, proven 97/97, 43.0 s
+TOTAL call 0.01 extra 0.109 spare keep    reissues 97 (callers 12, extra copies 112), changes to others 242, people told 136, premiums $4124.00, net changes 203, final open 603 h, pay $155669.00, proven 97/97, 42.6 s
+CMP call 0.01 extra 0.109 spare: 39 disrupted weeks (1 of 40 quiet); keep fewer changes 35, same 4, more 0; keep open hours up 3, down 5
+call 0.01 extra 0.109 salon seed 0: Sun[ +1] | rebuild 1 ch $20 open 0 | keep 1 ch $20 open 0
+call 0.01 extra 0.109 salon seed 1: Sat[ +1] | rebuild 1 ch $24 open 0 | keep 1 ch $24 open 0
+call 0.01 extra 0.109 salon seed 2: Thu[ +1] Sat[ +2] Sun[ +1] | rebuild 5 ch $106 open 13 | keep 2 ch $44 open 13
+call 0.01 extra 0.109 salon seed 3: Tue[Mia] Thu[ +1] Fri[ +1] | rebuild 3 ch $62 open 18 | keep 1 ch $16 open 18
+call 0.01 extra 0.109 salon seed 4: Tue[ +1] | rebuild 4 ch $86 open 8 | keep 0 ch $0 open 8
+call 0.01 extra 0.109 salon seed 5: Tue[ +1] Wed[ +1] Thu[ +1] Fri[ +1] | rebuild 13 ch $290 open 18 | keep 3 ch $68 open 18
+call 0.01 extra 0.109 salon seed 6: Wed[ +1] Thu[ +2] | rebuild 4 ch $84 open 10 | keep 3 ch $68 open 10
+call 0.01 extra 0.109 salon seed 7: Thu[ +1] Fri[ +1] | rebuild 5 ch $110 open 10 | keep 0 ch $0 open 10
+call 0.01 extra 0.109 salon seed 8: Sat[ +1] | rebuild 1 ch $24 open 0 | keep 1 ch $24 open 0
+call 0.01 extra 0.109 salon seed 9: Wed[ +1] Sun[Paz] | rebuild 3 ch $68 open 0 | keep 3 ch $68 open 0
+call 0.01 extra 0.109 salon seed 10: Wed[ +1] Fri[Mia] Sat[ +1] | rebuild 5 ch $112 open 5 | keep 4 ch $90 open 5
+call 0.01 extra 0.109 salon seed 11: Fri[Orla +1] Sun[Mia] | rebuild 3 ch $61 open 10 | keep 0 ch $0 open 10
+call 0.01 extra 0.109 salon seed 12: Sun[ +1] | rebuild 1 ch $20 open 0 | keep 1 ch $20 open 0
+call 0.01 extra 0.109 salon seed 13: Wed[ +1] Thu[ +1] Sat[ +1] | rebuild 8 ch $174 open 5 | keep 4 ch $90 open 5
+call 0.01 extra 0.109 salon seed 14: Fri[ +2] | rebuild 1 ch $22 open 10 | keep 0 ch $0 open 10
+call 0.01 extra 0.109 salon seed 15: Tue[ +1] Fri[ +1] Sat[ +1] | rebuild 5 ch $110 open 13 | keep 1 ch $24 open 13
+call 0.01 extra 0.109 salon seed 16: Sun[Orla+Paz] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0.109 salon seed 17: Fri[Mia] Sat[ +1] | rebuild 2 ch $46 open 5 | keep 1 ch $24 open 5
+call 0.01 extra 0.109 salon seed 18: Fri[ +1] | rebuild 1 ch $22 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0.109 salon seed 19: Sat[ +1] | rebuild 1 ch $24 open 0 | keep 1 ch $24 open 0
+call 0.01 extra 0.109 salon seed 20: Wed[ +1] Thu[ +1] Sat[ +1] | rebuild 8 ch $174 open 5 | keep 4 ch $90 open 5
+call 0.01 extra 0.109 salon seed 21: Tue[ +1] Thu[ +1] Sat[ +1] | rebuild 8 ch $180 open 13 | keep 1 ch $24 open 13
+call 0.01 extra 0.109 salon seed 22: Fri[ +2] | rebuild 1 ch $22 open 10 | keep 0 ch $0 open 10
+call 0.01 extra 0.109 salon seed 24: Fri[ +1] | rebuild 1 ch $22 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0.109 salon seed 25: Wed[ +1] | rebuild 3 ch $68 open 0 | keep 3 ch $68 open 0
+call 0.01 extra 0.109 salon seed 27: Tue[Mia] Wed[ +1] | rebuild 5 ch $98 open 8 | keep 4 ch $76 open 8
+call 0.01 extra 0.109 salon seed 28: Tue[Noah] Thu[ +2] Fri[ +1] Sun[ +1] | rebuild 8 ch $154 open 23 | keep 1 ch $20 open 23
+call 0.01 extra 0.109 salon seed 29: Sat[ +2] Sun[ +1] | rebuild 2 ch $44 open 8 | keep 2 ch $44 open 8
+call 0.01 extra 0.109 salon seed 30: Fri[ +1] | rebuild 1 ch $22 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0.109 salon seed 31: Sat[Orla] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0.109 salon seed 33: Wed[ +1] Thu[ +1] Fri[ +1] | rebuild 5 ch $106 open 10 | keep 3 ch $68 open 10
+call 0.01 extra 0.109 salon seed 35: Thu[ +1] Fri[ +1] Sat[Orla] | rebuild 4 ch $86 open 10 | keep 0 ch $0 open 10
+call 0.01 extra 0.109 salon seed 36: Thu[ +1] Fri[Orla] Sat[ +2] | rebuild 5 ch $101 open 18 | keep 3 ch $59 open 18
+call 0.01 extra 0.109 salon seed 37: Thu[Noah] Sat[ +1] | rebuild 3 ch $64 open 5 | keep 1 ch $24 open 5
+call 0.01 extra 0.109 salon seed 38: Tue[ +1] Thu[ +1] Sat[Noah +2] | rebuild 9 ch $196 open 29 | keep 1 ch $24 open 29
+TOTAL call 0.01 extra 0.109 salon rebuild reissues 66 (callers 9, extra copies 67), changes to others 130, people told 104, premiums $2802.00, net changes 92, final open 279 h, pay $75744.00, proven 66/66, 3.0 s
+TOTAL call 0.01 extra 0.109 salon keep    reissues 66 (callers 9, extra copies 67), changes to others 50, people told 41, premiums $1101.00, net changes 39, final open 279 h, pay $75666.00, proven 66/66, 3.4 s
+CMP call 0.01 extra 0.109 salon: 35 disrupted weeks (5 of 40 quiet); keep fewer changes 25, same 10, more 0; keep open hours up 0, down 0
+call 0.01 extra 0.109 retail seed 0: Sun[ +1] | rebuild 2 ch $30 open 6 | keep 2 ch $30 open 6
+call 0.01 extra 0.109 retail seed 1: Sat[ +1] | rebuild 4 ch $66 open 6 | keep 2 ch $30 open 6
+call 0.01 extra 0.109 retail seed 2: Sat[ +2] Sun[ +1] | rebuild 11 ch $179 open 18 | keep 7 ch $111 open 18
+call 0.01 extra 0.109 retail seed 3: Tue[Ruth] Thu[ +1] | rebuild 10 ch $162 open 0 | keep 3 ch $49 open 0
+call 0.01 extra 0.109 retail seed 4: Tue[ +1] | rebuild 11 ch $186 open 0 | keep 3 ch $49 open 0
+call 0.01 extra 0.109 retail seed 5: Tue[ +1] Wed[ +1] Fri[ +1] | rebuild 15 ch $248 open 0 | keep 8 ch $134 open 6
+call 0.01 extra 0.109 retail seed 6: Wed[ +1] Thu[ +1] | rebuild 14 ch $236 open 0 | keep 8 ch $134 open 0
+call 0.01 extra 0.109 retail seed 7: Wed[ +1] Thu[ +1] Fri[Vic] | rebuild 10 ch $174 open 6 | keep 6 ch $100 open 6
+call 0.01 extra 0.109 retail seed 8: Sat[ +1] | rebuild 3 ch $45 open 6 | keep 3 ch $45 open 6
+call 0.01 extra 0.109 retail seed 9: Wed[ +1] Sun[Uma] | rebuild 6 ch $98 open 6 | keep 6 ch $96 open 6
+call 0.01 extra 0.109 retail seed 10: Wed[ +2] Thu[ +1] Sat[ +1] | rebuild 19 ch $321 open 12 | keep 8 ch $130 open 12
+call 0.01 extra 0.109 retail seed 11: Fri[Sam +1] Sun[Ruth] | rebuild 3 ch $53 open 6 | keep 1 ch $19 open 6
+call 0.01 extra 0.109 retail seed 12: Sun[ +1] | rebuild 2 ch $30 open 6 | keep 2 ch $30 open 6
+call 0.01 extra 0.109 retail seed 13: Wed[ +1] Thu[ +1] Sat[ +1] | rebuild 10 ch $170 open 6 | keep 8 ch $130 open 6
+call 0.01 extra 0.109 retail seed 14: Fri[ +2] | rebuild 1 ch $19 open 6 | keep 1 ch $19 open 6
+call 0.01 extra 0.109 retail seed 15: Tue[ +1] Fri[ +1] Sat[ +1] | rebuild 15 ch $254 open 9 | keep 7 ch $113 open 6
+call 0.01 extra 0.109 retail seed 16: Tue[ +1] Sun[Tess+Uma] | rebuild 13 ch $220 open 15 | keep 5 ch $79 open 6
+call 0.01 extra 0.109 retail seed 17: Wed[ +1] Thu[ +1] Sat[ +1] | rebuild 11 ch $189 open 6 | keep 9 ch $145 open 6
+call 0.01 extra 0.109 retail seed 19: Wed[ +1] Sat[ +1] Sun[ +1] | rebuild 10 ch $170 open 15 | keep 6 ch $94 open 15
+call 0.01 extra 0.109 retail seed 20: Wed[ +1] Thu[ +1] Sat[ +1] | rebuild 21 ch $351 open 6 | keep 11 ch $179 open 6
+call 0.01 extra 0.109 retail seed 21: Tue[ +1] Sat[ +1] | rebuild 16 ch $265 open 6 | keep 7 ch $111 open 6
+call 0.01 extra 0.109 retail seed 22: Fri[ +1] | rebuild 7 ch $119 open 0 | keep 1 ch $19 open 0
+call 0.01 extra 0.109 retail seed 23: Tue[ +1] | rebuild 11 ch $186 open 0 | keep 3 ch $49 open 0
+call 0.01 extra 0.109 retail seed 25: Wed[ +1] | rebuild 4 ch $68 open 0 | keep 4 ch $66 open 0
+call 0.01 extra 0.109 retail seed 26: Wed[ +1] | rebuild 7 ch $121 open 0 | keep 3 ch $49 open 0
+call 0.01 extra 0.109 retail seed 27: Tue[Ruth] | rebuild 5 ch $81 open 0 | keep 2 ch $32 open 0
+call 0.01 extra 0.109 retail seed 28: Tue[Sam] Thu[Uma] Fri[ +1] Sun[ +1] | rebuild 9 ch $149 open 6 | keep 3 ch $49 open 6
+call 0.01 extra 0.109 retail seed 29: Sat[ +2] Sun[ +1] | rebuild 11 ch $179 open 18 | keep 7 ch $111 open 18
+call 0.01 extra 0.109 retail seed 30: Wed[ +1] | rebuild 7 ch $121 open 0 | keep 3 ch $49 open 0
+call 0.01 extra 0.109 retail seed 31: Sat[Tess] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.01 extra 0.109 retail seed 32: Wed[ +1] | rebuild 7 ch $121 open 0 | keep 3 ch $49 open 0
+call 0.01 extra 0.109 retail seed 33: Wed[ +1] | rebuild 4 ch $68 open 0 | keep 4 ch $66 open 0
+call 0.01 extra 0.109 retail seed 34: Thu[ +1] | rebuild 1 ch $17 open 0 | keep 1 ch $17 open 0
+call 0.01 extra 0.109 retail seed 35: Thu[ +1] Fri[ +1] Sat[Tess] | rebuild 2 ch $36 open 0 | keep 2 ch $36 open 0
+call 0.01 extra 0.109 retail seed 36: Thu[ +1] Fri[Sam] Sat[ +2] | rebuild 8 ch $136 open 6 | keep 6 ch $100 open 6
+call 0.01 extra 0.109 retail seed 37: Wed[ +1] Sat[ +1] Sun[ +1] | rebuild 9 ch $151 open 15 | keep 5 ch $79 open 15
+call 0.01 extra 0.109 retail seed 38: Tue[ +1] Thu[ +1] Sat[Sam +2] | rebuild 18 ch $301 open 18 | keep 11 ch $179 open 12
+TOTAL call 0.01 extra 0.109 retail rebuild reissues 67 (callers 8, extra copies 67), changes to others 317, people told 175, premiums $5320.00, net changes 239, final open 204 h, pay $87918.00, proven 67/67, 11.8 s
+TOTAL call 0.01 extra 0.109 retail keep    reissues 67 (callers 7, extra copies 67), changes to others 171, people told 109, premiums $2777.00, net changes 150, final open 192 h, pay $88191.00, proven 67/67, 12.2 s
+CMP call 0.01 extra 0.109 retail: 37 disrupted weeks (3 of 40 quiet); keep fewer changes 27, same 10, more 0; keep open hours up 1, down 3
+call 0.01 extra 0.109 clinic seed 1: Sat[ +1] | rebuild 0 ch $0 open 10 | keep 0 ch $0 open 10
+call 0.01 extra 0.109 clinic seed 3: Tue[Wen] Thu[ +1] | rebuild 10 ch $282 open 10 | keep 5 ch $139 open 10
+call 0.01 extra 0.109 clinic seed 4: Tue[ +1] | rebuild 7 ch $207 open 5 | keep 3 ch $73 open 5
+call 0.01 extra 0.109 clinic seed 5: Tue[ +1] Wed[ +1] Fri[ +1] | rebuild 11 ch $339 open 15 | keep 5 ch $139 open 15
+call 0.01 extra 0.109 clinic seed 6: Wed[ +1] Thu[ +1] | rebuild 3 ch $97 open 10 | keep 1 ch $31 open 10
+call 0.01 extra 0.109 clinic seed 7: Wed[ +1] Thu[ +1] Fri[Abe] | rebuild 8 ch $266 open 10 | keep 2 ch $65 open 10
+call 0.01 extra 0.109 clinic seed 8: Sun[Xia] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0.109 clinic seed 9: Wed[ +1] | rebuild 1 ch $33 open 10 | keep 0 ch $0 open 10
+call 0.01 extra 0.109 clinic seed 10: Wed[ +2] Thu[ +1] Sat[ +1] | rebuild 2 ch $64 open 20 | keep 1 ch $31 open 20
+call 0.01 extra 0.109 clinic seed 11: Fri[Xia +1] Sun[Yan] | rebuild 0 ch $0 open 10 | keep 0 ch $0 open 10
+call 0.01 extra 0.109 clinic seed 13: Wed[ +1] Thu[ +1] Sat[ +1] | rebuild 8 ch $266 open 15 | keep 2 ch $65 open 15
+call 0.01 extra 0.109 clinic seed 14: Fri[ +2] | rebuild 0 ch $0 open 15 | keep 0 ch $0 open 15
+call 0.01 extra 0.109 clinic seed 15: Tue[ +1] Fri[ +1] | rebuild 8 ch $241 open 10 | keep 4 ch $107 open 10
+call 0.01 extra 0.109 clinic seed 16: Tue[ +1] Sun[Abe] | rebuild 7 ch $207 open 5 | keep 5 ch $139 open 5
+call 0.01 extra 0.109 clinic seed 17: Wed[ +1] Thu[ +1] | rebuild 7 ch $232 open 10 | keep 2 ch $65 open 10
+call 0.01 extra 0.109 clinic seed 19: Wed[ +1] | rebuild 5 ch $165 open 10 | keep 1 ch $34 open 10
+call 0.01 extra 0.109 clinic seed 20: Wed[ +1] Thu[ +1] | rebuild 3 ch $97 open 10 | keep 1 ch $31 open 10
+call 0.01 extra 0.109 clinic seed 21: Tue[ +1] | rebuild 8 ch $240 open 5 | keep 5 ch $139 open 5
+call 0.01 extra 0.109 clinic seed 22: Fri[ +1] | rebuild 1 ch $34 open 10 | keep 1 ch $34 open 10
+call 0.01 extra 0.109 clinic seed 23: Tue[ +1] | rebuild 7 ch $207 open 5 | keep 5 ch $139 open 5
+call 0.01 extra 0.109 clinic seed 25: Wed[ +1] | rebuild 1 ch $33 open 10 | keep 0 ch $0 open 10
+call 0.01 extra 0.109 clinic seed 26: Wed[ +1] | rebuild 0 ch $0 open 10 | keep 0 ch $0 open 10
+call 0.01 extra 0.109 clinic seed 27: Tue[Wen] | rebuild 5 ch $139 open 5 | keep 4 ch $106 open 5
+call 0.01 extra 0.109 clinic seed 28: Tue[Xia] Thu[Zed] Fri[ +1] | rebuild 5 ch $141 open 10 | keep 4 ch $107 open 10
+call 0.01 extra 0.109 clinic seed 30: Wed[ +1] | rebuild 0 ch $0 open 10 | keep 0 ch $0 open 10
+call 0.01 extra 0.109 clinic seed 31: Sat[Yan] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.01 extra 0.109 clinic seed 32: Wed[ +1] | rebuild 5 ch $165 open 10 | keep 1 ch $34 open 10
+call 0.01 extra 0.109 clinic seed 33: Wed[ +1] | rebuild 1 ch $33 open 10 | keep 0 ch $0 open 10
+call 0.01 extra 0.109 clinic seed 34: Thu[ +1] | rebuild 1 ch $31 open 5 | keep 1 ch $31 open 5
+call 0.01 extra 0.109 clinic seed 35: Thu[ +1] Fri[ +1] Sat[Yan] | rebuild 3 ch $99 open 10 | keep 2 ch $65 open 10
+call 0.01 extra 0.109 clinic seed 36: Thu[ +1] Fri[Xia] | rebuild 1 ch $31 open 5 | keep 1 ch $31 open 5
+call 0.01 extra 0.109 clinic seed 37: Wed[ +1] Sat[ +1] | rebuild 0 ch $0 open 15 | keep 0 ch $0 open 15
+call 0.01 extra 0.109 clinic seed 38: Tue[ +1] Thu[ +1] Sat[Xia +1] | rebuild 11 ch $317 open 15 | keep 3 ch $73 open 15
+TOTAL call 0.01 extra 0.109 clinic rebuild reissues 48 (callers 3, extra copies 47), changes to others 129, people told 84, premiums $3966.00, net changes 105, final open 320 h, pay $93944.00, proven 48/48, 10.5 s
+TOTAL call 0.01 extra 0.109 clinic keep    reissues 48 (callers 3, extra copies 47), changes to others 59, people told 45, premiums $1678.00, net changes 59, final open 320 h, pay $93912.00, proven 48/48, 10.7 s
+CMP call 0.01 extra 0.109 clinic: 33 disrupted weeks (7 of 40 quiet); keep fewer changes 22, same 11, more 0; keep open hours up 0, down 0
+call 0.084 extra 0 cafe seed 0: Wed[Dev] Thu[Ben+Gus] Fri[Ben] Sat[Ben+Gus] | rebuild 17 ch $295 open 31 | keep 5 ch $89 open 31
+call 0.084 extra 0 cafe seed 1: Thu[Ben] Sat[Ben+Cleo] Sun[Fay] | rebuild 5 ch $90 open 41 | keep 0 ch $0 open 41
+call 0.084 extra 0 cafe seed 2: Tue[Ben+Fay] Thu[Fay] Fri[Ben+Gus] Sat[Eli] | rebuild 19 ch $324 open 39 | keep 7 ch $118 open 39
+call 0.084 extra 0 cafe seed 3: Tue[Ben] Sat[Ben+Dev] Sun[Fay] | rebuild 0 ch $0 open 23 | keep 0 ch $0 open 23
+call 0.084 extra 0 cafe seed 4: Tue[Ben] Sat[Dev] Sun[Fay] | rebuild 0 ch $0 open 15 | keep 0 ch $0 open 15
+call 0.084 extra 0 cafe seed 5: Tue[Ben+Gus] Wed[Cleo] Thu[Ben+Cleo] Fri[Cleo] Sun[Ben+Eli] | rebuild 6 ch $92 open 23 | keep 7 ch $123 open 23
+call 0.084 extra 0 cafe seed 6: Tue[Ana] Thu[Ben] Sun[Cleo] | rebuild 18 ch $299 open 23 | keep 6 ch $106 open 23
+call 0.084 extra 0 cafe seed 7: Wed[Cleo] Thu[Eli] Sat[Dev+Gus] | rebuild 2 ch $34 open 15 | keep 2 ch $34 open 15
+call 0.084 extra 0 cafe seed 8: Fri[Gus] Sat[Ana+Eli+Fay] Sun[Eli] | rebuild 6 ch $102 open 39 | keep 1 ch $19 open 39
+call 0.084 extra 0 cafe seed 9: Tue[Fay] Sun[Gus] | rebuild 11 ch $188 open 15 | keep 5 ch $83 open 15
+call 0.084 extra 0 cafe seed 10: Thu[Cleo] Fri[Eli] | rebuild 0 ch $0 open 15 | keep 0 ch $0 open 15
+call 0.084 extra 0 cafe seed 11: Tue[Fay] Fri[Eli] Sat[Gus] Sun[Dev] | rebuild 11 ch $188 open 23 | keep 5 ch $83 open 23
+call 0.084 extra 0 cafe seed 12: Fri[Dev] Sat[Gus] | rebuild 1 ch $19 open 23 | keep 1 ch $17 open 23
+call 0.084 extra 0 cafe seed 13: Tue[Ana] Fri[Cleo] Sat[Dev] | rebuild 20 ch $328 open 23 | keep 3 ch $49 open 15
+call 0.084 extra 0 cafe seed 14: Wed[Cleo] Thu[Eli] Fri[Dev] Sat[Cleo] Sun[Dev] | rebuild 3 ch $57 open 39 | keep 2 ch $34 open 31
+call 0.084 extra 0 cafe seed 15: Fri[Fay] Sun[Ben] | rebuild 0 ch $0 open 15 | keep 0 ch $0 open 15
+call 0.084 extra 0 cafe seed 16: Fri[Cleo] Sun[Cleo] | rebuild 1 ch $14 open 23 | keep 0 ch $0 open 23
+call 0.084 extra 0 cafe seed 17: Tue[Cleo+Dev+Eli] Wed[Ana+Ben] Sat[Ben] Sun[Dev] | rebuild 16 ch $272 open 23 | keep 9 ch $154 open 23
+call 0.084 extra 0 cafe seed 18: Tue[Fay+Gus] | rebuild 8 ch $131 open 17 | keep 7 ch $114 open 17
+call 0.084 extra 0 cafe seed 19: Tue[Dev] Wed[Ben] | rebuild 9 ch $159 open 15 | keep 2 ch $32 open 15
+call 0.084 extra 0 cafe seed 20: Tue[Eli] Fri[Fay] | rebuild 0 ch $0 open 15 | keep 0 ch $0 open 15
+call 0.084 extra 0 cafe seed 21: Fri[Ana] Sat[Ana] Sun[Ana+Gus] | rebuild 4 ch $72 open 31 | keep 0 ch $0 open 23
+call 0.084 extra 0 cafe seed 22: Thu[Cleo+Eli] Fri[Ana] Sat[Cleo] | rebuild 4 ch $71 open 31 | keep 2 ch $36 open 31
+call 0.084 extra 0 cafe seed 23: Thu[Dev] Sat[Dev] Sun[Ana+Ben] | rebuild 7 ch $125 open 23 | keep 3 ch $57 open 23
+call 0.084 extra 0 cafe seed 24: Wed[Ana+Dev+Gus] Sat[Ben] Sun[Fay] | rebuild 5 ch $79 open 28 | keep 2 ch $32 open 28
+call 0.084 extra 0 cafe seed 25: Wed[Cleo] Fri[Eli] Sat[Ben+Cleo] Sun[Dev] | rebuild 4 ch $72 open 33 | keep 0 ch $0 open 41
+call 0.084 extra 0 cafe seed 26: Tue[Dev] Wed[Ana+Cleo] Fri[Eli] | rebuild 15 ch $257 open 15 | keep 9 ch $154 open 15
+call 0.084 extra 0 cafe seed 27: Tue[Dev] | rebuild 9 ch $159 open 15 | keep 2 ch $32 open 15
+call 0.084 extra 0 cafe seed 28: Tue[Eli] Wed[Dev] Thu[Dev] Sat[Ana+Fay] | rebuild 14 ch $243 open 23 | keep 2 ch $32 open 23
+call 0.084 extra 0 cafe seed 29: Tue[Gus] Wed[Cleo] | rebuild 5 ch $77 open 15 | keep 4 ch $66 open 15
+call 0.084 extra 0 cafe seed 30: Tue[Ana] Thu[Dev] Fri[Cleo+Dev+Fay] | rebuild 21 ch $343.5 open 31 | keep 6 ch $106 open 23
+call 0.084 extra 0 cafe seed 31: Sun[Eli+Fay] | rebuild 0 ch $0 open 23 | keep 0 ch $0 open 23
+call 0.084 extra 0 cafe seed 32: Wed[Ben+Gus] Fri[Ana+Gus] Sun[Ana] | rebuild 8 ch $124 open 31 | keep 4 ch $66 open 31
+call 0.084 extra 0 cafe seed 33: Sat[Ana] Sun[Fay+Gus] | rebuild 0 ch $0 open 15 | keep 0 ch $0 open 15
+call 0.084 extra 0 cafe seed 34: Wed[Ben] Sat[Gus] | rebuild 2 ch $34 open 15 | keep 2 ch $34 open 15
+call 0.084 extra 0 cafe seed 35: Tue[Ben] Thu[Ben] Fri[Eli] | rebuild 1 ch $18 open 23 | keep 0 ch $0 open 23
+call 0.084 extra 0 cafe seed 36: Tue[Ben] Thu[Fay] Sun[Gus] | rebuild 9 ch $152 open 15 | keep 7 ch $123 open 15
+call 0.084 extra 0 cafe seed 37: Tue[Ana+Ben] Thu[Eli] Sun[Cleo] | rebuild 18 ch $299 open 23 | keep 3 ch $49 open 23
+call 0.084 extra 0 cafe seed 38: Sun[Ben] | rebuild 0 ch $0 open 15 | keep 0 ch $0 open 15
+call 0.084 extra 0 cafe seed 39: Tue[Fay] Wed[Gus] | rebuild 11 ch $188 open 15 | keep 8 ch $131 open 15
+TOTAL call 0.084 extra 0 cafe rebuild reissues 61 (callers 68, extra copies 0), changes to others 290, people told 126, premiums $4905.50, net changes 204, final open 915 h, pay $142438.00, proven 61/61, 17.0 s
+TOTAL call 0.084 extra 0 cafe keep    reissues 62 (callers 69, extra copies 0), changes to others 116, people told 54, premiums $1973.00, net changes 94, final open 891 h, pay $142871.00, proven 62/62, 11.6 s
+CMP call 0.084 extra 0 cafe: 40 disrupted weeks (0 of 40 quiet); keep fewer changes 28, same 11, more 1; keep open hours up 1, down 4
+call 0.084 extra 0 spare seed 0: Wed[Cleo] Thu[Eli+Fay] Fri[Eli] Sat[Cleo] Sun[Hal] | rebuild 9 ch $150 open 6 | keep 8 ch $136 open 6
+call 0.084 extra 0 spare seed 1: Wed[Gus] Sun[Ana] | rebuild 12 ch $197 open 0 | keep 4 ch $66 open 0
+call 0.084 extra 0 spare seed 2: Tue[Ben+Fay] Thu[Dev] Fri[Dev] Sat[Ana+Eli] Sun[Cleo+Fay] | rebuild 26 ch $437 open 28 | keep 12 ch $201 open 23
+call 0.084 extra 0 spare seed 3: Tue[Ben] Sun[Ana+Eli] | rebuild 16 ch $276 open 3 | keep 5 ch $83 open 3
+call 0.084 extra 0 spare seed 4: Tue[Ben] Sun[Ana] | rebuild 14 ch $238 open 0 | keep 3 ch $45 open 0
+call 0.084 extra 0 spare seed 5: Tue[Ben+Gus] Wed[Ben] Thu[Ana] | rebuild 30 ch $499 open 6 | keep 15 ch $247 open 6
+call 0.084 extra 0 spare seed 6: Tue[Ana] Sun[Dev] | rebuild 16 ch $267 open 0 | keep 8 ch $128 open 6
+call 0.084 extra 0 spare seed 7: Wed[Ben] Thu[Cleo] Sat[Cleo] | rebuild 14 ch $236 open 3 | keep 6 ch $103 open 3
+call 0.084 extra 0 spare seed 8: Wed[Hal] Fri[Dev] Sat[Ana+Ben] Sun[Cleo+Dev] | rebuild 6 ch $102 open 25 | keep 4 ch $74 open 25
+call 0.084 extra 0 spare seed 9: Tue[Fay] Sun[Ben] | rebuild 17 ch $283 open 0 | keep 7 ch $113 open 0
+call 0.084 extra 0 spare seed 10: Thu[Ana] Fri[Ben] Sat[Eli] | rebuild 13 ch $210 open 9 | keep 6 ch $103 open 6
+call 0.084 extra 0 spare seed 11: Tue[Fay] Fri[Ben] Sat[Cleo] | rebuild 24 ch $395 open 6 | keep 11 ch $179 open 11
+call 0.084 extra 0 spare seed 12: Tue[Hal] Thu[Hal] Fri[Ana] Sat[Cleo] Sun[Fay] | rebuild 18 ch $305 open 9 | keep 6 ch $102 open 11
+call 0.084 extra 0 spare seed 13: Tue[Ana] Thu[Fay] Fri[Gus] Sun[Hal] | rebuild 25 ch $418 open 9 | keep 9 ch $147 open 9
+call 0.084 extra 0 spare seed 14: Wed[Ben] Thu[Cleo+Fay] Fri[Ana] Sat[Eli] Sun[Cleo] | rebuild 28 ch $469 open 17 | keep 11 ch $187 open 17
+call 0.084 extra 0 spare seed 15: Fri[Cleo] Sun[Hal] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 spare seed 16: Fri[Hal] Sat[Dev] | rebuild 7 ch $117 open 6 | keep 4 ch $72 open 6
+call 0.084 extra 0 spare seed 17: Tue[Cleo+Dev+Eli] Wed[Ana] | rebuild 21 ch $344 open 0 | keep 7 ch $111 open 0
+call 0.084 extra 0 spare seed 18: Tue[Fay+Gus] Thu[Fay] Sun[Hal] | rebuild 16 ch $261 open 6 | keep 14 ch $230 open 6
+call 0.084 extra 0 spare seed 19: Tue[Dev] Wed[Ana] Sun[Fay] | rebuild 21 ch $344 open 0 | keep 7 ch $111 open 0
+call 0.084 extra 0 spare seed 20: Tue[Eli] Fri[Cleo+Eli] Sun[Cleo] | rebuild 2 ch $38 open 3 | keep 2 ch $38 open 3
+call 0.084 extra 0 spare seed 21: Sat[Hal] Sun[Ben] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 spare seed 22: Thu[Ana+Cleo] | rebuild 5 ch $80 open 3 | keep 3 ch $47 open 3
+call 0.084 extra 0 spare seed 23: Thu[Ben] Sat[Hal] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 spare seed 24: Wed[Cleo+Fay] Sun[Ana+Gus] | rebuild 15 ch $245 open 0 | keep 7 ch $118 open 0
+call 0.084 extra 0 spare seed 25: Wed[Ben] Fri[Ben] | rebuild 12 ch $198 open 3 | keep 6 ch $99 open 3
+call 0.084 extra 0 spare seed 26: Tue[Dev] Wed[Ben] Thu[Hal] Fri[Ben] Sun[Dev] | rebuild 26 ch $427 open 14 | keep 11 ch $175 open 9
+call 0.084 extra 0 spare seed 27: Tue[Dev] Wed[Hal] Fri[Gus] Sun[Fay] | rebuild 14 ch $230 open 3 | keep 5 ch $81 open 3
+call 0.084 extra 0 spare seed 28: Tue[Eli] Wed[Cleo] Thu[Ben+Hal] Sat[Ben+Dev] Sun[Gus] | rebuild 13 ch $224 open 6 | keep 6 ch $104 open 6
+call 0.084 extra 0 spare seed 29: Tue[Gus] Wed[Ben] Thu[Hal] Fri[Fay] | rebuild 21 ch $350 open 0 | keep 10 ch $162 open 0
+call 0.084 extra 0 spare seed 30: Tue[Ana] Thu[Ben] Fri[Ana+Cleo] | rebuild 26 ch $432 open 9 | keep 7 ch $113 open 6
+call 0.084 extra 0 spare seed 31: Fri[Fay] Sun[Ana+Fay] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 spare seed 32: Wed[Ana+Fay] Fri[Dev] Sat[Hal] | rebuild 16 ch $255.5 open 9 | keep 10 ch $162 open 9
+call 0.084 extra 0 spare seed 33: Thu[Fay+Gus] Sun[Ana+Ben] | rebuild 10 ch $163 open 6 | keep 9 ch $149 open 6
+call 0.084 extra 0 spare seed 34: Wed[Ana+Hal] Sat[Cleo+Fay] | rebuild 16 ch $256 open 6 | keep 8 ch $129 open 6
+call 0.084 extra 0 spare seed 35: Tue[Ben+Hal] Thu[Gus] Fri[Ben] | rebuild 23 ch $384 open 6 | keep 7 ch $111 open 11
+call 0.084 extra 0 spare seed 36: Tue[Ben] Thu[Dev] Sun[Ben+Eli] | rebuild 17 ch $288 open 11 | keep 5 ch $83 open 6
+call 0.084 extra 0 spare seed 37: Tue[Ana+Ben] Thu[Cleo] | rebuild 6 ch $102 open 3 | keep 5 ch $79 open 3
+call 0.084 extra 0 spare seed 38: Thu[Hal] | rebuild 10 ch $173 open 3 | keep 4 ch $68 open 3
+call 0.084 extra 0 spare seed 39: Tue[Fay] Wed[Fay] Fri[Gus] Sun[Fay] | rebuild 32 ch $535 open 11 | keep 14 ch $230 open 12
+TOTAL call 0.084 extra 0 spare rebuild reissues 81 (callers 89, extra copies 0), changes to others 597, people told 297, premiums $9928.50, net changes 354, final open 229 h, pay $152008.00, proven 81/81, 18.9 s
+TOTAL call 0.084 extra 0 spare keep    reissues 80 (callers 88, extra copies 0), changes to others 266, people told 132, premiums $4386.00, net changes 194, final open 227 h, pay $152072.00, proven 80/80, 20.8 s
+CMP call 0.084 extra 0 spare: 40 disrupted weeks (0 of 40 quiet); keep fewer changes 35, same 5, more 0; keep open hours up 5, down 5
+call 0.084 extra 0 salon seed 0: Thu[Noah] Fri[Orla] Sun[Paz] | rebuild 3 ch $55 open 10 | keep 0 ch $0 open 10
+call 0.084 extra 0 salon seed 1: Fri[Orla] | rebuild 3 ch $61 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 salon seed 2: Tue[Noah] Sun[Orla] | rebuild 4 ch $80 open 8 | keep 0 ch $0 open 8
+call 0.084 extra 0 salon seed 3: Tue[Noah] | rebuild 4 ch $80 open 8 | keep 0 ch $0 open 8
+call 0.084 extra 0 salon seed 4: Tue[Noah] | rebuild 4 ch $80 open 8 | keep 0 ch $0 open 8
+call 0.084 extra 0 salon seed 5: Tue[Noah] Wed[Orla] Thu[Mia] Fri[Orla+Paz] | rebuild 13 ch $263 open 23 | keep 2 ch $37 open 23
+call 0.084 extra 0 salon seed 6: Tue[Mia] Wed[Orla] Fri[Orla] | rebuild 10 ch $197 open 13 | keep 5 ch $91 open 13
+call 0.084 extra 0 salon seed 7: Thu[Mia] Sat[Paz] | rebuild 3 ch $62 open 5 | keep 1 ch $24 open 5
+call 0.084 extra 0 salon seed 8: Wed[Noah] Sat[Paz] Sun[Orla] | rebuild 1 ch $24 open 0 | keep 1 ch $24 open 0
+call 0.084 extra 0 salon seed 10: Fri[Paz] Sun[Mia] | rebuild 1 ch $22 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 salon seed 11: Sun[Mia] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 salon seed 12: Wed[Mia] Sat[Noah+Orla] | rebuild 4 ch $82 open 0 | keep 2 ch $44 open 0
+call 0.084 extra 0 salon seed 13: Tue[Mia] | rebuild 2 ch $38 open 8 | keep 1 ch $16 open 8
+call 0.084 extra 0 salon seed 14: Thu[Mia] Sat[Orla] | rebuild 2 ch $38 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 salon seed 15: Wed[Orla] Sun[Noah] | rebuild 8 ch $167 open 0 | keep 4 ch $83 open 0
+call 0.084 extra 0 salon seed 17: Tue[Orla+Paz+Quin] Sat[Orla] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 salon seed 19: Tue[Paz] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 salon seed 20: Tue[Quin] Wed[Noah] Sat[Orla] Sun[Noah+Paz] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 salon seed 21: Sat[Quin] | rebuild 1 ch $24 open 0 | keep 1 ch $24 open 0
+call 0.084 extra 0 salon seed 22: Wed[Orla] Fri[Paz] Sat[Quin] | rebuild 10 ch $213 open 5 | keep 5 ch $105 open 5
+call 0.084 extra 0 salon seed 23: Fri[Quin] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 salon seed 24: Wed[Orla] Thu[Noah+Quin] | rebuild 9 ch $191 open 5 | keep 5 ch $107 open 5
+call 0.084 extra 0 salon seed 25: Thu[Mia] Fri[Mia] Sun[Mia] | rebuild 3 ch $54 open 10 | keep 1 ch $16 open 10
+call 0.084 extra 0 salon seed 26: Tue[Paz] Thu[Mia] Sat[Noah] Sun[Mia] | rebuild 3 ch $62 open 5 | keep 1 ch $24 open 5
+call 0.084 extra 0 salon seed 27: Tue[Paz] Sat[Paz] | rebuild 1 ch $24 open 0 | keep 1 ch $24 open 0
+call 0.084 extra 0 salon seed 28: Tue[Quin] Thu[Noah] Fri[Quin] Sat[Noah] | rebuild 3 ch $64 open 5 | keep 1 ch $24 open 5
+call 0.084 extra 0 salon seed 29: Thu[Mia] Sat[Noah+Orla] Sun[Quin] | rebuild 4 ch $82 open 5 | keep 2 ch $44 open 5
+call 0.084 extra 0 salon seed 30: Tue[Mia] Fri[Quin] Sun[Noah] | rebuild 2 ch $38 open 8 | keep 1 ch $16 open 8
+call 0.084 extra 0 salon seed 31: Sun[Quin] | rebuild 1 ch $20 open 0 | keep 1 ch $20 open 0
+call 0.084 extra 0 salon seed 32: Thu[Quin] Sat[Quin] Sun[Orla] | rebuild 1 ch $24 open 0 | keep 1 ch $24 open 0
+call 0.084 extra 0 salon seed 33: Sat[Mia] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 salon seed 35: Tue[Noah] Wed[Mia+Paz] Fri[Orla] Sat[Mia] Sun[Mia] | rebuild 8 ch $149 open 13 | keep 3 ch $54 open 13
+call 0.084 extra 0 salon seed 36: Tue[Noah] Wed[Paz] | rebuild 4 ch $80 open 8 | keep 0 ch $0 open 8
+call 0.084 extra 0 salon seed 37: Tue[Mia+Noah] | rebuild 2 ch $32 open 16 | keep 1 ch $16 open 16
+call 0.084 extra 0 salon seed 38: Wed[Paz] Fri[Mia] Sat[Noah] | rebuild 2 ch $46 open 5 | keep 1 ch $24 open 5
+call 0.084 extra 0 salon seed 39: Thu[Quin] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+TOTAL call 0.084 extra 0 salon rebuild reissues 47 (callers 49, extra copies 0), changes to others 116, people told 80, premiums $2352.00, net changes 72, final open 183 h, pay $71230.00, proven 47/47, 2.1 s
+TOTAL call 0.084 extra 0 salon keep    reissues 48 (callers 50, extra copies 0), changes to others 41, people told 36, premiums $841.00, net changes 24, final open 183 h, pay $70948.00, proven 48/48, 2.3 s
+CMP call 0.084 extra 0 salon: 36 disrupted weeks (4 of 40 quiet); keep fewer changes 24, same 12, more 0; keep open hours up 0, down 0
+call 0.084 extra 0 retail seed 0: Fri[Sam] Sun[Uma] | rebuild 5 ch $83 open 6 | keep 3 ch $49 open 6
+call 0.084 extra 0 retail seed 1: Thu[Uma] Fri[Sam] | rebuild 3 ch $53 open 0 | keep 1 ch $19 open 0
+call 0.084 extra 0 retail seed 2: Tue[Sam] Sun[Tess] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 retail seed 3: Tue[Sam] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 retail seed 4: Tue[Sam] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 retail seed 5: Tue[Sam] Wed[Sam] Fri[Sam+Tess] | rebuild 4 ch $70 open 6 | keep 3 ch $53 open 6
+call 0.084 extra 0 retail seed 6: Tue[Ruth] Wed[Sam] Fri[Sam] | rebuild 7 ch $115 open 0 | keep 2 ch $32 open 0
+call 0.084 extra 0 retail seed 7: Fri[Vic] Sat[Uma] | rebuild 7 ch $121 open 0 | keep 4 ch $68 open 0
+call 0.084 extra 0 retail seed 8: Wed[Ruth] Thu[Vic] Sat[Uma] Sun[Tess] | rebuild 4 ch $62 open 6 | keep 4 ch $62 open 6
+call 0.084 extra 0 retail seed 10: Fri[Tess] Sun[Ruth] | rebuild 4 ch $70 open 0 | keep 3 ch $53 open 0
+call 0.084 extra 0 retail seed 11: Sun[Ruth] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 retail seed 12: Sat[Sam+Tess] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 retail seed 13: Tue[Ruth] | rebuild 5 ch $81 open 0 | keep 2 ch $32 open 0
+call 0.084 extra 0 retail seed 14: Fri[Vic] Sat[Tess] | rebuild 5 ch $85 open 0 | keep 1 ch $19 open 0
+call 0.084 extra 0 retail seed 15: Wed[Sam] Sun[Sam] | rebuild 2 ch $30 open 6 | keep 2 ch $30 open 6
+call 0.084 extra 0 retail seed 17: Tue[Tess+Uma+Vic] Wed[Vic] Sat[Tess] | rebuild 20 ch $342 open 6 | keep 4 ch $64 open 6
+call 0.084 extra 0 retail seed 19: Tue[Uma] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 retail seed 20: Tue[Vic] Wed[Ruth] Sat[Tess] Sun[Sam+Uma] | rebuild 13 ch $213 open 6 | keep 8 ch $128 open 12
+call 0.084 extra 0 retail seed 21: Sat[Vic] | rebuild 4 ch $66 open 0 | keep 2 ch $32 open 0
+call 0.084 extra 0 retail seed 22: Wed[Sam] Fri[Tess+Vic] Sat[Vic] | rebuild 5 ch $85 open 6 | keep 5 ch $85 open 6
+call 0.084 extra 0 retail seed 23: Fri[Uma] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 retail seed 24: Wed[Sam+Vic] Thu[Tess] | rebuild 11 ch $181 open 0 | keep 5 ch $81 open 0
+call 0.084 extra 0 retail seed 25: Sun[Ruth] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 retail seed 26: Tue[Uma] Wed[Vic] Sat[Sam] Sun[Ruth] | rebuild 8 ch $132 open 0 | keep 2 ch $32 open 0
+call 0.084 extra 0 retail seed 27: Tue[Uma] Thu[Vic] Sat[Uma] | rebuild 2 ch $30 open 6 | keep 2 ch $30 open 6
+call 0.084 extra 0 retail seed 28: Tue[Vic] Fri[Uma] Sat[Sam] | rebuild 4 ch $70 open 0 | keep 2 ch $32 open 0
+call 0.084 extra 0 retail seed 29: Sat[Sam+Tess] Sun[Vic] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 retail seed 30: Tue[Ruth] Fri[Uma] Sun[Sam] | rebuild 7 ch $111 open 6 | keep 4 ch $62 open 6
+call 0.084 extra 0 retail seed 31: Sun[Vic] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 retail seed 32: Thu[Tess] Sat[Vic] Sun[Tess] | rebuild 4 ch $68 open 0 | keep 2 ch $34 open 0
+call 0.084 extra 0 retail seed 33: Sat[Ruth] | rebuild 3 ch $47 open 6 | keep 3 ch $45 open 6
+call 0.084 extra 0 retail seed 34: Thu[Vic] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0 retail seed 35: Tue[Sam] Wed[Tess] Fri[Sam] Sat[Ruth] Sun[Ruth] | rebuild 13 ch $217 open 0 | keep 6 ch $102 open 0
+call 0.084 extra 0 retail seed 36: Tue[Sam] Wed[Tess] | rebuild 9 ch $155 open 0 | keep 3 ch $49 open 0
+call 0.084 extra 0 retail seed 37: Tue[Ruth+Sam] Fri[Vic] | rebuild 5 ch $81 open 0 | keep 4 ch $64 open 0
+call 0.084 extra 0 retail seed 38: Wed[Tess] Sat[Sam] | rebuild 13 ch $219 open 0 | keep 3 ch $49 open 0
+call 0.084 extra 0 retail seed 39: Thu[Tess] | rebuild 4 ch $68 open 0 | keep 2 ch $34 open 0
+TOTAL call 0.084 extra 0 retail rebuild reissues 39 (callers 42, extra copies 0), changes to others 171, people told 91, premiums $2855.00, net changes 119, final open 60 h, pay $82179.00, proven 39/39, 3.0 s
+TOTAL call 0.084 extra 0 retail keep    reissues 37 (callers 41, extra copies 0), changes to others 82, people told 48, premiums $1340.00, net changes 66, final open 66 h, pay $82182.00, proven 37/37, 3.3 s
+CMP call 0.084 extra 0 retail: 37 disrupted weeks (3 of 40 quiet); keep fewer changes 21, same 16, more 0; keep open hours up 1, down 0
+call 0.084 extra 0 clinic seed 0: Fri[Xia] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 1: Thu[Zed] Fri[Xia] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 2: Tue[Xia] Sun[Abe] | rebuild 4 ch $107 open 5 | keep 3 ch $73 open 5
+call 0.084 extra 0 clinic seed 3: Tue[Xia] | rebuild 4 ch $107 open 5 | keep 3 ch $73 open 5
+call 0.084 extra 0 clinic seed 4: Tue[Xia] | rebuild 4 ch $107 open 5 | keep 3 ch $73 open 5
+call 0.084 extra 0 clinic seed 5: Tue[Xia] Wed[Xia] Fri[Xia+Yan] Sun[Wen] | rebuild 8 ch $240 open 15 | keep 4 ch $107 open 15
+call 0.084 extra 0 clinic seed 6: Tue[Wen] Wed[Xia] Fri[Xia] | rebuild 7 ch $204 open 10 | keep 4 ch $106 open 10
+call 0.084 extra 0 clinic seed 7: Fri[Abe] Sat[Zed] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 8: Wed[Wen] Thu[Abe] Sat[Zed] Sun[Abe] | rebuild 5 ch $140 open 10 | keep 0 ch $0 open 10
+call 0.084 extra 0 clinic seed 10: Fri[Yan] Sun[Yan] | rebuild 1 ch $34 open 10 | keep 1 ch $34 open 10
+call 0.084 extra 0 clinic seed 11: Sun[Yan] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 12: Sat[Xia+Yan] Sun[Xia] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 13: Tue[Wen] Sun[Wen] | rebuild 5 ch $139 open 5 | keep 4 ch $106 open 5
+call 0.084 extra 0 clinic seed 14: Fri[Abe] Sat[Yan] Sun[Xia] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 15: Wed[Xia] Sun[Zed] | rebuild 2 ch $52 open 10 | keep 0 ch $0 open 10
+call 0.084 extra 0 clinic seed 16: Sun[Wen] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 17: Tue[Yan+Zed+Abe] Wed[Abe] Sat[Yan] | rebuild 8 ch $243 open 5 | keep 3 ch $75 open 5
+call 0.084 extra 0 clinic seed 19: Tue[Zed] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 20: Tue[Abe] Wed[Wen] Sat[Yan] Sun[Zed] | rebuild 9 ch $276 open 10 | keep 3 ch $75 open 10
+call 0.084 extra 0 clinic seed 21: Sat[Abe] | rebuild 0 ch $0 open 10 | keep 0 ch $0 open 10
+call 0.084 extra 0 clinic seed 22: Wed[Xia] Fri[Yan+Abe] Sat[Abe] | rebuild 3 ch $86 open 20 | keep 1 ch $34 open 20
+call 0.084 extra 0 clinic seed 23: Fri[Zed] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 24: Wed[Xia+Abe] Thu[Yan] | rebuild 2 ch $52 open 10 | keep 2 ch $64 open 10
+call 0.084 extra 0 clinic seed 25: Sun[Yan] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 26: Tue[Zed] Wed[Abe] Sat[Xia] Sun[Yan] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 27: Tue[Zed] Thu[Abe] Sat[Zed] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 28: Tue[Abe] Fri[Zed] Sat[Xia] | rebuild 8 ch $243 open 5 | keep 3 ch $75 open 5
+call 0.084 extra 0 clinic seed 29: Sat[Xia+Yan] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 30: Tue[Wen] Fri[Zed] Sun[Wen+Xia+Zed] | rebuild 5 ch $139 open 5 | keep 4 ch $106 open 5
+call 0.084 extra 0 clinic seed 32: Thu[Yan] Sat[Abe] Sun[Abe] | rebuild 2 ch $65 open 10 | keep 1 ch $31 open 10
+call 0.084 extra 0 clinic seed 33: Sat[Wen] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 34: Thu[Abe] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0 clinic seed 35: Tue[Xia] Wed[Yan] Fri[Xia] Sat[Wen] Sun[Yan] | rebuild 8 ch $239 open 10 | keep 4 ch $106 open 10
+call 0.084 extra 0 clinic seed 36: Tue[Xia] Wed[Yan] | rebuild 8 ch $239 open 10 | keep 4 ch $106 open 10
+call 0.084 extra 0 clinic seed 37: Tue[Wen+Xia] Fri[Abe] | rebuild 4 ch $104 open 10 | keep 3 ch $73 open 10
+call 0.084 extra 0 clinic seed 38: Wed[Yan] Sat[Xia] | rebuild 3 ch $97 open 10 | keep 1 ch $34 open 10
+call 0.084 extra 0 clinic seed 39: Thu[Yan] | rebuild 2 ch $65 open 5 | keep 1 ch $31 open 5
+TOTAL call 0.084 extra 0 clinic rebuild reissues 32 (callers 33, extra copies 0), changes to others 102, people told 69, premiums $2978.00, net changes 69, final open 270 h, pay $98451.00, proven 32/32, 6.3 s
+TOTAL call 0.084 extra 0 clinic keep    reissues 32 (callers 33, extra copies 0), changes to others 52, people told 39, premiums $1382.00, net changes 41, final open 270 h, pay $98221.00, proven 32/32, 6.3 s
+CMP call 0.084 extra 0 clinic: 37 disrupted weeks (3 of 40 quiet); keep fewer changes 19, same 18, more 0; keep open hours up 0, down 0
+call 0.084 extra 0.109 cafe seed 0: Tue[Eli] Thu[Eli] Fri[Fay +1] Sat[Cleo +2] Sun[Ana +1] | rebuild 7 ch $129 open 59 | keep 0 ch $0 open 59
+call 0.084 extra 0.109 cafe seed 1: Wed[Fay] Thu[Ana+Cleo+Eli] | rebuild 11 ch $191 open 15 | keep 9 ch $155 open 15
+call 0.084 extra 0.109 cafe seed 2: Wed[ +1] Sun[ +1] | rebuild 4 ch $58 open 26 | keep 0 ch $0 open 26
+call 0.084 extra 0.109 cafe seed 3: Tue[Ana+Dev +1] Wed[Dev+Eli+Gus] | rebuild 14 ch $238 open 39 | keep 10 ch $169 open 39
+call 0.084 extra 0.109 cafe seed 4: Wed[Ana] Thu[Eli +1] Fri[ +1] | rebuild 18 ch $306 open 31 | keep 2 ch $32 open 31
+call 0.084 extra 0.109 cafe seed 5: Tue[ +1] Wed[Dev +2] Fri[ +2] Sat[Ben +1] Sun[Dev+Eli+Gus] | rebuild 20 ch $339 open 76 | keep 2 ch $32 open 76
+call 0.084 extra 0.109 cafe seed 6: Tue[ +1] Thu[Ana +2] Fri[ +1] Sat[ +1] Sun[Gus +1] | rebuild 17 ch $282 open 60 | keep 5 ch $89 open 60
+call 0.084 extra 0.109 cafe seed 7: Wed[Ana+Dev] Sat[Ana] | rebuild 8 ch $140 open 23 | keep 6 ch $108 open 23
+call 0.084 extra 0.109 cafe seed 8: Tue[Eli] Wed[Cleo+Gus +1] Sun[Eli] | rebuild 7 ch $120 open 31 | keep 4 ch $66 open 31
+call 0.084 extra 0.109 cafe seed 9: Tue[ +1] Thu[ +1] Sat[ +1] Sun[Dev+Gus] | rebuild 13 ch $230 open 49 | keep 0 ch $0 open 49
+call 0.084 extra 0.109 cafe seed 10: Tue[ +1] Wed[Dev +1] Thu[Ana +1] Sat[Gus +1] | rebuild 22 ch $363 open 49 | keep 7 ch $121 open 49
+call 0.084 extra 0.109 cafe seed 11: Wed[Ana +1] Fri[Eli] | rebuild 2 ch $32 open 23 | keep 2 ch $32 open 23
+call 0.084 extra 0.109 cafe seed 12: Tue[ +1] Fri[ +1] Sat[ +1] | rebuild 8 ch $144 open 36 | keep 0 ch $0 open 36
+call 0.084 extra 0.109 cafe seed 13: Tue[Dev +1] Wed[ +1] Thu[ +1] Fri[ +1] Sat[Ana +1] Sun[Eli +1] | rebuild 18 ch $297 open 66 | keep 2 ch $32 open 66
+call 0.084 extra 0.109 cafe seed 14: Tue[ +1] Wed[Cleo] Fri[Eli +1] Sat[ +1] Sun[Ben] | rebuild 8 ch $144 open 36 | keep 0 ch $0 open 36
+call 0.084 extra 0.109 cafe seed 15: Thu[Ana] Sat[ +1] Sun[ +2] | rebuild 6 ch $103 open 39 | keep 5 ch $89 open 39
+call 0.084 extra 0.109 cafe seed 16: Tue[ +1] Wed[ +1] Fri[Cleo+Fay] Sat[Ben] Sun[ +1] | rebuild 19 ch $321 open 34 | keep 0 ch $0 open 42
+call 0.084 extra 0.109 cafe seed 17: Tue[ +2] Wed[Ben+Cleo] Fri[Ben+Fay] Sun[ +1] | rebuild 11 ch $191 open 47 | keep 0 ch $0 open 47
+call 0.084 extra 0.109 cafe seed 18: Tue[Cleo] Wed[Fay +1] Thu[ +1] Fri[Dev] Sat[Gus] | rebuild 16 ch $275 open 39 | keep 4 ch $66 open 47
+call 0.084 extra 0.109 cafe seed 19: Tue[ +1] Wed[Ana] | rebuild 14 ch $244 open 18 | keep 2 ch $32 open 18
+call 0.084 extra 0.109 cafe seed 20: Tue[Ana+Ben +1] Wed[Ana] Thu[ +1] Fri[Fay] Sat[ +1] | rebuild 35 ch $603 open 42 | keep 4 ch $67 open 42
+call 0.084 extra 0.109 cafe seed 21: Tue[Ben+Fay] Wed[Gus +1] Thu[Dev +1] Fri[Ben+Cleo] Sat[ +1] | rebuild 24 ch $419 open 47 | keep 11 ch $186 open 47
+call 0.084 extra 0.109 cafe seed 22: Tue[Ben] Thu[Ben] Sat[Dev+Gus] | rebuild 3 ch $52 open 23 | keep 2 ch $34 open 23
+call 0.084 extra 0.109 cafe seed 23: Wed[Eli] Thu[ +1] Fri[Ana] Sat[ +1] Sun[Ana] | rebuild 2 ch $38 open 31 | keep 1 ch $18 open 31
+call 0.084 extra 0.109 cafe seed 24: Tue[Eli+Fay] Thu[ +1] Fri[Ben] Sat[ +1] Sun[Dev] | rebuild 17 ch $278 open 31 | keep 7 ch $121 open 31
+call 0.084 extra 0.109 cafe seed 25: Tue[Cleo +1] Thu[Ana +1] Fri[ +1] | rebuild 17 ch $290 open 34 | keep 5 ch $89 open 34
+call 0.084 extra 0.109 cafe seed 26: Wed[Ana +1] Thu[ +2] Sat[Cleo+Eli] Sun[Dev] | rebuild 12 ch $201 open 54 | keep 2 ch $32 open 62
+call 0.084 extra 0.109 cafe seed 27: Tue[Ana+Eli +1] Wed[ +1] Thu[Cleo +1] Fri[ +2] Sat[ +2] Sun[Ana+Dev] | rebuild 29 ch $469 open 76 | keep 3 ch $49 open 76
+call 0.084 extra 0.109 cafe seed 28: Wed[ +1] Thu[Gus +1] | rebuild 14 ch $233 open 31 | keep 0 ch $0 open 31
+call 0.084 extra 0.109 cafe seed 29: Tue[Dev] Fri[Dev+Gus] Sat[Gus +1] Sun[Fay+Gus +1] | rebuild 13 ch $222 open 39 | keep 3 ch $51 open 47
+call 0.084 extra 0.109 cafe seed 30: Tue[ +2] Wed[Dev+Gus] Thu[Ana+Gus] Fri[ +1] Sat[Gus] | rebuild 26 ch $442 open 50 | keep 4 ch $67 open 50
+call 0.084 extra 0.109 cafe seed 31: Wed[ +1] Thu[ +2] Fri[Dev] Sun[Cleo +1] | rebuild 17 ch $288 open 45 | keep 0 ch $0 open 53
+call 0.084 extra 0.109 cafe seed 32: Tue[ +1] Wed[ +1] Thu[Dev+Fay] Fri[ +3] Sun[Fay] | rebuild 21 ch $359 open 53 | keep 3 ch $57 open 53
+call 0.084 extra 0.109 cafe seed 33: Tue[Dev+Eli +1] Wed[Ana+Gus +1] Fri[Ana] | rebuild 14 ch $228 open 47 | keep 6 ch $99 open 47
+call 0.084 extra 0.109 cafe seed 34: Tue[Dev] Wed[Ana+Fay] Fri[Gus] | rebuild 16 ch $271 open 31 | keep 9 ch $154 open 31
+call 0.084 extra 0.109 cafe seed 35: Thu[Ben+Dev] Fri[Fay] Sat[ +1] Sun[Fay] | rebuild 5 ch $93 open 31 | keep 3 ch $57 open 31
+call 0.084 extra 0.109 cafe seed 36: Tue[Dev+Fay] Wed[Ben +1] | rebuild 17 ch $294 open 26 | keep 2 ch $32 open 26
+call 0.084 extra 0.109 cafe seed 37: Tue[ +1] Fri[Ana +1] Sat[Gus] | rebuild 7 ch $121 open 31 | keep 1 ch $18 open 39
+call 0.084 extra 0.109 cafe seed 38: Wed[Ben+Dev +1] Thu[Ben +1] Fri[ +1] Sat[ +1] Sun[ +1] | rebuild 15 ch $263 open 52 | keep 5 ch $89 open 52
+call 0.084 extra 0.109 cafe seed 39: Sat[Ben+Eli] Sun[Gus] | rebuild 5 ch $87 open 41 | keep 0 ch $0 open 33
+TOTAL call 0.084 extra 0.109 cafe rebuild reissues 128 (callers 73, extra copies 104), changes to others 552, people told 275, premiums $9398.00, net changes 225, final open 1611 h, pay $143446.00, proven 128/128, 44.6 s
+TOTAL call 0.084 extra 0.109 cafe keep    reissues 132 (callers 79, extra copies 104), changes to others 131, people told 64, premiums $2243.00, net changes 91, final open 1651 h, pay $142766.00, proven 132/132, 25.7 s
+CMP call 0.084 extra 0.109 cafe: 40 disrupted weeks (0 of 40 quiet); keep fewer changes 39, same 1, more 0; keep open hours up 6, down 1
+call 0.084 extra 0.109 spare seed 0: Tue[Eli] Thu[Cleo +1] Fri[Cleo+Hal +1] Sat[Fay+Hal] Sun[Dev] | rebuild 14 ch $238 open 22 | keep 7 ch $119 open 22
+call 0.084 extra 0.109 spare seed 1: Wed[Eli +1] Thu[Ana+Cleo] Sun[Gus] | rebuild 15 ch $245 open 9 | keep 4 ch $66 open 6
+call 0.084 extra 0.109 spare seed 2: Wed[ +1] Sun[Cleo +1] | rebuild 11 ch $179 open 19 | keep 2 ch $36 open 19
+call 0.084 extra 0.109 spare seed 3: Tue[Ana+Dev +1] Wed[Cleo+Dev+Fay] | rebuild 18 ch $296 open 22 | keep 4 ch $64 open 22
+call 0.084 extra 0.109 spare seed 4: Tue[ +1] Thu[Cleo] Fri[Eli] | rebuild 14 ch $237 open 3 | keep 3 ch $53 open 3
+call 0.084 extra 0.109 spare seed 5: Tue[Hal] Wed[Cleo +2] Fri[ +2] Sat[Gus +2] Sun[Ben +1] | rebuild 15 ch $251 open 41 | keep 5 ch $89 open 41
+call 0.084 extra 0.109 spare seed 6: Tue[ +1] Wed[ +1] Sat[Fay] Sun[Ben+Eli+Gus +1] | rebuild 33 ch $564 open 20 | keep 9 ch $144 open 22
+call 0.084 extra 0.109 spare seed 7: Tue[ +1] Wed[Cleo] Fri[ +1] Sun[Gus] | rebuild 19 ch $325 open 9 | keep 5 ch $89 open 9
+call 0.084 extra 0.109 spare seed 8: Tue[Eli] Wed[Ben+Fay +1] Sat[ +2] | rebuild 16 ch $272 open 22 | keep 6 ch $102 open 27
+call 0.084 extra 0.109 spare seed 9: Tue[ +1] Thu[Gus] Sat[ +1] Sun[Ben +1] | rebuild 24 ch $407 open 17 | keep 10 ch $174 open 17
+call 0.084 extra 0.109 spare seed 10: Tue[ +1] Wed[Cleo+Gus +1] Thu[ +1] Sat[Cleo] Sun[Fay] | rebuild 29 ch $491 open 25 | keep 15 ch $251 open 25
+call 0.084 extra 0.109 spare seed 11: Tue[ +1] Wed[ +1] Fri[Ben] Sat[ +1] | rebuild 23 ch $400 open 17 | keep 10 ch $172 open 17
+call 0.084 extra 0.109 spare seed 12: Tue[ +1] Sat[Fay] Sun[ +1] | rebuild 21 ch $361 open 9 | keep 3 ch $53 open 11
+call 0.084 extra 0.109 spare seed 13: Tue[Dev +1] Wed[ +1] Thu[ +1] Fri[ +1] Sat[Eli +1] Sun[Fay+Gus +1] | rebuild 24 ch $396 open 51 | keep 14 ch $230 open 51
+call 0.084 extra 0.109 spare seed 14: Tue[ +1] Wed[Ben] Fri[Ben+Fay] Sat[ +1] Sun[ +1] | rebuild 35 ch $598 open 17 | keep 11 ch $188 open 17
+call 0.084 extra 0.109 spare seed 15: Wed[ +1] Sat[Eli] Sun[Cleo+Eli] | rebuild 12 ch $201 open 27 | keep 2 ch $36 open 27
+call 0.084 extra 0.109 spare seed 16: Tue[ +1] Wed[Hal] Thu[ +1] Fri[Cleo +1] Sat[ +1] | rebuild 34 ch $588 open 20 | keep 7 ch $123 open 20
+call 0.084 extra 0.109 spare seed 17: Tue[Hal +1] Wed[Ana+Ben] Thu[ +1] Fri[Cleo] Sun[Eli] | rebuild 33 ch $562 open 25 | keep 10 ch $166 open 20
+call 0.084 extra 0.109 spare seed 18: Tue[Cleo] Wed[Eli+Hal] Thu[ +1] Fri[Ana] Sat[Cleo] | rebuild 11 ch $188 open 12 | keep 8 ch $139 open 17
+call 0.084 extra 0.109 spare seed 19: Tue[ +2] Thu[ +1] | rebuild 23 ch $392 open 12 | keep 8 ch $133 open 12
+call 0.084 extra 0.109 spare seed 20: Tue[Ana+Ben +2] Thu[ +1] Fri[Cleo] Sat[Gus] | rebuild 18 ch $303 open 22 | keep 13 ch $221 open 22
+call 0.084 extra 0.109 spare seed 21: Tue[Ben+Fay] Wed[Fay+Gus] Thu[Ben+Fay +2] Sat[Gus] Sun[Hal +1] | rebuild 28 ch $475 open 36 | keep 14 ch $233 open 36
+call 0.084 extra 0.109 spare seed 22: Tue[Ben] Wed[ +1] Fri[ +1] Sat[Cleo] | rebuild 32 ch $545 open 17 | keep 7 ch $117 open 17
+call 0.084 extra 0.109 spare seed 23: Wed[Dev] Thu[ +1] Sat[Eli+Hal] | rebuild 17 ch $272 open 9 | keep 8 ch $129 open 9
+call 0.084 extra 0.109 spare seed 24: Tue[Eli+Fay] Thu[ +2] Sat[Eli +1] | rebuild 28 ch $468 open 30 | keep 15 ch $249 open 30
+call 0.084 extra 0.109 spare seed 25: Tue[Cleo +1] Wed[ +1] Sun[ +1] | rebuild 26 ch $447 open 17 | keep 5 ch $87 open 17
+call 0.084 extra 0.109 spare seed 26: Tue[ +1] Wed[Gus] Thu[Gus+Hal] Fri[ +1] Sat[Ana +1] Sun[Hal] | rebuild 34 ch $557 open 27 | keep 22 ch $372 open 31
+call 0.084 extra 0.109 spare seed 27: Tue[Ana+Eli+Hal] Wed[ +1] Thu[Ana +1] Fri[Gus] Sat[Eli+Fay+Hal +1] Sun[Hal] | rebuild 38 ch $642 open 33 | keep 14 ch $231 open 33
+call 0.084 extra 0.109 spare seed 28: Wed[ +1] Thu[Eli] Fri[ +1] Sun[Fay+Gus] | rebuild 16 ch $262 open 9 | keep 4 ch $72 open 9
+call 0.084 extra 0.109 spare seed 29: Tue[Dev +1] Fri[Ana+Dev +1] Sat[Cleo +1] Sun[Ana+Ben+Hal +1] | rebuild 21 ch $350 open 49 | keep 11 ch $179 open 44
+call 0.084 extra 0.109 spare seed 30: Tue[ +2] Wed[Cleo+Fay +1] Thu[Eli] Fri[Gus] Sat[Cleo] | rebuild 31 ch $528 open 23 | keep 14 ch $238 open 23
+call 0.084 extra 0.109 spare seed 31: Wed[ +1] Thu[Fay+Hal] Fri[Ana] Sat[ +1] Sun[Eli+Hal +1] | rebuild 24 ch $387 open 33 | keep 12 ch $202 open 28
+call 0.084 extra 0.109 spare seed 32: Tue[ +1] Wed[ +1] Thu[Ben+Dev] Fri[Gus +1] Sun[Ana+Hal] | rebuild 33 ch $550 open 25 | keep 5 ch $89 open 20
+call 0.084 extra 0.109 spare seed 33: Tue[Dev+Eli +2] Wed[Fay +2] Thu[ +1] Sat[ +1] | rebuild 23 ch $386 open 42 | keep 13 ch $211 open 42
+call 0.084 extra 0.109 spare seed 34: Tue[Dev +1] Wed[Eli] Fri[Dev +1] | rebuild 18 ch $302 open 17 | keep 8 ch $132 open 17
+call 0.084 extra 0.109 spare seed 35: Wed[ +1] Thu[Ben] Fri[Cleo +1] Sat[Eli] Sun[Ana +1] | rebuild 17 ch $278 open 25 | keep 4 ch $72 open 25
+call 0.084 extra 0.109 spare seed 36: Tue[Dev+Fay] Wed[Ana +1] | rebuild 18 ch $299 open 12 | keep 13 ch $213 open 12
+call 0.084 extra 0.109 spare seed 37: Tue[ +1] Thu[ +2] Sat[Cleo +1] | rebuild 23 ch $396 open 28 | keep 7 ch $123 open 28
+call 0.084 extra 0.109 spare seed 38: Wed[Ana+Cleo +1] Thu[Fay] Fri[Gus] Sat[Fay +1] Sun[Dev] | rebuild 21 ch $336 open 17 | keep 10 ch $169 open 17
+call 0.084 extra 0.109 spare seed 39: Fri[ +1] Sat[Ana] Sun[Ben] | rebuild 4 ch $67 open 6 | keep 2 ch $38 open 6
+TOTAL call 0.084 extra 0.109 spare rebuild reissues 130 (callers 73, extra copies 108), changes to others 894, people told 445, premiums $15041.00, net changes 500, final open 876 h, pay $155397.00, proven 130/130, 52.4 s
+TOTAL call 0.084 extra 0.109 spare keep    reissues 134 (callers 77, extra copies 108), changes to others 344, people told 198, premiums $5804.00, net changes 236, final open 871 h, pay $155567.00, proven 134/134, 50.0 s
+CMP call 0.084 extra 0.109 spare: 40 disrupted weeks (0 of 40 quiet); keep fewer changes 40, same 0, more 0; keep open hours up 5, down 5
+call 0.084 extra 0.109 salon seed 0: Tue[Quin] Fri[ +1] Sat[ +1] Sun[Noah] | rebuild 2 ch $46 open 5 | keep 1 ch $24 open 5
+call 0.084 extra 0.109 salon seed 1: Tue[ +1] Thu[Paz] Fri[Noah+Paz +1] | rebuild 6 ch $134 open 28 | keep 0 ch $0 open 28
+call 0.084 extra 0.109 salon seed 2: Thu[ +1] | rebuild 4 ch $86 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0.109 salon seed 3: Tue[Mia+Paz] Wed[Quin] Thu[Noah+Orla+Quin] | rebuild 4 ch $69 open 18 | keep 1 ch $16 open 18
+call 0.084 extra 0.109 salon seed 4: Wed[ +1] Fri[ +1] Sun[Paz] | rebuild 4 ch $90 open 5 | keep 3 ch $68 open 5
+call 0.084 extra 0.109 salon seed 5: Wed[Mia +1] Thu[Noah +1] Fri[Mia] | rebuild 5 ch $104 open 23 | keep 2 ch $44 open 23
+call 0.084 extra 0.109 salon seed 6: Wed[Paz] Fri[Noah] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0.109 salon seed 7: Wed[ +1] Thu[Noah] | rebuild 6 ch $132 open 5 | keep 4 ch $92 open 5
+call 0.084 extra 0.109 salon seed 8: Tue[Quin] Thu[Mia+Quin +1] | rebuild 3 ch $54 open 10 | keep 0 ch $0 open 10
+call 0.084 extra 0.109 salon seed 9: Wed[Quin] Fri[ +1] Sat[Mia] | rebuild 2 ch $46 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0.109 salon seed 10: Wed[Noah] Thu[Noah +1] Fri[Noah] Sat[Paz] | rebuild 4 ch $88 open 15 | keep 1 ch $24 open 15
+call 0.084 extra 0.109 salon seed 11: Wed[ +1] Thu[ +1] Sun[Mia] | rebuild 7 ch $152 open 5 | keep 3 ch $68 open 5
+call 0.084 extra 0.109 salon seed 13: Tue[Paz] Thu[ +1] Sat[Paz] | rebuild 5 ch $110 open 5 | keep 1 ch $24 open 5
+call 0.084 extra 0.109 salon seed 14: Tue[ +1] Wed[Orla] Thu[Mia] Fri[ +1] Sun[Mia+Quin] | rebuild 13 ch $281 open 18 | keep 4 ch $83 open 18
+call 0.084 extra 0.109 salon seed 15: Fri[Noah] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0.109 salon seed 16: Wed[Orla] Thu[ +1] Sat[ +1] Sun[Noah] | rebuild 12 ch $257 open 5 | keep 5 ch $105 open 5
+call 0.084 extra 0.109 salon seed 17: Wed[Mia+Quin +1] Thu[Mia] Sat[ +1] Sun[Noah] | rebuild 6 ch $126 open 13 | keep 3 ch $66 open 13
+call 0.084 extra 0.109 salon seed 18: Tue[Orla] Thu[Paz +1] Sat[Orla +1] | rebuild 3 ch $70 open 10 | keep 1 ch $24 open 10
+call 0.084 extra 0.109 salon seed 19: Wed[ +1] | rebuild 3 ch $68 open 0 | keep 3 ch $68 open 0
+call 0.084 extra 0.109 salon seed 20: Tue[Mia+Noah] Wed[Orla +1] Sun[Noah] | rebuild 6 ch $107 open 24 | keep 3 ch $53 open 24
+call 0.084 extra 0.109 salon seed 21: Tue[Noah +1] Thu[Quin +1] Fri[Quin +1] Sat[ +2] | rebuild 9 ch $188 open 34 | keep 1 ch $24 open 34
+call 0.084 extra 0.109 salon seed 22: Tue[Noah] Fri[Orla +1] | rebuild 7 ch $133 open 18 | keep 0 ch $0 open 18
+call 0.084 extra 0.109 salon seed 23: Thu[Orla] Sat[Quin] | rebuild 7 ch $145 open 5 | keep 1 ch $24 open 5
+call 0.084 extra 0.109 salon seed 24: Tue[Quin +1] Sat[Paz +1] | rebuild 5 ch $110 open 16 | keep 1 ch $24 open 16
+call 0.084 extra 0.109 salon seed 25: Tue[Orla] Wed[Noah] Fri[Noah] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0.109 salon seed 26: Wed[ +1] Thu[ +1] Sat[Mia+Noah] | rebuild 5 ch $106 open 5 | keep 4 ch $90 open 5
+call 0.084 extra 0.109 salon seed 27: Tue[Mia+Quin] Wed[Mia] Fri[Paz] Sat[Orla] Sun[ +1] | rebuild 10 ch $200 open 13 | keep 5 ch $96 open 13
+call 0.084 extra 0.109 salon seed 28: Thu[ +1] Fri[ +2] | rebuild 4 ch $86 open 15 | keep 0 ch $0 open 15
+call 0.084 extra 0.109 salon seed 29: Tue[Paz] Wed[ +1] Sat[ +1] Sun[Orla] | rebuild 4 ch $90 open 0 | keep 4 ch $90 open 0
+call 0.084 extra 0.109 salon seed 30: Wed[Paz+Quin] Thu[Noah+Quin] Fri[Noah +1] Sun[ +1] | rebuild 4 ch $84 open 15 | keep 1 ch $20 open 15
+call 0.084 extra 0.109 salon seed 31: Thu[ +1] Fri[ +2] Sat[Noah +1] | rebuild 6 ch $134 open 23 | keep 1 ch $24 open 23
+call 0.084 extra 0.109 salon seed 32: Fri[Mia+Quin +1] Sun[ +1] | rebuild 3 ch $58 open 10 | keep 1 ch $20 open 10
+call 0.084 extra 0.109 salon seed 33: Tue[Paz+Quin +1] Wed[Quin +1] Thu[Quin +1] Sat[Quin] | rebuild 10 ch $222 open 13 | keep 4 ch $90 open 13
+call 0.084 extra 0.109 salon seed 34: Tue[Paz] Wed[ +1] Thu[Paz] Sun[Orla] | rebuild 3 ch $68 open 5 | keep 3 ch $68 open 5
+call 0.084 extra 0.109 salon seed 35: Fri[Orla+Quin] Sun[Noah] | rebuild 3 ch $61 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0.109 salon seed 36: Tue[Paz +1] Wed[ +1] Thu[ +1] Sat[ +1] | rebuild 10 ch $222 open 13 | keep 4 ch $90 open 13
+call 0.084 extra 0.109 salon seed 37: Wed[Quin] Sat[Quin +2] | rebuild 1 ch $24 open 16 | keep 1 ch $24 open 16
+call 0.084 extra 0.109 salon seed 38: Wed[ +1] Thu[Noah +1] Fri[Orla +1] Sun[ +1] | rebuild 8 ch $162 open 20 | keep 5 ch $98 open 20
+TOTAL call 0.084 extra 0.109 salon rebuild reissues 87 (callers 47, extra copies 64), changes to others 194, people told 141, premiums $4113.00, net changes 110, final open 440 h, pay $78716.00, proven 87/87, 4.2 s
+TOTAL call 0.084 extra 0.109 salon keep    reissues 87 (callers 47, extra copies 64), changes to others 71, people told 56, premiums $1541.00, net changes 44, final open 440 h, pay $78482.00, proven 87/87, 4.6 s
+CMP call 0.084 extra 0.109 salon: 38 disrupted weeks (2 of 40 quiet); keep fewer changes 31, same 7, more 0; keep open hours up 0, down 0
+call 0.084 extra 0.109 retail seed 0: Tue[Vic] Fri[Vic] Sat[ +1] Sun[Sam +1] | rebuild 12 ch $198 open 12 | keep 8 ch $130 open 6
+call 0.084 extra 0.109 retail seed 1: Tue[ +1] Thu[Sam] Fri[Ruth+Tess+Vic] | rebuild 18 ch $297 open 12 | keep 4 ch $68 open 6
+call 0.084 extra 0.109 retail seed 2: Thu[ +1] | rebuild 2 ch $36 open 0 | keep 1 ch $17 open 0
+call 0.084 extra 0.109 retail seed 3: Tue[Ruth+Uma] Wed[Uma +1] Thu[Ruth+Tess] | rebuild 20 ch $323 open 0 | keep 7 ch $113 open 6
+call 0.084 extra 0.109 retail seed 4: Wed[Vic] Fri[Vic] Sun[Uma] | rebuild 10 ch $166 open 6 | keep 4 ch $68 open 0
+call 0.084 extra 0.109 retail seed 5: Tue[ +1] Wed[ +2] Thu[ +2] | rebuild 30 ch $505 open 12 | keep 12 ch $195 open 12
+call 0.084 extra 0.109 retail seed 6: Wed[Tess] Fri[Ruth] | rebuild 13 ch $219 open 0 | keep 3 ch $49 open 0
+call 0.084 extra 0.109 retail seed 7: Wed[Vic +1] | rebuild 6 ch $102 open 6 | keep 2 ch $32 open 6
+call 0.084 extra 0.109 retail seed 8: Tue[Vic] Wed[ +1] Thu[Tess +1] | rebuild 19 ch $324 open 6 | keep 9 ch $148 open 6
+call 0.084 extra 0.109 retail seed 9: Wed[Uma] Fri[ +1] Sat[Ruth] | rebuild 14 ch $230 open 6 | keep 4 ch $64 open 6
+call 0.084 extra 0.109 retail seed 10: Wed[Ruth +1] Thu[Uma] Fri[Ruth] Sat[Uma] | rebuild 12 ch $196 open 18 | keep 4 ch $62 open 18
+call 0.084 extra 0.109 retail seed 11: Wed[Vic] Thu[ +1] Sun[Ruth] | rebuild 11 ch $183 open 0 | keep 5 ch $83 open 0
+call 0.084 extra 0.109 retail seed 13: Tue[Uma] Thu[ +1] Sat[Uma] Sun[ +1] | rebuild 4 ch $66 open 15 | keep 3 ch $47 open 15
+call 0.084 extra 0.109 retail seed 14: Tue[ +1] Wed[Sam +1] Sun[Ruth+Vic] | rebuild 19 ch $324 open 6 | keep 6 ch $100 open 0
+call 0.084 extra 0.109 retail seed 15: Fri[Ruth] | rebuild 0 ch $0 open 0 | keep 0 ch $0 open 0
+call 0.084 extra 0.109 retail seed 16: Wed[Sam] Thu[Vic] Sat[ +1] Sun[Sam] | rebuild 6 ch $100 open 12 | keep 4 ch $64 open 12
+call 0.084 extra 0.109 retail seed 17: Tue[ +1] Wed[Uma +2] Sat[ +1] Sun[Sam] | rebuild 28 ch $469 open 15 | keep 8 ch $130 open 21
+call 0.084 extra 0.109 retail seed 18: Tue[Tess] Thu[Sam+Vic] Sat[Tess +1] | rebuild 22 ch $360 open 6 | keep 6 ch $100 open 0
+call 0.084 extra 0.109 retail seed 19: Wed[Vic] | rebuild 6 ch $98 open 0 | keep 2 ch $32 open 0
+call 0.084 extra 0.109 retail seed 20: Tue[Ruth+Sam] Wed[Sam+Vic] Sun[Sam] | rebuild 10 ch $158 open 6 | keep 6 ch $94 open 6
+call 0.084 extra 0.109 retail seed 21: Tue[Sam +1] Thu[Tess+Uma] Fri[Uma +1] Sat[ +2] | rebuild 17 ch $286 open 15 | keep 14 ch $228 open 12
+call 0.084 extra 0.109 retail seed 22: Tue[Sam] Fri[Sam +1] | rebuild 3 ch $53 open 6 | keep 1 ch $19 open 6
+call 0.084 extra 0.109 retail seed 23: Thu[Ruth] Sat[Vic] | rebuild 6 ch $100 open 0 | keep 4 ch $66 open 0
+call 0.084 extra 0.109 retail seed 24: Tue[Vic +1] Sat[Uma +1] | rebuild 12 ch $204 open 18 | keep 6 ch $94 open 18
+call 0.084 extra 0.109 retail seed 25: Tue[Tess] Wed[Ruth] Fri[Ruth] | rebuild 16 ch $266 open 0 | keep 6 ch $97 open 0
+call 0.084 extra 0.109 retail seed 26: Wed[Vic] Thu[Uma] Sat[Ruth+Sam] | rebuild 10 ch $162 open 6 | keep 5 ch $77 open 6
+call 0.084 extra 0.109 retail seed 27: Tue[Ruth+Vic +1] Thu[ +1] Fri[Tess] Sat[Tess] Sun[ +1] | rebuild 17 ch $282 open 12 | keep 8 ch $130 open 18
+call 0.084 extra 0.109 retail seed 28: Wed[ +1] Thu[ +1] Fri[ +2] | rebuild 10 ch $172 open 12 | keep 6 ch $100 open 12
+call 0.084 extra 0.109 retail seed 29: Tue[Uma] Sat[ +1] Sun[Tess] | rebuild 3 ch $45 open 6 | keep 3 ch $45 open 6
+call 0.084 extra 0.109 retail seed 30: Wed[Tess+Uma +1] Thu[Tess] Fri[Ruth +1] Sun[ +1] | rebuild 18 ch $312 open 12 | keep 6 ch $100 open 12
+call 0.084 extra 0.109 retail seed 31: Thu[ +1] Fri[ +1] Sat[Sam +1] | rebuild 6 ch $100 open 6 | keep 5 ch $81 open 6
+call 0.084 extra 0.109 retail seed 32: Wed[ +1] Thu[ +1] Fri[Uma +1] Sun[ +1] | rebuild 11 ch $187 open 12 | keep 8 ch $130 open 12
+call 0.084 extra 0.109 retail seed 33: Tue[Uma+Vic +1] Wed[Uma+Vic] Thu[Tess +1] Sat[Vic] | rebuild 24 ch $403 open 12 | keep 6 ch $95 open 12
+call 0.084 extra 0.109 retail seed 34: Tue[Uma] Wed[Vic] Thu[Sam] Sun[Tess] | rebuild 6 ch $98 open 0 | keep 2 ch $32 open 0
+call 0.084 extra 0.109 retail seed 35: Fri[Sam+Uma] Sun[Sam] | rebuild 5 ch $83 open 6 | keep 3 ch $49 open 6
+call 0.084 extra 0.109 retail seed 36: Tue[Uma +1] Wed[ +1] Thu[ +1] Sat[ +1] | rebuild 18 ch $295 open 9 | keep 15 ch $246 open 9
+call 0.084 extra 0.109 retail seed 37: Wed[Uma] Sat[Vic +2] Sun[ +1] | rebuild 6 ch $94 open 21 | keep 6 ch $94 open 21
+call 0.084 extra 0.109 retail seed 38: Wed[ +2] Fri[Sam +1] Sun[ +1] | rebuild 10 ch $172 open 18 | keep 6 ch $102 open 12
+TOTAL call 0.084 extra 0.109 retail rebuild reissues 96 (callers 55, extra copies 64), changes to others 460, people told 234, premiums $7668.00, net changes 219, final open 309 h, pay $87663.00, proven 96/96, 13.6 s
+TOTAL call 0.084 extra 0.109 retail keep    reissues 95 (callers 53, extra copies 64), changes to others 208, people told 126, premiums $3381.00, net changes 142, final open 288 h, pay $88206.00, proven 95/95, 12.2 s
+CMP call 0.084 extra 0.109 retail: 38 disrupted weeks (2 of 40 quiet); keep fewer changes 35, same 3, more 0; keep open hours up 3, down 7
+call 0.084 extra 0.109 clinic seed 0: Tue[Abe] Fri[Abe] Sat[ +1] Sun[Zed] | rebuild 8 ch $243 open 10 | keep 3 ch $75 open 10
+call 0.084 extra 0.109 clinic seed 1: Tue[ +1] Thu[Xia] Fri[Wen+Yan+Abe] | rebuild 11 ch $317 open 19 | keep 3 ch $73 open 24
+call 0.084 extra 0.109 clinic seed 2: Thu[ +1] | rebuild 2 ch $64 open 5 | keep 1 ch $31 open 5
+call 0.084 extra 0.109 clinic seed 3: Tue[Wen+Zed] Wed[Zed +1] Thu[Wen+Yan] | rebuild 11 ch $309 open 15 | keep 6 ch $148 open 15
+call 0.084 extra 0.109 clinic seed 4: Wed[Abe] Fri[Abe] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0.109 clinic seed 5: Tue[ +1] Wed[ +2] Thu[ +2] | rebuild 11 ch $336 open 25 | keep 5 ch $139 open 25
+call 0.084 extra 0.109 clinic seed 6: Wed[Yan] Fri[Wen] | rebuild 3 ch $97 open 15 | keep 1 ch $34 open 15
+call 0.084 extra 0.109 clinic seed 7: Wed[Abe +1] | rebuild 0 ch $0 open 10 | keep 0 ch $0 open 10
+call 0.084 extra 0.109 clinic seed 8: Tue[Abe] Wed[ +1] Thu[Yan +1] | rebuild 13 ch $408 open 15 | keep 5 ch $142 open 15
+call 0.084 extra 0.109 clinic seed 9: Wed[Zed] Fri[ +1] Sat[Wen] | rebuild 1 ch $34 open 10 | keep 1 ch $34 open 10
+call 0.084 extra 0.109 clinic seed 10: Wed[Wen +1] Thu[Zed] Fri[Wen] Sat[Zed] | rebuild 3 ch $85 open 20 | keep 0 ch $0 open 20
+call 0.084 extra 0.109 clinic seed 11: Wed[Abe] Thu[ +1] Sun[Yan] | rebuild 2 ch $65 open 5 | keep 1 ch $31 open 5
+call 0.084 extra 0.109 clinic seed 13: Tue[Zed] Thu[ +1] Sat[Zed] | rebuild 2 ch $64 open 5 | keep 1 ch $31 open 5
+call 0.084 extra 0.109 clinic seed 14: Tue[ +1] Wed[Xia +1] Sun[Yan] | rebuild 9 ch $275 open 15 | keep 4 ch $107 open 15
+call 0.084 extra 0.109 clinic seed 15: Fri[Wen] | rebuild 0 ch $0 open 10 | keep 0 ch $0 open 10
+call 0.084 extra 0.109 clinic seed 16: Wed[Xia] Thu[Abe] Sun[Wen+Zed] | rebuild 5 ch $140 open 10 | keep 0 ch $0 open 10
+call 0.084 extra 0.109 clinic seed 17: Tue[ +1] Wed[Zed +2] Sat[ +1] Sun[Zed] | rebuild 9 ch $274 open 20 | keep 6 ch $173 open 20
+call 0.084 extra 0.109 clinic seed 18: Tue[Yan] Thu[Xia+Abe] Sat[Yan] Sun[Xia] | rebuild 1 ch $31 open 5 | keep 1 ch $31 open 5
+call 0.084 extra 0.109 clinic seed 19: Wed[Abe] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0.109 clinic seed 20: Tue[Wen+Xia] Wed[Xia+Abe] Sun[Zed] | rebuild 5 ch $138 open 15 | keep 3 ch $73 open 15
+call 0.084 extra 0.109 clinic seed 21: Tue[Xia +1] Thu[Yan+Zed] Fri[Zed +1] Sat[ +1] Sun[Wen] | rebuild 6 ch $172 open 20 | keep 3 ch $73 open 20
+call 0.084 extra 0.109 clinic seed 22: Tue[Xia] Fri[Xia +1] | rebuild 5 ch $141 open 10 | keep 4 ch $107 open 10
+call 0.084 extra 0.109 clinic seed 23: Thu[Wen] Sat[Abe] | rebuild 2 ch $64 open 10 | keep 1 ch $31 open 10
+call 0.084 extra 0.109 clinic seed 24: Tue[Abe +1] Sat[Zed +1] | rebuild 6 ch $175 open 15 | keep 3 ch $75 open 15
+call 0.084 extra 0.109 clinic seed 25: Tue[Yan] Wed[Wen] Fri[Wen] | rebuild 3 ch $85 open 15 | keep 0 ch $0 open 15
+call 0.084 extra 0.109 clinic seed 26: Wed[Abe] Thu[Zed] Sat[Wen+Xia] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0.109 clinic seed 27: Tue[Wen+Abe +1] Thu[ +1] Fri[Yan] Sat[Yan] | rebuild 5 ch $140 open 25 | keep 4 ch $109 open 25
+call 0.084 extra 0.109 clinic seed 28: Wed[ +1] Thu[ +1] Fri[ +2] | rebuild 4 ch $132 open 20 | keep 2 ch $65 open 20
+call 0.084 extra 0.109 clinic seed 29: Tue[Zed] Sun[Xia+Abe] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0.109 clinic seed 30: Wed[Yan+Zed +1] Thu[Yan] Fri[Wen +1] | rebuild 6 ch $195 open 29 | keep 2 ch $65 open 29
+call 0.084 extra 0.109 clinic seed 31: Thu[ +1] Fri[ +1] Sat[Xia] Sun[Xia] | rebuild 2 ch $64 open 10 | keep 1 ch $31 open 10
+call 0.084 extra 0.109 clinic seed 32: Wed[ +1] Thu[ +1] Fri[Zed +1] | rebuild 7 ch $232 open 15 | keep 2 ch $65 open 15
+call 0.084 extra 0.109 clinic seed 33: Tue[Zed+Abe +1] Wed[Zed+Abe] Thu[Yan +1] Sat[Abe] | rebuild 4 ch $109 open 20 | keep 3 ch $76 open 20
+call 0.084 extra 0.109 clinic seed 34: Tue[Zed] Wed[Abe] Thu[Xia] Sun[Abe] | rebuild 1 ch $31 open 5 | keep 1 ch $31 open 5
+call 0.084 extra 0.109 clinic seed 35: Fri[Xia+Zed] Sun[Zed] | rebuild 0 ch $0 open 5 | keep 0 ch $0 open 5
+call 0.084 extra 0.109 clinic seed 36: Tue[Zed +1] Wed[ +1] Thu[ +1] | rebuild 12 ch $370 open 15 | keep 5 ch $139 open 15
+call 0.084 extra 0.109 clinic seed 37: Wed[Zed] Sat[Abe +1] | rebuild 0 ch $0 open 15 | keep 0 ch $0 open 15
+call 0.084 extra 0.109 clinic seed 38: Wed[ +2] Fri[Xia +1] | rebuild 1 ch $33 open 20 | keep 0 ch $0 open 20
+TOTAL call 0.084 extra 0.109 clinic rebuild reissues 69 (callers 35, extra copies 50), changes to others 160, people told 111, premiums $4823.00, net changes 107, final open 498 h, pay $103407.00, proven 69/69, 14.1 s
+TOTAL call 0.084 extra 0.109 clinic keep    reissues 68 (callers 35, extra copies 50), changes to others 72, people told 54, premiums $1989.00, net changes 62, final open 503 h, pay $103088.00, proven 68/68, 13.4 s
+CMP call 0.084 extra 0.109 clinic: 38 disrupted weeks (2 of 40 quiet); keep fewer changes 27, same 11, more 0; keep open hours up 1, down 0
+ALL call 0.01 extra 0 rebuild reissues 41 (callers 41, extra copies 0), changes to others 174, people told 104, premiums $3175.00, net changes 157, final open 351 h, pay $182867.00, proven 41/41, 5.7 s
+ALL call 0.01 extra 0 keep    reissues 41 (callers 41, extra copies 0), changes to others 69, people told 37, premiums $1239.00, net changes 65, final open 354 h, pay $182503.00, proven 41/41, 5.7 s
+ALL call 0.01 extra 0.109 rebuild reissues 374 (callers 44, extra copies 394), changes to others 1597, people told 907, premiums $29195.00, net changes 1031, final open 2814 h, pay $560012.00, proven 374/374, 97.8 s
+ALL call 0.01 extra 0.109 keep    reissues 375 (callers 45, extra copies 394), changes to others 547, people told 344, premiums $10099.00, net changes 476, final open 2809 h, pay $560104.00, proven 375/375, 82.1 s
+ALL call 0.084 extra 0 rebuild reissues 260 (callers 281, extra copies 0), changes to others 1276, people told 663, premiums $23019.00, net changes 818, final open 1657 h, pay $546306.00, proven 260/260, 47.2 s
+ALL call 0.084 extra 0 keep    reissues 259 (callers 281, extra copies 0), changes to others 557, people told 309, premiums $9922.00, net changes 419, final open 1637 h, pay $546294.00, proven 259/259, 44.3 s
+ALL call 0.084 extra 0.109 rebuild reissues 510 (callers 283, extra copies 390), changes to others 2260, people told 1206, premiums $41043.00, net changes 1161, final open 3734 h, pay $568629.00, proven 510/510, 129.0 s
+ALL call 0.084 extra 0.109 keep    reissues 516 (callers 291, extra copies 390), changes to others 826, people told 498, premiums $14958.00, net changes 575, final open 3753 h, pay $568109.00, proven 516/516, 106.0 s

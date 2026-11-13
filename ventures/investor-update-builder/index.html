@@ -43,6 +43,14 @@
     textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; min-height: 84px; }
     #email { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; min-height: 420px; background: #fbfcff; }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #months:empty{min-height:1276px}}
+@media (scripting:enabled) and (min-width:328px){html:not(.pf-rows-ready) #months:empty{min-height:748px}}
+@media (scripting:enabled) and (min-width:444px){html:not(.pf-rows-ready) #months:empty{min-height:600px}}
+@media (scripting:enabled) and (min-width:564px){html:not(.pf-rows-ready) #months:empty{min-height:484px}}
+@media (scripting:enabled) and (min-width:680px){html:not(.pf-rows-ready) #months:empty{min-height:336px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>

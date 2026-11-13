@@ -1,0 +1,93 @@
+Milestone 7b: integrator feed-forward in the position loop, rigid centre-of-pressure geometries (signs above [-1.0, 1.0], below [1.0, -1.0]).
+6 seeds, best of 2 CMA-ES starts x 3200 evaluations on 16 episodes; held-out 64 episodes (seed 9999).
+6b = milestone 6b's designs (no feed-forward); 6b+integ = same designs, integrator feed-forward on, not retrained; m7 cmd-ff = milestone 7's retrained
+designs with its commanded-torque feed-forward; integ retrained = trained with the integrator feed-forward on.
+on/off = side force in/out of the held-out rollout. hurt axis: y when above, x when below. lever = multiple of the inherited 0.05 + 0.3 L.
+dead = share of held-out episodes that diverged (mean over seeds); seeds dead = per-seed count of diverged episodes.
+
+[above, 6b nocant] cant deg 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; hover W 366.8
+  lever 0   pos on 0.105 (median 0.105) off 0.105 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.033 (median 0.032) helped 0.034 ratio 0.96 (0.97, 0.95, 0.96, 0.96, 0.96, 0.99); yaw 14.60; J -1.91; dead 0.000 (seeds dead [0, 0, 0, 0, 0, 0])
+  lever 1   pos on 0.106 (median 0.106) off 0.106 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.034 (median 0.034) helped 0.035 ratio 0.96 (0.96, 0.94, 0.96, 0.96, 0.96, 0.98); yaw 14.87; J -1.94; dead 0.000 (seeds dead [0, 0, 0, 0, 0, 0])
+  lever 2   pos on 0.439 (median 0.414) off 0.439 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.331 (median 0.311) helped 0.330 ratio 1.00 (1.00, 1.00, 1.00, 1.00, 1.01, 1.01); yaw 18.26; J -4.87; dead 0.099 (seeds dead [6, 9, 5, 9, 6, 3])
+[above, 6b aware] cant deg 29.75, 34.50, 32.98, 33.48, 29.77, 35.04; hover W 458.8
+  lever 0   pos on 0.104 (median 0.103) off 0.103 on/off 1.002 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.029 (median 0.029) helped 0.030 ratio 0.97 (0.98, 0.96, 0.98, 0.96, 0.95, 0.97); yaw 9.50; J -1.54; dead 0.000 (seeds dead [0, 0, 0, 0, 0, 0])
+  lever 1   pos on 0.119 (median 0.107) off 0.104 on/off 1.142 (1.02, 1.03, 1.03, 1.03, 1.02, 1.72); late hurt 0.054 (median 0.047) helped 0.031 ratio 1.91 (1.91, 2.15, 2.02, 2.09, 2.00, 1.31); yaw 9.78; J -1.68; dead 0.003 (seeds dead [0, 0, 0, 0, 0, 1])
+  lever 2   pos on 0.327 (median 0.366) off 0.256 on/off 1.359 (1.56, 1.67, 1.19, 1.04, 1.57, 1.12); late hurt 0.244 (median 0.282) helped 0.206 ratio 1.20 (1.27, 1.16, 1.18, 1.16, 1.32, 1.13); yaw 12.61; J -3.65; dead 0.060 (seeds dead [2, 5, 4, 5, 2, 5])
+[above, 6b+integ] cant deg 29.75, 34.50, 32.98, 33.48, 29.77, 35.04; hover W 458.8
+  lever 0   pos on 0.883 (median 0.641) off 0.103 on/off 8.553 (5.34, 5.09, 6.22, 12.05, 6.17, 16.45); late hurt 0.788 (median 0.579) helped 0.760 ratio 1.05 (1.07, 1.07, 1.04, 1.03, 1.05, 1.01); yaw 18.71; J -9.18; dead 0.219 (seeds dead [7, 8, 10, 20, 11, 28])
+  lever 1   pos on 0.930 (median 0.651) off 0.104 on/off 8.960 (5.74, 5.38, 5.34, 13.44, 6.93, 16.93); late hurt 0.826 (median 0.587) helped 0.795 ratio 1.05 (1.07, 1.08, 1.06, 1.02, 1.05, 1.02); yaw 19.39; J -9.65; dead 0.234 (seeds dead [9, 8, 8, 24, 12, 29])
+  lever 2   pos on 1.542 (median 1.278) off 0.256 on/off 6.379 (7.83, 5.77, 4.21, 5.68, 8.40, 6.38); late hurt 1.342 (median 1.117) helped 1.314 ratio 1.02 (1.04, 1.03, 1.02, 1.01, 1.03, 1.01); yaw 25.16; J -15.76; dead 0.406 (seeds dead [18, 21, 22, 35, 20, 40])
+[above, m7 cmd-ff] cant deg 33.63, 33.88, 34.96, 35.14, 32.90, 36.47; hover W 453.7
+  lever 0   pos on 0.104 (median 0.104) off 0.104 on/off 1.003 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.030 (median 0.031) helped 0.032 ratio 0.96 (0.96, 0.95, 0.95, 0.95, 0.95, 0.97); yaw 9.48; J -1.55; dead 0.000 (seeds dead [0, 0, 0, 0, 0, 0])
+  lever 1   pos on 0.118 (median 0.106) off 0.105 on/off 1.126 (1.01, 1.01, 1.01, 1.01, 1.00, 1.71); late hurt 0.044 (median 0.037) helped 0.041 ratio 1.08 (0.94, 1.19, 1.40, 1.12, 0.81, 1.04); yaw 9.78; J -1.67; dead 0.003 (seeds dead [0, 0, 0, 0, 0, 1])
+  lever 2   pos on 0.276 (median 0.223) off 0.222 on/off 1.310 (1.56, 1.36, 1.34, 0.78, 1.56, 1.26); late hurt 0.189 (median 0.142) helped 0.180 ratio 1.05 (1.01, 1.11, 1.11, 1.09, 0.95, 1.03); yaw 12.17; J -3.17; dead 0.049 (seeds dead [2, 2, 4, 2, 2, 7])
+[above, integ retrained] cant deg 32.07, 34.94, 33.14, 33.42, 32.97, 35.70; hover W 470.9
+  lever 0   pos on 0.105 (median 0.105) off 0.104 on/off 1.015 (1.02, 1.02, 1.01, 1.01, 1.01, 1.02); late hurt 0.029 (median 0.030) helped 0.032 ratio 0.91 (0.91, 0.91, 0.92, 0.91, 0.91, 0.92); yaw 9.49; J -1.56; dead 0.000 (seeds dead [0, 0, 0, 0, 0, 0])
+  lever 1   pos on 0.107 (median 0.107) off 0.106 on/off 1.010 (1.01, 1.01, 1.01, 1.01, 1.01, 1.01); late hurt 0.030 (median 0.030) helped 0.036 ratio 0.83 (0.83, 0.81, 0.86, 0.85, 0.80, 0.81); yaw 9.65; J -1.58; dead 0.000 (seeds dead [0, 0, 0, 0, 0, 0])
+  lever 2   pos on 0.203 (median 0.186) off 0.146 on/off 1.376 (1.02, 1.38, 1.62, 1.98, 1.07, 1.19); late hurt 0.125 (median 0.110) helped 0.128 ratio 0.96 (0.96, 0.99, 1.00, 1.01, 0.93, 0.89); yaw 11.53; J -2.49; dead 0.039 (seeds dead [1, 2, 4, 5, 2, 1])
+[above, integ retrained, ff off] cant deg 32.07, 34.94, 33.14, 33.42, 32.97, 35.70; hover W 470.9
+  lever 0   pos on 0.104 (median 0.104) off 0.104 on/off 1.002 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.029 (median 0.030) helped 0.031 ratio 0.96 (0.96, 0.95, 0.96, 0.96, 0.95, 0.95); yaw 9.48; J -1.55; dead 0.000 (seeds dead [0, 0, 0, 0, 0, 0])
+  lever 1   pos on 0.109 (median 0.109) off 0.106 on/off 1.027 (1.02, 1.03, 1.02, 1.03, 1.03, 1.03); late hurt 0.049 (median 0.049) helped 0.024 ratio 2.06 (1.92, 2.16, 1.94, 1.96, 2.11, 2.25); yaw 9.61; J -1.59; dead 0.000 (seeds dead [0, 0, 0, 0, 0, 0])
+  lever 2   pos on 0.203 (median 0.203) off 0.146 on/off 1.375 (1.06, 1.14, 1.53, 1.87, 1.55, 1.10); late hurt 0.143 (median 0.145) helped 0.101 ratio 1.64 (1.57, 1.56, 1.31, 1.22, 1.37, 2.79); yaw 11.30; J -2.48; dead 0.029 (seeds dead [1, 2, 2, 4, 2, 0])
+  [above] 6b+integ minus 6b aware, lever 0: hurt axis +0.7586 m (lower in 0 of 6), pos +0.7798 m (lower in 0), J -7.635 (better in 0)
+  [above] 6b+integ minus 6b aware, lever 1: hurt axis +0.7717 m (lower in 0 of 6), pos +0.8112 m (lower in 0), J -7.965 (better in 0)
+  [above] 6b+integ minus 6b aware, lever 2: hurt axis +1.0986 m (lower in 0 of 6), pos +1.2148 m (lower in 0), J -12.113 (better in 0)
+  [above] 6b+integ minus m7 cmd-ff, lever 0: hurt axis +0.7571 m (lower in 0 of 6), pos +0.7791 m (lower in 0), J -7.633 (better in 0)
+  [above] 6b+integ minus m7 cmd-ff, lever 1: hurt axis +0.7816 m (lower in 0 of 6), pos +0.8121 m (lower in 0), J -7.974 (better in 0)
+  [above] 6b+integ minus m7 cmd-ff, lever 2: hurt axis +1.1532 m (lower in 0 of 6), pos +1.2652 m (lower in 0), J -12.593 (better in 0)
+  [above] 6b+integ minus 6b nocant, lever 0: yaw +4.12 deg (lower in 0), J -7.27 (better in 0)
+  [above] 6b+integ minus 6b nocant, lever 1: yaw +4.51 deg (lower in 1), J -7.71 (better in 0)
+  [above] 6b+integ minus 6b nocant, lever 2: yaw +6.90 deg (lower in 0), J -10.89 (better in 0)
+  [above] integ retrained minus 6b aware, lever 0: hurt axis +0.0003 m (lower in 2 of 6), pos +0.0018 m (lower in 1), J -0.017 (better in 0)
+  [above] integ retrained minus 6b aware, lever 1: hurt axis -0.0237 m (lower in 6 of 6), pos -0.0114 m (lower in 2), J +0.097 (better in 2)
+  [above] integ retrained minus 6b aware, lever 2: hurt axis -0.1187 m (lower in 6 of 6), pos -0.1235 m (lower in 6), J +1.153 (better in 6)
+  [above] integ retrained minus m7 cmd-ff, lever 0: hurt axis -0.0012 m (lower in 5 of 6), pos +0.0011 m (lower in 0), J -0.014 (better in 1)
+  [above] integ retrained minus m7 cmd-ff, lever 1: hurt axis -0.0138 m (lower in 5 of 6), pos -0.0105 m (lower in 1), J +0.088 (better in 1)
+  [above] integ retrained minus m7 cmd-ff, lever 2: hurt axis -0.0641 m (lower in 5 of 6), pos -0.0730 m (lower in 5), J +0.673 (better in 5)
+  [above] integ retrained minus 6b nocant, lever 0: yaw -5.10 deg (lower in 6), J +0.35 (better in 6)
+  [above] integ retrained minus 6b nocant, lever 1: yaw -5.23 deg (lower in 6), J +0.36 (better in 6)
+  [above] integ retrained minus 6b nocant, lever 2: yaw -6.73 deg (lower in 6), J +2.38 (better in 6)
+
+[below, 6b nocant] cant deg 0.00, 0.00, 0.00, 0.00, 0.00, 0.00; hover W 210.5
+  lever 0   pos on 0.132 (median 0.124) off 0.132 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.061 (median 0.056) helped 0.057 ratio 1.06 (1.07, 1.04, 1.06, 1.07, 1.06, 1.06); yaw 17.22; J -2.24; dead 0.003 (seeds dead [0, 1, 0, 0, 0, 0])
+  lever 1   pos on 0.147 (median 0.105) off 0.147 on/off 1.000 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.064 (median 0.031) helped 0.066 ratio 0.96 (0.92, 0.99, 0.94, 0.98, 1.00, 0.97); yaw 17.71; J -2.38; dead 0.010 (seeds dead [0, 4, 0, 0, 0, 0])
+  lever 2   pos on 1.010 (median 1.110) off 1.023 on/off 0.992 (1.00, 0.95, 1.00, 1.00, 1.00, 1.00); late hurt 0.839 (median 0.925) helped 0.849 ratio 0.99 (0.98, 1.00, 1.00, 0.98, 0.98, 1.01); yaw 24.99; J -10.49; dead 0.266 (seeds dead [18, 26, 6, 21, 19, 12])
+[below, 6b aware] cant deg 29.57, 31.79, 30.85, 30.53, 31.44, 31.32; hover W 339.7
+  lever 0   pos on 0.112 (median 0.111) off 0.112 on/off 1.002 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.040 (median 0.040) helped 0.038 ratio 1.06 (1.06, 1.07, 1.05, 1.06, 1.06, 1.06); yaw 9.60; J -1.57; dead 0.000 (seeds dead [0, 0, 0, 0, 0, 0])
+  lever 1   pos on 0.126 (median 0.103) off 0.100 on/off 1.261 (1.03, 2.41, 1.04, 1.04, 1.03, 1.03); late hurt 0.057 (median 0.040) helped 0.028 ratio 3.41 (3.50, 1.27, 2.81, 4.63, 5.39, 2.85); yaw 9.98; J -1.73; dead 0.005 (seeds dead [0, 2, 0, 0, 0, 0])
+  lever 2   pos on 0.379 (median 0.379) off 0.311 on/off 1.188 (1.06, 1.61, 1.20, 1.15, 1.07, 1.05); late hurt 0.285 (median 0.287) helped 0.282 ratio 1.02 (1.04, 1.01, 0.99, 1.01, 1.10, 0.98); yaw 13.04; J -4.12; dead 0.086 (seeds dead [4, 9, 8, 7, 2, 3])
+[below, 6b+integ] cant deg 29.57, 31.79, 30.85, 30.53, 31.44, 31.32; hover W 339.7
+  lever 0   pos on 0.112 (median 0.111) off 0.112 on/off 1.002 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.040 (median 0.041) helped 0.038 ratio 1.07 (1.07, 1.07, 1.06, 1.07, 1.07, 1.06); yaw 9.60; J -1.57; dead 0.000 (seeds dead [0, 0, 0, 0, 0, 0])
+  lever 1   pos on 0.125 (median 0.103) off 0.100 on/off 1.252 (1.02, 2.38, 1.03, 1.03, 1.02, 1.02); late hurt 0.055 (median 0.037) helped 0.031 ratio 2.54 (2.69, 1.25, 2.62, 3.30, 3.16, 2.22); yaw 9.99; J -1.72; dead 0.005 (seeds dead [0, 2, 0, 0, 0, 0])
+  lever 2   pos on 0.387 (median 0.378) off 0.311 on/off 1.207 (1.05, 1.65, 1.29, 1.15, 1.05, 1.04); late hurt 0.292 (median 0.285) helped 0.290 ratio 1.02 (1.03, 1.00, 0.99, 1.00, 1.08, 0.98); yaw 13.15; J -4.21; dead 0.089 (seeds dead [4, 9, 9, 7, 2, 3])
+[below, m7 cmd-ff] cant deg 31.82, 34.21, 30.46, 31.11, 33.91, 35.34; hover W 311.4
+  lever 0   pos on 0.170 (median 0.114) off 0.113 on/off 1.508 (1.00, 1.85, 1.00, 1.00, 1.00, 3.19); late hurt 0.098 (median 0.043) helped 0.096 ratio 1.05 (1.06, 1.02, 1.07, 1.06, 1.06, 1.01); yaw 10.24; J -2.11; dead 0.021 (seeds dead [0, 3, 0, 0, 0, 5])
+  lever 1   pos on 0.161 (median 0.103) off 0.101 on/off 1.599 (1.02, 2.73, 1.01, 1.02, 1.02, 2.80); late hurt 0.083 (median 0.030) helped 0.083 ratio 1.10 (1.12, 0.97, 0.98, 1.69, 0.86, 0.97); yaw 10.52; J -2.05; dead 0.021 (seeds dead [0, 4, 0, 0, 0, 4])
+  lever 2   pos on 0.520 (median 0.483) off 0.378 on/off 1.381 (1.45, 1.51, 1.22, 1.23, 1.21, 1.67); late hurt 0.415 (median 0.382) helped 0.409 ratio 1.02 (1.00, 1.04, 1.01, 1.00, 1.02, 1.02); yaw 15.04; J -5.51; dead 0.130 (seeds dead [7, 10, 7, 9, 7, 10])
+[below, integ retrained] cant deg 33.80, 32.49, 31.03, 28.42, 30.61, 32.32; hover W 329.3
+  lever 0   pos on 0.112 (median 0.112) off 0.112 on/off 1.002 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.041 (median 0.041) helped 0.038 ratio 1.07 (1.07, 1.08, 1.07, 1.07, 1.07, 1.07); yaw 9.59; J -1.58; dead 0.000 (seeds dead [0, 0, 0, 0, 0, 0])
+  lever 1   pos on 0.125 (median 0.103) off 0.100 on/off 1.249 (1.03, 2.37, 1.03, 1.02, 1.02, 1.02); late hurt 0.055 (median 0.037) helped 0.035 ratio 2.04 (2.23, 1.17, 2.90, 1.98, 2.46, 1.49); yaw 9.99; J -1.72; dead 0.005 (seeds dead [0, 2, 0, 0, 0, 0])
+  lever 2   pos on 0.434 (median 0.401) off 0.357 on/off 1.202 (1.23, 1.47, 1.31, 1.00, 1.14, 1.06); late hurt 0.333 (median 0.305) helped 0.337 ratio 0.99 (0.98, 0.99, 0.99, 0.98, 1.00, 0.99); yaw 13.77; J -4.66; dead 0.109 (seeds dead [7, 10, 8, 6, 6, 5])
+[below, integ retrained, ff off] cant deg 33.80, 32.49, 31.03, 28.42, 30.61, 32.32; hover W 329.3
+  lever 0   pos on 0.112 (median 0.112) off 0.112 on/off 1.002 (1.00, 1.00, 1.00, 1.00, 1.00, 1.00); late hurt 0.041 (median 0.041) helped 0.039 ratio 1.06 (1.06, 1.07, 1.06, 1.06, 1.06, 1.06); yaw 9.59; J -1.57; dead 0.000 (seeds dead [0, 0, 0, 0, 0, 0])
+  lever 1   pos on 0.116 (median 0.104) off 0.100 on/off 1.156 (1.04, 1.76, 1.04, 1.03, 1.03, 1.03); late hurt 0.050 (median 0.041) helped 0.021 ratio 3.01 (3.04, 1.52, 3.91, 3.30, 4.08, 2.18); yaw 9.88; J -1.63; dead 0.003 (seeds dead [0, 1, 0, 0, 0, 0])
+  lever 2   pos on 0.436 (median 0.403) off 0.357 on/off 1.210 (1.24, 1.48, 1.31, 1.00, 1.15, 1.08); late hurt 0.339 (median 0.310) helped 0.338 ratio 1.00 (0.99, 1.01, 0.99, 1.00, 1.01, 1.00); yaw 13.80; J -4.68; dead 0.109 (seeds dead [7, 10, 8, 6, 6, 5])
+  [below] 6b+integ minus 6b aware, lever 0: hurt axis +0.0001 m (lower in 0 of 6), pos +0.0000 m (lower in 0), J +0.000 (better in 2)
+  [below] 6b+integ minus 6b aware, lever 1: hurt axis -0.0024 m (lower in 6 of 6), pos -0.0009 m (lower in 6), J +0.007 (better in 6)
+  [below] 6b+integ minus 6b aware, lever 2: hurt axis +0.0075 m (lower in 4 of 6), pos +0.0085 m (lower in 3), J -0.085 (better in 3)
+  [below] 6b+integ minus m7 cmd-ff, lever 0: hurt axis -0.0577 m (lower in 4 of 6), pos -0.0587 m (lower in 5), J +0.534 (better in 5)
+  [below] 6b+integ minus m7 cmd-ff, lever 1: hurt axis -0.0288 m (lower in 2 of 6), pos -0.0364 m (lower in 3), J +0.333 (better in 3)
+  [below] 6b+integ minus m7 cmd-ff, lever 2: hurt axis -0.1230 m (lower in 5 of 6), pos -0.1330 m (lower in 5), J +1.300 (better in 5)
+  [below] 6b+integ minus 6b nocant, lever 0: yaw -7.62 deg (lower in 6), J +0.66 (better in 6)
+  [below] 6b+integ minus 6b nocant, lever 1: yaw -7.72 deg (lower in 6), J +0.67 (better in 6)
+  [below] 6b+integ minus 6b nocant, lever 2: yaw -11.84 deg (lower in 6), J +6.28 (better in 5)
+  [below] integ retrained minus 6b aware, lever 0: hurt axis +0.0010 m (lower in 1 of 6), pos +0.0005 m (lower in 2), J -0.000 (better in 4)
+  [below] integ retrained minus 6b aware, lever 1: hurt axis -0.0025 m (lower in 6 of 6), pos -0.0005 m (lower in 4), J +0.006 (better in 5)
+  [below] integ retrained minus 6b aware, lever 2: hurt axis +0.0486 m (lower in 1 of 6), pos +0.0553 m (lower in 1), J -0.535 (better in 1)
+  [below] integ retrained minus m7 cmd-ff, lever 0: hurt axis -0.0569 m (lower in 4 of 6), pos -0.0582 m (lower in 4), J +0.534 (better in 4)
+  [below] integ retrained minus m7 cmd-ff, lever 1: hurt axis -0.0289 m (lower in 2 of 6), pos -0.0360 m (lower in 3), J +0.332 (better in 2)
+  [below] integ retrained minus m7 cmd-ff, lever 2: hurt axis -0.0820 m (lower in 5 of 6), pos -0.0862 m (lower in 4), J +0.851 (better in 4)
+  [below] integ retrained minus 6b nocant, lever 0: yaw -7.63 deg (lower in 6), J +0.66 (better in 6)
+  [below] integ retrained minus 6b nocant, lever 1: yaw -7.72 deg (lower in 6), J +0.67 (better in 6)
+  [below] integ retrained minus 6b nocant, lever 2: yaw -11.22 deg (lower in 6), J +5.83 (better in 5)
+

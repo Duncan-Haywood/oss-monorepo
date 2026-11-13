@@ -65,7 +65,9 @@ scored and why it never changes a `dangling-confirmed` verdict.
 ## What this is, and isn't
 
 **Evidence, not a determination.** One DNS lookup and, for a provider match, one GET request per
-hostname — not a full security assessment. It does not enumerate your DNS zone or guess at other
+hostname (over HTTPS, retried once over plain HTTP when HTTPS gets no response at all, since S3
+website endpoints serve no HTTPS and an unclaimed Heroku or GitHub Pages name fails the certificate
+check) — not a full security assessment. It does not enumerate your DNS zone or guess at other
 subdomains; it only checks the exact hostnames you give it. A clean report means none of the
 hostnames this run checked matched a known provider with a confirming response — not that the
 domain has no exposure anywhere.

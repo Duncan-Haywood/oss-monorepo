@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 117 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 118 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -76,6 +76,14 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   the 24 of the 12 designs run blind in milestones 115 and 116: better in 18, worse in 5 (sign p = 0.011), design-bootstrap
   interval of the difference -2.45 to +0.22 points, so not yet significant across designs. Squarers, multipliers and crossbars
   carry the win; wide barrel shifters split 3 to 3: [`experiments/switch_pooled/`](experiments/switch_pooled/results.txt).
+- **On three families no table had run, the clipped switch loses to random routing because of one shifter (milestone 118,
+  flow run, mostly negative).** Funnel shifters, FIR tap sums and CORDIC stages; six designs and eight predictions committed
+  before 1,440 flow runs. Blind mean regret: clipped switch 8.34%, plain switch 9.19%, equal-cost random 2.48%. funnel128's
+  routed-best point ranks 70.5 of 103 on the mapped score, so a top-8 ladder costs it 39 to 51% at both clocks. FIR and the
+  larger CORDIC go to 0.00 to 1.31%. Over the clipped switch's 36 test cells it is better than random in 22 and worse in 11, but
+  the design-bootstrap interval is -1.68 to +5.55 points. Without the two shifter families (post hoc) it is 0.79% against
+  2.59%, interval -2.53 to -1.03. A 4-point rank-agreement guard halves the funnel loss but does not fix it:
+  [`experiments/new_families/`](experiments/new_families/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 

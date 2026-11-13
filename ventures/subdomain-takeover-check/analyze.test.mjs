@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { classify, buildReport, verdictFor } from './analyze.mjs';
+import { classify, buildReport, verdictFor, parseHostname } from './analyze.mjs';
 
 test('classify reports lookup-error when the DNS lookup itself failed', () => {
   const result = classify('example.com', { chain: ['example.com'], finalTarget: null, truncated: false, error: 'timed out' }, null);
@@ -200,4 +200,24 @@ test('verdictFor: any finding is never clean, whatever the exit code', () => {
   const confirmed = verdictFor(buildReport(['blog.example.com'], [classify('blog.example.com', cname, { ok: true, status: 404, text: 'No such app', error: null })]));
   assert.equal(confirmed.clean, false);
   assert.equal(confirmed.exitCode, 1);
+});
+
+// Red team 2026-11-13: two escaped mutants and one real defect.
+test('parseHostname keeps a URL scheme with any digit in it (s3://, h2://)', () => {
+  assert.deepEqual(parseHostname('s3://Blog.Example.com/x'), { hostname: 'blog.example.com', error: null });
+  assert.deepEqual(parseHostname('h2://blog.example.com'), { hostname: 'blog.example.com', error: null });
+});
+
+test('verdictFor reads a report with no errors field as zero failed lookups', () => {
+  const v = verdictFor({ hostnamesChecked: 1, confirmedCount: 0, unconfirmedCount: 0 });
+  assert.equal(v.clean, true);
+  assert.doesNotMatch(v.text, /could not be looked up/);
+});
+
+test('a confirmed finding names the URL that answered, plain HTTP included', () => {
+  const cname = { chain: ['www.example.com', 'www.example.com.s3-website-us-east-1.amazonaws.com'], finalTarget: 'www.example.com.s3-website-us-east-1.amazonaws.com', truncated: false, error: null };
+  const probe = { url: 'http://www.example.com/', ok: true, status: 404, text: 'Code: NoSuchBucket', error: null };
+  const [finding] = buildReport(['www.example.com'], [classify('www.example.com', cname, probe)]).findings;
+  assert.equal(finding.severity, 'critical');
+  assert.match(finding.detail, /a live GET to http:\/\/www\.example\.com\/ returned/);
 });

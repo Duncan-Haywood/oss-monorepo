@@ -12,7 +12,10 @@ Baselines F, F+R and O are read from results_vsched.json (same start, determinis
 Every point gets vlin.check (thresholds as milestone 3). Writes results_vlin.txt and .json.
 With --margin it runs variant J-m instead (vlin.MARGIN: bounds pulled inside their limits; plan in
 LOG.md, written after J's results) and writes results_vlin_margin.txt and .json.
-Usage: run_vlin.py [--margin] [case ...]; OMP_NUM_THREADS=1 recommended (4 worker processes)."""
+With --analytic (milestone 2, plan in LOG.md 2026-11-13) the sensitivities come from the power-flow
+Jacobian (vlin.jacobian_sens) instead of finite differences; outputs get the suffix _analytic and a
+case-by-case comparison with the finite-difference run of the same variant.
+Usage: run_vlin.py [--margin] [--analytic] [case ...]; OMP_NUM_THREADS=1 recommended (4 worker processes)."""
 import copy
 import json
 import sys
@@ -37,6 +40,7 @@ from run_pglib import ACOPT, CASES, DCOPT  # noqa: E402
 
 KINDS = ["typ", "api", "sad"]
 MARGIN = "--margin" in sys.argv
+ANALYTIC = "--analytic" in sys.argv
 
 
 def strip(c):
@@ -67,8 +71,10 @@ def run_case(job):
     start, vf = dc["gen"][:, PG].copy(), file_schedule(ppc)
     out["start"] = strip(vlin.check(ppc, start, vf))
     t1 = time.time()
-    hist = vlin.slp(ppc, start, vf, margin=vlin.MARGIN if MARGIN else None)
+    pf0 = vlin.PF_COUNT[0]
+    hist = vlin.slp(ppc, start, vf, margin=vlin.MARGIN if MARGIN else None, analytic=ANALYTIC)
     out["J_secs"] = time.time() - t1
+    out["J_pf"] = vlin.PF_COUNT[0] - pf0
     b = vlin.best_of(hist, ppc["baseMVA"])
     out["J"] = {"rounds": len(hist), "clean_at": next((x["it"] for x in hist if x.get("clean")), None),
                 "p_clean_at": next((x["it"] for x in hist if x.get("p_clean")), None),
@@ -111,6 +117,52 @@ def jsonable(o):
     if isinstance(o, (np.floating, np.integer, np.bool_)):
         return o.item()
     return o
+
+
+def compare_fd(rows, L):
+    """Milestone 2: analytic-sensitivity run against the finite-difference run of the same variant."""
+    P = L.append
+    fdpath = HERE / ("results_vlin_margin.json" if MARGIN else "results_vlin.json")
+    if not fdpath.exists():
+        return
+    fd = {(r["case"], r["kind"]): r for r in json.loads(fdpath.read_text())}
+    P("")
+    P(f"Analytic (A) against finite-difference (FD) sensitivities, same variant ({fdpath.name}):")
+    P(f"{'case':18s} {'kind':4s} {'FD':>10s} {'A':>10s} {'FD+R':>6s} {'A+R':>6s} {'dCost pp':>9s} "
+      f"{'FD s':>7s} {'A s':>7s} {'A PFs':>6s}")
+    agg = {"fd": 0, "a": 0, "fdr": 0, "ar": 0, "same": 0, "n": 0, "fds": 0.0, "as": 0.0, "apf": 0}
+    dcost = []
+    for r in rows:
+        f = fd.get((r["case"], r["kind"]))
+        if "J" not in r or not f or "J" not in f:
+            continue
+        def st(x):
+            return f"@{x['J']['clean_at']}" if x["J"]["clean_at"] else "no"
+        def jr(x):
+            return bool(x["J"]["clean_at"] or (x.get("JR", {}).get("ok") and x["JR"]["final"] and x["JR"]["final"]["clean"]))
+        dc = ""
+        if r["J"]["clean_at"] and f["J"]["clean_at"]:
+            d = pct(r["J"]["final"]["cost"], r["ac"]) - pct(f["J"]["final"]["cost"], f["ac"])
+            dcost.append(d)
+            dc = f"{d:+.4f}"
+        P(f"{r['case']:18s} {r['kind']:4s} {st(f):>10s} {st(r):>10s} {str(jr(f)):>6s} {str(jr(r)):>6s} {dc:>9s} "
+          f"{f.get('J_secs', 0):7.1f} {r['J_secs']:7.1f} {r.get('J_pf', 0):6d}")
+        agg["n"] += 1
+        agg["fd"] += bool(f["J"]["clean_at"])
+        agg["a"] += bool(r["J"]["clean_at"])
+        agg["fdr"] += jr(f)
+        agg["ar"] += jr(r)
+        agg["same"] += bool(f["J"]["clean_at"]) == bool(r["J"]["clean_at"])
+        agg["fds"] += f.get("J_secs", 0.0)
+        agg["as"] += r["J_secs"]
+        agg["apf"] += r.get("J_pf", 0)
+    P(f"  {agg['n']} cases: fully clean FD {agg['fd']}, A {agg['a']} (same verdict on {agg['same']}); "
+      f"with the reactive stage FD {agg['fdr']}, A {agg['ar']}")
+    if dcost:
+        P(f"  cost difference A - FD where both fully clean ({len(dcost)}): max |d| {max(abs(x) for x in dcost):.4f} pp, "
+          f"mean {np.mean(dcost):+.4f} pp")
+    P(f"  repair time (J only, summed): FD {agg['fds']:.0f} s, A {agg['as']:.0f} s ({agg['fds'] / max(agg['as'], 1e-9):.1f}x); "
+      f"A ran {agg['apf']} AC power flows in its repairs")
 
 
 def main():
@@ -195,9 +247,11 @@ def main():
     P(f"  Run time, all cases: this script {sum(r['secs'] for r in rows):.0f} s (milestone 3's run_vsched: {ms3:.0f} s, "
       f"which also ran the O arm and two reactive stages)")
     P("Run time: " + ", ".join(f"{r['case']}/{r['kind']} {r['secs']:.0f}s" for r in rows))
+    if ANALYTIC:
+        compare_fd(rows, L)
     text = "\n".join(L) + "\n"
     if not only:
-        tag = "results_vlin_margin" if MARGIN else "results_vlin"
+        tag = ("results_vlin_margin" if MARGIN else "results_vlin") + ("_analytic" if ANALYTIC else "")
         (HERE / f"{tag}.json").write_text(json.dumps(jsonable(rows), indent=1))
         (HERE / f"{tag}.txt").write_text(text)
     print(text)
