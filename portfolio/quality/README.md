@@ -78,10 +78,11 @@ the rotation working, not a bug. From 2026-11-10 a flagship audited in the last
 7 days is not drawn (`FLAGSHIP_REAUDIT_DAYS`): daily re-audits of unchanged
 flagships were returning identical scores. `sample` picks the seed and round
 number itself: the date, or the date with the first `-b`, `-c` ... suffix no
-audit on disk or on `origin/main` has used, and one more than the highest
-`quality-audit-round-N` post (fetch `origin main` first). Two rounds in flight
-at once can still draw the same subjects; pass `--seed <date>-<next letter>`
-when an open `quality:` PR lists a subject you drew. Because the non-flagship strata are uniform random, the share of
+audit on disk, on `origin/main` or in an open `quality: round N (seed S)` PR
+title has used, and one more than the highest round in those places. It
+fetches `origin main` itself and prints the open round PRs it skipped
+(`--offline` skips both). Keep that title shape so the next run sees your
+claim, and open the PR as soon as you have drawn. Because the non-flagship strata are uniform random, the share of
 them that meets the bar is an unbiased estimate for that stratum, and
 `summary` reports it with a Wilson 95% interval. Flagships are reported apart:
 they are chosen, not sampled.

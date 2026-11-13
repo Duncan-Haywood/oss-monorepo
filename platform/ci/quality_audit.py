@@ -143,7 +143,53 @@ def post_limits() -> str:
     return limits_line()
 
 
-def next_round(posts: Path = ROOT / "docs" / "posts", ref: str = "origin/main") -> int:
+# "quality: round 60 (seed 2026-11-13-f), ..." -- the title every round PR uses.
+PR_ROUND_RE = re.compile(r"^quality:\s*round\s+(\d+)(?:\s*\(seed\s+([\w-]+)\))?", re.I)
+
+
+def open_round_prs(timeout: int = 20) -> list[tuple[int, str | None]]:
+    """(round, seed) of every open `quality: round N (seed S)` PR.
+
+    A round's number and seed reach main only when its PR merges, so two
+    rounds in flight got the same ones: round 55 twice (doc_friction on this
+    file, 2026-11-13) and, on the day this was written, `sample` offered
+    round 60 / seed 2026-11-13-f while open PR #15385 held both. One `gh api`
+    search (works unauthenticated in cloud sessions); fail-soft to []."""
+    import subprocess
+    try:
+        proc = subprocess.run(
+            ["gh", "api", "-X", "GET", "search/issues", "-f",
+             "q=repo:duncan-haywood/oss-monorepo is:pr is:open in:title quality round",
+             "-f", "per_page=100", "--jq", ".items[].title"],
+            capture_output=True, text=True, timeout=timeout)
+    except Exception:
+        return []
+    if proc.returncode != 0:
+        return []
+    return parse_round_titles(proc.stdout.splitlines())
+
+
+def parse_round_titles(titles) -> list[tuple[int, str | None]]:
+    out = []
+    for t in titles:
+        if m := PR_ROUND_RE.match(t.strip()):
+            out.append((int(m.group(1)), m.group(2)))
+    return out
+
+
+def fetch_main(timeout: int = 60) -> bool:
+    """`git fetch --depth=1 origin main`, fail-soft. `sample` read a stale
+    origin/main and drew a seed round 58 had already used (doc_friction,
+    2026-11-13); the README's "fetch first" step was the fix, so do it here."""
+    import subprocess
+    try:
+        return subprocess.run(["git", "fetch", "-q", "--depth=1", "origin", "main"], capture_output=True,
+                              timeout=timeout, cwd=ROOT).returncode == 0
+    except Exception:
+        return False
+
+
+def next_round(posts: Path = ROOT / "docs" / "posts", ref: str = "origin/main", in_flight: tuple[int, ...] = ()) -> int:
     """One more than the highest `*-quality-audit-round-N.md` post here or on `ref`.
 
     Round numbers lived only in post filenames, so runs read them off by hand
@@ -155,7 +201,7 @@ def next_round(posts: Path = ROOT / "docs" / "posts", ref: str = "origin/main") 
         names += subprocess.run(["git", "ls-tree", "--name-only", ref, rel + "/"], capture_output=True, text=True, timeout=20, cwd=ROOT).stdout.split()
     except Exception:
         pass
-    nums = [int(m.group(1)) for n in names if (m := ROUND_RE.search(n))]
+    nums = [int(m.group(1)) for n in names if (m := ROUND_RE.search(n))] + list(in_flight)
     return max(nums, default=0) + 1
 
 
@@ -370,6 +416,7 @@ def main(argv: list[str] | None = None) -> int:
     sp.add_argument("--k", type=int, default=2, help="subjects per venture and research stratum")
     sp.add_argument("--k-platform", type=int, default=1)
     sp.add_argument("--json", action="store_true")
+    sp.add_argument("--offline", action="store_true", help="skip the origin/main fetch and the open-PR read")
     sub.add_parser("validate", help="check every audit file")
     sm = sub.add_parser("summary", help="the scoreboard over every audit")
     sm.add_argument("--md", action="store_true")
@@ -389,15 +436,22 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     if args.cmd == "sample":
+        fetched = False if args.offline else fetch_main()
+        prs = [] if args.offline else open_round_prs()
         local = load_audits()
         every = local + remote_audits(local)
-        seed = args.seed or free_seed(dt.date.today().isoformat(), every)
+        held = [{"seed": sd} for _, sd in prs if sd]  # seeds open round PRs hold
+        seed = args.seed or free_seed(dt.date.today().isoformat(), every + held)
         picks = draw(seed, args.k, args.k_platform, audits=every)
-        rnd = next_round()
+        rnd = next_round(in_flight=tuple(r for r, _ in prs))
         if args.json:
             print(json.dumps({"seed": seed, "round": rnd, "subjects": picks}, indent=1))
         else:
             print(f"seed {seed}   round {rnd} (next post: docs/posts/<date>-quality-audit-round-{rnd}.md)")
+            if not args.offline:
+                held_txt = ", ".join(f"{r}/{sd or '?'}" for r, sd in sorted(prs)) or "none"
+                print(f"  open round PRs (round/seed, skipped): {held_txt}"
+                      + ("" if fetched else "; origin/main NOT fetched, so merged rounds may be missing"))
             print(f"  post {post_limits()}")
             for p in picks:
                 extra = f" (of {p['population']})" if p.get("population") else ""
