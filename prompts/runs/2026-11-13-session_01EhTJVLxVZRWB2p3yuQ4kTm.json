@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVLxVZRWB2p3yuQ4kTm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T21:02:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shift-roster-builder flagship: column generation first for posted reissues",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": 15612,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-shift-roster-reissue-twice-as-fast.md"
+  ],
+  "goal": null,
+  "notes": "Measured eval/reissue-order.mjs on 570 posted reissues (5 teams x 6 seeds): deferCover true vs false gave identical score, open hours, changes to others (1,069), premiums ($19,163) and pay on every case, 570/570 proven, 72.2 s -> 32.5 s; 33 tied rosters differ. Made it the default when keepShift > 0. Fresh builds measured (30/30 same score, 8.6 -> 2.7 s, 6 different rosters) but not switched because guide pages quote specific rosters; that is now in next:. Verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (154.3s); node platform/pages/venture-preflight.mjs shift-roster-builder -> preflight clean.",
+  "corrections": [],
+  "redteam": null
+}
