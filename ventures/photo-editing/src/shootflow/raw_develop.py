@@ -1118,6 +1118,10 @@ class DevelopSettings:
     # DNG carries one), WarpRectilinear (lens distortion), FixVignetteRadial
     # and MapPolynomial; other opcodes are named in the report, not run.
     opcodes: bool = True
+    # The DNG specification's "preview quality" processing: opcodes flagged as
+    # needed only at full quality (flag bit 1) are skipped. Off by default, so a
+    # develop is full quality; the half-size review still (``still_for_review``) sets it.
+    preview_quality: bool = False
     # Lens distortion from a lensfun database (``lens_profiles.load_db``) for files whose opcode lists
     # carry no warp of their own (or with opcodes off): lens and focal length from EXIF unless given.
     lens_db: "LensDb | None" = None
@@ -1604,7 +1608,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     gain_maps: list = []
     warps: list = []
     if raw.source == "dng":
-        op_plan = dng_opcodes.plan(ifd, ifd0, cfa=not linear_raw)
+        op_plan = dng_opcodes.plan(ifd, ifd0, cfa=not linear_raw, preview=settings.preview_quality)
         if settings.opcodes:
             gain_maps = op_plan.stage2  # GainMap, FixVignetteRadial, MapPolynomial, in list order
             warps = op_plan.stage3  # WarpRectilinear, FixVignetteRadial, MapPolynomial, in list order
@@ -2097,7 +2101,7 @@ def still_for_review(source: Path | str, scratch: Path | str) -> Path | None:
     if not is_dng_path(source):
         return None
     developed = scratch / "developed-half.tif"
-    develop_file(source, developed, DevelopSettings(half=True))
+    develop_file(source, developed, DevelopSettings(half=True, preview_quality=True))
     return developed
 
 

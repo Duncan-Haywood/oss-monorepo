@@ -5,7 +5,8 @@ DNG 1.3 added three opcode lists, each a tag holding a big-endian byte blob:
 (51009) after they are mapped to linear values (black subtracted, scaled to
 0..1, cropped to the active area) and ``OpcodeList3`` (51022) after demosaic.
 Each opcode has an id, a DNG version, flags (bit 0: optional, so a reader may
-skip it; bit 1: preview only) and a parameter block.
+skip it; bit 1: needed only at full quality, so a "preview quality" render may
+skip it) and a parameter block.
 
 Phones are the reason this matters. Android's camera API writes the lens
 shading map it measured into ``OpcodeList2`` as four ``GainMap`` opcodes, one
@@ -307,7 +308,11 @@ class Opcode:
         return bool(self.flags & 1)
 
     @property
-    def preview_only(self) -> bool:
+    def full_quality_only(self) -> bool:
+        """Flag bit 1. DNG 1.7.1.0, chapter 6 (p. 104): "the opcode can be skipped when doing
+        'preview quality' processing, and only needs to be applied when doing 'full quality'
+        processing". Not "preview only": a full-quality render runs it like any other opcode."""
+
         return bool(self.flags & 2)
 
 
@@ -698,8 +703,13 @@ class Plan:
         return bool(self.gain_maps or self.warps or self.stage1 or self.stage2 or self.stage3)
 
 
-def plan(ifd, ifd0, cfa: bool = True) -> Plan:
+def plan(ifd, ifd0, cfa: bool = True, preview: bool = False) -> Plan:
     """Read the three opcode lists from the raw IFD (or IFD0) and decide what runs.
+
+    ``preview`` is the specification's "preview quality" processing: opcodes
+    with flag bit 1 are then skipped (and counted in the notes). A full-quality
+    render, the default, runs them; before 2026-11-13 this module skipped them
+    in every render, which left a full-quality develop short of what the file asks.
 
     ``GainMap`` in ``OpcodeList2`` on CFA data runs, and ``WarpRectilinear`` in
     ``OpcodeList3`` (on any image: it runs after demosaic). Everything else is
@@ -729,11 +739,14 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
             notes.append(f"{label} unreadable and skipped: {exc}")
             continue
         skipped: dict[str, int] = {}
+        preview_skipped: dict[str, int] = {}
         after_optional_wr2 = False
         for op in ops:
             # The skip rule (WarpRectilinear2): only the opcode right after an applied optional one.
             fallback, after_optional_wr2 = after_optional_wr2, False
-            if op.preview_only:
+            if preview and op.full_quality_only:
+                # Not applied, so it cannot arm the skip rule: a fallback warp after it still runs.
+                preview_skipped[op.name] = preview_skipped.get(op.name, 0) + 1
                 continue
             if fallback and op.id in (WARP_RECTILINEAR, WARP_FISHEYE):
                 fallbacks_skipped += 1
@@ -781,6 +794,8 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
             skipped[key] = skipped.get(key, 0) + 1
         for key, n in skipped.items():
             notes.append(f"{label}: {n} x {key} not applied")
+        for key, n in preview_skipped.items():
+            notes.append(f"{label}: {n} x {key} skipped (full quality only; this is a preview-quality render)")
     if gain_maps:
         notes.append(f"OpcodeList2: {len(gain_maps)} GainMap applied (lens shading)")
     n_rect = sum(isinstance(wp, WarpRectilinear) for wp in warps)
