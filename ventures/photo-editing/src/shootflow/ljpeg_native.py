@@ -33,6 +33,7 @@ import tempfile
 import threading
 from array import array
 from pathlib import Path
+from typing import Any
 
 C_SOURCE = r"""
 #include <stdint.h>
@@ -425,7 +426,7 @@ def scan_run(data: bytes, pos: int, mcus: int, tables: list[dict[tuple[int, int]
 
     if reader() is None:  # pragma: no cover - callers check first
         raise RuntimeError("native Huffman reader is not available")
-    scan = _STATE.get("scan")
+    scan: Any = _STATE.get("scan")
     if scan is None:  # pragma: no cover - loaded with the reader
         return None
     if not isinstance(data, bytes):
@@ -449,7 +450,7 @@ def predict(diffs: array, width: int, height: int, nf: int, predictor: int, init
     declines, so the Python pass decides.
     """
 
-    fn = _STATE.get("predict") if reader() is not None else None
+    fn: Any = _STATE.get("predict") if reader() is not None else None
     if fn is None or not isinstance(diffs, array) or diffs.typecode != "i":
         return None
     n = width * height * nf
