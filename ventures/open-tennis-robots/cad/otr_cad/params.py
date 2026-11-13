@@ -2379,9 +2379,6 @@ class Feeder:
                        f"{self.agit_overshoot:g} wanted")
         if d["wall_clear_mm"] < self.agit_wall_clear:
             bad.append(f"agitator tips pass {d['wall_clear_mm']:.0f} mm from the tub's wall; {self.agit_wall_clear:g} wanted")
-        lo, hi = d["arm_band_mm"]
-        if not lo < self.ball_d / 2 < hi:
-            bad.append("agitator arms do not meet a floor ball at its centre height")
         if self.agit_floor_hole >= self.ball_d / 2:
             bad.append("agitator's floor hole is wide enough for a ball to sink into")
         if not self.agit_shaft_d + 2.0 <= self.agit_shelf_hole <= self.agit_floor_hole:

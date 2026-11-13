@@ -412,6 +412,12 @@ class FirmwareTest(unittest.TestCase):
         self.assertTrue(any("times a minute" in b for b in Feeder(agit_motor_rpm=10.0).check_agitator()))
         self.assertTrue(any("MPa" in b for b in Feeder(agit_arm_w=8.0).check_agitator()))
         self.assertTrue(any("N m is" in b for b in Feeder(agit_motor_nm=0.5).check_agitator()))
+        self.assertTrue(any("hub sits over" in b for b in Feeder(agit_back=30.0, agit_side=0.0).check_agitator()))
+        self.assertTrue(any("sink into" in b for b in Feeder(agit_floor_hole=40.0).check_agitator()))
+        self.assertTrue(any("shelf and tub-floor holes" in b for b in Feeder(agit_shelf_hole=7.0).check_agitator()))
+        self.assertTrue(any("boss wall" in b for b in Feeder(agit_boss_d=12.0).check_agitator()))
+        self.assertTrue(any("grips only" in b for b in Feeder(agit_shaft_len=18.0).check_agitator()))
+        self.assertTrue(any("set screw" in b for b in Feeder(agit_shaft_len=21.0).check_agitator()))
 
     def _elev(self, mode, **kw):
         return controller.LinearAxis(mode, controller.ElevationGeometry(), 246.0, 150.0, -15.0, 45.0, 18.0, 22.0, **kw)
