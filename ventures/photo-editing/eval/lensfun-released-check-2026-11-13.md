@@ -76,7 +76,36 @@ mixed lanes, and for ptlens and poly3 measures the bug as shipped.
 
 ## Results
 
-RESULTS_PLACEHOLDER
+Run on 2026-11-13: 36,756 cases over 1,083 lenses, frame 1,200 px wide, about 19 minutes. 191
+lens and focal combinations were skipped: lenses whose names appear more than once, and cases where
+lensfun applied no distortion. Largest gap in each case, in pixels:
+
+| model | cases (interpolated) | own lanes: p50 | p90 | p99 | max | every coordinate: p50 | p90 | p99 | max |
+|---|---|---|---|---|---|---|---|---|---|
+| ptlens | 31,656 (14,112) | 0.0084 | 0.022 | 0.062 | 2.70 | 0.044 | 0.13 | 0.32 | 2.75 |
+| poly3 | 5,064 (2,084) | 0.0054 | 0.0071 | 0.0094 | 0.0099 | 0.027 | 0.075 | 0.16 | 0.61 |
+| poly5 | 36 (16) | 0.0063 | 0.0086 | 0.0089 | 0.0089 | (no SSE loop: same) | | | |
+
+**The 90 own-lane cases over 0.1 px have two causes, both lensfun's.**
+
+- **24 are duplicate calibrations.** Five lenses list the same focal length twice with different terms.
+  One is the Panasonic DMC-FZ28 (Standard), at 8.2 mm. Lensfun 0.3.4 keeps the last entry
+  (`_lf_addobj` with `cmp_distortion`, which compares only the focal length, replaces the earlier
+  one). Master keeps both and its exact-match loop returns the first. `lens_profiles` follows master,
+  so these differ by design: up to 2.7 px.
+- **66 are lensfun's approximate square root.** They are lenses with large `a` and `c` terms, such as
+  the Sigma 17-50mm f/2.8 at 17 mm (`a = 0.236, c = 0.275`). Only those two terms use `r`, and in the
+  SSE loop `r` is `_mm_rcp_ps(_mm_rsqrt_ps(r2))`, two estimates each good to 1.5 x 2^-12. The
+  largest error that can cause is `R rho |3 a rho^2 + c| x 3 x 2^-12` px. That is 2.4 px for this
+  Sigma, where the gap is 0.40 px. All 66 cases are within that bound, the largest at 39% of it.
+
+Leaving out the five duplicate-focal lenses, the largest own-lane gap is 0.40 px on ptlens and 0.0099
+px on poly3, against medians of a hundredth of a pixel. No case points to an error in the port.
+
+**The bug as shipped.** On the mixed lanes, lensfun 0.3.4 puts the correction 0.044 px off at the
+median case, 0.32 px at p99 and up to 2.2 px for ptlens (the Sigma 17-50mm at 17 mm, duplicates left
+out). For poly3 it is 0.16 px at p99 and 0.61 px at most. Those are distances on a frame 1,200 px
+wide. The error is a mixed-up neighbour factor, so it is about the same in pixels at any resolution.
 
 ## What this does and does not show
 

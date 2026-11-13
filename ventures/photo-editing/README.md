@@ -1554,7 +1554,10 @@ release's database: at each calibrated focal length and between each pair, on 3:
 two crop factors. It compares where each pixel reads from with our WarpRectilinear2. We follow
 lensfun's master branch, which keeps the centre's scale. The release keeps Hugin's half-height point
 instead, and one exact change of radius takes one to the other (derived in the eval).
-RESULTS_README_PLACEHOLDER
+On 36,756 cases over 1,083 lenses the median gap is 0.008 px (ptlens) and 0.005 px (poly3). The
+worst is 0.40 px, on lenses with large terms, inside the error of lensfun's own approximate square
+root. The exception is five lenses that list one focal length twice: lensfun 0.3.4 keeps the last
+entry and master, which we follow, the first.
 
 The first comparisons were 0.05-0.3 px off. The cause was a bug in lensfun 0.3.4 itself. Its SSE
 loops for ptlens and poly3 (`mod-coord-sse.cpp`) compute each pixel's factor, then multiply it lane

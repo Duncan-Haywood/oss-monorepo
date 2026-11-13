@@ -7,33 +7,142 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T00:07:02Z",
   "ended": "2026-11-13T00:33:42Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "wall_minutes": 33.82,
+  "tokens_in": 27478527,
+  "tokens_out": 114708,
+  "cost_usd": 9.9346,
+  "tool_calls": 142,
+  "task": "photo-editing flagship (row 5): lensfun profiles as WarpRectilinear2 for files with no correction; landed as an independent check of PR #15302's port against the compiled liblensfun 0.3.4",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15307",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "My own first lensfun module interpolated the raw terms where lensfun interpolates term x focal; caught by the real-library check (lensfun gave a=0.015336 at 22 mm, mine 0.015413). That module was discarded for PR #15302's, which had it right.",
+    "My first identity between the two lensfun conventions read the warp past max_valid_radius = 1, where WarpRectilinear2 clamps; fixed by lifting the clamp only inside the check."
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Three sessions picked the same photo-editing item within 15 minutes (PRs 15302, 15306, 15307): the 'picked by session id among the first 3 rows with no PR in 24 h' rule gave the same row to all three, because none had opened a PR yet. claim_check.py caught it only after real work was done; a claim at route time (before any work) would avoid the waste."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The hook that refuses pkill -f also refuses the whole command if the bracketed name appears anywhere else on the line, so an edit chained after a pkill silently did not run; the CLAUDE.md note covers bracketing but not the split-into-two-calls requirement."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Another session's PR #15302 landed the same flagship item first and more completely, so I closed out my parallel module instead of merging a duplicate.",
+      "did": "Repurposed my PR #15307 as an independent check of #15302's port against the real compiled liblensfun 0.3.4 (lensfunpy), using an exact identity between lensfun's 0.3 and master geometries.",
+      "result": "The port matches lensfun to 0.008 px median over 36,756 cases; found a lane-mixing bug in lensfun 0.3.4's SSE ptlens/poly3 loops (fixed on lensfun master, unreleased)."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "flagships.yaml next: not rewritten: this PR verifies the landed milestone item rather than landing a new one, and #15302 already rewrote next.",
+      "did": "Left portfolio/flagships.yaml unchanged.",
+      "result": "next still points at TCA, Canon maker-note lens names, the preview-quality flag and a cubic resampling kernel."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-checking-a-port-against-the-real-library.md",
+    "ventures/photo-editing/eval/lensfun-released-check-2026-11-13.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Local checks: python3 platform/ci/run_venture_tests.py photo-editing -> ok (91.4s), 0 failed. tests/test_lensfun_released.py 3 pass (with lensfunpy installed; the real-library test skips without it). tools/lensfun_released_check.py: 36,756 cases over 1,083 lenses, ptlens own-lane gap p50 0.0084 / p99 0.062 px, poly3 p99 0.0094 px; 90 cases over 0.1 px all explained (24 duplicate-focal entries where 0.3.4 keeps the last and master the first; 66 within the bound of lensfun's approximate sqrt, at most 39% of it). Lensfun bug as shipped: mixed lanes 0.044 px median, 0.32 px p99, up to ~2.2 px. Possible upstream report to lensfun left for the owner (outward-facing); master already has the fix.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3f8530cc-a841-5d26-8240-2b18556a8b6a",
+    "transcripts": 1,
+    "first": "2026-11-13T00:07:02Z",
+    "last": "2026-11-13T00:40:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 137,
+        "input": 267,
+        "output": 114708,
+        "thinking": 30867,
+        "cache_read": 27203419,
+        "cache_write_5m": 0,
+        "cache_write_1h": 274841,
+        "api_equivalent_usd": 9.9346,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 137,
+      "input": 267,
+      "output": 114708,
+      "thinking": 30867,
+      "cache_read": 27203419,
+      "cache_write_5m": 0,
+      "cache_write_1h": 274841,
+      "api_equivalent_usd": 9.9346,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 142,
+    "tools": {
+      "Bash": 127,
+      "Write": 6,
+      "mcp__github__pull_request_read": 5,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 33.82,
+      "active_minutes": 29.67,
+      "model_minutes": 23.4,
+      "tool_minutes": 6.28,
+      "waiting_on_human_minutes": 4.14,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer reading lensfun's C++ (two versions), deriving the convention identity, writing the differential and diagnosing an SIMD lane bug: about a day and a half",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 100.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }

@@ -1,9 +1,9 @@
 ---
 title: "Checking a port against the real library found a bug in the library"
-seo_title: "lensfun 0.3.4 SSE distortion bug: checking a lens-correction port against liblensfun"
+seo_title: "A lensfun 0.3.4 SSE bug, found checking a lens-correction port"
 date: 2026-11-13
 tags: [photo-editing, ventures, raw, lensfun, simd]
-description: "We checked ShootFlow's lensfun port against the compiled liblensfun 0.3.4. The port held. lensfun 0.3.4's SSE code puts a neighbour's correction on 6 of every 8 coordinates."
+description: "ShootFlow's lensfun port matches liblensfun 0.3.4 to 0.008 px. Lensfun's SSE code gives 6 of every 8 coordinates a neighbouring pixel's correction."
 ---
 
 Earlier today [ShootFlow](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/photo-editing) learned to correct lens distortion from [lensfun](https://github.com/lensfun/lensfun)'s open database ([the post](2026-11-13-a-volunteer-lens-profile-against-the-makers-own.md)). The code is a port: each step was read in lensfun's C++ source and written again in Python. Its tests check it against lensfun's formulas, also written out in Python. That shows the port does what its author read. It doesn't show the reading was right.
@@ -28,9 +28,11 @@ Only the x of the first pixel and the y of the last get their own factor. The ot
 
 ## What the full check says
 
-RESULTS_POST_PLACEHOLDER
+We ran 36,756 cases over 1,083 lenses: each calibrated focal length and the points between them, two frame shapes, and two sensor sizes. On the coordinates lensfun computes with each pixel's own factor, ShootFlow and lensfun agree to 0.008 px at the median. The worst case is 0.4 px, on lenses whose profiles have very large terms, and every such case falls inside the error of lensfun's approximate square root (a 12-bit estimate, worked out in the eval). The one real difference is a choice between versions. Five lenses list one focal length twice with different numbers. The 0.3.4 release keeps the second, and the development branch, which we follow, keeps the first.
 
-So the port holds, and it holds where it matters. ShootFlow's correction is exact float64 arithmetic run as a DNG opcode, with no SIMD shortcut. For anyone who links lensfun 0.3.4 on an x86 machine, the bug is a fraction of a pixel. It won't show on a print, but it is enough to throw off a sub-pixel measurement.
+On the other coordinates, lensfun 0.3.4's own correction sits 0.04 px off at the median case, 0.3 px at the 99th percentile, and up to 2 px on the most strongly distorting zooms.
+
+So the port holds, and it holds where it matters. ShootFlow's correction is exact float64 arithmetic run as a DNG opcode, with no SIMD shortcut. For anyone who links lensfun 0.3.4 on an x86 machine, the bug is usually a fraction of a pixel and at worst about two. That won't show on a print, but it is enough to throw off a sub-pixel measurement, such as checking one lens profile against another.
 
 ## Run it yourself
 
