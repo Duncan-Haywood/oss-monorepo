@@ -1,6 +1,6 @@
 ---
 title: "Little Lamps: Blaise, the fishbone, and the two crossed candles"
-seo_title: "Saint Blaise bedtime story for children: the fishbone and the blessing of throats"
+seo_title: "Saint Blaise bedtime story: the fishbone and the blessing of throats"
 date: 2026-11-13
 tags: [fiction, little-lamps, bedtime-story, saints]
 description: "A new Little Lamps bedtime story: Saint Blaise, the boy with the fishbone, the wolf and the pig, and the blessing of throats children can see on 3 February."
