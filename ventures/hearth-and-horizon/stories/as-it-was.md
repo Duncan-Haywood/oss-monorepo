@@ -348,7 +348,7 @@ Elsie looked at it for a long time.
 
 "And in 2130 it was more ground."
 
-"Three and an eighth hectares," said Hamza. "Twice as far. They grew less on it."
+"Three and an eighth hectares," said Hamza. "Two-thirds as much again. They grew less on it."
 
 Elsie nodded. Then she put her hand out, past the gatepost, and Callum, understanding, wheeled her forward the half yard into the headland, and she leaned down and put her palm flat on the top of the wheat, the way you would on a child's head, and held it there.
 

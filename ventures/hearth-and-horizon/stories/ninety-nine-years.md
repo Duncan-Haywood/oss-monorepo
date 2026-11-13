@@ -134,7 +134,7 @@ They voted by show of hands, as they always had. Twenty-nine against, six for.
 
 Dev walked her to her car afterwards, under the one street lamp that worked at the top of the Close, with the parkin crumbs on his jumper.
 
-"It's not that we don't want to pay," he said. "You know that. Half of them have been saying for years that it's daft, ten pound a month for a house, they're embarrassed, they put it in the collection plate instead. It's not the money. It's that if we're going to sign up our great-grandkids for something, we want to know what it is. That index, nobody in that room knows what's in it. You don't. Your machine doesn't, not for 2229."
+"It's not that we don't want to pay," he said. "You know that. Half of them have been saying for years that it's daft, eight pound a month for a house, they're embarrassed, they put it in the collection plate instead. It's not the money. It's that if we're going to sign up our great-grandkids for something, we want to know what it is. That index, nobody in that room knows what's in it. You don't. Your machine doesn't, not for 2229."
 
 "I know," said Aga.
 
