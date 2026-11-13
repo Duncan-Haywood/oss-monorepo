@@ -12,6 +12,7 @@ import { checkFa3, looksLikeFa3 } from "./fa3.mjs";
 import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
 import { checkNfe, looksLikeNfe } from "./nfe.mjs";
 import { checkNfse, looksLikeNfse } from "./nfse.mjs";
+import { checkAbrasf, looksLikeAbrasf } from "./abrasf.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
 export const DEFAULT_MAX_FILES = 50;
@@ -123,6 +124,13 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         const nfse = checkNfse(peek);
         const m = nfse.meta;
         reports.push({ file: name, errors: nfse.findings, envelope: `Read as a Brazilian national NFS-e ${m.kind === "DPS" ? "DPS (the request)" : "(as issued)"} ${m.versao || ""}, not EN 16931${m.cStat === "100" ? "; issued (cStat 100)" : ""}${m.ambGer === "2" || m.tpAmb === "2" ? "; test environment" : ""}`, ...(nfse.skipped.length ? { skipped: nfse.skipped } : {}) });
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeAbrasf(peek)) {
+        // Brazil's municipal NFS-e in the ABRASF layout (most city web services): own rules.
+        const city = checkAbrasf(peek);
+        const m = city.meta;
+        reports.push({ file: name, errors: city.findings, envelope: `Read as a Brazilian municipal NFS-e (ABRASF${m.version ? ` ${m.version}` : ""}${m.root ? `, ${m.root}` : ""}), not EN 16931${m.issued ? "; an issued NFS-e" : m.rps ? "; an RPS for conversion" : ""}`, ...(city.skipped.length ? { skipped: city.skipped } : {}) });
         continue;
       }
       const { invoice, envelope, xml, pdfFindings } = await inspectInvoiceSource(name, source);

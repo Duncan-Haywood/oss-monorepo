@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made up for the tests: the ABRASF 2.04 NFS-e a municipality would return for
+     abrasf-gerar-nfse-204.xml. Base 850.00, ISS 42.50 (5%), net 1000.00 - 6.50 PIS - 30.00 COFINS
+     - 50.00 unconditional discount = 913.50 (ISS not retained, so not deducted). -->
+<CompNfse xmlns="http://www.abrasf.org.br/nfse.xsd">
+  <Nfse versao="2.04">
+    <InfNfse Id="NFSE77">
+      <Numero>77</Numero>
+      <CodigoVerificacao>AB12CD34</CodigoVerificacao>
+      <DataEmissao>2026-11-10T14:05:00</DataEmissao>
+      <ValoresNfse>
+        <BaseCalculo>850.00</BaseCalculo>
+        <Aliquota>5.00</Aliquota>
+        <ValorIss>42.50</ValorIss>
+        <ValorLiquidoNfse>913.50</ValorLiquidoNfse>
+      </ValoresNfse>
+      <PrestadorServico>
+        <RazaoSocial>Prestador Exemplo Ltda</RazaoSocial>
+        <Endereco>
+          <Endereco>Avenida Exemplo</Endereco><Numero>1</Numero><Bairro>Centro</Bairro>
+          <CodigoMunicipio>3550308</CodigoMunicipio><Uf>SP</Uf><Cep>01001000</Cep>
+        </Endereco>
+      </PrestadorServico>
+      <OrgaoGerador><CodigoMunicipio>3550308</CodigoMunicipio><Uf>SP</Uf></OrgaoGerador>
+      <DeclaracaoPrestacaoServico>
+        <InfDeclaracaoPrestacaoServico Id="RPS123">
+          <Rps>
+            <IdentificacaoRps><Numero>123</Numero><Serie>A</Serie><Tipo>1</Tipo></IdentificacaoRps>
+            <DataEmissao>2026-11-10</DataEmissao>
+            <Status>1</Status>
+          </Rps>
+          <Competencia>2026-11-10</Competencia>
+          <Servico>
+            <Valores>
+              <ValorServicos>1000.00</ValorServicos>
+              <ValorDeducoes>100.00</ValorDeducoes>
+              <ValorPis>6.50</ValorPis>
+              <ValorCofins>30.00</ValorCofins>
+              <ValorIss>42.50</ValorIss>
+              <Aliquota>5.00</Aliquota>
+              <DescontoIncondicionado>50.00</DescontoIncondicionado>
+              <DescontoCondicionado>0.00</DescontoCondicionado>
+            </Valores>
+            <IssRetido>2</IssRetido>
+            <ItemListaServico>01.07</ItemListaServico>
+            <CodigoCnae>6201501</CodigoCnae>
+            <Discriminacao>Suporte técnico em sistemas, novembro de 2026</Discriminacao>
+            <CodigoMunicipio>3550308</CodigoMunicipio>
+            <ExigibilidadeISS>1</ExigibilidadeISS>
+            <MunicipioIncidencia>3550308</MunicipioIncidencia>
+          </Servico>
+          <Prestador>
+            <CpfCnpj><Cnpj>11222333000181</Cnpj></CpfCnpj>
+            <InscricaoMunicipal>12345678</InscricaoMunicipal>
+          </Prestador>
+          <TomadorServico>
+            <IdentificacaoTomador><CpfCnpj><Cpf>52998224725</Cpf></CpfCnpj></IdentificacaoTomador>
+            <RazaoSocial>Cliente Exemplo</RazaoSocial>
+            <Endereco>
+              <Endereco>Rua Exemplo</Endereco><Numero>100</Numero><Bairro>Centro</Bairro>
+              <CodigoMunicipio>3304557</CodigoMunicipio><Uf>RJ</Uf><Cep>20010000</Cep>
+            </Endereco>
+          </TomadorServico>
+          <OptanteSimplesNacional>2</OptanteSimplesNacional>
+          <IncentivoFiscal>2</IncentivoFiscal>
+        </InfDeclaracaoPrestacaoServico>
+      </DeclaracaoPrestacaoServico>
+    </InfNfse>
+  </Nfse>
+</CompNfse>
