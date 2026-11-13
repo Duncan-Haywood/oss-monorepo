@@ -258,38 +258,25 @@ flagships:
       History and every measurement: README,
       docs/INFORMATION-GAIN-SELECTOR.md, docs/CONVERGENCE.md and
       docs/REAL-RANKINGS.md. Insights screen, staged-by-default at every list
-      length, and the closed pooled-prior work are all written up there.
-      Pooled-prior narrowing from the choices alone is closed: it needs a
-      careless signal from outside the choices, (c). The sparse long-list
-      overclaim (f) was the sweep harness, not the ranking (2026-11-13, doc
-      section "The sparse long-list overclaim was the harness";
-      scripts/sparse-pool-overclaim.ts): the sweeps' rd cap at 349 counted
-      never-answered rows as raters; the shipped pool calls 0-0.4% of clear
-      pairs wrong at 150 items, and a joint Bradley-Terry fit is no more
-      honest while calling 20-54% fewer pairs. The weighted schemes (g) are
-      re-run uncapped at 8, 20 and 60 respondents (2026-11-13, doc section
-      "The weighted schemes at 8 and 60 respondents, uncapped";
-      docs/careless-pattern-uncapped-panels-2026-11-13.jsonl): loo-w's gains
-      and camp tax both about double, and at 60 people it makes a 25-40%
-      camp's pool call 0.9-1.7% of clear pairs wrong; agreement stays a note.
-      Half-time salience (b) is answered (2026-11-13, doc section
-      "Half-time carelessness and answer times";
-      docs/half-time-answer-time-2026-11-13.jsonl): per-person pace misses
-      them (0-35% of the ceiling), per-answer cuts recover 55-75% when
-      their answers are quick; shipped as ?drop=fast-answers and a builder
-      button, not the default (costs up to 0.006 honest, 0.019 against a
-      camp). Next, most valuable first: (c) the first real survey's
-      answers: msToAnswer against the answer-time model (and as a careless
-      detector for the pooled prior), and how noisy real pairwise answers
-      are, which decides the self-consistency gate
-      (scripts/coin-flip-gate-real.ts --honest-lapse), and whether careless
-      answers are in fact quick, which decides whether ?drop=fast-answers
-      should ever be the default; (d) position bias that starts mid-session
-      (careless answers arriving as a block, which the q sweep does not
-      model); (h) share-drop (leave out people with 30%+ fast answers) beat
-      both pace cuts at q = 1 (+0.034 to +0.229 against +0.027 to +0.151)
-      but taxes a camp by up to 0.030 at a wide pace spread: decide on a
-      real panel's times.
+      length, the closed pooled-prior work, the sparse long-list overclaim (f,
+      the harness), the uncapped weighted schemes (g) and half-time salience
+      (b) are written up there. Latest (2026-11-13, "Half-time carelessness
+      and answer times"; docs/half-time-answer-time-2026-11-13.jsonl):
+      per-person pace misses people careless on half their picks (0-35% of
+      the ceiling); a per-answer cut recovers 55-75% when their answers are
+      quick, shipped as ?drop=fast-answers and a builder button, not the
+      default (costs up to 0.006 with nobody careless, 0.019 against a
+      camp). Next, most valuable first: (c) the first real survey's answers:
+      msToAnswer against the answer-time model, whether careless answers are
+      in fact quick (decides whether ?drop=fast-answers should ever be the
+      default, and gives the pooled prior a careless signal), and how noisy
+      real pairwise answers are, which decides the self-consistency gate
+      (scripts/coin-flip-gate-real.ts --honest-lapse); (d) position bias or
+      carelessness that starts mid-session (a block, which the q sweep does
+      not model); (h) share-drop (leave out people with 30%+ fast answers)
+      beat both pace cuts at q = 1 (+0.034 to +0.229 against +0.027 to
+      +0.151) but taxes a camp by up to 0.030 at a wide pace spread: decide
+      on a real panel's times.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
