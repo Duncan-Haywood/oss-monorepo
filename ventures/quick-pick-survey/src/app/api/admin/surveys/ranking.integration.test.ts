@@ -49,7 +49,9 @@ describe("admin survey ranking", () => {
   beforeEach(async () => {
     // The routes shuffle slots with Math.random; seed it so an honest respondent's
     // slot share (1.7% of 40-answer runs reach 0.7 by chance) cannot flake the slot-clicker checks.
-    let seed = 20261111;
+    // Re-picked 2026-11-13: the staged selector (PR #15431) draws differently, and under 20261111 an
+    // honest respondent picked the top slot 11 of 40 times, so five tests here failed on main.
+    let seed = 20261113;
     vi.spyOn(Math, "random").mockImplementation(() => {
       seed = (seed + 0x6d2b79f5) | 0;
       let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
@@ -112,7 +114,7 @@ describe("admin survey ranking", () => {
     expect(rho).toBeGreaterThan(0.8);
     // Every participant answered ANSWERS_EACH pairs, and the route reads that from answered trials.
     expect(body.coverage.options).toBe(n);
-    expect(body.leftOut).toEqual({ slotClickers: 0, fast: 0, fastAnswers: 0, advice: "" });
+    expect(body.leftOut).toEqual({ slotClickers: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
     expect(body.agreement.advice).toBe("");
   });
 
@@ -143,7 +145,7 @@ describe("admin survey ranking", () => {
     const all = await (await get(SURVEY)).json();
     expect(all.pace).toMatchObject({ checked: 7, fast: 2, lowAndFast: 2, typicalSeconds: 3 });
     expect(all.pace.advice).toMatch(/^2 respondents of 7 answered in under half the typical time per pick/);
-    expect(all.leftOut).toEqual({ slotClickers: 0, fast: 0, fastAnswers: 0, advice: "" });
+    expect(all.leftOut).toEqual({ slotClickers: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
     expect(Math.max(...all.ranking.map((r: { respondents: number }) => r.respondents))).toBe(7);
 
     const without = await (await get(SURVEY, "?drop=fast")).json();
@@ -165,7 +167,7 @@ describe("admin survey ranking", () => {
     setCookie(ADMIN_COOKIE_NAME, createSessionToken());
     const all = await (await get(SURVEY)).json();
     const replayed = await (await get(SURVEY, "?drop=fast-answers")).json();
-    expect(replayed.leftOut).toEqual({ slotClickers: 0, fast: 0, fastAnswers: 0, advice: "" });
+    expect(replayed.leftOut).toEqual({ slotClickers: 0, fast: 0, fastAnswers: 0, fastBlocks: 0, advice: "" });
     // Same answers, replayed in answer order through the same update: the same ranking (the pool sums rows in another order, so to 1e-6, not the last bit).
     type Row = { itemId: string; rank: number; bestRank: number; worstRank: number; respondents: number; rating: number; low: number; high: number };
     const shape = (r: Row[]) => r.map(({ itemId, rank, bestRank, worstRank, respondents }) => ({ itemId, rank, bestRank, worstRank, respondents }));
@@ -203,6 +205,40 @@ describe("admin survey ranking", () => {
     };
     expect(rho(without.ranking)).toBeGreaterThanOrEqual(rho(all.ranking));
     expect(rho(without.ranking)).toBeGreaterThan(0.8);
+  });
+
+  it("?drop=fast-blocks leaves out what people answered after turning quick halfway, and nothing of a warm-up everyone shares", async () => {
+    await runRespondents(5, ANSWERS_EACH);
+    // Two respondents who answer honestly for their first 20 picks, then reverse everyone's order, quickly.
+    let k = 0; // respondents answer one after another, so k % ANSWERS_EACH is the pick's place in their session
+    const bored = await runRespondents(2, ANSWERS_EACH, (a, b) => ((k++ % ANSWERS_EACH) < 20 ? (a < b ? "A" : "B") : a < b ? "B" : "A"));
+    // Everyone takes twice as long over their first eight picks (reading the instructions): shared, so no block.
+    const all = await prisma.trial.findMany({ where: { result: { not: null } }, orderBy: [{ answeredAt: "asc" }, { id: "asc" }], select: { id: true, participantId: true } });
+    const seen = new Map<string, number>();
+    for (const t of all) {
+      const i = seen.get(t.participantId) ?? 0;
+      seen.set(t.participantId, i + 1);
+      const ms = (i < 8 ? 6000 : 3000) * (bored.includes(t.participantId) && i >= 20 ? 0.25 : 1);
+      await prisma.trial.update({ where: { id: t.id }, data: { msToAnswer: ms } });
+    }
+    setCookie(ADMIN_COOKIE_NAME, createSessionToken());
+
+    const everyone = await (await get(SURVEY)).json();
+    const without = await (await get(SURVEY, "?drop=fast-blocks")).json();
+    expect(without.leftOut).toMatchObject({ fastBlocks: 2, fastAnswers: 0, fast: 0 });
+    expect(without.leftOut.advice).toMatch(/2 respondents answered at a normal pace and then turned much quicker .* the 40 answers they gave from then on are left out/);
+    expect(Math.max(...without.ranking.map((r: { respondents: number }) => r.respondents))).toBe(7);
+    const rho = (ranked: { itemId: string }[]) => {
+      const n = ranked.length;
+      return 1 - (6 * ranked.reduce((t, r, i) => t + (i - order.get(r.itemId)!) ** 2, 0)) / (n * (n * n - 1));
+    };
+    expect(rho(without.ranking)).toBeGreaterThanOrEqual(rho(everyone.ranking));
+
+    // With nobody turning quick, the warm-up alone leaves nothing out.
+    await prisma.trial.updateMany({ where: { participantId: { in: bored } }, data: { msToAnswer: 3000 } });
+    const none = await (await get(SURVEY, "?drop=fast-blocks")).json();
+    expect(none.leftOut).toMatchObject({ fastBlocks: 0 });
+    expect(none.leftOut.advice).toMatch(/^Nobody turned unusually quick partway through/);
   });
 
   it("downloads the same ranking as CSV, one row per option", async () => {
