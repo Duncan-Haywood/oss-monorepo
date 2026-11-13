@@ -116,3 +116,13 @@ test('the page\'s budget box: re-picking from one replay matches a fresh replay 
   assert.equal(suggestFor(short.settings, 100, short.n), 'quiet');
   assert.match(eagernessText(short), /Suggested: Quiet\. 25 points is under the 30/);
 });
+
+test('round 9: drift as a fourth setting failed its pre-registered rule, so the ladder keeps three settings', () => {
+  const out = readFileSync(new URL('./eval/watch-hint-drift.out.txt', import.meta.url), 'utf8');
+  // The shipped hint's row reproduces round 6b under persist 2.
+  assert.match(out, /hint3, B = 2 \(shipped\)\s+68\s+27 \(40%\)\s+17\.5\s+17\/31/);
+  assert.match(out, /hint4, B = 2 \(candidate\)\s+59\s+23 \(39%\)\s+15\.2\s+15\/31/);
+  assert.match(out, /\(a\) more marks than the shipped hint: 15 vs 17 FAIL/);
+  assert.match(out, /The four-setting hint does NOT ship\./);
+  assert.ok(!eagerSettings('mean').some((s) => s.detector === 'drift'));
+});

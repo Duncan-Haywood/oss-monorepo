@@ -346,7 +346,10 @@ export function replayText(res, { column = 'the series', model = 'mean' } = {}) 
 }
 
 /** The page's three "How eager" settings, quietest first. For the volatility and counts models the quiet default is
- * already `bocpd`, so those models have two settings. */
+ * already `bocpd`, so those models have two settings. "Wandering level" (drift) is not on this ladder: round 9
+ * (eval/watch-hint-drift.mjs, pre-registered) put it between middle and eager and the hint reached 15 of 31 future marks
+ * against 17, because drift is quietest on flat series (it absorbs modest steps as wander) and the rule read that as room
+ * to be more eager. The rule assumes nested settings; drift is a different model (README "Round 9"). */
 export function eagerSettings(model = 'mean') {
   const q = defaultDetector(model);
   return [{ key: 'quiet', detector: q }, ...(q === 'bocpd' ? [] : [{ key: 'middle', detector: 'bocpd' }]), { key: 'eager', detector: 'pelt' }];

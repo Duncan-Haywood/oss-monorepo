@@ -4036,3 +4036,52 @@ found within 2 rows with its levels; a watch from 100 to 260 points sends that j
 and 260 rows send the row-201 jump once (level 88.7 to 96.3, 7.75 noise sd); the wandering-level model with the setting
 blank uses the drift watch; no page errors, no sideways scroll. `deploy/make-watch-repo.sh` now copies `drift-level.mjs`, which `watch-core.mjs`
 imports.
+
+## Round 9: the drift watch in the "How eager" hint (2026-11-13, pre-registered; negative result, the hint keeps three settings)
+
+Round 8 left the hint ("Which How eager suits this series?", `--suggest`, `--detector auto`) scoring three settings, so a
+person whose level wanders was never pointed at "Wandering level". Round 9 asked whether it should be. `eval/watch-hint-drift.mjs`
+holds the rule, committed in its own commit before the first run: round 6's design unchanged (each univariate TCPD series cut in
+half, the watch replayed after every point under the shipped policy, confirm 5, tolerance 5, hold, persist 2; picked from the
+first half, scored on the second), with drift added to the ladder as quiet < middle < drift < eager and the hint taking the most
+eager setting whose history rate is at most 2 alerts per 100 checks. Rule: against the shipped three-setting hint, (a) more
+future majority-marked changes reached, (b) future alerts per 1,000 checks at most fixed middle's, (c) share at a mark at most
+5 points lower. Output `eval/watch-hint-drift.out.txt`, 153 s on 4 cores; the shipped hint's row reproduces round 6b's exactly
+(68 alerts, 27 at a mark, 17.5 per 1,000, 17 of 31).
+
+| policy (future halves, 23 TCPD series) | alerts | at a mark | per 1,000 checks | majority-marked reached | picks q/m/d/e |
+|---|---|---|---|---|---|
+| fixed quiet (default) | 61 | 26 (43%) | 15.7 | 16 of 31 | |
+| fixed middle | 106 | 35 (33%) | 27.3 | 23 of 31 | |
+| fixed drift | 98 | 45 (46%) | 25.3 | 25 of 31 | |
+| fixed eager | 364 | 79 (22%) | 93.9 | 31 of 31 | |
+| hint, three settings, B = 2 (shipped) | 68 | 27 (40%) | 17.5 | 17 of 31 | 14/7/0/2 |
+| **hint, four settings, B = 2 (candidate)** | 59 | 23 (39%) | 15.2 | **15 of 31** | 12/1/8/2 |
+| four settings, drift below middle, B = 2 (reported) | 62 | 25 (40%) | 16.0 | 16 of 31 | 12/7/2/2 |
+
+**(a) fails** (15 against 17); (b) and (c) pass. The prediction in the header said (a) was where it could fail, but for the wrong
+reason: it expected too few wandering series to move to drift. None did. The eight series the candidate moved to drift were
+mostly the quietest ones (construction, the two airport series, seat belts, three quality-control series, US population), where drift sent 0
+to 1.6 alerts per 100 history checks. On a flat level the drift model explains a modest step as wander, so it is quiet there
+because it is insensitive, not because the series is calm; the hint reads "few alerts on the history" as "room to be more eager"
+and gets it backwards. Construction and seat belts each lost their one future mark that way. The wandering series did not move
+because drift was over the budget on their histories: co2_canada 15.1 per 100 (quiet 3.5), children_per_woman 9.2, businv 5.3,
+usd_isk 10.1. Of the 9 series where even Quiet was over 2 per 100, drift's history rate was higher than Quiet's on 5, equal on 3
+and lower on 1 (quality_control_4), so the page's advice there, to watch the daily change, stands; pointing those people at
+"Wandering level" would have made it worse.
+
+The hint's rule assumes the settings are nested: each more eager one sends at least the alerts of the one below on any series.
+Quiet, middle and eager nearly are (one engine, fewer assumptions each step). Drift is a different model, quieter than Quiet on a
+flat level and louder than Middle on a wandering one, so no single place on the ladder fits it. Held out (6 series, deciding
+nothing) said the same: the candidate moved iceland_tourism and scanline_126007 to drift and lost scanline_126007's mark (5 of 9
+against 6 of 9).
+
+**Post hoc, deciding nothing: fixed drift beat fixed middle on all three counts** on these future halves (25 of 31 against 23, at
+25.3 against 27.3 per 1,000, 46% at a mark against 33%), and on the held out ties it on marks (8 of 9) at 44.2 against 41.4 per
+1,000. That is on series rounds 3-8 have all seen, and round 8 already looked at drift on them, so it is a lead for a fresh
+labelled set, not a reason to change the Middle setting.
+
+What changed: nothing in the hint. `eagerSettings` says why drift is not on the ladder, and `watch-eagerness.test.mjs` pins the
+round's result. Next for the hint: a rule that does not assume nested settings (for example, pick drift only when it sends fewer
+alerts than Quiet on the history *and* the drift fit's wander is a material share of the noise), pre-registered on a fresh
+labelled set.
