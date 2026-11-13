@@ -1,0 +1,12 @@
+# 2026-11-13. node eval/clique-floor.mjs P S cases (one 4-CPU cloud machine; the 80- and 100-person rows ran beside other benches).
+# HiGHS on the same weeks (eval/ilp-export.mjs NOBUILD=1, then eval/ilp-check.py, scipy 1.18.1 / HiGHS 1.12, pairwise conflict rows):
+#   60 x 168 week 0: optimal 300 h in 4.9 s (root bound 300 after presolve, 1 node); week 1: optimal 308 h in 479 s.
+60 x 168 week 0: 245 copies, clique LP 300.000 h, dual bound 300.000, 556 rows, 8151 columns, 2269 pivots, 1308 ms
+60 x 168 week 1: 238 copies, clique LP 308.000 h, dual bound 308.000, 544 rows, 8632 columns, 1967 pivots, 1134 ms
+80 x 224 week 0: 304 copies, clique LP 257.000 h, dual bound 257.000, 733 rows, 13694 columns, 3861 pivots, 4462 ms
+80 x 224 week 1: 314 copies, clique LP 331.000 h, dual bound 331.000, 768 rows, 14128 columns, 4400 pivots, 5723 ms
+80 x 224 week 2: 326 copies, clique LP 281.000 h, dual bound 281.000, 747 rows, 14555 columns, 5168 pivots, 6304 ms
+100 x 280 week 0: 400 copies, clique LP 358.000 h, dual bound 358.000, 925 rows, 21758 columns, 7849 pivots, 15086 ms
+100 x 280 week 1: 400 copies, clique LP 344.000 h, dual bound 344.000, 934 rows, 21788 columns, 7006 pivots, 13481 ms
+# Engine's least open hours found / proved before this change (README): 60: 300 (floor 275, unproven) and 308 (proven);
+# 80: 257, 331, 281 (proven in 42-86 s by column generation); 100: 359 over 358 and 347 over 344 (both unproven).
