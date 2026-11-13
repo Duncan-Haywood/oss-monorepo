@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-13 · Milestone 7f: sweep the linear stability margin used as a training constraint (predictions written and committed before `experiments/m7f_sweep/run.py` was run at full budget)
+
+- Why: milestone 7e's first next step. 7e tested one margin (ki <= 0.8x the linear ceiling, M = 1.25) and found it costs about 0.7% of held-out cost and removes every divergence a 45° tilt limit exposes. A builder needs the curve, not one point: how much margin is enough, and what does more cost?
+- Setup (`experiments/m7f_sweep/run.py`): milestone 7e's training exactly (12-coordinate `integ` arm, 3200 CMA-ES evaluations, 16 training episodes, 6 seeds, 2 starts) for the centre-of-pressure-above geometry only (7e: the constraint does not bind below), at M = 1.0 (only "stable at every plant corner at its own ki"), 1.11 (0.9x), 1.43 (0.7x), 1.67 (0.6x). M = 1.25 is 7e's designs and the unconstrained arm is 7b's `integ retrained`; all seven arms are re-scored by one function on the 64 held-out episodes (seed 9999), lever 0, 1, 2, at tilt-command limits 20° and 45°.
+- Looked at before writing these: a 64-evaluation smoke run (2 seeds, 4 training episodes, scored on seed 4242, not the held-out seed; too short to converge, its numbers are not evidence). It showed that 86-87% of the first candidates are rejected at M >= 1.43, so the start point is far from feasible there.
+- Predictions:
+  - F1 (prior 85%): at every M, every seed's best design is feasible (best training score above -100).
+  - F2 (prior 75%): the mean share of training candidates rejected rises strictly with M across 1.0, 1.11, 1.25 (7e: 0.13), 1.43, 1.67.
+  - F3 (prior 70%): the constraint binds for every M >= 1.11: ceiling multiple in [M, M + 0.15] in at least 5 of 6 seeds.
+  - F4a (prior 55%): the price is monotone: mean held-out J at 20°, lever 0 does not increase from one arm to the next across unconstrained, 1.0, 1.11, 1.25, 1.43, 1.67.
+  - F4b (prior 60%): at M = 1.67 the paired price at 20°, lever 0 is still at least -0.05 (7e at 1.25: -0.011).
+  - F5 (prior 60%): at 45°, lever 0, the M = 1.0 designs diverge on at least 1 of 384 flights (they sit on the boundary, like the unconstrained designs' 13), and every arm with M >= 1.11 diverges on 0.
+  - F6 (prior 45%): at 20°, lever 2 (outside training), total divergences do not increase with M across 1.0, 1.11, 1.25 (7e: 4), 1.43, 1.67.
+- Analysis: per-arm means, paired per-seed differences against unconstrained (mean, se, sign count), divergence counts. No test beyond the counts with six seeds.
+
 ## 2026-11-13 · Milestone 7e: train with milestone 7c's linear stability margin as a CMA-ES constraint (predictions written and committed before `experiments/m7e_margin/run.py` was run at full budget)
 
 - Why: milestone 7c's second next step. Left alone, CMA-ES put the `integ` designs' attitude integrator gain on the linear stability boundary (ceiling multiples 0.88-1.11), with nothing between the design and the edge of the plant set. 7c's advice to a builder, "stay at about 0.8x the ceiling", was checked only by rescaling designs after training. Here the margin is a training constraint: does a design trained inside it lose cost, and does it diverge less?
