@@ -65,10 +65,14 @@ export function compute(raw) {
   const findings = [];
   if (profit < 0) findings.push({ severity: "high", title: `The campground loses about ${dollars(-profit)} a year at ${p.occupancy}% full while open. The nightly rate needs to be ${dollars(breakEvenRate)} to break even.` });
   else if (profit < p.target) findings.push({ severity: "medium", title: `The campground makes about ${dollars(profit)} a year, short of your ${dollars(p.target)} target. The nightly rate needs to be ${dollars(targetRate)} at this occupancy to reach it.` });
-  if (breakEvenOcc === null) findings.push({ severity: "high", title: `Each occupied night costs more than it brings in (${dollars(margin)}), so more bookings lose more. Rate or costs have to change before occupancy helps.` });
+  if (breakEvenOcc === null) {
+    // Compare the rounded margin, so a float residue never reads "costs $0.00 more".
+    if (round2(margin) < 0) findings.push({ severity: "high", title: `Each occupied night costs about ${dollars(-margin)} more than it brings in, so more bookings lose more. Rate or costs have to change before occupancy helps.` });
+    else findings.push({ severity: "high", title: `Each occupied night brings in exactly what it costs, so no number of bookings covers the ${dollars(p.fixedYear)} of fixed costs. Rate or costs have to change before occupancy helps.` });
+  }
   else if (breakEvenOcc > 100) findings.push({ severity: "high", title: `Break-even needs ${Math.round(breakEvenNights)} occupied nights but only ${Math.round(available)} exist in a season. Even full, the campground loses money at this rate.` });
   else if (p.occupancy - breakEvenOcc < 10) findings.push({ severity: "medium", title: `Break-even is ${breakEvenOcc.toFixed(0)}% full and you run ${p.occupancy}%. One rainy month can turn it into a loss.` });
-  findings.push({ severity: "info", title: `Each extra occupied night adds about ${dollars(margin)}; each night a site sits empty costs you that, because fixed costs run regardless.` });
+  if (margin > 0) findings.push({ severity: "info", title: `Each extra occupied night adds about ${dollars(margin)}; each night a site sits empty costs you that, because fixed costs run regardless.` });
   findings.push({ severity: "info", title: `Fixed costs are spread over ${p.openMonths} open month(s): about ${dollars(p.fixedYear / p.openMonths)} a month while open.` });
   if (p.platformPct >= 5 && nights > 0) findings.push({ severity: "info", title: `${p.platformPct}% booking commission costs about ${dollars(nights * (p.nightly + u.feeShare) * p.platformPct / 100)} a year. Direct bookings through your own page or phone keep it.` });
   return { errors: [], input: p, available, nights, stays, revenue: round2(revenue), variable: round2(variable), labour: round2(labour), profit: round2(profit), perSite: round2(profit / p.sites), margin: round2(margin), breakEvenNights, breakEvenOcc, breakEvenRate: round2(breakEvenRate), targetRate: round2(targetRate), findings, sweep };

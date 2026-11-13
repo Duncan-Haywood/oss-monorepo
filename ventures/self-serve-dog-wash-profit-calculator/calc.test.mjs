@@ -187,3 +187,11 @@ test("payback later than the target is noted", () => {
   assert.ok(r.paybackMonth > 1);
   assert.ok(r.findings.some((f) => /later than your 1-month target/.test(f.title)));
 });
+
+// Red team 2026-11-13: a losing full-service line is not described as adding money.
+test("full-service dogs that lose money are said to lose it", () => {
+  const r = compute({ ...SAMPLE, fsPrice: "5" });
+  const t = r.findings.map((f) => f.title).join("\n");
+  assert.doesNotMatch(t, /add -\$/);
+  assert.match(t, /Full-service dogs lose \$[\d,]+ a year/);
+});

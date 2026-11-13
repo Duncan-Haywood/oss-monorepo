@@ -63,14 +63,18 @@ export function compute(raw) {
   const findings = [];
   if (profit < 0) findings.push({ severity: "high", title: `The barn loses about ${dollars(-profit)} a month at ${p.occupancy}% full once your own care time is paid at ${dollars(p.wage)} an hour. Board needs to be ${dollars(breakEvenPrice)} a horse to break even.` });
   else if (profit < p.target) findings.push({ severity: "medium", title: `The barn makes about ${dollars(profit)} a month, short of your ${dollars(p.target)} target. Board needs to be ${dollars(targetPrice)} a horse at this occupancy to reach it.` });
-  if (breakEvenOcc === null) findings.push({ severity: "high", title: `Each horse costs more to keep than it brings in (${dollars(margin)} a month), so filling more stalls loses more. Price or feed cost has to change before occupancy helps.` });
+  if (breakEvenOcc === null) {
+    // Compare the rounded margin, so a float residue never reads "costs $0.00 more".
+    if (round2(margin) < 0) findings.push({ severity: "high", title: `Each horse costs about ${dollars(-margin)} a month more to keep than it brings in, so filling more stalls loses more. Price or feed cost has to change before occupancy helps.` });
+    else findings.push({ severity: "high", title: `Each horse brings in exactly what it costs to keep, so no number of boarders covers the ${dollars(p.fixedMonth)} of fixed costs. Price or feed cost has to change before occupancy helps.` });
+  }
   else if (breakEvenOcc > 100) findings.push({ severity: "high", title: `Break-even needs ${breakEvenHorses.toFixed(1)} horses but you have ${p.stalls} stalls. Even full, the barn loses money at this price.` });
   else if (p.occupancy - breakEvenOcc < 10) findings.push({ severity: "medium", title: `Break-even is ${breakEvenOcc.toFixed(0)}% full and you run ${p.occupancy}%. A couple of empty stalls turns it into a loss.` });
   if (profit >= 0 && p.wage > 0 && p.careMin > 0) {
     const unpaid = profit + labour;
     findings.push({ severity: "info", title: `If you do the care yourself, the barn pays you about ${dollars(unpaid / labourHours)} an hour for ${labourHours.toFixed(0)} hours a month, profit and labour together.` });
   }
-  findings.push({ severity: "info", title: `Each extra boarded horse adds about ${dollars(margin)} a month; each empty stall costs you that, because fixed costs run regardless.` });
+  if (margin > 0) findings.push({ severity: "info", title: `Each extra boarded horse adds about ${dollars(margin)} a month; each empty stall costs you that, because fixed costs run regardless.` });
   if (p.badDebt >= 5) findings.push({ severity: "info", title: `${p.badDebt}% unpaid board costs about ${dollars(horses * (p.boardPrice + p.extras) * p.badDebt / 100)} a month. Autopay and a written late-fee and notice policy protect it.` });
   return { errors: [], input: p, horses, revenue: round2(revenue), variable: round2(variable), labour: round2(labour), labourHours, profit: round2(profit), perStall: round2(profit / p.stalls), margin: round2(margin), breakEvenHorses, breakEvenOcc, breakEvenPrice: round2(breakEvenPrice), targetPrice: round2(targetPrice), findings, sweep };
 }
