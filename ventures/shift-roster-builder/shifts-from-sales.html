@@ -36,7 +36,7 @@
   <section class="card">
     <label for="csv">Hourly sales (CSV)</label>
     <textarea id="csv" placeholder="datetime,sales&#10;2026-10-05 09:00,120.50"></textarea>
-    <input id="file" type="file" accept=".csv,.txt,text/csv,text/plain" aria-label="Load a CSV file">
+    <input id="file" type="file" multiple accept=".csv,.txt,text/csv,text/plain" aria-label="Load one or more CSV files">
     <button type="button" id="sample">Try a made-up fortnight</button>
     <div class="row2">
       <div><label for="count">Staff to</label><select id="count"><option value="">sales (money taken)</option><option value="tickets">customers (count each ticket, order or receipt number once)</option><option value="rows">rows (count each row as one customer)</option><option value="standard">minutes of work (a labour standard)</option></select></div>
@@ -137,7 +137,7 @@
     $("#count").addEventListener("change", () => { if ($("#count").value === "standard") { $("#splh").value = "60"; record("sales_labour_standard"); } labelFor(); run(); });
     document.addEventListener("input", run);
     $("#sample").addEventListener("click", () => { $("#csv").value = sample(); run(); });
-    $("#file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) { $("#csv").value = await f.text(); run(); } });
+    $("#file").addEventListener("change", async (e) => { const fs = [...e.target.files]; if (fs.length) { const texts = await Promise.all(fs.map((f) => f.text())); $("#csv").value = texts.map((t) => t.replace(/\s+$/, "")).join("\n"); run(); } });
     $("#copy").addEventListener("click", async () => {
       const t = $("#out").textContent; if (!t || t.startsWith("Paste")) return;
       try { await navigator.clipboard.writeText(t); $("#status").textContent = "Copied. Paste it into the shifts box of the roster builder."; }
