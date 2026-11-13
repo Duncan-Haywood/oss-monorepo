@@ -815,11 +815,11 @@ class StartHereTests(unittest.TestCase):
         from datetime import datetime, timezone
         now = datetime(2026, 11, 11, 10, 0, tzinfo=timezone.utc)
         queue = [{"venture": f"v{i}", "flagship": True, "task": "Deepen (flagship): x"}
-                 for i in range(6)]
+                 for i in range(9)]
         queue.insert(1, {"venture": "stuck", "flagship": True, "task": "Inputs only: x"})
-        picks = {start_here(queue, {}, now=now, session=f"session_{n}") for n in range(40)}
-        # Only the first START_SPREAD free rows (rows 1, 3, 4) are ever picked.
-        self.assertEqual(picks, {(1, "v0"), (3, "v1"), (4, "v2")})
+        picks = {start_here(queue, {}, now=now, session=f"session_{n}") for n in range(80)}
+        # Only the first START_SPREAD (6) free rows are ever picked, skipping row 2.
+        self.assertEqual(picks, {(1, "v0"), (3, "v1"), (4, "v2"), (5, "v3"), (6, "v4"), (7, "v5")})
         # The same session always gets the same row.
         self.assertEqual(start_here(queue, {}, now=now, session="abc"),
                          start_here(queue, {}, now=now, session="abc"))
