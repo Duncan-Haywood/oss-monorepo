@@ -41,7 +41,8 @@ async function get(path, sha) {
   if (got !== sha) { console.error(`${path}: SHA-256 ${got} is not the copy measured (${sha}).`); process.exit(1); }
   return b.toString("utf8");
 }
-const read = (text) => { const r = readSales(text); return `${r.rows} rows read, ${r.skipped.length} skipped, refunds ${r.refunds.n}, voids ${r.voids.n}, sales ${r.entries.reduce((a, e) => a + e.amount, 0).toFixed(2)}`; };
+// Locations (2026-11-13): the count of distinct Location values and their rows; the names are not printed.
+const read = (text) => { const r = readSales(text); return `${r.rows} rows read, ${r.skipped.length} skipped, refunds ${r.refunds.n}, voids ${r.voids.n}, sales ${r.entries.reduce((a, e) => a + e.amount, 0).toFixed(2)}; locations ${r.locations.length} (rows ${r.locations.map((l) => l.rows).join(", ")})`; };
 for (const [label, path, sha] of SINGLE) {
   const t = await get(path, sha);
   console.log(`== ${label}\n${read(t)}`);

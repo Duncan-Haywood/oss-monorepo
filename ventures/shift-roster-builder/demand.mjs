@@ -172,18 +172,73 @@ function pastedFiles(lines, sep, out) {
   return kept;
 }
 
+// Several shops in one export (2026-11-13). Square's item-sales export and Toast's ItemSelectionDetails both carry a
+// "Location" column (all four real files read in eval/real-pos-exports.mjs do, one shop each), so an owner with two or
+// three sites exports them in one file. Until now every row was averaged into one shop's week. This lists the
+// locations with row counts (out.locations, before any filter) and, given o.location (matched without case or
+// punctuation), keeps only that site's rows. With several and none picked, a note says they were planned as one.
+// A row shifted by an unquoted comma (a real Square file writes "O&#039,Toole" for O'Toole, so every column after the
+// item name moves one to the right and the Location cell reads "Payment", the Event Type) keeps its real location.
+const WHERE = ["location", "location name", "site", "site name", "store", "store name", "branch", "branch name", "venue", "venue name", "outlet", "outlet name", "restaurant", "restaurant name", "shop", "shop name", "location code"];
+function pickLocation(lines, sep, head, o, out) {
+  out.locations = [];
+  const w = head.findIndex((h) => WHERE.includes(h));
+  if (w < 0) {
+    if (o.location) out.notes.push(`No location column found (looked for: ${WHERE.join(", ")}), so "${o.location}" could not be picked: the whole file was read.`);
+    return lines;
+  }
+  const rows = lines.slice(1).map((l) => splitCsvRow(l, sep));
+  const at = (c, i) => String(c[i] ?? "").trim();
+  const blank = (c) => c.every((x) => String(x ?? "").trim() === "");
+  // First count by the column alone, then move a row whose value is rarer than another location when a cell up to
+  // three places to either side is exactly that busier location's name: the row is shifted (counting cells does not
+  // show it; the real file's shifted row has as many cells as the rest, its trailing empty one gone).
+  const first = new Map();
+  for (const c of rows) { const v = blank(c) ? "" : at(c, w); if (v) first.set(v, (first.get(v) || 0) + 1); }
+  let shifted = 0;
+  const locOf = rows.map((c) => {
+    if (blank(c)) return null;
+    const v = at(c, w);
+    for (const k of [1, -1, 2, -2, 3, -3]) {
+      const r = at(c, w + k);
+      if (r && r !== v && (first.get(r) || 0) > (first.get(v) || 0)) { shifted++; return r; }
+    }
+    return v;
+  });
+  const count = new Map();
+  for (const v of locOf) if (v) count.set(v, (count.get(v) || 0) + 1);
+  out.locations = [...count].map(([name, n]) => ({ name, rows: n })).sort((a, b) => b.rows - a.rows || a.name.localeCompare(b.name));
+  if (shifted) out.notes.push(`${shifted} row${shifted === 1 ? " has" : "s have"} shifted cells (an unquoted comma, such as "O&#039,Toole" for O'Toole, moves every later column): ${shifted === 1 ? "its" : "their"} location was read from the cell beside it that names a busier location.`);
+  const key = (s) => norm(s);
+  if (o.location) {
+    const want = key(o.location);
+    const hit = out.locations.find((l) => key(l.name) === want);
+    if (!hit) { out.notes.push(`No rows at location "${o.location}". Locations in the file: ${out.locations.map((l) => l.name).join("; ") || "none"}.`); out.noLocation = true; return [lines[0]]; }
+    const kept = [lines[0]];
+    let elsewhere = 0;
+    rows.forEach((c, i) => { if (locOf[i] === null || key(locOf[i]) === want) kept.push(lines[i + 1]); else elsewhere++; });
+    out.location = hit.name;
+    out.notes.push(`Only ${hit.name}: ${elsewhere} row${elsewhere === 1 ? "" : "s"} at other locations left out.`);
+    return kept;
+  }
+  if (out.locations.length > 1) out.notes.push(`The file has ${out.locations.length} locations (${out.locations.slice(0, 6).map((l) => `${l.name}: ${l.rows} rows`).join("; ")}${out.locations.length > 6 ? "; ..." : ""}); they were planned as one shop. Pick one location to plan it alone.`);
+  return lines;
+}
+
 // Read the export into dated (or weekday-only) sales entries, before any averaging.
 // Returns { entries: [{day, hour, key, amount}], rows, skipped, notes, blank, undated, dayFirst, ambiguous, skippedDays }.
 export function readSales(text, o = {}) {
   const skip = new Set((o.skipDates || []).map(isoKey));
   // Excel writes "sep=," as a first line when it saves a CSV for another locale; it is not a header.
   let lines = csvLines(text).filter((l) => l.trim()).filter((l, i) => !(i === 0 && /^"?sep=.?"?\s*$/i.test(l.trim())));
-  const out = { entries: [], rows: 0, skipped: [], notes: [], blank: 0, undated: 0, dayFirst: false, ambiguous: false, skippedDays: new Set(), refunds: { n: 0, amount: 0 }, voids: { n: 0, amount: 0 } };
+  const out = { entries: [], rows: 0, skipped: [], notes: [], blank: 0, undated: 0, dayFirst: false, ambiguous: false, skippedDays: new Set(), refunds: { n: 0, amount: 0 }, voids: { n: 0, amount: 0 }, locations: [] };
   if (lines.length < 2) { out.notes.push("Needs a header row and at least one row of sales."); return out; }
   const sep = lines[0].includes("\t") ? "\t" : lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
   lines = pastedFiles(lines, sep, out);
   // "Net Sales (USD)" and "Sales [GBP]" are the column "Net Sales": a bracketed unit is dropped from a header.
   const head = splitCsvRow(lines[0], sep).map((h) => norm(String(h).replace(/[(\[][^)\]]*[)\]]/g, " ")));
+  lines = pickLocation(lines, sep, head, o, out);
+  if (out.noLocation) return out;
   const find = (k) => head.findIndex((h) => SYN[k].includes(h));
   const net = head.findIndex((h) => NET_FIRST.includes(h));
   const ix = { stamp: find("stamp"), day: find("day"), sales: net >= 0 ? net : find("sales"), clock: -1 };
@@ -594,7 +649,7 @@ export function hourlySales(text, o = {}) {
   if (o.halfLife !== undefined && !(Number(o.halfLife) > 0)) throw new Error("half-life must be a positive number of weeks");
   if (o.window !== undefined && !(Number.isInteger(Number(o.window)) && Number(o.window) >= 1)) throw new Error("the last-weeks window must be a whole number of weeks, 1 or more");
   const r = readSales(text, o);
-  const out = { avg: DAYS.map(() => new Array(24).fill(0)), observed: new Array(7).fill(0), seen: DAYS.map(() => new Array(24).fill(0)), closed: [], rows: r.rows, skipped: r.skipped, notes: [...r.notes], entries: r.entries, count: r.count };
+  const out = { avg: DAYS.map(() => new Array(24).fill(0)), observed: new Array(7).fill(0), seen: DAYS.map(() => new Array(24).fill(0)), closed: [], rows: r.rows, skipped: r.skipped, notes: [...r.notes], entries: r.entries, count: r.count, locations: r.locations, location: r.location };
   if (!r.rows && r.notes.length) return out;
   // o.window (--last-weeks): plan from the last that many weeks of dated rows only, the days before the week after the
   // newest date, as backtestSales' "last 4 weeks only" method trains (2026-11-11). Undated weekday rows are kept.
@@ -875,7 +930,7 @@ export function demandShifts(text, o = {}) {
   }
   if (o.halfLife === "none" || o.halfLife === 0) o = { ...o, halfLife: undefined };
   const s = hourlySales(text, { ...o, priceCut: o.costCut !== false });
-  if (!s.rows) return { shiftsText: "", rows: 0, needed: 0, scheduled: 0, extra: 0, sales: 0, days: [], notes: s.notes, skipped: s.skipped };
+  if (!s.rows) return { shiftsText: "", rows: 0, needed: 0, scheduled: 0, extra: 0, sales: 0, days: [], notes: s.notes, skipped: s.skipped, locations: s.locations, location: s.location };
   const prof = headcount(s.avg, s.observed, { ...o, seen: s.seen, heads: s.heads, outside: s.outside });
   if (o.open === undefined && o.close === undefined && !o.keepRare) {
     const trimmed = [];
@@ -911,7 +966,7 @@ export function demandShifts(text, o = {}) {
   }).sort((x, y) => x.ds[0] - y.ds[0] || x.a - y.a || x.b - y.b);
   const shiftsText = rows.map((r) => `${r.ds.map((d) => DAYS[d]).join("/")}, ${clock(r.a)}, ${clock(r.b)}, ${r.n}`).join("\n");
   const needed = days.reduce((a, d) => a + d.needed, 0), scheduled = days.reduce((a, d) => a + d.scheduled, 0);
-  return { shiftsText, rows: s.rows, needed, scheduled, extra: scheduled - needed, sales: days.reduce((a, d) => a + d.sales, 0), count: s.count, days, notes: s.notes, skipped: s.skipped };
+  return { shiftsText, rows: s.rows, needed, scheduled, extra: scheduled - needed, sales: days.reduce((a, d) => a + d.sales, 0), count: s.count, days, notes: s.notes, skipped: s.skipped, locations: s.locations, location: s.location };
 }
 
 // Backtest the staffing forecast on the file's own history: for every full week after the first `warmup` weeks, build
@@ -1034,5 +1089,5 @@ export function backtestSales(text, o = {}) {
   const best = methods.reduce((a, b) => (b.miss < a.miss - 1e-9 ? b : a));
   const clear = best.id !== "all" && best.ci[1] < 0;
   notes.push(`Tested on ${tested.length} full week${tested.length === 1 ? "" : "s"} (first ${warmup} used only to learn from), at ${splh} ${r.count === "minutes" ? "minutes of work" : r.count && r.count !== "sales" ? r.count : "sales"} per labor hour and ${minStaff} minimum staff${rc === null ? "" : `, a short person-hour costing ${rc} spare ones`}.`);
-  return { weeks: tested.length, methods, best: best.id, clear, shortCost: rc, shifts: !!o.shifts, scoreClosed, closedFrom: scoreClosed ? (o.closedFrom === "past" ? "past" : "file") : null, minShift, maxShift, perWeek, notes };
+  return { weeks: tested.length, methods, best: best.id, clear, shortCost: rc, shifts: !!o.shifts, scoreClosed, closedFrom: scoreClosed ? (o.closedFrom === "past" ? "past" : "file") : null, minShift, maxShift, perWeek, notes, locations: r.locations, location: r.location };
 }
