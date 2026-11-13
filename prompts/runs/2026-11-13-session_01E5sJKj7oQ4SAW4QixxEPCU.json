@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKj7oQ4SAW4QixxEPCU",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T22:18:46Z",
+  "ended": "2026-11-13T22:22:52Z",
+  "wall_minutes": 4.26,
+  "tokens_in": 3512915,
+  "tokens_out": 19794,
+  "cost_usd": 1.8175,
+  "tool_calls": 42,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15635",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "git checkout -b failed: the designated branch already existed locally (already checked out); harmless",
+    "newadvent.org, sacred-texts.com, en.wikipedia.org and portal.sds.ox.ac.uk refused by the session's network policy (curl 403 and WebFetch ENOTFOUND)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Little Lamps proposals say 'check against the sources before drafting', but the usual primary-text hosts (newadvent, sacred-texts, wikisource, Wikipedia) are blocked in this environment; only WebSearch summaries were available. A note naming which hosts are reachable for patristic texts would save time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "The proposal asks to check Ambrose's wording; the primary text could not be fetched",
+      "did": "Checked via WebSearch summaries of the NPNF translation and own knowledge; kept the Latin to the one well-attested line and labelled the Sixtus dialogue a retelling, not a translation",
+      "result": "story and note avoid quoting unverified wording"
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio over the 400 MB cap (468 MB)",
+      "did": "text only, as the prompt directs",
+      "result": "no audio added"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-lawrence-and-the-treasures-of-the-church.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, Little Lamps shelf. Piece: lawrence-and-the-treasures-of-the-church (1,286 words body). New Little Lamps proposal: Dominic. node --test 15/15 pass in ventures/hearth-and-horizon; post frontmatter, link and similarity checks pass. No agent doc: nothing new the next run needs beyond the BIBLE/DONE entries.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "10ecd1b1-617c-528a-9c20-cb4bfae22580",
+    "transcripts": 1,
+    "first": "2026-11-13T22:18:46Z",
+    "last": "2026-11-13T22:23:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 75,
+        "output": 19794,
+        "thinking": 4818,
+        "cache_read": 3420686,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92154,
+        "api_equivalent_usd": 1.8175,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 75,
+      "output": 19794,
+      "thinking": 4818,
+      "cache_read": 3420686,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92154,
+      "api_equivalent_usd": 1.8175,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 27,
+      "WebFetch": 4,
+      "WebSearch": 4,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.26,
+      "active_minutes": 4.26,
+      "model_minutes": 3.48,
+      "tool_minutes": 0.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "a children's author researching sources and writing a 1,300-word saint story with a sourced note, plus a blog post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 165.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
