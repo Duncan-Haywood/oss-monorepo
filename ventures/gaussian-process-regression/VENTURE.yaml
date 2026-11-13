@@ -1,0 +1,64 @@
+name: gaussian-process-regression
+description: >-
+  Free browser tool, CLI and agent call for analysts, engineers, scientists
+  and students: paste an x column (numbers or dates) and a y column and fit
+  a Gaussian process (Rasmussen & Williams 2006) whose kernel settings are
+  chosen by maximising the log marginal likelihood. Shows the curve with
+  95% bands, a forecast, the length scale, period and noise in the data's
+  units, a seven-kernel evidence comparison and a leave-one-out calibration
+  check. Checked against scikit-learn. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-13 on an explore run, as the eleventh tool of "research
+# algorithms as tools" (portfolio/research-tools/README.md listed
+# "Gaussian-process regression with marginal-likelihood fitting (Rasmussen &
+# Williams 2006)" as a candidate). Implemented from the book's equations; no
+# third-party code was ported. scikit-learn was used only to produce
+# eval/reference.json, which the tests check against.
+# Example data: NOAA GML Mauna Loa monthly CO2 (US government work, credit
+# requested); data/SOURCE.md.
+#
+# First visitor: searches such as "gaussian process regression online",
+# "kriging tool online", "fit curve with confidence band", "forecast with
+# uncertainty excel", "gaussian process calculator"; students meeting GPs in a
+# course, engineers and scientists with a calibration or sensor series,
+# analysts with a monthly series. Volume not measured with an external tool.
+#
+# Alternatives: scikit-learn's GaussianProcessRegressor, GPy, GPyTorch, R's
+# kernlab and DiceKriging, MATLAB's fitrgp (all need an environment and
+# code). Differentiators here: no install, every kernel compared by evidence,
+# settings reported in the data's own units, a leave-one-out calibration
+# check, and a published out-of-sample check of its own forecast.
+#
+# Liability: statistical output from supplied data, not financial, legal or
+# engineering advice; the page says a forecast band is not a guarantee and
+# shows its own held-out miss rate. Data never leave the browser (tests
+# assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Students, engineers and analysts who want a curve with an uncertainty
+      band will use a no-install Gaussian process that reports its settings
+      in their units and checks its own band.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a log marginal likelihood or prediction that disagrees with scikit-learn's GaussianProcessRegressor at the same hyperparameters, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/gaussian-process-regression/
+  analytics: null

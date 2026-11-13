@@ -85,3 +85,19 @@ entries:
         27 tests; driven in headless Chromium at 1280 and 390 px with no
         console errors. Not yet checked against a designer's real sizing.
     mrr_end: 0
+  - venture: sprinkler-hydraulic-calc
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/sprinkler-hydraulic-calc,
+        fire sprinkler hydraulics for tree, looped and gridded systems by the
+        global gradient algorithm (heads as emitters, shut like check valves
+        at negative pressure), NFPA 13 Hazen-Williams, density/min pressure,
+        hose allowance, flow-test supply curve, design and operating points,
+        N^1.85 graph and network sketch. Agrees with EPANET 2.2 on 59 of 61
+        seeded networks to 4.6e-7 psi / 1.4e-6 gpm (the other two have heads
+        at negative pressure, where EPANET 2.2 emitters draw water in). 17
+        tests; driven in headless Chromium at 1280 and 390 px with no console
+        errors. Not yet checked against a designer's real calculation.
+    mrr_end: 0

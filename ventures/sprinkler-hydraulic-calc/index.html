@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23b91c1c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EH%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sprinkler Hydraulic Calculator | Gridded and Looped Systems, Free</title>
+  <meta name="description" content="Free fire sprinkler hydraulic calculator for tree, looped and gridded systems: K-factor heads, Hazen-Williams friction, elevation, density and minimum pressure, hose allowance and the water supply curve. Solves every pipe at once; checked against EPANET. Runs in your browser.">
+  <meta property="og:title" content="Sprinkler Hydraulic Calculator">
+  <meta property="og:description" content="Will the water supply carry the design area? Type the heads and pipes of a tree, loop or grid and get the demand at the base of the riser, the supply margin, every pipe's flow and every head's pressure. Free, open source, nothing uploaded.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Sprinkler Hydraulic Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Tree, looped and gridded sprinkler networks; global gradient (Todini-Pilati) solver; K-factor heads; Hazen-Williams friction; elevation; density and minimum pressure per head; hose allowance; water supply curve from a flow test; demand point and operating point; N^1.85 supply graph; schedule 10 and 40 steel sizes or any inside diameter; plain-text network format; CSV export; CLI"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this a stamped hydraulic calculation?","acceptedAnswer":{"@type":"Answer","text":"No. It is an estimate for checking a layout, learning the method or sizing a bid. A licensed fire protection designer prepares the calculation the authority having jurisdiction reviews, under NFPA 13 or your local code."}},{"@type":"Question","name":"Why can it do grids when hand calculations cannot?","acceptedAnswer":{"@type":"Answer","text":"A hand calculation walks back from the most remote head and balances each junction, which only works cleanly for a tree. This tool solves every pipe flow and node pressure at once by Newton's method (the global gradient algorithm that EPANET uses), so loops and grids need nothing special."}},{"@type":"Question","name":"How do I know the solver is right?","acceptedAnswer":{"@type":"Answer","text":"Its tests run 59 seeded grids and trees through EPANET 2.2 and agree to within 0.00001 psi and gpm, and a single branch line matches the head-by-head hand method exactly. The how-it-works page gives the details."}},{"@type":"Question","name":"Is my layout uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs in your browser. An optional anonymous counter in this browser's local storage records only that a calculation ran and the day."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d1a1a; background: #f4efed; --accent: #b91c1c; --accent2: #991b1b; --ink2: #5c5352; --line: #d9ccc9; --panel: #fffdfc; --warn: #b45309; --blue: #1d4ed8; }
+    body { max-width: 1180px; margin: 0 auto; padding: 32px 16px; }
+    header { max-width: 820px; margin-bottom: 22px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3rem); line-height: 1.04; margin: 0 0 12px; letter-spacing: -.035em; }
+    h3 { font-size: 1rem; margin: 14px 0 4px; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: var(--accent); margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; align-items: start; }
+    .layout > div { min-width: 0; }
+    section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    .hint { font-size: .83rem; color: var(--ink2); margin: -4px 0 12px; }
+    .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    label { display: grid; gap: 4px; font-size: .82rem; font-weight: 650; min-width: 0; }
+    input, textarea { width: 100%; box-sizing: border-box; border: 1px solid #b9a9a6; border-radius: 7px; padding: 6px; font: inherit; background: #fff; }
+    input[type=checkbox] { width: auto; }
+    textarea { font-family: ui-monospace, Menlo, monospace; font-size: .76rem; min-height: 360px; white-space: pre; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b9a9a6; background: #f3ebe9; padding: 8px 12px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e9dcd9; }
+    .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .primary:hover { background: var(--accent2); }
+    .small { padding: 4px 8px; font-size: .8rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+    .check { display: flex; gap: 6px; align-items: center; font-weight: 600; }
+    .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .tile { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fff; }
+    .tile .big { font-size: 1.6rem; font-weight: 750; letter-spacing: -.03em; font-variant-numeric: tabular-nums; color: var(--accent2); }
+    .tile .big.ok { color: #166534; }
+    .muted { color: var(--ink2); font-size: .84rem; }
+    .err { color: #b42318; font-size: .86rem; white-space: pre-line; }
+    .warn { color: var(--warn); font-size: .86rem; white-space: pre-line; }
+    table { border-collapse: collapse; width: 100%; font-size: .8rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 4px 6px; border-bottom: 1px solid #ebe1df; }
+    th:first-child, td:first-child { text-align: left; }
+    .tablewrap { overflow-x: auto; max-height: 420px; overflow-y: auto; }
+    svg { width: 100%; height: auto; display: block; }
+    svg text { font-family: system-ui, sans-serif; }
+    code { font-size: .85em; }
+    footer { margin-top: 24px; font-size: .82rem; color: var(--ink2); }
+    footer a, header a { color: var(--accent2); }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tiles { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SPRINKLER FITTERS, DESIGNERS, ESTIMATORS AND STUDENTS</p>
+    <h1>Will the water supply carry the design area?</h1>
+    <p>Type the heads and pipes of a sprinkler system, as a tree, a loop or a grid. The page finds the pressure and flow the system needs at its source to give every head its required flow, compares that with the water supply from a flow test, and shows every pipe's flow and every head's pressure. Free, and it runs in your browser.</p>
+    <p><a href="./how-it-works.html">How it is worked out, and how it was checked against EPANET</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>1. Water supply and design</h2>
+        <p class="hint">The supply is a flow test: static pressure with no flow, and a residual pressure while a measured flow runs. The design is the density over the area each head covers, the minimum pressure at any head, the hose allowance added at the source, and the safety margin you want left over.</p>
+        <div class="fields">
+          <label>Static (psi) <input id="staticPsi" type="number" step="1" min="0"></label>
+          <label>Residual (psi) <input id="residualPsi" type="number" step="1" min="0"></label>
+          <label>At flow (gpm) <input id="residualGpm" type="number" step="10" min="0"></label>
+          <label>Density (gpm/sq ft) <input id="density" type="number" step="0.01" min="0"></label>
+          <label>Area per head (sq ft) <input id="areaPerHead" type="number" step="1" min="0"></label>
+          <label>Min at a head (psi) <input id="minPsi" type="number" step="0.5" min="0"></label>
+          <label>Hose allowance (gpm) <input id="hoseGpm" type="number" step="50" min="0"></label>
+          <label>Safety margin (psi) <input id="marginPsi" type="number" step="1" min="0"></label>
+          <label>Source node <input id="source" type="text"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>2. Nodes and pipes</h2>
+        <p class="hint">One per line. <code>node NAME elev=FT</code>, and <code>k=5.6</code> makes it a sprinkler (add <code>area=SQFT</code> if it covers a different area). <code>pipe NAME FROM TO len=FT fit=FT size=1-1/4 sch=sch40 c=120</code>, where <code>fit</code> is the fittings' equivalent length and <code>id=1.38</code> gives any inside diameter instead of a size. <code>x=</code> and <code>y=</code> place a node on the sketch. Sizes: 1, 1-1/4, 1-1/2, 2, 2-1/2, 3, 4, 6, 8 in schedule 10 or 40.</p>
+        <textarea id="network" aria-label="Nodes and pipes, one per line" spellcheck="false"></textarea>
+        <div class="actions">
+          <button type="button" class="primary" id="calculate">Calculate</button>
+          <button type="button" id="loadExample">Load the example grid</button>
+          <button type="button" class="small" id="downloadText">Download system.txt</button>
+          <button type="button" class="small" id="downloadCsv">Download results as CSV</button>
+        </div>
+        <p class="err" id="errors" role="alert"></p>
+      </section>
+    </div>
+    <div>
+      <section aria-live="polite">
+        <h2>Result</h2>
+        <div class="tiles">
+          <div class="tile"><div class="muted">Demand at the source</div><div class="big" id="demand">-</div><div class="muted" id="demandNote"></div></div>
+          <div class="tile"><div class="muted">Supply at that flow</div><div class="big" id="supplyAt">-</div><div class="muted" id="supplyNote"></div></div>
+          <div class="tile"><div class="muted">Most demanding head</div><div class="big" id="remote">-</div><div class="muted" id="remoteNote"></div></div>
+          <div class="tile"><div class="muted">All listed heads open, on the supply</div><div class="big" id="operating">-</div><div class="muted" id="operatingNote"></div></div>
+        </div>
+        <p class="warn" id="warnings"></p>
+      </section>
+      <section>
+        <h2>Supply and demand, on N<sup>1.85</sup> paper</h2>
+        <p class="hint">Flow is spaced by its 1.85 power, so a Hazen-Williams supply is a straight line. Red: the supply. Blue: the system with every listed head open, hose included. The dot is the design point.</p>
+        <svg id="graph" viewBox="0 0 520 300" role="img" aria-label="Water supply curve and system demand curve"></svg>
+      </section>
+      <section>
+        <h2>Sketch</h2>
+        <p class="hint">Nodes with x and y, pipes drawn thicker with more flow, arrows showing which way water runs. Heads are circles.</p>
+        <svg id="sketch" viewBox="0 0 520 320" role="img" aria-label="Sketch of the network with flow directions"></svg>
+      </section>
+      <section>
+        <h2>Heads</h2>
+        <div class="tablewrap"><table><thead><tr><th>Head</th><th>K</th><th>psi</th><th>gpm</th><th>Required</th></tr></thead><tbody id="headTable"></tbody></table></div>
+      </section>
+      <section>
+        <h2>Pipes</h2>
+        <div class="tablewrap"><table><thead><tr><th>Pipe</th><th>From</th><th>To</th><th>gpm</th><th>ID in</th><th>ft/s</th><th>psi/ft</th><th>Loss psi</th></tr></thead><tbody id="pipeTable"></tbody></table></div>
+        <p class="muted">A negative flow runs from the "To" node to the "From" node.</p>
+      </section>
+    </div>
+  </main>
+  <section>
+    <h2>Questions</h2>
+    <h3>Is this a stamped hydraulic calculation?</h3>
+    <p>No. It is an estimate for checking a layout, learning the method or sizing a bid. A licensed fire protection designer prepares the calculation the authority having jurisdiction reviews, under NFPA 13 or your local code.</p>
+    <h3>Why can it do grids when hand calculations cannot?</h3>
+    <p>A hand calculation walks back from the most remote head and balances each junction, which only works cleanly for a tree. This tool solves every pipe flow and node pressure at once by Newton's method (the global gradient algorithm that EPANET uses), so loops and grids need nothing special.</p>
+    <h3>How do I know the solver is right?</h3>
+    <p>Its tests run 59 seeded grids and trees through EPANET 2.2 and agree to within 0.00001 psi and gpm, and a single branch line matches the head-by-head hand method exactly. The <a href="./how-it-works.html">how-it-works page</a> gives the details.</p>
+    <h3>What does it leave out?</h3>
+    <p>It takes the heads you list as the open ones: it does not search for the most remote design area, and it does not add fittings for you (type their equivalent length as <code>fit=</code>). There are no pumps, backflow preventers or valves as separate items; put their loss into the supply or a pipe's equivalent length. Velocity pressure is left out throughout, which NFPA 13 permits.</p>
+    <h3>Is my layout uploaded?</h3>
+    <p>No. Every calculation runs in your browser. An optional anonymous counter in this browser's local storage records only that a calculation ran and the day.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty. This is an estimate, not engineering advice and not a stamped hydraulic calculation.</strong> It uses Hazen-Williams friction, K-factor heads and a flow-test supply curve, described on <a href="./how-it-works.html">how it works</a>, with the layout you enter. NFPA 13, your local code and the authority having jurisdiction decide what is accepted; a qualified fire protection designer signs off on a real system.</p>
+    <p>Nothing leaves your browser. <label class="check" style="display:inline-flex"><input type="checkbox" id="optOut"> Do not keep anonymous local usage counts</label></p>
+    <p>Sizing the domestic water for the same building? The <a href="../water-supply-sizing/">water supply pipe sizing calculator</a> works out peak demand and copper or PEX sizes &mdash; nothing uploaded.</p>
+    <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sprinkler-hydraulic-calc">Source, CLI and README</a>. If it saved you a calculation, <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a>. <a href="../">More free tools</a>.</p>
+  </footer>
+  <script type="module">
+    import { analyze, solve, supplyPressure, EXAMPLE } from './hydraulics.mjs';
+    import { parse, serialize } from './format.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    const el = id => document.getElementById(id);
+    const SVG = 'http://www.w3.org/2000/svg';
+    const svg = (tag, attrs = {}, text) => { const n = document.createElementNS(SVG, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); if (text !== undefined) n.textContent = text; return n; };
+    const NUMS = ['staticPsi', 'residualPsi', 'residualGpm', 'density', 'areaPerHead', 'minPsi', 'hoseGpm', 'marginPsi'];
+    const f1 = x => x.toFixed(1);
+    const f2 = x => x.toFixed(2);
+    let last = null;
+
+    function load(model) {
+      el('staticPsi').value = model.supply?.staticPsi ?? '';
+      el('residualPsi').value = model.supply?.residualPsi ?? '';
+      el('residualGpm').value = model.supply?.residualGpm ?? '';
+      const d = model.design || {};
+      el('density').value = d.densityGpmFt2 ?? 0;
+      el('areaPerHead').value = d.areaPerHeadFt2 ?? 0;
+      el('minPsi').value = d.minPsi ?? 7;
+      el('hoseGpm').value = d.hoseGpm ?? 0;
+      el('marginPsi').value = d.safetyMarginPsi ?? 0;
+      el('source').value = model.source;
+      el('network').value = serialize({ ...model, supply: undefined, design: undefined }).split('\n').filter(l => !/^source /.test(l)).join('\n');
+    }
+
+    function readForm() {
+      const { model, errors } = parse(el('network').value);
+      model.source = el('source').value.trim() || model.source;
+      const v = Object.fromEntries(NUMS.map(k => [k, Number(el(k).value)]));
+      if (v.staticPsi > 0) {
+        model.supply = { staticPsi: v.staticPsi, residualPsi: v.residualPsi, residualGpm: v.residualGpm };
+        if (!(v.residualPsi >= 0 && v.residualPsi < v.staticPsi && v.residualGpm > 0)) errors.push('Supply: the residual pressure must be below the static pressure, at a flow above 0 gpm.');
+      }
+      model.design = { densityGpmFt2: v.density || 0, areaPerHeadFt2: v.areaPerHead || 0, minPsi: v.minPsi || 0, hoseGpm: v.hoseGpm || 0, safetyMarginPsi: v.marginPsi || 0 };
+      return { model, errors };
+    }
+
+    function rows(tbody, data) {
+      tbody.replaceChildren(...data.map(cells => { const tr = document.createElement('tr'); for (const c of cells) { const td = document.createElement('td'); td.textContent = c; tr.append(td); } return tr; }));
+    }
+
+    function drawGraph(model, r) {
+      const g = el('graph');
+      g.replaceChildren();
+      const W = 520, H = 300, L = 46, R = 12, T = 12, B = 36;
+      const hose = r.demand.hoseGpm;
+      const pts = [];
+      const top = Math.max(model.supply?.staticPsi || 0, r.demand.psi * 1.6, 10);
+      for (let i = 1; i <= 24; i++) { const p = top * i / 24; const s = solve(model, p); pts.push([s.sourceGpm + hose, p]); }
+      const qMax = Math.max(...pts.map(p => p[0]), model.supply ? model.supply.residualGpm * 1.3 : 0, r.demand.totalGpm * 1.3);
+      const pMax = top * 1.05;
+      const X = q => L + (W - L - R) * Math.pow(Math.max(q, 0) / qMax, 1.85);
+      const Y = p => T + (H - T - B) * (1 - p / pMax);
+      g.append(svg('line', { x1: L, y1: H - B, x2: W - R, y2: H - B, stroke: '#8b7d7a' }), svg('line', { x1: L, y1: T, x2: L, y2: H - B, stroke: '#8b7d7a' }));
+      const stepQ = Math.pow(10, Math.floor(Math.log10(qMax / 2))) * (qMax / Math.pow(10, Math.floor(Math.log10(qMax))) > 5 ? 2 : 1);
+      let lastX = -1e9;
+      for (let q = stepQ; q < qMax; q += stepQ) { if (X(q) - lastX < 30) continue; lastX = X(q); g.append(svg('line', { x1: X(q), y1: T, x2: X(q), y2: H - B, stroke: '#eee3e1' }), svg('text', { x: X(q), y: H - B + 14, 'font-size': 10, 'text-anchor': 'middle', fill: '#5c5352' }, String(Math.round(q)))); }
+      const stepP = pMax > 100 ? 20 : 10;
+      for (let p = stepP; p < pMax; p += stepP) { g.append(svg('line', { x1: L, y1: Y(p), x2: W - R, y2: Y(p), stroke: '#eee3e1' }), svg('text', { x: L - 5, y: Y(p) + 3, 'font-size': 10, 'text-anchor': 'end', fill: '#5c5352' }, String(p))); }
+      g.append(svg('text', { x: (L + W) / 2, y: H - 4, 'font-size': 11, 'text-anchor': 'middle', fill: '#1d1a1a' }, 'Flow, gpm (N^1.85 scale)'), svg('text', { x: 12, y: (T + H - B) / 2, 'font-size': 11, 'text-anchor': 'middle', fill: '#1d1a1a', transform: `rotate(-90 12 ${(T + H - B) / 2})` }, 'psi'));
+      if (model.supply) {
+        const qEnd = Math.min(qMax, model.supply.residualGpm * Math.pow(model.supply.staticPsi / (model.supply.staticPsi - model.supply.residualPsi), 1 / 1.85));
+        g.append(svg('line', { x1: X(0), y1: Y(model.supply.staticPsi), x2: X(qEnd), y2: Y(supplyPressure(model.supply, qEnd)), stroke: '#b91c1c', 'stroke-width': 2.5 }));
+      }
+      g.append(svg('polyline', { points: [[hose, 0], ...pts].map(([q, p]) => `${X(q).toFixed(1)},${Y(p).toFixed(1)}`).join(' '), fill: 'none', stroke: '#1d4ed8', 'stroke-width': 2.5 }));
+      g.append(svg('circle', { cx: X(r.demand.totalGpm), cy: Y(r.demand.psi), r: 5, fill: '#1d1a1a' }), svg('text', { x: X(r.demand.totalGpm) + 8, y: Y(r.demand.psi) + 14, 'font-size': 11, fill: '#1d1a1a' }, `${f1(r.demand.psi)} psi, ${Math.round(r.demand.totalGpm)} gpm`));
+    }
+
+    function drawSketch(model, r) {
+      const g = el('sketch');
+      g.replaceChildren();
+      const placed = model.nodes.filter(n => Number.isFinite(n.x) && Number.isFinite(n.y));
+      if (placed.length < 2) { g.append(svg('text', { x: 260, y: 160, 'text-anchor': 'middle', 'font-size': 13, fill: '#5c5352' }, 'Give nodes x= and y= to draw a sketch.')); return; }
+      const xs = placed.map(n => n.x), ys = placed.map(n => n.y);
+      const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+      const s = Math.min(460 / Math.max(x1 - x0, 1e-9), 260 / Math.max(y1 - y0, 1e-9));
+      const pos = new Map(placed.map(n => [n.id, [30 + (n.x - x0) * s, 30 + (n.y - y0) * s]]));
+      const qMax = Math.max(...r.solution.pipes.map(p => Math.abs(p.gpm)), 1);
+      for (const p of r.solution.pipes) {
+        const a = pos.get(p.from), b = pos.get(p.to);
+        if (!a || !b) continue;
+        g.append(svg('line', { x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke: '#1d4ed8', 'stroke-opacity': 0.75, 'stroke-width': 1 + 6 * Math.abs(p.gpm) / qMax }));
+        if (Math.abs(p.gpm) > 0.01 * qMax) {
+          const [fx, fy, tx, ty] = p.gpm >= 0 ? [...a, ...b] : [...b, ...a];
+          const mx = (fx + tx) / 2, my = (fy + ty) / 2, ang = Math.atan2(ty - fy, tx - fx);
+          const d = 6;
+          g.append(svg('polygon', { points: `${mx + d * Math.cos(ang)},${my + d * Math.sin(ang)} ${mx + d * Math.cos(ang + 2.5)},${my + d * Math.sin(ang + 2.5)} ${mx + d * Math.cos(ang - 2.5)},${my + d * Math.sin(ang - 2.5)}`, fill: '#1d1a1a' }));
+        }
+      }
+      const heads = new Map(r.solution.sprinklers.map(h => [h.id, h]));
+      for (const n of placed) {
+        const [x, y] = pos.get(n.id);
+        const h = heads.get(n.id);
+        if (h) {
+          const ok = h.gpm >= r.required[n.id] - 1e-6;
+          g.append(svg('circle', { cx: x, cy: y, r: 6, fill: n.id === r.demand.remote ? '#b91c1c' : ok ? '#fff' : '#f59e0b', stroke: '#b91c1c', 'stroke-width': 2 }));
+          g.append(svg('text', { x, y: y - 9, 'font-size': 9, 'text-anchor': 'middle', fill: '#1d1a1a' }, `${f1(h.psi)}`));
+        } else {
+          g.append(svg('rect', { x: x - 4, y: y - 4, width: 8, height: 8, fill: '#1d1a1a' }));
+          g.append(svg('text', { x: x + 7, y: y - 6, 'font-size': 9, fill: '#5c5352' }, n.id));
+        }
+      }
+    }
+
+    function calculate() {
+      el('errors').textContent = '';
+      el('warnings').textContent = '';
+      const { model, errors } = readForm();
+      if (errors.length) { el('errors').textContent = errors.join('\n'); return; }
+      const r = analyze(model);
+      if (r.errors.length) { el('errors').textContent = r.errors.join('\n'); return; }
+      last = { model, r };
+      const d = r.demand;
+      el('demand').textContent = `${f1(d.psi)} psi`;
+      el('demandNote').textContent = `${f1(d.sprinklerGpm)} gpm of heads${d.otherGpm ? ` + ${f1(d.otherGpm)} other` : ''}${d.hoseGpm ? ` + ${f1(d.hoseGpm)} hose = ${f1(d.totalGpm)} gpm` : ''}`;
+      if (r.supply) {
+        el('supplyAt').textContent = `${f1(r.supply.availablePsi)} psi`;
+        const ok = r.supply.marginPsi >= (model.design.safetyMarginPsi || 0);
+        el('supplyAt').className = ok ? 'big ok' : 'big';
+        el('supplyNote').textContent = `${r.supply.marginPsi >= 0 ? 'margin' : 'short by'} ${f1(Math.abs(r.supply.marginPsi))} psi`;
+        const op = r.supply.operating;
+        el('operating').textContent = op ? `${Math.round(op.totalGpm)} gpm` : '-';
+        el('operatingNote').textContent = op ? `at ${f1(op.psi)} psi, hose included` : 'the curves do not meet below the static pressure';
+      } else {
+        el('supplyAt').textContent = '-'; el('supplyNote').textContent = 'enter a flow test to compare';
+        el('operating').textContent = '-'; el('operatingNote').textContent = '';
+      }
+      const rem = r.solution.sprinklers.find(h => h.id === d.remote);
+      el('remote').textContent = d.remote;
+      el('remoteNote').textContent = `${f2(rem.gpm)} gpm at ${f2(rem.psi)} psi; ${f1(r.overdischargeGpm)} gpm over-discharge across all heads`;
+      el('warnings').textContent = r.warnings.join('\n');
+      rows(el('headTable'), r.solution.sprinklers.map(h => [h.id, String(h.k), f2(h.psi), f2(h.gpm), f2(r.required[h.id])]));
+      rows(el('pipeTable'), r.solution.pipes.map(p => [p.id, p.from, p.to, f2(p.gpm), p.idIn.toFixed(3), f1(p.velocityFps), p.psiPerFt.toFixed(4), f2(p.frictionPsi)]));
+      drawGraph(model, r);
+      drawSketch(model, r);
+      recordUsage(globalThis.localStorage, el('optOut').checked, 'system_calculated');
+    }
+
+    function download(name, text, type) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    const csvCell = v => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+
+    el('calculate').addEventListener('click', calculate);
+    el('loadExample').addEventListener('click', () => { load(EXAMPLE); calculate(); });
+    el('downloadText').addEventListener('click', () => { const { model } = readForm(); download('system.txt', serialize(model), 'text/plain'); });
+    el('downloadCsv').addEventListener('click', () => {
+      if (!last) calculate();
+      if (!last) return;
+      const { r } = last;
+      const out = [['kind', 'id', 'from', 'to', 'gpm', 'psi', 'id_in', 'ft_per_s', 'friction_psi', 'required_gpm']];
+      for (const p of r.solution.pipes) out.push(['pipe', p.id, p.from, p.to, f2(p.gpm), '', p.idIn, f2(p.velocityFps), f2(p.frictionPsi), '']);
+      for (const h of r.solution.sprinklers) out.push(['head', h.id, '', '', f2(h.gpm), f2(h.psi), '', '', '', f2(r.required[h.id])]);
+      for (const n of r.solution.nodes) out.push(['node', n.id, '', '', '', f2(n.psi), '', '', '', '']);
+      download('sprinkler-results.csv', out.map(row => row.map(csvCell).join(',')).join('\n') + '\n', 'text/csv');
+    });
+    el('optOut').checked = readOptOut();
+    el('optOut').addEventListener('change', () => writeOptOut(globalThis.localStorage, el('optOut').checked));
+    load(EXAMPLE);
+    calculate();
+  </script>
+</body>
+</html>
