@@ -116,6 +116,7 @@ introduces a dated fact.
 | 2035 | Lune and Ribble Catholic Schools Trust (invented), 40 primary schools in Lancashire, about 11,000 pupils; family liaison pilot (Jo Baptiste, Darren Leigh) in the 8 schools with the highest 2033-34 persistent absence; board votes 12 Jul 2035 to extend it to 16 schools drawn by lot from 24, using a bingo cage borrowed from St Anne's parish club; the data agent's 2.9-point baseline rule | *Two Point Nine* |
 | 2041 | A typhoon takes down the tower of the San Isidro church in Batangas; its bell is recast | *Slowest Bell* |
 | 2044 | Teddy and Remedios marry at Our Lady of Remedies, Malate | *Slowest Bell* |
+| 2051 | Sgarbhaigh (invented), Outer Hebrides: island hospital with a two-lock recompression chamber (bought 2040 for the scallop divers; operator Donnie MacInnes, inside attendant Catriona Morrison, control AI Gauge); Fri 17 Nov, helicopter grounded, diver Tomasz Wróbel (Table 6) and Ealasaid MacPhee, 7 (carbon monoxide), treated together, 21:51 to 02:36 | *The Second Gas* |
 | 2060s | Saltwater flooding in the Mekong Delta resettles people inland | *NOTES.md* |
 | 2060 | Holy Year (25 July is a Sunday); heatwave on the Castilian Meseta; Fraternity of the Way (invented) runs water caches and a logistics AI, Aljibe; Valdeceniza (invented village) rings its harvest bell at 03:30 for pilgrims | *The Bell at Half Past Three* |
 | 2071 | Registry relay of 41 or more AI instances links flooded parish registers to land claims in Cần Thơ | *NOTES.md* |
@@ -275,7 +276,7 @@ until it has. An empty shelf below means: write a proposal.
 
 **Hearth & Horizon**
 
-- *Proposal: The Second Gas* (2026-11-12): a hyperbaric chamber at a small island hospital (Orkney, the Hebrides or the Faroes) is the only one for 300 km, and two patients need it on the same night: a scallop diver with decompression sickness and a child with carbon monoxide poisoning from a faulty heater. Work out the US Navy Treatment Table 6 timing (about 4 h 45 at 18 m and 9 m with air breaks) against a carbon monoxide protocol, whether both can share the chamber at one pressure, and who the inside attendant is. Check every protocol figure against a primary source before drafting; mark any as from memory.
+- *Proposal: The Cold Chain* (2026-11-13): a mobile vaccine clinic in a hot, off-grid district (northern Kenya, the Sahel or the Bolivian Chaco) loses its solar fridge's compressor two days into a measles campaign, with about 900 doses in it. Vaccine vial monitors (the heat-exposure label on each vial) and the cold box's hold-over time decide which doses can still be given and how many children a day the remaining cold can reach. Work out from WHO's published vial monitor categories and a real cold box's rated hold-over at 43 °C how long the doses last, how many kilos of ice packs a day a borrowed freezer must make, and what a reasonable "no" sounds like from the district officer who must count every discarded dose. Check each WHO figure against the document before drafting; mark any from memory.
 - *Quarry Nine:* a short sequel, a few years on, in which the new system is
   asked why the old bell is rung (use sparingly; the first story is complete).
 
