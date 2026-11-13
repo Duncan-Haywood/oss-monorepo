@@ -416,6 +416,36 @@ not measurements. What baritones buy:
 all 67 files under two range sets, brute-forces the DP against every assignment on 150 random chants, checks the
 MIDI tracks against the per-section note counts and the CLI's flag checks. Not tried with singers.
 
+## Short entrances: a cost per section entrance (2026-11-13, latest)
+
+The three-section split raised changes of singer from 166 to 484 with octave-wide ranges, and the open question was
+whether those were sections popping in for a few notes, which a cost on short entrances could trade back.
+`--entrance-cost N` (with `--split-voices`; `entranceCost` in `splitVoices`) charges every section entrance after
+the first note N section-notes, in the same currency as the notes a section leaves out. A section that joins for a
+passage and leaves again therefore comes in only when it sings more than N notes there (at exactly N, the fewer
+changes of singer win the tie). The DP stays exact: an entrance is a property of one transition, so it adds to the
+cost like anything else (brute-forced on 150 random chants). The default is 0, which keeps every earlier result.
+
+```
+node cli.mjs corpus/dies-irae.gabc --split-voices --baritones --tenor 52-64 --baritone 48-60 --bass 45-57 --entrance-cost 8
+```
+
+`eval/entrance-cost.mjs` (report: `eval/entrance-cost-report.md`) measured it on the corpus, and the answer to the
+question is mostly no:
+
+- **The entrances were not short.** With three octave-wide sections and no cost, a section that enters and later
+  leaves sings a median of 19 notes before it leaves; 1 of 238 such entrances lasts under 4 notes and 18 under 8.
+  The changes of singer come from whole phrases alternating between sections the ranges force, not from cameos.
+- **So the cost buys little until it is large.** Octave-wide, three sections: cost 8 cuts changes of singer from
+  484 to 435 (10%) for 200 more section-notes left out (15,513 to 15,713, 1.3%); cost 16 cuts them to 342 (29%)
+  for 6.7% more left out, and the share of notes two or more sections sing falls from 70.1% to 65.9%. Two
+  octave-wide sections: 166 to 123 changes at cost 8. Amateur ranges barely move below cost 12.
+
+The option is there for a director who would rather have fewer entrances than fuller texture; it is not a default.
+If the changes of singer are a problem for real singers, the lever is the ranges (or a fourth section), not a
+penalty. `split.test.mjs` (4 new tests, 27 in all) covers the tie at N, the brute-force check, the corpus count and
+the CLI flag. Not tried with singers.
+
 ## Mix and master check
 
 ```sh
