@@ -84,3 +84,21 @@ test("an absurd loan term is refused instead of looping over billions of months"
   assert.equal(r.rows.length, 0);
   assert.ok(r.warnings.some((w) => /100 years or less/.test(w)));
 });
+
+// Quality audit round 71 (portfolio/quality/audits/2026-11-13-mortgage-points-break-even-calculator.json):
+// values recomputed independently (stdlib Python amortization), so the compounding, balance-gap,
+// move-chance and month/year conversions cannot change unnoticed.
+test("defaults pin the recomputed values, not only their direction", () => {
+  const r = analyze(DEFAULTS);
+  assert.equal(r.trueBreakEven, 35);
+  assert.ok(Math.abs(r.simpleBreakEven - 40.4397) < 1e-3);
+  assert.ok(Math.abs(r.atHorizon - 6514.15) < 0.01);
+  assert.ok(Math.abs(r.irr - 31.329) < 0.001);
+  assert.ok(Math.abs(r.expected - 12006.54) < 0.01);
+  assert.ok(Math.abs(r.reachBreakEven - 0.9 ** (35 / 12)) < 1e-9);
+});
+
+test("negative points or rates produce warnings and no results", () => {
+  assert.equal(analyze({ ...DEFAULTS, pointsPct: -1 }).rows.length, 0);
+  assert.equal(analyze({ ...DEFAULTS, pointsRate: -1 }).rows.length, 0);
+});
