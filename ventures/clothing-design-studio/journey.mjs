@@ -78,3 +78,31 @@ ${s.pages.map(([h, l]) => `      <li><a href="${esc(h)}">${esc(l)}</a></li>`).jo
     </ul>
   </section>`).join("\n");
 }
+
+export const TOOLS_MARK = ["<!-- tools -->", "<!-- /tools -->"];
+
+/**
+ * The studio page's "Every tool" section, grouped by stage. It replaced a
+ * hand-kept list of 40 links in the header (two near-copies that had drifted
+ * apart) which pushed the design box to 1,613 px on a phone
+ * (docs/reports/polish-2026-11-13-studio-header.md). `node buildhub.mjs` fills it.
+ */
+export function studioToolsHtml() {
+  const stages = STAGES.map(s => {
+    const pages = s.pages.filter(([h]) => h !== "./");
+    return `    <div class="stage">
+      <h3>${esc(s.title)}</h3>
+      <ul>
+${pages.map(([h, l]) => `        <li><a href="${esc(h)}">${esc(l)}</a></li>`).join("\n")}
+      </ul>
+    </div>`;
+  }).join("\n");
+  const n = allPages().filter(p => p.href !== "./").length;
+  return `  <section id="tools" aria-labelledby="tools-h">
+    <h2 id="tools-h">Every tool, in launch order (${n})</h2>
+    <p class="muted">Each runs in your browser, free. The <a href="launch.html">launch path</a> says why each stage comes where it does.</p>
+    <div class="stages">
+${stages}
+    </div>
+  </section>`;
+}

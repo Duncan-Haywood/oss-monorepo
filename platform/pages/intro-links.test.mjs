@@ -16,7 +16,6 @@ const MAX_LINKS = 8;
 // Measured 2026-11-13: the most links in one header paragraph. Lower a number when you
 // move links out; delete the entry once the page is at or under MAX_LINKS.
 const KNOWN = {
-  'clothing-design-studio': 40,
   'ai-bookkeeper': 33,
   'league-schedule-generator': 28,
   'shift-roster-builder': 21,
