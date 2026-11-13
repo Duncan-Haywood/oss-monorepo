@@ -22,10 +22,14 @@ const FILES = { "2.00": "2.00/nfse v200.xsd", "2.01": "2.01/nfse v201.xsd", "2.0
 const DSIG = "http://www.w3.org/2000/09/xmldsig#";
 const XSD = "http://www.w3.org/2001/XMLSchema";
 
-async function load(rel) {
+// OPENAC_SCHEMAS=<checkout>/src/OpenAC.Net.NFSe/Schemas reads every file from a local
+// checkout of the pinned commit instead (paths relative to Schemas/).
+async function load(rel, root = MIRROR) {
   const dir = process.argv[2];
-  if (dir) return readFileSync(join(dir, rel.split("/").pop()), "utf8");
-  const res = await fetch(`${MIRROR}/${rel.split("/").map(encodeURIComponent).join("/")}`);
+  if (dir && root === MIRROR) return readFileSync(join(dir, rel.split("/").pop()), "utf8");
+  const local = process.env.OPENAC_SCHEMAS;
+  if (local) return readFileSync(root === MIRROR ? join(local, "ABRASF", rel) : join(local, "..", rel), "utf8");
+  const res = await fetch(`${root}/${rel.split("/").map(encodeURIComponent).join("/")}`);
   if (!res.ok) throw new Error(`${rel}: HTTP ${res.status}`);
   return res.text();
 }
@@ -122,19 +126,77 @@ function compile(text) {
 
 const versions = {};
 for (const [v, rel] of Object.entries(FILES)) versions[v] = compile(await load(rel));
-const out = { source: `ABRASF NFS-e XSD ${Object.values(FILES).join(", ")} via OpenAC-Net/OpenAC.Net.NFSe at ${OPENAC_COMMIT.slice(0, 12)} (MIT)`, versions };
+
+// Provider layouts. Many city systems publish their own copy of an ABRASF 2.x schema in
+// the ABRASF namespace, with their additions (ISSNet's 2.04, Fiorilli's 2.00/2.01, WebISS's
+// 2.02, ...). OpenAC.Net.NFSe carries those copies under Schemas/<provider>/<versao>/ and
+// says in Resources/Municipios.nfse which provider and layout each city it supports runs.
+// Every single-file copy in the ABRASF namespace that this compiler models is read; the rest
+// (another namespace, several files, or a construct not modelled) are listed on the console.
+const PROVIDER_ROOT = `https://raw.githubusercontent.com/OpenAC-Net/OpenAC.Net.NFSe/${OPENAC_COMMIT}/src/OpenAC.Net.NFSe`;
+const PROVIDER_FILES = {
+  "Abaco 2.04": "Abaco/2.04/nfse.xsd", "Citta 2.03": "Citta/2.03/nfse.xsd", "Coplan 2.01": "Coplan/2.01/nfse.xsd",
+  "DSF 2.00": "DSF/2.00/nfse.xsd", "FintelISS 2.04": "FintelISS/2.04/nfse.xsd", "Fiorilli 2.00": "Fiorilli/2.00/nfse.xsd",
+  "Fiorilli 2.01": "Fiorilli/2.01/nfse.xsd", "Fisco 2.03": "Fisco/2.03/nfse.xsd", "GISS 2.04": "GISS/2.04/nfse_v2-04.xsd",
+  "GovBR 2.03": "GovBR/2.03/nfse.xsd", "IPM 2.04": "IPM/2.04/nfse.xsd", "ISSCampinas 2.03": "ISSCampinas/2.03/nfse.xsd",
+  "ISSNet 2.04": "ISSNet/2.04/nfse.xsd", "ISSPortoVelho 2.00": "ISSPortoVelho/2.00/nfse_v2-04.xsd",
+  "ISSPortoVelho 2.03": "ISSPortoVelho/2.03/nfse.xsd", "ISSVitoria 2.00": "ISSVitoria/2.00/nfse.xsd",
+  "ISSe 2.00": "ISSe/2.00/nfse.xsd", "ISSe 2.01": "ISSe/2.01/nfse.xsd", "NFeCidades 2.01": "NFeCidades/2.01/nfse.xsd",
+  "Pronim 2.02": "Pronim/2.02/nfse.xsd", "Pronim 2.03": "Pronim/2.03/nfse.xsd", "RLZ 2.03": "RLZ/2.03/nfse.xsd",
+  "SIAPNet 2.00": "SIAPNet/2.00/nfse.xsd", "Sigep 2.00": "Sigep/2.00/nfse.xsd", "Sigep 2.02": "Sigep/2.02/nfse.xsd",
+  "SimplISS 2.03": "SimplISS/2.03/nfse.xsd", "Sintese 2.04": "Sintese/2.04/nfse.xsd", "SmarAPD 2.03": "SmarAPD/2.03/nfse.xsd",
+  "SmarAPD 2.04": "SmarAPD/2.04/nfse.xsd", "SystemPro 2.01": "SystemPro/2.01/nfse.xsd", "Tinus 2.03": "Tinus/2.03/nfse.xsd",
+  "Tiplan 2.03": "Tiplan/2.03/nfse.xsd", "WebISS 2.02": "WebISS/2.02/nfse.xsd", "WebISS2 2.02": "WebISS2/2.02/nfse.xsd",
+};
+const providers = {};
+for (const [key, rel] of Object.entries(PROVIDER_FILES)) {
+  try {
+    const d = compile(await load(`Schemas/${rel}`, PROVIDER_ROOT));
+    if (d.namespace !== "http://www.abrasf.org.br/nfse.xsd") { console.log(`skip ${key}: namespace ${d.namespace}`); continue; }
+    // A copy identical to an ABRASF layout adds nothing; say which, and keep only its name.
+    // Otherwise store it as a delta on the ABRASF layout it shares most definitions with:
+    // the types it adds or changes, and the names it drops.
+    const same = Object.entries(versions).find(([, v]) => JSON.stringify(v) === JSON.stringify(d));
+    if (same) { providers[key] = same[0]; continue; }
+    const delta = (b) => {
+      const r = { base: b, roots: d.roots, complex: {}, simple: {}, drop: [] };
+      for (const kind of ["complex", "simple"]) {
+        for (const [n, def] of Object.entries(d[kind])) if (JSON.stringify(def) !== JSON.stringify(versions[b][kind][n])) r[kind][n] = def;
+        for (const n of Object.keys(versions[b][kind])) if (!(n in d[kind])) r.drop.push(n);
+      }
+      return r;
+    };
+    providers[key] = Object.keys(versions).map(delta).sort((a, b) => JSON.stringify(a).length - JSON.stringify(b).length)[0];
+  } catch (e) { console.log(`skip ${key}: ${e.message}`); }
+}
+
+// Which provider and layout each city runs, as OpenAC.Net.NFSe's Municipios.nfse states it:
+// IBGE code -> "Provider versao|City/UF". Cities whose provider schema is not read are kept too, so
+// the checker can name the system even when it cannot check against it.
+const cities = {};
+{
+  const doc = parseCfdiXml(await load("Resources/Municipios.nfse", PROVIDER_ROOT)).root;
+  const kids = (n, name) => n.children.filter((c) => c.name === name);
+  for (const m of kids(kids(doc, "Municipios")[0], "Municipio")) {
+    const t = (name) => kids(m, name)[0]?.text.trim() ?? "";
+    if (/^\d{7}$/.test(t("Codigo"))) cities[t("Codigo")] = `${t("Provedor")} ${t("Versao")}|${t("Nome")}/${t("UF")}`;
+  }
+}
+const out = { source: `ABRASF NFS-e XSD ${Object.values(FILES).join(", ")} and ${Object.keys(providers).length} provider copies via OpenAC-Net/OpenAC.Net.NFSe at ${OPENAC_COMMIT.slice(0, 12)} (MIT)`, versions };
 // Five layouts repeat most definitions (above all the LC 116/2003 item list), so a type
 // whose definition is the same in two or more layouts is written once as a constant and
 // referenced from each; the module still exports one plain object per layout.
 const seen = new Map();
-for (const d of Object.values(versions)) for (const kind of ["complex", "simple"]) for (const def of Object.values(d[kind])) {
+for (const d of [...Object.values(versions), ...Object.values(providers).filter((p) => typeof p === "object")]) for (const kind of ["complex", "simple"]) for (const def of Object.values(d[kind])) {
   const j = JSON.stringify(def);
   if (j.length > 40) seen.set(j, (seen.get(j) ?? 0) + 1);
 }
 const shared = new Map([...seen].filter(([, n]) => n > 1).map(([j], i) => [j, `t${i}`]));
 const table = (o) => `{${Object.entries(o).map(([k, def]) => { const j = JSON.stringify(def); return `${JSON.stringify(k)}:${shared.get(j) ?? j}`; }).join(",")}}`;
 const layout = (d) => `{"namespace":${JSON.stringify(d.namespace)},"roots":${JSON.stringify(d.roots)},"complex":${table(d.complex)},"simple":${table(d.simple)}}`;
-const body = `// Generated by build-abrasf-schema.mjs; do not edit by hand, rebuild.\n${[...shared].map(([j, n]) => `const ${n} = ${j};\n`).join("")}export default {"source":${JSON.stringify(out.source)},"versions":{${Object.entries(versions).map(([v, d]) => `${JSON.stringify(v)}:${layout(d)}`).join(",")}}};\n`;
+const body = `// Generated by build-abrasf-schema.mjs; do not edit by hand, rebuild.\n${[...shared].map(([j, n]) => `const ${n} = ${j};\n`).join("")}export default {"source":${JSON.stringify(out.source)},"versions":{${Object.entries(versions).map(([v, d]) => `${JSON.stringify(v)}:${layout(d)}`).join(",")}},"providers":{${Object.entries(providers).map(([k, d]) => `${JSON.stringify(k)}:${typeof d === "string" ? JSON.stringify(d) : `{"base":${JSON.stringify(d.base)},"drop":${JSON.stringify(d.drop)},"roots":${JSON.stringify(d.roots)},"complex":${table(d.complex)},"simple":${table(d.simple)}}`}`).join(",")}},"cities":${JSON.stringify(cities)}};\n`;
 writeFileSync(new URL("./abrasf-xsd-data.mjs", import.meta.url), body);
 for (const [v, d] of Object.entries(versions)) console.log(`${v}: ${Object.keys(d.complex).length} complex, ${Object.keys(d.simple).length} simple, ${Object.keys(d.roots).length} root elements`);
+for (const [k, d] of Object.entries(providers)) console.log(`${k}: ${typeof d === "string" ? `same as ABRASF ${d}` : `ABRASF ${d.base} with ${Object.keys(d.complex).length} complex and ${Object.keys(d.simple).length} simple types added or changed, ${d.drop.length} dropped`}`);
+console.log(`${Object.keys(cities).length} cities`);
 console.log(`${body.length} bytes`);
