@@ -48,7 +48,7 @@
     "ventures/league-schedule-generator/README.md section 'Team sheets and a duty rota for a one-division league'"
   ],
   "goal": null,
-  "notes": "Local checks: node --test page/calc/divisions/print tests 331 pass 0 fail; eval/print-check.mjs 91 ok 0 failed (eval/print-check.txt); eval/browser-click-team-sheets.mjs all ok (eval/browser-click-team-sheets.txt). run_venture_tests.py, eval/browser-click.mjs and venture-preflight were still running at commit time; results in a follow-up commit.",
+  "notes": "Local checks: node --test page/calc/divisions/print tests 331 pass 0 fail; run_venture_tests.py league-schedule-generator 0 failed (172.6 s); eval/print-check.mjs 91 ok 0 failed (eval/print-check.txt); eval/browser-click-team-sheets.mjs all ok (eval/browser-click-team-sheets.txt); eval/browser-click.mjs (multi-division) 58 ok 0 FAIL; venture-preflight clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
