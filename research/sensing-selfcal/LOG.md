@@ -1,5 +1,22 @@
 # sensing-selfcal research log
 
+## 2026-11-13 · Milestone 4f planned: does the jackknife stop overstating f's spread once the view set leaves the critical region?
+
+Written while the milestone-4f solves ran, before any of them was analysed. Milestone 4e found, post hoc, that f's spread per view falls 2–5× between 3 and 5 views and then roughly follows 1/n. It guessed that the same effect is why the leave-one-view-out jackknife overstated the real set-to-set spread of 7-view sets (1.8× and 2.3× on 5×5 corners): deleting one view from a small set lands near the critical set, so a few delete-one solves swing far and inflate the variance. If the guess is right, the overstatement should shrink as the old set grows, and a robot that logs about 10 views could use the jackknife as it is. Here every subset of 3 to 12 of the 13 views is solved on each camera (8,086 per camera, `experiments/m4f_setsize/run.py`; milestones 4d and 4e's 5×5 solves reused), on 5×5 corners only (milestone 6b's unbiased localiser), with milestone 4b's solver, reference views and start.
+
+- **Quantities** (per camera, relative to the all-view f<sub>13</sub>, converged solves only):
+  - real sd, disjoint pairs (DP), n = 3..6: √(mean d²/2) over every unordered pair of disjoint n-view sets, d = (f<sub>A</sub> − f<sub>B</sub>)/f<sub>13</sub>. Model-free; needs 2n ≤ 13.
+  - real sd, around all views (A13), any n: √(mean (f<sub>S</sub> − f<sub>13</sub>)² / (1 − n/13)) over every n-view set S. Exact if each view adds an independent offset (then var(f<sub>S</sub> − f<sub>13</sub>) = var(f<sub>S</sub>)(1 − n/13)); the only real reference above 6 views.
+  - jackknife J(n) = √(mean v<sub>J</sub>) over n-view sets with all n delete-one solves converged, v<sub>J</sub> = (n−1)/n Σ(f<sub>i</sub> − f̄)²/f<sub>13</sub>² (milestone 4b's `jackknife_cov`, f entry).
+  - reported R(n) = √(mean σ<sub>f</sub>²)/f<sub>13</sub> (the solver's own covariance).
+  - ratio ρ<sub>J</sub>(n) = J(n)/real(n); reference DP for n ≤ 6 where stated, A13 otherwise.
+- **H48 (overstatement falls with set size).** On each camera ρ<sub>J</sub>(4) > ρ<sub>J</sub>(6) against DP, and the Spearman correlation of ρ<sub>J</sub>(n) (A13) with n over n = 4..10 is ≤ −0.8. Refuted if either fails on either camera.
+- **H49 (honest from about 8 views).** ρ<sub>J</sub>(n) (A13) lies in 0.67–1.5 for each of n = 8, 9, 10 on both cameras. Refuted if any falls outside.
+- **H50 (the independent-offset model holds where it can be checked).** At n = 4, 5, 6, A13 over DP lies in 0.8–1.25 on both cameras. Refuted otherwise (and then H48's and H49's A13 reference is suspect above 6 views).
+- **H51 (the solver's σ stays small at every size).** R(n)/real(n) (A13) ≤ 0.67 for every n = 4..10 on both cameras (milestone 1: about 2× small on 13 views). Refuted if any exceeds.
+- **Reported, unscored.** n = 3, 11, 12; robust versions (1.4826 MAD for the real spread, median v<sub>J</sub> for the jackknife); convergence counts per n; a leave-one-view-out sensitivity (each ratio recomputed with every set holding view v dropped, for each of the 13 v; min–max reported).
+- **Caveat set in advance.** All sets are drawn from the same 13 views and overlap heavily, so the per-n figures are far from independent and carry no honest interval beyond the leave-one-view-out range. The A13 reference at n ≥ 11 divides by 1 − n/13 ≤ 0.15 and is too noisy to score. 5×5 corners only: the other localisers carry a bias (milestone 6b) that adds a shared offset to every set.
+
 ## 2026-11-13 · Milestone 4e result: a threshold from the old set's own 4 + 3 split-halves is quiet but deaf, because f's spread does not shrink as 1/n below 5 views
 
 - **Runs.** 3,168 new solves (every 3- and 4-view subset of the 13 views not already stored, × 3 localisers × 2 cameras), all with the milestone-4b solver; merged with milestones 4b and 4d, every one of the 171 old sets per camera and localiser had all 35 partitions usable. 14,040 decisions scored with milestone 4c's `score()`, unchanged, none left undecided.
