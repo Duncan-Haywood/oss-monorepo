@@ -1,0 +1,10 @@
+$ bash lean/build.sh  (Lean 4.15.0; lake build: no warnings, no sorry)
+'TheismFormal.AndersonK.essential_refl' does not depend on any axioms
+'TheismFormal.AndersonK.essential_symm' does not depend on any axioms
+'TheismFormal.AndersonK.essential_iff' does not depend on any axioms
+'TheismFormal.AndersonK.god_reach' does not depend on any axioms
+'TheismFormal.AndersonK.essential_back' does not depend on any axioms
+'TheismFormal.AndersonK.essential_cycle_edges' does not depend on any axioms
+'TheismFormal.AndersonK.essential_symm'' does not depend on any axioms
+'TheismFormal.AndersonK.essential_a4' does not depend on any axioms
+'TheismFormal.AndersonK.essential_refl'' does not depend on any axioms

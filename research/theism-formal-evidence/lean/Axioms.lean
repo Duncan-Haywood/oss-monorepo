@@ -60,3 +60,10 @@ open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actual
 #print axioms TheismFormal.AndersonK.geine_any
 #print axioms TheismFormal.AndersonK.essential_failure
 #print axioms TheismFormal.AndersonK.CM.cm_s4_full
+#print axioms TheismFormal.AndersonK.essential_iff
+#print axioms TheismFormal.AndersonK.god_reach
+#print axioms TheismFormal.AndersonK.essential_back
+#print axioms TheismFormal.AndersonK.essential_cycle_edges
+#print axioms TheismFormal.AndersonK.essential_symm'
+#print axioms TheismFormal.AndersonK.essential_a4
+#print axioms TheismFormal.AndersonK.essential_refl'

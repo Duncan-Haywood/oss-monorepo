@@ -10,3 +10,4 @@ import TheismFormal.Fitting
 import TheismFormal.AFP
 import TheismFormal.AndersonK
 import TheismFormal.AndersonFull
+import TheismFormal.AndersonFrames
