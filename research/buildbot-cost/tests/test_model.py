@@ -24,6 +24,12 @@ class T(unittest.TestCase):
         self.assertGreater(M.net_per_replaced_hour(w, rate, s * 0.9, f), 0)
         self.assertLess(M.net_per_replaced_hour(w, rate, s * 1.1, f), 0)
 
+    def test_eligible_hours_match_results(self):
+        # Pinned to experiments/results.txt and the README (quality round 68: a
+        # filter mutant letting out-of-reach tasks count left every test green).
+        self.assertAlmostEqual(M.eligible_hours(self.tasks, "H1", "A"), 32.1, delta=0.06)
+        self.assertAlmostEqual(M.eligible_hours(self.tasks, "G1", "A"), 5.9, delta=0.06)
+
     def test_free_instant_robot_saves_the_wage(self):
         self.assertEqual(M.net_per_replaced_hour(38.0, 0.0, 0.0, 0.0), 38.0)
 
