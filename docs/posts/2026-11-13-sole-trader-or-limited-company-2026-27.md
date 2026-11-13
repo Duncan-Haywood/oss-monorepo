@@ -1,6 +1,6 @@
 ---
 title: "Sole trader or limited company in 2026/27: the company never came out ahead"
-seo_title: "Sole trader vs limited company 2026/27: take-home at £10k to £300k profit"
+seo_title: "Sole trader vs limited company 2026/27: take-home, £10k to £300k"
 date: 2026-11-13
 tags: [uk-sole-trader-vs-limited-company-calculator, uk-tax, dividends, aeo, polish]
 description: "At £50,000 profit a UK sole trader keeps £40,268 and a one-director company £37,994. On a £1,000 grid from £10k to £300k the company never wins. And a bug fix."

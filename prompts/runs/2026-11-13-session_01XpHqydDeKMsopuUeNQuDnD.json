@@ -1,0 +1,80 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqydDeKMsopuUeNQuDnD",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T09:42:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "AEO answer-first lead on uk-sole-trader-vs-limited-company-calculator (item 3 of still-weakest in polish-2026-11-13-last-intro-walls.md)",
+  "projects": [
+    "uk-sole-trader-vs-limited-company-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15450",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First lead draft listed every rate and was 546 px tall at 390 px (first input 594 -> 1,156 px); caught by measuring, cut to 198 px (first input 784)."
+    },
+    {
+      "what": "Report first said the salary bug hit '\u00a320k-\u00a350k and \u00a3100k'; re-running the pre-fix module showed 8 of 10 table rows (20-50k, 80-150k). Corrected before commit."
+    },
+    {
+      "what": "The post's seo_title was 73 characters (limit 70). This failed 170 pages tests through the build fixture. Shortened to 64."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-13-last-intro-walls.md",
+      "issue": "Its 'still weakest' item 1 (shared .jump in the venture chrome) doesn't mention that self-hosted copies of a venture don't load pf-chrome.css, or that shed-designer and ebay already use .jump for other things. Moving the CSS would leave self-hosted pages unstyled. The new report records both."
+    },
+    {
+      "file": "platform/pages/answer-lead.test.mjs",
+      "issue": "The pilot test only reads $ figures, so a lead in \u00a3 (UK tools) needs a test of its own. Added one; a currency-agnostic version would serve the next non-US lead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/reports/polish-2026-11-13-last-intro-walls.md",
+      "why": "Took item 3 (answer leads) over item 1 (shared .jump component): item 1 changes nothing visitors see, and doing it properly needs a self-host fallback",
+      "did": "AEO lead on the UK tool; fixed the calculator bug the lead's fact-check turned up",
+      "result": "lead shipped with a test; bug fixed with 3 tests"
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Didn't screenshot the five survey surfaces (hub, flagship, research, stories, blog post); today's nine polish runs had just surveyed them and their reports left a ranked list",
+      "did": "Took the list's item, measured before and after on the page I changed",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-sole-trader-or-limited-company-2026-27.md",
+    "docs/reports/polish-2026-11-13-uk-ltd-lead.md"
+  ],
+  "goal": "AEO: answer-first lead with primary source on a high-intent tool",
+  "notes": "Rates checked on GOV.UK (4 pages, all 200 through the proxy) and all matched calc.mjs R. Venture suite: run_venture_tests.py uk-sole-trader-vs-limited-company-calculator -> 1 suites run, 0 failed. calc tests 34/34. answer-lead uk test: passes, and fails when the old \u00a338,656 figure is put back. Full site build of main completed locally (~20 min). node --test 'platform/pages/*.test.mjs': first run 1417 pass / 170 fail (my seo_title, plus a pre-existing failure from main #15447: ventures/isolation-forest/index.html:296 printed an unrounded percentage). Fixed both; rerun 1587 pass / 0 fail. isolation-forest venture suite: 1 suites run, 0 failed.",
+  "corrections": [
+    {
+      "what": "ventures/isolation-forest/index.html:296 rounds the contamination percentage (percent-float test red on main since #15447)"
+    }
+  ],
+  "redteam": null
+}
