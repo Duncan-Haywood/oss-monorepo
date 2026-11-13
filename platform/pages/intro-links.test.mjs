@@ -39,7 +39,7 @@ test(`no tool intro paragraph carries more than ${MAX_LINKS} links (known pages 
     const allowed = KNOWN[slug] ?? MAX_LINKS;
     if (most > allowed) bad.push(`${slug}: ${most} links in one header paragraph (allowed ${allowed})`);
   }
-  assert.deepEqual(bad, [], 'Move guide links to a jump row (<nav class="jump">) or a list lower on the page.');
+  assert.deepEqual(bad, [], 'Move guide links to a jump row (<nav class="pf-jump">, styled by pf-chrome.css: jump-row.mjs) or a <ul class="pf-guide-list"> lower on the page.');
 });
 
 test('KNOWN entries are still over the limit (delete the ones that are fixed)', () => {
