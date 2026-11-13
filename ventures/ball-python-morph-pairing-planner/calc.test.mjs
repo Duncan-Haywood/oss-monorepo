@@ -253,3 +253,31 @@ test("formatters", () => {
   assert.equal(pct(0.25), "25%");
   assert.equal(pct(0.3333), "33.3%");
 });
+
+test("clutch chances average over a possible het, not per egg (quality audit 2026-11-13)", () => {
+  // A possible het is het or not for the whole clutch. Luna (50% het Clown) x Ember (het Clown),
+  // 6 eggs at 85%: P(Luna het) x (1 - (1 - 0.85 x 1/4)^6) = 0.5 x 0.761490 = 0.380745.
+  // The old per-egg formula, 1 - (1 - 0.85 x 1/8)^6, gave 0.4903.
+  const base = { ...INP, eggs: 6, hatch: 85, raise: 0, fee: 0, overhead: 0, prices: "Clown | 100" };
+  const one = (f, m, target) => {
+    const { spec, errors } = buildSpec({ ...base, females: `F | ${f}`, males: `M | ${m}`, target });
+    assert.deepEqual(errors, []);
+    const p = evaluate(spec.females[0], spec.males[0], spec);
+    assert.deepEqual(verifyPlan(spec, { ranked: [p] }), []);
+    return p;
+  };
+  const miss = Math.pow(1 - 0.85 * 0.25, 6);
+  const luna = one("Pastel, het Albino, 50% het Clown", "Fire, het Clown", "Clown");
+  near(luna.targetChance, 0.5 * (1 - miss), 1e-12);
+  near(luna.targetChance, 0.380745, 1e-6);
+  // Two possible hets: both must be het for any Piebald, 0.66 x 0.5 x (1 - miss).
+  near(one("66% het Piebald", "50% het Piebald", "Piebald").targetChance, 0.66 * 0.5 * (1 - miss), 1e-12);
+  // Per-row chance too: the visual Clown row of Luna x Ember.
+  const clown = luna.rows.filter((r) => r.label.startsWith("Clown"));
+  const rowSum = clown.reduce((a, r) => a + r.p, 0);
+  near(rowSum, 0.125);
+  // With no possible het the old per-egg formula is exact and still holds.
+  near(one("het Clown", "het Clown", "Clown").targetChance, 1 - miss, 1e-12);
+  // A proven het crossed to a visual: 1 - (1 - 0.85/2)^6.
+  near(one("Clown", "het Clown", "Clown").targetChance, 1 - Math.pow(1 - 0.425, 6), 1e-12);
+});

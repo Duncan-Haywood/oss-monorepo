@@ -308,6 +308,59 @@ export function cross(mom, dad, genes) {
   return { outcomes, dead, involved };
 }
 
+const outcomeKey = (o) => labelsKey(o.vis) + "|" + [...o.het].sort().join("+");
+
+// Loci where a parent is a possible het (0 < share < 1). Each is a fact about
+// the parent, the same for every egg: het with chance `share`, else normal.
+export function uncertainLoci(mom, dad) {
+  const out = [];
+  for (const [who, a] of [["mom", mom], ["dad", dad]])
+    for (const [gene, st] of a.state) if (st.t > 0 && st.t < 0.5) out.push({ who, gene, share: 2 * st.t });
+  return out;
+}
+
+export const MAX_UNCERTAIN = 10;
+
+// Chance of at least one egg of each outcome (and of the target) in a clutch.
+// Given the parents' true genotypes, eggs are independent; over the possible
+// hets they are not, so the clutch chance is a mixture: the sum over every
+// het/normal assignment of P(assignment) x (1 - (1 - h p)^eggs).
+export function clutchChances(mom, dad, s, h, keys) {
+  const unc = uncertainLoci(mom, dad);
+  const rows = new Map(keys.map((k) => [k, 0]));
+  let target = 0;
+  const hasTarget = !!s.target && s.target.size > 0;
+  const atLeast = (p) => 1 - Math.pow(1 - h * p, s.eggs);
+  const add = (m, d, w) => {
+    const x = cross(m, d, s.genes);
+    let pT = 0;
+    for (const o of x.outcomes) {
+      const k = outcomeKey(o);
+      if (rows.has(k)) rows.set(k, rows.get(k) + w * atLeast(o.p));
+      if (hasTarget && matchesTarget(o, s.target)) pT += o.p;
+    }
+    target += w * atLeast(pT);
+  };
+  if (unc.length === 0 || unc.length > MAX_UNCERTAIN) {
+    // No possible hets: the per-egg formula is exact. Past the cap the
+    // independent-egg formula is used as an upper-bound approximation.
+    add(mom, dad, 1);
+    return { rows, target, exact: unc.length === 0 };
+  }
+  for (let mask = 0; mask < 1 << unc.length; mask++) {
+    let w = 1;
+    const st = { mom: new Map(mom.state), dad: new Map(dad.state) };
+    unc.forEach((u, i) => {
+      const het = (mask >> i) & 1;
+      w *= het ? u.share : 1 - u.share;
+      if (het) st[u.who].set(u.gene, { ...st[u.who].get(u.gene), t: 0.5 });
+      else st[u.who].delete(u.gene);
+    });
+    if (w > 0) add({ ...mom, state: st.mom }, { ...dad, state: st.dad }, w);
+  }
+  return { rows, target, exact: true };
+}
+
 const label = (o) => {
   const v = o.vis.length ? o.vis.join(" ") : "Normal";
   return o.het.length ? `${v} (${o.het.join(", ")})` : v;
@@ -359,13 +412,14 @@ export function evaluate(mom, dad, s) {
     hatchlings += n;
     revenue += n * net;
     if (!listed) unlisted += o.p;
-    return { label: label(o), p: o.p, n, price, listed, revenue: n * net, atLeastOne: 1 - Math.pow(1 - h * o.p, s.eggs), isTarget };
+    return { key: outcomeKey(o), label: label(o), p: o.p, n, price, listed, revenue: n * net, atLeastOne: 0, isTarget };
   });
+  // A possible het's genotype is fixed for the whole clutch, so the clutch
+  // chances average over the parents' possible genotypes (clutchChances).
+  const cc = clutchChances(mom, dad, s, h, rows.map((r) => r.key));
+  rows.forEach((r) => { r.atLeastOne = cc.rows.get(r.key) ?? 0; });
   const cost = hatchlings * s.raise + s.overhead;
   const hasTarget = !!s.target && s.target.size > 0;
-  // One egg is in the target class with probability sum(p over target rows);
-  // eggs are independent, so a clutch misses only if every egg does.
-  const pTarget = rows.filter((r) => r.isTarget).reduce((a, r) => a + r.p, 0);
   return {
     ...base,
     rows,
@@ -376,7 +430,7 @@ export function evaluate(mom, dad, s) {
     cost,
     profit: revenue - cost,
     unlisted,
-    targetChance: hasTarget ? 1 - Math.pow(1 - h * pTarget, s.eggs) : null,
+    targetChance: hasTarget ? cc.target : null,
   };
 }
 
@@ -403,9 +457,12 @@ export function verifyPlan(s, res) {
     if (Math.abs(hatched - s.eggs * h * (1 - p.dead)) > 1e-9) out.push(`${at}: hatchlings do not match eggs x hatch rate x viable share.`);
     if (Math.abs(p.profit - (p.revenue - hatched * s.raise - s.overhead)) > 1e-6) out.push(`${at}: profit does not match revenue less costs.`);
     if (p.targetChance !== null) {
-      // Target outcomes are disjoint per egg, so an egg misses with 1 - h * (sum of their chances).
+      // Jensen: averaging over possible hets can only lower the clutch chance
+      // below the independent-egg figure, and equals it with no possible hets.
       const perEgg = p.rows.filter((r) => r.isTarget).reduce((a, r) => a + h * r.p, 0);
-      if (Math.abs(p.targetChance - (1 - Math.pow(1 - perEgg, s.eggs))) > 1e-9) out.push(`${at}: target chance does not match the per-egg miss chance.`);
+      const indep = 1 - Math.pow(1 - perEgg, s.eggs);
+      if (p.targetChance > indep + 1e-9) out.push(`${at}: target chance is above the independent-egg bound.`);
+      if (p.targetChance < 0 || p.targetChance > 1) out.push(`${at}: target chance is not a probability.`);
     }
   }
   return out;

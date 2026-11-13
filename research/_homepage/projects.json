@@ -1663,7 +1663,7 @@
     {
      "slug": "robofab-reach",
      "title": "How long an arm does it take to assemble its own toy gripper?",
-     "summary": "A planar two-link arm on a turntable must reach a pick, place and lift point for each of the six free parts of the seven-part toy gripper from <code>robofab-selfparts</code>. With equal links and a 100&nbsp;mm shoulder height the shortest arm is 60&ndash;140&nbsp;mm per link as the tray moves from 40 to 400&nbsp;mm away; an elbow limit of 90&deg; raises it from 80 to 180&nbsp;mm and 60&deg; admits none up to 600&nbsp;mm. Stylised: wrist point only, no collisions, payload or wrist orientation; results sit on a 10&nbsp;mm grid."
+     "summary": "A planar two-link arm on a turntable must reach a pick, place and lift point for each of the six free parts of the seven-part toy gripper from <code>robofab-selfparts</code>. With equal links and a 100&nbsp;mm shoulder height the shortest arm is 70&ndash;140&nbsp;mm per link as the tray moves from 40 to 400&nbsp;mm away; an elbow limit of 90&deg; raises it from 80 to 180&nbsp;mm and 60&deg; admits none up to 600&nbsp;mm with the base within 400&nbsp;mm of the fixture (a 400&nbsp;mm arm works from farther out). Stylised: wrist point only, no collisions, payload or wrist orientation; results sit on a 10&nbsp;mm grid."
     },
     {
      "slug": "robofab-reachorder",
