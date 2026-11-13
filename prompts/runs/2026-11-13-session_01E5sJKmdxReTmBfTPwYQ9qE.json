@@ -7,33 +7,146 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T07:18:25Z",
   "ended": "2026-11-13T07:18:55Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "wall_minutes": 27.44,
+  "tokens_in": 11363915,
+  "tokens_out": 128362,
+  "cost_usd": 7.9171,
+  "tool_calls": 138,
+  "task": "quality audit round 62 (sample mode)",
+  "projects": [
+    "ventures/llm-spend-guard",
+    "ventures/ticket-resale-profit-calculator",
+    "research/simdesign-fwdcheck",
+    "research/categorical-scores"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15416",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "one auditor's proposed test asserted estimateInputTokens('x'*300) == 102 (it assumed JSON-encoding); the code counts raw bytes, 100; caught when the test failed and corrected before commit"
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "my brief guessed research/simdesign-fwdcheck was a simulation-study-methods project from its name; it is an FE structural check. The auditor caught it. sample could print each subject's README first line so the orchestrator names the right professional."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_venture_tests.py takes bare slugs; passing ventures/<slug> prints 'no such venture' and '0 suites run, 0 failed' with exit 0, which reads like a pass."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "fixes landed in the round PR itself rather than separate fix PRs, as earlier rounds do; fix_prs points at this PR",
+      "did": "one commit per subject fix inside PR #15416",
+      "result": "scores recorded before fixes; each fix has its own commit and test"
+    },
+    {
+      "file": "research/simdesign-fwdcheck",
+      "why": "the auditor's proposed test needs a ~3-minute FE solve; adding it to a 50 s suite was not small",
+      "did": "recorded it in README Known gaps instead",
+      "result": "open"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quality-audit-round-62.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "seed 2026-11-13-h, round 62, mode sample. Subjects: ventures/llm-spend-guard, ventures/ticket-resale-profit-calculator, research/simdesign-fwdcheck, research/categorical-scores (no flagship/platform drawn). Share meeting the bar: 0 of 4; all sampled 31 of 262 (Wilson 8-16%). Seeded bugs caught 7 of 19. Fix PR: #15416 (all four). Spot checks by the orchestrator: llm-spend-guard n=4 overspend reproduced ($0.12015 vs $0.05 cap); categorical-scores E2 reproduced by the auditor's independent mpmath-style script; simdesign beam stress 162.8 MPa by hand; ticket-resale old parser reads 'Net Profit' as payout (-$130) confirmed on the pre-fix engine. Local verification: quality_audit.py validate 302 files 0 problems; run_venture_tests.py llm-spend-guard ticket-resale-profit-calculator 2 suites ok (llm-spend-guard 47 tests, ticket-resale 35); categorical-scores pytest 7 passed; check_post_links 0 broken.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b67f5d9d-0bb4-56e2-986c-4566e91931ec",
+    "transcripts": 5,
+    "first": "2026-11-13T07:18:25Z",
+    "last": "2026-11-13T07:45:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 126,
+        "input": 260,
+        "output": 128362,
+        "thinking": 33181,
+        "cache_read": 10790613,
+        "cache_write_5m": 464538,
+        "cache_write_1h": 108504,
+        "api_equivalent_usd": 7.9171,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 126,
+      "input": 260,
+      "output": 128362,
+      "thinking": 33181,
+      "cache_read": 10790613,
+      "cache_write_5m": 464538,
+      "cache_write_1h": 108504,
+      "api_equivalent_usd": 7.9171,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.95,
+    "tool_calls": 138,
+    "tools": {
+      "Bash": 116,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "WebFetch": 4,
+      "ToolSearch": 3,
+      "WebSearch": 3,
+      "Read": 2,
+      "mcp__github__create_pull_request": 1,
+      "Skill": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.44,
+      "active_minutes": 6.25,
+      "model_minutes": 5.45,
+      "tool_minutes": 0.8,
+      "waiting_on_human_minutes": 21.19,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 37.48
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "four expert audits at ~3 h each plus fixes and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 176.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
