@@ -3,7 +3,7 @@ title: "When tenors hand straight to basses"
 seo_title: "Splitting a chant between tenors and basses without breaking the line"
 date: 2026-11-13
 tags: [music, gregorian-chant, choir, open-source, chant-forge]
-description: "Chant Forge can now let both sections sing the note where tenors hand over to basses mid-phrase. On 67 chants, that kind of handoff only happens with narrow sections, and there is always a note both can sing."
+description: "Chant Forge can let tenors and basses share the note where one hands to the other mid-phrase. Across 67 chants, every such join had a note both could sing."
 ---
 
 Chant Forge turns public-domain Gregorian chant into MIDI for a men's choir. When a chant is too wide for everyone to sing in unison, `--split-voices` decides who sings each phrase: the full choir, the tenors alone or the basses alone. Since earlier today it can also hand over in the middle of a phrase, between two words.
