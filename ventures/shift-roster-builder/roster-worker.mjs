@@ -7,12 +7,15 @@
 // { id, progress: { done, of } } after each week, then { id, kind: "plan", plan } with the whole plan.
 // Same code as the CLI and the tests: this file only moves buildRoster and planWeeks to another thread. Nothing leaves
 // the browser.
-import { buildRoster, planWeeks } from "./calc.mjs";
+// A build with options.steady (2026-11-13) runs steadyRoster instead: the tied best rosters, the one a single call-out
+// hurts least is posted, and { id, progress: { stage, ... } } messages report how far the check has got.
+import { buildRoster, planWeeks, steadyRoster } from "./calc.mjs";
 
-export function handle({ id, staff, slots, options }) {
+export function handle({ id, staff, slots, options }, post = () => {}) {
   let roster;
   try {
-    roster = buildRoster(staff, slots, options || {});
+    const { steady, ...o } = options || {};
+    roster = steady ? steadyRoster(staff, slots, o, { onProgress: (p) => post({ id, progress: p }) }) : buildRoster(staff, slots, o);
   } catch (err) {
     roster = { error: "The roster could not be built: " + (err && err.message ? err.message : String(err)) };
   }
@@ -32,5 +35,5 @@ export function handlePlan({ id, staffText, shiftsText, options }, post = () => 
 
 // Only inside a dedicated worker: under node's test runner, or if a page imported this file, nothing is wired up.
 if (typeof WorkerGlobalScope !== "undefined" && typeof self !== "undefined" && self instanceof WorkerGlobalScope) {
-  self.onmessage = (e) => self.postMessage(e.data && e.data.kind === "plan" ? handlePlan(e.data, (m) => self.postMessage(m)) : handle(e.data));
+  self.onmessage = (e) => self.postMessage(e.data && e.data.kind === "plan" ? handlePlan(e.data, (m) => self.postMessage(m)) : handle(e.data, (m) => self.postMessage(m)));
 }
