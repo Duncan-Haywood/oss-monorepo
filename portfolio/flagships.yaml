@@ -190,7 +190,7 @@ flagships:
       something stronger than the coverage LP (README "The open-hours row from the first pass"); re-run the
       keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
       would post; a real 7shifts account through --import-7shifts (README
-      "Reading 7shifts directly"); a real When I Work account or recorded response through --import-wheniwork (built 2026-11-13 from When I Work's published OpenAPI file, README "Reading When I Work directly"; never run on real data); Homebase (its API docs need an account: look for a mirrored definition); call-out exposure as a priced term inside the search (tie-break at each reissue: 0 of 983 changed, README "How many rosters really tie?"); `--steady` speed lies in the call-out rebuilds, not the builds; a real multi-location Square or Toast export (planned as one shop today); whether the
+      "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); call-out exposure as a priced term inside the search (tie-break at each reissue: 0 of 983 changed, README "How many rosters really tie?"); `--steady` speed lies in the call-out rebuilds, not the builds; a real multi-location Square or Toast export (planned as one shop today); whether the
       priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-

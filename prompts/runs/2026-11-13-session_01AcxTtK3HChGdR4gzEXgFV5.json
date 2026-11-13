@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 11,
   "outcome": "success",
@@ -39,6 +39,10 @@
     {
       "what": "preflight refused the post: description 173 chars (limit 160)",
       "fix": "shortened"
+    },
+    {
+      "what": "CI validate failed: flagships.yaml shift-roster-builder next: 2065 chars (cap 2000)",
+      "fix": "shortened the replacement item; portfolio/router/validate.py now passes locally"
     }
   ],
   "integrity_issues": [],
@@ -55,7 +59,7 @@
     "ventures/shift-roster-builder/README.md (Reading When I Work directly)"
   ],
   "goal": "Deepen flagship 6: a second paid scheduler's shifts import with no CSV",
-  "notes": "Built from When I Work's published OpenAPI 3.1 file (SHA-256 in eval note). Key difference from 7shifts: RFC 2822 times carry their offset, so the digits are the wall clock; length computed from instants (DST night shift = 8 h). Local: node --test import-wheniwork, import-7shifts, page, cli, import-shifts: 88 pass 0 fail; headless Chromium upload of 3 JSON files filled the shifts box, listed both locations, location pick worked, no page errors. Full venture suite and venture-preflight results in the PR body. Not run on a real When I Work account or recorded response. Homebase API docs answered 401 without an account.",
+  "notes": "Built from When I Work's published OpenAPI 3.1 file (SHA-256 in eval note). Key difference from 7shifts: RFC 2822 times carry their offset, so the digits are the wall clock; length computed from instants (DST night shift = 8 h). Local: node --test import-wheniwork, import-7shifts, page, cli, import-shifts: 88 pass 0 fail; headless Chromium upload of 3 JSON files filled the shifts box, listed both locations, location pick worked, no page errors. Full venture suite (run_venture_tests.py shift-roster-builder): ok, 242.5 s, 0 failed. venture-preflight: clean. Not run on a real When I Work account or recorded response. Homebase API docs answered 401 without an account.",
   "corrections": [],
   "redteam": null,
   "usage": {
