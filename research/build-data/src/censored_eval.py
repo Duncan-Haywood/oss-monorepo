@@ -123,12 +123,28 @@ def fit(data_dir, held, test_year, seeds, classes):
     import transfer
     cities = [c for c in transfer.CITIES if c != "chicago"  # Chicago has no completion date
               and os.path.exists(os.path.join(data_dir, f"{c}.csv"))]
-    R = {}
+    R, FOLDS, done, cache = {}, {}, {}, {}
     for k in classes:
-        frames = {c: transfer.frame(os.path.join(data_dir, f"{c}.csv"), "i2c", k)[0] for c in cities}
+        ms = transfer.minsup_k(k)
+        base = "cascade2" if ms is not None else k
+        if base not in cache:
+            cache[base] = {c: transfer.frame(os.path.join(data_dir, f"{c}.csv"), "i2c", base)[0] for c in cities}
+        frames = cache[base]
+        if ms is not None:  # session 81: fold classes with < k source training rows into "other"
+            fold, n_src = transfer.minsup_map(frames, held, test_year, ms)
+            FOLDS[k] = dict(k=ms, fold=fold, n_source=n_src)
+            print(held, test_year, k, "folds", sorted(fold), flush=True)
+            key = ("cascade2", tuple(sorted(fold)))
+            if key in done:  # same fold as a configuration already fitted: identical model (fixed seeds)
+                R[k] = done[key]
+                continue
+            frames = transfer.apply_fold(frames, fold)
+        else:
+            key = (k, ())
         r = transfer.run(frames, held, test_year, seeds, keep_rows=True)
-        R[k] = r["_rows"]
+        R[k] = done[key] = r["_rows"]
         print(held, test_year, k, "n_test", r["n_test"], flush=True)
+    fit.folds = FOLDS
     a = R[classes[0]]
     for k in classes[1:]:
         if not np.array_equal(a["permit_id"], R[k]["permit_id"]):
@@ -201,7 +217,7 @@ def validate(data_dir, held, test_year, pull_date, pseudo_pull, seeds, classes, 
                 labels=summary(y, c, w, seen), bins=bins(y, c, seen), reference_window_min=float(real_c.min()),
                 note="reference = all test rows (windows >= reference_window_min days); cc/ipcw = rows the "
                      "pseudo-pull would have seen; days of mean pinball loss, negative = first term better",
-                contrasts=est,
+                contrasts=est, minsup=getattr(fit, "folds", {}),
                 by_class=dict(reference=class_split(d, x["cls"]), cc=class_split(d, x["cls"], seen)))
 
 
@@ -224,6 +240,14 @@ def rescore(data_dir, held, test_year, pull_date, seeds, classes, floor):
 DEFAULT_CLASSES = ["cascade2", "cascade2_nodemo"]
 
 
+def class_arg(s):
+    """--classes value: type, cascade2, cascade2_nodemo, or cascade2_minsup<k> (session 81)."""
+    import transfer
+    if s in ("type", "cascade2", "cascade2_nodemo") or transfer.minsup_k(s) is not None:
+        return s
+    raise argparse.ArgumentTypeError(f"unknown class configuration {s!r}")
+
+
 def out_name(mode, held, test_year, pseudo_pull, classes):
     """Result file name. Session 78's default pair keeps its original name; any other class list
     (session 79: cascade2 type cascade2_nodemo) is appended, so it does not overwrite those files."""
@@ -243,8 +267,7 @@ if __name__ == "__main__":
     ap.add_argument("--test-year", type=int, required=True)
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--floor", type=float, default=0.05)
-    ap.add_argument("--classes", nargs="+", default=DEFAULT_CLASSES,
-                    choices=["type", "cascade2", "cascade2_nodemo"])
+    ap.add_argument("--classes", nargs="+", default=DEFAULT_CLASSES, type=class_arg)
     a = ap.parse_args()
     if a.mode == "validate":
         if a.pseudo_pull is None:

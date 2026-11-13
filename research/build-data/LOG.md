@@ -1,5 +1,17 @@
 # build-data log
 
+## Session 81, 2026-11-13: a minimum-support rule for the work-type class, k chosen on 2020 and tested on 2021 and 2022
+
+Why: session 80 found Austin's 15-day transfer q0.9 cost from the cascade2 work-type class comes from 42 to 466 slow Seattle rows behind its trade classes, and SF's gain from 271,672 close source rows behind alteration. Its "Next" asked for a minimum-support rule fixed in advance.
+- New: configuration `cascade2_minsup<k>` (`transfer.minsup_map`): a class with fewer than k source training rows (the sources' issue years <= Y-2, the transfer model's own training rows) is folded into "other" in every city before fitting. The rule reads only the sources; the held-out city is never read. A configuration whose fold equals one already fitted reuses that fit (fixed seeds, identical model). 3 tests.
+Design (fixed before any run): `python3.13 src/censored_eval.py validate DIR --pull-date 2026-11-13 --held H --test-year Y --pseudo-pull Y+2-11-13 --classes cascade2 type cascade2_minsup100 cascade2_minsup1000 cascade2_minsup10000` for H = austin, sf and Y = 2020 (validation). k* = the k with the lowest mean over the two cities of the reference transfer q0.9 contrast minsup_k minus cascade2 (ties: the smaller k). Then Y = 2021 and 2022 for austin, sf and seattle with `--classes cascade2 type cascade2_minsup<k*>`. All contrasts on all rows (reference) unless stated; "minsup minus cascade2" < 0 means the rule helps.
+Predictions (written before any run):
+- (M1) k* = 1000.
+- (M2) Austin 2021 and 2022: transfer q0.9 minsup minus cascade2 < 0 with a 95% interval below zero. Refuted if either year fails.
+- (M3) Austin 2021 and 2022: the rule wins back at least half of cascade2's cost against type, minsup minus cascade2 <= 0.5 x (type minus cascade2) at q0.9. Refuted if either year fails.
+- (M4) SF 2021 and 2022: the rule keeps at least 90% of cascade2's gain over type, |minsup minus cascade2| <= 0.1 x (type minus cascade2) at q0.9. Refuted if either year fails.
+- (M5) Seattle 2021 and 2022: the rule folds no class holding more than 1% of Seattle's test rows, and |minsup minus cascade2| < 1 day at q0.9. Refuted if either part fails in either year.
+
 ## Session 80, 2026-11-12: San Francisco's build-time gain and Austin's cost from the work-type class hold in 2020 and 2022; both come from which classes the sources fill, and Austin's from 42 to 466 slow Seattle trade rows (W1, W2, W5, W6 held; W3, W4 refuted)
 
 Why: session 79 found, on complete build-time labels, that the cascade2 work-type class gains 15.7 days of transfer q0.9 with SF held out and costs 15.3 with Austin held out, but from one test year (2021) per city, and with no split of where Austin's cost sits. Its "Next" asked for both.
