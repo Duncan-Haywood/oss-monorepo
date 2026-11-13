@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtKzeVSiWwrDWyWhhpD",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T20:07:23Z",
+  "ended": "2026-11-13T20:19:55Z",
+  "wall_minutes": 12.84,
+  "tokens_in": 7585930,
+  "tokens_out": 47854,
+  "cost_usd": 3.6408,
+  "tool_calls": 62,
+  "task": "buildbot-sheathing milestone 14: capacity cost of escaped missed nails",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15602",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py is described as possibly slow; here the first call returned /usr/bin/python3.13 in seconds and a second call with matplotlib installed it quickly. Plain python3 lacked numpy, as documented."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No friction with the research instructions; pick_track's CLAIM CHECK showed milestone 13 merged 7 minutes earlier, which made the next milestone clear."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/LOG.md",
+      "why": "After H61 was refuted, added a post-hoc sensitivity (section G: every loss scaled by Weiss's 2.45) that was not registered",
+      "did": "Labelled it 'post hoc, not registered' in results.txt, LOG, README and the post",
+      "result": "H64's conclusion survives the scaling (97.6% of 4 in sheets still clear the bar); disclosed as unregistered"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-what-a-missed-nail-costs-a-shear-wall.md",
+    "research/buildbot-sheathing/LOG.md (milestone 14 plan and result)"
+  ],
+  "goal": "Advance research programme buildbot-sheathing to a publishable paper (Automation in Construction)",
+  "notes": "Security queue empty; IDEAS.md and website requests empty. Routed research (draw 0.3136), pick_track drew buildbot-sheathing. Registered H60-H64 before any run. Rigid-plastic fully anchored shear-wall model (K\u00e4llsner & Girhammar 2009; full text not opened, disclosed) solved by IRLS, matches Nelder-Mead to 1e-13. H60 held (spacing ratios within 6% of SDPWS Table 4.3A as read from secondary copies), H61 refuted (model loses 20% with bottom foot unnailed vs ~50% in Weiss 2017 tests: losses are lower bounds), H62 held (~2% per joint nail), H63 refuted on the tail (p99 sheet -11.5%, misses cluster), H64 held (4 in joint edges carry every escaped miss, 99.98%). Local checks: project pytest 74 passed 8 skipped (python3.13); research/_homepage/build.py ok; programme_check ok; check_md_links ok; cite_check all ok; post frontmatter/links/similarity ok. No writeup to docs/reports: the LOG and README carry what the next run needs. Paper draft not updated with milestone 14 (left for a paper-section run).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "10a7ff5a-612d-5b0a-a5e6-19cc94c63add",
+    "transcripts": 1,
+    "first": "2026-11-13T20:07:23Z",
+    "last": "2026-11-13T20:20:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 115,
+        "output": 47854,
+        "thinking": 14599,
+        "cache_read": 7436318,
+        "cache_write_5m": 0,
+        "cache_write_1h": 149497,
+        "api_equivalent_usd": 3.6408,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 115,
+      "output": 47854,
+      "thinking": 14599,
+      "cache_read": 7436318,
+      "cache_write_5m": 0,
+      "cache_write_1h": 149497,
+      "api_equivalent_usd": 3.6408,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 50,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.84,
+      "active_minutes": 12.84,
+      "model_minutes": 9.36,
+      "tool_minutes": 3.47,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
