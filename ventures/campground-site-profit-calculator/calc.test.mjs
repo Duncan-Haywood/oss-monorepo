@@ -72,3 +72,21 @@ test("summary and dollars format", () => {
   assert.equal(dollars(-1234.5), "-$1,234.50");
   assert.match(summaryText(compute(raw())), /Campground: 40 sites, 6 months open/);
 });
+
+// Red team 2026-11-13: a non-positive margin per night must not read as a gain per booking.
+test("a night that loses money is not called a gain, and an empty night is not called a cost", () => {
+  const r = compute(raw({ nightly: "2", stayFee: "0", platformPct: "0", turnMin: "0", varNight: "5" }));
+  assert.equal(r.margin, -3);
+  const titles = r.findings.map((f) => f.title).join("\n");
+  assert.doesNotMatch(titles, /adds about -\$/);
+  assert.doesNotMatch(titles, /sits empty costs you/);
+  assert.match(titles, /costs about \$3\.00 more than it brings in/);
+});
+
+test("a zero margin per night is not called a loss per night", () => {
+  const r = compute(raw({ nightly: "5", stayFee: "0", platformPct: "0", turnMin: "0", varNight: "5" }));
+  assert.equal(r.margin, 0);
+  const titles = r.findings.map((f) => f.title).join("\n");
+  assert.doesNotMatch(titles, /costs more than it brings in/);
+  assert.match(titles, /brings in exactly what it costs/);
+});

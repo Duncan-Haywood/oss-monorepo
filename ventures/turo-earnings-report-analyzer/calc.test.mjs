@@ -228,3 +228,17 @@ test("each monthly fixed cost must be zero or more on its own, not only in sum",
   const r = analyze(load(two).trips, { loan: -500, insurance: 600 });
   assert.match(r.invalid ?? "", /Monthly fixed costs must be zero or more/);
 });
+
+// Red team 2026-11-13: two qualifying weekdays are enough to rank (a `>= 3` mutant escaped).
+test("two weekdays with five trips each are ranked against each other", () => {
+  const rows = [];
+  const pad = (d) => String(d).padStart(2, "0");
+  // 2026-06-01 is a Monday. Five Monday trips at 100 and five Tuesday trips at 200, one day each.
+  for (const d of [1, 8, 15, 22, 29]) rows.push(`M${d},Civic,2026-06-${pad(d)} 10:00,2026-06-${pad(d + 1)} 09:00,Completed,100,75`);
+  for (const d of [2, 9, 16, 23, 30]) rows.push(`T${d},Corolla,2026-06-${pad(d)} 10:00,2026-06-${pad(d)} 20:00,Completed,200,150`);
+  const r = analyze(load(rows.join("\n") + "\n").trips, {});
+  assert.equal(r.byWeekday.filter((d) => d.trips >= 5).length, 2);
+  const f = r.findings.find((x) => /paid most per day/.test(x.title));
+  assert.ok(f, "weekday finding missing");
+  assert.match(f.title, /starting Tue.* paid most per day; Mon.* least/);
+});
