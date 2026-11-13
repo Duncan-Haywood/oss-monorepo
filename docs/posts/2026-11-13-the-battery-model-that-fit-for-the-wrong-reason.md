@@ -3,7 +3,7 @@ title: "The full battery model's best fit to a real cell came from two errors ca
 date: 2026-11-13
 tags: [cell-fidelity, batteries, simulation, pybamm, measured-data, pre-registration]
 seo_title: "SPMe vs DFN against measured Li-ion discharges: does fidelity matter?"
-description: Against measured discharges of two commercial lithium-ion cells, SPMe vs DFN moves capacity by at most 1.5 points, while the parameter set misses by 4.3 and the cell's 10 K self-heating matters more at 2C.
+description: Against measured Li-ion discharges, SPMe vs DFN moves capacity by at most 1.5 points; the parameter set misses by 4.3 and self-heating matters more.
 ---
 
 The `cell-fidelity` programme asks when a lithium-ion electrode design search can trust PyBaMM's SPMe, a cheap reduced battery model, instead of the full DFN model. For five milestones we scored SPMe against DFN, treating DFN as the truth. This step asked the obvious next question: how do both compare with a real cell?
