@@ -241,6 +241,22 @@ def _env_assignments(value):
     return pairs
 
 
+def _unquote(word):
+    """Drop one pair of matching quotes around a word, as systemd does."""
+    if len(word) >= 2 and word[0] in "\"'" and word[-1] == word[0]:
+        return word[1:-1]
+    return word
+
+
+def _canon_path(path):
+    """systemd's path_simplify: collapse repeated slashes and drop "." components.
+
+    ".." is left alone (systemd refuses a non-normalized executable path)."""
+    if not path.startswith("/"):
+        return path
+    return "/" + "/".join(c for c in path.split("/") if c not in ("", "."))
+
+
 def _exec_parts(value):
     """Return (prefixes, binary, rest) of an Exec*= value."""
     v = value.strip()
@@ -301,8 +317,9 @@ def evaluate(unit, entries, anchor, has_main, user_units=False):
                                     f"{key}= starts with '{which}', so this command runs with full privileges, outside User= and the sandbox settings.",
                                     "Drop the prefix if the command does not need root; if it does, keep it to a short, fixed helper rather than the main process.",
                                     unit))
-            wdir = next((d for d in WRITABLE_DIRS if binary.startswith(d)), None)
-            if wdir is None and as_root and binary.startswith("/home/"):
+            canon = _canon_path(_unquote(binary))
+            wdir = next((d for d in WRITABLE_DIRS if canon.startswith(d)), None)
+            if wdir is None and as_root and canon.startswith("/home/"):
                 wdir = "/home/"
             if wdir:
                 out.append(_finding(e, EXEC_FROM_WRITABLE_DIR,
@@ -328,7 +345,7 @@ def evaluate(unit, entries, anchor, has_main, user_units=False):
                                     unit))
 
     for e in _effective(svc, "ReadWritePaths"):
-        paths = [p.lstrip("-+") for p in e["value"].split()]
+        paths = [_canon_path(_unquote(p).lstrip("-+")) for p in e["value"].split()]
         if "/" in paths:
             out.append(_finding(e, READ_WRITE_ROOT,
                                 "ReadWritePaths= includes /, which makes the whole filesystem writable again and cancels ProtectSystem=.",
