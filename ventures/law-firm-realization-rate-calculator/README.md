@@ -25,7 +25,8 @@ node --test ventures/law-firm-realization-rate-calculator/
 
 - `index.html`: the tool's page.
 - `calc.mjs`: the logic, kept separate from the page so it can be tested.
-- `usage.mjs`: anonymous, opt-in-only usage counters (off by default; see
+- `usage.mjs`: anonymous usage counters, kept only in your browser, on unless
+  you opt out or send Do Not Track / Global Privacy Control (see
   `portfolio/usage/README.md` in the monorepo).
 - `*.test.mjs`: tests for the logic and the page.
 
