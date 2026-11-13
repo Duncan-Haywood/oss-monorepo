@@ -1,9 +1,9 @@
 ---
 title: "Brazil's reform invoices carry a six-digit tax code the schema can't check"
-seo_title: "cClassTrib validator: check NF-e and NFS-e IBS/CBS classification codes"
+seo_title: "cClassTrib validator: check NF-e and NFS-e IBS/CBS tax codes"
 date: 2026-11-13
 tags: [einvoice-preflight, ventures]
-description: "Every NF-e, NFC-e and NFS-e item under Brazil's IBS/CBS reform carries a CST and a cClassTrib. The schema checks only that each is digits. We now check them against the published table."
+description: "Every Brazilian reform invoice item carries a CST and a six-digit cClassTrib the schema cannot check. We now check them against the published table."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/brazil-nfe-e-invoice-mandate.html) checks an e-invoice in your browser before you send it. Its Brazilian checks read NF-e, NFC-e and the national NFS-e, including the new IBS and CBS groups of the tax reform. Until today those checks had one gap that matters more than the others.
