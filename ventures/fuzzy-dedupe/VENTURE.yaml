@@ -1,0 +1,54 @@
+name: fuzzy-dedupe
+description: >-
+  Free browser, CLI and agent tool that finds duplicate people and businesses in a CSV (contact lists, CRM exports,
+  customer and donor files) even when names, emails and addresses are spelled differently: Fellegi-Sunter record
+  linkage with m and u learned from the file by EM, Jaro-Winkler comparison, nickname, Gmail and company-suffix
+  handling, blocking, duplicate groups with reasons, a borderline list, and merged and annotated CSV downloads. Febrl
+  benchmark: 99.6-99.8% of true duplicate pairs at 100% precision. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Started 2026-11-13 in an explore-track session as the eighth "research algorithms as tools" venture
+# (portfolio/research-tools/README.md). slug_dupe.py: no duplicate. duplicate_check.py: top matches the
+# *-contacts-csv-check tools at 0.14; those find exact duplicate emails inside one platform's import file and say they
+# never merge. This one does fuzzy, cross-field matching and merging. email-list-csv-check is linked from the page.
+#
+# Why this niche: dedupe is a paid category (Dedupely, Insycle, DemandTools, Cloudingo, WinPure, Data Ladder sell it,
+# typically per month or per seat, often tied to one CRM). Small businesses, nonprofits and agencies merging two lists
+# use the spreadsheet "remove duplicates" button, which on the Febrl benchmark finds about a third of the duplicates.
+#
+# First visitor: searches such as "find duplicate contacts csv", "fuzzy dedupe excel", "merge duplicate contacts
+# different spelling", "dedupe mailing list free"; r/excel, r/salesforce, r/hubspot, r/nonprofit, r/emailmarketing.
+# Volume not measured.
+#
+# Liability boundary: statistical matches on the user's file; the page says to check groups and keep the original.
+# Nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural paid tier is scheduled matching of two
+# sources through a CRM's API (HubSpot, Pipedrive) with merge write-back, which needs accounts and an owner decision.
+
+hypotheses:
+  - claim: >-
+      People cleaning a contact list will run a real file through a free local fuzzy matcher and download the merged
+      file, measured as the share of dedupe_run events followed by merged_downloaded.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports two different people merged at the default setting that the page's reasons do not explain, or a merged file that drops a row outside a group.
+
+links:
+  production: https://marisstella.app/fuzzy-dedupe/
+  analytics: null
