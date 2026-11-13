@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyf7KrsQXaed9a27dpe",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T06:40:32Z",
+  "ended": "2026-11-13T06:49:48Z",
+  "wall_minutes": 9.49,
+  "tokens_in": 2278994,
+  "tokens_out": 31703,
+  "cost_usd": 1.7752,
+  "tool_calls": 29,
+  "task": "Saints by Candlelight episode 104, Saint Sabbas",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15406",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The git instructions say to create the work branch, but the harness had already checked it out at main's tip, so `git checkout -b` failed with 'already exists'. This was harmless."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The audio cap is exceeded (423 MB of 400), so the episode is text only, as the prompt prescribes.",
+      "did": "Landed the text, pages and post without audio.",
+      "result": "The episode is listed on the next build. There is still no audio past episode 19."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-sabbas-and-the-wild-ass-at-the-dry-stream.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, Saints by Candlelight, slug sabbas-and-the-wild-ass-at-the-dry-stream (episode 104, 7,401 words). It was chosen because Saints by Candlelight had gone longest of the creative projects without a piece, and Sabbas was on the PRODUCTION.md next-up list. An open-PR search found no duplicates. Checks: `node generate.mjs --check-script` ok; `node --test` in the venture 14/14 pass; the portfolio-pages blog front-matter check ok via run_workflow_locally --for-changes (the site-builder test step was still running when this record was written). On the adversarial re-read I cut claims I couldn't tie to Cyril with confidence: a deathbed quotation, a count of the monasteries he founded, the lion cave's location, and 'the wild ass's well' as still shown. There is no agent doc in docs/reports: nothing the next run needs beyond the PRODUCTION.md list.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "91d790fc-8112-5546-b997-29084d849cfa",
+    "transcripts": 1,
+    "first": "2026-11-13T06:40:32Z",
+    "last": "2026-11-13T06:50:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 26,
+        "input": 49,
+        "output": 31703,
+        "thinking": 9106,
+        "cache_read": 2191109,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87836,
+        "api_equivalent_usd": 1.7752,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 26,
+      "input": 49,
+      "output": 31703,
+      "thinking": 9106,
+      "cache_read": 2191109,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87836,
+      "api_equivalent_usd": 1.7752,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.961,
+    "tool_calls": 29,
+    "tools": {
+      "Bash": 25,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.49,
+      "active_minutes": 9.49,
+      "model_minutes": 5.67,
+      "tool_minutes": 3.82,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "researching and writing a 7,400-word sourced bedtime script, at a professional writer's pace",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 450.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
