@@ -108,10 +108,16 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   second tenors a tone under the tenors: 65 of 67 files fit (64 with three), one-section notes 29.9% to 13.7%, changes
   of singer 484 to 569 (eval/four-sections-report.md). A section added on top gains nothing; textbook ranges gain
   nothing. Studio page option too. Not tried with singers.
-- 2026-11-13, latest: the 1908 Te Deum (`corpus/te-deum.gabc`) read by eye against pp. 118*-121*: 637 of 637 notes
+- 2026-11-13: the 1908 Te Deum (`corpus/te-deum.gabc`) read by eye against pp. 118*-121*: 637 of 637 notes
   match, quilismas, rhombi and liquescents included (`corpus/scan-read-by-eye.json`). `scan.mjs` now calls each head a
   rhombus or a square (`headShape`; README "Rhombus or square"): 68/68 rhombi on the tuning pieces, 118/120 held out,
   1 false call in 2,501 squares (a print flaw). Quilismas and liquescents still read as squares or not at all.
+- 2026-11-13, latest: `scan.mjs` calls a saw-toothed head a quilisma (`notchRows`, README "Quilisma"). Rule fixed on
+  the five tuning pieces (6/6), then nine fresh GregoBase pieces scanned for the first time
+  (`eval/shape-fresh-pages.json`): 15 of 17 paired quilismas found; every crop of a false call looked at
+  (`eval/quilisma-eye-check.md`). A stroke rule added after that look cuts fresh false calls 18 to 12 of 1,849, half of
+  them real quilismas the alignment paired with a neighbour. The rhombus rule held on the fresh pieces: 243/245, 0
+  false calls in 1,604 squares. Liquescents are still not read.
 
 ## Next
 

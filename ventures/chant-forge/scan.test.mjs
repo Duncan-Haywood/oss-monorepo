@@ -131,3 +131,25 @@ test('gabcShape names the printed shape the GABC asks for', () => {
   const g = gabcSteps('(c4) San(gh!iw!jvHGhi)ctus(h)');
   assert.deepEqual(g.map((n) => n.shape), ['punctum', 'punctum', 'quilisma', 'virga', 'rhombus', 'rhombus', 'punctum', 'punctum', 'punctum']);
 });
+
+// a printed quilisma: a solid base under three teeth with white notches
+// between them, the head's width and height as a square's
+function quilisma(img, x, cy) {
+  const top = cy - H / 2;
+  rect(img, x, top + 0.25 * H, 22, 0.75 * H);
+  for (const dx of [0, 8, 16]) rect(img, x + dx, top, 6, 0.25 * H + 1);
+}
+
+test('a saw-toothed head is a quilisma; a notched head that continues a wide stroke is not', () => {
+  const img = canvas(1600, 400);
+  drawStaff(img, 120, [[300, 3], [700, 4]]);
+  const bottom = 120 + 3 * S;
+  quilisma(img, 360, bottom - (4 * S) / 2);
+  // a wide piece of stroke (a porrectus the reader cut in two), then a
+  // notched head touching its end
+  rect(img, 500, bottom - (5 * S) / 2 - H / 2, S, H);
+  quilisma(img, 500 + S + 4, bottom - (5 * S) / 2);
+  const [st] = readPage(readPgm(toPgm(img)));
+  assert.deepEqual(st.notes.map((n) => n.rel + 6), [3, 4, 5, 5, 4]);
+  assert.deepEqual(st.notes.map((n) => n.shape), ['square', 'quilisma', 'square', 'square', 'square']);
+});

@@ -9,7 +9,7 @@
 // shows only part of a piece is placed where it belongs.
 //
 // A porrectus stroke is read as its two ends. Each head is also called a
-// rhombus or a square (headShape). What it does not read: the clef's type (c or f is taken from the GABC), accidentals, rhythmic
+// rhombus, a quilisma or a square (headShape). What it does not read: the clef's type (c or f is taken from the GABC), accidentals, rhythmic
 // signs and the text. Those come out as gaps in the alignment, which is why
 // the report gives the disagreements to look at by eye rather than a verdict.
 // No dependencies: the page comes in as a binary PGM (ffmpeg or ImageMagick
@@ -211,7 +211,9 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85 } = {}) {
     if (w < 0.25 * s) continue; // rhombi keep only a few full-height columns
     if (w <= 1.2 * s) {
       const c = mean(h.cs);
-      out.push({ x: (h.x0 + h.lastX) / 2, x0: h.x0, x1: h.lastX, y: c, pos: posOf(c), feat: headFeatures(isInk, h.x0, h.lastX, c, s, y0, y1) });
+      const feat = headFeatures(isInk, h.x0, h.lastX, c, s, y0, y1);
+      if (feat) feat.notch = notchRows(bin, h.x0, h.lastX, c, s);
+      out.push({ x: (h.x0 + h.lastX) / 2, x0: h.x0, x1: h.lastX, y: c, pos: posOf(c), feat });
       continue;
     }
     // a porrectus stroke: wide, and its ends a step or more apart. Its
@@ -222,6 +224,17 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85 } = {}) {
     const e = Math.round(0.5 * s);
     out.push({ x: h.x0 + e / 2, x0: h.x0, x1: h.x0 + e, y: cA, pos: posOf(cA) });
     out.push({ x: h.lastX - e / 2, x0: h.lastX - e, x1: h.lastX, y: cB, pos: posOf(cB) });
+  }
+  // A porrectus stroke the reader does not take as one piece (it bends,
+  // or its end touches the head on its stem) comes out as a wide slanted
+  // piece with its lower end as a separate head. That end, cut off by the
+  // stroke, can show white notches like a quilisma's teeth. A quilisma is
+  // never the continuation of a stroke, so a head whose left neighbour at
+  // its height is wider than 0.8 staff spaces and ends within 0.2 spaces
+  // of it is marked (eval/shape-check-report.md, "Version 2").
+  for (const o of out) {
+    if (!o.feat) continue;
+    o.feat.afterStroke = out.some((t) => t !== o && t.x0 < o.x0 && t.x1 - t.x0 + 1 > 0.8 * s && o.x0 - t.x1 <= 0.2 * s && Math.abs(t.y - o.y) <= 0.8 * s);
   }
   // reading order: left to right; heads sharing columns are read bottom-up
   out.sort((p, q) => p.x - q.x);
@@ -270,16 +283,49 @@ export function headFeatures(isInk, x0, x1, c, s, y0, y1) {
   };
 }
 
+// A quilisma in the 1908 type is a small saw-tooth: two or three teeth
+// on its upper edge with white notches between them, and a solid base. A
+// square, a virga or a rhombus is one run of ink across in every row of
+// its upper half. notchRows counts the rows between 0.27 staff spaces
+// above the head's centre and the centre that cross two or more separate
+// runs of ink, on the raw ink (staff lines left in), across the head's
+// columns and one more each side. A neighbour's stem at the edge adds a
+// run too, which is why one row is not enough. The rows higher than 0.27
+// spaces are left out: a liquescent's small head, or the lower end of a
+// note stacked above, sits there, not the head's own teeth.
+export function notchRows(bin, x0, x1, c, s) {
+  const { width, height, ink } = bin;
+  const top = Math.round(c - 0.45 * s), bot = Math.round(c + 0.45 * s);
+  const n = bot - top + 1;
+  const from = top + Math.round(0.2 * n), to = top + Math.floor(n / 2);
+  let rows = 0;
+  for (let y = Math.max(0, from); y < Math.min(height, to); y++) {
+    let runs = 0, prev = 0;
+    for (let x = Math.max(0, x0 - 1); x <= Math.min(width - 1, x1 + 1); x++) {
+      const v = ink[y * width + x];
+      if (v && !prev) runs++;
+      prev = v;
+    }
+    if (runs >= 2) rows++;
+  }
+  return rows;
+}
+
 // A rhombus (punctum inclinatum) is narrow, about a third of a staff space
 // against a square's half, and tapers to points at both ends. Thresholds
 // set on Dies irae, Veni Creator, Pange lingua, Te Deum and the Salve
 // (68 of 68 rhombi; 0 of 1,380 squares called rhombi) and checked on the
 // seven held-out GregoBase pieces (118 of 118 rhombi with measurements; 1
-// of 951 squares): eval/shape-check-report.md. Quilismas and liquescents
-// are not told apart from squares (same report), so they come back 'square'.
+// of 951 squares): eval/shape-check-report.md. A head with three or more
+// notched rows (notchRows) is a quilisma: set on the same five pieces (6 of
+// 6 quilismas, 3 of 1,538 other heads), checked on pieces that played no
+// part in it (same report). Liquescents are not told apart from squares.
+export const QUILISMA_ROWS = 3;
 export function headShape(f) {
   if (!f) return null;
-  return f.w < 0.42 && f.taper < 0.8 ? 'rhombus' : 'square';
+  if (f.w < 0.42 && f.taper < 0.8) return 'rhombus';
+  if (f.notch >= QUILISMA_ROWS && !f.afterStroke) return 'quilisma';
+  return 'square';
 }
 
 // The clef is the first glyph on the staff: its two blocks sit either side
