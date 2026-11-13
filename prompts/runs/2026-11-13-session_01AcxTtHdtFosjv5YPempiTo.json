@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtHdtFosjv5YPempiTo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T19:32:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 6) shift-roster-builder: --cover-price moves two shifts together (relief, trade, relay of a stand-in's shifts)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15586",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First pair-move design (relay/relief only where the stand-in could take j outright) generated zero candidates: coverRisk's chains already credit exactly those, so a risky day never has one. Diagnosed and broadened to any shift of the stand-in plus two-person trades.",
+    "Unscreened pair moves took 38 s on the 60-person week; a per-case screen then lost every gain (the freed stand-in covers other days). Shipped a screen over all risky days the movers could stand in on, and a 200-copy default cap.",
+    "First accepted version took a relief that kept risk equal and only saved score; measured exposure on that roster rose 54 -> 66 h. Added the rule that a two-shift move must cut risk hours."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A Bash heredoc that wrote a JS file containing template literals was refused by the rm-safety check ('could not be checked for dangerous rm operations') though it had no rm; writing the file with the Write tool worked. Worth a line in cloud-session.md."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-shift-roster-moving-two-shifts.md",
+    "ventures/shift-roster-builder/README.md#moving-two-shifts-together-2026-11-13-later"
+  ],
+  "goal": null,
+  "notes": "Verification: eval/cover-pairs.mjs (templates + seeded 20/40/60-person weeks, pairs off vs on, $25 and $100), eval/cover-pairs-exposure.mjs (calloutExposure: 20x56 week 2 113 -> 68 h for $35.27). cover-price.test.mjs 18/18 locally; run_venture_tests.py shift-roster-builder result in the PR body. No agent doc in docs/reports: the README section carries what the next run needs, and flagships.yaml next: is updated.",
+  "corrections": [],
+  "redteam": null
+}
