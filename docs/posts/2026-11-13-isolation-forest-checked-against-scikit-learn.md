@@ -3,7 +3,7 @@ title: "An isolation forest in a browser tab, and how to test a random algorithm
 seo_title: "Free isolation forest online: find outliers in a CSV"
 date: 2026-11-13
 tags: [isolation-forest, anomaly-detection, outliers, research-algorithms, browser, testing]
-description: "A free isolation forest ranks every row of a CSV by anomaly score. Two random algorithms can't match tree for tree, so we checked expected scores over 20,000 trees against scikit-learn instead."
+description: "A free isolation forest ranks CSV rows by anomaly score. Random forests never match tree for tree, so we checked 20,000-tree scores against scikit-learn."
 ---
 
 "Which rows of this export look wrong?" comes up with customer lists,
