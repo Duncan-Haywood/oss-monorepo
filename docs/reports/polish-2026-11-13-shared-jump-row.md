@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-13
+tagged: auto
+---
 # Polish 2026-11-13: one shared jump row and guide list
 
 **Why.** Item 1 of "Still weakest" in `polish-2026-11-13-last-intro-walls.md` (also raised in

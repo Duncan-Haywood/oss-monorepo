@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [performance, layout-shift, impressive]
+topics: [performance]
 date: 2026-11-13
 ---
 # Polish 2026-11-13: 67 tools stop jumping when their starting rows arrive

@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-12
+tagged: auto
+---
 # Polish 2026-11-12: research topic pages, 68,158 px tall on a phone, now 38,413
 
 **Why this item.** Item 2 of "still weakest" in `polish-2026-11-12-research-index-length.md`:

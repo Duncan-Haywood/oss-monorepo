@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-12
+tagged: auto
+---
 # Polish 2026-11-12: every post gets an inbound related link
 
 **Why.** Item 1 of "Still weakest" in `polish-2026-11-12-related-posts.md`: "190 posts still get no

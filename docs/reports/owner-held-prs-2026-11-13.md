@@ -1,6 +1,6 @@
 ---
 kind: note
-topics: [process, control-plane]
+topics: [guidance-system, control-plane]
 date: 2026-11-13
 ---
 # Owner-held PRs: the queue on 2026-11-13 (process run)

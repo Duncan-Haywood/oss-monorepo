@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-12
+tagged: auto
+---
 # Polish 2026-11-12: the last finding-heading skips, and a sweep that varies input
 
 **Why.** Item 1 of "still weakest" in `polish-2026-11-12-finding-headings.md`: 8 pages still drew

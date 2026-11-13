@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [chant-forge]
+tagged: auto
+---
 # chant-forge: checking GABC against page scans (agent notes, 2026-11-13)
 
 For the next run on chant-forge or any chant work.

@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [layout, responsive, accessibility]
+topics: [design, accessibility]
 date: 2026-11-12
 ---
 # Polish 2026-11-12: six pages stop scrolling sideways (five at tablet widths), and the sideways sweep now checks 820 px by default

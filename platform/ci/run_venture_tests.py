@@ -39,7 +39,9 @@ there on their own.
 An empty or all-zero `--since` (a new branch, a dispatch) means every venture.
 `--since` also runs every argument-free platform/ci/check_*.py that no
 workflow names (unwired_checks.py; `--no-unwired` skips them): 30 of 60 ran in
-no PR before 2026-11-12, and one let a stray `</head>` reach main (#15195).
+no PR before 2026-11-12, and one let a stray `</head>` reach main (#15195);
+since 2026-11-13 also the unwired platform/ci unit tests and `doc_index.py check`
+(71 of 121 test files ran in no workflow; test_doc_index.py had been red for days).
 
 Exit 0 when every suite passes (ventures with no tests are skipped), else 1.
 """
@@ -493,7 +495,8 @@ def main(argv):
     ap.add_argument("--no-elsewhere", action="store_true",
                     help="skip the Python test steps a named venture's own workflow runs")
     ap.add_argument("--no-unwired", action="store_true",
-                    help="with --since, skip the check_*.py scripts no workflow runs (unwired_checks.py)")
+                    help="with --since, skip the check_*.py scripts, unit tests and doc_index check "
+                    "no workflow runs (unwired_checks.py)")
     args = ap.parse_args(argv)
 
     if args.since is not None and args.since.strip("0 "):
@@ -566,7 +569,7 @@ def main(argv):
     unwired_red = False
     if args.since is not None and not args.no_unwired:
         import unwired_checks
-        results = unwired_checks.run_all(unwired_checks.unwired())
+        results = unwired_checks.run_all(unwired_checks.jobs())
         bad = unwired_checks.report(results)
         unwired_red = bool(bad)
         if bad:
@@ -574,8 +577,9 @@ def main(argv):
             if ON_ACTIONS:
                 for name, rc, _ in results:
                     if rc:
-                        print(f"::error title=unwired check failed::platform/ci/{name} (exit {rc})")
-        print(f"{sum(rc == 0 for _, rc, _ in results)}/{len(results)} unwired tree checks pass")
+                        print(f"::error title=unwired check failed::platform/ci/{name} (exit {rc}; "
+                              f"{unwired_checks.rerun_hint(name)})")
+        print(f"{sum(rc == 0 for _, rc, _ in results)}/{len(results)} unwired tree checks and tests pass")
     return 1 if failed or lint or unwired_red or unknown else 0
 
 

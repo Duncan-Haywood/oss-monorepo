@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [layout, responsive, accessibility, tooling]
+topics: [design, accessibility]
 date: 2026-11-12
 ---
 # Polish 2026-11-12: a sideways sweep at 600, 700, 1,040 and 1,100 px; three pages fixed, and the sweep stops misreading narrowing resizes

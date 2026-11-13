@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [seo, tooling]
+topics: [seo]
 date: 2026-11-10
 ---
 # Polish 2026-11-10: the build's default origin is the live one
