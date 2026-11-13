@@ -31,7 +31,7 @@ After using this, you can **tell a real process shift from ordinary variation, s
 - **Normal CDF** (Hart's rational approximation as given by West 2005) agrees with Python's `math.erfc` to 1e-14 at four points.
 - **Run rules** agree with a separate, deliberately plain window-by-window implementation on 2,000 seeded random series with drifts; each rule also has a hand-built pattern test. That differential test caught an off-by-one in rule 4 (it was asking for 15 alternating points, not 14) before the first commit. Rule 1 alone false-alarms on 0.27% of 400,000 simulated in-control points.
 - **Hand formulas** for every chart type (X-bar R and S limits from A2/D4 and A3/B4, p with varying n, np, c, u), exclusions, revision, capability (Cp = 1 centred gives 2,700 ppm).
-- **Example data** is rebuilt from `data/LITHOGRA.DAT` value by value.
+- **Example data** is rebuilt from `data/LITHOGRA.txt` (NIST's LITHOGRA.DAT, byte for byte) value by value.
 - **Page:** labels, rule text matching the engine, no network calls, citations, figures quoted on the page matching the engine and `bench/false-alarms.json`. Run in Chromium at 380 px and 1,100 px: the example, averages-as-individuals, a p chart, a parse error and capability all render with no console errors and no horizontal scroll.
 
 ## What the example shows (real data)

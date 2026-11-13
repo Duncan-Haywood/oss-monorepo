@@ -1,4 +1,4 @@
-// Built from data/LITHOGRA.DAT (NIST/SEMATECH e-Handbook of Statistical Methods,
+// Built from data/LITHOGRA.txt (NIST file LITHOGRA.DAT) (NIST/SEMATECH e-Handbook of Statistical Methods,
 // case study 6.6.1; see data/SOURCE.md). One line per wafer, in run order: the
 // line width (micrometres) at the five sites top, left, centre, right, bottom.
 // The raw LINEWIDT column, unchanged. example-data.test in engine.test.mjs rebuilds

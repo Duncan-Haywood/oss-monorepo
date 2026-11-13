@@ -199,7 +199,7 @@ test("capability: Cp, Cpk, Pp, Ppk, expected ppm and Bissell's bound", () => {
 });
 
 test("example data is the NIST LITHOGRA.DAT line widths, unchanged, one wafer a line", () => {
-  const dat = readFileSync(new URL("./data/LITHOGRA.DAT", import.meta.url), "utf8").split("\n").slice(25).filter((l) => l.trim());
+  const dat = readFileSync(new URL("./data/LITHOGRA.txt", import.meta.url), "utf8").split("\n").slice(25).filter((l) => l.trim());
   assert.equal(dat.length, 450);
   const rows = parseRows(EXAMPLE_TEXT).rows;
   assert.equal(rows.length, 90);

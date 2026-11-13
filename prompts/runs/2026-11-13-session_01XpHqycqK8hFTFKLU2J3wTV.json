@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 2,
+  "ci_failures_before_green": 3,
   "review_findings": null,
   "tests_added": 32,
   "outcome": "success",
@@ -36,7 +36,8 @@
     "Nelson rule 4 asked for 15 alternating points, not 14; the differential test against a plain re-implementation caught it before commit.",
     "I-MR revision dropped the point after an outlier because its moving range spans both; fixed so only the individuals chart decides.",
     "Misread my own exploratory output (a moving-range value as a wafer mean) and wrote a wrong expected label in a test; the test failed and was corrected to the three cassette-27 wafers.",
-    "Shipped the first push without a CSV formula-injection guard and without a sibling link; CI's changed-ventures and sibling-links jobs caught both."
+    "Shipped the first push without a CSV formula-injection guard and without a sibling link; CI's changed-ventures and sibling-links jobs caught both.",
+    "Second CI round: Portfolio Pages build's check.mjs rejected data/LITHOGRA.DAT (no Content-Type for .dat); stored it byte for byte as data/LITHOGRA.txt."
   ],
   "integrity_issues": [],
   "doc_friction": [
