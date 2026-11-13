@@ -1456,6 +1456,12 @@ Lossless-JPEG tiles and strips now decode on a thread pool (`SHOOTFLOW_THREADS`,
 CPU), same samples at every thread count: the Pixel's read takes 0.21 s on four CPUs against
 0.33 s on one, and read plus full develop 3.1 s against 6.5 s
 (`eval/pixel3-lossless-tiles-2026-11-13.md`).
+Later the same day the whole tile decode moved into the optional C reader: it reads the scan's
+bytes directly (de-stuffing and restart intervals included), decodes through a 12-bit first table,
+and runs the predictor in C, so a tile holds the GIL only to set up the call. Same sensels as
+LibRaw; the Pixel read drops from 0.21 s to 0.10 s on four CPUs and from 0.33 s to 0.22 s on one.
+Measuring first showed the Python de-stuffing was about 8% of a tile, not half, and that the
+Pixel writes new Huffman tables for every tile (`eval/native-destuff-2026-11-13.md`).
 
 ## Value tables and row/column fixes from the DNG: MapTable, Delta/Scale per row and column (2026-11-12)
 
