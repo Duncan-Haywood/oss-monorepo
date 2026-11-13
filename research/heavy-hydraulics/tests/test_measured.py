@@ -283,3 +283,20 @@ def test_part_stroke_eta_and_two_eta_breakeven():
     # a part-stroke penalty on load-sensing raises the threshold; none if open-centre burns more
     assert breakeven_rest_rate_two_eta(20, 5, 130, 98, 1.2, 0.2332, 0.75, 0.84) > a
     assert breakeven_rest_rate_two_eta(20, 60, 130, 98, 1.2, 0.2332, 0.84, 0.84) is None
+
+
+def test_pump_loss_fit_recovers_a_known_model_and_the_shortfall_formula():
+    from heavy_hydraulics.measured import fit_pump_loss, loss_model_eta, flat_hold_shortfall
+    true = (3.0, 0.02, 1e-4, 0.05)
+    fr = [12 / 45, 0.5, 0.75, 1.0]
+    ps = [50.0, 100.0, 150.0, 250.0]
+    grid = [[loss_model_eta(true, x, p) for x in fr] for p in ps]
+    got = fit_pump_loss((fr, ps, grid))
+    for a, b in zip(got, true):
+        assert a == pytest.approx(b, rel=1e-6, abs=1e-9)
+    assert loss_model_eta(true, 0.0, 150.0) == 0.0
+    # shortfall: A = 3 + 3 + 2.25 = 8.25 bar; b/600 * 219 * 8.25 * 0.1 / 0.144
+    assert flat_hold_shortfall(true, 150.0, 219.0, 0.2203, 0.1, 1.144) == pytest.approx(
+        0.2203 * 219 * 8.25 * 0.1 / (600 * 0.144))
+    with pytest.raises(ValueError):
+        flat_hold_shortfall(true, 150.0, 219.0, 0.2203, 0.1, 1.0)
