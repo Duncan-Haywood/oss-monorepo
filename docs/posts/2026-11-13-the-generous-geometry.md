@@ -2,7 +2,7 @@
 title: "We picked the most generous geometry by accident: a hydraulic fuel threshold over 384 cases"
 seo_title: "Fixed pump vs load-sensing excavator fuel: break-even over 384 cylinder geometries"
 date: 2026-11-13
-tags: [heavy-hydraulics, research, excavators, real-data]
+tags: [heavy-hydraulics, research, excavator, real-data]
 description: "Yesterday's answer was 2.5 L/h. Rerun over every cylinder geometry we could not rule out, the median is 1.0 L/h, and the case we had used sat at the 99th percentile."
 ---
 
