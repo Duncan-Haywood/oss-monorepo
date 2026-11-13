@@ -34,14 +34,17 @@ async function load(rel, root = MIRROR) {
   return res.text();
 }
 
-const UNSUPPORTED = new Set(["any", "group", "list", "union", "key", "unique", "keyref", "all", "attributeGroup", "anyAttribute", "complexContent", "simpleContent"]);
+const UNSUPPORTED = new Set(["any", "group", "list", "union", "key", "unique", "keyref", "attributeGroup", "anyAttribute", "complexContent", "simpleContent"]);
 const BUILTIN = new Set(["string", "normalizedString", "token", "decimal", "integer", "nonNegativeInteger", "positiveInteger", "byte", "unsignedByte", "short", "int", "long", "date", "dateTime", "boolean", "base64Binary", "anyURI"]);
 
 // Compile one or more XSD files into one table. A single file is an ABRASF layout (or a
 // provider's single-file copy). Several files are a multi-file provider layout (Ginfes 1.00,
 // ISSNet 1.00, ...): each message schema in its own namespace, importing shared type files.
-// All are qualified (elementFormDefault="qualified"), so a local element is in the namespace
-// of the file that declares it, and a referenced element in the namespace of its own file.
+// Most are qualified (elementFormDefault="qualified"), so a local element is in the namespace
+// of the file that declares it; Betha 1.00 is unqualified, so its local elements are in no
+// namespace (`ns: ""`) and only its global elements (the message roots) carry one. A
+// referenced element is in the namespace of its own file either way. An <xs:all> group
+// (ISSNet 1.00) is a particle of kind "a": each member at most once, in any order.
 // The table's namespace is `home` (the first file's, unless given); an element particle in
 // any other namespace carries it as `ns`, and so does a root (`rootNs`). Type names are
 // merged by local name; two files defining the same name differently is an error.
@@ -66,8 +69,9 @@ function compileFiles(texts, home) {
   for (const schema of schemas) {
     check(schema);
     const tns = schema.attrs.targetNamespace;
-    if (schemas.length > 1 && schema.attrs.elementFormDefault !== "qualified") throw new Error(`${tns}: elementFormDefault is not qualified`);
-    const nsField = tns && tns !== home ? { ns: tns } : {};
+    const qualified = schema.attrs.elementFormDefault === "qualified";
+    if (schemas.length === 1 && !qualified) throw new Error(`${tns}: elementFormDefault is not qualified`);
+    const nsField = !qualified ? { ns: "" } : tns && tns !== home ? { ns: tns } : {};
     const simpleDef = (node) => {
       const r = node.children.find((c) => c.name === "restriction");
       const s = { base: local(r.attrs.base) };
@@ -104,6 +108,11 @@ function compileFiles(texts, home) {
         const items = node.children.filter((c) => ["element", "sequence", "choice"].includes(c.name)).map((c) => particle(c, path));
         return { k: node.name === "sequence" ? "s" : "c", ...occurs(node), items };
       }
+      if (node.name === "all") {
+        const items = node.children.filter((c) => c.name === "element").map((c) => particle(c, path));
+        if (items.some((it) => it.max !== 1 || it.min > 1)) throw new Error(`<xs:all> member with maxOccurs other than 1 in ${path}`);
+        return { k: "a", ...occurs(node), items };
+      }
       throw new Error(`unexpected <${node.name}> in a content model`);
     };
     const attrDef = (a) => {
@@ -113,7 +122,7 @@ function compileFiles(texts, home) {
       return { name: a.attrs.name, type: type ?? "string", use: a.attrs.use ?? "optional" };
     };
     function complexDef(node, name) {
-      const model = node.children.find((c) => c.name === "sequence" || c.name === "choice");
+      const model = node.children.find((c) => c.name === "sequence" || c.name === "choice" || c.name === "all");
       put(complex, name, { model: model ? particle(model, name) : null, attrs: node.children.filter((c) => c.name === "attribute").map(attrDef) });
     }
     for (const n of schema.children) {
@@ -203,15 +212,22 @@ for (const [key, rel] of Object.entries(PROVIDER_FILES)) {
 // each in its own namespace, plus shared type files. Read from the same pinned commit; the
 // home namespace is the shared types file's, so only message-level elements carry `ns`.
 // Ginfes's folder holds two generations (v02 and v03, different namespaces); v03 is read.
-// Not read yet: ISSNet 1.00 (its types use <xs:all>, which compile() does not model) and
-// Betha 1.00 (unqualified local elements, so its namespace rule differs).
+// ISSNet 1.00 models most types with <xs:all>; Betha 1.00 leaves local elements unqualified
+// and keeps its types in TiposNFe_v01.xsd.
 const MULTI_FILES = {
   "Ginfes 1.00": { dir: "Ginfes/1.00", home: "tipos_v03.xsd", files: /^(tipos|servico_.*)_v03\.xsd$/ },
   "WebISS 1.00": { dir: "WebISS/1.00", home: "tipos_complexos.xsd", files: /^(tipos_.*|servico_.*)\.xsd$/ },
+  "ISSNet 1.00": { dir: "ISSNet/1.00", home: "tipos_complexos.xsd", files: /^(tipos_.*|servico_.*)\.xsd$/ },
+  "Betha 1.00": { dir: "Betha/1.00", home: "TiposNFe_v01.xsd", files: /^(TiposNFe_v01|servico_.*_envio_v01)\.xsd$/ },
 };
 // The file lists, as at the pinned commit (the mirror has no directory listing).
 const MULTI_LIST = {
   "WebISS 1.00": ["tipos_complexos.xsd", "tipos_simples.xsd", ...["cancelar_nfse", "consultar_lote_rps", "consultar_nfse", "consultar_nfse_rps", "consultar_situacao_lote_rps", "enviar_lote_rps", "gerar_nfse"].flatMap((m) => [`servico_${m}_envio.xsd`, `servico_${m}_resposta.xsd`])],
+  "ISSNet 1.00": ["tipos_complexos.xsd", "tipos_simples.xsd", ...["cancelar_nfse", "consultar_lote_rps", "consultar_nfse", "consultar_nfse_rps", "consultar_situacao_lote_rps", "consultar_url_visualizacao_nfse", "consultar_url_visualizacao_nfse_serie", "enviar_lote_rps"].flatMap((m) => [`servico_${m}_envio.xsd`, `servico_${m}_resposta.xsd`])],
+  // Betha's reply schemas name types TiposNFe_v01.xsd does not define (TcNfse,
+  // tcMensagemRetorno, tsSituacaoLoteRps, ...), so xmllint cannot load them either: only the
+  // six request schemas, the files a sender writes, are read.
+  "Betha 1.00": ["TiposNFe_v01.xsd", ...["cancelar_nfse", "consultar_lote_rps", "consultar_nfse", "consultar_nfse_rps", "consultar_situacao_lote_rps", "enviar_lote_rps"].map((m) => `servico_${m}_envio_v01.xsd`)],
   "Ginfes 1.00": ["tipos_v03.xsd", ...["cancelar_nfse", "consultar_lote_rps", "consultar_nfse", "consultar_nfse_rps", "consultar_situacao_lote_rps", "enviar_lote_rps"].flatMap((m) => [`servico_${m}_envio_v03.xsd`, `servico_${m}_resposta_v03.xsd`])],
 };
 for (const [key, spec] of Object.entries(MULTI_FILES)) {
