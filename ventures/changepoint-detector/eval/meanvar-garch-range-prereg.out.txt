@@ -1,0 +1,6 @@
+reps 400, seed shift 4000003; among series with one clustered --garch cut within 15 of n/2:
+kept / held by the independent-noise range (median width) / held by the GARCH range (median width)
+n 200 | sd 1->2   | 142 / 77% (14) / 93% (26)
+n 200 | mean +1.5 | 294 / 94% (6) / 97% (6)
+n 400 | sd 1->2   | 248 / 75% (15) / 98% (37)
+n 400 | mean +1.5 | 374 / 92% (6) / 96% (6)

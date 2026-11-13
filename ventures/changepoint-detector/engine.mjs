@@ -2123,8 +2123,8 @@ export function analyze(input = {}) {
   }
   // a variance model assumes Gaussian noise: on heavy-tailed, autocorrelated or volatility-clustered noise with no change at all it
   // reported one 35% to 68% of the time (eval/meanvar-robustness.mjs, README). Warn from the segment-standardised residuals.
-  // GARCH cuts: the ranges below still come from the independent-noise cost, which clustered volatility makes too narrow
-  if (!rangeWarning && garchFit?.clustered && p.changepoints.length) rangeWarning = 'These ranges come from the independent-noise variance cost, not the GARCH fit that chose the cuts, so with clustered volatility they are too narrow: read them as the least uncertainty there is.';
+  // GARCH cuts with clustering: the ranges come from the GARCH fit (garchCost above); on fresh seeds they held the planted
+  // change in 93-98% of series where the independent-noise range held it in 75-94% (eval/meanvar-garch-range-prereg-2026-11-13.md)
   if (!rangeWarning && model === 'meanvar' && values.length >= 40 && !garchFit?.clustered) {
     const nd = meanvarNoiseCheck(values, p.changepoints, robust);
     if (nd) rangeWarning = nd;

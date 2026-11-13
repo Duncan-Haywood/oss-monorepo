@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVM2jYGBX3YEGHQRJwM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products; merge when done.",
+  "input_sha256": "58b5cec786884831b6143a6022f8fc3e1c0cbaf7a02482c3dab18d5ce8f79fa6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T03:56:24Z",
+  "ended": "2026-11-13T04:16:54Z",
+  "wall_minutes": 33.29,
+  "tokens_in": 7150561,
+  "tokens_out": 42914,
+  "cost_usd": 3.2437,
+  "tool_calls": 68,
+  "task": "Deepen (flagship 4): changepoint-detector --garch item (3): a range from the GARCH fit, or a t-GARCH for heavy-tailed returns",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15363",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First GARCH-vs-t sanity test asserted equality at large nu with GARCH on; the shipped Gaussian path is under-converged by ~0.27 LL per segment",
+      "fix": "Test now asserts the bounded difference; the bias is stated in the pre-registration and README"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Foreground sleep-and-poll is blocked by a hook; the 'Long commands' advice should name the until-loop + run_in_background pattern directly, it cost one retry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "eval/meanvar-tgarch-prereg-2026-11-13.md",
+      "why": "None from the guidance; noting that the t-GARCH result failed one pre-registered line by 4 points while improving every other line a lot",
+      "did": "Held to the pre-registration: reverted the analyze/CLI/page wiring, kept the engine code eval-only, recorded the negative result",
+      "result": "Nothing user-facing from t-GARCH; the GARCH range slice shipped instead"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No agent doc in docs/reports: the README sections and the flagship next: entry carry everything the next run needs",
+      "did": "README + flagships.yaml",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-garch-changepoint-ranges-and-a-failed-t-garch.md"
+  ],
+  "goal": null,
+  "notes": "Two pre-registered tests on changepoint-detector --garch. (1) Ranges from the GARCH fit (garchCost): fresh seeds 4000003, 400/cell: coverage 93/97/98/96% vs independent-noise 77/94/75/92%; passes, ships, 'too narrow' warning removed. (2) Student t innovations (t-GARCH, nu 4/8, tPen 0.5 ln n tuned in sample): fresh seeds 3000003, 200/cell: t3 false alarms 38->4%, 54->3%; fails the t3 sd break at n=100 (58% vs bar 62%); not shipped. Local checks: garch-search.test.mjs and garch-t.test.mjs pass; python3 platform/ci/run_venture_tests.py changepoint-detector: ok (175.2s), 1 suites run, 0 failed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ff367fb4-f49d-5c7b-bc8e-99d585876966",
+    "transcripts": 1,
+    "first": "2026-11-13T03:56:24Z",
+    "last": "2026-11-13T04:29:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 124,
+        "output": 42914,
+        "thinking": 10005,
+        "cache_read": 7028021,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122416,
+        "api_equivalent_usd": 3.2437,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 124,
+      "output": 42914,
+      "thinking": 10005,
+      "cache_read": 7028021,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122416,
+      "api_equivalent_usd": 3.2437,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 65,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 33.29,
+      "active_minutes": 33.29,
+      "model_minutes": 8.21,
+      "tool_minutes": 25.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "implementing and validating a t-GARCH segment likelihood with EM, two pre-registered simulation studies, README and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 308.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
