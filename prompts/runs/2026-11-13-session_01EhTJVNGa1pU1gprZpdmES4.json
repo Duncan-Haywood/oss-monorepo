@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVNGa1pU1gprZpdmES4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T11:10:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "scheduled ventures brief; allocate.py start-here row chant-forge (flagship 11)",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": 15473,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two sessions started on chant-forge within minutes; this one built the whole breakdown+riser slice (about 40 min) before running claim_check.py, which then said PR #15470 (opened 3 min before mine) held the row. allocate.py's 'open your draft PR as soon as you pick' needs a diff, so the claim lands only after a first commit; a claim that needs no diff (an empty draft PR or a claim file) would have saved the duplicate."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "A bare `route` drew the process track although the scheduled brief is the ventures brief; I only noticed after reading prompt.md step 1 that --task must be passed, as earlier runs reported."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post in this PR: PR #15470 already carries a post on the same feature, and a second post on a two-line studio change would be filler.",
+      "did": "README note and PR summary only",
+      "result": "post count unchanged by this PR"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Built breakdown+riser for chant-forge (PR #15471) in parallel with another session's PR #15470; closed mine as superseded (claim_check). Landed what #15470 lacked: the full six- and seven-verse hymns as studio-page samples (before, no sample had 4+ sections so the breakdown was unreachable in the browser), an e2e check for the breakdown (eval/browser-e2e.mjs 77/77 in headless Chromium); a fix for #15470's red validate job (flagships next: 2032 > 2000 chars) was dropped when its author pushed the same fix first. Local: sections.test.mjs 18/18; run_venture_tests chant-forge ok on my earlier variant (22.7 s); promptctl validate ok. Started on the process track via bare route, re-routed with --task to ventures after reading prompt.md; main_health 62/62 green at 11:00.",
+  "corrections": [],
+  "redteam": null
+}
