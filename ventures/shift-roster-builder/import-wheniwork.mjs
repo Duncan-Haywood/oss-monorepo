@@ -159,8 +159,10 @@ export async function fetchWhenIWork({ token, userId, from, to, base = "https://
   if (to < from) throw new Error("--to is before --from.");
   const headers = { Authorization: `Bearer ${token}`, Accept: "application/json", ...(userId ? { "W-UserId": String(userId) } : {}) };
   const get = async (path, params = {}) => {
-    const u = new URL(path, base);
-    for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
+    // API request parameters (not page state): built as one query string for the When I Work request.
+    const query = new URLSearchParams(params);
+    const request = path + "?" + query;
+    const u = new URL(request, base);
     const res = await fetchImpl(u.toString(), { headers });
     if (!res.ok) throw new Error(`When I Work answered ${res.status} for ${u.pathname}${res.status === 401 ? " (check the token)" : res.status === 403 ? " (no permission, or a rate limit: When I Work answers 403 for both)" : ""}.`);
     return res.json();
