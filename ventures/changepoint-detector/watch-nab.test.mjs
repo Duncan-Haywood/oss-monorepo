@@ -41,3 +41,13 @@ test('the committed output is a complete run of the pre-registered rule', () => 
   assert.match(out, /^ {2}T2 drift vs middle: .* (CONFIRMED|DROPPED)\.$/m);
   assert.match(out, /^ {2}T3 hintNN vs hint3: .* (SHIPS|does NOT ship)\.$/m);
 });
+
+test('round 10 as run: all three rules fail on part (a), and the hint text says so', async () => {
+  const out = readFileSync(new URL('./eval/watch-nab.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /T1 hint3 vs quiet: \(a\) 49 vs 50 FAIL.*NOT CONFIRMED/);
+  assert.match(out, /T2 drift vs middle: \(a\) 48 vs 52 FAIL.*DROPPED/);
+  assert.match(out, /T3 hintNN vs hint3: \(a\) 48 vs 49 FAIL.*does NOT ship/);
+  const { eagernessReplay, eagernessText } = await import('./watch-core.mjs');
+  const v = Array.from({ length: 120 }, (_, i) => Math.sin(i / 3) + (i > 80 ? 4 : 0));
+  assert.match(eagernessText(eagernessReplay(v)), /not confirmed: .*49 of 61 later anomaly windows against the default's 50/);
+});

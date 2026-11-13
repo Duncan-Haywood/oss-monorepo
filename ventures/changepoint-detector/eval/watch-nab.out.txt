@@ -1,0 +1,69 @@
+Round 10: an hourly watch on NAB's 47 real series (48163 hourly points, checked after every point).
+
+  series                                          n     h  step q/m/d/e      hist rate q/m/d/e (per 100)   fut rate q/m/d/e              hint3  hintNN  future windows (reached by quiet / hint3 / hintNN)
+  realAWSCloudwatch/ec2_cpu_utilization_24ae8d.csv    337   168    1   1   1   1    4.44  4.44  4.44  4.44    5.33  4.73  4.14  6.51   quiet  quiet   2 (2 / 2 / 2)
+  realAWSCloudwatch/ec2_cpu_utilization_53ea38.csv    337   168    1   1   1   1    0.00  0.00  1.48  5.19    0.59  0.59  0.59  2.37   middle middle  1 (1 / 1 / 1)
+  realAWSCloudwatch/ec2_cpu_utilization_5f5533.csv    337   168    1   1   1   1    1.48  0.00  2.22  2.96    0.59  1.78  0.59  1.18   middle middle  1 (1 / 1 / 1)
+  realAWSCloudwatch/ec2_cpu_utilization_77c1ca.csv    337   168    1   1   1   1    6.67  6.67 10.37 11.11    4.73  5.92  5.33 10.65   quiet  quiet   0 (0 / 0 / 0)
+  realAWSCloudwatch/ec2_cpu_utilization_825cc2.csv    337   168    1   1   1   1    3.70  4.44  4.44  5.19    2.37  3.55  0.00  5.92   quiet  quiet   0 (0 / 0 / 0)
+  realAWSCloudwatch/ec2_cpu_utilization_ac20cd.csv    337   168    1   1   1   1    1.48  2.96  2.22  5.19    2.37  1.78  0.59  4.73   quiet  quiet   1 (1 / 1 / 1)
+  realAWSCloudwatch/ec2_cpu_utilization_c6585a.csv    337   168    1   1   1   1    4.44  4.44  4.44  4.44    4.14  4.14  4.14  4.14   quiet  quiet   0 (0 / 0 / 0)
+  realAWSCloudwatch/ec2_cpu_utilization_fe7f93.csv    337   168    1   1   1   1    7.41  8.15 13.33 14.07    6.51  6.51  5.33  8.88   quiet  quiet   2 (1 / 1 / 1)
+  realAWSCloudwatch/ec2_disk_write_bytes_1ef3de.csv    394   197    1   1   1   1    5.06  4.43  5.70  5.06    5.58  4.06  3.55  3.05   quiet  quiet   1 (1 / 1 / 1)
+  realAWSCloudwatch/ec2_disk_write_bytes_c0d644.csv    337   168    1   1   1   1    5.93  7.41  9.63 12.59    7.10  5.92 10.65 11.24   quiet  quiet   2 (1 / 1 / 1)
+  realAWSCloudwatch/ec2_network_in_257a54.csv      337   168    1   1   1   1    5.93  5.93  8.89 10.37    4.73  4.73  2.96  5.33   quiet  quiet   0 (0 / 0 / 0)
+  realAWSCloudwatch/ec2_network_in_5abac7.csv      394   197    1   1   1   1    6.96  6.96 12.03  9.49    6.09  6.09  8.63 10.66   quiet  quiet   2 (2 / 2 / 2)
+  realAWSCloudwatch/elb_request_count_8c0756.csv    337   168    1   1   1   1    2.22  1.48  0.74  7.41    1.78  1.78  1.18  4.73   middle drift   1 (1 / 1 / 1)
+  realAWSCloudwatch/grok_asg_anomaly.csv           386   193    1   1   1   1    2.58  1.94  7.10  9.03    0.52  0.52  1.04  1.55   middle middle  1 (1 / 1 / 1)
+  realAWSCloudwatch/iio_us-east-1_i-a2eb1cd9_NetworkIn.csv    104    52    1   1   1   1    3.13  9.38 15.63  9.38    1.92  5.77  3.85 11.54   quiet  quiet   0 (0 / 0 / 0)
+  realAWSCloudwatch/rds_cpu_utilization_cc0c53.csv    337   168    1   1   1   1    2.22  2.22  3.70  3.70    0.59  0.59  4.14  4.14   quiet  quiet   2 (1 / 1 / 1)
+  realAWSCloudwatch/rds_cpu_utilization_e47b3b.csv    336   168    1   1   1   1    1.48  1.48  0.74  4.44    1.19  1.19  1.19  5.36   middle middle  1 (1 / 1 / 1)
+  realAdExchange/exchange-2_cpc_results.csv       1623   811    1   1   1   1    0.77  7.24  2.62 10.48    1.60  5.30  2.59 10.71   quiet  quiet   0 (0 / 0 / 0)
+  realAdExchange/exchange-2_cpm_results.csv       1623   811    1   1   1   1    1.69  7.09  4.01 10.17    3.08  7.51  2.83 10.59   quiet  quiet   1 (1 / 1 / 1)
+  realAdExchange/exchange-3_cpc_results.csv       1538   769    1   1   1   1    2.44  3.73  0.97  5.84    6.24  5.46  1.04  8.19   quiet  drift   1 (1 / 1 / 1)
+  realAdExchange/exchange-3_cpm_results.csv       1538   769    1   1   1   1    2.27  5.84  0.49  8.60    2.47  7.41  1.95  9.75   quiet  drift   1 (1 / 1 / 1)
+  realAdExchange/exchange-4_cpc_results.csv       1643   821    1   1   1   1    2.74  4.72  0.46  9.13    4.50  5.11  0.73 10.71   quiet  drift   1 (1 / 1 / 1)
+  realAdExchange/exchange-4_cpm_results.csv       1643   821    1   1   1   1    2.74  5.33  0.61 10.05    5.84  5.60  0.61 10.95   quiet  drift   2 (2 / 2 / 2)
+  realKnownCause/ambient_temperature_system_failure.csv   7267  3633    1   1   1   1    3.68  3.72  0.07  7.09    2.53  4.79  0.33  8.20   quiet  drift   2 (2 / 2 / 2)
+  realKnownCause/cpu_utilization_asg_misconfiguration.csv   1505   752    1   1   1   1    3.49  2.99  1.66  7.14    3.85  3.19  2.26 11.69   quiet  drift   1 (1 / 1 / 1)
+  realKnownCause/ec2_request_latency_system_failure.csv    336   168    1   1   1   1    5.93  5.19  5.19  7.41    2.98  2.38  2.38  4.17   quiet  drift   3 (1 / 1 / 2)
+  realKnownCause/machine_temperature_system_failure.csv   1891   945    1   1   1   1    2.51  5.03  1.59  8.86    3.91  4.86  2.75  8.99   quiet  drift   2 (1 / 1 / 2)
+  realKnownCause/nyc_taxi.csv                     5160  2580    1   1   1   1    2.47 10.42  0.48 11.72    3.49  9.53  0.74 11.24   quiet  drift   5 (4 / 4 / 1)
+  realKnownCause/rogue_agent_key_hold.csv          187    93    1   1   1   1    8.22  8.22  8.22  9.59    2.13  2.13  8.51  9.57   quiet  quiet   1 (1 / 1 / 1)
+  realKnownCause/rogue_agent_key_updown.csv        445   222    1   1   1   1    2.25  1.69  1.69  1.69    3.14  2.24  0.90  0.45   eager  drift   1 (1 / 0 / 0)
+  realTraffic/TravelTime_387.csv                   781   390    1   1   1   1    3.53  4.81  4.17  9.29    2.56  3.84  2.30  5.88   quiet  quiet   1 (0 / 0 / 0)
+  realTraffic/TravelTime_451.csv                   706   353    1   1   1   1    5.65  4.95  1.41  9.19    3.40  3.40  1.42  6.52   quiet  drift   0 (0 / 0 / 0)
+  realTraffic/occupancy_6005.csv                   292   146    1   1   1   1    1.71  7.69  5.13  9.40    2.74  6.16  2.74  9.59   quiet  quiet   1 (1 / 1 / 1)
+  realTraffic/occupancy_t4013.csv                  300   150    1   1   1   1    0.83  7.50  6.67 10.00    2.67  7.33  2.67  8.00   quiet  quiet   2 (2 / 2 / 2)
+  realTraffic/speed_6005.csv                       311   155    1   1   1   1    0.81  0.81  0.81  2.42    3.21  1.28  1.28  4.49   middle middle  1 (0 / 0 / 0)
+  realTraffic/speed_7578.csv                       186    93    1   1   1   1    1.37  1.37  2.74  8.22    2.15  2.15  3.23  5.38   middle middle  3 (2 / 2 / 2)
+  realTraffic/speed_t4013.csv                      300   150    1   1   1   1    2.50  3.33  2.50  5.83    3.33  1.33  1.33  6.67   quiet  quiet   2 (2 / 2 / 2)
+  realTweets/Twitter_volume_AAPL.csv              1326   663    1   1   1   1    3.77  6.40  1.69 10.92    5.13  6.49  1.66 10.41   quiet  drift   1 (1 / 1 / 1)
+  realTweets/Twitter_volume_AMZN.csv              1320   660    1   1   1   1    1.14  6.25  1.33  9.47    1.06  6.67  1.97  9.70   quiet  quiet   2 (1 / 1 / 1)
+  realTweets/Twitter_volume_CRM.csv               1326   663    1   1   1   1    3.01  5.08  3.01  8.10    1.81  5.73  0.45  8.14   quiet  quiet   1 (1 / 1 / 1)
+  realTweets/Twitter_volume_CVS.csv               1322   661    1   1   1   1    3.21  2.84  1.51  7.56    2.72  2.42  1.06  6.35   quiet  drift   2 (2 / 2 / 2)
+  realTweets/Twitter_volume_FB.csv                1321   660    1   1   1   1    3.22  5.87  3.22  9.09    2.72  4.54  1.36  7.87   quiet  quiet   1 (1 / 1 / 1)
+  realTweets/Twitter_volume_GOOG.csv              1321   660    1   1   1   1    2.27  6.06  1.89  9.66    3.18  4.84  1.06  7.41   quiet  drift   1 (1 / 1 / 1)
+  realTweets/Twitter_volume_IBM.csv               1326   663    1   1   1   1    4.90  6.03  3.77  9.04    4.37  4.52  3.62  8.45   quiet  drift   1 (1 / 1 / 1)
+  realTweets/Twitter_volume_KO.csv                1322   661    1   1   1   1    5.48  5.10  3.59  9.45    3.03  5.30  1.66  8.93   quiet  drift   2 (2 / 2 / 2)
+  realTweets/Twitter_volume_PFE.csv               1323   661    1   1   1   1    3.21  3.97  1.70  7.75    3.32  3.32  1.51  6.04   quiet  drift   1 (1 / 1 / 1)
+  realTweets/Twitter_volume_UPS.csv               1323   661    1   1   1   1    5.48  6.05  4.35  9.64    4.08  6.19  2.72  9.67   quiet  drift   1 (1 / 1 / 1)
+
+  Chance: 11.8% of future points lie inside a labelled window.
+
+  policy                        future alerts  at a window (share)  per 1000 checks  windows reached  (NAB way: reported inside)  picks q/m/d/e
+  fixed quiet (default)              798        109 (13.7%)         33.12          50/61             49/61               47/0/0/0
+  fixed middle                      1273        159 (12.5%)         52.83          52/61             49/61               0/47/0/0
+  fixed drift                        405         83 (20.5%)         16.81          48/61             48/61               0/0/47/0
+  fixed eager                       2073        268 (12.9%)         86.03          56/61             55/61               0/0/0/47
+  hint3, B = 2 (shipped)             791        109 (13.8%)         32.83          49/61             48/61               39/7/0/1
+  hintNN, B = 2 (candidate)          408         88 (21.6%)         16.93          48/61             46/61               22/6/19/0
+  hint3, B = 1                       797        110 (13.8%)         33.08          50/61             49/61               44/3/0/0
+  hint3, B = 5                       884        123 (13.9%)         36.69          51/61             50/61               24/16/0/7
+  round 9 four-rung, B = 2           437         89 (20.4%)         18.14          47/61             45/61               25/3/18/1
+
+  T1 hint3 vs quiet: (a) 49 vs 50 FAIL; (b) 32.83 vs middle 52.83 PASS; (c) 13.8% vs 13.7% - 5 PASS. NOT CONFIRMED.
+  T2 drift vs middle: (a) 48 vs 52 FAIL; (b) 16.81 vs 52.83 PASS; (c) 20.5% vs 12.5% PASS. DROPPED.
+  T3 hintNN vs hint3: (a) 48 vs 49 FAIL; (b) 16.93 vs middle 52.83 PASS; (c) 21.6% vs 13.8% - 5 PASS. does NOT ship.
+
+1730 s wall, 6918 s of replays on 4 cores.

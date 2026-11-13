@@ -4085,3 +4085,65 @@ What changed: nothing in the hint. `eagerSettings` says why drift is not on the 
 round's result. Next for the hint: a rule that does not assume nested settings (for example, pick drift only when it sends fewer
 alerts than Quiet on the history *and* the drift fit's wander is a material share of the noise), pre-registered on a fresh
 labelled set.
+
+## Round 10: the watch on a fresh labelled set, NAB's 47 real series (2026-11-13, pre-registered; all three rules fail)
+
+Since round 6 every watch decision has waited on "a fresh labelled set". Every round so far scored TCPD, which rounds 3-9
+had all seen. The Numenta Anomaly Benchmark (NAB; Lavin and Ahmad 2015, arXiv:1510.03336; MIT, Copyright 2014-2024
+Numenta Inc.) is one nobody here had looked at. It has 47 real series from AWS CloudWatch, an ad exchange, known-cause
+failures (a machine's temperature before a breakdown, the NYC taxi holidays), Twin Cities traffic sensors and Twitter
+volumes, with labelled anomaly windows. `sh eval/nab-fetch.sh nab-data && node eval/watch-nab.mjs nab-data` (output
+`eval/watch-nab.out.txt`, 1,730 s on 4 cores). The rule, the code and three predictions were committed in this PR's
+first commit, before any run that printed a score. The data is not committed.
+
+**Design.** Round 9's design, with one change. Each series is averaged into clock-hour buckets: an hourly watch, 48,163
+points. At NAB's native 5-minute rows a check after every row would have taken about 15 hours. The watch is replayed after
+every point (no coarse checks) under the shipped policy (window 1,000, confirm 5, tolerance 5, hold, persist 2). Each series
+is cut in half; the hint picks from the first half and is scored on the second. A future alert is "at a window" when its
+change date lies inside any labelled window; a future window is "reached" when some future alert's change lies inside it.
+NAB's windows are wide (10% of each file split among its anomalies), so 11.8% of future points lie inside one: that is
+the chance rate for "at a window".
+
+| policy (future halves, 47 NAB series, 61 windows) | alerts | at a window | per 1,000 hourly checks | windows reached | picks q/m/d/e |
+|---|---|---|---|---|---|
+| fixed quiet (default) | 798 | 109 (13.7%) | 33.1 | 50 | |
+| fixed middle | 1,273 | 159 (12.5%) | 52.8 | 52 | |
+| fixed drift ("Wandering level") | 405 | 83 (**20.5%**) | **16.8** | 48 | |
+| fixed eager | 2,073 | 268 (12.9%) | 86.0 | 56 | |
+| hint3, B = 2 (shipped) | 791 | 109 (13.8%) | 32.8 | 49 | 39/7/0/1 |
+| hintNN, B = 2 (candidate) | 408 | 88 (21.6%) | 16.9 | 48 | 22/6/19/0 |
+
+- **T1, the shipped hint against Quiet: not confirmed.** (a) 49 windows against 50 fails; (b) and (c) pass. On most of
+  these histories even Quiet sent more than 2 alerts per 100 checks, so the hint picked Quiet on 39 of 47 and changed
+  little. The one series it moved to Eager (`rogue_agent_key_updown`) lost its window. As pre-registered, the hint stays
+  (it is opt-in advice, not a default) and `eagernessText` now says, on the page, in `--suggest` and in the agent tool,
+  that it was not confirmed on NAB.
+- **T2, round 9's lead (drift beats middle): dropped.** Drift reached 48 windows against Middle's 52. It did send under a
+  third of Middle's alerts, and its share at a window was the highest of any setting.
+- **T3, a hint that does not assume nested settings: does not ship.** The candidate rule was "drift when the history is
+  too loud for Quiet and drift is quieter on it". It moved 19 series to drift, roughly halved the alerts (791 to 408) and
+  raised the share at a window from 13.8% to 21.6%. It reached 48 windows against 49, so it fails (a) by one. `nyc_taxi`
+  decided it: drift reached 1 of its 5 holiday windows against Quiet's 4. Those holidays are dips a day or two long, and
+  the drift model absorbs short dips as wander. Drift gained a window on `ec2_request_latency` and on
+  `machine_temperature`.
+
+**Predictions, scored.** T1: predicted to pass by a few windows. It failed by one. T2: predicted to fail on (a) because drift
+absorbs short excursions; it did. T3: predicted to fail on (a) "by a tie or near tie"; it failed by one, but I did not
+predict it would move 19 series.
+
+**What the round says beyond the rules (deciding nothing).** The level detectors' alerts on these operational metrics sit
+inside an anomaly window barely more often than chance: 13.7% for Quiet, 12.5% Middle, 12.9% Eager, against 11.8%. The
+windows are reached because the watch alerts often (33 per 1,000 hourly checks for Quiet, about 0.8 a day), not because
+its alerts point at the anomalies. Drift is the only setting clearly above chance (20.5%, 1.7 times), at half Quiet's
+alerts. That is the opposite of TCPD's picture, where the three level settings had 22-44% at a mark. NAB measures
+something different: anomalies (spikes and failures) in noisy, daily-cycling server metrics, judged by wide windows,
+against TCPD's annotated level changes. Two caveats on the hourly design. Averaging over an hour dilutes 5-minute
+spikes. The round ran with no seasonal period, as pre-registered, although the level settings take `--period`. So no setting
+here removed the daily cycle, and much of what Quiet alerts on is probably the cycle itself.
+
+So the next round should remove the season, not tune the hint. NAB's server, traffic and Twitter series cycle daily
+(period 24 hourly). The useful round is the level settings with `--period 24` against drift (which takes no period), pre-registered on
+these same 47 series, which are now seen. Another option is a third labelled set. Neither the hint nor the default changes from this round.
+
+Tests: `watch-nab.test.mjs` (6: hourly buckets, step 1, the two hint rules on made-up rates, the committed output's
+three verdicts, and the hint text's NAB line).
