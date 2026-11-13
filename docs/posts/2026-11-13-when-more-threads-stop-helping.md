@@ -23,7 +23,7 @@ Two runs each, same four-core container:
 | before | 105 s, 100 s | 347 s, 357 s |
 | after | 94 s, 95 s | 355 s, 359 s |
 
-About 8% faster. `pairMix` went from 89 s to 57 s, but the suite barely moved, because the other files slowed down to make room for its workers.
+About 8% faster here (on CI, the one run so far took the same 124 s as before, so the saving there is not shown yet). `pairMix` went from 89 s to 57 s, but the suite barely moved, because the other files slowed down to make room for its workers.
 
 The reason is in the second column. The suite needs about 357 CPU-seconds. On four cores that cannot finish in less than about 89 s, and it now takes 94 s. In the morning there were idle cores waiting on one slow file, so spreading the work helped a lot. Now there are none. Which file finishes last says nothing useful any more: whichever file runs last just has the most other work competing with it.
 

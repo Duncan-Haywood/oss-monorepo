@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 0,
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
@@ -51,7 +51,7 @@
     "docs/history/ci-perf-2026-11-13-qps-pairmix-workers.md"
   ],
   "goal": null,
-  "notes": "Metric: wall time of `npx vitest run --config vitest.simulations.config.ts` in ventures/quick-pick-survey (bash `time`, 4 cores, node 22.23.4). Before: 104.9 s and 99.6 s (user 346.6 s and 356.9 s). After: 93.8 s and 94.9 s (user 355.2 s and 359.4 s). About 8%, and the suite is now CPU-bound (user/4 is about 89 s). MEASURE lines byte-identical (sorted sha256 5a1e4e33...187da2). Parity test pairMix.test.ts catches the seed+1 and selector-swap mutations. tsc 0, eslint 0, test:fast 482/482, simulations 55/55. Pool reading: ci_profile --runs 300, 2026-11-13 16:48Z to 17:07Z, 277 jobs, 257.3 job-minutes, checkout 71.6. P063 and P064 are still owner-gated.",
+  "notes": "Metric: wall time of `npx vitest run --config vitest.simulations.config.ts` in ventures/quick-pick-survey (bash `time`, 4 cores, node 22.23.4). Before: 104.9 s and 99.6 s (user 346.6 s and 356.9 s). After: 93.8 s and 94.9 s (user 355.2 s and 359.4 s). About 8%, and the suite is now CPU-bound (user/4 is about 89 s). MEASURE lines byte-identical (sorted sha256 5a1e4e33...187da2). Parity test pairMix.test.ts catches the seed+1 and selector-swap mutations. tsc 0, eslint 0, test:fast 482/482, simulations 55/55. Pool reading: ci_profile --runs 300, 2026-11-13 16:48Z to 17:07Z, 277 jobs, 257.3 job-minutes, checkout 71.6. P063 and P064 are still owner-gated. CI: the Simulation tests step on the PR took 124 s, the same as the one pre-change run in the window. That is one sample each, so no CI saving is shown yet.",
   "corrections": [],
   "redteam": null,
   "usage": {

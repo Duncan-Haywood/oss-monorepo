@@ -93,6 +93,13 @@ The per-file times only show which file finished last under contention. The
 pool-cap cells are slower here because they now share the cores with pairMix's
 workers.
 
+**On CI, one sample shows no change.** The Simulation tests step on this
+PR (run for head `09836324`) took 124 s (17:20:26Z to 17:22:30Z). That is the
+same as the single pre-change run in the pool window. One sample against one
+sample cannot show an 8% saving either way. Check the next few `Simulation tests`
+step times before counting any CI saving from this change. If they stay
+around 124 s, the CI runner is CPU-bound too and this change saved nothing there.
+
 ## Not changed, ranked for the next run
 
 1. **Less CPU, not more threads.** The only lever left in this suite is
