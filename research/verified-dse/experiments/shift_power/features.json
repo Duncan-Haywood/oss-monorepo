@@ -1,0 +1,50 @@
+{
+ "alignsh128": {
+  "cells": 2053,
+  "family": "alignsh",
+  "mux_share": 0.3746,
+  "shift_cells": 2,
+  "shift_width": 128,
+  "xor_share": 0.0619
+ },
+ "alignsh64": {
+  "cells": 942,
+  "family": "alignsh",
+  "mux_share": 0.3408,
+  "shift_cells": 2,
+  "shift_width": 64,
+  "xor_share": 0.0669
+ },
+ "lzcnorm128": {
+  "cells": 2191,
+  "family": "lzcnorm",
+  "mux_share": 0.351,
+  "shift_cells": 1,
+  "shift_width": 128,
+  "xor_share": 0.0
+ },
+ "lzcnorm96": {
+  "cells": 1743,
+  "family": "lzcnorm",
+  "mux_share": 0.4607,
+  "shift_cells": 1,
+  "shift_width": 96,
+  "xor_share": 0.0
+ },
+ "muxshl128": {
+  "cells": 1800,
+  "family": "muxshl",
+  "mux_share": 0.8544,
+  "shift_cells": 0,
+  "shift_width": 0,
+  "xor_share": 0.0
+ },
+ "muxshl64": {
+  "cells": 775,
+  "family": "muxshl",
+  "mux_share": 0.8284,
+  "shift_cells": 0,
+  "shift_width": 0,
+  "xor_share": 0.0
+ }
+}

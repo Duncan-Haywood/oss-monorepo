@@ -18,7 +18,7 @@ def test_designs_are_unseen_and_new_families():
     run, a = _load("run"), _load("analyse")
     seen = set()
     for f in EXP.parent.glob("*/results*.jsonl"):
-        if f.parent.name == "struct_guard":
+        if f.parent.name in ("struct_guard", "shift_power"):  # this table and later milestones (120 reruns lzcnorm wider)
             continue
         for line in f.read_text().splitlines():
             try:
