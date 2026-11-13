@@ -47,6 +47,9 @@
        scrolling inside its own box, dragging the inputs off-screen with it. */
     .layout > * { min-width: 0; }
     @media (max-width: 700px) { section { overflow-x: auto; } table { max-width: 100%; } }
+    /* The intro used to be a 10-link paragraph, about 1,200 px tall on a 390 px phone above the first input. In-page jumps are now a wrapping row of short links and the guides a list near the end. */
+    .jump { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 4px 0 0; } .jump a { display: inline-flex; align-items: center; min-height: 32px; padding: 0 11px; border: 1px solid #d8d2c4; border-radius: 999px; background: #fffef8; color: #1f2320; font-size: .87rem; font-weight: 600; text-decoration: none; } .jump a:hover { border-color: #24352d; } .jump a:focus-visible { outline: 2px solid #24352d; outline-offset: 2px; }
+    #guides { margin-top: 18px; } .guides { columns: 2 300px; column-gap: 28px; margin: 0; padding-left: 1.1rem; } .guides li { break-inside: avoid; margin: 0 0 .55rem; line-height: 1.4; }
   </style>
 </head>
 <body>
@@ -54,7 +57,7 @@
     <p>FOR REVERB SELLERS</p>
     <h1>See whether that offer still beats eBay.</h1>
     <p class="answer-source" data-answer-lead>Reverb charges a 5% selling fee, capped at $500 per item, plus payment processing of 3.19% + $0.49 for standard sellers, so a $15,000 guitar owes $500 in selling fees rather than the uncapped $750. Source: Reverb, "Selling Fees" and "Preferred Seller" help pages. As of 2026-09 (month the page last checked them; rates change, so check Reverb before relying on it).</p>
-    <p>Enter the rates from your last Reverb payout and the eBay final-value fee you actually pay. The calculator shows cash at your list price, cash if you take the offer, and the Reverb offer that leaves the same cash as selling the same item on eBay. Walk the numbers on <a href="should-i-take-this-reverb-offer.html">should I take this Reverb offer</a>, then use "Copy counter-offer message" below to paste a reply naming the crossover price straight into your Reverb inbox. Declining it does not buy a guaranteed sale at list — it buys a chance of one — so price that bet on <a href="should-i-wait-for-a-better-reverb-offer.html">should I wait for a better Reverb offer</a>. A bump is cash out of this sale — compare it to taking the offer on <a href="should-i-bump-this-reverb-listing.html">should I bump this Reverb listing</a>. Marketplace fee sits on the item, so baking postage into the list costs extra — compare that to charging shipping, absorbing the label, or offering pickup on <a href="should-i-include-shipping-on-reverb.html">should I include shipping on Reverb</a> and <a href="should-i-eat-the-shipping-on-reverb.html">should I eat the shipping</a>. Reverb Safe Shipping is a more expensive label, not a different checkout — compare it to your own label on <a href="should-i-buy-reverb-safe-shipping.html">should I buy Reverb Safe Shipping</a>. A shop that will consign or buy the guitar today is a different sale — compare that on <a href="should-i-consign-this-reverb-listing.html">should I consign this Reverb listing</a>. And when a buyer opens a case, the freight runs three legs and the piece comes back worth less — see the largest concession that still beats the return on <a href="should-i-take-the-return-or-refund-on-reverb.html">should I take the return or refund part of it</a>. See how this differs from Reverb's own Selling Fees page and Earnings breakdown on <a href="vs-reverbs-selling-fees-page.html">this calculator vs. Reverb's own tools</a>, or from tracking these seven decisions in a spreadsheet on <a href="vs-tracking-offers-in-a-spreadsheet.html">this calculator vs. a spreadsheet</a>.</p>
+    <p>Enter the rates from your last Reverb payout and the eBay final-value fee you actually pay. The calculator shows cash at your list price, cash if you take the offer, and the Reverb offer that leaves the same cash as selling the same item on eBay; "Copy counter-offer message" below pastes a reply naming that crossover price into your Reverb inbox. Further down this page:</p><nav class="jump" aria-label="On this page"><a href="#offer-compare">Offer vs list</a><a href="#offer-ladder">Offer ladder</a><a href="#inbox">Offer inbox</a><a href="#wait-compare">Wait for a better offer</a><a href="#shipping-compare">Shipping</a><a href="#safe-shipping-compare">Safe Shipping</a><a href="#consignment-compare">Consign or sell to a shop</a><a href="#bump-compare">Bump</a><a href="#return-compare">Return or partial refund</a><a href="#guides">Guides</a></nav>
   </header>
   <main class="layout">
     <section>
@@ -279,6 +282,21 @@
     <p class="note">A returned guitar is not a returned phone case. The freight runs three legs — out, back, and out again on the relist — the piece is one of one, so the cash you recover is whatever the relist fetches, and the card processor generally keeps its cut even when Reverb credits the selling fee. The 61% default is the selling fee's share of total fees on the worked example; read your own payout statement and overwrite it. Set the relist price to $0 for a piece that comes back unsellable. This is not a recommendation to refuse a return, and nothing here changes what Reverb's policies or your local law require of you. <a href="should-i-take-the-return-or-refund-on-reverb.html">Worked example</a>.</p>
   </section>
 
+  <section id="guides">
+    <h2>Questions this answers, one page each</h2>
+    <ul class="guides">
+      <li><a href="should-i-take-this-reverb-offer.html">Should I take this Reverb offer?</a></li>
+      <li><a href="should-i-wait-for-a-better-reverb-offer.html">Should I wait for a better Reverb offer? Declining buys a chance of a sale at list, not a sure one.</a></li>
+      <li><a href="should-i-bump-this-reverb-listing.html">Should I bump this Reverb listing, or take the offer?</a></li>
+      <li><a href="should-i-include-shipping-on-reverb.html">Should I include shipping in the price on Reverb? The selling fee sits on the item.</a></li>
+      <li><a href="should-i-eat-the-shipping-on-reverb.html">Should I eat the shipping?</a></li>
+      <li><a href="should-i-buy-reverb-safe-shipping.html">Should I buy Reverb Safe Shipping or my own label?</a></li>
+      <li><a href="should-i-consign-this-reverb-listing.html">Should I consign this Reverb listing, or sell to the shop today?</a></li>
+      <li><a href="should-i-take-the-return-or-refund-on-reverb.html">Should I take the return or refund part of it? Return freight runs three legs.</a></li>
+      <li><a href="vs-reverbs-selling-fees-page.html">This calculator vs. Reverb's own Selling Fees page and Earnings breakdown</a></li>
+      <li><a href="vs-tracking-offers-in-a-spreadsheet.html">This calculator vs. tracking these decisions in a spreadsheet</a></li>
+    </ul>
+  </section>
   <section id="faq">
     <h2>Common questions</h2>
 

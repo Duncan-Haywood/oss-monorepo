@@ -29,10 +29,14 @@
        scrolling inside its own box, dragging the inputs off-screen with it. */
     .layout > * { min-width: 0; }
     @media (max-width: 700px) { section { overflow-x: auto; } table { max-width: 100%; } }
+    /* The intro used to be one 22-link paragraph, about 1,100 px tall on a 390 px phone above the first input. In-page jumps are now a wrapping row of short links and the guides a list near the end. */
+    .jump { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 4px 0 0; } .jump a { display: inline-flex; align-items: center; min-height: 32px; padding: 0 11px; border: 1px solid #ded5c8; border-radius: 999px; background: #fffdf9; color: #25221f; font-size: .87rem; font-weight: 600; text-decoration: none; } .jump a:hover { border-color: #7e761b; } .jump a:focus-visible { outline: 2px solid #7e761b; outline-offset: 2px; }
+    #guides { margin-top: 18px; } .guides { columns: 2 300px; column-gap: 28px; margin: 0; padding-left: 1.1rem; } .guides li { break-inside: avoid; margin: 0 0 .55rem; line-height: 1.4; }
+    #faq { margin-top: 18px; }
   </style>
 </head>
 <body>
-    <header><p>FOR ETSY SELLERS</p><h1>Know what each order really leaves.</h1><p class="answer-source" data-answer-lead>Etsy charges a US seller three fees on a sale: <strong>$0.20</strong> to list the item, a <strong>6.5%</strong> transaction fee on the order total including shipping and gift wrap, and payment processing of <strong>3% + $0.25</strong> per order. On a $30 item with $5 shipping and no sales tax that is about <strong>$3.78</strong>. Offsite Ads, Etsy Ads and shipping labels cost extra when you use them. Source: Etsy Help Center, "Etsy Fee Basics" and "What are Payment Processing Fees for Selling on Etsy". As of 2026-11-13; other countries' processing rates differ.</p><p>Enter the fees and costs from your shop to see net profit, margin, return on the cash you put in, and the break-even price before you publish or reprice a listing. Then check whether <a href="#etsy-plus">Etsy Plus credits cover the subscription this month</a>, whether <a href="#personalization">a personalization still pays after extra time and fees</a>, whether <a href="#etsy-ads">on-site Etsy Ads still leave a profit after ACOS</a>, whether <a href="#offsite-ads">Offsite Ads still leave a profit at 12% or 15%</a>, whether <a href="#production-partner">a production-partner quote still pays after you run out of handmade hours</a>, whether <a href="#star-seller">chasing Star Seller still beats staying unsigned</a>, whether <a href="#shop-sale">a 20% shop sale still beats staying full price</a>, whether <a href="#free-shipping">free shipping still leaves a profit</a>, or whether <a href="#etsy-labels">an Etsy shipping label still beats Pirate Ship</a>. Walk the numbers on <a href="is-etsy-plus-worth-it.html">is Etsy Plus worth it</a>, <a href="should-i-charge-for-etsy-personalization.html">should I charge for Etsy personalization</a>, <a href="is-etsy-ads-worth-it.html">is Etsy Ads worth it</a>, <a href="are-etsy-offsite-ads-worth-it.html">are Etsy Offsite Ads worth it</a>, <a href="should-i-use-an-etsy-production-partner.html">should I use an Etsy production partner</a>, <a href="is-etsy-star-seller-worth-it.html">is Etsy Star Seller worth it</a>, <a href="should-i-put-my-etsy-shop-on-sale.html">should I put my Etsy shop on sale</a>, <a href="should-i-offer-free-shipping-on-etsy.html">should I offer free shipping on Etsy</a>, and <a href="should-i-buy-etsy-shipping-labels.html">should I buy Etsy shipping labels</a>. A listing that sells slowly is a different question — <a href="listing-renewal.html">does auto-renew still cover the listing fee</a>. The keep-$X price question is <a href="what-price-keeps-this-etsy-profit.html">what price keeps this leftover after fees</a>. This is not the same job as Etsy's own official fee lookup — <a href="vs-etsys-listing-form-calculator.html">this calculator vs. Etsy's own Profit Calculator</a> says which one to open for which question, and <a href="vs-a-spreadsheet.html">this calculator vs. tracking orders in a spreadsheet</a> covers the fee a hand-typed formula usually misses.</p></header>
+    <header><p>FOR ETSY SELLERS</p><h1>Know what each order really leaves.</h1><p class="answer-source" data-answer-lead>Etsy charges a US seller three fees on a sale: <strong>$0.20</strong> to list the item, a <strong>6.5%</strong> transaction fee on the order total including shipping and gift wrap, and payment processing of <strong>3% + $0.25</strong> per order. On a $30 item with $5 shipping and no sales tax that is about <strong>$3.78</strong>. Offsite Ads, Etsy Ads and shipping labels cost extra when you use them. Source: Etsy Help Center, "Etsy Fee Basics" and "What are Payment Processing Fees for Selling on Etsy". As of 2026-11-13; other countries' processing rates differ.</p><p>Enter the fees and costs from your shop to see net profit, margin, return on the cash you put in, and the break-even price before you publish or reprice a listing. Then test the choices that move it, further down this page:</p><nav class="jump" aria-label="On this page"><a href="#etsy-plus">Etsy Plus</a><a href="#personalization">Personalization</a><a href="#etsy-ads">Etsy Ads</a><a href="#offsite-ads">Offsite Ads</a><a href="#production-partner">Production partner</a><a href="#star-seller">Star Seller</a><a href="#shop-sale">Shop sale</a><a href="#free-shipping">Free shipping</a><a href="#etsy-labels">Shipping labels</a><a href="#guides">Guides</a></nav></header>
   <main class="layout">
     <section><h2>Order and fee assumptions</h2><div class="fields">
       <label>Item price <input id="price" type="number" min="0" step="0.01" value="30"></label>
@@ -191,6 +195,24 @@
       <tbody id="labelsRows"></tbody>
     </table>
     <p id="labelsNote" class="note"></p>
+  </section>
+  <section id="guides">
+    <h2>Questions this answers, one page each</h2>
+    <ul class="guides">
+      <li><a href="is-etsy-plus-worth-it.html">Is Etsy Plus worth it?</a></li>
+      <li><a href="should-i-charge-for-etsy-personalization.html">Should I charge for Etsy personalization?</a></li>
+      <li><a href="is-etsy-ads-worth-it.html">Is Etsy Ads worth it?</a></li>
+      <li><a href="are-etsy-offsite-ads-worth-it.html">Are Etsy Offsite Ads worth it?</a></li>
+      <li><a href="should-i-use-an-etsy-production-partner.html">Should I use an Etsy production partner?</a></li>
+      <li><a href="is-etsy-star-seller-worth-it.html">Is Etsy Star Seller worth it?</a></li>
+      <li><a href="should-i-put-my-etsy-shop-on-sale.html">Should I put my Etsy shop on sale?</a></li>
+      <li><a href="should-i-offer-free-shipping-on-etsy.html">Should I offer free shipping on Etsy?</a></li>
+      <li><a href="should-i-buy-etsy-shipping-labels.html">Should I buy Etsy shipping labels?</a></li>
+      <li><a href="listing-renewal.html">Does auto-renew still cover the listing fee on a slow seller?</a></li>
+      <li><a href="what-price-keeps-this-etsy-profit.html">What price keeps this profit after fees?</a></li>
+      <li><a href="vs-etsys-listing-form-calculator.html">This calculator or Etsy's own Profit Calculator: which to open for which question</a></li>
+      <li><a href="vs-a-spreadsheet.html">This calculator or a spreadsheet: the fee a hand-typed formula usually misses</a></li>
+    </ul>
   </section>
   <section id="faq">
     <h2>Common questions</h2>
