@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVQ7kFX9wESEjpLhK8y",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T09:22:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Perf: profile the slowest un-profiled venture suite (chant-forge) and speed it up with identical output",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": 15446,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both perf backlog items are owner-gated again (P063, P064); item 3 (venture suite sweep) is the landable default and takes ~14 min per reading."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-13-chant-forge-true-peak.md",
+    "docs/posts/2026-11-13-a-peak-meter-that-skips-the-quiet-parts.md"
+  ],
+  "goal": "Cut agent and CI wait on venture suites",
+  "notes": "Metric: chant-forge suite wall time and the --limit render. Before: run_venture_tests.py chant-forge 64.9 s (old code via git stash), render.test.mjs 63.7 s (time node --test), bench render 45.0 s + analyze 5.1 s, truePeak self 28.1 s (node --cpu-prof). After, same methods: suite 26.7 s, render.test.mjs 23.4 s, bench 15.0 s + 1.6 s (hash 9387dcc95d6b352d unchanged over WAV, stems, analysis JSON), truePeak self 4.8 s. Pin test: Object.is(new, old) on 189 signals, fails with the bound loosened. Local checks: chant-forge suite ok (1 suite, 0 failed). Sweep reading: 1,346 suites, 0 failed.",
+  "corrections": [],
+  "redteam": null
+}
