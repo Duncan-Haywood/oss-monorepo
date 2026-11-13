@@ -215,5 +215,27 @@ class RedTeam20261112(unittest.TestCase):
         self.assertEqual([(x["file"], x["line"]) for x in missing], [("app.service", 1)])
 
 
+class CanonicalPaths(unittest.TestCase):
+    # systemd unquotes the executable and simplifies paths (duplicate slashes, "."),
+    # so //tmp/x runs /tmp/x and ReadWritePaths=// opens the whole filesystem.
+    def test_writable_dir_spellings(self):
+        for v in ('"/tmp/x" a', "-//tmp/x", "/./tmp/x", "'/var/tmp/x'"):
+            f = check.scan_text(f"[Service]\nUser=app\nExecStart={v}\n")
+            self.assertEqual(types_at(f, check.EXEC_FROM_WRITABLE_DIR), [3], v)
+        f = check.scan_text("[Service]\nUser=app\nExecStart=/usr/bin/tmp/x\n")
+        self.assertEqual(types_at(f, check.EXEC_FROM_WRITABLE_DIR), [])
+
+    def test_read_write_root_spellings(self):
+        for v in ('"/"', "-//", "/./", "+/."):
+            f = check.scan_text(f"[Service]\nUser=app\nReadWritePaths={v}\n")
+            self.assertEqual(types_at(f, check.READ_WRITE_ROOT), [3], v)
+        f = check.scan_text("[Service]\nUser=app\nReadWritePaths=/var /srv/.\n")
+        self.assertEqual(types_at(f, check.READ_WRITE_ROOT), [])
+
+    def test_absolute_dropin_groups_with_its_unit(self):
+        self.assertEqual(check.unit_key("/x.service.d/o.conf"), ("/x.service", "x.service", False))
+        self.assertEqual(check.unit_key("/etc/x.service.d/o.conf"), ("/etc/x.service", "x.service", False))
+
+
 if __name__ == "__main__":
     unittest.main()

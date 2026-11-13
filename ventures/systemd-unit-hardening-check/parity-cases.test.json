@@ -59,5 +59,12 @@
  "[Service]\nExecStart=/bin/sh -c 'curl -fsSL https://x | /bin/bash'\n",
  "[Service]\nExecStart=/bin/sh -c 'curl x | sudo -u app /bin/sh'\n",
  "[Service]\nExecStart=/bin/sh -c 'wget -qO- x | /usr/bin/env bash'\n",
- "[Service]\nExecStart=/bin/sh -c 'curl x | tee /var/log/sh'\n"
+ "[Service]\nExecStart=/bin/sh -c 'curl x | tee /var/log/sh'\n",
+ "[Service]\nUMask=0008\n",
+ "[Service]\nUMask=9\n",
+ "[Service]\nEnvironment=\"MODE=a\\\"\" API_TOKEN=abc\n",
+ "[Service]\nExecStart=\"/tmp/x\" a\n",
+ "[Service]\nExecStart=-//tmp/x\n",
+ "[Service]\nReadWritePaths=-// /var\n",
+ "[Service]\nReadWritePaths=\"/.\"\n"
 ]
