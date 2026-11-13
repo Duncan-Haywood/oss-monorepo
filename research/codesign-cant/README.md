@@ -4,6 +4,19 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 **Live page:** https://marisstella.app/research/codesign-cant/
 
+![Left: each trained design's attitude integral gain as a multiple of its own linear stability ceiling against its held-out cost at the design wind: the unconstrained designs (milestone 7b) sit at 0.9 to 1.1 times the ceiling, the designs trained with the 0.8 times margin as a constraint sit at 0.77 to 0.79 times it, with the same cost; the centre-of-pressure-below designs barely use the integrator. Right: held-out flights that diverged at lever 0, 1 and 2: with the centre of pressure above, 15 of 384 unconstrained flights diverge at lever 2 against 4 constrained; with it below, 42 against 45.](experiments/m7e_margin/m7e_margin.png)
+
+## Milestone 7e: train inside the linear stability margin
+
+**Question.** Milestones 7c and 7d showed that CMA-ES tunes the integrator feed-forward designs onto the linear stability boundary, and that the 20° tilt-command limit hides the instability that leaves. If the optimiser is made to keep the margin, with the linear test (both axes, eight plant corners) required to pass at 1.25× the design's own integral gain, what does that cost, and what does it buy?
+
+**Headline (`experiments/m7e_margin/results.txt`, `tilt.txt`; simulated, 24 CMA-ES runs of 3,200 evaluations, 12 designs per arm × 64 held-out flights; 5 predictions committed first).**
+
+- **The margin costs almost nothing.** Trained under the constraint, the centre-of-pressure-above designs land on it (ceiling multiple 1.26–1.30 in all six seeds; ki/kp 3.3–3.9 against 3.7–4.4 unconstrained) and lose 0.011 in held-out cost at the design wind (se 0.003, about 0.7%); below, 0.000.
+- **It removes the hidden risk.** With the tilt-command limit raised to 45° or 59°, the unconstrained `above` designs diverge on 13 of 384 held-out flights and their position error more than doubles (0.26 m); the constrained ones diverge on none and hold 0.10 m, as at 20° (follow-up, written after the main results).
+- **It helps outside the training range, on one side.** At twice the trained centre-of-pressure lever, `above` divergence falls from 15 to 4 of 384 and cost improves in 6 of 6 seeds (+0.60). With the centre of pressure below, the integrator carries almost no gain, the constraint barely binds, and lever-2 divergence (42 against 45) is not a linear-gain effect.
+- Predictions: E1, E2, E3 and E5 held; E4 refuted (fewer divergences at lever 2 in `above` only).
+
 ![Share of 384 held-out flights that diverge against the tilt-command clip, at 6 s and 18 s: designs bolted onto an existing tune diverge on 20% at the default 20 degree clip and on all of them from 45 degrees; designs at 1.25 times the linear ki ceiling never diverge at 20 degrees but diverge on 83 to 88% of 18 s flights at 45 to 59 degrees; designs retrained onto the ceiling lose 3 to 4%; designs at 0.8 times the ceiling never diverge at any clip.](experiments/m7d_clip/m7d_clip.png)
 
 ## Milestone 7d: what keeps an unstable feed-forward loop from diverging? The tilt limit
@@ -195,6 +208,9 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
 "$PY" experiments/m7c_stab/figure.py            # m7c_stab.png
 "$PY" experiments/m7d_clip/run.py               # about 3 minutes on 4 cores: clip and horizon probes
 "$PY" experiments/m7d_clip/diag.py              # under 2 minutes; post-hoc tilt-command clip sweep, diag.txt
+"$PY" experiments/m7e_margin/run.py            # about 35 minutes on 4 cores: CMA-ES under the linear margin
+"$PY" experiments/m7e_margin/tilt.py           # under 2 minutes; follow-up tilt-limit scoring, tilt.txt
+"$PY" experiments/m7e_margin/figure.py
 "$PY" experiments/m7d_clip/figure.py            # m7d_clip.png
 ```
 
@@ -210,7 +226,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
 
 ## Next steps
 
-Milestone 7d follow-up: a describing-function prediction of the oscillation the 20° tilt-command limit contains, to say when a linear instability stays bounded; scoring designs at a 45° tilt limit as well as 20°; milestone 7c follow-up: CMA-ES with the linear ceiling as a constraint (0.8×) against unconstrained training; a closed-form approximation of the ceiling in lat, motor lag and the position gains. Milestone 6b follow-up: a mixer feed-forward that cancels the counter-torque's side force (the mixer knows lat), or a cant pattern whose side-force map is a rotation, so neither axis is singled out; a measured centre-of-pressure height for a real frame (wind-tunnel or CFD literature) to pin the lever. Milestone 3: motor catalogue data replacing the inherited fits, with TWR free under the polytope mixer. It needs a source this session could not reach (T-Motor's thrust tables are images and its store blocks the proxy); a transcription of a dozen datasheets with the source of each row would unblock it. Milestone 5 follow-up: retune the top designs inside RotorPy to separate model mismatch from overfitting to the stylised simulator, and give INDI a speed-lag actuator model. Then the paper draft (milestone 7) (`PROPOSAL.md`, "Milestones").
+Milestone 7d follow-up: a describing-function prediction of the oscillation the 20° tilt-command limit contains, to say when a linear instability stays bounded; milestone 7e follow-up: a margin sweep (0.6–1.0× the ceiling) to price the margin against tilt-limit robustness, the same constraint for milestone 7's commanded-torque feed-forward, and a lever-2 divergence analysis for the `below` geometry, where the linear gain test does not bind; a closed-form approximation of the ceiling in lat, motor lag and the position gains. Milestone 6b follow-up: a mixer feed-forward that cancels the counter-torque's side force (the mixer knows lat), or a cant pattern whose side-force map is a rotation, so neither axis is singled out; a measured centre-of-pressure height for a real frame (wind-tunnel or CFD literature) to pin the lever. Milestone 3: motor catalogue data replacing the inherited fits, with TWR free under the polytope mixer. It needs a source this session could not reach (T-Motor's thrust tables are images and its store blocks the proxy); a transcription of a dozen datasheets with the source of each row would unblock it. Milestone 5 follow-up: retune the top designs inside RotorPy to separate model mismatch from overfitting to the stylised simulator, and give INDI a speed-lag actuator model. Then the paper draft (milestone 7) (`PROPOSAL.md`, "Milestones").
 
 ## Owner steps
 
