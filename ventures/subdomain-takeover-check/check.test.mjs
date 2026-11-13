@@ -203,3 +203,31 @@ test('runCheck never reads a non-hostname as a clean result', async () => {
   assert.equal(verdictFor(report).clean, false);
   assert.equal(verdictFor(report).exitCode, 1);
 });
+
+// Red team 2026-11-13: escaped mutants in formatText, runCheck and main.
+test('formatText prints the clean-count line for exactly one clean hostname', () => {
+  const text = formatText(reportOf([resultOf('no-cname')]));
+  assert.match(text, /^1 hostname\(s\) with no risky CNAME target found\.$/m);
+});
+
+test('formatText prints no lookup-error line when every lookup completed', () => {
+  const text = formatText(reportOf([resultOf('no-cname')]));
+  assert.doesNotMatch(text, /could not be looked up/);
+});
+
+test('runCheck sends no probe when the CNAME target matches no known provider', async () => {
+  let probeCalled = false;
+  const report = await runCheck(['www.example.com'], {
+    resolveCnameChainFn: fakeChain({
+      'www.example.com': { chain: ['www.example.com', 'edge.example.net'], finalTarget: 'edge.example.net', truncated: false, error: null },
+    }),
+    fetchHostnameFn: async () => { probeCalled = true; return { ok: true, status: 200, text: '', error: null }; },
+  });
+  assert.equal(report.results[0].category, 'not-risky');
+  assert.equal(probeCalled, false, 'README: a probe is sent only for a provider match');
+});
+
+test('the CLI prints --json output with two-space indentation', async () => {
+  const { out } = await runMain(['not a hostname', '--json']);
+  assert.equal(out, JSON.stringify(JSON.parse(out), null, 2));
+});

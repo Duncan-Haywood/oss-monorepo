@@ -2,7 +2,7 @@
 // CLI: for each hostname given, follows its CNAME chain (real DNS, over
 // Cloudflare's public DNS-over-HTTPS resolver), and when the chain ends at a
 // known takeover-prone provider, sends one live GET request to the hostname
-// to check whether that provider's own "nothing is claimed at this name"
+// (over HTTPS, retried once over plain HTTP when HTTPS gets no response) to check whether that provider's own "nothing is claimed at this name"
 // page comes back. Your machine, real requests -- no request goes through
 // this portfolio.
 //
