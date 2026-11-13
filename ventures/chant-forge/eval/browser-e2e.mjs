@@ -216,6 +216,17 @@ await page.click("#go");
   await page.selectOption("#final", "auto");
   await page.click("#go");
   ok(/singers divided by range[\s\S]*Your singers can sing it as tenors and basses/.test(await out()), "range test, unison: names the fewest sections");
+  // --sit-out on the page: the sectioned test, one a section, split by phrase; MIDI equals the CLI's
+  await page.fill("#singers", fs.readFileSync(rt, "utf8"));
+  await page.selectOption("#sitout", "1");
+  await page.selectOption("#final", "split3");
+  await page.click("#go");
+  ok(/Range test: tenors D3-G4 \(3\), baritones B2-F4 \(3\), basses A2-D4 \(3\); unison D3-D4, up to 1 a section sitting out a note\./.test(await out()), "sit-out: widened section report on the page");
+  ok(/Sitting out: Singer /.test(await out()), "sit-out: names who sits out what");
+  execFileSync(process.execPath, [path.join(root, "cli.mjs"), path.join(root, "corpus/dies-irae.gabc"), "--singers", rt, "--sit-out", "1", "--split-voices", "--fit", "8", "--stretch", "-o", path.join(tmp, "so.mid")]);
+  const [dso] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
+  ok(fs.readFileSync(await dso.path()).equals(fs.readFileSync(path.join(tmp, "so.mid"))), "sit-out MIDI equals the CLI's --sit-out 1");
+  await page.selectOption("#sitout", "0");
   await page.fill("#singers", "");
   // back to the state the next check expects
   await page.selectOption("#genre", "edm"); await page.selectOption("#sections", "1");

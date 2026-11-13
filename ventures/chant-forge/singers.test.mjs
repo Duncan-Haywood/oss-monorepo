@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { parseNote, parseSection, parseSingers, describeSection, assignSections, singersChoir, fewestSectionsForSingers, overlap } from './singers.mjs';
+import { parseNote, parseSection, parseSingers, describeSection, assignSections, singersChoir, singersReport, fewestSectionsForSingers, overlap, sitOutRange, sittersOut, sitOutNotes } from './singers.mjs';
 import { parseGabc } from './gabc.mjs';
 import { splitVoices, suggestFinal } from './voicefit.mjs';
 import { run } from './cli.mjs';
@@ -176,4 +176,111 @@ test('CLI: --singers refusals', () => {
   const u = run([dies, '--singers', apart, '--suggest-final']);
   assert.equal(u.code, 1);
   assert.match(u.text, /cannot sing in unison; try --split-voices/);
+});
+
+// --sit-out N
+const S = (name, low, high, section = null) => ({ row: 0, name, section, low, high });
+
+test('sitOutRange: the notes all but N singers reach, one singer always left', () => {
+  const g = [S('a', 48, 67), S('b', 50, 65), S('c', 51, 63)];
+  assert.deepEqual(overlap(g), { low: 51, high: 63, width: 12 });
+  assert.deepEqual(overlap(g, 0), overlap(g));
+  assert.deepEqual(sitOutRange(g, 1), { low: 50, high: 65, width: 15 });
+  assert.deepEqual(sitOutRange(g, 2), { low: 48, high: 67, width: 19 });
+  // N larger than the section: still at least one singer on every note
+  assert.deepEqual(sitOutRange(g, 9), { low: 48, high: 67, width: 19 });
+});
+
+test('sitOutRange takes the widest run when the passing notes split in two', () => {
+  const g = [S('a', 40, 45), S('b', 40, 45), S('c', 50, 58), S('d', 50, 58)];
+  assert.ok(overlap(g).width < 0);
+  assert.deepEqual(sitOutRange(g, 2), { low: 50, high: 58, width: 8 });
+  // equal runs: the lower one
+  assert.deepEqual(sitOutRange([S('a', 40, 45), S('b', 50, 55)], 1), { low: 40, high: 45, width: 5 });
+});
+
+test('sittersOut and describeSection name who sits out which notes', () => {
+  const g = [S('a', 48, 67), S('b', 50, 65), S('c', 51, 63)];
+  const r = describeSection(g, 1);
+  assert.equal(r.range, 'D3-F4');
+  assert.equal(r.everyone, 'Eb3-Eb4');
+  assert.deepEqual(r.sitOut.map((x) => [x.name, x.text]), [['c', 'D3 and E4-F4']]);
+  assert.equal(r.lowWithout, undefined);
+  assert.deepEqual(sittersOut(g, 51, 63), []);
+});
+
+test('singersChoir with sitOut widens sections and the unison band; 0 is unchanged', () => {
+  const p = parseSingers(readFileSync(sectioned, 'utf8'));
+  const a = singersChoir(p);
+  assert.deepEqual(singersChoir(p, ['tenor', 'bass'], 0).choir, a.choir);
+  const b = singersChoir(p, ['tenor', 'bass'], 1);
+  for (const s of Object.keys(a.choir)) {
+    assert.ok(b.choir[s].low <= a.choir[s].low && b.choir[s].high >= a.choir[s].high, s);
+  }
+  assert.ok(b.unison.high - b.unison.low > a.unison.high - a.unison.low);
+  assert.match(singersReport(b), /all but 1 of its singers/);
+  assert.match(singersReport(b), /Singer C sits out D3 and F#4-G4/);
+  assert.throws(() => singersChoir(p, ['tenor', 'bass'], -1), /whole number/);
+  assert.throws(() => singersChoir(p, ['tenor', 'bass'], 1.5), /whole number/);
+});
+
+test('assignSections with sitOut matches brute force over contiguous cuts', () => {
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31);
+  for (let t = 0; t < 30; t++) {
+    const n = 5 + (t % 4);
+    const sing = Array.from({ length: n }, (_, i) => { const low = 40 + Math.floor(rnd() * 14); return S(`s${i}`, low, low + 6 + Math.floor(rnd() * 12)); });
+    const a = assignSections(sing, ['tenor', 'bass'], 1);
+    const sorted = [...sing].sort((x, y) => x.low + x.high - (y.low + y.high) || x.high - y.high);
+    let best = null;
+    for (let c = 1; c < n; c++) {
+      const w = [overlap(sorted.slice(0, c), 1).width, overlap(sorted.slice(c), 1).width];
+      if (Math.min(...w) <= 0) continue;
+      const m = Math.min(...w), sum = w[0] + w[1];
+      if (!best || m > best.m || (m === best.m && sum > best.sum)) best = { m, sum };
+    }
+    if (!best) { assert.equal(a, null); continue; }
+    const w = ['bass', 'tenor'].map((s) => overlap(a.groups[s], 1).width);
+    assert.equal(Math.min(...w), best.m, `trial ${t}`);
+    assert.equal(w[0] + w[1], best.sum, `trial ${t}`);
+  }
+});
+
+test('sitOutNotes counts the sung notes each singer sits out, by section', () => {
+  const sc = { groups: { tenor: [S('t1', 50, 60), S('t2', 52, 60)], bass: [S('b1', 40, 52)] } };
+  const ev = [
+    { type: 'note', midi: 50 }, // unison: t2 sits out; b1 sings
+    { type: 'note', midi: 51, voice: 'tenor' }, // t2 sits out
+    { type: 'bar', pulses: 8 },
+    { type: 'note', midi: 55, voice: 'tenor+bass' }, // b1 sits out
+    { type: 'note', midi: 45, voice: 'bass' },
+  ];
+  assert.deepEqual(sitOutNotes(ev, sc), [
+    { name: 't2', section: 'tenor', notes: 2, of: 3, pitches: 'D3-Eb3' },
+    { name: 'b1', section: 'bass', notes: 1, of: 3, pitches: 'G3' },
+  ]);
+});
+
+test('cli --sit-out: the report, a fit it makes possible, the sit-out line and errors', () => {
+  const rep = run(['--singers', sectioned, '--sit-out', '1']);
+  assert.equal(rep.code, 0);
+  assert.match(rep.text, /tenors D3-G4 .*all reach Eb3-F4; Singer C sits out D3 and F#4-G4/);
+  const pange = join(here, 'corpus', 'pange-lingua.gabc');
+  assert.equal(run([pange, '--singers', flat, '--suggest-final']).code, 1);
+  const fit = run([pange, '--singers', flat, '--sit-out', '2', '--suggest-final']);
+  assert.equal(fit.code, 0);
+  assert.match(fit.text, /finals that fit C3-C4/);
+  const out = join(tmp, 'p.mid');
+  const made = run([pange, '--singers', flat, '--sit-out', '2', '--auto-final', '-o', out]);
+  assert.equal(made.code, 0);
+  assert.match(made.text, /sitting out: Singer C \d+ of 53 notes/);
+  const j = JSON.parse(run([pange, '--singers', flat, '--sit-out', '2', '--auto-final', '-o', out, '--json']).text);
+  assert.equal(j.singers.sitOut, 2);
+  assert.ok(j.singers.sittingOut.length > 0);
+  // with no sit-out and the file's own ranges, nobody sits anything out
+  const strict = JSON.parse(run([dies, '--singers', flat, '--split-voices', '-o', out, '--json']).text);
+  assert.deepEqual(strict.singers.sittingOut, []);
+  assert.equal(run([pange, '--sit-out', '1', '--suggest-final']).code, 2);
+  assert.match(run(['--singers', flat, '--sit-out', 'x']).text, /whole number/);
+  assert.match(run(['--singers', flat, '--sit-out', '-1']).text, /whole number/);
 });
