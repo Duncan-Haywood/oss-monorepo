@@ -3,7 +3,7 @@ title: "The DNG flag that means 'skip it if you're in a hurry', not 'skip it'"
 seo_title: "DNG opcode flag bit 1: preview quality vs full quality processing"
 date: 2026-11-13
 tags: [photo-editing, ventures, raw, dng]
-description: "ShootFlow's DNG developer skipped every opcode flagged for full quality only. The spec says a full-quality render must run them. Fixed, and checked on six real camera DNGs, including the first DJI drone file."
+description: "ShootFlow skipped every DNG opcode flagged for full quality only, which is the opposite of what the spec asks. Fixed, and checked on six real camera DNGs."
 ---
 
 A DNG file can carry its own lens corrections, called opcodes: shading maps, distortion warps,
