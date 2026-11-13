@@ -53,8 +53,9 @@ const xsdRegex = (source) => {
   return re;
 };
 
-const COLLAPSE = new Set(["token", "decimal", "integer", "nonNegativeInteger", "positiveInteger", "byte", "unsignedByte", "short", "int", "long", "date", "dateTime", "boolean"]);
-const WHOLE = { integer: [-Infinity, Infinity], nonNegativeInteger: [0, Infinity], positiveInteger: [1, Infinity], byte: [-128, 127], unsignedByte: [0, 255], short: [-32768, 32767], int: [-2147483648, 2147483647], long: [-Infinity, Infinity] };
+const COLLAPSE = new Set(["token", "decimal", "integer", "nonNegativeInteger", "positiveInteger", "byte", "unsignedByte", "short", "int", "long", "unsignedInt", "date", "dateTime", "boolean"]);
+const LIBXML_NO_TRIM = new Set(["byte", "unsignedByte", "short", "int", "long", "unsignedInt", "date", "dateTime"]);
+const WHOLE = { integer: [-Infinity, Infinity], nonNegativeInteger: [0, Infinity], positiveInteger: [1, Infinity], byte: [-128, 127], unsignedByte: [0, 255], short: [-32768, 32767], int: [-2147483648, 2147483647], unsignedInt: [0, 4294967295], long: [-Infinity, Infinity] };
 
 function checker(schema) {
   const foldCache = new Map();
@@ -73,6 +74,15 @@ function checker(schema) {
   }
 
   function valueProblem(type, raw) {
+    // A union (DSF's tpCEPNulo = tpCEP | nulo): valid when any member accepts the value;
+    // otherwise the first member's reason, which is the one a non-empty value means.
+    const u = schema.simple[type]?.union;
+    if (u) {
+      // libxml2 collapses a union's value before trying its members (a space before a
+      // dateTime in DSF's tpDataHoraNulo = tpDataHora | nulo passes xmllint).
+      const why = u.map((m) => valueProblem(m, raw.trim().replace(/\s+/g, " ")));
+      return why.includes("") ? "" : why[0];
+    }
     const t = fold(type);
     const ws = t.whiteSpace ?? (COLLAPSE.has(t.base) ? "collapse" : t.base === "normalizedString" ? "replace" : "preserve");
     const value = ws === "collapse" ? raw.trim().replace(/\s+/g, " ") : ws === "replace" ? raw.replace(/[\t\r\n]/g, " ") : raw;
@@ -83,12 +93,24 @@ function checker(schema) {
     const whole = Object.hasOwn(WHOLE, t.base) ? WHOLE[t.base] : undefined;
     // XSD collapses the spaces around an xs:int, xs:date or xs:dateTime, but libxml2 (xmllint, PHP's
     // DOMDocument::schemaValidate, which many Brazilian ERPs use) rejects them: measured in
-    // eval/abrasf-xsd-diff.mjs (it trims them for xs:byte and xs:nonNegativeInteger). A space
+    // eval/abrasf-xsd-diff.mjs (it trims them for xs:nonNegativeInteger). A space
     // there is never wanted, so it is reported. libxml2 does collapse it when the type, or one
     // it derives from, carries a pattern or enumeration facet (measured 2026-11-13 on xs:int and
     // xs:date: " 1" passes an int restricted by pattern [1-3] or enumeration 1, fails a bare
     // int or one with only totalDigits or a range), so there it is checked as XSD reads it.
-    if (["int", "date", "dateTime"].includes(t.base) && !t.patterns.length && !t.enum && raw !== raw.trim() && value) return "has a space before or after it, which libxml2-based validators (xmllint, PHP) reject though XSD would trim it";
+    // Measured again 2026-11-13 with xmllint 2.9 on one-step restrictions of each built-in
+    // type (eval/dsf-2026-11-13.md): a leading or trailing space is refused by xs:byte,
+    // unsignedByte, short, int, long, unsignedInt, date and dateTime, bare, with a range, or
+    // with an explicit whiteSpace="collapse" facet; it is accepted once a pattern or an
+    // enumeration is in the derivation, and always for xs:integer, nonNegativeInteger,
+    // positiveInteger, decimal and boolean. (The earlier note that libxml2 trims xs:byte was
+    // wrong.) Union types are trimmed before their members are tried (see valueProblem).
+    if (LIBXML_NO_TRIM.has(t.base) && !t.patterns.length && !t.enum && raw !== raw.trim() && value) return "has a space before or after it, which libxml2-based validators (xmllint, PHP) reject though XSD would trim it";
+    if (t.base === "boolean" && !["true", "false", "1", "0"].includes(value)) return value ? "is not true, false, 1 or 0" : "is empty";
+    if (t.base === "base64Binary") {
+      const b = value.replace(/\s+/g, "");
+      if (!/^[A-Za-z0-9+/]*={0,2}$/.test(b) || b.length % 4) return "is not valid base64 (letters, digits, + and /, in groups of four)";
+    }
     if (whole && !/^[+-]?\d+$/.test(value)) return value ? "is not a whole number" : "is empty";
     if (whole && (Number(value) < whole[0] || Number(value) > whole[1])) return `is outside the range of xs:${t.base}`;
     if (t.base === "decimal" && !/^[+-]?(\d+\.?\d*|\.\d+)$/.test(value)) return value ? "is not a number (use a point for decimals, no thousands separator)" : "is empty";
@@ -175,7 +197,7 @@ function checker(schema) {
   function info(typeName) {
     let i = infoCache.get(typeName);
     if (i) return i;
-    const types = new Map(), max = new Map(), nsOf = new Map();
+    const types = new Map(), max = new Map(), nsOf = new Map(), dflt = new Map();
     const mentions = (p, present) => (p.k === "e" ? present.has(p.name) : p.items.some((it) => mentions(it, present)));
     const required = (p, forced, present, out) => {
       if (!p) return;
@@ -186,7 +208,7 @@ function checker(schema) {
     };
     const walk = (p, mult) => {
       if (p.k === "e") {
-        if (!types.has(p.name)) { types.set(p.name, p.type); nsOf.set(p.name, p.ns ?? schema.namespace); }
+        if (!types.has(p.name)) { types.set(p.name, p.type); nsOf.set(p.name, p.ns ?? schema.namespace); if (p.d !== undefined) dflt.set(p.name, p.d); }
         const m = mult < 0 || p.max < 0 ? -1 : mult * p.max;
         const prev = max.get(p.name);
         max.set(p.name, prev === undefined ? m : prev < 0 || m < 0 ? -1 : Math.max(prev, m));
@@ -196,13 +218,13 @@ function checker(schema) {
     };
     const def = schema.complex[typeName];
     if (def.model) walk(def.model, 1);
-    i = { types, max, nsOf, def, required: (present) => { const out = new Set(); required(def.model, true, present, out); return out; } };
+    i = { types, max, nsOf, dflt, def, required: (present) => { const out = new Set(); required(def.model, true, present, out); return out; } };
     infoCache.set(typeName, i);
     return i;
   }
 
   function checkNode(node, typeName, path, out) {
-    const { types, max, nsOf, def, required } = info(typeName);
+    const { types, max, nsOf, dflt, def, required } = info(typeName);
     const known = new Set(def.attrs.map((a) => a.name));
     for (const a of def.attrs) {
       const got = node.attrs?.[a.name];
@@ -218,6 +240,9 @@ function checker(schema) {
       out.push(finding("ABR-006", `${node.name} carries an attribute the ABRASF schema does not define: ${k}.`, `Remove ${k} or check its spelling.`, `${path}/@${k}`));
     }
     const kids = node.children.filter((c) => c.name);
+    // Every complex type these layouts define has element-only (or empty) content, so text
+    // there is refused (xmllint: "Character content other than whitespace is not allowed").
+    if (!kids.length && (node.text ?? "").trim()) out.push(finding("ABR-002", `${node.name} holds text ("${node.text.trim().slice(0, 40)}"), but the schema gives it elements only${def.model ? "" : " (it is an empty element)"}.`, `Remove the text from ${node.name}${def.model ? " and give it its elements" : ""}.`, path));
     if (!def.model) {
       for (const c of kids) out.push(finding("ABR-002", `${c.name} is not allowed inside ${node.name}.`, `Remove ${c.name}.`, `${path}/${c.name}`));
       return;
@@ -275,7 +300,7 @@ function checker(schema) {
       if (schema.complex[t]) checkNode(c, t, where, out);
       else if (c.children.some((k) => k.name)) out.push(finding("ABR-002", `${c.name} should hold a value, not elements.`, "Check the file's structure.", where));
       else {
-        const problem = valueProblem(t, c.text);
+        const problem = valueProblem(t, c.text === "" && dflt.has(c.name) ? dflt.get(c.name) : c.text);
         if (problem) out.push(finding("ABR-005", `${c.name} ${problem}.`, `Correct ${c.name}; the web service refuses a file whose values break the schema.`, where));
       }
     }

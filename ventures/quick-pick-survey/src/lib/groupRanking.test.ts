@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FIRST_OPTION_FALLBACK_SHARE, FIRST_OPTION_MIN_DECIDED } from "./pairing";
-import { AGREEMENT_MIN_OPTIONS, agreementSummary, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
+import { AGREEMENT_MIN_OPTIONS, agreementSummary, autoFastBlockMinLog, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
 import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "./glicko2";
 
 // Small seeded PRNG so the coverage check is reproducible.
@@ -348,6 +348,34 @@ describe("fastBlockSplit", () => {
   });
 });
 
+describe("stepOverTrend", () => {
+  const noise = (i: number) => 0.1 * Math.sin(i * 1.7);
+  it("is large for a step and negative for a steady slope the split search alone would take for a block", () => {
+    const step = Array.from({ length: 40 }, (_, i) => noise(i) - (i >= 20 ? 0.6 : 0));
+    const slope = Array.from({ length: 40 }, (_, i) => noise(i) - 1.2 * (i / 39));
+    expect(fastBlockSplit(slope)).not.toBeNull(); // the split search sees a 0.6 gap in a steady speed-up
+    expect(stepOverTrend(step, 20)).toBeGreaterThan(10);
+    expect(stepOverTrend(slope, fastBlockSplit(slope)!)).toBeLessThan(1);
+    expect(fastBlockSplit(slope, undefined, undefined, undefined, 1)).toBeNull();
+    expect(fastBlockSplit(step, undefined, undefined, undefined, 1)).toBe(20);
+  });
+});
+
+describe("autoFastBlockMinLog", () => {
+  const seq = (k: number) => Array.from({ length: 30 }, (_, i) => (i % 2 ? 0.05 : -0.05) * (1 + k / 10));
+  it("sits at the floor for a quiet panel, at FAST_BLOCK_MIN_LOG for one whose people slow down by 0.5 or more, and in between otherwise", () => {
+    expect(autoFastBlockMinLog(Array.from({ length: 8 }, (_, k) => seq(k)))).toBe(FAST_BLOCK_AUTO_FLOOR);
+    expect(autoFastBlockMinLog(Array.from({ length: 8 }, (_, k) => seq(k).map((v, i) => (i >= 15 ? v + 0.8 : v))))).toBe(FAST_BLOCK_MIN_LOG);
+    const mid = autoFastBlockMinLog(Array.from({ length: 8 }, (_, k) => seq(k).map((v, i) => (i >= 15 ? v + 0.4 : v))))!;
+    expect(mid).toBeGreaterThan(FAST_BLOCK_AUTO_FLOOR);
+    expect(mid).toBeLessThan(FAST_BLOCK_MIN_LOG);
+  });
+  it("is not moved by people who turn quick (only slow turns count), and needs AGREEMENT_MIN_RESPONDENTS sequences", () => {
+    expect(autoFastBlockMinLog(Array.from({ length: 8 }, (_, k) => seq(k).map((v, i) => (k < 4 && i >= 15 ? v - 1 : v))))).toBe(FAST_BLOCK_AUTO_FLOOR);
+    expect(autoFastBlockMinLog(Array.from({ length: 4 }, (_, k) => seq(k)))).toBeNull();
+  });
+});
+
 describe("fastBlockStarts", () => {
   // Deterministic jitter so the t statistic is finite.
   const jitter = (i: number, p: number) => Math.exp(0.15 * Math.sin(i * 1.7 + p * 2.3));
@@ -372,10 +400,28 @@ describe("fastBlockStarts", () => {
     // Four of ten at 0.55x from answer 20 drag the panel's median down with them, hiding all four; the 0.75
     // quantile sits among the honest six and finds them, and no honest person (FAST_BLOCK_CURVE_Q).
     const ms = (p: number, i: number) => 3000 * jitter(i, p) * (p < 4 && i >= 20 ? 0.55 : 1);
-    expect(fastBlockStarts(panel(10, 40, ms), 0.5).size).toBe(0);
+    expect(fastBlockStarts(panel(10, 40, ms), 0.5, FAST_BLOCK_MIN_LOG, 0).size).toBe(0); // the median, with the rules of that day
     expect([...fastBlockStarts(panel(10, 40, ms), 0.75)].sort()).toEqual([["p0", 20], ["p1", 20], ["p2", 20], ["p3", 20]]);
     expect(fastBlockStarts(panel(10, 40, ms)).size).toBe(4); // the shipped default
     expect(() => fastBlockStarts(panel(10, 40, ms), 1)).toThrow();
+  });
+  it("with a per-survey threshold, finds a slower block a quiet panel's noise cannot make", () => {
+    // One of eight turns 0.65x quicker (a log gap of 0.43) from answer 20: under the fixed 0.5 (the rule before
+    // 2026-11-13, later) nobody is flagged; the quiet panel's own slow turns are tiny, so the default "auto" drops the
+    // threshold to its floor (FAST_BLOCK_AUTO_FLOOR, 0.4) and finds them.
+    const ms = (p: number, i: number) => 3000 * jitter(i, p) * (p === 0 && i >= 20 ? 0.65 : 1);
+    expect(fastBlockStarts(panel(8, 40, ms), undefined, FAST_BLOCK_MIN_LOG, 0).size).toBe(0);
+    expect([...fastBlockStarts(panel(8, 40, ms))]).toEqual([["p0", 20]]);
+    // How a noisier panel raises the threshold is pinned in autoFastBlockMinLog's own tests: end to end, people who
+    // slow down also lift the panel's curve and so widen everyone else's gaps.
+    expect(() => fastBlockStarts(panel(8, 40, ms), undefined, 0)).toThrow();
+  });
+  it("does not take one person's steady speed-up over the whole session for a block", () => {
+    // p0 gets steadily quicker, to 0.3x by the last answer: a split finds a gap over 0.5 with a large t, but a line fits
+    // as well as a step, so the default (FAST_BLOCK_TREND_F) flags nobody; without the test p0 is flagged.
+    const ms = (p: number, i: number) => 3000 * jitter(i, p) * (p === 0 ? Math.exp(-1.2 * (i / 39)) : 1);
+    expect(fastBlockStarts(panel(8, 40, ms), undefined, FAST_BLOCK_MIN_LOG, 0).has("p0")).toBe(true);
+    expect(fastBlockStarts(panel(8, 40, ms)).size).toBe(0);
   });
   it("needs AGREEMENT_MIN_RESPONDENTS people with enough timed answers", () => {
     expect(fastBlockStarts(panel(4, 40, (p, i) => 3000 * jitter(i, p) * (p === 0 && i >= 20 ? 0.4 : 1))).size).toBe(0);

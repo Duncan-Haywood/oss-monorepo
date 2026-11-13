@@ -24,6 +24,8 @@
       <itunes:summary>Seven years after the first bell on the Moon was cast from meteorite iron, the operations AI that inherited it hears a beat in the note on All Souls' Day, and finds a crack where the clapper has struck one hundred and forty thousand times. The manager says the bell is no longer the storm alarm and gets no oven time, and asks the AI why it is rung at all; its handoff note says when, never why. A cold weld fails at the first noon, and an old welder in Batangas, 1.3 light-seconds away and too ill to travel, has to say everything before anyone strikes an arc, because he cannot say stop in time. A sequel to The Slowest Bell on the Moon.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/pull-gently.mp3" length="13520224" type="audio/mpeg"/>
+      <itunes:duration>0:37:33</itunes:duration>
     </item>
     <item>
       <title>The Clock Book</title>
@@ -214,6 +216,8 @@
       <itunes:summary>Near Miranda's south pole the Sun is about to set for some forty years, and an 84-year-old who saw it rise once wants to see it go. The almanac says the last sun is on 11 February, but at noon the Sun stands behind Uranus. The real last sun is a week earlier, in two five-minute pieces either side of the planet, and on a moon this small every metre you climb buys you more of it.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-last-sun-comes-in-two-pieces.mp3" length="11991613" type="audio/mpeg"/>
+      <itunes:duration>0:33:19</itunes:duration>
     </item>
     <item>
       <title>The Rising Shore</title>
@@ -224,6 +228,8 @@
       <itunes:summary>In 2612 the harbour chapel of Stella Maris, built at the water's edge in 2190 when the sea seemed to have stopped falling, stands a kilometre inland, because the land is still rising from the last ice age by about seven millimetres a year and the sea has slowed to two. The village at the new shore wants a chapel of its own, the old village's water owners hold the land that rises under it, and a log builder of seventy-one proposes a church built to be taken down and moved again.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-rising-shore.mp3" length="9855141" type="audio/mpeg"/>
+      <itunes:duration>0:27:23</itunes:duration>
     </item>
     <item>
       <title>The Rule for After Rain</title>
@@ -254,6 +260,8 @@
       <itunes:summary>In 2702 the sundial on a Görlitz church has read about twenty-four minutes slow, even with its own table applied, for as long as anyone remembers, and the old stonemason asked to replace it finds his new dial slow by the same amount. The Earth's day has grown about twelve thousandths of a second longer since the clocks stopped adding leap seconds in the 2030s, the shortfall has added up, and an apprentice works out why a dial cut to agree with the clock would be wrong again within a century.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-slow-dial.mp3" length="12414090" type="audio/mpeg"/>
+      <itunes:duration>0:34:29</itunes:duration>
     </item>
     <item>
       <title>The Stones in the Nave</title>
