@@ -15,6 +15,19 @@ dependencies. `node --test *.test.mjs` runs the suite.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-much-commission-to-pay-a-location-for-arcade-machines.html` - guide whose worked example the tests recompute.
 
+## Known gaps
+
+From quality audit round 61
+([`portfolio/quality/audits/2026-11-13-amusement-route-location-calculator.json`](../../portfolio/quality/audits/2026-11-13-amusement-route-location-calculator.json)):
+
+- Commission is taken on the gross only. Many operators split after taking
+  prize cost, licence fees, card fees or receipts tax off the top; that
+  split basis is not modelled yet.
+- Each location is charged its own round trip. Stops served on one chained
+  drive are over-charged for miles and time; enter a share of the drive per
+  stop as a workaround.
+- A blank top-level field on the page becomes 0 rather than an error.
+
 **No warranty.** Free and as-is; arithmetic on the numbers you type, not business, tax or
 financial advice. **Privacy.** Everything runs in your browser; nothing is uploaded.
 
