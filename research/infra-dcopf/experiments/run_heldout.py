@@ -13,7 +13,7 @@ Per case (TYP, API, SAD of the eight cases in HELDOUT), frozen arms as in run_pe
   J10    J's first 10 rounds (the loop is deterministic and stops at its first clean round, so this is
          the 10-round run; its best point is best_of over rounds 1 to 10);
   J+R    the reactive stage on J's best point when J is not fully clean (and J10+R likewise).
-Writes results_heldout.json and results_heldout.txt. Usage: run_heldout.py [--summary] [case ...];
+Writes results_heldout.json and results_heldout.txt. Usage: run_heldout.py [--summary | --noref] [case ...];
 OMP_NUM_THREADS=1 recommended (4 worker processes)."""
 import copy
 import json
@@ -33,7 +33,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "src"))
 sys.path.insert(0, str(HERE))
 from infra_dcopf import vlin  # noqa: E402
-from infra_dcopf.pglib import baseline, case_path, load_m  # noqa: E402
+from infra_dcopf.pglib import baseline, case_path, fix_ref, load_m  # noqa: E402
 from infra_dcopf.vsched import file_schedule, reactive_stage  # noqa: E402
 from run_perturb import cluster_boot, fully, sign_test, strip, vlin_jsonable, wilson  # noqa: E402
 from run_pglib import ACOPT, DCOPT  # noqa: E402
@@ -52,19 +52,33 @@ def reactive(ppc, b):
     return None if rs is None else strip(vlin.check(ppc, rs[0], rs[1]))
 
 
-def run_case(job):
+def run_case(job, noref=False):
+    """One case. With noref (an after-the-run diagnostic, --noref) PIPS is skipped and the cost reference
+    is PGLib's published PowerModels/IPOPT AC objective (data/pglib/BASELINE.md)."""
     name, kind = job
-    ppc = load_m(case_path(name, kind))
     t0 = time.time()
+    try:
+        return _run_case(name, kind, noref, t0)
+    except Exception as e:  # a case the code cannot handle is reported, not allowed to stop the run
+        return {"case": name, "kind": kind, "ac_ok": False, "error": f"{type(e).__name__}: {e}",
+                "nbus": 0, "secs": time.time() - t0}
+
+
+def _run_case(name, kind, noref, t0):
+    ppc, moved = fix_ref(load_m(case_path(name, kind)))
     out = {"case": name, "kind": kind, "nbus": int(ppc["bus"].shape[0]), "nbr": int(ppc["branch"].shape[0]),
-           "ngen": int(ppc["gen"].shape[0])}
-    ac = runopf(ppc, ACOPT)
-    out["ac_ok"] = bool(ac["success"])
-    out["ac_secs"] = time.time() - t0
-    if not ac["success"]:
-        out["secs"] = time.time() - t0
-        return out
-    out["ac"] = float(ac["f"])
+           "ngen": int(ppc["gen"].shape[0]), "ref_moved": moved}
+    if noref:
+        out["ac_ok"], out["ac_secs"], out["ref"] = True, 0.0, "PGLib IPOPT"
+        out["ac"] = float(baseline()[(name, kind)][1])
+    else:
+        ac = runopf(ppc, ACOPT)
+        out["ac_ok"] = bool(ac["success"])
+        out["ac_secs"] = time.time() - t0
+        if not ac["success"]:
+            out["secs"] = time.time() - t0
+            return out
+        out["ac"] = float(ac["f"])
     dc = rundcopf(ppc, DCOPT)
     out["start_rule"] = "DC+ang"
     if not dc["success"]:
@@ -137,14 +151,22 @@ def summary(rows):
     P("PIPS AC optimum against PGLib's published PowerModels/IPOPT objective (validation):")
     for r in rows:
         ref = bl.get((r["case"], r["kind"]), (np.nan, np.nan))[1]
-        if r["ac_ok"]:
+        if r.get("error"):
+            P(f"  {r['case']:16s} {r['kind']:3s} ERROR {r['error']}")
+        elif r["ac_ok"]:
             P(f"  {r['case']:16s} {r['kind']:3s} {r['nbus']:5d} buses  PIPS {r['ac']:.6g}  PGLib {ref:.6g}  "
               f"diff {100 * (r['ac'] / ref - 1):+.3f} %  ({r['ac_secs']:.0f} s)")
         else:
             P(f"  {r['case']:16s} {r['kind']:3s} {r['nbus']:5d} buses  PIPS no AC optimum  PGLib {ref:.6g}")
     P("")
     use = [r for r in rows if "J" in r]
-    noref = [r for r in rows if not r["ac_ok"]]
+    noref = [r for r in rows if not r["ac_ok"] and not r.get("error")]
+    errs = [r for r in rows if r.get("error")]
+    moved = [f"{r['case']}/{r['kind']} bus {r['ref_moved'][0]} -> {r['ref_moved'][1]}" for r in rows if r.get("ref_moved")]
+    if moved:
+        P("Reference bus with no live unit, moved by PYPOWER's own rule (pglib.fix_ref): " + "; ".join(moved) + ".")
+    if errs:
+        P("Errors (not scored): " + "; ".join(f"{r['case']}/{r['kind']}" for r in errs) + ".")
     nostart = [r for r in rows if r["ac_ok"] and "J" not in r]
     P(f"Cases: {len(rows)}; no PIPS AC optimum {len(noref)}"
       + (" (" + ", ".join(f"{r['case']}/{r['kind']}" for r in noref) + ")" if noref else "")
@@ -214,9 +236,36 @@ def summary(rows):
     return "\n".join(L) + "\n"
 
 
+def run_noref(job):
+    return run_case(job, noref=True)
+
+
+def noref_main():
+    """After-the-run diagnostic: the cases without a PIPS AC optimum, run through every arm with PGLib's
+    published IPOPT objective as the cost reference. Writes results_heldout_noref.json and .txt."""
+    main_rows = json.loads((HERE / "results_heldout.json").read_text())
+    jobs = [(r["case"], r["kind"]) for r in main_rows if not r["ac_ok"]]
+    jobs.sort(key=lambda j: -HELDOUT.index(j[0]))
+    rows = []
+    with Pool(4) as pool:
+        for i, r in enumerate(pool.imap_unordered(run_noref, jobs), 1):
+            print(f"[{i}/{len(jobs)}] {r['case']} {r['kind']} {r['secs']:.0f}s "
+                  f"J={'@' + str(r['J']['clean_at']) if r.get('J') and r['J']['clean_at'] else '-'}", flush=True)
+            rows.append(r)
+    rows.sort(key=lambda r: (KINDS.index(r["kind"]), HELDOUT.index(r["case"])))
+    (HERE / "results_heldout_noref.json").write_text(json.dumps(vlin_jsonable(rows), indent=1))
+    text = ("Diagnostic after the main run (declared in LOG.md after it, not pre-registered): the held-out cases\n"
+            "PIPS found no AC optimum for, run through the same frozen arms; cost reference = PGLib's published\n"
+            "PowerModels.jl/IPOPT objective, so the 'PIPS vs PGLib' lines below read 0 by construction.\n\n" + summary(rows))
+    (HERE / "results_heldout_noref.txt").write_text(text)
+    print(text)
+
+
 def main():
     only = [a for a in sys.argv[1:] if not a.startswith("--")]
     jpath = HERE / "results_heldout.json"
+    if "--noref" in sys.argv:
+        return noref_main()
     if "--summary" in sys.argv:
         rows = json.loads(jpath.read_text())
     else:

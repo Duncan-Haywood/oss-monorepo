@@ -73,3 +73,23 @@ def baseline(path=DATA / "BASELINE.md"):
         num = lambda s: float("nan") if s.startswith("inf") or s in ("-", "") else float(s)
         out[(name, kind)] = (num(cells[3]), num(cells[4]))
     return out
+
+
+def fix_ref(ppc):
+    """PYPOWER's own rule for a reference bus with no in-service generator (pypower.bustypes: the first
+    PV bus with a live unit becomes the reference), applied to the case data so that every routine
+    here agrees with the power flow on which unit is the slack. The old reference bus becomes PQ (it
+    has no live unit, so the power flow already treats it as PQ). Returns (copy, moved) with moved =
+    (old bus id, new bus id) or None when the case already has a live unit at its reference bus.
+    Needed by case500_goc (milestone 6 of research/grid-linopf), whose reference bus 311 has no unit."""
+    bus, gen = ppc["bus"], ppc["gen"]
+    live_bus = set(gen[gen[:, 7] > 0, 0].astype(int))
+    ref = [int(b) for b in bus[bus[:, 1] == 3, 0]]
+    if any(b in live_bus for b in ref):
+        return ppc, None
+    p = copy.deepcopy(ppc)
+    pv = [i for i in range(bus.shape[0]) if bus[i, 1] == 2 and int(bus[i, 0]) in live_bus]
+    for b in ref:
+        p["bus"][bus[:, 0] == b, 1] = 1
+    p["bus"][pv[0], 1] = 3
+    return p, (ref[0] if ref else None, int(bus[pv[0], 0]))

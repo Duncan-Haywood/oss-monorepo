@@ -63,3 +63,21 @@ def test_perturb_is_deterministic_bounded_and_keeps_power_factor():
     assert np.allclose(a["bus"][:, 2], pd0 * fa) and np.allclose(a["bus"][:, 3], qd0 * fa)
     assert np.array_equal(ppc["bus"][:, 2], pd0) and np.array_equal(ppc["bus"][:, 3], qd0)
     assert np.array_equal(a["branch"], ppc["branch"]) and np.array_equal(a["gen"], ppc["gen"])
+
+
+def test_fix_ref_moves_a_unitless_reference_like_pypower():
+    """case500_goc's reference bus has no unit; fix_ref picks the bus pypower.bustypes would."""
+    import numpy as np
+    from pypower.bustypes import bustypes
+    from pypower.ext2int import ext2int
+    from infra_dcopf.pglib import case_path, fix_ref, load_m
+    p = load_m(case_path("case500_goc"))
+    q, moved = fix_ref(p)
+    assert moved is not None and moved[0] == 311
+    i = ext2int(p)
+    ref, _pv, _pq = bustypes(i["bus"], i["gen"])
+    ext_ref = int(i["order"]["bus"]["i2e"][ref[0]])
+    assert moved[1] == ext_ref
+    assert (q["bus"][:, 1] == 3).sum() == 1
+    same, none = fix_ref(load_m(case_path("case14_ieee")))
+    assert none is None and np.array_equal(same["bus"], load_m(case_path("case14_ieee"))["bus"])
