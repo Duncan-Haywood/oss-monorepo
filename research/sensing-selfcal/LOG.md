@@ -1,5 +1,17 @@
 # sensing-selfcal research log
 
+## 2026-11-13 · Milestone 4d planned: does the unbiased 5×5 window make the update test sharper?
+
+Written before any milestone-4d solve was run. Milestone 6b found that this board's half-width end squares pull the 11×11 `cornerSubPix` window's outer-ring corners by up to 8 px and bias Zhang's f by +0.6–0.9%, and SB's by −0.1 to −0.4%, while a 5×5 window is unbiased (f within 0.04% on renders). Milestones 4b–4c ran the update test only on 11×11 and SB corners. The bias depends on each view's pose, so it should differ from one view set to the next and add to the set-to-set offset that made the test deaf to a 2% focal change. Here milestone 4b's solves are repeated on 5×5 corners (`experiments/m4d_window/run.py`: the same 2,145 view sets per camera, solver, reference views and start) and scored with milestone 4c's statistics and references, unchanged.
+
+- **H38 (the jackknife stays honest).** W against χ²<sub>3</sub> with the jackknife covariance J: S0 false alarms (k ≥ 4) ≤ 3% pooled and ≤ 5% on each camera. Refuted otherwise.
+- **H39 (less set-to-set offset).** The standard deviation of (f<sub>new</sub> − f<sub>old</sub>)/f on unchanged splits at k = 6, pooled over cameras after removing each camera's mean, is smaller on 5×5 corners than on both 11×11 and SB corners. Refuted if it is not smaller than both.
+- **H40 (more power for focal change).** z<sub>f</sub>² against the other camera's S0 99th percentile (E<sub>1</sub>) detects a ±2% focal change at k = 6, pooled over sign and camera, in ≥ 40% of splits (11×11: 34%, SB: 35%). Refuted below 40%.
+- **H41 (the borrowed threshold travels).** E<sub>1</sub> S0 false alarms (k ≥ 4) ≤ 5% on each camera. Refuted if above on either (SB's left camera was at 5.0%).
+- **H42 (the swap).** W against χ²<sub>3</sub> with J detects the real unit swap S3 (k ≥ 4, both directions) in ≥ 50% of splits (11×11: 30%, SB: 75%). Refuted below.
+- **Reported, unscored.** The full power table and harmful adoptions for every reference; thresholds; the all-view target-free f on 5×5 corners against 5×5 Zhang (532.9 / 536.2 px, milestone 6b's best estimate); a check that this environment reproduces milestone 4b's stored all-view solutions on 11×11 and SB corners (OpenCV here is 5.0.0).
+- **Caveat carried over.** The splits reuse 13 views, so the Wilson intervals are too narrow, and a 99th percentile from 180 statistics rests on about two of them.
+
 ## 2026-11-13 · Milestone 6b result: the printed board's end squares are half width, which biases the 11×11 window's f by +0.6–0.9% and SB's by −0.1 to −0.4%; a 5×5 window is right
 
 - **Runs.** 26 renders at the real poses (truth: each camera's all-view 11×11 Zhang fit with k1 + k2), 5 settings × 20 seeds × 2 cameras, 3 localisers, 600 flat-board Zhang and 600 target-free fits; all detections and fits succeeded except one SB render. Matched setting, calibrated so the renders' own statistics equal the real images': render blur σ 0.80 / 0.81 px and pre-JPEG noise 1.31 / 1.50 grey levels (left / right) give edge σ 0.949 / 0.960 px (real 0.948 / 0.957) and noise 0.54 / 0.63 (real 0.52 / 0.61). Tests check the renderer puts corners at the projected points (< 0.1 px) and the statistics recover known blur and noise.
