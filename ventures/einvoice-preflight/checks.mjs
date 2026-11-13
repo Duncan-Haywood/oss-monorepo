@@ -17,7 +17,7 @@ import { inspectAccountingCurrencyTax } from "./taxcurrency.mjs";
 import { inspectLineExtension } from "./lineext.mjs";
 import { inspectPaymentTerms } from "./terms.mjs";
 import { inspectPartyVat } from "./vat.mjs";
-import { acceptedLineNet, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
+import { acceptedLineNet, flatTaxTotal, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
 import { parseDecimal } from "./numbers.mjs";
 
 // numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
@@ -239,6 +239,13 @@ export function checkInvoice(invoice) {
     lineTaxTotal = 0;
     for (const group of perRate.groups.values()) lineTaxTotal = roundHalfUpToCents(lineTaxTotal + (group.lineTax ?? group.tax));
   }
+  // Flat-amount taxes beside VAT (Malaysia's tourism tax) add their stated amount;
+  // a row with no readable tax is INV-038's to report, so the total is not judged.
+  const flatTax = flatTaxTotal(invoice);
+  if (flatTax !== null && flatTax !== 0) {
+    expectedTax = roundHalfUpToCents(expectedTax + flatTax);
+    if (lineTaxTotal !== null) lineTaxTotal = roundHalfUpToCents(lineTaxTotal + flatTax);
+  }
   expectedNet = roundHalfUpToCents(expectedNet + headerAdjustmentNetDelta(invoice));
   const negativeInvoice = isNegativeInvoice(invoice);
   if (expectedNet < 0 && !negativeInvoice) expectedNet = 0;
@@ -265,7 +272,7 @@ export function checkInvoice(invoice) {
     // nothing to compare
   } else if (taxTotal === null || (taxTotal < 0 && !negativeInvoice)) {
     fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax");
-  } else if (!(linesOptional && noLines) && !perRate.unattributed && taxTotal !== expectedTax && taxTotal !== lineTaxTotal && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
+  } else if (!(linesOptional && noLines) && !perRate.unattributed && flatTax !== null && taxTotal !== expectedTax && taxTotal !== lineTaxTotal && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
     fail("INV-018", "Invoice tax total does not match its line tax percentages.", `Set tax total to ${formatMoney(expectedTax)} or correct the line inputs.`, "/totals/tax");
   }
   if (gross === null || (gross < 0 && !negativeInvoice)) {

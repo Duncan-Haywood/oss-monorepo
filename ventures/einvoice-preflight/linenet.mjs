@@ -104,6 +104,30 @@ export function taxPercentOf(item) {
   return NO_RATE_CATEGORIES.has(category) ? 0 : null;
 }
 
+// A breakdown row for a tax other than VAT/GST that states no percentage: a flat
+// amount, such as Malaysia's tourism tax (scheme AAL, 10 MYR a room-night, PINT MY).
+// It cannot be checked as taxable x rate, but its tax is part of the document's tax
+// total (BT-110: 12.00 SST + 20.00 tourism tax = 32.00 in LHDN's TTX samples).
+export function isFlatTaxRow(row) {
+  if (!row || typeof row !== "object" || Array.isArray(row)) return false;
+  const scheme = typeof row.tax_scheme === "string" ? row.tax_scheme.trim().toUpperCase() : "";
+  if (!scheme || scheme === "VAT" || scheme === "GST") return false;
+  return parseNumber(row.tax_percent) === null;
+}
+
+// The summed tax of the flat-amount rows, or null when one of them has no readable tax.
+export function flatTaxTotal(invoice) {
+  const rows = Array.isArray(invoice?.tax_breakdown) ? invoice.tax_breakdown : [];
+  let total = 0;
+  for (const row of rows) {
+    if (!isFlatTaxRow(row)) continue;
+    const tax = parseNumber(row.tax);
+    if (tax === null) return null;
+    total += tax;
+  }
+  return roundCents(total);
+}
+
 // Group rows and lines by category and rate when every one of them names a
 // category (Z, E and S at 0% are different rows), by rate alone otherwise.
 export function taxKeyMode(invoice) {
