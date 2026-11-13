@@ -38,6 +38,12 @@ lives, so:
 - The unit config sets `testTimeout` to 20s explicitly. Nothing here should
   come close to that; if something does, make the run cheaper rather than
   raising the ceiling.
+- A simulation file that holds several independent seeded runs can spread
+  them over worker threads: `cellParallel` in `src/lib/poolCapCell.ts` does
+  this for the deep pool-cap cells, and `poolCapCell.test.ts` pins it equal to
+  the single-threaded `cell`. Each run shares nothing, so the numbers cannot
+  change; only the wall time does (the simulation suite went from 127 s to
+  66 s on 4 cores, 2026-11-13).
 
 `scripts/test-db.sh` finds the Postgres server binaries even when only `psql`
 is on PATH, and drops to the `postgres` system user when run as root — both of
