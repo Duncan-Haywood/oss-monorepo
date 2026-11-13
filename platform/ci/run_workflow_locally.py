@@ -1793,6 +1793,11 @@ def _run_selected(args, selected, held, absent=()) -> int:
     before = checkout_fingerprint()
 
     failures, out_of_budget, after_skip = [], [], []
+    # Workflows that finished before the checkout first moved: their verdicts
+    # still read one tree. Eleven run records to 2026-11-13 lost a whole sweep
+    # to UNSTABLE CHECKOUT after editing the run record or committing while
+    # it ran, and re-ran every workflow when only the later ones were void.
+    stable, drift = [], None
     for name, workflow, allowed in selected:
         steps, uses_skipped = collect(workflow, only=allowed)
         print(f"\nRunning {name} locally "
@@ -1806,8 +1811,10 @@ def _run_selected(args, selected, held, absent=()) -> int:
             after_skip.append(name)
         elif code != 0:
             failures.append(name)
-
-    drift = checkout_drift(before, checkout_fingerprint())
+        if drift is None:
+            drift = checkout_drift(before, checkout_fingerprint())
+            if drift is None:
+                stable.append(name)
 
     finished = len(selected) - len(out_of_budget) - len(after_skip)
     print(f"\n{finished - len(failures)}/{finished} selected "
@@ -1839,9 +1846,19 @@ def _run_selected(args, selected, held, absent=()) -> int:
     # line in *both* directions -- see `checkout_drift`.
     if drift:
         print("\n  UNSTABLE CHECKOUT: " + drift)
-        print("  The verdict above was not taken against one tree, so it is "
-              "not a reading of anything. Re-run on a checkout nothing else "
-              "is writing to, and do not report either result.")
+        void = [name for name, *_ in selected if name not in stable]
+        if stable:
+            print("  Read on one tree before it moved (these verdicts stand): "
+                  + ", ".join(stable) + ".")
+            print("  Void, the tree moved while or before they ran: "
+                  + ", ".join(void) + ". Re-run just those, with nothing "
+                  "writing to the checkout: "
+                  + "; ".join(f"python3 platform/ci/run_workflow_locally.py {n}"
+                              for n in void))
+        else:
+            print("  The verdict above was not taken against one tree, so it is "
+                  "not a reading of anything. Re-run on a checkout nothing else "
+                  "is writing to, and do not report either result.")
         return 1
     return 1 if failures or out_of_budget or after_skip else 0
 
@@ -1916,6 +1933,8 @@ def handoff(argv, window=HANDOFF_S, out=None, clock=time.monotonic,
                 f"  Wait: python3 platform/ci/wait_for.py {log} --timeout 110 "
                 "(repeat until it exits 0, or start it with run_in_background "
                 "--timeout 3600); the last line reads 'DONE exit <code>'.\n"
+                "  Until then, do not edit or commit tracked files here: a "
+                "change voids every workflow still to finish.\n"
                 "  Pass --foreground to run attached instead.\n")
             out.flush()
             return HANDED_OFF
