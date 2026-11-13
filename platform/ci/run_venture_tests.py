@@ -52,6 +52,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -332,12 +333,15 @@ def workflows_naming():
     return named
 
 
-# --test-force-exit: about 40 venture server suites close their server as a
-# test's last line, so a failing assertion skipped the close and the open handle
-# kept `node --test` alive until SUITE_TIMEOUT; the failure now ends the file as
-# soon as its tests finish (red-team run 2026-11-12). On Node 22.23 it reports the
-# same tests as without it (einvoice-preflight: 1580 of 1580 either way).
-NODE_TEST = ["node", "--test", "--test-force-exit"]
+# No --test-force-exit. The red-team run of 2026-11-12 added it so a server
+# suite whose failing assertion skips its close() ends at once instead of at
+# SUITE_TIMEOUT. On Node 22.23, in `node --test` runner mode, it also ends
+# files early at random, exit 0, with the missing tests simply unreported:
+# changepoint-detector's engine.test.mjs ran 38 to 94 of its 94 tests, and a
+# 60-test synthetic file 39 or 54 (docs/history/ci-perf-2026-11-13-changepoint-
+# engine-test-split.md). A red suite that waits for the timeout is slow but red;
+# a green one missing half its tests is wrong, so the flag stays off.
+NODE_TEST = ["node", "--test"]
 
 
 def command(slug):
@@ -360,21 +364,53 @@ def commands(slug):
     return cmds
 
 
+# A suite that has already reported a failing test is red whatever else it
+# prints. If it then goes quiet this long, an open handle (a server whose
+# close() the failing assertion skipped) is keeping it alive: stop it rather
+# than wait for SUITE_TIMEOUT. Only a red suite is ever stopped early, so this
+# cannot turn a failure green or hide a test, which --test-force-exit did.
+FAIL_QUIET = 10
+FAILED_LINE = re.compile(r"^\s*not ok \d")
+
+
 def run_one(argv, cwd, timeout, env=None):
     # Its own process group, so a timeout also stops the per-file children
     # `node --test` spawns rather than leaving them running.
     p = subprocess.Popen(argv, cwd=cwd, env={**os.environ, **(env or {})},
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT, text=True, start_new_session=True)
-    try:
-        out, _ = p.communicate(timeout=timeout)
-        # unittest exits 5 when it finds no tests: a pytest-style file of bare
-        # functions (shed-designer's). Nothing ran, so nothing failed.
-        return p.returncode == 0 or (p.returncode == 5 and "unittest" in argv), out
-    except subprocess.TimeoutExpired:
-        os.killpg(p.pid, signal.SIGKILL)
-        out, _ = p.communicate()
-        return False, f"{out}\ntimed out after {SUITE_TIMEOUT}s"
+    lines, state = [], {"last": time.monotonic(), "failed": False}
+
+    def read():
+        for line in p.stdout:
+            lines.append(line)
+            state["last"] = time.monotonic()
+            if FAILED_LINE.match(line):
+                state["failed"] = True
+
+    reader = threading.Thread(target=read, daemon=True)
+    reader.start()
+    deadline = time.monotonic() + timeout
+    note = ""
+    while p.poll() is None:
+        now = time.monotonic()
+        if now >= deadline:
+            note = f"\ntimed out after {SUITE_TIMEOUT}s"
+        elif state["failed"] and now - state["last"] >= FAIL_QUIET:
+            note = (f"\nstopped: a test failed and the suite then printed nothing for "
+                    f"{FAIL_QUIET}s (an open handle, such as a server left listening)")
+        if note:
+            os.killpg(p.pid, signal.SIGKILL)
+            p.wait()
+            break
+        time.sleep(0.2)
+    reader.join()
+    out = "".join(lines) + note
+    if note:
+        return False, out
+    # unittest exits 5 when it finds no tests: a pytest-style file of bare
+    # functions (shed-designer's). Nothing ran, so nothing failed.
+    return p.returncode == 0 or (p.returncode == 5 and "unittest" in argv), out
 
 
 def run(slug, elsewhere=False):
