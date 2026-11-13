@@ -51,6 +51,7 @@ export function garchForward(x, { minPen, minSeg = 10, maxCuts = 8, grid = GRID 
   // per grid point, the LL of each current segment
   let cache = grid.map(([a, b]) => segsOf(cuts).map(([lo, hi]) => segLL(x, lo, hi, a, b)));
   let cur = Math.max(...cache.map((s) => s.reduce((p, q) => p + q, 0)));
+  const base = cur;
   while (added.length < maxCuts) {
     const segs = segsOf(cuts); let bestLL = -Infinity, bestT = -1;
     for (let g = 0; g < grid.length; g++) {
@@ -68,7 +69,25 @@ export function garchForward(x, { minPen, minSeg = 10, maxCuts = 8, grid = GRID 
     cache = grid.map(([a, b]) => segsOf(cuts).map(([lo, hi]) => segLL(x, lo, hi, a, b)));
     cur = Math.max(...cache.map((s) => s.reduce((p, q) => p + q, 0)));
   }
-  return { cuts: added, gains };
+  return { cuts: added, gains, base };
+}
+
+// Model choice on top of the search: the GARCH terms must earn their keep too. Runs the forward search twice, once with
+// independent noise (grid a = b = 0, i.e. plain mean-and-variance segments) and once on the GARCH grid, and keeps the
+// cut set with the highest LL - pen x cuts - (GARCH ? garchPen : 0). On noise with no clustering a variance step is then
+// a cut, not a GARCH path that partly explains it away. Penalties in log-likelihood units.
+export function garchChoose(x, { pen, garchPen, minSeg = 10, maxCuts = 8 } = {}) {
+  let bestScore = -Infinity, best = null;
+  for (const [garch, grid] of [[false, [[0, 0]]], [true, GRID]]) {
+    const { cuts, gains, base } = garchForward(x, { minPen: pen, minSeg, maxCuts, grid });
+    let ll = base;
+    for (let k = 0; k <= cuts.length; k++) {
+      if (k) ll += gains[k - 1];
+      const score = ll - pen * k - (garch ? garchPen : 0);
+      if (score > bestScore) { bestScore = score; best = { cuts: cuts.slice(0, k), garch }; }
+    }
+  }
+  return best;
 }
 
 // cut count at penalty pen from a forward run: the leading gains that clear it
