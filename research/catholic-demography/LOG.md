@@ -3,6 +3,55 @@
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
 
+## 2026-11-13 · Milestone 5b, eleventh GSS-only step: m5h's model-check residual is immigrant mothers, not mixed marriages or missed fertility
+
+Run: `experiments/m5l_parents/run.py` (output `results.txt`, tables `t32` to `t34`; 500-draw stratified PSU bootstrap over the
+whole file, seed 1; rho, p and the m5h channels re-estimated in every draw). Data from `data/download_gssr.sh` (checksums
+passed); item codes read from the gssrdoc codebook. **Order of events:** a 2-draw smoke run happened before the commit; only its
+last three printed lines were seen (the m5h replication rows for 2010-18 -> 2021-24: fertility -0.146, immigration -1.380, no
+prediction depends on them) and the output was deleted unread. The script with P1-P5 was then committed (c24fd0ccd) and pushed
+unchanged, and the full run followed. One column was added after it (second generation only), labelled post hoc; it reuses
+the same seed and leaves every other number unchanged.
+
+Question. m5h's fertility channel assumes children take their mother's religion, R = p rho / (p rho + 1 - p), with p the
+Catholic share of US women in the mothers' cohort. Its model check failed: for US-born adults born 1925-69, R is 2.4 to 4.2
+points above what p and rho imply, and m5h bounded the fertility channel by crediting the whole gap to fertility. The GSS
+asked mother's and father's religion when the respondent was a child in 1988, 2008, 2012 and the ISSP modules of 1991, 1998,
+2008 and 2018 (`marelig`/`parelig`, `marelkid`/`parelkid`): n 5,714 US-born adults, 5,236 with both parents. Because each
+respondent is one child, M (share whose mother was Catholic) already carries fertility and survival, so the residual splits
+as R - M_model = (R - M) [net transmission] + (M - M_model) [what the p, rho model misses about the mothers].
+
+- **P1 refuted (narrowly).** Net transmission for cohorts 1925-64 is **+0.56 points [-0.01, +1.01]**, below the predicted +1
+  and its interval touches zero. Born 1945-64 alone: +0.92 [+0.27, +1.48]. Gains (raised Catholic, mother not) 2.45 points
+  against losses (mother Catholic, not raised Catholic) 1.89. Born 1900-24 it is negative, -1.98 [-3.33, -0.48].
+- **P2 supported.** In mixed couples (1925-64), 72.1% [66.9, 76.6] of children with only a Catholic mother were raised
+  Catholic, 41.8% [35.6, 48.0] with only a Catholic father; difference **+30.3 [+22.4, +38.2]**. The same in every cohort
+  group (+30.1, +25.9, +28.6). Two Catholic parents: 97-99%; neither: 0.6-1.7%.
+- **P3 refuted.** Net transmission is not smaller after the 1970 rule change: +0.80 [-0.35, +1.90] for cohorts 1965-99 against
+  +0.56 for 1925-64, and the father-only rate stays at 42% (44.8% for 1945-64). Respondents' reports show no trace of the
+  pre-1970 canonical promise that all children of mixed marriages be raised Catholic: even then only 42% of children with a
+  Catholic father and a non-Catholic mother were.
+- **P4 refuted.** Transmission is **18% [-1, 38]** of the residual (1925-64: residual +3.20 [+1.57, +4.84], of which R - M
+  +0.56 and M - M_model **+2.64 [+1.03, +4.20]**). Most of the residual is that the mothers were more Catholic than the model's p.
+- **Where M - M_model sits (post hoc, point estimates).** Third-plus generation, 1925-64: M - M_model +0.62 and the residual
+  +1.26, half of it transmission. Second generation (n 282): mothers 49.8% Catholic against the model's 24.7%. The model
+  assigns the children of immigrant mothers the Catholic share of US women of that cohort, and those mothers were twice as
+  Catholic. So the m5h residual is mainly a composition effect of immigration, the second-generation part of it.
+- **P5 supported.** The transmission channel (children re-raised in their mother's religion) adds 0.2 to 0.3 points to the
+  level in each period, and its contribution to the 1990-99 -> 2010-18 change is **-0.07 [-0.44, +0.28]**, against
+  immigration +1.07 and fertility -0.37 on the same draws; immigration minus |transmission| +1.00 [+0.26, +1.54]. H4 stands.
+- **Implication for m5h.** Its upper bound (whole residual credited to fertility) is not supported: about a fifth of the
+  residual is transmission and most of the rest is immigrant mothers, which belongs to the immigration channel. The m5h main
+  fertility estimate stays the primary one; the upper bound should be read as a loose one.
+- **Sensitivities.** R from `religkid` (same ISSP instrument as `marelkid`): 1925-64 transmission +0.53, share 14%. Mean age
+  at birth g 24 or 32: residual 2.6 to 3.7, share 15-22%. The mixed-couple gap holds in all.
+- **Limits.** Parents' religion is the child's recall of it, years later; recall that aligns the parent with one's own
+  upbringing would inflate the "both Catholic" and "neither" cells and shrink R - M. About 10% of children have exactly one
+  Catholic parent, so the mixed-couple rates rest on 150-175 respondents per cell. Mothers of the 1900-24 cohort are mostly before the
+  GSS's coverage of mothers' cohorts (m5h fills them from the nearest window). The second-generation split is post hoc.
+- **Next.** Rebuild the fertility channel's p by generation (immigrant mothers' p from foreign-born GSS women), so the
+  model check can pass; then the outside ACS check of m5k when census.gov is reachable, H5, or milestone 2.
+
 ## 2026-11-13 · Milestone 5b, tenth GSS-only step: the post-2018 fall in the immigrant contribution is mostly the web slice
 
 Run: `experiments/m5k_inperson/run.py` (output `results.txt`, table `t31`; 500-draw stratified PSU bootstrap over the whole
