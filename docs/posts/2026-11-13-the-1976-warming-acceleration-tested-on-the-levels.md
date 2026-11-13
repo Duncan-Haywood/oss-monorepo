@@ -1,9 +1,9 @@
 ---
 title: "The 1976 warming acceleration, dated and tested: why the test on differences missed it"
-seo_title: "Testing for a change in trend slope with autocorrelated noise, free in the browser"
+seo_title: "Testing a trend slope change with autocorrelated noise, free"
 date: 2026-11-13
 tags: [changepoint-detector, structural-break, trend, global-temperature, bootstrap, time-series]
-description: "A slope-change test on the levels with AR(1) noise and a bootstrap p-value finds the mid-1970s acceleration in global temperature at p 0.001, where the test on differences gave 0.80."
+description: "A level test for a change of trend slope with AR(1) noise and a bootstrap p-value finds the 1976 warming acceleration at p 0.001; differences gave 0.80."
 ---
 
 The [Changepoint Detector](../../ventures/changepoint-detector/) has had a test for a
