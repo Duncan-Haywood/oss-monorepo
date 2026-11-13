@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-13 · Milestone 6r (H6 scale-up): refit on four keep levels, then keep 1/32 (omega 31) at H = 64, four seeds (planned before running)
+
+- Why: 6q's "Next". With omega 11 measured, refit the three 6p forms on four cells (analysis only), then run the cell that separates them most: keep 1/32, where the fitted forms disagree by a factor of four or more.
+- Part 1, refit (`experiments/gpt_scale/refit4_6r.py`, `refit4_6r.txt`; no training; finer grids than 6p: w0 in steps of 0.25, power exponent to 12). Cells (omega, excess, se): (3, -0.0068, 0.0044), (7, -0.0016, 0.0038), (11, +0.0167, 0.0044), (15, +0.0440, 0.0041). Chi-square: linear 38.5 (1 parameter), power 4.18 (exponent 3.75), hinge 2.66 (w0 = 8.5, slope 0.0068 per omega). Leave-one-cell-out RMS (se units): hinge 1.63, linear 4.92, power 78 (leaving out omega 15, the power form fitted to the three low cells extrapolates wildly). Hinge has the lowest chi-square on 85% of 4,000 bootstrap draws (power 15%, linear 0%); hinge w0 interval 6.25 to 10.0 (2.5 to 97.5 percentiles).
+- Part 2, run: `scale.py run keep32`, size 2, H = 64, keep 1/32 (rand-k, unbiased, survivors scaled by 32), seeds 0 to 3, paired with the uncompressed H = 64 seeds 0 to 3.
+- Predictions registered from part 1, at omega 31 (bootstrap 2.5/50/97.5): hinge +0.108 / +0.152 / +0.205; power +0.27 / +0.68 / +2.7; linear +0.049 / +0.062 / +0.074.
+- **H6r-i** (prior 55%): the paired excess at omega 31 falls inside the hinge band, +0.108 to +0.205. **H6r-ii** (prior 75%): it is below +0.27, the lower edge of the power band (power form refuted). **H6r-iii** (prior 80%): it is above +0.074, the upper edge of the linear band. Each is refuted if it fails as stated. A diverged run (non-finite loss) counts against H6r-i and for H6r-iii, and is reported as such, not dropped.
+- Not tested: other H, other widths, a compressor other than rand-k.
+
 ## 2026-11-10 · Milestone 6q (H6 scale-up): keep 1/12 (omega 11) at H = 64, four seeds (planned before running)
 
 - Why: 6p's "Next". The cells at omega 3, 7, 15 cannot separate a hinge (knee near omega 7) from a steep power law. Keep 1/12 sits between 7 and 15 and splits them.
