@@ -56,3 +56,12 @@ test("sales page: a labour standard option feeds minutes per ticket, sale and it
   assert.match(html, /<code>20\/before-open<\/code>[^<]*<code>45\/after-close<\/code>/); // and work with the doors shut
   assert.match(html, /Minutes of work per labor hour/);
 });
+
+test("sales page: a Location picker, hidden for one site, passed to the plan and the backtest", () => {
+  const html = page("shifts-from-sales.html");
+  assert.match(html, /<p id="locpick" class="note" hidden><label for="loc">Location<\/label> <select id="loc"><\/select>/);
+  assert.equal((html.match(/location: \$\("#loc"\)\.value \|\| undefined/g) || []).length, 2);
+  assert.match(html, /fillLocations\(r\.locations \|\| \[\]\)/);
+  assert.match(html, /\$\("#locpick"\)\.hidden = locs\.length < 2;/);
+  assert.match(html, /record\("sales_locations"\)/);
+});
