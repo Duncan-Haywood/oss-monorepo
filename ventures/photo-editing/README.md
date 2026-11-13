@@ -1568,6 +1568,28 @@ TCA before the distortion, `v` scaled by focal length, `b` scaled once, and a fi
 alone. Not checked: a real frame with sharp corner edges, to see that the fringes go. Details:
 `eval/lensfun-tca-2026-11-13.md`.
 
+### Vignetting too (2026-11-13, later)
+
+With `--lens-db`, a lens with a lensfun vignetting calibration (`pa`, 717 lenses) now has its dark
+corners brought up. Lensfun divides each pixel by `1 + k1 r^2 + k2 r^4 + k3 r^6`, interpolated to
+the shot's focal length, f-number and subject distance by inverse distance weighting
+(`lens.cpp`, `InterpolateVignetting`), with `r = 1` at the corner of the calibration's sensor
+(`mod-color.cpp`). The developer already runs the DNG FixVignetteRadial opcode, whose gain is a
+polynomial `1 + k0 r^2 + ... + k4 r^10`, so the five terms are fitted to lensfun's `1 / c` (least
+squares, then Lawson reweighting where that leaves more than 0.1%) and the opcode goes into
+OpcodeList3 before the warp, as lensfun corrects colour on the uncorrected image. The f-number is
+EXIF FNumber; the distance is EXIF SubjectDistance, else 1000 m (said in the notes).
+`--lens-aperture`, `--lens-distance` and `--no-lens-vignetting` override. A calibration that goes
+dark inside the frame, or that the fit misses by more than 10%, is refused with a note.
+
+Measured on every `pa` calibration in lensfun's database and the midpoints between apertures
+(54,108 cases on 717 lenses; `tools/lensfun_vignetting_check.py`): the fitted gain is a median
+0.0036% from lensfun's, 1.1% at the 99th percentile; 0.7% of cases are refused. Lensfun's own corner
+gain is a median +0.46 EV, over a stop in 18% of cases: that much darker are those corners without
+it. 16 tests (`tests/test_lens_vignetting.py`), and nine seeded faults all caught. Not checked: a
+real evenly lit frame, and liblensfun's compiled devignetting. Details:
+`eval/lensfun-vignetting-2026-11-13.md`.
+
 ## The lensfun port against the real lensfun library (2026-11-13)
 
 The lensfun correction above was checked against lensfun's own compiled code, not just against its

@@ -753,9 +753,15 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         lens_crop=args.lens_crop,
         lens_fill=not args.no_lens_fill,
         lens_tca=not args.no_lens_tca,
+        lens_vignetting=not args.no_lens_vignetting,
+        lens_aperture=args.lens_aperture,
+        lens_distance=args.lens_distance,
     )
-    if (args.lens or args.lens_focal or args.lens_crop) and not args.lens_db:
-        raise DevelopError("--lens, --lens-focal and --lens-crop need --lens-db (a folder of lensfun XML files)")
+    if (args.lens or args.lens_focal or args.lens_crop or args.lens_aperture or args.lens_distance) and not args.lens_db:
+        raise DevelopError(
+            "--lens, --lens-focal, --lens-crop, --lens-aperture and --lens-distance need --lens-db "
+            "(a folder of lensfun XML files)"
+        )
     sources = [Path(p) for p in args.files]
     out_dir = Path(args.out)
     results = []
@@ -1315,6 +1321,19 @@ def _build_parser() -> argparse.ArgumentParser:
         "--no-lens-tca",
         action="store_true",
         help="Correct the lens's distortion only, not its lateral colour (red and blue fringes toward the corners).",
+    )
+    develop.add_argument(
+        "--no-lens-vignetting",
+        action="store_true",
+        help="Leave the lens's vignetting (corners darker than the centre) as shot instead of lensfun's correction.",
+    )
+    develop.add_argument(
+        "--lens-aperture", type=float, help="f-number for the vignetting correction instead of the EXIF one (needs --lens-db)."
+    )
+    develop.add_argument(
+        "--lens-distance",
+        type=float,
+        help="Subject distance in metres for the vignetting correction (default: EXIF, else 1000) (needs --lens-db).",
     )
 
     create_demo = subparsers.add_parser(
