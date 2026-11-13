@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-03",
+  "session": "https://claude.ai/code/session_01AcxTtJC9UonCmsTFGEF9Hv",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-03T23:10:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/12946",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "No post or agent doc written; small CI change documented in docs/history only."
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-03-sibling-links-sparse.md"
+  ],
+  "goal": null,
+  "notes": "Metric: Sibling links median checkout 64 s of 70 s job (ci_profile.py --runs 200). Local sparse worktree 205 MB vs 1.1 GB, identical siblings.mjs --json output and 20 tests pass. After number not measured; read from ci_profile on later runs. Touches .github/workflows so may await owner approval.",
+  "corrections": [],
+  "redteam": null
+}
