@@ -123,7 +123,7 @@ const onsetSpread = Number(opt("--onset-spread", "0"));
 // per-survey gap threshold (autoFastBlockMinLog: the q quantile of the panel's mirrored slow-turn gaps, at least floor, at most 0.5).
 const autos = opt("--auto", "").split(",").filter(Boolean).map((x) => {
   const [q, f] = x.split(":").map(Number);
-  if (!(q > 0 && q < 1) || !(f > 0)) throw new Error(`--auto takes q:floor pairs, got ${x}`);
+  if (!(q > 0 && q <= 1) || !(f > 0)) throw new Error(`--auto takes q:floor pairs, got ${x}`);
   return { q, f, key: `shift-drop-auto-q${Math.round(q * 100)}-f${Math.round(f * 100)}` };
 });
 // `--person-drift sd`: each person also speeds up or slows down on their own over the session, by exp(-d x progress) with
