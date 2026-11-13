@@ -2,7 +2,7 @@
 
 A free browser tool for cafes, bakeries, delis, caterers and market stalls. Paste each dish's
 ingredients and get an **allergen matrix** (the 14 UK/EU allergens, or the US 9) and a
-**print-ready label** per dish with the allergens in bold, the way Natasha's Law (England,
+**draft label** per dish (check it, then print) with the allergens in bold, the way Natasha's Law (England,
 pre-packed for direct sale, from 1 October 2021) asks for them. Entirely client-side.
 
 **Live tool:** https://marisstella.app/allergen-label-maker/
@@ -25,7 +25,7 @@ Open [`index.html`](index.html) and click **Check allergens**.
     Flour tortilla, grilled chicken breast, caesar dressing (egg yolk, anchovy, mustard), Brand X pesto [milk, tree nuts]
 
 - Ingredients in descending order of weight, comma-separated, sub-ingredients in brackets.
-- `[milk, soya]` after an ingredient states what its supplier label says; `[none]` clears guesses.
+- `[milk, soya]` after an ingredient states what its supplier label says; `[none]` clears "check" guesses, never an allergen the ingredient names (`butter [none]` is still milk). Every tag in an ingredient counts.
 - `| may=peanuts` adds a precautionary line (a risk assessment only you can make).
 
 ## The model
@@ -36,7 +36,9 @@ Open [`index.html`](index.html) and click **Check allergens**.
 2. **Check**: a food that usually contains it without naming it (hummus, pasta, Worcestershire
    sauce, dried apricots). Shown in the matrix, never bolded or listed under "Contains" until the
    user confirms it with a tag.
-3. **Advisory**: foods people ask about that are not on the legal list (pine nut, coconut, chestnut).
+3. **Advisory**: foods people ask about that are not on the legal list (pine nut, coconut, chestnut). In the US list, pine nut and chestnut are declared tree nuts (FDA, *Questions and Answers Regarding Food Allergens*, Edition 5, 2025).
+
+On the label, exactly the words the reader declared are emphasised, so the label and the matrix agree, and a supplier tag is printed in the list: `pesto [milk, tree nuts]` prints as pesto (**milk**, **tree nuts**).
 
 Look-alikes are excluded before matching (coconut milk, cocoa butter, butternut, rice flour,
 aubergine, "egg-free", plant milks counted as the plant). In the US list, rye and barley are not
@@ -44,7 +46,7 @@ wheat, and molluscs, celery, mustard, lupin and sulphites are not US major aller
 
 ## Tests
 
-`node --test '*.test.mjs'` (19 engine tests, 5 page tests, usage counter). The page was also
+`node --test '*.test.mjs'` (25 engine tests, 6 page tests, 7 customer-page tests, 6 usage-counter tests). The page was also
 driven in headless Chromium on 2026-11-07: example run, UK/US switch, HTML in a dish name is
 escaped.
 
@@ -56,6 +58,15 @@ escaped.
 - Label layout is not checked against FSA guidance wording beyond the ingredient list and the
   allergen emphasis; there is no QUID (percentage) or net quantity.
 - Sulphites need the supplier's mg/kg figure; the tool can only flag wine, dried fruit and the like.
+
+## Known gaps (quality audit 2026-11-13)
+
+From [`portfolio/quality/audits/2026-11-13-allergen-label-maker.json`](../../portfolio/quality/audits/2026-11-13-allergen-label-maker.json). Fixed the same day: common fish not recognised (sea bream, turbot, eel, caviar), only the first supplier tag read, `[none]` clearing named allergens, generic "nuts" flagging nothing, pine nut and chestnut not declared in US mode, and label emphasis drawn from a shorter word list than the matrix. Still open:
+
+- The US "Contains" line prints the category ("Fish", "Tree nuts"); FALCPA (FD&C Act s.403(w)(2)) wants the species or nut type ("Cod", "Almonds").
+- The UK/EU label adds a "Contains" line of category names ("Cereals containing gluten"). Under FIC Annex II the specific cereal or nut is what must be named and emphasised in the list; the line is an extra, not a substitute.
+- "Plain flour" is emphasised as written; a label should say *wheat* flour. In US mode, a bare "flour" is a check, though 21 CFR 137.105 makes flour wheat flour.
+- Tag names accept plurals only ("tree nuts", not "tree nut"); an unknown tag is reported, not silently dropped.
 
 ## Customer allergen page (2026-11-07)
 

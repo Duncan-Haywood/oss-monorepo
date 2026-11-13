@@ -121,10 +121,12 @@ test("emphasise bolds allergen words and escapes HTML", () => {
   assert.doesNotMatch(emphasise("butternut squash"), /<strong>/ ); // butter is not a whole word there
 });
 
-test("label: tags are removed from the printed ingredients and contains is listed", () => {
+test("label: a supplier tag is printed, emphasised, in the ingredients list and contains is listed", () => {
   const r = one("wheat flour, pesto [milk, tree nuts], olive oil");
   const l = labelFor(r);
-  assert.equal(l.ingredientsText, "wheat flour, pesto, olive oil");
+  // FIC Art. 21(1)(b): the allergen is emphasised in the list itself, so the stated allergens are printed there.
+  assert.equal(l.ingredientsText, "wheat flour, pesto (milk, tree nuts), olive oil");
+  assert.match(l.ingredientsHtml, /pesto \(<strong>milk<\/strong>, <strong>tree nuts<\/strong>\)/);
   assert.match(l.ingredientsHtml, /<strong>wheat<\/strong>/);
   assert.deepEqual(l.contains, ["Cereals containing gluten", "Milk", "Tree nuts"]);
 });
@@ -150,4 +152,45 @@ test("label names follow the chosen list", () => {
   const r = one("egg, prawns");
   assert.deepEqual(labelFor(r, "uk").contains, ["Crustaceans", "Eggs"]);
   assert.deepEqual(labelFor(one("egg, prawns", "us"), "us").contains, ["Egg", "Crustacean shellfish"].sort((a, b) => US9.map((x) => x[1]).indexOf(a) - US9.map((x) => x[1]).indexOf(b)));
+});
+
+// Quality audit 2026-11-13 (portfolio/quality/audits/2026-11-13-allergen-label-maker.json).
+test("fish: every finfish species and roe is fish (Annex II item 4)", () => {
+  for (const f of ["sea bream", "turbot", "smoked eel", "carp", "skate wing", "john dory", "caviar", "cod roe", "lox", "red mullet", "barramundi", "whiting", "pangasius"]) {
+    assert.deepEqual(declared(f), ["fish"], f);
+  }
+});
+
+test("every supplier tag in an ingredient counts, not only the first", () => {
+  assert.deepEqual(declared("sauce (stock [celery], paste [soya])"), ["celery", "soya"]);
+});
+
+test("[none] clears guesses but never an allergen the ingredient names", () => {
+  assert.deepEqual(declared("butter [none]"), ["milk"]);
+  assert.deepEqual(checked("hummus [none]"), []);
+});
+
+test("generic nuts are a check, nut-free and nutmeg are not", () => {
+  assert.deepEqual(checked("chopped nuts"), ["treenuts"]);
+  assert.deepEqual(checked("nut oil"), ["treenuts"]);
+  assert.deepEqual(checked("nutmeg"), []);
+  assert.deepEqual(checked("nut-free spread"), []);
+  assert.deepEqual(declared("mixed nuts"), ["treenuts"]);
+});
+
+test("US list: pine nut and chestnut are tree nuts (FDA allergen Q&A, Edition 5, 2025); UK keeps them as advisories", () => {
+  assert.deepEqual(declared("pine nuts", "us"), ["treenuts"]);
+  assert.deepEqual(declared("chestnut puree", "us"), ["treenuts"]);
+  assert.deepEqual(declared("water chestnuts", "us"), []);
+  assert.deepEqual(declared("pine nuts"), []);
+  assert.equal(one("pine nuts").advisories.length, 1);
+  assert.equal(one("pine nuts", "us").advisories.length, 0);
+});
+
+test("label emphasis matches what was declared: no look-alikes, no missed names", () => {
+  const l = labelFor(one("coconut milk, cocoa butter, cream of tartar, egg-free mayo, plain flour, brie, halloumi, groundnut oil, dijon mustard, sea bream"));
+  for (const w of ["coconut milk", "cocoa butter", "cream of tartar", "egg-free mayo"]) assert.ok(l.ingredientsHtml.includes(w), w);
+  for (const w of ["plain flour", "brie", "halloumi", "groundnut", "dijon", "bream"]) assert.match(l.ingredientsHtml, new RegExp(`<strong>${w}</strong>`), w);
+  // a check is not emphasised until it is confirmed with a tag
+  assert.doesNotMatch(labelFor(one("hummus")).ingredientsHtml, /<strong>/);
 });
