@@ -2090,7 +2090,7 @@ export function threeRoundDeals(opp, rs, cap = 20000) {
  * Returns the shape squeezeSingleRounds does, plus { floor, leastProved, floorPriced: true }, or null
  * when no balanced choice was found for any kept timetable.
  */
-export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 60, iterations = 3000, timeMs = Infinity, keep = 6, deals = 0, dealFloors = 3 } = {}) {
+export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 60, iterations = 3000, timeMs = Infinity, keep = 6, deals = CARRY_OVER_DEALS, dealFloors = 3 } = {}) {
   if (!Number.isInteger(n) || n < 4 || n > 25) throw new Error("A floor-priced season needs 4 to 25 teams.");
   if (!Number.isInteger(maxBreaks) || maxBreaks < 0) throw new Error("maxBreaks must be a whole number of 0 or more.");
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
@@ -2112,6 +2112,7 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
     if (kept.length > keep) kept.pop();
   };
   let fallback = { coe, fl, opp: opp.map((o) => o.slice()) };
+  const origin = fallback; // the start's own timetable, so a search that finds nothing is never worse
   remember();
   const T0 = Math.max(2, coe / (N * 16));
   const t0 = Date.now();
@@ -2186,7 +2187,9 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
       if (fl < fallback.fl || (fl === fallback.fl && coe < fallback.coe)) fallback = { coe, fl, opp: opp.map((o) => o.slice()) };
     } else undo();
   }
-  const cands = kept.length ? kept : [fallback];
+  // the start's own timetable always competes, so a search that finds nothing better than it
+  // returns it regrounded rather than something with more breaks
+  const cands = [...(kept.length ? kept : [fallback]), ...(kept.includes(origin) || fallback === origin ? [] : [origin])];
   let best = null;
   for (const c of cands) {
     const x = leastBreaks(c.opp, n, { seed, budget: 2000000 });
@@ -2217,16 +2220,23 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
 export const CARRY_OVER_FLOOR_PRICED = 2;
 
 /**
+ * The share of a floor-priced search's moves that re-deal three rounds at once (threeRoundDeals)
+ * rather than swap: 0.15, measured at 20 teams (README "Re-dealing three rounds at once").
+ */
+export const CARRY_OVER_DEALS = 0.15;
+
+/**
  * Seasons the page adds after the regrounded ones (README "Pricing the break floor"): for a single
  * round robin of 6 to 21 teams (at 22 to 25 one search takes about a minute, eval/floor-priced.txt), the widest break gap (at least `minGap`) between neighbouring
  * seasons on the frontier of `results`, searched by floorPricedSingleRounds from the season above
  * it (least carry-over, most breaks) at caps of its breaks - 2, - 4, ... while above the season
- * under the gap, `count` + 1 searches at most. A season is kept when nothing in `results` or an earlier kept one beats it on both
+ * under the gap, `count` + 1 caps at most, each searched twice (swaps alone and with three-round
+ * re-deals, `deals`) and the better kept. A season is kept when nothing in `results` or an earlier kept one beats it on both
  * counts. At most `count`, numbered after the results with `floorPricedFrom` set. A function of
  * `results` and `seed` alone, so a share link that keeps one rebuilds it. [] for a home-and-away
  * season or when the frontier has no such gap.
  */
-export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_FLOOR_PRICED, minGap = 4, iterations = 3000 } = {}) {
+export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_FLOOR_PRICED, minGap = 4, iterations = 3000, deals = CARRY_OVER_DEALS } = {}) {
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
   const base = [...results].sort((a, b) => a.index - b.index);
   if (n < 6 || n > 21 || !count || base.some((t) => t.rounds.length !== R)) return [];
@@ -2244,7 +2254,16 @@ export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_
   const all = pts.slice();
   const out = [];
   for (let cap = top.breaks - 2, k = 0; cap > under.breaks && out.length < count && k <= count; cap -= 2, k++) {
-    const s = floorPricedSingleRounds(n, base[top.i], { seed: carryOverTrySeed(seed, top.i), maxBreaks: cap, iterations });
+    // both neighbourhoods at this cap, the better kept: swaps alone, and swaps with three-round
+    // re-deals (README "Re-dealing three rounds at once"; each wins on some sizes and seeds)
+    const two = [0, deals].filter((d, i, a) => a.indexOf(d) === i)
+      .map((d) => floorPricedSingleRounds(n, base[top.i], { seed: carryOverTrySeed(seed, top.i), maxBreaks: cap, iterations, deals: d }))
+      .filter(Boolean);
+    const within = two.filter((r) => r.breaks <= cap);
+    let s = null;
+    // within the cap the least carry-over wins; when neither search got under it, the fewest breaks
+    if (within.length) for (const r of within) { if (!s || r.coe < s.coe || (r.coe === s.coe && r.breaks < s.breaks)) s = r; }
+    else for (const r of two) { if (!s || r.breaks < s.breaks || (r.breaks === s.breaks && r.coe < s.coe)) s = r; }
     if (!s) continue;
     if (all.some((y) => y.coe <= s.coe && y.breaks <= s.breaks)) continue;
     all.push({ coe: s.coe, breaks: s.breaks });

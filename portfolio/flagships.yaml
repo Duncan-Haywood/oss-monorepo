@@ -286,13 +286,14 @@ flagships:
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up CSVs,
       duty rota, team sheets (one-division too, with byes, 2026-11-13); carry-over on 20 real seasons; starters, capped breaks, frontier picker,
       squeezes, MaxSAT proof that the gaps are timetable-bound, exact break floor in the page: README
-      2026-11-11 to 2026-11-13 sections). 2026-11-13 latest (README "Pricing the break
-      floor", eval/floor-priced.txt): floorPricedSingleRounds anneals a single round robin's timetable on
-      carry-over + its proved break floor (floorTable, incremental) and the page adds up to 2 such seasons
-      into the widest frontier gap (6 to 21 teams): 20 teams 412-440 at 48 breaks where the list had
-      546-552, 15 seasons join over 18 runs. Next, most valuable first: the middle of the 20-team gap
-      (40 to 44 breaks still ~516-550: a bigger timetable neighbourhood priced on the floor, e.g. re-solving
-      two or three rounds at once, or a starter family climbed with the floor as its score); price the
+      2026-11-11 to 2026-11-13 sections). 2026-11-13 latest (README "Re-dealing three rounds at
+      once", eval/floor-priced.txt): threeRoundDeals lists every legal re-deal of three rounds' matches
+      (a 3-edge-colouring of their cubic graph, ~117 at 20 teams, 0.7 ms) and the floor-priced search
+      takes 15% of its moves there, pricing only the 3 cheapest on the floor; 20 teams at 48 breaks
+      410/408/426 -> 384/374/384, and the page runs both neighbourhoods per cap and keeps the better
+      (9 page runs: the cut inside the gap rises in 4, holds in 5, 13-42 s on the worker). Next, most
+      valuable first: the rest of the 20-team gap (40 to 44 still ~516-550 on most seeds: four-round
+      re-deals, a longer run, or a starter family climbed with the floor as its score); price the
       balanced least rather than the floor where they differ (several 20-team searches end 2 over the cap);
       an exact or tighter floor for home and away (the pair keeps one host, which ties far rounds: the
       relaxed floor gives 74 where MaxSAT proves 85 at 19; try a DP over leg one with leg two's mirrored

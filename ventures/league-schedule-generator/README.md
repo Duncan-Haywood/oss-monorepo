@@ -1525,6 +1525,73 @@ whole list of 12 tries, 4 squeezes and 4 regrounded seasons, then the floor-pric
   `bestCarryOverRounds` keeps its choice and `buildSchedule` rebuilds a kept floor-priced season;
   20 teams seed 1 from 360 to a cap of 48 gives 410 / 48, proved.
 
+## Re-dealing three rounds at once (2026-11-13, latest)
+
+The section before closed with the one thing the floor-priced search could not do: the middle of the
+20-team gap (40 to 44 breaks) stayed at about 516 to 550, because its moves are small — swap two
+rounds, swap two teams over the rounds where that is legal, flip one alternating cycle. A timetable
+that would be good two moves away is never seen. `threeRoundDeals` is the bigger move: **take three
+rounds and re-deal their matches among themselves, every legal way.**
+
+**How, and why the list is complete.** The matches of three rounds give every team exactly three
+opponents, so they form a cubic graph on the teams. Splitting them back into three rounds is a
+proper 3-edge-colouring of that graph: pick a perfect matching for the first round, and what is left
+is a union of cycles, each of even length, whose alternate edges go one to the second round and one
+to the third. So the list is: every perfect matching of the cubic graph (a short backtracking walk),
+times 2^(number of cycles) ways to orient them. The rounds as they stand are always in it. At 20
+teams a random triple gives about 117 deals and takes 0.7 ms to list; a cap (20,000) bounds the rare
+dense one. Every pair still meets exactly once, because no match moves between teams — only between
+rounds.
+
+**Pricing them cheaply.** A deal move draws the annealer's acceptance line first, scores every deal
+on carry-over alone (the floor's penalty is never negative, so anything above the line is out), and
+computes the proved break floor for only the three cheapest that survive — the floor is the
+expensive part. The incremental floor table reruns from the first of the three rounds, as for a
+swap. `deals` (0.15, `CARRY_OVER_DEALS`) is the share of moves that re-deal; the rest are the old
+three.
+
+**What it finds** (`node eval/floor-priced.mjs 20 <seed> --deals 0` then `--deals 0.15`, same cached
+lists, 3,000 moves a search, `eval/floor-priced.txt`, 20 teams, seeds 1 to 3):
+
+| Seed | Least carry-over at 48 breaks, swaps only | with re-deals | Frontier seasons joined | Mean cut inside the gap |
+|---|---|---|---|---|
+| 1 | 410 | **384** (-6.3%) | 3 -> **5** | 5.97% -> **8.58%** |
+| 2 | 408 | **374** (-8.3%) | 3 -> 3 | 10.14% -> **10.78%** |
+| 3 | 426 | **384** (-9.9%) | 2 -> 2 | 11.15% -> **13.70%** |
+
+Seed 1 is where the middle of the gap finally moves: 456 / 46 (nothing was under 534), 516 / 44
+(was 530), 524 / 42 (was 558). A search costs 1.2 to 1.5x the time (169 s to 256 s for seed 1's
+twelve searches).
+
+**In the page, both searches run and the better is kept.** Re-deals are not better everywhere: run
+alone they lost seasons at 17 and 18 teams on some seeds (a different random walk, not a worse
+neighbourhood). So `carryOverFloorPriced` now searches each cap **twice** — swaps alone, and swaps
+with re-deals — and keeps the one with the least carry-over within the cap (the fewest breaks when
+neither gets under it). Measured against the same page run of the section before
+(`--page`, 17, 18 and 20 teams, seeds 1 to 3):
+
+| Teams, seed | Page's floor-priced seasons before | now |
+|---|---|---|
+| 17, s1 | 379 / 31 | **347 / 29** (gap cut 6.5% -> 22.2%) |
+| 18, s1 | 392 / 36, 418 / 34 | **366 / 36**, 418 / 34 (2.9% -> 4.4%) |
+| 20, s1 | 440 / 48, 516 / 46 | **382 / 48**, 528 / 46 (3.6% -> 4.8%) |
+| 20, s3 | 412 / 48, 460 / 46 | **374 / 48**, 460 / 46 (13.8% -> 16.1%) |
+| 17 s2, s3; 18 s2, s3; 20 s2 | unchanged | unchanged |
+
+No seed's frontier gets worse: the cut inside the gap rises in 4 of 9 and holds in the other 5. (At
+20 teams seed 1 the second season is 528 / 46 rather than 516 / 46: the first cap now returns a much
+better season, which changes which later results are not already beaten.) The step costs 13 to 42 s
+on the worker, against 4 to 21 s, and still runs after the squeezes with the page usable throughout.
+Share links keep their season inline, so a link made before this change still builds what its maker
+saw; a link that stores only the frontier index of a floor-priced season (the server-side rebuild
+path) and was made between the two changes of 2026-11-13 can rebuild a different season of the same
+list.
+
+- Tests: `floor-priced.test.mjs`, now 13: `threeRoundDeals` lists each deal once, every team keeps
+  its three opponents one per round, the rounds as they stand are among them, the cap holds, and
+  every pair still meets once; a re-dealt floor-priced season at 12 teams is valid, balanced,
+  seeded, and its breaks and carry-over match a recount.
+
 ## Team sheets and a duty rota for a one-division league (2026-11-13, latest)
 
 Most leagues are one division, and until now the snack stand / scoreboard rota and the printable team

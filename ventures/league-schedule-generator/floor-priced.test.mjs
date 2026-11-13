@@ -80,12 +80,25 @@ test("floorPricedSingleRounds is seeded, and refuses what it cannot take", () =>
   assert.throws(() => floorPricedSingleRounds(12, start, { maxBreaks: 10 }));
 });
 
-test("floorPricedSingleRounds at 20 teams: 360 / 50 to a 48-break cap gives 410 / 48 (seed 1)", { timeout: 120000 }, () => {
+test("floorPricedSingleRounds at 20 teams: 360 / 50 to a 48-break cap gives 410 / 48 on swaps, 384 / 48 with re-deals (seed 1)", { timeout: 180000 }, () => {
   const start = carryOverTry(20, 0, { seed: 1, weighted: 8 });
   assert.equal(start.coe, 360);
-  const r = floorPricedSingleRounds(20, start, { seed: 1, maxBreaks: 48, iterations: 6000 });
-  assert.equal(`${r.coe}/${r.breaks}`, "410/48");
-  assert.ok(r.leastProved);
+  const swaps = floorPricedSingleRounds(20, start, { seed: 1, maxBreaks: 48, iterations: 6000, deals: 0 });
+  assert.equal(`${swaps.coe}/${swaps.breaks}`, "410/48");
+  assert.ok(swaps.leastProved);
+  const dealt = floorPricedSingleRounds(20, start, { seed: 1, maxBreaks: 48, iterations: 6000 });
+  assert.equal(`${dealt.coe}/${dealt.breaks}`, "384/48", "the default neighbourhood re-deals three rounds");
+  assert.ok(dealt.leastProved);
+});
+
+test("floorPricedSingleRounds never returns more breaks than the season it started from", () => {
+  for (const n of [9, 13]) {
+    const start = carryOverTry(n, 0, { seed: 1, weighted: 8 });
+    for (const deals of [0, 0.15]) {
+      const r = floorPricedSingleRounds(n, start, { seed: 2, maxBreaks: Math.max(0, start.breaks - 2), iterations: 400, deals });
+      assert.ok(r.breaks <= start.breaks, `${n} teams, deals ${deals}: ${r.breaks} breaks against the start's ${start.breaks}`);
+    }
+  }
 });
 
 test("carryOverFloorPriced: seasons into the widest gap, on the frontier, numbered after the results, seeded; none for home and away", async () => {
