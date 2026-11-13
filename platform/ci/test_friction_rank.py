@@ -44,3 +44,44 @@ def test_main_json(tmp_path, capsys):
     write(tmp_path, "r2.json", "2026-11-01", [{"file": "x.md", "issue": "the flag is easy to skip again"}])
     assert fr.main(["--runs", str(tmp_path), "--days", "0", "--json"]) == 0
     assert json.loads(capsys.readouterr().out)[0]["sessions"] == 2
+
+
+def test_named_keeps_code_only():
+    names = fr.named("CLAUDE.md", ["`pyenv.py` and platform/ci/wait_for.py, not LOG.md or flagships.yaml"])
+    assert names == {"pyenv.py", "platform/ci/wait_for.py"}
+    assert fr.named("platform/ci/run_venture_tests.py", ["slow"]) == {"platform/ci/run_venture_tests.py"}
+
+
+def test_load_keeps_record_end_time(tmp_path):
+    (tmp_path / "r.json").write_text(json.dumps({"date": "2026-11-13", "ended": "2026-11-13T10:00:00Z",
+                                                 "doc_friction": [{"file": "a.py", "issue": "slow thing"}]}))
+    assert list(fr.load(tmp_path))[0][4] == "2026-11-13T10:00:00Z"
+
+
+def test_changes_drops_shallow_boundary(tmp_path):
+    (tmp_path / ".git").mkdir()
+    (tmp_path / ".git" / "shallow").write_text("b" * 40 + "\n")
+
+    class Done:
+        def __init__(self, out):
+            self.stdout, self.returncode = out, 0
+
+    def run(cmd, **_):
+        if "log" in cmd:
+            return Done("@@2026-11-13T12:00:00+00:00\t" + "a" * 40 + "\tfix pyenv\n\nplatform/ci/pyenv.py\n"
+                        "@@2026-11-09T00:00:00+00:00\t" + "b" * 40 + "\tboundary\n\nplatform/ci/pyenv.py\nx.py\n")
+        return Done("2026-11-09T00:00:00+00:00\n")
+    commits, edge = fr.changes("2026-11-10", root=tmp_path, run=run)
+    assert commits == [("2026-11-13T12:00:00+00:00", "a" * 9, "fix pyenv", ["platform/ci/pyenv.py"])]
+    assert edge == "2026-11-09T00:00:00+00:00"
+
+
+def test_annotate_marks_only_later_unambiguous_touches():
+    commits = [("2026-11-13T12:00:00+00:00", "abc", "fix pyenv", ["platform/ci/pyenv.py"]),
+               ("2026-11-13T11:00:00+00:00", "def", "figure", ["research/x/figure.py"])]
+    before = {"last_at": "2026-11-13T10:00:00Z", "names": ["pyenv.py"]}
+    after = {"last_at": "2026-11-13T13:00:00Z", "names": ["pyenv.py"]}
+    ambiguous = {"last_at": "2026-11-13T10:00:00Z", "names": ["figure.py"]}
+    fr.annotate([before, after, ambiguous], commits, counts={"pyenv.py": 1, "figure.py": 40})
+    assert before["touched"][1] == "abc" and after["touched"] is None and ambiguous["touched"] is None
+    assert fr.utc("2026-11-13T05:00:00-07:00") == "2026-11-13T12:00:00Z"

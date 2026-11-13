@@ -70,3 +70,18 @@ entries:
         with no console errors and no overflow at 390 px. Not yet run on a real
         project's record.
     mrr_end: 0
+  - venture: water-supply-sizing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/water-supply-sizing, peak
+        water demand by Hunter's 1940 binomial method worked exactly for a mix
+        of fixtures (convolution, 1% tail, optional zero truncation) and a
+        copper/PEX pipe tree sized by uniform friction rate with the pressure at
+        every end and an optional trim. Reproduces BMS65 Table 2 (13 of 14
+        legible rows to four decimals); the exact tail rule steps up a few
+        fixtures before Hunter's table (99 vs 107 flush valves for m = 8).
+        27 tests; driven in headless Chromium at 1280 and 390 px with no
+        console errors. Not yet checked against a designer's real sizing.
+    mrr_end: 0

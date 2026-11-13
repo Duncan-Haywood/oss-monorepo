@@ -1,0 +1,227 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/accel-planefpga",
+ "stratum": "research",
+ "seed": "2026-11-13-m",
+ "drawn_by": "sample",
+ "round": 67,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior FPGA / hardware-accelerator architect who publishes at FPGA, FCCM or FPL (iCE40/ECP5 open-toolchain and DNN-on-FPGA work). They would check first: was the RTL simulated and synthesized, and are the LC/Fmax numbers from real Yosys/nextpnr reports (with versions and logs) rather than a model; whether the cycle model matches the RTL; whether the DSP conclusion reflects the device (SB_MAC16 8x8 modes, operand packing) or a tool-flow artefact; and the nearest prior work (Lattice sensAI keyword spotting on the UP5K, FINN, hls4ml, Eyeriss dataflow taxonomy).",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Yosys, nextpnr and iverilog are not installed (`which iverilog verilator yosys` exit 1) and `pip install yowasp-yosys yowasp-nextpnr-ice40` was refused in this session, so the LC/Fmax tool outputs could not be regenerated. What could be recomputed independently all agrees: (1) my own cycle-level Python transliteration of accel-plane/rtl/os_engine.v and rt_engine.v with start tied high (scratchpad/accel/rtlsim.py) gives done-to-done periods 4481/561/281/141 (OS P=1/8/16/32) and 578/579/194/195 (RT/RTp P=8, 32), i.e. flow.cycles() plus 1 to 3 handshake cycles exactly as README:15 says, and bit-exact W.x on a random 64x70 int4 x int8 case; (2) synth_ff in results.json for OS grows 81,132,235,442,857, which is exactly 52*dP - 1 per doubling (24 acc + 24 out_vec + 4 shift-register bits per lane, minus one bit of the tile counter as NT halves): strong evidence the numbers come from a real synthesis of this RTL and that every lane's accumulator survived; (3) OS P=16 latency 280/27.43 = 10.208 us matches 10.2; all 36 results.txt rows match results.json (0 mismatches) and every fmax is the median of fmax_all. One derived claim is off: DSP logic saving is 13.3 to 42.3% (RTp P=8: 1042 -> 601 LC), README says 13 to 41%.",
+  "completeness": "All 36 sweep points (3 engines x 6 P x DSP on/off) are in results.json/results.txt with 29 fits and 7 recorded nextpnr errors; figure.py run on a private copy regenerates latency_vs_cells.svg byte-identical (cmp). README headline table, per-lane slopes, wrapper-LUT note and duty-cycle note are all present and backed. Not done here and stated as open: weight memory, hybrid DSP+LUT mapping, power, second layer. The experiment itself could not be re-run in this container; research/_audit/README.md:44 lists it as never reproduced by the research audit either.",
+  "verification": "`python3 -m unittest discover -s tests -v` in research/accel-planefpga: Ran 5, OK (skipped=2). The two tests that touch the tool flow (TestFlow) are skipped whenever native `yosys` is absent (tests/test_planefpga.py:9), and no workflow under .github/workflows installs yosys or nextpnr (grep empty), so in CI only three arithmetic tests ever run. Seeded mutations via platform/ci/quality_mutate.py: median->max Fmax (flow.py:61) survived; RTp built as RT (ENGINES, flow.py:11) survived; OS wrapper-LUT formula dropped P (flow.py:27) survived; plane_top.v PIPE(ENG==2)->PIPE(0) survived; RT cycles ceil->floor (flow.py:68) caught. 4 of 5 survive. No test checks results.txt against results.json or any headline number.",
+  "craft": "Read rtl/plane_top.v, src/accel_planefpga/flow.py, experiments/run.py, experiments/figure.py, tests/test_planefpga.py. Small and readable; the top uses a free-running LFSR and XOR-reduce so nothing folds away, a correct technique. Defects: tool() returns [None] when neither native nor YoWASP binary exists (flow.py:17), giving a TypeError instead of a message; HAVE_FPGA demands native yosys though tool() accepts yowasp-yosys (tests:9); raw yosys/nextpnr logs and tool versions are not committed (results.json:2 is a prose string), so the resource/timing table cannot be audited against reports; run.py:3 says 'about 6 min' while README:22 says 'about 30 min'.",
+  "claims": "Checked against results.json with scratchpad/accel/recompute.py: OS per-lane slope 179.4 LC and RT 111.5 (README '180', '110'), RTp Fmax recovery 1.1 to 19.1 MHz ('1 to 19'), DSP Fmax gain 2.04 to 7.61 MHz ('2 to 8'), wrapper LUTs 128/64/8 and 4.35%/4.25% of OS totals ('4 to 5%'), duty 0.058% ('0.06%'), seed spread max 7.3% ('up to about 10%', conservative) all pass. DSP logic saving 13.3 to 42.3% stated as '13 to 41%' at README.md:3, :44 and research/README.md:330 (low). Limits are explicit and honest: synthesis-only, wrapper never re-simulated, no weights, critical paths not inspected, Fmax a static estimate. AI-assistance note present.",
+  "fitness": "A researcher prototyping a KWS accelerator on a UP5K gets a usable first-order table (cells and Fmax by lanes and dataflow) and a working flow script. But it is a design-space note, not a publishable result: the nearest prior work is not cited (Lattice sensAI ships keyword spotting and person detection on exactly this iCE40 UP5K; FINN, Umuroglu et al. FPGA 2017; hls4ml), single device, no memory, one layer, and the outcome (OS beats an unpipelined adder tree on a LUT4 fabric) is expected from the dataflow literature (Chen, Emer, Sze, ISCA 2016, cited only via accel-plane). Cannot be rebuilt without installing tools, and no logs are committed.",
+  "domain": "An FPGA architect would accept the method for LUT-only mapping (median of 3 seeds, post-route LC, explicit fit failures). The DSP conclusion departs from practice: the SB_MAC16 can deliver independent 8x8 products in its upper and lower halves (Lattice TN1295, TOPOUTPUT_SELECT/BOTOUTPUT_SELECT 8x8 modes), and in OS the broadcast x times two 4-bit weights packed into one 16-bit operand is the standard DSP-packing trick (cf. Xilinx WP521 INT4 packing); either would let 8 blocks serve 16 lanes, so 'fails to place at more than 8 lanes' (README:44) is a Yosys inference artefact, and the question the README poses ('do the eight hard multipliers change the answer?') is left unanswered at the one point that matters (OS P=16). Also: one 60 MHz target with --timing-allow-fail and the heap placer only, no critical-path report, no weight storage (acknowledged).",
+  "summary": "Honest, small synthesis study whose derivable numbers all recompute; tests are nearly vacuous in CI and the DSP finding is a tool artefact."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "cycles per 64x70 product for OS P=1,8,16,32 and RT/RTp P=8,32 against the RTL schedule",
+   "method": "own cycle-level Python transliteration of accel-plane/rtl/os_engine.v and rt_engine.v with start=1, counting done-to-done periods (not calling flow.cycles)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/accel/rtlsim.py",
+   "expected": "closed form + 1..3 handshake: OS 4480/560/280/140, RT 576/192, RTp 576/192",
+   "observed": "periods OS 4481/561/281/141, RT 578/194, RTp 579/195; results.json cycles 4480/560/280/140/576/192",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "engine semantics y = W.x (int4 weights, int8 inputs, 64x70) for the dataflows being synthesised",
+   "method": "direct Python dot products vs the transliterated engine outputs (random W, x, seed 1)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/accel/rtlsim.py",
+   "expected": "bit-exact",
+   "observed": "bit-exact True for all 8 configurations",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "OS synth flip-flop counts vs RTL structure (are lanes kept, is this a real synthesis?)",
+   "method": "hand derivation from os_engine.v/plane_top.v: +24 acc +24 out_vec +4 shift-register bits per lane, tile counter TW=clog2(NT)+1 loses one bit per P doubling, so dFF = 52*dP - 1",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/accel/recompute.py",
+   "expected": "deltas 51, 103, 207, 415",
+   "observed": "synth_ff 81,132,235,442,857 -> deltas 51, 103, 207, 415",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headline latency OS P=16",
+   "method": "cycles / median Fmax from results.json fmax_all, by hand",
+   "command": "python3 -c \"print(280/27.43)\"",
+   "expected": "10.2 us (README:35)",
+   "observed": "10.208",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "DSP logic saving range across 12 fitting DSP pairs",
+   "method": "1 - LC_dsp/LC_nodsp from results.json pnr_lc",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/accel/recompute.py",
+   "expected": "13 to 41% (README:3, :44)",
+   "observed": "13.3 to 42.3% (RTp P=8: 1042 -> 601)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "derived README claims: per-lane slope, RTp recovery, DSP Fmax gain, wrapper share, duty cycle, seed spread",
+   "method": "recomputed from results.json",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/accel/recompute.py",
+   "expected": "180/110 LC; 1-19 MHz; 2-8 MHz; 4-5%; 0.06%; <=10%",
+   "observed": "179.4/111.5; 1.1-19.1; 2.04-7.61; 4.25-4.35%; 0.058%; max 7.3%",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "results.txt is generated from results.json (no retyped numbers)",
+   "method": "row-by-row comparison of LC, Fmax, latency and median-of-3",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/accel/recompute.py",
+   "expected": "36 rows, 0 mismatches",
+   "observed": "36 rows, 0 mismatches, 29 fit",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure regenerates from committed results",
+   "method": "ran figure.py in a private copy with research/_shared/linefig.py, cmp against committed SVG",
+   "command": "python3 <scratch>/fig/research/accel-planefpga/experiments/figure.py && cmp ...",
+   "expected": "identical",
+   "observed": "SVG_IDENTICAL",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "re-run the Yosys/nextpnr sweep (experiments/run.py)",
+   "method": "which iverilog verilator yosys; pip install yowasp-yosys yowasp-nextpnr-ice40",
+   "command": "which iverilog verilator yosys",
+   "expected": "tools available, numbers reproduce",
+   "observed": "exit 1, none installed; pip install refused in this session; no raw logs committed to compare against",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run as README says",
+   "command": "cd research/accel-planefpga && python3 -m unittest discover -s tests -v",
+   "expected": "5 tests pass",
+   "observed": "Ran 5, OK (skipped=2): both tool-flow tests skipped; no workflow installs yosys",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "DSP finding: 8 SB_MAC16 cap the DSP design at 8 lanes",
+   "method": "Lattice TN1295 SB_MAC16 8x8 output modes; INT4 operand packing (Xilinx WP521)",
+   "command": "read README.md:44, flow.py:43 (synth_ice40 -dsp only)",
+   "expected": "packed or dual-8x8 mapping tried before concluding",
+   "observed": "only Yosys default inference (one SB_MAC16 per multiplier); packing and 8x8 modes not mentioned",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited",
+   "method": "grep for sensAI, FINN, hls4ml, Eyeriss in the subject",
+   "command": "grep -rniE 'sensai|finn|hls4ml|eyeriss' research/accel-planefpga",
+   "expected": "Lattice sensAI (KWS on UP5K), FINN/hls4ml cited and compared",
+   "observed": "no matches",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/accel_planefpga/flow.py:61",
+   "change": "fmax=fm[len(fm) // 2] -> fmax=fm[-1] (median -> max seed)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/accel_planefpga/flow.py:11",
+   "change": "ENGINES RTp: 2 -> 1 (pipelined tree built as unpipelined)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/accel_planefpga/flow.py:27",
+   "change": "wrapper_luts OS: p * accw -> accw",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "rtl/plane_top.v:27",
+   "change": ".PIPE(ENG == 2) -> .PIPE(0)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/accel_planefpga/flow.py:68",
+   "change": "RT cycles o * ceil(i, p) -> o * (i // p)",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The DSP conclusion ('fails to place at more than 8 lanes', so the 16-lane OS point has no DSP counterpart) is an artefact of Yosys inferring one SB_MAC16 per 4x8 multiplier; the SB_MAC16's independent 8x8 halves (Lattice TN1295) or packing two int4 weights against the broadcast x in one 16x16 multiply would fit 16 lanes in 8 blocks. Neither is mentioned, so the headline question about the hard multipliers is unanswered where it matters.",
+   "where": "research/accel-planefpga/README.md:44",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests never exercise the flow: both TestFlow tests skip without native yosys and no CI workflow installs it; 4 of 5 seeded mutations (median->max Fmax, RTp built as RT, wrapper formula, PIPE disabled in the RTL top) survive.",
+   "where": "research/accel-planefpga/tests/test_planefpga.py:9",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "No raw Yosys/nextpnr reports or tool versions are committed (results.json carries a prose 'tool' string), and the sweep has never been re-run by the research audit (research/_audit/README.md:44), so the LC/Fmax table cannot be checked against tool output.",
+   "where": "research/accel-planefpga/experiments/results.json:2",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited: Lattice sensAI runs keyword spotting on this exact iCE40 UP5K; FINN (Umuroglu et al., FPGA 2017) and hls4ml are the standard DNN-on-FPGA flows. Novelty and comparison are therefore unstated.",
+   "where": "research/accel-planefpga/README.md:9",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "DSP logic saving stated as '13 to 41%'; results.json gives 13.3 to 42.3% (RTp P=8: 1042 -> 601 LC). Same text in research/README.md:330.",
+   "where": "research/accel-planefpga/README.md:44",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "run.py docstring says 'about 6 min'; README:22 says 'about 30 min'.",
+   "where": "research/accel-planefpga/experiments/run.py:3",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "tool() returns [None] when neither the native nor the YoWASP binary exists, so subprocess raises a TypeError instead of a clear message; the test gate requires native yosys though tool() accepts yowasp-yosys.",
+   "where": "research/accel-planefpga/src/accel_planefpga/flow.py:17",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15534"
+ ],
+ "verdict": "A small, honest synthesis-only study. Every number that can be derived without the tools recomputes: cycle counts match my own transliteration of the RTL (1 to 3 handshake cycles extra, bit-exact W.x), OS flip-flop counts grow exactly 52*dP - 1 as the RTL implies (so the table comes from real synthesis and lanes survive), the 10.2 us headline and all derived README figures check, except the DSP saving top end (42.3% vs '41%'). It misses the bar on verification: the tool-flow tests are always skipped in CI and 4 of 5 seeded mutations survive. The yosys/nextpnr sweep could not be re-run here (tools absent, install refused) and no raw reports are committed. An FPGA architect would reject the DSP conclusion as a Yosys inference artefact (SB_MAC16 8x8 halves or int4 packing not tried) and ask for the sensAI/FINN/hls4ml comparison."
+}

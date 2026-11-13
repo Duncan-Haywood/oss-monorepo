@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVMEEbKii82fJJRekPv",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "7eab53d2d124d76d4c0792e7bcacb742bd07a4a55c29819a50a6cd23cbc24081",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T10:18:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 5 (einvoice-preflight): read the multi-file 1.0x NFS-e provider schemas (Ginfes 1.00, WebISS 1.00)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15460",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route without --task drew the research track for a scheduled run whose stored prompt is the ventures brief; the ventures route needed --task, which prompt.md mentions only for direct requests"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Re-routed with --task from the routine's own ventures brief instead of following the research draw",
+      "did": "ventures track, flagship row 3 (einvoice-preflight)",
+      "result": "slice landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-ginfes-namespaces-and-the-tipos-prefix.md",
+    "ventures/einvoice-preflight/eval/ginfes-webiss-1x-2026-11-13.md"
+  ],
+  "goal": null,
+  "notes": "build-abrasf-schema.mjs compiles XSD sets (compileFiles); ABRASF/provider data unchanged byte for byte. Ginfes 1.00 (13 v03 files, 34 cities in OpenAC's list) and WebISS 1.00 (16 files) read. Verification: node --test abrasf.test.mjs 27/27; run_venture_tests.py einvoice-preflight ok; eval/abrasf-xsd-diff.mjs vs xmllint: Ginfes 64/64 verdicts, 2,471/2,471 mutants; whole run 256/261 verdicts (5 = pre-existing HMACOutputLength signature case, same before the change) and 3,294/3,294 mutants. Found and fixed during the run: multi-file findings were pushed twice. ISSNet 1.00 (xs:all) and Betha 1.00 (unqualified) skipped and noted.",
+  "corrections": [],
+  "redteam": null
+}

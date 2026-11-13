@@ -4,6 +4,19 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 **Live page:** https://marisstella.app/research/codesign-cant/
 
+![Left: held-out cost at the design wind and at the trained lever, paired against the unconstrained designs, as the ki bound is tightened from 1.0 to 0.6 times the linear ceiling: about 0.01 worse from 0.9 times on, flat beyond that. Right: held-out flights that diverged out of 384: with a 45 degree tilt limit, 13 unconstrained, 9 at 1.0 times, 3 at 0.9 times and none from 0.8 times on; at twice the trained lever the counts fall to a floor of 4 (20 degree limit) and 12 (45 degree) at 0.8 times and stay there.](experiments/m7f_sweep/m7f_sweep.png)
+
+## Milestone 7f: how much stability margin should the tuner keep?
+
+**Question.** Milestone 7e made CMA-ES keep the attitude integral gain at or below 0.8× its linear stability ceiling and found it cheap and protective. Is 0.8× the right number? We trained the same designs (centre of pressure above, 6 seeds × 2 starts × 3,200 evaluations) with the bound at 1.0×, 0.9×, 0.7× and 0.6× of the ceiling, and scored all seven arms on the same 64 held-out flights at 20° and 45° tilt-command limits and at 0, 1 and 2× the trained centre-of-pressure lever.
+
+**Headline (`experiments/m7f_sweep/results.txt`; simulated, 48 new CMA-ES runs, 42 designs; 7 predictions committed first).**
+
+- **0.8× is the knee.** At a 45° tilt limit the designs diverge on 13 of 384 held-out flights unconstrained, 9 when only required to be stable at every plant corner (1.0×), 3 at 0.9×, and 0 at 0.8×, 0.7× and 0.6×. At twice the trained lever the counts fall to 4 of 384 (20° limit) and 12 (45°) at 0.8× and do not improve further.
+- **Tighter costs nothing more.** The held-out cost penalty is about 0.011 (0.7%) at every bound from 0.9× to 0.6×, position error 0.105 m in all arms; the optimiser sits on whichever bound it is given and makes up the integral gain with the other gains.
+- **For a builder:** add the linear check to the tuning loop with ki at 0.8× of its ceiling or a little below. Stability at the plant corners alone is not enough.
+- Predictions: F1, F3, F4b and F6 held; F2 refuted narrowly, F4a refuted (the price steps, then is flat), F5 split (0.9× still diverges) (`LOG.md`).
+
 ![Left: each trained design's attitude integral gain as a multiple of its own linear stability ceiling against its held-out cost at the design wind: the unconstrained designs (milestone 7b) sit at 0.9 to 1.1 times the ceiling, the designs trained with the 0.8 times margin as a constraint sit at 0.77 to 0.79 times it, with the same cost; the centre-of-pressure-below designs barely use the integrator. Right: held-out flights that diverged at lever 0, 1 and 2: with the centre of pressure above, 15 of 384 unconstrained flights diverge at lever 2 against 4 constrained; with it below, 42 against 45.](experiments/m7e_margin/m7e_margin.png)
 
 ## Milestone 7e: train inside the linear stability margin

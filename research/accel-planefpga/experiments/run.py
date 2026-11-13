@@ -1,6 +1,6 @@
 """Sweep accel-plane's three engines over P = 1..32 on the iCE40 UP5K, with and without DSP mapping.
 
-    python3 experiments/run.py      # about 6 min; writes results.json and results.txt
+    python3 experiments/run.py      # about 30 min (README; not re-timed by the 2026-11-13 audit, which could not run Yosys); writes results.json and results.txt
 """
 import json
 import os

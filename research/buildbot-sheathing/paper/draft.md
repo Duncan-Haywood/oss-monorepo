@@ -453,6 +453,20 @@ part removed), against 0.579 for parabolas at the same studs' own bows: the para
 single 2x by 11–15 points. Doubled joints give 1.000 on the measured studs. One robot-built wall
 is a small sample; it refutes the shape assumption without estimating a population.
 
+### 5.11 The single-2x remedies on measured studs (milestone 12)
+
+Most of section 5.10's loss is the robot's estimate, not the geometry. Reading each stud at every
+nail height and aiming each nail at its own read, with no fitted shape, lifts the measured studs
+from 0.4253 to 0.5303 clean sheets (ledger placement, no push), against 0.5792 for their own
+parabolas: the cost of waviness falls from 15.4 points to 4.7. On parabolic or straight studs the
+same reads gain nothing. The mid push of section 5.8, measured from the chord through the stud's
+ends and applied by superposition to the scanned shape, still lifts three-read single 2x from
+0.4253 to 0.5516. With per-nail reads, the push and section 5.9's slide and shim, measured studs
+reach 0.7707 (0.7960 with the scan's common part removed), against 0.8600 on their own parabolas;
+95% then needs a tool held to 0.606 mm (1σ), against 0.839 mm on straight studs. Doubled joints
+give 1.0000 in every cell. The single-2x route therefore needs all of a line read along the stud,
+a push, a pose fix and a tighter tool; doubled joints need none of them.
+
 ## 6. Discussion
 
 **What decides a clean sheet.** The robot's sensing matters only where the framing leaves room

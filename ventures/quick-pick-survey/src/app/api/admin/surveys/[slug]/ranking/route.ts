@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
-import { agreementSummary, coverage, fastAnswerCutMs, fastAnswerers, groupRanking, paceSummary, parseDrop, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, respondentPace, slotClickerAdvice, slotClickers } from "@/lib/groupRanking";
+import { agreementSummary, coverage, fastAnswerCutMs, fastAnswerers, fastBlockStarts, ratingsWithoutAnswers, groupRanking, paceSummary, parseDrop, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, respondentPace, slotClickerAdvice, slotClickers } from "@/lib/groupRanking";
 import { CHECKOUT_URL, VALIDATE_URL } from "@/lib/checkout";
 import { reportGate } from "@/lib/reportAccess";
 import { resultsReportHtml } from "@/lib/resultsReport";
@@ -12,6 +12,8 @@ import { resultsReportHtml } from "@/lib/resultsReport";
  * `?drop=fast` leaves out respondents who answered in under half the typical time per pick, for comparison.
  * `?drop=fast-answers` keeps everyone and leaves out each answer given in under half the typical time,
  * rebuilding each person's ratings from the answers kept (groupRanking.ts, ratingsWithoutFastAnswers).
+ * `?drop=fast-blocks` keeps everyone and leaves out what each person answered after turning quick
+ * partway through, read against the panel's time at the same point in the session (groupRanking.ts, fastBlockStarts).
  */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const store = await cookies();
@@ -20,7 +22,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
   }
   const { slug } = await params;
   const drop = parseDrop(req.nextUrl.searchParams.get("drop"));
-  if (!drop.ok) return NextResponse.json({ error: 'drop must be "fast", "fast-answers" or absent' }, { status: 400 });
+  if (!drop.ok) return NextResponse.json({ error: 'drop must be "fast", "fast-answers", "fast-blocks" or absent' }, { status: 400 });
   try {
     const survey = await prisma.survey.findUnique({
       where: { slug },
@@ -64,24 +66,29 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     const agreements = respondentAgreement(unclicked);
     const pace = paceSummary(paces, agreements);
     const cut = drop.fastAnswers ? fastAnswerCutMs(paces) : null;
-    const replayed = cut === null
-      ? null
-      : ratingsWithoutFastAnswers(
-          times.filter((t) => !clickers.has(t.participantId)).map((t) => ({ participantId: t.participantId, itemAId: t.itemAId, itemBId: t.itemBId, result: t.result!, ms: t.msToAnswer })),
-          cut
-        );
+    const inOrder = () => times.filter((t) => !clickers.has(t.participantId)).map((t) => ({ participantId: t.participantId, itemAId: t.itemAId, itemBId: t.itemBId, result: t.result!, ms: t.msToAnswer }));
+    const blocks = drop.fastBlocks ? fastBlockStarts(inOrder()) : null;
+    const replayed = cut !== null
+      ? ratingsWithoutFastAnswers(inOrder(), cut)
+      : blocks && blocks.size
+        ? ratingsWithoutAnswers(inOrder(), (a, i) => i >= (blocks.get(a.participantId) ?? Infinity))
+        : null;
     const kept = replayed ? replayed.rows : drop.fast && fast.size ? unclicked.filter((r) => !fast.has(r.participantId)) : unclicked;
     const ranked = groupRanking(survey.items, kept);
     const leftOut = {
       slotClickers: clickers.size,
       fast: drop.fast ? fast.size : 0,
-      fastAnswers: replayed ? replayed.dropped : 0,
+      fastAnswers: cut !== null && replayed ? replayed.dropped : 0,
+      fastBlocks: blocks ? blocks.size : 0,
       advice: [
         slotClickerAdvice(clickers.size, survey._count.participants),
         drop.fast && fast.size ? `${fast.size} fast ${fast.size === 1 ? "answerer is" : "answerers are"} left out of this ranking, as asked.` : "",
-        replayed && replayed.dropped
+        cut !== null && replayed && replayed.dropped
           ? `${replayed.dropped} ${replayed.dropped === 1 ? "answer" : "answers"} given in under ${Math.round(cut! / 100) / 10} s (half the typical time per pick), from ${replayed.people} ${replayed.people === 1 ? "respondent" : "respondents"}, ${replayed.dropped === 1 ? "is" : "are"} left out of this ranking, as asked; everyone's other answers count.`
           : drop.fastAnswers && cut === null ? "Too few respondents have timed answers to judge a typical time per pick, so no answers are left out." : "",
+        blocks && replayed && cut === null
+          ? `${blocks.size} ${blocks.size === 1 ? "respondent" : "respondents"} answered at a normal pace and then turned much quicker than everyone else at the same point in the survey; the ${replayed.dropped} ${replayed.dropped === 1 ? "answer" : "answers"} they gave from then on ${replayed.dropped === 1 ? "is" : "are"} left out of this ranking, as asked, and their earlier answers count.`
+          : drop.fastBlocks && blocks && blocks.size === 0 ? "Nobody turned unusually quick partway through (or too few respondents have enough timed answers to tell), so no answers are left out." : "",
       ].filter(Boolean).join(" "),
     };
     // A data-quality note only: the ranking above counts everyone else equally (groupRanking.ts, agreementSummary).

@@ -151,6 +151,16 @@ await page.click("#go");
   const [dm] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
   const mid = fs.readFileSync(await dm.path());
   ok(mid.equals(fs.readFileSync(path.join(tmp, "s.mid"))) && mid.includes("Tenors") && mid.includes("Basses"), `split MIDI equals the CLI's (${mid.length} bytes, Tenors and Basses tracks)`);
+  // handing over at a word too: equals the CLI's --split-words
+  await page.selectOption("#final", "splitwords");
+  await page.click("#go");
+  const tw = await out();
+  ok(/phrase 54 handed over at a word: tenors "Judicándus", all "homo reus:"; final F3/.test(tw), "split-at-a-word summary on the Dies irae");
+  execFileSync(process.execPath, [path.join(root, "cli.mjs"), path.join(root, "corpus/dies-irae.gabc"), "--split-voices", "--split-words", "--fit", "8", "--stretch", "-o", path.join(tmp, "w.mid"), "--cues", path.join(tmp, "w.txt")]);
+  const [dwc] = await Promise.all([page.waitForEvent("download"), page.click("#dlcues")]);
+  ok(fs.readFileSync(await dwc.path(), "utf8") === fs.readFileSync(path.join(tmp, "w.txt"), "utf8"), "split-at-a-word cue sheet equals the CLI's --split-words --cues");
+  const [dwm] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
+  ok(fs.readFileSync(await dwm.path()).equals(fs.readFileSync(path.join(tmp, "w.mid"))), "split-at-a-word MIDI equals the CLI's");
   await page.selectOption("#final", "auto");
   // back to the state the next check expects
   await page.selectOption("#genre", "edm"); await page.selectOption("#sections", "1");

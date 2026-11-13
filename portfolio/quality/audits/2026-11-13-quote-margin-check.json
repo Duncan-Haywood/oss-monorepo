@@ -1,0 +1,212 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/quote-margin-check",
+ "stratum": "venture",
+ "seed": "2026-11-13-n",
+ "drawn_by": "sample",
+ "round": 68,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a small-business controller or agency estimator who reviews fixed-price proposals; first they check that the effective-rate and target-price arithmetic is the standard one ((price - direct costs) / all hours, and hours x rate + costs), then look for the gross margin % on price and the margin-vs-markup distinction, then ask how price-scaled costs (platform and card fees) and staff labor are handled",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/quote-margin/check.mjs /home/user/oss-monorepo/ventures/quote-margin-check/site/calc.mjs recomputes the shipped calc.mjs against hand arithmetic from the standard freelance effective-rate method (effective rate = (price - pass-through costs) / all billable and non-billable hours; target price = hours x target rate + costs). Example quote $2,400, 24+5+6 h, $180 overhead + $300 sub, $75 target, 20% buffer: effective rate 1920/35 = 54.8571 (tool 54.8571); target 35x75+480 = 3105 (3105); buffer 42 h -> 42x75+480 = 3630 (3630); +25% direct costs 600 -> 1800/35 = 51.4286 and 3225 (both match); 10% discount 2160 -> 1680/35 = 48.00, 1680/75 = 22.4 h, cut 12.6 h (match); kill fee 14 h done, 1200 paid, 360 fee, 180 sunk: finish 1920, kill 1200+360-180 = 1380, walk 1020, net from here 1200-300 = 900 over 21 h = 42.857/h, refill 1380+21x75 = 2955 (all match). CLI (python3 src/quote_margin.py examples/website-redesign.json --format json) gives the same 54.857/3105/-705/25.6 h. Every computed figure is right; held at 3 not 4 because percentage-based costs (platform/card fees) can only be entered as a fixed amount, which understates the target price (10% platform fee on top of $480 other costs: grossed-up (2625+480)/0.9 = 3450; tool 3345 when the fee is typed as $240 overhead).",
+  "completeness": "Claimed features exercised: CLI markdown/json/csv and --batch (ran), sensitivity tables in JSON (ran), browser calc functions for overrun, cost spike, discount ask, price ladder, fixed vs hourly, kill fee, change order (check.mjs), share links / drafts / history / export / usage covered by 135 node tests that pass. Six guide pages exist and link to anchors on index.html. One stale claim: README.md:14 says 'Not yet deployed to a public URL' four lines after 'Live page: https://marisstella.app/quote-margin-check/' (README.md:7). The served page could not be loaded from this session (marisstella.app is blocked by the session proxy: curl CONNECT 403, WebFetch ENOTFOUND), so no URL defect is filed; llms.txt's github.io links are rewritten at deploy by platform/ci/build_pages_site.py rewrite_base_urls (DEFAULT_BASE_URL line 51).",
+  "verification": "cd ventures/quote-margin-check/site && node --test '*.test.mjs': 135 pass, 0 fail. cd ventures/quote-margin-check && python3 -m unittest discover -s tests: Ran 37 tests OK (pytest not installed; unittest works). site/parity.test.mjs and tests/test_quote_margin.py:363 run the CLI and calc.mjs on the same quotes and compare exactly. quality_mutate, 5 mutants: 3 caught (kill-fee path dropping sunk costs, calc.mjs:380; hours_done boundary > -> >=, calc.mjs:328; hidden_time_percent denominator, quote_margin.py:78). 2 survived, both exact-zero boundaries: survives_overrun_percent >= 0 -> > 0 (quote_margin.py:287, a quote landing exactly on target at +10% would be reported as surviving only 0%), and discount coversCosts > 0 -> >= 0 (calc.mjs:260). Core formulas are pinned; boundaries are not.",
+  "craft": "Files read: src/quote_margin.py (553 lines), site/calc.mjs (525), site/index.html script (readInputs/collectPanels ~600-650), tests/test_quote_margin.py, parity.test.mjs header. Pure functions, explicit validation that rejects booleans, NaN, negatives and zero price/hours/rate (quote_margin.py:35-52, calc.mjs:27-47), blank optional browser fields become 0 by design. The arithmetic exists twice (Python and JS) but a parity test pins them exactly, which is the right mitigation. Weaknesses: index.html is 1,187 lines with an inline script; README is 278 lines, most of it event-telemetry prose that buries the method.",
+  "claims": "Checked: effective rate, break-even and target gap (llms.txt:3, README.md:3-6) are produced and correct; 'break-even' is explicitly labelled 'direct costs only' (quote_margin.py:307), so it is honest though non-standard; 'the CLI and the page share one arithmetic; a test runs both' (llms.txt) backed by parity.test.mjs and test_quote_margin.py:363; no-warranty / not-advice disclaimer present (README, index.html:401, guides); 'does not recommend prices' honoured throughout; vs-bonsai.html explicitly declines to state Bonsai prices it could not verify and carries a not-affiliated note. Gaps: README.md:14 'Not yet deployed' contradicts the live link; the product is named 'Quote Margin Check' and calculate() is documented as 'the transparent margin report' (calc.mjs:49) but no margin % is output anywhere; 'small agencies' (README.md:4, VENTURE.yaml:2) is claimed but staff labor cost is not modelled.",
+  "fitness": "Job walked: a freelancer with a $2,400 fixed quote wants to know what it pays per hour once admin and revisions count, and what to say to a 10% discount ask. The page/CLI answer both directly ($54.86/h; 10% off -> $48.00/h, or cut 12.6 h of scope to hold $75), with overrun, cost-rise and kill-fee tables a freelancer would actually use mid-negotiation. A small agency with paid staff cannot enter labor cost per person, and a freelancer on a platform with a percentage fee has to approximate it as a fixed amount.",
+  "domain": "Compared with standard freelance pricing practice (effective hourly rate including non-billable time) and with small-business estimating practice (gross margin % on price, margin vs markup, cost-plus with fees grossed up). The effective-rate and target-price method is the standard one and correct. Departs: (1) no gross margin % (cost_coverage / price) or markup %, the first number a controller asks for of a tool called 'margin check' (example: 1920/2400 = 80.0% margin after direct costs, 400% markup on them); (2) percentage-of-price costs (platform fees, card processing, sales commissions) cannot be expressed, so target price and discount tables treat them as fixed; (3) subcontractor cost passes through at cost with no markup option, while agencies typically mark up subs; (4) the kill fee is modelled as on top of the deposit, whereas many contracts credit the deposit against it (labelled on the page, so low)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "effective hourly rate and target price, example quote ($2,400; 24+5+6 h; $480 direct; $75 target)",
+   "method": "by hand, standard freelance effective-rate method: (price - direct costs)/total hours; hours x rate + costs",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/quote-margin/check.mjs /home/user/oss-monorepo/ventures/quote-margin-check/site/calc.mjs",
+   "expected": "54.8571 /h; 3105",
+   "observed": "54.8571; 3105",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "time buffer 20% and +25% direct-cost rise",
+   "method": "by hand: 35x1.2 = 42 h, 42x75+480; costs 480x1.25 = 600, 1800/35, 35x75+600",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/quote-margin/check.mjs /home/user/oss-monorepo/ventures/quote-margin-check/site/calc.mjs",
+   "expected": "42 h, 3630; 51.4286 /h, 3225",
+   "observed": "42, 3630; 51.4286, 3225",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "10% discount ask: rate left and scope cut to hold target",
+   "method": "by hand: 2160-480 = 1680; 1680/35; 1680/75; 35-22.4",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/quote-margin/check.mjs /home/user/oss-monorepo/ventures/quote-margin-check/site/calc.mjs",
+   "expected": "48.00 /h, 22.4 h left, 12.6 h cut",
+   "observed": "48, 22.4, 12.6000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "kill fee vs finish (14 h done, 1,200 paid, 360 fee, 180 sunk)",
+   "method": "by hand, incremental cash with sunk costs on every path: finish 2400-480; kill 1200+360-180; walk 1200-180; net from here (2400-1200)-(480-180) over 21 h",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/quote-margin/check.mjs /home/user/oss-monorepo/ventures/quote-margin-check/site/calc.mjs",
+   "expected": "1920 / 1380 / 1020; 900 at 42.857 /h; kill refill 2955",
+   "observed": "1920 / 1380 / 1020; 900, 42.8571; 2955",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "target price when a 10% platform fee applies (fee entered as $240 overhead, the only way the form allows)",
+   "method": "cost-plus with a percentage fee grossed up: (labor 2625 + fixed costs 480)/(1-0.10)",
+   "command": "cd ventures/quote-margin-check && python3 src/quote_margin.py /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/quote-margin/fee.json --format json  (overhead 420 = 180 + 240 fee, sub 300; result.target_price)",
+   "expected": "3450",
+   "observed": "3345 (understated by 105; the discount table also keeps the fee fixed as price falls)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "gross margin % on price / markup %",
+   "method": "standard definitions: margin = (price - cost)/price, markup = (price - cost)/cost; example 1920/2400",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/quote-margin/check.mjs /home/user/oss-monorepo/ventures/quote-margin-check/site/calc.mjs (keys of calculate() matching /margin|markup/)",
+   "expected": "80.0% margin, 400% markup reported",
+   "observed": "no margin or markup field in calculate(), CLI or page",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "node test suite",
+   "method": "run",
+   "command": "cd ventures/quote-margin-check/site && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "135 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Python CLI tests (incl. CLI vs calc.mjs parity at test_quote_margin.py:363)",
+   "method": "run",
+   "command": "cd ventures/quote-margin-check && python3 -m unittest discover -s tests",
+   "expected": "all pass",
+   "observed": "Ran 37 tests OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "CLI markdown and json on the committed example",
+   "method": "run",
+   "command": "cd ventures/quote-margin-check && python3 src/quote_margin.py examples/website-redesign.json --format markdown",
+   "expected": "report with base result and five what-if tables",
+   "observed": "below target, 54.86/h, gap -705, all tables present",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README deployment status",
+   "method": "read README",
+   "command": "grep -n 'Not yet deployed\\|Live page' ventures/quote-margin-check/README.md",
+   "expected": "one consistent statement",
+   "observed": "README.md:7 live link; README.md:14 'Not yet deployed to a public URL'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer and not-advice wording on page, guides and CLI output",
+   "method": "read",
+   "command": "grep -n -i 'not tax\\|not .*advice\\|profitable' ventures/quote-margin-check/site/*.html README.md",
+   "expected": "present",
+   "observed": "present on index.html:401, every guide, CLI JSON 'disclaimer' field",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "served page",
+   "method": "load https://marisstella.app/quote-margin-check/",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/quote-margin-check/",
+   "expected": "200",
+   "observed": "not reachable from this session (proxy CONNECT 403; WebFetch ENOTFOUND); no URL defect filed",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "site/calc.mjs:380",
+   "change": "kill path: already_paid + kill_fee - sunk_costs -> already_paid + kill_fee",
+   "caught": true,
+   "test_cmd": "cd site && node --test '*.test.mjs'"
+  },
+  {
+   "where": "site/calc.mjs:328",
+   "change": "hours_done > report.total_hours -> >=",
+   "caught": true,
+   "test_cmd": "cd site && node --test '*.test.mjs'"
+  },
+  {
+   "where": "src/quote_margin.py:287",
+   "change": "row[\"gap_to_target\"] >= 0 -> > 0 (survives_overrun_percent)",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "site/calc.mjs:260",
+   "change": "coversCosts = cost_coverage > 0 -> >= 0",
+   "caught": false,
+   "test_cmd": "cd site && node --test '*.test.mjs'"
+  },
+  {
+   "where": "src/quote_margin.py:78",
+   "change": "hidden_time_percent denominator total_hours -> delivery_hours",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "A tool named 'Quote Margin Check' reports no margin: calculate() has no gross margin % (cost_coverage / price) or markup %, in the CLI or the page, so a controller cannot read the standard figure or see the margin-vs-markup distinction (example: 80.0% margin, 400% markup on direct costs).",
+   "where": "ventures/quote-margin-check/src/quote_margin.py:55",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Costs that scale with price (platform service fees, card processing, commissions) can only be typed as a fixed overhead amount, so the target price is understated (10% fee: 3345 vs grossed-up 3450) and the discount table keeps the fee constant as the price falls.",
+   "where": "ventures/quote-margin-check/src/quote_margin.py:57",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "README says the page is 'Not yet deployed to a public URL' four lines after giving the live marisstella.app link.",
+   "where": "ventures/quote-margin-check/README.md:14",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Exact-zero boundaries untested: survives_overrun_percent's >= 0 and the discount table's cost_coverage > 0 can both flip without any test failing.",
+   "where": "ventures/quote-margin-check/src/quote_margin.py:287",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "'Small agencies' is claimed but there is no staff labor cost input; an agency's own employees can only be modelled as a single owner target rate.",
+   "where": "ventures/quote-margin-check/README.md:4",
+   "category": "overclaim",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15545"
+ ],
+ "verdict": "Every figure recomputed by hand matched the shipped code (effective rate 54.86, target 3,105, buffer 3,630, cost-rise 51.43/3,225, 10% discount 48.00 with a 12.6 h scope cut, kill-fee paths 1,920/1,380/1,020), and the CLI and browser are pinned to each other by an exact parity test; 172 tests pass and 3 of 5 seeded mutants were caught, the two survivors being exact-zero boundaries. The method is the standard freelance effective-rate one and the copy is careful not to overclaim. Where a small-business controller would stop: a 'margin check' that never shows a margin %, no way to express fees that scale with price, and no staff labor cost for the 'small agencies' it names. A README line still says the page is undeployed. Meets the bar for a freelancer's quote worksheet; domain sits at 2 until margin % and percentage fees are modelled."
+}

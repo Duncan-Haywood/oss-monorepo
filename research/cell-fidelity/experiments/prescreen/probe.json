@@ -1,0 +1,42 @@
+{
+ "OKane2022@1.25x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.7081334810000044,
+   "error": null,
+   "r_min": 0.315925843581843,
+   "current_A": 6.25
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.2195335810000074,
+   "error": null,
+   "r_min": 0.3416609232350129,
+   "current_A": 6.25
+  }
+ },
+ "Chen2020@1.5x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.7588043640000137,
+   "error": null,
+   "r_min": 0.20651880268615708,
+   "current_A": 7.5
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.6766266839999844,
+   "error": null,
+   "r_min": 0.2417646968547003,
+   "current_A": 7.5
+  }
+ },
+ "kept": [
+  "OKane2022@1.25x",
+  "Chen2020@1.5x"
+ ]
+}

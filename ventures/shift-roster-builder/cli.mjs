@@ -62,8 +62,9 @@ Options:
                       (runs the slower exact repair; the plain build leaves it out)
   --steady           among the rosters that tie at the best score, post the one a single call-out hurts least (each person-day
                       worked Tue-Sun played as a 5pm-before call-out and a kept rebuild); same score and payroll, slower
-  --cover-price <$>  pay up to $ per hour at risk for call-out slack: a day is at risk when nobody else could take that
-                      person's shifts that day. Unlike --steady this gives up score (pay or fairness) to buy the slack
+  --cover-price <$>  pay up to $ per hour at risk for call-out slack: a day is at risk when others could not take all of that
+                      person's shifts that day, even passing on up to two of their own. Unlike --steady this gives up score
+  --cover-chain <n>   hand-over passes the risk check allows per shift (0-3, default 2; 0 is the first, looser check)
   --no-prove          skip the exact check (it runs by itself on every week)
   --prove             also run an exact search (small weeks) and say whether the roster is provably the best, or how far off
   --weeks <n>         plan n consecutive weeks (1-8) from the same shifts; needs --week-start so dated time off lands in its week;
@@ -293,6 +294,11 @@ export function parseArgs(argv) {
       const v = Number(argv[++i]);
       if (!Number.isFinite(v) || v < 0) throw new Error("--cover-price needs a number of dollars per hour at risk");
       o.options.coverPrice = v;
+    }
+    else if (a === "--cover-chain") {
+      const v = Number(argv[++i]);
+      if (!Number.isInteger(v) || v < 0 || v > 3) throw new Error("--cover-chain needs a whole number from 0 to 3");
+      o.options.coverChain = v;
     }
     else if (a === "--weeks") {
       const v = Number(argv[++i]);

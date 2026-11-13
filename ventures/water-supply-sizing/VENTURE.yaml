@@ -1,0 +1,33 @@
+name: water-supply-sizing
+description: Free browser tool and CLI that works out peak water demand by Hunter's 1940 probability method, worked exactly for a mix of fixtures (rated flow, seconds per use, uses in the busiest hour), then sizes each copper or PEX supply segment in a pipe tree from the pressure budget and reports the pressure left at every fixture. An open first-principles method, not a plumbing code's fixture-unit table.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Plumbers and small builders sizing a service upgrade, a long run or a low-pressure house would use a free per-segment sizing with the pressure left at each fixture to check a code-table design or explain it to an owner.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searches such as "water supply pipe sizing calculator", "water service line size" and "Hunter's curve" are a reachable free channel once the pages are in the catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Every calculation runs in the visitor's browser; one more visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - A licensed designer's sizing of a real building differs from this tool's sizes, with the same flows and pressure budget, in a way that is not explained by the code table's own demand curve.
+  - Fewer than ten sizings a month in the usage counts within 120 days of the page being discoverable.
+
+links:
+  production: https://marisstella.app/water-supply-sizing/
+  analytics: null

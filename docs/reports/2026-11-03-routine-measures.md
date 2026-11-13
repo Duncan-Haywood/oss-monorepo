@@ -10,7 +10,7 @@ did, now have a script. Read their output instead of redoing the work.
 
 | Question | Command | First reading (2026-11-03) |
 |---|---|---|
-| Which doc friction do runs keep hitting? | `python3 platform/ci/friction_rank.py [--days 14]` | prompt.md step 0 `security-alerts`: 134 to 135 sessions in 7 to 14 days; then flagships.yaml (ai-bookkeeper data blocked, 26), research/CLAUDE.md env notes (49 over 14 days) |
+| Which doc friction do runs keep hitting? | `python3 platform/ci/friction_rank.py [--days 14] [--live]` (`--live`, 2026-11-13: hides clusters whose named code changed after their last report; 64 of 130 three-day clusters) | prompt.md step 0 `security-alerts`: 134 to 135 sessions in 7 to 14 days; then flagships.yaml (ai-bookkeeper data blocked, 26), research/CLAUDE.md env notes (49 over 14 days) |
 | Has a number a doc quotes gone stale? | `python3 platform/ci/check_doc_counts.py [--fix] [--list]` | PRODUCT_PLAYBOOK.md said 1,236 ventures; tree has 1,331 (fixed with a marker) |
 | Do research results still reproduce? | `python3 research/_shared/repro_watch.py [--n 12] [--out DIR]` | local sample of 7: 4 identical, 3 tool-missing (yosys, scipy), 0 differ |
 | Which flagships do people open? | `python3 portfolio/usage/flagship_usage.py [--days 14]` | 0 human loads for all 11 flagships, 2026-10-21..11-03; shed-designer 20, hearth-and-horizon 4 |
