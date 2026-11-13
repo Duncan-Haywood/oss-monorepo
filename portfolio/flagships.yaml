@@ -135,7 +135,7 @@ flagships:
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
       History and every measurement: README and git (TCPD consensus F1 0.702 shipped / 0.711 held out, binseg 0.714/0.727).
-      Next, most valuable first: (w) watch (README "Watching a growing series", "Round 5" to "Round 9"): hint, budget box and "Wandering level" (drift, Round 8) shipped; drift as a fourth hint setting failed (Round 9: 15 vs 17 marks; the rule assumes nested settings); next a fresh labelled set to test the hint, the drift watch and the lead that fixed drift beat fixed middle (Round 9), then a non-nested hint rule; a real deployer's repository on GitHub Actions (the emulated run is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check: date a documented collection change. One-tick stale feeds (README): next its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
+      Next, most valuable first: (w) watch (README "Watching a growing series", "Round 5" to "Round 9"): hint, budget box and "Wandering level" (drift, Round 8) shipped; drift as a fourth hint setting failed (Round 9: 15 vs 17 marks; the rule assumes nested settings); next a fresh labelled set to test the hint, the drift watch and the lead that fixed drift beat fixed middle (Round 9), then a non-nested hint rule (also for `--columns`, README "Several metrics in one watch"); a real deployer's repository on GitHub Actions (the emulated run is in the README); (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar; 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data; update-rate check: date a documented collection change. One-tick stale feeds (README): next its power in n, or a rounded-walk likelihood. Next: apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
       Open: (0) drift model: t-walk increments, biweight on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks: `--hinge-test` on more series, a hinge-residual guard, a second hinge; a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) `--garch`: t-GARCH failed one pre-registered line (README "Heavy tails in the GARCH search"): re-test scoring breaks with false alarms, new seeds; (4) driftWarning on real shocks; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
@@ -284,19 +284,20 @@ flagships:
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up CSVs,
       duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool, capped breaks,
       zero-break odd leagues, field start; sampled, annealed and climbed starters; break-weighted and
-      shift starters; frontier picker with gap tries, README 2026-11-12 sections). 2026-11-13 latest
-      (README "Squeezing a season under a cap", eval/squeeze-gap.txt): squeezeDoubleRounds searches a
-      home-and-away season's timetable and grounds together under a break cap (pair, two-pair and
-      alternating-run flips; leg-one balance held); the page runs 4 squeezes after its 12 tries, each at
-      the widest frontier gap left: at 17-20 teams 2-4 seasons join the frontier in every run, least
-      carry-over at a break budget 5.2% lower on average, up to 33%. Next, most valuable first: the
-      19-team jump (about 1,311-1,517 carry-over at 79-87 breaks, then 3,100+ at 78 and under on every
-      seed): a squeeze that starts from a shift-starter season above the gap and walks its cap down, or a
-      move that keeps the shift pattern; squeezes for a single round robin (the same joint moves on one
-      leg); the lowest-carry-over end (squeezing 1,460/116 at 20 teams stalls at 112: a perfectly balanced
-      season is a deep local minimum); a lower bound or a timetable below 136 at 12 (SAT,
-      eval/carryover-sat.py: next symmetry breaking or cube-and-conquer); close 24-40 (tabu, longer runs,
-      the literature's starters); a real league's travel times and unavailable dates; a print check.
+      shift starters; frontier picker with gap tries, README 2026-11-12 sections; squeezes of a
+      home-and-away season under a break cap, README "Squeezing a season under a cap"). 2026-11-13 latest
+      (README "Squeezing a single round robin", eval/squeeze-single.txt): squeezeSingleRounds runs the same
+      joint timetable-and-grounds moves on one leg and the page squeezes either kind: over 24 single round
+      robins at 10-20 teams 42 seasons join the frontier, least carry-over at a break budget 1.5% lower on
+      average (3.9% at 17 and 19 teams, up to 21.9%); a three-cycle ground move (keeps every home count)
+      measured no better, off. Next, most valuable first: the gaps under the lowest-carry-over seasons,
+      which no squeeze touches (20 teams single 360/52 to 546/36; home and away 19 teams 1,311/87 to
+      3,100+ at 78 and under; 1,460/116 at 20 stalls at 112): these are starter or shift-starter seasons
+      whose carry-over is tied to their break pattern, so the next try is a move that keeps the starter's
+      structure (a relabelling or a round rotation scored on breaks) or a starter search with a break cap;
+      a lower bound or a timetable below 136 at 12 (SAT, eval/carryover-sat.py: next symmetry breaking or
+      cube-and-conquer); close 24-40 (tabu, longer runs, the literature's starters); a real league's
+      travel times and unavailable dates; a print check.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
