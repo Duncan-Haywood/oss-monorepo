@@ -27,12 +27,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 8,
   "outcome": "success",
   "errors": [
-    "A first call to the record command ran from the venture directory (a backgrounded cd did not carry) and failed; rerun from the root."
+    "A first call to the record command ran from the venture directory (a backgrounded cd did not carry) and failed; rerun from the root.",
+    "portfolio-validate failed once: the flagship next: grew past its 2,000-character cap; shortened my item and moved a landed round-6 note out (it is in the README). Run python3 portfolio/router/validate.py locally before pushing a flagships edit."
   ],
   "integrity_issues": [
     "The pre-registration text says the GARCH grid has 24 points; the code it ran (and ships) has 18 (a + b under 0.98). Recorded in the README and checked by a test; the pre-registration file was not edited after the run."
