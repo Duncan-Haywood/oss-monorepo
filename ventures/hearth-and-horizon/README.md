@@ -347,8 +347,9 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (45 stories)
+### Little Lamps (46 stories)
 
+- [Vincent and the Babies at the Church Door](stories/vincent-and-the-babies-at-the-church-door.md) (2026-11-13; 12 min read, text only)
 - [Camillus and the Red Cross](stories/camillus-and-the-red-cross.md) (2026-11-12; 10 min read, text only)
 - [Damien and the Houses by the Sea](stories/damien-and-the-houses-by-the-sea.md) (2026-11-12; 9 min read, text only)
 - [Josephine Bakhita and the Door at Schio](stories/josephine-bakhita-and-the-door-at-schio.md) (2026-11-12; 9 min read, text only)
