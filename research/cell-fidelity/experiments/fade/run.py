@@ -108,7 +108,7 @@ def verdicts(C):
     return dict(
         H78=v([c["rho_short"] for c in C.values()], lambda x: x >= 0.85, lambda x: x < 0.6),
         H79=v([c["gap"] for c in C.values()], lambda x: x <= 0.03, lambda x: x > 0.075),
-        H80=v([c["t_ratio"] for c in C.values()], lambda x: x <= 0.30, lambda x: x > 0.45),
+        H80=v([c["t_ratio"] for c in C.values()], lambda x: x <= 0.25, lambda x: x > 0.40),
         H81=v([c["gap"] - c["front_gap"] for c in C.values()], lambda x: x <= 0.0, lambda x: x > 0.03))
 
 
