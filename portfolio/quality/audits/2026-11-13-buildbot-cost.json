@@ -1,0 +1,222 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/buildbot-cost",
+ "stratum": "research",
+ "seed": "2026-11-13-n",
+ "drawn_by": "sample",
+ "round": 68,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a construction equipment cost engineer / construction-robotics economist (engineering-economics break-even of a machine against crew labour). They would check first that the ownership-and-operating cost per hour follows the standard method (depreciation plus investment cost: interest, insurance, taxes; plus repairs), that the eligible hours really come from the taskbook's payload verdicts, that the Monte Carlo shares are not just a restatement of the chosen priors, and that the headline numbers match the run.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `/usr/bin/python3.13 experiments/run.py` into the scratchpad and diffed against experiments/results.txt: identical (results.json unchanged in git status). Recomputed independently in a separate script (scratchpad/buildbot/indep.py, numpy, reading buildbot-taskbook/experiments/taskbook.json directly): eligible crew-hours H1 A 32.15 / G1 A 5.89 / H1 B 67.07 / G1 B 16.05 of 46.4 / 93.43 (match 32.1/5.9/67.1/16.1); ownership rate G1 $4.267/h, H1 $24.00/h and s* at supervision 0.3 = 2.423 (G1), 1.071 (H1), at 0 = 8.873/1.577 (match); framing hours 428215 x 0.166 x 0.55 / 37.856 = 1032.8 (match 1033); ceiling H1 A 32.15 x 37.856 = $1,217 = 0.183% (matches the table, NOT the README headline's $1,237 / 0.19%); an independent 200,000-draw numpy Monte Carlo with a different generator gives P(net>0) 0.148 (G1) and 0.0040 (H1) against 0.151 / 0.004. Sourced inputs (BLS $29.12, NAHB $665,298 / $428,215 / 64.4% / framing 16.6%, G1 $16,000) could not be fetched (bls.gov, eyeonhousing.org, heise.de return 403 through the proxy); the NAHB figures agree with the published 2024 study as recalled and with house-cost's shares. The model's outputs are right; the wrong number is a stale README headline (claims).",
+  "completeness": "README claims: 8 tests (8 pass, 0.09 s); results.txt reproducible and deterministic (byte-identical rerun); scenarios A, B, C and section D per-1,000-hours all present in run.py and results.txt; figure.py exists and reads the model; break-even formula as stated in README Model section (model.py:51-58). Nothing claimed is a stub. The 'Next steps' (buildbot-fasten/-carry inputs, fleet/schedule term) are labelled future work.",
+  "verification": "`/usr/bin/python3.13 -m pytest -q tests` -> 8 passed. Four seeded mutations with platform/ci/quality_mutate.py: 3 of 4 SURVIVED. The payload-eligibility filter (model.py:33, == 'yes' -> != 'no', which admits 'out of reach' tasks), dropping the success factor in saving_per_house (model.py:77), and widening the slowdown prior to 0.3-10 (model.py:67, allowing a robot faster than a person) all leave every test green. Only the robot_rate hand-calc test caught its mutant. No test pins the eligible hours, the scenario C scale, or any headline number of results.txt, so the central research rule and the swept quantities are unguarded.",
+  "craft": "Read src/buildbot_cost/model.py (89 lines), experiments/run.py, experiments/figure.py, tests/test_model.py. Small, readable, stdlib-only, deterministic seed, pure functions with docstrings. Defects: run.py:169-172 computes the framing+sheathing+roof sum twice inline and the scenario C scale lives only in run.py (untested); run.py writes results.json as a side effect of printing; quantile helper uses int(f*n) without interpolation (fine at n=4000). Acceptable to a senior Python reviewer for a research script.",
+  "claims": "Limits and disclaimer are good ('Not a quote, not a safety case', swept-not-measured stated in bold, launch prices flagged, ISO 10218 / ISO/TS 15066 / OSHA named). But: README.md:9 headline says the H1 ceiling is '$1,237 (0.19% ...)' and the best H1 draw '$226', while results.txt and the README's own table say $1,217 (0.18%) and $222; project.json:4 says 'H1 32.7 h' (results: 32.1) and project.json:5 lede repeats 0.19%; README.md:9 calls the scope '48-hour' (46.4). README.md:18 calls house-cost's 2,000 ft2 two-storey reference 'an average house', but house-cost/README.md:24 says that reference is its own choice, 'not the survey's average'. Could not load the served page (marisstella.app 403 through the proxy) to see which version ships; project.json feeds the catalogue.",
+  "fitness": "The job: a researcher deciding whether to invest in buildbot-fasten/-carry wants to know what speed and supervision a skill must reach for a stock humanoid to pay. The closed-form s* = w/(rate + f w) answers that cleanly and is reusable. But P(saves money) = 15% / 0.4% is entirely a function of the uniform/log-uniform priors the author chose (README says so), so it is not a finding a reader can build on; and no prior work is cited: construction-robot economic feasibility (e.g. Bock and Linner, Construction Robots, 2016; SAM100 / Hadrian bricklaying productivity claims; equipment ownership-cost practice in Peurifoy et al., Construction Planning, Equipment, and Methods). The break-even itself is a textbook engineering-economics application, sound but not new.",
+  "domain": "Compared against the standard equipment ownership-and-operating cost method (Peurifoy et al.; Caterpillar Performance Handbook): ownership = depreciation + investment cost (interest, insurance, taxes, typically 10-20%/yr on average investment ~0.6P) + repairs. robot_rate (model.py:48) has depreciation and an 'upkeep' term but no cost of capital, no salvage and no obsolescence cap (life 10,000 h at 500 h/yr = 20 years for a 2024 humanoid). Adding 10%/yr on 0.6P at 1,000 h/yr moves H1 s* at supervision 0.3 from 1.07 to 0.93 (below 1: the H1 never breaks even at the README's base case) and G1 from 2.42 to 2.28. Scenario C converts NAHB framing-stage dollars to hours at an employee loaded wage, while framing is normally subcontracted at a price that includes the sub's overhead and profit, so C's 1,033 h is an overstatement (flagged as crude by the author). Labour-only, no schedule effect: disclosed."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "eligible crew-hours per robot and scenario from the taskbook payload verdicts",
+   "method": "separate numpy script summing crew_hours_mid_A/B over rows with payload == 'yes' in research/buildbot-taskbook/experiments/taskbook.json",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/buildbot/indep.py research/buildbot-taskbook/experiments/taskbook.json",
+   "expected": "H1 A 32.1, G1 A 5.9, H1 B 67.1, G1 B 16.1 (results.txt)",
+   "observed": "32.15, 5.89, 67.07, 16.05 of 46.4 / 93.43",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "break-even slowdown at base case (wage 29.12 x 1.3, life 6000 h, upkeep 10%/yr, 1000 h/yr, supervision 0.3)",
+   "method": "hand calc: rate = P/6000 + 0.1P/1000; s* = w/(rate + 0.3w)",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/buildbot/indep.py ...",
+   "expected": "G1 2.42, H1 1.07; unsupervised 8.87 / 1.58",
+   "observed": "G1 rate 4.267, s* 2.423; H1 rate 24.0, s* 1.071; unsupervised 8.873 / 1.577",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "cost-implied framing labour hours of the NAHB average house",
+   "method": "hand calc from NAHB 2024 construction cost 428,215 x framing share 0.166 x labour 0.55 / 37.856",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/buildbot/indep.py ...",
+   "expected": "1033 h",
+   "observed": "1032.8 h",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "P(saves money) over the sweep, robustness to RNG",
+   "method": "independent 200,000-draw Monte Carlo with numpy default_rng(12345), same priors, own closed form",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/buildbot/indep.py ...",
+   "expected": "G1 0.151, H1 0.004",
+   "observed": "G1 0.148, H1 0.0040",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "rerun experiment vs committed results",
+   "method": "byte diff",
+   "command": "cd research/buildbot-cost && /usr/bin/python3.13 experiments/run.py > /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/buildbot/results.txt && diff /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/buildbot/results.txt experiments/results.txt",
+   "expected": "identical",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README headline H1 ceiling and best draw",
+   "method": "compare README.md:9 with results.txt section B/C and independent 32.15 x 37.856",
+   "command": "grep -n '1,237' README.md; grep 'scenario A H1' experiments/results.txt",
+   "expected": "$1,217 (0.18%), best $222",
+   "observed": "README headline: $1,237 (0.19%), best $226; README table: $1,217 (0.18%), $222",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "project.json summary/lede eligible hours and share",
+   "method": "compare with results.txt",
+   "command": "grep -n '32.7\\|0.19' project.json",
+   "expected": "H1 32.1 h, 0.18%",
+   "observed": "summary 'H1 32.7 h' (and correct $1,217, 0.18%); lede '0.19%'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "scenario C house described as an 'average (2,000 ft2, two-storey) house'",
+   "method": "read house-cost/README.md:24, the source it cites",
+   "command": "sed -n 24p research/house-cost/README.md",
+   "expected": "an NAHB average house",
+   "observed": "house-cost says the 2,000 sq ft two-storey reference is its own choice, 'not the survey's average'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer and limits on the README",
+   "method": "read README 'Not a quote' and Limitations",
+   "command": "sed -n 13p research/buildbot-cost/README.md",
+   "expected": "research-code disclaimer, swept inputs flagged, safety standards named",
+   "observed": "present: swept-not-measured in bold, launch prices flagged, ISO 10218 / ISO/TS 15066 / OSHA",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "/usr/bin/python3.13 -m pytest -q tests",
+   "expected": "8 passed (README)",
+   "observed": "8 passed in 0.09 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "ownership cost per hour includes cost of capital",
+   "method": "Peurifoy et al., Construction Planning, Equipment, and Methods: ownership = depreciation + investment (interest, insurance, taxes on average investment ~0.6P) + repairs; hand calc with 10%/yr on 0.6P at 1,000 h/yr",
+   "command": "python3 -c \"w=29.12*1.3; P=90000; r=P/6000+0.1*P/1000+0.1*0.6*P/1000; print(w/(r+0.3*w))\"",
+   "expected": "investment cost term present",
+   "observed": "absent (model.py:48); adding it moves H1 s* from 1.07 to 0.93 and G1 from 2.42 to 2.28",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited and novelty",
+   "method": "read README Builds on / Limitations for construction-robot economics or equipment-cost literature",
+   "command": "grep -in 'prior\\|Bock\\|Peurifoy\\|SAM\\|Hadrian' README.md",
+   "expected": "prior construction-robot feasibility / equipment-cost work cited",
+   "observed": "none cited; only sibling repo projects",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "README sections A-D present in output",
+   "method": "read results.txt",
+   "command": "cat experiments/results.txt",
+   "expected": "break-even, ceiling A/B/C, sweep A/B/C, per-1000",
+   "observed": "all present",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/buildbot_cost/model.py:33",
+   "change": "t[key] == \"yes\" -> t[key] != \"no\" (admits 'out of reach' tasks)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/buildbot_cost/model.py:77",
+   "change": "hours * p[\"success\"] * net -> hours * net",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/buildbot_cost/model.py:67",
+   "change": "slowdown _logu(rng, 1.0, 10.0) -> _logu(rng, 0.3, 10.0)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/buildbot_cost/model.py:48",
+   "change": "upkeep_per_year / used_h_per_year -> upkeep_per_year / life_h",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "README headline states the H1 ceiling as $1,237 (0.19% of price) and best H1 draw $226 on a '48-hour scope'; results.txt and the README's own table give $1,217 (0.18%), $222, 46.4 h. Stale after a taskbook change (32.7 -> 32.1 eligible H1 hours); project.json summary keeps 'H1 32.7 h' and the lede 0.19%.",
+   "where": "research/buildbot-cost/README.md:9",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "project.json summary says 'H1 32.7 h' (results: 32.1) and the lede says 0.19% (results: 0.18%); this text feeds the catalogue page.",
+   "where": "research/buildbot-cost/project.json:4",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "medium",
+   "what": "Ownership rate omits cost of capital (interest, insurance, taxes on average investment), salvage and obsolescence; with a standard 10%/yr on 0.6P the H1 base-case break-even falls from 1.07 to 0.93, i.e. below human speed.",
+   "where": "research/buildbot-cost/src/buildbot_cost/model.py:48",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Three of four seeded mutants in core logic survive: the payload-eligibility filter, the success factor and the slowdown prior bounds are not pinned by any test; no test checks eligible hours or results.txt numbers.",
+   "where": "research/buildbot-cost/tests/test_model.py:15",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Scenario C's 2,000 ft2 two-storey reference is called 'an average house', but house-cost says it is its own choice, not the NAHB survey's average.",
+   "where": "research/buildbot-cost/README.md:18",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "No prior work on construction-robot economics or equipment ownership-cost practice is cited; the P(saves) shares are pure functions of uncited priors, so the novelty and weight of the headline are unclear.",
+   "where": "research/buildbot-cost/README.md:11",
+   "category": "research-design",
+   "origin": "design"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15545"
+ ],
+ "verdict": "A small, honest, reproducible engineering-economics sketch: run.py reproduces results.txt byte for byte, 8 tests pass, and every model output I recomputed independently (eligible hours from the taskbook, ownership rate and break-even slowdown, NAHB framing hours, and the Monte Carlo shares with a separate 200,000-draw numpy run: 0.148 vs 0.151, 0.0040 vs 0.004) agrees. The swept-not-measured caveat is prominent. It misses the bar on verification and claims: 3 of 4 seeded core mutants survive (eligibility filter, success factor, slowdown prior), and the README headline quotes a stale H1 ceiling ($1,237, 0.19%) that its own table and results contradict ($1,217, 0.18%), with project.json still saying 32.7 h. A cost engineer would also add cost of capital to the ownership rate, which alone pushes the H1 base-case break-even below 1. No prior construction-robot economics is cited. Does not meet the bar (verification 1, claims 2, median 2)."
+}

@@ -58,6 +58,7 @@ python experiments/figure.py                        # experiments/figure.png
 - **Launch prices, not quotes**, and ownership ignores charging, transport, setup, insurance and the cost of a robot failing on a site.
 - **Labour only.** No effect on schedule (`house-schedule`), quality, rework or risk is priced; speed-ups from overnight work are not credited.
 - **Independent draws**: slowdown and supervision are likely correlated in practice; the sweep treats them as free.
+- **Cost of capital is left out of the ownership rate** (quality audit [2026-11-13](../../portfolio/quality/audits/2026-11-13-buildbot-cost.json)). Standard equipment costing (Peurifoy) also charges interest, insurance and tax on the capital. At 10%/yr on 0.6 of the price and 1,000 h/yr of use, the H1's break-even at 0.3 supervision falls from 1.07 to 0.93, below human speed, and the G1's from 2.42 to 2.28. No prior work on the economics of construction robots is cited yet.
 
 ## Next steps
 Replace the slowdown and supervision ranges with the output of `buildbot-fasten` and `buildbot-carry`, add a fleet-size and schedule term via `house-schedule`, and check the prices against the vendor's current list.
