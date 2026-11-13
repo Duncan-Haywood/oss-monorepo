@@ -19,10 +19,14 @@ by VSCALE so 0.01 pu weighs like 1 MVA).
 import copy
 
 import numpy as np
-from scipy.sparse import csr_matrix
-from pypower.api import ppoption, runpf
-from pypower.idx_brch import ANGMAX, ANGMIN, BR_STATUS, RATE_A
-from pypower.idx_bus import BUS_I, VA, VM, VMAX, VMIN
+from scipy.sparse import csc_matrix, csr_matrix, hstack, vstack
+from scipy.sparse.linalg import splu
+from pypower.api import makeYbus, ppoption, runpf
+from pypower.bustypes import bustypes
+from pypower.dSbr_dV import dSbr_dV
+from pypower.dSbus_dV import dSbus_dV
+from pypower.idx_brch import ANGMAX, ANGMIN, BR_STATUS, F_BUS, RATE_A, T_BUS
+from pypower.idx_bus import BUS_I, BUS_TYPE, NONE, VA, VM, VMAX, VMIN
 from pypower.idx_gen import GEN_BUS, GEN_STATUS, PG, PMAX, PMIN, QG, QMAX, QMIN, VG
 from pypower.qps_pips import qps_pips
 from pypower.totcost import totcost
@@ -66,7 +70,11 @@ class Layout:
         return v
 
 
+PF_COUNT = [0]  # AC power flows run by this process (milestone 2 counts them per repair)
+
+
 def run_point(ppc, pg, vg, warm=None):
+    PF_COUNT[0] += 1
     p = copy.deepcopy(ppc)
     p["gen"][:, PG] = pg
     p["gen"][:, VG] = vg
@@ -84,8 +92,92 @@ def measure(ppc, res, lay, aidx):
                            res["bus"][lay.pq, VM], res["gen"][:, QG]])
 
 
-def linearise(ppc, pg0, v0, lay=None, warm=None):
-    """Sensitivities of measure() to x = [P, V] at (pg0, v0). Returns a dict or None if a PF fails."""
+def jacobian_sens(ppc, res, lay, aidx):
+    """Analytic sensitivities of measure() to x = [P (MW, per unit), V (pu, per voltage bus)] at the
+    power-flow solution res (milestone 2). Implicit function theorem on PYPOWER's mismatch
+    F(theta_pvpq, |V|_pq; p) = 0: dx/dp = -J^-1 dF/dp with J the Newton Jacobian at res. A non-slack
+    unit's P enters its bus's real-power injection (none if it sits at the reference bus, where the
+    slack unit absorbs it); a voltage setpoint fixes |V| at its bus and enters through dS/d|V|.
+    Outputs follow PYPOWER's pfsoln: the slack unit takes the reference bus's P net of its other
+    units, and a bus's Q is split among its live units in proportion to their Q ranges.
+    Returns the matrix, or None when the case has isolated buses (then use finite differences)."""
+    bus = res["bus"].copy()
+    if (bus[:, BUS_TYPE] == NONE).any():
+        return None
+    br, gen = res["branch"].copy(), res["gen"].copy()
+    nb, ng, nv, base_mva = bus.shape[0], lay.ng, lay.nv, res["baseMVA"]
+    row = lay.pos
+    bus[:, BUS_I] = np.arange(nb)
+    br[:, F_BUS] = [row[int(b)] for b in br[:, F_BUS]]
+    br[:, T_BUS] = [row[int(b)] for b in br[:, T_BUS]]
+    gbus = np.array([row[int(b)] for b in gen[:, GEN_BUS]], dtype=int)
+    gen[:, GEN_BUS] = gbus
+    Ybus, Yf, Yt = makeYbus(base_mva, bus, br)
+    V = bus[:, VM] * np.exp(1j * np.deg2rad(bus[:, VA]))
+    ref, pv, pq = bustypes(bus, gen)
+    pvpq = np.r_[pv, pq]
+    dS_dVm, dS_dVa = dSbus_dV(Ybus, V)
+    dS_dVm, dS_dVa = csc_matrix(dS_dVm), csc_matrix(dS_dVa)
+    Jac = vstack([hstack([dS_dVa[pvpq][:, pvpq].real, dS_dVm[pvpq][:, pq].real]),
+                  hstack([dS_dVa[pq][:, pvpq].imag, dS_dVm[pq][:, pq].imag])]).tocsc()
+    n1, npar = len(pvpq), ng + nv
+    rowP = {int(b): i for i, b in enumerate(pvpq)}
+    R = np.zeros((Jac.shape[0], npar))
+    for k in range(ng):
+        if lay.live[k] and k != lay.slack and int(gbus[k]) in rowP:
+            R[rowP[int(gbus[k])], k] = -1.0 / base_mva
+    vb = lay.vrow  # bus rows of the V parameters
+    dVmcols = dS_dVm[:, vb].toarray()
+    R[:n1, ng:] = dVmcols[pvpq].real
+    R[n1:, ng:] = dVmcols[pq].imag
+    dx = -splu(Jac).solve(R)
+    dVa = np.zeros((nb, npar))
+    dVm = np.zeros((nb, npar))
+    dVa[pvpq] = dx[:n1]
+    dVm[pq] = dx[n1:]
+    dVm[vb, ng + np.arange(nv)] = 1.0
+    dS = (dS_dVa @ dVa + dS_dVm @ dVm) * base_mva  # MVA per MW or per pu, every bus
+    out = []
+    s = lay.slack
+    ds = dS[gbus[s]].real.copy()
+    for k in range(ng):
+        if k != s and lay.live[k] and gbus[k] == gbus[s]:
+            ds[k] -= 1.0  # another unit at the reference bus: the slack unit gives up what it adds
+    out.append(ds[None, :])
+    dSf_dVa, dSf_dVm, dSt_dVa, dSt_dVm, Sf, St = dSbr_dV(br, Yf, Yt, V)
+    for dA, dM, Sx in ((dSf_dVa, dSf_dVm, Sf), (dSt_dVa, dSt_dVm, St)):
+        dSx = dA @ dVa + dM @ dVm
+        mag = np.abs(Sx)
+        with np.errstate(invalid="ignore", divide="ignore"):
+            d = np.where(mag[:, None] > 0, (np.conj(Sx)[:, None] * dSx).real / mag[:, None], 0.0)
+        out.append(d * base_mva)
+    if len(aidx):
+        f, tt = br[aidx, F_BUS].astype(int), br[aidx, T_BUS].astype(int)
+        out.append(np.rad2deg(dVa[f] - dVa[tt]))
+    out.append(dVm[lay.pq])
+    # Q split among units at a bus (pfsoln): Q_k = Qmin_k + (Qtot - Qmin_bus) * range_k / (range_bus + eps)
+    on = lay.live
+    qr = np.where(on, gen[:, QMAX] - gen[:, QMIN], 0.0)
+    rng_bus = np.bincount(gbus[on], weights=gen[on, QMAX], minlength=nb) - \
+        np.bincount(gbus[on], weights=gen[on, QMIN], minlength=nb)
+    ngg = np.bincount(gbus[on], minlength=nb)
+    share = np.zeros(ng)
+    for k in np.where(on)[0]:
+        b = gbus[k]
+        if on.sum() == 1:
+            share[k] = 1.0
+        elif rng_bus[b] == 0 or not np.isfinite(rng_bus[b]):
+            share[k] = 1.0 / ngg[b]
+        else:
+            share[k] = qr[k] / (rng_bus[b] + np.finfo(float).eps)
+    out.append(dS[gbus].imag * share[:, None])
+    return np.vstack(out)
+
+
+def linearise(ppc, pg0, v0, lay=None, warm=None, analytic=False):
+    """Sensitivities of measure() to x = [P, V] at (pg0, v0). Returns a dict or None if a PF fails.
+    analytic=True takes them from the Newton Jacobian at the base point (one power flow) instead of
+    n_gen + n_vbus finite differences; it falls back to finite differences on cases with isolated buses."""
     lay = lay or Layout(ppc)
     aidx = angle_limited(ppc)
     base = run_point(ppc, pg0, lay.vg_of(v0), warm)
@@ -93,6 +185,10 @@ def linearise(ppc, pg0, v0, lay=None, warm=None):
         return None
     pgb = base["gen"][:, PG].copy()
     m0 = measure(ppc, base, lay, aidx)
+    if analytic:
+        J = jacobian_sens(ppc, base, lay, aidx)
+        if J is not None:
+            return {"base": base, "pg0": pgb, "v0": v0.copy(), "m0": m0, "J": J, "aidx": aidx, "lay": lay}
     J = np.zeros((len(m0), lay.ng + lay.nv))
     g = ppc["gen"]
     for k in range(lay.ng):
@@ -275,7 +371,7 @@ ELASTIC = 1e4
 VBOX = 0.03
 
 
-def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None):
+def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False):
     """Successive linearisation in (P, V): C's step rules (no P box in round 1, then 20 % of range,
     halved on a rejected step), a V box of VBOX pu from round 1 halved with P's, elastic fallback.
     Each history entry keeps its point under "pg" and "vg"."""
@@ -288,7 +384,7 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None):
     hist = []
     warm = None
     for it in range(1, rounds + 1):
-        lin = linearise(ppc, pg, v, lay, warm)
+        lin = linearise(ppc, pg, v, lay, warm, analytic=analytic)
         if lin is None:
             hist.append({"it": it, "status": "PF failed at point"})
             break
