@@ -433,6 +433,7 @@
       $("#rainouts").value = f.rainouts || "";
       $("#withdrawals").value = f.withdrawals || "";
       $("#lateTeams").value = f.lateTeams || "";
+      $("#finishBy").value = f.finishBy || "";
       $("#officials").value = f.officials || "";
       $("#grounds").value = f.grounds || "";
       $("#linked").value = f.linked || "";
@@ -449,7 +450,7 @@
         teams: $("#teams").value, double: $("#double").checked, carryOver: $("#carryOver").checked, carryOverPick: $("#carryOverPick").value, carryOverKeep: $("#carryOverKeep").value, start: $("#start").value, weekdays,
         skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courtLimits: $("#courtLimits").value, courtClosures: $("#courtClosures").value, courts: $("#courts").value, times: $("#times").value,
         seed: $("#seed").value, minutes: $("#minutes").value, rounds: $("#rounds").value,
-        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, pins: $("#pins").value, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, officials: $("#officials").value, grounds: $("#grounds").value, linked: $("#linked").value, scoring: $("#scoring").value,
+        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, pins: $("#pins").value, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, finishBy: $("#finishBy").value, officials: $("#officials").value, grounds: $("#grounds").value, linked: $("#linked").value, scoring: $("#scoring").value,
         duties: $("#duties").value, sheetTitle: $("#sheetTitle").value, sheetContact: $("#sheetContact").value,
       };
     }
@@ -844,7 +845,7 @@
       window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     });
     $("#clear-all").addEventListener("click", () => {
-      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "results", "pins", "rainouts", "withdrawals", "lateTeams", "officials", "grounds", "linked", "duties", "sheetTitle", "sheetContact"]) $("#" + id).value = "";
+      for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "results", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "duties", "sheetTitle", "sheetContact"]) $("#" + id).value = "";
       $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#playoffThird").checked = false; $("#double").checked = false; $("#carryOver").checked = false;
       $("#report").hidden = true; last = null; status.textContent = "Cleared.";
     });
