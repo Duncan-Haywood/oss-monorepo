@@ -26,6 +26,10 @@ class T(unittest.TestCase):
         self.assertEqual([orders.radical_inverse(i, 2) for i in (1, 2, 3, 4)], [0.5, 0.25, 0.75, 0.125])
         self.assertAlmostEqual(orders.radical_inverse(2, 3), 2 / 3)
 
+    def test_halton_first_points(self):
+        # radical inverses of i=1,2,3 in bases 2,3,5 snapped to the grid sizes, worked by hand in the round-59 audit
+        self.assertEqual(orders.halton(self.sp.all(), self.sp.sizes)[:3], [(4, 1, 0), (2, 3, 0), (6, 0, 1)])
+
     def test_farthest_point_second_pick_is_a_corner(self):
         sizes = [3, 3]
         ds = list(itertools.product(range(3), range(3)))

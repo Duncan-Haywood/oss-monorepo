@@ -46,7 +46,7 @@ wheat, and molluscs, celery, mustard, lupin and sulphites are not US major aller
 
 ## Tests
 
-`node --test '*.test.mjs'` (25 engine tests, 6 page tests, 7 customer-page tests, 6 usage-counter tests). The page was also
+`node --test '*.test.mjs'` (28 engine tests, 6 page tests, 7 customer-page tests, 6 usage-counter tests). The page was also
 driven in headless Chromium on 2026-11-07: example run, UK/US switch, HTML in a dish name is
 escaped.
 
@@ -59,14 +59,24 @@ escaped.
   allergen emphasis; there is no QUID (percentage) or net quantity.
 - Sulphites need the supplier's mg/kg figure; the tool can only flag wine, dried fruit and the like.
 
-## Known gaps (quality audit 2026-11-13)
+## Known gaps (quality audit round 59, 2026-11-13)
 
-From [`portfolio/quality/audits/2026-11-13-allergen-label-maker.json`](../../portfolio/quality/audits/2026-11-13-allergen-label-maker.json). Fixed the same day: common fish not recognised (sea bream, turbot, eel, caviar), only the first supplier tag read, `[none]` clearing named allergens, generic "nuts" flagging nothing, pine nut and chestnut not declared in US mode, and label emphasis drawn from a shorter word list than the matrix. Still open:
+From [`portfolio/quality/audits/2026-11-13-allergen-label-maker.json`](../../portfolio/quality/audits/2026-11-13-allergen-label-maker.json) and a second, blind audit of the same round ([`portfolio/quality/blind-pairs/2026-11-13-e/`](../../portfolio/quality/blind-pairs/2026-11-13-e/)).
+Fixed the same day: oatmeal, farina, cous cous, curds, lactalbumin, roe, caviar, eel, carp, pike,
+perch, grouper, mahi mahi, taramasalata, sea bream, turbot, skate, john dory, lox and filbert are now
+named; "shellfish" and "nuts" are flagged to check; `[none]` no longer clears a named allergen; every
+supplier tag in an ingredient is read, not only the first; pine nut and chestnut are declared tree nuts
+in US mode (FDA allergen Q&A, Edition 5, 2025); and the label's bold is built from what the detector
+declared (no more bold "coconut milk", no more plain "brie"), with supplier tags printed in the list.
+Still open:
 
-- The US "Contains" line prints the category ("Fish", "Tree nuts"); FALCPA (FD&C Act s.403(w)(2)) wants the species or nut type ("Cod", "Almonds").
-- The UK/EU label adds a "Contains" line of category names ("Cereals containing gluten"). Under FIC Annex II the specific cereal or nut is what must be named and emphasised in the list; the line is an extra, not a substitute.
-- "Plain flour" is emphasised as written; a label should say *wheat* flour. In US mode, a bare "flour" is a check, though 21 CFR 137.105 makes flour wheat flour.
-- Tag names accept plurals only ("tree nuts", not "tree nut"); an unknown tag is reported, not silently dropped.
+- **The US Contains line names the class, not the species**: "Tree nuts", "Fish" and "Crustacean
+  shellfish", where FALCPA (21 USC 343(w)(2)) needs the specific nut, fish or shellfish.
+- **UK labels add a "Contains:" line** of category names, which FSA guidance advises against repeating
+  for prepacked and PPDS food when allergens are already emphasised in the list.
+- "Plain flour" is emphasised as written; a label should say *wheat* flour. In US mode a bare "flour"
+  is a check, though 21 CFR 137.105 makes flour wheat flour.
+- Tofu written as "bean curd" is not recognised as soya; tag names accept plurals only ("tree nuts").
 
 ## Customer allergen page (2026-11-07)
 

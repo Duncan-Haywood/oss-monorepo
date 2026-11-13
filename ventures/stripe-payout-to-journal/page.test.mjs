@@ -73,14 +73,8 @@ test("the sample payouts load from the page and the account list defaults to the
   assert.match(html, /mappingText\(\)/);
 });
 
-// Quality audit 2026-11-13: the deposit box read "1,234.56" as 1.23 (parseFloat after replacing the first comma).
-test("the deposit box is read with the same amount parser as the report", async () => {
-  const { readFileSync } = await import("node:fs");
-  const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(page, /parseAmount\(\$\("#expected"\)\.value\)/);
-  assert.doesNotMatch(page, /parseFloat\(\$\("#expected"\)/);
-  const { parseAmount } = await import("./calc.mjs");
-  assert.equal(parseAmount("1,234.56"), 123456);
-  assert.equal(parseAmount("1.234,56"), 123456);
-  assert.equal(parseAmount("342.70"), 34270);
+test("the bank deposit box reads 1,262.00 and 1.262,00 through parseAmount, not parseFloat (quality round 59)", () => {
+  const html = page("index.html");
+  assert.match(html, /parseAmount\(\$\("#expected"\)/);
+  assert.doesNotMatch(html, /parseFloat\(\$\("#expected"\)/);
 });

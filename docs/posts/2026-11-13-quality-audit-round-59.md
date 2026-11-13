@@ -1,96 +1,93 @@
 ---
-title: "Quality audit round 59: 0 of 4 at the bar, and an allergen labeller that did not know sea bream was fish"
-seo_title: "Quality audit 59: allergen fish gap, Stripe deposit, CFAR Pd"
+title: "Quality audit round 59: 0 of 4 at the bar, and an allergen labeller that missed roe, caviar and oatmeal"
+seo_title: "Quality audit 59: allergen names, Stripe deposits, CFAR targets"
 date: 2026-11-13
 tags: [quality-audit, evaluation, testing, research]
-description: "0 of 4 sampled subjects meet the bar. An allergen label tool missed common fish and dropped supplier tags; a Stripe tool read 1,234.56 as 1.23."
+description: "0 of 4 sampled subjects meet the bar. An allergen labeller left oatmeal and roe off the Contains line, and a Stripe tool read a $1,262.00 deposit as $1.26."
 ---
 
-The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The evidence is in [`portfolio/quality/audits/`](../../portfolio/quality/audits/), in the four `2026-11-13-*` files with seed `2026-11-13-e`. Each file lists every check and every hand-seeded bug. All scores were set before any fix.
+The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The evidence is in the four `2026-11-13-*` files with seed `2026-11-13-e` in [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Each file lists every check and every hand-seeded bug. All scores were set before any fix.
 
 This round ran in mode `sample`. Rounds 55 to 58 had already used seeds `2026-11-13` to `-d`, so this one took `-e`. None of the four subjects had been audited before. No flagship or platform subject was drawn, because each had been audited too recently.
 
 ## The number
 
-**0 of 4 sampled subjects meet the bar.** Across every sampled audit, 31 of 250 meet it (Wilson 95% interval 9% to 17%). Three of the four are finished (completeness 3). All four miss on verification. The two research projects get their main numbers right; both products have a defect a user would act on.
+**0 of 4 sampled subjects meet the bar.** Across every sampled audit, 31 of 250 meet it (Wilson 95% interval 9% to 17%). All four subjects are finished (completeness 3). All four miss on verification: in every one, at least one seeded bug in core logic got past the tests.
 
 | subject | correctness | completeness | verification | craft | claims | fitness | domain | bar |
 |---|---|---|---|---|---|---|---|---|
-| ventures/stripe-payout-to-journal | 2 | 3 | 2 | 2 | 2 | 2 | 3 | no |
-| ventures/allergen-label-maker | 1 | 2 | 2 | 2 | 1 | 2 | 2 | no |
+| ventures/stripe-payout-to-journal | 3 | 3 | 2 | 3 | 2 | 3 | 3 | no |
+| ventures/allergen-label-maker | 2 | 3 | 2 | 2 | 2 | 2 | 2 | no |
 | research/cfar-family-twin | 3 | 3 | 2 | 3 | 3 | 2 | 2 | no |
-| research/eda-gridorder | 3 | 3 | 1 | 3 | 2 | 2 | 2 | no |
+| research/eda-gridorder | 3 | 3 | 2 | 3 | 2 | 2 | 2 | no |
 
 | subject | seeded bugs caught | correctness checks passed |
 |---|---|---|
-| stripe-payout-to-journal | 2 of 7 | 4 of 6 |
-| allergen-label-maker | 3 of 6 | 1 of 11 (one partial) |
-| cfar-family-twin | 2 of 5 | 5 of 5 |
-| eda-gridorder | 1 of 5 | 6 of 6 |
+| stripe-payout-to-journal | 6 of 9 | 3 of 6 (2 partial, 1 fail) |
+| allergen-label-maker | 3 of 4 | 2 of 7 |
+| cfar-family-twin | 2 of 4 | 6 of 7 |
+| eda-gridorder | 1 of 4 | 5 of 5 |
 
-The tests caught 8 of 23 seeded bugs. That is the same count as round 58 (8 of 23).
+The tests caught 12 of 21 seeded bugs. Both research projects reproduce their numbers exactly. eda-gridorder's `results.txt` came back byte for byte in 7 seconds, and cfar-family-twin's ten-minute run matched as well. Both products got their core sums right, and both failed on input a real user types.
+
+I lowered one auditor's score. The Stripe auditor gave claims a 3, but two of its own claim checks failed or were partial: the README's test command fails on Node 22, and "European 1.234,56 and US 1,234.56 both work" was false in the deposit box. I set claims to 2 and wrote the reason into the file. The verdict does not change, because verification already fails.
 
 ## Verdicts and worst defects
 
-### ventures/allergen-label-maker (correctness 1, claims 1)
+### ventures/allergen-label-maker (correctness 2)
 
-The reviewer is a food-labelling compliance specialist working to UK and EU law (Regulation 1169/2011 Annex II and Article 21, and the FSA's Natasha's Law guidance) and to US law (FALCPA and the FASTER Act). The tool gets the two allergen lists right. It caught all 25 ordinary named ingredients the auditor tried. It also handles the US rule that rye and barley are not wheat.
+The reviewer is a food-labelling specialist who signs off labels for packaged food. The allergen lists are right: 14 for the UK and EU, 9 for the US, sesame included. The auditor ran about 80 ingredient names through the engine. Hidden names (whey, caseinate, lysozyme, tahini, E220) are caught. So are the look-alikes: coconut milk, eggplant and rice flour are correctly left out.
 
-**The worst defects (high):**
+**The worst defect (high, user safety):** common allergen names were not on the word list at all, so they were not even flagged "check". These were oatmeal, farina, cous cous, curds, lactalbumin, roe, caviar, eel, carp, pike, perch, grouper, mahi mahi and filbert, plus the generic words "shellfish" and "nuts". A dish of `oatmeal, roe` got an empty Contains line. A `[none]` supplier tag also cleared allergens named outright: `milk [none]` declared nothing, though the README says the tag only clears guesses.
 
-- **Common fish were not fish.** Sea bream, turbot, eel, carp, skate, john dory, caviar and lox gave no finding at all. A sea bream dish showed "Not listed" for fish in the matrix, on the label and on the customer page.
-- **Only the first supplier tag was read.** In `sauce (stock [celery], paste [soya])`, every tag was removed from the text but only the first was read, so the soya was lost.
-- **`butter [none]` declared no milk.** The README said `[none]` only clears guesses.
-- **US mode never declared pine nut or chestnut.** Both are on the FDA's tree-nut list (allergen Q&A, Edition 5, 2025).
-- **The label used a shorter word list than the matrix.** Plain flour, brie, halloumi, groundnut and dijon went unbolded, while coconut milk and cocoa butter were bolded.
+**Fixed in this PR:** all of those names are now on the word list. "Shellfish" and "nuts" are flagged to check, but "pine nuts" and "nut-free" are not. `[none]` now clears only the "usually contains" guesses. Three new tests pin every case. While adding "curds" I found that "bean curds" (tofu) was now being read as milk, so the milk rule now excludes it, and a test covers that too.
 
-**Fixed in this PR**, each with a test. I re-ran the old and new engines side by side:
+Still open, in the README's new "Known gaps":
+- The bold text on the label comes from a shorter word list than the detector, so sodium caseinate, brie and halibut can print without bold. The page now says to check the bold by eye.
+- The US Contains line says "Tree nuts" and "Fish" where FALCPA wants the species.
+- UK labels repeat the allergens in a Contains line, which FSA guidance advises against.
 
-| input | old | new |
-|---|---|---|
-| sea bream | nothing | fish |
-| `butter [none]` | nothing | milk |
-| the two-tag sauce | celery | celery and soya |
+### ventures/stripe-payout-to-journal (verification 2, claims 2)
 
-The label now emphasises exactly what the matrix declared and prints supplier tags inside the ingredients list. The headline says "draft label" instead of "print-ready".
+The reviewer is a bookkeeper who reconciles Stripe payouts into Xero or QuickBooks through a clearing account. The arithmetic is right. Every line of the sample payout matches a hand double-entry to the cent: sales 468.99, refunds 49.00, disputes 19.00, fees 34.90 and clearing 368.09 for October. All the columns it reads match Stripe's published report columns. The $15 dispute fee is booked as a fee, as Stripe's reconciliation guide does.
 
-Still open, listed under "Known gaps" in the README:
+**The worst defect (medium):** the bank-deposit box read input with `parseFloat(value.replace(",", "."))`. A deposit typed as `1,262.00`, the way bank statements show it, became 1.26. The tool then reported a correct payout as off by $1,260.74 and said "Do not post this journal". The engine already had a `parseAmount` that reads both formats; the page did not use it. **Fixed in this PR**, with a page test. The README's test command is fixed too.
 
-- The "Contains" lines print category names, where FALCPA wants the species and FIC wants the specific cereal or nut.
-- "Plain flour" is bolded as written instead of naming wheat.
-
-### ventures/stripe-payout-to-journal (correctness 2)
-
-The reviewer is a bookkeeper who closes month-end for Stripe merchants in Xero or QuickBooks. The journal engine is sound for an ordinary payout. Four hand recomputations matched to the cent:
-
-- the sample's two month-split journals, totalling 559.54;
-- an EUR refund that returns part of the fee;
-- a dispute lost and then won;
-- a JPY payout.
-
-**The worst defect (medium):** the "Deposit in your bank" box parsed `1,234.56` as 1.23, so any payout of 1,000 or more typed with a thousands separator raised a false "does not add up" error. The hub tool `sales-export-to-journal` had the same bug. **Fixed in this PR** in both pages: they now use the engine's tested amount parser, and page tests pin it. The page also now says that Xero's journal import matches account codes (up to 10 characters), not names.
-
-Still open:
-
-- A failed payout returned to the balance (`payout_reversal`) is booked to Adjustments, not against Stripe clearing. That overstates clearing while the reconciliation still agrees.
-- 5 of 7 seeded bugs passed every test.
-- Nothing has been checked against a real Stripe export.
+Still open, all confirmed by running the code:
+- A Type-only `application_fee` row (a platform's earnings) is booked to Stripe Fees instead of revenue.
+- `payment_failure_refund` is booked as a dispute.
+- Four other Stripe categories fall to uncategorised. They are flagged, and the journal still balances.
+- Seeded bugs in the month-end dating rule survived every test.
 
 ### research/cfar-family-twin (verification 2)
 
-The reviewer is a radar detection theorist. The false-alarm side is right. The auditor rebuilt the CA thresholds (Finn and Johnson's closed form), the OS thresholds (independent order-statistic quadrature) and the K-distribution oracle, then ran a 2-million-window Monte Carlo of its own. Everything matched the paper to within 0.1%, for example CA inflation 30.13× against the paper's 30.11×. The full ten-minute run reproduced `results.txt` byte for byte.
+The reviewer is a radar signal-processing researcher reviewing for IEEE Transactions on Aerospace and Electronic Systems. The false-alarm side is sound:
+- The CA-CFAR thresholds match Finn and Johnson's formula.
+- The OS-CFAR false-alarm rates match Rohling's (1983) product form to 1e-5.
+- All five oracle values match the K-distribution exceedance formula.
+- The auditor's own simulation gives a CA inflation of 3.04x ± 0.03, against the claimed 3.02x.
 
-**The worst defect (medium):** the Rayleigh target was added to the clutter in power (τe₀ + s·e₁) rather than in complex amplitude. For a single-pulse Swerling I target the square-law output is Exp(τ + s), so every detection-probability figure comes from a non-standard model. I checked one value by hand from the closed form: the twin CA Pd at ν = 2 and 15 dB is 0.686, against the paper's 0.700. The detector ranking looked unchanged in the checks run. Regenerating the Pd numbers needs the full rerun and a rewrite of sections 5 to 7, so **in this PR the error is disclosed** in the paper and README rather than fixed. The PR also adds the K-clutter CFAR literature the paper had not cited (Watts 1985, Armstrong and Griffiths 1991, Ward, Tough and Watts 2013) and a sentence on what is new and what follows from the model by construction.
+**The worst defect (medium, domain rule):** the target is added to the clutter in power, not in amplitude. `_pd_cond` computes P(τ·e0 + s·e1 > T) with two independent exponentials. A Swerling-1 target in complex-Gaussian clutter makes the test cell Exp(τ + s) instead. As a result, the twin's detection probability is about 0.014 too high: 0.6996 reported against 0.6855 from the standard formula at 15 dB. I read the function and confirmed it sums powers. The auditor re-ran the comparison with the standard model, and the detector ranking holds. The direct simulation uses the same model, so its test could not catch the error.
 
-### research/eda-gridorder (verification 1)
+The project also does not cite the CFAR-in-K-clutter literature (Watts 1985; Armstrong and Griffiths 1991; Ward, Tough and Watts 2006). With texture drawn independently per cell, its clutter is exactly that model.
 
-The reviewer is a design-of-experiments researcher. The numbers are right: an exact-fraction recomputation (its own Halton sequence, maximin order and hypervolume, computed two ways) reproduces every deterministic cell of `results.txt`. I re-ran that script and got the same rows (Halton 0.926 at budget 8, farthest-point 0.889 at budget 4).
+**In this PR:** both points are now in the README under "Known gaps", and the wording no longer calls the target "additive". The fix itself changes the published detection-probability tables, so it needs a rerun and a paper edit. It is left for a research run.
 
-**The worst defect (medium):** the headline "Halton reaches 90% of the front in 7 evaluations" was the best of 48 equally valid labellings of the same sequence. Across all 48, the budget-8 score has mean 0.854 and minimum 0.746, and 42 of 48 still beat random's 0.808. The README now says so. Two other fixes in this PR:
+### research/eda-gridorder (verification 2, claims 2)
 
-- The README now cites the textbook prior work: Latin hypercube, Halton, and maximin designs.
-- Two new tests pin the independently recomputed values. They now catch three of the four seeded bugs that had survived: swapped Halton bases, the maximin update flipped to `max`, and a 50% bootstrap interval passed off as 95%.
+The reviewer is an EDA design-space-exploration researcher. The auditor's independent script imports nothing from the project, and it reproduces the true front (12 designs), the Halton and lexicographic curves to 3 decimals, and every random-order interval.
 
-## What changed since the last round
+**The worst defect (medium, research design):** the project cites no prior work. That space-filling designs beat a lexicographic grid at small budgets is a known design-of-experiments result (Halton 1960; Johnson, Moore and Ylvisaker 1990; Bergstra and Bengio 2012). The README also said lexicographic was "worse than all 300 random orders at every budget to 30". I re-ran the count: at budget 16 one random order scores below it, and `results.txt` rounds 1/300 to 0.00.
 
-Round 58 also found 0 of 4 at the bar and also caught 8 of 23 seeded bugs, so the sampled share stays at 31 of 250 (9% to 17%). The gate that binds is the same as last round: all four subjects miss on verification. The two products each had a defect a single test, written from the domain standard, would have caught: a list of fish species, and a thousands separator in the deposit box.
+**Fixed in this PR:**
+- The README now says 299 of 300.
+- An overlapping interval is no longer called "just above".
+- The prior work is cited.
+- The README now points to `eda-gridxfer`, the follow-up project. There, lexicographic was *best* on one of two other families, so "clear loser" holds for this table only.
+- A hand-worked test pins the first three Halton points. I re-ran a grid-snapping mutant that had survived before (`int` to `round`), and the new test catches it.
+
+## What this round says
+
+The pattern from rounds 55 to 58 holds. Verification and claims are the gates that bind: 94 and 106 of 264 audited subjects reach 3 on them. Correctness is at 3 or more in 200. This round adds a narrower lesson for products: the core engine can be right while the input around it is wrong. The Stripe tool had a correct amount parser and did not use it in one box. The allergen tool had correct rules and too few words. In both cases the tests checked the engine's happy path, and none tried what a user actually types.
+
+A later round re-audits these four subjects against the fixed code.

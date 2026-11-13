@@ -154,6 +154,36 @@ test("label names follow the chosen list", () => {
   assert.deepEqual(labelFor(one("egg, prawns", "us"), "us").contains, ["Egg", "Crustacean shellfish"].sort((a, b) => US9.map((x) => x[1]).indexOf(a) - US9.map((x) => x[1]).indexOf(b)));
 });
 
+// Quality round 59 (portfolio/quality/audits/2026-11-13-allergen-label-maker.json): names the
+// audit found missing entirely, checked against FALCPA/FASTER, EU 1169/2011 Annex II and FDA's tree-nut list.
+test("common allergen names the round-59 audit found missed are declared", () => {
+  assert.deepEqual(declared("oatmeal"), ["gluten"]);
+  assert.deepEqual(declared("farina"), ["gluten"]);
+  assert.deepEqual(declared("farina", "us"), ["wheat"]);
+  assert.deepEqual(declared("cous cous"), ["gluten"]);
+  assert.deepEqual(declared("cheese curds"), ["milk"]);
+  assert.deepEqual(declared("lactalbumin"), ["milk"]);
+  for (const f of ["salmon roe", "caviar", "smoked eel", "carp", "pike", "perch", "grouper", "mahi mahi", "taramasalata"]) {
+    assert.deepEqual(declared(f), ["fish"], f);
+  }
+  assert.deepEqual(declared("filberts"), ["treenuts"]);
+  // "oatmeal, roe" used to give an empty Contains line
+  assert.deepEqual(declared("oatmeal, roe").sort(), ["fish", "gluten"]);
+});
+
+test("generic 'shellfish' and 'nuts' are flagged to check, without catching pine nuts or nut-free", () => {
+  assert.deepEqual(checked("shellfish stock").sort(), ["crustaceans", "molluscs"]);
+  assert.deepEqual(checked("chopped nuts"), ["treenuts"]);
+  assert.deepEqual(checked("pine nuts"), []);
+  assert.deepEqual(checked("nut-free spread"), []);
+  assert.ok(!declared("bean curds").includes("milk")); // tofu, not cheese curds
+});
+
+test("a [none] tag clears guesses but never an allergen named outright", () => {
+  assert.deepEqual(declared("milk [none]"), ["milk"]);
+  assert.deepEqual(checked("hummus [none]"), []);
+});
+
 // Quality audit 2026-11-13 (portfolio/quality/audits/2026-11-13-allergen-label-maker.json).
 test("fish: every finfish species and roe is fish (Annex II item 4)", () => {
   for (const f of ["sea bream", "turbot", "smoked eel", "carp", "skate wing", "john dory", "caviar", "cod roe", "lox", "red mullet", "barramundi", "whiting", "pangasius"]) {

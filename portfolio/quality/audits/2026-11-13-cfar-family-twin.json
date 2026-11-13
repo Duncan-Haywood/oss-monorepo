@@ -7,7 +7,7 @@
  "round": 59,
  "auditor": "agent session (Claude), see run record",
  "status": "audited",
- "professional": "a senior radar signal-processing engineer / detection theorist (the kind who reviews CFAR papers for IEEE Trans. AES or IET RSN). They would check first the CA-CFAR closed form (Finn & Johnson), Rohling's exact OS-CFAR Pfa, the compound-gamma (K) clutter model, how the Rayleigh (Swerling I) target is combined with clutter in the Pd computation, whether Monte Carlo at Pfa 1e-4 has enough effective samples with intervals, whether the 'test cell's own texture' explanation is more than a restatement of the iid-texture assumption, and how the result sits against the K-clutter CFAR literature (Watts 1985; Armstrong & Griffiths 1991; Ward, Tough & Watts 2006/2013; Goldstein 1973 log-t; Gini/Greco/Farina on compound-Gaussian CFAR)",
+ "professional": "a radar signal-processing researcher reviewing for IEEE Trans. AES / IET Radar, Sonar & Navigation, who would first check the CFAR threshold formulas against Finn-Johnson and Rohling, the K-clutter exceedance against Ward/Watts, the target model against Swerling-1, and whether the result is new against the CFAR-in-K-clutter literature (Watts 1985; Armstrong & Griffiths 1991; Ward, Tough & Watts, Sea Clutter, 2006)",
  "scores": {
   "correctness": 3,
   "completeness": 3,
@@ -18,202 +18,183 @@
   "domain": 2
  },
  "evidence": {
-  "correctness": "Recomputed in my own numpy/scipy scripts (indep.py, pd.py, no package import). CA closed form alpha=N(p^-1/N-1)=5.3363/12.4525, confirmed by quadrature over Gamma(N,1/N) (Pfa 1.000000e-02/1.000000e-04), matches results.txt 5.336/12.452. OS thresholds by order-statistic quadrature (Beta(k,N-k+1) of the CDF, not the Rohling formula): 4.425/9.467/11.080/26.417, identical to the 'exact-formula alpha' column. Known-scale oracle by the closed-form K-distribution tail 2/G(nu)(nu T)^(nu/2) K_nu(2 sqrt(nu T)): 2.881e-2, 1.949e-2, 1.279e-2, 3.624e-3, 1.245e-3, 3.076e-4 vs results 2.881e-2..3.075e-4 (all match). My own 2M-window numpy Monte Carlo with the exact Bessel h: CA inflation nu=2 30.134+-0.034x (paper 30.11), nu=5 9.135+-0.014 (9.14), 1e-2: 3.026/1.950 (3.02/1.95); repair 3.70/1.93 dB (paper 3.70/1.93); direct-simulated repaired CA Pd nu=2 20 dB 0.7586 (paper 0.7582), nu=5 0.8333 (0.8330). Every Pfa/threshold number checked is right. One departure: the Pd model adds powers (tau e0 + s e1) instead of complex amplitudes; under the standard Swerling-I-in-Gaussian model (|c+t|^2 ~ Exp(tau+s)) twin CA Pd at 15/20/25 dB is 0.6858/0.8844/0.9616 vs the reported 0.6996/0.8922/0.9645, OS75 0.6494 vs 0.6616, real repaired CA nu=2 0.4276/0.7528 vs 0.4307/0.7582. Numbers are right for the stated (non-standard) model, so correctness 3 with the Pd model scored under domain.",
-  "completeness": "Full experiment rerun (PYTHONPATH=src python3 experiments/run.py): output byte-identical to experiments/results.txt (diff empty). All 8 sections the paper uses are produced; every README/paper number I traced (30/35/41/44x, 9.1/9.2/8.3/9.4x, 3.02x, 2.88x oracle, 0.758/0.744/0.732/0.703, 0.70 vs 0.43, repair dB) is in results.txt. figure.py and the SVG exist. Tests: 7 tests, OK in 18.4 s (README says ~25 s). Live page https://marisstella.app/research/cfar-family-twin/ could not be checked: proxy 403 on curl and WebFetch ENOTFOUND (host not in the session's allowed domains), so recorded as unverified, not as a defect.",
-  "verification": "`cd research/cfar-family-twin && PYTHONPATH=src python3 -m unittest discover -s tests -v` -> Ran 7 tests in 18.373s OK. Tests check the CA/OS thresholds against twin Monte Carlo, the Rao-Blackwell Pfa and Pd against direct simulation (8% / 3% tolerance), and inflation monotonicity. Five mutations via quality_mutate.py: caught: gamma texture weight scaled 1.15 (model.py:66), Rohling formula k->(k+1) (model.py:136). Survived: twin_pd target power x0.8 (model.py:111, twin_pd is never called by a test, so the whole 'twin promise' column and section 6 are unguarded); hfun log-linear interpolation replaced by a step (model.py:91, the 8% tolerance on RB-vs-direct is too loose to see it); LOG statistic changed to drop a reference cell (model.py:22, LOG calibration and evaluation share the same function, so nothing pins the geometric mean). 3 of 5 survived -> 2.",
-  "craft": "Read src/cfar_family_twin/model.py (160 lines), tests/test_model.py, experiments/run.py, figure.py. Clean and small: Rao-Blackwellisation over the test cell is a good variance-reduction choice, exact formulas are cross-checked against the MC calibration, independent calibration/evaluation windows are used. Defects: section 2's direct MC reuses seed 7 for both detectors at a given nu (run.py:32), so the four 'Rao-Blackwell vs direct' rows are correlated and all four show RB 1-2% above direct, presented as independent confirmation; section 3 prints relative SE with %.0f so most cells read '+-0%' (run.py:43); the 1e-4 twin thresholds use the Monte Carlo alpha even where an exact one exists (OS50 26.622 vs exact 26.417, 0.8%), and that calibration error is not propagated into the inflation SE; star imports throughout; pure-Python loops make the run ~10 min where numpy would take seconds (fine for a no-dependency goal).",
-  "claims": "Checked: '9x to 30x' from radar-clutter-twin (that project's README says the same); inflation table, repair dB, Pd table, oracle numbers: all backed by results.txt; 'MC standard errors at most 2%' (results section 3 max 2%: pass); 'Monte Carlo calibration reproduces exact alpha to 0.05-0.8%' (pass: 12.465/12.452 ... 26.622/26.417); '7 tests, ~25 s' (7, 18 s: fine). Limitations section is explicit (iid texture, no interferers, no real data, 'Not evidence about any real radar'). Weak spots: README says the oracle shows 'nearly all of the error comes from the test cell's own texture' from the single 1e-2 nu=2 point, while at 1e-4 the oracle inflates more than CA (36x vs 30x) and the paper itself calls it 'a comparison, not a bound'; 'Rayleigh target' Pd values are for a power-sum target model, not the Swerling I complex-sum one a radar reader will assume; the 'log-t' detector is a geometric-mean (log-CA) detector, not Goldstein's log-t test.",
-  "fitness": "Could a CFAR researcher build on it? The code is reusable and the estimators are sound. But the central finding is close to a restatement of the model: with texture drawn iid per cell, reference cells are independent of the test cell's texture by construction, so the miscalibration is the K-vs-exponential marginal tail error, which any window statistic calibrated on exponential clutter must inherit; the companion radar-clutter-twin already showed that shared texture removes the error. That CFAR thresholds designed for Rayleigh clutter give inflated Pfa in K-distributed clutter, that the threshold multiplier must be set from the K tail, and that CA beats OS in homogeneous clutter (Rohling 1983's CFAR loss) are textbook (Watts 1985 IEE Proc F 132; Armstrong & Griffiths 1991 IEE Proc F 138(2) on CA-CFAR in spatially correlated K clutter with the uncorrelated limit; Ward, Tough & Watts, Sea Clutter, 2006/2013). None of these are cited. The genuinely interesting regimes (correlated texture of finite length, interfering targets) are left to next steps. A useful, correct teaching/benchmark result; incremental as research.",
-  "domain": "Matches practice: CA Pfa (1+alpha/N)^-N, Rohling's OS Pfa k C(N,k) B(k,N-k+1+alpha), OS rank 3N/4 (Rohling's recommendation), compound-Gaussian with gamma texture giving K-distributed amplitude (Ward 1981), Rao-Blackwell estimates with SEs that make Pfa 1e-4 resolvable from 300k windows (my 2M-window check agrees to 0.1%). Departs: (1) the target is added in power, P(tau e0 + s e1 > T), not in complex amplitude; for a single-pulse square-law detector a Swerling I target in clutter gives Exp(tau+s), so all Pd numbers (and the 'twin promise') are off by up to 0.014 absolute, ordering apparently unchanged; (2) 'log-t' is mislabelled; (3) iid texture is the least realistic of the K-clutter correlation cases and the one where the conclusion is forced; (4) no positioning against the K-clutter CFAR literature."
+  "correctness": "Ran `PYTHONPATH=src python3 experiments/run.py` (about 10 min): output is byte-identical to experiments/results.txt (`diff` empty). Independent script /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/cfar/indep.py, not importing the project: CA alpha N((Pfa)^(-1/N)-1) = 5.336 / 12.452 (Finn-Johnson, Pfa=(1+alpha/N)^-N) matches; Rohling OS-CFAR product form prod_{i<k}(N-i)/(N-i+alpha) at the reported alphas gives 1.0000e-2 and 1.0000e-4 for k=12 and k=8; K-distribution exceedance 2/Gamma(nu)(nu T)^(nu/2)K_nu(2 sqrt(nu T)) by quadrature reproduces every oracle Pfa in section 8 to 4 figures (2.881e-2, 1.949e-2, 3.624e-3, 1.245e-3, 3.075e-4); my own direct simulation of CA at nu=2, design 1e-2 gives 3.04x +- 0.03 vs claimed 3.02x; LOG twin Pfa at alpha 9.850 is 9.98e-3. One departure: the target model adds powers (tau*e0 + s*e1) rather than complex amplitudes; the standard Swerling-1 closed form (1+alpha/(N(1+SNR)))^-N gives twin Pd 0.6855 / 0.8843 / 0.9615 at 15/20/25 dB vs claimed 0.6996 / 0.8922 / 0.9645. Re-running section 5 at nu=2 with the complex-sum model (/tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/cfar/pdcheck.py) shifts real Pd by 0.002-0.005 (CA 15 dB 0.4288 vs 0.4307) and leaves the detector ordering unchanged. The headline Pfa-inflation numbers are right.",
+  "completeness": "README claims 7 tests (~25 s): 7 ran OK in 17.9 s. `experiments/run.py` reproduces every number in the paper (byte-identical results.txt). Paper results 1-6 each map to sections 2-8 of results.txt and match. Live page https://marisstella.app/research/cfar-family-twin/ returns 200. No TODOs or stubs. Next steps (interfering targets, correlated texture) are listed as not done, honestly.",
+  "verification": "`PYTHONPATH=src python3 -m unittest discover -s tests -v`: 7 tests OK. Tests check formulas against Monte Carlo and the Rao-Blackwell estimator against direct simulation, which is good design. Four seeded mutants via quality_mutate.py: OS75 rank off-by-one caught, texture-density Jacobian (nu -> nu-1) caught; twin_pd target power scaled by 1.2 survived (twin_pd, which produces the 'twin promise' column, has no test), and the beyond-grid interpolation return survived (edge only, probably equivalent at these thresholds). The Pd test compares the table with simulate_direct, which uses the same power-sum target model, so it cannot catch the Swerling-1 departure.",
+  "craft": "Read src/cfar_family_twin/model.py (160 lines), tests/test_model.py, experiments/run.py, figure.py. Compact, documented, deterministic seeds, independent calibration and evaluation windows, Rao-Blackwellisation explained in the module docstring. Minor: `from cfar_family_twin import *`, bisection with fixed iteration counts and no bracket check (calibrate, os_twin_alpha), interpolation silently returns 0 beyond T=e^6, tables computed with O(n*nt) pure-Python loops. Acceptable for a research script.",
+  "claims": "Checked README/paper numbers against results.txt: inflation 30/35/41/44x and 9.1/9.2/8.3/9.4x, oracle 2.88 vs 3.02, Pd 0.758/0.744/0.732/0.703, 0.70 vs 0.43, 'MC calibration reproduces exact alpha to 0.05-0.8%' (0.05% OS75, 0.78% OS50 at 1e-4), 'OS50 better by 9-17%', 'SE at most 2%' all backed. The oracle explanation is hedged ('not a proved theorem'). Limits are stated (iid texture, no real data, N=16). Gap: 'Rayleigh-fluctuating additive target' does not say powers are summed, which a radar reader would read as Swerling-1; Pd numbers carry that small bias. Live page is research, no product disclaimer needed.",
+  "fitness": "Nearest prior work: CFAR in K-distributed clutter, Watts (1985, IEE Proc. F 132(7)), Armstrong & Griffiths (1991, IEE Proc. F 138(2), CFAR of fluctuating targets in spatially correlated K clutter), Ward, Tough & Watts, Sea Clutter (IET 2006, CFAR chapter), Gini & Greco on compound-Gaussian CFAR. None is cited. With texture iid per cell, the clutter is just iid K-distributed, and 'a threshold designed for exponential clutter under-sets the threshold in K clutter, and no window statistic can track the test cell's independent texture' follows directly from the model and is textbook material; the detector ranking (CA best in homogeneous clutter, OS pays a CFAR loss) is also classical. A researcher can reuse the clean Rao-Blackwell estimator, but the result is not new and the realistic regime (texture correlated over the window, where CFAR families differ) is left as a next step.",
+  "domain": "Rohling OS formula, Finn-Johnson CA threshold, Ward compound model marginal and the Rao-Blackwell trick are all correct (recomputed). Departures a reviewer would flag: (1) Ward's compound model has texture correlated over many range cells; drawing it iid per cell removes the mechanism CFAR exists for, so the 'twin vs real' comparison reduces to exponential vs K marginal; (2) the target power is added to clutter power instead of adding complex amplitudes (Swerling-1 in compound-Gaussian clutter gives Exp(tau+s) conditional on tau); (3) no K-aware baseline (threshold set for an estimated shape parameter, the standard practice in maritime radar), so 'the twin' is compared only with detectors that all assume the wrong marginal."
  },
  "checks": [
   {
    "dimension": "correctness",
-   "what": "CA-CFAR twin threshold multipliers at 1e-2 and 1e-4",
-   "method": "Finn & Johnson closed form, confirmed by my own quadrature of E[exp(-alpha*mean)] over Gamma(N,1/N)",
-   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/cfar/indep.py",
-   "expected": "results.txt exact alpha 5.336, 12.452",
-   "observed": "5.3363, 12.4525; quadrature Pfa 1.000000e-02, 1.000000e-04",
+   "what": "Full experiment reproduces committed results",
+   "method": "re-run and byte diff",
+   "command": "PYTHONPATH=src python3 experiments/run.py > /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/cfar/results_rerun.txt; diff /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/cfar/results_rerun.txt experiments/results.txt",
+   "expected": "no diff",
+   "observed": "IDENTICAL",
    "result": "pass"
   },
   {
    "dimension": "correctness",
-   "what": "OS75/OS50 twin thresholds (Rohling)",
-   "method": "order-statistic quadrature via Beta(k,N-k+1) of the exponential CDF, independent of the package's Rohling implementation",
-   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/cfar/indep.py",
-   "expected": "4.425, 9.467, 11.080, 26.417",
-   "observed": "4.425, 9.467, 11.080, 26.417",
+   "what": "CA-CFAR twin threshold alpha for N=16 at Pfa 1e-2 and 1e-4",
+   "method": "Finn & Johnson 1968 / Richards FRSP, Pfa=(1+alpha/N)^-N, typed independently",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/cfar/indep.py",
+   "expected": "5.336 / 12.452",
+   "observed": "5.336 / 12.452",
    "result": "pass"
   },
   {
    "dimension": "correctness",
-   "what": "known-scale oracle real Pfa, 6 rows (section 8)",
-   "method": "closed-form K-distribution power tail 2/Gamma(nu) (nu T)^(nu/2) K_nu(2 sqrt(nu T)) (Ward/Jakeman), scipy.special.kv",
-   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/cfar/indep.py",
-   "expected": "2.881e-2 1.949e-2 1.279e-2 3.624e-3 1.245e-3 3.075e-4",
-   "observed": "2.8813e-2 1.9494e-2 1.2794e-2 3.6243e-3 1.2450e-3 3.0758e-4",
+   "what": "OS-CFAR Pfa at reported alphas (k=12: 4.425, 11.080; k=8: 9.467, 26.417)",
+   "method": "Rohling 1983 product form prod_{i=0}^{k-1}(N-i)/(N-i+alpha), not the project's lgamma form",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/cfar/indep.py",
+   "expected": "1e-2, 1e-2, 1e-4, 1e-4",
+   "observed": "1.00008e-2, 1.00004e-2, 1.00011e-4, 1.00006e-4",
    "result": "pass"
   },
   {
    "dimension": "correctness",
-   "what": "CA inflation at design 1e-4 and 1e-2, nu=2 and 5",
-   "method": "own numpy MC, 2M windows, exact Bessel-K h (no tabulation)",
-   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/cfar/indep.py",
-   "expected": "30.11x, 9.14x, 3.02x, 1.95x",
-   "observed": "30.134+-0.034, 9.135+-0.014, 3.026+-0.002, 1.950+-0.001",
+   "what": "Known-scale oracle Pfa in K clutter (section 8)",
+   "method": "K-distribution exceedance 2/Gamma(nu)(nu T)^(nu/2) K_nu(2 sqrt(nu T)) (Ward/Watts), K_nu by quadrature",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/cfar/indep.py",
+   "expected": "2.881e-2, 1.949e-2, 3.624e-3, 1.245e-3, 3.075e-4",
+   "observed": "2.8813e-2, 1.9494e-2, 3.6243e-3, 1.2450e-3, 3.0758e-4",
    "result": "pass"
   },
   {
    "dimension": "correctness",
-   "what": "repair cost and repaired CA Pd (nu=2/5, 1e-4, 20 dB)",
-   "method": "own brentq calibration on exact h, then 10M-trial direct simulation with the package's own power-sum target",
-   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/cfar/indep.py",
-   "expected": "3.70/1.93 dB; Pd 0.7582/0.8330",
-   "observed": "3.70/1.93 dB; Pd 0.7586/0.8333",
+   "what": "CA inflation at design 1e-2, nu=2",
+   "method": "own direct Monte Carlo, 400k trials, test cell simulated, closed-form alpha",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/cfar/indep.py",
+   "expected": "3.02x",
+   "observed": "3.04x +- 0.03",
    "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "LOG twin threshold alpha=9.850 gives design Pfa 1e-2",
+   "method": "own Monte Carlo of exp(-alpha*geomean) over 200k exponential windows",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/cfar/indep.py",
+   "expected": "1.0e-2",
+   "observed": "9.98e-3",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Twin Pd (CA, design 1e-4) at 15/20/25 dB, Rayleigh target",
+   "method": "Swerling-1 CA-CFAR closed form Pd=(1+alpha/(N(1+SNR)))^-N (Richards FRSP ch. 16; Gandhi & Kassam 1988)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/cfar/pdcheck.py",
+   "expected": "0.6855 / 0.8843 / 0.9615",
+   "observed": "0.6996 / 0.8922 / 0.9645 (project; power-sum target model)",
+   "result": "fail"
   },
   {
    "dimension": "domain",
-   "what": "twin Pd of a Rayleigh (Swerling I) target, CA and OS75 at 1e-4",
-   "method": "standard complex-amplitude sum: square-law output Exp(1+s), so Pd = (1+alpha/(N(1+s)))^-N (CA) and Rohling with alpha/(1+s) (OS)",
-   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/cf6a6ef0-c6ef-5b7c-9683-a55967b43bae/scratchpad/cfar/pd.py",
-   "expected": "if the target model were standard: CA 0.6858/0.8844/0.9616, OS75 0.6494 at 15 dB",
-   "observed": "package reports 0.6996/0.8922/0.9645 and 0.6616 (reproduced exactly by the power-sum model tau e0 + s e1)",
-   "result": "fail"
+   "what": "Does the Swerling-1 departure change the real-clutter Pd ordering (nu=2, 15/20 dB)?",
+   "method": "project estimator with _pd_cond replaced by exp(-T/(tau+s)), 60k windows",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/cfar/pdcheck.py",
+   "expected": "ordering CA > LOG > OS75 > OS50",
+   "observed": "CA 0.429/0.754, LOG 0.407/0.739, OS75 0.394/0.729, OS50 0.353/0.698; ordering holds, values shift 0.002-0.005",
+   "result": "pass"
   },
   {
    "dimension": "completeness",
-   "what": "experiment reproduces committed results",
-   "method": "full rerun and diff",
-   "command": "cd research/cfar-family-twin && PYTHONPATH=src python3 experiments/run.py > results_rerun.txt; diff experiments/results.txt results_rerun.txt",
-   "expected": "identical",
-   "observed": "identical",
-   "result": "pass"
-  },
-  {
-   "dimension": "verification",
-   "what": "test suite",
-   "method": "run the documented command",
-   "command": "cd research/cfar-family-twin && PYTHONPATH=src python3 -m unittest discover -s tests -v",
-   "expected": "7 tests, ~25 s, OK",
-   "observed": "Ran 7 tests in 18.373s OK",
+   "what": "README test command: 7 tests, about 25 s",
+   "method": "run it",
+   "command": "PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "7 OK",
+   "observed": "Ran 7 tests in 17.9 s, OK",
    "result": "pass"
   },
   {
    "dimension": "claims",
-   "what": "README headline numbers (30/35/41/44x, 9.1/9.2/8.3/9.4x, Pd 0.758/0.744/0.732/0.703, 0.70 vs 0.43)",
-   "method": "trace each to results.txt sections 3 and 5",
-   "command": "grep in experiments/results.txt",
-   "expected": "present",
-   "observed": "all present",
+   "what": "Paper numeric claims (inflation table, repair dB, Pd table, MC-vs-exact 0.05-0.8%, OS50 better by 9-17%)",
+   "method": "compare whitepaper.md and README.md with results.txt by hand",
+   "command": "cat experiments/results.txt paper/whitepaper.md",
+   "expected": "every figure present",
+   "observed": "all match (OS50 1e-4: 26.622 vs 26.417 = 0.78%; 8.29 vs 9.14 = 9%, 1.94 vs 2.34 = 17%)",
    "result": "pass"
-  },
-  {
-   "dimension": "claims",
-   "what": "'nearly all of the error comes from the test cell's own texture' (README)",
-   "method": "compare oracle vs CA at both design rates in results.txt section 8",
-   "command": "sed -n '/== 8/,$p' experiments/results.txt",
-   "expected": "oracle close to CA at all points",
-   "observed": "close at 1e-2 (2.88 vs 3.02), oracle larger at 1e-4 (36 vs 30, 12.5 vs 9.1); paper hedges, README does not",
-   "result": "partial"
   },
   {
    "dimension": "fitness",
-   "what": "novelty vs K-clutter CFAR literature",
-   "method": "reference list vs Watts 1985, Armstrong & Griffiths 1991, Ward/Tough/Watts 2006, Goldstein 1973",
-   "command": "grep -rn 'Watts\\|Armstrong\\|Gini\\|Goldstein\\|Swerling' research/cfar-family-twin",
-   "expected": "prior K-clutter CFAR work cited and the iid-texture result positioned against it",
-   "observed": "no matches; only Finn & Johnson, Rohling, Ward 1981 cited",
+   "what": "Novelty against nearest prior work (CFAR in K-distributed clutter)",
+   "method": "literature knowledge: Watts 1985; Armstrong & Griffiths 1991; Ward, Tough & Watts 2006",
+   "command": "grep -n References -A5 paper/whitepaper.md",
+   "expected": "prior K-clutter CFAR work cited and the delta stated",
+   "observed": "only Finn-Johnson, Rohling, Ward 1981 cited; iid-texture result is a direct consequence of the model",
    "result": "fail"
   },
   {
    "dimension": "claims",
-   "what": "live page loads",
-   "method": "curl and WebFetch",
-   "command": "curl -sS https://marisstella.app/research/cfar-family-twin/",
+   "what": "Live page served",
+   "method": "HTTP fetch",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/cfar-family-twin/",
    "expected": "200",
-   "observed": "proxy CONNECT 403; WebFetch ENOTFOUND (host not allowed in this session); unverified",
-   "result": "partial"
+   "observed": "200",
+   "result": "pass"
   }
  ],
  "mutations": [
   {
-   "where": "src/cfar_family_twin/model.py:111",
-   "change": "twin_pd: _pd_cond(alpha * x, 1.0, s) -> _pd_cond(alpha * x, 1.0, 0.8 * s)",
-   "caught": false,
-   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
-  },
-  {
-   "where": "src/cfar_family_twin/model.py:91",
-   "change": "return math.exp(tab[j] * (1 - f) + tab[j + 1] * f) -> return math.exp(tab[j])",
-   "caught": false,
-   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
-  },
-  {
-   "where": "src/cfar_family_twin/model.py:22",
-   "change": "LOG geometric mean over ref -> over ref[1:] / (N - 1)",
-   "caught": false,
+   "where": "src/cfar_family_twin/model.py:20",
+   "change": "OS75 sorted(ref)[k - 1] -> sorted(ref)[k]",
+   "caught": true,
    "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
   },
   {
    "where": "src/cfar_family_twin/model.py:66",
-   "change": "texture weight nu * math.exp(y) -> 1.15 * nu * math.exp(y)",
+   "change": "texture log-density nu * y -> (nu - 1) * y",
    "caught": true,
    "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
   },
   {
-   "where": "src/cfar_family_twin/model.py:136",
-   "change": "return k * math.exp(lc -> return (k + 1) * math.exp(lc",
-   "caught": true,
+   "where": "src/cfar_family_twin/model.py:111",
+   "change": "twin_pd target power s -> 1.2 * s",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/cfar_family_twin/model.py:88",
+   "change": "beyond-grid interpolation return 0.0 -> exp(tab[-1])",
+   "caught": false,
    "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
   }
  ],
  "defects": [
   {
    "severity": "medium",
-   "what": "Rayleigh target added in power, P(tau e0 + s e1 > T), instead of complex amplitude (square-law output Exp(tau+s) for a Swerling I target); every Pd number is for a non-standard model: twin CA Pd 0.6996/0.8922 vs standard 0.6858/0.8844, OS75 0.6616 vs 0.6494, real repaired CA nu=2 0.4307/0.7582 vs 0.4276/0.7528",
-   "where": "research/cfar-family-twin/src/cfar_family_twin/model.py:77",
+   "what": "Target model adds Rayleigh target power to clutter power (P(tau*e0 + s*e1 > T)) instead of adding complex amplitudes (Swerling-1: Exp(tau+s) given tau). Twin Pd is overstated by up to 0.014 (0.6996 vs 0.6855 at 15 dB, CA, 1e-4) and real Pd by 0.002-0.005; ordering unchanged. simulate_direct uses the same model, so the direct-simulation check cannot catch it.",
+   "where": "research/cfar-family-twin/src/cfar_family_twin/model.py:78",
    "category": "domain-rule",
    "origin": "spec"
   },
   {
    "severity": "medium",
-   "what": "no positioning against the K-clutter CFAR literature (Watts 1985; Armstrong & Griffiths 1991; Ward, Tough & Watts 2006; Gini/Greco compound-Gaussian CFAR); with iid texture the 'test cell's own texture' explanation follows from the model by construction, so the novelty is not established",
+   "what": "Novelty not established: with texture iid per cell the clutter is iid K-distributed, so the Pfa inflation and the 'no window statistic can track the test cell texture' explanation follow directly from the model; prior CFAR-in-K-clutter work (Watts 1985; Armstrong & Griffiths 1991; Ward, Tough & Watts 2006) is not cited and no K-aware threshold baseline is compared. The realistic correlated-texture regime is only a next step.",
    "where": "research/cfar-family-twin/paper/whitepaper.md:25",
    "category": "research-design",
    "origin": "design"
   },
   {
-   "severity": "medium",
-   "what": "twin_pd (the whole 'twin promise' column and section 6) is never exercised by a test; a 20% target-power error survives, as do a step-interpolation of h and a change to the LOG statistic",
-   "where": "research/cfar-family-twin/tests/test_model.py:1",
+   "severity": "low",
+   "what": "twin_pd (the 'twin promise' column in section 5/6 and README's '0.70 vs 0.43') has no test; a seeded 1.2x error in its target power survived the suite.",
+   "where": "research/cfar-family-twin/src/cfar_family_twin/model.py:111",
    "category": "untested-core",
    "origin": "tests"
   },
   {
    "severity": "low",
-   "what": "README generalises 'nearly all of the error comes from the test cell's own texture' from the 1e-2 nu=2 oracle point; at 1e-4 the oracle inflates more than CA (36x vs 30x), which the paper flags but the README does not",
-   "where": "research/cfar-family-twin/README.md:3",
+   "what": "Limits say 'Rayleigh-fluctuating additive target' without saying powers, not amplitudes, are summed; a radar reader assumes Swerling-1.",
+   "where": "research/cfar-family-twin/README.md:15",
    "category": "overclaim",
    "origin": "claims"
-  },
-  {
-   "severity": "low",
-   "what": "'log-t' detector is a geometric-mean (log-CA) statistic, not Goldstein's (1973) log-t test, which also normalises by the log-domain spread",
-   "where": "research/cfar-family-twin/paper/whitepaper.md:6",
-   "category": "domain-rule",
-   "origin": "spec"
-  },
-  {
-   "severity": "low",
-   "what": "section 2 direct MC reuses seed 7 for both detectors at each nu, so the four RB-vs-direct rows are correlated (all show RB 1-2% above direct) yet are presented as independent confirmation; section 3 SE printed with %.0f reads '+-0%'",
-   "where": "research/cfar-family-twin/experiments/run.py:32",
-   "category": "code-craft",
-   "origin": "implementation"
   }
  ],
  "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15368",
   "https://github.com/Duncan-Haywood/oss-monorepo/pull/15369"
  ],
- "verdict": "The false-alarm side is right: CA and OS thresholds, the K-tail oracle and the CA inflation/repair numbers all match my independent closed forms and a 2M-window numpy Monte Carlo to within 0.1%, and the full run reproduces results.txt byte for byte. Two things keep it below the bar. The target model adds powers rather than complex amplitudes, so the Pd numbers are not Swerling I values (off by up to 0.014). And three of five seeded mutations survived, including any change to twin_pd. As research it is a careful rerun of a known effect: with iid texture the conclusion follows from the model, and the K-clutter CFAR literature that would show this is not cited. Does not meet the bar (verification 2), finished (completeness 3)."
+ "verdict": "A small, clean, fully reproducible study: the 10-minute experiment re-ran byte-identical, and CA/OS thresholds, the K-distribution oracle Pfa and the CA inflation all match textbook formulas and an independent simulation. It misses the bar on verification (2): twin_pd is untested and the Pd check compares two copies of the same non-standard power-sum target model, which overstates twin Pd by up to 0.014 against the Swerling-1 closed form. A radar reviewer would also score novelty and method at 2: with iid texture the 'twin gap' is the classical exponential-vs-K mismatch, the explanation follows from the model, prior K-clutter CFAR work is uncited, and the correlated-texture case where CFAR families actually differ is left for later. Correct and honest within its stated limits, not publishable as it stands."
 }

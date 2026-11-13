@@ -74,7 +74,7 @@
       <div><label for="tax-rate">Xero tax rate</label><input id="tax-rate" value="Tax Exempt"></div>
       <div><label for="expected">Deposit in your bank (optional)</label><input id="expected" inputmode="decimal" placeholder="e.g. 559.54"></div>
     </div>
-    <label for="mapping">Accounts (one <code>category = account</code> per line; for Xero, the account <em>code</em> (up to 10 characters); for QuickBooks, the account name)</label>
+    <label for="mapping">Accounts (one <code>category = account</code> per line; names or codes as your software has them)</label>
     <textarea id="mapping" class="small" spellcheck="false" wrap="off"></textarea>
     <p class="note" id="mapping-note"></p>
     <p>
@@ -97,7 +97,7 @@
     <div class="scroll"><table><thead><tr><th scope="col">Journal</th><th scope="col">Date</th><th scope="col">Account</th><th class="n" scope="col">Debit</th><th class="n" scope="col">Credit</th><th scope="col">Memo</th></tr></thead><tbody id="journals"></tbody></table></div>
     <h3>Download</h3>
     <p><button type="button" id="dl-xero">Xero journal CSV</button> <button type="button" id="dl-qbo">QuickBooks Online CSV</button> <button type="button" id="dl-iif">QuickBooks Desktop IIF</button> <button type="button" id="dl-csv">Plain CSV</button></p>
-    <p class="note">The accounts must already exist in your software. Xero's journal import matches the account <em>code</em>, so replace the default names with your codes before importing there; QuickBooks matches the account name. Post the journals, then match each bank deposit to Stripe clearing. <button type="button" class="secondary" id="download-findings">Download findings as CSV</button></p>
+    <p class="note">The accounts must already exist in your software under these names or codes. Post the journals, then match each bank deposit to Stripe clearing. <button type="button" class="secondary" id="download-findings">Download findings as CSV</button></p>
   </section>
 
   <section class="card">
@@ -161,7 +161,7 @@
     function run(text) {
       const mp = parseMapping($("#mapping").value);
       $("#mapping-note").textContent = mp.errors.join(" ");
-      const exp = parseAmount($("#expected").value); // cents; reads "1,234.56" and "1.234,56" like the report's amounts
+      const exp = parseAmount($("#expected").value.replace(/[$€£]/g, ""));
       const r = validate(text, { mapping: mp.mapping, split: $("#split").value, dateOrder: $("#date-order").value, expected: Number.isFinite(exp) ? exp : undefined });
       last = r;
       const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
