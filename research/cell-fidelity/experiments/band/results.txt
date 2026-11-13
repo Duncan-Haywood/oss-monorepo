@@ -1,0 +1,30 @@
+cell-fidelity milestone 5h: the band stop (verify while an unverified SPMe score times the median verified DFN/SPMe ratio could beat the verified best)
+
+Probe (baseline design, 2 cycles): Ai2020@0.75x ok, Ai2020@0.25x ok, NCA_Kim2011@0.5x ok, Chen2020@0.5x ok, Ecker2015@0.5x ok, OKane2022@1.5x ok
+
+Ai2020@0.75x: n 64; suspect share 0.53; mis-scored 48; recall 1.00; pool median DFN/SPMe on sound designs 1.315
+  band: gap 0.0000 at 60 calls (q 1.343), wall time / all-DFN 1.07
+  iterate (5g): gap 0.0000 at 51 calls, wall time / all-DFN 0.93; pool DFN best 119.4 Wh/kg
+  dropped (DFN did not reach 100 cycles): []
+Ai2020@0.25x: n 51; suspect share 0.06; mis-scored 17; recall 1.00; pool median DFN/SPMe on sound designs 1.050
+  band: gap 0.0000 at 31 calls (q 1.078), wall time / all-DFN 0.72
+  iterate (5g): gap 0.0000 at 20 calls, wall time / all-DFN 0.51; pool DFN best 104.9 Wh/kg
+  dropped (DFN did not reach 100 cycles): [1, 9, 21, 24, 27, 29, 37, 43, 45, 47, 49, 51, 57]
+NCA_Kim2011@0.5x: n 64; suspect share 0.36; mis-scored 16; recall 1.00; pool median DFN/SPMe on sound designs 1.008
+  band: gap 0.0000 at 22 calls (q 1.014), wall time / all-DFN 0.61
+  iterate (5g): gap 0.0000 at 22 calls, wall time / all-DFN 0.61; pool DFN best 68.5 Wh/kg
+  dropped (DFN did not reach 100 cycles): []
+Chen2020@0.5x: n 64; suspect share 0.00; mis-scored 0; recall n/a; pool median DFN/SPMe on sound designs 1.016
+  band: gap 0.0000 at 3 calls (q 1.083), wall time / all-DFN 0.57
+  iterate (5g): gap 0.0000 at 3 calls, wall time / all-DFN 0.57; pool DFN best 181.3 Wh/kg
+  dropped (DFN did not reach 100 cycles): []
+Ecker2015@0.5x: n 64; suspect share 0.00; mis-scored 0; recall n/a; pool median DFN/SPMe on sound designs 1.000
+  band: gap 0.0000 at 4 calls (q 1.017), wall time / all-DFN 0.33
+  iterate (5g): gap 0.0000 at 3 calls, wall time / all-DFN 0.31; pool DFN best 370.3 Wh/kg
+  dropped (DFN did not reach 100 cycles): []
+OKane2022@1.5x: n 64; suspect share 0.58; mis-scored 30; recall 0.97; pool median DFN/SPMe on sound designs 1.052
+  band: gap 0.0000 at 33 calls (q 1.000), wall time / all-DFN 0.70
+  iterate (5g): gap 0.0000 at 33 calls, wall time / all-DFN 0.70; pool DFN best 125.1 Wh/kg
+  dropped (DFN did not reach 100 cycles): []
+
+Verdicts: H56 supported, H57 supported, H58 refuted, H59 supported, H60 supported

@@ -1,0 +1,40 @@
+Development replay of the band stop on the 13 committed conditions (the rule was chosen on these numbers):
+OKane2022@2x: n 64; suspect share 0.81; mis-scored 49; recall 1.00; pool median DFN/SPMe on sound designs 1.066
+  band: gap 0.0000 at 53 calls (q 1.066), wall time / all-DFN 0.94
+  iterate (5g): gap 0.0000 at 53 calls, wall time / all-DFN 0.94; pool DFN best 95.6 Wh/kg
+Chen2020@2x: n 64; suspect share 0.81; mis-scored 49; recall 1.00; pool median DFN/SPMe on sound designs 1.074
+  band: gap 0.0000 at 53 calls (q 1.073), wall time / all-DFN 1.07
+  iterate (5g): gap 0.0000 at 53 calls, wall time / all-DFN 1.07; pool DFN best 97.7 Wh/kg
+Marquis2019@2x: n 64; suspect share 0.22; mis-scored 10; recall 1.00; pool median DFN/SPMe on sound designs 0.941
+  band: gap 0.0000 at 23 calls (q 1.000), wall time / all-DFN 0.78
+  iterate (5g): gap 0.0000 at 23 calls, wall time / all-DFN 0.78; pool DFN best 140.3 Wh/kg
+Ecker2015@2x: n 64; suspect share 0.70; mis-scored 21; recall 1.00; pool median DFN/SPMe on sound designs 0.983
+  band: gap 0.0000 at 41 calls (q 1.000), wall time / all-DFN 0.90
+  iterate (5g): gap 0.0000 at 41 calls, wall time / all-DFN 0.90; pool DFN best 224.3 Wh/kg
+Mohtat2020@2x: n 64; suspect share 0.02; mis-scored 0; recall n/a; pool median DFN/SPMe on sound designs 0.997
+  band: gap 0.0000 at 4 calls (q 1.000), wall time / all-DFN 0.43
+  iterate (5g): gap 0.0000 at 4 calls, wall time / all-DFN 0.43; pool DFN best 205.8 Wh/kg
+Ai2020@0.5x: n 64; suspect share 0.31; mis-scored 31; recall 1.00; pool median DFN/SPMe on sound designs 1.168
+  band: gap 0.0000 at 47 calls (q 1.199), wall time / all-DFN 0.87
+  iterate (5g): gap 0.0320 at 34 calls, wall time / all-DFN 0.66; pool DFN best 121.2 Wh/kg
+OKane2022@1x: n 128; suspect share 0.18; mis-scored 15; recall 1.00; pool median DFN/SPMe on sound designs 1.061
+  band: gap 0.0000 at 22 calls (q 1.000), wall time / all-DFN 0.36
+  iterate (5g): gap 0.0000 at 22 calls, wall time / all-DFN 0.36; pool DFN best 162.3 Wh/kg
+Ecker2015@1x: n 64; suspect share 0.06; mis-scored 1; recall 1.00; pool median DFN/SPMe on sound designs 0.978
+  band: gap 0.0000 at 7 calls (q 1.000), wall time / all-DFN 0.39
+  iterate (5g): gap 0.0000 at 7 calls, wall time / all-DFN 0.39; pool DFN best 336.7 Wh/kg
+Ai2020@1x: n 64; suspect share 0.72; mis-scored 57; recall 1.00; pool median DFN/SPMe on sound designs 1.431
+  band: gap 0.0000 at 62 calls (q 1.535), wall time / all-DFN 1.11
+  iterate (5g): gap 0.0000 at 61 calls, wall time / all-DFN 1.10; pool DFN best 113.0 Wh/kg
+Mohtat2020@1x: n 64; suspect share 0.00; mis-scored 0; recall n/a; pool median DFN/SPMe on sound designs 1.004
+  band: gap 0.0000 at 3 calls (q 1.000), wall time / all-DFN 0.49
+  iterate (5g): gap 0.0000 at 3 calls, wall time / all-DFN 0.49; pool DFN best 240.6 Wh/kg
+NCA_Kim2011@1x: n 64; suspect share 0.94; mis-scored 52; recall 1.00; pool median DFN/SPMe on sound designs 0.999
+  band: gap 0.0000 at 58 calls (q 1.000), wall time / all-DFN 1.09
+  iterate (5g): gap 0.0000 at 58 calls, wall time / all-DFN 1.09; pool DFN best 74.1 Wh/kg
+Marquis2019@1x: n 64; suspect share 0.00; mis-scored 0; recall n/a; pool median DFN/SPMe on sound designs 0.996
+  band: gap 0.0000 at 6 calls (q 1.000), wall time / all-DFN 0.51
+  iterate (5g): gap 0.0000 at 6 calls, wall time / all-DFN 0.51; pool DFN best 199.5 Wh/kg
+Chen2020@1x: n 64; suspect share 0.25; mis-scored 9; recall 1.00; pool median DFN/SPMe on sound designs 1.066
+  band: gap 0.0000 at 15 calls (q 1.000), wall time / all-DFN 0.87
+  iterate (5g): gap 0.0000 at 15 calls, wall time / all-DFN 0.87; pool DFN best 164.6 Wh/kg
