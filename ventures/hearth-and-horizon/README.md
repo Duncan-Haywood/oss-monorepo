@@ -19,7 +19,7 @@ Every story, by collection and newest first, with its reading time and whether i
 
 ### Hearth & Horizon (304 stories)
 
-- [Pull Gently](stories/pull-gently.md) (2026-11-13; 27 min read, text only)
+- [Pull Gently](stories/pull-gently.md) (2026-11-13; 27 min read, 38 min audio)
 - [The Clock Book](stories/the-clock-book.md) (2026-11-13; 27 min read, text only)
 - [The Cold Chain](stories/the-cold-chain.md) (2026-11-13; 25 min read, text only)
 - [The Rule That Counts From One](stories/the-rule-that-counts-from-one.md) (2026-11-13; 25 min read, text only)
@@ -38,11 +38,11 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Bell Tax](stories/the-bell-tax.md) (2026-11-11; 26 min read, text only)
 - [The Ground Under the Drift](stories/the-ground-under-the-drift.md) (2026-11-11; 21 min read, text only)
 - [The Last Dark Noon](stories/the-last-dark-noon.md) (2026-11-11; 22 min read, text only)
-- [The Last Sun Comes in Two Pieces](stories/the-last-sun-comes-in-two-pieces.md) (2026-11-11; 24 min read, text only)
-- [The Rising Shore](stories/the-rising-shore.md) (2026-11-11; 19 min read, text only)
+- [The Last Sun Comes in Two Pieces](stories/the-last-sun-comes-in-two-pieces.md) (2026-11-11; 24 min read, 33 min audio)
+- [The Rising Shore](stories/the-rising-shore.md) (2026-11-11; 19 min read, 27 min audio)
 - [The Rule for After Rain](stories/the-rule-for-after-rain.md) (2026-11-11; 26 min read, text only)
 - [The Sinking Polder](stories/the-sinking-polder.md) (2026-11-11; 22 min read, text only)
-- [The Slow Dial](stories/the-slow-dial.md) (2026-11-11; 25 min read, text only)
+- [The Slow Dial](stories/the-slow-dial.md) (2026-11-11; 25 min read, 34 min audio)
 - [The Stones in the Nave](stories/the-stones-in-the-nave.md) (2026-11-11; 25 min read, text only)
 - [The Straw Coat](stories/the-straw-coat.md) (2026-11-11; 23 min read, text only)
 - [The Sun at Three Degrees](stories/the-sun-at-three-degrees.md) (2026-11-11; 22 min read, text only)

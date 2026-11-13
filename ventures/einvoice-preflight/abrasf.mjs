@@ -265,7 +265,7 @@ export function checkAbrasf(text) {
     }
   }
   if (!found) {
-    return { findings: [finding("ABR-001", `No ABRASF element (GerarNfseEnvio, EnviarLoteRpsEnvio, CompNfse, ...) was found.`, "Check this is an ABRASF-layout municipal NFS-e; providers with their own layouts (São Paulo's Paulistana, DSF, IPM 1.0x, ...) are not read, and the national NFS-e has its own check.", "/")], skipped, meta: {} };
+    return { findings: [finding("ABR-001", `No ABRASF element (GerarNfseEnvio, EnviarLoteRpsEnvio, CompNfse, ...) was found.`, "Check this is an ABRASF-layout municipal NFS-e; DSF's layout (namespace http://localhost:8080/WsNFe2/lote) and the national NFS-e have their own checks; other providers' own layouts (São Paulo's Paulistana, IPM 1.0x, ...) are not read.", "/")], skipped, meta: {} };
   }
   const { root, wrapped, escaped, offNs, other, multi } = found;
   const base = `/${root.name}`;

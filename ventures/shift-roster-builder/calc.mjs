@@ -2654,7 +2654,11 @@ function buildRosterOnce(staff, slots, options = {}) {
   // "Posted reissues, column generation first").
   const exactOn = o.exact === true || (o.exact === "auto" && ctx.S <= EXACT_AUTO_SLOTS && !(o.openShiftWeight > 0));
   const bigExact = ctx.S > EXACT_TREE_SLOTS && o.exactTree !== true;
-  const deferCover = exactOn && o.scoreCG !== false && (o.deferCover === true || ((bigExact || o.keepShift > 0) && o.deferCover !== false));
+  // A fresh build takes it too since 2026-11-13 (README "Fresh builds, column generation first"): eval/fresh-order.mjs, fresh
+  // weeks of the five teams x 12 seeds and seeded 8-20 person weeks at or under 60 copies, same score and open hours on every
+  // one. So the order is column generation first whenever the exact check and column generation are on; `deferCover: false`
+  // keeps the old order (plateau walk and repair first).
+  const deferCover = exactOn && o.scoreCG !== false && o.deferCover !== false;
   // The clique LP's open-hours floor (cliqueOpenFloor, 2026-11-13), before the cover passes so the plateau walk can stop at it.
   // About 1.2 s on a 60-person week (245 copies), where it proves the 300 open hours the engine holds (the column generation's
   // root had reached 275 after 34 s). It is not given to the whole-score column generation as its open-hours row by default: on
@@ -3470,8 +3474,14 @@ export function keepFromCsv(csv) {
   return keep;
 }
 
-export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, onWeek = null, reuse = true, ...options } = {}) {
+export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, onWeek = null, reuse = true, ...given } = {}) {
   const n = Math.max(1, Math.min(8, Math.floor(weeks) || 1));
+  // The planner keeps the old order (plateau walk first) unless the caller sets `deferCover`. Each week's last shifts carry
+  // into the next week's rest gaps and streaks, so which tied best roster a week posts changes what the next can do; with
+  // column generation first (fresh single-week builds since 2026-11-13) 2 of 122 four-week plans ended 2-3 open hours worse,
+  // the guide page's own plan among them (Ana off Tue 1 Dec, Ben off Fri 4 Dec: week 3 20 h, not 17), and none better, for
+  // a 3-5x faster plan (eval/plan-order.mjs, README "Fresh builds, column generation first").
+  const options = given.deferCover === undefined ? { ...given, deferCover: false } : given;
   const sh = parseShifts(shiftsText);
   if (sh.errors.length) return { error: sh.errors[0] };
   let text = String(staffText || "");
@@ -4313,11 +4323,19 @@ export function rosterKey(r) {
 // ties, so a week with one best roster is unchanged. `steady` on the result says what was compared.
 export function steadyRoster(staff, slots, options = {}, { seeds = [1, 2, 3, 4, 5, 6], fromDay = 1, noticeMin = 420, prune = true, outright = true, onProgress = null } = {}) {
   const base = options.seed ?? 1;
-  const list = [...new Set([base, ...seeds])];
+  // The candidates. A fresh build runs column generation first (2026-11-13, README "Fresh builds, column generation first"),
+  // and that lands on the same tied roster whatever the seed (the sample café: one roster for seeds 1-12), so varying the seed
+  // alone would leave nothing to choose between. So the first candidate is the roster a plain build posts (`order` "default"),
+  // and the seeds are built in the old order (plateau walk first, `deferCover: false`, `order` "walk"), whose seeds land on
+  // different ties. A caller who sets `deferCover` gets every seed in that order. With the exact check off the two orders are
+  // the same build, so the seeds are built once.
+  const split = options.deferCover === undefined && options.exact !== false;
+  const plan = split ? [{ seed: base, order: "default", opts: options }, ...[...new Set([base, ...seeds])].map((seed) => ({ seed, order: "walk", opts: { ...options, deferCover: false } }))]
+    : [...new Set([base, ...seeds])].map((seed) => ({ seed, order: "default", opts: options }));
   const built = [];
-  for (const seed of list) {
-    built.push({ seed, r: buildRoster(staff, slots, { ...options, seed }) });
-    if (onProgress) onProgress({ stage: "build", done: built.length, of: list.length });
+  for (const { seed, order, opts } of plan) {
+    built.push({ seed, order, i: built.length, r: buildRoster(staff, slots, { ...opts, seed }) });
+    if (onProgress) onProgress({ stage: "build", done: built.length, of: plan.length });
     if (built[0].r.error) return built[0].r;
   }
   const best = Math.min(...built.map((b) => b.r.score));
@@ -4328,7 +4346,7 @@ export function steadyRoster(staff, slots, options = {}, { seeds = [1, 2, 3, 4, 
     if (!seen.has(k)) seen.set(k, b);
   }
   // With `prune`, a later roster stops being checked once its sum reaches the best so far: it cannot win (ties go to
-  // the earlier seed), and its exposure is reported as at least that sum (`stopped`). `prune: false` scores every tie.
+  // the earlier candidate), and its exposure is reported as at least that sum (`stopped`). `prune: false` scores every tie.
   const ties = [...seen.values()];
   const cands = [], hint = new Map();
   let bestX = Infinity;
@@ -4340,11 +4358,12 @@ export function steadyRoster(staff, slots, options = {}, { seeds = [1, 2, 3, 4, 
     for (const c of x.cases) hint.set(c.person + "|" + c.day, Math.max(hint.get(c.person + "|" + c.day) ?? 0, c.added));
     if (!x.stopped) bestX = Math.min(bestX, x.exposure);
   }
-  cands.sort((a, b) => (!!a.x.stopped - !!b.x.stopped) || a.x.exposure - b.x.exposure || list.indexOf(a.seed) - list.indexOf(b.seed));
+  cands.sort((a, b) => (!!a.x.stopped - !!b.x.stopped) || a.x.exposure - b.x.exposure || a.i - b.i);
   const pick = cands[0];
-  const first = cands.find((c) => c.seed === base);
-  return { ...pick.r, steady: { chosenSeed: pick.seed, exposure: pick.x.exposure, firstSeedExposure: first && !first.x.stopped ? first.x.exposure : null, personDays: pick.x.personDays,
-    tied: cands.map((c) => ({ seed: c.seed, exposure: c.x.exposure, ...(c.x.stopped ? { atLeast: true } : {}) })), rebuilt: cands.reduce((t, c) => t + c.x.rebuilt, 0),
+  // The first candidate is the plain build's roster; a tie identical to it was dropped above, so it stands for both.
+  const first = cands.find((c) => c.i === 0);
+  return { ...pick.r, steady: { chosenSeed: pick.seed, chosenOrder: pick.order, chosen: pick.i, exposure: pick.x.exposure, firstSeedExposure: first && !first.x.stopped ? first.x.exposure : null, personDays: pick.x.personDays,
+    tied: cands.map((c) => ({ seed: c.seed, order: c.order, i: c.i, exposure: c.x.exposure, ...(c.x.stopped ? { atLeast: true } : {}) })), rebuilt: cands.reduce((t, c) => t + c.x.rebuilt, 0),
     worst: pick.x.cases.filter((c) => c.added > 0) } };
 }
 
@@ -4372,7 +4391,7 @@ export function coverSlackText(cs, staff = null) {
 export function steadyText(s) {
   if (!s) return "";
   if (s.error) return `Call-out check: ${s.error}`;
-  const rest = s.tied.filter((t) => t.seed !== s.chosenSeed);
+  const rest = s.tied.filter((t) => (t.i ?? t.seed) !== (s.chosen ?? s.chosenSeed));
   // A tie stopped at the best sum is "at least as many": the check stops there because it can no longer win.
   const others = rest.every((t) => t.atLeast && t.exposure === s.exposure) ? `the other${rest.length > 1 ? "s" : ""} at least as many`
     : `the others ${rest.map((t) => (t.atLeast ? "at least " : "") + num(t.exposure)).join(", ")} h`;

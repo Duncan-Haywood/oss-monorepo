@@ -1177,7 +1177,7 @@ Per team: café 21.7 s to 10.2 s, spare-part-timer café 30.2 s to 12.6 s, retai
 
 **What changed.** `buildRoster` now takes column generation first whenever `keepShift` > 0 (a posted week's reissue: CLI `--changes`, and the page's "Changes since you posted it"), as it already did on big weeks and in the call-out check; `deferCover: false` keeps the old order. Test (`reissue-posted.test.mjs`): on the café, seed 1, Fay off Wednesday (one of the 33), the default reissue equals the explicit column-generation-first one, differs from the old order's roster, and ties it on score and open hours, both proven.
 
-**Fresh builds, measured, not changed.** The same script builds each of the 30 team-seed weeks both ways: same score on all 30, all proven, 8.6 s to 2.7 s, a different roster on 6. Fresh builds keep the old order for now: the guide pages and their tests quote specific fresh rosters (who works which shift), and `--steady` already picks among ties by call-out exposure, so switching would rewrite posted examples for a speed gain on weeks that already take under a second each on average. A run that wants it should re-derive the guide pages with it on.
+**Fresh builds, measured, not changed.** The same script builds each of the 30 team-seed weeks both ways: same score on all 30, all proven, 8.6 s to 2.7 s, a different roster on 6. Fresh builds keep the old order for now: the guide pages and their tests quote specific fresh rosters (who works which shift), and `--steady` already picks among ties by call-out exposure, so switching would rewrite posted examples for a speed gain on weeks that already take under a second each on average. A run that wants it should re-derive the guide pages with it on. (Done the same day: "Fresh builds, column generation first" below.)
 
 Not claimed: five invented teams on one machine, runs one after another; the equivalence is measured on these 570 cases, not proven; where column generation proves nothing the walk still runs after it.
 
@@ -1434,3 +1434,49 @@ Not claimed: invented teams and seeded weeks; exposure is a model (5pm notice, k
 three or more shifts are not tried; the café's 23 flagged days over 11 that open are untouched (4 candidates passed the
 screen there and none paid: the café is short-staffed, 15 h open, so there is little room to free); the pass is 2-3x slower with the pairs on
 the 40-person weeks and they stay off above 200 copies, where the one week measured found nothing for 10 s more.
+
+## Fresh builds, column generation first (2026-11-13 later)
+
+"Posted reissues, column generation first" measured fresh builds both ways and left them on the old order because the guide pages quote fresh rosters. This run re-derived the pages and moved the default: `buildRoster` now runs the whole-score column generation before the coverage plateau walk on **every** build with the exact check on (`deferCover: false` keeps the old order). Above 60 shift copies, in the call-out check and on posted reissues it already did.
+
+**Checked first, on more weeks.** `node eval/fresh-order.mjs` (`eval/fresh-order.out.txt`) builds each week both ways: the five teams of "A whole week of call-outs" x seeds 1-12, and seeded 8-18 person weeks (the cg-scale-bench generator) at or under 60 copies, the sizes where the order changes.
+
+| 80 fresh builds | old order | column generation first |
+|---|---|---|
+| proven best | 80 | 80 |
+| score, open hours | - | same on all 80 |
+| a different roster (a tie) | - | 16 (all 12 café seeds, 4 seeded weeks) |
+| time | 36.4 s | **10.4 s** (3.5x) |
+
+The sample café, the week the page opens on: about 1.3 s to 0.25 s a build. No build was more than 50 ms slower.
+
+**What a manager sees.** The café posts another tied roster: same $3,690, same 15 open hours (the weekday lunches), different people on the opens and closes. Column generation lands on that one roster whatever the seed, where the old order's seeds land on several. The ties are not equally robust: summed over every Tuesday-Sunday call-out (`calloutExposure`), the new roster leaves 100 h open; the old order's seed 1 left 92 h, and across seeds 1-12 the old order's rosters averaged 110 h (92-140). So the plain build is steadier than the old order's average and less steady than its seed 1.
+
+**`--steady` kept its choice.** Because every seed now gives the same café roster, varying the seed alone would leave the call-out check nothing to choose between. `steadyRoster` now takes the plain build's roster first, then builds its seeds in the old order (`deferCover: false`), whose seeds land on different ties; a caller who sets `deferCover` gets every seed in that order. The café's steady pick is the same 92 h roster as before (seed 1, walk first); the result names each candidate's `order` and index (`chosen`, `chosenOrder`). One build more than before: 16 s on the café against 14.4 s.
+
+**The planner stays on the old order.** `planWeeks` carries each week's last shifts into the next week's rest gaps and streaks, so which tie a week posts changes what the next can do. `node eval/plan-order.mjs` (`eval/plan-order.out.txt`) plans four weeks both ways on the five teams x 12 drawn time-off patterns, plus the guide page's plan:
+
+| 61 four-week plans | old order | column generation first |
+|---|---|---|
+| open hours, plain | 1,086 | 1,089 (worse on 1, better on 0) |
+| open hours, keep usual shifts 0.1 | 1,084 | 1,086 (worse on 1, better on 0) |
+| time, all four plan kinds | 76.2 s | 27.1 s |
+
+The one plain plan that got worse is the guide page's (Ana off Tue 1 Dec, Ben off Fri 4 Dec): week 3 had 20 open hours, not 17. Two of 122 is thin evidence, but nothing went the other way, so `planWeeks` sets `deferCover: false` unless its caller sets it, and every plan figure is as before. Next on it: pick among a week's tied rosters by what they leave the next week, which would let the planner take the speed as well.
+
+**The pages, re-derived.** Tests pin each figure to the engine (`page*.test.mjs`, `staffpack.test.mjs`). What changed:
+
+| page | before | now |
+|---|---|---|
+| call-out | a rebuild moves 2-15 shifts | 7-17 (still 15 of 27 covered) |
+| posted schedule, rebuild | 3-15 others' shifts; Dev moved four people | 9-13; each moved three |
+| posted schedule, keep posted shifts | Ana 4 to 2 changes, all 15 h open | Ana's Wednesday cannot be covered once Monday and Tuesday are held: 23 h open in both columns, the kept reissue changes nothing else |
+| same, 41 call-outs | 190 to 91 changes, $3,190 to $1,572, ILP least 88 (153 with the caller) | 204 to 96, $3,439 to $1,674, ILP least 94 (158), `eval/reissue-ilp-check.out.txt` |
+| 14-day notice | Fay's premium nearly triples from 10 days to 3 | Ana's nearly doubles; Gus owes four fifths at 10 days |
+| labour cost by day | Tue 34.8%, Sun 15.3% | Tue 33.8%, Sun 16.0% (Monday still worst, 36.5%) |
+| template, sample staff pack | old grid | the new roster |
+
+Clopening, days in a row, time off, rotation, widening, overtime, 14-15 year olds, coffee, restaurant, retail, salon, daycare and the hiring test came out the same. The CLI's `--changes` test case moved from Dev off Thursday (now a tie at $89 kept or free: keeping posted shifts never costs more, but need not save) to Fay ($89 against $118). The whole test suite went from 160 s to 137 s on one 4-core machine.
+
+Not claimed: invented teams and seeded weeks on one machine, runs one after another; the equivalence is measured, not proven: where column generation proves nothing the walk still runs after it; call-out exposure is a model (5pm notice, kept rebuild).
+

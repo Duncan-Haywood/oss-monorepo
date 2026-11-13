@@ -568,12 +568,45 @@ singers, two to four sections. These choirs are synthetic, so this checks the al
 narrowest section matched brute force in all 290; the total width matched in 285 (the five misses, all with
 three or four sections, lose 1-2 semitones of total). 200 singers into four sections take about 50 ms.
 
-`singers.test.mjs` (10 tests): note and section parsing, CSV errors with row numbers, who sets each end, the divider
+`singers.test.mjs` (17 tests, 7 for `--sit-out`): note and section parsing, CSV errors with row numbers, who sets each end, the divider
 against brute force on 60 small random choirs, that the voicing `fewestSectionsForSingers` names fits and unison
 does not, the CLI report, JSON and refusals. `eval/browser-e2e.mjs` checks the page's range-test box against the CLI
 (cue sheet and MIDI byte-equal) and its unison hint. **Not tried with a real choir's range test;** whether the
 overlap rule (every singer, every note) is too strict for real sections, which usually let one weak voice drop
 out of an extreme note, is for a director to say.
+
+### Letting a singer sit a note out: `--sit-out N` (2026-11-13, latest)
+
+The rule above makes one short range the limit of a whole section. Real sections usually let a weak voice drop
+out of an extreme note instead, so `--sit-out N` (with `--singers`; also a choice under the studio page's
+range-test box) widens each section to the notes **all but N of its singers** reach, with at least one singer
+left on every note. The unison band takes the same rule over the whole choir. How strict to be is the
+director's choice, so N is theirs to set; 0 (the default) is the old rule exactly.
+
+- **The report says who pays for it:** each section's range, the notes everyone still reaches, and who sits out
+  which notes. With a chant, a `sitting out:` line counts the sung notes each singer misses in the actual
+  arrangement (unison, or the split's who-sings-what), and a warning fires when one singer would sit out a
+  quarter or more of their notes: by then moving them or picking another final is probably the better call.
+- When the passing notes come in two runs (two clusters of singers with a gap), the widest run is the range.
+- Dividing an unsectioned file uses the widened widths too (checked against brute force over the contiguous
+  cuts in `singers.test.mjs`); 200 singers into four sections take about 70 ms.
+
+```
+$ node cli.mjs --singers examples/range-test-sections.csv --sit-out 1
+9 singers; each section's range is the notes all but 1 of its singers reach
+tenors D3-G4 (3: Singer A, Singer B, Singer C); all reach Eb3-F4; Singer C sits out D3 and F#4-G4
+baritones B2-F4 (3: Singer D, Singer E, Singer F); all reach C3-E4; Singer D sits out B2; Singer E sits out F4
+basses A2-D4 (3: Singer G, Singer H, Singer I); all reach Bb2-C4; Singer G sits out A2; Singer I sits out C#4-D4
+unison D3-D4; all reach Eb3-C4; Singer C sits out D3; Singer I sits out C#4-D4
+```
+
+What it trades, on the corpus with the two **made-up** example range tests (`eval/sit-out.mjs`, report
+`eval/sit-out-report.md`): with the 12-singer unsectioned test, the Dies irae split goes from 16 of 613 notes for
+the full choir to 347 with one singer a section sitting out (two singers miss 38 and 36 notes) and 512 with two;
+with two a section, 6 of the 8 chants fit in unison instead of none. The cost is visible too: on the Te Deum one
+singer would sit out 194 of 637 notes (the recitation tone sits above their range), and the warning says so. **Not
+tried with a real choir:** whether N = 1 sounds thinner than a split, and whether a director would rather move
+the singer, is theirs to judge.
 
 ## Mix and master check
 

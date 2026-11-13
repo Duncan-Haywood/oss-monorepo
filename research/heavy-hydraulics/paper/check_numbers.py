@@ -269,6 +269,22 @@ CHECKS = [
     ('over the 384 geometry cases 1.046 to 1.686 (median 1.197)', "measured_excavator_pump_size_results.txt", 'time ratio at q_eq 1.046 to 1.686 (median 1.197)'),
     ('buys 33.80 bar of break-even per percent of time', "measured_excavator_pump_size_results.txt", '(33.80 bar per %)'),
     ('the last full step (131.4 to 109.5 L/min) 3.32', "measured_excavator_pump_size_results.txt", '131.4 ->  109.5 L/min:   17.4 bar for  5.22% time (3.32 bar per %)'),
+    # 3.7k (milestone 6j) and 3.7l (milestone 6k), added in 6l
+    ("load-sensing idles at 2.96 kW", "excavator_idle_standby_results.txt", "load-sensing 2.96; equal at q_p 83.4 L/min"),
+    ("2.00 kW at 60 L/min, 3.70 kW at 100 L/min and 10.53 kW", "excavator_idle_standby_results.txt", "open-centre q_p 60: 2.00, q_p 80: 2.81, q_p 100: 3.70, q_p 120: 4.66, q_p 160: 6.81, q_p 219: 10.53"),
+    ("s<sub>0</sub> = 0.025", "excavator_idle_standby_results.txt", "central 0.0252"),
+    ("median 74.5 L/min at S = 0.38", "excavator_idle_standby_results.txt", "beats 3.986: 74.0%, 5.056: 47.9%; median maximising q_p 74.5"),
+    ("from 4.63 to 4.79 L/h", "excavator_idle_standby_results.txt", "central 5.070 L/h at q_p 96.0; median 4.79"),
+    ("the share is 71.4 to 91.1%", "excavator_idle_standby_results.txt", "beats 3.986: 91.1%"),
+    ("at least 4.08 L/h more pump fuel", "excavator_idle_standby_results.txt", "S = 0.38: min +4.075"),
+    ("0.713 to 0.795 over the sizes", "excavator_gear_pump_results.txt", "0.713"),
+    ("median 1.005 (0.977 to 1.037)", "excavator_gear_pump_results.txt", "median 1.005, range 0.977 to 1.037"),
+    ("from 74.0% to 9.9% (5.06 L/h: 3.4%)", "excavator_gear_pump_results.txt", "S = 0.38: central 1.884 L/h at q_p 84.5; median 1.89 (p10 1.20, p90 3.96); beats 3.986: 9.9%, 5.056: 3.4%"),
+    ("the share is 9.6 to 20.6%", "excavator_gear_pump_results.txt", "share beating 3.986 L/h over the 18 settings: 9.6% to 20.6%"),
+    ("on the record alone 3.9%", "excavator_gear_pump_results.txt", "beats 3.986: 3.9%"),
+    ("the share would be 95.6%", "excavator_gear_pump_results.txt", "S = 0.38: central 6.545 L/h at q_p 101.0; median 5.97 (p10 4.45, p90 12.35); beats 3.986: 95.6%"),
+    ("28.6% at c = 1.05, 54.9% at 1.10 and 94.8% at 1.15", "excavator_gear_pump_results.txt", "c 1.15: central 6.987 L/h; median 5.79; beats 3.986: 94.8%"),
+    ("against the piston fit's 7.86", "excavator_gear_pump_results.txt", "zero-stroke drag k0 7.86 bar"),
 ]
 
 
