@@ -28,7 +28,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 6,
+  "tests_added": 7,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
@@ -38,7 +38,7 @@
     "docs/posts/2026-11-13-wash-sale-checker-counted-a-carried-loss-twice.md"
   ],
   "goal": null,
-  "notes": "Step 0: 10 open entries are all control-plane workflow edits, each already in an owner-approval PR (#14808, #14877, #15248, #15561, #14612, #15201); none fixable from this branch. Campaigns: wash-sale-checker/calc.mjs 5/8 caught, ucr-fee-calculator/calc.mjs 7/8. Two real defects in wash-sale basis carryover, both patched with failing-tests-first. Guard added: a 300-trial basis-conservation property test (net gain + deferred = proceeds - cost on closed positions), which found defect 2; first version had a degenerate LCG (low bit alternates) and caught nothing, fixed to use high bits. Local: run_venture_tests.py wash-sale-checker ucr-fee-calculator green.",
+  "notes": "Step 0: 10 open entries are all control-plane workflow edits, each already in an owner-approval PR (#14808, #14877, #15248, #15561, #14612, #15201); none fixable from this branch. Campaigns: wash-sale-checker/calc.mjs 5/8 caught, ucr-fee-calculator/calc.mjs 7/8. Two real defects in wash-sale basis carryover, both patched with failing-tests-first. Guard added: a 300-trial basis-conservation property test (net gain + deferred = proceeds - cost on closed positions), which found defect 2; first version had a degenerate LCG (low bit alternates) and caught nothing, fixed to use high bits. Local: run_venture_tests.py wash-sale-checker ucr-fee-calculator green. Third defect: dead Pages base in 167 venture files shipped through self-deploy bundles/packages; swept and guarded by a new test_venture_files_do_not_name_the_dead_path (scans every venture file; verified it fails on the old tree). The ventures-tests local run's one red was the gitignored platform/pages/dist left by the portfolio-pages step in the same sweep, which is how the defect surfaced.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -296,6 +296,11 @@
       {
         "file": "ventures/wash-sale-checker/calc.mjs",
         "issue": "A later loss sale could designate shares that already carried an earlier wash loss as its own replacement shares (taxable avail used b.free, which never shrinks when designated shares are sold), so the same held shares carried two losses and the next sale's basis was overstated (random trial 2: reported -1731.31 vs real -2525 over a closed position). Fixed: a taxable buy's available replacement shares = qty - soldFromTaxable - shares still carrying a wash loss. Test: 'shares already carrying a wash loss are not replacement shares for a second loss sale', plus the 300-trial basis-conservation property that found it.",
+        "patched": true
+      },
+      {
+        "file": "ventures/ (167 files, 106 ventures)",
+        "issue": "Venture files still named the retired https://duncan-haywood.github.io/monorepo-projects/ base (404): 24 sitemap.xml, 9 robots.txt, 19 probe.mjs User-Agent contact links, SARIF informationUri, a pyproject Homepage, the trade-bid-studio email footer, vs-pages. The Pages build rewrites served HTML, but self-deploy bundles (platform/deploy/build.mjs copies raw files), packages and CLI output did not. Found when the local portfolio-pages run left dist/deploy/apps/*.json and test_no_dead_pages_base flagged them. Swept to https://marisstella.app/; subpath-robots-check keeps it as its documented example.",
         "patched": true
       }
     ]
