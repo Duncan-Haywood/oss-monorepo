@@ -1125,6 +1125,37 @@ Tests (`steady.test.mjs`): two identical copies swapped between two people give 
 
 Not claimed: four invented teams with rates from one firm's file (as above); seeds 1-6 are the only ties searched; a reissue on someone's own week may have ties that differ further ahead; the timings come from four runs side by side on one 4-core machine.
 
+## Call-out rebuilds, column generation first (2026-11-13 later)
+
+"How many rosters really tie?" put the `--steady` pick's time in its call-out rebuilds (on the café, 101 rebuilds took about 11 s of 17.6 s), not its six builds. Profiling the 23 rebuilds of one café roster (`timings` on each result) found half their time, 2.2 s of 4.4 s, in one stage: the coverage plateau walk (`coverPass`). On six of the 23 cases the search came out of its first passes at 19 or 20 open hours where 15 is the least. The walk then ran all twelve of its runs to their full 512,000 steps, and none found the 15, because the way down goes through people the call-out did not touch. The cover repair, or the whole-score column generation after it, found the 15-hour roster in 10-50 ms and proved it best.
+
+Big weeks already run column generation before the walk (`deferCover`) and the walk only when it proves nothing. `calloutExposure` now asks for that order on every rebuild (`deferCover: true`; `buildRoster` takes it at any size, `false` still turns it off). A fresh build and a posted reissue keep the old order.
+
+**Checked case by case.** `node eval/callout-rebuild-order.mjs` (`eval/callout-rebuild-order.out.txt`) rebuilds every call-out case both ways on the five teams of "A whole week of call-outs" x seeds 1-6: 570 cases, 0 with different open hours, the only thing the check reads. On 33 cases the rebuild lands on a different roster at the same score; none of them is posted.
+
+| team | 570 case rebuilds, old order | column generation first |
+|---|---|---|
+| café | 21.6 s | 9.9 s |
+| spare-part-timer café | 29.5 s | 12.0 s |
+| salon | 4.6 s | 4.6 s |
+| retail | 11.1 s | 2.2 s |
+| clinic | 4.2 s | 2.8 s |
+| total | 70.9 s | 31.5 s (2.3x) |
+
+The whole `--steady` pick (six builds, pruned check), same file:
+
+| team | old order | now | rebuilds | same roster posted, same exposure |
+|---|---|---|---|---|
+| café | 21.0 s | 14.4 s | 101 | yes (92 h) |
+| spare | 5.9 s | 2.8 s | 27 | yes (54 h) |
+| salon | 2.3 s | 2.2 s | 30 | yes (56 h) |
+| retail | 10.0 s | 1.5 s | 28 | yes (24 h) |
+| clinic | 1.9 s | 1.6 s | 37 | yes (30 h) |
+
+On the page this is the "Post the one a call-out hurts least" setting: retail's wait falls from ten seconds to under two. What is left on the café is now the six builds (about 6 s) and rebuilds that take the walk's full route because column generation does not prove them. Tests: `steady.test.mjs` unchanged and passing (its pruned-equals-full and case-by-case checks run through the new order).
+
+Not claimed: one machine, timings from runs one at a time; the equivalence is measured on these five teams, not proven: where column generation proves nothing the walk still runs after it, so such a rebuild now costs one column-generation pass more than before. Not done: the same order for posted reissues and fresh builds. Those post the roster, and the 33 same-score differences above would show as a different posted week, so it needs its own check of what managers see.
+
 ## Reading When I Work directly (2026-11-13)
 
 When I Work was the next scheduler named in "What you use today" with no reader: no public CSV export of its schedule has turned up, and the staff importer's When I Work columns are from memory. Its API is documented in a public OpenAPI file, so the shifts can come from there, as for 7shifts. `import-wheniwork.mjs` reads When I Work's own API responses (v2: `GET /2/shifts`, `/2/positions`, `/2/locations`) and hands them to the same counting as `--import-shifts`. Every field it uses is in `eval/wheniwork-api-format-2026-11-13.md`, read from When I Work's published definition (OpenAPI 3.1.0, `apidocs.wheniwork.com/external/monolith/docs-master.json`, SHA-256 recorded there).
