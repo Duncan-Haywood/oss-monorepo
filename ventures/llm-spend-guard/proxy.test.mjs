@@ -208,3 +208,19 @@ test('an anthropic stream that ends without message_stop is charged at its hold'
     assert.ok(spent > partial * 5, `charged ${spent}, partial usage would be ${partial}`);
   } finally { h.close(); }
 });
+
+test('a stream the provider cuts off is charged its whole hold, not the partial usage', async () => {
+  const h = await harness({ budgets: [{ id: 'd', limitUsd: 1 }] }, (body, res) => {
+    res.writeHead(200, { 'content-type': 'text/event-stream' });
+    res.write('data: {"choices":[],"usage":{"prompt_tokens":10,"completion_tokens":1}}\n\n');
+    setTimeout(() => res.socket.destroy(), 20);
+  });
+  try {
+    const res = await post(`${h.base}/openai/v1/chat/completions`, { model: 'gpt-test', stream: true, max_completion_tokens: 500, messages: [{ role: 'user', content: 'x' }] }, { authorization: 'Bearer sk-c' });
+    await res.text().catch(() => {});
+    await new Promise((r) => setTimeout(r, 50));
+    const b = h.guard.status().budgets[0];
+    // Partial usage would be 10 x $1 + 1 x $4 per million = $0.000014; the hold covers 500 output tokens.
+    assert.ok(b.spentUsd >= 500 * 4 / 1e6, `spent ${b.spentUsd}`);
+  } finally { h.close(); }
+});

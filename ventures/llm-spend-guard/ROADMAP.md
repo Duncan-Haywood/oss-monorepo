@@ -71,3 +71,12 @@ the `n > 1`, snapshot-prefix and missing-end-marker defects were fixed in the sa
   $0.0775 in the audit's example).
 - A call in flight when the proxy restarts leaves its reserve in the state
   file; spend is not exceeded, but the reserve is never released.
+- **Media in the hold (high; found by the second, blind round-62 audit,
+  [`portfolio/quality/blind-pairs/2026-11-13-h/llm-spend-guard.json`](../../portfolio/quality/blind-pairs/2026-11-13-h/llm-spend-guard.json)).**
+  The input estimate is the request's JSON bytes / 3, so an image or a
+  document sent by URL or file id is held at a few dozen tokens: 20 concurrent
+  calls with a 100-page PDF by URL passed a $1 budget and spent $15.31. Needs
+  per-media token floors (or refusing URL and file-id sources unless the
+  policy sets a media allowance) and an overshoot event from `settle` when the
+  actual cost passes the hold. Server-side tool fees (web search) are not
+  priced either.

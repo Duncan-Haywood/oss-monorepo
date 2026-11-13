@@ -17,8 +17,8 @@ cat sales.csv | node cli.mjs log -
 ## What is arithmetic and what is an assumption
 
 Arithmetic: payout, profit, ROI, break-even list price, effective fee rate. Assumptions you set: the chance a
-listing sells and what an unsold ticket is worth. Fee presets (about 10% / 10% / 10% / 15%) are typical seller
-rates as last checked; marketplaces change them, so overwrite them with what your listing screen shows. Buyer
+listing sells and what an unsold ticket is worth. Fee presets (about 10% / 10% / 10% / 15%) are rough typical
+seller rates, not taken from a dated fee page; marketplaces change them, so overwrite them with what your listing screen shows. Buyer
 fees, tax and chargebacks are not modelled.
 
 ## Known gaps (quality audit 2026-11-13)
@@ -30,3 +30,11 @@ the sales-log header, per-ticket cost and blank-fees defects were fixed in the s
   carry no source or date in the code. They fall inside third-party 2025
   ranges, but no marketplace's own fee schedule has been checked; type the
   rate your listing screen shows.
+- The cost box does not say whether the fees paid when buying belong in it;
+  a broker's cost basis includes them. A blank fee box on the page is read as
+  0%, and selling part of an order is not modelled (second, blind audit of the
+  same round: `portfolio/quality/blind-pairs/2026-11-13-h/`).
+- Fixed in the second round-62 PR: an unquoted `$1,200.00` no longer shifts a
+  sales row's columns (the row is skipped and counted), and tests pin
+  break-even with per-ticket fees, the salvage value of unsold tickets and the
+  losing-sales filter.
