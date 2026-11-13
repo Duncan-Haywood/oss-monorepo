@@ -370,6 +370,22 @@ async function runFinder(search, { selectedIndex = 0 } = {}) {
   return els;
 }
 
+// The filter controls read as one designed row (polish 2026-11-13): the menus match the search box's
+// height, sit two to a row so a phone never clips "Newest first", and Clear lives on the count line.
+test('finder: menus share the search box height and Clear sits beside the count, not in the menu row', async () => {
+  const root = repoWith({ '2026-10-01-one.md': post('One', '2026-10-01') });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-row-'));
+  await buildWriting(out, BASE, { root });
+  const html = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const h = (sel) => html.match(new RegExp(sel.replace(/[.[\]]/g, '\\$&') + ' \\{[^}]*?height:(\\d+px)'))?.[1];
+  assert.equal(h('.finder input[type=search]'), '42px');
+  assert.equal(h('.finder select'), '42px');
+  assert.match(html, /\.finder \.row \{ display:grid; grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\);/);
+  const row = html.match(/<div class="row">([\s\S]*?)<\/div>/)[1];
+  assert.doesNotMatch(row, /id="clear"/);
+  assert.match(html, /<div class="foot"><p id="count"[^>]*>[^<]*<\/p><button type="button" id="clear">Clear filters<\/button><\/div>/);
+});
+
 test('finder count reads "N posts" when nothing is filtered and "k of N posts" when something is', async () => {
   assert.equal((await runFinder('')).count.textContent, '2 posts');
   assert.equal((await runFinder('?q=alpha')).count.textContent, '1 of 2 posts');
