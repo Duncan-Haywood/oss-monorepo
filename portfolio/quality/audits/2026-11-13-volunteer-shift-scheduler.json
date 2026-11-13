@@ -1,0 +1,267 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/volunteer-shift-scheduler",
+ "stratum": "venture",
+ "seed": "2026-11-13-k",
+ "drawn_by": "sample",
+ "round": 65,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a volunteer coordinator who rosters a church, food bank or PTA every month (the Planning Center Services / SignUpGenius user); they check first that nobody is placed on a date they said they are away, nobody is over their limit or double-booked, that roles needing clearance (children's ministry, drivers) only go to cleared people, that every place that could be filled is filled, and that a change after one dropout does not reshuffle everyone's calendar",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Hard constraints recomputed against my own code, not the author's validator. (1) /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/vss/flow.mjs builds each random instance as a max-flow network (source->volunteer cap=max, volunteer->volunteer@day/slot cap 1, ->shift, shift->sink cap=headcount; Edmonds-Karp written for this audit) and compares seats filled: small instances (4-16 shifts, 3-13 volunteers, slots 'AM, PM') 0 of 20,000 worse than optimum at availability density 0.3 and 0 of 20,000 at 0.15; validateRoster ok on all. Larger instances (/tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/vss/flow_big.mjs, 10-50 shifts, 5-30 volunteers, 12 days): 79 of 3,000 (2.6%) at density 0.3, 1 of 3,000 at 0.2, 158 of 3,000 (5.3%) at 0.12 leave exactly one seat empty that a feasible assignment fills (example: got 38, optimum 39); the unfilled line then reads e.g. '3 available: 3 at their max' as if the gap were forced. Never more than optimum, never invalid. (2) The sample/guide roster (/tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/vss/misc.mjs) checked against the raw text of the ten volunteer lines with a hand-written rule table (not canDo): 0 violations, 19/19 filled, loads all 2 except Hugo (max 1) - matches the guide table row for row. (3) Weekly expansion 'Wednesdays 2026-11-01 to 2026-12-31' and 'Sundays 2026-03-01 to 2026-04-05' match Python's datetime weekday list exactly (9 and 6 dates). (4) parseTime 12am=0, 12pm=720, 12:30am=30; 2027-02-29 refused. (5) RFC 5545 s3.1 line length: with accented names a folded line is 81 octets (folding counts UTF-16 units, calc.mjs:437). Held at 3: every hard constraint holds and the solver is optimal on typical sizes; the sub-optimal fill on sparse larger rosters is a near miss, not a wrong number the page asserts.",
+  "completeness": "Every README/page feature exercised in node: slot parsing, shift lines with optional role/headcount and weekday repeats, volunteer availability (weekday, slot, weekday+slot, date, date range, any, weekends), max, not-roles, default max, greedy + repair + balance, unfilled reasons, over/under/idle/no-options flags, independent validator, roster CSV, by-volunteer CSV, whole and per-volunteer .ics, reminders with optional note, roster text, share link round trip (test 'share links round-trip'), local usage counters with opt-out and DNT/GPC. No TODOs or stubs. Performance at the limits: 300 volunteers x 416 weekly shifts built in 207 ms ({SP}/perf.mjs). The served page https://marisstella.app/volunteer-shift-scheduler/ could not be loaded from this session (proxy 403 on CONNECT, WebFetch ENOTFOUND), so deploy-time chrome is unverified; build_pages_site.rewrite_base_urls run locally rewrites llms.txt to marisstella.app correctly.",
+  "verification": "cd ventures/volunteer-shift-scheduler && node --test '*.test.mjs': 48 tests, 48 pass, 0 fail (319 ms); bare `node --test` (README) also 48 pass. Good property tests (300 random rosters for hard constraints, repair never loses seats, guide table recomputed). Eight seeded mutations via platform/ci/quality_mutate.py: 5 caught (balance gap 2->3, scarcest-first order reversed, fewest-shifts-first pick swapped with flex, over-loaded threshold +1, CSV formula guard removed), 3 survived: under-loaded flag < -> <= (calc.mjs:358, a flag shown on every row of the fairness table), time-overlap boundary < -> <= so back-to-back 9-12 / 12-3 shifts count as a clash (calc.mjs:223), and repair skipping any candidate with a clashing blocker (calc.mjs:290, the one-move swap the README describes). 3 of 8 surviving in core logic is below the bar.",
+  "craft": "Read calc.mjs (553 lines, pure, deterministic, input-order ties), index.html module script (~lines 150-283), usage.mjs, calc.test.mjs, page.test.mjs. Output escaped via esc() before innerHTML; share decode allowlists keys and caps length; CSV defuses formulas. Defects: slash dates are read as MM/DD only and the error hint uses the symmetric 10/10/2026 (calc.mjs:36, :122) so a UK/Canadian '05/11/2026' silently becomes 11 May; 'except' is a role-exclusion keyword (calc.mjs:191) so 'Sat; except 2026-10-24' becomes an excluded role and the person is still rostered on the 24th (only a misspelled-role warning); ics UIDs built from the sorted shift index and volunteer index (calc.mjs:455) change when a shift or volunteer is added, so a re-imported calendar can update the wrong event; folding by characters not octets (calc.mjs:437); the unfilled reason omits people already on the shift so its counts do not add up ('3 available: 1 at their max, 0 already booked', calc.mjs:344).",
+  "claims": "Checked: 'never double-books / exceeds a maximum / respects availability and excluded roles' - backed (own checker, max-flow runs, 300-roster test). 'Unfilled places are listed with the reason' - backed, though the reason can imply a forced gap the solver merely missed. 'Balance ... never changes how many places are filled' - backed (take/give pair, calc.mjs:325). Guide FAQ 'no one carries two or more shifts above anyone else who could have taken them' - backed by the balance loop's stop condition. Guide worked example - reproduced exactly. 'Nothing is uploaded' / 'no analytics vendors' - backed (usage.mjs is localStorage only, no fetch). 'The calendar file opens in Google Calendar, Apple Calendar and Outlook' (index.html:129) - plausible (VCALENDAR 2.0, floating local times) but not tested against any of them. Disclaimer, no-warranty, safeguarding caveat and share-link privacy warning present on page and guide. sitemap.xml:3-4 and robots.txt:4 use relative URLs, which the sitemaps protocol does not accept and the build does not rewrite (PLACEHOLDER_URL_RE matches only absolute hosts).",
+  "fitness": "Walked a coordinator's month: ten volunteers, three Saturdays, four roles - the roster, gaps, per-person calendar and reminders come out in seconds and are right. Hit in the first hour: no blackout dates (availability is positive-only; 'except 2026-10-24' is read as a role and the person is still rostered that day); role clearance is opt-out ('not: Nursery') rather than opt-in, so a newly added, uncleared volunteer is eligible for children's or driving roles by default; no way to pin an assignment (team leader, a swap already agreed), so a rebuild after one dropout can move other people; frequency only as a total max (no 'once a month', 'not two weekends running'); no households/pairs serving together. Usable for a small one-off roster; a regular church or food-bank coordinator would keep a spreadsheet beside it.",
+  "domain": "Compared with how volunteer scheduling is practised in the tools coordinators use (Planning Center Services, SignUpGenius, Ministry Scheduler Pro: blockout dates, position qualifications/teams, scheduling frequency preferences, household scheduling, locked/confirmed assignments) and with assignment practice (bipartite b-matching / max-flow gives a provably maximal fill). Matches practice on hard constraints and scarcest-first heuristics; departs on blockout dates, opt-in qualification for safeguarded roles, frequency rules, pinning, and an optimality guarantee (one-move repair, 2.6-5.3% of larger sparse instances one seat short)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "seats filled vs max-flow optimum, small random rosters",
+   "method": "independent Edmonds-Karp max-flow written for this audit",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/vss/flow.mjs /home/user/oss-monorepo/ventures/volunteer-shift-scheduler/calc.mjs 20000 0.3",
+   "expected": "0 instances below optimum",
+   "observed": "0 of 20,000 below optimum (also 0 of 20,000 at density 0.15); all validate",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "seats filled vs max-flow optimum, larger sparse rosters",
+   "method": "independent Edmonds-Karp max-flow written for this audit",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/vss/flow_big.mjs /home/user/oss-monorepo/ventures/volunteer-shift-scheduler/calc.mjs 3000 0.12",
+   "expected": "0 instances below optimum",
+   "observed": "158 of 3,000 one seat short (79 of 3,000 at 0.3; example 38 vs 39)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "sample/guide roster obeys availability, max and excluded roles",
+   "method": "hand rule table from the raw volunteer lines, not canDo/validateRoster",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/vss/misc.mjs",
+   "expected": "0 violations, 19/19, all 2 shifts except Hugo 1",
+   "observed": "0 violations, 19/19, loads 2 except Hugo 1; identical to guide table",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "weekday repeat expansion",
+   "method": "Python datetime weekday() list",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/vss/misc.mjs; python3 datetime loop",
+   "expected": "2026-11-04 ... 2026-12-30 (9 Wednesdays); 2026-03-01 ... 2026-04-05 (6 Sundays)",
+   "observed": "identical lists",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "12-hour time edge cases",
+   "method": "12-hour clock convention (12am = 00:00, 12pm = 12:00)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/vss/misc.mjs",
+   "expected": "0, 720, 30",
+   "observed": "0, 720, 30",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "ics line length with accented names",
+   "method": "RFC 5545 s3.1: lines SHOULD NOT exceed 75 octets",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/vss/ics.mjs",
+   "expected": "<= 75 octets",
+   "observed": "81 octets",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "48 pass, 0 fail, 319 ms",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "solver at stated input limits",
+   "method": "timing",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/vss/perf.mjs 300 6",
+   "expected": "under a second, valid",
+   "observed": "207 ms, validateRoster ok",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "blackout date 'except 2026-10-24'",
+   "method": "coordinator's natural phrasing",
+   "command": "node -e (sample with 'Ana Ruiz: Sat; max 3; except 2026-10-24')",
+   "expected": "Ana not rostered on 24 Oct, or an error",
+   "observed": "warning about a misspelled role; Ana rostered 24 Oct AM Packer",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "DD/MM date entry",
+   "method": "non-US date convention",
+   "command": "node -e C.parseDate('05/11/2026')",
+   "expected": "error or 5 Nov",
+   "observed": "2026-05-11 silently",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "sitemap and robots URLs as shipped",
+   "method": "sitemaps.org protocol (loc must be absolute); build_pages_site.rewrite_base_urls run locally",
+   "command": "python3 -c 'b.rewrite_base_urls(sitemap.xml)'",
+   "expected": "absolute URLs",
+   "observed": "./index.html unchanged after rewrite",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt URLs as shipped",
+   "method": "build_pages_site.rewrite_base_urls run locally",
+   "command": "python3 -c 'b.rewrite_base_urls(llms.txt)'",
+   "expected": "marisstella.app URLs",
+   "observed": "https://marisstella.app/volunteer-shift-scheduler/...",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page",
+   "method": "load https://marisstella.app/volunteer-shift-scheduler/",
+   "command": "curl -sS https://marisstella.app/volunteer-shift-scheduler/",
+   "expected": "200",
+   "observed": "proxy 403 CONNECT; not verified",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:317",
+   "change": "if (gap < 2) continue; -> if (gap < 3) continue;",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:358",
+   "change": "loads[i] < Math.floor(mean) -> loads[i] <= Math.floor(mean) (under-loaded flag)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:223",
+   "change": "a.start < b.end && b.start < a.end -> <= on both (back-to-back shifts clash)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:269",
+   "change": "scarcest-first order reversed",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:290",
+   "change": "if (blockers.length > 1) -> if (blockers.length >= 1) (repair never moves a clashing shift)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:261",
+   "change": "pick by flex before fewest-shifts",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:355",
+   "change": "loads[i] > Math.ceil(mean) -> > Math.ceil(mean) + 1 (over-loaded flag)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:407",
+   "change": "CSV formula-injection guard removed",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "'except' is a role-exclusion keyword, so 'Sat; except 2026-10-24' (a blackout date) is read as an excluded role; the volunteer is still rostered that day with only a 'check the spelling' warning. No way to express blackout dates.",
+   "where": "ventures/volunteer-shift-scheduler/calc.mjs:191",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Slash dates are MM/DD only and the hint example 10/10/2026 is symmetric, so '05/11/2026' meaning 5 November silently becomes 11 May.",
+   "where": "ventures/volunteer-shift-scheduler/calc.mjs:36",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "One-move repair is not a maximal fill: on 10-50-shift rosters 2.6-5.3% of random instances leave one seat empty that max-flow fills, and the reason line reads as if the gap were forced.",
+   "where": "ventures/volunteer-shift-scheduler/calc.mjs:279",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Three seeded mutations in core logic survive: under-loaded flag threshold, back-to-back time boundary, repair blocker rule. No test pins adjacency (9-12 then 12-3) or the under flag's boundary.",
+   "where": "ventures/volunteer-shift-scheduler/calc.test.mjs:182",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Role restrictions are opt-out only (not: Role); a newly added volunteer is eligible for every role, including safeguarded ones (children's ministry, driving), unless someone remembers to exclude them.",
+   "where": "ventures/volunteer-shift-scheduler/calc.mjs:216",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "ics UID is built from the sorted shift index and volunteer index, so adding a shift or volunteer changes UIDs and a re-imported calendar can update the wrong event or duplicate it.",
+   "where": "ventures/volunteer-shift-scheduler/calc.mjs:455",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "ics folding counts UTF-16 characters, not octets; accented names give 81-octet lines (RFC 5545 s3.1 says 75).",
+   "where": "ventures/volunteer-shift-scheduler/calc.mjs:437",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Unfilled reason omits people already on the shift, so the counts do not add up ('3 available: 1 at their max, 0 already booked').",
+   "where": "ventures/volunteer-shift-scheduler/calc.mjs:344",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "sitemap.xml <loc> and robots.txt Sitemap: are relative ('./index.html'); the sitemaps protocol requires absolute URLs and the deploy rewrite only replaces absolute placeholder hosts, so this ships.",
+   "where": "ventures/volunteer-shift-scheduler/sitemap.xml:3",
+   "category": "domain-rule",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15478"
+ ],
+ "verdict": "A clean, deterministic, private roster builder whose hard guarantees hold: in 40,000 small random rosters it never double-booked, never broke a max or role exclusion and matched an independent max-flow optimum every time, and the guide's worked example reproduces row for row. It misses the bar on verification (3 of 8 seeded core mutations survive, including the back-to-back time boundary) and falls short of a coordinator's real month on fitness and domain: no blackout dates ('except DATE' is silently read as a role), opt-out rather than opt-in role clearance, no pinned assignments, no frequency rules, MM/DD-only slash dates, and a one-move repair that leaves a fillable seat empty on 2.6-5.3% of larger sparse rosters. Finished (completeness 3), not meeting the bar (verification 2)."
+}
