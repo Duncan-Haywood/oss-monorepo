@@ -7,6 +7,10 @@
   "checked": "2026-11-12",
   "title": "Sequential kriging optimization using multiple-fidelity evaluations (2006)"
  },
+ "doi:10.1007/s12532-018-0139-4": {
+  "checked": "2026-11-13",
+  "title": "CasADi: a software framework for nonlinear optimization and optimal control (2018)"
+ },
  "doi:10.1039/D2CP00417H": {
   "checked": "2026-11-11",
   "title": "Lithium-ion battery degradation: how to model it (2022)"
@@ -15,17 +19,41 @@
   "checked": "2026-11-12",
   "title": "Predicting the output from a complex computer code when fast approximations are available (2000)"
  },
+ "doi:10.1145/1089014.1089020": {
+  "checked": "2026-11-13",
+  "title": "SUNDIALS (2005)"
+ },
  "doi:10.1149/1.2221597": {
   "checked": "2026-11-11",
   "title": "Modeling of Galvanostatic Charge and Discharge of the Lithium/Polymer/Insertion Cell (1993)"
+ },
+ "doi:10.1149/1.3597614": {
+  "checked": "2026-11-13",
+  "title": "Multi-Domain Modeling of Lithium-Ion Batteries Encompassing Multi-Physics in Varied Length Scales (2011)"
  },
  "doi:10.1149/1945-7111/ab9050": {
   "checked": "2026-11-11",
   "title": "Development of Experimental Techniques for Parameterization of Multi-scale Lithium-ion Battery Models (2020)"
  },
+ "doi:10.1149/1945-7111/aba5d1": {
+  "checked": "2026-11-13",
+  "title": "Differential Expansion and Voltage Model for Li-ion Batteries at Practical Charging Rates (2020)"
+ },
+ "doi:10.1149/2.0122001JES": {
+  "checked": "2026-11-13",
+  "title": "Electrochemical Thermal-Mechanical Modelling of Stress Inhomogeneity in Lithium-Ion Pouch Cells (2019)"
+ },
  "doi:10.1149/2.0341915jes": {
   "checked": "2026-11-11",
   "title": "An Asymptotic Derivation of a Single Particle Model with Electrolyte (2019)"
+ },
+ "doi:10.1149/2.0541509jes": {
+  "checked": "2026-11-13",
+  "title": "Parameterization of a Physico-Chemical Model of a Lithium-Ion Battery (2015)"
+ },
+ "doi:10.1149/2.0551509jes": {
+  "checked": "2026-11-13",
+  "title": "Parameterization of a Physico-Chemical Model of a Lithium-Ion Battery (2015)"
  },
  "doi:10.5334/jors.309": {
   "checked": "2026-11-11",

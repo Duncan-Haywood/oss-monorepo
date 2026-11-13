@@ -231,7 +231,15 @@ def report():
                  f" V1 rescued {len(resc)}; mis-scored {nb} ({nb / len(rows):.0%})")
         for r in resc:
             L.append(f"    rescued stop {r['j']}: SPMe@100 {r['score']:.1f} vs DFN@100 {r['dfn']:.1f}, gap {RU.SV.rel_gap(r['score'], r['dfn']):+.3f}")
-        summ["cells"][s] = dict(ev, n=len(rows), dropped=drop, n_bad=nb, stops=len(stops),
+        a = evaluate(rows, mode="both")
+        L.append(f"  also reported, variant A (DFN on all {PILOT} pilot designs): switched {a['switched']:.0%}, right {a['right']:.0%},"
+                 f" median wall {a['t_ratio']:.3f} x the cheaper branch, worst gap {a['gap_max']:.4f}")
+        sus = sum(suspect(r) for r in rows) / len(rows)
+        badr = [r["r"] for r in rows if r["r"] is not None and RU.mis_scored(r["score"], r["dfn"])]
+        L.append(f"  suspect share (r* {R_STAR}) over the whole pool {sus:.2f} against the rule's verified share"
+                 f" {ev['rule_calls'] / len(rows):.2f}; mis-scored designs with r_min >= {R_STAR}: {sum(x >= R_STAR for x in badr)}"
+                 f" (r_min up to {max(badr) if badr else float('nan'):.2f})")
+        summ["cells"][s] = dict(ev, variant_A=a, suspect_share=sus, n=len(rows), dropped=drop, n_bad=nb, stops=len(stops),
                                 rescued_gaps=[RU.SV.rel_gap(r["score"], r["dfn"]) for r in resc])
     C = list(summ["cells"].values())
     v = dict(
