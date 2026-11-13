@@ -30,6 +30,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 from array import array
 from pathlib import Path
 
@@ -78,6 +79,7 @@ long shootflow_huffman_run(const uint32_t *words, long nwords, long mcus, int nf
 """
 
 _STATE: dict[str, object] = {}
+_LOAD_LOCK = threading.Lock()  # tiles decode on several threads; build and load once
 
 
 def _cache_dir() -> Path:
@@ -156,7 +158,9 @@ def reader():
     """The loaded C function, or None. Built and loaded once per process."""
 
     if "fn" not in _STATE:
-        _STATE["fn"] = _load()
+        with _LOAD_LOCK:
+            if "fn" not in _STATE:
+                _STATE["fn"] = _load()
     return _STATE["fn"]
 
 

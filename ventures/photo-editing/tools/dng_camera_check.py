@@ -197,6 +197,17 @@ def main(argv: list[str] | None = None) -> int:
             "shootflow_opcodes_on": corner_falloff(on),
         }
         if prev is not None:
+            # The embedded preview is stored the way the sensor reads out; the renders above are already
+            # turned by IFD0 Orientation. Turn the preview the same way (when its shape says it is not)
+            # so its corners line up with theirs.
+            orientation = raw.ifd0.one(rd.TAG_ORIENTATION, 1)
+            turns = {3: 2, 6: -1, 8: 1}.get(orientation, 0)
+            if turns % 2 and (prev.shape[0] > prev.shape[1]) != (on.shape[0] > on.shape[1]):
+                prev = np.rot90(prev, turns)
+                result["preview_rotated_for_orientation"] = orientation
+            elif turns == 2:
+                prev = np.rot90(prev, 2)
+                result["preview_rotated_for_orientation"] = orientation
             result["corner_over_centre"]["camera_preview"] = corner_falloff(prev)
             result["preview_size"] = [prev.shape[1], prev.shape[0]]
     print(json.dumps(result, indent=2))

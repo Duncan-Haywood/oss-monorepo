@@ -977,6 +977,35 @@ def _decode_chunk(
     raise DevelopError(f"compression {compression} is not supported")
 
 
+def _decode_chunks(data: bytes, spans, compression: int, bits: int, spp: int, size_of, end: str, threads=None):
+    """Decode each ``(offset, bytecount)`` chunk (``size_of(i)`` gives its width and rows); yields them in order.
+
+    Lossless-JPEG tiles and strips are independent streams (DNG 1.7.1.0, "Compression": each tile or strip is
+    its own JPEG), so with more than one they decode on a thread pool, ``SHOOTFLOW_THREADS`` threads if set,
+    else one per CPU, at most one per chunk. The C Huffman reader runs with the GIL released (ctypes) and the
+    numpy prediction pass releases it in its array operations, so the chunks decode in parallel. Each chunk's
+    samples depend only on its own bytes, so the thread count cannot change them; results come back in file
+    order and the first error raises as it would serially. Uncompressed chunks stay on the calling thread.
+    """
+
+    def one(i):
+        off, size = spans[i]
+        cw, ch = size_of(i)
+        return _decode_chunk(data[off : off + size], compression, bits, spp, cw, ch, end)
+
+    from shootflow import dng_opcodes
+
+    n = dng_opcodes._warp_threads(len(spans), 1) if threads is None else max(1, min(int(threads), len(spans)))
+    if compression != 7 or n <= 1:
+        for i in range(len(spans)):
+            yield one(i)
+        return
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=n) as ex:
+        yield from ex.map(one, range(len(spans)))
+
+
 def read_raw(path: Path | str, cfa: str | None = None) -> RawImage:
     data = Path(path).read_bytes()
     return parse_raw(data, cfa=cfa)
@@ -1015,21 +1044,28 @@ def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
         offsets = ifd.get(TAG_TILE_OFFSETS)
         sizes = ifd.get(TAG_TILE_BYTES)
         across = (width + tw - 1) // tw
-        for i, (off, size) in enumerate(zip(offsets, sizes)):
+        tiles = _decode_chunks(
+            data, list(zip(offsets, sizes)), compression, bits, spp, lambda i: (tw, tl), reader.end
+        )
+        for i, tile in enumerate(tiles):
             ty, tx = divmod(i, across)
-            tile = _decode_chunk(data[off : off + size], compression, bits, spp, tw, tl, reader.end)
             _blit(values, width, height, spp, tile, tw, tl, tx * tw, ty * tl)
     elif TAG_STRIP_OFFSETS in ifd.entries:
         rps = ifd.one(TAG_ROWS_PER_STRIP, height)
         offsets = ifd.get(TAG_STRIP_OFFSETS)
         sizes = ifd.get(TAG_STRIP_BYTES)
-        for i, (off, size) in enumerate(zip(offsets, sizes)):
-            y0 = i * rps
-            rows = min(rps, height - y0)
-            if rows <= 0:
-                break
-            strip = _decode_chunk(data[off : off + size], compression, bits, spp, width, rows, reader.end)
-            _blit(values, width, height, spp, strip, width, rows, 0, y0)
+        n = max(0, min(len(offsets), len(sizes), -(-height // rps)))
+        strips = _decode_chunks(
+            data,
+            list(zip(offsets[:n], sizes[:n])),
+            compression,
+            bits,
+            spp,
+            lambda i: (width, min(rps, height - i * rps)),
+            reader.end,
+        )
+        for i, strip in enumerate(strips):
+            _blit(values, width, height, spp, strip, width, min(rps, height - i * rps), 0, i * rps)
     else:
         raise DevelopError("raw IFD has neither strips nor tiles")
     return RawImage(width, height, spp, values, ifd, ifd0, exif=exif_ifd(reader, ifd0))
