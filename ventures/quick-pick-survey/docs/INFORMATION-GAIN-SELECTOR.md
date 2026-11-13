@@ -3318,3 +3318,124 @@ people at 0.55x from answer 20. The median curve finds none of them, the 0.75
 quantile finds all four, and it flags no honest person. That test fails on the
 old default. The view stays a comparison, not the default ranking, until a
 real panel's times exist (item c).
+
+## A threshold from the panel's own slow turns, and a block that must be a step (2026-11-13, later; shipped)
+
+Item (d2) on the flagship list. After the 0.75-quantile curve, `?drop=fast-blocks`
+still missed about a fifth of the people who turned quick at 0.6x pace when 40%
+of a panel did. These are the slowest turns. Their gap sits near the fixed 0.5
+log threshold, so about half fall under it by noise. The flagship asked for a
+per-survey threshold from the panel's own residual spread.
+
+**The idea.** Nobody careless turns *slow* partway through. So the same split
+search run on each person's negated residuals (their best slow turn) shows how
+big a turn this panel's honest noise makes on its own. That is a null
+distribution measured on the survey itself (`autoFastBlockMinLog`). The
+threshold is a quantile of those mirrored gaps, kept between a floor and a cap.
+
+**A model the earlier sweeps lacked.** Every earlier cell gave everyone the
+same learning curve, which the panel curve removes. Real people also speed up or
+slow down *on their own*. `scripts/answer-time-sweep.ts --person-drift sd` adds
+exp(-d x progress) per person, with d ~ N(0, sd). At sd = 0.3, a one-sd person
+ends 26% quicker or slower than they started; at 0.6, 45%.
+
+That model found two problems, one of them in what already shipped:
+
+1. **The shipped rule flags honest people who speed up steadily.** At sd = 0.6,
+   the fixed rule flagged 19-26% of honest respondents and cost up to 0.0044
+   Spearman with nobody careless (0.0075 against a camp). At sd = 0.3 it
+   flagged 2.5-3.7%. About half of the 0.6 figure comes from the 0.75-quantile
+   curve: spread that grows over the session lifts an upper quantile, so
+   everyone's residuals drift down. Read against the median curve, 11% were
+   flagged, not 21-26% (a 20-survey check on 15 and 30 items with
+   `--curve-q 0.5`, not kept as a file). The rest is the split search itself, which cannot tell
+   a steady speed-up from a step.
+2. **A quantile threshold alone makes that worse.** When people drift, the
+   threshold falls to its floor, and with q = 0.9 about a tenth of honest people
+   clear a threshold set at their own null. At sd = 0.3, honest flags rose to
+   15-20% with a 0.3 floor (`docs/fast-blocks-auto-2026-11-13.jsonl`).
+   Reading the largest slow turn (q = 1), or lifting the 0.5 cap so a noisy
+   panel could raise the threshold, did not fix it
+   (`docs/fast-blocks-auto-max-2026-11-13.jsonl`). The mirrored null is biased
+   by the same curve effect.
+
+**The fix for the second half: a block must be a step.** `stepOverTrend(x, at)`
+compares a step at the split with a straight line fitted to the same residuals:
+the drop in squared error from the line to the step, over the step's residual
+variance. A bored respondent's block is a step. A steady speed-up is a line,
+and a step fits it no better (the ratio is near zero or negative). A split now
+also needs a ratio of at least `FAST_BLOCK_TREND_F = 1`.
+
+**Grid.** Salience and random patterns at 0.6x (onsets 0.25, 0.5, 0.75; no
+warm-up) and at 0.4x and 0.6x with a five-answer warm-up and a 0.7 shared
+learning curve; spread onsets; 25% and 40% careless. Cost cells: nobody
+careless, and a 25-40% camp with a second taste. Each grid ran at person drift
+0, 0.3 and 0.6. Stress cells: 60 people, pace spread 0.6. Panels of 20 on 15
+and 30 items, 4 answers per item, 40 surveys per cell (30 for stress). Three
+files, all from the same script: `docs/fast-blocks-auto-2026-11-13.jsonl`
+(368 cells, q = 0.8-0.95, floors 0.25-0.4), `docs/fast-blocks-auto-max-2026-11-13.jsonl`
+(170 cells, q = 1, cap 0.5 or 2) and `docs/fast-blocks-trend-2026-11-13.jsonl`
+(170 cells, the trend test alone and with the auto threshold). In each file
+`shift-drop` is the fixed rule that was shipped when it ran.
+
+From the last file. Shares are of `oracle-answers` (the ceiling) in cells where
+it is above 0.003, as means over cells; "honest" is the most honest
+respondents flagged in any cell of that row.
+
+| case (person drift) | fixed 0.5 (old) | step test only | auto 0.4-0.5 + step test (shipped) |
+|---|---|---|---|
+| salience, 0.6x, 40% careless (0) | 86%, honest 0% | 84%, 0% | **99%**, 0.6% |
+| random, 0.6x, 40% (0) | 64%, 0% | 70%, 0% | **95%**, 0.6% |
+| salience, 0.6x, 40%, onsets spread (0) | 90% | 86% | 96% |
+| stress: 60 people, spread 0.6, 0.6x, 40% (0) | 79% | 77% | **99%** |
+| salience, 0.6x, 25% (0) | 98% | 97% | 99% |
+| any pattern, 0.4x (0) | 98-101% | 92-100% | 92-100% |
+| salience, 0.6x, 40% (0.3) | 88%, honest 2.5% | 81%, 1.5% | 91%, 5.2% |
+| random, 0.6x, 40% (0.3) | 65% | 50% | 71% |
+| salience, 0.6x, 40% (0.6) | 79%, honest 19% | 64%, 6.7% | 68%, 10.6% |
+| nobody careless: cost and honest flagged (0) | 0, 0.1% | 0, 0.1% | 0, 0.1% |
+| nobody careless (0.3) | -0.0002, 3.4% | +0.0005 to -0.0001, 2.1% | -0.0008 to +0.0001, 4.9% |
+| nobody careless (0.6) | **-0.0044, 26%** | -0.0021, 5.8% | **-0.0009, 9.4%** |
+| a camp with a second taste (0.6) | **-0.0075, 25%** | -0.0033, 6.3% | -0.0027, 8.1% |
+
+The quantile that ships is 0.9 with a floor of 0.4 and a cap of 0.5
+(`FAST_BLOCK_AUTO_Q`, `FAST_BLOCK_AUTO_FLOOR`, `FAST_BLOCK_AUTO_CAP`). Floors
+of 0.3 and 0.35 found the same blocks with no person drift, but flagged up to
+3.3% and 2.3% of honest respondents when 40% were careless (0.4: 0.6%), and a
+0.3 floor flagged 10-12% at drift 0.3 even with the step test. Reading the
+largest slow turn (q = 1, floor 0.35, step test) did slightly worse than 0.9 at
+40% careless and no drift: 97% and 90% of the ceiling (salience, random)
+against 99% and 95%.
+
+What it shows:
+
+- **With no personal drift the gap is closed.** The cell the flagship named
+  (40% turning quick at once at 0.6x) went from 86% to 99% of the ceiling for
+  the salience pattern and from 64% to 95% for random clicking. Careless people
+  found went from 72-80% to 89-99%.
+- **A steady personal speed-up was the shipped rule's real blind spot**, and
+  nothing earlier had measured it. The step test cuts the honest flag rate at
+  drift 0.6 from 26% to 6-9% and the cost with nobody careless from 0.0044 to
+  0.0009. It cannot remove it all: over 40 answers a strong enough random
+  drift looks like a step.
+- **The price**: at moderate drift (0.3) the shipped rule flags up to 4.9% of
+  honest people where the fixed one flagged 3.4%, and costs up to 0.0008 more
+  with nobody careless. The step test alone is the cheapest rule there (2.1%),
+  but it gives back the gain where people do not drift (84% against 99%). At
+  0.4x pace the step test costs 0-9 points in the random pattern with 25%
+  careless (101% to 92%, two cells), because a careless random clicker's own
+  pace jitter sometimes reads as a line.
+
+**Decision.** `fastBlockStarts` now defaults to `minLog = "auto"` and
+`trendF = FAST_BLOCK_TREND_F`. Passing `FAST_BLOCK_MIN_LOG, 0` gives the old
+reading. The view stays a comparison, not the default ranking. How much real
+people drift on their own is the number that decides between the step test
+alone and the shipped combination. It comes from the first real survey's
+answer times (item c): fit each person's log times with a line and read the
+spread of the slopes.
+
+New unit tests: a 0.65x block that the fixed rule misses and the default finds;
+a steady speed-up to 0.3x that the fixed rule flags and the default does not;
+`autoFastBlockMinLog` at its floor for a quiet panel, at the cap when people
+slow down by 0.5 or more, in between otherwise, and not moved by people who
+turn quick; `stepOverTrend` large for a step and below 1 for a slope.
