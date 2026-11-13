@@ -1,0 +1,55 @@
+Record: 440 s of 1 s means; loader engine 83 kW; AllPumps fields: ShaftPowerEstimate, TorqueEstimate, HydraulicPowerEstimate
+AllPumps shaft power vs the four pumps summed: max |difference| 0.0000 kW
+Mean pump-side shaft power (kW): WorkPump 10.74, SidePump 4.03, HSTPump -3.45, HSTBoostPump 1.75; all 13.06
+Engine speed: p5 800, median 1566, p95 1950 rpm (2100 rpm OUTSIDE p5-p95)
+Fuel rate (1 s means): p5 1.48, median 7.55, mean 7.65 L/h; pump-side power p5 -10.06, median 10.96 kW
+
+Full fit: fuel = a + c (n - 2100) + b P
+  a (zero pump load, 2100 rpm) 12.550 L/h; c 9.605 L/h per 1000 rpm; b 0.0554 L/kWh; R^2 0.546; residual sd 2.757 L/h
+  19 blocks resampled 2000 times (seed 0); 95% intervals: a 12.159 to 13.436; c 8.867 to 12.156 per 1000 rpm; b 0.0409 to 0.0814
+
+Low-load fit (P < 10 kW, 212 s): a 11.723 L/h, c 7.916 per 1000 rpm, b -0.0296; a / full a = 0.934
+Machine-still fit (|speed| < 0.1, 55 s): a 11.308 L/h, c 7.755, b 0.1442
+No-load fuel a + c (n - 2100) by engine speed (full fit): 1000 rpm 1.98, 1500 rpm 6.79, 1800 rpm 9.67, 2100 rpm 12.55, 2200 rpm 13.51
+
+6c check: median f_t,max 1.001 L/h over 384 cases (b 0.2332)
+Rescaled by b / 0.2332 = 0.237: median 0.238, p90 0.406, max 0.713 L/h
+  XE80E no-load (i) by rated power x 0.658: 8.256 L/h; fixed pump wins in 0.0% of cases
+  XE80E no-load (ii) unscaled: 12.550 L/h; fixed pump wins in 0.0% of cases
+  over the 95% intervals of a and b (carried by rating): fixed pump wins in 0.0% to 0.0% of cases
+  at (i), share with a fixed-pump win under at least one of 6c's 108 parameter sets (sweep max rescaled): 0.0%
+
+Predictions (LOG.md, 6e):
+  F1 a in 1.5 to 4.0 L/h: 12.550 -> refuted
+  F2 b in 0.20 to 0.28 L/kWh: 0.0554 -> refuted
+  F3 c > 0, interval excludes 0: c 9.605, CI 8.867 to 12.156 -> held
+  F4 carried rate above rescaled 6c median: 8.256 vs 0.238 -> held
+  F5 fixed pump wins in under 20%: 0.0% -> held
+  F6 low-load intercept within 25%: ratio 0.934 -> held
+  Validity: a diesel cannot turn fuel into shaft work at under about 0.2 L/kWh, so a slope of 0.055 L/kWh means P misses most of the engine's load; F4 and F5 rest on this fit and are void.
+
+Post hoc (not registered), why the registered fit fails:
+  mean ECU engine power 36.84 kW against pump-side shaft power 13.06 kW (35%)
+  HST pump: mean shaft power -3.45 kW but mean hydraulic power 6.36 kW (a pump cannot deliver more than its shaft takes); corr(fuel, HST shaft) -0.59
+  by engine speed (1 s means): bin, seconds, median fuel L/h, median pump-side kW, median ECU kW
+    700-900:  36,  1.48,   2.95,   7.0
+    900-1200:  35,  4.37,  19.20,  21.1
+    1200-1400:  37,  5.92,  13.52,  33.7
+    1400-1600: 139,  6.39,  15.83,  38.9
+    1600-1800: 121,  9.74,   5.67,  47.6
+    1800-2000:  64, 11.49,  -2.15,  50.0
+    2000-2300:   8, 13.90,  -4.83,  57.6
+
+  low idle, |pump-side power| < 3 kW: 28 s at median 800 rpm; fuel median 1.463 L/h (p25 1.45, p75 1.48); ECU power median 7.0 kW
+  fuel per engine revolution at low idle: 30.5 mm^3/rev
+  floor: zero-load fuel per revolution does not fall with speed (friction mean effective pressure and fan load rise with speed), so no-load fuel at n >= low-idle fuel x n / n_idle.
+  6c thresholds at b = 0.2332 (unchanged). Fixed pump wins where f_t,max > floor:
+    1500 rpm, by rating x 0.658: floor 1.80 L/h; central parameters 8.3% of 384 cases; under at least one of 108 parameter sets 64.8%
+    1500 rpm, unscaled: floor 2.74 L/h; central parameters 0.3% of 384 cases; under at least one of 108 parameter sets 31.8%
+    1800 rpm, by rating x 0.658: floor 2.16 L/h; central parameters 2.6% of 384 cases; under at least one of 108 parameter sets 53.9%
+    1800 rpm, unscaled: floor 3.29 L/h; central parameters 0.0% of 384 cases; under at least one of 108 parameter sets 18.5%
+    2100 rpm, by rating x 0.658: floor 2.53 L/h; central parameters 0.8% of 384 cases; under at least one of 108 parameter sets 38.8%
+    2100 rpm, unscaled: floor 3.84 L/h; central parameters 0.0% of 384 cases; under at least one of 108 parameter sets 11.2%
+    2200 rpm, by rating x 0.658: floor 2.65 L/h; central parameters 0.3% of 384 cases; under at least one of 108 parameter sets 34.6%
+    2200 rpm, unscaled: floor 4.02 L/h; central parameters 0.0% of 384 cases; under at least one of 108 parameter sets 8.6%
+  central geometry f_t,max 2.462 L/h against the 2100 rpm floor by rating 2.53 L/h
