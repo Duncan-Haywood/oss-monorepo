@@ -1,6 +1,6 @@
 ---
-kind: explore
-topics: [accessibility, design, testing]
+kind: analysis
+topics: [accessibility, design]
 date: 2026-11-13
 ---
 # Explore 2026-11-13: first whole-site dark-mode contrast sample
