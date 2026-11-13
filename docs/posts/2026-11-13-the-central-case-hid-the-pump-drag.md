@@ -3,7 +3,7 @@ title: "The central case hid the pump's drag: a fixed pump now wins in two third
 seo_title: "Fixed pump vs load-sensing on an excavator: part-stroke drag measured"
 date: 2026-11-13
 tags: [research, heavy-equipment, hydraulics, load-sensing, open-centre, excavator, pump-efficiency]
-description: "Charging an axial piston pump's drag below its smallest measured stroke barely moved our headline excavator case, and doubled the cylinder geometries where a smaller fixed pump beats load-sensing on fuel."
+description: "Charging a piston pump's drag below its smallest measured stroke doubled the excavator geometries where a fixed pump beats load-sensing on fuel."
 ---
 
 The [`heavy-hydraulics`](../../research/heavy-hydraulics/README.md)
