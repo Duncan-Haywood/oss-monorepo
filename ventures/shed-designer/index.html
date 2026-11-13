@@ -351,6 +351,8 @@
   </style>
 
 <style>@media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important;animation:none!important}}</style>
+<!-- The ready-design strip is filled by app.mjs, 641 px tall at every width (fixed-width cards); empty at first paint it pushed the editor down: CLS 0.236 at 1,280 px. Hold most of its height until the module has run (docs/reports/polish-2026-11-13-late-reveal.md). -->
+<!-- late-reveal:start --><style>@media (scripting:enabled){html:not(.pf-rows-ready) #starts .pick-list:empty{min-height:620px}}</style><script>document.addEventListener('DOMContentLoaded',()=>document.documentElement.classList.add('pf-rows-ready'))</script><!-- late-reveal:end -->
 </head>
 <body>
   <header>

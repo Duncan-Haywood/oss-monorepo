@@ -152,7 +152,10 @@ test('a rejected worksheet hides every result section instead of leaving the las
 });
 
 test('the structural guards actually fail on a swallowed document', () => {
-  const broken = page.replace('</style>', '');
+  // Delete the last </style> (the late-reveal block's, just before </head>).
+  // Deleting the first would let the block's </style> close the page's style.
+  const at = page.lastIndexOf('</style>');
+  const broken = page.slice(0, at) + page.slice(at + '</style>'.length);
   assert.notEqual(broken, page, 'index.html no longer contains </style>');
   const d = derive(broken);
   assert.equal(d.unclosed, 'style');
@@ -171,4 +174,13 @@ test('index links one hop to the subcontractor-cashflow-planner sibling', () => 
     /href="\.\.\/subcontractor-cashflow-planner\/"/,
     'index must link ../subcontractor-cashflow-planner/ so crawlers reach the cash-flow planner in one hop',
   );
+});
+
+test('main\'s later sections wait for the module, so the milestone section does not jump on load', () => {
+  // CLS 0.201 at 1,280 px before (docs/reports/polish-2026-11-13-late-reveal.md).
+  const block = page.match(/<!-- late-reveal:start -->([\s\S]*?)<!-- late-reveal:end -->/);
+  assert.ok(block && page.indexOf(block[0]) < page.indexOf('</head>'), 'late-reveal block is in <head>');
+  assert.match(block[1], /@media \(scripting:enabled\)\{html:not\(\.pf-rows-ready\) main>section:not\(:first-child\)\{display:none\}\}/);
+  assert.match(block[1], /DOMContentLoaded[^<]*classList\.add\('pf-rows-ready'\)/);
+  assert.match(page, /<main>\s*<section><h2>Your project figures<\/h2>/, 'the form stays main\'s first section, so it is never held back');
 });
