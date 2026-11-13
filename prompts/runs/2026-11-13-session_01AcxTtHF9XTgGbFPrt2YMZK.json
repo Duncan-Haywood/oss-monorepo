@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtHF9XTgGbFPrt2YMZK",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T03:05:33Z",
+  "ended": "2026-11-13T03:41:24Z",
+  "wall_minutes": 36.28,
+  "tokens_in": 6761358,
+  "tokens_out": 40128,
+  "cost_usd": 3.3495,
+  "tool_calls": 60,
+  "task": "cell-fidelity milestone 5f (pick_track draw): pilot switch between the SPMe trust rule and all-DFN, plus the verified answer step",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15350",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "experiments/switch/figure.py had an unmatched parenthesis on first run; fixed before commit",
+    "Playwright screenshot of a file:// SVG timed out; setContent with the inline SVG worked"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/cell-fidelity/README.md",
+      "issue": "the 'Next steps' paragraph accumulates one sentence block per milestone (now ~600 words), so finding the live next step means reading the first sentence and ignoring the rest"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing step 3 asks for the PR within the first few minutes; I spent ~20 minutes on a post hoc development replay first, to fix the switch constants before writing the plan",
+      "did": "opened the draft PR with the frozen plan before any new simulation",
+      "result": "no sibling touched cell-fidelity meanwhile; the dev replay caught two design bugs (DFN-pilot overhead, run-of-3 counter) before pre-registration"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-should-a-battery-screen-ever-skip-the-cheap-model.md",
+    "research/cell-fidelity/LOG.md (5f plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "No security alerts, IDEAS.md empty, no website requests; route drew research; pick_track drew cell-fidelity. No open research PRs to land. Bench: 515 PyBaMM 26.10.1.1 runs, WORKERS=3, ~45 min, none killed. Verdicts H46 refuted, H47 mixed, H48/H49/H50 supported. Local checks: pytest research/cell-fidelity/tests 86 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; cite_check ok; post frontmatter/links/similarity ok. No agent doc in docs/reports: the LOG.md entry carries everything the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7f3cf89c-a9ad-5076-9556-aa11dfc47f65",
+    "transcripts": 1,
+    "first": "2026-11-13T03:05:33Z",
+    "last": "2026-11-13T03:41:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 101,
+        "output": 40128,
+        "thinking": 8884,
+        "cache_read": 6608142,
+        "cache_write_5m": 0,
+        "cache_write_1h": 153115,
+        "api_equivalent_usd": 3.3495,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 101,
+      "output": 40128,
+      "thinking": 8884,
+      "cache_read": 6608142,
+      "cache_write_5m": 0,
+      "cache_write_1h": 153115,
+      "api_equivalent_usd": 3.3495,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 50,
+      "Write": 3,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 36.28,
+      "active_minutes": 36.28,
+      "model_minutes": 7.59,
+      "tool_minutes": 28.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "design and pre-register a pilot switch, write replay code and tests, run and analyse a 515-run PyBaMM bench, write up README, log and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 477.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+cell-fidelity milestone 5f: pilot switch (pilot 8, 30 draws) and iterate answer step, fresh Sobol seed 5
+
+Mohtat2020: 64 designs (0 dropped)
+  branches: rule 185 s (3 DFN calls, gap 0.0000) vs all-DFN 442 s; cheaper rule (decisive)
+  switch over 30 pilots of 8: switched 0%, right branch 100%; median predicted share 0.37; median calls 5
+  wall time: median 200 s = 1.079 x the cheaper branch (worst 1.089); worst pick gap 0.0000; worst recall when not switched n/a
+  SPMe V0: ok 61, stop 3, fail 0; V1 rescued 3; mis-scored 0 (0%)
+    rescued stop 12: SPMe@100 196.6 vs DFN@100 197.1, gap +0.002
+    rescued stop 16: SPMe@100 185.2 vs DFN@100 185.5, gap +0.001
+    rescued stop 40: SPMe@100 190.4 vs DFN@100 190.6, gap +0.001
+  also reported, variant A (DFN on all 8 pilot designs): switched 0%, right 100%, median wall 1.291 x the cheaper branch, worst gap 0.0000
+  suspect share (r* 0.1) over the whole pool 0.00 against the rule's verified share 0.05; mis-scored designs with r_min >= 0.1: 0 (r_min up to nan)
+Ai2020: 64 designs (0 dropped)
+  branches: rule 1393 s (62 DFN calls, gap 0.0000) vs all-DFN 1248 s; cheaper all-DFN (decisive)
+  switch over 30 pilots of 8: switched 20%, right branch 20%; median predicted share 0.83; median calls 62
+  wall time: median 1393 s = 1.116 x the cheaper branch (worst 1.116); worst pick gap 0.0000; worst recall when not switched 1.00
+  SPMe V0: ok 64, stop 0, fail 0; V1 rescued 0; mis-scored 58 (91%)
+  also reported, variant A (DFN on all 8 pilot designs): switched 80%, right 80%, median wall 1.018 x the cheaper branch, worst gap 0.0000
+  suspect share (r* 0.1) over the whole pool 0.70 against the rule's verified share 0.97; mis-scored designs with r_min >= 0.1: 13 (r_min up to 0.32)
+NCA_Kim2011: 64 designs (0 dropped)
+  branches: rule 953 s (55 DFN calls, gap 0.0000) vs all-DFN 968 s; cheaper rule (within 10%)
+  switch over 30 pilots of 8: switched 97%, right branch 3%; median predicted share 1.13; median calls 64
+  wall time: median 978 s = 1.026 x the cheaper branch (worst 1.035); worst pick gap 0.0000; worst recall when not switched 1.00
+  SPMe V0: ok 14, stop 0, fail 50; V1 rescued 0; mis-scored 51 (80%)
+  also reported, variant A (DFN on all 8 pilot designs): switched 10%, right 90%, median wall 1.012 x the cheaper branch, worst gap 0.0000
+  suspect share (r* 0.1) over the whole pool 0.91 against the rule's verified share 0.86; mis-scored designs with r_min >= 0.1: 0 (r_min up to -0.03)
+Ecker2015: 64 designs (0 dropped)
+  branches: rule 461 s (12 DFN calls, gap 0.0000) vs all-DFN 949 s; cheaper rule (decisive)
+  switch over 30 pilots of 8: switched 0%, right branch 100%; median predicted share 0.36; median calls 13
+  wall time: median 481 s = 1.043 x the cheaper branch (worst 1.083); worst pick gap 0.0000; worst recall when not switched n/a
+  SPMe V0: ok 64, stop 0, fail 0; V1 rescued 0; mis-scored 0 (0%)
+  also reported, variant A (DFN on all 8 pilot designs): switched 0%, right 100%, median wall 1.207 x the cheaper branch, worst gap 0.0000
+  suspect share (r* 0.1) over the whole pool 0.09 against the rule's verified share 0.19; mis-scored designs with r_min >= 0.1: 0 (r_min up to nan)
+
+Verdicts: H46 refuted, H47 mixed, H48 supported, H49 supported, H50 supported

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 516" width="760" height="516" role="img" aria-label="Bar chart per battery cell: wall time of the SPMe trust rule and of the pilot-switched procedure as a share of running DFN on every design">
+<style>text{font:12px system-ui,sans-serif;fill:#222}.s{font-size:11px;fill:#555}@media (prefers-color-scheme:dark){text{fill:#ddd}.s{fill:#aaa}rect.bg{fill:#111}}</style>
+<rect class="bg" width="760" height="516" fill="#fff"/>
+<text x="12" y="22" style="font-weight:600">Wall time of the SPMe trust rule, with and without an 8-run pilot that can switch to DFN on everything</text>
+<rect x="12" y="33" width="10" height="10" fill="#9aa5b1"/><text class="s" x="26" y="42">rule on every design (no pilot)</text>
+<rect x="272" y="33" width="10" height="10" fill="#5b8fd1"/><text class="s" x="286" y="42">pilot switch, median of 30 draws (line: worst)</text>
+<text x="12" y="66" style="font-weight:600">Fresh designs, pre-registered (Sobol seed 5)</text>
+<text x="12" y="92">Mohtat2020</text>
+<rect x="120" y="78" width="131.6" height="10" fill="#9aa5b1"/>
+<rect x="120" y="90" width="141.9" height="10" fill="#5b8fd1"/>
+<line x1="261.9" y1="95.0" x2="263.3" y2="95.0" stroke="#333"/>
+<text class="s" x="570" y="92">switched 0%, worst gap 0.0%</text>
+<text x="12" y="126">Ai2020</text>
+<rect x="120" y="112" width="350.8" height="10" fill="#9aa5b1"/>
+<rect x="120" y="124" width="350.8" height="10" fill="#5b8fd1"/>
+<line x1="470.8" y1="129.0" x2="470.8" y2="129.0" stroke="#333"/>
+<text class="s" x="570" y="126">switched 20%, worst gap 0.0%</text>
+<text x="12" y="160">NCA_Kim2011</text>
+<rect x="120" y="146" width="309.4" height="10" fill="#9aa5b1"/>
+<rect x="120" y="158" width="317.5" height="10" fill="#5b8fd1"/>
+<line x1="437.5" y1="163.0" x2="440.3" y2="163.0" stroke="#333"/>
+<text class="s" x="570" y="160">switched 97%, worst gap 0.0%</text>
+<text x="12" y="194">Ecker2015</text>
+<rect x="120" y="180" width="152.8" height="10" fill="#9aa5b1"/>
+<rect x="120" y="192" width="159.3" height="10" fill="#5b8fd1"/>
+<line x1="279.3" y1="197.0" x2="285.5" y2="197.0" stroke="#333"/>
+<text class="s" x="570" y="194">switched 0%, worst gap 0.0%</text>
+<text x="12" y="228" style="font-weight:600">Development replay (constants chosen here; post hoc)</text>
+<text x="12" y="254">OKane2022</text>
+<rect x="120" y="240" width="113.9" height="10" fill="#9aa5b1"/>
+<rect x="120" y="252" width="116.6" height="10" fill="#5b8fd1"/>
+<line x1="236.6" y1="257.0" x2="239.4" y2="257.0" stroke="#333"/>
+<text class="s" x="570" y="254">switched 0%, worst gap 0.0%</text>
+<text x="12" y="288">Ecker2015</text>
+<rect x="120" y="274" width="122.5" height="10" fill="#9aa5b1"/>
+<rect x="120" y="286" width="128.8" height="10" fill="#5b8fd1"/>
+<line x1="248.8" y1="291.0" x2="255.1" y2="291.0" stroke="#333"/>
+<text class="s" x="570" y="288">switched 0%, worst gap 0.0%</text>
+<text x="12" y="322">Ai2020</text>
+<rect x="120" y="308" width="345.4" height="10" fill="#9aa5b1"/>
+<rect x="120" y="320" width="345.4" height="10" fill="#5b8fd1"/>
+<line x1="465.4" y1="325.0" x2="465.4" y2="325.0" stroke="#333"/>
+<text class="s" x="570" y="322">switched 33%, worst gap 0.0%</text>
+<text x="12" y="356">Mohtat2020</text>
+<rect x="120" y="342" width="153.2" height="10" fill="#9aa5b1"/>
+<rect x="120" y="354" width="163.2" height="10" fill="#5b8fd1"/>
+<line x1="283.2" y1="359.0" x2="285.0" y2="359.0" stroke="#333"/>
+<text class="s" x="570" y="356">switched 0%, worst gap 0.0%</text>
+<text x="12" y="390">NCA_Kim2011</text>
+<rect x="120" y="376" width="341.9" height="10" fill="#9aa5b1"/>
+<rect x="120" y="388" width="320.1" height="10" fill="#5b8fd1"/>
+<line x1="440.1" y1="393.0" x2="461.9" y2="393.0" stroke="#333"/>
+<text class="s" x="570" y="390">switched 97%, worst gap 0.0%</text>
+<text x="12" y="424">Marquis2019</text>
+<rect x="120" y="410" width="159.1" height="10" fill="#9aa5b1"/>
+<rect x="120" y="422" width="164.5" height="10" fill="#5b8fd1"/>
+<line x1="284.5" y1="427.0" x2="290.7" y2="427.0" stroke="#333"/>
+<text class="s" x="570" y="424">switched 0%, worst gap 0.0%</text>
+<text x="12" y="458">Chen2020</text>
+<rect x="120" y="444" width="272.8" height="10" fill="#9aa5b1"/>
+<rect x="120" y="456" width="272.8" height="10" fill="#5b8fd1"/>
+<line x1="392.8" y1="461.0" x2="458.2" y2="461.0" stroke="#333"/>
+<text class="s" x="570" y="458">switched 10%, worst gap 0.0%</text>
+<line x1="434.3" y1="72" x2="434.3" y2="472" stroke="#d1883a" stroke-width="1.5"/>
+<text class="s" x="438.3" y="486">all-DFN</text>
+<line x1="120.0" y1="72" x2="120.0" y2="472" stroke="#ccc" stroke-dasharray="2,3"/><text class="s" x="110.0" y="486">0%</text>
+<line x1="277.1" y1="72" x2="277.1" y2="472" stroke="#ccc" stroke-dasharray="2,3"/><text class="s" x="267.1" y="486">50%</text>
+<text class="s" x="120" y="502">wall time, share of running DFN on every design</text>
+</svg>
