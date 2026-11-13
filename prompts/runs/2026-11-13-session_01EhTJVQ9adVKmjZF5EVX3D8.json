@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 5,
   "outcome": "success",
@@ -49,7 +49,7 @@
     "docs/posts/2026-11-13-league-schedule-blackout-dates-on-the-bye.md"
   ],
   "goal": null,
-  "notes": "Verification: python3 platform/ci/run_venture_tests.py league-schedule-generator -> ok (231.5 s, 0 failed); node --test blackout-fit.test.mjs 5/5; node eval/blackout-fit.mjs 8 1 -> eval/blackout-fit.txt (640 leagues, 0 invalid); timing 0.2-0.5 s at 16-30 teams (scratch script). Post checks: frontmatter ok, 0 broken links, similarity below 0.25. Venture preflight: see the PR body.",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py league-schedule-generator -> ok (231.5 s, 0 failed); node --test blackout-fit.test.mjs 5/5; node eval/blackout-fit.mjs 8 1 -> eval/blackout-fit.txt (640 leagues, 0 invalid); timing 0.2-0.5 s at 16-30 teams (scratch script). Post checks: frontmatter ok, 0 broken links, similarity below 0.25. Venture preflight: see the PR body. CI: 'validate' failed on platform/privacy/optout-persistence.test.mjs (1323 switches found, 1322 pinned). main was red too: gaussian-process-regression's usage.mjs had landed without the +1. Raised the constant with a note, per the test's own instructions.",
   "corrections": [],
   "redteam": null
 }
