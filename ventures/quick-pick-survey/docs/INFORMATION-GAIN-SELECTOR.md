@@ -2610,3 +2610,111 @@ selection, but needs real answers to test.
 Caveats: as the section above (synthetic Bradley-Terry respondents, uniform
 truth, constant lapse from the first answer, 40 per panel), plus one anchor
 rule, two anchor rates, one threshold for anchor-tau and one mass cut.
+
+## A pooled spread that models the lapse (2026-11-13, last; measured, not shipped)
+
+The section above closed gating and named the alternative: stop selecting
+people out and model them. Pool the prior sd with each person's lapse share
+in the likelihood, so a coin flip can be explained by a lapse term rather
+than by a smaller spread everyone shares. This builds that fit and scores it
+against the oracle on the gated sweep's mixed panels.
+
+**The fit** (`src/lib/lapsePool.ts`, tests in `lapsePool.test.ts`). Each
+answer has chance e/2 + (1 - e) sigma(mu_picked - mu_other), mu_i ~ N(0,
+phi^2), and each person's e sits on the grid 0, 0.1, 0.2, 0.3, 0.4, 0.6, 1
+(1 is a pure coin flipper, whose evidence is exactly n log 1/2). For each
+(phi, e), `lapseEvidenceGrid` importance-samples p(answers | phi, e) from a
+Gaussian at that posterior's mode with the Fisher information as precision
+(the lapse likelihood is not log-concave, so its Hessian need not be
+positive definite), 2,000 draws, inflated 1.1 at e = 0 (matches
+`sampledEvidence` to 0.1 nats) and 1.2 above it. Against 200,000 draws at 30
+items x 8 answers and phi 2, the e > 0 estimates land within -0.24 to +0.38
+nats per person; 1,000 draws at 1.1 were biased low (-0.35 to +0.04), which
+would pull phi down, so the sampler was set before the sweep. Two ways to
+combine the grid into a panel evidence:
+
+- **lapse-pool**: the panel's lapse weights over the grid fitted by EM at
+  each phi (`profiledPanelEvidence`), evidence profiled over them. Rules
+  `lapse-pool` (its upper end, 1.92 nats as `pooledPriorPhiUpper`) and
+  `lapse-pool-max` (its maximum).
+- **lapse-prior**: a fixed Beta(1, 19) prior on each person's e
+  (`beta19Weights`, `lapseEstimate.ts`'s default, floored at 0.001), no
+  fitting. Rule `lapse-prior` (its upper end).
+
+**Design** (`scripts/gated-upper-sweep.ts --lapse-pool`, rows in
+`docs/lapse-pool-2026-11-13.jsonl`, 72 cells). 8/15/30 items x 2/4/8 answers
+per item, 40 respondents per panel, pooled on an independent panel of the
+same mix, uniform truth, seed base 1000; careless share 0, 50% or 100% at
+lapse 0.4, and 50% at lapse 0.2; both selectors. No anchors.
+
+**Honest respondents, mean coverage (worst cell) / mean half-width**, over the
+9 list-and-budget cells (careless respondents in the second block):
+
+| lapse | careless | selector | fixed | upper-all | oracle | lapse-pool | lapse-pool-max | lapse-prior |
+|---|---|---|---|---|---|---|---|---|
+| any | 0 | staged | 0.948 (0.881) / 2.34 | 0.960 (0.937) / 2.12 | 0.960 (0.937) / 2.12 | 0.956 (0.933) / 2.32 | 0.954 (0.921) / 2.00 | 0.961 (0.939) / 2.14 |
+| any | 0 | shipped | 0.967 (0.948) / 2.41 | 0.952 (0.931) / 2.04 | 0.952 (0.931) / 2.04 | 0.966 (0.948) / 2.39 | 0.949 (0.926) / 2.04 | 0.956 (0.935) / 2.08 |
+| 0.2 | 50% | staged | 0.947 (0.878) / 2.34 | 0.953 (0.921) / 2.03 | 0.962 (0.944) / 2.26 | 0.956 (0.909) / 2.31 | 0.930 (0.840) / 1.89 | 0.956 (0.927) / 2.06 |
+| 0.2 | 50% | shipped | 0.968 (0.951) / 2.41 | 0.931 (0.911) / 1.87 | 0.954 (0.945) / 2.03 | 0.966 (0.943) / 2.37 | 0.945 (0.895) / 2.02 | 0.937 (0.912) / 1.90 |
+| 0.4 | 50% | staged | 0.947 (0.878) / 2.34 | 0.948 (0.903) / 2.05 | 0.962 (0.944) / 2.26 | 0.955 (0.904) / 2.32 | 0.945 (0.883) / 1.98 | 0.951 (0.912) / 2.08 |
+| 0.4 | 50% | shipped | 0.968 (0.951) / 2.41 | 0.891 (0.858) / 1.71 | 0.954 (0.945) / 2.03 | 0.967 (0.948) / 2.38 | 0.922 (0.872) / 1.84 | 0.903 (0.872) / 1.75 |
+
+| lapse | careless | selector | fixed | upper-all | lapse-pool | lapse-pool-max | lapse-prior |
+|---|---|---|---|---|---|---|---|
+| 0.4 | 100% | staged | 0.809 (0.697) / 2.32 | 0.726 (0.522) / 1.63 | 0.814 (0.738) / 2.31 | 0.614 (0.338) / 1.30 | 0.734 (0.528) / 1.66 |
+| 0.4 | 100% | shipped | 0.856 (0.770) / 2.29 | 0.617 (0.544) / 1.32 | 0.847 (0.755) / 2.27 | 0.661 (0.562) / 1.42 | 0.624 (0.551) / 1.34 |
+
+Pooled values, mean over cells (upper-all / oracle / lapse-pool maximum,
+upper end / lapse-prior upper end): all-honest staged 1.53 / 1.53 / 1.44,
+1.94 / 1.58; half careless at 0.4 under shipped 0.99 / 1.39 / 1.20, 1.87 /
+1.03; all careless at 0.4 under shipped 0.64 / - / 0.79, 1.86 / 0.65.
+
+**Why: spread and lapse are not identified from these answers**
+(`scripts/lapse-ridge.ts`: 20 respondents, 15 items x 8 answers, the panel
+evidence on a grid of phi three ways from the same per-person grids):
+
+| panel | e = 0 only: drop from best to phi 2 | Beta(1, 19) prior | EM-profiled | where the EM weight goes at phi 2 |
+|---|---|---|---|---|
+| shipped, honest | 17.6 | 12.3 | 3.0 | e = 0.1 (0.82) |
+| staged, honest | 17.8 | 15.4 | 4.2 | spread over 0.2-1 |
+| shipped, all careless at 0.4 | 114.7 | 81.2 | 1.7 | e = 0.4 (0.96) |
+| staged, all careless at 0.4 | 39.9 | 35.7 | 0.9 | 0.6 and 1 (0.90) |
+
+With free lapse weights the evidence has a ridge: any wider spread plus a
+matching lapse share fits about as well as the true spread with none, even
+for an all-honest panel (at phi 2 the EM puts honest shipped respondents at
+e = 0.1). A lapse caps a pair's chance at 1 - e/2, and only pairs far apart
+on the person's own scale can show that cap; at 2 to 8 answers per item there
+are too few of them, under shipped as well as staged. So:
+
+- **lapse-pool is safe and buys nothing.** Its upper end sits at 1.85-1.96
+  of the 2.02 ceiling in every row, so its intervals are the fixed prior's
+  (1-2% narrower, coverage within 0.01 of fixed; on all-careless staged
+  panels it is the best rule, 0.814 against 0.809, worst 0.738 against
+  0.697). With nobody careless it gives up the 9-15% that the plain pooled
+  upper end (upper-all, here the oracle) gets.
+- **Its maximum moves the right way but not far enough.** Half careless at
+  0.4 under shipped, the maximum is 1.20 against the blind pool's 0.99 and
+  the oracle's 1.39; with everyone careless it is 0.70-0.79, and its
+  intervals hold careless respondents to 0.61-0.66 (staged worst 0.338).
+- **A tight prior on the lapse is the lapse-blind pool again.** Beta(1, 19)
+  makes a 0.4 lapse cost more than a narrower spread, so lapse-prior tracks
+  upper-all within 0.012 everywhere: honest 0.903 half careless at 0.4
+  under shipped (upper-all 0.891, fixed 0.968), careless 0.624 when all are.
+  Any prior between the two moves along the same trade: loose enough to
+  absorb careless people is loose enough to absorb an honest panel's spread.
+
+**Decision.** Not shipped. The pairwise intervals keep the fixed prior;
+`lapsePool.ts` stays tested and unwired, and the sweep keeps the rules behind
+`--lapse-pool`. With the gates (two sections up) and the lapse model (here)
+both closed, the pooled prior can narrow the intervals only with information
+from outside the person's choices about who is careless: answer times
+(`msToAnswer`, "Answer times") on a real survey, or a survey that holds its
+respondents to a known-careful population. Until a real survey's answers
+exist, the honest-panel gain (9-15%) is not worth the careless-panel risk.
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth; constant
+lapse from the first answer; one seed base (1000), 40 respondents per panel;
+a 7-point lapse grid; importance-sampled evidence whose e > 0 terms carry
+about 0.1-0.4 nats of noise per person at 30 items (the ridge rows move by
+more than that between phi points only where the table says they do).

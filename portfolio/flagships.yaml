@@ -271,12 +271,13 @@ flagships:
       detector (2026-11-13, latest, "Anchor pairs as the gate's detector"):
       AUC 0.85-0.88 at 1 in 5, but gating on consistency selects
       wide-spread people (consistent half of an all-honest panel pools to
-      1.71-1.94 vs 1.27-1.40), so gates are closed. Next, most valuable
-      first: (a) a pooled spread fit that carries each person's lapse share
-      in the likelihood (p = e/2 + (1 - e) sigma(d), e integrated on the
-      grid) instead of a gate, scored with scripts/gated-upper-sweep.ts's
-      mixed panels against the oracle; (b)
-      half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace see
+      1.71-1.94 vs 1.27-1.40), so gates are closed. A pooled fit that models
+      each person's lapse (2026-11-13, last, "A pooled spread that models the
+      lapse"; lapsePool.ts, unwired): free lapse weights leave a spread-lapse
+      ridge, so its upper end sits at the ceiling (safe, no gain); a Beta(1,
+      19) lapse prior acts as the blind pool (unsafe). Narrowing the pooled
+      prior now needs a careless signal from outside the choices (c). Next,
+      most valuable first: (b) half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace see
       them?); (c) the first real survey's answers: msToAnswer against the
       answer-time model, and how noisy real pairwise answers are, which
       decides the self-consistency gate (scripts/coin-flip-gate-real.ts

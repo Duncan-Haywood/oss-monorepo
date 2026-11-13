@@ -40,6 +40,8 @@
  *               LAPSE_POOL_GRID, the panel's lapse weights fitted by EM at
  *               each phi), over the whole panel, for everyone
  *   lapse-pool-max  the same fit's maximum instead of its upper end
+ *   lapse-prior the upper end with each person's lapse under a fixed Beta(1, 19)
+ *               prior on the grid (beta19Weights) instead of fitted weights
  * (docs/INFORMATION-GAIN-SELECTOR.md, "A pooled spread that models the lapse").
  *
  * Prints per cell, for honest and careless respondents separately: mean
@@ -53,7 +55,7 @@ import { selectNextPair, selectNextPairHybrid, pairKey, type PairingInput } from
 import { DEFAULT_GLICKO_STATE } from "../src/lib/glicko2";
 import { simulate, spearman, type Policy } from "../src/lib/infoGainSim";
 import { refitRatings, pooledPriorPhiUpper, REFIT_PRIOR_PHI, type RefitAnswer } from "../src/lib/btRefit";
-import { pooledLapseSpread, LAPSE_POOL_GRID } from "../src/lib/lapsePool";
+import { beta19Weights, pooledLapseSpread, LAPSE_POOL_GRID } from "../src/lib/lapsePool";
 import { DEFAULT_PRIOR_B, LAPSE_GRID, pickProbability, pooledLapsePrior, posteriorMean, type LapseAnswer } from "../src/lib/lapseEstimate";
 
 const argv = process.argv;
@@ -205,7 +207,9 @@ for (const items of itemCounts) {
         const cut = [...pool.map((p) => p.eRefit)].sort((x, y) => x - y)[Math.floor((pool.length - 1) / 2)];
         const half = upperOf(pool.filter((p) => p.eRefit <= cut));
         const oracle = upperOf(pool.filter((p) => !p.careless));
-        const lp = lapsePool ? pooledLapseSpread(pool) : null;
+        const lpCache = new Map<number, number[][]>();
+        const lp = lapsePool ? pooledLapseSpread(pool, { cache: lpCache }) : null;
+        const lb = lapsePool ? pooledLapseSpread(pool, { cache: lpCache, fixed: beta19Weights() }) : null;
         // Anchor gates (only with --every): a rank cut, a pooled-prior threshold, and a cut at the panel's own careless share.
         const sortedA = [...pool.map((p) => p.eA)].sort((x, y) => x - y);
         const cutA = sortedA[Math.floor((pool.length - 1) / 2)];
@@ -227,6 +231,7 @@ for (const items of itemCounts) {
           rules["lapse-pool"] = () => lp.upper;
           rules["lapse-pool-max"] = () => lp.phi;
         }
+        if (lb) rules["lapse-prior"] = () => lb.upper;
         // The eval panel's own pooled anchor prior for anchor-tau (as a live survey would read it).
         if (every > 0) {
           rules["anchor-half"] = (p) => (p.eA <= cutA ? aHalf.upper : REFIT_PRIOR_PHI);
@@ -239,6 +244,7 @@ for (const items of itemCounts) {
           surveyMassAboveTau: r3(evalPanel.survey),
         };
         if (lp) out.lapsePool = { phi: r3(lp.phi), upper: r3(lp.upper), weights: Object.fromEntries(LAPSE_POOL_GRID.map((e, k) => [e, r3(lp.weights[k])])) };
+        if (lb) out.lapsePrior = { phi: r3(lb.phi), upper: r3(lb.upper) };
         if (every > 0) {
           out.anchorsPerPerson = r3(mean(evalPanel.map((p) => p.nA)));
           out.anchorMassAboveTau = { pool: r3(pool.surveyA), eval: r3(evalPanel.surveyA) };

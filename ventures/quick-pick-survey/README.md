@@ -232,3 +232,10 @@ but the gate still buys only 4-10% against the oracle's 10-18%: ranking people b
 the ones whose items are far apart (the more consistent half of an all-honest panel pools to 1.71-1.94
 against 1.27-1.40 for everyone), so gating is closed and the next step is a pooled fit that models each
 person's lapse instead: docs/INFORMATION-GAIN-SELECTOR.md, "Anchor pairs as the gate's detector".
+That lapse-modelling fit (2026-11-13, last; `src/lib/lapsePool.ts`, tested, unwired) does not help
+either: with free lapse weights the evidence has a ridge (a wider spread plus a small lapse fits as well
+as the true spread with none, even for an all-honest panel), so its upper end sits at 1.85-1.96 of the
+2.02 ceiling and the intervals are the fixed prior's; a tight Beta(1, 19) lapse prior behaves like the
+lapse-blind pool (honest 0.903 against fixed 0.968 with half the panel careless at 0.4 under shipped).
+Narrowing the pooled prior now needs a careless signal from outside the choices (answer times on a real
+survey): docs/INFORMATION-GAIN-SELECTOR.md, "A pooled spread that models the lapse".

@@ -33,6 +33,17 @@
  */
 import { cholesky, cholSolve, EB_PHI_MIN, PHI_INTERVAL_DROP, REFIT_PRIOR_PHI, type RefitAnswer } from "./btRefit";
 
+/**
+ * A fixed prior on each person's lapse share over LAPSE_POOL_GRID: Beta(1, 19)
+ * (lapseEstimate.ts's default, mean 0.05) read at the grid points, with a floor of
+ * 0.001 so a coin flipper is still possible. Normalised.
+ */
+export function beta19Weights(grid: readonly number[] = LAPSE_POOL_GRID): number[] {
+  const raw = grid.map((e) => (e < 1 ? Math.pow(1 - e, 18) : 0) + 1e-3);
+  const z = raw.reduce((a, b) => a + b, 0);
+  return raw.map((x) => x / z);
+}
+
 /** Lapse shares the pooled fit integrates over. 1 is a pure coin flipper, whose answers carry no information on phi. */
 export const LAPSE_POOL_GRID: readonly number[] = [0, 0.1, 0.2, 0.3, 0.4, 0.6, 1];
 
@@ -210,15 +221,17 @@ export function lapseEvidenceGrid(ids: readonly string[], answers: readonly Refi
 /**
  * The panel's log evidence at one phi from each person's grid, profiled over the
  * lapse weights: EM for the mixing weights (a small floor keeps every grid value
- * possible), then sum log sum_k pi_k exp(L_k).
+ * possible), then sum log sum_k pi_k exp(L_k). With `fixed`, the weights are
+ * those given (a prior on each person's lapse) and no EM runs.
  */
-export function profiledPanelEvidence(grids: readonly (readonly number[])[], { iterations = 200, floor = 1e-4 } = {}): { evidence: number; weights: number[] } {
-  if (grids.length === 0) return { evidence: 0, weights: [] };
+export function profiledPanelEvidence(grids: readonly (readonly number[])[], { iterations = 200, floor = 1e-4, fixed }: { iterations?: number; floor?: number; fixed?: readonly number[] } = {}): { evidence: number; weights: number[] } {
+  if (grids.length === 0) return { evidence: 0, weights: fixed ? [...fixed] : [] };
   const K = grids[0].length;
+  if (fixed && fixed.length !== K) throw new RangeError("fixed weights must match the grid");
   const tops = grids.map((g) => Math.max(...g));
   const lik = grids.map((g, i) => g.map((v) => Math.exp(v - tops[i])));
-  let w = new Array<number>(K).fill(1 / K);
-  for (let it = 0; it < iterations; it++) {
+  let w = fixed ? [...fixed] : new Array<number>(K).fill(1 / K);
+  for (let it = 0; it < (fixed ? 0 : iterations); it++) {
     const next = new Array<number>(K).fill(0);
     for (const l of lik) {
       let z = 0;
@@ -241,18 +254,34 @@ export function profiledPanelEvidence(grids: readonly (readonly number[])[], { i
 /**
  * The lapse-aware pooled prior sd and the upper end of its likelihood interval
  * (the same golden-section-then-bisection shape as btRefit's pooledPriorPhiUpper),
- * plus the fitted lapse weights at the best phi.
+ * plus the fitted lapse weights at the best phi. `fixed` holds the lapse
+ * weights instead of fitting them; `cache` (log phi to every person's grid)
+ * lets two calls on the same panel and grid share the sampling.
  */
 export function pooledLapseSpread(
   people: readonly LapsePoolPerson[],
-  { min = EB_PHI_MIN, max = REFIT_PRIOR_PHI, steps = 8, drop = PHI_INTERVAL_DROP, bisect = 8, grid = LAPSE_POOL_GRID, draws = 2000 } = {}
+  {
+    min = EB_PHI_MIN,
+    max = REFIT_PRIOR_PHI,
+    steps = 8,
+    drop = PHI_INTERVAL_DROP,
+    bisect = 8,
+    grid = LAPSE_POOL_GRID,
+    draws = 2000,
+    fixed,
+    cache: grids = new Map(),
+  }: { min?: number; max?: number; steps?: number; drop?: number; bisect?: number; grid?: readonly number[]; draws?: number; fixed?: readonly number[]; cache?: Map<number, number[][]> } = {}
 ): { phi: number; upper: number; weights: number[] } {
   const used = people.filter((p) => p.answers.length > 0);
-  if (used.length === 0) return { phi: max, upper: max, weights: grid.map(() => 1 / grid.length) };
+  if (used.length === 0) return { phi: max, upper: max, weights: fixed ? [...fixed] : grid.map(() => 1 / grid.length) };
   const cache = new Map<number, { evidence: number; weights: number[] }>();
   const at = (x: number) => {
     let r = cache.get(x);
-    if (!r) cache.set(x, (r = profiledPanelEvidence(used.map((p) => lapseEvidenceGrid(p.ids, p.answers, Math.exp(x), { grid, draws })))));
+    if (!r) {
+      let g = grids.get(x);
+      if (!g) grids.set(x, (g = used.map((p) => lapseEvidenceGrid(p.ids, p.answers, Math.exp(x), { grid, draws }))));
+      cache.set(x, (r = profiledPanelEvidence(g, { fixed })));
+    }
     return r;
   };
   const g = (Math.sqrt(5) - 1) / 2;
