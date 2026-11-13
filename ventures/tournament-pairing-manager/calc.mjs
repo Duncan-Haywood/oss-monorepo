@@ -17,10 +17,20 @@ export function parsePlayers(text) {
     if (!line) return;
     let name = line;
     let rating = null;
-    const m = line.match(/^(.*?)[\s,;\t]*[\(\[]?\s*(-?\d{1,5}(?:\.\d+)?)\s*[\)\]]?$/);
+    let rd = null;
+    let vol = null;
+    // "Name, rating, RD" or "Name, rating, RD, volatility" (Glicko players);
+    // the fields must be separated by commas, semicolons or tabs.
+    const g = line.match(/^(.*?)\s*[,;\t]\s*(\d{1,5}(?:\.\d+)?)\s*[,;\t]\s*(\d{1,4}(?:\.\d+)?)(?:\s*[,;\t]\s*(0?\.\d+))?$/);
+    const m = g && g[1].trim() ? null : line.match(/^(.*?)[\s,;\t]*[\(\[]?\s*(-?\d{1,5}(?:\.\d+)?)\s*[\)\]]?$/);
     if (m && m[1].trim()) {
       name = m[1].trim();
       rating = Number(m[2]);
+    } else if (g && g[1].trim()) {
+      name = g[1].trim();
+      rating = Number(g[2]);
+      rd = Number(g[3]) > 0 ? Number(g[3]) : null;
+      vol = g[4] && Number(g[4]) > 0 ? Number(g[4]) : null;
     }
     name = name.replace(/\s+/g, " ");
     const key = name.toLowerCase();
@@ -29,7 +39,10 @@ export function parsePlayers(text) {
       return;
     }
     seen.add(key);
-    players.push({ id: `p${players.length + 1}`, name, rating, order: players.length });
+    const p = { id: `p${players.length + 1}`, name, rating, order: players.length };
+    if (rd != null) p.rd = rd;
+    if (vol != null) p.vol = vol;
+    players.push(p);
   });
   return { players, errors };
 }
@@ -511,7 +524,12 @@ export function parseState(text) {
   try { data = JSON.parse(text); } catch { return { error: "That is not a saved tournament file." }; }
   if (!data || data.app !== "tournament-pairing-manager" || data.version !== 1) return { error: "That is not a saved tournament file." };
   if (!Array.isArray(data.players) || !data.players.every((p) => p && typeof p.id === "string" && typeof p.name === "string")) return { error: "The saved file has no valid player list." };
-  data.players = data.players.map((p, i) => ({ id: p.id, name: p.name, rating: typeof p.rating === "number" ? p.rating : null, order: i }));
+  data.players = data.players.map((p, i) => {
+    const out = { id: p.id, name: p.name, rating: typeof p.rating === "number" ? p.rating : null, order: i };
+    if (typeof p.rd === "number" && p.rd > 0) out.rd = p.rd;
+    if (typeof p.vol === "number" && p.vol > 0) out.vol = p.vol;
+    return out;
+  });
   data.rounds = Array.isArray(data.rounds) ? data.rounds : [];
   data.results = data.results && typeof data.results === "object" ? data.results : {};
   return { state: data };
