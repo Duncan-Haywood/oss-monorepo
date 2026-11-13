@@ -94,6 +94,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import typing
 
 try:
     import yaml
@@ -1704,16 +1705,79 @@ def budget_hint(n_selected: int, per_workflow_s: int, listing: bool) -> str | No
             "run the workflows you need by name.")
 
 
-def checkout_fingerprint() -> tuple[str, str] | None:
-    """(HEAD sha, digest of every tracked path's content id).
+GONE = "-"  # a tracked path deleted from the worktree
+DRIFT_PATHS_SHOWN = 5
 
-    Deliberately reads **tracked content only**, via `git diff HEAD --raw`,
-    whose output names each differing path and the blob id on both sides.
-    Untracked files are excluded on purpose: several steps here legitimately
-    write temp artifacts, a build directory or a node_modules tree, and a
-    fingerprint that moved on those would cry wolf on every clean run and be
-    switched off within a day -- the same fate this file's own comments
-    predict for any check that fails on correct input.
+
+def tracked_content(cwd: str = REPO, chunk: int = 200) -> dict[str, str] | None:
+    """{tracked path: git blob id of the bytes the worktree holds}.
+
+    Blob ids come from the index for a path the worktree matches, and from
+    `git hash-object` (which applies the same filters) for one it does not,
+    so the same bytes give the same id whether or not they are committed yet.
+    That is the point: a `git commit` moves content from the worktree side of
+    the index to the committed side without changing a byte any step reads,
+    and must not read as the tree moving. `-` marks a tracked path deleted
+    from the worktree.
+
+    None when git cannot answer, so "could not measure" stays distinguishable
+    from "nothing changed" (see `checkout_fingerprint`).
+    """
+    try:
+        ls = subprocess.run(["git", "ls-files", "-s", "-z"], cwd=cwd,
+                            capture_output=True, text=True, timeout=120)
+        dirty = subprocess.run(["git", "diff-files", "--name-only", "-z"], cwd=cwd,
+                               capture_output=True, text=True, timeout=120)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if ls.returncode != 0 or dirty.returncode != 0:
+        return None
+    content = {}
+    for entry in ls.stdout.split("\0"):
+        meta, tab, path = entry.partition("\t")
+        if not tab:
+            continue
+        fields = meta.split()
+        if len(fields) >= 2:
+            content[path] = fields[1]
+    changed = [p for p in dirty.stdout.split("\0") if p]
+    for i in range(0, len(changed), chunk):
+        batch = changed[i:i + chunk]
+        here = [p for p in batch if os.path.exists(os.path.join(cwd, p))]
+        for p in batch:
+            if p not in here:
+                content[p] = GONE
+        if not here:
+            continue
+        try:
+            hashed = subprocess.run(["git", "hash-object", "--"] + here, cwd=cwd,
+                                    capture_output=True, text=True, timeout=300)
+        except (OSError, subprocess.SubprocessError):
+            return None
+        ids = hashed.stdout.split()
+        if hashed.returncode != 0 or len(ids) != len(here):
+            return None
+        content.update(zip(here, ids))
+    return content
+
+
+class Fingerprint(typing.NamedTuple):
+    """What a sweep's verdict is a reading of: HEAD, and the tracked content."""
+    head: str
+    content: str  # digest of `tracked_content`, so two equal trees compare equal
+    paths: typing.Mapping[str, str] = {}  # for naming what moved; never mutated
+
+
+def checkout_fingerprint() -> Fingerprint | None:
+    """HEAD and a digest of every tracked path's content, as the worktree holds it.
+
+    Deliberately reads **tracked content only**. Untracked files are excluded
+    on purpose: several steps here legitimately write temp artifacts, a build
+    directory or a node_modules tree, and a fingerprint that moved on those
+    would cry wolf on every clean run and be switched off within a day -- the
+    same fate this file's own comments predict for any check that fails on
+    correct input. For the same reason the digest is commit-invariant: see
+    `tracked_content`.
 
     Returns None when git cannot answer (not a repository, no git binary), so
     a missing fingerprint can be told apart from an unchanged one: the caller
@@ -1722,14 +1786,25 @@ def checkout_fingerprint() -> tuple[str, str] | None:
     try:
         head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO,
                               capture_output=True, text=True, timeout=30)
-        tracked = subprocess.run(["git", "diff", "HEAD", "--raw"], cwd=REPO,
-                                 capture_output=True, text=True, timeout=120)
     except (OSError, subprocess.SubprocessError):
         return None
-    if head.returncode != 0 or tracked.returncode != 0:
+    content = tracked_content()
+    if head.returncode != 0 or content is None:
         return None
-    return (head.stdout.strip(),
-            hashlib.sha256(tracked.stdout.encode()).hexdigest())
+    digest = hashlib.sha256(
+        "\0".join(f"{p}\0{content[p]}" for p in sorted(content)).encode()
+    ).hexdigest()
+    return Fingerprint(head.stdout.strip(), digest, content)
+
+
+def moved_paths(before: Fingerprint, after: Fingerprint, shown=DRIFT_PATHS_SHOWN) -> str:
+    """"a, b (+3 more)" over the tracked paths whose content differs, or ""."""
+    old, new = dict(getattr(before, "paths", {})), dict(getattr(after, "paths", {}))
+    names = sorted(p for p in set(old) | set(new) if old.get(p) != new.get(p))
+    if not names:
+        return ""
+    more = f" (+{len(names) - shown} more)" if len(names) > shown else ""
+    return ", ".join(names[:shown]) + more
 
 
 def checkout_drift(before, after) -> str | None:
@@ -1761,15 +1836,28 @@ def checkout_drift(before, after) -> str | None:
     It cannot distinguish "another session wrote to this checkout" from "a
     step under test rewrote a tracked file", and does not try: both mean the
     verdict covers more than one tree, and both want the same answer.
+
+    WHAT IS NOT DRIFT
+    -----------------
+    Committing. A sweep reads the worktree, so `git commit` of files already
+    written there changes no byte any step reads -- only which side of the
+    index holds them. Eleven run records to 2026-11-13 lost a sweep to
+    UNSTABLE CHECKOUT, and three of the four 2026-11-12/13 reports name
+    committing the run record (the one thing a run is told to do while a long
+    sweep runs) as the cause: 40 minutes of verdicts thrown away for a commit
+    that moved nothing. So the finding is a change in tracked *content*
+    (`tracked_content`), and a HEAD that moved over identical content is a
+    note from the caller, not a void verdict. A branch checkout or a merge
+    changes content, so the 2026-09-11 shape above is still caught.
     """
     if before is None or after is None or before == after:
         return None
-    head_before, _ = before
-    head_after, _ = after
-    if head_before != head_after:
-        return (f"HEAD moved from {head_before[:9]} to {head_after[:9]} while "
-                "the sweep ran")
-    return "tracked files changed while the sweep ran (HEAD did not move)"
+    if before.content == after.content:
+        return None  # same tree, new commit: the caller notes the HEAD move
+    moved = moved_paths(before, after)
+    where = f": {moved}" if moved else ""
+    same_head = "" if before.head != after.head else " (HEAD did not move)"
+    return f"tracked files changed while the sweep ran{same_head}{where}"
 
 
 def _run_selected(args, selected, held, absent=()) -> int:
@@ -1797,7 +1885,7 @@ def _run_selected(args, selected, held, absent=()) -> int:
     # still read one tree. Eleven run records to 2026-11-13 lost a whole sweep
     # to UNSTABLE CHECKOUT after editing the run record or committing while
     # it ran, and re-ran every workflow when only the later ones were void.
-    stable, drift = [], None
+    stable, drift, latest = [], None, before
     for name, workflow, allowed in selected:
         steps, uses_skipped = collect(workflow, only=allowed)
         print(f"\nRunning {name} locally "
@@ -1812,7 +1900,8 @@ def _run_selected(args, selected, held, absent=()) -> int:
         elif code != 0:
             failures.append(name)
         if drift is None:
-            drift = checkout_drift(before, checkout_fingerprint())
+            latest = checkout_fingerprint() or latest
+            drift = checkout_drift(before, latest)
             if drift is None:
                 stable.append(name)
 
@@ -1842,6 +1931,14 @@ def _run_selected(args, selected, held, absent=()) -> int:
         print("  Not a clean sweep: " + ", ".join(absent)
               + " named in VERIFICATION_ONLY but absent from the tree.")
         return 1
+    # A commit over an unchanged tree: worth saying, because the reader has
+    # been told for months that a moved HEAD voids the sweep, and is owed the
+    # reason it does not here (`checkout_drift`, "WHAT IS NOT DRIFT").
+    if (drift is None and before is not None and latest is not None
+            and before.head != latest.head):
+        print(f"  note: HEAD moved from {before.head[:9]} to {latest.head[:9]} "
+              "while the sweep ran, over identical tracked content (a commit of "
+              "files already in the worktree): the verdicts above stand.")
     # Reported last, and after the pass/fail line, because it invalidates that
     # line in *both* directions -- see `checkout_drift`.
     if drift:
@@ -1933,8 +2030,9 @@ def handoff(argv, window=HANDOFF_S, out=None, clock=time.monotonic,
                 f"  Wait: python3 platform/ci/wait_for.py {log} --timeout 110 "
                 "(repeat until it exits 0, or start it with run_in_background "
                 "--timeout 3600); the last line reads 'DONE exit <code>'.\n"
-                "  Until then, do not edit or commit tracked files here: a "
-                "change voids every workflow still to finish.\n"
+                "  Until then, do not change tracked files here: an edit voids "
+                "every workflow still to finish. Committing files already "
+                "written is fine (it changes no byte a step reads).\n"
                 "  Pass --foreground to run attached instead.\n")
             out.flush()
             return HANDED_OFF
