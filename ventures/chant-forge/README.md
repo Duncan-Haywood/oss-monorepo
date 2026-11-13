@@ -483,6 +483,51 @@ director with an octave-wide amateur choir gains most from it. `split.test.mjs` 
 note against the ranges of every section singing it on all 67 files under two TTBB range sets, the corpus counts, the
 brute-force check, the MIDI tracks against per-section counts and the T1/T2 cue column. Not tried with singers.
 
+## A choir by name: `--choir` (2026-11-13, latest)
+
+Four range flags were a lot to ask of a choir director, and the eval scripts had been comparing the same three
+range sets all day. `--choir textbook|amateur|octave` makes each set one option (also a "Choir ranges" choice on the
+studio page):
+
+| `--choir` | tenors | second tenors | baritones | basses | unison band |
+|---|---|---|---|---|---|
+| `textbook` | C3-A4 | C3-G4 | A2-F4 | E2-E4 | C3-E4 |
+| `amateur` | D3-F4 | D3-Eb4 | B2-D4 | G2-C4 | D3-C4 |
+| `octave` (beginners) | E3-E4 | D3-D4 | C3-C4 | A2-A3 | E3-A3 |
+
+The ranges are rules of thumb, not measurements of any choir. `--tenor`, `--bass` and the others still override
+one section at a time. Without `--split-voices`, the preset also sets the unison range for `--suggest-final`,
+`--auto-final` and the key-lift check to the **band every section reaches**, and when the chant does not fit it, the
+message names the fewest sections that can sing it and the flags to add:
+
+```
+$ node cli.mjs corpus/dies-irae.gabc --choir octave --suggest-final
+ambitus 17 semitones is 12 wider than E3-A3; the octave choir can sing it as tenors, baritones and basses: add --split-voices --baritones
+```
+
+With no `--choir`, nothing changes: the unison range stays E2-E4. `eval/choir-presets.mjs` (report:
+`eval/choir-presets-report.md`) asked, for every corpus file, the fewest sections each preset needs:
+
+| choir | unison | T+B | T+Bar+B | TTBB | none fits |
+|---|---|---|---|---|---|
+| textbook | 60 | 7 | 0 | 0 | 0 |
+| amateur | 12 | 55 | 0 | 0 | 0 |
+| octave | 0 | 56 | 8 | 1 | 2 |
+
+- **The default E2-E4 overstates what a whole choir sings in unison.** It fits all 67 files, but it is the textbook
+  bass range; the band textbook tenors *and* basses share, C3-E4, fits 60. The other 7 are the files
+  `--split-voices` was built for.
+- **An amateur choir splits almost everything,** but never needs more than two sections.
+- **A beginners' choir with octave-wide sections never sings unison** (the shared band is five semitones), needs a
+  third section for 8 files and TTBB for one (`3407`), and cannot sing two 1908 chants (`3405`, `3427`) in any
+  voicing tried. These counts agree with the three- and four-section reports (64 and 65 files fit).
+
+`choir.test.mjs` (5 tests) checks that each preset's unison band lies inside every section, that on all 67 files
+under every preset the voicing `fewestSections` names fits and the one before it does not, the CLI messages and JSON,
+the overrides, and that `--choir textbook` with `--split-voices` is byte-identical to no `--choir`.
+`eval/browser-e2e.mjs` checks the studio page's octave choir against the CLI (cue sheet and MIDI byte-equal) and its
+unison note. Not tried with singers: whether these three presets describe real choirs is the open question.
+
 ## Mix and master check
 
 ```sh

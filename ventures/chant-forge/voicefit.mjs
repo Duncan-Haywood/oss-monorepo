@@ -313,3 +313,50 @@ export function describeSplit(r) {
   const broken = r.breaks ? [`${r.breaks} handoff${r.breaks === 1 ? '' : 's'} with no note both sections can sing (the line breaks there)`] : [];
   return [`full choir on ${r.allNotes} of ${r.notes} notes (${r.unison.join('-')})`, ...alone, ...shared, ...over, ...broken, `final ${r.finalName}`].join('; ');
 }
+
+// ---- Choir presets (2026-11-13) ----
+//
+// The eval scripts compared three sets of section ranges: textbook ranges, a narrower
+// amateur choir and octave-wide sections (a beginners' group). --choir NAME makes each set
+// one option instead of four range flags. The ranges are rules of thumb and assumptions,
+// not measurements of any choir: a director who knows their singers' ranges should give
+// --tenor, --bass and the rest, which override the preset one section at a time.
+// tenor2 follows the "split" rows of eval/four-sections.mjs (the tenors divided, the second
+// tenors two semitones lower at the top), so a preset never widens the choir's compass.
+const R = (low, high) => ({ low, high });
+export const CHOIRS = {
+  textbook: { tenor: TENOR_RANGE, tenor2: TENOR2_RANGE, baritone: BARITONE_RANGE, bass: BASS_RANGE },
+  amateur: { tenor: R(50, 65), tenor2: R(50, 63), baritone: R(47, 62), bass: R(43, 60) },
+  octave: { tenor: R(52, 64), tenor2: R(50, 62), baritone: R(48, 60), bass: R(45, 57) },
+};
+export const CHOIR_NAMES = Object.keys(CHOIRS);
+
+// The band a whole choir can sing in unison: every section reaches it. With textbook
+// ranges that is C3-E4; with octave-wide sections only E3-A3.
+export function choirUnison(choir, sections = ['tenor', 'tenor2', 'baritone', 'bass']) {
+  const rs = sections.map((s) => choir[s]).filter(Boolean);
+  const low = Math.max(...rs.map((r) => r.low));
+  const high = Math.min(...rs.map((r) => r.high));
+  return high > low ? { low, high } : null;
+}
+
+// The fewest sections a choir needs for a chant: unison, then tenors and basses, then
+// tenors, baritones and basses, then TTBB. Returns { sections, name, flags } for the first
+// that fits (sections 0 when none does). Same split rules as splitVoices' defaults.
+export const VOICINGS = [
+  { sections: 1, name: 'unison', flags: '' },
+  { sections: 2, name: 'tenors and basses', flags: '--split-voices' },
+  { sections: 3, name: 'tenors, baritones and basses', flags: '--split-voices --baritones' },
+  { sections: 4, name: 'first and second tenors, baritones and basses', flags: '--split-voices --baritones --second-tenors' },
+];
+export function fewestSections(events, choir) {
+  const uni = choirUnison(choir);
+  if (uni && suggestFinal(events, uni).fits) return VOICINGS[0];
+  const tries = [
+    { tenor: choir.tenor, bass: choir.bass },
+    { tenor: choir.tenor, bass: choir.bass, baritone: choir.baritone },
+    { tenor: choir.tenor, bass: choir.bass, baritone: choir.baritone, tenor2: choir.tenor2 },
+  ];
+  for (let k = 0; k < tries.length; k++) if (splitVoices(events, tries[k]).fits) return VOICINGS[k + 1];
+  return { sections: 0, name: 'none', flags: '' };
+}
