@@ -32,6 +32,7 @@ import {
   pinStarted,
   steadyRoster,
   steadyText,
+  coverSlackText,
 } from "./calc.mjs";
 
 const USAGE = `Build a weekly roster that respects availability, hour limits and rest, covers as many shifts as it can, and avoids overtime.
@@ -61,6 +62,8 @@ Options:
                       (runs the slower exact repair; the plain build leaves it out)
   --steady           among the rosters that tie at the best score, post the one a single call-out hurts least (each person-day
                       worked Tue-Sun played as a 5pm-before call-out and a kept rebuild); same score and payroll, slower
+  --cover-price <$>  pay up to $ per hour at risk for call-out slack: a day is at risk when nobody else could take that
+                      person's shifts that day. Unlike --steady this gives up score (pay or fairness) to buy the slack
   --no-prove          skip the exact check (it runs by itself on every week)
   --prove             also run an exact search (small weeks) and say whether the roster is provably the best, or how far off
   --weeks <n>         plan n consecutive weeks (1-8) from the same shifts; needs --week-start so dated time off lands in its week;
@@ -286,6 +289,11 @@ export function parseArgs(argv) {
     else if (a === "--prove") o.options.exact = true;
     else if (a === "--no-prove") o.options.exact = false;
     else if (a === "--steady") o.steady = true;
+    else if (a === "--cover-price") {
+      const v = Number(argv[++i]);
+      if (!Number.isFinite(v) || v < 0) throw new Error("--cover-price needs a number of dollars per hour at risk");
+      o.options.coverPrice = v;
+    }
     else if (a === "--weeks") {
       const v = Number(argv[++i]);
       if (!Number.isInteger(v) || v < 1 || v > 8) throw new Error("--weeks needs a whole number from 1 to 8");
@@ -483,10 +491,11 @@ export function run(staffText, shiftsText, opts = {}) {
         people: r.people.map((p) => ({ name: p.name, hours: p.hours, short: p.short })),
         unfilled: r.unfilled.map((u) => ({ day: DAYS[u.slot.day], start: fmtClock(u.slot.startMin), end: fmtClock(u.slot.endMin), why: u.text })),
         critical: r.critical, warnings: r.warnings, optimality: r.optimality || undefined, steady: r.steady || undefined,
+        coverSlack: r.coverSlack || undefined,
       }, null, 2) + "\n",
     };
   }
-  return { code, out: reportText(r) + (r.steady ? "\n" + steadyText(r.steady) + "\n" : "") };
+  return { code, out: reportText(r) + (r.steady ? "\n" + steadyText(r.steady) + "\n" : "") + (r.coverSlack ? "\n" + coverSlackText(r.coverSlack, st.staff) + "\n" : "") };
 }
 
 

@@ -186,10 +186,10 @@ flagships:
       week of call-outs at a real roster's rates", 2026-11-13): kept reissues cut changes 56-66%, open hours path-dependent
       both ways. Next: whether a real manager would set keepShift
       above 1; close the 100-person gaps (tree, not bound: README same section); cuts or branching that move the score LP on the 60-person
-      pay week ($1.22 open); the 60x168 week 0's pay half (open hours proven 2026-11-13, README "The 60-person week's 300 open hours"); re-run the
+      pay week ($1.22 open); the 60x168 week 0's pay half (open hours proven 2026-11-13); re-run the
       keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
       would post; a real 7shifts account through --import-7shifts (README
-      "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); call-out exposure as a priced term inside the search (tie-break at each reissue: 0 of 983 changed, README "How many rosters really tie?"); column generation first for posted reissues too (README "Call-out rebuilds, column generation first"); a real two-site POS export (README "Several shops in one sales export") and staff shared between sites; whether the
+      "Reading 7shifts directly"); a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly"); Homebase (docs need an account); priced call-out slack landed 2026-11-13 (--cover-price, README "Paying for call-out slack": retail exposure 24 h to 0 for $5.82, no move paid on 3 of 5 teams); next on it, moving two shifts together and a per-day risk count; column generation first for posted reissues too (README "Call-out rebuilds, column generation first"); a real two-site POS export (README "Several shops in one sales export") and staff shared between sites; whether the
       priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-

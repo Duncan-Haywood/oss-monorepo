@@ -1215,3 +1215,72 @@ The flagship's next list carried "the 60x168 end-to-end week 0 (root LP 275.2 h 
 Tried and dropped: giving the floor to the whole-score column generation as its open-hours row (`openFloor`). On week 0 its root then reached only 212 h in the budget, and on week 1 it lost the pay proof the LP made without the row. HiGHS on the clique model (rather than pairwise rows) for the 100-person weeks: 300 s each, rosters of 368 and 367 h over the same 358 and 344 h bounds, worse than the engine's 359 and 347. So the 100-person gaps are in the search and the tree, not the bound, as the next list said.
 
 Tests: `clique-floor.test.mjs` (on 240 seeded three-person weeks with rest gaps of 0-12 h, daily caps and last week's late finishes, the floor is never above the brute-force least open hours and meets it on 174 of the 223 weeks that must leave hours open; the 60 x 168 week 0 gives 300; the build reports it and `cliqueFloor: false` turns it off). The full suite passes. Not claimed: seeded synthetic weeks and one cloud machine (the 80- and 100-person timings ran beside other benches); the pay half of week 0 is still unproven ($20,010 is a loose bound that counts all pay as open, not a measured gap); the clique LP is not run on 100-person weeks under the default budget.
+
+## Paying for call-out slack: exposure priced inside the build (2026-11-13)
+
+`--steady` ("Which of the tied best rosters holds up to a call-out?" above) chooses among rosters that already tie at the
+best score, so it gives up nothing — and on four of the five test teams seed 1 was already the least exposed, so it changed
+nothing either. The question it left, in its own closing line: what could a manager buy by giving something up? This is
+that term.
+
+**The quantity.** `calloutExposure` rebuilds the week once per person-day, about 20 s on the café: far too slow to sit
+inside a search. `coverRisk(ctx, owner)` asks the quickest of its questions instead. For every person-day worked from
+Tuesday on: if that person called out, could someone else take each of their shifts that day with every hard rule holding
+and nobody else moved? If not, the day is at risk and its hours are counted. The hand-over chains and the rebuilds that
+exposure also tries are left out, so **risk hours are an upper bound on what one call-out opens, not a forecast** — on
+retail the posted roster's 54 risk hours sit over a measured exposure of 0.
+
+**The price.** `--cover-price <$>` (page: "Pay for call-out slack", per hour at risk) hill-climbs the roster on
+`score + price x risk hours`, one hand-over or one swap at a time, after the search and any proof. Open hours cost
+$100,000 an hour inside the score, so no sane price trades coverage away; what it trades is pay and fairness. When it
+moves anything, the report says what it paid and `optimalityText` stops claiming the proof the traded roster breaks.
+
+The sweep, `node eval/cover-price.mjs` (`eval/cover-price.out.txt`), prices $0 to $200 an hour at risk:
+
+| team | risk hours (of person-days) | moves | score paid | payroll | exposure before → after |
+|---|---|---|---|---|---|
+| café | 188 h, 23 of 23 | none at any price (335 candidates) | — | $3,690 | 92 → 92 |
+| spare part-timer | 200 h, 27 of 27 | 1, at $25 and up | $18.34 | $3,885 → $3,900 | 54 → 54 |
+| salon | 56 h, 10 of 16 | none (79 candidates) | — | $2,054 | 56 → 56 |
+| retail | 81 h, 11 of 17 → **54 h, 9 of 17** | 1, at $1 and up | **$5.82** | $2,250 → **$2,247** | **24 → 0** |
+| clinic | 57 h, 9 of 12 | none (38 candidates) | — | $2,708 | 30 → 30 |
+
+The price binds where you would expect: the spare café's move costs $18.34 of score and clears 3 risk hours, so it fires
+at $25 an hour at risk and not at $5. On the café every person-day is at risk and no single hand-over or swap changes
+that, which is the same wall "A whole week of call-outs" hit.
+
+**Does the trade pay in a real week?** The rosters the price posted were played through the same seeded weeks as
+`eval/steady-for-callouts.mjs` (call-outs per person-day worked at the Deputy file's 1.0% sick-only and 8.4% all-leave
+rates, 5pm notice, started shifts pinned, kept reissues, 20 seeds, no extra copies):
+
+| team, rate | disrupted weeks | open hours added, default → priced | changes to others | premiums |
+|---|---|---|---|---|
+| retail, 1.0% | 6 | **6 → 0** | 12 → 10 | $202 → $170 |
+| retail, 8.4% | 17 | **30 → 18** | 29 → 31 | $481 → $527 |
+| spare, 1.0% | 6 | 6 → 6 | 12 → 12 | $193 → $190 |
+| spare, 8.4% | 20 | 138 → 135 | 147 → 160 | $2,438 → $2,639 |
+
+On retail one shift changing hands, for $5.82 of score and $3 *less* payroll, removed every open hour a week of sick
+call-outs left (6 → 0) and cut the all-leave week's by 40%, with fewer changes and lower premiums at the sick rate. The
+spare café's move bought nothing measurable: 3 fewer risk hours, the same exposure, $15 more payroll and more changes —
+the honest reading is that the surrogate over-counts, so a move can clear risk hours that no call-out would have opened.
+That is the trade a manager is being offered, and why the price is theirs to set and off by default.
+
+**Cost.** The pass is milliseconds where the check it stands in for is seconds: 0-11 ms on the five templates (335
+candidate moves on the café), 22-158 ms on seeded 20- and 40-person weeks (81-149 copies) and 1.06 s on the 60-person
+week 0 (245 copies). It is capped at 250 copies (`coverPriceSlots`), runs on a fresh week only (the CLI and the page both
+skip it when a posted roster is loaded, so it never pays to move a shift someone has already been told about), and the
+roster is unchanged when no move pays for itself.
+
+Tests (`cover-price.test.mjs`): one person alone puts every day they work at risk for its hours; a free second person
+takes the risk to 0 and `calloutExposure` agrees; both shifts of a two-shift person-day are counted; on retail the price
+buys a hand-over that costs score and never coverage, and the slow measurement confirms what it bought; a price of $0.01
+changes nothing; a price of $1,000,000 leaves no extra shift open; the option is off by default; `optimalityText` says a
+roster was traded rather than claiming the broken proof; the CLI flag and `--json`; the page's setting, its wiring and the
+usage event. A headless-Chromium run of the page (`cover-price.check.mjs`) built the retail template with the setting off
+and at $100 an hour at risk: the notice appeared only with it on, the roster changed, and no page errors.
+
+Not claimed: invented teams with rates from one firm's file (as above); 20 seeded weeks per cell, no extra shift copies;
+one move at a time, so a trade that needs two shifts to move together is not found; risk counts a person-day's shifts
+one by one, so it does not check that one person could take all of them; the surrogate's looseness is measured on five
+teams only.
