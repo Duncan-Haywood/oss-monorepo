@@ -88,7 +88,7 @@ class Tca:
 
     focal: float
     model: str  # "poly3" or "linear"
-    terms: tuple[float, float, float, float, float, float]  # vr, vb, cr, cb, br, bb (linear: kr, kb, 0, 0, 0, 0)
+    terms: tuple[float, ...]  # vr, vb, cr, cb, br, bb (linear: kr, kb, 0, 0, 0, 0)
 
 
 @dataclass
@@ -625,7 +625,9 @@ def build_warp(lens: Lens, focal: float, crop: float, w: int, h: int, fill: bool
     lateral = interpolate_tca(lens, crop, focal) if tca else None
     if lateral is not None:
         # TCA's Hugin units are those of the set InterpolateTCA chose (one set per lens in lensfun's files).
-        planes = plane_terms(kr, lateral, hugin_scale(_tca_set(lens, crop), crop, w, h))
+        tset = _tca_set(lens, crop)
+        assert tset is not None  # interpolate_tca found a calibration in it
+        planes = plane_terms(kr, lateral, hugin_scale(tset, crop, w, h))
     else:
         planes = [kr]
     k = max(fill_scale(p, w, h) for p in planes) if fill else 1.0
