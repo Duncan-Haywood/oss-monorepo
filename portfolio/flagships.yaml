@@ -286,22 +286,20 @@ flagships:
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up CSVs,
       duty rota, team sheets (one-division too, with byes, 2026-11-13); carry-over on 20 real seasons; starters, capped breaks, frontier picker,
       squeezes, MaxSAT proof that the gaps are timetable-bound, exact break floor in the page: README
-      2026-11-11 to 2026-11-13 sections). 2026-11-13 latest (README "Re-dealing three rounds at
-      once", eval/floor-priced.txt): threeRoundDeals lists every legal re-deal of three rounds' matches
-      (a 3-edge-colouring of their cubic graph, ~117 at 20 teams, 0.7 ms) and the floor-priced search
-      takes 15% of its moves there, pricing only the 3 cheapest on the floor; 20 teams at 48 breaks
-      410/408/426 -> 384/374/384, and the page runs both neighbourhoods per cap and keeps the better
-      (9 page runs: the cut inside the gap rises in 4, holds in 5, 13-42 s on the worker). Next, most
-      valuable first: the rest of the 20-team gap (40 to 44 still ~516-550 on most seeds: four-round
-      re-deals, a longer run, or a starter family climbed with the floor as its score); price the
-      balanced least rather than the floor where they differ (several 20-team searches end 2 over the cap);
-      an exact or tighter floor for home and away (the pair keeps one host, which ties far rounds: the
-      relaxed floor gives 74 where MaxSAT proves 85 at 19; try a DP over leg one with leg two's mirrored
-      order, or a Lagrangian on the pair ties); a faster floor at 22-25 teams (one search 22-86 s; the 22
-      team gap 440/58..690/48 gains 6-7% when run); a lower bound or a timetable below 136 at 12
-      (eval/carryover-sat.py); close 24-40 (tabu, longer runs, the literature's starters); a real
-      league's travel and blackout dates; printed sheets on a real printer and paper (the PDF print check,
-      eval/print-check.mjs, landed 2026-11-13: README "Print check").
+      2026-11-11 to 2026-11-13 sections; three-round re-deals). 2026-11-13 latest (README "Pricing the
+      balanced least", eval/balanced-priced.txt): floor-priced searches price the least balanced host
+      choice (floorTable.balanced, a walk over the floor's own table) once the floor is within the cap;
+      15 page runs at 16-20 teams: cut inside the gap 6.3% -> 8.6%, rises in 9, holds in 6, no added
+      season over its cap for balance; 20 -> 32 s a run (19 teams 4 -> 40 s for nothing). Home-and-away
+      floor: a Lagrangian on the pair ties provably stays at the relaxed floor (host-flip symmetry), and
+      exact two-round block descent leaves 87 at 87 (MaxSAT 85). Next, most valuable first: the rest of
+      the 20-team gap (40 to 44 still ~444-550: four-round re-deals, a longer run, or a starter family
+      climbed with the floor as its score); a tighter home-and-away floor that breaks the flip symmetry
+      (branch on a few pairs, or the mirrored-leg DP when leg two repeats leg one); cut the 19-team
+      walk cost (out-of-budget walks); a faster floor at 22-25 teams (one search 22-86 s); a lower
+      bound or a timetable below 136 at 12 (eval/carryover-sat.py); close 24-40 (tabu, the
+      literature's starters); a real league's travel and blackout dates; printed sheets on a real
+      printer and paper.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

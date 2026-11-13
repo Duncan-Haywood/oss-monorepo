@@ -213,3 +213,44 @@ test("floorPricedSingleRounds with re-deals stays valid and seeded", () => {
   assert.equal(a.breaks, countBreaks(venA, oppA, n), "breaks recounted");
   assert.ok(a.dealt > 0, "some moves were re-deals");
 });
+
+test("floorTable.balanced gives leastBreaks' balanced least from the table it already holds, or null over the cap", () => {
+  let unbalancedFloors = 0;
+  for (const n of [8, 9, 12, 13, 14]) for (let i = 0; i < 6; i++) {
+    const t = carryOverTry(n, i, { seed: 1, weighted: 8 });
+    const opp = oppOf(t.rounds, n).map((o, r) => { if (t.rounds[r].bye != null) o[t.rounds[r].bye] = o.length - 1; return o; });
+    const x = leastBreaks(opp, n, { seed: 1 });
+    assert.ok(x && x.proved, `${n}/${i}: proved`);
+    const tb = floorTable(opp, n);
+    assert.equal(tb.floor, x.floor);
+    if (x.least > x.floor) unbalancedFloors++;
+    // at the cap the least sits on: found; one under it: proved none
+    assert.equal(tb.balanced(x.least).least, x.least, `${n}/${i}: at the least`);
+    assert.equal(tb.balanced(x.least + 3).least, x.least, `${n}/${i}: above the least`);
+    if (x.least > x.floor) {
+      const b = tb.balanced(x.least - 1);
+      assert.equal(b.least, null);
+      assert.equal(b.proved, true);
+    }
+    if (x.floor > 0) assert.deepEqual(tb.balanced(x.floor - 1), { least: null, proved: true, floor: x.floor });
+    // after a trial it reads the trial's table, not the committed one
+    [opp[0], opp[1]] = [opp[1], opp[0]];
+    tb.trial(0);
+    assert.equal(tb.balanced(40).least, leastBreaks(opp, n, { seed: 1 }).least, `${n}/${i}: trial`);
+  }
+  assert.ok(unbalancedFloors >= 1, "some timetable's balanced least sits above its floor");
+});
+
+test("floorPricedSingleRounds priced on the balanced least: within the cap where the floor alone ends over it (17 teams)", () => {
+  const start = carryOverTry(17, 0, { seed: 1, weighted: 8 });
+  const cap = start.breaks - 4;
+  const off = floorPricedSingleRounds(17, start, { seed: 3, maxBreaks: cap, iterations: 1500, balanced: false });
+  const on = floorPricedSingleRounds(17, start, { seed: 3, maxBreaks: cap, iterations: 1500 });
+  assert.ok(on.walks > 0 && off.walks === 0);
+  assert.ok(on.breaks <= cap, `balanced pricing within the cap (${on.coe}/${on.breaks}, cap ${cap})`);
+  assert.ok(off.breaks > cap || on.coe <= off.coe, `floor alone: ${off.coe}/${off.breaks}`);
+  const opp = oppOf(on.rounds, 17).map((o, r) => { if (on.rounds[r].bye != null) o[on.rounds[r].bye] = 17; return o; });
+  const v = on.rounds.map((rd) => { const x = new Uint8Array(18); for (const [h] of rd.matches) x[h] = 1; return x; });
+  assert.equal(countBreaks(v, opp, 17), on.breaks);
+  assert.equal(coeOf(on.rounds, 17), on.coe);
+});
