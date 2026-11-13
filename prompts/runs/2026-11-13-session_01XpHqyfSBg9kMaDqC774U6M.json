@@ -27,19 +27,24 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 10,
   "outcome": "success",
   "errors": [
     "First incremental floor (forward + backward tables, rebuilt on every accept) was slower than the plain programme (62 s vs 36 s for 6,000 moves at 20 teams): accepts are frequent, so the 2R-transition commit dominated. Replaced with a forward-only table rerun from the first changed round, committed for free (32 s).",
-    "Blog front matter first failed the preflight (description 175 > 160, seo_title 88 > 70); shortened."
+    "Blog front matter first failed the preflight (description 175 > 160, seo_title 88 > 70); shortened.",
+    "CI validate failed: flagships.yaml next: was 2097 characters (cap 2000); compressed the history clause and pushed."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/ventures/prompt-1.md",
       "issue": "venture-preflight checks post front matter lengths but nothing earlier says the limits (title <= 110, description 60-160, seo_title <= 70); a line in goals.md 'Write about the work' or the post template would save a 5-minute preflight rerun."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "'rewrite that venture's next:' does not mention the 2000-character cap enforced by portfolio/router/validate.py; running it locally before push would have caught it."
     }
   ],
   "deviations": [
