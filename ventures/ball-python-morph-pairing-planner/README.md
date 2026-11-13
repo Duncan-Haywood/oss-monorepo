@@ -12,7 +12,10 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - gene table, animal and price parsing, the per-gene cross
   (recessive, incomplete dominant, dominant, lethal-when-doubled), clutch economics
-  and an independent `verifyPlan`. Genes at the same site (allelic groups) are
+  and an independent `verifyPlan`. The chance of at least one of an outcome in a
+  clutch averages over each possible het's two genotypes (het or not, the same for
+  every egg), so it is exact for unproven parents rather than an overestimate;
+  audit `portfolio/quality/audits/2026-11-13-ball-python-morph-pairing-planner.json`. Genes at the same site (allelic groups) are
   refused rather than mis-modelled.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-work-out-ball-python-morph-odds.html` - guide whose worked table is
