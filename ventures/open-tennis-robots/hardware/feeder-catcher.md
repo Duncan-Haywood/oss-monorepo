@@ -35,7 +35,10 @@ collision check and a wind-ballast figure) is in
    sends the base a new lateral target. The base drives there time-optimally
    (accelerate, cruise, brake).
 4. **Catch and recycle.** The ball hits the slack netting, drops into the
-   sloped trough along the bottom of the frame, and rolls into the hopper.
+   sloped trough along the bottom of the frame, and rolls to a sump at the
+   middle. It cannot roll on into the hopper: the sump's outlet is 50 mm above
+   the court and the tub's rim about 2.27 m, so a ball lift has to close the
+   loop (2026-11-13, `cad/README.md`, "Catch trough"; not designed yet).
 
 ## Main dimensions (v0.1)
 
@@ -91,8 +94,12 @@ would not deliver a ball uphill to the wheels. The agitator is not drawn.
 sections for transport) holds knotless polyester netting, 25-35 mm mesh,
 hung with 10-15 cm of slack so it absorbs the ball rather than bouncing it
 back. The launcher fires through a padded sleeve in the net. Along the
-bottom, a trough sloped toward the centre feeds a flexible chute into the
-hopper inlet. Keep the net taut at the edges so balls do not snag.
+bottom, a trough sloped toward the centre (two runs of 125 mm half-round
+gutter on printed hangers, CAD since 2026-11-13) drops balls into a printed
+sump whose outlet passes under the net beam. From there a lift must raise them
+about 2.2 m to the tub; a flexible chute alone cannot, since the tub has to sit
+that high for the feed hose to fall to the head. Keep the net taut at the
+edges so balls do not snag.
 
 ## Sensing
 
@@ -128,3 +135,9 @@ estimates for planning, not quotes; check current suppliers.
 - Will the stereo pair hold calibration on a frame that moves at 5 m/s^2?
   If not, mount the cameras on a separate tripod and track the base too.
 - Wind: measure tipping force on a 7.5 m^2 net and size the ballast.
+- Trough: tilt a length of half-round gutter with a ball in it and read the
+  angle at which a stopped ball starts to roll (the CAD assumes rolling
+  resistance 0.03, so a 3 deg fall starts it with 1.7x margin). Drop balls
+  down the net's face into it and count the ones that bounce out.
+- Recycle lift: what lifts balls 2.2 m from the sump to the tub (paddle belt,
+  rotating-disc elevator, auger) at up to 36 a minute, and where it stands.

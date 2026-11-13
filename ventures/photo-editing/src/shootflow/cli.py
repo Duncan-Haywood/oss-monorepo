@@ -1253,7 +1253,8 @@ def _build_parser() -> argparse.ArgumentParser:
         "--engine",
         choices=("auto", "python", "numpy"),
         default="auto",
-        help="auto (numpy when installed, else pure Python; same bytes either way), python or numpy.",
+        help="auto (numpy when installed, else pure Python; same bytes either way), python or numpy. The numpy "
+        "engine runs in bands on SHOOTFLOW_THREADS threads (default: every CPU); the count never changes the output.",
     )
     develop.add_argument(
         "--colour",

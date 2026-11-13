@@ -1,0 +1,213 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/amusement-route-location-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-13-g",
+ "round": 61,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality round 61 subagent",
+ "status": "audited",
+ "professional": "an owner-operator of a coin-op amusement route (pool tables, cranes, arcade) who negotiates location commission splits; first checks: is the split taken on gross or after off-the-top deductions, how shared drive time on a multi-stop route is charged, and whether the break-even take is right",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed three sample locations by hand in an independent Python script (monthly = weekly*52/12; straight-line machine wear price/(life*12) with no salvage, as in IRS Pub 946 straight-line; profit = gross - commission - prizes - card fees - per-machine fixed - visits*miles*$/mile; ceiling and break-even solved algebraically). Corner bar: profit $310.08, $103.36/h, max commission 66.90%, break-even $81.72; Truck stop: -$15.32, -$5.11/h, 39.57%, $86.00; Pizza parlour: -$10.59, -$12.70/h, 38.53%, $51.30. Engine (node -e on solve(sampleInput())) matches all to the cent, and the guide table ($103, 66.9%, -$5, 39.6%, -$13, 38.5%) matches. One wrong output: when prize% + commission% + card rate >= 100% (keep <= 0), breakEvenTake is null and the note prints 'It needs $0.00 a week per machine' (reproduced with prizePct 60 on the sample).",
+  "completeness": "Claimed features checked: per-location profit/hour, take needed, highest commission, notes for losing locations, copy text, CSV, save/load JSON, up to 12 locations, usage counters with opt-out, guide page with worked example, llms.txt, sitemap. All present and exercised by the 22-test suite (node --test '*.test.mjs': 22 pass, 0 fail). UI wiring read, not clicked in a browser. Served page https://marisstella.app/amusement-route-location-calculator/ returns 200; served llms.txt has marisstella.app URLs (source has the old github.io host, rewritten at deploy).",
+  "verification": "node --test '*.test.mjs': 22/22 pass. Four mutations via quality_mutate.py: driving not multiplied by visits (caught), wear not multiplied by machines (caught), meets threshold shifted by +$1/h (survived), breakEvenTake guard keep>0 -> keep>0.5 (survived; the guide test never checks take-needed and the sample's keep is 0.406 to 0.546). The property test for thresholds is good, but the keep<=0 branch and the meets boundary are untested.",
+  "craft": "calc.mjs (132 lines) is a small pure engine with validation, exports and a parametric property test; index.html script is tidy and escapes names. Defects: cents(null) in buildNotes prints $0.00 (calc.mjs:83); page read() uses Number(value) so a blank global field (target hourly, cost per mile, prizes, card, repairs, licence, price) silently becomes 0 and passes validation (index.html:123).",
+  "claims": "Disclaimer, privacy and no-affiliation lines present on index.html and the guide; README's 'node --test *.test.mjs' runs; 'Take needed and highest commission are exact ... to the cent' is backed by calc.test.mjs (300 random cases at 1e-5 tolerance); 'Nothing uploaded' backed by page.test.mjs grep for fetch/XHR/beacon; related-tool links resolve to existing ventures. Minor: guide FAQ answer says 'The worked example below' but the FAQ sits after the example (guide line 9 JSON-LD and line 68).",
+  "fitness": "Walked the job: an operator with five stops enters take, split, visits, miles and minutes and gets a per-stop commission ceiling to take into a renegotiation. Works for a stop visited on its own trip. For a real route where several stops share one drive, the operator must hand-apportion miles and drive minutes per stop (the page asks for round-trip miles per location), and cannot model splits taken after off-the-top deductions, so the ceiling they negotiate from can be off by several points.",
+  "domain": "Compared with common coin-op practice: splits are often computed on net collections after off-the-top items (crane prize cost, licence/stamp fees, sometimes card fees or amusement/sales tax on receipts); the tool takes commission on gross only and has no receipts-tax line. Multi-stop drive cost is charged as full round trips per location, overstating driving for chained routes. Straight-line wear and 52/12 weeks per month are standard. Sound as a one-stop gross-split model; a route operator would not sign off on it as the negotiation number without those two options."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Corner bar sample: profit, $/h, max commission, break-even take",
+   "method": "hand recompute in independent Python (52/12 weeks per month; straight-line depreciation per IRS Pub 946, no salvage; algebraic solve)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/amusement/check.py",
+   "expected": "310.08, 103.36, 66.90%, 81.72",
+   "observed": "310.08, 103.36, 66.90%, 81.72",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Truck stop sample: profit, $/h, max commission, break-even take",
+   "method": "hand recompute in independent Python, same method",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/amusement/check.py",
+   "expected": "-15.32, -5.11, 39.57%, 86.00",
+   "observed": "-15.32, -5.11, 39.57%, 86.00",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Pizza parlour sample: profit, $/h, max commission, break-even take",
+   "method": "hand recompute in independent Python, same method",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/amusement/check.py",
+   "expected": "-10.59, -12.70, 38.53%, 51.30",
+   "observed": "-10.59, -12.70, 38.53%, 51.30",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Note text when prizes+commission+card >= 100% (keep <= 0)",
+   "method": "by hand: no positive take reaches the target at that commission, so the note should say so, not quote a take",
+   "command": "node -e 'import(\"./calc.mjs\").then(({solve,sampleInput})=>{const s=sampleInput();s.prizePct=60;console.log(solve(s).notes.join(\"\\n\"))})'",
+   "expected": "no break-even take exists at this commission",
+   "observed": "It needs $0.00 a week per machine at the current commission",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Guide worked-example table versus hand recompute",
+   "method": "hand recompute above, rounded as displayed",
+   "command": "sed 's/<[^>]*>/ /g' how-much-commission-to-pay-a-location-for-arcade-machines.html | grep -A8 'five-location'",
+   "expected": "$103/66.9%, -$5/39.6%, -$13/38.5%",
+   "observed": "$103/66.9%, -$5/39.6%, -$13/38.5%",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "22 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page and llms.txt host",
+   "method": "curl the served URL",
+   "command": "curl -sS https://marisstella.app/amusement-route-location-calculator/llms.txt",
+   "expected": "200 and marisstella.app links",
+   "observed": "200; links on marisstella.app",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, privacy, no-affiliation lines on the page",
+   "method": "read index.html and guide footer",
+   "command": "grep -c 'No warranty' index.html how-much-commission-to-pay-a-location-for-arcade-machines.html",
+   "expected": "present on both",
+   "observed": "present on both",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "guide FAQ 'The worked example below'",
+   "method": "read guide order",
+   "command": "grep -n 'worked example below' how-much-commission-to-pay-a-location-for-arcade-machines.html",
+   "expected": "example below the FAQ",
+   "observed": "example is above the FAQ",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "blank global field handling",
+   "method": "read index.html read(); Number('') is 0 and validation accepts 0",
+   "command": "node -e 'import(\"./calc.mjs\").then(({solve,sampleInput})=>{const z=sampleInput();z.targetHourly=0;console.log(solve(z).ok)})'",
+   "expected": "blank target rejected",
+   "observed": "accepted as $0 target (ok: true)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "commission base (gross vs net after off-the-top items)",
+   "method": "common coin-op split practice",
+   "command": "grep -n 'const com\\|gross \\* com' calc.mjs",
+   "expected": "option to split on net after prizes/fees/receipts tax",
+   "observed": "gross only",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "multi-stop route driving",
+   "method": "walk a five-stop single-trip route",
+   "command": "grep -n 'Round-trip miles' index.html",
+   "expected": "shared drive apportioned or stop-to-stop legs",
+   "observed": "full round trip per location; user must apportion by hand",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:47",
+   "change": "l.visitsPerMonth * l.miles * i.costPerMile; -> l.miles * i.costPerMile;",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:47",
+   "change": "(i.machinePrice / (i.lifeYears * 12))) * l.machines -> (i.machinePrice / (i.lifeYears * 12)))",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:56",
+   "change": "meets: profit / hours >= i.targetHourly - 1e-9 -> meets: profit / hours > i.targetHourly + 1",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "calc.mjs:57",
+   "change": "keep > 0 ? (need * 12) -> keep > 0.5 ? (need * 12)",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "When prizes + commission + card rate >= 100% the note says the location 'needs $0.00 a week per machine' (cents(null)) instead of saying no take works at this commission",
+   "where": "ventures/amusement-route-location-calculator/calc.mjs:83",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Two of four seeded mutants survive: the meets boundary and the keep<=0 guard on break-even take are untested; the guide test never checks take-needed",
+   "where": "ventures/amusement-route-location-calculator/calc.test.mjs:30",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Commission is taken on gross only; no option for splits on net after off-the-top items (crane prizes, licence stamps, card fees, receipts tax)",
+   "where": "ventures/amusement-route-location-calculator/calc.mjs:53",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Driving is a full round trip per location, overstating cost and hours for stops served on one chained trip; no way to share a drive",
+   "where": "ventures/amusement-route-location-calculator/calc.mjs:47",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "A blank global field (target, cost per mile, prizes, card, repairs, licence, price) becomes 0 via Number('') and passes validation silently",
+   "where": "ventures/amusement-route-location-calculator/index.html:123",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Guide FAQ says 'The worked example below' but the example is above the FAQ",
+   "where": "ventures/amusement-route-location-calculator/how-much-commission-to-pay-a-location-for-arcade-machines.html:68",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15397"
+ ],
+ "verdict": "A small, clean one-stop commission-split calculator whose arithmetic is right: three sample locations recomputed by hand match the engine and the guide to the cent. It misses the bar on verification (two of four seeded mutants survive) and falls short of a route operator's sign-off on domain and fitness because commission is only on gross and shared route driving is charged as separate round trips. One wrong message (a $0.00 break-even take when prizes plus commission exceed 100%) is a few-line fix."
+}

@@ -62,7 +62,10 @@ under the assumed loads. The firmware's 150 ms gate pulse could not have moved
 either one, and it counted a ball as fed when the gate opened, so the Pi could
 re-aim while the ball was still on its way. Both are fixed and the simulated
 board now catches them ([`cad/README.md`](cad/README.md), "Shuttle drive").
-Not yet modelled: netting and trough, and the hopper agitator.
+Catch trough (2026-11-13): gutter runs, hangers and a sump are CAD, and showed
+the recycle loop is open: balls reach the sump about 2.2 m below the tub's rim
+([`cad/README.md`](cad/README.md), "Catch trough"). Not yet modelled: the
+netting, the lift back to the tub and the hopper agitator.
 
 > **Status:** the collector is design v0.2 with a complete package; the
 > feeder is a v0.1 design. The physics, planners, tracker and firmware
@@ -225,7 +228,7 @@ PYTHONPATH=src python3 -m tennisbots.fixtures          # regenerate fixtures aft
    drive stack.
 2. **Feeder CAD**: launcher head, lateral base, mast and catch-net frame are
    in `manufacturing/feeder/` (v0.1), with the hopper, hose and feed shuttle.
-   Still to model: the netting trough and the hopper agitator. The azimuth drive
+   Still to model: the lift from the trough's sump to the tub (2026-11-13: about 2.2 m) and the hopper agitator. The azimuth drive
    landed 2026-11-10, and the elevation drive and the shuttle's servo crank landed 2026-11-11. The hose and its sliding-sleeve take-up are
    checked over the head's whole tilt and turn range (2026-11-10).
 3. Bench-test the feeder head: calibrate wheel efficiencies

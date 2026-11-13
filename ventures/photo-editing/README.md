@@ -1432,6 +1432,17 @@ count. On the Leica T frame the cubic warp now costs 8.4 s on one thread (was 15
 (what bilinear cost before) and 3.0 s on four, where the whole develop (5.2 s) beats the old bilinear
 develop (7.3 s). `--warp-kernel bilinear` keeps the softer, slightly faster sampling.
 
+## The whole develop on every core, and a 17x faster file read (2026-11-13)
+
+The numpy engine's demosaic, colour and encode now run in 256-row bands on a thread pool, as the
+warp already did (`SHOOTFLOW_THREADS`, default every CPU), and uncompressed DNGs packed 9 to 15
+bits per sample (the Leica T writes 12-bit) unpack in numpy instead of a per-sample Python loop
+(`eval/threaded-develop-2026-11-13.md`). Output is byte-for-byte what it was at every thread count
+and band height; the tests compare it with the pure-Python engine at five band heights and three
+thread counts. On the Leica T frame and four CPUs, reading the file takes 0.23 s (was 3.97 s) and
+read plus full default develop takes 3.7 s (was 8.8 s); an unwarped develop takes 1.1 s (was 2.2 s).
+Not yet threaded: the lossless-JPEG decode of compressed DNGs and CR2s.
+
 ## Value tables and row/column fixes from the DNG: MapTable, Delta/Scale per row and column (2026-11-12)
 
 Five more opcodes now run in `OpcodeList2` and `OpcodeList3`, in list order with the others:

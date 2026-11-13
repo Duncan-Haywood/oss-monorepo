@@ -1,0 +1,579 @@
+# node eval/steady-reissue.mjs 40, one process per team (SETS=cafe, spare, retail, clinic), 2026-11-13, one 4-core cloud machine, four runs side by side
+POSTED cafe: seed-1 open 15 h; steady picks seed 1 (exposure 92), open 15 h
+call 0.01 extra 0 cafe seed 3: added kept 0 post 0 every 0 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.01 extra 0 cafe seed 7: added kept 8 post 8 every 8 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 cafe seed 12: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 cafe seed 14: added kept 0 post 0 every 0 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.01 extra 0 cafe seed 17: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.01 extra 0 cafe seed 19: added kept 8 post 8 every 8 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 cafe seed 22: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 cafe seed 25: added kept 8 post 8 every 8 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 cafe seed 26: added kept 0 post 0 every 0 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.01 extra 0 cafe seed 33: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0 cafe seed 35: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 cafe seed 36: added kept 8 post 8 every 8 | changes 0/0/0 | every: tied reissues 0, switched 0
+TOTAL call 0.01 extra 0 cafe kept  12 weeks: added 32 h, changes to others 20, premiums $344.00, pay $43752.00, reissues 9 (proven 9), tied reissues 0, switched 0, 1.6 s
+TOTAL call 0.01 extra 0 cafe post  12 weeks: added 32 h, changes to others 20, premiums $344.00, pay $43752.00, reissues 9 (proven 9), tied reissues 0, switched 0, 2.0 s
+TOTAL call 0.01 extra 0 cafe every 12 weeks: added 32 h, changes to others 20, premiums $344.00, pay $43752.00, reissues 9 (proven 9), tied reissues 0, switched 0, 22.5 s
+CMP call 0.01 extra 0 cafe: every vs post, fewer added hours on 0 weeks, same 12, more 0
+call 0.01 extra 0.109 cafe seed 0: added kept 6 post 6 every 6 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 1: added kept 32 post 32 every 32 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 2: added kept 19 post 19 every 19 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 3: added kept 26 post 26 every 26 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 4: added kept 16 post 16 every 16 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 5: added kept 26 post 26 every 26 | changes 7/7/7 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 cafe seed 6: added kept 27 post 27 every 27 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 7: added kept 32 post 32 every 32 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 8: added kept 11 post 11 every 11 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 9: added kept 24 post 24 every 24 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 10: added kept 24 post 24 every 24 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 11: added kept 24 post 24 every 24 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 12: added kept 13 post 13 every 13 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 13: added kept 18 post 18 every 18 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 14: added kept 8 post 8 every 8 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 15: added kept 10 post 10 every 10 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 16: added kept 27 post 27 every 27 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 17: added kept 8 post 8 every 8 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 18: added kept 26 post 26 every 26 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 19: added kept 16 post 16 every 16 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 20: added kept 21 post 21 every 21 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 21: added kept 16 post 16 every 16 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 22: added kept 10 post 10 every 10 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 23: added kept 16 post 16 every 16 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 24: added kept 16 post 16 every 16 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 25: added kept 24 post 24 every 24 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 26: added kept 24 post 24 every 24 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 27: added kept 32 post 32 every 32 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 28: added kept 29 post 29 every 29 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 29: added kept 6 post 6 every 6 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 30: added kept 24 post 24 every 24 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 31: added kept 36 post 36 every 36 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 32: added kept 18 post 18 every 18 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 33: added kept 11 post 11 every 11 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 34: added kept 26 post 26 every 26 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 35: added kept 32 post 32 every 32 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 36: added kept 24 post 24 every 24 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 37: added kept 19 post 19 every 19 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 38: added kept 22 post 22 every 22 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 cafe seed 39: added kept 16 post 16 every 16 | changes 0/0/0 | every: tied reissues 0, switched 0
+TOTAL call 0.01 extra 0.109 cafe kept  40 weeks: added 815 h, changes to others 25, premiums $419.00, pay $146666.00, reissues 97 (proven 97), tied reissues 0, switched 0, 10.8 s
+TOTAL call 0.01 extra 0.109 cafe post  40 weeks: added 815 h, changes to others 25, premiums $419.00, pay $146666.00, reissues 97 (proven 97), tied reissues 0, switched 0, 10.7 s
+TOTAL call 0.01 extra 0.109 cafe every 40 weeks: added 815 h, changes to others 25, premiums $419.00, pay $146666.00, reissues 97 (proven 97), tied reissues 1, switched 0, 137.4 s
+CMP call 0.01 extra 0.109 cafe: every vs post, fewer added hours on 0 weeks, same 40, more 0
+call 0.084 extra 0 cafe seed 0: added kept 16 post 16 every 16 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 1: added kept 26 post 26 every 26 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 2: added kept 24 post 24 every 24 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 3: added kept 8 post 8 every 8 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 4: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 5: added kept 8 post 8 every 8 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 6: added kept 8 post 8 every 8 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 7: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 8: added kept 24 post 24 every 24 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 9: added kept 0 post 0 every 0 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 10: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 11: added kept 8 post 8 every 8 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 12: added kept 8 post 8 every 8 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 13: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 14: added kept 16 post 16 every 16 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 15: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 16: added kept 8 post 8 every 8 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 17: added kept 8 post 8 every 8 | changes 9/9/9 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 18: added kept 2 post 2 every 2 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 19: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 20: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 21: added kept 8 post 8 every 8 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 22: added kept 16 post 16 every 16 | changes 2/2/2 | every: tied reissues 1, switched 0
+call 0.084 extra 0 cafe seed 23: added kept 8 post 8 every 8 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 24: added kept 13 post 13 every 13 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 25: added kept 26 post 26 every 26 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 26: added kept 0 post 0 every 0 | changes 9/9/9 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 27: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 28: added kept 8 post 8 every 8 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 29: added kept 0 post 0 every 0 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 30: added kept 8 post 8 every 8 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 31: added kept 8 post 8 every 8 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 32: added kept 16 post 16 every 16 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 33: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 34: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 35: added kept 8 post 8 every 8 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 36: added kept 0 post 0 every 0 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 37: added kept 8 post 8 every 8 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 38: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 cafe seed 39: added kept 0 post 0 every 0 | changes 8/8/8 | every: tied reissues 0, switched 0
+TOTAL call 0.084 extra 0 cafe kept  40 weeks: added 291 h, changes to others 116, premiums $1973.00, pay $142871.00, reissues 62 (proven 62), tied reissues 0, switched 0, 9.9 s
+TOTAL call 0.084 extra 0 cafe post  40 weeks: added 291 h, changes to others 116, premiums $1973.00, pay $142871.00, reissues 62 (proven 62), tied reissues 0, switched 0, 10.0 s
+TOTAL call 0.084 extra 0 cafe every 40 weeks: added 291 h, changes to others 116, premiums $1973.00, pay $142871.00, reissues 62 (proven 62), tied reissues 1, switched 0, 125.0 s
+CMP call 0.084 extra 0 cafe: every vs post, fewer added hours on 0 weeks, same 40, more 0
+call 0.084 extra 0.109 cafe seed 0: added kept 44 post 44 every 44 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 1: added kept 0 post 0 every 0 | changes 9/9/9 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 2: added kept 11 post 11 every 11 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 3: added kept 24 post 24 every 24 | changes 10/10/10 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 4: added kept 16 post 16 every 16 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 5: added kept 61 post 61 every 61 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 6: added kept 45 post 45 every 45 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 cafe seed 7: added kept 8 post 8 every 8 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 8: added kept 16 post 16 every 16 | changes 4/4/4 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 cafe seed 9: added kept 34 post 34 every 34 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 10: added kept 34 post 34 every 34 | changes 7/7/7 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 cafe seed 11: added kept 8 post 8 every 8 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 12: added kept 21 post 21 every 21 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 13: added kept 51 post 51 every 51 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 14: added kept 21 post 21 every 21 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 15: added kept 24 post 24 every 24 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 16: added kept 27 post 27 every 27 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 17: added kept 32 post 32 every 32 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 18: added kept 32 post 32 every 32 | changes 4/4/4 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 cafe seed 19: added kept 3 post 3 every 3 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 20: added kept 27 post 27 every 27 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 21: added kept 32 post 32 every 32 | changes 11/11/11 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 cafe seed 22: added kept 8 post 8 every 8 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 23: added kept 16 post 16 every 16 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 24: added kept 16 post 16 every 16 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 25: added kept 19 post 19 every 19 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 26: added kept 47 post 47 every 47 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 27: added kept 61 post 61 every 61 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 cafe seed 28: added kept 16 post 16 every 16 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 29: added kept 32 post 32 every 32 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 30: added kept 35 post 35 every 35 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 31: added kept 38 post 38 every 38 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 32: added kept 38 post 38 every 38 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 33: added kept 32 post 32 every 32 | changes 6/6/6 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 cafe seed 34: added kept 16 post 16 every 16 | changes 9/9/9 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 35: added kept 16 post 16 every 16 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 36: added kept 11 post 11 every 11 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 37: added kept 24 post 24 every 24 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 cafe seed 38: added kept 37 post 37 every 37 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 cafe seed 39: added kept 18 post 18 every 18 | changes 0/0/0 | every: tied reissues 0, switched 0
+TOTAL call 0.084 extra 0.109 cafe kept  40 weeks: added 1051 h, changes to others 131, premiums $2243.00, pay $142766.00, reissues 132 (proven 132), tied reissues 0, switched 0, 21.6 s
+TOTAL call 0.084 extra 0.109 cafe post  40 weeks: added 1051 h, changes to others 131, premiums $2243.00, pay $142766.00, reissues 132 (proven 132), tied reissues 0, switched 0, 21.6 s
+TOTAL call 0.084 extra 0.109 cafe every 40 weeks: added 1051 h, changes to others 131, premiums $2243.00, pay $142766.00, reissues 132 (proven 132), tied reissues 8, switched 0, 269.5 s
+CMP call 0.084 extra 0.109 cafe: every vs post, fewer added hours on 0 weeks, same 40, more 0
+POSTED spare: seed-1 open 0 h; steady picks seed 1 (exposure 54), open 0 h
+call 0.01 extra 0 spare seed 3: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 spare seed 7: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 spare seed 12: added kept 3 post 3 every 3 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.01 extra 0 spare seed 14: added kept 0 post 0 every 0 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.01 extra 0 spare seed 17: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 spare seed 19: added kept 3 post 3 every 3 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 spare seed 23: added kept 0 post 0 every 0 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.01 extra 0 spare seed 26: added kept 3 post 3 every 3 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 spare seed 31: added kept 3 post 3 every 3 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0 spare seed 33: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.01 extra 0 spare seed 35: added kept 3 post 3 every 3 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0 spare seed 36: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 spare seed 37: added kept 3 post 3 every 3 | changes 2/2/2 | every: tied reissues 0, switched 0
+TOTAL call 0.01 extra 0 spare kept  13 weeks: added 18 h, changes to others 25, premiums $416.00, pay $50239.00, reissues 10 (proven 10), tied reissues 0, switched 0, 2.2 s
+TOTAL call 0.01 extra 0 spare post  13 weeks: added 18 h, changes to others 25, premiums $416.00, pay $50239.00, reissues 10 (proven 10), tied reissues 0, switched 0, 1.7 s
+TOTAL call 0.01 extra 0 spare every 13 weeks: added 18 h, changes to others 25, premiums $416.00, pay $50239.00, reissues 10 (proven 10), tied reissues 0, switched 0, 51.4 s
+CMP call 0.01 extra 0 spare: every vs post, fewer added hours on 0 weeks, same 13, more 0
+call 0.01 extra 0.109 spare seed 0: added kept 3 post 3 every 3 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 spare seed 1: added kept 26 post 26 every 26 | changes 10/10/10 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 2: added kept 28 post 28 every 28 | changes 13/13/13 | every: tied reissues 2, switched 0
+call 0.01 extra 0.109 spare seed 3: added kept 14 post 14 every 14 | changes 9/9/9 | every: tied reissues 2, switched 0
+call 0.01 extra 0.109 spare seed 4: added kept 23 post 23 every 23 | changes 11/11/11 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 5: added kept 25 post 25 every 25 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 6: added kept 3 post 3 every 3 | changes 2/2/2 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 7: added kept 9 post 9 every 9 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 8: added kept 6 post 6 every 6 | changes 2/2/2 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 9: added kept 9 post 9 every 9 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 10: added kept 14 post 14 every 14 | changes 9/9/9 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 11: added kept 22 post 22 every 22 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 12: added kept 11 post 11 every 11 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 spare seed 13: added kept 23 post 23 every 23 | changes 10/10/10 | every: tied reissues 2, switched 0
+call 0.01 extra 0.109 spare seed 14: added kept 3 post 3 every 3 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 spare seed 15: added kept 9 post 9 every 9 | changes 13/13/13 | every: tied reissues 2, switched 0
+call 0.01 extra 0.109 spare seed 16: added kept 9 post 9 every 9 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 spare seed 17: added kept 9 post 9 every 9 | changes 8/8/8 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 18: added kept 33 post 33 every 33 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 19: added kept 6 post 6 every 6 | changes 2/2/2 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 20: added kept 25 post 25 every 25 | changes 5/5/5 | every: tied reissues 2, switched 0
+call 0.01 extra 0.109 spare seed 21: added kept 15 post 15 every 15 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 spare seed 22: added kept 17 post 17 every 17 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 spare seed 23: added kept 3 post 3 every 3 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 spare seed 24: added kept 28 post 28 every 28 | changes 11/11/11 | every: tied reissues 2, switched 0
+call 0.01 extra 0.109 spare seed 25: added kept 6 post 6 every 6 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 26: added kept 3 post 3 every 3 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 27: added kept 17 post 17 every 17 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 spare seed 28: added kept 25 post 25 every 25 | changes 10/10/10 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 29: added kept 9 post 9 every 9 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 30: added kept 14 post 14 every 14 | changes 10/10/10 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 31: added kept 15 post 15 every 15 | changes 12/12/12 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 32: added kept 6 post 6 every 6 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 34: added kept 15 post 15 every 15 | changes 12/12/12 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 spare seed 35: added kept 33 post 33 every 33 | changes 9/9/9 | every: tied reissues 2, switched 0
+call 0.01 extra 0.109 spare seed 36: added kept 12 post 12 every 12 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 spare seed 37: added kept 17 post 17 every 17 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 spare seed 38: added kept 52 post 52 every 52 | changes 10/10/10 | every: tied reissues 2, switched 0
+call 0.01 extra 0.109 spare seed 39: added kept 6 post 6 every 6 | changes 2/2/2 | every: tied reissues 0, switched 0
+TOTAL call 0.01 extra 0.109 spare kept  39 weeks: added 603 h, changes to others 242, premiums $4124.00, pay $155669.00, reissues 97 (proven 97), tied reissues 0, switched 0, 35.4 s
+TOTAL call 0.01 extra 0.109 spare post  39 weeks: added 603 h, changes to others 242, premiums $4124.00, pay $155669.00, reissues 97 (proven 97), tied reissues 0, switched 0, 35.9 s
+TOTAL call 0.01 extra 0.109 spare every 39 weeks: added 603 h, changes to others 242, premiums $4124.00, pay $155669.00, reissues 97 (proven 97), tied reissues 36, switched 0, 472.7 s
+CMP call 0.01 extra 0.109 spare: every vs post, fewer added hours on 0 weeks, same 39, more 0
+call 0.084 extra 0 spare seed 0: added kept 6 post 6 every 6 | changes 8/8/8 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 1: added kept 0 post 0 every 0 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 2: added kept 23 post 23 every 23 | changes 12/12/12 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 3: added kept 3 post 3 every 3 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 4: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 5: added kept 6 post 6 every 6 | changes 15/15/15 | every: tied reissues 1, switched 0
+call 0.084 extra 0 spare seed 6: added kept 6 post 6 every 6 | changes 8/8/8 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 7: added kept 3 post 3 every 3 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 8: added kept 25 post 25 every 25 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 9: added kept 0 post 0 every 0 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 10: added kept 6 post 6 every 6 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 11: added kept 11 post 11 every 11 | changes 11/11/11 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 12: added kept 11 post 11 every 11 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 13: added kept 9 post 9 every 9 | changes 9/9/9 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 14: added kept 17 post 17 every 17 | changes 11/11/11 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 15: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 16: added kept 6 post 6 every 6 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 17: added kept 0 post 0 every 0 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 18: added kept 6 post 6 every 6 | changes 14/14/14 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 19: added kept 0 post 0 every 0 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 20: added kept 3 post 3 every 3 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 21: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 22: added kept 3 post 3 every 3 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 23: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 24: added kept 0 post 0 every 0 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 25: added kept 3 post 3 every 3 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 26: added kept 9 post 9 every 9 | changes 11/11/11 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 27: added kept 3 post 3 every 3 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 28: added kept 6 post 6 every 6 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 29: added kept 0 post 0 every 0 | changes 10/10/10 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 30: added kept 6 post 6 every 6 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 31: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 32: added kept 9 post 9 every 9 | changes 10/10/10 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 33: added kept 6 post 6 every 6 | changes 9/9/9 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 34: added kept 6 post 6 every 6 | changes 8/8/8 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 35: added kept 11 post 11 every 11 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 36: added kept 6 post 6 every 6 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 37: added kept 3 post 3 every 3 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 38: added kept 3 post 3 every 3 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 spare seed 39: added kept 12 post 12 every 12 | changes 14/14/14 | every: tied reissues 0, switched 0
+TOTAL call 0.084 extra 0 spare kept  40 weeks: added 227 h, changes to others 266, premiums $4386.00, pay $152072.00, reissues 80 (proven 80), tied reissues 0, switched 0, 17.4 s
+TOTAL call 0.084 extra 0 spare post  40 weeks: added 227 h, changes to others 266, premiums $4386.00, pay $152072.00, reissues 80 (proven 80), tied reissues 0, switched 0, 17.4 s
+TOTAL call 0.084 extra 0 spare every 40 weeks: added 227 h, changes to others 266, premiums $4386.00, pay $152072.00, reissues 80 (proven 80), tied reissues 1, switched 0, 331.3 s
+CMP call 0.084 extra 0 spare: every vs post, fewer added hours on 0 weeks, same 40, more 0
+call 0.084 extra 0.109 spare seed 0: added kept 22 post 22 every 22 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 spare seed 1: added kept 6 post 6 every 6 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 spare seed 2: added kept 19 post 19 every 19 | changes 2/2/2 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 3: added kept 22 post 22 every 22 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 spare seed 4: added kept 3 post 3 every 3 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 spare seed 5: added kept 41 post 41 every 41 | changes 5/5/5 | every: tied reissues 2, switched 0
+call 0.084 extra 0.109 spare seed 6: added kept 22 post 22 every 22 | changes 9/9/9 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 7: added kept 9 post 9 every 9 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 spare seed 8: added kept 27 post 27 every 27 | changes 6/6/6 | every: tied reissues 2, switched 0
+call 0.084 extra 0.109 spare seed 9: added kept 17 post 17 every 17 | changes 10/10/10 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 10: added kept 25 post 25 every 25 | changes 15/15/15 | every: tied reissues 2, switched 0
+call 0.084 extra 0.109 spare seed 11: added kept 17 post 17 every 17 | changes 10/10/10 | every: tied reissues 2, switched 0
+call 0.084 extra 0.109 spare seed 12: added kept 11 post 11 every 11 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 spare seed 13: added kept 51 post 51 every 51 | changes 14/14/14 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 14: added kept 17 post 17 every 17 | changes 11/11/11 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 spare seed 15: added kept 27 post 27 every 27 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 spare seed 16: added kept 20 post 20 every 20 | changes 7/7/7 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 17: added kept 20 post 20 every 20 | changes 10/10/10 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 18: added kept 17 post 17 every 17 | changes 8/8/8 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 19: added kept 12 post 12 every 12 | changes 8/8/8 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 20: added kept 22 post 22 every 22 | changes 13/13/13 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 21: added kept 36 post 36 every 36 | changes 14/14/14 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 spare seed 22: added kept 17 post 17 every 17 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 spare seed 23: added kept 9 post 9 every 9 | changes 8/8/8 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 spare seed 24: added kept 30 post 30 every 30 | changes 15/15/15 | every: tied reissues 2, switched 0
+call 0.084 extra 0.109 spare seed 25: added kept 17 post 17 every 17 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 spare seed 26: added kept 31 post 31 every 31 | changes 22/22/22 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 27: added kept 33 post 33 every 33 | changes 14/14/14 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 28: added kept 9 post 9 every 9 | changes 4/4/4 | every: tied reissues 2, switched 0
+call 0.084 extra 0.109 spare seed 29: added kept 44 post 44 every 44 | changes 11/11/11 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 30: added kept 23 post 23 every 23 | changes 14/14/14 | every: tied reissues 2, switched 0
+call 0.084 extra 0.109 spare seed 31: added kept 28 post 28 every 28 | changes 12/12/12 | every: tied reissues 2, switched 0
+call 0.084 extra 0.109 spare seed 32: added kept 20 post 20 every 20 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 33: added kept 42 post 42 every 42 | changes 13/13/13 | every: tied reissues 2, switched 0
+call 0.084 extra 0.109 spare seed 34: added kept 17 post 17 every 17 | changes 8/8/8 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 35: added kept 25 post 25 every 25 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 spare seed 36: added kept 12 post 12 every 12 | changes 13/13/13 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 37: added kept 28 post 28 every 28 | changes 7/7/7 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 38: added kept 17 post 17 every 17 | changes 10/10/10 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 spare seed 39: added kept 6 post 6 every 6 | changes 2/2/2 | every: tied reissues 0, switched 0
+TOTAL call 0.084 extra 0.109 spare kept  40 weeks: added 871 h, changes to others 344, premiums $5804.00, pay $155567.00, reissues 134 (proven 134), tied reissues 0, switched 0, 42.5 s
+TOTAL call 0.084 extra 0.109 spare post  40 weeks: added 871 h, changes to others 344, premiums $5804.00, pay $155567.00, reissues 134 (proven 134), tied reissues 0, switched 0, 42.6 s
+TOTAL call 0.084 extra 0.109 spare every 40 weeks: added 871 h, changes to others 344, premiums $5804.00, pay $155567.00, reissues 134 (proven 134), tied reissues 35, switched 0, 620.0 s
+CMP call 0.084 extra 0.109 spare: every vs post, fewer added hours on 0 weeks, same 40, more 0
+POSTED retail: seed-1 open 0 h; steady picks seed 1 (exposure 24), open 0 h
+call 0.01 extra 0 retail seed 3: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0 retail seed 5: added kept 6 post 6 every 6 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.01 extra 0 retail seed 7: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.01 extra 0 retail seed 12: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.01 extra 0 retail seed 14: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0 retail seed 17: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 retail seed 23: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 retail seed 25: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0 retail seed 28: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 retail seed 33: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 retail seed 35: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 retail seed 36: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+TOTAL call 0.01 extra 0 retail kept  12 weeks: added 6 h, changes to others 16, premiums $266.00, pay $26907.00, reissues 8 (proven 8), tied reissues 0, switched 0, 0.6 s
+TOTAL call 0.01 extra 0 retail post  12 weeks: added 6 h, changes to others 16, premiums $266.00, pay $26907.00, reissues 8 (proven 8), tied reissues 0, switched 0, 0.5 s
+TOTAL call 0.01 extra 0 retail every 12 weeks: added 6 h, changes to others 16, premiums $266.00, pay $26907.00, reissues 8 (proven 8), tied reissues 0, switched 0, 11.4 s
+CMP call 0.01 extra 0 retail: every vs post, fewer added hours on 0 weeks, same 12, more 0
+call 0.01 extra 0.109 retail seed 0: added kept 6 post 6 every 6 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 retail seed 1: added kept 6 post 6 every 6 | changes 2/2/2 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 2: added kept 18 post 18 every 18 | changes 7/7/7 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 3: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 4: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 5: added kept 6 post 6 every 6 | changes 8/8/8 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 retail seed 6: added kept 0 post 0 every 0 | changes 8/8/8 | every: tied reissues 2, switched 0
+call 0.01 extra 0.109 retail seed 7: added kept 6 post 6 every 6 | changes 6/6/6 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 8: added kept 6 post 6 every 6 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 9: added kept 6 post 6 every 6 | changes 6/6/6 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 10: added kept 12 post 12 every 12 | changes 8/8/8 | every: tied reissues 2, switched 0
+call 0.01 extra 0.109 retail seed 11: added kept 6 post 6 every 6 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 retail seed 12: added kept 6 post 6 every 6 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 retail seed 13: added kept 6 post 6 every 6 | changes 8/8/8 | every: tied reissues 2, switched 0
+call 0.01 extra 0.109 retail seed 14: added kept 6 post 6 every 6 | changes 1/1/1 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 15: added kept 6 post 6 every 6 | changes 7/7/7 | every: tied reissues 3, switched 0
+call 0.01 extra 0.109 retail seed 16: added kept 6 post 6 every 6 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 17: added kept 6 post 6 every 6 | changes 9/9/9 | every: tied reissues 2, switched 0
+call 0.01 extra 0.109 retail seed 19: added kept 15 post 15 every 15 | changes 6/6/6 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 20: added kept 6 post 6 every 6 | changes 11/11/11 | every: tied reissues 3, switched 0
+call 0.01 extra 0.109 retail seed 21: added kept 6 post 6 every 6 | changes 7/7/7 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 22: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 23: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 25: added kept 0 post 0 every 0 | changes 4/4/4 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 26: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 retail seed 27: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 retail seed 28: added kept 6 post 6 every 6 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 29: added kept 18 post 18 every 18 | changes 7/7/7 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 30: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 retail seed 31: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 retail seed 32: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 retail seed 33: added kept 0 post 0 every 0 | changes 4/4/4 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 34: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 35: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 2, switched 0
+call 0.01 extra 0.109 retail seed 36: added kept 6 post 6 every 6 | changes 6/6/6 | every: tied reissues 2, switched 0
+call 0.01 extra 0.109 retail seed 37: added kept 15 post 15 every 15 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 retail seed 38: added kept 12 post 12 every 12 | changes 11/11/11 | every: tied reissues 3, switched 0
+TOTAL call 0.01 extra 0.109 retail kept  37 weeks: added 192 h, changes to others 171, premiums $2777.00, pay $88191.00, reissues 67 (proven 67), tied reissues 0, switched 0, 9.4 s
+TOTAL call 0.01 extra 0.109 retail post  37 weeks: added 192 h, changes to others 171, premiums $2777.00, pay $88191.00, reissues 67 (proven 67), tied reissues 0, switched 0, 9.6 s
+TOTAL call 0.01 extra 0.109 retail every 37 weeks: added 192 h, changes to others 171, premiums $2777.00, pay $88191.00, reissues 67 (proven 67), tied reissues 40, switched 0, 186.6 s
+CMP call 0.01 extra 0.109 retail: every vs post, fewer added hours on 0 weeks, same 37, more 0
+call 0.084 extra 0 retail seed 0: added kept 6 post 6 every 6 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 1: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 2: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 3: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 4: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 5: added kept 6 post 6 every 6 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 6: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 7: added kept 0 post 0 every 0 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 8: added kept 6 post 6 every 6 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 10: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 11: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 12: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 13: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 14: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 15: added kept 6 post 6 every 6 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 17: added kept 6 post 6 every 6 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 19: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 20: added kept 12 post 12 every 12 | changes 8/8/8 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 21: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 22: added kept 6 post 6 every 6 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 23: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 24: added kept 0 post 0 every 0 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 25: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 26: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 27: added kept 6 post 6 every 6 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 28: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 29: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 30: added kept 6 post 6 every 6 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 31: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 32: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 33: added kept 6 post 6 every 6 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.084 extra 0 retail seed 34: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 35: added kept 0 post 0 every 0 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 36: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 37: added kept 0 post 0 every 0 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 38: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 retail seed 39: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+TOTAL call 0.084 extra 0 retail kept  37 weeks: added 66 h, changes to others 82, premiums $1340.00, pay $82182.00, reissues 37 (proven 37), tied reissues 0, switched 0, 2.7 s
+TOTAL call 0.084 extra 0 retail post  37 weeks: added 66 h, changes to others 82, premiums $1340.00, pay $82182.00, reissues 37 (proven 37), tied reissues 0, switched 0, 2.7 s
+TOTAL call 0.084 extra 0 retail every 37 weeks: added 66 h, changes to others 82, premiums $1340.00, pay $82182.00, reissues 37 (proven 37), tied reissues 1, switched 0, 37.9 s
+CMP call 0.084 extra 0 retail: every vs post, fewer added hours on 0 weeks, same 37, more 0
+call 0.084 extra 0.109 retail seed 0: added kept 6 post 6 every 6 | changes 8/8/8 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 1: added kept 6 post 6 every 6 | changes 4/4/4 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 2: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 3: added kept 6 post 6 every 6 | changes 7/7/7 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 retail seed 4: added kept 0 post 0 every 0 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 retail seed 5: added kept 12 post 12 every 12 | changes 12/12/12 | every: tied reissues 2, switched 0
+call 0.084 extra 0.109 retail seed 6: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 retail seed 7: added kept 6 post 6 every 6 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 retail seed 8: added kept 6 post 6 every 6 | changes 9/9/9 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 9: added kept 6 post 6 every 6 | changes 4/4/4 | every: tied reissues 2, switched 0
+call 0.084 extra 0.109 retail seed 10: added kept 18 post 18 every 18 | changes 4/4/4 | every: tied reissues 2, switched 0
+call 0.084 extra 0.109 retail seed 11: added kept 0 post 0 every 0 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 13: added kept 15 post 15 every 15 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 14: added kept 0 post 0 every 0 | changes 6/6/6 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 15: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 retail seed 16: added kept 12 post 12 every 12 | changes 4/4/4 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 17: added kept 21 post 21 every 21 | changes 8/8/8 | every: tied reissues 2, switched 0
+call 0.084 extra 0.109 retail seed 18: added kept 0 post 0 every 0 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 retail seed 19: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 retail seed 20: added kept 6 post 6 every 6 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 retail seed 21: added kept 12 post 12 every 12 | changes 14/14/14 | every: tied reissues 2, switched 0
+call 0.084 extra 0.109 retail seed 22: added kept 6 post 6 every 6 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 retail seed 23: added kept 0 post 0 every 0 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 retail seed 24: added kept 18 post 18 every 18 | changes 6/6/6 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 25: added kept 0 post 0 every 0 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 retail seed 26: added kept 6 post 6 every 6 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 27: added kept 18 post 18 every 18 | changes 8/8/8 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 28: added kept 12 post 12 every 12 | changes 6/6/6 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 29: added kept 6 post 6 every 6 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 30: added kept 12 post 12 every 12 | changes 6/6/6 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 31: added kept 6 post 6 every 6 | changes 5/5/5 | every: tied reissues 3, switched 0
+call 0.084 extra 0.109 retail seed 32: added kept 12 post 12 every 12 | changes 8/8/8 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 33: added kept 12 post 12 every 12 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 retail seed 34: added kept 0 post 0 every 0 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 retail seed 35: added kept 6 post 6 every 6 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 retail seed 36: added kept 9 post 9 every 9 | changes 15/15/15 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 37: added kept 21 post 21 every 21 | changes 6/6/6 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 retail seed 38: added kept 12 post 12 every 12 | changes 6/6/6 | every: tied reissues 0, switched 0
+TOTAL call 0.084 extra 0.109 retail kept  38 weeks: added 288 h, changes to others 208, premiums $3381.00, pay $88206.00, reissues 95 (proven 95), tied reissues 0, switched 0, 9.6 s
+TOTAL call 0.084 extra 0.109 retail post  38 weeks: added 288 h, changes to others 208, premiums $3381.00, pay $88206.00, reissues 95 (proven 95), tied reissues 0, switched 0, 9.7 s
+TOTAL call 0.084 extra 0.109 retail every 38 weeks: added 288 h, changes to others 208, premiums $3381.00, pay $88206.00, reissues 95 (proven 95), tied reissues 30, switched 0, 185.0 s
+CMP call 0.084 extra 0.109 retail: every vs post, fewer added hours on 0 weeks, same 38, more 0
+POSTED clinic: seed-1 open 5 h; steady picks seed 1 (exposure 30), open 5 h
+call 0.01 extra 0 clinic seed 3: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.01 extra 0 clinic seed 5: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 clinic seed 7: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 clinic seed 12: added kept 5 post 5 every 5 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.01 extra 0 clinic seed 14: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.01 extra 0 clinic seed 17: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 clinic seed 19: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 clinic seed 22: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 clinic seed 23: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 clinic seed 25: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 clinic seed 28: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 clinic seed 33: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 clinic seed 35: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0 clinic seed 36: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+TOTAL call 0.01 extra 0 clinic kept  14 weeks: added 20 h, changes to others 6, premiums $169.00, pay $37419.00, reissues 7 (proven 7), tied reissues 0, switched 0, 2.1 s
+TOTAL call 0.01 extra 0 clinic post  14 weeks: added 20 h, changes to others 6, premiums $169.00, pay $37419.00, reissues 7 (proven 7), tied reissues 0, switched 0, 1.7 s
+TOTAL call 0.01 extra 0 clinic every 14 weeks: added 20 h, changes to others 6, premiums $169.00, pay $37419.00, reissues 7 (proven 7), tied reissues 0, switched 0, 11.7 s
+CMP call 0.01 extra 0 clinic: every vs post, fewer added hours on 0 weeks, same 14, more 0
+call 0.01 extra 0.109 clinic seed 1: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 3: added kept 5 post 5 every 5 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 4: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 clinic seed 5: added kept 10 post 10 every 10 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 clinic seed 6: added kept 5 post 5 every 5 | changes 1/1/1 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 clinic seed 7: added kept 5 post 5 every 5 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 8: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 9: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 10: added kept 15 post 15 every 15 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 11: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 13: added kept 10 post 10 every 10 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 14: added kept 10 post 10 every 10 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 15: added kept 5 post 5 every 5 | changes 4/4/4 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 clinic seed 16: added kept 0 post 0 every 0 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 clinic seed 17: added kept 5 post 5 every 5 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 19: added kept 5 post 5 every 5 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 20: added kept 5 post 5 every 5 | changes 1/1/1 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 clinic seed 21: added kept 0 post 0 every 0 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 clinic seed 22: added kept 5 post 5 every 5 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 23: added kept 0 post 0 every 0 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.01 extra 0.109 clinic seed 25: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 26: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 27: added kept 0 post 0 every 0 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 28: added kept 5 post 5 every 5 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 30: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 31: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 32: added kept 5 post 5 every 5 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 33: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 34: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 35: added kept 5 post 5 every 5 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 36: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 37: added kept 10 post 10 every 10 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.01 extra 0.109 clinic seed 38: added kept 10 post 10 every 10 | changes 3/3/3 | every: tied reissues 1, switched 0
+TOTAL call 0.01 extra 0.109 clinic kept  33 weeks: added 155 h, changes to others 59, premiums $1678.00, pay $93912.00, reissues 48 (proven 48), tied reissues 0, switched 0, 9.8 s
+TOTAL call 0.01 extra 0.109 clinic post  33 weeks: added 155 h, changes to others 59, premiums $1678.00, pay $93912.00, reissues 48 (proven 48), tied reissues 0, switched 0, 9.6 s
+TOTAL call 0.01 extra 0.109 clinic every 33 weeks: added 155 h, changes to others 59, premiums $1678.00, pay $93912.00, reissues 48 (proven 48), tied reissues 9, switched 0, 83.4 s
+CMP call 0.01 extra 0.109 clinic: every vs post, fewer added hours on 0 weeks, same 33, more 0
+call 0.084 extra 0 clinic seed 0: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 1: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 2: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 3: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 4: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 5: added kept 10 post 10 every 10 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 6: added kept 5 post 5 every 5 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 7: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 8: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 10: added kept 5 post 5 every 5 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 11: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 12: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 13: added kept 0 post 0 every 0 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 14: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 15: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 16: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 17: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 19: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 20: added kept 5 post 5 every 5 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 21: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 22: added kept 15 post 15 every 15 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 23: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 24: added kept 5 post 5 every 5 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 25: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 26: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 27: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 28: added kept 0 post 0 every 0 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 29: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 30: added kept 0 post 0 every 0 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 32: added kept 5 post 5 every 5 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 33: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 34: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 35: added kept 5 post 5 every 5 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 36: added kept 5 post 5 every 5 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 37: added kept 5 post 5 every 5 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 38: added kept 5 post 5 every 5 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0 clinic seed 39: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 0, switched 0
+TOTAL call 0.084 extra 0 clinic kept  37 weeks: added 85 h, changes to others 52, premiums $1382.00, pay $98221.00, reissues 32 (proven 32), tied reissues 0, switched 0, 5.2 s
+TOTAL call 0.084 extra 0 clinic post  37 weeks: added 85 h, changes to others 52, premiums $1382.00, pay $98221.00, reissues 32 (proven 32), tied reissues 0, switched 0, 5.2 s
+TOTAL call 0.084 extra 0 clinic every 37 weeks: added 85 h, changes to others 52, premiums $1382.00, pay $98221.00, reissues 32 (proven 32), tied reissues 0, switched 0, 50.3 s
+CMP call 0.084 extra 0 clinic: every vs post, fewer added hours on 0 weeks, same 37, more 0
+call 0.084 extra 0.109 clinic seed 0: added kept 5 post 5 every 5 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 1: added kept 19 post 19 every 19 | changes 3/3/3 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 clinic seed 2: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 clinic seed 3: added kept 10 post 10 every 10 | changes 6/6/6 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 4: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 5: added kept 20 post 20 every 20 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 clinic seed 6: added kept 10 post 10 every 10 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 7: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 8: added kept 10 post 10 every 10 | changes 5/5/5 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 9: added kept 5 post 5 every 5 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 10: added kept 15 post 15 every 15 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 11: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 13: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 clinic seed 14: added kept 10 post 10 every 10 | changes 4/4/4 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 clinic seed 15: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 16: added kept 5 post 5 every 5 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 17: added kept 15 post 15 every 15 | changes 6/6/6 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 clinic seed 18: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 19: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 20: added kept 10 post 10 every 10 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 21: added kept 15 post 15 every 15 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 22: added kept 5 post 5 every 5 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 23: added kept 5 post 5 every 5 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 24: added kept 10 post 10 every 10 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 25: added kept 10 post 10 every 10 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 26: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 27: added kept 20 post 20 every 20 | changes 4/4/4 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 28: added kept 15 post 15 every 15 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 29: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 30: added kept 24 post 24 every 24 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 31: added kept 5 post 5 every 5 | changes 1/1/1 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 clinic seed 32: added kept 10 post 10 every 10 | changes 2/2/2 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 33: added kept 15 post 15 every 15 | changes 3/3/3 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 34: added kept 0 post 0 every 0 | changes 1/1/1 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 35: added kept 0 post 0 every 0 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 36: added kept 10 post 10 every 10 | changes 5/5/5 | every: tied reissues 1, switched 0
+call 0.084 extra 0.109 clinic seed 37: added kept 10 post 10 every 10 | changes 0/0/0 | every: tied reissues 0, switched 0
+call 0.084 extra 0.109 clinic seed 38: added kept 15 post 15 every 15 | changes 0/0/0 | every: tied reissues 0, switched 0
+TOTAL call 0.084 extra 0.109 clinic kept  38 weeks: added 313 h, changes to others 72, premiums $1989.00, pay $103088.00, reissues 68 (proven 68), tied reissues 0, switched 0, 11.5 s
+TOTAL call 0.084 extra 0.109 clinic post  38 weeks: added 313 h, changes to others 72, premiums $1989.00, pay $103088.00, reissues 68 (proven 68), tied reissues 0, switched 0, 11.4 s
+TOTAL call 0.084 extra 0.109 clinic every 38 weeks: added 313 h, changes to others 72, premiums $1989.00, pay $103088.00, reissues 68 (proven 68), tied reissues 8, switched 0, 99.5 s
+CMP call 0.084 extra 0.109 clinic: every vs post, fewer added hours on 0 weeks, same 38, more 0

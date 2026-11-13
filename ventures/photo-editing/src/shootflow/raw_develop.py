@@ -958,7 +958,8 @@ def _decode_chunk(
         elif bits == 32:
             vals = list(struct.unpack_from(end + "I" * min(count, len(chunk) // 4), chunk, 0))
         elif 8 < bits < 16:
-            vals = _unpack_bits(chunk, bits, count, cw * spp)
+            np_mod = _numpy_engine("auto")
+            vals = np_mod.unpack_bits(chunk, bits, count, cw * spp) if np_mod else _unpack_bits(chunk, bits, count, cw * spp)
         else:
             raise DevelopError(f"{bits}-bit uncompressed sensor data is not supported")
         if len(vals) < count:
