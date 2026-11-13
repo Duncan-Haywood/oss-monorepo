@@ -1,0 +1,84 @@
+Milestone 6k: excavator break-even with a measured gear pump (Casappa KAPPA 30) as the fixed pump
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pump: Casappa KAPPA catalogue K 05 T A, pp. 9-11, 50 C, read from vector paths)
+
+Gear pump at 2100 r/min, from the catalogue curves:
+  size  V cm3/r  Q20 L/min  eta_v(150)  eta_t(100)  eta_t(150)  eta_t(200)  eta_hm(150)  P(0) kW  drag bar  drag(LSQ) bar
+    27   26.70      55.81       0.968       0.718       0.713       0.729        0.763     0.69      7.39          13.45
+    34   34.56      72.20       0.970       0.755       0.754       0.764        0.792     0.83      6.90           8.99
+    38   39.27      81.00       0.960       0.755       0.757       0.760        0.803     1.35     10.03          10.20
+    43   43.98      93.42       0.989       0.765       0.764       0.779        0.801     1.28      8.21           9.78
+    51   51.83     108.45       0.974       0.759       0.777       0.793        0.804     1.27      7.05          12.40
+    56   56.54     118.19       0.972       0.759       0.785       0.793        0.790     1.72      8.76          12.35
+    61   61.26     128.07       0.971       0.735       0.753       0.777        0.784     1.39      6.51          12.95
+    73   73.82     157.35       0.989       0.749       0.795       0.816        0.814     1.70      6.47          15.47
+  power curve over torque curve x n / 9549 at 2000 r/min, all 35 curves: median 1.005, range 0.977 to 1.037; KP 30.43 at 150 bar 1.037
+  piston pump (6g table, 60 C, full stroke): eta 0.840 at 150 bar; zero-stroke drag k0 7.86 bar of full-stroke flow (6h)
+  q_nom range of the family: 55.8 to 157.3 L/min (sizes outside held at the ends)
+
+Idle power, kW (PVG32 neutral, working speed): q_p 60: gear 2.23 / piston 2.00, 80: gear 3.35 / piston 2.81, 100: gear 4.10 / piston 3.70, 150: gear 6.81 / piston 6.25; load-sensing standby 2.96
+  gear idle power equals load-sensing standby at q_p 75.6 L/min (piston fixed pump, 6j: 83.4)
+
+check: the piston variant reproduces 6j at S = 0.38: central 5.070 (6j 5.07), share 74.0% (6j 74.0%)
+central geometry, fixed-pump efficiency at q_p 101 L/min (p + m* = 144.8 bar): gear 0.770, piston 0.840
+
+gear, central setting (PVG32 neutral, standby 2 L/min, working speed):
+  record only (S = s0): central 2.239 L/h at q_p 89.0; median 1.68 (p10 1.00, p90 3.19); beats 3.986: 3.9%, 5.056: 0.5%; median maximising q_p 71.5
+  S = 0.20: central 2.087 L/h at q_p 87.5; median 1.75 (p10 1.07, p90 3.53); beats 3.986: 5.7%, 5.056: 0.8%; median maximising q_p 70.5
+  S = 0.30: central 1.981 L/h at q_p 86.0; median 1.84 (p10 1.13, p90 3.79); beats 3.986: 8.6%, 5.056: 2.3%; median maximising q_p 70.0
+  S = 0.38: central 1.884 L/h at q_p 84.5; median 1.89 (p10 1.20, p90 3.96); beats 3.986: 9.9%, 5.056: 3.4%; median maximising q_p 69.0
+  S = 0.40: central 1.876 L/h at q_p 77.5; median 1.91 (p10 1.23, p90 4.02); beats 3.986: 10.9%, 5.056: 3.4%; median maximising q_p 69.0
+  S = 0.50: central 1.870 L/h at q_p 74.5; median 2.04 (p10 1.34, p90 4.44); beats 3.986: 14.3%, 5.056: 6.8%; median maximising q_p 68.0
+
+piston (6j), central setting (PVG32 neutral, standby 2 L/min, working speed):
+  record only (S = s0): central 5.605 L/h at q_p 101.0; median 4.66 (p10 3.38, p90 8.74); beats 3.986: 66.9%, 5.056: 44.5%; median maximising q_p 76.0
+  S = 0.20: central 5.367 L/h at q_p 99.0; median 4.84 (p10 3.48, p90 9.16); beats 3.986: 69.5%, 5.056: 44.3%; median maximising q_p 75.0
+  S = 0.30: central 5.209 L/h at q_p 97.5; median 4.77 (p10 3.49, p90 9.55); beats 3.986: 72.1%, 5.056: 47.1%; median maximising q_p 74.8
+  S = 0.38: central 5.070 L/h at q_p 96.0; median 4.79 (p10 3.52, p90 9.88); beats 3.986: 74.0%, 5.056: 47.9%; median maximising q_p 74.5
+  S = 0.40: central 5.034 L/h at q_p 95.5; median 4.82 (p10 3.53, p90 10.02); beats 3.986: 74.7%, 5.056: 47.4%; median maximising q_p 74.5
+  S = 0.50: central 4.843 L/h at q_p 93.0; median 4.97 (p10 3.54, p90 10.85); beats 3.986: 78.4%, 5.056: 48.4%; median maximising q_p 73.5
+
+gear at catalogue 0.88, central setting (PVG32 neutral, standby 2 L/min, working speed):
+  record only (S = s0): central 7.839 L/h at q_p 107.5; median 6.23 (p10 4.64, p90 11.94); beats 3.986: 98.2%, 5.056: 81.0%; median maximising q_p 82.5
+  S = 0.20: central 7.278 L/h at q_p 105.0; median 6.26 (p10 4.57, p90 12.01); beats 3.986: 96.9%, 5.056: 78.6%; median maximising q_p 79.0
+  S = 0.30: central 6.894 L/h at q_p 103.0; median 6.15 (p10 4.55, p90 12.09); beats 3.986: 96.1%, 5.056: 72.9%; median maximising q_p 77.0
+  S = 0.38: central 6.545 L/h at q_p 101.0; median 5.97 (p10 4.45, p90 12.35); beats 3.986: 95.6%, 5.056: 70.1%; median maximising q_p 75.5
+  S = 0.40: central 6.452 L/h at q_p 100.5; median 5.90 (p10 4.43, p90 12.43); beats 3.986: 95.6%, 5.056: 68.2%; median maximising q_p 75.0
+  S = 0.50: central 5.945 L/h at q_p 97.5; median 5.89 (p10 4.23, p90 12.91); beats 3.986: 93.5%, 5.056: 68.0%; median maximising q_p 73.0
+
+Gear pump, all settings at S = 0.38 (reading, standby flow L/min, idle speed ratio):
+  PVG32        q_sb 2 n_r 1.0: central 1.884 L/h at q_p 84.5; median 1.89 (p10 1.20, p90 3.96); beats 3.986: 9.9%, 5.056: 3.4%; median maximising q_p 69.0
+  PVG32        q_sb 0 n_r 1.0: central 1.856 L/h at q_p 78.0; median 1.86 (p10 1.18, p90 3.89); beats 3.986: 9.6%, 5.056: 3.4%; median maximising q_p 69.0
+  PVG32        q_sb 0 n_r 0.5: central 2.290 L/h at q_p 89.5; median 1.98 (p10 1.21, p90 3.98); beats 3.986: 10.2%, 5.056: 3.4%; median maximising q_p 72.0
+  PVG32        q_sb 2 n_r 0.5: central 2.331 L/h at q_p 89.5; median 2.02 (p10 1.23, p90 4.07); beats 3.986: 10.4%, 5.056: 3.6%; median maximising q_p 72.0
+  PVG32        q_sb 5 n_r 1.0: central 1.935 L/h at q_p 85.0; median 1.95 (p10 1.24, p90 4.08); beats 3.986: 10.9%, 5.056: 3.9%; median maximising q_p 69.8
+  PVG32        q_sb 5 n_r 0.5: central 2.393 L/h at q_p 90.0; median 2.08 (p10 1.27, p90 4.19); beats 3.986: 11.7%, 5.056: 4.7%; median maximising q_p 72.0
+  Salami-text  q_sb 0 n_r 1.0: central 2.206 L/h at q_p 85.0; median 2.30 (p10 1.51, p90 4.98); beats 3.986: 18.5%, 5.056: 9.6%; median maximising q_p 72.0
+  Salami-text  q_sb 0 n_r 0.5: central 2.767 L/h at q_p 92.5; median 2.32 (p10 1.44, p90 4.70); beats 3.986: 16.4%, 5.056: 7.3%; median maximising q_p 72.0
+  Salami-text  q_sb 2 n_r 1.0: central 2.241 L/h at q_p 85.0; median 2.34 (p10 1.54, p90 5.06); beats 3.986: 19.3%, 5.056: 10.2%; median maximising q_p 72.0
+  Salami-text  q_sb 2 n_r 0.5: central 2.812 L/h at q_p 92.5; median 2.36 (p10 1.48, p90 4.78); beats 3.986: 17.2%, 5.056: 7.6%; median maximising q_p 72.0
+  Salami-text  q_sb 5 n_r 1.0: central 2.293 L/h at q_p 85.5; median 2.40 (p10 1.59, p90 5.18); beats 3.986: 20.6%, 5.056: 11.2%; median maximising q_p 72.0
+  Salami-text  q_sb 5 n_r 0.5: central 2.880 L/h at q_p 93.0; median 2.42 (p10 1.53, p90 4.90); beats 3.986: 17.4%, 5.056: 8.6%; median maximising q_p 72.0
+  Salami-curve q_sb 0 n_r 1.0: central 2.128 L/h at q_p 84.0; median 2.27 (p10 1.48, p90 4.88); beats 3.986: 17.4%, 5.056: 9.1%; median maximising q_p 71.0
+  Salami-curve q_sb 0 n_r 0.5: central 2.750 L/h at q_p 92.0; median 2.31 (p10 1.44, p90 4.69); beats 3.986: 16.4%, 5.056: 7.3%; median maximising q_p 72.0
+  Salami-curve q_sb 2 n_r 1.0: central 2.161 L/h at q_p 84.5; median 2.30 (p10 1.51, p90 4.96); beats 3.986: 18.0%, 5.056: 9.6%; median maximising q_p 71.5
+  Salami-curve q_sb 2 n_r 0.5: central 2.795 L/h at q_p 92.5; median 2.35 (p10 1.47, p90 4.77); beats 3.986: 16.9%, 5.056: 7.6%; median maximising q_p 72.0
+  Salami-curve q_sb 5 n_r 1.0: central 2.212 L/h at q_p 84.5; median 2.35 (p10 1.56, p90 5.07); beats 3.986: 19.5%, 5.056: 10.2%; median maximising q_p 71.5
+  Salami-curve q_sb 5 n_r 0.5: central 2.863 L/h at q_p 92.5; median 2.41 (p10 1.53, p90 4.89); beats 3.986: 17.4%, 5.056: 8.6%; median maximising q_p 72.0
+  share beating 3.986 L/h over the 18 settings: 9.6% to 20.6%
+
+Gear pump efficiency (moving part) scaled by c, idle as read, S = 0.38, central setting:
+  c 1.00: central 1.884 L/h; median 1.89; beats 3.986: 9.9%
+  c 1.05: central 3.276 L/h; median 2.94; beats 3.986: 28.6%
+  c 1.10: central 4.946 L/h; median 4.25; beats 3.986: 54.9%
+  c 1.15: central 6.987 L/h; median 5.79; beats 3.986: 94.8%
+  median piston-minus-gear full-stroke efficiency over pump sizes and geometries: 0.050 (range 0.032 to 0.070)
+
+Predictions (LOG.md 6k):
+  GK1 KP 30.43 and 30.51 eta_t at 150 bar, 2100 r/min in 0.80-0.90: refuted (0.764, 0.777)
+  GK2 KP 30.43 power within 5% of M n / 9549 at 150 bar, 2000 r/min: held (1.037)
+  GK3 within 0.04 of the piston pump's 0.84: refuted (-0.076, -0.063)
+  GK4 gear zero-pressure drag below 7.86 bar of full-stroke flow: refuted (KP 30.43 8.21; sizes 6.47 to 10.03)
+  GK5 share above 3.986 L/h at S 0.38 > 50%: refuted (9.9%)
+  GK6 central f_t,max at S 0.38 within 1 L/h of 5.07: refuted (1.884)
+
+Sources: fuxi-robot/excavator-motion (CC BY-NC-SA 4.0; derived statistics only); Kauranne 2022 Fig. 13 (CC BY 4.0); Casappa KAPPA catalogue K 05 T A (2012), pp. 4 and 9-11; PVG 32 and Salami neutral curves; Moore 2020 (idle shares).
