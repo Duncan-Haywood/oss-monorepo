@@ -546,3 +546,58 @@ def test_fallback_two_phase_applies_only_to_the_fallback_plan():
     assert fb == S.plan_audit(sharp, pilot, n, neg_guard=0, pseudo=2.0, two_phase=True)
     loose = [a if rng.random() < 0.8 else 1 - a for a in y]
     assert S.plan_audit(loose, pilot, n, fallback_pseudo=2.0, fallback_two_phase=True) == S.plan_audit(loose, pilot, n)
+
+
+def test_neg_only_two_phase_reuses_the_coder_positive_pilot_and_is_exact_on_a_census():
+    # LOG.md 7ap: two_phase="neg" makes only the coder-negative cell two-phase; the coder-positive cell's pilot labels
+    # and its fresh ones estimate its whole mean together, so the plan labels fewer fresh items there than full two-phase
+    from llmci import audit_design as S
+    assert S.PRICE_FLOOR is False
+    rng = random.Random(21)
+    N, n = 3000, 800
+    y = [int(rng.random() < 0.08) for _ in range(N)]
+    f = [a if rng.random() < 0.9 else 1 - a for a in y]
+    pilot = {i: y[i] for i in rng.sample(range(N), 400)}
+    plan = S.plan_audit(f, pilot, n, neg_guard=0, pseudo=2.0, two_phase="neg", width_margin=None)
+    assert plan["design"] == "cells" and plan["phase2"] == [True, False]
+    assert sum(plan["to_label"]) == n - len(pilot)
+    full = dict(pilot); full.update({i: y[i] for i in range(N)})
+    est, lo, hi = S.audit_interval(plan, f, full)
+    assert abs(est - sum(y) / N) < 1e-12 and hi - lo < 1e-3
+    labels = dict(pilot)
+    for c, t in zip(plan["cells"], plan["to_label"]):
+        for i in rng.sample([i for i in c if i not in pilot], t):
+            labels[i] = y[i]
+    est, lo, hi = S.audit_interval(plan, f, labels)
+    c0, c1 = plan["cells"]
+    y2 = [labels[i] for i in c0 if i in labels and i not in pilot]
+    ya = [labels[i] for i in c1 if i in labels]
+    hand = sum(pilot[i] for i in c0 if i in pilot) + sum(1 for i in c0 if i not in pilot) * sum(y2) / len(y2)
+    hand += len(c1) * sum(ya) / len(ya)
+    assert abs(est - hand / N) < 1e-12 and lo < est < hi
+    # keeping the coder-positive pilot can only help the forecast
+    assert S.predicted_ratio(f, pilot, n, pseudo=2.0, two_phase="neg") <= \
+        S.predicted_ratio(f, pilot, n, pseudo=2.0, two_phase=True, price_floor=False) + 0.02
+
+
+def test_priced_floor_raises_the_forecast_when_the_second_phase_is_small():
+    # LOG.md 7ap: with a near-empty coder-negative cell in the pilot, the plus-four floor at the second-phase size is
+    # larger than at the pilot size, so the priced forecast is wider; with pseudo 0 pricing changes nothing
+    from llmci import audit_design as S
+    rng = random.Random(5)
+    N, n = 4000, 600
+    y = [int(rng.random() < 0.06) for _ in range(N)]
+    f = [a if (a and rng.random() < 0.97) or (not a and rng.random() < 0.97) else 1 - a for a in y]
+    pilot = {i: y[i] for i in rng.sample(range(N), 300)}
+    plain = S.predicted_ratio(f, pilot, n, pseudo=2.0, two_phase=True)
+    priced = S.predicted_ratio(f, pilot, n, pseudo=2.0, two_phase=True, price_floor=True)
+    assert priced >= plain - 1e-9
+    cells = [[i for i, c in enumerate(f) if c == k] for k in (0, 1)]
+    s2 = [0.01, 0.2]
+    d0 = S.priced_two_phase(n, cells, pilot, s2, pseudo=0.0)
+    rest, k = S.two_phase_allocation(n, cells, pilot, s2)
+    assert d0["to_label"] == k
+    # the plan built with pricing on matches the forecast's design
+    plan = S.plan_audit(f, pilot, n, neg_guard=0, pseudo=2.0, two_phase=True, price_floor=True, width_margin=None)
+    if plan["design"] == "cells":
+        assert sum(plan["to_label"]) == n - len(pilot)
