@@ -77,7 +77,7 @@
  *   shift-drop     what ships (groupRanking.ts fastBlockStarts): the same split,
  *                  with its fixed constants, on each answer's log time minus the
  *                  panel's log time at that position (the FAST_BLOCK_CURVE_Q
- *                  quantile, 0.5 until 2026-11-13 and 0.75 since; running median of 5).
+ *                  quantile, 0.5 until 2026-11-13 and 0.75 since; running median of 5; since 2026-11-13, last, passes after the first read the median of the people not yet flagged, `--later-q`).
  *                  Since 2026-11-13 later its gap threshold is per survey
  *                  (autoFastBlockMinLog) and a split must fit as a step, not a
  *                  line (stepOverTrend, FAST_BLOCK_TREND_F); rows before that
@@ -86,6 +86,7 @@
  *   shift-drop-auto-qNN-fNN[-cNN][-tfNN] `--auto q:floor[:cap[:trendF]]`: per-survey gap threshold
  *   shift-drop-tfNN `--trend-f f`: the fixed 0.5 gap with the step-over-line test at f
  *   `--person-drift sd`: each person's own speed-up or slow-down over the session, N(0, sd) log
+ *   shift-drop-lNN `--later-q 0.NN`: the shipped reading with passes after the first at the 0.NN quantile
  *
  * `--onset-spread s` (2026-11-13): each careless person's onset is drawn
  * uniform on onset +- s (clamped to 0.05-0.95), as real ones may be spread out.
@@ -96,7 +97,7 @@
 import { selectNextPair, selectNextPairHybrid, type PairingInput } from "../src/lib/pairing";
 import { DEFAULT_GLICKO_STATE, applyComparison, type GlickoState } from "../src/lib/glicko2";
 import { simulate, spearman, type Chooser, type Policy } from "../src/lib/infoGainSim";
-import { autoFastBlockMinLog, FAST_BLOCK_AUTO_CAP, FAST_BLOCK_AUTO_FLOOR, FAST_BLOCK_AUTO_Q, FAST_BLOCK_TREND_F, FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, fastBlockSplit, fastBlockStarts, groupRanking, type RatingRow } from "../src/lib/groupRanking";
+import { autoFastBlockMinLog, FAST_BLOCK_LATER_Q, FAST_BLOCK_AUTO_CAP, FAST_BLOCK_AUTO_FLOOR, FAST_BLOCK_AUTO_Q, FAST_BLOCK_TREND_F, FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, fastBlockSplit, fastBlockStarts, groupRanking, type RatingRow } from "../src/lib/groupRanking";
 
 const argv = process.argv;
 const opt = (name: string, d: string) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : d);
@@ -140,12 +141,16 @@ const personDrift = Number(opt("--person-drift", "0"));
 // `--trend-f f,...`: a shift-drop-tfNN scheme per value, the shipped reading but a split must also fit as a step at least f
 // (stepOverTrend) better than a straight line, so a steady personal speed-up is not taken for a block.
 const trendFs = nums(opt("--trend-f", "")).filter((x) => x > 0);
+// `--later-q q,...` (2026-11-13, flagship item d4): a shift-drop-lNN scheme per value, the shipped reading (0.75 curve, auto
+// gap, step test) whose second and third passes read the q quantile of the people the last pass did not flag. 0.5 ships
+// (FAST_BLOCK_LATER_Q), so shift-drop-l50 is shift-drop since; rows before it read 0.75 in every pass.
+const laterQs = nums(opt("--later-q", "")).filter((x) => x > 0 && x < 1);
 const LOO_MIN = 0.2;
 
 /** Person-relative split (each person's log times against their own start), kept to show why the shipped rule reads against the panel. */
 const ownBlockStart = (ms: number[]) => fastBlockSplit(ms.map((v) => Math.log(v)), minSeg, shiftMin, shiftT);
 
-const variantKeys = [...curveQs.map((cq) => `shift-drop-q${Math.round(cq * 100)}`), ...autos.map((a) => a.key), ...trendFs.map((f) => `shift-drop-tf${Math.round(f * 10)}`)];
+const variantKeys = [...curveQs.map((cq) => `shift-drop-q${Math.round(cq * 100)}`), ...autos.map((a) => a.key), ...trendFs.map((f) => `shift-drop-tf${Math.round(f * 10)}`), ...laterQs.map((lq) => `shift-drop-l${Math.round(lq * 100)}`)];
 
 /**
  * fastBlockStarts with a per-survey gap threshold, for people who all answered in order with every answer timed (as
@@ -160,7 +165,7 @@ function autoBlockStarts(seqs: number[][], q: number, floor: number, cap: number
     const atPos: number[] = [];
     for (let i = 0; i < longest; i++) {
       const v = seqs.filter((s, j) => s.length > i && i < (splits[j] ?? Infinity)).map((s) => Math.log(s[i])).sort((a, b) => a - b);
-      const h = (v.length - 1) * FAST_BLOCK_CURVE_Q, lo = Math.floor(h);
+      const h = (v.length - 1) * (pass === 0 ? FAST_BLOCK_CURVE_Q : FAST_BLOCK_LATER_Q), lo = Math.floor(h);
       atPos.push(v.length ? (lo + 1 < v.length ? v[lo] + (h - lo) * (v[lo + 1] - v[lo]) : v[lo]) : NaN);
     }
     const curve = atPos.map((_, i) => median(atPos.slice(Math.max(0, i - 2), i + 3).filter(Number.isFinite)));
@@ -334,12 +339,16 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                 // `--curve-q`: the same reading against an upper quantile of the panel's times at each position, which a
                 // large share turning quick at once drags down less than the median.
                 for (const cq of curveQs) {
-                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), cq, FAST_BLOCK_MIN_LOG, 0);
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), cq, FAST_BLOCK_MIN_LOG, 0, cq);
                   people.forEach((p, i) => (p.qBlockAt[`shift-drop-q${Math.round(cq * 100)}`] = st.get(`p${i}`) ?? null));
                 }
                 for (const f of trendFs) {
-                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, f);
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, f, FAST_BLOCK_CURVE_Q);
                   people.forEach((p, i) => (p.qBlockAt[`shift-drop-tf${Math.round(f * 10)}`] = st.get(`p${i}`) ?? null));
+                }
+                for (const lq of laterQs) {
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, "auto", FAST_BLOCK_TREND_F, lq);
+                  people.forEach((p, i) => (p.qBlockAt[`shift-drop-l${Math.round(lq * 100)}`] = st.get(`p${i}`) ?? null));
                 }
                 for (const a of autos) {
                   const st = autoBlockStarts(people.map((p) => p.shown.map((s) => s.ms)), a.q, a.f, a.c, a.tf);

@@ -210,9 +210,12 @@ the speed-up it needs is set per survey from how big a *slow* turn the panel's o
 makes (between 33% and 40% quicker), and the drop must look like a step, not a steady speed-up over
 the whole session: in that case it now recovers 99% of the harm (was 86%) for the salience pattern
 and 95% (was 64%) for random clicking, and where people speed up on their own, it flags 9% of
-honest respondents instead of 26%. A comparison for now (same file, "Carelessness that starts
-mid-session", "A panel curve the careless cannot drag down" and "A threshold from the panel's own
-slow turns").
+honest respondents instead of 26%. Since the end of that day its second and third passes read the
+median of the people not yet flagged, which spread growing over the session cannot lift: with each
+person's own pace drifting by 0.6 log, honest flags fell from 7.5% to 4.8% at the same share of the
+harm recovered. A comparison for now (same file, "Carelessness that starts
+mid-session", "A panel curve the careless cannot drag down", "A threshold from the panel's own
+slow turns" and "A later-pass curve that drift cannot lift").
 Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.
 
 **A person's own results** (`/api/insights`) refit all of that person's answers at once
