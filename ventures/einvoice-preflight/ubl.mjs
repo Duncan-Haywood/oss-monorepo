@@ -355,7 +355,15 @@ export function parseUblInvoice(source) {
   const kind = DOCUMENT_ROOTS[root.name];
 
   const lines = descendants(root, kind.line).map((line) => {
-    const category = descendants(line, "ClassifiedTaxCategory")[0] || line;
+    // A line can carry two categories (PINT MY: SST and the tourism tax, scheme AAL);
+    // the VAT/GST one is the line's rate, whichever comes first.
+    const categories = descendants(line, "ClassifiedTaxCategory");
+    const vatScheme = (c) => {
+      const scheme = descendants(c, "TaxScheme")[0];
+      const id = scheme ? textOf(scheme, "ID", false).trim().toUpperCase() : "";
+      return !id || id === "VAT" || id === "GST";
+    };
+    const category = categories.find(vatScheme) || categories[0] || line;
     const percent = textOf(category, "Percent", false);
     const priceNode = line.children.find((child) => child.name === "Price");
     const baseQuantity = priceNode ? textOf(priceNode, "BaseQuantity", false) : "";

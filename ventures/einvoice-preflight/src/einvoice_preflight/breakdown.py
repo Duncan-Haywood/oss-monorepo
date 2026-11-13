@@ -15,7 +15,7 @@ from typing import Any
 
 from .numbers import parse_decimal
 
-from .linenet import tax_groups, tax_key, tax_percent_of
+from .linenet import is_flat_tax_row, tax_groups, tax_key, tax_percent_of
 
 
 def inspect_tax_breakdown(invoice: dict[str, Any]) -> list[dict[str, str]]:
@@ -60,6 +60,16 @@ def _check_rows(rows: list[Any], expected: dict[Any, dict[str, Decimal]], with_c
         percent = tax_percent_of(row)
         taxable = _money(row.get("taxable"))
         tax = _money(row.get("tax"))
+        # A flat-amount tax has no rate to check and no line group to match (breakdown.mjs).
+        if is_flat_tax_row(row):
+            if tax is None:
+                findings.append(_finding(
+                    "INV-038",
+                    f"Tax breakdown row {index + 1} tax amount is missing or invalid.",
+                    "Set tax to the flat amount charged under this tax scheme.",
+                    f"{path}/tax",
+                ))
+            continue
         if percent is None or percent < 0 or percent > 100:
             findings.append(_finding(
                 "INV-038",

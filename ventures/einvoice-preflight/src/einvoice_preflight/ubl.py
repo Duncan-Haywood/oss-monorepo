@@ -152,7 +152,13 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         quantity = _text(line, quantity_name)
         price = _text(line, "PriceAmount")
         net = _text(line, "LineExtensionAmount")
-        category = next(iter(_children(line, "ClassifiedTaxCategory")), line)
+        # Two categories on a line (PINT MY: SST and the tourism tax, scheme AAL): the
+        # VAT/GST one is the line's rate, whichever comes first (as ubl.mjs).
+        categories = _children(line, "ClassifiedTaxCategory")
+        category = next(
+            (c for c in categories if _nested_text(c, "TaxScheme", "ID").upper() in ("", "VAT", "GST")),
+            categories[0] if categories else line,
+        )
         percent = _text(category, "Percent", required=False)
         price_node = next(iter(_children(line, "Price")), None)
         base_quantity = _text(price_node, "BaseQuantity", required=False) if price_node is not None else ""
@@ -350,6 +356,11 @@ def _tax_breakdown(root: ElementTree.Element) -> list[dict[str, Any]]:
             row["tax"] = _number(tax)
         if tax_id:
             row["tax_category"] = tax_id
+        # A tax other than VAT/GST (Malaysia's tourism tax, scheme AAL) can be a flat
+        # amount with no percentage; the scheme is kept only then (as ubl.mjs).
+        scheme_id = _nested_text(category, "TaxScheme", "ID").upper() if category is not None else ""
+        if scheme_id and scheme_id not in ("VAT", "GST"):
+            row["tax_scheme"] = scheme_id
         if row:
             rows.append(row)
     return rows

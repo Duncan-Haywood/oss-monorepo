@@ -144,7 +144,7 @@ flagships:
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
       History: README and git. Open: ZATCA rules on a real sandbox invoice and
-      credit or debit note, built-in INV-0xx checks beside PINT/ZATCA sets;
+      credit or debit note, MY tourism tax read as flat; open: JP-NTR/AE INV-018/038 step-asides;
       FatturaPA tolerances and SdI codes read from spec 1.9 (2026-11-13,
       eval/sdi-error-codes-2026-11-13.md); open: a real SdI rejection receipt;
       Portugal's CIUS-PT add-on (AA/RED/INT/NOR fail EU BR-CL-17/18 though

@@ -200,9 +200,9 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
           // OpenPeppol's 32 AE examples do this; PINT AE's own rules check those rows.
           const zeroAtRate = (row) => ["AE", "N"].includes(String(row?.tax_category || "").toUpperCase()) && Number(row?.tax) === 0 && Number(row?.tax_percent) > 0;
           if (sets.some((x) => /^pint-ae-/.test(x)) && (invoice?.tax_breakdown || []).some(zeroAtRate)) ["INV-018", "INV-038"].forEach((r) => drop.add(r));
-          // A flat-amount tax with no percentage (Malaysia's tourism tax, 10 MYR a night) cannot
-          // be checked as taxable x rate; PINT MY's rules govern those rows.
-          if ((invoice?.tax_breakdown || []).some((row) => row?.tax_scheme && (row.tax_percent === undefined || row.tax_percent === ""))) ["INV-018", "INV-038"].forEach((r) => drop.add(r));
+          // A flat-amount tax with no percentage (Malaysia's tourism tax, 10 MYR a night) is
+          // no longer a reason to step aside: since 2026-11-13 INV-018/038 read such a row as a
+          // flat amount (linenet.mjs isFlatTaxRow), so the SST rows beside it stay checked.
           // Under ZATCA also (ZATCA's 19 good-case examples, eval/phive-corpus.mjs --good,
           // 2026-11-11): a simplified (B2C) invoice names no buyer (INV-006; BR-KSA
           // rules require one where KSA does); credit and debit notes are Invoice
