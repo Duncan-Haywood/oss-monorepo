@@ -266,12 +266,13 @@ flagships:
       scripts/sparse-pool-overclaim.ts): the sweeps' rd cap at 349 counted
       never-answered rows as raters; the shipped pool calls 0-0.4% of clear
       pairs wrong at 150 items, and a joint Bradley-Terry fit is no more
-      honest while calling 20-54% fewer pairs. Next, most valuable first:
-      (g) the "Careless patterns" table's weighted columns (loo-w, gate-w,
-      self-w) at 8 and 60 respondents were run under that cap and are not
-      re-run (20-respondent cells are:
-      docs/careless-pattern-uncapped-2026-11-13.jsonl, where loo-w gains and
-      camp costs are both larger); (b) half-time salience (q = 0.5 still
+      honest while calling 20-54% fewer pairs. The weighted schemes (g) are
+      re-run uncapped at 8, 20 and 60 respondents (2026-11-13, doc section
+      "The weighted schemes at 8 and 60 respondents, uncapped";
+      docs/careless-pattern-uncapped-panels-2026-11-13.jsonl): loo-w's gains
+      and camp tax both about double, and at 60 people it makes a 25-40%
+      camp's pool call 0.9-1.7% of clear pairs wrong; agreement stays a note.
+      Next, most valuable first: (b) half-time salience (q = 0.5 still
       leaks +0.12 to +0.29: does pace see them?); (c) the first real survey's
       answers: msToAnswer against the answer-time model (and as a careless
       detector for the pooled prior), and how noisy real pairwise answers
