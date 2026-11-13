@@ -149,3 +149,13 @@ test("an unquoted thousands comma skips the row instead of shifting its columns"
   assert.deepEqual([quoted.rows[0].cost, quoted.rows[0].gross, quoted.rows[0].payout], [1200, 1400, 1260]);
   assert.equal(parseSales("Show,StubHub,2,100,150,15,").rows.length, 1, "a trailing empty cell is not extra width");
 });
+
+test("edges: a $0 list price is valid (giving tickets away), and hand-built rows report 0 skipped", () => {
+  const free = netIfSold(0, { ...order, flatFeePerTicket: 1 });
+  assert.equal(free.gross, 0);
+  assert.equal(free.payout, -2);
+  assert.throws(() => netIfSold(-0.01, order), /non-negative/);
+  const report = analyzeSales({ rows: [{ event: "A", platform: "X", qty: 1, cost: 10, gross: 20, payout: 18 }] });
+  assert.equal(report.skipped, 0);
+  assert.equal(report.count, 1);
+});
