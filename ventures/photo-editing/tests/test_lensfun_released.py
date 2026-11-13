@@ -86,7 +86,7 @@ class ReleasedGeometryTests(unittest.TestCase):
             lens = lens_named(self.db, name)
             dist, cs = lp.interpolate_distortion(lens, crop, focal)
             for W, H in ((600, 400), (401, 300), (300, 450)):
-                warp = lp.build_warp(lens, focal, crop, W, H, fill=False).warp
+                warp = lp.build_warp(lens, focal, crop, W, H, fill=False, tca=False).warp
                 for x, y in (
                     (0, 0),
                     (W - 1, H - 1),
@@ -105,7 +105,7 @@ class ReleasedGeometryTests(unittest.TestCase):
         lens = lens_named(self.db, "Testcam TC 18-55mm f/3.5-5.6 IS")
         dist, cs = lp.interpolate_distortion(lens, 1.5, 18)
         W, H = 600, 400
-        warp = lp.build_warp(lens, 18, 1.5, W, H, fill=False).warp
+        warp = lp.build_warp(lens, 18, 1.5, W, H, fill=False, tca=False).warp
         old = released_source(warp, dist, cs, 1.5, 0, 0, W, H)
         new = do.warp_source(warp, 0, 0, 0, W, H)
         c = ((W - 1) / 2, (H - 1) / 2)
@@ -128,7 +128,7 @@ class ReleasedGeometryTests(unittest.TestCase):
             mod.initialize(focal, 8.0, scale=1.0, flags=lensfunpy.ModifyFlags.DISTORTION)
             grid = mod.apply_geometry_distortion()
             dist, cs = lp.interpolate_distortion(lens, crop, focal)
-            warp = lp.build_warp(lens, focal, crop, W, H, fill=False).warp
+            warp = lp.build_warp(lens, focal, crop, W, H, fill=False, tca=False).warp
             sse = dist.model in ("ptlens", "poly3")
             worst = 0.0
             for y in range(0, H, 9):

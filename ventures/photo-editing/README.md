@@ -1545,6 +1545,29 @@ maker's correction and a lensfun profile, a Leica X Vario at 46 mm, the two diff
 full size once their zooms are matched, more than the camera's own correction of under 4 px. Which
 is right is not settled by that file. Details: `eval/lensfun-correction-2026-11-13.md`.
 
+### Lateral colour too, and Canon lens names from the maker note (2026-11-13)
+
+With `--lens-db`, a lens that lensfun also has a TCA calibration for (909 of its lenses) now gets its
+lateral colour corrected with its distortion: the red and blue fringes that grow toward the corners.
+Lensfun moves red and blue after the distortion, on the distorted point. So each plane's source
+radius is `r f_D(r) f_T(s r f_D(r))`, a polynomial of degree at most 14. That is exactly the 15
+terms a WarpRectilinear2 plane holds, so the three planes carry it with no approximation, and the
+fill zoom keeps all three inside the frame. TCA calibrations are interpolated over focal length as
+lensfun does, with the `v` terms not scaled by focal length (`lens.cpp`, `__parameter_scales`).
+`--no-lens-tca` corrects distortion only. Canon bodies from before EXIF 2.3 (the 5D Mark II, 7D,
+550D) write no `LensModel` tag but name the lens in their maker note (tag 0x0095). The CR2 reader
+now hands that name on, so the real 5D Mark II test file finds `Canon EF 50mm f/1.2L USM` without
+`--lens`.
+
+Measured: every lens with TCA in lensfun's database (909 lenses, 6,257 focal lengths counting
+midpoints) lands within 3e-12 px of lensfun's pipeline written out step by step
+(`tools/lensfun_tca_check.py`). On a 6000 px frame at the calibration's crop, the uncorrected
+corner has red and blue a median 0.56 px apart, over 1 px for 30% of cases and over 2 px for 9%,
+and up to 9.9 px. 12 tests (`tests/test_lens_tca.py`). Four seeded faults each fail 1 or 2 of them:
+TCA before the distortion, `v` scaled by focal length, `b` scaled once, and a fill zoom from green
+alone. Not checked: a real frame with sharp corner edges, to see that the fringes go. Details:
+`eval/lensfun-tca-2026-11-13.md`.
+
 ## The lensfun port against the real lensfun library (2026-11-13)
 
 The lensfun correction above was checked against lensfun's own compiled code, not just against its

@@ -135,6 +135,7 @@ import {
   MARK_BG,
   SITE_NAV,
   SITE_HEADER_CSS,
+  HEADER_MARKER,
   SITE_STYLE_FILE,
   VENTURE_CHROME_CSS,
   VENTURE_CHROME_JS,
@@ -10091,6 +10092,15 @@ body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .
  * the band's 26px bottom margin is reset to 0 by VENTURE_CHROME_CSS). 16px
  * collapses with a first child's own top margin, so it never doubles. */
 header:has(+ .pf-rates, + .pf-jobs){margin-top:16px}
+/* The venture's body top padding, zeroed above, was its only space under the
+ * band on most tool pages; the build marks those (bodyTopPadded) and the band
+ * gives 16px back. A margin, so it collapses with the first child's own top
+ * margin (14px on the median page) instead of adding to it. The selector has
+ * to outweigh VENTURE_CHROME_CSS's margin:0 on the same nav. */
+nav.pf-chrome.pf-chrome-top[data-pfs-head][data-pfs-gap]{margin-bottom:16px}
+/* Where a bar still sits straight under the band (the three tools whose h1 is
+ * not in a header: toolHeadingEnd), the bar's own top padding is the space. */
+nav.pf-chrome.pf-chrome-top[data-pfs-head][data-pfs-gap]:has(+ .pf-rates, + .pf-jobs){margin-bottom:0}
 
 /* Site chrome is not part of anything a visitor prints.
  *
@@ -10842,6 +10852,37 @@ function spliceAt(html, index, text) {
   return html.slice(0, index) + text + html.slice(index);
 }
 
+/**
+ * True when the venture's own inline CSS gives `body` a top padding.
+ *
+ * The chrome stylesheet zeroes the body's top padding so the site band meets
+ * the top edge (`renderChromeStyle`). On 1,280 of the 1,354 tool pages that
+ * padding was the venture's only space above its first line, so a page whose
+ * eyebrow or `h1` carries no top margin of its own drew it 0 to 2px under the
+ * band, or 3px into it (123 pages measured on 2026-11-13). Those pages get
+ * `data-pfs-gap` on the band and a 16px bottom margin, which collapses with a
+ * first child's own margin, so it never doubles. Pages whose body has no top
+ * padding put their space on `main` or `header` instead (67 of them, 22 to 93px
+ * gaps); a margin there would add to that padding, so they are left alone.
+ *
+ * Reads `body { padding }` / `padding-top` in any inline `<style>`, at any
+ * media width: a body padded only on phones still lost that space there.
+ */
+export function bodyTopPadded(html) {
+  for (const block of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi)) {
+    const css = block[1].replace(/\/\*[\s\S]*?\*\//g, '');
+    for (const rule of css.matchAll(/([^{};]+)\{([^{}]*)\}/g)) {
+      const selectors = rule[1].split(',').map((s) => s.trim().replace(/\s+/g, ' '));
+      if (!selectors.some((s) => s === 'body' || s === 'html body')) continue;
+      for (const decl of rule[2].matchAll(/(?:^|;)\s*padding(-top)?\s*:\s*([^;!]+)/gi)) {
+        const top = decl[2].trim().split(/\s+/)[0];
+        if (!/^[-+]?0*\.?0*(px|r?em|%|vh|vw)?$/i.test(top)) return true;
+      }
+    }
+  }
+  return false;
+}
+
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
   const initialBody = locateBody(html);
@@ -10935,7 +10976,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
     search: 'link',
     crumbs,
     extraClass: 'pf-chrome pf-chrome-top',
-  });
+  }).replace(`${HEADER_MARKER}>`, bodyTopPadded(html) ? `${HEADER_MARKER} data-pfs-gap>` : `${HEADER_MARKER}>`);
 
   const links = related
     .map(

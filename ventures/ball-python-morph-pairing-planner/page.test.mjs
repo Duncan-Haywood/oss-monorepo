@@ -146,3 +146,10 @@ test("the guide carries the clauses, links both ways, and its worked table match
   }
   assert.ok(guide.includes(rows.trim()), "worked table does not match what the solver computes");
 });
+
+test("FAQ says where possible hets come from (quality audit 2026-11-13)", () => {
+  const html = page("index.html");
+  assert.doesNotMatch(html, /poss het for the baby of a visual and a normal/);
+  assert.doesNotMatch(html, /het-by-visual or het-by-het pairing/);
+  assert.match(html, /visual bred to a normal are 100% het/);
+});

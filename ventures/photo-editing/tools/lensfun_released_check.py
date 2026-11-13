@@ -6,7 +6,7 @@ ptlens, poly3 or poly5 calibration: at each calibrated focal length and at the m
 (where lensfun interpolates), on a 3:2 and a 4:3 frame, at the calibration's crop factor and at 1.5 times it.
 It asks ``Modifier.apply_geometry_distortion`` (distortion only, scale 1) where each pixel reads from and
 compares that with ``dng_opcodes.warp_source`` on the WarpRectilinear2 that ``lens_profiles.build_warp``
-makes (``fill=False``).
+makes (``fill=False, tca=False``: distortion only, as asked of lensfun).
 
 **Two conventions, one identity.** ``lens_profiles`` follows lensfun's master branch, which divides the
 ptlens and poly3 terms by ``d`` (``1 - a - b - c``, or ``1 - k1``) so the centre keeps its scale; the 0.3
@@ -114,7 +114,7 @@ def main(argv=None) -> int:
                         continue
                     dist, cs = found
                     try:
-                        warp = lp.build_warp(lens, f, crop, W, H, fill=False).warp
+                        warp = lp.build_warp(lens, f, crop, W, H, fill=False, tca=False).warp
                     except lp.LensProfileError:
                         skipped += 1
                         continue

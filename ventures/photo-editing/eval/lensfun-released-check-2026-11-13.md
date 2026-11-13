@@ -21,7 +21,7 @@ from the same files and finds by the same name. It tries:
 
 Each case asks `Modifier.apply_geometry_distortion` (distortion only, scale 1) where each pixel reads
 from. It compares that with `dng_opcodes.warp_source` on the WarpRectilinear2 that
-`lens_profiles.build_warp(..., fill=False)` makes, over 7 rows and one pixel quad in four along each
+`lens_profiles.build_warp(..., fill=False, tca=False)` makes (distortion only), over 7 rows and one pixel quad in four along each
 row.
 
 **Two conventions, one exact identity.** `lens_profiles` follows lensfun's master branch (0.4,
