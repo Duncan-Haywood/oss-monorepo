@@ -185,8 +185,8 @@ flagships:
       (README "Is 91 the least?" to "Giving up two clashing shifts"); a whole week at the Deputy file's rates (README "A whole
       week of call-outs at a real roster's rates", 2026-11-13): kept reissues cut changes 56-66%, open hours path-dependent
       both ways. Next: whether a real manager would set keepShift
-      above 1; close the 100-person gaps (tree, not pricing: the clique LP gives the same 358 and 344 h roots in 13-15 s, and HiGHS on the clique model found only 368 and 367 h in 300 s); cuts or branching that move the score LP on the 60-person
-      pay week ($1.22 open); the 60x168 week 0's pay half (its 300 open hours are proven least since 2026-11-13 by the clique LP, README "The 60-person week's 300 open hours are the least"; the whole-score column generation's root does not converge in the budget, and the clique floor as its open-hours row made that worse); a floor above 60 copies needs
+      above 1; close the 100-person gaps (tree, not bound: README same section); cuts or branching that move the score LP on the 60-person
+      pay week ($1.22 open); the 60x168 week 0's pay half (open hours proven 2026-11-13, README "The 60-person week's 300 open hours"); a floor above 60 copies needs
       something stronger than the coverage LP (README "The open-hours row from the first pass"); re-run the
       keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
       would post; a real 7shifts account through --import-7shifts (README
