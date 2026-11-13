@@ -251,3 +251,20 @@ def test_match_window_bounds_alarm_after_onset():
     t = [np.datetime64("2019-01-20T00", "h")]
     assert score.match(t, ev, np.timedelta64(14, "D"))[0] == {}
     assert 0 in score.match(t, ev, np.timedelta64(30, "D"))[0]
+
+
+def test_evaluate_counts_a_2018_leak_only_for_a_2018_alarm():
+    # step 10 scores 2018 as a test year: a December leak matched by a January alarm is a 2019
+    # match, not a 2018 detection, and a January leak sits in 2019's set, not 2018's
+    from water_leaks import harness
+    hrs = np.arange(np.datetime64("2018-01-01T00", "h"), np.datetime64("2019-03-01T00", "h"))
+    first = hrs[14 * 24]
+    ev = [("pa", t("2018-06-01T00:00"), t("2018-08-01T00:00"), 5.0, 1.0),
+          ("pb", t("2018-12-20T00:00"), t("2019-02-01T00:00"), 5.0, 1.0),
+          ("pc", t("2019-01-20T00:00"), t("2019-02-20T00:00"), 5.0, 1.0)]
+    at = lambda s: int((np.datetime64(s, "h") - hrs[0]).astype(int))
+    al = [(at("2018-06-03T00"), 0), (at("2019-01-05T00"), 0), (at("2019-01-21T00"), 0)]
+    r = harness.evaluate(hrs, al, ev, set(), first)
+    assert r["n18"] == 2 and r["tp18"] == [0]
+    assert r["n19"] == 1 and r["tp19"] == [2]
+    assert r["fp18"] == [] and r["fp19"] == []

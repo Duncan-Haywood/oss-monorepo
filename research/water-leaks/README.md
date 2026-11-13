@@ -20,6 +20,10 @@ A research programme ([`PROPOSAL.md`](PROPOSAL.md), [`LOG.md`](LOG.md)) on leak 
 
 ![P(random alarms score at least each detector's 2019 count) against the match window, ungated and gated](experiments/step9-windows/window_chance.svg)
 
+**Step 10 (2026-11-13): tune on one year, test on the other, and nothing survives.** Swapping the years (thresholds chosen on 2019, scored once on 2018's 13 leaks) and pooling with the forward fold gives **32 held-out leaks**. Under the primary flow-gated rule **no detector's pooled count beats chance after a Holm correction** (smallest 0.27; LILA 22 of 32 and smart-meter night flow M3 21 of 32, both P &asymp; 0.05 unadjusted). **M3's step-8 lead does not carry over**: it finds 15 of 19 leaks in 2019 but 6 of 13 in 2018, against 8 for the pressure CUSUM and 9 for LILA. Five of six thresholds move when the tuning year changes. Only LILA under the old ungated rule survives (24 of 32, Holm P = 0.024), and on 32 leaks still no pair of detectors differs (smallest Holm P 0.86).
+
+![Pooled detections of the 32 cross-fitted leaks against chance, gated and ungated](experiments/step10-crossfit/pooled_chance.svg)
+
 We also found that **the released LILA identification code is not a blind detector**: its notebook writes in, for each known 2019 leak, the pipe, its most affected sensor and the calibration windows, and then dates that one leak (it prints a 0 h delay for p523). Our automatic version runs LILA's identification over a whole year without those inputs; we know of no earlier such run.
 
 ![D1 and automatic LILA against random alarms on the 2019 new leaks](experiments/step2-lila/lila_vs_chance.svg)
@@ -169,12 +173,34 @@ Chance medians: 7 to 9 leaks at 14 days, 10 to 12 at 30, 11 to 13 at 60 (M2, wit
 - **What it means for the paper.** On 19 leaks, a detection count under one matching rule cannot rank these detectors, and a "beats chance" verdict for three of six flips with the rule. A chance-corrected protocol has to report the window and gate it used, the chance level under that rule, a multiplicity correction across the methods compared, and a paired test before claiming one method beats another. Under that protocol, LILA-auto and M3 are the two that survive Holm under some rule; nothing is shown to beat anything else.
 - **Caveat.** Thresholds were still chosen on 2018 under the 30-day ungated rule; this step asks how the scores move with the rule, not what each detector would do tuned for it. Six rules were reported, not chosen among; the primary was fixed in step 8.
 
+## Step 10: cross-fitted thresholds and pooled tests (`experiments/step10-crossfit/`)
+
+Plan, set before any reverse-fold score was computed: [`LOG.md`](LOG.md), 2026-11-13 (step 10).
+
+**Method.** Forward fold: each detector at the setting its own step chose on 2018, scored on 2019's 19 new leaks (alarm lists checked against each step's `alarms.tsv`). Reverse fold: the same grids (D1-F 13 values of h; LILA-auto 3 &times; 9; M1 to M4 9 values of h, M2 and M4's weekday offsets from 2019 nights), the same rule with the years swapped (most 2019 detections at &le; 2 2019 false alarms, ungated 30-day match), scored once on 2018's 13 leaks that start after the first scored hour. Pooled over 32 leaks: chance per fold with that fold's alarm count (1,000 draws, seeds 0 and 1), summed draw by draw; Holm across the six detectors; per-leak sign tests for the 15 pairs (Holm) and a bootstrap of the detection difference (2,000, seed 9).
+
+**Results** (`experiments/step10-crossfit/results.txt`, `grid.tsv`, `pooled.tsv`; deterministic). Detected / false alarms:
+
+| detector | forward setting &rarr; reverse | 2019 (fwd), gated | 2018 (rev), gated | **pooled, gated** (chance median; P; Holm) | pooled, ungated (P; Holm) |
+|---|---|---|---|---|---|
+| D1-F | h 240 &rarr; 240 | 11/19, 4 | 8/13, 2 | **19/32** (18; 0.307; 0.921) | 22/32 (0.023; 0.115) |
+| LILA-auto | &delta; 1, C 20 &rarr; &delta; 2, C 10 | 13/19, 2 | 9/13, 3 | **22/32** (19; 0.049; 0.270) | 24/32 (0.004; **0.024**) |
+| M1 | h 3 &rarr; 5 | 13/19, 3 | 6/13, 2 | **19/32** (16; 0.099; 0.396) | 17/32 (0.451; 1.000) |
+| M2 | h 12 &rarr; 3 | 8/19, 0 | 7/13, 2 | **15/32** (14; 0.337; 0.921) | 14/32 (0.506; 1.000) |
+| M3 | h 3 &rarr; 8 | 15/19, 3 | 6/13, 1 | **21/32** (17; 0.045; 0.270) | 20/32 (0.145; 0.580) |
+| M4 | h 3 &rarr; 30 | 12/19, 2 | 2/13, 0 | **14/32** (14; 0.504; 0.921) | 12/32 (0.916; 1.000) |
+
+- **Pre-registered predictions.** (a) M3 pooled beats chance at Holm 0.05: **failed** (0.270). (b) D1-F pooled P &ge; 0.05: **held** (0.307). (c) No pair separable at Holm 0.05: **held** (smallest 0.861, LILA-auto vs M4, 11 vs 3 discordant). (d) The reverse fold changes the setting of at least three detectors: **held** (five).
+- **Paired.** TP(M3) &minus; TP(D1-F) +2 (95% &minus;4 to +8); TP(LILA-auto) &minus; TP(D1-F) +3 (&minus;3 to +9). p427, p654 (2018, both carried into 2019) and p762 (2019) are missed by all six.
+- **What it means for the paper.** A detection-only ranking on BattLeDIM from one tuning year does not survive swapping the years: thresholds move, and the step-8 winner falls to the bottom half on the other year. The protocol needs a cross-fit clause next to the rule, chance level, multiplicity correction and paired test.
+- **Caveat.** Cross-fitting removes label use from the thresholds only. The detector designs (M2 to M4 especially) were made after 2019 scores were seen, and 2018's tuning counts were printed by every earlier step.
+
 ## Reproduce
 
 ```bash
 pip install numpy matplotlib pytest
 cd research/water-leaks
-python -m pytest -q tests                                    # 23 tests, no network
+python -m pytest -q tests                                    # 24 tests, no network
 PYTHONPATH=src python experiments/step1-baseline/run.py      # downloads ~75 MB once; about 4 min (the chance draws)
 python experiments/step1-baseline/figure.py                  # experiments/step1-baseline/chance.svg
 PYTHONPATH=src python experiments/step2-lila/run.py          # about 5 min
@@ -188,6 +214,8 @@ PYTHONPATH=src python experiments/step8-gated/run.py         # every detector re
 python experiments/step8-gated/figure.py                     # experiments/step8-gated/gated_chance.svg
 PYTHONPATH=src python experiments/step9-windows/run.py       # 3 windows x 2 gates x 6 detectors, paired tests; about 5 min
 python experiments/step9-windows/figure.py                   # experiments/step9-windows/window_chance.svg
+PYTHONPATH=src python experiments/step10-crossfit/run.py     # reverse-fold grids, pooled chance and paired tests; about 5 min
+python experiments/step10-crossfit/figure.py                 # experiments/step10-crossfit/pooled_chance.svg
 ```
 
 ## Limitations
@@ -195,12 +223,12 @@ python experiments/step9-windows/figure.py                   # experiments/step9
 - L-Town is a **simulated** network with simulated leaks and sensor noise; nothing here is a field result or an operational recommendation (drinking-water decisions need licensed engineers and the operator).
 - Detection only. The 300 m figure uses the alarming sensor (LILA's MAS) as a crude location, not a localisation method; LILA's model-based localisation (LL-1 to LL-3) is not reimplemented yet.
 - LILA-auto is our automation of LILA's identification, not the authors' procedure, which used per-leak inputs; its numbers are not the paper's. Hourly means, not 5-minute data. The paper's own 2019 figures were not read (paywalled), so this step does not check against them.
-- One tuning rule (2018, 30-day ungated match). Step 9 shows the chance level and three detectors' verdicts move with the window and gate; each detector's threshold has not yet been re-chosen under the rule it is scored by. 19 test leaks are too few to separate detectors by a paired test.
+- One tuning rule (2018, 30-day ungated match). Step 9 shows the chance level and three detectors' verdicts move with the window and gate; each detector's threshold has not yet been re-chosen under the rule it is scored by. Step 10 cross-fits thresholds across the two years (32 test leaks), still too few to separate detectors by a paired test.
 - MNF (steps 6 and 7) is tested with a two-week median/MAD baseline, a fixed 2018 weekday profile and the 82 AMR meters; other baselines (seasonal, regression on temperature) are untried. The H4 comparison is on 9 leaks, defined by peak flow, not the configuration file's leak types, and 2019 has now been seen through four night-flow detectors. The step-7 diagnosis of why uses the ground-truth leak flows and was done after the scores.
 - 2019 results were seen once before the re-anchoring fix (`LOG.md`); the fix came from a unit test, and its one new parameter (7-day minimum window) was not tuned.
 
 ## Next steps
 
-H4 is closed for this network as stated, under both rules. Steps 8 and 9 show that the detection-only verdict on L-Town turns on the matching rule and that 19 leaks cannot rank the detectors; next in the harness: re-select each detector's threshold on 2018 under the rule it is scored by, and pool evidence across more leaks (BattLeDIM's 2018 leaks as a second test set under a cross-fitted tuning, or simulated leak years from `L-TOWN_Real.inp`) so a paired test has power. Milestone 2 continues with SICAMS (Melnikov 2025; arXiv was unreachable from earlier sessions). Then localisation on the nominal model with the 300 m confusion matrix as BattLeDIM scored it, and leak-free simulated years for an e-process threshold ([`PROPOSAL.md`](PROPOSAL.md), Milestones). H1 should be restated as a protocol claim: a detection-only count is reported with its rule, its chance level and a multiplicity correction; location-aware counts beat chance under every rule tried.
+H4 is closed for this network as stated, under both rules. Steps 8 and 9 show that the detection-only verdict on L-Town turns on the matching rule and that 19 leaks cannot rank the detectors; next in the harness: re-select each detector's threshold under the rule it is scored by, and pool evidence across more leaks than BattLeDIM's 32 (step 10 cross-fitted both years and still could not separate any pair), with simulated leak years from `L-TOWN_Real.inp`, so a paired test has power. Milestone 2 continues with SICAMS (Melnikov 2025; arXiv was unreachable from earlier sessions). Then localisation on the nominal model with the 300 m confusion matrix as BattLeDIM scored it, and leak-free simulated years for an e-process threshold ([`PROPOSAL.md`](PROPOSAL.md), Milestones). H1 should be restated as a protocol claim: a detection-only count is reported with its rule, its chance level and a multiplicity correction; location-aware counts beat chance under every rule tried.
 
 AI-assisted research (Claude); no affiliation with the BattLeDIM organisers is implied. Code MIT; BattLeDIM data CC-BY-4.0 (Vrachimis et al.), not redistributed here.
