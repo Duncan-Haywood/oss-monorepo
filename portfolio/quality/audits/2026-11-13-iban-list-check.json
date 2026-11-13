@@ -1,0 +1,275 @@
+{
+  "date": "2026-11-13",
+  "subject": "ventures/iban-list-check",
+  "stratum": "venture",
+  "seed": "2026-11-13-i",
+  "drawn_by": "sample",
+  "round": 63,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a payments operations / treasury specialist who validates supplier and payroll IBAN lists before a SEPA batch. What they check first: ISO 13616 mod-97 including the 02-98 check-digit range, the per-country length and BBAN structure from the current SWIFT IBAN Registry, national check digits where the country defines them, and that a clean exit really means every row in the payee column was checked",
+  "scores": {
+    "correctness": 2,
+    "completeness": 2,
+    "verification": 1,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran node ventures/iban-list-check/cli.mjs check /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/iban/list.csv (30 rows) and list2.csv, two.csv, sepa.csv, with expectations from an independent Python mod-97 (/tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/iban/ref.py, int(c,36) letter mapping and Python big ints) and the SWIFT IBAN Registry release 101 as tabulated by python-stdnum (stdnum/iban.dat, fetched from GitHub). Right: all 14 registry example IBANs for countries the tool knows pass (GB, DE, FR, NL, BE, ES, IT, PT, NO, PL, CH, AT, LC, SC); 3 single-character / transposition errors are errors and the transposition gets the correct swap among 2 candidates; a 21-char DE is 'wrong length (1 missing)'; lower case, spaces, hyphens and an 'IBAN:' label are cleaned and then caught as duplicates; BE and ES IBANs whose account was mistyped and ISO digits recomputed raise the national-check warning, as do FR, IT, PT, NO and PL single-digit mutants (5 of 5; the PL account-part mutant correctly does not, since the PL check covers only the sort code). All 77 country lengths in COUNTRIES match registry v101 exactly. Wrong: (1) DE01370400440000000042, DE00370400440000000060 and DE99370400440000000024 are reported valid; ISO 13616 check digits are 02-98, and these are the aliases of 98, 97 and 02 that a mod-97-only test lets through, so a bank's validator rejects what the tool passed; (2) RU, LY, OM and MN registry examples are errors 'Not a valid IBAN: unknown country'; 12 registry countries are missing (BI, DJ, FK, HN, LY, MN, NI, OM, RU, SD, SO, YE); (3) --column payee_iban is silently ignored and the tool checks the first IBAN-named column instead, exit 0 with a bad payee IBAN.",
+    "completeness": "Claimed features checked: mod-97 with swap suggestion (works); length per country (works for the 77 it lists); unknown countries (works, but over-fires on 12 registry countries); clean-up of spaces, lower case, labels (works); duplicates and blanks (works); per-line numbers (works); SEPA-only flag (works, conservative list); national check digits for BE ES FR IT PT NO PL (works on 7 of 7); CLI check/fix/--json/--strict/directory walk (works). Broken: the page's 'Write IBANs in groups of four' checkbox does nothing: index.html:160 passes {excelSafe} while repair() reads options.groups (node: repair(t,{excelSafe:true}) returns unbroken text, repair(t,{groups:true}) returns groups); the served page at https://marisstella.app/iban-list-check/ carries the same excelSafe line. The CLI --column <name> documented in help, README:23 and cli.mjs:7 does not select by name. No stubs or TODOs.",
+    "verification": "cd ventures/iban-list-check && node --test '*.test.mjs': 40 tests, 40 pass, 0.19 s. Seeded 9 mutations with platform/ci/quality_mutate.py (one more, removing the equal-character skip in findTransposition, was equivalent and is not counted). Only 1 caught (duplicate detection). Survived: accepting mod97 remainder 0 (calc.mjs:36), treating too-long IBANs as fine at the length gate (calc.mjs:123), changing the LC length 32->31 (calc.mjs:10), dropping the ES 10->1 rule (calc.mjs:44), the NO remainder-1 rule (calc.mjs:65), the BE 0->97 rule (calc.mjs:49), the PL %10 wrap (calc.mjs:70), and fixing the page's excelSafe/groups mismatch (index.html:160) changes no test outcome. The national-check tests only use one valid example and one forgery per country, so every edge branch is untested; there is no test that --column accepts a header name.",
+    "craft": "Read calc.mjs (242 lines), cli.mjs (118), index.html script, page.test.mjs, calc.test.mjs. Small, dependency-free, pure functions, BigInt where 32-bit would overflow, line numbers kept through quoted newlines. Defects: parseTable computes the delimiter ranking twice in one expression (calc.mjs:86-87); pickColumn coerces the override with Number() and falls through silently for a name (calc.mjs:147-148) instead of matching the header or failing; the page and the engine disagree on the option name (excelSafe vs groups); checkOk tests remainder only, not the 02-98 range.",
+    "claims": "Backed: 'file is never uploaded' (page.test.mjs asserts no fetch/XHR/beacon and local-only imports); disclaimer and independence notes on README, page and served page; 'country list read from memory' stated on the page; lengths in the FAQ (DE 22, GB 22, FR 27, NL 18, ES 24, IT 27, BE 16, CH 21) match registry v101. Not backed: 'Not checked: national check digits for countries other than BE, ES, FR and IT' (index.html:114, :131 and the JSON-LD FAQ at :12) is stale: PT, NO and PL are also checked (index.html:110 says so); '--column <name|n>' (cli.mjs:23, README:23) does not work for names; the 'groups of four' option on the page does nothing; 'wrong check digits' caught, while 00/01/99 pass; llms.txt boilerplate 'Results are estimates from the numbers typed in' does not describe a validator. Served llms.txt has marisstella.app URLs (rewritten at deploy, not a defect).",
+    "fitness": "Walked the job: a supplier CSV for a SEPA batch, checked with the CLI and with --sepa-only. Every EU/EEA/CH/GB country is in the table with the registry length and, for 18 of them, the BBAN shape; mod-97 is right; the national checks for BE, ES, FR, IT, PT, NO and PL go beyond most free validators; findings carry line numbers and the fix file keeps other columns. A treasury clerk could use it as a pre-flight with the stated limits. Gaps hit in the first hour: a file with payer and payee IBAN columns needs the column number, not the name, or the payee column is silently skipped; the print-format checkbox on the page is dead; non-SEPA payees in 12 registry countries are flagged invalid; GI (in SEPA) is flagged as outside the core list.",
+    "domain": "Against ISO 13616-1 and the SWIFT IBAN Registry v101: the mod-97 algorithm and the 77 lengths are right; the BBAN shapes it states (DE, AT, BE, ES, DK, FI, NO, PL, PT, SE, CZ, SK, HR, SI, GB, NL, IE, LU) agree with the registry's BBAN formats. Departures: ISO 13616 check digits must be in 02-98 and the tool accepts 00, 01 and 99; the registry has 89 countries and the tool 77 (missing ones added 2021-2024: BI, DJ, FK, HN, LY, MN, NI, OM, RU, SD, SO, YE); the SEPA list leaves out Gibraltar (in the EPC geographic scope for years) and the 2025 joiners, which it warns on rather than errors, the conservative choice. National algorithms (BE mod 97 with 0->97, ES weights 1,2,4,8,5,10,9,7,3,6 with 10->1, FR RIB key 89/15/3 with letter folding, IT CIN odd/even tables, PT 98-mod97, NO mod 11, PL 3,9,7,1 sort-code check) match the published national rules as I know them and passed on the registry examples and 7 forgeries."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "registry example IBANs for 14 known countries (GB82WEST12345698765432, DE89370400440532013000, FR1420041010050500013M02606, NL91..., BE68..., ES91..., IT60X..., PT50..., NO93..., PL61..., CH93..., AT61..., LC55..., SC18...SSCB...USD)",
+      "method": "independent Python mod-97 (/tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/iban/ref.py) and SWIFT IBAN Registry examples",
+      "command": "node ventures/iban-list-check/cli.mjs check /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/iban/list.csv --json",
+      "expected": "14 valid, no findings on lines 2-15",
+      "observed": "14 valid, no findings on lines 2-15",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "single-digit errors GB82WEST12345698765433 and DE89370400440532013001, and transposition GB82WEST12345698765423",
+      "method": "Python mod-97: remainders != 1; correct check digits would be 55, 62, 34",
+      "command": "node ventures/iban-list-check/cli.mjs check /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/iban/list.csv --json",
+      "expected": "3 check-digit errors; swap list for line 22 contains GB82WEST12345698765432",
+      "observed": "3 errors; line 22 lists 2 swaps incl. GB82WEST12345698765432",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "ISO 13616 check-digit range: DE01370400440000000042, DE00370400440000000060, DE99370400440000000024 (aliases of correct digits 98, 97, 02)",
+      "method": "ISO 13616-1: check digits 02-98; Python computes correct digits 98, 97, 02 for these BBANs",
+      "command": "node ventures/iban-list-check/cli.mjs check /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/iban/list.csv --json",
+      "expected": "3 errors on lines 27-29",
+      "observed": "no findings: counted valid",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "valid registry examples for RU (33), LY (25), OM (23), MN (20)",
+      "method": "SWIFT IBAN Registry v101 via python-stdnum iban.dat; Python mod-97 == 1 for all four",
+      "command": "node ventures/iban-list-check/cli.mjs check /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/iban/list.csv --json",
+      "expected": "valid",
+      "observed": "error 'Not a valid IBAN: unknown country' on lines 16-19",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "country length table vs registry",
+      "method": "python-stdnum stdnum/iban.dat (generated from iban-registry-v101.txt), BBAN lengths summed + 4",
+      "command": "python3 -I compare script over COUNTRIES exported by node",
+      "expected": "89 countries, lengths equal",
+      "observed": "77 of 77 lengths equal; 12 registry countries missing",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "national check on account-mistyped IBANs with recomputed ISO digits: BE41539007547035, ES6421000418450200051333, plus FR, IT, PT, NO, PL single-digit mutants",
+      "method": "Python recomputed ISO check digits after changing one BBAN digit; a correct national check must fail",
+      "command": "node ventures/iban-list-check/cli.mjs check /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/iban/list.csv; node ventures/iban-list-check/cli.mjs check /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/iban/list2.csv",
+      "expected": "7 'National check digits do not match' warnings, none for the PL account-part mutant",
+      "observed": "7 warnings, none for PLacct",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "cleaning: 'gb82 west 1234 5698 7654 32', 'IBAN: DE89 3704 ...', 'DE89-3704-...'",
+      "method": "hand",
+      "command": "node ventures/iban-list-check/cli.mjs check /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/iban/list.csv",
+      "expected": "fixable info, normalised value, duplicate warnings against lines 2/3",
+      "observed": "as expected",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "--column by header name with payer_iban and payee_iban columns, payee invalid",
+      "method": "README:23 and cli.mjs:23 document --column <name|n>",
+      "command": "node ventures/iban-list-check/cli.mjs check /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/iban/two.csv --column payee_iban",
+      "expected": "1 error, exit 1",
+      "observed": "0 errors, exit 0 (payer column checked); --column 2 gives 1 error, exit 1",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "page 'groups of four' checkbox",
+      "method": "index.html:160 passes excelSafe; repair() reads options.groups",
+      "command": "node -e repair(t,{excelSafe:true}) vs repair(t,{groups:true})",
+      "expected": "GB82 WEST 1234 5698 7654 32",
+      "observed": "GB82WEST12345698765432 with excelSafe; groups only via the CLI flag",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "--sepa-only on GI, ME, AL, DE",
+      "method": "EPC SEPA geographic scope (GI long-standing member)",
+      "command": "node ventures/iban-list-check/cli.mjs check /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/iban/sepa.csv --sepa-only",
+      "expected": "DE and GI clean; ME, AL warned or clean",
+      "observed": "GI, ME, AL warned; DE clean; exit 0",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run it",
+      "command": "cd ventures/iban-list-check && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "40 tests, 40 pass",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Not checked: national check digits for countries other than BE, ES, FR and IT'",
+      "method": "calc.mjs:47-72 also checks PT, NO, PL; index.html:110 says so",
+      "command": "grep -n 'BE, ES, FR and IT' index.html; curl https://marisstella.app/iban-list-check/",
+      "expected": "consistent list",
+      "observed": "stale on index.html:114, :131 and the JSON-LD FAQ; same on the served page",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "privacy and disclaimer on the served page",
+      "method": "curl the served page; page.test.mjs",
+      "command": "curl -sS https://marisstella.app/iban-list-check/",
+      "expected": "200, No warranty, nothing uploaded",
+      "observed": "200, disclaimer present, no network calls in script",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "FAQ country lengths (DE 22, GB 22, FR 27, NL 18, ES 24, IT 27, BE 16, CH 21)",
+      "method": "registry v101 via iban.dat",
+      "command": "grep in iban.dat",
+      "expected": "same",
+      "observed": "same",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:36",
+      "change": "mod97(iban) === 1 -> mod97(iban) <= 1",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:123",
+      "change": "if (s.length !== want) { -> if (s.length < want) {",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:10",
+      "change": "LC: 32 -> LC: 31",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:44",
+      "change": "return r === 11 ? 0 : r === 10 ? 1 : r; -> return r === 11 ? 0 : r;",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:65",
+      "change": "if (r === 1) return false; // no valid check digit exists -> (removed)",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:49",
+      "change": "return (r === 0 ? 97 : r) -> return (r)",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:70",
+      "change": "(10 - (s % 10)) % 10 -> (10 - (s % 10))",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:184",
+      "change": "if (seen.has(c.value)) -> if (seen.has(c.value) && c.fixed)",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "index.html:160",
+      "change": "excelSafe: $(\"#groups\").checked -> groups: $(\"#groups\").checked (the fix)",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "--column <name> (documented in cli.mjs help, README:23 and cli.mjs:7) is silently ignored: Number('payee_iban') is NaN, so pickColumn falls back to the first IBAN-named header; with payer and payee IBAN columns the payee column is never checked and the CLI exits 0 on a bad payee IBAN",
+      "where": "ventures/iban-list-check/calc.mjs:147",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "check digits 00, 01 and 99 are accepted (DE01..., DE00..., DE99... reported valid); ISO 13616 allows only 02-98, so a bank rejects IBANs the tool passed",
+      "where": "ventures/iban-list-check/calc.mjs:36",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "12 IBAN Registry countries missing (BI, DJ, FK, HN, LY, MN, NI, OM, RU, SD, SO, YE); their valid IBANs are reported as errors 'Not a valid IBAN: unknown country'",
+      "where": "ventures/iban-list-check/calc.mjs:7",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "the page's 'Write IBANs in groups of four' checkbox does nothing: options() passes excelSafe but repair() reads options.groups; also on the served page",
+      "where": "ventures/iban-list-check/index.html:160",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "8 of 9 seeded mutations survive, including accepting mod-97 remainder 0, letting too-long IBANs past the length gate, a wrong country length, and every national-check edge branch",
+      "where": "ventures/iban-list-check/calc.test.mjs:1",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "'Not checked: national check digits for countries other than BE, ES, FR and IT' is stale; PT, NO and PL are checked too",
+      "where": "ventures/iban-list-check/index.html:114",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "SEPA core list omits Gibraltar, long in the EPC SEPA scope, so GI IBANs get a 'not on the core SEPA list' warning",
+      "where": "ventures/iban-list-check/calc.mjs:23",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt says 'Results are estimates from the numbers typed in', boilerplate that does not describe a validator",
+      "where": "ventures/iban-list-check/llms.txt:5",
+      "category": "overclaim",
+      "origin": "claims"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15464"
+  ],
+  "verdict": "A tidy, private IBAN pre-flight whose mod-97 arithmetic, 77 country lengths and seven national check-digit algorithms are right on every registry example and forgery I ran. It does not meet the bar: it passes IBANs with check digits 00/01/99 that ISO 13616 forbids, rejects valid IBANs from 12 registry countries as invalid, silently ignores the documented --column <name> (a payee column can go unchecked with exit 0), ships a dead 'groups of four' checkbox, and its tests catch 1 of 9 seeded bugs. Fitness for a SEPA-only batch is close to professional; verification is the weakest dimension."
+}

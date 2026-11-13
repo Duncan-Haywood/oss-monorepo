@@ -1,0 +1,228 @@
+{
+  "date": "2026-11-13",
+  "subject": "research/verifier-bribery",
+  "stratum": "research",
+  "seed": "2026-11-13-i",
+  "drawn_by": "sample",
+  "round": 63,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a mechanism-design / crypto-economics researcher who reviews incentive analyses of optimistic and refereed verification (Truebit, Arbitrum, rollup fraud proofs) for venues like EC, FC or AFT. They would check first that each agent's payoff is written over the same event probabilities, that every case split of the solver's optimisation is right (including the corner where verifiers never check even unbribed), that the 'collusion-proof' threshold actually stops cheating, and how the result relates to Truebit's forced errors, counter-collusion contracts and attention-challenge work",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 1,
+    "fitness": 1,
+    "domain": 1
+  },
+  "evidence": {
+    "correctness": "Ran `cd research/verifier-bribery && PYTHONPATH=src python3 experiments/run.py` (0.04 s): output matches every number in paper/whitepaper.md. Independent script (/tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/vb/indep.py, own derivation, no import of the subject) confirms the bribe floor b*(x) (x=.05: -8 and +2 by hand), the no-jackpot profit table (S=7,8,12 -> 3/7, 0.375, 0.25 exactly) and S_c=2 for m=1 by scanning S for the argmax flip. Two outputs are wrong. (1) The 'collusion-proof stake' is not collusion-proof when k-phiJ >= (1-phi)(lam S+h): with s=1, lam=k=.5, m=4 the subject's own closed form and brute force give profit 1.0 = s (cheat every task, bribe floor at x=1 is -0.2) at S=0.6 > S_c=0.5, and at S=0.5 > S_c=0.25 for m=8; my scan puts the true flip at S=1.0 for m=2,4,8, so the 1/m table rows for m>=4 are wrong. (2) The solver's profit x(s-m b) (model.py:49) omits the (1-phi) real-cheat probability that verifier_payoffs uses; a Monte Carlo of the same task process gives 0.5001 at S=6, phi=.05, J=0 where the paper reports 0.526 (and 1.450 vs 1.526 at S=4). Argmax and thresholds are unaffected by that scaling; levels with phi>0 are overstated by 1/(1-phi).",
+    "completeness": "Everything the README lists exists and runs: closed-form floor, solver profit, S_c, brute force, Monte Carlo, 7 tests (`PYTHONPATH=src python3 -m unittest discover -s tests -v`: 7 OK in 0.38 s), experiments/run.py reproduces the paper's four tables, live page https://marisstella.app/research/verifier-bribery/ returns 200 with the abstract. The project is small (102-line model, 59-line note) and claims little beyond that, so what is claimed is done; listed next steps are not claimed.",
+    "verification": "7 tests pass. Seeded 5 mutants with platform/ci/quality_mutate.py: 3 caught (S=s*min(1,C/A)*0.9 at model.py:60; Monte Carlo honest payoff keyed on planted not real at :100; adding the (1-phi) factor to _profit at :49), 2 survived (dropping /(1-phi) from the jackpot bonus in collusion_threshold_stake :89; flipping -h to +h in S_c :90). S_c is tested only at phi=0, h=0, and never against the cheat rate it is supposed to bound, so the m>=4 error is invisible. The 'independent' brute force shares _profit and verifier_payoffs with the closed form, so it locks in the missing (1-phi) factor rather than catching it (the mutant that corrects it is the one the tests 'catch').",
+    "craft": "Read src/verifier_bribery/model.py, __init__.py, tests/test_bribery.py, experiments/run.py. Clean stdlib code with docstrings and a frozen dataclass. Defects: solver_profit_closed_form returns only the value, not the argmax, so experiments/run.py:11 re-derives the cheat rate by hand with a formula that ignores the C>A and s=A tie cases (reports cheat 1.000 at S=6 where every x in [1/6,1] is optimal); collusion_threshold_stake has no guard for the region where checking is never worthwhile; paper writes S_c=(s - m*bonus)/(m lam) while the code's bonus already includes m.",
+    "claims": "Checked 7 claims. Backed: b*(x) formula and its phi=0 reduction; no-jackpot table (2.50/1.50/0.50, 0.43/0.38/0.25, cheat 0.14/0.13/0.08); jackpots with phiJ>=k keep the floor >= lam S+h (hand: +2.00 at every x); disclaimer and 'stylised, not calibrated' on page and paper. Not backed: (1) headline 'a sharp collusion-proof stake (falls as 1/m)' on README:12, paper:34-36 and the live page: false for m>=4 in the paper's own parameters; (2) Result 3 'each unit of phiJ-k raises the collusion cost by m/(1-phi) per task' (paper:38): per task the outlay rises by m (1.40 -> 1.90 for +0.5), the m/(1-phi) is an artefact of the profit accounting; (3) 'profit is 0.526' (paper:39): 0.500 by Monte Carlo; (4) 'verified against brute force' presented as independent while sharing the profit and payoff functions; (5) S=6 'cheat rate 1' is a tie.",
+    "fitness": "A researcher could rerun it in under a second and reuse verifier_payoffs, but would have to re-derive the solver's objective and the S_c region before citing anything; the model is a single static indifference condition with Stackelberg commitment, solver-preferred equilibrium selection and no positioning against prior work. Not part of any programme in research/PROGRAMMES.md; far below the PhD-programme bar in research/CLAUDE.md.",
+    "domain": "Nearest prior work: Truebit's forced errors and jackpots (Teutsch & Reitwiessner 2017/2019), which exist precisely to pay verifiers to check, so 'jackpots raise the bribe floor' is that design's rationale restated; Luu et al. (CCS 2015) verifier's dilemma; Dong, Abbas, Ashraf & Mahmood, 'Betrayal, distrust and rationality: smart counter-collusion contracts for verifiable cloud computing' (CCS 2017), the closest work on bribery/collusion among redundant verifiers, not cited; Mamageishvili & Felten, 'Incentive schemes for rollup validators' (2023), inspection-game analysis of attention challenges, not cited; Canetti-Riva-Rothblum refereed delegation (2011). Buterin's P+epsilon is cited but its outcome-contingent bribes are not analysed. The method (one-verifier indifference given others silent, solver commits to x) is standard and mostly right, but a reviewer would reject the S_c theorem as stated (missing case) and the inconsistent event accounting. Novelty is low."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "no-jackpot max profit and cheat rate at S=7, 8, 12 (s=3, lam=k=.5, m=1)",
+      "method": "own derivation: x=C/A=k/(lam S), profit s*x, exact rationals; plus own grid optimiser with the floor solved from the indifference condition",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/vb/indep.py",
+      "expected": "3/7=0.4286 at x=1/7; 0.375 at 1/8; 0.25 at 1/12",
+      "observed": "subject run.py: 0.429/0.143, 0.375/0.125, 0.250/0.083",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "bribe floor at x=.05 without and with phiJ=k jackpots (S=4)",
+      "method": "by hand from the verifier indifference (1-phi)x(b-h) = (1-phi)x lam S + phiJ - k",
+      "command": "PYTHONPATH=src python3 experiments/run.py",
+      "expected": "2 - 0.5/0.05 = -8; 2 + 0 = +2",
+      "observed": "none=-8.00 jackpot=+2.00",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "solver profit with planted faults, S=6 and S=4, phi=.05, J=0, x=1",
+      "method": "Monte Carlo of the solver's realised payoff over the same task process as simulate_verifier_choice (planted w.p. phi, else real cheat w.p. x), 400k tasks",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/vb/indep.py",
+      "expected": "0.500 (S=6), 1.450 (S=4)",
+      "observed": "subject 0.526 and 1.526 (paper:39 quotes 0.526)",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "S_c is collusion-proof for m=4 and m=8 (s=1, lam=k=.5)",
+      "method": "the subject's own closed form and brute force evaluated just above S_c; independent scan of S for the argmax flip to x=1",
+      "command": "PYTHONPATH=src python3 -c 'from verifier_bribery import *; p=Params(s=1,m=4,S=0.6); print(collusion_threshold_stake(p), solver_profit_closed_form(p), solver_profit_bruteforce(p))'",
+      "expected": "above S_c the cheat rate is below 1, profit below s=1; true flip at S=1.0 for m=2,4,8 (scan)",
+      "observed": "S_c=0.5 but profit 1.0 = s (cheat every task, floor at x=1 = -0.2); m=8: S_c=0.25, profit 1.0 at S=0.5",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "S_c for m=1 (s=1, lam=.5, no jackpots)",
+      "method": "independent scan of S for the stake where the optimal cheat rate leaves 1",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/vb/indep.py",
+      "expected": "2.0 (scan 1.999)",
+      "observed": "S_c=2.00",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "cheat rate 1 at S=6 (s=A)",
+      "method": "profit x(s-A)+C on x>=C/A is flat when s=A",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/vb/indep.py",
+      "expected": "0.5 at every x in [1/6,1]: cheat rate undetermined",
+      "observed": "paper and run.py report cheat=1.000",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "Result 3: each unit of phiJ-k raises collusion cost by m/(1-phi) per task",
+      "method": "per-task bribe outlay (1-phi)x m b* at x=1, S=4, phi=.05, J=0 vs J=10",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/vb/indep.py",
+      "expected": "rise of m*0.5/(1-phi)=0.526 if the claim holds",
+      "observed": "1.40 -> 1.90, a rise of 0.50 = m*0.5",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Closed forms verified against brute force' as independent",
+      "method": "read solver_profit_bruteforce and mutate _profit",
+      "command": "python3 platform/ci/quality_mutate.py research/verifier-bribery/src/verifier_bribery/model.py --old '    return x * (p.s - p.m * b)' --new '    return x * (p.s - p.m * b) * (1 - p.phi)' -- env PYTHONPATH=src python3 -m unittest discover -s tests",
+      "expected": "brute force independent of the closed form's modelling choices",
+      "observed": "shares _profit and verifier_payoffs; correcting the profit accounting fails the test, i.e. the test pins the inconsistency",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "jackpots with phiJ>=k keep the floor >= lam S+h at every x",
+      "method": "algebra: (phiJ-k)/((1-phi)x) >= 0",
+      "command": "PYTHONPATH=src python3 experiments/run.py",
+      "expected": "+2.00 at x=.05..1 when phiJ=k",
+      "observed": "+2.00 at all five x",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README reproduce block",
+      "method": "run the two commands",
+      "command": "cd research/verifier-bribery && PYTHONPATH=src python3 -m unittest discover -s tests -v && PYTHONPATH=src python3 experiments/run.py",
+      "expected": "7 tests; tables of the paper",
+      "observed": "7 OK in 0.38 s; all paper numbers printed",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "live page serves",
+      "method": "HTTP GET",
+      "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/verifier-bribery/",
+      "expected": "200",
+      "observed": "200, abstract repeats the '1/m' headline, AI-assistance disclaimer present",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "tests catch a sign error on h in S_c",
+      "method": "quality_mutate.py at model.py:90",
+      "command": "python3 platform/ci/quality_mutate.py research/verifier-bribery/src/verifier_bribery/model.py --old 'return max(0.0, ((p.s - bonus) / p.m - p.h) / p.lam)' --new 'return max(0.0, ((p.s - bonus) / p.m + p.h) / p.lam)' -- env PYTHONPATH=src python3 -m unittest discover -s tests",
+      "expected": "a test fails",
+      "observed": "SURVIVED",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "check-but-stay-silent is not a better deviation than accept",
+      "method": "by hand: its payoff is accept minus k",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/vb/indep.py",
+      "expected": "dominated",
+      "observed": "dominated by k; two-action reduction is sound",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/verifier_bribery/model.py:89",
+      "change": "bonus = max(0.0, p.m * (p.phi * p.J - p.k) / (1 - p.phi)) -> bonus = max(0.0, p.m * (p.phi * p.J - p.k))",
+      "caught": false,
+      "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/verifier_bribery/model.py:90",
+      "change": "((p.s - bonus) / p.m - p.h) / p.lam -> ((p.s - bonus) / p.m + p.h) / p.lam",
+      "caught": false,
+      "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/verifier_bribery/model.py:49",
+      "change": "return x * (p.s - p.m * b) -> return x * (p.s - p.m * b) * (1 - p.phi)",
+      "caught": true,
+      "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/verifier_bribery/model.py:60",
+      "change": "return p.s * min(1.0, C / A) -> return p.s * min(1.0, C / A) * 0.9",
+      "caught": true,
+      "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/verifier_bribery/model.py:100",
+      "change": "(p.lam * p.S if real else 0.0) -> (p.lam * p.S if planted else 0.0)",
+      "caught": true,
+      "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "The 'collusion-proof stake' S_c ignores the region where checking is never worthwhile even unbribed (k-phiJ >= (1-phi)(lam S+h)); there the solver cheats every task for free above S_c. With the paper's own s=1, lam=k=.5: m=4 at S=0.6 > S_c=0.5 and m=8 at S=0.5 > S_c=0.25 both give profit s at x=1. The headline 'falls as 1/m' (README, paper, live page) is false once S_c drops below (k-phiJ)/((1-phi)lam) - h/lam; the true threshold is the max of the two.",
+      "where": "research/verifier-bribery/src/verifier_bribery/model.py:90",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Solver profit x(s - m b) omits the (1-phi) probability that a task is a real cheat, while verifier payoffs use it; profit levels with phi>0 are overstated by 1/(1-phi) (paper's 0.526 is 0.500 by Monte Carlo) and Result 3's 'm/(1-phi) per task' should be m per task",
+      "where": "research/verifier-bribery/src/verifier_bribery/model.py:49",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Tests do not exercise S_c with h or phi>0 or against the cheat rate it should bound (2 of 5 mutants survive), and the 'independent' brute force shares _profit and verifier_payoffs with the closed form, so it cannot catch modelling errors",
+      "where": "research/verifier-bribery/tests/test_bribery.py:18",
+      "category": "tests-check-a-copy",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Nearest prior work not cited or positioned: Dong et al. CCS 2017 counter-collusion contracts, Mamageishvili & Felten 2023 rollup validator incentives, Canetti-Riva-Rothblum refereed delegation; P+epsilon cited but not analysed; 'jackpots raise the floor' is Truebit's forced-error rationale, novelty unstated",
+      "where": "research/verifier-bribery/paper/whitepaper.md:59",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "experiments/run.py re-derives the optimal cheat rate outside the model and reports 1.000 at S=6 where profit is flat over x in [1/6,1]; closed form returns no argmax",
+      "where": "research/verifier-bribery/experiments/run.py:11",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Paper's S_c=(s - m*bonus)/(m lam) - h/lam leaves 'bonus' undefined and double-counts m relative to the code, where bonus already includes m",
+      "where": "research/verifier-bribery/paper/whitepaper.md:34",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15464"
+  ],
+  "verdict": "A short, clean stylised note whose bribe-floor formula and no-jackpot tables recompute exactly by hand, but its headline does not hold: the 'collusion-proof stake that falls as 1/m' is wrong whenever the inspection-game cheat rate is already 1, and in the paper's own parameters m=4 and m=8 solvers cheat every task above S_c. The solver's profit also drops the (1-phi) real-cheat probability the verifier side uses, so profits with planted faults (0.526 vs 0.500 by Monte Carlo) and Result 3's 'm/(1-phi)' are off. Tests miss both (2 of 5 mutants survive; the brute force shares the profit function). Prior work on collusion in redundant verification is not cited and the jackpot result restates Truebit's design rationale. Does not meet the bar; finished in the small sense that everything listed runs."
+}

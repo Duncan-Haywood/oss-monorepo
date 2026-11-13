@@ -1,0 +1,242 @@
+{
+  "date": "2026-11-13",
+  "subject": "research/hanger-sharedpile",
+  "stratum": "research",
+  "seed": "2026-11-13-i",
+  "drawn_by": "sample",
+  "round": 63,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a robotics researcher in multi-robot manipulation and workcell throughput simulation (multi-arm interference, shared-workspace scheduling, as reviewed at ICRA/IROS or IEEE T-ASE). They would check first that the blocking rule is simulated in the same timeline that produces the throughput, that the effect is larger than the modelling error, that the headline numbers come from one consistent setting, that a seeded removal of the blocking cost is caught by a test, and how the result relates to the multi-robot interference literature",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 1,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 1
+  },
+  "evidence": {
+    "correctness": "Full rerun in a private copy of the subject and its five sibling projects (`cd /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/hs/hanger-sharedpile && python3 experiments/run.py && diff experiments/results.txt /home/user/oss-monorepo/research/hanger-sharedpile/experiments/results.txt`, Python 3.11.18, 19.3 s): diff empty, results.txt reproduced byte-for-byte. Independent recomputation (`python3 /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/indep.py`): my own heap-based two-arm scheduler and pairwise-interval blocking check, fed the raw hanger-pick trace (pick() never sees time, so the garment/time trace is sep-independent), gives blocked/waited per load identical to the subject on all 200 loads for see 0.30 (10.10 / 124.1), pinch 0.30 (15.85 / 227.3), sweep 0.45 (11.10 / 148.0) and see 0.30 with downstream 5 s (15.76). The see sep-0 interval [197.6, 204.2] matches my 5,000-draw bootstrap with another seed [197.3, 204.3] and a normal CI [197.3, 204.2]. Dryers 200.8/(25*60/45) = 6.024 (6.02). An analytic fold-table bound from the cell parameters (hang share 0.318, insertion success 0.997, fold share of done 0.683, t_fold 25 s) is 210.7 done/h, above and close to the 3-arm 204.8 with u_fold 0.962, backing 'the fold table is the limit'. sep 0 equals hanger-cellpick's 179.1 / 200.8 (its results.txt rows 7 and 10). The numbers the code emits are right; several prose numbers are not (claims).",
+    "completeness": "Everything listed is present and runs: blocking pile model, three policies, five clearances, 1/2/3 arms, downstream sensitivity, bootstrap intervals, figure, 5 tests, live page https://marisstella.app/research/hanger-sharedpile/ returns 200. Reproduce runs in ~19 s as README says. Gaps: the run also needs hanger-insert and hanger-fold results files (FileNotFoundError when only the three listed siblings are copied), which 'Outside dependencies' omits; run.py docstring says 'About 1 min'. The non-waiting planner is listed as a next step, not claimed.",
+    "verification": "`cd research/hanger-sharedpile && python3 -m unittest discover -s tests`: 5 tests OK in 0.23 s. Five mutants with quality_mutate.py; four survived: dropping the wait from the pick time entirely so blocking costs nothing (shared.py:46, the whole headline effect), dropping the downstream spacing (:48), a coordinate typo g.x-for-g.y in the clearance distance (:41), and halving every wait (:42). Only flipping < sep to > sep was caught. No test pins any number in results.txt or checks that waits reduce throughput by a known amount; test_blocking_cannot_raise_output compares sep 0 / downstream 14 against sep 10 / downstream 0, so it is confounded and would pass even with no wait cost.",
+    "craft": "Read shared.py (66 lines), tests/test_shared.py, experiments/run.py, figure.py and the imported hanger-cellpick/hanger-cell/hanger-pick code. Compact, stdlib, deterministic. Defects: sys.path mutation at import time through two hops of sibling packages, with undeclared transitive data dependencies (hanger-insert, hanger-fold results.txt); the picked garment is found by value-equality scan of a list copy (:34-36) instead of pick() returning it; `statistics` imported after the path hacks; replicate silently averages every key; stale runtime docstring (run.py:1). Acceptable for a script, thin for a library others build on.",
+    "claims": "Checked 8 claims against results.txt. Backed: see 201/196/191/190, pinch loss 28 at 0.30 and see ~10, non-overlapping intervals, 5.7 dryers, section C 185/196, fold table the limit (u_fold 0.96), 'Stylised ... nothing here is a measurement of a robot' disclaimer is clear. Not backed: (1) headline README:3 says at 0.30 m blind pinching falls '179 falling to 148, 5.4 to 4.5' and '18 blocked picks per load against 10'; at 0.30 the file says 151.1 and 15.8 blocked (148.4 and 17.9 are the 0.45 row), and project.json says 151, so the README and project page disagree; (2) 'a third arm adds only 3 to 5 garments an hour at any clearance' (README:3, also on the live page): 3-arm minus 2-arm is 4.0, 7.8, 4.5, 3.2, 3.4, so 7.8 at 0.15; (3) README:16 'sep of 0.45 m and above ... the results stop changing': sweep falls 180.5 -> 175.5 and blocked 11.1 -> 13.0; (4) README:20 'blocking never raises output (test)': 3 arms rises 193.6 -> 193.8 from 0.45 to 0.60, 53/200 individual loads do better at 0.30 than at 0, and the test is confounded.",
+    "fitness": "A researcher can rerun it in 20 s and extend the policy or clearance, and it does fix hanger-cellpick's never-meet simplification. But the quantity a robotics engineer would act on (how much clearance-induced blocking costs) is computed in a side timeline with a fixed 14 s downstream, then injected as extra pick seconds into a different discrete-event timeline; the README's own section C shows that assumption moves the see result by 11/h (185 to 196), the same size as the effect being reported (10/h). With assumed station times and a centre-distance clearance, the 'see loses little, pinch loses a lot' ranking is plausible but its magnitudes are not usable.",
+    "domain": "Nearest prior work: interference in multi-robot systems (Lerman & Galstyan 2002, foraging interference model; Rosenfeld, Kaminka, Kraus & Shehory 2008, measuring and coordinating around interference; Gerkey & Mataric 2004 task-allocation taxonomy), dual-/multi-arm shared-workspace bin picking and scheduling in robotic workcells (e.g. multi-arm pick-and-place scheduling and collision-aware task assignment), and garment manipulation systems (SpeedFolding, Avigal et al. IROS 2022; Maitin-Shepard et al. 2010). None is cited. A workcell modeller would reject the two-timeline coupling (blocking decided against pile-model times, then re-timed and jittered by hanger-cell's DES, so a 'wait' can land where no other arm is active), the pure waiting response, and the clearance as centre distance with no reach or arm geometry. The finding that busier arms interfere more and that a downstream bottleneck caps added arms is a textbook queueing/interference result; not new, far below the PhD-programme bar of research/CLAUDE.md."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "full rerun vs committed results.txt",
+      "method": "rerun shipped run.py in a private copy of subject + siblings",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/hs/hanger-sharedpile && python3 experiments/run.py && diff experiments/results.txt /home/user/oss-monorepo/research/hanger-sharedpile/experiments/results.txt",
+      "expected": "identical results.txt",
+      "observed": "diff empty; 19.3 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "blocked picks and waited seconds per load, independently scheduled",
+      "method": "own heap scheduler + pairwise interval/clearance check over raw hanger-pick traces (no subject code)",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/indep.py",
+      "expected": "see 0.30: 10.1 / 124.1; pinch 0.30: 15.8 / 227.3; sweep 0.45: 11.1 / 148.0; see ds5: 15.8 (results.txt)",
+      "observed": "10.10/124.1, 15.85/227.3, 11.10/148.0, 15.76; identical on all 200 loads each",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "95% interval on see, sep 0, two arms",
+      "method": "own percentile bootstrap (5,000 draws, different seed) and normal approximation on the per-load rates",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/indep.py",
+      "expected": "[197.6, 204.2]",
+      "observed": "bootstrap [197.3, 204.3]; normal [197.3, 204.2]",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "fold table is the limit for three arms",
+      "method": "analytic bound 3600/(fold share of done x t_fold) from hanger-cell parameters and hanger-fold/insert tables",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/indep.py",
+      "expected": "3-arm see sep 0 = 204.8 below a fold bound, u_fold near 1",
+      "observed": "bound 210.7; u_fold 0.962, u_arms 0.443",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "dryers served at 200.8 done/h",
+      "method": "hand: 200.8 / (25 garments per 45 min x 60)",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/indep.py",
+      "expected": "6.02",
+      "observed": "6.024",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "headline 'blind pinching (179 falling to 148, 5.4 to 4.5 dryers) ... about 18 blocked picks per load against 10' at 0.30 m (README:3)",
+      "method": "read results.txt rows pinch 0.30 / see 0.30",
+      "command": "grep -n '0.30' research/hanger-sharedpile/experiments/results.txt",
+      "expected": "148 and 18 at 0.30 m",
+      "observed": "pinch 0.30 = 151.1, 4.53 dryers, 15.8 blocked; 148.4 / 17.9 are the 0.45 row; project.json says 151",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'a third arm adds only 3 to 5 garments an hour at any clearance' (README:3 and live page)",
+      "method": "section B, arms=3 minus arms=2 per clearance",
+      "command": "sed -n '/== B/,/== C/p' research/hanger-sharedpile/experiments/results.txt",
+      "expected": "3 to 5 at every sep",
+      "observed": "4.0, 7.8, 4.5, 3.2, 3.4 (7.8 at 0.15)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'sep of 0.45 m and above ... the results stop changing' (README:16)",
+      "method": "section A rows 0.45 vs 0.60",
+      "command": "grep -n '^sweep' research/hanger-sharedpile/experiments/results.txt",
+      "expected": "no change beyond 0.45",
+      "observed": "pinch/see flat, sweep 180.5 -> 175.5 and blocked 11.1 -> 13.0",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "'blocking never raises output (test)' (README:20)",
+      "method": "section B rows and per-load comparison sep 0 vs 0.30",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/indep.py",
+      "expected": "output non-increasing in sep",
+      "observed": "3 arms 193.6 -> 193.8 (0.45 -> 0.60); 53/200 loads higher at 0.30 than at 0; the test compares different downstream values",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "pinch loss 28/h and see ~10/h at 0.30 with non-overlapping intervals (README:24)",
+      "method": "subtract and compare interval bounds in results.txt",
+      "command": "grep -n '0.00\\|0.30' research/hanger-sharedpile/experiments/results.txt",
+      "expected": "28, ~10, disjoint",
+      "observed": "179.1-151.1=28.0, 200.8-190.7=10.1; [177.0,181.5] vs [148.9,153.5], [197.6,204.2] vs [187.7,193.6]",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "reproduce block and declared dependencies",
+      "method": "copy subject plus the three siblings the README names, run; then add the rest",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/hs/hanger-sharedpile && python3 experiments/run.py && diff experiments/results.txt /home/user/oss-monorepo/research/hanger-sharedpile/experiments/results.txt",
+      "expected": "runs with hanger-cellpick, hanger-pick, hanger-cell",
+      "observed": "FileNotFoundError for hanger-insert/experiments/results.txt; also needs hanger-fold; with them 19.3 s and identical",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "tests catch removing the blocking cost",
+      "method": "quality_mutate.py on shared.py:46",
+      "command": "python3 platform/ci/quality_mutate.py research/hanger-sharedpile/src/hanger_sharedpile/shared.py --old '        t += wait' --new '        t += 0.0' -- python3 -m unittest discover -s tests",
+      "expected": "a test fails",
+      "observed": "SURVIVED",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "live page serves",
+      "method": "HTTP GET",
+      "command": "curl -sS https://marisstella.app/research/hanger-sharedpile/ -w '%{http_code}'",
+      "expected": "200",
+      "observed": "200; carries the '3 to 5' claim",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/hanger_sharedpile/shared.py:46",
+      "change": "t += wait -> t += 0.0",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/hanger_sharedpile/shared.py:48",
+      "change": "free[a] = start + t + downstream -> free[a] = start + t",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/hanger_sharedpile/shared.py:41",
+      "change": "g.y - active[b][2].y -> g.x - active[b][2].y",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/hanger_sharedpile/shared.py:42",
+      "change": "wait = max(wait, active[b][1] - start) -> wait = max(wait, (active[b][1] - start) / 2)",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/hanger_sharedpile/shared.py:41",
+      "change": "hypot(...) < sep -> hypot(...) > sep",
+      "caught": true,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Headline mixes clearance settings: pinch '179 falling to 148' and '18 blocked picks against 10' are the 0.45 m row presented as 0.30 m (0.30 gives 151 and 15.8); project.json says 151, so README and page disagree",
+      "where": "research/hanger-sharedpile/README.md:3",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "'A third arm adds only 3 to 5 garments an hour at any clearance' is false at 0.15 m (+7.8); repeated on the live page",
+      "where": "research/hanger-sharedpile/README.md:3",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "Tests would not catch removing the blocking cost, the downstream spacing, a coordinate typo in the clearance distance or halved waits (4 of 5 seeded mutants survived); no result is pinned",
+      "where": "research/hanger-sharedpile/tests/test_shared.py:30",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Blocking is decided in a side timeline (fixed 14 s downstream) and injected as extra pick seconds into hanger-cell's DES, which re-times and jitters them; the coupling error (section C: 185 to 196) is as large as the see effect reported (10/h)",
+      "where": "research/hanger-sharedpile/src/hanger_sharedpile/shared.py:59",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "test_blocking_cannot_raise_output compares sep 0 / downstream 14 with sep 10 / downstream 0, a confounded comparison that passes with no wait cost",
+      "where": "research/hanger-sharedpile/tests/test_shared.py:33",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "'sep 0.45 m and above ... results stop changing' is false for sweep (180.5 -> 175.5)",
+      "where": "research/hanger-sharedpile/README.md:16",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Run needs hanger-insert and hanger-fold results files, not listed under Outside dependencies; run.py says 'About 1 min' vs README 20 s (observed 19 s)",
+      "where": "research/hanger-sharedpile/README.md:50",
+      "category": "repo-hygiene",
+      "origin": "build"
+    },
+    {
+      "severity": "low",
+      "what": "No multi-robot interference or workcell scheduling prior work cited (Lerman & Galstyan 2002; Rosenfeld et al. 2008; Gerkey & Mataric 2004); novelty not positioned",
+      "where": "research/hanger-sharedpile/README.md:7",
+      "category": "research-design",
+      "origin": "design"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15464"
+  ],
+  "verdict": "The code's numbers are right: a rerun reproduces results.txt byte-for-byte, an independent scheduler reproduces the blocked/waited counts on every load, the intervals match an independent bootstrap, and an analytic fold-table bound (210.7) backs 'the fold table is the limit'. It does not meet the bar. Verification is weak (4 of 5 seeded mutants survive, including deleting the blocking cost itself), and the headline prose is wrong in two places: the pinch figures 148 and 18 come from the 0.45 m row while the sentence says 0.30 m, and 'a third arm adds 3 to 5 at any clearance' is 7.8 at 0.15 m. The method computes blocking in a side timeline and injects it into a different DES timeline, an error the README's own section C shows is as large as the effect for the see policy. A tidy, honest-about-being-stylised step in the hanger track; the result is a textbook interference effect, not cited against multi-robot interference work, and far below the PhD programme bar."
+}
