@@ -232,6 +232,7 @@ def render(rows: list[dict], now: dt.datetime) -> str:
         lines += ["", f"Mixed: {len(mixed)} PR(s) also change unowned files, which wait with them "
                       "(split control-plane edits into their own PR): "
                   + ", ".join(f"#{r['number']}" for r in mixed)]
+    lines += ["", "The open PRs no gate holds, which any agent may land: python3 platform/ci/orphan_prs.py"]
     return "\n".join(lines) + "\n"
 
 

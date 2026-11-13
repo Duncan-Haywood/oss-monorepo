@@ -27,7 +27,7 @@
 //   SAMPLE=300 node platform/pages/sideways.mjs  # section indexes + pages spread over the site
 //
 //   # or against production once the owner flip lands:
-//   BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/sideways.mjs
+//   BASE_URL=https://marisstella.app node platform/pages/sideways.mjs
 //
 // **Check what is answering before you believe the result.** A server left
 // running by an earlier build keeps the port, the second `http.server` exits

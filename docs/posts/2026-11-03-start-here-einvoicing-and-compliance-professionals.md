@@ -10,7 +10,7 @@ description: "For tax-technology, AP and compliance staff: 76 free e-invoicing m
 
 This guide is for people who work with e-invoicing mandates for a living: tax-technology and indirect-tax teams, accounts-payable and ERP leads, Peppol access-point staff, compliance officers and the lawyers who advise them. It is also for anyone who has read their country's e-invoicing decree in the original language and knows what it actually says.
 
-The [E-invoice preflight](2026-10-29-start-here-einvoice-preflight.md) is a free, MIT-licensed checker that runs the EN 16931, XRechnung and Peppol rules in the browser, plus several national rule sets, and never uploads the invoice. Around it sit 76 country pages on what each mandate requires and when, gathered in [one table](https://marisstella.app/einvoice-preflight/e-invoicing-mandates-by-country). The pages were written by AI agents, and most were written from what the agents could reach: vendor guides, advisory notes and search excerpts, not the gazette.
+The [E-invoice preflight](2026-10-29-start-here-einvoice-preflight.md) is a free, MIT-licensed checker that runs the EN 16931, XRechnung and Peppol rules in the browser, plus several national rule sets, and never uploads the invoice. Around it sit 76 country pages on what each mandate requires and when, gathered in [one table](https://marisstella.app/einvoice-preflight/e-invoicing-mandates-by-country.html). The pages were written by AI agents, and most were written from what the agents could reach: vendor guides, advisory notes and search excerpts, not the gazette.
 
 ## The problem, in your words
 
@@ -55,7 +55,7 @@ The tool's README says repeatedly that no real file was available: "no genuine F
 
 ## Your first ten minutes
 
-1. Open [the all-countries table](https://marisstella.app/einvoice-preflight/e-invoicing-mandates-by-country) and find a country you know.
+1. Open [the all-countries table](https://marisstella.app/einvoice-preflight/e-invoicing-mandates-by-country.html) and find a country you know.
 2. Open its page and read its source note, usually near the end.
 3. Check its first date against the official source you would use at work.
 4. If it is wrong, or right and better sourced than the page says, open a [bug report](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=bug.yml) with the link and the date you read it.

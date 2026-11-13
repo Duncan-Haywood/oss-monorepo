@@ -95,16 +95,19 @@ export function topicOf(tags = [], explicit = '') {
 }
 export const topicLabel = (id) => TOPICS.find((t) => t.id === id)?.label ?? id;
 const REPO_BLOB = 'https://github.com/Duncan-Haywood/oss-monorepo/blob/main/';
-// The live site's default address (build.mjs's DEFAULT_BASE_URL; not imported,
-// to keep this module free of an import cycle). A post may link a live tool by
-// it; under a custom domain those links follow the base URL the site is built with.
+// The site's old project Pages address (build.mjs's GITHUB_PAGES_BASE_URL; not
+// imported, to keep this module free of an import cycle). Older posts link live
+// tools by it; those links follow the base URL the site is built with.
 const DEFAULT_SITE_ORIGIN = 'https://duncan-haywood.github.io/oss-monorepo/';
 const FILE_RE = /^(\d{4}-\d{2}-\d{2})-([a-z0-9][a-z0-9-]*)\.md$/;
 // Posts link live tools by their full Pages URL so the Markdown reads right on
 // GitHub. On the site those links become root-relative, so a build under a
 // custom domain does not point readers (or canonical signals) at the old origin.
-const PUBLISHED_ORIGIN = 'https://duncan-haywood.github.io/oss-monorepo/';
-export const relinkSite = (html, toRoot) => html.split(`href="${PUBLISHED_ORIGIN}`).join(`href="${toRoot}`);
+// Both the old Pages address and the live origin (build.mjs's DEFAULT_BASE_URL):
+// posts written since the move to Cloudflare link https://marisstella.app/.
+const PUBLISHED_ORIGINS = ['https://duncan-haywood.github.io/oss-monorepo/', 'https://marisstella.app/'];
+export const relinkSite = (html, toRoot) =>
+  PUBLISHED_ORIGINS.reduce((h, origin) => h.split(`href="${origin}`).join(`href="${toRoot}`), html);
 
 /** Parse the `---` front-matter block. Returns { meta, body }. Only the subset posts use. */
 // YAML's quoted scalars: "..." takes backslash escapes (\" and \\ are the ones posts use) and
