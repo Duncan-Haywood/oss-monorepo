@@ -1,0 +1,61 @@
+QP audit along J-m-a's path (PIPS on the full QP, the committed path), PGLib-OPF v23.07 TYP, API, SAD.
+U = PIPS, full QP (as run); S = PIPS by constraint generation; C = Clarabel, full QP (referee).
+solved = reported success and feasible to 1e-06; claimed = reported success, not feasible; failed = reported failure. Objectives agree within 1e-06 relative.
+
+== hard QPs: 248 ==
+  U: solved 173, claimed 0, failed 75; time 424.3 s
+  S: solved 173, claimed 0, failed 75; time 184.5 s
+  C: solved 178, claimed 0, failed 70; time 196.2 s
+  U not solved but C solved: 5 QPs in 2 cases: case24_ieee_rts/api, case73_ieee_rts/sad
+  U not solved but S solved: 4 QPs
+  C not solved but U solved: 0 QPs
+  U vs C where both solved (173): objectives agree on 173; U - C, % of |obj|: max +0.0000, min -0.0000
+  S vs C where both solved (173): objectives agree on 173; S - C, % of |obj|: max +0.0000, min -0.0000
+
+== elastic QPs: 99 ==
+  U: solved 63, claimed 0, failed 36; time 1075.2 s
+  S: solved 55, claimed 0, failed 44; time 159.2 s
+  C: solved 89, claimed 0, failed 10; time 112.7 s
+  U not solved but C solved: 26 QPs in 4 cases: case24_ieee_rts/api, case300_ieee/api, case73_ieee_rts/api, case73_ieee_rts/sad
+  U not solved but S solved: 5 QPs
+  C not solved but U solved: 0 QPs
+  U vs C where both solved (63): objectives agree on 63; U - C, % of |obj|: max +0.0000, min -0.0000
+  S vs C where both solved (55): objectives agree on 55; S - C, % of |obj|: max +0.0000, min -0.0000
+
+Per case (hard QPs: U failed / C solved them; elastic QPs: count):
+  case14_ieee        typ  hard  4 (U not solved  0, of which C solved  0); elastic  0; rows   108; U    0.1 s, S    0.3 s, C    0.0 s
+  case24_ieee_rts    typ  hard  2 (U not solved  0, of which C solved  0); elastic  0; rows   244; U    0.1 s, S    0.1 s, C    0.0 s
+  case30_ieee        typ  hard  6 (U not solved  0, of which C solved  0); elastic  0; rows   224; U    0.1 s, S    0.2 s, C    0.0 s
+  case39_epri        typ  hard  6 (U not solved  0, of which C solved  0); elastic  0; rows   262; U    0.2 s, S    0.2 s, C    0.0 s
+  case57_ieee        typ  hard 10 (U not solved  0, of which C solved  0); elastic  0; rows   434; U    0.3 s, S    0.4 s, C    0.1 s
+  case73_ieee_rts    typ  hard  6 (U not solved  0, of which C solved  0); elastic  0; rows   758; U    4.1 s, S    4.4 s, C    2.7 s
+  case118_ieee       typ  hard 10 (U not solved  0, of which C solved  0); elastic  0; rows   980; U    7.7 s, S    8.2 s, C    5.3 s
+  case162_ieee_dtc   typ  hard  8 (U not solved  2, of which C solved  0); elastic  2; rows  1460; U    3.1 s, S    1.5 s, C    0.5 s
+  case179_goc        typ  hard 10 (U not solved  1, of which C solved  0); elastic  1; rows  1410; U    4.5 s, S    1.7 s, C    1.9 s
+  case200_activ      typ  hard  1 (U not solved  0, of which C solved  0); elastic  0; rows  1380; U    0.3 s, S    0.1 s, C    0.2 s
+  case240_pserc      typ  hard 10 (U not solved  0, of which C solved  0); elastic  0; rows  2452; U   70.4 s, S   43.5 s, C   45.5 s
+  case300_ieee       typ  hard  0 (U not solved  0, of which C solved  0); elastic  0; rows     0; U    0.0 s, S    0.0 s, C    0.0 s
+  case14_ieee        api  hard  3 (U not solved  0, of which C solved  0); elastic  0; rows   108; U    0.1 s, S    0.1 s, C    0.0 s
+  case24_ieee_rts    api  hard 10 (U not solved  5, of which C solved  4); elastic  6; rows   244; U    2.3 s, S    2.6 s, C    0.2 s
+  case30_ieee        api  hard  7 (U not solved  2, of which C solved  0); elastic  2; rows   224; U    0.5 s, S    0.3 s, C    0.0 s
+  case39_epri        api  hard  7 (U not solved  0, of which C solved  0); elastic  0; rows   262; U    0.5 s, S    0.4 s, C    0.0 s
+  case57_ieee        api  hard 10 (U not solved  4, of which C solved  0); elastic  4; rows   434; U    0.7 s, S    0.6 s, C    0.1 s
+  case73_ieee_rts    api  hard 10 (U not solved 10, of which C solved  0); elastic 17; rows   758; U  132.2 s, S   38.6 s, C   11.0 s
+  case118_ieee       api  hard 10 (U not solved  8, of which C solved  0); elastic  8; rows   980; U   83.6 s, S   23.3 s, C    9.5 s
+  case162_ieee_dtc   api  hard 10 (U not solved  2, of which C solved  0); elastic  2; rows  1460; U    3.7 s, S    1.8 s, C    0.7 s
+  case179_goc        api  no AC optimum or no start
+  case200_activ      api  hard 10 (U not solved 10, of which C solved  0); elastic 10; rows  1380; U   20.2 s, S    4.7 s, C    7.6 s
+  case240_pserc      api  hard 10 (U not solved  2, of which C solved  0); elastic  2; rows  2452; U  139.8 s, S   47.2 s, C   49.1 s
+  case300_ieee       api  hard 10 (U not solved 10, of which C solved  0); elastic 20; rows  2244; U  702.0 s, S   46.2 s, C   88.4 s
+  case14_ieee        sad  hard  2 (U not solved  1, of which C solved  0); elastic  1; rows   108; U    0.1 s, S    0.1 s, C    0.0 s
+  case24_ieee_rts    sad  hard  6 (U not solved  0, of which C solved  0); elastic  0; rows   244; U    0.6 s, S    0.5 s, C    0.1 s
+  case30_ieee        sad  hard  7 (U not solved  1, of which C solved  0); elastic  1; rows   224; U    0.2 s, S    0.4 s, C    0.0 s
+  case39_epri        sad  hard  3 (U not solved  0, of which C solved  0); elastic  0; rows   262; U    0.2 s, S    0.4 s, C    0.0 s
+  case57_ieee        sad  hard  7 (U not solved  0, of which C solved  0); elastic  0; rows   434; U    0.3 s, S    0.4 s, C    0.0 s
+  case73_ieee_rts    sad  hard 10 (U not solved  9, of which C solved  1); elastic 15; rows   758; U   72.9 s, S   39.0 s, C    9.6 s
+  case118_ieee       sad  hard 10 (U not solved  1, of which C solved  0); elastic  1; rows   980; U   23.0 s, S   15.5 s, C    6.0 s
+  case162_ieee_dtc   sad  hard 10 (U not solved  1, of which C solved  0); elastic  1; rows  1460; U    3.4 s, S    1.3 s, C    0.5 s
+  case179_goc        sad  hard 10 (U not solved  2, of which C solved  0); elastic  2; rows  1410; U   11.5 s, S    4.4 s, C    2.2 s
+  case200_activ      sad  hard  3 (U not solved  2, of which C solved  0); elastic  2; rows  1380; U    4.7 s, S    1.0 s, C    1.9 s
+  case240_pserc      sad  hard 10 (U not solved  2, of which C solved  0); elastic  2; rows  2452; U  206.3 s, S   54.4 s, C   65.5 s
+  case300_ieee       sad  no AC optimum or no start

@@ -997,7 +997,9 @@ def _decode_chunk(
     raise DevelopError(f"compression {compression} is not supported")
 
 
-def _decode_chunks(data: bytes, spans, compression: int, bits: int, spp: int, size_of, end: str, threads=None):
+def _decode_chunks(
+    data: bytes, spans, compression: int, bits: int, spp: int, size_of, end: str, threads=None, sink=None
+):
     """Decode each ``(offset, bytecount)`` chunk (``size_of(i)`` gives its width and rows); yields them in order.
 
     Lossless-JPEG tiles and strips are independent streams (DNG 1.7.1.0, "Compression": each tile or strip is
@@ -1006,12 +1008,20 @@ def _decode_chunks(data: bytes, spans, compression: int, bits: int, spp: int, si
     numpy prediction pass releases it in its array operations, so the chunks decode in parallel. Each chunk's
     samples depend only on its own bytes, so the thread count cannot change them; results come back in file
     order and the first error raises as it would serially. Uncompressed chunks stay on the calling thread.
+
+    With ``sink``, each chunk is handed to ``sink(i, samples)`` on the thread that decoded it and ``None`` is
+    yielded in its place: ``parse_raw`` places tiles that way, so placing them is no longer a serial step after
+    the pool (each chunk writes its own rectangle of the output, so the writes never overlap).
     """
 
     def one(i):
         off, size = spans[i]
         cw, ch = size_of(i)
-        return _decode_chunk(data[off : off + size], compression, bits, spp, cw, ch, end)
+        samples = _decode_chunk(data[off : off + size], compression, bits, spp, cw, ch, end)
+        if sink is None:
+            return samples
+        sink(i, samples)
+        return None
 
     from shootflow import dng_opcodes
 
@@ -1064,18 +1074,20 @@ def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
         offsets = ifd.get(TAG_TILE_OFFSETS)
         sizes = ifd.get(TAG_TILE_BYTES)
         across = (width + tw - 1) // tw
-        tiles = _decode_chunks(
-            data, list(zip(offsets, sizes)), compression, bits, spp, lambda i: (tw, tl), reader.end
-        )
-        for i, tile in enumerate(tiles):
+
+        def place_tile(i, tile):
             ty, tx = divmod(i, across)
             _blit(values, width, height, spp, tile, tw, tl, tx * tw, ty * tl)
+
+        _place_chunks(
+            data, list(zip(offsets, sizes)), compression, bits, spp, lambda i: (tw, tl), reader.end, place_tile
+        )
     elif TAG_STRIP_OFFSETS in ifd.entries:
         rps = ifd.one(TAG_ROWS_PER_STRIP, height)
         offsets = ifd.get(TAG_STRIP_OFFSETS)
         sizes = ifd.get(TAG_STRIP_BYTES)
         n = max(0, min(len(offsets), len(sizes), -(-height // rps)))
-        strips = _decode_chunks(
+        _place_chunks(
             data,
             list(zip(offsets[:n], sizes[:n])),
             compression,
@@ -1083,12 +1095,28 @@ def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
             spp,
             lambda i: (width, min(rps, height - i * rps)),
             reader.end,
+            lambda i, strip: _blit(values, width, height, spp, strip, width, min(rps, height - i * rps), 0, i * rps),
         )
-        for i, strip in enumerate(strips):
-            _blit(values, width, height, spp, strip, width, min(rps, height - i * rps), 0, i * rps)
     else:
         raise DevelopError("raw IFD has neither strips nor tiles")
     return RawImage(width, height, spp, values, ifd, ifd0, exif=exif_ifd(reader, ifd0))
+
+
+def _place_chunks(data, spans, compression, bits, spp, size_of, end, place) -> None:
+    """Decode the chunks and ``place(i, samples)`` each one.
+
+    With numpy, placing is one 2-D copy that releases the GIL, so it runs on the decoding threads (measured on
+    the Pixel 3 XL DNG, eval/parallel-tile-placing-2026-11-13.md: 4-thread read 0.13 s to 0.085 s median).
+    Without numpy, the row-slice copy holds the GIL and slowed the pool when moved onto it, so the chunks are
+    placed on the calling thread in file order, as before.
+    """
+
+    if _blit_numpy() is not None:
+        for _ in _decode_chunks(data, spans, compression, bits, spp, size_of, end, sink=place):
+            pass
+        return
+    for i, samples in enumerate(_decode_chunks(data, spans, compression, bits, spp, size_of, end)):
+        place(i, samples)
 
 
 def exif_ifd(reader: _Reader, ifd0: Ifd) -> Ifd | None:
@@ -1103,14 +1131,60 @@ def exif_ifd(reader: _Reader, ifd0: Ifd) -> Ifd | None:
         return None
 
 
-def _blit(dst: array, width, height, spp, src: list[int], cw, ch, x0, y0) -> None:
+def _blit(dst: array, width, height, spp, src, cw, ch, x0, y0) -> None:
+    """Copy a decoded ``cw`` x ``ch`` chunk into ``dst`` at (``x0``, ``y0``), clipped to the image.
+
+    A chunk that came back as an ``array`` of ``dst``'s own type (the C and numpy lossless-JPEG paths) is copied
+    as one 2-D numpy assignment when numpy is installed, else row by row as array slices; anything else (a list
+    from the pure decoders) goes through ``array(...)`` per row, which also refuses a value too big for ``dst``.
+    """
+
     w = min(cw, width - x0)
-    if w <= 0:
+    rows = min(ch, height - y0)
+    if w <= 0 or rows <= 0:
         return
-    for r in range(min(ch, height - y0)):
+    span = w * spp
+    if isinstance(src, array) and src.typecode == dst.typecode and len(src) >= rows * cw * spp:
+        np = _blit_numpy()
+        if np is not None:
+            dtype = np.uint16 if dst.typecode == "H" else np.uint32
+            out = np.frombuffer(dst, dtype=dtype).reshape(height, width * spp)
+            tile = np.frombuffer(src, dtype=dtype, count=rows * cw * spp).reshape(rows, cw * spp)
+            out[y0 : y0 + rows, x0 * spp : x0 * spp + span] = tile[:, :span]
+            return
+        for r in range(rows):
+            s = r * cw * spp
+            d = ((y0 + r) * width + x0) * spp
+            dst[d : d + span] = src[s : s + span]
+        return
+    for r in range(rows):
         s = r * cw * spp
         d = ((y0 + r) * width + x0) * spp
-        dst[d : d + w * spp] = array(dst.typecode, src[s : s + w * spp])
+        dst[d : d + span] = array(dst.typecode, src[s : s + span])
+
+
+_NUMPY_MISSING = object()
+_numpy_module = None
+
+
+def _blit_numpy():
+    """numpy, or None when it is not installed or ``SHOOTFLOW_NATIVE=0`` asks for the pure reference path.
+
+    The import is tried once: a failed ``import`` searches ``sys.path`` again on every call, and this runs per
+    tile (192 times for a Pixel 3 XL DNG), which cost more than the copy it chooses between.
+    """
+
+    global _numpy_module
+    if os.environ.get("SHOOTFLOW_NATIVE", "1") == "0":
+        return None
+    if _numpy_module is None:
+        try:
+            import numpy as _numpy_module_local
+        except ImportError:
+            _numpy_module = _NUMPY_MISSING
+        else:
+            _numpy_module = _numpy_module_local
+    return None if _numpy_module is _NUMPY_MISSING else _numpy_module
 
 
 # --------------------------------------------------------------------------

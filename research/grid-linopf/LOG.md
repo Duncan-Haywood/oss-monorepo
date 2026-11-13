@@ -1,5 +1,12 @@
 # Research log
 
+## 2026-11-13 · Milestone 2b: is the repair's QP solved correctly? PIPS fails on solvable elastic QPs; Clarabel adopted
+- Every QP J-m-a poses on the 34 PGLib cases (347: 248 hard, 99 elastic) re-solved by Clarabel 0.11 as a referee and by a screened (constraint-generation) PIPS solve. Wherever PIPS reports success, its objective matches Clarabel's within 1e-6 (236 of 236), so finished repairs and their costs stand; screening is exact (228 of 228) on 7.8 % of the rows.
+- PIPS's hard-QP failures are mostly real (Clarabel solves 5 of 75). Its elastic failures are not: 36 of 99, of which Clarabel solves 26. The repair had treated them as rejected steps.
+- With Clarabel on every QP, J-m-a is fully clean on **21 of 34** (PIPS: 19) and **31 of 34** with the reactive stage (29); the two gains are case24 API and case73 SAD, no case is lost, and costs where both finish are unchanged. Repair time 1,353 s to 260 to 277 s (4.9 to 5.2x; the 5x prediction sits within timing noise). Screened PIPS: 21 and 29, 2.99x.
+- For the programme: later milestones (4's baselines, 6's 500 to 2,000-bus held-out cases) run on Clarabel. Still open in 2b: a post-feasibility phase for the path-dependent cost (milestone 2's H3).
+- Plan, predictions and outcome: `research/infra-dcopf/LOG.md`.
+
 ## 2026-11-13 · Milestone 2: analytic sensitivities from the power-flow Jacobian
 - `vlin.jacobian_sens` gives the repair's sensitivities (slack P, branch |S| at both ends, angle differences, PQ-bus voltages, unit Q, with respect to unit P and generator voltage setpoints) from the Newton Jacobian at the base point: one sparse LU per round instead of n_gen + n_vbus power flows. It matches central differences to 2.3e-6 (scaled) on 32 of 34 cases and to 1.3e-5 on the other two once the difference step is refined (`results_sens.txt`).
 - Re-running J-m with it on all 36 PGLib cases: fully clean **19 of 34** (finite differences: 18), **29 of 34** with the reactive stage (28); same verdict on 31. The counts are robust to the derivative source.

@@ -142,3 +142,37 @@ def test_integrator_feed_forward_is_inert_without_cant_and_ignores_the_filter():
         assert np.array_equal(c[k], d[k])       # tau_ff is unused in this mode
     assert not np.allclose(c["pos"], e["pos"])  # it acts on a canted vehicle
     assert not np.allclose(c["pos"], f["pos"])  # and differs from milestone 7's commanded-torque feed-forward
+
+
+def _m7b_above_design():
+    import json
+    runs = json.load(open(os.path.join(os.path.dirname(__file__), "..", "experiments", "m7b_integ", "results.json")))["runs"]
+    return next(r for r in runs if r["label"] == "6b+integ" and r["geom"] == "above" and r["seed"] == 0)
+
+
+def _sz_gains(x):
+    from codesign_cant import aero as A
+    x = np.atleast_2d(np.asarray(x, float))
+    L = A.L_RANGE[0] + x[:, 0] * (A.L_RANGE[1] - A.L_RANGE[0]); D = A.D_RANGE[0] + x[:, 1] * (A.D_RANGE[1] - A.D_RANGE[0])
+    return A.size(L, D, np.deg2rad(80.0) * np.clip(x[:, 2], 0, 1), kappa_per_d=0.081, actuator="hover"), poshold.phys_gains(x[:, 3:12]), 0.081 * D
+
+
+def test_milestone_7d_probes_leave_the_default_rollout_unchanged():
+    """integ_clip, ffi_clip, steps and diag at their defaults reproduce the milestone 6-7c rollout bit for bit."""
+    r = _m7b_above_design(); sz, g, kap = _sz_gains(r["x"])
+    kw = dict(dist_sign=poshold.cop_signs(1.0), ff=1.0, ff_mode="integ")
+    a = poshold.rollout(sz, g, kap, 8, 5, **kw)
+    diag = {}
+    b = poshold.rollout(sz, g, kap, 8, 5, integ_clip=0.3, ffi_clip=1.0, steps=poshold.STEPS, diag=diag, **kw)
+    for k in ("pos", "yaw", "att", "dead", "pos_ep"):
+        assert np.array_equal(a[k], b[k]), k
+    for k in ("integ_at_clip", "ffi_at_clip", "tilt_at_clip", "mix_rp"):
+        assert diag[k].shape == (1, 8) and (diag[k] >= 0).all() and (diag[k] <= 1).all()
+    assert ((diag["t_dead"] >= 0) == b["dead_ep"]).all()
+
+
+def test_longer_episode_keeps_the_first_draws_and_four_yaw_segments():
+    y6, *_ = poshold.reference(4, 3)
+    y18, *rest = poshold.reference(4, 3, 3 * poshold.STEPS)
+    assert y18.shape == (4, 3 * poshold.STEPS)
+    assert np.array_equal(y6[:, :: poshold.STEPS // 4], y18[:, :: 3 * poshold.STEPS // 4])   # same four signs

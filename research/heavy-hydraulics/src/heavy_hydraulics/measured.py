@@ -264,3 +264,19 @@ def no_load_line(fuel_lph, rpm, power_kw, n_ref):
     rows = [(n - n_ref, p) for n, p in zip(rpm, power_kw)]
     a, c, b = ols(rows, fuel_lph)
     return a, c, b
+
+
+GAL_L = 3.785411784   # litres per US gallon
+HP_KW = 0.745699872   # kW per mechanical horsepower
+
+
+def asabe_fuel_lph(x, n_ratio, p_rated_kw, a=0.0434, b=0.019, c=0.45, d=0.877):
+    """Tractor diesel fuel rate (L/h) from the ASABE D497.6 general model (milestone 6f).
+
+    Grisso et al. 2010 (VCE 442-073), eqs. 2 and 3: Q_F = (a X + b) P_PTO gal/h at full
+    throttle with P_PTO in hp, and Q_R = Q_F [1 - (N - 1)(c X - d)] at reduced throttle.
+    x is the fraction of rated power in use, n_ratio the engine speed over the full-throttle
+    speed at that load (1 at full throttle). The coefficients are per hp; dividing by
+    HP_KW and multiplying by GAL_L gives L/h per rated kW, so p_rated_kw is in kW."""
+    q_f = (a * x + b) * (p_rated_kw / HP_KW) * GAL_L
+    return q_f * (1.0 - (n_ratio - 1.0) * (c * x - d))

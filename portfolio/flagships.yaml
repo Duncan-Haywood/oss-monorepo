@@ -213,8 +213,10 @@ flagships:
       0 of 12.2 M sensels differ from LibRaw; read 0.33 s to 0.21 s on 4 CPUs; since
       2026-11-13 later the whole tile decode (de-stuffing, restart walk, 12-bit table,
       prediction) runs in C, read 0.21 s to 0.10 s on 4 CPUs, eval/native-destuff-2026-11-13.md;
-      next on speed: the serial tile placing (_blit, about 0.06 s) and C prediction for
-      point-transform scans), and the serial _normalised_plane (about 0.2-0.4 s);
+      tiles are placed on the decode threads with one numpy copy since 2026-11-13 (4-thread read
+      1.3-1.4x faster, eval/parallel-tile-placing-2026-11-13.md); next on speed: the plane's
+      double allocation in parse_raw and C prediction for point-transform scans), and the serial
+      _normalised_plane (about 0.2-0.4 s);
       MapTable and Delta/ScalePerRow/Column in OpcodeList1 once the raw-value
       unit is settled (README, 2026-11-12 MapTable section).
     next: >-
@@ -288,19 +290,21 @@ flagships:
       zero-break odd leagues, field start; sampled, annealed and climbed starters; break-weighted and
       shift starters; frontier picker with gap tries, README 2026-11-12 sections; squeezes of a
       home-and-away season under a break cap, README "Squeezing a season under a cap"; single round robin
-      squeezes, README "Squeezing a single round robin"). 2026-11-13 latest (README "The gaps are in the
-      timetables", eval/orient-maxsat.txt, eval/polish-frontier.txt): a MaxSAT proof of the fewest breaks a
-      fixed timetable allows shows the frontier gaps are timetable-bound (20 single 360 needs at least 50,
-      19 home and away 1,311 needs 85; 89 of 106 proved tries already at their least; round rotations of
-      the 20-team starter all need 50), and carryOverPolish regrounds listed seasons on their own
-      timetables (7 frontier seasons in 4 of 31 runs; 20 home and away 1,460/116 to 1,460/112). Next, most
-      valuable first: a timetable search that prices the proved break floor (a starter climb or squeeze
-      whose move is scored on the least breaks of its timetable: a fast lower bound in JS, e.g. odd-cycle
-      or per-team counts, then MaxSAT on the pool), aimed at 20 single 360-546 and 19 home and away
-      1,311-3,071; reach 18 teams' 348/38 and 20 teams' 360/50 in the page (more venue-search restarts or
-      an exact orientation for the starter tables stored offline); a lower bound or a timetable below 136
-      at 12 (SAT, eval/carryover-sat.py: symmetry breaking or cube-and-conquer); close 24-40 (tabu, longer
-      runs, the literature's starters); a real league's travel times and unavailable dates; a print check.
+      squeezes, README "Squeezing a single round robin"; MaxSAT proof that the frontier gaps are
+      timetable-bound, README "The gaps are in the timetables"). 2026-11-13 latest (README "The fewest
+      breaks of a timetable, exactly, in the page", orient.mjs, eval/orient-dp.txt): a dynamic programme
+      over rounds (state = one round's hosts, one xor and popcount per transition) plus a slack search for
+      the least balanced host choice proves the fewest breaks of a single round robin's timetable in
+      milliseconds to seconds; 105 of 106 MaxSAT-proved tries agree, and it proves two 22-team ones MaxSAT
+      did not (440 at 58, the page gives 66); carryOverPolish uses it, so the page reaches 18 teams'
+      348/38 and 20 teams' 360/50. Next, most valuable first: a timetable search that prices the proved
+      break floor (orient.mjs leastBreaks floor, 30 ms at 20 teams, as the score of a starter climb or
+      squeeze move), aimed at 20 single 360-546; an exact or tighter floor for home and away (the pair
+      keeps one host, which ties far rounds: the relaxed floor gives 74 where MaxSAT proves 85 at 19;
+      try a DP over leg one with leg two's mirrored order, or a Lagrangian on the pair ties); a lower
+      bound or a timetable below 136 at 12 (eval/carryover-sat.py); close 24-40 (tabu, longer runs,
+      the literature's starters); faster balanced search at 22-24 (22 teams' try 3 runs out of budget);
+      a real league's travel and blackout dates; a print check.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
