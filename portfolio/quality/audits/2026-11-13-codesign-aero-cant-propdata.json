@@ -1,0 +1,235 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/codesign-aero-cant-propdata",
+ "stratum": "research",
+ "seed": "2026-11-13-b",
+ "drawn_by": "sample",
+ "round": 56,
+ "auditor": "agent session (Claude), quality-audit round 56",
+ "status": "audited",
+ "professional": "a senior aerospace propulsion / multirotor flight-dynamics researcher (the kind who reviews small-UAV propeller and control-allocation papers for AIAA or IEEE RA-L). They would check first: (1) that the UIUC coefficient convention is used correctly (CT = T/(rho n^2 D^4), CP = P/(rho n^3 D^5), n in rev/s, so Q/T = (CP/CT) D / 2pi); (2) that the extraction actually reads every static file it says it reads and reproduces the raw data; (3) that the yaw-authority model uses the right moment arms and rotor count, since that is what the cant result rests on; (4) what is left out of yaw dynamics (rotor spin-up inertia torque) and whether c at the operating point differs from c averaged over test RPMs.",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed against sources the author did not write. (a) Downloaded all 205 static-thrust files listed on the UIUC Propeller Data Site volume 1 and 2 index pages (m-selig.ae.illinois.edu, reachable 2026-11-13) and parsed them with my own script (scratchpad aero/indep.py): every one of the 160 rows in data/propdata_c.csv reproduces to max |dc| = 5.0e-5 (4-decimal rounding). (b) Statistics of the 77 in-range files: p10 0.0646, median 0.0809, p90 0.1299, max 0.1934, Pearson r(D,c) = -0.111, exactly the README's 0.065/0.081/0.13/0.193/-0.11. (c) Raw apcsf_10x7_static_kt0827.txt row 1 is RPM 2283, CT 0.1409, CP 0.0678 (CP/CT 0.481) as the test comment says. (d) Q/T = (CP/CT) D/(2 pi) re-derived from P = CP rho n^3 D^5 and Q = P/(2 pi n): correct; 0.016/0.127 = 0.1260 and 0.081*2pi = 0.509 as stated. (e) Reran 4 experiment cells (c 0.081 and 0.193, bound 0 and 80, seed 0) via experiments/run.py joint_cell: rms 12.4623, 17.3152, 12.1062, 14.8144 and chosen cant 38.7, 37.8 deg, bit-identical to results.json; paired means from results.json -4.73/-4.60/-3.90/-2.92, 5 of 5, as stated. BUT two things hold correctness at 2. (1) The extraction regex `([a-z]+)_` silently drops 45 of the 205 listed files, every family whose name contains a digit (da4002, da4022, da4052, apc29ff) plus multi-blade and odd-named files; 27 of them are in the 3.15-9.85 in range (20 two-blade). With all in-range 2-blade files the median is 0.0822 (all blades 0.0851), p10/p90 unchanged: small shift, but the published population is not the one described. (2) Independent rigid-body statics (scratchpad aero/wrench.py: canted X quad, thrust axes tilted about the arms, reaction torque along the spin axis, Fz and roll/pitch held) give yaw authority 2.00x the code's tau_yaw at 0 deg cant, 2.74x at 35 deg: the inherited formula 2*dT*(kappa cos a + (L/sqrt2) sin a) should be 4*dT*(kappa cos a + L sin a). The README's 2026-11-12 correction note admits this and points to codesign-cant, which re-ran only c = 0.081; every simulated number in this project's headline (12.50 ... 14.91 deg, gains 4.7 ... 2.9 deg, chosen cant 36-41 deg) is computed with the wrong limits and has not been rerun here.",
+  "completeness": "README claims checked: 19 tests (`/usr/bin/python3.13 -m pytest -q tests`: 19 passed in 0.91 s) - yes; extract_c.py --fetch downloads and regenerates the CSV - works (I reproduced it with curl + own parser) but reads 160 of 205 files, not 'every static-thrust file'; run.py reproduces results (4 cells bit-identical, 26 s for 4 cells on 4 cores, so the full 60-cell run is ~6.5 min as 'several minutes' says); figure.py and experiments/propdata.png exist; data/propdata_c.csv present; live page https://marisstella.app/research/codesign-aero-cant-propdata/ loads (HTTP 200) with the headline numbers. No TODOs or stubs. The corrected-limits rerun at all four c values is not done here (only pointed to). 3.",
+  "verification": "`cd research/codesign-aero-cant-propdata && /usr/bin/python3.13 -m pytest -q tests`: 19 passed in 0.91 s. Seeded 8 mutations with platform/ci/quality_mutate.py; 1 caught (cant tangential term sin->cos), 7 survived: actuator lag removed (tq = cmd), kappa scaled by cos(alpha), run.py percentiles 10/50/90 -> 25/50/75, diameter regex [0-9.] -> [0-9] (would drop every fractional-diameter file), median -> mean in extraction, the CT > 0.02 filter removed (the test's own comment says that row is dropped, but the synthetic data makes median unchanged either way), and the 60-deg crash threshold -> 90. Nothing tests run.py, the rollout dynamics beyond determinism and 'score changes', or extraction on a real UIUC file name with a digit or fraction. 1.",
+  "craft": "Read experiments/extract_c.py (55 lines), experiments/run.py (68), src/.../aero.py (140), tests/test_extract.py, tests/test_propdata.py. Compact and readable, deterministic seeding, vectorised rollout. Defects: the filename regex silently skips 45 files with no count of skipped files printed (extract_c.py:25); fetch() writes whatever the server returns, and on my first download 22 of 205 files came back as an HTML JavaScript challenge page (served with 200), which rows() would silently drop because every line fails float() (extract_c.py:16-18, 32-34), so --fetch can regenerate a smaller CSV without warning; files opened without close; `sys.argv[1]` with no args raises IndexError instead of printing usage; aero.py is a copied engine from the parent with experiment-unused parameters (tilt_loss, diag, kappa_scale). 2.",
+  "claims": "Checked: 'c sourced from measured data' - backed by data/propdata_c.csv, reproduced from UIUC; '77 propellers of 3.15-9.85 in, median 0.081, p10 0.065, p90 0.13, max 0.193, r = -0.11' - backed; '160 propellers' - they are 160 test files of 205 listed (in range, 77 files are 75 distinct geometries); 'downloads every static-thrust file' - not backed (45 skipped); 'the 0.25 swept upper end is above every measured propeller' - true on all 187 parseable files (max 0.1934); headline simulated numbers - backed by results.txt but computed with torque limits the README itself says are wrong by 2-2.8x; the served page (from project.json lede/summary) shows those numbers with no correction note at all (grep for 'correct'/'understate' on the served HTML: no hit). Simulated label, AI-assistance note, limitations, data citation and redistribution note present. 2.",
+  "fitness": "Job: a researcher wants a sourced value and spread for the yaw reaction-torque-to-thrust factor c of small propellers, and to know whether a canted-rotor design conclusion depends on it. Nearest prior work: the UIUC data themselves (Brandt & Selig 2011; Deters et al. 2018), the k_M/k_F torque-to-thrust constants measured for individual quads in the control literature (e.g. Mellinger & Kumar's quadrotor papers), and canted/tilted-rotor yaw authority (Crowther et al. 2011, JGCD 34(4), non-planar multirotor; Rajappa et al. 2015 ICRA, tilted-propeller hexarotor), cited in the parent projects, not here. New: a reproducible per-file CP/CT table for 77 small props and a sensitivity check that the interior cant optimum persists across c. The c table is reusable (after the dropped-file fix); the simulation result is a robustness check on a model now known to be wrong and is superseded by codesign-cant's corrected rerun at one c. A modest, mostly sound increment; not publishable alone. 2.",
+  "domain": "Compared against standard propeller-coefficient practice (UIUC / McCormick conventions) and rigid-body multirotor allocation. Coefficient handling is right, and static coefficients are the correct ones for hover. Departures: yaw authority uses 2 rotors' dT and arm L/sqrt2 for the tangential cant force (should be 4 and L; inherited, acknowledged); rotor spin-up inertia torque (I_r * d omega/dt), a large part of transient yaw authority on small quads, is not modelled; c is a median over the lab's RPM sweep, not at the operating Reynolds number/thrust the optimiser picks (stated); 3- and 4-blade and digit-named families excluded without saying so. 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Every c in data/propdata_c.csv recomputed from the raw UIUC static files",
+   "method": "UIUC Propeller Data Site vol. 1-2 raw files (Brandt & Selig 2011; Deters et al. 2018), downloaded 2026-11-13, own parser",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/aero/indep.py /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/aero/raw/files research/codesign-aero-cant-propdata/data/propdata_c.csv",
+   "expected": "160 rows reproduce",
+   "observed": "max |c_csv - c_mine| = 4.99e-05 over 160 rows",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Percentiles, max and diameter correlation of the 77 in-range propellers",
+   "method": "own numpy recomputation from the raw UIUC files",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/aero/indep.py ... (line 'author set, in range')",
+   "expected": "p10 0.065, median 0.081, p90 0.13, max 0.193, r -0.11 (README)",
+   "observed": "p10 0.0646, median 0.0809, p90 0.1299, max 0.1934, r -0.111",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Population: does the CSV hold every static file listed on the UIUC indexes, as README Method says",
+   "method": "UIUC volume-1 and volume-2 index HTML, same link regex as fetch()",
+   "command": "grep -ohE 'data/[a-z0-9_.]*static[^\"]*txt' idx1.html idx2.html | sort -u | wc -l; then the author's rows() regex",
+   "expected": "205 listed -> 205 (or all 2-blade) rows",
+   "observed": "205 listed, 160 rows; 45 skipped by ([a-z]+)_ (da4002, da4022, da4052, apc29ff, multi-blade, cfnq, nr640 ...); 27 in range, 20 of them 2-blade; median with all in-range 2-blade files 0.0822",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Q/T = (CP/CT) D / (2 pi) identity and the 0.016 m = 0.126 x 127 mm statement",
+   "method": "by hand from CP = P/(rho n^3 D^5), CT = T/(rho n^2 D^4), Q = P/(2 pi n) (standard propeller coefficients, McCormick)",
+   "command": "hand derivation; 0.016/0.127; 0.081*2*pi",
+   "expected": "identity holds; 0.126; 0.51",
+   "observed": "identity holds; 0.1260; 0.509",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Yaw torque limit tau_yaw used by every simulated number",
+   "method": "own rigid-body statics of a canted X quad (rotor positions, canted thrust axes, spin-signed reaction torque), yaw pattern +-Delta holding Fz and roll/pitch",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/aero/wrench.py",
+   "expected": "tau_yaw equals statics max yaw",
+   "observed": "statics / code = 2.00 at 0 deg cant, 2.74 at 35 deg, 2.77 at 40 deg",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Experiment cells reproduce from code",
+   "method": "rerun of experiments/run.py joint_cell for (80,0.081,0), (0,0.081,0), (80,0.193,0), (0,0.193,0)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/aero/cell.py",
+   "expected": "results.json rms 12.4623, 17.3152, 12.1062, 14.8144",
+   "observed": "12.462282203394121, 17.315236544515773, 12.106245503484166, 14.814381815331277 (bit-identical, 26 s)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd research/codesign-aero-cant-propdata && /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "19 tests pass (README)",
+   "observed": "19 passed in 0.91s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page carries the 2026-11-12 correction of the torque limits",
+   "method": "load https://marisstella.app/research/codesign-aero-cant-propdata/ and grep",
+   "command": "curl -sS https://marisstella.app/research/codesign-aero-cant-propdata/ | grep -ci 'correct\\|understate'",
+   "expected": "correction note present (README has it)",
+   "observed": "HTTP 200, headline 12.46 and 0.081 shown, 0 hits for correction/understate",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'160 propellers' and 'every static-thrust file'",
+   "method": "count files vs geometries in CSV against UIUC index",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/aero/indep.py ... (last line)",
+   "expected": "160 distinct propellers, all files",
+   "observed": "160 files of 205 listed; in range 77 files = 75 distinct family/diameter/pitch geometries",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'The 0.25 swept upper end is above every measured propeller'",
+   "method": "max c over all 187 parseable UIUC static files, including the dropped ones",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/aero/indep.py ...",
+   "expected": "max < 0.25",
+   "observed": "max 0.1934 (in range and overall among parsed files)",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "--fetch robustness to the server's challenge page",
+   "method": "plain curl download of the 205 files as fetch() does",
+   "command": "curl each volume-N/data/<file>",
+   "expected": "fetch detects non-data responses",
+   "observed": "22 of 205 first responses were an HTML JavaScript challenge page with HTTP 200; fetch() writes them as .txt and rows() would skip them silently",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/codesign_aero_cant_propdata/aero.py:110",
+   "change": "tq += (cmd - tq) * (DT / lag) -> tq = cmd",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/codesign_aero_cant_propdata/aero.py:40",
+   "change": "kappa_per_d * D -> kappa_per_d * D * np.cos(alpha)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "experiments/run.py:22",
+   "change": "np.percentile(cs, [10, 50, 90]) -> np.percentile(cs, [25, 50, 75])",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "experiments/extract_c.py:25",
+   "change": "([0-9.]+)x -> ([0-9]+)x (drops fractional diameters)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "experiments/extract_c.py:38",
+   "change": "st.median(r) -> st.mean(r)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "experiments/extract_c.py:35",
+   "change": "ct > 0.02 -> ct > 0.0",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/codesign_aero_cant_propdata/aero.py:124",
+   "change": "crash threshold deg2rad(60) -> deg2rad(90)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/codesign_aero_cant_propdata/aero.py:47",
+   "change": "(kappa * ca + r * sa) -> (kappa * ca + r * ca)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The served page (project.json lede and summary) presents the simulated headline (12.50/12.46/12.22/12.00 deg, gains 4.7-2.9 deg, cant 36-41 deg) with no mention of the 2026-11-12 correction: those numbers use yaw limits 2-2.8x too small and roll limits wrong above TWR 2. Only the README carries the note.",
+   "where": "research/codesign-aero-cant-propdata/project.json:4",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "medium",
+   "what": "Inherited yaw-authority formula uses 2 rotors' dT and arm L/sqrt2 for the tangential cant force; statics give 4*dT and arm L (2.00x at 0 deg, 2.74x at 35 deg). Not rerun here at the four c values; codesign-cant reran c = 0.081 only.",
+   "where": "research/codesign-aero-cant-propdata/src/codesign_aero_cant_propdata/aero.py:47",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Filename regex ([a-z]+)_ silently skips 45 of 205 listed static files (families with digits: da4002, da4022, da4052, apc29ff; multi-blade *_3b/_4b; cfnq, nr640, gwsdd spec files); 27 in range, 20 two-blade. README says every static file is read. Median of in-range 2-blade files is 0.0822 vs reported 0.081.",
+   "where": "research/codesign-aero-cant-propdata/experiments/extract_c.py:25",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "7 of 8 seeded mutations survive: no test covers run.py (percentile choice), rollout dynamics (actuator lag, crash rule), kappa scaling at nonzero cant, or extraction on real UIUC names; the CT<0.02 filter test passes with the filter removed because its synthetic data leave the median unchanged.",
+   "where": "research/codesign-aero-cant-propdata/tests/test_extract.py:12",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "fetch() saves whatever the server returns; the UIUC host served a 200 HTML challenge page for 22 of 205 files on a first pass, which rows() then drops silently, so --fetch can regenerate a smaller CSV with no warning.",
+   "where": "research/codesign-aero-cant-propdata/experiments/extract_c.py:17",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "'160 propellers' are 160 test files; the 77 in range are 75 distinct geometries (repeat tests counted twice).",
+   "where": "research/codesign-aero-cant-propdata/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Yaw dynamics omit the rotor spin-up inertia reaction torque, a large part of transient yaw authority on small quads; not listed in Limitations.",
+   "where": "research/codesign-aero-cant-propdata/src/codesign_aero_cant_propdata/aero.py:47",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15312"
+ ],
+ "verdict": "Below the bar (correctness 2, verification 1, claims 2). The measured part is good: every c in data/propdata_c.csv reproduces from the raw UIUC files to 5e-5, and the percentiles and r = -0.11 are exactly right; the experiment reproduces bit for bit. But the extraction silently drops 45 of 205 listed static files (all digit-named families; 20 in-range two-blade props), so the population is not 'every static file', though the median only moves 0.081 -> 0.082; every simulated headline number rests on the inherited yaw/roll torque limits that independent statics show are 2-2.74x off, which the README admits but the served page does not; and 7 of 8 seeded mutations survive the 19 tests. Useful as a sourced c table once the regex is fixed; the cant result should be read from codesign-cant's corrected rerun."
+}
