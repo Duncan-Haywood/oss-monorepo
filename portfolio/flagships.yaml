@@ -284,13 +284,9 @@ flagships:
     next: >-
       Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up CSVs,
-      duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool, capped breaks,
-      zero-break odd leagues, field start; sampled, annealed and climbed starters; break-weighted and
-      shift starters; frontier picker with gap tries, README 2026-11-12 sections; squeezes of a
-      home-and-away season under a break cap, README "Squeezing a season under a cap"; single round robin
-      squeezes, README "Squeezing a single round robin"; MaxSAT proof that the frontier gaps are
-      timetable-bound, README "The gaps are in the timetables"; exact break floor in the page, orient.mjs,
-      README "The fewest breaks of a timetable, exactly"). 2026-11-13 latest (README "Pricing the break
+      duty rota, team sheets; carry-over on 20 real seasons; starters, capped breaks, frontier picker,
+      squeezes, MaxSAT proof that the gaps are timetable-bound, exact break floor in the page: README
+      2026-11-11 to 2026-11-13 sections). 2026-11-13 latest (README "Pricing the break
       floor", eval/floor-priced.txt): floorPricedSingleRounds anneals a single round robin's timetable on
       carry-over + its proved break floor (floorTable, incremental) and the page adds up to 2 such seasons
       into the widest frontier gap (6 to 21 teams): 20 teams 412-440 at 48 breaks where the list had
