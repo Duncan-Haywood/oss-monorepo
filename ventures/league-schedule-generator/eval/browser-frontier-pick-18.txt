@@ -1,0 +1,9 @@
+ok   the frontier list shows (11 other season(s)): Other seasons from the same searches, each the most even carry-over found for its number of back-to-back home or away games. Click one to use it: 1316 carry-over, 98 back-to-back 1406 carry-over, 92 back-to-back 1426 carry-over, 88 back-to-back 1512 carry-over, 82 back-to-back 1550 carry-over, 74 back-to-back 1574 carry-over, 72 back-to-back 1582 carry-over, 70 back-to-back 1638 carry-over, 68 back-to-back 1644 carry-over, 62 back-to-back 1662 carry-over, 58 back-to-back (shown) 2070 carry-over, 52 back-to-back 2496 carry-over, 48 back-to-back
+ok   a squeezed season is on the list (try numbers 0, 15, 4, 11, 14, 10, 5, 2, 13, 12, 8)
+ok   picking "1406 carry-over, 92 back-to-back" keeps that season (was 1662/58)
+ok   the report's own recount (1406) agrees with the kept try (1406)
+ok   share link copied
+ok   the share link opens on the picked season
+ok   Back to the choice above restores the first season
+ok   changing the choice drops a picked season
+ok   no page errors
