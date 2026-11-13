@@ -59,7 +59,7 @@
     "docs/history/ci-perf-2026-11-13-changepoint-engine-test-split.md"
   ],
   "goal": null,
-  "notes": "Metric: changepoint-detector suite wall time on a 4-core sandbox, `node --test` in the venture directory. Before 255 s (641/641 tests, main). After 214 s (641/641, through run_venture_tests.run with the fixed runner). The file split is engine.test.mjs 166 s -> 85 + 4 + 5 tests in three files. Pool reading: ci_profile --runs 300, ventures tests 50.2 job-min of 315.9. The all-ventures run without the flag is pending; see the follow-up below.",
+  "notes": "Metric: changepoint-detector suite wall time on a 4-core sandbox, `node --test` in the venture directory. Before 255 s (641/641 tests, main). After 214 s (641/641, through run_venture_tests.run with the fixed runner). The file split is engine.test.mjs 166 s -> 85 + 4 + 5 tests in three files. Pool reading: ci_profile --runs 300, ventures tests 50.2 job-min of 315.9. All ventures through the fixed runner (--jobs 4): 1348 suites run, 0 failed, so the dropped tests were not hiding failures on main.",
   "corrections": [],
   "redteam": null
 }

@@ -88,13 +88,16 @@ test `test_a_failing_test_that_leaves_a_server_open_fails_fast` still passes
   **641 of 641 pass, 214 s** wall, against 255 s before (641 of 641, taken with
   the flag but on a run that happened to report every test). The split file's
   three parts together report 94 tests.
-- A run of every venture suite without the flag: see "All suites" below.
+- Every venture suite without the flag: 1348 run, 0 failed (below).
 
 ## All suites without the flag
 
-See the run record's `notes` for the result of
-`python3 platform/ci/run_venture_tests.py --jobs 4` over every venture. It is
-the first full run since 2026-11-12 that is sure to have executed every test.
+`python3 platform/ci/run_venture_tests.py --jobs 4 --slowest 10` over every
+venture, with the fixed runner: **1348 suites run, 0 failed** (exit 0). The
+tests the flag may have skipped since 2026-11-12 were not hiding a failure on
+`main` as of this run. The slowest suites, with four running at once:
+changepoint-detector 754 s, shed-designer 655 s, shift-roster-builder 639 s,
+league-schedule-generator 580 s, ai-bookkeeper 194 s, wall-framing-takeoff 186 s.
 
 ## Not changed, ranked for the next run
 
