@@ -197,6 +197,51 @@ class BandedThreadsTests(unittest.TestCase):
             self.assertEqual(covered, list(range(rows)), (rows, band, threads))
 
 
+    def test_normalised_plane_bands_with_every_term(self):
+        """``_normalised_plane`` in bands: a linearisation table, 2x2 black and scale, row and column black deltas,
+        one and three samples a pixel, with and without a gain map, at band heights 1-7 and 1-3 threads, gives the
+        same plane and clip count as a single band on one thread."""
+
+        from array import array
+
+        from shootflow import dng_opcodes
+
+        rng = random.Random(31)
+        w, h, rw, top, left = 11, 13, 14, 2, 1
+        for spp in (1, 3):
+            vals = array("H", [rng.randint(0, 4095) for _ in range(rw * spp * (h + top + 1))])
+            lin = [min(65535, int(i * 1.7) + rng.randint(0, 3)) for i in range(3000)]
+            black = [[[rng.uniform(0, 300) for _ in range(spp)] for _c in range(2)] for _r in range(2)]
+            span = [[[1.0 / rng.uniform(3000, 5000) for _ in range(spp)] for _c in range(2)] for _r in range(2)]
+            dh = [rng.uniform(-20, 20) for _ in range(w - 2)]
+            dv = [rng.uniform(-20, 20) for _ in range(h - 3)]
+            caplines = [[rng.uniform(0.6, 1.0) for _ in range(w * spp)] for _ in (0, 1)]
+            gm = dng_opcodes.GainMap(
+                top=0, left=0, bottom=h, right=w, plane=0, planes=spp, row_pitch=1, col_pitch=1,
+                points_v=2, points_h=3, spacing_v=1.0, spacing_h=0.5, origin_v=0.0, origin_h=0.0,
+                map_planes=1, gains=(1.0, 1.2, 1.4, 0.9, 1.1, 1.3),
+            )
+            for lin_t, rr, rc, d_h, gains in (
+                (None, 1, 1, [], ()), (lin, 2, 2, dh, ()), (None, 2, 1, [], (gm,)), (lin, 2, 2, dh, (gm,))
+            ):
+                if spp == 3 and rc == 1 and not d_h:
+                    continue  # three-sample images take the general path; the fast one is covered by spp=1
+
+                def run(band, threads):
+                    return self.np_mod._normalised_plane(
+                        vals, rw, top, left, w, h, spp, lin_t, black, span, d_h, dv, rr, rc, caplines, gains,
+                        threads=threads, band=band,
+                    )
+
+                want, want_clip = run(h, 1)
+                for band in (1, 2, 3, 7):
+                    for threads in (1, 2, 3):
+                        with self.subTest(spp=spp, rr=rr, rc=rc, gain=bool(gains), band=band, threads=threads):
+                            got, clip = run(band, threads)
+                            self.assertEqual(got.tobytes(), want.tobytes())
+                            self.assertEqual(clip, want_clip)
+
+
 @unittest.skipUnless(HAVE_NUMPY, "numpy not installed")
 class UnpackBitsTests(unittest.TestCase):
     """Packed 9- to 15-bit uncompressed sensor data: the numpy unpacker gives the pure loop's samples."""
