@@ -380,12 +380,12 @@ flagships:
       sweep, a 10 ms bounce re-closes at 5-21 A; scope a real contactor's pull-in
       and bounce. Regen, then brakes and bounces in a row (700 mV guard band),
       landed 2026-11-14 (cad/README.md): scope the bus on a 20% slow-down; log a
-      real ESC braking and the battery reading noise. Buildable: the flight as a
-      printed part and the tensioner (PR 15456). Pot pickup from the PWM landed
-      2026-11-14 (1 uF on GPIO 39, trimmed reads): scope GPIO 39 at part duty.
-      Actuator's lead landed 2026-11-14 (cad/README.md "The elevation actuator's
-      lead"): cut 220 mm, 209-231 fits; find where a real actuator's cable leaves
-      its housing and bend a built lead through the travel.
+      real ESC braking and the battery reading noise. Lift tensioner landed
+      2026-11-13 (cad/README.md): weigh a real belt, pluck a strand. Pot pickup from
+      the PWM landed 2026-11-14 (1 uF on GPIO 39, trimmed reads): scope GPIO 39 at
+      part duty. Actuator's lead landed 2026-11-14 (cad/README.md "The elevation
+      actuator's lead"): cut 220 mm, 209-231 fits; find where a real actuator's
+      cable leaves its housing and bend a built lead through the travel.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to
