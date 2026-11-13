@@ -604,23 +604,52 @@ def _history_reaches(cutoff: datetime, cwd: Path) -> bool:
     return bool(out) and int(out[-1]) <= cutoff.timestamp() + 2 * 86400
 
 
+def origin_main_behind_head(cwd: Path) -> bool:
+    """True when HEAD holds commits GitHub made (squash merges of PRs) that origin/main lacks.
+
+    A cloud container's checkout is current main, but its `origin/main` ref can be a clone-time
+    snapshot days behind it (2026-11-13: #13701 from 2026-11-07 while HEAD was #15437). Its
+    history still reaches the 7-day window, so `_history_reaches` skipped the fetch and
+    `last_landed` printed '154.1h ago' for a venture merged that morning (run-record
+    doc_friction on this file, 2026-11-13T08:13; the same stale ref has bitten claim checks,
+    run_workflow_locally and session_gate, see refresh_origin_main there). A session's own
+    commits have a local committer, so they never trigger a refetch."""
+    try:
+        out = subprocess.run(
+            ["git", "rev-list", "-1", "--committer=noreply@github.com", "origin/main..HEAD"],
+            capture_output=True, text=True, timeout=20, cwd=cwd,
+        ).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return bool(out)
+
+
 def deepen_to_window(days: int) -> bool:
-    """In a shallow clone, fetch main back `days` days so commit counts mean something."""
+    """Make origin/main current, and in a shallow clone reach back `days` days so commit
+    counts mean something."""
+    here = Path(__file__).resolve().parent
     try:
         shallow = subprocess.run(
             ["git", "rev-parse", "--is-shallow-repository"],
-            capture_output=True, text=True, timeout=30, cwd=Path(__file__).resolve().parent,
+            capture_output=True, text=True, timeout=30, cwd=here,
         ).stdout.strip() == "true"
+        stale = origin_main_behind_head(here)
+        if stale:
+            print("(origin/main is behind this checkout: fetching it so 'last landed' is current)",
+                  file=sys.stderr)
         if not shallow:
-            return False
+            if not stale:
+                return False
+            return subprocess.run(["git", "fetch", "-q", "origin", "main"], capture_output=True,
+                                  timeout=FETCH_TIMEOUT_S, cwd=here).returncode == 0
         cutoff = datetime.now(timezone.utc) - timedelta(days=days + 1)
-        if _history_reaches(cutoff, Path(__file__).resolve().parent):
+        if not stale and _history_reaches(cutoff, here):
             return False
         since = cutoff.strftime("%Y-%m-%d")
         print(f"(shallow clone: fetching main since {since} for 7-day commit counts)", file=sys.stderr)
         return subprocess.run(
             ["git", "fetch", "-q", f"--shallow-since={since}", "origin", "main"],
-            capture_output=True, timeout=FETCH_TIMEOUT_S, cwd=Path(__file__).resolve().parent,
+            capture_output=True, timeout=FETCH_TIMEOUT_S, cwd=here,
         ).returncode == 0
     except subprocess.TimeoutExpired:
         # Runs reported 10+ minutes of silence here (2026-10-19); rank on what is local instead.
