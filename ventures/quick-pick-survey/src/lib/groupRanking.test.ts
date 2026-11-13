@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FIRST_OPTION_FALLBACK_SHARE, FIRST_OPTION_MIN_DECIDED } from "./pairing";
-import { AGREEMENT_MIN_OPTIONS, agreementSummary, autoFastBlockMinLog, FAST_BLOCK_AUTO_FLOOR, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
+import { AGREEMENT_MIN_OPTIONS, agreementSummary, autoFastBlockMinLog, FAST_BLOCK_AUTO_FLOOR, stepOverTrend, coverage, FAST_BLOCK_MIN_LOG, FAST_BLOCK_MIN_SEG, FAST_PACE, fastBlockSplit, fastBlockStarts, ratingsWithoutAnswers, fastAnswerCutMs, fastAnswerers, PACE_MAX_MS, PACE_MIN_TIMED, paceSummary, parseDrop, respondentPace, type AnswerTime, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, ratingsWithoutFastAnswers, type ParticipantRatingRow, type ReplayAnswer } from "./groupRanking";
 import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "./glicko2";
 
 // Small seeded PRNG so the coverage check is reproducible.
@@ -345,6 +345,19 @@ describe("fastBlockSplit", () => {
     expect(fastBlockSplit(flat.map((v, i) => (i >= 15 ? v + 1 : v)))).toBeNull();
     expect(fastBlockSplit(flat.map((v, i) => (i >= 15 ? v - (FAST_BLOCK_MIN_LOG - 0.1) : v)))).toBeNull();
     expect(fastBlockSplit(flat.slice(0, 2 * FAST_BLOCK_MIN_SEG - 1).map((v, i) => (i >= FAST_BLOCK_MIN_SEG ? v - 1 : v)))).toBeNull();
+  });
+});
+
+describe("stepOverTrend", () => {
+  const noise = (i: number) => 0.1 * Math.sin(i * 1.7);
+  it("is large for a step and negative for a steady slope the split search alone would take for a block", () => {
+    const step = Array.from({ length: 40 }, (_, i) => noise(i) - (i >= 20 ? 0.6 : 0));
+    const slope = Array.from({ length: 40 }, (_, i) => noise(i) - 1.2 * (i / 39));
+    expect(fastBlockSplit(slope)).not.toBeNull(); // the split search sees a 0.6 gap in a steady speed-up
+    expect(stepOverTrend(step, 20)).toBeGreaterThan(10);
+    expect(stepOverTrend(slope, fastBlockSplit(slope)!)).toBeLessThan(1);
+    expect(fastBlockSplit(slope, undefined, undefined, undefined, 1)).toBeNull();
+    expect(fastBlockSplit(step, undefined, undefined, undefined, 1)).toBe(20);
   });
 });
 
