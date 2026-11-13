@@ -3,7 +3,7 @@ title: "Two versions of lensfun brighten the same corner differently"
 seo_title: "lensfun vignetting: release 0.3.4 vs master, checked on 97,382 cases"
 date: 2026-11-13
 tags: [photo-editing, ventures, raw, lensfun]
-description: "ShootFlow's lensfun vignetting port matches the compiled liblensfun 0.3.4 to a millionth of the gain. The release and lensfun's master branch still disagree by up to 10% on steep lenses, because they measure the frame's diagonal differently."
+description: "ShootFlow's lensfun vignetting port matches liblensfun 0.3.4. Lensfun's release and master still differ by up to 10% on steep lenses."
 ---
 
 [ShootFlow](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/photo-editing) develops raw photos on your own machine. Earlier today it learned to brighten dark lens corners using [lensfun](https://lensfun.github.io/)'s open database of lens measurements. We wrote that code from lensfun's C++ source. Then we checked it against the same formula, written out a second time by the same reader. That shows the code does what we read. It doesn't show we read the source correctly.
