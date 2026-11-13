@@ -1,0 +1,60 @@
+name: isolation-forest
+description: >-
+  Free browser tool, CLI and agent call for analysts, bookkeepers,
+  operations and quality teams and students: paste a CSV with several
+  numeric columns and rank every row by its isolation forest anomaly score
+  (Liu, Ting & Zhou 2008). Flags the unusual rows (score above 0.5 or a
+  chosen top share) and says which columns make each one stand out.
+  Expected scores checked against scikit-learn. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-13 on an explore run, as the ninth tool of "research
+# algorithms as tools" (portfolio/research-tools/README.md listed isolation
+# forest, Liu, Ting & Zhou 2008, as a candidate). Implemented from the
+# papers' algorithms; no third-party code was ported. scikit-learn was used
+# only to produce eval/reference.json, which the tests check against.
+# Example data: UCI Wholesale customers (CC BY 4.0); data/SOURCE.md.
+#
+# First visitor: searches such as "isolation forest online", "find outliers
+# in csv", "anomaly detection tool online", "multivariate outlier detection
+# excel", "detect unusual transactions spreadsheet"; analysts and students
+# without Python; bookkeepers and ops staff with an export to sanity-check.
+# Volume not measured with an external tool.
+#
+# Alternatives: scikit-learn's IsolationForest, R's isotree and solitude
+# (need an environment and code), PyOD; spreadsheet z-score or IQR rules
+# (one column at a time). Differentiators here: no install, every numeric
+# column at once, a reason per flagged row, seeded and reproducible, tests
+# pinned to scikit-learn's expected scores.
+#
+# Liability: statistical output from supplied data, not financial, legal or
+# audit advice; the page says a high score is not proof of an error or of
+# wrongdoing. Data never leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Analysts and small-business staff who want to find unusual rows in a
+      multi-column export will use a no-install isolation forest that
+      explains each flagged row in words.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports scores that disagree with scikit-learn's IsolationForest on the same data beyond Monte Carlo noise, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/isolation-forest/
+  analytics: null

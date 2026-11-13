@@ -1,0 +1,26 @@
+# Isolation forest: find outliers and anomalies in a CSV
+
+> Free online isolation forest (Liu, Ting & Zhou 2008; journal version 2012) for outlier and anomaly detection across several numeric columns at once. Paste or upload a CSV and get every row ranked by anomaly score s = 2^(-E[h]/c(psi)), the rows flagged as anomalies (score above 0.5, or a chosen top share), and for each top row the columns that stand out in robust standard deviations. Seeded and reproducible. Expected scores agree with scikit-learn 1.9.1's IsolationForest to within Monte Carlo noise on three public datasets. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A high score means rare in this data, not wrong.
+
+## Pages
+
+- [The tool](https://marisstella.app/isolation-forest/)
+
+## Use it from code
+
+- `node cli.mjs customers.csv [--columns a,b,c] [--label id] [--contamination auto|0.05] [--trees 100] [--sample-size 256] [--seed 42] [--top 20] [--csv|--json]`
+- `node platform/agents/tools.mjs call isolation-forest analyze --input '{"csv":"id,spend,orders\n1,120,3\n...","contamination":0.05}'`
+- `node platform/agents/tools.mjs call isolation-forest analyze --input '{"rows":[{"spend":120,"orders":3},...]}'`
+- From JavaScript: `fitForest(X, {trees, sampleSize, seed})` then `scoreRows(model, newRows)` scores new rows against a forest fitted on old ones.
+
+## What it answers
+
+- Which customers, orders, expense lines or readings in this table are unusual?
+- How unusual is each row, on a 0 to 1 scale, and which rows pass a chosen cut-off?
+- Which columns make a flagged row stand out, or is it only the combination that is rare?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/isolation-forest): MIT licensed.
