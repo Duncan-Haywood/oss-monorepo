@@ -60,7 +60,7 @@ Then he preached the homily he had written, which was on the widow and the unjus
 
 * * *
 
-Emre came to the presbytery on the Tuesday to plan the meeting, and Odile came because she was sacristan and the meeting was in her church, and because she wanted to see the machine that had been woken twice and had told nobody anything useful.
+Emre came to the presbytery on the Tuesday before the meeting to plan it, and Odile came because she was sacristan and the meeting was in her church, and because she wanted to see the machine that had been woken twice and had told nobody anything useful.
 
 The machine was called Hark. It lived, as far as Odile could tell, in Emre's tablet and in the grey cabinet at the old brickworks and in the instruments under the village, and it spoke out of the tablet in a plain, unhurried voice, a little lower than a woman's and a little higher than a man's, in good French with an Alsatian vowel in it that Odile suspected someone had put there on purpose to make her like it.
 
