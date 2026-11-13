@@ -2,7 +2,7 @@
 title: "One calibration budget, several subgroups: the split barely matters, the estimator does"
 seo_title: "How to split a survey calibration budget across subgroups"
 date: 2026-11-13
-description: "With one budget for several subgroups asked a rotated survey item, Neyman allocation moves the error under 1%. Shrinking each group's correction toward the model halves it."
+description: "With one budget for several subgroups asked a rotated survey item, Neyman allocation moves the error under 1%. Shrinkage halves it."
 tags: [research, christian-belief-models, survey-methods, small-area-estimation]
 ---
 
