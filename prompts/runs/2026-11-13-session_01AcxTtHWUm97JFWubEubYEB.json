@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtHWUm97JFWubEubYEB",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T01:06:13Z",
+  "ended": "2026-11-13T01:52:02Z",
+  "wall_minutes": 48.53,
+  "tokens_in": 6209221,
+  "tokens_out": 37122,
+  "cost_usd": 3.105,
+  "tool_calls": 53,
+  "task": "research/codesign-cant milestone 7b: integrator-only side-force feed-forward (drawn by pick_track.py)",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15317",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First pyenv call did not ask for matplotlib, so a chained figure-script write aborted on a failed import check; reinstalled and rewrote."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/codesign-cant/PROPOSAL.md",
+      "issue": "Proposal milestone 7 is the paper draft, but LOG.md/README use 'milestone 7' for the position-loop feed-forward step; numbering has drifted and costs a reread to see what is left."
+    },
+    {
+      "file": "research/codesign-cant/README.md",
+      "issue": "Reproduce block said '38 tests; the 9 in test_rotorpy_twin.py', but the files hold 31 def test_ (4 in rotorpy); corrected to the count."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "The 160/70-char front-matter limits are enforced only at push by a hook; stating them in the post-writing guidance would save a fix commit."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 2 asks to land open research PRs first; two open research drafts (#15315, #15303) are other live sessions' claims from the last hour, so I left them alone.",
+      "did": "Advanced the drawn programme only.",
+      "result": "No collision; claim check clean."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-a-drones-integrator-knows-the-side-force-but-only-if-you-retune.md",
+    "research/codesign-cant/LOG.md (milestone 7b entry)"
+  ],
+  "goal": null,
+  "notes": "Predictions T1-T9 committed (1f956e063) before the full run. Held: T6, T7 both geometries; T4 on means; T2, T3, T8, T9 above only; T1 refuted both; T5 refuted above. Post-hoc diag.py: a quasi-steady runaway criterion failed; ki/kp separates diverging designs (labelled post hoc). Local checks: pytest 33 passed 1 skipped; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; check_post_frontmatter ok; run_workflow_locally --for-changes was invalidated (HEAD moved mid-sweep), so CI on the PR is the verdict.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "123c2c23-d7fc-5a5b-b147-eb285cf7f5db",
+    "transcripts": 1,
+    "first": "2026-11-13T01:06:13Z",
+    "last": "2026-11-13T01:54:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 96,
+        "output": 37122,
+        "thinking": 7049,
+        "cache_read": 6065493,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143632,
+        "api_equivalent_usd": 3.105,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 96,
+      "output": 37122,
+      "thinking": 7049,
+      "cache_read": 6065493,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143632,
+      "api_equivalent_usd": 3.105,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 47,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 48.53,
+      "active_minutes": 48.53,
+      "model_minutes": 7.13,
+      "tool_minutes": 41.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "experiment design, implementation, 50-min sweep analysis and write-up, as a grad student would take",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 322.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -232,6 +232,14 @@
       .rates .cell-label { color: var(--muted-ink); }
     }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #channelPanels:empty{min-height:1269px}}
+@media (scripting:enabled) and (min-width:324px){html:not(.pf-rows-ready) #channelPanels:empty{min-height:1189px}}
+@media (scripting:enabled) and (min-width:352px){html:not(.pf-rows-ready) #channelPanels:empty{min-height:1109px}}
+@media (scripting:enabled) and (min-width:428px){html:not(.pf-rows-ready) #channelPanels:empty{min-height:1049px}}
+@media (scripting:enabled) and (min-width:488px){html:not(.pf-rows-ready) #channelPanels:empty{min-height:909px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>

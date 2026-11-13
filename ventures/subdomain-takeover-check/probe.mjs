@@ -17,8 +17,9 @@
 // browser tab, is not subject to CORS at all and is the one path guaranteed
 // to complete.
 //
-// This module only ever sends a single GET request to the one hostname the
-// caller named.
+// This module only ever sends GET requests to the one hostname the caller
+// named: one over HTTPS, and one over plain HTTP only when HTTPS got no
+// response at all (fetchHostname).
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT =
@@ -103,8 +104,20 @@ export async function fetchHost(url, { timeoutMs = DEFAULT_TIMEOUT_MS, fetchImpl
   return { url, ok: true, status: res.status, text, error: null };
 }
 
-/** Convenience wrapper: builds `https://<hostname>/` and fetches it. Tests
- * that need a loopback base URL call `fetchHost` directly instead. */
+/** Builds `https://<hostname>/` and fetches it; when that gets no response
+ * at all (status null: a TLS or connection failure), tries `http://<hostname>/`
+ * once. Without the retry the typical dangling CNAME could never be
+ * confirmed: S3 website endpoints serve no HTTPS, and an unclaimed Heroku app
+ * or GitHub Pages name answers with the provider's own certificate, which
+ * does not cover your hostname, so the HTTPS request fails before any body
+ * comes back (red team 2026-11-13). The plain-HTTP page is the same evidence.
+ * When both fail, the HTTPS result is returned: its error (often a browser
+ * CORS block, or the certificate mismatch) says more than the retry's. In a
+ * browser tab the retry is blocked as mixed content before it is sent.
+ * Tests that need a loopback base URL call `fetchHost` directly instead. */
 export async function fetchHostname(hostname, opts = {}) {
-  return fetchHost(`https://${hostname}/`, opts);
+  const secure = await fetchHost(`https://${hostname}/`, opts);
+  if (secure.ok || secure.status !== null) return secure;
+  const plain = await fetchHost(`http://${hostname}/`, opts);
+  return plain.ok ? { ...plain, httpsError: secure.error } : secure;
 }
