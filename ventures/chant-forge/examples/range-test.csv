@@ -1,0 +1,14 @@
+# A made-up range test for a 12-man choir: names are placeholders, not real singers.
+name,low,high
+Singer A,C3,A4
+Singer B,D3,G4
+Singer C,Eb3,F4
+Singer D,C3,G4
+Singer E,B2,E4
+Singer F,A2,F4
+Singer G,Bb2,D4
+Singer H,A2,E4
+Singer I,F2,C4
+Singer J,E2,D4
+Singer K,G2,C4
+Singer L,F#2,Bb3
