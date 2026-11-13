@@ -1,0 +1,70 @@
+cells run: 51 (39 from 7am, 6 from 7an, 6 fresh)
+P0 replay of 7an shipped and gf2 ratios: 90 of 90 identical; differ []
+0.5B fear n 500 (J 0.264; pooled cov 93.9): shipped 1.002 (2% cells, cov 94.1), gf2 1.003 (2% cells, cov 94.1; guard-fail cells 1 at 100.0), gtp2 1.005 (2% cells, cov 94.1; guard-fail cells 1 at 100.0), tp2 1.003 (0% cells, cov 93.9; guard-fail cells 1 at 100.0)
+0.5B fear n 1000 (J 0.264; pooled cov 94.1): shipped 0.961 (52% cells, cov 95.8), gf2 0.960 (54% cells, cov 95.7; guard-fail cells 16 at 93.8), gtp2 0.961 (52% cells, cov 95.8), tp2 1.000 (0% cells, cov 94.1)
+0.5B fear n 2000 (J 0.264; pooled cov 95.2): shipped 0.914 (90% cells, cov 94.3), gf2 0.914 (90% cells, cov 94.2; guard-fail cells 1 at 0.0), gtp2 0.914 (90% cells, cov 94.3), tp2 1.000 (0% cells, cov 95.2)
+0.5B sadness n 500 (J 0.265; pooled cov 93.4): shipped 0.993 (16% cells, cov 94.2), gf2 0.994 (17% cells, cov 94.2; guard-fail cells 4 at 100.0), gtp2 0.993 (16% cells, cov 94.2), tp2 1.000 (0% cells, cov 93.4)
+0.5B sadness n 1000 (J 0.265; pooled cov 95.9): shipped 0.987 (31% cells, cov 94.8), gf2 0.986 (31% cells, cov 94.7; guard-fail cells 3 at 66.7), gtp2 0.987 (31% cells, cov 94.8), tp2 1.000 (0% cells, cov 95.9)
+0.5B sadness n 2000 (J 0.265; pooled cov 96.1): shipped 0.946 (84% cells, cov 95.0), gf2 0.946 (84% cells, cov 95.0), gtp2 0.946 (84% cells, cov 95.0), tp2 1.000 (0% cells, cov 96.1)
+1.5B fear n 500 (J 0.461; pooled cov 94.3): shipped 1.001 (3% cells, cov 94.2), gf2 1.002 (3% cells, cov 94.2; guard-fail cells 2 at 100.0), gtp2 1.005 (3% cells, cov 94.2; guard-fail cells 2 at 100.0), tp2 1.004 (0% cells, cov 94.3; guard-fail cells 2 at 100.0)
+1.5B fear n 1000 (J 0.461; pooled cov 94.3): shipped 0.920 (53% cells, cov 96.3), gf2 0.911 (64% cells, cov 96.5; guard-fail cells 108 at 99.1), gtp2 0.920 (53% cells, cov 96.3), tp2 1.000 (0% cells, cov 94.3)
+1.5B fear n 2000 (J 0.461; pooled cov 95.6): shipped 0.831 (94% cells, cov 96.0), gf2 0.825 (98% cells, cov 95.0; guard-fail cells 43 at 72.1), gtp2 0.835 (95% cells, cov 96.0; guard-fail cells 10 at 100.0), tp2 1.005 (1% cells, cov 95.6; guard-fail cells 10 at 100.0)
+1.5B sadness n 500 (J 0.623; pooled cov 93.6): shipped 0.974 (21% cells, cov 95.1), gf2 0.958 (37% cells, cov 95.6; guard-fail cells 160 at 100.0), gtp2 0.974 (21% cells, cov 95.1), tp2 1.000 (0% cells, cov 93.6)
+1.5B sadness n 1000 (J 0.623; pooled cov 95.0): shipped 0.856 (70% cells, cov 97.4), gf2 0.809 (95% cells, cov 96.2; guard-fail cells 248 at 91.9), gtp2 0.861 (71% cells, cov 97.4; guard-fail cells 11 at 100.0), tp2 1.004 (1% cells, cov 95.0; guard-fail cells 11 at 100.0)
+1.5B sadness n 2000 (J 0.623; pooled cov 94.5): shipped 0.714 (99% cells, cov 93.7), gf2 0.711 (100% cells, cov 93.6; guard-fail cells 12 at 58.3), gtp2 0.718 (100% cells, cov 93.9; guard-fail cells 10 at 100.0), tp2 1.023 (11% cells, cov 95.0; guard-fail cells 10 at 100.0)
+1.5B admiration n 500 (J 0.649; pooled cov 93.9): shipped 0.910 (59% cells, cov 95.6), gf2 0.853 (99% cells, cov 96.7; guard-fail cells 398 at 96.7), gtp2 0.910 (59% cells, cov 95.6), tp2 1.000 (0% cells, cov 93.9)
+1.5B admiration n 1000 (J 0.649; pooled cov 94.2): shipped 0.801 (96% cells, cov 95.9), gf2 0.791 (100% cells, cov 94.4; guard-fail cells 39 at 51.3), gtp2 0.802 (96% cells, cov 96.0; guard-fail cells 3 at 100.0), tp2 1.001 (0% cells, cov 94.3; guard-fail cells 3 at 100.0)
+1.5B admiration n 2000 (J 0.649; pooled cov 95.1): shipped 0.742 (100% cells, cov 93.4), gf2 0.742 (100% cells, cov 93.4), gtp2 0.742 (100% cells, cov 93.4), tp2 1.010 (7% cells, cov 95.7)
+nb-in-language 0.02 n 600 (J 0.397; pooled cov 94.3): shipped 0.995 (9% cells, cov 95.2), gf2 0.995 (11% cells, cov 93.4), gtp2 0.995 (9% cells, cov 95.2), tp2 1.000 (0% cells, cov 94.3)
+nb-in-language 0.02 n 2000 (J 0.397; pooled cov 95.7): shipped 0.927 (81% cells, cov 95.0), gf2 0.924 (88% cells, cov 93.9), gtp2 0.929 (82% cells, cov 95.0), tp2 1.000 (0% cells, cov 95.0)
+nb-in-language 0.05 n 600 (J 0.394; pooled cov 95.1): shipped 0.961 (58% cells, cov 95.5), gf2 0.959 (62% cells, cov 95.8), gtp2 0.961 (58% cells, cov 95.5), tp2 1.000 (0% cells, cov 95.1)
+nb-in-language 0.05 n 2000 (J 0.394; pooled cov 94.4): shipped 0.928 (98% cells, cov 95.1), gf2 0.928 (98% cells, cov 95.1), gtp2 0.928 (98% cells, cov 95.1), tp2 1.000 (0% cells, cov 94.4)
+nb-in-language 0.1 n 600 (J 0.398; pooled cov 94.3): shipped 0.950 (87% cells, cov 95.2), gf2 0.953 (88% cells, cov 95.4), gtp2 0.950 (87% cells, cov 95.2), tp2 1.000 (0% cells, cov 94.3)
+nb-in-language 0.1 n 2000 (J 0.398; pooled cov 96.0): shipped 0.951 (100% cells, cov 95.3), gf2 0.951 (100% cells, cov 95.3), gtp2 0.951 (100% cells, cov 95.3), tp2 1.000 (0% cells, cov 96.0)
+lexicon-en 0.02 n 600 (J 0.030; pooled cov 94.1): shipped 1.000 (0% cells, cov 94.1), gf2 1.011 (0% cells, cov 93.6), gtp2 1.013 (0% cells, cov 94.1), tp2 1.013 (0% cells, cov 94.1)
+lexicon-en 0.02 n 2000 (J 0.030; pooled cov 96.0): shipped 1.003 (3% cells, cov 94.0), gf2 1.003 (3% cells, cov 94.0), gtp2 1.003 (3% cells, cov 94.0), tp2 1.000 (0% cells, cov 96.0)
+lexicon-en 0.05 n 600 (J 0.027; pooled cov 94.7): shipped 1.000 (0% cells, cov 94.7), gf2 1.000 (0% cells, cov 94.7), gtp2 1.000 (0% cells, cov 94.7), tp2 1.000 (0% cells, cov 94.7)
+lexicon-en 0.05 n 2000 (J 0.027; pooled cov 94.3): shipped 1.000 (0% cells, cov 94.3), gf2 1.000 (0% cells, cov 94.3), gtp2 1.000 (0% cells, cov 94.3), tp2 1.000 (0% cells, cov 94.3)
+lexicon-en 0.1 n 600 (J 0.030; pooled cov 94.3): shipped 1.000 (0% cells, cov 94.3), gf2 1.000 (0% cells, cov 94.3), gtp2 1.000 (0% cells, cov 94.3), tp2 1.000 (0% cells, cov 94.3)
+lexicon-en 0.1 n 2000 (J 0.030; pooled cov 96.2): shipped 1.000 (0% cells, cov 96.2), gf2 1.000 (0% cells, cov 96.2), gtp2 1.000 (0% cells, cov 96.2), tp2 1.000 (0% cells, cov 96.2)
+1.5B gratitude n 500 (J 0.778; pooled cov 94.3): shipped 0.980 (10% cells, cov 93.9), gf2 0.835 (93% cells, cov 97.0; guard-fail cells 830 at 98.8), gtp2 0.982 (10% cells, cov 93.9; guard-fail cells 3 at 100.0), tp2 1.001 (0% cells, cov 94.3; guard-fail cells 3 at 100.0)
+1.5B gratitude n 1000 (J 0.778; pooled cov 95.9): shipped 0.883 (39% cells, cov 95.6), gf2 0.705 (100% cells, cov 97.1; guard-fail cells 611 at 98.0), gtp2 0.923 (58% cells, cov 95.9; guard-fail cells 187 at 100.0), tp2 1.040 (19% cells, cov 96.2; guard-fail cells 187 at 100.0)
+1.5B gratitude n 2000 (J 0.778; pooled cov 95.3): shipped 0.609 (84% cells, cov 97.4), gf2 0.524 (100% cells, cov 92.4; guard-fail cells 163 at 63.2), gtp2 0.617 (100% cells, cov 98.4; guard-fail cells 163 at 100.0), tp2 0.971 (92% cells, cov 97.7; guard-fail cells 163 at 100.0)
+1.5B curiosity n 500 (J 0.409; pooled cov 95.5): shipped 0.954 (57% cells, cov 95.8), gf2 0.949 (61% cells, cov 95.0; guard-fail cells 40 at 80.0), gtp2 0.954 (57% cells, cov 95.8), tp2 1.000 (0% cells, cov 95.5)
+1.5B curiosity n 1000 (J 0.409; pooled cov 95.1): shipped 0.930 (82% cells, cov 94.8), gf2 0.929 (83% cells, cov 94.7; guard-fail cells 1 at 0.0), gtp2 0.930 (82% cells, cov 94.8), tp2 1.000 (0% cells, cov 95.1)
+1.5B curiosity n 2000 (J 0.409; pooled cov 95.4): shipped 0.898 (98% cells, cov 95.0), gf2 0.898 (98% cells, cov 95.0), gtp2 0.898 (98% cells, cov 95.0), tp2 1.000 (0% cells, cov 95.4)
+1.5B disapproval n 500 (J 0.135; pooled cov 95.2): shipped 1.001 (11% cells, cov 94.7), gf2 1.001 (11% cells, cov 94.7), gtp2 1.001 (11% cells, cov 94.7), tp2 1.000 (0% cells, cov 95.2)
+1.5B disapproval n 1000 (J 0.135; pooled cov 96.7): shipped 0.998 (7% cells, cov 95.7), gf2 0.998 (7% cells, cov 95.7), gtp2 0.998 (7% cells, cov 95.7), tp2 1.000 (0% cells, cov 96.7)
+1.5B disapproval n 2000 (J 0.135; pooled cov 94.0): shipped 0.999 (17% cells, cov 93.5), gf2 0.999 (17% cells, cov 93.5), gtp2 0.999 (17% cells, cov 93.5), tp2 1.000 (0% cells, cov 94.0)
+1.5B anger n 500 (J 0.457; pooled cov 95.3): shipped 0.978 (29% cells, cov 95.9), gf2 0.975 (34% cells, cov 96.1; guard-fail cells 50 at 98.0), gtp2 0.978 (29% cells, cov 95.9), tp2 1.000 (0% cells, cov 95.3)
+1.5B anger n 1000 (J 0.457; pooled cov 94.1): shipped 0.914 (75% cells, cov 95.2), gf2 0.907 (81% cells, cov 94.8; guard-fail cells 56 at 85.7), gtp2 0.914 (75% cells, cov 95.2), tp2 1.000 (0% cells, cov 94.1)
+1.5B anger n 2000 (J 0.457; pooled cov 94.7): shipped 0.829 (100% cells, cov 94.3), gf2 0.829 (100% cells, cov 94.3), gtp2 0.829 (100% cells, cov 94.3), tp2 1.001 (0% cells, cov 94.7)
+lr amusement n 500 (J 0.591; pooled cov 93.3): shipped 0.910 (64% cells, cov 96.0), gf2 0.877 (90% cells, cov 95.8; guard-fail cells 252 at 96.8), gtp2 0.910 (64% cells, cov 96.0), tp2 1.000 (0% cells, cov 93.3)
+lr amusement n 1000 (J 0.591; pooled cov 95.3): shipped 0.822 (97% cells, cov 95.0), gf2 0.816 (100% cells, cov 94.4; guard-fail cells 26 at 69.2), gtp2 0.822 (97% cells, cov 95.0; guard-fail cells 1 at 100.0), tp2 1.000 (0% cells, cov 95.3; guard-fail cells 1 at 100.0)
+lr amusement n 2000 (J 0.591; pooled cov 95.2): shipped 0.778 (100% cells, cov 94.4), gf2 0.778 (100% cells, cov 94.4; guard-fail cells 1 at 0.0), gtp2 0.779 (100% cells, cov 94.5; guard-fail cells 1 at 100.0), tp2 1.005 (2% cells, cov 95.3; guard-fail cells 1 at 100.0)
+lr love n 500 (J 0.756; pooled cov 93.9): shipped 0.964 (18% cells, cov 93.6), gf2 0.845 (88% cells, cov 95.2; guard-fail cells 694 at 98.3), gtp2 0.965 (18% cells, cov 93.6; guard-fail cells 3 at 100.0), tp2 1.001 (0% cells, cov 93.9; guard-fail cells 3 at 100.0)
+lr love n 1000 (J 0.756; pooled cov 94.5): shipped 0.832 (58% cells, cov 95.9), gf2 0.708 (100% cells, cov 95.6; guard-fail cells 424 at 95.0), gtp2 0.860 (69% cells, cov 96.2; guard-fail cells 116 at 100.0), tp2 1.029 (12% cells, cov 94.8; guard-fail cells 116 at 100.0)
+lr love n 2000 (J 0.756; pooled cov 94.5): shipped 0.604 (95% cells, cov 95.2), gf2 0.580 (100% cells, cov 92.5; guard-fail cells 50 at 42.0), gtp2 0.609 (100% cells, cov 95.2; guard-fail cells 50 at 96.0), tp2 1.002 (76% cells, cov 96.7; guard-fail cells 50 at 96.0)
+lr remorse n 500 (J 0.484; pooled cov 95.1): shipped 1.000 (2% cells, cov 95.3), gf2 1.002 (3% cells, cov 95.3; guard-fail cells 4 at 100.0), gtp2 1.011 (3% cells, cov 95.3; guard-fail cells 4 at 100.0), tp2 1.010 (0% cells, cov 95.1; guard-fail cells 4 at 100.0)
+lr remorse n 1000 (J 0.484; pooled cov 93.6): shipped 0.947 (32% cells, cov 95.5), gf2 0.937 (42% cells, cov 95.5; guard-fail cells 90 at 97.8), gtp2 0.947 (32% cells, cov 95.5), tp2 1.000 (0% cells, cov 93.6)
+lr remorse n 2000 (J 0.484; pooled cov 94.6): shipped 0.828 (85% cells, cov 95.7), gf2 0.814 (95% cells, cov 94.6; guard-fail cells 99 at 81.8), gtp2 0.830 (86% cells, cov 95.7; guard-fail cells 6 at 100.0), tp2 1.002 (1% cells, cov 94.6; guard-fail cells 6 at 100.0)
+lr joy n 500 (J 0.447; pooled cov 93.8): shipped 0.978 (34% cells, cov 95.5), gf2 0.974 (39% cells, cov 95.8; guard-fail cells 44 at 100.0), gtp2 0.978 (34% cells, cov 95.5), tp2 1.000 (0% cells, cov 93.8)
+lr joy n 1000 (J 0.447; pooled cov 93.6): shipped 0.915 (77% cells, cov 95.9), gf2 0.910 (80% cells, cov 95.1; guard-fail cells 38 at 76.3), gtp2 0.916 (77% cells, cov 95.9; guard-fail cells 1 at 100.0), tp2 1.000 (0% cells, cov 93.6; guard-fail cells 1 at 100.0)
+lr joy n 2000 (J 0.447; pooled cov 95.9): shipped 0.838 (100% cells, cov 94.3), gf2 0.838 (100% cells, cov 94.3), gtp2 0.838 (100% cells, cov 94.3), tp2 1.000 (0% cells, cov 95.9)
+shipped: total gain 7am cells 2.760, 7an fresh 1.090, 7ao fresh 0.494; min coverage 93.4; cells under 93%: []; cells above 1.010: []
+  shipped guard-pass cells draws (cells with >= 50): 36 cells, worst ('1.5B disapproval', 1000) 83.3% of 72; under 88%: [(('1.5B disapproval', 1000), 83.3)]
+gf2: total gain 7am cells 3.322, 7an fresh 1.396, 7ao fresh 0.525; min coverage 92.4; cells under 93%: [(('1.5B gratitude', 2000), 92.4), (('lr love', 2000), 92.5)]; cells above 1.010: [(('lexicon-en 0.02', 600), 1.011)]
+  gf2 guard-pass cells draws (cells with >= 50): 36 cells, worst ('1.5B disapproval', 1000) 83.3% of 72; under 88%: [(('1.5B disapproval', 1000), 83.3)]
+  gf2 guard-fail cells draws (cells with >= 50): 15 cells, worst ('lr love', 2000) 42.0% of 50; under 88%: [(('1.5B gratitude', 2000), 63.2), (('1.5B anger', 1000), 85.7), (('lr love', 2000), 42.0), (('lr remorse', 2000), 81.8)]
+gtp2: total gain 7am cells 2.674, 7an fresh 1.055, 7ao fresh 0.480; min coverage 93.4; cells under 93%: []; cells above 1.010: [(('lexicon-en 0.02', 600), 1.013), (('lr remorse', 500), 1.011)]
+  gtp2 guard-pass cells draws (cells with >= 50): 36 cells, worst ('1.5B disapproval', 1000) 83.3% of 72; under 88%: [(('1.5B disapproval', 1000), 83.3)]
+  gtp2 guard-fail cells draws (cells with >= 50): 4 cells, worst ('lr love', 2000) 96.0% of 50; under 88%: []
+tp2: total gain 7am cells -0.076, 7an fresh -0.037, 7ao fresh -0.012; min coverage 93.3; cells under 93%: []; cells above 1.010: [(('1.5B sadness', 2000), 1.023), (('lexicon-en 0.02', 600), 1.013), (('1.5B gratitude', 1000), 1.04), (('lr love', 1000), 1.029)]
+  tp2 guard-pass cells draws (cells with >= 50): 4 cells, worst ('1.5B gratitude', 2000) 97.4% of 762; under 88%: []
+  tp2 guard-fail cells draws (cells with >= 50): 4 cells, worst ('lr love', 2000) 96.0% of 50; under 88%: []
+P1 gtp2 covers >= 93% in all 51 cells: yes
+P2 gtp2 guard-fail cells coverage >= 88% in all 4 cells with >= 50 such draws: yes
+P3 gtp2 <= 1.010 in all 51 cells: no
+P4 gtp2 total gain on the 7am cells >= shipped: no (2.674 vs 2.760; gf2 3.322)
+P5 tp2 conditional coverage >= 88% wherever >= 50 draws: yes; tp2 total gain 7am cells -0.076
+Decision rule: not met; defaults stay off
