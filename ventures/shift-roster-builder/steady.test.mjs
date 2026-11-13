@@ -1,7 +1,7 @@
 // Call-out exposure and the steady pick among tied rosters (2026-11-13, eval/steady-for-callouts.mjs).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseStaff, parseShifts, buildRoster, calloutExposure, steadyRoster, rosterCsv, sampleStaff, sampleShifts, TEMPLATES } from "./calc.mjs";
+import { parseStaff, parseShifts, buildRoster, calloutExposure, steadyRoster, rosterCsv, rosterKey, sampleStaff, sampleShifts, TEMPLATES } from "./calc.mjs";
 import { run } from "./cli.mjs";
 
 const O = { minRestHours: 10 };
@@ -100,4 +100,23 @@ test("the worker runs the call-out check when options.steady is set, posting pro
   assert.match(html, /id="steady"/);
   assert.match(html, /steadyText\(r\.steady\)/);
   assert.match(html, /!postedCsv \? \{ steady: true \}/);
+});
+
+test("rosterKey: two identical shift copies swapped between two people are one roster, a real swap is not (2026-11-13)", () => {
+  const close = { day: 1, startMin: 900, endMin: 1260, start: 900, end: 1260, label: "close", role: "" };
+  const open = { day: 1, startMin: 540, endMin: 900, start: 540, end: 900, label: "open", role: "" };
+  const a = { assignments: [{ slot: close, person: "Ruth" }, { slot: { ...close }, person: "Sam" }, { slot: open, person: "Vic" }] };
+  const b = { assignments: [{ slot: close, person: "Sam" }, { slot: { ...close }, person: "Ruth" }, { slot: open, person: "Vic" }] };
+  const c = { assignments: [{ slot: close, person: "Vic" }, { slot: { ...close }, person: "Sam" }, { slot: open, person: "Ruth" }] };
+  assert.notEqual(rosterCsv(a), rosterCsv(b));
+  assert.equal(rosterKey(a), rosterKey(b));
+  assert.notEqual(rosterKey(a), rosterKey(c));
+});
+
+test("steadyRoster counts each distinct schedule once: on the salon template six seeds give three (2026-11-13)", () => {
+  const t = TEMPLATES.salon, staff = parseStaff(t.staff()).staff, slots = parseShifts(t.shifts()).slots;
+  const s = steadyRoster(staff, slots, O);
+  const keys = new Set([1, 2, 3, 4, 5, 6].map((seed) => rosterKey(buildRoster(staff, slots, { ...O, seed }))));
+  assert.equal(keys.size, 3);
+  assert.equal(s.steady.tied.length, 3);
 });
