@@ -89,10 +89,12 @@ export function usageFromResponse(provider, data) {
 export function streamUsageReader(provider) {
   let buf = '';
   let usage = null;
+  let done = false;
   const onData = (json) => {
     let ev;
     try { ev = JSON.parse(json); } catch { return; }
     if (provider === 'anthropic') {
+      if (ev.type === 'message_stop') done = true;
       if (ev.type === 'message_start' && ev.message?.usage) {
         usage = { ...(usage ?? { output: 0 }), ...usageFromResponse('anthropic', ev.message) };
       } else if (ev.type === 'message_delta' && ev.usage) {
@@ -111,11 +113,14 @@ export function streamUsageReader(provider) {
         buf = buf.slice(nl + 1);
         if (line.startsWith('data:')) {
           const payload = line.slice(5).trim();
-          if (payload && payload !== '[DONE]') onData(payload);
+          if (payload === '[DONE]') done = true;
+          else if (payload) onData(payload);
         }
       }
     },
     usage: () => usage,
+    /** True once the provider's own end marker arrived (Anthropic message_stop, OpenAI [DONE]). */
+    done: () => done,
   };
 }
 
