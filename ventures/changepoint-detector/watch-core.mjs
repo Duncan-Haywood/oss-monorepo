@@ -82,6 +82,7 @@ export function detectBoth(values, labels, opts = {}) {
 /** The drift detector's jumps in the newest `window` points, with the smoothed level on each side (meanBefore/After). */
 export function detectDrift(values, labels, opts = {}) {
   const { window, log, penalty } = { ...WATCH_DEFAULTS, ...opts };
+  if (opts.period > 1) throw new Error('The drift watch takes no seasonal period: leave the period out, or use another setting.');
   const off = Math.max(0, values.length - window);
   let v = values.slice(off);
   if (log) { if (v.some((x) => !(x > 0))) throw new Error('--log needs every value above zero.'); v = v.map(Math.log); }
