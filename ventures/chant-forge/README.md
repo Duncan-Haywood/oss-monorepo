@@ -159,6 +159,9 @@ sections (three with `breakdown: true`), same bars with it off; for each genre a
 bass in the breakdown, two silent bars then rising held chords, both builds hold the approach chord with a riser of
 seven rising, swelling eighths ending before the air gap, the bass on the approach root, every note in the mode,
 no fills in the breakdown; rendered, breakdown < verse < drop and both drops within 5%; the CLI flag.
+The studio page lists the six-verse Pange lingua and seven-verse Veni Creator as samples (before, its samples were all
+one-section pieces, so a breakdown could only be heard on pasted GABC); `eval/browser-e2e.mjs` checks the six-verse
+hymn shows a breakdown before its last drop: 77 checks, all pass.
 
 ## Mix and master check
 

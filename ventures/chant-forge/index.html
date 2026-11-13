@@ -43,7 +43,7 @@
       <div><label for="final">Final note</label><select id="final"><option value="auto" selected>Fit E2-E4 for me</option><option value="">Keep as written</option></select></div>
       <div><label for="stretch">Bar fit</label><select id="stretch"><option value="stretch" selected>Lengthen long notes to fill bars</option><option value="pad">Pad with rests</option><option value="none">No fitting</option></select></div>
       <div><label for="half">Chant speed</label><select id="half"><option value="">Normal</option><option value="1">Half-time over the backing (metal)</option></select></div>
-      <div><label for="sections">Song sections</label><select id="sections"><option value="">One groove all the way</option><option value="1">Intro, verses, builds and drops (from the double bars)</option></select></div>
+      <div><label for="sections">Song sections</label><select id="sections"><option value="">One groove all the way</option><option value="1">Intro, verses, builds, breakdown and drops (from the double bars)</option></select></div>
       <div><label for="drone">Drone</label><select id="drone"><option value="">No</option><option value="1">Organ drone on the final</option></select></div>
     </div>
     <button id="go" type="submit">Convert</button>
@@ -93,7 +93,7 @@ mode: 1;
 %%
 (c4) DI(f)es(e) i(f)rae,(d) di(e)es(c) il(d)la(d.) (:)
 `;
-    const PIECES = { "Pange lingua": "corpus/pange-lingua.gabc", "Salve Regina": "corpus/salve-regina.gabc", "Veni Creator": "corpus/veni-creator.gabc", "Te Deum": "corpus/te-deum.gabc", "Dies irae": "corpus/dies-irae.gabc" };
+    const PIECES = { "Pange lingua": "corpus/pange-lingua.gabc", "Pange lingua, all six verses": "corpus/pange-lingua-full.gabc", "Salve Regina": "corpus/salve-regina.gabc", "Veni Creator": "corpus/veni-creator.gabc", "Veni Creator, all seven verses": "corpus/veni-creator-full.gabc", "Te Deum": "corpus/te-deum.gabc", "Dies irae": "corpus/dies-irae.gabc" };
     $("src").value = SAMPLE;
     for (const g of GENRE_NAMES) $("genre").add(new Option(g, g));
     for (const k of Object.keys(PIECES)) $("piece").add(new Option(k, k));
