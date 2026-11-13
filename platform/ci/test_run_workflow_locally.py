@@ -1381,6 +1381,46 @@ class Tree(unittest.TestCase):
             "nothing until the buffer fills or the process exits")
 
 
+class SweepExitCode(unittest.TestCase):
+    """A workflow with no verdict fails the sweep on its own.
+
+    Red-team run 2026-11-13: `failures or out_of_budget or after_skip`
+    mutated to `failures or out_of_budget and after_skip` survived the whole
+    suite, so a sweep where one workflow ran out of budget (and nothing else
+    went wrong) could have exited 0 -- a verification that verified nothing
+    reading as green before a merge.
+    """
+
+    def sweep(self, code_for_report):
+        real_report, real_fp = runner.report, runner.checkout_fingerprint
+        runner.report = lambda *a, **k: code_for_report
+        runner.checkout_fingerprint = lambda: ("a" * 40, "d1")
+        wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                code = runner._run_selected(
+                    argparse.Namespace(list=False, timeout=30),
+                    [("w.yml", wf, {"j"})], [])
+        finally:
+            runner.report, runner.checkout_fingerprint = real_report, real_fp
+        return code, out.getvalue()
+
+    def test_out_of_budget_alone_is_not_a_pass(self):
+        code, out = self.sweep(runner.BUDGET_SPENT)
+        self.assertEqual(code, 1)
+        self.assertIn("ran out of budget with no verdict", out)
+
+    def test_no_verdict_after_a_skipped_step_alone_is_not_a_pass(self):
+        code, out = self.sweep(runner.AFTER_SKIP)
+        self.assertEqual(code, 1)
+        self.assertIn("no verdict after a skipped step", out)
+
+    def test_a_clean_workflow_passes(self):
+        code, _ = self.sweep(0)
+        self.assertEqual(code, 0)
+
+
 class CheckoutStability(unittest.TestCase):
     """A sweep whose tree moved under it is not a reading of anything.
 
