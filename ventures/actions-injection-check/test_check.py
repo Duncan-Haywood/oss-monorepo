@@ -70,6 +70,65 @@ class HasUntrustedCheckoutRef(unittest.TestCase):
     def test_base_ref_is_not_untrusted(self):
         self.assertFalse(check.has_untrusted_checkout_ref("${{ github.event.pull_request.base.ref }}"))
 
+    # Red-team 2026-11-13: the PR's merge and head refs check out the fork's code just as head.sha does.
+    def test_pull_merge_and_head_refs_are_untrusted(self):
+        for ref in (
+            "refs/pull/${{ github.event.pull_request.number }}/merge",
+            "refs/pull/${{ github.event.number }}/head",
+            "${{ format('refs/pull/{0}/merge', github.event.pull_request.number) }}",
+            "refs/pull/${{ github.event.workflow_run.pull_requests[0].number }}/head",
+            "${{ github.event.pull_request.merge_commit_sha }}",
+            "${{ github.event.workflow_run.head_commit.id }}",
+        ):
+            with self.subTest(ref=ref):
+                self.assertTrue(check.has_untrusted_checkout_ref(ref))
+
+    def test_refs_heads_is_not_untrusted(self):
+        self.assertFalse(check.has_untrusted_checkout_ref("refs/heads/main"))
+
+
+class BrowserParity(unittest.TestCase):
+    """The page runs classify.mjs, the CLI runs check.py: both must flag the same checkout refs."""
+
+    REFS = [
+        "${{ github.event.pull_request.head.sha }}", "${{ github.head_ref }}",
+        "refs/pull/${{ github.event.pull_request.number }}/merge", "${{ github.event.pull_request.merge_commit_sha }}",
+        "${{ github.event.workflow_run.head_commit.id }}", "${{ github.event.workflow_run.head_branch }}",
+        "main", "refs/heads/main", "${{ github.event.pull_request.base.ref }}", "${{ github.sha }}",
+    ]
+
+    def test_classify_mjs_agrees_with_check_py(self):
+        import shutil
+        if not shutil.which("node"):
+            self.skipTest("node not installed")
+        here = Path(__file__).parent
+        script = (
+            "import(process.argv[1]).then(m => console.log(JSON.stringify("
+            "JSON.parse(process.argv[2]).map(r => m.hasUntrustedCheckoutRef(r)))))"
+        )
+        out = subprocess.run(
+            ["node", "-e", script, (here / "classify.mjs").as_uri(), json.dumps(self.REFS)],
+            capture_output=True, text=True, check=True,
+        ).stdout
+        self.assertEqual(json.loads(out), [check.has_untrusted_checkout_ref(r) for r in self.REFS])
+
+
+class StripQuotes(unittest.TestCase):
+    def test_strips_matching_quotes_only(self):
+        self.assertEqual(check.strip_quotes('"ab"'), "ab")
+        self.assertEqual(check.strip_quotes("'ab'"), "ab")
+        self.assertEqual(check.strip_quotes('""'), "")
+        self.assertEqual(check.strip_quotes("'ab\""), "'ab\"")
+        self.assertEqual(check.strip_quotes("ab"), "ab")
+        self.assertEqual(check.strip_quotes('"'), '"')
+
+    def test_quoted_ref_is_reported_unquoted(self):
+        wf = ScanTextPwnRequest.UNTRUSTED_WORKFLOW.replace(
+            "ref: ${{ github.event.pull_request.head.sha }}", "ref: \"${{ github.event.pull_request.head.sha }}\""
+        )
+        pwn = [f for f in check.scan_text(wf) if f["type"] == check.PWN_REQUEST_CHECKOUT]
+        self.assertEqual(pwn[0]["detail"], "${{ github.event.pull_request.head.sha }}")
+
 
 class ScanTextPwnRequest(unittest.TestCase):
     UNTRUSTED_WORKFLOW = """\
@@ -306,6 +365,22 @@ class Main(unittest.TestCase):
             data = json.loads(result.stdout)
             self.assertEqual(len(data), 1)
             self.assertEqual(data[0]["type"], "pwn-request-checkout")
+
+    def test_text_output_lists_each_kind_once(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self._write_repo(
+                tmp,
+                "on: pull_request_target\njobs:\n  b:\n    steps:\n"
+                "      - uses: actions/checkout@v4\n        with:\n"
+                "          ref: ${{ github.event.pull_request.head.sha }}\n"
+                "      - run: echo ${{ github.event.pull_request.title }}\n",
+            )
+            out = check.render_text(check.scan_path(Path(tmp)), Path(tmp))
+            self.assertIn("pwn-request-checkout\n     ref: ${{ github.event.pull_request.head.sha }}", out)
+            self.assertIn("script-injection\n     expr: github.event.pull_request.title", out)
+            self.assertEqual(out.count("pwn-request-checkout\n"), 1)
+            self.assertEqual(out.count("script-injection\n"), 1)
+            self.assertIn("1 pwn-request-checkout finding(s), 1 script-injection finding(s).", out)
 
     def test_no_workflows_reports_clearly(self):
         with tempfile.TemporaryDirectory() as tmp:

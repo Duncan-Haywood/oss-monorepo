@@ -70,7 +70,10 @@ export function parseTrades(text) {
     const ln = n + 2;
     const date = parseDate(f[c.date]);
     const sideRaw = (f[c.side] || "").toLowerCase();
-    const side = /^(buy|bought|purchase|b\b|bto|btc)/.test(sideRaw) ? "buy" : /^(sell|sold|sale|s\b|sto|stc)/.test(sideRaw) ? "sell" : null;
+    // A dividend reinvestment is a purchase and can wash a loss (Pub. 550); Schwab's "Reinvest Dividend" is the cash
+    // leg with no shares, its "Reinvest Shares" (Fidelity: "REINVESTMENT ...") the buy. Fidelity writes "YOU BOUGHT".
+    const side = /^(?:you\s+)?(?:buy|bought|purchase|b\b|bto|btc)|^reinvest(?:ment|ed)?\b(?!\s+div)/.test(sideRaw) ? "buy"
+      : /^(?:you\s+)?(?:sell|sold|sale|s\b|sto|stc)/.test(sideRaw) ? "sell" : null;
     const qty = Math.abs(num(f[c.qty]));
     const sym = (f[c.sym] || "").toUpperCase().replace(/\s+/g, "");
     let price = c.price >= 0 ? Math.abs(num(f[c.price])) : NaN;
