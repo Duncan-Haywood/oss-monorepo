@@ -1,5 +1,14 @@
 # Research log
 
+## 2026-11-13 · Milestone 6: held-out 500 to 2,000-bus cases. H2 as written refuted (0 of 12 within 10 rounds); 6 of 12 within 20, 8 of 12 with the voltage stage
+- The eight PGLib-OPF v23.07 networks of 500 to 2,000 buses, TYP, API and SAD (24 cases no rule was set on), with J-m-a frozen and the 20-round budget fixed by milestone 7. Pre-registered (plan, two amendments made before any repair outcome was read, and the outcome are in `research/infra-dcopf/LOG.md`; numbers in `research/infra-dcopf/experiments/results_heldout.txt`).
+- **Scaling fix first:** the full QP did not finish one case in 25 minutes at 2,000 buses. Constraint generation on Clarabel reproduces the full-QP repair exactly on all 34 development cases (same statuses round by round, 0.0000 pp cost difference) at 11x the speed, and is what ran.
+- **Scored 12 of 24.** PIPS's optima match PGLib's within 0.004 % where it solves (13 cases); none on the SNEM and RTE networks or on case588 and case1354 API; case2000 API has no DC start.
+- **H1 held** (DC breaks a thermal, slack or angle limit on 7 of 7 scored API and SAD cases). **H2 as written refuted:** fully clean within 10 rounds on **0 of 12** (development 21 of 34). Within 20: **6 of 12** (all at round 14 to 20). With the voltage stage: **8 of 12**. J+R beats S+R 8 to 0 (P = 0.0078). Mean cost of clean points +0.66 % (bar +0.5 %, refuted).
+- Elastic QPs rise to 44 % of rounds from 29 %; the DC starts break Q limits on 14 to 118 units (development 0 to 26), and the SAD starts need the DC OPF without angle limits.
+- After-the-run diagnostic on the 11 unsolved cases, against PGLib's published objective: case588 API clean at round 15 (+0.95 %); on five RTE cases the AC power flow at the DC start does not converge, so the repair never starts.
+- Next: a start with an AC power flow (damped or homotopy Newton from the DC point); a round budget or stopping rule scaled to the start's violation, set on development cases only; a second reference AC solver for the 11 unsolved cases.
+
 ## 2026-11-13 · Milestone 7 (empirical half): a 30-round budget clears 31 of 34; misses are curvature, one stall is local infeasibility; H4 as written refuted
 - Frozen J-m-a traced round by round with a 30-round budget on the 36 PGLib cases (pre-registered; plan and outcome in `research/infra-dcopf/LOG.md`, numbers in `research/infra-dcopf/experiments/results_converge.txt`). First 10 rounds reproduce the nominal run exactly.
 - **Budget:** fully clean on **31 of 34** within 20 rounds (10 rounds: 21), the ten late finishers at +0.41 % mean cost over the AC optimum. The repair alone matches what repair-then-voltage-stage got at 10 rounds.
