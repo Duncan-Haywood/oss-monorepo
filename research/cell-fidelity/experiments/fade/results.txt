@@ -1,0 +1,35 @@
+cell-fidelity milestone 5l: retention from a 10-cycle DFN run, on fresh conditions
+
+Probe (baseline design, 2 cycles): Ai2020@0.625x ok, NCA_Kim2011@0.75x ok, OKane2022@1.75x ok
+
+Ai2020@0.625x: n 64; retention median 0.45 (0.39 to 0.62)
+  Spearman with the DFN@100 score: cycle-10 Wh/kg +0.97, sqrt-cycle extrapolation +0.40; cycle-10 retention ~ 100-cycle retention +0.92
+  screen (DFN@10 on all, DFN@100 on top 3): gap 0.0000, wall / all-DFN@100 0.198, picked [3, 24, 8]; DFN@10 / DFN@100 time median 0.15
+  top 1 gap 0.0000 (0.164), top 5 0.0000 (0.231); DFN@10 on front layers 1-2 0.0000 (0.106), 1-3 0.0000 (0.128)
+  5k front (DFN@100 on layer 1): gap 0.0000 at 10 calls, wall / all-DFN@100 0.160; DFN best design 3: retention 0.43, r_kt +0.51
+  dropped: []; separate DFN@10 against the DFN@100 run's first 10 cycles: max relative difference 0.00e+00
+NCA_Kim2011@0.75x: n 64; retention median 0.39 (0.35 to 0.74)
+  Spearman with the DFN@100 score: cycle-10 Wh/kg +0.95, sqrt-cycle extrapolation -0.56; cycle-10 retention ~ 100-cycle retention +0.84
+  screen (DFN@10 on all, DFN@100 on top 3): gap 0.0000, wall / all-DFN@100 0.192, picked [18, 21, 45]; DFN@10 / DFN@100 time median 0.15
+  top 1 gap 0.0074 (0.164), top 5 0.0000 (0.218); DFN@10 on front layers 1-2 0.0000 (0.109), 1-3 0.0000 (0.135)
+  5k front (DFN@100 on layer 1): gap 0.0113 at 18 calls, wall / all-DFN@100 0.269; DFN best design 45: retention 0.38, r_kt +0.08
+  dropped: []; separate DFN@10 against the DFN@100 run's first 10 cycles: max relative difference 0.00e+00
+OKane2022@1.75x: n 64; retention median 0.31 (0.22 to 0.77)
+  Spearman with the DFN@100 score: cycle-10 Wh/kg +0.92, sqrt-cycle extrapolation +0.55; cycle-10 retention ~ 100-cycle retention +0.94
+  screen (DFN@10 on all, DFN@100 on top 3): gap 0.0000, wall / all-DFN@100 0.187, picked [24, 60, 12]; DFN@10 / DFN@100 time median 0.14
+  top 1 gap 0.0000 (0.154), top 5 0.0000 (0.222); DFN@10 on front layers 1-2 0.0000 (0.116), 1-3 0.0000 (0.137)
+  5k front (DFN@100 on layer 1): gap 0.0016 at 14 calls, wall / all-DFN@100 0.226; DFN best design 24: retention 0.40, r_kt -0.08
+  dropped: []; separate DFN@10 against the DFN@100 run's first 10 cycles: max relative difference 0.00e+00
+
+Pooled over conditions:
+  rho_short: 3 conditions, median 0.949, range 0.916 to 0.972
+  rho_ext: 3 conditions, median 0.397, range -0.556 to 0.545
+  rho_ret_short: 3 conditions, median 0.921, range 0.844 to 0.941
+  gap: 3 conditions, median 0.000, range 0.000 to 0.000
+  t_ratio: 3 conditions, median 0.192, range 0.187 to 0.198
+  front_gap: 3 conditions, median 0.002, range 0.000 to 0.011
+  front_t_ratio: 3 conditions, median 0.226, range 0.160 to 0.269
+  tk_over_t100: 3 conditions, median 0.148, range 0.144 to 0.154
+  screen exact on 3 of 3; 5k front exact on 1 of 3
+
+Verdicts: H78 supported, H79 supported, H80 supported, H81 supported
