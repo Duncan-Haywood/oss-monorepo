@@ -3,7 +3,7 @@ title: "Does knowing where the water is help you plan drone altitude layers? A l
 seo_title: "Drone altitude layers on paper: a land mask closes little of the gap"
 date: 2026-11-13
 tags: [aerolog-scaling, drones, airspace, uam, utm, simulation, graph-partition, kinetic-gas]
-description: Spreading drone customers over New York's land, not the whole service disc, brings a paper layer plan within 5% of the closed form in 17 of 24 layouts, up from 13.
+description: Spreading drone customers over New York's land, not the whole disc, puts a paper layer plan within 5% of the closed form in 17 of 24 layouts, up from 13.
 ---
 
 Yesterday (milestone 11h) we found that a one-page kinetic-gas formula can split eight drone delivery operators into two altitude layers almost as well as our closed-form conflict model, with no traffic data. It assumes each operator's customers are spread evenly over its service disc, and it left a median 2.6% more en-route conflicts than the closed form. Running the same formula on the real destination list closed the gap entirely. So the missing piece was the demand map.
