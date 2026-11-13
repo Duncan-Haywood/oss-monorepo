@@ -113,19 +113,67 @@ export function parseSingers(text) {
   return { singers, sectioned: withSection > 0 };
 }
 
-// The notes every singer in a group reaches, and who sets each end.
-export function overlap(group) {
+// The notes every singer in a group reaches, and who sets each end. With sitOut N > 0, the
+// notes all but N of them reach (see sitOutRange).
+export function overlap(group, sitOut = 0) {
+  if (sitOut > 0 && group.length > 1) return sitOutRange(group, sitOut);
   const low = Math.max(...group.map((s) => s.low));
   const high = Math.min(...group.map((s) => s.high));
   return { low, high, width: high - low };
 }
 
+// --sit-out N: a section sings a note when at most N of its singers have to sit it out
+// (always at least one singer left on it). Counting singers per note, the notes that pass
+// can come in more than one run (two clusters of singers with a gap between them), and a
+// section's range has to be one run of notes, so the widest run is taken (ties: the lower).
+// Returns { low, high, width } like overlap, with width < 0 when no note passes.
+export function sitOutRange(group, sitOut) {
+  const need = Math.max(1, group.length - sitOut);
+  const lo = Math.min(...group.map((s) => s.low));
+  const hi = Math.max(...group.map((s) => s.high));
+  const count = new Array(hi - lo + 1).fill(0);
+  for (const s of group) for (let x = s.low; x <= s.high; x++) count[x - lo]++;
+  return widestRun(count, lo, need);
+}
+
+function widestRun(count, lo, need) {
+  let best = null;
+  let start = -1;
+  for (let i = 0; i <= count.length; i++) {
+    if (i < count.length && count[i] >= need) { if (start < 0) start = i; continue; }
+    if (start >= 0 && (!best || i - 1 - start > best.high - best.low)) best = { low: lo + start, high: lo + i - 1 };
+    start = -1;
+  }
+  return best ? { ...best, width: best.high - best.low } : { low: lo, high: lo - 1, width: -1 };
+}
+
+// Who sits out which notes of a range: the notes below each singer's low and above their high.
+export function sittersOut(group, low, high) {
+  const out = [];
+  for (const s of group) {
+    const notes = [];
+    if (s.low > low) notes.push([low, Math.min(s.low - 1, high)]);
+    if (s.high < high) notes.push([Math.max(s.high + 1, low), high]);
+    if (notes.length) out.push({ name: s.name, notes, text: notes.map(([a, b]) => (a === b ? noteName(a) : `${noteName(a)}-${noteName(b)}`)).join(' and ') });
+  }
+  return out;
+}
+
 // One section's report: its range, who sets the low and the high end, and how far that end
 // moves if the one singer setting it is excused (no move when two singers share the limit).
-export function describeSection(group) {
-  const r = overlap(group);
+// With sitOut N > 0 the range is sitOutRange's, `everyone` is the strict overlap, and
+// `sitOut` lists who sits out which notes (lowWithout and highWithout are left out: the
+// sit-out already says what excusing singers buys).
+export function describeSection(group, sitOut = 0) {
+  const r = overlap(group, sitOut);
   const out = { low: r.low, high: r.high, range: `${noteName(r.low)}-${noteName(r.high)}`, singers: group.map((s) => s.name) };
   if (r.high <= r.low) return { ...out, empty: true };
+  if (sitOut > 0 && group.length > 1) {
+    const all = overlap(group);
+    out.everyone = all.high > all.low ? `${noteName(all.low)}-${noteName(all.high)}` : null;
+    out.sitOut = sittersOut(group, r.low, r.high);
+    return out;
+  }
   const lowBy = group.filter((s) => s.low === r.low);
   const highBy = group.filter((s) => s.high === r.high);
   out.lowSetBy = lowBy.map((s) => s.name);
@@ -144,7 +192,8 @@ export function describeSection(group) {
 // Divide unsectioned singers into the given sections (any order; cut low to high). Returns
 // { groups: { section: [singers] } } or null when there are fewer singers than sections or
 // no cut gives every section a shared note.
-export function assignSections(singers, sections) {
+// With sitOut N > 0, a section's width is sitOutRange's.
+export function assignSections(singers, sections, sitOut = 0) {
   const order = SECTION_ORDER.filter((s) => sections.includes(s));
   const k = order.length;
   const n = singers.length;
@@ -152,7 +201,19 @@ export function assignSections(singers, sections) {
   const sorted = [...singers].sort((a, b) => a.low + a.high - (b.low + b.high) || a.high - b.high || a.row - b.row);
   // overlap width of sorted[i..j], built incrementally: O(n^2) table
   const W = Array.from({ length: n }, () => new Array(n).fill(-Infinity));
-  for (let i = 0; i < n; i++) {
+  if (sitOut > 0) {
+    // per-note counts grown one singer at a time: O(n^2 * notes)
+    const lo0 = Math.min(...sorted.map((s) => s.low));
+    const hi0 = Math.max(...sorted.map((s) => s.high));
+    for (let i = 0; i < n; i++) {
+      const count = new Array(hi0 - lo0 + 1).fill(0);
+      for (let j = i; j < n; j++) {
+        for (let x = sorted[j].low; x <= sorted[j].high; x++) count[x - lo0]++;
+        const size = j - i + 1;
+        W[i][j] = size === 1 ? sorted[j].high - sorted[j].low : widestRun(count, lo0, Math.max(1, size - sitOut)).width;
+      }
+    }
+  } else for (let i = 0; i < n; i++) {
     let lo = -Infinity;
     let hi = Infinity;
     for (let j = i; j < n; j++) {
@@ -186,9 +247,10 @@ export function assignSections(singers, sections) {
       return;
     }
     for (let c = start; c <= n - (k - 1 - g); c++) {
-      // prune: a first group with no shared note only gets worse as it grows
+      // prune: a first group with no shared note only gets worse as it grows (with a
+      // sit-out a bigger group can sit more singers out, so no pruning there)
       const prev = g ? cuts[g - 1] : 0;
-      if (W[prev][c - 1] <= 0) break;
+      if (W[prev][c - 1] <= 0) { if (sitOut > 0) continue; break; }
       cuts.push(c);
       walk(g + 1, c + 1);
       cuts.pop();
@@ -202,10 +264,10 @@ export function assignSections(singers, sections) {
 }
 
 // The ranges --split-voices and fewestSections take, from groups of singers.
-export function choirOf(groups) {
+export function choirOf(groups, sitOut = 0) {
   const choir = {};
   for (const [s, g] of Object.entries(groups)) {
-    const r = overlap(g);
+    const r = overlap(g, sitOut);
     choir[s] = { low: r.low, high: r.high };
   }
   return choir;
@@ -214,7 +276,10 @@ export function choirOf(groups) {
 // Sections and the unison band for a range test. `sections` lists the sections wanted (for
 // an unsectioned file) and is ignored for a sectioned one, whose sections are those it names.
 // Returns { choir, groups, unison, report, assigned } or throws with a reason a director can act on.
-export function singersChoir({ singers, sectioned }, sections = ['tenor', 'bass']) {
+// sitOut N (default 0): a section, and the unison band, sing the notes all but N of their
+// singers reach (sitOutRange); the report then lists who sits out which notes.
+export function singersChoir({ singers, sectioned }, sections = ['tenor', 'bass'], sitOut = 0) {
+  if (!Number.isInteger(sitOut) || sitOut < 0) throw new Error('sit-out must be a whole number of singers, 0 or more');
   let groups;
   if (sectioned) {
     groups = {};
@@ -223,7 +288,7 @@ export function singersChoir({ singers, sectioned }, sections = ['tenor', 'bass'
       if (g.length) groups[s] = g;
     }
   } else {
-    const a = assignSections(singers, sections);
+    const a = assignSections(singers, sections, sitOut);
     if (!a) {
       const what = SECTION_ORDER.filter((s) => sections.includes(s)).map((s) => SECTION_LABEL[s]).join(', ');
       throw new Error(singers.length < sections.length
@@ -234,16 +299,17 @@ export function singersChoir({ singers, sectioned }, sections = ['tenor', 'bass'
   }
   const report = {};
   for (const [s, g] of Object.entries(groups)) {
-    report[s] = describeSection(g);
+    report[s] = describeSection(g, sitOut);
     if (report[s].empty) {
+      if (sitOut > 0) throw new Error(`the ${SECTION_LABEL[s]} share no note even with ${sitOut} sitting out`);
       const lo = g.find((x) => x.low === report[s].low);
       const hi = g.find((x) => x.high === report[s].high);
       throw new Error(`the ${SECTION_LABEL[s]} share no note: ${lo.name}'s low ${noteName(lo.low)} is above ${hi.name}'s high ${noteName(hi.high)}`);
     }
   }
-  const all = describeSection(singers);
+  const all = describeSection(singers, sitOut);
   const unison = all.empty ? null : { low: all.low, high: all.high };
-  return { choir: choirOf(groups), groups, unison, unisonReport: all, report, assigned: !sectioned };
+  return { choir: choirOf(groups, sitOut), groups, unison, unisonReport: all, report, assigned: !sectioned, sitOut };
 }
 
 // The sections present in a sectioned file, in the voicing flags' terms.
@@ -256,7 +322,7 @@ export function sectionsOf(sc) {
 export function singersReport(sc) {
   const lines = [];
   const n = Object.values(sc.groups).reduce((a, g) => a + g.length, 0);
-  lines.push(`${n} singers${sc.assigned ? ', divided by range (no sections in the file)' : ''}`);
+  lines.push(`${n} singers${sc.assigned ? ', divided by range (no sections in the file)' : ''}${sc.sitOut ? `; each section's range is the notes all but ${sc.sitOut} of its singers reach` : ''}`);
   for (const s of [...SECTION_ORDER].reverse()) {
     const r = sc.report[s];
     if (!r) continue;
@@ -269,6 +335,10 @@ export function singersReport(sc) {
 
 function limits(r) {
   const parts = [];
+  if (r.sitOut) {
+    parts.push(r.everyone ? `all reach ${r.everyone}` : 'no note all reach');
+    for (const x of r.sitOut) parts.push(`${x.name} sits out ${x.text}`);
+  }
   if (r.lowWithout) parts.push(`low set by ${r.lowWithout.name} (${r.lowWithout.note} without)`);
   if (r.highWithout) parts.push(`high set by ${r.highWithout.name} (${r.highWithout.note} without)`);
   return parts.length ? `; ${parts.join('; ')}` : '';
@@ -282,8 +352,8 @@ const VOICING_SECTIONS = new Map([[2, ['tenor', 'bass']], [3, ['tenor', 'bariton
 // sections are not the best three with one more); a sectioned file is tried only as the
 // voicing its sections make. Returns VOICINGS' { sections, name, flags } plus `choir`, the
 // ranges that fit (sections 0 when none does).
-export function fewestSectionsForSingers(events, parsed) {
-  const all = overlap(parsed.singers);
+export function fewestSectionsForSingers(events, parsed, sitOut = 0) {
+  const all = overlap(parsed.singers, sitOut);
   if (all.width > 0 && suggestFinal(events, { low: all.low, high: all.high }).fits) return VOICINGS[0];
   const have = parsed.sectioned ? SECTION_ORDER.filter((s) => parsed.singers.some((x) => x.section === s)) : null;
   for (const v of VOICINGS.slice(1)) {
@@ -291,9 +361,44 @@ export function fewestSectionsForSingers(events, parsed) {
     if (!want) continue;
     if (have && (have.length !== want.length || !want.every((s) => have.includes(s)))) continue;
     let sc;
-    try { sc = singersChoir(parsed, want); } catch { continue; }
+    try { sc = singersChoir(parsed, want, sitOut); } catch { continue; }
     const c = sc.choir;
     if (splitVoices(events, { tenor: c.tenor, bass: c.bass, baritone: c.baritone || null, tenor2: c.tenor2 || null }).fits) return { ...v, choir: c };
   }
   return { sections: 0, name: 'none', flags: '' };
+}
+
+// Which sung notes of an arrangement each singer sits out: a note is sung by the sections its
+// `voice` names (splitVoices: 'all', 'tenor', 'tenor+bass' ...; no voice means everyone), and a
+// singer in a singing section sits it out when it lies outside their own range. With sitOut 0
+// and the file's own ranges this is empty; it fills with --sit-out, or when --range, --tenor
+// and the others move a range past what the range test gives. Returns one entry per singer who
+// sits anything out, most notes first: { name, section, notes, of, pitches: 'D3, C#4-D4' }.
+export function sitOutNotes(events, sc) {
+  const sections = Object.keys(sc.groups);
+  const tally = new Map();
+  for (const e of events) {
+    if (e.type !== 'note') continue;
+    const who = !e.voice || e.voice === 'all' ? sections : e.voice.split('+').filter((s) => sc.groups[s]);
+    for (const s of who) {
+      for (const p of sc.groups[s]) {
+        let t = tally.get(p);
+        if (!t) tally.set(p, (t = { name: p.name, section: s, notes: 0, of: 0, out: new Set() }));
+        t.of++;
+        if (e.midi < p.low || e.midi > p.high) { t.notes++; t.out.add(e.midi); }
+      }
+    }
+  }
+  return [...tally.values()].filter((t) => t.notes).sort((a, b) => b.notes - a.notes || a.name.localeCompare(b.name)).map((t) => ({ name: t.name, section: t.section, notes: t.notes, of: t.of, pitches: runs([...t.out].sort((a, b) => a - b)) }));
+}
+
+function runs(ps) {
+  const out = [];
+  for (let i = 0; i < ps.length; i++) {
+    let j = i;
+    while (j + 1 < ps.length && ps[j + 1] === ps[j] + 1) j++;
+    out.push(i === j ? noteName(ps[i]) : `${noteName(ps[i])}-${noteName(ps[j])}`);
+    i = j;
+  }
+  return out.join(', ');
 }
