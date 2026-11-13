@@ -1348,7 +1348,10 @@ def main(argv: list[str] | None = None) -> int:
               '{"file": ..., "issue": ...}; deviations a list of {"file": ..., "why": ...}, '
               'plus "did" and "result" when you can say them (measure needs a result to tell '
               'whether a departure worked). '
-              "Check with: python3 prompts/promptctl.py validate")
+              "Check with: python3 prompts/promptctl.py validate\n"
+              f"Cost, with this exact path (not a glob: every session id shares a prefix, and "
+              f"other runs' records sit beside yours): python3 prompts/runcost.py attach "
+              f"{path.relative_to(ROOT.parent)}")
         return 0
     if args.cmd == "measure":
         if not (args.json or args.no_fetch) and (not args.section or "friction" in args.section.lower()):
