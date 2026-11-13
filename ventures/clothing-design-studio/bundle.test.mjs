@@ -37,10 +37,12 @@ test("fees scale with the price: 3% + 0.30 on the 180 set", () => {
 });
 test("max discount for a 50% one-piece share solves exactly: set must keep 0.5x40.33+0.5x131", () => {
   const d = maxDiscountPct(P, 50);
-  // keep 85.67 -> price 154.67 -> 22.7% off
-  assert.equal(d, 22.7);
+  // keep 85.67 -> price 154.67 -> 22.67% off, reported rounded down as 22.6
+  // (22.7% would lose money; before 2026-11-13 it was rounded up to 22.7)
+  assert.equal(d, 22.6);
   const back = setValue(P, { discountPct: d }, 50);
-  assert.ok(Math.abs(back.changePerSetOrder) < 0.1);
+  assert.ok(Math.abs(back.changePerSetOrder) < 0.2);
+  assert.ok(back.pays);
   assert.equal(maxDiscountPct(P, 0), 0);
 });
 test("notes: a set dearer than its pieces, and a loss-making set", () => {
@@ -58,4 +60,40 @@ test("bad input is refused with a reason", () => {
   assert.throws(() => bundlePlan({ ...P, items: [{ price: -1, landed: 1 }, P.items[1]] }, { discountPct: 10 }), /price of piece 1/);
   assert.throws(() => bundlePlan(P, { discountPct: 100 }), /discount/);
   assert.throws(() => bundlePlan({ ...P, ship: NaN }, { discountPct: 5 }), /shipping/);
+});
+
+// Red-team guards, 2026-11-13.
+test("shipping defaults to 0 for one piece and for the set when left out", () => {
+  const r = bundlePlan({ items: P.items }, { discountPct: 10 });
+  // 180 - 64 = 116 for the set; one piece 66.67 - 21.33 = 45.33, no shipping taken off
+  assert.equal(r.contributionSet, 116);
+  assert.equal(r.contributionSingle, 45.33);
+  assert.equal(r.contributionFullPrice, 136);
+});
+test("a set priced exactly at its list total is not called dearer than its pieces", () => {
+  assert.ok(!bundlePlan(P, { discountPct: 0 }).notes.some(n => /costs more/.test(n)));
+});
+test("a one-piece share over 100% is refused", () => {
+  assert.throws(() => setValue(P, { discountPct: 10 }, 100.5), /share of set buyers/);
+});
+test("max discount with fees solves the fee-inclusive price: 20% + 0.30, 50% share", () => {
+  // c1 = 66.67 x 0.8 - 0.3 - 21.33 - 5 = 26.70, cFull = 160 - 0.3 - 64 - 5 = 90.70;
+  // keep 58.70 -> price = (58.70 + 0.30 + 64 + 5) / 0.8 = 160 -> exactly 20% off
+  const Q = { ...P, feePct: 20, feeFixed: 0.3 };
+  const d = maxDiscountPct(Q, 50);
+  assert.equal(d, 20);
+  assert.ok(setValue(Q, { discountPct: d }, 50).pays);
+});
+test("the biggest discount reported always still pays (rounded down, never up)", () => {
+  const Q = { items: [{ price: 30, landed: 10 }, { price: 30, landed: 10 }], ship: 5, shipBundle: 7, feePct: 3, feeFixed: 0.3 };
+  for (const f of [0, 10, 25, 33, 50, 77, 100]) {
+    const d = maxDiscountPct(Q, f);
+    assert.ok(setValue(Q, { discountPct: d }, f).pays, `share ${f}%: ${d}% off loses money`);
+  }
+});
+test("the biggest discount never exceeds what a discount can be (one piece alone loses money)", () => {
+  const Q = { items: [{ price: 10, landed: 0 }, { price: 10, landed: 0 }], ship: 100, shipBundle: 0 };
+  const d = maxDiscountPct(Q, 100);
+  assert.ok(d >= 0 && d < 100, `got ${d}%`);
+  assert.doesNotThrow(() => bundlePlan(Q, { discountPct: d }));
 });

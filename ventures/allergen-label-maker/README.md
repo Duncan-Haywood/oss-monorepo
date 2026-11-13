@@ -25,7 +25,7 @@ Open [`index.html`](index.html) and click **Check allergens**.
     Flour tortilla, grilled chicken breast, caesar dressing (egg yolk, anchovy, mustard), Brand X pesto [milk, tree nuts]
 
 - Ingredients in descending order of weight, comma-separated, sub-ingredients in brackets.
-- `[milk, soya]` after an ingredient states what its supplier label says; `[none]` clears guesses.
+- `[milk, soya]` after an ingredient states what its supplier label says; `[none]` clears "usually contains" guesses; an allergen named outright (`milk [none]`) is still declared.
 - `| may=peanuts` adds a precautionary line (a risk assessment only you can make).
 
 ## The model
@@ -44,7 +44,7 @@ wheat, and molluscs, celery, mustard, lupin and sulphites are not US major aller
 
 ## Tests
 
-`node --test '*.test.mjs'` (19 engine tests, 5 page tests, usage counter). The page was also
+`node --test '*.test.mjs'` (22 engine tests, 5 page tests, usage counter). The page was also
 driven in headless Chromium on 2026-11-07: example run, UK/US switch, HTML in a dish name is
 escaped.
 
@@ -56,6 +56,24 @@ escaped.
 - Label layout is not checked against FSA guidance wording beyond the ingredient list and the
   allergen emphasis; there is no QUID (percentage) or net quantity.
 - Sulphites need the supplier's mg/kg figure; the tool can only flag wine, dried fruit and the like.
+
+## Known gaps (quality audit round 59, 2026-11-13)
+
+From [`portfolio/quality/audits/2026-11-13-allergen-label-maker.json`](../../portfolio/quality/audits/2026-11-13-allergen-label-maker.json).
+Fixed in the same PR: oatmeal, farina, cous cous, curds, lactalbumin, roe, caviar, eel, carp, pike,
+perch, grouper, mahi mahi, taramasalata and filbert are now named; "shellfish" and "nuts" are flagged
+to check; `milk [none]` no longer clears milk. Still open:
+
+- **The bold text uses a shorter word list than the detector** (`emphasise` in `calc.mjs`). Detected
+  allergens such as halibut, sodium caseinate, lysozyme, brie, Gruyère and E220 print without bold, and
+  `pesto [milk, tree nuts]` prints as plain "pesto". Until the emphasis is built from the same rules,
+  check the bold by eye before printing.
+- **The US Contains line names the class, not the species**: "Tree nuts", "Fish" and "Crustacean
+  shellfish", where FALCPA (21 USC 343(w)(2)) needs the specific nut, fish or shellfish.
+- **Pine nuts in US mode** get only the UK/EU advisory; check FDA's current tree-nut list.
+- **UK labels add a "Contains:" line**, which FSA guidance advises against repeating for prepacked and
+  PPDS food when allergens are already emphasised.
+- Tofu written as "bean curd" is not recognised as soya.
 
 ## Customer allergen page (2026-11-07)
 

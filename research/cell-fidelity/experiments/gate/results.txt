@@ -1,0 +1,73 @@
+cell-fidelity milestone 5g: skip SPMe when >= 4 of the first 8 designs are suspect (SPMe fails or r_min <= 0.1); otherwise 5e's rule with the iterate answer step
+
+Probe (baseline design, 2 cycles): OKane2022@2x ok, Chen2020@2x ok, Marquis2019@2x ok, Ecker2015@2x ok, Mohtat2020@2x ok, Ai2020@0.5x ok
+
+OKane2022@2x: 64 designs (0 dropped: []); suspect share 0.81; gate saw 7 of 8 suspect -> SKIP SPMe
+  mis-scored 49; rule recall 1.00; rule calls 53 (with the iterate answer)
+  wall time: rule 1631 s, all-DFN 1739 s (rule/all 0.94; cheaper: rule); gated 1756 s = 1.08 x the cheaper; gate right: False
+  answer gap to pool DFN best 95.6 Wh/kg: gated 0.0000, rule+iterate 0.0000, 5e's pre-registered answer 0.0000
+  extra, after the verdicts: same-fidelity answer gap 0.0000 at 64 calls (rule/all 1.07); cost-aware gate predicts rule/all 0.93 -> rule, right: True; affine-corrected answer gap 0.0000 at 53 calls
+Chen2020@2x: 64 designs (0 dropped: []); suspect share 0.81; gate saw 7 of 8 suspect -> SKIP SPMe
+  mis-scored 49; rule recall 1.00; rule calls 53 (with the iterate answer)
+  wall time: rule 742 s, all-DFN 692 s (rule/all 1.07; cheaper: all-DFN); gated 708 s = 1.02 x the cheaper; gate right: True
+  answer gap to pool DFN best 97.7 Wh/kg: gated 0.0000, rule+iterate 0.0000, 5e's pre-registered answer 0.0000
+  extra, after the verdicts: same-fidelity answer gap 0.0000 at 64 calls (rule/all 1.17); cost-aware gate predicts rule/all 1.00 -> skip, right: True; affine-corrected answer gap 0.0000 at 53 calls
+Marquis2019@2x: 64 designs (0 dropped: []); suspect share 0.22; gate saw 2 of 8 suspect -> run the rule
+  mis-scored 10; rule recall 1.00; rule calls 23 (with the iterate answer)
+  wall time: rule 452 s, all-DFN 577 s (rule/all 0.78; cheaper: rule); gated 452 s = 1.00 x the cheaper; gate right: True
+  answer gap to pool DFN best 140.3 Wh/kg: gated 0.0000, rule+iterate 0.0000, 5e's pre-registered answer 0.0042
+  extra, after the verdicts: same-fidelity answer gap 0.0000 at 25 calls (rule/all 0.82); cost-aware gate predicts rule/all 0.59 -> rule, right: True; affine-corrected answer gap 0.1458 at 13 calls
+Ecker2015@2x: 64 designs (0 dropped: []); suspect share 0.70; gate saw 5 of 8 suspect -> SKIP SPMe
+  mis-scored 21; rule recall 1.00; rule calls 41 (with the iterate answer)
+  wall time: rule 1227 s, all-DFN 1361 s (rule/all 0.90; cheaper: rule); gated 1390 s = 1.13 x the cheaper; gate right: False
+  answer gap to pool DFN best 224.3 Wh/kg: gated 0.0000, rule+iterate 0.0000, 5e's pre-registered answer 0.1026
+  extra, after the verdicts: same-fidelity answer gap 0.0089 at 31 calls (rule/all 0.75); cost-aware gate predicts rule/all 0.76 -> rule, right: True; affine-corrected answer gap 0.1186 at 24 calls
+Mohtat2020@2x: 64 designs (0 dropped: []); suspect share 0.02; gate saw 0 of 8 suspect -> run the rule
+  mis-scored 0; rule recall n/a; rule calls 4 (with the iterate answer)
+  wall time: rule 231 s, all-DFN 536 s (rule/all 0.43; cheaper: rule); gated 231 s = 1.00 x the cheaper; gate right: True
+  answer gap to pool DFN best 205.8 Wh/kg: gated 0.0000, rule+iterate 0.0000, 5e's pre-registered answer 0.0280
+  extra, after the verdicts: same-fidelity answer gap 0.0000 at 4 calls (rule/all 0.43); cost-aware gate predicts rule/all 0.32 -> rule, right: True; affine-corrected answer gap 0.0000 at 4 calls
+Ai2020@0.5x: 64 designs (0 dropped: []); suspect share 0.31; gate saw 2 of 8 suspect -> run the rule
+  mis-scored 31; rule recall 1.00; rule calls 34 (with the iterate answer)
+  wall time: rule 1253 s, all-DFN 1900 s (rule/all 0.66; cheaper: rule); gated 1253 s = 1.00 x the cheaper; gate right: True
+  answer gap to pool DFN best 121.2 Wh/kg: gated 0.0320, rule+iterate 0.0320, 5e's pre-registered answer 0.0320
+  extra, after the verdicts: same-fidelity answer gap 0.0000 at 64 calls (rule/all 1.13); cost-aware gate predicts rule/all 0.38 -> rule, right: True; affine-corrected answer gap 0.0217 at 41 calls
+
+Verdicts: H51 refuted, H52 supported, H53 supported, H54 refuted, H55 supported
+
+Post hoc: the gate on the seven committed 1x cells it was read off (no verdicts):
+OKane2022@1x: 128 designs (0 dropped: []); suspect share 0.18; gate saw 1 of 8 suspect -> run the rule
+  mis-scored 15; rule recall 1.00; rule calls 22 (with the iterate answer)
+  wall time: rule 1268 s, all-DFN 3499 s (rule/all 0.36; cheaper: rule); gated 1268 s = 1.00 x the cheaper; gate right: True
+  answer gap to pool DFN best 162.3 Wh/kg: gated 0.0000, rule+iterate 0.0000, 5e's pre-registered answer 0.0000
+  extra, after the verdicts: same-fidelity answer gap 0.0000 at 57 calls (rule/all 0.65); cost-aware gate predicts rule/all 0.24 -> rule, right: True; affine-corrected answer gap 0.0000 at 22 calls
+Ecker2015@1x: 64 designs (0 dropped: []); suspect share 0.06; gate saw 1 of 8 suspect -> run the rule
+  mis-scored 1; rule recall 1.00; rule calls 7 (with the iterate answer)
+  wall time: rule 401 s, all-DFN 1029 s (rule/all 0.39; cheaper: rule); gated 401 s = 1.00 x the cheaper; gate right: True
+  answer gap to pool DFN best 336.7 Wh/kg: gated 0.0000, rule+iterate 0.0000, 5e's pre-registered answer 0.0000
+  extra, after the verdicts: same-fidelity answer gap 0.0000 at 7 calls (rule/all 0.39); cost-aware gate predicts rule/all 0.38 -> rule, right: True; affine-corrected answer gap 0.0310 at 4 calls
+Ai2020@1x: 64 designs (0 dropped: []); suspect share 0.72; gate saw 6 of 8 suspect -> SKIP SPMe
+  mis-scored 57; rule recall 1.00; rule calls 61 (with the iterate answer)
+  wall time: rule 1452 s, all-DFN 1321 s (rule/all 1.10; cheaper: all-DFN); gated 1345 s = 1.02 x the cheaper; gate right: True
+  answer gap to pool DFN best 113.0 Wh/kg: gated 0.0000, rule+iterate 0.0000, 5e's pre-registered answer 0.0000
+  extra, after the verdicts: same-fidelity answer gap 0.0000 at 63 calls (rule/all 1.13); cost-aware gate predicts rule/all 0.90 -> rule, right: False; affine-corrected answer gap 0.0000 at 61 calls
+Mohtat2020@1x: 64 designs (0 dropped: []); suspect share 0.00; gate saw 0 of 8 suspect -> run the rule
+  mis-scored 0; rule recall n/a; rule calls 3 (with the iterate answer)
+  wall time: rule 255 s, all-DFN 524 s (rule/all 0.49; cheaper: rule); gated 255 s = 1.00 x the cheaper; gate right: True
+  answer gap to pool DFN best 240.6 Wh/kg: gated 0.0000, rule+iterate 0.0000, 5e's pre-registered answer 0.0000
+  extra, after the verdicts: same-fidelity answer gap 0.0000 at 3 calls (rule/all 0.49); cost-aware gate predicts rule/all 0.31 -> rule, right: True; affine-corrected answer gap 0.0000 at 3 calls
+NCA_Kim2011@1x: 64 designs (0 dropped: []); suspect share 0.94; gate saw 8 of 8 suspect -> SKIP SPMe
+  mis-scored 52; rule recall 1.00; rule calls 58 (with the iterate answer)
+  wall time: rule 1255 s, all-DFN 1153 s (rule/all 1.09; cheaper: all-DFN); gated 1162 s = 1.01 x the cheaper; gate right: True
+  answer gap to pool DFN best 74.1 Wh/kg: gated 0.0000, rule+iterate 0.0000, 5e's pre-registered answer 0.0023
+  extra, after the verdicts: same-fidelity answer gap 0.0000 at 58 calls (rule/all 1.09); cost-aware gate predicts rule/all 1.05 -> skip, right: True; affine-corrected answer gap 0.0074 at 55 calls
+Marquis2019@1x: 64 designs (0 dropped: []); suspect share 0.00; gate saw 0 of 8 suspect -> run the rule
+  mis-scored 0; rule recall n/a; rule calls 6 (with the iterate answer)
+  wall time: rule 299 s, all-DFN 590 s (rule/all 0.51; cheaper: rule); gated 299 s = 1.00 x the cheaper; gate right: True
+  answer gap to pool DFN best 199.5 Wh/kg: gated 0.0000, rule+iterate 0.0000, 5e's pre-registered answer 0.0134
+  extra, after the verdicts: same-fidelity answer gap 0.0000 at 3 calls (rule/all 0.45); cost-aware gate predicts rule/all 0.29 -> rule, right: True; affine-corrected answer gap 0.0000 at 3 calls
+Chen2020@1x: 64 designs (0 dropped: []); suspect share 0.25; gate saw 1 of 8 suspect -> run the rule
+  mis-scored 9; rule recall 1.00; rule calls 15 (with the iterate answer)
+  wall time: rule 371 s, all-DFN 427 s (rule/all 0.87; cheaper: rule); gated 371 s = 1.00 x the cheaper; gate right: True
+  answer gap to pool DFN best 164.6 Wh/kg: gated 0.0000, rule+iterate 0.0000, 5e's pre-registered answer 0.0000
+  extra, after the verdicts: same-fidelity answer gap 0.0000 at 27 calls (rule/all 1.04); cost-aware gate predicts rule/all 0.34 -> rule, right: True; affine-corrected answer gap 0.0000 at 15 calls

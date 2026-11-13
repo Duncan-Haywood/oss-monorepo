@@ -48,8 +48,8 @@ export const LABELS = Object.fromEntries([...EU14, ...US9]);
 // `check: true` means "usually contains it, confirm on the supplier label".
 const RULES = [
   { a: "celery", re: /\b(celery|celeriac)\b/ },
-  { a: "gluten", w: "wheat", re: /\b(wheat|spelt|kamut|khorasan|semolina|durum|couscous|bulgur|bulghur|farro|einkorn|emmer|triticale|seitan)\b/ },
-  { a: "gluten", re: /\b(rye|barley|oats?|malt|malted|bran)\b/ },
+  { a: "gluten", w: "wheat", re: /\b(wheat|spelt|kamut|khorasan|semolina|durum|couscous|bulgur|bulghur|farro|farina|cous cous|einkorn|emmer|triticale|seitan)\b/ },
+  { a: "gluten", re: /\b(rye|barley|oats?|oatmeal|malt|malted|bran)\b/ },
   { a: "gluten", w: "wheat", re: /\b(breadcrumbs?|rusk|pasta|noodles?|spaghetti|macaroni|lasagn[ae]|bread|baguette|ciabatta|focaccia|brioche|croissant|pastry|pie crust|biscuits?|crackers?|cake|sponge|pizza base|pizza|batter|tempura|beer|ale|stout|lager|tortillas?|pitta|pita|wraps?|buns?|rolls?|flatbread|chapati|naan|crumpets?|muffins?|scones?|pancakes?|waffles?|dumplings?|gnocchi|stuffing|sausages?|pies?|tarts?|cookies?|brownies?|doughnuts?|donuts?)\b/, check: true,
     not: [/gluten[- ]free [a-z ]+/, /rice (noodles?|pasta)/, /corn pasta/, /gluten[- ]free/] },
   { a: "gluten", w: "wheat", re: /\b(plain|self[- ]raising|strong|bread|white|wholemeal|whole ?wheat|all[- ]purpose|00|pastry|cake) flour\b/ },
@@ -60,11 +60,13 @@ const RULES = [
   { a: "eggs", re: /\b(eggs?|egg ?yolks?|egg ?whites?|mayonnaise|mayo|meringue|albumen|albumin|ovalbumin|lysozyme|hollandaise|bearnaise|aioli)\b/,
     not: [/\beggplants?\b/, /\begg[- ]free( (mayonnaise|mayo))?\b/, /\bvegan (mayonnaise|mayo)\b/] },
   { a: "eggs", re: /\b(custard|fresh pasta|brioche|mousse)\b/, check: true },
-  { a: "fish", re: /\b(fish|cod|haddock|salmon|tuna|anchov(y|ies)|sardines?|mackerel|trout|sea ?bass|herrings?|plaice|pollock|pollack|hake|sole|tilapia|kippers?|surimi|isinglass|halibut|monkfish|swordfish|snapper|catfish|pilchards?|whitebait|sprats?|bonito|dashi)\b/ },
+  { a: "fish", re: /\b(fish|cod|haddock|salmon|tuna|anchov(y|ies)|sardines?|mackerel|trout|sea ?bass|herrings?|plaice|pollock|pollack|hake|sole|tilapia|kippers?|surimi|isinglass|halibut|monkfish|swordfish|snapper|catfish|pilchards?|whitebait|sprats?|bonito|dashi|eels?|carp|pike|perch|grouper|mahi[- ]?mahi|roe|caviar|taramasalata)\b/ },
   { a: "fish", re: /\b(caesar dressing|worcestershire( sauce)?|nam pla|oyster sauce|fish sauce|paella)\b/, check: true },
+  { a: "crustaceans", re: /\bshellfish\b/, check: true },
+  { a: "molluscs", re: /\bshellfish\b/, check: true },
   { a: "lupin", re: /\b(lupins?|lupine|lupini)\b/ },
-  { a: "milk", re: /\b(milk|butter|cheeses?|cream|creme fraiche|yoghurts?|yogurts?|whey|casein|caseinates?|lactose|ghee|buttermilk|custard|ice ?cream|paneer|mozzarella|cheddar|parmesan|parmigiano|pecorino|feta|ricotta|mascarpone|halloumi|brie|camembert|gouda|emmental|gruy[eè]re|stilton|cottage cheese|kefir|skyr|quark|b[eé]chamel|milk chocolate|white chocolate)\b/,
-    not: [/\b(coconut|almond|oat|soy|soya|rice|hazelnut|cashew|pea|hemp) (milk|cream|yoghurt|yogurt|butter|cheese)\b/, /\b(cocoa|shea|cacao|nut|peanut|apple|seed) butter\b/, /\bbutternut\b/, /\bbutter ?beans?\b/, /\bcream of tartar\b/, /\bvegan (butter|cheese|cream)\b/, /\bdairy[- ]free [a-z ]+/, /\bcoconut (milk|cream)\b/, /\bsunflower butter\b/] },
+  { a: "milk", re: /\b(milk|butter|cheeses?|cream|creme fraiche|yoghurts?|yogurts?|whey|casein|caseinates?|lactose|lactalbumin|lactoglobulin|curds|cheese curds?|ghee|buttermilk|custard|ice ?cream|paneer|mozzarella|cheddar|parmesan|parmigiano|pecorino|feta|ricotta|mascarpone|halloumi|brie|camembert|gouda|emmental|gruy[eè]re|stilton|cottage cheese|kefir|skyr|quark|b[eé]chamel|milk chocolate|white chocolate)\b/,
+    not: [/\b(coconut|almond|oat|soy|soya|rice|hazelnut|cashew|pea|hemp) (milk|cream|yoghurt|yogurt|butter|cheese)\b/, /\b(cocoa|shea|cacao|nut|peanut|apple|seed) butter\b/, /\bbutternut\b/, /\bbutter ?beans?\b/, /\bcream of tartar\b/, /\bvegan (butter|cheese|cream)\b/, /\bdairy[- ]free [a-z ]+/, /\bcoconut (milk|cream)\b/, /\bsunflower butter\b/, /\bbean ?curds?\b/] },
   { a: "milk", re: /\b(chocolate|biscuit|brioche|croissant|naan|korma|tikka masala|pesto|risotto)\b/, check: true, not: [/\bdark chocolate\b/, /\bvegan [a-z ]+/, /\bdairy[- ]free [a-z ]+/] },
   { a: "molluscs", re: /\b(mussels?|oysters?|clams?|cockles?|whelks?|winkles?|scallops?|squid|calamari|octopus|cuttlefish|snails?|escargots?|abalone|periwinkles?)\b/ },
   { a: "mustard", re: /\b(mustard|dijon|mustard seeds?)\b/ },
@@ -78,7 +80,8 @@ const RULES = [
   { a: "soya", re: /\b(lecithin|e322|teriyaki|hoisin|vegetarian mince|veggie burger|plant[- ]based burger)\b/, check: true },
   { a: "sulphites", re: /\b(sulphites?|sulfites?|sulphur dioxide|sulfur dioxide|metabisulphite|metabisulfite|e22[0-8]|e224|e225)\b/ },
   { a: "sulphites", re: /\b(wine|wine vinegar|cider|dried apricots?|dried fruit|sultanas?|raisins?|dried mango|desiccated coconut|balsamic|sherry|port|prosecco|champagne|sauerkraut|pickled onions?|gherkins?)\b/, check: true },
-  { a: "treenuts", re: /\b(almonds?|hazelnuts?|walnuts?|cashews?|pecans?|brazil nuts?|pistachios?|macadamias?|queensland nuts?|marzipan|praline|nougat|frangipane|gianduja|nutella|amaretto|amaretti|mixed nuts?|tree nuts?|almond (milk|butter|flour))\b/ },
+  { a: "treenuts", re: /\b(almonds?|hazelnuts?|walnuts?|cashews?|pecans?|brazil nuts?|pistachios?|macadamias?|queensland nuts?|filberts?|marzipan|praline|nougat|frangipane|gianduja|nutella|amaretto|amaretti|mixed nuts?|tree nuts?|almond (milk|butter|flour))\b/ },
+  { a: "treenuts", re: /\bnuts?\b/, check: true, not: [/\bpine ?nuts?\b/, /\bmonkey nuts?\b/, /\bground ?nuts?\b/, /\bnut[- ]free\b/, /\bno nuts?\b/] },
   { a: "treenuts", re: /\b(pesto|baklava|florentines?|granola|muesli|nut butter)\b/, check: true, not: [/\bnut[- ]free [a-z ]+/] },
 ];
 
@@ -151,8 +154,10 @@ export function readIngredient(raw) {
   }
   const noneTag = tag && /^\s*(none|no allergens)\s*$/i.test(tag[1]);
   const text = normalise(bare);
-  if (!noneTag) {
+  {
     for (const rule of RULES) {
+      // A [none] tag clears the "usually contains" guesses, never an allergen named outright.
+      if (noneTag && rule.check) continue;
       let t = text;
       for (const n of rule.not || []) t = t.replace(new RegExp(n.source, "g"), " ");
       const m = t.match(rule.re);

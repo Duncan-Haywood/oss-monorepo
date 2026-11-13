@@ -747,6 +747,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         default_tone=args.default_tone_curve,
         cfa=args.cfa,
         opcodes=not args.no_opcodes,
+        preview_quality=args.preview_quality,
         lens_db=_load_lens_db(args.lens_db) if args.lens_db else None,
         lens_name=args.lens,
         lens_focal=args.lens_focal,
@@ -1290,6 +1291,14 @@ def _build_parser() -> argparse.ArgumentParser:
         help="For a profile with no ProfileToneCurve: 'always' applies the default curve (a fit to Adobe's ACR3 "
         "default, what Adobe's converters use), 'auto' only when the profile's tone copyright names Adobe "
         "(RawTherapee's rule), 'never' keeps the plain sRGB curve.",
+    )
+    develop.add_argument(
+        "--preview-quality",
+        action="store_true",
+        help=(
+            "The DNG specification's preview-quality processing: skip opcodes the file marks as needed only at "
+            "full quality (flag bit 1). By default a develop is full quality and runs them."
+        ),
     )
     develop.add_argument(
         "--no-opcodes",

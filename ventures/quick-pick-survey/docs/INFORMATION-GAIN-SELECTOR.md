@@ -2419,3 +2419,101 @@ coverage sweep (normal only for the spread check); 30 items or fewer; 40
 respondents per cell and per panel, so a cell moves by 0.01-0.02 between
 seed bases, more where the pooled maximum collapses; one collapse seen in
 13 staged panels, so its rate is roughly known at best.
+
+## A lapse gate for the upper end (2026-11-13, later; measured, not shipped)
+
+The section above left one step: give the pooled prior's upper end only to
+respondents the lapse estimate calls honest, pooled over those same people,
+and keep the fixed prior for everyone else. This measures whether any gate
+the answers can supply does that.
+
+**Design** (`scripts/gated-upper-sweep.ts`, rows in
+`docs/gated-upper-2026-11-13.jsonl`). The upper-end sweep's grid (8/15/30
+items x 2/4/8 answers per item, 40 respondents per panel, pooled on an
+independent panel of the same mix, uniform truth), with mixed panels: 0,
+25%, 50% or 100% of each panel answers carelessly (every 4th, 2nd or every
+respondent), at lapse 0.2 and 0.4, seed bases 1000 and 50000 (18 cells per
+row). Coverage of every pair's 95% interval is reported for honest and
+careless respondents separately. Rules:
+
+- **fixed**: sd 2.0 for everyone (shipped).
+- **upper-all**: the upper end pooled over the whole panel, for everyone.
+- **gate-own / gate-refit**: pool and apply only where a lapse estimate is
+  under 0.1: the prequential Glicko one (`estimateLapse`'s posterior mean,
+  Beta(1, 19) prior) or one read in-sample from the person's own refit at
+  the fixed prior (`refitLapse` in the script, which the insights route
+  could compute: it already has that refit).
+- **gate-half**: a rank gate. Pool the more consistent half of the panel by
+  `refitLapse`; give that half's upper end to respondents at or under its
+  cut, the fixed prior to the rest.
+- **oracle**: what a perfect detector would give: pooled over the truly
+  honest, applied to them; fixed for the careless.
+
+**The detectors barely see careless people.** Chance a careless respondent
+scores above an honest one (AUC), mean over 18 cells:
+
+| lapse | selector | own (Glicko, prequential) | refit (in-sample) |
+|---|---|---|---|
+| 0.2 | shipped | 0.67-0.69 | 0.65-0.68 |
+| 0.2 | staged | 0.58-0.59 | 0.63-0.64 |
+| 0.4 | shipped | 0.80 | 0.80 |
+| 0.4 | staged | 0.61-0.62 | 0.65-0.69 |
+
+A 0.1 threshold is useless with these: the refit estimate passes every
+respondent in every cell (its means sit near 0.02, honest or not), and the
+Glicko one passes most. So gate-refit is upper-all, and gate-own nearly so.
+
+**Coverage, lapse 0.2** (mean over 18 cells, worst cell in brackets, mean
+half-width in logits):
+
+| careless share | selector | rule | honest | careless |
+|---|---|---|---|---|
+| 0 | staged | fixed | 0.948 (0.870) / 2.34 | |
+| 0 | staged | upper-all | 0.955 (0.899) / 2.02 | |
+| 0 | staged | gate-half | 0.951 (0.895) / 2.33 | |
+| 50% | staged | fixed | 0.948 (0.872) / 2.34 | 0.896 (0.809) / 2.32 |
+| 50% | staged | upper-all | 0.927 (0.679) / 1.90 | 0.874 (0.664) / 1.89 |
+| 50% | staged | gate-half | 0.954 (0.915) / 2.33 | 0.898 (0.818) / 2.32 |
+| 50% | staged | oracle | 0.961 (0.944) / 2.14 | 0.896 (0.809) / 2.32 |
+| 50% | shipped | fixed | 0.970 (0.943) / 2.42 | 0.930 (0.868) / 2.35 |
+| 50% | shipped | upper-all | 0.937 (0.911) / 1.89 | 0.884 (0.807) / 1.86 |
+| 50% | shipped | gate-half | 0.969 (0.941) / 2.32 | 0.929 (0.866) / 2.31 |
+| 50% | shipped | oracle | 0.959 (0.934) / 2.08 | 0.930 (0.868) / 2.35 |
+
+At lapse 0.4 and half the panel careless, upper-all drops honest
+respondents to 0.900-0.903 (worst 0.679 staged), gate-half holds them at
+0.955-0.966, the oracle at 0.959-0.961. With every respondent careless at
+lapse 0.4, gate-half loses ground the fixed prior keeps (0.818 against
+0.865 under shipped, worst 0.683 against 0.770; staged worst 0.583 against
+0.697).
+
+What it shows:
+
+- **Careless respondents hurt honest ones through the pool**, not through
+  their own fit. A lapse looks like a smaller spread, so a panel half
+  careless pulls the upper end down to 0.61-1.43 and the honest people's
+  intervals with it (staged worst cell 0.679). The oracle, pooled over the
+  honest only, holds 0.957-0.961 with no cell under 0.93 at about 10-12%
+  less width than fixed. So the idea is sound; the missing part is the
+  detector.
+- **No detector from these answers is good enough.** The best AUC is 0.80
+  (shipped, lapse 0.4); under staged, the default, it is 0.58-0.69, because
+  staged's close pairs are near coin flips for everyone (the per-respondent
+  lapse section, 2026-11-11, saw the same).
+- **The rank gate is safe but buys almost nothing.** It never does worse
+  than fixed on a mixed panel, but its width is 2.22-2.39 against fixed's
+  2.34-2.42: 1-4% narrower, against 12-15% for upper-all and the oracle.
+  The more consistent half looks wider-spread than it is, so its upper end
+  sits near the fixed 2.0, and the other half keeps the fixed prior anyway.
+
+**Decision.** Not shipped. The pairwise intervals keep the fixed prior; the
+Survey row gets no stored upper end (it would only feed a gate that buys
+1-4%). A gate is worth revisiting only with a detector these answers do
+not give: anchor pairs (the 2026-11-11 anchor section measured the lapse
+estimate with them) or answer times (`msToAnswer`, "Answer times"), on a
+real survey's answers.
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth; careless
+means a constant lapse share from the first answer; 40 respondents per
+panel; one threshold (0.1) for the absolute gates and one cut (the median)
+for the rank gate.
