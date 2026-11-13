@@ -104,6 +104,35 @@ await page.click("#go");
   const l = fs.readFileSync(await d2.path(), "utf8");
   ok(l === fs.readFileSync(path.join(tmp, "l.lrc"), "utf8") && /^\[ti:/.test(l), `LRC download equals the CLI's --lrc (${l.split("\n").length - 1} lines)`);
 }
+// phrase markers: the MIDI download equals the CLI's --markers file for the same options, and the
+// stems ZIP holds the same WAVs as render-cli.mjs --stems on that MIDI, summing to the preview mix
+{
+  await page.selectOption("#markers", "1");
+  await page.click("#go");
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "stems-"));
+  execFileSync(process.execPath, [path.join(root, "cli.mjs"), path.join(root, "corpus/pange-lingua-full.gabc"), "--auto-final", "--fit", "8", "--stretch", "--genre", "edm", "--sections", "--intro", "2", "--outro", "2", "--a-cappella", "--key-lift", "2", "--markers", "-o", path.join(tmp, "cli.mid")]);
+  const [dm] = await Promise.all([page.waitForEvent("download"), page.click("#dlmid")]);
+  const mid = fs.readFileSync(await dm.path());
+  const cliMid = fs.readFileSync(path.join(tmp, "cli.mid"));
+  const phrases = (mid.toString("latin1").match(/\xff\x06[\s\S]Phrase \d+/g) || []).length;
+  ok(mid.equals(cliMid) && phrases >= 10, `MIDI with phrase markers equals the CLI's --markers (${mid.length} bytes, ${phrases} phrase markers)`);
+  const [dz] = await Promise.all([page.waitForEvent("download"), page.click("#dlstems")]);
+  fs.writeFileSync(path.join(tmp, "chant-stems.zip"), fs.readFileSync(await dz.path()));
+  execFileSync("unzip", ["-q", path.join(tmp, "chant-stems.zip"), "-d", path.join(tmp, "page")]);
+  fs.writeFileSync(path.join(tmp, "chant.mid"), mid);
+  execFileSync(process.execPath, [path.join(root, "render-cli.mjs"), path.join(tmp, "chant.mid"), "-o", path.join(tmp, "chant.wav"), "--stems", path.join(tmp, "cli")]);
+  const names = fs.readdirSync(path.join(tmp, "page")).sort();
+  const same = names.length >= 4 && names.join() === fs.readdirSync(path.join(tmp, "cli")).sort().join() && names.every((n) => fs.readFileSync(path.join(tmp, "page", n)).equals(fs.readFileSync(path.join(tmp, "cli", n))));
+  ok(same && dz.suggestedFilename() === "chant-stems.zip", `stems ZIP equals render-cli --stems (${names.join(", ")})`);
+  // the stems sum to the preview mix (16-bit rounding: each stem is off by at most half a step)
+  const [dw] = await Promise.all([page.waitForEvent("download"), page.click("#dlwav")]);
+  const mix = fs.readFileSync(await dw.path());
+  const stems = names.map((n) => fs.readFileSync(path.join(tmp, "page", n)));
+  let worst = 0;
+  for (let i = 44; i + 1 < mix.length; i += 2) worst = Math.max(worst, Math.abs(stems.reduce((s, b) => s + b.readInt16LE(i), 0) - mix.readInt16LE(i)));
+  ok(stems.every((b) => b.length === mix.length) && worst <= names.length, `stems sum to the preview mix within ${worst} of 32767 (rounding)`);
+  await page.selectOption("#markers", "");
+}
 // one-section piece: the options are left out with a note, not an error
 await page.selectOption("#piece", "Pange lingua");
 await page.waitForFunction(() => document.querySelector("#src").value.length < 2000);
