@@ -6,8 +6,8 @@ database. ``tools/lensfun_released_check.py`` does this for distortion; this scr
 each lens there with a ``pa`` calibration that ``lens_profiles.load_db`` reads from the same files and finds by the
 same name, it tries every calibration point (focal, aperture, distance), the geometric midpoint between each pair
 of apertures calibrated at one focal length and distance, and the midpoint between neighbouring calibrated focal
-lengths at each aperture and distance (both interpolated), on a 3:2 and a 4:3 frame, at the calibration's crop
-factor and at 1.5 times it. Lensfun's ``Modifier.apply_color_modification`` (vignetting only) runs on a float32
+lengths at each aperture and distance (both interpolated), twice: on a 3:2 frame at the calibration's crop factor
+and on a 4:3 frame at 1.5 times it. Lensfun's ``Modifier.apply_color_modification`` (vignetting only) runs on a float32
 image of ones, so each pixel comes back as lensfun's gain.
 
 **Two pixel units, one identity.** lensfun 0.3.4 (``modifier.cpp``, ``AddColorCallbackVignetting``) measures the
@@ -21,7 +21,8 @@ image of ones, so each pixel comes back as lensfun's gain.
 - **float32**: lensfun 0.3.4 against its own loop re-run in float32 here (``r2 += 2 ns x + ns^2`` along a row, as
   ``ModifyColor_DeVignetting_PA`` does), which should match to rounding, so any port gap left is ours, not float;
 - **shipped**: lensfun 0.3.4 against the FixVignetteRadial that ``build_vignette`` writes (master's unit and the
-  polynomial fit): what a user of the release would see change.
+  polynomial fit): what a user of the release would see change. The fit is pure Python, so it runs on one case
+  in ``--shipped-every`` (10), chosen by case number.
 
 Usage: python3 tools/lensfun_vignetting_released_check.py [--width 1200] [--json out.json]
 """
@@ -38,8 +39,10 @@ import sys
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
-from shootflow import dng_opcodes as do  # noqa: E402
-from shootflow import lens_profiles as lp  # noqa: E402
+from shootflow import dng_opcodes as do
+from shootflow import lens_profiles as lp
+
+SINGULAR = 100.0  # |1 / c| above this is near-singular (see the port loop)
 
 
 def released_scale(cs: lp.CalibrationSet, crop: float, w: int, h: int) -> float:
@@ -118,6 +121,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--width", type=int, default=1200)
     ap.add_argument("--rows", type=int, default=7, help="rows compared per case (evenly spaced, both edges)")
+    ap.add_argument("--shipped-every", type=int, default=10, help="fit the FixVignetteRadial on one case in N")
     ap.add_argument("--json")
     args = ap.parse_args(argv)
 
@@ -129,6 +133,8 @@ def main(argv=None) -> int:
         load_bundled=False,
     )
     W = args.width
+    case_no = 0
+    black_wrong = 0
     rows, skipped, lensfun_none, ours_none, refused, f32_rows = [], 0, 0, 0, 0, 0
     worst_f32 = 0.0
     for L in ldb.lenses:
@@ -140,69 +146,110 @@ def main(argv=None) -> int:
         cs0 = next((c for c in lens.calibrations if c.vignetting), None)
         if cs0 is None:
             continue
-        for aspect in (1.5, 4 / 3):
+        for aspect, crop in ((1.5, cs0.crop), (4 / 3, cs0.crop * 1.5)):
             H = round(W / aspect)
             ys = np.linspace(0, H - 1, args.rows).round().astype(int)
             xs = np.arange(W, dtype=np.float64)
-            for crop in (cs0.crop, cs0.crop * 1.5):
-                for f, a, d, interp in points(cs0):
-                    mod = lensfunpy.Modifier(L, crop, W, H)
-                    mod.initialize(f, a, d, scale=1.0, pixel_format=np.float32, flags=lensfunpy.ModifyFlags.VIGNETTING)
-                    img = np.ones((H, W, 3), np.float32)
-                    applied = mod.apply_color_modification(img)
-                    found = lp.interpolate_vignetting(lens, crop, f, a, d)
-                    if not applied or found is None:
-                        if bool(applied) != (found is not None):
-                            print(f"  MISMATCH lensfun applied={applied} ours={found is not None}: {L.model} {f:g} mm f/{a:g} {d:g} m")
-                        lensfun_none += not applied
-                        ours_none += found is None
-                        continue
-                    vig, cs = found
-                    s3 = released_scale(cs, crop, W, H)
-                    port = shipped = 0.0
+            for f, a, d, interp in points(cs0):
+                case_no += 1
+                mod = lensfunpy.Modifier(L, crop, W, H)
+                mod.initialize(f, a, d, scale=1.0, pixel_format=np.float32, flags=lensfunpy.ModifyFlags.VIGNETTING)
+                img = np.ones((H, W, 3), np.float32)
+                applied = mod.apply_color_modification(img)
+                found = lp.interpolate_vignetting(lens, crop, f, a, d)
+                if not applied or found is None:
+                    if bool(applied) != (found is not None):
+                        print(f"  MISMATCH lensfun applied={applied} ours={found is not None}: {L.model} {f:g} mm f/{a:g} {d:g} m")
+                    lensfun_none += not applied
+                    ours_none += found is None
+                    continue
+                vig, cs = found
+                s3 = released_scale(cs, crop, W, H)
+                port = shipped = 0.0
+                dark = 0  # pixels where c <= 0: lensfun clamps them to black, build_vignette refuses the case
+                vc = None
+                if case_no % args.shipped_every == 0:  # the fit is pure Python: a deterministic sample
                     try:
                         vc = lp.build_vignette(lens, f, crop, W, H, a, d)
                     except lp.LensProfileError:
-                        vc = None
                         refused += 1
-                    for y in ys:
-                        lf = img[y, :, 0].astype(np.float64)
-                        ex = exact_gain(vig.terms, s3, W, H, xs, np.full(W, float(y)))
-                        port = max(port, float(np.max(np.abs(lf / ex - 1.0))))
-                        if vc is not None:
-                            g = opcode_gain(vc.opcode, W, H, xs, float(y))
-                            shipped = max(shipped, float(np.max(np.abs(lf / g - 1.0))))
-                    if f32_rows < 400:  # the float32 re-run is slow in Python: the first 400 rows
-                        y = int(ys[0])
-                        mine32 = float32_row(vig.terms, s3, W, H, y)
-                        worst_f32 = max(worst_f32, float(np.max(np.abs(img[y, :, 0].astype(np.float64) / mine32 - 1.0))))
-                        f32_rows += 1
-                    corner = float(img[0, 0, 0])
-                    rows.append(
-                        {
-                            "lens": L.model,
-                            "focal": f,
-                            "aperture": a,
-                            "distance": d,
-                            "interpolated": interp,
-                            "crop": crop,
-                            "aspect": aspect,
-                            "corner_gain": corner,
-                            "port": port,
-                            "shipped": shipped if vc is not None else None,
-                        }
-                    )
+                for y in ys:
+                    lf = img[y, :, 0].astype(np.float64)
+                    ex = exact_gain(vig.terms, s3, W, H, xs, np.full(W, float(y)))
+                    # |c| under 0.01 (a gain over 100, or a sign change): float32 rounding in lensfun's running r^2
+                    # decides those pixels, not the formula; build_vignette refuses such a calibration.
+                    ok = (ex > 0) & (ex <= SINGULAR)
+                    black = ex < -SINGULAR  # c < -0.01: lensfun clamps the negative pixel to 0
+                    dark += int(np.count_nonzero(~ok))
+                    black_wrong += int(np.count_nonzero(lf[black] != 0.0))
+                    if np.any(ok):
+                        port = max(port, float(np.max(np.abs(lf[ok] / ex[ok] - 1.0))))
+                    if vc is not None:
+                        g = opcode_gain(vc.opcode, W, H, xs, float(y))
+                        shipped = max(shipped, float(np.max(np.abs(lf / g - 1.0))))
+                if f32_rows < 400 and not dark:  # the float32 re-run is slow in Python: the first 400 rows
+                    y = int(ys[0])
+                    mine32 = float32_row(vig.terms, s3, W, H, y)
+                    worst_f32 = max(worst_f32, float(np.max(np.abs(img[y, :, 0].astype(np.float64) / mine32 - 1.0))))
+                    f32_rows += 1
+                ours_refuses = None
+                if dark:  # would build_vignette correct this shot at all?
+                    try:
+                        lp.build_vignette(lens, f, crop, W, H, a, d)
+                        ours_refuses = False
+                    except lp.LensProfileError:
+                        ours_refuses = True
+                corner = float(img[0, 0, 0])
+                # Master's unit against the release's at the corner, here and on a 6000 px frame (no lensfun
+                # call needed: both are 1 / c, only the scale differs).
+                conv = {}
+                for cw in (W, 6000):
+                    ch = round(cw / aspect)
+                    z = np.array([0.0])
+                    gm = exact_gain(vig.terms, lp.vignetting_scale(cs, crop, cw, ch), cw, ch, z, z)[0]
+                    g3 = exact_gain(vig.terms, released_scale(cs, crop, cw, ch), cw, ch, z, z)[0]
+                    conv[cw] = abs(gm / g3 - 1.0) if gm > 0 and g3 > 0 else None
+                rows.append(
+                    {
+                        "lens": L.model,
+                        "focal": f,
+                        "aperture": a,
+                        "distance": d,
+                        "interpolated": interp,
+                        "crop": crop,
+                        "aspect": aspect,
+                        "corner_gain": corner,
+                        "port": port,
+                        "shipped": shipped if vc is not None else None,
+                        "fit_error": vc.max_error if vc is not None else None,
+                        "dark_px": dark,
+                        "ours_refuses": ours_refuses,
+                        "convention": conv[W],
+                        "convention_6000": conv[6000],
+                        "corner_gain_ours": float(exact_gain(vig.terms, s3, W, H, np.array([0.0]), np.array([0.0]))[0]),
+                    }
+                )
     print(
         f"cases: {len(rows)} over {len({r['lens'] for r in rows})} lenses, frame {W} px wide "
         f"({skipped} lenses not matched one to one; lensfun applied none in {lensfun_none}, ours in {ours_none}; "
         f"{refused} refused by build_vignette)"
     )
     print(f"  interpolated: {sum(r['interpolated'] for r in rows)}; corner gain median {np.median([r['corner_gain'] for r in rows]):.3f}")
-    print("  port (our terms and units, float64, vs lensfun 0.3.4): " + pcts([r["port"] for r in rows]))
+    clean = [r for r in rows if not r["dark_px"]]
+    dk = [r for r in rows if r["dark_px"]]
+    print(f"  {len(dk)} cases over {len({r['lens'] for r in dk})} lenses have pixels where |c| < 0.01 or c < 0 (gain over "
+          f"100 or negative): build_vignette refuses {sum(1 for r in dk if r['ours_refuses'])} of them; where c < -0.01 "
+          f"lensfun returned 0 at all but {black_wrong} pixels")
+    print("  port (our terms and units, float64, vs lensfun 0.3.4): " + pcts([r["port"] for r in clean]))
+    for cw, key in ((W, "convention"), (6000, "convention_6000")):
+        cv = [r[key] for r in clean if r[key] is not None]
+        print(f"  master's pixel unit vs the release's, corner, {cw} px: " + pcts(cv))
     print(f"  float32 re-run vs lensfun 0.3.4, {f32_rows} rows: largest {100 * worst_f32:.3g}%")
     sh = [r["shipped"] for r in rows if r["shipped"] is not None]
     print("  shipped FixVignetteRadial vs lensfun 0.3.4:           " + pcts(sh))
-    for r in sorted(rows, key=lambda r: -r["port"])[:5]:
+    fe = [r["fit_error"] for r in rows if r["fit_error"] is not None]
+    print("  of which the fit's own error (vs master's 1 / c):    " + pcts(fe))
+    for r in sorted(clean, key=lambda r: -r["port"])[:5]:
         print(f"  port {100 * r['port']:.4f}%  {r['lens']} @ {r['focal']:g} mm f/{r['aperture']:g} {r['distance']:g} m crop {r['crop']:.3g}")
     for r in sorted((r for r in rows if r["shipped"] is not None), key=lambda r: -r["shipped"])[:5]:
         print(f"  shipped {100 * r['shipped']:.3f}%  {r['lens']} @ {r['focal']:g} mm f/{r['aperture']:g} {r['distance']:g} m crop {r['crop']:.3g}")
