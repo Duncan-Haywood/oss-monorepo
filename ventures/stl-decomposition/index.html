@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23245d73'/%3E%3Ctext%20x='16'%20y='23'%20font-size='15'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ESTL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>STL Decomposition Online — trend, seasonality and remainder of your time series, free</title>
+  <meta name="description" content="Free online STL decomposition (seasonal-trend decomposition by loess, Cleveland et al. 1990). Paste a CSV of dates and values and see the trend, the seasonal pattern, the remainder, a seasonally adjusted series, the strength of trend and seasonality and the unusual points. Robust mode for outliers. Checked against statsmodels. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="STL decomposition in your browser: trend, seasonality and remainder">
+  <meta property="og:description" content="Is it the season or the trend? Split monthly sales, daily traffic or hourly load into trend, seasonal and remainder with STL, and get the seasonally adjusted series.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "STL Decomposition: trend, seasonality and remainder", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a CSV with a date column and a value column and split the series into trend, seasonal and remainder with STL (Cleveland, Cleveland, McRae and Terpenning 1990). Shows the seasonally adjusted series, the strength of trend and seasonality, the seasonal profile and the points that stand out. The period is inferred from the dates. Robust mode down-weights outliers. Runs in your browser.", "featureList": "STL decomposition online, seasonal decomposition of time series, seasonal adjustment, deseasonalize data, trend extraction, seasonal profile, strength of seasonality, strength of trend, robust STL, loess smoothing, outlier detection from the remainder, CSV download", "citation": ["https://www.scb.se/contentassets/ca21efb41fee47d293bbee5bf7be7fb3/stl-a-seasonal-trend-decomposition-procedure-based-on-loess.pdf", "https://doi.org/10.1080/01621459.1979.10481038", "https://doi.org/10.1007/s10618-005-0039-x"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does STL decomposition do?", "acceptedAnswer": {"@type": "Answer", "text": "It splits a series into three parts that add back up to it: a slowly moving trend, a seasonal pattern that repeats every cycle (every year for monthly data, every week for daily data) and is allowed to change slowly, and a remainder, what neither explains. STL stands for Seasonal-Trend decomposition using Loess."}}, {"@type": "Question", "name": "How do I seasonally adjust my data?", "acceptedAnswer": {"@type": "Answer", "text": "Subtract the seasonal component from each value. The tool does this for you: the seasonally adjusted series is trend plus remainder, so a month that is up only because it is always up at that time of year no longer looks like growth."}}, {"@type": "Question", "name": "What period should I use?", "acceptedAnswer": {"@type": "Answer", "text": "The number of steps in one cycle: 12 for monthly data with a yearly cycle, 4 for quarterly, 7 for daily data with a weekly cycle, 24 for hourly data with a daily cycle. With a date column the tool infers it; type another number to look for a different cycle. You need at least two full cycles of data, and three or more give a steadier result."}}, {"@type": "Question", "name": "What do the seasonal and trend windows change?", "acceptedAnswer": {"@type": "Answer", "text": "The seasonal window is how many cycles each point of the seasonal pattern is smoothed over: 7 lets the pattern change from year to year, a large number such as 35 makes it nearly fixed. The trend window is how many steps the trend is smoothed over: smaller follows turns faster, larger is smoother. Both must be odd."}}, {"@type": "Question", "name": "When should I use robust mode?", "acceptedAnswer": {"@type": "Answer", "text": "When the series has one-off spikes or drops, such as a promotion, an outage or a data error. Robust mode runs 15 extra passes that give such points less weight, so they show up in the remainder instead of bending the trend and the seasonal pattern."}}, {"@type": "Question", "name": "What is the strength of seasonality?", "acceptedAnswer": {"@type": "Answer", "text": "A number from 0 to 1, from Wang, Smith and Hyndman (2006): one minus the variance of the remainder divided by the variance of seasonal plus remainder. Near 1 the seasonal pattern dominates the noise; below about 0.4 there is little seasonality to speak of. The strength of trend is the same with the trend in place of the seasonal."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The series is read and decomposed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17262d; background: #f1f5f6; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5e75; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #163f4f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #163f4f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5a61; }
+    .card { background: #fff; border: 1px solid #d3dfe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #163f4f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6d858e; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input[type="checkbox"] { width: auto; margin-right: 8px; }
+    label.check { display: flex; align-items: center; font-weight: 600; margin-top: 34px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } label.check { margin-top: 14px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5e75; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3eef1; color: #163f4f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eef0; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5a61; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dfe3; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #6d858e; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #f1f7f8; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; color: #163f4f; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #4a5a61; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    pre { background: #f3f7f8; border: 1px solid #dce6e9; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">STL · SEASONAL-TREND DECOMPOSITION BY LOESS · SEASONAL ADJUSTMENT · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is it the season, or the trend?</h1>
+    <p>Paste a series with dates: monthly sales, weekly sign-ups, daily website visits, hourly electricity load. <strong>STL</strong> (Cleveland, Cleveland, McRae &amp; Terpenning 1990) splits it into a <strong>trend</strong>, a <strong>seasonal pattern</strong> that repeats every cycle and may change slowly, and a <strong>remainder</strong>. You get the seasonally adjusted series, how strong the trend and the seasonality are, which part of the cycle is high and low, and the points that stand out from both. The period is read from your dates.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your series</h2>
+    <label for="csv">A CSV with a header row: a date column and a value column (for example <code>month,sales</code>), or a list of numbers</label>
+    <textarea id="csv" spellcheck="false" placeholder="month,sales&#10;2023-01,1200&#10;2023-02,1350&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: Mauna Loa CO₂, monthly, 1974 to 2026 (NOAA)</button>
+    <p class="note" id="data-status">Rows are sorted by date; a missing value inside the series is filled by a straight line between its neighbours.</p>
+
+    <div class="grid">
+      <div><label for="column">Value column</label><select id="column"></select></div>
+      <div><label for="date-col">Date column</label><select id="date-col"></select></div>
+      <div><label for="period">Period (steps per cycle; blank = from the dates)</label><input id="period" inputmode="numeric" placeholder="auto"></div>
+      <div><label for="seasonal">Seasonal window (odd; larger = steadier pattern)</label><select id="seasonal"><option value="7" selected>7 (default)</option><option value="11">11</option><option value="13">13</option><option value="21">21</option><option value="35">35</option><option value="101">101 (nearly fixed)</option></select></div>
+      <div><label for="trend">Trend window (odd; blank = default)</label><input id="trend" inputmode="numeric" placeholder="auto"></div>
+      <div><label class="check" for="robust"><input id="robust" type="checkbox">Robust to outliers</label></div>
+    </div>
+    <button type="button" id="analyze">Decompose</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div class="stats" id="stats"></div>
+    <div id="warnings"></div>
+    <div id="panels" role="img" aria-label="Four stacked panels sharing a time axis: the observed series with its trend, the seasonal component, the remainder with unusual points marked, and the seasonally adjusted series"></div>
+    <h3>Seasonal profile</h3>
+    <p class="note">How far above or below the trend each position in the cycle sits: bars for the latest cycle, dots for the average over every cycle. Where they differ, the pattern has shifted.</p>
+    <div id="profile" role="img" aria-label="Bar chart of the seasonal component for each position in the latest cycle, with the all-cycle average as dots"></div>
+    <h3>Points that stand out</h3>
+    <div class="scroll">
+      <table id="unusual-table">
+        <thead><tr><th>Date</th><th class="n">Observed</th><th class="n">Trend + season</th><th class="n">Remainder</th><th class="n">Robust z</th><th class="n">Weight</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note" id="unusual-note"></p>
+    <p class="note" id="settings-line"></p>
+    <button type="button" class="secondary" id="download">Download every point (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>STL (Cleveland, Cleveland, McRae &amp; Terpenning 1990) writes the series as <code>Y = T + S + R</code> and finds T and S by alternating two smoothers, each a <strong>loess</strong> fit (locally weighted linear regression with tricube weights; Cleveland 1979). In each pass of the inner loop it takes the trend off; smooths each <em>cycle-subseries</em> (every January together, every February together, ...) with a loess window of <em>n<sub>s</sub></em> cycles, extending it one cycle past each end; removes any slow drift that leaked into that pattern with moving averages of length <em>n<sub>p</sub></em>, <em>n<sub>p</sub></em> and 3 followed by a loess of window <em>n<sub>l</sub></em>; and smooths what is left after taking the seasonal off with a loess of window <em>n<sub>t</sub></em> to get the new trend.</p>
+    <p>Robust mode adds the outer loop: after each fit, every point gets a bisquare weight <code>(1 - (|R| / h)²)²</code> with <code>h = 6 × median |R|</code>, so points far from trend plus season count for less (or nothing) in the next fit. The defaults follow statsmodels: <em>n<sub>s</sub></em> = 7, <em>n<sub>t</sub></em> the smallest odd integer at or above <code>1.5 n_p / (1 - 1.5 / n_s)</code>, <em>n<sub>l</sub></em> the smallest odd integer above the period, 5 inner passes, or 2 inner and 15 outer when robust.</p>
+    <p>The <strong>strength of seasonality</strong> is <code>max(0, 1 - Var(R) / Var(S + R))</code> and the <strong>strength of trend</strong> <code>max(0, 1 - Var(R) / Var(T + R))</code> (Wang, Smith &amp; Hyndman 2006, in the form of Hyndman &amp; Athanasopoulos, <em>Forecasting: Principles and Practice</em>, section 4.3). A point is listed as standing out when its remainder is at least 3.5 robust standard deviations (1.4826 × the median absolute deviation) from the median remainder.</p>
+    <p>Verified by tests in the source against <strong>statsmodels 0.15.0</strong>'s <code>STL</code>: trend, seasonal, remainder and robustness weights agree to 1e-9 or better on nine cases (the CO₂ example with the default, robust, wide-window and degree-0-with-jumps settings; daily data with planted outliers, plain and robust; hourly data with a 24-step period; a quarterly series with even windows skipped by jumps; and a short series whose seasonal window is longer than each subseries).</p>
+    <h3>BibTeX</h3>
+    <pre>@article{cleveland1990stl,
+  author  = {Cleveland, Robert B. and Cleveland, William S. and McRae, Jean E. and Terpenning, Irma},
+  title   = {{STL}: A Seasonal-Trend Decomposition Procedure Based on Loess},
+  journal = {Journal of Official Statistics},
+  volume  = {6}, number = {1}, pages = {3--73}, year = {1990}
+}
+@article{cleveland1979robust,
+  author  = {Cleveland, William S.},
+  title   = {Robust Locally Weighted Regression and Smoothing Scatterplots},
+  journal = {Journal of the American Statistical Association},
+  volume  = {74}, number = {368}, pages = {829--836}, year = {1979},
+  doi     = {10.1080/01621459.1979.10481038}
+}
+@article{wang2006characteristic,
+  author  = {Wang, Xiaozhe and Smith, Kate and Hyndman, Rob},
+  title   = {Characteristic-Based Clustering for Time Series Data},
+  journal = {Data Mining and Knowledge Discovery},
+  volume  = {13}, number = {3}, pages = {335--364}, year = {2006},
+  doi     = {10.1007/s10618-005-0039-x}
+}</pre>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>Evenly spaced steps.</strong> STL treats rows as equally spaced. Missing dates are not invented: add them as rows with an empty value and they are interpolated; otherwise a gap shifts the cycle.</li>
+      <li><strong>One whole-number period.</strong> A year of weeks is 52.18, and daily data with both a weekly and a yearly cycle has two seasonalities; STL fits one. Run it twice, or remove one cycle first.</li>
+      <li><strong>Additive.</strong> The seasonal swing is in the same units as the data. If the swing grows with the level (sales that double and whose December peak doubles too), decompose the logarithm of the values instead.</li>
+      <li><strong>Not a forecast.</strong> The trend near the ends uses only one side of the window and moves as new data arrive.</li>
+      <li>Not modelled: the paper's optional post-smoothing of the seasonal component, calendar effects (trading days, moving holidays such as Easter), and the official X-13ARIMA-SEATS adjustment that statistics agencies publish.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What does STL decomposition do?</h3>
+    <p>It splits a series into three parts that add back up to it: a slowly moving trend, a seasonal pattern that repeats every cycle (every year for monthly data, every week for daily data) and is allowed to change slowly, and a remainder, what neither explains. STL stands for Seasonal-Trend decomposition using Loess.</p>
+    <h3>How do I seasonally adjust my data?</h3>
+    <p>Subtract the seasonal component from each value. The tool does this for you: the seasonally adjusted series is trend plus remainder, so a month that is up only because it is always up at that time of year no longer looks like growth.</p>
+    <h3>What period should I use?</h3>
+    <p>The number of steps in one cycle: 12 for monthly data with a yearly cycle, 4 for quarterly, 7 for daily data with a weekly cycle, 24 for hourly data with a daily cycle. With a date column the tool infers it; type another number to look for a different cycle. You need at least two full cycles of data, and three or more give a steadier result.</p>
+    <h3>What do the seasonal and trend windows change?</h3>
+    <p>The seasonal window is how many cycles each point of the seasonal pattern is smoothed over: 7 lets the pattern change from year to year, a large number such as 35 makes it nearly fixed. The trend window is how many steps the trend is smoothed over: smaller follows turns faster, larger is smoother. Both must be odd.</p>
+    <h3>When should I use robust mode?</h3>
+    <p>When the series has one-off spikes or drops, such as a promotion, an outage or a data error. Robust mode runs 15 extra passes that give such points less weight, so they show up in the remainder instead of bending the trend and the seasonal pattern.</p>
+    <h3>What is the strength of seasonality?</h3>
+    <p>A number from 0 to 1, from Wang, Smith and Hyndman (2006): one minus the variance of the remainder divided by the variance of seasonal plus remainder. Near 1 the seasonal pattern dominates the noise; below about 0.4 there is little seasonality to speak of. The strength of trend is the same with the trend in place of the seasonal.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The series is read and decomposed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">Example data: monthly mean CO₂ at Mauna Loa Observatory, Hawaii, from the NOAA Global Monitoring Laboratory file <code>co2_mm_mlo.csv</code> (<a href="https://gml.noaa.gov/ccgg/trends/" rel="noopener">gml.noaa.gov/ccgg/trends</a>), May 1974 to September 2026, retrieved 2026-11-13. The NOAA file's own deseasonalized column is kept beside it for comparison; NOAA computes it by a different method.</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter; they do not guarantee what will happen next. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, NOAA, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs sales.csv --column sales --robust</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stl-decomposition" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> gives intervals with guaranteed coverage, the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns and anomalies, <a href="../survival-analysis/">survival analysis</a> estimates time to an event, <a href="../fdr-multiple-testing/">multiple testing correction</a> says which of many results still stand, and <a href="../synthetic-control/">synthetic control</a> asks whether an intervention changed one unit's outcome.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, parseDate, fmt } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    let last = null;
+
+    function refreshColumns() {
+      const p = parseCsv($("#csv").value);
+      if (p.error) { $("#column").innerHTML = ""; $("#date-col").innerHTML = ""; $("#data-status").textContent = $("#csv").value.trim() ? p.error : "Paste a series or load the example."; return; }
+      const prev = { v: $("#column").value, d: $("#date-col").value };
+      const numeric = p.columns.map((_, j) => p.rows.every((r) => r[j] === "" || Number.isFinite(Number(String(r[j]).replace(/[$,%]/g, "")))));
+      const dates = p.columns.map((_, j) => p.rows.filter((r) => r[j] !== "").every((r) => parseDate(r[j]) !== null));
+      $("#column").innerHTML = p.columns.map((c, j) => `<option value="${esc(c)}"${numeric[j] ? "" : " disabled"}>${esc(c)}${numeric[j] ? "" : " (not numeric)"}</option>`).join("");
+      $("#date-col").innerHTML = `<option value="">None (row order)</option>` + p.columns.map((c, j) => `<option value="${esc(c)}"${dates[j] ? "" : " disabled"}>${esc(c)}${dates[j] ? "" : " (not dates)"}</option>`).join("");
+      $("#date-col").value = p.columns.includes(prev.d) ? prev.d : p.columns.find((c, j) => dates[j]) || "";
+      $("#column").value = p.columns.includes(prev.v) ? prev.v : p.columns.find((c, j) => numeric[j] && !dates[j]) || "";
+      $("#data-status").textContent = p.list ? `${p.rows.length} values (a bare list: enter the period).` : `${p.rows.length} rows, ${p.columns.length} columns.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+
+    function inputs() {
+      return {
+        csv: $("#csv").value,
+        column: $("#column").value || undefined,
+        dateColumn: $("#date-col").value,
+        period: $("#period").value.trim() || undefined,
+        seasonal: Number($("#seasonal").value),
+        trend: $("#trend").value.trim() || undefined,
+        robust: $("#robust").checked,
+      };
+    }
+
+    function panels(r) {
+      const W = 920, L = 64, R = 12, PH = 120, GAP = 26, B = 34, n = r.n;
+      const series = [
+        { title: "Observed (grey) and trend (blue)", lines: [[r.observed, "#9aa9ae", 1.2], [r.trend, "#1f5e75", 2]] },
+        { title: "Seasonal", lines: [[r.seasonal, "#2f7d4f", 1.4]], zero: true },
+        { title: "Remainder (red dots: points that stand out)", lines: [[r.resid, "#7a8a90", 1]], zero: true, marks: r.unusual },
+        { title: "Seasonally adjusted (observed minus seasonal)", lines: [[r.adjusted, "#163f4f", 1.4]] },
+      ];
+      const H = series.length * (PH + GAP) + B;
+      const sx = (i) => L + (n === 1 ? 0 : (i / (n - 1)) * (W - L - R));
+      let out = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      series.forEach((s, k) => {
+        const top = k * (PH + GAP) + 18;
+        const all = s.lines.flatMap((l) => l[0]);
+        let lo = Math.min(...all), hi = Math.max(...all);
+        if (s.zero) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+        if (hi === lo) { hi += 1; lo -= 1; }
+        const sy = (v) => top + (1 - (v - lo) / (hi - lo)) * PH;
+        out += `<text x="${L}" y="${top - 5}" font-size="12" font-weight="600" fill="#163f4f">${esc(s.title)}</text>`;
+        out += `<line x1="${L}" x2="${W - R}" y1="${top + PH}" y2="${top + PH}" stroke="#e1e9ec"/>`;
+        for (const v of [lo, hi]) out += `<text x="${L - 6}" y="${sy(v) + 4}" text-anchor="end" font-size="11" fill="#4a5a61">${esc(fmt(v))}</text>`;
+        if (s.zero) out += `<line x1="${L}" x2="${W - R}" y1="${sy(0)}" y2="${sy(0)}" stroke="#c4d2d6" stroke-dasharray="4 3"/>`;
+        for (const [arr, color, width] of s.lines) {
+          const step = Math.max(1, Math.floor(n / 1500));
+          let d = "";
+          for (let i = 0; i < n; i += step) d += `${i ? "L" : "M"}${sx(i).toFixed(1)} ${sy(arr[i]).toFixed(1)}`;
+          out += `<path d="${d}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linejoin="round"/>`;
+        }
+        for (const u of s.marks || []) out += `<circle cx="${sx(u.index).toFixed(1)}" cy="${sy(u.resid).toFixed(1)}" r="3.5" fill="#b42318"><title>${esc(u.date)}: remainder ${esc(fmt(u.resid))}</title></circle>`;
+      });
+      for (const i of [0, Math.floor((n - 1) / 2), n - 1]) out += `<text x="${sx(i).toFixed(1)}" y="${H - 10}" text-anchor="${i === 0 ? "start" : i === n - 1 ? "end" : "middle"}" font-size="11" fill="#4a5a61">${esc(r.dates[i])}</text>`;
+      return out + "</svg>";
+    }
+
+    function profileChart(r) {
+      const W = 920, H = 240, L = 64, R = 12, T = 14, B = 40, p = r.profile, k = p.length;
+      const vals = p.flatMap((s) => [s.latest, s.average]);
+      const lo = Math.min(0, ...vals), hi = Math.max(0, ...vals) || 1;
+      const bw = (W - L - R) / k;
+      const sy = (v) => T + (1 - (v - lo) / (hi - lo || 1)) * (H - T - B);
+      let out = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      out += `<line x1="${L}" x2="${W - R}" y1="${sy(0)}" y2="${sy(0)}" stroke="#9aa9ae"/>`;
+      for (const v of [lo, hi]) out += `<text x="${L - 6}" y="${sy(v) + 4}" text-anchor="end" font-size="11" fill="#4a5a61">${esc(fmt(v))}</text>`;
+      const every = Math.ceil(k / 24);
+      p.forEach((s, i) => {
+        const x = L + i * bw;
+        const y0 = sy(0), y1 = sy(s.latest);
+        out += `<rect x="${(x + bw * 0.15).toFixed(1)}" y="${Math.min(y0, y1).toFixed(1)}" width="${(bw * 0.7).toFixed(1)}" height="${Math.abs(y1 - y0).toFixed(1)}" fill="${s.latest >= 0 ? "#2f7d4f" : "#b4541b"}" opacity=".8"><title>${esc(s.label)}: ${esc(fmt(s.latest))} (average ${esc(fmt(s.average))})</title></rect>`;
+        out += `<circle cx="${(x + bw / 2).toFixed(1)}" cy="${sy(s.average).toFixed(1)}" r="3" fill="#163f4f"/>`;
+        if (i % every === 0) out += `<text x="${(x + bw / 2).toFixed(1)}" y="${H - 22}" text-anchor="middle" font-size="11" fill="#4a5a61">${esc(s.label)}</text>`;
+      });
+      out += `<text x="${(L + W - R) / 2}" y="${H - 5}" text-anchor="middle" font-size="12" fill="#4a5a61">bars: latest cycle · dots: average over all cycles</text>`;
+      return out + "</svg>";
+    }
+
+    function show(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      const stat = (v, l) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`;
+      $("#stats").innerHTML = stat(r.strength.seasonal.toFixed(2), "strength of seasonality (0 to 1)") + stat(r.strength.trend.toFixed(2), "strength of trend (0 to 1)") + stat(fmt(r.amplitude), `seasonal swing, latest cycle (${r.trough.label} to ${r.peak.label})`) + stat(String(r.unusual.length), "points that stand out");
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      $("#panels").innerHTML = panels(r);
+      $("#profile").innerHTML = profileChart(r);
+      const rows = r.unusual.slice(0, 50);
+      $("#unusual-table tbody").innerHTML = rows.length
+        ? rows.map((u) => `<tr><td>${esc(u.date)}</td><td class="n">${esc(fmt(u.value))}</td><td class="n">${esc(fmt(u.expected))}</td><td class="n">${esc(fmt(u.resid))}</td><td class="n">${u.z.toFixed(1)}</td><td class="n">${u.weight.toFixed(2)}</td></tr>`).join("")
+        : `<tr><td colspan="6">None at ${r.outlierZ} robust standard deviations.</td></tr>`;
+      $("#unusual-note").textContent = r.unusual.length > 50 ? `Showing the 50 largest of ${r.unusual.length}; the CSV has every point.` : "Weight is the robustness weight used in the final fit (1 unless robust mode is on; 0 means the point was ignored).";
+      const p = r.params;
+      $("#settings-line").textContent = `Period ${r.period} (${r.periodSource}). Windows: seasonal ${p.seasonal}, trend ${p.trend}, low-pass ${p.lowPass}; ${p.robust ? "robust" : "not robust"}, ${p.innerIter} inner and ${p.outerIter} outer passes. Value column: ${r.column}${r.dateColumn ? `; dates: ${r.dateColumn}` : ""}.`;
+    }
+
+    function run() {
+      const r = analyze(inputs());
+      if (r.error) { $("#status").textContent = r.error; $("#results").hidden = true; last = null; return; }
+      $("#status").textContent = "";
+      last = r;
+      show(r);
+      record("analysis_run");
+    }
+
+    $("#analyze").addEventListener("click", run);
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      $("#column").innerHTML = "";
+      refreshColumns();
+      $("#column").value = "co2_ppm";
+      record("example_loaded");
+      run();
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (s) => (/[",\n]/.test(s) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+      const filled = new Set(last.filled);
+      const lines = ["date,observed,trend,seasonal,remainder,seasonally_adjusted,robustness_weight,interpolated"];
+      for (let i = 0; i < last.n; i++) lines.push([q(last.dates[i]), last.observed[i], last.trend[i], last.seasonal[i], last.resid[i], last.adjusted[i], last.weights[i], filled.has(i) ? 1 : 0].join(","));
+      const blob = new Blob([lines.join("\n") + "\n"], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "stl-decomposition.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

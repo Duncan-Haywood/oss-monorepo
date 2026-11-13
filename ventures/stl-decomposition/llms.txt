@@ -1,0 +1,26 @@
+# STL decomposition: trend, seasonality and remainder of a time series
+
+> Free online STL decomposition (Seasonal-Trend decomposition using Loess, Cleveland, Cleveland, McRae & Terpenning 1990). Paste a CSV with a date column and a value column and get the trend, the seasonal component, the remainder, the seasonally adjusted series, the strength of trend and of seasonality (Wang, Smith & Hyndman 2006), the seasonal profile by month, weekday or hour, and the points that stand out. The period is inferred from the dates; robust mode down-weights outliers. Checked against statsmodels 0.15.0. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/stl-decomposition/)
+
+## Use it from code
+
+- `node cli.mjs sales.csv --column sales [--date month] [--period 12] [--seasonal 7] [--trend 23] [--robust] [--csv|--json]`
+- `node platform/agents/tools.mjs call stl-decomposition analyze --input '{"values":[...],"period":7}'`
+- `node platform/agents/tools.mjs call stl-decomposition analyze --input '{"csv":"month,sales\n2023-01,120\n...","robust":true}'`
+
+## What it answers
+
+- Is this month high because of the season or because of real growth? (the seasonally adjusted series)
+- How strong is the seasonal pattern, and which months, weekdays or hours are high and low?
+- Has the seasonal pattern changed between the first cycle and the latest?
+- Which points stand out from both trend and season (promotions, outages, data errors)?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stl-decomposition): MIT licensed.
