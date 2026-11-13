@@ -103,6 +103,12 @@ def contrasts(rows_by_cfg, classes):
     for k in classes[1:]:
         for m in ("transfer", "own_boosted"):
             out[f"{m}:{k}-{a}"] = {t: rows_by_cfg[k]["loss"][m][t] - rows_by_cfg[a]["loss"][m][t] for t in TAUS}
+    for k in classes:  # session 82: fold targets of one threshold compared directly (na vs other, drop vs na)
+        for v, w in (("cascade2_minsupna", "cascade2_minsup"), ("cascade2_minsupdrop", "cascade2_minsupna")):
+            b = k.replace(v, w)
+            if k.startswith(v) and b in classes and b != a:
+                for m in ("transfer", "own_boosted"):
+                    out[f"{m}:{k}-{b}"] = {t: rows_by_cfg[k]["loss"][m][t] - rows_by_cfg[b]["loss"][m][t] for t in TAUS}
     return out
 
 
@@ -125,20 +131,24 @@ def fit(data_dir, held, test_year, seeds, classes):
               and os.path.exists(os.path.join(data_dir, f"{c}.csv"))]
     R, FOLDS, done, cache = {}, {}, {}, {}
     for k in classes:
-        ms = transfer.minsup_k(k)
+        spec = transfer.minsup_spec(k)
+        ms, into = spec if spec else (None, None)
         base = "cascade2" if ms is not None else k
         if base not in cache:
             cache[base] = {c: transfer.frame(os.path.join(data_dir, f"{c}.csv"), "i2c", base)[0] for c in cities}
         frames = cache[base]
         if ms is not None:  # session 81: fold classes with < k source training rows into "other"
-            fold, n_src = transfer.minsup_map(frames, held, test_year, ms)
-            FOLDS[k] = dict(k=ms, fold=fold, n_source=n_src)
-            print(held, test_year, k, "folds", sorted(fold), flush=True)
-            key = ("cascade2", tuple(sorted(fold)))
+            fold, n_src = transfer.minsup_map(frames, held, test_year, ms, into)
+            FOLDS[k] = dict(k=ms, into=into, fold=fold, n_source=n_src)
+            print(held, test_year, k, "folds", sorted(fold), "into", into, flush=True)
+            drop = transfer.minsup_drop(k)
+            key = ("cascade2", into, drop, tuple(sorted(fold)))
             if key in done:  # same fold as a configuration already fitted: identical model (fixed seeds)
                 R[k] = done[key]
                 continue
             frames = transfer.apply_fold(frames, fold)
+            if drop:  # session 82, post hoc: the sources' thin-class rows leave training altogether
+                frames = transfer.drop_source_rows(frames, held)
         else:
             key = (k, ())
         r = transfer.run(frames, held, test_year, seeds, keep_rows=True)
@@ -241,7 +251,9 @@ DEFAULT_CLASSES = ["cascade2", "cascade2_nodemo"]
 
 
 def class_arg(s):
-    """--classes value: type, cascade2, cascade2_nodemo, or cascade2_minsup<k> (session 81)."""
+    """--classes value: type, cascade2, cascade2_nodemo, cascade2_minsup<k> (session 81) or
+    cascade2_minsupna<k> (session 82: thin classes folded to missing, not "other") or cascade2_minsupdrop<k>
+    (session 82, post hoc: folded to missing and their source rows dropped)."""
     import transfer
     if s in ("type", "cascade2", "cascade2_nodemo") or transfer.minsup_k(s) is not None:
         return s
