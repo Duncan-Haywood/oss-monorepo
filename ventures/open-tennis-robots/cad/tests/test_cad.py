@@ -20,6 +20,47 @@ HERE = Path(__file__).resolve().parent
 COMMITTED = HERE.parent.parent / "manufacturing" / "collector-package.zip"
 COMMITTED_FEEDER = HERE.parent.parent / "manufacturing" / "feeder-package.zip"
 
+# The package builds run in fresh processes, as a maker runs them (ezdxf's writer state can carry over between builds
+# in one process after other tests have read DXFs). They start when the module loads and run beside the other tests:
+# the feeder's takes ~10 min, since it runs every clash sweep (elevation, azimuth, feed stroke, cable loop) on the
+# design as drawn. So those sweeps' clean-design checks live in FeederPackageTest, and the geometry tests below run
+# only the cheap "can fail" cases (P066, 2026-11-13: the cad CI job had reached 19 of its 20 minutes).
+_BUILDS: dict = {}
+
+
+def setUpModule():
+    if not HAVE_CAD:
+        return
+    _BUILDS["tmp"] = tempfile.TemporaryDirectory()
+    for robot in ("collector", "feeder"):
+        out = Path(_BUILDS["tmp"].name) / robot
+        log = open(Path(_BUILDS["tmp"].name) / f"{robot}.log", "wb")   # a file, not a pipe nobody drains
+        _BUILDS[robot] = (out, log, subprocess.Popen([sys.executable, "-m", "otr_cad", robot, "--out", str(out)],
+                                                     cwd=HERE.parent, stdout=log, stderr=subprocess.STDOUT))
+
+
+def tearDownModule():
+    for robot in ("collector", "feeder"):
+        if robot in _BUILDS:
+            _, log, proc = _BUILDS.pop(robot)
+            if proc.poll() is None:
+                proc.kill()
+            proc.wait()
+            log.close()
+    if "tmp" in _BUILDS:
+        _BUILDS.pop("tmp").cleanup()
+
+
+def fresh_build(robot: str) -> Path:
+    """Wait for the module's build of `robot` and return its folder (the zip sits beside it)."""
+    out, log, proc = _BUILDS[robot]
+    proc.wait()
+    if not (out / "manifest.json").exists():
+        log.flush()
+        text = Path(log.name).read_text(errors="replace")
+        raise AssertionError(f"{robot} build failed (exit {proc.returncode}):\n{text[-3000:]}")
+    return out
+
 
 class ParamsTest(unittest.TestCase):
     def test_defaults_pass_design_rules(self):
@@ -127,12 +168,7 @@ class PackageTest(unittest.TestCase):
         self.assertTrue(COMMITTED.exists(), "run: python -m otr_cad collector --out ../manufacturing/collector")
         with zipfile.ZipFile(COMMITTED) as z:
             committed = json.loads(z.read("collector/manifest.json"))
-        # A fresh process, as a maker runs it: ezdxf's writer state can carry over between
-        # builds in one process after other tests have read DXFs.
-        with tempfile.TemporaryDirectory() as d:
-            subprocess.run([sys.executable, "-m", "otr_cad", "collector", "--out", str(Path(d) / "collector")],
-                           cwd=HERE.parent, check=True, capture_output=True)
-            fresh = json.loads((Path(d) / "collector" / "manifest.json").read_text())
+        fresh = json.loads((fresh_build("collector") / "manifest.json").read_text())
         self.assertEqual(committed["params"], json.loads(json.dumps(fresh["params"])))
         folder = json.loads((COMMITTED.parent / "collector" / "manifest.json").read_text())
         self.assertEqual(folder["files"], committed["files"], "manufacturing/collector/ and the zip disagree")
@@ -576,9 +612,8 @@ class FeederGeometryTest(unittest.TestCase):
         cls.parts = F.all_parts(cls.p)
 
     def test_no_collisions_and_ground_contacts(self):
-        from otr_cad.package import collisions, elevation_sweep, ground_contacts
-        self.assertEqual(collisions(self.parts), [])
-        self.assertEqual(elevation_sweep(self.p), [])
+        from otr_cad.package import collisions, ground_contacts
+        self.assertEqual(collisions(self.parts), [])   # the sweeps over the poses: FeederPackageTest
         contacts = ground_contacts(self.parts, ("wheel", "levelling_foot"))
         self.assertEqual(set(contacts), {"wheel", "levelling_foot"})
         for z in contacts.values():
@@ -725,7 +760,7 @@ class FeederGeometryTest(unittest.TestCase):
 
     def test_shuttle_drive_is_clear_along_the_stroke_and_can_fail(self):
         from otr_cad.package import feed_stroke_sweep
-        self.assertEqual(feed_stroke_sweep(self.p, thetas=(90.0, 180.0)), [])
+        # clear along the stroke: the feeder build's feed_stroke_sweep (FeederPackageTest)
         # a longer rod puts the crank forward, where it swings into the bracket's upper front leg
         bad = feed_stroke_sweep(Feeder(shuttle_rod_mm=170.0), thetas=(90.0,))
         self.assertTrue(any("shuttle_crank" in c and "shuttle_servo_bracket" in c for c in bad), bad)
@@ -791,7 +826,7 @@ class FeederGeometryTest(unittest.TestCase):
 
     def test_azimuth_sweep_is_clear_and_can_fail(self):
         from otr_cad.package import azimuth_sweep
-        self.assertEqual(azimuth_sweep(self.p), [])
+        # clear as drawn: the feeder build's azimuth_sweep (FeederPackageTest)
         # the front posts where they were until 2026-11-12: clear at +-30 deg, but the head's plates cut into them
         # turned to the hard stops' reach (36.4 deg) nose up 25 deg and more
         bad = azimuth_sweep(Feeder(shelf_post_y=245.0))
@@ -941,7 +976,7 @@ class CableGeometryTest(unittest.TestCase):
         from otr_cad import feeder as F
         from otr_cad import package
         p = self.p
-        self.assertEqual(package.cable_sweep(p), [])
+        # clear as drawn: the feeder build's cable_sweep (FeederPackageTest)
         # the drawn loop is the cut length
         d = p.cable_loop_design()
         for e in (p.elev_min, p.elev_max):
@@ -953,7 +988,7 @@ class CableGeometryTest(unittest.TestCase):
         real = F.cable_loop_solids
         try:
             F.cable_loop_solids = lambda q, e, segs=12: [s.moved(Location((0, 40, 0))) for s in real(q, e, segs)]
-            bad = package.cable_sweep(p)
+            bad = package.cable_sweep(p, poses=(p.elev_max,), azimuths=(0.0,))   # every pose catches it (2026-11-13)
         finally:
             F.cable_loop_solids = real
         self.assertTrue(bad and any("head_motor_plate" in c for c in bad), bad[:3])
@@ -980,10 +1015,11 @@ class FeederPackageTest(unittest.TestCase):
         self.assertTrue(COMMITTED_FEEDER.exists(), "run: python -m otr_cad feeder --out ../manufacturing/feeder")
         with zipfile.ZipFile(COMMITTED_FEEDER) as z:
             committed = json.loads(z.read("feeder/manifest.json"))
-        with tempfile.TemporaryDirectory() as d:
-            subprocess.run([sys.executable, "-m", "otr_cad", "feeder", "--out", str(Path(d) / "feeder")],
-                           cwd=HERE.parent, check=True, capture_output=True)
-            fresh = json.loads((Path(d) / "feeder" / "manifest.json").read_text())
+        fresh = json.loads((fresh_build("feeder") / "manifest.json").read_text())
+        # the build ran every clash sweep on the design as drawn: collisions, elevation, azimuth (to the hard stops'
+        # reach), feed stroke and cable loop
+        self.assertEqual(fresh["collisions"], [])
+        self.assertEqual(fresh["design_rules"], [])
         self.assertEqual(committed["params"], json.loads(json.dumps(fresh["params"])))
         folder = json.loads((COMMITTED_FEEDER.parent / "feeder" / "manifest.json").read_text())
         self.assertEqual(folder["files"], committed["files"], "manufacturing/feeder/ and the zip disagree")
