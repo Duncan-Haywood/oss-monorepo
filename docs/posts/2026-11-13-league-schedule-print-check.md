@@ -1,6 +1,6 @@
 ---
 title: "Printing a league schedule: what a PDF check found that the tests didn't"
-seo_title: "Printable league schedule and score sheets: checking the print layout automatically"
+seo_title: "Printable league schedules: an automatic PDF layout check"
 date: 2026-11-13
 tags: [league-schedule-generator, ventures, printing, testing]
 description: "Rendering every printable output of the league schedule generator to PDF on Letter and A4 found 12 layout faults that its unit tests never saw."

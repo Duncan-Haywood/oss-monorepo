@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVKgzsFakwN7wbHwCz9",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T11:55:51Z",
+  "ended": "2026-11-13T12:02:31Z",
+  "wall_minutes": 6.8,
+  "tokens_in": 4949155,
+  "tokens_out": 27131,
+  "cost_usd": 2.3481,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15487",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First debug script imported 'playwright' as an ES module from the venture dir; it resolves only via require there (fixed with createRequire)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator next: is ~95% carry-over research items; the one user-facing item ('a print check') sat last with no detail on what to check, though six README paragraphs said 'printed layout not checked'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took the last-listed item (print check) rather than 'most valuable first' carry-over research: printed sheets are what organisers hand out, and the carry-over frontier is already far past what a rec league notices.",
+      "did": "PDF print check of 7 outputs on Letter and A4, 12 faults fixed",
+      "result": "82 checks pass; fixes pinned by print.test.mjs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-league-schedule-print-check.md",
+    "ventures/league-schedule-generator/README.md (Print check section)"
+  ],
+  "goal": null,
+  "notes": "node eval/print-check.mjs: 12 FAIL before fixes, 82 ok / 0 fail after. node --test print.test.mjs: 3 pass. Full venture suite via run_venture_tests.py: see PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a5a2c4ea-a378-5918-a2a8-2e0575bf31d7",
+    "transcripts": 1,
+    "first": "2026-11-13T11:55:51Z",
+    "last": "2026-11-13T12:02:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 92,
+        "output": 27131,
+        "thinking": 4716,
+        "cache_read": 4844532,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104531,
+        "api_equivalent_usd": 2.3481,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 92,
+      "output": 27131,
+      "thinking": 4716,
+      "cache_read": 4844532,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104531,
+      "api_equivalent_usd": 2.3481,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 44,
+      "Read": 6,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.8,
+      "active_minutes": 6.8,
+      "model_minutes": 4.69,
+      "tool_minutes": 2.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "writing a PDF layout checker and fixing print CSS across 5 generators",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 170.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
