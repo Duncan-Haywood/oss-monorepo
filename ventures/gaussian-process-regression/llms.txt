@@ -1,0 +1,27 @@
+# Gaussian process regression: fit a curve with an uncertainty band
+
+> Free online Gaussian process regression (Rasmussen & Williams 2006) for one x column (numbers or YYYY-MM / YYYY-MM-DD dates) and one numeric y column. Fits the kernel's settings by maximising the log marginal likelihood with its exact gradient, tries seven kernels (RBF, Matern 3/2 and 5/2, rational quadratic, periodic, quasi-periodic, smooth + quasi-periodic) and keeps the one the evidence favours, with a constant or a linear mean (vague prior, R&W 2.7). Returns the fitted length scale, period and noise in your units, a 95% band for the curve and for a new reading, a forecast past the last point, predictions at chosen x, and a closed-form leave-one-out calibration check. Log marginal likelihood, gradient and predictions agree with scikit-learn 1.9.1 to 1e-9 on all seven kernels. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A forecast band is not a guarantee: on the bundled CO2 example, a 36-month held-out forecast landed inside its 95% band in 42% of months.
+
+## Pages
+
+- [The tool](https://marisstella.app/gaussian-process-regression/)
+
+## Use it from code
+
+- `node cli.mjs series.csv [--x month] [--y value] [--kernel auto|rbf|matern52|matern32|rq|periodic|quasiperiodic|smooth-quasiperiodic] [--mean linear|constant] [--period 1] [--fix-period] [--restarts 3] [--seed 42] [--horizon 2] [--predict 2027-01,2030-01] [--csv|--json]`
+- `node platform/agents/tools.mjs call gaussian-process-regression analyze --input '{"csv":"month,sales\n2024-01,120\n...","kernel":"auto"}'`
+- `node platform/agents/tools.mjs call gaussian-process-regression analyze --input '{"x":[0,1,2,3,4,5],"y":[1.2,1.9,3.1,3.8,5.2,6.1],"kernel":"rbf","predictAt":[7]}'`
+- From JavaScript: `fitKernel(name, x, y, opts)`, `predict(...)`, `predictLinearMean(...)`, `leaveOneOut(...)`, `logMarginal(name, theta, x, y, {grad:true})`.
+
+## What it answers
+
+- What smooth curve runs through these points, and how sure is it at each x?
+- Over what distance does the series change, does it repeat and how often, and how noisy are the readings?
+- Which kernel do the data favour, and by how much?
+- Where will the next reading probably fall, and how honest is that band?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gaussian-process-regression): MIT licensed.

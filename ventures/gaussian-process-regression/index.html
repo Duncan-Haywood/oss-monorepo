@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2337306b'/%3E%3Cpath%20d='M4%2022%20C10%206%2016%2026%2028%2010'%20stroke='%23f2a93b'%20stroke-width='3'%20fill='none'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gaussian Process Regression Online — fit a curve with an uncertainty band, free</title>
+  <meta name="description" content="Free online Gaussian process regression (Rasmussen &amp; Williams 2006). Paste x and y columns or a monthly series and get a smooth fitted curve with a 95% band, a short forecast, the length scale, period and noise in your units, the kernel the evidence favours, and a leave-one-out check. Checked against scikit-learn. Runs in your browser.">
+  <meta property="og:title" content="Gaussian process regression in your browser: a curve, a band, and how far to trust it">
+  <meta property="og:description" content="Fit a Gaussian process to your data with hyperparameters chosen by marginal likelihood. Kernel comparison, leave-one-out calibration, forecasts with bands. Checked against scikit-learn.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Gaussian Process Regression: fit a curve with an uncertainty band", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste an x column and a y column, or a monthly series, and fit a Gaussian process with hyperparameters chosen by maximising the marginal likelihood (Rasmussen and Williams 2006). Shows the curve with 95% bands, a forecast, the fitted length scale, period and noise, a kernel comparison and leave-one-out calibration. Runs in your browser.", "featureList": "gaussian process regression online, kriging, marginal likelihood, kernel comparison, RBF, Matern, rational quadratic, periodic kernel, quasi-periodic kernel, linear mean, leave-one-out cross-validation, forecast with uncertainty band, CSV download", "citation": ["https://gaussianprocess.org/gpml/", "https://doi.org/10.1007/BF01589116"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does Gaussian process regression give me that a trend line does not?", "acceptedAnswer": {"@type": "Answer", "text": "A curve that bends as much as the data say it should, and a band around it that is narrow where you have data and widens where you do not. It also tells you, in your own units, over what distance the curve changes (the length scale), whether it repeats and how often (the period), and how much the readings scatter around it (the noise)."}}, {"@type": "Question", "name": "How are the settings of the curve chosen?", "acceptedAnswer": {"@type": "Answer", "text": "By maximising the log marginal likelihood: the probability of your data under the model, averaged over every curve the kernel allows. It rewards fitting the points and penalises needless flexibility at the same time, so a very wiggly curve that threads every point loses to a smoother one unless the data really demand it. The optimiser starts from several points, because the surface can have more than one peak."}}, {"@type": "Question", "name": "What is a kernel and which one should I pick?", "acceptedAnswer": {"@type": "Answer", "text": "The kernel says how alike two points are given how far apart they are, which fixes what kind of curve is plausible: very smooth (RBF), rougher (Matern), a mix of scales (rational quadratic), repeating (periodic) or repeating with drift (quasi-periodic). On auto the tool fits all seven and keeps the one with the highest evidence; the table shows how far behind each other kernel is. A difference of a few log units is small; tens of units is decisive."}}, {"@type": "Question", "name": "What does the leave-one-out check tell me?", "acceptedAnswer": {"@type": "Answer", "text": "Each point is predicted from all the others, and the tool counts how many fall inside their 95% interval. About 95% means the band is honest inside the range of your data. Far less means the band is too narrow; far more means it is too wide. It is computed exactly from one fit, not by refitting n times."}}, {"@type": "Question", "name": "Can I trust the forecast past my last point?", "acceptedAnswer": {"@type": "Answer", "text": "Less than the band suggests. On this page's example, a fit on January 2010 to September 2023 forecast the next 36 months with an average miss of 1.08 ppm, about the same as simply repeating last year's month plus last year's rise (1.07 ppm), and only 42% of the 36 months fell inside the 95% band, because CO2 rose faster than the straight-line trend. Treat a GP forecast as a smooth continuation of the past, not a model of what drives the series."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and fitted by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d1b2f; background: #f3f2f8; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #3d3480; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2a2459; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2a2459; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #514d66; }
+    .card { background: #fff; border: 1px solid #d9d6e8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2a245910; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    label.inline { display: inline-flex; align-items: center; font-weight: 500; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7a7596; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input[type="checkbox"] { width: auto; margin: 0 6px 0 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3d3480; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e9e6f5; color: #2a2459; }
+    button:disabled { opacity: .6; cursor: progress; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ebe9f3; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #514d66; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d9d6e8; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #7a7596; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #f4f2fa; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; color: #2a2459; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #514d66; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    pre { background: #f5f4fa; border: 1px solid #e0ddec; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GAUSSIAN PROCESS REGRESSION · KRIGING · CURVE FITTING WITH UNCERTAINTY · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Fit a curve through my data, with an honest band around it</h1>
+    <p>Paste two columns: a date or an x value, and a measurement. <strong>Gaussian process regression</strong> (Rasmussen &amp; Williams 2006) fits a smooth curve that bends only as much as the data justify, with a <strong>95% band</strong> that is narrow where you have points and widens where you do not. It tells you in your own units how quickly the curve changes, whether it repeats and how often, and how noisy the readings are; it tries seven kernels and keeps the one the <strong>evidence</strong> favours; and it checks the band by predicting each point from all the others.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">A CSV with a header row: an x column (numbers, or dates as YYYY-MM or YYYY-MM-DD) and a numeric y column</label>
+    <textarea id="csv" spellcheck="false" placeholder="month,sales&#10;2023-01,1830&#10;2023-02,1764&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: Mauna Loa CO2, monthly, 2010 to 2026 (NOAA)</button>
+    <p class="note" id="data-status">Rows with a missing x or y are skipped. Dates are read as decimal years, so lengths and periods come out in years.</p>
+
+    <div class="grid">
+      <div><label for="x-col">x (across)</label><select id="x-col"></select></div>
+      <div><label for="y-col">y (to fit)</label><select id="y-col"></select></div>
+      <div><label for="kernel">Kernel</label><select id="kernel"><option value="auto" selected>Auto: try all 7, keep the best evidence</option><option value="rbf">Squared exponential (RBF)</option><option value="matern52">Matern 5/2</option><option value="matern32">Matern 3/2</option><option value="rq">Rational quadratic</option><option value="periodic">Periodic</option><option value="quasiperiodic">Quasi-periodic (RBF x periodic)</option><option value="smooth-quasiperiodic">Smooth + quasi-periodic</option></select></div>
+      <div><label for="mean">Mean (what the curve returns to far from the data)</label><select id="mean"><option value="linear" selected>A straight line (fitted, with its uncertainty)</option><option value="constant">A constant: the data mean</option></select></div>
+      <div><label for="period">Period, in x units (blank: 1 year for dates, else guessed)</label><input id="period" inputmode="decimal" placeholder="e.g. 7 for weekly data by day"></div>
+      <div><label for="horizon">Forecast past the last point, in x units (blank: 15% of the range)</label><input id="horizon" inputmode="decimal"></div>
+      <div><label for="predict-at">Predict at (x values or dates, comma separated)</label><input id="predict-at" placeholder="2027-01, 2030-01"></div>
+      <div><label for="restarts">Optimiser restarts per kernel</label><select id="restarts"><option value="0">0 (fastest)</option><option value="1">1</option><option value="3" selected>3 (default)</option><option value="6">6</option><option value="10">10 (slowest)</option></select></div>
+      <div><label for="seed">Random seed</label><input id="seed" inputmode="numeric" value="42"></div>
+    </div>
+    <p><label class="inline" for="fix-period"><input type="checkbox" id="fix-period">Hold the period fixed instead of fitting it</label></p>
+    <button type="button" id="analyze">Fit the curve</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div class="stats" id="stats"></div>
+    <div id="warnings"></div>
+    <div id="chart" role="img" aria-label="The data as dots, the fitted curve as a line, a dark band for the curve's 95% interval and a light band for a new reading's 95% interval, continuing past the last point as a forecast"></div>
+    <p class="note">Dark band: where the curve itself lies, 95%. Light band: where a single new reading would fall, 95% (curve plus noise). Ringed dots are more than 3 SD from their leave-one-out prediction. The dashed line marks the last data point; to its right is the forecast.</p>
+    <h3>Fitted settings, in your units</h3>
+    <div class="scroll"><table id="hyper-table"><thead><tr><th>Setting</th><th class="n">Value</th><th>Note</th></tr></thead><tbody></tbody></table></div>
+    <h3>Kernels by evidence</h3>
+    <p class="note">Log marginal likelihood relative to the best. Differences of a few units are weak; tens are decisive. Evidence ranks fit inside the data; it does not promise a better forecast.</p>
+    <div class="scroll"><table id="kernel-table"><thead><tr><th>Kernel</th><th class="n">Difference</th><th>Settings fitted</th></tr></thead><tbody></tbody></table></div>
+    <div id="predictions"></div>
+    <p class="note" id="settings-line"></p>
+    <button type="button" class="secondary" id="download">Download the curve and bands (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>A Gaussian process treats the unknown curve as random, with the covariance between its values at two x values set by a <em>kernel</em> of their distance <code>r</code>. Given your points, the posterior mean and variance at any x follow in closed form (Rasmussen &amp; Williams 2006, Algorithm 2.1): with <code>K</code> the kernel matrix plus noise and <code>L</code> its Cholesky factor, <code>α = K⁻¹y</code>, the mean is <code>k*ᵀα</code> and the variance <code>k(x*,x*) − vᵀv</code>, <code>v = L⁻¹k*</code>.</p>
+    <p>The kernel's settings (signal size, length scale, period, noise) are chosen by maximising the <strong>log marginal likelihood</strong> <code>−yᵀK⁻¹y/2 − log|K|/2 − (n/2) log 2π</code> with its exact gradient (eq. 5.9), using an L-BFGS optimiser (Liu &amp; Nocedal 1989) in log space within bounds, from the default start plus seeded random restarts. y is centred and scaled first, as scikit-learn's <code>normalize_y</code> does. With the <strong>linear mean</strong>, the kernels are fitted to what a least-squares line leaves, and predictions use a straight line with a vague prior (section 2.7, eqs. 2.41–2.42), so the line's own uncertainty widens the band far from the data. The leave-one-out check uses the closed form of eqs. 5.10–5.12 (treating the line as known). The periodic kernel is MacKay's (1998) <code>exp(−2 sin²(πr/p)/l²)</code>.</p>
+    <p>Verified by tests in the source against <strong>scikit-learn 1.9.1</strong>'s <code>GaussianProcessRegressor</code>, on this page's example, for all seven kernels: the log marginal likelihood, its gradient, and the predictive mean and standard deviation agree to within 1e-9; from the same starting values, the fitted optimum matches or beats scikit-learn's in six kernels and, for the periodic kernel alone, stops at a different local optimum (both are reported in the source).</p>
+    <h3>BibTeX</h3>
+    <pre>@book{rasmussen2006gaussian,
+  author    = {Rasmussen, Carl Edward and Williams, Christopher K. I.},
+  title     = {Gaussian Processes for Machine Learning},
+  publisher = {MIT Press}, address = {Cambridge, MA}, year = {2006},
+  isbn      = {026218253X}, url = {https://gaussianprocess.org/gpml/}
+}
+@article{liu1989limited,
+  author  = {Liu, Dong C. and Nocedal, Jorge},
+  title   = {On the limited memory {BFGS} method for large scale optimization},
+  journal = {Mathematical Programming},
+  volume  = {45}, pages = {503--528}, year = {1989},
+  doi     = {10.1007/BF01589116}
+}
+@incollection{mackay1998introduction,
+  author    = {MacKay, David J. C.},
+  title     = {Introduction to {G}aussian processes},
+  booktitle = {Neural Networks and Machine Learning},
+  editor    = {Bishop, Christopher M.},
+  series    = {NATO ASI Series F}, volume = {168},
+  publisher = {Springer}, pages = {133--165}, year = {1998}
+}</pre>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>A forecast is a continuation, not a cause.</strong> On this page's example, fitted on 2010-01 to 2023-09 and asked for the next 36 months, the best-evidence model missed by 1.08 ppm on average (root mean square), no better than repeating last year's month plus last year's rise (1.07 ppm), and only 42% of the months fell inside its 95% band: CO2 rose faster than the 2010–2023 line. With a constant mean instead of a line, the miss was 2.47 ppm and the band held 6%.</li>
+      <li><strong>Leave-one-out checks the inside, not the edge.</strong> The same fit put 96% of the points inside their leave-one-out 95% band. That says the band is honest between your points, not past them.</li>
+      <li><strong>Several peaks.</strong> The likelihood surface can have more than one maximum: for example, one that treats a seasonal pattern as noise and one that fits it. More restarts make finding the higher one likelier, never certain. A setting at the edge of its range is flagged.</li>
+      <li><strong>Cost grows as n³.</strong> Fitting 200 points with all seven kernels takes about 20 seconds in a browser (one kernel, a few); the page accepts up to 1,500 points. For more, average to a coarser step first.</li>
+      <li><strong>One x column, Gaussian noise.</strong> Counts, shares and heavy-tailed data break the Gaussian noise assumption; a transform (log, square root) often helps.</li>
+      <li>Not modelled: several input columns (automatic relevance determination), noise that changes with x, a fully Bayesian treatment of the kernel settings, sparse approximations for large n, and the Mauna Loa model's four-term kernel in section 5.4.3 of the book.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What does Gaussian process regression give me that a trend line does not?</h3>
+    <p>A curve that bends as much as the data say it should, and a band around it that is narrow where you have data and widens where you do not. It also tells you, in your own units, over what distance the curve changes (the length scale), whether it repeats and how often (the period), and how much the readings scatter around it (the noise).</p>
+    <h3>How are the settings of the curve chosen?</h3>
+    <p>By maximising the log marginal likelihood: the probability of your data under the model, averaged over every curve the kernel allows. It rewards fitting the points and penalises needless flexibility at the same time, so a very wiggly curve that threads every point loses to a smoother one unless the data really demand it. The optimiser starts from several points, because the surface can have more than one peak.</p>
+    <h3>What is a kernel and which one should I pick?</h3>
+    <p>The kernel says how alike two points are given how far apart they are, which fixes what kind of curve is plausible: very smooth (RBF), rougher (Matern), a mix of scales (rational quadratic), repeating (periodic) or repeating with drift (quasi-periodic). On auto the tool fits all seven and keeps the one with the highest evidence; the table shows how far behind each other kernel is. A difference of a few log units is small; tens of units is decisive.</p>
+    <h3>What does the leave-one-out check tell me?</h3>
+    <p>Each point is predicted from all the others, and the tool counts how many fall inside their 95% interval. About 95% means the band is honest inside the range of your data. Far less means the band is too narrow; far more means it is too wide. It is computed exactly from one fit, not by refitting n times.</p>
+    <h3>Can I trust the forecast past my last point?</h3>
+    <p>Less than the band suggests. On this page's example, a fit on January 2010 to September 2023 forecast the next 36 months with an average miss of 1.08 ppm, about the same as simply repeating last year's month plus last year's rise (1.07 ppm), and only 42% of the 36 months fell inside the 95% band, because CO2 rose faster than the straight-line trend. Treat a GP forecast as a smooth continuation of the past, not a model of what drives the series.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and fitted by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">Example data: monthly mean CO2 at Mauna Loa Observatory, Hawaii, January 2010 to September 2026, from the NOAA Global Monitoring Laboratory (<a href="https://gml.noaa.gov/ccgg/trends/" rel="noopener">gml.noaa.gov/ccgg/trends</a>), retrieved 2026-11-13; data courtesy of NOAA GML. December 2022 to early July 2023 were measured on Maunakea after the Mauna Loa eruption.</p>
+  </section>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter; a forecast band is not a guarantee about the future. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, NOAA, scikit-learn, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs series.csv --kernel auto --predict 2027-01</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gaussian-process-regression" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> gives intervals with guaranteed coverage, the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns in a series, <a href="../stl-decomposition/">STL decomposition</a> splits a series into trend, season and remainder, <a href="../survival-analysis/">survival analysis</a>, <a href="../fdr-multiple-testing/">false discovery rate control</a>, <a href="../synthetic-control/">synthetic control</a>, <a href="../spc-control-charts/">control charts</a>, <a href="../fuzzy-dedupe/">fuzzy duplicate finder</a> and <a href="../isolation-forest/">isolation forest</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, toCsv, fmt } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    let last = null;
+    function refreshColumns() {
+      const p = parseCsv($("#csv").value);
+      if (p.error) {
+        $("#x-col").innerHTML = "";
+        $("#y-col").innerHTML = "";
+        $("#data-status").textContent = $("#csv").value.trim() ? p.error : "Paste a table or load the example.";
+        return;
+      }
+      const opts = p.columns.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+      const keepX = $("#x-col").value, keepY = $("#y-col").value;
+      $("#x-col").innerHTML = opts;
+      $("#y-col").innerHTML = opts;
+      $("#x-col").value = p.columns.includes(keepX) ? keepX : p.columns[0];
+      $("#y-col").value = p.columns.includes(keepY) && keepY !== $("#x-col").value ? keepY : p.columns[1] ?? p.columns[0];
+      $("#data-status").textContent = `${p.rows.length.toLocaleString("en-US")} rows, ${p.columns.length} columns.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+    const num = (sel) => ($(sel).value.trim() === "" ? undefined : Number($(sel).value));
+    function inputs() {
+      return {
+        csv: $("#csv").value,
+        xColumn: $("#x-col").value || undefined,
+        yColumn: $("#y-col").value || undefined,
+        kernel: $("#kernel").value,
+        mean: $("#mean").value,
+        period: num("#period"),
+        fixPeriod: $("#fix-period").checked,
+        horizon: num("#horizon"),
+        predictAt: $("#predict-at").value,
+        restarts: Number($("#restarts").value),
+        seed: num("#seed") ?? 42,
+      };
+    }
+    function chart(r) {
+      const W = 920, H = 420, L = 64, R = 14, T = 14, B = 44;
+      const g = r.grid, pts = r.points;
+      const x0 = g[0].x, x1 = g[g.length - 1].x;
+      let y0 = Math.min(...g.map((p) => p.obsLo), ...pts.map((p) => p.y)), y1 = Math.max(...g.map((p) => p.obsHi), ...pts.map((p) => p.y));
+      const pad = (y1 - y0) * 0.04 || 1; y0 -= pad; y1 += pad;
+      const sx = (v) => L + ((v - x0) / (x1 - x0 || 1)) * (W - L - R);
+      const sy = (v) => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
+      const band = (lo, hi) => `M${g.map((p) => `${sx(p.x).toFixed(1)},${sy(p[hi]).toFixed(1)}`).join("L")}L${[...g].reverse().map((p) => `${sx(p.x).toFixed(1)},${sy(p[lo]).toFixed(1)}`).join("L")}Z`;
+      let out = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      out += `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="none" stroke="#e3e0ef"/>`;
+      out += `<path d="${band("obsLo", "obsHi")}" fill="#d9d4f0"/>`;
+      out += `<path d="${band("lo", "hi")}" fill="#a79ddb"/>`;
+      out += `<path d="M${g.map((p) => `${sx(p.x).toFixed(1)},${sy(p.mean).toFixed(1)}`).join("L")}" fill="none" stroke="#2a2459" stroke-width="2"/>`;
+      const lastX = Math.max(...pts.map((p) => p.x));
+      out += `<line x1="${sx(lastX)}" x2="${sx(lastX)}" y1="${T}" y2="${H - B}" stroke="#2a2459" stroke-dasharray="4 3"/>`;
+      for (const p of pts) {
+        const odd = Math.abs(p.z) > 3;
+        out += `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="${odd ? 4.5 : 2.4}" fill="${odd ? "#e2852b" : "#1d1b2f"}"${odd ? ' stroke="#a4410e" stroke-width="1.4"' : ""}><title>${esc(p.xLabel)}: ${esc(fmt(p.y, 5))} (left out, predicted ${esc(fmt(p.looMean, 5))})</title></circle>`;
+      }
+      for (const v of [y0 + pad, y1 - pad]) out += `<text x="${L - 6}" y="${sy(v) + 4}" text-anchor="end" font-size="11" fill="#514d66">${esc(fmt(v, 4))}</text>`;
+      out += `<text x="${L}" y="${H - 26}" font-size="11" fill="#514d66">${esc(g[0].xLabel)}</text><text x="${W - R}" y="${H - 26}" text-anchor="end" font-size="11" fill="#514d66">${esc(g[g.length - 1].xLabel)}</text>`;
+      out += `<text x="${(L + W - R) / 2}" y="${H - 8}" text-anchor="middle" font-size="12" fill="#514d66">${esc(r.xName)} → · ${esc(r.yName)} ↑ · dashed: last data point</text>`;
+      return out + "</svg>";
+    }
+    const unitOf = (r, h) => (h.unit === "x" ? (r.dateMode ? (fmt(h.value, 4) === "1" ? "year" : "years") : r.xName) : h.unit === "y" ? r.yName : "");
+    const NOTES = { variance: "typical size of this part of the curve", length: "distance over which it changes", alpha: "small: many length scales mixed; large: like RBF", periodLength: "small: sharp shape within each cycle; large: close to a sine wave", period: "distance after which the pattern repeats", noise: "scatter of readings around the curve" };
+    function show(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      const stat = (v, l) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`;
+      const noise = r.hyperparameters.find((h) => h.kind === "noise");
+      $("#stats").innerHTML = stat(r.kernelTitle, "kernel") + stat(fmt(noise.value), `noise SD (${r.yName})`) + stat(`${(r.loo.coverage95 * 100).toFixed(0)}%`, "of points inside their leave-one-out 95% band") + stat(fmt(r.loo.rmse), "leave-one-out typical error");
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      $("#chart").innerHTML = chart(r);
+      $("#hyper-table tbody").innerHTML = r.hyperparameters.map((h) => `<tr><td>${esc(h.name)}</td><td class="n">${esc(fmt(h.value, 4))} ${esc(unitOf(r, h))}</td><td class="note">${esc(NOTES[h.kind])}${h.fixed ? "; held fixed" : ""}${h.atBound ? "; at the edge of its range" : ""}</td></tr>`).join("") + (r.trend ? `<tr><td>straight-line trend</td><td class="n">${esc(fmt(r.trend.slope, 4))} ${esc(r.yName)} per ${r.dateMode ? "year" : esc(r.xName)}</td><td class="note">slope of the mean line (generalised least squares)</td></tr>` : "");
+      $("#kernel-table tbody").innerHTML = r.comparison.map((c) => `<tr><td>${esc(c.title)}</td><td class="n">${c.delta === 0 ? "best" : c.delta.toFixed(2)}</td><td class="note">${c.hyperparameters}${c.atBound ? "; one at the edge of its range" : ""}</td></tr>`).join("");
+      $("#predictions").innerHTML = r.predictions.length ? `<h3>Predictions</h3><div class="scroll"><table><thead><tr><th>x</th><th class="n">Curve</th><th class="n">95% band (curve)</th><th class="n">95% band (new reading)</th></tr></thead><tbody>${r.predictions.map((p) => `<tr><td>${esc(r.dateMode ? p.xLabel : fmt(p.x, 5))}${p.beyondData ? ' <span class="note">beyond the data</span>' : ""}</td><td class="n">${esc(fmt(p.mean, 5))}</td><td class="n">${esc(fmt(p.lo, 5))} to ${esc(fmt(p.hi, 5))}</td><td class="n">${esc(fmt(p.obsLo, 5))} to ${esc(fmt(p.obsHi, 5))}</td></tr>`).join("")}</tbody></table></div>` : "";
+      const p = r.params;
+      $("#settings-line").textContent = `${r.n} points; mean ${p.mean}; kernel ${p.kernel}; ${p.restarts} restarts per kernel, seed ${p.seed}${p.period ? `; period start ${fmt(p.period, 4)}${p.fixPeriod ? " (fixed)" : ""}` : ""}; log marginal likelihood ${r.logMarginalLikelihood.toFixed(2)}.`;
+    }
+    let worker = null;
+    try { worker = new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" }); } catch { worker = null; }
+    function finish(r) {
+      $("#analyze").disabled = false;
+      if (r.error) { $("#status").textContent = r.error; $("#results").hidden = true; last = null; return; }
+      $("#status").textContent = "";
+      last = r;
+      show(r);
+      record("analysis_run");
+    }
+    function run() {
+      $("#analyze").disabled = true;
+      $("#status").textContent = $("#kernel").value === "auto" ? "Fitting all seven kernels; on 200 points this takes about 20 seconds…" : "Fitting…";
+      const input = inputs();
+      if (worker) {
+        worker.onmessage = (event) => finish(event.data);
+        worker.onerror = () => { worker = null; finish(analyze(input)); };
+        worker.postMessage(input);
+      } else setTimeout(() => finish(analyze(input)), 20);
+    }
+    $("#analyze").addEventListener("click", () => { if (!$("#x-col").value) refreshColumns(); run(); });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      $("#predict-at").value = "2027-01, 2030-01";
+      record("example_loaded");
+      run();
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([toCsv(last)], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "gaussian-process-curve.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
