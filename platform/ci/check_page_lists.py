@@ -48,7 +48,7 @@ def lagging_lists(test_file: Path) -> list[tuple[int, list[str]]]:
 def main(root: Path = REPO_ROOT) -> int:
     problems = []
     for t in sorted((root / "ventures").glob("*/**/*.test.mjs")):
-        if "node_modules" in t.parts:
+        if not {"node_modules", ".next"}.isdisjoint(t.parts):
             continue
         for line, missing in lagging_lists(t):
             rel = t.relative_to(root)

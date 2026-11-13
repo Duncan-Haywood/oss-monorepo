@@ -33,7 +33,7 @@ MONTH_RANGE = re.compile(r"<= ?12\b|< ?12\b")
 CALENDAR = re.compile(r"getUTCDate\(\)|getDate\(\)|MONTH_DAYS|daysIn\w*\(|realDay\(|calDate\(|validDate\(")
 WINDOW = 4
 SUFFIXES = {".mjs", ".js", ".cjs", ".ts"}
-SKIP_PARTS = {"node_modules", "dist", "build", "vendor"}
+SKIP_PARTS = {"node_modules", ".next", "dist", "build", "vendor"}
 
 
 def scan_text(text):

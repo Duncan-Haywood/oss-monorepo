@@ -61,6 +61,8 @@ def main(argv=None):
     args = ap.parse_args(argv)
     bad, pages = 0, 0
     for p in sorted(Path(args.root).rglob("*.html")):
+        if not {"node_modules", ".next"}.isdisjoint(p.parts):  # installed packages, local build output
+            continue
         s = p.read_text(encoding="utf-8", errors="replace")
         if "ld+json" not in s:
             continue

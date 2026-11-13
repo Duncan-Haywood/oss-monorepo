@@ -58,7 +58,7 @@ def main(argv=None):
     args = ap.parse_args(argv)
     bad, n = [], 0
     for p in sorted(Path(args.root).rglob("*")):
-        if "node_modules" in p.parts or not p.is_file():
+        if not {"node_modules", ".next"}.isdisjoint(p.parts) or not p.is_file():
             continue
         if p.name.startswith("manifest") and p.suffix == ".json" or p.suffix == ".webmanifest":
             n += 1

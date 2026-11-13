@@ -178,6 +178,8 @@ def check_page(markup: str) -> str | None:
 def check_tree(root: Path) -> list[str]:
     problems: list[str] = []
     for page in sorted(root.rglob("index.html")):
+        if not {"node_modules", ".next"}.isdisjoint(page.parts):  # installed packages, local build output
+            continue
         problem = check_page(page.read_text(encoding="utf-8", errors="replace"))
         if problem:
             problems.append(f"{page}: {problem}")

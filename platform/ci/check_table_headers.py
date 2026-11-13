@@ -25,7 +25,7 @@ def headerless(html):
 
 
 def scan(root):
-    skip = {"node_modules", ".git"}
+    skip = {"node_modules", ".next", ".git"}
     return [
         f for f in sorted(Path(root).glob("ventures/*/**/*.html"))
         if not skip & set(f.parts) and headerless(f.read_text(encoding="utf8", errors="replace"))

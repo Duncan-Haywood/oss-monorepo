@@ -43,7 +43,7 @@ def main(argv=None):
     bad = []
     pages = 0
     for page in sorted(Path(args.root).rglob("*.html")):
-        if "node_modules" in page.parts:
+        if not {"node_modules", ".next"}.isdisjoint(page.parts):
             continue
         pages += 1
         bad += [(page, u) for u in broken(page)]
