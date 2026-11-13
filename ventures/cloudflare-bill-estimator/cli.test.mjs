@@ -39,10 +39,12 @@ test("bad input exits 2", async () => {
   assert.equal((await run([], io)).exitCode, 1);
 });
 
-test("--minimum sets the plan floor and prints the top-up", async () => {
-  const lowCsv = { readFile: async () => "r2_storage_gb,2" , stdin: async () => "" };
-  const out = (await run(["estimate", "u.csv", "--minimum", "69"], lowCsv)).output;
-  assert.match(out, /Top-up to the \$69\.00 plan minimum/);
-  assert.match(out, /\$69\.00 +TOTAL/);
-  assert.equal((await run(["estimate", "u.csv", "--minimum", "x"], io)).exitCode, 2);
+test("--subscription sets the Workers Paid line added to usage (--minimum is the old name)", async () => {
+  const csv = { readFile: async () => "r2_storage_gb,100" , stdin: async () => "" };
+  const out = (await run(["estimate", "u.csv", "--subscription", "69"], csv)).output;
+  assert.match(out, /\$69\.00 +Workers Paid subscription/);
+  assert.match(out, /\$70\.35 +TOTAL/);
+  assert.match((await run(["estimate", "u.csv", "--subscription", "0"], csv)).output, /\$1\.35 +TOTAL/);
+  assert.match((await run(["estimate", "u.csv", "--minimum", "69"], csv)).output, /\$70\.35 +TOTAL/);
+  assert.equal((await run(["estimate", "u.csv", "--subscription", "x"], io)).exitCode, 2);
 });
