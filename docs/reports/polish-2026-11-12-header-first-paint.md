@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-12
+tagged: auto
+---
 # Polish 2026-11-12: the tool-page header is full width from the first paint
 
 **Why this item.** Item 1 of "Still weakest" in `polish-2026-11-12-bar-align.md`: every layout shift

@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-12
+tagged: auto
+---
 # Polish 2026-11-12: shop-rates and saved-bids bars under the heading
 
 **Why.** Item 2 of "Still weakest" in `polish-2026-11-12-bar-align.md`, carried into

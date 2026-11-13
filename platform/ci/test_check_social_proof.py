@@ -36,6 +36,27 @@ class SocialProof(unittest.TestCase):
         self.assertEqual(check("It says it is trusted by thousands of pros."), [])
         self.assertEqual(check("Its own marketing calls it award-winning."), [])
 
+    def test_example_words_after_a_claim_do_not_excuse_it(self):
+        # 2026-11-13 red team: "such as", "sample" and "example" anywhere within
+        # NEAR excused the claim, so a logo-wall line passed.
+        self.assertTrue(check("<p>Trusted by teams such as Acme and Globex.</p>"))
+        self.assertTrue(check("<p>Award-winning payroll, used by agencies such as yours.</p>"))
+        self.assertTrue(check("<p>Trusted by 2,000 firms. Download a sample invoice.</p>"))
+        self.assertTrue(check("<p>Rated 4.9/5 stars. See an example report.</p>"))
+
+    def test_example_words_before_a_claim_still_excuse_it(self):
+        self.assertEqual(check("<p>It flags phrases such as trusted by and award-winning.</p>"), [])
+        self.assertEqual(check("<p>For example, trusted by 5,000 teams is a claim.</p>"), [])
+        self.assertEqual(check("<p>Sample copy: rated 4.8 out of 5</p>"), [])
+
+    def test_loved_by_and_join_thousands_flagged(self):
+        self.assertTrue(check("<p>Loved by 10,000+ freelancers</p>"))
+        self.assertTrue(check("<p>Loved by over 500 shops</p>"))
+        self.assertTrue(check("<p>Join thousands of happy users</p>"))
+        self.assertTrue(check("<p>Join the millions of teams</p>"))
+        self.assertEqual(check("<p>Loved by its author, used by nobody yet.</p>"), [])
+        self.assertEqual(check("<p>Join the two tables on id.</p>"), [])
+
     def test_format_example_allowed(self):
         self.assertEqual(check("start a block with <code>5 stars</code> or ★★★☆☆ e.g."), [])
 
@@ -159,7 +180,8 @@ class PrefilterIsSuperset(unittest.TestCase):
                  "Satisfied", "customers", "rated", "4.8", "/5", "/ 5", "out of 5",
                  "stars", "★★★", "⭐⭐⭐", "3-star", "rating", "as seen", "AS FEATURED",
                  "on", "in", "award-winning", "Award winning", "#1 rated", "#1 choice",
-                 "best-selling", "Best selling", "over", "more than", "x", " ", "<p>"]
+                 "best-selling", "Best selling", "over", "more than", "x", " ", "<p>",
+                 "Loved by", "loved BY", "500", "thousands", "Millions", "of", "the"]
         rng = random.Random(7)
         for _ in range(20000):
             line = " ".join(rng.choice(frags) for _ in range(rng.randint(1, 6)))

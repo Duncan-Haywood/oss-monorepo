@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [layout, responsive, forms, accessibility]
+topics: [design, accessibility]
 date: 2026-11-12
 ---
 # Polish 2026-11-12: checkboxes and radios on phones stop being squashed (423 at 320 px, 172 at 390 px)

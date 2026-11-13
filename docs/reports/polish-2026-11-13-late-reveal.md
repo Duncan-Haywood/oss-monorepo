@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-13
+tagged: auto
+---
 # Polish, 2026-11-13: the last two pages over Google's CLS line
 
 **Why.** Item 1 of "Still weakest" in `polish-2026-11-13-rows-reserve.md`: seven tools were skipped by

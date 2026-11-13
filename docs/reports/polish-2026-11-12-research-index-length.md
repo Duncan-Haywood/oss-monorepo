@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-12
+tagged: auto
+---
 # Polish 2026-11-12: the research index, 44,050 px tall on a phone, now 25,455
 
 **Why this item.** Item 3 of "still weakest" in `polish-2026-11-12-related-posts.md`: "The research

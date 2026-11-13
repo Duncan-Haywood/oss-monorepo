@@ -1,3 +1,8 @@
+---
+kind: note
+date: 2026-11-11
+tagged: auto
+---
 # Venture test-suite times, 2026-11-11
 
 For perf runs choosing a target (perf doc friction 2026-11-11: "no per-venture

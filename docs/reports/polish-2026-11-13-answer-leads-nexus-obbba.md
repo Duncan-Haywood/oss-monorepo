@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-13
+tagged: auto
+---
 # Polish 2026-11-13: answer leads on the nexus tracker and four OBBBA deduction tools
 
 **Why.** Item 1 of "Still weakest" in `polish-2026-11-13-answer-leads-etsy-garnishment.md`, carried

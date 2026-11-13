@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-12
+tagged: auto
+---
 # Polish 2026-11-12: three pages that froze on an extra zero
 
 **Why.** Item 1 of "Still weakest" in `polish-2026-11-12-finding-headings-varied.md`: one field set
