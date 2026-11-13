@@ -242,6 +242,16 @@ test("a discount that still clears the target needs no scope cut", () => {
   assert.match(discountAskSummary(quote, report), /no scope cut is required/);
 });
 
+test("a discount that exactly reaches direct costs leaves no hours at target (quality round 68 edge)", () => {
+  // 10% off 1000 is 900, all of it overhead: nothing left to pay any hour.
+  const quote = loadQuote({ price: 1000, delivery_hours: 10, overhead: 900, target_hourly_rate: 50 });
+  const report = calculate(quote);
+  const ten = discountAskScenarios(quote, report).find((row) => row.percent === 10);
+  assert.equal(ten.cost_coverage, 0);
+  assert.equal(ten.hours_at_target, null);
+  assert.equal(ten.hours_to_cut, null);
+});
+
 test("a discount that no longer covers direct costs cannot be fixed by cutting hours", () => {
   const quote = loadQuote({ price: 1000, delivery_hours: 10, overhead: 800, target_hourly_rate: 80 });
   const report = calculate(quote);

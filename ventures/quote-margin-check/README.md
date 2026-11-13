@@ -11,8 +11,6 @@ target-price comparison.
 [`site/index.html`](site/index.html) directly in a browser, or serve the
 `site/` directory statically — it is a self-contained, zero-dependency page
 with the same math as the CLI below (see [`site/calc.mjs`](site/calc.mjs)).
-Not yet deployed to a public URL — publishing under the portfolio's name is
-owner-gated per `portfolio/DIRECTION.md` — but it's ready to deploy as-is.
 
 The static surface includes crawlable `robots.txt` and `sitemap.xml` files so
 the calculator can be discovered by search engines and AI assistants when it is
