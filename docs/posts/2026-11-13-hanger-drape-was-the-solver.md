@@ -1,9 +1,9 @@
 ---
 title: "Yesterday's 'locked' cloth element was a solver that never arrived"
-seo_title: "Cloth FEM drape test: continuation fixes the solve, fold branches remain"
+seo_title: "Cloth FEM drape test: continuation fixes the solve; fold branches stay"
 date: 2026-11-13
 tags: [research, robotics, cloth-simulation, laundry-robot, digital-twin, finite-elements]
-description: "Stepped up in stretch stiffness from a soft solution, a triangle cloth element converges on all 40 drape cases and passes the mesh test on a cotton jersey at its own stiffness."
+description: "Raised in stretch stiffness from a soft solution, a triangle cloth element converges on all 40 drape cases and passes the mesh test on a jersey."
 ---
 
 Yesterday's step in the [`hanger-codesign`](../../research/hanger-codesign/)
