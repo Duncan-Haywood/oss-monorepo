@@ -908,8 +908,78 @@ crash followed by slow calm is what GARCH describes. For bursts as changes, use 
 
 Costs and limits. Each step rescans every segment, so above 250 points the search scans every `ceil(n / 250)` points and
 then every point within that stride of the best (`garch-search.test.mjs` checks it lands on the same cut as the full scan
-on a clear step); 20,000 points at most. The 95% ranges still come from the independent-noise cost and are too narrow when
-the volatility clusters; the output warns. Not with `--robust`, `--dispersion`, `--bootstrap`, `--ar1`, `--trend` or `--period`.
+on a clear step); 20,000 points at most. Since 2026-11-13 (later) the 95% ranges come from the GARCH fit when it reads the
+noise as clustered (next section); before that they came from the independent-noise cost and held the date on a volatility
+step only 75-77% of the time. Not with `--robust`, `--dispersion`, `--bootstrap`, `--ar1`, `--trend` or `--period`.
+
+### A range from the GARCH fit (2026-11-13, pre-registered; ships)
+
+The output used to warn that `--garch` ranges were "too narrow", because they came from the independent-noise meanvar cost,
+not the model that chose the cuts. That was never measured. `garchCost` in `engine.mjs` is the GARCH segment likelihood
+at the fitted shared (a, b) used as a `changeIntervals` cost: the same profile-likelihood range as every other model
+(positions between the neighbouring cuts weighted by exp(-cost / 2), the smallest set holding 95%). It is used only when
+the search reads the noise as clustered; otherwise the GARCH and meanvar costs are the same model. There is no free
+parameter, so nothing was tuned.
+
+**Pre-registered** (`eval/meanvar-garch-range-prereg-2026-11-13.md`, committed before the run; `node
+eval/meanvar-garch-range.mjs 400 4000003 200,400`, output `eval/meanvar-garch-range-prereg.out.txt`). GARCH(1,1) noise, one
+change at n / 2, 400 series per cell, scored among series where `--garch` reads the noise as clustered and finds exactly one
+cut within 15 points. Planted index held by the range (median width in points):
+
+| n, change | kept | independent-noise range | GARCH range |
+|---|---|---|---|
+| 200, sd 1 to 2 | 142 | 77% (14) | **93%** (26) |
+| 200, mean +1.5 | 294 | 94% (6) | **97%** (6) |
+| 400, sd 1 to 2 | 248 | 75% (15) | **98%** (37) |
+| 400, mean +1.5 | 374 | 92% (6) | **96%** (6) |
+
+**It passes** (at least 90% in every cell and at least the old range's coverage). The old warning was right about
+volatility steps: the independent-noise range missed the date a quarter of the time, because clustering makes a stretch
+of high volatility look like the new regime arriving early or late. Mean shifts were already close to 95% and keep their
+6-point width. So `--garch` ranges now come from the GARCH fit and the warning is gone. Conditioned on a kept cut near the
+truth, as every coverage table in this README is; simulated noise only.
+
+On the real returns (descriptions, not evidence): the DAX's early cuts keep 3-point ranges (rows 25-27, 37-39), but its late
+volatility rise at row 1480 widens from rows 1469-1495 to **273-1576**: under the GARCH fit the data say volatility was
+higher at the end, not when it rose. The SMI's matching cut narrows (1450-1567 to 1442-1500); the CAC's widen a little
+(1155-1226 to 1130-1232, 1395-1500 to 1390-1500). Test: `garch-search.test.mjs`.
+
+### Heavy tails in the GARCH search: Student t innovations (2026-11-13, pre-registered; fails one line, not shipped)
+
+`--garch` raised a false change on 44-49% of t3 series: a Gaussian segment likelihood reads one heavy-tailed move as a
+change of volatility. `garchCuts(x, { tPen })` adds two paths to the model choice: independent Student t noise and t-GARCH
+(Bollerslev 1987), the standardised residual a unit-variance t with nu from {4, 8} shared across segments. Each segment's
+mean and scale come from four EM passes (weights (nu + 1) / (nu - 2 + z^2)); `garch-t.test.mjs` checks the EM against a
+brute-force grid over mean and scale and the t likelihood against the Gaussian at large nu. A t path pays tPen on top of
+the per-cut and GARCH-term penalties. Tuned in sample (shift 0, 100 per cell, `eval/meanvar-tgarch-tuning.out.txt`):
+tPen in {0.25, 0.5, 1} ln n; 0.5 taken. Known bias, stated in the pre-registration: the shipped Gaussian GARCH path is
+slightly under-converged (two scale passes, unweighted mean), so a t path at very large nu scores up to ~0.3 higher per
+segment against a penalty of 2.3 at n = 100.
+
+**Pre-registered on fresh seeds** (`eval/meanvar-tgarch-prereg-2026-11-13.md`; `node eval/meanvar-tgarch.mjs 200 3000003
+off,0.5`, run split across four processes, output `eval/meanvar-tgarch-prereg.out.txt`). Null any change / sd 1 to 2 found
+exactly once / mean +1.5 found exactly once; t-GARCH noise is GARCH with t5 innovations:
+
+| n, noise | shipped `--garch` | with t paths |
+|---|---|---|
+| 100, Gaussian | 2% / 80% / 96% | 2% / 78% / 97% |
+| 100, GARCH | 13% / 53% / 82% | 13% / 53% / 82% |
+| 100, t3 | 38% / 67% / 65% | **4%** / **58%** / **96%** |
+| 100, t-GARCH | 37% / 58% / 60% | 20% / 51% / 73% |
+| 200, Gaussian | 1% / 96% / 100% | 1% / 95% / 100% |
+| 200, GARCH | 9% / 64% / 89% | 9% / 64% / 89% |
+| 200, t3 | 54% / 57% / 42% | **3%** / **90%** / **98%** |
+| 200, t-GARCH | 38% / 62% / 49% | 12% / 54% / 77% |
+
+**It fails one line of the bar**: the t3 variance break at n = 100 is found exactly once in 58% of series, under the bar of
+the shipped search's 67% minus 5. Every other line passes: t3 false alarms 4% and 3% (bar at most 10%, from 38% and 54%),
+t3 mean shifts 96% and 98%, t-GARCH false alarms 12% at n = 200 and 20% (below 37%) at n = 100, Gaussian and GARCH cells
+within a point or two. The pre-registration said nothing ships on a failure, so `analyze` does not use it and `--garch`'s
+note still says to use `--bootstrap` on heavy tails. Reading it plainly: the shipped search's 67% comes with a 38% false
+alarm rate on the same noise, so its "found" is less trustworthy than the t search's 58%; but that argument was available
+before the run and the bar did not make it. Next: a pre-registration that scores the variance break jointly with false
+alarms (for instance found-exactly-once minus null false alarms), or nu read off a finer grid, on new seeds. On the real
+returns the t paths take nu = 8 (DAX cuts 37 and 1437; the Dow still none) at 4x to 10x the run time (15 s on 8,609 points).
 
 ### A second dispersion round does not help (2026-10-26, negative result)
 

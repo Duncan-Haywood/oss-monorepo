@@ -61,7 +61,9 @@ test('dax: the GARCH search keeps the row 1482 rise and the early spike, as --bo
   const r = analyze({ values: rows.map((x) => +x[1]), labels: rows.map((x) => x[0]), model: 'meanvar', garch: true });
   assert.deepEqual(r.pelt.changepoints.map((c) => c.label), ['28', '39', '1482']);
   assert.deepEqual([r.garch.clustered, r.garch.alpha, r.garch.beta], [true, 0.1, 0.85]);
-  assert.match(r.rangeWarning, /too narrow/);
+  // ranges come from the GARCH fit, so the old 'too narrow' warning is gone
+  assert.ok(!r.rangeWarning);
+  assert.ok(r.pelt.changepoints.every((c) => c.range95 && c.range95.fromIndex <= c.index && c.index <= c.range95.toIndex));
 });
 
 test('djia: 33 years of daily returns, the clustering explains 1987 and 2008 and nothing is cut', () => {
@@ -69,4 +71,17 @@ test('djia: 33 years of daily returns, the clustering explains 1987 and 2008 and
   const r = analyze({ values: rows.map((x) => +x[1]), labels: rows.map((x) => x[0]), model: 'meanvar', garch: true });
   assert.equal(r.pelt.changepoints.length, 0);
   assert.equal(r.garch.clustered, true);
+});
+
+test('the 95% range of a clustered --garch cut comes from the GARCH fit and is wider than the independent-noise one', async () => {
+  const { changeIntervals, makeCost, garchCost } = await import('./engine.mjs');
+  // sd 1 to 2 break on GARCH noise, the case where the independent-noise range held the date in 75-77% of series
+  let k = 0, x, r;
+  do { x = garchNoise(rng(4400 + k++), 200).map((v, i) => (i < 100 ? v : 2 * v)); r = analyze({ values: x, model: 'meanvar', garch: true }); }
+  while (!(r.garch.clustered && r.pelt.changepoints.length === 1));
+  const c = r.pelt.changepoints[0], cuts = [c.index];
+  const [g] = changeIntervals(cuts, 200, garchCost(x, r.garch.alpha, r.garch.beta), { minSegment: 10 });
+  const [ind] = changeIntervals(cuts, 200, makeCost(x, 'meanvar'), { minSegment: 10 });
+  assert.deepEqual([c.range95.fromIndex, c.range95.toIndex], [g.from, g.to]);
+  assert.ok(g.to - g.from >= ind.to - ind.from);
 });
