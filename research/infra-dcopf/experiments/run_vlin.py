@@ -15,7 +15,12 @@ LOG.md, written after J's results) and writes results_vlin_margin.txt and .json.
 With --analytic (milestone 2, plan in LOG.md 2026-11-13) the sensitivities come from the power-flow
 Jacobian (vlin.jacobian_sens) instead of finite differences; outputs get the suffix _analytic and a
 case-by-case comparison with the finite-difference run of the same variant.
-Usage: run_vlin.py [--margin] [--analytic] [case ...]; OMP_NUM_THREADS=1 recommended (4 worker processes)."""
+With --clarabel (milestone 2b) every QP is solved by Clarabel instead of PIPS (suffix _clarabel,
+compared with the PIPS run like --screen).
+With --screen (milestone 2b, plan in LOG.md 2026-11-13) every QP is solved by constraint generation
+over the rows near their bounds (vlin.solve(screen=True)); outputs get the suffix _screen and a
+case-by-case comparison with the unscreened run of the same variant.
+Usage: run_vlin.py [--margin] [--analytic] [--screen | --clarabel] [case ...]; OMP_NUM_THREADS=1 recommended (4 worker processes)."""
 import copy
 import json
 import sys
@@ -41,6 +46,8 @@ from run_pglib import ACOPT, CASES, DCOPT  # noqa: E402
 KINDS = ["typ", "api", "sad"]
 MARGIN = "--margin" in sys.argv
 ANALYTIC = "--analytic" in sys.argv
+SCREEN = "--screen" in sys.argv
+SOLVER = "clarabel" if "--clarabel" in sys.argv else "pips"
 
 
 def strip(c):
@@ -72,9 +79,12 @@ def run_case(job):
     out["start"] = strip(vlin.check(ppc, start, vf))
     t1 = time.time()
     pf0 = vlin.PF_COUNT[0]
-    hist = vlin.slp(ppc, start, vf, margin=vlin.MARGIN if MARGIN else None, analytic=ANALYTIC)
+    qs0 = dict(vlin.QP_STATS)
+    hist = vlin.slp(ppc, start, vf, margin=vlin.MARGIN if MARGIN else None, analytic=ANALYTIC, screen=SCREEN,
+                    solver=SOLVER)
     out["J_secs"] = time.time() - t1
     out["J_pf"] = vlin.PF_COUNT[0] - pf0
+    out["J_qp"] = {k: vlin.QP_STATS[k] - qs0[k] for k in qs0}
     b = vlin.best_of(hist, ppc["baseMVA"])
     out["J"] = {"rounds": len(hist), "clean_at": next((x["it"] for x in hist if x.get("clean")), None),
                 "p_clean_at": next((x["it"] for x in hist if x.get("p_clean")), None),
@@ -165,6 +175,65 @@ def compare_fd(rows, L):
       f"A ran {agg['apf']} AC power flows in its repairs")
 
 
+def compare_screen(rows, L):
+    """Milestone 2b: screened-QP run against the unscreened run of the same variant."""
+    P = L.append
+    tag = ("results_vlin_margin" if MARGIN else "results_vlin") + ("_analytic" if ANALYTIC else "")
+    path = HERE / f"{tag}.json"
+    if not path.exists():
+        return
+    full = {(r["case"], r["kind"]): r for r in json.loads(path.read_text())}
+    P("")
+    lab = "Clarabel (C)" if SOLVER == "clarabel" else "Screened QP (S)"
+    P(f"{lab} against PIPS on the full QP (U), same variant ({path.name}); S/C columns are this run:")
+    P(f"{'case':18s} {'kind':4s} {'U':>6s} {'S':>6s} {'U+R':>6s} {'S+R':>6s} {'same path':>9s} {'dCost pp':>9s} "
+      f"{'U s':>7s} {'S s':>7s} {'speedup':>7s} {'rows':>6s} {'used':>6s} {'pass':>5s} {'fb':>3s}")
+    agg = {"u": 0, "s": 0, "ur": 0, "sr": 0, "same": 0, "path": 0, "n": 0, "us": 0.0, "ss": 0.0,
+           "rows": 0, "used": 0, "calls": 0, "passes": 0, "fb": 0}
+    dcost, ratios = [], []
+    for r in rows:
+        f = full.get((r["case"], r["kind"]))
+        if "J" not in r or not f or "J" not in f:
+            continue
+        def st(x):
+            return f"@{x['J']['clean_at']}" if x["J"]["clean_at"] else "no"
+        def jr(x):
+            return bool(x["J"]["clean_at"] or (x.get("JR", {}).get("ok") and x["JR"]["final"] and x["JR"]["final"]["clean"]))
+        dc = ""
+        if r["J"]["clean_at"] and f["J"]["clean_at"]:
+            d = pct(r["J"]["final"]["cost"], r["ac"]) - pct(f["J"]["final"]["cost"], f["ac"])
+            dcost.append(d)
+            dc = f"{d:+.4f}"
+        same_path = r["J"]["statuses"] == f["J"]["statuses"]
+        q = r.get("J_qp", {})
+        sp = f.get("J_secs", 0.0) / max(r["J_secs"], 1e-9)
+        ratios.append(sp)
+        P(f"{r['case']:18s} {r['kind']:4s} {st(f):>6s} {st(r):>6s} {str(jr(f)):>6s} {str(jr(r)):>6s} {str(same_path):>9s} "
+          f"{dc:>9s} {f.get('J_secs', 0):7.1f} {r['J_secs']:7.1f} {sp:6.1f}x {q.get('rows_full', 0):6d} "
+          f"{q.get('rows_used', 0):6d} {q.get('passes', 0):5d} {q.get('fallback', 0):3d}")
+        agg["n"] += 1
+        agg["u"] += bool(f["J"]["clean_at"])
+        agg["s"] += bool(r["J"]["clean_at"])
+        agg["ur"] += jr(f)
+        agg["sr"] += jr(r)
+        agg["same"] += bool(f["J"]["clean_at"]) == bool(r["J"]["clean_at"])
+        agg["path"] += same_path
+        agg["us"] += f.get("J_secs", 0.0)
+        agg["ss"] += r["J_secs"]
+        for k, kk in (("rows", "rows_full"), ("used", "rows_used"), ("calls", "calls"), ("passes", "passes"), ("fb", "fallback")):
+            agg[k] += q.get(kk, 0)
+    P(f"  {agg['n']} cases: fully clean U {agg['u']}, S {agg['s']} (same verdict on {agg['same']}, same round-by-round "
+      f"statuses on {agg['path']}); with the reactive stage U {agg['ur']}, S {agg['sr']}")
+    if dcost:
+        P(f"  cost difference S - U where both fully clean ({len(dcost)}): max |d| {max(abs(x) for x in dcost):.4f} pp, "
+          f"mean {np.mean(dcost):+.4f} pp")
+    P(f"  repair time (J only, summed): U {agg['us']:.0f} s, S {agg['ss']:.0f} s ({agg['us'] / max(agg['ss'], 1e-9):.1f}x); "
+      f"per-case speedup median {np.median(ratios):.1f}x, range {min(ratios):.1f} to {max(ratios):.1f}x")
+    P(f"  QP rows: {agg['rows']} in the full QPs, {agg['used']} used by the screened ones "
+      f"({100 * agg['used'] / max(agg['rows'], 1):.1f} %); {agg['passes']} PIPS solves for {agg['calls']} QPs; "
+      f"{agg['fb']} fell back to the full QP")
+
+
 def main():
     only = [a for a in sys.argv[1:] if not a.startswith("--")]
     jobs = [(c, k) for k in KINDS for c in CASES if not only or c in only]
@@ -247,11 +316,14 @@ def main():
     P(f"  Run time, all cases: this script {sum(r['secs'] for r in rows):.0f} s (milestone 3's run_vsched: {ms3:.0f} s, "
       f"which also ran the O arm and two reactive stages)")
     P("Run time: " + ", ".join(f"{r['case']}/{r['kind']} {r['secs']:.0f}s" for r in rows))
-    if ANALYTIC:
+    if ANALYTIC and not SCREEN:
         compare_fd(rows, L)
+    if SCREEN or SOLVER != "pips":
+        compare_screen(rows, L)
     text = "\n".join(L) + "\n"
     if not only:
-        tag = ("results_vlin_margin" if MARGIN else "results_vlin") + ("_analytic" if ANALYTIC else "")
+        tag = (("results_vlin_margin" if MARGIN else "results_vlin") + ("_analytic" if ANALYTIC else "")
+               + ("_screen" if SCREEN else "") + ("_clarabel" if SOLVER != "pips" else ""))
         (HERE / f"{tag}.json").write_text(json.dumps(jsonable(rows), indent=1))
         (HERE / f"{tag}.txt").write_text(text)
     print(text)
