@@ -251,3 +251,27 @@ def test_satterthwaite_and_hotelling_reference():
     # p = 1: the square of Student's t
     from scipy.stats import t
     assert abs(hotelling_crit(1, 5.0) - t.ppf(0.995, 5) ** 2) < 1e-9
+
+
+def test_m4e_self_scale_recovers_per_view_spread():
+    """Milestone 4e: if each view adds an independent offset to f, the old set's 4 + 3 split-half
+    scale tau recovers the per-view sd, so tau^2 (1/7 + 1/k) is the update's variance."""
+    import importlib.util, itertools
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    spec = importlib.util.spec_from_file_location("m4e", os.path.join(root, "experiments", "m4e_selfscale", "analyse.py"))
+    m4e = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m4e)
+    rng = np.random.default_rng(3)
+    sd, taus = 0.01, []
+    for _ in range(400):
+        e = rng.normal(0, sd, 7)
+        old = tuple(range(7))
+        sols = {("m", "c", old): dict(f=500 * (1 + e.mean()), status=1)}
+        for n in (3, 4):
+            for a in itertools.combinations(old, n):
+                sols[("m", "c", a)] = dict(f=500 * (1 + e[list(a)].mean()), status=1)
+        t2, npart, _ = m4e.self_scale(sols, "m", "c", old)
+        assert npart == 35
+        taus.append(t2)
+    # the median-based estimate from 7 views is noisy but centred near the truth
+    assert 0.7 < np.sqrt(np.median(taus)) / sd < 1.3
