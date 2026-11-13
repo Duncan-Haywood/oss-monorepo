@@ -1,6 +1,6 @@
 ---
 title: "A steady speed-up is not a block: tuning a bored-respondent detector to each survey"
-seo_title: "Survey data quality: per-survey thresholds for detecting click-through from answer times"
+seo_title: "Per-survey thresholds for spotting survey click-through by answer time"
 date: 2026-11-13
 description: "Reading each panel's own slow turns sets the threshold, and a step-versus-line test stops honest people who just get faster from being cut."
 tags: [quick-pick-survey, surveys, data-quality, response-time, changepoint, simulation]
