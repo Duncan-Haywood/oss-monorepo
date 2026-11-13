@@ -205,9 +205,14 @@ it recovered all of what leaving out exactly the careless answers would when the
 pace, against 64-82% for the per-answer cut, and cost at most 0.0004 Spearman in any cell. Since
 2026-11-13 "everyone at that point" means the upper quarter of the panel's times there, not the
 median, so a large group turning quick at once cannot drag the comparison down with them: with 40%
-of the panel turning at 0.6x pace it finds 72-80% of them instead of 31-60%. A comparison for now
-(same file, "Carelessness that starts mid-session" and "A panel curve the careless cannot drag
-down").
+of the panel turning at 0.6x pace it finds 72-80% of them instead of 31-60%. Since later that day
+the speed-up it needs is set per survey from how big a *slow* turn the panel's own honest noise
+makes (between 33% and 40% quicker), and the drop must look like a step, not a steady speed-up over
+the whole session: in that case it now recovers 99% of the harm (was 86%) for the salience pattern
+and 95% (was 64%) for random clicking, and where people speed up on their own, it flags 9% of
+honest respondents instead of 26%. A comparison for now (same file, "Carelessness that starts
+mid-session", "A panel curve the careless cannot drag down" and "A threshold from the panel's own
+slow turns").
 Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.
 
 **A person's own results** (`/api/insights`) refit all of that person's answers at once
