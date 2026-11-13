@@ -35,6 +35,14 @@ Everything runs in your browser. Your prices, headcounts, and fees are never upl
 
 - [Appointment deposit calculator](../appointment-deposit-calculator/) — sets a deposit amount and drafts a cancellation policy for the trial or the wedding-day booking itself.
 
+## Known gaps
+
+From the round-65 quality audit ([`portfolio/quality/audits/2026-11-13-bridal-hair-makeup-pricing-calculator.json`](../../portfolio/quality/audits/2026-11-13-bridal-hair-makeup-pricing-calculator.json)):
+
+- The early-start fee and travel are charged once per booking; many artists charge them per stylist. There is no free-mileage radius, retainer, gratuity or touch-up hours, and no way to staff a separate hair stylist and makeup artist.
+- The default timings (60 min a look, 90 for the bride) sit below the 75 to 90 min per bridesmaid and 2 to 3 hours for a bride that wedding guides suggest; set your own.
+- The artist count comes from a longest-look-first schedule, which is always achievable but can be one above the true minimum on awkward parties.
+
 ## Tests
 
 ```

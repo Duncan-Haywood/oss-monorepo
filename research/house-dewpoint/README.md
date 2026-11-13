@@ -32,6 +32,8 @@ python experiments/figure.py                   # experiments/winter_condensation
 - Permeances (including that real kraft and OSB permeance rises with humidity) and climate months are assumed, not sourced. A rate above zero means the model's diffusion path saturates, not that the wall rots.
 - Summer solar-driven inward drive is not modelled, so the summer result is uninformative.
 - Not a design and not a code check. A licensed professional and the local code are needed first.
+- Saturation pressure below 0 °C is taken over water; ISO 13788 uses ice. Over ice, Duluth painted drywall goes from 11.4 to about 12.1 g/m²/day and Chicago kraft from 0.05 to about 0.09; which walls condense does not change (round-65 quality audit, [`portfolio/quality/audits/2026-11-13-house-dewpoint.json`](../../portfolio/quality/audits/2026-11-13-house-dewpoint.json)).
+- The pattern of which walls stay dry matches the IRC R702.7 continuous-insulation table (R-7.5 on 2x6 in zone 5, R-15 in zone 7; values from memory, not re-read), which this project did not cite; it recovers a known code table from unsourced inputs rather than adding a new result.
 
 ## Next steps
 Replace assumed values with sourced ones (ASHRAE Fundamentals permeance tables, TMY monthly data); add a humidity-dependent "smart" retarder and an air-leakage term; add a wet-cladding source for summer; validate against a published Glaser example.
