@@ -113,3 +113,13 @@ maximum extent permitted by law, the authors accept no liability for any
 loss or damage arising from its use.
 
 MIT licensed — see [`LICENSE`](LICENSE).
+
+## Known gaps
+
+From the 2026-11-13 quality audit
+([`portfolio/quality/audits/2026-11-13-roofing-bid-calculator.json`](../../portfolio/quality/audits/2026-11-13-roofing-bid-calculator.json)):
+
+- Input is footprint plus pitch; measured surface squares from an aerial report cannot be entered directly.
+- No deck-replacement (sheathing) allowance and no linear-foot items (drip edge, starter, ridge cap,
+  valley metal, ice barrier); accessories are one lump sum.
+- One waste percentage applies to every section, so a cut-up hip section cannot carry more waste than a gable.

@@ -140,7 +140,7 @@
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     const KEYS = Object.keys(DEFAULTS);
-    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
     const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;

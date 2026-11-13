@@ -1,0 +1,120 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqydEPxhtVDBVYEEGPUk",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T18:39:22Z",
+  "ended": "2026-11-13T18:48:58Z",
+  "wall_minutes": 9.71,
+  "tokens_in": 2739641,
+  "tokens_out": 14733,
+  "cost_usd": 1.3572,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15579",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First background timing run used /usr/bin/time, which this container lacks; reran with date arithmetic."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/pages-test-perf-2026-11-12-shared-walk-memo.md",
+      "issue": "Item 2 quoted the cache-name test at 18.7 s; a later sync-read change had cut it to 7.1 s, so the expected win was smaller than listed."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-reading-the-site-twice-not-three-times.md",
+    "docs/history/pages-test-perf-2026-11-13-cache-name-digests-once.md"
+  ],
+  "goal": null,
+  "notes": "Metric: duration_ms of 'changing the worker itself changes the cache name' in `node --test --test-reporter=tap build.test.mjs` (platform/pages, 4 cores). Before 7.1 s, after 4.9 s (-31%). File wall 289 s (cold card cache) before vs 102 s (warm) after; not comparable, the build-waiting test carries card drawing. Output unchanged: old and new offlineCacheName give identical names over ventures/ with and without codeVersion. 312/312 pass. Pool: ci_profile --runs 300: Test the site builder 52.2 job-min, median 296 s.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1756b64d-1f99-56b3-a607-78ce714a1d86",
+    "transcripts": 1,
+    "first": "2026-11-13T18:39:22Z",
+    "last": "2026-11-13T18:49:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 70,
+        "output": 14733,
+        "thinking": 3915,
+        "cache_read": 2673634,
+        "cache_write_5m": 0,
+        "cache_write_1h": 65937,
+        "api_equivalent_usd": 1.3572,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 70,
+      "output": 14733,
+      "thinking": 3915,
+      "cache_read": 2673634,
+      "cache_write_5m": 0,
+      "cache_write_1h": 65937,
+      "api_equivalent_usd": 1.3572,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.71,
+      "active_minutes": 9.71,
+      "model_minutes": 2.62,
+      "tool_minutes": 7.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

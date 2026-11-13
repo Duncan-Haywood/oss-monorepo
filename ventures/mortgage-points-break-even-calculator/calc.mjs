@@ -122,7 +122,7 @@ export function analyze(raw) {
   if (!(o.pointsPct >= 0)) warnings.push("Points cost cannot be negative. For a lender credit, see the FAQ.");
   if (o.pointsRate >= o.baseRate) warnings.push("The rate with points should be lower than the rate without. Otherwise the points buy nothing.");
   if (o.horizon > o.term) warnings.push("You plan to keep the loan longer than its term; the horizon was capped at the term.");
-  if (warnings.length && (!(o.loan > 0) || !(o.term > 0) || o.term > 100 || o.pointsRate >= o.baseRate)) return { warnings, rows: [] };
+  if (warnings.length && (!(o.loan > 0) || !(o.term > 0) || o.term > 100 || o.pointsRate >= o.baseRate || !(o.pointsPct >= 0) || !(o.baseRate >= 0) || !(o.pointsRate >= 0))) return { warnings, rows: [] };
 
   const horizon = Math.min(nz(o.horizon) || o.term, o.term);
   const hm = Math.round(horizon * 12);

@@ -61,6 +61,10 @@ export function phrasesOf(events) {
 }
 
 export const BARITONE_RANGE = { low: 45, high: 65 }; // A2-F4
+// Second tenors (TTBB, 2026-11-13): option tenor2 splits the tenors in two, 'tenor' then
+// being the first tenors. The default, C3-G4, is a rule-of-thumb second-tenor range, two
+// semitones under the tenor default at the top; an assumption, not a measurement.
+export const TENOR2_RANGE = { low: 48, high: 67 }; // C3-G4
 
 // Who can sing a unit: a set of sections, as a bitmask over the section list. With two
 // sections the sets are 'all', 'tenor' and 'bass' (the 2026-11-13 behaviour). With a
@@ -127,12 +131,12 @@ const less = (a, b) => {
 
 // missing counts section-notes not sung: a note sung by one of three sections misses two.
 // With two sections it is the number of notes the full choir does not sing, as before.
-export function splitVoices(events, { tenor = TENOR_RANGE, bass = BASS_RANGE, baritone = null, shift = null, words = 'needed', wordCost = 3, overlap = false, entranceCost = 0 } = {}) {
-  for (const r of [tenor, bass, ...(baritone ? [baritone] : [])]) if (!(r.low < r.high)) throw new Error('low must be below high');
+export function splitVoices(events, { tenor = TENOR_RANGE, bass = BASS_RANGE, baritone = null, tenor2 = null, shift = null, words = 'needed', wordCost = 3, overlap = false, entranceCost = 0 } = {}) {
+  for (const r of [tenor, bass, ...(baritone ? [baritone] : []), ...(tenor2 ? [tenor2] : [])]) if (!(r.low < r.high)) throw new Error('low must be below high');
   if (!['never', 'needed', 'prefer'].includes(words)) throw new Error(`words must be never, needed or prefer, not ${words}`);
   if (!(Number.isInteger(wordCost) && wordCost >= 0)) throw new Error('wordCost must be a whole number of notes, 0 or more');
   if (!(Number.isInteger(entranceCost) && entranceCost >= 0)) throw new Error('entranceCost must be a whole number of notes, 0 or more');
-  const sections = [['tenor', tenor], ...(baritone ? [['baritone', baritone]] : []), ['bass', bass]];
+  const sections = [['tenor', tenor], ...(tenor2 ? [['tenor2', tenor2]] : []), ...(baritone ? [['baritone', baritone]] : []), ['bass', bass]];
   const S = sections.length;
   const both = { low: Math.max(...sections.map((x) => x[1].low)), high: Math.min(...sections.map((x) => x[1].high)) };
   if (both.low > both.high) throw new Error(`the ${sections.map((x) => x[0]).join(', ')} ranges do not overlap (${sections.map((x) => `${noteName(x[1].low)}-${noteName(x[1].high)}`).join(', ')})`);
@@ -269,6 +273,7 @@ export function splitVoices(events, { tenor = TENOR_RANGE, bass = BASS_RANGE, ba
     tenorNotes: count('tenor'),
     bassNotes: count('bass'),
     ...(baritone ? { baritoneNotes: count('baritone') } : {}),
+    ...(tenor2 ? { tenor2Notes: count('tenor2') } : {}),
     voiceNotes,
     sectionNotes,
     changes: best.cost.changes,
@@ -281,9 +286,12 @@ export function splitVoices(events, { tenor = TENOR_RANGE, bass = BASS_RANGE, ba
 }
 
 // One line for the CLI and the studio page: who sings what, from a fitting splitVoices result.
-const WHO_NAME = { all: 'all', tenor: 'tenors', baritone: 'baritones', bass: 'basses' };
-const whoName = (v) => v.split('+').map((x) => (Object.hasOwn(WHO_NAME, x) ? WHO_NAME[x] : x)).join(' and ');
+// With second tenors in the choir, 'tenor' names the first tenors.
+const WHO_NAME = { all: 'all', tenor: 'tenors', tenor2: 'second tenors', baritone: 'baritones', bass: 'basses' };
 export function describeSplit(r) {
+  const names = r.sections && r.sections.includes('tenor2') ? { ...WHO_NAME, tenor: 'first tenors' } : WHO_NAME;
+  const list = (xs) => (xs.length < 3 ? xs.join(' and ') : `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`);
+  const whoName = (v) => list(v.split('+').map((x) => (Object.hasOwn(names, x) ? names[x] : x)));
   if (!r.split) return `the whole chant fits ${r.unison.join('-')}, so the full choir sings every phrase (final ${r.finalName})`;
   const whole = (v) => r.phrases.map((p, k) => (p.voice === v ? k + 1 : 0)).filter(Boolean);
   const counts = r.voiceNotes || { tenor: r.tenorNotes, bass: r.bassNotes };

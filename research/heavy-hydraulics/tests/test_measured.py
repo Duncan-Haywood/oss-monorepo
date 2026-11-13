@@ -300,3 +300,27 @@ def test_pump_loss_fit_recovers_a_known_model_and_the_shortfall_formula():
         0.2203 * 219 * 8.25 * 0.1 / (600 * 0.144))
     with pytest.raises(ValueError):
         flat_hold_shortfall(true, 150.0, 219.0, 0.2203, 0.1, 1.0)
+
+
+def test_continued_loss_modes_and_stroke_shortfall():
+    from heavy_hydraulics.measured import (continued_loss, stroke_shortfall, loss_model_eta,
+                                           part_stroke_eta)
+    true = (3.0, 0.02, 1e-4, 0.05)
+    fr = [12 / 45, 0.5, 0.75, 1.0]
+    ps = [50.0, 100.0, 150.0, 250.0]
+    tab = (fr, ps, [[loss_model_eta(true, x, p) for x in fr] for p in ps])
+    x0, p = fr[0], 150.0
+    l0 = x0 * p * (1 / part_stroke_eta(tab, x0, p) - 1)
+    # continuous at x0 in every mode, and equal to the table above it
+    for mode in ("flat", "anchored", "model"):
+        assert continued_loss(tab, 0.05, x0, p, mode, true) == pytest.approx(l0)
+        assert continued_loss(tab, 0.05, x0 - 1e-9, p, mode, true) == pytest.approx(l0, rel=1e-6)
+    # flat: loss proportional to stroke (efficiency held); anchored on an exact linear table = the model
+    assert continued_loss(tab, 0.05, x0 / 2, p, "flat") == pytest.approx(l0 / 2)
+    a = 3.0 + 0.02 * p + 1e-4 * p * p
+    assert continued_loss(tab, 0.05, 0.0, p, "anchored") == pytest.approx(a)
+    assert continued_loss(tab, 0.05, 0.1, p, "model", true) == pytest.approx(a + 0.05 * 0.1 * p)
+    with pytest.raises(ValueError):
+        continued_loss(tab, 0.05, 0.1, p, "nope")
+    g, s = stroke_shortfall([0.0, x0 / 2, x0, 0.9], [1, 1, 1, 1], x0)
+    assert g == pytest.approx(1.5 / 4) and s == pytest.approx(0.5)

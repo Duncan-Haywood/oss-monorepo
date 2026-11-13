@@ -1,0 +1,235 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/robofab-jawcap",
+ "stratum": "research",
+ "seed": "2026-11-13-q-5db1",
+ "drawn_by": "sample",
+ "round": 71,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a robotics motion-planning researcher who reviews time-optimal path parameterisation (TOPP) and grasp/contact-constrained trajectory papers for IEEE T-RO, IJRR or ICRA. They would check first that the dynamics and the grip constraint are right (two-link Lagrangian, Coulomb two-pad bound), that the TOPP solution is actually time-optimal and feasible (against an independent TOPP-RA or convex solver), that the min-jerk comparator is a fair baseline, that the 3-D motion is modelled (base yaw loads the grasp), and whether second-order/friction constraints in TOPP are already in the literature (Verscheure et al. 2009; Hauser 2014; Pham & Pham 2018 TOPP-RA; the 'waiter motion' problem, Lertkultanon & Pham 2014, Csorvasi et al. 2017)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Experiment reruns byte-identical: `cd research/robofab-jawcap && PYTHONPATH=src python3 experiments/run.py` in a private copy, 17.2 s, `diff` against experiments/results.txt empty (results.json differs only in the 16th significant digit; figure.py regenerates carry_time.svg byte-identical). Independent recomputation (/tmp/claude-0/-home-user-oss-monorepo/95f012f7-4c61-5a40-8a51-9d7c3b5e2898/scratchpad/jaw/indep.py, imports only the geometry inputs: targets, base search, part boxes): textbook two-link dynamics written afresh (Spong et al. sec. 7.4, link 1 inertia about its pivot), analytic Jacobian/Hessian for the wrist acceleration (the repo uses finite differences), Coulomb two-pad bound 2 mu F >= m|g+a|, and a different time-optimal algorithm (TOPP-RA-style backward controllable sets + forward greedy, Pham & Pham 2018, 800 nodes, vs the repo's Bobrow forward/backward integration at 400) and min-jerk bisection with 1500-sample peak search. Six-part totals: L=0.12, 5 N m: k=1.25 T_mj 4.001 / T_opt 2.286 (repo 4.001/2.286), k=3 1.425/1.028 (1.425/1.028), torque-only 0.416/0.332 (0.416/0.332); L=0.08, 2 N m, k=1.25 1.812/1.143 (1.812/1.142); L=0.2, 2 N m, k=1.25 3.443/2.088 (3.442/2.087), k=10 and torque-only both 0.813/0.645 (repo: both 0.813/0.645, confirming 'k=10 costs nothing' there). First-principles bracket (/tmp/claude-0/-home-user-oss-monorepo/95f012f7-4c61-5a40-8a51-9d7c3b5e2898/scratchpad/jaw/analytic.py): a point mass with the friction disc |g+a| <= kg and the min-jerk peak acceleration (10/sqrt3) d/T^2 gives a bang-bang saving of 16.8% horizontal and 38.0/35.5/32.0/27.9/24.0/20.6% vertical at k=1.25/1.5/2/3/5/10; the repo's 17-43% and its fall with k follow this, the 43% top end exceeding it only on the curved joint-space path. Not 4: the computed numbers are right for the model, but the model omits the base yaw turn (below), so the absolute carry times are not the times of the stated task.",
+  "completeness": "README promises and what ran: 23 tests in < 2 s (ran: 23 OK in 0.90 s); experiment 'about 30 s' writing results.txt and results.json (17 s, reproduces); figure from results.json (regenerates identically); nine arm/torque cases x seven caps, all six parts feasible (every row shows 6). paper/whitepaper.md exists but is a 14-line abstract plus 'See ../README.md' and a reference line: no method, related work, results or discussion sections, so the paper/ directory is a stub. Live page https://marisstella.app/research/robofab-jawcap/ could not be loaded (agent proxy 403 on CONNECT), so not checked. Everything the README claims done runs end to end; the paper is not a paper.",
+  "verification": "`cd research/robofab-jawcap && env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests`: Ran 23 tests in 0.895 s, OK. The tests are good where they exist: a closed-form bang-bang case, inverse-sqrt torque scaling, mass matrix against kinetic energy, gravity against the potential gradient, jaw-interval endpoints on the disc, the profile's force recomputed by an independent finite difference. Five mutants via platform/ci/quality_mutate.py: 3 caught (gravity dropped from the jaw disc topp.py:45, backward-pass step halved topp.py:132, rmax 2 mu -> 2.1 mu topp.py:116), 2 survived: the radial term of the min-jerk force bound halved (model.py:90, the comparator's force law; the only min-jerk-force test re-uses model.move, so it checks the copy against itself) and the u-limit scan grid ratio 1.1 -> 2.0 (topp.py:89; an equivalent mutant, since the feasible u set is an interval, see domain). One real survivor in the comparator, so 3 not 4.",
+  "craft": "Read src/robofab_jawcap/model.py (124 lines), topp.py (172), geometry.py (85), all three test files, experiments/run.py and figure.py. Standard library only, short pure functions with formula docstrings, solver extended cleanly with a jaw interval. Defects a reviewer would raise: the wrist finite-difference acceleration is written twice (model.py:79-87 and topp.py:151-171, the second re-importing G), and the whole arm/geometry/solver is copied from robofab-armbang, -reach and -armaccel rather than shared; experiments/run.py:63 writes results.json via a relative path with an unclosed file handle, so it must be run from the project root; no input validation (mass=None with jaw_cap set raises TypeError at topp.py:116). Acceptable for a research note.",
+  "claims": "Checked against results.txt: '17 to 43%' (min 17 at L=0.2,k=10; max 43 at L=0.12,k=1.25) pass; '37 to 43% at k=1.25' pass; '17 to 24% at k=5 to 10' pass; torque-only '20 to 28%' pass; 1.142/2.286/2.087 s at k=1.25 for all three torque limits pass; 6.9/3.1/1.7x pass; cap exceeded by up to 3.3% (max F/cap 1.033) pass; armbang's coarser 1 ms min-jerk grid (armbang run.py:38 dt=0.001) pass. Fail or partial: README:46 says the torque limit is exceeded 'by up to 3.3%', the table's worst is 1.008 (0.8%); README:29 and :47 say feasibility in u is not monotone with the cap and a gap 'was not seen', but the per-node feasible set is convex (linear torque constraints plus a second-order cone) and contains u=0, so a gap is impossible (my scan of 14,472 nodes found 0); README:25 calls the affine/quadratic jaw constraint 'my own derivation', it is a standard second-order constraint in TOPP; and the parent's explicit disclosure that the base yaw turn between pick and lift is neither timed nor loaded (robofab-armbang README:41) was dropped here, while README:1 and :8 present the results as the time to 'carry a printed part'.",
+  "fitness": "Job: a researcher deciding whether to spend on a stronger gripper or a stronger motor. The note gives a reproducible, correct-for-its-model answer and a clean extension of the parent's solver. It is not new: TOPP with second-order (friction-cone, contact) constraints is covered by convex reformulations (Verscheure, Demeulenaere, Swevers, De Schutter & Diehl 2009, IEEE TAC 54(10)), Hauser 2014 (IJRR, contact constraints), TOPP-RA (Pham & Pham 2018, IEEE T-RO 34(3)) and the waiter/non-prehensile transport problem (Lertkultanon & Pham 2014; Csorvasi, Nagy & Kovacs 2017), none cited. The headline trend (saving grows as the cap tightens) is largely the asymmetry of the friction disc about gravity (allowed upward acceleration (k-1)g against downward (k+1)g), which a one-line point-mass calculation reproduces (38% at k=1.25 to 20.6% at k=10, 16.8% symmetric). The case the user has, a 3-D carry with base yaw and a jerk- or rate-limited baseline, is not modelled. Not in a programme in research/PROGRAMMES.md.",
+  "domain": "Against TOPP practice: the forward/backward integration is the standard Bobrow scheme and an independent TOPP-RA solve agrees to 1 ms, which a reviewer would accept. They would not sign off the model: (1) the arm is reduced to a vertical plane with targets collapsed to radial distance (run.py:31), so the base yaw turn of up to 197 degrees at 0.08 m links (4 to 118 degrees at 0.12 m) is ignored; that rotation adds centripetal and tangential acceleration, and the tangential part lies along the grasp axis the bound assumes is unloaded (model.py:62-65), so the jaw constraint itself is incomplete for the real carry; (2) the claimed non-monotone feasibility is wrong (convexity), so the scan and its limitation are unnecessary; (3) the comparator is uniform time-scaling of one min-jerk profile, a weak baseline (a jerk-limited TOPP or re-timed smooth profile is the fair one); (4) the jaw bound is used beyond the 40 m/s^2 range its parent validated, as the README says."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "six-part totals T_mj / T_opt at L=0.12 m, 5 N m, k=1.25, 3, torque-only",
+   "method": "independent re-implementation: textbook two-link dynamics (Spong et al. sec 7.4), analytic wrist Jacobian/Hessian, Coulomb two-pad bound, TOPP-RA reachability solver (Pham & Pham 2018), min-jerk bisection",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/95f012f7-4c61-5a40-8a51-9d7c3b5e2898/scratchpad/jaw/indep.py /home/user/oss-monorepo/research/robofab-jawcap/src 800",
+   "expected": "4.001/2.286, 1.425/1.028, 0.416/0.332 (results.txt)",
+   "observed": "4.001/2.286, 1.425/1.028, 0.416/0.332",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "k=1.25 totals at L=0.08 m and 0.2 m, 2 N m (the 'torque limit irrelevant' times)",
+   "method": "same independent solver",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/95f012f7-4c61-5a40-8a51-9d7c3b5e2898/scratchpad/jaw/indep.py /home/user/oss-monorepo/research/robofab-jawcap/src 800",
+   "expected": "1.812/1.142 and 3.442/2.087",
+   "observed": "1.812/1.143 and 3.443/2.088",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "L=0.2 m, 2 N m: k=10 equals torque-only ('k=10 costs nothing')",
+   "method": "same independent solver",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/95f012f7-4c61-5a40-8a51-9d7c3b5e2898/scratchpad/jaw/indep.py /home/user/oss-monorepo/research/robofab-jawcap/src 800",
+   "expected": "0.813/0.645 for both",
+   "observed": "0.813/0.645 for both",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "saving vs cap: first-principles bracket",
+   "method": "point mass, friction disc |g+a|<=kg, bang-bang T=sqrt(2d(1/a1+1/a2)) vs min-jerk peak accel (10/sqrt3)d/T^2",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/95f012f7-4c61-5a40-8a51-9d7c3b5e2898/scratchpad/jaw/analytic.py",
+   "expected": "repo 37-43% at k=1.25 falling to 17-24% at k=10",
+   "observed": "vertical 38.0/35.5/32.0/27.9/24.0/20.6% at k=1.25..10, horizontal 16.8%: same trend and range; repo's 43% top end only on the curved path",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiment reproduces committed results",
+   "method": "rerun in a private copy and diff",
+   "command": "cd <copy of research/robofab-jawcap> && PYTHONPATH=src python3 experiments/run.py > out.txt && diff out.txt experiments/results.txt",
+   "expected": "no diff, about 30 s",
+   "observed": "no diff, 17.2 s; results.json equal to 1e-15; svg regenerates identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd research/robofab-jawcap && env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests",
+   "expected": "23 tests, < 2 s",
+   "observed": "Ran 23 tests in 0.895s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "paper/whitepaper.md is a paper",
+   "method": "read it",
+   "command": "wc -l research/robofab-jawcap/paper/whitepaper.md",
+   "expected": "method, related work, results, discussion",
+   "observed": "14 lines: abstract, 'See ../README.md', reference line",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:46 'exceeds ... the torque limit by up to 3.3%'",
+   "method": "max 'max tau/lim' column of results.txt",
+   "command": "grep -v '^#' research/robofab-jawcap/experiments/results.txt | awk 'NF==8{print $7}' | sort -n | tail -1",
+   "expected": "1.033",
+   "observed": "1.008",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "README:29/:47 'feasibility is not monotone in u with the cap'",
+   "method": "convexity: torque constraints linear and jaw constraint a second-order cone in (u, s''); scan of u on a 1.02-ratio grid at 201 nodes x 6 parts x 4 caps x 3 arms",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/95f012f7-4c61-5a40-8a51-9d7c3b5e2898/scratchpad/jaw/convex.py /home/user/oss-monorepo/research/robofab-jawcap/src",
+   "expected": "some nodes with a gap if the claim holds",
+   "observed": "nodes 14472, non-interval nodes 0",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "is the carry the full motion between pick and lift?",
+   "method": "yaw angle of pick and lift about the chosen base (geometry inputs)",
+   "command": "PYTHONPATH=src python3 -c 'from robofab_jawcap.geometry import targets, best_base; ...' (atan2 of each point about best_base)",
+   "expected": "small yaw, or yaw modelled",
+   "observed": "base turn 134-197 deg at 0.08 m, 10-118 deg at 0.12 m, 3-82 deg at 0.2 m; run.py:31 keeps only radial distance, and the README dropped the parent's disclosure",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline ranges and ratios (17-43%, 37-43%, 17-24%, 20-28%, 6.9/3.1/1.7x, cap +3.3%)",
+   "method": "read off results.txt",
+   "command": "cat research/robofab-jawcap/experiments/results.txt",
+   "expected": "as README:7-10",
+   "observed": "all match",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited",
+   "method": "grep README and refs.bib for TOPP-with-friction/convex-constraint literature",
+   "command": "grep -i -n 'verscheure\\|pham\\|hauser\\|waiter' research/robofab-jawcap/README.md research/robofab-jawcap/paper/refs.bib",
+   "expected": "cited",
+   "observed": "no match; the constraint is presented as 'my own derivation'",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/robofab-jawcap/",
+   "expected": "200",
+   "observed": "agent proxy refused CONNECT (403); not checked",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/robofab_jawcap/topp.py:45",
+   "change": "jaw_interval: cz = G + qz*u -> qz*u (gravity dropped from the grip disc)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/robofab_jawcap/topp.py:132",
+   "change": "backward pass: v[k] - 2*ds*bd[0] -> v[k] - 1*ds*bd[0]",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/robofab_jawcap/topp.py:116",
+   "change": "rmax = 2*mu*jaw_cap/mass -> 2.1*mu*jaw_cap/mass",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/robofab_jawcap/model.py:90",
+   "change": "min-jerk force bound: hypot(G+az, ar) -> hypot(G+az, 0.5*ar)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/robofab_jawcap/topp.py:89",
+   "change": "u_limit scan grid ratio 1.1 -> 2.0 (equivalent mutant: the feasible u set is an interval)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The carry is modelled in the vertical plane only: run.py reduces each target to its radial distance from the base, so the base yaw turn between pick and lift (134-197 deg at 0.08 m links, 10-118 deg at 0.12 m) is neither timed nor loaded. Its centripetal and tangential accelerations act on the part, the tangential one along the grasp axis the bound treats as unloaded, so the jaw constraint and the absolute carry times (1.142/2.286/2.087 s) are not those of the stated task; the parent robofab-armbang disclosed this and this README dropped the disclosure",
+   "where": "research/robofab-jawcap/experiments/run.py:31",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "paper/whitepaper.md is a 14-line abstract that defers everything to the README: no method, related work, results or discussion, below the research track's paper bar",
+   "where": "research/robofab-jawcap/paper/whitepaper.md:9",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work uncited and novelty overstated: TOPP with second-order/friction constraints (Verscheure et al. 2009; Hauser 2014; Pham & Pham 2018 TOPP-RA) and the waiter/non-prehensile transport problem (Lertkultanon & Pham 2014; Csorvasi et al. 2017); the jaw constraint is called 'my own derivation'. The headline trend follows from the friction disc's asymmetry about gravity in a one-line point-mass calculation, which the note does not give",
+   "where": "research/robofab-jawcap/README.md:25",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Min-jerk comparator's force law is untested at value level: halving its radial term (model.py:90) leaves all 23 tests green, because the only capped-min-jerk force test re-evaluates model.move against itself",
+   "where": "research/robofab-jawcap/tests/test_jawcap.py:53",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "'Feasibility is not monotone in u with the cap' is false: per node the (u, s'') feasible set is convex (linear torque limits plus a second-order cone) and contains u=0, so the feasible u set is [0, umax]; the geometric scan and the 'gap ... was not seen' limitation are unnecessary (0 of 14,472 scanned nodes had a gap)",
+   "where": "research/robofab-jawcap/README.md:29",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Limitations say the torque limit is exceeded by up to 3.3%; results.txt's worst is 1.008 (0.8%), the 3.3% is the force-cap figure",
+   "where": "research/robofab-jawcap/README.md:46",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Wrist finite-difference acceleration duplicated in model.move and topp.wrist_force (with a redundant re-import of G); results.json written via a relative path with an unclosed handle",
+   "where": "research/robofab-jawcap/src/robofab_jawcap/topp.py:151",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15589"
+ ],
+ "verdict": "A small, correct-for-its-model extension of robofab-armbang. The experiment reruns byte-identical in 17 s, 23 tests pass, and an independent re-implementation (textbook dynamics, analytic kinematics, a TOPP-RA solver instead of Bobrow integration) reproduces every six-part total I checked to 1 ms (e.g. 4.001/2.286 s at 0.12 m, 5 N m, k=1.25). It misses the bar on claims: the README drops the parent's disclosure that the base yaw turn (up to 197 degrees) is not modelled, though that motion loads the very grasp axis the jaw bound assumes is free; it says the torque limit is exceeded by 3.3% (it is 0.8%); and it asserts a non-monotone feasibility that convexity rules out. As research it is below the PhD bar: the paper is a 14-line stub, TOPP with friction-type second-order constraints and the waiter problem are known and uncited, and the headline trend follows from a one-line friction-disc calculation (38% to 21% saving as k goes 1.25 to 10)."
+}

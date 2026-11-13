@@ -335,17 +335,17 @@ def breakeven_rest_rate_two_eta(m, m_star, p, q_ls_mean, tau, b, eta_ls, eta_oc)
     return b * gap * q_ls_mean / (600.0 * (tau - 1))
 
 
-def fit_pump_loss(table, min_fraction=0.0):
+def fit_pump_loss(table, min_fraction=0.0, max_fraction=1.0):
     """Least-squares fit of a stroke-linear loss model to an efficiency table (milestone 6h).
 
     table: (fractions, pressures, grid) as from eta_table. The loss in bar of full-stroke flow,
     L = x p (1/eta - 1), is fitted as L = k0 + kp p + kl p^2 + kc x p on the cells with
-    x >= min_fraction. Returns (k0, kp, kl, kc)."""
+    min_fraction <= x <= max_fraction. Returns (k0, kp, kl, kc)."""
     fr, ps, grid = table
     rows, ys = [], []
     for i, p in enumerate(ps):
         for j, x in enumerate(fr):
-            if x + 1e-12 < min_fraction:
+            if x + 1e-12 < min_fraction or x - 1e-12 > max_fraction:
                 continue
             e = grid[i][j]
             rows.append((1.0, p, p * p, x * p))
@@ -384,3 +384,37 @@ def flat_hold_shortfall(coef, p, q_max, b, g, tau):
     k0, kp, kl, _ = coef
     a = k0 + kp * p + kl * p * p
     return b * q_max * a * g / (600.0 * (tau - 1.0))
+
+
+def continued_loss(table, kc, x, p, mode="anchored", coef=None):
+    """Pump loss in bar of full-stroke flow, L = x p (1/eta - 1), with a rule below the smallest
+    measured stroke x0 (milestone 6i). At and above x0 it is the table's (6g). Below x0:
+
+    'flat': L = x L(x0)/x0, i.e. 6g's flat efficiency hold (loss shrinks with flow);
+    'anchored': L = L(x0) - kc p (x0 - x), the measured loss at x0 less the fitted stroke-proportional
+        term, so a pump at zero stroke still pays L(x0) - kc p x0;
+    'model': the fit_pump_loss model L = k0 + kp p + kl p^2 + kc x p (coef required)."""
+    fr = table[0]
+    x0 = fr[0]
+    x = min(max(x, 0.0), 1.0)
+    if x >= x0:
+        return x * p * (1.0 / part_stroke_eta(table, x, p) - 1.0)
+    l0 = x0 * p * (1.0 / part_stroke_eta(table, x0, p) - 1.0)
+    if mode == "flat":
+        return x * l0 / x0
+    if mode == "anchored":
+        return l0 - kc * p * (x0 - x)
+    if mode == "model":
+        k0, kp, kl, kc_ = coef
+        return k0 + kp * p + kl * p * p + kc_ * x * p
+    raise ValueError("mode must be flat, anchored or model")
+
+
+def stroke_shortfall(x, w, x0):
+    """g = E_w[(1 - x/x0)+] and s = P_w(x < x0) over samples x with weights w (6h's g, 6i)."""
+    tw = sum(w)
+    if tw <= 0:
+        raise ValueError("weights must sum to a positive number")
+    g = sum(wi * max(0.0, 1.0 - xi / x0) for xi, wi in zip(x, w)) / tw
+    s = sum(wi for xi, wi in zip(x, w) if xi < x0) / tw
+    return g, s
