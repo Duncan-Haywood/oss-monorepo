@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 1,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
@@ -40,6 +40,9 @@
     },
     {
       "what": "The post's seo_title was 73 characters (limit 70). This failed 170 pages tests through the build fixture. Shortened to 64."
+    },
+    {
+      "what": "Duplicate work: patched the isolation-forest breakages in parallel with #15448, which merged first. The overlap cost about 10 minutes and was resolved in the merge."
     }
   ],
   "integrity_issues": [],
@@ -75,10 +78,10 @@
   "notes": "Rates checked on GOV.UK (4 pages, all 200 through the proxy) and all matched calc.mjs R. Venture suite: run_venture_tests.py uk-sole-trader-vs-limited-company-calculator -> 1 suites run, 0 failed. calc tests 34/34. answer-lead uk test: passes, and fails when the old \u00a338,656 figure is put back. Full site build of main completed locally (~20 min). node --test 'platform/pages/*.test.mjs': first run 1417 pass / 170 fail (my seo_title, plus a pre-existing failure from main #15447: ventures/isolation-forest/index.html:296 printed an unrounded percentage). Fixed both; rerun 1587 pass / 0 fail. isolation-forest venture suite: 1 suites run, 0 failed.",
   "corrections": [
     {
-      "what": "ventures/isolation-forest/index.html:296 rounds the contamination percentage (percent-float test red on main since #15447)"
+      "what": "isolation-forest percent rounding and .data typing: fixed here, but PR #15448 landed the same fixes on main first. On merging main, kept main's check.mjs entry (no duplicate); the index.html change is identical."
     },
     {
-      "what": "platform/pages/check.mjs SERVED_EXTENSIONS gains .data. isolation-forest's UCI fixtures made the Portfolio Pages build fail on main since #15447, which blocked the deploy. Found when PR 15450's pages build went red; check.mjs on the local dist passes after the change."
+      "what": "docs/posts/2026-11-13-bulgaria-e-invoicing-draft-still-a-draft.md (from #15454) failed the front-matter limits (title 116, description 164) and turned validate and the pages build red on main. Shortened to 93 / 152 characters; the meaning is unchanged."
     }
   ],
   "redteam": null,

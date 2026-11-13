@@ -593,10 +593,6 @@ export const SERVED_EXTENSIONS = new Map([
   // directly downloads it rather than reading it, harmless for a fixture (added 2026-11-11 after PR #14794 broke the pages check).
   ['.conf', 'stock'],
   ['.service', 'stock'],
-  // isolation-forest's UCI benchmark files (data/*.data, comma-separated text) that its tests and eval/reference.py read; the
-  // page never fetches them. mime-db has no .data entry, so a visitor who opens one directly downloads it, harmless for a fixture
-  // (added 2026-11-13 after PR #15447 broke the pages check on main).
-  ['.data', 'stock'],
   // dupehound's browser build (WebAssembly); mime.types lists application/wasm wasm (nginx 1.21+),
   // and GitHub Pages serves it as application/wasm.
   ['.wasm', 'stock'],
