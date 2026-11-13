@@ -2238,7 +2238,8 @@ export const CARRY_OVER_DEALS = 0.15;
 
 /**
  * Seasons the page adds after the regrounded ones (README "Pricing the break floor"): for a single
- * round robin of 6 to 21 teams (at 22 to 25 one search takes about a minute, eval/floor-priced.txt), the widest break gap (at least `minGap`) between neighbouring
+ * round robin of 6 to `maxTeams` (22) teams (23 adds nothing on three seeds, 24 and 25 take 2 to 7 minutes:
+ * eval/faster-floor.txt), the widest break gap (at least `minGap`) between neighbouring
  * seasons on the frontier of `results`, searched by floorPricedSingleRounds from the season above
  * it (least carry-over, most breaks) at caps of its breaks - 2, - 4, ... while above the season
  * under the gap, `count` + 1 caps at most, each searched twice (swaps alone and with three-round
@@ -2247,10 +2248,10 @@ export const CARRY_OVER_DEALS = 0.15;
  * `results` and `seed` alone, so a share link that keeps one rebuilds it. [] for a home-and-away
  * season or when the frontier has no such gap.
  */
-export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_FLOOR_PRICED, minGap = 4, iterations = 3000, deals = CARRY_OVER_DEALS, balanced = true } = {}) {
+export function carryOverFloorPriced(n, results, { seed = 1, count = CARRY_OVER_FLOOR_PRICED, minGap = 4, iterations = 3000, deals = CARRY_OVER_DEALS, balanced = true, maxTeams = 22 } = {}) {
   const N = n % 2 === 0 ? n : n + 1, R = N - 1;
   const base = [...results].sort((a, b) => a.index - b.index);
-  if (n < 6 || n > 21 || !count || base.some((t) => t.rounds.length !== R)) return [];
+  if (n < 6 || n > maxTeams || !count || base.some((t) => t.rounds.length !== R)) return [];
   const pts = base.map((t, i) => ({ i, coe: t.coe, breaks: t.breaks }));
   const front = pts.filter((x) => !pts.some((y) => y.coe <= x.coe && y.breaks <= x.breaks && (y.coe < x.coe || y.breaks < x.breaks)))
     .filter((x, k, a) => a.findIndex((y) => y.coe === x.coe && y.breaks === x.breaks) === k)
