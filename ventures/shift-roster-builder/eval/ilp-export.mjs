@@ -1,5 +1,6 @@
 // Dump seeded weeks (same generator as scale-bench.mjs) with the engine's open hours, for eval/ilp-check.py.
-//   node eval/ilp-export.mjs P S [cases=4] > weeks.json   (SEED=20261101 for the rolling-gap sets)
+//   node eval/ilp-export.mjs P S [cases=4] > weeks.json   (NOBUILD=1: dump only, no engine build)
+//    (SEED=20261101 for the rolling-gap sets)
 import { parseStaff, parseShifts, buildContext, buildRoster } from "../calc.mjs";
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const P = Number(process.argv[2] || 8), S = Number(process.argv[3] || 22), cases = Number(process.argv[4] || 4);
@@ -11,8 +12,9 @@ for (let c = 0; c < cases; c++) {
   const sh = Array.from({ length: S }, () => { const a = 6 + rnd(9); return `${days[rnd(5)]},${a},${a + 4 + rnd(6)},${1 + rnd(2)}`; }).join("\n");
   const staff = parseStaff(st).staff, slots = parseShifts(sh).slots;
   const ctx = buildContext(staff, slots, { exact: true });
-  const r = buildRoster(staff, slots, { exact: true, flowBalance: true, balance: 60, exactNodes: 100000, exactMs: 20000, restarts: 2, iterations: 2000, reducedCostFixing: true, coverBranch: !process.env.NOCB, coverBranchNodes: Number(process.env.CBN || 60), coverBranchMs: Number(process.env.CBMS || 4000) });
-  const engineOpen = r.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0);
-  out.push({ slots: ctx.slots.map((s) => [s.start, s.end]), elig: ctx.elig, maxH: ctx.staff.map((p) => p.maxHours), rest: ctx.restMin, engineOpen, engineFloor: r.optimality.forcedOpenHours });
+  // NOBUILD=1 dumps the week without building it (for weeks whose build is slow; the engine's numbers then come from elsewhere).
+  const r = process.env.NOBUILD ? null : buildRoster(staff, slots, { exact: true, flowBalance: true, balance: 60, exactNodes: 100000, exactMs: 20000, restarts: 2, iterations: 2000, reducedCostFixing: true, coverBranch: !process.env.NOCB, coverBranchNodes: Number(process.env.CBN || 60), coverBranchMs: Number(process.env.CBMS || 4000) });
+  const engineOpen = r && r.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0);
+  out.push({ slots: ctx.slots.map((s) => [s.start, s.end]), elig: ctx.elig, maxH: ctx.staff.map((p) => p.maxHours), rest: ctx.restMin, engineOpen, engineFloor: r ? r.optimality.forcedOpenHours : null });
 }
 console.log(JSON.stringify(out));
