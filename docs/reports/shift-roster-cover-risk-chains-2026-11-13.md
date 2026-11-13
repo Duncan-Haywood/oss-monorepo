@@ -1,3 +1,9 @@
+---
+kind: note
+subjects: [shift-roster-builder]
+date: 2026-11-13
+tagged: auto
+---
 # shift-roster-builder: call-out risk with hand-over chains (2026-11-13)
 
 For the next run on the `--cover-price` thread.

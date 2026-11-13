@@ -579,7 +579,10 @@ def main(argv):
                     if rc:
                         print(f"::error title=unwired check failed::platform/ci/{name} (exit {rc}; "
                               f"{unwired_checks.rerun_hint(name)})")
-        print(f"{sum(rc == 0 for _, rc, _ in results)}/{len(results)} unwired tree checks and tests pass")
+        skips = unwired_checks.skipped(results)
+        print(f"{sum(rc == 0 for _, rc, _ in results) - len(skips)}/{len(results)} unwired tree "
+              f"checks and tests pass" + (f", {len(skips)} skipped (missing pytest or a package: "
+                                          f"{' '.join(n for n, _ in skips)})" if skips else ""))
     return 1 if failed or lint or unwired_red or unknown else 0
 
 

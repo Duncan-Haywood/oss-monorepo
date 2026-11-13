@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "A `sed -n 1,15p $f` with an empty $f read stdin and hung until the 120 s tool timeout; killed it."
+    "A `sed -n 1,15p $f` with an empty $f read stdin and hung until the 120 s tool timeout; killed it.",
+    "First CI run of the change was red (86/104). Under Python 3.11 locally, 15 pytest-style test files ran 0 tests under unittest and reported OK; 3.12 on CI exits 5. Two tests need yaml, which the runner lacks. A report with no front matter landed on main meanwhile. Fixed: pytest for files with no TestCase, missing third-party packages reported as skips by name, and the new report backfilled."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,6 +42,10 @@
     {
       "file": "prompts/redteam.py",
       "issue": "The open-defects list (44 sessions of friction in 3 days, per friction_rank) still lists entries #15215 partly covered (the unwired check_*.py now run on venture PRs). redteam.py has no way to mark 'partly covered' or 'awaiting owner PR', and it is control plane, so nothing was changed."
+    },
+    {
+      "file": "platform/ci/unwired_checks.py",
+      "issue": "'python3 -m unittest <module>' on a pytest-style file passes with 0 tests on Python 3.11 (the cloud image) but exits 5 on 3.12 (the CI runner), so a local 'all pass' can hide unrun tests."
     }
   ],
   "deviations": [

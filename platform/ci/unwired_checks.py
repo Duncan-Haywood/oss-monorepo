@@ -21,8 +21,8 @@ The same gap held for unit tests and one tree check. On 2026-11-13, 71 of the
 that was red, test_doc_index.py, had been red for days: `doc_index.py check`
 found 43 untagged or mis-tagged reports under docs/reports/ that no PR saw
 (red-team entry 2026-11-06 asked for a workflow step; that is control plane).
-So the unwired tests (`python3 -m unittest <module>`, ~49 s serial, ~15 s here
-in parallel) and the scripts in EXTRA run too; `--checks-only` skips them.
+So the unwired tests (unittest, or pytest for the 15 plain-function files;
+~26 s for everything on 4 cores) and the scripts in EXTRA run too; `--checks-only` skips them.
 """
 import argparse
 import re
@@ -73,18 +73,50 @@ def jobs(here=HERE, workflows=WORKFLOWS, checks_only=False):
     return out
 
 
+SKIPPED = "SKIP:"
+
+
+def has_module(name, python=sys.executable):
+    return subprocess.run([python, "-c", f"import {name}"], capture_output=True).returncode == 0
+
+
+def missing_module(out, here=HERE):
+    """The third-party module a run failed to import, or None. A module the
+    repository holds (a sibling .py file) is a real break, not a missing package."""
+    m = re.search(r"ModuleNotFoundError: No module named '([\w.]+)'", out)
+    if not m:
+        return None
+    top = m.group(1).split(".")[0]
+    return None if (here / f"{top}.py").exists() or (here / top).is_dir() else top
+
+
 def run_job(path, *args, timeout=main_health.TIMEOUT):
-    """A test_*.py file runs under unittest (15 of them have no __main__ block);
-    anything else runs as a script, the way main_health runs it."""
+    """A test_*.py file runs under unittest, or under pytest when it holds no
+    TestCase (15 do: under unittest they run 0 tests, which Python 3.11 calls OK
+    and 3.12 exit 5). A test that needs pytest or a package this interpreter
+    lacks (yaml on the CI runner) is reported as skipped, not passed.
+    Anything else runs as a script, the way main_health runs it."""
     path = Path(path)
     if not path.name.startswith("test_"):
         return main_health.run(path, *args, timeout=timeout)
+    plain = "TestCase" not in path.read_text(encoding="utf-8", errors="replace")
+    if plain and not has_module("pytest"):
+        return path.name, 0, f"{SKIPPED} pytest-style test and no pytest here"
+    cmd = ["-m", "pytest", "-q", "-p", "no:cacheprovider", path.name] if plain \
+        else ["-m", "unittest", "-q", path.stem]
     try:
-        r = subprocess.run([sys.executable, "-m", "unittest", "-q", path.stem], cwd=path.parent,
+        r = subprocess.run([sys.executable, *cmd], cwd=path.parent,
                            capture_output=True, text=True, timeout=timeout)
-        return path.name, r.returncode, (r.stdout + r.stderr).strip()
     except subprocess.TimeoutExpired:
         return path.name, main_health.TIMED_OUT, f"timed out after {timeout} s"
+    out = (r.stdout + r.stderr).strip()
+    if r.returncode != 0 and (mod := missing_module(out, path.parent)):
+        return path.name, 0, f"{SKIPPED} needs {mod}, not installed here"
+    return path.name, r.returncode, out
+
+
+def skipped(results):
+    return [(n, out) for n, rc, out in results if rc == 0 and out.startswith(SKIPPED)]
 
 
 def run_all(paths, runner=run_job, jobs=6, log=print):
@@ -128,7 +160,11 @@ def main(argv=None):
     if bad:
         print(bad)
     failed = sum(rc != 0 for _, rc, _ in results)
-    print(f"{len(results) - failed}/{len(results)} unwired checks and tests pass")
+    skips = skipped(results)
+    for name, why in skips:
+        print(f"skip {name}: {why[len(SKIPPED):].strip()}")
+    print(f"{len(results) - failed - len(skips)}/{len(results)} unwired checks and tests pass"
+          + (f", {len(skips)} skipped" if skips else ""))
     return 1 if failed else 0
 
 

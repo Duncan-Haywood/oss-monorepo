@@ -60,6 +60,30 @@ class Unwired(unittest.TestCase):
                              [("test_green.py", False), ("test_red.py", True)])
             self.assertIn("python3 -m unittest test_red", u.report(results))
 
+    def test_a_missing_package_is_a_skip_but_a_missing_sibling_is_a_failure(self):
+        with tempfile.TemporaryDirectory() as d:
+            here = Path(d)
+            (here / "localmod.py").write_text("")
+            self.assertEqual(u.missing_module("ModuleNotFoundError: No module named 'yaml'", here), "yaml")
+            self.assertIsNone(u.missing_module("ModuleNotFoundError: No module named 'localmod'", here))
+            self.assertIsNone(u.missing_module("AssertionError", here))
+            t = here / "test_needs.py"
+            t.write_text("import unittest\nimport no_such_pkg_xyz\nclass T(unittest.TestCase):\n"
+                         "    def test_x(self): pass\n")
+            name, rc, out = u.run_job(t)
+            self.assertEqual(rc, 0)
+            self.assertEqual(u.skipped([(name, rc, out)]), [(name, out)])
+
+    def test_a_plain_function_test_never_passes_as_zero_unittest_tests(self):
+        with tempfile.TemporaryDirectory() as d:
+            t = Path(d) / "test_plain.py"
+            t.write_text("def test_x():\n    assert 1 == 2\n")
+            name, rc, out = u.run_job(t)
+            if u.has_module("pytest"):
+                self.assertNotEqual(rc, 0)
+            else:
+                self.assertTrue(out.startswith(u.SKIPPED))
+
     def test_checks_only_leaves_tests_and_extra_out(self):
         names = {j[0].name for j in u.jobs(checks_only=True)}
         self.assertTrue(names and all(n.startswith("check_") for n in names))
