@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKikEczzW6Y2eKHgUrV",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T05:09:23Z",
+  "ended": "2026-11-13T05:22:39Z",
+  "wall_minutes": 13.81,
+  "tokens_in": 6591095,
+  "tokens_out": 44171,
+  "cost_usd": 3.2094,
+  "tool_calls": 71,
+  "task": "explore: Elo and Glicko-2 rating changes for tournament-pairing-manager",
+  "projects": [
+    "tournament-pairing-manager"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15386",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "First local CI pass failed on my post description (172 > 160 chars) and an http:// href to glicko.net in index.html; both fixed before the re-run.",
+    "Running the downloaded PyPI glicko2 2.1.0 package was declined by the sandbox classifier; the variant was re-implemented and measured instead, and the post says so."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "Bash tool safety check",
+      "issue": "Shell commands whose heredoc contained the JS dollar-dollar selector call were refused as 'could not be checked for dangerous rm operations' though no rm was present; writing scripts with the Write tool worked."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "glicko.net (primary source for Glicko-2) is unreachable through the proxy (DNS failure on http, 403 on https), so the paper could not be re-read; its worked-example values were matched by code to the printed precision."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-a-worked-example-that-cannot-catch-the-bug.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: rating changes (Elo, Glicko-2) as the last step of a club event in tournament-pairing-manager. Glicko-2 reproduces Glickman's worked example (1464.05/151.52/0.059996); Illinois step 5 vs bisection on 2,000 seeded players, rel gap <1e-5; Elo zero-sum check. Finding: PyPI glicko2 2.1.0 source uses mu^2 for phi^2 in step 5 (read, not run); re-implemented variant passes the paper's example at 4 dp and moves one period by <=0.0033 points over 20,000 players (eval/step5-variant.json). node --test 92/92; Playwright at 390 px clean. Next: cross-event ladder from the ratings CSV.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2dc1af74-91a4-51e5-a58c-1dea3544604e",
+    "transcripts": 1,
+    "first": "2026-11-13T05:09:23Z",
+    "last": "2026-11-13T05:23:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 114,
+        "output": 44171,
+        "thinking": 8501,
+        "cache_read": 6461833,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129148,
+        "api_equivalent_usd": 3.2094,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 114,
+      "output": 44171,
+      "thinking": 8501,
+      "cache_read": 6461833,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129148,
+      "api_equivalent_usd": 3.2094,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 54,
+      "Edit": 8,
+      "Write": 5,
+      "Grep": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.81,
+      "active_minutes": 13.81,
+      "model_minutes": 8.18,
+      "tool_minutes": 5.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "engineer implementing Elo and Glicko-2 from the paper with tests, UI panel, variant study and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 311.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
