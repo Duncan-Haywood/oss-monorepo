@@ -1525,6 +1525,45 @@ whole list of 12 tries, 4 squeezes and 4 regrounded seasons, then the floor-pric
   `bestCarryOverRounds` keeps its choice and `buildSchedule` rebuilds a kept floor-priced season;
   20 teams seed 1 from 360 to a cap of 48 gives 410 / 48, proved.
 
+## Team sheets and a duty rota for a one-division league (2026-11-13, latest)
+
+Most leagues are one division, and until now the snack stand / scoreboard rota and the printable team
+sheets (one page per team) lived only on the multi-division page. The one-division page
+(`index.html`) now has them:
+
+- **Box 7, "Team duties"**: `Snack stand: 2`, one duty per line. After a build, a line under the
+  downloads says how many slots were filled, the spread per team and how many nights had no team free.
+- **"Download team sheets to print (.html)"**, with a title and a contact line: one page per team
+  with its games in date order (time, court, home or away, opponent, the official when officials are
+  listed, and "Your duty" on the nights it has one), **its bye weeks** (new; a one-division league
+  with an odd number of teams has one every round), then the duty rota night by night with unfilled
+  slots marked "find a volunteer". **"Download team duty rota (text)"** for the group chat.
+- Both refuse to download when `validateDivisionDuties` finds a fault or a duty line is bad
+  (e.g. `Snack stand: 99`), and say why.
+
+How: `singleAsDivisions(schedule)` in `divisions.mjs` turns the one-division schedule (rounds with a
+bye) into the multi-division shape (nights; rounds on the same date share a night; the bye kept as
+`night.byes`), so the page reuses `assignDivisionDuties`, `validateDivisionDuties` and
+`divisionsTeamSheetsHtml` rather than a second copy. Duties, title and contact go in the share link.
+
+**The print check found three faults in the team sheets, all fixed** (`eval/print-check.mjs`, new
+document "single-team-sheets": 9 long team names, so a bye every round, 3 officials and 2 duties,
+rendered to PDF on Letter and A4): "Court 1", "Snack stand" and "Jordan Price" broke over two lines;
+an empty Venue column was printed (a one-league schedule has no venues); and with those fixed the
+table ran 12 px past A4's printable width. Now date, time, court, official and duty cells never wrap,
+the Venue column appears only when some venue differs from its court (this also applies to the
+multi-division sheets), and print uses 15 px type with 0.35 rem padding. After: 91 checks, 0 failures
+(`eval/print-check.txt`).
+
+Checked: `divisions.test.mjs` (one new test over 5, 6 (double) and 7 teams with officials: every
+match on both teams' sheets, one bye row per bye, no duty for a team on its bye, rota re-checked,
+no empty division labels, hostile names escaped, input unchanged), `page.test.mjs` (one new source
+test), the share-link round trip in `calc.test.mjs`, and a Chromium click,
+`node eval/browser-click-team-sheets.mjs` (`eval/browser-click-team-sheets.txt`: five teams, two
+officials, two duties; 6 sheets, 5 bye rows, 20 game rows, rota text, bad line refused, no page
+errors). Usage events: `team_sheets_downloaded`, `duties_downloaded`. Made-up leagues only; not
+printed on a real printer, and no real league's rota compared.
+
 ## Print check: every printed output rendered to PDF (2026-11-13)
 
 Organisers print this tool's output for the clubhouse wall and the scorer's table, and six outputs

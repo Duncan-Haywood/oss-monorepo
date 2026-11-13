@@ -284,7 +284,7 @@ flagships:
     next: >-
       Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up CSVs,
-      duty rota, team sheets; carry-over on 20 real seasons; starters, capped breaks, frontier picker,
+      duty rota, team sheets (one-division too, with byes, 2026-11-13); carry-over on 20 real seasons; starters, capped breaks, frontier picker,
       squeezes, MaxSAT proof that the gaps are timetable-bound, exact break floor in the page: README
       2026-11-11 to 2026-11-13 sections). 2026-11-13 latest (README "Pricing the break
       floor", eval/floor-priced.txt): floorPricedSingleRounds anneals a single round robin's timetable on
@@ -300,8 +300,7 @@ flagships:
       team gap 440/58..690/48 gains 6-7% when run); a lower bound or a timetable below 136 at 12
       (eval/carryover-sat.py); close 24-40 (tabu, longer runs, the literature's starters); a real
       league's travel and blackout dates; printed sheets on a real printer and paper (the PDF print check,
-      eval/print-check.mjs, landed 2026-11-13: README "Print check"); team sheets and duty rota pages
-      for one-division leagues.
+      eval/print-check.mjs, landed 2026-11-13: README "Print check").
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

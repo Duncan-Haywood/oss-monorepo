@@ -1343,7 +1343,7 @@ export function divisionsDutiesText(result) {
   let day = null;
   for (const r of result.rows) {
     if (r.day !== day) { day = r.day; lines.push(dayIso(day)); }
-    lines.push(`  ${r.duty}: ${r.team} [${r.division}]`);
+    lines.push(`  ${r.duty}: ${r.team}${r.division ? ` [${r.division}]` : ""}`);
   }
   for (const u of result.unfilled) lines.push(`No team free: ${dayIso(u.day)} ${u.duty}`);
   const t = result.loads.map((l) => l.total);
@@ -1419,10 +1419,30 @@ ${pages}
  * rota page (night by night, unfilled slots marked). `duties` is the result of assignDivisionDuties (optional).
  * Teams that share a name in two divisions get one sheet each. Every typed string is escaped. Pure; no network.
  */
+/**
+ * A one-division schedule from calc.mjs (`buildSchedule`, rounds with a bye) in the multi-division shape
+ * ({ divisions, nights }), so the duty rota and team sheets work on the single-league page too. Rounds on the
+ * same date share a night; a round's bye is kept as `night.byes`. `name` labels the division ("" by default,
+ * which the sheets and rota leave out). The input is not changed.
+ */
+export function singleAsDivisions(schedule, { name = "" } = {}) {
+  const byDay = new Map();
+  for (const r of schedule.rounds || []) {
+    if (!byDay.has(r.day)) byDay.set(r.day, { day: r.day, matches: [], byes: [] });
+    const night = byDay.get(r.day);
+    for (const m of r.matches) night.matches.push({ division: name, home: m.home, away: m.away, homeName: m.homeName, awayName: m.awayName, court: m.court, time: m.time, venue: m.court, round: r.label, ...(m.official !== undefined ? { official: m.official } : {}) });
+    if (r.bye !== null && r.bye !== undefined && schedule.teams[r.bye] !== undefined) night.byes.push({ division: name, team: schedule.teams[r.bye] });
+  }
+  const nights = [...byDay.values()].sort((a, b) => a.day - b.day);
+  return { divisions: [{ name, teams: [...schedule.teams] }], nights };
+}
+
 export function divisionsTeamSheetsHtml(schedule, { title = "Team sheets", contact = "", duties = null } = {}) {
   const t = htmlEsc(String(title || "").trim() || "Team sheets");
   const who = htmlEsc(String(contact || "").trim());
   const withOfficial = schedule.nights.some((n) => n.matches.some((m) => m.official !== undefined));
+  // A Venue column only when some venue differs from its court (a one-league schedule has none): an empty column takes width.
+  const withVenue = schedule.nights.some((n) => n.matches.some((m) => m.venue && m.venue !== m.court));
   const dutyOf = new Map(); // "division/team|day" -> [duty names]
   for (const r of duties?.rows || []) {
     const k = `${key2(r.division, r.team)}|${r.day}`;
@@ -1440,21 +1460,22 @@ export function divisionsTeamSheetsHtml(schedule, { title = "Team sheets", conta
     const k = key2(division, team);
     const rows = [];
     let games = 0, jobs = 0;
-    for (const night of schedule.nights) for (const m of night.matches) {
+    for (const night of schedule.nights) for (const m of [...night.matches, ...(night.byes || []).filter((b) => b.division === division && b.team === team).map(() => null)]) {
+      if (m === null) { rows.push(`<tr class="bye"><td class="s">${htmlEsc(dayLabel(night.day))}</td><td colspan="${4 + (withVenue ? 1 : 0) + (withOfficial ? 1 : 0) + (withDuties ? 1 : 0)}">Bye: no game this week</td></tr>`); continue; }
       if (m.division !== division || (m.homeName !== team && m.awayName !== team)) continue;
       const home = m.homeName === team;
       const dk = `${k}|${night.day}`, job = dutyOf.get(dk) || [];
       dutyOf.delete(dk); // a team with two games that night carries the duty on its first row only
       games++; jobs += job.length;
-      rows.push(`<tr><td>${htmlEsc(dayLabel(night.day))}</td><td>${htmlEsc(m.time)}</td><td>${htmlEsc(m.court)}</td><td>${htmlEsc(m.venue && m.venue !== m.court ? m.venue : "")}</td><td>${home ? "Home" : "Away"}</td><td class="n">${htmlEsc(home ? m.awayName : m.homeName)}</td>${withOfficial ? `<td>${htmlEsc(m.official ?? "")}</td>` : ""}${withDuties ? `<td class="d">${htmlEsc(job.join(", "))}</td>` : ""}</tr>`);
+      rows.push(`<tr><td class="s">${htmlEsc(dayLabel(night.day))}</td><td class="s">${htmlEsc(m.time)}</td><td class="s">${htmlEsc(m.court)}</td>${withVenue ? `<td>${htmlEsc(m.venue && m.venue !== m.court ? m.venue : "")}</td>` : ""}<td>${home ? "Home" : "Away"}</td><td class="n">${htmlEsc(home ? m.awayName : m.homeName)}</td>${withOfficial ? `<td class="s">${htmlEsc(m.official ?? "")}</td>` : ""}${withDuties ? `<td class="d s">${htmlEsc(job.join(", "))}</td>` : ""}</tr>`);
     }
     const summary = `${games} game${games === 1 ? "" : "s"}${withDuties ? `, ${jobs} dut${jobs === 1 ? "y" : "ies"}` : ""}`;
-    return `<section class="sheet"><h2>${htmlEsc(team)} <span>${htmlEsc(division)}</span></h2><p>${summary}</p><table><thead><tr><th>Date</th><th>Time</th><th>Court</th><th>Venue</th><th></th><th>Opponent</th>${withOfficial ? "<th>Official</th>" : ""}${withDuties ? "<th>Your duty</th>" : ""}</tr></thead><tbody>${rows.join("")}</tbody></table>${who ? `<p class="contact">Questions: ${who}</p>` : ""}</section>`;
+    return `<section class="sheet"><h2>${htmlEsc(team)}${division ? ` <span>${htmlEsc(division)}</span>` : ""}</h2><p>${summary}</p><table><thead><tr><th>Date</th><th>Time</th><th>Court</th>${withVenue ? "<th>Venue</th>" : ""}<th></th><th>Opponent</th>${withOfficial ? "<th>Official</th>" : ""}${withDuties ? "<th>Your duty</th>" : ""}</tr></thead><tbody>${rows.join("")}</tbody></table>${who ? `<p class="contact">Questions: ${who}</p>` : ""}</section>`;
   }).join("\n");
   let rota = "";
   if (withDuties) {
     const byDay = new Map();
-    for (const r of duties.rows) { if (!byDay.has(r.day)) byDay.set(r.day, []); byDay.get(r.day).push(`<li>${htmlEsc(r.duty)}: ${htmlEsc(r.team)} <span>(${htmlEsc(r.division)})</span></li>`); }
+    for (const r of duties.rows) { if (!byDay.has(r.day)) byDay.set(r.day, []); byDay.get(r.day).push(`<li>${htmlEsc(r.duty)}: ${htmlEsc(r.team)}${r.division ? ` <span>(${htmlEsc(r.division)})</span>` : ""}</li>`); }
     for (const u of duties.unfilled || []) { if (!byDay.has(u.day)) byDay.set(u.day, []); byDay.get(u.day).push(`<li class="gap">${htmlEsc(u.duty)}: no team free, find a volunteer</li>`); }
     const days = [...byDay.keys()].sort((a, b) => a - b);
     rota = `<section class="sheet"><h2>Duty rota</h2>${days.map((d) => `<h3>${htmlEsc(dayLabel(d))}</h3><ul>${byDay.get(d).join("")}</ul>`).join("")}</section>`;
@@ -1462,7 +1483,7 @@ export function divisionsTeamSheetsHtml(schedule, { title = "Team sheets", conta
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${t}</title>
-<style>body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:56rem;padding:1rem;color:#1a1a1a;background:#fff}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:.4rem .5rem;text-align:left}td.n{font-weight:600}td.d{font-weight:600}h2 span,li span{font-weight:400;color:#555}.gap{color:#a00}.sheet{page-break-after:always;margin-bottom:2rem}.contact{margin-top:1.5rem}footer{color:#555;font-size:.85rem}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#666}h2 span,li span{color:#aaa}}@media print{body{background:#fff;color:#000}}</style></head>
+<style>body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:56rem;padding:1rem;color:#1a1a1a;background:#fff}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:.4rem .5rem;text-align:left}td.n{font-weight:600}td.d{font-weight:600}h2 span,li span{font-weight:400;color:#555}.gap{color:#a00}.s{white-space:nowrap}tr.bye td{color:#555;font-style:italic}.sheet{page-break-after:always;margin-bottom:2rem}.contact{margin-top:1.5rem}footer{color:#555;font-size:.85rem}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#666}h2 span,li span{color:#aaa}}@media print{body{background:#fff;color:#000;padding:0;font-size:15px}th,td{padding:.35rem .3rem}}</style></head>
 <body><h1>${t}</h1>
 ${sheets}
 ${rota}

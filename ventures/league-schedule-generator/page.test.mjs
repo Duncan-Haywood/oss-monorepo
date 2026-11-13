@@ -58,7 +58,7 @@ test("every static input has a label and nothing is sent anywhere", () => {
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./carryover.mjs", "./checkout.mjs", "./licence.mjs", "./printpack.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./carryover.mjs", "./checkout.mjs", "./divisions.mjs", "./licence.mjs", "./printpack.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   // calc.mjs imports one sibling module only (the carry-over search), never a package or URL
   assert.deepEqual([...page("calc.mjs").matchAll(/^\s*import .* from "([^"]+)"/gm)].map((m) => m[1]), ["./carryover.mjs"]);
@@ -869,4 +869,13 @@ test("single-league page shows why tied teams are ranked as they are", async () 
   assert.match(html, /import \{ tieBreakNotes,/);
   assert.match(html, /id="tiebreaks"/);
   assert.match(html, /tieBreakNotes\(extra\.table\)/);
+});
+
+test("single-league page: duty box and team sheets reuse the multi-division code through singleAsDivisions (2026-11-13)", () => {
+  const html = page("index.html");
+  for (const id of ["duties", "sheetTitle", "sheetContact", "dl-team-sheets", "dl-duties", "duty-line"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /import \{[^}]*singleAsDivisions[^}]*assignDivisionDuties[^}]*validateDivisionDuties[^}]*divisionsTeamSheetsHtml[^}]*\} from "\.\/divisions\.mjs"/);
+  assert.match(html, /const errors = validateDivisionDuties\(shaped, pd\.duties, result\)/);
+  assert.match(html, /if \(td\.errors\.length\) \{ \$\("#duty-line"\)\.textContent = "Not downloaded/);
+  assert.match(html, /record\("team_sheets_downloaded"\)/);
 });

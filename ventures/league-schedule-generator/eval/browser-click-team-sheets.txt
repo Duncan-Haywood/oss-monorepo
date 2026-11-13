@@ -1,0 +1,13 @@
+duty line: Duties: 15 slots filled, 3 to 3 per team.
+ok   duty line reports the rota
+team-sheets.html: 7355 bytes, 6 sheets, 5 bye rows, 20 game rows
+ok   downloads team-sheets.html
+ok   five team sheets and a rota page
+ok   each team's bye on its sheet
+ok   every game on both teams' sheets (10 games)
+ok   duty and official columns, rota page
+ok   title and contact line
+ok   team name escaped
+ok   rota text downloads
+ok   a bad duty line refuses the download
+ok   no page errors
