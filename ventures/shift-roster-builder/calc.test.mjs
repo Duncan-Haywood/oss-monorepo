@@ -1973,3 +1973,10 @@ testSplit("splitCells keeps a quoted thousands comma, reads tabs, and treats a m
   assertSplit.deepEqual(splitCellsForTest('17" rims,"say ""hi""",5'), ['17" rims', 'say "hi"', "5"]);
   assertSplit.deepEqual(splitCellsForTest("a, b ,c"), ["a", "b", "c"]);
 });
+
+test("the default time budget starts strictly above 150 shifts (red-team 2026-11-13)", async () => {
+  const { defaultBudgetMs } = await import("./calc.mjs");
+  assert.equal(defaultBudgetMs(149), 0);
+  assert.equal(defaultBudgetMs(150), 0);
+  assert.equal(defaultBudgetMs(151), 20000);
+});

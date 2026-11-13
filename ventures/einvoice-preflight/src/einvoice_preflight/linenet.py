@@ -102,6 +102,34 @@ def tax_percent_of(item: dict[str, Any]) -> Decimal | None:
     return None
 
 
+def is_flat_tax_row(row: Any) -> bool:
+    """A non-VAT/GST row with no percentage: a flat amount (Malaysia's tourism tax).
+
+    Mirrors isFlatTaxRow in linenet.mjs.
+    """
+    if not isinstance(row, dict):
+        return False
+    scheme = row.get("tax_scheme")
+    scheme = scheme.strip().upper() if isinstance(scheme, str) else ""
+    if not scheme or scheme in ("VAT", "GST"):
+        return False
+    return _number(row.get("tax_percent")) is None
+
+
+def flat_tax_total(invoice: Any) -> Decimal | None:
+    """Summed tax of the flat-amount rows; None when one has no readable tax."""
+    rows = invoice.get("tax_breakdown") if isinstance(invoice, dict) else None
+    total = Decimal("0")
+    for row in rows if isinstance(rows, list) else []:
+        if not is_flat_tax_row(row):
+            continue
+        tax = _number(row.get("tax"))
+        if tax is None:
+            return None
+        total += tax
+    return round_cents(total)
+
+
 def tax_key_mode(invoice: dict[str, Any]) -> bool:
     lines = invoice.get("lines") if isinstance(invoice.get("lines"), list) else []
     rows = invoice.get("tax_breakdown") if isinstance(invoice.get("tax_breakdown"), list) else []

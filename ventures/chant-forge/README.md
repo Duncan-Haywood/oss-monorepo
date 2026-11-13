@@ -718,7 +718,7 @@ for every piece in `eval/scan-pages.json` against public-domain scans on archive
   Every corpus piece outside the `gregobase-1908/` batch is now read by eye: 2,129 notes,
   no differences.
 
-### Rhombus or square (2026-11-13, latest)
+### Rhombus or square (2026-11-13)
 
 ```sh
 node ventures/chant-forge/eval/shape-check.mjs    # same scans and cache as scan-check
@@ -746,6 +746,42 @@ zigzag of 0.15 spaces per column or more keeps 5 of 6 tuned-on quilismas but onl
 held out, and calls 58 and 63 squares quilismas. Liquescents are mostly not read at all
 (2 of 33 paired): the small upper head of a liquescent podatus sits on its neighbour's
 stem and falls under the reader's minimum head height. Both need a dedicated detector.
+(Quilismas: done, next section.)
+
+### Quilisma (2026-11-13, latest)
+
+A quilisma in the 1908 type is a small saw-tooth: two or three teeth on its upper edge with
+white notches between them, over a solid base. The earlier edge-zigzag measure looked at the
+whole outline, so a stem or a neighbour's edge read as zigzag too. `notchRows` in `scan.mjs`
+looks only inside the head's own upper half (from 0.27 staff spaces above its centre to the
+centre) and counts the rows that cross two or more separate runs of ink; three or more such rows
+make a quilisma (`QUILISMA_ROWS`). Rows higher than that are left out, because that is where a
+liquescent's small head or the note stacked above sits. The rule was fixed on the five tuning
+pieces only (6 of 6 quilismas, 3 of 1,538 other heads). Then nine GregoBase pieces from the 1908
+Graduale with quilismas or liquescents were picked and scanned for the first time
+(`eval/shape-fresh-pages.json`):
+
+| set | paired quilismas read as quilismas | other heads called quilismas |
+|---|---|---|
+| tuned on (five corpus pieces) | 6 of 6 | 3 of 1,538 |
+| held out for the rhombus rule (seven pieces; seen while choosing the measure) | 18 of 18 | 9 of 1,153 |
+| fresh (nine pieces, scanned after the rule was fixed) | 15 of 17 | 18 of 1,849 (version 1), 12 (version 2) |
+
+Every fresh call was cropped and looked at (`eval/quilisma-eye-check.md`). Of the 18, six are
+real quilismas that the pitch alignment paired with a neighbouring note, eleven are the lower end
+of a porrectus stroke that the reader cut off as its own head (white flecks where the stroke meets
+the head on its stem look like notches), one is two stacked heads. A quilisma never continues a
+stroke, so version 2 adds `afterStroke`: a notched head whose left neighbour at its height is
+wider than 0.8 spaces and ends within 0.2 spaces of it is not a quilisma. That removes six of the
+eleven with no quilisma lost; it was chosen after the look, so the 12 is not a held-out figure.
+The reader's own false calls on the fresh pieces are 6 of 1,849 (five porrectus ends, one
+stacked pair). The two misses: a quilisma stacked under the next note, narrow enough to pass the
+rhombus test first, and one with no visible teeth in the scan. On the same nine pieces the
+rhombus rule, untouched, read 243 of 245 rhombi and called none of 1,604 squares a rhombus.
+
+**Not done:** liquescents (25 in the fresh GABC, none paired). Pairing is also the limit for
+quilismas: 22 of the 39 fresh ones are not paired by pitch, so a GABC that drops a quilisma's
+`w` is only caught where the reader and the alignment both find the note.
 
 ## Not checked yet
 

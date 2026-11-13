@@ -1,4 +1,4 @@
-import { taxGroups, taxKey, taxPercentOf } from "./linenet.mjs";
+import { isFlatTaxRow, taxGroups, taxKey, taxPercentOf } from "./linenet.mjs";
 import { parseDecimal } from "./numbers.mjs";
 
 // Offline mixed-rate tax-breakdown observations.
@@ -44,6 +44,19 @@ function checkRows(rows, expected, withCategory, unattributed) {
     const percent = taxPercentOf(row);
     const taxable = money(row.taxable);
     const tax = money(row.tax);
+    // A flat-amount tax (no percentage, a scheme other than VAT/GST) has no rate to
+    // check and no line group to match; only its tax amount must be readable.
+    if (isFlatTaxRow(row)) {
+      if (tax === null) {
+        findings.push(finding(
+          "INV-038",
+          `Tax breakdown row ${index + 1} tax amount is missing or invalid.`,
+          "Set tax to the flat amount charged under this tax scheme.",
+          `${path}/tax`,
+        ));
+      }
+      return;
+    }
     if (percent === null || percent < 0 || percent > 100) {
       findings.push(finding(
         "INV-038",

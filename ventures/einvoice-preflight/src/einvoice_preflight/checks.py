@@ -11,7 +11,7 @@ from .bic import inspect_payment_bic
 from .breakdown import inspect_tax_breakdown
 from .document import inspect_document_type
 from .endpoint import inspect_party_endpoint
-from .linenet import accepted_line_net, is_negative_invoice, expected_line_net, summed_line_net, tax_groups, tax_percent_of
+from .linenet import accepted_line_net, flat_tax_total, is_negative_invoice, expected_line_net, summed_line_net, tax_groups, tax_percent_of
 from .iban import inspect_payment_iban
 from .means import inspect_payment_means
 from .period import inspect_invoice_period
@@ -154,6 +154,12 @@ def _check_invoice(invoice: Any) -> list[dict[str, str]]:
         sum((g["line_tax"] if g["line_tax"] is not None else g["tax"] for g in groups.values()), Decimal("0.00"))
         if any(g["line_tax"] is not None for g in groups.values()) else None
     )
+    # Flat-amount taxes beside VAT (Malaysia's tourism tax) add their stated amount (checks.mjs).
+    flat_tax = flat_tax_total(invoice)
+    if flat_tax:
+        expected_tax += flat_tax
+        if line_tax_total is not None:
+            line_tax_total += flat_tax
     expected_net = (expected_net + header_adjustment_net_delta(invoice)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     negative_invoice = is_negative_invoice(invoice)
     if expected_net < 0 and not negative_invoice:
@@ -175,7 +181,7 @@ def _check_invoice(invoice: Any) -> list[dict[str, str]]:
         pass
     elif tax_total is None or (tax_total < 0 and not negative_invoice):
         fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax")
-    elif not unattributed and tax_total != expected_tax and tax_total != line_tax_total:
+    elif not unattributed and flat_tax is not None and tax_total != expected_tax and tax_total != line_tax_total:
         fail("INV-018", "Invoice tax total does not match its line tax percentages.", f"Set tax total to {expected_tax} or correct the line inputs.", "/totals/tax")
     if gross is None or (gross < 0 and not negative_invoice):
         fail("INV-016", "Invoice gross total is missing or invalid.", "Provide a non-negative numeric gross total.", "/totals/gross")

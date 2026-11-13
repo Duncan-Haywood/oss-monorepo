@@ -59,9 +59,19 @@ export function parseTrades(text) {
   if (!lines.length) return { error: "No rows found." };
   const delim = lines[0].includes("\t") ? "\t" : ",";
   const head = splitLine(lines[0], delim).map((h) => h.toLowerCase());
-  const col = (names) => head.findIndex((h) => names.some((n) => h.includes(n)));
+  // Names are tried in order of preference, each against every header, so "Trade Date" beats a "Settlement Date"
+  // that comes first; `avoid` keeps "Security Type" or "Account Type" from being read as the symbol or the action.
+  const col = (names, avoid) => {
+    for (const n of names) {
+      const i = head.findIndex((h) => h.includes(n) && !(avoid && avoid.test(h)));
+      if (i >= 0) return i;
+    }
+    return -1;
+  };
   const c = {
-    date: col(["date"]), sym: col(["symbol", "ticker", "security"]), side: col(["action", "side", "type", "buy/sell"]),
+    date: col(["trade date", "run date", "activity date", "transaction date", "date"], /settle|process|acqui|expir|record|pay/),
+    sym: col(["symbol", "ticker", "instrument", "security"], /type|desc|name/),
+    side: col(["action", "side", "buy/sell", "trans code", "transaction type", "type"], /account|security|asset|instrument|order|option/),
     qty: col(["quantity", "shares", "qty"]), price: col(["price"]), amount: col(["amount", "proceeds", "total"]),
     basis: col(["basis", "cost"]), acct: col(["account"]),
   };
@@ -76,8 +86,8 @@ export function parseTrades(text) {
     const sideRaw = (f[c.side] || "").toLowerCase();
     // A dividend reinvestment is a purchase and can wash a loss (Pub. 550); Schwab's "Reinvest Dividend" is the cash
     // leg with no shares, its "Reinvest Shares" (Fidelity: "REINVESTMENT ...") the buy. Fidelity writes "YOU BOUGHT".
-    const side = /^(?:you\s+)?(?:buy|bought|purchase|b\b|bto|btc)|^reinvest(?:ment|ed)?\b(?!\s+div)/.test(sideRaw) ? "buy"
-      : /^(?:you\s+)?(?:sell|sold|sale|s\b|sto|stc)/.test(sideRaw) ? "sell" : null;
+    const side = /^(?:you\s+)?(?:buy|bought|purchase|b\b|bto\b|btc\b)|^reinvest(?:ment|ed)?\b(?!\s+div)/.test(sideRaw) ? "buy"
+      : /^(?:you\s+)?(?:sell|sold|sale|s\b|sto\b|stc\b)/.test(sideRaw) ? "sell" : null;
     const qty = Math.abs(num(f[c.qty]));
     const sym = (f[c.sym] || "").toUpperCase().replace(/\s+/g, "");
     let price = c.price >= 0 ? Math.abs(num(f[c.price])) : NaN;
