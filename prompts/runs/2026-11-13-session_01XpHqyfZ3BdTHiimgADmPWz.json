@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyfZ3BdTHiimgADmPWz",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T03:39:00Z",
+  "ended": "2026-11-13T03:49:43Z",
+  "wall_minutes": 10.95,
+  "tokens_in": 5775829,
+  "tokens_out": 42971,
+  "cost_usd": 3.0734,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15359",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First local workflow run failed: the new post's description was 176 chars (limit 160); the site-builder test failures cascaded from that front-matter check. Fixed and rerun."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Drew track 17 and said 'opening one is the default' without naming any real-data source for the track; the J\u00fclich pedestrian archive (ped.fz-juelich.de, reachable through the proxy) was the key find and could be listed in PROJECTS.md track 17 for the next run."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Step 1 says build.py fails on a missing README bullet but the fix is research_live_links.py --write; the order (live_links before build) is easy to get wrong, cost one rerun."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "'Land before you build' asks to work through open research PRs first; two cell-fidelity PRs (#15350, #15351) were opened under 4 hours earlier by what look like live parallel sessions, so I left them to their owners rather than interfering.",
+      "did": "Started the drawn track-17 programme instead.",
+      "result": "No conflict; those PRs remain with their sessions."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-people-keep-right-until-you-give-them-a-door.md",
+    "research/society-lanes/LOG.md (milestone 1 entry, predictions registered before analysis)"
+  ],
+  "goal": null,
+  "notes": "Opened research programme society-lanes (track 17) with PROPOSAL.md (23 checked identifiers) and milestone 1 on real data: FZJ HERMES bidirectional corridor trajectories (24 runs, 4,752 walkers). Free-choice runs: 0.937 [0.865, 0.993] on own right, lane order 0.91-1.00 vs null 0.25-0.52; assigned-exit runs 0.53. 3 of 5 registered predictions held (L4 density, L5 speed refuted). Stdlib, 5 tests. Homepage build ok, programme_check ok, md links ok, post front matter ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ecdf8e04-fcf4-5cc5-9404-f50d1e418781",
+    "transcripts": 1,
+    "first": "2026-11-13T03:39:00Z",
+    "last": "2026-11-13T03:49:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 96,
+        "output": 42971,
+        "thinking": 9733,
+        "cache_read": 5640028,
+        "cache_write_5m": 0,
+        "cache_write_1h": 135705,
+        "api_equivalent_usd": 3.0734,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 96,
+      "output": 42971,
+      "thinking": 9733,
+      "cache_read": 5640028,
+      "cache_write_5m": 0,
+      "cache_write_1h": 135705,
+      "api_equivalent_usd": 3.0734,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 47,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.95,
+      "active_minutes": 10.95,
+      "model_minutes": 7.03,
+      "tool_minutes": 3.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "data discovery, analysis script, proposal with literature check, write-up for a research engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 390.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
