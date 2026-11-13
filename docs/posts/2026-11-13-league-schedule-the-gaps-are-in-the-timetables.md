@@ -3,7 +3,7 @@ title: "Proving where a round-robin schedule's back-to-back games come from"
 seo_title: "Round-robin home/away breaks: a MaxSAT floor for a fixed timetable"
 date: 2026-11-13
 tags: [league-schedule-generator, ventures, scheduling, optimisation, sat]
-description: "A MaxSAT check shows the league scheduler's frontier gaps come from the fixtures, not the home/away choice, and a cheap regrounding pass adds the seasons it was missing."
+description: "A MaxSAT check shows the scheduler's frontier gaps come from the fixtures, not home/away, and a cheap regrounding pass adds missing seasons."
 ---
 
 The [league schedule generator](https://marisstella.app/league-schedule-generator/) trades two kinds of fairness against each other. *Carry-over* is about order: how often a team meets the same opponent straight after the same other team. *Breaks* are about grounds: a team playing two home games, or two away games, in a row. After its searches, the page lists every season where neither number can be lowered without raising the other, and the organiser picks one.
