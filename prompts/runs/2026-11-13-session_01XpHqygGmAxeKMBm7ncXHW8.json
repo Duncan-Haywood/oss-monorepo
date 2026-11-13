@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "A `sed -n 1,15p $f` with an empty $f read stdin and hung until the 120 s tool timeout; killed it.",
-    "First CI run of the change was red (86/104). Under Python 3.11 locally, 15 pytest-style test files ran 0 tests under unittest and reported OK; 3.12 on CI exits 5. Two tests need yaml, which the runner lacks. A report with no front matter landed on main meanwhile. Fixed: pytest for files with no TestCase, missing third-party packages reported as skips by name, and the new report backfilled."
+    "First CI run of the change was red (86/104). Under Python 3.11 locally, 15 pytest-style test files ran 0 tests under unittest and reported OK; 3.12 on CI exits 5. Two tests need yaml, which the runner lacks. A report with no front matter landed on main meanwhile. Fixed: pytest for files with no TestCase, missing third-party packages reported as skips by name, and the new report backfilled.",
+    "Duplicate work: a redteam run (commit 0a6dfd409, 16:58) landed the same unwired-suite idea while this PR waited on CI, so the merge conflicted. Consolidated: kept its structure; this PR now adds the CI wiring (run_venture_tests never ran the suites), pytest for 15 plain-function suites, named skips for missing packages, doc_index check, and 2 more reports backfilled. My first post was replaced with one covering only the difference."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -46,6 +47,10 @@
     {
       "file": "platform/ci/unwired_checks.py",
       "issue": "'python3 -m unittest <module>' on a pytest-style file passes with 0 tests on Python 3.11 (the cloud image) but exits 5 on 3.12 (the CI runner), so a local 'all pass' can hide unrun tests."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searched open PRs for 'unwired' before starting and found none. The redteam session had not opened its PR yet and landed the same idea 2 h later. The search cannot see unopened work."
     }
   ],
   "deviations": [
@@ -57,10 +62,10 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-13-71-unit-tests-no-pull-request-ran.md"
+    "docs/posts/2026-11-13-the-suites-that-ran-zero-tests.md"
   ],
   "goal": null,
-  "notes": "Security queue empty; IDEAS.md and website requests empty. Routed process/1 by weighted draw. Backlog: owner/blocked rows only, so Critique. main_health.py 62/62 before. No backlog ids touched. The control-plane follow-up (an unwired_checks.py step in portfolio-validate.yml, plus docs/reports/** and docs/taxonomy.json paths) goes in its own PR from the restarted branch after this one merges. Verification: unwired_checks.py 104/104 (26 s); unittest test_unwired_checks test_run_venture_tests test_main_health, 41 OK; doc_index check ok; check_post_frontmatter rc 0; promptctl validate ok. No agent doc: the post and the unwired_checks docstring cover it.",
+  "notes": "Security queue empty; IDEAS.md and website requests empty. Routed process/1 by weighted draw. Backlog: owner/blocked rows only, so Critique. main_health.py 62/62 before. No backlog ids touched. The control-plane follow-up (an unwired_checks.py step in portfolio-validate.yml, plus docs/reports/** and docs/taxonomy.json paths) goes in its own PR from the restarted branch after this one merges. Verification: unwired_checks.py 104/104 (26 s); unittest test_unwired_checks test_run_venture_tests test_main_health, 41 OK; doc_index check ok; check_post_frontmatter rc 0; promptctl validate ok. No agent doc: the post and the unwired_checks docstring cover it. Consolidated with redteam commit 0a6dfd409 after a merge conflict. Final: 105/105 unwired checks and suites with pytest; 90 pass and 15 named skips under bare Python 3.12 (runner-like).",
   "corrections": [],
   "redteam": null,
   "usage": {

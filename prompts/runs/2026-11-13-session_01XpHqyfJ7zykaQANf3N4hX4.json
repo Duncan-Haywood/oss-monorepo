@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyfJ7zykaQANf3N4hX4",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T16:45:56Z",
+  "ended": "2026-11-13T16:52:04Z",
+  "wall_minutes": 6.34,
+  "tokens_in": 3733246,
+  "tokens_out": 20488,
+  "cost_usd": 1.7736,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15547",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both perf backlog items (P063, P064) are still owner-gated; step 1 sends every perf run to a dead end before step 3. The chant-forge true-peak doc's ranked 'not changed' list was the fastest route to a landable task."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-two-filters-one-loop-same-doubles.md",
+    "docs/history/ci-perf-2026-11-13-chant-forge-fused-k-weighting.md"
+  ],
+  "goal": null,
+  "notes": "Metric: chant-forge --limit deep-house render (bench script hashing mix, stems, lufs and analysis JSON) and the chant-forge suite. Before (main 3f23c43ba): render 15.5/15.7 s, analyze 1.6 s, hash 530a7b97baa28bdd; suite 26.3 s (time python3 platform/ci/run_venture_tests.py chant-forge, old code via git stash). After: render 11.5/12.4 s, analyze 1.3-1.5 s, same hash; suite 20.9 s, 0 failed. Profile self time: biquad+sum 4.1 s -> kWeightedEnergy 1.9 s; renderMidi 3.74 -> 1.99 s; truePeak unchanged (~5 s; limited audio defeats the skip bound). New bit-for-bit tests in master.test.mjs; a one-term reorder in the fused filter fails them. Checks run: master.test.mjs, chant-forge suite, check_post_frontmatter, check_post_links, check_doc_counts.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "be036fb5-618b-594b-bea5-d7510f9e13ae",
+    "transcripts": 1,
+    "first": "2026-11-13T16:45:56Z",
+    "last": "2026-11-13T16:52:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 87,
+        "output": 20488,
+        "thinking": 3998,
+        "cache_read": 3654070,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79089,
+        "api_equivalent_usd": 1.7736,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 87,
+      "output": 20488,
+      "thinking": 3998,
+      "cache_read": 3654070,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79089,
+      "api_equivalent_usd": 1.7736,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.34,
+      "active_minutes": 6.34,
+      "model_minutes": 3.32,
+      "tool_minutes": 3.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile, three exact-arithmetic rewrites with bit-for-bit tests, timings and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 169.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

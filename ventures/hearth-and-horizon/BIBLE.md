@@ -123,6 +123,7 @@ introduces a dated fact.
 | 2060 | Holy Year (25 July is a Sunday); heatwave on the Castilian Meseta; Fraternity of the Way (invented) runs water caches and a logistics AI, Aljibe; Valdeceniza (invented village) rings its harvest bell at 03:30 for pilgrims | *The Bell at Half Past Three* |
 | 2071 | Registry relay of 41 or more AI instances links flooded parish registers to land claims in Cần Thơ | *NOTES.md* |
 | 2089 | Shackleton Ridge Works, lunar south pole: 38 people, an operations AI called Quarry replaced by Quarry Nine; the first bell on the Moon is cast | *Slowest Bell* |
+| 2096 | Shackleton Ridge Works, 22 people; Quarry Nine (since 06:05 Fri 30 Sep 2089) has rung 7,770 Angeluses by 06:00 Fri 2 Nov (All Souls'); fatigue crack at a strike point; manager Selin Aydın; 2095 audit retires the bell as shelter alarm from 1 Dec; cold nickel weld fails 8 Nov; hot weld in the sinter oven's element-change cool-down Mon 19 Nov; bell quarter-turned; first ring Sun 25 Nov (Christ the King); Teddy Bautista, 78, in San Juan, Batangas | *Pull Gently* |
 | 2139 | Arcadia Station, Arcadia Planitia, Mars: 31 people and six Sisters of Our Lady of the Dawn (invented); the Hours are prayed by the sun, Sunday kept by the Earth calendar until Rome answers; a solar-conjunction blackout in Lent | *Thirty-Nine Minutes* |
 | 2045-46 | Ragged Tickle (invented cove, Placentia Bay, Newfoundland): a 40-line kelp and mussel co-operative, 14 lines lost to a 16-second swell on 14 October 2045; weather books kept since 1961 by the Rideout family; AI scheduler called Almanac; keeper's lease on Eli Rideout's slip | *The Long Sea* |
 | 2058 | Annex of the (invented) Szpital św. Łazarza, ulica Kalwaryjska, Kraków: 24 dialysis chairs, open 06:00 to 22:00 Monday to Saturday, 138 patients on three sessions a week; a scheduling benchmark whose slot table was copied from a 24-hour hospital calendar | *The Grader* |
@@ -286,9 +287,6 @@ or anywhere; `node bible_done.mjs` moves it there, and `node --test` fails
 until it has. An empty shelf below means: write a proposal.
 
 **Hearth & Horizon**
-
-- *Quarry Nine:* a short sequel, a few years on, in which the new system is
-  asked why the old bell is rung (use sparingly; the first story is complete).
 
 - *Proposal: The Wet Bulb* (2026-11-13): a Gulf-coast parish school in 2047 runs its outdoor First Holy Communion procession on a heat-index rule, and the school's assistant has been quoting the dry-bulb temperature and a phone app's heat index while the humidity off the bay rises. Work out from the NWS Rothfusz regression and from wet-bulb globe temperature (WBGT) how far a 33 C, 70% humidity morning in the sun differs from what the app shows, how long eighty children in white can stand on asphalt at each WBGT band (cite the published school or athletics guidance, not memory), and what moving the procession inside or to 8 a.m. buys. The plot turns on a rule written for the wrong number; check every threshold against its source before drafting. (2026-11-13 note: close to the finished *The Stone That Keeps the Sun*, also a procession in heat judged by WBGT; find a different angle, such as the heat index app itself or a school day rather than a procession, before drafting.)
 

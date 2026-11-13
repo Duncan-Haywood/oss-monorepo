@@ -1,0 +1,78 @@
+civ-history: the population term cancels out of political stress (run_split.py; do not edit by hand)
+2500 years, first 500 dropped; deterministic, one run per cell; tau 0.3, E* 0.05; g = tau (1 - a) / E* so the constant offset is 0 (neutral state)
+grid {'rho': (0.03, 0.06, 0.12), 'm': (0.02, 0.05), 'k': (4, 8), 'lag': (0, 50, 100, 200), 'collapse_thr': (0.1, 0.3, 0.5), 'me': (0.02, 0.04, 0.08)} (432 cells)
+
+H1 identity: max |sum of split terms - log PSI| over 4320 runs = 1.78e-15
+
+a 0.5, g 3.00, psi_reset 0.0, collapse_fiscal 0.1: collapsing 94 of 432
+  [w25] mean terms: elite 2log(E/E*) -0.132  population (1-2a)logN +0.000  fiscal lag log(Sss/S) -0.028
+  [w25] largest of the non-zero terms: elite 2log(E/E*) 46 (0.49), population (1-2a)logN 0 (0.00), fiscal lag log(Sss/S) 48 (0.51)
+  fiscal lag > elite in 48 of 94 (0.51); population term > 0 in 0 (0.00); elite term > 0 in 41 (0.44)
+  mean collapses per collapsing cell 17.1; mean population (post-burn, all cells) 0.690
+  by lag: lag 0 18, lag 50 21, lag 100 26, lag 200 29
+  by threshold: thr 0.1: 94 collapsing, elite term > 0 in 41, mean log PSI before collapse -0.160; thr 0.3: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan; thr 0.5: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan
+a 0.5, g 3.00, psi_reset 1.0, collapse_fiscal 0.1: collapsing 155 of 432
+  [w25] mean terms: elite 2log(E/E*) -1.809  population (1-2a)logN +0.000  fiscal lag log(Sss/S) -0.121
+  [w25] largest of the non-zero terms: elite 2log(E/E*) 25 (0.16), population (1-2a)logN 0 (0.00), fiscal lag log(Sss/S) 130 (0.84)
+  fiscal lag > elite in 130 of 155 (0.84); population term > 0 in 0 (0.00); elite term > 0 in 23 (0.15)
+  mean collapses per collapsing cell 29.9; mean population (post-burn, all cells) 0.569
+  by lag: lag 0 18, lag 50 27, lag 100 40, lag 200 70
+  by threshold: thr 0.1: 115 collapsing, elite term > 0 in 9, mean log PSI before collapse -2.342; thr 0.3: 36 collapsing, elite term > 0 in 12, mean log PSI before collapse -0.801; thr 0.5: 4 collapsing, elite term > 0 in 2, mean log PSI before collapse -0.244
+a 0.5, g 3.00, psi_reset 0.0, collapse_fiscal 1.0: collapsing 94 of 432
+  [w25] mean terms: elite 2log(E/E*) -0.115  population (1-2a)logN +0.000  fiscal lag log(Sss/S) -0.029
+  [w25] largest of the non-zero terms: elite 2log(E/E*) 46 (0.49), population (1-2a)logN 0 (0.00), fiscal lag log(Sss/S) 48 (0.51)
+  fiscal lag > elite in 48 of 94 (0.51); population term > 0 in 0 (0.00); elite term > 0 in 45 (0.48)
+  mean collapses per collapsing cell 17.3; mean population (post-burn, all cells) 0.692
+  by lag: lag 0 18, lag 50 21, lag 100 26, lag 200 29
+  by threshold: thr 0.1: 94 collapsing, elite term > 0 in 45, mean log PSI before collapse -0.144; thr 0.3: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan; thr 0.5: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan
+a 0.5, g 3.00, psi_reset 1.0, collapse_fiscal 1.0: collapsing 147 of 432
+  [w25] mean terms: elite 2log(E/E*) -1.657  population (1-2a)logN +0.000  fiscal lag log(Sss/S) -0.104
+  [w25] largest of the non-zero terms: elite 2log(E/E*) 34 (0.23), population (1-2a)logN 0 (0.00), fiscal lag log(Sss/S) 113 (0.77)
+  fiscal lag > elite in 113 of 147 (0.77); population term > 0 in 0 (0.00); elite term > 0 in 33 (0.22)
+  mean collapses per collapsing cell 28.6; mean population (post-burn, all cells) 0.588
+  by lag: lag 0 18, lag 50 24, lag 100 37, lag 200 68
+  by threshold: thr 0.1: 111 collapsing, elite term > 0 in 15, mean log PSI before collapse -2.283; thr 0.3: 32 collapsing, elite term > 0 in 14, mean log PSI before collapse -0.296; thr 0.5: 4 collapsing, elite term > 0 in 4, mean log PSI before collapse +1.013
+a 0.4, g 3.60, psi_reset 0.0, collapse_fiscal 0.1: collapsing 113 of 432
+  [w25] mean terms: elite 2log(E/E*) -0.014  population (1-2a)logN -0.057  fiscal lag log(Sss/S) -0.031
+  [w25] largest of the non-zero terms: elite 2log(E/E*) 67 (0.59), population (1-2a)logN 15 (0.13), fiscal lag log(Sss/S) 31 (0.27)
+  fiscal lag > elite in 46 of 113 (0.41); population term > 0 in 0 (0.00); elite term > 0 in 66 (0.58)
+  mean collapses per collapsing cell 18.3; mean population (post-burn, all cells) 0.718
+  by lag: lag 0 20, lag 50 27, lag 100 31, lag 200 35
+  by threshold: thr 0.1: 113 collapsing, elite term > 0 in 66, mean log PSI before collapse -0.103; thr 0.3: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan; thr 0.5: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan
+a 0.6, g 2.40, psi_reset 0.0, collapse_fiscal 0.1: collapsing 71 of 432
+  [w25] mean terms: elite 2log(E/E*) -0.295  population (1-2a)logN +0.086  fiscal lag log(Sss/S) -0.023
+  [w25] largest of the non-zero terms: elite 2log(E/E*) 15 (0.21), population (1-2a)logN 56 (0.79), fiscal lag log(Sss/S) 0 (0.00)
+  fiscal lag > elite in 54 of 71 (0.76); population term > 0 in 71 (1.00); elite term > 0 in 16 (0.23)
+  mean collapses per collapsing cell 15.7; mean population (post-burn, all cells) 0.656
+  by lag: lag 0 12, lag 50 16, lag 100 21, lag 200 22
+  by threshold: thr 0.1: 71 collapsing, elite term > 0 in 16, mean log PSI before collapse -0.232; thr 0.3: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan; thr 0.5: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan
+a 0.7, g 1.80, psi_reset 0.0, collapse_fiscal 0.1: collapsing 35 of 432
+  [w25] mean terms: elite 2log(E/E*) -0.546  population (1-2a)logN +0.209  fiscal lag log(Sss/S) -0.017
+  [w25] largest of the non-zero terms: elite 2log(E/E*) 0 (0.00), population (1-2a)logN 35 (1.00), fiscal lag log(Sss/S) 0 (0.00)
+  fiscal lag > elite in 35 of 35 (1.00); population term > 0 in 35 (1.00); elite term > 0 in 0 (0.00)
+  mean collapses per collapsing cell 15.2; mean population (post-burn, all cells) 0.610
+  by lag: lag 0 8, lag 50 8, lag 100 9, lag 200 10
+  by threshold: thr 0.1: 35 collapsing, elite term > 0 in 0, mean log PSI before collapse -0.353; thr 0.3: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan; thr 0.5: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan
+a 0.4, g 3.60, psi_reset 0.0, collapse_fiscal 1.0: collapsing 114 of 432
+  [w25] mean terms: elite 2log(E/E*) +0.006  population (1-2a)logN -0.055  fiscal lag log(Sss/S) -0.032
+  [w25] largest of the non-zero terms: elite 2log(E/E*) 74 (0.65), population (1-2a)logN 10 (0.09), fiscal lag log(Sss/S) 30 (0.26)
+  fiscal lag > elite in 39 of 114 (0.34); population term > 0 in 0 (0.00); elite term > 0 in 68 (0.60)
+  mean collapses per collapsing cell 18.2; mean population (post-burn, all cells) 0.721
+  by lag: lag 0 20, lag 50 27, lag 100 32, lag 200 35
+  by threshold: thr 0.1: 114 collapsing, elite term > 0 in 68, mean log PSI before collapse -0.081; thr 0.3: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan; thr 0.5: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan
+a 0.6, g 2.40, psi_reset 0.0, collapse_fiscal 1.0: collapsing 71 of 432
+  [w25] mean terms: elite 2log(E/E*) -0.278  population (1-2a)logN +0.084  fiscal lag log(Sss/S) -0.022
+  [w25] largest of the non-zero terms: elite 2log(E/E*) 15 (0.21), population (1-2a)logN 56 (0.79), fiscal lag log(Sss/S) 0 (0.00)
+  fiscal lag > elite in 53 of 71 (0.75); population term > 0 in 71 (1.00); elite term > 0 in 17 (0.24)
+  mean collapses per collapsing cell 15.9; mean population (post-burn, all cells) 0.657
+  by lag: lag 0 12, lag 50 16, lag 100 21, lag 200 22
+  by threshold: thr 0.1: 71 collapsing, elite term > 0 in 17, mean log PSI before collapse -0.216; thr 0.3: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan; thr 0.5: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan
+a 0.7, g 1.80, psi_reset 0.0, collapse_fiscal 1.0: collapsing 36 of 432
+  [w25] mean terms: elite 2log(E/E*) -0.527  population (1-2a)logN +0.206  fiscal lag log(Sss/S) -0.017
+  [w25] largest of the non-zero terms: elite 2log(E/E*) 0 (0.00), population (1-2a)logN 36 (1.00), fiscal lag log(Sss/S) 0 (0.00)
+  fiscal lag > elite in 36 of 36 (1.00); population term > 0 in 36 (1.00); elite term > 0 in 0 (0.00)
+  mean collapses per collapsing cell 15.2; mean population (post-burn, all cells) 0.611
+  by lag: lag 0 8, lag 50 8, lag 100 10, lag 200 10
+  by threshold: thr 0.1: 36 collapsing, elite term > 0 in 0, mean log PSI before collapse -0.338; thr 0.3: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan; thr 0.5: 0 collapsing, elite term > 0 in 0, mean log PSI before collapse +nan
+
+H3 paired (a 0.5, psi_reset 0): of 94 cells collapsing with the fiscal crash, 0 stop without it, 22 have fewer collapses; 0 quiet cells start

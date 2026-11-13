@@ -569,7 +569,7 @@ def main(argv):
     unwired_red = False
     if args.since is not None and not args.no_unwired:
         import unwired_checks
-        results = unwired_checks.run_all(unwired_checks.jobs())
+        results = unwired_checks.run_everything()
         bad = unwired_checks.report(results)
         unwired_red = bool(bad)
         if bad:
@@ -578,7 +578,7 @@ def main(argv):
                 for name, rc, _ in results:
                     if rc:
                         print(f"::error title=unwired check failed::platform/ci/{name} (exit {rc}; "
-                              f"{unwired_checks.rerun_hint(name)})")
+                              f"{unwired_checks.reproduce(name)})")
         skips = unwired_checks.skipped(results)
         print(f"{sum(rc == 0 for _, rc, _ in results) - len(skips)}/{len(results)} unwired tree "
               f"checks and tests pass" + (f", {len(skips)} skipped (missing pytest or a package: "

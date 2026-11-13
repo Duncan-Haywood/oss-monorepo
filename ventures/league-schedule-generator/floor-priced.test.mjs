@@ -117,6 +117,15 @@ test("carryOverFloorPriced: seasons into the widest gap, on the frontier, number
   assert.deepEqual(carryOverFloorPriced(8, d, { seed: 1 }), []);
 });
 
+test("carryOverFloorPriced runs at 22 teams in the page, not at 23 (README \"A faster break floor\")", async () => {
+  const { carryOverFloorPriced } = await import("./carryover.mjs");
+  // a list whose frontier has a 10-break gap and empty timetables: at 23 the size gate returns [],
+  // at 22 the call gets past it into the search, which throws on the empty timetable
+  const fake = (n, coe, breaks, index) => ({ rounds: Array.from({ length: n % 2 ? n : n - 1 }, () => ({ matches: [] })), coe, breaks, index });
+  assert.deepEqual(carryOverFloorPriced(23, [fake(23, 500, 50, 0), fake(23, 900, 40, 1)], { seed: 1 }), []);
+  assert.throws(() => carryOverFloorPriced(22, [fake(22, 500, 50, 0), fake(22, 900, 40, 1)], { seed: 1, iterations: 1 }));
+});
+
 test("bestCarryOverRounds keeps its choice with floor-priced seasons, and buildSchedule rebuilds a kept one", async () => {
   const { bestCarryOverRounds, carryOverKeepText } = await import("./carryover.mjs");
   const { buildSchedule, readSpec, validateSchedule } = await import("./calc.mjs");

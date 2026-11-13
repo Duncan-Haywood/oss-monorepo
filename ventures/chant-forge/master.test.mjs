@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readWav, analyze, integratedLufs, truePeak, suggestGain } from './master.mjs';
+import { readWav, analyze, integratedLufs, truePeak, suggestGain, kWeight, kWeightedEnergy } from './master.mjs';
 import { run } from './master-cli.mjs';
 
 function wav(chs, rate, bits = 16) {
@@ -124,6 +124,39 @@ test('truePeak returns the reference value bit for bit: random, bursty, short, c
   for (const x of signals) {
     for (const [factor, half] of [[4, 16], [2, 8], [8, 4]]) {
       assert.ok(Object.is(truePeak(x, factor, half), truePeakReference(x, factor, half)), `n=${x.length} factor=${factor} half=${half}`);
+    }
+  }
+});
+
+test('truePeak with a floor is Math.max(floor, truePeak) bit for bit, including NaN either side', () => {
+  let s = 11;
+  const rnd = () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296) * 2 - 1;
+  const signals = [[], [0.5], new Float64Array(40).fill(0.3)];
+  for (const n of [33, 100, 1000, 4097]) {
+    signals.push(Float64Array.from({ length: n }, rnd));
+    signals.push(Float64Array.from({ length: n }, (_, i) => (i % 97 < 3 ? rnd() : rnd() * 0.01)));
+    signals.push(Float64Array.from({ length: n }, (_, i) => (i % 2 ? 1 : -1) * (0.9 + 0.1 * Math.abs(rnd()))));
+  }
+  const withNaN = Float64Array.from({ length: 200 }, rnd); withNaN[150] = NaN; signals.push(withNaN);
+  for (const x of signals) {
+    const own = truePeak(x);
+    for (const floor of [0, 0.01, 0.5, own * 0.999, own, own * 1.001, 1.5, NaN]) {
+      assert.ok(Object.is(truePeak(x, 4, 16, floor), Math.max(floor, own)), `n=${x.length} floor=${floor}`);
+    }
+  }
+});
+
+test('kWeightedEnergy is the running sum of squares of kWeight, bit for bit', () => {
+  let s = 3;
+  const rnd = () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296) * 2 - 1;
+  for (const fs of [44100, 48000, 22050]) {
+    for (const n of [0, 1, 2, 3, 500, 20000]) {
+      const x = Float64Array.from({ length: n }, (_, i) => 0.6 * Math.sin(i * 0.031) + 0.3 * rnd());
+      const w = kWeight(x, fs), ref = new Float64Array(n + 1);
+      for (let i = 0; i < n; i++) ref[i + 1] = ref[i] + w[i] * w[i];
+      const got = kWeightedEnergy(x, fs);
+      assert.equal(got.length, n + 1);
+      for (let i = 0; i <= n; i++) assert.ok(Object.is(got[i], ref[i]), `fs=${fs} n=${n} i=${i}`);
     }
   }
 });

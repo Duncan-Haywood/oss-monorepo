@@ -233,24 +233,52 @@ class Registry(unittest.TestCase):
             "framerate": "docs/reports/2026-11-03-homepage-frame-rate.md: add it "
                          "to both CHECKS tuples and the two lists in "
                          "browser-checks-ci.yml in one control-plane PR",
+            # Found by the 2026-11-13 red-team run: these three landed after
+            # framerate without registering, and this test (nightly only) went
+            # red on main. Each exits 1 on a defect, so each is check-shaped.
+            # Run each once against a fresh build before registering, so the
+            # nightly does not start red on findings nobody has looked at.
+            "ask-voice-icon": "phone-width mic icon on every tool page; register "
+                              "in the same control-plane PR as framerate",
+            "band-gap": "min gap between stacked bands at 1280 and 390 px; "
+                        "register in the same control-plane PR as framerate",
+            "sticky-fit-check": "stuck cards that run past the window bottom; "
+                                "register in the same control-plane PR as framerate",
+        }
+        # Browser tools run by hand on purpose, never by the nightly. Each
+        # entry says why it is not a check.
+        by_hand = {
+            "lighthouse": "needs a separately installed Lighthouse binary "
+                          "(LIGHTHOUSE=...) and reports scores; polish runs "
+                          "read the numbers, a nightly pass/fail would not",
         }
         stale = sorted(set(pending) & registered)
         self.assertFalse(stale, f"{stale} is in CHECKS now: delete it from `pending`.")
+        missing = sorted(
+            name for name in set(pending) | set(by_hand)
+            if not os.path.exists(os.path.join(bc.PAGES, name + ".mjs"))
+        )
+        self.assertFalse(missing, f"{missing} no longer exist: delete their entries.")
+        offenders = []
         for path in sorted(os.listdir(bc.PAGES)):
             if not path.endswith(".mjs") or path.endswith(".test.mjs"):
                 continue
             name = path[: -len(".mjs")]
-            if name in registered or name in pending:
+            if name in registered or name in pending or name in by_hand:
                 continue
             with open(os.path.join(bc.PAGES, path), encoding="utf-8") as fh:
                 source = fh.read()
-            looks_like_a_check = "BASE_URL" in source and "chromium" in source
-            self.assertFalse(
-                looks_like_a_check,
-                f"platform/pages/{path} reads BASE_URL and launches a browser but "
-                f"is not in CHECKS, so nothing runs it. Register it, or give it a "
-                f"name this test does not mistake for a check.",
-            )
+            if "BASE_URL" in source and "chromium" in source:
+                offenders.append(f"platform/pages/{path}")
+        # Name every offender at once: stopping at the first hid three more
+        # on 2026-11-13, one per rerun.
+        self.assertFalse(
+            offenders,
+            f"{offenders} read BASE_URL and launch a browser but are not in "
+            f"CHECKS, so nothing runs them. Register each, list it in `pending` "
+            f"or `by_hand` with a reason, or give it a name this test does not "
+            f"mistake for a check.",
+        )
 
     def test_free_port_is_actually_free(self):
         port = bc.free_port()

@@ -52,7 +52,8 @@ function biquad(x, b, a) {
   return y;
 }
 
-export function kWeight(x, fs) {
+// BS.1770 K-weighting: a high shelf, then a high-pass, as [b, a] coefficient pairs.
+function kCoeffs(fs) {
   const f0 = 1681.974450955533, G = 3.999843853973347, Q = 0.7071752369554196;
   let K = Math.tan(Math.PI * f0 / fs);
   const Vh = 10 ** (G / 20), Vb = Vh ** 0.4996667741545416;
@@ -62,15 +63,38 @@ export function kWeight(x, fs) {
   K = Math.tan(Math.PI * f1 / fs);
   a0 = 1 + K / Q1 + K * K;
   const hp = [[1, -2, 1], [2 * (K * K - 1) / a0, (1 - K / Q1 + K * K) / a0]];
+  return { shelf, hp };
+}
+
+export function kWeight(x, fs) {
+  const { shelf, hp } = kCoeffs(fs);
   return biquad(biquad(x, shelf[0], shelf[1]), hp[0], hp[1]);
+}
+
+// Running sum of squares of kWeight(x, fs): s[i + 1] = s[i] + w[i] * w[i]. Both
+// filters run in one loop with no intermediate arrays; every product and sum is
+// the one kWeight and the separate loop computed, in the same order, so s is
+// the same doubles (master.test.mjs pins it).
+export function kWeightedEnergy(x, fs) {
+  const { shelf: [[b0, b1, b2], [a1, a2]], hp: [[c0, c1, c2], [d1, d2]] } = kCoeffs(fs);
+  const n = x.length, s = new Float64Array(n + 1);
+  let x1 = 0, x2 = 0, y1 = 0, y2 = 0, z1 = 0, z2 = 0, acc = 0;
+  for (let i = 0; i < n; i++) {
+    const xi = x[i];
+    const v = b0 * xi + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
+    // the high-pass's input history is the shelf's output history (y1, y2)
+    const w = c0 * v + c1 * y1 + c2 * y2 - d1 * z1 - d2 * z2;
+    x2 = x1; x1 = xi; y2 = y1; y1 = v; z2 = z1; z1 = w;
+    acc += w * w; s[i + 1] = acc;
+  }
+  return s;
 }
 
 // Integrated loudness with the absolute (-70) and relative (-10 LU) gates.
 export function integratedLufs(channels, fs) {
-  const w = channels.map((c) => kWeight(c, fs));
-  const n = w[0].length, blk = Math.round(0.4 * fs), hop = Math.round(0.1 * fs);
+  const n = channels[0].length, blk = Math.round(0.4 * fs), hop = Math.round(0.1 * fs);
   if (n < blk) return { lufs: -Infinity, blocks: 0 };
-  const cum = w.map((c) => { const s = new Float64Array(n + 1); for (let i = 0; i < n; i++) s[i + 1] = s[i] + c[i] * c[i]; return s; });
+  const cum = channels.map((c) => kWeightedEnergy(c, fs));
   const z = [];
   for (let s = 0; s + blk <= n; s += hop) z.push(cum.reduce((t, c) => t + (c[s + blk] - c[s]) / blk, 0));
   const lk = (e) => -0.691 + 10 * Math.log10(e);
@@ -83,7 +107,9 @@ export function integratedLufs(channels, fs) {
 
 // True peak by 4x oversampling with a Hann-windowed sinc (accurate to a few
 // hundredths of a dB on music; BS.1770 Annex 2 specifies a similar 4x FIR).
-export function truePeak(x, factor = 4, half = 16) {
+// `floor` (default 0) starts the peak there, so truePeak(b, 4, 16, truePeak(a)) is
+// Math.max(truePeak(a), truePeak(b)) exactly, and windows of b that cannot beat a are skipped.
+export function truePeak(x, factor = 4, half = 16, floor = 0) {
   const width = 2 * half, taps = [];
   for (let p = 0; p < factor; p++) {
     const t = new Float64Array(width);
@@ -100,7 +126,7 @@ export function truePeak(x, factor = 4, half = 16) {
   // cannot raise it and is skipped. The margin covers rounding in the sum, and NaN
   // fails every comparison, so it still reaches the result.
   const n = x.length, first = half - 1, last = n - half;
-  let peak = 0;
+  let peak = floor;
   for (let i = 0; i < n; i++) peak = Math.max(peak, Math.abs(x[i]));
   let gain = 0;
   for (let p = 1; p < factor; p++) { let a = 0; for (let j = 0; j < width; j++) a += Math.abs(taps[p][j]); gain = Math.max(gain, a); }
@@ -171,7 +197,7 @@ export function platformPlayback(lufs, platforms = PLATFORMS) {
 }
 export function analyze({ rate, channels }, targets = TARGETS) {
   const { lufs } = integratedLufs(channels, rate);
-  const tp = Math.max(...channels.map((c) => truePeak(c)));
+  const tp = channels.length ? channels.reduce((m, c) => truePeak(c, 4, 16, m), 0) : -Infinity;
   const n = channels[0].length;
   let mono = null, corr = null;
   if (channels.length === 2) {

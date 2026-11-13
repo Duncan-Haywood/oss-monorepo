@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, seo]
+topics: [design, seo, software-for-routine]
 date: 2026-11-13
 ---
 # Polish, 2026-11-13: the intro is not the link hub (eBay, Etsy, Reverb)

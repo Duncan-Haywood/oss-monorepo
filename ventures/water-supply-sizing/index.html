@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d4ed8'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Water Supply Pipe Sizing Calculator | Peak Demand by Hunter's Method, Free</title>
+  <meta name="description" content="Free water supply pipe sizing calculator: peak demand from fixture flows and how often each runs (Hunter's probability method, worked exactly for a mix of fixtures), then each pipe segment sized from the pressure budget, with the pressure left at every fixture. Runs in your browser.">
+  <meta property="og:title" content="Water Supply Pipe Sizing Calculator">
+  <meta property="og:description" content="How big should the water pipe be? Peak demand from your fixtures by Hunter's 1940 probability method, then copper or PEX sizes segment by segment from the pressure you have. Free, open source, nothing uploaded.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Water Supply Pipe Sizing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Peak water demand by Hunter's binomial method; exact convolution for a mix of fixture types; 99th-percentile or any exceedance probability; zero-truncated option; pipe tree with rise; uniform friction-rate sizing from the tightest path; Hazen-Williams friction; velocity limit; pressure at every fixture end; optional trim to smaller pipe where pressure is spare; copper K, L, M and PEX SDR 9; JSON import and export; CLI"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this the fixture-unit table in my plumbing code?","acceptedAnswer":{"@type":"Answer","text":"No. Code tables convert fixtures to fixture units and read a demand curve. This tool goes back to the probability model those curves came from (Hunter, 1940) and works it exactly for your fixtures' flows and how often they run. Your local code and inspector decide what is accepted; use this to understand and check a design, not in place of the code method."}},{"@type":"Question","name":"Why is the peak demand so much less than every fixture running at once?","acceptedAnswer":{"@type":"Answer","text":"Because fixtures rarely all run together. A shower that runs 16 minutes in the busiest hour is flowing about a quarter of the time; two showers, a toilet filling and the kitchen tap all at once is rare. The tool finds the flow that is exceeded only 1% of the time (or the share you choose) in that busy period."}},{"@type":"Question","name":"Where do the fixture timings come from?","acceptedAnswer":{"@type":"Answer","text":"From you. The example's flows and timings are illustrative, not measured data. Use the flow rating on each fixture and how long and how often it runs in your building's busiest hour. Hunter's 1940 values for flush valves, flush tanks and bathtubs are included as a historical baseline."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs in your browser. An optional anonymous counter in this browser's local storage records only that a calculation ran and the day."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #172033; background: #eaf0f7; --accent: #1d4ed8; --accent2: #1e40af; --ink2: #4f5b6e; --line: #c4cfdc; --panel: #fbfcfe; --warn: #b45309; }
+    body { max-width: 1180px; margin: 0 auto; padding: 32px 16px; }
+    header { max-width: 820px; margin-bottom: 22px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3rem); line-height: 1.04; margin: 0 0 12px; letter-spacing: -.035em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: var(--accent); margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+    .layout > div { min-width: 0; }
+    section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    .hint { font-size: .83rem; color: var(--ink2); margin: -4px 0 12px; }
+    .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    label { display: grid; gap: 4px; font-size: .82rem; font-weight: 650; min-width: 0; }
+    input, select, textarea { width: 100%; box-sizing: border-box; border: 1px solid #a7b4c4; border-radius: 7px; padding: 6px; font: inherit; background: #fff; }
+    input[type=checkbox] { width: auto; }
+    textarea { font-family: ui-monospace, Menlo, monospace; font-size: .78rem; min-height: 110px; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a7b4c4; background: #eef2f8; padding: 8px 12px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dde5f0; }
+    .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .primary:hover { background: var(--accent2); }
+    .small { padding: 4px 8px; font-size: .8rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+    .check { display: flex; gap: 6px; align-items: center; font-weight: 600; }
+    .grid-table input, .grid-table select { padding: 4px 5px; font-size: .82rem; }
+    .grid-table td, .grid-table th { padding: 3px 4px; }
+    .grid-table input[type=number] { min-width: 4.6em; }
+    .grid-table input[type=text] { min-width: 8em; }
+    .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .tile { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fff; }
+    .tile .big { font-size: 1.8rem; font-weight: 750; letter-spacing: -.03em; font-variant-numeric: tabular-nums; color: var(--accent2); }
+    .muted { color: var(--ink2); font-size: .84rem; }
+    .note { font-size: .84rem; background: #eff6ff; border-left: 3px solid var(--accent); padding: 7px 10px; margin: 10px 0 0; border-radius: 4px; }
+    .err { color: #b42318; font-size: .86rem; white-space: pre-line; }
+    .warn { color: var(--warn); font-size: .86rem; white-space: pre-line; }
+    table { border-collapse: collapse; width: 100%; font-size: .82rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 5px 6px; border-bottom: 1px solid #dde4ec; }
+    th:first-child, td:first-child { text-align: left; }
+    .tablewrap { overflow-x: auto; }
+    details summary { cursor: pointer; font-weight: 650; }
+    footer { margin-top: 24px; font-size: .82rem; color: var(--ink2); }
+    footer a, header a { color: var(--accent2); }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR PLUMBERS, BUILDERS, DESIGNERS AND CURIOUS OWNERS</p>
+    <h1>How big should the water pipe be?</h1>
+    <p>List the fixtures, how much each one draws and how often it runs in the busiest hour. The page works out the peak flow each pipe really has to carry with Hunter's 1940 probability method, done exactly for your mix of fixtures. Then it sizes every segment from the pressure you have and shows what is left at each fixture. Free, and it runs in your browser.</p>
+    <p><a href="./how-it-works.html">How it is worked out, with Hunter's own table checked</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>1. Fixture types</h2>
+        <p class="hint">Flow is the fixture's rated gpm. Seconds per use and uses in the busiest hour give the share of time it runs. The example values are illustrative assumptions, not measurements: replace them with your own.</p>
+        <div class="tablewrap">
+          <table class="grid-table">
+            <thead><tr><th>Name</th><th>gpm</th><th>s per use</th><th>uses / peak hr</th><th>runs %</th><th></th></tr></thead>
+            <tbody id="typeRows"></tbody>
+          </table>
+        </div>
+        <div class="actions">
+          <button type="button" class="small" id="addType">Add a fixture type</button>
+          <button type="button" class="small" id="addHunter">Add Hunter's 1940 types</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>2. Pressure and pipe</h2>
+        <p class="hint">Static pressure is what a gauge reads at the meter or tank with no water running. Fixed losses are the meter, a backflow preventer, a softener or filter: from their data sheets at the design flow.</p>
+        <div class="fields">
+          <label>Static pressure (psi) <input id="staticPsi" type="number" step="1"></label>
+          <label>Fixed losses (psi) <input id="meterLossPsi" type="number" step="0.5"></label>
+          <label>Minimum at a fixture (psi) <input id="minPsi" type="number" step="1"></label>
+          <label>Fittings allowance (%) <input id="fittingsPct" type="number" step="5"></label>
+          <label>Max velocity (ft/s) <input id="maxVelocityFps" type="number" step="0.5"></label>
+          <label>Pipe <select id="material"><option value="copper-l">Copper type L</option><option value="copper-k">Copper type K</option><option value="copper-m">Copper type M</option><option value="pex-sdr9">PEX (CTS, SDR 9)</option></select></label>
+          <label>Exceeded (% of busy time) <input id="tailPct" type="number" step="0.1" min="0.1" max="49"></label>
+        </div>
+        <div class="actions">
+          <label class="check"><input type="checkbox" id="truncate"> Only count instants when water is running</label>
+          <label class="check"><input type="checkbox" id="trim"> Trim: use spare pressure for smaller pipe</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>3. Pipe segments</h2>
+        <p class="hint">One segment starts at the meter; every other one starts from the segment it branches off. Give each segment its length, how far it climbs, and the fixtures it feeds directly. Fixtures further on are counted automatically.</p>
+        <div id="segRows"></div>
+        <div class="actions">
+          <button type="button" class="small" id="addSeg">Add a segment</button>
+          <button type="button" class="primary" id="calculate">Size the pipes</button>
+          <button type="button" id="loadExample">Load the example house</button>
+        </div>
+        <p class="err" id="errors" role="alert"></p>
+      </section>
+
+      <section>
+        <details>
+          <summary>Save or load as JSON</summary>
+          <p class="hint">The same file the command line reads (<code>node cli.mjs system.json</code>).</p>
+          <textarea id="jsonText" aria-label="System as JSON"></textarea>
+          <div class="actions">
+            <button type="button" class="small" id="exportJson">Show current as JSON</button>
+            <button type="button" class="small" id="importJson">Load this JSON</button>
+            <button type="button" class="small" id="downloadJson">Download system.json</button>
+            <button type="button" class="small" id="downloadCsv">Download sizes as CSV</button>
+          </div>
+          <p class="err" id="jsonError"></p>
+        </details>
+      </section>
+    </div>
+
+    <div>
+      <section aria-live="polite">
+        <h2>Result</h2>
+        <div class="tiles">
+          <div class="tile"><div class="muted">Peak demand, whole building</div><div class="big" id="designGpm">-</div><div class="muted" id="designNote"></div></div>
+          <div class="tile"><div class="muted">Everything at once</div><div class="big" id="allGpm">-</div><div class="muted" id="allNote"></div></div>
+          <div class="tile"><div class="muted">Allowable friction</div><div class="big" id="rate">-</div><div class="muted" id="rateNote"></div></div>
+          <div class="tile"><div class="muted">Service size</div><div class="big" id="service">-</div><div class="muted" id="serviceNote"></div></div>
+        </div>
+        <p class="note" id="mixNote"></p>
+        <p class="warn" id="warnings"></p>
+      </section>
+      <section>
+        <h2>Segments</h2>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Segment</th><th>gpm</th><th>Size</th><th>ft/s</th><th>psi/100 ft</th><th>Loss psi</th></tr></thead>
+            <tbody id="segTable"></tbody>
+          </table>
+        </div>
+      </section>
+      <section>
+        <h2>Pressure at each end</h2>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>End</th><th>Developed ft</th><th>Rise ft</th><th>psi left</th></tr></thead>
+            <tbody id="endTable"></tbody>
+          </table>
+        </div>
+        <p class="muted">Developed length is the pipe length plus the fittings allowance. The tightest path sets one friction rate for every segment (the uniform friction-rate method).</p>
+      </section>
+    </div>
+  </main>
+
+  <section>
+    <h2>Questions</h2>
+    <h3>Is this the fixture-unit table in my plumbing code?</h3>
+    <p>No. Code tables convert fixtures to fixture units and read a demand curve. This tool goes back to the probability model those curves came from (Hunter, 1940) and works it exactly for your fixtures' flows and how often they run. Your local code and inspector decide what is accepted; use this to understand and check a design, not in place of the code method.</p>
+    <h3>Why is the peak demand so much less than every fixture running at once?</h3>
+    <p>Because fixtures rarely all run together. A shower that runs 16 minutes in the busiest hour is flowing about a quarter of the time; two showers, a toilet filling and the kitchen tap all at once is rare. The tool finds the flow that is exceeded only 1% of the time (or the share you choose) in that busy period.</p>
+    <h3>Where do the fixture timings come from?</h3>
+    <p>From you. The example's flows and timings are illustrative, not measured data. Use the flow rating on each fixture and how long and how often it runs in your building's busiest hour. Hunter's 1940 values for flush valves, flush tanks and bathtubs are included as a historical baseline.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Every calculation runs in your browser. An optional anonymous counter in this browser's local storage records only that a calculation ran and the day.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty. This is an estimate, not engineering advice and not a plumbing code sizing method.</strong> It uses Hunter's probability model and Hazen-Williams friction, described on <a href="./how-it-works.html">how it works</a>, with the flows and timings you enter. Your local plumbing code and the authority having jurisdiction decide what is accepted; a licensed plumber or engineer signs off on a real installation.</p>
+    <p>Nothing leaves your browser. <label class="check" style="display:inline-flex"><input type="checkbox" id="optOut"> Do not keep anonymous local usage counts</label></p>
+    <p>Sizing the water heater too? The <a href="../water-heater-bid-calculator/">water heater bid calculator</a> prices the swap &mdash; nothing uploaded. Working out the heating and cooling for the same house? The <a href="../hvac-load-calc/">room-by-room HVAC load calculator</a> does that and sizes the ducts.</p>
+    <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/water-supply-sizing">Source, CLI and README</a>. If it saved you a pipe size, <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a>. <a href="../">More free tools</a>.</p>
+  </footer>
+
+  <script type="module">
+    import { sizeSystem, EXAMPLE_SYSTEM, MATERIALS } from './pipe.mjs';
+    import { demand, HUNTER_1940, probabilityOf } from './demand.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const el = id => document.getElementById(id);
+    const make = (tag, attrs = {}, kids = []) => {
+      const n = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs)) { if (k === 'text') n.textContent = v; else n.setAttribute(k, v); }
+      for (const k of kids) n.append(k);
+      return n;
+    };
+    const NUMS = ['staticPsi', 'meterLossPsi', 'minPsi', 'fittingsPct', 'maxVelocityFps'];
+    let types = [], segs = [], last = null;
+
+    function typeRow(t, i) {
+      const inp = (key, attrs) => {
+        const x = make('input', { type: key === 'name' ? 'text' : 'number', 'aria-label': `${key} for fixture type ${i + 1}`, ...attrs });
+        x.value = t[key] ?? '';
+        x.addEventListener('input', () => { t[key] = key === 'name' ? x.value : Number(x.value); if (key === 'name') drawSegs(); showShare(); });
+        return x;
+      };
+      if (t.usesPerHour == null) { t.usesPerHour = Math.round(probabilityOf(t) * 3600 / t.seconds * 100) / 100; delete t.everySeconds; delete t.p; }
+      const share = make('td', { text: '' });
+      const showShare = () => { const p = probabilityOf(t); share.textContent = Number.isFinite(p) ? (p * 100).toFixed(1) : '-'; };
+      showShare();
+      const del = make('button', { type: 'button', class: 'small', 'aria-label': `Remove ${t.name || 'fixture type'}`, text: '×' });
+      del.addEventListener('click', () => { types.splice(i, 1); drawTypes(); drawSegs(); });
+      return make('tr', {}, [make('td', {}, [inp('name', {})]), make('td', {}, [inp('gpm', { step: '0.1', min: '0' })]), make('td', {}, [inp('seconds', { step: '1', min: '0' })]), make('td', {}, [inp('usesPerHour', { step: '0.1', min: '0' })]), share, make('td', {}, [del])]);
+    }
+    function drawTypes() { el('typeRows').replaceChildren(...types.map(typeRow)); }
+
+    function drawSegs() {
+      const box = el('segRows');
+      box.replaceChildren();
+      segs.forEach((s, i) => {
+        const card = make('div', { class: 'tile', style: 'margin-bottom:10px' });
+        const f = make('div', { class: 'fields' });
+        const name = make('input', { type: 'text' }); name.value = s.name;
+        name.addEventListener('change', () => { const old = s.name; s.name = name.value; for (const o of segs) if (o.parent === old) o.parent = s.name; drawSegs(); });
+        const from = make('select', {});
+        from.append(make('option', { value: '', text: 'the meter' }));
+        for (const o of segs) if (o !== s) from.append(make('option', { value: o.name, text: o.name }));
+        from.value = s.parent || '';
+        from.addEventListener('change', () => { s.parent = from.value || undefined; });
+        const num = (key, step) => { const x = make('input', { type: 'number', step }); x.value = s[key] ?? 0; x.addEventListener('input', () => { s[key] = Number(x.value); }); return x; };
+        f.append(make('label', {}, ['Segment', name]), make('label', {}, ['Starts from', from]), make('label', {}, ['Length (ft)', num('lengthFt', '1')]), make('label', {}, ['Rise (ft)', num('riseFt', '1')]));
+        s.fixtures = s.fixtures || {};
+        for (const t of types) {
+          const x = make('input', { type: 'number', step: '1', min: '0' });
+          x.value = s.fixtures[t.name] || 0;
+          x.addEventListener('input', () => { s.fixtures[t.name] = Number(x.value); });
+          f.append(make('label', {}, [`${t.name} here`, x]));
+        }
+        const del = make('button', { type: 'button', class: 'small', text: 'Remove segment' });
+        del.addEventListener('click', () => { for (const o of segs) if (o.parent === s.name) o.parent = s.parent; segs.splice(i, 1); drawSegs(); });
+        card.append(f, make('div', { class: 'actions' }, [del]));
+        box.append(card);
+      });
+    }
+
+    function readForm() {
+      const sys = { fixtureTypes: types.map(t => ({ name: t.name, gpm: t.gpm, seconds: t.seconds, usesPerHour: t.usesPerHour })) };
+      for (const k of NUMS) sys[k] = Number(el(k).value);
+      sys.material = el('material').value;
+      sys.tail = Number(el('tailPct').value) / 100;
+      sys.truncate = el('truncate').checked;
+      sys.trim = el('trim').checked;
+      const names = new Set(types.map(t => t.name));
+      sys.segments = segs.map(s => {
+        const fx = {};
+        for (const [k, v] of Object.entries(s.fixtures || {})) if (names.has(k) && v > 0) fx[k] = v;
+        return { name: s.name, ...(s.parent ? { parent: s.parent } : {}), lengthFt: s.lengthFt, riseFt: s.riseFt || 0, fixtures: fx };
+      });
+      return sys;
+    }
+
+    function setForm(sys) {
+      const c = JSON.parse(JSON.stringify(sys));
+      for (const k of NUMS) el(k).value = c[k] ?? EXAMPLE_SYSTEM[k];
+      el('material').value = c.material || 'copper-l';
+      el('tailPct').value = ((c.tail ?? 0.01) * 100).toString();
+      el('truncate').checked = Boolean(c.truncate);
+      el('trim').checked = Boolean(c.trim);
+      types = c.fixtureTypes || [];
+      segs = c.segments || [];
+      drawTypes(); drawSegs();
+    }
+
+    const f1 = x => x.toFixed(1);
+    function show(r, whole) {
+      el('designGpm').textContent = `${f1(whole.designGpm)} gpm`;
+      el('designNote').textContent = `exceeded ${(whole.tail * 100).toFixed(1)}% of the busy time${whole.truncate ? ' when any water runs' : ''}; average ${f1(whole.meanGpm)} gpm`;
+      el('allGpm').textContent = `${f1(whole.allAtOnceGpm)} gpm`;
+      el('allNote').textContent = `every fixture open together; idle ${(whole.idleProbability * 100).toFixed(0)}% of the busy time`;
+      el('rate').textContent = `${r.allowablePsiPer100.toFixed(1)} psi`;
+      el('rateNote').textContent = `per 100 ft, set by the path to ${r.criticalEnd}`;
+      const svc = r.segments.find(s => !s.from);
+      el('service').textContent = `${svc.nominal} in`;
+      el('serviceNote').textContent = `${MATERIALS[r.material].label}, ${f1(svc.velocityFps)} ft/s at ${f1(svc.gpm)} gpm`;
+      el('mixNote').textContent = `Sizing each fixture type on its own and adding the results, as a single-type method would, gives ${f1(whole.sumOfTypesAloneGpm)} gpm; working the mix as one distribution gives ${f1(whole.designGpm)} gpm.${whole.floorApplied ? ' The peak was raised to the largest single fixture\'s flow, which any pipe feeding it must carry.' : ''}${r.trimmed ? ` Trim took ${r.trimmed} size step(s) off where the path had pressure to spare.` : ''}`;
+      el('warnings').textContent = r.warnings.join('\n');
+      el('segTable').replaceChildren(...r.segments.map(s => make('tr', {}, [s.name, f1(s.gpm), `${s.nominal} in`, f1(s.velocityFps), s.psiPer100.toFixed(2), s.lossPsi.toFixed(2)].map(t => make('td', { text: t })))));
+      el('endTable').replaceChildren(...r.ends.map(e => make('tr', {}, [e.end, String(Math.round(e.developedFt)), String(e.riseFt), f1(e.pressurePsi)].map(t => make('td', { text: t })))));
+    }
+
+    function run() {
+      const sys = readForm();
+      const r = sizeSystem(sys);
+      if (r.errors.length) { el('errors').textContent = r.errors.join('\n'); return; }
+      const svc = r.segments.find(s => !s.from);
+      const whole = demand(sys.fixtureTypes.map(t => ({ ...t, count: svc.served[t.name] })), { tail: sys.tail, truncate: sys.truncate });
+      if (whole.errors.length) { el('errors').textContent = whole.errors.join('\n'); return; }
+      el('errors').textContent = '';
+      last = r;
+      show(r, whole);
+      recordUsage(globalThis.localStorage, el('optOut').checked, 'demand_sized');
+    }
+
+    function download(name, text, type) {
+      const a = make('a', { href: URL.createObjectURL(new Blob([text], { type })), download: name });
+      document.body.append(a); a.click(); a.remove();
+    }
+
+    el('calculate').addEventListener('click', run);
+    el('addType').addEventListener('click', () => { types.push({ name: `Fixture ${types.length + 1}`, gpm: 2, seconds: 60, usesPerHour: 2 }); drawTypes(); drawSegs(); });
+    el('addHunter').addEventListener('click', () => { for (const h of HUNTER_1940) if (!types.some(t => t.name === h.name)) types.push({ ...h }); drawTypes(); drawSegs(); });
+    el('addSeg').addEventListener('click', () => { segs.push({ name: `Segment ${segs.length + 1}`, parent: segs[0]?.name, lengthFt: 20, riseFt: 0, fixtures: {} }); drawSegs(); });
+    el('loadExample').addEventListener('click', () => { setForm(EXAMPLE_SYSTEM); run(); });
+    el('exportJson').addEventListener('click', () => { el('jsonText').value = JSON.stringify(readForm(), null, 2); });
+    el('downloadJson').addEventListener('click', () => download('system.json', JSON.stringify(readForm(), null, 2), 'application/json'));
+    el('importJson').addEventListener('click', () => {
+      try { setForm(JSON.parse(el('jsonText').value)); el('jsonError').textContent = ''; run(); }
+      catch (e) { el('jsonError').textContent = `That is not valid JSON: ${e.message}`; }
+    });
+    el('downloadCsv').addEventListener('click', () => {
+      if (!last) run();
+      if (!last) return;
+      const q = s => `"${String(s).replace(/"/g, '""')}"`;
+      const lines = ['Segment,From,Length ft,Rise ft,Design gpm,Nominal size in,Inside diameter in,Velocity ft/s,Friction psi per 100 ft,Loss psi'];
+      for (const s of last.segments) lines.push([q(s.name), q(s.from || 'meter'), s.lengthFt, s.riseFt, s.gpm, q(s.nominal), s.idIn, s.velocityFps.toFixed(2), s.psiPer100.toFixed(3), s.lossPsi.toFixed(3)].join(','));
+      download('pipe-sizes.csv', lines.join('\n') + '\n', 'text/csv');
+    });
+    el('optOut').checked = readOptOut();
+    el('optOut').addEventListener('change', () => writeOptOut(globalThis.localStorage, el('optOut').checked));
+
+    setForm(EXAMPLE_SYSTEM);
+    run();
+  </script>
+</body>
+</html>

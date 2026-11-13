@@ -140,7 +140,7 @@
      "aliases": ["dns", "email-routing", "iac", "infrastructure-as-code"],
      "covered_by": ["prompts/goals.md#Direction: everything as code"]},
     {"id": "software-for-routine", "label": "Software for the routine, agents for judgment",
-     "aliases": ["automation", "scripts", "chores"],
+     "aliases": ["automation", "scripts", "chores", "tooling"],
      "covered_by": ["prompts/goals.md#Direction: software for the routine"]},
     {"id": "files-first", "label": "Files first, not the GitHub API",
      "aliases": ["github-issues", "issues", "work-queue"],
