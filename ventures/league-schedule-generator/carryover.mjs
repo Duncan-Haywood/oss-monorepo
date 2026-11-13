@@ -1669,3 +1669,117 @@ export function carryOverSummary(best) {
     ...(Number.isInteger(best.among) && best.among < best.tries.length ? { among: best.among } : {}),
   };
 }
+
+/**
+ * Re-search a home-and-away season under a cap on its breaks, moving the timetable and the grounds
+ * together (README "Squeezing a season under a cap"). Each pair keeps one host: it hosts in leg one
+ * and visits in leg two, so a timetable move inside a leg carries every match's ground with it and
+ * never changes a team's home count. Three moves change grounds: flip one pair, flip two pairs of
+ * one team that it hosts and visits (the team's count is unchanged), and flip a whole alternating
+ * run (every pair one team meets over a stretch of a leg where it alternates home and away, so the
+ * run stays alternating and only its two ends move). Cost: carry-over + `over` per break above
+ * `maxBreaks` + REPEAT_PENALTY per repeat across the halfway point; a move that leaves a team's
+ * leg-one home and away games more than one apart is refused. `start` is a lowCarryOverDoubleRounds
+ * (or carryOverTry) result. Seeded; returns the same shape as lowCarryOverDoubleRounds, the best
+ * season found within the cap (or with the fewest breaks over it, if none got under).
+ */
+export function squeezeDoubleRounds(n, start, { seed = 1, effort = 1, maxBreaks, over = 200 } = {}) {
+  if (!Number.isInteger(n) || n < 4) throw new Error("A squeezed season needs at least four teams.");
+  if (!Number.isInteger(maxBreaks) || maxBreaks < 0) throw new Error("maxBreaks must be a whole number of 0 or more.");
+  const N = n % 2 === 0 ? n : n + 1, R = N - 1;
+  if (!start || !Array.isArray(start.rounds) || start.rounds.length !== 2 * R) throw new Error("start must be a home-and-away season for this many teams.");
+  const opp = oppFromRounds(start.rounds, N, n);
+  const host = new Int16Array(N * N).fill(-1); // host[min * N + max]: the team at home in leg one
+  start.rounds.forEach((r, i) => { if (i < R) for (const [h, a] of r.matches) host[Math.min(h, a) * N + Math.max(h, a)] = h; });
+  const P = (t, u) => (t < u ? t * N + u : u * N + t);
+  const homeIn = (r, t) => { const u = opp[r][t]; return (host[P(t, u)] === t) === (r < R) ? 1 : 0; };
+  const leg1Home = new Int32Array(N);
+  for (let r = 0; r < R; r++) for (let t = 0; t < n; t++) if (opp[r][t] < n) leg1Home[t] += homeIn(r, t);
+  const games = N > n ? R - 1 : R;
+  const ok = (t) => t >= n || Math.abs(2 * leg1Home[t] - games) <= 1;
+  const flip = (t, u) => { const p = P(t, u); const h = host[p]; host[p] = h === t ? u : t; leg1Home[t] += h === t ? -1 : 1; leg1Home[u] += h === t ? 1 : -1; };
+  const breaksNow = () => hostBreaks(opp, n, R, host);
+  const coeNow = () => coeOf(opp, n, false) + REPEAT_PENALTY * repeatsAcross(opp, n, R);
+  const costOf = (c, b) => c + over * Math.max(0, b - maxBreaks);
+  const rand = mulberry32((seed * 2246822519 + 13) >>> 0);
+  const iterations = Math.max(4000, Math.round((effort * 6e7) / (2 * N * N)));
+  let coe = coeNow(), br = breaksNow(), cur = costOf(coe, br);
+  const snap = () => ({ opp: opp.map((o) => o.slice()), host: host.slice(), coe, br });
+  let best = snap();
+  const better = (c, b) => (b <= maxBreaks ? best.br > maxBreaks || c < best.coe || (c === best.coe && b < best.br) : best.br > maxBreaks && (b < best.br || (b === best.br && c < best.coe)));
+  const T0 = Math.max(2, coe / (N * 16));
+  for (let it = 0; it < iterations; it++) {
+    const T = T0 * (1 - it / iterations) + 0.05;
+    const mv = rand();
+    let undo = null, groundsOnly = false;
+    if (mv < 0.55) {
+      // a timetable move inside one leg (the grounds travel with the pairs)
+      const lo = rand() < 0.5 ? 0 : R, hi = lo + R;
+      const r = lo + Math.floor(rand() * R);
+      let s = lo + Math.floor(rand() * (R - 1)); if (s >= r) s++;
+      const k = rand();
+      if (k < 0.4) {
+        const a = Math.floor(rand() * N);
+        let b = Math.floor(rand() * (N - 1)); if (b >= a) b++;
+        const S = teamSwapRounds(opp, a, b, r, lo, hi);
+        if (S.length >= R) continue;
+        swapTeamsIn(opp, S, a, b); undo = () => swapTeamsIn(opp, S, a, b);
+      } else if (k < 0.6) {
+        [opp[r], opp[s]] = [opp[s], opp[r]]; undo = () => { [opp[r], opp[s]] = [opp[s], opp[r]]; };
+      } else {
+        const cyc = cycleOf(opp, r, s, Math.floor(rand() * N));
+        if (cyc.length === N) continue;
+        const sw = () => { for (const x of cyc) { const a = opp[r][x]; opp[r][x] = opp[s][x]; opp[s][x] = a; } };
+        sw(); undo = sw;
+      }
+    } else {
+      groundsOnly = true;
+      const t = Math.floor(rand() * n), r = Math.floor(rand() * 2 * R);
+      const pairs = [];
+      if (opp[r][t] >= n) continue;
+      if (mv < 0.7) pairs.push(opp[r][t]);
+      else if (mv < 0.85) {
+        // two pairs of t on opposite grounds in leg one: t's own count is unchanged
+        const want = homeIn(Math.min(r, r < R ? r : r - R), t) ^ 1;
+        const q = Math.floor(rand() * R);
+        for (let d = 0; d < R; d++) { const x = (q + d) % R, u = opp[x][t]; if (u < n && u !== opp[r][t] && homeIn(x, t) === want) { pairs.push(opp[Math.min(r, r < R ? r : r - R)][t], u); break; } }
+        if (pairs.length < 2) continue;
+      } else {
+        const lo = r < R ? 0 : R, hi = lo + R;
+        let a = r, b = r;
+        while (a > lo && opp[a - 1][t] < n && homeIn(a - 1, t) !== homeIn(a, t)) a--;
+        while (b + 1 < hi && opp[b + 1][t] < n && homeIn(b + 1, t) !== homeIn(b, t)) b++;
+        for (let x = a; x <= b; x++) pairs.push(opp[x][t]);
+      }
+      for (const u of pairs) flip(t, u);
+      undo = () => { for (const u of pairs) flip(t, u); };
+      if (!ok(t) || pairs.some((u) => !ok(u))) { undo(); continue; }
+    }
+    const nc = groundsOnly ? coe : coeNow();
+    const nb = breaksNow();
+    const v = costOf(nc, nb);
+    if (v <= cur || rand() < Math.exp((cur - v) / T)) {
+      cur = v; coe = nc; br = nb;
+      if (better(coe, br)) best = snap();
+    } else undo();
+  }
+  const venues = best.opp.map((o, r) => {
+    const v = new Uint8Array(N);
+    for (let t = 0; t < N; t++) { const u = o[t]; if (t < n && u < n) v[t] = (best.host[P(t, u)] === t) === (r < R) ? 1 : 0; }
+    return v;
+  });
+  const rounds = best.opp.map((o, r) => {
+    const matches = [];
+    let bye = null;
+    for (let t = 0; t < N; t++) {
+      const u = o[t];
+      if (t > u) continue;
+      if (u >= n) { bye = t; continue; }
+      matches.push(venues[r][t] ? [t, u] : [u, t]);
+    }
+    return { leg: r < R ? 0 : 1, matches, bye };
+  });
+  let breaks = 0;
+  for (let t = 0; t < n; t++) breaks += teamBreaks(venues, best.opp, t, n);
+  return { rounds, coe: coeOf(best.opp, n, false), repeats: repeatsAcross(best.opp, n, R), lowerBound: start.lowerBound, breaks, iterations, maxBreaks, squeezed: true };
+}
