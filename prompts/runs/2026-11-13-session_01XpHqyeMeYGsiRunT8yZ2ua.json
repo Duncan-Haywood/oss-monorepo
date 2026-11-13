@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyeMeYGsiRunT8yZ2ua",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T04:46:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "polish: Etsy intro link wall (item 2 of polish-2026-11-13-answer-leads-etsy-garnishment.md), widened after a 1,346-page first-input sweep to eBay and Reverb",
+  "projects": [
+    "etsy-profit-calculator",
+    "ebay-fee-calculator",
+    "reverb-fee-calculator",
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15376",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git diff | patch onto the built dist copy of etsy-profit-calculator failed (the build rewrites the <style> block), so the after-screenshot needed a substring splice instead",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to wait with Monitor; its schema is deferred, and calling it without ToolSearch first fails. A short until-loop in Bash was refused as chained sleeps. The run waited on the background task's own notification instead."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "No partial build: a one-page change still needs the full 3-20 minute build.mjs to show its after state. I patched the built page by hand to screenshot it. A --only=<slug> flag would save each polish run that time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "The prompt says to screenshot the hub, a flagship, research, Stories and a post, then pick the weakest. I did that, and the item I chose came from the last report's list, but I picked the page set with a 1,346-page first-input sweep, not from the screenshots.",
+      "did": "Measured every tool's first-input depth at 390 px, then fixed the three worst marketplace fee calculators that shared a cause.",
+      "result": "Found eBay (1,940 px) was worse than the Etsy page the report named; all three now under 1,000 px."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-intro-is-not-the-link-hub.md",
+    "docs/reports/polish-2026-11-13-intro-walls.md"
+  ],
+  "goal": "impressive sites, SEO and AEO",
+  "notes": "Full local build of main (9,098 pages). First input at 390x844, before/after: eBay 1,940/884, Etsy 1,451/949, Reverb 1,451/973; 1,280: 1,204/724, 988/742, 927/705. Venture suites: eBay 505/505, Etsy 196/196, Reverb 123/123; answer-lead.test.mjs 50/50; intro-links.test.mjs 3/3. Site-build suite (node --test 'platform/pages/*.test.mjs'): see the follow-up line below.",
+  "corrections": [],
+  "redteam": null
+}

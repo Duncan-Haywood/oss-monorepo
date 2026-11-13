@@ -1,9 +1,9 @@
 ---
 title: "The eBay calculator's first box was 1,940 pixels down on a phone"
-seo_title: "Moving a 25-link intro below the tool: eBay, Etsy, Reverb fee calculators"
+seo_title: "eBay, Etsy and Reverb fee calculators: the input before the links"
 date: 2026-11-13
 tags: [design, mobile, seo, open-source]
-description: "Our marketplace fee calculators opened with a paragraph naming every comparison and guide. On a phone that put the first input two screens down. Now it is about one."
+description: "Our marketplace fee calculators opened with a paragraph naming every comparison and guide, so the first input sat two screens down on a phone. Now about one."
 ---
 
 Someone who searches "eBay fee calculator" on a phone wants to type a price. On our
