@@ -2,8 +2,8 @@
 title: "Telling a bored respondent from one who just speeds up: fit the line and the step together"
 seo_title: "Detecting careless survey blocks without flagging people who speed up"
 date: 2026-11-13
-description: "A split search on answer times takes a steady speed-up with a small bump in it for a careless block. Fitting the person's own trend and the step together cut honest flags from about 5% to 2% in simulation."
-tags: [quick-pick-survey, surveys, data-quality, response-time, change-point, statistics, simulation]
+description: "Fitting each respondent's own speed-up and a step together cut honest people wrongly flagged as careless from about 5% to 2% in simulation."
+tags: [quick-pick-survey, surveys, data-quality, response-time, changepoint, statistics, simulation]
 ---
 
 [Quick Pick Survey](../../ventures/quick-pick-survey/) ranks a list by
