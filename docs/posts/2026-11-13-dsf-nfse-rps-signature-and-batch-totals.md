@@ -1,9 +1,9 @@
 ---
 title: "DSF's NFS-e: recomputing the RPS signature, and a header total two implementations disagree on"
-seo_title: "DSF NFS-e Assinatura (SHA-1) check, ReqEnvioLoteRPS totals, TOM city codes"
+seo_title: "DSF NFS-e Assinatura (SHA-1) check, batch totals and TOM city codes"
 date: 2026-11-13
 tags: [einvoice-preflight, brazil, nfs-e, measurement]
-description: "DSF NFS-e batches are now checked offline: each RPS's SHA-1 Assinatura is recomputed (49 of 55 published signatures reproduce) and the batch totals are rebuilt from the RPS."
+description: "DSF NFS-e batches are now checked offline: each RPS Assinatura is recomputed (49 of 55 published ones reproduce) and the batch totals rebuilt."
 ---
 
 Most Brazilian city systems for service invoices (NFS-e) follow the ABRASF model, which [einvoice-preflight](https://marisstella.app/einvoice-preflight/) already checks. DSF's system doesn't. It is the "WsNFe2" web service that Campo Grande, Teresina, Belém and Uberlândia are listed on, and that Campinas and Sorocaba ran before they moved. A DSF batch (`ReqEnvioLoteRPS`) has a header with the batch totals, and each RPS (the provisional receipt the city turns into an NFS-e) carries an `Assinatura`. That is not an XML signature. It is a SHA-1 of a fixed-width string built from the RPS's own fields, and the city's server recomputes it.
