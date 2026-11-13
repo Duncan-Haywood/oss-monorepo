@@ -55,9 +55,9 @@
             "line_text": "const isoKey = (k) => String(k).trim().replace(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/, (_, y, m, d) => `${y}-${+m}-${+d}`);",
             "caught": false,
             "seconds": 148.8,
-            "triage": null,
-            "caught_after_fix": null,
-            "note": ""
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "skipDates typed 2026-3-02 (one-digit month, padded day) stopped matching; test added"
           },
           {
             "file": "ventures/shift-roster-builder/demand.mjs",
@@ -83,9 +83,9 @@
             "line_text": "  if (t.getUTCFullYear() !== y || t.getUTCMonth() !== mo - 1 || t.getUTCDate() !== d) return null;",
             "caught": false,
             "seconds": 147.6,
-            "triage": null,
+            "triage": "equivalent",
             "caught_after_fix": null,
-            "note": ""
+            "note": "readStamp's calendar check: a day that overflows (Feb 31, day 0, day 99) always lands in another month AND on another day number (overflow by under a year cannot reach the same month, and the landed day is always smaller than the typed one or, for day 0, 28-31), so || and && agree on every input the regex lets through"
           },
           {
             "file": "ventures/shift-roster-builder/demand.mjs",
@@ -97,9 +97,9 @@
             "line_text": "    const m = /^(?:[a-z]+[.,]?\\s+)?(\\d{1,2})([\\/-])(\\d{1,2})\\2(\\d{2}|\\d{4})(?!\\d)/i.exec(t);",
             "caught": false,
             "seconds": 148.6,
-            "triage": null,
-            "caught_after_fix": null,
-            "note": ""
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a stray 3-digit first number ('123/01/2026') flipped the whole file to day-first; test added for this copy and the readStandard copy"
           },
           {
             "file": "ventures/shift-roster-builder/demand.mjs",
@@ -111,9 +111,9 @@
             "line_text": "      if (!Number.isFinite(items) || String(c[qty] ?? \"\").trim() === \"\") { out.skipped.push(`row ${i + 2}: could not read the quantity \"${c[qty] ?? \"\"}\"`); return; }",
             "caught": false,
             "seconds": 147.9,
-            "triage": null,
-            "caught_after_fix": null,
-            "note": ""
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "labour standard with an unreadable quantity ('abc') went on with NaN minutes; test added"
           },
           {
             "file": "ventures/shift-roster-builder/demand.mjs",
@@ -125,9 +125,9 @@
             "line_text": "    const firstH = [...Array(24).keys()].find(trades), lastH = [...Array(24).keys()].reverse().find(trades);",
             "caught": false,
             "seconds": 149.5,
-            "triage": null,
+            "triage": "equivalent",
             "caught_after_fix": null,
-            "note": ""
+            "note": "lastH over 25 keys: trades(24) reads hours[24], undefined, so it is never a trading hour and find skips it"
           },
           {
             "file": "ventures/shift-roster-builder/demand.mjs",
@@ -139,9 +139,9 @@
             "line_text": "    if (o.seen && !o.keepRare && o.open === undefined && o.close === undefined && observed[d] >= 20) {",
             "caught": false,
             "seconds": 148.7,
-            "triage": null,
-            "caught_after_fix": null,
-            "note": ""
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the break floor of 20 weekday dates was untested at the boundary; test with exactly 20 dates added"
           },
           {
             "file": "ventures/shift-roster-builder/demand.mjs",
@@ -167,9 +167,9 @@
             "line_text": "  const cands = b.methods.filter((m) => m.id === pre + \"all\" || ids.some((x) => m.id === pre + x));",
             "caught": false,
             "seconds": 152.1,
-            "triage": null,
-            "caught_after_fix": null,
-            "note": ""
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "with --short-cost backtestSales also returns the plain 'all' method; the mutant let it be chosen and the note claimed a gain over equal weights; test over four short costs added"
           },
           {
             "file": "ventures/shift-roster-builder/demand.mjs",
@@ -188,6 +188,17 @@
         ]
       }
     ],
-    "real_defects": []
+    "real_defects": [
+      {
+        "file": "ventures/shift-roster-builder/demand.mjs",
+        "issue": "--open/--close accepted any non-negative number: '--open 17 --close 9' or '--close 25' gave an empty shift list with no note. headcount now requires whole hours 0-24 with open < close and throws a plain message; an opening hour after the last sale adds a 'nothing was planned' note. Test: demand.test.mjs '--open/--close out of range'.",
+        "patched": true
+      },
+      {
+        "file": "ventures/shift-roster-builder/demand.mjs",
+        "issue": "readAmount stripped the CHF code but read the Swiss grouping \"1'234.50\" (and 1’234.50) as NaN, so those rows were skipped as unreadable sales. Now read; '12'34' still refused. Test: demand.test.mjs 'Swiss amounts'.",
+        "patched": true
+      }
+    ]
   }
 }
