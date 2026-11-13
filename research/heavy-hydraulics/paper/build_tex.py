@@ -63,6 +63,8 @@ CITES: list[tuple[str, str]] = [
      "Danfoss's PVG 32 Technical Information (p. 16)\x02" + C("danfoss_pvg32_2021")),
     (r"the manual's July 2024 revision \(p\. 99,", "the manual's July 2024 revision\x02" + C("danfoss_pvg32_2024") + " (p. 99,"),
     (r"published cylinders of the XCMG XE80E \(", "published cylinders of the XCMG XE80E\x02" + C("xcmg_xe80e") + " ("),
+    (r"Grisso et al\., Virginia Cooperative Extension publication 442-073, 2010; after Grisso, Kocher and Vaughan 2004, doi:10\.13031/2013\.17455",
+     "Grisso et al. 2010\x02" + C("grisso2010") + "; after Grisso, Kocher and Vaughan 2004\x02" + C("grisso2004")),
     # generic fallbacks for the same records cited in another wording
     (r"doi:10\.3390/en10050687", C("vukovic2017")),
     (r"doi:10\.1243/09596518JSCE1111", C("eriksson2011")),
