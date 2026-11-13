@@ -255,7 +255,18 @@ export function checkAbrasf(text) {
     version = tries[0][0];
     skipped.push(`layout: the file states none (no versao); checked against ABRASF ${version}, the layout it fits best`);
   } else skipped.push(`schema: the file states layout ${stated}; only ABRASF 2.00 to 2.04 are read, so the schema layer is skipped (identifiers and values are still checked)`);
-  if (version) findings.push(...checkAgainstAbrasf(root, version));
+  if (version) {
+    const own = checkAgainstAbrasf(root, version);
+    findings.push(...own);
+    // A stale or copied versao: the file draws schema findings under the layout it states
+    // but none, or far fewer, under another (2.00 writes DataEmissao as a date and time,
+    // 2.01 on as a date; 2.04 renamed Tomador to TomadorServico). Say which layout it fits;
+    // the findings stand.
+    if (stated && own.length) {
+      const best = VERSIONS.filter((v) => v !== version).map((v) => [v, checkAgainstAbrasf(root, v).length]).sort((a, b) => a[1] - b[1] || (a[0] < b[0] ? 1 : -1))[0];
+      if (best && (best[1] === 0 || best[1] * 2 <= own.length - 2)) skipped.push(`layout: the file states ${version} and draws ${own.length} schema finding${own.length === 1 ? "" : "s"} under it, but ${best[1] === 0 ? "none" : best[1]} under ABRASF ${best[0]}: if the city's web service runs ${best[0]}, set versao to ${best[0]} (or build the file to ${version})`);
+    }
+  }
   checkIds(root, base, findings);
   const notes = new Set();
   checkValues(root, base, findings, notes);
