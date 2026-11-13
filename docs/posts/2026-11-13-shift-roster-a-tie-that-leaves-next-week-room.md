@@ -3,7 +3,7 @@ title: "Equally good weeks that are not equally good months"
 seo_title: "Multi-week staff scheduling: choosing between tied rosters"
 date: 2026-11-13
 tags: [shift-roster-builder, product, measurement]
-description: "A month of staff schedules built week by week: which of several equally good weeks you post decides what next week can do. A one-week look-ahead kept every hour, and preferring last week's tie cut week-to-week changes 71%."
+description: "Which of several equally good weeks a staff planner posts decides what next week can do. A one-week look-ahead kept every hour and cut changes 71%."
 ---
 
 [Shift Roster Builder](https://marisstella.app/shift-roster-builder/) can plan a month: it builds week 1, carries each person's last shift and run of days into week 2, and so on. Each week is proven the best possible under its rules. The month is not, and today's work started from a small, stubborn example of why.
