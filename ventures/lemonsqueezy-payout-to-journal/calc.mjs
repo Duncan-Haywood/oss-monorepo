@@ -110,7 +110,7 @@ export function parsePayouts(text, opts = {}) {
     payout: col("payout-id", "payout", "payout-reference"),
     effective: col("payout-date", "paid-out-on", "payout-created-at"),
     id: col("charge-id", "sale-id", "purchase-id", "order-id", "id"),
-    created: col("charge-date", "date", "purchase-date", "sale-date", "created-at", "created"),
+    created: col("date-utc", "charge-date", "date", "purchase-date", "sale-date", "created-at", "created"),
     currency: col("currency", "price-currency"),
     price: col("subtotal", "pledge-amount", "pledge", "price", "amount", "gross", "charge-amount"),
     shipping: col("shipping", "shipping-price"),
@@ -128,7 +128,7 @@ export function parsePayouts(text, opts = {}) {
   if (I.net < 0) missing.push("net total");
   if (I.price < 0) missing.push("pledge amount");
   if (missing.length) {
-    add("error", "This does not look like a Lemon Squeezy earnings export", `Missing column${missing.length > 1 ? "s" : ""}: ${missing.join(", ")}. In Lemon Squeezy open Insights / Payouts and choose Export / Download CSV, then paste the whole file here.`, first + 1);
+    add("error", "This does not look like a Lemon Squeezy earnings export", `Missing column${missing.length > 1 ? "s" : ""}: ${missing.join(", ")}. This tool needs one row per order with subtotal, fee and net columns in dollars. Lemon Squeezy's own Orders export (amounts in cents, no fee or net columns) is not read yet; see the README, "Known gaps".`, first + 1);
     return none;
   }
   const get = (cells, k) => (I[k] >= 0 ? (cells[I[k]] ?? "").trim() : "");

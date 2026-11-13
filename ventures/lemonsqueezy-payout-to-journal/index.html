@@ -54,10 +54,11 @@
 </head>
 <body>
   <header>
-    <p class="note">PATREON PAYOUT TO JOURNAL · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <p class="note">LEMON SQUEEZY PAYOUT TO JOURNAL · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Turn a Lemon Squeezy earnings export into a Xero or QuickBooks journal</h1>
     <p>Paste or drop your <strong>earnings CSV</strong> from Lemon Squeezy (Orders or Payouts export). Every order is <strong>split into product sales income, shipping, tax you collected, the Lemon Squeezy platform and processing fees and refunds</strong>, the rows are <strong>added up and checked against your payout</strong>, and the result is written as a <strong>balanced journal to a Lemon Squeezy clearing account</strong> — <strong>split at month end</strong> when a payout straddles two months — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV.</p>
     <p class="note">The file is read in this browser tab and never leaves your device. Only dates, prices, fees, net totals, refund flags and payout IDs are used. Independent of Lemon Squeezy, Xero and Intuit. The export layout and the importer layouts are read from memory of public help documents; no real Lemon Squeezy export and no live Xero or QuickBooks import was available when this was written.</p>
+    <p class="note"><strong>Known gap:</strong> Lemon Squeezy's documented Orders export (amounts in cents, no fee, net or payout columns) is not read yet. This tool needs a CSV with a subtotal, fee and net column per order in dollars, such as one you build from your payout statement. See the README, "Known gaps".</p>
   </header>
 <main>
 
@@ -67,7 +68,7 @@
     <label for="file">Choose a Lemon Squeezy report</label>
     <input type="file" id="file" accept=".txt,.csv,.tsv,text/plain">
     <label for="paste">…or paste the report text</label>
-    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Charge ID,Tier,Date,Pledge Amount,Platform Fee,Processing Fee,Net Total,Refunded,Payout ID ..."></textarea>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Order ID,Date,Subtotal,Tax,Fee,Net,Payout ID ..."></textarea>
     <div class="grid">
       <div><label for="split">Journals</label><select id="split"><option value="month">One per calendar month a payout touches</option><option value="none">One per payout</option></select></div>
       <div><label for="date-order">Dates written as slashes</label><select id="date-order"><option value="mdy">Report uses MM/DD/YYYY</option><option value="dmy">Report uses DD/MM/YYYY</option></select></div>
@@ -142,7 +143,7 @@
   </footer>
 
   <script type="module">
-    import { validate, sampleReport, sampleBrokenReport, parseMapping, mappingText, defaultMapping, money, decodeBuffer, toXeroJournalCsv, toQboJournalCsv, toIif, journalsCsv, findingsCsv } from "./calc.mjs";
+    import { validate, parseAmount, sampleReport, sampleBrokenReport, parseMapping, mappingText, defaultMapping, money, decodeBuffer, toXeroJournalCsv, toQboJournalCsv, toIif, journalsCsv, findingsCsv } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -161,8 +162,8 @@
     function run(text) {
       const mp = parseMapping($("#mapping").value);
       $("#mapping-note").textContent = mp.errors.join(" ");
-      const exp = parseFloat($("#expected").value.replace(",", "."));
-      const r = validate(text, { mapping: mp.mapping, split: $("#split").value, dateOrder: $("#date-order").value, expected: Number.isFinite(exp) ? Math.round(exp * 100) : undefined });
+      const exp = parseAmount($("#expected").value);
+      const r = validate(text, { mapping: mp.mapping, split: $("#split").value, dateOrder: $("#date-order").value, expected: Number.isFinite(exp) ? exp : undefined });
       last = r;
       const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
       $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${r.summary.payouts} payout${r.summary.payouts === 1 ? "" : "s"}, ${r.summary.rows} rows, ${r.journals.length} journal${r.journals.length === 1 ? "" : "s"}`;

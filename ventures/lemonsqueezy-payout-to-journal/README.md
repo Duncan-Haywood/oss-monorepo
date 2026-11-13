@@ -11,6 +11,20 @@ uploaded.
 
 **Live tool:** https://marisstella.app/lemonsqueezy-payout-to-journal/
 
+## Known gaps
+
+Found by the quality audit of 2026-11-13
+([`portfolio/quality/audits/2026-11-13-lemonsqueezy-payout-to-journal.json`](../../portfolio/quality/audits/2026-11-13-lemonsqueezy-payout-to-journal.json)):
+
+- The parser was adapted from the Patreon tool and does not read Lemon Squeezy's documented Orders
+  export (docs.lemonsqueezy.com/help/orders/exporting-orders): that file has amounts in USD cents and
+  no fee, net or payout columns, so it is refused. A CSV with per-order subtotal, fee and net columns
+  in dollars works.
+- Lemon Squeezy is the merchant of record, so the seller does not collect sales tax; the tax line
+  only matters for files that carry one.
+- Not modelled yet: fees derived from the published 5% + 50¢ rate and its surcharges, discounts
+  (`discount_total`), payout fees (non-US bank, PayPal), and the payout schedule and hold.
+
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API
