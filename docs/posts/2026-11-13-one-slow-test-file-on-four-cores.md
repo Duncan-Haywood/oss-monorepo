@@ -3,7 +3,7 @@ title: "One slow test file on four cores: halving a simulation suite without tou
 seo_title: "Halving a simulation suite with worker threads"
 date: 2026-11-13
 tags: [performance, testing, quick-pick-survey]
-description: "The quick-pick-survey simulation suite spent 98 of its 127 seconds waiting on one file. Running that file's six seeded runs on worker threads cut the suite to 66 s, with byte-identical output."
+description: "One file held 98 of a 127 s simulation suite. Its six seeded runs on worker threads cut the suite to 66 s, with byte-identical output."
 ---
 
 Quick Pick Survey ranks a list by asking people to choose between two items at a time. Its claims about how many answers a ranking needs come from simulations: synthetic respondents answer thousands of pairs, chosen by the real selector and scored by the real rating update. Those simulations run in CI on every change to the product, and they were the slowest step outside the site build.
