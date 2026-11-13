@@ -1,0 +1,50 @@
+name: spc-control-charts
+description: >-
+  Free browser tool for machinists, quality engineers, lab and line supervisors: paste measurements or defect counts in
+  time order, get an I-MR, X-bar R, X-bar S, p, np, c or u control chart with all eight Nelson run rules, Phase I limit
+  revision, a check on whether subgroups hide batch-to-batch variation, and Cp, Cpk, Pp, Ppk. Chart constants computed from
+  their definitions and checked against the published tables; example is NIST/SEMATECH wafer data. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Started 2026-11-13 in an explore-track session. slug_dupe.py: no duplicate. duplicate_check.py: nothing >= 0.45 (top
+# matches helm-values-schema-check, matrix-profile-explorer at 0.07). No venture drew control charts; changepoint-detector
+# answers "did this series change" by Bayesian/PELT methods, this one by the shop-floor standard.
+#
+# Why this niche: SPC is required practice in automotive (IATF 16949), aerospace and medical-device supply chains and
+# common far beyond them; small shops pay for Minitab or JMP seats or use spreadsheet templates that apply one rule.
+#
+# First visitor: people searching "control chart maker free", "x bar r chart calculator", "nelson rules", "cpk calculator",
+# "p chart online"; quality engineering forums, r/manufacturing, r/qualityassurance, r/machinists. Volume not measured.
+#
+# Liability boundary: statistics on pasted data; not engineering, safety or quality-system advice (the page says so).
+# Nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a paid self-hosted version that reads a gauge or
+# CMM export on a schedule and keeps Phase II limits (needs accounts, an owner decision).
+
+hypotheses:
+  - claim: >-
+      Small manufacturers and labs will paste a real measurement series into a free control chart tool and keep using it
+      for routine charting.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a limit or chart constant that disagrees with a published table or a validated package on the same data.
+
+links:
+  production: https://marisstella.app/spc-control-charts/
+  analytics: null
