@@ -99,6 +99,21 @@ class Paired(unittest.TestCase):
         self.assertAlmostEqual(sum(v["contribution"] for v in bc.values()), pr["transfer"]["0.5"]["diff"])
         self.assertEqual(sum(v["n"] for v in bc.values()), pr["n_test"])
 
+    def test_select_scores_the_held_city_year_before_and_leaves_the_test_rows_alone(self):
+        """Session 83: select=True adds the transfer loss on the held-out city's year Y-1 without
+        changing any test-row loss (the extra rows are predicted, never trained on)."""
+        import numpy as np
+        fc = self.frames("cascade2")
+        r0 = transfer.run(fc, "seattle", 2024, 1, keep_rows=True)
+        r1 = transfer.run(fc, "seattle", 2024, 1, keep_rows=True, select=True)
+        self.assertNotIn("_select", r0)
+        for m in ("transfer", "own_boosted"):
+            for t in transfer.TAUS:
+                np.testing.assert_array_equal(r0["_rows"]["loss"][m][t], r1["_rows"]["loss"][m][t])
+        n23 = int((fc["seattle"].year == 2023).sum())
+        self.assertEqual(len(r1["_select"]["permit_id"]), n23)
+        self.assertEqual(len(r1["_select"]["loss"][0.9]), n23)
+
     def test_different_test_rows_are_refused(self):
         ft = self.frames("type")
         rt = transfer.run(ft, "seattle", 2024, 1, keep_rows=True)
