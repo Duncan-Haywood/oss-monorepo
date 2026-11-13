@@ -3,7 +3,7 @@ title: "The fastest cutting-stock solve is the one you already did"
 seo_title: "Memoising a cutting-stock optimizer: 4x faster lumber takeoffs"
 date: 2026-11-13
 tags: [ventures, wall-framing-takeoff, performance]
-description: "A framing takeoff solved every lumber size's cutting-stock problem on every edit. Keeping 128 recent answers made a 2,420-plan test 4x faster with identical output."
+description: "A framing takeoff re-solved every lumber size's cutting-stock problem on every edit. Keeping 128 recent answers made a test 4x faster, output identical."
 ---
 
 The wall framing takeoff works out which boards to buy for a set of walls. For
