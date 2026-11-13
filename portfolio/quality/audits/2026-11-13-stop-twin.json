@@ -1,0 +1,226 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/stop-twin",
+ "stratum": "research",
+ "seed": "2026-11-13-f",
+ "drawn_by": "sample",
+ "round": 60,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior statistician in sequential analysis and rare-event simulation (the kind who reviews for The American Statistician, Sequential Analysis or ACM TOMACS). They would check first that the inverse-sampling estimator, its variance law and the exact interval are right (Haldane 1945, Best 1974, Mikulski & Smith 1976, Clopper-Pearson-type inversion), whether the 'sequential Wald' straw man is the rule the cited Chow & Robbins (1965) paper actually proposes, and whether the nearest prior work on relative-precision stopping (Dagum, Karp, Luby & Ross 2000; Frey 2010) is cited",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every headline number reproduces and recomputes independently. Rerun: `cd research/stop-twin && PYTHONPATH=src python3 experiments/run.py` (97 s) is byte-identical to experiments/results.txt (diff empty). Independent script %s/indep.py and indep2.py (scipy 1.18 / numpy 2.5, imports nothing from the package except exact_ci for side-by-side comparison): (1) negative-binomial moments from scipy.stats.nbinom give E[(m-1)/(N-1)]/p = 1.000000 for all six (m,p), E[m/N]/p 1.2301/1.2496/1.0326/1.0344/1.0096/1.0101 and sd/p 0.5500/0.5768/0.1839/0.1889/0.0984/0.1010, equal to section 0 to 4 dp; all sit below the Mikulski-Smith (1976) bound sqrt((1-p)/(m-2)) (0.5627 at m=5,p=0.05). (2) exact_ci equals the beta-quantile closed form lo=I^-1(a/2; m, n-m+1), hi=I^-1(1-a/2; m, n-m) to 1e-11 at (30,30000),(10,10000),(100,95000),(3,50). (3) exact coverage of that interval by summing the nbinom pmf at p=1e-3 is 0.95002/0.95001/0.95001/0.95001 at m=10/30/100/400, and E[hi/lo] 3.561/2.057/1.481/1.217, matching the paper's Monte Carlo 95.0-95.5%% and 3.56/2.06/1.48/1.22 exactly on the ratio. (4) An exact Markov-chain computation of the sequential Wald rule on the n0=step=100 grid (binomial convolution, no simulation) gives P(stop with 0 failures) 0.3660/0.9048/0.9900, coverage 0.600/0.090/0.009 and mean p^/p 0.631/0.095 at p=1e-2/1e-3/1e-4 (paper MC: 0.372/0.901/0.991, 0.597/0.096/0.009, 0.627/0.098), and coverage 0.941 with a >=1-failure guard (paper 0.938): all within 1 Monte Carlo SE. (5) Planning table: n=z^2(1-p0)/(0.04 p0)=95940.4, delivered relative half-widths 0.063/0.200/0.365/0.633/2.001 and P(0 failures at 1e-5)=0.3831 recomputed. Not 4: the 1/sqrt(m-2) law drops the (1-p) factor of the known bound, which is the whole of the '6%% at m=5, p=0.05' gap the paper calls asymptotic; the paper's 95.5%% upper coverage is Monte Carlo noise (exact is 95.00%%).",
+  "completeness": "README promises: 8 tests ~1 s (ran: 8 OK in 0.99 s), experiments reproduce results.txt (byte-identical, but 97 s not '~1 min'), moments, sequential-Wald trap, min-failure guard, inverse sampling with exact interval, planning table, a figure (experiments/coverage_vs_minfail.svg present; figure.py parses results.txt rather than retyping), live page (https://marisstella.app/research/stop-twin/ HTTP 200, title 'When should a twin run that counts rare...'). Everything claimed is present and runs end to end. The practical case (a capped, censored run) is named in Limitations and Next steps as not done.",
+  "verification": "`cd research/stop-twin && PYTHONPATH=src python3 -m unittest discover -s tests -v`: 8 tests OK in 0.99 s. Good tests where they exist (pmf sums to 1, Haldane exact unbiasedness, variance law, binomial identity, the zero-failure trap). Five mutants via platform/ci/quality_mutate.py, 1 caught, 4 survived: exact_ci upper limit using Bin(n,p) instead of Bin(n-1,p) (model.py:82) and the lower limit at alpha instead of alpha/2 (model.py:81) both survive because the only interval test is a loose bracket plus coverage >= 0.92 on 400 draws; inverse_sample losing the +1 per geometric gap (model.py:110, N biased low by m) survives; wald_half dropping (1-ph) (model.py:88) survives (near-equivalent at small p, so weakest evidence). The min_fail comparison >= -> > (model.py:100) is caught. No test pins exact_ci against the beta-quantile closed form or checks inverse_sample's mean m/p.",
+  "craft": "Read src/stop_twin/model.py (121 lines), tests/test_model.py, experiments/run.py, experiments/figure.py. Stdlib only, small pure functions with formula docstrings, log-space pmf, exact moments by pmf summation, O(m) geometric-gap sampler, figure parsed from results.txt. Defects: no input validation (p outside (0,1), m<2 gives haldane division by zero at n=1, exact_ci bisect bracket hard-coded to [1e-12, 0.999] so p above 0.999 or below 1e-12 silently clamps), `from stop_twin import *` in tests and run.py, sequential_wald returns silently at nmax=1e7 without a flag, run.py is a single 97 s loop with no option for fewer reps.",
+  "claims": "Checked: every number in README line 3 and whitepaper Results 1-5 is in results.txt and recomputes (above). 'exact (1-p)^100 = 90.5%%' holds (0.9048). Limits and 'Stylised' disclosure are explicit and accurate. Problems, none changing a number: README line 10 says '~1 min', measured 97 s; README line 3 and whitepaper:14 say the >=1-failure guard 'restores' Wald coverage at 0.938, which is 1.2 points under nominal (exact 0.941); README:13 'Builds on' names two CU Boulder groups whose work is not used, and the Zhao et al. 2020 sim-to-real survey (whitepaper:28) is listed but never cited in the text; Chow & Robbins (1965) is cited as the classical fixed-width rule, but the paper does not say that rule's +1/n term already prevents the zero-failure stop. [Lead session review: lowered from 3 to 2. Two of this audit's own claim checks are partial, and the README cites Chow & Robbins (1965) as the classical method while showing a plug-in rule fail that Chow & Robbins' +1/n term avoids, without saying so; a reader takes away a wrong conclusion about the classical method. The bar verdict is unchanged (verification 2).]",
+  "fitness": "Job: a researcher choosing a stopping rule for a rare-failure twin run. The note gives a correct, runnable recipe (inverse sampling, (m-1)/(N-1), exact beta-quantile interval, m=2+1/r^2) and a vivid failure case, which is useful as a teaching note. As research it does not hold novelty: inverse sampling and its unbiased estimator (Haldane 1945), its exact variance (Best 1974) and the bound p^2(1-p)/(m-2) (Mikulski & Smith 1976), and relative-precision stopping by running to a fixed number of successes (Dagum, Karp, Luby & Ross 2000, SIAM J. Comput., the Stopping Rule Algorithm) are all known; only Haldane is cited. The zero-variance trap of naive sequential Wald is exactly what the 1/n term in Chow & Robbins (1965) and the fixed-width sequential proportion literature (Frey 2010, Am. Stat. 64:242) address. My exact chain shows the Chow-Robbins rule with that term at p=1e-3, eps=2e-4 stops with zero failures in 5.5e-5 of runs and covers 0.942, i.e. the cited classical rule is already safe and the paper's 'sequential Wald' is a straw man. The case a practitioner actually has (a cap on run length, censoring) is left to Next steps. Not in any programme in research/PROGRAMMES.md.",
+  "domain": "Against standard sequential-analysis practice: the inverse-sampling estimator and its exact interval are textbook-correct and the computations are exact, which a statistician would sign off. They would not sign off the framing: the compared rule omits the Chow-Robbins correction the paper itself cites, the variance law is presented as the author's asymptotic approximation without the (1-p) factor or the known bound, the guard result is one configuration, and the operational design (capped run with censoring, or a DKLR-style (eps,delta) guarantee) is not analysed."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "E[(m-1)/(N-1)]/p, E[m/N]/p and sd/p for m in 5,30,100 and p in 0.05,0.001 (section 0)",
+   "method": "scipy.stats.nbinom pmf summation, independent script; Mikulski & Smith (1976) bound sqrt((1-p)/(m-2))",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/stoptwin/indep.py src (from research/stop-twin)",
+   "expected": "1.000000; 1.2301/1.2496/1.0326/1.0344/1.0096/1.0101; sd 0.5500/0.5768/0.1839/0.1889/0.0984/0.1010",
+   "observed": "identical to 4 dp in results.txt section 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "exact_ci limits at (m,n)=(30,30000),(10,10000),(100,95000),(3,50)",
+   "method": "closed form via regularized incomplete beta inverse: lo=I^-1(a/2;m,n-m+1), hi=I^-1(1-a/2;m,n-m) (scipy.special.betaincinv)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/stoptwin/indep.py src",
+   "expected": "(30,30000): 0.00067479433, 0.00138804814",
+   "observed": "0.00067479433, 0.00138804814 (agree to 1e-11 in all four cases)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "exact coverage and mean upper/lower ratio of the exact interval at p=1e-3, m=10/30/100/400 (section 3)",
+   "method": "exact sum over the nbinom pmf of the beta-quantile interval (not simulation)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/stoptwin/indep2.py .",
+   "expected": "coverage 0.95002/0.95001/0.95001/0.95001, E[hi/lo] 3.561/2.057/1.481/1.217",
+   "observed": "paper MC coverage 0.950/0.953/0.955/0.955 (within 1 MC SE of 0.0049), ratio 3.561/2.057/1.481/1.217",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "sequential Wald trap: P(stop with 0 failures), coverage, mean p^/p at p=1e-2,1e-3,1e-4 and coverage with a >=1-failure guard (sections 1-2)",
+   "method": "exact Markov chain over failures at each 100-draw check (binomial convolution), separate implementation",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/stoptwin/indep.py src",
+   "expected": "0.3660/0.9048/0.9900; coverage 0.600/0.090/0.009; guard 0.941",
+   "observed": "MC 0.372/0.901/0.991; 0.597/0.096/0.009; guard 0.938",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "planning table: fixed n for 20% half-width at p0=1e-3 and delivered half-widths",
+   "method": "hand formula n=z^2(1-p0)/(0.04 p0), z sqrt((1-p)/(n p)), P(0)=(1-p)^n",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/stoptwin/indep.py src",
+   "expected": "95940; 0.063/0.200/0.365/0.633/2.001; 0.3831",
+   "observed": "95940; 0.063/0.200/0.365/0.633/2.001; 0.3831",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiment reproduces committed results.txt",
+   "method": "rerun and diff",
+   "command": "cd research/stop-twin && PYTHONPATH=src python3 experiments/run.py > out.txt && diff out.txt experiments/results.txt",
+   "expected": "no diff, ~1 min",
+   "observed": "no diff, 97 s",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd research/stop-twin && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "8 tests OK ~1 s",
+   "observed": "Ran 8 tests in 0.988s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/stop-twin/",
+   "expected": "200",
+   "observed": "200, title 'When should a twin run that counts rare...'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:3 / whitepaper:14 'requiring >=1 failure restores Wald coverage (0.938)'",
+   "method": "exact chain coverage vs nominal 0.95",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/stoptwin/indep.py src",
+   "expected": "0.95 if 'restored'",
+   "observed": "exact 0.941, MC 0.938: 1 point under nominal",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "is the paper's sequential Wald rule the classical rule it cites (Chow & Robbins 1965, stop when n >= (z/eps)^2 (v_n + 1/n))?",
+   "method": "exact chain for the Chow-Robbins rule at p=1e-3, eps=2e-4 and p=1e-4, eps=2e-5",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/stoptwin/indep.py src",
+   "expected": "trap persists if the paper's framing holds",
+   "observed": "P(stop with 0)=5.5e-5, coverage 0.942 (p=1e-3) and 0.943 (p=1e-4): the cited rule has no trap",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "references used in text",
+   "method": "grep whitepaper for each reference",
+   "command": "grep -n 'Zhao\\|Chow' research/stop-twin/paper/whitepaper.md",
+   "expected": "each reference cited where used",
+   "observed": "Zhao et al. 2020 appears only in the reference list; Chow & Robbins only in README 'Builds on' and the list",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "variance law 1/sqrt(m-2) against the published bound",
+   "method": "Mikulski & Smith (1976) Var <= p^2(1-p)/(m-2)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/2494317e-e49a-5e9d-81a1-ae5d701e315d/scratchpad/stoptwin/indep.py src",
+   "expected": "law includes (1-p); cited",
+   "observed": "(1-p) dropped, uncited; with it the m=5,p=0.05 gap is 2% (0.5500 vs 0.5627) not 6%",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/stop_twin/model.py:82",
+   "change": "exact_ci upper: binom_cdf_lt(m, n - 1, p) -> binom_cdf_lt(m, n, p)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/stop_twin/model.py:81",
+   "change": "exact_ci lower: ... - alpha / 2.0 -> ... - alpha",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/stop_twin/model.py:110",
+   "change": "inverse_sample: n += 1 + int(...) -> n += int(...)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/stop_twin/model.py:100",
+   "change": "sequential_wald: k >= min_fail -> k > min_fail",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/stop_twin/model.py:88",
+   "change": "wald_half: sqrt(ph*(1-ph)/n) -> sqrt(ph/n) (near-equivalent at small p)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The compared 'sequential Wald' rule is a straw man: Chow & Robbins (1965), which the README cites as the classical method, stops when n >= (z/eps)^2 (v_n + 1/n); the +1/n term prevents the zero-failure stop (exact chain: P(stop with 0)=5.5e-5, coverage 0.942 at p=1e-3). The paper never says so, so a reader concludes classical fixed-width sequential stopping fails",
+   "where": "research/stop-twin/paper/whitepaper.md:9",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work uncited and novelty implicit: exact variance (Best 1974) and bound p^2(1-p)/(m-2) (Mikulski & Smith 1976) of the Haldane estimator, run-to-k-successes relative (eps,delta) stopping (Dagum, Karp, Luby & Ross 2000), fixed-width sequential proportion intervals (Frey 2010). The 1/sqrt(m-2) law is presented as the author's asymptotic, minus the (1-p) factor",
+   "where": "research/stop-twin/paper/whitepaper.md:9",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "exact_ci and inverse_sample are untested at the value level: 3 of 4 non-equivalent mutants in them survive (upper limit n vs n-1, lower limit alpha vs alpha/2, geometric gap off by one); the only interval test is a bracket plus coverage >= 0.92",
+   "where": "research/stop-twin/tests/test_model.py:26",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "README run time '~1 min'; measured 97 s",
+   "where": "research/stop-twin/README.md:10",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "'restores Wald coverage (0.938)' with nominal 0.95; exact value 0.941 is 1 point short",
+   "where": "research/stop-twin/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Reference list carries Zhao et al. 2020 (sim-to-real survey) never cited in text; README 'Builds on' names two CU Boulder groups whose work is not used",
+   "where": "research/stop-twin/paper/whitepaper.md:28",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "No input validation: m<2 divides by zero in haldane, exact_ci bisect bracket fixed at [1e-12, 0.999] silently clamps, sequential_wald returns at nmax without a flag",
+   "where": "research/stop-twin/src/stop_twin/model.py:78",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15385"
+ ],
+ "verdict": "A small, correct teaching note. Every number I recomputed (scipy negative-binomial moments, beta-quantile closed form for the exact interval, exact coverage 0.95001 by pmf summation, an exact Markov-chain version of the sequential Wald trap, the planning table) matches results.txt within Monte Carlo error, and the experiment reproduces byte-for-byte. It misses the bar on verification: 4 of 5 seeded mutants survive, including both limits of exact_ci. As research it is below the repository's PhD bar: the content is classical (Haldane 1945, Best 1974, Mikulski & Smith 1976, Dagum et al. 2000), most of that prior work is uncited, and the 'sequential Wald' it shows failing omits the +1/n term of the Chow-Robbins rule the README cites, which by exact computation removes the trap."
+}
