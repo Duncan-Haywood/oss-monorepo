@@ -111,7 +111,7 @@ class ParseTests(unittest.TestCase):
                 with self.assertRaises(do.OpcodeError):
                     parser(op)
 
-    def test_plan_runs_them_in_lists_2_and_3_and_names_them_in_1(self):
+    def test_plan_runs_them_in_lists_2_and_3_and_names_delta_in_1(self):
         tags = [
             list_tag([(12, 1, per_line_params([1.0], bottom=1)), (7, 1, table_params([0, 65535]))]),
             list_tag([(11, 0, per_line_params([0.0], right=1)), (3, 0, struct.pack(">7d", 0, 0, 0, 0, 0, 0.5, 0.5))], do.TAG_OPCODE_LIST_3),
@@ -123,7 +123,8 @@ class ParseTests(unittest.TestCase):
         self.assertIn("OpcodeList2: 1 ScalePerRow applied (row gains)", plan.notes)
         self.assertIn("OpcodeList2: 1 MapTable applied (value mapping)", plan.notes)
         self.assertIn("OpcodeList3: 1 DeltaPerColumn applied (column offsets)", plan.notes)
-        self.assertIn("OpcodeList1: 1 x MapTable (required) not applied", plan.notes)
+        # Since 2026-11-13 MapTable runs in list 1 too (tests/test_dng_list1_table_scale.py); Delta stays named.
+        self.assertEqual([type(op).__name__ for op in plan.stage1], ["MapTable"])
         self.assertIn("OpcodeList1: 1 x DeltaPerRow not applied", plan.notes)
 
     def test_a_wrong_count_is_named_and_skipped(self):

@@ -58,7 +58,11 @@ earlier Te Deum file, kept as `te-deum-simple.gabc`, against the 1913 Liber Usua
 *tonus simplex*. There were no differences in 1,492 notes. So the 1974 Te Deum is the
 simple tone, a second Te Deum melody with its own pre-1929 source, not a garbled copy of
 the Roman tone. `scan-read-by-eye.test.mjs` fails if any of those files changes without
-a fresh reading. The current `te-deum.gabc` (the 1908 Roman tone) has not been read by eye.
+a fresh reading. Later the same day the current `te-deum.gabc` (the 1908 Roman tone, with
+its one scan correction) was read by eye against the 1908 Graduale, pp. 118*-121*: all 637
+notes match, quilismas, rhombi and liquescents included. Every corpus piece except the
+`gregobase-1908/` batch has now been read note by note, 2,129 notes in all, with no
+differences.
 
 Each file's header carries:
 

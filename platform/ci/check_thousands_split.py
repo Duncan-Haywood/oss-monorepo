@@ -43,7 +43,7 @@ def offenders(path: Path) -> list[int]:
 def scan(root: Path = REPO_ROOT) -> list[str]:
     out = []
     for path in sorted((root / "ventures").rglob("*")):
-        if path.suffix not in {".mjs", ".js"} or "node_modules" in path.parts or ".test." in path.name:
+        if path.suffix not in {".mjs", ".js"} or not {"node_modules", ".next"}.isdisjoint(path.parts) or ".test." in path.name:
             continue
         rel = path.relative_to(root).as_posix()
         if rel in ALLOWED:

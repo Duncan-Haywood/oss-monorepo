@@ -547,6 +547,16 @@ export const FAST_BLOCK_T = 4;
  */
 export const FAST_BLOCK_CURVE_Q = 0.75;
 
+/**
+ * Which quantile of the panel's log times fastBlockStarts reads in its second and later passes, which already leave
+ * out the blocks the pass before found. Once those people are out they cannot drag the median down, and the median
+ * is not lifted when the panel's spread grows over the session (people who speed up or slow down on their own), as
+ * an upper quantile is. In the answer-time sweep with each person's own drift at 0.6 log, it cut the honest
+ * respondents flagged from 7.5% to 4.8% with nobody careless and from 8.3% to 5.2% with a careless share, at the same
+ * share of the ceiling (docs/INFORMATION-GAIN-SELECTOR.md, "A later-pass curve that drift cannot lift", 2026-11-13).
+ */
+export const FAST_BLOCK_LATER_Q = 0.5;
+
 /** Passes over the panel's curve in fastBlockStarts (each leaves out the blocks the last found). */
 export const FAST_BLOCK_PASSES = 3;
 
@@ -670,12 +680,18 @@ export function autoFastBlockMinLog(residuals: number[][], q = FAST_BLOCK_AUTO_Q
  * and from 64% to 95% for random clicking; where everyone's own pace drifts
  * by 0.6 log over the session, honest flags fell from 26% to 9%.
  *
+ * Since 2026-11-13 (last), the second and later passes read the median
+ * (`laterQ`, FAST_BLOCK_LATER_Q) of the people the pass before did not flag,
+ * not the upper quantile, which spread growing over the session lifts: with
+ * each person's own pace drifting 0.6 log, honest flags fell by about a third.
+ *
  * Needs AGREEMENT_MIN_RESPONDENTS respondents with timed answers; otherwise
  * returns an empty map. Untimed answers are skipped in the reading and never
  * start a block.
  */
-export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = "auto", trendF = FAST_BLOCK_TREND_F): Map<string, number> {
+export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = "auto", trendF = FAST_BLOCK_TREND_F, laterQ = FAST_BLOCK_LATER_Q): Map<string, number> {
   if (!(curveQ > 0 && curveQ < 1)) throw new Error(`curveQ must be between 0 and 1, got ${curveQ}`);
+  if (!(laterQ > 0 && laterQ < 1)) throw new Error(`laterQ must be between 0 and 1, got ${laterQ}`);
   if (minLog !== "auto" && !(minLog > 0)) throw new Error(`minLog must be a positive number or "auto", got ${minLog}`);
   const by = new Map<string, { index: number; ms: number }[]>();
   const seen = new Map<string, number>();
@@ -696,7 +712,7 @@ export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE
     const atPos: number[] = [];
     for (let i = 0; i < longest; i++) {
       const v = people.filter(([id, l]) => l.length > i && i < (splits.get(id) ?? Infinity)).map(([, l]) => Math.log(l[i].ms));
-      atPos.push(v.length ? quantileOf(v, curveQ) : NaN);
+      atPos.push(v.length ? quantileOf(v, pass === 0 ? curveQ : laterQ) : NaN);
     }
     const curve = atPos.map((_, i) => medianOf(atPos.slice(Math.max(0, i - 2), i + 3).filter(Number.isFinite)));
     const residuals = people.map(([, list]) => list.map((x, i) => Math.log(x.ms) - curve[i]));

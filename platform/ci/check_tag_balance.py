@@ -55,7 +55,7 @@ def main():
     bad = 0
     files = sorted(root.rglob("*.html"))
     for f in files:
-        if "node_modules" in f.parts:
+        if not {"node_modules", ".next"}.isdisjoint(f.parts):
             continue
         pr = check(f)
         if pr:

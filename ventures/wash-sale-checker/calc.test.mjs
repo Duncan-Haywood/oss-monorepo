@@ -246,3 +246,42 @@ test("Schwab's Reinvest Dividend cash leg is not read as a purchase", () => {
   assert.equal(r.summary.disallowed, 0);
   assert.equal(r.errors.length, 1);
 });
+
+// Red-team 2026-11-13: guards for escaped mutants and real defects.
+test("an Account column in the first position is still read (IRA replacement)", () => {
+  const rows = ["Account,Date,Symbol,Action,Quantity,Price", "Taxable,2025-01-02,NVDA,buy,10,120", "Taxable,2025-11-14,NVDA,sell,10,95", "Roth IRA,2025-11-26,NVDA,buy,10,98"];
+  const r = evaluate(rows.join("\n"));
+  assert.equal(r.summary.permanent, 250);
+});
+
+test("an account number or name that merely contains 401, sep or ira is not a retirement account", () => {
+  for (const acct of ["Individual Z40123456", "September Growth", "Mirage Joint", "Brokerage 4403-1234"]) {
+    const r = evaluate(csv(`2025-01-02,ABC,buy,10,100,${acct}`, `2025-06-01,ABC,sell,10,80,${acct}`));
+    assert.equal(r.summary.lossSales, 1, acct);
+    assert.equal(r.summary.allowed, 200, acct);
+  }
+  for (const acct of ["Roth IRA", "ROTH_IRA", "SEP-IRA", "401(k)", "Company 401k", "403(b) plan", "Retirement", "HSA"]) {
+    const r = evaluate(csv(`2025-01-02,ABC,buy,10,100,${acct}`, `2025-06-01,ABC,sell,10,80,${acct}`));
+    assert.equal(r.summary.sales, 0, acct);
+  }
+});
+
+test("a three-digit year is refused rather than read as year 202", () => {
+  assert.equal(parseDate("1/2/202"), null);
+  assert.equal(parseDate("1/2/100"), null);
+  assert.equal(isoDate(parseDate("1/2/25")), "2025-01-02");
+  assert.equal(isoDate(parseDate("1/2/1999")), "1999-01-02");
+});
+
+test("the report keeps one column per field when a symbol holds a comma or a quote, and defuses formulas", () => {
+  const r = evaluate(['Date,Symbol,Action,Quantity,Price', '2025-01-02,"BRK,B",buy,10,100', '2025-06-01,"BRK,B",sell,10,80', '2025-01-02,=1+1,buy,1,10', '2025-06-01,=1+1,sell,1,5'].join("\n"));
+  const lines = reportCsv(r).trim().split("\n");
+  assert.equal(lines[1].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).length, 9);
+  assert.match(lines[1], /"BRK,B"/);
+  assert.ok(lines.some((l) => l.includes(",'=1+1,")), lines.join("\n"));
+});
+
+test("two sales on one day keep file order (FIFO lots go to the earlier line)", () => {
+  const r = evaluate(csv("2025-01-02,A,buy,10,100,Taxable", "2025-02-03,A,buy,10,50,Taxable", "2025-08-01,A,sell,10,80,Taxable", "2025-08-01,A,sell,10,80,Taxable"));
+  assert.deepEqual(r.sales.map((s) => [s.line, s.gain]), [[4, -200], [5, 300]]);
+});

@@ -115,6 +115,8 @@ def check_input(attrs: dict[str, str]) -> str | None:
 def check_tree(root: Path) -> list[str]:
     problems: list[str] = []
     for page in sorted(root.rglob("*.html")):
+        if not {"node_modules", ".next"}.isdisjoint(page.parts):  # installed packages, local build output
+            continue
         markup = page.read_text(encoding="utf-8", errors="replace")
         for tag in INPUT_RE.findall(markup):
             attrs = _attrs(tag)

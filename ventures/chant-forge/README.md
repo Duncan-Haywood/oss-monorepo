@@ -702,7 +702,7 @@ for every piece in `eval/scan-pages.json` against public-domain scans on archive
   liquescents, ledger-line notes: 4-17 per piece) are not checked; those spots on two
   Salve Regina staves were looked at by eye and agree.
 - **Tuning:** thresholds were set on the Dies irae and Te Deum pages; the Salve Regina
-  and the off-final pieces ran afterwards with nothing changed. 8 tests on drawn pages
+  and the off-final pieces ran afterwards with nothing changed. 10 tests on drawn pages
   (`scan.test.mjs`). Only Vatican-edition printing has been tried.
 - **Read by eye as well:** a separate reading by eye covered every note of the five pieces,
   including the ones the reader cannot see, and found no differences in 1,492 notes
@@ -712,6 +712,40 @@ for every piece in `eval/scan-pages.json` against public-domain scans on archive
 - **Full hymns:** `corpus/pange-lingua-full.gabc` (6 verses, 85.6 s at 124 BPM) and
   `corpus/veni-creator-full.gabc` (7 verses, 83.0 s) set every verse printed in the 1908
   Graduale to the checked first verse (`eval/scan-read-by-eye/build-hymns.mjs`).
+- **The 1908 Te Deum by eye** (later on 2026-11-13): all 637 notes of the current
+  `corpus/te-deum.gabc` match the 1908 Graduale, pp. 118*-121*, read system by system,
+  including the 7 quilismas, 18 rhombi and 3 liquescents the machine does not check.
+  Every corpus piece outside the `gregobase-1908/` batch is now read by eye: 2,129 notes,
+  no differences.
+
+### Rhombus or square (2026-11-13, latest)
+
+```sh
+node ventures/chant-forge/eval/shape-check.mjs    # same scans and cache as scan-check
+```
+
+Each head the reader finds now carries a `shape`: `rhombus` (punctum inclinatum) or
+`square`. A rhombus in the 1908 type is narrow (about 0.34 staff spaces wide against a
+square's 0.53) and tapers at both ends, so two measurements tell them apart: width under
+0.42 spaces and end columns under 0.8 of the middle ones' height (`headShape` in
+`scan.mjs`). `gabcShape` reads the shape the GABC asks for (upper case = rhombus, `w`
+quilisma, `~ < >` liquescent, `v` virga, `o` oriscus, `s` stropha). On notes that agree in
+pitch (`eval/shape-check-report.md`):
+
+| set | rhombi read as rhombi | squares called rhombi |
+|---|---|---|
+| tuned on (the five corpus pieces) | 68 of 68 | 0 of 1,470 |
+| held out (seven GregoBase pieces, 1908 Graduale) | 118 of 120 (2 not measured) | 1 of 1,031 |
+
+The one false call (GregoBase 3434, *et*, leaf 354, staff 5) is a square with a white
+flaw in the print; the GABC is right. So a GABC that writes a rhombus as a square, or the
+other way round, is now caught by machine. **Not done:** quilismas and liquescents. The
+reader pairs 24 of 33 quilismas by pitch but sees them as squares: an edge-zigzag and a
+split-column measure were tried and overlap with ordinary squares on stems: an edge
+zigzag of 0.15 spaces per column or more keeps 5 of 6 tuned-on quilismas but only 5 of 18
+held out, and calls 58 and 63 squares quilismas. Liquescents are mostly not read at all
+(2 of 33 paired): the small upper head of a liquescent podatus sits on its neighbour's
+stem and falls under the reader's minimum head height. Both need a dedicated detector.
 
 ## Not checked yet
 

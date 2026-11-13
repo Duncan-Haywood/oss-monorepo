@@ -488,7 +488,6 @@ ventures/wall-framing-takeoff/budget.mjs
 ventures/wall-framing-takeoff/engine.mjs
 ventures/wall-framing-takeoff/schedule.mjs
 ventures/warehouse-slotting-optimizer/calc.mjs
-ventures/wash-sale-checker/calc.mjs
 ventures/water-damage-drying-estimate-calculator/calc.mjs
 ventures/water-well-drilling-bid-calculator/calc.mjs
 ventures/wedding-day-timeline-builder/calc.mjs

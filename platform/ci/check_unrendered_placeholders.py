@@ -39,7 +39,7 @@ def main(argv=None):
     root = Path(args.root)
     bad, pages = [], 0
     for page in sorted(root.rglob("*.html")):
-        if "node_modules" in page.parts:
+        if not {"node_modules", ".next"}.isdisjoint(page.parts):
             continue
         try:
             text = page.read_text(encoding="utf8")

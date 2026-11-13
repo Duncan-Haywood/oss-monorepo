@@ -104,7 +104,7 @@ def main(argv=None):
     root = Path(args.root)
     bad, pages = [], 0
     for page in sorted([*root.rglob("*.html"), *root.rglob("*.css")]):
-        if "node_modules" in page.parts:
+        if not {"node_modules", ".next"}.isdisjoint(page.parts):
             continue
         pages += 1
         bad += [(page, u) for u in insecure(page)]

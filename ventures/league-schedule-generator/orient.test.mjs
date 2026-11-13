@@ -147,6 +147,41 @@ test("a 24-team break floor in seconds, not minutes (12 matches a round)", () =>
   assert.ok(Date.now() - t < 5000, `took ${Date.now() - t} ms`);
 });
 
+test("the walk's kept predecessor lists change nothing: same least, proof, steps and hosts as scanning afresh", () => {
+  // README "A walk that remembers its predecessors": nearOf keeps each (round, hosts) state's
+  // predecessor list; filtering it by slack must give the fresh scan's choices in the same order,
+  // so the seeded walk takes the same path. nearCache 0 keeps nothing (the old walk); 300 fills up
+  // part-way through, so both kept and unkept states are visited in one walk.
+  // timetables: the circle method with its rounds shuffled and its teams relabelled (odd n: the
+  // last team of n + 1 is the bye), which leaves a walk real work at every size
+  const rand = mulberry32(2026);
+  const shuffled = (n) => {
+    const N = n % 2 ? n + 1 : n, perm = [...Array(N).keys()];
+    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [perm[i], perm[j]] = [perm[j], perm[i]]; }
+    const opp = circleOpp(N).map((o) => { const q = new Int16Array(N); for (let t = 0; t < N; t++) q[perm[t]] = perm[o[t]]; return q; });
+    for (let i = opp.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [opp[i], opp[j]] = [opp[j], opp[i]]; }
+    return opp;
+  };
+  let cases = 0, walked = 0;
+  for (const n of [7, 9, 10, 13, 14, 16]) for (let i = 0; i < 4; i++) {
+    const opp = shuffled(n);
+    for (const span of [opp.length, Math.ceil(opp.length / 2)]) {
+      const opts = { seed: 3 + i, budget: 40000, span };
+      const a = leastBreaks(opp, n, { ...opts, nearCache: 0 });
+      for (const nearCache of [300, undefined]) {
+        const b = leastBreaks(opp, n, { ...opts, nearCache });
+        assert.equal(b.least, a.least, `${n}/${i}/${span} least`);
+        assert.equal(b.proved, a.proved, `${n}/${i}/${span} proved`);
+        assert.equal(b.steps, a.steps, `${n}/${i}/${span} steps`);
+        assert.deepEqual(b.venues.map((v) => [...v]), a.venues.map((v) => [...v]), `${n}/${i}/${span} hosts`);
+      }
+      cases++; walked += a.steps;
+    }
+  }
+  assert.equal(cases, 48);
+  assert.ok(walked > 1000, `the walks did some work (${walked} steps)`);
+});
+
 // every pair-host choice of a small home-and-away timetable, counted: the pair keeps one host (at
 // home in its first game, away in its return), balance over leg one
 function brutePairs(opp, n) {

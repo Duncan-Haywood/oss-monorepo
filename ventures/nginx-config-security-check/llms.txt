@@ -1,0 +1,18 @@
+# Is your nginx config handing out files, headers or your internal network?
+
+> Paste an nginx.conf or sites-available file and its includes: find the alias off-by-slash path traversal, $uri in redirects and headers (CRLF injection), proxy_pass to a host from the request (SSRF), CORS reflecting any origin, add_header lines dropped by a nested location, deny after allow all, public stub_status, SSLv3/TLS 1.0 and weak ciphers, each with its line and fix. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). A static read of the files you give it, not a security audit and not nginx -t; a clean result is not proof a server is safe. Several checks were first catalogued by Yandex's Gixy (MPL-2.0); no Gixy code is used and the tool is not affiliated with it.
+
+## Pages
+
+- [The tool](https://marisstella.app/nginx-config-security-check/)
+- [nginx misconfigurations explained: what each one exposes and the fix](https://marisstella.app/nginx-config-security-check/nginx-misconfigurations-explained.html)
+
+## CLI
+
+- `node check.mjs /etc/nginx/` scans a config tree with includes resolved and prints file:line findings; `--format json`, `--fail-on-risk` (exit 2 on high or medium). Node 18+, no dependencies.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/nginx-config-security-check): MIT licensed.

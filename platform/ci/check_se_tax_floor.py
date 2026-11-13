@@ -45,7 +45,7 @@ EXEMPT = {
 
 
 def is_candidate(rel: str) -> bool:
-    if not rel.startswith("ventures/") or "/node_modules/" in rel:
+    if not rel.startswith("ventures/") or "/node_modules/" in rel or "/.next/" in rel:
         return False
     name = rel.rsplit("/", 1)[-1]
     if ".test." in name or name.startswith("test_"):

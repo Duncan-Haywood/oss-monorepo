@@ -2168,17 +2168,17 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
       }
       put(was);
       scored.sort((a, b) => a.nc - b.nc);
-      const lo = Math.min(...rs);
+      const lo = Math.min(...rs), hi = Math.max(...rs);
       let take = null;
       for (const c of scored.slice(0, dealFloors)) {
         put(c.d);
-        const nf = priced(table.trial(lo)); floors++;
+        const nf = priced(table.trial(lo, hi)); floors++;
         const v = costOf(c.nc, nf);
         if (v <= line && (!take || v < take.v)) take = { ...c, nf, v };
         put(was);
       }
       if (take) {
-        put(take.d); table.trial(lo); table.commit();
+        put(take.d); table.trial(lo, hi); table.commit();
         cur = take.v; coe = take.nc; fl = take.nf; dealt++;
         remember();
         if (fl < fallback.fl || (fl === fallback.fl && coe < fallback.coe)) fallback = { coe, fl, opp: opp.map((o) => o.slice()) };
@@ -2188,14 +2188,14 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
     const r = Math.floor(rand() * R);
     let s = Math.floor(rand() * (R - 1)); if (s >= r) s++;
     const k = rand();
-    let undo, lo = Math.min(r, s);
+    let undo, lo = Math.min(r, s), hi = Math.max(r, s);
     if (k < 0.4) {
       const a = Math.floor(rand() * N);
       let b = Math.floor(rand() * (N - 1)); if (b >= a) b++;
       const S = teamSwapRounds(opp, a, b, r);
       if (S.length >= R) continue;
       swapTeamsIn(opp, S, a, b); undo = () => swapTeamsIn(opp, S, a, b);
-      lo = Math.min(...S);
+      lo = Math.min(...S); hi = Math.max(...S);
     } else if (k < 0.6) {
       [opp[r], opp[s]] = [opp[s], opp[r]]; undo = () => { [opp[r], opp[s]] = [opp[s], opp[r]]; };
     } else {
@@ -2209,7 +2209,7 @@ export function floorPricedSingleRounds(n, start, { seed = 1, maxBreaks, over = 
     const line = cur - T * Math.log(rand() || 1e-12);
     const nc = coeOf(opp, n, false);
     if (nc > line) { undo(); continue; }
-    const nf = priced(table.trial(lo)); floors++;
+    const nf = priced(table.trial(lo, hi)); floors++;
     const v = costOf(nc, nf);
     if (v <= line) {
       cur = v; coe = nc; fl = nf; table.commit();

@@ -34,6 +34,9 @@ import { mulberry32 } from "./calc.mjs";
 /** Largest number of matches in a round the exact programme takes (2^12 states, 24 or 25 teams). */
 export const ORIENT_MAX_MATCHES = 12;
 
+/** Predecessor entries a balanced walk keeps at most (4 bytes each: 16 MB), balancedWalk nearOf. */
+const NEAR_CACHE = 4000000;
+
 function popcount(x) {
   x -= (x >>> 1) & 0x55555555;
   x = (x & 0x33333333) + ((x >>> 2) & 0x33333333);
@@ -99,9 +102,20 @@ export function minPlusStep(fr, A, B) {
   for (let i = 0; i < kA; i++) if (!seen[i]) visit(i);
   // the table's bits, low to high: A's bits not yet eliminated (the next one at bit 0), then B's
   // bits in the order they were met
+  // x's bits moved to their places in the table by two lookups of six bits each, not a loop over
+  // the bits of every x
+  const perm = (pos, k) => {
+    const lo = Math.min(k, 6), L = new Int32Array(1 << lo), Hh = new Int32Array(1 << Math.max(0, k - 6));
+    for (let v = 0; v < L.length; v++) { let z = 0; for (let p = 0; p < lo; p++) z |= ((v >>> p) & 1) << pos[p]; L[v] = z; }
+    for (let v = 0; v < Hh.length; v++) { let z = 0; for (let p = 6; p < k; p++) z |= ((v >>> (p - 6)) & 1) << pos[p]; Hh[v] = z; }
+    return (x) => L[x & 63] | Hh[x >>> 6];
+  };
+  const xPos = new Int32Array(kA);
+  for (let p = 0; p < kA; p++) xPos[order[p]] = p;
+  const xz = perm(xPos, kA);
   const Arr = fr.constructor; // Int32Array for whole breaks, Float64Array for priced host bits
   let T = new Arr(1 << kA);
-  for (let x = 0; x < T.length; x++) { let z = 0; for (let p = 0; p < kA; p++) z |= ((x >>> order[p]) & 1) << p; T[z] = fr[x]; }
+  for (let x = 0; x < T.length; x++) T[xz(x)] = fr[x];
   const yPos = new Int32Array(kB).fill(-1);
   let Lx = kA, Ly = 0;
   for (let p = 0; p < kA; p++) {
@@ -112,15 +126,16 @@ export function minPlusStep(fr, A, B) {
     const N = new Arr(1 << (lx + ly));
     const e0 = e.length > 0 ? yPos[e[0][0]] : -1, f0 = e.length > 0 ? e[0][1] : 0;
     const e1 = e.length > 1 ? yPos[e[1][0]] : -1, f1 = e.length > 1 ? e[1][1] : 0;
-    // the bits of z that hold the y bits of this x's edges; a team breaks at x = 0 when its y bit
-    // equals its flip, else at x = 1
-    const b0 = e0 >= 0 ? 1 << (e0 + lx) : 0, b1 = e1 >= 0 ? 1 << (e1 + lx) : 0;
-    const v0 = f0 ? b0 : 0, v1 = f1 ? b1 : 0;
+    // a team breaks at x = 0 when the y bit of its edge (bit s of z) equals its flip, else at
+    // x = 1: d = (bit ^ flip) & present is 1 for a break at x = 1, and present - d for one at x = 0.
+    // Branch-free; with the lookup permutations below, a 12-match step 0.68-0.77 ms -> 0.59-0.70 ms
+    // (eval/minplus-bench.mjs, README "A backward table").
+    const m0 = e0 >= 0 ? 1 : 0, m1 = e1 >= 0 ? 1 : 0, s0 = e0 >= 0 ? e0 + lx : 0, s1 = e1 >= 0 ? e1 + lx : 0;
+    const both = m0 + m1;
     for (let z = 0; z < N.length; z++) {
       const base = ((z & xm) << 1) | (((z >>> lx) & ym) << Lx);
-      let c0 = T[base], c1 = T[base | 1];
-      if (b0) { if ((z & b0) === v0) c0++; else c1++; }
-      if (b1) { if ((z & b1) === v1) c0++; else c1++; }
+      const d = ((((z >>> s0) ^ f0) & m0) + (((z >>> s1) ^ f1) & m1));
+      const c0 = T[base] + both - d, c1 = T[base | 1] + d;
       N[z] = c0 < c1 ? c0 : c1;
     }
     T = N; Lx = lx; Ly = ly;
@@ -128,7 +143,8 @@ export function minPlusStep(fr, A, B) {
   // B's bits no A bit met (a match of two teams that both sat out round r) are free
   for (let j = 0; j < kB; j++) if (yPos[j] < 0) yPos[j] = Ly++;
   const g = new Arr(1 << kB);
-  for (let y = 0; y < g.length; y++) { let z = 0; for (let j = 0; j < kB; j++) z |= ((y >>> j) & 1) << yPos[j]; g[y] = T[z & (T.length - 1)]; }
+  const yz = perm(yPos, kB), tm = T.length - 1;
+  for (let y = 0; y < g.length; y++) g[y] = T[yz(y) & tm];
   return g;
 }
 
@@ -139,13 +155,15 @@ export function minPlusStep(fr, A, B) {
  * free. least: least breaks with every team's home and away games within one over `span` rounds
  * (default all), null when the walk found none within `budget` steps and `maxSlack` over the floor;
  * proved: no balanced choice has fewer. venues[r][t] is 1 when t is at home in round r and has
- * `breaks` breaks (least, else floor and unbalanced). `seed` orders the walk.
+ * `breaks` breaks (least, else floor and unbalanced). `seed` orders the walk. `nearCache` caps the
+ * predecessor entries the walk keeps (balancedWalk nearOf); it changes the time, never the answer.
  */
-export function leastBreaks(opp, n, { maxMatches = ORIENT_MAX_MATCHES, span = opp.length, seed = 1, budget = 5000000, maxSlack = 10 } = {}) {
+export function leastBreaks(opp, n, { maxMatches = ORIENT_MAX_MATCHES, span = opp.length, seed = 1, budget = 5000000, maxSlack = 10, nearCache = NEAR_CACHE } = {}) {
   if (n > 32) return null;
   const R = opp.length;
   const M = roundMatches(opp, n);
-  if (M.some((ms) => ms.length > maxMatches)) return null;
+  // 16 matches at most: the walk packs a host choice in 16 bits (balancedWalk nearOf)
+  if (M.some((ms) => ms.length > Math.min(maxMatches, 16))) return null;
   const H = M.map(homeMasks);
   const plays = opp.map((o) => { let p = 0; for (let t = 0; t < n; t++) if (o[t] < n) p |= 1 << t; return p >>> 0; });
   // f[r][x]: least breaks in rounds 0..r with round r's hosts x
@@ -155,7 +173,7 @@ export function leastBreaks(opp, n, { maxMatches = ORIENT_MAX_MATCHES, span = op
   let floor = Infinity;
   for (let y = 0; y < last.length; y++) if (last[y] < floor) floor = last[y];
 
-  const w = balancedWalk(f, H, plays, opp, n, { span, seed, budget, maxSlack, floor });
+  const w = balancedWalk(f, H, plays, opp, n, { span, seed, budget, maxSlack, floor, nearCache });
   const { least, found, steps } = w, proved = w.proved;
   const choice = found || plainTraceback(f, H, plays, R, floor);
   const venues = opp.map((o, r) => {
@@ -173,7 +191,7 @@ export function leastBreaks(opp, n, { maxMatches = ORIENT_MAX_MATCHES, span = op
  * impossible. Returns { least, found (the host choice per round), proved, steps }; least null when
  * nothing was found within maxSlack or the budget ran out.
  */
-function balancedWalk(f, H, plays, opp, n, { span = opp.length, seed = 1, budget = 5000000, maxSlack = 10, floor }) {
+function balancedWalk(f, H, plays, opp, n, { span = opp.length, seed = 1, budget = 5000000, maxSlack = 10, floor, nearCache = NEAR_CACHE }) {
   const R = opp.length, last = f[R - 1];
   const rand = mulberry32(seed >>> 0);
   const g = new Int32Array(n); // games so far (within span), home minus away, per team
@@ -198,6 +216,30 @@ function balancedWalk(f, H, plays, opp, n, { span = opp.length, seed = 1, budget
     for (let t = 0; t < n; t++) if (Math.abs(g[t]) > after[0][t] - after[r][t] + 1) return false;
     return true;
   };
+  // nearOf(r, y): round r - 1's host choices x within maxSlack of the least way into (r, y), as
+  // x | extra << 16 in x order. A walk comes back to the same (r, y) many times (at every slack
+  // level, and from every branch that reaches it: 24 teams, 3.5 million scans of 4,096 choices over
+  // 16,828 distinct states, README "A walk that remembers its predecessors"), so each list is
+  // scanned once and kept, up to `nearCache` entries in all (0 keeps none: every visit scans afresh,
+  // as before; the tests compare the two). Filtering a kept list by the current
+  // slack gives the same choices in the same order as a fresh scan, so the seeded shuffle draws the
+  // same numbers and the walk returns the same host choice.
+  const near = Array.from({ length: R }, () => new Map());
+  let kept = 0;
+  const nearOf = (r, y) => {
+    const m = near[r];
+    let a = m.get(y);
+    if (a) return a;
+    const A = H[r - 1], both = (plays[r - 1] & plays[r]) >>> 0, fr = f[r - 1], target = f[r][y], By = H[r][y];
+    const xs = [];
+    for (let x = 0; x < A.length; x++) {
+      const extra = fr[x] + popcount(~(A[x] ^ By) & both) - target;
+      if (extra <= maxSlack) xs.push(x | (extra << 16));
+    }
+    a = Int32Array.from(xs);
+    if (kept + a.length <= nearCache) { m.set(y, a); kept += a.length; }
+    return a;
+  };
   // walk rounds from the last back to the first. f[r][y] is the least cost to come; `slack` is how
   // many breaks over that the rest of the walk may still spend and keep the total within the target.
   const walk = (r, y, slack) => {
@@ -211,12 +253,8 @@ function balancedWalk(f, H, plays, opp, n, { span = opp.length, seed = 1, budget
       for (let t = 0; t < n; t++) if (Math.abs(g[t]) > 1) { ok = false; break; }
       if (ok) found = Int32Array.from(pick);
     } else if (feasible(r)) {
-      const A = H[r - 1], both = (plays[r - 1] & plays[r]) >>> 0, fr = f[r - 1], target = f[r][y], By = H[r][y];
-      const prev = [];
-      for (let x = 0; x < A.length; x++) {
-        const extra = fr[x] + popcount(~(A[x] ^ By) & both) - target;
-        if (extra <= slack) prev.push([x, extra]);
-      }
+      const near = nearOf(r, y), prev = [];
+      for (let i = 0; i < near.length; i++) { const extra = near[i] >>> 16; if (extra <= slack) prev.push([near[i] & 0xffff, extra]); }
       shuffle(prev).sort((p, q) => p[1] - q[1]);
       for (const [x, extra] of prev) { walk(r - 1, x, slack - extra); if (found || !complete) break; }
     }
@@ -276,46 +314,95 @@ export function relaxedBreakFloor(opp, n, opts = {}) {
 }
 
 /**
- * The break floor of a single round robin's timetable kept as its forward table, so a search that
- * changes a few rounds prices the change without the whole programme: rounds before the first
- * changed one keep their table, and the programme reruns from there (R - lo transitions instead of
- * R - 1, about half on a random move). `trial(lo)` prices the timetable as `opp` now stands, with
- * rounds 0..lo-1 unchanged since the last `commit`; `commit()` keeps the last trial's table (call it
- * only right after the trial it accepts; the caller undoes a refused move instead). Same floor as
- * leastBreaks(opp, n).floor. null when a round has more than ORIENT_MAX_MATCHES matches. `opp` is
- * read live (the caller moves it).
+ * The break floor of a single round robin's timetable kept as a forward and a backward table, so a
+ * search that changes a few rounds prices the change without the whole programme. `trial(lo, hi)`
+ * prices the timetable as `opp` now stands, with only rounds lo..hi changed since the last `commit`
+ * (hi defaults to the last round): the forward table runs over lo..hi from round lo - 1's, and one
+ * more step meets the backward table of round hi + 1 (bwd[r][x]: least breaks in rounds r..R-1 with
+ * round r's hosts x), so a move reruns only its own span, not everything after it (README "A
+ * backward table"). Tables a trial needs and a commit left stale (forward past the last committed
+ * span, backward before it) are brought up to date on the way, from rounds the move did not touch.
+ * `commit()` keeps the last trial's rounds (call it only right after the trial it accepts; the
+ * caller undoes a refused move instead). Same floor as leastBreaks(opp, n).floor. null when a round
+ * has more than ORIENT_MAX_MATCHES matches. `opp` is read live (the caller moves it).
  */
 export function floorTable(opp, n) {
   const R = opp.length;
   if (n > 32 || roundMatches(opp, n).some((ms) => ms.length > ORIENT_MAX_MATCHES)) return null;
   const playsOf = (r) => { let p = 0; for (let t = 0; t < n; t++) if (opp[r][t] < n) p |= 1 << t; return p >>> 0; };
-  let H = [], plays = [], fwd = [], ms = [], pending = null;
-  const run = (lo) => {
-    const h = H.slice(0, lo), p = plays.slice(0, lo), f = fwd.slice(0, lo), m = ms.slice(0, lo);
-    for (let r = lo; r < R; r++) {
-      m[r] = roundMatches([opp[r]], n)[0]; h[r] = homeMasks(m[r]); p[r] = playsOf(r);
-      f[r] = r === 0 ? new Int32Array(h[0].length) : minPlusStep(f[r - 1], m[r - 1], m[r]);
+  // committed rounds: matches, home masks, who plays
+  const ms = [], H = [], plays = [];
+  for (let r = 0; r < R; r++) { ms[r] = roundMatches([opp[r]], n)[0]; H[r] = homeMasks(ms[r]); plays[r] = playsOf(r); }
+  // fwd[r] is current for r <= fv, bwd[r] for r >= bv (bwd[R - 1] is all zeros, always current)
+  const fwd = [], bwd = [];
+  bwd[R - 1] = new Int32Array(H[R - 1].length);
+  let fv = -1, bv = R - 1, pending = null;
+  const forwardTo = (to) => {
+    for (let r = fv + 1; r <= to; r++) fwd[r] = r === 0 ? new Int32Array(H[0].length) : minPlusStep(fwd[r - 1], ms[r - 1], ms[r]);
+    if (to > fv) fv = to;
+  };
+  const backwardTo = (to) => {
+    for (let r = bv - 1; r >= to; r--) bwd[r] = minPlusStep(bwd[r + 1], ms[r + 1], ms[r]);
+    if (to < bv) bv = to;
+  };
+  const run = (lo, hi = R - 1) => {
+    if (!(lo >= 0 && hi < R && lo <= hi)) throw new Error("trial needs 0 <= lo <= hi < rounds");
+    forwardTo(lo - 1);
+    if (hi < R - 1) backwardTo(hi + 1);
+    const m = [], h = [], p = [], f = [];
+    for (let r = lo; r <= hi; r++) {
+      const i = r - lo;
+      m[i] = roundMatches([opp[r]], n)[0]; h[i] = homeMasks(m[i]); p[i] = playsOf(r);
+      f[i] = r === 0 ? new Int32Array(h[0].length) : minPlusStep(i ? f[i - 1] : fwd[r - 1], i ? m[i - 1] : ms[r - 1], m[i]);
     }
     let best = Infinity;
-    for (const v of f[R - 1]) if (v < best) best = v;
-    pending = { h, p, f, m };
+    const last = f[hi - lo];
+    if (hi === R - 1) { for (const v of last) if (v < best) best = v; }
+    else {
+      const g = minPlusStep(last, m[hi - lo], ms[hi + 1]), b = bwd[hi + 1];
+      for (let y = 0; y < g.length; y++) if (g[y] + b[y] < best) best = g[y] + b[y];
+    }
+    pending = { lo, hi, m, h, p, f, full: null };
     return best;
   };
-  const commit = () => { if (pending) { H = pending.h; plays = pending.p; fwd = pending.f; ms = pending.m; pending = null; } };
+  // the whole forward table, home masks and plays of the last trial's timetable (or the committed
+  // one), for a balanced walk: rounds after the trial's span are run forward from it here
+  const whole = () => {
+    if (!pending) { forwardTo(R - 1); return { f: fwd, h: H, p: plays }; }
+    if (pending.full) return pending.full;
+    const { lo, hi, m, h, p, f } = pending;
+    const F = fwd.slice(0, lo).concat(f), Hs = H.slice(0, lo).concat(h), P = plays.slice(0, lo).concat(p);
+    for (let r = hi + 1; r < R; r++) {
+      F[r] = minPlusStep(F[r - 1], r - 1 === hi ? m[hi - lo] : ms[r - 1], ms[r]);
+      Hs[r] = H[r]; P[r] = plays[r];
+    }
+    pending.full = { f: F, h: Hs, p: P };
+    return pending.full;
+  };
+  const commit = () => {
+    if (!pending) return;
+    const { lo, hi, m, h, p, f, full } = pending;
+    for (let r = lo; r <= hi; r++) { ms[r] = m[r - lo]; H[r] = h[r - lo]; plays[r] = p[r - lo]; fwd[r] = f[r - lo]; }
+    if (full) { for (let r = hi + 1; r < R; r++) fwd[r] = full.f[r]; fv = R - 1; } else fv = hi;
+    // backward tables after the span are untouched; at and before it they are stale
+    bv = hi < R - 1 ? Math.max(bv, hi + 1) : R - 1;
+    pending = null;
+  };
   // the least balanced host choice of the last trial's timetable (or the committed one), at most
-  // `maxBreaks` breaks, by balancedWalk over its table: no programme to rerun. null when none is
-  // within maxBreaks or the walk ran out of `budget` steps (then { least: null, proved: false }).
+  // `maxBreaks` breaks, by balancedWalk over its forward table. null when none is within maxBreaks
+  // or the walk ran out of `budget` steps (then { least: null, proved: false }).
   const balanced = (maxBreaks, { seed = 1, budget = 50000 } = {}) => {
-    const t = pending || { h: H, p: plays, f: fwd };
+    const t = whole();
     let fl = Infinity;
     for (const v of t.f[R - 1]) if (v < fl) fl = v;
     if (fl > maxBreaks) return { least: null, proved: true, floor: fl };
     const w = balancedWalk(t.f, t.h, t.p, opp, n, { seed, budget, maxSlack: maxBreaks - fl, floor: fl });
     return { least: w.least, proved: w.proved || (w.least == null && w.steps < budget), floor: fl };
   };
-  const floor = run(0);
-  commit();
-  return { floor, trial: (lo) => run(lo), commit, balanced };
+  forwardTo(R - 1);
+  let floor = Infinity;
+  for (const v of fwd[R - 1]) if (v < floor) floor = v;
+  return { floor, trial: (lo, hi) => run(lo, hi), commit, balanced };
 }
 /**
  * A home-and-away season's timetable as the pair model: rounds' matches and home masks as

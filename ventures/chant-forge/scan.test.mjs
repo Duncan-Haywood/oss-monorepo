@@ -2,7 +2,7 @@
 // square heads at known positions, written as a PGM and read back.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readPgm, readPage, gabcSteps, align, alignLocal, binarize, findStaves } from './scan.mjs';
+import { readPgm, readPage, gabcSteps, gabcShape, align, alignLocal, binarize, findStaves } from './scan.mjs';
 
 const S = 36; // staff space in pixels
 const H = 21; // head height
@@ -99,4 +99,35 @@ test('alignLocal ignores other pieces on the page', () => {
   assert.equal(r.match, 4);
   assert.equal(r.scanOnly, 0);
   assert.equal(r.startI, 3);
+});
+
+// a printed rhombus: about a third of a space wide, its corners blunted as
+// in the 1908 Vatican type, narrowing to the left and right
+function diamond(img, cx, cy, w = 0.4 * S, h = 0.72 * S) {
+  for (let x = Math.round(cx - w / 2); x <= Math.round(cx + w / 2); x++) {
+    const half = (h / 2) * Math.min(1, 1.5 * (1 - Math.abs(x - cx) / (w / 2)));
+    rect(img, x, cy - half, 1, 2 * half);
+  }
+}
+
+test('rhombi are told from squares by width and taper; descending rhombi read in order', () => {
+  const img = canvas(1600, 400);
+  drawStaff(img, 120, [[300, 4], [600, 3]]);
+  const bottom = 120 + 3 * S;
+  diamond(img, 380, bottom - (3 * S) / 2);
+  diamond(img, 420, bottom - (2 * S) / 2);
+  const [st] = readPage(readPgm(toPgm(img)));
+  assert.deepEqual(st.notes.map((n) => n.rel + 6), [4, 3, 2, 3]);
+  assert.deepEqual(st.notes.map((n) => n.shape), ['square', 'rhombus', 'rhombus', 'square']);
+});
+
+test('gabcShape names the printed shape the GABC asks for', () => {
+  const shapes = (g) => [...g].map((ch, i) => (/[a-mA-M]/.test(ch) ? gabcShape(g, i) : null)).filter(Boolean);
+  assert.deepEqual(shapes('gh!iw!jvHGhi'), ['punctum', 'punctum', 'quilisma', 'virga', 'rhombus', 'rhombus', 'punctum', 'punctum']);
+  assert.deepEqual(shapes('gh~'), ['punctum', 'liquescent']);
+  assert.deepEqual(shapes('fe<'), ['punctum', 'liquescent']);
+  assert.deepEqual(shapes('ho'), ['oriscus']);
+  assert.deepEqual(shapes('gss'), ['stropha']);
+  const g = gabcSteps('(c4) San(gh!iw!jvHGhi)ctus(h)');
+  assert.deepEqual(g.map((n) => n.shape), ['punctum', 'punctum', 'quilisma', 'virga', 'rhombus', 'rhombus', 'punctum', 'punctum', 'punctum']);
 });

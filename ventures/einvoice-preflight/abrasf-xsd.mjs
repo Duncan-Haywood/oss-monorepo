@@ -237,7 +237,12 @@ function checker(schema) {
     }
     for (const k of Object.keys(node.attrs || {})) {
       if (k.includes(":") || known.has(k)) continue;
-      out.push(finding("ABR-006", `${node.name} carries an attribute the ABRASF schema does not define: ${k}.`, `Remove ${k} or check its spelling.`, `${path}/@${k}`));
+      // Attribute names are case-sensitive: ABRASF 1.00 writes Id, while Salvador's, Pronim's,
+      // MetropolisWeb's and Thema's 1.00 copies write id, so a file built for one is refused by
+      // the other. Name the spelling the schema wants.
+      const cased = [...known].find((n) => n.toLowerCase() === k.toLowerCase());
+      if (cased) out.push(finding("ABR-006", `${node.name} carries ${k}, but this layout's schema spells the attribute ${cased} (names are case-sensitive).`, `Rename ${k} to ${cased} on ${node.name}.`, `${path}/@${k}`));
+      else out.push(finding("ABR-006", `${node.name} carries an attribute the ABRASF schema does not define: ${k}.`, `Remove ${k} or check its spelling.`, `${path}/@${k}`));
     }
     const kids = node.children.filter((c) => c.name);
     // Every complex type these layouts define has element-only (or empty) content, so text
