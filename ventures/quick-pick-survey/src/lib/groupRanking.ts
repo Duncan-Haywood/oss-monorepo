@@ -577,9 +577,28 @@ export function bestFastSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG): { at: n
  * `minSeg` long), returned when the later side is at least `minLog` faster
  * and t >= `tMin`; otherwise null.
  */
-export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog = FAST_BLOCK_MIN_LOG, tMin = FAST_BLOCK_T): number | null {
+export function fastBlockSplit(x: number[], minSeg = FAST_BLOCK_MIN_SEG, minLog = FAST_BLOCK_MIN_LOG, tMin = FAST_BLOCK_T, trendF = 0): number | null {
   const best = bestFastSplit(x, minSeg);
-  return best && best.t >= tMin && best.gap >= minLog ? best.at : null;
+  if (!best || best.t < tMin || best.gap < minLog) return null;
+  return trendF > 0 && stepOverTrend(x, best.at) < trendF ? null : best.at;
+}
+
+/**
+ * How much better a step at `at` fits a sequence than a straight line does: the drop in the sum of squared
+ * residuals from the line to the step, over the step's residual variance (an F-like ratio; negative when the
+ * line fits better). A bored respondent's block is a step; someone who speeds up steadily all session is a
+ * line, and a split search alone takes a steep enough line for a block.
+ */
+export function stepOverTrend(x: number[], at: number): number {
+  const n = x.length;
+  const mean = x.reduce((a, b) => a + b, 0) / n;
+  const tBar = (n - 1) / 2;
+  let sxy = 0, sxx = 0, ss = 0;
+  x.forEach((v, i) => { sxy += (i - tBar) * (v - mean); sxx += (i - tBar) ** 2; ss += (v - mean) ** 2; });
+  const sseLine = ss - (sxx > 0 ? (sxy * sxy) / sxx : 0);
+  const m1 = x.slice(0, at).reduce((a, b) => a + b, 0) / at, m2 = x.slice(at).reduce((a, b) => a + b, 0) / (n - at);
+  const sseStep = x.reduce((a, v, i) => a + (v - (i < at ? m1 : m2)) ** 2, 0);
+  return (sseLine - sseStep) / Math.max(sseStep / Math.max(1, n - 3), 1e-12);
 }
 
 /** The lowest per-survey gap threshold FAST_BLOCK_AUTO may pick (on the log scale; 0.3 is 26% quicker). */
@@ -635,7 +654,7 @@ export function autoFastBlockMinLog(residuals: number[][], q = FAST_BLOCK_AUTO_Q
  * returns an empty map. Untimed answers are skipped in the reading and never
  * start a block.
  */
-export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = FAST_BLOCK_MIN_LOG): Map<string, number> {
+export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE_Q, minLog: number | "auto" = FAST_BLOCK_MIN_LOG, trendF = 0): Map<string, number> {
   if (!(curveQ > 0 && curveQ < 1)) throw new Error(`curveQ must be between 0 and 1, got ${curveQ}`);
   if (minLog !== "auto" && !(minLog > 0)) throw new Error(`minLog must be a positive number or "auto", got ${minLog}`);
   const by = new Map<string, { index: number; ms: number }[]>();
@@ -664,7 +683,7 @@ export function fastBlockStarts(answers: AnswerTime[], curveQ = FAST_BLOCK_CURVE
     const gapMin = minLog === "auto" ? (autoFastBlockMinLog(residuals) ?? FAST_BLOCK_MIN_LOG) : minLog;
     const next = new Map<string, number>();
     people.forEach(([participantId], j) => {
-      const split = fastBlockSplit(residuals[j], FAST_BLOCK_MIN_SEG, gapMin);
+      const split = fastBlockSplit(residuals[j], FAST_BLOCK_MIN_SEG, gapMin, FAST_BLOCK_T, trendF);
       if (split !== null) next.set(participantId, split);
     });
     const same = next.size === splits.size && [...next].every(([id, k]) => splits.get(id) === k);

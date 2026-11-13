@@ -123,26 +123,29 @@ const onsetSpread = Number(opt("--onset-spread", "0"));
 // with a per-survey gap threshold (autoFastBlockMinLog: the q quantile of the panel's mirrored slow-turn gaps, at least floor, at most
 // cap, 0.5 unless given).
 const autos = opt("--auto", "").split(",").filter(Boolean).map((x) => {
-  const [q, f, c = FAST_BLOCK_MIN_LOG] = x.split(":").map(Number);
-  if (!(q > 0 && q <= 1) || !(f > 0) || !(c >= f)) throw new Error(`--auto takes q:floor[:cap] triples, got ${x}`);
-  return { q, f, c, key: `shift-drop-auto-q${Math.round(q * 100)}-f${Math.round(f * 100)}${c === FAST_BLOCK_MIN_LOG ? "" : `-c${Math.round(c * 100)}`}` };
+  const [q, f, c = FAST_BLOCK_MIN_LOG, tf = 0] = x.split(":").map(Number);
+  if (!(q > 0 && q <= 1) || !(f > 0) || !(c >= f) || !(tf >= 0)) throw new Error(`--auto takes q:floor[:cap[:trendF]], got ${x}`);
+  return { q, f, c, tf, key: `shift-drop-auto-q${Math.round(q * 100)}-f${Math.round(f * 100)}${c === FAST_BLOCK_MIN_LOG ? "" : `-c${Math.round(c * 100)}`}${tf ? `-tf${Math.round(tf * 10)}` : ""}` };
 });
 // `--person-drift sd`: each person also speeds up or slows down on their own over the session, by exp(-d x progress) with
 // d ~ N(0, sd) per person (a stream of its own; 0 draws nothing). The panel curve cannot remove it; a fixed gap guards against it.
 const personDrift = Number(opt("--person-drift", "0"));
+// `--trend-f f,...`: a shift-drop-tfNN scheme per value, the shipped reading but a split must also fit as a step at least f
+// (stepOverTrend) better than a straight line, so a steady personal speed-up is not taken for a block.
+const trendFs = nums(opt("--trend-f", "")).filter((x) => x > 0);
 const LOO_MIN = 0.2;
 
 /** Person-relative split (each person's log times against their own start), kept to show why the shipped rule reads against the panel. */
 const ownBlockStart = (ms: number[]) => fastBlockSplit(ms.map((v) => Math.log(v)), minSeg, shiftMin, shiftT);
 
-const variantKeys = [...curveQs.map((cq) => `shift-drop-q${Math.round(cq * 100)}`), ...autos.map((a) => a.key)];
+const variantKeys = [...curveQs.map((cq) => `shift-drop-q${Math.round(cq * 100)}`), ...autos.map((a) => a.key), ...trendFs.map((f) => `shift-drop-tf${Math.round(f * 10)}`)];
 
 /**
  * fastBlockStarts with a per-survey gap threshold, for people who all answered in order with every answer timed (as
  * here): the same curve, smoothing and passes, with each pass's threshold from autoFastBlockMinLog. Kept beside the
  * library's own "auto" so the sweep can try other q and floor values; with the shipped ones the two agree (checked below).
  */
-function autoBlockStarts(seqs: number[][], q: number, floor: number, cap: number): { at: (number | null)[]; minLog: number } {
+function autoBlockStarts(seqs: number[][], q: number, floor: number, cap: number, trendF = 0): { at: (number | null)[]; minLog: number } {
   const longest = Math.max(...seqs.map((s) => s.length));
   const splits: (number | null)[] = seqs.map(() => null);
   let minLog = FAST_BLOCK_MIN_LOG;
@@ -156,7 +159,7 @@ function autoBlockStarts(seqs: number[][], q: number, floor: number, cap: number
     const curve = atPos.map((_, i) => median(atPos.slice(Math.max(0, i - 2), i + 3).filter(Number.isFinite)));
     const res = seqs.map((s) => s.map((ms, i) => Math.log(ms) - curve[i]));
     minLog = autoFastBlockMinLog(res, q, floor, cap) ?? FAST_BLOCK_MIN_LOG;
-    const next = res.map((x) => fastBlockSplit(x, 8, minLog));
+    const next = res.map((x) => fastBlockSplit(x, 8, minLog, 4, trendF));
     const same = next.every((k, j) => k === splits[j]);
     next.forEach((k, j) => (splits[j] = k));
     if (same) break;
@@ -327,11 +330,15 @@ for (const onset of onsets) for (const q of qs) for (const pattern of patterns) 
                   const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), cq);
                   people.forEach((p, i) => (p.qBlockAt[`shift-drop-q${Math.round(cq * 100)}`] = st.get(`p${i}`) ?? null));
                 }
+                for (const f of trendFs) {
+                  const st = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, FAST_BLOCK_MIN_LOG, f);
+                  people.forEach((p, i) => (p.qBlockAt[`shift-drop-tf${Math.round(f * 10)}`] = st.get(`p${i}`) ?? null));
+                }
                 for (const a of autos) {
-                  const st = autoBlockStarts(people.map((p) => p.shown.map((s) => s.ms)), a.q, a.f, a.c);
+                  const st = autoBlockStarts(people.map((p) => p.shown.map((s) => s.ms)), a.q, a.f, a.c, a.tf);
                   people.forEach((p, i) => (p.qBlockAt[a.key] = st.at[i]));
                   (autoMinLogs[a.key] ??= []).push(st.minLog);
-                  if (a.q === FAST_BLOCK_AUTO_Q && a.f === FAST_BLOCK_AUTO_FLOOR && a.c === FAST_BLOCK_AUTO_CAP) {
+                  if (a.q === FAST_BLOCK_AUTO_Q && a.f === FAST_BLOCK_AUTO_FLOOR && a.c === FAST_BLOCK_AUTO_CAP && a.tf === 0) {
                     // With the shipped q and floor, this must agree with the library's own "auto" reading.
                     const lib = fastBlockStarts(people.flatMap((p, i) => p.shown.map((s) => ({ participantId: `p${i}`, ms: s.ms }))), FAST_BLOCK_CURVE_Q, "auto");
                     if (people.some((_, i) => (lib.get(`p${i}`) ?? null) !== st.at[i])) throw new Error(`autoBlockStarts disagrees with fastBlockStarts(..., "auto") in survey ${sv}`);
