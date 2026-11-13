@@ -122,3 +122,30 @@ test("hand-computed break-even, effective fee and break-even sale chance", () =>
   // loss if unsold 342 - 160 = 182; swing 29 + 182 = 211; 182 / 211 = 0.86
   assert.equal(Math.round(expectedProfit(110, input, { pSell: 0.7, salvagePerTicket: 40 }).breakEvenPSell * 100) / 100, 0.86);
 });
+
+// Quality audit round 62, second blind audit (portfolio/quality/blind-pairs/2026-11-13-h/ticket-resale-profit-calculator.json):
+// figures worked by hand, each one killed a seeded bug the suite let through.
+test("break-even counts the per-ticket fee and delivery: (2*120 + 2*1 + 5) / (2 * 0.9)", () => {
+  assert.equal(breakEvenList({ qty: 2, costPerTicket: 120, feePct: 10, flatFeePerTicket: 1, deliveryPerOrder: 5 }), 137.22);
+});
+
+test("unsold tickets keep their salvage value", () => {
+  const r = expectedProfit(150, { qty: 2, costPerTicket: 120, feePct: 10 }, { pSell: 0.5, salvagePerTicket: 100 });
+  assert.equal(r.ifUnsold, 200 - 240);
+  assert.equal(r.expected, 0.5 * 30 + 0.5 * -40);
+});
+
+test("a sale with gross above cost but payout below it is a loss", () => {
+  const r = analyzeSales(parseSales("event,platform,cost,sale,fees\nA,StubHub,100,105,15"));
+  assert.deepEqual(r.losers, [{ event: "A", platform: "StubHub", loss: 10 }]);
+});
+
+test("an unquoted thousands comma skips the row instead of shifting its columns", () => {
+  const bare = parseSales("Show,StubHub,2,$1,200.00,$1,400.00,$140");
+  assert.deepEqual([bare.rows.length, bare.skipped], [0, 1]);
+  const hdr = parseSales("event,platform,cost,payout\nShow,StubHub,$1,200.00,$1,260.00");
+  assert.deepEqual([hdr.rows.length, hdr.skipped], [0, 1]);
+  const quoted = parseSales('Show,StubHub,2,"$1,200.00","$1,400.00",$140');
+  assert.deepEqual([quoted.rows[0].cost, quoted.rows[0].gross, quoted.rows[0].payout], [1200, 1400, 1260]);
+  assert.equal(parseSales("Show,StubHub,2,100,150,15,").rows.length, 1, "a trailing empty cell is not extra width");
+});

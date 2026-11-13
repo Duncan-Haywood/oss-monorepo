@@ -18,10 +18,11 @@
 // leave the machine. Same solver as the web page (calc.mjs); the search is seeded, so a rerun gives the same roster.
 // Planning aid: not legal advice, and local scheduling-notice, break and minor-labor rules are not modelled.
 
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
+import { import7shifts, fetch7shifts, within } from "./import-7shifts.mjs";
 import { demandShifts, backtestSales, parseStandard, shutMinDays } from "./demand.mjs";
 import {
   parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
@@ -79,6 +80,10 @@ Options:
   --import-shifts <csv> convert a published-schedule export (date, start, end, position rows) to shift lines on stdout; notes on stderr
     --location <name>   with --import-shifts: only that location's rows, when the export has several (the notes list them)
     --use <family>      with --import-shifts: read schedule, final, initial, timesheet or plain columns when the export has more than one version of each shift
+  --import-7shifts <json> convert saved 7shifts API responses (shifts, plus roles and locations for names, time zone and closing times;
+                      repeat the flag for more files) to shift lines; --location and --tz <IANA zone> as above; --no-drafts leaves out unpublished shifts
+  --fetch-7shifts --from <YYYY-MM-DD> --to <YYYY-MM-DD>   the same, fetched from api.7shifts.com with your own token in SEVENSHIFTS_ACCESS_TOKEN
+                      (and SEVENSHIFTS_COMPANY_ID when the token reaches several companies); --save <file> keeps the responses
   --from-sales <csv>  build the shift lines from an hourly sales export (date-time and sales columns) at --splh <$> sales per labor hour (required):
                       the average of each weekday-hour sets the heads needed (at least --min-staff, default 1), cut into shifts of --min-shift to
                       --max-shift hours (default 4 to 8), inside the hours with sales or --open/--close (0-24). Shift lines on stdout, summary on stderr;
@@ -162,6 +167,13 @@ export function parseArgs(argv) {
     else if (a === "--import-shifts") { o.importShifts = argv[++i]; if (!o.importShifts) throw new Error("--import-shifts needs a CSV file"); }
     else if (a === "--location") { o.importLocation = argv[++i]; if (!o.importLocation) throw new Error("--location needs a location name from the export"); }
     else if (a === "--use") { o.importUse = argv[++i]; if (!["schedule", "final", "initial", "timesheet", "plain"].includes(o.importUse)) throw new Error("--use takes schedule, final, initial, timesheet or plain"); }
+    else if (a === "--import-7shifts") { const f = argv[++i]; if (!f) throw new Error("--import-7shifts needs a JSON file"); (o.import7 ||= []).push(f); }
+    else if (a === "--fetch-7shifts") o.fetch7 = true;
+    else if (a === "--from") { o.from7 = argv[++i]; if (!o.from7) throw new Error("--from needs a date like 2026-11-02"); }
+    else if (a === "--to") { o.to7 = argv[++i]; if (!o.to7) throw new Error("--to needs a date like 2026-11-15"); }
+    else if (a === "--tz") { o.tz7 = argv[++i]; if (!o.tz7) throw new Error("--tz needs a time zone like America/Toronto"); }
+    else if (a === "--no-drafts") o.noDrafts7 = true;
+    else if (a === "--save") { o.save7 = argv[++i]; if (!o.save7) throw new Error("--save needs a file name"); }
     else if (a === "--from-sales") { o.fromSales = argv[++i]; if (!o.fromSales) throw new Error("--from-sales needs a CSV file"); }
     else if (a === "--skip-dates") { o.demand = { ...o.demand, skipDates: String(argv[++i] || "").split(/[,\s]+/).filter(Boolean) }; if (!o.demand.skipDates.length) throw new Error("--skip-dates needs dates like 2026-11-26,2026-12-25"); }
     else if (a === "--backtest") o.backtest = true;
@@ -571,6 +583,18 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     if (o.help) { process.stdout.write(USAGE); process.exit(0); }
     if (o.importShifts) {
       const r = importShiftsCsv(await readFile(o.importShifts, "utf8"), { location: o.importLocation, use: o.importUse });
+      for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
+      if (!r.rows) process.exit(1);
+      process.stdout.write(r.shiftsText + "\n"); process.exit(0);
+    }
+    if (o.import7 || o.fetch7) {
+      let inputs;
+      if (o.fetch7) {
+        const got = await fetch7shifts({ token: process.env.SEVENSHIFTS_ACCESS_TOKEN, companyId: process.env.SEVENSHIFTS_COMPANY_ID, from: o.from7, to: o.to7 });
+        if (o.save7) await writeFile(o.save7, got.responses.map((x) => JSON.stringify(x)).join("\n") + "\n");
+        inputs = within(got.responses, got.from, got.to, o.tz7);
+      } else inputs = await Promise.all(o.import7.map((f) => readFile(f, "utf8")));
+      const r = import7shifts(inputs, { timeZone: o.tz7, location: o.importLocation, drafts: o.noDrafts7 ? false : undefined });
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.rows) process.exit(1);
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);
