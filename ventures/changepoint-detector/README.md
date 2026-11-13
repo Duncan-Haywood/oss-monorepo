@@ -861,6 +861,56 @@ one. Not shipped; `--bootstrap` stays the option for clustered volatility. The o
 searched jointly with the GARCH fit, or a penalty for the prune read off a block bootstrap as `--bootstrap` does for
 plain meanvar. Simulated noise only.
 
+### Cuts searched jointly with a GARCH likelihood: `--garch` (2026-11-13, pre-registered; ships)
+
+The prune above only ever removes meanvar's cuts, and it removed the true variance break. The route it left open was to
+search the cuts with the GARCH fit. `garchCuts` in `engine.mjs` (`analyze({ model: 'meanvar', garch: true })`, CLI
+`--model meanvar --garch`, page box "Volatility comes in clusters") uses the same segment likelihood (own mean and scale per
+segment, a unit-variance GARCH(1,1) inside, a and b shared and read off the 18-point grid, a + b under 0.98). A greedy
+forward search adds, at each step, the cut at any position that raises the best-over-grid quasi-log-likelihood most. It
+runs twice, once with independent noise (a = b = 0) and once on the grid, and keeps the cut set with the highest
+LL - 1.5 ln n per cut - 0.25 ln n if GARCH. Without that second term the search let a GARCH path absorb a plain variance
+step on Gaussian noise (61% found at n = 100, against 94% plain).
+
+**Tuned in sample** (the prune's seeds, 100 per cell, `eval/meanvar-garch-choose-tuning.out.txt`): the per-cut penalty and
+the GARCH penalty (0.25, 0.5 or 1 ln n). The first same-seed comparison with `--bootstrap`
+(`eval/meanvar-garch-compare.out.txt`) showed why: earlier tables had put `--bootstrap` on other seeds.
+
+**Pre-registered on fresh seeds** (`eval/meanvar-garch-choose-prereg-2026-11-13.md`, committed before the run; every seed
+moved by 2,000,003, 200 series per cell, `--bootstrap` on the same series; `eval/meanvar-garch-choose-prereg.out.txt`).
+Null series with any change / sd 1 to 2 break found exactly once / mean +1.5 sd found exactly once:
+
+| n, noise | `--bootstrap` | `--garch` |
+|---|---|---|
+| 100, Gaussian | 3% / 76% / 98% | 3% / 77% / 99% |
+| 100, GARCH | 12% / 53% / 85% | 11% / 51% / 87% |
+| 100, t3 | 9% / 43% / 83% | 44% / 68% / 56% |
+| 200, Gaussian | 1% / 99% / 97% | 1% / 95% / 97% |
+| 200, GARCH | 19% / 69% / 69% | **7%** / 65% / **90%** |
+| 200, t3 | 13% / 61% / 83% | 49% / 50% / 49% |
+
+**It passes** every line of the bar: GARCH false alarms at n = 200 are 7% (at most 10% and half of 19%); mean shifts on
+GARCH noise 87% and 90% (bootstrap 85%, 69%); the variance break on GARCH noise 51% and 65% (at least 48% and 57%);
+Gaussian false alarms 3% and 1%, the variance break 77% and 95% (at least 75% and 95%, the second exactly at the bar), mean
+shifts 99% and 97%. So on clustered volatility it trades about 4 points of power on a lasting variance step for a third of
+`--bootstrap`'s false alarms and 21 more points on mean shifts. It is bad on heavy tails without clustering (t3: 44% to 49%
+false alarms), as a GARCH model is expected to be, so `--bootstrap` stays the option there and the note says so. The
+pre-registration said "24-point grid"; the code it ran excluded a + b of 0.98 or more, which leaves 18 (the test checks it).
+The run scored at most two cuts; the shipped default allows 40 and gives the same table
+(`eval/meanvar-garch-shipped.out.txt`). Simulated noise only.
+
+**What it does on real returns** (descriptions, not evidence; `garch-search.test.mjs`). DAX 1991-1998 (1,859 days): cuts at
+rows 28, 39 and 1482 with a = 0.1, b = 0.85, the same three dates `--bootstrap` and `--dispersion` find give or take 4 rows.
+SMI: 29, 39, 1489. CAC: 1171 and 1502. FTSE: none. The Dow, 1980-2012 (8,609 days, 2.5 s): **no cut at all**: the shared
+GARCH explains both October 1987 and the 2008 crisis as volatility clustering, where `--bootstrap` cuts 11 times including
+both. That is what the model says, not a bug: it asks whether anything changed beyond what clustering explains, and a
+crash followed by slow calm is what GARCH describes. For bursts as changes, use `--bootstrap`; the output says this.
+
+Costs and limits. Each step rescans every segment, so above 250 points the search scans every `ceil(n / 250)` points and
+then every point within that stride of the best (`garch-search.test.mjs` checks it lands on the same cut as the full scan
+on a clear step); 20,000 points at most. The 95% ranges still come from the independent-noise cost and are too narrow when
+the volatility clusters; the output warns. Not with `--robust`, `--dispersion`, `--bootstrap`, `--ar1`, `--trend` or `--period`.
+
 ### A second dispersion round does not help (2026-10-26, negative result)
 
 The factor is estimated from a fit that already holds the false breaks, so one idea is to re-estimate it on the refit's

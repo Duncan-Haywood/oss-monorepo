@@ -2,7 +2,8 @@
 // (eval/meanvar-garch-segments.mjs) and the joint GARCH forward search (eval/meanvar-garch-binseg.mjs). Earlier tables
 // put --bootstrap on other seeds (meanvar-dispersion.mjs), so they could not be compared row for row.
 // usage: node eval/meanvar-garch-compare.mjs [reps] [seedShift] [prunePen] [jointPen] [garchPen] [methods, comma list]
-// (penalties in multiples of ln n; `choose` is garchChoose, the joint search with the GARCH terms penalised)
+// (penalties in multiples of ln n; `choose` is garchChoose, the joint search with the GARCH terms penalised, scored with
+// at most 2 cuts as pre-registered; `shipped` is analyze({ garch: true }), up to 40 cuts)
 import { analyze } from '../engine.mjs';
 import { pruneByGarch } from './meanvar-garch-segments.mjs';
 import { NOISE, garchForward, garchChoose } from './meanvar-garch-binseg.mjs';
@@ -16,6 +17,7 @@ const METHODS = {
   bootstrap: (v) => analyze({ values: v, model: 'meanvar', bootstrap: true }).pelt.changepoints.length,
   prune: (v) => pruneByGarch(v, analyze({ values: v, model: 'meanvar' }).pelt.changepoints.map((c) => c.index), prunePen * Math.log(v.length)).length,
   joint: (v) => garchForward(v, { minPen: jointPen * Math.log(v.length), maxCuts: 2 }).cuts.length,
+  shipped: (v) => analyze({ values: v, model: 'meanvar', garch: true }).pelt.changepoints.length,
   choose: (v) => garchChoose(v, { pen: jointPen * Math.log(v.length), garchPen: garchPen * Math.log(v.length), maxCuts: 2 }).cuts.length,
 };
 if (only.length) for (const k of Object.keys(METHODS)) if (!only.includes(k)) delete METHODS[k];
