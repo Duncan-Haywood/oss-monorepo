@@ -1,0 +1,227 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/categorical-scores",
+ "stratum": "research",
+ "seed": "2026-11-13-h",
+ "drawn_by": "sample",
+ "round": 62,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a statistician working on proper scoring rules and forecast evaluation (the kind who referees for JASA, IJF or Decision Analysis). They would check first that the regret closed forms and the vertex worst-case argument are right, that properness holds numerically, whether the 'per unit of payment range' normalisation is a meaningful way to compare Brier and spherical, and which prior work (Gneiting & Raftery 2007; Bickel 2007, 'Some comparisons among quadratic, spherical, and logarithmic scoring rules', Decision Analysis 4(2); Friedman 1983; Selten 1998; Li, Hartline et al. 2022 'Optimization of scoring rules') already contains the comparison",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every number recomputed independently matches. `cd research/categorical-scores && PYTHONPATH=src python3 experiments/run.py` is byte-identical to experiments/results.txt (diff empty). /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/catscores/indep.py (numpy, imports nothing from the package, scores defined as Gneiting & Raftery 2007 sec. 3: quadratic 2r_y-||r||^2, spherical r_y/||r||, log ln r_y): properness verified numerically (over 60 random truths, K=3,5,8, 22,000 searched reports each, the best searched expected score never exceeds the score at p; max gap -7.6e-12); brute-force grid (n=400, K=3) worst-case regret equals 1-2p_min+||p||^2 and ||p||-p_min to 6 dp for three truths; K=5 E1 maxima 0.8000/0.2472, 1.2251/0.4851, 1.2475/0.4985 reproduced by vertex+Dirichlet search; /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/catscores/c3mp.py (60-digit decimal finite differences) reproduces all of E2 (ratio 1.386, 2.236, 1.932, 1.787, 1.754; log 5.0, 5.0, 12.1, 52.0, 502.0); E3 sqrt(K) ratio 1.4142..10.0014 by finite difference; E4 Brier regret equals the hand closed form 1.25 rho^2 (0.003125, 0.000125, 0.000001). Held at 3, not 4: the E4 log figure (0.151 at rho=0.01) depends on the arbitrary 1e-9 floor (0.082 at a 1e-6 floor, infinite at a true zero), which the paper presents as the loss of 'zeroing out' a class.",
+  "completeness": "README promises 6 tests in <1 s (ran: 6 tests OK in 0.70 s), experiments/results.txt from run.py (byte-identical rerun), and the paper. experiments/figure.py regenerated in a scratch copy produces an SVG identical to the committed curvature.svg. All four experiments E1-E4 the paper cites exist and run. Gaps: the paper is 21 lines with no references section and does not reference its own figure; the live page https://marisstella.app/research/categorical-scores/ could not be loaded (proxy 403), so not checked.",
+  "verification": "`cd research/categorical-scores && PYTHONPATH=src python3 -m unittest discover -s tests -v`: 6 tests OK, 0.70 s. Tests check closed forms against direct enumeration, vertex worst case against random search, curvature against finite differences, sqrt(K). quality_mutate.py: 2 of 4 seeded mutants caught (curv_log 2*a -> 2.01*a caught; max_regret_spherical min(p) -> 0.999*min(p) caught), 2 survived: kl returning 0 instead of inf for a zero report, and log_loss returning 0 for r_y=0 (which makes log improper). Both zero-probability branches are exactly what the paper's 'log is not blind to a dropped class' claim rests on, and no test touches them.",
+  "craft": "Read src/categorical_scores/model.py (92 lines), tests/test_model.py, experiments/run.py, experiments/figure.py. Clean, stdlib only, closed forms documented with their derivation in docstrings, figure parses numbers from results.txt instead of retyping. Defects: no validation that a report lies on the simplex (negative entries or sum != 1 silently give meaningless regrets); spherical_loss and spherical_regret divide by zero on a zero vector; `from .model import *` package API. Acceptable for a research module.",
+  "claims": "Checked: worst-case formulas (backed, tests + my grid); 'spherical beats Brier by exactly sqrt(K) at uniform' (backed, E3 + my FD); 'worst regret 0.25-0.5 of range vs 0.40-0.62' (backed: 0.247..0.4985 vs 0.400..0.624); 'ratio 1.4-2.2' in sec. 3 (backed, E2 1.386-2.236). Not backed: whitepaper.md:18 'spherical at 1.75-2.2' for every rho contradicts E2 (1.386 at rho=0.5); whitepaper.md:15 'verified against finite differences to 0.1%' but the test tolerance is 0.5% (assertAlmostEqual places=2 on the ratio) and at the test's own seed the spherical error reaches 0.31%; whitepaper.md:18 log loss 0.151 'for zeroing out a class' is a floor artefact. The paper does say 'not new theory', which is honest. No references to prior work at all.",
+  "fitness": "Nearest prior work: Bickel (2007, Decision Analysis) compares exactly the quadratic, spherical and log rules, including on rare outcomes; Gneiting & Raftery (2007) give the regret/divergence forms (Bregman for Brier, KL for log); Friedman (1983) and Li, Hartline et al. (EC 2022) normalise scores to a bounded range to compare incentives. The paper cites none, only sibling repo projects. New relative to these: the explicit spherical curvature ||delta_perp||^2/(2||p||) and the exact sqrt(K) range-normalised ratio at uniform truth, which are short derivations. Sound, and a researcher could reuse the module, but as a contribution it is a technical note, not a paper; the motivating use (verifier payments with stake coverage) is not exercised.",
+  "domain": "Methods agree with the standard (Gneiting & Raftery 2007 properness; Brier regret = squared Euclidean distance; log regret = KL; spherical regret = ||p||(1-cos theta)); quasi-concavity argument for the spherical vertex minimum is correct. Departures a referee would raise: the 'per unit of payment range' normalisation is asserted, not argued (Brier's range 2 is only reachable at opposite vertices, and a range-of-expected-score or per-unit-of-expected-payment normalisation, which the limits mention, can reverse rankings); the rare-class comparison uses one arbitrary floor; no literature review; no empirical forecasts or scoring-rule sensitivity analysis of the kind Bickel or Merkle & Steyvers (2013) provide."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "strict properness of Brier, spherical, log on the simplex",
+   "method": "own implementation of Gneiting & Raftery (2007, JASA) sec. 3 scores; Dirichlet search over 22,000 reports, 60 truths, K=3,5,8",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/catscores/indep.py (C1)",
+   "expected": "best searched expected score <= score at r=p",
+   "observed": "max gap -7.6e-12 (spherical), -1.06e-11 (quadratic), -1.42e-11 (log)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "worst-case regret formulas 1-2p_min+||p||^2 and ||p||-p_min",
+   "method": "brute-force simplex grid n=400, K=3, three truths; own score definitions",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/catscores/indep.py (C2)",
+   "expected": "0.666667/0.244017, 1.470150/0.690107, 1.260000/0.578233 (formula)",
+   "observed": "grid maxima equal formula to 6 dp in all six cases",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E1 K=5 worst-case regrets",
+   "method": "vertex + 50,000 sparse Dirichlet reports, own regret definitions",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/catscores/indep.py (C2)",
+   "expected": "0.8000/0.2472, 1.2251/0.4851, 1.2475/0.4985 (results.txt)",
+   "observed": "0.8000/0.2472, 1.2251/0.4851, 1.2475/0.4985",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E2 curvature per range and log curvature, rare-class truth K=5",
+   "method": "60-digit decimal finite differences (eps=1e-15) of expected scores from textbook definitions",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/catscores/c3mp.py",
+   "expected": "ratio 1.386, 2.236, 1.932, 1.787, 1.754; log 5.0, 5.0, 12.1, 52.0, 502.0",
+   "observed": "ratio 1.386, 2.236, 1.932, 1.787, 1.754; log 5.0, 5.0, 12.1, 52.0, 502.0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E3 sqrt(K) ratio at uniform truth",
+   "method": "double-precision finite differences, own scores",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/catscores/indep.py (C4)",
+   "expected": "1.414, 2, 3, 4, 10",
+   "observed": "1.4142, 2.0000, 3.0000, 3.9999, 10.0014",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E4 dropped-class regrets",
+   "method": "hand closed form Brier regret = rho^2 + 4(rho/4)^2 = 1.25 rho^2; KL computed directly at floors 1e-9, 1e-6, 0",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/b67f5d9d-0bb4-56e2-986c-4566e91931ec/scratchpad/catscores/indep.py (C5)",
+   "expected": "Brier 0.003125/0.000125/0.000001; log for a true drop = inf",
+   "observed": "Brier matches; log 0.151231 at 1e-9 floor, 0.082155 at 1e-6, inf at 0: the reported log value is a floor artefact",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments reproduce committed results",
+   "method": "rerun and diff",
+   "command": "cd research/categorical-scores && PYTHONPATH=src python3 experiments/run.py | diff - experiments/results.txt",
+   "expected": "empty diff",
+   "observed": "empty diff",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure regenerates from results.txt",
+   "method": "run figure.py in a scratch copy, diff SVG",
+   "command": "cp -r research/categorical-scores <scratch>/copy && cd <scratch>/copy && python3 experiments/figure.py && diff -q experiments/curvature.svg <committed>",
+   "expected": "identical",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite runs as README states",
+   "method": "run",
+   "command": "cd research/categorical-scores && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "6 tests, <1 s",
+   "observed": "Ran 6 tests in 0.699s, OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "sec. 4 'spherical at 1.75-2.2' per range for every rho",
+   "method": "compare with E2 in results.txt",
+   "command": "cd research/categorical-scores && PYTHONPATH=src python3 experiments/run.py | sed -n '/E2/,/^$/p'",
+   "expected": "spherical/range in [1.75, 2.2] for all rho",
+   "observed": "1.386 at rho=0.5, 2.236 at rho=0.2",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "sec. 3 'verified against finite differences to 0.1%'",
+   "method": "read test tolerance; recompute max relative error at the test's seed",
+   "command": "PYTHONPATH=src python3 -c '<seed-4 replay of test_local_curvature>' (run in research/categorical-scores)",
+   "expected": "<= 0.1%",
+   "observed": "test tolerance 0.5% (places=2 on ratio); max spherical error 0.305%, log 0.0066%",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "worst regret as share of range 0.25-0.5 (spherical) vs 0.40-0.62 (Brier)",
+   "method": "divide E1 by ranges",
+   "command": "cd research/categorical-scores && PYTHONPATH=src python3 experiments/run.py",
+   "expected": "0.247-0.4985 and 0.400-0.624",
+   "observed": "0.2472-0.4985 and 0.4000-0.6238",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior work cited",
+   "method": "grep for Gneiting, Bickel, Selten, Friedman, Merkle",
+   "command": "grep -rn 'Bickel\\|Gneiting\\|Selten\\|Friedman\\|Merkle' research/categorical-scores",
+   "expected": "nearest prior work cited",
+   "observed": "no matches; paper has no references section",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/categorical_scores/model.py:49",
+   "change": "a * math.log(a / b) if b > 0 else math.inf -> a * math.log(a / b) if b > 0 else 0.0",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/categorical_scores/model.py:29",
+   "change": "return math.inf if r[y] <= 0 else -math.log(r[y]) -> return 0.0 if r[y] <= 0 else -math.log(r[y])",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/categorical_scores/model.py:75",
+   "change": "return sum(x * x / (2 * a) for x, a in zip(d, p)) -> return sum(x * x / (2.01 * a) for x, a in zip(d, p))",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/categorical_scores/model.py:59",
+   "change": "return norm(p) - min(p) -> return norm(p) - min(p) * 0.999",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "No prior work cited: the paper has no references and omits the nearest comparisons of quadratic, spherical and log rules (Bickel 2007 Decision Analysis; Gneiting & Raftery 2007; Friedman 1983; Li, Hartline et al. 2022 on range-normalised incentives)",
+   "where": "research/categorical-scores/paper/whitepaper.md:21",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Zero-probability branches untested: kl returning 0 instead of inf, and log_loss returning 0 at r_y=0 (making log improper), both survive the suite, yet the 'log is not blind to a dropped class' claim depends on them",
+   "where": "research/categorical-scores/tests/test_model.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "E4 log regret 0.151 at rho=0.01 is presented as the loss for 'zeroing out' a class but depends on the arbitrary 1e-9 floor (0.082 at 1e-6, infinite at a true zero)",
+   "where": "research/categorical-scores/paper/whitepaper.md:18",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "'spherical at 1.75-2.2' per range for every rho contradicts E2 (1.386 at rho=0.5)",
+   "where": "research/categorical-scores/paper/whitepaper.md:18",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "'verified against finite differences to 0.1%' but the test tolerance is 0.5% and the observed spherical error at the test seed is 0.31%",
+   "where": "research/categorical-scores/paper/whitepaper.md:15",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Range normalisation (divide by the loss range, 2 for Brier, 1 for spherical) is asserted, not justified against alternatives (range of expected score, per unit expected payment), so the sqrt(K) 'advantage' headline depends on one convention",
+   "where": "research/categorical-scores/paper/whitepaper.md:15",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "No input validation: reports off the simplex give silent meaningless regrets; spherical_loss/spherical_regret divide by zero on a zero vector",
+   "where": "research/categorical-scores/src/categorical_scores/model.py:25",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, correct technical note. Every number I recomputed from textbook definitions matches: properness holds numerically, the vertex worst-case regret formulas equal a brute-force grid maximum, and all E1-E3 values and the E4 Brier values reproduce exactly (E2 to 3 dp under 60-digit finite differences). It does not meet the bar: claims=2 (three text claims are wrong or overstated, including a log 'drop-a-class' loss that is a 1e-9-floor artefact), verification=2 (2 of 4 seeded mutants in the zero-probability branches survive), and fitness/domain=2 because the paper cites no prior work (Bickel 2007 compares exactly these three rules) and its range-normalisation convention is asserted rather than argued. Median 2."
+}
