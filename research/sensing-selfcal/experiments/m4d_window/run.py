@@ -66,15 +66,33 @@ def main():
             assert len(obs) == 13 and names == old["cams"][cam]["names"], (cam, method, len(obs))
             CACHE[(cam, method)] = (obs, size)
             jobs += [(method, cam, v, old["cams"][cam]["f0"]) for v in sets]
-    print(len(sets), "view sets,", len(jobs), "solves", flush=True)
-    with Pool(4) as pool:
+    # Each solve is appended to a checkpoint as it finishes, so a restarted container resumes
+    # where it stopped (one run lost 40 minutes to a restart). The checkpoint is gitignored-sized
+    # scratch: it is deleted once results.json.gz is written.
+    ckpt = os.path.join(HERE, "partial.jsonl")
+    done = {}
+    if os.path.exists(ckpt):
+        for line in open(ckpt):
+            try:
+                r = json.loads(line)
+            except json.JSONDecodeError:   # a line cut off by the restart
+                continue
+            done[(r["method"], r["cam"], tuple(r["views"]))] = r
+    jobs = [j for j in jobs if (j[0], j[1], tuple(j[2])) not in done]
+    print(len(sets), "view sets,", len(jobs), "solves to go,", len(done), "from the checkpoint", flush=True)
+    enc = lambda o: o.tolist() if hasattr(o, "tolist") else float(o)  # noqa: E731
+    with Pool(4) as pool, open(ckpt, "a") as fh:
         for j, (method, cam, views, s) in enumerate(pool.imap_unordered(solve, jobs, chunksize=4)):
-            out["solutions"].append(dict(method=method, cam=cam, views=views, sol=s))
+            r = dict(method=method, cam=cam, views=views, sol=s)
+            fh.write(json.dumps(r, default=enc) + "\n"); fh.flush()
+            done[(method, cam, tuple(views))] = r
             if j % 250 == 0:
                 print(j, "/", len(jobs), flush=True)
+    out["solutions"] = list(done.values())
     out["solutions"].sort(key=lambda r: (r["method"], r["cam"], len(r["views"]), r["views"]))
     with gzip.open(os.path.join(HERE, "results.json.gz"), "wt") as fh:
         json.dump(out, fh, default=lambda o: o.tolist() if hasattr(o, "tolist") else float(o))
+    os.remove(ckpt)
     print("DONE", flush=True)
 
 
