@@ -28,6 +28,9 @@ from allocate import (
     next_task,
     rank,
     venture_report,
+    count_by_venture,
+    last_landed,
+    shallow_boundary,
     work_queue,
     LEDGER_DIR,
     SCORES_PATH,
@@ -888,6 +891,23 @@ class VentureReportTests(unittest.TestCase):
         self.assertIn("task: ", out)
         self.assertIn("not in the fetched history", out)
         self.assertIn("open PRs: not read", out)
+
+    def test_shallow_cutoff_is_not_reported_as_a_landing(self):
+        # The cut-off commit "touches" every file, so its date is only a bound.
+        sha = "e" * 40
+        log = ("\0" + sha + "\n\nventures/a/x.md\nventures/b/y.md\n"
+               "\0" + "f" * 40 + "\n\nventures/a/z.md\n")
+        self.assertEqual(count_by_venture(log, {sha}), {"a": 1})
+        self.assertEqual(count_by_venture(log), {"a": 2, "b": 1})
+        out = venture_report("tiny-csv-check", [make("tiny-csv-check")],
+                             landed="on or before 2026-11-05T02:10:47-07:00 (where this shallow ...)")
+        self.assertIn("last landed on main: on or before 2026-11-05", out)
+        self.assertNotIn("h ago", out)
+
+    def test_last_landed_reads_this_clone(self):
+        # Real git: a date for a venture, None for a missing one; the boundary set is a set.
+        self.assertIsInstance(shallow_boundary(), set)
+        self.assertIsNone(last_landed("no-such-venture-xyz", boundary=set()))
 
     def test_unknown_venture_is_none(self):
         self.assertIsNone(venture_report("nope", [make("a")]))
