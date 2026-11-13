@@ -187,12 +187,13 @@ class GainMapDevelopTests(unittest.TestCase):
         sensor = self.scene()
         tags = [
             list_tag([(4, 0, b"\0" * 8), (14, 0, b"\0" * 8), (1, 0, b"\0" * 8)], do.TAG_OPCODE_LIST_3),
-            list_tag([(7, 1, b"\0" * 8)], do.TAG_OPCODE_LIST_1),
+            list_tag([(10, 1, b"\0" * 8)], do.TAG_OPCODE_LIST_1),
         ]
         plain = develop(make_dng(sensor, self.W, self.H), engine="python")
         got = develop(make_dng(sensor, self.W, self.H, extra_raw_tags=tags), engine="python")
         self.assertEqual(got[2].tobytes(), plain[2].tobytes())
-        self.assertIn("OpcodeList1: 1 x MapTable not applied", got[3].notes)
+        # MapTable and the scales run in OpcodeList1 since 2026-11-13; DeltaPerRow (no stated unit) is named.
+        self.assertIn("OpcodeList1: 1 x DeltaPerRow not applied", got[3].notes)
         # FixBadPixelsConstant runs only on the stored CFA values (OpcodeList1): in OpcodeList3 it is named.
         self.assertIn("OpcodeList3: 1 x FixBadPixelsConstant (required) not applied", got[3].notes)
         self.assertTrue(any(n.startswith("OpcodeList3 WarpRectilinear2 unreadable") for n in got[3].notes), got[3].notes)

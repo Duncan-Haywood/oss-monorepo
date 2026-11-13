@@ -22,8 +22,10 @@ with corrected lenses write it: the Leica T marks it required).
 ``OpcodeList1`` on CFA data, on the stored raw values before anything else
 touches them. ``MapTable`` (opcode 7) and ``DeltaPerRow``, ``DeltaPerColumn``,
 ``ScalePerRow`` and ``ScalePerColumn`` (opcodes 10 to 13) run in ``OpcodeList2``
-and ``OpcodeList3``. Every other opcode, and anything else in ``OpcodeList1``,
-is named in the report and left undone.
+and ``OpcodeList3``; ``MapTable``, ``ScalePerRow`` and ``ScalePerColumn`` run in
+``OpcodeList1`` too, on 16-bit CFA data (see "In ``OpcodeList1``" below). Every
+other opcode, and anything else in ``OpcodeList1``, is named in the report and
+left undone.
 
 GainMap, as the DNG specification (1.4, chapter 7) and Adobe's DNG SDK
 (``dng_gain_map_interpolator``) define it, in the stage-2 image (the active
@@ -202,10 +204,31 @@ then:
 
 Row ``y`` of the area takes entry ``(y - top) // row_pitch``, column ``x``
 entry ``(x - left) // col_pitch``. In stage 3 the white-balance scale is taken
-off and put back as for MapPolynomial. These run nowhere in ``OpcodeList1``:
-there the SDK's float view of a raw value is ``value / 65535`` whatever the
-white level, a unit no camera file in the evaluation set has been seen to use,
-so they stay named and undone there until one is.
+off and put back as for MapPolynomial.
+
+In ``OpcodeList1`` (since 2026-11-13). The DNG 1.7.1.0 text, chapter 6, says
+values are clipped after each opcode "to the logical range of the image being
+modified. For OpcodeList1, this range is 0 to 2^32-1 for images with a bit depth
+greater than 16, otherwise 0 to 2^16-1". Two of the five need no more than that:
+
+* MapTable on 16-bit stored values: the stored value ``v`` is the table index,
+  and ``table[min(v, TableSize - 1)]`` is the new stored value, an integer in
+  range by construction. (The SDK's float view, ``v / 65535`` indexed at
+  ``floor(x * 65535 + 0.5)``, picks the same entry, so this is one rule in
+  every list.) On 32-bit stored data a 16-bit table has no stated index and
+  is named and left undone;
+* ScalePerRow / ScalePerColumn: a gain has no unit, so ``v * scale`` is the
+  same whatever the white level; it is rounded half up and clipped to
+  ``0 .. 65535`` (``0 .. 2^32 - 1`` on 32-bit data). Choice: the SDK multiplies
+  in float32, so a product within float32 rounding of a half step may land one
+  count away from this module's float64 result.
+
+DeltaPerRow, DeltaPerColumn and MapPolynomial do need a unit (an offset of
+``0.01`` is 0.01 of what?), the text does not give one for stored values, and no
+camera file in the evaluation set carries them, so in ``OpcodeList1`` they stay
+named and undone. Areas count from the stored frame's top-left, as for the
+bad-pixel fixes, and ``Plane``/``Planes`` must take in plane 0 (a CFA image has
+one plane).
 
 TrimBounds (DNG specification 1.4, chapter 7; opcode 6), in ``OpcodeList2`` or
 ``OpcodeList3``:
@@ -703,7 +726,7 @@ class Plan:
     warps: list[WarpRectilinear | WarpRectilinear2 | WarpFisheye] = field(default_factory=list)
     stage2: list = field(default_factory=list)
     stage3: list = field(default_factory=list)
-    stage1: list = field(default_factory=list)  # FixBadPixelsConstant / FixBadPixelsList, for ``run_stage1``
+    stage1: list = field(default_factory=list)  # FixBadPixels*, MapTable, ScalePer*, for ``run_stage1``
 
     def __bool__(self) -> bool:
         return bool(self.gain_maps or self.warps or self.stage1 or self.stage2 or self.stage3)
@@ -782,6 +805,12 @@ def plan(ifd, ifd0, cfa: bool = True, preview: bool = False) -> Plan:
                         stage1.append(parse_bad_pixels_constant(op))
                     else:
                         stage1.append(parse_bad_pixels_list(op))
+                except OpcodeError as exc:
+                    notes.append(f"{label} {op.name} unreadable and skipped: {exc}")
+                continue
+            if tag == TAG_OPCODE_LIST_1 and op.id in (MAP_TABLE, SCALE_PER_ROW, SCALE_PER_COLUMN) and cfa:
+                try:
+                    stage1.append(_STAGE23_PARSERS[op.id](op))
                 except OpcodeError as exc:
                     notes.append(f"{label} {op.name} unreadable and skipped: {exc}")
                 continue
@@ -951,6 +980,60 @@ def frame_trims(
     return out, (top, left, fh, fw)
 
 
+def _stored_area(op: "MapTable | PerLine", out, w: int, h: int, notes: list[str]) -> int:
+    """Run a MapTable or ScalePerRow/Column on stored CFA values in place (module docstring); returns samples changed."""
+
+    name = op.name if isinstance(op, PerLine) else "MapTable"
+    if not op.plane <= 0 < op.plane + op.planes:
+        notes.append(f"OpcodeList1: {name} names planes {op.plane}..{op.plane + op.planes - 1} of a one-plane CFA image; not run")
+        return -1
+    if isinstance(op, MapTable) and out.typecode != "H":
+        notes.append("OpcodeList1: MapTable not applied (a 16-bit table on 32-bit stored values has no stated index)")
+        return -1
+    rows, cols = _rows_cols(op, h, w)
+    if not len(rows) or not len(cols):
+        return 0
+    top_cap = 65535 if out.typecode == "H" else 0xFFFFFFFF
+    try:
+        import numpy as np
+    except ImportError:  # pragma: no cover - the pure path below, same answer
+        np = None
+    if np is not None:
+        dt = np.uint16 if out.typecode == "H" else np.uint32
+        arr = np.frombuffer(out, dtype=dt).reshape(h, w)  # a view: writes land in ``out``
+        sub = arr[rows.start : rows.stop : rows.step, cols.start : cols.stop : cols.step]
+        if isinstance(op, MapTable):
+            tbl = np.array(op.table, dtype=np.uint16)
+            new = tbl[np.minimum(sub, len(op.table) - 1)]
+        else:
+            vals = np.array(op.values, dtype=np.float64)
+            if op.axis == "row":
+                g = vals[(np.arange(rows.start, rows.stop, rows.step) - op.top) // op.row_pitch][:, None]
+            else:
+                g = vals[(np.arange(cols.start, cols.stop, cols.step) - op.left) // op.col_pitch][None, :]
+            new = np.clip(np.floor(sub * g + 0.5), 0, top_cap).astype(dt)
+        changed = int(np.count_nonzero(new != sub))
+        arr[rows.start : rows.stop : rows.step, cols.start : cols.stop : cols.step] = new
+        return changed
+    changed = 0
+    n = len(op.table) if isinstance(op, MapTable) else 0
+    for y in rows:
+        base = y * w
+        rg = op.values[(y - op.top) // op.row_pitch] if isinstance(op, PerLine) and op.axis == "row" else 0.0
+        for x in cols:
+            v = out[base + x]
+            if isinstance(op, MapTable):
+                nv = op.table[v if v < n else n - 1]
+            else:
+                g = rg if op.axis == "row" else op.values[(x - op.left) // op.col_pitch]
+                nv = math.floor(v * g + 0.5)
+                nv = 0 if nv < 0 else (top_cap if nv > top_cap else nv)
+            if nv != v:
+                out[base + x] = nv
+                changed += 1
+    return changed
+
+
 def run_stage1(ops: list, vals, w: int, h: int, notes: list[str]):
     """Run ``Plan.stage1`` in list order on a copy of the stored CFA values; returns the copy.
 
@@ -961,6 +1044,12 @@ def run_stage1(ops: list, vals, w: int, h: int, notes: list[str]):
 
     out = array(vals.typecode, vals)
     for op in ops:
+        if isinstance(op, (MapTable, PerLine)):
+            changed = _stored_area(op, out, w, h, notes)
+            if changed >= 0:
+                name = op.name if isinstance(op, PerLine) else "MapTable"
+                notes.append(f"OpcodeList1: {name} applied ({changed} stored values changed)")
+            continue
         if isinstance(op, BadPixelsConstant):
             hits = _constant_hits(out, op.constant)
             if len(hits) > BAD_CONSTANT_MAX_SHARE * w * h:
