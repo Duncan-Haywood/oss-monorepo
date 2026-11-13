@@ -7,12 +7,12 @@ Track 16 (energy), next step 2 of [`energy-price-residual`](../energy-price-resi
 ![Weekly store minus heat pump on real and modelled prices](experiments/weekly.svg)
 
 ## Headline (German day-ahead prices 2015 to 2019, wholesale, EUR/kWh of heat)
-All numbers are in `experiments/results.txt` (deterministic, stdlib only, about 20 s).
+All numbers are in `experiments/results.txt` (deterministic, stdlib only, about 45 s).
 
 - **Clear verdicts survive; marginal ones do not.** Against the real-price verdict (tie band 0.002 EUR/kWh), the residual-load model gets the same verdict in **32 of 40** scale x cycle x year cells; the flat merit-order price of `energy-thermal-hourly` gets **21 of 40**. Daily cycling (store wins) and monthly and seasonal storage (store loses by 0.10 to 1.5) are right in every cell at both scales (30 of 30); the misses are all weekly cycling, where the real margin is only -0.005 to +0.011.
 - **Weekly cycling is where the model fails, and it fails in sign.** House weekly: real diff -0.004, -0.005, -0.005, +0.011, -0.000 (2015 to 2019); modelled +0.008, +0.010, +0.004, -0.003, -0.010. The model gets 0 of 5 years, and 2 of 5 at district scale. Cause: the leave-one-year-out fit predicts the *price level* of the other years, so it overstates 2015 to 2017 (mean 0.036 to 0.040 against 0.029 to 0.035 real) and understates 2018 and 2019. Adding back the held-out year's mean (an oracle, not a forecast) restores 4 of 5.
 - **The break-even moves little.** House daily break-even store price (the price at which the store ties the pump, given that series' heat-pump price) is 0.038 to 0.039 from the modelled series against 0.037 to 0.039 real. The modelled cheap-quarter daily price is off by +0.005 to +0.010 (2015 to 2017, too high) and -0.008 to -0.005 (2018, 2019, too low).
-- **Using the model only to *schedule* charging costs little.** If the store picks its charge hours by the modelled price but pays the real price, its cost of electricity is 0.0004 to 0.0011 EUR/kWh above perfect foresight for daily cycling and 0.0006 to 0.0010 for weekly (mean +0.0007 and +0.0009), and the verdicts are essentially unchanged (diff* column of section D). Scheduling by the flat merit-order price, which cannot rank hours, costs +0.0041 (daily) and +0.0143 (weekly), and moves the house weekly margin to +0.007 to +0.051 (the pump wins in all five years, against two in the real series).
+- **Using the model only to *schedule* charging costs little.** If the store picks its charge hours by the modelled price but pays the real price, its cost of electricity is 0.0004 to 0.0011 EUR/kWh above perfect foresight for daily cycling and 0.0006 to 0.0010 for weekly (mean +0.0007 and +0.0009), and the verdicts are essentially unchanged (diff* column of section D). Scheduling by the flat merit-order price, which cannot rank hours, costs +0.0041 (daily) and +0.0143 (weekly), and moves the house weekly margin to +0.007 to +0.051 (the pump wins in all five years, against one in the real series: 2018, with 2019 a tie).
 
 What this says: a residual-load model is good enough to *operate* a store and to rule out monthly and seasonal storage, but not to *decide* whether weekly cycling beats a heat pump, because that margin is smaller than the year-to-year price-level error. What it does not say: anything about 2020 onward (the 2021 to 2022 gas spike is outside the data), or that a household can buy at wholesale.
 
@@ -34,7 +34,7 @@ What this says: a residual-load model is good enough to *operate* a store and to
 ## Reproduce
 ```
 cd research/energy-store-modelprice
-python experiments/run.py > experiments/results.txt   # 20 s
+python experiments/run.py > experiments/results.txt   # about 45 s
 python experiments/figure.py                          # writes experiments/weekly.svg
 python -m pytest tests                                # 6 tests
 ```
@@ -43,6 +43,7 @@ python -m pytest tests                                # 6 tests
 6 tests: executed-price helper on hand-checkable inputs (equals the plain cheapest mean when plan = actual; pays the actual, not the planned, price); verdict bands; price sources have 8,760 hours, the oracle's mean equals the real mean and `merit` is flat; the store's cost rises with its price and the pump's does not; the real-price verdict reproduces `energy-thermal-real`'s headline (daily house diff -0.012 to -0.027 in all five years).
 
 ## Limitations
+- **Found by the 2026-11-13 quality audit** ([`portfolio/quality/audits/2026-11-13-energy-store-modelprice.json`](../../portfolio/quality/audits/2026-11-13-energy-store-modelprice.json)), not yet rerun: the cost model this project reuses (`energy-thermal-cost/src/energy_thermal_cost/cost.py`, `heat_in_kwh`) bills every cycle for heating the store from ambient (10 C) to 500 C, but the store only discharges to its 100 C cut-off, so each recharge needs 400/490 of that heat and the store's electricity is overstated by about 22%. With it corrected, the house weekly real-price margin is -0.012 to +0.001 and the store wins weekly cycling in 4 of 5 years, so the "marginal weekly verdict" is largely an artefact of that accounting. Prior storage-arbitrage work (Sioshansi et al. 2009, Walawalkar et al. 2007, Bloess et al. 2018) is not yet cited; the scheduling result echoes Sioshansi's finding that arbitrage value is robust to forecast error.
 - Five years; each cell is one year. 32/40 against 21/40 is a count over correlated cells (the same five price years), not a significance test, and the ±0.002 tie band is my choice.
 - The model is fitted on the same five years (leave-one-year-out), so it sees later years; only `energy-price-residual` scheme A is a forecast, and it is one year.
 - Realised load and renewables, not forecasts; wholesale price, no levies. The weekly margin is inside the cost model's own uncertainty (technology-data costs), so a real-world weekly verdict would rest on costs as much as on prices.

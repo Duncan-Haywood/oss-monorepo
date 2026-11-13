@@ -77,3 +77,9 @@ test('non-numeric or negative inputs are rejected with a field-specific message'
   assert.throws(() => calculatePrice({ ...DEFAULTS, printTimeHours: 0 }), /Print time must be greater than zero/);
   assert.throws(() => calculatePrice({ ...DEFAULTS, printerCost: -1 }), /Printer cost must be at least 0/);
 });
+
+test('other fixed cost is added to the total once', () => {
+  const a = calculatePrice({ ...DEFAULTS });
+  const b = calculatePrice({ ...DEFAULTS, otherFixedCost: 2 });
+  assert.ok(Math.abs(b.totalCost - a.totalCost - 2) < 1e-9);
+});
