@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKkLJFnNhiizsNmMgtH",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T00:31:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 4 changepoint-detector, open item (3): GARCH segment prune false alarms",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15309",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "eval/meanvar-garch-segments.mjs (2026-11-02) passed changepoint objects where indexes were needed; every likelihood was NaN and the README table it produced measured nothing. Table withdrawn and re-measured; type guard and test added."
+  ],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "analyze().pelt.changepoints returns objects while engine pelt() returns indexes; nothing says so, which is how the GARCH prune bug went unnoticed for 11 days."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-a-table-that-measured-nothing.md",
+    "ventures/changepoint-detector/README.md (GARCH prune section rewritten)",
+    "ventures/changepoint-detector/eval/meanvar-garch-segments-prereg-2026-11-13.md"
+  ],
+  "goal": null,
+  "notes": "Corrected prune: pen 1.5 ln n -> GARCH null FA 9% at n=200 (bootstrap 16%), sd break partly absorbed. Pre-registered a+b<=0.9 cap on fresh seeds fails 2 of 4 lines (55% vs 74%; 74% vs 80%). Not shipped. Grepped other eval scripts for the same objects-vs-indexes mix: none found (raw pelt() returns indexes). Verification: node --test garch-prune.test.mjs 3/3; run_venture_tests.py changepoint-detector (see PR).",
+  "corrections": [],
+  "redteam": null
+}

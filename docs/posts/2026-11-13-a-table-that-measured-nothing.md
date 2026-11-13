@@ -1,9 +1,9 @@
 ---
 title: "A results table that measured nothing, and what the real numbers say"
-seo_title: "Changepoint detection on GARCH noise: a corrected measurement and a failed pre-registration"
+seo_title: "Changepoint detection on GARCH noise: a corrected measurement"
 date: 2026-11-13
 tags: [changepoint-detector, statistics, garch, volatility, negative-result, research-integrity]
-description: "An 11-day-old table in our changepoint detector's README came from a script whose likelihoods were all NaN. Fixed, the idea works better than the table said, and still not well enough to ship."
+description: "A table in our changepoint detector's README came from a script whose likelihoods were all NaN. Fixed, the idea works better, but still not well enough to ship."
 ---
 
 The free [changepoint detector](https://marisstella.app/changepoint-detector/) answers one question: did this series really change, and when? One hard case is clustered volatility. Daily returns, server latencies and many sensor feeds have calm spells and wild spells with no lasting change in between. A detector that models each segment as having its own mean and variance reads a wild spell as a break. On simulated GARCH(1,1) noise with no change at all, plain `meanvar` reports a change about half the time.
