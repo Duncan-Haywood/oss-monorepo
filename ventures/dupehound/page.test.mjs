@@ -65,3 +65,7 @@ test("the page requests clone families and renders them", () => {
   assert.match(html, /id="famRows"/);
   assert.match(html, /dupehound --families/);
 });
+
+test("index links one hop to the cyclehound sibling", () => {
+  assert.match(html, /href="\.\.\/cyclehound\/"/);
+});
