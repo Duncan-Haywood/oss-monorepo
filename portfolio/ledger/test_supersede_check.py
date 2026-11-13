@@ -374,14 +374,20 @@ class TestShallowClone(unittest.TestCase):
         write(cls.origin, "calc.mjs", "export function total(a, b) {\n  return a + b;\n}\n")
         commit(cls.origin, "base")
         # Deeper than the --deepen=200 first attempt, so the fixture exercises
-        # the unshallow escalation rather than only the cheap deepen. Empty
-        # commits keep them cheap; only their count matters here.
+        # the escalation rather than only the cheap deepen. Empty commits keep
+        # them cheap; only their count matters here.
         for n in range(260):
             git(cls.origin, "commit", "-q", "--allow-empty", "-m", f"commit {n}")
 
         git(cls.origin, "checkout", "-q", "-b", "feature")
         write(cls.origin, "share.mjs", "export function encodeInputs(input) {}\n")
         commit(cls.origin, "add sharing")
+        git(cls.origin, "checkout", "-q", "main")
+        # A bystander branch: the deepen must leave it alone, since on the
+        # real origin "every branch" was 2.6M objects.
+        git(cls.origin, "checkout", "-q", "--orphan", "bystander")
+        for n in range(5):
+            git(cls.origin, "commit", "-q", "--allow-empty", "-m", f"bystander {n}")
         git(cls.origin, "checkout", "-q", "main")
         write(cls.origin, "unrelated.mjs", "export function somethingElse() {}\n")
         commit(cls.origin, "main moves on")
@@ -413,6 +419,22 @@ class TestShallowClone(unittest.TestCase):
         verdict = evaluate("origin/feature", "origin/main")
         self.assertFalse(verdict.superseded)
         self.assertTrue(any("share.mjs" in f.path for f in verdict.files))
+
+    def test_only_the_compared_refs_are_deepened(self):
+        evaluate("origin/feature", "origin/main")
+        depth = subprocess.run(
+            ["git", "rev-list", "--count", "origin/bystander"],
+            check=True, capture_output=True, text=True,
+        ).stdout.strip()
+        self.assertEqual(depth, "1")
+
+    def test_fetch_names(self):
+        self.assertEqual(supersede_check._fetch_name("15290", "abc"),
+                         "refs/pull/15290/head")
+        self.assertEqual(supersede_check._fetch_name("origin/main", "abc"),
+                         "refs/heads/main")
+        self.assertEqual(supersede_check._fetch_name("feature", "abc"), "abc")
+        self.assertEqual(supersede_check._fetch_name(None, "abc"), "abc")
 
     def test_no_fetch_reports_the_missing_ancestor_rather_than_passing(self):
         """Failing closed matters: exit 0 here would greenlight a wrongful close."""
@@ -808,7 +830,8 @@ class TestNeighbourhood(unittest.TestCase):
 
     def test_shallow_paths_contribute_their_own_directory(self):
         self.assertEqual(
-            supersede_check.neighbourhood(["platform/build.mjs"]), ["platform"]
+            supersede_check.neighbourhood(["platform/build.mjs"]),
+            [":(glob)platform/*"],
         )
 
     def test_a_repository_root_file_has_no_neighbourhood(self):

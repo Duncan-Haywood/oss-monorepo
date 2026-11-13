@@ -450,14 +450,17 @@ def neighbourhood(paths: list[str]) -> list[str]:
     Searching the whole tree instead would pair a calculator's arithmetic with
     the same arithmetic in an unrelated venture, which is true and useless.
 
-    Two levels is what `ventures/<slug>` and `platform/<area>` need; a path
-    shallower than that contributes its own directory.
+    Two levels is what `ventures/<slug>` and `platform/<area>` need. A path
+    one level down contributes only its directory's own files, not the tree
+    under it: `portfolio/flagships.yaml` once made all of `portfolio/` (257k
+    lines) the corpus, and the twin search ran past ten minutes (PR 15471,
+    2026-11-13).
     """
     dirs: set[str] = set()
     for path in paths:
         parts = path.split("/")
         dirs.add("/".join(parts[:2]) if len(parts) > 2 else (
-            parts[0] if len(parts) > 1 else ""
+            f":(glob){parts[0]}/*" if len(parts) > 1 else ""
         ))
     return sorted(d for d in dirs if d)
 
@@ -574,7 +577,37 @@ def is_shallow() -> bool:
     return _git("rev-parse", "--is-shallow-repository", check=False).strip() == "true"
 
 
-def _find_merge_base(base: str, head: str, *, fetch: bool = True) -> str:
+def _fetch_name(ref: str | None, sha: str) -> str:
+    """What to ask origin for when deepening the history behind `ref`.
+
+    A bare `git fetch --deepen=200 origin` deepened every branch the remote
+    advertises; on this repository that was 2.6M objects, minutes of transfer
+    and a held `.git/shallow.lock` (six run records, 2026-11-11 to 11-13). Only
+    the two histories being compared need deepening, so name them: a pull
+    request number is `refs/pull/N/head`, `origin/X` is the branch `X`, and
+    anything else is fetched by its commit id (GitHub serves reachable ids).
+    """
+    if ref and ref.isdigit():
+        return f"refs/pull/{ref}/head"
+    if ref and ref.startswith("origin/"):
+        return f"refs/heads/{ref[len('origin/'):]}"
+    return sha
+
+
+def _deepen(names: list[str], *flags: str) -> None:
+    """Fetch more history for `names` only; every ref if origin refuses them."""
+    result = subprocess.run(
+        ["git", "fetch", "--quiet", *flags, "origin", *names],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        _git("fetch", "--quiet", *flags, "origin", check=False)
+
+
+def _find_merge_base(
+    base: str, head: str, *, fetch: bool = True,
+    base_ref: str | None = None, head_ref: str | None = None,
+) -> str:
     """The commit `base` and `head` diverged from, deepening the clone if needed.
 
     A scheduled session's clone is shallow. Both histories are then cut off
@@ -585,10 +618,11 @@ def _find_merge_base(base: str, head: str, *, fetch: bool = True) -> str:
     all 66 open pull requests reporting no merge base, from a clone that was
     simply shallow.
 
-    `--deepen` only helps when the divergence is recent. Two branches cut from
-    `main` a few hundred commits back need the whole history, so an unshallow is
-    the escalation -- once, and only when the clone really is truncated, since
-    on a complete clone a missing merge base is the genuine answer.
+    A shallow fetch only helps when the divergence is recent. Two branches cut
+    from `main` a few thousand commits back need the whole history of those
+    two refs, so that is the last step -- and only when the clone really is
+    truncated, since on a complete clone a missing merge base is the genuine
+    answer.
     """
     merge_base = _git("merge-base", base, head, check=False).strip()
     if merge_base or not fetch or not is_shallow():
@@ -600,18 +634,27 @@ def _find_merge_base(base: str, head: str, *, fetch: bool = True) -> str:
                "supersession is not a question git can answer about them")
         )
 
-    _git("fetch", "--quiet", "--deepen=200", "origin", check=False)
-    merge_base = _git("merge-base", base, head, check=False).strip()
-    if merge_base:
-        return merge_base
-
-    _git("fetch", "--quiet", "--unshallow", "origin", check=False)
-    merge_base = _git("merge-base", base, head, check=False).strip()
-    if merge_base:
-        return merge_base
+    names = [_fetch_name(base_ref, base), _fetch_name(head_ref, head)]
+    print(
+        "supersede_check: shallow clone, deepening "
+        + " and ".join(names) + " to find the merge base",
+        file=sys.stderr,
+    )
+    # `--depth` from the named tips, not `--deepen`: git applies `--deepen`
+    # to every shallow root in the clone whatever refs are named (measured
+    # here on 2026-11-13: an unrelated branch went from 1 commit to 3).
+    # 2147483647 is git's own spelling of "the whole history" for `--depth`.
+    for depth in (200, 2000, 2147483647):
+        if depth == 2147483647:
+            print("supersede_check: still no merge base; fetching the full "
+                  "history of those refs (can take minutes)", file=sys.stderr)
+        _deepen(names, f"--depth={depth}")
+        merge_base = _git("merge-base", base, head, check=False).strip()
+        if merge_base:
+            return merge_base
     raise RuntimeError(
-        f"{base} and {head} have no common ancestor even after unshallowing "
-        "this clone -- they are unrelated histories"
+        f"{base} and {head} have no common ancestor even with their full "
+        "history fetched -- they are unrelated histories"
     )
 
 
@@ -680,7 +723,9 @@ def evaluate(head_ref: str, base_ref: str, *, fetch: bool = True) -> Verdict:
     head = resolve_head(head_ref, fetch=fetch)
     base = resolve_head(base_ref, fetch=False)
 
-    merge_base = _find_merge_base(base, head, fetch=fetch)
+    merge_base = _find_merge_base(
+        base, head, fetch=fetch, base_ref=base_ref, head_ref=head_ref
+    )
 
     all_paths = [p for p in _git(
         "diff", "--name-only", f"{merge_base}..{head}"
@@ -743,12 +788,18 @@ def evaluate(head_ref: str, base_ref: str, *, fetch: bool = True) -> Verdict:
     # search and add no directory to the corpus.
     searchable = [f for f in files if f.unmatched and not _RECORD_FILES.search(f.path)]
     if not identical and searchable:
-        corpus = base_neighbourhood_lines(base, neighbourhood([f.path for f in searchable]))
-        # One search for every file's lines: the corpus is sorted once.
-        twins = {m.line: m for m in nearest_in_base(
-            [l for f in searchable for l in f.unmatched], corpus)}
+        # Each file's lines against its own neighbourhood only: one corpus for
+        # all of them searched a venture's code against every blog post too.
+        groups: dict[str, list[FileVerdict]] = {}
         for f in searchable:
-            f.near = [twins[l.strip()] for l in f.unmatched if l.strip() in twins]
+            for scope in neighbourhood([f.path]):
+                groups.setdefault(scope, []).append(f)
+        for scope, group in groups.items():
+            corpus = base_neighbourhood_lines(base, [scope])
+            twins = {m.line: m for m in nearest_in_base(
+                [l for f in group for l in f.unmatched], corpus)}
+            for f in group:
+                f.near = [twins[l.strip()] for l in f.unmatched if l.strip() in twins]
 
     return Verdict(
         base=base,
