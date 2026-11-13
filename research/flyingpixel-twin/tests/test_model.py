@@ -77,6 +77,17 @@ class T(unittest.TestCase):
         self.assertGreater(n, 1000)
         self.assertGreater(frac, 0.95)
 
+    def test_persistence_matches_binomial(self):
+        # Exact value by integrating the 3-of-5 binomial over the uniform band (quality audit 2026-11-13): 0.9834.
+        rng = random.Random(2)
+        n, frac = ghost_persistence(0.1, 1.0, 0.1, 5, 3, rng, n_beams=20000)
+        self.assertAlmostEqual(frac, 0.9834, delta=0.005)
+
+    def test_edge_ghost_probability_values(self):
+        # p = min(1, width * q); width(0.4) = 2 * Phi^-1(0.6) = 0.5067.
+        self.assertAlmostEqual(p_edge_has_ghost(0.4, 1.0, 1.0), 2 * NormalDist().inv_cdf(0.6), places=6)
+        self.assertAlmostEqual(p_edge_has_ghost(0.4, 1.0, 1.0), 0.5067, places=3)
+
 
 if __name__ == "__main__":
     unittest.main()
