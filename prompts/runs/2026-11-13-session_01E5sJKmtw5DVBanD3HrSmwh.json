@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKmtw5DVBanD3HrSmwh",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T11:27:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15481",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".claude/hooks/check_posts_before_push.py",
+      "issue": "Exits 0 on any `git add`/`git commit` chained before `git push`, which is how most runs push; 10 posts reached main failing the front-matter check 2026-11-10..13 (check_post_frontmatter.py --landed-since). Fix in control-plane PR #15479."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "The newest 'Doc friction by file' rows I checked (check_post_frontmatter one-violation-per-run, venture-preflight late post check) were already fixed on 11-12 (#15162, #15188); the reports were stale. The underlying cause (the hook skip) was not in any report."
+    },
+    {
+      "file": ".github/CODEOWNERS",
+      "issue": "prompts/process/backlog/ sits under the owner-gated /prompts/ path, so a process run cannot land a backlog item without waiting for the owner; I recorded the follow-up in docs/reports instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Critique asks to file problems as backlog items; the backlog is a control-plane path, so an item would hold the PR for owner approval.",
+      "did": "Wrote the finding, baseline and next check in docs/reports/2026-11-13-posts-landing-broken.md and split the hook fix into its own control-plane PR (#15479).",
+      "result": "The measurement tool, report and post merge now; the hook waits for the owner."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-ten-posts-that-broke-the-build.md",
+    "docs/reports/2026-11-13-posts-landing-broken.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (backlog had owner rows only). main_health.py 62/62 ok. Found #15454 merged 3 s before its CI started, with a post failing the front-matter check; measured 10 such posts since 2026-11-10 with the new check_post_frontmatter.py --landed-since. Hook fix: PR #15479 (control plane, 5 hook tests OK). This PR: unittest test_check_post_frontmatter 28 OK; run_workflow_locally --for-changes: 6/7 workflows passed every step that ran; portfolio-pages 'Test the site builder' ran out of the local budget (left to PR CI), and pytest-only portfolio-validate steps were UNRUN (no pytest here; unrelated to this diff). Backlog ids touched: none.",
+  "corrections": [],
+  "redteam": null
+}

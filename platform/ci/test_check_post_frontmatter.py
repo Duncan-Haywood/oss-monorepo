@@ -5,7 +5,7 @@ import datetime
 import unittest
 from pathlib import Path
 
-from check_post_frontmatter import ROOT, main, problems, tag_key
+from check_post_frontmatter import ROOT, landed_broken, main, problems, tag_key
 
 GOOD = '---\ntitle: "T"\ndate: 2026-10-24\ndescription: "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"\ntags: [a, b]\n---\nbody\n'
 
@@ -44,6 +44,27 @@ class T(unittest.TestCase):
                                   capture_output=True, text=True)
             self.assertEqual(done.returncode, 1, done.stderr)
             self.assertIn("description is 161", done.stdout)
+
+    def test_landed_broken_lists_posts_bad_in_their_adding_commit(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            posts = root / "docs" / "posts"
+            posts.mkdir(parents=True)
+            env = {"GIT_AUTHOR_DATE": "2026-10-24T12:00:00Z", "GIT_COMMITTER_DATE": "2026-10-24T12:00:00Z"}
+            git = lambda *a: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a], cwd=root,
+                                            check=True, capture_output=True, env={**__import__("os").environ, **env})
+            git("init", "-q", "-b", "main")
+            (posts / "2026-10-24-good.md").write_text(GOOD)
+            git("add", "."); git("commit", "-qm", "good (#1)")
+            (posts / "2026-10-24-bad.md").write_text(GOOD.replace('"DDD', '"' + "E" * 120 + "DDD"))
+            (posts / "2026-10-25-early.md").write_text(GOOD.replace("2026-10-24", "2026-10-25"))
+            git("add", "."); git("commit", "-qm", "bad (#2)")
+            (posts / "2026-10-24-bad.md").write_text(GOOD)  # fixed later: still counted, it landed broken
+            git("commit", "-qam", "fix (#3)")
+            found = landed_broken("2026-10-01", ref="main", root=root)
+            self.assertEqual(sorted(n for _, n, _ in found), ["2026-10-24-bad.md", "2026-10-25-early.md"])
+            self.assertTrue(all("bad (#2)" in c for c, _, _ in found))
 
     def test_tag_key_es_plural(self):
         self.assertEqual(tag_key("taxes"), tag_key("tax"))
