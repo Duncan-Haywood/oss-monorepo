@@ -1,0 +1,169 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyce5xMadppdPVdZEav",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md (scheduled)",
+  "input_sha256": "20453bb101005f0b2b7a2bbd00593c1743d9646a6ac22be06239cc431a0993d8",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5",
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T12:39:41Z",
+  "ended": "2026-11-13T13:02:00Z",
+  "wall_minutes": 23.04,
+  "tokens_in": 12215122,
+  "tokens_out": 74728,
+  "cost_usd": 8.8236,
+  "tool_calls": 86,
+  "task": "Advance the buildbot-sheathing programme: milestone 9, pushing a bowed joint stud onto its line instead of doubling it.",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15500",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [
+    "13d49d886fc7ce338e5c173d39de69fad695053a",
+    "d370c42535d126124049699199ce08f090debc97",
+    "8ba1366b9c16e07bbb8f357863db362aa91f88cc"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "The first nail-by-nail push sequence re-pushed the mid point it had already held, so the FE solve reported forces 10^6 times the mid push.",
+      "fix": "push_sequence skips a point whose dof is already held; caught by comparing max/mid ratios across bows before any result was written."
+    },
+    {
+      "what": "A three-point simultaneous push returned 10^33 N: the uniform node grid and the pushed points coincided to within 1e-16, making a degenerate element.",
+      "fix": "_nodes drops grid nodes within 1e-6 of a pushed point."
+    },
+    {
+      "what": "The dollars break-even search stopped at 600 s and printed None (no crossing in range).",
+      "fix": "widened to 3,600 s; the crossing is at 925 s. Re-ran the experiment before writing it up."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "It says `PY=$(python3 platform/ci/pyenv.py ...)` returns the interpreter path on stdout, which it does, but pyenv.py also writes its progress to stderr and the install took ~90 s here; running it in the background per the advice meant the path was in a file, not a shell variable. A one-line example of reading the path back from the background log would save a step."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "The homepage section says to run build.py and check_md_links.py, but not that `platform/ci/run_workflow_locally.py --for-changes` voids its own verdicts if you edit any tracked file while it runs. I lost one sweep to a two-character test-count fix. The warning exists only in the tool's own output, after the fact."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py (via the push hook)",
+      "issue": "The limits (160-char description, 70-char seo_title) are enforced at push time but are not stated in prompt.md, CLAUDE.md or the research guide, so a post is written and committed before they are discovered. Worth a line wherever posts are described."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The prompt's default is to take a free milestone from the track list; the track-20 draw offered buildbot-sheathing's open milestones, but all 8 listed were done and the README's 'Next steps' asked how far sheathing nails pull a bowed stud straight.",
+      "did": "Reframed that open question as a milestone of its own (nails cannot pull a stud straight -- a nail goes in where the stud is -- so the question is a push) and pre-registered H41-H44 before running anything.",
+      "result": "Worked: three hypotheses held, one was refuted informatively, and the refutation separated the single-2x cap into two roughly equal halves (bow and sheet pose), which is the result the paper gains most from."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-pushing-a-bowed-stud-straight.md",
+    "research/buildbot-sheathing/LOG.md (milestone 9 plan and result)",
+    "research/buildbot-sheathing/paper/draft.md sections 4.8 and 5.8"
+  ],
+  "goal": "Land one step of an open research programme with a pre-registered, falsifiable result.",
+  "notes": "Milestone 9 of the buildbot-sheathing programme. New module src/buildbot_sheathing/straighten.py: an Euler-Bernoulli beam for a Stud-grade 2x4 bending flatwise, solved both in closed form and on a cubic-Hermite FE grid, with E drawn lognormally about the NDS reference values (DF-L 1.4, Hem-Fir 1.2, S-P-F 1.2, SP 1.3 million psi; COV 0.25). Sourced from the AWC NDS Supplement Table 4A as tabulated by Engineers Edge and from SFPA Table 1 (the AWC PDF itself 403s/Cloudflares through the proxy); cross-checked against the tabulated E_min (475,000 against 470,000 published), which is what makes the 0.25 COV more than an assumption.\n\nResults: a mid-height push takes 48 E I b / L^3, median 28 N and p99 126 N at the lower published warp (53/232 N higher, 376 N at the grade limit); a stock G1 can push 81-88 N sideways at that height (ankle roll) and an H1 120-123 N, covering 93%/99% of low-warp studs. Nail-by-nail pushing needs up to 1,258 N because each driven nail shortens the free span: push first, nail after. H43 refuted: straightening lifts the best single-2x pipeline 0.560 -> 0.710 (low warp) and 0.307 -> 0.677 (high), but the same pipeline on perfectly straight studs gives 0.737, so it reaches the ceiling rather than underperforming. That splits the 44-point single-2x deficit into ~18 points of lumber (removable with 28 N) and ~26 points of sheet placement (not).\n\nVerification run here, not read off CI: 66 passed / 4 skipped (the skips need Drake, absent in this image) with /usr/bin/python3.13; paper/check_numbers.py 91 of 91 ok (13 new checks for milestone 9); research/_homepage/build.py ok (1078 projects); check_md_links.py ok; research_live_links.py ok; research-ci.yml 3/3 run steps passed locally; unlanded_work.py exit 0. The --for-changes sweep's first pass was voided by an edit mid-run and the relevant workflow was re-run clean afterwards.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ae92843b-a824-5307-aa19-1e8adb666efc",
+    "transcripts": 1,
+    "first": "2026-11-13T12:39:41Z",
+    "last": "2026-11-13T13:02:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 97,
+        "output": 56230,
+        "thinking": 22680,
+        "cache_read": 6411992,
+        "cache_write_5m": 0,
+        "cache_write_1h": 171006,
+        "api_equivalent_usd": 3.7754,
+        "fast_requests": 0
+      },
+      "claude-opus-5": {
+        "requests": 28,
+        "input": 56,
+        "output": 18498,
+        "thinking": 282,
+        "cache_read": 5445708,
+        "cache_write_5m": 0,
+        "cache_write_1h": 186263,
+        "api_equivalent_usd": 5.0482,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 153,
+      "output": 74728,
+      "thinking": 22962,
+      "cache_read": 11857700,
+      "cache_write_5m": 0,
+      "cache_write_1h": 357269,
+      "api_equivalent_usd": 8.8236,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 86,
+    "tools": {
+      "Bash": 73,
+      "Write": 5,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "Read": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.04,
+      "active_minutes": 23.04,
+      "model_minutes": 14.59,
+      "tool_minutes": 8.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
