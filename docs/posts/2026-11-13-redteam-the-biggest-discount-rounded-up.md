@@ -1,9 +1,9 @@
 ---
 title: "The biggest discount, rounded up: a set-pricing answer that lost money"
-seo_title: "Bundle pricing calculator: the largest affordable discount now rounds down"
+seo_title: "Bundle pricing calculator: the biggest affordable discount rounds down"
 date: 2026-11-13
 tags: [testing, mutation-testing, redteam, javascript, pricing]
-description: "Eight faults seeded into the clothing studio's bundle calculator; five got through. A manual hunt found its 'biggest discount you can afford' was sometimes a discount you can't afford, and could come out at 550%."
+description: "Eight faults seeded into a bundle pricing calculator, five escaped. Its biggest affordable discount often lost money, and could read 550%."
 ---
 
 The clothing design studio's [bundle calculator](https://marisstella.app/clothing-design-studio/bundle.html)

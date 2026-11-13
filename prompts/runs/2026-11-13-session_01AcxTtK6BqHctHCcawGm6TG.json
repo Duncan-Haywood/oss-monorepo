@@ -1,0 +1,274 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtK6BqHctHCcawGm6TG",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T04:06:49Z",
+  "ended": "2026-11-13T04:07:28Z",
+  "wall_minutes": 5.47,
+  "tokens_in": 2701513,
+  "tokens_out": 15995,
+  "cost_usd": 1.4419,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15367",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix every open entry first, but all 9 open entries are control-plane workflow edits that already have open PRs awaiting owner approval; the list has no field for 'PR open, waiting on owner', so every red-team run re-reads and re-checks them. redteam.py open could print the open PR link (one entry carries 'Opened as PR #15201' in free text)."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 suggests aiming at files changed on main via git log --since, but the clone is depth 1, so the log is empty; fell back to the random draw."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix open entries first; all 9 are control-plane edits already open as PRs (#14877, #15248, #14894, #14808, #14698, #15201, #14612, #12928) awaiting owner approval. Opening more would add to the duplicate control-plane PR problem (process backlog P061/P063).",
+      "did": "Left them open, unchanged; went straight to the campaign.",
+      "result": "Run time went to the campaign and two real product defects, both fixed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-redteam-the-biggest-discount-rounded-up.md"
+  ],
+  "goal": null,
+  "notes": "Guard added (4b): a round-trip property test in bundle.test.mjs checks that the reported biggest discount still pays (setValue.pays) for every share tried, so any future rounding or formula change that crosses the line fails CI. Sibling sweep: 20 other exported max* functions across ventures return raw floats (rounding at display), so the round-up bug does not repeat at function level; display-side rounding of maxima not audited. Checks run: node --test bundle.test.mjs 15/15 pass; check_post_frontmatter and check_post_links clean.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/clothing-design-studio/bundle.mjs",
+        "test": "node --test ventures/clothing-design-studio/**/*.test.mjs  (in .)",
+        "seed": 448492043,
+        "commit": "c7acf0398",
+        "sites": 133,
+        "baseline_seconds": 6.3,
+        "mutants": [
+          {
+            "file": "ventures/clothing-design-studio/bundle.mjs",
+            "line": 39,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "ship: num(p.ship ?? 0, \"shipping\", 0, 1e6),",
+            "after": "ship: num(p.ship ?? 0, \"shipping\", 1, 1e6),",
+            "line_text": "    ship: num(p.ship ?? 0, \"shipping\", 0, 1e6),",
+            "caught": false,
+            "seconds": 6.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "ship default: no test omitted shipping; added 'shipping defaults to 0'"
+          },
+          {
+            "file": "ventures/clothing-design-studio/bundle.mjs",
+            "line": 40,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "shipBundle: num(p.shipBundle ?? p.ship ?? 0, \"shipping for the set\", 0, 1e6),",
+            "after": "shipBundle: num(p.shipBundle ?? p.ship ?? 1, \"shipping for the set\", 0, 1e6),",
+            "line_text": "    shipBundle: num(p.shipBundle ?? p.ship ?? 0, \"shipping for the set\", 0, 1e6),",
+            "caught": false,
+            "seconds": 6.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "shipBundle default: same test checks contributionSet/FullPrice with shipping left out"
+          },
+          {
+            "file": "ventures/clothing-design-studio/bundle.mjs",
+            "line": 45,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "const earn = (q, price, cost, ship) => price * (1 - q.feePct / 100) - q.feeFixed - cost - ship;",
+            "after": "const earn = (q, price, cost, ship) => price * (2 - q.feePct / 100) - q.feeFixed - cost - ship;",
+            "line_text": "const earn = (q, price, cost, ship) => price * (1 - q.feePct / 100) - q.feeFixed - cost - ship;",
+            "caught": true,
+            "seconds": 6.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/clothing-design-studio/bundle.mjs",
+            "line": 56,
+            "col": 25,
+            "operator": "minus-to-plus",
+            "before": "else price = list * (1 - num(discountPct ?? 0, \"discount %\", 0, 99.9) / 100);",
+            "after": "else price = list * (1 + num(discountPct ?? 0, \"discount %\", 0, 99.9) / 100);",
+            "line_text": "  else price = list * (1 - num(discountPct ?? 0, \"discount %\", 0, 99.9) / 100);",
+            "caught": true,
+            "seconds": 6.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/clothing-design-studio/bundle.mjs",
+            "line": 63,
+            "col": 12,
+            "operator": "gt-to-ge",
+            "before": "if (price > list) notes.push(\"The set costs more than its pieces added up; shoppers will buy the pieces alone.\");",
+            "after": "if (price >= list) notes.push(\"The set costs more than its pieces added up; shoppers will buy the pieces alone.\");",
+            "line_text": "  if (price > list) notes.push(\"The set costs more than its pieces added up; shoppers will buy the pieces alone.\");",
+            "caught": false,
+            "seconds": 6.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "price == list boundary untested; added 'set priced exactly at its list total'"
+          },
+          {
+            "file": "ventures/clothing-design-studio/bundle.mjs",
+            "line": 82,
+            "col": 92,
+            "operator": "const-plus-one",
+            "before": "const f = num(singleSharePct, \"share of set buyers who would have bought one piece %\", 0, 100) / 100;",
+            "after": "const f = num(singleSharePct, \"share of set buyers who would have bought one piece %\", 0, 101) / 100;",
+            "line_text": "  const f = num(singleSharePct, \"share of set buyers who would have bought one piece %\", 0, 100) / 100;",
+            "caught": false,
+            "seconds": 6.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "share upper bound untested; added 'a one-piece share over 100% is refused'"
+          },
+          {
+            "file": "ventures/clothing-design-studio/bundle.mjs",
+            "line": 93,
+            "col": 69,
+            "operator": "div-to-times",
+            "before": "const cFull = earn(q, list, cost, q.shipBundle), c1 = earn(q, list / n, cost / n, q.ship);",
+            "after": "const cFull = earn(q, list, cost, q.shipBundle), c1 = earn(q, list * n, cost / n, q.ship);",
+            "line_text": "  const cFull = earn(q, list, cost, q.shipBundle), c1 = earn(q, list / n, cost / n, q.ship);",
+            "caught": true,
+            "seconds": 6.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/clothing-design-studio/bundle.mjs",
+            "line": 96,
+            "col": 77,
+            "operator": "const-plus-one",
+            "before": "const price = (cBmin + q.feeFixed + cost + q.shipBundle) / (1 - q.feePct / 100);",
+            "after": "const price = (cBmin + q.feeFixed + cost + q.shipBundle) / (1 - q.feePct / 101);",
+            "line_text": "  const price = (cBmin + q.feeFixed + cost + q.shipBundle) / (1 - q.feePct / 100);",
+            "caught": false,
+            "seconds": 6.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "maxDiscountPct had no fee test; added a 20% fee case solved by hand to exactly 20.0%"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/clothing-design-studio/bundle.mjs",
+        "issue": "maxDiscountPct rounded to the nearest 0.1, so the 'biggest discount a share pays for' shown on bundle.html was often a discount that loses money (setValue pays:false at shares 33/50/100% on a 2-piece set with fees; the suite even pinned the rounded-up 22.7% where the exact answer is 22.67%). Fixed: round down.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15367"
+      },
+      {
+        "file": "ventures/clothing-design-studio/bundle.mjs",
+        "issue": "maxDiscountPct returned impossible discounts over 100% (550% for two 10.00 pieces with 100.00 single-piece shipping at a 100% share) when one piece alone loses money, since the solved bundle price goes negative. Fixed: capped at 99.9%, the discount input's own bound.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15367"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7828058e-a50f-53a7-9a8a-47540394b665",
+    "transcripts": 1,
+    "first": "2026-11-13T04:06:49Z",
+    "last": "2026-11-13T04:12:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 62,
+        "output": 15995,
+        "thinking": 3600,
+        "cache_read": 2626909,
+        "cache_write_5m": 0,
+        "cache_write_1h": 74542,
+        "api_equivalent_usd": 1.4419,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 62,
+      "output": 15995,
+      "thinking": 3600,
+      "cache_read": 2626909,
+      "cache_write_5m": 0,
+      "cache_write_1h": 74542,
+      "api_equivalent_usd": 1.4419,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 29,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.47,
+      "active_minutes": 5.47,
+      "model_minutes": 3.23,
+      "tool_minutes": 2.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: mutation triage, two bug reproductions and fixes, five tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 208.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
