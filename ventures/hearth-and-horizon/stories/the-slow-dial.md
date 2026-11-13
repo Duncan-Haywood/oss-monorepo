@@ -130,7 +130,7 @@ Aga opened her mouth and shut it again, because Renate Kästner was not being un
 
 "Bede," she said that night, sitting on her bed in Zgorzelec with the window open and the river noise coming in. "If we cut the lines turned by twenty-four minutes. How long does it stay right?"
 
-"It is right on the day you cut it," said Bede, "give or take the seconds. After that the difference keeps growing, and faster each year, because each year's day is longer than the last. I can only give you a model, not a promise: the Earth's core and mantle shift the day by a few thousandths of a second from one decade to the next, and no one can forecast that. But if the Earth goes on as it has since the Babylonians were writing eclipses down: in fifty years, about three and a half minutes more. In a hundred, nearly eight. In two hundred, about seventeen."
+"It is right on the day you cut it," said Bede, "give or take the seconds. After that the difference keeps growing, and faster each year, because each year's day is longer than the last. I can only give you a model, not a promise: the Earth's core and mantle shift the day by a few thousandths of a second from one decade to the next, and no one can forecast that. But if the Earth goes on as it has since the Babylonians were writing eclipses down: in fifty years, nearly four minutes more. In a hundred, nearly eight. In two hundred, about seventeen."
 
 "And Sobczak's stone has been on that wall for six hundred and fifty-one years."
 

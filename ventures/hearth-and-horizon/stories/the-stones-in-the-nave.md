@@ -20,7 +20,7 @@ He took his phone out and opened the civil protection app, which he was supposed
 
 The phone buzzed in his hand.
 
-*Mr Bautista, this is Varða, the civil protection lava model for the Reykjanes incident. The incident commander has asked me to call the people on the essential list. A lobe has broken round the end of the western barrier and is moving south-southwest at between one and three metres an hour. You are not in its path. Is the pump house on the farm's own generator?*
+*Mr Bautista, this is Varða, the civil protection lava model for the Reykjanes incident. The incident commander has asked me to call the people on the essential list. A lobe has broken round the end of the western barrier and is moving south-southwest at between two hundred and three hundred metres an hour. You are not in its path. Is the pump house on the farm's own generator?*
 
 "Yes," said Rodel. "And the mains."
 
@@ -114,7 +114,7 @@ Séra Hildur was forty-one and had been pastor of Hrafnvík and two other parish
 
 The old man did not need the register.
 
-"The *Sæbjörg* men," he said. "1906. Four of them, the ones the sea gave back. Jón the schoolmaster and his wife. The Kristjánsdóttir children, from the diphtheria. My grandfather. My grandmother. My father and mother." He stopped. "And my brother Óli, who was nine, in 1958. He was the last. After him they opened the new side."
+"The *Sæbjörg* men," he said. "1906. Four of them, the ones the sea gave back. Jón the schoolmaster and his wife. The Kristjánsdóttir children, from the diphtheria. My grandfather. My grandmother." He stopped. "And my brother Óli, who was nine, in 1958. He was the last. After him they opened the new side."
 
 Nobody said anything. On the screen the white finger had reached the wall.
 
@@ -178,7 +178,7 @@ She looked at him for a long second through her visor. Then she said, "Show me,"
 
 They kept them on.
 
-At six the corner was full. Rodel went round to the north side of the knoll in the dark and looked at it from as close as the firefighters would let him: a pond of black rubble, steaming, with a red seam in it where it was still settling, filling the corner from wall to wall to a height above his head, and stopping, as Varða had said it would, a little short of the place where the ground rose towards the church. Somewhere under it were the *Sæbjörg* men and the schoolmaster and his wife and the Kristjánsdóttir children and a boy of nine, in the ground, as they had been, deeper now.
+At half past seven the corner was full. Rodel went round to the north side of the knoll in the dark and looked at it from as close as the firefighters would let him: a pond of black rubble, steaming, with a red seam in it where it was still settling, filling the corner from wall to wall to a height above his head, and stopping, as Varða had said it would, a little short of the place where the ground rose towards the church. Somewhere under it were the *Sæbjörg* men and the schoolmaster and his wife and the Kristjánsdóttir children and a boy of nine, in the ground, as they had been, deeper now.
 
 At five to nine, just before it began to be light, Varða said:
 
