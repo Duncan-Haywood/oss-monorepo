@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23166534'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EN%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>nginx Config Security Check — Alias Traversal, $uri CRLF, add_header Drops and SSRF</title>
+  <meta name="description" content="Paste nginx.conf or a sites-available file and its includes: find the alias off-by-slash traversal, $uri CRLF injection, proxy_pass SSRF, CORS reflecting any origin, add_header lines dropped in a location, old TLS. Free, runs in your browser.">
+  <meta property="og:title" content="Is your nginx config handing out files, headers or your internal network?">
+  <meta property="og:description" content="Paste an nginx config and its includes, get every risky setting with its file, line and fix. Nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"nginx Config Security Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A static read of nginx configuration files, with include lines resolved against each other, for the alias off-by-slash path traversal, $uri or $document_uri in redirects and headers (CRLF injection), proxy_pass to a host taken from the request (SSRF), CORS that reflects any origin, add_header lines dropped by a nested block, deny after allow all, public stub_status, SSLv2/SSLv3/TLS 1.0/1.1 and weak ciphers. Runs in the browser or as a zero-dependency Node CLI; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does my add_header not work inside a location block?","acceptedAnswer":{"@type":"Answer","text":"It does, but it switches off the others. The nginx documentation says add_header directives are inherited from the previous configuration level if and only if there are no add_header directives on the current level. So one add_header in a location drops every header set in server or http for that location, such as Strict-Transport-Security or X-Frame-Options. Repeat them in the location (an include file keeps them in one place) or, on nginx 1.29.3 or later, set add_header_inherit merge; at the top."}},{"@type":"Question","name":"What is the nginx alias off-by-slash vulnerability?","acceptedAnswer":{"@type":"Answer","text":"A prefix location without a trailing slash, such as location /img, with an alias that has one, such as alias /data/img/, lets a request for /img../ map to /data/img/../, the directory above. Make the two agree: location /img/ with alias /data/img/."}},{"@type":"Question","name":"Why is $uri dangerous in an nginx redirect?","acceptedAnswer":{"@type":"Answer","text":"$uri holds the normalised, decoded path, so an encoded line break (%0d%0a) in the request becomes a real line break in the Location header, and an attacker can add headers of their own. $request_uri keeps the client's original encoding: return 301 https://$host$request_uri;"}},{"@type":"Question","name":"Is this the same as nginx -t?","acceptedAnswer":{"@type":"Answer","text":"No. nginx -t checks that nginx will accept the configuration. This tool reads the files for risky settings that nginx accepts without complaint, and it works on files in a repository or an image before they reach a server. Run both."}},{"@type":"Question","name":"Does a clean result mean my nginx server is secure?","acceptedAnswer":{"@type":"Answer","text":"No. It reads only the patterns listed on this page, does not know your nginx version, does not follow map, geo or set values, and cannot see the application behind proxy_pass. Have a qualified person review anything that protects valuable data."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #166534; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #166534; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; background: #fde8e8; color: #9a3412; }
+    .pill.low { background: #e8eef5; color: #17324a; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .84rem; line-height: 1.55; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    @media (max-width: 640px) {
+      #report-card table, #report-card tbody, #report-card tr, #report-card td { display: block; }
+      #report-card thead { display: none; }
+      #report-card tr { border-bottom: 1px solid #e6eaf0; padding: 10px 0; }
+      #report-card td { border: 0; padding: 3px 0; }
+    }
+  </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #files:empty{min-height:241px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
+</head>
+<body>
+  <header>
+    <p class="note">NGINX CONFIG SECURITY CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Is your nginx config handing out files, headers or your internal network?</h1>
+    <p>nginx accepts a missing slash, a <code>$uri</code> where <code>$request_uri</code> belonged, or one <code>add_header</code> in a location without a word of warning, and each one quietly opens a hole: a path above your static folder, injected response headers, security headers that stop being sent. Paste your config and its includes below and this page lists each risky setting with its file, line and fix.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and the tool makes no network calls of its own. It reads the files, not a running server: it is not <code>nginx -t</code> and not a security audit.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Paste your config</h2>
+    <p class="note">Name each block like its path. <code>include conf.d/*.conf;</code> in one block pulls in every block whose name ends in <code>conf.d/something.conf</code>, in name order, the way nginx does.</p>
+    <div id="files"></div>
+    <p><button type="button" class="secondary small" id="add-file">+ Add an included file</button></p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least one nginx config file above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>File : Line</th><th>Type</th><th>Risk</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <ul class="note" id="notes"></ul>
+  </section>
+
+  <section class="card">
+    <h2>What it checks</h2>
+    <ul>
+      <li><strong>High:</strong> <code>alias</code> off-by-slash path traversal; <code>$uri</code> or <code>$document_uri</code> in a redirect, a header or the upstream path (CRLF injection); <code>proxy_pass</code> to a host from a query argument, header or cookie (SSRF); <code>Access-Control-Allow-Origin $http_origin</code> with credentials; <code>SSLv2</code>/<code>SSLv3</code>.</li>
+      <li><strong>Medium:</strong> <code>add_header</code> in a nested block dropping the enclosing ones; <code>deny</code> after <code>allow all</code>; <code>autoindex on</code>; open redirects; unanchored <code>$http_origin</code> regexes; TLS 1.0/1.1 and weak ciphers; <code>proxy_pass http://$host</code>; a public <code>stub_status</code>.</li>
+      <li><strong>Low:</strong> <code>server_tokens on</code>; <code>proxy_set_header Host $http_host</code>; unverified upstream TLS; <code>valid_referers none</code>; <code>client_max_body_size 0</code>.</li>
+    </ul>
+    <p class="note">Several of these were first catalogued by Yandex's <a href="https://github.com/yandex/gixy" rel="noopener">Gixy</a>, a Python analyser; this is an independent implementation and is not affiliated with it. Every type, with the nginx behaviour behind it: <a href="nginx-misconfigurations-explained.html">nginx misconfigurations explained</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same engine, zero dependencies, Node 18 or later:</p>
+    <pre class="cmd"><code>node check.mjs /etc/nginx/             # a whole config tree, includes resolved
+node check.mjs site.conf --format json  # machine-readable
+node check.mjs . --fail-on-risk         # exit 2 on any high or medium finding</code></pre>
+    <p class="note">Get <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/nginx-config-security-check" rel="noopener">check.mjs and scan.mjs from the repo</a>: nothing to install, no network calls, and it never runs nginx.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does my add_header not work inside a location block?</h3>
+    <p>It does, but it switches off the others. The nginx documentation says <code>add_header</code> directives are inherited from the previous configuration level if and only if there are no <code>add_header</code> directives on the current level. So one <code>add_header</code> in a location drops every header set in <code>server</code> or <code>http</code> for that location, such as <code>Strict-Transport-Security</code> or <code>X-Frame-Options</code>. Repeat them in the location (an include file keeps them in one place) or, on nginx 1.29.3 or later, set <code>add_header_inherit merge;</code> at the top.</p>
+    <h3>What is the nginx alias off-by-slash vulnerability?</h3>
+    <p>A prefix location without a trailing slash, such as <code>location /img</code>, with an alias that has one, such as <code>alias /data/img/</code>, lets a request for <code>/img../</code> map to <code>/data/img/../</code>, the directory above. Make the two agree: <code>location /img/</code> with <code>alias /data/img/</code>.</p>
+    <h3>Why is $uri dangerous in an nginx redirect?</h3>
+    <p><code>$uri</code> holds the normalised, decoded path, so an encoded line break (<code>%0d%0a</code>) in the request becomes a real line break in the <code>Location</code> header, and an attacker can add headers of their own. <code>$request_uri</code> keeps the client's original encoding: <code>return 301 https://$host$request_uri;</code></p>
+    <h3>Is this the same as nginx -t?</h3>
+    <p>No. <code>nginx -t</code> checks that nginx will accept the configuration. This tool reads the files for risky settings that nginx accepts without complaint, and it works on files in a repository or an image before they reach a server. Run both.</p>
+    <h3>Does a clean result mean my nginx server is secure?</h3>
+    <p>No. It reads only the patterns listed on this page, does not know your nginx version, does not follow <code>map</code>, <code>geo</code> or <code>set</code> values, and cannot see the application behind <code>proxy_pass</code>. Have a qualified person review anything that protects valuable data.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a static read of the files you paste, not a security audit, a penetration test or a guarantee of any server's security, and it does not replace a qualified security professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get the CLI from the repo and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../security-headers-check/">Security Headers Check</a> reads the headers a live server really sends, <a href="../cors-misconfig-check/">CORS Misconfig Check</a> tests a live CORS policy, and <a href="../systemd-unit-hardening-check/">systemd Unit Hardening Check</a> covers the service nginx runs as.</p>
+    <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { scanFiles, hasRisk, summaryLine } from "./scan.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      files: $("#files"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), rows: $("#rows"), notes: $("#notes"),
+    };
+
+    const EXAMPLE = [
+      {
+        name: "/etc/nginx/nginx.conf",
+        text: `events { worker_connections 1024; }
+
+http {
+    server_tokens on;
+    add_header X-Frame-Options DENY;
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    include /etc/nginx/conf.d/*.conf;
+}
+`,
+      },
+      {
+        name: "/etc/nginx/conf.d/app.conf",
+        text: `server {
+    listen 443 ssl;
+    server_name app.example.com;
+
+    location /static {
+        alias /srv/app/static/;
+    }
+
+    location /api/ {
+        add_header Access-Control-Allow-Origin $http_origin;
+        add_header Access-Control-Allow-Credentials true;
+        proxy_set_header Host $http_host;
+        proxy_pass http://127.0.0.1:8080;
+    }
+
+    location /fetch {
+        proxy_pass http://$arg_target;
+    }
+
+    location /old {
+        return 301 https://$host$uri;
+    }
+
+    location = /nginx_status {
+        stub_status;
+    }
+}
+`,
+      },
+    ];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" aria-label="File name" placeholder="nginx.conf or conf.d/app.conf" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea aria-label="Paste the config file here" class="ftext" spellcheck="false" placeholder="server {&#10;    listen 80;&#10;    location / { root /srv/www; }&#10;}"></textarea>
+      `;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => {
+        if (els.files.children.length > 1) wrap.remove();
+      });
+      return wrap;
+    }
+
+    function addFile(name = "", text = "") {
+      els.files.appendChild(fileBlock(name, text));
+    }
+
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")]
+        .map((block, i) => ({
+          name: block.querySelector(".fname").value.trim() || `site${i ? i + 1 : ""}.conf`,
+          text: block.querySelector(".ftext").value,
+        }))
+        .filter((f) => f.text.trim().length > 0);
+    }
+
+    function runCheck(files) {
+      if (!files.length) {
+        els.status.innerHTML = `<span class="error">Paste at least one nginx config file first.</span>`;
+        return;
+      }
+      let result;
+      try {
+        result = scanFiles(files);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const { findings, notes } = result;
+      els.verdict.className = `verdict ${hasRisk(findings) ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(findings);
+      els.rows.innerHTML = findings.map((f) => `
+        <tr>
+          <td><code>${escapeHtml(f.file)}:${f.line}</code></td>
+          <td><span class="pill ${f.severity === "low" ? "low" : ""}">${escapeHtml(f.type)}</span> <span class="note">${f.severity}</span></td>
+          <td>${escapeHtml(f.detail)}</td>
+          <td>${escapeHtml(f.remediation)}</td>
+        </tr>`).join("");
+      els.notes.innerHTML = notes.map((n) => `<li>${escapeHtml(n)}</li>`).join("");
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: an nginx.conf with site-wide security headers and old TLS, and a site that serves static files through a mis-slashed alias, reflects any origin with credentials, proxies to a host named in the query string, redirects with $uri and leaves stub_status open.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      addFile();
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least one nginx config file above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    addFile();
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

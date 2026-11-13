@@ -1,0 +1,53 @@
+name: nginx-config-security-check
+description: 'Free, read-only checker that reads your own nginx configuration with its include lines resolved, for the alias off-by-slash path traversal, $uri in redirects and headers (CRLF injection), proxy_pass to a host taken from the request (SSRF), CORS reflecting any origin, add_header lines dropped by a nested block, deny after allow all, public stub_status, SSLv3/TLS 1.0 and weak ciphers, with file:line and the fix; browser or zero-dependency Node CLI, no upload, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency *-check tools. Nothing in ventures/ reads an nginx config:
+# security-headers-check probes a live response's headers, redirect-map-check
+# reads redirect lists, and systemd-unit-hardening-check and
+# docker-compose-security-check ask the same kind of question of other files.
+# Not in screened-out.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high -- a read-only parser of the user's own files, no advice-of-record, no
+# probing of anyone else's server, no data leaving the device. Labelled not a
+# security audit and not nginx -t, with no warranty; a clean scan is never
+# called safe. Gixy (MPL-2.0) is credited for the checks it catalogued; no
+# code from it is used.
+#
+# First visitor channel: search for "nginx alias path traversal", "nginx
+# add_header not working in location", "nginx $uri crlf", "nginx proxy_pass
+# ssrf" and "nginx config security checker" (docs, Stack Overflow and blog
+# results, and Gixy, a Python CLI, with no
+# checker that works in a browser), and self-hosters writing their first
+# reverse proxy.
+hypotheses:
+  - claim: 'A self-hoster will paste a config here and fix an add_header drop or an alias slash they did not know about.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team that keeps nginx config in a repository will wire check.mjs --fail-on-risk into CI.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.mjs or scan.mjs within 90 days.
+
+links:
+  production: https://marisstella.app/nginx-config-security-check/
+  analytics: null
