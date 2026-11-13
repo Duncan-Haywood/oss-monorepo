@@ -1,7 +1,7 @@
 US-born adults with mother's religion: n=5714; with father's too: 5236
-/home/user/oss-monorepo/research/catholic-demography/experiments/m5l_parents/run.py:179: RuntimeWarning: invalid value encountered in scalar divide
+research/catholic-demography/experiments/m5l_parents/run.py:179: RuntimeWarning: invalid value encountered in scalar divide
   Rc = (ws[j] * rs[j]).sum() / ws[j].sum()
-/home/user/oss-monorepo/research/catholic-demography/experiments/m5h_fertility/run.py:134: RuntimeWarning: invalid value encountered in scalar divide
+research/catholic-demography/experiments/m5h_fertility/run.py:134: RuntimeWarning: invalid value encountered in scalar divide
   Rcell[j] = (ws[j] * rs[j]).sum() / ws[j].sum()
 
 t32_decomposition.csv (percent or points; counts unweighted; shares as fractions; sensitivities are point estimates)
