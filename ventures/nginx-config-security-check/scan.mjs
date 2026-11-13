@@ -468,7 +468,8 @@ export function scanFiles(files) {
     seen.add(k);
     return true;
   });
-  unique.sort((x, y) => SEV_ORDER[x.severity] - SEV_ORDER[y.severity] || x.file.localeCompare(y.file) || x.line - y.line);
+  const rank = (sev) => (Object.hasOwn(SEV_ORDER, sev) ? SEV_ORDER[sev] : 3);
+  unique.sort((x, y) => rank(x.severity) - rank(y.severity) || x.file.localeCompare(y.file) || x.line - y.line);
   const notes = missing.map((m) => `${m.file}:${m.line}: include ${m.pattern} matched none of the files given, so its contents were not checked.`);
   return { findings: unique, notes };
 }
