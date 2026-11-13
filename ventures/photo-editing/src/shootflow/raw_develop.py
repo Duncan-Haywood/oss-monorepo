@@ -1198,6 +1198,10 @@ class DevelopReport:
     white_xy: tuple[float, float] | None = None  # as-shot white chromaticity (dng colour)
     cct: float | None = None  # its correlated colour temperature, kelvin
     profile: str | None = None  # "<name>: <tables applied>" when a profile's tables were used
+    # With a lens database (settings.lens_db): the lensfun lens whose correction ran, or None when none did,
+    # and the notes about it (why none ran, or what was corrected). Both stay empty without a database.
+    lens: str | None = None
+    lens_notes: list[str] = field(default_factory=list)
 
 
 def _cfa_pattern(ifd: Ifd) -> tuple[int, int, int, int]:
@@ -1661,9 +1665,11 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                 vals = dng_opcodes.run_stage1(op_plan.stage1, vals, rw, raw.height, notes)
         elif op_plan.notes:
             notes.append("opcode lists not run (opcodes off)")
+    lens_used: str | None = None
+    lens_notes: list[str] = []
     if settings.lens_db is not None:
         if any(isinstance(op, dng_opcodes.WARP_TYPES) for op in warps):
-            notes.append("lens database not used: the file carries its own lens warp")
+            lens_notes.append("lens database not used: the file carries its own lens warp")
         else:
             from shootflow import lens_profiles
 
@@ -1675,10 +1681,12 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                     aperture=settings.lens_aperture, distance=settings.lens_distance,
                 )
             except lens_profiles.LensProfileError as exc:
-                notes.append(f"no lens correction: {exc}")
+                lens_notes.append(f"no lens correction: {exc}")
             else:
                 warps = list(warps) + corr.opcodes()
-                notes.extend(corr.notes)
+                lens_used = corr.lens.name
+                lens_notes.extend(corr.notes)
+        notes.extend(lens_notes)
     # TrimBounds: each opcode after a trim runs on its frame, and the output is cropped to the last one.
     half_f = 0.5 if (settings.half and not linear_raw) else 1.0
     stage3_w, stage3_h = (w // 2, h // 2) if half_f != 1.0 else (w, h)
@@ -1787,7 +1795,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     if settings.engine == "numpy" and np_engine is None:
         raise DevelopError("engine 'numpy' needs numpy and an image at least 2x2")
     if np_engine is not None:
-        return _develop_numpy(
+        nw, nh, npx, report = _develop_numpy(
             np_engine, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name,
             colour=(colour_model, white_xy, cct, profile_label),
             vals=vals, rw=rw, top=top, left=left, w=w, h=h, spp=spp, lin=lin, black_=black, span=span,
@@ -1795,6 +1803,8 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             half=settings.half, mults=(wbr, wbg, wbb), hi=hi, m=m, curve=curve, lut_size=lut_size,
             look=look, gain_maps=gain_maps, warps=warps, trim=trim, warp_kernel=settings.warp_kernel,
         )
+        report.lens, report.lens_notes = lens_used, lens_notes
+        return nw, nh, npx, report
 
     out = array("H")
     if linear_raw:
@@ -1859,6 +1869,8 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         white_xy=None if white_xy is None else (round(white_xy[0], 5), round(white_xy[1], 5)),
         cct=None if cct is None else round(cct, 1),
         profile=profile_label,
+        lens=lens_used,
+        lens_notes=lens_notes,
     )
     return report_w, report_h, out, report
 

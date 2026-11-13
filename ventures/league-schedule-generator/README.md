@@ -1330,6 +1330,73 @@ What it adds (`node eval/squeeze-single.mjs --sizes 10,...,20 --seeds 1,2,3`,
   without moving its choice. `eval/browser-frontier-pick.mjs --single` runs the page check on a
   single round robin (`eval/browser-frontier-pick-single.txt`).
 
+## The gaps are in the timetables: a MaxSAT proof, and regrounded seasons (2026-11-13, latest)
+
+The open question from the last two sections: under the lowest-carry-over seasons (20 teams single
+360 / 52, then nothing until 546 / 36; 19 teams home and away 1,311 / 87, then 3,071 at 78) is the
+venue search leaving breaks behind, or does the timetable itself need them? Carry-over depends only
+on who meets whom in which round, not on who is at home, so if those timetables allowed far fewer
+breaks, a better home/away alone would fill the gap at the same carry-over.
+
+**The proof** (`eval/orient-maxsat.py`, python-sat, eval only). For one fixed timetable it finds the
+fewest breaks under the tool's own rules: one host per match (per pair in a season, at home in leg
+one and away in leg two), each team's home and away games within one (leg one of a season), a break
+being two consecutive rounds at the same ground with a bye resetting the run, as `teamBreaks` counts.
+Each "no break" is a soft clause, so RC2's optimum is the least number of breaks, proved.
+`eval/orient-maxsat-check.mjs` re-checks every oriented season in JS (same pairs every round, same
+carry-over, balance, recount equal to the proof): all pass.
+
+- **The gaps are structural.** 20 teams' 360 timetable needs at least **50** breaks (the page gives it
+  52); the 19-team home-and-away 1,311 timetable needs **85** (page: 87) and 1,517 needs 84 (page: 84).
+  No home/away can bring either near the gap. The next try has to change the timetable.
+- **The venue search is nearly optimal.** Over the 12 tries at 12, 14, 16, 17, 18, 19, 20, 22 and 24
+  teams (seed 1, single, 108 timetables), 106 were proved in 240 s each; **89 of 106 already had the
+  fewest breaks** their timetable allows. The other 17 were 2 to 5 over: the capped and gap tries (12
+  teams 170 / 20 needs 16; 14 teams 314 / 20 needs 16; 19 teams 2,749 / 17 needs 12), the 18- and
+  20-team starters (348 / 40 needs 38; 360 / 54 needs 50) and the 24-team starter (570 / 66 needs 64).
+  `eval/orient-maxsat.txt`.
+- **Round rotations do not help** (the `next:` item's suggested move). Every rotation and reversal of
+  the 20-team starter keeps its 360 carry-over; the four orders proved within 120 s each (rotations 0
+  and 3, reversal 0) all need 50; the other four timed out and the run was stopped there (8 of 38
+  orders).
+
+**Regrounded seasons** (`polishSeasonVenues`, `carryOverPolish`, `CARRY_OVER_POLISH = 4`). Since a
+season's timetable fixes its carry-over, the page now runs each listed season's own timetable through
+the venue search once more (single: `assignVenues` seeded with its own hosts; home and away:
+`assignVenuesDouble` from its own pair hosts), after the squeezes, on the same worker. A regrounded
+season with strictly fewer breaks that passes the season's own checks (balance; a pair's two games at
+opposite grounds) and that nothing else beats on both counts joins the list as tries 16 and up
+(`polishedFrom` names its source). Like the gap tries and squeezes it is never picked by the four
+choices, so every older share link builds the same season; a regrounded season picked from the list
+goes into the share link like any other and the link rebuilds it. The CLI and tests reach it through
+`bestCarryOverRounds(n, { polish: 4 })` or the `buildSchedule` spec field `carryOverPolish: 4`.
+
+What it adds (`node eval/polish-frontier.mjs <teams> <seed> [d]`, `eval/polish-frontier.txt`; 21 single
+round robins at 12 to 20 teams and 10 home-and-away seasons at 12 to 20, seeds 1 to 3 and 1 to 2):
+
+| Teams, seed | Regrounded | Effect on the frontier |
+|---|---|---|
+| 14 single, s1 | 314 / 20 -> 314 / 16 | beats 334 / 16 |
+| 20 single, s3 | 360 / 54 -> 52, 550 / 46 -> 44, 1,050 / 30 -> 26, 1,312 / 22 -> 20 | four seasons beaten; least carry-over within 26 breaks 1,078 -> 1,050 |
+| 20 home and away, s1 | 1,460 / 124 -> 1,460 / 112 | within 112 to 115 breaks: 1,880 -> 1,460 (22%) |
+| 20 home and away, s2 | 1,460 / 120 -> 1,460 / 114 | within 114 to 115 breaks: 1,880 -> 1,460 |
+
+- 7 seasons join the frontier in 4 of 31 runs; 27 runs gain nothing, which the proof predicts: the
+  venue search already had the fewest breaks for most frontier timetables. Mean cut in the least
+  carry-over at a break budget: 0.2% over all 31 runs, up to 34.5% at one budget (20 single s3).
+- It is cheap: 0.4 to 3.4 s for a single round robin, 1.2 to 4.8 s for a home-and-away season at 12 to
+  20 teams, on the worker after the squeezes (`polishS` in the file).
+- Not reached: 18 teams' 348 / 40 (the proof says 38) on seeds 1 and 3, and 20 teams' 360 / 52 (needs
+  50). The venue search's annealing finds them only on some seeds; an exact orientation in the page
+  would need a solver in the browser.
+- Tests: `polish.test.mjs`, 5 tests: 14 teams' 314 / 20 regrounds to 314 / 16 on the same pairs every
+  round; a season already at its least returns null; validity on 8 and 9 teams single and home and
+  away and 12 home and away (same pairs, same carry-over, balance, opposite grounds, recount); the
+  polished seasons are numbered after the results, on the frontier, seeded and never repeated; and
+  `bestCarryOverRounds` keeps its choice while `buildSchedule` rebuilds a kept polished season.
+  `eval/browser-frontier-pick.mjs --teams=14 --single --polished` picks 314 / 16 on the page and its
+  share link reopens on it; all checks pass (`eval/browser-frontier-pick-polished.txt`).
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`

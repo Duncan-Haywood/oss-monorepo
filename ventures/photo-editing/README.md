@@ -1679,6 +1679,39 @@ release and on master disagree there. The FixVignetteRadial we ship is within 1.
 the 99th percentile on an 800 px frame. 6 tests (`tests/test_lensfun_vignetting_released.py`); four
 seeded faults all caught. Details: `eval/lensfun-vignetting-released-2026-11-13.md`.
 
+### Lens correction in the overnight pipeline (2026-11-13, latest)
+
+Until now only `shootflow develop --lens-db` corrected lenses; the overnight pipeline's grade stage
+did not, so a shoot's masters came out with the barrel, fringes and dark corners left in. Copy
+lensfun's `data/db/*.xml` into the shoot workspace's `color/lens-profiles/` (beside
+`color/camera-profiles/`) and the grade stage now corrects every DNG and CR2 it develops exactly as
+`--lens-db` does: distortion, lateral colour and vignetting, lens and focal length from each file's
+EXIF (or a Canon maker note), a file's own lens warp first. Beside each such master it writes
+`<master>.lens.json`:
+
+```json
+{"kind": "lens_correction", "corrected": true, "lens": "Canon EF 50mm f/1.2L USM",
+ "lens_database": "color/lens-profiles/ (56 XML files)",
+ "notes": ["no vignetting correction: ... has no vignetting calibration near 50 mm f/1.2 ...",
+           "lens correction from lensfun: Canon EF 50mm f/1.2L USM [slr-canon.xml], ptlens, ..."]}
+```
+
+A lens the database lacks still gets its master, uncorrected, with `"corrected": false` and the reason
+in `notes`, so one unknown lens never holds up a shoot. An unreadable XML file stops the grade for
+review naming the file. A symlinked folder is refused and symlinked files are skipped, as for
+camera profiles. With no folder, or no XML in it, nothing changes. The database is parsed once per
+process (0.27 s for lensfun's 56 files, 1,580 lenses) and read again only when a file's size or time
+changes.
+
+Checked on a real Canon 5D Mark II CR2 with lensfun's whole database (`tools/real_cr2_pipeline.py
+FILE.CR2 WORKDIR --lens-db lensfun/data/db`, `eval/lens-pipeline-grade-2026-11-13.md`): the pipeline
+master is bit-identical to `shootflow develop --dcp --lens-db` on the same file, and 92% of its
+samples differ from the uncorrected master. The run took 14.1 s against 10.9 s without the
+database. `tests/test_lens_pipeline.py` (8 tests): a synthetic CR2 with lens, focal length and
+f-number tags through the whole pipeline (master equal to `develop --lens-db` and unequal to the
+uncorrected develop, the note, notes beside raws only), an unknown lens, no folder, a broken XML, the
+cache and the symlink rules. `shootflow develop`'s JSON now carries `lens` and `lens_notes` too.
+
 ## The lensfun port against the real lensfun library (2026-11-13)
 
 The lensfun correction above was checked against lensfun's own compiled code, not just against its

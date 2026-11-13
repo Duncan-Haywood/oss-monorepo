@@ -668,8 +668,9 @@ export function buildSchedule(spec) {
       const capped = Number.isInteger(spec.carryOverCapped) && spec.carryOverCapped > 0 ? spec.carryOverCapped : 0;
       const gap = Number.isInteger(spec.carryOverGap) && spec.carryOverGap > 0 ? spec.carryOverGap : 0;
       const squeeze = Number.isInteger(spec.carryOverSqueeze) && spec.carryOverSqueeze > 0 ? spec.carryOverSqueeze : 0;
-      const keep = carryOverKeepIndex(spec.carryOverKeep, { n, double: Boolean(spec.double), seed: spec.seed ?? 1, tries: spec.carryOverTries + capped + gap + squeeze });
-      const best = bestCarryOverRounds(n, { double: Boolean(spec.double), seed: spec.seed ?? 1, tries: spec.carryOverTries, capped, gap, squeeze, keep, pick: spec.carryOverPick ?? CARRY_OVER_PICK.balanced });
+      const polish = Number.isInteger(spec.carryOverPolish) && spec.carryOverPolish > 0 ? spec.carryOverPolish : 0;
+      const keep = carryOverKeepIndex(spec.carryOverKeep, { n, double: Boolean(spec.double), seed: spec.seed ?? 1, tries: spec.carryOverTries + capped + gap + squeeze + polish });
+      const best = bestCarryOverRounds(n, { double: Boolean(spec.double), seed: spec.seed ?? 1, tries: spec.carryOverTries, capped, gap, squeeze, polish, keep, pick: spec.carryOverPick ?? CARRY_OVER_PICK.balanced });
       plan = best.rounds;
       carryOverSearch = carryOverSummary(best);
     } else {

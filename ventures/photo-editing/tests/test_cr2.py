@@ -118,6 +118,8 @@ def make_cr2(
     gain=6000,
     clip=None,
     lens_name=None,
+    focal=None,
+    fnumber=None,
 ):
     values = sensor(pattern, levels, seed, gain=gain, clip=clip)
     stream = encode_lossless_jpeg(sliced(values), SENSOR_W // FRAME_NF, SENSOR_H, FRAME_NF, precision=14)
@@ -137,7 +139,9 @@ def make_cr2(
 
     ifd0_len = len(ifd0_at(0))
     exif_at = 16 + ifd0_len
-    exif_len = len(_ifd_bytes([(37500, 4, (0,))], exif_at))
+    # EXIF FNumber and FocalLength when asked (rationals); the MakerNote entry comes after them by tag
+    exif_extra = ([(33437, 5, (fnumber,))] if fnumber else []) + ([(37386, 5, (focal,))] if focal else [])
+    exif_len = len(_ifd_bytes(exif_extra + [(37500, 4, (0,))], exif_at))
     canon_at = exif_at + exif_len
     color = [0] * color_data_len
     if 0x3F + 4 <= color_data_len:
@@ -182,8 +186,8 @@ def make_cr2(
 
     ifd0 = bytearray(ifd0_at(exif_at))
     struct.pack_into("<I", ifd0, 2 + 12 * 4, after_canon)  # IFD0 -> thumbnail IFD, or the raw IFD
-    exif = bytearray(_ifd_bytes([(37500, 4, (canon_at,))], exif_at))
-    struct.pack_into("<HI", exif, 2 + 2, 7, len(canon))  # MakerNote: UNDEFINED, the Canon IFD's length
+    exif = bytearray(_ifd_bytes(exif_extra + [(37500, 4, (canon_at,))], exif_at))
+    struct.pack_into("<HI", exif, 2 + 12 * len(exif_extra) + 2, 7, len(canon))  # MakerNote: UNDEFINED, the Canon IFD's length
     blob += ifd0 + exif + canon + thumb_blob + raw_ifd + stream
     return bytes(blob), values
 
