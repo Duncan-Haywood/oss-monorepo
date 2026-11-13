@@ -86,3 +86,25 @@ test("exports and save/load round trip", () => {
   assert.ok(parseState("nope").error);
   assert.ok(parseState(JSON.stringify({ app: "other", input: {} })).error);
 });
+
+// Quality audit round 61 (portfolio/quality/audits/2026-11-13-amusement-route-location-calculator.json).
+test("no $0.00 break-even take when prizes, fees and commission exceed the gross", () => {
+  const s = sampleInput();
+  s.prizePct = 60;
+  const r = solve(s);
+  assert.ok(r.rows.some((x) => x.breakEvenTake === null));
+  assert.ok(!r.notes.some((n) => /\$0\.00/.test(n)), r.notes.join("\n"));
+  assert.ok(r.notes.some((n) => /take all of the gross/.test(n)));
+});
+
+test("a location exactly at the target hourly meets it, and one just below does not", () => {
+  const t = solve(one()).rows[0].perHour;
+  assert.equal(solve(one({ targetHourly: t })).rows[0].meets, true);
+  assert.equal(solve(one({ targetHourly: t + 0.5 })).rows[0].meets, false);
+});
+
+test("break-even take is defined when a sliver of the gross is kept", () => {
+  // keep = 1 - 0.5 commission - 0.2 prizes = 0.3: a break-even take must exist.
+  const r = solve(one({ prizePct: 20 }, { commissionPct: 50 })).rows[0];
+  assert.ok(r.breakEvenTake > 0);
+});
