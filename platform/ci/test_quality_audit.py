@@ -127,6 +127,19 @@ class QualityAuditTest(unittest.TestCase):
         assert q.free_seed("2026-11-10", used) == "2026-11-10-c"
         assert q.free_seed("2026-11-11", used) == "2026-11-11"
 
+    def test_claim_seed_adds_a_random_tail_so_concurrent_draws_differ(self):
+        assert q.claim_seed("2026-11-13-o", token="3fa2") == "2026-11-13-o-3fa2"
+        seeds = {q.claim_seed("2026-11-13-o") for _ in range(20)}
+        assert len(seeds) > 1 and all(s.startswith("2026-11-13-o-") for s in seeds)
+        # the tail survives the claim-PR title parse, so a later run sees it as held
+        assert q.free_seed("2026-11-13", [{"seed": "2026-11-13-3fa2"}, {"seed": "2026-11-13-b-0c1d"}]) == "2026-11-13-c"
+        assert q.parse_round_titles(["quality: round 70 (seed 2026-11-13-p-3fa2)"]) == [(70, "2026-11-13-p-3fa2")]
+        # and two seeds that differ only in the tail draw different subjects
+        pop = q.population()
+        a = q.draw("2026-11-13-o-0001", audits=[], pop=pop)
+        b = q.draw("2026-11-13-o-0002", audits=[], pop=pop)
+        assert [x["subject"] for x in a if x["stratum"] == "venture"] != [x["subject"] for x in b if x["stratum"] == "venture"]
+
     def test_next_round_reads_post_names(self):
         import tempfile
         with tempfile.TemporaryDirectory() as d:
