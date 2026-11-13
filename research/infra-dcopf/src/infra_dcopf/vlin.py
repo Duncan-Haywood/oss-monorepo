@@ -17,6 +17,7 @@ A QP on the case's own costs over the linear model gives the next point. Rows ar
 by VSCALE so 0.01 pu weighs like 1 MVA).
 """
 import copy
+import time
 
 import numpy as np
 from scipy.sparse import csc_matrix, csr_matrix, hstack, vstack
@@ -266,8 +267,79 @@ def rows(ppc, lin, margin=None):
     return np.vstack(A), np.concatenate(u), kind, a_eq, b_eq
 
 
-def solve(ppc, lin, ptrust=None, vtrust=None, elastic=None, margin=None):
-    """QP over x = [P, V]. Returns (pg, v, ok)."""
+QP_STATS = {"calls": 0, "rows_full": 0, "rows_used": 0, "passes": 0, "fallback": 0}
+SCREEN_TOL = 1e-6   # a row left out of the screened QP is added once the solution breaks it by more
+SCREEN_MAX = 30     # constraint-generation passes before the screened QP falls back to the full one
+
+
+def _qp(H0, c0, A, u, a_eq, b_eq, xmin, xmax, x0, elastic):
+    """One PIPS solve over the rows A x <= u (dense A). Returns (x over the n original variables, ok)."""
+    n = H0.shape[0]
+    m = A.shape[0]
+    if elastic is None:
+        H, c = csr_matrix(H0), c0
+        AA = vstack([csr_matrix(a_eq[None, :]), csr_matrix(A)]).tocsr()
+        lo = np.concatenate([[b_eq], np.full(m, -np.inf)])
+        up = np.concatenate([[b_eq], u])
+        xl, xu, xs = xmin, xmax, x0
+    else:
+        from scipy.sparse import block_diag, eye
+        H = block_diag([csr_matrix(H0), 1e-8 * eye(m)]).tocsr()
+        c = np.concatenate([c0, np.full(m, float(elastic))])
+        AA = vstack([hstack([csr_matrix(a_eq[None, :]), csr_matrix((1, m))]),
+                     hstack([csr_matrix(A), -eye(m)])]).tocsr()
+        lo = np.concatenate([[b_eq], np.full(m, -np.inf)])
+        up = np.concatenate([[b_eq], u])
+        xl, xu = np.concatenate([xmin, np.zeros(m)]), np.concatenate([xmax, np.full(m, np.inf)])
+        xs = np.concatenate([x0, np.maximum(A @ x0 - u, 0.0)])
+    res = qps_pips(H, c, AA, lo, up, xl, xu, xs, {"verbose": 0, "max_it": 200})
+    x = np.asarray(res[0]).ravel()
+    return x[:n], bool(res[2] > 0)
+
+
+def _qp_clarabel(H0, c0, A, u, a_eq, b_eq, xmin, xmax, x0, elastic):
+    """The same QP as _qp, solved by Clarabel (interior point, conic form). Returns (x, ok)."""
+    import clarabel
+    from scipy.sparse import block_diag, eye, triu
+    n, m = H0.shape[0], A.shape[0]
+    if elastic is None:
+        P, q, Ain, nn = csc_matrix(H0), c0, csr_matrix(A), n
+        lo_b, hi_b = xmin, xmax
+        aeq = csr_matrix(a_eq[None, :])
+    else:
+        P = block_diag([csc_matrix(H0), 1e-8 * eye(m)]).tocsc()
+        q = np.concatenate([c0, np.full(m, float(elastic))])
+        Ain = hstack([csr_matrix(A), -eye(m)]).tocsr()
+        nn = n + m
+        lo_b, hi_b = np.concatenate([xmin, np.zeros(m)]), np.concatenate([xmax, np.full(m, np.inf)])
+        aeq = hstack([csr_matrix(a_eq[None, :]), csr_matrix((1, m))]).tocsr()
+    I = eye(nn, format="csr")
+    up, dn = np.isfinite(hi_b), np.isfinite(lo_b)
+    Acon = vstack([aeq, Ain, I[up], -I[dn]]).tocsc()
+    b = np.concatenate([[b_eq], u, hi_b[up], -lo_b[dn]])
+    cones = [clarabel.ZeroConeT(1), clarabel.NonnegativeConeT(Acon.shape[0] - 1)]
+    st = clarabel.DefaultSettings()
+    st.verbose = False
+    sol = clarabel.DefaultSolver(triu(P).tocsc(), q, Acon, b, cones, st).solve()
+    x = np.asarray(sol.x, float)
+    ok = str(sol.status) in ("Solved", "AlmostSolved")
+    return (x[:n] if x.size else np.full(n, np.nan)), ok
+
+
+QP_LOG = []  # solve(..., record=True) appends each QP's pieces here (audit script)
+
+
+def solve(ppc, lin, ptrust=None, vtrust=None, elastic=None, margin=None, screen=False, solver="pips",
+          record=False):
+    """QP over x = [P, V]. Returns (pg, v, ok).
+
+    screen=False solves the QP over every row (milestones 3b and 2). screen=True (milestone 2b) solves
+    it by constraint generation: start from the rows violated at the start point plus the n rows with
+    the least slack there, solve, add every left-out row the solution breaks by more than SCREEN_TOL,
+    and repeat. Each screened QP is a relaxation of the full one, so a solution that breaks no
+    left-out row is the full QP's optimum (in the elastic form the left-out rows' slacks are zero),
+    and an infeasible screened QP means the full one is infeasible too. If SCREEN_MAX passes do not
+    settle, the full QP is solved instead."""
     mg = margin or {}
     lay = lin["lay"]
     g, bus = ppc["gen"], ppc["bus"]
@@ -293,24 +365,44 @@ def solve(ppc, lin, ptrust=None, vtrust=None, elastic=None, margin=None):
         vmin = np.minimum(vmin, vmax)
     xmin, xmax = np.concatenate([pmin, vmin]), np.concatenate([pmax, vmax])
     x0 = np.clip(np.concatenate([pg0, v0]), xmin, xmax)
-    Aeq = a_eq[None, :]
-    if elastic is None:
-        AA = np.vstack([Aeq, A])
-        lo = np.concatenate([[b_eq], np.full(A.shape[0], -np.inf)])
-        up = np.concatenate([[b_eq], u])
-    else:
-        m = A.shape[0]
-        n = ng + nv
-        H = np.block([[H, np.zeros((n, m))], [np.zeros((m, n)), 1e-8 * np.eye(m)]])
-        c = np.concatenate([c, np.full(m, float(elastic))])
-        AA = np.block([[Aeq, np.zeros((1, m))], [A, -np.eye(m)]])
-        lo = np.concatenate([[b_eq], np.full(m, -np.inf)])
-        up = np.concatenate([[b_eq], u])
-        xmin, xmax = np.concatenate([xmin, np.zeros(m)]), np.concatenate([xmax, np.full(m, np.inf)])
-        x0 = np.concatenate([x0, np.maximum(A @ x0 - u, 0.0)])
-    res = qps_pips(csr_matrix(H), c, csr_matrix(AA), lo, up, xmin, xmax, x0, {"verbose": 0, "max_it": 200})
-    x = np.asarray(res[0]).ravel()
-    return x[:ng], x[ng:ng + nv], bool(res[2] > 0)
+    m = A.shape[0]
+    if record:
+        QP_LOG.append(dict(H=H, c=c, A=A, u=u, a_eq=a_eq, b_eq=b_eq, xmin=xmin, xmax=xmax, x0=x0,
+                           elastic=elastic, ng=ng))
+    QP_STATS["calls"] += 1
+    QP_STATS["rows_full"] += m
+    if solver == "clarabel":
+        QP_STATS["rows_used"] += m
+        QP_STATS["passes"] += 1
+        x, ok = _qp_clarabel(H, c, A, u, a_eq, b_eq, xmin, xmax, x0, elastic)
+        return x[:ng], x[ng:], ok
+    if not screen:
+        QP_STATS["rows_used"] += m
+        QP_STATS["passes"] += 1
+        t = time.time()
+        x, ok = _qp(H, c, A, u, a_eq, b_eq, xmin, xmax, x0, elastic)
+        if record:
+            QP_LOG[-1].update(x_pips=x, ok_pips=ok, secs_pips=time.time() - t)
+        return x[:ng], x[ng:], ok
+    slack0 = u - A @ x0
+    use = np.zeros(m, bool)
+    use[slack0 < 0] = True
+    use[np.argsort(slack0)[:min(m, ng + nv)]] = True
+    for _ in range(SCREEN_MAX):
+        QP_STATS["passes"] += 1
+        x, ok = _qp(H, c, A[use], u[use], a_eq, b_eq, xmin, xmax, x0, elastic)
+        if not ok:
+            QP_STATS["rows_used"] += int(use.sum())
+            return x[:ng], x[ng:], False
+        broken = (~use) & (A @ x - u > SCREEN_TOL)
+        if not broken.any():
+            QP_STATS["rows_used"] += int(use.sum())
+            return x[:ng], x[ng:], True
+        use |= broken
+    QP_STATS["fallback"] += 1
+    QP_STATS["rows_used"] += m
+    x, ok = _qp(H, c, A, u, a_eq, b_eq, xmin, xmax, x0, elastic)
+    return x[:ng], x[ng:], ok
 
 
 def shrink(lo, hi, m):
@@ -371,7 +463,8 @@ ELASTIC = 1e4
 VBOX = 0.03
 
 
-def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False):
+def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, screen=False, solver="pips",
+        record=False):
     """Successive linearisation in (P, V): C's step rules (no P box in round 1, then 20 % of range,
     halved on a rejected step), a V box of VBOX pu from round 1 halved with P's, elastic fallback.
     Each history entry keeps its point under "pg" and "vg"."""
@@ -392,7 +485,8 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False):
         pt = ptrust if it > 1 else None
         ok = False
         for kw in ({}, {"elastic": ELASTIC}, {"elastic": ELASTIC / 10}):
-            xp, xv, ok = solve(ppc, lin, ptrust=pt, vtrust=vtrust, margin=margin, **kw)
+            xp, xv, ok = solve(ppc, lin, ptrust=pt, vtrust=vtrust, margin=margin, screen=screen,
+                                solver=solver, record=record, **kw)
             if ok:
                 break
         if not ok:
