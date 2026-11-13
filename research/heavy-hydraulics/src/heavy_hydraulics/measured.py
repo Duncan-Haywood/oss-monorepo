@@ -418,3 +418,47 @@ def stroke_shortfall(x, w, x0):
     g = sum(wi * max(0.0, 1.0 - xi / x0) for xi, wi in zip(x, w)) / tw
     s = sum(wi for xi, wi in zip(x, w) if xi < x0) / tw
     return g, s
+
+
+def idle_pump_power(coef, q_fixed, p_neutral, q_max, p_standby, q_standby=0.0, speed_ratio=1.0):
+    """Pump shaft power (kW) of each circuit while no function moves (milestone 6j).
+
+    coef: fit_pump_loss coefficients (k0, kp, kl, kc), loss in bar of full-stroke flow.
+    Open-centre: the fixed pump at full stroke circulates q_fixed through the valve's neutral passage
+    at p_neutral and pays its own loss L(1, p_neutral) on its displacement.
+    Load-sensing: the variable pump destrokes to its standby pressure and pays its zero-stroke loss
+    L(0, p_standby) on its full displacement q_max, plus the standby flow q_standby at p_standby.
+    speed_ratio scales both pumps' flows (idle pump speed over working speed); the loss in bar of
+    full-stroke flow is held, so drag power scales with speed (an assumption). p_neutral is taken at
+    the flow actually circulated (the caller evaluates it at q_fixed * speed_ratio).
+    Returns (P_open_centre, P_load_sensing)."""
+    k0, kp, kl, kc = coef
+    if min(q_fixed, q_max, speed_ratio) <= 0 or min(p_neutral, p_standby, q_standby) < 0:
+        raise ValueError("flows and speed must be positive, pressures non-negative")
+    l_oc = k0 + kp * p_neutral + kl * p_neutral ** 2 + kc * p_neutral
+    l_ls = k0 + kp * p_standby + kl * p_standby ** 2
+    p_oc = q_fixed * speed_ratio * (p_neutral + l_oc) / 600.0
+    p_ls = (q_max * speed_ratio * l_ls + q_standby * p_standby) / 600.0
+    return p_oc, p_ls
+
+
+def idle_hours_per_work_hour(share, s0):
+    """No-function hours per hour of load-sensing record (6j). share: no-function hours over all
+    machine hours, the record's own still time included; s0: the record's still share t_still / t_ls.
+    share == s0 returns s0 (the record alone); share must lie in [s0, 1)."""
+    if not 0 <= s0 <= share < 1:
+        raise ValueError("need 0 <= s0 <= share < 1")
+    return share * (1.0 - s0) / (1.0 - share)
+
+
+def breakeven_rest_rate_idle(saving_moving, tau, b, p_ls_idle, p_oc_idle, idle_hours):
+    """6g/6i's break-even rest-of-machine fuel rate with idle pump power charged (6j).
+
+    saving_moving: the fixed pump's pump-fuel saving per hour of load-sensing record while moving
+    (L/h), (b / 600) Q [(p + m) / eta_LS - (p + m*) / eta_OC]; idle powers in kW; idle_hours from
+    idle_hours_per_work_hour. f_t* = [saving_moving + b (P_LS - P_OC) idle_hours] / (tau - 1);
+    None where the fixed pump saves no pump fuel overall or loses no time."""
+    s = saving_moving + b * (p_ls_idle - p_oc_idle) * idle_hours
+    if s <= 0 or tau <= 1:
+        return None
+    return s / (tau - 1.0)

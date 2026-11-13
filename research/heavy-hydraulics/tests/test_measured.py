@@ -324,3 +324,25 @@ def test_continued_loss_modes_and_stroke_shortfall():
         continued_loss(tab, 0.05, 0.1, p, "nope")
     g, s = stroke_shortfall([0.0, x0 / 2, x0, 0.9], [1, 1, 1, 1], x0)
     assert g == pytest.approx(1.5 / 4) and s == pytest.approx(0.5)
+
+
+def test_idle_pump_power_and_idle_breakeven():
+    from heavy_hydraulics.measured import (idle_pump_power, idle_hours_per_work_hour,
+                                           breakeven_rest_rate_idle, breakeven_rest_rate_two_eta)
+    coef = (8.0, 0.01, 1e-3, 0.04)
+    p_oc, p_ls = idle_pump_power(coef, 100.0, 10.0, 200.0, 20.0, 2.0)
+    assert abs(p_oc - 100 * (10 + 8 + 0.1 + 0.1 + 0.4) / 600) < 1e-12
+    assert abs(p_ls - (200 * (8 + 0.2 + 0.4) + 40) / 600) < 1e-12
+    h_oc, h_ls = idle_pump_power(coef, 100.0, 10.0, 200.0, 20.0, 0.0, speed_ratio=0.5)
+    assert abs(h_oc - p_oc / 2) < 1e-12 and abs(h_ls - 200 * 8.6 / 1200) < 1e-12
+    assert idle_hours_per_work_hour(0.1, 0.1) == 0.1
+    assert abs(idle_hours_per_work_hour(0.5, 0.0) - 1.0) < 1e-12
+    # with no idle the formula is 6g's
+    m, ms, p, q, tau, b, el, eo = 20.0, 8.0, 130.0, 90.0, 1.2, 0.22, 0.75, 0.84
+    sm = b / 600 * q * ((p + m) / el - (p + ms) / eo)
+    assert abs(breakeven_rest_rate_idle(sm, tau, b, 3.0, 4.0, 0.0)
+               - breakeven_rest_rate_two_eta(m, ms, p, q, tau, b, el, eo)) < 1e-12
+    # idle hours where open-centre idles worse lower the threshold linearly
+    f1 = breakeven_rest_rate_idle(sm, tau, b, 3.0, 4.0, 0.5)
+    assert abs(f1 - (sm - b * 0.5) / 0.2) < 1e-12
+    assert breakeven_rest_rate_idle(sm, tau, b, 0.0, 100.0, 1.0) is None
