@@ -18,4 +18,50 @@ fpalign64 | 64 | 2 | 4 | 0.536 | True | False | True | False
 pcsh128 | 128 | 127 | 127 | 0.412 | True | False | False | False
 pcsh64 | 64 | 63 | 63 | 0.380 | True | False | False | False
 
-## Blind test: no table yet
+## Blind test (milestone 121 flow run): 12 cells
+
+clock | design | routed/r2 | routed delay/period | skip-r1 % | clipped skip-r1 % | random % | SWC = SWD(1) % | SWD(8) % | SWDG %
+relaxed | addsh128 | 4.45 | 0.294 | 6.66 | 7.74 | 1.30 | 7.74 | 1.30 | 1.30
+tight | addsh128 | 4.56 | 0.441 | 6.24 | 23.02 | 1.82 | 23.02 | 1.82 | 1.82
+relaxed | addsh64 | 2.69 | 0.448 | 5.06 | 4.53 | 1.86 | 1.86 | 1.86 | 1.86
+tight | addsh64 | 2.66 | 0.671 | 4.78 | 4.78 | 1.78 | 1.78 | 1.78 | 1.78
+relaxed | fpalign128 | 3.71 | 0.389 | 21.30 | 21.30 | 8.38 | 21.30 | 8.38 | 21.30
+tight | fpalign128 | 3.62 | 0.585 | 21.03 | 21.03 | 8.73 | 21.03 | 8.73 | 21.03
+relaxed | fpalign64 | 2.54 | 0.412 | 7.59 | 0.00 | 5.70 | 5.70 | 5.70 | 5.70
+tight | fpalign64 | 2.53 | 0.618 | 7.34 | 0.00 | 5.13 | 5.13 | 5.13 | 5.13
+relaxed | pcsh128 | 4.94 | 0.395 | 0.00 | 0.00 | 1.66 | 0.00 | 0.00 | 0.00
+tight | pcsh128 | 4.87 | 0.589 | 0.00 | 0.00 | 1.81 | 0.00 | 0.00 | 0.00
+relaxed | pcsh64 | 3.02 | 0.568 | 2.35 | 0.00 | 0.95 | 0.00 | 0.00 | 0.00
+tight | pcsh64 | 3.01 | 0.851 | 2.35 | 0.00 | 0.92 | 0.00 | 0.00 | 0.00
+
+blind mean regret %: SWC 7.30, SWD(1) 7.30, SWD(8) 2.89, SWDG 4.99, SWS(64) 3.34, random 3.34
+
+blind SWD(1) vs random: better 4, worse 4, tied 4; sign p = 1.000; design bootstrap 95% interval of mean (SWD(1) - random) -0.87 to +9.21 points
+blind SWD(8) vs random: better 4, worse 0, tied 8; sign p = 0.125; design bootstrap 95% interval of mean (SWD(8) - random) -1.02 to +0.00 points
+blind SWDG vs random: better 4, worse 2, tied 6; sign p = 0.688; design bootstrap 95% interval of mean (SWDG - random) -1.02 to +6.31 points
+blind SWD(1) vs SWS(64): better 4, worse 4, tied 4; sign p = 1.000; design bootstrap 95% interval of mean (SWD(1) - SWS(64)) -0.87 to +9.21 points
+
+## Blind cells by family (descriptive)
+
+family | cells | ladder branch | SWC % | SWD(8) % | SWDG % | random %
+addsh | 4 | 2 | 8.60 | 1.69 | 1.69 | 1.69
+fpalign | 4 | 2 | 13.29 | 6.98 | 13.29 | 6.98
+pcsh | 4 | 4 | 0.00 | 0.00 | 0.00 | 1.33
+
+## Milestones 119 to 121 blind cells together (36 cells, 18 designs; only milestone 121's 12 were blind to amount_depth)
+
+mean regret %: SWC 6.98, SWS(64) 5.73, SWD(1) 6.41, SWDG 4.75, random 5.09
+
+SWDG vs random: better 9, worse 2, tied 25; sign p = 0.065; design bootstrap 95% interval of mean (SWDG - random) -2.13 to +1.61 points
+SWD(1) vs random: better 9, worse 6, tied 21; sign p = 0.607; design bootstrap 95% interval of mean (SWD(1) - random) -1.47 to +4.39 points
+SWDG vs SWS(64): better 8, worse 2, tied 26; sign p = 0.109; design bootstrap 95% interval of mean (SWDG - SWS(64)) -3.42 to +1.35 points
+
+(1) pcsh cells, SWC below random: True (0.00% against 1.33%)
+(2) at least 2 of 4 pcsh cells on the ladder branch: True (4)
+(3) blind SWD(1) below SWS(64): False (7.30% against 3.34%)
+(4) addsh cells, SWC above random: True (8.60% against 1.69%)
+(5) fpalign cells, SWC below random: False (13.29% against 6.98%)
+(6) blind SWDG below random: False (4.99% against 3.34%)
+(7) 36 blind cells, SWDG better than random in more cells than worse: True (9 better, 2 worse)
+
+Also (not a test; seen and blind together, 172 cells): SWDG 1.85%, SWD(1) 2.20%, SWS(64) 2.05%, SWC 2.78%, random 2.94%

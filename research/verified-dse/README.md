@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 120 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 121 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -98,6 +98,13 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   band-extended guard SWG 7.16%, random 7.16%, the unguarded rule 8.38%. The property that defeats the ladder looks like a shift
   amount taken straight from an input, not a shift operator:
   [`experiments/shift_power/`](experiments/shift_power/results.txt).
+- **Where the shift amount comes from decides it (milestone 121, flow run, three new families run blind).** A left shifter whose
+  amount is the popcount of a mask (a counter chain 63 to 127 cells deep) is where the clipped ladder wins: 0.00% regret in all 4
+  cells against 0.92 to 1.81% for random routing. One adder (`x >> (a + b)`) or an exponent difference (`x >> |ea - eb|`) in front
+  of the amount is not enough: the ladder still loses (8.60% and 13.29% against 1.69% and 6.98%). The registered guard "route
+  randomly on a 64-bit-plus shifter whose amount is under 8 word-level cells deep", SWD(8), has 2.89% blind regret against 3.34%
+  for random routing and 7.30% for the unguarded rule (better in 4 cells, worse in none); the primary "pins only" version was too
+  literal: [`experiments/amount_depth/`](experiments/amount_depth/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 
