@@ -1,6 +1,6 @@
 ---
 title: "A hymn already knows where the drops go: song sections from Gregorian double bars"
-seo_title: "Arranging Gregorian chant as EDM: intro, build and drop from the double bars"
+seo_title: "Gregorian chant as EDM: intro, build and drop from the double bars"
 date: 2026-11-13
 tags: [ventures, chant-forge, music]
 description: "Chant Forge now arranges its backing as a song. Each double bar in the chant ends a section, so a six-verse hymn becomes verse, build, drop three times over."
