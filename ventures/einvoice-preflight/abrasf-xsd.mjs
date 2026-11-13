@@ -1,4 +1,4 @@
-// Structure and value checks for an ABRASF municipal NFS-e file (layouts 2.03 and 2.04),
+// Structure and value checks for an ABRASF municipal NFS-e file (layouts 2.00 to 2.04),
 // read from the ABRASF XSDs by build-abrasf-schema.mjs. The schema is the first gate a
 // municipal web service applies; a file that fails it is refused before any tax rule.
 //   ABR-002 an element the schema does not allow here, or one too many
@@ -14,6 +14,21 @@ export const ABRASF_NS = "http://www.abrasf.org.br/nfse.xsd";
 export const VERSIONS = Object.keys(data.versions);
 export const SOURCE = data.source;
 const finding = (rule, message, fix, path) => ({ rule, message, fix, path });
+
+// Elements some providers add to the ABRASF model, as seen in their published sample files
+// (README, "ABRASF 2.00 to 2.02"). The schema finding stands, since the ABRASF schema does
+// not allow them; the note says whose extension it is, so a file meant for that provider's
+// city is not "fixed" by deleting a field its web service wants.
+const PROVIDER_EXTRA = {
+  "LoteRps/Token": "Token in LoteRps is an AVMB extension (its 2.02 samples carry it): keep it if the city runs AVMB's system.",
+  "InfDeclaracaoPrestacaoServico/DataPagamento": "DataPagamento is a Fintel extension (its 2.02 samples carry it): keep it if the city runs Fintel's system.",
+  "InfDeclaracaoPrestacaoServico/IBSCBS": "IBSCBS is the 2026 tax-reform (IBS/CBS) group some providers have added to their ABRASF layout (WebISS's 2.02 RTC sample carries it): keep it if the city's provider asks for it.",
+  "Servico/CodigoNBS": "CodigoNBS is a tax-reform (NBS service code) field some providers have added (Sonner's 2.01 samples carry it): keep it if the city's provider asks for it.",
+  "Servico/MunicipioPrestacao": "MunicipioPrestacao is a tax-reform field Sonner's 2.01 RTC sample carries: keep it if the city's provider asks for it.",
+  "Servico/PaisPrestacao": "PaisPrestacao is a tax-reform field Sonner's 2.01 RTC sample carries: keep it if the city's provider asks for it.",
+  "InfNfse/tsStatusRps": "tsStatusRps is not an ABRASF element; it appears in replies from at least one city's own system (Campo Novo do Parecis), so it comes from the city, not from your RPS.",
+  "InfNfse/tsStatusNfse": "tsStatusNfse is not an ABRASF element; it appears in replies from at least one city's own system (Campo Novo do Parecis), so it comes from the city, not from your RPS.",
+};
 
 const regexCache = new Map();
 const xsdRegex = (source) => {
@@ -175,7 +190,7 @@ function checker(schema) {
       if (!t || (t !== "#any" && c.ns !== ABRASF_NS)) {
         structural = true;
         out.push(finding("ABR-002", t ? `${c.name} inside ${node.name} is not in the ABRASF namespace (${ABRASF_NS}).` : `${c.name} is not allowed inside ${node.name}.`,
-          t ? "Declare xmlns=\"http://www.abrasf.org.br/nfse.xsd\" so every element is in it (a default namespace dropped on a child is the usual cause)." : `Remove ${c.name}, or check its spelling (element names are case-sensitive) and where the schema puts it.`, `${path}/${c.name}`));
+          t ? "Declare xmlns=\"http://www.abrasf.org.br/nfse.xsd\" so every element is in it (a default namespace dropped on a child is the usual cause)." : `Remove ${c.name}, or check its spelling (element names are case-sensitive) and where the schema puts it.${PROVIDER_EXTRA[`${node.name}/${c.name}`] ? ` ${PROVIDER_EXTRA[`${node.name}/${c.name}`]}` : ""}`, `${path}/${c.name}`));
         continue;
       }
       const n = (count.get(c.name) ?? 0) + 1;

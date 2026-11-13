@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKko8JnSzms63yQak3m",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T03:18:12Z",
+  "ended": "2026-11-13T03:24:34Z",
+  "wall_minutes": 6.6,
+  "tokens_in": 5169792,
+  "tokens_out": 27096,
+  "cost_usd": 2.5409,
+  "tool_calls": 48,
+  "task": "heavy-hydraulics milestone 6d: two-number screening rule for the excavator fuel threshold, grouped CV, decision curve",
+  "projects": [
+    "heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15356",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    {
+      "issue": "First draft of the LOG reading claimed borrowed parameters move the threshold more than geometry; a spread check run before commit showed comparable spreads (x5.9 vs x9.2), so the claim was removed and the correction recorded in LOG.md and the post."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "issue": "6c's Next steps (a)-(c) all need hosts (huggingface.co, PEMS paper hosts) that the proxy refused again this session; WebFetch also cannot resolve gaftp.epa.gov or typeset.io, so the programme's planned path is host-bound for a third session in two days."
+    },
+    {
+      "file": "research/_shared/linefig.py",
+      "issue": "write_lines supports hline but no vertical marker line, so a decision curve cannot mark a reference x value (1.48 L/h)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "why": "Planned next step needed unreachable hosts",
+      "did": "Ran a network-free step on 6c's committed per-case table (screening rule + decision curve), predictions registered first",
+      "result": "3 of 5 predictions held; result and figure landed in paper section 3.7f"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-two-numbers-for-the-excavator-pump-call.md",
+    "research/heavy-hydraulics/LOG.md (6d entry)",
+    "research/heavy-hydraulics/paper/draft.md section 3.7f"
+  ],
+  "goal": null,
+  "notes": "Local checks: pytest 58 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_numbers 223 claims 0 missing; programme_check ok; post frontmatter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3d69e618-103f-5d7a-83ef-787a6480c162",
+    "transcripts": 1,
+    "first": "2026-11-13T03:18:12Z",
+    "last": "2026-11-13T03:24:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 89,
+        "output": 27096,
+        "thinking": 4894,
+        "cache_read": 5046027,
+        "cache_write_5m": 0,
+        "cache_write_1h": 123676,
+        "api_equivalent_usd": 2.5409,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 89,
+      "output": 27096,
+      "thinking": 4894,
+      "cache_read": 5046027,
+      "cache_write_5m": 0,
+      "cache_write_1h": 123676,
+      "api_equivalent_usd": 2.5409,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "WebFetch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.6,
+      "active_minutes": 6.6,
+      "model_minutes": 5.35,
+      "tool_minutes": 1.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "fit, CV, figure, paper section and post for one analysis step",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 157.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

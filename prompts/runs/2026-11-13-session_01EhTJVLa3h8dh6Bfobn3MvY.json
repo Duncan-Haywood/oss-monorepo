@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVLa3h8dh6Bfobn3MvY",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support products); merge when done",
+  "input_sha256": "c80ba5e82dd7c0d78cd065fda4c44b439a58dd31b05efd640ad8e8859ab0292e",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T03:15:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: share-tag pass in platform/pages/share.mjs (item 2 of pages-build-perf-2026-11-12-warm-phases.md)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 15354,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/pages-build-perf-2026-11-12-warm-phases.md",
+      "issue": "Item 2 named setContent's per-tag new RegExp as the 6.8 s cost; measured on captured input, the real top statement was the leading-\\s* data: favicon regex (0.73 s of 3.6 s), and the 6.8 s included page I/O."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/pages-build-perf-2026-11-13-share-data-icon-scan.md",
+    "docs/posts/2026-11-13-two-characters-of-regex-cost-a-second.md"
+  ],
+  "goal": null,
+  "notes": "Metric: completeShareTags time over the 9,069 pages captured just before the share pass (temporary env-gated cpSync, reverted). Before 3.4-3.8 s, after 2.6-2.9 s (bench script, 3 reps per module, same container, 4 cores). Output hash identical (075541f895e937c9); full build.mjs before/after diff -rq over 27,135 files differs only in version.json built_at. Pool reading: ci_profile --runs 300, Portfolio Pages 87.3 of 247.9 job-min, 'Test the site builder' 32.1 min. Site suite before: 1619 tests, 1593 pass, 0 fail, 5m23s cold card cache; after: 1620 tests, 1594 pass, 0 fail (1m46s, warm card cache, not comparable). Dead ends dropped: substring prefilter for metaContent and decode & fast path (within noise). ~0.9 s per full build; the suite runs several builds per job.",
+  "corrections": [],
+  "redteam": null
+}

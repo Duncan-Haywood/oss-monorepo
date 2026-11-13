@@ -214,3 +214,10 @@ case (`priorDf` in `btRefit.ts`, tested, unwired). The stored states still drive
 selection and the couple screen. Measurements: docs/INFORMATION-GAIN-SELECTOR.md, "Per-person
 intervals from a refit", "The clear-top-pick claim", "Who it's between", "An empirical-Bayes
 prior", "A stored survey prior" and "A heavier-tailed prior for the pairwise intervals" (2026-11-12).
+Why the survey's pooled sd once fell to 0.33 under the staged selector (2026-11-13): staged's close
+pairs leave the pooled evidence nearly flat in the prior sd (5-13 nats from 0.3 to 1.2 over 40 people,
+against 281 under the shipped selector), so noise can tip its maximum to the floor; the sampler is not
+at fault (20000 draws agree to 0.4 nats). The upper end of the evidence's likelihood interval
+(`pooledPriorPhiUpper`, tested, unwired) holds 95.5-95.7% pairwise coverage for honest respondents at
+about 15% less width than the fixed prior, but careless answers drop it to 0.72-0.76 in the worst cells,
+so the intervals keep the fixed prior: docs/INFORMATION-GAIN-SELECTOR.md, "Why the pooled sd collapsed".

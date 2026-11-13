@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVMg7bMjwE8737y3xX7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T03:06:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 5): einvoice-preflight, ABRASF NFS-e layouts 2.01/2.02 (consolidated onto PR #15349)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15348",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/build-abrasf-schema.mjs",
+      "issue": "The 2.00-2.02 schemas were reported as unavailable only because OpenAC names them with a space ('nfse v201.xsd'); a raw URL without %20 404s. Now encoded in the builder."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two sessions were sent to the same einvoice-preflight slice at the same time; claim_check said HOLD for mine because the other PR (15349) was opened after or without the slug in a title the check read. Both built ABRASF 2.00-2.02 in parallel; mine lost the race and was consolidated."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: PR #15349 from a parallel session merged the same 2.00-2.02 schema slice (with its own post) minutes before mine; a second post on the same change would duplicate it.",
+      "did": "Rebuilt the branch on main and landed only what #15349 lacks: the stale-versao note and the second-source check, documented in the README.",
+      "result": "PR 15348 force-pushed to the rebased follow-up and merged"
+    }
+  ],
+  "writeups": [],
+  "goal": "ship a flagship slice a cloud session can build with no outside input",
+  "notes": "Security queue empty, IDEAS.md and website requests empty; routed ventures via --task; allocate.py gave einvoice-preflight (row 3), claim_check HOLD. Built ABRASF 2.00/2.01/2.02 schemas from OpenAC.Net.NFSe at the pinned commit, deduplicated shared types across layouts (148 KB -> 73 KB data), added a note when the stated versao fits another layout far better. Verification: node --test *.test.mjs in the venture: 1732 tests, 1664 pass, 0 fail, 68 skipped. eval/abrasf-xsd-diff.mjs vs xmllint on 55 ABRASF 2.00-2.02 files from GitHub code search (list in eval/abrasf-2x-corpus-list.txt): 55/55 verdicts agree, 1,397/1,397 mutants agree; no valid 2.00 seed. 2.01/2.02 XSDs identical (modulo whitespace) to lucas-simoes/php-nfse copies; 2.00 single-source. CONSOLIDATION: PR #15349 (another session) merged the same 2.00-2.02 schemas first, with a 48-file/3,059-mutant xmllint diff and provider-extension fixes. My branch was reset onto main; this PR adds only the stale-versao layout note (fires on 0 of 67 published files with a layout in my 193-file corpus; tested on a relabelled fixture) and the php-nfse second-source check, in the README. Venture suite after rebase: 1732 tests, 1664 pass, 0 fail.",
+  "corrections": [],
+  "redteam": null
+}

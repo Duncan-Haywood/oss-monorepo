@@ -2310,3 +2310,112 @@ pooled estimate collapses). The PrefLib panels give real orderings but no
 true logit gaps, so pairwise intervals on them cannot be scored; real
 pairwise answers would not either, which is why this stays a simulation
 question.
+
+
+## Why the pooled sd collapsed, and the upper end of its interval (2026-11-13; measured, not wired)
+
+The heavier-tailed prior section ended on one unexplained number: on seed
+base 50000 the staged 15 items x 8 answers cell's pooled Gaussian sd fell to
+0.33, near the 0.3 floor, against a true spread of 1.155, and its pairwise
+intervals held 0.39 of pairs. This section finds why, and measures a guard.
+
+**It is not the sampler.** `scripts/pooled-collapse-diagnose.ts` rebuilds
+that panel (40 respondents, seeds 150000 + 7i) and evaluates the pooled
+sampled evidence on a grid of phi with the shipped 2000 draws and with 20000
+draws on another seed. The two curves agree to 0.4 nats everywhere and have
+the same shape, so the importance sampler's bias and noise are far too small
+to move the maximum.
+
+**The evidence surface is flat under staged.** Pooled log evidence, summed
+over the 40 respondents of each panel, 15 items x 8 answers, uniform truth:
+
+| panel | phi 0.3 | 0.6 | 0.8 | 1.0 | 1.2 | 1.5 | 2.0 | maximum at |
+|---|---|---|---|---|---|---|---|---|
+| staged, seeds 150000+ (the collapse) | -3325.4 | -3325.7 | -3326.2 | -3327.6 | -3330.9 | -3339.7 | -3363.1 | 0.33 |
+| staged, seeds 101000+ | -3317.6 | -3308.6 | -3305.1 | -3304.1 | -3305.8 | -3313.2 | -3335.8 | 0.97 |
+| shipped, seeds 150000+ | -3165.4 | -2988.3 | -2926.4 | -2895.5 | -2884.7 | -2890.9 | -2930.7 | 1.26 |
+
+From phi 0.3 to 1.2 the shipped panel's evidence climbs 281 nats; the staged
+panels move 5 to 13. Staged asks close pairs (mean true gap 0.80 logits,
+against 1.25 under shipped; 56 distinct pairs per person against 74), and a
+close pair's answer is near a coin flip whatever the spread, so it says
+almost nothing about phi. On a plateau that flat, ordinary panel-to-panel
+noise can tip the maximum to either end.
+
+**How often, and which way it leans** (`scripts/pooled-phi-spread.ts`, rows
+in `docs/pooled-phi-spread-2026-11-13.jsonl`). Twelve fresh panels of 40 per
+selector, 15 x 8, plus the collapsed one:
+
+| truth | selector | pooled sd over panels | evidence drop from best to 1.2 |
+|---|---|---|---|
+| uniform | staged | 0.86-1.06 (12 panels); 0.33 on the 13th, the collapse | 0.7-4.1; 5.6 |
+| uniform | shipped | 1.06-1.26 (13 panels) | 0-2.5 |
+| normal | staged | 1.09-1.31 (8 panels) | 0-0.5 |
+| normal | shipped | 1.06-1.21 (8 panels) | 0-3.7 |
+
+Two things show. Under uniform truth staged's pooled sd leans low, 0.86-1.06
+where shipped finds 1.06-1.26; with normal truth of the same sd staged finds
+1.09-1.31. So the lean is the Gaussian prior misfitting uniform likes, which
+staged's neighbour comparisons expose (they read the spacing of adjacent
+items, and a uniform's ends are packed tighter than a Gaussian's tails), not
+a fault of the evidence. And the collapse is one panel in 13: its answers
+look ordinary (upsets 0.3315 of answers, 0.3308 predicted by the true gaps),
+so nothing in the raw answers flags it. It is the flat surface, not odd data.
+
+**A guard: the upper end of the likelihood interval** (`pooledPriorPhiUpper`
+in `src/lib/btRefit.ts`, tests in `btRefitUpper.test.ts`). The largest phi
+whose pooled evidence is within 1.92 nats (half the chi-square(1) 95% point)
+of the best, found by bisection on log phi. On a sharp surface it sits just
+above the maximum; on a flat one it rises toward the fixed prior. Tests: the
+same best phi as `pooledPriorPhi`; the drop at the upper end within 1.92 and
+past it beyond; a larger panel gives a narrower gap; the ceiling when the
+evidence never falls that far. Reverting the bisection (upper = best) fails
+two of the four.
+
+**Coverage** (`scripts/upper-phi-interval-sweep.ts`, rows in
+`docs/upper-phi-intervals-2026-11-13.jsonl`; the heavier-tailed section's
+design: 8/15/30 items x 2/4/8 answers per item, 40 respondents per cell,
+pooled on an independent panel of 40, uniform truth). Honest respondents on
+seed bases 1000 and 50000 (18 cells per row), careless (lapse 0.2) on 1000
+(9 cells). Mean coverage of every pair's 95% interval (worst cell) / mean
+half-width in logits:
+
+| answers | selector | fixed sd 2.0 | pooled maximum | upper end |
+|---|---|---|---|---|
+| honest | shipped | 0.969 (0.947) / 2.43 | 0.942 (0.908) / 1.90 | 0.957 (0.931) / 2.06 |
+| honest | staged | 0.948 (0.870) / 2.34 | 0.866 (0.389) / 1.63 | 0.955 (0.899) / 2.02 |
+| careless | shipped | 0.918 (0.862) / 2.33 | 0.750 (0.666) / 1.51 | 0.812 (0.716) / 1.68 |
+| careless | staged | 0.895 (0.811) / 2.33 | 0.667 (0.339) / 1.34 | 0.857 (0.761) / 1.81 |
+
+What it shows:
+
+- **With honest answers the upper end holds 95% at about 15% less width
+  than the fixed prior** (2.02-2.06 logits against 2.34-2.43), and it turns
+  the collapsed cell from 0.389 to 0.899 (its upper end is 0.96 where the
+  maximum was 0.33).
+- **Under staged with many answers it beats the fixed prior on coverage
+  too.** At 30 items x 8 answers the fixed prior holds 0.870-0.881 and the
+  upper end 0.937-0.939, narrower; at 15 x 8 on seed base 1000, 0.916
+  against 0.946. A prior of 2.0 is wider than the truth, which under-shrinks
+  the items staged compares least, and Laplace intervals for those are too
+  narrow.
+- **Careless answers break it**, as they break every pooled prior: worst
+  cells 0.72 and 0.76, where the fixed prior keeps 0.86 and 0.81. A lapse
+  looks like a smaller spread, so the evidence, honestly, asks for a
+  narrower prior that the intervals then cannot afford.
+
+**Decision.** Measured, not wired. The pairwise intervals keep the fixed
+prior, because a survey with careless respondents would lose 0.06-0.10 of
+coverage, and the route has no stored upper end yet (the Survey row holds
+only the pooled sd). `pooledPriorPhiUpper` stays tested in `btRefit.ts`.
+The obvious next step is to use it only for respondents the lapse estimate
+(`lapseEstimate.ts`) calls honest, which needs the upper end stored beside
+`setPriorPhi` and a sweep with a mixed honest and careless panel. Intervals
+from posterior draws rather than Laplace curvature were not tried here:
+the collapse turned out to be the prior, not the posterior's shape.
+
+Caveats: synthetic Bradley-Terry respondents; uniform truth for the
+coverage sweep (normal only for the spread check); 30 items or fewer; 40
+respondents per cell and per panel, so a cell moves by 0.01-0.02 between
+seed bases, more where the pooled maximum collapses; one collapse seen in
+13 staged panels, so its rate is roughly known at best.

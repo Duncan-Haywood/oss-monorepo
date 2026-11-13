@@ -167,8 +167,9 @@ flagships:
       environment, the cCredPres table, a real SEFAZ rejection for a
       cClassTrib; national NFS-e landed 2026-11-12 (README): open: a
       national-system rejection compared, municipal rates; ABRASF municipal
-      NFS-e 2.03/2.04 landed 2026-11-13 (README): open: ISS retained on a real
-      file, city variants (ISSNet, GINFES, Betha), 2.01/2.02 schemas; refresh
+      NFS-e 2.00-2.04 landed 2026-11-13 (README; provider extensions named):
+      open: ISS retained on a real file, the providers' own XSDs (ISSNet,
+      WebISS, Fiorilli, GINFES in OpenAC.Net.NFSe) chosen by city; refresh
       the Bulgaria page when its draft passes. A run that lands a slice
       replaces its item here; keep this under 2,000 characters.
   - venture: shift-roster-builder
@@ -200,10 +201,10 @@ flagships:
     buildable: >-
       The DNG 1.7.1.0 specification PDF is reachable from a cloud session
       (helpx.adobe.com URL in eval/opcode-spec-audit-2026-11-12.md): read it, not
-      memory. Lensfun vignetting landed 2026-11-13 (eval/lensfun-vignetting-2026-11-13.md);
-      its formula is written out, not run from liblensfun: lensfunpy (pypi) bundles
-      liblensfun 0.3.4, so a check of `apply_color_modification` against
-      build_vignette, as tools/lensfun_released_check.py does for distortion; Canon's maker-note lens number (CameraSettings
+      memory. Lensfun vignetting landed 2026-11-13 and matches the compiled
+      liblensfun 0.3.4 (eval/lensfun-vignetting-released-2026-11-13.md); next on it:
+      the SSE path (four-component float32 images through lensfunpy, if it allows them)
+      and a 16-bit fixed-point output check; Canon's maker-note lens number (CameraSettings
       index 22) mapped to a name for CR2s whose maker note gives no usable name
       (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095 are read
       since 2026-11-13);
@@ -262,14 +263,20 @@ flagships:
       real answer noise) and a Student-t prior for the pairwise intervals ("A
       heavier-tailed prior for the pairwise intervals": narrower but covers
       less than the Gaussian under uniform, normal and Laplace truths;
-      priorDf in btRefit.ts, unwired). Next, most valuable first: (a) why the
-      pooled Gaussian sd collapses toward the 0.3 floor under staged with many
-      answers per item (one cell 0.33, intervals 0.39), and intervals from
-      posterior draws rather than Laplace curvature; (b) half-time salience
-      (q = 0.5 still leaks +0.12 to +0.29: does pace see them?); (c) the first
-      real survey's answers: msToAnswer against the answer-time model, and how
-      noisy real pairwise answers are, which decides the self-consistency gate
-      (scripts/coin-flip-gate-real.ts --honest-lapse); (d) position bias that
+      priorDf in btRefit.ts, unwired). 2026-11-13: the pooled sd's collapse
+      to 0.33 is a flat evidence surface under staged (5-13 nats from 0.3 to
+      1.2 over 40 people vs 281 shipped), not the sampler; the likelihood
+      interval's upper end (pooledPriorPhiUpper, unwired) holds 0.955 honest
+      coverage at 15% less width than fixed, but 0.72-0.76 worst with
+      careless answers ("Why the pooled sd collapsed"). Next, most valuable
+      first: (a) the upper end for respondents lapseEstimate calls honest
+      only: store it beside setPriorPhi and sweep a mixed honest/careless
+      panel, then wire it into the pairwise intervals if it holds; (b)
+      half-time salience (q = 0.5 still leaks +0.12 to +0.29: does pace see
+      them?); (c) the first real survey's answers: msToAnswer against the
+      answer-time model, and how noisy real pairwise answers are, which
+      decides the self-consistency gate (scripts/coin-flip-gate-real.ts
+      --honest-lapse); (d) position bias that
       starts mid-session; (e) the switch rule above 120 items (then make staged
       the default there too).
   - venture: league-schedule-generator

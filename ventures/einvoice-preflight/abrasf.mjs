@@ -3,9 +3,9 @@
 // for conversion (GerarNfseEnvio, EnviarLoteRpsEnvio, EnviarLoteRpsSincronoEnvio), an issued
 // NFS-e (CompNfse) or a web service's reply that carries them. Rule ids are ABR-nnn and are
 // this tool's own; no municipal rejection code is named. Layers:
-//   1. the schema (ABR-002..ABR-006) for layouts 2.03 and 2.04, read from the ABRASF XSDs by
-//      build-abrasf-schema.mjs; a file that states another layout (1.00, 2.00-2.02) or a
-//      provider's own variant skips this layer and says so;
+//   1. the schema (ABR-002..ABR-006) for layouts 2.00 to 2.04, read from the ABRASF XSDs
+//      by build-abrasf-schema.mjs; a file that states another layout (1.00) or a provider's
+//      own variant skips this layer and says so;
 //   2. identifiers (ABR-010, ABR-011): CNPJ and CPF check digits (brazil.mjs); every IBGE
 //      municipality code (CodigoMunicipio, MunicipioIncidencia, CodigoMunicipioGerador)
 //      against IBGE's list of 5,571 codes, its check digit, and the state named beside it;
@@ -247,15 +247,26 @@ export function checkAbrasf(text) {
   const stated = statedVersion(root);
   let version = "";
   if (offNs) skipped.push(`schema: ${root.name} is outside the ABRASF namespace, so the schema layer is skipped (identifiers and values are still checked)`);
-  else if (other) skipped.push(`schema: ${root.name} is not an element ABRASF 2.03 or 2.04 declares as a document (an older layout such as 1.00, a provider's variant, or a fragment), so the schema layer is skipped (identifiers and values are still checked)`);
+  else if (other) skipped.push(`schema: ${root.name} is not an element ABRASF 2.00-2.04 declares as a document (an older layout such as 1.00, a provider's variant, or a fragment), so the schema layer is skipped (identifiers and values are still checked)`);
   else if (VERSIONS.includes(stated)) version = stated;
   else if (!stated) {
     // No layout stated: take the layout under which the file draws fewer schema findings.
     const tries = VERSIONS.map((v) => [v, checkAgainstAbrasf(root, v)]).sort((a, b) => a[1].length - b[1].length || (a[0] < b[0] ? 1 : -1));
     version = tries[0][0];
     skipped.push(`layout: the file states none (no versao); checked against ABRASF ${version}, the layout it fits best`);
-  } else skipped.push(`schema: the file states layout ${stated}; only ABRASF 2.03 and 2.04 are read, so the schema layer is skipped (identifiers and values are still checked)`);
-  if (version) findings.push(...checkAgainstAbrasf(root, version));
+  } else skipped.push(`schema: the file states layout ${stated}; only ABRASF 2.00 to 2.04 are read, so the schema layer is skipped (identifiers and values are still checked)`);
+  if (version) {
+    const own = checkAgainstAbrasf(root, version);
+    findings.push(...own);
+    // A stale or copied versao: the file draws schema findings under the layout it states
+    // but none, or far fewer, under another (2.00 writes DataEmissao as a date and time,
+    // 2.01 on as a date; 2.04 renamed Tomador to TomadorServico). Say which layout it fits;
+    // the findings stand.
+    if (stated && own.length) {
+      const best = VERSIONS.filter((v) => v !== version).map((v) => [v, checkAgainstAbrasf(root, v).length]).sort((a, b) => a[1] - b[1] || (a[0] < b[0] ? 1 : -1))[0];
+      if (best && (best[1] === 0 || best[1] * 2 <= own.length - 2)) skipped.push(`layout: the file states ${version} and draws ${own.length} schema finding${own.length === 1 ? "" : "s"} under it, but ${best[1] === 0 ? "none" : best[1]} under ABRASF ${best[0]}: if the city's web service runs ${best[0]}, set versao to ${best[0]} (or build the file to ${version})`);
+    }
+  }
   checkIds(root, base, findings);
   const notes = new Set();
   checkValues(root, base, findings, notes);
