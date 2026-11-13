@@ -32,6 +32,7 @@ therefore stated on the 45 GoEmotions cells, and the NaijaSenti maxima are repor
 
     python3 experiments/h7ap_priced_floor.py draws [reps]   # -> h7ap_priced_floor_draws.txt
     python3 experiments/h7ap_priced_floor.py summary        # decision rule -> h7ap_priced_floor.txt
+    python3 experiments/h7ap_priced_floor.py posthoc [reps] # exploratory, added after the summary (see below)
 
 Prediction (written and committed before any draw):
   P0  (replay) shipped and gtp2 reproduce 7ao's committed ratios in all 51 cells to three decimals.
@@ -49,6 +50,16 @@ Prediction (written and committed before any draw):
   shipped's by 0.05 or more (about 2% of the gain; less is not worth a second code path in the default plan). Then the
   defaults become FALLBACK_PSEUDO 2, FALLBACK_TWO_PHASE (True or "neg") and PRICE_FLOOR True in a follow-up PR that pins
   every earlier script. Otherwise every default stays off and the summary says which prediction failed.
+
+POST HOC (added after the summary was read; exploratory, decides nothing): the per-draw diff behind gtp2p's shortfall
+showed single fallback draws at about 3 times the pooled width (0.5B fear n 500, draw 814: a pilot holding one positive,
+which the coder labelled 1, so lambda is 1, every pooled residual is 0, `predicted_ratio` returns its "no information"
+1.0 and the margin-0 gate lets cells through). `posthoc` reruns with no_info=inf (such a pilot goes to pooled):
+    shipq  shipped with no_info inf (does the edge case touch the shipped rule?)
+    gtp2q  gtp2p with no_info inf
+    gtn2q  gtn2p with no_info inf
+on the same 51 cells and streams -> h7ap_posthoc_draws.txt and h7ap_posthoc.txt. Any adoption needs a fresh
+pre-registered test (7aq), since this one was chosen after seeing these draws.
 """
 import sys
 from multiprocessing import Pool
@@ -66,6 +77,10 @@ RULES = [("pooled", 0, 0.0, None, False, False, False), ("shipped", 3, 0.0, None
          ("gtp2", 3, 0.0, 2.0, False, True, False), ("gtp2p", 3, 0.0, 2.0, False, True, True),
          ("gtn2p", 3, 0.0, 2.0, False, "neg", True)]
 CANDIDATES = ("gtp2p", "gtn2p")
+INF = float("inf")
+POSTHOC = [RULES[0], RULES[1], ("shipq", 3, 0.0, None, False, False, False, INF), RULES[3],
+           ("gtp2q", 3, 0.0, 2.0, False, True, True, INF), ("gtn2q", 3, 0.0, 2.0, False, "neg", True, INF)]
+POST_OUT = HERE / "h7ap_posthoc_draws.txt"
 OUT = HERE / "h7ap_priced_floor_draws.txt"
 HEAD = T.HEAD
 
@@ -78,7 +93,7 @@ def run(c, reps, rules=RULES):
     if c["part"] == "goemo":
         rr = random.Random(c["seed"] + 5)
         pilots = [rr.sample(range(N), n // 2) for _ in range(reps)]
-    for name, ng, a, fb, tp, ftp, pf in rules:
+    for name, ng, a, fb, tp, ftp, pf, *ni in rules:
         out = []
         if c["part"] != "goemo":
             rr = random.Random(c["seed"])
@@ -91,7 +106,8 @@ def run(c, reps, rules=RULES):
             labels = {i: h[i] for i in pilot}
             passed = sum(1 for i in pilot if h[i] and not f[i]) >= A.NEG_GUARD
             plan = A.plan_audit(f, labels, n, tau=tau, guard=0, neg_guard=ng, width_margin=0.0, pseudo=a,
-                                fallback_pseudo=fb, two_phase=tp, fallback_two_phase=ftp, price_floor=pf)
+                                fallback_pseudo=fb, two_phase=tp, fallback_two_phase=ftp, price_floor=pf,
+                                no_info=ni[0] if ni else 1.0)
             for cell, t in zip(plan["cells"], plan["to_label"]):
                 for i in sb.sample([i for i in cell if i not in labels], t):
                     labels[i] = h[i]
@@ -103,11 +119,12 @@ def run(c, reps, rules=RULES):
 
 
 def one_cell(args):
-    c, reps = args
-    res = run(c, reps)
+    c, reps, *rs = args
+    rules = rs[0] if rs else RULES
+    res = run(c, reps, rules)
     wp = sum(x[0] for x in res["pooled"]) / reps
     lines = []
-    for name, *_r in RULES:
+    for name, *_r in rules:
         r = res[name]
         w = sum(x[0] for x in r) / reps
         gp = [x for x in r if x[2] and x[4]] if c["part"] == "goemo" else []
@@ -127,6 +144,31 @@ def draws(reps):
     with Pool(4) as p:
         got = p.map(one_cell, [(c, reps) for c in cs], chunksize=1)
     OUT.write_text("\n".join([HEAD] + [l for g in got for l in g]) + "\n")
+
+
+def posthoc(reps):
+    cs = list(T.cells())
+    with Pool(4) as p:
+        got = p.map(one_cell, [(c, reps, POSTHOC) for c in cs], chunksize=1)
+    POST_OUT.write_text("\n".join([HEAD] + [l for g in got for l in g]) + "\n")
+    by = {}
+    for line in POST_OUT.read_text().splitlines()[1:]:
+        x = [s.strip() for s in line.split("|")]
+        by[(x[0], int(x[1]), x[3])] = x
+    keys = list(dict.fromkeys((k[0], k[1]) for k in by))
+    old39 = [k for k in keys if not k[0].startswith("lr ")]
+    goemo = [k for k in keys if not k[0].startswith(("nb-", "lexicon-"))]
+    out = ["POST HOC (exploratory; chosen after reading the 7ap summary): no_info=inf sends a pilot the width forecast "
+           "cannot read to pooled"]
+    for nm, *_r in POSTHOC[1:]:
+        g39 = sum(1 - float(by[(*k, nm)][8]) for k in old39)
+        g51 = sum(1 - float(by[(*k, nm)][8]) for k in keys)
+        cov = min(float(by[(*k, nm)][6]) for k in keys)
+        gf = [(k, int(by[(*k, nm)][11]), float(by[(*k, nm)][12])) for k in goemo if int(by[(*k, nm)][11]) >= 50]
+        ov = [(k, float(by[(*k, nm)][8])) for k in goemo if float(by[(*k, nm)][8]) > 1.010]
+        out.append(f"{nm}: gain 7am cells {g39:.3f}, all 51 {g51:.3f}; min coverage {cov:.1f}; GoEmotions above 1.010: "
+                   f"{ov}; guard-fail cells draws >= 50: {[(k, n_, c_) for k, n_, c_ in gf]}")
+    text = "\n".join(out); print(text); (HERE / "h7ap_posthoc.txt").write_text(text + "\n")
 
 
 def committed():
@@ -213,6 +255,8 @@ def main():
     mode = ARGS[0] if ARGS else "summary"
     if mode == "summary":
         summary()
+    elif mode == "posthoc":
+        posthoc(int(ARGS[1]) if len(ARGS) > 1 else 1000)
     else:
         draws(int(ARGS[1]) if len(ARGS) > 1 else 1000)
 

@@ -601,3 +601,24 @@ def test_priced_floor_raises_the_forecast_when_the_second_phase_is_small():
     plan = S.plan_audit(f, pilot, n, neg_guard=0, pseudo=2.0, two_phase=True, price_floor=True, width_margin=None)
     if plan["design"] == "cells":
         assert sum(plan["to_label"]) == n - len(pilot)
+
+
+def test_no_info_sends_an_unreadable_pilot_to_pooled():
+    # LOG.md 7ap (post hoc): a pilot whose only positive the coder also labelled 1 has lambda 1 and every pooled
+    # residual 0, so `predicted_ratio` cannot forecast; its default 1.0 passes the margin-0 gate and the fallback
+    # opened cells at 3 times the pooled width. no_info=inf refuses it; the default keeps every earlier replay.
+    from llmci import audit_design as S
+    rng = random.Random(3)
+    N, n = 6000, 500
+    y = [int(rng.random() < 0.012) for _ in range(N)]
+    f = [a if rng.random() < 0.99 else 0 for a in y]
+    pos1 = next(i for i in range(N) if y[i] and f[i])
+    negs = [i for i in range(N) if not y[i] and not f[i]]
+    pilot = {i: 0 for i in rng.sample(negs, 249)}
+    pilot[pos1] = 1
+    assert S.predicted_ratio(f, pilot, n, pseudo=2.0, two_phase=True, price_floor=True) == 1.0
+    assert S.predicted_ratio(f, pilot, n, pseudo=2.0, two_phase=True, price_floor=True, no_info=float("inf")) == \
+        float("inf")
+    kw = dict(fallback_pseudo=2.0, fallback_two_phase=True, price_floor=True, width_margin=0.0)
+    assert S.plan_audit(f, pilot, n, **kw)["design"] == "cells"
+    assert S.plan_audit(f, pilot, n, no_info=float("inf"), **kw)["design"] == "pooled"

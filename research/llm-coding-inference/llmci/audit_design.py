@@ -113,7 +113,7 @@ def _cell_s2(f_all, pilot_y, cells, pseudo=0.0):
     return s2
 
 
-def predicted_ratio(f_all, pilot_y, n, floor=FLOOR, pseudo=0.0, two_phase=False, price_floor=False):
+def predicted_ratio(f_all, pilot_y, n, floor=FLOOR, pseudo=0.0, two_phase=False, price_floor=False, no_info=1.0):
     """Pilot plug-in forecast of the half-width ratio, coder cells over one pooled stratum, for an audit of n items
     (LOG.md 7ak). Unlike `pilot_ceiling` (asymptotic, Neyman without floor, pooled at lambda 0) it prices what the
     real audit does: the pooled side uses the control-variate weight lambda fitted on the pilot, the cells side the
@@ -121,13 +121,16 @@ def predicted_ratio(f_all, pilot_y, n, floor=FLOOR, pseudo=0.0, two_phase=False,
     sqrt(var_cells / var_pooled) with the variances of `audit_interval`'s estimator at the planned sizes; 1.0 when
     the pilot leaves the pooled variance at zero. two_phase: price the cells side as the two-phase design of LOG.md
     7ao (`two_phase_allocation`: pilot items known exactly, the rest of each cell estimated from fresh items only).
-    two_phase="neg" or price_floor=True: price the design of LOG.md 7ap (`priced_two_phase`)."""
+    two_phase="neg" or price_floor=True: price the design of LOG.md 7ap (`priced_two_phase`). no_info: what to return
+    when the pilot cannot forecast (fewer than 3 items, pooled variance 0, an empty cell); 1.0 since 7ak, which the
+    width_margin 0 gate reads as "cells allowed". LOG.md 7ap found a fallback pilot with one positive (lambda 1, every
+    residual 0) let through that way at 3 times the pooled width; inf sends such a pilot to pooled."""
     idx = sorted(pilot_y)
     y = [pilot_y[i] for i in idx]
     f = [f_all[i] for i in idx]
     N, m = len(f_all), len(idx)
     if m < 3:
-        return 1.0
+        return no_info
     my, mf = sum(y) / m, sum(f) / m
     vf = sum((b - mf) ** 2 for b in f) / (m - 1)
     lam = 0.0 if vf == 0 else min(1.0, max(0.0, sum((a - my) * (b - mf) for a, b in zip(y, f)) / (m - 1) / vf))
@@ -135,11 +138,11 @@ def predicted_ratio(f_all, pilot_y, n, floor=FLOOR, pseudo=0.0, two_phase=False,
     mr = sum(r) / m
     var_pool = (1 - n / N) * (sum((x - mr) ** 2 for x in r) / (m - 1)) / n
     if var_pool <= 0:
-        return 1.0
+        return no_info
     cells = [[i for i, c in enumerate(f_all) if c == k] for k in (0, 1)]
     sizes = [len(c) for c in cells]
     if min(sizes) == 0:
-        return 1.0
+        return no_info
     s2 = _cell_s2(f_all, pilot_y, cells, pseudo)
     if two_phase == "neg" or (two_phase and price_floor):
         d = priced_two_phase(n, cells, pilot_y, s2, floor, two_phase == "neg", pseudo if price_floor else 0.0)
@@ -219,7 +222,7 @@ def priced_two_phase(n, cells, pilot_y, s2, floor=FLOOR, neg_only=False, pseudo=
 
 def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=NEG_GUARD, width_margin=WIDTH_MARGIN,
                pseudo=PSEUDO, fallback_pseudo=FALLBACK_PSEUDO, two_phase=False, fallback_two_phase=FALLBACK_TWO_PHASE,
-               price_floor=PRICE_FLOOR):
+               price_floor=PRICE_FLOOR, no_info=1.0):
     """One call from a hand-coded pilot to the rest of the audit. f_all: the coder's 0/1 codes on every corpus item;
     pilot_y: {item index: human 0/1} for a simple random pilot (about PILOT_SHARE * n items); n: total audit budget.
     Returns {"design", "cells", "to_label"}: design is "pooled" or "cells" (`screen`); cells are lists of item
@@ -243,18 +246,19 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=N
     two_phase="neg" (LOG.md 7ap): only the coder-negative cell is two-phase; the coder-positive cell reuses its pilot
     labels. price_floor (LOG.md 7ap, default PRICE_FLOOR): a two-phase plan's allocation and width forecast price the
     pseudo-count floor at the second-phase size (`priced_two_phase`). The plan then also carries "phase2", one flag
-    per cell."""
+    per cell. no_info (LOG.md 7ap, post hoc): passed to `predicted_ratio`; float("inf") sends a pilot the forecast cannot
+    read to pooled instead of letting the margin-0 gate accept it."""
     idx = sorted(pilot_y)
     y = [pilot_y[i] for i in idx]
     f = [f_all[i] for i in idx]
     if fallback_pseudo is not None and neg_guard and sum(1 for a, b in zip(y, f) if a and not b) < neg_guard:
         plan = plan_audit(f_all, pilot_y, n, tau, guard, floor, 0, width_margin, fallback_pseudo, None,
-                          two_phase or fallback_two_phase, False, price_floor)
+                          two_phase or fallback_two_phase, False, price_floor, no_info)
         plan["fallback"] = True
         return plan
     design = screen(y, f, tau, guard, neg_guard)
     if design == "cells" and width_margin is not None and \
-            predicted_ratio(f_all, pilot_y, n, floor, pseudo, two_phase, price_floor) > 1 - width_margin:
+            predicted_ratio(f_all, pilot_y, n, floor, pseudo, two_phase, price_floor, no_info) > 1 - width_margin:
         design = "pooled"
     if design == "pooled":
         return {"design": "pooled", "cells": [list(range(len(f_all)))], "to_label": [max(0, n - len(idx))],
