@@ -28,9 +28,9 @@ test('every checked file is unchanged since its reading and has the recorded not
   }
 });
 
-test('the five pieces read by eye (te-deum-simple.gabc is the file read before PR 15377 swapped te-deum.gabc for the 1908 Roman tone) each have a full reading against a pre-1929 book', () => {
+test('the pieces read by eye (te-deum-simple.gabc is the file read before PR 15377 swapped te-deum.gabc for the 1908 Roman tone, read later the same day) each have a full reading against a pre-1929 book', () => {
   const full = new Set(record.checks.filter((c) => c.scope === 'every note' && c.result === 'match').map((c) => c.file));
-  for (const f of ['dies-irae.gabc', 'pange-lingua.gabc', 'veni-creator.gabc', 'te-deum-simple.gabc', 'salve-regina.gabc']) assert.ok(full.has(f), f);
+  for (const f of ['dies-irae.gabc', 'pange-lingua.gabc', 'veni-creator.gabc', 'te-deum.gabc', 'te-deum-simple.gabc', 'salve-regina.gabc']) assert.ok(full.has(f), f);
 });
 
 for (const [slug, h] of Object.entries(HYMNS)) {

@@ -38,6 +38,13 @@
       "scan": "https://archive.org/details/graduale-romanum-1908/page/n419", "leaves": "419",
       "result": "match", "differences": 0,
       "note": "The verse ends on D (d-e-d after 'bellum') in the book as in the file; the Alleluia before it ends on E, the mode-3 final."
+    },
+    {
+      "file": "te-deum.gabc", "sha256": "037322933534e602", "notes": 637, "scope": "every note",
+      "witness": "Graduale Romanum, Vatican edition, 1908, pp. 118*-121* (Alio modo, juxta morem Romanum)",
+      "scan": "https://archive.org/details/graduale-romanum-1908/page/n909", "leaves": "909-912",
+      "result": "match", "differences": 0,
+      "note": "Read in a second session on 2026-11-13, system by system. Includes the 7 quilismas (dá-mus, both San-ctus, Pa-trem, San-ctum, Ju-dex, di-es), the 18 rhombi and the 3 liquescent podatus (er-go, lau-dámus, quemád-modum) the machine reader skips or cannot tell from squares, and the scan-corrected si-ne (e)."
     }
   ]
 }

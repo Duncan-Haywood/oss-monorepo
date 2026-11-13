@@ -108,6 +108,10 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
   second tenors a tone under the tenors: 65 of 67 files fit (64 with three), one-section notes 29.9% to 13.7%, changes
   of singer 484 to 569 (eval/four-sections-report.md). A section added on top gains nothing; textbook ranges gain
   nothing. Studio page option too. Not tried with singers.
+- 2026-11-13, latest: the 1908 Te Deum (`corpus/te-deum.gabc`) read by eye against pp. 118*-121*: 637 of 637 notes
+  match, quilismas, rhombi and liquescents included (`corpus/scan-read-by-eye.json`). `scan.mjs` now calls each head a
+  rhombus or a square (`headShape`; README "Rhombus or square"): 68/68 rhombi on the tuning pieces, 118/120 held out,
+  1 false call in 2,501 squares (a print flaw). Quilismas and liquescents still read as squares or not at all.
 
 ## Next
 
@@ -115,7 +119,8 @@ runs or sounds, not just a plan. A run that lands a slice moves its line to
    Creator (the 1908 book prints them as text under the first verse's
    melody), find the four supplement-page off-final pieces in a scan that has
    the "pro aliquibus locis" supplement, teach the reader quilismas and
-   liquescents, and have a person look at the Te Deum correction.
+   liquescents (rhombi landed 2026-11-13), and have a person look at the Te Deum
+   correction.
 2. **Real-file robustness:** run the converter over a batch of Gregorio files
    and fix whatever it misreads:
    - multi-clef pieces;

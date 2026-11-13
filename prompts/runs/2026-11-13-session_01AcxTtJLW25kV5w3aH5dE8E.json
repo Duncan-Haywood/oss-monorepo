@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtJLW25kV5w3aH5dE8E",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T22:06:28Z",
+  "ended": "2026-11-13T22:21:49Z",
+  "wall_minutes": 15.72,
+  "tokens_in": 13034673,
+  "tokens_out": 49207,
+  "cost_usd": 4.8926,
+  "tool_calls": 133,
+  "task": "Deepen flagship 11 (chant-forge): read the 1908 Te Deum by eye; teach scan.mjs neume shapes",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15630",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "Pillow in the container's system python3 is broken (ImportError _imaging); used ImageMagick convert for crops instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "chant-forge next: said archive.org scans return 403 from cloud sessions; by the afternoon of 2026-11-13 they answered 200, so the 'needs a blocked host' item was buildable. Probing before trusting a 'blocked' note paid off."
+    },
+    {
+      "file": "ventures/chant-forge/corpus/scan-read-by-eye.json",
+      "issue": "Rewriting it with json.dump reformatted the hand-compacted entries into a 78-line diff; appended by text edit instead to keep the diff minimal."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No docs/reports agent doc: the venture README section 'Rhombus or square' and the flagships next: carry what the next run needs (thresholds, what failed, why).",
+      "did": "Wrote the findings into README/ROADMAP/llms.txt and the flagship row.",
+      "result": "One place to look instead of two."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-teaching-a-chant-scanner-to-see-a-diamond.md"
+  ],
+  "goal": null,
+  "notes": "Te Deum (corpus/te-deum.gabc) read by eye against Graduale 1908 leaves 909-912: 637/637 match. headShape: tuned 68/68 rhombi, 0/1470 squares; held out 118/120 rhombi, 1/1031 squares (print flaw, looked at). Quilisma/liquescent detection tried and failed (documented). Checks: run_venture_tests.py chant-forge ok; venture-preflight clean; validate.py valid; post frontmatter/links/similarity clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9761c7ee-2b46-5b3e-8491-220f1d203934",
+    "transcripts": 1,
+    "first": "2026-11-13T22:06:28Z",
+    "last": "2026-11-13T22:22:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 98,
+        "input": 187,
+        "output": 49207,
+        "thinking": 14659,
+        "cache_read": 12867712,
+        "cache_write_5m": 0,
+        "cache_write_1h": 166774,
+        "api_equivalent_usd": 4.8926,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 98,
+      "input": 187,
+      "output": 49207,
+      "thinking": 14659,
+      "cache_read": 12867712,
+      "cache_write_5m": 0,
+      "cache_write_1h": 166774,
+      "api_equivalent_usd": 4.8926,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 133,
+    "tools": {
+      "Bash": 69,
+      "Read": 59,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.72,
+      "active_minutes": 15.72,
+      "model_minutes": 12.0,
+      "tool_minutes": 3.72,
+      "waiting_on_human_minutes": 0.01,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "reading 637 notes on 4 scan pages by eye (~2.5 h) plus a shape classifier with held-out evaluation (~3.5 h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 122.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
