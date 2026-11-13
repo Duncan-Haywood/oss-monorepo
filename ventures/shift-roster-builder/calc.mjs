@@ -2648,10 +2648,13 @@ function buildRosterOnce(staff, slots, options = {}) {
   // only, so it would hand back the roster the weight was set to trade away (sample week 15 h / 5 shifts instead of 19 h / 3).
   // Read by coverPasses above, which runs after this line.
   // `deferCover: true` asks for that order on a small week too (calloutExposure does: README "Call-out rebuilds, column generation
-  // first"); `false` turns it off on big ones.
+  // first"); `false` turns it off on big ones. A posted week's reissue (`keepShift` > 0: CLI --changes, the page's "Changes since
+  // you posted it") takes that order by default too: eval/reissue-order.mjs, 2026-11-13, 570 reissues on five teams x six seeds
+  // gave the same score, open hours, changes, premiums and pay on every one, all proven, in 32.5 s against 72.2 s (README
+  // "Posted reissues, column generation first").
   const exactOn = o.exact === true || (o.exact === "auto" && ctx.S <= EXACT_AUTO_SLOTS && !(o.openShiftWeight > 0));
   const bigExact = ctx.S > EXACT_TREE_SLOTS && o.exactTree !== true;
-  const deferCover = exactOn && o.scoreCG !== false && (o.deferCover === true || (bigExact && o.deferCover !== false));
+  const deferCover = exactOn && o.scoreCG !== false && (o.deferCover === true || ((bigExact || o.keepShift > 0) && o.deferCover !== false));
   // The clique LP's open-hours floor (cliqueOpenFloor, 2026-11-13), before the cover passes so the plateau walk can stop at it.
   // About 1.2 s on a 60-person week (245 copies), where it proves the 300 open hours the engine holds (the column generation's
   // root had reached 275 after 34 s). It is not given to the whole-score column generation as its open-hours row by default: on

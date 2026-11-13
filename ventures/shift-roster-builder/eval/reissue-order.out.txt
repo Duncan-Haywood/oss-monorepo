@@ -1,0 +1,41 @@
+  differ cafe seed 1 Wed Fay off: score 1503353.45 -> 1503353.45, open 15 -> 15 h, changes 4 -> 4, premium $66 -> $66, pay $3690 -> $3690, optimal / improved
+  differ cafe seed 1 Thu Ana off: score 1503392.95 -> 1503392.95, open 15 -> 15 h, changes 5 -> 5, premium $89 -> $89, pay $3690 -> $3690, optimal / improved
+  differ cafe seed 1 Thu Dev off: score 1503376.95 -> 1503376.95, open 15 -> 15 h, changes 3 -> 3, premium $57 -> $57, pay $3690 -> $3690, optimal / improved
+  differ cafe seed 2 Tue Fay off: score 1503370.45 -> 1503370.45, open 15 -> 15 h, changes 5 -> 5, premium $83 -> $83, pay $3690 -> $3690, optimal / improved
+  differ cafe seed 2 Tue Gus off: score 1503356.95 -> 1503356.95, open 15 -> 15 h, changes 3 -> 3, premium $49 -> $49, pay $3690 -> $3690, optimal / improved
+  differ cafe seed 2 Wed Fay off: score 1503371.45 -> 1503371.45, open 15 -> 15 h, changes 5 -> 5, premium $86 -> $86, pay $3690 -> $3690, optimal / improved
+  differ cafe seed 2 Thu Dev off: score 1503370.95 -> 1503370.95, open 15 -> 15 h, changes 3 -> 3, premium $48 -> $48, pay $3690 -> $3690, optimal / improved
+  differ cafe seed 2 Thu Gus off: score 1503391.95 -> 1503391.95, open 15 -> 15 h, changes 5 -> 5, premium $84 -> $84, pay $3690 -> $3690, optimal / improved
+  differ cafe seed 4 Tue Dev off: score 1503374.95 -> 1503374.95, open 15 -> 15 h, changes 5 -> 5, premium $90 -> $90, pay $3690 -> $3690, optimal / improved
+  differ cafe seed 5 Tue Fay off: score 1503372.45 -> 1503372.45, open 15 -> 15 h, changes 5 -> 5, premium $87 -> $87, pay $3690 -> $3690, optimal / improved
+  differ cafe seed 5 Tue Gus off: score 1503358.95 -> 1503358.95, open 15 -> 15 h, changes 3 -> 3, premium $53 -> $53, pay $3690 -> $3690, optimal / improved
+  differ cafe seed 6 Tue Fay off: score 1503403.45 -> 1503403.45, open 15 -> 15 h, changes 7 -> 7, premium $116 -> $116, pay $3690 -> $3690, optimal / improved
+  differ cafe seed 6 Thu Ana off: score 1503374.95 -> 1503374.95, open 15 -> 15 h, changes 3 -> 3, premium $51 -> $51, pay $3690 -> $3690, optimal / improved
+  differ cafe seed 6 Thu Fay off: score 1503386.45 -> 1503386.45, open 15 -> 15 h, changes 5 -> 5, premium $83 -> $83, pay $3690 -> $3690, optimal / improved
+  differ cafe seed 6 Thu Gus off: score 1503389.95 -> 1503389.95, open 15 -> 15 h, changes 5 -> 5, premium $83 -> $83, pay $3690 -> $3690, optimal / improved
+cafe: 138 reissues, 15 other roster (score worse 0, better 0); changes to others 196 -> 196; premiums $3350.00 -> $3350.00; pay $498048.00 -> $498048.00; 21.7 s -> 10.2 s
+  differ spare seed 1 Thu Fay off: score 303447.37 -> 303447.37, open 3 -> 3 h, changes 5 -> 5, premium $81 -> $81, pay $3834 -> $3834, optimal / improved
+  differ spare seed 1 Fri Dev off: score 603373.60 -> 603373.60, open 6 -> 6 h, changes 2 -> 2, premium $36 -> $36, pay $3785 -> $3785, optimal / improved
+  differ spare seed 1 Fri Gus off: score 303402.87 -> 303402.87, open 3 -> 3 h, changes 2 -> 2, premium $36 -> $36, pay $3831 -> $3831, optimal / improved
+  differ spare seed 2 Thu Fay off: score 303447.37 -> 303447.37, open 3 -> 3 h, changes 5 -> 5, premium $81 -> $81, pay $3834 -> $3834, optimal / improved
+  differ spare seed 2 Fri Dev off: score 603373.60 -> 603373.60, open 6 -> 6 h, changes 2 -> 2, premium $36 -> $36, pay $3785 -> $3785, optimal / improved
+  differ spare seed 2 Fri Gus off: score 303402.87 -> 303402.87, open 3 -> 3 h, changes 2 -> 2, premium $36 -> $36, pay $3831 -> $3831, optimal / improved
+  differ spare seed 3 Thu Fay off: score 303447.37 -> 303447.37, open 3 -> 3 h, changes 5 -> 5, premium $81 -> $81, pay $3834 -> $3834, optimal / improved
+  differ spare seed 3 Fri Dev off: score 603373.60 -> 603373.60, open 6 -> 6 h, changes 2 -> 2, premium $36 -> $36, pay $3785 -> $3785, optimal / improved
+  differ spare seed 3 Fri Gus off: score 303402.87 -> 303402.87, open 3 -> 3 h, changes 2 -> 2, premium $36 -> $36, pay $3831 -> $3831, optimal / improved
+  differ spare seed 4 Thu Fay off: score 303447.37 -> 303447.37, open 3 -> 3 h, changes 5 -> 5, premium $81 -> $81, pay $3834 -> $3834, optimal / improved
+  differ spare seed 4 Fri Dev off: score 603373.60 -> 603373.60, open 6 -> 6 h, changes 2 -> 2, premium $36 -> $36, pay $3785 -> $3785, optimal / improved
+  differ spare seed 4 Fri Gus off: score 303402.87 -> 303402.87, open 3 -> 3 h, changes 2 -> 2, premium $36 -> $36, pay $3831 -> $3831, optimal / improved
+  differ spare seed 5 Thu Fay off: score 303447.37 -> 303447.37, open 3 -> 3 h, changes 5 -> 5, premium $81 -> $81, pay $3834 -> $3834, optimal / improved
+  differ spare seed 5 Fri Dev off: score 603373.60 -> 603373.60, open 6 -> 6 h, changes 2 -> 2, premium $36 -> $36, pay $3785 -> $3785, optimal / improved
+  differ spare seed 5 Fri Gus off: score 303402.87 -> 303402.87, open 3 -> 3 h, changes 2 -> 2, premium $36 -> $36, pay $3831 -> $3831, optimal / improved
+  differ spare seed 6 Thu Fay off: score 303447.37 -> 303447.37, open 3 -> 3 h, changes 5 -> 5, premium $81 -> $81, pay $3834 -> $3834, optimal / improved
+  differ spare seed 6 Fri Dev off: score 603373.60 -> 603373.60, open 6 -> 6 h, changes 2 -> 2, premium $36 -> $36, pay $3785 -> $3785, optimal / improved
+  differ spare seed 6 Fri Gus off: score 303402.87 -> 303402.87, open 3 -> 3 h, changes 2 -> 2, premium $36 -> $36, pay $3831 -> $3831, optimal / improved
+spare: 162 reissues, 18 other roster (score worse 0, better 0); changes to others 522 -> 522; premiums $8832.00 -> $8832.00; pay $625098.00 -> $625098.00; 30.2 s -> 12.6 s
+salon: 96 reissues, 0 other roster (score worse 0, better 0); changes to others 66 -> 66; premiums $1410.00 -> $1410.00; pay $191904.00 -> $191904.00; 4.6 s -> 4.6 s
+retail: 102 reissues, 0 other roster (score worse 0, better 0); changes to others 213 -> 213; premiums $3527.00 -> $3527.00; pay $226617.00 -> $226617.00; 11.6 s -> 2.4 s
+clinic: 72 reissues, 0 other roster (score worse 0, better 0); changes to others 72 -> 72; premiums $2044.00 -> $2044.00; pay $189658.00 -> $189658.00; 4.1 s -> 2.7 s
+
+REISSUES 570: other roster 33; score worse 0, better 0; open hours up 0, down 0; changes more 0, fewer 0; changes to others 1069 -> 1069; premiums $19163.00 -> $19163.00; pay $1731325.00 -> $1731325.00; proven 570 -> 570; 72.2 s -> 32.5 s
+FRESH BUILDS 30: other roster 6; score worse 0, better 0; open hours up 0; proven 30 -> 30; 8.6 s -> 2.7 s
