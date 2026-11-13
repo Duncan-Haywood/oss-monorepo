@@ -7,14 +7,16 @@
   "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T10:38:57Z",
   "ended": "2026-11-13T11:01:35Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 27.77,
+  "tokens_in": 10540432,
+  "tokens_out": 49758,
+  "cost_usd": 4.3043,
+  "tool_calls": 75,
   "task": "flagship 9 league-schedule-generator: timetable search priced on the proved break floor (top next: item)",
   "projects": [
     "league-schedule-generator"
@@ -53,7 +55,81 @@
     "ventures/league-schedule-generator/README.md (Pricing the break floor)"
   ],
   "goal": "Deepen flagship: close the 20-team single round robin frontier gap",
-  "notes": "",
+  "notes": "Verification run here: python3 platform/ci/run_venture_tests.py league-schedule-generator -> ok (184.7s), 1 suite, 0 failed; node --test floor-priced.test.mjs -> 10/10 pass (incl. 20 teams 360 -> 410/48 proved); node platform/pages/venture-preflight.mjs league-schedule-generator -> preflight clean (after shortening the post's description/seo_title); eval/browser-frontier-pick.mjs --teams=18 --single --polished -> all ok, page lists the floor-priced 392/36 and 418/34 (eval/browser-frontier-pick-floor-priced.txt). Measurements: eval/floor-priced.txt (page mode 18 runs + sweep 21 runs). No agent doc in docs/reports: flagships.yaml next: and the README section carry what the next run needs.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8ae83e22-0117-5ba2-a588-7f77fbfc0ef8",
+    "transcripts": 1,
+    "first": "2026-11-13T10:38:57Z",
+    "last": "2026-11-13T11:06:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 78,
+        "input": 158,
+        "output": 49758,
+        "thinking": 9834,
+        "cache_read": 10386368,
+        "cache_write_5m": 0,
+        "cache_write_1h": 153906,
+        "api_equivalent_usd": 4.3043,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 78,
+      "input": 158,
+      "output": 49758,
+      "thinking": 9834,
+      "cache_read": 10386368,
+      "cache_write_5m": 0,
+      "cache_write_1h": 153906,
+      "api_equivalent_usd": 4.3043,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 72,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.77,
+      "active_minutes": 25.44,
+      "model_minutes": 8.27,
+      "tool_minutes": 17.18,
+      "waiting_on_human_minutes": 2.32,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an optimisation engineer designing, implementing, testing and measuring an incremental DP-priced annealer and page integration",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 371.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
