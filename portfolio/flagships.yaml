@@ -300,9 +300,9 @@ flagships:
       squeeze move), aimed at 20 single 360-546; an exact or tighter floor for home and away (the pair
       keeps one host, which ties far rounds: the relaxed floor gives 74 where MaxSAT proves 85 at 19;
       try a DP over leg one with leg two's mirrored order, or a Lagrangian on the pair ties); a lower
-      bound or a timetable below 136 at 12 (SAT, eval/carryover-sat.py); close 24-40 (tabu, longer runs,
+      bound or a timetable below 136 at 12 (eval/carryover-sat.py); close 24-40 (tabu, longer runs,
       the literature's starters); faster balanced search at 22-24 (22 teams' try 3 runs out of budget);
-      a real league's travel times and unavailable dates; a print check.
+      a real league's travel and blackout dates; a print check.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
