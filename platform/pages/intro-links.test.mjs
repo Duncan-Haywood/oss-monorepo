@@ -15,12 +15,8 @@ const MAX_LINKS = 8;
 
 // Measured 2026-11-13: the most links in one header paragraph. Lower a number when you
 // move links out; delete the entry once the page is at or under MAX_LINKS.
-const KNOWN = {
-  'league-schedule-generator': 28,
-  'shift-roster-builder': 21,
-  'state-residency-day-counter': 10,
-  '3pl-quote-normalizer': 10,
-};
+// All four pages fixed on 2026-11-13 (docs/reports/polish-2026-11-13-last-intro-walls.md).
+const KNOWN = {};
 
 export function headerParagraphLinks(html) {
   const header = html.match(/<header\b[^>]*>([\s\S]*?)<\/header>/i);
