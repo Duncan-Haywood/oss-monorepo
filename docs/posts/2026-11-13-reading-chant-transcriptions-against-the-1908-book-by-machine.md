@@ -3,7 +3,7 @@ title: "Reading chant transcriptions against the 1908 book by machine: one wrong
 seo_title: "Check a GABC chant transcription against a page scan automatically"
 date: 2026-11-13
 tags: [music, gregorian-chant, gabc, open-source, omr]
-description: "Chant Forge now reads square notation off public-domain scans and lines it up with GABC files. Its five corpus pieces agree with the 1908 and 1912 Vatican books; one Te Deum note was wrong."
+description: "Chant Forge reads square notation off public-domain scans and checks GABC against it: five pieces agree with the Vatican books; one Te Deum note was wrong."
 ---
 
 Chant Forge turns public-domain Gregorian chant into MIDI for men's-choir tracks. Its
