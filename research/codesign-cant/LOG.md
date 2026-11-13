@@ -2,6 +2,23 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-13 · Milestone 7d: what keeps a linearly unstable integrator feed-forward bounded, the integrator clip or the episode length? (predictions written and committed before `experiments/m7d_clip/run.py` was run)
+
+- Why: milestone 7c found its linear test necessary but not sufficient in integrator mode. Milestone 6b's `above` designs at 1.25× their ki ceiling are linearly unstable at 80–100% of held-out plants (growth 0.50–0.66 per s) yet none diverged, and the bolted-on designs (growth 3.9–7.4 per s) diverged on only 11–44% of episodes. 7c's untested explanation: the attitude integrator's clip (±0.3 rad s) caps the feed-forward. A rival explanation it did not rule out: a growth of 0.5 per s needs about 9 s to amplify 100×, longer than the 6 s episode, so the unstable mode may simply not have time.
+- Built: `poshold.rollout` takes three probes that leave the default rollout bit-for-bit unchanged (`tests/test_poshold.py`): `integ_clip` (the attitude integrator clip), `ffi_clip` (the ±1 clip on ki·integ in the integrator feed-forward), `steps` (episode length; same seed keeps the first draws and the four yaw signs), and `diag`, which records per episode the share of alive steps each saturation is active (integrator at clip, feed-forward at clip, tilt command at 20°, mixer scaling roll/pitch) and the time of divergence.
+- What was looked at before writing these: a smoke run on 4 episodes of seed 4242 that printed array shapes only. No 7d number on the held-out set.
+- Plan: `experiments/m7d_clip/run.py`. Milestone 7c's 24 `above` integrator-mode design-conditions with the feed-forward on (bolted-on 6b+integ, 6b at 1.25× and 0.8× its ceiling, integ retrained; 6 seeds each), the 64 held-out episodes (seed 9999), clip arm {base: 0.3 and 1; noint: integrator clip removed; none: both removed} × horizon {6 s, 18 s} × lever {0, 1}. Also the 11-state linear map iterated from each episode's initial offset alone (no gust, wind or noise) to the first time |p| > 5 m or 60° tilt.
+- Predictions (lever 0 unless stated; "unstable" = the linear model at the episode's own plant):
+  - V1 (reproduction): base, 6 s reproduces 7c's per-design divergence counts exactly at both levers.
+  - V2 (7c's conjecture, fast instability): removing the integrator clip at least doubles the bolted-on designs' divergences at 6 s (7c: 84 of 384).
+  - V3 (7c's conjecture, slow instability): with the integrator clip removed and 18 s episodes, the 1.25× designs diverge on at least half the episodes the linear model calls unstable (pooled over 6 designs).
+  - V4 (the rival, horizon alone): with the clip kept, 18 s episodes make the 1.25× designs diverge on at most 10% of all 384 episodes (if the clip is what bounds them, more time does not help).
+  - V5 (control): the 0.8× and retrained designs diverge on at most 1 of 64 episodes per design in every clip arm and horizon.
+  - V6 (mechanism): at base, 6 s, the roll/pitch integrator sits at its clip on at least 5% of alive steps (median episode) for the 1.25× designs, and on more for the bolted-on designs than for the 0.8× designs.
+  - V7 (linear, offset only): for the 1.25× designs the linear model reaches |p| > 5 m or 60° within 18 s in at least half of its unstable episodes and within 6 s in at most 10%.
+  - V8: removing the feed-forward clip as well (none) diverges at least as often as noint, pooled, in every set and horizon.
+- Analysis: counts per design and pooled, median divergence time, median saturation shares. No test beyond the counts.
+
 ## 2026-11-13 · Milestone 7c: a linear stability test for the side-force feed-forward, checked against the 36 milestone-7b designs (predictions written and committed before `experiments/m7c_stab/run.py` was run)
 
 - Why: milestone 7b found that the integrator feed-forward runs away when bolted onto designs whose attitude integrator is strong, and a post-hoc quasi-steady criterion failed to separate the diverging designs. Its first listed next step: a linearised stability analysis of the full attitude-plus-position loop, to give a design rule that can be checked against those designs.

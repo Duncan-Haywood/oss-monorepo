@@ -52,22 +52,24 @@ def lateral_per_torque(alpha, L, kappa):
     return np.sin(alpha) / (L * np.cos(alpha) - kappa * np.sin(alpha))
 
 
-def reference(episodes, seed):
-    """Yaw step sequence, gust and sensor noise, initial offsets and wind-step signs; independent of the design."""
+def reference(episodes, seed, steps=None):
+    """Yaw step sequence, gust and sensor noise, initial offsets and wind-step signs; independent of the design.
+    steps (milestone 7d) lengthens the episode; the yaw sequence keeps four segments, each steps // 4 long."""
+    n = STEPS if steps is None else int(steps)
     rng = np.random.default_rng(seed + 777)
-    yaw = np.repeat(rng.choice([-1.0, 1.0], size=(episodes, 4)), STEPS // 4, axis=1) * np.deg2rad(YAW_REF_DEG)
-    gust_n = rng.standard_normal((episodes, 2, STEPS))
-    gyro_n = rng.standard_normal((episodes, 3, STEPS)) * 0.05
-    ang_n = rng.standard_normal((episodes, 3, STEPS)) * 0.005
+    yaw = np.repeat(rng.choice([-1.0, 1.0], size=(episodes, 4)), n // 4, axis=1) * np.deg2rad(YAW_REF_DEG)
+    gust_n = rng.standard_normal((episodes, 2, n))
+    gyro_n = rng.standard_normal((episodes, 3, n)) * 0.05
+    ang_n = rng.standard_normal((episodes, 3, n)) * 0.005
     u0 = rng.uniform(-1, 1, size=(episodes, 2))
     off = rng.uniform(-OFFSET, OFFSET, size=(episodes, 2))
-    pn = rng.standard_normal((episodes, 2, STEPS)) * POS_NOISE
-    vn = rng.standard_normal((episodes, 2, STEPS)) * VEL_NOISE
+    pn = rng.standard_normal((episodes, 2, n)) * POS_NOISE
+    vn = rng.standard_normal((episodes, 2, n)) * VEL_NOISE
     wsign = rng.choice([-1.0, 1.0], size=(episodes, 2))
     return yaw, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign
 
 
-def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd"):
+def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", integ_clip=0.3, ffi_clip=1.0, steps=None, diag=None):
     """gains (N,9) physical: attitude PID roll/pitch kp, kd, ki; yaw kp, kd, ki; position kp, kd, ki.
     Hold the origin from a random offset while yaw steps +-30 deg and the mean wind steps at 3 s. Roll and pitch references come from
     the position loop; every torque request passes the attitude-priority mixer with the collective held at hover.
@@ -85,9 +87,19 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     (the controller's own estimate of the gust torque it is holding off), from the previous step, with no filter (tau_ff unused).
     The proportional and derivative torque, which follow the tilt reference within the motor lag, are left out, so no fast loop
     "tilt reference -> torque -> side force -> tilt reference" closes.
+    integ_clip, ffi_clip and steps (milestone 7d) are probes, not design choices: the attitude integrator's clip (rad s), the clip on
+    ki * integ in the integrator feed-forward (share of tau_max), and the episode length in steps (default 6 s); np.inf removes a
+    clip. diag, if a dict, receives per (design, episode) shares of alive steps with the roll/pitch integrator at its clip
+    ("integ_at_clip"), the integrator feed-forward at its clip ("ffi_at_clip"), the tilt command at TILT_CMD_MAX ("tilt_at_clip")
+    and the mixer scaling roll/pitch ("mix_rp"), and the step each episode died at ("t_dead", -1 if alive).
     Returns per design: RMS position error (m) over the episode, over the last 3 s (after the wind step), RMS yaw error (deg),
     RMS roll/pitch tracking error (deg), the share of episodes that diverged, and (dead_ep, (N, E)) which ones, with each episode's position RMS (pos_ep, (N, E))."""
-    yaw_ref, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign = reference(episodes, seed)
+    if steps is None:
+        steps = STEPS
+        yaw_ref, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign = reference(episodes, seed)
+    else:
+        steps = int(steps)
+        yaw_ref, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign = reference(episodes, seed, steps)
     N, E = gains.shape[0], episodes
     kp = np.stack([gains[:, 0], gains[:, 0], gains[:, 3]], 1)[:, None, :]
     kd = np.stack([gains[:, 1], gains[:, 1], gains[:, 4]], 1)[:, None, :]
@@ -115,8 +127,12 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     tq_hat = np.zeros((N, E, 3)); f_ff = np.zeros((N, E, 2)); b_ff = (A.DT / np.maximum(np.broadcast_to(np.asarray(tau_ff, float), (N,)), A.DT))[:, None, None]
     pos = np.zeros((N, E, 2)) + off[None]; vel = np.zeros((N, E, 2)); pint = np.zeros((N, E, 2))
     s_ax = np.zeros((N, E, 2)); s_pos = np.zeros((N, E)); s_late = np.zeros((N, E)); s_yaw = np.zeros((N, E)); s_att = np.zeros((N, E))
+    n_steps = steps
     alive = np.ones((N, E), bool)
-    for t in range(STEPS):
+    if diag is not None:
+        dg = {k: np.zeros((N, E)) for k in ("integ_at_clip", "ffi_at_clip", "tilt_at_clip", "mix_rp")}; n_alive = np.zeros((N, E))
+        t_dead = np.full((N, E), -1)
+    for t in range(n_steps):
         m_t = gust_mean if t < k_step else mean_after
         v = a * v + (1 - a) * m_t + gust_std * np.sqrt(1 - a * a) * gust_n[:, :, t][None]
         ep = -(pos + pn[:, :, t][None]); ev = vel + vn[:, :, t][None]
@@ -127,7 +143,9 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         ab_x = c * acc[:, :, 0] + s_ * acc[:, :, 1]
         ab_y = -s_ * acc[:, :, 0] + c * acc[:, :, 1]
         if ff and ff_mode == "integ":
-            tq_i = np.clip(ki * integ, -1, 1) * tmax_nom[:, None, :]
+            tq_i = np.clip(ki * integ, -ffi_clip, ffi_clip) * tmax_nom[:, None, :]
+            if diag is not None:
+                dg["ffi_at_clip"] += alive * (np.abs(ki * integ)[:, :, :2] >= ffi_clip).any(-1)
             f_ff = np.stack([lat * tq_i[:, :, 1], lat * tq_i[:, :, 0]], -1)
         if ff:
             ab_x = ab_x - ff * f_ff[:, :, 0] / m_nom
@@ -135,14 +153,20 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         rp_ref = np.stack([np.clip(-ab_y / A.G, -TILT_CMD_MAX, TILT_CMD_MAX), np.clip(ab_x / A.G, -TILT_CMD_MAX, TILT_CMD_MAX)], -1)
         refv = np.concatenate([rp_ref, np.broadcast_to(yaw_ref[:, t][None, :, None], (N, E, 1))], -1)
         e = refv - (th_prev + ang_n[:, :, t][None])
-        integ = np.clip(integ + e * A.DT, -0.3, 0.3)
+        integ = np.clip(integ + e * A.DT, -integ_clip, integ_clip)
+        if diag is not None:
+            dg["integ_at_clip"] += alive * (np.abs(integ[:, :, :2]) >= integ_clip).any(-1)
+            dg["tilt_at_clip"] += alive * (np.abs(rp_ref) >= TILT_CMD_MAX - 1e-12).any(-1)
+            n_alive += alive
         gy = om_prev + gyro_n[:, :, t][None]
         u = kp * e - kd * gy + ki * integ
         req = np.clip(u, -1, 1) * tmax_nom[:, None, :]
         mixed, s_rp, s_y = mix_priority(req, *mix_args, mode="hover")
+        if diag is not None:
+            dg["mix_rp"] += alive * (s_rp < 1 - 1e-9)
         if sat is not None:
-            sat[:, 0] += (s_rp < 1 - 1e-9).mean(axis=1) / STEPS
-            sat[:, 1] += (s_y < 1 - 1e-9).mean(axis=1) / STEPS
+            sat[:, 0] += (s_rp < 1 - 1e-9).mean(axis=1) / n_steps
+            sat[:, 1] += (s_y < 1 - 1e-9).mean(axis=1) / n_steps
         if ff and ff_mode == "cmd":
             tq_hat = np.clip(tq_hat + (mixed - tq_hat) * (A.DT / lag_nom), -tmax_nom[:, None, :], tmax_nom[:, None, :])
             f_ff += (np.stack([lat * tq_hat[:, :, 1], lat * tq_hat[:, :, 0]], -1) - f_ff) * b_ff
@@ -165,6 +189,8 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         pos = pos + vel * A.DT
         alive &= (np.abs(phi) < np.deg2rad(60.0)) & (np.abs(tht) < np.deg2rad(60.0)) & (np.abs(pos).max(axis=2) < DEAD_POS)
         dead = ~alive
+        if diag is not None:
+            t_dead = np.where(dead & (t_dead < 0), t, t_dead)
         p2 = np.where(dead, DEAD_POS ** 2, (pos ** 2).sum(axis=2))
         s_pos += p2
         if t >= k_step:
@@ -173,9 +199,11 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
             s_late += p2
         s_yaw += np.where(dead, np.deg2rad(60.0) ** 2, (yaw_ref[:, t][None] - th[:, :, 2]) ** 2)
         s_att += np.where(dead, np.deg2rad(60.0) ** 2, ((rp_ref - th[:, :, :2]) ** 2).mean(axis=2))
-    return dict(pos=np.sqrt(s_pos / STEPS).mean(1), pos_late=np.sqrt(s_late / (STEPS - k_step)).mean(1),
-                yaw=np.rad2deg(np.sqrt(s_yaw / STEPS)).mean(1), att=np.rad2deg(np.sqrt(s_att / STEPS)).mean(1), dead=(~alive).mean(1), dead_ep=~alive, pos_ep=np.sqrt(s_pos / STEPS),
-                late_x=np.sqrt(s_ax[:, :, 0] / (STEPS - k_step)).mean(1), late_y=np.sqrt(s_ax[:, :, 1] / (STEPS - k_step)).mean(1))
+    if diag is not None:
+        diag.update({k: v / np.maximum(n_alive, 1) for k, v in dg.items()}); diag["t_dead"] = t_dead
+    return dict(pos=np.sqrt(s_pos / n_steps).mean(1), pos_late=np.sqrt(s_late / (n_steps - k_step)).mean(1),
+                yaw=np.rad2deg(np.sqrt(s_yaw / n_steps)).mean(1), att=np.rad2deg(np.sqrt(s_att / n_steps)).mean(1), dead=(~alive).mean(1), dead_ep=~alive, pos_ep=np.sqrt(s_pos / n_steps),
+                late_x=np.sqrt(s_ax[:, :, 0] / (n_steps - k_step)).mean(1), late_y=np.sqrt(s_ax[:, :, 1] / (n_steps - k_step)).mean(1))
 
 
 def phys_gains(g):
