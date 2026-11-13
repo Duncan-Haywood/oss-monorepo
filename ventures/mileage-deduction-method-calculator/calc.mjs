@@ -44,7 +44,7 @@ function num(v) {
 export function money(n) {
   const value = Number(n) || 0;
   const format = (v) =>
-    `$${v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const text = format(Math.abs(value));
   return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }
@@ -107,7 +107,7 @@ export function mileageMethodOutcome({
     findings.push({ severity: "medium", title: "Choosing actual expenses first can lock you out of the standard rate", detail: "For a car you own, the standard mileage rate must be chosen in the first year the car is available for business use. If you start with actual expenses on a car you cannot use the standard rate for that car later. Going from the standard rate to actual expenses in a later year is allowed." });
   }
   if (h2 > 0 && h1 >= 0) {
-    findings.push({ severity: "info", title: "Two 2026 rates apply to your miles", detail: `Miles driven January 1 to June 30 are deducted at 72.5 cents and miles driven July 1 to December 31 at 76 cents (IRS Announcement 2026-11). Your ${h2.toLocaleString()} second-half miles add ${money(midYearGain)} compared with valuing every mile at the first-half rate.` });
+    findings.push({ severity: "info", title: "Two 2026 rates apply to your miles", detail: `Miles driven January 1 to June 30 are deducted at 72.5 cents and miles driven July 1 to December 31 at 76 cents (IRS Announcement 2026-11). Your ${h2.toLocaleString('en-US')} second-half miles add ${money(midYearGain)} compared with valuing every mile at the first-half rate.` });
   }
   if (parking > 0) {
     findings.push({ severity: "info", title: "Parking and tolls are added on top of either method", detail: `Business parking fees and tolls (${money(parking)}) are deductible in addition to the standard rate and are also deductible under actual expenses, so they are included in both totals and do not change which method wins.` });

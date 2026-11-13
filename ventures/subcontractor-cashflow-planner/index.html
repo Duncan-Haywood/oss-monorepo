@@ -75,8 +75,8 @@
 </main><script type="module">
 import { planCashflow, csvRow, CSV_FIELDS } from './calc.mjs'; import { recordUsage, readOptOut, writeOptOut } from './usage.mjs'; import { encodeInputs, decodeInputs } from './share.mjs';
 const form = document.querySelector('#planner'), result = document.querySelector('#result'), usage = document.querySelector('#usage'), shareStatus = document.querySelector('#shareStatus'); let latest;
-const money = (n) => new Intl.NumberFormat(undefined, {style:'currency', currency:'USD', maximumFractionDigits:0}).format(n);
-const cents = (n) => new Intl.NumberFormat(undefined, {style:'currency', currency:'USD', maximumFractionDigits:2}).format(n);
+const money = (n) => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD', maximumFractionDigits:0}).format(n);
+const cents = (n) => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD', maximumFractionDigits:2}).format(n);
 const metric = (label, value, cls = '') => `<div class="metric"><span>${label}</span><strong${cls ? ` class="${cls}"` : ''}>${value}</strong></div>`;
 // The verdict line answers the decision, not the arithmetic. A gap on its own
 // reads as "walk away"; a gap next to what it costs to carry usually does not,

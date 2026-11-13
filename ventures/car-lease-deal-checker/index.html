@@ -200,7 +200,7 @@
         row("Tax per month", money(R.tax)) + row("Payment with tax", money(R.monthly), true) +
         row("Payment as a share of MSRP (the 1% rule of thumb)", R.onePercent.toFixed(2) + "%") +
         (R.markup ? row("Markup over base money factor", (R.markup.aprPoints >= 0 ? "+" : "") + R.markup.aprPoints.toFixed(2) + " APR points, " + money(R.markup.perMonth) + "/mo, " + money(R.markup.overTerm) + " over the term") : "") +
-        (R.overage > 0 ? row("Expected mileage overage", money(R.overage) + " (" + Math.round(R.overMiles).toLocaleString() + " miles over)") : "");
+        (R.overage > 0 ? row("Expected mileage overage", money(R.overage) + " (" + Math.round(R.overMiles).toLocaleString('en-US') + " miles over)") : "");
       $("#cmp tbody").innerHTML =
         row("Paid up front and in payments", "") .replace('<td class="num"></td>', '<td class="num">' + money(R.leaseTotal - i.dispositionFee - R.overage) + '</td><td class="num">' + money(R.buy.cashOut) + "</td>") +
         row("Fees and mileage at the end", "").replace('<td class="num"></td>', '<td class="num">' + money(i.dispositionFee + R.overage) + '</td><td class="num">' + money(R.buy.balance) + " loan payoff</td>") +

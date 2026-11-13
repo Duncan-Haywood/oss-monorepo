@@ -204,8 +204,8 @@ dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pr
       $("results").hidden = false;
       $("verdict").textContent = s.clones === 0
         ? "No copies found at these settings."
-        : `${s.clones.toLocaleString()} copied block${s.clones === 1 ? "" : "s"}, ${s.duplicated_percent.toFixed(1)}% of lines`;
-      $("summary").textContent = `${s.files.toLocaleString()} files, ${s.lines.toLocaleString()} lines, ${s.tokens.toLocaleString()} tokens read. ${s.duplicated_lines.toLocaleString()} lines sit inside a later copy of something earlier.`;
+        : `${s.clones.toLocaleString('en-US')} copied block${s.clones === 1 ? "" : "s"}, ${s.duplicated_percent.toFixed(1)}% of lines`;
+      $("summary").textContent = `${s.files.toLocaleString('en-US')} files, ${s.lines.toLocaleString('en-US')} lines, ${s.tokens.toLocaleString('en-US')} tokens read. ${s.duplicated_lines.toLocaleString('en-US')} lines sit inside a later copy of something earlier.`;
       const top = [...report.clones].sort((a, b) => b.tokens - a.tokens).slice(0, 200);
       $("rows").innerHTML = top.map((c, i) =>
         `<tr class="clone" tabindex="0" data-i="${i}"><td>${c.tokens}</td><td>${c.lines}</td><td><code>${esc(c.second.file)}</code>:${c.second.start_line}-${c.second.end_line}</td><td><code>${esc(c.first.file)}</code>:${c.first.start_line}-${c.first.end_line}</td></tr>`).join("")
@@ -215,7 +215,7 @@ dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pr
         const ex = f.spans[f.identical_first];
         const lines = f.shortest_lines === f.longest_lines ? `${f.shortest_lines}` : `${f.shortest_lines}-${f.longest_lines}`;
         const name = f.common_name ? ` <span class="note">(every copy is a <code>${esc(f.common_name)}</code>)</span>` : "";
-        return `<tr><td>${f.occurrences.toLocaleString()}</td><td>${f.identical_copies > 1 ? f.identical_copies.toLocaleString() : "none"}</td><td>${lines}</td><td>${f.removable_lines === f.removable_lines_max ? f.removable_lines.toLocaleString() : `${f.removable_lines.toLocaleString()} to ${f.removable_lines_max.toLocaleString()}`}</td><td><code>${esc(ex.file)}</code>:${ex.start_line}-${ex.end_line}${name}</td></tr>`;
+        return `<tr><td>${f.occurrences.toLocaleString('en-US')}</td><td>${f.identical_copies > 1 ? f.identical_copies.toLocaleString('en-US') : "none"}</td><td>${lines}</td><td>${f.removable_lines === f.removable_lines_max ? f.removable_lines.toLocaleString('en-US') : `${f.removable_lines.toLocaleString('en-US')} to ${f.removable_lines_max.toLocaleString('en-US')}`}</td><td><code>${esc(ex.file)}</code>:${ex.start_line}-${ex.end_line}${name}</td></tr>`;
       }).join("") + (fams.length > 50 ? `<tr><td colspan="5" class="note">Largest 50 of ${fams.length} families shown; the JSON report has all of them.</td></tr>` : "")
         || `<tr><td colspan="5" class="note">No families at these settings.</td></tr>`;
       $("detail").innerHTML = "";
@@ -239,7 +239,7 @@ dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pr
         if (!files.some((f) => f.text.trim())) { $("status").textContent = "Pick a folder or paste two snippets first."; return; }
         lastFiles = new Map(files.map((f) => [f.path, f.text]));
         const dh = await getEngine();
-        $("status").textContent = `Scanning ${files.length.toLocaleString()} files...`;
+        $("status").textContent = `Scanning ${files.length.toLocaleString('en-US')} files...`;
         await new Promise((r) => setTimeout(r));
         const t = performance.now();
         const minTokens = Math.max(5, Math.min(5000, Number($("minTokens").value) || 50));

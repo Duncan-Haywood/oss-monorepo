@@ -117,7 +117,7 @@ export function computeQualifiedTipDeduction({
     findings.push({
       severity: 'medium',
       title: 'Reduced by the income phase-out',
-      detail: `The $${TIP_DEDUCTION_CAP.toLocaleString()} cap is reduced by ${money(phaseOutReduction(magi, filingStatus))} at this MAGI, to a maximum of ${money(cap)}.`,
+      detail: `The $${TIP_DEDUCTION_CAP.toLocaleString('en-US')} cap is reduced by ${money(phaseOutReduction(magi, filingStatus))} at this MAGI, to a maximum of ${money(cap)}.`,
     });
   }
 
@@ -162,7 +162,7 @@ export function computeQualifiedTipDeduction({
     findings.push({
       severity: 'info',
       title: 'Full amount deductible before the cap or phase-out bind',
-      detail: `${money(tips)} of qualified tips is under both the $${TIP_DEDUCTION_CAP.toLocaleString()} cap and the phase-out threshold for this filing status.`,
+      detail: `${money(tips)} of qualified tips is under both the $${TIP_DEDUCTION_CAP.toLocaleString('en-US')} cap and the phase-out threshold for this filing status.`,
     });
   }
 
@@ -196,7 +196,7 @@ export function computeQualifiedOvertimeDeduction({ overtimePremium, filingStatu
     findings.push({
       severity: 'medium',
       title: 'Reduced by the income phase-out',
-      detail: `The $${statutoryCap.toLocaleString()} cap for this filing status is reduced by ${money(phaseOutReduction(magi, filingStatus))} at this MAGI, to a maximum of ${money(cap)}.`,
+      detail: `The $${statutoryCap.toLocaleString('en-US')} cap for this filing status is reduced by ${money(phaseOutReduction(magi, filingStatus))} at this MAGI, to a maximum of ${money(cap)}.`,
     });
   }
 
@@ -206,7 +206,7 @@ export function computeQualifiedOvertimeDeduction({ overtimePremium, filingStatu
     findings.push({
       severity: 'info',
       title: 'Full amount deductible before the cap or phase-out bind',
-      detail: `${money(premium)} of qualified overtime premium is under both the $${statutoryCap.toLocaleString()} cap and the phase-out threshold for this filing status.`,
+      detail: `${money(premium)} of qualified overtime premium is under both the $${statutoryCap.toLocaleString('en-US')} cap and the phase-out threshold for this filing status.`,
     });
   }
 
@@ -236,7 +236,7 @@ export function estimateTaxSavings(totalDeduction, marginalRatePercent) {
 
 export function money(n) {
   const value = Number(n) || 0;
-  const format = (v) => `$${v.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const format = (v) => `$${v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   const text = format(Math.abs(value));
   return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }

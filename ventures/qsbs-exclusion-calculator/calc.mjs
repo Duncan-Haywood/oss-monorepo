@@ -59,7 +59,7 @@ function num(v) {
 
 export function money(n) {
   const value = Number(n) || 0;
-  const format = (v) => `$${v.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const format = (v) => `$${v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   const text = format(Math.abs(value));
   return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }

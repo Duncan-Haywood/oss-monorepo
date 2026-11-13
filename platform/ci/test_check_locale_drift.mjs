@@ -1,7 +1,7 @@
 // Unit tests for the locale drift comparator (no browser).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { numberDiff, tokens, usRead, deRead } from './check_locale_drift.mjs';
+import { numberDiff, formatDiff, tokens, usRead, deRead } from './check_locale_drift.mjs';
 
 test('readings', () => {
   assert.deepEqual(tokens('Total $1,234.50 of 12'), ['1,234.50', '12']);
@@ -23,4 +23,14 @@ test('a value that changes is drift', () => {
   assert.match(numberDiff('Net 1,000', 'Net NaN').why, /NaN/);
   assert.match(numberDiff('Due 3/4/2026', 'Due 5.3.2026').why, /differ/);
   assert.match(numberDiff('a\nb', 'a').why, /line count/);
+});
+
+test('elapsed times are not values', () => {
+  assert.equal(numberDiff('Settled in 5264 ms: 1539 points', 'Settled in 5351 ms: 1539 points'), null);
+  assert.equal(numberDiff('Done in 0.9 s: searched 41,844', 'Done in 0.8 s: searched 41.844'), null);
+});
+
+test('formatDiff ignores elapsed times only', () => {
+  assert.equal(formatDiff('Done in 0.9 s', 'Done in 1.0 s'), null);
+  assert.deepEqual(formatDiff('Total $1,250', 'Total $1.250'), ['Total $1,250', 'Total $1.250']);
 });

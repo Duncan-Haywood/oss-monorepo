@@ -134,7 +134,7 @@ const text = await guard.guarded(
     const $ = (s) => document.querySelector(s);
     const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
     const usd = (x) => {
-      const format = (x) => `$${Number(x).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const format = (x) => `$${Number(x).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(x));
       return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     };

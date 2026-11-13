@@ -290,11 +290,11 @@ if (await flags.isOn("new-checkout", { key: user.id, plan: user.plan })) { /* ne
         const r = simulate(cfg, flag, { users: users(), attrs: read("ctx", "Attributes") });
         for (const [v, n] of Object.entries(r.byVariant).sort((a, b) => b[1] - a[1])) {
           const tr = document.createElement("tr"), pct = (100 * n) / r.users;
-          [v, n.toLocaleString(), pct.toFixed(1) + "%"].forEach((c) => { const td = document.createElement("td"); td.textContent = c; tr.append(td); });
+          [v, n.toLocaleString('en-US'), pct.toFixed(1) + "%"].forEach((c) => { const td = document.createElement("td"); td.textContent = c; tr.append(td); });
           const bar = document.createElement("td"), d = document.createElement("div"); bar.className = "bar"; d.style.width = pct + "%"; bar.append(d); tr.append(bar); $("rows").append(tr);
         }
-        $("sum").textContent = `${r.users.toLocaleString()} simulated users (user-1 to user-${r.users}) evaluated against "${flag}".`;
-        $("why").textContent = "Why: " + Object.entries(r.byReason).map(([k, n]) => `${k} ${n.toLocaleString()}`).join(", ");
+        $("sum").textContent = `${r.users.toLocaleString('en-US')} simulated users (user-1 to user-${r.users}) evaluated against "${flag}".`;
+        $("why").textContent = "Why: " + Object.entries(r.byReason).map(([k, n]) => `${k} ${n.toLocaleString('en-US')}`).join(", ");
         record("simulate");
       } catch (e) { $("sum").className = "err"; $("sum").textContent = e.message; }
     });
@@ -304,8 +304,8 @@ if (await flags.isOn("new-checkout", { key: user.id, plan: user.plan })) { /* ne
         const a = load("cfg", "Flag config"), b = load("cfg2", "Proposed config"), flag = $("flagkey").value.trim();
         if (!a.flags[flag] || !b.flags[flag]) throw new Error(`"${flag}" must exist in both configs.`);
         const r = impact(a, b, flag, { users: users(), attrs: read("ctx", "Attributes") });
-        const moves = Object.entries(r.moves).map(([m, n]) => `${n.toLocaleString()} would go ${m}`).join("; ");
-        $("cmpout").textContent = r.changed ? `${r.changed.toLocaleString()} of ${r.users.toLocaleString()} users (${(100 * r.changed / r.users).toFixed(1)}%) change variant: ${moves}.` : `No one changes variant across ${r.users.toLocaleString()} users.`;
+        const moves = Object.entries(r.moves).map(([m, n]) => `${n.toLocaleString('en-US')} would go ${m}`).join("; ");
+        $("cmpout").textContent = r.changed ? `${r.changed.toLocaleString('en-US')} of ${r.users.toLocaleString('en-US')} users (${(100 * r.changed / r.users).toFixed(1)}%) change variant: ${moves}.` : `No one changes variant across ${r.users.toLocaleString('en-US')} users.`;
         record("compare");
       } catch (e) { $("cmpout").className = "err"; $("cmpout").textContent = e.message; }
     });

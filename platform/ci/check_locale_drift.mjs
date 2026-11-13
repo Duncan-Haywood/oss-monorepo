@@ -15,7 +15,11 @@
 // German token passes when either its US reading or its German reading equals
 // the US value in the same position. A line fails when a value matches neither
 // reading, the token counts differ, or NaN/Infinity/undefined appears only in
-// German. Every hit needs a human look. Exit 1 when any page differs.
+// German. A page outside FOLLOWS_READER also fails when its text differs at
+// all (elapsed times aside): an English, US-dollar page should not print
+// "$1.250" for twelve hundred and fifty dollars to a German reader.
+// Math.random is seeded the same in both renders. Every hit needs a human
+// look. Exit 1 when any page differs.
 // Usage: node platform/ci/check_locale_drift.mjs [path-substring ...]
 import http from 'http';
 import fs from 'fs';
@@ -27,14 +31,26 @@ const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/ja
 const AT = new Date('2026-03-04T15:30:00Z');
 const BUTTON = /calculat|compute|check|run|generat|estimate|plan|show|build|go\b|update|submit/i;
 const LOCALES = ['en-US', 'de-DE'];
+// Ventures that offer several currencies and format in the reader's locale on
+// purpose (a German user picking EUR sees "75,00 €"). Every other page here is
+// English, in US dollars, and formats with 'en-US' like the rest of the repo.
+export const FOLLOWS_READER = [
+  'appointment-deposit-calculator', 'asbestos-abatement-bid-calculator', 'clothing-design-studio',
+  'commercial-photo-license-calculator', 'freelance-retainer-calculator', 'land-survey-bid-calculator',
+  'no-show-fee-calculator', 'quote-margin-check', 'security-camera-bid-calculator', 'window-tinting-bid-calculator',
+].map((v) => `ventures/${v}/`);
+
 const BAD = /\b(NaN|Infinity|undefined)\b/g;
 
 // A number as printed: digits joined by single '.' or ',' (or a thin/no-break
 // space used as a group separator). "1,234.50", "1.234,50", "4.3.2026", "12".
-const TOKEN = /\d+(?:(?:[.,]|[  ](?=\d{3}\b))\d+)*/g;
+const TOKEN = /\d+(?:(?:[.,]|[\u00a0\u202f](?=\d{3}\b))\d+)*/g;
+
+// Elapsed times ("Settled in 5264 ms", "Done in 0.9 s") differ run to run.
+const TIMING = /\d+(?:[.,]\d+)?\s?(?:ms|s|sec|seconds?)\b/g;
 
 export function tokens(line) {
-  return (line.match(TOKEN) || []).map((t) => t.replace(/[  ]/g, ''));
+  return (line.replace(TIMING, '').match(TOKEN) || []).map((t) => t.replace(/[\u00a0\u202f]/g, ''));
 }
 
 export function usRead(t) {
@@ -95,6 +111,13 @@ export function numberDiff(usText, deText) {
   return null;
 }
 
+// First line pair that differs once elapsed times are removed, or null.
+export function formatDiff(usText, deText) {
+  const x = usText.replace(TIMING, '').split('\n'), y = deText.replace(TIMING, '').split('\n');
+  const k = x.findIndex((l, i) => l !== y[i]);
+  return k < 0 ? null : [x[k].slice(0, 140), (y[k] || '').slice(0, 140)];
+}
+
 async function main() {
   const require = createRequire(import.meta.url);
   const { chromium } = require('playwright');
@@ -119,6 +142,16 @@ async function main() {
     const ctx = await browser.newContext({ timezoneId: 'UTC', locale, serviceWorkers: 'block' });
     await ctx.route(/^https?:\/\/(?!localhost)/, (r) => r.abort());
     await ctx.clock.setFixedTime(AT);
+    // Same pseudo-random sequence in both locales (mulberry32, seed 1).
+    await ctx.addInitScript(() => {
+      let a = 1;
+      Math.random = () => {
+        a = (a + 0x6d2b79f5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    });
     const page = await ctx.newPage();
     try {
       await page.goto(`http://localhost:${port}/${file}`, { waitUntil: 'load', timeout: 15000 });
@@ -158,12 +191,16 @@ async function main() {
       if (us.text !== de.text) formatted++;
       const d = numberDiff(us.text, de.text);
       if (d) hits.push([f, d.why, [d.us.slice(0, 140), d.de.slice(0, 140)]]);
+      else if (!FOLLOWS_READER.some((v) => f.startsWith(v))) {
+        const k = formatDiff(us.text, de.text);
+        if (k) hits.push([f, 'formats numbers in the reader\'s locale; pin the page\'s own (en-US)', k]);
+      }
     }
   }
   await Promise.all([1, 2, 3, 4, 5, 6].map(worker));
   await browser.close();
   server.close();
-  console.log(`${files.length} pages with a number input; ${formatted} render differently in de-DE; ${new Set(hits.map((h) => h[0])).size} differ between en-US and de-DE`);
+  console.log(`${files.length} pages with a number input; ${formatted} render differently in de-DE; ${new Set(hits.map((h) => h[0])).size} fail (value or format drift)`);
   for (const h of hits) console.log(JSON.stringify(h));
   process.exit(hits.length ? 1 : 0);
 }

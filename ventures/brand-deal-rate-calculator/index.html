@@ -157,7 +157,7 @@
     };
 
     function money(n) {
-      const format = (n) => `$${n.toLocaleString()}`;
+      const format = (n) => `$${n.toLocaleString('en-US')}`;
       const text = format(Math.abs(n));
       return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     }
@@ -217,7 +217,7 @@
 
       const result = computeRates({ followers, engagementRate, platform });
 
-      els.stats.textContent = `${Math.round(result.engagedFollowers).toLocaleString()} estimated engaged followers per post, at the numbers entered above.`;
+      els.stats.textContent = `${Math.round(result.engagedFollowers).toLocaleString('en-US')} estimated engaged followers per post, at the numbers entered above.`;
       els.ratesBody.innerHTML = DELIVERABLES.map((deliverable) => {
         const r = result.rates[deliverable];
         return `<tr><td>${DELIVERABLE_LABELS[deliverable]}</td><td class="price">${money(r.low)} – ${money(r.high)}</td></tr>`;

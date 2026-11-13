@@ -168,7 +168,7 @@
   function onLog() {
     parsed = parseUsageLog($("log").value);
     $("parseOut").textContent = $("log").value.trim()
-      ? `Read ${parsed.records.length.toLocaleString()} request${parsed.records.length === 1 ? "" : "s"}${parsed.skipped ? `; skipped ${parsed.skipped} line${parsed.skipped === 1 ? "" : "s"} with no model or no tokens` : ""}.`
+      ? `Read ${parsed.records.length.toLocaleString('en-US')} request${parsed.records.length === 1 ? "" : "s"}${parsed.skipped ? `; skipped ${parsed.skipped} line${parsed.skipped === 1 ? "" : "s"} with no model or no tokens` : ""}.`
       : "";
     syncRateTable();
   }
@@ -189,9 +189,9 @@
     if (!a.forecast) html += '<p class="small">Add a created_at or timestamp field, spanning at least two days, for a run rate.</p>';
     if (a.unpricedRequests) html += `<p class="notice small">${a.unpricedRequests} request(s) not priced -- no rate entered for: ${a.unpricedModels.map(esc).join(", ")}.</p>`;
     html += "<h3>Spend by model</h3><table><thead><tr><th>Model</th><th>Requests</th><th>Cache-read share</th><th>Cost</th></tr></thead><tbody>" +
-      a.byModel.map((g) => `<tr><td>${esc(g.key)}</td><td>${g.requests.toLocaleString()}</td><td>${g.cacheHitRate === null ? "n/a" : (g.cacheHitRate * 100).toFixed(0) + "%"}</td><td>${usd(g.cost)}</td></tr>`).join("") + "</tbody></table>";
+      a.byModel.map((g) => `<tr><td>${esc(g.key)}</td><td>${g.requests.toLocaleString('en-US')}</td><td>${g.cacheHitRate === null ? "n/a" : (g.cacheHitRate * 100).toFixed(0) + "%"}</td><td>${usd(g.cost)}</td></tr>`).join("") + "</tbody></table>";
     if (a.byLabel.length) html += "<h3>Spend by feature</h3><table><thead><tr><th>Label</th><th>Requests</th><th>Cost</th></tr></thead><tbody>" +
-      a.byLabel.map((g) => `<tr><td>${esc(g.key)}</td><td>${g.requests.toLocaleString()}</td><td>${usd(g.cost)}</td></tr>`).join("") + "</tbody></table>";
+      a.byLabel.map((g) => `<tr><td>${esc(g.key)}</td><td>${g.requests.toLocaleString('en-US')}</td><td>${usd(g.cost)}</td></tr>`).join("") + "</tbody></table>";
     if (a.totalCost > 0) html += `<p class="small">The most expensive 1% of requests account for ${(a.concentration.top1pct * 100).toFixed(0)}% of spend; the top 5% for ${(a.concentration.top5pct * 100).toFixed(0)}%.</p>`;
     html += "<h3>Where it could have been cheaper</h3>" + (a.findings.length
       ? a.findings.map((f) => `<div class="finding"><h3>${esc(f.title)}${f.savings ? ` -- up to ${usd(f.savings)}` : ""}</h3><p>${esc(f.detail)}</p></div>`).join("")

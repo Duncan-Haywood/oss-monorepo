@@ -173,7 +173,7 @@
 
     function money(n) {
       if (n == null || Number.isNaN(n)) return "—";
-      const format = (n) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const format = (n) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(n));
       return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     }
@@ -224,7 +224,7 @@
       if (result.maxBid) {
         els.maxBidSection.hidden = false;
         els.maxBidStats.textContent = result.maxBid.unreachable
-          ? `Your $${result.maxBid.maxBudget.toLocaleString()} budget doesn't cover the fixed costs before you bid a dollar on the hammer price — see the finding below.`
+          ? `Your $${result.maxBid.maxBudget.toLocaleString('en-US')} budget doesn't cover the fixed costs before you bid a dollar on the hammer price — see the finding below.`
           : `To stay within ${money(result.maxBid.maxBudget)} all-in, bid no more than ${money(result.maxBid.hammerPrice)} on the hammer price (total out-the-door cost at that bid: ${money(result.maxBid.total)}).`;
       } else {
         els.maxBidSection.hidden = true;

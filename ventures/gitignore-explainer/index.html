@@ -179,7 +179,7 @@ node ventures/gitignore-explainer/cli/check.mjs --strict   # exit 1 on a high fi
       const q = $("#filter").value.trim().toLowerCase();
       const rows = last.paths.filter((r) => !q || r.path.toLowerCase().includes(q)).slice(0, 2000);
       $("#rows").innerHTML = rows.map((r) => `<tr><td><code>${esc(r.path)}${r.isDir ? "/" : ""}</code>${r.tracked ? ' <span class="note">tracked</span>' : ""}</td><td>${r.ignored ? '<span class="yes">ignored</span>' : "kept"}</td><td>${ruleCell(r.rule, r)}</td></tr>`).join("") +
-        (last.paths.length > rows.length && !q ? `<tr><td colspan="3" class="note">Showing the first 2,000 of ${last.paths.length.toLocaleString()} paths; filter or download the CSV for the rest.</td></tr>` : "");
+        (last.paths.length > rows.length && !q ? `<tr><td colspan="3" class="note">Showing the first 2,000 of ${last.paths.length.toLocaleString('en-US')} paths; filter or download the CSV for the rest.</td></tr>` : "");
     }
 
     function run() {
@@ -189,10 +189,10 @@ node ventures/gitignore-explainer/cli/check.mjs --strict   # exit 1 on a high fi
       const t0 = performance.now();
       last = analyze(input);
       const t = last.totals;
-      status.textContent = `Checked ${t.paths.toLocaleString()} paths against ${t.rules} rules in ${Math.round(performance.now() - t0)} ms.`;
+      status.textContent = `Checked ${t.paths.toLocaleString('en-US')} paths against ${t.rules} rules in ${Math.round(performance.now() - t0)} ms.`;
       $("#totals").innerHTML = [
         ["Paths checked", t.paths], ["Ignored", t.ignored], ["Blocked negations", t.blockedNegations], ["Tracked but matched", t.trackedIgnored],
-      ].map(([k, v]) => `<div><strong>${v.toLocaleString()}</strong>${k}</div>`).join("");
+      ].map(([k, v]) => `<div><strong>${v.toLocaleString('en-US')}</strong>${k}</div>`).join("");
       const fx = last.fix;
       $("#fix").innerHTML = fx ? `<h3>Suggested fix</h3><p>Re-open each blocking folder with <code>!/folder/</code>, ignore its contents with <code>/folder/*</code>, then repeat the negation. Run against your list, this re-includes <strong>${fx.fixed.length}</strong> path${fx.fixed.length === 1 ? "" : "s"}${fx.unfixed.length ? `, leaves ${fx.unfixed.length} still ignored` : ""}, and changes <strong>${fx.sideEffects.length}</strong> other path${fx.sideEffects.length === 1 ? "" : "s"}.</p>` +
         fx.patches.map((p) => `<p class="note">Append to <code>${esc(p.file)}</code>:</p><pre class="fix">${esc(p.lines.join("\n"))}</pre>`).join("") +

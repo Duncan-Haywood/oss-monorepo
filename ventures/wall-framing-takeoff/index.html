@@ -1172,7 +1172,7 @@
       if (pb.bad.length) { $("#bidsOut").innerHTML = `<div class="err"><ul>${pb.bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`; return; }
       if (!pb.bids.length) { $("#bidsOut").innerHTML = ""; return; }
       const lv = levelBids(last.budget, pb.bids);
-      const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const m = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#bidsOut").innerHTML = `<table><thead><tr><th>Bidder</th><th class="n">As bid</th><th class="n">Added to level</th><th class="n">Leveled</th></tr></thead><tbody>${lv.bidders.map((b) => `<tr><td>${esc(b.bidder)}</td><td class="n">${m(b.bidTotal)}</td><td class="n">${m(b.additions)}</td><td class="n">${m(b.leveledTotal)}</td></tr>`).join("")}</tbody></table>
         <ul>${lv.bidders.flatMap((b) => b.flags.map((f) => `<li>${esc(b.bidder)}: ${esc(f.kind)} ${esc(f.item)}: ${esc(f.note)}</li>`)).join("")}</ul>
         ${lv.bidders.some((b) => b.unleveled.length) ? `<p class="note">No price anywhere, so not leveled: ${esc(lv.bidders.filter((b) => b.unleveled.length).map((b) => `${b.bidder} (${b.unleveled.join(", ")})`).join("; "))}.</p>` : ""}
@@ -1210,7 +1210,7 @@
       const b = budget(res, pr.prices, pr.allowances);
       last.budget = b;
       renderPriceSheet(b, pr.prices);
-      const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const m = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#budgetOut").innerHTML = `<table><thead><tr><th>Section</th><th>Item</th><th class="n">Qty</th><th>Unit</th><th class="n">Price</th><th class="n">Amount</th></tr></thead><tbody>${b.lines.map((l) => `<tr><td>${esc(l.section)}</td><td>${esc(l.item)}</td><td class="n">${l.qty}</td><td>${esc(l.unit)}</td><td class="n">${l.unitPrice == null ? "no price" : m(l.unitPrice)}</td><td class="n">${l.amount == null ? "" : m(l.amount)}</td></tr>`).join("")}</tbody></table>
         <p><strong>Materials ${m(b.materials)}</strong>${b.taxRate ? `; tax ${m(b.tax)}` : ""}${b.contingencyRate ? `; contingency ${m(b.contingency)}` : ""}${b.labor ? `; labor ${m(b.labor)}` : ""}; <strong>total ${m(b.total)}</strong>${b.overheadRate || b.profitRate ? `; overhead ${m(b.overhead)}; profit ${m(b.profit)}; <strong>bid price ${m(b.bid)}</strong> (profit ${b.marginPct}% of the bid)` : ""}</p>
         ${b.unpriced.length ? `<p class="note">Not in the total, no price typed: ${esc(b.unpriced.join("; "))}.</p>` : ""}
@@ -1227,7 +1227,7 @@
       const card = $("#sensCard");
       if (!last?.budget) { card.hidden = true; return; }
       card.hidden = false;
-      const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const m = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       const sg = (v) => (v >= 0 ? "+" : "") + m(v);
       let sv;
       try { sv = sensitivity(last.budget, Number($("#sensPct").value)); } catch (e) { $("#sensOut").innerHTML = `<div class="err">${esc(e.message)}</div>`; return; }
@@ -1244,7 +1244,7 @@
       $("#coClear").hidden = !coBase;
       if (!coBase) { $("#coState").textContent = ""; $("#coOut").innerHTML = ""; return; }
       const d = budgetDiff(coBase, last.budget);
-      const m = (v) => (v >= 0 ? "+" : "") + v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const m = (v) => (v >= 0 ? "+" : "") + v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       const t = d.totals;
       $("#coState").textContent = d.lines.length ? `${d.lines.length} line${d.lines.length === 1 ? "" : "s"} changed against the saved original.` : "No line differs from the saved original.";
       $("#coOut").innerHTML = (d.lines.length ? `<table><thead><tr><th>Section</th><th>Item</th><th>Change</th><th class="n">Before</th><th class="n">After</th><th>Unit</th><th class="n">Amount</th></tr></thead><tbody>${d.lines.map((l) => `<tr><td>${esc(l.section)}</td><td>${esc(l.item)}</td><td>${esc(l.status)}</td><td class="n">${l.qtyBefore}</td><td class="n">${l.qtyAfter}</td><td>${esc(l.unit)}</td><td class="n">${l.dAmount == null ? "no price" : m(l.dAmount)}</td></tr>`).join("")}</tbody></table>` : "")
@@ -1356,7 +1356,7 @@
       }
       last = { plan, result, nailers, floor, deck, stairs, roof, foundation, drywall, insulation, trim, siding, eaves, gutters, dormer, fasteners };
       const s = result.summary;
-      const money = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const money = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#summary").innerHTML = `<div class="big">
         <div><strong>${money(s.cost)}</strong>order cost at your prices</div>
         <div><strong>${s.boards}</strong>boards for ${s.pieces} pieces</div>
