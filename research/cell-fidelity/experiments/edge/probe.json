@@ -1,0 +1,61 @@
+{
+ "Ecker2015@1.5x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.9017256220000149,
+   "error": null,
+   "r_min": 0.2515232607547471,
+   "current_A": 0.6269474196689386
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.0968585880000319,
+   "error": null,
+   "r_min": 0.16080689513379637,
+   "current_A": 0.6269474196689386
+  }
+ },
+ "Mohtat2020@3x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.7266286650000211,
+   "error": null,
+   "r_min": 0.4595190413251792,
+   "current_A": 29.94157740993183
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.8181663299999968,
+   "error": null,
+   "r_min": 0.46124862688029605,
+   "current_A": 29.94157740993183
+  }
+ },
+ "Ai2020@0.375x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.891148869999995,
+   "error": null,
+   "r_min": 0.3921208207920057,
+   "current_A": 1.487913826679649
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.7063787459999844,
+   "error": null,
+   "r_min": 0.3724193785625909,
+   "current_A": 1.487913826679649
+  }
+ },
+ "kept": [
+  "Ecker2015@1.5x",
+  "Mohtat2020@3x",
+  "Ai2020@0.375x"
+ ]
+}

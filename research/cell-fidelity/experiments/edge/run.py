@@ -5,6 +5,7 @@
     python experiments/edge/run.py probe    # baseline design, SPMe and DFN for 2 cycles at each chosen condition -> probe.json
     python experiments/edge/run.py bench    # 64 Sobol (seed 9) designs x SPMe(V0)/DFN@100 per kept condition (resumable)
     python experiments/edge/run.py report   # results.txt, summary.json (pybamm for U and r_kt)
+    python experiments/edge/run.py posthoc  # after the verdicts: 5j's pre-screen and 5h's band procedure on the fresh pools -> posthoc.txt
 
 The score every milestone ranks designs by is DFN's Wh/kg at cycle 100. It factors exactly as
     score = U x (BOL / U) x (end / BOL)
@@ -301,6 +302,28 @@ def report():
     print("\n".join(L))
 
 
+def posthoc():
+    """Post hoc, after the verdicts: 5j's pre-screen and 5h's band procedure on the same fresh pools, against the front.
+    r_kt is charged at the measured U-and-r_kt time per design from summary.json."""
+    S = json.loads((HERE / "summary.json").read_text())
+    by = {}
+    for r in R._load(HERE / "bench.jsonl"):
+        by.setdefault(r["cond"], {})[(r["j"], r["what"])] = r
+    L = ["Post hoc (after the 5k verdicts): the zero-SPMe front against 5j's pre-screen and 5h's band procedure on the fresh pools", ""]
+    for c in S["kept"]:
+        kt = {r["j"]: r["rkt"] for r in S["extra"][c]["rows"]}
+        rows, _ = G.pool(by[c])
+        rows = [r for r in rows if r["j"] in kt]
+        t = S["extra"][c]["seconds_u_rkt"]
+        e = P.evaluate(rows, [kt[r["j"]] for r in rows], t)
+        fc = S["conditions"][c]
+        L.append(f"{c}: front L1 gap {fc['front_gap']['1']:.4f} at {fc['front_calls']['1']} DFN calls, no SPMe;"
+                 f" pre-screen gap {e['ps_gap']:.4f} at {e['ps_calls']} DFN calls, wall / all-DFN {e['t_ps'] / e['t_all']:.2f};"
+                 f" band gap {e['band_gap']:.4f} at {e['band_calls']} calls, wall / all-DFN {e['t_band'] / e['t_all']:.2f}")
+    (HERE / "posthoc.txt").write_text("\n".join(L) + "\n")
+    print("\n".join(L))
+
+
 if __name__ == "__main__":
     cmd = sys.argv[1:2]
     if cmd == ["dev"]:
@@ -313,5 +336,7 @@ if __name__ == "__main__":
         (G.probe if cmd == ["probe"] else G.bench)()
     elif cmd == ["report"]:
         report()
+    elif cmd == ["posthoc"]:
+        posthoc()
     else:
         print(__doc__)
