@@ -51,6 +51,11 @@
       .rate-row .remove-rate { grid-area: remove; }
     }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #rate-rows:empty{min-height:258px}}
+@media (scripting:enabled) and (min-width:484px){html:not(.pf-rows-ready) #rate-rows:empty{min-height:86px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>

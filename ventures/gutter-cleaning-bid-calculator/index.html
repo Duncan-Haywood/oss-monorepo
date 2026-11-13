@@ -128,6 +128,11 @@
       main.layout > .result { grid-column: 2; grid-row: 1 / span 3; }
     }
 </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #runs:empty{min-height:1016px}}
+@media (scripting:enabled) and (min-width:904px){html:not(.pf-rows-ready) #runs:empty{min-height:146px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>

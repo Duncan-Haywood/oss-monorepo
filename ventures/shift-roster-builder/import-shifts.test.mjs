@@ -61,3 +61,68 @@ test("start datetime / ends at style headers are read (2026-11-05)", () => {
   assert.equal(q.rows, 1);
   assert.match(q.shiftsText, /Tue, 9:00, 17:00, 1, , bar/);
 });
+
+// Header rows copied from two real exports (eval/real-schedule-exports.mjs); every data row below is invented.
+const WFM = "﻿Location,LocationID,Initial TM Employee Id,Initial TM First Name,Initial TM Last Name,Initial TM Job Title,Initial Shift Date,Initial Shift Start Time,Initial Shift End Time,Initial Shift Work Role,Final TM Employee Id,Final TM First Name,Final TM Last Name,Final TM Job Title,Final Shift Date,Final Shift Start Time,Final Shift End Time,Final Shift Worker Role,Initial equals Final,Location Type,LocationSubType";
+test("first-published and final shifts side by side: Final is read, Initial on request; a Sun-Sat file is one week (2026-11-13)", () => {
+  const rows = [
+    "Shop,S1,1,Ana,A,Advisor,2026/01/18,11:30,18:00,Selling,1,Ana,A,Advisor,2026/01/18,11:30,18:00,Selling,Yes,Real,Real",
+    "Shop,S1,2,Ben,B,Tailor,2026/01/19,10:00,19:00,Tailor,,,,,,,,,No,Real,Real", // removed before the week ended
+    "Shop,S1,,,,,,,,,3,Cy,C,Advisor,2026/01/24,12:00,20:00,Selling,No,Real,Real", // added later
+  ];
+  const r = importShiftsCsv([WFM, ...rows].join("\n"));
+  assert.equal(r.rows, 2);
+  assert.deepEqual(r.families, ["final", "initial"]);
+  assert.match(r.shiftsText, /Sun, 11:30, 18:00, 1, , selling/);
+  assert.match(r.shiftsText, /Sat, 12:00, 20:00, 1, , selling/);
+  assert.doesNotMatch(r.shiftsText, /tailor/);
+  assert.match(r.notes.join(" "), /1 row had no Final shift/);
+  assert.doesNotMatch(r.notes.join(" "), /weeks/);
+  const i = importShiftsCsv([WFM, ...rows].join("\n"), { use: "initial" });
+  assert.equal(i.rows, 2);
+  assert.match(i.shiftsText, /Mon, 10:00, 19:00, 1, , tailor/);
+  assert.match(importShiftsCsv([WFM, ...rows].join("\n"), { use: "timesheet" }).notes[0], /No timesheet start and end columns/);
+});
+
+const DEPUTY_HEAD = "Payroll ID,Display Name,Timesheet Date,Timesheet Start Time,Timesheet End Time,Is Leave,Discarded,First Name,Last Name,Start Date,Position,Schedule Date,Schedule Start Time,Schedule End Time,Schedule Open,Area Name,Location Name";
+test("rostered beside worked times: the roster is read, leave and discarded rows dropped, dates day first, locations offered (2026-11-13)", () => {
+  const rows = [
+    ",A [1],13/05/2026,9:05,17:00,FALSE,FALSE,A,X,4/11/2024,,13/05/2026,9:00,17:00,FALSE,Patrols,North",
+    ",B [2],8/05/2026,18:00,6:10,FALSE,,B,Y,1/02/2025,Patrols,8/05/2026,18:00,6:00,FALSE,Patrols,North", // 8 May is a Friday, not 5 Aug
+    ",C [3],8/05/2026,9:00,17:00,TRUE,,C,Z,1/02/2025,,,,,,,", // leave
+    ",D [4],8/05/2026,9:00,17:00,FALSE,TRUE,D,W,1/02/2025,,8/05/2026,9:00,17:00,FALSE,Patrols,North", // discarded
+    ",E [5],9/05/2026,7:00,15:00,FALSE,FALSE,E,V,1/02/2025,,,,,,,", // worked with no rostered shift
+    ",F [6],9/05/2026,7:00,15:00,FALSE,FALSE,F,U,1/02/2025,,9/05/2026,7:00,15:00,FALSE,Front desk,South",
+  ];
+  const text = [DEPUTY_HEAD, ...rows].join("\n");
+  const r = importShiftsCsv(text);
+  assert.equal(r.rows, 3);
+  assert.match(r.shiftsText, /Wed, 9:00, 17:00, 1, , patrols/);
+  assert.match(r.shiftsText, /Fri, 18:00, 6:00, 1, , patrols/);
+  assert.match(r.shiftsText, /Sat, 7:00, 15:00, 1, , front desk/);
+  const notes = r.notes.join(" ");
+  for (const re of [/1 leave row left out/, /1 discarded row left out/, /1 row had no Schedule shift/, /day first/, /2 locations/]) assert.match(notes, re);
+  assert.deepEqual(r.locations, [{ name: "North", rows: 3 }, { name: "South", rows: 1 }]);
+  const south = importShiftsCsv(text, { location: "south" });
+  assert.equal(south.rows, 1);
+  assert.match(south.notes.join(" "), /Only South/);
+  assert.match(importShiftsCsv(text, { location: "Mars" }).notes[0], /No rows at location "Mars"/);
+  const worked = importShiftsCsv(text, { use: "timesheet" });
+  assert.equal(worked.rows, 4);
+  assert.match(worked.shiftsText, /Wed, 9:05, 17:00/);
+  assert.deepEqual(parseShifts(r.shiftsText).errors, []);
+});
+
+test("the busier of two role columns is read; a plain hire date is not taken for the shift date (2026-11-13)", () => {
+  const r = importShiftsCsv("Position,Area Name,Start Date,Schedule Date,Schedule Start Time,Schedule End Time\n,Bar,01/02/2020,2026-11-02,9:00,17:00\nCook,Kitchen,01/02/2020,2026-11-03,9:00,17:00\n");
+  assert.match(r.shiftsText, /Mon, 9:00, 17:00, 1, , bar/);
+  assert.match(r.shiftsText, /Tue, 9:00, 17:00, 1, , kitchen/);
+});
+
+test("dateOrder settles d/m vs m/d from the whole file", async () => {
+  const { dateOrder } = await import("./import-shifts.mjs");
+  assert.equal(dateOrder(["8/05/2026", "13/05/2026"]), "dmy");
+  assert.equal(dateOrder(["05/08/2026", "05/13/2026"]), "mdy");
+  assert.equal(dateOrder(["05/08/2026"]), "");
+  assert.equal(dateOrder(["13/05/2026", "05/13/2026"]), "");
+});

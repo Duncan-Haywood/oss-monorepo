@@ -46,6 +46,12 @@
     </style>
   <style>.plat { border-top: 1px solid #ece7f2; margin-top: 10px; padding-top: 4px; } .plat .grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); } .num { text-align: right; }</style>
   <style>.num { text-align: right; } .tier { border-top: 1px solid #ece7f2; margin-top: 10px; padding-top: 4px; } .tier .grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }</style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #tiers:empty{min-height:947px}}
+@media (scripting:enabled) and (min-width:376px){html:not(.pf-rows-ready) #tiers:empty{min-height:680px}}
+@media (scripting:enabled) and (min-width:520px){html:not(.pf-rows-ready) #tiers:empty{min-height:413px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>

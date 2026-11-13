@@ -53,6 +53,11 @@
       .device-row .remove-device { grid-area: remove; }
     }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #device-rows:empty{min-height:262px}}
+@media (scripting:enabled) and (min-width:644px){html:not(.pf-rows-ready) #device-rows:empty{min-height:90px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>

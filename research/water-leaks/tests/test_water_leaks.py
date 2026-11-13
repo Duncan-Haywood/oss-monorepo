@@ -152,3 +152,34 @@ def test_lila_rare_mas_sensor_is_not_disabled():
     M[:, 0] = 1.0 + 0.1 * np.arange(100) % 3
     mu, sd = lila.ref_stats(M)
     assert np.isfinite(sd).all() and mu[1] == 0 and sd[1] == sd[0]
+
+
+def test_mnf_net_demand_removes_tank_storage():
+    from water_leaks import mnf
+    # inflow 100 m3/h while the tank rises 0.1 m/h: 20.1 m3/h goes into storage
+    level = 2.0 + 0.1 * np.arange(10)
+    q = mnf.net_demand(np.full(10, 100.0), level)
+    assert np.allclose(q, 100.0 - mnf.TANK_AREA * 0.1)
+    assert np.allclose(mnf.net_demand(np.full(10, 100.0), level, tank=False), 100.0)
+
+
+def test_mnf_night_min_uses_hours_0_to_5():
+    from water_leaks import mnf
+    q = np.full(48, 50.0)
+    q[3] = 10.0     # night of day 0
+    q[30] = 5.0     # 06:00 on day 1 is not night
+    assert list(mnf.night_min(q)) == [10.0, 50.0]
+
+
+def test_mnf_detects_a_step_once_and_rearms():
+    from water_leaks import mnf
+    rng = np.random.default_rng(3)
+    m = 60 + rng.normal(0, 1.0, 120)
+    m[50:] += 5.0                     # a 5 m3/h leak from day 50
+    al, z = mnf.detect_mnf(m, h=5.0)
+    days = [t // 24 for t, _ in al]
+    assert all(t % 24 == mnf.ALARM_HOUR for t, _ in al)
+    assert any(50 <= d <= 53 for d in days)
+    # re-anchored: the step is absorbed, so it does not alarm again while it settles in
+    assert sum(1 for d in days if 50 <= d < 80) == 1
+    assert np.isnan(z[:14]).all() and not np.isnan(z[14])  # g + wmin days, as D1

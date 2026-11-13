@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { unitlessLengths } from './css-lint.mjs';
 
 import {
   MIN_CARRIED_FIELDS,
@@ -807,4 +808,30 @@ test('the bar and its panel paragraphs use valid margins (a unitless 1 would be 
   const css = renderShopRatesStyle();
   assert.match(css, /\.pf-rates\{[^}]*margin:0 auto 12px;/);
   assert.match(css, /\.pf-rates-panel p\{margin:0 0 10px\}/);
+  // Every length, not just the two above: `padding:8px 14px 1` in the narrow-screen rule
+  // survived the suite (red team 2026-11-13).
+  assert.deepEqual(unitlessLengths(css), []);
+});
+
+// Red team 2026-11-13: Number(String(v).trim()) reads " " and [] as 0 and
+// "0x10" as 16, so a stored payload this file did not write (another tool on
+// the same key, an older shape) prefilled a $0 wage into every bid calculator
+// -- the outcome the parseStoredRates comment promises cannot happen.
+const NOT_A_RATE = [' ', '\t', [], [40], {}, '0x10', '0b1', '1,000', true];
+
+test('a stored value that is not a plain decimal number is no saved rate', () => {
+  for (const v of NOT_A_RATE) {
+    assert.equal(parseStoredRates(JSON.stringify({ v: 1, rates: { hourlyWage: v } })), null, JSON.stringify(v));
+  }
+  // Plain decimals, as numbers or strings, still read.
+  assert.deepEqual(parseStoredRates('{"hourlyWage":"42.5","burdenRate":" 18 "}'), { hourlyWage: 42.5, burdenRate: 18 });
+  assert.deepEqual(parseStoredRates('{"hourlyWage":1e2}'), { hourlyWage: 100 });
+});
+
+test('the page script applies no wage from a stored value that is not a number', () => {
+  for (const v of NOT_A_RATE) {
+    const m = mount({ stored: JSON.stringify({ v: 1, rates: { hourlyWage: v, burdenRate: v } }) });
+    assert.equal(m.nodes.wage.value, '', JSON.stringify(v));
+    assert.equal(m.nodes.burden.value, '', JSON.stringify(v));
+  }
 });

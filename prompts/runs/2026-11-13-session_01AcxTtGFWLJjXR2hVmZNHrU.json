@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtGFWLJjXR2hVmZNHrU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T01:06:46Z",
+  "ended": "2026-11-13T01:20:15Z",
+  "wall_minutes": 14.36,
+  "tokens_in": 6463543,
+  "tokens_out": 45334,
+  "cost_usd": 3.2431,
+  "tool_calls": 58,
+  "task": "Deepen flagship shift-roster-builder: read real published-schedule exports (allocate.py row 4 'next' item)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15321",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "First flagships.yaml edit missed: the item text is folded over two YAML lines; matched it on the second try."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The local origin/main ref was stale at session start (checkout -B from it landed on an old commit); a git fetch of main was needed first. Not the script's fault, but land-your-work.md could say to fetch main before branching."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/shift-roster-builder/eval/real-pos-exports.mjs (precedent)",
+      "why": "The earlier real-file eval links each source file by URL. Both schedule exports carry staff personal data (one has birth dates, emails and phone numbers), so linking them in a public repo would amplify a leak.",
+      "did": "The eval script takes local copies, checks SHA-256, prints only counts/times/position names, and documents the code-search query that finds each file instead of its URL.",
+      "result": "Reproducible by anyone who runs the same header search; no personal field in the tree or output."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-two-real-schedules.md",
+    "ventures/shift-roster-builder/README.md section 'Two real schedule exports (2026-11-13)'"
+  ],
+  "goal": "Flagship depth with real data",
+  "notes": "--import-shifts refused both real exports found by GitHub code search (a Deputy roster+timesheet export, a retail WFM initial/final week). Now: header families with preference order and --use, busier role column, whole-file d/m vs m/d, leave/discarded rows, --location and page pickers, weeks anchored at the first date. Findings: store's first draft to final kept 3 of 160 shifts unchanged (hours -15%); Deputy firm's worked times matched roster (93% exact starts), 11% of work unrostered. Verification: node --test on import-shifts/page/cli tests 64/64 pass locally; run_venture_tests.py shift-roster-builder: ok (189.1 s, 0 failed); venture-preflight.mjs: clean (one earlier run caught a 91-char seo_title, fixed).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2f6c8bf7-ca55-5283-9048-91be820c14a1",
+    "transcripts": 1,
+    "first": "2026-11-13T01:06:46Z",
+    "last": "2026-11-13T01:21:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 114,
+        "output": 45334,
+        "thinking": 10487,
+        "cache_read": 6329677,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133752,
+        "api_equivalent_usd": 3.2431,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 114,
+      "output": 45334,
+      "thinking": 10487,
+      "cache_read": 6329677,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133752,
+      "api_equivalent_usd": 3.2431,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 53,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.36,
+      "active_minutes": 14.36,
+      "model_minutes": 9.02,
+      "tool_minutes": 5.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "finding two real exports, rewriting the importer with families/date order/locations, page pickers, tests, eval and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 246.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

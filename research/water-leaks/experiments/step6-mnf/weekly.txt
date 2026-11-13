@@ -1,0 +1,8 @@
+Mon 00-06:  -3.47 m3/h (sd 6.18)
+Tue 00-06:  -3.15 m3/h (sd 6.22)
+Wed 00-06:  -5.68 m3/h (sd 8.75)
+Thu 00-06:  -4.14 m3/h (sd 7.16)
+Fri 00-06:  +9.63 m3/h (sd 6.85)
+Sat 00-06: +14.57 m3/h (sd 7.98)
+Sun 00-06:  +1.03 m3/h (sd 6.05)
+2018 sd about a 7-night running median: 10.12 m3/h; after removing the weekday means: 7.09 m3/h
