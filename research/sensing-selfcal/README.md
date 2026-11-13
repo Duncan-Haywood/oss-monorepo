@@ -115,6 +115,17 @@ views** (per view 3.3–5.2% at 3 views, 2.2% at 4, 1.0–1.7% at 5–7), so a p
 halves of at least 5 views, about 10 views in the old set. Two of five pre-registered predictions
 held, both only because the test stays silent.
 
+**Milestone 4f headline** (every subset of 3–12 of the 13 views, 16,172 view sets; is the jackknife's
+overstatement a small-set effect?): yes. **The leave-one-view-out jackknife overstates f's real
+spread 7–8× at 4 views, 1.8–3.1× at 6 and 1.1–1.4× at 10**, falling at every step on both cameras.
+Most of the small-set excess comes from a few delete-one solves near the critical set (the median-based
+jackknife is 2.4–4.1× at 4 views). The **solver's own σ is 2–6× too small at every set size**. So below
+6 views neither error bar is usable, while with about 10 logged views the plain jackknife is a mildly
+conservative one. The right camera needs 10 views for 1.5×, and its views do not add independent offsets.
+Two of four pre-registered predictions held.
+
+![sd of the focal length against the number of views: real spread, jackknife and the solver's reported σ, and their ratios, both cameras](experiments/m4f_setsize/ratio.png)
+
 **Milestone 6b headline** (which corner localiser is right; 26 renders of the real views from a
 known camera, 1,200 fits): **the printed board's end squares are only half as wide as the rest**
 (they reach 0.49–0.53 of the corner spacing past the last corner, against 0.94–0.97 on the other
@@ -718,6 +729,8 @@ python3 experiments/m4b_viewcov/analyse.py  # summary.json, power.png
 python3 experiments/m4c_reference/analyse.py  # seconds, no new solve; summary.json, power.png
 OMP_NUM_THREADS=1 python3 experiments/m4d_window/run.py   # ~40 min on 4 cores, resumable; results.json.gz
 python3 experiments/m4d_window/analyse.py      # seconds; summary.json, power.png
+OMP_NUM_THREADS=1 python3 experiments/m4f_setsize/run.py  # ~30 min on 4 cores after 4d and 4e, resumable; results.json.gz
+python3 experiments/m4f_setsize/analyse.py     # seconds; summary.json, ratio.png
 python3 experiments/m6b_render/measure.py      # seconds; measure.json (real-image blur, noise, levels)
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/run.py     # ~10 min on 4 cores; calib.json, results.json.gz
 OMP_NUM_THREADS=1 python3 experiments/m6b_render/ablate.py  # ~8 min on 4 cores; ablate.json
