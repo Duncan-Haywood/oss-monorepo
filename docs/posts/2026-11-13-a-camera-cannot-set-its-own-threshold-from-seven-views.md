@@ -1,6 +1,6 @@
 ---
 title: "A camera can't set its own recalibration threshold from seven views"
-seo_title: "Camera self-calibration update test: why split-half thresholds fail below 5 views"
+seo_title: "Camera self-calibration: why split-half thresholds fail below 5 views"
 date: 2026-11-13
 tags: [research, sensing, camera-calibration, self-calibration, statistics, robotics]
 description: "Split-half thresholds from a 7-view calibration overstate focal-length spread 3–5×, because f's error does not shrink as 1/n below 5 views."
