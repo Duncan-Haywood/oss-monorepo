@@ -1,0 +1,211 @@
+{
+  "date": "2026-11-13",
+  "subject": "research/eda-gridorder",
+  "stratum": "research",
+  "seed": "2026-11-13-e",
+  "drawn_by": "sample",
+  "round": 59,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a senior EDA design-space-exploration researcher (multi-objective DSE / physical-design autotuning), who would first ask whether the hypervolume numbers reproduce from the raw table, whether the deterministic orders are compared fairly against random, and whether the result is new against the design-of-experiments literature (Halton, maximin designs, random-vs-grid search)",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Numbers reproduce and match an independent implementation. 'python3 experiments/run.py' (7.2 s) regenerates experiments/results.txt byte-identical (diff against a saved copy: no output). Own stdlib script /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/eda/indep.py (python3 -I, imports nothing from the subject or eda-proposers: own min-max normalisation, own Pareto filter, own exact 3-D hypervolume by a grid-cell sweep, own Halton and lexicographic orders) gives: true front 12 designs (all abc=gates, wb 4-6, p in {1,2,4,8}, as the README says), lexicographic curve 0.060/0.098/0.151/0.664/0.664/0.749/0.926 at B=4..40 (exact match), lexicographic 90% at 35 and full front at 75 (match), Halton 0.748/0.926/0.931/0.942/0.949/0.955/0.955 (exact match), random order with 300 different seeds (1000-1299) mean 0.695/0.810/0.862/0.894/0.914/0.947/0.964, inside every one of the author's bootstrap intervals, median evaluations to 90% 16 vs README 'about 17'. One rounding slip: rank of lexicographic at B=16 is 1/300 (one random order scores strictly below it), printed as 0.00.",
+    "completeness": "Every README item runs: 7 unit tests (0.05 s, 'under 1 s' true), experiments/run.py ('about 7 s' true), figure.svg present, all six orders implemented in src/eda_gridorder/orders.py, live page https://marisstella.app/research/eda-gridorder/ returns 200 with the headline. Next steps (offer farthest in eda-harness, transfer to a second family) were done later (eda-harness GridProposer order='farthest', research/eda-gridxfer) but the README still lists them as next steps.",
+    "verification": "'python3 -m unittest discover -s tests': Ran 7 tests, OK. The curve-vs-slow-definition test is a genuine oracle check. Seeded 4 mutations with platform/ci/quality_mutate.py: farthest max->min caught; Halton grid snapping *s -> *(s-1) survived (no test pins any Halton point), bootstrap percentiles 2.5/97.5 -> 25/75 survived (mean_ci untested), Latin batch size max(sizes)->min(sizes) survived. 3 of 4 survive: the orders that carry the headline (Halton, Latin) and the interval code are untested.",
+    "craft": "Read src/eda_gridorder/orders.py, bench.py, tests/test_orders.py, experiments/run.py, figure.py. Small, clear, stdlib-only, deterministic. Nits: true_hv caches by id(space) (bench.py:19), unsafe if a Space is garbage-collected and its id reused; Halton carries an unused fourth prime and a magic 20000 cap (orders.py:22-24); cross-project import via sys.path insertion (bench.py:7); rank is computed with strict '<' and printed to 2 dp so 1/300 shows as 0.00 (run.py:30). Acceptable research code.",
+    "claims": "Most quantitative claims check against results.txt (b8 gains +0.014/+0.042, b40 within 0.002, Halton b8 rank 0.98, farthest b4 0.99, full-front 75/76/47, Halton stall to 75). Two wording overclaims: 'worse than all 300 random orders at every budget to 30' (README.md:41) is false at B=16, where one random seed scores below lexicographic (checked: sum(r<=lex)=1, ties 0); 'intervals just above random's' (README.md:42) is false for random-start farthest-point, whose interval [0.814,0.829] overlaps random's [0.799,0.816]. Limitations are honest and prominent ('single draws', 'one small table'). No prior-work citation for space-filling designs or for random-vs-grid search, so the reader is not told this is a known effect.",
+    "fitness": "A researcher can rerun and extend it in minutes (stdlib, one table). But the finding (lexicographic grid order is poor at small budgets; quasi-random/maximin orders help) is the standard design-of-experiments result (Halton 1960; Johnson, Moore and Ylvisaker 1990 maximin designs; Bergstra and Bengio 2012, JMLR 13:281, random search beats grid), here confirmed on one 80-point toy table with deterministic orders as single draws. Useful as a harness default fix, not a new research result.",
+    "domain": "A senior DSE researcher accepts the metric (hypervolume ratio, fixed reference, exact HV) and the honest single-table caveat, but would flag: no citation of the DoE literature the question belongs to; deterministic orders compared to a random distribution without any randomisation of axis labelling or scrambled Halton/Owen scrambling, which would give them an interval on this same table; 'latin' is a greedy nearest-to-target batch, not a Latin hypercube; comparisons of stochastic orders use separate unpaired bootstrap intervals rather than a difference interval. Departs from DoE practice in those ways."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "experiments/results.txt reproduces",
+      "method": "rerun author script, byte diff against saved copy",
+      "command": "cd research/eda-gridorder && python3 experiments/run.py && diff experiments/results.txt /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/eda/../orig_results.txt",
+      "expected": "identical",
+      "observed": "identical, 7.2 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "true Pareto front of the 80-design table",
+      "method": "own Pareto filter on own min-max normalisation, no subject code",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/eda/indep.py research/eda-proposers/experiments/table.jsonl",
+      "expected": "12 of 80, all abc -g, wb 4-6, p in {1,2,4,8} (README)",
+      "observed": "12 designs, exactly that set",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "lexicographic hypervolume fraction at B=4,8,12,16,20,30,40",
+      "method": "own exact 3-D hypervolume by grid-cell sweep (not eda-proposers hv.py)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/eda/indep.py research/eda-proposers/experiments/table.jsonl",
+      "expected": "0.060 0.098 0.151 0.664 0.664 0.749 0.926",
+      "observed": "0.060 0.098 0.151 0.664 0.664 0.749 0.926",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Halton order curve and first points",
+      "method": "own van der Corput / Halton (bases 2,3,5) snapped to the 8x5x2 grid, own HV",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/eda/indep.py research/eda-proposers/experiments/table.jsonl",
+      "expected": "0.748 0.926 0.931 0.942 0.949 0.955 0.955",
+      "observed": "0.748 0.926 0.931 0.942 0.949 0.955 0.955; first point (4,1,0) = (0.5*8, 0.333*5, 0.2*2) by hand",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "random-order mean curve and median evaluations to 90%",
+      "method": "own shuffles with disjoint seeds 1000-1299, own HV",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/eda/indep.py research/eda-proposers/experiments/table.jsonl",
+      "expected": "0.690 [0.677,0.703] ... 0.965 [0.963,0.967]; median to 90% about 17",
+      "observed": "0.695 0.810 0.862 0.894 0.914 0.947 0.964 (all inside the author's intervals); median 16",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'worse than all 300 random orders at every budget to 30'",
+      "method": "count random seeds scoring <= lexicographic per budget with subject code",
+      "command": "python3 -c '... sum(r[j]<=lex[j] for r in rs) ...' (src/)",
+      "expected": "0 at every budget 4-30",
+      "observed": "0,0,0,1,0,0: one random order below lexicographic at B=16",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'intervals just above random's' for random-start farthest-point at B=8",
+      "method": "compare bootstrap intervals from results.txt and a recomputation",
+      "command": "bench.mean_ci over 300 seeds",
+      "expected": "lower bound above random's upper 0.816",
+      "observed": "[0.814,0.829] overlaps [0.799,0.816]",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "rank figures Halton b8 0.98, farthest b4 0.99; b40 gap within 0.002; full front 75/76/47",
+      "method": "read against regenerated results.txt",
+      "command": "python3 experiments/run.py",
+      "expected": "as README",
+      "observed": "as README",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "unit tests",
+      "method": "run the suite",
+      "command": "python3 -m unittest discover -s tests",
+      "expected": "7 tests OK",
+      "observed": "Ran 7 tests in 0.054s OK",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "live page serves the project",
+      "method": "HTTP GET",
+      "command": "curl -sS https://marisstella.app/research/eda-gridorder/",
+      "expected": "200 with headline",
+      "observed": "200, title 'Does the order a grid proposer walks a...', Halton 7 vs 17 headline",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "novelty against nearest prior work",
+      "method": "README Builds-on vs DoE literature (Halton 1960; Johnson-Moore-Ylvisaker 1990; Bergstra-Bengio 2012)",
+      "command": "grep -n 'Builds on' research/eda-gridorder/README.md",
+      "expected": "prior work on space-filling vs grid cited, novelty stated",
+      "observed": "only sibling repo projects cited; known effect presented without citation",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Next steps still open",
+      "method": "check eda-harness and sibling projects",
+      "command": "grep -n GridProposer -A12 research/eda-harness/src/eda_harness/harness.py; ls research | grep gridxfer",
+      "expected": "listed next steps not yet done",
+      "observed": "both done (order='farthest' in harness, research/eda-gridxfer) but README not updated",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/eda_gridorder/orders.py:26",
+      "change": "int(radical_inverse(i, primes[k]) * s) -> int(radical_inverse(i, primes[k]) * (s - 1))",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/eda_gridorder/bench.py:51",
+      "change": "ms[int(.025 * n)], ms[int(.975 * n)] -> ms[int(.25 * n)], ms[int(.75 * n)]",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/eda_gridorder/orders.py:51",
+      "change": "nxt = max(rest -> nxt = min(rest",
+      "caught": true,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/eda_gridorder/orders.py:71",
+      "change": "for j in range(max(sizes)): -> for j in range(min(sizes)):",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Prior work missing: the question (grid vs quasi-random / maximin space-filling orders at small budgets) is a standard design-of-experiments result (Halton 1960; Johnson, Moore and Ylvisaker 1990; Bergstra and Bengio 2012, JMLR 13:281) and none is cited, so the reader is not told the effect is known; the project's contribution is a harness default check on one toy table.",
+      "where": "research/eda-gridorder/README.md:7",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "'worse than all 300 random orders at every budget to 30' is false at B=16: one random order scores strictly below lexicographic; results.txt prints the 1/300 rank as 0.00.",
+      "where": "research/eda-gridorder/README.md:41",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "'intervals just above random's' is false for random-start farthest-point at B=8 ([0.814,0.829] overlaps random [0.799,0.816]); stochastic orders are compared by separate unpaired intervals, no difference interval.",
+      "where": "research/eda-gridorder/README.md:42",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Halton grid snapping, the Latin batch construction and the bootstrap interval are untested: 3 of 4 seeded mutations survive (Halton *s->*(s-1), CI 2.5/97.5->25/75, Latin batch size).",
+      "where": "research/eda-gridorder/tests/test_orders.py:16",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Rank printed to 2 dp with strict '<' hides 1/300 as 0.00, which seeded the README overclaim.",
+      "where": "research/eda-gridorder/experiments/run.py:30",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Next steps list work already done (eda-harness GridProposer order='farthest'; research/eda-gridxfer) without linking it.",
+      "where": "research/eda-gridorder/README.md:53",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Correct and reproducible, but below the bar on claims and verification. results.txt regenerates byte-identical, and an independent stdlib implementation (own normalisation, Pareto filter, exact 3-D hypervolume, Halton and lexicographic orders, disjoint random seeds) matches the 12-design front, the lexicographic and Halton curves to three decimals and the random means within the author's intervals. Two README sentences say more than the data: lexicographic is not worse than all 300 random orders at B=16 (one is lower), and the random-start farthest-point interval overlaps random's at B=8. Tests check the curve against a slow definition but leave Halton, Latin and the bootstrap untested (3 of 4 mutants survive). As research, the effect is the textbook design-of-experiments result, uncited, on one 80-point toy table with deterministic orders as single draws; it is a sound harness-default fix, not a new result. Median 2; misses the bar on claims (2) and verification (2)."
+}

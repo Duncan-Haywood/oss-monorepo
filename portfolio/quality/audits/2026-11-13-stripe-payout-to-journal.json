@@ -1,0 +1,241 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/stripe-payout-to-journal",
+ "stratum": "venture",
+ "seed": "2026-11-13-e",
+ "drawn_by": "sample",
+ "round": 59,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a bookkeeper (or CPA) who closes the month for SaaS and e-commerce clients and reconciles Stripe payouts into Xero and QuickBooks through a Stripe clearing account; they check first that gross sales, fees, refunds and disputes are each on their own line and sum to the bank deposit, that every journal balances, that a payout crossing a month end lands its revenue and fees in the right month, that every Stripe reporting category goes to the right account, and that the deposit they type from the bank statement is read correctly",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "node /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/stripe/check.mjs /home/user/oss-monorepo/ventures/stripe-payout-to-journal/calc.mjs recomputes the sample payout by hand: September journal Cr Sales 197.99 (129.99+49+19), Dr Fees 6.54, Dr Clearing 191.45; October Cr Sales 468.99, Dr Refunds 49.00, Dr Disputes 19.00, Dr Fees 34.90 (13.35+0.85+15 dispute fee+4.50+1.20), Cr Adjustments 2.00, Dr Clearing 368.09; total 559.54 = the payout row; debits equal credits in both journals; IIF per-transaction sums 0 and 0; Xero signed amounts sum to 0. All match to the cent. Against Stripe's own docs (fetched 2026-11-13): stripe.com/pricing (2.9% + 30c domestic card, $15 dispute fee) reproduces the sample's fees for 49.00, 19.00 and 449.99 and the 15.00 dispute fee, which the tool correctly books to fees not disputes; docs.stripe.com/reports/report-types/payout-reconciliation confirms the column names the parser reads (automatic_payout_id, automatic_payout_effective_at, created in the requested time zone with created_utc beside it, gross, fee, net, reporting_category, amounts in major units); the parser prefers `created` over `created_utc`, so a charge at 2026-10-31 20:00 PT (2026-11-01 03:00 UTC) lands in October as a US merchant expects. docs.stripe.com/reports/reporting-categories: charge, refund, dispute, dispute_reversal, fee, tax (a tax on Stripe fees), payout_reversal, other_adjustment map correctly. Held at 3, not 4: the page's deposit box (index.html:164, parseFloat after replacing the first comma) reads a bank deposit typed '1,262.00' as 1.26, so a correct payout is reported as off by $1,260.74 with 'Do not post this journal'; in a Type-only export application_fee (Stripe's platform_earning) is booked as a credit to Stripe Fees instead of revenue; payment_failure_refund (Stripe's charge_failure) is booked to Disputes.",
+  "completeness": "Claimed features run end to end in node: itemised report and Title Case balance-transactions headers parsed; per-payout check against the payout row or a typed deposit (mismatch is an error naming the difference; sampleBrokenReport flags the dropped row, the non-number and the unknown category); gross/fees/refunds/disputes/adjustments split; month split with each journal balanced to clearing; split=none; uncategorised rows journalled and listed; account mapping with errors; Xero, QBO, IIF and plain CSV exports; empty file handled. Served page https://marisstella.app/stripe-payout-to-journal/ loaded (200, 35,021 bytes) and its calc.mjs is byte-identical to the source. No TODOs or stubs. Gaps are disclosed (tax inside charges, revenue recognition, FX, accounts must exist). One payout's deposit can be typed; a multi-payout itemised report gets 'no payout row' warnings for each payout and relies on bank matching of the clearing account.",
+  "verification": "cd ventures/stripe-payout-to-journal && node --test '*.test.mjs': 40 tests, 40 pass (172 ms). The README's own command `node --test ventures/stripe-payout-to-journal/` fails on Node 22.23.4 (1 test, 1 fail: directory argument rejected). Nine seeded mutations with platform/ci/quality_mutate.py: 6 caught (fee sign, payout-mismatch check disabled, month-end date off by a month, tax dropped from fee categories, Xero sign flipped, split=none ignored), 3 survived: refund_failure dropped from refunds (calc.mjs:173), the mixed-currency warning disabled (calc.mjs:148), and the last journal dated the payout date even when the payout falls in a later month than the rows (calc.mjs:215), a period-timing rule nothing asserts. The deposit-box parsing lives in index.html and has no test, which is why the comma bug ships.",
+  "craft": "Read calc.mjs (352 lines: pure, integer cents, no DOM or network), index.html module script (lines 145-205), calc.test.mjs, page.test.mjs. Output to the page is escaped (esc) before innerHTML. Defects: the page parses the deposit with parseFloat(value.replace(',', '.')) instead of the module's own parseAmount, which already handles both '1,234.56' and '1.234,56' (index.html:164); parseFloat also accepts trailing junk ('559.54 USD' -> 559.54); a payout with USD and EUR rows sums them into one 200.00 line with only a warning; three-decimal currencies would be rounded to two places (parseAmount rounds to cents). Many dense one-line functions (buildJournals, parsePayouts) are hard to review but correct as far as tested.",
+  "claims": "Disclaimer, no-warranty, independent-of-Stripe/Xero/Intuit and no-upload lines present; page.test.mjs asserts no fetch/XHR in page and parser. Honest provenance: page, README via VENTURE.yaml and calc.mjs header all say the layouts are from memory and no real export or live import was tried; the columns I checked against Stripe's docs do match. Not fully backed: README 'node --test ventures/stripe-payout-to-journal/' with 'Node 20 or newer' fails on Node 22; index.html:106 'European 1.234,56 and US 1,234.56 both work' holds for report rows but not for the deposit box on the same page. llms.txt in source points at the old github.io host, but the served llms.txt points at marisstella.app (build rewrite, source-only, not filed). Sample charge of 129.99 carries a 3.97 fee where Stripe list price gives 4.07 (sample data only; no claim depends on it).",
+  "fitness": "Walked the bookkeeper job: download the itemised payout reconciliation CSV for one payout, paste it, type the bank deposit, rename accounts to the client's chart, download the QBO or Xero journal, then match the bank deposit to Stripe clearing. With the sample this works end to end and the month-split is what a bookkeeper wants. First-hour hits: typing the deposit as shown on most bank statements ('1,262.00') produces a false mismatch error; common reporting categories charge_failure, partial_capture_reversal, currency_conversion, payout_minimum_balance_hold, transfer_reversal and platform_earning all fall to 'uncategorised' and must be reclassified by hand (flagged, not dropped, and the journal still balances); a month of many payouts can only be checked one deposit at a time. Usable with these limits for a small merchant.",
+  "domain": "Compared against Stripe's reporting-categories reference and standard clearing-account practice (the A2X-style per-payout journal): gross-up of sales, fees as an expense, refunds and lost disputes as their own lines, dispute fee to fees, a clearing account the bank deposit clears, revenue and fees dated by the balance transaction's created date in the merchant's time zone and split at month end with earlier months dated the month end. That is the method a bookkeeper would sign off. Departures: Stripe documents charge_failure (type payment_failure_refund) as a failed asynchronous payment in 'Other adjustments', but the tool books payment_failure_refund to Disputes and charge_failure to uncategorised; application_fee (platform_earning) in a Type-only export is matched by the `.*_fee` pattern and booked as a contra-expense to Stripe Fees rather than platform revenue; partial_capture_reversal, which Stripe reports under Payments, is uncategorised rather than netted against sales. Multi-currency is out of scope (one currency per payout is Stripe's own model, but a mixed file is summed with only a warning). Xero's manual-journal import keys on account code; the page says names or codes work, which I could not check (central.xero.com is script-rendered)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "sample payout journals: per-month lines and clearing",
+   "method": "by-hand double-entry from the sample rows (independent arithmetic)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/stripe/check.mjs /home/user/oss-monorepo/ventures/stripe-payout-to-journal/calc.mjs",
+   "expected": "Sep Cr 197.99 / Dr 6.54 / Dr clr 191.45; Oct Cr 468.99, Dr 49, Dr 19, Dr 34.90, Cr 2.00, Dr clr 368.09",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "payout check: sum of clearing equals the payout row; each journal balances; IIF and Xero sum to zero",
+   "method": "double-entry rule: debits = credits per journal",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/stripe/check.mjs /home/user/oss-monorepo/ventures/stripe-payout-to-journal/calc.mjs",
+   "expected": "55954 = 55954; Dr=Cr; IIF [0,0]; Xero 0",
+   "observed": "55954 = 55954 agrees; 197.99/197.99 and 470.99/470.99; IIF [0,0]; Xero 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "sample fees and dispute fee against Stripe list pricing",
+   "method": "stripe.com/pricing (fetched 2026-11-13): 2.9% + 30c domestic card, $15 dispute fee",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/stripe/check.mjs /home/user/oss-monorepo/ventures/stripe-payout-to-journal/calc.mjs",
+   "expected": "1.72, 0.85, 13.35, 4.07; dispute fee 15.00 to fees",
+   "observed": "1.72, 0.85, 13.35 match; 129.99 sample fee 3.97 (list 4.07); 15.00 booked to Stripe Fees",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "column names and timezone column read from the itemised payout reconciliation report",
+   "method": "docs.stripe.com/reports/report-types/payout-reconciliation (fetched): created in requested tz, created_utc in UTC, amounts in major units",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/stripe/check.mjs /home/user/oss-monorepo/ventures/stripe-payout-to-journal/calc.mjs",
+   "expected": "created (PT 2026-10-31 20:00) wins over created_utc (2026-11-01 03:00): period 2026-10",
+   "observed": "2026-10",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "reporting_category mapping against Stripe's reference",
+   "method": "docs.stripe.com/reports/reporting-categories (fetched)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/stripe/check.mjs /home/user/oss-monorepo/ventures/stripe-payout-to-journal/calc.mjs",
+   "expected": "charge->sales, refund->refunds, dispute(_reversal)->disputes, fee/tax->fees, charge_failure and partial_capture_reversal->sales reversal, platform_earning/application_fee->revenue",
+   "observed": "first eight right; charge_failure, partial_capture_reversal, platform_earning uncategorised; type payment_failure_refund->disputes; type application_fee->fees (credit to Stripe Fees)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "bank deposit typed with a thousands separator for a 1,262.00 payout",
+   "method": "logic copied from index.html:164 vs ordinary bank-statement formatting",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/stripe/check.mjs /home/user/oss-monorepo/ventures/stripe-payout-to-journal/calc.mjs",
+   "expected": "126200 cents, agrees",
+   "observed": "126 cents, 'rows add up to 1,262.00 but the payout is 1.26' error",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/stripe-payout-to-journal && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "40 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README test command",
+   "method": "run as written on Node 22",
+   "command": "node --test ventures/stripe-payout-to-journal/",
+   "expected": "tests run",
+   "observed": "1 test, 1 fail (directory argument rejected)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page and calc.mjs match source; served llms.txt host",
+   "method": "curl",
+   "command": "curl -sS https://marisstella.app/stripe-payout-to-journal/ ; curl .../calc.mjs | diff - calc.mjs ; curl .../llms.txt",
+   "expected": "200, same code, marisstella.app links",
+   "observed": "200 (35,021 bytes); calc.mjs identical; llms.txt links rewritten to marisstella.app",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'European 1.234,56 and US 1,234.56 both work'",
+   "method": "parseAmount for rows; page logic for the deposit box",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/stripe/check.mjs /home/user/oss-monorepo/ventures/stripe-payout-to-journal/calc.mjs",
+   "expected": "both forms read everywhere amounts are typed",
+   "observed": "rows yes; deposit box reads both as 1.23",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "multi-currency payout",
+   "method": "Stripe pays out in one settlement currency; a mixed file must not be summed",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/stripe/check.mjs /home/user/oss-monorepo/ventures/stripe-payout-to-journal/calc.mjs",
+   "expected": "refuse or split",
+   "observed": "USD 100 + EUR 100 summed to one 200.00 sales line, warnings only",
+   "result": "partial"
+  },
+  {
+   "dimension": "craft",
+   "what": "zero-decimal currency (JPY in major units per Stripe docs)",
+   "method": "docs.stripe.com payout-reconciliation: amounts in major units",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/5c09808e-b910-5bd3-9e17-e69d93c16160/scratchpad/stripe/check.mjs /home/user/oss-monorepo/ventures/stripe-payout-to-journal/calc.mjs",
+   "expected": "1000 JPY gross journalled as 1000",
+   "observed": "-1000.00 on the Xero line (value right, cosmetic decimals)",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:208",
+   "change": "add(\"fees\", -r.fee) -> add(\"fees\", r.fee)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:196",
+   "change": "else if (s.stated !== sum) -> else if (false)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:173",
+   "change": "refund_failure dropped from the refunds rule",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:182",
+   "change": "lastDay Date.UTC(y, m, 0) -> Date.UTC(y, m - 1, 0)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:169",
+   "change": "|tax| removed from FEE_CATS",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:266",
+   "change": "Xero dollars(l.debit - l.credit) -> dollars(l.credit - l.debit)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:148",
+   "change": "mixed-currency warning condition -> false",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:202",
+   "change": "if (split === \"none\") -> if (false)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:215",
+   "change": "last && endDate && endDate.slice(0, 7) === ym ? endDate -> last && endDate ? endDate",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The bank-deposit box parses with parseFloat(value.replace(',', '.')): '1,262.00' (US bank-statement format) and '1.262,00' both become 1.26, so a correct payout is reported as off by $1,260.74 with 'Do not post this journal'. calc.mjs already exports parseAmount, which reads both forms; the page does not use it and no test covers the box.",
+   "where": "ventures/stripe-payout-to-journal/index.html:164",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Category rules depart from Stripe's reporting-categories reference: Type application_fee (platform_earning) matches `.*_fee` and is credited to Stripe Fees instead of revenue; payment_failure_refund (charge_failure, a failed async payment) is booked to Disputes; charge_failure, partial_capture_reversal, platform_earning, currency_conversion, payout_minimum_balance_hold and transfer_reversal fall to uncategorised.",
+   "where": "ventures/stripe-payout-to-journal/calc.mjs:169",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Three of nine seeded mutations survive the 40 tests: the last-period journal date rule (a payout in a later month than its rows would book the revenue in the payout month), refund_failure classification, and the mixed-currency warning.",
+   "where": "ventures/stripe-payout-to-journal/calc.test.mjs:15",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "README's test command `node --test ventures/stripe-payout-to-journal/` ('Node 20 or newer') fails on Node 22: the directory argument is rejected; `node --test '*.test.mjs'` inside the venture works.",
+   "where": "ventures/stripe-payout-to-journal/README.md:21",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "A payout whose rows carry two currencies is summed into one journal in one currency with only a warning, rather than refused or split.",
+   "where": "ventures/stripe-payout-to-journal/calc.mjs:148",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Sample charge of 129.99 carries a 3.97 fee; Stripe's published 2.9% + 30c gives 4.07 (the other three sample fees match list price).",
+   "where": "ventures/stripe-payout-to-journal/calc.mjs:332",
+   "category": "source-data",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The accounting is right where it matters most: every figure I recomputed by hand for the sample payout matches to the cent, each month's journal balances to a Stripe clearing account, the IIF and Xero exports sum to zero, the column names match Stripe's published payout-reconciliation schema, the merchant-time-zone created date drives the month split, and the dispute fee is correctly an expense rather than part of the dispute. That is the clearing-account method a bookkeeper would sign off. It does not meet the bar because verification is 2: three of nine seeded mutations survive, including the rule that dates a period's journal inside its own month, and the deposit box on the page, which has no test, reads a deposit typed '1,262.00' as $1.26 and tells the user not to post a correct journal. Category rules also depart from Stripe's reference for Connect platform fees and failed asynchronous charges. Correctness, completeness, craft, claims, fitness and domain are 3; verification 2."
+}
