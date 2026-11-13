@@ -35,7 +35,7 @@ EXPORTER = re.compile(
     r"(function\s+toCsv\b|\btoCsv\s*=\s*(\(|function|async)"
     r"|export\s+(async\s+)?function\s+(?!parse|split|read|load|import|sample|example)[a-z]\w*Csv\s*\()")
 GUARD = re.compile(r"/\^\[=|\^\[=@\]|\^\[=\+|formula[- ]injection|csv[- ]injection", re.I)
-SKIP_PARTS = {"node_modules", "dist", "build", ".git", "vendor"}
+SKIP_PARTS = {"node_modules", ".next", "dist", "build", ".git", "vendor"}
 
 
 def is_exporter(text):

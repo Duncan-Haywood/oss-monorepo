@@ -43,7 +43,7 @@ def main(argv=None):
     root = Path(a.root)
     pages, found, by = 0, Counter(), Counter()
     for f in root.rglob("*.html"):
-        if "node_modules" in f.parts:
+        if not {"node_modules", ".next"}.isdisjoint(f.parts):
             continue
         t = f.read_text(errors="ignore")
         if "<html" not in t.lower():

@@ -66,7 +66,7 @@ def _page(f):
 
 def scan(root=ROOT):
     bad = []
-    files = [f for f in sorted((root / "ventures").rglob("*.html")) if "node_modules" not in f.parts]
+    files = [f for f in sorted((root / "ventures").rglob("*.html")) if {"node_modules", ".next"}.isdisjoint(f.parts)]
     for f, found in zip(files, map_pages(_page, files)):
         for line, attr, i in found:
             bad.append((f.relative_to(root), line, attr, i))

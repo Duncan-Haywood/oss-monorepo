@@ -184,7 +184,8 @@ def reachable_modules(start_text: str, base: Path) -> set[Path] | None:
 
 
 def check_venture(directory: Path) -> list[str]:
-    modules = sorted(directory.rglob("*.mjs"))
+    # Installed packages and local build output are not the venture's source.
+    modules = sorted(m for m in directory.rglob("*.mjs") if {"node_modules", ".next"}.isdisjoint(m.parts))
     source = "\n".join(m.read_text(encoding="utf-8", errors="replace") for m in modules)
     if not source:
         return []
@@ -192,7 +193,7 @@ def check_venture(directory: Path) -> list[str]:
     if not all_bounds:
         return []
 
-    pages = sorted(directory.rglob("*.html"))
+    pages = sorted(p for p in directory.rglob("*.html") if {"node_modules", ".next"}.isdisjoint(p.parts))
     scaled = percent_scaled(
         source + "\n" + "\n".join(p.read_text(encoding="utf-8", errors="replace") for p in pages)
     )
