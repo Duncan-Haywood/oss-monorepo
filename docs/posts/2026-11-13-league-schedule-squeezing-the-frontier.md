@@ -1,9 +1,9 @@
 ---
 title: "Squeezing a home-and-away season under a cap on back-to-back games"
-seo_title: "Round-robin carry-over vs home/away breaks: filling the gaps in the trade-off"
+seo_title: "Round-robin carry-over vs home/away breaks: filling the gaps"
 date: 2026-11-13
 tags: [league-schedule-generator, ventures, scheduling, optimisation]
-description: "The league scheduler offered a 20-team season at 92 back-to-back home or away games or at 72, with nothing in between. A search that moves fixtures and grounds together now fills those gaps. In 12 runs it added 42 seasons to the list and cut carry-over at a given break count by 5.2% on average."
+description: "A search that moves fixtures and grounds together fills the gaps in the league scheduler's carry-over vs back-to-back trade-off: 42 new seasons."
 ---
 
 The [league schedule generator](https://marisstella.app/league-schedule-generator/) has an option called "Spread who you meet next". It searches for a season with even *carry-over*: how often a team meets the same opponent straight after the same other team. Fairness pulls against another thing organisers care about, which is *breaks*: a team playing two home games, or two away games, in a row. So after its searches the page lists every season on the frontier between the two. On that list, no other season has both less carry-over and fewer breaks. You click the one you want.
