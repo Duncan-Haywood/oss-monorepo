@@ -1,0 +1,258 @@
+{
+  "date": "2026-11-13",
+  "subject": "ventures/rds-instance-cost-advisor",
+  "stratum": "venture",
+  "seed": "2026-11-13-p-0bf4",
+  "drawn_by": "sample",
+  "round": 70,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a cloud FinOps engineer or senior AWS DBA who owns an RDS bill; they check first that Multi-AZ doubles instance and storage, that the Graviton twin is the same size, that RI figures are not counted as on-demand savings, that gp3 baselines and per-IOPS charges are right, and that the per-engine list price matches the price page",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran `node cli.mjs analyze fixtures/instances.csv` and a scratch script (/tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/rds1.mjs) through the shipped engine.mjs. Recomputed by hand from AWS RDS us-east-1 on-demand prices the auditor knows (MySQL db.m5.large $0.171/h, m5 scaling by size, m6g.large $0.152, gp2/gp3 $0.115/GB-mo, io1 $0.125/GB-mo + $0.10/IOPS-mo, Multi-AZ = 2x instance and storage, 730 h): orders-prod 3248.64 with save 2130.96, staging-orders 568.32 with save 311.90 (Multi-AZ half then Graviton on the single-AZ remainder), m5.large single-AZ gp3 136.33, and a three-fix Multi-AZ dev row 924.66 / save 779.20 all match to the cent. Held at 2: PostgreSQL rows (3 of 5 in the shipped example) are priced at MySQL rates (PG m5.large ~$0.178, m6g.large ~$0.159), about 4% low; io1 above 12,000 IOPS on a >= 400 GB volume gets no gp3 finding though gp3 with extra IOPS (~$0.02/IOPS-mo) would save ~$1,450/month on a 1000 GB / 15,000 IOPS volume; and the article's own export recipe (AWS CLI text output with None for gp2 Iops) drops those rows from the total.",
+    "completeness": "Every rule in the README table fires on the fixture (idle, multi-az-nonprod, io1-to-gp3, graviton-twin, oversized-for-cpu, RI candidate, one-instance-dominates), aws commands printed, --json, --prices and --fail-on warn (exit 1) work; header remap works for DBInstanceIdentifier/DBInstanceClass/.../AllocatedStorage headers. Gaps: describe-db-instances --output text rows with Iops None are skipped; m6i/r6i/m7g/r7g classes skipped as unknown; browser page has no price editing (CLI only, which index.html states). No TODOs or dead links; served page, article, llms.txt and cli.mjs return 200.",
+    "verification": "`node --test '*.test.mjs'`: 28 tests, 28 pass. Five mutations via platform/ci/quality_mutate.py: 1 caught (Multi-AZ saving on compute only), 4 survived (gp3 >= 400 -> > 400, Graviton saving not halved on non-prod Multi-AZ = double count, idle < -> <=, m5.large price change). Tests pin the orders-prod row and rule presence but not the dedup arithmetic on staging-orders, a 400 GB boundary or any price-table value.",
+    "craft": "Read engine.mjs (165 lines, pure), cli.mjs, index.html script (126-186), the three test files. Page imports the shipped engine.mjs (no copy), escapes all output into innerHTML. Clean savings-dedup order (idle > Multi-AZ > storage > Graviton). Minor: the engine filter on graviton-twin (engine.mjs:136) is redundant since the parser already rejects other engines; quoted CSV not handled; 'None' not treated as blank; IOPS unit typo in PRICES_AS_OF.",
+    "claims": "No-warranty, no-SLA, trademark notice, privacy (local only, DNT/GPC, opt-out backed by usage.mjs) present on index and article; served llms.txt links marisstella.app. Unbacked: prices described as 'for MySQL, MariaDB and PostgreSQL' (engine.mjs:18, README.md:32, article line 31) are MySQL rates; 'dated' with no date or source; article says 'the tool lets you edit every price' while the browser page has none; the article's export command produces rows the parser skips. 'Graviton twin priced lower', '10,000 IOPS is about $1,000 a month per zone' and the gp3 baseline claims are correct.",
+    "fitness": "Walked the job of a platform engineer with a surprise RDS bill: following the article (describe-db-instances --output text) the gp2 instances are skipped; a fleet on m6i/r6i/m7g is mostly skipped; a 15k-IOPS io1 volume, often the largest storage line, gets no fix. On the hand-built fixture shape it gives correct, actionable commands with sensible caveats (restart on class change, 7-day auto-restart for stopped instances, CloudWatch peak checks). Usable for a first pass on MySQL m5/r5/t3 fleets; not yet for a typical mixed 2026 fleet.",
+    "domain": "A senior AWS DBA / FinOps engineer would check Multi-AZ doubling (correct, instance and storage), Graviton equivalence (t3->t4g, m5->m6g, r5->r6g same size, correct; restart and engine-version caveat stated), RI vs on-demand (shown as a 30%% upper bound, never counted: appropriate), and storage/IOPS (gp3 baseline 3,000 under 400 GiB, 12,000 at and above: correct; gp2 -> gp3 shows no saving, correct for RDS). Departures: per-engine pricing ignored, gp3 with extra provisioned IOPS not modelled, newer Graviton (m7g/r7g) and m6i/r6i absent, Multi-AZ DB clusters and t3 unlimited CPU credits not modelled. Method sound within stated limits."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "orders-prod: db.m5.2xlarge Multi-AZ, io1 1000 GB + 10,000 IOPS",
+      "method": "by hand from AWS RDS us-east-1 list prices the auditor knows (MySQL m5.2xlarge $0.684/h, io1 $0.125/GB-mo + $0.10/IOPS-mo, Multi-AZ = 2x instance and storage, 730 h): 0.684*730*2 + (125+1000)*2; io1->gp3 saving 2250 - 1000*0.115*2; Graviton (0.684-0.608)*730*2",
+      "command": "cd ventures/rds-instance-cost-advisor && node cli.mjs analyze fixtures/instances.csv",
+      "expected": "3248.64/month; save 2020.00 + 110.96 = 2130.96",
+      "observed": "$3248.64, save $2130.96 (io1-to-gp3 $2020.00, graviton $110.96)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "staging-orders: db.m5.xlarge Multi-AZ gp2 300 GB, env staging (Multi-AZ saving and dedup with Graviton)",
+      "method": "by hand: (0.342*730 + 300*0.115)*2 = 568.32; single-AZ saves half = 284.16; Graviton on the remaining single-AZ = (0.342-0.304)*730 = 27.74",
+      "command": "cd ventures/rds-instance-cost-advisor && node cli.mjs analyze fixtures/instances.csv",
+      "expected": "568.32; save 311.90",
+      "observed": "$568.32, save $311.90",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "single-AZ db.m5.large MySQL gp3 100 GB at list price",
+      "method": "AWS RDS for MySQL us-east-1 on-demand db.m5.large $0.171/h (auditor's knowledge of the published price page), RDS gp3 $0.115/GB-mo: 124.83 + 11.50",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/rds1.mjs",
+      "expected": "136.33",
+      "observed": "136.33",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "db.m6g.large PostgreSQL Multi-AZ gp2 200 GB",
+      "method": "AWS RDS for PostgreSQL us-east-1 db.m6g.large lists at about $0.159/h (MySQL $0.152); (0.159*730 + 23)*2",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/rds1.mjs",
+      "expected": "about 278.14 at PostgreSQL rates (267.92 at MySQL rates)",
+      "observed": "267.92: PostgreSQL priced at the MySQL rate, about 4% low on compute",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "io1 1000 GB at 15,000 IOPS (above the 12,000 gp3 baseline) on db.r5.large",
+      "method": "RDS gp3 at >= 400 GB allows provisioning IOPS above 12,000 at about $0.02/IOPS-month: gp3 = 115 + 3000*0.02 = 175 vs io1 125 + 1500 = 1625",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/rds1.mjs",
+      "expected": "an io1-to-gp3 finding worth about $1,450/month",
+      "observed": "no io1-to-gp3 finding; only graviton-twin $17.52",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Multi-AZ dev io1 300 GB 3,000 IOPS on db.m5.large (all three fixes, counted once)",
+      "method": "by hand: compute 0.171*730*2 = 249.66, storage (37.5+300)*2 = 675; Multi-AZ half 462.33 + storage (675-69)/2 = 303 + Graviton 27.74/2 = 13.87",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/rds1.mjs",
+      "expected": "924.66; save 779.20",
+      "observed": "924.66; save 779.20",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "the article's own export recipe: describe-db-instances --query [...,Iops] --output text",
+      "method": "AWS CLI text output prints None for a null Iops (every gp2 volume); fed a tab row ending in None",
+      "command": "node -e (parseInstances('x\\tdb.m5.large\\tpostgres\\tTrue\\tgp2\\t100\\tNone'))",
+      "expected": "1 row parsed",
+      "observed": "rows [], skipped 1 (blank Iops parses fine)",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "modern classes m6i, r6i, m7g, r7g",
+      "method": "price table coverage",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/8b433e3a-4105-5ec2-a184-c789df1db04a/scratchpad/rds1.mjs",
+      "expected": "priced or flagged",
+      "observed": "db.m7g.large and db.r6i.large rows skipped as unknown class (reported in the skipped count)",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "--fail-on warn CI gate",
+      "method": "run it",
+      "command": "cd ventures/rds-instance-cost-advisor && node cli.mjs analyze fixtures/instances.csv --fail-on warn",
+      "expected": "exit 1",
+      "observed": "exit 1 (exit 0 without the flag)",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run it",
+      "command": "cd ventures/rds-instance-cost-advisor && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "28 tests, 28 pass, 0 fail (274 ms)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "prices labelled 'for MySQL, MariaDB and PostgreSQL'",
+      "method": "compare HOURLY with RDS PostgreSQL list prices (m5.large PG $0.178 vs table 0.171; t3.micro PG $0.018 vs 0.017)",
+      "command": "sed -n 18,26p ventures/rds-instance-cost-advisor/engine.mjs",
+      "expected": "PostgreSQL rates or a statement that MySQL rates are used",
+      "observed": "one MySQL-rate table applied to all three engines; no as-of date or source URL despite 'dated'",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "article: 'the tool lets you edit every price'",
+      "method": "read index.html for a price input",
+      "command": "grep -n input ventures/rds-instance-cost-advisor/index.html",
+      "expected": "price fields on the page",
+      "observed": "no price inputs in the browser; only the CLI --prices file (index.html does say 'edit them with --prices in the CLI')",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "disclaimer, privacy, trademark, served page and llms.txt",
+      "method": "load served pages",
+      "command": "curl -sSL https://marisstella.app/rds-instance-cost-advisor/{,llms.txt,rds-multi-az-iops-and-graviton-cost.html,cli.mjs}",
+      "expected": "200 and served llms.txt on marisstella.app",
+      "observed": "all 200 (article 307 to extensionless, then 200); served llms.txt links marisstella.app; no-warranty, no-SLA, trademark and DNT/GPC text present",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "gp3 baseline rule and Multi-AZ doubling",
+      "method": "RDS user guide: gp3 3,000 IOPS below 400 GiB, 12,000 at 400 GiB and above (MySQL/MariaDB/PostgreSQL); Multi-AZ instance deployment bills a standby",
+      "command": "grep -n gp3Ceiling ventures/rds-instance-cost-advisor/engine.mjs",
+      "expected": "3000 / 12000 at >= 400",
+      "observed": "engine.mjs:115 matches",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "engine.mjs:115",
+      "change": "r.gb >= 400 -> r.gb > 400 (gp3 baseline boundary)",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "engine.mjs:124",
+      "change": "multiSaving cost / 2 -> compute / 2",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "engine.mjs:126",
+      "change": "gravitonSaving no longer halved after a non-prod Multi-AZ fix (double count)",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "engine.mjs:112",
+      "change": "idle cpu < idleCpu -> <=",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "engine.mjs:22",
+      "change": "db.m5.large 0.171 -> 0.178",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "The article's documented export (describe-db-instances --query [...,Iops] --output text) prints None for Iops on every gp2 volume; toNum('None') is NaN so the whole row is skipped, and the fleet total silently omits those instances (only a skipped count is shown).",
+      "where": "ventures/rds-instance-cost-advisor/engine.mjs:80",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "One MySQL-rate price table is applied to PostgreSQL (e.g. db.m5.large 0.171 vs PG list ~0.178, t3.micro 0.017 vs 0.018), about 4% low, while PRICES_AS_OF, README and the article say the prices are 'for MySQL, MariaDB and PostgreSQL'. No as-of date or source URL for 'dated' prices.",
+      "where": "ventures/rds-instance-cost-advisor/engine.mjs:18",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "io1/io2 above the gp3 baseline on >= 400 GB is never offered gp3 with extra provisioned IOPS (~$0.02/IOPS-month vs io1 $0.10); a 1000 GB / 15,000 IOPS io1 volume misses a ~$1,450/month saving.",
+      "where": "ventures/rds-instance-cost-advisor/engine.mjs:116",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Price table stops at t3/t4g/m5/m6g/r5/r6g; current m6i, r6i, m7g, r7g, r7i classes are skipped as unknown, and r6i/m6i -> Graviton twins are not offered.",
+      "where": "ventures/rds-instance-cost-advisor/engine.mjs:19",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Four of five seeded mutations survive, including the gp3 400 GB boundary and a Graviton double count on non-prod Multi-AZ rows; no test pins a staging-orders saving or a 400 GB volume.",
+      "where": "ventures/rds-instance-cost-advisor/engine.test.mjs:34",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Quoted CSV (jq @csv style) is not unquoted, so every quoted row is skipped.",
+      "where": "ventures/rds-instance-cost-advisor/engine.mjs:66",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Non-production detection is an exact match; 'staging-eu', 'dev2', 'preprod' are treated as production (no Multi-AZ flag, RI suggested).",
+      "where": "ventures/rds-instance-cost-advisor/engine.mjs:32",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Article says 'the tool lets you edit every price'; the browser page has no price inputs (CLI --prices only). PRICES_AS_OF also says '$0.10 per provisioned IOPS per GB-month' (unit should be per IOPS-month).",
+      "where": "ventures/rds-instance-cost-advisor/rds-multi-az-iops-and-graviton-cost.html:31",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Idle rule recommends deleting the instance but counts only compute as the saving; storage that deletion also removes is left out (conservative understatement).",
+      "where": "ventures/rds-instance-cost-advisor/engine.mjs:127",
+      "category": "logic-error",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15585"
+  ],
+  "verdict": "Does not meet the bar (correctness 2, claims 2, verification 2; median 2). The arithmetic is right: four hand recomputations from known RDS us-east-1 list prices (m5/m6g classes, gp2/gp3/io1 storage and IOPS, Multi-AZ = 2x, 730 h) match to the cent, including the order in which overlapping savings are counted once. What keeps it below 3: one MySQL price table is labelled as covering PostgreSQL too (about 4% low); io1 above the gp3 baseline is never priced as gp3 with extra IOPS, which misses the largest storage saving; the article's own describe-db-instances --output text recipe yields 'None' for gp2 Iops and those rows are dropped; m6i/r6i/m7g/r7g classes are skipped; and 4 of 5 seeded mutations survive. Finished (completeness 3): every rule the README lists works end to end on the CLI and page."
+}
