@@ -40,14 +40,15 @@ def setup():
             "dist": dist, "L19": b[5]}
 
 
-def evaluate(hrs, al, events, carried, first_scored, onsets=None):
+def evaluate(hrs, al, events, carried, first_scored, onsets=None, window=None):
     """Split alarms and matches by year. Leaks starting before the first scored hour
     (no model yet) are left out of the 2018 count.
 
     `onsets` (step 8): the true onset of each event when `events` carry a flow gate in place
-    of the onset (score.gate_events); years are assigned by the true onset."""
+    of the onset (score.gate_events); years are assigned by the true onset.
+    `window` (step 9): the match window as a numpy timedelta; None keeps the 30 days."""
     times = [hrs[t] for t, _ in al]
-    m, fp = score.match(times, events)
+    m, fp = score.match(times, events) if window is None else score.match(times, events, window)
     on = onsets if onsets is not None else [e[1] for e in events]
     new19 = [i for i, o in enumerate(on) if o >= Y19]
     tune18 = [i for i, o in enumerate(on) if first_scored <= o < Y19]
@@ -78,7 +79,7 @@ def metrics(hrs, al, r, events, sensors, dist):
 
 
 def null_metrics(hrs, n_alarms, events, carried, first_scored, holdoff, sensors, dist,
-                 draws=1000, seed=0, onsets=None):
+                 draws=1000, seed=0, onsets=None, window=None):
     """Chance level: n_alarms at random hours over the scored period (at least `holdoff`
     apart), each from a random sensor, scored exactly like the detector."""
     rng = np.random.default_rng(seed)
@@ -89,7 +90,7 @@ def null_metrics(hrs, n_alarms, events, carried, first_scored, holdoff, sensors,
         span = H - lo - (n_alarms - 1) * holdoff
         t = lo + np.sort(rng.integers(0, span, n_alarms)) + np.arange(n_alarms) * holdoff
         al = [(int(x), int(rng.integers(len(sensors)))) for x in t]
-        r = evaluate(hrs, al, events, carried, first_scored, onsets)
+        r = evaluate(hrs, al, events, carried, first_scored, onsets, window)
         out.append(metrics(hrs, al, r, events, sensors, dist))
     return {k: np.array([o[k] for o in out]) for k in out[0]}
 

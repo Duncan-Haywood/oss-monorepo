@@ -230,3 +230,24 @@ def test_gated_match_rejects_an_alarm_before_the_gate():
     assert m == {} and len(fp) == 1
     m, fp = score.match([np.datetime64("2019-01-06T00", "h")], ev)
     assert 0 in m and fp == []
+
+
+def test_sign_test_matches_hand_binomial():
+    from water_leaks import stats
+    assert stats.sign_test(0, 0) == 1.0
+    assert abs(stats.sign_test(0, 5) - 2 / 32) < 1e-12
+    assert abs(stats.sign_test(1, 5) - 2 * 7 / 64) < 1e-12
+    assert stats.sign_test(3, 3) == 1.0
+
+
+def test_holm_is_monotone_and_capped():
+    from water_leaks import stats
+    adj = stats.holm([0.01, 0.04, 0.03, 0.5])
+    assert np.allclose(adj, [0.04, 0.09, 0.09, 0.5])
+
+
+def test_match_window_bounds_alarm_after_onset():
+    ev = [("pa", np.datetime64("2019-01-01T00:00"), np.datetime64("2019-06-01T00:00"), 5.0, 1.0)]
+    t = [np.datetime64("2019-01-20T00", "h")]
+    assert score.match(t, ev, np.timedelta64(14, "D"))[0] == {}
+    assert 0 in score.match(t, ev, np.timedelta64(30, "D"))[0]

@@ -1,0 +1,124 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtKKLr9vZvSnyLJqEZb",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T13:38:42Z",
+  "ended": "2026-11-13T13:48:25Z",
+  "wall_minutes": 9.93,
+  "tokens_in": 3759911,
+  "tokens_out": 23550,
+  "cost_usd": 2.1022,
+  "tool_calls": 40,
+  "task": "water-leaks step 9 (milestone 7): matching-window ablation x flow gate, paired tests between detectors",
+  "projects": [
+    "research/water-leaks"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15507",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "waits for a 'DONE' or 'EXIT' line by default; a background command ending in 'echo exit $?' (lowercase) needed --marker exit, which the CLAUDE.md wait guidance does not mention"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-nineteen-leaks-cannot-rank-six-detectors.md",
+    "research/water-leaks/README.md (step 9 section)",
+    "research/water-leaks/LOG.md (step 9 plan and outcome)"
+  ],
+  "goal": "advance the water-leaks programme toward a chance-corrected scoring protocol for leak-detection benchmarks",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed research, pick_track drew water-leaks. Plan pre-registered in LOG.md and pushed (PR #15507 draft claim) before any windowed score. Step 8 reran byte-identical; step 9's 30-day cells reproduce step 8. Results: 3 of 6 detectors' chance verdicts flip across 6 rules; no pair separable at Holm 0.05 (min 0.586); predictions a, c, d held, b failed. Local checks: pytest 23 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; cite_check ok; post frontmatter/links/similarity ok. No human-hours estimate.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "113de7af-7922-590e-9a13-925436e30538",
+    "transcripts": 1,
+    "first": "2026-11-13T13:38:42Z",
+    "last": "2026-11-13T13:48:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 70,
+        "output": 23550,
+        "thinking": 3583,
+        "cache_read": 3647149,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112692,
+        "api_equivalent_usd": 2.1022,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 70,
+      "output": 23550,
+      "thinking": 3583,
+      "cache_read": 3647149,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112692,
+      "api_equivalent_usd": 2.1022,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 34,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.93,
+      "active_minutes": 9.93,
+      "model_minutes": 4.63,
+      "tool_minutes": 5.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
