@@ -208,9 +208,11 @@ flagships:
       index 22) mapped to a name for CR2s whose maker note gives no usable name
       (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095 are read
       since 2026-11-13);
-      cubic resampling landed 2026-11-13 (--warp-kernel cubic, eval/warp-kernel-cubic-2026-11-13.md:
-      2-100x closer than bilinear under the Leica T's warp, 89% vs 73% of fine detail kept,
-      but the warp costs 2.2x): next, a faster cubic (separable passes) so it can be the default;
+      cubic resampling landed 2026-11-13 and is the default since the same day
+      (eval/warp-kernel-fast-cubic-2026-11-13.md: padded-plane taps and threaded bands,
+      same bytes, Leica T cubic warp 15.7 s to 8.4 s on one thread, 3.0 s on four): next,
+      the same banded threading for the rest of the numpy develop (demosaic, colour and
+      encode, about 2 s of the Leica T's 5.2 s), checked byte-identical at every thread count;
       MapTable and Delta/ScalePerRow/Column in OpcodeList1 once the raw-value
       unit is settled (README, 2026-11-12 MapTable section).
     next: >-
@@ -226,7 +228,7 @@ flagships:
       Next, most valuable first: a real evenly lit frame shot wide open
       (corners level after lensfun's vignetting?); a second
       maker-against-lensfun DNG pair (a zoom at several focal lengths); the
-      grade stage reading a workspace lens database; a faster cubic warp so it can be the default; a
+      grade stage reading a workspace lens database; a
       real DNG carrying any opcode
       run only on synthetic files so far, or the SDK to check them;
       lateral colour measured on a real frame with sharp corner edges; a real Adobe `.dcp` through the profile chooser;

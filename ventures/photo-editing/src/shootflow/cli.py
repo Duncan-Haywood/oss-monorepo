@@ -1312,11 +1312,12 @@ def _build_parser() -> argparse.ArgumentParser:
     develop.add_argument(
         "--warp-kernel",
         choices=("bilinear", "cubic"),
-        default="bilinear",
+        default="cubic",
         help=(
             "How lens warps (the DNG's WarpRectilinear/WarpRectilinear2/WarpFisheye, or --lens-db) sample the "
-            "image: 'bilinear' (default) or 'cubic', the Catmull-Rom spline the DNG specification recommends "
-            "(sharper; same bytes on both engines)."
+            "image: 'cubic' (default), the Catmull-Rom spline the DNG specification recommends (sharper), or "
+            "'bilinear' (softer, a little faster). Same bytes on both engines. The numpy engine runs the warp on "
+            "SHOOTFLOW_THREADS threads (default: every CPU); the thread count never changes the output."
         ),
     )
     develop.add_argument(

@@ -241,6 +241,7 @@ crop the stored frame, Bayer phase and all) is named and left undone.
 from __future__ import annotations
 
 import math
+import os
 import struct
 from dataclasses import dataclass, field
 from typing import Callable
@@ -1445,27 +1446,47 @@ def warp_rgb(warps: list, rgb, w: int, h: int, kernel: str = "bilinear", scale=N
     return rgb
 
 
-def warp_planes(warps: list, img, band: int = 256, kernel: str = "bilinear", scale=None):
-    """Run the warps (WarpRectilinear or WarpFisheye) on a linear (h, w, 3) float64 image; returns a new array (numpy, same bytes as ``warp_rgb``)."""
+def _warp_threads(rows: int, band: int) -> int:
+    """How many threads run the warp's bands: ``SHOOTFLOW_THREADS`` if set, else the CPUs, at most one per band.
+
+    Each band writes only its own rows of the output and numpy releases the GIL inside its array operations,
+    so the bands run in parallel and the result does not depend on the thread count.
+    """
+
+    env = os.environ.get("SHOOTFLOW_THREADS", "").strip()
+    n = int(env) if env.isdigit() and int(env) > 0 else (os.cpu_count() or 1)
+    return max(1, min(n, -(-rows // band)))
+
+
+def warp_planes(warps: list, img, band: int = 64, kernel: str = "bilinear", scale=None, threads: int | None = None):
+    """Run the warps (WarpRectilinear or WarpFisheye) on a linear (h, w, 3) float64 image; returns a new array (numpy, same bytes as ``warp_rgb``).
+
+    The cubic kernel reads its 16 taps from an edge-padded copy of each plane (``_np_cubic``), and the bands run
+    on ``threads`` threads (``_warp_threads`` when None); neither changes a byte of the output.
+    """
 
     import numpy as np
 
     if kernel not in WARP_KERNELS:
         raise ValueError(f"warp kernel must be one of {WARP_KERNELS}, not {kernel!r}")
     h, w = img.shape[0], img.shape[1]
+    nthreads = _warp_threads(h, band) if threads is None else max(1, int(threads))
     for wp in warps:
         cxp, cyp, m = _warp_frame(wp, w, h)
         out = np.empty_like(img)
         xs = (np.arange(w, dtype=np.float64) + 0.5 - cxp) / m
         fisheye = isinstance(wp, WarpFisheye)
         dx = xs[None, :]
-        for y0 in range(0, h, band):
+        planes = [np.ascontiguousarray(img[..., p]) for p in range(3)]
+        padded = [_np_pad2(np, s) for s in planes] if kernel == "cubic" else None
+
+        def run_band(y0, wp=wp, cxp=cxp, cyp=cyp, m=m, out=out, planes=planes, padded=padded, dx=dx, fisheye=fisheye):
             y1 = min(h, y0 + band)
             dy = ((np.arange(y0, y1, dtype=np.float64) + 0.5 - cyp) / m)[:, None]
             # WarpFisheye's radius and angle depend only on where the pixel is: taken once per band, for every plane.
             geo = _np_fisheye_geometry(np, dx, dy) if fisheye else None
             for p in range(3):
-                src = img[..., p]
+                src = planes[p]
                 if fisheye:
                     sx, sy = _np_fisheye(wp.plane_terms(p), geo)
                 elif isinstance(wp, WarpRectilinear2):
@@ -1480,15 +1501,29 @@ def warp_planes(warps: list, img, band: int = 256, kernel: str = "bilinear", sca
                 sy = cyp + m * sy - 0.5
                 if kernel == "cubic":
                     cap = 1.0 if scale is None else scale[p]
-                    out[y0:y1, :, p] = _np_cubic(np, src, sx, sy, w, h, cap)
+                    out[y0:y1, :, p] = _np_cubic(np, padded[p], sx, sy, w, h, cap)
                     continue
+                flat = src.ravel()
                 xi0, xi1, fx = _np_split(np, sx, w)
                 yi0, yi1, fy = _np_split(np, sy, h)
-                a = src[yi0, xi0]
-                b = src[yi0, xi1]
-                c = src[yi1, xi0]
-                d = src[yi1, xi1]
+                r0 = yi0 * w
+                r1 = yi1 * w
+                a = flat.take(r0 + xi0)
+                b = flat.take(r0 + xi1)
+                c = flat.take(r1 + xi0)
+                d = flat.take(r1 + xi1)
                 out[y0:y1, :, p] = (1.0 - fy) * ((1.0 - fx) * a + fx * b) + fy * ((1.0 - fx) * c + fx * d)
+
+        starts = range(0, h, band)
+        if nthreads > 1:
+            from concurrent.futures import ThreadPoolExecutor
+
+            with ThreadPoolExecutor(max_workers=nthreads) as ex:
+                for _ in ex.map(run_band, starts):
+                    pass
+        else:
+            for y0 in starts:
+                run_band(y0)
         img = out
     return img
 
@@ -1539,27 +1574,47 @@ def _np_rect2(np, wp: WarpRectilinear2, p: int, dx, dy):
     return sx, sy
 
 
-def _np_cubic_taps(np, v, n: int):
-    """``_cubic_taps`` on an array: four clamped index arrays and the fraction."""
+def _np_pad2(np, src):
+    """One plane edge-padded by two pixels on every side, flattened, with its padded row length.
 
-    v = np.where(v <= 0.0, 0.0, np.where(v >= n - 1, n - 1.0, v))
-    i = np.floor(v).astype(np.int64)  # v >= 0 here, so floor is int()
-    t = v - i
-    return (np.maximum(i - 1, 0), i, np.minimum(i + 1, n - 1), np.minimum(i + 2, n - 1)), t
+    A Catmull-Rom tap past the edge takes the edge pixel (``_cubic_taps`` clamps the index); in the padded
+    plane that pixel is already there, so the 16 taps are fixed offsets from one index and need no clamping.
+    """
+
+    return np.pad(src, 2, mode="edge").ravel(), src.shape[1] + 4
 
 
-def _np_cubic(np, src, sx, sy, w: int, h: int, cap: float):
-    """Catmull-Rom samples of one plane at (sx, sy), the same operations in the same order as ``warp_rgb``."""
+def _np_cubic(np, padded, sx, sy, w: int, h: int, cap: float):
+    """Catmull-Rom samples of one plane at (sx, sy), the same operations in the same order as ``warp_rgb``.
 
+    ``padded`` is ``_np_pad2`` of the plane. The source point is clamped to the image as ``_cubic_taps`` does;
+    the top-left tap (offsets -1, -1) of pixel ``(i, j)`` sits at ``(j + 1) * pw + (i + 1)`` in the padded plane,
+    and the other 15 at fixed offsets from it, each read with one ``take`` on a shifted view (no index array
+    per tap). Edge taps read the replicated edge pixel, the value the clamped index reads, so the bytes match.
+    """
+
+    flat, pw = padded
     sx, sy = np.broadcast_arrays(sx, sy)
-    xs, tx = _np_cubic_taps(np, sx, w)
-    ys, ty = _np_cubic_taps(np, sy, h)
+    vx = np.where(sx <= 0.0, 0.0, np.where(sx >= w - 1, w - 1.0, sx))
+    vy = np.where(sy <= 0.0, 0.0, np.where(sy >= h - 1, h - 1.0, sy))
+    ix = vx.astype(np.intp)  # v >= 0 here, so truncation is int()
+    iy = vy.astype(np.intp)
+    tx = vx - ix
+    ty = vy - iy
+    base = iy * pw
+    base += ix
+    base += pw + 1
     wx0, wx1, wx2, wx3 = _cubic_weights(tx)
     wy = _cubic_weights(ty)
     acc = np.zeros(sx.shape)
     for j in range(4):
-        r = ys[j]
-        row = wx0 * src[r, xs[0]] + wx1 * src[r, xs[1]] + wx2 * src[r, xs[2]] + wx3 * src[r, xs[3]]
+        o = j * pw
+        row = (
+            wx0 * flat[o:].take(base)
+            + wx1 * flat[o + 1 :].take(base)
+            + wx2 * flat[o + 2 :].take(base)
+            + wx3 * flat[o + 3 :].take(base)
+        )
         acc = acc + wy[j] * row
     return np.where(acc < 0.0, 0.0, np.where(acc > cap, cap, acc))
 
