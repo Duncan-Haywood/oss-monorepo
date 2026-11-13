@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqye2NfmAs1xnmPEEBTL",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T11:39:10Z",
+  "ended": "2026-11-13T11:47:44Z",
+  "wall_minutes": 8.82,
+  "tokens_in": 5965609,
+  "tokens_out": 40710,
+  "cost_usd": 2.9855,
+  "tool_calls": 53,
+  "task": "Deepen flagship 11 (chant-forge): a cappella first verse and a range-checked key lift into the last drop",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": 15483,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First code edit ran after a failed `git checkout -b` in an && chain (branch already existed), so it silently did not apply; reran.",
+    "Assumed the whole-tone-lifted bVII in Dorian is the old tonic chord; the test showed it is the old final's major triad. Test and docs state the measured fact.",
+    "First preflight failed: the new post's seo_title was 78 chars (limit 70); fixed and reran."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Nothing wrong: security queue empty, ideas and requests empty, route and allocate.py pointed straight at a buildable flagship item."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "A front-matter length problem in one new post surfaces as five unrelated-sounding site-test failures (podcast episodes, writing backlog); running check_post_frontmatter.py on new posts first would have saved a 5-minute preflight run."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-a-key-change-that-checks-the-singers.md",
+    "ventures/chant-forge/README.md (A cappella first verse and a key lift)",
+    "ventures/chant-forge/eval/key-lift-check.md"
+  ],
+  "goal": null,
+  "notes": "Checks run here: node --test for chant-forge (run_venture_tests.py chant-forge: ok, 121 tests incl. 6 new); eval/browser-e2e.mjs 82 checks pass; byte-identical MIDI and text vs main for 7 commands without new flags; eval/key-lift-check.mjs rendered bass ratio 1.117-1.124 (expected 1.1225), a cappella bars silent after the first; lifted mix through render-cli --lufs -14 --limit passes master-cli (-14.0 LUFS, -1.05 dBTP); platform/pages site tests 54 pass; venture-preflight rerun (see PR). No agent doc: the flagships.yaml next and README carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bd5f161a-365c-5d10-97ee-b2587f5d3be0",
+    "transcripts": 1,
+    "first": "2026-11-13T11:39:10Z",
+    "last": "2026-11-13T11:47:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 98,
+        "output": 40710,
+        "thinking": 8918,
+        "cache_read": 5840146,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125365,
+        "api_equivalent_usd": 2.9855,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 98,
+      "output": 40710,
+      "thinking": 8918,
+      "cache_read": 5840146,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125365,
+      "api_equivalent_usd": 2.9855,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 49,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.82,
+      "active_minutes": 8.82,
+      "model_minutes": 6.4,
+      "tool_minutes": 2.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "an audio developer adding two arrangement options with range checking, tests, a measurement script and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 268.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
