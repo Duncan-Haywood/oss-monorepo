@@ -1,5 +1,17 @@
 # buildbot-sheathing research log
 
+## 2026-11-13 · Milestone 10 planned: what is the straight-stud ceiling made of, and can placement lift single 2x to 95%?
+
+Written before any milestone-10 experiment was run.
+
+- **Why.** Milestone 9 pushed the bowed joint studs straight and found single-2x joints still stop at 0.74 (three-foot rock) and 0.81 (smooth rock) clean sheets, the same as on perfectly straight studs. It read the gap as "the sheet's own pose on the ledger", but never ran the ablation that would show it. On straight studs six error sources remain: the tool's scatter (0.9 mm, `buildbot-fasten`), the stud read (0.5 mm a read, three reads), the edge read (0.5 mm), the slide's translation (1 mm), the ledger's slope (laser rating plus 0.5 mm at each corner) and the panel's own geometry (PS 2 squareness and the bottom-edge rock). With edge aim each joint nail's half-window is 3.14 mm less half the sheet's local offset from where the robot meant it, so the pose and the tool compete for the same 3 mm.
+- **Model.** Milestone 5's ledger pipeline (`tack.simulate`, single 2x, three reads, edge aim, 20,000 sheets, seed 7) on straight studs, with each source switchable. Shapley shares of −ln(clean) over the six sources (all 64 subsets), for both rock models. Two placement remedies, each applied after the sheet is seated and before it is tacked: **slide**, the robot reads both sheet edges against its stud estimates and slides the sheet along the ledger to centre the gap (translation left: the edge read over √2 plus a slide residual, swept 0.25–1 mm); **shim**, the robot also reads the edge's slope and lifts the low corner on a shim to plumb (tilt left: the slope of two edge reads 2.39 m apart plus the shim's own step, swept). Then both on the pushed studs of milestone 9 (mid push, pinned) at the two published warps.
+- **H45 (closed form).** Tool scatter alone (perfect pose, perfect reads, straight studs): Monte Carlo clean within 0.003 of the product of the 62 nails' normal probabilities. Refuted otherwise.
+- **H46 (milestone 9's reading).** On straight studs, the three pose sources (translation, ledger slope, panel geometry) carry at least half of the Shapley share of −ln(clean), in both rock models. Refuted otherwise.
+- **H47 (slide).** The slide (0.5 mm residual) raises the straight-stud ceiling by at least 5 points in both rock models. Refuted otherwise.
+- **H48 (95%).** Slide and shim (0.5 mm residuals) with a mid push (pinned) give single-2x joints at least 0.95 clean at the low warp under the smooth rock. Refuted otherwise.
+- **Also reported, not scored:** the largest tool scatter that meets 95% on each pipeline (bisection), the high warp, and dense stud reads.
+
 ## 2026-11-13 · Milestone 9 result: a push of 28–232 N straightens the joint stud, but single-2x joints still stop at the straight-stud ceiling
 
 `experiments/m9_straighten/` (run.py, results.txt, results.json, figure.png); `src/buildbot_sheathing/straighten.py`; 48 s on one CPU (MuJoCo 4.0.1 for the humanoid capacity).
