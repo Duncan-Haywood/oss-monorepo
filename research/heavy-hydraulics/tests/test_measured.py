@@ -189,3 +189,25 @@ def test_breakeven_rest_rate_zeroes_the_fuel_gap():
     assert gap == pytest.approx(0.0, abs=1e-12)
     assert breakeven_rest_rate(20.0, 25.0, 98.0, 1.1, 0.2332, 0.818) is None
     assert breakeven_rest_rate(20.0, 8.0, 98.0, 1.0, 0.2332, 0.818) is None
+
+
+def test_geometry_breakeven_table_matches_results():
+    """6c: the committed 384-case table agrees with the results file it was written with."""
+    import csv
+    import os
+    import re
+    import statistics
+    here = os.path.join(os.path.dirname(__file__), "..", "experiments")
+    with open(os.path.join(here, "excavator_breakeven_geometry_cases.csv")) as f:
+        rows = list(csv.DictReader(f))
+    assert len(rows) == 384
+    assert len({(r["boom_lever"], r["arm_lever"], r["bucket_lever"], r["bucket_sign"], r["swing_share"]) for r in rows}) == 384
+    text = open(os.path.join(here, "excavator_breakeven_geometry_results.txt")).read()
+    med = float(re.search(r"central parameters: f_t,max min [\d.]+, p10 [\d.]+, median ([\d.]+)", text).group(1))
+    fs = [float(r["ft_max_central_lph"]) for r in rows]
+    assert abs(statistics.median(fs) - med) < 0.006
+    cen = next(r for r in rows if (r["boom_lever"], r["arm_lever"], r["bucket_lever"], r["bucket_sign"], r["swing_share"])
+               == ("1", "1", "1", "1", "0.5"))
+    assert abs(float(cen["ft_max_central_lph"]) - 2.462) < 0.001
+    for r in rows:     # each case's central value lies inside its own 108-point sweep
+        assert float(r["ft_max_sweep_min_lph"]) <= float(r["ft_max_central_lph"]) <= float(r["ft_max_sweep_max_lph"])
