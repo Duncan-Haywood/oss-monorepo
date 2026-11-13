@@ -30,6 +30,15 @@ class CsvFormulaGuard(unittest.TestCase):
         self.assertTrue(g.is_exporter(UNGUARDED))
         self.assertTrue(g.is_exporter("export const toCsv = (rows) => rows.join()"))
         self.assertFalse(g.is_exporter("import { toCsv } from './calc.mjs';"))
+
+    def test_exporters_with_other_names_count_but_readers_do_not(self):
+        # 2026-11-13: ratingsCsv and standingsCsv wrote player names unguarded
+        # and the toCsv-only test never saw them.
+        self.assertTrue(g.is_exporter("export function ratingsCsv(rows, method) {"))
+        self.assertTrue(g.is_exporter("export async function reportCsv(r) {"))
+        for reader in ("parseCsv", "splitCsvLine", "readCsv", "sampleCsv", "exampleCsv", "loadCsv", "importCsv"):
+            self.assertFalse(g.is_exporter(f"export function {reader}(text) {{"), reader)
+        self.assertFalse(g.is_exporter("function ratingsCsv(rows) {"), "unexported helpers stay out")
         self.assertFalse(g.is_guarded(UNGUARDED))
         self.assertTrue(g.is_guarded(GUARDED))
         self.assertTrue(g.is_guarded("if (/^[=@]/.test(v)) warn()"))

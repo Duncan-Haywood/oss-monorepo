@@ -22,8 +22,13 @@ plate turns a crank; a rod joins it to a pin in the shuttle's side through a
 slot in the plate (`shuttle_drive_parts`, posed along the stroke by
 `feed_stroke_solids`).
 
-Not modelled yet: the netting and its trough, the hopper agitator, and the
-cable runs. They are listed in `hardware/feeder-catcher.md`.
+Catch trough (2026-11-13): two runs of bought half-round gutter on printed
+hangers along the net beam's front face fall to a printed sump at y = 0 whose
+outlet passes under the beam (`trough_gutter`, `trough_hangers`, `trough_sump`).
+
+Not modelled yet: the netting itself, the return from the sump up to the tub
+(about 2.2 m: `Feeder.trough_design`), the hopper agitator, and the deck-side
+cable run. They are listed in `hardware/feeder-catcher.md`.
 """
 
 from __future__ import annotations
@@ -40,6 +45,7 @@ from build123d import (
     Location,
     Locations,
     Mode,
+    Plane,
     Polygon,
     RectangleRounded,
     SlotOverall,
@@ -1009,13 +1015,114 @@ def cable_loop_solids(p: Feeder, elev_deg: float, segs: int = 12) -> list:
     return [_seg(r, pts[k], pts[k + 1], 0.0) for k in range(segs)]
 
 
+# ---------------------------------------------------------------- catch trough (2026-11-13)
+
+def _gutter_axis(p: Feeder, y: float) -> tuple[float, float]:
+    """World (x, z) of the gutter's axis at |y|: the half-round's centre, its open top level with it."""
+    ro = p.trough_w / 2 + p.trough_wall
+    return (p.trough_x0 + ro, p.trough_bottom_z(y) + p.trough_w / 2)
+
+
+def trough_gutter(p: Feeder) -> Part:
+    """One run of bought half-round gutter, sump edge (y = sump_half) to the outer end, falling toward the sump.
+    The -y run is the same shape turned 180 deg about the gutter's own axis line (it is symmetric in x)."""
+    ri, ro = p.trough_w / 2, p.trough_w / 2 + p.trough_wall
+    a = p.trough_slope_deg
+    ln = p.trough_run_len / math.cos(math.radians(a))
+    half = Cylinder(ro, ln).moved(Location((0, 0, 0), (90, 0, 0))) - Cylinder(ri, ln + 2).moved(Location((0, 0, 0), (90, 0, 0)))
+    half = half - Box(2 * ro + 2, ln + 2, ro + 1).moved(Location((0, 0, (ro + 1) / 2)))
+    ym = p.sump_half + p.trough_run_len / 2
+    xc, zc = _gutter_axis(p, ym)
+    shape = half.moved(Location((xc, ym, zc), (a, 0, 0)))
+    return Part("trough_gutter", "stock", "PVC gutter", 2, shape,
+                [Location((0, 0, 0)), Location((2 * xc, 0, 0), (0, 0, 180))],
+                spec=f"{p.trough_w:g} mm (5 in class) half-round gutter, cut two {ln:.0f} mm lengths from one 3.05 m "
+                     f"length; one end cap each at the outer ends",
+                notes=f"Falls {p.trough_slope_deg:g} deg to the sump from {p.trough_end_z:g} mm (inside bottom) at the "
+                      f"outer ends. Sits in the hangers' saddles; lace the net's bottom edge to the back lip so a "
+                      f"ball sliding down the net drops inside.")
+
+
+def trough_hangers(p: Feeder) -> list[Part]:
+    """Printed hangers bolted to the net beam's front face (two M5 into its slots), each with a saddle at the
+    gutter's height where it sits. One design per |y|, printed as a pair (+y and -y)."""
+    ro = p.trough_w / 2 + p.trough_wall
+    out = []
+    for k, yh in enumerate(p.trough_hanger_y):
+        xc, zc = _gutter_axis(p, yh)
+        x1 = xc + ro + 6.0
+        z0 = min(zc - ro - 8.0, p.rail_z - 5.0)
+        z1 = max(p.rail_top, zc - 0.4 * ro)
+        blk = Box(x1, 30.0, z1 - z0).moved(Location((x1 / 2, 0, (z0 + z1) / 2)))
+        blk = blk - Cylinder(ro + 1.0, 32.0).moved(Location((xc, 0, zc), (90, 0, 0)))
+        blk = blk - Box(x1, 32.0, max(z1 - zc, 0) + 1).moved(Location((p.trough_x0 - 1 + x1 / 2, 0, zc + (max(z1 - zc, 0) + 1) / 2)))
+        for zb in (p.rail_z + 10.0, p.rail_z + 30.0):
+            blk = blk - Cylinder(2.75, 2 * p.trough_x0).moved(Location((0, 0, zb), (0, 90, 0)))
+            blk = blk - Cylinder(5.5, p.trough_x0).moved(Location((6.0 + p.trough_x0 / 2, 0, zb), (0, 90, 0)))
+        blk = blk - Box(4.0, 32.0, 2.5).moved(Location((xc, 0, zc - ro - 4.0)))   # zip-tie slot under the gutter
+        name = f"trough_hanger_{'abcdefgh'[k]}"
+        out.append(Part(name, "print", "PETG", 2, blk, [Location((0, s * yh, 0)) for s in (1, -1)],
+                        notes=f"At y = +-{yh:g} mm. Two M5 x 35 button heads and T-nuts into the net beam's front slots "
+                              f"(through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."))
+    return out
+
+
+def sump_floor_rise(p: Feeder) -> tuple[float, float]:
+    """Sump floor's rise from the outlet (rear) to the front inner wall, and its slope in degrees."""
+    ro = p.trough_w / 2 + p.trough_wall
+    run = 2 * ro - 2 * p.sump_wall
+    rise = p.trough_bottom_z(p.sump_half) - p.trough_wall - 12.0 - p.sump_out_z
+    return rise, math.degrees(math.atan2(rise, run))
+
+
+def trough_sump(p: Feeder) -> Part:
+    """Printed sump between the two runs' low ends: they rest in its saddles, balls drop off their ends onto a floor
+    falling rearward to an outlet stub under the net beam (a hose or duct joins it there)."""
+    ro = p.trough_w / 2 + p.trough_wall
+    xr, xf = p.trough_x0 + p.sump_wall, p.trough_x0 + 2 * ro - p.sump_wall
+    xc, zc = _gutter_axis(p, p.sump_half)
+    zlo = p.sump_out_z - p.sump_wall
+    body = Box(2 * ro, 2 * p.sump_half, zc - zlo).moved(Location((p.trough_x0 + ro, 0, (zlo + zc) / 2)))
+    sw = 30.0
+    for s in (1, -1):
+        ys = s * (p.sump_half + sw / 2)
+        xs, zs = _gutter_axis(p, p.sump_half + sw / 2)
+        sb = zs - ro - 8.0
+        sad = Box(2 * ro, sw, zs - sb).moved(Location((p.trough_x0 + ro, ys, (sb + zs) / 2)))
+        sad = sad - Cylinder(ro + 1.0, sw + 2).moved(Location((xs, ys, zs), (90, 0, 0)))
+        body = body + sad
+    rise, _ = sump_floor_rise(p)
+    with BuildSketch(Plane.XZ) as sk:
+        Polygon((xr, p.sump_out_z), (xf, p.sump_out_z + rise), (xf, zc + 10), (xr, zc + 10), align=None)
+    body = body - extrude(sk.sketch, amount=p.sump_half - p.sump_wall, both=True)
+    gut_out = p.trough_bottom_z(p.sump_half) - p.trough_wall
+    body = body - Box(xf - xr, 2 * p.sump_half + 0.2, zc + 10 - gut_out + 1).moved(
+        Location(((xr + xf) / 2, 0, gut_out - 1 + (zc + 10 - gut_out + 1) / 2)))
+    r_in, r_out = p.hose_id / 2, p.hose_id / 2 + p.sump_wall
+    zb = p.sump_out_z + r_in
+    x_end = -p.rail_w
+    stub = Cylinder(r_out, xr - x_end).moved(Location(((x_end + xr) / 2, 0, zb), (0, 90, 0)))
+    body = body + stub
+    body = body - Cylinder(r_in, xr - x_end + 2 * p.sump_wall + 2).moved(Location(((x_end + xr) / 2, 0, zb), (0, 90, 0)))
+    tab = Box(xr, 60.0, p.rail_top - p.rail_z + 5.0).moved(Location((xr / 2, 0, (p.rail_z - 5.0 + p.rail_top) / 2)))
+    for zt in (p.rail_z + 10.0, p.rail_z + 30.0):
+        tab = tab - Cylinder(2.75, 2 * xr).moved(Location((0, 0, zt), (0, 90, 0)))
+    body = body + tab
+    return Part("trough_sump", "print", "PETG", 1, body, [Location((0, 0, 0))],
+                notes=f"Bolted to the net beam's front face by its rear tab (two M5 x 40 and T-nuts; the heads sit in the "
+                      f"cavity, put them in first); the gutters' low ends rest in its saddles. Its outlet stub "
+                      f"({p.hose_id:g} mm bore) passes under the net beam. The return to the tub is not built yet: the "
+                      f"balls leave here {p.trough_design()['lift_mm']:.0f} mm below the tub's rim (manifest: trough line).")
+
+
 def all_parts(p: Feeder) -> list[Part]:
     return [head_motor_plate(p), head_guard_plate(p), trunnion_cheek(p), trunnion_cheek_elev(p), mast_plate(p), turntable_plate(p),
             base_deck(p), wheel_bracket(p, True), wheel_bracket(p, False),
             cheek_foot(p), az_gear_sector(p), pole_foot(p), pole_elbow(p), camera_clamp(p),
             feed_floor(p), feed_roof_column(p), feed_shuttle(p), *shuttle_drive_parts(p), home_switch_bracket(p), *home_switch_parts(p), az_stop_block(p), az_stop_pads(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
             *take_up_parts(p), *extrusions(p), *poles(p), *envelopes(p), *elev_actuator_parts(p),
-            cable_clip(p), cable_gland(p), cable_clamp(p), cable_bar(p)]
+            cable_clip(p), cable_gland(p), cable_clamp(p), cable_bar(p),
+            trough_gutter(p), *trough_hangers(p), trough_sump(p)]
 
 
 # ---------------------------------------------------------------- elevation actuator
@@ -1227,6 +1334,10 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("Hose clamp, 80-90 mm", 1, "hose at the column socket"),
         ("Flexible-PVC adhesive or epoxy", 1, "hose's top end into the take-up collar"),
         ("25 mm strap, 1 m", 2, "tub to the shelf"),
+        ("M5 x 35 button head + T-nut (trough)", 2 * 2 * len(p.trough_hanger_y), "trough hangers to the net beam's front face"),
+        ("M5 x 40 button head + T-nut (sump)", 2, "trough sump's rear tab to the net beam"),
+        ("Half-round gutter end cap, 125 mm class", 2, "trough's outer ends"),
+        ("Zip ties, 4.8 mm (trough)", 2 * len(p.trough_hanger_y), "gutter into each hanger's saddle"),
     ]
 
 
@@ -1272,6 +1383,19 @@ def shuttle_line(p: Feeder) -> str:
             f"{b['stroke_s']:.2f} s back ({d['no_load_stroke_s']:.2f} s unloaded), cycle {d['cycle_s']:.2f} s with the "
             f"{p.feed_dwell_s:g} s dwell and {d['drop_s']:.2f} s for the next ball to drop: {d['balls_per_min']:.0f} balls a "
             f"minute at most (a {p.elev_act_speed_mm_s:g} mm/s linear actuator would take {d['actuator_cycle_s']:.1f} s)")
+
+
+def trough_line(p: Feeder, balls_per_min: float = 36.0) -> str:
+    d = p.trough_design()
+    _, floor_deg = sump_floor_rise(p)
+    return (f"catch trough: two {d['run_len_mm']:.0f} mm runs of {p.trough_w:g} mm half-round gutter fall "
+            f"{p.trough_slope_deg:g} deg ({d['drop_mm']:.0f} mm) to a sump at y = 0; a ball from the far end takes "
+            f"{d['run_time_s']:.1f} s and arrives at {d['end_speed_m_s']:.2f} m/s (rolling resistance {p.trough_crr:g}, "
+            f"assumed); the runs hold {d['queue_balls']} balls queued; the sump floor falls {floor_deg:.0f} deg to an outlet "
+            f"{p.sump_out_z:g} mm above the court, under the net beam. NOT CLOSED: the tub's rim is "
+            f"{d['tub_rim_low_z']:.0f} mm up, so returning balls must be lifted {d['lift_mm']:.0f} mm "
+            f"({p.trough_lift_power_w(balls_per_min):.2f} W at {balls_per_min:g} balls a minute, no losses); "
+            f"no lift is designed yet")
 
 
 def cable_line(p: Feeder) -> str:
@@ -1418,6 +1542,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         checks.insert(-3, elevation_line(p, gravity))
         checks.insert(-3, shuttle_line(p))
         checks.insert(-3, cable_line(p))
+    checks.insert(-3, trough_line(p))
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),
                "ballast_kg": round(ballast, 1), "hose_len_mm": p.hose_len,
@@ -1433,6 +1558,10 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         derived.update({"az_stop_deg": p.az_stop_deg, "az_reach_deg": round(p.az_reach_deg, 2),
                         "az_stop_force_n": round(sd["force_peak_n"]), "az_stop_pad_strain": round(sd["pad_strain"], 3),
                         "az_stop_insert_n": round(sd["insert_n"])})
+    td = p.trough_design()
+    derived.update({"trough_drop_mm": round(td["drop_mm"], 1), "trough_run_time_s": round(td["run_time_s"], 2),
+                    "trough_end_speed_m_s": round(td["end_speed_m_s"], 3), "trough_queue_balls": td["queue_balls"],
+                    "tub_rim_low_z_mm": round(td["tub_rim_low_z"]), "trough_lift_needed_mm": round(td["lift_mm"])})
     if gravity is not None:
         e = p.elevation_drive(gravity)
         derived.update({"elev_gravity_nm": {f"{k:+g}": round(v, 2) for k, v in sorted(gravity.items())},

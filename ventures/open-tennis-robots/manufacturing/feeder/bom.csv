@@ -62,6 +62,11 @@ cable_clip,print,1,PETG,"Slides onto the rear lower head standoff before it is b
 cable_gland,print,1,PETG,Pushes into the turntable plate's centre hole from above (glue or two M3 screws). Zip-tie the bundle through its slot: the loop above it and the twisting run below it start here. The elevation actuator's wires leave the bundle here.
 cable_clamp,print,1,PETG,"M5 and a T-nut into the cable crossbar's front slot. Zip-tie the bundle at the bore: the run from here up to the gland twists as the head turns, so keep it free of ties."
 cable_crossbar,stock,1,"2020 T-slot, cut 280 mm","Between the two rear mast posts' inner faces (corner brackets, M5): carries the axis cable clamp."
+trough_gutter,stock,2,"125 mm (5 in class) half-round gutter, cut two 1442 mm lengths from one 3.05 m length; one end cap each at the outer ends",Falls 3 deg to the sump from 190 mm (inside bottom) at the outer ends. Sits in the hangers' saddles; lace the net's bottom edge to the back lip so a ball sliding down the net drops inside.
+trough_hanger_a,print,2,PETG,"At y = +-300 mm. Two M5 x 35 button heads and T-nuts into the net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."
+trough_hanger_b,print,2,PETG,"At y = +-800 mm. Two M5 x 35 button heads and T-nuts into the net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."
+trough_hanger_c,print,2,PETG,"At y = +-1300 mm. Two M5 x 35 button heads and T-nuts into the net beam's front slots (through the counterbores, before the gutter goes in); zip-tie the gutter in the saddle."
+trough_sump,print,1,PETG,"Bolted to the net beam's front face by its rear tab (two M5 x 40 and T-nuts; the heads sit in the cavity, put them in first); the gutters' low ends rest in its saddles. Its outlet stub (72 mm bore) passes under the net beam. The return to the tub is not built yet: the balls leave here 2245 mm below the tub's rim (manifest: trough line)."
 M8 x 110 bolt + nyloc nut + 4 washers,cots,1,M8 x 110 bolt + nyloc nut + 4 washers,head pivot through the cheeks
 "M5 female-female standoff, 80 mm",cots,4,"M5 female-female standoff, 80 mm",between the head plates
 M5 x 12 button head,cots,34,M5 x 12 button head,"standoffs, mast plate to posts, turntable, deck, brackets"
@@ -94,6 +99,10 @@ M4 x 30 socket cap screw (servo),cots,5,M4 x 30 socket cap screw (servo),motor p
 "Hose clamp, 80-90 mm",cots,1,"Hose clamp, 80-90 mm",hose at the column socket
 Flexible-PVC adhesive or epoxy,cots,1,Flexible-PVC adhesive or epoxy,hose's top end into the take-up collar
 "25 mm strap, 1 m",cots,2,"25 mm strap, 1 m",tub to the shelf
+M5 x 35 button head + T-nut (trough),cots,12,M5 x 35 button head + T-nut (trough),trough hangers to the net beam's front face
+M5 x 40 button head + T-nut (sump),cots,2,M5 x 40 button head + T-nut (sump),trough sump's rear tab to the net beam
+"Half-round gutter end cap, 125 mm class",cots,2,"Half-round gutter end cap, 125 mm class",trough's outer ends
+"Zip ties, 4.8 mm (trough)",cots,6,"Zip ties, 4.8 mm (trough)",gutter into each hanger's saddle
 Raspberry Pi 5 (4 GB),cots,1,Raspberry Pi 5 (4 GB),vision + planning
 Global-shutter camera module + cable,cots,2,Global-shutter camera module + cable,stereo bar
 ESP32 dev board (ESP32-WROOM-32),cots,1,ESP32 dev board (ESP32-WROOM-32),"firmware/esp32, feeder role"

@@ -168,9 +168,14 @@ export function glickoRatings(players, games, opts = {}) {
   });
 }
 
+// A cell starting =, +, -, @, tab or CR runs as a formula when the CSV is
+// opened in a spreadsheet (CSV injection): player names are typed by whoever
+// made the event file, so prefix those with an apostrophe. Plain numbers such
+// as a -12.8 rating change stay numbers.
 const csvCell = (v) => {
-  const t = String(v ?? "");
-  return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+  let t = String(v ?? "");
+  if (/^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t)) t = `'${t}`;
+  return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
 };
 const r1 = (x) => (x == null ? "" : Math.round(x * 10) / 10);
 

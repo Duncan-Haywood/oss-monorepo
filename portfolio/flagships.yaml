@@ -192,7 +192,7 @@ flagships:
       keep-usual-shifts sweep on real dated leave records; a manager's read on whether the steadier plan is the one they
       would post; a real 7shifts, When I Work or Homebase schedule export (a Deputy export and a retail WFM tool's
       initial/final week are read since 2026-11-13, README "Two real schedule exports"; search public repos by header row as
-      those were found); call-out exposure as a priced term inside the search, and `--steady` at each reissue and with fewer builds (on the page since 2026-11-13, README "A quicker call-out check": the café's 20 s is mostly its six exact builds); a real multi-location Square or Toast export (planned as one shop today); whether the
+      those were found); call-out exposure as a priced term inside the search (tie-break at each reissue: 0 of 983 changed, README "How many rosters really tie?"); `--steady` speed lies in the call-out rebuilds, not the builds; a real multi-location Square or Toast export (planned as one shop today); whether the
       priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
@@ -208,11 +208,12 @@ flagships:
       index 22) mapped to a name for CR2s whose maker note gives no usable name
       (the 350D writes none, the 7D only "10-17mm"; names in tag 0x0095 are read
       since 2026-11-13);
-      cubic resampling landed 2026-11-13 and is the default since the same day
-      (eval/warp-kernel-fast-cubic-2026-11-13.md: padded-plane taps and threaded bands,
-      same bytes, Leica T cubic warp 15.7 s to 8.4 s on one thread, 3.0 s on four): next,
-      the same banded threading for the rest of the numpy develop (demosaic, colour and
-      encode, about 2 s of the Leica T's 5.2 s), checked byte-identical at every thread count;
+      the whole numpy develop runs in threaded bands and packed raws unpack in numpy
+      since 2026-11-13 (eval/threaded-develop-2026-11-13.md: same bytes at every thread
+      count and band height); next on speed: the lossless-JPEG decode of compressed DNGs
+      and CR2s in bands of restart intervals or tiles across threads (tiles are
+      independent; check byte-identical at every thread count), and the serial
+      _normalised_plane (about 0.2 s);
       MapTable and Delta/ScalePerRow/Column in OpcodeList1 once the raw-value
       unit is settled (README, 2026-11-12 MapTable section).
     next: >-
@@ -312,29 +313,31 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min): the netting trough that rolls balls to the hopper
-      inlet; a lower, rear-mounted tub if the 2.3 m rim is too high to fill;
-      the deck-side cable run and the stepper's driver mount.
+      venv, about 2 min): the ball lift from the trough's sump (outlet floor 50
+      mm up, stub under the net beam at y = 0) to the tub, 2245 mm higher (paddle
+      belt, rotating-disc elevator or auger; where it stands clear of the head's
+      sweeps and the base's wheels; its motor and the duct under the deck); the
+      deck-side cable run and the stepper's driver mount.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
       simulator. Unbuilt hardware, long payoff.
     next: >-
       History and every measurement: cad/README.md (feeder CAD package; azimuth and elevation drives; shuttle
-      drive; home switch; hard stops; cables; collision sweeps) and the README ("Running a drill on the machine",
-      "Wheel speed loop"). Latest, 2026-11-13: cables to the head (cad/README.md "Cables to the head"): the
-      bundle twists on the turntable axis (145 deg/m at the 36.4 deg reach), and a 376 mm loop runs behind the
-      pivot from a turntable gland to a clip on the rear lower standoff, fitting every pose of the actuator's
-      whole travel (-30.3 to +45.8 deg; 353-398 mm window) and swept clear at the hard stops. A clip under the
-      pivot cannot work (about 8 mm of slack possible, 13 needed). Servo: 6 V buck on the deck, 20 AWG leads
-      (26 AWG lifts the servo's ground 0.56 V at stall). Next, needing a person: log a real wheel's tach on
-      spin-up and rerun tests/wheel_loop_sweep.py with its lag; weigh the head and measure the hose's torque, the
-      stepper's pull-out, the actuator's real lengths, the column's load on the shuttle and the servo's loaded
-      stroke time and stall current; click the home switch on a printed sector to calibrate AZ_HOME_DEG; push a
-      sector into a stop with a scale; hang a real hose from a tube; bend a built cable loop through the
-      actuator's travel. Buildable: the netting trough that rolls balls to the hopper inlet; a lower,
-      rear-mounted tub if the 2.3 m rim is too high to fill; the deck-side cable run (deck edge to the axis
-      clamp) and the stepper driver's mount.
+      drive; home switch; hard stops; cables; catch trough; collision sweeps) and the README ("Running a drill on
+      the machine", "Wheel speed loop"). Latest, 2026-11-13: catch trough (cad/README.md "Catch trough"): two
+      runs of 125 mm half-round gutter on printed hangers fall 3 deg to a printed sump at y = 0 whose outlet
+      passes under the net beam; a far-end ball takes 4.6 s at rolling resistance 0.03 (assumed). It showed the
+      recycle loop is open: the tub's rim is 2265 mm up, so balls must be lifted 2245 mm (2120 even with nose-up
+      limited to +30 deg); 0.75 W at 36 balls a minute. Next, needing a person: tilt a gutter with a ball to
+      measure rolling resistance and count bounce-outs down a net; log a real wheel's tach on spin-up and rerun
+      tests/wheel_loop_sweep.py with its lag; weigh the head and measure the hose's torque, the stepper's
+      pull-out, the actuator's real lengths, the column's load on the shuttle and the servo's loaded stroke time
+      and stall current; click the home switch on a printed sector to calibrate AZ_HOME_DEG; push a sector into a
+      stop with a scale; hang a real hose from a tube; bend a built cable loop through the actuator's travel.
+      Buildable: the ball lift from the sump to the tub (mechanism, placement clear of every sweep, motor and
+      firmware hook, the duct under the deck); the deck-side cable run (deck edge to the axis clamp) and the
+      stepper driver's mount.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

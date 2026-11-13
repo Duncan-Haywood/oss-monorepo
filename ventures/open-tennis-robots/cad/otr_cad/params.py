@@ -620,6 +620,25 @@ class Feeder:
     servo_vih: float = 2.4            # servo's signal input threshold (assumption: many accept 3.3 V logic; check yours)
     logic_high_v: float = 3.3         # the ESP32's output high
 
+    # Catch trough (2026-11-13). Balls the net stops slide down its face into a bought half-round gutter hung from the
+    # net beam's front face, in front of the net plane. Two runs fall toward the middle, where a printed sump takes
+    # them and turns them rearward through an outlet low enough to pass under the net beam (the base is open below
+    # its rails). Gutter, rolling and ball figures are assumptions: tilt a gutter with a ball in it to measure.
+    trough_w: float = 125.0           # half-round gutter, inside diameter (a 5 in half-round class)
+    trough_wall: float = 1.8          # gutter wall (vinyl class; measure yours)
+    trough_x0: float = 30.0           # gutter's back edge, in front of the net plane (net at x 0..25)
+    trough_end_z: float = 190.0       # gutter's inside bottom at the outer ends (|y| = net_w / 2)
+    trough_slope_deg: float = 3.0     # each run falls this much toward the sump
+    trough_crr: float = 0.03          # rolling resistance, felt ball on a smooth gutter (assumption: measure it)
+    trough_slope_factor: float = 1.5  # slope's tangent over trough_crr, so a ball that stops on the run starts again
+    ball_inertia_k: float = 0.6       # I / (m r^2) of a ball: a thin shell is 2/3, solid 2/5 (assumption)
+    sump_half: float = 60.0           # runs end this far either side of y = 0; balls drop into the sump between them
+    sump_wall: float = 4.0
+    sump_out_z: float = 50.0          # outlet's bottom (a ball rolls out on it) above the court
+    trough_hanger_y: tuple = (300.0, 800.0, 1300.0)  # hanger pairs at +- these y
+    ground_min_mm: float = 40.0       # nothing in the trough path closer to the court than this
+    tub_drop_clear_mm: float = 30.0   # a returning ball must clear the tub's rim by this much
+
     # ---- derived -----------------------------------------------------------
     @property
     def rail_top(self) -> float:
@@ -1065,6 +1084,7 @@ class Feeder:
         bad += self.check_home_switch()
         bad += self.check_az_stops()
         bad += self.check_cables()
+        bad += self.check_trough()
         return bad
 
     # ---- azimuth drive (2026-11-10) -------------------------------------------
@@ -1898,6 +1918,77 @@ class Feeder:
         if self.retain_gap / 2 + self.retain_t + self.retain_relief + 3 > self.plate_half_y - self.feed_clear - 0.2:
             return "retainer arms and relief do not fit across the shuttle"
         return ""
+
+    # ---- catch trough (2026-11-13) ---------------------------------------------
+    @property
+    def trough_run_len(self) -> float:
+        """Plan length of one run, sump edge to the outer end."""
+        return self.net_w / 2 - self.sump_half
+
+    def trough_bottom_z(self, y: float) -> float:
+        """Gutter's inside bottom at |y| (sump edge to the outer end)."""
+        t = math.tan(math.radians(self.trough_slope_deg))
+        return self.trough_end_z - (self.net_w / 2 - max(abs(y), self.sump_half)) * t
+
+    @property
+    def tub_rim_z(self) -> tuple[float, float]:
+        """World z of the tub's top rim at its low (net-side) and high ends: the envelope in `feeder.envelopes`
+        rotated by the shelf slope about the shelf origin."""
+        s = math.radians(self.shelf_slope_deg)
+        _, oz = self.shelf_origin
+        h = self.plate_t + self.tub_h
+        return (oz - self.tub_l / 2 * math.sin(s) + h * math.cos(s),
+                oz + self.tub_l / 2 * math.sin(s) + h * math.cos(s))
+
+    def trough_design(self) -> dict:
+        """Gravity return from the net to the sump, and how far the balls are then below the tub.
+
+        A ball rolling from rest at the outer end down a run of length L falling at angle a, against rolling
+        resistance crr, reaches v^2 = 2 g L (sin a - crr cos a) / (1 + k), with k = I / (m r^2). The time is that of
+        uniform acceleration. `lift_mm` is the height the ball must then gain, from the sump outlet's floor to clear
+        the tub's lower rim: the feeder-catcher note's "rolls into the hopper" needs this lift, which nothing in the
+        design provides yet.
+        """
+        a = math.radians(self.trough_slope_deg)
+        L = self.trough_run_len / math.cos(a) / 1000
+        acc = 9.81 * (math.sin(a) - self.trough_crr * math.cos(a)) / (1 + self.ball_inertia_k)
+        v = math.sqrt(2 * acc * L) if acc > 0 else 0.0
+        t = math.sqrt(2 * L / acc) if acc > 0 else math.inf
+        low = self.trough_bottom_z(self.sump_half)
+        rim_low, rim_high = self.tub_rim_z
+        return {
+            "run_len_mm": self.trough_run_len, "drop_mm": self.trough_end_z - low, "low_z": low,
+            "end_speed_m_s": v, "run_time_s": t, "accel_m_s2": acc,
+            "queue_balls": int(2 * self.trough_run_len // self.ball_d),
+            "outlet_floor_z": self.sump_out_z, "tub_rim_low_z": rim_low, "tub_rim_high_z": rim_high,
+            "lift_mm": rim_low + self.tub_drop_clear_mm - self.sump_out_z,
+        }
+
+    def trough_lift_power_w(self, balls_per_min: float) -> float:
+        """Mechanical power to lift returning balls at `balls_per_min` through `lift_mm` (no losses)."""
+        return balls_per_min / 60 * self.ball_g / 1000 * 9.81 * self.trough_design()["lift_mm"] / 1000
+
+    def check_trough(self) -> list[str]:
+        bad = []
+        if self.trough_w < 1.5 * self.ball_d:
+            bad.append(f"gutter {self.trough_w:g} mm across is under 1.5 balls: a ball sliding off the net can miss it")
+        t = math.tan(math.radians(self.trough_slope_deg))
+        if t < self.trough_slope_factor * self.trough_crr:
+            bad.append(f"trough falls {self.trough_slope_deg:g} deg (tan {t:.3f}); a stopped ball needs tan "
+                       f"{self.trough_slope_factor * self.trough_crr:.3f} to start again")
+        if self.trough_x0 < 25.0 + 3.0:
+            bad.append("gutter's back edge is in the net plane")
+        if self.trough_bottom_z(self.sump_half) - self.trough_wall < self.ground_min_mm:
+            bad.append("gutter's low end is too near the court")
+        if self.trough_bottom_z(self.sump_half) - self.sump_wall < self.sump_out_z + self.ball_d / 2:
+            bad.append("sump floor cannot fall from the gutter to the outlet")
+        if self.sump_out_z < self.ground_min_mm:
+            bad.append("sump outlet is too near the court")
+        if self.sump_out_z + self.ball_d + 3 + self.sump_wall > self.rail_z:
+            bad.append("sump outlet is too high to pass a ball under the net beam")
+        if any(not self.sump_half + 40 <= y <= self.net_w / 2 - 60 for y in self.trough_hanger_y):
+            bad.append("a trough hanger is off the gutter run")
+        return bad
 
     def check_feed(self) -> list[str]:
         bad = []

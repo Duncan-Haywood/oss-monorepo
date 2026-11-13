@@ -3859,6 +3859,14 @@ export function calloutExposure(staff, slots, roster, options = {}, { fromDay = 
   return { cases, exposure: sum, personDays: plan.length, rebuilt };
 }
 
+// Two rosters are the same schedule when they give everyone the same shifts. rosterCsv lists the shift copies in the order
+// the search placed them, so two identical copies of one shift (two 3pm-9pm closes) held by Ruth and Sam in one build and
+// by Sam and Ruth in another print as different files. The key sorts the rows (2026-11-13: before it, most "ties" at a
+// reissue, and some at a fresh post, were one roster counted several times; README "How many rosters really tie?").
+export function rosterKey(r) {
+  return rosterCsv(r).trimEnd().split("\n").slice(1).sort().join("\n");
+}
+
 // Among the rosters that tie at the best score over `seeds` (the search's seed is the only thing varied, so every candidate
 // has the same score, the managers' own settings untouched), post the one with the least call-out exposure. Costs nothing
 // in the score by construction; costs one calloutExposure per distinct tied roster in time. The first seed's roster wins
@@ -3876,7 +3884,7 @@ export function steadyRoster(staff, slots, options = {}, { seeds = [1, 2, 3, 4, 
   const seen = new Map();
   for (const b of built) {
     if (b.r.error || b.r.score > best + 1e-6) continue;
-    const k = rosterCsv(b.r);
+    const k = rosterKey(b.r);
     if (!seen.has(k)) seen.set(k, b);
   }
   // With `prune`, a later roster stops being checked once its sum reaches the best so far: it cannot win (ties go to
